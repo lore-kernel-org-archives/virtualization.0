@@ -1,57 +1,72 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH RFC V4 0/5] kvm : Paravirt-spinlock support for KVM guests
-Date: Wed, 25 Jan 2012 14:05:13 -0500
-Message-ID: <20120125190513.GD18606@phenom.dumpdata.com>
-References: <20120116142014.GA10155@linux.vnet.ibm.com>
-	<B6E21B69-17D1-48E0-AFD4-B52075094005@suse.de>
-	<4F146EA5.3010106@linux.vnet.ibm.com>
-	<E9F33AFD-F051-4D68-84FF-D259FD6AD19D@suse.de>
-	<4F15AF9E.9000907@linux.vnet.ibm.com>
-	<1485A122-9D48-46E3-A01E-E37B5C9EC54A@suse.de>
-	<4F15BFAE.7060500@linux.vnet.ibm.com>
-	<4F1FC370.5020506@linux.vnet.ibm.com>
-	<20120125163552.GB23999@phenom.dumpdata.com>
-	<4F203FC0.70907@linux.vnet.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4F203FC0.70907@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jan Kiszka <jan.kiszka@siemens.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Xen <xen-devel@lists.xensource.com>, Dave Jiang <dave.jiang@intel.com>, KVM <kvm@vger.kernel.org>, Glauber Costa <glommer@redhat.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Rik van Riel <riel@redhat.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sasha Levin <levinsasha928@gmail.com>, Sedat Dilek <sedat.dilek@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Dave Hansen <dave@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@linux.vn>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] Staging: hv: storvsc: Move the storage driver out of the staging area
+Date: Wed, 25 Jan 2012 10:29:47 -0800
+Message-ID: <1327516187-21793-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, jbottomley@parallels.com, hch@infradead.org, linux-scsi@vger.kernel.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 25, 2012 at 11:15:36PM +0530, Raghavendra K T wrote:
-> On 01/25/2012 10:05 PM, Konrad Rzeszutek Wilk wrote:
-> >>So it seems we have worst case overhead of around 8%. But we see
-> >>improvement of at-least 15% once when little more time is spent in
-> >>critical section.
-> >
-> >Is this with collecting the histogram information about spinlocks? We found
-> >that if you enable that for production runs it makes them quite slower.
-> >
-> 
-> Ok. Are you referring to CONFIG_KVM_DEBUG_FS/CONFIG_XEN_DEBUG_FS?. Not
+The storage driver (storvsc_drv.c) handles all block storage devices
+assigned to Linux guests hosted on Hyper-V. This driver has been in the
+staging tree for a while and this patch moves it out of the staging area.
 
-Those were the ones.
+This patch is based on the storvsc patches that are already on Greg's queue
+for the staging tree. This patch-set addressed Christoph's review comments.
+If need be, I can re-send this patch-set in Greg's queue
+or I can  send the fully patched storvsc_drv.c.
 
-> it was not enabled. But then may be I was not precise. This test was
-> only on native. So it should have not affected IMO.
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+---
+ drivers/scsi/Kconfig                       |    7 +++++++
+ drivers/scsi/Makefile                      |    3 +++
+ drivers/{staging/hv => scsi}/storvsc_drv.c |    0
+ 3 files changed, 10 insertions(+), 0 deletions(-)
+ rename drivers/{staging/hv => scsi}/storvsc_drv.c (100%)
 
-Yup.
-> 
-> It is nice to know that histogram affects, since I was always under the
-> impression that it does not affect much on guest too. My experiments
-> had almost always enabled that.
-> 
-> Let me know if you referred to something else..
+diff --git a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
+index 16570aa..d3d18e8 100644
+--- a/drivers/scsi/Kconfig
++++ b/drivers/scsi/Kconfig
+@@ -662,6 +662,13 @@ config VMWARE_PVSCSI
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called vmw_pvscsi.
+ 
++config HYPERV_STORAGE
++	tristate "Microsoft Hyper-V virtual storage driver"
++	depends on SCSI && HYPERV
++	default HYPERV
++	help
++	  Select this option to enable the Hyper-V virtual storage driver.
++
+ config LIBFC
+ 	tristate "LibFC module"
+ 	select SCSI_FC_ATTRS
+diff --git a/drivers/scsi/Makefile b/drivers/scsi/Makefile
+index 2b88749..e4c1a69 100644
+--- a/drivers/scsi/Makefile
++++ b/drivers/scsi/Makefile
+@@ -142,6 +142,7 @@ obj-$(CONFIG_SCSI_BNX2_ISCSI)	+= libiscsi.o bnx2i/
+ obj-$(CONFIG_BE2ISCSI)		+= libiscsi.o be2iscsi/
+ obj-$(CONFIG_SCSI_PMCRAID)	+= pmcraid.o
+ obj-$(CONFIG_VMWARE_PVSCSI)	+= vmw_pvscsi.o
++obj-$(CONFIG_HYPERV_STORAGE)	+= hv_storvsc.o
+ 
+ obj-$(CONFIG_ARM)		+= arm/
+ 
+@@ -170,6 +171,8 @@ scsi_mod-$(CONFIG_SCSI_PROC_FS)	+= scsi_proc.o
+ scsi_mod-y			+= scsi_trace.o
+ scsi_mod-$(CONFIG_PM)		+= scsi_pm.o
+ 
++hv_storvsc-y			:= storvsc_drv.o
++
+ scsi_tgt-y			+= scsi_tgt_lib.o scsi_tgt_if.o
+ 
+ sd_mod-objs	:= sd.o
+diff --git a/drivers/staging/hv/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+similarity index 100%
+rename from drivers/staging/hv/storvsc_drv.c
+rename to drivers/scsi/storvsc_drv.c
+-- 
+1.7.4.1
