@@ -1,424 +1,181 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 2/6] drivers: hv: kvp: Move the contents of hv_kvp.h to hyperv.h
-Date: Fri, 27 Jan 2012 15:55:58 -0800
-Message-ID: <1327708562-26964-2-git-send-email-kys@microsoft.com>
-References: <1327708522-26914-1-git-send-email-kys@microsoft.com>
- <1327708562-26964-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1327708562-26964-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@suse.de, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, zbr@ioremap.net
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PATCH] vhost-net: Acquire device lock when releasing device
+Date: Fri, 27 Jan 2012 19:13:41 -0500
+Message-ID: <1327709621.14789.9.camel@lappy>
+References: <1321607982-16283-1-git-send-email-levinsasha928@gmail.com>
+	<20111127164925.GA24941@redhat.com> <20111127170558.GA31970@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20111127170558.GA31970@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for consolidating all KVP related defines into a single header file
-that both the kernel and user level components can use, move the contents of
-hv_kvp.h into hyperv.h.
+I just noticed that it happened again, and that this patch didn't make
+it's way in.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/hv/hv_kvp.c    |    2 -
- drivers/hv/hv_kvp.h    |  181 ------------------------------------------------
- drivers/hv/hv_util.c   |    3 -
- include/linux/hyperv.h |  165 +++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 165 insertions(+), 186 deletions(-)
- delete mode 100644 drivers/hv/hv_kvp.h
+The patch below indeed fixes the problem for me. Please push it in.
 
-diff --git a/drivers/hv/hv_kvp.c b/drivers/hv/hv_kvp.c
-index 0e8343f..4a6971e 100644
---- a/drivers/hv/hv_kvp.c
-+++ b/drivers/hv/hv_kvp.c
-@@ -28,8 +28,6 @@
- #include <linux/workqueue.h>
- #include <linux/hyperv.h>
- 
--#include "hv_kvp.h"
--
- 
- 
- /*
-diff --git a/drivers/hv/hv_kvp.h b/drivers/hv/hv_kvp.h
-deleted file mode 100644
-index c2c5bba..0000000
---- a/drivers/hv/hv_kvp.h
-+++ /dev/null
-@@ -1,181 +0,0 @@
--/*
-- * An implementation of HyperV key value pair (KVP) functionality for Linux.
-- *
-- *
-- * Copyright (C) 2010, Novell, Inc.
-- * Author : K. Y. Srinivasan <ksrinivasan@novell.com>
-- *
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License version 2 as published
-- * by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful, but
-- * WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-- * NON INFRINGEMENT.  See the GNU General Public License for more
-- * details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-- *
-- */
--#ifndef	_KVP_H
--#define	_KVP_H_
--
--/*
-- * Maximum value size - used for both key names and value data, and includes
-- * any applicable NULL terminators.
-- *
-- * Note:  This limit is somewhat arbitrary, but falls easily within what is
-- * supported for all native guests (back to Win 2000) and what is reasonable
-- * for the IC KVP exchange functionality.  Note that Windows Me/98/95 are
-- * limited to 255 character key names.
-- *
-- * MSDN recommends not storing data values larger than 2048 bytes in the
-- * registry.
-- *
-- * Note:  This value is used in defining the KVP exchange message - this value
-- * cannot be modified without affecting the message size and compatibility.
-- */
--
--/*
-- * bytes, including any null terminators
-- */
--#define HV_KVP_EXCHANGE_MAX_VALUE_SIZE          (2048)
--
--
--/*
-- * Maximum key size - the registry limit for the length of an entry name
-- * is 256 characters, including the null terminator
-- */
--
--#define HV_KVP_EXCHANGE_MAX_KEY_SIZE            (512)
--
--/*
-- * In Linux, we implement the KVP functionality in two components:
-- * 1) The kernel component which is packaged as part of the hv_utils driver
-- * is responsible for communicating with the host and responsible for
-- * implementing the host/guest protocol. 2) A user level daemon that is
-- * responsible for data gathering.
-- *
-- * Host/Guest Protocol: The host iterates over an index and expects the guest
-- * to assign a key name to the index and also return the value corresponding to
-- * the key. The host will have atmost one KVP transaction outstanding at any
-- * given point in time. The host side iteration stops when the guest returns
-- * an error. Microsoft has specified the following mapping of key names to
-- * host specified index:
-- *
-- *	Index		Key Name
-- *	0		FullyQualifiedDomainName
-- *	1		IntegrationServicesVersion
-- *	2		NetworkAddressIPv4
-- *	3		NetworkAddressIPv6
-- *	4		OSBuildNumber
-- *	5		OSName
-- *	6		OSMajorVersion
-- *	7		OSMinorVersion
-- *	8		OSVersion
-- *	9		ProcessorArchitecture
-- *
-- * The Windows host expects the Key Name and Key Value to be encoded in utf16.
-- *
-- * Guest Kernel/KVP Daemon Protocol: As noted earlier, we implement all of the
-- * data gathering functionality in a user mode daemon. The user level daemon
-- * is also responsible for binding the key name to the index as well. The
-- * kernel and user-level daemon communicate using a connector channel.
-- *
-- * The user mode component first registers with the
-- * the kernel component. Subsequently, the kernel component requests, data
-- * for the specified keys. In response to this message the user mode component
-- * fills in the value corresponding to the specified key. We overload the
-- * sequence field in the cn_msg header to define our KVP message types.
-- *
-- *
-- * The kernel component simply acts as a conduit for communication between the
-- * Windows host and the user-level daemon. The kernel component passes up the
-- * index received from the Host to the user-level daemon. If the index is
-- * valid (supported), the corresponding key as well as its
-- * value (both are strings) is returned. If the index is invalid
-- * (not supported), a NULL key string is returned.
-- */
--
--/*
-- *
-- * The following definitions are shared with the user-mode component; do not
-- * change any of this without making the corresponding changes in
-- * the KVP user-mode component.
-- */
--
--enum hv_ku_op {
--	KVP_REGISTER = 0, /* Register the user mode component */
--	KVP_KERNEL_GET, /* Kernel is requesting the value */
--	KVP_KERNEL_SET, /* Kernel is providing the value */
--	KVP_USER_GET,  /* User is requesting the value */
--	KVP_USER_SET  /* User is providing the value */
--};
--
--struct hv_ku_msg {
--	__u32 kvp_index; /* Key index */
--	__u8  kvp_key[HV_KVP_EXCHANGE_MAX_KEY_SIZE]; /* Key name */
--	__u8  kvp_value[HV_KVP_EXCHANGE_MAX_VALUE_SIZE]; /* Key  value */
--};
--
--
--
--
--#ifdef __KERNEL__
--
--/*
-- * Registry value types.
-- */
--
--#define REG_SZ 1
--
--enum hv_kvp_exchg_op {
--	KVP_OP_GET = 0,
--	KVP_OP_SET,
--	KVP_OP_DELETE,
--	KVP_OP_ENUMERATE,
--	KVP_OP_COUNT /* Number of operations, must be last. */
--};
--
--enum hv_kvp_exchg_pool {
--	KVP_POOL_EXTERNAL = 0,
--	KVP_POOL_GUEST,
--	KVP_POOL_AUTO,
--	KVP_POOL_AUTO_EXTERNAL,
--	KVP_POOL_AUTO_INTERNAL,
--	KVP_POOL_COUNT /* Number of pools, must be last. */
--};
--
--struct hv_kvp_hdr {
--	u8 operation;
--	u8 pool;
--};
--
--struct hv_kvp_exchg_msg_value {
--	u32 value_type;
--	u32 key_size;
--	u32 value_size;
--	u8 key[HV_KVP_EXCHANGE_MAX_KEY_SIZE];
--	u8 value[HV_KVP_EXCHANGE_MAX_VALUE_SIZE];
--};
--
--struct hv_kvp_msg_enumerate {
--	u32 index;
--	struct hv_kvp_exchg_msg_value data;
--};
--
--struct hv_kvp_msg {
--	struct hv_kvp_hdr	kvp_hdr;
--	struct hv_kvp_msg_enumerate	kvp_data;
--};
--
--int hv_kvp_init(struct hv_util_service *);
--void hv_kvp_deinit(void);
--void hv_kvp_onchannelcallback(void *);
--
--#endif /* __KERNEL__ */
--#endif	/* _KVP_H */
--
-diff --git a/drivers/hv/hv_util.c b/drivers/hv/hv_util.c
-index 55d58f2..dbb8b8e 100644
---- a/drivers/hv/hv_util.c
-+++ b/drivers/hv/hv_util.c
-@@ -28,9 +28,6 @@
- #include <linux/reboot.h>
- #include <linux/hyperv.h>
- 
--#include "hv_kvp.h"
--
--
- static void shutdown_onchannelcallback(void *context);
- static struct hv_util_service util_shutdown = {
- 	.util_cb = shutdown_onchannelcallback,
-diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index 62b908e..7332b3f 100644
---- a/include/linux/hyperv.h
-+++ b/include/linux/hyperv.h
-@@ -25,6 +25,166 @@
- #ifndef _HYPERV_H
- #define _HYPERV_H
- 
-+#include <linux/types.h>
-+
-+/*
-+ * An implementation of HyperV key value pair (KVP) functionality for Linux.
-+ *
-+ *
-+ * Copyright (C) 2010, Novell, Inc.
-+ * Author : K. Y. Srinivasan <ksrinivasan@novell.com>
-+ *
-+ */
-+
-+/*
-+ * Maximum value size - used for both key names and value data, and includes
-+ * any applicable NULL terminators.
-+ *
-+ * Note:  This limit is somewhat arbitrary, but falls easily within what is
-+ * supported for all native guests (back to Win 2000) and what is reasonable
-+ * for the IC KVP exchange functionality.  Note that Windows Me/98/95 are
-+ * limited to 255 character key names.
-+ *
-+ * MSDN recommends not storing data values larger than 2048 bytes in the
-+ * registry.
-+ *
-+ * Note:  This value is used in defining the KVP exchange message - this value
-+ * cannot be modified without affecting the message size and compatibility.
-+ */
-+
-+/*
-+ * bytes, including any null terminators
-+ */
-+#define HV_KVP_EXCHANGE_MAX_VALUE_SIZE          (2048)
-+
-+
-+/*
-+ * Maximum key size - the registry limit for the length of an entry name
-+ * is 256 characters, including the null terminator
-+ */
-+
-+#define HV_KVP_EXCHANGE_MAX_KEY_SIZE            (512)
-+
-+/*
-+ * In Linux, we implement the KVP functionality in two components:
-+ * 1) The kernel component which is packaged as part of the hv_utils driver
-+ * is responsible for communicating with the host and responsible for
-+ * implementing the host/guest protocol. 2) A user level daemon that is
-+ * responsible for data gathering.
-+ *
-+ * Host/Guest Protocol: The host iterates over an index and expects the guest
-+ * to assign a key name to the index and also return the value corresponding to
-+ * the key. The host will have atmost one KVP transaction outstanding at any
-+ * given point in time. The host side iteration stops when the guest returns
-+ * an error. Microsoft has specified the following mapping of key names to
-+ * host specified index:
-+ *
-+ *	Index		Key Name
-+ *	0		FullyQualifiedDomainName
-+ *	1		IntegrationServicesVersion
-+ *	2		NetworkAddressIPv4
-+ *	3		NetworkAddressIPv6
-+ *	4		OSBuildNumber
-+ *	5		OSName
-+ *	6		OSMajorVersion
-+ *	7		OSMinorVersion
-+ *	8		OSVersion
-+ *	9		ProcessorArchitecture
-+ *
-+ * The Windows host expects the Key Name and Key Value to be encoded in utf16.
-+ *
-+ * Guest Kernel/KVP Daemon Protocol: As noted earlier, we implement all of the
-+ * data gathering functionality in a user mode daemon. The user level daemon
-+ * is also responsible for binding the key name to the index as well. The
-+ * kernel and user-level daemon communicate using a connector channel.
-+ *
-+ * The user mode component first registers with the
-+ * the kernel component. Subsequently, the kernel component requests, data
-+ * for the specified keys. In response to this message the user mode component
-+ * fills in the value corresponding to the specified key. We overload the
-+ * sequence field in the cn_msg header to define our KVP message types.
-+ *
-+ *
-+ * The kernel component simply acts as a conduit for communication between the
-+ * Windows host and the user-level daemon. The kernel component passes up the
-+ * index received from the Host to the user-level daemon. If the index is
-+ * valid (supported), the corresponding key as well as its
-+ * value (both are strings) is returned. If the index is invalid
-+ * (not supported), a NULL key string is returned.
-+ */
-+
-+/*
-+ *
-+ * The following definitions are shared with the user-mode component; do not
-+ * change any of this without making the corresponding changes in
-+ * the KVP user-mode component.
-+ */
-+
-+enum hv_ku_op {
-+	KVP_REGISTER = 0, /* Register the user mode component */
-+	KVP_KERNEL_GET, /* Kernel is requesting the value */
-+	KVP_KERNEL_SET, /* Kernel is providing the value */
-+	KVP_USER_GET,  /* User is requesting the value */
-+	KVP_USER_SET  /* User is providing the value */
-+};
-+
-+struct hv_ku_msg {
-+	__u32 kvp_index; /* Key index */
-+	__u8  kvp_key[HV_KVP_EXCHANGE_MAX_KEY_SIZE]; /* Key name */
-+	__u8  kvp_value[HV_KVP_EXCHANGE_MAX_VALUE_SIZE]; /* Key  value */
-+};
-+
-+
-+
-+
-+#ifdef __KERNEL__
-+
-+/*
-+ * Registry value types.
-+ */
-+
-+#define REG_SZ 1
-+
-+enum hv_kvp_exchg_op {
-+	KVP_OP_GET = 0,
-+	KVP_OP_SET,
-+	KVP_OP_DELETE,
-+	KVP_OP_ENUMERATE,
-+	KVP_OP_COUNT /* Number of operations, must be last. */
-+};
-+
-+enum hv_kvp_exchg_pool {
-+	KVP_POOL_EXTERNAL = 0,
-+	KVP_POOL_GUEST,
-+	KVP_POOL_AUTO,
-+	KVP_POOL_AUTO_EXTERNAL,
-+	KVP_POOL_AUTO_INTERNAL,
-+	KVP_POOL_COUNT /* Number of pools, must be last. */
-+};
-+
-+struct hv_kvp_hdr {
-+	u8 operation;
-+	u8 pool;
-+};
-+
-+struct hv_kvp_exchg_msg_value {
-+	u32 value_type;
-+	u32 key_size;
-+	u32 value_size;
-+	u8 key[HV_KVP_EXCHANGE_MAX_KEY_SIZE];
-+	u8 value[HV_KVP_EXCHANGE_MAX_VALUE_SIZE];
-+};
-+
-+struct hv_kvp_msg_enumerate {
-+	u32 index;
-+	struct hv_kvp_exchg_msg_value data;
-+};
-+
-+struct hv_kvp_msg {
-+	struct hv_kvp_hdr	kvp_hdr;
-+	struct hv_kvp_msg_enumerate	kvp_data;
-+};
-+
- #include <linux/scatterlist.h>
- #include <linux/list.h>
- #include <linux/uuid.h>
-@@ -870,4 +1030,9 @@ struct hyperv_service_callback {
- extern void vmbus_prep_negotiate_resp(struct icmsg_hdr *,
- 				      struct icmsg_negotiate *, u8 *);
- 
-+int hv_kvp_init(struct hv_util_service *);
-+void hv_kvp_deinit(void);
-+void hv_kvp_onchannelcallback(void *);
-+
-+#endif /* __KERNEL__ */
- #endif /* _HYPERV_H */
+On Sun, 2011-11-27 at 19:06 +0200, Michael S. Tsirkin wrote:
+> On Sun, Nov 27, 2011 at 06:49:27PM +0200, Michael S. Tsirkin wrote:
+> > On Fri, Nov 18, 2011 at 11:19:42AM +0200, Sasha Levin wrote:
+> > > Device lock should be held when releasing a device, and specifically
+> > > when calling vhost_dev_cleanup(). Otherwise, RCU complains about it:
+> > > 
+> > > [ 2025.642835] ===============================
+> > > [ 2025.643838] [ INFO: suspicious RCU usage. ]
+> > > [ 2025.645182] -------------------------------
+> > > [ 2025.645927] drivers/vhost/vhost.c:475 suspicious rcu_dereference_protected() usage!
+> > > [ 2025.647329]
+> > > [ 2025.647330] other info that might help us debug this:
+> > > [ 2025.647331]
+> > > [ 2025.649042]
+> > > [ 2025.649043] rcu_scheduler_active = 1, debug_locks = 1
+> > > [ 2025.650235] no locks held by trinity/21042.
+> > > [ 2025.650971]
+> > > [ 2025.650972] stack backtrace:
+> > > [ 2025.651789] Pid: 21042, comm: trinity Not tainted 3.2.0-rc2-sasha-00057-ga9098b3 #5
+> > > [ 2025.653342] Call Trace:
+> > > [ 2025.653792]  [<ffffffff810b4a6a>] lockdep_rcu_suspicious+0xaf/0xb9
+> > > [ 2025.654916]  [<ffffffff818d4c2c>] vhost_dev_cleanup+0x342/0x3ac
+> > > [ 2025.655985]  [<ffffffff818d4f18>] vhost_net_release+0x48/0x7f
+> > > [ 2025.657247]  [<ffffffff811416e3>] fput+0x11e/0x1dc
+> > > [ 2025.658091]  [<ffffffff8113f1ec>] filp_close+0x6e/0x79
+> > > [ 2025.658964]  [<ffffffff81089ed7>] put_files_struct+0xcc/0x196
+> > > [ 2025.659971]  [<ffffffff8108a034>] exit_files+0x46/0x4f
+> > > [ 2025.660865]  [<ffffffff8108a716>] do_exit+0x264/0x75c
+> > > [ 2025.662201]  [<ffffffff8113f490>] ? fsnotify_modify+0x60/0x68
+> > > [ 2025.663260]  [<ffffffff81bbdbca>] ? sysret_check+0x2e/0x69
+> > > [ 2025.664269]  [<ffffffff8108acc1>] do_group_exit+0x83/0xb1
+> > > [ 2025.665448]  [<ffffffff8108ad01>] sys_exit_group+0x12/0x16
+> > > [ 2025.666396]  [<ffffffff81bbdb92>] system_call_fastpath+0x16/0x1b
+> > > 
+> > > Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> > > Cc: kvm@vger.kernel.org
+> > > Cc: virtualization@lists.linux-foundation.org
+> > > Cc: netdev@vger.kernel.org
+> > > Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
+> > > ---
+> > >  drivers/vhost/net.c |    2 ++
+> > >  1 files changed, 2 insertions(+), 0 deletions(-)
+> > > 
+> > > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> > > index 882a51f..c9be601 100644
+> > > --- a/drivers/vhost/net.c
+> > > +++ b/drivers/vhost/net.c
+> > > @@ -586,6 +586,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+> > >  	struct socket *tx_sock;
+> > >  	struct socket *rx_sock;
+> > >  
+> > > +	mutex_lock(&n->dev.mutex);
+> > >  	vhost_net_stop(n, &tx_sock, &rx_sock);
+> > >  	vhost_net_flush(n);
+> > >  	vhost_dev_cleanup(&n->dev);
+> > > @@ -596,6 +597,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+> > >  	/* We do an extra flush before freeing memory,
+> > >  	 * since jobs can re-queue themselves. */
+> > >  	vhost_net_flush(n);
+> > > +	mutex_unlock(&n->dev.mutex);
+> > >  	kfree(n);
+> > >  	return 0;
+> > >  }
+> > 
+> > This calls fput fom release under lock which is generally a bad idea,
+> > as locks become nested then. For example, consider what would happen if this
+> > somehow triggers a release which in turn needs the same mutex.
+> > 
+> > And, we are releasing the device, so it seems better to check
+> > that no one has the lock.
+> > How about the following instead? What do you think?
+> > 
+> > -->
+> > 
+> > vhost: fix release path lockdep checks
+> > 
+> > We shouldn't hold any locks on release path. Pass a flag to
+> > vhost_dev_cleanup to use the lockdep info correctly.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > 
+> > ---
+> 
+> Sorry, this got cut short. Here's the full patch (1st chunk was
+> missing).  Does this solve the problem for you?
+> 
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 8b16d16..9bba4b3 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -598,7 +598,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
+>  
+>  	vhost_net_stop(n, &tx_sock, &rx_sock);
+>  	vhost_net_flush(n);
+> -	vhost_dev_cleanup(&n->dev);
+> +	vhost_dev_cleanup(&n->dev, false);
+>  	if (tx_sock)
+>  		fput(tx_sock->file);
+>  	if (rx_sock)
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index a8c95ef..96f9769 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -424,7 +424,7 @@ long vhost_dev_reset_owner(struct vhost_dev *dev)
+>  	if (!memory)
+>  		return -ENOMEM;
+>  
+> -	vhost_dev_cleanup(dev);
+> +	vhost_dev_cleanup(dev, true);
+>  
+>  	memory->nregions = 0;
+>  	RCU_INIT_POINTER(dev->memory, memory);
+> @@ -455,8 +455,8 @@ int vhost_zerocopy_signal_used(struct vhost_virtqueue *vq)
+>  	return j;
+>  }
+>  
+> -/* Caller should have device mutex */
+> -void vhost_dev_cleanup(struct vhost_dev *dev)
+> +/* Caller should have device mutex if and only if locked is set */
+> +void vhost_dev_cleanup(struct vhost_dev *dev, bool locked)
+>  {
+>  	int i;
+>  
+> @@ -493,7 +493,8 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+>  	dev->log_file = NULL;
+>  	/* No one will access memory at this point */
+>  	kfree(rcu_dereference_protected(dev->memory,
+> -					lockdep_is_held(&dev->mutex)));
+> +					locked ==
+> +						lockdep_is_held(&dev->mutex)));
+>  	RCU_INIT_POINTER(dev->memory, NULL);
+>  	WARN_ON(!list_empty(&dev->work_list));
+>  	if (dev->worker) {
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index b3e8cc3..97e18d3 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -164,7 +164,7 @@ struct vhost_dev {
+>  long vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue *vqs, int nvqs);
+>  long vhost_dev_check_owner(struct vhost_dev *);
+>  long vhost_dev_reset_owner(struct vhost_dev *);
+> -void vhost_dev_cleanup(struct vhost_dev *);
+> +void vhost_dev_cleanup(struct vhost_dev *, bool locked);
+>  long vhost_dev_ioctl(struct vhost_dev *, unsigned int ioctl, unsigned long arg);
+>  int vhost_vq_access_ok(struct vhost_virtqueue *vq);
+>  int vhost_log_access_ok(struct vhost_dev *);
+
+
 -- 
-1.7.4.1
+
+Sasha.
