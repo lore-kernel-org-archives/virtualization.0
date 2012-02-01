@@ -1,15 +1,13 @@
-From: Zang Hongyong <zanghongyong@huawei.com>
-Subject: Re: [PATCH 2/2] virtio-serial: setup_port_vq when adding port
-Date: Wed, 01 Feb 2012 17:32:42 +0800
-Message-ID: <4F2906BA.9040000@huawei.com>
-References: <1326331207-10339-1-git-send-email-zanghongyong@huawei.com>
-	<1326331207-10339-3-git-send-email-zanghongyong@huawei.com>
-	<20120201081257.GD24943@amit.redhat.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: Call for Workshops: The 9th Int. Conf. on Autonomic Computing (ICAC
+	2012)
+Date: Wed, 01 Feb 2012 17:43:18 -0600
+Message-ID: <4F29CE16.3020505@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <20120201081257.GD24943@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,96 +17,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: aliguori@us.ibm.com, kvm@vger.kernel.org, wusongwei@huawei.com, hanweidong@huawei.com, Virtualization List <virtualization@lists.linux-foundation.org>, xiaowei.yang@huawei.com, jiangningyu@huawei.com
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjAxMi8yLzEs5pif5pyf5LiJIDE2OjEyLCBBbWl0IFNoYWggd3JvdGU6Cj4gSGksCj4KPiBT
-b3JyeSBmb3IgdGhlIGxhdGUgcmVwbHkuCj4KPiBPbiAoVGh1KSAxMiBKYW4gMjAxMiBbMDk6MjA6
-MDddLCB6YW5naG9uZ3lvbmdAaHVhd2VpLmNvbSB3cm90ZToKPj4gRnJvbTogSG9uZ3lvbmcgWmFu
-Zzx6YW5naG9uZ3lvbmdAaHVhd2VpLmNvbT4KPj4KPj4gQWRkIHNldHVwX3BvcnRfdnEoKS4gQ3Jl
-YXRlIHRoZSBpbyBwb3J0cycgdnFzIHdoZW4gYWRkX3BvcnQuCj4gQ2FuIHlvdSBkZXNjcmliZSB0
-aGUgY2hhbmdlcyBpbiBtb3JlIGRldGFpbCwgcGxlYXNlPwoKVGhlIG1vdGl2YXRpb24gb2YgdGhp
-cyBwYXRjaCBpcyBhcyBmb2xsb3dzLiBXaGVuIHdlIHVzZSB2aXJ0aW8tc2VyaWFsCmZvciBjb21t
-dW5pY2F0aW9uIGJldHdlZW4gZ3Vlc3QgYW5kIGhvc3QsIHdlIHVzdWFsbHkgdXNlIG9ubHkgYSBm
-ZXcKcG9ydHMgKGZvciBleGFtcGxlIDEgb3IgMiBwb3J0cyksIHNvIHRoZXJlJ3Mgbm8gbmVlZCB0
-byBjcmVhdGUgbWF4IHBvcnRzCndoZW4gYnVpbGQgYSB2aXJ0aW8tc2VyaWFsLiBUaGUgcGF0Y2gg
-ZG9lcyB0aGUgcG9ydCBob3QtcGx1ZyB0aGluZyB3aXRob3V0CnBvcnQgaG90LXVucGx1Zy4KPgo+
-PiBTaWduZWQtb2ZmLWJ5OiBIb25neW9uZyBaYW5nPHphbmdob25neW9uZ0BodWF3ZWkuY29tPgo+
-PiAtLS0KPj4gICBkcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYyB8ICAgNjUgKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKystLQo+PiAgIDEgZmlsZXMgY2hhbmdlZCwgNjEg
-aW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-Y2hhci92aXJ0aW9fY29uc29sZS5jIGIvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKPj4g
-aW5kZXggOGUzYzQ2ZC4uMmU1MTg3ZSAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy9jaGFyL3ZpcnRp
-b19jb25zb2xlLmMKPj4gKysrIGIvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKPj4gQEAg
-LTExMzIsNiArMTEzMiw1NSBAQCBzdGF0aWMgdm9pZCBzZW5kX3NpZ2lvX3RvX3BvcnQoc3RydWN0
-IHBvcnQgKnBvcnQpCj4+ICAgCQlraWxsX2Zhc3luYygmcG9ydC0+YXN5bmNfcXVldWUsIFNJR0lP
-LCBQT0xMX09VVCk7Cj4+ICAgfQo+Pgo+PiArc3RhdGljIHZvaWQgaW5faW50cihzdHJ1Y3Qgdmly
-dHF1ZXVlICp2cSk7Cj4+ICtzdGF0aWMgdm9pZCBvdXRfaW50cihzdHJ1Y3QgdmlydHF1ZXVlICp2
-cSk7Cj4+ICsKPj4gK3N0YXRpYyBpbnQgc2V0dXBfcG9ydF92cShzdHJ1Y3QgcG9ydHNfZGV2aWNl
-ICpwb3J0ZGV2LCAgdTMyIGlkKQo+PiArewo+PiArCWludCBlcnIsIHZxX251bTsKPj4gKwl2cV9j
-YWxsYmFja190ICoqaW9fY2FsbGJhY2tzOwo+PiArCWNoYXIgKippb19uYW1lczsKPj4gKwlzdHJ1
-Y3QgdmlydHF1ZXVlICoqdnFzOwo+PiArCXUzMiBpLGosbnJfcG9ydHMsbnJfcXVldWVzOwo+PiAr
-Cj4+ICsJZXJyID0gMDsKPj4gKwl2cV9udW0gPSAoaWQgKyAxKSAqIDI7Cj4+ICsJbnJfcG9ydHMg
-PSBwb3J0ZGV2LT5jb25maWcubWF4X25yX3BvcnRzOwo+PiArCW5yX3F1ZXVlcyA9IHVzZV9tdWx0
-aXBvcnQocG9ydGRldikgPyAobnJfcG9ydHMgKyAxKSAqIDIgOiAyOwo+PiArCj4+ICsJdnFzID0g
-a21hbGxvYyhucl9xdWV1ZXMgKiBzaXplb2Yoc3RydWN0IHZpcnRxdWV1ZSAqKSwgR0ZQX0tFUk5F
-TCk7Cj4+ICsJaW9fY2FsbGJhY2tzID0ga21hbGxvYyhucl9xdWV1ZXMgKiBzaXplb2YodnFfY2Fs
-bGJhY2tfdCAqKSwgR0ZQX0tFUk5FTCk7Cj4+ICsJaW9fbmFtZXMgPSBrbWFsbG9jKG5yX3F1ZXVl
-cyAqIHNpemVvZihjaGFyICopLCBHRlBfS0VSTkVMKTsKPj4gKwlpZiAoIXZxcyB8fCAhaW9fY2Fs
-bGJhY2tzIHx8ICFpb19uYW1lcykgewo+PiArCQllcnIgPSAtRU5PTUVNOwo+PiArCQlnb3RvIGZy
-ZWU7Cj4+ICsJfQo+PiArCj4+ICsJZm9yIChpID0gMCwgaiA9IDA7IGk8PSBucl9wb3J0czsgaSsr
-KSB7Cj4+ICsJCWlvX2NhbGxiYWNrc1tqXSA9IGluX2ludHI7Cj4+ICsJCWlvX2NhbGxiYWNrc1tq
-ICsgMV0gPSBvdXRfaW50cjsKPj4gKwkJaW9fbmFtZXNbal0gPSBOVUxMOwo+PiArCQlpb19uYW1l
-c1tqICsgMV0gPSBOVUxMOwo+PiArCQlqICs9IDI7Cj4+ICsJfQo+PiArCWlvX25hbWVzW3ZxX251
-bV0gPSAic2VyaWFsLWlucHV0IjsKPj4gKwlpb19uYW1lc1t2cV9udW0gKyAxXSA9ICJzZXJpYWwt
-b3V0cHV0IjsKPj4gKwllcnIgPSBwb3J0ZGV2LT52ZGV2LT5jb25maWctPmZpbmRfdnFzKHBvcnRk
-ZXYtPnZkZXYsIG5yX3F1ZXVlcywgdnFzLAo+PiArCQkJCWlvX2NhbGxiYWNrcywKPj4gKwkJCQko
-Y29uc3QgY2hhciAqKilpb19uYW1lcyk7Cj4+ICsJaWYgKGVycikKPj4gKwkJZ290byBmcmVlOwo+
-PiArCXBvcnRkZXYtPmluX3Zxc1tpZF0gPSB2cXNbdnFfbnVtXTsKPj4gKwlwb3J0ZGV2LT5vdXRf
-dnFzW2lkXSA9IHZxc1t2cV9udW0gKyAxXTsKPiBJIGRvbid0IHRoaW5rIHRoaXMgYXBwcm9hY2gg
-d2lsbCB3b3JrIGZpbmUgZm9yIHBvcnQgaG90LXBsdWcgLwo+IGhvdC11bnBsdWcgY2FzZXMgYXQg
-YWxsLiAgRm9yIGV4YW1wbGUsIEkgZmlyc3Qgc3RhcnQgcWVtdSB3aXRoIG9uZQo+IHBvcnQsIGF0
-IGlkIDEuICBUaGVuIEkgYWRkIGEgcG9ydCBhdCBpZCA1LCB0aGVuIGF0IDIsIHRoZW4gYXQgMTAu
-Cj4gV2lsbCB0aGF0IGJlIGZpbmU/Cgp5ZXMuCkluIHRoaXMgY2FzZSwgdGhlIHZpcnRpby1zZXJp
-YWwgd2lsbCBjcmVhdGUgaWQgMSdzIHF1ZXVlIHdoZW4gcHJvYmUgdGhlCmRldmljZS4gVGhlbiwg
-YWRkIHBvcnQgaWQgNSwgaXQgd2lsbCBjcmVhdGUgdGhlIGlkIDUncyBxdWV1ZSBhbmQgdGhlIHF1
-ZXVlcwpvZiBpZCAyLTQgc3RpbGwgYmUgbnVsbC4Kd2UgZmluZCB0aGUgcmlnaHQgaW9wb3J0IGJ5
-IHZxX251bSwgYW5kIG9ubHkgdGhlIGlvX25hbWVbdnFfbnVtXSBhbmQKaW9fbmFtZVt2cV9udW0r
-MV0gYXJlIG5vdCBudWxsLiBTbyBhZnRlciBwb3J0ZGV2LT52ZGV2LT5jb25maWctPmZpbmRfdnFz
-KCksCnRoZSBpZCA1J3MgcXVldWVzIGFyZSBjcmVhdGVkKHNlZSB0aGUgY2hhbmdlcyBpbiB2aXJ0
-aW8tcGNpKSwgdGhlIG90aGVycyAKYXJlCnN0aWxsIG51bGwuCj4KPj4gKwo+PiArZnJlZToKPj4g
-KwlrZnJlZShpb19uYW1lcyk7Cj4+ICsJa2ZyZWUoaW9fY2FsbGJhY2tzKTsKPj4gKwlrZnJlZSh2
-cXMpOwo+PiArCj4+ICsJcmV0dXJuIGVycjsKPj4gK30KPj4gKwo+PiAgIHN0YXRpYyBpbnQgYWRk
-X3BvcnQoc3RydWN0IHBvcnRzX2RldmljZSAqcG9ydGRldiwgdTMyIGlkKQo+PiAgIHsKPj4gICAJ
-Y2hhciBkZWJ1Z2ZzX25hbWVbMTZdOwo+PiBAQCAtMTE2Myw2ICsxMjEyLDE0IEBAIHN0YXRpYyBp
-bnQgYWRkX3BvcnQoc3RydWN0IHBvcnRzX2RldmljZSAqcG9ydGRldiwgdTMyIGlkKQo+Pgo+PiAg
-IAlwb3J0LT5vdXR2cV9mdWxsID0gZmFsc2U7Cj4+Cj4+ICsJaWYgKCFwb3J0ZGV2LT5pbl92cXNb
-cG9ydC0+aWRdJiYgICFwb3J0ZGV2LT5vdXRfdnFzW3BvcnQtPmlkXSkgewo+PiArCQlzcGluX2xv
-Y2soJnBvcnRkZXYtPnBvcnRzX2xvY2spOwo+PiArCQllcnIgPSBzZXR1cF9wb3J0X3ZxKHBvcnRk
-ZXYsIHBvcnQtPmlkKTsKPj4gKwkJc3Bpbl91bmxvY2soJnBvcnRkZXYtPnBvcnRzX2xvY2spOwo+
-PiArCQlpZiAoZXJyKQo+PiArCQkJZ290byBmcmVlX3BvcnQ7Cj4+ICsJfQo+PiArCj4+ICAgCXBv
-cnQtPmluX3ZxID0gcG9ydGRldi0+aW5fdnFzW3BvcnQtPmlkXTsKPj4gICAJcG9ydC0+b3V0X3Zx
-ID0gcG9ydGRldi0+b3V0X3Zxc1twb3J0LT5pZF07Cj4+Cj4+IEBAIC0xNjE0LDggKzE2NzEsOCBA
-QCBzdGF0aWMgaW50IGluaXRfdnFzKHN0cnVjdCBwb3J0c19kZXZpY2UgKnBvcnRkZXYpCj4+ICAg
-CQkJaiArPSAyOwo+PiAgIAkJCWlvX2NhbGxiYWNrc1tqXSA9IGluX2ludHI7Cj4+ICAgCQkJaW9f
-Y2FsbGJhY2tzW2ogKyAxXSA9IG91dF9pbnRyOwo+PiAtCQkJaW9fbmFtZXNbal0gPSAiaW5wdXQi
-Owo+PiAtCQkJaW9fbmFtZXNbaiArIDFdID0gIm91dHB1dCI7Cj4+ICsJCQlpb19uYW1lc1tqXSA9
-IE5VTEw7Cj4+ICsJCQlpb19uYW1lc1tqICsgMV0gPSBOVUxMOwo+PiAgIAkJfQo+PiAgIAl9Cj4+
-ICAgCS8qIEZpbmQgdGhlIHF1ZXVlcy4gKi8KPj4gQEAgLTE2MzUsOCArMTY5Miw4IEBAIHN0YXRp
-YyBpbnQgaW5pdF92cXMoc3RydWN0IHBvcnRzX2RldmljZSAqcG9ydGRldikKPj4KPj4gICAJCWZv
-ciAoaSA9IDE7IGk8ICBucl9wb3J0czsgaSsrKSB7Cj4+ICAgCQkJaiArPSAyOwo+PiAtCQkJcG9y
-dGRldi0+aW5fdnFzW2ldID0gdnFzW2pdOwo+PiAtCQkJcG9ydGRldi0+b3V0X3Zxc1tpXSA9IHZx
-c1tqICsgMV07Cj4+ICsJCQlwb3J0ZGV2LT5pbl92cXNbaV0gPSBOVUxMOwo+PiArCQkJcG9ydGRl
-di0+b3V0X3Zxc1tpXSA9IE5VTEw7Cj4+ICAgCQl9Cj4+ICAgCX0KPj4gICAJa2ZyZWUoaW9fbmFt
-ZXMpOwo+IFNvIGEgcXVldWUgb25jZSBjcmVhdGVkIHdpbGwgbm90IGJlIHJlbW92ZWQgdW5sZXNz
-IHRoZSBtb2R1bGUgaXMKPiByZW1vdmVkIG9yIHRoZSBkZXZpY2UgaXMgcmVtb3ZlZC4gIFRoYXQg
-c2VlbXMgcmVhc29uYWJsZSwgcG9ydAo+IGhvdC11bnBsdWcgd2lsbCBrZWVwIHF1ZXVlcyBhcm91
-bmQsIGFzIGlzIHRoZSBjYXNlIG5vdy4KCkFzIHdlIHVzZSB0aGUgdmlydGlvLXNlcmlhbCB3aXRo
-IG9ubHkgYSBmZXcgaW8tcG9ydHMsIHRoZSBtYXhwb3J0IHF1ZXVlcyAKbWF5Cndhc3RlIG1vcmUg
-bWVtb3J5LiBTbyB3ZSB0cnkgdG8gY3JlYXRlIHF1ZXVlcyB3aGVuIHBvcnQgaG90LXBsdWcsIGFz
-IGZvcgpwb3J0IGhvdC11bnBsdWcgdGhlcmUncyBubyBjaGFuZ2UuCgo+Cj4gCQlBbWl0Cj4KPiAu
-Cj4KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+CALL FOR WORKSHOP PROPOSALS
+
+The 9th International Conference on Autonomic Computing (ICAC 2012)
+
+September 17-21, 2012. San Jose, CA, USA
+http://icac2012.cs.fiu.edu/
+
+-----------------------------------------------------------------
+IMPORTANT DATES
+Workshop Proposal Submission: February 10, 2012
+
+-----------------------------------------------------------------
+OVERVIEW
+ICAC is the leading conference on autonomic computing techniques,
+foundations, and applications. Autonomic computing refers to
+methods and means for automated management of performance, fault,
+security, and configuration with little involvement of users or
+administrators. Systems introducing new autonomic features are
+becoming increasingly prevalent, motivating research that spans
+a variety of areas, from computer systems, networking, software
+engineering, and data management to machine learning, control
+theory, and bio-inspired computing. ICAC brings together
+researchers and practitioners across these disciplines to
+address multiple facets of adaptation and self-management in
+computing systems and applications from different perspectives.
+Autonomic computing solutions are sought for clouds, grids,
+data centers, enterprise software, internet services, data
+services, smart phones, embedded systems, and sensor networks.
+In these environments, resources and applications must be managed
+to maximize performance and minimize cost, while maintaining
+predictable and reliable behavior in the face of varying
+workloads, failures, and malicious threats.
+
+ICAC'12 welcomes proposals for co-located workshops on topics of
+interest to the autonomic computing community. Workshop proposals
+should be submitted to the Workshop Chair, Fred Douglis
+(f.douglis@computer.org) by February 10, 2012. Workshops are
+expected to publish proceedings, and should cover areas that
+complement the main program.
+
+------------------------------------------------------------------
+ORGANIZERS
+GENERAL CHAIR: Dejan Milojicic, HP Labs
+WORKSHOPS CHAIR: Fred Douglis, EMC
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  iraicu@cs.iit.edu
+Web:    http://www.cs.iit.edu/~iraicu/
+Web:    http://datasys.cs.iit.edu/
+=================================================================
+=================================================================
