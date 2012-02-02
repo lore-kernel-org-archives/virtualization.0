@@ -1,83 +1,31 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: Call for Workshops: The 9th Int. Conf. on Autonomic Computing (ICAC
-	2012)
-Date: Wed, 01 Feb 2012 17:43:18 -0600
-Message-ID: <4F29CE16.3020505@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: y@linuxonhyperv.com
+Subject: drivres/hv
+Date: Wed,  1 Feb 2012 18:48:11 -0800
+Message-ID: <17608.7800799452$1328157861@news.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+Return-path: <devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: gregkh@linuxfoundation.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CALL FOR WORKSHOP PROPOSALS
+ 
+Greg,
 
-The 9th International Conference on Autonomic Computing (ICAC 2012)
+I recently saw on the mailing list that your suse.com address was no
+longer valid. I had sent some patches late last month for the hv_utils
+driver; I think it was sent around the 27th of Jan. Should I resend these
+patches to your greg@kroah.com or greg@linuxfoundation.org  address.
 
-September 17-21, 2012. San Jose, CA, USA
-http://icac2012.cs.fiu.edu/
+Regards,
 
------------------------------------------------------------------
-IMPORTANT DATES
-Workshop Proposal Submission: February 10, 2012
-
------------------------------------------------------------------
-OVERVIEW
-ICAC is the leading conference on autonomic computing techniques,
-foundations, and applications. Autonomic computing refers to
-methods and means for automated management of performance, fault,
-security, and configuration with little involvement of users or
-administrators. Systems introducing new autonomic features are
-becoming increasingly prevalent, motivating research that spans
-a variety of areas, from computer systems, networking, software
-engineering, and data management to machine learning, control
-theory, and bio-inspired computing. ICAC brings together
-researchers and practitioners across these disciplines to
-address multiple facets of adaptation and self-management in
-computing systems and applications from different perspectives.
-Autonomic computing solutions are sought for clouds, grids,
-data centers, enterprise software, internet services, data
-services, smart phones, embedded systems, and sensor networks.
-In these environments, resources and applications must be managed
-to maximize performance and minimize cost, while maintaining
-predictable and reliable behavior in the face of varying
-workloads, failures, and malicious threats.
-
-ICAC'12 welcomes proposals for co-located workshops on topics of
-interest to the autonomic computing community. Workshop proposals
-should be submitted to the Workshop Chair, Fred Douglis
-(f.douglis@computer.org) by February 10, 2012. Workshops are
-expected to publish proceedings, and should cover areas that
-complement the main program.
-
-------------------------------------------------------------------
-ORGANIZERS
-GENERAL CHAIR: Dejan Milojicic, HP Labs
-WORKSHOPS CHAIR: Fred Douglis, EMC
-
--- 
-=================================================================
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=================================================================
-Cel:    1-847-722-0876
-Office: 1-312-567-5704
-Email:  iraicu@cs.iit.edu
-Web:    http://www.cs.iit.edu/~iraicu/
-Web:    http://datasys.cs.iit.edu/
-=================================================================
-=================================================================
+K. Y
