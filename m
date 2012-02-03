@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 2/4] tools: hv: Use hyperv.h to get the KVP definitions
-Date: Thu,  2 Feb 2012 16:56:49 -0800
-Message-ID: <1328230611-3315-2-git-send-email-kys@microsoft.com>
+Subject: [PATCH 4/4] drivers: hv: Increase the number of VCPUs supported in the guest
+Date: Thu,  2 Feb 2012 16:56:51 -0800
+Message-ID: <1328230611-3315-4-git-send-email-kys@microsoft.com>
 References: <1328230577-3263-1-git-send-email-kys@microsoft.com>
  <1328230611-3315-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,73 +11,59 @@ To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverp
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now use hyperv.h to get the KVP defines in the KVP user-mode code.
+The current code arbirarily limited the number of CPUs the guest could have.
+Change that so that we can support the maximum number of CPUs the guest can
+support. While we use NR_CPUS to size the per-cpu state all we are allocating
+based on NR_CPUS are the  pointers to per-cpu state that will be allocatted in
+the context of the initializing CPU. This patch triggers a checkpatch warning
+for the usage of NR_CPU and since all we are allocating a couple of pointers
+per CPU, it should be ok.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- tools/hv/hv_kvp_daemon.c |   28 +---------------------------
- 1 files changed, 1 insertions(+), 27 deletions(-)
+ drivers/hv/hv.c           |    4 ++--
+ drivers/hv/hyperv_vmbus.h |    5 ++---
+ 2 files changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 2b6a2d9..b75523c 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -34,17 +34,12 @@
- #include <errno.h>
- #include <arpa/inet.h>
- #include <linux/connector.h>
-+#include <linux/hyperv.h>
- #include <linux/netlink.h>
- #include <ifaddrs.h>
- #include <netdb.h>
- #include <syslog.h>
+diff --git a/drivers/hv/hv.c b/drivers/hv/hv.c
+index 12aa97f..15956bd 100644
+--- a/drivers/hv/hv.c
++++ b/drivers/hv/hv.c
+@@ -155,9 +155,9 @@ int hv_init(void)
+ 	union hv_x64_msr_hypercall_contents hypercall_msr;
+ 	void *virtaddr = NULL;
  
--/*
-- *
-- * The following definitions are shared with the in-kernel component; do not
-- * change any of this without making the corresponding changes in
-- * the KVP kernel component.
-- */
+-	memset(hv_context.synic_event_page, 0, sizeof(void *) * MAX_NUM_CPUS);
++	memset(hv_context.synic_event_page, 0, sizeof(void *) * NR_CPUS);
+ 	memset(hv_context.synic_message_page, 0,
+-	       sizeof(void *) * MAX_NUM_CPUS);
++	       sizeof(void *) * NR_CPUS);
  
- /*
-  * KVP protocol: The user mode component first registers with the
-@@ -56,25 +51,8 @@
-  * We use this infrastructure for also supporting queries from user mode
-  * application for state that may be maintained in the KVP kernel component.
-  *
-- * XXXKYS: Have a shared header file between the user and kernel (TODO)
-  */
- 
--enum kvp_op {
--	KVP_REGISTER = 0, /* Register the user mode component*/
--	KVP_KERNEL_GET, /*Kernel is requesting the value for the specified key*/
--	KVP_KERNEL_SET, /*Kernel is providing the value for the specified key*/
--	KVP_USER_GET, /*User is requesting the value for the specified key*/
--	KVP_USER_SET /*User is providing the value for the specified key*/
--};
--
--#define HV_KVP_EXCHANGE_MAX_KEY_SIZE	512
--#define HV_KVP_EXCHANGE_MAX_VALUE_SIZE	2048
--
--struct hv_ku_msg {
--	__u32	kvp_index;
--	__u8  kvp_key[HV_KVP_EXCHANGE_MAX_KEY_SIZE]; /* Key name */
--	__u8  kvp_value[HV_KVP_EXCHANGE_MAX_VALUE_SIZE]; /* Key  value */
--};
- 
- enum key_index {
- 	FullyQualifiedDomainName = 0,
-@@ -89,10 +67,6 @@ enum key_index {
- 	ProcessorArchitecture
+ 	if (!query_hypervisor_presence())
+ 		goto cleanup;
+diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
+index 6d7d286..699f0d8 100644
+--- a/drivers/hv/hyperv_vmbus.h
++++ b/drivers/hv/hyperv_vmbus.h
+@@ -457,7 +457,6 @@ static const uuid_le VMBUS_SERVICE_ID = {
+ 	},
  };
  
--/*
-- * End of shared definitions.
-- */
--
- static char kvp_send_buffer[4096];
- static char kvp_recv_buffer[4096];
- static struct sockaddr_nl addr;
+-#define MAX_NUM_CPUS	32
+ 
+ 
+ struct hv_input_signal_event_buffer {
+@@ -483,8 +482,8 @@ struct hv_context {
+ 	/* 8-bytes aligned of the buffer above */
+ 	struct hv_input_signal_event *signal_event_param;
+ 
+-	void *synic_message_page[MAX_NUM_CPUS];
+-	void *synic_event_page[MAX_NUM_CPUS];
++	void *synic_message_page[NR_CPUS];
++	void *synic_event_page[NR_CPUS];
+ };
+ 
+ extern struct hv_context hv_context;
 -- 
 1.7.4.1
