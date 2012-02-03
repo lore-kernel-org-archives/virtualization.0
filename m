@@ -1,77 +1,34 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/4] drivers: hv: Cleanup the kvp related state in hyperv.h
-Date: Thu,  2 Feb 2012 16:56:48 -0800
-Message-ID: <1328230611-3315-1-git-send-email-kys@microsoft.com>
-References: <1328230577-3263-1-git-send-email-kys@microsoft.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH 3/6] drivers: hv: Cleanup the kvp related state in
+ hyperv.h
+Date: Thu, 02 Feb 2012 18:39:38 -0800
+Message-ID: <1328236778.18641.75.camel@joe2Laptop>
+References: <1327708522-26914-1-git-send-email-kys@microsoft.com>
+	 <1327708562-26964-1-git-send-email-kys@microsoft.com>
+	 <1327708562-26964-3-git-send-email-kys@microsoft.com>
+	 <20120202232936.GA9614@kroah.com>
+	 <6E21E5352C11B742B20C142EB499E0481B70927D@TK5EX14MBXC128.redmond.corp.microsoft.com>
+	 <20120202234848.GA26647@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1328230577-3263-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <20120202234848.GA26647@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, "gregkh@suse.de" <gregkh@suse.de>, "ohering@suse.com" <ohering@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "zbr@ioremap.net" <zbr@ioremap.net>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now cleanup the hyperv.h with regards to KVP definitions.
+On Thu, 2012-02-02 at 15:48 -0800, Greg KH wrote:
+> On Thu, Feb 02, 2012 at 11:41:29PM +0000, KY Srinivasan wrote:
+> > > > +#define __packed __attribute__((packed))
+[]
+> > When I ran the checkpatch script against these patches I got a warning that the
+> > preferred directive was to use "__packed".
+> Well, checkpatch is stupid sometimes.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- include/linux/hyperv.h |   27 ++++++++++++++-------------
- 1 files changed, 14 insertions(+), 13 deletions(-)
+True.
 
-diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index 7332b3f..b822978 100644
---- a/include/linux/hyperv.h
-+++ b/include/linux/hyperv.h
-@@ -137,7 +137,6 @@ struct hv_ku_msg {
- 
- 
- 
--#ifdef __KERNEL__
- 
- /*
-  * Registry value types.
-@@ -163,28 +162,30 @@ enum hv_kvp_exchg_pool {
- };
- 
- struct hv_kvp_hdr {
--	u8 operation;
--	u8 pool;
--};
-+	__u8 operation;
-+	__u8 pool;
-+	__u16 pad;
-+} __attribute__((packed));
- 
- struct hv_kvp_exchg_msg_value {
--	u32 value_type;
--	u32 key_size;
--	u32 value_size;
--	u8 key[HV_KVP_EXCHANGE_MAX_KEY_SIZE];
--	u8 value[HV_KVP_EXCHANGE_MAX_VALUE_SIZE];
--};
-+	__u32 value_type;
-+	__u32 key_size;
-+	__u32 value_size;
-+	__u8 key[HV_KVP_EXCHANGE_MAX_KEY_SIZE];
-+	__u8 value[HV_KVP_EXCHANGE_MAX_VALUE_SIZE];
-+} __attribute__((packed));
- 
- struct hv_kvp_msg_enumerate {
--	u32 index;
-+	__u32 index;
- 	struct hv_kvp_exchg_msg_value data;
--};
-+} __attribute__((packed));
- 
- struct hv_kvp_msg {
- 	struct hv_kvp_hdr	kvp_hdr;
- 	struct hv_kvp_msg_enumerate	kvp_data;
--};
-+} __attribute__((packed));
- 
-+#ifdef __KERNEL__
- #include <linux/scatterlist.h>
- #include <linux/list.h>
- #include <linux/uuid.h>
--- 
-1.7.4.1
+I suppose checkpatch warning could be improved to
+say that it's preferred for "kernel only" files
+and should be ignored for public/user cases.
