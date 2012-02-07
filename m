@@ -1,13 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v3] Add virtio-scsi to the virtio spec
-Date: Tue, 07 Feb 2012 10:06:04 +1030
-Message-ID: <87ehu7ilgb.fsf__36930.8268571787$1328574618$gmane$org@rustcorp.com.au>
-References: <1328439694-18705-1-git-send-email-pbonzini@redhat.com>
+From: Michael Roth <mdroth@linux.vnet.ibm.com>
+Subject: Re: Strange finding about kernel samepage merging
+Date: Mon, 6 Feb 2012 21:35:44 -0600
+Message-ID: <CANAOKxs8j2T2b0tKssFX9NeC1wyMqjLMQmgmRwMs9qvokYcW2w__38686.7046858699$1328585754$gmane$org@mail.gmail.com>
+References: <CAG4AFWaXVEHP+YikRSyt8ky9XsiBnwQ3O94Bgc7-b7nYL_2PZQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7008681744763332754=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1328439694-18705-1-git-send-email-pbonzini@redhat.com>
+In-Reply-To: <CAG4AFWaXVEHP+YikRSyt8ky9XsiBnwQ3O94Bgc7-b7nYL_2PZQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,25 +16,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>
-Cc: linux-scsi <linux-scsi@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Jidong Xiao <jidong.xiao@gmail.com>
+Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun,  5 Feb 2012 12:01:34 +0100, Paolo Bonzini <pbonzini@redhat.com> wrote:
-> Hi Rusty,
-> 
-> here is the specification for a virtio-based SCSI host (controller, HBA,
-> you name it) so that you can apply it to the spec document and publish it.
-> 
-> I changed the index from 7 to 8 to account for the rpmsg device,
-> and added a feature bit to tell the guest in advance whether the host
-> supports hotplug.  Otherwise there is no change from v2.
-> 
-> Paolo
+--===============7008681744763332754==
+Content-Type: multipart/alternative; boundary=f46d043bd6fe5d249c04b857797a
 
-Thanks, applied!
+--f46d043bd6fe5d249c04b857797a
+Content-Type: text/plain; charset=ISO-8859-1
 
-I will release a new draft version shortly.
+My guess is you end up with 2 copies of each page on the guest: the copy in
+the guest's page cache, and the copy in the buffer you allocated. From the
+perspective of the host this all looks like anonymous memory, so ksm merges
+the pages.
 
-Cheers,
-Rusty.
+--f46d043bd6fe5d249c04b857797a
+Content-Type: text/html; charset=ISO-8859-1
+
+My guess is you end up with 2 copies of each page on the guest: the copy
+ in the guest&#39;s page cache, and the copy in the buffer you allocated. From the 
+perspective of the host this all looks like anonymous memory, so ksm 
+merges the pages.<br>
+
+--f46d043bd6fe5d249c04b857797a--
+
+--===============7008681744763332754==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7008681744763332754==--
