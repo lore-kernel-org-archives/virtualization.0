@@ -1,8 +1,8 @@
 From: KY Srinivasan <kys@microsoft.com>
 Subject: RE: [PATCH 1/1] Staging: hv: storvsc: Move the storage driver out
  of the staging area
-Date: Thu, 9 Feb 2012 20:51:31 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481B70CB59@TK5EX14MBXC128.redmond.corp.microsoft.com>
+Date: Thu, 9 Feb 2012 22:13:51 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481B70CC1A@TK5EX14MBXC128.redmond.corp.microsoft.com>
 References: <1328817851-13435-1-git-send-email-kys@microsoft.com>
 	 <20120209200404.GA8816@kroah.com>
 	 <1328818718.2944.20.camel@dabdike.int.hansenpartnership.com>
@@ -12,10 +12,10 @@ References: <1328817851-13435-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-scsi-owner@vger.kernel.org>
 In-Reply-To: <1328820356.2944.24.camel@dabdike.int.hansenpartnership.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-scsi-owner@vger.kernel.org
 To: James Bottomley <James.Bottomley@HansenPartnership.com>
 Cc: Greg KH <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "hch@infradead.org" <hch@infradead.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
@@ -77,9 +77,6 @@ Cj4gdGhhdCB5b3UNCj4gPiBjaGVja2VkIGluIHllc3RlcmRheSwgYXBwbGllZCB0aGlzIHBhdGNo
 IGFuZCBidWlsdCBpdCAoc3VjY2Vzc2Z1bGx5KS4NCj4gDQo+IFlvdSdyZSBsZWF2aW5nIHJlbW5h
 bnRzIGluIHN0YWdpbmcuDQo+IA0KPiBNb3ZlIHRoZSBkYW1uIHRoaW5nIGFuZCBwdWxsIHRoZSBj
 b25maWcgb3B0aW9ucyBmcm9tIHN0YWdpbmcgd2hlbiB5b3UNCj4gcHV0IHRoZW0gaW4gU0NTSS4N
-Cg0KR3JlZyBoYWQgcmVjb21tZW5kZWQgdGhhdCB0aGUgcGF0Y2ggbW92aW5nIHRoZSBkcml2ZXIg
-c2hvdWxkIG5vdCBkZWxldGUgdGhlIGNvbnRlbnRzDQppbiB0aGUgc3RhZ2luZyBkaXJlY3Rvcnkg
-YW5kIHRoYXQgaGUgKEdyZWcpIHdvdWxkIGNsZWFuIHVwIHRoZSBzdGFnaW5nIGRpcmVjdG9yeS4g
-R3JlZywgbGV0IG1lDQprbm93IGlmIHlvdSB3YW50IG1lIHRvIHNlbmQgeW91IGEgcGF0Y2ggdGhh
-dCBpbmNsdWRlcyBnZXR0aW5nIHJpZCBvZiB0aGUgc3R1ZmYgZnJvbSB0aGUgc3RhZ2luZyBhcmVh
-Lg0KDQpSZWdhcmRzLA0KDQpLLiBZDQoNCg==
+Cg0KSSBoYXZlIG5vdyBhbHNvIHNlbnQgb3V0IGEgcGF0Y2ggdGhhdCBkb2VzIHdoYXQgeW91IGFy
+ZSBzdWdnZXN0aW5nIGhlcmUuIA0KDQpSZWdhcmRzLA0KDQpLLiBZDQogDQoNCg==
+
