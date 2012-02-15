@@ -1,14 +1,14 @@
 From: Danny Kukawka <danny.kukawka@bisect.de>
 Subject: [PATCH v2 1/2] net: replace random_ether_addr() with
 	eth_hw_addr_random()
-Date: Wed, 15 Feb 2012 15:53:14 +0100
-Message-ID: <1329317595-2031-2-git-send-email-danny.kukawka@bisect.de>
-References: <1329317595-2031-1-git-send-email-danny.kukawka@bisect.de>
+Date: Wed, 15 Feb 2012 17:45:39 +0100
+Message-ID: <1329324340-13461-2-git-send-email-danny.kukawka@bisect.de>
+References: <1329324340-13461-1-git-send-email-danny.kukawka@bisect.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1329317595-2031-1-git-send-email-danny.kukawka@bisect.de>
+In-Reply-To: <1329324340-13461-1-git-send-email-danny.kukawka@bisect.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,7 +19,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "David S. Miller" <davem@davemloft.net>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, "Michael S. Tsirkin" <mst@redhat.com>, Nicolas Ferre <nicolas.ferre@atmel.com>, James Morris <jmorris@namei.org>, Daniele Venzano <venza@brownhat.org>, Stephen Hemminger <shemminger@vyatta.com>, Wan ZongShun <mcuos.com@gmail.com>, Eric Dumazet <eric.dumazet@gmail.com>, Danny Kukawka <dkukawka@suse.de>, James Chapman <jchapman@katalix.com>, Jeff Kirsher <jeffrey.t.kirsher@intel.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, virtualization@lists.linux-foundation.org, Alexey Dobriyan <adobriyan@gmail.com>, Paul <paul.gortmaker@windriver.com>, Po-Yu Chuang <ratbert@faraday-tech.com>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Rick Jones <rick.jones2@hp.com>, Jamal Hadi Salim <hadi@cyberus.ca>, =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>, Ben Dooks <ben-linux@fluff.org>, Giuseppe Cavallaro <peppe>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Daniele Venzano <venza@brownhat.org>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, Danny Kukawka <dkukawka@suse.de>, linux-kernel@vger.kernel.org, Nicolas Ferre <nicolas.ferre@atmel.com>, Roger Luethi <rl@hellgate.ch>, Hartley Sweeten <hsweeten@visionengravers.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, Steve Glendinning <steve.glendinning@smsc.com>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, James Morris <jmorris@namei.org>, virtualization@lists.linux-foundation.org, Florian Fainelli <florian@openwrt.org>, Krzysztof Halasa <khc@pm.waw.pl>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Replace usage of random_ether_addr() with eth_hw_addr_random()
