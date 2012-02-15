@@ -1,8 +1,8 @@
 From: Danny Kukawka <danny.kukawka@bisect.de>
 Subject: [RESEND][PATCH v2 0/2] Part 2: handle addr_assign_type for random
 	addresses
-Date: Wed, 15 Feb 2012 17:45:38 +0100
-Message-ID: <1329324340-13461-1-git-send-email-danny.kukawka__42330.7968922474$1329324390$gmane$org@bisect.de>
+Date: Wed, 15 Feb 2012 18:08:33 +0100
+Message-ID: <1329324340-13461-1-git-send-email-danny.kukawka__35932.3894874707$1329325790$gmane$org@bisect.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,7 +17,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "David S. Miller" <davem@davemloft.net>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Nicolas Ferre <nicolas.ferre@atmel.com>, Eilon Greenstein <eilong@broadcom.com>, Roger Luethi <rl@hellgate.ch>, Daniele Venzano <venza@brownhat.org>, Stephen Hemminger <shemminger@vyatta.com>, dev@openvswitch.org, Danny Kukawka <dkukawka@suse.de>, James Morris <jmorris@namei.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Jesse Gross <jesse@nicira.com>, "bridge@lists.linux-foundation.org Chris Metcalf" <cmetcalf@tilera.com>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, virtualization@lists.linux-foundation.org, Florian Fainelli <florian@openwrt.org>, Jiri Pirko <jpirko@redhat.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Hartley Sweeten <hsweeten@visionengravers.com>, netdev@vger.kernel.org, Steve Glendinning <steve.glendi>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Nicolas Ferre <nicolas.ferre@atmel.com>, Eilon Greenstein <eilong@broadcom.com>, Roger Luethi <rl@hellgate.ch>, Daniele Venzano <venza@brownhat.org>, Stephen Hemminger <shemminger@vyatta.com>, dev@openvswitch.org, bridge@lists.linux-foundation.org, Danny Kukawka <dkukawka@suse.de>, James Morris <jmorris@namei.org>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Jesse Gross <jesse@nicira.com>, Chris Metcalf <cmetcalf@tilera.com>, Giuseppe Cavallaro <peppe.cavallaro@st.com>, virtualization@lists.linux-foundation.org, Florian Fainelli <florian@openwrt.org>, Jiri Pirko <jpirko@redhat.com>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Hartley Sweeten <hsweeten@visionengravers.com>, netdev@vger.kernel.org, Steve Glendinning <steve.glendin>
 List-Id: virtualization@lists.linuxfoundation.org
 
 The second part of my patch series to fix the handling of 
