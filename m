@@ -1,15 +1,11 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2 1/2] net: replace random_ether_addr() with
-	eth_hw_addr_random()
-Date: Wed, 15 Feb 2012 15:34:45 -0500 (EST)
-Message-ID: <20120215.153445.1279062916210043775.davem@davemloft.net>
-References: <1329324340-13461-1-git-send-email-danny.kukawka@bisect.de>
-	<1329324340-13461-2-git-send-email-danny.kukawka@bisect.de>
+From: Andrew Jones <drjones@redhat.com>
+Subject: [PATCH] blkfront: don't put bdev right after getting it
+Date: Thu, 16 Feb 2012 13:16:25 +0100
+Message-ID: <1329394585-10129-1-git-send-email-drjones@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1329324340-13461-2-git-send-email-danny.kukawka@bisect.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,20 +15,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: danny.kukawka@bisect.de
-Cc: mst@redhat.com, venza@brownhat.org, yoshfuji@linux-ipv6.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org, dkukawka@suse.de, linux-kernel@vger.kernel.org, nicolas.ferre@atmel.com, rl@hellgate.ch, hsweeten@visionengravers.com, gregkh@linuxfoundation.org, peppe.cavallaro@st.com, steve.glendinning@smsc.com, kuznet@ms2.inr.ac.ru, jmorris@namei.org, virtualization@lists.linux-foundation.org, florian@openwrt.org, khc@pm.waw.pl
+To: xen-devel@lists.xensource.com
+Cc: jeremy@goop.org, virtualization@lists.linux-foundation.org, konrad.wilk@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Danny Kukawka <danny.kukawka@bisect.de>
-Date: Wed, 15 Feb 2012 17:45:39 +0100
+We should hang onto bdev until we're done with it.
 
-> Replace usage of random_ether_addr() with eth_hw_addr_random()
-> to set addr_assign_type correctly to NET_ADDR_RANDOM.
-> 
-> Change the trivial cases.
-> 
-> v2: adapt to renamed eth_hw_addr_random()
-> 
-> Signed-off-by: Danny Kukawka <danny.kukawka@bisect.de>
+Signed-off-by: Andrew Jones <drjones@redhat.com>
+---
+ drivers/block/xen-blkfront.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Applied.
+diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+index 2f22874..5d45688 100644
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1410,7 +1410,6 @@ static int blkif_release(struct gendisk *disk, fmode_t mode)
+ 	mutex_lock(&blkfront_mutex);
+ 
+ 	bdev = bdget_disk(disk, 0);
+-	bdput(bdev);
+ 
+ 	if (bdev->bd_openers)
+ 		goto out;
+@@ -1441,6 +1440,7 @@ static int blkif_release(struct gendisk *disk, fmode_t mode)
+ 	}
+ 
+ out:
++	bdput(bdev);
+ 	mutex_unlock(&blkfront_mutex);
+ 	return 0;
+ }
+-- 
+1.7.7.5
