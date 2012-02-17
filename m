@@ -1,14 +1,16 @@
 From: Andrew Jones <drjones@redhat.com>
 Subject: Re: [Xen-devel] [PATCH] blkfront: don't change to closing if we're
 	busy
-Date: Fri, 17 Feb 2012 11:31:41 -0500 (EST)
-Message-ID: <20135806-592a-42bb-876a-d9d1e879c358@zmail17.collab.prod.int.phx2.redhat.com>
-References: <20120217152004.GB30298@phenom.dumpdata.com>
+Date: Fri, 17 Feb 2012 17:52:54 +0100
+Message-ID: <20120217165253.GA17397@turtle.usersys.redhat.com>
+References: <1329394629-10299-1-git-send-email-drjones@redhat.com>
+	<7bc7b30a-158e-411a-8eac-9650790c0bec@zmail17.collab.prod.int.phx2.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120217152004.GB30298@phenom.dumpdata.com>
+Content-Disposition: inline
+In-Reply-To: <7bc7b30a-158e-411a-8eac-9650790c0bec@zmail17.collab.prod.int.phx2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,87 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Konrad Rzeszutek Wilk <konrad@darnok.org>, jeremy@goop.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+To: xen-devel@lists.xensource.com
+Cc: jeremy@goop.org, virtualization@lists.linux-foundation.org, konrad wilk <konrad.wilk@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Feb 16, 2012 at 12:33:32PM -0500, Andrew Jones wrote:
+> Hmm, I should maybe self-nack this. The bug that led me to writing
+> it is likely only with older tooling, such as RHEL5's. The problem
+> was if you attempted to detach a mounted disk twice, then the second
+> time it would succeed. The guest had flipped to Closing on the first
+> try, and thus didn't issue an error to xenbus on the second. I see
 
+Actually, it's even worse than I thought. Just a single attempt to
+detach the device will cause the guest grief (with RHEL5's tools
+anyway). Once xenbus shows the device is in the Closing state, then
+tasks accessing the device may hang.
 
------ Original Message -----
-> On Fri, Feb 17, 2012 at 07:50:11AM -0500, Andrew Jones wrote:
-> > 
-> > 
-> > ----- Original Message -----
-> > > On Thu, Feb 16, 2012 at 01:17:09PM +0100, Andrew Jones wrote:
-> > > > We just reported to xenbus that we can't close yet, because
-> > > > blkfront is still in use. So we shouldn't then immediately
-> > > > state that we are closing.
-> > > 
-> > > What happens if the user uses --force to unplug the device?
-> > > Will that still work?
-> > 
-> > With RHEL5 tooling I get the same results. That is, the device
-> > is forcibly detached, and then any task in the guest that still
-> > attempts to use (or even just unmount) the device hangs.
-> > 
-> > I don't know anything about xl, but afaict block-detach
-> > doesn't take a 'force' option?
+> The reason I only say maybe self-nack though, is because this state
+> change seemed to be thrown in with another fix[1]. I'm not sure if
+> the new behavior on legacy hosts was considered or not. If not, then
+> we can consider it now. Do we want to have deferred asynch detaches
+> over protecting the guest from multiple detach calls on legacy hosts?
 > 
-> konrad@phenom:~/ssd/linux$ xm block-detach
-> xend [ERROR] Config file does not exist: /etc/xen/xend-config.sxp
-> Error: 'xm block-detach' requires between 2 and 3 arguments.
-> 
-> Usage: xm block-detach <Domain> <DevId> [-f|--force]
-> 
-> Destroy a domain's virtual block device.
 
-That's 'xm', not 'xl'. I tested RHEL5's 'xm' with the force option
-and, as I said above, I got the same results before and after this
-patch. I believe the problem (the non-force case) may exist with
-latest 'xm' too (not just RHEL5's), but I didn't really check, since
-I know 'xl' is the tool that truly matters for upstream now. As I
-said before, the problem shouldn't exist with 'xl' though, since it
-bails on state != 4, and afaict it doesn't have a force option.
-Anyway, I don't think this patch would break that path even if it
-did.
-
-I'm actually going to send a v2 of this patch in a few minutes. I'm
-just finishing it up now.
+I guess we can keep the feature and protect the guest with a patch like
+I'll send in a moment. It doesn't really work for me with a RHEL5 host
+though. The deferred close works from the pov of the guest, but the
+state of the block device gets left in Closed after the guest unmounts
+it, and then RHEL5's tools can't detach/reattach it. If the deferred
+close ever worked on other Xen hosts though, then I don't believe this
+patch would break it, and it will also keep the guest safe when run on
+hosts that don't treat state=Closing the way it currently expects.
 
 Drew
-
-> 
-> 
-> > 
-> > Drew
-> > 
-> > > > 
-> > > > Signed-off-by: Andrew Jones <drjones@redhat.com>
-> > > > ---
-> > > >  drivers/block/xen-blkfront.c |    1 -
-> > > >  1 files changed, 0 insertions(+), 1 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/block/xen-blkfront.c
-> > > > b/drivers/block/xen-blkfront.c
-> > > > index 5d45688..b53cae4 100644
-> > > > --- a/drivers/block/xen-blkfront.c
-> > > > +++ b/drivers/block/xen-blkfront.c
-> > > > @@ -1134,7 +1134,6 @@ blkfront_closing(struct blkfront_info
-> > > > *info)
-> > > >  	if (bdev->bd_openers) {
-> > > >  		xenbus_dev_error(xbdev, -EBUSY,
-> > > >  				 "Device in use; refusing to close");
-> > > > -		xenbus_switch_state(xbdev, XenbusStateClosing);
-> > > >  	} else {
-> > > >  		xlvbd_release_gendisk(info);
-> > > >  		xenbus_frontend_closed(xbdev);
-> > > > --
-> > > > 1.7.7.5
-> > > > 
-> > > > 
-> > > > _______________________________________________
-> > > > Xen-devel mailing list
-> > > > Xen-devel@lists.xensource.com
-> > > > http://lists.xensource.com/xen-devel
-> > > 
-> 
