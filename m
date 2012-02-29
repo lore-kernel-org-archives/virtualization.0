@@ -1,10 +1,9 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: IEEE Int. Scalable Computing Challenge (SCALE) at CCGrid 2012
-Date: Sun, 26 Feb 2012 08:27:48 -0600
-Message-ID: <4F4A4164.2080900@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 1/1] virtio: balloon: leak / fill balloon across S4
+Date: Wed, 29 Feb 2012 17:42:51 +0530
+Message-ID: <2d3cb82e72219287db72e20901237a1058246915.1330517514.git.amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -16,108 +15,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CALL FOR PAPERS
+commit e562966dbaf49e7804097cd991e5d3a8934fc148 added support for S4 to
+the balloon driver.  The freeze function did nothing to free the pages,
+since reclaiming the pages from the host to immediately give them back
+(if S4 was successful) seemed wasteful.  Also, if S4 wasn't successful,
+the guest would have to re-fill the balloon.  On restore, the pages were
+supposed to be marked freed and the free page counters were incremented
+to reflect the balloon was totally deflated.
 
-The Fifth IEEE International Scalable Computing Challenge (SCALE)
-Co-located with the 11th CCGrid Conference in Ottawa, Canada
-Sponsored by the IEEE Computer Society Technical Committee on
-Scalable Computing (TCSC)
+However, this wasn't done right.  The pages that were earlier taken away
+from the guest during a balloon inflation operation were just shown as
+used pages after a successful restore from S4.  Just a fancy way of
+leaking lots of memory.
 
-May 13-16, 2012
+Instead of trying that, just leak the balloon on freeze and fill it on
+restore/thaw paths.  This works properly now.  The optimisation to not
+leak can be added later on after a bit of refactoring of the code.
 
-http://www.cloudbus.org/ccgrid2012/cfp-scale.html
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+Rusty, please pick this up for 3.3.  Thanks.
 
----------------------------------------------------------------------
-Objective and Focus: The objective of the Fifth IEEE International
-Scalable Computing Challenge (SCALE 2012), sponsored by the IEEE
-Computer Society Technical Committee on Scalable Computing (TCSC), is
-to highlight and showcase real-world problem solving using computing
-that scales.
+ drivers/virtio/virtio_balloon.c |   33 ++++++++++++++++++++++-----------
+ 1 files changed, 22 insertions(+), 11 deletions(-)
 
-Effective solutions to many scientific problems require applications
-that can scale. There are different dimensions to application scaling:
-for example, applications can scale-up to large number of cores or
-compute units, scale-out to utilize multiple distinct compute units,
-or scale-down to release resources that are no longer needed. In order
-to scale, applications need the support of tools, middleware,
-infrastructure, programming systems, etc. SCALE is concerned with
-advances in application development and supporting infrastructure that
-enable scaling.
-
-Call for Proposals: The Fifth IEEE International Scalable Computing
-Challenge (SCALE 2012) contest will focus on end-to-end problem
-solving using concepts, technologies and architectures (including
-Clusters, Grids and Clouds) that facilitate scaling. Participants in
-the challenge will be expected to identify significant current
-real-world problems where scalable computing techniques can be
-effectively used, and design, implement, evaluate and demonstrate
-solutions. SCALE2012 will be held in conjunction with the 11th CCGrid
-Conference in Ottawa, Canada  on 13-16 May, 2012.
-
-We invite teams to submit white papers outlining the problem addressed
-and the technologies employed to enable applications to scale. White
-papers should be up to 4 pages long, 12-pt. font and single column,
-and in addition to listing team members and contact information,
-should clearly outline:
-
-1. The problem being solved and the technology employed
-
-2. The application scenario and its requirements
-
-3. Performance data and a qualitative description of how the
-application scales -- scale-up, scale-out or any other type of scaling
-
-4. The solution -- architecture, underlying concepts and technologies
-used -- highlighting the innovative aspects of the solution
-
-5. Impact of the solution, including extensibility and uniqueness of
-results, and the extent to which the presented solution pushes the
-envelope in scalable computing
-
-6. Analysis of solution and technology employed compared to related
-approaches
-
-In addition to the above, finalists will be judged on the quality of
-their presentation, which shall include a 5-minute demonstration, as
-well as their responses to questions by a technical committee.
-
-
-Papers will be shortlisted using the above 6 points as merit criteria,
-and up to 6 papers will be invited to compete in a final round at
-CCGrid 2012.  Selected teams will receive an award of up to $1000 to
-help with travel to the conference. At least one member from each
-selected team will be expected to present and demonstrate their
-project at CCGrid 2012.  Participation from students and young
-researchers, especially in leadership roles, is strongly encouraged.
-
-Awards:
-First  prize:   Plaque + $1000
-Second prize:   Plaque + $500
-
-Tentative timeline:
-The deadline for submitting proposals is 15 March, 2012.
-Decisions:  01 April 2012.
-Final presentation/demo: 13-16 May, 2012.
-
-Coordinator:
-Shantenu Jha, Rutgers University, USA, shantenu dot jha at rutgers dot edu
-
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 95aeedf..958e512 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -367,29 +367,45 @@ static void __devexit virtballoon_remove(struct virtio_device *vdev)
+ #ifdef CONFIG_PM
+ static int virtballoon_freeze(struct virtio_device *vdev)
+ {
++	struct virtio_balloon *vb = vdev->priv;
++
+ 	/*
+ 	 * The kthread is already frozen by the PM core before this
+ 	 * function is called.
+ 	 */
+ 
++	while (vb->num_pages)
++		leak_balloon(vb, vb->num_pages);
++	update_balloon_size(vb);
++
+ 	/* Ensure we don't get any more requests from the host */
+ 	vdev->config->reset(vdev);
+ 	vdev->config->del_vqs(vdev);
+ 	return 0;
+ }
+ 
++static int restore_common(struct virtio_device *vdev)
++{
++	struct virtio_balloon *vb = vdev->priv;
++	int ret;
++
++	ret = init_vqs(vdev->priv);
++	if (ret)
++		return ret;
++
++	fill_balloon(vb, towards_target(vb));
++	update_balloon_size(vb);
++	return 0;
++}
++
+ static int virtballoon_thaw(struct virtio_device *vdev)
+ {
+-	return init_vqs(vdev->priv);
++	return restore_common(vdev);
+ }
+ 
+ static int virtballoon_restore(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb = vdev->priv;
+-	struct page *page, *page2;
+-
+-	/* We're starting from a clean slate */
+-	vb->num_pages = 0;
+ 
+ 	/*
+ 	 * If a request wasn't complete at the time of freezing, this
+@@ -397,12 +413,7 @@ static int virtballoon_restore(struct virtio_device *vdev)
+ 	 */
+ 	vb->need_stats_update = 0;
+ 
+-	/* We don't have these pages in the balloon anymore! */
+-	list_for_each_entry_safe(page, page2, &vb->pages, lru) {
+-		list_del(&page->lru);
+-		totalram_pages++;
+-	}
+-	return init_vqs(vdev->priv);
++	return restore_common(vdev);
+ }
+ #endif
+ 
 -- 
-=================================================================
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=================================================================
-Cel:    1-847-722-0876
-Office: 1-312-567-5704
-Email:  iraicu@cs.iit.edu
-Web:    http://www.cs.iit.edu/~iraicu/
-Web:    http://datasys.cs.iit.edu/
-=================================================================
-=================================================================
+1.7.7.6
