@@ -1,11 +1,13 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 1/1] virtio: balloon: leak / fill balloon across S4
-Date: Wed, 29 Feb 2012 17:42:51 +0530
-Message-ID: <2d3cb82e72219287db72e20901237a1058246915.1330517514.git.amit.shah@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PULL] virtio: balloon: leak / fill balloon across S4
+Date: Thu, 01 Mar 2012 09:33:45 +1030
+Message-ID: <877gz52qem.fsf@rustcorp.com.au>
+References: <2d3cb82e72219287db72e20901237a1058246915.1330517514.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <2d3cb82e72219287db72e20901237a1058246915.1330517514.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,102 +17,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-commit e562966dbaf49e7804097cd991e5d3a8934fc148 added support for S4 to
-the balloon driver.  The freeze function did nothing to free the pages,
-since reclaiming the pages from the host to immediately give them back
-(if S4 was successful) seemed wasteful.  Also, if S4 wasn't successful,
-the guest would have to re-fill the balloon.  On restore, the pages were
-supposed to be marked freed and the free page counters were incremented
-to reflect the balloon was totally deflated.
+ + 65e65f9...847ce6c for-linus -> for-linus (forced update)
+The following changes since commit 5ffca28a4ac7abb8a254fafe6bd03b2f83667df7:
 
-However, this wasn't done right.  The pages that were earlier taken away
-from the guest during a balloon inflation operation were just shown as
-used pages after a successful restore from S4.  Just a fancy way of
-leaking lots of memory.
+  Merge git://git.kernel.org/pub/scm/linux/kernel/git/aia21/ntfs (2012-02-27 07:59:33 -0800)
 
-Instead of trying that, just leak the balloon on freeze and fill it on
-restore/thaw paths.  This works properly now.  The optimisation to not
-leak can be added later on after a bit of refactoring of the code.
+are available in the git repository at:
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
-Rusty, please pick this up for 3.3.  Thanks.
+  git://github.com/rustyrussell/linux.git master
+
+Amit Shah (1):
+      virtio: balloon: leak / fill balloon across S4
 
  drivers/virtio/virtio_balloon.c |   33 ++++++++++++++++++++++-----------
  1 files changed, 22 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 95aeedf..958e512 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -367,29 +367,45 @@ static void __devexit virtballoon_remove(struct virtio_device *vdev)
- #ifdef CONFIG_PM
- static int virtballoon_freeze(struct virtio_device *vdev)
- {
-+	struct virtio_balloon *vb = vdev->priv;
-+
- 	/*
- 	 * The kthread is already frozen by the PM core before this
- 	 * function is called.
- 	 */
- 
-+	while (vb->num_pages)
-+		leak_balloon(vb, vb->num_pages);
-+	update_balloon_size(vb);
-+
- 	/* Ensure we don't get any more requests from the host */
- 	vdev->config->reset(vdev);
- 	vdev->config->del_vqs(vdev);
- 	return 0;
- }
- 
-+static int restore_common(struct virtio_device *vdev)
-+{
-+	struct virtio_balloon *vb = vdev->priv;
-+	int ret;
-+
-+	ret = init_vqs(vdev->priv);
-+	if (ret)
-+		return ret;
-+
-+	fill_balloon(vb, towards_target(vb));
-+	update_balloon_size(vb);
-+	return 0;
-+}
-+
- static int virtballoon_thaw(struct virtio_device *vdev)
- {
--	return init_vqs(vdev->priv);
-+	return restore_common(vdev);
- }
- 
- static int virtballoon_restore(struct virtio_device *vdev)
- {
- 	struct virtio_balloon *vb = vdev->priv;
--	struct page *page, *page2;
--
--	/* We're starting from a clean slate */
--	vb->num_pages = 0;
- 
- 	/*
- 	 * If a request wasn't complete at the time of freezing, this
-@@ -397,12 +413,7 @@ static int virtballoon_restore(struct virtio_device *vdev)
- 	 */
- 	vb->need_stats_update = 0;
- 
--	/* We don't have these pages in the balloon anymore! */
--	list_for_each_entry_safe(page, page2, &vb->pages, lru) {
--		list_del(&page->lru);
--		totalram_pages++;
--	}
--	return init_vqs(vdev->priv);
-+	return restore_common(vdev);
- }
- #endif
- 
--- 
-1.7.7.6
