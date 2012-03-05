@@ -1,64 +1,65 @@
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+From: KY Srinivasan <kys@microsoft.com>
 Subject: RE: [PATCH 1/1] Drivers: scsi: storvsc: Don't pass ATA_16 command
-	to the host
-Date: Sun, 04 Mar 2012 08:48:33 -0600
-Message-ID: <1330872513.2858.14.camel@dabdike.int.hansenpartnership.com>
+ to the host
+Date: Mon, 5 Mar 2012 02:29:11 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481B74B90D@TK5EX14MBXC126.redmond.corp.microsoft.com>
 References: <1330721347-26781-1-git-send-email-kys@microsoft.com>
-	<20120304091225.GA27297@infradead.org>
-	<6E21E5352C11B742B20C142EB499E0481B74886F@TK5EX14MBXC126.redmond.corp.microsoft.com>
+	 <20120304091225.GA27297@infradead.org>
+	 <6E21E5352C11B742B20C142EB499E0481B74886F@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <1330872513.2858.14.camel@dabdike.int.hansenpartnership.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0481B74886F@TK5EX14MBXC126.redmond.corp.microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, "ohering@suse.com" <ohering@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@infradead.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1330872513.2858.14.camel@dabdike.int.hansenpartnership.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Christoph Hellwig <hch@infradead.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2012-03-04 at 14:23 +0000, KY Srinivasan wrote:
-> 
-> > -----Original Message-----
-> > From: Christoph Hellwig [mailto:hch@infradead.org]
-> > Sent: Sunday, March 04, 2012 4:12 AM
-> > To: KY Srinivasan
-> > Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
-> > jbottomley@parallels.com; hch@infradead.org; linux-scsi@vger.kernel.org;
-> > Haiyang Zhang
-> > Subject: Re: [PATCH 1/1] Drivers: scsi: storvsc: Don't pass ATA_16 command to
-> > the host
-> > 
-> > On Fri, Mar 02, 2012 at 12:49:07PM -0800, K. Y. Srinivasan wrote:
-> > > Windows hosts don't handle the ATA_16 command; don't pass it to the host.
-> > 
-> > Most devices don't handle it, and answer with and unsupported opcode
-> > sense reason.  If hyperv iis buggy enough to crap out on it please add
-> > a comment explaining that.
-> 
-> The host does not "crap out", it does return an error code but it is not "unsupported opcode".
-> The sense reason that comes back is a generic error SRB_STATUS code. It is easier for me to filter the
-> command on the outgoing side as opposed to dealing with a generic error code that is coming back from
-> the host.
-
-That's the wrong thing to do ... you need to unwrap the error code.
-The reason being I presume it's not impossible for Windows to host a
-device supporting ATA_16 and there are signs that this is going to be
-necessary to prevent data corruption on some USB devices ... if you just
-filter the command without checking if the host supports it, you're
-going to end up perpetuating the corruption problem.
-
-The general rule of thumb for avoiding this is to let the lower layers
-handle as much as possible, and only begin behaviour alterations in the
-upper layers if the lower layers have a provable and usually fatal
-failure.
-
-James
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmFtZXMgQm90dG9tbGV5
+IFttYWlsdG86SmFtZXMuQm90dG9tbGV5QEhhbnNlblBhcnRuZXJzaGlwLmNvbV0NCj4gU2VudDog
+U3VuZGF5LCBNYXJjaCAwNCwgMjAxMiA5OjQ5IEFNDQo+IFRvOiBLWSBTcmluaXZhc2FuDQo+IENj
+OiBDaHJpc3RvcGggSGVsbHdpZzsgZ3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc7IGxpbnV4LQ0K
+PiBrZXJuZWxAdmdlci5rZXJuZWwub3JnOyBkZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3JnOw0K
+PiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9yZzsgb2hlcmluZ0BzdXNlLmNvbTsgbGludXgt
+c2NzaUB2Z2VyLmtlcm5lbC5vcmc7DQo+IEhhaXlhbmcgWmhhbmcNCj4gU3ViamVjdDogUkU6IFtQ
+QVRDSCAxLzFdIERyaXZlcnM6IHNjc2k6IHN0b3J2c2M6IERvbid0IHBhc3MgQVRBXzE2IGNvbW1h
+bmQgdG8NCj4gdGhlIGhvc3QNCj4gDQo+IE9uIFN1biwgMjAxMi0wMy0wNCBhdCAxNDoyMyArMDAw
+MCwgS1kgU3Jpbml2YXNhbiB3cm90ZToNCj4gPg0KPiA+ID4gLS0tLS1PcmlnaW5hbCBNZXNzYWdl
+LS0tLS0NCj4gPiA+IEZyb206IENocmlzdG9waCBIZWxsd2lnIFttYWlsdG86aGNoQGluZnJhZGVh
+ZC5vcmddDQo+ID4gPiBTZW50OiBTdW5kYXksIE1hcmNoIDA0LCAyMDEyIDQ6MTIgQU0NCj4gPiA+
+IFRvOiBLWSBTcmluaXZhc2FuDQo+ID4gPiBDYzogZ3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc7
+IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+ID4gPiBkZXZlbEBsaW51eGRyaXZlcnBy
+b2plY3Qub3JnOyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9yZzsNCj4gb2hlcmluZ0BzdXNl
+LmNvbTsNCj4gPiA+IGpib3R0b21sZXlAcGFyYWxsZWxzLmNvbTsgaGNoQGluZnJhZGVhZC5vcmc7
+IGxpbnV4LXNjc2lAdmdlci5rZXJuZWwub3JnOw0KPiA+ID4gSGFpeWFuZyBaaGFuZw0KPiA+ID4g
+U3ViamVjdDogUmU6IFtQQVRDSCAxLzFdIERyaXZlcnM6IHNjc2k6IHN0b3J2c2M6IERvbid0IHBh
+c3MgQVRBXzE2IGNvbW1hbmQgdG8NCj4gPiA+IHRoZSBob3N0DQo+ID4gPg0KPiA+ID4gT24gRnJp
+LCBNYXIgMDIsIDIwMTIgYXQgMTI6NDk6MDdQTSAtMDgwMCwgSy4gWS4gU3Jpbml2YXNhbiB3cm90
+ZToNCj4gPiA+ID4gV2luZG93cyBob3N0cyBkb24ndCBoYW5kbGUgdGhlIEFUQV8xNiBjb21tYW5k
+OyBkb24ndCBwYXNzIGl0IHRvIHRoZQ0KPiBob3N0Lg0KPiA+ID4NCj4gPiA+IE1vc3QgZGV2aWNl
+cyBkb24ndCBoYW5kbGUgaXQsIGFuZCBhbnN3ZXIgd2l0aCBhbmQgdW5zdXBwb3J0ZWQgb3Bjb2Rl
+DQo+ID4gPiBzZW5zZSByZWFzb24uICBJZiBoeXBlcnYgaWlzIGJ1Z2d5IGVub3VnaCB0byBjcmFw
+IG91dCBvbiBpdCBwbGVhc2UgYWRkDQo+ID4gPiBhIGNvbW1lbnQgZXhwbGFpbmluZyB0aGF0Lg0K
+PiA+DQo+ID4gVGhlIGhvc3QgZG9lcyBub3QgImNyYXAgb3V0IiwgaXQgZG9lcyByZXR1cm4gYW4g
+ZXJyb3IgY29kZSBidXQgaXQgaXMgbm90DQo+ICJ1bnN1cHBvcnRlZCBvcGNvZGUiLg0KPiA+IFRo
+ZSBzZW5zZSByZWFzb24gdGhhdCBjb21lcyBiYWNrIGlzIGEgZ2VuZXJpYyBlcnJvciBTUkJfU1RB
+VFVTIGNvZGUuIEl0IGlzDQo+IGVhc2llciBmb3IgbWUgdG8gZmlsdGVyIHRoZQ0KPiA+IGNvbW1h
+bmQgb24gdGhlIG91dGdvaW5nIHNpZGUgYXMgb3Bwb3NlZCB0byBkZWFsaW5nIHdpdGggYSBnZW5l
+cmljIGVycm9yIGNvZGUNCj4gdGhhdCBpcyBjb21pbmcgYmFjayBmcm9tDQo+ID4gdGhlIGhvc3Qu
+DQo+IA0KPiBUaGF0J3MgdGhlIHdyb25nIHRoaW5nIHRvIGRvIC4uLiB5b3UgbmVlZCB0byB1bndy
+YXAgdGhlIGVycm9yIGNvZGUuDQoNCkkgd2lsbCBzZWUgaWYgdGhpcyBpcyBldmVuIHBvc3NpYmxl
+IGJhc2VkIG9uIHRoZSBjdXJyZW50IGVycm9yIGNvZGVzIEkgZ2V0IGJhY2suDQoNCj4gVGhlIHJl
+YXNvbiBiZWluZyBJIHByZXN1bWUgaXQncyBub3QgaW1wb3NzaWJsZSBmb3IgV2luZG93cyB0byBo
+b3N0IGENCj4gZGV2aWNlIHN1cHBvcnRpbmcgQVRBXzE2IGFuZCB0aGVyZSBhcmUgc2lnbnMgdGhh
+dCB0aGlzIGlzIGdvaW5nIHRvIGJlDQo+IG5lY2Vzc2FyeSB0byBwcmV2ZW50IGRhdGEgY29ycnVw
+dGlvbiBvbiBzb21lIFVTQiBkZXZpY2VzIC4uLiBpZiB5b3UganVzdA0KPiBmaWx0ZXIgdGhlIGNv
+bW1hbmQgd2l0aG91dCBjaGVja2luZyBpZiB0aGUgaG9zdCBzdXBwb3J0cyBpdCwgeW91J3JlDQo+
+IGdvaW5nIHRvIGVuZCB1cCBwZXJwZXR1YXRpbmcgdGhlIGNvcnJ1cHRpb24gcHJvYmxlbS4NCg0K
+V2UgYXJlIHRhbGtpbmcgb2YgdmlydHVhbCAgYmxvY2sgZGV2aWNlcyBleHBvc2VkIHRvIExpbnV4
+IGd1ZXN0cyBydW5uaW5nIG9uIGEgV2luZG93cw0KaG9zdHMuIEkgZG9uJ3QgdGhpbmsgdGhleSB3
+aWxsIGV2ZXIgbmVlZCB0byBzdXBwb3J0IEFUQV8xNiBjb21tYW5kIG9uIHRoZXNlIHZpcnR1YWwg
+YmxvY2sNCmRldmljZXMuIEkgd2lsbCBob3dldmVyIGNvbmZpcm0gd2l0aCB0aGUgV2luZG93cyB0
+ZWFtLg0KDQoNClJlZ2FyZHMsDQoNCksuIFkNCg0K
