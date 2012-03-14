@@ -1,21 +1,16 @@
-From: Justin Gibbs <justing@spectralogic.com>
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Subject: Re: [Xen-devel] [PATCH 0001/001] xen: multi page ring support for
 	block devices
-Date: Wed, 14 Mar 2012 17:01:09 +0000
-Message-ID: <59150D7B-8349-4249-A93A-04883F4AD744@spectralogic.com>
+Date: Wed, 14 Mar 2012 11:17:50 -0600
+Message-ID: <96ED0F5B-AE7D-4C8E-A8E1-D386B2DED212@scsiguy.com>
 References: <1330701099-18281-1-git-send-email-santoshprasadnayak@gmail.com>
 	<7914B38A4445B34AA16EB9F1352942F1010A1FA12364@SJCPMAILBOX01.citrite.net>
-	<CAPbh3rsExLtohBwVd_scYuO=GN1iZE5egQQ3x5M59YUno5Rtyw@mail.gmail.com>
-	<4F5739760200007800076DA6@nat28.tlf.novell.com>
-	<230A793A-C929-468E-97BE-1C68920749E1@spectralogic.com>
-	<4F60C888020000780007861F@nat28.tlf.novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	<4F55DA3E0200007800076916@nat28.tlf.novell.com>
+Mime-Version: 1.0 (Apple Message framework v1257)
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F60C888020000780007861F@nat28.tlf.novell.com>
-Content-Language: en-US
-Content-ID: <E4E9B66CD1AFDA4AADC65DF5542C5952@spectralogic.com>
+In-Reply-To: <4F55DA3E0200007800076916@nat28.tlf.novell.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,76 +21,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jan Beulich <JBeulich@suse.com>
-Cc: "jeremy@goop.org" <jeremy@goop.org>, Ian Campbell <Ian.Campbell@citrix.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "waldi@debian.org" <waldi@debian.org>, "joe.jin@oracle.com" <joe.jin@oracle.com>, "weiyi.huang@gmail.com" <weiyi.huang@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "paul.gortmaker@windriver.com" <paul.gortmaker@windriver.com>, Paul Durrant <Paul.Durrant@citrix.com>, DavidVrabel <david.vrabel@citrix.com>, Santosh Jodh <Santosh.Jodh@citrix.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "<konrad@darnok.org>" <konrad@darnok.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, xen-devel@lists.xen.or
+Cc: "jeremy@goop.org" <jeremy@goop.org>, "xen-devel@lists.xen.org" <xen-devel@lists.xen.org>, Ian Campbell <Ian.Campbell@citrix.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "waldi@debian.org" <waldi@debian.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "joe.jin@oracle.com" <joe.jin@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "weiyi.huang@gmail.com" <weiyi.huang@gmail.com>, "paul.gortmaker@windriver.com" <paul.gortmaker@windriver.com>, Paul Durrant <Paul.Durrant@citrix.com>, David Vrabel <david.vrabel@citrix.com>, Santosh Jodh <Santosh.Jodh@citrix.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, lersek@red
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mar 14, 2012, at 9:34 AM, Jan Beulich wrote:
+On Mar 6, 2012, at 1:34 AM, Jan Beulich wrote:
 
->>>> On 14.03.12 at 07:32, Justin Gibbs <justing@spectralogic.com> wrote:
->> There's another problem here that I brought up during the Xen
->> Hack-a-thon.  The ring macros require that the ring element count
->> be a power of two.  This doesn't mean that the ring will be a power
->> of 2 pages in size.  To illustrate this point, I modified the FreeBSD
->> blkback driver to provide negotiated ring stats via sysctl.
->> 
->> Here's a connection to a Windows VM running the Citrix PV drivers:
->> 
->>    dev.xbbd.2.max_requests: 128
->>    dev.xbbd.2.max_request_segments: 11
->>    dev.xbbd.2.max_request_size: 45056
->>    dev.xbbd.2.ring_elem_size: 108  <= 32bit ABI
->>    dev.xbbd.2.ring_pages: 4
->>    dev.xbbd.2.ring_elements: 128
->>    dev.xbbd.2.ring_waste: 2496
->> 
->> Over half a page is wasted when ring-page-order is 2.  I'm sure you
->> can see where this is going.  :-)
-> 
-> Having looked a little closer on how the wasted space is progressing,
-> I find myself in the odd position that I can't explain the original (and
-> still active) definition of BLKIF_MAX_SEGMENTS_PER_REQUEST (11):
-> With ring-order zero, there's 0x240/0x1c0 bytes (32/64-bit
-> respectively) are unused. With 32 requests fitting in the ring, and with
-> each segment occupying 6 bytes (padded to 8), in the 64-bit variant
-> there's enough space for a 12th segment (32-bit would even have
-> space for a 13th). Am I missing anything here?
+>>>> On 05.03.12 at 22:49, Santosh Jodh <Santosh.Jodh@citrix.com> wrote:
 
-I don't profess to know the real reason, but the only thing I can come up
-with is a requirement/desire on some platforms for 16byte alignment
-of the request structures.  This would make the largest possible structure
-112 bytes, not the 120 that would allow for more elements.
+=85
 
-While we're talking about fixing ring data structures, can RING_IDX
-be defined as a "uint32_t" instead of "unsigned int".  The structure
-padding in the ring macros assumes RING_IDX is exactly 4 bytes,
-so this should be made explicit.  ILP64 machines may still be a way
-out, but the use of non-fixed sized types in places where size really
-matters just isn't clean.
+>> +       }
+>> +
+>>        /* Create shared ring, alloc event channel. */
+>>        err =3D setup_blkring(dev, info);
+>>        if (err)
+>> @@ -889,12 +916,35 @@ again:
+>>                goto destroy_blkring;
+>>        }
+>> =
 
-> 
->> Here are the limits published by our backend to the XenStore:
->> 
->>    max-ring-pages = "113"
->>    max-ring-page-order = "7"
->>    max-requests = "256"
->>    max-request-segments = "129"
->>    max-request-size = "524288"
-> 
-> Oh, so this protocol doesn't require ring-pages (and max-ring-pages)
-> to be a power of two? In which case I think it is a mistake to also
-> advertise max-ring-page-order, as at least the (Linux) frontend code
-> I know of interprets this as being able to set up a ring of (using the
-> numbers above) 128 pages (unless, of course, your backend can deal
-> with this regardless of the max-ring-pages value it announces).
+>> -       err =3D xenbus_printf(xbt, dev->nodename,
+>> -                           "ring-ref", "%u", info->ring_ref);
+>> -       if (err) {
+>> -               message =3D "writing ring-ref";
+>> -               goto abort_transaction;
+>> +       if (legacy_backend) {
+> =
 
-The advertised max-ring-pages is sufficient to hold the maximum allowed
-number of ring elements regardless of ABI.  This is then rounded up to the
-next power of 2 pages to get the max-ring-page order.  When the front-end
-negotiates, the backend just verifies that the maximum number of ring
-elements in the specified ring size doesn't exceed the backend's limit.
-Fortunately, even with this large of a ring, regardless of ABI, a given
-page order computes to the same number of ring elements.  You just have
-more wasted space.
+> Why not use the simpler interface always when info->ring_order =3D=3D 0?
+
+Because, as I just found out today via a FreeBSD bug report, that's
+not how XenServer works.  If the front-end publishes "ring-page-order",
+the backend assumes the "ring-refNN" XenStore nodes are in effect,
+even if the order is 0.
+
+I'm working on a documentation update for blkif.h now.
+
+<sigh>
 
 --
 Justin
