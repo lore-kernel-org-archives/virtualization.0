@@ -1,8 +1,8 @@
 From: "Jan Beulich" <JBeulich@suse.com>
 Subject: Re: [Xen-devel] [PATCH 0001/001] xen: multi page ring support
 	for block devices
-Date: Wed, 14 Mar 2012 08:35:24 +0000
-Message-ID: <4F60665C0200007800078341@nat28.tlf.novell.com>
+Date: Wed, 14 Mar 2012 15:34:16 +0000
+Message-ID: <4F60C888020000780007861F@nat28.tlf.novell.com>
 References: <1330701099-18281-1-git-send-email-santoshprasadnayak@gmail.com>
 	<7914B38A4445B34AA16EB9F1352942F1010A1FA12364@SJCPMAILBOX01.citrite.net>
 	<CAPbh3rsExLtohBwVd_scYuO=GN1iZE5egQQ3x5M59YUno5Rtyw@mail.gmail.com>
@@ -46,62 +46,32 @@ List-Id: virtualization@lists.linuxfoundation.org
 > 
 > Over half a page is wasted when ring-page-order is 2.  I'm sure you
 > can see where this is going.  :-)
-> 
+
+Having looked a little closer on how the wasted space is progressing,
+I find myself in the odd position that I can't explain the original (and
+still active) definition of BLKIF_MAX_SEGMENTS_PER_REQUEST (11):
+With ring-order zero, there's 0x240/0x1c0 bytes (32/64-bit
+respectively) are unused. With 32 requests fitting in the ring, and with
+each segment occupying 6 bytes (padded to 8), in the 64-bit variant
+there's enough space for a 12th segment (32-bit would even have
+space for a 13th). Am I missing anything here?
+
+Plus all this assumes a page size of 4k, yet ia64 had always been using
+pages of 16k iirc.
+
 > Here are the limits published by our backend to the XenStore:
-> 
+>
 >     max-ring-pages = "113"
 >     max-ring-page-order = "7"
 >     max-requests = "256"
 >     max-request-segments = "129"
 >     max-request-size = "524288"
-> 
-> Because we allow so many concurrent, large requests in our product,
-> the ring wastage really adds up if the front end doesn't support
-> the "ring-pages" variant of the extension.  However, you only need
-> a ring-page-order of 3 with this protocol to start seeing pages of
-> wasted ring space.
-> 
-> You don't really want to negotiate "ring-pages" either.  The backends
-> often need to support multiple ABIs.  I can easily construct a set
-> of limits for the FreeBSD blkback driver which will cause the ring
-> limits to vary by a page between the 32bit and 64bit ABIs.
-> 
-> With all this in mind, the backend must do a dance of rounding up,
-> taking the max of the ring sizes for the different ABIs, and then
-> validating the front-end published limits taking its ABI into
-> account.  The front-end does some of this too.  Its way too messy
-> and error prone because we don't communicate the ring element limit
-> directly.
-> 
-> "max-ring-element-order" anyone? :-)
 
-Interesting observation - yes, I think deprecating both pre-existing
-methods in favor of something along those lines would be desirable.
-(But I'd favor not using the term "order" here as it is - at least in
-Linux - usually implied to be used on pages. "max-ringent-log2"
-perhaps?)
-
-What you say also implies that all currently floating around Linux
-backend patches are flawed in their way of calculating the number
-of ring entries, as this number really depends on the protocol the
-frontend advertises.
-
-Further, if you're concerned about wasting ring space (and
-particularly in the context of your request number/size/segments
-extension), shouldn't we bother to define pairs (or larger groups)
-of struct blkif_request_segment (as currently a quarter of the space
-is mere padding)? Or split grefs from {first,last}_sect altogether?
-
-Finally, while looking at all this again, I stumbled across the use
-of blkif_vdev_t in the ring structures: At least Linux'es blkback
-completely ignores this field - {xen_,}vbd_translate() simply
-overwrites what dispatch_rw_block_io() put there (and with this,
-struct phys_req's dev and bdev members seem rather pointless too).
-Does anyone recall what the original intention with this request field
-was? Allowing I/O on multiple devices over a single ring?
-
-Bottom line - shouldn't we define a blkif2 interface to cleanly
-accommodate all the various extensions (and do away with the
-protocol variations)?
+Oh, so this protocol doesn't require ring-pages (and max-ring-pages)
+to be a power of two? In which case I think it is a mistake to also
+advertise max-ring-page-order, as at least the (Linux) frontend code
+I know of interprets this as being able to set up a ring of (using the
+numbers above) 128 pages (unless, of course, your backend can deal
+with this regardless of the max-ring-pages value it announces).
 
 Jan
