@@ -1,27 +1,107 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 0000/0004] drivers: hv
-Date: Tue, 13 Mar 2012 14:50:36 -0700
-Message-ID: <20120313215036.GA4972@kroah.com>
-References: <1331422300-4330-1-git-send-email-kys@microsoft.com>
+From: "Jan Beulich" <JBeulich@suse.com>
+Subject: Re: [Xen-devel] [PATCH 0001/001] xen: multi page ring support
+	for block devices
+Date: Wed, 14 Mar 2012 08:35:24 +0000
+Message-ID: <4F60665C0200007800078341@nat28.tlf.novell.com>
+References: <1330701099-18281-1-git-send-email-santoshprasadnayak@gmail.com>
+	<7914B38A4445B34AA16EB9F1352942F1010A1FA12364@SJCPMAILBOX01.citrite.net>
+	<CAPbh3rsExLtohBwVd_scYuO=GN1iZE5egQQ3x5M59YUno5Rtyw@mail.gmail.com>
+	<4F5739760200007800076DA6@nat28.tlf.novell.com>
+	<230A793A-C929-468E-97BE-1C68920749E1@spectralogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <230A793A-C929-468E-97BE-1C68920749E1@spectralogic.com>
 Content-Disposition: inline
-In-Reply-To: <1331422300-4330-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Justin Gibbs <justing@spectralogic.com>
+Cc: "jeremy@goop.org" <jeremy@goop.org>, Ian Campbell <Ian.Campbell@citrix.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "waldi@debian.org" <waldi@debian.org>, "joe.jin@oracle.com" <joe.jin@oracle.com>, "weiyi.huang@gmail.com" <weiyi.huang@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "paul.gortmaker@windriver.com" <paul.gortmaker@windriver.com>, Paul Durrant <Paul.Durrant@citrix.com>, DavidVrabel <david.vrabel@citrix.com>, Santosh Jodh <Santosh.Jodh@citrix.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "<konrad@darnok.org>" <konrad@darnok.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, xen-devel@lists.xen.or
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Mar 10, 2012 at 03:31:40PM -0800, K. Y. Srinivasan wrote:
+>>> On 14.03.12 at 07:32, Justin Gibbs <justing@spectralogic.com> wrote:
+> There's another problem here that I brought up during the Xen
+> Hack-a-thon.  The ring macros require that the ring element count
+> be a power of two.  This doesn't mean that the ring will be a power
+> of 2 pages in size.  To illustrate this point, I modified the FreeBSD
+> blkback driver to provide negotiated ring stats via sysctl.
 > 
-> This patch-set further enhances the KVP functionality for Linux
-> guests:
+> Here's a connection to a Windows VM running the Citrix PV drivers:
 > 
-> 	1. Supports most of the Win8 KVP protocol.
-> 	2. Supports operations on all the pools.
+>     dev.xbbd.2.max_requests: 128
+>     dev.xbbd.2.max_request_segments: 11
+>     dev.xbbd.2.max_request_size: 45056
+>     dev.xbbd.2.ring_elem_size: 108  <= 32bit ABI
+>     dev.xbbd.2.ring_pages: 4
+>     dev.xbbd.2.ring_elements: 128
+>     dev.xbbd.2.ring_waste: 2496
+> 
+> Over half a page is wasted when ring-page-order is 2.  I'm sure you
+> can see where this is going.  :-)
+> 
+> Here are the limits published by our backend to the XenStore:
+> 
+>     max-ring-pages = "113"
+>     max-ring-page-order = "7"
+>     max-requests = "256"
+>     max-request-segments = "129"
+>     max-request-size = "524288"
+> 
+> Because we allow so many concurrent, large requests in our product,
+> the ring wastage really adds up if the front end doesn't support
+> the "ring-pages" variant of the extension.  However, you only need
+> a ring-page-order of 3 with this protocol to start seeing pages of
+> wasted ring space.
+> 
+> You don't really want to negotiate "ring-pages" either.  The backends
+> often need to support multiple ABIs.  I can easily construct a set
+> of limits for the FreeBSD blkback driver which will cause the ring
+> limits to vary by a page between the 32bit and 64bit ABIs.
+> 
+> With all this in mind, the backend must do a dance of rounding up,
+> taking the max of the ring sizes for the different ABIs, and then
+> validating the front-end published limits taking its ABI into
+> account.  The front-end does some of this too.  Its way too messy
+> and error prone because we don't communicate the ring element limit
+> directly.
+> 
+> "max-ring-element-order" anyone? :-)
 
-I've only applied the first patch, due to the issues with the second.
-Feel free to resend the rest when you have them worked out.
+Interesting observation - yes, I think deprecating both pre-existing
+methods in favor of something along those lines would be desirable.
+(But I'd favor not using the term "order" here as it is - at least in
+Linux - usually implied to be used on pages. "max-ringent-log2"
+perhaps?)
 
-greg k-h
+What you say also implies that all currently floating around Linux
+backend patches are flawed in their way of calculating the number
+of ring entries, as this number really depends on the protocol the
+frontend advertises.
+
+Further, if you're concerned about wasting ring space (and
+particularly in the context of your request number/size/segments
+extension), shouldn't we bother to define pairs (or larger groups)
+of struct blkif_request_segment (as currently a quarter of the space
+is mere padding)? Or split grefs from {first,last}_sect altogether?
+
+Finally, while looking at all this again, I stumbled across the use
+of blkif_vdev_t in the ring structures: At least Linux'es blkback
+completely ignores this field - {xen_,}vbd_translate() simply
+overwrites what dispatch_rw_block_io() put there (and with this,
+struct phys_req's dev and bdev members seem rather pointless too).
+Does anyone recall what the original intention with this request field
+was? Allowing I/O on multiple devices over a single ring?
+
+Bottom line - shouldn't we define a blkif2 interface to cleanly
+accommodate all the various extensions (and do away with the
+protocol variations)?
+
+Jan
