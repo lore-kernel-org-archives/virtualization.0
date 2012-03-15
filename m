@@ -1,23 +1,16 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: Re: [Xen-devel] [PATCH 0001/001] xen: multi page ring support
-	for block devices
-Date: Thu, 15 Mar 2012 09:31:17 +0000
-Message-ID: <4F61C4F50200007800078963@nat28.tlf.novell.com>
-References: <1330701099-18281-1-git-send-email-santoshprasadnayak@gmail.com>
-	<7914B38A4445B34AA16EB9F1352942F1010A1FA12364@SJCPMAILBOX01.citrite.net>
-	<CAPbh3rsExLtohBwVd_scYuO=GN1iZE5egQQ3x5M59YUno5Rtyw@mail.gmail.com>
-	<4F5739760200007800076DA6@nat28.tlf.novell.com>
-	<230A793A-C929-468E-97BE-1C68920749E1@spectralogic.com>
-	<4F60C888020000780007861F@nat28.tlf.novell.com>
-	<59150D7B-8349-4249-A93A-04883F4AD744@spectralogic.com>
-	<4F61B04402000078000788B8@nat28.tlf.novell.com>
-	<1331801494.26979.8.camel@zakaz.uk.xensource.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [Xen-devel] [PATCH 2/4 v2] xen kconfig: relax
+	INPUT_XEN_KBDDEV_FRONTEND deps
+Date: Thu, 15 Mar 2012 13:23:05 -0400
+Message-ID: <20120315172305.GA32759@phenom.dumpdata.com>
+References: <20120111161130.GA18203@andromeda.dapyr.net>
+	<7e004a73-b1ef-49f4-91e8-68fdf48c3ccb@zmail13.collab.prod.int.phx2.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1331801494.26979.8.camel@zakaz.uk.xensource.com>
 Content-Disposition: inline
+In-Reply-To: <7e004a73-b1ef-49f4-91e8-68fdf48c3ccb@zmail13.collab.prod.int.phx2.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,38 +20,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian Campbell <Ian.Campbell@citrix.com>
-Cc: "jeremy@goop.org" <jeremy@goop.org>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "waldi@debian.org" <waldi@debian.org>, "joe.jin@oracle.com" <joe.jin@oracle.com>, "weiyi.huang@gmail.com" <weiyi.huang@gmail.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Justin Gibbs <justing@spectralogic.com>, Paul Durrant <Paul.Durrant@citrix.com>, David Vrabel <david.vrabel@citrix.com>, SantoshJodh <Santosh.Jodh@citrix.com>, "<konrad@darnok.org>" <konrad@darnok.org>, "dgdegra@tycho.nsa.gov" <dgdegra@tycho.nsa.gov>, "xen-devel@lists.xen.org" <xen-devel@lists.xen.org>, "lersek@redhat.com" <lersek@redhat.com>
+To: Andrew Jones <drjones@redhat.com>
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, FlorianSchandinat@gmx.de, dmitry torokhov <dmitry.torokhov@gmail.com>, virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad@darnok.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 15.03.12 at 09:51, Ian Campbell <Ian.Campbell@citrix.com> wrote:
-> On Thu, 2012-03-15 at 08:03 +0000, Jan Beulich wrote:
->> >>> On 14.03.12 at 18:01, Justin Gibbs <justing@spectralogic.com> wrote:
->> > While we're talking about fixing ring data structures, can RING_IDX
->> > be defined as a "uint32_t" instead of "unsigned int".  The structure
->> > padding in the ring macros assumes RING_IDX is exactly 4 bytes,
->> > so this should be made explicit.  ILP64 machines may still be a way
->> > out, but the use of non-fixed sized types in places where size really
->> > matters just isn't clean.
->> 
->> Yes, if we're going to rev the interface, then any such flaws should be
->> corrected.
+On Wed, Jan 11, 2012 at 11:29:20AM -0500, Andrew Jones wrote:
 > 
-> There has been talk of doing something similar for netif too. IIRC the
-> netchannel2 work included a new generic ring scheme with support for
-> variable sized req/rsp elements and such.
 > 
-> If we are going to rev the rings then should we try and use a common
-> ring mechanism? I think so. If so then we could do worse than to start
-> from the netchannel2 ring stuff and/or concepts?
+> ----- Original Message -----
+> > On Mon, Jan 09, 2012 at 06:51:41PM +0100, Andrew Jones wrote:
+> > > PV-on-HVM guests may want to use the xen keyboard/mouse frontend,
+> > > but
+> > > they don't use the xen frame buffer frontend. For this case it
+> > > doesn't
+> > 
+> > Ok, but PV does?
+> > > make much sense for INPUT_XEN_KBDDEV_FRONTEND to depend on
+> > > XEN_FBDEV_FRONTEND. The opposite direction always makes more sense,
+> > > i.e.
+> > > if you're using xenfb, then you'll want xenkbd. Switch the
+> > > dependencies.
+> > 
+> > That sounds like it would be universal irregardless if it is
+> > PV or PVonHVM?
 > 
-> Looks like that is
-> http://xenbits.xen.org/ext/netchannel2/linux-2.6.18/log/075f6677a290/include 
-> /xen/interface/io/uring.h
-> still a bit nc2 specific though.
+> This patch makes it such that if you want to use both, then you must
+> select both. It also says that if you want FB, then you need the
+> KBD. However, if you only want the KBD then you're fine with just
+> that. So there isn't any risk of breaking configs designed to use
+> FB, because FB should be manually selected for those configs anyway.
 
-Taking the concept (and the implementation as a starting point) would
-seem like a good idea to me. Separate request and reply rings as well
-as variable size entries would certainly benefit blkif too.
+Dmitry,
 
-Jan
+I am OK with this patch. Should I pick it up on my tree for 3.4 or
+are you OK doing it via your tree?
+
+Thanks!
+> 
+> Drew
+> 
+> > > 
+> > > Signed-off-by: Andrew Jones <drjones@redhat.com>
+> > > ---
+> > >  drivers/input/misc/Kconfig |    2 +-
+> > >  drivers/video/Kconfig      |    2 +-
+> > >  2 files changed, 2 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/drivers/input/misc/Kconfig
+> > > b/drivers/input/misc/Kconfig
+> > > index 22d875f..36c15bf 100644
+> > > --- a/drivers/input/misc/Kconfig
+> > > +++ b/drivers/input/misc/Kconfig
+> > > @@ -533,7 +533,7 @@ config INPUT_CMA3000_I2C
+> > >  
+> > >  config INPUT_XEN_KBDDEV_FRONTEND
+> > >  	tristate "Xen virtual keyboard and mouse support"
+> > > -	depends on XEN_FBDEV_FRONTEND
+> > > +	depends on XEN
+> > >  	default y
+> > >  	select XEN_XENBUS_FRONTEND
+> > >  	help
+> > > diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
+> > > index d83e967..3e38c2f 100644
+> > > --- a/drivers/video/Kconfig
+> > > +++ b/drivers/video/Kconfig
+> > > @@ -2263,7 +2263,7 @@ config FB_VIRTUAL
+> > >  
+> > >  config XEN_FBDEV_FRONTEND
+> > >  	tristate "Xen virtual frame buffer support"
+> > > -	depends on FB && XEN
+> > > +	depends on FB && XEN && INPUT_XEN_KBDDEV_FRONTEND
+> > >  	select FB_SYS_FILLRECT
+> > >  	select FB_SYS_COPYAREA
+> > >  	select FB_SYS_IMAGEBLIT
+> > > --
+> > > 1.7.7.5
+> > > 
+> > > 
+> > > _______________________________________________
+> > > Xen-devel mailing list
+> > > Xen-devel@lists.xensource.com
+> > > http://lists.xensource.com/xen-devel
+> > 
