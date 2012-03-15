@@ -1,16 +1,21 @@
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Subject: Re: [Xen-devel] [PATCH 0001/001] xen: multi page ring support for
-	block devices
-Date: Wed, 14 Mar 2012 11:17:50 -0600
-Message-ID: <96ED0F5B-AE7D-4C8E-A8E1-D386B2DED212@scsiguy.com>
+From: "Jan Beulich" <JBeulich@suse.com>
+Subject: Re: [Xen-devel] [PATCH 0001/001] xen: multi page ring support
+	for block devices
+Date: Thu, 15 Mar 2012 08:03:00 +0000
+Message-ID: <4F61B04402000078000788B8@nat28.tlf.novell.com>
 References: <1330701099-18281-1-git-send-email-santoshprasadnayak@gmail.com>
 	<7914B38A4445B34AA16EB9F1352942F1010A1FA12364@SJCPMAILBOX01.citrite.net>
-	<4F55DA3E0200007800076916@nat28.tlf.novell.com>
-Mime-Version: 1.0 (Apple Message framework v1257)
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+	<CAPbh3rsExLtohBwVd_scYuO=GN1iZE5egQQ3x5M59YUno5Rtyw@mail.gmail.com>
+	<4F5739760200007800076DA6@nat28.tlf.novell.com>
+	<230A793A-C929-468E-97BE-1C68920749E1@spectralogic.com>
+	<4F60C888020000780007861F@nat28.tlf.novell.com>
+	<59150D7B-8349-4249-A93A-04883F4AD744@spectralogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F55DA3E0200007800076916@nat28.tlf.novell.com>
+In-Reply-To: <59150D7B-8349-4249-A93A-04883F4AD744@spectralogic.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,44 +25,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Beulich <JBeulich@suse.com>
-Cc: "jeremy@goop.org" <jeremy@goop.org>, "xen-devel@lists.xen.org" <xen-devel@lists.xen.org>, Ian Campbell <Ian.Campbell@citrix.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "waldi@debian.org" <waldi@debian.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "joe.jin@oracle.com" <joe.jin@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jbarnes@virtuousgeek.org" <jbarnes@virtuousgeek.org>, "weiyi.huang@gmail.com" <weiyi.huang@gmail.com>, "paul.gortmaker@windriver.com" <paul.gortmaker@windriver.com>, Paul Durrant <Paul.Durrant@citrix.com>, David Vrabel <david.vrabel@citrix.com>, Santosh Jodh <Santosh.Jodh@citrix.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, lersek@red
+To: Justin Gibbs <justing@spectralogic.com>
+Cc: "jeremy@goop.org" <jeremy@goop.org>, Ian Campbell <Ian.Campbell@citrix.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "waldi@debian.org" <waldi@debian.org>, "joe.jin@oracle.com" <joe.jin@oracle.com>, "weiyi.huang@gmail.com" <weiyi.huang@gmail.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Paul Durrant <Paul.Durrant@citrix.com>, DavidVrabel <david.vrabel@citrix.com>, SantoshJodh <Santosh.Jodh@citrix.com>, "<konrad@darnok.org>" <konrad@darnok.org>, "dgdegra@tycho.nsa.gov" <dgdegra@tycho.nsa.gov>, "xen-devel@lists.xen.org" <xen-devel@lists.xen.org>, "lersek@redhat.com" <lersek@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mar 6, 2012, at 1:34 AM, Jan Beulich wrote:
+>>> On 14.03.12 at 18:01, Justin Gibbs <justing@spectralogic.com> wrote:
+> While we're talking about fixing ring data structures, can RING_IDX
+> be defined as a "uint32_t" instead of "unsigned int".  The structure
+> padding in the ring macros assumes RING_IDX is exactly 4 bytes,
+> so this should be made explicit.  ILP64 machines may still be a way
+> out, but the use of non-fixed sized types in places where size really
+> matters just isn't clean.
 
->>>> On 05.03.12 at 22:49, Santosh Jodh <Santosh.Jodh@citrix.com> wrote:
+Yes, if we're going to rev the interface, then any such flaws should be
+corrected.
 
-=85
+(Also shrinking the Cc list a little.)
 
->> +       }
->> +
->>        /* Create shared ring, alloc event channel. */
->>        err =3D setup_blkring(dev, info);
->>        if (err)
->> @@ -889,12 +916,35 @@ again:
->>                goto destroy_blkring;
->>        }
->> =
-
->> -       err =3D xenbus_printf(xbt, dev->nodename,
->> -                           "ring-ref", "%u", info->ring_ref);
->> -       if (err) {
->> -               message =3D "writing ring-ref";
->> -               goto abort_transaction;
->> +       if (legacy_backend) {
-> =
-
-> Why not use the simpler interface always when info->ring_order =3D=3D 0?
-
-Because, as I just found out today via a FreeBSD bug report, that's
-not how XenServer works.  If the front-end publishes "ring-page-order",
-the backend assumes the "ring-refNN" XenStore nodes are in effect,
-even if the order is 0.
-
-I'm working on a documentation update for blkif.h now.
-
-<sigh>
-
---
-Justin
+Jan
