@@ -1,104 +1,79 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [Xen-devel] [PATCH 2/4 v2] xen kconfig: relax
-	INPUT_XEN_KBDDEV_FRONTEND deps
-Date: Thu, 15 Mar 2012 13:23:05 -0400
-Message-ID: <20120315172305.GA32759@phenom.dumpdata.com>
-References: <20120111161130.GA18203@andromeda.dapyr.net>
-	<7e004a73-b1ef-49f4-91e8-68fdf48c3ccb@zmail13.collab.prod.int.phx2.redhat.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 1/1] Drivers: scsi: storvsc: Don't pass ATA_16 command
+ to the host
+Date: Thu, 15 Mar 2012 23:03:45 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481B76631A@TK5EX14MBXC126.redmond.corp.microsoft.com>
+References: <1330721347-26781-1-git-send-email-kys@microsoft.com>
+	 <20120304091225.GA27297@infradead.org>
+	 <6E21E5352C11B742B20C142EB499E0481B74886F@TK5EX14MBXC126.redmond.corp.microsoft.com>
+ <1330872513.2858.14.camel@dabdike.int.hansenpartnership.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <7e004a73-b1ef-49f4-91e8-68fdf48c3ccb@zmail13.collab.prod.int.phx2.redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Jones <drjones@redhat.com>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, FlorianSchandinat@gmx.de, dmitry torokhov <dmitry.torokhov@gmail.com>, virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad@darnok.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1330872513.2858.14.camel@dabdike.int.hansenpartnership.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Christoph Hellwig <hch@infradead.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 11, 2012 at 11:29:20AM -0500, Andrew Jones wrote:
-> 
-> 
-> ----- Original Message -----
-> > On Mon, Jan 09, 2012 at 06:51:41PM +0100, Andrew Jones wrote:
-> > > PV-on-HVM guests may want to use the xen keyboard/mouse frontend,
-> > > but
-> > > they don't use the xen frame buffer frontend. For this case it
-> > > doesn't
-> > 
-> > Ok, but PV does?
-> > > make much sense for INPUT_XEN_KBDDEV_FRONTEND to depend on
-> > > XEN_FBDEV_FRONTEND. The opposite direction always makes more sense,
-> > > i.e.
-> > > if you're using xenfb, then you'll want xenkbd. Switch the
-> > > dependencies.
-> > 
-> > That sounds like it would be universal irregardless if it is
-> > PV or PVonHVM?
-> 
-> This patch makes it such that if you want to use both, then you must
-> select both. It also says that if you want FB, then you need the
-> KBD. However, if you only want the KBD then you're fine with just
-> that. So there isn't any risk of breaking configs designed to use
-> FB, because FB should be manually selected for those configs anyway.
-
-Dmitry,
-
-I am OK with this patch. Should I pick it up on my tree for 3.4 or
-are you OK doing it via your tree?
-
-Thanks!
-> 
-> Drew
-> 
-> > > 
-> > > Signed-off-by: Andrew Jones <drjones@redhat.com>
-> > > ---
-> > >  drivers/input/misc/Kconfig |    2 +-
-> > >  drivers/video/Kconfig      |    2 +-
-> > >  2 files changed, 2 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/drivers/input/misc/Kconfig
-> > > b/drivers/input/misc/Kconfig
-> > > index 22d875f..36c15bf 100644
-> > > --- a/drivers/input/misc/Kconfig
-> > > +++ b/drivers/input/misc/Kconfig
-> > > @@ -533,7 +533,7 @@ config INPUT_CMA3000_I2C
-> > >  
-> > >  config INPUT_XEN_KBDDEV_FRONTEND
-> > >  	tristate "Xen virtual keyboard and mouse support"
-> > > -	depends on XEN_FBDEV_FRONTEND
-> > > +	depends on XEN
-> > >  	default y
-> > >  	select XEN_XENBUS_FRONTEND
-> > >  	help
-> > > diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
-> > > index d83e967..3e38c2f 100644
-> > > --- a/drivers/video/Kconfig
-> > > +++ b/drivers/video/Kconfig
-> > > @@ -2263,7 +2263,7 @@ config FB_VIRTUAL
-> > >  
-> > >  config XEN_FBDEV_FRONTEND
-> > >  	tristate "Xen virtual frame buffer support"
-> > > -	depends on FB && XEN
-> > > +	depends on FB && XEN && INPUT_XEN_KBDDEV_FRONTEND
-> > >  	select FB_SYS_FILLRECT
-> > >  	select FB_SYS_COPYAREA
-> > >  	select FB_SYS_IMAGEBLIT
-> > > --
-> > > 1.7.7.5
-> > > 
-> > > 
-> > > _______________________________________________
-> > > Xen-devel mailing list
-> > > Xen-devel@lists.xensource.com
-> > > http://lists.xensource.com/xen-devel
-> > 
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmFtZXMgQm90dG9tbGV5
+IFttYWlsdG86SmFtZXMuQm90dG9tbGV5QEhhbnNlblBhcnRuZXJzaGlwLmNvbV0NCj4gU2VudDog
+U3VuZGF5LCBNYXJjaCAwNCwgMjAxMiA5OjQ5IEFNDQo+IFRvOiBLWSBTcmluaXZhc2FuDQo+IENj
+OiBDaHJpc3RvcGggSGVsbHdpZzsgZ3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc7IGxpbnV4LQ0K
+PiBrZXJuZWxAdmdlci5rZXJuZWwub3JnOyBkZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3JnOw0K
+PiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9yZzsgb2hlcmluZ0BzdXNlLmNvbTsgbGludXgt
+c2NzaUB2Z2VyLmtlcm5lbC5vcmc7DQo+IEhhaXlhbmcgWmhhbmcNCj4gU3ViamVjdDogUkU6IFtQ
+QVRDSCAxLzFdIERyaXZlcnM6IHNjc2k6IHN0b3J2c2M6IERvbid0IHBhc3MgQVRBXzE2IGNvbW1h
+bmQgdG8NCj4gdGhlIGhvc3QNCj4gDQo+IE9uIFN1biwgMjAxMi0wMy0wNCBhdCAxNDoyMyArMDAw
+MCwgS1kgU3Jpbml2YXNhbiB3cm90ZToNCj4gPg0KPiA+ID4gLS0tLS1PcmlnaW5hbCBNZXNzYWdl
+LS0tLS0NCj4gPiA+IEZyb206IENocmlzdG9waCBIZWxsd2lnIFttYWlsdG86aGNoQGluZnJhZGVh
+ZC5vcmddDQo+ID4gPiBTZW50OiBTdW5kYXksIE1hcmNoIDA0LCAyMDEyIDQ6MTIgQU0NCj4gPiA+
+IFRvOiBLWSBTcmluaXZhc2FuDQo+ID4gPiBDYzogZ3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc7
+IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+ID4gPiBkZXZlbEBsaW51eGRyaXZlcnBy
+b2plY3Qub3JnOyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9yZzsNCj4gb2hlcmluZ0BzdXNl
+LmNvbTsNCj4gPiA+IGpib3R0b21sZXlAcGFyYWxsZWxzLmNvbTsgaGNoQGluZnJhZGVhZC5vcmc7
+IGxpbnV4LXNjc2lAdmdlci5rZXJuZWwub3JnOw0KPiA+ID4gSGFpeWFuZyBaaGFuZw0KPiA+ID4g
+U3ViamVjdDogUmU6IFtQQVRDSCAxLzFdIERyaXZlcnM6IHNjc2k6IHN0b3J2c2M6IERvbid0IHBh
+c3MgQVRBXzE2IGNvbW1hbmQgdG8NCj4gPiA+IHRoZSBob3N0DQo+ID4gPg0KPiA+ID4gT24gRnJp
+LCBNYXIgMDIsIDIwMTIgYXQgMTI6NDk6MDdQTSAtMDgwMCwgSy4gWS4gU3Jpbml2YXNhbiB3cm90
+ZToNCj4gPiA+ID4gV2luZG93cyBob3N0cyBkb24ndCBoYW5kbGUgdGhlIEFUQV8xNiBjb21tYW5k
+OyBkb24ndCBwYXNzIGl0IHRvIHRoZQ0KPiBob3N0Lg0KPiA+ID4NCj4gPiA+IE1vc3QgZGV2aWNl
+cyBkb24ndCBoYW5kbGUgaXQsIGFuZCBhbnN3ZXIgd2l0aCBhbmQgdW5zdXBwb3J0ZWQgb3Bjb2Rl
+DQo+ID4gPiBzZW5zZSByZWFzb24uICBJZiBoeXBlcnYgaWlzIGJ1Z2d5IGVub3VnaCB0byBjcmFw
+IG91dCBvbiBpdCBwbGVhc2UgYWRkDQo+ID4gPiBhIGNvbW1lbnQgZXhwbGFpbmluZyB0aGF0Lg0K
+PiA+DQo+ID4gVGhlIGhvc3QgZG9lcyBub3QgImNyYXAgb3V0IiwgaXQgZG9lcyByZXR1cm4gYW4g
+ZXJyb3IgY29kZSBidXQgaXQgaXMgbm90DQo+ICJ1bnN1cHBvcnRlZCBvcGNvZGUiLg0KPiA+IFRo
+ZSBzZW5zZSByZWFzb24gdGhhdCBjb21lcyBiYWNrIGlzIGEgZ2VuZXJpYyBlcnJvciBTUkJfU1RB
+VFVTIGNvZGUuIEl0IGlzDQo+IGVhc2llciBmb3IgbWUgdG8gZmlsdGVyIHRoZQ0KPiA+IGNvbW1h
+bmQgb24gdGhlIG91dGdvaW5nIHNpZGUgYXMgb3Bwb3NlZCB0byBkZWFsaW5nIHdpdGggYSBnZW5l
+cmljIGVycm9yIGNvZGUNCj4gdGhhdCBpcyBjb21pbmcgYmFjayBmcm9tDQo+ID4gdGhlIGhvc3Qu
+DQo+IA0KPiBUaGF0J3MgdGhlIHdyb25nIHRoaW5nIHRvIGRvIC4uLiB5b3UgbmVlZCB0byB1bndy
+YXAgdGhlIGVycm9yIGNvZGUuDQo+IFRoZSByZWFzb24gYmVpbmcgSSBwcmVzdW1lIGl0J3Mgbm90
+IGltcG9zc2libGUgZm9yIFdpbmRvd3MgdG8gaG9zdCBhDQo+IGRldmljZSBzdXBwb3J0aW5nIEFU
+QV8xNiBhbmQgdGhlcmUgYXJlIHNpZ25zIHRoYXQgdGhpcyBpcyBnb2luZyB0byBiZQ0KPiBuZWNl
+c3NhcnkgdG8gcHJldmVudCBkYXRhIGNvcnJ1cHRpb24gb24gc29tZSBVU0IgZGV2aWNlcyAuLi4g
+aWYgeW91IGp1c3QNCj4gZmlsdGVyIHRoZSBjb21tYW5kIHdpdGhvdXQgY2hlY2tpbmcgaWYgdGhl
+IGhvc3Qgc3VwcG9ydHMgaXQsIHlvdSdyZQ0KPiBnb2luZyB0byBlbmQgdXAgcGVycGV0dWF0aW5n
+IHRoZSBjb3JydXB0aW9uIHByb2JsZW0uDQoNCkphbWVzLA0KDQpDdXJyZW50bHksIHRoZSBXaW5k
+b3dzIGhvc3QgZG9lcyBub3QgcHJvdmlkZSBtZSB3aXRoIGdyYW51bGFyIGVycm9yIGNvZGVzIHRv
+IA0KZGlzdGluZ3Vpc2ggYmV0d2VlbiB0aGUgY2FzZSB3aGVyZSB0aGUgb3BlcmF0aW9uIGZhaWxl
+ZCBhbmQgdGhlIGNhc2Ugd2hlcmUgaXQgaXMNCmFuIGlsbGVnYWwgb3IgdW5zdXBwb3J0ZWQgb3Bl
+cmF0aW9uLiBJIGhhdmUgYXNrZWQgdGhlIHdpbmRvd3MgdGVhbSB0byByZXR1cm4gbW9yZQ0KYXBw
+cm9wcmlhdGUgZXJyb3IgY29kZXMgYW5kIHRoZXkgbWF5IGRvIHRoYXQgc29tZXRpbWUgc29vbi4g
+SW4gdGhlIGludGVyaW0sIGZpbHRlcmluZw0KdGhlIGNvbW1hbmQgb24gdGhlIG91dGdvaW5nIHBh
+dGggaXMgdGhlIGJlc3Qgd2F5IEkgY2FuIGRlYWwgd2l0aCB0aGlzIGlzc3VlLiBDdXJyZW50bHks
+DQpldmVuIG9uIHRoZSBob3N0IHNpZGUgdGhleSBhcmUgZmlsdGVyaW5nIHRoaXMgY29tbWFuZCwg
+ZXhjZXB0IHRoZXkgYXJlIHJldHVybmluZyBhIGZhaWx1cmUNCnRvIHRoZSBndWVzdCBpbnN0ZWFk
+IG9mIGEgbW9yZSBhcHByb3ByaWF0ZSBlcnJvciBjb2RlLg0KV2hpbGUgbXkgcHJvcG9zYWwgaGFz
+IGJlZW4gYWNjZXB0ZWQgZm9yIHdpbmRvd3MgOCwgSSBkb24ndCBrbm93IHdoZW4gdGhpcyBjaGFu
+Z2Ugd2lsbCBzaGlwLg0KQWxzbywgaXQgaXMgbm90IGNsZWFyIHdoZW4gcHJpb3IgdmVyc2lvbnMg
+b2YgV2luZG93cyBob3N0cyB0aGF0IHdlIGNhcmUgYWJvdXQgd2lsbCBwaWNrIHVwIHRoaXMNCmNo
+YW5nZS4gVGhpcyBwYXRjaCBpcyB0aGUgb25seSB3YXkgSSBrbm93IGhvdyB0byBkZWFsIHdpdGgg
+dGhpcyBwcm9ibGVtcyB3aXRoaW4gbXkgY3VycmVudA0KY29uc3RyYWludHMuDQoNClJlZ2FyZHMs
+DQoNCksuIFkNCg0KDQo+IA0KPiBUaGUgZ2VuZXJhbCBydWxlIG9mIHRodW1iIGZvciBhdm9pZGlu
+ZyB0aGlzIGlzIHRvIGxldCB0aGUgbG93ZXIgbGF5ZXJzDQo+IGhhbmRsZSBhcyBtdWNoIGFzIHBv
+c3NpYmxlLCBhbmQgb25seSBiZWdpbiBiZWhhdmlvdXIgYWx0ZXJhdGlvbnMgaW4gdGhlDQo+IHVw
+cGVyIGxheWVycyBpZiB0aGUgbG93ZXIgbGF5ZXJzIGhhdmUgYSBwcm92YWJsZSBhbmQgdXN1YWxs
+eSBmYXRhbA0KPiBmYWlsdXJlLg0KPiANCj4gSmFtZXMNCj4gDQo+IA0KDQo=
