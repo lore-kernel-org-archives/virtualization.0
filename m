@@ -1,42 +1,74 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 0000/0004] drivers: hv
-Date: Thu, 15 Mar 2012 23:26:51 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481B766384@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Subject: RE: [PATCH 2/4] Drivers: hv: Support the newly introduced KVP
+ messages in the driver
+Date: Thu, 15 Mar 2012 23:36:16 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481B7663B1@TK5EX14MBXC126.redmond.corp.microsoft.com>
 References: <1331422300-4330-1-git-send-email-kys@microsoft.com>
- <20120313215036.GA4972@kroah.com>
+ <1331422331-4381-1-git-send-email-kys@microsoft.com>
+ <1331422331-4381-2-git-send-email-kys@microsoft.com>
+ <20120311104230.GC3337@mwanda>
+ <6E21E5352C11B742B20C142EB499E0481B75B403@TK5EX14MBXC122.redmond.corp.microsoft.com>
+ <20120311184916.GD3337@mwanda>
+ <6E21E5352C11B742B20C142EB499E0481B75D433@TK5EX14MBXC122.redmond.corp.microsoft.com>
+ <20120312052221.GE3337@mwanda>
+ <6E21E5352C11B742B20C142EB499E0481B75D4CE@TK5EX14MBXC122.redmond.corp.microsoft.com>
+ <20120312130353.GF3337@mwanda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120313215036.GA4972@kroah.com>
+In-Reply-To: <20120312130353.GF3337@mwanda>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "ohering@suse.com" <ohering@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Alan Stern <stern@rowland.harvard.edu>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
 > -----Original Message-----
-> From: Greg KH [mailto:gregkh@linuxfoundation.org]
-> Sent: Tuesday, March 13, 2012 5:51 PM
+> From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
+> Sent: Monday, March 12, 2012 9:04 AM
 > To: KY Srinivasan
-> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> virtualization@lists.osdl.org; ohering@suse.com
-> Subject: Re: [PATCH 0000/0004] drivers: hv
+> Cc: gregkh@linuxfoundation.org; ohering@suse.com; linux-
+> kernel@vger.kernel.org; virtualization@lists.osdl.org; Alan Stern;
+> devel@linuxdriverproject.org
+> Subject: Re: [PATCH 2/4] Drivers: hv: Support the newly introduced KVP
+> messages in the driver
 > 
-> On Sat, Mar 10, 2012 at 03:31:40PM -0800, K. Y. Srinivasan wrote:
+> On Mon, Mar 12, 2012 at 12:36:53PM +0000, KY Srinivasan wrote:
+> > Dan,
+> > I am sorry for not being as precise as I should be:
+> > utf16s_to_utf8s() takes two length parameters - the length of the utf16 string
+> > that is to be converted and the second the length of the utf8 output string.
+> > The windows host manipulates all string in utf16 encoding and the string we get
+> > from the host is guaranteed to be less than or equal to MAX value that we have
+> > including the terminating character. In my code, I simply pass the length of the
+> > utf16 string as received from the host.
 > >
-> > This patch-set further enhances the KVP functionality for Linux
-> > guests:
+> > The parameter that I am currently passing MAX length value is the "maxout"
+> > parameter of the utf16s_utf8s() function. This by definition is the size of the
+> > output buffer and in this case it happens to be MAX characters big.
 > >
-> > 	1. Supports most of the Win8 KVP protocol.
-> > 	2. Supports operations on all the pools.
 > 
-> I've only applied the first patch, due to the issues with the second.
-> Feel free to resend the rest when you have them worked out.
+> I also think I'm not being as clear as I should...  I understand
+> that you trust the input; I'm say that for correctness sake you
+> should specify a output size which leaves room for the NUL char.
+> 
+> I can't say I know this code very well so I could be wrong, but it's
+> what we do inside usb_string() for example.  Can someone who knows
+> the code check if we should do something like this:
+> 
 
-Thanks Greg. I don't think there are any substantive issues with the remaining 
-patches. I will fix them up and re-send them soon.
+Dan, 
+
+Sorry I could not get back to you earlier. You are right, in that I am trusting
+the host! I am of the firm belief that in a virtualized environment, if you don't trust
+the host, there is not a whole lot you can do in a guest! I have had this arguments 
+with other on this mailing list in the past. Having said that, I think we have spent more
+time debating this than we should; your proposal is reasonable and I will go ahead and
+re-spin those patches based on your comments. I should be posting them shortly.
+
+Regards,
 
 K. Y
