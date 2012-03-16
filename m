@@ -1,241 +1,109 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 3/3] Tools: hv: Support enumeration from all the pools
-Date: Thu, 15 Mar 2012 17:48:45 -0700
-Message-ID: <1331858925-827-3-git-send-email-kys@microsoft.com>
-References: <1331858893-775-1-git-send-email-kys@microsoft.com>
- <1331858925-827-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1331858925-827-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH 2/4] Drivers: hv: Support the newly introduced KVP
+	messages in the driver
+Date: Fri, 16 Mar 2012 08:38:29 +0300
+Message-ID: <20120316053829.GG3163@mwanda>
+References: <1331422331-4381-1-git-send-email-kys@microsoft.com>
+	<1331422331-4381-2-git-send-email-kys@microsoft.com>
+	<20120311104230.GC3337@mwanda>
+	<6E21E5352C11B742B20C142EB499E0481B75B403@TK5EX14MBXC122.redmond.corp.microsoft.com>
+	<20120311184916.GD3337@mwanda>
+	<6E21E5352C11B742B20C142EB499E0481B75D433@TK5EX14MBXC122.redmond.corp.microsoft.com>
+	<20120312052221.GE3337@mwanda>
+	<6E21E5352C11B742B20C142EB499E0481B75D4CE@TK5EX14MBXC122.redmond.corp.microsoft.com>
+	<20120312130353.GF3337@mwanda>
+	<6E21E5352C11B742B20C142EB499E0481B7663B1@TK5EX14MBXC126.redmond.corp.microsoft.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============0564235925=="
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0481B7663B1@TK5EX14MBXC126.redmond.corp.microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "ohering@suse.com" <ohering@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Alan Stern <stern@rowland.harvard.edu>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We have supported enumeration only from the AUTO pool. Now support
-enumeration from all the available pools.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/hv/hv_kvp.c      |    7 ++-
- include/linux/hyperv.h   |    1 +
- tools/hv/hv_kvp_daemon.c |  124 +++++++++++++++++++++++++++++++++++++++++++---
- 3 files changed, 122 insertions(+), 10 deletions(-)
+--===============0564235925==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3xoW37o/FfUZJwQG"
+Content-Disposition: inline
 
-diff --git a/drivers/hv/hv_kvp.c b/drivers/hv/hv_kvp.c
-index 3485dee..843bfa3 100644
---- a/drivers/hv/hv_kvp.c
-+++ b/drivers/hv/hv_kvp.c
-@@ -288,14 +288,15 @@ kvp_respond_to_host(char *key, char *value, int error)
- 
- 
- 	/*
--	 * If the error parameter is set, terminate the host's enumeration.
-+	 * If the error parameter is set, terminate the host's enumeration
-+	 * on this pool.
- 	 */
- 	if (error) {
- 		/*
- 		 * Something failed or the we have timedout;
--		 * terminate the host-side iteration by returning an error.
-+		 * terminate the current  host-side iteration.
- 		 */
--		icmsghdrp->status = HV_E_FAIL;
-+		icmsghdrp->status = HV_S_CONT;
- 		goto response_done;
- 	}
- 
-diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index e88a979..5852545 100644
---- a/include/linux/hyperv.h
-+++ b/include/linux/hyperv.h
-@@ -952,6 +952,7 @@ void vmbus_driver_unregister(struct hv_driver *hv_driver);
- 
- #define HV_S_OK				0x00000000
- #define HV_E_FAIL			0x80004005
-+#define HV_S_CONT			0x80070103
- #define HV_ERROR_NOT_SUPPORTED		0x80070032
- #define HV_ERROR_MACHINE_LOCKED		0x800704F7
- 
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 2fb9c3d..146fd61 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -148,6 +148,51 @@ static void kvp_update_file(int pool)
- 	kvp_release_lock(pool);
- }
- 
-+static void kvp_update_mem_state(int pool)
-+{
-+	FILE *filep;
-+	size_t records_read = 0;
-+	struct kvp_record *record = kvp_file_info[pool].records;
-+	struct kvp_record *readp;
-+	int num_blocks = kvp_file_info[pool].num_blocks;
-+	int alloc_unit = sizeof(struct kvp_record) * ENTRIES_PER_BLOCK;
-+
-+	kvp_acquire_lock(pool);
-+
-+	filep = fopen(kvp_file_info[pool].fname, "r");
-+	if (!filep) {
-+		kvp_release_lock(pool);
-+		syslog(LOG_ERR, "Failed to open file, pool: %d", pool);
-+		exit(-1);
-+	}
-+	while (!feof(filep)) {
-+		readp = &record[records_read];
-+		records_read += fread(readp, sizeof(struct kvp_record),
-+					ENTRIES_PER_BLOCK * num_blocks,
-+					filep);
-+
-+		if (!feof(filep)) {
-+			/*
-+			 * We have more data to read.
-+			 */
-+			num_blocks++;
-+			record = realloc(record, alloc_unit * num_blocks);
-+
-+			if (record == NULL) {
-+				syslog(LOG_ERR, "malloc failed");
-+				exit(-1);
-+			}
-+			continue;
-+		}
-+		break;
-+	}
-+
-+	kvp_file_info[pool].num_blocks = num_blocks;
-+	kvp_file_info[pool].records = record;
-+	kvp_file_info[pool].num_records = records_read;
-+
-+	kvp_release_lock(pool);
-+}
- static int kvp_file_init(void)
- {
- 	int ret, fd;
-@@ -223,8 +268,16 @@ static int kvp_key_delete(int pool, __u8 *key, int key_size)
- {
- 	int i;
- 	int j, k;
--	int num_records = kvp_file_info[pool].num_records;
--	struct kvp_record *record = kvp_file_info[pool].records;
-+	int num_records;
-+	struct kvp_record *record;
-+
-+	/*
-+	 * First update the in-memory state.
-+	 */
-+	kvp_update_mem_state(pool);
-+
-+	num_records = kvp_file_info[pool].num_records;
-+	record = kvp_file_info[pool].records;
- 
- 	for (i = 0; i < num_records; i++) {
- 		if (memcmp(key, record[i].key, key_size))
-@@ -259,14 +312,23 @@ static int kvp_key_add_or_modify(int pool, __u8 *key, int key_size, __u8 *value,
- {
- 	int i;
- 	int j, k;
--	int num_records = kvp_file_info[pool].num_records;
--	struct kvp_record *record = kvp_file_info[pool].records;
--	int num_blocks = kvp_file_info[pool].num_blocks;
-+	int num_records;
-+	struct kvp_record *record;
-+	int num_blocks;
- 
- 	if ((key_size > HV_KVP_EXCHANGE_MAX_KEY_SIZE) ||
- 		(value_size > HV_KVP_EXCHANGE_MAX_VALUE_SIZE))
- 		return 1;
- 
-+	/*
-+	 * First update the in-memory state.
-+	 */
-+	kvp_update_mem_state(pool);
-+
-+	num_records = kvp_file_info[pool].num_records;
-+	record = kvp_file_info[pool].records;
-+	num_blocks = kvp_file_info[pool].num_blocks;
-+
- 	for (i = 0; i < num_records; i++) {
- 		if (memcmp(key, record[i].key, key_size))
- 			continue;
-@@ -304,13 +366,21 @@ static int kvp_get_value(int pool, __u8 *key, int key_size, __u8 *value,
- 			int value_size)
- {
- 	int i;
--	int num_records = kvp_file_info[pool].num_records;
--	struct kvp_record *record = kvp_file_info[pool].records;
-+	int num_records;
-+	struct kvp_record *record;
- 
- 	if ((key_size > HV_KVP_EXCHANGE_MAX_KEY_SIZE) ||
- 		(value_size > HV_KVP_EXCHANGE_MAX_VALUE_SIZE))
- 		return 1;
- 
-+	/*
-+	 * First update the in-memory state.
-+	 */
-+	kvp_update_mem_state(pool);
-+
-+	num_records = kvp_file_info[pool].num_records;
-+	record = kvp_file_info[pool].records;
-+
- 	for (i = 0; i < num_records; i++) {
- 		if (memcmp(key, record[i].key, key_size))
- 			continue;
-@@ -324,6 +394,31 @@ static int kvp_get_value(int pool, __u8 *key, int key_size, __u8 *value,
- 	return 1;
- }
- 
-+static void kvp_pool_enumerate(int pool, int index, __u8 *key, int key_size,
-+				__u8 *value, int value_size)
-+{
-+	struct kvp_record *record;
-+
-+	/*
-+	 * First update our in-memory database.
-+	 */
-+	kvp_update_mem_state(pool);
-+	record = kvp_file_info[pool].records;
-+
-+	if (index >= kvp_file_info[pool].num_records) {
-+		/*
-+		 * This is an invalid index; terminate enumeration;
-+		 * - a NULL value will do the trick.
-+		 */
-+		strcpy(value, "");
-+		return;
-+	}
-+
-+	memcpy(key, record[index].key, key_size);
-+	memcpy(value, record[index].value, value_size);
-+}
-+
-+
- void kvp_get_os_info(void)
- {
- 	FILE	*file;
-@@ -678,6 +773,21 @@ int main(void)
- 		if (hv_msg->kvp_hdr.operation != KVP_OP_ENUMERATE)
- 			goto kvp_done;
- 
-+		/*
-+		 * If the pool is KVP_POOL_AUTO, dynamically generate
-+		 * both the key and the value; if not read from the
-+		 * appropriate pool.
-+		 */
-+		if (hv_msg->kvp_hdr.pool != KVP_POOL_AUTO) {
-+			kvp_pool_enumerate(hv_msg->kvp_hdr.pool,
-+					hv_msg->body.kvp_enum_data.index,
-+					hv_msg->body.kvp_enum_data.data.key,
-+					HV_KVP_EXCHANGE_MAX_KEY_SIZE,
-+					hv_msg->body.kvp_enum_data.data.value,
-+					HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
-+			goto kvp_done;
-+		}
-+
- 		hv_msg = (struct hv_kvp_msg *)incoming_cn_msg->data;
- 		key_name = (char *)hv_msg->body.kvp_enum_data.data.key;
- 		key_value = (char *)hv_msg->body.kvp_enum_data.data.value;
--- 
-1.7.4.1
+
+--3xoW37o/FfUZJwQG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Mar 15, 2012 at 11:36:16PM +0000, KY Srinivasan wrote:
+>=20
+> Dan,=20
+>=20
+> Sorry I could not get back to you earlier. You are right, in that I am tr=
+usting
+> the host! I am of the firm belief that in a virtualized environment, if y=
+ou don't trust
+> the host, there is not a whole lot you can do in a guest! I have had this=
+ arguments=20
+> with other on this mailing list in the past. Having said that, I think we=
+ have spent more
+> time debating this than we should; your proposal is reasonable and I will=
+ go ahead and
+> re-spin those patches based on your comments. I should be posting them sh=
+ortly.
+>=20
+> Regards,
+
+It's not about trusting the host or not trusting the host.  It's
+about "if you're going to specify a limitter, it can't be off by one
+even if you don't expect to hit the limit".
+
+But thanks for redoing these.
+
+regards,
+dan carpenter
+
+
+--3xoW37o/FfUZJwQG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQIcBAEBAgAGBQJPYtHVAAoJEOnZkXI/YHqR+iwQAIGXQLqYp2KkFKGuQYybNQVr
+7HaKEsMy8ZD6af+BqhXR2xbUJilcIqy9XYjpWMsRWbtnSJgylttiZm5fJiqjXMmx
+9DFMab2lzRKO/JsnAB70QBnZ+a5t2/znXOx2oM2kn/5rCd7MZvgDPqfaAa9UYC+W
+lgoEdcWy7ugHpLGSYS0iQH6ulQOxZp2c9MKnBTZKqbh6NN1GEBp7KNcrE0wLRdAX
+W3d6r9z6k97B3YU+Pbx1641q4eh3AigWUQOLhwag+JI9DgA8hDnzPK3iWY1IIbk9
+REaV94Fbi3b2k3o8xkBaKcqyenScRF095EWqvmiYhR9B6tvpi6Wyh4bpnymPUz1b
+u63Q1C81VcpmgfhxYacFO90UfnOmXiLFr3FfiM8bJxY29ULrXcfdaCRTuS90RqQ3
+hulzv/Duelgeva+LUWB8afQmHi+hwgPqAJeZ/Xbsj5PJP3XP7kE4zZ3hMJP+C8H4
+QDD6WCZhmsBMwIXzSIZPIZUEYyOmq1F+1x84s7aNXq4FJMXfT8g/QiwrHCQ9LkIY
+6kf2H+VkCC3/Vh4Z3zxVIzeZLm8MMdQYPnGZm8sxdQG4+heu5WSAIEESeR+/RNYt
+mQbJiOvk3e3FlTmyev+SwJL0+emTi8QFpxPGIcs2cL6Fm15mr+gVsjk/A6OR120v
+qBqOwk33iqOs9OkrqGBB
+=3ARM
+-----END PGP SIGNATURE-----
+
+--3xoW37o/FfUZJwQG--
+
+--===============0564235925==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devel mailing list
+devel@linuxdriverproject.org
+http://driverdev.linuxdriverproject.org/mailman/listinfo/devel
+
+--===============0564235925==--
