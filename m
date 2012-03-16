@@ -1,114 +1,77 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: [PATCH 1/3] Drivers: hv: Support the newly introduced KVP
-	messages in the driver
-Date: Fri, 16 Mar 2012 17:26:49 +0300
-Message-ID: <20120316142649.GJ3163@mwanda>
-References: <1331858893-775-1-git-send-email-kys@microsoft.com>
-	<1331858925-827-1-git-send-email-kys@microsoft.com>
-	<20120316054556.GH3163@mwanda>
-	<6E21E5352C11B742B20C142EB499E0481B7666A2@TK5EX14MBXC126.redmond.corp.microsoft.com>
-	<20120316071858.GH3220@mwanda>
-	<6E21E5352C11B742B20C142EB499E0481B76671F@TK5EX14MBXC126.redmond.corp.microsoft.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [Xen-devel] [PATCH 2/4 v2] xen kconfig: relax
+	INPUT_XEN_KBDDEV_FRONTEND deps
+Date: Fri, 16 Mar 2012 10:48:02 -0400
+Message-ID: <20120316144802.GB23092@phenom.dumpdata.com>
+References: <20120111161130.GA18203@andromeda.dapyr.net>
+	<7e004a73-b1ef-49f4-91e8-68fdf48c3ccb@zmail13.collab.prod.int.phx2.redhat.com>
+	<20120315172305.GA32759@phenom.dumpdata.com>
+	<20120316062428.GA16291@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1186326471=="
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0481B76671F@TK5EX14MBXC126.redmond.corp.microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "ohering@suse.com" <ohering@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Alan Stern <stern@rowland.harvard.edu>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20120316062428.GA16291@core.coreip.homeip.net>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Jones <drjones@redhat.com>, xen-devel@lists.xensource.com, FlorianSchandinat@gmx.de, jeremy@goop.org, virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad@darnok.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Mar 15, 2012 at 11:24:28PM -0700, Dmitry Torokhov wrote:
+> On Thu, Mar 15, 2012 at 01:23:05PM -0400, Konrad Rzeszutek Wilk wrote:
+> > On Wed, Jan 11, 2012 at 11:29:20AM -0500, Andrew Jones wrote:
+> > > 
+> > > 
+> > > ----- Original Message -----
+> > > > On Mon, Jan 09, 2012 at 06:51:41PM +0100, Andrew Jones wrote:
+> > > > > PV-on-HVM guests may want to use the xen keyboard/mouse frontend,
+> > > > > but
+> > > > > they don't use the xen frame buffer frontend. For this case it
+> > > > > doesn't
+> > > > 
+> > > > Ok, but PV does?
+> > > > > make much sense for INPUT_XEN_KBDDEV_FRONTEND to depend on
+> > > > > XEN_FBDEV_FRONTEND. The opposite direction always makes more sense,
+> > > > > i.e.
+> > > > > if you're using xenfb, then you'll want xenkbd. Switch the
+> > > > > dependencies.
+> > > > 
+> > > > That sounds like it would be universal irregardless if it is
+> > > > PV or PVonHVM?
+> > > 
+> > > This patch makes it such that if you want to use both, then you must
+> > > select both. It also says that if you want FB, then you need the
+> > > KBD. However, if you only want the KBD then you're fine with just
+> > > that. So there isn't any risk of breaking configs designed to use
+> > > FB, because FB should be manually selected for those configs anyway.
+> > 
+> > Dmitry,
+> > 
+> > I am OK with this patch. Should I pick it up on my tree for 3.4 or
+> > are you OK doing it via your tree?
+> 
+> Konrad,
+> 
+> I don't have a good copy of the patch so it you could pick it up that
+> would be great.
 
---===============1186326471==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+9faIjRurCDpBc7U"
-Content-Disposition: inline
-
-
---+9faIjRurCDpBc7U
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Mar 16, 2012 at 01:14:07PM +0000, KY Srinivasan wrote:
-> Dan,
-> I am trying to understand your concern here:
-> You will agree with me that the current code does not overflow the=20
-> buffer since the output is limited to MAX bytes and that is how=20
-> big the output buffer is sized. Now, as I pointed out earlier, if the
-> string to be converted were to fully occupy the MAX bytes or even be
-> larger than MAX bytes (no buffer overflow here since we limit the
-> conversion to MAX bytes), we will get a malformed packet that will be
-> sent to the host since the size field of the message would exceed
-> the protocol specified size limit. I was merely pointing out that in
-> this case, I would rather have the host reject the message than send
-> a truncated Key/Value string (if we were to ever get invalid key or
-> value strings).=20
->=20
-
-Sending malformed packets is a bad idea.
-
-Normally, if you handle the error as close to the cause of the error
-as possible then it makes everything easier to read.  In this case
-especially, it's so easy to catch any errors.  If you decide to go
-ahead and send the malformed message, at least put a comment.
-
-When I read code, I spend all my time looking for what it does
-wrong.  So when code doesn't have any error handling and sets
-keylen =3D -EINVAL then sure, it's fewer lines of code to read, but
-it doesn't make my life easier.  Readable code has obvious error
-handling.
-
-Introducing off by one errors is an especially bad idea.  It doesn't
-matter how harmless they are, because they end up getting copy and
-pasted.  I don't know how to make it any clearer than that.  :/
-Never never never do that!
-
-regards,
-dan carpenter
-
-
---+9faIjRurCDpBc7U
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPY02pAAoJEOnZkXI/YHqRDEoP+gKhaThrvNOFUEb7aWMq1ilE
-SI1nqWD7mBeDdYxDKtyv/kexXXWaGirkBFkR0uxNI3ZVBqdLByl0HYSqoqzAhy2b
-yjI3RNSJ5NVA4TJfUcsIGHztCFNsk/ODBSSnpzkEON18kzutblZmZFlRIHxlRgc4
-7EZ9b4u+U/l/EL6hmOnO2jM7ZQqnTJhJdzWIvbFE+a7tK9/azuwVKotBUOvtb6eY
-StBbJfVSXg/GUyX03aABpsJfzpTuaeDKx7XT/ZBVgk1RtP4naMYXU4DMMuwOBw5S
-BNPY5bGIEgQcma0/y127peqTQJWgRKTKYBHTx/uPYuIzvC/2XpeHwqIg5uFk4ThT
-v+RPInkEaiG+s5mn4eHbHEzyzY7AboYpaKt8C4FGJLSRfN1CGnAgYp1CGnDhHEPm
-5mpcGu1UrjSEM1CiWWOqSra8cWCucFjsIb7hX/VbxYiJHwq7OFKGxyEVM/gRmzea
-/zMN3S1EPPmRPvtg56vhyxMINSMH0vMQfjMtLeH6o/KMwT8TASIWMugFwN7P4qQt
-QuwPqU1k8MJXfmM2SY3kZ2klRMRlCc6VvZwqjryeDm3D8RjRcsG1iUL2A+b4jij3
-0RkP9qqujx5Mccy3/sMbfcqZPtG2LuKYGNHFSZLdtJpJOdhwQY+6vAvJ5+JufWKa
-gbJWkgdlXgNTTlBbkb78
-=EXNg
------END PGP SIGNATURE-----
-
---+9faIjRurCDpBc7U--
-
---===============1186326471==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-devel mailing list
-devel@linuxdriverproject.org
-http://driverdev.linuxdriverproject.org/mailman/listinfo/devel
-
---===============1186326471==--
+OK, will stick you Ack on it. Thx!
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xen.org
+> http://lists.xen.org/xen-devel
