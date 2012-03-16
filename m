@@ -1,68 +1,76 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [Xen-devel] [PATCH 2/4 v2] xen kconfig: relax
-	INPUT_XEN_KBDDEV_FRONTEND deps
-Date: Thu, 15 Mar 2012 23:24:28 -0700
-Message-ID: <20120316062428.GA16291@core.coreip.homeip.net>
-References: <20120111161130.GA18203@andromeda.dapyr.net>
-	<7e004a73-b1ef-49f4-91e8-68fdf48c3ccb@zmail13.collab.prod.int.phx2.redhat.com>
-	<20120315172305.GA32759@phenom.dumpdata.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 1/3] Drivers: hv: Support the newly introduced KVP
+	messages in the driver
+Date: Fri, 16 Mar 2012 06:33:35 +0000
+Message-ID: <6E21E5352C11B742B20C142EB499E0481B7666A2@TK5EX14MBXC126.redmond.corp.microsoft.com>
+References: <1331858893-775-1-git-send-email-kys@microsoft.com>
+	<1331858925-827-1-git-send-email-kys@microsoft.com>
+	<20120316054556.GH3163@mwanda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120315172305.GA32759@phenom.dumpdata.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Andrew Jones <drjones@redhat.com>, xen-devel@lists.xensource.com, FlorianSchandinat@gmx.de, jeremy@goop.org, virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad@darnok.org>
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20120316054556.GH3163@mwanda>
+Content-Language: en-US
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "ohering@suse.com" <ohering@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Alan Stern <stern@rowland.harvard.edu>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 15, 2012 at 01:23:05PM -0400, Konrad Rzeszutek Wilk wrote:
-> On Wed, Jan 11, 2012 at 11:29:20AM -0500, Andrew Jones wrote:
-> > 
-> > 
-> > ----- Original Message -----
-> > > On Mon, Jan 09, 2012 at 06:51:41PM +0100, Andrew Jones wrote:
-> > > > PV-on-HVM guests may want to use the xen keyboard/mouse frontend,
-> > > > but
-> > > > they don't use the xen frame buffer frontend. For this case it
-> > > > doesn't
-> > > 
-> > > Ok, but PV does?
-> > > > make much sense for INPUT_XEN_KBDDEV_FRONTEND to depend on
-> > > > XEN_FBDEV_FRONTEND. The opposite direction always makes more sense,
-> > > > i.e.
-> > > > if you're using xenfb, then you'll want xenkbd. Switch the
-> > > > dependencies.
-> > > 
-> > > That sounds like it would be universal irregardless if it is
-> > > PV or PVonHVM?
-> > 
-> > This patch makes it such that if you want to use both, then you must
-> > select both. It also says that if you want FB, then you need the
-> > KBD. However, if you only want the KBD then you're fine with just
-> > that. So there isn't any risk of breaking configs designed to use
-> > FB, because FB should be manually selected for those configs anyway.
+
+
+> -----Original Message-----
+> From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
+> Sent: Friday, March 16, 2012 1:46 AM
+> To: KY Srinivasan
+> Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
+> Alan Stern
+> Subject: Re: [PATCH 1/3] Drivers: hv: Support the newly introduced KVP
+> messages in the driver
 > 
-> Dmitry,
+> On Thu, Mar 15, 2012 at 05:48:43PM -0700, K. Y. Srinivasan wrote:
+> >  	/*
+> >  	 * The windows host expects the key/value pair to be encoded
+> >  	 * in utf16.
+> >  	 */
+> >  	keylen = utf8s_to_utf16s(key_name, strlen(key_name),
+> UTF16_HOST_ENDIAN,
+> > -				(wchar_t *) kvp_data->data.key,
+> > +				(wchar_t *) kvp_data->key,
+> >  				HV_KVP_EXCHANGE_MAX_KEY_SIZE / 2);
+> > -	kvp_data->data.key_size = 2*(keylen + 1); /* utf16 encoding */
+> > +	kvp_data->key_size = 2*(keylen + 1); /* utf16 encoding */
+> > +
 > 
-> I am OK with this patch. Should I pick it up on my tree for 3.4 or
-> are you OK doing it via your tree?
+> I feel like a jerk for asking this, but is the output length correct
+> here?  It seems like we could go over again.  Also utf8s_to_utf16s()
+> can return negative error codes, why do we ignore those?
 
-Konrad,
+We are returning the strings back to the host here. There are checks elsewhere
+in the code to ensure that all strings we return to the host can be accommodated
+in the available space. For the most part these are strings that the host gave us in the 
+first place that have already been validated.  Furthermore, there are checks on the 
+host side to ensure that the returned size parameters are consistent with the protocol 
+definitions for the key value pair. For instance let us say somehow we got into a 
+situation where the converted utf16 string occupied the entire MAX sized array 
+without any room for the terminating character and we set the length parameter 
+to 2 more than the MAX value as this code would do. The host would simply discard the 
+message as an illegal message. This would be more appropriate than sending a 
+truncated key or value.
 
-I don't have a good copy of the patch so it you could pick it up that
-would be great.
+With regards to the negative values, negative values indicate a failure of some sort
+in the conversion. Since the host is the recipient here, host will correctly deal with the
+transaction by discarding the tuple.  
 
-Thanks.
+Regards,
 
--- 
-Dmitry
+K. Y 
