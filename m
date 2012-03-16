@@ -1,132 +1,114 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/3] Drivers: hv: Support the newly introduced KVP
- messages in the driver
-Date: Fri, 16 Mar 2012 13:14:07 +0000
-Message-ID: <6E21E5352C11B742B20C142EB499E0481B76671F@TK5EX14MBXC126.redmond.corp.microsoft.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: Re: [PATCH 1/3] Drivers: hv: Support the newly introduced KVP
+	messages in the driver
+Date: Fri, 16 Mar 2012 17:26:49 +0300
+Message-ID: <20120316142649.GJ3163@mwanda>
 References: <1331858893-775-1-git-send-email-kys@microsoft.com>
- <1331858925-827-1-git-send-email-kys@microsoft.com>
- <20120316054556.GH3163@mwanda>
- <6E21E5352C11B742B20C142EB499E0481B7666A2@TK5EX14MBXC126.redmond.corp.microsoft.com>
- <20120316071858.GH3220@mwanda>
+	<1331858925-827-1-git-send-email-kys@microsoft.com>
+	<20120316054556.GH3163@mwanda>
+	<6E21E5352C11B742B20C142EB499E0481B7666A2@TK5EX14MBXC126.redmond.corp.microsoft.com>
+	<20120316071858.GH3220@mwanda>
+	<6E21E5352C11B742B20C142EB499E0481B76671F@TK5EX14MBXC126.redmond.corp.microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120316071858.GH3220@mwanda>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, Alan Stern <stern@rowland.harvard.edu>
+Content-Type: multipart/mixed; boundary="===============1186326471=="
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <6E21E5352C11B742B20C142EB499E0481B76671F@TK5EX14MBXC126.redmond.corp.microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "ohering@suse.com" <ohering@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, Alan Stern <stern@rowland.harvard.edu>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
+--===============1186326471==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+9faIjRurCDpBc7U"
+Content-Disposition: inline
 
-> -----Original Message-----
-> From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
-> Sent: Friday, March 16, 2012 3:19 AM
-> To: KY Srinivasan
-> Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
-> Alan Stern
-> Subject: Re: [PATCH 1/3] Drivers: hv: Support the newly introduced KVP
-> messages in the driver
-> 
-> On Fri, Mar 16, 2012 at 06:33:35AM +0000, KY Srinivasan wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
-> > > Sent: Friday, March 16, 2012 1:46 AM
-> > > To: KY Srinivasan
-> > > Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> > > devel@linuxdriverproject.org; virtualization@lists.osdl.org;
-> ohering@suse.com;
-> > > Alan Stern
-> > > Subject: Re: [PATCH 1/3] Drivers: hv: Support the newly introduced KVP
-> > > messages in the driver
-> > >
-> > > On Thu, Mar 15, 2012 at 05:48:43PM -0700, K. Y. Srinivasan wrote:
-> > > >  	/*
-> > > >  	 * The windows host expects the key/value pair to be encoded
-> > > >  	 * in utf16.
-> > > >  	 */
-> > > >  	keylen = utf8s_to_utf16s(key_name, strlen(key_name),
-> > > UTF16_HOST_ENDIAN,
-> > > > -				(wchar_t *) kvp_data->data.key,
-> > > > +				(wchar_t *) kvp_data->key,
-> > > >  				HV_KVP_EXCHANGE_MAX_KEY_SIZE / 2);
-> > > > -	kvp_data->data.key_size = 2*(keylen + 1); /* utf16 encoding */
-> > > > +	kvp_data->key_size = 2*(keylen + 1); /* utf16 encoding */
-> > > > +
-> > >
-> > > I feel like a jerk for asking this, but is the output length correct
-> > > here?  It seems like we could go over again.  Also utf8s_to_utf16s()
-> > > can return negative error codes, why do we ignore those?
-> >
-> > We are returning the strings back to the host here. There are checks elsewhere
-> > in the code to ensure that all strings we return to the host can be
-> accommodated
-> > in the available space. For the most part these are strings that the host gave us
-> in the
-> > first place that have already been validated.  Furthermore, there are checks on
-> the
-> > host side to ensure that the returned size parameters are consistent with the
-> protocol
-> > definitions for the key value pair. For instance let us say somehow we got into a
-> > situation where the converted utf16 string occupied the entire MAX sized array
-> > without any room for the terminating character and we set the length
-> parameter
-> > to 2 more than the MAX value as this code would do. The host would simply
-> discard the
-> > message as an illegal message. This would be more appropriate than sending a
-> > truncated key or value.
-> >
-> 
-> Uh...  Looking at it again, this code is clearly off by one.  If
-> we're not going to hit the limit, then we're not going to truncate,
-> so that's not a concern.  Let's just use the correct limit here.
 
-Dan,
-I am trying to understand your concern here:
-You will agree with me that the current code does not overflow the 
-buffer since the output is limited to MAX bytes and that is how 
-big the output buffer is sized. Now, as I pointed out earlier, if the
-string to be converted were to fully occupy the MAX bytes or even be
-larger than MAX bytes (no buffer overflow here since we limit the
-conversion to MAX bytes), we will get a malformed packet that will be
-sent to the host since the size field of the message would exceed
-the protocol specified size limit. I was merely pointing out that in
-this case, I would rather have the host reject the message than send
-a truncated Key/Value string (if we were to ever get invalid key or
-value strings). 
+--+9faIjRurCDpBc7U
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> The problem is that off-by-ones tend to reproduce by copy and paste.
-> It's best to never introduce any, even harmless ones.
-> 
-> Either that or add a comment.  /* Don't care about wrong limitter
-> because we trust the input. */.
-> 
-All I am saying if we have an invalid string we will (a) ensure that we don't overflow
-the output buffer and (b) we will generate a malformed packet as we should since
-the string we are handling is not valid. Furthermore, I am suggesting that it is better
-to have a malformed packet in this case than to have 
+On Fri, Mar 16, 2012 at 01:14:07PM +0000, KY Srinivasan wrote:
+> Dan,
+> I am trying to understand your concern here:
+> You will agree with me that the current code does not overflow the=20
+> buffer since the output is limited to MAX bytes and that is how=20
+> big the output buffer is sized. Now, as I pointed out earlier, if the
+> string to be converted were to fully occupy the MAX bytes or even be
+> larger than MAX bytes (no buffer overflow here since we limit the
+> conversion to MAX bytes), we will get a malformed packet that will be
+> sent to the host since the size field of the message would exceed
+> the protocol specified size limit. I was merely pointing out that in
+> this case, I would rather have the host reject the message than send
+> a truncated Key/Value string (if we were to ever get invalid key or
+> value strings).=20
+>=20
 
-> > With regards to the negative values, negative values indicate a failure of some
-> sort
-> > in the conversion. Since the host is the recipient here, host will correctly deal
-> with the
-> > transaction by discarding the tuple.
-> 
-> I'm not super familiar with this subsystem.  Where can I find code
-> for rejecting bad transactions?  It seems like an easy thing to
-> handle the error in both places.  It makes auditing the code a lot
-> simpler.
+Sending malformed packets is a bad idea.
 
-The host here is a windows host and the protocol verification engine there
-will reject a mal-formed message. Having said this, what you are 
-proposing is reasonable, I will re-send the patches.
+Normally, if you handle the error as close to the cause of the error
+as possible then it makes everything easier to read.  In this case
+especially, it's so easy to catch any errors.  If you decide to go
+ahead and send the malformed message, at least put a comment.
 
-Regards,
+When I read code, I spend all my time looking for what it does
+wrong.  So when code doesn't have any error handling and sets
+keylen =3D -EINVAL then sure, it's fewer lines of code to read, but
+it doesn't make my life easier.  Readable code has obvious error
+handling.
 
-K. Y
+Introducing off by one errors is an especially bad idea.  It doesn't
+matter how harmless they are, because they end up getting copy and
+pasted.  I don't know how to make it any clearer than that.  :/
+Never never never do that!
+
+regards,
+dan carpenter
+
+
+--+9faIjRurCDpBc7U
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQIcBAEBAgAGBQJPY02pAAoJEOnZkXI/YHqRDEoP+gKhaThrvNOFUEb7aWMq1ilE
+SI1nqWD7mBeDdYxDKtyv/kexXXWaGirkBFkR0uxNI3ZVBqdLByl0HYSqoqzAhy2b
+yjI3RNSJ5NVA4TJfUcsIGHztCFNsk/ODBSSnpzkEON18kzutblZmZFlRIHxlRgc4
+7EZ9b4u+U/l/EL6hmOnO2jM7ZQqnTJhJdzWIvbFE+a7tK9/azuwVKotBUOvtb6eY
+StBbJfVSXg/GUyX03aABpsJfzpTuaeDKx7XT/ZBVgk1RtP4naMYXU4DMMuwOBw5S
+BNPY5bGIEgQcma0/y127peqTQJWgRKTKYBHTx/uPYuIzvC/2XpeHwqIg5uFk4ThT
+v+RPInkEaiG+s5mn4eHbHEzyzY7AboYpaKt8C4FGJLSRfN1CGnAgYp1CGnDhHEPm
+5mpcGu1UrjSEM1CiWWOqSra8cWCucFjsIb7hX/VbxYiJHwq7OFKGxyEVM/gRmzea
+/zMN3S1EPPmRPvtg56vhyxMINSMH0vMQfjMtLeH6o/KMwT8TASIWMugFwN7P4qQt
+QuwPqU1k8MJXfmM2SY3kZ2klRMRlCc6VvZwqjryeDm3D8RjRcsG1iUL2A+b4jij3
+0RkP9qqujx5Mccy3/sMbfcqZPtG2LuKYGNHFSZLdtJpJOdhwQY+6vAvJ5+JufWKa
+gbJWkgdlXgNTTlBbkb78
+=EXNg
+-----END PGP SIGNATURE-----
+
+--+9faIjRurCDpBc7U--
+
+--===============1186326471==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devel mailing list
+devel@linuxdriverproject.org
+http://driverdev.linuxdriverproject.org/mailman/listinfo/devel
+
+--===============1186326471==--
