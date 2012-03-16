@@ -1,16 +1,17 @@
 From: Dan Carpenter <dan.carpenter@oracle.com>
 Subject: Re: [PATCH 1/3] Drivers: hv: Support the newly introduced KVP
 	messages in the driver
-Date: Fri, 16 Mar 2012 10:18:58 +0300
-Message-ID: <20120316071858.GH3220@mwanda>
+Date: Fri, 16 Mar 2012 10:37:22 +0300
+Message-ID: <20120316073722.GI3163@mwanda>
 References: <1331858893-775-1-git-send-email-kys@microsoft.com>
 	<1331858925-827-1-git-send-email-kys@microsoft.com>
 	<20120316054556.GH3163@mwanda>
 	<6E21E5352C11B742B20C142EB499E0481B7666A2@TK5EX14MBXC126.redmond.corp.microsoft.com>
+	<20120316071858.GH3220@mwanda>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1155690487=="
+Content-Type: multipart/mixed; boundary="===============1230527362=="
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <6E21E5352C11B742B20C142EB499E0481B7666A2@TK5EX14MBXC126.redmond.corp.microsoft.com>
+In-Reply-To: <20120316071858.GH3220@mwanda>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
 	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -25,122 +26,108 @@ Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "ohering@suse.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============1155690487==
+--===============1230527362==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vkEkAx9hr54EJ73W"
+	protocol="application/pgp-signature"; boundary="kH8JNVvasRCCW1Oz"
 Content-Disposition: inline
 
 
---vkEkAx9hr54EJ73W
+--kH8JNVvasRCCW1Oz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 16, 2012 at 06:33:35AM +0000, KY Srinivasan wrote:
->=20
->=20
-> > -----Original Message-----
-> > From: Dan Carpenter [mailto:dan.carpenter@oracle.com]
-> > Sent: Friday, March 16, 2012 1:46 AM
-> > To: KY Srinivasan
-> > Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@su=
-se.com;
-> > Alan Stern
-> > Subject: Re: [PATCH 1/3] Drivers: hv: Support the newly introduced KVP
-> > messages in the driver
+On Fri, Mar 16, 2012 at 10:18:58AM +0300, Dan Carpenter wrote:
+> > > On Thu, Mar 15, 2012 at 05:48:43PM -0700, K. Y. Srinivasan wrote:
+> > > >  	/*
+> > > >  	 * The windows host expects the key/value pair to be encoded
+> > > >  	 * in utf16.
+> > > >  	 */
+> > > >  	keylen =3D utf8s_to_utf16s(key_name, strlen(key_name),
+> > > UTF16_HOST_ENDIAN,
+> > > > -				(wchar_t *) kvp_data->data.key,
+> > > > +				(wchar_t *) kvp_data->key,
+> > > >  				HV_KVP_EXCHANGE_MAX_KEY_SIZE / 2);
+> > > > -	kvp_data->data.key_size =3D 2*(keylen + 1); /* utf16 encoding */
+> > > > +	kvp_data->key_size =3D 2*(keylen + 1); /* utf16 encoding */
+> > > > +
+> > >=20
+> > > I feel like a jerk for asking this, but is the output length correct
+> > > here?  It seems like we could go over again.  Also utf8s_to_utf16s()
+> > > can return negative error codes, why do we ignore those?
 > >=20
-> > On Thu, Mar 15, 2012 at 05:48:43PM -0700, K. Y. Srinivasan wrote:
-> > >  	/*
-> > >  	 * The windows host expects the key/value pair to be encoded
-> > >  	 * in utf16.
-> > >  	 */
-> > >  	keylen =3D utf8s_to_utf16s(key_name, strlen(key_name),
-> > UTF16_HOST_ENDIAN,
-> > > -				(wchar_t *) kvp_data->data.key,
-> > > +				(wchar_t *) kvp_data->key,
-> > >  				HV_KVP_EXCHANGE_MAX_KEY_SIZE / 2);
-> > > -	kvp_data->data.key_size =3D 2*(keylen + 1); /* utf16 encoding */
-> > > +	kvp_data->key_size =3D 2*(keylen + 1); /* utf16 encoding */
-> > > +
+> > We are returning the strings back to the host here. There are checks el=
+sewhere
+> > in the code to ensure that all strings we return to the host can be acc=
+ommodated
+> > in the available space. For the most part these are strings that the ho=
+st gave us in the=20
+> > first place that have already been validated.  Furthermore, there are c=
+hecks on the=20
+> > host side to ensure that the returned size parameters are consistent wi=
+th the protocol=20
+> > definitions for the key value pair. For instance let us say somehow we =
+got into a=20
+> > situation where the converted utf16 string occupied the entire MAX size=
+d array=20
+> > without any room for the terminating character and we set the length pa=
+rameter=20
+> > to 2 more than the MAX value as this code would do. The host would simp=
+ly discard the=20
+> > message as an illegal message. This would be more appropriate than send=
+ing a=20
+> > truncated key or value.
 > >=20
-> > I feel like a jerk for asking this, but is the output length correct
-> > here?  It seems like we could go over again.  Also utf8s_to_utf16s()
-> > can return negative error codes, why do we ignore those?
 >=20
-> We are returning the strings back to the host here. There are checks else=
-where
-> in the code to ensure that all strings we return to the host can be accom=
-modated
-> in the available space. For the most part these are strings that the host=
- gave us in the=20
-> first place that have already been validated.  Furthermore, there are che=
-cks on the=20
-> host side to ensure that the returned size parameters are consistent with=
- the protocol=20
-> definitions for the key value pair. For instance let us say somehow we go=
-t into a=20
-> situation where the converted utf16 string occupied the entire MAX sized =
-array=20
-> without any room for the terminating character and we set the length para=
-meter=20
-> to 2 more than the MAX value as this code would do. The host would simply=
- discard the=20
-> message as an illegal message. This would be more appropriate than sendin=
-g a=20
-> truncated key or value.
+> Uh...  Looking at it again, this code is clearly off by one.  If
+> we're not going to hit the limit, then we're not going to truncate,
+> so that's not a concern.  Let's just use the correct limit here.
 >=20
 
-Uh...  Looking at it again, this code is clearly off by one.  If
-we're not going to hit the limit, then we're not going to truncate,
-so that's not a concern.  Let's just use the correct limit here.
+Another option of course would be to add a test after the
+conversion.
 
-The problem is that off-by-ones tend to reproduce by copy and paste.
-It's best to never introduce any, even harmless ones.
+	if (keylen =3D=3D HV_KVP_EXCHANGE_MAX_KEY_SIZE / 2)
+		return -EINVAL;
 
-Either that or add a comment.  /* Don't care about wrong limitter
-because we trust the input. */.
+What I'm saying is that I audit a lot of code for buffer overflows,
+and I don't want to see an off by one and then I have to audit where
+the string come from and audit where it's going.
 
-> With regards to the negative values, negative values indicate a failure o=
-f some sort
-> in the conversion. Since the host is the recipient here, host will correc=
-tly deal with the
-> transaction by discarding the tuple. =20
-
-I'm not super familiar with this subsystem.  Where can I find code
-for rejecting bad transactions?  It seems like an easy thing to
-handle the error in both places.  It makes auditing the code a lot
-simpler.
+If it's corrupts memory then I fix the bug and I can list it under
+my achievements in my weekly status report.  If it's wrong but it
+doesn't corrupt memory, it's just a complete waste of my time and it
+makes me really cross.
 
 regards,
 dan carpenter
 
 
---vkEkAx9hr54EJ73W
+--kH8JNVvasRCCW1Oz
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
-iQIcBAEBAgAGBQJPYuliAAoJEOnZkXI/YHqRlNAP/3hF7fOPlNbbvqw/qXfufDb8
-PKApzjZqD7HVkNZ4u/GLUM9RPvFdNjT4amhx7auzcAimqRrpx0cYzJH1o431jb/D
-UHt5MPbJEZ/RdjpR8oSG4BLHsBtVkNMedxFbCftBVqZkCsNXV2e/Q5B18vwM8e2g
-R8ugkk+zwk434JYXWmMWFKOaFCnpjS/MjVY6qOmxYHcwIpRJPgI82i2kHNPjSBXl
-iukCZ5Sjmd6Z1/rKMwL4Uj3nT6lRrLOP3NaATqc20JUlBg/xyALpgQwAY2iecbb8
-L3w56Hh9iJhKzUhUWJw5UJDIFz20lss9BakHey1sKWnyhzd9x/MrPaGyb5uQ6yKm
-jm5xanWLS4ZPD4rCJ6pPFz3Il1EqyMZf1WD+Fg/e9IORG+OEyN3WSsgv1ukzFDbv
-xUVp+ETm6geYMUThGbaQKEi+un8KwjwY/nqtgwjWY7pY5aCbDXQyH1TKzTkCcREM
-5IyE77Bv+keCxH9fqMJrKfjRW09/WQpItciU2b7pkVH72qDqPtHGQQHqYBRBgOLD
-6Q0U8oPKcE0/Ta21cChdy4QE64r0qroWueyA/ZRGXLhvHn+l3JO5RnVmKBZXd7da
-6C/MMemyXRbmQLsQBUj79x880+G3+bnG3FRoj0CCgQXBQHYj1s5GgA3iFZZltRLr
-cqiRS6vjO6kbZTZtqV0f
-=Tyo7
+iQIcBAEBAgAGBQJPYu2xAAoJEOnZkXI/YHqRBSgP/j2LyX30hhi6MgWWcVfvStEa
+1NKuYCtBRB1rl7ZtEwy99LTbTmSZP8xUDrci1GKKcwRzut0CdqdrgTFsPUaX8lgM
+tOyuXP1qVa5dUfQUpTueSO+oQvblURwOgZ2iGMrnq6vk4yRaq41+kveDJMF33QbC
+CKtCpaLVLVJA/5T29LIDfDLLB0KCwFtA+s3UZ01FjrQzel6HSjr766sRvJACJ5Fp
+AmOmucC3ooZ0uIuu5WG1V0m3ujWKuOVs5ccSsb6RZZqg8hiDpZ1QH03y5xgi2FEC
+t1/UocGeySe53vEqWnQuVAa5SaKKMJRVeEq8ZtjJPBV+wgR99MTs4t1I9rfZQeeZ
+JucNIFyvU1M9yAFzCEjfnER0luu4W4RdGFKm9u+lCDXBFKFPEU3Y2ABZluwrykVe
+sWWoWEUk7q9HobUdngt2mpfQFHwEE0x3iD6QvoXTS7TcKy2W1b2Wwq2vDX3yBgJl
+Y2vWp14VK9KvCpPW/Vgd4JwqoCdTIn0VhlzzzBYY0r3a26OxfrWczlfblqDsZLuL
+iBoNu1aeL3VwAAMJJI7VMhQMKpgGbnW/gqX1cr7y5XsJhquD+LeYqwZVuW9E+FFZ
+MC5SXx6D2Gq8UIDBsOzzY1dbhUS6esGN99Z9DH23xE6TH1jkVwZnLeUlVQI0rQdO
+MsXPjqis4aJ8F1VcWBT7
+=bm98
 -----END PGP SIGNATURE-----
 
---vkEkAx9hr54EJ73W--
+--kH8JNVvasRCCW1Oz--
 
---===============1155690487==
+--===============1230527362==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -151,4 +138,4 @@ devel mailing list
 devel@linuxdriverproject.org
 http://driverdev.linuxdriverproject.org/mailman/listinfo/devel
 
---===============1155690487==--
+--===============1230527362==--
