@@ -1,81 +1,53 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH] virtio-spec: split virtio-net device status filed into ro and
-	rw byte
-Date: Fri, 16 Mar 2012 23:20:26 +0800
-Message-ID: <20120316152026.6428.6983.stgit@jason-ThinkPad-T400>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: qemu-devel@nongnu.org, rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/2] Drivers: scsi: storvsc: Set the scsi result correctly when SRB status is INVALID
+Date: Fri, 16 Mar 2012 13:24:31 -0700
+Message-ID: <1331929472-6877-1-git-send-email-kys@microsoft.com>
+References: <1331929448-6838-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <1331929448-6838-1-git-send-email-kys@microsoft.com>
+Sender: linux-scsi-owner@vger.kernel.org
+To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, jbottomley@parallels.com, hch@infradead.org, linux-scsi@vger.kernel.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch splits the device status field of virtio-net into ro and rw
-byte. This would simplify the implementation of both host and guest
-and make the layout more clean. As VIRTIO_NET_S_ANNOUNCE is a rw bit,
-it was moved to bit 8 (0x100).
+Currently Windows hosts only support a subset of scsi commands and for commands
+that are not supported, the host returns a generic SRB failure status.
+However, they have agreed to change the return value to indicate that
+the command is not supported. In preparation for that, handle the 
+SRB_STATUS_INVALID_REQUEST return value correctly.
 
-btw. looks like there's no implementation that depends on
-VIRTIO_NET_S_ANNOUNCE, so the move is safe.
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- virtio-0.9.4.lyx |   20 +++++++++++++++++++-
- 1 files changed, 19 insertions(+), 1 deletions(-)
+ drivers/scsi/storvsc_drv.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-diff --git a/virtio-0.9.4.lyx b/virtio-0.9.4.lyx
-index 6c7bab1..ef3951c 100644
---- a/virtio-0.9.4.lyx
-+++ b/virtio-0.9.4.lyx
-@@ -58,6 +58,7 @@
- \html_be_strict false
- \author -608949062 "Rusty Russell,,," 
- \author 1531152142 "pbonzini" 
-+\author 2090695081 "Jason" 
- \end_header
+diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+index 44c7a48..8b967c9 100644
+--- a/drivers/scsi/storvsc_drv.c
++++ b/drivers/scsi/storvsc_drv.c
+@@ -202,6 +202,7 @@ enum storvsc_request_type {
+ #define SRB_STATUS_INVALID_LUN	0x20
+ #define SRB_STATUS_SUCCESS	0x01
+ #define SRB_STATUS_ERROR	0x04
++#define SRB_STATUS_INVALID_REQUEST 0x06
  
- \begin_body
-@@ -4012,8 +4013,19 @@ configuration
- layout Two configuration fields are currently defined.
-  The mac address field always exists (though is only valid if VIRTIO_NET_F_MAC
-  is set), and the status field only exists if VIRTIO_NET_F_STATUS is set.
-+
-+\change_inserted 2090695081 1331907586
-+ The low byte of status field is read-only, guest write to this byte would
-+ be ignored.
-+ Currently only one bit is defined for this byte: VIRTIO_NET_S_LINK_UP.
-+ The high byte of status field is read-writable.
-+ Currently only one bit is defined for this byte: VIRTIO_NET_S_ANNOUNCE.
-+
-+\change_deleted 2090695081 1331907489
-  Two bits are currently defined for the status field: VIRTIO_NET_S_LINK_UP
-  and VIRTIO_NET_S_ANNOUNCE.
-+
-+\change_unchanged
-  
- \begin_inset listings
- inline false
-@@ -4026,7 +4038,13 @@ status open
+ /*
+  * This is the end of Protocol specific defines.
+@@ -779,6 +780,13 @@ static void storvsc_command_completion(struct storvsc_cmd_request *cmd_request)
+ 	}
  
- \begin_layout Plain Layout
- 
--#define VIRTIO_NET_S_ANNOUNCE	2
-+#define VIRTIO_NET_S_ANNOUNCE	
-+\change_inserted 2090695081 1331907493
-+0x100
-+\change_deleted 2090695081 1331907491
-+2
-+\change_unchanged
+ 	/*
++	 * If the host returns with an invalid request, set
++	 * the scsi command result correctly.
++	 */
++	if (vm_srb->srb_status == SRB_STATUS_INVALID_REQUEST)
++		scmnd->result = ILLEGAL_REQUEST << 16;
 +
- \end_layout
- 
- \begin_layout Plain Layout
++	/*
+ 	 * If there is an error; offline the device since all
+ 	 * error recovery strategies would have already been
+ 	 * deployed on the host side.
+-- 
+1.7.4.1
+
