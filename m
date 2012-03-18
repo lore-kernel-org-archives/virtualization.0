@@ -1,107 +1,44 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-spec: split virtio-net device status filed into
-	ro and rw byte
-Date: Sun, 18 Mar 2012 14:22:54 +0200
-Message-ID: <20120318122252.GE29902@redhat.com>
-References: <20120316152026.6428.6983.stgit@jason-ThinkPad-T400>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH RESEND  0000/0002] drivers: scsi: storvsc
+Date: Sun, 18 Mar 2012 12:59:49 -0700
+Message-ID: <1332100789-25594-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120316152026.6428.6983.stgit@jason-ThinkPad-T400>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+Return-path: <devel-bounces@linuxdriverproject.org>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, jbottomley@parallels.com, hch@infradead.org, linux-scsi@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 16, 2012 at 11:20:26PM +0800, Jason Wang wrote:
-> This patch splits the device status field of virtio-net into ro and rw
-> byte. This would simplify the implementation of both host and guest
-> and make the layout more clean. As VIRTIO_NET_S_ANNOUNCE is a rw bit,
-> it was moved to bit 8 (0x100).
-> 
-> btw. looks like there's no implementation that depends on
-> VIRTIO_NET_S_ANNOUNCE, so the move is safe.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Hmm, I know I proposed this myself, and I thought it will
-prevent problems if we will add more rw bits,
-but I missed the following race:
+The current Windows hosts only handle a subset of scsi commands
+sent from the guest and for commands that are not supported, they are
+filtered on the host side a generic failure is returned to the guest
+as SRB status. The returned error code does not permit the guest to
+figure out if there was an error or if the command was not supported.
 
-host writes VIRTIO_NET_S_ANNOUNCE = 1, interrupt
+Based on the input I got from the community, I have convinced the windows
+developers to return an error code that allows the guest to distinguish between
+unsupported command and true failures. However, it is not clear when this fix will
+be shipped.
 
-				guest reads VIRTIO_NET_S_ANNOUNCE = 1
+This patch set addresses this issue by filtering the ATA_16 command on the guest
+(note that currently the host is filtering this command as it is not supported).
+I also have a patch here the correctly handles SRB_STATUS_INVALID_REQUEST
+error returns - note that the current windows hosts don't return this today.
 
-host writes VIRTIO_NET_S_SOME_NEW_FIELD = 1, interrupt
-
-				guest writes VIRTIO_NET_S_ANNOUNCE = 0
-				VIRTIO_NET_S_SOME_NEW_FIELD is overwritten
-
-				guest reads VIRTIO_NET_S_SOME_NEW_FIELD = 0
-
-How about making the new bit write 1 to clear?
-If we do, we can keep it where it is currently ...
+This is a resend of the patches sent earlier based on suggestions from
+Jeff Garzik <jgpobox@gmail.com> and Douglas Gilbert <dgilbert@interlog.com>. 
 
 
+Regards,
 
-> ---
->  virtio-0.9.4.lyx |   20 +++++++++++++++++++-
->  1 files changed, 19 insertions(+), 1 deletions(-)
-> 
-> diff --git a/virtio-0.9.4.lyx b/virtio-0.9.4.lyx
-> index 6c7bab1..ef3951c 100644
-> --- a/virtio-0.9.4.lyx
-> +++ b/virtio-0.9.4.lyx
-> @@ -58,6 +58,7 @@
->  \html_be_strict false
->  \author -608949062 "Rusty Russell,,," 
->  \author 1531152142 "pbonzini" 
-> +\author 2090695081 "Jason" 
->  \end_header
->  
->  \begin_body
-> @@ -4012,8 +4013,19 @@ configuration
->  layout Two configuration fields are currently defined.
->   The mac address field always exists (though is only valid if VIRTIO_NET_F_MAC
->   is set), and the status field only exists if VIRTIO_NET_F_STATUS is set.
-> +
-> +\change_inserted 2090695081 1331907586
-> + The low byte of status field is read-only, guest write to this byte would
-> + be ignored.
-> + Currently only one bit is defined for this byte: VIRTIO_NET_S_LINK_UP.
-> + The high byte of status field is read-writable.
-> + Currently only one bit is defined for this byte: VIRTIO_NET_S_ANNOUNCE.
-> +
-> +\change_deleted 2090695081 1331907489
->   Two bits are currently defined for the status field: VIRTIO_NET_S_LINK_UP
->   and VIRTIO_NET_S_ANNOUNCE.
-> +
-> +\change_unchanged
->   
->  \begin_inset listings
->  inline false
-> @@ -4026,7 +4038,13 @@ status open
->  
->  \begin_layout Plain Layout
->  
-> -#define VIRTIO_NET_S_ANNOUNCE	2
-> +#define VIRTIO_NET_S_ANNOUNCE	
-> +\change_inserted 2090695081 1331907493
-> +0x100
-> +\change_deleted 2090695081 1331907491
-> +2
-> +\change_unchanged
-> +
->  \end_layout
->  
->  \begin_layout Plain Layout
+K. Y
