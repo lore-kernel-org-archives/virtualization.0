@@ -1,14 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [V4 PATCH] virtio-net: send gratuitous packet when needed
-Date: Mon, 19 Mar 2012 12:46:29 +1030
-Message-ID: <877gyhxrlu.fsf__15204.4347989888$1332125921$gmane$org@rustcorp.com.au>
-References: <20120313090841.11110.82654.stgit@amd-6168-8-1.englab.nay.redhat.com>
-	<20120313143331.GE14931@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio-spec: split virtio-net device status filed into
+	ro and rw byte
+Date: Mon, 19 Mar 2012 11:09:24 +0800
+Message-ID: <4F66A364.2080600@redhat.com>
+References: <20120316152026.6428.6983.stgit@jason-ThinkPad-T400>
+	<20120318122252.GE29902@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120313143331.GE14931@redhat.com>
+In-Reply-To: <20120318122252.GE29902@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,37 +19,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 13 Mar 2012 16:33:31 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> > index 970d5a2..44a38d6 100644
-> > --- a/include/linux/virtio_net.h
-> > +++ b/include/linux/virtio_net.h
-> > @@ -49,8 +49,10 @@
-> >  #define VIRTIO_NET_F_CTRL_RX	18	/* Control channel RX mode support */
-> >  #define VIRTIO_NET_F_CTRL_VLAN	19	/* Control channel VLAN filtering */
-> >  #define VIRTIO_NET_F_CTRL_RX_EXTRA 20	/* Extra RX mode control support */
-> > +#define VIRTIO_NET_F_GUEST_ANNOUNCE 21  /* Guest can send gratituous packet */
-> >  
-> >  #define VIRTIO_NET_S_LINK_UP	1	/* Link is up */
-> > +#define VIRTIO_NET_S_ANNOUNCE   2       /* Announcement is needed */
-> 
-> I would put this in bit 8 (0x100), this way low status byte
-> is RO, high byte is RW.
+On 03/18/2012 08:22 PM, Michael S. Tsirkin wrote:
+> On Fri, Mar 16, 2012 at 11:20:26PM +0800, Jason Wang wrote:
+>> This patch splits the device status field of virtio-net into ro and rw
+>> byte. This would simplify the implementation of both host and guest
+>> and make the layout more clean. As VIRTIO_NET_S_ANNOUNCE is a rw bit,
+>> it was moved to bit 8 (0x100).
+>>
+>> btw. looks like there's no implementation that depends on
+>> VIRTIO_NET_S_ANNOUNCE, so the move is safe.
+>>
+>> Signed-off-by: Jason Wang<jasowang@redhat.com>
+> Hmm, I know I proposed this myself, and I thought it will
+> prevent problems if we will add more rw bits,
+> but I missed the following race:
+>
+> host writes VIRTIO_NET_S_ANNOUNCE = 1, interrupt
+>
+> 				guest reads VIRTIO_NET_S_ANNOUNCE = 1
+>
+> host writes VIRTIO_NET_S_SOME_NEW_FIELD = 1, interrupt
+>
+> 				guest writes VIRTIO_NET_S_ANNOUNCE = 0
+> 				VIRTIO_NET_S_SOME_NEW_FIELD is overwritten
+>
+> 				guest reads VIRTIO_NET_S_SOME_NEW_FIELD = 0
+>
+> How about making the new bit write 1 to clear?
+> If we do, we can keep it where it is currently ...
+>
 
-The whole idea of acking by clearing the bit is unreliable, moving to a
-separate byte just controls the damage.
+Didn't follow, do you mean to make VIRITO_NET_S_ANNOUNCE bit clear on 
+read? Looks like this can prevent the race and keep what currently we have.
 
-How about you use bits 8-15 as a counter?  It's still theoretically
-unreliable if 256 notifications pass before the guest notices, but it's
-probably better and clearer than this.
-
-I leave the final call to MST though.
-
-Thanks,
-Rusty.
--- 
-  How could I marry someone with more hair than me?  http://baldalex.org
+>
+>> ---
+>>   virtio-0.9.4.lyx |   20 +++++++++++++++++++-
+>>   1 files changed, 19 insertions(+), 1 deletions(-)
+>>
+>> diff --git a/virtio-0.9.4.lyx b/virtio-0.9.4.lyx
+>> index 6c7bab1..ef3951c 100644
+>> --- a/virtio-0.9.4.lyx
+>> +++ b/virtio-0.9.4.lyx
+>> @@ -58,6 +58,7 @@
+>>   \html_be_strict false
+>>   \author -608949062 "Rusty Russell,,,"
+>>   \author 1531152142 "pbonzini"
+>> +\author 2090695081 "Jason"
+>>   \end_header
+>>
+>>   \begin_body
+>> @@ -4012,8 +4013,19 @@ configuration
+>>   layout Two configuration fields are currently defined.
+>>    The mac address field always exists (though is only valid if VIRTIO_NET_F_MAC
+>>    is set), and the status field only exists if VIRTIO_NET_F_STATUS is set.
+>> +
+>> +\change_inserted 2090695081 1331907586
+>> + The low byte of status field is read-only, guest write to this byte would
+>> + be ignored.
+>> + Currently only one bit is defined for this byte: VIRTIO_NET_S_LINK_UP.
+>> + The high byte of status field is read-writable.
+>> + Currently only one bit is defined for this byte: VIRTIO_NET_S_ANNOUNCE.
+>> +
+>> +\change_deleted 2090695081 1331907489
+>>    Two bits are currently defined for the status field: VIRTIO_NET_S_LINK_UP
+>>    and VIRTIO_NET_S_ANNOUNCE.
+>> +
+>> +\change_unchanged
+>>
+>>   \begin_inset listings
+>>   inline false
+>> @@ -4026,7 +4038,13 @@ status open
+>>
+>>   \begin_layout Plain Layout
+>>
+>> -#define VIRTIO_NET_S_ANNOUNCE	2
+>> +#define VIRTIO_NET_S_ANNOUNCE	
+>> +\change_inserted 2090695081 1331907493
+>> +0x100
+>> +\change_deleted 2090695081 1331907491
+>> +2
+>> +\change_unchanged
+>> +
+>>   \end_layout
+>>
+>>   \begin_layout Plain Layout
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
