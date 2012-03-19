@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [Qemu-devel] [PATCH RFC] virtio-pci: add MMIO property
-Date: Mon, 19 Mar 2012 23:20:34 +0200
-Message-ID: <20120319212033.GB9747@redhat.com>
+Date: Mon, 19 Mar 2012 23:29:17 +0200
+Message-ID: <20120319212916.GC9747@redhat.com>
 References: <20120319155650.GA6430@redhat.com> <4F6786C5.3080902@codemonkey.ws>
 	<20120319204952.GA9747@redhat.com> <4F67A021.6040601@us.ibm.com>
 Mime-Version: 1.0
@@ -56,9 +56,8 @@ On Mon, Mar 19, 2012 at 04:07:45PM -0500, Anthony Liguori wrote:
 > ranges and that way the device is presented consistently to the
 > guest regardless of what the architecture is.
 
-Yes there are endless ways to do this.
-This specific hack is good for making existing linux drivers
-on ppc, arm etc work.
+Maybe just make this a hidden option like x-miio?
+This will ensure people dont turn it on by mistake on e.g. x86.
 
 > >>Making the same vendor/device ID have different semantics depending
 > >>on a magic flag in QEMU seems like a pretty bad idea to me.
@@ -71,10 +70,7 @@ on ppc, arm etc work.
 > 
 > We extend the bar size with MSI-X and use a transport flag to
 > indicate that it's available, right?
-
-No, we use regular pci capability. Just like BAR type is
-a regular PCI register :)
-
+> 
 > Regards,
 > 
 > Anthony LIguori
