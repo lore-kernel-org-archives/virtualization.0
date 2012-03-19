@@ -1,16 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [V4 PATCH] virtio-net: send gratuitous packet when needed
-Date: Mon, 19 Mar 2012 17:42:19 +0800
-Message-ID: <4F66FF7B.7040000@redhat.com>
-References: <20120313090841.11110.82654.stgit@amd-6168-8-1.englab.nay.redhat.com>
-	<20120313143331.GE14931@redhat.com>
-	<877gyhxrlu.fsf@rustcorp.com.au>
-	<20120319084449.GF17673@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC] virtio-pci: add MMIO property
+Date: Mon, 19 Mar 2012 17:56:51 +0200
+Message-ID: <20120319155650.GA6430@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120319084449.GF17673@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,54 +16,114 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Alexey Kardashevskiy <aik@ozlabs.ru>, rusty@rustcorp.com.au, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, avi@redhat.com
+Cc: Anthony Liguori <aliguori@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/19/2012 04:44 PM, Michael S. Tsirkin wrote:
-> On Mon, Mar 19, 2012 at 12:46:29PM +1030, Rusty Russell wrote:
->> On Tue, 13 Mar 2012 16:33:31 +0200, "Michael S. Tsirkin"<mst@redhat.com>  wrote:
->>>> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
->>>> index 970d5a2..44a38d6 100644
->>>> --- a/include/linux/virtio_net.h
->>>> +++ b/include/linux/virtio_net.h
->>>> @@ -49,8 +49,10 @@
->>>>   #define VIRTIO_NET_F_CTRL_RX	18	/* Control channel RX mode support */
->>>>   #define VIRTIO_NET_F_CTRL_VLAN	19	/* Control channel VLAN filtering */
->>>>   #define VIRTIO_NET_F_CTRL_RX_EXTRA 20	/* Extra RX mode control support */
->>>> +#define VIRTIO_NET_F_GUEST_ANNOUNCE 21  /* Guest can send gratituous packet */
->>>>
->>>>   #define VIRTIO_NET_S_LINK_UP	1	/* Link is up */
->>>> +#define VIRTIO_NET_S_ANNOUNCE   2       /* Announcement is needed */
->>> I would put this in bit 8 (0x100), this way low status byte
->>> is RO, high byte is RW.
->> The whole idea of acking by clearing the bit is unreliable, moving to a
->> separate byte just controls the damage.
->>
->> How about you use bits 8-15 as a counter?  It's still theoretically
->> unreliable if 256 notifications pass before the guest notices, but it's
->> probably better and clearer than this.
->>
->> I leave the final call to MST though.
->>
->> Thanks,
->> Rusty.
-> I guess the point was that we want a single packet
-> so we don't care if multiple notifications are coalesced
-> into a single one.
->
+Currently virtio-pci is specified so that configuration of the device is
+done through a PCI IO space (via BAR 0 of the virtual PCI device).
+However, Linux guests happen to use ioread/iowrite/iomap primitives
+for access, and these work uniformly across memory/io BARs.
 
-To reduce the possibility of dropping or losing of gratuitous packet by 
-the network, qemu usually send the gratuitous packets for many times ( 
-currently 5 time with a increment gap between them such as 50ms, 150ms, 
-250ms ...). As there's no method can guarantee the gratuitous packet 
-were received by switch in guest, no need to care about the coalesced 
-notifications in guest. And we may leave the work to qemu or just don't 
-care about this.
+While PCI IO accesses are faster than MMIO on x86 kvm,
+MMIO might be helpful on other systems which don't
+implement PIO or where PIO is slower than MMIO.
 
->> -- 
->>    How could I marry someone with more hair than me?  http://baldalex.org
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Add a property to make it possible to tweak the BAR type.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+This is harmless by default but causes segfaults in memory.c
+when enabled. Thus an RFC until I figure out what's wrong.
+
+---
+ hw/virtio-pci.c |   16 ++++++++++++++--
+ hw/virtio-pci.h |    4 ++++
+ 2 files changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index 28498ec..6f338d2 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -655,6 +655,7 @@ void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev)
+ {
+     uint8_t *config;
+     uint32_t size;
++    uint8_t bar0_type;
+ 
+     proxy->vdev = vdev;
+ 
+@@ -684,8 +685,14 @@ void virtio_init_pci(VirtIOPCIProxy *proxy, VirtIODevice *vdev)
+ 
+     memory_region_init_io(&proxy->bar, &virtio_pci_config_ops, proxy,
+                           "virtio-pci", size);
+-    pci_register_bar(&proxy->pci_dev, 0, PCI_BASE_ADDRESS_SPACE_IO,
+-                     &proxy->bar);
++
++    if (proxy->flags & VIRTIO_PCI_FLAG_USE_MMIO) {
++        bar0_type = PCI_BASE_ADDRESS_SPACE_MEMORY;
++    } else {
++        bar0_type = PCI_BASE_ADDRESS_SPACE_IO;
++    }
++
++    pci_register_bar(&proxy->pci_dev, 0, bar0_type, &proxy->bar);
+ 
+     if (!kvm_has_many_ioeventfds()) {
+         proxy->flags &= ~VIRTIO_PCI_FLAG_USE_IOEVENTFD;
+@@ -823,6 +830,7 @@ static Property virtio_blk_properties[] = {
+     DEFINE_PROP_BIT("ioeventfd", VirtIOPCIProxy, flags, VIRTIO_PCI_FLAG_USE_IOEVENTFD_BIT, true),
+     DEFINE_PROP_UINT32("vectors", VirtIOPCIProxy, nvectors, 2),
+     DEFINE_VIRTIO_BLK_FEATURES(VirtIOPCIProxy, host_features),
++    DEFINE_PROP_BIT("mmio", VirtIOPCIProxy, flags, VIRTIO_PCI_FLAG_USE_MMIO_BIT, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+@@ -856,6 +864,7 @@ static Property virtio_net_properties[] = {
+     DEFINE_PROP_UINT32("x-txtimer", VirtIOPCIProxy, net.txtimer, TX_TIMER_INTERVAL),
+     DEFINE_PROP_INT32("x-txburst", VirtIOPCIProxy, net.txburst, TX_BURST),
+     DEFINE_PROP_STRING("tx", VirtIOPCIProxy, net.tx),
++    DEFINE_PROP_BIT("mmio", VirtIOPCIProxy, flags, VIRTIO_PCI_FLAG_USE_MMIO_BIT, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+@@ -888,6 +897,7 @@ static Property virtio_serial_properties[] = {
+     DEFINE_PROP_HEX32("class", VirtIOPCIProxy, class_code, 0),
+     DEFINE_VIRTIO_COMMON_FEATURES(VirtIOPCIProxy, host_features),
+     DEFINE_PROP_UINT32("max_ports", VirtIOPCIProxy, serial.max_virtserial_ports, 31),
++    DEFINE_PROP_BIT("mmio", VirtIOPCIProxy, flags, VIRTIO_PCI_FLAG_USE_MMIO_BIT, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+@@ -915,6 +925,7 @@ static TypeInfo virtio_serial_info = {
+ 
+ static Property virtio_balloon_properties[] = {
+     DEFINE_VIRTIO_COMMON_FEATURES(VirtIOPCIProxy, host_features),
++    DEFINE_PROP_BIT("mmio", VirtIOPCIProxy, flags, VIRTIO_PCI_FLAG_USE_MMIO_BIT, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+@@ -969,6 +980,7 @@ static int virtio_scsi_exit_pci(PCIDevice *pci_dev)
+ static Property virtio_scsi_properties[] = {
+     DEFINE_PROP_UINT32("vectors", VirtIOPCIProxy, nvectors, 2),
+     DEFINE_VIRTIO_SCSI_PROPERTIES(VirtIOPCIProxy, host_features, scsi),
++    DEFINE_PROP_BIT("mmio", VirtIOPCIProxy, flags, VIRTIO_PCI_FLAG_USE_MMIO_BIT, false),
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/hw/virtio-pci.h b/hw/virtio-pci.h
+index e560428..e6a8861 100644
+--- a/hw/virtio-pci.h
++++ b/hw/virtio-pci.h
+@@ -24,6 +24,10 @@
+ #define VIRTIO_PCI_FLAG_USE_IOEVENTFD_BIT 1
+ #define VIRTIO_PCI_FLAG_USE_IOEVENTFD   (1 << VIRTIO_PCI_FLAG_USE_IOEVENTFD_BIT)
+ 
++/* Some guests don't support port IO. Use MMIO instead. */
++#define VIRTIO_PCI_FLAG_USE_MMIO_BIT 2
++#define VIRTIO_PCI_FLAG_USE_MMIO   (1 << VIRTIO_PCI_FLAG_USE_MMIO_BIT)
++
+ typedef struct {
+     PCIDevice pci_dev;
+     VirtIODevice *vdev;
+-- 
+1.7.9.111.gf3fb0
