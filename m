@@ -1,7 +1,7 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V6 11/11]  xen: enable PV ticketlocks on HVM Xen
-Date: Wed, 21 Mar 2012 15:52:44 +0530
-Message-ID: <20120321102244.473.80310.sendpatchset@codeblue.in.ibm.com>
+Subject: [PATCH RFC V6 4/11]  xen: defer spinlock setup until boot CPU setup
+Date: Wed, 21 Mar 2012 15:51:28 +0530
+Message-ID: <20120321102128.473.3039.sendpatchset@codeblue.in.ibm.com>
 References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,21 +21,34 @@ To: "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>
 Cc: the arch/x86 maintainers <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Attilio Rao <attilio.rao@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+
+There's no need to do it at very early init, and doing it there
+makes it impossible to use the jump_label machinery.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
- arch/x86/xen/smp.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ arch/x86/xen/smp.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 diff --git a/arch/x86/xen/smp.c b/arch/x86/xen/smp.c
-index e85d3ee..8dc2574 100644
+index 501d4e0..e85d3ee 100644
 --- a/arch/x86/xen/smp.c
 +++ b/arch/x86/xen/smp.c
-@@ -568,4 +568,5 @@ void __init xen_hvm_smp_init(void)
- 	smp_ops.cpu_die = xen_hvm_cpu_die;
- 	smp_ops.send_call_func_ipi = xen_smp_send_call_function_ipi;
- 	smp_ops.send_call_func_single_ipi = xen_smp_send_call_function_single_ipi;
+@@ -201,6 +201,7 @@ static void __init xen_smp_prepare_boot_cpu(void)
+ 
+ 	xen_filter_cpu_maps();
+ 	xen_setup_vcpu_info_placement();
 +	xen_init_spinlocks();
  }
+ 
+ static void __init xen_smp_prepare_cpus(unsigned int max_cpus)
+@@ -530,7 +531,6 @@ void __init xen_smp_init(void)
+ {
+ 	smp_ops = xen_smp_ops;
+ 	xen_fill_possible_map();
+-	xen_init_spinlocks();
+ }
+ 
+ static void __init xen_hvm_smp_prepare_cpus(unsigned int max_cpus)
