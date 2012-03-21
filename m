@@ -1,15 +1,16 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH RFC V6 2/11] x86/ticketlock: don't inline _spin_unlock
-	when using paravirt spinlocks
-Date: Wed, 21 Mar 2012 10:13:04 -0700
-Message-ID: <CA+55aFzJn_U=2-kxGX15v6zLaCV+Jgtxjop2PudizzsqSn+nLg@mail.gmail.com>
+From: Attilio Rao <attilio.rao@citrix.com>
+Subject: Re: [PATCH RFC V6 1/11]  x86/spinlock: replace pv spinlocks with
+	pv ticketlocks
+Date: Wed, 21 Mar 2012 13:49:28 +0000
+Message-ID: <4F69DC68.6080200__44747.7196496495$1332355462$gmane$org@citrix.com>
 References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
-	<20120321102107.473.89777.sendpatchset@codeblue.in.ibm.com>
+	<20120321102052.473.40193.sendpatchset@codeblue.in.ibm.com>
+	<4F69D1D9.9080107@citrix.com> <2425963.NBpIGX9T40@chlor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120321102107.473.89777.sendpatchset@codeblue.in.ibm.com>
+In-Reply-To: <2425963.NBpIGX9T40@chlor>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,71 +20,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+Cc: the arch/x86 maintainers <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 21, 2012 at 3:21 AM, Raghavendra K T
-<raghavendra.kt@linux.vnet.ibm.com> wrote:
-> From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+On 21/03/12 13:22, Stephan Diestelhorst wrote:
+> On Wednesday 21 March 2012, 13:04:25 Attilio Rao wrote:
+>    
+>> On 21/03/12 10:20, Raghavendra K T wrote:
+>>      
+>>> From: Jeremy Fitzhardinge<jeremy.fitzhardinge@citrix.com>
+>>>
+>>> Rather than outright replacing the entire spinlock implementation in
+>>> order to paravirtualize it, keep the ticket lock implementation but add
+>>> a couple of pvops hooks on the slow patch (long spin on lock, unlocking
+>>> a contended lock).
+>>>
+>>> Ticket locks have a number of nice properties, but they also have some
+>>> surprising behaviours in virtual environments.  They enforce a strict
+>>> FIFO ordering on cpus trying to take a lock; however, if the hypervisor
+>>> scheduler does not schedule the cpus in the correct order, the system can
+>>> waste a huge amount of time spinning until the next cpu can take the lock.
+>>>
+>>> (See Thomas Friebel's talk "Prevent Guests from Spinning Around"
+>>> http://www.xen.org/files/xensummitboston08/LHP.pdf  for more details.)
+>>>
+>>> To address this, we add two hooks:
+>>>    - __ticket_spin_lock which is called after the cpu has been
+>>>      spinning on the lock for a significant number of iterations but has
+>>>      failed to take the lock (presumably because the cpu holding the lock
+>>>      has been descheduled).  The lock_spinning pvop is expected to block
+>>>      the cpu until it has been kicked by the current lock holder.
+>>>    - __ticket_spin_unlock, which on releasing a contended lock
+>>>      (there are more cpus with tail tickets), it looks to see if the next
+>>>      cpu is blocked and wakes it if so.
+>>>
+>>> When compiled with CONFIG_PARAVIRT_SPINLOCKS disabled, a set of stub
+>>> functions causes all the extra code to go away.
+>>>
+>>>        
+>> I've made some real world benchmarks based on this serie of patches
+>> applied on top of a vanilla Linux-3.3-rc6 (commit
+>> 4704fe65e55fb088fbcb1dc0b15ff7cc8bff3685), with both
+>> CONFIG_PARAVIRT_SPINLOCK=y and n, which means essentially 4 versions
+>> compared:
+>> * vanilla - CONFIG_PARAVIRT_SPINLOCK - patch
+>> * vanilla + CONFIG_PARAVIRT_SPINLOCK - patch
+>> * vanilla - CONFIG_PARAVIRT_SPINLOCK + patch
+>> * vanilla + CONFIG_PARAVIRT_SPINLOCK + patch
+>>
+>>      
+> [...]
+>    
+>> == Results
+>> This test points in the direction that Jeremy's rebased patches don't
+>> introduce a peformance penalty at all, but also that we could likely
+>> consider CONFIG_PARAVIRT_SPINLOCK option removal, or turn it on by
+>> default and suggest disabling just on very old CPUs (assuming a
+>> performance regression can be proven there).
+>>      
+> Very interesting results, in particular knowing that in the one guest
+> case things do not get (significantly) slower due to the added logic
+> and LOCKed RMW in the unlock path.
 >
-> The code size expands somewhat, and its probably better to just call
-> a function rather than inline it.
+> AFAICR, the problem really became apparent when running multiple guests
+> time sharing the physical CPUs, i.e., two guests with eight vCPUs each
+> on an eight core machine.  Did you look at this setup with your tests?
 >
-> Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-> ---
-> =A0arch/x86/Kconfig =A0 =A0 | =A0 =A03 +++
-> =A0kernel/Kconfig.locks | =A0 =A02 +-
-> =A02 files changed, 4 insertions(+), 1 deletions(-)
-> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-> index 5bed94e..10c28ec 100644
-> --- a/arch/x86/Kconfig
-> +++ b/arch/x86/Kconfig
-> @@ -623,6 +623,9 @@ config PARAVIRT_SPINLOCKS
->
-> =A0 =A0 =A0 =A0 =A0If you are unsure how to answer this question, answer =
-N.
->
-> +config ARCH_NOINLINE_SPIN_UNLOCK
-> + =A0 =A0 =A0 def_bool PARAVIRT_SPINLOCKS
-> +
-> =A0config PARAVIRT_CLOCK
-> =A0 =A0 =A0 =A0bool
->
-> diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
-> index 5068e2a..584637b 100644
-> --- a/kernel/Kconfig.locks
-> +++ b/kernel/Kconfig.locks
-> @@ -125,7 +125,7 @@ config INLINE_SPIN_LOCK_IRQSAVE
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ARCH_INLINE_SPIN_LOCK_IRQSAVE
->
-> =A0config INLINE_SPIN_UNLOCK
-> - =A0 =A0 =A0 def_bool !DEBUG_SPINLOCK && (!PREEMPT || ARCH_INLINE_SPIN_U=
-NLOCK)
-> + =A0 =A0 =A0 def_bool !DEBUG_SPINLOCK && (!PREEMPT || ARCH_INLINE_SPIN_U=
-NLOCK) && !ARCH_NOINLINE_SPIN_UNLOCK
->
-> =A0config INLINE_SPIN_UNLOCK_BH
-> =A0 =A0 =A0 =A0def_bool !DEBUG_SPINLOCK && ARCH_INLINE_SPIN_UNLOCK_BH
+>    
 
-Ugh. This is getting really ugly.
+Please note that my tests are made on native Linux, without XEN involvement.
 
-Can we just fix it by
- - getting rid of INLINE_SPIN_UNLOCK entirely
+You maybe meant that the spinlock paravirtualization became generally 
+useful in the case you mentioned? (2 guests, 8vpcu + 8vcpu)?
 
- - replacing it with UNINLINE_SPIN_UNLOCK instead with the reverse
-meaning, and no "def_bool" at all, just a simple
-
-        config UNINLINE_SPIN_UNLOCK
-                bool
-
- - make the various people who want to uninline the spinlocks (like
-spinlock debugging, paravirt etc) all just do
-
-        select UNINLINE_SPIN_UNLOCK
-
-because quite frankly, the whole spinunlock inlining logic is
-*already* unreadable, and you just made it worse.
-
-                      Linus
+Attilio
