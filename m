@@ -1,8 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V6 7/11] x86/pvticketlock: use callee-save for
-	lock_spinning
-Date: Wed, 21 Mar 2012 15:51:59 +0530
-Message-ID: <20120321102159.473.94357.sendpatchset@codeblue.in.ibm.com>
+Subject: [PATCH RFC V6 2/11] x86/ticketlock: don't inline _spin_unlock when
+	using paravirt spinlocks
+Date: Wed, 21 Mar 2012 15:51:07 +0530
+Message-ID: <20120321102107.473.89777.sendpatchset__15677.8396144093$1332325446$gmane$org@codeblue.in.ibm.com>
 References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,78 +24,39 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-Although the lock_spinning calls in the spinlock code are on the
-uncommon path, their presence can cause the compiler to generate many
-more register save/restores in the function pre/postamble, which is in
-the fast path.  To avoid this, convert it to using the pvops callee-save
-calling convention, which defers all the save/restores until the actual
-function is called, keeping the fastpath clean.
+The code size expands somewhat, and its probably better to just call
+a function rather than inline it.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
- arch/x86/include/asm/paravirt.h       |    2 +-
- arch/x86/include/asm/paravirt_types.h |    2 +-
- arch/x86/kernel/paravirt-spinlocks.c  |    2 +-
- arch/x86/xen/spinlock.c               |    3 ++-
- 4 files changed, 5 insertions(+), 4 deletions(-)
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 0fa4553..4343419 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -753,7 +753,7 @@ static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
- static __always_inline void __ticket_lock_spinning(struct arch_spinlock *lock,
- 							__ticket_t ticket)
- {
--	PVOP_VCALL2(pv_lock_ops.lock_spinning, lock, ticket);
-+	PVOP_VCALLEE2(pv_lock_ops.lock_spinning, lock, ticket);
- }
+ arch/x86/Kconfig     |    3 +++
+ kernel/Kconfig.locks |    2 +-
+ 2 files changed, 4 insertions(+), 1 deletions(-)
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 5bed94e..10c28ec 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -623,6 +623,9 @@ config PARAVIRT_SPINLOCKS
  
- static __always_inline void ____ticket_unlock_kick(struct arch_spinlock *lock,
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 005e24d..5e0c138 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -330,7 +330,7 @@ struct arch_spinlock;
- #include <asm/spinlock_types.h>
+ 	  If you are unsure how to answer this question, answer N.
  
- struct pv_lock_ops {
--	void (*lock_spinning)(struct arch_spinlock *lock, __ticket_t ticket);
-+	struct paravirt_callee_save lock_spinning;
- 	void (*unlock_kick)(struct arch_spinlock *lock, __ticket_t ticket);
- };
++config ARCH_NOINLINE_SPIN_UNLOCK
++       def_bool PARAVIRT_SPINLOCKS
++
+ config PARAVIRT_CLOCK
+ 	bool
  
-diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
-index c2e010e..4251c1d 100644
---- a/arch/x86/kernel/paravirt-spinlocks.c
-+++ b/arch/x86/kernel/paravirt-spinlocks.c
-@@ -9,7 +9,7 @@
+diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
+index 5068e2a..584637b 100644
+--- a/kernel/Kconfig.locks
++++ b/kernel/Kconfig.locks
+@@ -125,7 +125,7 @@ config INLINE_SPIN_LOCK_IRQSAVE
+ 		 ARCH_INLINE_SPIN_LOCK_IRQSAVE
  
- struct pv_lock_ops pv_lock_ops = {
- #ifdef CONFIG_SMP
--	.lock_spinning = paravirt_nop,
-+	.lock_spinning = __PV_IS_CALLEE_SAVE(paravirt_nop),
- 	.unlock_kick = paravirt_nop,
- #endif
- };
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 5dce49d..176a554 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -173,6 +173,7 @@ out:
- 	local_irq_restore(flags);
- 	spin_time_accum_blocked(start);
- }
-+PV_CALLEE_SAVE_REGS_THUNK(xen_lock_spinning);
+ config INLINE_SPIN_UNLOCK
+-	def_bool !DEBUG_SPINLOCK && (!PREEMPT || ARCH_INLINE_SPIN_UNLOCK)
++	def_bool !DEBUG_SPINLOCK && (!PREEMPT || ARCH_INLINE_SPIN_UNLOCK) && !ARCH_NOINLINE_SPIN_UNLOCK
  
- static void xen_unlock_kick(struct arch_spinlock *lock, __ticket_t next)
- {
-@@ -232,7 +233,7 @@ void __init xen_init_spinlocks(void)
- 		return;
- 	}
- 
--	pv_lock_ops.lock_spinning = xen_lock_spinning;
-+	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(xen_lock_spinning);
- 	pv_lock_ops.unlock_kick = xen_unlock_kick;
- }
+ config INLINE_SPIN_UNLOCK_BH
+ 	def_bool !DEBUG_SPINLOCK && ARCH_INLINE_SPIN_UNLOCK_BH
