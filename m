@@ -1,15 +1,11 @@
-From: Stephan Diestelhorst <stephan.diestelhorst@amd.com>
-Subject: Re: [PATCH RFC V6 1/11] x86/spinlock: replace pv spinlocks with pv
-	ticketlocks
-Date: Wed, 21 Mar 2012 15:25:04 +0100
-Message-ID: <1363312.nixp29LUbv__18870.9496906542$1332355477$gmane$org@chlor>
-References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
-	<2425963.NBpIGX9T40@chlor> <4F69DC68.6080200@citrix.com>
+From: Steve Glass <stevie.glass@gmail.com>
+Subject: Re: vhost question
+Date: Thu, 22 Mar 2012 11:48:31 +1000
+Message-ID: <4F6A84EF.9060105__37419.1392715604$1332380927$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F69DC68.6080200@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,97 +15,137 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Attilio Rao <attilio.rao@citrix.com>
-Cc: the arch/x86 maintainers <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>
+To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wednesday 21 March 2012, 13:49:28 Attilio Rao wrote:
-> On 21/03/12 13:22, Stephan Diestelhorst wrote:
-> > On Wednesday 21 March 2012, 13:04:25 Attilio Rao wrote:
-> >    
-> >> On 21/03/12 10:20, Raghavendra K T wrote:
-> >>      
-> >>> From: Jeremy Fitzhardinge<jeremy.fitzhardinge@citrix.com>
-> >>>
-> >>> Rather than outright replacing the entire spinlock implementation in
-> >>> order to paravirtualize it, keep the ticket lock implementation but add
-> >>> a couple of pvops hooks on the slow patch (long spin on lock, unlocking
-> >>> a contended lock).
-> >>>
-> >>> Ticket locks have a number of nice properties, but they also have some
-> >>> surprising behaviours in virtual environments.  They enforce a strict
-> >>> FIFO ordering on cpus trying to take a lock; however, if the hypervisor
-> >>> scheduler does not schedule the cpus in the correct order, the system can
-> >>> waste a huge amount of time spinning until the next cpu can take the lock.
-> >>>
-> >>> (See Thomas Friebel's talk "Prevent Guests from Spinning Around"
-> >>> http://www.xen.org/files/xensummitboston08/LHP.pdf  for more details.)
-> >>>
-> >>> To address this, we add two hooks:
-> >>>    - __ticket_spin_lock which is called after the cpu has been
-> >>>      spinning on the lock for a significant number of iterations but has
-> >>>      failed to take the lock (presumably because the cpu holding the lock
-> >>>      has been descheduled).  The lock_spinning pvop is expected to block
-> >>>      the cpu until it has been kicked by the current lock holder.
-> >>>    - __ticket_spin_unlock, which on releasing a contended lock
-> >>>      (there are more cpus with tail tickets), it looks to see if the next
-> >>>      cpu is blocked and wakes it if so.
-> >>>
-> >>> When compiled with CONFIG_PARAVIRT_SPINLOCKS disabled, a set of stub
-> >>> functions causes all the extra code to go away.
-> >>>
-> >>>        
-> >> I've made some real world benchmarks based on this serie of patches
-> >> applied on top of a vanilla Linux-3.3-rc6 (commit
-> >> 4704fe65e55fb088fbcb1dc0b15ff7cc8bff3685), with both
-> >> CONFIG_PARAVIRT_SPINLOCK=y and n, which means essentially 4 versions
-> >> compared:
-> >> * vanilla - CONFIG_PARAVIRT_SPINLOCK - patch
-> >> * vanilla + CONFIG_PARAVIRT_SPINLOCK - patch
-> >> * vanilla - CONFIG_PARAVIRT_SPINLOCK + patch
-> >> * vanilla + CONFIG_PARAVIRT_SPINLOCK + patch
-> >>
-> >>      
-> > [...]
-> >    
-> >> == Results
-> >> This test points in the direction that Jeremy's rebased patches don't
-> >> introduce a peformance penalty at all, but also that we could likely
-> >> consider CONFIG_PARAVIRT_SPINLOCK option removal, or turn it on by
-> >> default and suggest disabling just on very old CPUs (assuming a
-> >> performance regression can be proven there).
-> >>      
-> > Very interesting results, in particular knowing that in the one guest
-> > case things do not get (significantly) slower due to the added logic
-> > and LOCKed RMW in the unlock path.
-> >
-> > AFAICR, the problem really became apparent when running multiple guests
-> > time sharing the physical CPUs, i.e., two guests with eight vCPUs each
-> > on an eight core machine.  Did you look at this setup with your tests?
-> >
-> >    
-> 
-> Please note that my tests are made on native Linux, without XEN involvement.
-> 
-> You maybe meant that the spinlock paravirtualization became generally 
-> useful in the case you mentioned? (2 guests, 8vpcu + 8vcpu)?
 
-Yes, that is what I meant.  Just to clarify why you do not see any
-speed-ups, and were wondering why.  If the whole point of the exercise
-was to see that there are no perforamnce regressions, fine.  In that
-case I misunderstood.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Stephan
--- 
-Stephan Diestelhorst, AMD Operating System Research Center
-stephan.diestelhorst@amd.com
-Tel. +49 (0)351 448 356 719
 
-Advanced Micro Devices GmbH
-Einsteinring 24
-85609 Aschheim
-Germany
+Just some further information concerning my earlier question
+concerning vhost and virtio.
 
-Geschaeftsfuehrer: Alberto Bozzo
-Sitz: Dornach, Gemeinde Aschheim, Landkreis Muenchen
-Registergericht Muenchen, HRB Nr. 43632, WEEE-Reg-Nr: DE 12919551
+I'm using virtio to implement an emulated mac80211 device in the
+guest. A simple network simulation will be used to control delivery of
+frames between guests and for this I am using the vhost approach.
+
+A simple first-cut attempt at the tx and rx kick handlers are given
+below. When the guest transmits frames the vhost's TX kick handler is
+executed and copies the buffers onto a queue for the intended
+recipient(s). When the vhost's RX kick handler is run it copies the
+buffer from the queue and notifies the client that the buffers have
+been used.
+
+The problem is that if there are no frames in the queue when the guest
+rx kick handler runs then it has to exit and I have to arrange that it
+runs again. That's done in the current prototype by having the guests
+poll using a timer - which is ugly and inefficient. Can I get the
+vhost tx kick handler to wake the appropriate vhost rx kick handler?
+How can I achieve this?
+
+Many thanks,
+
+Steve
+
+static void
+handle_rx(struct vhost_work *work)
+{
+        int n;
+        unsigned out, in, frames;
+        struct transmission *t;
+        struct vhost_poll *p = container_of(work, struct vhost_poll,
+work);
+        struct vhost_virtqueue *vq =
+                container_of(p, struct vhost_virtqueue, poll);
+        struct vhost_node *node =
+                container_of(vq, struct vhost_node, vqs[WLAN_VQ_RX]);
+        struct vhost_dev *dev = &node->vdev;
+
+        mutex_lock(&vq->mutex);
+        vhost_disable_notify(dev, vq);
+        while (!queue_empty(&node->rxq)) {
+                n = vhost_get_vq_desc(dev,
+                                      vq,
+                                      vq->iov,
+                                      ARRAY_SIZE(vq->iov),
+                                      &out,
+                                      &in,
+                                      NULL,
+                                      NULL);
+                if (0 < n || n == vq->num)
+                        break;
+                t = queue_pop(&node->rxq);
+                BUG_ON(copy_to_user(vq->iov[0].iov_base, t->buf,
+t->buf_sz));
+                vq->iov[0].iov_len = t->buf_sz;
+                vhost_add_used(vq, n, out);
+                transmission_free(t);
+                ++frames;
+        }
+        if (frames)
+                vhost_signal(dev, vq);
+        vhost_enable_notify(dev, vq);
+        mutex_unlock(&vq->mutex);
+}
+
+static void
+handle_tx(struct vhost_work *work)
+{
+        int n;
+        unsigned out, in;
+        struct transmission *t;
+        struct vhost_node *receiver;
+
+        struct vhost_poll *p =
+                container_of(work, struct vhost_poll, work);
+        struct vhost_virtqueue *vq =
+                container_of(p, struct vhost_virtqueue, poll);
+        struct vhost_node *w =
+                container_of(vq, struct vhost_node, vqs[WLAN_VQ_TX]);
+        struct vhost_dev *dev = &w->vdev;
+
+        mutex_lock(&vq->mutex);
+        do {
+                vhost_disable_notify(dev, vq);
+                n = vhost_get_vq_desc(dev,
+                                      vq,
+                                      vq->iov,
+                                      ARRAY_SIZE(vq->iov),
+                                      &out,
+                                      &in,
+                                      NULL,
+                                      NULL);
+                while (n >= 0 && n != vq->num) {
+                        receiver = net_get_receiver(w);
+                        if ((receiver) && (t = transmission_alloc())) {
+                                BUG_ON(copy_from_user(t->buf,
+                                                      vq->iov[1].iov_base,
+                                                     
+vq->iov[1].iov_len));
+                                t->buf_sz = vq->iov[1].iov_len;
+                                queue_push(&receiver->rxq, t);
+                                // ToDo: kick receiver's handle_rx
+                        }
+                        vhost_add_used(vq, n, out);
+                        n = vhost_get_vq_desc(dev,
+                                              vq,
+                                              vq->iov,
+                                              ARRAY_SIZE(vq->iov),
+                                              &out,
+                                              &in,
+                                              NULL,
+                                              NULL);
+                }
+                vhost_signal(dev, vq);
+        } while (vhost_enable_notify(dev, vq));
+        mutex_unlock(&vq->mutex);
+}
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org/
+
+iEYEARECAAYFAk9qhO4ACgkQW7aAm65EWy7w4wCgrzGB2Zit4rWUzMjwpJEJnIfj
+xDsAoLBDMj+4MVrjPS5upgDSIGOi4IzL
+=Ms/+
+-----END PGP SIGNATURE-----
