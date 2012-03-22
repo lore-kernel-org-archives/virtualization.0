@@ -1,11 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC PATCH] virtio-spec: ack the announce notification through ctrl_vq
-Date: Thu, 22 Mar 2012 17:47:06 +0800
-Message-ID: <20120322094706.26303.83633.stgit@jason-ThinkPad-T400>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: vhost question
+Date: Thu, 22 Mar 2012 09:52:24 +0000
+Message-ID: <CAJSP0QXKahPja7S68MC0vLZR7HNxG4hLPRYEFH536QbP1fSu7w@mail.gmail.com>
+References: <4F6A84EF.9060105@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4F6A84EF.9060105@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,118 +17,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: Steve Glass <stevie.glass@gmail.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-During link announcement, driver needs a method to notify device that it has
-received the notification and let it clear the VIRITO_NET_S_ANNOUNCE bit in the
-status field. Doing this through a dedicated command looks suitable for all
-platforms (especially for the ones who don't trap the status read or write) with
-a ctrl vq and can solve the race between host and guest.
+On Thu, Mar 22, 2012 at 1:48 AM, Steve Glass <stevie.glass@gmail.com> wrote:
+>
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+>
+> Just some further information concerning my earlier question
+> concerning vhost and virtio.
+>
+> I'm using virtio to implement an emulated mac80211 device in the
+> guest. A simple network simulation will be used to control delivery of
+> frames between guests and for this I am using the vhost approach.
+>
+> A simple first-cut attempt at the tx and rx kick handlers are given
+> below. When the guest transmits frames the vhost's TX kick handler is
+> executed and copies the buffers onto a queue for the intended
+> recipient(s). When the vhost's RX kick handler is run it copies the
+> buffer from the queue and notifies the client that the buffers have
+> been used.
+>
+> The problem is that if there are no frames in the queue when the guest
+> rx kick handler runs then it has to exit and I have to arrange that it
+> runs again. That's done in the current prototype by having the guests
+> poll using a timer - which is ugly and inefficient. Can I get the
+> vhost tx kick handler to wake the appropriate vhost rx kick handler?
+> How can I achieve this?
 
-So this patch makes VIRTIO_NET_F_ANNOUNCE depends on VIRTIO_NET_F_CTRL_VQ and
-introduces a dedicated command VIRTIO_NET_CTRL_ANNOUNCE_ACK to let device clear
-the VIRTIO_NET_S_ANNOUNCE bit in the status field.
+Can you queue a tx->rx kick on the vhost work queue with vhost_work_queue()?
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- virtio-0.9.4.lyx |   63 +++++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 files changed, 57 insertions(+), 6 deletions(-)
-
-diff --git a/virtio-0.9.4.lyx b/virtio-0.9.4.lyx
-index 9d30977..d01284c 100644
---- a/virtio-0.9.4.lyx
-+++ b/virtio-0.9.4.lyx
-@@ -4013,8 +4013,12 @@ configuration
- layout Two configuration fields are currently defined.
-  The mac address field always exists (though is only valid if VIRTIO_NET_F_MAC
-  is set), and the status field only exists if VIRTIO_NET_F_STATUS is set.
-- Two bits are currently defined for the status field: VIRTIO_NET_S_LINK_UP
-- and VIRTIO_NET_S_ANNOUNCE.
-+ Two 
-+\change_inserted 2090695081 1332406434
-+read-only 
-+\change_unchanged
-+bits are currently defined for the status field: VIRTIO_NET_S_LINK_UP and
-+ VIRTIO_NET_S_ANNOUNCE.
-  
- \begin_inset listings
- inline false
-@@ -4902,18 +4906,58 @@ Gratuitous Packet Sending
- \end_layout
- 
- \begin_layout Standard
--If the driver negotiates the VIRTIO_NET_F_GUEST_ANNOUNCE, it can ask the
-- guest to send gratuitous packets; this is usually done after the guest
-- has been physically migrated, and needs to announce its presence on the
-- new network links.
-+If the driver negotiates the VIRTIO_NET_F_GUEST_ANNOUNCE
-+\change_inserted 2090695081 1332407810
-+ (depends on VIRTIO_NET_F_CTRL_VQ)
-+\change_unchanged
-+, it can ask the guest to send gratuitous packets; this is usually done
-+ after the guest has been physically migrated, and needs to announce its
-+ presence on the new network links.
-  (As hypervisor does not have the knowledge of guest network configuration
-  (eg.
-  tagged vlan) it is simplest to prod the guest in this way).
-+\change_inserted 2090695081 1332405026
-+
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 2090695081 1332405026
-+\begin_inset listings
-+inline false
-+status open
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 2090695081 1332405658
-+
-+#define VIRTIO_NET_CTRL_ANNOUNCE       3
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 2090695081 1332407582
-+
-+ #define VIRTIO_NET_CTRL_ANNOUNCE_ACK             0
-+\end_layout
-+
-+\end_inset
-+
-+
-+\change_unchanged
-+
- \end_layout
- 
- \begin_layout Standard
- The Guest needs to check VIRTIO_NET_S_ANNOUNCE bit in status field when
-  it notices the changes of device configuration.
-+
-+\change_inserted 2090695081 1332407079
-+ The command VIRTIO_NET_CTRL_ANNOUNCE_ACK is used to indicate that driver
-+ has recevied the notification and device would clear the VIRTIO_NET_S_ANNOUNCE
-+ bit in the status filed after it received this command.
-+\change_unchanged
-+
- \end_layout
- 
- \begin_layout Standard
-@@ -4921,7 +4965,14 @@ Processing this notification involves:
- \end_layout
- 
- \begin_layout Enumerate
-+
-+\change_inserted 2090695081 1332405963
-+Sending VIRTIO_NET_CTRL_ANNOUNCE_ACK command through control vq.
-+ 
-+\change_deleted 2090695081 1332405924
- Clearing VIRTIO_NET_S_ANNOUNCE bit in the status field.
-+\change_unchanged
-+
- \end_layout
- 
- \begin_layout Enumerate
+Stefan
