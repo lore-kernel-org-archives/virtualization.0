@@ -1,7 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V5 3/6] kvm : Add unhalt msr to aid (live) migration
-Date: Fri, 23 Mar 2012 13:37:26 +0530
-Message-ID: <20120323080723.14568.23068.sendpatchset@codeblue>
+Subject: [PATCH RFC V5 4/6] kvm guest : Added configuration support to enable
+	debug information for KVM Guests
+Date: Fri, 23 Mar 2012 13:38:05 +0530
+Message-ID: <20120323080801.14568.74307.sendpatchset@codeblue>
 References: <20120323080503.14568.43092.sendpatchset@codeblue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,62 +22,29 @@ To: Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
 Cc: Jeremy Fitzhardinge <jeremy@goop.org>, X86 <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, linux-doc@vger.kernel.org, Xen <xen-devel@lists.xensource.com>, Avi Kivity <avi@redhat.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Virtualization <virtualization@lists.linux-foundation.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
 
-Currently guest does not need to know pv_unhalt state and intended to be
-used via GET/SET_MSR ioctls  during migration.
-
+Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
-diff --git a/arch/x86/include/asm/kvm_para.h b/arch/x86/include/asm/kvm_para.h
-index 9234f13..46f9751 100644
---- a/arch/x86/include/asm/kvm_para.h
-+++ b/arch/x86/include/asm/kvm_para.h
-@@ -40,6 +40,7 @@
- #define MSR_KVM_SYSTEM_TIME_NEW 0x4b564d01
- #define MSR_KVM_ASYNC_PF_EN 0x4b564d02
- #define MSR_KVM_STEAL_TIME  0x4b564d03
-+#define MSR_KVM_PV_UNHALT   0x4b564d04
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 10c28ec..a4530bd 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -600,6 +600,15 @@ config KVM_GUEST
+ 	  This option enables various optimizations for running under the KVM
+ 	  hypervisor.
  
- struct kvm_steal_time {
- 	__u64 steal;
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index bd5ef91..38e6c47 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -784,12 +784,13 @@ EXPORT_SYMBOL_GPL(kvm_rdpmc);
-  * kvm-specific. Those are put in the beginning of the list.
-  */
++config KVM_DEBUG_FS
++	bool "Enable debug information for KVM Guests in debugfs"
++	depends on KVM_GUEST && DEBUG_FS
++	default n
++	---help---
++	  This option enables collection of various statistics for KVM guest.
++   	  Statistics are displayed in debugfs filesystem. Enabling this option
++	  may incur significant overhead.
++
+ source "arch/x86/lguest/Kconfig"
  
--#define KVM_SAVE_MSRS_BEGIN	9
-+#define KVM_SAVE_MSRS_BEGIN	10
- static u32 msrs_to_save[] = {
- 	MSR_KVM_SYSTEM_TIME, MSR_KVM_WALL_CLOCK,
- 	MSR_KVM_SYSTEM_TIME_NEW, MSR_KVM_WALL_CLOCK_NEW,
- 	HV_X64_MSR_GUEST_OS_ID, HV_X64_MSR_HYPERCALL,
- 	HV_X64_MSR_APIC_ASSIST_PAGE, MSR_KVM_ASYNC_PF_EN, MSR_KVM_STEAL_TIME,
-+	MSR_KVM_PV_UNHALT,
- 	MSR_IA32_SYSENTER_CS, MSR_IA32_SYSENTER_ESP, MSR_IA32_SYSENTER_EIP,
- 	MSR_STAR,
- #ifdef CONFIG_X86_64
-@@ -1606,7 +1607,9 @@ int kvm_set_msr_common(struct kvm_vcpu *vcpu, u32 msr, u64 data)
- 		kvm_make_request(KVM_REQ_STEAL_UPDATE, vcpu);
- 
- 		break;
--
-+	case MSR_KVM_PV_UNHALT:
-+		vcpu->pv_unhalted = (u32) data;
-+		break;
- 	case MSR_IA32_MCG_CTL:
- 	case MSR_IA32_MCG_STATUS:
- 	case MSR_IA32_MC0_CTL ... MSR_IA32_MC0_CTL + 4 * KVM_MAX_MCE_BANKS - 1:
-@@ -1917,6 +1920,9 @@ int kvm_get_msr_common(struct kvm_vcpu *vcpu, u32 msr, u64 *pdata)
- 	case MSR_KVM_STEAL_TIME:
- 		data = vcpu->arch.st.msr_val;
- 		break;
-+	case MSR_KVM_PV_UNHALT:
-+		data = (u64)vcpu->pv_unhalted;
-+		break;
- 	case MSR_IA32_P5_MC_ADDR:
- 	case MSR_IA32_P5_MC_TYPE:
- 	case MSR_IA32_MCG_CAP:
+ config PARAVIRT
