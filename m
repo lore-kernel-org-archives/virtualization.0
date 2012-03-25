@@ -1,14 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC V2 PATCH] virtio-spec: ack the announce notification through
-	ctrl_vq
-Date: Mon, 26 Mar 2012 11:12:05 +1030
-Message-ID: <878viochwi.fsf@rustcorp.com.au>
-References: <20120323030501.6912.96218.stgit@jason-ThinkPad-T400>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: vhost question
+Date: Sun, 25 Mar 2012 17:18:28 +0100
+Message-ID: <CAJSP0QXEJeaWgDrGXYAUu0W6skwO10Nhtfx9yaVxd9shAq1OLQ__26589.2020347112$1332757356$gmane$org@mail.gmail.com>
+References: <4F6A84EF.9060105@gmail.com>
+	<CAJSP0QXKahPja7S68MC0vLZR7HNxG4hLPRYEFH536QbP1fSu7w@mail.gmail.com>
+	<CADC0ay0ZRL79uMq72kAewOBTMCgMe1_1BLotdH9QnOwosJkTYQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120323030501.6912.96218.stgit@jason-ThinkPad-T400>
+In-Reply-To: <CADC0ay0ZRL79uMq72kAewOBTMCgMe1_1BLotdH9QnOwosJkTYQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,23 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: Steve Glass <stevie.glass@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 23 Mar 2012 11:05:01 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> During link announcement, driver needs a method to notify device that it has
-> received the notification and let it clear the VIRITO_NET_S_ANNOUNCE bit in the
-> status field. Doing this through a dedicated command looks suitable for all
-> platforms (especially for the ones who don't trap the status read or write) with
-> a ctrl vq and can solve the race between host and guest.
-> 
-> So this patch makes VIRTIO_NET_F_ANNOUNCE depends on VIRTIO_NET_F_CTRL_VQ and
-> introduces a dedicated command VIRTIO_NET_CTRL_ANNOUNCE_ACK to let device clear
-> the VIRTIO_NET_S_ANNOUNCE bit in the status field.
+On Sun, Mar 25, 2012 at 1:29 PM, Steve Glass <stevie.glass@gmail.com> wrote:
+> On 22 March 2012 19:52, Stefan Hajnoczi <stefanha@gmail.com> wrote:
+>>
+>>
+>> Can you queue a tx->rx kick on the vhost work queue with
+>> vhost_work_queue()?
+>>
+>> Stefan
+>
+>
+> I've been looking at this and trying to work out how to achieve that. I can
+> see how I can enqueue some work on the vhost queue but the rx_handler needs
+> to run in the process context of the receiving VM (or else it can't access
+> the ring). I don't think that's true of the work queue (doesn't it run with
+> the qemu process context?)
 
-Applied, thanks!
+The vhost worker thread has the mm of the process, see use_mm(dev->mm)
+in drivers/vhost/vhost.c:vhost_worker().  It sounds like you need
+vhost worker A (tx) to schedule work for vhost worker B (rx).
 
-Cheers,
-Rusty.
--- 
-  How could I marry someone with more hair than me?  http://baldalex.org
+Stefan
