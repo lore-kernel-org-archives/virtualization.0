@@ -1,15 +1,13 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: vhost question
-Date: Sun, 25 Mar 2012 17:18:28 +0100
-Message-ID: <CAJSP0QXEJeaWgDrGXYAUu0W6skwO10Nhtfx9yaVxd9shAq1OLQ__26589.2020347112$1332757356$gmane$org@mail.gmail.com>
-References: <4F6A84EF.9060105@gmail.com>
-	<CAJSP0QXKahPja7S68MC0vLZR7HNxG4hLPRYEFH536QbP1fSu7w@mail.gmail.com>
-	<CADC0ay0ZRL79uMq72kAewOBTMCgMe1_1BLotdH9QnOwosJkTYQ@mail.gmail.com>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
+Date: Mon, 26 Mar 2012 16:25:35 +0200
+Message-ID: <4F707C5F.1000905@redhat.com>
+References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CADC0ay0ZRL79uMq72kAewOBTMCgMe1_1BLotdH9QnOwosJkTYQ@mail.gmail.com>
+In-Reply-To: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,27 +17,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Steve Glass <stevie.glass@gmail.com>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Mar 25, 2012 at 1:29 PM, Steve Glass <stevie.glass@gmail.com> wrote:
-> On 22 March 2012 19:52, Stefan Hajnoczi <stefanha@gmail.com> wrote:
->>
->>
->> Can you queue a tx->rx kick on the vhost work queue with
->> vhost_work_queue()?
->>
->> Stefan
+On 03/21/2012 12:20 PM, Raghavendra K T wrote:
+> From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 >
+> Changes since last posting: (Raghavendra K T)
+> [
+>  - Rebased to linux-3.3-rc6.
+>  - used function+enum in place of macro (better type checking) 
+>  - use cmpxchg while resetting zero status for possible race
+> 	[suggested by Dave Hansen for KVM patches ]
+> ]
 >
-> I've been looking at this and trying to work out how to achieve that. I can
-> see how I can enqueue some work on the vhost queue but the rx_handler needs
-> to run in the process context of the receiving VM (or else it can't access
-> the ring). I don't think that's true of the work queue (doesn't it run with
-> the qemu process context?)
+> This series replaces the existing paravirtualized spinlock mechanism
+> with a paravirtualized ticketlock mechanism.
+>
+> Ticket locks have an inherent problem in a virtualized case, because
+> the vCPUs are scheduled rather than running concurrently (ignoring
+> gang scheduled vCPUs).  This can result in catastrophic performance
+> collapses when the vCPU scheduler doesn't schedule the correct "next"
+> vCPU, and ends up scheduling a vCPU which burns its entire timeslice
+> spinning.  (Note that this is not the same problem as lock-holder
+> preemption, which this series also addresses; that's also a problem,
+> but not catastrophic).
+>
+> (See Thomas Friebel's talk "Prevent Guests from Spinning Around"
+> http://www.xen.org/files/xensummitboston08/LHP.pdf for more details.)
+>
+> Currently we deal with this by having PV spinlocks, which adds a layer
+> of indirection in front of all the spinlock functions, and defining a
+> completely new implementation for Xen (and for other pvops users, but
+> there are none at present).
+>
+> PV ticketlocks keeps the existing ticketlock implemenentation
+> (fastpath) as-is, but adds a couple of pvops for the slow paths:
+>
+> - If a CPU has been waiting for a spinlock for SPIN_THRESHOLD
+>   iterations, then call out to the __ticket_lock_spinning() pvop,
+>   which allows a backend to block the vCPU rather than spinning.  This
+>   pvop can set the lock into "slowpath state".
+>
+> - When releasing a lock, if it is in "slowpath state", the call
+>   __ticket_unlock_kick() to kick the next vCPU in line awake.  If the
+>   lock is no longer in contention, it also clears the slowpath flag.
+>
+> The "slowpath state" is stored in the LSB of the within the lock tail
+> ticket.  This has the effect of reducing the max number of CPUs by
+> half (so, a "small ticket" can deal with 128 CPUs, and "large ticket"
+> 32768).
+>
+> This series provides a Xen implementation, but it should be
+> straightforward to add a KVM implementation as well.
+>
 
-The vhost worker thread has the mm of the process, see use_mm(dev->mm)
-in drivers/vhost/vhost.c:vhost_worker().  It sounds like you need
-vhost worker A (tx) to schedule work for vhost worker B (rx).
+Looks like a good baseline on which to build the KVM implementation.  We
+might need some handshake to prevent interference on the host side with
+the PLE code.
 
-Stefan
+-- 
+error compiling committee.c: too many arguments to function
