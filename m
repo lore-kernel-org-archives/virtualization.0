@@ -1,14 +1,12 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
-Date: Tue, 27 Mar 2012 13:07:21 +0530
-Message-ID: <4F716E31.3000803__24302.4262752899$1332833910$gmane$org@linux.vnet.ibm.com>
-References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
-	<4F707C5F.1000905@redhat.com>
+From: raj@tardy.cup.hp.com (Rick Jones)
+Subject: [PATCH net-next] virtio_net: do not rate limit counter increments
+Date: Tue, 27 Mar 2012 10:28:09 -0700 (PDT)
+Message-ID: <20120327172809.C52572900384__36543.5380874716$1332870523$gmane$org@tardy>
+Reply-To: Rick Jones <rick.jones2@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F707C5F.1000905@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,35 +16,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>
-Cc: KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Attilio Rao <attilio.rao@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: netdev@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/26/2012 07:55 PM, Avi Kivity wrote:
-> On 03/21/2012 12:20 PM, Raghavendra K T wrote:
->> From: Jeremy Fitzhardinge<jeremy.fitzhardinge@citrix.com>
-[...]
->>
->> This series provides a Xen implementation, but it should be
->> straightforward to add a KVM implementation as well.
->>
->
-> Looks like a good baseline on which to build the KVM implementation.  We
-> might need some handshake to prevent interference on the host side with
-> the PLE code.
->
+From: Rick Jones <rick.jones2@hp.com>
 
-Avi, Thanks for reviewing. True, it is sort of equivalent to PLE on non 
-PLE machine.
+While it is desirable to rate limit certain messages, it is not
+desirable to rate limit the incrementing of counters associated
+with those messages.
 
-Ingo, Peter,
-Can you please let us know if this series can be considered for next 
-merge window?
-OR do you still have some concerns that needs addressing.
+Signed-off-by: Rick Jones <rick.jones2@hp.com>
 
-I shall rebase patches to 3.3 and resend. (main difference would be 
-UNINLINE_SPIN_UNLOCK and jump label changes to use 
-static_key_true/false() usage instead of static_branch.)
+---
 
-Thanks,
-Raghu
+Compiled, and run briefly in a 1 vCPU guest under a netperf workload.
+
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 019da01..4de2760 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -625,12 +625,13 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 
+ 	/* This can happen with OOM and indirect buffers. */
+ 	if (unlikely(capacity < 0)) {
+-		if (net_ratelimit()) {
+-			if (likely(capacity == -ENOMEM)) {
++		if (likely(capacity == -ENOMEM)) {
++			if (net_ratelimit()) {
+ 				dev_warn(&dev->dev,
+ 					 "TX queue failure: out of memory\n");
+ 			} else {
+-				dev->stats.tx_fifo_errors++;
++			dev->stats.tx_fifo_errors++;
++			if (net_ratelimit())
+ 				dev_warn(&dev->dev,
+ 					 "Unexpected TX queue failure: %d\n",
+ 					 capacity);
