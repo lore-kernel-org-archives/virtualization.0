@@ -1,13 +1,14 @@
-From: Avi Kivity <avi@redhat.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
-Date: Mon, 26 Mar 2012 16:25:35 +0200
-Message-ID: <4F707C5F.1000905@redhat.com>
+Date: Tue, 27 Mar 2012 13:07:21 +0530
+Message-ID: <4F716E31.3000803__24302.4262752899$1332833910$gmane$org@linux.vnet.ibm.com>
 References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
+	<4F707C5F.1000905@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
+In-Reply-To: <4F707C5F.1000905@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,65 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>
+Cc: KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Attilio Rao <attilio.rao@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/21/2012 12:20 PM, Raghavendra K T wrote:
-> From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+On 03/26/2012 07:55 PM, Avi Kivity wrote:
+> On 03/21/2012 12:20 PM, Raghavendra K T wrote:
+>> From: Jeremy Fitzhardinge<jeremy.fitzhardinge@citrix.com>
+[...]
+>>
+>> This series provides a Xen implementation, but it should be
+>> straightforward to add a KVM implementation as well.
+>>
 >
-> Changes since last posting: (Raghavendra K T)
-> [
->  - Rebased to linux-3.3-rc6.
->  - used function+enum in place of macro (better type checking) 
->  - use cmpxchg while resetting zero status for possible race
-> 	[suggested by Dave Hansen for KVM patches ]
-> ]
->
-> This series replaces the existing paravirtualized spinlock mechanism
-> with a paravirtualized ticketlock mechanism.
->
-> Ticket locks have an inherent problem in a virtualized case, because
-> the vCPUs are scheduled rather than running concurrently (ignoring
-> gang scheduled vCPUs).  This can result in catastrophic performance
-> collapses when the vCPU scheduler doesn't schedule the correct "next"
-> vCPU, and ends up scheduling a vCPU which burns its entire timeslice
-> spinning.  (Note that this is not the same problem as lock-holder
-> preemption, which this series also addresses; that's also a problem,
-> but not catastrophic).
->
-> (See Thomas Friebel's talk "Prevent Guests from Spinning Around"
-> http://www.xen.org/files/xensummitboston08/LHP.pdf for more details.)
->
-> Currently we deal with this by having PV spinlocks, which adds a layer
-> of indirection in front of all the spinlock functions, and defining a
-> completely new implementation for Xen (and for other pvops users, but
-> there are none at present).
->
-> PV ticketlocks keeps the existing ticketlock implemenentation
-> (fastpath) as-is, but adds a couple of pvops for the slow paths:
->
-> - If a CPU has been waiting for a spinlock for SPIN_THRESHOLD
->   iterations, then call out to the __ticket_lock_spinning() pvop,
->   which allows a backend to block the vCPU rather than spinning.  This
->   pvop can set the lock into "slowpath state".
->
-> - When releasing a lock, if it is in "slowpath state", the call
->   __ticket_unlock_kick() to kick the next vCPU in line awake.  If the
->   lock is no longer in contention, it also clears the slowpath flag.
->
-> The "slowpath state" is stored in the LSB of the within the lock tail
-> ticket.  This has the effect of reducing the max number of CPUs by
-> half (so, a "small ticket" can deal with 128 CPUs, and "large ticket"
-> 32768).
->
-> This series provides a Xen implementation, but it should be
-> straightforward to add a KVM implementation as well.
+> Looks like a good baseline on which to build the KVM implementation.  We
+> might need some handshake to prevent interference on the host side with
+> the PLE code.
 >
 
-Looks like a good baseline on which to build the KVM implementation.  We
-might need some handshake to prevent interference on the host side with
-the PLE code.
+Avi, Thanks for reviewing. True, it is sort of equivalent to PLE on non 
+PLE machine.
 
--- 
-error compiling committee.c: too many arguments to function
+Ingo, Peter,
+Can you please let us know if this series can be considered for next 
+merge window?
+OR do you still have some concerns that needs addressing.
+
+I shall rebase patches to 3.3 and resend. (main difference would be 
+UNINLINE_SPIN_UNLOCK and jump label changes to use 
+static_key_true/false() usage instead of static_branch.)
+
+Thanks,
+Raghu
