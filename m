@@ -1,11 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [V6 PATCH] virtio-net: send gratuitous packets when needed
-Date: Wed, 28 Mar 2012 13:44:28 +0800
-Message-ID: <20120328054428.34415.75432.stgit@amd-6168-8-1.englab.nay.redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH net-next] virtio_net: do not rate limit counter increments
+Date: Wed, 28 Mar 2012 16:33:22 +1030
+Message-ID: <87r4wd9s9h.fsf@rustcorp.com.au>
+References: <20120327172809.C52572900384@tardy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120327172809.C52572900384@tardy>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,155 +17,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org, rusty@rustcorp.com.au, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: davem@davemloft.net, qemu-devel@nongnu.org
+To: Rick Jones <rick.jones2@hp.com>, netdev@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-As hypervior does not have the knowledge of guest network configuration, it's
-better to ask guest to send gratuitous packets when needed.
+On Tue, 27 Mar 2012 10:28:09 -0700 (PDT), raj@tardy.cup.hp.com (Rick Jones) wrote:
+> From: Rick Jones <rick.jones2@hp.com>
+> 
+> While it is desirable to rate limit certain messages, it is not
+> desirable to rate limit the incrementing of counters associated
+> with those messages.
+> 
+> Signed-off-by: Rick Jones <rick.jones2@hp.com>
 
-Guest tests VIRTIO_NET_S_ANNOUNCE bit during config change interrupt and when it
-is set, a workqueue is scheduled to send gratuitous packet through
-NETDEV_NOTIFY_PEERS. This feature is negotiated through bit
-VIRTIO_NET_F_GUEST_ANNOUNCE.
+Acked-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Changes from v5:
-- notify the chain before acking the link annoucement
-- ack the link announcement notification through control vq
+Thanks!
+Rusty.
 
-Changes from v4:
-- typos
-- handle workqueue unconditionally
-- move VIRTIO_NET_S_ANNOUNCE to bit 8 to separate rw bits from ro bits
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 019da01..4de2760 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -625,12 +625,13 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  
+>  	/* This can happen with OOM and indirect buffers. */
+>  	if (unlikely(capacity < 0)) {
+> -		if (net_ratelimit()) {
+> -			if (likely(capacity == -ENOMEM)) {
+> +		if (likely(capacity == -ENOMEM)) {
+> +			if (net_ratelimit()) {
+>  				dev_warn(&dev->dev,
+>  					 "TX queue failure: out of memory\n");
+>  			} else {
+> -				dev->stats.tx_fifo_errors++;
+> +			dev->stats.tx_fifo_errors++;
+> +			if (net_ratelimit())
+>  				dev_warn(&dev->dev,
+>  					 "Unexpected TX queue failure: %d\n",
+>  					 capacity);
+> 
 
-Changes from v3:
-- cancel the workqueue during freeze
-
-Changes from v2:
-- fix the race between unregister_dev() and workqueue
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c   |   32 +++++++++++++++++++++++++++++++-
- include/linux/virtio_net.h |   13 +++++++++++++
- 2 files changed, 44 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 4880aa8..0f60da7 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -72,6 +72,9 @@ struct virtnet_info {
- 	/* Work struct for refilling if we run low on memory. */
- 	struct delayed_work refill;
- 
-+	/* Work struct for sending gratuitous packets. */
-+	struct work_struct announce;
-+
- 	/* Chain pages by the private ptr. */
- 	struct page *pages;
- 
-@@ -781,12 +784,30 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
- 	return status == VIRTIO_NET_OK;
- }
- 
-+static void virtnet_ack_link_announce(struct virtnet_info *vi)
-+{
-+	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
-+				  VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL,
-+				  0, 0)) {
-+		dev_warn(&vi->dev->dev, "Failed to ack link nnounce.\n");
-+	}
-+}
-+
-+static void announce_work(struct work_struct *work)
-+{
-+	struct virtnet_info *vi = container_of(work, struct virtnet_info,
-+					       announce);
-+	netif_notify_peers(vi->dev);
-+	virtnet_ack_link_announce(vi);
-+}
-+
- static int virtnet_close(struct net_device *dev)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 
- 	/* Make sure refill_work doesn't re-enable napi! */
- 	cancel_delayed_work_sync(&vi->refill);
-+	cancel_work_sync(&vi->announce);
- 	napi_disable(&vi->napi);
- 
- 	return 0;
-@@ -962,11 +983,17 @@ static void virtnet_update_status(struct virtnet_info *vi)
- 		return;
- 
- 	/* Ignore unknown (future) status bits */
--	v &= VIRTIO_NET_S_LINK_UP;
-+	v &= VIRTIO_NET_S_LINK_UP | VIRTIO_NET_S_ANNOUNCE;
- 
- 	if (vi->status == v)
- 		return;
- 
-+	if (v & VIRTIO_NET_S_ANNOUNCE) {
-+		v &= ~VIRTIO_NET_S_ANNOUNCE;
-+		if (v & VIRTIO_NET_S_LINK_UP)
-+			schedule_work(&vi->announce);
-+	}
-+
- 	vi->status = v;
- 
- 	if (vi->status & VIRTIO_NET_S_LINK_UP) {
-@@ -1076,6 +1103,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		goto free;
- 
- 	INIT_DELAYED_WORK(&vi->refill, refill_work);
-+	INIT_WORK(&vi->announce, announce_work);
- 	sg_init_table(vi->rx_sg, ARRAY_SIZE(vi->rx_sg));
- 	sg_init_table(vi->tx_sg, ARRAY_SIZE(vi->tx_sg));
- 
-@@ -1187,6 +1215,7 @@ static int virtnet_freeze(struct virtio_device *vdev)
- 	virtqueue_disable_cb(vi->svq);
- 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ))
- 		virtqueue_disable_cb(vi->cvq);
-+	cancel_work_sync(&vi->announce);
- 
- 	netif_device_detach(vi->dev);
- 	cancel_delayed_work_sync(&vi->refill);
-@@ -1233,6 +1262,7 @@ static unsigned int features[] = {
- 	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO,
- 	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ,
- 	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
-+	VIRTIO_NET_F_GUEST_ANNOUNCE,
- };
- 
- static struct virtio_driver virtio_net_driver = {
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 970d5a2..383e8a0 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -49,8 +49,10 @@
- #define VIRTIO_NET_F_CTRL_RX	18	/* Control channel RX mode support */
- #define VIRTIO_NET_F_CTRL_VLAN	19	/* Control channel VLAN filtering */
- #define VIRTIO_NET_F_CTRL_RX_EXTRA 20	/* Extra RX mode control support */
-+#define VIRTIO_NET_F_GUEST_ANNOUNCE 21  /* Guest can send gratituous packet */
- 
- #define VIRTIO_NET_S_LINK_UP	1	/* Link is up */
-+#define VIRTIO_NET_S_ANNOUNCE   2	/* Announcement is needed */
- 
- struct virtio_net_config {
- 	/* The config defining mac address (if VIRTIO_NET_F_MAC) */
-@@ -152,4 +154,15 @@ struct virtio_net_ctrl_mac {
-  #define VIRTIO_NET_CTRL_VLAN_ADD             0
-  #define VIRTIO_NET_CTRL_VLAN_DEL             1
- 
-+/*
-+ * Control link announce acknowledgement
-+ *
-+ * The command VIRTIO_NET_CTRL_ANNOUNCE_ACK is used to indicate that
-+ * driver has recevied the notification and device would clear the
-+ * VIRTIO_NET_S_ANNOUNCE bit in the status filed after it received
-+ * this command.
-+ */
-+#define VIRTIO_NET_CTRL_ANNOUNCE       3
-+ #define VIRTIO_NET_CTRL_ANNOUNCE_ACK         0
-+
- #endif /* _LINUX_VIRTIO_NET_H */
+-- 
+  How could I marry someone with more hair than me?  http://baldalex.org
