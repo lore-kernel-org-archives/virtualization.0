@@ -1,7 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 4/5] virtio-pci: S3 support
-Date: Thu, 29 Mar 2012 13:58:10 +0530
-Message-ID: <08e96b3cfe2f96e34e8a97ecde470d87f58bd29d.1333008576.git.amit.shah@redhat.com>
+Subject: [PATCH 5/5] virtio-pci: switch to PM ops macro to initialise PM
+	functions
+Date: Thu, 29 Mar 2012 13:58:11 +0530
+Message-ID: <4c2119cd05e09252e5359225cf009b5c02b7e000.1333008576.git.amit.shah@redhat.com>
 References: <cover.1333008576.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,58 +24,29 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There's no difference in supporting S3 and S4 for virtio devices: the
-vqs have to be re-created as the device has to be assumed to be reset at
-restore-time.  Since S4 already handles this situation, we can directly
-use the same code and callbacks for S3 support.
+Use the SET_SYSTEM_SLEEP_PM_OPS macro to initialise the suspend/resume
+functions in the new PM API.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/virtio/virtio_pci.c |   24 +++---------------------
- 1 files changed, 3 insertions(+), 21 deletions(-)
+ drivers/virtio/virtio_pci.c |    7 +------
+ 1 files changed, 1 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 982d6c9..0fa4f85 100644
+index 0fa4f85..2e03d41 100644
 --- a/drivers/virtio/virtio_pci.c
 +++ b/drivers/virtio/virtio_pci.c
-@@ -720,24 +720,6 @@ static void __devexit virtio_pci_remove(struct pci_dev *pci_dev)
- }
- 
- #ifdef CONFIG_PM
--static int virtio_pci_suspend(struct device *dev)
--{
--	struct pci_dev *pci_dev = to_pci_dev(dev);
--
--	pci_save_state(pci_dev);
--	pci_set_power_state(pci_dev, PCI_D3hot);
--	return 0;
--}
--
--static int virtio_pci_resume(struct device *dev)
--{
--	struct pci_dev *pci_dev = to_pci_dev(dev);
--
--	pci_restore_state(pci_dev);
--	pci_set_power_state(pci_dev, PCI_D0);
--	return 0;
--}
--
- static int virtio_pci_freeze(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
-@@ -786,12 +768,12 @@ static int virtio_pci_restore(struct device *dev)
+@@ -768,12 +768,7 @@ static int virtio_pci_restore(struct device *dev)
  }
  
  static const struct dev_pm_ops virtio_pci_pm_ops = {
--	.suspend	= virtio_pci_suspend,
--	.resume		= virtio_pci_resume,
-+	.suspend	= virtio_pci_freeze,
-+	.resume		= virtio_pci_restore,
- 	.freeze		= virtio_pci_freeze,
- 	.thaw		= virtio_pci_restore,
- 	.restore	= virtio_pci_restore,
--	.poweroff	= virtio_pci_suspend,
-+	.poweroff	= virtio_pci_freeze,
+-	.suspend	= virtio_pci_freeze,
+-	.resume		= virtio_pci_restore,
+-	.freeze		= virtio_pci_freeze,
+-	.thaw		= virtio_pci_restore,
+-	.restore	= virtio_pci_restore,
+-	.poweroff	= virtio_pci_freeze,
++	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
  };
  #endif
  
