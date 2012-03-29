@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_blk: add helper function to support mass of disks
-	naming
-Date: Thu, 29 Mar 2012 14:46:10 +0200
-Message-ID: <20120329124609.GA12341__27962.5779753134$1333025186$gmane$org@redhat.com>
-References: <4F72B5B3.6020602@cn.fujitsu.com>
-	<20120328105819.GD6194@redhat.com>
-	<4F73F4E6.4060104@cn.fujitsu.com> <4F744FAB.9070403@kernel.dk>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
+Date: Thu, 29 Mar 2012 23:33:49 +0530
+Message-ID: <4F74A405.2040609@linux.vnet.ibm.com>
+References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
+	<4F707C5F.1000905@redhat.com>	<4F716E31.3000803@linux.vnet.ibm.com>
+	<CAMy5W3foop40+R1RLv_JPhnO5ZmV90uMmNERYY-e3QCeaJfqLw@mail.gmail.com>
+	<4F73568D.7000703@linux.vnet.ibm.com> <4F743247.5080407@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4F744FAB.9070403@kernel.dk>
+In-Reply-To: <4F743247.5080407@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,40 +20,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ren Mingxin <renmx@cn.fujitsu.com>, Tejun Heo <tj@kernel.org>
+To: Avi Kivity <avi@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Alan Meadows <alan.meadows@gmail.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 29, 2012 at 02:03:55PM +0200, Jens Axboe wrote:
-> On 03/29/2012 07:36 AM, Ren Mingxin wrote:
-> >  On 03/28/2012 06:58 PM, Michael S. Tsirkin wrote:
-> >> On Wed, Mar 28, 2012 at 02:54:43PM +0800, Ren Mingxin wrote:
-> >>>   Hi,
-> >>>
-> >>> The current virtblk's naming algorithm just supports 26^3
-> >>> disks. If there are mass of virtblks(exceeding 26^3), there
-> >>> will be disks with the same name.
-> >>>
-> >>> According to "sd_format_disk_name()", I add function
-> >>> "virtblk_name_format()" for virtblk to support mass of
-> >>> disks.
-> >>>
-> >>> Signed-off-by: Ren Mingxin<renmx@cn.fujitsu.com>
-> >> Nod. This is basically what 3e1a7ff8a0a7b948f2684930166954f9e8e776fe
-> >> did. Except, maybe we should move this function into block core
-> >> instead of duplicating it? Where would be a good place to put it?
-> > 
-> > Yes, this was also what I thought.
-> > 
-> > How about placing the "sd_format_disk_name()"
-> > as "disk_name_format()" into "block/genhd.c"
-> > ("include/linux/genhd.h")?
-> 
-> Yes, that sounds like the appropriate solution (and name, and where to
-> put it).
+On 03/29/2012 03:28 PM, Avi Kivity wrote:
+> On 03/28/2012 08:21 PM, Raghavendra K T wrote:
+>>
+>>>
+>>>
+>>>          Looks like a good baseline on which to build the KVM
+>>>          implementation.  We
+>>>          might need some handshake to prevent interference on the host
+>>>          side with
+>>>          the PLE code.
+>>>
+>>
+>> I think I still missed some point in Avi's comment. I agree that PLE
+>> may be interfering with above patches (resulting in less performance
+>> advantages). but we have not seen performance degradation with the
+>> patches in earlier benchmarks. [ theoretically since patch has very
+>> slight advantage over PLE that atleast it knows who should run next ].
+>
+> The advantage grows with the vcpu counts and overcommit ratio.  If you
+> have N vcpus and M:1 overcommit, PLE has to guess from N/M queued vcpus
+> while your patch knows who to wake up.
+>
 
-OK, once this is posted I'll get your ack and
-queue for 3.4 with other virtio fixups.
+Yes. I agree.
 
-> -- 
-> Jens Axboe
+>>
+>> So TODO in my list on this is:
+>> 1. More analysis of performance on PLE mc.
+>> 2. Seeing how to implement handshake to increase performance (if PLE +
+>> patch combination have slight negative effect).
+>
+> I can think of two options:
+
+I really like below ideas. Thanks for that!.
+
+> - from the PLE handler, don't wake up a vcpu that is sleeping because it
+> is waiting for a kick
+
+How about, adding another pass in the beginning of  kvm_vcpu_on_spin()
+to check if any vcpu is already kicked. This would almost result in 
+yield_to(kicked_vcpu). IMO this is also worth trying.
+
+will try above ideas soon.
+
+> - look at other sources of pause loops (I guess smp_call_function() is
+> the significant source) and adjust them to use the same mechanism, and
+> ask the host to disable PLE exiting.
+>
+> This can be done incrementally later.
+>
+
+Yes.. this can wait a bit.
