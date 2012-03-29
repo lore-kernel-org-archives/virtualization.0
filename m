@@ -1,15 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_blk: add helper function to support mass of disks
-	naming
-Date: Thu, 29 Mar 2012 15:10:01 +1030
-Message-ID: <87ehscyq8u.fsf@rustcorp.com.au>
-References: <4F72B5B3.6020602@cn.fujitsu.com>
-	<20120328105819.GD6194@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 0/5] virtio: S3 support, use PM API macro for init
+Date: Thu, 29 Mar 2012 13:58:06 +0530
+Message-ID: <cover.1333008576.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120328105819.GD6194@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +15,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Ren Mingxin <renmx@cn.fujitsu.com>
-Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, jens.axboe@oracle.com, Tejun Heo <tj@kernel.org>
+To: Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 28 Mar 2012 12:58:21 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Wed, Mar 28, 2012 at 02:54:43PM +0800, Ren Mingxin wrote:
-> >  Hi,
-> > 
-> > The current virtblk's naming algorithm just supports 26^3
-> > disks. If there are mass of virtblks(exceeding 26^3), there
-> > will be disks with the same name.
-> > 
-> > According to "sd_format_disk_name()", I add function
-> > "virtblk_name_format()" for virtblk to support mass of
-> > disks.
-> > 
-> > Signed-off-by: Ren Mingxin <renmx@cn.fujitsu.com>
-> 
-> Nod. This is basically what 3e1a7ff8a0a7b948f2684930166954f9e8e776fe
-> did. Except, maybe we should move this function into block core
-> instead of duplicating it? Where would be a good place to put it?
-> Jens, care to comment?
+Hello,
 
-Indeed.
+Turns out S3 is not different from S4 for virtio devices: the device
+is assumed to be reset, so the host and guest state are to be assumed
+to be out of sync upon resume.  We handle the S4 case with exactly the
+same scenario, so just point the suspend/resume routines to the
+freeze/restore ones.
 
-Cheers,
-Rusty.
+Once that is done, we also use the PM API's macro to initialise the
+sleep functions.
+
+A couple of cleanups are included: there's no need for special thaw
+processing in the balloon driver, so that's addressed in patches 1 and
+2.
+
+Testing: both S3 and S4 support have been tested using these patches
+using a similar method used earlier during S4 patch development: a
+guest is started with virtio-blk as the only disk, a virtio network
+card, a virtio-serial port and a virtio balloon device.  Ping from
+guest to host, dd /dev/zero to a file on the disk, and IO from the
+host on the virtio-serial port, all at once, while exercising S4 and
+S3 (separately) were tested.  They all continue to work fine after
+resume.  virtio balloon values too were tested by inflating and
+deflating the balloon.
+
+Please review and apply,
+
+Thanks,
+
+Amit Shah (5):
+  virtio: balloon: Allow stats update after restore from S4
+  virtio: drop thaw PM operation
+  virtio-pci: drop restore_common()
+  virtio-pci: S3 support
+  virtio-pci: switch to PM ops macro to initialise PM functions
+
+ drivers/virtio/virtio_balloon.c |   14 -------
+ drivers/virtio/virtio_pci.c     |   74 ++++----------------------------------
+ include/linux/virtio.h          |    1 -
+ 3 files changed, 8 insertions(+), 81 deletions(-)
+
 -- 
-  How could I marry someone with more hair than me?  http://baldalex.org
+1.7.7.6
