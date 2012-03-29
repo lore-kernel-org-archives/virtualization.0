@@ -1,7 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 3/5] virtio-pci: drop restore_common()
-Date: Thu, 29 Mar 2012 13:58:09 +0530
-Message-ID: <fc7c9585359c0eef15880cd6dbb068ddb9a55463.1333008576.git.amit.shah@redhat.com>
+Subject: [PATCH 4/5] virtio-pci: S3 support
+Date: Thu, 29 Mar 2012 13:58:10 +0530
+Message-ID: <08e96b3cfe2f96e34e8a97ecde470d87f58bd29d.1333008576.git.amit.shah@redhat.com>
 References: <cover.1333008576.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,58 +23,60 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-restore_common() was shared between restore and thaw callbacks.  With
-thaw gone, we don't need restore_common() anymore.
+There's no difference in supporting S3 and S4 for virtio devices: the
+vqs have to be re-created as the device has to be assumed to be reset at
+restore-time.  Since S4 already handles this situation, we can directly
+use the same code and callbacks for S3 support.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/virtio/virtio_pci.c |   23 +++++++----------------
- 1 files changed, 7 insertions(+), 16 deletions(-)
+ drivers/virtio/virtio_pci.c |   24 +++---------------------
+ 1 files changed, 3 insertions(+), 21 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index a35a402..982d6c9 100644
+index 982d6c9..0fa4f85 100644
 --- a/drivers/virtio/virtio_pci.c
 +++ b/drivers/virtio/virtio_pci.c
-@@ -758,33 +758,24 @@ static int virtio_pci_freeze(struct device *dev)
- 	return ret;
+@@ -720,24 +720,6 @@ static void __devexit virtio_pci_remove(struct pci_dev *pci_dev)
  }
  
--static int restore_common(struct device *dev)
-+static int virtio_pci_restore(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
- 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
-+	struct virtio_driver *drv;
- 	int ret;
- 
-+	drv = container_of(vp_dev->vdev.dev.driver,
-+			   struct virtio_driver, driver);
-+
- 	ret = pci_enable_device(pci_dev);
- 	if (ret)
- 		return ret;
-+
- 	pci_set_master(pci_dev);
- 	vp_finalize_features(&vp_dev->vdev);
- 
--	return ret;
--}
--
--static int virtio_pci_restore(struct device *dev)
+ #ifdef CONFIG_PM
+-static int virtio_pci_suspend(struct device *dev)
 -{
 -	struct pci_dev *pci_dev = to_pci_dev(dev);
--	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
--	struct virtio_driver *drv;
--	int ret;
 -
--	drv = container_of(vp_dev->vdev.dev.driver,
--			   struct virtio_driver, driver);
+-	pci_save_state(pci_dev);
+-	pci_set_power_state(pci_dev, PCI_D3hot);
+-	return 0;
+-}
 -
--	ret = restore_common(dev);
--	if (!ret && drv && drv->restore)
-+	if (drv && drv->restore)
- 		ret = drv->restore(&vp_dev->vdev);
+-static int virtio_pci_resume(struct device *dev)
+-{
+-	struct pci_dev *pci_dev = to_pci_dev(dev);
+-
+-	pci_restore_state(pci_dev);
+-	pci_set_power_state(pci_dev, PCI_D0);
+-	return 0;
+-}
+-
+ static int virtio_pci_freeze(struct device *dev)
+ {
+ 	struct pci_dev *pci_dev = to_pci_dev(dev);
+@@ -786,12 +768,12 @@ static int virtio_pci_restore(struct device *dev)
+ }
  
- 	/* Finally, tell the device we're all set */
+ static const struct dev_pm_ops virtio_pci_pm_ops = {
+-	.suspend	= virtio_pci_suspend,
+-	.resume		= virtio_pci_resume,
++	.suspend	= virtio_pci_freeze,
++	.resume		= virtio_pci_restore,
+ 	.freeze		= virtio_pci_freeze,
+ 	.thaw		= virtio_pci_restore,
+ 	.restore	= virtio_pci_restore,
+-	.poweroff	= virtio_pci_suspend,
++	.poweroff	= virtio_pci_freeze,
+ };
+ #endif
+ 
 -- 
 1.7.7.6
