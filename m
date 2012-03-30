@@ -1,16 +1,13 @@
-From: Tejun Heo <tj@kernel.org>
-Subject: Re: [PATCH 4/4] virtio_blk: use disk_name_format() to support mass
-	of disks naming
-Date: Fri, 30 Mar 2012 08:38:28 -0700
-Message-ID: <20120330153828.GD28934__21466.6959633634$1333121924$gmane$org@google.com>
-References: <4F7581D4.4040301@cn.fujitsu.com> <4F7582B0.5010609@cn.fujitsu.com>
-	<20120330152606.GB28934@google.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
+Date: Fri, 30 Mar 2012 13:26:29 -0700
+Message-ID: <4F7616F5.4070000@zytor.com>
+References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120330152606.GB28934@google.com>
+In-Reply-To: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,33 +17,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ren Mingxin <renmx@cn.fujitsu.com>
-Cc: Jens Axboe <axboe@kernel.dk>, SCSI <linux-scsi@vger.kernel.org>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, VIRTUAL <virtualization@lists.linux-foundation.org>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 30, 2012 at 08:26:06AM -0700, Tejun Heo wrote:
-> On Fri, Mar 30, 2012 at 05:53:52PM +0800, Ren Mingxin wrote:
-> >  The current virtblk's naming algorithm only supports 263  disks.
-> > If there are mass of virtblks(exceeding 263), there will be disks
-> > with the same name.
-> > 
-> > By renaming "sd_format_disk_name()" to "disk_name_format()"
-> > and moving it into block core, virtio_blk can use this function to
-> > support mass of disks.
-> > 
-> > Signed-off-by: Ren Mingxin <renmx@cn.fujitsu.com>
-> 
-> I guess it's already way too late but why couldn't they have been
-> named vdD-P where both D and P are integers denoting disk number and
+What is the current status of this patchset?  I haven't looked at it too
+closely because I have been focused on 3.4 up until now...
 
-So, if a device name ends in digit the partition code adds delimiter
-'p' automatically and this is already in use by md.  So, partitioned
-md devices are named mdDpP where D and P are base 10 number indicating
-the sequence like md12p4.  So, let's please add comment that new
-drivers should name their devices PREFIX%d where the sequence number
-can be allocated by ida.
-
-Thanks.
+	-hpa
 
 -- 
-tejun
+H. Peter Anvin, Intel Open Source Technology Center
+I work for Intel.  I don't speak on their behalf.
