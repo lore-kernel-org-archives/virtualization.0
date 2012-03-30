@@ -1,11 +1,11 @@
-From: Ren Mingxin <renmx@cn.fujitsu.com>
-Subject: [PATCH 4/4] virtio_blk: use disk_name_format() to support mass of
-	disks naming
-Date: Fri, 30 Mar 2012 17:53:52 +0800
-Message-ID: <4F7582B0.5010609__41404.1418386207$1333381119$gmane$org@cn.fujitsu.com>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: Re: [PATCH 0/4] block: move sd_format_disk_name() into block core
+	as disk_name_format()
+Date: Fri, 30 Mar 2012 10:56:15 +0100
+Message-ID: <1333101375.2833.34.camel__18173.2551697225$1333381123$gmane$org@dabdike>
 References: <4F7581D4.4040301@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <4F7581D4.4040301@cn.fujitsu.com>
@@ -18,45 +18,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, Tejun Heo <tj@kernel.org>
-Cc: VIRTUAL <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, KVM <kvm@vger.kernel.org>
+To: Ren Mingxin <renmx@cn.fujitsu.com>
+Cc: Jens Axboe <axboe@kernel.dk>, KVM <kvm@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, VIRTUAL <virtualization@lists.linux-foundation.org>, Tejun Heo <tj@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  The current virtblk's naming algorithm only supports 263  disks.
-If there are mass of virtblks(exceeding 263), there will be disks
-with the same name.
+On Fri, 2012-03-30 at 17:50 +0800, Ren Mingxin wrote:
+> 
+> This patch series renames "sd_format_disk_name()" to
+> "disk_name_format()" and moves it into block core. So
+> that who needs formatting disk name can use it, instead
+> of duplicating these similar help functions.
+> 
+> Ren Mingxin (4):
+>    block: add function disk_name_format() into block core
+>    scsi: replace sd_format_disk_name() to disk_name_format()
 
-By renaming "sd_format_disk_name()" to "disk_name_format()"
-and moving it into block core, virtio_blk can use this function to
-support mass of disks.
+These two should be a single patch so it makes it obvious to anyone
+looking through the change sets that the code is merely being moved.
 
-Signed-off-by: Ren Mingxin <renmx@cn.fujitsu.com>
----
-   virtio_blk.c |   13 +------------
-  1 file changed, 1 insertion(+), 12 deletions(-)
+Other than that, everything looks fine to me.
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index c4a60ba..54612c2 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -442,18 +442,7 @@ static int __devinit virtblk_probe(struct 
-virtio_device *vdev)
-
-         q->queuedata = vblk;
-
--       if (index < 26) {
--               sprintf(vblk->disk->disk_name, "vd%c", 'a' + index % 26);
--       } else if (index < (26 + 1) * 26) {
--               sprintf(vblk->disk->disk_name, "vd%c%c",
--                       'a' + index / 26 - 1, 'a' + index % 26);
--       } else {
--               const unsigned int m1 = (index / 26 - 1) / 26 - 1;
--               const unsigned int m2 = (index / 26 - 1) % 26;
--               const unsigned int m3 =  index % 26;
--               sprintf(vblk->disk->disk_name, "vd%c%c%c",
--                       'a' + m1, 'a' + m2, 'a' + m3);
--       }
-+       disk_name_format("vd", index, vblk->disk->disk_name, DISK_NAME_LEN);
-
-         vblk->disk->major = major;
-         vblk->disk->first_minor = index_to_minor(index);
+James
