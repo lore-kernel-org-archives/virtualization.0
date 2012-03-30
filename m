@@ -1,11 +1,13 @@
-From: Asias He <asias@redhat.com>
-Subject: [PATCH] virtio_blk: Drop unused request tracking list
-Date: Fri, 30 Mar 2012 11:24:10 +0800
-Message-ID: <1333077850-21717-1-git-send-email-asias__43973.1558705263$1333381099$gmane$org@redhat.com>
+From: Ren Mingxin <renmx@cn.fujitsu.com>
+Subject: [PATCH 1/4] block: add function disk_name_format() into block core
+Date: Fri, 30 Mar 2012 17:52:27 +0800
+Message-ID: <4F75825B.80108__25191.5780282163$1333381106$gmane$org@cn.fujitsu.com>
+References: <4F7581D4.4040301@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4F7581D4.4040301@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,84 +17,94 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, Tejun Heo <tj@kernel.org>
+Cc: VIRTUAL <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, KVM <kvm@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Benchmark shows small performance improvement on fusion io device.
+  According to 3e1a7ff8a0a7b948f2684930166954f9e8e776fe,
+I copied function "sd_format_disk_name()" into block core with
+the name of "disk_name_format()".
 
-Before:
-  seq-read : io=1,024MB, bw=19,982KB/s, iops=39,964, runt= 52475msec
-  seq-write: io=1,024MB, bw=20,321KB/s, iops=40,641, runt= 51601msec
-  rnd-read : io=1,024MB, bw=15,404KB/s, iops=30,808, runt= 68070msec
-  rnd-write: io=1,024MB, bw=14,776KB/s, iops=29,552, runt= 70963msec
-
-After:
-  seq-read : io=1,024MB, bw=20,343KB/s, iops=40,685, runt= 51546msec
-  seq-write: io=1,024MB, bw=20,803KB/s, iops=41,606, runt= 50404msec
-  rnd-read : io=1,024MB, bw=16,221KB/s, iops=32,442, runt= 64642msec
-  rnd-write: io=1,024MB, bw=15,199KB/s, iops=30,397, runt= 68991msec
-
-Signed-off-by: Asias He <asias@redhat.com>
+Signed-off-by: Ren Mingxin <renmx@cn.fujitsu.com>
 ---
- drivers/block/virtio_blk.c |   10 ----------
- 1 files changed, 0 insertions(+), 10 deletions(-)
+  block/genhd.c         |   49 
++++++++++++++++++++++++++++++++++++++++++++++++++
+  include/linux/genhd.h |    2 ++
+  2 files changed, 51 insertions(+)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index c4a60ba..338da9a 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -29,9 +29,6 @@ struct virtio_blk
- 	/* The disk structure for the kernel. */
- 	struct gendisk *disk;
- 
--	/* Request tracking. */
--	struct list_head reqs;
--
- 	mempool_t *pool;
- 
- 	/* Process context for config space updates */
-@@ -55,7 +52,6 @@ struct virtio_blk
- 
- struct virtblk_req
- {
--	struct list_head list;
- 	struct request *req;
- 	struct virtio_blk_outhdr out_hdr;
- 	struct virtio_scsi_inhdr in_hdr;
-@@ -99,7 +95,6 @@ static void blk_done(struct virtqueue *vq)
- 		}
- 
- 		__blk_end_request_all(vbr->req, error);
--		list_del(&vbr->list);
- 		mempool_free(vbr, vblk->pool);
- 	}
- 	/* In case queue is stopped waiting for more buffers. */
-@@ -184,7 +179,6 @@ static bool do_req(struct request_queue *q, struct virtio_blk *vblk,
- 		return false;
- 	}
- 
--	list_add_tail(&vbr->list, &vblk->reqs);
- 	return true;
- }
- 
-@@ -408,7 +402,6 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
- 		goto out_free_index;
- 	}
- 
--	INIT_LIST_HEAD(&vblk->reqs);
- 	spin_lock_init(&vblk->lock);
- 	vblk->vdev = vdev;
- 	vblk->sg_elems = sg_elems;
-@@ -571,9 +564,6 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
- 	vblk->config_enable = false;
- 	mutex_unlock(&vblk->config_lock);
- 
--	/* Nothing should be pending. */
--	BUG_ON(!list_empty(&vblk->reqs));
--
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
- 
--- 
-1.7.7.6
+diff --git a/block/genhd.c b/block/genhd.c
+index df9816e..10c04b6 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -357,6 +357,55 @@ void unregister_blkdev(unsigned int major, const 
+char *name)
+
+  EXPORT_SYMBOL(unregister_blkdev);
+
++/*
++ *     disk_name_format - format disk name
++ *     @prefix: name prefix - ie. "sd" for SCSI disks
++ *     @index: index of the disk to format name for
++ *     @buf: output buffer
++ *     @buflen: length of the output buffer
++ *
++ *     Take SCSI disks for example. Disk names starts at sda.  The
++ *     26th device is sdz and the 27th is sdaa.  The last one for
++ *     two lettered suffix is sdzz which is followed by sdaaa.
++ *
++ *     This is basically 26 base counting with one extra 'nil' entry
++ *     at the beginning from the second digit on and can be
++ *     determined using similar method as 26 base conversion with the
++ *     index shifted -1 after each digit is computed.
++ *
++ *     CONTEXT:
++ *     Don't care.
++ *
++ *     RETURNS:
++ *     0 on success, -errno on failure.
++ */
++
++int disk_name_format(char *prefix, int index, char *buf, int buflen)
++{
++       const int base = 'z' - 'a' + 1;
++       char *begin = buf + strlen(prefix);
++       char *end = buf + buflen;
++       char *p;
++       int unit;
++
++       p = end - 1;
++       *p = '\0';
++       unit = base;
++       do {
++               if (p == begin)
++                       return -EINVAL;
++               *--p = 'a' + (index % unit);
++               index = (index / unit) - 1;
++       } while (index >= 0);
++
++       memmove(begin, p, end - p);
++       memcpy(buf, prefix, strlen(prefix));
++
++       return 0;
++}
++
++EXPORT_SYMBOL(disk_name_format);
++
+  static struct kobj_map *bdev_map;
+
+  /**
+diff --git a/include/linux/genhd.h b/include/linux/genhd.h
+index e61d319..cd3d5e5 100644
+--- a/include/linux/genhd.h
++++ b/include/linux/genhd.h
+@@ -407,6 +407,8 @@ static inline void free_part_info(struct hd_struct 
+*part)
+  extern void part_round_stats(int cpu, struct hd_struct *part);
+
+  /* block/genhd.c */
++extern int disk_name_format(char *prefix, int index, char *buf, int 
+buflen);
++
+  extern void add_disk(struct gendisk *disk);
+  extern void del_gendisk(struct gendisk *gp);
+  extern struct gendisk *get_gendisk(dev_t dev, int *partno);
