@@ -1,12 +1,13 @@
 From: Ren Mingxin <renmx@cn.fujitsu.com>
-Subject: [PATCH 0/4] block: move sd_format_disk_name() into block core as
-	disk_name_format()
-Date: Fri, 30 Mar 2012 17:50:12 +0800
-Message-ID: <4F7581D4.4040301__42679.3468920097$1333381107$gmane$org@cn.fujitsu.com>
+Subject: [PATCH 2/4] scsi: replace sd_format_disk_name() to disk_name_format()
+Date: Fri, 30 Mar 2012 17:53:03 +0800
+Message-ID: <4F75827F.2010002__28796.8702301898$1333381111$gmane$org@cn.fujitsu.com>
+References: <4F7581D4.4040301@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4F7581D4.4040301@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,27 +21,83 @@ To: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, Rusty R
 Cc: VIRTUAL <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, KVM <kvm@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+  Since "sd_format_disk_name()"has been copied into block
+core as "disk_name_format()", the original function should
+be removed, and the place used original function should be
+replaced by the renamed function.
 
+Signed-off-by: Ren Mingxin <renmx@cn.fujitsu.com>
+---
+  sd.c |   48 +-----------------------------------------------
+  1 file changed, 1 insertion(+), 47 deletions(-)
 
-This patch series renames "sd_format_disk_name()" to
-"disk_name_format()" and moves it into block core. So
-that who needs formatting disk name can use it, instead
-of duplicating these similar help functions.
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index 09e3df4..b82156a 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -2525,52 +2525,6 @@ static void sd_unlock_native_capacity(struct 
+gendisk *disk)
+                 sdev->host->hostt->unlock_native_capacity(sdev);
+  }
 
-Ren Mingxin (4):
-   block: add function disk_name_format() into block core
-   scsi: replace sd_format_disk_name() to disk_name_format()
-   block: replace rssd_disk_name_format() to disk_name_format()
-   virtio_blk: use disk_name_format() to support mass of disks naming
+-/**
+- *     sd_format_disk_name - format disk name
+- *     @prefix: name prefix - ie. "sd" for SCSI disks
+- *     @index: index of the disk to format name for
+- *     @buf: output buffer
+- *     @buflen: length of the output buffer
+- *
+- *     SCSI disk names starts at sda.  The 26th device is sdz and the
+- *     27th is sdaa.  The last one for two lettered suffix is sdzz
+- *     which is followed by sdaaa.
+- *
+- *     This is basically 26 base counting with one extra 'nil' entry
+- *     at the beginning from the second digit on and can be
+- *     determined using similar method as 26 base conversion with the
+- *     index shifted -1 after each digit is computed.
+- *
+- *     CONTEXT:
+- *     Don't care.
+- *
+- *     RETURNS:
+- *     0 on success, -errno on failure.
+- */
+-static int sd_format_disk_name(char *prefix, int index, char *buf, int 
+buflen)
+-{
+-       const int base = 'z' - 'a' + 1;
+-       char *begin = buf + strlen(prefix);
+-       char *end = buf + buflen;
+-       char *p;
+-       int unit;
+-
+-       p = end - 1;
+-       *p = '\0';
+-       unit = base;
+-       do {
+-               if (p == begin)
+-                       return -EINVAL;
+-               *--p = 'a' + (index % unit);
+-               index = (index / unit) - 1;
+-       } while (index >= 0);
+-
+-       memmove(begin, p, end - p);
+-       memcpy(buf, prefix, strlen(prefix));
+-
+-       return 0;
+-}
+-
+  /*
+   * The asynchronous part of sd_probe
+   */
+@@ -2685,7 +2639,7 @@ static int sd_probe(struct device *dev)
+                 goto out_put;
+         }
 
-  block/genhd.c                     |   49 ++++++++++++++++++++++++++++++++++++++
-  drivers/block/mtip32xx/mtip32xx.c |   33 -------------------------
-  drivers/block/virtio_blk.c        |   13 ----------
-  drivers/scsi/sd.c                 |   48 -------------------------------------
-  include/linux/genhd.h             |    2 +
-  5 files changed, 54 insertions(+), 91 deletions(-)
-
-Any comment will be appreciated.
-
-Thanks,
-Ren
+-       error = sd_format_disk_name("sd", index, gd->disk_name, 
+DISK_NAME_LEN);
++       error = disk_name_format("sd", index, gd->disk_name, DISK_NAME_LEN);
+         if (error) {
+                 sdev_printk(KERN_WARNING, sdp, "SCSI disk (sd) name 
+length exceeded.\n");
+                 goto out_free_index;
