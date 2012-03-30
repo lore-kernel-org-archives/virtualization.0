@@ -1,8 +1,8 @@
 From: Tejun Heo <tj@kernel.org>
 Subject: Re: [PATCH 4/4] virtio_blk: use disk_name_format() to support mass
 	of disks naming
-Date: Fri, 30 Mar 2012 08:28:08 -0700
-Message-ID: <20120330152808.GC28934@google.com>
+Date: Fri, 30 Mar 2012 08:38:28 -0700
+Message-ID: <20120330153828.GD28934__21466.6959633634$1333121924$gmane$org@google.com>
 References: <4F7581D4.4040301@cn.fujitsu.com> <4F7582B0.5010609@cn.fujitsu.com>
 	<20120330152606.GB28934@google.com>
 Mime-Version: 1.0
@@ -38,17 +38,13 @@ On Fri, Mar 30, 2012 at 08:26:06AM -0700, Tejun Heo wrote:
 > 
 > I guess it's already way too late but why couldn't they have been
 > named vdD-P where both D and P are integers denoting disk number and
-> partition number?  [sh]dX's were created when there weren't supposed
-> to be too many disks, so we had to come up with the horrible alphabet
-> based numbering scheme but vd is new enough.  I mean, naming is one
-> thing but who wants to figure out which sequence is or guess what
-> comes next vdzz9?  :(
-> 
-> If we're gonna move it to block layer, let's add big blinking red
-> comment saying "don't ever use it for any new driver".
 
-And also let's make that clear in the function name - say,
-format_legacy_disk_name() or something.
+So, if a device name ends in digit the partition code adds delimiter
+'p' automatically and this is already in use by md.  So, partitioned
+md devices are named mdDpP where D and P are base 10 number indicating
+the sequence like md12p4.  So, let's please add comment that new
+drivers should name their devices PREFIX%d where the sequence number
+can be allocated by ida.
 
 Thanks.
 
