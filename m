@@ -1,13 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH] virtio_blk: Drop unused request tracking list
-Date: Fri, 30 Mar 2012 11:14:22 +0100
-Message-ID: <CAJSP0QWN2byeZt9RCwgwVp9HuD5G0yha3xNYT+m+OJPS16W8SQ@mail.gmail.com>
-References: <1333077850-21717-1-git-send-email-asias@redhat.com>
+From: Asias He <asias.hejun@gmail.com>
+Subject: Re: [PATCH 4/4] virtio_blk: use disk_name_format() to support mass of
+	disks naming
+Date: Fri, 30 Mar 2012 19:22:39 +0800
+Message-ID: <CAFO3S427vWXHBDaRmfwqZrGZ2Y8RPUn7CQswQou9EGMh43jU8Q@mail.gmail.com>
+References: <4F7581D4.4040301@cn.fujitsu.com> <4F7582B0.5010609@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1333077850-21717-1-git-send-email-asias@redhat.com>
+In-Reply-To: <4F7582B0.5010609@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,40 +18,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ren Mingxin <renmx@cn.fujitsu.com>
+Cc: Jens Axboe <axboe@kernel.dk>, KVM <kvm@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, VIRTUAL <virtualization@lists.linux-foundation.org>, Tejun Heo <tj@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 30, 2012 at 4:24 AM, Asias He <asias@redhat.com> wrote:
-> Benchmark shows small performance improvement on fusion io device.
->
-> Before:
-> =A0seq-read : io=3D1,024MB, bw=3D19,982KB/s, iops=3D39,964, runt=3D 52475=
-msec
-> =A0seq-write: io=3D1,024MB, bw=3D20,321KB/s, iops=3D40,641, runt=3D 51601=
-msec
-> =A0rnd-read : io=3D1,024MB, bw=3D15,404KB/s, iops=3D30,808, runt=3D 68070=
-msec
-> =A0rnd-write: io=3D1,024MB, bw=3D14,776KB/s, iops=3D29,552, runt=3D 70963=
-msec
->
-> After:
-> =A0seq-read : io=3D1,024MB, bw=3D20,343KB/s, iops=3D40,685, runt=3D 51546=
-msec
-> =A0seq-write: io=3D1,024MB, bw=3D20,803KB/s, iops=3D41,606, runt=3D 50404=
-msec
-> =A0rnd-read : io=3D1,024MB, bw=3D16,221KB/s, iops=3D32,442, runt=3D 64642=
-msec
-> =A0rnd-write: io=3D1,024MB, bw=3D15,199KB/s, iops=3D30,397, runt=3D 68991=
-msec
->
-> Signed-off-by: Asias He <asias@redhat.com>
-> ---
-> =A0drivers/block/virtio_blk.c | =A0 10 ----------
-> =A01 files changed, 0 insertions(+), 10 deletions(-)
-
-Thanks for providing performance results.  It's a bit scary that this
-unused list has an impact...I'm sure we have worse things elsewhere in
-the KVM storage code path.
-
-Reviewed-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+SGksICBSZW4KCk9uIEZyaSwgTWFyIDMwLCAyMDEyIGF0IDU6NTMgUE0sIFJlbiBNaW5neGluIDxy
+ZW5teEBjbi5mdWppdHN1LmNvbT4gd3JvdGU6Cj4gwqBUaGUgY3VycmVudCB2aXJ0YmxrJ3MgbmFt
+aW5nIGFsZ29yaXRobSBvbmx5IHN1cHBvcnRzIDI2MyDCoGRpc2tzLgo+IElmIHRoZXJlIGFyZSBt
+YXNzIG9mIHZpcnRibGtzKGV4Y2VlZGluZyAyNjMpLCB0aGVyZSB3aWxsIGJlIGRpc2tzCj4gd2l0
+aCB0aGUgc2FtZSBuYW1lLgoKVGhpcyBmaXggaXMgcHJldHR5IG5pY2UuIEhvd2V2ZXIsIGN1cnJl
+bnQgdmlydGJsaydzIG5hbWluZyBzdGlsbApzdXBwb3J0cyB1cCB0byAxODI3OCBkaXNrcywgbm8/
+CiggaW5kZXggMCAgLT4gdmRhLCBpbmRleCAxODI3NyAtPiB2ZHp6eiApLgoKPiBCeSByZW5hbWlu
+ZyAic2RfZm9ybWF0X2Rpc2tfbmFtZSgpIiB0byAiZGlza19uYW1lX2Zvcm1hdCgpIgo+IGFuZCBt
+b3ZpbmcgaXQgaW50byBibG9jayBjb3JlLCB2aXJ0aW9fYmxrIGNhbiB1c2UgdGhpcyBmdW5jdGlv
+biB0bwo+IHN1cHBvcnQgbWFzcyBvZiBkaXNrcy4KPgo+IFNpZ25lZC1vZmYtYnk6IFJlbiBNaW5n
+eGluIDxyZW5teEBjbi5mdWppdHN1LmNvbT4KPiAtLS0KPiDCoHZpcnRpb19ibGsuYyB8IMKgIDEz
+ICstLS0tLS0tLS0tLS0KPiDCoDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMTIgZGVs
+ZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMgYi9k
+cml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYwo+IGluZGV4IGM0YTYwYmEuLjU0NjEyYzIgMTAwNjQ0
+Cj4gLS0tIGEvZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMKPiArKysgYi9kcml2ZXJzL2Jsb2Nr
+L3ZpcnRpb19ibGsuYwo+IEBAIC00NDIsMTggKzQ0Miw3IEBAIHN0YXRpYyBpbnQgX19kZXZpbml0
+IHZpcnRibGtfcHJvYmUoc3RydWN0IHZpcnRpb19kZXZpY2UKPiAqdmRldikKPgo+IMKgIMKgIMKg
+IMKgcS0+cXVldWVkYXRhID0gdmJsazsKPgo+IC0gwqAgwqAgwqAgaWYgKGluZGV4IDwgMjYpIHsK
+PiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHNwcmludGYodmJsay0+ZGlzay0+ZGlza19uYW1lLCAi
+dmQlYyIsICdhJyArIGluZGV4ICUgMjYpOwo+IC0gwqAgwqAgwqAgfSBlbHNlIGlmIChpbmRleCA8
+ICgyNiArIDEpICogMjYpIHsKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIHNwcmludGYodmJsay0+
+ZGlzay0+ZGlza19uYW1lLCAidmQlYyVjIiwKPiAtIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgICdhJyArIGluZGV4IC8gMjYgLSAxLCAnYScgKyBpbmRleCAlIDI2KTsKPiAtIMKgIMKg
+IMKgIH0gZWxzZSB7Cj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCBjb25zdCB1bnNpZ25lZCBpbnQg
+bTEgPSAoaW5kZXggLyAyNiAtIDEpIC8gMjYgLSAxOwo+IC0gwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+Y29uc3QgdW5zaWduZWQgaW50IG0yID0gKGluZGV4IC8gMjYgLSAxKSAlIDI2Owo+IC0gwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgY29uc3QgdW5zaWduZWQgaW50IG0zID0gwqBpbmRleCAlIDI2Owo+IC0g
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgc3ByaW50Zih2YmxrLT5kaXNrLT5kaXNrX25hbWUsICJ2ZCVj
+JWMlYyIsCj4gLSDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCAnYScgKyBtMSwgJ2En
+ICsgbTIsICdhJyArIG0zKTsKPiAtIMKgIMKgIMKgIH0KPiArIMKgIMKgIMKgIGRpc2tfbmFtZV9m
+b3JtYXQoInZkIiwgaW5kZXgsIHZibGstPmRpc2stPmRpc2tfbmFtZSwgRElTS19OQU1FX0xFTik7
+Cj4KPiDCoCDCoCDCoCDCoHZibGstPmRpc2stPm1ham9yID0gbWFqb3I7Cj4gwqAgwqAgwqAgwqB2
+YmxrLT5kaXNrLT5maXJzdF9taW5vciA9IGluZGV4X3RvX21pbm9yKGluZGV4KTsKPgo+IC0tCj4g
+VG8gdW5zdWJzY3JpYmUgZnJvbSB0aGlzIGxpc3Q6IHNlbmQgdGhlIGxpbmUgInVuc3Vic2NyaWJl
+IGxpbnV4LXNjc2kiIGluCj4gdGhlIGJvZHkgb2YgYSBtZXNzYWdlIHRvIG1ham9yZG9tb0B2Z2Vy
+Lmtlcm5lbC5vcmcKPiBNb3JlIG1ham9yZG9tbyBpbmZvIGF0IMKgaHR0cDovL3ZnZXIua2VybmVs
+Lm9yZy9tYWpvcmRvbW8taW5mby5odG1sCgoKCi0tIApBc2lhcyBIZQpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
+c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
+cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
