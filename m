@@ -1,7 +1,8 @@
 From: Ren Mingxin <renmx@cn.fujitsu.com>
-Subject: [PATCH 2/4] scsi: replace sd_format_disk_name() to disk_name_format()
-Date: Fri, 30 Mar 2012 17:53:03 +0800
-Message-ID: <4F75827F.2010002__28796.8702301898$1333381111$gmane$org@cn.fujitsu.com>
+Subject: [PATCH 3/4] block: replace rssd_disk_name_format() to
+	disk_name_format()
+Date: Fri, 30 Mar 2012 17:53:27 +0800
+Message-ID: <4F758297.5020600__2109.98092447898$1333381116$gmane$org@cn.fujitsu.com>
 References: <4F7581D4.4040301@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
@@ -21,49 +22,31 @@ To: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, Rusty R
 Cc: VIRTUAL <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, KVM <kvm@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Since "sd_format_disk_name()"has been copied into block
-core as "disk_name_format()", the original function should
-be removed, and the place used original function should be
-replaced by the renamed function.
+  Currently, block core has been supplied "disk_name_format()", so
+we should remove duplicate function "rssd_disk_name_format()"
+and use the new function to format rssd disk names.
 
 Signed-off-by: Ren Mingxin <renmx@cn.fujitsu.com>
 ---
-  sd.c |   48 +-----------------------------------------------
-  1 file changed, 1 insertion(+), 47 deletions(-)
+  mtip32xx.c |   33 +--------------------------------
+  1 file changed, 1 insertion(+), 32 deletions(-)
 
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index 09e3df4..b82156a 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -2525,52 +2525,6 @@ static void sd_unlock_native_capacity(struct 
-gendisk *disk)
-                 sdev->host->hostt->unlock_native_capacity(sdev);
+diff --git a/drivers/block/mtip32xx/mtip32xx.c 
+b/drivers/block/mtip32xx/mtip32xx.c
+index 8eb81c9..8950bb5 100644
+--- a/drivers/block/mtip32xx/mtip32xx.c
++++ b/drivers/block/mtip32xx/mtip32xx.c
+@@ -2836,37 +2836,6 @@ static int mtip_hw_resume(struct driver_data *dd)
   }
 
--/**
-- *     sd_format_disk_name - format disk name
-- *     @prefix: name prefix - ie. "sd" for SCSI disks
-- *     @index: index of the disk to format name for
-- *     @buf: output buffer
-- *     @buflen: length of the output buffer
-- *
-- *     SCSI disk names starts at sda.  The 26th device is sdz and the
-- *     27th is sdaa.  The last one for two lettered suffix is sdzz
-- *     which is followed by sdaaa.
-- *
-- *     This is basically 26 base counting with one extra 'nil' entry
-- *     at the beginning from the second digit on and can be
-- *     determined using similar method as 26 base conversion with the
-- *     index shifted -1 after each digit is computed.
-- *
-- *     CONTEXT:
-- *     Don't care.
-- *
-- *     RETURNS:
-- *     0 on success, -errno on failure.
+  /*
+- * Helper function for reusing disk name
+- * upon hot insertion.
 - */
--static int sd_format_disk_name(char *prefix, int index, char *buf, int 
-buflen)
+-static int rssd_disk_name_format(char *prefix,
+-                                int index,
+-                                char *buf,
+-                                int buflen)
 -{
 -       const int base = 'z' - 'a' + 1;
 -       char *begin = buf + strlen(prefix);
@@ -87,17 +70,17 @@ buflen)
 -       return 0;
 -}
 -
-  /*
-   * The asynchronous part of sd_probe
-   */
-@@ -2685,7 +2639,7 @@ static int sd_probe(struct device *dev)
-                 goto out_put;
-         }
+-/*
+   * Block layer IOCTL handler.
+   *
+   * @dev Pointer to the block_device structure.
+@@ -3140,7 +3109,7 @@ static int mtip_block_initialize(struct 
+driver_data *dd)
+         if (rv)
+                 goto ida_get_error;
 
--       error = sd_format_disk_name("sd", index, gd->disk_name, 
-DISK_NAME_LEN);
-+       error = disk_name_format("sd", index, gd->disk_name, DISK_NAME_LEN);
-         if (error) {
-                 sdev_printk(KERN_WARNING, sdp, "SCSI disk (sd) name 
-length exceeded.\n");
-                 goto out_free_index;
+-       rv = rssd_disk_name_format("rssd",
++       rv = disk_name_format("rssd",
+                                 index,
+                                 dd->disk->disk_name,
+                                 DISK_NAME_LEN);
