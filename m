@@ -1,16 +1,11 @@
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH] virtio_blk: add helper function to support mass of disks
-	naming
-Date: Thu, 29 Mar 2012 14:03:55 +0200
-Message-ID: <4F744FAB.9070403__30045.6850477078$1333381099$gmane$org@kernel.dk>
-References: <4F72B5B3.6020602@cn.fujitsu.com>
-	<20120328105819.GD6194@redhat.com>
-	<4F73F4E6.4060104@cn.fujitsu.com>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH] virtio_blk: Drop unused request tracking list
+Date: Fri, 30 Mar 2012 11:24:10 +0800
+Message-ID: <1333077850-21717-1-git-send-email-asias__43973.1558705263$1333381099$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F73F4E6.4060104@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,36 +15,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ren Mingxin <renmx@cn.fujitsu.com>
-Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>
+To: virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/29/2012 07:36 AM, Ren Mingxin wrote:
->  On 03/28/2012 06:58 PM, Michael S. Tsirkin wrote:
->> On Wed, Mar 28, 2012 at 02:54:43PM +0800, Ren Mingxin wrote:
->>>   Hi,
->>>
->>> The current virtblk's naming algorithm just supports 26^3
->>> disks. If there are mass of virtblks(exceeding 26^3), there
->>> will be disks with the same name.
->>>
->>> According to "sd_format_disk_name()", I add function
->>> "virtblk_name_format()" for virtblk to support mass of
->>> disks.
->>>
->>> Signed-off-by: Ren Mingxin<renmx@cn.fujitsu.com>
->> Nod. This is basically what 3e1a7ff8a0a7b948f2684930166954f9e8e776fe
->> did. Except, maybe we should move this function into block core
->> instead of duplicating it? Where would be a good place to put it?
-> 
-> Yes, this was also what I thought.
-> 
-> How about placing the "sd_format_disk_name()"
-> as "disk_name_format()" into "block/genhd.c"
-> ("include/linux/genhd.h")?
+Benchmark shows small performance improvement on fusion io device.
 
-Yes, that sounds like the appropriate solution (and name, and where to
-put it).
+Before:
+  seq-read : io=1,024MB, bw=19,982KB/s, iops=39,964, runt= 52475msec
+  seq-write: io=1,024MB, bw=20,321KB/s, iops=40,641, runt= 51601msec
+  rnd-read : io=1,024MB, bw=15,404KB/s, iops=30,808, runt= 68070msec
+  rnd-write: io=1,024MB, bw=14,776KB/s, iops=29,552, runt= 70963msec
 
+After:
+  seq-read : io=1,024MB, bw=20,343KB/s, iops=40,685, runt= 51546msec
+  seq-write: io=1,024MB, bw=20,803KB/s, iops=41,606, runt= 50404msec
+  rnd-read : io=1,024MB, bw=16,221KB/s, iops=32,442, runt= 64642msec
+  rnd-write: io=1,024MB, bw=15,199KB/s, iops=30,397, runt= 68991msec
+
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/block/virtio_blk.c |   10 ----------
+ 1 files changed, 0 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index c4a60ba..338da9a 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -29,9 +29,6 @@ struct virtio_blk
+ 	/* The disk structure for the kernel. */
+ 	struct gendisk *disk;
+ 
+-	/* Request tracking. */
+-	struct list_head reqs;
+-
+ 	mempool_t *pool;
+ 
+ 	/* Process context for config space updates */
+@@ -55,7 +52,6 @@ struct virtio_blk
+ 
+ struct virtblk_req
+ {
+-	struct list_head list;
+ 	struct request *req;
+ 	struct virtio_blk_outhdr out_hdr;
+ 	struct virtio_scsi_inhdr in_hdr;
+@@ -99,7 +95,6 @@ static void blk_done(struct virtqueue *vq)
+ 		}
+ 
+ 		__blk_end_request_all(vbr->req, error);
+-		list_del(&vbr->list);
+ 		mempool_free(vbr, vblk->pool);
+ 	}
+ 	/* In case queue is stopped waiting for more buffers. */
+@@ -184,7 +179,6 @@ static bool do_req(struct request_queue *q, struct virtio_blk *vblk,
+ 		return false;
+ 	}
+ 
+-	list_add_tail(&vbr->list, &vblk->reqs);
+ 	return true;
+ }
+ 
+@@ -408,7 +402,6 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+ 		goto out_free_index;
+ 	}
+ 
+-	INIT_LIST_HEAD(&vblk->reqs);
+ 	spin_lock_init(&vblk->lock);
+ 	vblk->vdev = vdev;
+ 	vblk->sg_elems = sg_elems;
+@@ -571,9 +564,6 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+ 	vblk->config_enable = false;
+ 	mutex_unlock(&vblk->config_lock);
+ 
+-	/* Nothing should be pending. */
+-	BUG_ON(!list_empty(&vblk->reqs));
+-
+ 	/* Stop all the virtqueues. */
+ 	vdev->config->reset(vdev);
+ 
 -- 
-Jens Axboe
+1.7.7.6
