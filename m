@@ -1,14 +1,16 @@
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Andi Kleen <andi@firstfloor.org>
 Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
-Date: Sat, 31 Mar 2012 00:07:58 +0200 (CEST)
-Message-ID: <alpine.LFD.2.02.1203302333560.2542@ionos>
+Date: Sat, 31 Mar 2012 00:18:36 +0200
+Message-ID: <20120330221836.GN17822@one.firstfloor.org>
 References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
 	<4F7616F5.4070000@zytor.com>
+	<alpine.LFD.2.02.1203302333560.2542@ionos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F7616F5.4070000@zytor.com>
+Content-Disposition: inline
+In-Reply-To: <alpine.LFD.2.02.1203302333560.2542@ionos>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,61 +20,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: the arch/x86 maintainers <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <andi@firstfloor.org>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: the arch/x86 maintainers <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 30 Mar 2012, H. Peter Anvin wrote:
+> So if a guest exits due to an external event it's easy to inspect the
+> state of that guest and avoid to schedule away when it was interrupted
+> in a spinlock held section. That guest/host shared state needs to be
 
-> What is the current status of this patchset?  I haven't looked at it too
-> closely because I have been focused on 3.4 up until now...
+On a large system under high contention sleeping can perform surprisingly
+well. pthread mutexes have a tendency to beat kernel spinlocks there.
+So avoiding sleeping locks completely (that is what pv locks are
+essentially) is not necessarily that good.
 
-The real question is whether these heuristics are the correct approach
-or not.
+Your proposal is probably only a good idea on low contention
+and relatively small systems.
 
-If I look at it from the non virtualized kernel side then this is ass
-backwards. We know already that we are holding a spinlock which might
-cause other (v)cpus going into eternal spin. The non virtualized
-kernel solves this by disabling preemption and therefor getting out of
-the critical section as fast as possible,
-
-The virtualization problem reminds me a lot of the problem which RT
-kernels are observing where non raw spinlocks are turned into
-"sleeping spinlocks" and therefor can cause throughput issues for non
-RT workloads.
-
-Though the virtualized situation is even worse. Any preempted guest
-section which holds a spinlock is prone to cause unbound delays.
-
-The paravirt ticketlock solution can only mitigate the problem, but
-not solve it. With massive overcommit there is always a way to trigger
-worst case scenarious unless you are educating the scheduler to cope
-with that.
-
-So if we need to fiddle with the scheduler and frankly that's the only
-way to get a real gain (the numbers, which are achieved by this
-patches, are not that impressive) then the question arises whether we
-should turn the whole thing around.
-
-I know that Peter is going to go berserk on me, but if we are running
-a paravirt guest then it's simple to provide a mechanism which allows
-the host (aka hypervisor) to check that in the guest just by looking
-at some global state.
-
-So if a guest exits due to an external event it's easy to inspect the
-state of that guest and avoid to schedule away when it was interrupted
-in a spinlock held section. That guest/host shared state needs to be
-modified to indicate the guest to invoke an exit when the last nested
-lock has been released.
-
-Of course this needs to be time bound, so a rogue guest cannot
-monopolize the cpu forever, but that's the least to worry about
-problem simply because a guest which does not get out of a spinlocked
-region within a certain amount of time is borked and elegible to
-killing anyway.
-
-Thoughts ?
-
-Thanks,
-
-	tglx
+-Andi
+-- 
+ak@linux.intel.com -- Speaking for myself only.
