@@ -1,17 +1,17 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [Xen-devel] [PATCH RFC V5 1/6] debugfs: Add support to print u32
-	array in debugfs
-Date: Fri, 30 Mar 2012 14:11:20 -0700
-Message-ID: <20120330211120.GA15000__43616.4260762327$1333381133$gmane$org@kroah.com>
-References: <20120323080503.14568.43092.sendpatchset@codeblue>
-	<20120323080606.14568.31335.sendpatchset@codeblue>
-	<20120330204912.GA29329@phenom.dumpdata.com>
+From: "Asai Thambi Samymuthu Pattrayasamy (asamymuthupa) [CONT - Type 2]"
+	<asamymuthupa@micron.com>
+Subject: Re: [PATCH 3/4] block: replace rssd_disk_name_format() to
+	disk_name_format()
+Date: Fri, 30 Mar 2012 23:54:12 +0000
+Message-ID: <4F764778.1030406__43483.6995126263$1333381139$gmane$org@micron.com>
+References: <4F7581D4.4040301@cn.fujitsu.com> <4F758297.5020600@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120330204912.GA29329@phenom.dumpdata.com>
+In-Reply-To: <4F758297.5020600@cn.fujitsu.com>
+Content-Language: en-US
+Content-ID: <1E778E757F563B4A8AC9502D61A5B220@exchange>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,27 +21,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Xen <xen-devel@lists.xensource.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, X86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Virtualization <virtualization@lists.linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sasha Levin <levinsasha928@gmail.com>
+To: Ren Mingxin <renmx@cn.fujitsu.com>
+Cc: Jens Axboe <axboe@kernel.dk>, KVM <kvm@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, VIRTUAL <virtualization@lists.linux-foundation.org>, Tejun Heo <tj@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 30, 2012 at 04:49:12PM -0400, Konrad Rzeszutek Wilk wrote:
-> On Fri, Mar 23, 2012 at 01:36:28PM +0530, Raghavendra K T wrote:
-> > From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-> > 
-> > Move the code from Xen to debugfs to make the code common
-> > for other users as well.
-> > 
-> > Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-> > Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
-> > Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-> > Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> 
-> Greg,
-> 
-> I was thinking to stick this patch in my queue, but I need your
-> OK since it touches fs/debugfs/file.c.
+On 3/30/2012 2:53 AM, Ren Mingxin wrote:
 
-That's fine with me:
+>  Currently, block core has been supplied "disk_name_format()", so
+> we should remove duplicate function "rssd_disk_name_format()"
+> and use the new function to format rssd disk names.
+> 
+> Signed-off-by: Ren Mingxin <renmx@cn.fujitsu.com>
+> ---
+>  mtip32xx.c |   33 +--------------------------------
+>  1 file changed, 1 insertion(+), 32 deletions(-)
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+Looks fine.
+
+Should the subject be "mtip32xx: ..." instead of "block: ..."? I
+understand "block:" as relating to block core. I am fairly new here. If
+"block:" can be used for block drivers too, that is fine too.
+
+--
+Regards,
+Asai Thambi
