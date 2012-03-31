@@ -1,16 +1,19 @@
-From: Ren Mingxin <renmx@cn.fujitsu.com>
-Subject: Re: [PATCH 4/4] virtio_blk: use disk_name_format() to support mass
-	of disks naming
-Date: Mon, 02 Apr 2012 09:18:55 +0800
-Message-ID: <4F78FE7F.7070403__15454.0011812516$1333381148$gmane$org@cn.fujitsu.com>
-References: <4F7581D4.4040301@cn.fujitsu.com> <4F7582B0.5010609@cn.fujitsu.com>
-	<20120330152606.GB28934@google.com>
-	<20120330153828.GD28934@google.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
+Date: Sat, 31 Mar 2012 10:11:52 +0200
+Message-ID: <20120331081152.GB15958__47631.7140776247$1333381149$gmane$org@gmail.com>
+References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
+	<4F7616F5.4070000@zytor.com>
+	<alpine.LFD.2.02.1203302333560.2542@ionos>
+	<20120330221836.GN17822@one.firstfloor.org>
+	<alpine.LFD.2.02.1203310044580.2542@ionos>
+	<20120331000843.GO17822@one.firstfloor.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120330153828.GD28934@google.com>
+Content-Disposition: inline
+In-Reply-To: <20120331000843.GO17822@one.firstfloor.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,35 +23,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tejun Heo <tj@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>, SCSI <linux-scsi@vger.kernel.org>, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, VIRTUAL <virtualization@lists.linux-foundation.org>
+To: Andi Kleen <andi@firstfloor.org>
+Cc: the arch/x86 maintainers <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Xen Devel <xen-devel@lists.xensource.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  On 03/30/2012 11:38 PM, Tejun Heo wrote:
-> On Fri, Mar 30, 2012 at 08:26:06AM -0700, Tejun Heo wrote:
->> On Fri, Mar 30, 2012 at 05:53:52PM +0800, Ren Mingxin wrote:
->>>   The current virtblk's naming algorithm only supports 263  disks.
->>> If there are mass of virtblks(exceeding 263), there will be disks
->>> with the same name.
->>>
->>> By renaming "sd_format_disk_name()" to "disk_name_format()"
->>> and moving it into block core, virtio_blk can use this function to
->>> support mass of disks.
->>>
->>> Signed-off-by: Ren Mingxin<renmx@cn.fujitsu.com>
->> I guess it's already way too late but why couldn't they have been
->> named vdD-P where both D and P are integers denoting disk number and
-> So, if a device name ends in digit the partition code adds delimiter
-> 'p' automatically and this is already in use by md.  So, partitioned
-> md devices are named mdDpP where D and P are base 10 number indicating
-> the sequence like md12p4.  So, let's please add comment that new
-> drivers should name their devices PREFIX%d where the sequence number
-> can be allocated by ida.
->
->
 
-Oh, got it. Just like md devices' names.
+* Andi Kleen <andi@firstfloor.org> wrote:
 
--- 
+> > Care to back that up with numbers and proper trace evidence 
+> > instead of handwaving?
+> 
+> E.g. my plumbers presentations on lock and mm scalability from 
+> last year has some graphs that show this very clearly, plus 
+> some additional data on the mutexes. This compares to the 
+> glibc futex locks, which perform much better than the kernel 
+> mutex locks on larger systems under higher contention
+
+If you mean these draft slides:
+
+  http://www.halobates.de/plumbers-fork-locks_v2.pdf
+
+it has very little verifiable information in it. It just 
+cryptically says lock hold time "microbenchmark", which might or 
+might not be a valid measurement.
+
+You could have been honest and straightforward in your first 
+mail:
+
+ "I ran workload X on machine Y, and got results Z."
+
+Instead you are *hindering* the discussion:
+
+> Given your tone I will not supply an URL. [...]
+
+If you meant the above URL then it's not the proper numbers 
+Thomas asked for, just some vague slides. If you meant something 
+else then put up or shut up.
+
 Thanks,
-Ren
+
+	Ingo
