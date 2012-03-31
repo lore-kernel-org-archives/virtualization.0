@@ -1,14 +1,12 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
-Date: Sat, 31 Mar 2012 06:21:15 +0530
-Message-ID: <4F765503.9040801@linux.vnet.ibm.com>
-References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
-	<4F7616F5.4070000@zytor.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PULL] virtio: S3 support, use PM API macro for init
+Date: Sat, 31 Mar 2012 08:29:41 +0530
+Message-ID: <20120331025941.GC9769@amit.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F7616F5.4070000@zytor.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,21 +16,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/31/2012 01:56 AM, H. Peter Anvin wrote:
-> What is the current status of this patchset?  I haven't looked at it too
-> closely because I have been focused on 3.4 up until now...
->
+Linus,
 
-Thanks Peter,
+Please pull for virtio-s3/s4 fixes.  I'm taking the liberty to send
+this to you directly since Rusty's on vacation.
 
-Currently targeting the patchset for next merge window. IMO These
-patches are in good shape now. I' ll rebase these patches and send it
-ASAP. It needs "jumplabel split patch" (from Andrew Jones) as
-dependency, I would fold that patch (got ok from him for that) also
-into series, and send them ASAP.
+The patches were posted earlier at
 
-  - Raghu
+http://www.spinics.net/lists/linux-virtualization/msg15781.html
+
+and have been tested to work fine, here's the message from the
+original submission:
+
+Turns out S3 is not different from S4 for virtio devices: the device
+is assumed to be reset, so the host and guest state are to be assumed
+to be out of sync upon resume.  We handle the S4 case with exactly the
+same scenario, so just point the suspend/resume routines to the
+freeze/restore ones.
+
+Once that is done, we also use the PM API's macro to initialise the
+sleep functions.
+
+A couple of cleanups are included: there's no need for special thaw
+processing in the balloon driver, so that's addressed in patches 1 and
+2.
+
+Testing: both S3 and S4 support have been tested using these patches
+using a similar method used earlier during S4 patch development: a
+guest is started with virtio-blk as the only disk, a virtio network
+card, a virtio-serial port and a virtio balloon device.  Ping from
+guest to host, dd /dev/zero to a file on the disk, and IO from the
+host on the virtio-serial port, all at once, while exercising S4 and
+S3 (separately) were tested.  They all continue to work fine after
+resume.  virtio balloon values too were tested by inflating and
+deflating the balloon.
+
+The following changes since commit fa2a4519cb6ad94224eb56a1341fff570fd44ea1:
+
+  Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/sparc (2012-03-30 18:40:33 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/amit/virtio-console.git s3-for-3.4
+
+Amit Shah (5):
+      virtio: balloon: Allow stats update after restore from S4
+      virtio: drop thaw PM operation
+      virtio-pci: drop restore_common()
+      virtio-pci: S3 support
+      virtio-pci: switch to PM ops macro to initialise PM functions
+
+ drivers/virtio/virtio_balloon.c |   14 -------
+ drivers/virtio/virtio_pci.c     |   74 ++++----------------------------------
+ include/linux/virtio.h          |    1 -
+ 3 files changed, 8 insertions(+), 81 deletions(-)
+
+		Amit
