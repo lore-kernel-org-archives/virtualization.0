@@ -1,18 +1,14 @@
-From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
-Date: Sat, 31 Mar 2012 09:39:15 +0530
-Message-ID: <20120331040915.GF13345@linux.vnet.ibm.com>
-References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
-	<4F7616F5.4070000@zytor.com>
-	<alpine.LFD.2.02.1203302333560.2542@ionos>
-	<20120331040745.GC14030@linux.vnet.ibm.com>
-Reply-To: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+From: Asias He <asias.hejun@gmail.com>
+Subject: Re: [PATCH] virtio_blk: Drop unused request tracking list
+Date: Sat, 31 Mar 2012 18:22:17 +0800
+Message-ID: <CAFO3S42y9xYv3i_gffL1qvKmbRTjVVrxdzvj8+vPF-vVYnESNQ@mail.gmail.com>
+References: <1333077850-21717-1-git-send-email-asias@redhat.com>
+	<CAJSP0QWN2byeZt9RCwgwVp9HuD5G0yha3xNYT+m+OJPS16W8SQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120331040745.GC14030@linux.vnet.ibm.com>
+In-Reply-To: <CAJSP0QWN2byeZt9RCwgwVp9HuD5G0yha3xNYT+m+OJPS16W8SQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,26 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: the arch/x86 maintainers <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <andi@firstfloor.org>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com> [2012-03-31 09:37:45]:
-
-> The issue is with ticketlocks though. VCPUs could go into a spin w/o
-> a lock being held by anybody. Say VCPUs 1-99 try to grab a lock in
-> that order (on a host with one cpu). VCPU1 wins (after VCPU0 releases it)
-> and releases the lock. VCPU1 is next eligible to take the lock. If 
-
-Sorry I meant to say "VCPU2 is next eligible ..."
-
-> that is not scheduled early enough by host, then remaining vcpus would keep 
-> spinning (even though lock is technically not held by anybody) w/o making 
-> forward progress.
-> 
-> In that situation, what we really need is for the guest to hint to host
-> scheduler to schedule VCPU1 early (via yield_to or something similar). 
-
-s/VCPU1/VCPU2 ..
-
-- vatsa
+SGksIFN0ZWZhbgoKT24gRnJpLCBNYXIgMzAsIDIwMTIgYXQgNjoxNCBQTSwgU3RlZmFuIEhham5v
+Y3ppIDxzdGVmYW5oYUBnbWFpbC5jb20+IHdyb3RlOgo+IE9uIEZyaSwgTWFyIDMwLCAyMDEyIGF0
+IDQ6MjQgQU0sIEFzaWFzIEhlIDxhc2lhc0ByZWRoYXQuY29tPiB3cm90ZToKPj4gQmVuY2htYXJr
+IHNob3dzIHNtYWxsIHBlcmZvcm1hbmNlIGltcHJvdmVtZW50IG9uIGZ1c2lvbiBpbyBkZXZpY2Uu
+Cj4+Cj4+IEJlZm9yZToKPj4gwqBzZXEtcmVhZCA6IGlvPTEsMDI0TUIsIGJ3PTE5LDk4MktCL3Ms
+IGlvcHM9MzksOTY0LCBydW50PSA1MjQ3NW1zZWMKPj4gwqBzZXEtd3JpdGU6IGlvPTEsMDI0TUIs
+IGJ3PTIwLDMyMUtCL3MsIGlvcHM9NDAsNjQxLCBydW50PSA1MTYwMW1zZWMKPj4gwqBybmQtcmVh
+ZCA6IGlvPTEsMDI0TUIsIGJ3PTE1LDQwNEtCL3MsIGlvcHM9MzAsODA4LCBydW50PSA2ODA3MG1z
+ZWMKPj4gwqBybmQtd3JpdGU6IGlvPTEsMDI0TUIsIGJ3PTE0LDc3NktCL3MsIGlvcHM9MjksNTUy
+LCBydW50PSA3MDk2M21zZWMKPj4KPj4gQWZ0ZXI6Cj4+IMKgc2VxLXJlYWQgOiBpbz0xLDAyNE1C
+LCBidz0yMCwzNDNLQi9zLCBpb3BzPTQwLDY4NSwgcnVudD0gNTE1NDZtc2VjCj4+IMKgc2VxLXdy
+aXRlOiBpbz0xLDAyNE1CLCBidz0yMCw4MDNLQi9zLCBpb3BzPTQxLDYwNiwgcnVudD0gNTA0MDRt
+c2VjCj4+IMKgcm5kLXJlYWQgOiBpbz0xLDAyNE1CLCBidz0xNiwyMjFLQi9zLCBpb3BzPTMyLDQ0
+MiwgcnVudD0gNjQ2NDJtc2VjCj4+IMKgcm5kLXdyaXRlOiBpbz0xLDAyNE1CLCBidz0xNSwxOTlL
+Qi9zLCBpb3BzPTMwLDM5NywgcnVudD0gNjg5OTFtc2VjCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IEFz
+aWFzIEhlIDxhc2lhc0ByZWRoYXQuY29tPgo+PiAtLS0KPj4gwqBkcml2ZXJzL2Jsb2NrL3ZpcnRp
+b19ibGsuYyB8IMKgIDEwIC0tLS0tLS0tLS0KPj4gwqAxIGZpbGVzIGNoYW5nZWQsIDAgaW5zZXJ0
+aW9ucygrKSwgMTAgZGVsZXRpb25zKC0pCj4KPiBUaGFua3MgZm9yIHByb3ZpZGluZyBwZXJmb3Jt
+YW5jZSByZXN1bHRzLiDCoEl0J3MgYSBiaXQgc2NhcnkgdGhhdCB0aGlzCj4gdW51c2VkIGxpc3Qg
+aGFzIGFuIGltcGFjdC4uLkknbSBzdXJlIHdlIGhhdmUgd29yc2UgdGhpbmdzIGVsc2V3aGVyZSBp
+bgo+IHRoZSBLVk0gc3RvcmFnZSBjb2RlIHBhdGguCgpEbyB5b3UgZmluZCBhbnkgd29yc2UgdGhp
+bmdzPyBJIHNhdyB5b3VyIHRyYWNlIHdvcmsgaGVyZToKCiAgIGh0dHA6Ly93d3cubGludXgta3Zt
+Lm9yZy9wYWdlL1ZpcnRpby9CbG9jay9MYXRlbmN5Cgo+IFJldmlld2VkLWJ5OiBTdGVmYW4gSGFq
+bm9jemkgPHN0ZWZhbmhhQGxpbnV4LnZuZXQuaWJtLmNvbT4KClRoYW5rcyBmb3IgcmV2aWV3aW5n
+IQoKLS0KQXNpYXMgSGUKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
