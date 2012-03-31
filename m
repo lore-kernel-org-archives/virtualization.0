@@ -1,12 +1,16 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PULL] virtio: S3 support, use PM API macro for init
-Date: Sat, 31 Mar 2012 08:29:41 +0530
-Message-ID: <20120331025941.GC9769@amit.redhat.com>
+From: Asias He <asias.hejun@gmail.com>
+Subject: Re: [PATCH 4/4] virtio_blk: use disk_name_format() to support mass of
+	disks naming
+Date: Sat, 31 Mar 2012 11:03:47 +0800
+Message-ID: <CAFO3S41ag8wih8941qmpUGM=JbY_MsF28pNom-SRxW3M67_k3A@mail.gmail.com>
+References: <4F7581D4.4040301@cn.fujitsu.com> <4F7582B0.5010609@cn.fujitsu.com>
+	<CAFO3S427vWXHBDaRmfwqZrGZ2Y8RPUn7CQswQou9EGMh43jU8Q@mail.gmail.com>
+	<4F765A72.6090006@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <4F765A72.6090006@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,63 +20,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Ren Mingxin <renmx@cn.fujitsu.com>
+Cc: Jens Axboe <axboe@kernel.dk>, KVM <kvm@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, VIRTUAL <virtualization@lists.linux-foundation.org>, Tejun Heo <tj@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Linus,
-
-Please pull for virtio-s3/s4 fixes.  I'm taking the liberty to send
-this to you directly since Rusty's on vacation.
-
-The patches were posted earlier at
-
-http://www.spinics.net/lists/linux-virtualization/msg15781.html
-
-and have been tested to work fine, here's the message from the
-original submission:
-
-Turns out S3 is not different from S4 for virtio devices: the device
-is assumed to be reset, so the host and guest state are to be assumed
-to be out of sync upon resume.  We handle the S4 case with exactly the
-same scenario, so just point the suspend/resume routines to the
-freeze/restore ones.
-
-Once that is done, we also use the PM API's macro to initialise the
-sleep functions.
-
-A couple of cleanups are included: there's no need for special thaw
-processing in the balloon driver, so that's addressed in patches 1 and
-2.
-
-Testing: both S3 and S4 support have been tested using these patches
-using a similar method used earlier during S4 patch development: a
-guest is started with virtio-blk as the only disk, a virtio network
-card, a virtio-serial port and a virtio balloon device.  Ping from
-guest to host, dd /dev/zero to a file on the disk, and IO from the
-host on the virtio-serial port, all at once, while exercising S4 and
-S3 (separately) were tested.  They all continue to work fine after
-resume.  virtio balloon values too were tested by inflating and
-deflating the balloon.
-
-The following changes since commit fa2a4519cb6ad94224eb56a1341fff570fd44ea1:
-
-  Merge git://git.kernel.org/pub/scm/linux/kernel/git/davem/sparc (2012-03-30 18:40:33 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/amit/virtio-console.git s3-for-3.4
-
-Amit Shah (5):
-      virtio: balloon: Allow stats update after restore from S4
-      virtio: drop thaw PM operation
-      virtio-pci: drop restore_common()
-      virtio-pci: S3 support
-      virtio-pci: switch to PM ops macro to initialise PM functions
-
- drivers/virtio/virtio_balloon.c |   14 -------
- drivers/virtio/virtio_pci.c     |   74 ++++----------------------------------
- include/linux/virtio.h          |    1 -
- 3 files changed, 8 insertions(+), 81 deletions(-)
-
-		Amit
+T24gU2F0LCBNYXIgMzEsIDIwMTIgYXQgOToxNCBBTSwgUmVuIE1pbmd4aW4gPHJlbm14QGNuLmZ1
+aml0c3UuY29tPiB3cm90ZToKPiDCoEhpLCBIZToKPgo+Cj4gT24gMDMvMzAvMjAxMiAwNzoyMiBQ
+TSwgQXNpYXMgSGUgd3JvdGU6Cj4+Cj4+IE9uIEZyaSwgTWFyIDMwLCAyMDEyIGF0IDU6NTMgUE0s
+IFJlbiBNaW5neGluPHJlbm14QGNuLmZ1aml0c3UuY29tPiDCoHdyb3RlOgo+Pj4KPj4+IMKgVGhl
+IGN1cnJlbnQgdmlydGJsaydzIG5hbWluZyBhbGdvcml0aG0gb25seSBzdXBwb3J0cyAyNjMgwqBk
+aXNrcy4KPj4+IElmIHRoZXJlIGFyZSBtYXNzIG9mIHZpcnRibGtzKGV4Y2VlZGluZyAyNjMpLCB0
+aGVyZSB3aWxsIGJlIGRpc2tzCj4+PiB3aXRoIHRoZSBzYW1lIG5hbWUuCj4+Cj4+IFRoaXMgZml4
+IGlzIHByZXR0eSBuaWNlLiBIb3dldmVyLCBjdXJyZW50IHZpcnRibGsncyBuYW1pbmcgc3RpbGwK
+Pj4gc3VwcG9ydHMgdXAgdG8gMTgyNzggZGlza3MsIG5vPwo+PiAoIGluZGV4IDAgwqAtPiDCoHZk
+YSwgaW5kZXggMTgyNzcgLT4gwqB2ZHp6eiApLgo+Cj4KPiBTb3JyeSwgSSBpbnRlbmRlZCB0byB0
+eXBlIDI2XjMrICgyNl4yKzI2KS4uLgo+IEl0IG1heSBzdGlsbCBiZSBhIHJlc3RyaWN0aW9uIHdo
+aWNoIHNob3VsZCBiZSBpbXByb3ZlZCB0aG91Z2guCgpPSy4KCi0tIApBc2lhcyBIZQpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
