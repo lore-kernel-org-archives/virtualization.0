@@ -1,15 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/4] block: move sd_format_disk_name() into block core as
-	disk_name_format()
-Date: Sun, 1 Apr 2012 14:20:26 +0300
-Message-ID: <20120401112025.GB23773@redhat.com>
-References: <4F7581D4.4040301@cn.fujitsu.com>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
+Date: Sun, 01 Apr 2012 16:18:25 +0300
+Message-ID: <4F7855A1.80107@redhat.com>
+References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
+	<4F707C5F.1000905@redhat.com>	<4F716E31.3000803@linux.vnet.ibm.com>
+	<CAMy5W3foop40+R1RLv_JPhnO5ZmV90uMmNERYY-e3QCeaJfqLw@mail.gmail.com>
+	<4F73568D.7000703@linux.vnet.ibm.com> <4F743247.5080407@redhat.com>
+	<4F74A405.2040609@linux.vnet.ibm.com>
+	<4F7585EE.7060203@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4F7581D4.4040301@cn.fujitsu.com>
+In-Reply-To: <4F7585EE.7060203@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,41 +22,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ren Mingxin <renmx@cn.fujitsu.com>
-Cc: Jens Axboe <axboe@kernel.dk>, KVM <kvm@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, VIRTUAL <virtualization@lists.linux-foundation.org>, Tejun Heo <tj@kernel.org>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Alan Meadows <alan.meadows@gmail.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 30, 2012 at 05:50:12PM +0800, Ren Mingxin wrote:
-> 
-> 
-> This patch series renames "sd_format_disk_name()" to
-> "disk_name_format()" and moves it into block core. So
-> that who needs formatting disk name can use it, instead
-> of duplicating these similar help functions.
+On 03/30/2012 01:07 PM, Raghavendra K T wrote:
+> On 03/29/2012 11:33 PM, Raghavendra K T wrote:
+>> On 03/29/2012 03:28 PM, Avi Kivity wrote:
+>>> On 03/28/2012 08:21 PM, Raghavendra K T wrote:
+>
+>> I really like below ideas. Thanks for that!.
+>>
+>>> - from the PLE handler, don't wake up a vcpu that is sleeping
+>>> because it
+>>> is waiting for a kick
+>>
+>> How about, adding another pass in the beginning of kvm_vcpu_on_spin()
+>> to check if any vcpu is already kicked. This would almost result in
+>> yield_to(kicked_vcpu). IMO this is also worth trying.
+>>
+>> will try above ideas soon.
+>>
+>
+> I have patch something like below in mind to try:
+>
+> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> index d3b98b1..5127668 100644
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
+> @@ -1608,15 +1608,18 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
+>       * else and called schedule in __vcpu_run.  Hopefully that
+>       * VCPU is holding the lock that we need and will release it.
+>       * We approximate round-robin by starting at the last boosted VCPU.
+> +     * Priority is given to vcpu that are unhalted.
+>       */
+> -    for (pass = 0; pass < 2 && !yielded; pass++) {
+> +    for (pass = 0; pass < 3 && !yielded; pass++) {
+>          kvm_for_each_vcpu(i, vcpu, kvm) {
+>              struct task_struct *task = NULL;
+>              struct pid *pid;
+> -            if (!pass && i < last_boosted_vcpu) {
+> +            if (!pass && !vcpu->pv_unhalted)
+> +                continue;
+> +            else if (pass == 1 && i < last_boosted_vcpu) {
+>                  i = last_boosted_vcpu;
+>                  continue;
+> -            } else if (pass && i > last_boosted_vcpu)
+> +            } else if (pass == 2 && i > last_boosted_vcpu)
+>                  break;
+>              if (vcpu == me)
+>                  continue;
+>
 
-I see there are some responses about naming and comments,
-so that would need to be fixed.
-Besides this, Jens, would you like to take the patchset
-through your tree or prefer for me to merge it through virtio tree? 
-Block tree seems more appropriate, right?
-Also this is a bugfix technically since it fixes setups
-with a ton of disks, so 3.4 material?
+Actually I think this is unneeded.  The loops tries to find vcpus that
+are runnable but not running (vcpu_active(vcpu->wq)), and halted vcpus
+don't match this condition.
 
-> Ren Mingxin (4):
->   block: add function disk_name_format() into block core
->   scsi: replace sd_format_disk_name() to disk_name_format()
->   block: replace rssd_disk_name_format() to disk_name_format()
->   virtio_blk: use disk_name_format() to support mass of disks naming
-> 
->  block/genhd.c                     |   49 ++++++++++++++++++++++++++++++++++++++
->  drivers/block/mtip32xx/mtip32xx.c |   33 -------------------------
->  drivers/block/virtio_blk.c        |   13 ----------
->  drivers/scsi/sd.c                 |   48 -------------------------------------
->  include/linux/genhd.h             |    2 +
->  5 files changed, 54 insertions(+), 91 deletions(-)
-> 
-> Any comment will be appreciated.
-> 
-> Thanks,
-> Ren
-> 
+-- 
+error compiling committee.c: too many arguments to function
