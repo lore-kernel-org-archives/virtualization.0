@@ -1,14 +1,14 @@
-From: Asias He <asias.hejun@gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio_blk: Drop unused request tracking list
-Date: Sat, 31 Mar 2012 18:22:17 +0800
-Message-ID: <CAFO3S42y9xYv3i_gffL1qvKmbRTjVVrxdzvj8+vPF-vVYnESNQ@mail.gmail.com>
+Date: Sun, 1 Apr 2012 13:07:37 +0300
+Message-ID: <20120401100737.GE22071@redhat.com>
 References: <1333077850-21717-1-git-send-email-asias@redhat.com>
-	<CAJSP0QWN2byeZt9RCwgwVp9HuD5G0yha3xNYT+m+OJPS16W8SQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QWN2byeZt9RCwgwVp9HuD5G0yha3xNYT+m+OJPS16W8SQ@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1333077850-21717-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,35 +18,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGksIFN0ZWZhbgoKT24gRnJpLCBNYXIgMzAsIDIwMTIgYXQgNjoxNCBQTSwgU3RlZmFuIEhham5v
-Y3ppIDxzdGVmYW5oYUBnbWFpbC5jb20+IHdyb3RlOgo+IE9uIEZyaSwgTWFyIDMwLCAyMDEyIGF0
-IDQ6MjQgQU0sIEFzaWFzIEhlIDxhc2lhc0ByZWRoYXQuY29tPiB3cm90ZToKPj4gQmVuY2htYXJr
-IHNob3dzIHNtYWxsIHBlcmZvcm1hbmNlIGltcHJvdmVtZW50IG9uIGZ1c2lvbiBpbyBkZXZpY2Uu
-Cj4+Cj4+IEJlZm9yZToKPj4gwqBzZXEtcmVhZCA6IGlvPTEsMDI0TUIsIGJ3PTE5LDk4MktCL3Ms
-IGlvcHM9MzksOTY0LCBydW50PSA1MjQ3NW1zZWMKPj4gwqBzZXEtd3JpdGU6IGlvPTEsMDI0TUIs
-IGJ3PTIwLDMyMUtCL3MsIGlvcHM9NDAsNjQxLCBydW50PSA1MTYwMW1zZWMKPj4gwqBybmQtcmVh
-ZCA6IGlvPTEsMDI0TUIsIGJ3PTE1LDQwNEtCL3MsIGlvcHM9MzAsODA4LCBydW50PSA2ODA3MG1z
-ZWMKPj4gwqBybmQtd3JpdGU6IGlvPTEsMDI0TUIsIGJ3PTE0LDc3NktCL3MsIGlvcHM9MjksNTUy
-LCBydW50PSA3MDk2M21zZWMKPj4KPj4gQWZ0ZXI6Cj4+IMKgc2VxLXJlYWQgOiBpbz0xLDAyNE1C
-LCBidz0yMCwzNDNLQi9zLCBpb3BzPTQwLDY4NSwgcnVudD0gNTE1NDZtc2VjCj4+IMKgc2VxLXdy
-aXRlOiBpbz0xLDAyNE1CLCBidz0yMCw4MDNLQi9zLCBpb3BzPTQxLDYwNiwgcnVudD0gNTA0MDRt
-c2VjCj4+IMKgcm5kLXJlYWQgOiBpbz0xLDAyNE1CLCBidz0xNiwyMjFLQi9zLCBpb3BzPTMyLDQ0
-MiwgcnVudD0gNjQ2NDJtc2VjCj4+IMKgcm5kLXdyaXRlOiBpbz0xLDAyNE1CLCBidz0xNSwxOTlL
-Qi9zLCBpb3BzPTMwLDM5NywgcnVudD0gNjg5OTFtc2VjCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IEFz
-aWFzIEhlIDxhc2lhc0ByZWRoYXQuY29tPgo+PiAtLS0KPj4gwqBkcml2ZXJzL2Jsb2NrL3ZpcnRp
-b19ibGsuYyB8IMKgIDEwIC0tLS0tLS0tLS0KPj4gwqAxIGZpbGVzIGNoYW5nZWQsIDAgaW5zZXJ0
-aW9ucygrKSwgMTAgZGVsZXRpb25zKC0pCj4KPiBUaGFua3MgZm9yIHByb3ZpZGluZyBwZXJmb3Jt
-YW5jZSByZXN1bHRzLiDCoEl0J3MgYSBiaXQgc2NhcnkgdGhhdCB0aGlzCj4gdW51c2VkIGxpc3Qg
-aGFzIGFuIGltcGFjdC4uLkknbSBzdXJlIHdlIGhhdmUgd29yc2UgdGhpbmdzIGVsc2V3aGVyZSBp
-bgo+IHRoZSBLVk0gc3RvcmFnZSBjb2RlIHBhdGguCgpEbyB5b3UgZmluZCBhbnkgd29yc2UgdGhp
-bmdzPyBJIHNhdyB5b3VyIHRyYWNlIHdvcmsgaGVyZToKCiAgIGh0dHA6Ly93d3cubGludXgta3Zt
-Lm9yZy9wYWdlL1ZpcnRpby9CbG9jay9MYXRlbmN5Cgo+IFJldmlld2VkLWJ5OiBTdGVmYW4gSGFq
-bm9jemkgPHN0ZWZhbmhhQGxpbnV4LnZuZXQuaWJtLmNvbT4KClRoYW5rcyBmb3IgcmV2aWV3aW5n
-IQoKLS0KQXNpYXMgSGUKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Fri, Mar 30, 2012 at 11:24:10AM +0800, Asias He wrote:
+> Benchmark shows small performance improvement on fusion io device.
+> 
+> Before:
+>   seq-read : io=1,024MB, bw=19,982KB/s, iops=39,964, runt= 52475msec
+>   seq-write: io=1,024MB, bw=20,321KB/s, iops=40,641, runt= 51601msec
+>   rnd-read : io=1,024MB, bw=15,404KB/s, iops=30,808, runt= 68070msec
+>   rnd-write: io=1,024MB, bw=14,776KB/s, iops=29,552, runt= 70963msec
+> 
+> After:
+>   seq-read : io=1,024MB, bw=20,343KB/s, iops=40,685, runt= 51546msec
+>   seq-write: io=1,024MB, bw=20,803KB/s, iops=41,606, runt= 50404msec
+>   rnd-read : io=1,024MB, bw=16,221KB/s, iops=32,442, runt= 64642msec
+>   rnd-write: io=1,024MB, bw=15,199KB/s, iops=30,397, runt= 68991msec
+> 
+> Signed-off-by: Asias He <asias@redhat.com>
+
+Thanks, the patch makes sense to me.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+This is 3.5 material, correct?
+
+> ---
+>  drivers/block/virtio_blk.c |   10 ----------
+>  1 files changed, 0 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index c4a60ba..338da9a 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -29,9 +29,6 @@ struct virtio_blk
+>  	/* The disk structure for the kernel. */
+>  	struct gendisk *disk;
+>  
+> -	/* Request tracking. */
+> -	struct list_head reqs;
+> -
+>  	mempool_t *pool;
+>  
+>  	/* Process context for config space updates */
+> @@ -55,7 +52,6 @@ struct virtio_blk
+>  
+>  struct virtblk_req
+>  {
+> -	struct list_head list;
+>  	struct request *req;
+>  	struct virtio_blk_outhdr out_hdr;
+>  	struct virtio_scsi_inhdr in_hdr;
+> @@ -99,7 +95,6 @@ static void blk_done(struct virtqueue *vq)
+>  		}
+>  
+>  		__blk_end_request_all(vbr->req, error);
+> -		list_del(&vbr->list);
+>  		mempool_free(vbr, vblk->pool);
+>  	}
+>  	/* In case queue is stopped waiting for more buffers. */
+> @@ -184,7 +179,6 @@ static bool do_req(struct request_queue *q, struct virtio_blk *vblk,
+>  		return false;
+>  	}
+>  
+> -	list_add_tail(&vbr->list, &vblk->reqs);
+>  	return true;
+>  }
+>  
+> @@ -408,7 +402,6 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+>  		goto out_free_index;
+>  	}
+>  
+> -	INIT_LIST_HEAD(&vblk->reqs);
+>  	spin_lock_init(&vblk->lock);
+>  	vblk->vdev = vdev;
+>  	vblk->sg_elems = sg_elems;
+> @@ -571,9 +564,6 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+>  	vblk->config_enable = false;
+>  	mutex_unlock(&vblk->config_lock);
+>  
+> -	/* Nothing should be pending. */
+> -	BUG_ON(!list_empty(&vblk->reqs));
+> -
+>  	/* Stop all the virtqueues. */
+>  	vdev->config->reset(vdev);
+>  
+> -- 
+> 1.7.7.6
