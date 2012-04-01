@@ -1,18 +1,15 @@
 From: Avi Kivity <avi@redhat.com>
 Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
-Date: Sun, 01 Apr 2012 16:18:25 +0300
-Message-ID: <4F7855A1.80107@redhat.com>
+Date: Sun, 01 Apr 2012 16:31:44 +0300
+Message-ID: <4F7858C0.90405@redhat.com>
 References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
-	<4F707C5F.1000905@redhat.com>	<4F716E31.3000803@linux.vnet.ibm.com>
-	<CAMy5W3foop40+R1RLv_JPhnO5ZmV90uMmNERYY-e3QCeaJfqLw@mail.gmail.com>
-	<4F73568D.7000703@linux.vnet.ibm.com> <4F743247.5080407@redhat.com>
-	<4F74A405.2040609@linux.vnet.ibm.com>
-	<4F7585EE.7060203@linux.vnet.ibm.com>
+	<4F7616F5.4070000@zytor.com>
+	<alpine.LFD.2.02.1203302333560.2542@ionos>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F7585EE.7060203@linux.vnet.ibm.com>
+In-Reply-To: <alpine.LFD.2.02.1203302333560.2542@ionos>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,61 +19,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Alan Meadows <alan.meadows@gmail.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: the arch/x86 maintainers <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/30/2012 01:07 PM, Raghavendra K T wrote:
-> On 03/29/2012 11:33 PM, Raghavendra K T wrote:
->> On 03/29/2012 03:28 PM, Avi Kivity wrote:
->>> On 03/28/2012 08:21 PM, Raghavendra K T wrote:
+On 03/31/2012 01:07 AM, Thomas Gleixner wrote:
+> On Fri, 30 Mar 2012, H. Peter Anvin wrote:
 >
->> I really like below ideas. Thanks for that!.
->>
->>> - from the PLE handler, don't wake up a vcpu that is sleeping
->>> because it
->>> is waiting for a kick
->>
->> How about, adding another pass in the beginning of kvm_vcpu_on_spin()
->> to check if any vcpu is already kicked. This would almost result in
->> yield_to(kicked_vcpu). IMO this is also worth trying.
->>
->> will try above ideas soon.
->>
+> > What is the current status of this patchset?  I haven't looked at it too
+> > closely because I have been focused on 3.4 up until now...
 >
-> I have patch something like below in mind to try:
+> The real question is whether these heuristics are the correct approach
+> or not.
 >
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index d3b98b1..5127668 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -1608,15 +1608,18 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
->       * else and called schedule in __vcpu_run.  Hopefully that
->       * VCPU is holding the lock that we need and will release it.
->       * We approximate round-robin by starting at the last boosted VCPU.
-> +     * Priority is given to vcpu that are unhalted.
->       */
-> -    for (pass = 0; pass < 2 && !yielded; pass++) {
-> +    for (pass = 0; pass < 3 && !yielded; pass++) {
->          kvm_for_each_vcpu(i, vcpu, kvm) {
->              struct task_struct *task = NULL;
->              struct pid *pid;
-> -            if (!pass && i < last_boosted_vcpu) {
-> +            if (!pass && !vcpu->pv_unhalted)
-> +                continue;
-> +            else if (pass == 1 && i < last_boosted_vcpu) {
->                  i = last_boosted_vcpu;
->                  continue;
-> -            } else if (pass && i > last_boosted_vcpu)
-> +            } else if (pass == 2 && i > last_boosted_vcpu)
->                  break;
->              if (vcpu == me)
->                  continue;
+> If I look at it from the non virtualized kernel side then this is ass
+> backwards. We know already that we are holding a spinlock which might
+> cause other (v)cpus going into eternal spin. The non virtualized
+> kernel solves this by disabling preemption and therefor getting out of
+> the critical section as fast as possible,
 >
+> The virtualization problem reminds me a lot of the problem which RT
+> kernels are observing where non raw spinlocks are turned into
+> "sleeping spinlocks" and therefor can cause throughput issues for non
+> RT workloads.
+>
+> Though the virtualized situation is even worse. Any preempted guest
+> section which holds a spinlock is prone to cause unbound delays.
+>
+> The paravirt ticketlock solution can only mitigate the problem, but
+> not solve it. With massive overcommit there is always a way to trigger
+> worst case scenarious unless you are educating the scheduler to cope
+> with that.
+>
+> So if we need to fiddle with the scheduler and frankly that's the only
+> way to get a real gain (the numbers, which are achieved by this
+> patches, are not that impressive) then the question arises whether we
+> should turn the whole thing around.
+>
+> I know that Peter is going to go berserk on me, but if we are running
+> a paravirt guest then it's simple to provide a mechanism which allows
+> the host (aka hypervisor) to check that in the guest just by looking
+> at some global state.
+>
+> So if a guest exits due to an external event it's easy to inspect the
+> state of that guest and avoid to schedule away when it was interrupted
+> in a spinlock held section. That guest/host shared state needs to be
+> modified to indicate the guest to invoke an exit when the last nested
+> lock has been released.
 
-Actually I think this is unneeded.  The loops tries to find vcpus that
-are runnable but not running (vcpu_active(vcpu->wq)), and halted vcpus
-don't match this condition.
+Interesting idea (I think it has been raised before btw, don't recall by
+who).
+
+One thing about it is that it can give many false positives.  Consider a
+fine-grained spinlock that is being accessed by many threads.  That is,
+the lock is taken and released with high frequency, but there is no
+contention, because each vcpu is accessing a different instance.  So the
+host scheduler will needlessly delay preemption of vcpus that happen to
+be holding a lock, even though this gains nothing.
+
+A second issue may happen with a lock that is taken and released with
+high frequency, with a high hold percentage.  The host scheduler may
+always sample the guest in a held state, leading it to conclude that
+it's exceeding its timeout when in fact the lock is held for a short
+time only.
+
+> Of course this needs to be time bound, so a rogue guest cannot
+> monopolize the cpu forever, but that's the least to worry about
+> problem simply because a guest which does not get out of a spinlocked
+> region within a certain amount of time is borked and elegible to
+> killing anyway.
+
+Hopefully not killing!  Just because a guest doesn't scale well, or even
+if it's deadlocked, doesn't mean it should be killed.  Just preempt it.
+
+> Thoughts ?
+
+It's certainly interesting.  Maybe a combination is worthwhile - prevent
+lockholder preemption for a short period of time AND put waiters to
+sleep in case that period is insufficient to release the lock.
 
 -- 
 error compiling committee.c: too many arguments to function
