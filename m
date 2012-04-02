@@ -1,18 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 4/4] virtio_blk: use disk_name_format() to support mass
-	of disks naming
-Date: Mon, 2 Apr 2012 10:20:09 +0300
-Message-ID: <20120402072009.GF30360@redhat.com>
-References: <4F7581D4.4040301@cn.fujitsu.com> <4F7582B0.5010609@cn.fujitsu.com>
-	<20120330152606.GB28934@google.com>
-	<20120330152808.GC28934@google.com>
-	<4F78FE89.2070707@cn.fujitsu.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
+Date: Mon, 2 Apr 2012 11:26:23 +0200 (CEST)
+Message-ID: <alpine.LFD.2.02.1204021117560.2542@ionos>
+References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
+	<4F7616F5.4070000@zytor.com>
+	<alpine.LFD.2.02.1203302333560.2542@ionos>
+	<4F7858C0.90405@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4F78FE89.2070707@cn.fujitsu.com>
+In-Reply-To: <4F7858C0.90405@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,53 +20,113 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ren Mingxin <renmx@cn.fujitsu.com>
-Cc: Jens Axboe <axboe@kernel.dk>, KVM <kvm@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, VIRTUAL <virtualization@lists.linux-foundation.org>, Tejun Heo <tj@kernel.org>
+To: Avi Kivity <avi@redhat.com>
+Cc: the arch/x86 maintainers <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 02, 2012 at 09:19:05AM +0800, Ren Mingxin wrote:
->  On 03/30/2012 11:28 PM, Tejun Heo wrote:
-> >On Fri, Mar 30, 2012 at 08:26:06AM -0700, Tejun Heo wrote:
-> >>On Fri, Mar 30, 2012 at 05:53:52PM +0800, Ren Mingxin wrote:
-> >>>  The current virtblk's naming algorithm only supports 263  disks.
-> >>>If there are mass of virtblks(exceeding 263), there will be disks
-> >>>with the same name.
-> >>>
-> >>>By renaming "sd_format_disk_name()" to "disk_name_format()"
-> >>>and moving it into block core, virtio_blk can use this function to
-> >>>support mass of disks.
-> >>>
-> >>>Signed-off-by: Ren Mingxin<renmx@cn.fujitsu.com>
-> >>I guess it's already way too late but why couldn't they have been
-> >>named vdD-P where both D and P are integers denoting disk number and
-> >>partition number?  [sh]dX's were created when there weren't supposed
-> >>to be too many disks, so we had to come up with the horrible alphabet
-> >>based numbering scheme but vd is new enough.  I mean, naming is one
-> >>thing but who wants to figure out which sequence is or guess what
-> >>comes next vdzz9?  :(
-> >>
-> >>If we're gonna move it to block layer, let's add big blinking red
-> >>comment saying "don't ever use it for any new driver".
-> >And also let's make that clear in the function name - say,
-> >format_legacy_disk_name() or something.
+On Sun, 1 Apr 2012, Avi Kivity wrote:
+> On 03/31/2012 01:07 AM, Thomas Gleixner wrote:
+> > On Fri, 30 Mar 2012, H. Peter Anvin wrote:
+> >
+> > > What is the current status of this patchset?  I haven't looked at it too
+> > > closely because I have been focused on 3.4 up until now...
+> >
+> > The real question is whether these heuristics are the correct approach
+> > or not.
+> >
+> > If I look at it from the non virtualized kernel side then this is ass
+> > backwards. We know already that we are holding a spinlock which might
+> > cause other (v)cpus going into eternal spin. The non virtualized
+> > kernel solves this by disabling preemption and therefor getting out of
+> > the critical section as fast as possible,
+> >
+> > The virtualization problem reminds me a lot of the problem which RT
+> > kernels are observing where non raw spinlocks are turned into
+> > "sleeping spinlocks" and therefor can cause throughput issues for non
+> > RT workloads.
+> >
+> > Though the virtualized situation is even worse. Any preempted guest
+> > section which holds a spinlock is prone to cause unbound delays.
+> >
+> > The paravirt ticketlock solution can only mitigate the problem, but
+> > not solve it. With massive overcommit there is always a way to trigger
+> > worst case scenarious unless you are educating the scheduler to cope
+> > with that.
+> >
+> > So if we need to fiddle with the scheduler and frankly that's the only
+> > way to get a real gain (the numbers, which are achieved by this
+> > patches, are not that impressive) then the question arises whether we
+> > should turn the whole thing around.
+> >
+> > I know that Peter is going to go berserk on me, but if we are running
+> > a paravirt guest then it's simple to provide a mechanism which allows
+> > the host (aka hypervisor) to check that in the guest just by looking
+> > at some global state.
+> >
+> > So if a guest exits due to an external event it's easy to inspect the
+> > state of that guest and avoid to schedule away when it was interrupted
+> > in a spinlock held section. That guest/host shared state needs to be
+> > modified to indicate the guest to invoke an exit when the last nested
+> > lock has been released.
 > 
-> So, to legacy disks [sh]d, we'd name them as [sh]d[a-z]{1,}. To new devices
-> like vd, we'd name them as vd<index>(vd<index>p<partno> as partitions)?
+> Interesting idea (I think it has been raised before btw, don't recall by
+> who).
 
-Pleae don't rename virtio disks, it is way too late for that:
-virtio block driver was merged around 2007, it is not new by
-any measure, and there are many systems out there using
-the current naming scheme.
+Someoen posted a pointer to that old thread.
 
-> And how about the rssd in the patch 3 then?
+> One thing about it is that it can give many false positives.  Consider a
+> fine-grained spinlock that is being accessed by many threads.  That is,
+> the lock is taken and released with high frequency, but there is no
+> contention, because each vcpu is accessing a different instance.  So the
+> host scheduler will needlessly delay preemption of vcpus that happen to
+> be holding a lock, even though this gains nothing.
 
-Probably same. Renaming existing devices will break setups.
-I think the idea is to avoid using the
-legacy naming in new drivers *that will be added from now on*.
+You're talking about per cpu locks, right? I can see the point there,
+but per cpu stuff might be worth annotating to avoid this.
+ 
+> A second issue may happen with a lock that is taken and released with
+> high frequency, with a high hold percentage.  The host scheduler may
+> always sample the guest in a held state, leading it to conclude that
+> it's exceeding its timeout when in fact the lock is held for a short
+> time only.
 
-> Besides, does anybody have comments?
-> Looking forward to your replies ;-)
+Well, no. You can avoid that.
+
+host		VCPU
+		spin_lock()
+		 modify_global_state()
+   	exit
+check_global_state()
+mark_global_state()
+reschedule vcpu
+
+		spin_unlock()
+		 check_global_state()
+		  trigger_exit()
+
+So when an exit occures in the locked section, then the host can mark
+the global state to tell the guest to issue a trap on unlock.
+ 
+> > Of course this needs to be time bound, so a rogue guest cannot
+> > monopolize the cpu forever, but that's the least to worry about
+> > problem simply because a guest which does not get out of a spinlocked
+> > region within a certain amount of time is borked and elegible to
+> > killing anyway.
 > 
-> -- 
-> Thanks,
-> Ren
+> Hopefully not killing!  Just because a guest doesn't scale well, or even
+> if it's deadlocked, doesn't mean it should be killed.  Just preempt it.
+
+:)
+ 
+> > Thoughts ?
+> 
+> It's certainly interesting.  Maybe a combination is worthwhile - prevent
+> lockholder preemption for a short period of time AND put waiters to
+> sleep in case that period is insufficient to release the lock.
+
+Right, but as Srivatsa pointed out this still needs the ticket lock
+ordering support to avoid that guests are completely starved.
+
+Thanks,
+
+	tglx
