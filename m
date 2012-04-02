@@ -1,19 +1,16 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
-Date: Sun, 01 Apr 2012 19:26:25 +0530
-Message-ID: <4F785E89.8080609@linux.vnet.ibm.com>
-References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
-	<4F707C5F.1000905@redhat.com>	<4F716E31.3000803@linux.vnet.ibm.com>
-	<CAMy5W3foop40+R1RLv_JPhnO5ZmV90uMmNERYY-e3QCeaJfqLw@mail.gmail.com>
-	<4F73568D.7000703@linux.vnet.ibm.com> <4F743247.5080407@redhat.com>
-	<4F74A405.2040609@linux.vnet.ibm.com>
-	<4F7585EE.7060203@linux.vnet.ibm.com> <4F7855A1.80107@redhat.com>
-	<4F785CC9.7070204@linux.vnet.ibm.com> <4F785DCF.7020809@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 4/4] virtio_blk: use disk_name_format() to support mass
+	of disks naming
+Date: Mon, 2 Apr 2012 10:15:31 +0300
+Message-ID: <20120402071531.GE30360@redhat.com>
+References: <4F7581D4.4040301@cn.fujitsu.com> <4F7582B0.5010609@cn.fujitsu.com>
+	<20120330152606.GB28934@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F785DCF.7020809@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20120330152606.GB28934@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,16 +20,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Alan Meadows <alan.meadows@gmail.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andi Kleen <andi@firstfloor.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: Tejun Heo <tj@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>, KVM <kvm@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, VIRTUAL <virtualization@lists.linux-foundation.org>, Ren Mingxin <renmx@cn.fujitsu.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/01/2012 07:23 PM, Avi Kivity wrote:
-> On 04/01/2012 04:48 PM, Raghavendra K T wrote:
->>>> I have patch something like below in mind to try:
->
-> I'm interested in how PLE does vs. your patches, both with PLE enabled
-> and disabled.
->
+On Fri, Mar 30, 2012 at 08:26:06AM -0700, Tejun Heo wrote:
+> On Fri, Mar 30, 2012 at 05:53:52PM +0800, Ren Mingxin wrote:
+> >  The current virtblk's naming algorithm only supports 263  disks.
+> > If there are mass of virtblks(exceeding 263), there will be disks
+> > with the same name.
+> > 
+> > By renaming "sd_format_disk_name()" to "disk_name_format()"
+> > and moving it into block core, virtio_blk can use this function to
+> > support mass of disks.
+> > 
+> > Signed-off-by: Ren Mingxin <renmx@cn.fujitsu.com>
+> 
+> I guess it's already way too late but why couldn't they have been
+> named vdD-P where both D and P are integers denoting disk number and
+> partition number?
 
-Sure. will update with the experimental results.
+Yes they could and yes it's way too late to change device
+names for virtio - if we did this will break countless setups.
+
+>  [sh]dX's were created when there weren't supposed
+> to be too many disks, so we had to come up with the horrible alphabet
+> based numbering scheme but vd is new enough.  I mean, naming is one
+> thing but who wants to figure out which sequence is or guess what
+> comes next vdzz9?  :(
+> 
+> If we're gonna move it to block layer, let's add big blinking red
+> comment saying "don't ever use it for any new driver".
+> 
+> Thanks.
+
+Right. virtio would have to use the legacy one though.
+
+> -- 
+> tejun
