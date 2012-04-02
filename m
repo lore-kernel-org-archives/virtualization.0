@@ -1,20 +1,15 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
-Date: Mon, 02 Apr 2012 17:45:27 +0530
-Message-ID: <4F79985F.5030600__14667.4652387903$1333369086$gmane$org@linux.vnet.ibm.com>
-References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
-	<4F707C5F.1000905@redhat.com>	<4F716E31.3000803@linux.vnet.ibm.com>
-	<CAMy5W3foop40+R1RLv_JPhnO5ZmV90uMmNERYY-e3QCeaJfqLw@mail.gmail.com>
-	<4F73568D.7000703@linux.vnet.ibm.com> <4F743247.5080407@redhat.com>
-	<4F74A405.2040609@linux.vnet.ibm.com>
-	<4F7585EE.7060203@linux.vnet.ibm.com> <4F7855A1.80107@redhat.com>
-	<4F785CC9.7070204@linux.vnet.ibm.com> <4F785DCF.7020809@redhat.com>
-	<4F7976B6.5050000@linux.vnet.ibm.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH] virtio_blk: Drop unused request tracking list
+Date: Mon, 2 Apr 2012 15:29:30 +0100
+Message-ID: <CAJSP0QVuFGR2=LwLAgO3BkHoKM7E+rEg=TkzL27uxSqAn7SPmw__42823.9390989349$1333376984$gmane$org@mail.gmail.com>
+References: <1333077850-21717-1-git-send-email-asias@redhat.com>
+	<CAJSP0QWN2byeZt9RCwgwVp9HuD5G0yha3xNYT+m+OJPS16W8SQ@mail.gmail.com>
+	<CAFO3S42y9xYv3i_gffL1qvKmbRTjVVrxdzvj8+vPF-vVYnESNQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F7976B6.5050000@linux.vnet.ibm.com>
+In-Reply-To: <CAFO3S42y9xYv3i_gffL1qvKmbRTjVVrxdzvj8+vPF-vVYnESNQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,37 +19,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
-Cc: KVM <kvm@vger.kernel.org>, Alan Meadows <alan.meadows@gmail.com>, Peter Zijlstra <peterz@infradead.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andi Kleen <andi@firstfloor.org>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: Asias He <asias.hejun@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/02/2012 03:21 PM, Raghavendra K T wrote:
-> On 04/01/2012 07:23 PM, Avi Kivity wrote:
->  > On 04/01/2012 04:48 PM, Raghavendra K T wrote:
->  >>>> I have patch something like below in mind to try:
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 5127668..3fa912a 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -1557,12 +1557,17 @@ void mark_page_dirty(struct kvm *kvm, gfn_t gfn)
-> mark_page_dirty_in_slot(kvm, memslot, gfn);
-> }
+On Sat, Mar 31, 2012 at 11:22 AM, Asias He <asias.hejun@gmail.com> wrote:
+> Hi, Stefan
 >
-> +#define YIELD_THRESHOLD 2048
-> +static void kvm_vcpu_try_yield_to(struct kvm_vcpu *me);
-> /*
-> * The vCPU has executed a HLT instruction with in-kernel mode enabled.
-> */
-> void kvm_vcpu_block(struct kvm_vcpu *vcpu)
-> {
-[...]
-> + if (loop_count++ % YIELD_THRESHOLD)
-> + schedule();
-> + else
-> + kvm_vcpu_try_yield_to(vcpu);
-> }
+> On Fri, Mar 30, 2012 at 6:14 PM, Stefan Hajnoczi <stefanha@gmail.com> wro=
+te:
+>> On Fri, Mar 30, 2012 at 4:24 AM, Asias He <asias@redhat.com> wrote:
+>>> Benchmark shows small performance improvement on fusion io device.
+>>>
+>>> Before:
+>>> =A0seq-read : io=3D1,024MB, bw=3D19,982KB/s, iops=3D39,964, runt=3D 524=
+75msec
+>>> =A0seq-write: io=3D1,024MB, bw=3D20,321KB/s, iops=3D40,641, runt=3D 516=
+01msec
+>>> =A0rnd-read : io=3D1,024MB, bw=3D15,404KB/s, iops=3D30,808, runt=3D 680=
+70msec
+>>> =A0rnd-write: io=3D1,024MB, bw=3D14,776KB/s, iops=3D29,552, runt=3D 709=
+63msec
+>>>
+>>> After:
+>>> =A0seq-read : io=3D1,024MB, bw=3D20,343KB/s, iops=3D40,685, runt=3D 515=
+46msec
+>>> =A0seq-write: io=3D1,024MB, bw=3D20,803KB/s, iops=3D41,606, runt=3D 504=
+04msec
+>>> =A0rnd-read : io=3D1,024MB, bw=3D16,221KB/s, iops=3D32,442, runt=3D 646=
+42msec
+>>> =A0rnd-write: io=3D1,024MB, bw=3D15,199KB/s, iops=3D30,397, runt=3D 689=
+91msec
+>>>
+>>> Signed-off-by: Asias He <asias@redhat.com>
+>>> ---
+>>> =A0drivers/block/virtio_blk.c | =A0 10 ----------
+>>> =A01 files changed, 0 insertions(+), 10 deletions(-)
+>>
+>> Thanks for providing performance results. =A0It's a bit scary that this
+>> unused list has an impact...I'm sure we have worse things elsewhere in
+>> the KVM storage code path.
 >
-> +static void kvm_vcpu_try_yield(struct kvm_vcpu *me)
+> Do you find any worse things? I saw your trace work here:
+>
+> =A0 http://www.linux-kvm.org/page/Virtio/Block/Latency
 
-yes, it is kvm_vcpu_try_yield_to. had changed the name just before
-sending. sorry.
+I haven't updated those results in a long time because I no longer use
+that benchmarking environment.
+
+Stefan
