@@ -1,19 +1,21 @@
 From: Tejun Heo <tj@kernel.org>
 Subject: Re: [PATCH 4/4] virtio_blk: use disk_name_format() to support mass
 	of disks naming
-Date: Mon, 2 Apr 2012 11:52:59 -0700
-Message-ID: <20120402185259.GA16226@dhcp-172-17-108-109.mtv.corp.google.com>
+Date: Mon, 2 Apr 2012 12:00:45 -0700
+Message-ID: <20120402190045.GC16226@dhcp-172-17-108-109.mtv.corp.google.com>
 References: <4F7581D4.4040301@cn.fujitsu.com> <4F7582B0.5010609@cn.fujitsu.com>
 	<20120330152606.GB28934@google.com>
 	<20120330152808.GC28934@google.com>
 	<4F78FE89.2070707@cn.fujitsu.com>
 	<20120402072009.GF30360@redhat.com>
+	<20120402185259.GA16226@dhcp-172-17-108-109.mtv.corp.google.com>
+	<1333392978.2971.25.camel@dabdike>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120402072009.GF30360@redhat.com>
+In-Reply-To: <1333392978.2971.25.camel@dabdike>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,28 +25,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, KVM <kvm@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, VIRTUAL <virtualization@lists.linux-foundation.org>, Ren Mingxin <renmx@cn.fujitsu.com>
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Jens Axboe <axboe@kernel.dk>, KVM <kvm@vger.kernel.org>, SCSI <linux-scsi@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, VIRTUAL <virtualization@lists.linux-foundation.org>, Ren Mingxin <renmx@cn.fujitsu.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+Hello, James.
 
-On Mon, Apr 02, 2012 at 10:20:09AM +0300, Michael S. Tsirkin wrote:
-> Pleae don't rename virtio disks, it is way too late for that:
-> virtio block driver was merged around 2007, it is not new by
-> any measure, and there are many systems out there using
-> the current naming scheme.
+On Mon, Apr 02, 2012 at 11:56:18AM -0700, James Bottomley wrote:
+> So if we're agreed no other devices going forwards should ever use this
+> interface, is there any point unifying the interface?  No matter how
+> many caveats you hedge it round with, putting the API in a central place
+> will be a bit like a honey trap for careless bears.   It might be safer
+> just to leave it buried in the three current drivers.
 
-There's no point in renaming device nodes of already deployed drivers.
-It'll cause a lot of pain.
-
-> > And how about the rssd in the patch 3 then?
-> 
-> Probably same. Renaming existing devices will break setups.
-> I think the idea is to avoid using the
-> legacy naming in new drivers *that will be added from now on*.
-
-Yeap.
+Yeah, that was my hope but I think it would be easier to enforce to
+have a common function which is clearly marked legacy so that new
+driver writers can go look for the naming code in the existing ones,
+find out they're all using the same function which is marked legacy
+and explains what to do for newer drivers.
 
 Thanks.
 
