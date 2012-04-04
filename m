@@ -1,11 +1,14 @@
-From: Ohad Ben-Cohen <ohad@wizery.com>
-Subject: [PATCH] virtio-spec: add an rpmsg appendix
-Date: Wed,  4 Apr 2012 10:24:24 +0300
-Message-ID: <1333524264-14811-1-git-send-email-ohad@wizery.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [V6 PATCH] virtio-net: send gratuitous packets when needed
+Date: Wed, 4 Apr 2012 10:49:37 +0300
+Message-ID: <20120404074937.GA22658@redhat.com>
+References: <20120328054428.34415.75432.stgit@amd-6168-8-1.englab.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20120328054428.34415.75432.stgit@amd-6168-8-1.englab.nay.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,560 +18,241 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add an rpmsg appendix to the virtio spec and tag it as Appendix H.
+On Wed, Mar 28, 2012 at 01:44:28PM +0800, Jason Wang wrote:
+> As hypervior does not have the knowledge of guest network configuration, it's
+> better to ask guest to send gratuitous packets when needed.
+> 
+> Guest tests VIRTIO_NET_S_ANNOUNCE bit during config change interrupt and when it
+> is set, a workqueue is scheduled to send gratuitous packet through
+> NETDEV_NOTIFY_PEERS. This feature is negotiated through bit
+> VIRTIO_NET_F_GUEST_ANNOUNCE.
+> 
+> Changes from v5:
+> - notify the chain before acking the link annoucement
+> - ack the link announcement notification through control vq
+> 
+> Changes from v4:
+> - typos
+> - handle workqueue unconditionally
+> - move VIRTIO_NET_S_ANNOUNCE to bit 8 to separate rw bits from ro bits
+> 
+> Changes from v3:
+> - cancel the workqueue during freeze
+> 
+> Changes from v2:
+> - fix the race between unregister_dev() and workqueue
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Push the SCSI host appendix to 'I' so the appendices order stays
-according to the virtio device ids.
+I think this needs some fixes. See below.
+Thanks.
 
-Patch is against:
-http://ozlabs.org/~rusty/virtio-spec/virtio-0.9.4.lyx
+> ---
+>  drivers/net/virtio_net.c   |   32 +++++++++++++++++++++++++++++++-
+>  include/linux/virtio_net.h |   13 +++++++++++++
+>  2 files changed, 44 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 4880aa8..0f60da7 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -72,6 +72,9 @@ struct virtnet_info {
+>  	/* Work struct for refilling if we run low on memory. */
+>  	struct delayed_work refill;
+>  
+> +	/* Work struct for sending gratuitous packets. */
 
-Tested with LyX 2.0.0.
+A bit confusing: it does not send anything itself.
+A better comment 'for announcing the existence of device
+on the network'.
 
-Signed-off-by: Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: <virtualization@lists.linux-foundation.org>
-Cc: <linux-kernel@vger.kernel.org>
-Cc: <linux-arm-kernel@lists.infradead.org>
----
-These changes were produced using lyx: they look reasonable when viewing as a PDF,
-but I didn't reviewed the actual .lyx code, so I hope they make sense.
+> +	struct work_struct announce;
+> +
+>  	/* Chain pages by the private ptr. */
+>  	struct page *pages;
+>  
+> @@ -781,12 +784,30 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>  	return status == VIRTIO_NET_OK;
+>  }
+>  
+> +static void virtnet_ack_link_announce(struct virtnet_info *vi)
+> +{
+> +	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
+> +				  VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL,
+> +				  0, 0)) {
 
-PS. Congrats, Rusty!
+This can run in parallel with other commands. That's pretty bad -
+will corrupt the cvq.
+Take rtnl lock around calls to this function?
 
- virtio-0.9.4.lyx |  489 +++++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 486 insertions(+), 3 deletions(-)
+> +		dev_warn(&vi->dev->dev, "Failed to ack link nnounce.\n");
 
-diff --git a/virtio-0.9.4.lyx b/virtio-0.9.4.lyx
-index 6c7bab1..f377294 100644
---- a/virtio-0.9.4.lyx
-+++ b/virtio-0.9.4.lyx
-@@ -56,6 +56,7 @@
- \html_math_output 0
- \html_css_as_file 0
- \html_be_strict false
-+\author -1096565211 "Ohad,,," 
- \author -608949062 "Rusty Russell,,," 
- \author 1531152142 "pbonzini" 
- \end_header
-@@ -573,8 +574,12 @@ rpmsg
- 
- \begin_layout Plain Layout
- 
--\change_inserted -608949062 1323409055
-+\change_inserted -1096565211 1333519287
-+Appendix H
-+\change_deleted -1096565211 1333521034
- -
-+\change_inserted -608949062 1323409055
-+
- \end_layout
- 
- \end_inset
-@@ -609,7 +614,13 @@ SCSI host
- \begin_layout Plain Layout
- 
- \change_inserted 1531152142 1322650861
--Appendix H
-+Appendix 
-+\change_deleted -1096565211 1333519291
-+H
-+\change_inserted -1096565211 1333519291
-+I
-+\change_inserted 1531152142 1322650861
-+
- \end_layout
- 
- \end_inset
-@@ -6332,12 +6343,484 @@ VIRTIO_BALLOON_S_MEMFREE The amount of memory not being used for any purpose
- 
- \begin_layout Description
- VIRTIO_BALLOON_S_MEMTOT The total amount of memory available (in bytes).
-+\change_inserted -1096565211 1333519339
-+
-+\end_layout
-+
-+\begin_layout Chapter*
-+
-+\change_inserted -1096565211 1333519459
-+Appendix H: Rpmsg: Remote Processor Messaging
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted -1096565211 1333519548
-+Virtio rpmsg devices represent remote processors on the system which run
-+ in asymmetric multi-processing (AMP) configuration, and which are usually
-+ used to offload cpu-intensive tasks from the main application processor
-+ (a typical SoC methodology).
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted -1096565211 1333519483
-+Virtio is being used to communicate with those remote processors; empty
-+ buffers are placed in one virtqueue for receiving messages, and non-empty
-+ buffers, containing outbound messages, are enqueued in a second virtqueue
-+ for transmission.
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted -1096565211 1333519614
-+Numerous communication channels can be multiplexed over those two virtqueues,
-+ so different entities, running on the application and remote processor,
-+ can directly communicate in a point-to-point fashion.
-+\end_layout
-+
-+\begin_layout Section*
-+
-+\change_inserted -1096565211 1333519460
-+Configuration
-+\end_layout
-+
-+\begin_layout Description
-+
-+\change_inserted -1096565211 1333519622
-+Subsystem
-+\begin_inset space ~
-+\end_inset
-+
-+Device
-+\begin_inset space ~
-+\end_inset
-+
-+ID 7
-+\end_layout
-+
-+\begin_layout Description
-+
-+\change_inserted -1096565211 1333519647
-+Virtqueues 0:receiveq.
-+ 1:transmitq.
-+\end_layout
-+
-+\begin_layout Description
-+
-+\change_inserted -1096565211 1333519460
-+Feature
-+\begin_inset space ~
-+\end_inset
-+
-+bits
-+\end_layout
-+
-+\begin_deeper
-+\begin_layout Description
-+
-+\change_inserted -1096565211 1333520994
-+VIRTIO_RPMSG_F_NS
-+\begin_inset space ~
-+\end_inset
-+
-+(0) Device sends (and capable of receiving) name service messages announcing
-+ the creation (or destruction) of a channel:
-+\begin_inset listings
-+inline false
-+status open
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+/**
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ * struct rpmsg_ns_msg - dynamic name service announcement message
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ * @name: name of remote service that is published
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ * @addr: address of remote service that is published
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ * @flags: indicates whether service is created or destroyed
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ *
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ * This message is sent across to publish a new service (or announce
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ * about its removal).
-+ When we receives these messages, an appropriate
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ * rpmsg channel (i.e device) is created/destroyed.
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ */
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+struct rpmsg_ns_msgoon_config {
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+	char name[RPMSG_NAME_SIZE];
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+	u32 addr;
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+	u32 flags;
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+} __packed;
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+/**
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ * enum rpmsg_ns_flags - dynamic name service announcement flags
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ *
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ * @RPMSG_NS_CREATE: a new remote service was just created
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ * @RPMSG_NS_DESTROY: a remote service was just destroyed
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+ */
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+enum rpmsg_ns_flags {
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+	RPMSG_NS_CREATE = 0,
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+	RPMSG_NS_DESTROY = 1,
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520994
-+
-+};
-+\end_layout
-+
-+\end_inset
-+
-+
-+\end_layout
-+
-+\end_deeper
-+\begin_layout Description
-+
-+\change_inserted -1096565211 1333520275
-+Device
-+\begin_inset space ~
-+\end_inset
-+
-+configuration
-+\begin_inset space ~
-+\end_inset
-+
-+layout
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted -1096565211 1333521209
-+At his point none currently defined.
-+\end_layout
-+
-+\begin_layout Section*
-+
-+\change_inserted -1096565211 1333519460
-+Device Initialization
-+\end_layout
-+
-+\begin_layout Enumerate
-+
-+\change_inserted -1096565211 1333520334
-+The initialization routine should identify the receive and transmission
-+ virtqueues.
-+\end_layout
-+
-+\begin_layout Enumerate
-+
-+\change_inserted -1096565211 1333520335
-+The receive virtqueue should be filled with receive buffers.
-+\end_layout
-+
-+\begin_layout Section*
-+
-+\change_inserted -1096565211 1333520381
-+Device Operation
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted -1096565211 1333520426
-+Messages are transmitted by placing them in the transmitq, and buffers for
-+ inbound messages are placed in the receiveq.
-+ In any case, messages are always preceded by the following header: 
-+\begin_inset listings
-+inline false
-+status open
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520439
-+
-+/**
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520443
-+
-+ * struct rpmsg_hdr - common header for all rpmsg messages
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520447
-+
-+ * @src: source address
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520450
-+
-+ * @dst: destination address
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520453
-+
-+ * @reserved: reserved for future use
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520456
-+
-+ * @len: length of payload (in bytes)
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520459
-+
-+ * @flags: message flags
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520462
-+
-+ * @data: @len bytes of message payload data
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520464
-+
-+ *
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520467
-+
-+ * Every message sent(/received) on the rpmsg bus begins with this header.
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520471
-+
-+ */
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520475
-+
-+struct rpmsg_hdr {
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520477
-+
-+	u32 src;
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520480
-+
-+	u32 dst;
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520481
-+
-+	u32 reserved;
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520484
-+
-+	u16 len;
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520486
-+
-+	u16 flags;
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520489
-+
-+	u8 data[0];
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1096565211 1333520487
-+
-+} __packed;
-+\end_layout
-+
-+\end_inset
-+
-+
- \end_layout
- 
- \begin_layout Chapter*
- 
- \change_inserted 1531152142 1322571716
--Appendix H: SCSI Host Device
-+Appendix 
-+\change_deleted -1096565211 1333519318
-+H
-+\change_inserted -1096565211 1333519319
-+I
-+\change_inserted 1531152142 1322571716
-+: SCSI Host Device
- \end_layout
- 
- \begin_layout Standard
--- 
-1.7.5.4
+announce
+
+> +	}
+
+Better to drop {} around a single statement.
+
+> +}
+> +
+> +static void announce_work(struct work_struct *work)
+> +{
+> +	struct virtnet_info *vi = container_of(work, struct virtnet_info,
+> +					       announce);
+> +	netif_notify_peers(vi->dev);
+> +	virtnet_ack_link_announce(vi);
+> +}
+> +
+>  static int virtnet_close(struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+>  
+>  	/* Make sure refill_work doesn't re-enable napi! */
+>  	cancel_delayed_work_sync(&vi->refill);
+> +	cancel_work_sync(&vi->announce);
+
+I think that a config change event can trigger after this point,
+so cancel here won't be effective. But why do it here?
+virtnet_remove not a better place? We can do it
+after remove_vq_common.
+
+>  	napi_disable(&vi->napi);
+>  
+>  	return 0;
+> @@ -962,11 +983,17 @@ static void virtnet_update_status(struct virtnet_info *vi)
+>  		return;
+>  
+>  	/* Ignore unknown (future) status bits */
+> -	v &= VIRTIO_NET_S_LINK_UP;
+> +	v &= VIRTIO_NET_S_LINK_UP | VIRTIO_NET_S_ANNOUNCE;
+
+The announce bit in vi->status is always clear,
+so this is IMO confusing. I would do:
+
+	if (v & VIRTIO_NET_S_ANNOUNCE) {
+		schedule
+	}
+
+	v &= VIRTIO_NET_S_LINK_UP;
+
+and the rest of the logic is not necessary then.
+
+Also, this might run extra ack announce commands after
+VIRTIO_NET_S_ANNOUNCE bit is clear. The spec
+isn't clear on whether this is legal.
+
+It would be very hard to fix this, so let's add a comment
+stating that it's legal, and clarify the spec
+in any case.
+
+
+>  
+>  	if (vi->status == v)
+>  		return;
+>  
+> +	if (v & VIRTIO_NET_S_ANNOUNCE) {
+> +		v &= ~VIRTIO_NET_S_ANNOUNCE;
+> +		if (v & VIRTIO_NET_S_LINK_UP)
+> +			schedule_work(&vi->announce);
+
+I think we really want an nrt wq here - if this triggers
+multiple times there's no good reason to try and run
+the ack command many times in parallel.
+
+> +	}
+> +
+>  	vi->status = v;
+>  
+>  	if (vi->status & VIRTIO_NET_S_LINK_UP) {
+
+
+> @@ -1076,6 +1103,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		goto free;
+>  
+>  	INIT_DELAYED_WORK(&vi->refill, refill_work);
+> +	INIT_WORK(&vi->announce, announce_work);
+>  	sg_init_table(vi->rx_sg, ARRAY_SIZE(vi->rx_sg));
+>  	sg_init_table(vi->tx_sg, ARRAY_SIZE(vi->tx_sg));
+>  
+> @@ -1187,6 +1215,7 @@ static int virtnet_freeze(struct virtio_device *vdev)
+>  	virtqueue_disable_cb(vi->svq);
+>  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ))
+>  		virtqueue_disable_cb(vi->cvq);
+> +	cancel_work_sync(&vi->announce);
+
+A config change event can trigger after this point,
+so cancel here won't be effective.
+Possibly, we need state like config_enable in the block
+device.
+
+Also, what exactly will happen on suspend?
+As we reset, ANNOUCE bit will be clear so -
+do we forget to announce? Probably not good ...
+
+>  
+>  	netif_device_detach(vi->dev);
+>  	cancel_delayed_work_sync(&vi->refill);
+> @@ -1233,6 +1262,7 @@ static unsigned int features[] = {
+>  	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO,
+>  	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ,
+>  	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
+> +	VIRTIO_NET_F_GUEST_ANNOUNCE,
+>  };
+>  
+>  static struct virtio_driver virtio_net_driver = {
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index 970d5a2..383e8a0 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -49,8 +49,10 @@
+>  #define VIRTIO_NET_F_CTRL_RX	18	/* Control channel RX mode support */
+>  #define VIRTIO_NET_F_CTRL_VLAN	19	/* Control channel VLAN filtering */
+>  #define VIRTIO_NET_F_CTRL_RX_EXTRA 20	/* Extra RX mode control support */
+> +#define VIRTIO_NET_F_GUEST_ANNOUNCE 21  /* Guest can send gratituous packet */
+
+Rusty aligned the comments using tabs so let's do it here too?
+A better comment 'can announce device on the network'.
+
+>  
+>  #define VIRTIO_NET_S_LINK_UP	1	/* Link is up */
+> +#define VIRTIO_NET_S_ANNOUNCE   2	/* Announcement is needed */
+
+why 3 spaces before the value here?
+
+>  
+>  struct virtio_net_config {
+>  	/* The config defining mac address (if VIRTIO_NET_F_MAC) */
+> @@ -152,4 +154,15 @@ struct virtio_net_ctrl_mac {
+>   #define VIRTIO_NET_CTRL_VLAN_ADD             0
+>   #define VIRTIO_NET_CTRL_VLAN_DEL             1
+>  
+> +/*
+> + * Control link announce acknowledgement
+> + *
+> + * The command VIRTIO_NET_CTRL_ANNOUNCE_ACK is used to indicate that
+> + * driver has recevied the notification and device would clear the
+
+s/recevied/received/
+
+A bit clearer to replace 'and' with ; here.
+
+> + * VIRTIO_NET_S_ANNOUNCE bit in the status filed after it received
+
+s/filed/field/
+s/received/receives/
+
+> + * this command.
+> + */
+> +#define VIRTIO_NET_CTRL_ANNOUNCE       3
+> + #define VIRTIO_NET_CTRL_ANNOUNCE_ACK         0
+> +
+>  #endif /* _LINUX_VIRTIO_NET_H */
+> 
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
