@@ -1,15 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: question about napi_disable (was Re: [PATCH] virtio_net: set/cancel
-	work on ndo_open/ndo_stop)
-Date: Wed, 4 Apr 2012 12:32:29 +0300
-Message-ID: <20120404093229.GA3804@redhat.com>
+Subject: Re: question about napi_disable (was Re: [PATCH] virtio_net:
+	set/cancel work on ndo_open/ndo_stop)
+Date: Wed, 4 Apr 2012 12:47:56 +0300
+Message-ID: <20120404094755.GA4136@redhat.com>
 References: <87hb0kgiwn.fsf@rustcorp.com.au> <87pqf7fyld.fsf@rustcorp.com.au>
+	<20120404093229.GA3804@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87pqf7fyld.fsf@rustcorp.com.au>
+In-Reply-To: <20120404093229.GA3804@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,91 +24,96 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: kvm@vger.kernel.org, netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 29, 2011 at 09:12:38PM +1030, Rusty Russell wrote:
-> Michael S. Tsirkin noticed that we could run the refill work after
-> ndo_close, which can re-enable napi - we don't disable it until
-> virtnet_remove.  This is clearly wrong, so move the workqueue control
-> to ndo_open and ndo_stop (aka. virtnet_open and virtnet_close).
+On Wed, Apr 04, 2012 at 12:32:29PM +0300, Michael S. Tsirkin wrote:
+> On Thu, Dec 29, 2011 at 09:12:38PM +1030, Rusty Russell wrote:
+> > Michael S. Tsirkin noticed that we could run the refill work after
+> > ndo_close, which can re-enable napi - we don't disable it until
+> > virtnet_remove.  This is clearly wrong, so move the workqueue control
+> > to ndo_open and ndo_stop (aka. virtnet_open and virtnet_close).
+> > 
+> > One subtle point: virtnet_probe() could simply fail if it couldn't
+> > allocate a receive buffer, but that's less polite in virtnet_open() so
+> > we schedule a refill as we do in the normal receive path if we run out
+> > of memory.
+> > 
+> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 > 
-> One subtle point: virtnet_probe() could simply fail if it couldn't
-> allocate a receive buffer, but that's less polite in virtnet_open() so
-> we schedule a refill as we do in the normal receive path if we run out
-> of memory.
+> Doh.
+> napi_disable does not prevent the following
+> napi_schedule, does it?
 > 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> Can someone confirm that I am not seeing things please?
 
-Doh.
-napi_disable does not prevent the following
-napi_schedule, does it?
+Yes, I *was* seeing things. After napi_disable, NAPI_STATE_SCHED
+is set to napi_schedule does nothing.
+Sorry about the noise.
 
-Can someone confirm that I am not seeing things please?
-
-And this means this hack does not work:
-try_fill_recv can still run in parallel with
-napi, corrupting the vq.
-
-I suspect we need to resurrect a patch that used a
-dedicated flag to avoid this race.
-
-Comments?
-
-> ---
->  drivers/net/virtio_net.c |   17 +++++++++++++----
->  1 file changed, 13 insertions(+), 4 deletions(-)
+> And this means this hack does not work:
+> try_fill_recv can still run in parallel with
+> napi, corrupting the vq.
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -439,7 +439,13 @@ static int add_recvbuf_mergeable(struct 
->  	return err;
->  }
->  
-> -/* Returns false if we couldn't fill entirely (OOM). */
-> +/*
-> + * Returns false if we couldn't fill entirely (OOM).
-> + *
-> + * Normally run in the receive path, but can also be run from ndo_open
-> + * before we're receiving packets, or from refill_work which is
-> + * careful to disable receiving (using napi_disable).
-> + */
->  static bool try_fill_recv(struct virtnet_info *vi, gfp_t gfp)
->  {
->  	int err;
-> @@ -719,6 +725,10 @@ static int virtnet_open(struct net_devic
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
->  
-> +	/* Make sure we have some buffers: if oom use wq. */
-> +	if (!try_fill_recv(vi, GFP_KERNEL))
-> +		schedule_delayed_work(&vi->refill, 0);
-> +
->  	virtnet_napi_enable(vi);
->  	return 0;
->  }
-> @@ -772,6 +782,8 @@ static int virtnet_close(struct net_devi
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
->  
-> +	/* Make sure refill_work doesn't re-enable napi! */
-> +	cancel_delayed_work_sync(&vi->refill);
->  	napi_disable(&vi->napi);
->  
->  	return 0;
-> @@ -1082,7 +1094,6 @@ static int virtnet_probe(struct virtio_d
->  
->  unregister:
->  	unregister_netdev(dev);
-> -	cancel_delayed_work_sync(&vi->refill);
->  free_vqs:
->  	vdev->config->del_vqs(vdev);
->  free_stats:
-> @@ -1121,9 +1132,7 @@ static void __devexit virtnet_remove(str
->  	/* Stop all the virtqueues. */
->  	vdev->config->reset(vdev);
->  
-> -
->  	unregister_netdev(vi->dev);
-> -	cancel_delayed_work_sync(&vi->refill);
->  
->  	/* Free unused buffers in both send and recv, if any. */
->  	free_unused_bufs(vi);
+> I suspect we need to resurrect a patch that used a
+> dedicated flag to avoid this race.
+> 
+> Comments?
+> 
+> > ---
+> >  drivers/net/virtio_net.c |   17 +++++++++++++----
+> >  1 file changed, 13 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -439,7 +439,13 @@ static int add_recvbuf_mergeable(struct 
+> >  	return err;
+> >  }
+> >  
+> > -/* Returns false if we couldn't fill entirely (OOM). */
+> > +/*
+> > + * Returns false if we couldn't fill entirely (OOM).
+> > + *
+> > + * Normally run in the receive path, but can also be run from ndo_open
+> > + * before we're receiving packets, or from refill_work which is
+> > + * careful to disable receiving (using napi_disable).
+> > + */
+> >  static bool try_fill_recv(struct virtnet_info *vi, gfp_t gfp)
+> >  {
+> >  	int err;
+> > @@ -719,6 +725,10 @@ static int virtnet_open(struct net_devic
+> >  {
+> >  	struct virtnet_info *vi = netdev_priv(dev);
+> >  
+> > +	/* Make sure we have some buffers: if oom use wq. */
+> > +	if (!try_fill_recv(vi, GFP_KERNEL))
+> > +		schedule_delayed_work(&vi->refill, 0);
+> > +
+> >  	virtnet_napi_enable(vi);
+> >  	return 0;
+> >  }
+> > @@ -772,6 +782,8 @@ static int virtnet_close(struct net_devi
+> >  {
+> >  	struct virtnet_info *vi = netdev_priv(dev);
+> >  
+> > +	/* Make sure refill_work doesn't re-enable napi! */
+> > +	cancel_delayed_work_sync(&vi->refill);
+> >  	napi_disable(&vi->napi);
+> >  
+> >  	return 0;
+> > @@ -1082,7 +1094,6 @@ static int virtnet_probe(struct virtio_d
+> >  
+> >  unregister:
+> >  	unregister_netdev(dev);
+> > -	cancel_delayed_work_sync(&vi->refill);
+> >  free_vqs:
+> >  	vdev->config->del_vqs(vdev);
+> >  free_stats:
+> > @@ -1121,9 +1132,7 @@ static void __devexit virtnet_remove(str
+> >  	/* Stop all the virtqueues. */
+> >  	vdev->config->reset(vdev);
+> >  
+> > -
+> >  	unregister_netdev(vi->dev);
+> > -	cancel_delayed_work_sync(&vi->refill);
+> >  
+> >  	/* Free unused buffers in both send and recv, if any. */
+> >  	free_unused_bufs(vi);
