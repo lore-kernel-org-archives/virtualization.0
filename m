@@ -1,11 +1,13 @@
-From: Ren Mingxin <renmx@cn.fujitsu.com>
-Subject: [PATCH] virtio_blk: Add help function to format mass of disks
-Date: Tue, 10 Apr 2012 15:28:05 +0800
-Message-ID: <1334042885-8330-1-git-send-email-renmx@cn.fujitsu.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH 0/2] adding tracepoints to vhost
+Date: Tue, 10 Apr 2012 12:40:50 +0100
+Message-ID: <CAJSP0QWA1z6_YQe9hhpG7bCyZQarmU5NXbHsLGTL_zPTk3dOUA@mail.gmail.com>
+References: <20120410025327.49693.93562.stgit@amd-6168-8-1.englab.nay.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120410025327.49693.93562.stgit@amd-6168-8-1.englab.nay.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,78 +17,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, rusty@rustcorp.com.au
-Cc: axboe@kernel.dk, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, asamymuthupa@micron.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James.Bottomley@HansenPartnership.com, Ren Mingxin <renmx@cn.fujitsu.com>, tj@kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The current virtio block's naming algorithm just supports 18278
-(26^3 + 26^2 + 26) disks. If there are mass of virtio blocks,
-there will be disks with the same name.
+On Tue, Apr 10, 2012 at 3:58 AM, Jason Wang <jasowang@redhat.com> wrote:
+> To help in vhost analyzing, the following series adding basic tracepoints=
+ to
+> vhost. Operations of both virtqueues and vhost works were traced in curre=
+nt
+> implementation, net code were untouched. A top-like satistics displaying =
+script
+> were introduced to help the troubleshooting.
+>
+> TODO:
+> - net specific tracepoints?
+>
+> ---
+>
+> Jason Wang (2):
+> =A0 =A0 =A0vhost: basic tracepoints
+> =A0 =A0 =A0tools: virtio: add a top-like utility for displaying vhost sat=
+istics
+>
+>
+> =A0drivers/vhost/trace.h =A0 | =A0153 ++++++++++++++++++++
+> =A0drivers/vhost/vhost.c =A0 | =A0 17 ++
+> =A0tools/virtio/vhost_stat | =A0360 +++++++++++++++++++++++++++++++++++++=
+++++++++++
+> =A03 files changed, 528 insertions(+), 2 deletions(-)
+> =A0create mode 100644 drivers/vhost/trace.h
+> =A0create mode 100755 tools/virtio/vhost_stat
 
-Based on commit 3e1a7ff8a0a7b948f2684930166954f9e8e776fe, I add
-function "virtblk_name_format()" for virtio block to support mass
-of disks naming.
+Perhaps this can replace the vhost log feature?  I'm not sure if
+tracepoints support the right data types but it seems like vhost
+debugging could be done using tracing with less code.
 
-Signed-off-by: Ren Mingxin <renmx@cn.fujitsu.com>
----
- drivers/block/virtio_blk.c |   38 ++++++++++++++++++++++++++------------
- 1 files changed, 26 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index c4a60ba..86516c8 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -374,6 +374,31 @@ static int init_vq(struct virtio_blk *vblk)
- 	return err;
- }
- 
-+static int virtblk_name_format(char *prefix, int index, char *buf, int buflen)
-+{
-+	const int base = 'z' - 'a' + 1;
-+	char *begin = buf + strlen(prefix);
-+	char *begin = buf + strlen(prefix);
-+	char *end = buf + buflen;
-+	char *p;
-+	int unit;
-+
-+	p = end - 1;
-+	*p = '\0';
-+	unit = base;
-+	do {
-+		if (p == begin)
-+			return -EINVAL;
-+		*--p = 'a' + (index % unit);
-+		index = (index / unit) - 1;
-+	} while (index >= 0);
-+
-+	memmove(begin, p, end - p);
-+	memcpy(buf, prefix, strlen(prefix));
-+
-+	return 0;
-+}
-+
- static int __devinit virtblk_probe(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk;
-@@ -442,18 +467,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
- 
- 	q->queuedata = vblk;
- 
--	if (index < 26) {
--		sprintf(vblk->disk->disk_name, "vd%c", 'a' + index % 26);
--	} else if (index < (26 + 1) * 26) {
--		sprintf(vblk->disk->disk_name, "vd%c%c",
--			'a' + index / 26 - 1, 'a' + index % 26);
--	} else {
--		const unsigned int m1 = (index / 26 - 1) / 26 - 1;
--		const unsigned int m2 = (index / 26 - 1) % 26;
--		const unsigned int m3 =  index % 26;
--		sprintf(vblk->disk->disk_name, "vd%c%c%c",
--			'a' + m1, 'a' + m2, 'a' + m3);
--	}
-+	virtblk_name_format("vd", index, vblk->disk->disk_name, DISK_NAME_LEN);
- 
- 	vblk->disk->major = major;
- 	vblk->disk->first_minor = index_to_minor(index);
--- 
-1.7.1
+Stefan
