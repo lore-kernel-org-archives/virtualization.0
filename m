@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_blk: Add help function to format mass of disks
-Date: Wed, 11 Apr 2012 11:43:42 +0300
-Message-ID: <20120411084342.GA9250@redhat.com>
-References: <1334042885-8330-1-git-send-email-renmx@cn.fujitsu.com>
+From: Ming Zhao <zhaom@cis.fiu.edu>
+Subject: CFP: 7th International Workshop on Feedback Computing
+Date: Wed, 11 Apr 2012 07:12:16 -0400
+Message-ID: <20120411145840.C462C3680073@cheetah.cs.fiu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1334042885-8330-1-git-send-email-renmx@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,82 +15,164 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ren Mingxin <renmx@cn.fujitsu.com>
-Cc: axboe@kernel.dk, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, asamymuthupa@micron.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James.Bottomley@HansenPartnership.com, tj@kernel.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 10, 2012 at 03:28:05PM +0800, Ren Mingxin wrote:
-> The current virtio block's naming algorithm just supports 18278
-> (26^3 + 26^2 + 26) disks. If there are mass of virtio blocks,
-> there will be disks with the same name.
-> 
-> Based on commit 3e1a7ff8a0a7b948f2684930166954f9e8e776fe, I add
-> function "virtblk_name_format()" for virtio block to support mass
-> of disks naming.
-> 
-> Signed-off-by: Ren Mingxin <renmx@cn.fujitsu.com>
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Feedback Computing 2012
+The 7th International Workshop on Feedback Computing
+http://www.feedbackcomputing.org
 
-Applied, thanks everyone.
+In conjunction with ICAC 2012
+http://icac2012.cs.fiu.edu
+San Jose, California, USA
+September 17, 2012
 
-> ---
->  drivers/block/virtio_blk.c |   38 ++++++++++++++++++++++++++------------
->  1 files changed, 26 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index c4a60ba..86516c8 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -374,6 +374,31 @@ static int init_vq(struct virtio_blk *vblk)
->  	return err;
->  }
->  
-> +static int virtblk_name_format(char *prefix, int index, char *buf, int buflen)
-> +{
-> +	const int base = 'z' - 'a' + 1;
-> +	char *begin = buf + strlen(prefix);
-> +	char *begin = buf + strlen(prefix);
-> +	char *end = buf + buflen;
-> +	char *p;
-> +	int unit;
-> +
-> +	p = end - 1;
-> +	*p = '\0';
-> +	unit = base;
-> +	do {
-> +		if (p == begin)
-> +			return -EINVAL;
-> +		*--p = 'a' + (index % unit);
-> +		index = (index / unit) - 1;
-> +	} while (index >= 0);
-> +
-> +	memmove(begin, p, end - p);
-> +	memcpy(buf, prefix, strlen(prefix));
-> +
-> +	return 0;
-> +}
-> +
->  static int __devinit virtblk_probe(struct virtio_device *vdev)
->  {
->  	struct virtio_blk *vblk;
-> @@ -442,18 +467,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
->  
->  	q->queuedata = vblk;
->  
-> -	if (index < 26) {
-> -		sprintf(vblk->disk->disk_name, "vd%c", 'a' + index % 26);
-> -	} else if (index < (26 + 1) * 26) {
-> -		sprintf(vblk->disk->disk_name, "vd%c%c",
-> -			'a' + index / 26 - 1, 'a' + index % 26);
-> -	} else {
-> -		const unsigned int m1 = (index / 26 - 1) / 26 - 1;
-> -		const unsigned int m2 = (index / 26 - 1) % 26;
-> -		const unsigned int m3 =  index % 26;
-> -		sprintf(vblk->disk->disk_name, "vd%c%c%c",
-> -			'a' + m1, 'a' + m2, 'a' + m3);
-> -	}
-> +	virtblk_name_format("vd", index, vblk->disk->disk_name, DISK_NAME_LEN);
->  
->  	vblk->disk->major = major;
->  	vblk->disk->first_minor = index_to_minor(index);
-> -- 
-> 1.7.1
+(Paper Submission Date: June 15, 2012)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+
+Following the success of the FeBID workshops over the past six years, we de=
+but the Feedback Computing workshop: a unique forum built around the concep=
+ts and technologies of applying, analyzing, designing, and exploiting feedb=
+ack in computing systems. The creation of this new workshop represents the =
+growing use of feedback in a broader agenda and is a timely response to the=
+ following two trends: (1) Computing systems are growing larger, smarter, a=
+nd more complex, and encompass new fields such as cyber-physical systems, s=
+ocial networks, and mobile applications. While much existing work focuses o=
+n individual components and systems, it is time to take a more systematic a=
+pproach and address the dynamical complexity of interactions that arise sys=
+tem-wide with much large scale. (2) Many research disciplines such as machi=
+ne learning, mathematical optimization, automatic control, cyber-physical s=
+ystems, and autonomic computing rely on feedback to achieve goals such as a=
+utonomy, learni
+ ng, adaptation, stabilization, robustness, or performance optimization. Ho=
+wever, much of existing work focuses on isolated disciplines. It is time to=
+ take a more holistic approach and address the foundations and use of feedb=
+ack, broadly defined, in computing.
+
+Feedback Computing calls for a holistic and systematic technology to study =
+both feedback-based design patterns as well as theoretical foundations of f=
+eedback in computing. Aiming to raise community awareness and to promote th=
+e fusion of multiple disciplines and practices, this workshop might lay out=
+ the ground work for building a new generation of collaborative computing s=
+ystems that are adaptive, resilient, and agile, while remaining stable and =
+robust. Application topics include but are not limited to:  =
+
+	=
+
+- Internet services =
+
+- Virtualized environments =
+
+- Cloud computing =
+
+- IaaS, PaaS, and SaaS environments
+- Data center resource, power, and cooling management
+- Mobile applications
+- Sensor networks
+- Cyber-physical systems
+- Social networks
+- Software performance engineering =
+
+- Data management systems
+- High performance computing environments
+
+The workshop seeks original contributions on foundations or applications of=
+ feedback in computing systems. We encourage both research paper submission=
+s expressing new research directions with the promise of producing a pipeli=
+ne of papers, and application paper submissions elaborating the challenges =
+and experiences from real systems. In addition, the workshop will leverage =
+extended coffee breaks and lunch break to arrange special meetings and to d=
+iscuss collaborative research agenda built among the participants. =
+
+
+-----------------------------------------------------------------------
+SUBMISSION INSTRUCTIONS
+
+Authors are invited to submit both research papers and application papers t=
+o emphasize the bi-fold focuses of this workshop. =
+
+
+[Research Papers] Paper submissions must represent original, unpublished co=
+ntributions. All submissions should be formatted according to the standard =
+ACM two-column proceeding guidelines and not exceed 6 pages in length. Manu=
+script templates are available for download at http://www.acm.org/sigs/publ=
+ications/proceedings-templates.
+
+[Application Papers] Paper submissions must be based on real experience and=
+ working systems. All submissions should be formatted as annotated slides -=
+ a visual in the upper half of a page and the explanatory text in the lower=
+ half =96 and not exceed 15 slides in length.
+
+All papers are to be submitted through the workshop website (http://www.fee=
+dbackcomputing.org)  in PDF files. There will be NO copyright-transferred f=
+ormal proceedings for the workshop. Accepted papers will be available on th=
+e workshop website under authors=92 permission.
+
+One Best Paper Award and one Best Application Paper Award will be announced=
+ at the end of workshop to recognize the current best work in Feedback Comp=
+uting. =
+
+
+
+-----------------------------------------------------------------------
+IMPORTANT DATES
+
+Paper submission: 	Jun 15, 2012
+Author notification: 	Jul 27, 2012
+Final paper due:  	Aug 24, 2012
+Workshop:		Sep 17, 2012
+
+-----------------------------------------------------------------------
+ORGANIZING COMMITTEE
+
+General Chair
+	Tarek Abdelzaher (University of Illinois at Urbana Champaign)
+
+Program Co-Chairs
+	Yixin Diao (IBM T.J. Watson Research Center)
+	Zhikui Wang (HP Labs)
+
+Publicity Co-Chairs
+	Xiaoyun Zhu (VMWare)
+	Matina Maggio (Lund University)
+
+Steering Committee
+	Tarek Abdelzaher (University of Illinois at Urbana Champaign)
+	Yixin Diao (IBM T.J. Watson Research Center)
+	Joseph L. Hellerstein (Google)
+	Chenyang Lu (Washington University in St. Louis)
+	Anders Robertsson (Lund University)
+	Xiaoyun Zhu (VMWare)
+
+Program Committee
+       Sherif Abdelwahed (Mississippi State University)
+       Karl-Erik Arzen (Lund University)
+       Christos Cassandras (Boston University) =
+
+       Anton Cervin (Lund University)
+       Chris Gill (Washington University in St. Louis)
+       Maria Kihl (Lund University)
+       Jeffrey Kephart (IBM Research)
+       Charles R Lefurgy (IBM Research)
+       Jie Liu (Microsoft Research)
+       Xue Liu (McGill University)
+       Ying Lu (University of Nebraska at Lincoln) =
+
+       Arif Merchant (Google) =
+
+       Pradeep Padala (VMWare)
+       Sharad Singhal (HP Labs)
+       Raj Rajkumar (Carnegie Mellon University)
+       Eric Rutten (INRIA Grenoble)
+       Mark Squillante (IBM Research)
+       Eduardo Tovar (Polytechnic Institute of Porto)
+       Qian Wang (Pennsylvania State University)
+______________________________________________________________________
+Feedback Computing 2012: The 7th International Workshop on Feedback Computi=
+ng
+17 September 2012, San Jose, California, USA
+http://www.feedbackcomputing.org
