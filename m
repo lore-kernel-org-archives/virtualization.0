@@ -1,7 +1,7 @@
 From: David Gibson <david@gibson.dropbear.id.au>
-Subject: [PATCH 3/3] virtio_balloon: Bugfixes for PAGE_SIZE != 4k
-Date: Thu, 12 Apr 2012 15:36:35 +1000
-Message-ID: <1334208995-29985-4-git-send-email-david__9450.78453883088$1334209037$gmane$org@gibson.dropbear.id.au>
+Subject: [PATCH 1/3] virtio_balloon: Remove unnecessarily persistent state
+Date: Thu, 12 Apr 2012 15:36:33 +1000
+Message-ID: <1334208995-29985-2-git-send-email-david__3569.41660070351$1334209046$gmane$org@gibson.dropbear.id.au>
 References: <1334208995-29985-1-git-send-email-david@gibson.dropbear.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,117 +21,117 @@ To: rusty@rustcorp.com.au, mst@redhat.com
 Cc: qemu-devel@nongnu.org, David Gibson <david@gibson.dropbear.id.au>, paulus@samba.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The virtio_balloon device is specced to always operate on 4k pages.  The
-virtio_balloon driver has a feeble attempt at reconciling this with a
-lerge kernel page size, but it is (a) exactly wrong (it shifts the pfn in
-the wrong direction) and (b) insufficient (it doesn't issue multiple 4k
-balloon requests for each guest page, or correct other accounting values
-for the different in page size).
+The main virtio_balloon state structure contains the fields num_pfns and
+array 'pfns'.  Although they are stored here persistently, the lifetime of
+useful data in there is never more than one function - they're essentially
+used as though they were local variables.
 
-This patch fixes the various problems.  It has been tested with a powerpc
-guest kernel configured for 64kB base page size, running under qemu.
+For the pfns buffer, used to communicate a batch of pfns this is useful to
+avoid either transient kmalloc()s or putting too much data on the stack.
+For num_pfns, there is no reason it should not be a local, though.
+
+This patch cleans things up by making num_pfns a local in the functions it
+is used in.  The pfns array remains, but the comment is updated to clarify
+that it contains no truly persistent data.
 
 Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
 ---
- drivers/virtio/virtio_balloon.c |   32 ++++++++++++++++++++------------
- 1 file changed, 20 insertions(+), 12 deletions(-)
+ drivers/virtio/virtio_balloon.c |   28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 553cc1f..834b7f9 100644
+index 05f0a80..6c07793 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -60,13 +60,20 @@ static struct virtio_device_id id_table[] = {
- 	{ 0 },
- };
+@@ -46,8 +46,8 @@ struct virtio_balloon
+ 	unsigned int num_pages;
+ 	struct list_head pages;
  
--static u32 page_to_balloon_pfn(struct page *page)
-+#define BALLOON_PAGE_ORDER	(PAGE_SHIFT - VIRTIO_BALLOON_PFN_SHIFT)
-+#define PAGES_PER_ARRAY(_a)	(ARRAY_SIZE(_a) >> BALLOON_PAGE_ORDER)
-+
-+static void page_to_balloon_pfns(u32 pfns[], unsigned int n, struct page *page)
- {
--	unsigned long pfn = page_to_pfn(page);
-+	unsigned long bpfn = page_to_pfn(page) << BALLOON_PAGE_ORDER;
-+	u32 *p = &pfns[n << BALLOON_PAGE_ORDER];
-+	int i;
+-	/* The array of pfns we tell the Host about. */
+-	unsigned int num_pfns;
++	/* Temporary buffer of pfns to pass to the host */
++	/* Store this here to avoid a too-large local array */
+ 	u32 pfns[256];
  
- 	BUILD_BUG_ON(PAGE_SHIFT < VIRTIO_BALLOON_PFN_SHIFT);
--	/* Convert pfn from Linux page size to balloon page size. */
--	return pfn >> (PAGE_SHIFT - VIRTIO_BALLOON_PFN_SHIFT);
-+
-+	/* Enter a balloon pfn for each 4k subpage of the Linux page */
-+	for (i = 0; i < (1 << BALLOON_PAGE_ORDER); i++)
-+		p[i] = bpfn + i;
+ 	/* Memory statistics */
+@@ -79,11 +79,12 @@ static void balloon_ack(struct virtqueue *vq)
+ 		complete(&vb->acked);
  }
  
- static void balloon_ack(struct virtqueue *vq)
-@@ -84,7 +91,8 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq,
+-static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
++static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq,
++		      unsigned int n)
  {
  	struct scatterlist sg;
  
--	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * n);
-+	sg_init_one(&sg, vb->pfns,
-+		    sizeof(vb->pfns[0]) * (n << BALLOON_PAGE_ORDER));
+-	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
++	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * n);
  
  	init_completion(&vb->acked);
  
-@@ -102,7 +110,7 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
- 	unsigned int n;
+@@ -98,10 +99,12 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
  
+ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+ {
++	unsigned int n;
++
  	/* We can only do one array worth at a time. */
--	num = min(num, ARRAY_SIZE(vb->pfns));
-+	num = min(num, PAGES_PER_ARRAY(vb->pfns));
+ 	num = min(num, ARRAY_SIZE(vb->pfns));
  
- 	for (n = 0; n < num; n++) {
+-	for (vb->num_pfns = 0; vb->num_pfns < num; vb->num_pfns++) {
++	for (n = 0; n < num; n++) {
  		struct page *page = alloc_page(GFP_HIGHUSER | __GFP_NORETRY |
-@@ -116,7 +124,7 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+ 					__GFP_NOMEMALLOC | __GFP_NOWARN);
+ 		if (!page) {
+@@ -113,17 +116,17 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
  			msleep(200);
  			break;
  		}
--		vb->pfns[n] = page_to_balloon_pfn(page);
-+		page_to_balloon_pfns(vb->pfns, n, page);
+-		vb->pfns[vb->num_pfns] = page_to_balloon_pfn(page);
++		vb->pfns[n] = page_to_balloon_pfn(page);
  		totalram_pages--;
  		vb->num_pages++;
  		list_add(&page->lru, &vb->pages);
-@@ -134,7 +142,7 @@ static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
- 	unsigned int i;
- 
- 	for (i = 0; i < num; i++) {
--		__free_page(pfn_to_page(pfns[i]));
-+		__free_page(pfn_to_page(pfns[i << BALLOON_PAGE_ORDER]));
- 		totalram_pages++;
  	}
+ 
+ 	/* Didn't get any?  Oh well. */
+-	if (vb->num_pfns == 0)
++	if (n == 0)
+ 		return;
+ 
+-	tell_host(vb, vb->inflate_vq);
++	tell_host(vb, vb->inflate_vq, n);
  }
-@@ -145,12 +153,12 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
- 	unsigned int n;
+ 
+ static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
+@@ -139,14 +142,15 @@ static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
+ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+ {
+ 	struct page *page;
++	unsigned int n;
  
  	/* We can only do one array worth at a time. */
--	num = min(num, ARRAY_SIZE(vb->pfns));
-+	num = min(num, PAGES_PER_ARRAY(vb->pfns));
+ 	num = min(num, ARRAY_SIZE(vb->pfns));
  
- 	for (n = 0; n < num; n++) {
+-	for (vb->num_pfns = 0; vb->num_pfns < num; vb->num_pfns++) {
++	for (n = 0; n < num; n++) {
  		page = list_first_entry(&vb->pages, struct page, lru);
  		list_del(&page->lru);
--		vb->pfns[n] = page_to_balloon_pfn(page);
-+		page_to_balloon_pfns(vb->pfns, n, page);
+-		vb->pfns[vb->num_pfns] = page_to_balloon_pfn(page);
++		vb->pfns[n] = page_to_balloon_pfn(page);
  		vb->num_pages--;
  	}
  
-@@ -244,13 +252,13 @@ static inline s64 towards_target(struct virtio_balloon *vb)
- 	vb->vdev->config->get(vb->vdev,
- 			      offsetof(struct virtio_balloon_config, num_pages),
- 			      &v, sizeof(v));
--	target = le32_to_cpu(v);
-+	target = le32_to_cpu(v) >> BALLOON_PAGE_ORDER;
- 	return target - vb->num_pages;
+@@ -155,8 +159,8 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+ 	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+ 	 * is true, we *have* to do it in this order
+ 	 */
+-	tell_host(vb, vb->deflate_vq);
+-	release_pages_by_pfn(vb->pfns, vb->num_pfns);
++	tell_host(vb, vb->deflate_vq, n);
++	release_pages_by_pfn(vb->pfns, n);
  }
  
- static void update_balloon_size(struct virtio_balloon *vb)
- {
--	__le32 actual = cpu_to_le32(vb->num_pages);
-+	__le32 actual = cpu_to_le32(vb->num_pages << BALLOON_PAGE_ORDER);
- 
- 	vb->vdev->config->set(vb->vdev,
- 			      offsetof(struct virtio_balloon_config, actual),
+ static inline void update_stat(struct virtio_balloon *vb, int idx,
 -- 
 1.7.9.5
