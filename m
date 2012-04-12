@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 1/3] virtio_balloon: Remove unnecessarily persistent state
-Date: Thu, 12 Apr 2012 11:11:25 +0300
-Message-ID: <20120412081125.GA12585@redhat.com>
+Date: Thu, 12 Apr 2012 11:25:59 +0300
+Message-ID: <20120412082558.GA12847@redhat.com>
 References: <1334208995-29985-1-git-send-email-david@gibson.dropbear.id.au>
 	<1334208995-29985-2-git-send-email-david@gibson.dropbear.id.au>
 Mime-Version: 1.0
@@ -39,13 +39,8 @@ On Thu, Apr 12, 2012 at 03:36:33PM +1000, David Gibson wrote:
 > 
 > Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
 
-nak
-
-IMO it makes sense to keep the array size around together with the
-array: either we use local storage for both or for neither.
-
-OTOH a comment is a good thing to add, just make it more specific,
-see below.
+Further, this is not a bugfix so pls drop it for now
+at least until 3.5.
 
 > ---
 >  drivers/virtio/virtio_balloon.c |   28 ++++++++++++++++------------
@@ -62,13 +57,6 @@ see below.
 > -	/* The array of pfns we tell the Host about. */
 > -	unsigned int num_pfns;
 > +	/* Temporary buffer of pfns to pass to the host */
-
-This needs to be more specific to be informative:
-all things are temporary in this world :)
-
-+ /* Valid for the duration of one command only */
-
-
 > +	/* Store this here to avoid a too-large local array */
 >  	u32 pfns[256];
 >  
