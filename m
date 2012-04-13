@@ -1,13 +1,13 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: virtio message framing
-Date: Fri, 13 Apr 2012 10:48:18 -0500
-Message-ID: <4F884AC2.9030202@us.ibm.com>
-References: <CAJSP0QWPih2NmRvF3D-HXEH72t3pvvywoes-_wv2dAjHKg8Fjg@mail.gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] skbuff: struct ubuf_info callback type safety
+Date: Fri, 13 Apr 2012 13:09:40 -0400 (EDT)
+Message-ID: <20120413.130940.132638261191849442.davem@davemloft.net>
+References: <20120409102402.GA5255@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QWPih2NmRvF3D-HXEH72t3pvvywoes-_wv2dAjHKg8Fjg@mail.gmail.com>
+In-Reply-To: <20120409102402.GA5255@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,50 +17,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: mst@redhat.com
+Cc: ian.campbell@citrix.com, eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, shemminger@vyatta.com, xma@us.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/13/2012 09:50 AM, Stefan Hajnoczi wrote:
-> The virtio specification says:
->
-> "The descriptors used for a buffer should not effect the semantics
-> of the message,
-> except for the total length of the buffer"
->
-> and
->
-> "In particular, no implementation should use the descriptor boundaries
-> to determine the size of any header in a request"
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Mon, 9 Apr 2012 13:24:02 +0300
 
-This was the noble intention but all of the implementations actually rely on 
-boundary sizes.
+> The skb struct ubuf_info callback gets passed struct ubuf_info
+> itself, not the arg value as the field name and the function signature
+> seem to imply. Rename the arg field to ctx to match usage,
+> add documentation and change the callback argument type
+> to make usage clear and to have compiler check correctness.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Both QEMU and lguest rely on boundary sizes.  We've removed some of it in 
-virtio-net in QEMU but it still looks like it's there for virtio-blk.
-
-kvm tool also makes this assumption.
-
-> Why should descriptor layout not be specified?
->
-> It seems that implementing arbitrary descriptor layout support (e.g.
-> 1-byte descriptors) requires more code and makes input validation
-> harder.
->
-> Why bother with the flexibility of unspecified descriptor layouts?  As
-> long as the layout is specified clearly it makes everyone's lives
-> easier to use a strict descriptor layout.
-
-I hate to just change the spec here but I don't see a better option.
-
-Regards,
-
-Anthony Liguori
-
->
-> The only reason I can think of is that virtio should work over
-> transports that do not have the concept of "descriptors" (non-vring
-> transports like pipes or streams).
->
-> Stefan
->
+Applied, thanks for fixing this Michael.
