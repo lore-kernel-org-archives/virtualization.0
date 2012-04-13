@@ -1,13 +1,14 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] skbuff: struct ubuf_info callback type safety
-Date: Fri, 13 Apr 2012 13:09:40 -0400 (EDT)
-Message-ID: <20120413.130940.132638261191849442.davem@davemloft.net>
-References: <20120409102402.GA5255@redhat.com>
+Subject: Re: [net-next V7 PATCH] virtio-net: send gratuitous packets when
+	needed
+Date: Fri, 13 Apr 2012 13:38:04 -0400 (EDT)
+Message-ID: <20120413.133804.1504347944886702242.davem@davemloft.net>
+References: <20120412064351.23243.84912.stgit@amd-6168-8-1.englab.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120409102402.GA5255@redhat.com>
+In-Reply-To: <20120412064351.23243.84912.stgit@amd-6168-8-1.englab.nay.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,19 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: ian.campbell@citrix.com, eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, shemminger@vyatta.com, xma@us.ibm.com
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Mon, 9 Apr 2012 13:24:02 +0300
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 12 Apr 2012 14:43:52 +0800
 
-> The skb struct ubuf_info callback gets passed struct ubuf_info
-> itself, not the arg value as the field name and the function signature
-> seem to imply. Rename the arg field to ctx to match usage,
-> add documentation and change the callback argument type
-> to make usage clear and to have compiler check correctness.
+> As hypervior does not have the knowledge of guest network configuration, it's
+> better to ask guest to send gratuitous packets when needed.
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> This patch implements VIRTIO_NET_F_GUEST_ANNOUNCE feature: hypervisor would
+> notice the guest when it thinks it's time for guest to announce the link
+> presnece. Guest tests VIRTIO_NET_S_ANNOUNCE bit during config change interrupt
+> and woule send gratuitous packets through netif_notify_peers() and ack the
+> notification through ctrl vq.
+> 
+> We need to make sure the atomicy of read and ack in guest otherwise we may ack
+> more times than being notified. This is done through handling the whole config
+> change interrupt in an non-reentrant workqueue.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Applied, thanks for fixing this Michael.
+Michael, Rusty, et al.?
