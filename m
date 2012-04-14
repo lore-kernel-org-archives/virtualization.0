@@ -1,14 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [net-next V7 PATCH] virtio-net: send gratuitous packets when
-	needed
-Date: Fri, 13 Apr 2012 13:38:04 -0400 (EDT)
-Message-ID: <20120413.133804.1504347944886702242.davem@davemloft.net>
-References: <20120412064351.23243.84912.stgit@amd-6168-8-1.englab.nay.redhat.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: Call for Posters: The 21st Int. ACM Symp. on High-Performance Parallel
+	and Distributed Computing (HPDC'12)
+Date: Sat, 14 Apr 2012 07:13:24 -0500
+Message-ID: <4F8969E4.2000503@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120412064351.23243.84912.stgit@amd-6168-8-1.englab.nay.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,26 +17,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 12 Apr 2012 14:43:52 +0800
+                       **** CALL FOR POSTERS ****
 
-> As hypervior does not have the knowledge of guest network configuration, it's
-> better to ask guest to send gratuitous packets when needed.
-> 
-> This patch implements VIRTIO_NET_F_GUEST_ANNOUNCE feature: hypervisor would
-> notice the guest when it thinks it's time for guest to announce the link
-> presnece. Guest tests VIRTIO_NET_S_ANNOUNCE bit during config change interrupt
-> and woule send gratuitous packets through netif_notify_peers() and ack the
-> notification through ctrl vq.
-> 
-> We need to make sure the atomicy of read and ack in guest otherwise we may ack
-> more times than being notified. This is done through handling the whole config
-> change interrupt in an non-reentrant workqueue.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+                 The 21st International ACM Symposium on
+          High-Performance Parallel and Distributed Computing
+                             (HPDC'12)
 
-Michael, Rusty, et al.?
+           Delft University of Technology, Delft, the Netherlands
+
+                          June 18-22, 2012
+
+                     http://www.hpdc.org/2012
+
+
+The ACM International Symposium on High-Performance Parallel and 
+Distributed Computing (HPDC)
+is the premier annual conference on the design, the implementation, the 
+evaluation, and
+the use of parallel and distributed systems for high-end computing. 
+HPDC'12 will take place
+in Delft, the Netherlands, a historical, picturesque city that is less 
+than one hour away
+from Amsterdam-Schiphol airport. The conference will be held on June 
+20-22 (Wednesday to
+Friday), with affiliated workshops taking place on June 18-19 (Monday 
+and Tuesday).
+
+HPDC'12 will feature a poster session that will provide the right 
+environment for lively and
+informal discussions on various high performance parallel and 
+distributed computing
+topics.
+
+We invite all potential authors to submit their contribution for this 
+poster session in the form of
+a two-page PDF abstract (we recommend using the ACM Proceedings style, 
+and fonts not smaller than 10 point).
+Posters may be accompanied by practical demonstrations.
+
+Abstracts must be submitted by sending an email to: 
+hpdc-2012-posters@gmail.com before May 15th 2012, 23:59 CET.
+
+Participating posters will be selected based on the following criteria:
+     * Submissions must describe new, interesting ideas on any HPDC 
+topics of interest.
+     * Submissions can present work in progress, but we strongly 
+encourage the authors to include preliminary
+     experimental results, if available.
+     * Student submissions meeting the above criteria will be given 
+preference.
+
+Please provide the following information in your PDF file:
+
+     * Poster title.
+     * Author names, affiliations, and email addresses.
+     * Note which authors, if any, are students.
+     * Indicate if you plan to set up a demo with your poster (the 
+authors and organizers need to agree that
+     the requirements for the demo to function can be met at the site of 
+the poster exhibition).
+
+
+Authors will be notified of acceptance or rejection via e-mail by May 
+20th, 2012. No reviews will be provided.
+Posters will be published online on the conference Web site. Each poster 
+will also have an A0 panel
+in a poster exhibition area, which will also include posters of the HPDC 
+accepted papers.
+
+The poster session will be held on Wednesday, June 20, in the late 
+afternoon, and it will start with a poster
+advertising session, during which the author(s) of each poster will give 
+a very short presentation (2 slides,
+1-2 minutes) of their poster. Following these presentations, the poster 
+exhibition will be opened for visiting
+and, we hope, for fruitful discussions. Therefore, we kindly request at 
+least one author of each poster to be
+present throughout the entire session.
+
+For any questions about the submission, selection, and presentation of 
+the accepted posters, please
+contact the Poster Session Chair - Ana Lucia Varbanescu, Delft 
+University of Technology, The Netherlands.
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  iraicu@cs.iit.edu
+Web:    http://www.cs.iit.edu/~iraicu/
+Web:    http://datasys.cs.iit.edu/
+=================================================================
+=================================================================
