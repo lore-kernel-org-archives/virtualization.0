@@ -1,11 +1,15 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: 13th IEEE/ACM Int. Conf. on Grid Computing (GRID) 2012
-Date: Sat, 14 Apr 2012 07:56:09 -0500
-Message-ID: <4F8973E9.1000408@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [net-next V7 PATCH] virtio-net: send gratuitous packets when
+	needed
+Date: Sun, 15 Apr 2012 10:12:23 +0300
+Message-ID: <20120415071223.GC3070@redhat.com>
+References: <20120412064351.23243.84912.stgit@amd-6168-8-1.englab.nay.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8346021252876301124=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20120412064351.23243.84912.stgit@amd-6168-8-1.englab.nay.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,463 +19,261 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---===============8346021252876301124==
-Content-Type: multipart/alternative;
- boundary="------------020106000004010303000202"
+On Thu, Apr 12, 2012 at 02:43:52PM +0800, Jason Wang wrote:
+> As hypervior does not have the knowledge of guest network configuration, it's
+> better to ask guest to send gratuitous packets when needed.
+> 
+> This patch implements VIRTIO_NET_F_GUEST_ANNOUNCE feature: hypervisor would
+> notice the guest when it thinks it's time for guest to announce the link
+> presnece. Guest tests VIRTIO_NET_S_ANNOUNCE bit during config change interrupt
+> and woule send gratuitous packets through netif_notify_peers() and ack the
+> notification through ctrl vq.
+> 
+> We need to make sure the atomicy of read and ack in guest otherwise we may ack
+> more times than being notified. This is done through handling the whole config
+> change interrupt in an non-reentrant workqueue.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-This is a multi-part message in MIME format.
---------------020106000004010303000202
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
+> 
+> ---
+> 
+> Changes from v6:
+> - move the whole event processing to system_nrt_wq
+> - introduce the config_enable and config_lock to synchronize with dev removing
+> and pm
+> - protect the ack with rtnl_lock
+> 
+> Changes from v5:
+> - notify the chain before acking the link annoucement
+> - ack the link announcement notification through control vq
+> 
+> Changes from v4:
+> - typos
+> - handle workqueue unconditionally
+> - move VIRTIO_NET_S_ANNOUNCE to bit 8 to separate rw bits from ro bits
+> 
+> Changes from v3:
+> - cancel the workqueue during freeze
+> 
+> Changes from v2:
+> - fix the race between unregister_dev() and workqueue
+> ---
+>  drivers/net/virtio_net.c   |   64 +++++++++++++++++++++++++++++++++++++++++---
+>  include/linux/virtio_net.h |   14 ++++++++++
+>  2 files changed, 73 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 4de2760..23403b6 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -66,12 +66,21 @@ struct virtnet_info {
+>  	/* Host will merge rx buffers for big packets (shake it! shake it!) */
+>  	bool mergeable_rx_bufs;
+>  
+> +	/* enable config space updates */
+> +	bool config_enable;
+> +
+>  	/* Active statistics */
+>  	struct virtnet_stats __percpu *stats;
+>  
+>  	/* Work struct for refilling if we run low on memory. */
+>  	struct delayed_work refill;
+>  
+> +	/* Work struct for config space updates */
+> +	struct work_struct config_work;
+> +
+> +	/* Lock for config space updates */
+> +	struct mutex config_lock;
+> +
+>  	/* Chain pages by the private ptr. */
+>  	struct page *pages;
+>  
+> @@ -781,6 +790,16 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+>  	return status == VIRTIO_NET_OK;
+>  }
+>  
+> +static void virtnet_ack_link_announce(struct virtnet_info *vi)
+> +{
+> +	rtnl_lock();
+> +	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
+> +				  VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL,
+> +				  0, 0))
+> +		dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
+> +	rtnl_unlock();
+> +}
+> +
+>  static int virtnet_close(struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> @@ -952,20 +971,31 @@ static const struct net_device_ops virtnet_netdev = {
+>  #endif
+>  };
+>  
+> -static void virtnet_update_status(struct virtnet_info *vi)
+> +static void virtnet_config_changed_work(struct work_struct *work)
+>  {
+> +	struct virtnet_info *vi =
+> +		container_of(work, struct virtnet_info, config_work);
+>  	u16 v;
+>  
+> +	mutex_lock(&vi->config_lock);
+> +	if (!vi->config_enable)
+> +		goto done;
+> +
+>  	if (virtio_config_val(vi->vdev, VIRTIO_NET_F_STATUS,
+>  			      offsetof(struct virtio_net_config, status),
+>  			      &v) < 0)
+> -		return;
+> +		goto done;
+> +
+> +	if (v & VIRTIO_NET_S_ANNOUNCE) {
+> +		netif_notify_peers(vi->dev);
+> +		virtnet_ack_link_announce(vi);
+> +	}
+>  
+>  	/* Ignore unknown (future) status bits */
+>  	v &= VIRTIO_NET_S_LINK_UP;
+>  
+>  	if (vi->status == v)
+> -		return;
+> +		goto done;
+>  
+>  	vi->status = v;
+>  
+> @@ -976,13 +1006,15 @@ static void virtnet_update_status(struct virtnet_info *vi)
+>  		netif_carrier_off(vi->dev);
+>  		netif_stop_queue(vi->dev);
+>  	}
+> +done:
+> +	mutex_unlock(&vi->config_lock);
+>  }
+>  
+>  static void virtnet_config_changed(struct virtio_device *vdev)
+>  {
+>  	struct virtnet_info *vi = vdev->priv;
+>  
+> -	virtnet_update_status(vi);
+> +	queue_work(system_nrt_wq, &vi->config_work);
+>  }
+>  
+>  static int init_vqs(struct virtnet_info *vi)
+> @@ -1076,6 +1108,9 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		goto free;
+>  
+>  	INIT_DELAYED_WORK(&vi->refill, refill_work);
+> +	mutex_init(&vi->config_lock);
+> +	vi->config_enable = true;
+> +	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+>  	sg_init_table(vi->rx_sg, ARRAY_SIZE(vi->rx_sg));
+>  	sg_init_table(vi->tx_sg, ARRAY_SIZE(vi->tx_sg));
+>  
+> @@ -1111,7 +1146,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	   otherwise get link status from config. */
+>  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
+>  		netif_carrier_off(dev);
+> -		virtnet_update_status(vi);
+> +		queue_work(system_nrt_wq, &vi->config_work);
+>  	} else {
+>  		vi->status = VIRTIO_NET_S_LINK_UP;
+>  		netif_carrier_on(dev);
+> @@ -1170,10 +1205,17 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
+>  {
+>  	struct virtnet_info *vi = vdev->priv;
+>  
+> +	/* Prevent config work handler from accessing the device. */
+> +	mutex_lock(&vi->config_lock);
+> +	vi->config_enable = false;
+> +	mutex_unlock(&vi->config_lock);
+> +
+>  	unregister_netdev(vi->dev);
+>  
+>  	remove_vq_common(vi);
+>  
+> +	flush_work(&vi->config_work);
+> +
+>  	free_percpu(vi->stats);
+>  	free_netdev(vi->dev);
+>  }
+> @@ -1183,6 +1225,11 @@ static int virtnet_freeze(struct virtio_device *vdev)
+>  {
+>  	struct virtnet_info *vi = vdev->priv;
+>  
+> +	/* Prevent config work handler from accessing the device */
+> +	mutex_lock(&vi->config_lock);
+> +	vi->config_enable = false;
+> +	mutex_unlock(&vi->config_lock);
+> +
+>  	virtqueue_disable_cb(vi->rvq);
+>  	virtqueue_disable_cb(vi->svq);
+>  	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ))
+> @@ -1196,6 +1243,8 @@ static int virtnet_freeze(struct virtio_device *vdev)
+>  
+>  	remove_vq_common(vi);
+>  
+> +	flush_work(&vi->config_work);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -1216,6 +1265,10 @@ static int virtnet_restore(struct virtio_device *vdev)
+>  	if (!try_fill_recv(vi, GFP_KERNEL))
+>  		queue_delayed_work(system_nrt_wq, &vi->refill, 0);
+>  
+> +	mutex_lock(&vi->config_lock);
+> +	vi->config_enable = true;
+> +	mutex_unlock(&vi->config_lock);
+> +
+>  	return 0;
+>  }
+>  #endif
+> @@ -1233,6 +1286,7 @@ static unsigned int features[] = {
+>  	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO,
+>  	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ,
+>  	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
+> +	VIRTIO_NET_F_GUEST_ANNOUNCE,
+>  };
+>  
+>  static struct virtio_driver virtio_net_driver = {
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index 970d5a2..2470f54 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -49,8 +49,11 @@
+>  #define VIRTIO_NET_F_CTRL_RX	18	/* Control channel RX mode support */
+>  #define VIRTIO_NET_F_CTRL_VLAN	19	/* Control channel VLAN filtering */
+>  #define VIRTIO_NET_F_CTRL_RX_EXTRA 20	/* Extra RX mode control support */
+> +#define VIRTIO_NET_F_GUEST_ANNOUNCE 21	/* Guest can announce device on the
+> +					 * network */
+>  
+>  #define VIRTIO_NET_S_LINK_UP	1	/* Link is up */
+> +#define VIRTIO_NET_S_ANNOUNCE	2	/* Announcement is needed */
+>  
+>  struct virtio_net_config {
+>  	/* The config defining mac address (if VIRTIO_NET_F_MAC) */
+> @@ -152,4 +155,15 @@ struct virtio_net_ctrl_mac {
+>   #define VIRTIO_NET_CTRL_VLAN_ADD             0
+>   #define VIRTIO_NET_CTRL_VLAN_DEL             1
+>  
+> +/*
+> + * Control link announce acknowledgement
+> + *
+> + * The command VIRTIO_NET_CTRL_ANNOUNCE_ACK is used to indicate that
+> + * driver has recevied
 
-  Call for papers
+received :)
 
-*Grid 2012: 13th IEEE/ACM International Conference on Grid Computing*
-
-Beijing, China
-
-September 20-23, 2012
-
-http://grid2012.meepo.org
-
-Co-located with ChinaGrid'12
-
-Grid computing enables the sharing of distributed computing and data=20
-resources such as processing, network bandwidth and storage capacity to=20
-create a cohesive resource environment for executing distributed=20
-applications. The Grid conference series is an annual international=20
-meeting that brings together a community of researchers, developers,=20
-practitioners, and users involved with Grid technology. The objective of=20
-the meeting is to serve as both the premier venue for presenting=20
-foremost research results in the area and as a forum for introducing and=20
-exploring new concepts.
-
-In 2012, the Grid conference will come to China for the first time and=20
-will be held in Beijing, co-located with ChinaGrid'12. Grid 2012 will=20
-have a focus on important and immediate issues that are significantly=20
-influencing grid computing.
-
-
-    Scope
-
-Grid 2012 topics of interest include, but are not limited to:
-
-  * Architecture
-  * Middleware and toolkits
-  * Resource management, scheduling, and runtime environments
-  * Performance modeling and evaluation
-  * Programming models, tools and environments
-  * Metadata, ontologies, and provenance
-  * Cloud computing
-  * Virtualization and grid computing
-  * Scientific workflow
-  * Storage systems and data management
-  * Data-intensive computing and processing
-  * QoS and SLA Negotiation
-  * Applications and experiences in science, engineering, business and
-    society
-
-
-    Paper Submission
-
-Authors are invited to submit original papers (not published or=20
-currently under review for any other conference or journal). Submitted=20
-manuscripts should not exceed 8 letter size (8.5 x 11) pages including=20
-figures, tables and references using the IEEE format for conference=20
-proceedings. Authors should submit the manuscript in PDF format via=20
-https://www.easychair.org/conferences/?conf=3Dgrid12
-
-All submitted papers will be reviewed by program committee members and=20
-selected based on their originality, correctness, technical strength,=20
-significance, quality of presentation, and interest and relevance to the=20
-conference attendees. Accepted papers will be published in the IEEE=20
-categorized conference proceedings and will be made available online=20
-through the IEEE Xplore and the CS Digital Library.
-
-Go to paper submission page... <http://grid2012.meepo.org/submissions.htm=
->
-
-
-    Important Dates
-
-Papers Submission Due: 15 March 2012   Extended to 15 April 2012.
-
-Notification of Acceptance: 15 May 2012
-
-Camera Ready Papers Due: 15 June 2012
-
-
-  Committees
-
-
-    Organising Committee
-
-  * *General Co-Chairs:*
-      o Dieter Kranzlmueller, Ludwig-Maximilians-Universit=E4t, Germany
-      o Weimin Zheng, Tsinghua University, China
-  * *Programme Co-Chairs:*
-      o Rajkumar Buyya, University of Melbourne, Australia
-      o Hai Jin, Huazhong University of Science and Technology, China
-  * *Local Organization Chair:* Yongwei Wu, Tsinghua University, China
-  * *Finance Chair:* Kang Chen, Tsinghua University, China
-
-
-    Programme Committee (To be comfirmed)
-
-  * *Programme Co-Chairs:*
-      o Rajkumar Buyya, University of Melbourne, Australia
-      o Hai Jin, Huazhong University of Science and Technology, China
-  * *Workshop & Poster Chair:* Jinlei Jiang, Tsinghua University, China
-  * *Vice Chair -- Clouds and Virtualisation: * Roger Barga, Microsoft
-    Research
-  * *Vice Chair -- Distributed Production Cyberinfrastructure and
-    Middleware:* Andrew Grimshaw, Univ. of Virginia, US
-  * *Vice Chair -- e-Research and Applications:* Daniel S. Katz, Univ.
-    of Chicago & Argonne National Laboratory, US
-  * *Vice Chair -- Tools & Services, Resource Management & Runtime
-    Environments:* Ramin Yahyapour, Dortmund
-  * *Vice Chair -- Distributed Data-Intensive Science and Systems:*
-    Erwin Laure, KTH, Sweeden
-  * *Publishing Chair: *Ran Zheng, Huazhong University of Science and
-    Technology, China
-  * *Publicity Chairs:*
-      o Gilles Fedak, INRIA/LIP, France
-      o Ioan Raicu, Illinois Institute of Technology and Argonne
-        National Laboratory, USA
-      o Xuanhua Shi, Huazhong University of Science and Technology, China
-  * *Program Committe:*
-      o David Abramson, Monash University, Australia
-      o Gabrielle Allen, Louisiana State University, USA
-      o Andreas Aschenbrenner, Austrian Academy of Sciences
-      o David Bader, Georgia Institute of Technology, USA
-      o Rosa Badia, UPC, Spain
-      o Henri Bal, Vrije Universiteit, Netherlands
-      o Chaitanya Baru, San Diego Supercomputer Center, US
-      o Eloisa Bentivegna, Max Planck Institute for Gravitational
-        Physics, Germany
-      o Ignacio Blanquer, Universidad Polit=E9cnica de Valencia, Spain
-      o Jinlei Jiang, Tsinghua University, China
-      o Neil Chue Hong, EPCC, UK
-      o Marco Danelutto, Universit=E0 di Pisa, Italy
-      o Eva Deelman, ISI, USC , US
-      o Frederic Desprez, INRIA-LIP, France
-      o Jim Dowling, SICS, Sweden
-      o Jaliya Ekanayake, Microsoft Research, US
-      o Erik Elmroth, Ume=E5 University, Sweden
-      o Vangelis Floros, GRNET, Greece
-      o Ian Foster, Univ. of Chicago, US
-      o Patrick Fuhrmann, DESY, DE
-      o Kang Chen, Tsinghua University, China
-      o Rob Gillen, Oak Ridge National Laboratory , US
-      o Marty Humphrey, University of Virginia, US
-      o Jens Jensen, STFC, UK
-      o Kate Keahey, Argonne National Laboratory, US
-      o Thilo Kielmann, Vrije Universiteit, The Netherlands
-      o Bastian Koller, HLRS, Germany
-      o Tevfik Kosar, University at Buffalo, US
-      o Nicolas Kourtellis, University of South Florida, USA
-      o Patricia Kovatch, University of Tennessee, USA
-      o Dieter Kranzlm=FCller, Ludwig-Maximilians-Universit=E4t M=FCnchen=
-, Germany
-      o Peter Kunszt, SystemsX, Switzerland
-      o Miron Livny, Univ. of Wisconsin, US
-      o Hideo Matsuda, University of Osaka, Japan
-      o Satoshi Matsuoka, Tokyo Institute of Technology, Japan
-      o Jim Myers, Rensselaer Polytechnic Institute, US
-      o Steven Newhouse, EGI, NL
-      o Manish Parashar, Rutgers, USA
-      o Judy Qiu, Indiana University, US
-      o Ioan Raicu, Illinois Institute of Technology and Argonne
-        National Laboratory, USA
-      o Alistair Rendell, Australian National University, Australia
-      o Karolina Sarnowska-Upton, Univ. of Virginia, US
-      o Heiko Schuldt, Basel University, Switzerland
-      o Richard Sinnott, University of Melbourne, Australia
-      o Alan Sill, Texas-Tech, US
-      o Alex Sim, LBL, US
-      o Mark Stillwell, INRIA-Universit=E9 de Lyon-LIP, France
-      o Alan Sussman, University of Maryland, USA
-      o Osamu Tatebe, Tsukuba University, Japan
-      o Domenico Talia, Universit=E0 della Calabria, Italiy
-      o Douglas Thain, University of Notre Dame, US
-      o David Wallom, Oxford University, UK
-
---=20
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Cel:    1-847-722-0876
-Office: 1-312-567-5704
-Email:  iraicu@cs.iit.edu
-Web:    http://www.cs.iit.edu/~iraicu/
-Web:    http://datasys.cs.iit.edu/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-
-
---------------020106000004010303000202
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-<html>
-  <head>
-
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-  </head>
-  <body bgcolor="#FFFFFF" text="#000000">
-    <div id="post-2">
-      <h1 class="entry-title">Call for papers</h1>
-      <div class="entry-content">
-        <p><strong>Grid 2012: 13th IEEE/ACM International Conference on
-            Grid Computing</strong></p>
-        <p>Beijing, China</p>
-        <p>September 20-23, 2012</p>
-        <p><a href="http://grid2012.meepo.org">http://grid2012.meepo.org</a><br>
-        </p>
-        <p>Co-located with ChinaGrid'12</p>
-        <p>Grid computing enables the sharing of distributed computing
-          and data resources such as processing, network bandwidth and
-          storage capacity to create a cohesive resource environment for
-          executing distributed applications. The Grid conference series
-          is an annual international meeting that brings together a
-          community of researchers, developers, practitioners, and users
-          involved with Grid technology. The objective of the meeting is
-          to serve as both the premier venue for presenting foremost
-          research results in the area and as a forum for introducing
-          and exploring new concepts.</p>
-        <p>In 2012, the Grid conference will come to China for the first
-          time and will be held in Beijing, co-located with
-          ChinaGrid'12. Grid 2012 will have a focus on important and
-          immediate issues that are significantly influencing grid
-          computing.</p>
-        <h2>Scope</h2>
-        <p>Grid 2012 topics of interest include, but are not limited to:</p>
-        <ul>
-          <li>Architecture</li>
-          <li>Middleware and toolkits</li>
-          <li>Resource management, scheduling, and runtime environments</li>
-          <li>Performance modeling and evaluation</li>
-          <li>Programming models, tools and environments</li>
-          <li>Metadata, ontologies, and provenance</li>
-          <li>Cloud computing</li>
-          <li>Virtualization and grid computing</li>
-          <li>Scientific workflow</li>
-          <li>Storage systems and data management</li>
-          <li>Data-intensive computing and processing</li>
-          <li>QoS and SLA Negotiation</li>
-          <li>Applications and experiences in science, engineering,
-            business and society</li>
-        </ul>
-        <h2>Paper Submission</h2>
-        <p>Authors are invited to submit original papers (not published
-          or currently under review for any other conference or
-          journal). Submitted manuscripts should not exceed 8 letter
-          size (8.5 x 11) pages including figures, tables and references
-          using the IEEE format for conference proceedings. Authors
-          should submit the manuscript in PDF format via <a
-            href="https://www.easychair.org/conferences/?conf=grid12">https://www.easychair.org/conferences/?conf=grid12</a></p>
-        <p>All submitted papers will be reviewed by program committee
-          members and selected based on their originality, correctness,
-          technical strength, significance, quality of presentation, and
-          interest and relevance to the conference attendees. Accepted
-          papers will be published in the IEEE categorized conference
-          proceedings and will be made available online through the IEEE
-          Xplore and the CS Digital Library.</p>
-        <p><a href="http://grid2012.meepo.org/submissions.htm">Go to
-            paper submission page...</a></p>
-        <h2>Important Dates</h2>
-        <p>Papers Submission Due: <s>15 March 2012 </s> &nbsp; Extended to
-          15 April 2012. </p>
-        <p>Notification of Acceptance: 15 May 2012 </p>
-        <p>Camera Ready Papers Due: 15 June 2012<br>
-        </p>
-        <div id="post-2">
-          <h1 class="entry-title">Committees</h1>
-          <div class="entry-content">
-            <h2>Organising Committee</h2>
-            <ul>
-              <li><strong>General Co-Chairs:</strong>
-                <ul>
-                  <li>Dieter
-                    Kranzlmueller,&nbsp;Ludwig-Maximilians-Universit&auml;t,
-                    Germany</li>
-                  <li>Weimin Zheng, Tsinghua University, China</li>
-                </ul>
-              </li>
-              <li><strong>Programme Co-Chairs:</strong>
-                <ul>
-                  <li>Rajkumar Buyya, University of Melbourne, Australia</li>
-                  <li>Hai Jin, Huazhong University of Science and
-                    Technology, China &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
-                </ul>
-              </li>
-              <li><strong>Local Organization Chair:</strong> Yongwei Wu,
-                Tsinghua University, China</li>
-              <li><strong>Finance Chair:</strong> Kang Chen, Tsinghua
-                University, China</li>
-            </ul>
-          </div>
-          <div class="entry-content">
-            <h2>Programme Committee (To be comfirmed)</h2>
-            <ul>
-              <li><strong>Programme Co-Chairs:</strong>
-                <ul>
-                  <li>Rajkumar Buyya, University of Melbourne, Australia</li>
-                  <li>Hai Jin, Huazhong University of Science and
-                    Technology, China</li>
-                </ul>
-              </li>
-              <li><strong>Workshop &amp; Poster Chair:</strong> Jinlei
-                Jiang, Tsinghua University, China</li>
-              <li><strong>Vice Chair &#8211; Clouds and Virtualisation: </strong>
-                Roger Barga, Microsoft Research</li>
-              <li><strong>Vice Chair &#8211; Distributed Production
-                  Cyberinfrastructure and Middleware:</strong> Andrew
-                Grimshaw, Univ. of Virginia, US</li>
-              <li><strong>Vice Chair &#8211; e-Research and Applications:</strong>
-                Daniel S. Katz, Univ. of Chicago &amp; Argonne National
-                Laboratory, US</li>
-              <li><strong>Vice Chair &#8211; Tools &amp; Services, Resource
-                  Management &amp; Runtime Environments:</strong> Ramin
-                Yahyapour, Dortmund</li>
-              <li><strong>Vice Chair &#8211; Distributed Data-Intensive
-                  Science and Systems:</strong> Erwin Laure, KTH,
-                Sweeden</li>
-              <li><strong>Publishing Chair: </strong>Ran Zheng,
-                Huazhong University of Science and Technology, China</li>
-              <li><strong>Publicity Chairs:</strong>
-                <ul>
-                  <li>Gilles Fedak, INRIA/LIP, France</li>
-                  <li>Ioan Raicu, Illinois Institute of Technology and
-                    Argonne National Laboratory, USA</li>
-                  <li>Xuanhua Shi, Huazhong University of Science and
-                    Technology, China</li>
-                </ul>
-              </li>
-              <li><strong>Program Committe:</strong>
-                <ul>
-                  <li>David Abramson, Monash University, Australia</li>
-                  <li>Gabrielle Allen, Louisiana State University, USA</li>
-                  <li>Andreas Aschenbrenner, Austrian Academy of
-                    Sciences</li>
-                  <li>David Bader, Georgia Institute of Technology, USA</li>
-                  <li>Rosa Badia, UPC, Spain</li>
-                  <li>Henri Bal, Vrije Universiteit, Netherlands</li>
-                  <li>Chaitanya Baru, San Diego Supercomputer Center, US</li>
-                  <li>Eloisa Bentivegna, Max Planck Institute for
-                    Gravitational Physics, Germany</li>
-                  <li>Ignacio Blanquer, Universidad Polit&eacute;cnica de
-                    Valencia, Spain</li>
-                  <li>Jinlei Jiang, Tsinghua University, China</li>
-                  <li>Neil Chue Hong, EPCC, UK</li>
-                  <li>Marco Danelutto, Universit&agrave; di Pisa, Italy</li>
-                  <li>Eva Deelman, ISI, USC , US</li>
-                  <li>Frederic Desprez, INRIA-LIP, France</li>
-                  <li>Jim Dowling, SICS, Sweden</li>
-                  <li>Jaliya Ekanayake, Microsoft Research, US</li>
-                  <li>Erik Elmroth, Ume&aring; University, Sweden</li>
-                  <li>Vangelis Floros, GRNET, Greece</li>
-                  <li>Ian Foster, Univ. of Chicago, US</li>
-                  <li>Patrick Fuhrmann, DESY, DE</li>
-                  <li>Kang Chen, Tsinghua University, China</li>
-                  <li>Rob Gillen, Oak Ridge National Laboratory , US</li>
-                  <li>Marty Humphrey, University of Virginia, US</li>
-                  <li>Jens Jensen, STFC, UK</li>
-                  <li>Kate Keahey, Argonne National Laboratory, US</li>
-                  <li>Thilo Kielmann, Vrije Universiteit, The
-                    Netherlands</li>
-                  <li>Bastian Koller, HLRS, Germany</li>
-                  <li>Tevfik Kosar, University at Buffalo, US</li>
-                  <li>Nicolas Kourtellis, University of South Florida,
-                    USA</li>
-                  <li>Patricia Kovatch, University of Tennessee, USA</li>
-                  <li>Dieter Kranzlm&uuml;ller,
-                    Ludwig-Maximilians-Universit&auml;t M&uuml;nchen, Germany</li>
-                  <li>Peter Kunszt, SystemsX, Switzerland</li>
-                  <li>Miron Livny, Univ. of Wisconsin, US</li>
-                  <li>Hideo Matsuda, University of Osaka, Japan</li>
-                  <li>Satoshi Matsuoka, Tokyo Institute of Technology,
-                    Japan</li>
-                  <li>Jim Myers, Rensselaer Polytechnic Institute, US</li>
-                  <li>Steven Newhouse, EGI, NL</li>
-                  <li>Manish Parashar, Rutgers, USA</li>
-                  <li>Judy Qiu, Indiana University, US</li>
-                  <li>Ioan Raicu, Illinois Institute of Technology and
-                    Argonne National Laboratory, USA</li>
-                  <li>Alistair Rendell, Australian National University,
-                    Australia</li>
-                  <li>Karolina Sarnowska-Upton, Univ. of Virginia, US</li>
-                  <li>Heiko Schuldt, Basel University, Switzerland</li>
-                  <li>Richard Sinnott, University of Melbourne,
-                    Australia</li>
-                  <li>Alan Sill, Texas-Tech, US</li>
-                  <li>Alex Sim, LBL, US</li>
-                  <li>Mark Stillwell, INRIA-Universit&eacute; de Lyon-LIP,
-                    France</li>
-                  <li>Alan Sussman, University of Maryland, USA</li>
-                  <li>Osamu Tatebe, Tsukuba University, Japan</li>
-                  <li>Domenico Talia, Universit&agrave; della Calabria, Italiy</li>
-                  <li>Douglas Thain, University of Notre Dame, US</li>
-                  <li>David Wallom, Oxford University, UK</li>
-                </ul>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
-    <pre class="moz-signature" cols="72">-- 
-=================================================================
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=================================================================
-Cel:    1-847-722-0876
-Office: 1-312-567-5704
-Email:  <a class="moz-txt-link-abbreviated" href="mailto:iraicu@cs.iit.edu">iraicu@cs.iit.edu</a>
-Web:    <a class="moz-txt-link-freetext" href="http://www.cs.iit.edu/~iraicu/">http://www.cs.iit.edu/~iraicu/</a>
-Web:    <a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/">http://datasys.cs.iit.edu/</a>
-=================================================================
-=================================================================
-
-</pre>
-  </body>
-</html>
-
---------------020106000004010303000202--
-
---===============8346021252876301124==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8346021252876301124==--
+> the notification; device would clear the
+> + * VIRTIO_NET_S_ANNOUNCE bit in the status field after it receives
+> + * this command.
+> + */
+> +#define VIRTIO_NET_CTRL_ANNOUNCE       3
+> + #define VIRTIO_NET_CTRL_ANNOUNCE_ACK         0
+> +
+>  #endif /* _LINUX_VIRTIO_NET_H */
