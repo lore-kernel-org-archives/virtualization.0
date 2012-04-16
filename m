@@ -1,61 +1,75 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio: fixes for 3.4
-Date: Mon, 16 Apr 2012 16:49:06 +0300
-Message-ID: <20120416134905.GA13301@redhat.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH RFC V6 0/11] Paravirtualized ticketlocks
+Date: Mon, 16 Apr 2012 11:44:29 -0400
+Message-ID: <20120416154429.GB4654@phenom.dumpdata.com>
+References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
+	<4F7616F5.4070000@zytor.com>
+	<alpine.LFD.2.02.1203302333560.2542@ionos>
+	<20120331040745.GC14030@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-Sender: kvm-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, asias@redhat.com, david@gibson.dropbear.id.au, mst@redhat.com, renmx@cn.fujitsu.com, wuzhy@linux.vnet.ibm.com
+In-Reply-To: <20120331040745.GC14030@linux.vnet.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Xen Devel <xen-devel@lists.xensource.com>, the arch/x86 maintainers <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, Andi Kleen <andi@firstfloor.org>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I know that -rc3 went out meanwhile but git handles that fine.
-Please pull for 3.4, thanks!
+On Sat, Mar 31, 2012 at 09:37:45AM +0530, Srivatsa Vaddagiri wrote:
+> * Thomas Gleixner <tglx@linutronix.de> [2012-03-31 00:07:58]:
+> 
+> > I know that Peter is going to go berserk on me, but if we are running
+> > a paravirt guest then it's simple to provide a mechanism which allows
+> > the host (aka hypervisor) to check that in the guest just by looking
+> > at some global state.
+> > 
+> > So if a guest exits due to an external event it's easy to inspect the
+> > state of that guest and avoid to schedule away when it was interrupted
+> > in a spinlock held section. That guest/host shared state needs to be
+> > modified to indicate the guest to invoke an exit when the last nested
+> > lock has been released.
+> 
+> I had attempted something like that long back:
+> 
+> http://lkml.org/lkml/2010/6/3/4
+> 
+> The issue is with ticketlocks though. VCPUs could go into a spin w/o
+> a lock being held by anybody. Say VCPUs 1-99 try to grab a lock in
+> that order (on a host with one cpu). VCPU1 wins (after VCPU0 releases it)
+> and releases the lock. VCPU1 is next eligible to take the lock. If 
+> that is not scheduled early enough by host, then remaining vcpus would keep 
+> spinning (even though lock is technically not held by anybody) w/o making 
+> forward progress.
+> 
+> In that situation, what we really need is for the guest to hint to host
+> scheduler to schedule VCPU1 early (via yield_to or something similar). 
+> 
+> The current pv-spinlock patches however does not track which vcpu is
+> spinning at what head of the ticketlock. I suppose we can consider 
+> that optimization in future and see how much benefit it provides (over
+> plain yield/sleep the way its done now).
 
-The following changes since commit 0034102808e0dbbf3a2394b82b1bb40b5778de9e:
+Right. I think Jeremy played around with this some time?
+> 
+> Do you see any issues if we take in what we have today and address the
+> finer-grained optimization as next step?
 
-  Linux 3.4-rc2 (2012-04-07 18:30:41 -0700)
+I think that is the proper course - these patches show
+that on baremetal we don't incur performance regressions and in
+virtualization case we benefit greatly. Since these are the basic
+building blocks of a kernel - taking it slow and just adding
+this set of patches for v3.5 is a good idea - and then building on top
+of that for further refinement.
 
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git for_linus
-
-for you to fetch changes up to 3ccc9372ed0fab33d20f10be3c1efd5776ff5913:
-
-  virtio_balloon: fix handling of PAGE_SIZE != 4k (2012-04-15 11:51:06 +0300)
-
-----------------------------------------------------------------
-virtio: fixes on top of 3.4-rc2
-
-Here are some virtio fixes for 3.4:
-a test build fix, a patch by Ren fixing naming for systems with a massive
-number of virtio blk devices, and balloon fixes for powerpc
-by David Gibson.
-
-There was some discussion about Ren's patch for virtio disc naming: some people
-wanted to move the legacy name mangling function to the block core.  But
-there's no concensus on that yet, and we can always deduplicate later.
-Added comments in the hope that this will stop people from
-copying this legacy naming scheme into future drivers.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-David Gibson (1):
-      virtio_balloon: Fix endian bug
-
-Michael S. Tsirkin (1):
-      virtio_balloon: fix handling of PAGE_SIZE != 4k
-
-Ren Mingxin (1):
-      virtio_blk: helper function to format disk names
-
-Zhi Yong Wu (1):
-      tools/virtio: fix up vhost/test module build
-
- drivers/block/virtio_blk.c      |   41 +++++++++++++++++++--------
- drivers/vhost/test.c            |    2 +-
- drivers/virtio/virtio_balloon.c |   58 +++++++++++++++++++++++++++++++--------
- 3 files changed, 76 insertions(+), 25 deletions(-)
+> 
+> - vatsa 
