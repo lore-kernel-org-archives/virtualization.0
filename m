@@ -1,69 +1,61 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 3/3] virtio_balloon: Bugfixes for PAGE_SIZE != 4k
-Date: Sun, 15 Apr 2012 11:52:04 +0300
-Message-ID: <20120415085202.GA20414@redhat.com>
-References: <1334208995-29985-1-git-send-email-david@gibson.dropbear.id.au>
-	<1334208995-29985-4-git-send-email-david@gibson.dropbear.id.au>
-	<20120412101157.GA13172@redhat.com>
-	<20120413031211.GG5829@truffala.fritz.box>
+Subject: [PULL] virtio: fixes for 3.4
+Date: Mon, 16 Apr 2012 16:49:06 +0300
+Message-ID: <20120416134905.GA13301@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20120413031211.GG5829@truffala.fritz.box>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, paulus@samba.org, qemu-devel@nongnu.org
+Sender: kvm-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org, asias@redhat.com, david@gibson.dropbear.id.au, mst@redhat.com, renmx@cn.fujitsu.com, wuzhy@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 13, 2012 at 01:12:11PM +1000, David Gibson wrote:
-> On Thu, Apr 12, 2012 at 01:14:06PM +0300, Michael S. Tsirkin wrote:
-> > On Thu, Apr 12, 2012 at 03:36:35PM +1000, David Gibson wrote:
-> [snip]
-> > Good catch!
-> > 
-> > Unfortunately I find the approach a bit convoluted.
-> > It also looks like when host asks for 5 balloon pages
-> > you interpret this as 0 where 16 is probably saner
-> > on a 64K system.
-> 
-> Hm, true.  Although qemu at least actuall operates in units of
-> megabytes on the balloon, so I doubt it matters much in practice.
-> 
-> > I think it's easier if we just keep doing math in
-> > balloon pages. I also get confused by shift operations,
-> > IMO / and * are clearer where they are applicable.
-> > Something like the below would make more sense I think.
-> 
-> Sure.  I thught working in local pages was clearer, but I don't really
-> care.
-> 
-> 
-> > I also wrote up a detailed commit log, so we have
-> > the bugs and the expected consequences listed explicitly.
-> > 
-> > I'm out of time for this week - so completely untested, sorry.
-> > Maybe you could try this out? That would be great.
-> > Thanks!
-> 
-> Your patch has numerous syntax errors, but once those are fixed seems
-> to work fine with a 64k ppc64 kernel.  Fixed version below.  I did add
-> one comment, to note that with this change the num_pages field in the
-> vb is no longer the same as the number of elements in the pages list.
-> Nothing in the code relies on that, but it would probably be the first
-> assumption of someone looking at the structure definition.
+I know that -rc3 went out meanwhile but git handles that fine.
+Please pull for 3.4, thanks!
 
-Good point. Although this really applies to all other
-memory counters as well, so I put this at top of the file.
+The following changes since commit 0034102808e0dbbf3a2394b82b1bb40b5778de9e:
 
-> Please apply.
+  Linux 3.4-rc2 (2012-04-07 18:30:41 -0700)
 
-Patch applied, thanks very much for the testing!
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git for_linus
+
+for you to fetch changes up to 3ccc9372ed0fab33d20f10be3c1efd5776ff5913:
+
+  virtio_balloon: fix handling of PAGE_SIZE != 4k (2012-04-15 11:51:06 +0300)
+
+----------------------------------------------------------------
+virtio: fixes on top of 3.4-rc2
+
+Here are some virtio fixes for 3.4:
+a test build fix, a patch by Ren fixing naming for systems with a massive
+number of virtio blk devices, and balloon fixes for powerpc
+by David Gibson.
+
+There was some discussion about Ren's patch for virtio disc naming: some people
+wanted to move the legacy name mangling function to the block core.  But
+there's no concensus on that yet, and we can always deduplicate later.
+Added comments in the hope that this will stop people from
+copying this legacy naming scheme into future drivers.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+David Gibson (1):
+      virtio_balloon: Fix endian bug
+
+Michael S. Tsirkin (1):
+      virtio_balloon: fix handling of PAGE_SIZE != 4k
+
+Ren Mingxin (1):
+      virtio_blk: helper function to format disk names
+
+Zhi Yong Wu (1):
+      tools/virtio: fix up vhost/test module build
+
+ drivers/block/virtio_blk.c      |   41 +++++++++++++++++++--------
+ drivers/vhost/test.c            |    2 +-
+ drivers/virtio/virtio_balloon.c |   58 +++++++++++++++++++++++++++++++--------
+ 3 files changed, 76 insertions(+), 25 deletions(-)
