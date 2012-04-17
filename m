@@ -1,20 +1,16 @@
-From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Subject: Re: [Xen-devel] [PATCH RFC V6 0/11] Paravirtualized ticketlocks
-Date: Tue, 17 Apr 2012 08:24:16 +0530
-Message-ID: <20120417025416.GA10184@linux.vnet.ibm.com>
-References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
-	<4F7616F5.4070000@zytor.com>
-	<alpine.LFD.2.02.1203302333560.2542@ionos>
-	<20120331040745.GC14030@linux.vnet.ibm.com>
-	<20120416154429.GB4654@phenom.dumpdata.com>
-	<1334594195.14560.236.camel@zakaz.uk.xensource.com>
-Reply-To: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V5 2/6] kvm hypervisor : Add a hypercall to KVM
+	hypervisor to support pv-ticketlocks
+Date: Tue, 17 Apr 2012 09:19:01 +0530
+Message-ID: <4F8CE82D.80503__45733.9425026023$1334634567$gmane$org@linux.vnet.ibm.com>
+References: <20120323080503.14568.43092.sendpatchset@codeblue>
+	<20120323080701.14568.97779.sendpatchset@codeblue>
+	<20120412000629.GA32051@amt.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1334594195.14560.236.camel@zakaz.uk.xensource.com>
+In-Reply-To: <20120412000629.GA32051@amt.cnet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,31 +20,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian Campbell <Ian.Campbell@citrix.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Xen Devel <xen-devel@lists.xensource.com>, KVM <kvm@vger.kernel.org>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andi Kleen <andi@firstfloor.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>, Avi Kivity <avi@redhat.com>
+To: Marcelo Tosatti <mtosatti@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, X86 <x86@kernel.org>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Virtualization <virtualization@lists.linux-foundation.org>, Xen <xen-devel@lists.xensource.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-* Ian Campbell <Ian.Campbell@citrix.com> [2012-04-16 17:36:35]:
 
-> > > The current pv-spinlock patches however does not track which vcpu is
-> > > spinning at what head of the ticketlock. I suppose we can consider 
-> > > that optimization in future and see how much benefit it provides (over
-> > > plain yield/sleep the way its done now).
-> > 
-> > Right. I think Jeremy played around with this some time?
-> 
-> 5/11 "xen/pvticketlock: Xen implementation for PV ticket locks" tracks
-> which vcpus are waiting for a lock in "cpumask_t waiting_cpus" and
-> tracks which lock each is waiting for in per-cpu "lock_waiting". This is
-> used in xen_unlock_kick to kick the right CPU. There's a loop over only
-> the waiting cpus to figure out who to kick.
+Sorry for late reply,
+was on vacation for a week (without IMAP access :( )
 
-Yes sorry that's right. We do track who is waiting on what lock at what
-position. This can be used to pass directed yield hints to host
-scheduler (in a future optimization patch). What we don't track is the
-vcpu owning a lock, which would have allowed other spinning vcpus to do
-a directed yield to vcpu preempted holding a lock. OTOH that may be
-unnecessary if we put in support for deferring preemption of vcpu that
-are holding locks.
+On 04/12/2012 05:36 AM, Marcelo Tosatti wrote:
+> On Fri, Mar 23, 2012 at 01:37:04PM +0530, Raghavendra K T wrote:
+>> From: Srivatsa Vaddagiri<vatsa@linux.vnet.ibm.com>
+[snip]
+>> @@ -1567,6 +1568,9 @@ void kvm_vcpu_block(struct kvm_vcpu *vcpu)
+>>   		prepare_to_wait(&vcpu->wq,&wait, TASK_INTERRUPTIBLE);
+>>
+>>   		if (kvm_arch_vcpu_runnable(vcpu)) {
+>> +			vcpu->pv_unhalted = 0;
+>> +			/* preventing reordering should be enough here */
+>> +			barrier();
+>
+> Is it always OK to erase the notification, even in case an unrelated
+> event such as interrupt was the source of wakeup?
 
-- vatsa
+
+Erasing notification is not good, But I think in this case,
+
+kvm_make_request(KVM_REQ_UNHALT, vcpu);
+
+below this would take care of the rest.
+
+>
+> It would be easier to verify that notifications are not lost with atomic
+>
+> test_and_clear(pv_unhalted).
+
+true, I 'll verify that (with pv_unhalt as atomic variable). my heart
+says  current code is just fine, since we are about to unblock.
+
+>
+> Also x86 specific code should remain in arch/x86/kvm/
+>
+
+I agree. 'll have clear function in arch/x86/kvm and add stub to rest
+of the archs
+
+>
