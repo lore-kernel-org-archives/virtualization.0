@@ -1,12 +1,20 @@
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH] drivers/xen/grant-table.c: add error-handling code on failure
-	of gnttab_resume
-Date: Sun, 15 Apr 2012 11:27:12 +0200
-Message-ID: <1334482032-12339-1-git-send-email-Julia.Lawall__7756.50884393162$1334595172$gmane$org@lip6.fr>
+From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+Subject: Re: [Xen-devel] [PATCH RFC V6 0/11] Paravirtualized ticketlocks
+Date: Tue, 17 Apr 2012 08:24:16 +0530
+Message-ID: <20120417025416.GA10184@linux.vnet.ibm.com>
+References: <20120321102041.473.61069.sendpatchset@codeblue.in.ibm.com>
+	<4F7616F5.4070000@zytor.com>
+	<alpine.LFD.2.02.1203302333560.2542@ionos>
+	<20120331040745.GC14030@linux.vnet.ibm.com>
+	<20120416154429.GB4654@phenom.dumpdata.com>
+	<1334594195.14560.236.camel@zakaz.uk.xensource.com>
+Reply-To: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1334594195.14560.236.camel@zakaz.uk.xensource.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,60 +24,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ian Campbell <Ian.Campbell@citrix.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Xen Devel <xen-devel@lists.xensource.com>, KVM <kvm@vger.kernel.org>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andi Kleen <andi@firstfloor.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
+* Ian Campbell <Ian.Campbell@citrix.com> [2012-04-16 17:36:35]:
 
-Jump to the label ini_nomem as done on the failure of the page allocations
-above.
+> > > The current pv-spinlock patches however does not track which vcpu is
+> > > spinning at what head of the ticketlock. I suppose we can consider 
+> > > that optimization in future and see how much benefit it provides (over
+> > > plain yield/sleep the way its done now).
+> > 
+> > Right. I think Jeremy played around with this some time?
+> 
+> 5/11 "xen/pvticketlock: Xen implementation for PV ticket locks" tracks
+> which vcpus are waiting for a lock in "cpumask_t waiting_cpus" and
+> tracks which lock each is waiting for in per-cpu "lock_waiting". This is
+> used in xen_unlock_kick to kick the right CPU. There's a loop over only
+> the waiting cpus to figure out who to kick.
 
-The code at ini_nomem is modified to accommodate different return values.
+Yes sorry that's right. We do track who is waiting on what lock at what
+position. This can be used to pass directed yield hints to host
+scheduler (in a future optimization patch). What we don't track is the
+vcpu owning a lock, which would have allowed other spinning vcpus to do
+a directed yield to vcpu preempted holding a lock. OTOH that may be
+unnecessary if we put in support for deferring preemption of vcpu that
+are holding locks.
 
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-
----
- drivers/xen/grant-table.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/xen/grant-table.c b/drivers/xen/grant-table.c
-index b4d4eac..f100ce2 100644
---- a/drivers/xen/grant-table.c
-+++ b/drivers/xen/grant-table.c
-@@ -1029,6 +1029,7 @@ int gnttab_init(void)
- 	int i;
- 	unsigned int max_nr_glist_frames, nr_glist_frames;
- 	unsigned int nr_init_grefs;
-+	int ret;
- 
- 	nr_grant_frames = 1;
- 	boot_max_nr_grant_frames = __max_nr_grant_frames();
-@@ -1047,12 +1048,16 @@ int gnttab_init(void)
- 	nr_glist_frames = (nr_grant_frames * GREFS_PER_GRANT_FRAME + RPP - 1) / RPP;
- 	for (i = 0; i < nr_glist_frames; i++) {
- 		gnttab_list[i] = (grant_ref_t *)__get_free_page(GFP_KERNEL);
--		if (gnttab_list[i] == NULL)
-+		if (gnttab_list[i] == NULL) {
-+			ret = -ENOMEM;
- 			goto ini_nomem;
-+		}
- 	}
- 
--	if (gnttab_resume() < 0)
--		return -ENODEV;
-+	if (gnttab_resume() < 0) {
-+		ret = -ENODEV;
-+		goto ini_nomem;
-+	}
- 
- 	nr_init_grefs = nr_grant_frames * GREFS_PER_GRANT_FRAME;
- 
-@@ -1070,7 +1075,7 @@ int gnttab_init(void)
- 	for (i--; i >= 0; i--)
- 		free_page((unsigned long)gnttab_list[i]);
- 	kfree(gnttab_list);
--	return -ENOMEM;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(gnttab_init);
+- vatsa
