@@ -1,99 +1,107 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle
- errors from the host
-Date: Wed, 18 Apr 2012 12:38:05 +0000
-Message-ID: <426367E2313C2449837CD2DE46E7EAF92CE74A@CH1PRD0310MB381.namprd03.prod.outlook.com>
-References: <1333654012-23850-1-git-send-email-kys@microsoft.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: [RFC PATCH] virtio_console: link vq to port with a private pointer in
+	struct virtqueue
+Date: Wed, 18 Apr 2012 15:33:33 +0200
+Message-ID: <1334756013-11752-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "jbottomley@parallels.com" <jbottomley@parallels.com>, "hch@infradead.org" <hch@infradead.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "apw@canonical.com" <apw@canonical.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+For virtio-scsi multiqueue support I would like to have an easy and
+fast way to go from a virtqueue to the internal struct for that
+queue.
 
+It turns out that virtio-serial has the same need, but it gets
+by with a simple list walk.
 
-> -----Original Message-----
-> From: KY Srinivasan
-> Sent: Tuesday, April 10, 2012 11:14 AM
-> To: KY Srinivasan; gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
-> jbottomley@parallels.com; hch@infradead.org; linux-scsi@vger.kernel.org;
-> apw@canonical.com
-> Subject: RE: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle errors
-> from the host
-> 
-> 
-> 
-> > -----Original Message-----
-> > From: K. Y. Srinivasan [mailto:kys@microsoft.com]
-> > Sent: Thursday, April 05, 2012 3:27 PM
-> > To: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
-> > jbottomley@parallels.com; hch@infradead.org; linux-scsi@vger.kernel.org;
-> > apw@canonical.com
-> > Cc: KY Srinivasan
-> > Subject: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle errors from
-> > the host
-> >
-> > If the host returns error for pass through commands, deal with them
-> > appropriately. I would like to thank James for patiently helping
-> > me with this patch.
-> 
-> James,
-> 
-> Thank you for suggesting the fix here. I hope this is what you were looking for.
-> 
-> Regards,
-> 
-> K. Y
+This patch adds a pointer to struct virtqueue that is reserved for
+the virtio device, and uses it in virtio-serial.
 
-Ping.
+Cc: Amit Shah <amit.shah@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+	Untested; what do you think?  Would this patch be acceptable
+	as is, or only with a more pressing need in virtio-scsi, or never?
 
-> >
-> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > ---
-> >  drivers/scsi/storvsc_drv.c |   20 +++++++++++++++-----
-> >  1 files changed, 15 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-> > index 83a1972..528d52b 100644
-> > --- a/drivers/scsi/storvsc_drv.c
-> > +++ b/drivers/scsi/storvsc_drv.c
-> > @@ -785,12 +785,22 @@ static void storvsc_command_completion(struct
-> > storvsc_cmd_request *cmd_request)
-> >  	/*
-> >  	 * If there is an error; offline the device since all
-> >  	 * error recovery strategies would have already been
-> > -	 * deployed on the host side.
-> > +	 * deployed on the host side. However, if the command
-> > +	 * were a pass-through command deal with it appropriately.
-> >  	 */
-> > -	if (vm_srb->srb_status == SRB_STATUS_ERROR)
-> > -		scmnd->result = DID_TARGET_FAILURE << 16;
-> > -	else
-> > -		scmnd->result = vm_srb->scsi_status;
-> > +	scmnd->result = vm_srb->scsi_status;
-> > +
-> > +	if (vm_srb->srb_status == SRB_STATUS_ERROR) {
-> > +		switch (scmnd->cmnd[0]) {
-> > +		case ATA_16:
-> > +		case ATA_12:
-> > +			set_host_byte(scmnd, DID_PASSTHROUGH);
-> > +			break;
-> > +		default:
-> > +			set_host_byte(scmnd, DID_TARGET_FAILURE);
-> > +		}
-> > +	}
-> > +
-> >
-> >  	/*
-> >  	 * If the LUN is invalid; remove the device.
-> > --
-> > 1.7.4.1
-> >
-> >
-> >
+ drivers/char/virtio_console.c |   16 +++++-----------
+ include/linux/virtio.h        |    2 ++
+ 2 files changed, 7 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 1c74734..cfc7a63 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -297,17 +297,7 @@ out:
+ static struct port *find_port_by_vq(struct ports_device *portdev,
+ 				    struct virtqueue *vq)
+ {
+-	struct port *port;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&portdev->ports_lock, flags);
+-	list_for_each_entry(port, &portdev->ports, list)
+-		if (port->in_vq == vq || port->out_vq == vq)
+-			goto out;
+-	port = NULL;
+-out:
+-	spin_unlock_irqrestore(&portdev->ports_lock, flags);
+-	return port;
++	return vq->vdev_priv;
+ }
+ 
+ static bool is_console_port(struct port *port)
+@@ -1159,6 +1149,8 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 
+ 	port->in_vq = portdev->in_vqs[port->id];
+ 	port->out_vq = portdev->out_vqs[port->id];
++	port->in_vq->vdev_priv = port;
++	port->out_vq->vdev_priv = port;
+ 
+ 	port->cdev = cdev_alloc();
+ 	if (!port->cdev) {
+@@ -1872,6 +1864,8 @@ static int virtcons_restore(struct virtio_device *vdev)
+ 	list_for_each_entry(port, &portdev->ports, list) {
+ 		port->in_vq = portdev->in_vqs[port->id];
+ 		port->out_vq = portdev->out_vqs[port->id];
++		port->in_vq->vdev_priv = port;
++		port->out_vq->vdev_priv = port;
+ 
+ 		fill_queue(port->in_vq, &port->inbuf_lock);
+ 
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index c193ccf..6b39c1a 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -14,6 +14,7 @@
+  * @callback: the function to call when buffers are consumed (can be NULL).
+  * @name: the name of this virtqueue (mainly for debugging)
+  * @vdev: the virtio device this queue was created for.
++ * @vdev_priv: a pointer for the virtio device to use.
+  * @priv: a pointer for the virtqueue implementation to use.
+  */
+ struct virtqueue {
+@@ -21,6 +22,7 @@ struct virtqueue {
+ 	void (*callback)(struct virtqueue *vq);
+ 	const char *name;
+ 	struct virtio_device *vdev;
++	void *vdev_priv;
+ 	void *priv;
+ };
+ 
+-- 
+1.7.9.3
