@@ -1,61 +1,99 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V5 3/6] kvm : Add unhalt msr to aid (live) migration
-Date: Tue, 17 Apr 2012 12:47:17 +0530
-Message-ID: <4F8D18FD.2040801__3614.35796735368$1334647083$gmane$org@linux.vnet.ibm.com>
-References: <20120323080503.14568.43092.sendpatchset@codeblue>
-	<20120323080723.14568.23068.sendpatchset@codeblue>
-	<20120412001517.GB32051@amt.cnet>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle
+ errors from the host
+Date: Wed, 18 Apr 2012 12:38:05 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF92CE74A@CH1PRD0310MB381.namprd03.prod.outlook.com>
+References: <1333654012-23850-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120412001517.GB32051@amt.cnet>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marcelo Tosatti <mtosatti@redhat.com>, Avi Kivity <avi@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, X86 <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@suse.de>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Virtualization <virtualization@lists.linux-foundation.org>, Xen <xen-devel@lists.xensource.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "jbottomley@parallels.com" <jbottomley@parallels.com>, "hch@infradead.org" <hch@infradead.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "apw@canonical.com" <apw@canonical.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/12/2012 05:45 AM, Marcelo Tosatti wrote:
-> On Fri, Mar 23, 2012 at 01:37:26PM +0530, Raghavendra K T wrote:
->> From: Raghavendra K T<raghavendra.kt@linux.vnet.ibm.com>
->>
 
-[...]
->
-> Unless there is a reason to use an MSR, should use a normal ioctl
-> such as KVM_{GET,SET}_MP_STATE.
->
->
 
-I agree with you. In the current implementation, since we are not doing
-any communication between host/guest (on this flag), I too felt MSR is
-an overkill for this.
+> -----Original Message-----
+> From: KY Srinivasan
+> Sent: Tuesday, April 10, 2012 11:14 AM
+> To: KY Srinivasan; gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
+> jbottomley@parallels.com; hch@infradead.org; linux-scsi@vger.kernel.org;
+> apw@canonical.com
+> Subject: RE: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle errors
+> from the host
+> 
+> 
+> 
+> > -----Original Message-----
+> > From: K. Y. Srinivasan [mailto:kys@microsoft.com]
+> > Sent: Thursday, April 05, 2012 3:27 PM
+> > To: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
+> > jbottomley@parallels.com; hch@infradead.org; linux-scsi@vger.kernel.org;
+> > apw@canonical.com
+> > Cc: KY Srinivasan
+> > Subject: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle errors from
+> > the host
+> >
+> > If the host returns error for pass through commands, deal with them
+> > appropriately. I would like to thank James for patiently helping
+> > me with this patch.
+> 
+> James,
+> 
+> Thank you for suggesting the fix here. I hope this is what you were looking for.
+> 
+> Regards,
+> 
+> K. Y
 
-IMO, patch like below should do the job, which I am planning to include
-in next version of patch.
-Let me know if you foresee any side-effects.
+Ping.
 
----
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index aa44292..5c81a66 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -5691,7 +5691,9 @@ int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu 
-*vcpu,
-  int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
-  				    struct kvm_mp_state *mp_state)
-  {
--	mp_state->mp_state = vcpu->arch.mp_state;
-+	mp_state->mp_state = (vcpu->arch.mp_state == KVM_MP_STATE_HALTED &&
-+				vcpu->pv_unhalted)?
-+				KVM_MP_STATE_RUNNABLE : vcpu->arch.mp_state;
-  	return 0;
-  }
+> >
+> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > ---
+> >  drivers/scsi/storvsc_drv.c |   20 +++++++++++++++-----
+> >  1 files changed, 15 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+> > index 83a1972..528d52b 100644
+> > --- a/drivers/scsi/storvsc_drv.c
+> > +++ b/drivers/scsi/storvsc_drv.c
+> > @@ -785,12 +785,22 @@ static void storvsc_command_completion(struct
+> > storvsc_cmd_request *cmd_request)
+> >  	/*
+> >  	 * If there is an error; offline the device since all
+> >  	 * error recovery strategies would have already been
+> > -	 * deployed on the host side.
+> > +	 * deployed on the host side. However, if the command
+> > +	 * were a pass-through command deal with it appropriately.
+> >  	 */
+> > -	if (vm_srb->srb_status == SRB_STATUS_ERROR)
+> > -		scmnd->result = DID_TARGET_FAILURE << 16;
+> > -	else
+> > -		scmnd->result = vm_srb->scsi_status;
+> > +	scmnd->result = vm_srb->scsi_status;
+> > +
+> > +	if (vm_srb->srb_status == SRB_STATUS_ERROR) {
+> > +		switch (scmnd->cmnd[0]) {
+> > +		case ATA_16:
+> > +		case ATA_12:
+> > +			set_host_byte(scmnd, DID_PASSTHROUGH);
+> > +			break;
+> > +		default:
+> > +			set_host_byte(scmnd, DID_TARGET_FAILURE);
+> > +		}
+> > +	}
+> > +
+> >
+> >  	/*
+> >  	 * If the LUN is invalid; remove the device.
+> > --
+> > 1.7.4.1
+> >
+> >
+> >
