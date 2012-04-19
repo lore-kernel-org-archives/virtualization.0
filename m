@@ -1,8 +1,7 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V7 2/12] x86/ticketlock: don't inline _spin_unlock when
-	using paravirt spinlocks
-Date: Fri, 20 Apr 2012 01:42:59 +0530
-Message-ID: <20120419201256.5411.59675.sendpatchset@codeblue>
+Subject: [PATCH RFC V7 3/12]  x86/ticketlock: collapse a layer of functions
+Date: Fri, 20 Apr 2012 01:43:25 +0530
+Message-ID: <20120419201322.5411.7158.sendpatchset@codeblue>
 References: <20120419201209.5411.43877.sendpatchset@codeblue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,31 +18,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Jones <drjones@redhat.com>, Xen Devel <xen-devel@lists.xensource.com>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>, the arch/x86 maintainers <x86@kernel.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Attilio Rao <attilio.rao@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Avi Kivity <avi@redhat.com>
+Cc: Andrew Jones <drjones@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Attilio Rao <attilio.rao@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com> 
+From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-The code size expands somewhat, and its better to just call
-a function rather than inline it.
+Now that the paravirtualization layer doesn't exist at the spinlock
+level any more, we can collapse the __ticket_ functions into the arch_
+functions.
 
-Thanks Jeremy for original version of ARCH_NOINLINE_SPIN_UNLOCK config patch, 
-which is simplified.
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+Tested-by: Attilio Rao <attilio.rao@citrix.com> 
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
- arch/x86/Kconfig |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 1d14cc6..35eb2e4 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -597,6 +597,7 @@ config PARAVIRT
- config PARAVIRT_SPINLOCKS
- 	bool "Paravirtualization layer for spinlocks"
- 	depends on PARAVIRT && SMP && EXPERIMENTAL
-+	select UNINLINE_SPIN_UNLOCK
- 	---help---
- 	  Paravirtualized spinlocks allow a pvops backend to replace the
- 	  spinlock implementation with something virtualization-friendly
+ arch/x86/include/asm/spinlock.h |   35 +++++------------------------------
+ 1 files changed, 5 insertions(+), 30 deletions(-)
+diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
+index 3e47608..ee4bbd4 100644
+--- a/arch/x86/include/asm/spinlock.h
++++ b/arch/x86/include/asm/spinlock.h
+@@ -79,7 +79,7 @@ static __always_inline void __ticket_unlock_kick(struct arch_spinlock *lock,
+  * in the high part, because a wide xadd increment of the low part would carry
+  * up and contaminate the high part.
+  */
+-static __always_inline void __ticket_spin_lock(struct arch_spinlock *lock)
++static __always_inline void arch_spin_lock(struct arch_spinlock *lock)
+ {
+ 	register struct __raw_tickets inc = { .tail = 1 };
+ 
+@@ -99,7 +99,7 @@ static __always_inline void __ticket_spin_lock(struct arch_spinlock *lock)
+ out:	barrier();	/* make sure nothing creeps before the lock is taken */
+ }
+ 
+-static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
++static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
+ {
+ 	arch_spinlock_t old, new;
+ 
+@@ -113,7 +113,7 @@ static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
+ 	return cmpxchg(&lock->head_tail, old.head_tail, new.head_tail) == old.head_tail;
+ }
+ 
+-static __always_inline void __ticket_spin_unlock(arch_spinlock_t *lock)
++static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
+ {
+ 	__ticket_t next = lock->tickets.head + 1;
+ 
+@@ -121,46 +121,21 @@ static __always_inline void __ticket_spin_unlock(arch_spinlock_t *lock)
+ 	__ticket_unlock_kick(lock, next);
+ }
+ 
+-static inline int __ticket_spin_is_locked(arch_spinlock_t *lock)
++static inline int arch_spin_is_locked(arch_spinlock_t *lock)
+ {
+ 	struct __raw_tickets tmp = ACCESS_ONCE(lock->tickets);
+ 
+ 	return tmp.tail != tmp.head;
+ }
+ 
+-static inline int __ticket_spin_is_contended(arch_spinlock_t *lock)
++static inline int arch_spin_is_contended(arch_spinlock_t *lock)
+ {
+ 	struct __raw_tickets tmp = ACCESS_ONCE(lock->tickets);
+ 
+ 	return (__ticket_t)(tmp.tail - tmp.head) > 1;
+ }
+-
+-static inline int arch_spin_is_locked(arch_spinlock_t *lock)
+-{
+-	return __ticket_spin_is_locked(lock);
+-}
+-
+-static inline int arch_spin_is_contended(arch_spinlock_t *lock)
+-{
+-	return __ticket_spin_is_contended(lock);
+-}
+ #define arch_spin_is_contended	arch_spin_is_contended
+ 
+-static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
+-{
+-	__ticket_spin_lock(lock);
+-}
+-
+-static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
+-{
+-	return __ticket_spin_trylock(lock);
+-}
+-
+-static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
+-{
+-	__ticket_spin_unlock(lock);
+-}
+-
+ static __always_inline void arch_spin_lock_flags(arch_spinlock_t *lock,
+ 						  unsigned long flags)
+ {
