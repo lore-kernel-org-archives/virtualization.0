@@ -1,7 +1,7 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V7 3/12]  x86/ticketlock: collapse a layer of functions
-Date: Fri, 20 Apr 2012 01:43:25 +0530
-Message-ID: <20120419201322.5411.7158.sendpatchset@codeblue>
+Subject: [PATCH RFC V7 4/12]  xen: defer spinlock setup until boot CPU setup
+Date: Fri, 20 Apr 2012 01:43:47 +0530
+Message-ID: <20120419201343.5411.77666.sendpatchset@codeblue>
 References: <20120419201209.5411.43877.sendpatchset@codeblue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,98 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Jones <drjones@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>, the arch/x86 maintainers <x86@kernel.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Attilio Rao <attilio.rao@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Avi Kivity <avi@redhat.com>
+Cc: Andrew Jones <drjones@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, LKML <linux-kernel@vger.kernel.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>, the arch/x86 maintainers <x86@kernel.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Avi Kivity <avi@redhat.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, Attilio Rao <attilio.rao@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-Now that the paravirtualization layer doesn't exist at the spinlock
-level any more, we can collapse the __ticket_ functions into the arch_
-functions.
+There's no need to do it at very early init, and doing it there
+makes it impossible to use the jump_label machinery.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-Tested-by: Attilio Rao <attilio.rao@citrix.com> 
+Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
- arch/x86/include/asm/spinlock.h |   35 +++++------------------------------
- 1 files changed, 5 insertions(+), 30 deletions(-)
-diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index 3e47608..ee4bbd4 100644
---- a/arch/x86/include/asm/spinlock.h
-+++ b/arch/x86/include/asm/spinlock.h
-@@ -79,7 +79,7 @@ static __always_inline void __ticket_unlock_kick(struct arch_spinlock *lock,
-  * in the high part, because a wide xadd increment of the low part would carry
-  * up and contaminate the high part.
-  */
--static __always_inline void __ticket_spin_lock(struct arch_spinlock *lock)
-+static __always_inline void arch_spin_lock(struct arch_spinlock *lock)
- {
- 	register struct __raw_tickets inc = { .tail = 1 };
+ arch/x86/xen/smp.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+diff --git a/arch/x86/xen/smp.c b/arch/x86/xen/smp.c
+index 5fac691..9ac931b 100644
+--- a/arch/x86/xen/smp.c
++++ b/arch/x86/xen/smp.c
+@@ -207,6 +207,7 @@ static void __init xen_smp_prepare_boot_cpu(void)
  
-@@ -99,7 +99,7 @@ static __always_inline void __ticket_spin_lock(struct arch_spinlock *lock)
- out:	barrier();	/* make sure nothing creeps before the lock is taken */
+ 	xen_filter_cpu_maps();
+ 	xen_setup_vcpu_info_placement();
++	xen_init_spinlocks();
  }
  
--static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
-+static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
+ static void __init xen_smp_prepare_cpus(unsigned int max_cpus)
+@@ -536,7 +537,6 @@ void __init xen_smp_init(void)
  {
- 	arch_spinlock_t old, new;
- 
-@@ -113,7 +113,7 @@ static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
- 	return cmpxchg(&lock->head_tail, old.head_tail, new.head_tail) == old.head_tail;
+ 	smp_ops = xen_smp_ops;
+ 	xen_fill_possible_map();
+-	xen_init_spinlocks();
  }
  
--static __always_inline void __ticket_spin_unlock(arch_spinlock_t *lock)
-+static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
- {
- 	__ticket_t next = lock->tickets.head + 1;
- 
-@@ -121,46 +121,21 @@ static __always_inline void __ticket_spin_unlock(arch_spinlock_t *lock)
- 	__ticket_unlock_kick(lock, next);
- }
- 
--static inline int __ticket_spin_is_locked(arch_spinlock_t *lock)
-+static inline int arch_spin_is_locked(arch_spinlock_t *lock)
- {
- 	struct __raw_tickets tmp = ACCESS_ONCE(lock->tickets);
- 
- 	return tmp.tail != tmp.head;
- }
- 
--static inline int __ticket_spin_is_contended(arch_spinlock_t *lock)
-+static inline int arch_spin_is_contended(arch_spinlock_t *lock)
- {
- 	struct __raw_tickets tmp = ACCESS_ONCE(lock->tickets);
- 
- 	return (__ticket_t)(tmp.tail - tmp.head) > 1;
- }
--
--static inline int arch_spin_is_locked(arch_spinlock_t *lock)
--{
--	return __ticket_spin_is_locked(lock);
--}
--
--static inline int arch_spin_is_contended(arch_spinlock_t *lock)
--{
--	return __ticket_spin_is_contended(lock);
--}
- #define arch_spin_is_contended	arch_spin_is_contended
- 
--static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
--{
--	__ticket_spin_lock(lock);
--}
--
--static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
--{
--	return __ticket_spin_trylock(lock);
--}
--
--static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
--{
--	__ticket_spin_unlock(lock);
--}
--
- static __always_inline void arch_spin_lock_flags(arch_spinlock_t *lock,
- 						  unsigned long flags)
- {
+ static void __init xen_hvm_smp_prepare_cpus(unsigned int max_cpus)
