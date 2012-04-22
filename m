@@ -1,14 +1,11 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V6 2/5] kvm : Fold pv_unhalt flag into GET_MP_STATE ioctl
-	to aid migration
-Date: Mon, 23 Apr 2012 15:30:02 +0530
-Message-ID: <20120423100002.30893.60584.sendpatchset__3357.80267273567$1335177005$gmane$org@codeblue.in.ibm.com>
-References: <20120423095937.30893.14776.sendpatchset@codeblue.in.ibm.com>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH] drivers/video/xen-fbfront.c: add missing cleanup code
+Date: Sun, 22 Apr 2012 11:57:40 +0200
+Message-ID: <1335088660-13219-1-git-send-email-Julia.Lawall__45781.6333779649$1335200892$gmane$org@lip6.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120423095937.30893.14776.sendpatchset@codeblue.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,25 +15,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, Alexander Graf <agraf@suse.de>, Randy Dunlap <rdunlap@xenotime.net>, linux-doc@vger.kernel.org, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, Virtualization <virtualization@lists.linux-foundation.org>, Marcelo Tosatti <mtosatti@redhat.com>, Avi Kivity <avi@redhat.com>, LKML <linux-kernel@vger.kernel.org>
-Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Xen <xen-devel@lists.xensource.com>, Sasha Levin <levinsasha928@gmail.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-fbdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+The operations in the subsequent error-handling code appear to be also
+useful here.
+
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+
 ---
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 6faa550..7354c1b 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -5691,7 +5691,9 @@ int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
- int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
--	mp_state->mp_state = vcpu->arch.mp_state;
-+	mp_state->mp_state = (vcpu->arch.mp_state == KVM_MP_STATE_HALTED &&
-+				vcpu->arch.pv.pv_unhalted) ?
-+	KVM_MP_STATE_RUNNABLE : vcpu->arch.mp_state;
- 	return 0;
- }
+Not tested.
+
+ drivers/video/xen-fbfront.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/video/xen-fbfront.c b/drivers/video/xen-fbfront.c
+index cb4529c..b0bd59c 100644
+--- a/drivers/video/xen-fbfront.c
++++ b/drivers/video/xen-fbfront.c
+@@ -458,8 +458,13 @@ static int __devinit xenfb_probe(struct xenbus_device *dev,
+ 	xenfb_init_shared_page(info, fb_info);
+ 
+ 	ret = xenfb_connect_backend(dev, info);
+-	if (ret < 0)
++	if (ret < 0) {
++		fb_deferred_io_cleanup(fb_info);
++		fb_dealloc_cmap(&fb_info->cmap);
++		framebuffer_release(fb_info);
++		xenbus_dev_fatal(dev, ret, "xenfb_connect_backend");
+ 		goto error;
++	}
+ 
+ 	ret = register_framebuffer(fb_info);
+ 	if (ret) {
