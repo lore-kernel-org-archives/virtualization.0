@@ -1,14 +1,11 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V6 5/5] Documentation/kvm : Add documentation on
-	Hypercalls and features used for PV spinlock
-Date: Mon, 23 Apr 2012 15:30:34 +0530
-Message-ID: <20120423100034.30893.81866.sendpatchset__24383.7791531861$1335175266$gmane$org@codeblue.in.ibm.com>
-References: <20120423095937.30893.14776.sendpatchset@codeblue.in.ibm.com>
+Subject: [PATCH RFC V6 0/5] kvm : Paravirt-spinlock support for KVM guests
+Date: Mon, 23 Apr 2012 15:29:37 +0530
+Message-ID: <20120423095937.30893.14776.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120423095937.30893.14776.sendpatchset@codeblue.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,119 +15,142 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, Alexander Graf <agraf@suse.de>, Randy Dunlap <rdunlap@xenotime.net>, linux-doc@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, KVM <kvm@vger.kernel.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Virtualization <virtualization@lists.linux-foundation.org>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, Ingo Molnar <mingo@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>, Avi Kivity <avi@redhat.com>, LKML <linux-kernel@vger.kernel.org>
-Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Xen <xen-devel@lists.xensource.com>, Sasha Levin <levinsasha928@gmail.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+To: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, Alexander Graf <agraf@suse.de>, Randy Dunlap <rdunlap@xenotime.net>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-doc@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Marcelo Tosatti <mtosatti@redhat.com>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Virtualization <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Xen <xen-devel@lists.xensource.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com> 
+The 5-patch series to follow this email extends KVM-hypervisor and Linux guest
+running on KVM-hypervisor to support pv-ticket spinlocks, based on Xen's 
+implementation.
 
-KVM_HC_KICK_CPU  hypercall added to wakeup halted vcpu in paravirtual spinlock
-enabled guest.
+One hypercall is introduced in KVM hypervisor,that allows a vcpu to kick
+another vcpu out of halt state.
+The blocking of vcpu is done using halt() in (lock_spinning) slowpath.
 
-KVM_FEATURE_PV_UNHALT enables guest to check whether pv spinlock can be enabled
-in guest. support in host is queried via
-ioctl(KVM_CHECK_EXTENSION, KVM_CAP_PV_UNHALT)
+Note: 1) patch is based on 3.4-rc3 + ticketlock patches in 
+	https://lkml.org/lkml/2012/4/19/335 
 
-Thanks Alex for KVM_HC_FEATURES inputs and Vatsa for rewriting KVM_HC_KICK_CPU
+ [ The patches are targeted for 3.5 window ]
 
-Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Changes in V6:
+- Rebased to 3.4-rc3
+- Removed debugfs changes patch which should now be in Xen/linux-next.
+  (https://lkml.org/lkml/2012/3/30/687)
+- Removed PV_UNHALT_MSR since currently we don't need guest communication,
+  and made pv_unhalt folded to GET_MP_STATE (Marcello, Avi[long back])
+- Take jumplabel changes from Ingo/Jason into use (static_key_slow_inc usage)
+- Added inline to spinlock_init in non PARAVIRT case
+- Move arch specific code to arch/x86 and add stubs to other archs (Marcello)
+- Added more comments on pv_unhalt usage etc (Marcello)
+
+Changes in V5:
+- rebased to 3.3-rc6
+- added PV_UNHALT_MSR that would help in live migration (Avi)
+- removed PV_LOCK_KICK vcpu request and pv_unhalt flag (re)added.
+- Changed hypercall documentaion (Alex).
+- mode_t changed to umode_t in debugfs.
+- MSR related documentation added.
+- rename PV_LOCK_KICK to PV_UNHALT. 
+- host and guest patches not mixed. (Marcelo, Alex)
+- kvm_kick_cpu now takes cpu so it can be used by flush_tlb_ipi_other 
+   paravirtualization (Nikunj)
+- coding style changes in variable declarion etc (Srikar)
+
+Changes in V4:
+- reabsed to 3.2.0 pre.
+- use APIC ID for kicking the vcpu and use kvm_apic_match_dest for matching (Avi)
+- fold vcpu->kicked flag into vcpu->requests (KVM_REQ_PVLOCK_KICK) and related 
+  changes for UNHALT path to make pv ticket spinlock migration friendly(Avi, Marcello)
+- Added Documentation for CPUID, Hypercall (KVM_HC_KICK_CPU)
+  and capabilty (KVM_CAP_PVLOCK_KICK) (Avi)
+- Remove unneeded kvm_arch_vcpu_ioctl_set_mpstate call. (Marcello)
+- cumulative variable type changed (int ==> u32) in add_stat (Konrad)
+- remove unneeded kvm_guest_init for !CONFIG_KVM_GUEST case
+
+Changes in V3:
+- rebased to 3.2-rc1
+- use halt() instead of wait for kick hypercall.
+- modify kick hyper call to do wakeup halted vcpu.
+- hook kvm_spinlock_init to smp_prepare_cpus call (moved the call out of head##.c).
+- fix the potential race when zero_stat is read.
+- export debugfs_create_32 and add documentation to API.
+- use static inline and enum instead of ADDSTAT macro. 
+- add  barrier() in after setting kick_vcpu.
+- empty static inline function for kvm_spinlock_init.
+- combine the patches one and two readuce overhead.
+- make KVM_DEBUGFS depends on DEBUGFS.
+- include debugfs header unconditionally.
+
+Changes in V2:
+- rebased patchesto -rc9
+- synchronization related changes based on Jeremy's changes 
+ (Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>) pointed by 
+ Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+- enabling 32 bit guests
+- splitted patches into two more chunks
+
+Results:
+results for PLE / non PLE machine were posted for V5 patches in
+ https://lkml.org/lkml/2012/3/23/50
+ https://lkml.org/lkml/2012/4/5/73
+
+Current series is giving similar results but more formal results will
+be posted in next couple of days.
+      
+Interestingly with current patchset I do not see CPU stalls observed in vanilla.
+
+TODO: 1) remove CONFIG_PARAVIRT_SPINLOCK ?
+      2) experiments on further optimization possibilities.
+		(discussed in V6 of ticketlock) 
+      3) possible debugfs cleanups (combining common code of Xen/KVM)
+
+Let me know if you have any sugestion/comments...
 ---
-diff --git a/Documentation/virtual/kvm/api.txt b/Documentation/virtual/kvm/api.txt
-index 6386f8c..7e2eba0 100644
---- a/Documentation/virtual/kvm/api.txt
-+++ b/Documentation/virtual/kvm/api.txt
-@@ -1119,6 +1119,13 @@ support.  Instead it is reported via
- if that returns true and you use KVM_CREATE_IRQCHIP, or if you emulate the
- feature in userspace, then you can enable the feature for KVM_SET_CPUID2.
+ V5 kernel changes:
+ https://lkml.org/lkml/2012/3/23/50
+ Qemu changes for V5:
+ http://lists.gnu.org/archive/html/qemu-devel/2012-03/msg04455.html 
+
+ V4 kernel changes:
+ https://lkml.org/lkml/2012/1/14/66
+
+ Qemu changes for V4:
+ http://www.mail-archive.com/kvm@vger.kernel.org/msg66450.html
+
+ V3 kernel Changes:
+ https://lkml.org/lkml/2011/11/30/62
+ V2 kernel changes : 
+ https://lkml.org/lkml/2011/10/23/207
+
+ Previous discussions : (posted by Srivatsa V).
+ https://lkml.org/lkml/2010/7/26/24
+ https://lkml.org/lkml/2011/1/19/212
  
-+Paravirtualized ticket spinlocks can be enabled in guest by checking whether
-+support exists in host via,
-+
-+  ioctl(KVM_CHECK_EXTENSION, KVM_CAP_PV_UNHALT)
-+
-+if this call return true, guest can use the feature.
-+
- 4.47 KVM_PPC_GET_PVINFO
+ Qemu patch for V3:
+ http://lists.gnu.org/archive/html/qemu-devel/2011-12/msg00397.html
  
- Capability: KVM_CAP_PPC_GET_PVINFO
-diff --git a/Documentation/virtual/kvm/cpuid.txt b/Documentation/virtual/kvm/cpuid.txt
-index 8820685..062dff9 100644
---- a/Documentation/virtual/kvm/cpuid.txt
-+++ b/Documentation/virtual/kvm/cpuid.txt
-@@ -39,6 +39,10 @@ KVM_FEATURE_CLOCKSOURCE2           ||     3 || kvmclock available at msrs
- KVM_FEATURE_ASYNC_PF               ||     4 || async pf can be enabled by
-                                    ||       || writing to msr 0x4b564d02
- ------------------------------------------------------------------------------
-+KVM_FEATURE_PV_UNHALT              ||     6 || guest checks this feature bit
-+                                   ||       || before enabling paravirtualized
-+                                   ||       || spinlock support.
-+------------------------------------------------------------------------------
- KVM_FEATURE_CLOCKSOURCE_STABLE_BIT ||    24 || host will warn if no guest-side
-                                    ||       || per-cpu warps are expected in
-                                    ||       || kvmclock.
-diff --git a/Documentation/virtual/kvm/hypercalls.txt b/Documentation/virtual/kvm/hypercalls.txt
-new file mode 100644
-index 0000000..c9e8b9c
---- /dev/null
-+++ b/Documentation/virtual/kvm/hypercalls.txt
-@@ -0,0 +1,59 @@
-+KVM Hypercalls Documentation
-+===========================
-+Template for documentation is
-+The documenenation for hypercalls should inlcude
-+1. Hypercall name, value.
-+2. Architecture(s)
-+3. status (deprecated, obsolete, active)
-+4. Purpose
-+
-+
-+1. KVM_HC_VAPIC_POLL_IRQ
-+------------------------
-+value: 1
-+Architecture: x86
-+Purpose:
-+
-+2. KVM_HC_MMU_OP
-+------------------------
-+value: 2
-+Architecture: x86
-+status: deprecated.
-+Purpose: Support MMU operations such as writing to PTE,
-+flushing TLB, release PT.
-+
-+3. KVM_HC_FEATURES
-+------------------------
-+value: 3
-+Architecture: PPC
-+Purpose: Expose hypercall availability to the guest. On x86 platforms, cpuid
-+used to enumerate which hypercalls are available. On PPC, either device tree
-+based lookup ( which is also what EPAPR dictates) OR KVM specific enumeration
-+mechanism (which is this hypercall) can be used.
-+
-+4. KVM_HC_PPC_MAP_MAGIC_PAGE
-+------------------------
-+value: 4
-+Architecture: PPC
-+Purpose: To enable communication between the hypervisor and guest there is a
-+shared page that contains parts of supervisor visible register state.
-+The guest can map this shared page to access its supervisor register through
-+memory using this hypercall.
-+
-+5. KVM_HC_KICK_CPU
-+------------------------
-+value: 5
-+Architecture: x86
-+Purpose: Hypercall used to wakeup a vcpu from HLT state
-+
-+Usage example : A vcpu of a paravirtualized guest that is busywaiting in guest
-+kernel mode for an event to occur (ex: a spinlock to become available) can
-+execute HLT instruction once it has busy-waited for more than a threshold
-+time-interval. Execution of HLT instruction would cause the hypervisor to put
-+the vcpu to sleep until occurence of an appropriate event. Another vcpu of the
-+same guest can wakeup the sleeping vcpu by issuing KVM_HC_KICK_CPU hypercall,
-+specifying APIC ID of the vcpu to be wokenup.
-+
-+TODO:
-+1. more information on input and output needed?
-+2. Add more detail to purpose of hypercalls.
+Srivatsa Vaddagiri (3): 
+  Add a hypercall to KVM hypervisor to support pv-ticketlocks
+  Added configuration support to enable debug information for KVM Guests
+  pv-ticketlock support for linux guests running on KVM hypervisor
+
+Raghavendra K T (2):
+  Fold pv_unhalt flag into GET_MP_STATE ioctl to aid migration
+  Add documentation on Hypercalls and features used for PV spinlock
+
+ Documentation/virtual/kvm/api.txt        |    7 +
+ Documentation/virtual/kvm/cpuid.txt      |    4 +
+ Documentation/virtual/kvm/hypercalls.txt |   59 +++++++
+ arch/ia64/include/asm/kvm_host.h         |    3 +
+ arch/powerpc/include/asm/kvm_host.h      |    4 +
+ arch/s390/include/asm/kvm_host.h         |    4 +
+ arch/x86/Kconfig                         |    9 +
+ arch/x86/include/asm/kvm_host.h          |    6 +
+ arch/x86/include/asm/kvm_para.h          |   16 ++-
+ arch/x86/kernel/kvm.c                    |  254 ++++++++++++++++++++++++++++++
+ arch/x86/kvm/cpuid.c                     |    3 +-
+ arch/x86/kvm/x86.c                       |   46 ++++++-
+ include/linux/kvm.h                      |    1 +
+ include/linux/kvm_para.h                 |    1 +
+ virt/kvm/kvm_main.c                      |    8 +
+ 15 files changed, 421 insertions(+), 4 deletions(-)
