@@ -1,273 +1,66 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: [PATCH RFC V6 1/5] kvm hypervisor : Add a hypercall to KVM
-	hypervisor to support pv-ticketlocks
-Date: Tue, 24 Apr 2012 12:59:23 +0300
-Message-ID: <20120424095923.GS15413@redhat.com>
-References: <20120423095937.30893.14776.sendpatchset@codeblue.in.ibm.com>
-	<20120423095947.30893.84029.sendpatchset@codeblue.in.ibm.com>
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: RE: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle
+ errors from the host
+Date: Wed, 25 Apr 2012 09:53:19 +0100
+Message-ID: <1335343999.3075.12.camel@dabdike.lan>
+References: <1333654012-23850-1-git-send-email-kys@microsoft.com>
+	  <426367E2313C2449837CD2DE46E7EAF92CE74A@CH1PRD0310MB381.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120423095947.30893.84029.sendpatchset@codeblue.in.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, X86 <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Xen <xen-devel@lists.xensource.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sasha Levin <levinsasha928@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <426367E2313C2449837CD2DE46E7EAF92CE74A@CH1PRD0310MB381.namprd03.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "hch@infradead.org" <hch@infradead.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "apw@canonical.com" <apw@canonical.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 23, 2012 at 03:29:47PM +0530, Raghavendra K T wrote:
-> From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+On Wed, 2012-04-18 at 12:38 +0000, KY Srinivasan wrote:
 > 
-> KVM_HC_KICK_CPU allows the calling vcpu to kick another vcpu out of halt state.
->     
-> The presence of these hypercalls is indicated to guest via
-> KVM_FEATURE_PV_UNHALT/KVM_CAP_PV_UNHALT.
-> 
-> Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-> Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
-> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-> ---
-> diff --git a/arch/ia64/include/asm/kvm_host.h b/arch/ia64/include/asm/kvm_host.h
-> index e35b3a8..3252339 100644
-> --- a/arch/ia64/include/asm/kvm_host.h
-> +++ b/arch/ia64/include/asm/kvm_host.h
-> @@ -597,6 +597,9 @@ void kvm_sal_emul(struct kvm_vcpu *vcpu);
->  struct kvm *kvm_arch_alloc_vm(void);
->  void kvm_arch_free_vm(struct kvm *kvm);
->  
-> +static inline void kvm_arch_vcpu_reset_pv_unhalted(struct kvm_vcpu *vcpu)
-> +{
-> +}
->  #endif /* __ASSEMBLY__*/
->  
->  #endif
-> diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
-> index 52eb9c1..28446de 100644
-> --- a/arch/powerpc/include/asm/kvm_host.h
-> +++ b/arch/powerpc/include/asm/kvm_host.h
-> @@ -498,4 +498,8 @@ struct kvm_vcpu_arch {
->  #define KVM_MMIO_REG_QPR	0x0040
->  #define KVM_MMIO_REG_FQPR	0x0060
->  
-> +static inline void kvm_arch_vcpu_reset_pv_unhalted(struct kvm_vcpu *vcpu)
-> +{
-> +}
-> +
->  #endif /* __POWERPC_KVM_HOST_H__ */
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index 7343872..c47f874 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -256,4 +256,8 @@ struct kvm_arch{
->  };
->  
->  extern int sie64a(struct kvm_s390_sie_block *, u64 *);
-> +static inline void kvm_arch_vcpu_reset_pv_unhalted(struct kvm_vcpu *vcpu)
-> +{
-> +}
-> +
->  #endif
-> diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-> index e216ba0..dad475b 100644
-> --- a/arch/x86/include/asm/kvm_host.h
-> +++ b/arch/x86/include/asm/kvm_host.h
-> @@ -481,6 +481,10 @@ struct kvm_vcpu_arch {
->  		u64 length;
->  		u64 status;
->  	} osvw;
-> +	/* pv related host specific info */
-> +	struct {
-> +		int pv_unhalted;
-> +	} pv;
->  };
->  
->  struct kvm_lpage_info {
-> @@ -967,4 +971,6 @@ int kvm_pmu_read_pmc(struct kvm_vcpu *vcpu, unsigned pmc, u64 *data);
->  void kvm_handle_pmu_event(struct kvm_vcpu *vcpu);
->  void kvm_deliver_pmi(struct kvm_vcpu *vcpu);
->  
-> +void kvm_arch_vcpu_reset_pv_unhalted(struct kvm_vcpu *vcpu);
-> +
->  #endif /* _ASM_X86_KVM_HOST_H */
-> diff --git a/arch/x86/include/asm/kvm_para.h b/arch/x86/include/asm/kvm_para.h
-> index 734c376..5b647ea 100644
-> --- a/arch/x86/include/asm/kvm_para.h
-> +++ b/arch/x86/include/asm/kvm_para.h
-> @@ -16,12 +16,14 @@
->  #define KVM_FEATURE_CLOCKSOURCE		0
->  #define KVM_FEATURE_NOP_IO_DELAY	1
->  #define KVM_FEATURE_MMU_OP		2
-> +
->  /* This indicates that the new set of kvmclock msrs
->   * are available. The use of 0x11 and 0x12 is deprecated
->   */
->  #define KVM_FEATURE_CLOCKSOURCE2        3
->  #define KVM_FEATURE_ASYNC_PF		4
->  #define KVM_FEATURE_STEAL_TIME		5
-> +#define KVM_FEATURE_PV_UNHALT		6
->  
->  /* The last 8 bits are used to indicate how to interpret the flags field
->   * in pvclock structure. If no bits are set, all flags are ignored.
-> diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
-> index 9fed5be..7c93806 100644
-> --- a/arch/x86/kvm/cpuid.c
-> +++ b/arch/x86/kvm/cpuid.c
-> @@ -408,7 +408,8 @@ static int do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
->  			     (1 << KVM_FEATURE_NOP_IO_DELAY) |
->  			     (1 << KVM_FEATURE_CLOCKSOURCE2) |
->  			     (1 << KVM_FEATURE_ASYNC_PF) |
-> -			     (1 << KVM_FEATURE_CLOCKSOURCE_STABLE_BIT);
-> +			     (1 << KVM_FEATURE_CLOCKSOURCE_STABLE_BIT) |
-> +			     (1 << KVM_FEATURE_PV_UNHALT);
->  
->  		if (sched_info_on())
->  			entry->eax |= (1 << KVM_FEATURE_STEAL_TIME);
-> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> index 4044ce0..7fc9be6 100644
-> --- a/arch/x86/kvm/x86.c
-> +++ b/arch/x86/kvm/x86.c
-> @@ -2147,6 +2147,7 @@ int kvm_dev_ioctl_check_extension(long ext)
->  	case KVM_CAP_ASYNC_PF:
->  	case KVM_CAP_GET_TSC_KHZ:
->  	case KVM_CAP_PCI_2_3:
-> +	case KVM_CAP_PV_UNHALT:
->  		r = 1;
->  		break;
->  	case KVM_CAP_COALESCED_MMIO:
-> @@ -4993,6 +4994,36 @@ int kvm_hv_hypercall(struct kvm_vcpu *vcpu)
->  	return 1;
->  }
->  
-> +/*
-> + * kvm_pv_kick_cpu_op:  Kick a vcpu.
-> + *
-> + * @apicid - apicid of vcpu to be kicked.
-> + */
-> +static void kvm_pv_kick_cpu_op(struct kvm *kvm, int apicid)
-> +{
-> +	struct kvm_vcpu *vcpu = NULL;
-> +	int i;
-> +
-> +	kvm_for_each_vcpu(i, vcpu, kvm) {
-> +		if (!kvm_apic_present(vcpu))
-> +			continue;
-> +
-> +		if (kvm_apic_match_dest(vcpu, 0, 0, apicid, 0))
-> +			break;
-> +	}
-> +	if (vcpu) {
-> +		/*
-> +		 * Setting unhalt flag here can result in spurious runnable
-> +		 * state when unhalt reset does not happen in vcpu_block.
-> +		 * But that is harmless since that should soon result in halt.
-> +		 */
-> +		vcpu->arch.pv.pv_unhalted = 1;
-> +		/* We need everybody see unhalt before vcpu unblocks */
-> +		smp_mb();
-> +		kvm_vcpu_kick(vcpu);
-> +	}
-> +}
-This is too similar to kvm_irq_delivery_to_apic(). Why not reuse it. We
-can use one of reserved delivery modes as PV delivery mode. We will
-disallow guest to trigger it through apic interface, so this will not be
-part of ABI and can be changed at will.
+> > -----Original Message-----
+> > From: KY Srinivasan
+> > Sent: Tuesday, April 10, 2012 11:14 AM
+> > To: KY Srinivasan; gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> > devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
+> > jbottomley@parallels.com; hch@infradead.org; linux-scsi@vger.kernel.org;
+> > apw@canonical.com
+> > Subject: RE: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle errors
+> > from the host
+> > 
+> > 
+> > 
+> > > -----Original Message-----
+> > > From: K. Y. Srinivasan [mailto:kys@microsoft.com]
+> > > Sent: Thursday, April 05, 2012 3:27 PM
+> > > To: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> > > devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
+> > > jbottomley@parallels.com; hch@infradead.org; linux-scsi@vger.kernel.org;
+> > > apw@canonical.com
+> > > Cc: KY Srinivasan
+> > > Subject: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle errors from
+> > > the host
+> > >
+> > > If the host returns error for pass through commands, deal with them
+> > > appropriately. I would like to thank James for patiently helping
+> > > me with this patch.
+> > 
+> > James,
+> > 
+> > Thank you for suggesting the fix here. I hope this is what you were looking for.
+> > 
+> > Regards,
+> > 
+> > K. Y
 
-> +
->  int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
->  {
->  	unsigned long nr, a0, a1, a2, a3, ret;
-> @@ -5026,6 +5057,10 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
->  	case KVM_HC_VAPIC_POLL_IRQ:
->  		ret = 0;
->  		break;
-> +	case KVM_HC_KICK_CPU:
-> +		kvm_pv_kick_cpu_op(vcpu->kvm, a0);
-> +		ret = 0;
-> +		break;
->  	default:
->  		ret = -KVM_ENOSYS;
->  		break;
-> @@ -6128,6 +6163,7 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
->  	BUG_ON(vcpu->kvm == NULL);
->  	kvm = vcpu->kvm;
->  
-> +	kvm_arch_vcpu_reset_pv_unhalted(vcpu);
->  	vcpu->arch.emulate_ctxt.ops = &emulate_ops;
->  	if (!irqchip_in_kernel(kvm) || kvm_vcpu_is_bsp(vcpu))
->  		vcpu->arch.mp_state = KVM_MP_STATE_RUNNABLE;
-> @@ -6398,11 +6434,17 @@ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
->  		!vcpu->arch.apf.halted)
->  		|| !list_empty_careful(&vcpu->async_pf.done)
->  		|| vcpu->arch.mp_state == KVM_MP_STATE_SIPI_RECEIVED
-> +		|| vcpu->arch.pv.pv_unhalted
->  		|| atomic_read(&vcpu->arch.nmi_queued) ||
->  		(kvm_arch_interrupt_allowed(vcpu) &&
->  		 kvm_cpu_has_interrupt(vcpu));
->  }
->  
-> +void kvm_arch_vcpu_reset_pv_unhalted(struct kvm_vcpu *vcpu)
-> +{
-> +	vcpu->arch.pv.pv_unhalted = 0;
-> +}
-> +
->  void kvm_vcpu_kick(struct kvm_vcpu *vcpu)
->  {
->  	int me;
-> diff --git a/include/linux/kvm.h b/include/linux/kvm.h
-> index 6c322a9..a189f02 100644
-> --- a/include/linux/kvm.h
-> +++ b/include/linux/kvm.h
-> @@ -589,6 +589,7 @@ struct kvm_ppc_pvinfo {
->  #define KVM_CAP_S390_UCONTROL 73
->  #define KVM_CAP_SYNC_REGS 74
->  #define KVM_CAP_PCI_2_3 75
-> +#define KVM_CAP_PV_UNHALT 76
->  
->  #ifdef KVM_CAP_IRQ_ROUTING
->  
-> diff --git a/include/linux/kvm_para.h b/include/linux/kvm_para.h
-> index ff476dd..38226e1 100644
-> --- a/include/linux/kvm_para.h
-> +++ b/include/linux/kvm_para.h
-> @@ -19,6 +19,7 @@
->  #define KVM_HC_MMU_OP			2
->  #define KVM_HC_FEATURES			3
->  #define KVM_HC_PPC_MAP_MAGIC_PAGE	4
-> +#define KVM_HC_KICK_CPU			5
->  
->  /*
->   * hypercalls use architecture specific
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 42b7393..edf56d4 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -1500,6 +1500,14 @@ void kvm_vcpu_block(struct kvm_vcpu *vcpu)
->  		prepare_to_wait(&vcpu->wq, &wait, TASK_INTERRUPTIBLE);
->  
->  		if (kvm_arch_vcpu_runnable(vcpu)) {
-> +			/*
-> +			 * This is the only safe place to reset unhalt flag.
-> +			 * otherwise it results in loosing the notification
-> +			 * which eventually can result in vcpu hangs.
-> +			 */
-Why this is the only safe place? Why clearing it in kvm/x86.c just after
-call to kvm_vcpu_block() if KVM_REQ_UNHALT is set is not safe enough?
+OK, I have the patch, but the change log is a bit rubbish.  I changed it
+to
 
-> +			kvm_arch_vcpu_reset_pv_unhalted(vcpu);
-> +			/* preventing reordering should be enough here */
-> +			barrier();
->  			kvm_make_request(KVM_REQ_UNHALT, vcpu);
->  			break;
->  		}
+Hyper-V cannot process some commands like ATA_12 and ATA_16. It also returns a
+very generic error when this happens (SRB_STATUS_ERROR).  Most of the time we
+treat SRB_STATUS_ERROR as DID_TARGET_FAILURE which causes error handler retry,
+but in the case of pass through commands, they'll never succeed (and the error
+handler will offline the device), so put a discriminating block in the command
+completion routing and send the SRB_STATUS_ERROR upwards with DID_PASSTHROUGH
+for commands we know should not be retried.
 
---
-			Gleb.
+James
