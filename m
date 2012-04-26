@@ -1,99 +1,57 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle
-	errors from the host
-Date: Wed, 25 Apr 2012 12:50:24 +0000
-Message-ID: <426367E2313C2449837CD2DE46E7EAF92D7187@SN2PRD0310MB382.namprd03.prod.outlook.com>
-References: <1333654012-23850-1-git-send-email-kys@microsoft.com>
-	<426367E2313C2449837CD2DE46E7EAF92CE74A@CH1PRD0310MB381.namprd03.prod.outlook.com>
-	<1335343999.3075.12.camel@dabdike.lan>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V6 1/5] kvm hypervisor : Add a hypercall to KVM
+	hypervisor to support pv-ticketlocks
+Date: Thu, 26 Apr 2012 13:41:13 +0530
+Message-ID: <4F990321.60208@linux.vnet.ibm.com>
+References: <20120423095937.30893.14776.sendpatchset@codeblue.in.ibm.com>
+	<20120423095947.30893.84029.sendpatchset@codeblue.in.ibm.com>
+	<20120424095923.GS15413@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1335343999.3075.12.camel@dabdike.lan>
-Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "ohering@suse.com" <ohering@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "hch@infradead.org" <hch@infradead.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120424095923.GS15413@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Gleb Natapov <gleb@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, X86 <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Xen <xen-devel@lists.xensource.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 04/24/2012 03:29 PM, Gleb Natapov wrote:
+> On Mon, Apr 23, 2012 at 03:29:47PM +0530, Raghavendra K T wrote:
+>> From: Srivatsa Vaddagiri<vatsa@linux.vnet.ibm.com>
+[...]
+>> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+>> index 42b7393..edf56d4 100644
+>> --- a/virt/kvm/kvm_main.c
+>> +++ b/virt/kvm/kvm_main.c
+>> @@ -1500,6 +1500,14 @@ void kvm_vcpu_block(struct kvm_vcpu *vcpu)
+>>   		prepare_to_wait(&vcpu->wq,&wait, TASK_INTERRUPTIBLE);
+>>
+>>   		if (kvm_arch_vcpu_runnable(vcpu)) {
+>> +			/*
+>> +			 * This is the only safe place to reset unhalt flag.
+>> +			 * otherwise it results in loosing the notification
+>> +			 * which eventually can result in vcpu hangs.
+>> +			 */
+> Why this is the only safe place? Why clearing it in kvm/x86.c just after
+> call to kvm_vcpu_block() if KVM_REQ_UNHALT is set is not safe enough?
+>
 
+Yes, You are Right. The acceptable window to reset the flag can be
+extended till there. and Good point about that is it removes the need
+for having the stubs for other archs and simplifies everything a lot. 
+Thanks for that.
 
-> -----Original Message-----
-> From: James Bottomley [mailto:James.Bottomley@HansenPartnership.com]
-> Sent: Wednesday, April 25, 2012 4:53 AM
-> To: KY Srinivasan
-> Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
-> hch@infradead.org; linux-scsi@vger.kernel.org; apw@canonical.com
-> Subject: RE: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle errors
-> from the host
-> 
-> On Wed, 2012-04-18 at 12:38 +0000, KY Srinivasan wrote:
-> >
-> > > -----Original Message-----
-> > > From: KY Srinivasan
-> > > Sent: Tuesday, April 10, 2012 11:14 AM
-> > > To: KY Srinivasan; gregkh@linuxfoundation.org; linux-
-> kernel@vger.kernel.org;
-> > > devel@linuxdriverproject.org; virtualization@lists.osdl.org;
-> ohering@suse.com;
-> > > jbottomley@parallels.com; hch@infradead.org; linux-scsi@vger.kernel.org;
-> > > apw@canonical.com
-> > > Subject: RE: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle errors
-> > > from the host
-> > >
-> > >
-> > >
-> > > > -----Original Message-----
-> > > > From: K. Y. Srinivasan [mailto:kys@microsoft.com]
-> > > > Sent: Thursday, April 05, 2012 3:27 PM
-> > > > To: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> > > > devel@linuxdriverproject.org; virtualization@lists.osdl.org;
-> ohering@suse.com;
-> > > > jbottomley@parallels.com; hch@infradead.org; linux-scsi@vger.kernel.org;
-> > > > apw@canonical.com
-> > > > Cc: KY Srinivasan
-> > > > Subject: [PATCH RESEND 1/1] Drivers: scsi: storvsc: Properly handle errors
-> from
-> > > > the host
-> > > >
-> > > > If the host returns error for pass through commands, deal with them
-> > > > appropriately. I would like to thank James for patiently helping
-> > > > me with this patch.
-> > >
-> > > James,
-> > >
-> > > Thank you for suggesting the fix here. I hope this is what you were looking
-> for.
-> > >
-> > > Regards,
-> > >
-> > > K. Y
-> 
-> OK, I have the patch, but the change log is a bit rubbish.  I changed it
-> to
-> 
-> Hyper-V cannot process some commands like ATA_12 and ATA_16. It also returns
-> a
-> very generic error when this happens (SRB_STATUS_ERROR).  Most of the time
-> we
-> treat SRB_STATUS_ERROR as DID_TARGET_FAILURE which causes error handler
-> retry,
-> but in the case of pass through commands, they'll never succeed (and the error
-> handler will offline the device), so put a discriminating block in the command
-> completion routing and send the SRB_STATUS_ERROR upwards with
-> DID_PASSTHROUGH
-> for commands we know should not be retried.
-
-Looks good; thanks James.
-
-K. Y
+[ When I was experimenting with request bit, clearing request bit in the 
+same place was causing vm hang after some 16 iteration of stress test. I 
+had carried the same impression. Now I have done stress testing
+to ensure that the change works.  Basically as you know, my fear was 
+loosing kick(s) leads to vm hang eventually. ]
