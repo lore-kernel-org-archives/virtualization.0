@@ -1,14 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
 Subject: Re: [PATCH 0/3] virtio: balloon: cleanups and a fix
-Date: Thu, 26 Apr 2012 23:07:47 +0300
-Message-ID: <20120426200746.GA29932@redhat.com>
+Date: Fri, 27 Apr 2012 01:45:54 +0530
+Message-ID: <20120426201554.GA5804@amit.redhat.com>
 References: <cover.1335467427.git.amit.shah@redhat.com>
+	<20120426200746.GA29932@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1335467427.git.amit.shah@redhat.com>
+In-Reply-To: <20120426200746.GA29932@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +19,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 27, 2012 at 12:45:54AM +0530, Amit Shah wrote:
-> Hello,
+On (Thu) 26 Apr 2012 [23:07:47], Michael S. Tsirkin wrote:
+> On Fri, Apr 27, 2012 at 12:45:54AM +0530, Amit Shah wrote:
+> > Hello,
+> > 
+> > The main fix is to update the host with the current balloon value on
+> > module removal after deflating the balloon.  Without the fix, the host
+> > has the wrong idea of the ballooned memory in the guest.  This is
+> > patch 2.
+> > 
+> > Patches 1 and 3 are cleanups with no effective code change.
 > 
-> The main fix is to update the host with the current balloon value on
-> module removal after deflating the balloon.  Without the fix, the host
-> has the wrong idea of the ballooned memory in the guest.  This is
-> patch 2.
 > 
-> Patches 1 and 3 are cleanups with no effective code change.
+> better to just do fixes for 3.4. can you reorder pls?
+
+Well if you just pick patch 2, it'll work fine.  There's no context
+change there.
 
 
-better to just do fixes for 3.4. can you reorder pls?
-
-> Please apply,
-> 
-> Amit Shah (3):
->   virtio: balloon: drop restore_common()
->   virtio: balloon: let host know of updated balloon size before module
->     removal
->   virtio: balloon: separate out common code between remove and freeze
->     functions
-> 
->  drivers/virtio/virtio_balloon.c |   34 ++++++++++++++--------------------
->  1 files changed, 14 insertions(+), 20 deletions(-)
-> 
-> -- 
-> 1.7.7.6
+		Amit
