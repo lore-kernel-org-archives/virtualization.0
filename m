@@ -1,16 +1,14 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 3/3] virtio: balloon: separate out common code between remove
-	and freeze functions
-Date: Fri, 27 Apr 2012 00:45:57 +0530
-Message-ID: <c207cb69a1469afc9d8addcdc8d336da5286fc6e.1335467427.git.amit.shah@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 0/3] virtio: balloon: cleanups and a fix
+Date: Thu, 26 Apr 2012 23:07:47 +0300
+Message-ID: <20120426200746.GA29932@redhat.com>
 References: <cover.1335467427.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <cover.1335467427.git.amit.shah@redhat.com>
-In-Reply-To: <cover.1335467427.git.amit.shah@redhat.com>
-References: <cover.1335467427.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,69 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The remove and freeze functions have a lot of shared code; put it into a
-common function that gets called by both.
+On Fri, Apr 27, 2012 at 12:45:54AM +0530, Amit Shah wrote:
+> Hello,
+> 
+> The main fix is to update the host with the current balloon value on
+> module removal after deflating the balloon.  Without the fix, the host
+> has the wrong idea of the ballooned memory in the guest.  This is
+> patch 2.
+> 
+> Patches 1 and 3 are cleanups with no effective code change.
 
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/virtio/virtio_balloon.c |   26 ++++++++++++--------------
- 1 files changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 04baad6..bfbc15c 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -381,21 +381,25 @@ out:
- 	return err;
- }
- 
--static void __devexit virtballoon_remove(struct virtio_device *vdev)
-+static void remove_common(struct virtio_balloon *vb)
- {
--	struct virtio_balloon *vb = vdev->priv;
--
--	kthread_stop(vb->thread);
--
- 	/* There might be pages left in the balloon: free them. */
- 	while (vb->num_pages)
- 		leak_balloon(vb, vb->num_pages);
- 	update_balloon_size(vb);
- 
- 	/* Now we reset the device so we can clean up the queues. */
--	vdev->config->reset(vdev);
-+	vb->vdev->config->reset(vb->vdev);
- 
--	vdev->config->del_vqs(vdev);
-+	vb->vdev->config->del_vqs(vb->vdev);
-+}
-+
-+static void __devexit virtballoon_remove(struct virtio_device *vdev)
-+{
-+	struct virtio_balloon *vb = vdev->priv;
-+
-+	kthread_stop(vb->thread);
-+	remove_common(vb);
- 	kfree(vb);
- }
- 
-@@ -409,13 +413,7 @@ static int virtballoon_freeze(struct virtio_device *vdev)
- 	 * function is called.
- 	 */
- 
--	while (vb->num_pages)
--		leak_balloon(vb, vb->num_pages);
--	update_balloon_size(vb);
--
--	/* Ensure we don't get any more requests from the host */
--	vdev->config->reset(vdev);
--	vdev->config->del_vqs(vdev);
-+	remove_common(vb);
- 	return 0;
- }
- 
--- 
-1.7.7.6
+better to just do fixes for 3.4. can you reorder pls?
+
+> Please apply,
+> 
+> Amit Shah (3):
+>   virtio: balloon: drop restore_common()
+>   virtio: balloon: let host know of updated balloon size before module
+>     removal
+>   virtio: balloon: separate out common code between remove and freeze
+>     functions
+> 
+>  drivers/virtio/virtio_balloon.c |   34 ++++++++++++++--------------------
+>  1 files changed, 14 insertions(+), 20 deletions(-)
+> 
+> -- 
+> 1.7.7.6
