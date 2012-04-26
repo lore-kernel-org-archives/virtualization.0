@@ -1,11 +1,15 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 0/3] virtio: balloon: cleanups and a fix
-Date: Fri, 27 Apr 2012 00:45:54 +0530
-Message-ID: <cover.1335467427.git.amit.shah@redhat.com>
+Subject: [PATCH 1/3] virtio: balloon: drop restore_common()
+Date: Fri, 27 Apr 2012 00:45:55 +0530
+Message-ID: <c4adb90765b1de563169ed6168bf700f83652392.1335467427.git.amit.shah@redhat.com>
+References: <cover.1335467427.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1335467427.git.amit.shah@redhat.com>
+In-Reply-To: <cover.1335467427.git.amit.shah@redhat.com>
+References: <cover.1335467427.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,26 +23,42 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+restore_common() was used when there were different thaw and freeze PM
+callbacks implemented.  We removed thaw in commit
+f38f8387cbdc4138a492ce9f2a5f04fd3cd3cf33.
 
-The main fix is to update the host with the current balloon value on
-module removal after deflating the balloon.  Without the fix, the host
-has the wrong idea of the ballooned memory in the guest.  This is
-patch 2.
+restore_common() can be removed and virtballoon_restore() can itself do
+the restore ops.
 
-Patches 1 and 3 are cleanups with no effective code change.
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/virtio/virtio_balloon.c |    7 +------
+ 1 files changed, 1 insertions(+), 6 deletions(-)
 
-Please apply,
-
-Amit Shah (3):
-  virtio: balloon: drop restore_common()
-  virtio: balloon: let host know of updated balloon size before module
-    removal
-  virtio: balloon: separate out common code between remove and freeze
-    functions
-
- drivers/virtio/virtio_balloon.c |   34 ++++++++++++++--------------------
- 1 files changed, 14 insertions(+), 20 deletions(-)
-
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index c2d05a8..6921326 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -418,7 +418,7 @@ static int virtballoon_freeze(struct virtio_device *vdev)
+ 	return 0;
+ }
+ 
+-static int restore_common(struct virtio_device *vdev)
++static int virtballoon_restore(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb = vdev->priv;
+ 	int ret;
+@@ -431,11 +431,6 @@ static int restore_common(struct virtio_device *vdev)
+ 	update_balloon_size(vb);
+ 	return 0;
+ }
+-
+-static int virtballoon_restore(struct virtio_device *vdev)
+-{
+-	return restore_common(vdev);
+-}
+ #endif
+ 
+ static unsigned int features[] = {
 -- 
 1.7.7.6
