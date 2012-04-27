@@ -1,15 +1,18 @@
-From: Rob Landley <rob@landley.net>
-Subject: Re: [PATCH RFC V6 5/5] Documentation/kvm : Add documentation on
-	Hypercalls and features used for PV spinlock
-Date: Thu, 26 Apr 2012 10:57:12 -0500
-Message-ID: <4F997058.6070509__32803.4947663129$1335536342$gmane$org@landley.net>
+From: Gleb Natapov <gleb@redhat.com>
+Subject: Re: [PATCH RFC V6 1/5] kvm hypervisor : Add a hypercall to KVM
+	hypervisor to support pv-ticketlocks
+Date: Fri, 27 Apr 2012 18:53:18 +0300
+Message-ID: <20120427155318.GI6833@redhat.com>
 References: <20120423095937.30893.14776.sendpatchset@codeblue.in.ibm.com>
-	<20120423100034.30893.81866.sendpatchset@codeblue.in.ibm.com>
+	<20120423095947.30893.84029.sendpatchset@codeblue.in.ibm.com>
+	<20120424095923.GS15413@redhat.com>
+	<4F9A78CF.7070005@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120423100034.30893.81866.sendpatchset@codeblue.in.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <4F9A78CF.7070005@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,36 +26,133 @@ To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Cc: Jeremy Fitzhardinge <jeremy@goop.org>, X86 <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Xen <xen-devel@lists.xensource.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/23/2012 05:00 AM, Raghavendra K T wrote:
-> From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com> 
-...
-> --- /dev/null
-> +++ b/Documentation/virtual/kvm/hypercalls.txt
-> @@ -0,0 +1,59 @@
-> +KVM Hypercalls Documentation
-> +===========================
-> +Template for documentation is
-> +The documenenation for hypercalls should inlcude
+On Fri, Apr 27, 2012 at 04:15:35PM +0530, Raghavendra K T wrote:
+> On 04/24/2012 03:29 PM, Gleb Natapov wrote:
+> >On Mon, Apr 23, 2012 at 03:29:47PM +0530, Raghavendra K T wrote:
+> >>From: Srivatsa Vaddagiri<vatsa@linux.vnet.ibm.com>
+> >>
+> >>KVM_HC_KICK_CPU allows the calling vcpu to kick another vcpu out of halt state.
+> >>
+> >>The presence of these hypercalls is indicated to guest via
+> >>KVM_FEATURE_PV_UNHALT/KVM_CAP_PV_UNHALT.
+> >>
+> >>Signed-off-by: Srivatsa Vaddagiri<vatsa@linux.vnet.ibm.com>
+> >>Signed-off-by: Suzuki Poulose<suzuki@in.ibm.com>
+> >>Signed-off-by: Raghavendra K T<raghavendra.kt@linux.vnet.ibm.com>
+> >>---
+> [...]
+> >>+/*
+> >>+ * kvm_pv_kick_cpu_op:  Kick a vcpu.
+> >>+ *
+> >>+ * @apicid - apicid of vcpu to be kicked.
+> >>+ */
+> >>+static void kvm_pv_kick_cpu_op(struct kvm *kvm, int apicid)
+> >>+{
+> >>+	struct kvm_vcpu *vcpu = NULL;
+> >>+	int i;
+> >>+
+> >>+	kvm_for_each_vcpu(i, vcpu, kvm) {
+> >>+		if (!kvm_apic_present(vcpu))
+> >>+			continue;
+> >>+
+> >>+		if (kvm_apic_match_dest(vcpu, 0, 0, apicid, 0))
+> >>+			break;
+> >>+	}
+> >>+	if (vcpu) {
+> >>+		/*
+> >>+		 * Setting unhalt flag here can result in spurious runnable
+> >>+		 * state when unhalt reset does not happen in vcpu_block.
+> >>+		 * But that is harmless since that should soon result in halt.
+> >>+		 */
+> >>+		vcpu->arch.pv.pv_unhalted = 1;
+> >>+		/* We need everybody see unhalt before vcpu unblocks */
+> >>+		smp_mb();
+> >>+		kvm_vcpu_kick(vcpu);
+> >>+	}
+> >>+}
+> >This is too similar to kvm_irq_delivery_to_apic(). Why not reuse it. We
+> >can use one of reserved delivery modes as PV delivery mode. We will
+> >disallow guest to trigger it through apic interface, so this will not be
+> >part of ABI and can be changed at will.
+> >
+> 
+> I think it is interesting ( Perhaps more reasonable way of doing it).
+> I am not too familiar with lapic source. So, pardon me if my
+> questions are stupid.
+> 
+> Something like below is what I deciphered from your suggestion which
+> is working.
+> 
+> kvm/x86.c
+> =========
+> kvm_pv_kick_cpu_op()
+> {
+> 
+>  struct kvm_lapic_irq lapic_irq;
+> 
+>  lapic_irq.shorthand = 0;
+>  lapic_irq.dest_mode = 0;
+>  lapic_irq.dest_id = apicid;
+> 
+>  lapic_irq.delivery_mode = PV_DELIVERY_MODE;
+>  kvm_irq_delivery_to_apic(kvm, 0, &lapic_irq );
+> 
+> }
+> 
+> kvm/lapic.c
+> ==========
+> _apic_accept_irq()
+> {
+> ...
+> case APIC_DM_REMRD:
+>                 result = 1;
+>                 vcpu->pv_unhalted = 1
+>                 smp_mb();
+>                 kvm_make_request(KVM_REQ_EVENT, vcpu);
+>                 kvm_vcpu_kick(vcpu);
+>                 break;
+> 
+> ...
+> }
+> 
+> here using PV_DELIVERY_MODE = APIC_DM_REMRD, which was unused.
+> 
+Yes, this is what I mean except that PV_DELIVERY_MODE should be
+number defined as reserved by Intel spec.
 
-What does the line about templates mean/
+> OR
+> 1) Are you asking to remove vcpu->pv_unhalted flag and replace with an irq?
+I would like to remove vcpu->pv_unhalted, but do not see how to do that,
+so I do not asking that :)
+ 
+> 2) are you talking about some reserved fields in struct local_apic instead
+> of APIC_DM_REMRD what I have used above?
+Delivery modes 011b and 111b are reserved. We can use one if them.
 
-documenenation? inlcude?
+> [ Honestly, arch/x86/include/asm/apicdef.h had too much of info to
+> digest :( ]
+> 
+> 3) I am not sure about: disallow guest to trigger it through apic
+> interface part also.(mean howto?)
+I mean we should disallow guest to set delivery mode to reserved values
+through apic interface.
 
-> +1. Hypercall name, value.
-> +2. Architecture(s)
-> +3. status (deprecated, obsolete, active)
-> +4. Purpose
-> +
-> +
-> +1. KVM_HC_VAPIC_POLL_IRQ
-> +------------------------
-> +value: 1
-> +Architecture: x86
-> +Purpose:
+> 4) And one more question, So you think it takes care of migration part
+>   (in case we are removing pv_unhalted flag)?
+No, since I am not asking for removing pv_unhalted flag. I want to reuse
+code that we already have to deliver the unhalt event.
 
-Purpose: none.
+> 
+> It would be helpful if you can give little more explanation/ pointer
+> to Documentation.
+> 
+> Ingo is keen to see whole ticketlock/Xen/KVM patch in one go.
+> and anyhow since this does not cause any ABI change, I hope you
+> don't mind if
+> I do only the vcpu->pv_unhalted change you suggested now [ having
+> pv_unhalted reset  in vcpu_run if
+> you meant something else than code I have above ], so that whole
+> series get fair amount time for testing.
 
-Rob
--- 
-GNU/Linux isn't: Linux=GPLv2, GNU=GPLv3+, they can't share code.
-Either it's "mere aggregation", or a license violation.  Pick one.
+--
+			Gleb.
