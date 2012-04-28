@@ -1,20 +1,15 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH RFC V8 0/17] Paravirtualized ticket spinlocks
-Date: Mon, 07 May 2012 17:52:56 +0300
-Message-ID: <4FA7E1C8.7010509@redhat.com>
-References: <20120502100610.13206.40.sendpatchset@codeblue.in.ibm.com>
-	<20120507082928.GI16608@gmail.com> <4FA7888F.80505@redhat.com>
-	<4FA7AAD8.6050003@linux.vnet.ibm.com> <4FA7BABA.4040700@redhat.com>
-	<4FA7CC05.50808@linux.vnet.ibm.com> <4FA7CCA2.4030408@redhat.com>
-	<4FA7D06B.60005@linux.vnet.ibm.com>
-	<20120507134611.GB5533@linux.vnet.ibm.com>
-	<4FA7D2E5.1020607@redhat.com> <4FA7D3F7.9080005@linux.vnet.ibm.com>
-	<4FA7D50D.1020209@redhat.com> <4FA7E06E.20304@linux.vnet.ibm.com>
+From: Florian Tobias Schandinat <FlorianSchandinat@gmx.de>
+Subject: Re: [Xen-devel] [PATCH] drivers/video/xen-fbfront.c: add missing
+	cleanup code
+Date: Sat, 28 Apr 2012 23:47:42 +0000
+Message-ID: <4F9C819E.4030205__40079.2306209498$1336411816$gmane$org@gmx.de>
+References: <1335088660-13219-1-git-send-email-Julia.Lawall@lip6.fr>
+	<20120426214222.GA11289@phenom.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4FA7E06E.20304@linux.vnet.ibm.com>
+In-Reply-To: <20120426214222.GA11289@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,39 +19,129 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen Devel <xen-devel@lists.xensource.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Attilio Rao <attilio.rao@citrix.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Julia Lawall <Julia.Lawall@lip6.fr>, linux-fbdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/07/2012 05:47 PM, Raghavendra K T wrote:
->> Not good.  Solving a problem in software that is already solved by
->> hardware?  It's okay if there are no costs involved, but here we're
->> introducing a new ABI that we'll have to maintain for a long time.
+Hi Konrad,
+
+On 04/26/2012 09:42 PM, Konrad Rzeszutek Wilk wrote:
+> On Sun, Apr 22, 2012 at 11:57:40AM +0200, Julia Lawall wrote:
+>> From: Julia Lawall <Julia.Lawall@lip6.fr>
 >>
->
->
-> Hmm agree that being a step ahead of mighty hardware (and just an
-> improvement of 1-3%) is no good for long term (where PLE is future).
->
+>> The operations in the subsequent error-handling code appear to be also
+>> useful here.
+> 
+> How about doing it this way?
 
-PLE is the present, not the future.  It was introduced on later Nehalems
-and is present on all Westmeres.  Two more processor generations have
-passed meanwhile.  The AMD equivalent was also introduced around that
-timeframe.
+Looks good to me.
 
-> Having said that, it is hard for me to resist saying :
->  bottleneck is somewhere else on PLE m/c and IMHO answer would be
-> combination of paravirt-spinlock + pv-flush-tb.
->
-> But I need to come up with good number to argue in favour of the claim.
->
-> PS: Nikunj had experimented that pv-flush tlb + paravirt-spinlock is a
-> win on PLE where only one of them alone could not prove the benefit.
->
+> Florian, are you OK me carrying this patch in my tree for Linus or would
+> you prefer to do it?
 
-I'd like to see those numbers, then.
+Yes, I'm okay with you carrying this patch. Feel free to add
+Acked-by: Florian Tobias Schandinat <FlorianSchandinat@gmx.de>
 
-Ingo, please hold on the kvm-specific patches, meanwhile.
 
--- 
-error compiling committee.c: too many arguments to function
+Best regards,
+
+Florian Tobias Schandinat
+
+> 
+> commit a833fb9973b47cb30d1086e73f20b62a425bcd85
+> Author: Julia Lawall <Julia.Lawall@lip6.fr>
+> Date:   Sun Apr 22 11:57:40 2012 +0200
+> 
+>     drivers/video/xen-fbfront.c: add missing cleanup code
+>     
+>     The operations in the subsequent error-handling code appear to be also
+>     useful here.
+>     
+>     Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+>     [v1: Collapse some of the error handling functions]
+>     Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> 
+> diff --git a/drivers/video/xen-fbfront.c b/drivers/video/xen-fbfront.c
+> index cb4529c..aa42160 100644
+> --- a/drivers/video/xen-fbfront.c
+> +++ b/drivers/video/xen-fbfront.c
+> @@ -458,26 +458,31 @@ static int __devinit xenfb_probe(struct xenbus_device *dev,
+>  	xenfb_init_shared_page(info, fb_info);
+>  
+>  	ret = xenfb_connect_backend(dev, info);
+> -	if (ret < 0)
+> -		goto error;
+> +	if (ret < 0) {
+> +		xenbus_dev_fatal(dev, ret, "xenfb_connect_backend");
+> +		goto error_fb;
+> +	}
+>  
+>  	ret = register_framebuffer(fb_info);
+>  	if (ret) {
+> -		fb_deferred_io_cleanup(fb_info);
+> -		fb_dealloc_cmap(&fb_info->cmap);
+> -		framebuffer_release(fb_info);
+>  		xenbus_dev_fatal(dev, ret, "register_framebuffer");
+> -		goto error;
+> +		goto error_fb;
+>  	}
+>  	info->fb_info = fb_info;
+>  
+>  	xenfb_make_preferred_console();
+>  	return 0;
+>  
+> - error_nomem:
+> -	ret = -ENOMEM;
+> -	xenbus_dev_fatal(dev, ret, "allocating device memory");
+> - error:
+> +error_fb:
+> +	fb_deferred_io_cleanup(fb_info);
+> +	fb_dealloc_cmap(&fb_info->cmap);
+> +	framebuffer_release(fb_info);
+> +error_nomem:
+> +	if (!ret) {
+> +		ret = -ENOMEM;
+> +		xenbus_dev_fatal(dev, ret, "allocating device memory");
+> +	}
+> +error:
+>  	xenfb_remove(dev);
+>  	return ret;
+>  }
+> 
+> 
+> 
+>>
+>> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+>>
+>> ---
+>> Not tested.
+>>
+>>  drivers/video/xen-fbfront.c |    7 ++++++-
+>>  1 file changed, 6 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/video/xen-fbfront.c b/drivers/video/xen-fbfront.c
+>> index cb4529c..b0bd59c 100644
+>> --- a/drivers/video/xen-fbfront.c
+>> +++ b/drivers/video/xen-fbfront.c
+>> @@ -458,8 +458,13 @@ static int __devinit xenfb_probe(struct xenbus_device *dev,
+>>  	xenfb_init_shared_page(info, fb_info);
+>>  
+>>  	ret = xenfb_connect_backend(dev, info);
+>> -	if (ret < 0)
+>> +	if (ret < 0) {
+>> +		fb_deferred_io_cleanup(fb_info);
+>> +		fb_dealloc_cmap(&fb_info->cmap);
+>> +		framebuffer_release(fb_info);
+>> +		xenbus_dev_fatal(dev, ret, "xenfb_connect_backend");
+>>  		goto error;
+>> +	}
+>>  
+>>  	ret = register_framebuffer(fb_info);
+>>  	if (ret) {
+>>
+>>
+>> _______________________________________________
+>> Xen-devel mailing list
+>> Xen-devel@lists.xen.org
+>> http://lists.xen.org/xen-devel
+> 
