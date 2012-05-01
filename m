@@ -1,13 +1,13 @@
-From: Ian Campbell <ijc@hellion.org.uk>
-Subject: Re: [PATCHv2] x86info: dump kvm cpuid's
-Date: Tue, 01 May 2012 13:27:05 +0100
-Message-ID: <1335875225.6038.98.camel__10592.9085905247$1335875761$gmane$org@zakaz.uk.xensource.com>
-References: <20120430143835.GA10190@redhat.com>
+From: Ian Campbell <Ian.Campbell@citrix.com>
+Subject: Re: [Xen-devel] [PATCH RFC V7 0/12] Paravirtualized ticketlocks
+Date: Tue, 1 May 2012 13:50:46 +0100
+Message-ID: <1335876646.6038.101.camel@zakaz.uk.xensource.com>
+References: <20120419201209.5411.43877.sendpatchset@codeblue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120430143835.GA10190@redhat.com>
+In-Reply-To: <20120419201209.5411.43877.sendpatchset@codeblue>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,125 +17,287 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: xen-devel@lists.xensource.com, kvm@vger.kernel.org, pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, devel@linuxdriverproject.org, davej@redhat.com
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: Andrew Jones <drjones@redhat.com>, Xen Devel <xen-devel@lists.xensource.com>, KVM <kvm@vger.kernel.org>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Andi Kleen <andi@firstfloor.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2012-04-30 at 17:38 +0300, Michael S. Tsirkin wrote:
-> The following makes 'x86info -r' dump hypervisor leaf cpu ids
-> (for kvm this is signature+features) when running in a vm.
+On Thu, 2012-04-19 at 21:12 +0100, Raghavendra K T wrote:
+> From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 > 
-> On the guest we see the signature and the features:
-> eax in: 0x40000000, eax = 00000000 ebx = 4b4d564b ecx = 564b4d56 edx = 0000004d
-> eax in: 0x40000001, eax = 0100007b ebx = 00000000 ecx = 00000000 edx = 00000000
-> 
-> Hypervisor flag is checked to avoid output changes when not
-> running on a VM.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> Changes from v1:
-> 	Make work on non KVM hypervisors (only KVM was tested).
-> 	Avi Kivity said kvm will in the future report
-> 	max HV leaf in eax. For now it reports eax = 0
->         so add a work around for that.
-> 
-> ---
-> 
-> diff --git a/identify.c b/identify.c
-> index 33f35de..a4a3763 100644
-> --- a/identify.c
-> +++ b/identify.c
-> @@ -9,8 +9,8 @@
->  
->  void get_cpu_info_basics(struct cpudata *cpu)
->  {
-> -	unsigned int maxi, maxei, vendor, address_bits;
-> -	unsigned int eax;
-> +	unsigned int maxi, maxei, maxhv, vendor, address_bits;
-> +	unsigned int eax, ebx, ecx;
->  
->  	cpuid(cpu->number, 0, &maxi, &vendor, NULL, NULL);
->  	maxi &= 0xffff;		/* The high-order word is non-zero on some Cyrix CPUs */
-> @@ -19,7 +19,7 @@ void get_cpu_info_basics(struct cpudata *cpu)
->  		return;
->  
->  	/* Everything that supports cpuid supports these. */
-> -	cpuid(cpu->number, 1, &eax, NULL, NULL, NULL);
-> +	cpuid(cpu->number, 1, &eax, &ebx, &ecx, NULL);
+> This series replaces the existing paravirtualized spinlock mechanism
+> with a paravirtualized ticketlock mechanism. (targeted for 3.5 window)
 
-You probably want to check ebx, ecx, edx for the signatures of the
-hypervisor's you are willing to support and which you know do something
-sane with eax? Also it would be something worth reporting in its own
-right?
+Which tree is this series going through, tip.git I guess?
 
-BTW, according to arch/x86/include/asm/kvm_para.h unsurprisingly KVM has
-a signature too 'KVMKVMKVM'.
-
->  	cpu->stepping = eax & 0xf;
->  	cpu->model = (eax >> 4) & 0xf;
->  	cpu->family = (eax >> 8) & 0xf;
-> @@ -29,6 +29,19 @@ void get_cpu_info_basics(struct cpudata *cpu)
->  
->  	cpuid(cpu->number, 0xC0000000, &maxei, NULL, NULL, NULL);
->  	cpu->maxei2 = maxei;
-> +	if (ecx & 0x80000000) {
-> +		cpuid(cpu->number, 0x40000000, &maxhv, NULL, NULL, NULL);
-> +		/*
-> +		 * KVM up to linux 3.4 reports 0 as the max hypervisor leaf,
-> +		 * where it really means 0x40000001.
-
-This is something where I definitely think you want to check the
-signature first.
+I don't see it there.
 
 Ian.
 
-> +		 * Most (all?) hypervisors have at least one CPUID besides
-> +		 * the vendor ID so assume that.
-> +		 */
-> +		cpu->maxhv = maxhv ? maxhv : 0x40000001;
-> +	} else {
-> +		/* Suppress hypervisor cpuid unless running on a hypervisor */
-> +		cpu->maxhv = 0;
-> +	}
->  
->  	cpuid(cpu->number, 0x80000008,&address_bits, NULL, NULL, NULL);
->  	cpu->phyaddr_bits = address_bits & 0xFF;
-> diff --git a/x86info.c b/x86info.c
-> index 22c4734..80cae36 100644
-> --- a/x86info.c
-> +++ b/x86info.c
-> @@ -44,6 +44,10 @@ static void display_detailed_info(struct cpudata *cpu)
->  
->  		if (cpu->maxei2 >=0xC0000000)
->  			dump_raw_cpuid(cpu->number, 0xC0000000, cpu->maxei2);
-> +
-> +		if (cpu->maxhv >= 0x40000000)
-> +			dump_raw_cpuid(cpu->number, 0x40000000, cpu->maxhv);
-> +
->  	}
->  
->  	if (show_cacheinfo) {
-> diff --git a/x86info.h b/x86info.h
-> index 7d2a455..c4f5d81 100644
-> --- a/x86info.h
-> +++ b/x86info.h
-> @@ -84,7 +84,7 @@ struct cpudata {
->  	unsigned int cachesize_trace;
->  	unsigned int phyaddr_bits;
->  	unsigned int viraddr_bits;
-> -	unsigned int cpuid_level, maxei, maxei2;
-> +	unsigned int cpuid_level, maxei, maxei2, maxhv;
->  	char name[CPU_NAME_LEN];
->  	enum connector connector;
->  	unsigned int flags_ecx;
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
 > 
-
--- 
-Ian Campbell
-
-Your own qualities will help prevent your advancement in the world.
+> Changes in V7:
+>  - Reabsed patches to 3.4-rc3
+>  - Added jumplabel split patch (originally from Andrew Jones rebased to
+>     3.4-rc3
+>  - jumplabel changes from Ingo and Jason taken and now using static_key_*
+>     instead of static_branch.
+>  - using UNINLINE_SPIN_UNLOCK (which was splitted as per suggestion from Linus)
+>  - This patch series is rebased on debugfs patch (that sould be already in
+>     Xen/linux-next https://lkml.org/lkml/2012/3/23/51)
+> 
+> Ticket locks have an inherent problem in a virtualized case, because
+> the vCPUs are scheduled rather than running concurrently (ignoring
+> gang scheduled vCPUs).  This can result in catastrophic performance
+> collapses when the vCPU scheduler doesn't schedule the correct "next"
+> vCPU, and ends up scheduling a vCPU which burns its entire timeslice
+> spinning.  (Note that this is not the same problem as lock-holder
+> preemption, which this series also addresses; that's also a problem,
+> but not catastrophic).
+> 
+> (See Thomas Friebel's talk "Prevent Guests from Spinning Around"
+> http://www.xen.org/files/xensummitboston08/LHP.pdf for more details.)
+> 
+> Currently we deal with this by having PV spinlocks, which adds a layer
+> of indirection in front of all the spinlock functions, and defining a
+> completely new implementation for Xen (and for other pvops users, but
+> there are none at present).
+> 
+> PV ticketlocks keeps the existing ticketlock implemenentation
+> (fastpath) as-is, but adds a couple of pvops for the slow paths:
+> 
+> - If a CPU has been waiting for a spinlock for SPIN_THRESHOLD
+>   iterations, then call out to the __ticket_lock_spinning() pvop,
+>   which allows a backend to block the vCPU rather than spinning.  This
+>   pvop can set the lock into "slowpath state".
+> 
+> - When releasing a lock, if it is in "slowpath state", the call
+>   __ticket_unlock_kick() to kick the next vCPU in line awake.  If the
+>   lock is no longer in contention, it also clears the slowpath flag.
+> 
+> The "slowpath state" is stored in the LSB of the within the lock tail
+> ticket.  This has the effect of reducing the max number of CPUs by
+> half (so, a "small ticket" can deal with 128 CPUs, and "large ticket"
+> 32768).
+> 
+> This series provides a Xen implementation, KVM implementation will be
+> posted in next 2-3 days.
+> 
+> Overall, it results in a large reduction in code, it makes the native
+> and virtualized cases closer, and it removes a layer of indirection
+> around all the spinlock functions.
+> 
+> The fast path (taking an uncontended lock which isn't in "slowpath"
+> state) is optimal, identical to the non-paravirtualized case.
+> 
+> The inner part of ticket lock code becomes:
+>         inc = xadd(&lock->tickets, inc);
+>         inc.tail &= ~TICKET_SLOWPATH_FLAG;
+> 
+>         if (likely(inc.head == inc.tail))
+>                 goto out;
+>         for (;;) {
+>                 unsigned count = SPIN_THRESHOLD;
+>                 do {
+>                         if (ACCESS_ONCE(lock->tickets.head) == inc.tail)
+>                                 goto out;
+>                         cpu_relax();
+>                 } while (--count);
+>                 __ticket_lock_spinning(lock, inc.tail);
+>         }
+> out:    barrier();
+> which results in:
+>         push   %rbp
+>         mov    %rsp,%rbp
+> 
+>         mov    $0x200,%eax
+>         lock xadd %ax,(%rdi)
+>         movzbl %ah,%edx
+>         cmp    %al,%dl
+>         jne    1f       # Slowpath if lock in contention
+> 
+>         pop    %rbp
+>         retq
+> 
+>         ### SLOWPATH START
+> 1:      and    $-2,%edx
+>         movzbl %dl,%esi
+> 
+> 2:      mov    $0x800,%eax
+>         jmp    4f
+> 
+> 3:      pause
+>         sub    $0x1,%eax
+>         je     5f
+> 
+> 4:      movzbl (%rdi),%ecx
+>         cmp    %cl,%dl
+>         jne    3b
+> 
+>         pop    %rbp
+>         retq
+> 
+> 5:      callq  *__ticket_lock_spinning
+>         jmp    2b
+>         ### SLOWPATH END
+> 
+> with CONFIG_PARAVIRT_SPINLOCKS=n, the code has changed slightly, where
+> the fastpath case is straight through (taking the lock without
+> contention), and the spin loop is out of line:
+> 
+>         push   %rbp
+>         mov    %rsp,%rbp
+> 
+>         mov    $0x100,%eax
+>         lock xadd %ax,(%rdi)
+>         movzbl %ah,%edx
+>         cmp    %al,%dl
+>         jne    1f
+> 
+>         pop    %rbp
+>         retq
+> 
+>         ### SLOWPATH START
+> 1:      pause
+>         movzbl (%rdi),%eax
+>         cmp    %dl,%al
+>         jne    1b
+> 
+>         pop    %rbp
+>         retq
+>         ### SLOWPATH END
+> 
+> The unlock code is complicated by the need to both add to the lock's
+> "head" and fetch the slowpath flag from "tail".  This version of the
+> patch uses a locked add to do this, followed by a test to see if the
+> slowflag is set.  The lock prefix acts as a full memory barrier, so we
+> can be sure that other CPUs will have seen the unlock before we read
+> the flag (without the barrier the read could be fetched from the
+> store queue before it hits memory, which could result in a deadlock).
+> 
+> This is is all unnecessary complication if you're not using PV ticket
+> locks, it also uses the jump-label machinery to use the standard
+> "add"-based unlock in the non-PV case.
+> 
+>         if (TICKET_SLOWPATH_FLAG &&
+>              static_key_false(&paravirt_ticketlocks_enabled))) {
+>                 arch_spinlock_t prev;
+>                 prev = *lock;
+>                 add_smp(&lock->tickets.head, TICKET_LOCK_INC);
+> 
+>                 /* add_smp() is a full mb() */
+>                 if (unlikely(lock->tickets.tail & TICKET_SLOWPATH_FLAG))
+>                         __ticket_unlock_slowpath(lock, prev);
+>         } else
+>                 __add(&lock->tickets.head, TICKET_LOCK_INC, UNLOCK_LOCK_PREFIX);
+> which generates:
+>         push   %rbp
+>         mov    %rsp,%rbp
+> 
+>         nop5    # replaced by 5-byte jmp 2f when PV enabled
+> 
+>         # non-PV unlock
+>         addb   $0x2,(%rdi)
+> 
+> 1:      pop    %rbp
+>         retq
+> 
+> ### PV unlock ###
+> 2:      movzwl (%rdi),%esi      # Fetch prev
+> 
+>         lock addb $0x2,(%rdi)   # Do unlock
+> 
+>         testb  $0x1,0x1(%rdi)   # Test flag
+>         je     1b               # Finished if not set
+> 
+> ### Slow path ###
+>         add    $2,%sil          # Add "head" in old lock state
+>         mov    %esi,%edx
+>         and    $0xfe,%dh        # clear slowflag for comparison
+>         movzbl %dh,%eax
+>         cmp    %dl,%al          # If head == tail (uncontended)
+>         je     4f               # clear slowpath flag
+> 
+>         # Kick next CPU waiting for lock
+> 3:      movzbl %sil,%esi
+>         callq  *pv_lock_ops.kick
+> 
+>         pop    %rbp
+>         retq
+> 
+>         # Lock no longer contended - clear slowflag
+> 4:      mov    %esi,%eax
+>         lock cmpxchg %dx,(%rdi) # cmpxchg to clear flag
+>         cmp    %si,%ax
+>         jne    3b               # If clear failed, then kick
+> 
+>         pop    %rbp
+>         retq
+> 
+> So when not using PV ticketlocks, the unlock sequence just has a
+> 5-byte nop added to it, and the PV case is reasonable straightforward
+> aside from requiring a "lock add".
+> 
+> TODO: 1) remove CONFIG_PARAVIRT_SPINLOCK ?
+>       2) experiments on further optimization possibilities. (discussed in V6)
+> 
+> Results:
+> =======
+> various form of results based on V6 of the patch series are posted in following links
+>  https://lkml.org/lkml/2012/3/21/161
+>  https://lkml.org/lkml/2012/3/21/198
+> 
+>  kvm results:
+>  https://lkml.org/lkml/2012/3/23/50
+>  https://lkml.org/lkml/2012/4/5/73
+> 
+> Thoughts? Comments? Suggestions?
+> 
+> Jeremy Fitzhardinge (9):
+>   x86/spinlock: replace pv spinlocks with pv ticketlocks
+>   x86/ticketlock: collapse a layer of functions
+>   xen: defer spinlock setup until boot CPU setup
+>   xen/pvticketlock: Xen implementation for PV ticket locks
+>   xen/pvticketlocks: add xen_nopvspin parameter to disable xen pv
+>     ticketlocks
+>   x86/pvticketlock: use callee-save for lock_spinning
+>   x86/pvticketlock: when paravirtualizing ticket locks, increment by 2
+>   x86/ticketlock: add slowpath logic
+>   xen/pvticketlock: allow interrupts to be enabled while blocking
+> 
+> Raghavendra K T (1):
+>   x86/ticketlock: don't inline _spin_unlock when using paravirt
+>     spinlocks
+> 
+> Andrew Jones (1):
+>   split out rate limiting from jump_label.h
+> 
+> Stefano Stabellini (1):
+>  xen: enable PV ticketlocks on HVM Xen
+> ---
+> 
+> V6 : https://lkml.org/lkml/2012/3/21/161
+> 
+> Changes in V6 posting: (Raghavendra K T)
+>  - Rebased to linux-3.3-rc6.
+>  - used function+enum in place of macro (better type checking)
+>  - use cmpxchg while resetting zero status for possible race
+>         [suggested by Dave Hansen for KVM patches ]
+> 
+>  arch/x86/Kconfig                      |    1 +
+>  arch/x86/include/asm/paravirt.h       |   32 +---
+>  arch/x86/include/asm/paravirt_types.h |   10 +-
+>  arch/x86/include/asm/spinlock.h       |  128 ++++++++----
+>  arch/x86/include/asm/spinlock_types.h |   16 +-
+>  arch/x86/kernel/paravirt-spinlocks.c  |   18 +--
+>  arch/x86/xen/smp.c                    |    3 +-
+>  arch/x86/xen/spinlock.c               |  383 +++++++++++----------------------
+>  include/linux/jump_label.h            |   26 +---
+>  include/linux/jump_label_ratelimit.h  |   34 +++
+>  include/linux/perf_event.h            |    1 +
+>  kernel/jump_label.c                   |    1 +
+>  12 files changed, 279 insertions(+), 374 deletions(-)
+> 
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xen.org
+> http://lists.xen.org/xen-devel
