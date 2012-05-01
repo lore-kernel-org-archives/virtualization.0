@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2] x86info: dump kvm cpuid's
-Date: Mon, 30 Apr 2012 17:38:35 +0300
-Message-ID: <20120430143835.GA10190@redhat.com>
+From: Ian Campbell <Ian.Campbell@citrix.com>
+Subject: Re: [Xen-devel] x86info: dump kvm cpuid's
+Date: Tue, 1 May 2012 11:29:04 +0100
+Message-ID: <1335868144.6038.89.camel@zakaz.uk.xensource.com>
+References: <20120429101019.GA21165@redhat.com>
+	<20120430084319.GE15413@redhat.com> <20120430093811.GC5414@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20120430093811.GC5414@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,99 +18,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: davej@redhat.com
-Cc: xen-devel@lists.xensource.com, kvm@vger.kernel.org, pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, devel@linuxdriverproject.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davej@redhat.com" <davej@redhat.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following makes 'x86info -r' dump hypervisor leaf cpu ids
-(for kvm this is signature+features) when running in a vm.
+On Mon, 2012-04-30 at 10:38 +0100, Michael S. Tsirkin wrote:
+> On Mon, Apr 30, 2012 at 11:43:19AM +0300, Gleb Natapov wrote:
+> > On Sun, Apr 29, 2012 at 01:10:21PM +0300, Michael S. Tsirkin wrote:
+> > > The following makes 'x86info -r' dump kvm cpu ids
+> > > (signature+features) when running in a vm.
+> > > 
+> > > On the guest we see the signature and the features:
+> > > eax in: 0x40000000, eax = 00000000 ebx = 4b4d564b ecx = 564b4d56 edx = 0000004d
+> > > eax in: 0x40000001, eax = 0100007b ebx = 00000000 ecx = 00000000 edx = 00000000
+> > > 
+> > > On the host it just adds a couple of zero lines:
+> > > eax in: 0x40000000, eax = 00000000 ebx = 00000000 ecx = 00000000 edx = 00000000
+> > > eax in: 0x40000001, eax = 00000000 ebx = 00000000 ecx = 00000000 edx = 00000000
+> > > 
+> > This is too KVM specific.
+> 
+> That's what I have. I scratch my own itch.
+> 
+> > Other hypervisors may use more cpuid leafs.
+> 
+> But not less so no harm's done.
+> 
+> > As far as I see Hyper-V uses 5 and use cpuid.0x40000000.eax as max cpuid
+> > leaf available. Haven't checked Xen or VMWare.
 
-On the guest we see the signature and the features:
-eax in: 0x40000000, eax = 00000000 ebx = 4b4d564b ecx = 564b4d56 edx = 0000004d
-eax in: 0x40000001, eax = 0100007b ebx = 00000000 ecx = 00000000 edx = 00000000
+Xen does the same, documentation in the Xen public interfaces header:
+http://xenbits.xen.org/docs/unstable/hypercall/include,public,arch-x86,cpuid.h.html.
 
-Hypervisor flag is checked to avoid output changes when not
-running on a VM.
+If compat mode for another h/v is enabled then those leaves will appear
+at 0x40000000 and Xen's will be bumped up, so a fully Xen aware set of
+drivers (or detection routine, etc) should check at 0x100 intervals
+until 0x40010000 for the appropriate signatures (I realise that the docs
+are somewhat lacking in this regard, I should cook up a patch).
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-Changes from v1:
-	Make work on non KVM hypervisors (only KVM was tested).
-	Avi Kivity said kvm will in the future report
-	max HV leaf in eax. For now it reports eax = 0
-        so add a work around for that.
-
----
-
-diff --git a/identify.c b/identify.c
-index 33f35de..a4a3763 100644
---- a/identify.c
-+++ b/identify.c
-@@ -9,8 +9,8 @@
- 
- void get_cpu_info_basics(struct cpudata *cpu)
- {
--	unsigned int maxi, maxei, vendor, address_bits;
--	unsigned int eax;
-+	unsigned int maxi, maxei, maxhv, vendor, address_bits;
-+	unsigned int eax, ebx, ecx;
- 
- 	cpuid(cpu->number, 0, &maxi, &vendor, NULL, NULL);
- 	maxi &= 0xffff;		/* The high-order word is non-zero on some Cyrix CPUs */
-@@ -19,7 +19,7 @@ void get_cpu_info_basics(struct cpudata *cpu)
- 		return;
- 
- 	/* Everything that supports cpuid supports these. */
--	cpuid(cpu->number, 1, &eax, NULL, NULL, NULL);
-+	cpuid(cpu->number, 1, &eax, &ebx, &ecx, NULL);
- 	cpu->stepping = eax & 0xf;
- 	cpu->model = (eax >> 4) & 0xf;
- 	cpu->family = (eax >> 8) & 0xf;
-@@ -29,6 +29,19 @@ void get_cpu_info_basics(struct cpudata *cpu)
- 
- 	cpuid(cpu->number, 0xC0000000, &maxei, NULL, NULL, NULL);
- 	cpu->maxei2 = maxei;
-+	if (ecx & 0x80000000) {
-+		cpuid(cpu->number, 0x40000000, &maxhv, NULL, NULL, NULL);
-+		/*
-+		 * KVM up to linux 3.4 reports 0 as the max hypervisor leaf,
-+		 * where it really means 0x40000001.
-+		 * Most (all?) hypervisors have at least one CPUID besides
-+		 * the vendor ID so assume that.
-+		 */
-+		cpu->maxhv = maxhv ? maxhv : 0x40000001;
-+	} else {
-+		/* Suppress hypervisor cpuid unless running on a hypervisor */
-+		cpu->maxhv = 0;
-+	}
- 
- 	cpuid(cpu->number, 0x80000008,&address_bits, NULL, NULL, NULL);
- 	cpu->phyaddr_bits = address_bits & 0xFF;
-diff --git a/x86info.c b/x86info.c
-index 22c4734..80cae36 100644
---- a/x86info.c
-+++ b/x86info.c
-@@ -44,6 +44,10 @@ static void display_detailed_info(struct cpudata *cpu)
- 
- 		if (cpu->maxei2 >=0xC0000000)
- 			dump_raw_cpuid(cpu->number, 0xC0000000, cpu->maxei2);
-+
-+		if (cpu->maxhv >= 0x40000000)
-+			dump_raw_cpuid(cpu->number, 0x40000000, cpu->maxhv);
-+
- 	}
- 
- 	if (show_cacheinfo) {
-diff --git a/x86info.h b/x86info.h
-index 7d2a455..c4f5d81 100644
---- a/x86info.h
-+++ b/x86info.h
-@@ -84,7 +84,7 @@ struct cpudata {
- 	unsigned int cachesize_trace;
- 	unsigned int phyaddr_bits;
- 	unsigned int viraddr_bits;
--	unsigned int cpuid_level, maxei, maxei2;
-+	unsigned int cpuid_level, maxei, maxei2, maxhv;
- 	char name[CPU_NAME_LEN];
- 	enum connector connector;
- 	unsigned int flags_ecx;
+Ian.
