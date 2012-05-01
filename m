@@ -1,15 +1,14 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: [PATCHv2] x86info: dump kvm cpuid's
-Date: Tue, 1 May 2012 16:04:19 +0300
-Message-ID: <20120501130419.GJ22191@redhat.com>
-References: <20120430143835.GA10190@redhat.com>
-	<1335875225.6038.98.camel@zakaz.uk.xensource.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [Xen-devel] [PATCH RFC V7 0/12] Paravirtualized ticketlocks
+Date: Tue, 01 May 2012 18:34:41 +0530
+Message-ID: <4F9FDF69.8090101@linux.vnet.ibm.com>
+References: <20120419201209.5411.43877.sendpatchset@codeblue>
+	<1335876646.6038.101.camel@zakaz.uk.xensource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1335875225.6038.98.camel@zakaz.uk.xensource.com>
+In-Reply-To: <1335876646.6038.101.camel@zakaz.uk.xensource.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,140 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian Campbell <ijc@hellion.org.uk>
-Cc: xen-devel@lists.xensource.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, devel@linuxdriverproject.org, davej@redhat.com
+To: Ian Campbell <Ian.Campbell@citrix.com>
+Cc: Andrew Jones <drjones@redhat.com>, Xen Devel <xen-devel@lists.xensource.com>, KVM <kvm@vger.kernel.org>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, Peter Zijlstra <peterz@infradead.org>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Andi Kleen <andi@firstfloor.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>, Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Ingo Molnar <mingo@elte.hu>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 01, 2012 at 01:27:05PM +0100, Ian Campbell wrote:
-> On Mon, 2012-04-30 at 17:38 +0300, Michael S. Tsirkin wrote:
-> > The following makes 'x86info -r' dump hypervisor leaf cpu ids
-> > (for kvm this is signature+features) when running in a vm.
-> > 
-> > On the guest we see the signature and the features:
-> > eax in: 0x40000000, eax = 00000000 ebx = 4b4d564b ecx = 564b4d56 edx = 0000004d
-> > eax in: 0x40000001, eax = 0100007b ebx = 00000000 ecx = 00000000 edx = 00000000
-> > 
-> > Hypervisor flag is checked to avoid output changes when not
-> > running on a VM.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > 
-> > Changes from v1:
-> > 	Make work on non KVM hypervisors (only KVM was tested).
-> > 	Avi Kivity said kvm will in the future report
-> > 	max HV leaf in eax. For now it reports eax = 0
-> >         so add a work around for that.
-> > 
-> > ---
-> > 
-> > diff --git a/identify.c b/identify.c
-> > index 33f35de..a4a3763 100644
-> > --- a/identify.c
-> > +++ b/identify.c
-> > @@ -9,8 +9,8 @@
-> >  
-> >  void get_cpu_info_basics(struct cpudata *cpu)
-> >  {
-> > -	unsigned int maxi, maxei, vendor, address_bits;
-> > -	unsigned int eax;
-> > +	unsigned int maxi, maxei, maxhv, vendor, address_bits;
-> > +	unsigned int eax, ebx, ecx;
-> >  
-> >  	cpuid(cpu->number, 0, &maxi, &vendor, NULL, NULL);
-> >  	maxi &= 0xffff;		/* The high-order word is non-zero on some Cyrix CPUs */
-> > @@ -19,7 +19,7 @@ void get_cpu_info_basics(struct cpudata *cpu)
-> >  		return;
-> >  
-> >  	/* Everything that supports cpuid supports these. */
-> > -	cpuid(cpu->number, 1, &eax, NULL, NULL, NULL);
-> > +	cpuid(cpu->number, 1, &eax, &ebx, &ecx, NULL);
-> 
-> You probably want to check ebx, ecx, edx for the signatures of the
-> hypervisor's you are willing to support and which you know do something
-> sane with eax? Also it would be something worth reporting in its own
-> right?
-> 
-Yes, but this is for -r option which only dumps raw cpuid info.
-Decoding hypervisor specific info is useful thing, but should not be
-pre-request for that patch.
-
-> BTW, according to arch/x86/include/asm/kvm_para.h unsurprisingly KVM has
-> a signature too 'KVMKVMKVM'.
-> 
-> >  	cpu->stepping = eax & 0xf;
-> >  	cpu->model = (eax >> 4) & 0xf;
-> >  	cpu->family = (eax >> 8) & 0xf;
-> > @@ -29,6 +29,19 @@ void get_cpu_info_basics(struct cpudata *cpu)
-> >  
-> >  	cpuid(cpu->number, 0xC0000000, &maxei, NULL, NULL, NULL);
-> >  	cpu->maxei2 = maxei;
-> > +	if (ecx & 0x80000000) {
-> > +		cpuid(cpu->number, 0x40000000, &maxhv, NULL, NULL, NULL);
-> > +		/*
-> > +		 * KVM up to linux 3.4 reports 0 as the max hypervisor leaf,
-> > +		 * where it really means 0x40000001.
-> 
-> This is something where I definitely think you want to check the
-> signature first.
-In theory yes, but in practice what will this break?
-
-> 
+On 05/01/2012 06:20 PM, Ian Campbell wrote:
+> On Thu, 2012-04-19 at 21:12 +0100, Raghavendra K T wrote:
+>> From: Jeremy Fitzhardinge<jeremy.fitzhardinge@citrix.com>
+>>
+>> This series replaces the existing paravirtualized spinlock mechanism
+>> with a paravirtualized ticketlock mechanism. (targeted for 3.5 window)
+>
+> Which tree is this series going through, tip.git I guess?
+>
+> I don't see it there.
+>
 > Ian.
-> 
-> > +		 * Most (all?) hypervisors have at least one CPUID besides
-> > +		 * the vendor ID so assume that.
-> > +		 */
-> > +		cpu->maxhv = maxhv ? maxhv : 0x40000001;
-> > +	} else {
-> > +		/* Suppress hypervisor cpuid unless running on a hypervisor */
-> > +		cpu->maxhv = 0;
-> > +	}
-> >  
-> >  	cpuid(cpu->number, 0x80000008,&address_bits, NULL, NULL, NULL);
-> >  	cpu->phyaddr_bits = address_bits & 0xFF;
-> > diff --git a/x86info.c b/x86info.c
-> > index 22c4734..80cae36 100644
-> > --- a/x86info.c
-> > +++ b/x86info.c
-> > @@ -44,6 +44,10 @@ static void display_detailed_info(struct cpudata *cpu)
-> >  
-> >  		if (cpu->maxei2 >=0xC0000000)
-> >  			dump_raw_cpuid(cpu->number, 0xC0000000, cpu->maxei2);
-> > +
-> > +		if (cpu->maxhv >= 0x40000000)
-> > +			dump_raw_cpuid(cpu->number, 0x40000000, cpu->maxhv);
-> > +
-> >  	}
-> >  
-> >  	if (show_cacheinfo) {
-> > diff --git a/x86info.h b/x86info.h
-> > index 7d2a455..c4f5d81 100644
-> > --- a/x86info.h
-> > +++ b/x86info.h
-> > @@ -84,7 +84,7 @@ struct cpudata {
-> >  	unsigned int cachesize_trace;
-> >  	unsigned int phyaddr_bits;
-> >  	unsigned int viraddr_bits;
-> > -	unsigned int cpuid_level, maxei, maxei2;
-> > +	unsigned int cpuid_level, maxei, maxei2, maxhv;
-> >  	char name[CPU_NAME_LEN];
-> >  	enum connector connector;
-> >  	unsigned int flags_ecx;
-> > _______________________________________________
-> > Virtualization mailing list
-> > Virtualization@lists.linux-foundation.org
-> > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> > 
-> 
-> -- 
-> Ian Campbell
-> 
-> Your own qualities will help prevent your advancement in the world.
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
---
-			Gleb.
+Yes you are right.
+
+I am trying to post ticketlock + xen + kvm patches series in one
+go. There are some discussions on kvm patches last few days. So I am
+putting up all of them together now.  I am planning to post within 
+half/one day.
