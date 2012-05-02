@@ -1,17 +1,13 @@
-From: Ian Campbell <ijc@hellion.org.uk>
-Subject: Re: [Xen-devel] [PATCHv2] x86info: dump kvm cpuid's
-Date: Wed, 02 May 2012 10:58:46 +0100
-Message-ID: <1335952726.26758.34.camel@zakaz.uk.xensource.com>
-References: <20120430143835.GA10190@redhat.com>
-	<1335875225.6038.98.camel@zakaz.uk.xensource.com>
-	<20120501130419.GJ22191@redhat.com>
-	<1335951927.26758.24.camel@zakaz.uk.xensource.com>
-	<20120502095053.GA31543@redhat.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: [PATCH RFC V8 3/17]  x86/ticketlock: Collapse a layer of functions
+Date: Wed, 02 May 2012 15:36:51 +0530
+Message-ID: <20120502100651.13206.1226.sendpatchset@codeblue.in.ibm.com>
+References: <20120502100610.13206.40.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120502095053.GA31543@redhat.com>
+In-Reply-To: <20120502100610.13206.40.sendpatchset@codeblue.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,55 +17,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "pv-drivers@vmware.com" <pv-drivers@vmware.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "davej@redhat.com" <davej@redhat.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "H. Peter Anvin" <hpa@zytor.com>, Avi Kivity <avi@redhat.com>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, Ingo Molnar <mingo@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>
+Cc: Xen Devel <xen-devel@lists.xensource.com>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>, Attilio Rao <attilio.rao@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2012-05-02 at 10:50 +0100, Michael S. Tsirkin wrote:
-> On Wed, May 02, 2012 at 10:45:27AM +0100, Ian Campbell wrote:
-> > On Tue, 2012-05-01 at 16:04 +0300, Gleb Natapov wrote:
-> > > > BTW, according to arch/x86/include/asm/kvm_para.h unsurprisingly KVM has
-> > > > a signature too 'KVMKVMKVM'.
-> > > > 
-> > > > >  	cpu->stepping = eax & 0xf;
-> > > > >  	cpu->model = (eax >> 4) & 0xf;
-> > > > >  	cpu->family = (eax >> 8) & 0xf;
-> > > > > @@ -29,6 +29,19 @@ void get_cpu_info_basics(struct cpudata *cpu)
-> > > > >  
-> > > > >  	cpuid(cpu->number, 0xC0000000, &maxei, NULL, NULL, NULL);
-> > > > >  	cpu->maxei2 = maxei;
-> > > > > +	if (ecx & 0x80000000) {
-> > > > > +		cpuid(cpu->number, 0x40000000, &maxhv, NULL, NULL, NULL);
-> > > > > +		/*
-> > > > > +		 * KVM up to linux 3.4 reports 0 as the max hypervisor leaf,
-> > > > > +		 * where it really means 0x40000001.
-> > > > 
-> > > > This is something where I definitely think you want to check the
-> > > > signature first.
-> > > In theory yes, but in practice what will this break?
-> > 
-> > I've got no idea -- but what's the harm in checking?
-> > 
-> > Ian.
-> 
-> Users can set kvm signature to anything, if they do
-> debugging will be a bit harder for them.
+From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
 
-Ah, right, someone already mentioned that and I forgot, sorry.
+Now that the paravirtualization layer doesn't exist at the spinlock
+level any more, we can collapse the __ticket_ functions into the arch_
+functions.
 
-And, just to complete my train of thought, cpuid just returns reserved
-values for requests for non-existent leaves (rather than #GP for
-example) so it's safe enough even if you do end up trying to read an
-eax=0x40000001 when it doesn't exist.
-
-Seems fine to me then.
-
-Ian.
-
--- 
-Ian Campbell
-Current Noise: Hypocrisy - Buried
-
-He's like a function -- he returns a value, in the form of his opinion.
-It's up to you to cast it into a void or not.
-		-- Phil Lapsley
+Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+Tested-by: Attilio Rao <attilio.rao@citrix.com> 
+Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+---
+ arch/x86/include/asm/spinlock.h |   35 +++++------------------------------
+ 1 files changed, 5 insertions(+), 30 deletions(-)
+diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
+index 3e47608..ee4bbd4 100644
+--- a/arch/x86/include/asm/spinlock.h
++++ b/arch/x86/include/asm/spinlock.h
+@@ -79,7 +79,7 @@ static __always_inline void __ticket_unlock_kick(struct arch_spinlock *lock,
+  * in the high part, because a wide xadd increment of the low part would carry
+  * up and contaminate the high part.
+  */
+-static __always_inline void __ticket_spin_lock(struct arch_spinlock *lock)
++static __always_inline void arch_spin_lock(struct arch_spinlock *lock)
+ {
+ 	register struct __raw_tickets inc = { .tail = 1 };
+ 
+@@ -99,7 +99,7 @@ static __always_inline void __ticket_spin_lock(struct arch_spinlock *lock)
+ out:	barrier();	/* make sure nothing creeps before the lock is taken */
+ }
+ 
+-static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
++static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
+ {
+ 	arch_spinlock_t old, new;
+ 
+@@ -113,7 +113,7 @@ static __always_inline int __ticket_spin_trylock(arch_spinlock_t *lock)
+ 	return cmpxchg(&lock->head_tail, old.head_tail, new.head_tail) == old.head_tail;
+ }
+ 
+-static __always_inline void __ticket_spin_unlock(arch_spinlock_t *lock)
++static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
+ {
+ 	__ticket_t next = lock->tickets.head + 1;
+ 
+@@ -121,46 +121,21 @@ static __always_inline void __ticket_spin_unlock(arch_spinlock_t *lock)
+ 	__ticket_unlock_kick(lock, next);
+ }
+ 
+-static inline int __ticket_spin_is_locked(arch_spinlock_t *lock)
++static inline int arch_spin_is_locked(arch_spinlock_t *lock)
+ {
+ 	struct __raw_tickets tmp = ACCESS_ONCE(lock->tickets);
+ 
+ 	return tmp.tail != tmp.head;
+ }
+ 
+-static inline int __ticket_spin_is_contended(arch_spinlock_t *lock)
++static inline int arch_spin_is_contended(arch_spinlock_t *lock)
+ {
+ 	struct __raw_tickets tmp = ACCESS_ONCE(lock->tickets);
+ 
+ 	return (__ticket_t)(tmp.tail - tmp.head) > 1;
+ }
+-
+-static inline int arch_spin_is_locked(arch_spinlock_t *lock)
+-{
+-	return __ticket_spin_is_locked(lock);
+-}
+-
+-static inline int arch_spin_is_contended(arch_spinlock_t *lock)
+-{
+-	return __ticket_spin_is_contended(lock);
+-}
+ #define arch_spin_is_contended	arch_spin_is_contended
+ 
+-static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
+-{
+-	__ticket_spin_lock(lock);
+-}
+-
+-static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
+-{
+-	return __ticket_spin_trylock(lock);
+-}
+-
+-static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
+-{
+-	__ticket_spin_unlock(lock);
+-}
+-
+ static __always_inline void arch_spin_lock_flags(arch_spinlock_t *lock,
+ 						  unsigned long flags)
+ {
