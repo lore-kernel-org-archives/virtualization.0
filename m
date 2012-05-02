@@ -1,16 +1,15 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V6 1/5] kvm hypervisor : Add a hypercall to KVM
-	hypervisor to support pv-ticketlocks
-Date: Wed, 02 May 2012 01:50:06 +0530
-Message-ID: <4FA04576.6030405__18786.8256740787$1335903665$gmane$org@linux.vnet.ibm.com>
-References: <20120423095937.30893.14776.sendpatchset@codeblue.in.ibm.com>
-	<20120423095947.30893.84029.sendpatchset@codeblue.in.ibm.com>
-	<4F9D415B.7010103@redhat.com> <4F9E42F6.8050108@linux.vnet.ibm.com>
+From: Ian Campbell <ijc@hellion.org.uk>
+Subject: Re: [PATCHv2] x86info: dump kvm cpuid's
+Date: Wed, 02 May 2012 10:45:27 +0100
+Message-ID: <1335951927.26758.24.camel__28998.1294693009$1335951959$gmane$org@zakaz.uk.xensource.com>
+References: <20120430143835.GA10190@redhat.com>
+	<1335875225.6038.98.camel@zakaz.uk.xensource.com>
+	<20120501130419.GJ22191@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4F9E42F6.8050108@linux.vnet.ibm.com>
+In-Reply-To: <20120501130419.GJ22191@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,31 +19,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, X86 <x86@kernel.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Greg Kroah-Hartman <gregkh@suse.de>, Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Sasha Levin <levinsasha928@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Xen <xen-devel@lists.xensource.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+To: Gleb Natapov <gleb@redhat.com>
+Cc: xen-devel@lists.xensource.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, devel@linuxdriverproject.org, davej@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/30/2012 01:14 PM, Raghavendra K T wrote:
+On Tue, 2012-05-01 at 16:04 +0300, Gleb Natapov wrote:
+> > BTW, according to arch/x86/include/asm/kvm_para.h unsurprisingly KVM has
+> > a signature too 'KVMKVMKVM'.
+> > 
+> > >  	cpu->stepping = eax & 0xf;
+> > >  	cpu->model = (eax >> 4) & 0xf;
+> > >  	cpu->family = (eax >> 8) & 0xf;
+> > > @@ -29,6 +29,19 @@ void get_cpu_info_basics(struct cpudata *cpu)
+> > >  
+> > >  	cpuid(cpu->number, 0xC0000000, &maxei, NULL, NULL, NULL);
+> > >  	cpu->maxei2 = maxei;
+> > > +	if (ecx & 0x80000000) {
+> > > +		cpuid(cpu->number, 0x40000000, &maxhv, NULL, NULL, NULL);
+> > > +		/*
+> > > +		 * KVM up to linux 3.4 reports 0 as the max hypervisor leaf,
+> > > +		 * where it really means 0x40000001.
+> > 
+> > This is something where I definitely think you want to check the
+> > signature first.
+> In theory yes, but in practice what will this break?
 
->>> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
->>> index 4044ce0..7fc9be6 100644
->>> --- a/arch/x86/kvm/x86.c
->>> +++ b/arch/x86/kvm/x86.c
->>> @@ -2147,6 +2147,7 @@ int kvm_dev_ioctl_check_extension(long ext)
->>> case KVM_CAP_ASYNC_PF:
->>> case KVM_CAP_GET_TSC_KHZ:
->>> case KVM_CAP_PCI_2_3:
->>> + case KVM_CAP_PV_UNHALT:
->>> r = 1;
->>> break;
->>> case KVM_CAP_COALESCED_MMIO:
->>
->> Redundant, since we can infer this from KVM_GET_SUPPORTED_CPUID. But
->> please indicate this in the documentation.
->>
->
-> Ok. will mention that in documentation added for KVM_CAP_PV_UNHALT.
->
+I've got no idea -- but what's the harm in checking?
 
-I think it is better to remove  KVM_CAP_PV_UNHALT itself and avoid
-spamming CAP.. will do that in coming version.
+Ian.
+
+-- 
+Ian Campbell
+Current Noise: Hypocrisy - Roswell 47
+
+Angels we have heard on High
+Tell us to go out and Buy.
+		-- Tom Lehrer
