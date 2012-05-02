@@ -1,7 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V8 4/17]  xen: Defer spinlock setup until boot CPU setup
-Date: Wed, 02 May 2012 15:37:01 +0530
-Message-ID: <20120502100701.13206.12548.sendpatchset@codeblue.in.ibm.com>
+Subject: [PATCH RFC V8 2/17] x86/ticketlock: Don't inline _spin_unlock when
+	using paravirt spinlocks
+Date: Wed, 02 May 2012 15:36:40 +0530
+Message-ID: <20120502100640.13206.37245.sendpatchset__11625.5095381804$1335953275$gmane$org@codeblue.in.ibm.com>
 References: <20120502100610.13206.40.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,34 +22,28 @@ To: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, 
 Cc: Xen Devel <xen-devel@lists.xensource.com>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>, Attilio Rao <attilio.rao@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com> 
 
-There's no need to do it at very early init, and doing it there
-makes it impossible to use the jump_label machinery.
+The code size expands somewhat, and its better to just call
+a function rather than inline it.
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Thanks Jeremy for original version of ARCH_NOINLINE_SPIN_UNLOCK config patch, 
+which is simplified.
+
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
- arch/x86/xen/smp.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-diff --git a/arch/x86/xen/smp.c b/arch/x86/xen/smp.c
-index 0503c0c..7dc400a 100644
---- a/arch/x86/xen/smp.c
-+++ b/arch/x86/xen/smp.c
-@@ -222,6 +222,7 @@ static void __init xen_smp_prepare_boot_cpu(void)
- 
- 	xen_filter_cpu_maps();
- 	xen_setup_vcpu_info_placement();
-+	xen_init_spinlocks();
- }
- 
- static void __init xen_smp_prepare_cpus(unsigned int max_cpus)
-@@ -551,7 +552,6 @@ void __init xen_smp_init(void)
- {
- 	smp_ops = xen_smp_ops;
- 	xen_fill_possible_map();
--	xen_init_spinlocks();
- }
- 
- static void __init xen_hvm_smp_prepare_cpus(unsigned int max_cpus)
+ arch/x86/Kconfig |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 1d14cc6..35eb2e4 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -597,6 +597,7 @@ config PARAVIRT
+ config PARAVIRT_SPINLOCKS
+ 	bool "Paravirtualization layer for spinlocks"
+ 	depends on PARAVIRT && SMP && EXPERIMENTAL
++	select UNINLINE_SPIN_UNLOCK
+ 	---help---
+ 	  Paravirtualized spinlocks allow a pvops backend to replace the
+ 	  spinlock implementation with something virtualization-friendly
