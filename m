@@ -1,14 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2] virtio-blk: Fix hot-unplug race in remove method
-Date: Thu, 3 May 2012 10:56:35 +0300
-Message-ID: <20120503075634.GK8266@redhat.com>
-References: <1336030247-16323-1-git-send-email-asias@redhat.com>
+Subject: Re: using cache for virtio allocations?
+Date: Thu, 3 May 2012 11:44:31 +0300
+Message-ID: <20120503084431.GN8266@redhat.com>
+References: <20120503052943.GF8266@redhat.com>
+	<CA+1xoqeWJ_nhoZQ+wRdZnB=b=mDFauWJgcjQ3-+ZorJt=bdoAQ@mail.gmail.com>
+	<20120503073244.GI8266@redhat.com>
+	<CA+1xoqd5dnh6XKdwXd--7wvn_5+RUVBgUaRdwJXbpwXpd1ccaw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1336030247-16323-1-git-send-email-asias@redhat.com>
+In-Reply-To: <CA+1xoqd5dnh6XKdwXd--7wvn_5+RUVBgUaRdwJXbpwXpd1ccaw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,97 +21,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
+To: Sasha Levin <levinsasha928@gmail.com>
 Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 03, 2012 at 03:30:47PM +0800, Asias He wrote:
-> If we reset the virtio-blk device before the requests already dispatched
-> to the virtio-blk driver from the block layer are finised, we will stuck
-> in blk_cleanup_queue() and the remove will fail.
-> 
-> blk_cleanup_queue() calls blk_drain_queue() to drain all requests queued
-> before DEAD marking. However it will never success if the device is
-> already stopped. We'll have q->in_flight[] > 0, so the drain will not
-> finish.
-> 
-> How to reproduce the race:
-> 1. hot-plug a virtio-blk device
-> 2. keep reading/writing the device in guest
-> 3. hot-unplug while the device is busy serving I/O
-> 
-> Changes in v2:
-> - Drop req_in_flight
-> - Use virtqueue_detach_unused_buf to get request dispatched to driver
-> 
-> Signed-off-by: Asias He <asias@redhat.com>
-> ---
->  drivers/block/virtio_blk.c |   16 +++++++++++++---
->  1 file changed, 13 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 72fe55d..670c28f 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -443,7 +443,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
->  	if (err)
->  		goto out_free_vblk;
->  
-> -	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
-> +	vblk->pool = mempool_create_kmalloc_pool(1, sizeof(struct virtblk_req));
->  	if (!vblk->pool) {
->  		err = -ENOMEM;
->  		goto out_free_vq;
+On Thu, May 03, 2012 at 10:38:56AM +0200, Sasha Levin wrote:
+> On Thu, May 3, 2012 at 9:32 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> > On Thu, May 03, 2012 at 07:51:18AM +0200, Sasha Levin wrote:
+> >> On Thu, May 3, 2012 at 7:29 AM, Michael S. Tsirkin <mst@redhat.com> wr=
+ote:
+> >> > Sasha, didn't you have a patch to allocate
+> >> > things using cache in virtio core?
+> >> > What happened to it?
+> >> >
+> >> > Thanks,
+> >> > MST
+> >>
+> >> It got stuck due to several things, and I got sidetracked, sorry. Here
+> >> are the outstanding issues:
+> >>
+> >> 1. Since now we can allocate a descriptor either using kmalloc or from
+> >> the cache, we need a new flag in vring_desc to know how to free it, it
+> >> seems a bit too intrusive,
+> >> and I couldn't thing of a better
+> >> alternative.
+> >
+> > Since that is guest visible it does not sound great, I agree.
+> >
+> > Three ideas:
+> > 1. The logic looks at descriptor size so can we just read
+> > =A0 desc.len before free and rerun the same math?
+> =
 
-Would be a bit easier to review if whitespace changes
-are avoided, and done in a separate patch targeting 3.5.
+> It'll break every time the value is changed (either by the user or by
+> some dynamic algorithm thingie).
 
-> @@ -576,20 +576,30 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
->  {
->  	struct virtio_blk *vblk = vdev->priv;
->  	int index = vblk->index;
-> +	struct virtblk_req *vbr;
->  
->  	/* Prevent config work handler from accessing the device. */
->  	mutex_lock(&vblk->config_lock);
->  	vblk->config_enable = false;
->  	mutex_unlock(&vblk->config_lock);
->  
-> +	/* Abort all request on the queue. */
+Yes but did you intend to implement such complex logic?
+If not let's not over-engineer.
 
-All requests
+> > 2. For -net the requests are up to max_skb_frags + 2 in size, right?
+> > =A0 Does it make sense to just use cache for net, always?
+> > =A0 That would mean a per device flag.
+> =
 
-Also, the comment isn't
-really helpful. Want to explain why we abort
-them all here? Won't they be drained
-by later detach code?
+> Yup, it could work.
+> =
 
+> > 3. Allocate a bit more and stick extra data before the 1st descriptor.
+> =
 
-> +	blk_abort_queue(vblk->disk->queue);
-> +	del_gendisk(vblk->disk);
-> +
->  	/* Stop all the virtqueues. */
->  	vdev->config->reset(vdev);
-> -
->  	flush_work(&vblk->config_work);
->  
-> -	del_gendisk(vblk->disk);
+> I guess it'll work, but it just seems a bit ugly :)
 
-Is there a reason you move del_gendisk to before reset?
-Is it safe to del_gendisk while we might
-still be getting callbacks from the device?
+An understatement.
 
-> +	/* Abort request dispatched to driver. */
-> +	while ((vbr = virtqueue_detach_unused_buf(vblk->vq))) {
-> +		blk_abort_request(vbr->req);
-> +		mempool_free(vbr, vblk->pool);
-> +	}
-> +
->  	blk_cleanup_queue(vblk->disk->queue);
->  	put_disk(vblk->disk);
-> +
->  	mempool_destroy(vblk->pool);
->  	vdev->config->del_vqs(vdev);
->  	kfree(vblk);
-> -- 
-> 1.7.10
+> >> 2. Rusty has pointed out that no one is going to modify the default
+> >> value we set, and we don't really have a good default value to put
+> >> there (at least, we haven't agreed on a specific value). Also, you
+> >> have noted that it should be a per-device value, which complicates
+> >> this question further since we probably want a different value for
+> >> each device type.
+> >>
+> >> While the first one can be solved easily with a blessing from the
+> >> maintainers, the second one will require testing on various platforms,
+> >> configurations and devices to select either the best "magic" value, or
+> >> the best algorithm to play with threshold.
+> >
+> > Not sure about platforms but for devices that's right.
+> > But this really only means we only change what we tested.
+> > eg see what is good for net and change net in a way
+> > that others will keep using old code.
+> =
+
+> It'll work only if there will be someone following up and actually
+> testing it, since regular users won't be testing it at all (with it
+> being defaulted to off and everything).
+
+Not sure I understand. Whatever patch gets applied will be
+tested beforehand.
+
+-- =
+
+MST
