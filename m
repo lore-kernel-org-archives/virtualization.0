@@ -1,7 +1,7 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH 1/2] virtio-blk: Fix hot-unplug race in remove method
-Date: Thu,  3 May 2012 10:19:52 +0800
-Message-ID: <1336011592-24889-1-git-send-email-asias@redhat.com>
+Subject: [PATCH 2/2] virtio: Use ida to allocate virtio index
+Date: Thu,  3 May 2012 10:20:51 +0800
+Message-ID: <1336011651-24997-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -19,109 +19,64 @@ To: virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com
 Cc: kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If we reset the virtio-blk device before the requests already dispatched
-to the virtio-blk driver from the block layer are finised, we will stuck
-in blk_cleanup_queue() and the remove will fail.
+Current index allocation in virtio is based on a monotonically
+increasing variable "index". This means we'll run out of numbers
+after a while. E.g. someone crazy doing this in host side.
 
-blk_cleanup_queue() calls blk_drain_queue() to drain all requests queued
-before DEAD marking. However it will never success if the device is
-already stopped. We'll have q->in_flight[] > 0, so the drain will not
-finish.
-
-How to reproduce the race:
-1. hot-plug a virtio-blk device
-2. keep reading/writing the device in guest
-3. hot-unplug while the device is busy serving I/O
+while(1) {
+	hot-plug a virtio device
+	hot-unplug the virito devcie
+}
 
 Signed-off-by: Asias He <asias@redhat.com>
 ---
- drivers/block/virtio_blk.c |   26 ++++++++++++++++++++++----
- 1 file changed, 22 insertions(+), 4 deletions(-)
+ drivers/virtio/virtio.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 72fe55d..72b818b 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -46,6 +46,9 @@ struct virtio_blk
- 	/* Ida index - used to track minor number allocations. */
- 	int index;
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 984c501..f355807 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -2,9 +2,10 @@
+ #include <linux/spinlock.h>
+ #include <linux/virtio_config.h>
+ #include <linux/module.h>
++#include <linux/idr.h>
  
-+	/* Number of pending requests dispatched to driver. */
-+	int req_in_flight;
+ /* Unique numbering for virtio devices. */
+-static unsigned int dev_index;
++static DEFINE_IDA(virtio_index_ida);
+ 
+ static ssize_t device_show(struct device *_d,
+ 			   struct device_attribute *attr, char *buf)
+@@ -193,7 +194,11 @@ int register_virtio_device(struct virtio_device *dev)
+ 	dev->dev.bus = &virtio_bus;
+ 
+ 	/* Assign a unique device index and hence name. */
+-	dev->index = dev_index++;
++	err = ida_simple_get(&virtio_index_ida, 0, 0, GFP_KERNEL);
++	if (err < 0)
++		goto out;
 +
- 	/* Scatterlist: can be too big for stack. */
- 	struct scatterlist sg[/*sg_elems*/];
- };
-@@ -95,6 +98,7 @@ static void blk_done(struct virtqueue *vq)
- 		}
++	dev->index = err;
+ 	dev_set_name(&dev->dev, "virtio%u", dev->index);
  
- 		__blk_end_request_all(vbr->req, error);
-+		vblk->req_in_flight--;
- 		mempool_free(vbr, vblk->pool);
- 	}
- 	/* In case queue is stopped waiting for more buffers. */
-@@ -190,6 +194,7 @@ static void do_virtblk_request(struct request_queue *q)
- 
- 	while ((req = blk_peek_request(q)) != NULL) {
- 		BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
-+		vblk->req_in_flight++;
- 
- 		/* If this request fails, stop queue and wait for something to
- 		   finish to restart it. */
-@@ -443,7 +448,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+ 	/* We always start by resetting the device, in case a previous
+@@ -208,6 +213,7 @@ int register_virtio_device(struct virtio_device *dev)
+ 	/* device_register() causes the bus infrastructure to look for a
+ 	 * matching driver. */
+ 	err = device_register(&dev->dev);
++out:
  	if (err)
- 		goto out_free_vblk;
- 
--	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
-+	vblk->pool = mempool_create_kmalloc_pool(1, sizeof(struct virtblk_req));
- 	if (!vblk->pool) {
- 		err = -ENOMEM;
- 		goto out_free_vq;
-@@ -466,6 +471,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
- 
- 	virtblk_name_format("vd", index, vblk->disk->disk_name, DISK_NAME_LEN);
- 
-+	vblk->req_in_flight = 0;
- 	vblk->disk->major = major;
- 	vblk->disk->first_minor = index_to_minor(index);
- 	vblk->disk->private_data = vblk;
-@@ -576,22 +582,34 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+ 		add_status(dev, VIRTIO_CONFIG_S_FAILED);
+ 	return err;
+@@ -217,6 +223,7 @@ EXPORT_SYMBOL_GPL(register_virtio_device);
+ void unregister_virtio_device(struct virtio_device *dev)
  {
- 	struct virtio_blk *vblk = vdev->priv;
- 	int index = vblk->index;
-+	unsigned long flags;
-+	int req_in_flight;
- 
- 	/* Prevent config work handler from accessing the device. */
- 	mutex_lock(&vblk->config_lock);
- 	vblk->config_enable = false;
- 	mutex_unlock(&vblk->config_lock);
- 
-+	/* Abort all request on the queue. */
-+	blk_abort_queue(vblk->disk->queue);
-+	del_gendisk(vblk->disk);
-+
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
--
-+	vdev->config->del_vqs(vdev);
- 	flush_work(&vblk->config_work);
- 
--	del_gendisk(vblk->disk);
-+	/* Wait requests dispatched to device driver to finish. */
-+	do {
-+		spin_lock_irqsave(&vblk->lock, flags);
-+		req_in_flight = vblk->req_in_flight;
-+		spin_unlock_irqrestore(&vblk->lock, flags);
-+	} while (req_in_flight != 0);
-+
- 	blk_cleanup_queue(vblk->disk->queue);
- 	put_disk(vblk->disk);
-+
- 	mempool_destroy(vblk->pool);
--	vdev->config->del_vqs(vdev);
- 	kfree(vblk);
- 	ida_simple_remove(&vd_index_ida, index);
+ 	device_unregister(&dev->dev);
++	ida_simple_remove(&virtio_index_ida, dev->index);
  }
+ EXPORT_SYMBOL_GPL(unregister_virtio_device);
+ 
 -- 
 1.7.10
