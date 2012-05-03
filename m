@@ -1,14 +1,11 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V8 17/17] Documentation/kvm : Add documentation on
-	Hypercalls and features used for PV spinlock
-Date: Wed, 02 May 2012 15:39:47 +0530
-Message-ID: <20120502100947.13206.26518.sendpatchset@codeblue.in.ibm.com>
-References: <20120502100610.13206.40.sendpatchset@codeblue.in.ibm.com>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH 1/2] virtio-blk: Fix hot-unplug race in remove method
+Date: Thu,  3 May 2012 10:19:52 +0800
+Message-ID: <1336011592-24889-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120502100610.13206.40.sendpatchset@codeblue.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,104 +15,113 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "H. Peter Anvin" <hpa@zytor.com>, Avi Kivity <avi@redhat.com>, X86 <x86@kernel.org>, Gleb Natapov <gleb@redhat.com>, Ingo Molnar <mingo@redhat.com>, Marcelo Tosatti <mtosatti@redhat.com>
-Cc: Xen Devel <xen-devel@lists.xensource.com>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Virtualization <virtualization@lists.linux-foundation.org>, Andi Kleen <andi@firstfloor.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>, Attilio Rao <attilio.rao@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+To: virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com> 
+If we reset the virtio-blk device before the requests already dispatched
+to the virtio-blk driver from the block layer are finised, we will stuck
+in blk_cleanup_queue() and the remove will fail.
 
-KVM_HC_KICK_CPU  hypercall added to wakeup halted vcpu in paravirtual spinlock
-enabled guest.
+blk_cleanup_queue() calls blk_drain_queue() to drain all requests queued
+before DEAD marking. However it will never success if the device is
+already stopped. We'll have q->in_flight[] > 0, so the drain will not
+finish.
 
-KVM_FEATURE_PV_UNHALT enables guest to check whether pv spinlock can be enabled
-in guest.
+How to reproduce the race:
+1. hot-plug a virtio-blk device
+2. keep reading/writing the device in guest
+3. hot-unplug while the device is busy serving I/O
 
-Thanks Alex for KVM_HC_FEATURES inputs and Vatsa for rewriting KVM_HC_KICK_CPU
-
-Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Signed-off-by: Asias He <asias@redhat.com>
 ---
- Documentation/virtual/kvm/cpuid.txt      |    4 ++
- Documentation/virtual/kvm/hypercalls.txt |   60 ++++++++++++++++++++++++++++++
- 2 files changed, 64 insertions(+), 0 deletions(-)
-diff --git a/Documentation/virtual/kvm/cpuid.txt b/Documentation/virtual/kvm/cpuid.txt
-index 8820685..062dff9 100644
---- a/Documentation/virtual/kvm/cpuid.txt
-+++ b/Documentation/virtual/kvm/cpuid.txt
-@@ -39,6 +39,10 @@ KVM_FEATURE_CLOCKSOURCE2           ||     3 || kvmclock available at msrs
- KVM_FEATURE_ASYNC_PF               ||     4 || async pf can be enabled by
-                                    ||       || writing to msr 0x4b564d02
- ------------------------------------------------------------------------------
-+KVM_FEATURE_PV_UNHALT              ||     6 || guest checks this feature bit
-+                                   ||       || before enabling paravirtualized
-+                                   ||       || spinlock support.
-+------------------------------------------------------------------------------
- KVM_FEATURE_CLOCKSOURCE_STABLE_BIT ||    24 || host will warn if no guest-side
-                                    ||       || per-cpu warps are expected in
-                                    ||       || kvmclock.
-diff --git a/Documentation/virtual/kvm/hypercalls.txt b/Documentation/virtual/kvm/hypercalls.txt
-new file mode 100644
-index 0000000..bc3f14a
---- /dev/null
-+++ b/Documentation/virtual/kvm/hypercalls.txt
-@@ -0,0 +1,60 @@
-+KVM Hypercalls Documentation
-+===========================
-+The template for each hypercall is:
-+1. Hypercall name, value.
-+2. Architecture(s)
-+3. Status (deprecated, obsolete, active)
-+4. Purpose
+ drivers/block/virtio_blk.c |   26 ++++++++++++++++++++++----
+ 1 file changed, 22 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 72fe55d..72b818b 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -46,6 +46,9 @@ struct virtio_blk
+ 	/* Ida index - used to track minor number allocations. */
+ 	int index;
+ 
++	/* Number of pending requests dispatched to driver. */
++	int req_in_flight;
 +
-+1. KVM_HC_VAPIC_POLL_IRQ
-+------------------------
-+Value: 1
-+Architecture: x86
-+Purpose: None
+ 	/* Scatterlist: can be too big for stack. */
+ 	struct scatterlist sg[/*sg_elems*/];
+ };
+@@ -95,6 +98,7 @@ static void blk_done(struct virtqueue *vq)
+ 		}
+ 
+ 		__blk_end_request_all(vbr->req, error);
++		vblk->req_in_flight--;
+ 		mempool_free(vbr, vblk->pool);
+ 	}
+ 	/* In case queue is stopped waiting for more buffers. */
+@@ -190,6 +194,7 @@ static void do_virtblk_request(struct request_queue *q)
+ 
+ 	while ((req = blk_peek_request(q)) != NULL) {
+ 		BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
++		vblk->req_in_flight++;
+ 
+ 		/* If this request fails, stop queue and wait for something to
+ 		   finish to restart it. */
+@@ -443,7 +448,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+ 	if (err)
+ 		goto out_free_vblk;
+ 
+-	vblk->pool = mempool_create_kmalloc_pool(1,sizeof(struct virtblk_req));
++	vblk->pool = mempool_create_kmalloc_pool(1, sizeof(struct virtblk_req));
+ 	if (!vblk->pool) {
+ 		err = -ENOMEM;
+ 		goto out_free_vq;
+@@ -466,6 +471,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+ 
+ 	virtblk_name_format("vd", index, vblk->disk->disk_name, DISK_NAME_LEN);
+ 
++	vblk->req_in_flight = 0;
+ 	vblk->disk->major = major;
+ 	vblk->disk->first_minor = index_to_minor(index);
+ 	vblk->disk->private_data = vblk;
+@@ -576,22 +582,34 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_blk *vblk = vdev->priv;
+ 	int index = vblk->index;
++	unsigned long flags;
++	int req_in_flight;
+ 
+ 	/* Prevent config work handler from accessing the device. */
+ 	mutex_lock(&vblk->config_lock);
+ 	vblk->config_enable = false;
+ 	mutex_unlock(&vblk->config_lock);
+ 
++	/* Abort all request on the queue. */
++	blk_abort_queue(vblk->disk->queue);
++	del_gendisk(vblk->disk);
 +
-+2. KVM_HC_MMU_OP
-+------------------------
-+Value: 2
-+Architecture: x86
-+Status: deprecated.
-+Purpose: Support MMU operations such as writing to PTE,
-+flushing TLB, release PT.
+ 	/* Stop all the virtqueues. */
+ 	vdev->config->reset(vdev);
+-
++	vdev->config->del_vqs(vdev);
+ 	flush_work(&vblk->config_work);
+ 
+-	del_gendisk(vblk->disk);
++	/* Wait requests dispatched to device driver to finish. */
++	do {
++		spin_lock_irqsave(&vblk->lock, flags);
++		req_in_flight = vblk->req_in_flight;
++		spin_unlock_irqrestore(&vblk->lock, flags);
++	} while (req_in_flight != 0);
 +
-+3. KVM_HC_FEATURES
-+------------------------
-+Value: 3
-+Architecture: PPC
-+Status: active
-+Purpose: Expose hypercall availability to the guest. On x86 platforms, cpuid
-+used to enumerate which hypercalls are available. On PPC, either device tree
-+based lookup ( which is also what EPAPR dictates) OR KVM specific enumeration
-+mechanism (which is this hypercall) can be used.
+ 	blk_cleanup_queue(vblk->disk->queue);
+ 	put_disk(vblk->disk);
 +
-+4. KVM_HC_PPC_MAP_MAGIC_PAGE
-+------------------------
-+Value: 4
-+Architecture: PPC
-+Status: active
-+Purpose: To enable communication between the hypervisor and guest there is a
-+shared page that contains parts of supervisor visible register state.
-+The guest can map this shared page to access its supervisor register through
-+memory using this hypercall.
-+
-+5. KVM_HC_KICK_CPU
-+------------------------
-+Value: 5
-+Architecture: x86
-+Status: active
-+Purpose: Hypercall used to wakeup a vcpu from HLT state
-+
-+Usage example : A vcpu of a paravirtualized guest that is busywaiting in guest
-+kernel mode for an event to occur (ex: a spinlock to become available) can
-+execute HLT instruction once it has busy-waited for more than a threshold
-+time-interval. Execution of HLT instruction would cause the hypervisor to put
-+the vcpu to sleep until occurence of an appropriate event. Another vcpu of the
-+same guest can wakeup the sleeping vcpu by issuing KVM_HC_KICK_CPU hypercall,
-+specifying APIC ID of the vcpu to be wokenup.
-+
-+TODO:
-+1. more information on input and output needed?
-+2. Add more detail to purpose of hypercalls.
+ 	mempool_destroy(vblk->pool);
+-	vdev->config->del_vqs(vdev);
+ 	kfree(vblk);
+ 	ida_simple_remove(&vd_index_ida, index);
+ }
+-- 
+1.7.10
