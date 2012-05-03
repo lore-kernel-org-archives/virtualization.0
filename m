@@ -1,11 +1,13 @@
-From: Asias He <asias@redhat.com>
-Subject: [PATCH 2/2] virtio: Use ida to allocate virtio index
-Date: Thu,  3 May 2012 10:20:51 +0800
-Message-ID: <1336011651-24997-1-git-send-email-asias@redhat.com>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PATCH 1/2] virtio-blk: Fix hot-unplug race in remove method
+Date: Thu, 3 May 2012 07:02:01 +0200
+Message-ID: <CA+1xoqcKQmSQxvUR6syvseUow4AfcnKmDODW=j6t6gejmSi4NA__17272.0495182604$1336021353$gmane$org@mail.gmail.com>
+References: <1336011592-24889-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1336011592-24889-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,68 +17,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org
+To: Asias He <asias@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Current index allocation in virtio is based on a monotonically
-increasing variable "index". This means we'll run out of numbers
-after a while. E.g. someone crazy doing this in host side.
+On Thu, May 3, 2012 at 4:19 AM, Asias He <asias@redhat.com> wrote:
+> @@ -190,6 +194,7 @@ static void do_virtblk_request(struct request_queue *=
+q)
+>
+> =A0 =A0 =A0 =A0while ((req =3D blk_peek_request(q)) !=3D NULL) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0BUG_ON(req->nr_phys_segments + 2 > vblk->s=
+g_elems);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 vblk->req_in_flight++;
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0/* If this request fails, stop queue and w=
+ait for something to
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 finish to restart it. */
 
-while(1) {
-	hot-plug a virtio device
-	hot-unplug the virito devcie
-}
+This is being increased before we know if the request will actually be
+sent, so if do_req() fails afterwards, req_in_flight would be
+increased but the request will never be sent.
 
-Signed-off-by: Asias He <asias@redhat.com>
----
- drivers/virtio/virtio.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 984c501..f355807 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -2,9 +2,10 @@
- #include <linux/spinlock.h>
- #include <linux/virtio_config.h>
- #include <linux/module.h>
-+#include <linux/idr.h>
- 
- /* Unique numbering for virtio devices. */
--static unsigned int dev_index;
-+static DEFINE_IDA(virtio_index_ida);
- 
- static ssize_t device_show(struct device *_d,
- 			   struct device_attribute *attr, char *buf)
-@@ -193,7 +194,11 @@ int register_virtio_device(struct virtio_device *dev)
- 	dev->dev.bus = &virtio_bus;
- 
- 	/* Assign a unique device index and hence name. */
--	dev->index = dev_index++;
-+	err = ida_simple_get(&virtio_index_ida, 0, 0, GFP_KERNEL);
-+	if (err < 0)
-+		goto out;
-+
-+	dev->index = err;
- 	dev_set_name(&dev->dev, "virtio%u", dev->index);
- 
- 	/* We always start by resetting the device, in case a previous
-@@ -208,6 +213,7 @@ int register_virtio_device(struct virtio_device *dev)
- 	/* device_register() causes the bus infrastructure to look for a
- 	 * matching driver. */
- 	err = device_register(&dev->dev);
-+out:
- 	if (err)
- 		add_status(dev, VIRTIO_CONFIG_S_FAILED);
- 	return err;
-@@ -217,6 +223,7 @@ EXPORT_SYMBOL_GPL(register_virtio_device);
- void unregister_virtio_device(struct virtio_device *dev)
- {
- 	device_unregister(&dev->dev);
-+	ida_simple_remove(&virtio_index_ida, dev->index);
- }
- EXPORT_SYMBOL_GPL(unregister_virtio_device);
- 
--- 
-1.7.10
+Which means we won't be able to unplug the device ever.
