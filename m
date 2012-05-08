@@ -1,13 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: virtio 3.4 patches
-Date: Tue, 08 May 2012 11:39:38 +0930
-Message-ID: <874nrre84d.fsf@rustcorp.com.au>
-References: <20120507053020.GA15455@redhat.com>
+Subject: Re: [PATCH] virtio_blk: Drop unused request tracking list
+Date: Tue, 08 May 2012 13:38:54 +0930
+Message-ID: <87k40nco15.fsf@rustcorp.com.au>
+References: <1333077850-21717-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120507053020.GA15455@redhat.com>
+In-Reply-To: <1333077850-21717-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,23 +17,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Amit Shah <amit.shah@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 7 May 2012 08:30:21 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> Hi Rusty, please also pick two fixes from for_linus tag on my tree
-> I think they should be sent to Linus for 3.4:
+On Fri, 30 Mar 2012 11:24:10 +0800, Asias He <asias@redhat.com> wrote:
+> Benchmark shows small performance improvement on fusion io device.
 > 
-> http://git.kernel.org/?p=linux/kernel/git/mst/vhost.git;a=tag;h=refs/tags/for_linus
+> Before:
+>   seq-read : io=1,024MB, bw=19,982KB/s, iops=39,964, runt= 52475msec
+>   seq-write: io=1,024MB, bw=20,321KB/s, iops=40,641, runt= 51601msec
+>   rnd-read : io=1,024MB, bw=15,404KB/s, iops=30,808, runt= 68070msec
+>   rnd-write: io=1,024MB, bw=14,776KB/s, iops=29,552, runt= 70963msec
 > 
-> git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git refs/tags/for_linus
+> After:
+>   seq-read : io=1,024MB, bw=20,343KB/s, iops=40,685, runt= 51546msec
+>   seq-write: io=1,024MB, bw=20,803KB/s, iops=41,606, runt= 50404msec
+>   rnd-read : io=1,024MB, bw=16,221KB/s, iops=32,442, runt= 64642msec
+>   rnd-write: io=1,024MB, bw=15,199KB/s, iops=30,397, runt= 68991msec
+> 
+> Signed-off-by: Asias He <asias@redhat.com>
 
-Done!
+Thanks.  It didn't really need a benchmark to justify this cleanup, but
+you certainly get points for thoroughness!
 
-Thanks so much for handling virtio while I was away; knowing it was
-safely in your hands allowed me to relax without reservation.  My wife
-thanks you, too :)
-
-Cheers,
+Applied,
 Rusty.
