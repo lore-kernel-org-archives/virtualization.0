@@ -1,19 +1,14 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH RFC V8 0/17] Paravirtualized ticket spinlocks
-Date: Tue, 08 May 2012 12:08:02 +0300
-Message-ID: <4FA8E272.5040307@redhat.com>
-References: <20120502100610.13206.40.sendpatchset@codeblue.in.ibm.com>
-	<20120507082928.GI16608@gmail.com> <4FA7888F.80505@redhat.com>
-	<4FA7AAD8.6050003@linux.vnet.ibm.com> <4FA7BABA.4040700@redhat.com>
-	<4FA7CC05.50808@linux.vnet.ibm.com> <4FA7CCA2.4030408@redhat.com>
-	<4FA7D06B.60005@linux.vnet.ibm.com>
-	<20120507134611.GB5533@linux.vnet.ibm.com>
-	<4FA7D2E5.1020607@redhat.com> <4FA8579C.3000205@goop.org>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [RFC PATCH] virtio_console: link vq to port with a private
+	pointer in struct virtqueue
+Date: Tue,  8 May 2012 11:45:55 +0200
+Message-ID: <1336470355-19257-1-git-send-email-pbonzini@redhat.com>
+References: <87397be80k.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4FA8579C.3000205@goop.org>
+In-reply-to: <87397be80k.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,30 +18,310 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen Devel <xen-devel@lists.xensource.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, Greg Kroah-Hartman <gregkh@suse.de>, LKML <linux-kernel@vger.kernel.org>, Attilio Rao <attilio.rao@citrix.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/08/2012 02:15 AM, Jeremy Fitzhardinge wrote:
-> On 05/07/2012 06:49 AM, Avi Kivity wrote:
-> > On 05/07/2012 04:46 PM, Srivatsa Vaddagiri wrote:
-> >> * Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com> [2012-05-07 19:08:51]:
-> >>
-> >>> I 'll get hold of a PLE mc  and come up with the numbers soon. but I
-> >>> 'll expect the improvement around 1-3% as it was in last version.
-> >> Deferring preemption (when vcpu is holding lock) may give us better than 1-3% 
-> >> results on PLE hardware. Something worth trying IMHO.
-> > Is the improvement so low, because PLE is interfering with the patch, or
-> > because PLE already does a good job?
->
-> How does PLE help with ticket scheduling on unlock?  I thought it would
-> just help with the actual spin loops.
+> How bad would be it to get rid of the current ->priv and use
+> container_of() instead?  ie. have virtio_pci, virtio_mmio, lguest_bus
+> and s390's kvm_virtio embed the struct virtqueue?
 
-PLE yields to up a random vcpu, hoping it is the lock holder.  This
-patchset wakes up the right vcpu.  For small vcpu counts the difference
-is a few bad wakeups (and even a bad wakeup sometimes works, since it
-can put the spinner to sleep for a bit).  I expect that large vcpu
-counts would show a greater difference.
+Something like the following, compile-tested only...
 
--- 
-error compiling committee.c: too many arguments to function
+The layout of vring_virtqueue gets a bit complex, with private vring
+data _before_ the struct virtqueue and private bus data after it.
+
+The alternative is to make vring_virtqueue public.  It has some
+appeal (for example many backends duplicate the num and pages members
+in their private data) but overall I think I prefer this.
+
+Anyhow, it is doable, the patches aren't too small but they are easily
+split and quite boring.  Shall I pursue this instead?
+
+Paolo
+
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 2e03d41..047ce01 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -71,10 +71,10 @@ enum {
+ 	VP_MSIX_VQ_VECTOR = 1,
+ };
+ 
+-struct virtio_pci_vq_info
++struct virtio_pci_vq
+ {
+ 	/* the actual virtqueue */
+-	struct virtqueue *vq;
++	struct virtqueue vq;
+ 
+ 	/* the number of entries in the queue */
+ 	int num;
+@@ -106,6 +106,12 @@ static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
+ 	return container_of(vdev, struct virtio_pci_device, vdev);
+ }
+ 
++/* Convert a generic virtio virtqueue to our structure */
++static struct virtio_pci_vq *to_vp_queue(struct virtqueue *vq)
++{
++	return container_of(vq, struct virtio_pci_vq, vq);
++}
++
+ /* virtio config->get_features() implementation */
+ static u32 vp_get_features(struct virtio_device *vdev)
+ {
+@@ -202,11 +208,11 @@ static void vp_reset(struct virtio_device *vdev)
+ static void vp_notify(struct virtqueue *vq)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+-	struct virtio_pci_vq_info *info = vq->priv;
++	struct virtio_pci_vq *vp_queue = to_vp_queue(vq);
+ 
+ 	/* we write the queue's selector into the notification register to
+ 	 * signal the other end */
+-	iowrite16(info->queue_index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_NOTIFY);
++	iowrite16(vp_queue->queue_index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_NOTIFY);
+ }
+ 
+ /* Handle a configuration change: Tell driver if it wants to know. */
+@@ -226,13 +232,13 @@ static irqreturn_t vp_config_changed(int irq, void *opaque)
+ static irqreturn_t vp_vring_interrupt(int irq, void *opaque)
+ {
+ 	struct virtio_pci_device *vp_dev = opaque;
+-	struct virtio_pci_vq_info *info;
++	struct virtio_pci_vq *vp_queue;
+ 	irqreturn_t ret = IRQ_NONE;
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&vp_dev->lock, flags);
+-	list_for_each_entry(info, &vp_dev->virtqueues, node) {
+-		if (vring_interrupt(irq, info->vq) == IRQ_HANDLED)
++	list_for_each_entry(vp_queue, &vp_dev->virtqueues, node) {
++		if (vring_interrupt(irq, &vp_queue->vq) == IRQ_HANDLED)
+ 			ret = IRQ_HANDLED;
+ 	}
+ 	spin_unlock_irqrestore(&vp_dev->lock, flags);
+@@ -382,9 +388,10 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
+ 				  u16 msix_vec)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+-	struct virtio_pci_vq_info *info;
++	struct virtio_pci_vq *vp_queue;
+ 	struct virtqueue *vq;
+ 	unsigned long flags, size;
++	void *queue;
+ 	u16 num;
+ 	int err;
+ 
+@@ -398,35 +405,32 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
+ 
+ 	/* allocate and fill out our structure the represents an active
+ 	 * queue */
+-	info = kmalloc(sizeof(struct virtio_pci_vq_info), GFP_KERNEL);
+-	if (!info)
+-		return ERR_PTR(-ENOMEM);
+-
+-	info->queue_index = index;
+-	info->num = num;
+-	info->msix_vector = msix_vec;
+-
+ 	size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_VRING_ALIGN));
+-	info->queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
+-	if (info->queue == NULL) {
++	queue = alloc_pages_exact(size, GFP_KERNEL|__GFP_ZERO);
++	if (queue == NULL) {
+ 		err = -ENOMEM;
+-		goto out_info;
++		goto out;
+ 	}
+ 
+ 	/* activate the queue */
+-	iowrite32(virt_to_phys(info->queue) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
++	iowrite32(virt_to_phys(queue) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT,
+ 		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
+ 
+ 	/* create the vring */
+-	vq = vring_new_virtqueue(info->num, VIRTIO_PCI_VRING_ALIGN, vdev,
+-				 true, info->queue, vp_notify, callback, name);
++	vq = vring_new_virtqueue(sizeof(struct virtio_pci_vq),
++				 num, VIRTIO_PCI_VRING_ALIGN, vdev,
++				 true, queue, vp_notify, callback, name);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+ 		goto out_activate_queue;
+ 	}
+ 
+-	vq->priv = info;
+-	info->vq = vq;
++	/* fill out our structure */
++	vp_queue = to_vp_queue(vq);
++	vp_queue->queue_index = index;
++	vp_queue->num = num;
++	vp_queue->msix_vector = msix_vec;
++	vp_queue->queue = queue;
+ 
+ 	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
+ 		iowrite16(msix_vec, vp_dev->ioaddr + VIRTIO_MSI_QUEUE_VECTOR);
+@@ -439,10 +443,10 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
+ 
+ 	if (callback) {
+ 		spin_lock_irqsave(&vp_dev->lock, flags);
+-		list_add(&info->node, &vp_dev->virtqueues);
++		list_add(&vp_queue->node, &vp_dev->virtqueues);
+ 		spin_unlock_irqrestore(&vp_dev->lock, flags);
+ 	} else {
+-		INIT_LIST_HEAD(&info->node);
++		INIT_LIST_HEAD(&vp_queue->node);
+ 	}
+ 
+ 	return vq;
+@@ -451,23 +455,22 @@ out_assign:
+ 	vring_del_virtqueue(vq);
+ out_activate_queue:
+ 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
+-	free_pages_exact(info->queue, size);
+-out_info:
+-	kfree(info);
++	free_pages_exact(queue, size);
++out:
+ 	return ERR_PTR(err);
+ }
+ 
+ static void vp_del_vq(struct virtqueue *vq)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+-	struct virtio_pci_vq_info *info = vq->priv;
++	struct virtio_pci_vq *vp_queue = to_vp_queue(vq);
+ 	unsigned long flags, size;
+ 
+ 	spin_lock_irqsave(&vp_dev->lock, flags);
+-	list_del(&info->node);
++	list_del(&vp_queue->node);
+ 	spin_unlock_irqrestore(&vp_dev->lock, flags);
+ 
+-	iowrite16(info->queue_index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
++	iowrite16(vp_queue->queue_index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
+ 
+ 	if (vp_dev->msix_enabled) {
+ 		iowrite16(VIRTIO_MSI_NO_VECTOR,
+@@ -481,9 +484,8 @@ static void vp_del_vq(struct virtqueue *vq)
+ 	/* Select and deactivate the queue */
+ 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_PFN);
+ 
+-	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_PCI_VRING_ALIGN));
+-	free_pages_exact(info->queue, size);
+-	kfree(info);
++	size = PAGE_ALIGN(vring_size(vp_queue->num, VIRTIO_PCI_VRING_ALIGN));
++	free_pages_exact(vp_queue->queue, size);
+ }
+ 
+ /* the config->del_vqs() implementation */
+@@ -491,13 +493,13 @@ static void vp_del_vqs(struct virtio_device *vdev)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	struct virtqueue *vq, *n;
+-	struct virtio_pci_vq_info *info;
++	struct virtio_pci_vq *vp_queue;
+ 
+ 	list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
+-		info = vq->priv;
++		vp_queue = to_vp_queue(vq);
+ 		if (vp_dev->per_vq_vectors &&
+-			info->msix_vector != VIRTIO_MSI_NO_VECTOR)
+-			free_irq(vp_dev->msix_entries[info->msix_vector].vector,
++			vp_queue->msix_vector != VIRTIO_MSI_NO_VECTOR)
++			free_irq(vp_dev->msix_entries[vp_queue->msix_vector].vector,
+ 				 vq);
+ 		vp_del_vq(vq);
+ 	}
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 5aa43c3..8feee6b 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -76,8 +76,6 @@
+ 
+ struct vring_virtqueue
+ {
+-	struct virtqueue vq;
+-
+ 	/* Actual memory layout for this queue */
+ 	struct vring vring;
+ 
+@@ -106,6 +104,9 @@ struct vring_virtqueue
+ 	/* How to notify other side. FIXME: commonalize hcalls! */
+ 	void (*notify)(struct virtqueue *vq);
+ 
++	/* Tokens for callbacks. */
++	void **data;
++
+ #ifdef DEBUG
+ 	/* They're supposed to lock for us. */
+ 	unsigned int in_use;
+@@ -115,8 +116,9 @@ struct vring_virtqueue
+ 	ktime_t last_add_time;
+ #endif
+ 
+-	/* Tokens for callbacks. */
+-	void *data[];
++	struct virtqueue vq;
++
++	/* Bus-specific virtqueue data goes here.  */
+ };
+ 
+ #define to_vvq(_vq) container_of(_vq, struct vring_virtqueue, vq)
+@@ -616,7 +618,8 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+ }
+ EXPORT_SYMBOL_GPL(vring_interrupt);
+ 
+-struct virtqueue *vring_new_virtqueue(unsigned int num,
++struct virtqueue *vring_new_virtqueue(size_t sz,
++				      unsigned int num,
+ 				      unsigned int vring_align,
+ 				      struct virtio_device *vdev,
+ 				      bool weak_barriers,
+@@ -634,7 +637,23 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
+ 		return NULL;
+ 	}
+ 
+-	vq = kmalloc(sizeof(*vq) + sizeof(void *)*num, GFP_KERNEL);
++	BUG_ON(sz < sizeof(vq->vq));
++
++	/* Add room for our own bits, which go before what we return.  */
++	sz += offsetof(struct vring_virtqueue, vq);
++
++	/* Make sure vq->data is properly aligned, since we carve it from
++	 * the same memory block.
++	 */
++	sz = round_up(sz, __alignof__(void *));
++
++	/* Now allocate the whole memory block:
++	 * 1) first goes the vring-specific parts;
++	 * 2) then the generic virtqueue data;
++	 * 3) then the bus-specific parts;
++	 * 4) then the callback tokens, pointed to by vq->data.
++	 */
++	vq = kmalloc(sz + sizeof(void *)*num, GFP_KERNEL);
+ 	if (!vq)
+ 		return NULL;
+ 
+@@ -642,6 +661,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
+ 	vq->vq.callback = callback;
+ 	vq->vq.vdev = vdev;
+ 	vq->vq.name = name;
++	vq->data = (void **) ((char *)vq + sz);
+ 	vq->notify = notify;
+ 	vq->weak_barriers = weak_barriers;
+ 	vq->broken = false;
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 8efd28a..7e61e2e 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -15,7 +15,7 @@
+  * @callback: the function to call when buffers are consumed (can be NULL).
+  * @name: the name of this virtqueue (mainly for debugging)
+  * @vdev: the virtio device this queue was created for.
+- * @priv: a pointer for the virtqueue implementation to use.
++ * @priv: a pointer for the virtio device driver to use.
+  */
+ struct virtqueue {
+ 	struct list_head list;
