@@ -1,44 +1,51 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V8 0/17] Paravirtualized ticket spinlocks
-Date: Mon, 14 May 2012 14:31:03 +0530
-Message-ID: <4FB0C9CF.30803__44039.3042089001$1336986145$gmane$org@linux.vnet.ibm.com>
-References: <20120502100610.13206.40.sendpatchset@codeblue.in.ibm.com>
-	<20120507082928.GI16608@gmail.com> <4FA7888F.80505@redhat.com>
-	<4FA7AAD8.6050003@linux.vnet.ibm.com> <4FA7BABA.4040700@redhat.com>
-	<4FA7CC05.50808@linux.vnet.ibm.com> <4FA7CCA2.4030408@redhat.com>
-	<4FA7D06B.60005@linux.vnet.ibm.com>
-	<20120507134611.GB5533@linux.vnet.ibm.com>
-	<4FA7D2E5.1020607@redhat.com> <4FA7D3F7.9080005@linux.vnet.ibm.com>
-	<4FA7D50D.1020209@redhat.com> <4FA7E06E.20304@linux.vnet.ibm.com>
-	<4FA7E1C8.7010509@redhat.com> <4FB0014A.90604@linux.vnet.ibm.com>
-	<87y5ovtl54.fsf@abhimanyu.in.ibm.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 0000/0003] drivers: hv: util
+Date: Mon, 14 May 2012 14:04:59 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF90305B719@SN2PRD0310MB382.namprd03.prod.outlook.com>
+References: <1336855466-3942-1-git-send-email-kys@microsoft.com>
+ <426367E2313C2449837CD2DE46E7EAF90305A56E@SN2PRD0310MB382.namprd03.prod.outlook.com>
+ <20120512231651.GB9375@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87y5ovtl54.fsf@abhimanyu.in.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nikunj A Dadhania <nikunj@linux.vnet.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen Devel <xen-devel@lists.xensource.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Avi Kivity <avi@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Attilio Rao <attilio.rao@citrix.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120512231651.GB9375@kroah.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/14/2012 10:27 AM, Nikunj A Dadhania wrote:
-> On Mon, 14 May 2012 00:15:30 +0530, Raghavendra K T<raghavendra.kt@linux.vnet.ibm.com>  wrote:
->> On 05/07/2012 08:22 PM, Avi Kivity wrote:
->>
->> I could not come with pv-flush results (also Nikunj had clarified that
->> the result was on NOn PLE
->>
-> Did you see any issues on PLE?
->
 
-No, I did not see issues in setup, but did not get time to check
-that out yet ..
+
+> -----Original Message-----
+> From: gregkh@linuxfoundation.org [mailto:gregkh@linuxfoundation.org]
+> Sent: Saturday, May 12, 2012 7:17 PM
+> To: KY Srinivasan
+> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org; ohering@suse.com
+> Subject: Re: [PATCH 0000/0003] drivers: hv: util
+> 
+> On Sat, May 12, 2012 at 08:41:06PM +0000, KY Srinivasan wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: K. Y. Srinivasan [mailto:kys@microsoft.com]
+> > > Sent: Saturday, May 12, 2012 4:44 PM
+> > > To: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> > > devel@linuxdriverproject.org; virtualization@lists.osdl.org;
+> ohering@suse.com
+> > > Cc: KY Srinivasan
+> > > Subject: [PATCH 0000/0003] drivers: hv: util
+> >
+> > There are only two patches following this mail; sorry for the typo in the subject
+> line.
+> 
+> What's with the 0000 stuff as well?  You do know that git send-mail can
+> handle all of that for you properly, right?
+
+I am aware of the compose option; in this instance I hand edited the summary patch.
+
+Regards,
+
+K. Y
