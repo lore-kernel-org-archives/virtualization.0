@@ -1,7 +1,7 @@
 From: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
-Subject: [vmw_vmci RFC 10/11] Apply vmci routing code
-Date: Tue, 15 May 2012 08:07:07 -0700
-Message-ID: <1337094428-20453-11-git-send-email-astiegmann__31151.7991977327$1337186337$gmane$org@vmware.com>
+Subject: [vmw_vmci RFC 07/11] Apply VMCI hash table
+Date: Tue, 15 May 2012 08:07:04 -0700
+Message-ID: <1337094428-20453-8-git-send-email-astiegmann__32562.0249299847$1337186347$gmane$org@vmware.com>
 References: <1337094428-20453-1-git-send-email-astiegmann@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,23 +21,22 @@ To: linux-kernel@vger.kernel.org
 Cc: acking@vmware.com, dtor@vmware.com, gregkh@linuxfoundation.org, virtualization@lists.linux-foundation.org, dsouders@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, akpm@linux-foundation.org, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This code is responsible for routing between various hosts/guests as
-well as routing in nested scenarios.
+Implements a hash table for VMCI's use.
 
 Signed-off-by: Andrew Stiegmann (stieg) <astiegmann@vmware.com>
 ---
- drivers/misc/vmw_vmci/vmci_route.c |  234 ++++++++++++++++++++++++++++++++++++
- drivers/misc/vmw_vmci/vmci_route.h |   34 +++++
- 2 files changed, 268 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/vmw_vmci/vmci_route.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_route.h
+ drivers/misc/vmw_vmci/vmci_hash_table.c |  494 +++++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_hash_table.h |   56 ++++
+ 2 files changed, 550 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/vmw_vmci/vmci_hash_table.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_hash_table.h
 
-diff --git a/drivers/misc/vmw_vmci/vmci_route.c b/drivers/misc/vmw_vmci/vmci_route.c
+diff --git a/drivers/misc/vmw_vmci/vmci_hash_table.c b/drivers/misc/vmw_vmci/vmci_hash_table.c
 new file mode 100644
-index 0000000..4c9183c
+index 0000000..d2e74da
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_route.c
-@@ -0,0 +1,234 @@
++++ b/drivers/misc/vmw_vmci/vmci_hash_table.c
+@@ -0,0 +1,494 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -57,227 +56,487 @@ index 0000000..4c9183c
 + * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 + */
 +
-+#include <linux/vmw_vmci_api.h>
 +#include <linux/vmw_vmci_defs.h>
 +
-+#include "vmci_common_int.h"
 +#include "vmci_context.h"
++#include "vmci_common_int.h"
 +#include "vmci_driver.h"
-+#include "vmci_route.h"
++#include "vmci_hash_table.h"
++
++#define VMCI_HANDLE_TO_CONTEXT_ID(_handle) ((_handle).context)
++#define VMCI_HANDLE_TO_RESOURCE_ID(_handle) ((_handle).resource)
++#define VMCI_HASHTABLE_HASH(_h, _sz)				\
++	vmci_hash_calc(VMCI_HANDLE_TO_RESOURCE_ID(_h), (_sz))
 +
 +/*
 + *------------------------------------------------------------------------------
 + *
-+ *  vmci_route --
-+ *
-+ *     Make a routing decision for the given source and destination handles.
-+ *     This will try to determine the route using the handles and the available
-+ *     devices.
++ *  vmci_hash_create --
 + *
 + *  Result:
-+ *     A VMCIRoute value.
-+ *
-+ *  Side effects:
-+ *     Sets the source context if it is invalid.
++ *     None.
 + *
 + *------------------------------------------------------------------------------
 + */
 +
-+int vmci_route(struct vmci_handle *src,	// IN/OUT
-+	       const struct vmci_handle *dst,	// IN
-+	       bool fromGuest,	// IN
-+	       enum vmci_route *route)	// OUT
++struct vmci_hash_table *vmci_hash_create(int size)
 +{
-+	bool hasHostDevice = vmci_host_code_active();
-+	bool hasGuestDevice = vmci_guest_code_active();
++	struct vmci_hash_table *table;
 +
-+	ASSERT(src);
-+	ASSERT(dst);
-+	ASSERT(route);
++	table = kmalloc(sizeof *table, GFP_KERNEL);
++	if (table == NULL)
++		return NULL;
 +
-+	*route = VMCI_ROUTE_NONE;
-+
-+	/*
-+	 * "fromGuest" is only ever set to true by IOCTL_VMCI_DATAGRAM_SEND (or by
-+	 * the vmkernel equivalent), which comes from the VMX, so we know it is
-+	 * coming from a guest.
-+	 *
-+	 * To avoid inconsistencies, test these once.  We will test them again
-+	 * when we do the actual send to ensure that we do not touch a non-existent
-+	 * device.
-+	 */
-+
-+	/* Must have a valid destination context. */
-+	if (VMCI_INVALID_ID == dst->context)
-+		return VMCI_ERROR_INVALID_ARGS;
-+
-+	/* Anywhere to hypervisor. */
-+	if (VMCI_HYPERVISOR_CONTEXT_ID == dst->context) {
-+
-+		/*
-+		 * If this message already came from a guest then we cannot send it
-+		 * to the hypervisor.  It must come from a local client.
-+		 */
-+		if (fromGuest)
-+			return VMCI_ERROR_DST_UNREACHABLE;
-+
-+		/* We must be acting as a guest in order to send to the hypervisor. */
-+		if (!hasGuestDevice)
-+			return VMCI_ERROR_DEVICE_NOT_FOUND;
-+
-+		/* And we cannot send if the source is the host context. */
-+		if (VMCI_HOST_CONTEXT_ID == src->context)
-+			return VMCI_ERROR_INVALID_ARGS;
-+
-+		/*
-+		 * If the client passed the ANON source handle then respect it (both
-+		 * context and resource are invalid).  However, if they passed only
-+		 * an invalid context, then they probably mean ANY, in which case we
-+		 * should set the real context here before passing it down.
-+		 */
-+		if (VMCI_INVALID_ID == src->context && VMCI_INVALID_ID != src->resource)
-+			src->context = VMCI_GetContextID();
-+
-+		/* Send from local client down to the hypervisor. */
-+		*route = VMCI_ROUTE_AS_GUEST;
-+		return VMCI_SUCCESS;
++	table->entries = kcalloc(size, sizeof *table->entries, GFP_KERNEL);
++	if (table->entries == NULL) {
++		kfree(table);
++		return NULL;
 +	}
 +
-+	/* Anywhere to local client on host. */
-+	if (VMCI_HOST_CONTEXT_ID == dst->context) {
-+		/*
-+		 * If it is not from a guest but we are acting as a guest, then we need
-+		 * to send it down to the host.  Note that if we are also acting as a
-+		 * host then this will prevent us from sending from local client to
-+		 * local client, but we accept that restriction as a way to remove
-+		 * any ambiguity from the host context.
-+		 */
-+		if (src->context == VMCI_HYPERVISOR_CONTEXT_ID) {
-+			/*
-+			 * If the hypervisor is the source, this is host local
-+			 * communication. The hypervisor may send vmci event
-+			 * datagrams to the host itself, but it will never send
-+			 * datagrams to an "outer host" through the guest device.
-+			 */
++	table->size = size;
++	spin_lock_init(&table->lock);
 +
-+			if (hasHostDevice) {
-+				*route = VMCI_ROUTE_AS_HOST;
-+				return VMCI_SUCCESS;
-+			} else {
-+				return VMCI_ERROR_DEVICE_NOT_FOUND;
-+			}
-+		}
++	return table;
++}
 +
-+		if (!fromGuest && hasGuestDevice) {
-+			/* If no source context then use the current. */
-+			if (VMCI_INVALID_ID == src->context)
-+				src->context = VMCI_GetContextID();
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  vmci_hash_destroy --
++ *     This function should be called at module exit time.
++ *     We rely on the module ref count to insure that no one is accessing any
++ *     hash table entries at this point in time. Hence we should be able to just
++ *     remove all entries from the hash table.
++ *
++ *  Result:
++ *     None.
++ *
++ *------------------------------------------------------------------------------
++ */
 +
-+			/* Send it from local client down to the host. */
-+			*route = VMCI_ROUTE_AS_GUEST;
-+			return VMCI_SUCCESS;
-+		}
++void vmci_hash_destroy(struct vmci_hash_table *table)
++{
++	ASSERT(table);
 +
-+		/*
-+		 * Otherwise we already received it from a guest and it is destined
-+		 * for a local client on this host, or it is from another local client
-+		 * on this host.  We must be acting as a host to service it.
-+		 */
-+		if (!hasHostDevice)
-+			return VMCI_ERROR_DEVICE_NOT_FOUND;
++	spin_lock_bh(&table->lock);
++	kfree(table->entries);
++	table->entries = NULL;
++	spin_unlock_bh(&table->lock);
++	kfree(table);
++}
 +
-+		if (VMCI_INVALID_ID == src->context) {
-+			/*
-+			 * If it came from a guest then it must have a valid context.
-+			 * Otherwise we can use the host context.
-+			 */
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  vmci_hash_init_entry --
++ *     Initializes a hash entry;
++ *
++ *  Result:
++ *     None.
++ *
++ *------------------------------------------------------------------------------
++ */
++void vmci_hash_init_entry(struct vmci_hash_entry *entry,	// IN
++				 struct vmci_handle handle)	// IN
++{
++	ASSERT(entry);
++	entry->handle = handle;
++	entry->refCount = 0;
++}
 +
-+			if (fromGuest)
-+				return VMCI_ERROR_INVALID_ARGS;
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  hash_exists_locked --
++ *
++ *     Unlocked version of vmci_hash_exists.
++ *
++ *  Result:
++ *     true if handle already in hashtable. false otherwise.
++ *
++ *  Side effects:
++ *     None.
++ *
++ *------------------------------------------------------------------------------
++ */
 +
-+			src->context = VMCI_HOST_CONTEXT_ID;
-+		}
++static bool hash_exists_locked(struct vmci_hash_table *table,	// IN
++			       struct vmci_handle handle)	// IN
++{
++	struct vmci_hash_entry *entry;
++	int idx;
 +
-+		/* Route to local client. */
-+		*route = VMCI_ROUTE_AS_HOST;
-+		return VMCI_SUCCESS;
-+	}
++	ASSERT(table);
 +
-+	/* If we are acting as a host then this might be destined for a guest. */
-+	if (hasHostDevice) {
-+		/* It will have a context if it is meant for a guest. */
-+		if (vmci_ctx_exists(dst->context)) {
-+			if (VMCI_INVALID_ID == src->context) {
-+				/*
-+				 * If it came from a guest then it must have a valid context.
-+				 * Otherwise we can use the host context.
-+				 */
++	idx = VMCI_HASHTABLE_HASH(handle, table->size);
 +
-+				if (fromGuest)
-+					return VMCI_ERROR_INVALID_ARGS;
-+
-+				src->context = VMCI_HOST_CONTEXT_ID;
-+			} else if (VMCI_CONTEXT_IS_VM(src->context) &&
-+				   src->context != dst->context) {
-+				/*
-+				 * VM to VM communication is not allowed. Since we catch
-+				 * all communication destined for the host above, this
-+				 * must be destined for a VM since there is a valid
-+				 * context.
-+				 */
-+
-+				ASSERT(VMCI_CONTEXT_IS_VM(dst->context));
-+
-+				return VMCI_ERROR_DST_UNREACHABLE;
-+			}
-+
-+			/* Pass it up to the guest. */
-+			*route = VMCI_ROUTE_AS_HOST;
-+			return VMCI_SUCCESS;
-+		} else if (!hasGuestDevice) {
-+			/*
-+			 * The host is attempting to reach a CID without an active context, and
-+			 * we can't send it down, since we have no guest device.
-+			 */
-+
-+			return VMCI_ERROR_DST_UNREACHABLE;
++	for (entry = table->entries[idx]; entry; entry = entry->next) {
++		if (VMCI_HANDLE_TO_RESOURCE_ID(entry->handle) ==
++		    VMCI_HANDLE_TO_RESOURCE_ID(handle) &&
++		    ((VMCI_HANDLE_TO_CONTEXT_ID(entry->handle) ==
++		      VMCI_HANDLE_TO_CONTEXT_ID(handle)) ||
++		     (VMCI_INVALID_ID == VMCI_HANDLE_TO_CONTEXT_ID(handle))
++		     || (VMCI_INVALID_ID ==
++			 VMCI_HANDLE_TO_CONTEXT_ID(entry->handle)))) {
++			return true;
 +		}
 +	}
 +
-+	/*
-+	 * We must be a guest trying to send to another guest, which means
-+	 * we need to send it down to the host. We do not filter out VM to
-+	 * VM communication here, since we want to be able to use the guest
-+	 * driver on older versions that do support VM to VM communication.
-+	 */
-+	if (!hasGuestDevice) {
-+		/*
-+		 * Ending up here means we have neither guest nor host device. That
-+		 * shouldn't happen, since any VMCI client in the kernel should have done
-+		 * a successful VMCI_DeviceGet.
-+		 */
++	return false;
++}
 +
-+		ASSERT(false);
-+		return VMCI_ERROR_DEVICE_NOT_FOUND;
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  hash_unlink --
++ *     Assumes caller holds table lock.
++ *
++ *  Result:
++ *     None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++static int hash_unlink(struct vmci_hash_table *table,	// IN
++		       struct vmci_hash_entry *entry)	// IN
++{
++	int result;
++	struct vmci_hash_entry *prev, *cur;
++	const int idx = VMCI_HASHTABLE_HASH(entry->handle, table->size);
++
++	prev = NULL;
++	cur = table->entries[idx];
++	while (true) {
++		if (cur == NULL) {
++			result = VMCI_ERROR_NOT_FOUND;
++			break;
++		}
++		if (VMCI_HANDLE_EQUAL(cur->handle, entry->handle)) {
++			ASSERT(cur == entry);
++
++			/* Remove entry and break. */
++			if (prev)
++				prev->next = cur->next;
++			else
++				table->entries[idx] = cur->next;
++
++			cur->next = NULL;
++			result = VMCI_SUCCESS;
++			break;
++		}
++		prev = cur;
++		cur = cur->next;
 +	}
 +
-+	/* If no source context then use the current context. */
-+	if (VMCI_INVALID_ID == src->context)
-+		src->context = VMCI_GetContextID();
++	return result;
++}
 +
-+	/*
-+	 * Send it from local client down to the host, which will route it to
-+	 * the other guest for us.
-+	 */
-+	*route = VMCI_ROUTE_AS_GUEST;
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  vmci_hash_add --
++ *
++ *  Result:
++ *     None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++int vmci_hash_add(struct vmci_hash_table *table,	// IN
++		  struct vmci_hash_entry *entry)	// IN
++{
++	int idx;
++
++	ASSERT(entry);
++	ASSERT(table);
++
++	spin_lock_bh(&table->lock);
++
++	/* Creation of a new hashtable entry is always allowed. */
++	if (hash_exists_locked(table, entry->handle)) {
++		pr_devel("Entry (handle=0x%x:0x%x) already exists.",
++			 entry->handle.context, entry->handle.resource);
++		spin_unlock_bh(&table->lock);
++		return VMCI_ERROR_DUPLICATE_ENTRY;
++	}
++
++	idx = VMCI_HASHTABLE_HASH(entry->handle, table->size);
++	ASSERT(idx < table->size);
++
++	/* New entry is added to top/front of hash bucket. */
++	entry->refCount++;
++	entry->next = table->entries[idx];
++	table->entries[idx] = entry;
++	spin_unlock_bh(&table->lock);
++
 +	return VMCI_SUCCESS;
 +}
-diff --git a/drivers/misc/vmw_vmci/vmci_route.h b/drivers/misc/vmw_vmci/vmci_route.h
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  vmci_hash_remove --
++ *
++ *  Result:
++ *     None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++int vmci_hash_remove(struct vmci_hash_table *table,	// IN
++		     struct vmci_hash_entry *entry)	// IN
++{
++	int result;
++
++	ASSERT(table);
++	ASSERT(entry);
++
++	spin_lock_bh(&table->lock);
++
++	/* First unlink the entry. */
++	result = hash_unlink(table, entry);
++	if (result == VMCI_SUCCESS) {
++		/* Decrement refcount and check if this is last reference. */
++		entry->refCount--;
++		if (entry->refCount == 0)
++			result = VMCI_SUCCESS_ENTRY_DEAD;
++	}
++
++	spin_unlock_bh(&table->lock);
++
++	return result;
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  hash_get_locked --
++ *
++ *       Looks up an entry in the hash table, that is already locked.
++ *
++ *  Result:
++ *       If the element is found, a pointer to the element is returned.
++ *       Otherwise NULL is returned.
++ *
++ *  Side effects:
++ *       The reference count of the returned element is increased.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++static struct vmci_hash_entry *hash_get_locked(struct vmci_hash_table *table,	// IN
++					       struct vmci_handle handle)	// IN
++{
++	struct vmci_hash_entry *cur = NULL;
++	int idx;
++
++	ASSERT(!VMCI_HANDLE_EQUAL(handle, VMCI_INVALID_HANDLE));
++	ASSERT(table);
++
++	idx = VMCI_HASHTABLE_HASH(handle, table->size);
++
++	for (cur = table->entries[idx]; cur != NULL; cur = cur->next) {
++		if (VMCI_HANDLE_TO_RESOURCE_ID(cur->handle) ==
++		    VMCI_HANDLE_TO_RESOURCE_ID(handle) &&
++		    ((VMCI_HANDLE_TO_CONTEXT_ID(cur->handle) ==
++		      VMCI_HANDLE_TO_CONTEXT_ID(handle)) ||
++		     (VMCI_INVALID_ID ==
++		      VMCI_HANDLE_TO_CONTEXT_ID(cur->handle)))) {
++			cur->refCount++;
++			break;
++		}
++	}
++
++	return cur;
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  vmci_hash_get --
++ *
++ *  Result:
++ *     None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++struct vmci_hash_entry *vmci_hash_get(struct vmci_hash_table *table,	// IN
++				      struct vmci_handle handle)	// IN
++{
++	struct vmci_hash_entry *entry;
++
++	if (VMCI_HANDLE_EQUAL(handle, VMCI_INVALID_HANDLE))
++		return NULL;
++
++	ASSERT(table);
++
++	spin_lock_bh(&table->lock);
++	entry = hash_get_locked(table, handle);
++	spin_unlock_bh(&table->lock);
++
++	return entry;
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  vmci_hash_hold --
++ *
++ *     Hold the given entry.  This will increment the entry's reference count.
++ *     This is like a GetEntry() but without having to lookup the entry by
++ *     handle.
++ *
++ *  Result:
++ *     None.
++ *
++ *  Side effects:
++ *     None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++void vmci_hash_hold(struct vmci_hash_table *table,	// IN
++		    struct vmci_hash_entry *entry)	// IN/OUT
++{
++	ASSERT(table);
++	ASSERT(entry);
++
++	spin_lock_bh(&table->lock);
++	entry->refCount++;
++	spin_unlock_bh(&table->lock);
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  hash_release_locked --
++ *
++ *       Releases an element previously obtained with
++ *       hash_get_locked.
++ *
++ *  Result:
++ *       If the entry is removed from the hash table, VMCI_SUCCESS_ENTRY_DEAD
++ *       is returned. Otherwise, VMCI_SUCCESS is returned.
++ *
++ *  Side effects:
++ *       The reference count of the entry is decreased and the entry is removed
++ *       from the hash table on 0.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++static int hash_release_locked(struct vmci_hash_table *table,	// IN
++			       struct vmci_hash_entry *entry)	// IN
++{
++	int result = VMCI_SUCCESS;
++
++	ASSERT(table);
++	ASSERT(entry);
++
++	entry->refCount--;
++	/* Check if this is last reference and report if so. */
++	if (entry->refCount == 0) {
++
++		/*
++		 * Remove entry from hash table if not already removed. This could have
++		 * happened already because vmci_hash_remove was called to unlink
++		 * it. We ignore if it is not found. Datagram handles will often have
++		 * RemoveEntry called, whereas SharedMemory regions rely on ReleaseEntry
++		 * to unlink the entry, since the creator does not call RemoveEntry when
++		 * it detaches.
++		 */
++
++		hash_unlink(table, entry);
++		result = VMCI_SUCCESS_ENTRY_DEAD;
++	}
++
++	return result;
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  vmci_hash_release --
++ *
++ *  Result:
++ *     None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++int vmci_hash_release(struct vmci_hash_table *table,	// IN
++			     struct vmci_hash_entry *entry)	// IN
++{
++	int result;
++
++	spin_lock_bh(&table->lock);
++	result = hash_release_locked(table, entry);
++	spin_unlock_bh(&table->lock);
++
++	return result;
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  vmci_hash_exists --
++ *
++ *  Result:
++ *     true if handle already in hashtable. false otherwise.
++ *
++ *  Side effects:
++ *     None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++bool vmci_hash_exists(struct vmci_hash_table * table,	// IN
++			     struct vmci_handle handle)	// IN
++{
++	bool exists;
++
++	spin_lock_bh(&table->lock);
++	exists = hash_exists_locked(table, handle);
++	spin_unlock_bh(&table->lock);
++
++	return exists;
++}
++
++/*
++ *-------------------------------------------------------------------------
++ *
++ *  vmci_hash_calc --
++ *
++ *     Hash function used by the Simple Datagram API. Hashes only a VMCI id
++ *     (not the full VMCI handle) Based on the djb2
++ *     hash function by Dan Bernstein.
++ *
++ *  Result:
++ *     Returns guest call size.
++ *
++ *  Side effects:
++ *     None.
++ *
++ *-------------------------------------------------------------------------
++ */
++
++int vmci_hash_calc(uint32_t id, unsigned size)
++{
++	unsigned i;
++	int hash = 5381;
++
++	for (i = 0; i < sizeof id; i++)
++		hash = ((hash << 5) + hash) + (uint8_t) (id >> (i * 8));
++
++	return hash & (size - 1);
++}
+diff --git a/drivers/misc/vmw_vmci/vmci_hash_table.h b/drivers/misc/vmw_vmci/vmci_hash_table.h
 new file mode 100644
-index 0000000..c53f86e
+index 0000000..77428b4
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_route.h
-@@ -0,0 +1,34 @@
++++ b/drivers/misc/vmw_vmci/vmci_hash_table.h
+@@ -0,0 +1,56 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -297,20 +556,42 @@ index 0000000..c53f86e
 + * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 + */
 +
-+#ifndef _VMCI_ROUTE_H_
-+#define _VMCI_ROUTE_H_
++#ifndef _VMCI_HASH_TABLE_H_
++#define _VMCI_HASH_TABLE_H_
 +
 +#include <linux/vmw_vmci_defs.h>
 +
-+enum vmci_route {
-+	VMCI_ROUTE_NONE,
-+	VMCI_ROUTE_AS_HOST,
-+	VMCI_ROUTE_AS_GUEST,
++struct vmci_hash_entry {
++	struct vmci_handle handle;
++	int refCount;
++	struct vmci_hash_entry *next;
 +};
 +
-+int vmci_route(struct vmci_handle *src, const struct vmci_handle *dst,
-+	       bool fromGuest, enum vmci_route *route);
++struct vmci_hash_table {
++	struct vmci_hash_entry **entries;
++	int size;		/* Number of buckets in above array. */
++	spinlock_t lock;
++};
 +
-+#endif				// _VMCI_ROUTE_H_
++struct vmci_hash_table *vmci_hash_create(int size);
++void vmci_hash_destroy(struct vmci_hash_table *table);
++void vmci_hash_init_entry(struct vmci_hash_entry *entry,
++			  struct vmci_handle handle);
++int vmci_hash_add(struct vmci_hash_table *table,
++		  struct vmci_hash_entry *entry);
++int vmci_hash_remove(struct vmci_hash_table *table,
++		     struct vmci_hash_entry *entry);
++struct vmci_hash_entry *vmci_hash_get(struct vmci_hash_table
++				      *table,
++				      struct vmci_handle handle);
++void vmci_hash_hold(struct vmci_hash_table *table,
++		    struct vmci_hash_entry *entry);
++int vmci_hash_release(struct vmci_hash_table *table,
++		      struct vmci_hash_entry *entry);
++bool vmci_hash_exists(struct vmci_hash_table *table,
++		      struct vmci_handle handle);
++int vmci_hash_calc(uint32_t id, unsigned size);
++
++#endif				// _VMCI_HASH_TABLE_H_
 -- 
 1.7.0.4
