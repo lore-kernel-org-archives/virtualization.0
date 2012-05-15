@@ -1,11 +1,13 @@
 From: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
-Subject: [vmw_vmci RFC 00/11] VMCI for Linux
-Date: Tue, 15 May 2012 08:06:57 -0700
-Message-ID: <1337094428-20453-1-git-send-email-astiegmann__34501.8715750941$1337186381$gmane$org@vmware.com>
+Subject: [vmw_vmci RFC 09/11] Apply VMCI resource code
+Date: Tue, 15 May 2012 08:07:06 -0700
+Message-ID: <1337094428-20453-10-git-send-email-astiegmann__10697.5062088624$1337186394$gmane$org@vmware.com>
+References: <1337094428-20453-1-git-send-email-astiegmann@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1337094428-20453-1-git-send-email-astiegmann@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,120 +21,408 @@ To: linux-kernel@vger.kernel.org
 Cc: acking@vmware.com, dtor@vmware.com, gregkh@linuxfoundation.org, virtualization@lists.linux-foundation.org, dsouders@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, akpm@linux-foundation.org, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-In an effort to improve the out-of-the-box experience with Linux
-kernels for VMware users, VMware is working on readying the Virtual
-Machine Communication Interface (vmw_vmci) and VMCI Sockets (vmw_vsock) kernel
-modules for inclusion in the Linux kernel. The purpose of this post
-is to acquire feedback on the vmw_vmci kernel module. The vmw_vsock
-kernel module will be presented in a later post.
+Tracks all used resources within the vmci code.
 
-VMCI allows virtual machines to communicate with host kernel modules
-and the VMware hypervisors. User level applications both in a virtual
-machine and on the host can use vmw_vmci through VMCI Sockets, a socket
-address family designed to be compatible with UDP and TCP at the
-interface level. Today, VMCI and VMCI Sockets are used by the VMware
-shared folders (HGFS) and various VMware Tools components inside the
-guest for zero-config, network-less access to VMware host services. In
-addition to this, VMware's users are using VMCI Sockets for various
-applications, where network access of the virtual machine is
-restricted or non-existent. Examples of this are VMs communicating
-with device proxies for proprietary hardware running as host
-applications and automated testing of applications running within
-virtual machines.
-
-In a virtual machine, VMCI is exposed as a regular PCI device. The
-primary communication mechanisms supported are a point-to-point
-bidirectional transport based on a pair of memory-mapped queues, and
-asynchronous notifications in the form of datagrams and
-doorbells. These features are available to kernel level components
-such as HGFS and VMCI Sockets through the VMCI kernel API. In addition
-to this, the VMCI kernel API provides support for receiving events
-related to the state of the VMCI communication channels, and the
-virtual machine itself.
-
-Outside the virtual machine, the host side support of the VMCI kernel
-module makes the same VMCI kernel API available to VMCI endpoints on
-the host. In addition to this, the host side manages each VMCI device
-in a virtual machine through a context object. This context object
-serves to identify the virtual machine for communication, and to track
-the resource consumption of the given VMCI device. Both operations
-related to communication between the virtual machine and the host
-kernel, and those related to the management of the VMCI device state
-in the host kernel, are invoked by the user level component of the
-hypervisor through a set of ioctls on the VMCI device node.  To
-provide seamless support for nested virtualization, where a virtual
-machine may use both a VMCI PCI device to talk to its hypervisor, and
-the VMCI host side support to run nested virtual machines, the VMCI
-host and virtual machine support are combined in a single kernel
-module.
-
-For additional information about the use of VMCI and in particular
-VMCI Sockets, please refer to the VMCI Socket Programming Guide
-available at https://www.vmware.com/support/developer/vmci-sdk/.
-
-Andrew Stiegmann (stieg) (11):
-  Apply VMCI context code
-  Apply VMCI datagram code
-  Apply VMCI doorbell code
-  Apply VMCI driver code
-  Apply VMCI event code
-  Apply dynamic array code
-  Apply VMCI hash table
-  Apply VMCI queue pairs
-  Apply VMCI resource code
-  Apply vmci routing code
-  Apply the header code to make VMCI build
-
- drivers/misc/Kconfig                      |    1 +
- drivers/misc/Makefile                     |    1 +
- drivers/misc/vmw_vmci/Kconfig             |   16 +
- drivers/misc/vmw_vmci/Makefile            |   43 +
- drivers/misc/vmw_vmci/vmci_common_int.h   |   72 +
- drivers/misc/vmw_vmci/vmci_context.c      | 1743 +++++++++++
- drivers/misc/vmw_vmci/vmci_context.h      |  150 +
- drivers/misc/vmw_vmci/vmci_datagram.c     |  760 +++++
- drivers/misc/vmw_vmci/vmci_datagram.h     |   57 +
- drivers/misc/vmw_vmci/vmci_doorbell.c     |  989 +++++++
- drivers/misc/vmw_vmci/vmci_doorbell.h     |   57 +
- drivers/misc/vmw_vmci/vmci_driver.c       | 2875 ++++++++++++++++++
- drivers/misc/vmw_vmci/vmci_driver.h       |   52 +
- drivers/misc/vmw_vmci/vmci_event.c        |  614 ++++
- drivers/misc/vmw_vmci/vmci_event.h        |   29 +
- drivers/misc/vmw_vmci/vmci_handle_array.c |  300 ++
- drivers/misc/vmw_vmci/vmci_handle_array.h |   50 +
- drivers/misc/vmw_vmci/vmci_hash_table.c   |  494 ++++
- drivers/misc/vmw_vmci/vmci_hash_table.h   |   56 +
- drivers/misc/vmw_vmci/vmci_queue_pair.c   | 4517 +++++++++++++++++++++++++++++
- drivers/misc/vmw_vmci/vmci_queue_pair.h   |  258 ++
- drivers/misc/vmw_vmci/vmci_resource.c     |  320 ++
- drivers/misc/vmw_vmci/vmci_resource.h     |   61 +
- drivers/misc/vmw_vmci/vmci_route.c        |  234 ++
- drivers/misc/vmw_vmci/vmci_route.h        |   34 +
- include/linux/vmw_vmci_api.h              |  103 +
- include/linux/vmw_vmci_defs.h             | 1003 +++++++
- 27 files changed, 14889 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/vmw_vmci/Kconfig
- create mode 100644 drivers/misc/vmw_vmci/Makefile
- create mode 100644 drivers/misc/vmw_vmci/vmci_common_int.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_context.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_context.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_driver.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_driver.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_event.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_event.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_hash_table.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_hash_table.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.h
+Signed-off-by: Andrew Stiegmann (stieg) <astiegmann@vmware.com>
+---
+ drivers/misc/vmw_vmci/vmci_resource.c |  320 +++++++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_resource.h |   61 +++++++
+ 2 files changed, 381 insertions(+), 0 deletions(-)
  create mode 100644 drivers/misc/vmw_vmci/vmci_resource.c
  create mode 100644 drivers/misc/vmw_vmci/vmci_resource.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_route.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_route.h
- create mode 100644 include/linux/vmw_vmci_api.h
- create mode 100644 include/linux/vmw_vmci_defs.h
+
+diff --git a/drivers/misc/vmw_vmci/vmci_resource.c b/drivers/misc/vmw_vmci/vmci_resource.c
+new file mode 100644
+index 0000000..240654d
+--- /dev/null
++++ b/drivers/misc/vmw_vmci/vmci_resource.c
+@@ -0,0 +1,320 @@
++/*
++ * VMware VMCI Driver
++ *
++ * Copyright (C) 2012 VMware, Inc. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation version 2 and no later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
++ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++ * for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
++ */
++
++#include <linux/vmw_vmci_defs.h>
++
++#include "vmci_common_int.h"
++#include "vmci_hash_table.h"
++#include "vmci_resource.h"
++#include "vmci_driver.h"
++
++/* 0 through VMCI_RESERVED_RESOURCE_ID_MAX are reserved. */
++static uint32_t resourceID = VMCI_RESERVED_RESOURCE_ID_MAX + 1;
++static spinlock_t resourceIdLock;
++static struct vmci_hash_table *resourceTable = NULL;
++
++/* Public Resource Access Control API. */
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ * vmci_resource_init --
++ *
++ *      Initializes the VMCI Resource Access Control API. Creates a hashtable
++ *      to hold all resources, and registers vectors and callbacks for
++ *      hypercalls.
++ *
++ * Results:
++ *      None.
++ *
++ * Side effects:
++ *      None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++int __init vmci_resource_init(void)
++{
++	spin_lock_init(&resourceIdLock);
++
++	resourceTable = vmci_hash_create(128);
++	if (resourceTable == NULL) {
++		pr_warn("Failed creating a resource hash table.");
++		return VMCI_ERROR_NO_MEM;
++	}
++
++	return VMCI_SUCCESS;
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ * vmci_resource_exit --
++ *
++ *      Cleans up resources.
++ *
++ * Results:
++ *      None.
++ *
++ * Side effects:
++ *      None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++void vmci_resource_exit(void)
++{
++	if (resourceTable)
++		vmci_hash_destroy(resourceTable);
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  vmci_resource_get_id --
++ *
++ *     Return resource ID. The first VMCI_RESERVED_RESOURCE_ID_MAX are
++ *     reserved so we start from its value + 1.
++ *
++ *  Result:
++ *     VMCI resource id on success, VMCI_INVALID_ID on failure.
++ *
++ *  Side effects:
++ *     None.
++ *
++ *
++ *------------------------------------------------------------------------------
++ */
++
++uint32_t vmci_resource_get_id(uint32_t contextID)
++{
++	uint32_t oldRID = resourceID;
++	uint32_t currentRID;
++	bool foundRID = false;
++
++	/*
++	 * Generate a unique resource ID.  Keep on trying until we wrap around
++	 * in the RID space.
++	 */
++	ASSERT(oldRID > VMCI_RESERVED_RESOURCE_ID_MAX);
++
++	do {
++		struct vmci_handle handle;
++
++		spin_lock(&resourceIdLock);
++		currentRID = resourceID;
++		handle = vmci_make_handle(contextID, currentRID);
++		resourceID++;
++		if (unlikely(resourceID == VMCI_INVALID_ID)) {
++			/* Skip the reserved rids. */
++
++			resourceID = VMCI_RESERVED_RESOURCE_ID_MAX + 1;
++		}
++		spin_unlock(&resourceIdLock);
++		foundRID = !vmci_hash_exists(resourceTable, handle);
++	} while (!foundRID && resourceID != oldRID);
++
++	return (unlikely(!foundRID)) ? VMCI_INVALID_ID : currentRID;
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ * vmci_resource_add --
++ *
++ * Results:
++ *      VMCI_SUCCESS if successful, error code if not.
++ *
++ * Side effects:
++ *      None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++int vmci_resource_add(struct vmci_resource *resource,	// IN
++		  enum vmci_resource_type resourceType,	// IN
++		  struct vmci_handle resourceHandle,	// IN
++		  VMCIResourceFreeCB containerFreeCB,	// IN
++		  void *containerObject)	// IN
++{
++	int result;
++
++	ASSERT(resource);
++
++	if (VMCI_HANDLE_EQUAL(resourceHandle, VMCI_INVALID_HANDLE)) {
++		pr_devel("Invalid argument resource (handle=0x%x:0x%x)",
++			 resourceHandle.context, resourceHandle.resource);
++		return VMCI_ERROR_INVALID_ARGS;
++	}
++
++	vmci_hash_init_entry(&resource->hashEntry, resourceHandle);
++	resource->type = resourceType;
++	resource->containerFreeCB = containerFreeCB;
++	resource->containerObject = containerObject;
++
++	/* Add resource to hashtable. */
++	result = vmci_hash_add(resourceTable, &resource->hashEntry);
++	if (result != VMCI_SUCCESS) {
++		pr_devel("Failed to add entry to hash table "
++			 "(result=%d).", result);
++		return result;
++	}
++
++	return result;
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ * vmci_resource_remove --
++ *
++ * Results:
++ *      None.
++ *
++ * Side effects:
++ *      None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++void vmci_resource_remove(struct vmci_handle resourceHandle,	// IN:
++		      enum vmci_resource_type resourceType)	// IN:
++{
++	struct vmci_resource *resource =
++		vmci_resource_get(resourceHandle, resourceType);
++
++	if (resource == NULL)
++		return;
++
++	/* Remove resource from hashtable. */
++	vmci_hash_remove(resourceTable, &resource->hashEntry);
++
++	vmci_resource_release(resource);
++	/* resource could be freed by now. */
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ * vmci_resource_get --
++ *
++ * Results:
++ *      Resource is successful. Otherwise NULL.
++ *
++ * Side effects:
++ *      None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++struct vmci_resource *vmci_resource_get(struct vmci_handle resourceHandle,	// IN
++				    enum vmci_resource_type resourceType)	// IN
++{
++	struct vmci_resource *resource;
++	struct vmci_hash_entry *entry =
++		vmci_hash_get(resourceTable, resourceHandle);
++
++	if (entry == NULL)
++		return NULL;
++
++	resource = container_of(entry, struct vmci_resource, hashEntry);
++	if (resourceType == VMCI_RESOURCE_TYPE_ANY ||
++	    resource->type == resourceType)
++		return resource;
++
++	vmci_hash_release(resourceTable, entry);
++	return NULL;
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ * vmci_resource_hold --
++ *
++ *      Hold the given resource.  This will hold the hashtable entry.  This
++ *      is like doing a Get() but without having to lookup the resource by
++ *      handle.
++ *
++ * Results:
++ *      None.
++ *
++ * Side effects:
++ *      None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++void vmci_resource_hold(struct vmci_resource *resource)
++{
++	ASSERT(resource);
++	vmci_hash_hold(resourceTable, &resource->hashEntry);
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ * vmci_resource_release --
++ *
++ * Results:
++ *      None.
++ *
++ * Side effects:
++ *      resource's containerFreeCB will get called if last reference.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++int vmci_resource_release(struct vmci_resource *resource)
++{
++	int result;
++
++	ASSERT(resource);
++
++	result = vmci_hash_release(resourceTable, &resource->hashEntry);
++	if (result == VMCI_SUCCESS_ENTRY_DEAD && resource->containerFreeCB)
++		resource->containerFreeCB(resource->containerObject);
++
++	/*
++	 * We propagate the information back to caller in case it wants to know
++	 * whether entry was freed.
++	 */
++	return result;
++}
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ * vmci_resource_handle --
++ *
++ *      Get the handle for the given resource.
++ *
++ * Results:
++ *      The resource's associated handle.
++ *
++ * Side effects:
++ *      None.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++struct vmci_handle vmci_resource_handle(struct vmci_resource *resource)
++{
++	ASSERT(resource);
++	return resource->hashEntry.handle;
++}
+diff --git a/drivers/misc/vmw_vmci/vmci_resource.h b/drivers/misc/vmw_vmci/vmci_resource.h
+new file mode 100644
+index 0000000..f6abb1e
+--- /dev/null
++++ b/drivers/misc/vmw_vmci/vmci_resource.h
+@@ -0,0 +1,61 @@
++/*
++ * VMware VMCI Driver
++ *
++ * Copyright (C) 2012 VMware, Inc. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation version 2 and no later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
++ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++ * for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
++ */
++
++#ifndef _VMCI_RESOURCE_H_
++#define _VMCI_RESOURCE_H_
++
++#include <linux/vmw_vmci_defs.h>
++
++#include "vmci_context.h"
++#include "vmci_hash_table.h"
++
++typedef void (*VMCIResourceFreeCB) (void *resource);
++
++enum vmci_resource_type {
++	VMCI_RESOURCE_TYPE_ANY,
++	VMCI_RESOURCE_TYPE_API,
++	VMCI_RESOURCE_TYPE_GROUP,
++	VMCI_RESOURCE_TYPE_DATAGRAM,
++	VMCI_RESOURCE_TYPE_DOORBELL,
++};
++
++struct vmci_resource {
++	struct vmci_hash_entry hashEntry;
++	enum vmci_resource_type type;
++	VMCIResourceFreeCB containerFreeCB;	// Callback to free container
++	/* object when refCount is 0. */
++	void *containerObject;	// Container object reference.
++};
++
++int vmci_resource_init(void);
++void vmci_resource_exit(void);
++uint32_t vmci_resource_get_id(uint32_t contextID);
++int vmci_resource_add(struct vmci_resource *resource,
++		      enum vmci_resource_type resourceType,
++		      struct vmci_handle resourceHandle,
++		      VMCIResourceFreeCB containerFreeCB, void *containerObject);
++void vmci_resource_remove(struct vmci_handle resourceHandle,
++			  enum vmci_resource_type resourceType);
++struct vmci_resource *vmci_resource_get(struct vmci_handle resourceHandle,
++					enum vmci_resource_type resourceType);
++void vmci_resource_hold(struct vmci_resource *resource);
++int vmci_resource_release(struct vmci_resource *resource);
++struct vmci_handle vmci_resource_handle(struct vmci_resource *resource);
++
++#endif				/* _VMCI_RESOURCE_H_ */
+-- 
+1.7.0.4
