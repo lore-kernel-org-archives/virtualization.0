@@ -1,15 +1,13 @@
-From: Dor Laor <dlaor@redhat.com>
-Subject: Re: [vmw_vmci RFC 00/11] VMCI for Linux
-Date: Wed, 16 May 2012 11:55:04 +0300
-Message-ID: <4FB36B68.5000009@redhat.com>
+From: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
+Subject: [vmw_vmci RFC 10/11] Apply vmci routing code
+Date: Tue, 15 May 2012 08:07:07 -0700
+Message-ID: <1337094428-20453-11-git-send-email-astiegmann__31151.7991977327$1337186337$gmane$org@vmware.com>
 References: <1337094428-20453-1-git-send-email-astiegmann@vmware.com>
-	<20120515235024.GB1758@kroah.com>
-Reply-To: dlaor@redhat.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120515235024.GB1758@kroah.com>
+In-Reply-To: <1337094428-20453-1-git-send-email-astiegmann@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,87 +17,300 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: acking@vmware.com, kvm-devel <kvm@vger.kernel.org>, dtor@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dsouders@vmware.com, Amit Shah <amit.shah@redhat.com>, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, akpm@linux-foundation.org, cschamp@vmware.com
+To: linux-kernel@vger.kernel.org
+Cc: acking@vmware.com, dtor@vmware.com, gregkh@linuxfoundation.org, virtualization@lists.linux-foundation.org, dsouders@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, akpm@linux-foundation.org, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/16/2012 02:50 AM, Greg KH wrote:
-> On Tue, May 15, 2012 at 08:06:57AM -0700, Andrew Stiegmann (stieg) wrote:
->> In an effort to improve the out-of-the-box experience with Linux
->> kernels for VMware users, VMware is working on readying the Virtual
->> Machine Communication Interface (vmw_vmci) and VMCI Sockets (vmw_vsock) kernel
->> modules for inclusion in the Linux kernel. The purpose of this post
->> is to acquire feedback on the vmw_vmci kernel module. The vmw_vsock
->> kernel module will be presented in a later post.
->>
->> VMCI allows virtual machines to communicate with host kernel modules
->> and the VMware hypervisors. User level applications both in a virtual
->> machine and on the host can use vmw_vmci through VMCI Sockets, a socket
->> address family designed to be compatible with UDP and TCP at the
->> interface level. Today, VMCI and VMCI Sockets are used by the VMware
->> shared folders (HGFS) and various VMware Tools components inside the
->> guest for zero-config, network-less access to VMware host services. In
->> addition to this, VMware's users are using VMCI Sockets for various
->> applications, where network access of the virtual machine is
->> restricted or non-existent. Examples of this are VMs communicating
->> with device proxies for proprietary hardware running as host
->> applications and automated testing of applications running within
->> virtual machines.
->>
->> In a virtual machine, VMCI is exposed as a regular PCI device. The
->> primary communication mechanisms supported are a point-to-point
->> bidirectional transport based on a pair of memory-mapped queues, and
->> asynchronous notifications in the form of datagrams and
->> doorbells. These features are available to kernel level components
->> such as HGFS and VMCI Sockets through the VMCI kernel API. In addition
->> to this, the VMCI kernel API provides support for receiving events
->> related to the state of the VMCI communication channels, and the
->> virtual machine itself.
->
-> Don't we have something like this already for KVM and maybe Xen?
+This code is responsible for routing between various hosts/guests as
+well as routing in nested scenarios.
 
-We have virtio-serial driver for guest-host communication:
-http://fedoraproject.org/wiki/Features/VirtioSerial
-http://www.linux-kvm.org/page/VMchannel_Requirements
+Signed-off-by: Andrew Stiegmann (stieg) <astiegmann@vmware.com>
+---
+ drivers/misc/vmw_vmci/vmci_route.c |  234 ++++++++++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_route.h |   34 +++++
+ 2 files changed, 268 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/vmw_vmci/vmci_route.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_route.h
 
-Amit Shah, the writer is CCed as well as kvm-devel.
-
-> virtio?  Can't you use that code instead of a new block of code that is
-> only used by vmware users?  It has virtual pci devices which should give
-> you what you want/need here, right?
->
-> If not, why doesn't that work for you?  Would it be easier to just
-> extend it?
-
-KVM uses virtio-serial as a pci device which has 'ports' on top of it. 
-The ports acts like channels that can be created dynamically and allows 
-guest userspace <-> host userspace communication.
-In theory, the kvm mechanism should be a good fit for other hypervisors.
-
-Nevertheless, despite my biased love for KVM, I bet it would be 'tricky' 
-for VMW to change their hardware model and shift to virtio hardware 
-abstraction. In addition, they'll be required to change existing apps 
-that use their socket code.
-
-One can bunker in our rightful requirement of 'upstream first' but this 
-may slow/vanish the benefits of getting VMW code upstream for out of the 
-box experience for Linux users.
-
-IMHO, let's be practical and include this pci device (pending standard 
-review) but _require_ that the VMCI sockets family will be a general 
-mechanism that may be used over virtio-serial as well.
-Andrew, it would be the best to work w/ Amit and various other KVM 
-hackers to get your (changed) code upstream.
-
-Regards,
-Dor
-
->
-> thanks,
->
-> greg k-h
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+diff --git a/drivers/misc/vmw_vmci/vmci_route.c b/drivers/misc/vmw_vmci/vmci_route.c
+new file mode 100644
+index 0000000..4c9183c
+--- /dev/null
++++ b/drivers/misc/vmw_vmci/vmci_route.c
+@@ -0,0 +1,234 @@
++/*
++ * VMware VMCI Driver
++ *
++ * Copyright (C) 2012 VMware, Inc. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation version 2 and no later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
++ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++ * for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
++ */
++
++#include <linux/vmw_vmci_api.h>
++#include <linux/vmw_vmci_defs.h>
++
++#include "vmci_common_int.h"
++#include "vmci_context.h"
++#include "vmci_driver.h"
++#include "vmci_route.h"
++
++/*
++ *------------------------------------------------------------------------------
++ *
++ *  vmci_route --
++ *
++ *     Make a routing decision for the given source and destination handles.
++ *     This will try to determine the route using the handles and the available
++ *     devices.
++ *
++ *  Result:
++ *     A VMCIRoute value.
++ *
++ *  Side effects:
++ *     Sets the source context if it is invalid.
++ *
++ *------------------------------------------------------------------------------
++ */
++
++int vmci_route(struct vmci_handle *src,	// IN/OUT
++	       const struct vmci_handle *dst,	// IN
++	       bool fromGuest,	// IN
++	       enum vmci_route *route)	// OUT
++{
++	bool hasHostDevice = vmci_host_code_active();
++	bool hasGuestDevice = vmci_guest_code_active();
++
++	ASSERT(src);
++	ASSERT(dst);
++	ASSERT(route);
++
++	*route = VMCI_ROUTE_NONE;
++
++	/*
++	 * "fromGuest" is only ever set to true by IOCTL_VMCI_DATAGRAM_SEND (or by
++	 * the vmkernel equivalent), which comes from the VMX, so we know it is
++	 * coming from a guest.
++	 *
++	 * To avoid inconsistencies, test these once.  We will test them again
++	 * when we do the actual send to ensure that we do not touch a non-existent
++	 * device.
++	 */
++
++	/* Must have a valid destination context. */
++	if (VMCI_INVALID_ID == dst->context)
++		return VMCI_ERROR_INVALID_ARGS;
++
++	/* Anywhere to hypervisor. */
++	if (VMCI_HYPERVISOR_CONTEXT_ID == dst->context) {
++
++		/*
++		 * If this message already came from a guest then we cannot send it
++		 * to the hypervisor.  It must come from a local client.
++		 */
++		if (fromGuest)
++			return VMCI_ERROR_DST_UNREACHABLE;
++
++		/* We must be acting as a guest in order to send to the hypervisor. */
++		if (!hasGuestDevice)
++			return VMCI_ERROR_DEVICE_NOT_FOUND;
++
++		/* And we cannot send if the source is the host context. */
++		if (VMCI_HOST_CONTEXT_ID == src->context)
++			return VMCI_ERROR_INVALID_ARGS;
++
++		/*
++		 * If the client passed the ANON source handle then respect it (both
++		 * context and resource are invalid).  However, if they passed only
++		 * an invalid context, then they probably mean ANY, in which case we
++		 * should set the real context here before passing it down.
++		 */
++		if (VMCI_INVALID_ID == src->context && VMCI_INVALID_ID != src->resource)
++			src->context = VMCI_GetContextID();
++
++		/* Send from local client down to the hypervisor. */
++		*route = VMCI_ROUTE_AS_GUEST;
++		return VMCI_SUCCESS;
++	}
++
++	/* Anywhere to local client on host. */
++	if (VMCI_HOST_CONTEXT_ID == dst->context) {
++		/*
++		 * If it is not from a guest but we are acting as a guest, then we need
++		 * to send it down to the host.  Note that if we are also acting as a
++		 * host then this will prevent us from sending from local client to
++		 * local client, but we accept that restriction as a way to remove
++		 * any ambiguity from the host context.
++		 */
++		if (src->context == VMCI_HYPERVISOR_CONTEXT_ID) {
++			/*
++			 * If the hypervisor is the source, this is host local
++			 * communication. The hypervisor may send vmci event
++			 * datagrams to the host itself, but it will never send
++			 * datagrams to an "outer host" through the guest device.
++			 */
++
++			if (hasHostDevice) {
++				*route = VMCI_ROUTE_AS_HOST;
++				return VMCI_SUCCESS;
++			} else {
++				return VMCI_ERROR_DEVICE_NOT_FOUND;
++			}
++		}
++
++		if (!fromGuest && hasGuestDevice) {
++			/* If no source context then use the current. */
++			if (VMCI_INVALID_ID == src->context)
++				src->context = VMCI_GetContextID();
++
++			/* Send it from local client down to the host. */
++			*route = VMCI_ROUTE_AS_GUEST;
++			return VMCI_SUCCESS;
++		}
++
++		/*
++		 * Otherwise we already received it from a guest and it is destined
++		 * for a local client on this host, or it is from another local client
++		 * on this host.  We must be acting as a host to service it.
++		 */
++		if (!hasHostDevice)
++			return VMCI_ERROR_DEVICE_NOT_FOUND;
++
++		if (VMCI_INVALID_ID == src->context) {
++			/*
++			 * If it came from a guest then it must have a valid context.
++			 * Otherwise we can use the host context.
++			 */
++
++			if (fromGuest)
++				return VMCI_ERROR_INVALID_ARGS;
++
++			src->context = VMCI_HOST_CONTEXT_ID;
++		}
++
++		/* Route to local client. */
++		*route = VMCI_ROUTE_AS_HOST;
++		return VMCI_SUCCESS;
++	}
++
++	/* If we are acting as a host then this might be destined for a guest. */
++	if (hasHostDevice) {
++		/* It will have a context if it is meant for a guest. */
++		if (vmci_ctx_exists(dst->context)) {
++			if (VMCI_INVALID_ID == src->context) {
++				/*
++				 * If it came from a guest then it must have a valid context.
++				 * Otherwise we can use the host context.
++				 */
++
++				if (fromGuest)
++					return VMCI_ERROR_INVALID_ARGS;
++
++				src->context = VMCI_HOST_CONTEXT_ID;
++			} else if (VMCI_CONTEXT_IS_VM(src->context) &&
++				   src->context != dst->context) {
++				/*
++				 * VM to VM communication is not allowed. Since we catch
++				 * all communication destined for the host above, this
++				 * must be destined for a VM since there is a valid
++				 * context.
++				 */
++
++				ASSERT(VMCI_CONTEXT_IS_VM(dst->context));
++
++				return VMCI_ERROR_DST_UNREACHABLE;
++			}
++
++			/* Pass it up to the guest. */
++			*route = VMCI_ROUTE_AS_HOST;
++			return VMCI_SUCCESS;
++		} else if (!hasGuestDevice) {
++			/*
++			 * The host is attempting to reach a CID without an active context, and
++			 * we can't send it down, since we have no guest device.
++			 */
++
++			return VMCI_ERROR_DST_UNREACHABLE;
++		}
++	}
++
++	/*
++	 * We must be a guest trying to send to another guest, which means
++	 * we need to send it down to the host. We do not filter out VM to
++	 * VM communication here, since we want to be able to use the guest
++	 * driver on older versions that do support VM to VM communication.
++	 */
++	if (!hasGuestDevice) {
++		/*
++		 * Ending up here means we have neither guest nor host device. That
++		 * shouldn't happen, since any VMCI client in the kernel should have done
++		 * a successful VMCI_DeviceGet.
++		 */
++
++		ASSERT(false);
++		return VMCI_ERROR_DEVICE_NOT_FOUND;
++	}
++
++	/* If no source context then use the current context. */
++	if (VMCI_INVALID_ID == src->context)
++		src->context = VMCI_GetContextID();
++
++	/*
++	 * Send it from local client down to the host, which will route it to
++	 * the other guest for us.
++	 */
++	*route = VMCI_ROUTE_AS_GUEST;
++	return VMCI_SUCCESS;
++}
+diff --git a/drivers/misc/vmw_vmci/vmci_route.h b/drivers/misc/vmw_vmci/vmci_route.h
+new file mode 100644
+index 0000000..c53f86e
+--- /dev/null
++++ b/drivers/misc/vmw_vmci/vmci_route.h
+@@ -0,0 +1,34 @@
++/*
++ * VMware VMCI Driver
++ *
++ * Copyright (C) 2012 VMware, Inc. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation version 2 and no later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
++ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++ * for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
++ */
++
++#ifndef _VMCI_ROUTE_H_
++#define _VMCI_ROUTE_H_
++
++#include <linux/vmw_vmci_defs.h>
++
++enum vmci_route {
++	VMCI_ROUTE_NONE,
++	VMCI_ROUTE_AS_HOST,
++	VMCI_ROUTE_AS_GUEST,
++};
++
++int vmci_route(struct vmci_handle *src, const struct vmci_handle *dst,
++	       bool fromGuest, enum vmci_route *route);
++
++#endif				// _VMCI_ROUTE_H_
+-- 
+1.7.0.4
