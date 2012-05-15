@@ -1,7 +1,7 @@
 From: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
-Subject: [vmw_vmci RFC 09/11] Apply VMCI resource code
-Date: Tue, 15 May 2012 08:07:06 -0700
-Message-ID: <1337094428-20453-10-git-send-email-astiegmann__10697.5062088624$1337186394$gmane$org@vmware.com>
+Subject: [vmw_vmci RFC 05/11] Apply VMCI event code
+Date: Tue, 15 May 2012 08:07:02 -0700
+Message-ID: <1337094428-20453-6-git-send-email-astiegmann__40166.4332639941$1337186405$gmane$org@vmware.com>
 References: <1337094428-20453-1-git-send-email-astiegmann@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,22 +21,23 @@ To: linux-kernel@vger.kernel.org
 Cc: acking@vmware.com, dtor@vmware.com, gregkh@linuxfoundation.org, virtualization@lists.linux-foundation.org, dsouders@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, akpm@linux-foundation.org, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Tracks all used resources within the vmci code.
+Code that manages event handlers and handles callbacks when
+specific events fire.
 
 Signed-off-by: Andrew Stiegmann (stieg) <astiegmann@vmware.com>
 ---
- drivers/misc/vmw_vmci/vmci_resource.c |  320 +++++++++++++++++++++++++++++++++
- drivers/misc/vmw_vmci/vmci_resource.h |   61 +++++++
- 2 files changed, 381 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/vmw_vmci/vmci_resource.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_resource.h
+ drivers/misc/vmw_vmci/vmci_event.c |  614 ++++++++++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_event.h |   29 ++
+ 2 files changed, 643 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.h
 
-diff --git a/drivers/misc/vmw_vmci/vmci_resource.c b/drivers/misc/vmw_vmci/vmci_resource.c
+diff --git a/drivers/misc/vmw_vmci/vmci_event.c b/drivers/misc/vmw_vmci/vmci_event.c
 new file mode 100644
-index 0000000..240654d
+index 0000000..7335c9e
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_resource.c
-@@ -0,0 +1,320 @@
++++ b/drivers/misc/vmw_vmci/vmci_event.c
+@@ -0,0 +1,614 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -56,57 +57,75 @@ index 0000000..240654d
 + * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 + */
 +
++#include <linux/module.h>
++#include <linux/list.h>
++#include <linux/sched.h>
++#include <linux/vmw_vmci_api.h>
 +#include <linux/vmw_vmci_defs.h>
 +
-+#include "vmci_common_int.h"
-+#include "vmci_hash_table.h"
-+#include "vmci_resource.h"
++#include "vmci_event.h"
 +#include "vmci_driver.h"
 +
-+/* 0 through VMCI_RESERVED_RESOURCE_ID_MAX are reserved. */
-+static uint32_t resourceID = VMCI_RESERVED_RESOURCE_ID_MAX + 1;
-+static spinlock_t resourceIdLock;
-+static struct vmci_hash_table *resourceTable = NULL;
++#define EVENT_MAGIC 0xEABE0000
++#define VMCI_EVENT_MAX_ATTEMPTS 10
 +
-+/* Public Resource Access Control API. */
++struct vmci_subscription {
++	uint32_t id;
++	int refCount;
++	bool runDelayed;
++	wait_queue_head_t destroyEvent;
++	uint32_t event;
++	VMCI_EventCB callback;
++	void *callbackData;
++	struct list_head subscriberListItem;
++};
++
++static struct list_head subscriberArray[VMCI_EVENT_MAX];
++static spinlock_t subscriberLock;
++
++struct delayed_event_info {
++	struct vmci_subscription *sub;
++	uint8_t eventPayload[sizeof(struct vmci_event_data_max)];
++};
++
++struct event_ref {
++	struct vmci_subscription *sub;
++	struct list_head listItem;
++};
 +
 +/*
-+ *------------------------------------------------------------------------------
++ *----------------------------------------------------------------------
 + *
-+ * vmci_resource_init --
++ * vmci_event_init --
 + *
-+ *      Initializes the VMCI Resource Access Control API. Creates a hashtable
-+ *      to hold all resources, and registers vectors and callbacks for
-+ *      hypercalls.
++ *      General init code.
 + *
 + * Results:
-+ *      None.
++ *      VMCI_SUCCESS on success, appropriate error code otherwise.
 + *
 + * Side effects:
 + *      None.
 + *
-+ *------------------------------------------------------------------------------
++ *----------------------------------------------------------------------
 + */
 +
-+int __init vmci_resource_init(void)
++int __init vmci_event_init(void)
 +{
-+	spin_lock_init(&resourceIdLock);
++	int i;
 +
-+	resourceTable = vmci_hash_create(128);
-+	if (resourceTable == NULL) {
-+		pr_warn("Failed creating a resource hash table.");
-+		return VMCI_ERROR_NO_MEM;
-+	}
++	for (i = 0; i < VMCI_EVENT_MAX; i++)
++		INIT_LIST_HEAD(&subscriberArray[i]);
 +
++	spin_lock_init(&subscriberLock);
 +	return VMCI_SUCCESS;
 +}
 +
 +/*
-+ *------------------------------------------------------------------------------
++ *----------------------------------------------------------------------
 + *
-+ * vmci_resource_exit --
++ * vmci_event_exit --
 + *
-+ *      Cleans up resources.
++ *      General exit code.
 + *
 + * Results:
 + *      None.
@@ -114,181 +133,152 @@ index 0000000..240654d
 + * Side effects:
 + *      None.
 + *
-+ *------------------------------------------------------------------------------
++ *----------------------------------------------------------------------
 + */
 +
-+void vmci_resource_exit(void)
++void vmci_event_exit(void)
 +{
-+	if (resourceTable)
-+		vmci_hash_destroy(resourceTable);
++	int e;
++
++	/* We free all memory at exit. */
++	for (e = 0; e < VMCI_EVENT_MAX; e++) {
++		struct vmci_subscription *cur, *p2;
++		list_for_each_entry_safe(cur, p2, &subscriberArray[e],
++					 subscriberListItem) {
++
++			/*
++			 * We should never get here because all events should have been
++			 * unregistered before we try to unload the driver module.
++			 * Also, delayed callbacks could still be firing so this cleanup
++			 * would not be safe.
++			 * Still it is better to free the memory than not ... so we
++			 * leave this code in just in case....
++			 */
++			pr_warn("Unexpected free events occuring.");
++			kfree(cur);
++		}
++	}
++
++}
++
++/*
++ *-----------------------------------------------------------------------------
++ *
++ * event_get --
++ *
++ *      Gets a reference to the given VMCISubscription.
++ *
++ * Results:
++ *      None.
++ *
++ * Side effects:
++ *      None.
++ *
++ *-----------------------------------------------------------------------------
++ */
++
++static void event_get(struct vmci_subscription *entry)	// IN
++{
++	ASSERT(entry);
++
++	entry->refCount++;
++}
++
++/*
++ *-----------------------------------------------------------------------------
++ *
++ * event_release --
++ *
++ *      Releases the given VMCISubscription.
++ *
++ * Results:
++ *      None.
++ *
++ * Side effects:
++ *      Fires the destroy event if the reference count has gone to zero.
++ *
++ *-----------------------------------------------------------------------------
++ */
++
++static void event_release(struct vmci_subscription *entry)	// IN
++{
++	ASSERT(entry);
++	ASSERT(entry->refCount > 0);
++
++	entry->refCount--;
++	if (entry->refCount == 0)
++		wake_up(&entry->destroyEvent);
 +}
 +
 +/*
 + *------------------------------------------------------------------------------
 + *
-+ *  vmci_resource_get_id --
++ *  event_release_cb --
 + *
-+ *     Return resource ID. The first VMCI_RESERVED_RESOURCE_ID_MAX are
-+ *     reserved so we start from its value + 1.
++ *     Callback to release the event entry reference. It is called by the
++ *     VMCI_WaitOnEvent function before it blocks.
 + *
 + *  Result:
-+ *     VMCI resource id on success, VMCI_INVALID_ID on failure.
++ *     None.
 + *
 + *  Side effects:
 + *     None.
 + *
-+ *
 + *------------------------------------------------------------------------------
 + */
 +
-+uint32_t vmci_resource_get_id(uint32_t contextID)
++static int event_release_cb(void *clientData)	// IN
 +{
-+	uint32_t oldRID = resourceID;
-+	uint32_t currentRID;
-+	bool foundRID = false;
++	struct vmci_subscription *sub = (struct vmci_subscription *)clientData;
 +
-+	/*
-+	 * Generate a unique resource ID.  Keep on trying until we wrap around
-+	 * in the RID space.
-+	 */
-+	ASSERT(oldRID > VMCI_RESERVED_RESOURCE_ID_MAX);
++	ASSERT(sub);
 +
-+	do {
-+		struct vmci_handle handle;
++	spin_lock_bh(&subscriberLock);
++	event_release(sub);
++	spin_unlock_bh(&subscriberLock);
 +
-+		spin_lock(&resourceIdLock);
-+		currentRID = resourceID;
-+		handle = vmci_make_handle(contextID, currentRID);
-+		resourceID++;
-+		if (unlikely(resourceID == VMCI_INVALID_ID)) {
-+			/* Skip the reserved rids. */
++	return 0;
++}
 +
-+			resourceID = VMCI_RESERVED_RESOURCE_ID_MAX + 1;
++/*
++ *-----------------------------------------------------------------------------
++ *
++ * event_find --
++ *
++ *      Find entry. Assumes lock is held.
++ *
++ * Results:
++ *      Entry if found, NULL if not.
++ *
++ * Side effects:
++ *      Increments the VMCISubscription refcount if an entry is found.
++ *
++ *-----------------------------------------------------------------------------
++ */
++
++static struct vmci_subscription *event_find(uint32_t subID)	// IN
++{
++	int e;
++
++	for (e = 0; e < VMCI_EVENT_MAX; e++) {
++		struct vmci_subscription *cur;
++		list_for_each_entry(cur, &subscriberArray[e],
++				    subscriberListItem) {
++			if (cur->id == subID) {
++				event_get(cur);
++				return cur;
++			}
 +		}
-+		spin_unlock(&resourceIdLock);
-+		foundRID = !vmci_hash_exists(resourceTable, handle);
-+	} while (!foundRID && resourceID != oldRID);
-+
-+	return (unlikely(!foundRID)) ? VMCI_INVALID_ID : currentRID;
-+}
-+
-+/*
-+ *------------------------------------------------------------------------------
-+ *
-+ * vmci_resource_add --
-+ *
-+ * Results:
-+ *      VMCI_SUCCESS if successful, error code if not.
-+ *
-+ * Side effects:
-+ *      None.
-+ *
-+ *------------------------------------------------------------------------------
-+ */
-+
-+int vmci_resource_add(struct vmci_resource *resource,	// IN
-+		  enum vmci_resource_type resourceType,	// IN
-+		  struct vmci_handle resourceHandle,	// IN
-+		  VMCIResourceFreeCB containerFreeCB,	// IN
-+		  void *containerObject)	// IN
-+{
-+	int result;
-+
-+	ASSERT(resource);
-+
-+	if (VMCI_HANDLE_EQUAL(resourceHandle, VMCI_INVALID_HANDLE)) {
-+		pr_devel("Invalid argument resource (handle=0x%x:0x%x)",
-+			 resourceHandle.context, resourceHandle.resource);
-+		return VMCI_ERROR_INVALID_ARGS;
 +	}
-+
-+	vmci_hash_init_entry(&resource->hashEntry, resourceHandle);
-+	resource->type = resourceType;
-+	resource->containerFreeCB = containerFreeCB;
-+	resource->containerObject = containerObject;
-+
-+	/* Add resource to hashtable. */
-+	result = vmci_hash_add(resourceTable, &resource->hashEntry);
-+	if (result != VMCI_SUCCESS) {
-+		pr_devel("Failed to add entry to hash table "
-+			 "(result=%d).", result);
-+		return result;
-+	}
-+
-+	return result;
-+}
-+
-+/*
-+ *------------------------------------------------------------------------------
-+ *
-+ * vmci_resource_remove --
-+ *
-+ * Results:
-+ *      None.
-+ *
-+ * Side effects:
-+ *      None.
-+ *
-+ *------------------------------------------------------------------------------
-+ */
-+
-+void vmci_resource_remove(struct vmci_handle resourceHandle,	// IN:
-+		      enum vmci_resource_type resourceType)	// IN:
-+{
-+	struct vmci_resource *resource =
-+		vmci_resource_get(resourceHandle, resourceType);
-+
-+	if (resource == NULL)
-+		return;
-+
-+	/* Remove resource from hashtable. */
-+	vmci_hash_remove(resourceTable, &resource->hashEntry);
-+
-+	vmci_resource_release(resource);
-+	/* resource could be freed by now. */
-+}
-+
-+/*
-+ *------------------------------------------------------------------------------
-+ *
-+ * vmci_resource_get --
-+ *
-+ * Results:
-+ *      Resource is successful. Otherwise NULL.
-+ *
-+ * Side effects:
-+ *      None.
-+ *
-+ *------------------------------------------------------------------------------
-+ */
-+
-+struct vmci_resource *vmci_resource_get(struct vmci_handle resourceHandle,	// IN
-+				    enum vmci_resource_type resourceType)	// IN
-+{
-+	struct vmci_resource *resource;
-+	struct vmci_hash_entry *entry =
-+		vmci_hash_get(resourceTable, resourceHandle);
-+
-+	if (entry == NULL)
-+		return NULL;
-+
-+	resource = container_of(entry, struct vmci_resource, hashEntry);
-+	if (resourceType == VMCI_RESOURCE_TYPE_ANY ||
-+	    resource->type == resourceType)
-+		return resource;
-+
-+	vmci_hash_release(resourceTable, entry);
 +	return NULL;
 +}
 +
 +/*
-+ *------------------------------------------------------------------------------
++ *----------------------------------------------------------------------
 + *
-+ * vmci_resource_hold --
++ * event_delayed_dispatch_cb --
 + *
-+ *      Hold the given resource.  This will hold the hashtable entry.  This
-+ *      is like doing a Get() but without having to lookup the resource by
-+ *      handle.
++ *      Calls the specified callback in a delayed context.
 + *
 + * Results:
 + *      None.
@@ -296,73 +286,378 @@ index 0000000..240654d
 + * Side effects:
 + *      None.
 + *
-+ *------------------------------------------------------------------------------
++ *----------------------------------------------------------------------
 + */
 +
-+void vmci_resource_hold(struct vmci_resource *resource)
++static void event_delayed_dispatch_cb(void *data)	// IN
 +{
-+	ASSERT(resource);
-+	vmci_hash_hold(resourceTable, &resource->hashEntry);
++	struct delayed_event_info *eventInfo;
++	struct vmci_subscription *sub;
++	struct vmci_event_data *ed;
++
++	eventInfo = data;
++
++	ASSERT(eventInfo);
++	ASSERT(eventInfo->sub);
++
++	sub = eventInfo->sub;
++	ed = (struct vmci_event_data *)eventInfo->eventPayload;
++
++	sub->callback(sub->id, ed, sub->callbackData);
++
++	spin_lock_bh(&subscriberLock);
++	event_release(sub);
++	spin_unlock_bh(&subscriberLock);
++
++	kfree(eventInfo);
 +}
 +
 +/*
-+ *------------------------------------------------------------------------------
++ *----------------------------------------------------------------------------
 + *
-+ * vmci_resource_release --
++ * event_deliver --
++ *
++ *      Actually delivers the events to the subscribers.
 + *
 + * Results:
 + *      None.
 + *
 + * Side effects:
-+ *      resource's containerFreeCB will get called if last reference.
++ *      The callback function for each subscriber is invoked.
 + *
-+ *------------------------------------------------------------------------------
++ *----------------------------------------------------------------------------
 + */
 +
-+int vmci_resource_release(struct vmci_resource *resource)
++static int event_deliver(struct vmci_event_msg *eventMsg)	// IN
 +{
++	int err = VMCI_SUCCESS;
++	struct vmci_subscription *cur;
++	struct list_head noDelayList;
++	struct vmci_event_data *ed;
++	struct event_ref *eventRef, *p2;
++
++	ASSERT(eventMsg);
++
++	INIT_LIST_HEAD(&noDelayList);
++
++	spin_lock_bh(&subscriberLock);
++	list_for_each_entry(cur, &subscriberArray[eventMsg->eventData.event],
++			    subscriberListItem) {
++		ASSERT(cur && cur->event == eventMsg->eventData.event);
++
++		if (cur->runDelayed) {
++			struct delayed_event_info *eventInfo;
++			eventInfo = kzalloc(sizeof *eventInfo, GFP_ATOMIC);
++			if (!eventInfo) {
++				err = VMCI_ERROR_NO_MEM;
++				goto out;
++			}
++
++			event_get(cur);
++			memcpy(eventInfo->eventPayload,
++			       VMCI_DG_PAYLOAD(eventMsg),
++			       (size_t) eventMsg->hdr.payloadSize);
++			eventInfo->sub = cur;
++			err =
++				vmci_drv_schedule_delayed_work(event_delayed_dispatch_cb,
++							       eventInfo);
++			if (err != VMCI_SUCCESS) {
++				event_release(cur);
++				kfree(eventInfo);
++				goto out;
++			}
++
++		} else {
++			struct event_ref *eventRef;
++
++			/*
++			 * To avoid possible lock rank voilation when holding
++			 * subscriberLock, we construct a local list of
++			 * subscribers and release subscriberLock before
++			 * invokes the callbacks. This is similar to delayed
++			 * callbacks, but callbacks is invoked right away here.
++			 */
++			if ((eventRef =
++			     kzalloc(sizeof *eventRef,
++				     GFP_ATOMIC)) == NULL) {
++				err = VMCI_ERROR_NO_MEM;
++				goto out;
++			}
++
++			event_get(cur);
++			eventRef->sub = cur;
++			INIT_LIST_HEAD(&eventRef->listItem);
++			list_add(&eventRef->listItem, &noDelayList);
++		}
++	}
++
++out:
++	spin_unlock_bh(&subscriberLock);
++
++	list_for_each_entry_safe(eventRef, p2, &noDelayList, listItem) {
++		struct vmci_subscription *cur = eventRef->sub;
++		uint8_t eventPayload[sizeof(struct vmci_event_data_max)] =
++			{ 0 };
++
++		/* We set event data before each callback to ensure isolation. */
++		memcpy(eventPayload, VMCI_DG_PAYLOAD(eventMsg),
++		       (size_t) eventMsg->hdr.payloadSize);
++		ed = (struct vmci_event_data *)eventPayload;
++		cur->callback(cur->id, ed, cur->callbackData);
++
++		spin_lock_bh(&subscriberLock);
++		event_release(cur);
++		spin_unlock_bh(&subscriberLock);
++		kfree(eventRef);
++	}
++
++	return err;
++}
++
++/*
++ *----------------------------------------------------------------------
++ *
++ * vmci_event_dispatch --
++ *
++ *      Dispatcher for the VMCI_EVENT_RECEIVE datagrams. Calls all
++ *      subscribers for given event.
++ *
++ * Results:
++ *      VMCI_SUCCESS on success, error code otherwise.
++ *
++ * Side effects:
++ *      None.
++ *
++ *----------------------------------------------------------------------
++ */
++
++int vmci_event_dispatch(struct vmci_dg *msg)	// IN
++{
++	struct vmci_event_msg *eventMsg = (struct vmci_event_msg *)msg;
++
++	ASSERT(msg &&
++	       msg->src.context == VMCI_HYPERVISOR_CONTEXT_ID &&
++	       msg->dst.resource == VMCI_EVENT_HANDLER);
++
++	if (msg->payloadSize < sizeof(uint32_t) ||
++	    msg->payloadSize > sizeof(struct vmci_event_data_max))
++		return VMCI_ERROR_INVALID_ARGS;
++
++	if (!VMCI_EVENT_VALID(eventMsg->eventData.event))
++		return VMCI_ERROR_EVENT_UNKNOWN;
++
++	event_deliver(eventMsg);
++	return VMCI_SUCCESS;
++}
++
++/*
++ *----------------------------------------------------------------------
++ *
++ * event_register_subscription --
++ *
++ *      Initialize and add subscription to subscriber list.
++ *
++ * Results:
++ *      VMCI_SUCCESS on success, error code otherwise.
++ *
++ * Side effects:
++ *      None.
++ *
++ *----------------------------------------------------------------------
++ */
++
++static int event_register_subscription(struct vmci_subscription *sub,	// IN
++				       uint32_t event,	// IN
++				       uint32_t flags,	// IN
++				       VMCI_EventCB callback,	// IN
++				       void *callbackData)	// IN
++{
++	static uint32_t subscriptionID = 0;
++	uint32_t attempts = 0;
 +	int result;
++	bool success;
 +
-+	ASSERT(resource);
++	ASSERT(sub);
 +
-+	result = vmci_hash_release(resourceTable, &resource->hashEntry);
-+	if (result == VMCI_SUCCESS_ENTRY_DEAD && resource->containerFreeCB)
-+		resource->containerFreeCB(resource->containerObject);
++	if (!VMCI_EVENT_VALID(event) || callback == NULL) {
++		pr_devel("Failed to subscribe to event (type=%d) "
++			 "(callback=%p) (data=%p).", event,
++			 callback, callbackData);
++		return VMCI_ERROR_INVALID_ARGS;
++	}
 +
-+	/*
-+	 * We propagate the information back to caller in case it wants to know
-+	 * whether entry was freed.
-+	 */
++	sub->runDelayed = (flags & VMCI_FLAG_EVENT_DELAYED_CB) ? true : false;
++	sub->refCount = 1;
++	sub->event = event;
++	sub->callback = callback;
++	sub->callbackData = callbackData;
++	INIT_LIST_HEAD(&sub->subscriberListItem);
++
++	spin_lock_bh(&subscriberLock);
++
++	/* Creation of a new event is always allowed. */
++	for (success = false, attempts = 0;
++	     success == false && attempts < VMCI_EVENT_MAX_ATTEMPTS;
++	     attempts++) {
++		struct vmci_subscription *existingSub = NULL;
++
++		/*
++		 * We try to get an id a couple of time before claiming we are out of
++		 * resources.
++		 */
++		sub->id = ++subscriptionID;
++
++		/* Test for duplicate id. */
++		existingSub = event_find(sub->id);
++		if (existingSub == NULL)
++			/* We succeeded if we didn't find a duplicate. */
++			success = true;
++		else
++			event_release(existingSub);
++	}
++
++	if (success) {
++		init_waitqueue_head(&sub->destroyEvent);
++		list_add(&sub->subscriberListItem, &subscriberArray[event]);
++		result = VMCI_SUCCESS;
++	} else {
++		result = VMCI_ERROR_NO_RESOURCES;
++	}
++
++	spin_unlock_bh(&subscriberLock);
 +	return result;
 +}
 +
 +/*
-+ *------------------------------------------------------------------------------
++ *----------------------------------------------------------------------
 + *
-+ * vmci_resource_handle --
++ * event_unregister_subscription --
 + *
-+ *      Get the handle for the given resource.
++ *      Remove subscription from subscriber list.
 + *
 + * Results:
-+ *      The resource's associated handle.
++ *      VMCISubscription when found, NULL otherwise.
 + *
 + * Side effects:
 + *      None.
 + *
-+ *------------------------------------------------------------------------------
++ *----------------------------------------------------------------------
 + */
 +
-+struct vmci_handle vmci_resource_handle(struct vmci_resource *resource)
++static struct vmci_subscription *event_unregister_subscription(uint32_t subID)	// IN
 +{
-+	ASSERT(resource);
-+	return resource->hashEntry.handle;
++	struct vmci_subscription *s;
++
++	spin_lock_bh(&subscriberLock);
++	s = event_find(subID);
++	if (s != NULL) {
++		event_release(s);
++		list_del(&s->subscriberListItem);
++	}
++	spin_unlock_bh(&subscriberLock);
++
++	if (s != NULL)
++		vmci_drv_wait_on_event_intr(&s->destroyEvent,
++					    event_release_cb, s);
++
++	return s;
 +}
-diff --git a/drivers/misc/vmw_vmci/vmci_resource.h b/drivers/misc/vmw_vmci/vmci_resource.h
++
++/*
++ *----------------------------------------------------------------------
++ *
++ * VMCIEvent_Subscribe --
++ *
++ *      Subscribe to given event. The callback specified can be fired
++ *      in different contexts depending on what flag is specified while
++ *      registering. If flags contains VMCI_FLAG_EVENT_NONE then the
++ *      callback is fired with the subscriber lock held (and BH context
++ *      on the guest). If flags contain VMCI_FLAG_EVENT_DELAYED_CB then
++ *      the callback is fired with no locks held in thread context.
++ *      This is useful because other VMCIEvent functions can be called,
++ *      but it also increases the chances that an event will be dropped.
++ *
++ * Results:
++ *      VMCI_SUCCESS on success, error code otherwise.
++ *
++ * Side effects:
++ *      None.
++ *
++ *----------------------------------------------------------------------
++ */
++
++int VMCIEvent_Subscribe(uint32_t event,	// IN
++			uint32_t flags,	// IN
++			VMCI_EventCB callback,	// IN
++			void *callbackData,	// IN
++			uint32_t * subscriptionID)	// OUT
++{
++	int retval;
++	struct vmci_subscription *s = NULL;
++
++	if (subscriptionID == NULL) {
++		pr_devel("Invalid subscription (NULL).");
++		return VMCI_ERROR_INVALID_ARGS;
++	}
++
++	s = kmalloc(sizeof *s, GFP_KERNEL);
++	if (s == NULL)
++		return VMCI_ERROR_NO_MEM;
++
++	retval = event_register_subscription(s, event, flags,
++					     callback, callbackData);
++	if (retval < VMCI_SUCCESS) {
++		kfree(s);
++		return retval;
++	}
++
++	*subscriptionID = s->id;
++	return retval;
++}
++
++EXPORT_SYMBOL(VMCIEvent_Subscribe);
++
++/*
++ *----------------------------------------------------------------------
++ *
++ * VMCIEvent_Unsubscribe --
++ *
++ *      Unsubscribe to given event. Removes it from list and frees it.
++ *      Will return callbackData if requested by caller.
++ *
++ * Results:
++ *      VMCI_SUCCESS on success, error code otherwise.
++ *
++ * Side effects:
++ *      None.
++ *
++ *----------------------------------------------------------------------
++ */
++
++int VMCIEvent_Unsubscribe(uint32_t subID)	// IN
++{
++	struct vmci_subscription *s;
++
++	/*
++	 * Return subscription. At this point we know noone else is accessing
++	 * the subscription so we can free it.
++	 */
++	s = event_unregister_subscription(subID);
++	if (s == NULL)
++		return VMCI_ERROR_NOT_FOUND;
++
++	kfree(s);
++
++	return VMCI_SUCCESS;
++}
++
++EXPORT_SYMBOL(VMCIEvent_Unsubscribe);
+diff --git a/drivers/misc/vmw_vmci/vmci_event.h b/drivers/misc/vmw_vmci/vmci_event.h
 new file mode 100644
-index 0000000..f6abb1e
+index 0000000..776b404
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_resource.h
-@@ -0,0 +1,61 @@
++++ b/drivers/misc/vmw_vmci/vmci_event.h
+@@ -0,0 +1,29 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -382,47 +677,15 @@ index 0000000..f6abb1e
 + * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 + */
 +
-+#ifndef _VMCI_RESOURCE_H_
-+#define _VMCI_RESOURCE_H_
++#ifndef __VMCI_EVENT_H__
++#define __VMCI_EVENT_H__
 +
-+#include <linux/vmw_vmci_defs.h>
++#include <linux/vmw_vmci_api.h>
 +
-+#include "vmci_context.h"
-+#include "vmci_hash_table.h"
++int vmci_event_init(void);
++void vmci_event_exit(void);
++int vmci_event_dispatch(struct vmci_dg *msg);
 +
-+typedef void (*VMCIResourceFreeCB) (void *resource);
-+
-+enum vmci_resource_type {
-+	VMCI_RESOURCE_TYPE_ANY,
-+	VMCI_RESOURCE_TYPE_API,
-+	VMCI_RESOURCE_TYPE_GROUP,
-+	VMCI_RESOURCE_TYPE_DATAGRAM,
-+	VMCI_RESOURCE_TYPE_DOORBELL,
-+};
-+
-+struct vmci_resource {
-+	struct vmci_hash_entry hashEntry;
-+	enum vmci_resource_type type;
-+	VMCIResourceFreeCB containerFreeCB;	// Callback to free container
-+	/* object when refCount is 0. */
-+	void *containerObject;	// Container object reference.
-+};
-+
-+int vmci_resource_init(void);
-+void vmci_resource_exit(void);
-+uint32_t vmci_resource_get_id(uint32_t contextID);
-+int vmci_resource_add(struct vmci_resource *resource,
-+		      enum vmci_resource_type resourceType,
-+		      struct vmci_handle resourceHandle,
-+		      VMCIResourceFreeCB containerFreeCB, void *containerObject);
-+void vmci_resource_remove(struct vmci_handle resourceHandle,
-+			  enum vmci_resource_type resourceType);
-+struct vmci_resource *vmci_resource_get(struct vmci_handle resourceHandle,
-+					enum vmci_resource_type resourceType);
-+void vmci_resource_hold(struct vmci_resource *resource);
-+int vmci_resource_release(struct vmci_resource *resource);
-+struct vmci_handle vmci_resource_handle(struct vmci_resource *resource);
-+
-+#endif				/* _VMCI_RESOURCE_H_ */
++#endif				//__VMCI_EVENT_H__
 -- 
 1.7.0.4
