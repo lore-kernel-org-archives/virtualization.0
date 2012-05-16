@@ -1,15 +1,13 @@
-From: Tejun Heo <tj@kernel.org>
-Subject: Re: [RFC PATCH 1/5] block: Introduce q->abort_queue_fn()
-Date: Tue, 22 May 2012 08:14:41 -0700
-Message-ID: <20120522151441.GB14339@google.com>
-References: <1337591313-26333-1-git-send-email-asias@redhat.com>
-	<20120521154213.GB6549@google.com> <4FBB409D.4070201@redhat.com>
+From: Andrew Stiegmann <astiegmann@vmware.com>
+Subject: Re: [vmw_vmci RFC 01/11] Apply VMCI context code
+Date: Wed, 16 May 2012 11:34:35 -0700 (PDT)
+Message-ID: <338409537.3067117.1337193275440.JavaMail.root__19816.4779147648$1337708058$gmane$org@zimbra-prod-mbox-4.vmware.com>
+References: <20120516100121.3be6d0ca@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4FBB409D.4070201@redhat.com>
+In-Reply-To: <20120516100121.3be6d0ca@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,52 +17,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org
+To: Stephen Hemminger <shemminger@vyatta.com>, gregkh@linuxfoundation.org
+Cc: acking@vmware.com, dtor@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dsouders@vmware.com, akpm@linux-foundation.org, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+Both of your comments have been added to my "to do" list before the next time I publish.  Thanks for the feedback.
 
-On Tue, May 22, 2012 at 03:30:37PM +0800, Asias He wrote:
-> On 05/21/2012 11:42 PM, Tejun Heo wrote:
-> 1) if the queue is stopped, q->request_fn() will never call called.
-> we will be stuck in the loop forever. This can happen if the remove
-> method is called after the q->request_fn() calls blk_stop_queue() to
-> stop the queue when the device is full, and before the device
-> interrupt handler to start the queue. This can be fixed by calling
-> blk_start_queue() before __blk_run_queue(q).
+----- Original Message -----
+> From: "Stephen Hemminger" <shemminger@vyatta.com>
+> To: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
+> Cc: linux-kernel@vger.kernel.org, acking@vmware.com, dtor@vmware.com, gregkh@linuxfoundation.org,
+> virtualization@lists.linux-foundation.org, dsouders@vmware.com, akpm@linux-foundation.org, cschamp@vmware.com
+> Sent: Wednesday, May 16, 2012 10:01:21 AM
+> Subject: Re: [vmw_vmci RFC 01/11] Apply VMCI context code
 > 
-> blk_drain_queue() {
->    while(true) {
->       ...
->       if (!list_empty(&q->queue_head))
->         __blk_run_queue(q);
->       ...
->    }
-> }
-
-Wouldn't that be properly fixed by making queue cleanup override
-stopped state?
-
-> 2) Since the device is gonna be removed, is it safe to rely on the
-> device to finish the request before the DEAD marking? E.g, In
-> vritio-blk, We reset the device and thus disable the interrupt
-> before we call blk_cleanup_queue(). I also suspect that the real
-> hardware can finish the pending requests when being hot-unplugged.
-
-Yes, it should be safe (otherwise it's a driver bug).  Device driver
-already knows the state of the device it is driving.  If the device
-can't service requests for whatever reason, the device driver should
-abort any in-flight and future requests.  That's how other block
-drivers behave and I don't see why virtio should be any different.
-
-Also, blk_drain_queue() is used for other purposes too - elevator
-switch and blkcg policy changes.  You definitely don't want to be
-aborting requests across those events.
-
-So, NACK.
-
-Thanks.
-
--- 
-tejun
+> On Tue, 15 May 2012 08:06:58 -0700
+> "Andrew Stiegmann (stieg)" <astiegmann@vmware.com> wrote:
+> 
+> > Context code maintains state for vmci and allows the driver
+> > to communicate with multiple VMs.
+> > 
+> > Signed-off-by: Andrew Stiegmann (stieg) <astiegmann@vmware.com>
+> 
+> Running checkpatch reveals the usual noise, and the following that
+> should be addressed.
+> 
+> ERROR: do not use C99 // comments
+> #272: FILE: drivers/misc/vmw_vmci/vmci_context.c:183:
+> +static bool ctx_exists_locked(uint32_t cid)	// IN
+> 
+> ERROR: "foo * bar" should be "foo *bar"
+> #304: FILE: drivers/misc/vmw_vmci/vmci_context.c:215:
+> +		      uid_t * user, struct vmci_ctx **outContext)
+> 
+> I don't mind the C99 style comments, but the // IN convention
+> is pretty useless and should be removed.
+> 
