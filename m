@@ -1,43 +1,65 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] Drivers: hid: hid-hyperv.c: Set the hid drvdata correctly
-Date: Wed, 16 May 2012 13:50:13 -0700
-Message-ID: <1337201413-9857-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, jkosina@suse.cz
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio_net: invoke softirqs after __napi_schedule
+Date: Thu, 17 May 2012 13:02:53 +0930
+Message-ID: <87vcjvzdlm.fsf@rustcorp.com.au>
+References: <20120516075712.GA2921@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120516075712.GA2921@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Set the hid drvdata prior to invoking hid_add_device() as hid_add_device()
-expects this state to be set. This bug was introduced in the recent hid
-changes that were made in:
+On Wed, 16 May 2012 10:57:13 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> __napi_schedule might raise softirq but nothing
+> causes do_softirq to trigger, so it does not in fact
+> run. As a result,
+> the error message "NOHZ: local_softirq_pending 08"
+> sometimes occurs during boot of a KVM guest when the network service is
+> started and we are oom:
+> 
+>   ...
+>   Bringing up loopback interface:  [  OK  ]
+>   Bringing up interface eth0:
+>   Determining IP information for eth0...NOHZ: local_softirq_pending 08
+>    done.
+>   [  OK  ]
+>   ...
+> 
+> Further, receive queue processing might get delayed
+> indefinitely until some interrupt triggers:
+> virtio_net expected napi to be run immediately.
+> 
+> One way to cause do_softirq to be executed is by
+> invoking local_bh_enable(). As __napi_schedule is
+> normally called from bh or irq context, this
+> seems to make sense: disable bh before __napi_schedule
+> and enable afterwards.
+> 
+> Reported-by: Ulrich Obergfell <uobergfe@redhat.com>
+> Tested-by: Ulrich Obergfell <uobergfe@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> 
+> To test, one can hack try_fill_recv to always report oom.
+> I'm not sure it's not too late for 3.4, but we can try.
+> Rusty, could you review ASAP pls?
 
-commit 07d9ab4f0e52cb2a383596e5ebbbd20232501393
-HID: hid-hyperv: Do not use hid_parse_report() directly
+It's missing a big comment: it's a very complicated way of calling
+do_softirq().
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/hid/hid-hyperv.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+Indeed, this function is only used when we are not in interrupt
+context.  It's not hot at all, in any ideal scenario.
 
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index 032e6c0..3d62781 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -516,11 +516,12 @@ static int mousevsc_probe(struct hv_device *device,
- 
- 	sprintf(hid_dev->name, "%s", "Microsoft Vmbus HID-compliant Mouse");
- 
-+	hid_set_drvdata(hid_dev, device);
-+
- 	ret = hid_add_device(hid_dev);
- 	if (ret)
- 		goto probe_err1;
- 
--	hid_set_drvdata(hid_dev, device);
- 
- 	ret = hid_parse(hid_dev);
- 	if (ret) {
--- 
-1.7.4.1
+Acked-by: Rusty Russell <rusty@rustcorp.com.au>
