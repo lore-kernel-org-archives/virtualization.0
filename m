@@ -1,12 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] virtio: last minute fixes for 3.4
-Date: Thu, 17 May 2012 12:35:39 +0300
-Message-ID: <20120517093539.GA30280@redhat.com>
+From: Ming Zhao <zhaom@cis.fiu.edu>
+Subject: MBDS paper submission due in one month (The International Workshop on
+	Management of Big Data Systems)
+Date: Fri, 18 May 2012 20:44:40 -0400
+Message-ID: <20120519042859.5232C3680061@cheetah.cs.fiu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,47 +16,175 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, uobergfe@redhat.com, amit.shah@redhat.com, David Miller <davem@davemloft.net>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 0e93b4b304ae052ba1bc73f6d34a68556fe93429:
+CALL FOR PAPERS
 
-  Merge git://git.kernel.org/pub/scm/virt/kvm/kvm (2012-05-16 14:30:51 -0700)
+International Workshop on Management of Big Data Systems (MBDS 2012)
+http://www.cercs.gatech.edu/mbds12
 
-are available in the git repository at:
+In conjunction with ICAC 2012
+http://icac2012.cs.fiu.edu
+
+September 21, 2012, San Jose, CA
+
+-----------------------------------------------------------------
+
+IMPORTANT DATES
+
+Paper submission due:  June 15, 2012
+Author notification:   July 30, 2012
+Workshop:              Sep 21, 2012
+
+-----------------------------------------------------------------
+
+OVERVIEW
+
+Data is growing at an exponential rate and several systems have emerged =
+
+to store and analyze such large amounts of data. These systems, termed =
+
+=93Big data systems=94 are fast evolving Examples include the NoSQL storage =
+
+systems, Hadoop Map-Reduce, data analytics platforms, search and indexing =
+
+platforms, and messaging infrastructures. These systems address needs for =
+
+structured and unstructured data across a wide spectrum of domains such =
+
+as web, social networks, enterprise, cloud, mobile, sensor networks, =
+
+multimedia/streaming, cyberphysical and high performance systems, and =
+
+for multiple application verticals such as biosciences, healthcare, =
+
+transportation, public sector, energy utilities, oil & gas, and scientific =
+
+computing. =
 
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git for_linus
+With increasing scale and complexity, managing these big data systems to =
 
-for you to fetch changes up to ec13ee80145ccb95b00e6e610044bbd94a170051:
+cope with failures and performance problems is becoming non-trivial. =
 
-  virtio_net: invoke softirqs after __napi_schedule (2012-05-17 12:16:38 +0300)
+New resource management and scheduling mechanisms are also needed for such =
 
-----------------------------------------------------------------
-virtio: last minute fixes for 3.4
+systems, and so are mechanisms for tuning and support from platform layers. =
 
-Here are a couple of last minute virtio fixes for 3.4.
-Hope it's not too late yes - I might have tried too hard
-to make sure the fix is well tested.
+Several open source and proprietary solutions have been proposed to address =
 
-Fixes are by Amit and myself. One fixes module removal
-and one suspend of a VM, the last one the handling of out
-of memory condition.
-They are thus very low risk as most people never hit these paths, but do fix
-very annoying problems for people that do use the feature.
+these requirements, with extensive contributions from industry and academia=
+. =
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+However, there remain substantial challenges, including those that pertain =
 
-----------------------------------------------------------------
-Amit Shah (2):
-      virtio: console: tell host of open ports after resume from s3/s4
-      virtio: balloon: let host know of updated balloon size before module removal
+to such systems=92 autonomic and self-management capabilities.
 
-Michael S. Tsirkin (1):
-      virtio_net: invoke softirqs after __napi_schedule
+The objective of the MBDS workshop is to bring together researchers, =
 
- drivers/char/virtio_console.c   |    7 +++++++
- drivers/net/virtio_net.c        |    2 ++
- drivers/virtio/virtio_balloon.c |    1 +
- 3 files changed, 10 insertions(+), 0 deletions(-)
+practitioners, system administrators, system programmers, and others =
+
+interested in sharing and presenting their perspectives on the effective =
+
+management of big data systems. The focus of the workshop is on novel and =
+
+practical, systems-oriented work. MBDS offers an opportunity for researcher=
+s =
+
+and practitioners from industry, academia, and national labs to showcase th=
+e =
+
+latest advances in this area and to also discuss and identify future direct=
+ions =
+
+and challenges in all aspects on autonomic management of big data systems.
+
+Papers are solicited on all aspects of big data management. Specific topics =
+
+of interest include, but are not limited, to the following:
+
+* Autonomic and self-managing techniques
+
+* Application-level resource management and scheduling mechanisms
+
+* System tuning/auto-tuning and configuration management
+
+* Performance management, fault management, and power management
+
+* Scalability challenges
+
+* Complexity challenges, as for composite, cross-tier systems with multiple=
+ control loops
+
+* Unified management of =91data in motion=92 and =91data at rest=92
+
+* Dealing with both structured and unstructured data
+
+* Monitoring, diagnosis, and automated behaviour detection
+
+* System-level principles and support for resource management =
+
+
+* Holistic management across hardware and software
+
+* Implications of emerging hardware technologies such as non-volatile memory
+
+* Domain specific challenges in web, cloud, social networks, mobile, sensor=
+ networks, =
+
+  streaming analytics, cyber-physical systems
+
+* System building and experience papers for specific industry verticals
+
+-----------------------------------------------------------------
+
+PAPER SUBMISSIONS
+
+Full papers (a maximum of 6 pages in the two-column ACM proceedings =
+
+format) are invited on a wide variety of topics relating to management of b=
+ig
+data systems. Submitted papers must be original work, and may not be under =
+
+consideration for another conference or journal. Complete formatting and =
+
+submission instructions can be found on the workshop web site. Accepted =
+
+papers will appear in proceedings distributed at the conference and availab=
+le =
+
+electronically. =
+
+
+-----------------------------------------------------------------
+
+WORKSHOP ORGANIZERS
+
+Karsten Schwan, Georgia Tech
+Vanish Talwar, HP Labs
+
+PUBLICITY CHAIR
+
+Aravind Menon, Facebook
+
+PROGRAM COMMITTEE
+
+Amitanand Aiyer, Facebook
+Adhyas Avasthi, Nokia Research
+Milind Bhandarkar, Greenplum Labs, EMC
+Randal Burns, John Hopkins University
+Garth Gibson, Carnegie Mellon University and Panasas Inc.
+Herodotos Herodotou, Duke University
+Michael A Kozuch, Intel
+Kai Li, Princeton University
+Mohamed Mansour, Amazon
+Aravind Menon, Facebook
+Arif Merchant, Google
+Beth Plale, Indiana University
+Indrajit Roy, HP Labs
+Gabor Szabo, Twitter
+Craig Ulmer, Sandia National Lab
+Kushagra Vaid, Microsoft
+Weikuan Yu, Auburn University
+Philip Zeyliger, Cloudera
