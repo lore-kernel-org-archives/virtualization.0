@@ -1,17 +1,13 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [Xen-devel] [PATCH] xen: do not disable netfront in dom0
-Date: Tue, 22 May 2012 15:43:19 -0400
-Message-ID: <20120522194319.GA2691@phenom.dumpdata.com>
-References: <20120522130558.D828E6C7@duch.mimuw.edu.pl>
-	<20120522.151354.2131168749992255398.davem@davemloft.net>
-	<1337715028.3991.2.camel@dagon.hellion.org.uk>
-	<20120522.153847.2107186222464601466.davem@davemloft.net>
+From: Marek Marczykowski <marmarek@invisiblethingslab.com>
+Subject: [PATCH RESENT] xen: do not disable netfront in dom0
+Date: Sun, 20 May 2012 13:45:10 +0200
+Message-ID: <20120522204742.29E8A626@duch.mimuw.edu.pl>
+References: <20120522194319.GA2691@phenom.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120522.153847.2107186222464601466.davem@davemloft.net>
+In-Reply-To: <20120522194319.GA2691@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,31 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: David Miller <davem@davemloft.net>
-Cc: jeremy@goop.org, Ian.Campbell@citrix.com, netdev@vger.kernel.org, marmarek@invisiblethingslab.com, virtualization@lists.linux-foundation.org, xen-devel@lists.xen.org, linux-kernel@vger.kernel.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Ian.Campbell@citrix.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, netdev@vger.kernel.org, Marek Marczykowski <marmarek@invisiblethingslab.com>, xen-devel@lists.xen.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 22, 2012 at 03:38:47PM -0400, David Miller wrote:
-> From: Ian Campbell <Ian.Campbell@citrix.com>
-> Date: Tue, 22 May 2012 20:30:28 +0100
-> 
-> > On Tue, 2012-05-22 at 20:13 +0100, David Miller wrote:
-> >> From: Marek Marczykowski <marmarek@invisiblethingslab.com>
-> >> Date: Sun, 20 May 2012 13:45:10 +0200
-> >> 
-> >> > Netfront driver can be also useful in dom0, eg when all NICs are assigned to
-> >> > some domU (aka driver domain). Then using netback in domU and netfront in dom0
-> >> > is the only way to get network access in dom0.
-> >> > 
-> >> > Signed-off-by: Marek Marczykowski <marmarek@invisiblethingslab.com>
-> >> 
-> >> Someone please review this and I can merge it in via the 'net' tree if
-> >> it looks OK to XEN folks.
-> > 
-> > Konrad is "Xen folks" and has acked it already but FWIW:
-> > 
-> > Acked-by: Ian Campbell <ian.campbell@citrix.com>
-> 
-> Ok, but this patch doesn't appply cleanly at all to Linus's
-> current tree nor my 'net' tree (which are equal right now).
+Netfront driver can be also useful in dom0, eg when all NICs are assigned to
+some domU (aka driver domain). Then using netback in domU and netfront in dom0
+is the only way to get network access in dom0.
 
-Oh no! Marek, can you repin it please (along with all the Ack's on it).
+Signed-off-by: Marek Marczykowski <marmarek@invisiblethingslab.com>
+Acked-by: Ian Campbell <ian.campbell@citrix.com>
+Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+---
+ drivers/net/xen-netfront.c |    6 ------
+ 1 files changed, 0 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 0ebbb19..2027afe 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -1962,9 +1962,6 @@ static int __init netif_init(void)
+ 	if (!xen_domain())
+ 		return -ENODEV;
+ 
+-	if (xen_initial_domain())
+-		return 0;
+-
+ 	if (xen_hvm_domain() && !xen_platform_pci_unplug)
+ 		return -ENODEV;
+ 
+@@ -1977,9 +1974,6 @@ module_init(netif_init);
+ 
+ static void __exit netif_exit(void)
+ {
+-	if (xen_initial_domain())
+-		return;
+-
+ 	xenbus_unregister_driver(&netfront_driver);
+ }
+ module_exit(netif_exit);
+-- 
+1.7.4.4
