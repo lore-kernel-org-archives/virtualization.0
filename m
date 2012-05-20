@@ -1,7 +1,7 @@
-From: Chen Baozi <baozich@gmail.com>
-Subject: [PATCH] virtio: fix typo in comment
-Date: Sun, 20 May 2012 10:44:34 +0800
-Message-ID: <1337481874-3472-1-git-send-email-baozich__48694.0263923772$1337708064$gmane$org@gmail.com>
+From: Marek Marczykowski <marmarek@invisiblethingslab.com>
+Subject: [PATCH] xen: do not disable netfront in dom0
+Date: Sun, 20 May 2012 13:45:10 +0200
+Message-ID: <20120522130558.D828E6C7__18119.2663069398$1337708077$gmane$org@duch.mimuw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,49 +15,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au
-Cc: Chen Baozi <chenbaozi@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: xen-devel@lists.xen.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, netdev@vger.kernel.org, Marek Marczykowski <marmarek@invisiblethingslab.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Chen Baozi <chenbaozi@gmail.com>
+Netfront driver can be also useful in dom0, eg when all NICs are assigned to
+some domU (aka driver domain). Then using netback in domU and netfront in dom0
+is the only way to get network access in dom0.
 
-- Delete "@request_vqs" and "@free_vqs" comments, since
-  they are no longer in struct virtio_config_ops.
-- According to the macro below, "@val" should be "@v".
-
-Signed-off-by: Chen Baozi <chenbaozi@gmail.com>
+Signed-off-by: Marek Marczykowski <marmarek@invisiblethingslab.com>
 ---
- include/linux/virtio_config.h |   11 +----------
- 1 files changed, 1 insertions(+), 10 deletions(-)
+ drivers/net/xen-netfront.c |    6 ------
+ 1 files changed, 0 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 7323a33..fc457f4 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -74,15 +74,6 @@
-  * @set_status: write the status byte
-  *	vdev: the virtio_device
-  *	status: the new status byte
-- * @request_vqs: request the specified number of virtqueues
-- *	vdev: the virtio_device
-- *	max_vqs: the max number of virtqueues we want
-- *      If supplied, must call before any virtqueues are instantiated.
-- *      To modify the max number of virtqueues after request_vqs has been
-- *      called, call free_vqs and then request_vqs with a new value.
-- * @free_vqs: cleanup resources allocated by request_vqs
-- *	vdev: the virtio_device
-- *      If supplied, must call after all virtqueues have been deleted.
-  * @reset: reset the device
-  *	vdev: the virtio device
-  *	After this, status and feature negotiation must be done again
-@@ -156,7 +147,7 @@ static inline bool virtio_has_feature(const struct virtio_device *vdev,
-  * @vdev: the virtio device
-  * @fbit: the feature bit
-  * @offset: the type to search for.
-- * @val: a pointer to the value to fill in.
-+ * @v: a pointer to the value to fill in.
-  *
-  * The return value is -ENOENT if the feature doesn't exist.  Otherwise
-  * the config value is copied into whatever is pointed to by v. */
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 698b905..e31ebff 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -1953,9 +1953,6 @@ static int __init netif_init(void)
+ 	if (!xen_domain())
+ 		return -ENODEV;
+ 
+-	if (xen_initial_domain())
+-		return 0;
+-
+ 	printk(KERN_INFO "Initialising Xen virtual ethernet driver.\n");
+ 
+ 	return xenbus_register_frontend(&netfront_driver);
+@@ -1965,9 +1962,6 @@ module_init(netif_init);
+ 
+ static void __exit netif_exit(void)
+ {
+-	if (xen_initial_domain())
+-		return;
+-
+ 	xenbus_unregister_driver(&netfront_driver);
+ }
+ module_exit(netif_exit);
 -- 
-1.7.1
+1.7.4.4
