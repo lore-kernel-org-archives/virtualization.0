@@ -1,22 +1,15 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V8 0/17] Paravirtualized ticket spinlocks
-Date: Wed, 30 May 2012 16:56:12 +0530
-Message-ID: <4FC603D4.20107__9009.3974875801$1338377272$gmane$org@linux.vnet.ibm.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Subject: Re: [PATCH RFC V8 17/17] Documentation/kvm : Add documentation on
+	Hypercalls and features used for PV spinlock
+Date: Wed, 30 May 2012 13:54:25 +0200
+Message-ID: <4FC60A71.5050804__2104.46323403648$1338379907$gmane$org@siemens.com>
 References: <20120502100610.13206.40.sendpatchset@codeblue.in.ibm.com>
-	<20120507082928.GI16608@gmail.com> <4FA7888F.80505@redhat.com>
-	<4FA7AAD8.6050003@linux.vnet.ibm.com> <4FA7BABA.4040700@redhat.com>
-	<4FA7CC05.50808@linux.vnet.ibm.com> <4FA7CCA2.4030408@redhat.com>
-	<4FA7D06B.60005@linux.vnet.ibm.com>
-	<20120507134611.GB5533@linux.vnet.ibm.com>
-	<4FA7D2E5.1020607@redhat.com> <4FA7D3F7.9080005@linux.vnet.ibm.com>
-	<4FA7D50D.1020209@redhat.com> <4FA7E06E.20304@linux.vnet.ibm.com>
-	<4FA7E1C8.7010509@redhat.com> <4FB0014A.90604@linux.vnet.ibm.com>
-	<4FB31CA4.5070908@linux.vnet.ibm.com>
+	<20120502100947.13206.26518.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4FB31CA4.5070908@linux.vnet.ibm.com>
+In-Reply-To: <20120502100947.13206.26518.sendpatchset@codeblue.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,118 +19,121 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Xen Devel <xen-devel@lists.xensource.com>, X86 <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>, "Nikunj A. Dadhania" <nikunj@linux.vnet.ibm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Virtualization <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, Attilio Rao <attilio.rao@citrix.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Stephan Diestelhorst <stephan.diestelhorst@amd.co>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, Andi Kleen <andi@firstfloor.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, X86 <x86@kernel.org>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/16/2012 08:49 AM, Raghavendra K T wrote:
-> On 05/14/2012 12:15 AM, Raghavendra K T wrote:
->> On 05/07/2012 08:22 PM, Avi Kivity wrote:
->>
->> I could not come with pv-flush results (also Nikunj had clarified that
->> the result was on NOn PLE
->>
->>> I'd like to see those numbers, then.
->>>
->>> Ingo, please hold on the kvm-specific patches, meanwhile.
-[...]
-> To summarise,
-> with 32 vcpu guest with nr thread=32 we get around 27% improvement. In
-> very low/undercommitted systems we may see very small improvement or
-> small acceptable degradation ( which it deserves).
->
+On 2012-05-02 12:09, Raghavendra K T wrote:
+> From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com> 
+> 
+> KVM_HC_KICK_CPU  hypercall added to wakeup halted vcpu in paravirtual spinlock
+> enabled guest.
+> 
+> KVM_FEATURE_PV_UNHALT enables guest to check whether pv spinlock can be enabled
+> in guest.
+> 
+> Thanks Alex for KVM_HC_FEATURES inputs and Vatsa for rewriting KVM_HC_KICK_CPU
 
-For large guests, current value SPIN_THRESHOLD, along with ple_window 
-needed some of research/experiment.
+This contains valuable documentation for features that are already
+supported. Can you break them out and post as separate patch already?
+One comment on them below.
 
-[Thanks to Jeremy/Nikunj for inputs and help in result analysis ]
+> 
+> Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+> ---
+>  Documentation/virtual/kvm/cpuid.txt      |    4 ++
+>  Documentation/virtual/kvm/hypercalls.txt |   60 ++++++++++++++++++++++++++++++
+>  2 files changed, 64 insertions(+), 0 deletions(-)
+> diff --git a/Documentation/virtual/kvm/cpuid.txt b/Documentation/virtual/kvm/cpuid.txt
+> index 8820685..062dff9 100644
+> --- a/Documentation/virtual/kvm/cpuid.txt
+> +++ b/Documentation/virtual/kvm/cpuid.txt
+> @@ -39,6 +39,10 @@ KVM_FEATURE_CLOCKSOURCE2           ||     3 || kvmclock available at msrs
+>  KVM_FEATURE_ASYNC_PF               ||     4 || async pf can be enabled by
+>                                     ||       || writing to msr 0x4b564d02
+>  ------------------------------------------------------------------------------
+> +KVM_FEATURE_PV_UNHALT              ||     6 || guest checks this feature bit
+> +                                   ||       || before enabling paravirtualized
+> +                                   ||       || spinlock support.
+> +------------------------------------------------------------------------------
+>  KVM_FEATURE_CLOCKSOURCE_STABLE_BIT ||    24 || host will warn if no guest-side
+>                                     ||       || per-cpu warps are expected in
+>                                     ||       || kvmclock.
+> diff --git a/Documentation/virtual/kvm/hypercalls.txt b/Documentation/virtual/kvm/hypercalls.txt
+> new file mode 100644
+> index 0000000..bc3f14a
+> --- /dev/null
+> +++ b/Documentation/virtual/kvm/hypercalls.txt
+> @@ -0,0 +1,60 @@
+> +KVM Hypercalls Documentation
+> +===========================
+> +The template for each hypercall is:
+> +1. Hypercall name, value.
+> +2. Architecture(s)
+> +3. Status (deprecated, obsolete, active)
+> +4. Purpose
+> +
+> +1. KVM_HC_VAPIC_POLL_IRQ
+> +------------------------
+> +Value: 1
+> +Architecture: x86
+> +Purpose: None
 
-I started with debugfs spinlock/histograms, and ran experiments with 32, 
-64 vcpu guests for spin threshold of 2k, 4k, 8k, 16k, and 32k with
-1vm/2vm/4vm  for kernbench, sysbench, ebizzy, hackbench.
-[ spinlock/histogram  gives logarithmic view of lockwait times ]
+Purpose: Trigger guest exit so that the host can check for pending
+interrupts on reentry.
 
-machine: PLE machine  with 32 cores.
+> +
+> +2. KVM_HC_MMU_OP
+> +------------------------
+> +Value: 2
+> +Architecture: x86
+> +Status: deprecated.
+> +Purpose: Support MMU operations such as writing to PTE,
+> +flushing TLB, release PT.
+> +
+> +3. KVM_HC_FEATURES
+> +------------------------
+> +Value: 3
+> +Architecture: PPC
+> +Status: active
+> +Purpose: Expose hypercall availability to the guest. On x86 platforms, cpuid
+> +used to enumerate which hypercalls are available. On PPC, either device tree
+> +based lookup ( which is also what EPAPR dictates) OR KVM specific enumeration
+> +mechanism (which is this hypercall) can be used.
+> +
+> +4. KVM_HC_PPC_MAP_MAGIC_PAGE
+> +------------------------
+> +Value: 4
+> +Architecture: PPC
+> +Status: active
+> +Purpose: To enable communication between the hypervisor and guest there is a
+> +shared page that contains parts of supervisor visible register state.
+> +The guest can map this shared page to access its supervisor register through
+> +memory using this hypercall.
+> +
+> +5. KVM_HC_KICK_CPU
+> +------------------------
+> +Value: 5
+> +Architecture: x86
+> +Status: active
+> +Purpose: Hypercall used to wakeup a vcpu from HLT state
+> +
+> +Usage example : A vcpu of a paravirtualized guest that is busywaiting in guest
+> +kernel mode for an event to occur (ex: a spinlock to become available) can
+> +execute HLT instruction once it has busy-waited for more than a threshold
+> +time-interval. Execution of HLT instruction would cause the hypervisor to put
+> +the vcpu to sleep until occurence of an appropriate event. Another vcpu of the
+> +same guest can wakeup the sleeping vcpu by issuing KVM_HC_KICK_CPU hypercall,
+> +specifying APIC ID of the vcpu to be wokenup.
+> +
+> +TODO:
+> +1. more information on input and output needed?
+> +2. Add more detail to purpose of hypercalls.
 
-Here is the result summary.
-The summary includes 2 part,
-(1) %improvement w.r.t 2K spin threshold,
-(2) improvement w.r.t sum of histogram numbers in debugfs (that gives 
-rough indication of contention/cpu time wasted)
+Thanks,
+Jan
 
-  For e.g 98% for 4k threshold kbench 1 vm would imply, there is a 98% 
-reduction in sigma(histogram values) compared to 2k case
-
-Result for 32 vcpu guest
-==========================
-+----------------+-----------+-----------+-----------+-----------+
-|    Base-2k     |     4k    |    8k     |   16k     |    32k    |
-+----------------+-----------+-----------+-----------+-----------+
-|     kbench-1vm |       44  |       50  |       46  |       41  |
-|  SPINHisto-1vm |       98  |       99  |       99  |       99  |
-|     kbench-2vm |       25  |       45  |       49  |       45  |
-|  SPINHisto-2vm |       31  |       91  |       99  |       99  |
-|     kbench-4vm |      -13  |      -27  |       -2  |       -4  |
-|  SPINHisto-4vm |       29  |       66  |       95  |       99  |
-+----------------+-----------+-----------+-----------+-----------+
-|     ebizzy-1vm |      954  |      942  |      913  |      915  |
-|  SPINHisto-1vm |       96  |       99  |       99  |       99  |
-|     ebizzy-2vm |      158  |      135  |      123  |      106  |
-|  SPINHisto-2vm |       90  |       98  |       99  |       99  |
-|     ebizzy-4vm |      -13  |      -28  |      -33  |      -37  |
-|  SPINHisto-4vm |       83  |       98  |       99  |       99  |
-+----------------+-----------+-----------+-----------+-----------+
-|     hbench-1vm |       48  |       56  |       52  |       64  |
-|  SPINHisto-1vm |       92  |       95  |       99  |       99  |
-|     hbench-2vm |       32  |       40  |       39  |       21  |
-|  SPINHisto-2vm |       74  |       96  |       99  |       99  |
-|     hbench-4vm |       27  |       15  |        3  |      -57  |
-|  SPINHisto-4vm |       68  |       88  |       94  |       97  |
-+----------------+-----------+-----------+-----------+-----------+
-|    sysbnch-1vm |        0  |        0  |        1  |        0  |
-|  SPINHisto-1vm |       76  |       98  |       99  |       99  |
-|    sysbnch-2vm |       -1  |        3  |       -1  |       -4  |
-|  SPINHisto-2vm |       82  |       94  |       96  |       99  |
-|    sysbnch-4vm |        0  |       -2  |       -8  |      -14  |
-|  SPINHisto-4vm |       57  |       79  |       88  |       95  |
-+----------------+-----------+-----------+-----------+-----------+
-
-result for 64  vcpu guest
-=========================
-+----------------+-----------+-----------+-----------+-----------+
-|    Base-2k     |     4k    |    8k     |   16k     |    32k    |
-+----------------+-----------+-----------+-----------+-----------+
-|     kbench-1vm |        1  |      -11  |      -25  |       31  |
-|  SPINHisto-1vm |        3  |       10  |       47  |       99  |
-|     kbench-2vm |       15  |       -9  |      -66  |      -15  |
-|  SPINHisto-2vm |        2  |       11  |       19  |       90  |
-+----------------+-----------+-----------+-----------+-----------+
-|     ebizzy-1vm |      784  |     1097  |      978  |      930  |
-|  SPINHisto-1vm |       74  |       97  |       98  |       99  |
-|     ebizzy-2vm |       43  |       48  |       56  |       32  |
-|  SPINHisto-2vm |       58  |       93  |       97  |       98  |
-+----------------+-----------+-----------+-----------+-----------+
-|     hbench-1vm |        8  |       55  |       56  |       62  |
-|  SPINHisto-1vm |       18  |       69  |       96  |       99  |
-|     hbench-2vm |       13  |      -14  |      -75  |      -29  |
-|  SPINHisto-2vm |       57  |       74  |       80  |       97  |
-+----------------+-----------+-----------+-----------+-----------+
-|    sysbnch-1vm |        9  |       11  |       15  |       10  |
-|  SPINHisto-1vm |       80  |       93  |       98  |       99  |
-|    sysbnch-2vm |        3  |        3  |        4  |        2  |
-|  SPINHisto-2vm |       72  |       89  |       94  |       97  |
-+----------------+-----------+-----------+-----------+-----------+
-
- From this, value around 4k-8k threshold seem to be optimal one. [ This 
-is amost inline with ple_window default ]
-(lower the spin threshold, we would cover lesser % of spinlocks, that 
-would result in more halt_exit/wakeups.
-
-[ www.xen.org/files/xensummitboston08/LHP.pdf also has good graphical 
-detail on covering spinlock waits ]
-
-After 8k threshold, we see no more contention but that would mean we 
-have wasted lot of cpu time in busy waits.
-
-Will get a PLE machine again, and 'll continue experimenting with 
-further tuning of SPIN_THRESHOLD.
+-- 
+Siemens AG, Corporate Technology, CT T DE IT 1
+Corporate Competence Center Embedded Linux
