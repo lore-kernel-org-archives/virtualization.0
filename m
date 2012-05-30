@@ -1,15 +1,11 @@
-From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: Re: [PATCH RFC V8 17/17] Documentation/kvm : Add documentation on
-	Hypercalls and features used for PV spinlock
-Date: Wed, 30 May 2012 13:54:25 +0200
-Message-ID: <4FC60A71.5050804__2104.46323403648$1338379907$gmane$org@siemens.com>
-References: <20120502100610.13206.40.sendpatchset@codeblue.in.ibm.com>
-	<20120502100947.13206.26518.sendpatchset@codeblue.in.ibm.com>
+From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Subject: [PATCH v2] virtio_blk: unlock vblk->lock during kick
+Date: Wed, 30 May 2012 14:19:23 +0100
+Message-ID: <1338383963-17910-1-git-send-email-stefanha__25626.7841709361$1338384628$gmane$org@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120502100947.13206.26518.sendpatchset@codeblue.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,121 +15,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Greg Kroah-Hartman <gregkh@suse.de>, Andi Kleen <andi@firstfloor.org>, KVM <kvm@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, X86 <x86@kernel.org>, linux-doc@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, Avi Kivity <avi@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Attilio Rao <attilio.rao@citrix.com>, Virtualization <virtualization@lists.linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Xen Devel <xen-devel@lists.xensource.com>, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+To: virtualization@lists.linux-foundation.org
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, khoa@us.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2012-05-02 12:09, Raghavendra K T wrote:
-> From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com> 
-> 
-> KVM_HC_KICK_CPU  hypercall added to wakeup halted vcpu in paravirtual spinlock
-> enabled guest.
-> 
-> KVM_FEATURE_PV_UNHALT enables guest to check whether pv spinlock can be enabled
-> in guest.
-> 
-> Thanks Alex for KVM_HC_FEATURES inputs and Vatsa for rewriting KVM_HC_KICK_CPU
+Holding the vblk->lock across kick causes poor scalability in SMP
+guests.  If one CPU is doing virtqueue kick and another CPU touches the
+vblk->lock it will have to spin until virtqueue kick completes.
 
-This contains valuable documentation for features that are already
-supported. Can you break them out and post as separate patch already?
-One comment on them below.
+This patch reduces system% CPU utilization in SMP guests that are
+running multithreaded I/O-bound workloads.  The improvements are small
+but show as iops and SMP are increased.
 
-> 
-> Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-> ---
->  Documentation/virtual/kvm/cpuid.txt      |    4 ++
->  Documentation/virtual/kvm/hypercalls.txt |   60 ++++++++++++++++++++++++++++++
->  2 files changed, 64 insertions(+), 0 deletions(-)
-> diff --git a/Documentation/virtual/kvm/cpuid.txt b/Documentation/virtual/kvm/cpuid.txt
-> index 8820685..062dff9 100644
-> --- a/Documentation/virtual/kvm/cpuid.txt
-> +++ b/Documentation/virtual/kvm/cpuid.txt
-> @@ -39,6 +39,10 @@ KVM_FEATURE_CLOCKSOURCE2           ||     3 || kvmclock available at msrs
->  KVM_FEATURE_ASYNC_PF               ||     4 || async pf can be enabled by
->                                     ||       || writing to msr 0x4b564d02
->  ------------------------------------------------------------------------------
-> +KVM_FEATURE_PV_UNHALT              ||     6 || guest checks this feature bit
-> +                                   ||       || before enabling paravirtualized
-> +                                   ||       || spinlock support.
-> +------------------------------------------------------------------------------
->  KVM_FEATURE_CLOCKSOURCE_STABLE_BIT ||    24 || host will warn if no guest-side
->                                     ||       || per-cpu warps are expected in
->                                     ||       || kvmclock.
-> diff --git a/Documentation/virtual/kvm/hypercalls.txt b/Documentation/virtual/kvm/hypercalls.txt
-> new file mode 100644
-> index 0000000..bc3f14a
-> --- /dev/null
-> +++ b/Documentation/virtual/kvm/hypercalls.txt
-> @@ -0,0 +1,60 @@
-> +KVM Hypercalls Documentation
-> +===========================
-> +The template for each hypercall is:
-> +1. Hypercall name, value.
-> +2. Architecture(s)
-> +3. Status (deprecated, obsolete, active)
-> +4. Purpose
-> +
-> +1. KVM_HC_VAPIC_POLL_IRQ
-> +------------------------
-> +Value: 1
-> +Architecture: x86
-> +Purpose: None
+Khoa Huynh <khoa@us.ibm.com> provided initial performance data that
+indicates this optimization is worthwhile at high iops.
 
-Purpose: Trigger guest exit so that the host can check for pending
-interrupts on reentry.
+Asias He <asias@redhat.com> reports the following fio results:
 
-> +
-> +2. KVM_HC_MMU_OP
-> +------------------------
-> +Value: 2
-> +Architecture: x86
-> +Status: deprecated.
-> +Purpose: Support MMU operations such as writing to PTE,
-> +flushing TLB, release PT.
-> +
-> +3. KVM_HC_FEATURES
-> +------------------------
-> +Value: 3
-> +Architecture: PPC
-> +Status: active
-> +Purpose: Expose hypercall availability to the guest. On x86 platforms, cpuid
-> +used to enumerate which hypercalls are available. On PPC, either device tree
-> +based lookup ( which is also what EPAPR dictates) OR KVM specific enumeration
-> +mechanism (which is this hypercall) can be used.
-> +
-> +4. KVM_HC_PPC_MAP_MAGIC_PAGE
-> +------------------------
-> +Value: 4
-> +Architecture: PPC
-> +Status: active
-> +Purpose: To enable communication between the hypervisor and guest there is a
-> +shared page that contains parts of supervisor visible register state.
-> +The guest can map this shared page to access its supervisor register through
-> +memory using this hypercall.
-> +
-> +5. KVM_HC_KICK_CPU
-> +------------------------
-> +Value: 5
-> +Architecture: x86
-> +Status: active
-> +Purpose: Hypercall used to wakeup a vcpu from HLT state
-> +
-> +Usage example : A vcpu of a paravirtualized guest that is busywaiting in guest
-> +kernel mode for an event to occur (ex: a spinlock to become available) can
-> +execute HLT instruction once it has busy-waited for more than a threshold
-> +time-interval. Execution of HLT instruction would cause the hypervisor to put
-> +the vcpu to sleep until occurence of an appropriate event. Another vcpu of the
-> +same guest can wakeup the sleeping vcpu by issuing KVM_HC_KICK_CPU hypercall,
-> +specifying APIC ID of the vcpu to be wokenup.
-> +
-> +TODO:
-> +1. more information on input and output needed?
-> +2. Add more detail to purpose of hypercalls.
+Host: Linux 3.4.0+ #302 SMP x86_64 GNU/Linux
+Guest: same as host kernel
 
-Thanks,
-Jan
+Average 3 runs:
+with locked kick
+-------------------------
+read    iops=119907.50 bw=59954.00 runt=35018.50 io=2048.00
+write   iops=217187.00 bw=108594.00 runt=19312.00 io=2048.00
+read    iops=33948.00 bw=16974.50 runt=186820.50 io=3095.70
+write   iops=35014.00 bw=17507.50 runt=181151.00 io=3095.70
+clat (usec)     max=3484.10 avg=121085.38 stdev=174416.11 min=0.00
+clat (usec)     max=3438.30 avg=59863.35 stdev=116607.69 min=0.00
+clat (usec)     max=3745.65 avg=454501.30 stdev=332699.00 min=0.00
+clat (usec)     max=4089.75 avg=442374.99 stdev=304874.62 min=0.00
+cpu     sys=615.12 majf=24080.50 ctx=64253616.50 usr=68.08 minf=17907363.00
+cpu     sys=1235.95 majf=23389.00 ctx=59788148.00 usr=98.34 minf=20020008.50
+cpu     sys=764.96 majf=28414.00 ctx=848279274.00 usr=36.39 minf=19737254.00
+cpu     sys=714.13 majf=21853.50 ctx=854608972.00 usr=33.56 minf=18256760.50
 
+with unlocked kick
+-------------------------
+read    iops=118559.00 bw=59279.66 runt=35400.66 io=2048.00
+write   iops=227560.00 bw=113780.33 runt=18440.00 io=2048.00
+read    iops=34567.66 bw=17284.00 runt=183497.33 io=3095.70
+write   iops=34589.33 bw=17295.00 runt=183355.00 io=3095.70
+clat (usec)     max=3485.56 avg=121989.58 stdev=197355.15 min=0.00
+clat (usec)     max=3222.33 avg=57784.11 stdev=141002.89 min=0.00
+clat (usec)     max=4060.93 avg=447098.65 stdev=315734.33 min=0.00
+clat (usec)     max=3656.30 avg=447281.70 stdev=314051.33 min=0.00
+cpu     sys=683.78 majf=24501.33 ctx=64435364.66 usr=68.91 minf=17907893.33
+cpu     sys=1218.24 majf=25000.33 ctx=60451475.00 usr=101.04 minf=19757720.00
+cpu     sys=740.39 majf=24809.00 ctx=845290443.66 usr=37.25 minf=19349958.33
+cpu     sys=723.63 majf=27597.33 ctx=850199927.33 usr=35.35 minf=19092343.00
+
+FIO config file
+-------------------------------------
+
+[global]
+exec_prerun="echo 3 > /proc/sys/vm/drop_caches"
+group_reporting
+norandommap
+ioscheduler=noop
+thread
+bs=512
+size=4MB
+direct=1
+filename=/dev/vdb
+numjobs=256
+ioengine=aio
+iodepth=64
+loops=3
+
+Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+---
+ drivers/block/virtio_blk.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 693187d..1a50f41 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -201,8 +201,14 @@ static void do_virtblk_request(struct request_queue *q)
+ 		issued++;
+ 	}
+ 
+-	if (issued)
+-		virtqueue_kick(vblk->vq);
++	if (!issued)
++		return;
++
++	if (virtqueue_kick_prepare(vblk->vq)) {
++		spin_unlock(&vblk->lock);
++		virtqueue_notify(vblk->vq);
++		spin_lock(&vblk->lock);
++	}
+ }
+ 
+ /* return id (s/n) string for *disk to *id_str
 -- 
-Siemens AG, Corporate Technology, CT T DE IT 1
-Corporate Competence Center Embedded Linux
+1.7.10
