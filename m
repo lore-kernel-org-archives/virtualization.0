@@ -1,13 +1,15 @@
-From: Andy King <acking@vmware.com>
-Subject: Re: [vmw_vmci RFC 00/11] VMCI for Linux
-Date: Fri, 1 Jun 2012 08:33:02 -0700 (PDT)
-Message-ID: <552579991.43606.1338564781979.JavaMail.root__20452.8506416411$1338579906$gmane$org@vmware.com>
-References: <20120515235024.GB1758@kroah.com>
+From: David Daney <ddaney.cavm@gmail.com>
+Subject: Re: [PATCH 03/27] smpboot: Define and use cpu_state per-cpu variable
+	in generic code
+Date: Fri, 01 Jun 2012 09:59:07 -0700
+Message-ID: <4FC8F4DB.2070906__32370.0846442536$1338579923$gmane$org@gmail.com>
+References: <20120601090952.31979.24799.stgit@srivatsabhat.in.ibm.com>
+	<20120601091038.31979.67878.stgit@srivatsabhat.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120515235024.GB1758@kroah.com>
+In-Reply-To: <20120601091038.31979.67878.stgit@srivatsabhat.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,46 +19,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: dtor@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dsouders@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, akpm@linux-foundation.org, cschamp@vmware.com
+To: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Cc: Venkatesh Pallipadi <venki@google.com>, Jeremy Fitzhardinge <jeremy@goop.org>, linux-ia64@vger.kernel.org, linux-mips@linux-mips.org, peterz@infradead.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, mingo@kernel.org, linux-arch@vger.kernel.org, xen-devel@lists.xensource.com, Suresh Siddha <suresh.b.siddha@intel.com>, linux-sh@vger.kernel.org, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, paulmck@linux.vnet.ibm.com, Fenghua Yu <fenghua.yu@intel.com>, Mike Frysinger <vapier@gentoo.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, nikunj@linux.vnet.ibm.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Chris Metcalf <cmetcalf@tilera.com>, rjw@sisk.pl, yong.zhang0@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, Tony Luck <tony.luck@intel.com>, vatsa@linux.vnet.ibm.com, Ralf
 List-Id: virtualization@lists.linuxfoundation.org
 
-Greg,
-
-Thanks so much for the comments and apologies for the delayed response.
-
-> Don't we have something like this already for KVM and maybe Xen?
-> virtio?  Can't you use that code instead of a new block of code that
-> is only used by vmware users?  It has virtual pci devices which
-> should give you what you want/need here, right?
+On 06/01/2012 02:10 AM, Srivatsa S. Bhat wrote:
+> The per-cpu variable cpu_state is used in x86 and also used in other
+> architectures, to track the state of the cpu during bringup and hotplug.
+> Pull it out into generic code.
 >
-> If not, why doesn't that work for you?  Would it be easier to just
-> extend it?
+> Cc: Tony Luck<tony.luck@intel.com>
+> Cc: Fenghua Yu<fenghua.yu@intel.com>
+> Cc: Ralf Baechle<ralf@linux-mips.org>
+> Cc: Benjamin Herrenschmidt<benh@kernel.crashing.org>
+> Cc: Paul Mundt<lethal@linux-sh.org>
+> Cc: Chris Metcalf<cmetcalf@tilera.com>
+> Cc: Thomas Gleixner<tglx@linutronix.de>
+> Cc: Ingo Molnar<mingo@redhat.com>
+> Cc: "H. Peter Anvin"<hpa@zytor.com>
+> Cc: x86@kernel.org
+> Cc: Konrad Rzeszutek Wilk<konrad.wilk@oracle.com>
+> Cc: Jeremy Fitzhardinge<jeremy@goop.org>
+> Cc: Peter Zijlstra<a.p.zijlstra@chello.nl>
+> Cc: Andrew Morton<akpm@linux-foundation.org>
+> Cc: Mike Frysinger<vapier@gentoo.org>
+> Cc: Yong Zhang<yong.zhang0@gmail.com>
+> Cc: Venkatesh Pallipadi<venki@google.com>
+> Cc: Suresh Siddha<suresh.b.siddha@intel.com>
+> Cc: linux-ia64@vger.kernel.org
+> Cc: linux-mips@linux-mips.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-sh@vger.kernel.org
+> Cc: xen-devel@lists.xensource.com
+> Cc: virtualization@lists.linux-foundation.org
+> Signed-off-by: Srivatsa S. Bhat<srivatsa.bhat@linux.vnet.ibm.com>
+> ---
+>
+>   arch/ia64/include/asm/cpu.h   |    2 --
+>   arch/ia64/kernel/process.c    |    1 +
+>   arch/ia64/kernel/smpboot.c    |    6 +-----
+>   arch/mips/cavium-octeon/smp.c |    4 +---
+>   arch/powerpc/kernel/smp.c     |    6 +-----
+>   arch/sh/include/asm/smp.h     |    2 --
+>   arch/sh/kernel/smp.c          |    4 +---
+>   arch/tile/kernel/smpboot.c    |    4 +---
+>   arch/x86/include/asm/cpu.h    |    2 --
+>   arch/x86/kernel/smpboot.c     |    4 +---
+>   arch/x86/xen/smp.c            |    1 +
+>   include/linux/smpboot.h       |    1 +
+>   kernel/smpboot.c              |    4 ++++
+>   13 files changed, 13 insertions(+), 28 deletions(-)
+>
+[...]
+> diff --git a/arch/mips/cavium-octeon/smp.c b/arch/mips/cavium-octeon/smp.c
+> index 97e7ce9..93cd4b0 100644
+> --- a/arch/mips/cavium-octeon/smp.c
+> +++ b/arch/mips/cavium-octeon/smp.c
+> @@ -13,6 +13,7 @@
+>   #include<linux/kernel_stat.h>
+>   #include<linux/sched.h>
+>   #include<linux/module.h>
+> +#include<linux/smpboot.h>
+>
+>   #include<asm/mmu_context.h>
+>   #include<asm/time.h>
+> @@ -252,9 +253,6 @@ static void octeon_cpus_done(void)
+>
+>   #ifdef CONFIG_HOTPLUG_CPU
+>
+> -/* State of each CPU. */
+> -DEFINE_PER_CPU(int, cpu_state);
+> -
+>   extern void fixup_irqs(void);
+>
+>   static DEFINE_SPINLOCK(smp_reserve_lock);
 
-The VMCI virtual device for which this driver is intended has been
-around a lot longer than this submission might suggest.  The virtual
-hardware was released in a product before Rusty sent his RFC and
-quite a bit before it made it to mainline; there was, regrettably,
-no virtio then.
+The Octeon bit:
 
-As such, it was designed to be its own transport, and it's something
-that is now very much fixed at the hardware level (enhancements
-not withstanding), and which we have to support all the way back.
+Acked-by: David Daney <david.daney@cavium.com>
 
-In addition to that, our hypervisor endpoints are written using
-the existing device backend; virtio doesn't currently make a lot of
-sense for them, and would require a lot of additional work.
 
-All of this is unfortunate.  While I agree that virtio is certainly
-the right approach, and we need to avoid this proliferation, I think
-at this point we'd really like to try and upstream this in its current
-form.  There's certainly the possibility going forwards that we could
-add a glue layer, such that other clients could use virtio if they're
-willing to write their own hypervisor endpoints.
-
-Does that sound reasonable?
-
-Again, many thanks for taking the time to review this.
-
-Kind regards,
-- Andy King
+FWIW, the rest looks good too.
