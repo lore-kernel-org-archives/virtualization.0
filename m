@@ -1,18 +1,12 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: Re: [Xen-devel] [PATCH 05/27] xen, cpu hotplug: Don't call
-	cpu_bringup() in xen_play_dead()
-Date: Fri, 01 Jun 2012 16:36:28 +0100
-Message-ID: <4FC8FD9C0200007800087DF5__15361.6955074996$1338565009$gmane$org@nat28.tlf.novell.com>
-References: <20120601090952.31979.24799.stgit@srivatsabhat.in.ibm.com>
-	<20120601091124.31979.91984.stgit@srivatsabhat.in.ibm.com>
-	<4FC8D8E30200007800087D2B@nat28.tlf.novell.com>
-	<4FC8DC19.4000007@linux.vnet.ibm.com>
+From: Sjur BRENDELAND <sjur.brandeland@stericsson.com>
+Subject: Question regarding Virtio Console and Remoteproc
+Date: Fri, 1 Jun 2012 09:31:30 +0200
+Message-ID: <81C3A93C17462B4BBD7E272753C10579232F4FB338@EXDCVYMBSTM005.EQ1STM.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4FC8DC19.4000007@linux.vnet.ibm.com>
-Content-Disposition: inline
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,41 +16,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Cc: linux-arch@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Russell King <linux@arm.linux.org.uk>, akpm@linux-foundation.org, nikunj@linux.vnet.ibm.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, peterz@infradead.org, linux-kernel@vger.kernel.org, x86@kernel.org, vatsa@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, rjw@sisk.pl, yong.zhang0@gmail.com, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Keir Fraser <keir@xen.org>, Thomas Gleixner <tglx@linutronix.de>, paulmck@linux.vnet.ibm.com, mingo@kernel.org
+To: Amit Shah <amit.shah@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Arnd Bergmann <arnd@arndb.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 01.06.12 at 17:13, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-wrote:
-> On 06/01/2012 06:29 PM, Jan Beulich wrote:
-> 
->>>>> On 01.06.12 at 11:11, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
->> wrote:
->>> xen_play_dead calls cpu_bringup() which looks weird, because xen_play_dead()
->>> is invoked in the cpu down path, whereas cpu_bringup() (as the name 
->>> suggests) is useful in the cpu bringup path.
->> 
->> This might not be correct - the code as it is without this change is
->> safe even when the vCPU gets onlined back later by an external
->> entity (e.g. the Xen tool stack), and it would in that case resume
->> at the return point of the VCPUOP_down hypercall. That might
->> be a heritage from the original XenoLinux tree though, and be
->> meaningless in pv-ops context - Jeremy, Konrad?
->> 
->> Possibly it was bogus/unused even in that original tree - Keir?
->>
-> 
-> 
-> Thanks for your comments Jan!
-> 
-> In case this change is wrong, the other method I had in mind was to call
-> cpu_bringup_and_idle() in xen_play_dead(). (Even ARM does something similar,
-> in the sense that it runs the cpu bringup code including cpu_idle(), in the
-> cpu offline path, namely the cpu_die() function). Would that approach work
-> for xen as well? If yes, then we wouldn't have any issues to convert xen to
-> generic code.
+Hi Amit and Rusty,
 
-No, that wouldn't work either afaict - the function is expected
-to return.
+I've been looking into the possibility of using the Virtio Console
+Driver together with the remoteproc framework to communicate with
+ST-Ericsson modem over shared memory.
 
-Jan
+It seems like Virtio Console would be a good fit, except for a issue
+with buffer allocation. Due to HW limitations the STE-Modem cannot
+access kernel memory (no IOMMU and limited address range). Instead
+we have a designated shared memory region used for IPC. 
+
+Due to this I cannot use kmalloc() for buffer allocation, but I
+have to allocate buffers from the memory region shared with the
+modem.
+
+In remoteproc this is solved by using dma_alloc_coherent() for all
+memory to be shared with the modem. This works fine for me, because
+I can pass the IPC memory region to dma_declare_coherent_memory() 
+so dma_alloc_coherent() will allocate from this memory region.
+
+I think I can solve this issue in Virtio Console by changing calls
+to kmalloc() to something like:
+
+	if (virtio_has_feature(vdev, VIRTIO_CONSOLE_USE_DMA_MEM)) {
+		dma_addr_t dma;
+		buf = dma_alloc_coherent(dev, size, &dma, GFP_KERNEL);
+	} else
+		buf = kmalloc(count, GFP_KERNEL);
+
+I'd like to get the opinion from you virtualization folks on this!
+If you think it looks reasonable I might start cooking some patches...
+
+Regards,
+Sjur
