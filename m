@@ -1,10 +1,13 @@
-From: Gregor von Laszewski <laszewski@gmail.com>
-Subject: CFP: Workshop Web Site: https://sites.google.com/site/federatedclouds/
-Date: Thu, 31 May 2012 10:43:36 -0400
-Message-ID: <CAAedms1GYKps=ReiAPiVjfXhRD10vN=RCkRk7OydEOd5T83HOg@mail.gmail.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH v2] virtio_blk: unlock vblk->lock during kick
+Date: Fri, 01 Jun 2012 12:38:12 +0800
+Message-ID: <4FC84734.3070808@redhat.com>
+References: <1338383963-17910-1-git-send-email-stefanha@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4620099476795516684=="
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1338383963-17910-1-git-send-email-stefanha@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -14,178 +17,119 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Gregor von Laszewski <laszewski@gmail.com>
+To: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: khoa@us.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============4620099476795516684==
-Content-Type: multipart/alternative; boundary=14dae9cfc894c5592c04c156177e
+Hello Stefan,
 
---14dae9cfc894c5592c04c156177e
-Content-Type: text/plain; charset=ISO-8859-1
-
-We apologize if you received multiple copies
-
-Call For Papers
-
-Workshop on Cloud Services, Federation, and the 8th Open Cirrus Summit
-
-    Workshop Web Site: https://sites.google.com/site/federatedclouds/
-
-    In conjunction with the "International Conference on Autonomic
-                             Computing, San Jose, 18-20 Sep. 2012"
-
-    Location: San Jose, CA (USA)
-    Date: 21 September 2012
-    Contact: ocsfcw2012@googlegroups.com
-
-Deadlines:
-
-    Papers:                    July 14, 2012
-    Author Notification:   August 7, 2012
-    Final Papers due:      September 7, 2012
-    Workshop:               September 21, 2012
-
-
-Summary:
-
-This event will be run as a workshop in conjunction with ICAC 2012 and
-will bring together researchers and practitioners to discuss the
-newest ideas and challenges in cloud services and federated cloud
-computing. With your help, we hope to accelerate the discussion in
-both commercial and academic contexts.  Focus of the Workshop:
-
-The services offered by clouds are becoming critical for a wide
-variety of applications used by industry, education and
-government.There are now many examples of successful cloud services
-offered by public, private and community clouds. Many efforts exist
-that are creating cloud toolkits and frameworks to simplify the
-development and delivery of cloud services.
-
-The main purpose of this workshop is to bring together those
-responsible for designing, managing, and operating clouds services so
-that they can share experiences with each other.  The workshop also
-welcomes users with requirements for new cloud services.
-
-We are particularly interested in cloud services that can be used for
-federating clouds. Topics of interest include:
-
-        Experiences, best practices, and lessons learned from
-            operating cloud services
-        Testbeds for designing new cloud services
-        Cloud services for federating clouds
-        Management and provisioning of cloud services
-        Health and status monitoring of cloud services
-        Security of cloud services
-        Requirements for new cloud services
-        Reliability and fault tolerance of cloud services
-        Cloud services that span public and private clouds
-        Design of cloud services
-            Intercloud services
-            Federation service
-            Identity services
-            Cloud bursting services
-            Cloud services for emerging applications
-        Applications utilizing such services
-
-This workshop will build upon the success of the prior Open Cirrus
-events and the prior Open Cloud Consortium events.  The goal is to
-help building a community for those responsible for operating clouds
-and cloud testbeds, as well as those interested in designing new cloud
-services.
-
-The Workshop is co-sponsored by the Open Cirrus Consortium and the
-Open Cloud Consortium, and FutureGrid.
-
-Paper Format
-
-Full papers (a maximum of 6 pages in the two-column ACM proceedings
-format) are invited on a wide variety of topics relating to federated
-clouds and their application. Submitted papers must be original work,
-and may not be under consideration for another conference or
-journal. Complete formatting and submission instructions can be found
-on the workshop web site. Accepted papers will appear in proceedings
-distributed at the conference and available electronically.
-
---14dae9cfc894c5592c04c156177e
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-We apologize if you received multiple copies<br><br>Call For Papers<br><br>=
-Workshop on Cloud Services, Federation, and the 8th Open Cirrus Summit<br><=
-br>=A0=A0=A0 Workshop Web Site: <a href=3D"https://sites.google.com/site/fe=
-deratedclouds/">https://sites.google.com/site/federatedclouds/</a><br>
-<br>=A0=A0=A0 In conjunction with the &quot;International Conference on Aut=
-onomic<br>=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0 Computing, San Jose, 18-20 Sep. 2012&quot;<br><br>=A0=
-=A0=A0 Location: San Jose, CA (USA)<br>=A0=A0=A0 Date: 21 September 2012<br=
+On 05/30/2012 09:19 PM, Stefan Hajnoczi wrote:
+> Holding the vblk->lock across kick causes poor scalability in SMP
+> guests.  If one CPU is doing virtqueue kick and another CPU touches the
+> vblk->lock it will have to spin until virtqueue kick completes.
 >
-=A0=A0=A0 Contact: <a href=3D"mailto:ocsfcw2012@googlegroups.com">ocsfcw201=
-2@googlegroups.com</a><br><br>Deadlines:<br><br>=A0=A0=A0 Papers:=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 July 14, 2012<br>=A0=A0=A0=
- Author Notification:=A0=A0 August 7, 2012<br>=A0=A0=A0 Final Papers due:=
-=A0=A0=A0=A0=A0 September 7, 2012<br>
-=A0=A0=A0 Workshop:=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 September 21,=
- 2012<br><br><br>Summary:<br><br>This event will be run as a workshop in co=
-njunction with ICAC 2012 and<br>will bring together researchers and practit=
-ioners to discuss the<br>newest ideas and challenges in cloud services and =
-federated cloud<br>
-computing. With your help, we hope to accelerate the discussion in<br>both =
-commercial and academic contexts.=A0 Focus of the Workshop:<br><br>The serv=
-ices offered by clouds are becoming critical for a wide<br>variety of appli=
-cations used by industry, education and<br>
-government.There are now many examples of successful cloud services<br>offe=
-red by public, private and community clouds. Many efforts exist<br>that are=
- creating cloud toolkits and frameworks to simplify the<br>development and =
-delivery of cloud services.<br>
-<br>The main purpose of this workshop is to bring together those<br>respons=
-ible for designing, managing, and operating clouds services so<br>that they=
- can share experiences with each other.=A0 The workshop also<br>welcomes us=
-ers with requirements for new cloud services.<br>
-<br>We are particularly interested in cloud services that can be used for<b=
-r>federating clouds. Topics of interest include:<br><br>=A0=A0=A0=A0=A0=A0=
-=A0 Experiences, best practices, and lessons learned from<br>=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0=A0=A0 operating cloud services<br>
-=A0=A0=A0=A0=A0=A0=A0 Testbeds for designing new cloud services<br>=A0=A0=
-=A0=A0=A0=A0=A0 Cloud services for federating clouds<br>=A0=A0=A0=A0=A0=A0=
-=A0 Management and provisioning of cloud services<br>=A0=A0=A0=A0=A0=A0=A0 =
-Health and status monitoring of cloud services<br>=A0=A0=A0=A0=A0=A0=A0 Sec=
-urity of cloud services<br>
-=A0=A0=A0=A0=A0=A0=A0 Requirements for new cloud services<br>=A0=A0=A0=A0=
-=A0=A0=A0 Reliability and fault tolerance of cloud services<br>=A0=A0=A0=A0=
-=A0=A0=A0 Cloud services that span public and private clouds<br>=A0=A0=A0=
-=A0=A0=A0=A0 Design of cloud services<br>=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 =
-Intercloud services<br>
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Federation service<br>=A0=A0=A0=A0=A0=A0=
-=A0=A0=A0=A0=A0 Identity services<br>=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Clou=
-d bursting services<br>=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Cloud services for=
- emerging applications<br>=A0=A0=A0=A0=A0=A0=A0 Applications utilizing such=
- services<br><br>This workshop will build upon the success of the prior Ope=
-n Cirrus<br>
-events and the prior Open Cloud Consortium events.=A0 The goal is to<br>hel=
-p building a community for those responsible for operating clouds<br>and cl=
-oud testbeds, as well as those interested in designing new cloud<br>service=
-s.<br>
-<br>The Workshop is co-sponsored by the Open Cirrus Consortium and the<br>O=
-pen Cloud Consortium, and FutureGrid.<br><br>Paper Format<br><br>Full paper=
-s (a maximum of 6 pages in the two-column ACM proceedings<br>format) are in=
-vited on a wide variety of topics relating to federated<br>
-clouds and their application. Submitted papers must be original work,<br>an=
-d may not be under consideration for another conference or<br>journal. Comp=
-lete formatting and submission instructions can be found<br>on the workshop=
- web site. Accepted papers will appear in proceedings<br>
-distributed at the conference and available electronically.<br><br>
+> This patch reduces system% CPU utilization in SMP guests that are
+> running multithreaded I/O-bound workloads.  The improvements are small
+> but show as iops and SMP are increased.
+>
+> Khoa Huynh<khoa@us.ibm.com>  provided initial performance data that
+> indicates this optimization is worthwhile at high iops.
+>
+> Asias He<asias@redhat.com>  reports the following fio results:
+>
+> Host: Linux 3.4.0+ #302 SMP x86_64 GNU/Linux
+> Guest: same as host kernel
+>
+> Average 3 runs:
+> with locked kick
+> -------------------------
+> read    iops=119907.50 bw=59954.00 runt=35018.50 io=2048.00
+> write   iops=217187.00 bw=108594.00 runt=19312.00 io=2048.00
+> read    iops=33948.00 bw=16974.50 runt=186820.50 io=3095.70
+> write   iops=35014.00 bw=17507.50 runt=181151.00 io=3095.70
+> clat (usec)     max=3484.10 avg=121085.38 stdev=174416.11 min=0.00
+> clat (usec)     max=3438.30 avg=59863.35 stdev=116607.69 min=0.00
+> clat (usec)     max=3745.65 avg=454501.30 stdev=332699.00 min=0.00
+> clat (usec)     max=4089.75 avg=442374.99 stdev=304874.62 min=0.00
+> cpu     sys=615.12 majf=24080.50 ctx=64253616.50 usr=68.08 minf=17907363.00
+> cpu     sys=1235.95 majf=23389.00 ctx=59788148.00 usr=98.34 minf=20020008.50
+> cpu     sys=764.96 majf=28414.00 ctx=848279274.00 usr=36.39 minf=19737254.00
+> cpu     sys=714.13 majf=21853.50 ctx=854608972.00 usr=33.56 minf=18256760.50
+>
+> with unlocked kick
+> -------------------------
+> read    iops=118559.00 bw=59279.66 runt=35400.66 io=2048.00
+> write   iops=227560.00 bw=113780.33 runt=18440.00 io=2048.00
+> read    iops=34567.66 bw=17284.00 runt=183497.33 io=3095.70
+> write   iops=34589.33 bw=17295.00 runt=183355.00 io=3095.70
+> clat (usec)     max=3485.56 avg=121989.58 stdev=197355.15 min=0.00
+> clat (usec)     max=3222.33 avg=57784.11 stdev=141002.89 min=0.00
+> clat (usec)     max=4060.93 avg=447098.65 stdev=315734.33 min=0.00
+> clat (usec)     max=3656.30 avg=447281.70 stdev=314051.33 min=0.00
+> cpu     sys=683.78 majf=24501.33 ctx=64435364.66 usr=68.91 minf=17907893.33
+> cpu     sys=1218.24 majf=25000.33 ctx=60451475.00 usr=101.04 minf=19757720.00
+> cpu     sys=740.39 majf=24809.00 ctx=845290443.66 usr=37.25 minf=19349958.33
+> cpu     sys=723.63 majf=27597.33 ctx=850199927.33 usr=35.35 minf=19092343.00
+>
+> FIO config file
+> -------------------------------------
+>
+> [global]
+> exec_prerun="echo 3>  /proc/sys/vm/drop_caches"
+> group_reporting
+> norandommap
+> ioscheduler=noop
+> thread
+> bs=512
+> size=4MB
+> direct=1
+> filename=/dev/vdb
+> numjobs=256
+> ioengine=aio
+> iodepth=64
+> loops=3
+>
+> Signed-off-by: Stefan Hajnoczi<stefanha@linux.vnet.ibm.com>
+> ---
+>   drivers/block/virtio_blk.c |   10 ++++++++--
+>   1 file changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 693187d..1a50f41 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -201,8 +201,14 @@ static void do_virtblk_request(struct request_queue *q)
+>   		issued++;
+>   	}
+>
+> -	if (issued)
+> -		virtqueue_kick(vblk->vq);
+> +	if (!issued)
+> +		return;
+> +
+> +	if (virtqueue_kick_prepare(vblk->vq)) {
+> +		spin_unlock(&vblk->lock);
+> +		virtqueue_notify(vblk->vq);
+> +		spin_lock(&vblk->lock);
+> +	}
+>   }
 
---14dae9cfc894c5592c04c156177e--
+Could you use vblk->disk->queue->queue_lock to reference the lock so 
+that this patch will work on top of this one:
 
---===============4620099476795516684==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+    virtio-blk: Use block layer provided spinlock
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4620099476795516684==--
+BTW. Why the function name is changed to virtqueue_notify() from 
+virtqueue_kick_notify()? Seems Rusty renamed it. I think the latter name 
+is better because it is more consistent and easier to remember.
+
+    virtqueue_kick()
+    virtqueue_kick_prepare()
+    virtqueue_kick_notify()
+
+I believe you used virtqueue_kick_notify() in your original patch.
+See:
+    http://www.spinics.net/lists/linux-virtualization/msg14616.html
+
+-- 
+Asias
