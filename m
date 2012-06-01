@@ -1,13 +1,14 @@
-From: Ohad Ben-Cohen <ohad@wizery.com>
-Subject: Re: Question regarding Virtio Console and Remoteproc
-Date: Fri, 1 Jun 2012 10:51:38 +0300
-Message-ID: <CAK=WgbY9cXByKXEnpSvVr3dCecmKyumAQ6ffX8_2ghsAr2haEQ@mail.gmail.com>
-References: <81C3A93C17462B4BBD7E272753C10579232F4FB338@EXDCVYMBSTM005.EQ1STM.local>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH v2] virtio_blk: unlock vblk->lock during kick
+Date: Fri, 1 Jun 2012 08:58:05 +0100
+Message-ID: <CAJSP0QWw1N_93OHehGK3MqVP-DPVUwbOsf2nJmgJosvY-9wDyA@mail.gmail.com>
+References: <1338383963-17910-1-git-send-email-stefanha@linux.vnet.ibm.com>
+	<4FC84734.3070808@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <81C3A93C17462B4BBD7E272753C10579232F4FB338@EXDCVYMBSTM005.EQ1STM.local>
+In-Reply-To: <4FC84734.3070808@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,25 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur BRENDELAND <sjur.brandeland@stericsson.com>
-Cc: Amit Shah <amit.shah@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Arnd Bergmann <arnd@arndb.de>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Asias He <asias@redhat.com>
+Cc: khoa@us.ibm.com, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 1, 2012 at 10:31 AM, Sjur BRENDELAND
-<sjur.brandeland@stericsson.com> wrote:
-> =A0 =A0 =A0 =A0if (virtio_has_feature(vdev, VIRTIO_CONSOLE_USE_DMA_MEM)) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dma_addr_t dma;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0buf =3D dma_alloc_coherent(dev, size, &dma=
-, GFP_KERNEL);
-> =A0 =A0 =A0 =A0} else
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0buf =3D kmalloc(count, GFP_KERNEL);
+On Fri, Jun 1, 2012 at 5:38 AM, Asias He <asias@redhat.com> wrote:
+> On 05/30/2012 09:19 PM, Stefan Hajnoczi wrote:
+> Could you use vblk->disk->queue->queue_lock to reference the lock so that
+> this patch will work on top of this one:
+>
+> =A0 virtio-blk: Use block layer provided spinlock
 
-Something along those lines is also needed for remote processors which
-access memory via an IOMMU (e.g. OMAP4's M3 and DSP).
+Absolutely.  I'll rebased on top of your patches and resend.
 
-Allocating the memory via the DMA API will seamlessly configure the
-relevant IOMMU as needed, and will make the buffers accessible to the
-remote processors.
+> BTW. Why the function name is changed to virtqueue_notify() from
+> virtqueue_kick_notify()? Seems Rusty renamed it. I think the latter name =
+is
+> better because it is more consistent and easier to remember.
+>
+> =A0 virtqueue_kick()
+> =A0 virtqueue_kick_prepare()
+> =A0 virtqueue_kick_notify()
+>
+> I believe you used virtqueue_kick_notify() in your original patch.
+> See:
+> =A0 http://www.spinics.net/lists/linux-virtualization/msg14616.html
 
-Thanks,
-Ohad.
+You are right, it was renamed upstream.  I liked to old name better
+too but am happy to use what's there now.
+
+Stefan
