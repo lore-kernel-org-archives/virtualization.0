@@ -1,12 +1,13 @@
-From: Sjur BRENDELAND <sjur.brandeland@stericsson.com>
-Subject: Question regarding Virtio Console and Remoteproc
-Date: Fri, 1 Jun 2012 09:31:30 +0200
-Message-ID: <81C3A93C17462B4BBD7E272753C10579232F4FB338@EXDCVYMBSTM005.EQ1STM.local>
+From: Andy King <acking@vmware.com>
+Subject: Re: [vmw_vmci RFC 00/11] VMCI for Linux
+Date: Fri, 1 Jun 2012 08:33:02 -0700 (PDT)
+Message-ID: <552579991.43606.1338564781979.JavaMail.root__20452.8506416411$1338579906$gmane$org@vmware.com>
+References: <20120515235024.GB1758@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: en-US
+In-Reply-To: <20120515235024.GB1758@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,41 +17,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Arnd Bergmann <arnd@arndb.de>
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: dtor@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dsouders@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, akpm@linux-foundation.org, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Amit and Rusty,
+Greg,
 
-I've been looking into the possibility of using the Virtio Console
-Driver together with the remoteproc framework to communicate with
-ST-Ericsson modem over shared memory.
+Thanks so much for the comments and apologies for the delayed response.
 
-It seems like Virtio Console would be a good fit, except for a issue
-with buffer allocation. Due to HW limitations the STE-Modem cannot
-access kernel memory (no IOMMU and limited address range). Instead
-we have a designated shared memory region used for IPC. 
+> Don't we have something like this already for KVM and maybe Xen?
+> virtio?  Can't you use that code instead of a new block of code that
+> is only used by vmware users?  It has virtual pci devices which
+> should give you what you want/need here, right?
+>
+> If not, why doesn't that work for you?  Would it be easier to just
+> extend it?
 
-Due to this I cannot use kmalloc() for buffer allocation, but I
-have to allocate buffers from the memory region shared with the
-modem.
+The VMCI virtual device for which this driver is intended has been
+around a lot longer than this submission might suggest.  The virtual
+hardware was released in a product before Rusty sent his RFC and
+quite a bit before it made it to mainline; there was, regrettably,
+no virtio then.
 
-In remoteproc this is solved by using dma_alloc_coherent() for all
-memory to be shared with the modem. This works fine for me, because
-I can pass the IPC memory region to dma_declare_coherent_memory() 
-so dma_alloc_coherent() will allocate from this memory region.
+As such, it was designed to be its own transport, and it's something
+that is now very much fixed at the hardware level (enhancements
+not withstanding), and which we have to support all the way back.
 
-I think I can solve this issue in Virtio Console by changing calls
-to kmalloc() to something like:
+In addition to that, our hypervisor endpoints are written using
+the existing device backend; virtio doesn't currently make a lot of
+sense for them, and would require a lot of additional work.
 
-	if (virtio_has_feature(vdev, VIRTIO_CONSOLE_USE_DMA_MEM)) {
-		dma_addr_t dma;
-		buf = dma_alloc_coherent(dev, size, &dma, GFP_KERNEL);
-	} else
-		buf = kmalloc(count, GFP_KERNEL);
+All of this is unfortunate.  While I agree that virtio is certainly
+the right approach, and we need to avoid this proliferation, I think
+at this point we'd really like to try and upstream this in its current
+form.  There's certainly the possibility going forwards that we could
+add a glue layer, such that other clients could use virtio if they're
+willing to write their own hypervisor endpoints.
 
-I'd like to get the opinion from you virtualization folks on this!
-If you think it looks reasonable I might start cooking some patches...
+Does that sound reasonable?
 
-Regards,
-Sjur
+Again, many thanks for taking the time to review this.
+
+Kind regards,
+- Andy King
