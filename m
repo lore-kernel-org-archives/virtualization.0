@@ -1,16 +1,16 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: Re: [Xen-devel] [PATCH 05/27] xen, cpu hotplug: Don't call
-	cpu_bringup() in xen_play_dead()
-Date: Fri, 01 Jun 2012 13:59:47 +0100
-Message-ID: <4FC8D8E30200007800087D2B__29744.6717428558$1338555605$gmane$org@nat28.tlf.novell.com>
+From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Subject: Re: [Xen-devel] [PATCH 05/27] xen,
+	cpu hotplug: Don't call cpu_bringup() in xen_play_dead()
+Date: Fri, 01 Jun 2012 20:43:29 +0530
+Message-ID: <4FC8DC19.4000007__19193.4233568192$1338563685$gmane$org@linux.vnet.ibm.com>
 References: <20120601090952.31979.24799.stgit@srivatsabhat.in.ibm.com>
 	<20120601091124.31979.91984.stgit@srivatsabhat.in.ibm.com>
+	<4FC8D8E30200007800087D2B@nat28.tlf.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120601091124.31979.91984.stgit@srivatsabhat.in.ibm.com>
-Content-Disposition: inline
+In-Reply-To: <4FC8D8E30200007800087D2B@nat28.tlf.novell.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,71 +20,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: srivatsa.bhat@linux.vnet.ibm.com
-Cc: linux-arch@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Keir Fraser <keir@xen.org>, akpm@linux-foundation.org, nikunj@linux.vnet.ibm.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, peterz@infradead.org, linux-kernel@vger.kernel.org, x86@kernel.org, vatsa@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, rjw@sisk.pl, yong.zhang0@gmail.com, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, paulmck@linux.vnet.ibm.com, mingo@kernel.org
+To: Jan Beulich <JBeulich@suse.com>
+Cc: linux-arch@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Keir Fraser <keir@xen.org>, akpm@linux-foundation.org, nikunj@linux.vnet.ibm.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, peterz@infradead.org, linux-kernel@vger.kernel.org, x86@kernel.org, vatsa@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, rjw@sisk.pl, yong.zhang0@gmail.com, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Russell King <linux@arm.linux.org.uk>, Thomas Gleixner <tglx@linutronix.de>, paulmck@linux.vnet.ibm.com, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 01.06.12 at 11:11, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-wrote:
-> xen_play_dead calls cpu_bringup() which looks weird, because xen_play_dead()
-> is invoked in the cpu down path, whereas cpu_bringup() (as the name 
-> suggests) is useful in the cpu bringup path.
+On 06/01/2012 06:29 PM, Jan Beulich wrote:
 
-This might not be correct - the code as it is without this change is
-safe even when the vCPU gets onlined back later by an external
-entity (e.g. the Xen tool stack), and it would in that case resume
-at the return point of the VCPUOP_down hypercall. That might
-be a heritage from the original XenoLinux tree though, and be
-meaningless in pv-ops context - Jeremy, Konrad?
+>>>> On 01.06.12 at 11:11, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+> wrote:
+>> xen_play_dead calls cpu_bringup() which looks weird, because xen_play_dead()
+>> is invoked in the cpu down path, whereas cpu_bringup() (as the name 
+>> suggests) is useful in the cpu bringup path.
+> 
+> This might not be correct - the code as it is without this change is
+> safe even when the vCPU gets onlined back later by an external
+> entity (e.g. the Xen tool stack), and it would in that case resume
+> at the return point of the VCPUOP_down hypercall. That might
+> be a heritage from the original XenoLinux tree though, and be
+> meaningless in pv-ops context - Jeremy, Konrad?
+> 
+> Possibly it was bogus/unused even in that original tree - Keir?
+>
 
-Possibly it was bogus/unused even in that original tree - Keir?
 
-Jan
+Thanks for your comments Jan!
 
-> Getting rid of xen_play_dead()'s dependency on cpu_bringup() helps in 
-> hooking on to the generic SMP booting framework.
+In case this change is wrong, the other method I had in mind was to call
+cpu_bringup_and_idle() in xen_play_dead(). (Even ARM does something similar,
+in the sense that it runs the cpu bringup code including cpu_idle(), in the
+cpu offline path, namely the cpu_die() function). Would that approach work
+for xen as well? If yes, then we wouldn't have any issues to convert xen to
+generic code.
+
+Regards,
+Srivatsa S. Bhat
+
 > 
-> Also remove the extra call to preempt_enable() added by commit 41bd956
-> (xen/smp: Fix CPU online/offline bug triggering a BUG: scheduling while
-> atomic) because it becomes unnecessary after this change.
-> 
-> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: x86@kernel.org 
-> Cc: xen-devel@lists.xensource.com 
-> Cc: virtualization@lists.linux-foundation.org 
-> Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
-> ---
-> 
->  arch/x86/xen/smp.c |    8 --------
->  1 files changed, 0 insertions(+), 8 deletions(-)
-> 
-> diff --git a/arch/x86/xen/smp.c b/arch/x86/xen/smp.c
-> index 09a7199..602d6b7 100644
-> --- a/arch/x86/xen/smp.c
-> +++ b/arch/x86/xen/smp.c
-> @@ -417,14 +417,6 @@ static void __cpuinit xen_play_dead(void) /* used only 
-> with HOTPLUG_CPU */
->  {
->  	play_dead_common();
->  	HYPERVISOR_vcpu_op(VCPUOP_down, smp_processor_id(), NULL);
-> -	cpu_bringup();
-> -	/*
-> -	 * Balance out the preempt calls - as we are running in cpu_idle
-> -	 * loop which has been called at bootup from cpu_bringup_and_idle.
-> -	 * The cpucpu_bringup_and_idle called cpu_bringup which made a
-> -	 * preempt_disable() So this preempt_enable will balance it out.
-> -	 */
-> -	preempt_enable();
->  }
->  
->  #else /* !CONFIG_HOTPLUG_CPU */
-> 
-> 
-> _______________________________________________
-> Xen-devel mailing list
-> Xen-devel@lists.xen.org 
-> http://lists.xen.org/xen-devel 
+>> Getting rid of xen_play_dead()'s dependency on cpu_bringup() helps in 
+>> hooking on to the generic SMP booting framework.
+>>
+>> Also remove the extra call to preempt_enable() added by commit 41bd956
+>> (xen/smp: Fix CPU online/offline bug triggering a BUG: scheduling while
+>> atomic) because it becomes unnecessary after this change.
+>>
+>> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+>> Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>> Cc: Ingo Molnar <mingo@redhat.com>
+>> Cc: "H. Peter Anvin" <hpa@zytor.com>
+>> Cc: x86@kernel.org 
+>> Cc: xen-devel@lists.xensource.com 
+>> Cc: virtualization@lists.linux-foundation.org 
+>> Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
+>> ---
+>>
+>>  arch/x86/xen/smp.c |    8 --------
+>>  1 files changed, 0 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/arch/x86/xen/smp.c b/arch/x86/xen/smp.c
+>> index 09a7199..602d6b7 100644
+>> --- a/arch/x86/xen/smp.c
+>> +++ b/arch/x86/xen/smp.c
+>> @@ -417,14 +417,6 @@ static void __cpuinit xen_play_dead(void) /* used only 
+>> with HOTPLUG_CPU */
+>>  {
+>>  	play_dead_common();
+>>  	HYPERVISOR_vcpu_op(VCPUOP_down, smp_processor_id(), NULL);
+>> -	cpu_bringup();
+>> -	/*
+>> -	 * Balance out the preempt calls - as we are running in cpu_idle
+>> -	 * loop which has been called at bootup from cpu_bringup_and_idle.
+>> -	 * The cpucpu_bringup_and_idle called cpu_bringup which made a
+>> -	 * preempt_disable() So this preempt_enable will balance it out.
+>> -	 */
+>> -	preempt_enable();
+>>  }
+>>  
+>>  #else /* !CONFIG_HOTPLUG_CPU */
+>>
+>>
