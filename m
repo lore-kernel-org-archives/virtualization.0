@@ -1,15 +1,15 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: Question regarding Virtio Console and Remoteproc
-Date: Mon, 04 Jun 2012 16:10:05 +1000
-Message-ID: <1338790205.7150.66.camel@pasglop>
-References: <81C3A93C17462B4BBD7E272753C10579232F4FB338@EXDCVYMBSTM005.EQ1STM.local>
-	<CAK=WgbY9cXByKXEnpSvVr3dCecmKyumAQ6ffX8_2ghsAr2haEQ@mail.gmail.com>
-	<87bokz1y8a.fsf@rustcorp.com.au>
+From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2] virtio_blk: unlock vblk->lock during kick
+Date: Mon, 4 Jun 2012 09:27:21 +0100
+Message-ID: <20120604082721.GA17007@stefanha-thinkpad.localdomain>
+References: <1338383963-17910-1-git-send-email-stefanha@linux.vnet.ibm.com>
+	<4FC622F9.2070506@de.ibm.com> <877gvn3kks.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87bokz1y8a.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <877gvn3kks.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +20,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Arnd Bergmann <arnd@arndb.de>, Linus Walleij <linus.walleij@linaro.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Amit Shah <amit.shah@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Tejun Heo <tj@kernel.org>, khoa@us.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2012-06-04 at 14:15 +0930, Rusty Russell wrote:
-> > Something along those lines is also needed for remote processors
-> which
-> > access memory via an IOMMU (e.g. OMAP4's M3 and DSP).
+On Mon, Jun 04, 2012 at 11:27:39AM +0930, Rusty Russell wrote:
+> On Wed, 30 May 2012 15:39:05 +0200, Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> > On 30/05/12 15:19, Stefan Hajnoczi wrote:
+> > > Holding the vblk->lock across kick causes poor scalability in SMP
+> > > guests.  If one CPU is doing virtqueue kick and another CPU touches the
+> > > vblk->lock it will have to spin until virtqueue kick completes.
+> > > 
+> > > This patch reduces system% CPU utilization in SMP guests that are
+> > > running multithreaded I/O-bound workloads.  The improvements are small
+> > > but show as iops and SMP are increased.
 > > 
-> > Allocating the memory via the DMA API will seamlessly configure the
-> > relevant IOMMU as needed, and will make the buffers accessible to
-> the
-> > remote processors.
+> > Funny, recently I got a bug report regarding spinlock lockup
+> > (see http://lkml.indiana.edu/hypermail/linux/kernel/1205.3/02201.html)
+> > Turned out that blk_done was called on many guest cpus while the guest
+> > was heavily paging on one virtio block device. (and the guest had much
+> > more cpus than the host)
+> > This patch will probably reduce the pressure for those cases as well.
+> > we can then finish requests if somebody else is doing the kick.
 > > 
-> > Thanks,
-> > Ohad.
+> > IIRC there were some other approaches to address this lock holding during
+> > kick but this looks like the less intrusive one.
+> > 
+> > > Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+> > Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > 
-> It seems quite sensible.  The formal definition in the spec would be
-> good.  In particular, defining DMA_MEM in a generic (non-Linux) way
-> will be interesting.
+> Unfortunately, this conflicts with Asias He's deadlock fix, which has
+> us just using the block-layer-supplied spinlock.
+> 
+> If we drop the lock around the kick as you suggest, we're playing with
+> fire.  All the virtio backends have an atomic notify, so they're OK,
+> and the block layer *looks* safe at a glance, but there's no assurances.
 
-I think we could do a bit better...
+There are assurances:
 
-We need to dbl check if all the archs we care about use the dma_ops
-abstraction, but if they do, then we can remove the conditional and just
-use the dma_* functions everywhere, and have virtio-pci itself tweak the
-dma_ops pointer in struct device.
+Documentation/block/biodoc.txt:
+"Drivers are free to drop the queue lock themselves, if required."
 
-The default would be to swap the normal PCI one that the arch code has
-put there with some "null" ops to match existing virtio, and we could
-then use a negociated capability to avoid that behaviour.
+Other drivers including rbd, nbd, cciss, and probably others drop the
+lock too.
 
-It's important to keep in mind that for KVM, in most cases we want to
-keep the bypass of the iommu, simply because it's always going to be
-faster than emulating one & mapping/unmapping things to/from it.
-
-
-Cheers,
-Ben.
+Stefan
