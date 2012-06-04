@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Question regarding Virtio Console and Remoteproc
-Date: Mon, 04 Jun 2012 14:15:41 +0930
-Message-ID: <87bokz1y8a.fsf@rustcorp.com.au>
-References: <81C3A93C17462B4BBD7E272753C10579232F4FB338@EXDCVYMBSTM005.EQ1STM.local>
-	<CAK=WgbY9cXByKXEnpSvVr3dCecmKyumAQ6ffX8_2ghsAr2haEQ@mail.gmail.com>
+Subject: Re: [PATCH v2] virtio_blk: unlock vblk->lock during kick
+Date: Mon, 04 Jun 2012 11:27:39 +0930
+Message-ID: <877gvn3kks.fsf@rustcorp.com.au>
+References: <1338383963-17910-1-git-send-email-stefanha@linux.vnet.ibm.com>
+	<4FC622F9.2070506@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAK=WgbY9cXByKXEnpSvVr3dCecmKyumAQ6ffX8_2ghsAr2haEQ@mail.gmail.com>
+In-Reply-To: <4FC622F9.2070506@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>, Sjur BRENDELAND <sjur.brandeland@stericsson.com>
-Cc: Amit Shah <amit.shah@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Linus Walleij <linus.walleij@linaro.org>, Arnd Bergmann <arnd@arndb.de>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, khoa@us.ibm.com, Tejun Heo <tj@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAxIEp1biAyMDEyIDEwOjUxOjM4ICswMzAwLCBPaGFkIEJlbi1Db2hlbiA8b2hhZEB3
-aXplcnkuY29tPiB3cm90ZToKPiBPbiBGcmksIEp1biAxLCAyMDEyIGF0IDEwOjMxIEFNLCBTanVy
-IEJSRU5ERUxBTkQKPiA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPiB3cm90ZToKPiA+
-IMKgIMKgIMKgIMKgaWYgKHZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fQ09OU09MRV9V
-U0VfRE1BX01FTSkpIHsKPiA+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgZG1hX2FkZHJfdCBkbWE7
-Cj4gPiDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoGJ1ZiA9IGRtYV9hbGxvY19jb2hlcmVudChkZXYs
-IHNpemUsICZkbWEsIEdGUF9LRVJORUwpOwo+ID4gwqAgwqAgwqAgwqB9IGVsc2UKPiA+IMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgYnVmID0ga21hbGxvYyhjb3VudCwgR0ZQX0tFUk5FTCk7Cj4gCj4g
-U29tZXRoaW5nIGFsb25nIHRob3NlIGxpbmVzIGlzIGFsc28gbmVlZGVkIGZvciByZW1vdGUgcHJv
-Y2Vzc29ycyB3aGljaAo+IGFjY2VzcyBtZW1vcnkgdmlhIGFuIElPTU1VIChlLmcuIE9NQVA0J3Mg
-TTMgYW5kIERTUCkuCj4gCj4gQWxsb2NhdGluZyB0aGUgbWVtb3J5IHZpYSB0aGUgRE1BIEFQSSB3
-aWxsIHNlYW1sZXNzbHkgY29uZmlndXJlIHRoZQo+IHJlbGV2YW50IElPTU1VIGFzIG5lZWRlZCwg
-YW5kIHdpbGwgbWFrZSB0aGUgYnVmZmVycyBhY2Nlc3NpYmxlIHRvIHRoZQo+IHJlbW90ZSBwcm9j
-ZXNzb3JzLgo+IAo+IFRoYW5rcywKPiBPaGFkLgoKSXQgc2VlbXMgcXVpdGUgc2Vuc2libGUuICBU
-aGUgZm9ybWFsIGRlZmluaXRpb24gaW4gdGhlIHNwZWMgd291bGQgYmUKZ29vZC4gIEluIHBhcnRp
-Y3VsYXIsIGRlZmluaW5nIERNQV9NRU0gaW4gYSBnZW5lcmljIChub24tTGludXgpIHdheSB3aWxs
-CmJlIGludGVyZXN0aW5nLgoKVGhhbmtzLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, 30 May 2012 15:39:05 +0200, Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> On 30/05/12 15:19, Stefan Hajnoczi wrote:
+> > Holding the vblk->lock across kick causes poor scalability in SMP
+> > guests.  If one CPU is doing virtqueue kick and another CPU touches the
+> > vblk->lock it will have to spin until virtqueue kick completes.
+> > 
+> > This patch reduces system% CPU utilization in SMP guests that are
+> > running multithreaded I/O-bound workloads.  The improvements are small
+> > but show as iops and SMP are increased.
+> 
+> Funny, recently I got a bug report regarding spinlock lockup
+> (see http://lkml.indiana.edu/hypermail/linux/kernel/1205.3/02201.html)
+> Turned out that blk_done was called on many guest cpus while the guest
+> was heavily paging on one virtio block device. (and the guest had much
+> more cpus than the host)
+> This patch will probably reduce the pressure for those cases as well.
+> we can then finish requests if somebody else is doing the kick.
+> 
+> IIRC there were some other approaches to address this lock holding during
+> kick but this looks like the less intrusive one.
+> 
+> > Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+Unfortunately, this conflicts with Asias He's deadlock fix, which has
+us just using the block-layer-supplied spinlock.
+
+If we drop the lock around the kick as you suggest, we're playing with
+fire.  All the virtio backends have an atomic notify, so they're OK,
+and the block layer *looks* safe at a glance, but there's no assurances.
+
+It seems like a workaround to the fact that we don't have hcall-backed
+spinlocks like Xen, or that our virtio device is too laggy.
+
+Cheers,
+Rusty.
