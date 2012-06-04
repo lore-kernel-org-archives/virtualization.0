@@ -1,13 +1,14 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH v3] virtio_blk: unlock vblk->lock during kick
-Date: Mon, 04 Jun 2012 16:33:11 +0800
-Message-ID: <4FCC72C7.2040201@redhat.com>
-References: <1338541986-8083-1-git-send-email-stefanha@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2] virtio_blk: unlock vblk->lock during kick
+Date: Mon, 04 Jun 2012 16:35:08 +0800
+Message-ID: <4FCC733C.90503@redhat.com>
+References: <1338383963-17910-1-git-send-email-stefanha@linux.vnet.ibm.com>
+	<4FC622F9.2070506@de.ibm.com> <877gvn3kks.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1338541986-8083-1-git-send-email-stefanha@linux.vnet.ibm.com>
+In-Reply-To: <877gvn3kks.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,119 +18,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-Cc: khoa@us.ibm.com, "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, khoa@us.ibm.com, Tejun Heo <tj@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/01/2012 05:13 PM, Stefan Hajnoczi wrote:
-> Holding the vblk->lock across kick causes poor scalability in SMP
-> guests.  If one CPU is doing virtqueue kick and another CPU touches the
-> vblk->lock it will have to spin until virtqueue kick completes.
+On 06/04/2012 09:57 AM, Rusty Russell wrote:
+> On Wed, 30 May 2012 15:39:05 +0200, Christian Borntraeger<borntraeger@de.ibm.com>  wrote:
+>> On 30/05/12 15:19, Stefan Hajnoczi wrote:
+>>> Holding the vblk->lock across kick causes poor scalability in SMP
+>>> guests.  If one CPU is doing virtqueue kick and another CPU touches the
+>>> vblk->lock it will have to spin until virtqueue kick completes.
+>>>
+>>> This patch reduces system% CPU utilization in SMP guests that are
+>>> running multithreaded I/O-bound workloads.  The improvements are small
+>>> but show as iops and SMP are increased.
+>>
+>> Funny, recently I got a bug report regarding spinlock lockup
+>> (see http://lkml.indiana.edu/hypermail/linux/kernel/1205.3/02201.html)
+>> Turned out that blk_done was called on many guest cpus while the guest
+>> was heavily paging on one virtio block device. (and the guest had much
+>> more cpus than the host)
+>> This patch will probably reduce the pressure for those cases as well.
+>> we can then finish requests if somebody else is doing the kick.
+>>
+>> IIRC there were some other approaches to address this lock holding during
+>> kick but this looks like the less intrusive one.
+>>
+>>> Signed-off-by: Stefan Hajnoczi<stefanha@linux.vnet.ibm.com>
+>> Acked-by: Christian Borntraeger<borntraeger@de.ibm.com>
 >
-> This patch reduces system% CPU utilization in SMP guests that are
-> running multithreaded I/O-bound workloads.  The improvements are small
-> but show as iops and SMP are increased.
->
-> Khoa Huynh<khoa@us.ibm.com>  provided initial performance data that
-> indicates this optimization is worthwhile at high iops.
->
-> Asias He<asias@redhat.com>  reports the following fio results:
->
-> Host: Linux 3.4.0+ #302 SMP x86_64 GNU/Linux
-> Guest: same as host kernel
->
-> Average 3 runs:
-> with locked kick
-> read    iops=119907.50 bw=59954.00 runt=35018.50 io=2048.00
-> write   iops=217187.00 bw=108594.00 runt=19312.00 io=2048.00
-> read    iops=33948.00 bw=16974.50 runt=186820.50 io=3095.70
-> write   iops=35014.00 bw=17507.50 runt=181151.00 io=3095.70
-> clat (usec)     max=3484.10 avg=121085.38 stdev=174416.11 min=0.00
-> clat (usec)     max=3438.30 avg=59863.35 stdev=116607.69 min=0.00
-> clat (usec)     max=3745.65 avg=454501.30 stdev=332699.00 min=0.00
-> clat (usec)     max=4089.75 avg=442374.99 stdev=304874.62 min=0.00
-> cpu     sys=615.12 majf=24080.50 ctx=64253616.50 usr=68.08 minf=17907363.00
-> cpu     sys=1235.95 majf=23389.00 ctx=59788148.00 usr=98.34 minf=20020008.50
-> cpu     sys=764.96 majf=28414.00 ctx=848279274.00 usr=36.39 minf=19737254.00
-> cpu     sys=714.13 majf=21853.50 ctx=854608972.00 usr=33.56 minf=18256760.50
->
-> with unlocked kick
-> read    iops=118559.00 bw=59279.66 runt=35400.66 io=2048.00
-> write   iops=227560.00 bw=113780.33 runt=18440.00 io=2048.00
-> read    iops=34567.66 bw=17284.00 runt=183497.33 io=3095.70
-> write   iops=34589.33 bw=17295.00 runt=183355.00 io=3095.70
-> clat (usec)     max=3485.56 avg=121989.58 stdev=197355.15 min=0.00
-> clat (usec)     max=3222.33 avg=57784.11 stdev=141002.89 min=0.00
-> clat (usec)     max=4060.93 avg=447098.65 stdev=315734.33 min=0.00
-> clat (usec)     max=3656.30 avg=447281.70 stdev=314051.33 min=0.00
-> cpu     sys=683.78 majf=24501.33 ctx=64435364.66 usr=68.91 minf=17907893.33
-> cpu     sys=1218.24 majf=25000.33 ctx=60451475.00 usr=101.04 minf=19757720.00
-> cpu     sys=740.39 majf=24809.00 ctx=845290443.66 usr=37.25 minf=19349958.33
-> cpu     sys=723.63 majf=27597.33 ctx=850199927.33 usr=35.35 minf=19092343.00
->
-> FIO config file:
->
-> [global]
-> exec_prerun="echo 3>  /proc/sys/vm/drop_caches"
-> group_reporting
-> norandommap
-> ioscheduler=noop
-> thread
-> bs=512
-> size=4MB
-> direct=1
-> filename=/dev/vdb
-> numjobs=256
-> ioengine=aio
-> iodepth=64
-> loops=3
->
-> Signed-off-by: Stefan Hajnoczi<stefanha@linux.vnet.ibm.com>
-> ---
-> Other block drivers (cciss, rbd, nbd) use spin_unlock_irq() so I followed that.
-> To me this seems wrong: blk_run_queue() uses spin_lock_irqsave() but we enable
-> irqs with spin_unlock_irq().  If the caller of blk_run_queue() had irqs
-> disabled and we enable them again this could be a problem, right?  Can someone
-> more familiar with kernel locking comment?
+> Unfortunately, this conflicts with Asias He's deadlock fix, which has
+> us just using the block-layer-supplied spinlock.
 
-blk_run_queue() is not used in our code path. We use __blk_run_queue(). 
-The code path is:
-
-generic_make_request() -> q->make_request_fn() -> blk_queue_bio() 
-->__blk_run_queue() -> q->request_fn() -> do_virtblk_request().
-
-__blk_run_queue() is called with interrupts disabled and queue lock 
-locked. In blk_queue_bio, __blk_run_queue() is protected by 
-spin_lock_irq(q->queue_lock).
-
-The lock in block layer seems a bit confusing, e.g.block/blk-core.c. 
-There are fixed use of spin_lock_irq() and spin_lock_irqsave() pair.
+There is a v3 which solved this conflicts.
 
 >
->   drivers/block/virtio_blk.c |   10 ++++++++--
->   1 file changed, 8 insertions(+), 2 deletions(-)
+> If we drop the lock around the kick as you suggest, we're playing with
+> fire.  All the virtio backends have an atomic notify, so they're OK,
+> and the block layer *looks* safe at a glance, but there's no assurances.
 >
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 774c31d..d674977 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -199,8 +199,14 @@ static void do_virtblk_request(struct request_queue *q)
->   		issued++;
->   	}
+> It seems like a workaround to the fact that we don't have hcall-backed
+> spinlocks like Xen, or that our virtio device is too laggy.
 >
-> -	if (issued)
-> -		virtqueue_kick(vblk->vq);
-> +	if (!issued)
-> +		return;
-> +
-> +	if (virtqueue_kick_prepare(vblk->vq)) {
-> +		spin_unlock_irq(vblk->disk->queue->queue_lock);
-> +		virtqueue_notify(vblk->vq);
-> +		spin_lock_irq(vblk->disk->queue->queue_lock);
-> +	}
->   }
+> Cheers,
+> Rusty.
 >
->   /* return id (s/n) string for *disk to *id_str
+>
 
 
 -- 
