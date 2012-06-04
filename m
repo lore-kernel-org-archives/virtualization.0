@@ -1,7 +1,7 @@
 From: Asias He <asias@redhat.com>
 Subject: Re: [PATCH v2] virtio_blk: unlock vblk->lock during kick
-Date: Mon, 04 Jun 2012 16:35:08 +0800
-Message-ID: <4FCC733C.90503@redhat.com>
+Date: Mon, 04 Jun 2012 16:57:25 +0800
+Message-ID: <4FCC7875.2070404@redhat.com>
 References: <1338383963-17910-1-git-send-email-stefanha@linux.vnet.ibm.com>
 	<4FC622F9.2070506@de.ibm.com> <877gvn3kks.fsf@rustcorp.com.au>
 Mime-Version: 1.0
@@ -49,14 +49,15 @@ On 06/04/2012 09:57 AM, Rusty Russell wrote:
 >
 > Unfortunately, this conflicts with Asias He's deadlock fix, which has
 > us just using the block-layer-supplied spinlock.
-
-There is a v3 which solved this conflicts.
-
 >
 > If we drop the lock around the kick as you suggest, we're playing with
 > fire.  All the virtio backends have an atomic notify, so they're OK,
 > and the block layer *looks* safe at a glance, but there's no assurances.
->
+
+Why are we playing with fire if we drop the lock around the kick?
+Which one do you think is un-safe, calling virtqueue_notify() with lock 
+dropped or dropping the lock in q->request_fn()?
+
 > It seems like a workaround to the fact that we don't have hcall-backed
 > spinlocks like Xen, or that our virtio device is too laggy.
 >
@@ -64,6 +65,10 @@ There is a v3 which solved this conflicts.
 > Rusty.
 >
 >
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 
 -- 
