@@ -1,7 +1,7 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
 Subject: Re: [PATCH] virtio-net: fix a race on 32bit arches
-Date: Wed, 6 Jun 2012 21:19:39 +0100
-Message-ID: <1339013979.2836.52.camel__31193.0613163442$1339014314$gmane$org@bwh-desktop.uk.solarflarecom.com>
+Date: Wed, 06 Jun 2012 22:25:57 +0200
+Message-ID: <1339014357.26966.72.camel@edumazet-glaptop>
 References: <1338971724.2760.3913.camel@edumazet-glaptop>
 	<1338972341.2760.3944.camel@edumazet-glaptop>
 	<20120606111357.GA15070@redhat.com>
@@ -12,11 +12,12 @@ References: <1338971724.2760.3913.camel@edumazet-glaptop>
 	<1339012441.26966.48.camel@edumazet-glaptop>
 	<20120606195814.GA20677@redhat.com>
 	<1339013289.26966.62.camel@edumazet-glaptop>
+	<1339013979.2836.52.camel@bwh-desktop.uk.solarflarecom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1339013289.26966.62.camel@edumazet-glaptop>
+In-Reply-To: <1339013979.2836.52.camel@bwh-desktop.uk.solarflarecom.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,29 +27,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
+To: Ben Hutchings <bhutchings@solarflare.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2012-06-06 at 22:08 +0200, Eric Dumazet wrote:
-> On Wed, 2012-06-06 at 22:58 +0300, Michael S. Tsirkin wrote:
+On Wed, 2012-06-06 at 21:19 +0100, Ben Hutchings wrote:
+> On Wed, 2012-06-06 at 22:08 +0200, Eric Dumazet wrote:
+> > On Wed, 2012-06-06 at 22:58 +0300, Michael S. Tsirkin wrote:
+> > 
+> > > Absolutely, I am talking about virtio here.  I'm not kicking
+> > > u64_stats_sync idea I am just saying that simple locking
+> > > would work for virtio and might be better as it
+> > > gives us a way to get counters atomically.
+> > 
+> > Which lock do you own in the RX path ?
+> > 
+> > You'll have to add a lock in fast path. This sounds really a bad choice
+> > to me.
 > 
-> > Absolutely, I am talking about virtio here.  I'm not kicking
-> > u64_stats_sync idea I am just saying that simple locking
-> > would work for virtio and might be better as it
-> > gives us a way to get counters atomically.
-> 
-> Which lock do you own in the RX path ?
-> 
-> You'll have to add a lock in fast path. This sounds really a bad choice
-> to me.
+> You have the NAPI 'lock', so when gathering stats you can synchronise
+> using napi_disable() ;-)
 
-You have the NAPI 'lock', so when gathering stats you can synchronise
-using napi_disable() ;-)
+Nice, this adds one new bug in network stack.
 
-Ben.
-
--- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
+Really guys, can we stop this thread, please ?
