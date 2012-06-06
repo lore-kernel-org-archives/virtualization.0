@@ -1,23 +1,23 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
 Subject: Re: [PATCH] virtio-net: fix a race on 32bit arches
-Date: Wed, 6 Jun 2012 23:19:43 +0300
-Message-ID: <20120606201942.GA23405@redhat.com>
+Date: Wed, 06 Jun 2012 22:24:19 +0200
+Message-ID: <1339014259.26966.70.camel@edumazet-glaptop>
 References: <1338971724.2760.3913.camel@edumazet-glaptop>
 	<1338972341.2760.3944.camel@edumazet-glaptop>
 	<20120606111357.GA15070@redhat.com>
 	<1338988210.2760.4485.camel@edumazet-glaptop>
 	<20120606144941.GA17092@redhat.com>
-	<1338995944.26966.6.camel@edumazet-glaptop>
-	<20120606161715.GA17575@redhat.com>
-	<1339002782.26966.22.camel@edumazet-glaptop>
-	<20120606184351.GA20380@redhat.com>
-	<1339013171.26966.60.camel@edumazet-glaptop>
+	<20120606081432.6b602065@nehalam.linuxnetplumber.net>
+	<20120606185107.GA20503@redhat.com>
+	<1339012441.26966.48.camel@edumazet-glaptop>
+	<20120606195814.GA20677@redhat.com>
+	<1339013289.26966.62.camel@edumazet-glaptop>
+	<20120606201620.GA23358@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1339013171.26966.60.camel@edumazet-glaptop>
+In-Reply-To: <20120606201620.GA23358@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,26 +27,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 06, 2012 at 10:06:11PM +0200, Eric Dumazet wrote:
-> On Wed, 2012-06-06 at 21:43 +0300, Michael S. Tsirkin wrote:
-> 
-> > 1. We are trying to look at counters for purposes of tuning the device.
-> > E.g. if ethtool reports packets and bytes, we'd like to calculate
-> > average packet size by bytes/packets.
+On Wed, 2012-06-06 at 23:16 +0300, Michael S. Tsirkin wrote:
+> On Wed, Jun 06, 2012 at 10:08:09PM +0200, Eric Dumazet wrote:
+> > On Wed, 2012-06-06 at 22:58 +0300, Michael S. Tsirkin wrote:
 > > 
-> > If both counters are read atomically the metric becomes more exact.
-> > Not a must but nice to have.
+> > > Absolutely, I am talking about virtio here.  I'm not kicking
+> > > u64_stats_sync idea I am just saying that simple locking
+> > > would work for virtio and might be better as it
+> > > gives us a way to get counters atomically.
 > > 
+> > Which lock do you own in the RX path ?
 > 
-> metrics are exact right now.
+> We can just disable napi, everything is updated from napi callback.
 
-Yes, but they are not synchronised between themselves.
-E.g. you can in theory have a report where #of packets > #of bytes.
+This is very disruptive, and illegal from ndo_get_stats64()
 
-I know there's no guarantee they are synchronised
-on an arbitrary device but if they are, without
-slowing fast path, it's nice.
+(ndo_get_stats64() is not allowed to sleep, and I cant see how you are
+going to disable napi without sleeping)
