@@ -1,14 +1,19 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH v3] virtio_blk: unlock vblk->lock during kick
-Date: Wed, 6 Jun 2012 16:25:55 +0100
-Message-ID: <CAJSP0QWkXeCQKOEMoV6XkNpwbnQczq9Smx85=Tg-73A9fmSyVQ__44853.8869074129$1338996369$gmane$org@mail.gmail.com>
-References: <1338541986-8083-1-git-send-email-stefanha@linux.vnet.ibm.com>
-	<20120604111134.GA28673@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-net: fix a race on 32bit arches
+Date: Wed, 6 Jun 2012 19:17:15 +0300
+Message-ID: <20120606161715.GA17575@redhat.com>
+References: <1338971724.2760.3913.camel@edumazet-glaptop>
+	<1338972341.2760.3944.camel@edumazet-glaptop>
+	<20120606111357.GA15070@redhat.com>
+	<1338988210.2760.4485.camel@edumazet-glaptop>
+	<20120606144941.GA17092@redhat.com>
+	<1338995944.26966.6.camel@edumazet-glaptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120604111134.GA28673@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1338995944.26966.6.camel@edumazet-glaptop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,45 +23,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: khoa@us.ibm.com, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 4, 2012 at 12:11 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Fri, Jun 01, 2012 at 10:13:06AM +0100, Stefan Hajnoczi wrote:
->> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->> index 774c31d..d674977 100644
->> --- a/drivers/block/virtio_blk.c
->> +++ b/drivers/block/virtio_blk.c
->> @@ -199,8 +199,14 @@ static void do_virtblk_request(struct request_queue=
- *q)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 issued++;
->> =A0 =A0 =A0 }
->>
->> - =A0 =A0 if (issued)
->> - =A0 =A0 =A0 =A0 =A0 =A0 virtqueue_kick(vblk->vq);
->> + =A0 =A0 if (!issued)
->> + =A0 =A0 =A0 =A0 =A0 =A0 return;
->> +
->> + =A0 =A0 if (virtqueue_kick_prepare(vblk->vq)) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 spin_unlock_irq(vblk->disk->queue->queue_lock);
->> + =A0 =A0 =A0 =A0 =A0 =A0 virtqueue_notify(vblk->vq);
->
-> If blk_done runs and completes the request at this point,
-> can hot unplug then remove the queue?
-> If yes will we get a use after free?
+On Wed, Jun 06, 2012 at 05:19:04PM +0200, Eric Dumazet wrote:
+> On Wed, 2012-06-06 at 17:49 +0300, Michael S. Tsirkin wrote:
+> > On Wed, Jun 06, 2012 at 03:10:10PM +0200, Eric Dumazet wrote:
+> > > On Wed, 2012-06-06 at 14:13 +0300, Michael S. Tsirkin wrote:
+> > > 
+> > > > We currently do all stats either on napi callback or from
+> > > > start_xmit callback.
+> > > > This makes them safe, yes?
+> > > 
+> > > Hmm, then _bh() variant is needed in virtnet_stats(), as explained in
+> > > include/linux/u64_stats_sync.h section 6)
+> > > 
+> > >  * 6) If counter might be written by an interrupt, readers should block interrupts.
+> > >  *    (On UP, there is no seqcount_t protection, a reader allowing interrupts could
+> > >  *     read partial values)
+> > > 
+> > > Yes, its tricky...
+> > 
+> > Sounds good, but I have a question: this realies on counters
+> > being atomic on 64 bit.
+> > Would not it be better to always use a seqlock even on 64 bit?
+> > This way counters would actually be correct and in sync.
+> > As it is if we want e.g. average packet size,
+> > we can not rely e.g. on it being bytes/packets.
+> 
+> When this stuff was discussed, we chose to have a nop on 64bits.
+> 
+> Your point has little to do with 64bit stats, it was already like that
+> with 'long int' counters.
 
-This is a difficult question, I haven't been able to decide one way or
-another.  The use-after-free is the
-spin_lock_irq(vblk->disk->queue->queue_lock).
+Yes, of course.
 
-It still doesn't explain why existing drivers are doing this.  In nbd,
-for example, I can't see anything preventing the same situation in
-drivers/block/nbd.c:do_nbd_request() between wake_up() and
-spin_lock_irq(q->queue_lock).  If the request completes (like in your
-example scenario) then the module remove code path has no way of
-knowing there is still a thread in do_nbd_request().
+> Consider average driver doing :
+> 
+> dev->stats.rx_bytes += skb->len;
+> dev->stats.rx_packets++;
+> 
+> A concurrent reader can read an updated rx_bytes and a 'previous'
+> rx_packets one.
+> 
+> 'fixing' this requires a lot of work and memory barriers (in all
+> drivers), for a very litle gain (at most one packet error)
+> u64_stats_sync was really meant to be 0-cost on 64bit arches.
+> 
+> 
 
-Any ideas?
+I understand, and not arguing about that.
 
-Stefan
+But why do you say at most 1 packet?
+
+Consider get_stats doing:
+               u64_stats_update_begin(&stats->syncp);
+               stats->tx_bytes += skb->len;
+
+on 64 bit at this point
+tx_packets might get incremented any number of times, no?
+
+                stats->tx_packets++;
+                u64_stats_update_end(&stats->syncp);
+
+now tx_bytes and tx_packets are out of sync by more than 1.
