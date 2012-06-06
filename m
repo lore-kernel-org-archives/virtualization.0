@@ -1,19 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
 Subject: Re: [PATCH] virtio-net: fix a race on 32bit arches
-Date: Wed, 6 Jun 2012 19:57:55 +0300
-Message-ID: <20120606165754.GA19357@redhat.com>
+Date: Wed, 06 Jun 2012 21:54:01 +0200
+Message-ID: <1339012441.26966.48.camel__549.24562941796$1339012460$gmane$org@edumazet-glaptop>
 References: <1338971724.2760.3913.camel@edumazet-glaptop>
 	<1338972341.2760.3944.camel@edumazet-glaptop>
 	<20120606111357.GA15070@redhat.com>
 	<1338988210.2760.4485.camel@edumazet-glaptop>
 	<20120606144941.GA17092@redhat.com>
-	<1338995944.26966.6.camel@edumazet-glaptop>
+	<20120606081432.6b602065@nehalam.linuxnetplumber.net>
+	<20120606185107.GA20503@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1338995944.26966.6.camel@edumazet-glaptop>
+In-Reply-To: <20120606185107.GA20503@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,60 +23,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 06, 2012 at 05:19:04PM +0200, Eric Dumazet wrote:
-> On Wed, 2012-06-06 at 17:49 +0300, Michael S. Tsirkin wrote:
-> > On Wed, Jun 06, 2012 at 03:10:10PM +0200, Eric Dumazet wrote:
-> > > On Wed, 2012-06-06 at 14:13 +0300, Michael S. Tsirkin wrote:
-> > > 
-> > > > We currently do all stats either on napi callback or from
-> > > > start_xmit callback.
-> > > > This makes them safe, yes?
-> > > 
-> > > Hmm, then _bh() variant is needed in virtnet_stats(), as explained in
-> > > include/linux/u64_stats_sync.h section 6)
-> > > 
-> > >  * 6) If counter might be written by an interrupt, readers should block interrupts.
-> > >  *    (On UP, there is no seqcount_t protection, a reader allowing interrupts could
-> > >  *     read partial values)
-> > > 
-> > > Yes, its tricky...
-> > 
-> > Sounds good, but I have a question: this realies on counters
-> > being atomic on 64 bit.
-> > Would not it be better to always use a seqlock even on 64 bit?
-> > This way counters would actually be correct and in sync.
-> > As it is if we want e.g. average packet size,
-> > we can not rely e.g. on it being bytes/packets.
-> 
-> When this stuff was discussed, we chose to have a nop on 64bits.
-> 
-> Your point has little to do with 64bit stats, it was already like that
-> with 'long int' counters.
-> 
-> Consider average driver doing :
-> 
-> dev->stats.rx_bytes += skb->len;
-> dev->stats.rx_packets++;
-> 
-> A concurrent reader can read an updated rx_bytes and a 'previous'
-> rx_packets one.
-> 
-> 'fixing' this requires a lot of work and memory barriers (in all
-> drivers), for a very litle gain (at most one packet error)
-> 
-> u64_stats_sync was really meant to be 0-cost on 64bit arches.
+On Wed, 2012-06-06 at 21:51 +0300, Michael S. Tsirkin wrote:
+
+> BTW for cards that do implement the counters in software,
+> under xmit lock, is anything wrong with simply taking the xmit lock
+> when we get the stats instead of the per-cpu trick + seqlock?
 > 
 
+I still dont understand why you would do that.
 
+Most modern machines are 64bits, so there is no seqlock overhead,
+nothing at all.
 
-So for virtio since all counters get incremented from bh we can
-ensure they are read atomically, simply but reading them
-from the correct CPU with bh disabled.
-And then we don't need u64_stats_sync at all.
+If you focus on 32bit hardware, just stick on 32bit counters ?
 
--- 
-MST
+Note that most u64_stats_sync users are virtual drivers, without xmit
+lock (LLTX drivers)
