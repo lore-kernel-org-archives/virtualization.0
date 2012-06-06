@@ -1,7 +1,7 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
 Subject: Re: [PATCH] virtio-net: fix a race on 32bit arches
-Date: Wed, 6 Jun 2012 21:35:04 +0100
-Message-ID: <1339014904.2836.56.camel@bwh-desktop.uk.solarflarecom.com>
+Date: Wed, 06 Jun 2012 22:38:03 +0200
+Message-ID: <1339015083.26966.74.camel@edumazet-glaptop>
 References: <1338971724.2760.3913.camel@edumazet-glaptop>
 	<1338972341.2760.3944.camel@edumazet-glaptop>
 	<20120606111357.GA15070@redhat.com>
@@ -13,11 +13,12 @@ References: <1338971724.2760.3913.camel@edumazet-glaptop>
 	<20120606195814.GA20677@redhat.com>
 	<1339013289.26966.62.camel@edumazet-glaptop>
 	<20120606201620.GA23358@redhat.com>
+	<1339014259.26966.70.camel@edumazet-glaptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120606201620.GA23358@redhat.com>
+In-Reply-To: <1339014259.26966.70.camel@edumazet-glaptop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,34 +29,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@vyatta.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2012-06-06 at 23:16 +0300, Michael S. Tsirkin wrote:
-> On Wed, Jun 06, 2012 at 10:08:09PM +0200, Eric Dumazet wrote:
-> > On Wed, 2012-06-06 at 22:58 +0300, Michael S. Tsirkin wrote:
-> > 
-> > > Absolutely, I am talking about virtio here.  I'm not kicking
-> > > u64_stats_sync idea I am just saying that simple locking
-> > > would work for virtio and might be better as it
-> > > gives us a way to get counters atomically.
-> > 
-> > Which lock do you own in the RX path ?
+On Wed, 2012-06-06 at 22:24 +0200, Eric Dumazet wrote:
+
+> (ndo_get_stats64() is not allowed to sleep, and I cant see how you are
+> going to disable napi without sleeping)
 > 
-> We can just disable napi, everything is updated from napi callback.
-
-Seriously, though: don't do that; this is going to hurt performance for
-minimal benefit.
-
-Ben.
-
-> > You'll have to add a lock in fast path. This sounds really a bad choice
-> > to me.
-> 
-> .ndo_get_stats64 is not data path though, is it?
 > 
 
--- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
+In case you wonder, take a look at bond_get_stats() in
+drivers/net/bonding/bond_main.c
