@@ -1,23 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-net: fix a race on 32bit arches
-Date: Wed, 6 Jun 2012 23:43:35 +0300
-Message-ID: <20120606204335.GA23552@redhat.com>
-References: <20120606111357.GA15070@redhat.com>
-	<1338988210.2760.4485.camel@edumazet-glaptop>
-	<20120606144941.GA17092@redhat.com>
-	<20120606081432.6b602065@nehalam.linuxnetplumber.net>
-	<20120606185107.GA20503@redhat.com>
-	<1339012441.26966.48.camel@edumazet-glaptop>
-	<20120606195814.GA20677@redhat.com>
-	<1339013289.26966.62.camel@edumazet-glaptop>
-	<20120606201620.GA23358@redhat.com>
-	<1339014904.2836.56.camel@bwh-desktop.uk.solarflarecom.com>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Subject: Re: [V2 RFC net-next PATCH 2/2] virtio_net: export more statistics
+	through ethtool
+Date: Thu, 7 Jun 2012 18:15:06 +0100
+Message-ID: <1339089306.2770.10.camel@bwh-desktop.uk.solarflarecom.com>
+References: <20120606075208.29081.75284.stgit@amd-6168-8-1.englab.nay.redhat.com>
+	<20120606075217.29081.30713.stgit@amd-6168-8-1.englab.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1339014904.2836.56.camel@bwh-desktop.uk.solarflarecom.com>
+In-Reply-To: <20120606075217.29081.30713.stgit@amd-6168-8-1.englab.nay.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,40 +19,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <bhutchings@solarflare.com>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stephen Hemminger <shemminger@vyatta.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 06, 2012 at 09:35:04PM +0100, Ben Hutchings wrote:
-> On Wed, 2012-06-06 at 23:16 +0300, Michael S. Tsirkin wrote:
-> > On Wed, Jun 06, 2012 at 10:08:09PM +0200, Eric Dumazet wrote:
-> > > On Wed, 2012-06-06 at 22:58 +0300, Michael S. Tsirkin wrote:
-> > > 
-> > > > Absolutely, I am talking about virtio here.  I'm not kicking
-> > > > u64_stats_sync idea I am just saying that simple locking
-> > > > would work for virtio and might be better as it
-> > > > gives us a way to get counters atomically.
-> > > 
-> > > Which lock do you own in the RX path ?
-> > 
-> > We can just disable napi, everything is updated from napi callback.
+On Wed, 2012-06-06 at 15:52 +0800, Jason Wang wrote:
+> Satistics counters is useful for debugging and performance optimization, so this
+> patch lets virtio_net driver collect following and export them to userspace
+> through "ethtool -S":
 > 
-> Seriously, though: don't do that; this is going to hurt performance for
-> minimal benefit.
+> - number of packets sent/received
+> - number of bytes sent/received
+> - number of callbacks for tx/rx
+> - number of kick for tx/rx
+> - number of bytes/packets queued for tx
 > 
-> Ben.
+> As virtnet_stats were per-cpu, so both per-cpu and gloabl satistics were
+> collected like:
+[...]
 
-Yea, it doesn't work anyway. Maybe take a xmit lock for tx and keep
-using the per-cpu counters for rx. Or does this sound too disruptive
-too?
+I would really like to see some sort of convention for presenting
+per-queue statistics through ethtool.  At the moment we have a complete
+mess of different formats:
 
-> > > You'll have to add a lock in fast path. This sounds really a bad choice
-> > > to me.
-> > 
-> > .ndo_get_stats64 is not data path though, is it?
-> > 
-> 
-> -- 
-> Ben Hutchings, Staff Engineer, Solarflare
-> Not speaking for my employer; that's the marketing department's job.
-> They asked us to note that Solarflare product names are trademarked.
+bnx2x:    "[${index}]: ${name}"
+be2net:   "${qtype}q${index}: ${name}"
+ehea:     "PR${index} ${name}"
+mlx4_en:  "${qtype}${index}_${name}"
+myri10ge: dummy stat names as headings
+niu:      dummy stat names as headings
+s2io:     "ring_${index}_${name}"
+vmxnet3:  dummy stat names as headings
+vxge:     "${name}_${index}"; also dummy stat names as headings
+
+And you're introducing yet another format!
+
+(Additionally some of the drivers are playing games with spaces and tabs
+to make ethtool indent the stats the way they like.  Ethtool statistics
+are inconsistent enough already without drivers pulling that sort of
+crap.
+
+I'm inclined to make ethtool start stripping whitespace from stat names,
+and *if* people can agree on a common format for per-queue statistic
+names then I'll indent them *consistently*.  Also, I would make such
+stats optional, so you don't get hundreds of lines of crap by default.)
+
+Ben.
+
+-- 
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
