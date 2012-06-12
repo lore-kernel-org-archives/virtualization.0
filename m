@@ -1,13 +1,11 @@
-From: Aravind Menon <aravind.menon@fb.com>
-Subject: International Workshop on Management of Big Data Systems (MBDS
-	2012) - Deadline is near
-Date: Tue, 12 Jun 2012 15:53:31 +0000
-Message-ID: <5A99C9E213203D488658E5F6F05D831636107B15@SC-MBX01-1.TheFacebook.com>
+From: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
+Subject: [vmw_vmci RFCv2 00/11] VMCI for Linux
+Date: Tue, 12 Jun 2012 13:44:19 -0700
+Message-ID: <1339533870-24187-1-git-send-email-astiegmann__12742.2426747673$1339533907$gmane$org@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,148 +15,131 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vm-crosstalk@vmware.com
+Cc: acking@vmware.com, dtor@vmware.com, gregkh@linuxfoundation.org, dsouders@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Second revision of the VMware VMCI RFC patchset.  It incorperates
+fixes for all the feedback about the comment blocks and style and now
+passes checkpatch with 0 errors and 0 warnings.  Thanks to all who
+have reviewed the code thus far.
 
+* * *
 
-Apologies if you received duplicate copies of this Call for Papers.
+In an effort to improve the out-of-the-box experience with Linux
+kernels for VMware users, VMware is working on readying the Virtual
+Machine Communication Interface (vmw_vmci) and VMCI Sockets
+(vmw_vsock) kernel modules for inclusion in the Linux kernel. The
+purpose of this post is to acquire feedback on the vmw_vmci kernel
+module. The vmw_vsock kernel module will be presented in a later post.
 
-Sincerely,
-Aravind Menon
-MBDS 2012
+VMCI allows virtual machines to communicate with host kernel modules
+and the VMware hypervisors. User level applications both in a virtual
+machine and on the host can use vmw_vmci through VMCI Sockets, a socket
+address family designed to be compatible with UDP and TCP at the
+interface level. Today, VMCI and VMCI Sockets are used by the VMware
+shared folders (HGFS) and various VMware Tools components inside the
+guest for zero-config, network-less access to VMware host services. In
+addition to this, VMware's users are using VMCI Sockets for various
+applications, where network access of the virtual machine is
+restricted or non-existent. Examples of this are VMs communicating
+with device proxies for proprietary hardware running as host
+applications and automated testing of applications running within
+virtual machines.
 
------------------------------------------------------------------
+In a virtual machine, VMCI is exposed as a regular PCI device. The
+primary communication mechanisms supported are a point-to-point
+bidirectional transport based on a pair of memory-mapped queues, and
+asynchronous notifications in the form of datagrams and
+doorbells. These features are available to kernel level components
+such as HGFS and VMCI Sockets through the VMCI kernel API. In addition
+to this, the VMCI kernel API provides support for receiving events
+related to the state of the VMCI communication channels, and the
+virtual machine itself.
 
-CALL FOR PAPERS
+Outside the virtual machine, the host side support of the VMCI kernel
+module makes the same VMCI kernel API available to VMCI endpoints on
+the host. In addition to this, the host side manages each VMCI device
+in a virtual machine through a context object. This context object
+serves to identify the virtual machine for communication, and to track
+the resource consumption of the given VMCI device. Both operations
+related to communication between the virtual machine and the host
+kernel, and those related to the management of the VMCI device state
+in the host kernel, are invoked by the user level component of the
+hypervisor through a set of ioctls on the VMCI device node.  To
+provide seamless support for nested virtualization, where a virtual
+machine may use both a VMCI PCI device to talk to its hypervisor, and
+the VMCI host side support to run nested virtual machines, the VMCI
+host and virtual machine support are combined in a single kernel
+module.
 
-International Workshop on Management of Big Data Systems (MBDS 2012)
-http://www.cercs.gatech.edu/mbds12
+For additional information about the use of VMCI and in particular
+VMCI Sockets, please refer to the VMCI Socket Programming Guide
+available at https://www.vmware.com/support/developer/vmci-sdk/.
 
-In conjunction with ICAC 2012
-http://icac2012.cs.fiu.edu
+Andrew Stiegmann (stieg) (11):
+  Apply VMCI context code
+  Apply VMCI datagram code
+  Apply VMCI doorbell code
+  Apply VMCI driver code
+  Apply VMCI event code
+  Apply dynamic array code
+  Apply VMCI hash table
+  Apply VMCI queue pairs
+  Apply VMCI resource code
+  Apply vmci routing code
+  Apply the header code to make VMCI build
 
-September 21, 2012, San Jose, CA
-
------------------------------------------------------------------
-
-IMPORTANT DATES
-
-Paper submission due:  June 15, 2012
-Author notification:   July 30, 2012
-Workshop:              Sep 21, 2012
-
------------------------------------------------------------------
-
-OVERVIEW
-
-Data is growing at an exponential rate and several systems have emerged
-to store and analyze such large amounts of data. These systems, termed
-=93Big data systems=94 are fast evolving Examples include the NoSQL storage
-systems, Hadoop Map-Reduce, data analytics platforms, search and indexing
-platforms, and messaging infrastructures. These systems address needs for
-structured and unstructured data across a wide spectrum of domains such
-as web, social networks, enterprise, cloud, mobile, sensor networks,
-multimedia/streaming, cyberphysical and high performance systems, and
-for multiple application verticals such as biosciences, healthcare,
-transportation, public sector, energy utilities, oil & gas, and scientific
-computing.
-
-With increasing scale and complexity, managing these big data systems to
-cope with failures and performance problems is becoming non-trivial.
-New resource management and scheduling mechanisms are also needed for such
-systems, and so are mechanisms for tuning and support from platform layers.
-Several open source and proprietary solutions have been proposed to address
-these requirements, with extensive contributions from industry and academia.
-However, there remain substantial challenges, including those that pertain
-to such systems=92 autonomic and self-management capabilities.
-
-The objective of the MBDS workshop is to bring together researchers,
-practitioners, system administrators, system programmers, and others
-interested in sharing and presenting their perspectives on the effective
-management of big data systems. The focus of the workshop is on novel and
-practical, systems-oriented work. MBDS offers an opportunity for researchers
-and practitioners from industry, academia, and national labs to showcase the
-latest advances in this area and to also discuss and identify future direct=
-ions
-and challenges in all aspects on autonomic management of big data systems.
-
-Papers are solicited on all aspects of big data management. Specific topics
-of interest include, but are not limited, to the following:
-
-* Autonomic and self-managing techniques
-
-* Application-level resource management and scheduling mechanisms
-
-* System tuning/auto-tuning and configuration management
-
-* Performance management, fault management, and power management
-
-* Scalability challenges
-
-* Complexity challenges, as for composite, cross-tier systems with multiple=
- control loops
-
-* Unified management of =91data in motion=92 and =91data at rest=92
-
-* Dealing with both structured and unstructured data
-
-* Monitoring, diagnosis, and automated behaviour detection
-
-* System-level principles and support for resource management
-
-* Holistic management across hardware and software
-
-* Implications of emerging hardware technologies such as non-volatile memory
-
-* Domain specific challenges in web, cloud, social networks, mobile, sensor=
- networks,
-  streaming analytics, cyber-physical systems
-
-* System building and experience papers for specific industry verticals
-
------------------------------------------------------------------
-
-PAPER SUBMISSIONS
-
-Full papers (a maximum of 6 pages in the two-column ACM proceedings
-format) are invited on a wide variety of topics relating to management of b=
-ig
-data systems. Submitted papers must be original work, and may not be under
-consideration for another conference or journal. Complete formatting and
-submission instructions can be found on the workshop web site. Accepted
-papers will appear in proceedings distributed at the conference and availab=
-le
-electronically.
-
------------------------------------------------------------------
-
-WORKSHOP ORGANIZERS
-
-Karsten Schwan, Georgia Tech
-Vanish Talwar, HP Labs
-
-PUBLICITY CHAIR
-
-Aravind Menon, Facebook
-
-PROGRAM COMMITTEE
-
-Amitanand Aiyer, Facebook
-Adhyas Avasthi, Nokia Research
-Milind Bhandarkar, Greenplum Labs, EMC
-Randal Burns, John Hopkins University
-Garth Gibson, Carnegie Mellon University and Panasas Inc.
-Herodotos Herodotou, Duke University
-Michael A Kozuch, Intel
-Kai Li, Princeton University
-Mohamed Mansour, Amazon
-Aravind Menon, Facebook
-Arif Merchant, Google
-Beth Plale, Indiana University
-Indrajit Roy, HP Labs
-Gabor Szabo, Twitter
-Craig Ulmer, Sandia National Lab
-Kushagra Vaid, Microsoft
-Weikuan Yu, Auburn University
-Philip Zeyliger, Cloudera
+ drivers/misc/Kconfig                      |    1 +
+ drivers/misc/Makefile                     |    1 +
+ drivers/misc/vmw_vmci/Kconfig             |   16 +
+ drivers/misc/vmw_vmci/Makefile            |   43 +
+ drivers/misc/vmw_vmci/vmci_common_int.h   |   58 +
+ drivers/misc/vmw_vmci/vmci_context.c      | 1269 +++++++++++
+ drivers/misc/vmw_vmci/vmci_context.h      |  161 ++
+ drivers/misc/vmw_vmci/vmci_datagram.c     |  586 +++++
+ drivers/misc/vmw_vmci/vmci_datagram.h     |   56 +
+ drivers/misc/vmw_vmci/vmci_doorbell.c     |  751 ++++++
+ drivers/misc/vmw_vmci/vmci_doorbell.h     |   57 +
+ drivers/misc/vmw_vmci/vmci_driver.c       | 2297 +++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_driver.h       |   52 +
+ drivers/misc/vmw_vmci/vmci_event.c        |  453 ++++
+ drivers/misc/vmw_vmci/vmci_event.h        |   29 +
+ drivers/misc/vmw_vmci/vmci_handle_array.c |  174 ++
+ drivers/misc/vmw_vmci/vmci_handle_array.h |   50 +
+ drivers/misc/vmw_vmci/vmci_hash_table.c   |  332 +++
+ drivers/misc/vmw_vmci/vmci_hash_table.h   |   56 +
+ drivers/misc/vmw_vmci/vmci_queue_pair.c   | 3549 +++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_queue_pair.h   |  182 ++
+ drivers/misc/vmw_vmci/vmci_resource.c     |  194 ++
+ drivers/misc/vmw_vmci/vmci_resource.h     |   62 +
+ drivers/misc/vmw_vmci/vmci_route.c        |  241 ++
+ drivers/misc/vmw_vmci/vmci_route.h        |   34 +
+ include/linux/vmw_vmci_api.h              |   89 +
+ include/linux/vmw_vmci_defs.h             |  921 ++++++++
+ 27 files changed, 11714 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/vmw_vmci/Kconfig
+ create mode 100644 drivers/misc/vmw_vmci/Makefile
+ create mode 100644 drivers/misc/vmw_vmci/vmci_common_int.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_context.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_context.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_driver.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_driver.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_hash_table.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_hash_table.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_route.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_route.h
+ create mode 100644 include/linux/vmw_vmci_api.h
+ create mode 100644 include/linux/vmw_vmci_defs.h
