@@ -1,16 +1,17 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH RFC 1/2] block: Add blk_bio_map_sg() helper
-Date: Thu, 14 Jun 2012 16:19:46 +0800
-Message-ID: <4FD99EA2.5010608@redhat.com>
-References: <1339573307-11537-1-git-send-email-asias@redhat.com>
-	<1339573307-11537-2-git-send-email-asias@redhat.com>
-	<20120614023156.GB3766@dhcp-172-17-108-109.mtv.corp.google.com>
-	<4FD992F7.5050800@kernel.dk>
+From: Fengguang Wu <wfg@linux.intel.com>
+Subject: Re: =?utf-8?Q?drivers=2Fblock=2Fcpqarray?=
+	=?utf-8?Q?=2Ec=3A938=3A2=3A_error=3A_too_many_arguments_to_function_?=
+	=?utf-8?B?5oW0bGtfcnFfbWFwX3Nn77+9?=
+Date: Thu, 14 Jun 2012 17:01:51 +0800
+Message-ID: <20120614090151.GA12013@localhost>
+References: <4fd91c3f.KAwMcygw9fFGn9Cx%wfg@linux.intel.com>
+	<4FD984F3.3070502@kernel.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4FD992F7.5050800@kernel.dk>
+Content-Disposition: inline
+In-Reply-To: <4FD984F3.3070502@kernel.dk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,31 +22,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Jens Axboe <axboe@kernel.dk>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>, Shaohua Li <shli@kernel.org>, Christoph Hellwig <hch@lst.de>
+Cc: linux-raid@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/14/2012 03:29 PM, Jens Axboe wrote:
-> On 2012-06-14 04:31, Tejun Heo wrote:
->> On Wed, Jun 13, 2012 at 03:41:46PM +0800, Asias He wrote:
->>> Add a helper to map a bio to a scatterlist, modelled after
->>> blk_rq_map_sg.
->>>
->>> This helper is useful for any driver that wants to create
->>> a scatterlist from its ->make_request_fn method.
->>
->> This may not be possible but I really wanna avoid having two copies of
->> that complex logic.  Any chance blk_rq_map_bio() can be implemented in
->> a way that allows blk_rq_map_sg() can be built on top of it?  Also,
->
-> Was thinking the same thing, definitely code we don't want to have
-> duplicated. We've had mapping bugs in the past.
->
-> Asias, this should be trivial to do, except that blk_rq_map_sg()
-> potentially maps across bio's as well. The tracking of the prev bio_vec
-> does not care about cross bio boundaries.
+Hi Jens,
 
-Sure. I will try this and send v2.
+On Thu, Jun 14, 2012 at 08:30:11AM +0200, Jens Axboe wrote:
+> On 06/14/2012 01:03 AM, wfg@linux.intel.com wrote:
+> > FYI, kernel build failed on
+> > 
+> > tree:   git://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git multiqueue
+> > head:   e9a6aa8a0b7b93195774a9fcf551632bf3abcd97
+> > commit: 67db7275fa4325d46853a4bfcb79acf32e48eca8 [1/3] multiqueue: a hodge podge of things
+> 
+> The multiqueue branch is a private branch, it's known broken on many
+> configs at the moment.
 
+OK. Sorry my script just blindly build tests every new/updated branches
+in the tree. It does try to reduce noise level by remembering all warned
+error messages. However if it still presents a problem to the private
+branches, I can either explicitly blacklist "multiqueue", or let the
+script automatically skip commits whose "^Signed-off-by:" is still missing.
 
--- 
-Asias
+Thanks,
+Fengguang
