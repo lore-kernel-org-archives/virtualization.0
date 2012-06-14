@@ -1,18 +1,18 @@
-From: Fengguang Wu <wfg@linux.intel.com>
-Subject: Re: drivers/block/cpqarray.c:938:2: error: too many arguments to
-	function lk_rq_map_sg
-Date: Thu, 14 Jun 2012 19:31:42 +0800
-Message-ID: <20120614113142.GA13954@localhost>
-References: <4fd91c3f.KAwMcygw9fFGn9Cx%wfg@linux.intel.com>
-	<4FD984F3.3070502@kernel.dk> <20120614090151.GA12013@localhost>
-	<4FD9A95D.40903@kernel.dk> <20120614100205.GA13217@localhost>
-	<4FD9C0D2.20500@kernel.dk>
+From: Dor Laor <dlaor@redhat.com>
+Subject: Re: [vmw_vmci RFC 00/11] VMCI for Linux
+Date: Thu, 14 Jun 2012 14:52:11 +0300
+Message-ID: <4FD9D06B.4090209__10358.6523714059$1339674749$gmane$org@redhat.com>
+References: <20120515235024.GB1758@kroah.com>
+	<552579991.43606.1338564781979.JavaMail.root@vmware.com>
+	<20120604225757.GC7041@kroah.com>
+	<20120605070251.GA28032@dtor-ws.eng.vmware.com>
+	<20120606050652.GB14065@kroah.com>
+Reply-To: dlaor@redhat.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4FD9C0D2.20500@kernel.dk>
+In-Reply-To: <20120606050652.GB14065@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,62 +22,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-raid@vger.kernel.org, "git@vger.kernel.org" <git@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: Andy King <acking@vmware.com>, Dmitry Torokhov <dtor@vmware.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dsouders@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, akpm@linux-foundation.org, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 14, 2012 at 12:45:38PM +0200, Jens Axboe wrote:
-> On 06/14/2012 12:02 PM, Fengguang Wu wrote:
-> > On Thu, Jun 14, 2012 at 11:05:33AM +0200, Jens Axboe wrote:
-> >> On 06/14/2012 11:01 AM, Fengguang Wu wrote:
-> >>> Hi Jens,
-> >>>
-> >>> On Thu, Jun 14, 2012 at 08:30:11AM +0200, Jens Axboe wrote:
-> >>>> On 06/14/2012 01:03 AM, wfg@linux.intel.com wrote:
-> >>>>> FYI, kernel build failed on
-> >>>>>
-> >>>>> tree:   git://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git multiqueue
-> >>>>> head:   e9a6aa8a0b7b93195774a9fcf551632bf3abcd97
-> >>>>> commit: 67db7275fa4325d46853a4bfcb79acf32e48eca8 [1/3] multiqueue: a hodge podge of things
-> >>>>
-> >>>> The multiqueue branch is a private branch, it's known broken on many
-> >>>> configs at the moment.
-> >>>
-> >>> OK. Sorry my script just blindly build tests every new/updated branches
-> >>> in the tree. It does try to reduce noise level by remembering all warned
-> >>> error messages. However if it still presents a problem to the private
-> >>> branches, I can either explicitly blacklist "multiqueue", or let the
-> >>> script automatically skip commits whose "^Signed-off-by:" is still missing.
-> >>
-> >> It's not a problem that you're building various branches, as long as you
-> >> are expecting a bit of noise :-). In fact I applaud your effort on
-> >> expanding the scope of building others branches.
-> >>
-> >> But it does raise the question of how do we best signal intermediate
-> >> branches like this, so they can be avoided until they are ready. The
-> >> blacklist doesn't seem like a great choice, since then I have to
-> >> remember to remind you when it _is_ ok to build it.
-> >>
-> >> How about some arbitrary tag? Instead of checking a Signed-off-by, I
-> >> could just add a Dont-Auto-Build or something like that. What do you
-> >> think?
-> > 
-> > OK, I'll add a grep for "Dont-Auto-Build". If it's found in *any*
-> > commit of the branch, the build script will skip the whole branch.
-> > Does this make sense to you?
-> 
-> Yeah that'll work for me. A description or tag might be more elegant,
-> but this is easier...
+On 06/06/2012 08:06 AM, Greg KH wrote:
+> On Tue, Jun 05, 2012 at 12:02:51AM -0700, Dmitry Torokhov wrote:
+>> Hi Greg,
+>>
+>> On Mon, Jun 04, 2012 at 03:57:57PM -0700, Greg KH wrote:
+>>> On Fri, Jun 01, 2012 at 08:33:02AM -0700, Andy King wrote:
+>>>> Greg,
+>>>>
+>>>> Thanks so much for the comments and apologies for the delayed response.
+>>>>
+>>>>> Don't we have something like this already for KVM and maybe Xen?
+>>>>> virtio?  Can't you use that code instead of a new block of code that
+>>>>> is only used by vmware users?  It has virtual pci devices which
+>>>>> should give you what you want/need here, right?
+>>>>>
+>>>>> If not, why doesn't that work for you?  Would it be easier to just
+>>>>> extend it?
+>>>>
+>>>> The VMCI virtual device for which this driver is intended has been
+>>>> around a lot longer than this submission might suggest.  The virtual
+>>>> hardware was released in a product before Rusty sent his RFC and
+>>>> quite a bit before it made it to mainline; there was, regrettably,
+>>>> no virtio then.
+>>>>
+>>>> As such, it was designed to be its own transport, and it's something
+>>>> that is now very much fixed at the hardware level (enhancements
+>>>> not withstanding), and which we have to support all the way back.
+>>>
+>>> What "hardware" are you refering to here?
+>>
+>> The virtual hardware that is currently shipping and has been shipping
+>> for a few years.
+>>
+>>>
+>>>> In addition to that, our hypervisor endpoints are written using
+>>>> the existing device backend; virtio doesn't currently make a lot of
+>>>> sense for them, and would require a lot of additional work.
+>>>>
+>>>> All of this is unfortunate.  While I agree that virtio is certainly
+>>>> the right approach, and we need to avoid this proliferation, I think
+>>>> at this point we'd really like to try and upstream this in its current
+>>>> form.  There's certainly the possibility going forwards that we could
+>>>> add a glue layer, such that other clients could use virtio if they're
+>>>> willing to write their own hypervisor endpoints.
+>>>>
+>>>> Does that sound reasonable?
+>>>
+>>> Not really, why should we take an interface that is tied to something
+>>> that you are saying isn't something we should be using?
+>>
+>> That is not what Andy said. If virtio was available when we started
+>> shipping VMCI then we certainly could have used that, but since it
+>> wasn't there we invented something else.
+>
+> Ok, that makes sense.
+>
+>>> Don't you also
+>>> have control over the hypervisor side of things in order to properly
+>>> design this type of thing?
+>>
+>> We do not have a time machine to go back and change products that we
+>> already shipped to the customers. It is probably the same story as with
+>> Hyper-V's vmbus which is not virtio.
+>>
+>> Besides, virtio is not available on non-Linux guests with we have to
+>> support as well, and than affected the design decisions in hypervisor
+>> layer that have been made several years ago.
 
-Great, let's settle with the in-commit tag "Dont-Auto-Build" for now :)
+Indeed there is no time machine and I definitely agree you won't be able 
+to port VMCI to virtio-serial w/o major breakage for existing users.
 
-"git branch --edit-description" could potentially be the most elegant
-solution, unfortunately for now there seems no way for me to retrieve
-the branch description edited by you..
+Nevertheless, as I wrote on my previous feedback [1], you can make the 
+VMCI socket generic in a way that virtio-serial users would be able to 
+enjoy. This way VMW users will get out of the box experience w/o any 
+change while KVM users will get socket abstraction layer which carry 
+some benefit over the virtio-serial ports.
 
-Another alternative, git tag, has the problem that it goes out of sync
-every time you do rebase, which will sure happen a lot for early RFC
-patches.
+Dor
 
-Thanks,
-Fengguang
+[1] https://lkml.org/lkml/2012/5/16/126
+
+>
+> Ok, thanks for clearing that up, I was confused here.
+>
+> greg k-h
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
