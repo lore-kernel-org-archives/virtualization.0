@@ -1,15 +1,16 @@
 From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH RFC 1/2] block: Add blk_bio_map_sg() helper
-Date: Thu, 14 Jun 2012 09:29:59 +0200
-Message-ID: <4FD992F7.5050800__35368.3494999588$1339682755$gmane$org@kernel.dk>
-References: <1339573307-11537-1-git-send-email-asias@redhat.com>
-	<1339573307-11537-2-git-send-email-asias@redhat.com>
-	<20120614023156.GB3766@dhcp-172-17-108-109.mtv.corp.google.com>
+Subject: =?UTF-8?B?UmU6IGRyaXZlcnMvYmxvY2svY3BxYXJyYXkuYzo5Mzg6MjogZXJyb3I=?=
+	=?UTF-8?B?OiB0b28gbWFueSBhcmd1bWVudHMgdG8gZnVuY3Rpb24g5oW0bGtfcnFfbWFwX3M=?=
+	=?UTF-8?B?Z++/vQ==?=
+Date: Thu, 14 Jun 2012 11:05:33 +0200
+Message-ID: <4FD9A95D.40903__35466.2199308679$1339682762$gmane$org@kernel.dk>
+References: <4fd91c3f.KAwMcygw9fFGn9Cx%wfg@linux.intel.com>
+	<4FD984F3.3070502@kernel.dk> <20120614090151.GA12013@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120614023156.GB3766@dhcp-172-17-108-109.mtv.corp.google.com>
+In-Reply-To: <20120614090151.GA12013@localhost>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +20,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tejun Heo <tj@kernel.org>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Shaohua Li <shli@kernel.org>, Christoph Hellwig <hch@lst.de>
+To: Fengguang Wu <wfg@linux.intel.com>
+Cc: linux-raid@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2012-06-14 04:31, Tejun Heo wrote:
-> On Wed, Jun 13, 2012 at 03:41:46PM +0800, Asias He wrote:
->> Add a helper to map a bio to a scatterlist, modelled after
->> blk_rq_map_sg.
->>
->> This helper is useful for any driver that wants to create
->> a scatterlist from its ->make_request_fn method.
+On 06/14/2012 11:01 AM, Fengguang Wu wrote:
+> Hi Jens,
 > 
-> This may not be possible but I really wanna avoid having two copies of
-> that complex logic.  Any chance blk_rq_map_bio() can be implemented in
-> a way that allows blk_rq_map_sg() can be built on top of it?  Also,
+> On Thu, Jun 14, 2012 at 08:30:11AM +0200, Jens Axboe wrote:
+>> On 06/14/2012 01:03 AM, wfg@linux.intel.com wrote:
+>>> FYI, kernel build failed on
+>>>
+>>> tree:   git://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git multiqueue
+>>> head:   e9a6aa8a0b7b93195774a9fcf551632bf3abcd97
+>>> commit: 67db7275fa4325d46853a4bfcb79acf32e48eca8 [1/3] multiqueue: a hodge podge of things
+>>
+>> The multiqueue branch is a private branch, it's known broken on many
+>> configs at the moment.
+> 
+> OK. Sorry my script just blindly build tests every new/updated branches
+> in the tree. It does try to reduce noise level by remembering all warned
+> error messages. However if it still presents a problem to the private
+> branches, I can either explicitly blacklist "multiqueue", or let the
+> script automatically skip commits whose "^Signed-off-by:" is still missing.
 
-Was thinking the same thing, definitely code we don't want to have
-duplicated. We've had mapping bugs in the past.
+It's not a problem that you're building various branches, as long as you
+are expecting a bit of noise :-). In fact I applaud your effort on
+expanding the scope of building others branches.
 
-Asias, this should be trivial to do, except that blk_rq_map_sg()
-potentially maps across bio's as well. The tracking of the prev bio_vec
-does not care about cross bio boundaries.
+But it does raise the question of how do we best signal intermediate
+branches like this, so they can be avoided until they are ready. The
+blacklist doesn't seem like a great choice, since then I have to
+remember to remind you when it _is_ ok to build it.
+
+How about some arbitrary tag? Instead of checking a Signed-off-by, I
+could just add a Dont-Auto-Build or something like that. What do you
+think?
 
 -- 
 Jens Axboe
