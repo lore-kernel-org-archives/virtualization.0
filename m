@@ -1,15 +1,15 @@
 From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH 3/3] virtio-blk: Add bio-based IO path for virtio-blk
-Date: Mon, 18 Jun 2012 11:45:52 +0100
-Message-ID: <CAJSP0QXQi5bjza7yRbBBJCjrC0BzafY1-T5aq8tGb+-S0CToYg@mail.gmail.com>
+Subject: Re: [PATCH v2 0/3] Improve virtio-blk performance
+Date: Mon, 18 Jun 2012 11:58:54 +0100
+Message-ID: <CAJSP0QXj0brxkTRGCMcjYU3AZwFbk+O5D2ATNz8GLECt9rNs7w@mail.gmail.com>
 References: <1340002390-3950-1-git-send-email-asias@redhat.com>
-	<1340002390-3950-4-git-send-email-asias@redhat.com>
-	<20120618102108.GD23134@redhat.com>
+	<CAJSP0QXOn-5Krm6hSMmm=zRYkG43k9F4Xe6P+ENMFtgMhTupFA@mail.gmail.com>
+	<4FDEF73E.3010501@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120618102108.GD23134@redhat.com>
+In-Reply-To: <4FDEF73E.3010501@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,68 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
+To: Asias He <asias@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 18, 2012 at 11:21 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Mon, Jun 18, 2012 at 02:53:10PM +0800, Asias He wrote:
->> +static void virtblk_make_request(struct request_queue *q, struct bio *b=
-io)
->> +{
->> + =A0 =A0 struct virtio_blk *vblk =3D q->queuedata;
->> + =A0 =A0 unsigned int num, out =3D 0, in =3D 0;
->> + =A0 =A0 struct virtblk_req *vbr;
->> +
->> + =A0 =A0 BUG_ON(bio->bi_phys_segments + 2 > vblk->sg_elems);
->> + =A0 =A0 BUG_ON(bio->bi_rw & (REQ_FLUSH | REQ_FUA));
->> +
->> + =A0 =A0 vbr =3D virtblk_alloc_req(vblk, GFP_NOIO);
->> + =A0 =A0 if (!vbr) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 bio_endio(bio, -ENOMEM);
->> + =A0 =A0 =A0 =A0 =A0 =A0 return;
->> + =A0 =A0 }
->> +
->> + =A0 =A0 vbr->bio =3D bio;
->> + =A0 =A0 vbr->req =3D NULL;
->> + =A0 =A0 vbr->out_hdr.type =3D 0;
->> + =A0 =A0 vbr->out_hdr.sector =3D bio->bi_sector;
->> + =A0 =A0 vbr->out_hdr.ioprio =3D bio_prio(bio);
->> +
->> + =A0 =A0 sg_set_buf(&vbr->sg[out++], &vbr->out_hdr, sizeof(vbr->out_hdr=
-));
->> +
->> + =A0 =A0 num =3D blk_bio_map_sg(q, bio, vbr->sg + out);
->> +
->> + =A0 =A0 sg_set_buf(&vbr->sg[num + out + in++], &vbr->status,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0sizeof(vbr->status));
->> +
->> + =A0 =A0 if (num) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 if (bio->bi_rw & REQ_WRITE) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 vbr->out_hdr.type |=3D VIRTIO_=
-BLK_T_OUT;
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 out +=3D num;
->> + =A0 =A0 =A0 =A0 =A0 =A0 } else {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 vbr->out_hdr.type |=3D VIRTIO_=
-BLK_T_IN;
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 in +=3D num;
->> + =A0 =A0 =A0 =A0 =A0 =A0 }
->> + =A0 =A0 }
->> +
->> + =A0 =A0 spin_lock_irq(vblk->disk->queue->queue_lock);
->> + =A0 =A0 if (virtqueue_add_buf(vblk->vq, vbr->sg, out, in, vbr,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 GFP_ATOMIC) < 0) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 spin_unlock_irq(vblk->disk->queue->queue_lock);
+On Mon, Jun 18, 2012 at 10:39 AM, Asias He <asias@redhat.com> wrote:
+> On 06/18/2012 05:14 PM, Stefan Hajnoczi wrote:
+>>
+>> On Mon, Jun 18, 2012 at 7:53 AM, Asias He <asias@redhat.com> wrote:
+>>>
+>>> Fio test shows it gives, 28%, 24%, 21%, 16% IOPS boost and 32%, 17%, 21=
+%,
+>>> 16%
+>>> latency improvement for sequential read/write, random read/write
+>>> respectively.
+>>
+>>
+>> Sounds great. =A0What storage configuration did you use (single spinning
+>> disk, SSD, storage array) and are these numbers for parallel I/O or
+>> sequential I/O?
 >
-> Any implications of dropping lock like that?
-> E.g. for suspend. like we are still discussing with
-> unlocked kick?
+>
+> I used ramdisk as the backend storage.
 
-Since we aquired the lock in this function there should be no problem.
- Whatever protects against vblk or vblk->disk disappearing upon
-entering this function also protects after unlocking queue_lock.
-Otherwise all .make_request_fn() functions would be broken.
-
-I'd still like to understand the details though.
+As long as the latency is decreasing that's good.  But It's worth
+keeping in mind that these percentages are probably wildly different
+on real storage devices and/or qemu-kvm.  What we don't know here is
+whether this bottleneck matters in real environments - results with
+real storage and with qemu-kvm would be interesting.
 
 Stefan
