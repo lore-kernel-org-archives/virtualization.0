@@ -1,20 +1,17 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCH RFC] virtio-spec: flexible configuration layout
-Date: Mon, 18 Jun 2012 14:05:17 +0200
-Message-ID: <1340021117.22848.3.camel__8510.0025091835$1340021070$gmane$org@lappy>
-References: <1320150813.3847.24.camel@lappy>
-	<20111101124223.GA14060@redhat.com> <8739e7uy87.fsf@rustcorp.com.au>
-	<20111102233110.GA20289@redhat.com> <20111108214021.GA4538@redhat.com>
-	<1320828366.31056.16.camel@lappy> <20111109101318.GB20612@redhat.com>
-	<alpine.LFD.2.02.1111091421570.4936@tux.localdomain>
-	<1320841683.31056.41.camel@lappy>
-	<alpine.LFD.2.02.1111091434230.4936@tux.localdomain>
-	<20120618115440.GA25042@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH RFC] virtio-pci: add MMIO property
+Date: Mon, 18 Jun 2012 15:05:04 +0300
+Message-ID: <20120618120503.GA25390@redhat.com>
+References: <20120319155650.GA6430@redhat.com> <4F6786C5.3080902@codemonkey.ws>
+	<20120319204952.GA9747@redhat.com> <4F67A021.6040601@us.ibm.com>
+	<20120319212916.GC9747@redhat.com> <4F67AF72.8080905@codemonkey.ws>
+	<877gygqhbp.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120618115440.GA25042@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <877gygqhbp.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,28 +21,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Krishna Kumar <krkumar2@in.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, Wang Sheng-Hui <shhuiw@gmail.com>, Alexey Kardashevskiy <aik@ozlabs.ru>, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Pekka Enberg <penberg@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, penberg@cs.helsinki.fi, avi@redhat.com, Amit Shah <amit.shah@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, avi@redhat.com, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2012-06-18 at 14:54 +0300, Michael S. Tsirkin wrote:
-> On Wed, Nov 09, 2011 at 02:36:43PM +0200, Pekka Enberg wrote:
-> > On Wed, 9 Nov 2011, Sasha Levin wrote:
-> > >They don't exist in kernel code either, for same reason as above.
-> > >
-> > >Nothing will break if we remove it since no one really used it, we were
-> > >probably the first and only implementation of the spec which considered
-> > >them :)
+On Tue, Mar 20, 2012 at 10:22:42AM +1030, Rusty Russell wrote:
+> On Mon, 19 Mar 2012 17:13:06 -0500, Anthony Liguori <anthony@codemonkey.ws> wrote:
+> > > Maybe just make this a hidden option like x-miio?
 > > 
-> > As long as we are able to run older versions of the KVM tool with
-> > newer kernels and vice versa, I see no reason why we can't drop
-> > 64-bit features from the KVM tool.
-> > 
-> > 			Pekka
+> > x-violate-the-virtio-spec-to-trick-old-linux-drivers-into-working-on-power?
 > 
-> So what happened? Did you guys do this?  Need to know what to do to make
-> progress.  IIUC Rusty removed the new fields in 0.9.3.
-> Does your tool still use them? Did any version of the tool released by
-> distros do so?
+> "To configure the device, we use the first I/O region of the PCI
+> device."
+> 
+> Meh, it does sound a little like we are specifying that it's an PCI I/O
+> bar.
+> 
+> Let's resurrect the PCI-v2 idea, which is ready to implement now, and a
+> nice cleanup?  Detach it from the change-of-ring-format idea which is
+> turning out to be a tarpit.
+> 
+> Thanks,
+> Rusty.
 
-Yup, they were removed quite a while ago.
+Yes. But it seems silly to even write code to play with device config in
+memory when we agreed the right thing to do is to use a config vq
+everywhere.
+
+Now a question: does a oconfig vq look like a PCI specific
+feature to you, a work-around for lack of multibyte atomic
+accesses? If yes it's sane to make it a PCI capability.
+Or is it something most transports would need? If yes we
+need a feature bit and this is a chicken and egg problem ...
+
+> -- 
+>   How could I marry someone with more hair than me?  http://baldalex.org
