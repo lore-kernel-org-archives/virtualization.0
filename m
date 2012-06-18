@@ -1,14 +1,16 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH v2 0/3] Improve virtio-blk performance
-Date: Mon, 18 Jun 2012 17:39:10 +0800
-Message-ID: <4FDEF73E.3010501@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 3/3] virtio-blk: Add bio-based IO path for virtio-blk
+Date: Mon, 18 Jun 2012 13:13:49 +0300
+Message-ID: <20120618101349.GC23134@redhat.com>
 References: <1340002390-3950-1-git-send-email-asias@redhat.com>
-	<CAJSP0QXOn-5Krm6hSMmm=zRYkG43k9F4Xe6P+ENMFtgMhTupFA@mail.gmail.com>
+	<1340002390-3950-4-git-send-email-asias@redhat.com>
+	<87hau9yse7.fsf@rustcorp.com.au> <4FDEE0CB.1030505@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QXOn-5Krm6hSMmm=zRYkG43k9F4Xe6P+ENMFtgMhTupFA@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <4FDEE0CB.1030505@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,65 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/18/2012 05:14 PM, Stefan Hajnoczi wrote:
-> On Mon, Jun 18, 2012 at 7:53 AM, Asias He <asias@redhat.com> wrote:
->> Fio test shows it gives, 28%, 24%, 21%, 16% IOPS boost and 32%, 17%, 21%, 16%
->> latency improvement for sequential read/write, random read/write respectively.
->
-> Sounds great.  What storage configuration did you use (single spinning
-> disk, SSD, storage array) and are these numbers for parallel I/O or
-> sequential I/O?
+On Mon, Jun 18, 2012 at 04:03:23PM +0800, Asias He wrote:
+> On 06/18/2012 03:46 PM, Rusty Russell wrote:
+> >On Mon, 18 Jun 2012 14:53:10 +0800, Asias He <asias@redhat.com> wrote:
+> >>This patch introduces bio-based IO path for virtio-blk.
+> >
+> >Why make it optional?
+> 
+> request-based IO path is useful for users who do not want to bypass
+> the IO scheduler in guest kernel, e.g. users using spinning disk.
+> For users using fast disk device, e.g. SSD device, they can use
+> bio-based IO path.
 
-I used ramdisk as the backend storage.
+OK I guess but then it should be per-device. There could be
+a mix of slow and fast disks :)
 
-> What changed since Minchan worked on this?  I remember he wasn't
-> satisfied that this was a clear win.  Your numbers are strong so
-> either you fixed something important or you are looking at different
-> benchmark configurations.
-
-I am using kvm tool instead qemu. He wasn't satisfied the poor 
-sequential performance. I removed the plug and unplug operation and bio 
-completion batching. You can grab Michan's patch and make a diff to see 
-the details.
-
-Here is the fio's config file.
-
-[global]
-exec_prerun="echo 3 > /proc/sys/vm/drop_caches"
-group_reporting
-norandommap
-ioscheduler=noop
-thread
-bs=512
-size=4MB
-direct=1
-filename=/dev/vdb
-numjobs=256
-ioengine=aio
-iodepth=64
-loops=3
-
-[seq-read]
-stonewall
-rw=read
-
-[seq-write]
-stonewall
-rw=write
-
-[rnd-read]
-stonewall
-rw=randread
-
-[rnd-write]
-stonewall
-rw=randwrite
-
-
-
--- 
-Asias
+> -- 
+> Asias
+> 
