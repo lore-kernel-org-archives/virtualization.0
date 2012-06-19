@@ -1,15 +1,16 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 1/3] block: Introduce __blk_segment_map_sg() helper
-Date: Tue, 19 Jun 2012 10:02:38 +0800
-Message-ID: <4FDFDDBE.3050506@redhat.com>
+Subject: Re: [PATCH 3/3] virtio-blk: Add bio-based IO path for virtio-blk
+Date: Tue, 19 Jun 2012 10:21:34 +0800
+Message-ID: <4FDFE22E.3030003@redhat.com>
 References: <1340002390-3950-1-git-send-email-asias@redhat.com>
-	<1340002390-3950-2-git-send-email-asias@redhat.com>
-	<20120618213103.GC32733@google.com>
+	<1340002390-3950-4-git-send-email-asias@redhat.com>
+	<87hau9yse7.fsf@rustcorp.com.au> <4FDEE0CB.1030505@redhat.com>
+	<20120618101349.GC23134@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120618213103.GC32733@google.com>
+In-Reply-To: <20120618101349.GC23134@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,85 +20,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tejun Heo <tj@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Shaohua Li <shli@kernel.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/19/2012 05:31 AM, Tejun Heo wrote:
-> Hello, Asias.
+On 06/18/2012 06:13 PM, Michael S. Tsirkin wrote:
+> On Mon, Jun 18, 2012 at 04:03:23PM +0800, Asias He wrote:
+>> On 06/18/2012 03:46 PM, Rusty Russell wrote:
+>>> On Mon, 18 Jun 2012 14:53:10 +0800, Asias He <asias@redhat.com> wrote:
+>>>> This patch introduces bio-based IO path for virtio-blk.
+>>>
+>>> Why make it optional?
+>>
+>> request-based IO path is useful for users who do not want to bypass
+>> the IO scheduler in guest kernel, e.g. users using spinning disk.
+>> For users using fast disk device, e.g. SSD device, they can use
+>> bio-based IO path.
 >
-> On Mon, Jun 18, 2012 at 02:53:08PM +0800, Asias He wrote:
->> Split the mapping code in blk_rq_map_sg() to a helper
->> __blk_segment_map_sg(), so that other mapping function, e.g.
->> blk_bio_map_sg(), can share the code.
->>
->> Cc: Jens Axboe <axboe@kernel.dk>
->> Cc: Tejun Heo <tj@kernel.org>
->> Cc: Shaohua Li <shli@kernel.org>
->> Cc: linux-kernel@vger.kernel.org
->> Suggested-by: Tejun Heo <tj@kernel.org>
->> Suggested-by: Jens Axboe <axboe@kernel.dk>
->> Signed-off-by: Asias He <asias@redhat.com>
->> ---
->>   block/blk-merge.c |   80 ++++++++++++++++++++++++++++++-----------------------
->>   1 file changed, 45 insertions(+), 35 deletions(-)
->>
->> diff --git a/block/blk-merge.c b/block/blk-merge.c
->> index 160035f..576b68e 100644
->> --- a/block/blk-merge.c
->> +++ b/block/blk-merge.c
->> @@ -110,6 +110,49 @@ static int blk_phys_contig_segment(struct request_queue *q, struct bio *bio,
->>   	return 0;
->>   }
->>
->> +static void
->> +__blk_segment_map_sg(struct request_queue *q, struct bio_vec *bvec,
->> +		     struct scatterlist *sglist, struct bio_vec **bvprv,
->> +		     struct scatterlist **sg, int *nsegs, int *cluster)
->> +{
->> +
->> +	int nbytes = bvec->bv_len;
->> +
->> +	if (*bvprv && *cluster) {
->> +		if ((*sg)->length + nbytes > queue_max_segment_size(q))
->> +			goto new_segment;
->> +
->> +		if (!BIOVEC_PHYS_MERGEABLE(*bvprv, bvec))
->> +			goto new_segment;
->> +		if (!BIOVEC_SEG_BOUNDARY(q, *bvprv, bvec))
->> +			goto new_segment;
->> +
->> +		(*sg)->length += nbytes;
->> +	} else {
->> +new_segment:
->> +		if (!*sg)
->> +			*sg = sglist;
->> +		else {
->> +			/*
->> +			 * If the driver previously mapped a shorter
->> +			 * list, we could see a termination bit
->> +			 * prematurely unless it fully inits the sg
->> +			 * table on each mapping. We KNOW that there
->> +			 * must be more entries here or the driver
->> +			 * would be buggy, so force clear the
->> +			 * termination bit to avoid doing a full
->> +			 * sg_init_table() in drivers for each command.
->> +			 */
->> +			(*sg)->page_link &= ~0x02;
->> +			*sg = sg_next(*sg);
->> +		}
->> +
->> +		sg_set_page(*sg, bvec->bv_page, nbytes, bvec->bv_offset);
->> +		(*nsegs)++;
->> +	}
->> +	*bvprv = bvec;
->> +}
->
-> I *hope* this is a bit prettier.  e.g. Do we really need to pass in
-> @sglist and keep using "goto new_segment"?
+> OK I guess but then it should be per-device. There could be
+> a mix of slow and fast disks :)
 
-I think this deserves another patch on top of this splitting one. I'd 
-like to clean this up later.
+Yes, per-device might be useful. There are issues which need solving.
+- How do we tell the drive which IO path to use
+   - Device add some flag
+     - Old qemu/lkvm can not turn this feature on
+   - Through /sys filesystem attribute
+     - How do we handle the switch from one path to anther.
+
+So, let's add the per-device feature later.
 
 -- 
 Asias
