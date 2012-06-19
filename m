@@ -1,16 +1,15 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH v2 0/3] Improve virtio-blk performance
-Date: Tue, 19 Jun 2012 12:24:24 +0800
-Message-ID: <4FDFFEF8.9000609@redhat.com>
-References: <1340002390-3950-1-git-send-email-asias@redhat.com>
-	<CAJSP0QXOn-5Krm6hSMmm=zRYkG43k9F4Xe6P+ENMFtgMhTupFA@mail.gmail.com>
-	<4FDEF73E.3010501@redhat.com>
-	<CAJSP0QXj0brxkTRGCMcjYU3AZwFbk+O5D2ATNz8GLECt9rNs7w@mail.gmail.com>
+From: Jean-Mickael Guerin <jean-mickael.guerin@6wind.com>
+Subject: Re: [RFC 2/2] virtio-ring: Allocate indirect buffers from cache when
+	possible
+Date: Tue, 19 Jun 2012 07:51:17 +0200
+Message-ID: <4FE01355.6070909__16921.8572475531$1340086452$gmane$org@6wind.com>
+References: <1340028598-10142-1-git-send-email-levinsasha928@gmail.com>
+	<1340028598-10142-2-git-send-email-levinsasha928@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QXj0brxkTRGCMcjYU3AZwFbk+O5D2ATNz8GLECt9rNs7w@mail.gmail.com>
+In-Reply-To: <1340028598-10142-2-git-send-email-levinsasha928@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,56 +19,252 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/18/2012 06:58 PM, Stefan Hajnoczi wrote:
-> As long as the latency is decreasing that's good.  But It's worth
-> keeping in mind that these percentages are probably wildly different
-> on real storage devices and/or qemu-kvm.  What we don't know here is
-> whether this bottleneck matters in real environments - results with
-> real storage and with qemu-kvm would be interesting.
+On 18/06/2012 16:09, Sasha Levin wrote:
+> Currently if VIRTIO_RING_F_INDIRECT_DESC is enabled we will
+> use indirect descriptors and allocate them using a simple
+> kmalloc().
+>
+> This patch adds a cache which will allow indirect buffers under
+> a configurable size to be allocated from that cache instead.
+>
+> Signed-off-by: Sasha Levin<levinsasha928@gmail.com>
+> ---
+>   drivers/block/virtio_blk.c          |    4 ++++
+>   drivers/char/hw_random/virtio-rng.c |    4 ++++
+>   drivers/char/virtio_console.c       |    4 ++++
+>   drivers/net/virtio_net.c            |    4 ++++
+>   drivers/virtio/virtio_balloon.c     |    4 ++++
+>   drivers/virtio/virtio_ring.c        |   28 ++++++++++++++++++++++++----
+>   include/linux/virtio.h              |    1 +
+>   net/9p/trans_virtio.c               |    5 +++++
+>   8 files changed, 50 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index a2c8d97..3c6d1bd 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -22,6 +22,9 @@ struct workqueue_struct *virtblk_wq;
+>   static unsigned int indirect_thresh = 0;
+>   module_param(indirect_thresh, uint, S_IRUGO);
+>
+> +static unsigned int indirect_alloc_thresh = 0;
+> +module_param(indirect_alloc_thresh, uint, S_IRUGO);
+> +
+>   struct virtio_blk
+>   {
+>   	spinlock_t lock;
+> @@ -442,6 +445,7 @@ static int __devinit virtblk_probe(struct virtio_device *vdev)
+>   	INIT_WORK(&vblk->config_work, virtblk_config_changed_work);
+>   	vblk->config_enable = true;
+>   	vdev->indirect_thresh = indirect_thresh;
+> +	vdev->indirect_alloc_thresh = indirect_alloc_thresh;
+>
+>   	err = init_vq(vblk);
+>   	if (err)
+> diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+> index bcaddb9..6a32f76 100644
+> --- a/drivers/char/hw_random/virtio-rng.c
+> +++ b/drivers/char/hw_random/virtio-rng.c
+> @@ -28,6 +28,9 @@
+>   static unsigned int indirect_thresh = 0;
+>   module_param(indirect_thresh, uint, S_IRUGO);
+>
+> +static unsigned int indirect_alloc_thresh = 0;
+> +module_param(indirect_alloc_thresh, uint, S_IRUGO);
+> +
+>   static struct virtqueue *vq;
+>   static unsigned int data_avail;
+>   static DECLARE_COMPLETION(have_data);
+> @@ -94,6 +97,7 @@ static int virtrng_probe(struct virtio_device *vdev)
+>
+>   	/* We expect a single virtqueue. */
+>   	vdev->indirect_thresh = indirect_thresh;
+> +	vdev->indirect_alloc_thresh = indirect_alloc_thresh;
+>   	vq = virtio_find_single_vq(vdev, random_recv_done, "input");
+>   	if (IS_ERR(vq))
+>   		return PTR_ERR(vq);
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 60397a4..7c33714 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -40,6 +40,9 @@
+>   static unsigned int indirect_thresh = 0;
+>   module_param(indirect_thresh, uint, S_IRUGO);
+>
+> +static unsigned int indirect_alloc_thresh = 0;
+> +module_param(indirect_alloc_thresh, uint, S_IRUGO);
+> +
+>   /*
+>    * This is a global struct for storing common data for all the devices
+>    * this driver handles.
+> @@ -1733,6 +1736,7 @@ static int __devinit virtcons_probe(struct virtio_device *vdev)
+>   			&portdev->config.max_nr_ports) == 0)
+>   		multiport = true;
+>   	vdev->indirect_thresh = indirect_thresh;
+> +	vdev->indirect_alloc_thresh = indirect_alloc_thresh;
+>
+>   	err = init_vqs(portdev);
+>   	if (err<  0) {
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 5c1be92..441bd2f 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -37,6 +37,9 @@ module_param(gso, bool, 0444);
+>   static unsigned int indirect_thresh = 0;
+>   module_param(indirect_thresh, uint, S_IRUGO);
+>
+> +static unsigned int indirect_alloc_thresh = 0;
+> +module_param(indirect_alloc_thresh, uint, S_IRUGO);
+> +
+>   /* FIXME: MTU in config. */
+>   #define MAX_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
+>   #define GOOD_COPY_LEN	128
+> @@ -1132,6 +1135,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>   	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+>   		vi->mergeable_rx_bufs = true;
+>   	vdev->indirect_thresh = indirect_thresh;
+> +	vdev->indirect_alloc_thresh = indirect_alloc_thresh;
+>
+>   	err = init_vqs(vi);
+>   	if (err)
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 4fc11ba..6e6313b 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -38,6 +38,9 @@
+>   static unsigned int indirect_thresh = 0;
+>   module_param(indirect_thresh, uint, S_IRUGO);
+>
+> +static unsigned int indirect_alloc_thresh = 0;
+> +module_param(indirect_alloc_thresh, uint, S_IRUGO);
+> +
+>   struct virtio_balloon
+>   {
+>   	struct virtio_device *vdev;
+> @@ -364,6 +367,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
+>   	vb->vdev = vdev;
+>   	vb->need_stats_update = 0;
+>   	vdev->indirect_thresh = indirect_thresh;
+> +	vdev->indirect_alloc_thresh = indirect_alloc_thresh;
+>
+>   	err = init_vqs(vb);
+>   	if (err)
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 99a64a7..f0b0ce3 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -93,6 +93,10 @@ struct vring_virtqueue
+>   	 */
+>   	unsigned int indirect_thresh;
+>
+> +	/* Buffers below this size will be allocated from cache */
+> +	unsigned int indirect_alloc_thresh;
+> +	struct kmem_cache *indirect_cache;
+> +
+>   	/* Host publishes avail event idx */
+>   	bool event;
+>
+> @@ -135,7 +139,10 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+>   	unsigned head;
+>   	int i;
+>
+> -	desc = kmalloc((out + in) * sizeof(struct vring_desc), gfp);
+> +	if ((out + in)<= vq->indirect_alloc_thresh)
+> +		desc = kmem_cache_alloc(vq->indirect_cache, gfp);
+> +	else
+> +		desc = kmalloc((out + in) * sizeof(struct vring_desc), gfp);
+>   	if (!desc)
+>   		return -ENOMEM;
+>
+> @@ -384,8 +391,13 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+>   	i = head;
+>
+>   	/* Free the indirect table */
+> -	if (vq->vring.desc[i].flags&  VRING_DESC_F_INDIRECT)
+> -		kfree(phys_to_virt(vq->vring.desc[i].addr));
+> +	if (vq->vring.desc[i].flags&  VRING_DESC_F_INDIRECT) {
+> +		if (vq->vring.desc[i].len<  vq->indirect_alloc_thresh)
+This should be > instead of <,  no?
 
-Yes. Here is the performance data on a Fusion-IO SSD device.
+>
+> +			kfree(phys_to_virt(vq->vring.desc[i].addr));
+> +		else
+> +			kmem_cache_free(vq->indirect_cache,
+> +					phys_to_virt(vq->vring.desc[i].addr));
+> +	}
 
-Fio test is performed in a 8 vcpu guest with Fusion-IO based guest using 
-kvm tool.
-
-     Short version:
-      With bio-based IO path, sequential read/write, random read/write
-      IOPS boost         : 11%, 11%, 13%, 10%
-      Latency improvement: 10%, 10%, 12%, 10%
-
-     Long Version:
-      With bio-based IO path:
-       read : io=2048.0MB, bw=58920KB/s, iops=117840 , runt= 35593msec
-       write: io=2048.0MB, bw=64308KB/s, iops=128616 , runt= 32611msec
-       read : io=3095.7MB, bw=59633KB/s, iops=119266 , runt= 53157msec
-       write: io=3095.7MB, bw=62993KB/s, iops=125985 , runt= 50322msec
-         clat (usec): min=0 , max=1284.3K, avg=128109.01, stdev=71513.29
-         clat (usec): min=94 , max=962339 , avg=116832.95, stdev=65836.80
-         clat (usec): min=0 , max=1846.6K, avg=128509.99, stdev=89575.07
-         clat (usec): min=0 , max=2256.4K, avg=121361.84, stdev=82747.25
-cpu : usr=56.79%, sys=421.70%, ctx=147335118, majf=21080, minf=19852517
-cpu : usr=61.81%, sys=455.53%, ctx=143269950, majf=16027, minf=24800604
-cpu : usr=63.10%, sys=455.38%, ctx=178373538, majf=16958, minf=24822612
-cpu : usr=62.04%, sys=453.58%, ctx=226902362, majf=16089, minf=23278105
-
-      With request-based IO path:
-       read : io=2048.0MB, bw=52896KB/s, iops=105791 , runt= 39647msec
-       write: io=2048.0MB, bw=57856KB/s, iops=115711 , runt= 36248msec
-       read : io=3095.7MB, bw=52387KB/s, iops=104773 , runt= 60510msec
-       write: io=3095.7MB, bw=57310KB/s, iops=114619 , runt= 55312msec
-         clat (usec): min=0 , max=1532.6K, avg=142085.62, stdev=109196.84
-         clat (usec): min=0 , max=1487.4K, avg=129110.71, stdev=114973.64
-         clat (usec): min=0 , max=1388.6K, avg=145049.22, stdev=107232.55
-         clat (usec): min=0 , max=1465.9K, avg=133585.67, stdev=110322.95
-cpu : usr=44.08%, sys=590.71%, ctx=451812322, majf=14841, minf=17648641
-cpu : usr=48.73%, sys=610.78%, ctx=418953997, majf=22164, minf=26850689
-cpu : usr=45.58%, sys=581.16%, ctx=714079216, majf=21497, minf=22558223
-cpu : usr=48.40%, sys=599.65%, ctx=656089423, majf=16393, minf=23824409
-
-
--- 
-Asias
+>
+>
+>   	while (vq->vring.desc[i].flags&  VRING_DESC_F_NEXT) {
+>   		i = vq->vring.desc[i].next;
+> @@ -654,14 +666,20 @@ struct virtqueue *vring_new_virtqueue(unsigned int num,
+>   	vq->last_used_idx = 0;
+>   	vq->num_added = 0;
+>   	vq->indirect_thresh = 0;
+> +	vq->indirect_alloc_thresh = 0;
+> +	vq->indirect_cache = NULL;
+>   	list_add_tail(&vq->vq.list,&vdev->vqs);
+>   #ifdef DEBUG
+>   	vq->in_use = false;
+>   	vq->last_add_time_valid = false;
+>   #endif
+>
+> -	if (virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC))
+> +	if (virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
+>   		vq->indirect_thresh = vdev->indirect_thresh;
+> +		vq->indirect_alloc_thresh = vdev->indirect_alloc_thresh;
+> +		if (vq->indirect_alloc_thresh)
+> +			vq->indirect_cache = KMEM_CACHE(vring_desc[vq->indirect_alloc_thresh], 0);
+> +	}
+>
+>   	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+>
+> @@ -685,6 +703,8 @@ EXPORT_SYMBOL_GPL(vring_new_virtqueue);
+>   void vring_del_virtqueue(struct virtqueue *vq)
+>   {
+>   	list_del(&vq->list);
+> +	if (to_vvq(vq)->indirect_cache)
+> +		kmem_cache_destroy(to_vvq(vq)->indirect_cache);
+>   	kfree(to_vvq(vq));
+>   }
+>   EXPORT_SYMBOL_GPL(vring_del_virtqueue);
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 36019ec..f3f0d3f 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -70,6 +70,7 @@ struct virtio_device {
+>   	unsigned long features[1];
+>   	void *priv;
+>   	unsigned int indirect_thresh;
+> +	unsigned int indirect_alloc_thresh;
+>   };
+>
+>   #define dev_to_virtio(dev) container_of(dev, struct virtio_device, dev)
+> diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
+> index 357bfba..8424b36 100644
+> --- a/net/9p/trans_virtio.c
+> +++ b/net/9p/trans_virtio.c
+> @@ -55,6 +55,9 @@
+>   static unsigned int indirect_thresh = 0;
+>   module_param(indirect_thresh, uint, S_IRUGO);
+>
+> +static unsigned int indirect_alloc_thresh = 0;
+> +module_param(indirect_alloc_thresh, uint, S_IRUGO);
+> +
+>   /* a single mutex to manage channel initialization and attachment */
+>   static DEFINE_MUTEX(virtio_9p_lock);
+>   static DECLARE_WAIT_QUEUE_HEAD(vp_wq);
+> @@ -505,6 +508,8 @@ static int p9_virtio_probe(struct virtio_device *vdev)
+>
+>   	/* We expect one virtqueue, for requests. */
+>   	vdev->indirect_thresh = indirect_thresh;
+> +	vdev->indirect_alloc_thresh = indirect_alloc_thresh;
+> +
+>   	chan->vq = virtio_find_single_vq(vdev, req_done, "requests");
+>   	if (IS_ERR(chan->vq)) {
+>   		err = PTR_ERR(chan->vq);
+Jean-Mickael
