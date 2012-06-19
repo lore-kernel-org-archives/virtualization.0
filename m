@@ -1,18 +1,17 @@
-From: Dor Laor <dlaor@redhat.com>
-Subject: Re: [PATCH 3/3] virtio-blk: Add bio-based IO path for virtio-blk
-Date: Tue, 19 Jun 2012 09:21:19 +0300
-Message-ID: <4FE01A5F.6060201@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH v2 0/3] Improve virtio-blk performance
+Date: Tue, 19 Jun 2012 11:14:26 +0100
+Message-ID: <CAJSP0QWcRbUPqY5dhEp00p0HKx_vaH-Hbn7gfoaQrjLvPt01=g@mail.gmail.com>
 References: <1340002390-3950-1-git-send-email-asias@redhat.com>
-	<1340002390-3950-4-git-send-email-asias@redhat.com>
-	<87hau9yse7.fsf@rustcorp.com.au> <4FDEE0CB.1030505@redhat.com>
-	<87zk81x7dp.fsf@rustcorp.com.au> <4FDF0DA7.40604@redhat.com>
-	<1340019575.22848.2.camel@lappy> <4FDFE926.7030309@redhat.com>
-Reply-To: dlaor@redhat.com
+	<CAJSP0QXOn-5Krm6hSMmm=zRYkG43k9F4Xe6P+ENMFtgMhTupFA@mail.gmail.com>
+	<4FDEF73E.3010501@redhat.com>
+	<CAJSP0QXj0brxkTRGCMcjYU3AZwFbk+O5D2ATNz8GLECt9rNs7w@mail.gmail.com>
+	<4FDFFEF8.9000609@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4FDFE926.7030309@redhat.com>
+In-Reply-To: <4FDFFEF8.9000609@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,41 +22,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, Christoph Hellwig <hch@lst.de>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/19/2012 05:51 AM, Asias He wrote:
-> On 06/18/2012 07:39 PM, Sasha Levin wrote:
->> On Mon, 2012-06-18 at 14:14 +0300, Dor Laor wrote:
->>> On 06/18/2012 01:05 PM, Rusty Russell wrote:
->>>> On Mon, 18 Jun 2012 16:03:23 +0800, Asias He<asias@redhat.com> wrote:
->>>>> On 06/18/2012 03:46 PM, Rusty Russell wrote:
->>>>>> On Mon, 18 Jun 2012 14:53:10 +0800, Asias He<asias@redhat.com> wrote:
->>>>>>> This patch introduces bio-based IO path for virtio-blk.
->>>>>>
->>>>>> Why make it optional?
->>>>>
->>>>> request-based IO path is useful for users who do not want to bypass
->>>>> the
->>>>> IO scheduler in guest kernel, e.g. users using spinning disk. For
->>>>> users
->>>>> using fast disk device, e.g. SSD device, they can use bio-based IO
->>>>> path.
->>>>
->>>> Users using a spinning disk still get IO scheduling in the host though.
->>>> What benefit is there in doing it in the guest as well?
->>>
->>> The io scheduler waits for requests to merge and thus batch IOs
->>> together. It's not important w.r.t spinning disks since the host can do
->>> it but it causes much less vmexits which is the key issue for VMs.
+On Tue, Jun 19, 2012 at 5:24 AM, Asias He <asias@redhat.com> wrote:
+> On 06/18/2012 06:58 PM, Stefan Hajnoczi wrote:
 >>
->> Is the amount of exits caused by virtio-blk significant at all with
->> EVENT_IDX?
+>> As long as the latency is decreasing that's good. =A0But It's worth
+>> keeping in mind that these percentages are probably wildly different
+>> on real storage devices and/or qemu-kvm. =A0What we don't know here is
+>> whether this bottleneck matters in real environments - results with
+>> real storage and with qemu-kvm would be interesting.
 >
-> Yes. EVENT_IDX saves the number of notify and interrupt. Let's take the
-> interrupt as an example, The guest fires 200K request to host, the
-> number of interrupt is about 6K thanks to EVENT_IDX. The ratio is 200K /
-> 6K = 33. The ratio of merging is 40000K / 200K = 20.
 >
+> Yes. Here is the performance data on a Fusion-IO SSD device.
+>
+> Fio test is performed in a 8 vcpu guest with Fusion-IO based guest using =
+kvm
+> tool.
+>
+> =A0 =A0Short version:
+> =A0 =A0 With bio-based IO path, sequential read/write, random read/write
+> =A0 =A0 IOPS boost =A0 =A0 =A0 =A0 : 11%, 11%, 13%, 10%
+> =A0 =A0 Latency improvement: 10%, 10%, 12%, 10%
 
-In this case, why don't you always recommend bio over request based?
+Nice, I'm glad the improvement shows on real hardware.
+
+Stefan
