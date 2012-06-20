@@ -1,11 +1,16 @@
 From: Cong Meng <mc@linux.vnet.ibm.com>
-Subject: [PATCH 0/2] Hotplug support for virtio-scsi
-Date: Wed, 20 Jun 2012 14:47:09 +0800
-Message-ID: <cover.1340022196.git.mc__11613.9367608868$1340300234$gmane$org@linux.vnet.ibm.com>
+Subject: [PATCH 1/2] scsi bus: introduce hotplug() and hot_unplug() interfaces
+	for SCSI bus
+Date: Wed, 20 Jun 2012 14:47:10 +0800
+Message-ID: <287bf70a546a1ce51a6f3405ba620daaf284bdfe.1340022196.git.mc__7403.18431421674$1340300239$gmane$org@linux.vnet.ibm.com>
+References: <cover.1340022196.git.mc@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1340022196.git.mc@linux.vnet.ibm.com>
+In-Reply-To: <cover.1340022196.git.mc@linux.vnet.ibm.com>
+References: <cover.1340022196.git.mc@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,19 +24,70 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: stefanha@linux.vnet.ibm.com, qemu-devel@nongnu.org, zwanp@cn.ibm.com, linuxram@us.ibm.com, senwang@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, Cong Meng <mc@linux.vnet.ibm.com>, Anthony Liguori <anthony@codemonkey.ws>, =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-These patches implement the hotplug support for virtio-scsi.
-When a new device attaches/detaches to virtio-scsi bus via device_add/device_del
-commands, the HBA driver in guest kernel will be signaled to add/remove the scsi
-device.
+Add two interfaces hotplug() and hot_unplug() to scsi bus info.
+The embody scsi bus can implement these two interfaces to signal the HBA driver
+of guest kernel to add/remove the scsi device in question.
 
-Cong Meng (2):
-  scsi bus: introduce hotplug() and hot_unplug() interfaces for SCSI bus
-  virtio-scsi: Implement hotplug support for virtio-scsi
+Signed-off-by: Cong Meng <mc@linux.vnet.ibm.com>
+Signed-off-by: Sen Wang <senwang@linux.vnet.ibm.com>
+---
+ hw/scsi-bus.c |   16 +++++++++++++++-
+ hw/scsi.h     |    2 ++
+ 2 files changed, 17 insertions(+), 1 deletions(-)
 
- hw/scsi-bus.c    |   16 +++++++++++-
- hw/scsi.h        |    2 +
- hw/virtio-scsi.c |   72 +++++++++++++++++++++++++++++++++++++++++++++++++++--
- 3 files changed, 86 insertions(+), 4 deletions(-)
-
+diff --git a/hw/scsi-bus.c b/hw/scsi-bus.c
+index dbdb99c..cc3ec75 100644
+--- a/hw/scsi-bus.c
++++ b/hw/scsi-bus.c
+@@ -177,6 +177,10 @@ static int scsi_qdev_init(DeviceState *qdev)
+                                                          dev);
+     }
+ 
++    if (bus->info->hotplug) {
++	bus->info->hotplug(bus, dev);
++    }
++
+ err:
+     return rc;
+ }
+@@ -1539,6 +1543,16 @@ static int get_scsi_requests(QEMUFile *f, void *pv, size_t size)
+     return 0;
+ }
+ 
++static int scsi_qdev_unplug(DeviceState *qdev)
++{
++    SCSIDevice *dev = SCSI_DEVICE(qdev);
++    SCSIBus *bus = DO_UPCAST(SCSIBus, qbus, dev->qdev.parent_bus);
++
++    if (bus->info->hot_unplug)
++	bus->info->hot_unplug(bus, dev);
++    return qdev_simple_unplug_cb(qdev);
++}
++
+ const VMStateInfo vmstate_info_scsi_requests = {
+     .name = "scsi-requests",
+     .get  = get_scsi_requests,
+@@ -1575,7 +1589,7 @@ static void scsi_device_class_init(ObjectClass *klass, void *data)
+     DeviceClass *k = DEVICE_CLASS(klass);
+     k->bus_info = &scsi_bus_info;
+     k->init     = scsi_qdev_init;
+-    k->unplug   = qdev_simple_unplug_cb;
++    k->unplug   = scsi_qdev_unplug;
+     k->exit     = scsi_qdev_exit;
+ }
+ 
+diff --git a/hw/scsi.h b/hw/scsi.h
+index 2eb66f7..5768071 100644
+--- a/hw/scsi.h
++++ b/hw/scsi.h
+@@ -130,6 +130,8 @@ struct SCSIBusInfo {
+     void (*transfer_data)(SCSIRequest *req, uint32_t arg);
+     void (*complete)(SCSIRequest *req, uint32_t arg, size_t resid);
+     void (*cancel)(SCSIRequest *req);
++    void (*hotplug)(SCSIBus *bus, SCSIDevice *dev);
++    void (*hot_unplug)(SCSIBus *bus, SCSIDevice *dev);
+     QEMUSGList *(*get_sg_list)(SCSIRequest *req);
+ 
+     void (*save_request)(QEMUFile *f, SCSIRequest *req);
 -- 
 1.7.7
