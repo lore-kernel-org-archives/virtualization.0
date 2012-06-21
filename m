@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 10/13] Tools: hv: Gather ipv[4,6] gateway information
-Date: Thu, 21 Jun 2012 14:31:42 -0700
-Message-ID: <1340314305-27126-10-git-send-email-kys@microsoft.com>
+Subject: [PATCH 07/13] Tools: hv: Gather subnet information
+Date: Thu, 21 Jun 2012 14:31:39 -0700
+Message-ID: <1340314305-27126-7-git-send-email-kys@microsoft.com>
 References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
  <1340314305-27126-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,123 +11,66 @@ To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverp
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Collect ipv4 and ipv6 gateway information.
+Now gather sub-net information for the specified interface.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- tools/hv/hv_kvp_daemon.c |   80 ++++++++++++++++++++++++++++++++++------------
- 1 files changed, 59 insertions(+), 21 deletions(-)
+ tools/hv/hv_kvp_daemon.c |   31 +++++++++++++++++++++++++++++--
+ 1 files changed, 29 insertions(+), 2 deletions(-)
 
 diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 101ab7f..68a4cc1 100644
+index b5db1b5..2160462 100644
 --- a/tools/hv/hv_kvp_daemon.c
 +++ b/tools/hv/hv_kvp_daemon.c
-@@ -490,16 +490,40 @@ done:
- 	return;
- }
+@@ -533,6 +533,7 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ 	struct ifaddrs *ifap;
+ 	struct ifaddrs *curp;
+ 	int offset = 0;
++	int sn_offset = 0;
+ 	const char *str;
+ 	int error = 0;
+ 	char *buffer;
+@@ -593,12 +594,38 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ 			 * Gather info other than the IP address.
+ 			 * IP address info will be gathered later.
+ 			 */
+-			if (curp->ifa_addr->sa_family == AF_INET)
++			if (curp->ifa_addr->sa_family == AF_INET) {
+ 				ip_buffer->addr_family |= ADDR_FAMILY_IPV4;
+-			else
++				/*
++				 * Get subnet info.
++				 */
++				error = kvp_process_ip_address(
++							curp->ifa_netmask,
++							AF_INET,
++							(char *)
++							ip_buffer->sub_net,
++							length,
++							&sn_offset);
++				if (error)
++					goto gather_ipaddr;
++			} else {
+ 				ip_buffer->addr_family |= ADDR_FAMILY_IPV6;
++				/*
++				 * Get subnet info.
++				 */
++				error = kvp_process_ip_address(
++							curp->ifa_netmask,
++							AF_INET6,
++							(char *)
++							ip_buffer->sub_net,
++							length,
++							&sn_offset);
++				if (error)
++					goto gather_ipaddr;
++			}
+ 		}
  
-+static void kvp_process_ipconfig_file(char *config_file,
-+					char *config_buf, int len,
-+					int element_size, int offset)
-+{
-+	char buf[256];
-+	char *p;
-+	char *x;
-+	FILE *file;
-+
-+	file = fopen(config_file, "r");
-+	if (file == NULL)
-+		return;
-+
-+	if (offset == 0)
-+		memset(config_buf, 0, len);
-+	while ((p = fgets(buf, sizeof(buf), file)) != NULL) {
-+		if ((len - strlen(config_buf)) < (element_size + 1))
-+			break;
-+
-+		x = strchr(p, '\n');
-+		*x = '\0';
-+		strcat(config_buf, p);
-+		strcat(config_buf, ";");
-+	}
-+	fclose(file);
-+
-+}
-+
- static void kvp_get_ipconfig_info(char *if_name,
- 				 struct hv_kvp_ipaddr_value *buffer)
- {
- 	char cmd[512];
- 	char *dns_config = "/var/opt/hyperv/.kvp_dns_cfg";
--	FILE *file;
--	char buf[256];
--	char *dns_buf;
--	char *p;
--	char *x;
-+	char *gw_config = "/var/opt/hyperv/.kvp_gw_cfg";
- 
- 	memset(cmd, 0, 512);
- 	strcat(cmd, "cat /etc/resolv.conf 2>/tmp/null | ");
-@@ -508,29 +532,43 @@ static void kvp_get_ipconfig_info(char *if_name,
- 
- 	/*
- 	 * Execute the command to gather dns info.
-+	 * Note that all buffers are arrays of __u16.
- 	 */
- 	system(cmd);
--	file = fopen(dns_config, "r");
--	if (file == NULL)
--		return;
-+	kvp_process_ipconfig_file(dns_config, (char *)buffer->dns_addr,
-+				(MAX_IP_ADDR_SIZE * 2), INET6_ADDRSTRLEN, 0);
- 
--	dns_buf = (char *)(buffer->dns_addr);
- 	/*
--	 * The buffer is an array of __u16 elements.
-+	 * Get the address of default gateway (ipv4).
- 	 */
--	memset(dns_buf, 0, (MAX_IP_ADDR_SIZE * 2));
--	while ((p = fgets(buf, sizeof(buf), file)) != NULL) {
--		if (((MAX_IP_ADDR_SIZE * 2) - strlen(dns_buf)) <
--				(INET6_ADDRSTRLEN + 1))
--			break;
-+	memset(cmd, 0, 512);
-+	strcat(cmd, "/sbin/ip -f inet  route | grep -w ");
-+	strcat(cmd, if_name);
-+	strcat(cmd, " | awk '/default/ {print $3 }' > ");
-+	strcat(cmd, "/var/opt/hyperv/.kvp_gw_cfg");
- 
--		x = strchr(p, '\n');
--		*x = '\0';
--		strcat(dns_buf, p);
--		strcat(dns_buf, ";");
--	}
--	fclose(file);
-+	/*
-+	 * Execute the command to gather gateway info.
-+	 */
-+	system(cmd);
-+	kvp_process_ipconfig_file(gw_config, (char *)buffer->gate_way,
-+				(MAX_GATEWAY_SIZE * 2), INET_ADDRSTRLEN, 0);
-+	/*
-+	 * Get the address of default gateway (ipv6).
-+	 */
-+	memset(cmd, 0, 512);
-+	strcat(cmd, "/sbin/ip -f inet6  route | grep -w ");
-+	strcat(cmd, if_name);
-+	strcat(cmd, " | awk '/default/ {print $3 }' > ");
-+	strcat(cmd, "/var/opt/hyperv/.kvp_gw_cfg");
- 
-+	/*
-+	 * Execute the command to gather gateway info (ipv6).
-+	 */
-+	system(cmd);
-+	kvp_process_ipconfig_file(gw_config, (char *)buffer->gate_way,
-+				(MAX_GATEWAY_SIZE * 2), INET6_ADDRSTRLEN,
-+				strlen(gw_config));
- }
- 
- 
++gather_ipaddr:
+ 		error = kvp_process_ip_address(curp->ifa_addr,
+ 						curp->ifa_addr->sa_family,
+ 						buffer,
 -- 
 1.7.4.1
