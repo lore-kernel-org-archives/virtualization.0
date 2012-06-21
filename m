@@ -1,19 +1,15 @@
-From: Dor Laor <dlaor@redhat.com>
-Subject: Re: [PATCH 3/3] virtio-blk: Add bio-based IO path for virtio-blk
-Date: Thu, 21 Jun 2012 12:49:12 +0300
-Message-ID: <4FE2EE18.9050307@redhat.com>
-References: <1340002390-3950-1-git-send-email-asias@redhat.com>
-	<1340002390-3950-4-git-send-email-asias@redhat.com>
-	<87hau9yse7.fsf@rustcorp.com.au> <4FDEE0CB.1030505@redhat.com>
-	<87zk81x7dp.fsf@rustcorp.com.au> <4FDF0DA7.40604@redhat.com>
-	<1340019575.22848.2.camel@lappy> <4FDFE926.7030309@redhat.com>
-	<4FE01A5F.6060201@redhat.com> <4FE155B3.8020206@redhat.com>
-Reply-To: dlaor@redhat.com
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [Qemu-devel] [PATCH 2/2] virtio-scsi: Implement hotplug support
+	for virtio-scsi
+Date: Thu, 21 Jun 2012 11:56:10 +0100
+Message-ID: <CAJSP0QWoRt-GgWytPpSBEjNDtSHHRXOs7hDnyUpspW-knYPY5g@mail.gmail.com>
+References: <cover.1340022196.git.mc@linux.vnet.ibm.com>
+	<69a1a349ba21144e66843ab335cb3a243926bba8.1340022196.git.mc@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4FE155B3.8020206@redhat.com>
+In-Reply-To: <69a1a349ba21144e66843ab335cb3a243926bba8.1340022196.git.mc@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,56 +19,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, Christoph Hellwig <hch@lst.de>
+To: Cong Meng <mc@linux.vnet.ibm.com>
+Cc: stefanha@linux.vnet.ibm.com, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, senwang@linux.vnet.ibm.com, Anthony Liguori <anthony@codemonkey.ws>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, =?ISO-8859-1?Q?Andreas_F=E4rber?= <afaerber@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/20/2012 07:46 AM, Asias He wrote:
-> On 06/19/2012 02:21 PM, Dor Laor wrote:
->> On 06/19/2012 05:51 AM, Asias He wrote:
->>> On 06/18/2012 07:39 PM, Sasha Levin wrote:
->>>> On Mon, 2012-06-18 at 14:14 +0300, Dor Laor wrote:
->>>>> On 06/18/2012 01:05 PM, Rusty Russell wrote:
->>>>>> On Mon, 18 Jun 2012 16:03:23 +0800, Asias He<asias@redhat.com> wrote:
->>>>>>> On 06/18/2012 03:46 PM, Rusty Russell wrote:
->>>>>>>> On Mon, 18 Jun 2012 14:53:10 +0800, Asias He<asias@redhat.com>
->>>>>>>> wrote:
->>>>>>>>> This patch introduces bio-based IO path for virtio-blk.
->>>>>>>>
->>>>>>>> Why make it optional?
->>>>>>>
->>>>>>> request-based IO path is useful for users who do not want to bypass
->>>>>>> the
->>>>>>> IO scheduler in guest kernel, e.g. users using spinning disk. For
->>>>>>> users
->>>>>>> using fast disk device, e.g. SSD device, they can use bio-based IO
->>>>>>> path.
->>>>>>
->>>>>> Users using a spinning disk still get IO scheduling in the host
->>>>>> though.
->>>>>> What benefit is there in doing it in the guest as well?
->>>>>
->>>>> The io scheduler waits for requests to merge and thus batch IOs
->>>>> together. It's not important w.r.t spinning disks since the host
->>>>> can do
->>>>> it but it causes much less vmexits which is the key issue for VMs.
->>>>
->>>> Is the amount of exits caused by virtio-blk significant at all with
->>>> EVENT_IDX?
->>>
->>> Yes. EVENT_IDX saves the number of notify and interrupt. Let's take the
->>> interrupt as an example, The guest fires 200K request to host, the
->>> number of interrupt is about 6K thanks to EVENT_IDX. The ratio is 200K /
->>> 6K = 33. The ratio of merging is 40000K / 200K = 20.
->>>
->>
->> In this case, why don't you always recommend bio over request based?
+On Wed, Jun 20, 2012 at 7:47 AM, Cong Meng <mc@linux.vnet.ibm.com> wrote:
+> Implement the hotplug() and hot_unplug() interfaces in virtio-scsi, by si=
+gnal
+> the virtio_scsi.ko in guest kernel via event virtual queue.
 >
-> This case shows that IO scheduler's merging in guest saves a lot of
-> requests to host side. Why should I recommend bio over request based here?
+> The counterpart patch of virtio_scsi.ko will be sent soon in another thre=
+ad.
 >
+> Signed-off-by: Cong Meng <mc@linux.vnet.ibm.com>
+> Signed-off-by: Sen Wang <senwang@linux.vnet.ibm.com>
+> ---
+> =A0hw/virtio-scsi.c | =A0 72 ++++++++++++++++++++++++++++++++++++++++++++=
++++++++--
+> =A01 files changed, 69 insertions(+), 3 deletions(-)
 
-Does it merge 20 request _on top_ of what event idx does? Of course if 
-that's the case, we should keep that.
+I compared against the virtio-scsi specification and this looks good:
+http://ozlabs.org/~rusty/virtio-spec/virtio-0.9.5.pdf
 
-Dor
+Dropped events and event throttling are not implemented by this patch.
+ This means that the guest can miss events if it runs out of event
+queue elements.  A scenario that might be able to trigger this is if
+multiple LUNs are hotplugged in a single QEMU monitor callback.
+
+Implementing dropped events is easy in hw/virtio-scsi.c.  Keep a bool
+or counter of dropped events and report them when the guest kicks us
+with a free event element (virtio_scsi_handle_event).
+
+Stefan
