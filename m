@@ -1,94 +1,154 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 08/13] Tools: hv: Represent the ipv6 mask using CIDR notation
-Date: Thu, 21 Jun 2012 14:31:40 -0700
-Message-ID: <1340314305-27126-8-git-send-email-kys@microsoft.com>
+Subject: [PATCH 05/13] Tools: hv: Further refactor kvp_get_ip_address()
+Date: Thu, 21 Jun 2012 14:31:37 -0700
+Message-ID: <1340314305-27126-5-git-send-email-kys@microsoft.com>
 References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
  <1340314305-27126-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1340314305-27126-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, apw@canonical.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Transfor ipv6 subnet information to CIDR notation.
+In preparation for making kvp_get_ip_address() more generic, factor out
+the code for handling IP addresses.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- tools/hv/hv_kvp_daemon.c |   44 +++++++++++++++++++++++++++++++++++---------
- 1 files changed, 35 insertions(+), 9 deletions(-)
+ tools/hv/hv_kvp_daemon.c |   94 ++++++++++++++++++++-------------------------
+ 1 files changed, 42 insertions(+), 52 deletions(-)
 
 diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 2160462..8a153c5 100644
+index 4fa6f95..2235855 100644
 --- a/tools/hv/hv_kvp_daemon.c
 +++ b/tools/hv/hv_kvp_daemon.c
-@@ -490,6 +490,15 @@ done:
+@@ -490,17 +490,50 @@ done:
  	return;
  }
  
-+static unsigned int hweight32(unsigned int *w)
++static int kvp_process_ip_address(void *addrp,
++				int family, char *buffer,
++				int length,  int *offset)
 +{
-+	unsigned int res = *w - ((*w >> 1) & 0x55555555);
-+	res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
-+	res = (res + (res >> 4)) & 0x0F0F0F0F;
-+	res = res + (res >> 8);
-+	return (res + (res >> 16)) & 0x000000FF;
++	struct sockaddr_in *addr;
++	struct sockaddr_in6 *addr6;
++	int addr_length;
++	char tmp[50];
++	const char *str;
++
++	if (family == AF_INET) {
++		addr = (struct sockaddr_in *)addrp;
++		str = inet_ntop(family, &addr->sin_addr, tmp, 50);
++		addr_length = INET_ADDRSTRLEN;
++	} else {
++		addr6 = (struct sockaddr_in6 *)addrp;
++		str = inet_ntop(family, &addr6->sin6_addr.s6_addr, tmp, 50);
++		addr_length = INET6_ADDRSTRLEN;
++	}
++
++	if ((length - *offset) < addr_length + 1)
++		return 1;
++	if (str == NULL) {
++		strcpy(buffer, "inet_ntop failed\n");
++		return 1;
++	}
++	if (*offset == 0)
++		strcpy(buffer, tmp);
++	else
++		strcat(buffer, tmp);
++	strcat(buffer, ";");
++
++	*offset += strlen(str) + 1;
++	return 0;
 +}
 +
- static int kvp_process_ip_address(void *addrp,
- 				int family, char *buffer,
- 				int length,  int *offset)
-@@ -538,6 +547,12 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ static int
+ kvp_get_ip_address(int family, char *if_name, int op,
+ 		 void  *out_buffer, int length)
+ {
+ 	struct ifaddrs *ifap;
+ 	struct ifaddrs *curp;
+-	int ipv4_len = strlen("255.255.255.255") + 1;
+-	int ipv6_len = strlen("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")+1;
+ 	int offset = 0;
+ 	const char *str;
+-	char tmp[50];
  	int error = 0;
  	char *buffer;
  	struct hv_kvp_ipaddr_value *ip_buffer;
-+	char cidr_mask[5]; /* /xyz */
-+	int weight;
-+	int i;
-+	int *w;
-+	char *sn_str;
-+	struct sockaddr_in6 *addr6;
- 
- 	if (op == KVP_OP_ENUMERATE) {
- 		buffer = out_buffer;
-@@ -611,17 +626,28 @@ kvp_get_ip_address(int family, char *if_name, int op,
- 			} else {
- 				ip_buffer->addr_family |= ADDR_FAMILY_IPV6;
- 				/*
--				 * Get subnet info.
-+				 * Get subnet info in CIDR format.
- 				 */
--				error = kvp_process_ip_address(
--							curp->ifa_netmask,
--							AF_INET6,
--							(char *)
--							ip_buffer->sub_net,
--							length,
--							&sn_offset);
--				if (error)
-+				weight = 0;
-+				sn_str = (char *)ip_buffer->sub_net;
-+				addr6 = (struct sockaddr_in6 *)
-+					curp->ifa_netmask;
-+				w = addr6->sin6_addr.s6_addr32;
-+
-+				for (i = 0; i < 4; i++)
-+					weight += hweight32(&w[i]);
-+
-+				sprintf(cidr_mask, "/%d", weight);
-+				if ((length - sn_offset) <
-+					(strlen(cidr_mask) + 1))
- 					goto gather_ipaddr;
-+
-+				if (sn_offset == 0)
-+					strcpy(sn_str, cidr_mask);
-+				else
-+					strcat(sn_str, cidr_mask);
-+				strcat((char *)ip_buffer->sub_net, ";");
-+				sn_offset += strlen(sn_str) + 1;
- 			}
+@@ -555,55 +588,12 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ 			continue;
  		}
  
+-		if ((curp->ifa_addr->sa_family == AF_INET) &&
+-			((family == AF_INET) || (family == 0))) {
+-			struct sockaddr_in *addr =
+-			(struct sockaddr_in *) curp->ifa_addr;
+-
+-			str = inet_ntop(AF_INET, &addr->sin_addr, tmp, 50);
+-			if (str == NULL) {
+-				strcpy(buffer, "inet_ntop failed\n");
+-				error = 1;
+-				goto getaddr_done;
+-			}
+-			if (offset == 0)
+-				strcpy(buffer, tmp);
+-			else
+-				strcat(buffer, tmp);
+-			strcat(buffer, ";");
+-
+-			offset += strlen(str) + 1;
+-			if ((length - offset) < (ipv4_len + 1))
+-				goto getaddr_done;
+-
+-		} else if ((family == AF_INET6) || (family == 0)) {
+-
+-			/*
+-			 * We only support AF_INET and AF_INET6
+-			 * and the list of addresses is separated by a ";".
+-			 */
+-			struct sockaddr_in6 *addr =
+-				(struct sockaddr_in6 *) curp->ifa_addr;
+-
+-			str = inet_ntop(AF_INET6,
+-					&addr->sin6_addr.s6_addr,
+-					tmp, 50);
+-			if (str == NULL) {
+-				strcpy(buffer, "inet_ntop failed\n");
+-				error = 1;
+-				goto getaddr_done;
+-			}
+-			if (offset == 0)
+-				strcpy(buffer, tmp);
+-			else
+-				strcat(buffer, tmp);
+-			strcat(buffer, ";");
+-			offset += strlen(str) + 1;
+-			if ((length - offset) < (ipv6_len + 1))
+-				goto getaddr_done;
+-
+-		}
+-
++		error = kvp_process_ip_address(curp->ifa_addr,
++						curp->ifa_addr->sa_family,
++						buffer,
++						length, &offset);
++		if (error)
++			goto getaddr_done;
+ 
+ 		curp = curp->ifa_next;
+ 	}
 -- 
 1.7.4.1
