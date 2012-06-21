@@ -1,74 +1,89 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 11/13] Tools: hv: Gather dhcp information
-Date: Thu, 21 Jun 2012 14:31:43 -0700
-Message-ID: <1340314305-27126-11-git-send-email-kys@microsoft.com>
+Subject: [PATCH 01/13] Drivers: hv: Add KVP definitions for IP address
+ injection
+Date: Thu, 21 Jun 2012 14:31:33 -0700
+Message-ID: <1340314305-27126-1-git-send-email-kys@microsoft.com>
 References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
- <1340314305-27126-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1340314305-27126-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1340314200-27078-1-git-send-email-kys@microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, apw@canonical.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Collect information on dhcp setting for the specified interface.
+Add the necessary definitions for supporting the IP injection functionality.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- tools/hv/hv_kvp_daemon.c |   33 +++++++++++++++++++++++++++++++++
- 1 files changed, 33 insertions(+), 0 deletions(-)
+ include/linux/hyperv.h |   24 ++++++++++++++++++++++++
+ 1 files changed, 24 insertions(+), 0 deletions(-)
 
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 68a4cc1..dcf67fa 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -524,6 +524,10 @@ static void kvp_get_ipconfig_info(char *if_name,
- 	char cmd[512];
- 	char *dns_config = "/var/opt/hyperv/.kvp_dns_cfg";
- 	char *gw_config = "/var/opt/hyperv/.kvp_gw_cfg";
-+	char if_cfg_file[256];
-+	FILE *file;
-+	char *p;
-+	char buf[256];
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 68ed7f7..0497764 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -127,6 +127,8 @@ enum hv_kvp_exchg_op {
+ 	KVP_OP_SET,
+ 	KVP_OP_DELETE,
+ 	KVP_OP_ENUMERATE,
++	KVP_OP_GET_IP_INFO,
++	KVP_OP_SET_IP_INFO,
+ 	KVP_OP_REGISTER,
+ 	KVP_OP_COUNT /* Number of operations, must be last. */
+ };
+@@ -140,6 +142,26 @@ enum hv_kvp_exchg_pool {
+ 	KVP_POOL_COUNT /* Number of pools, must be last. */
+ };
  
- 	memset(cmd, 0, 512);
- 	strcat(cmd, "cat /etc/resolv.conf 2>/tmp/null | ");
-@@ -569,6 +573,35 @@ static void kvp_get_ipconfig_info(char *if_name,
- 	kvp_process_ipconfig_file(gw_config, (char *)buffer->gate_way,
- 				(MAX_GATEWAY_SIZE * 2), INET6_ADDRSTRLEN,
- 				strlen(gw_config));
++#define ADDR_FAMILY_NONE	0x00
++#define ADDR_FAMILY_IPV4	0x01
++#define ADDR_FAMILY_IPV6	0x02
 +
-+	/*
-+	 * Get the boot protocol for the interface.
-+	 * We will get the info from:
-+	 * /etc/sysconfig/network-scripts/ifcfg-ethx
-+	 * If need to parse other files to get
-+	 * this info, we need to add code to parse
-+	 * other files.
-+	 */
-+	memset(if_cfg_file, 0, sizeof(if_cfg_file));
-+	strcat(if_cfg_file, "/etc/sysconfig/network-scripts/ifcfg-");
-+	strcat(if_cfg_file, if_name);
++#define MAX_ADAPTER_ID_SIZE	128
++#define MAX_IP_ADDR_SIZE	1024
++#define MAX_GATEWAY_SIZE	512
 +
-+	file = fopen(if_cfg_file, "r");
-+	if (file == NULL)
-+		/*
-+		 * Add code to parse other files.
-+		 */
-+		return;
 +
-+	while ((p = fgets(buf, sizeof(buf), file)) != NULL) {
-+		if (strncmp(p, "BOOTPROTO", 9))
-+			continue;
-+		if (strncmp(p, "BOOTPROTO=none", 14))
-+			buffer->dhcp_enabled = 0;
-+		else
-+			buffer->dhcp_enabled = 1;
-+	}
++struct hv_kvp_ipaddr_value {
++	__u16	adapter_id[MAX_ADAPTER_ID_SIZE];
++	__u8	addr_family;
++	__u8	dhcp_enabled;
++	__u16	ip_addr[MAX_IP_ADDR_SIZE];
++	__u16	sub_net[MAX_IP_ADDR_SIZE];
++	__u16	gate_way[MAX_GATEWAY_SIZE];
++	__u16	dns_addr[MAX_IP_ADDR_SIZE];
++} __attribute__((packed));
 +
- }
++
+ struct hv_kvp_hdr {
+ 	__u8 operation;
+ 	__u8 pool;
+@@ -187,6 +209,7 @@ struct hv_kvp_msg {
+ 		struct hv_kvp_msg_set		kvp_set;
+ 		struct hv_kvp_msg_delete	kvp_delete;
+ 		struct hv_kvp_msg_enumerate	kvp_enum_data;
++		struct hv_kvp_ipaddr_value	kvp_ip_val;
+ 		struct hv_kvp_register		kvp_register;
+ 	} body;
+ } __attribute__((packed));
+@@ -982,6 +1005,7 @@ void vmbus_driver_unregister(struct hv_driver *hv_driver);
+ #define HV_S_CONT			0x80070103
+ #define HV_ERROR_NOT_SUPPORTED		0x80070032
+ #define HV_ERROR_MACHINE_LOCKED		0x800704F7
++#define HV_ERROR_DEVICE_NOT_CONNECTED	0x8007048F
  
- 
+ /*
+  * While we want to handle util services as regular devices,
 -- 
 1.7.4.1
