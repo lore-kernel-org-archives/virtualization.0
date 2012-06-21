@@ -1,37 +1,91 @@
-From: Jesper Juhl <jj@chaosbits.net>
-Subject: Re: [PATCH 00/13] drivers: hv: kvp
-Date: Fri, 22 Jun 2012 01:30:57 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.1206220125410.7671@swampdragon.chaosbits.net>
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 09/13] Tools: hv: Gather DNS information
+Date: Thu, 21 Jun 2012 14:31:41 -0700
+Message-ID: <1340314305-27126-9-git-send-email-kys@microsoft.com>
 References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+ <1340314305-27126-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1340314200-27078-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1340314305-27126-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, apw@canonical.com
+To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, apw@canonical.com
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 21 Jun 2012, K. Y. Srinivasan wrote:
+Now gather DNS information.
 
-> This patchset expands the KVP (Key Value Pair) functionality to
-> implement the mechanism to get/set IP addresses in the guest. This
-> functionality is used in Windows Server 2012 to implement VM
-> replication functionality. The way IP configuration information
-> is managed is distro specific. The current implementation supports
-> RedHat way of doing things. We will expand support to other distros
-> incrementally. 
-> 
-So there is going to be a continuous flow of patches to add support for 
-new distros (Arch Linux, Slackware, Linux Mint, SuSE, Debian, etc etc) and 
-if different versions of a distro handles things differently then you are 
-also going to deal with that? Might be fine, but it just sounds a bit 
-scary to me to try to support m different distros, each in n different 
-versions from the kernel... Couldn't this somehow be done once and for all 
-in a distro neutral way?
-Just asking :-)
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ tools/hv/hv_kvp_daemon.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 50 insertions(+), 0 deletions(-)
 
+diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
+index 8a153c5..101ab7f 100644
+--- a/tools/hv/hv_kvp_daemon.c
++++ b/tools/hv/hv_kvp_daemon.c
+@@ -490,6 +490,50 @@ done:
+ 	return;
+ }
+ 
++static void kvp_get_ipconfig_info(char *if_name,
++				 struct hv_kvp_ipaddr_value *buffer)
++{
++	char cmd[512];
++	char *dns_config = "/var/opt/hyperv/.kvp_dns_cfg";
++	FILE *file;
++	char buf[256];
++	char *dns_buf;
++	char *p;
++	char *x;
++
++	memset(cmd, 0, 512);
++	strcat(cmd, "cat /etc/resolv.conf 2>/tmp/null | ");
++	strcat(cmd, " awk '/nameserver/ {print $2 }' > ");
++	strcat(cmd, "/var/opt/hyperv/.kvp_dns_cfg");
++
++	/*
++	 * Execute the command to gather dns info.
++	 */
++	system(cmd);
++	file = fopen(dns_config, "r");
++	if (file == NULL)
++		return;
++
++	dns_buf = (char *)(buffer->dns_addr);
++	/*
++	 * The buffer is an array of __u16 elements.
++	 */
++	memset(dns_buf, 0, (MAX_IP_ADDR_SIZE * 2));
++	while ((p = fgets(buf, sizeof(buf), file)) != NULL) {
++		if (((MAX_IP_ADDR_SIZE * 2) - strlen(dns_buf)) <
++				(INET6_ADDRSTRLEN + 1))
++			break;
++
++		x = strchr(p, '\n');
++		*x = '\0';
++		strcat(dns_buf, p);
++		strcat(dns_buf, ";");
++	}
++	fclose(file);
++
++}
++
++
+ static unsigned int hweight32(unsigned int *w)
+ {
+ 	unsigned int res = *w - ((*w >> 1) & 0x55555555);
+@@ -649,6 +693,12 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ 				strcat((char *)ip_buffer->sub_net, ";");
+ 				sn_offset += strlen(sn_str) + 1;
+ 			}
++
++			/*
++			 * Collect other ip related configuration info.
++			 */
++
++			kvp_get_ipconfig_info(if_name, ip_buffer);
+ 		}
+ 
+ gather_ipaddr:
 -- 
-Jesper Juhl <jj@chaosbits.net>       http://www.chaosbits.net/
-Don't top-post http://www.catb.org/jargon/html/T/top-post.html
-Plain text mails only, please.
+1.7.4.1
