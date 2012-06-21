@@ -1,89 +1,94 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 01/13] Drivers: hv: Add KVP definitions for IP address
- injection
-Date: Thu, 21 Jun 2012 14:31:33 -0700
-Message-ID: <1340314305-27126-1-git-send-email-kys@microsoft.com>
+Subject: [PATCH 08/13] Tools: hv: Represent the ipv6 mask using CIDR notation
+Date: Thu, 21 Jun 2012 14:31:40 -0700
+Message-ID: <1340314305-27126-8-git-send-email-kys@microsoft.com>
 References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1340314200-27078-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+ <1340314305-27126-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1340314305-27126-1-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, apw@canonical.com
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add the necessary definitions for supporting the IP injection functionality.
+Transfor ipv6 subnet information to CIDR notation.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- include/linux/hyperv.h |   24 ++++++++++++++++++++++++
- 1 files changed, 24 insertions(+), 0 deletions(-)
+ tools/hv/hv_kvp_daemon.c |   44 +++++++++++++++++++++++++++++++++++---------
+ 1 files changed, 35 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-index 68ed7f7..0497764 100644
---- a/include/linux/hyperv.h
-+++ b/include/linux/hyperv.h
-@@ -127,6 +127,8 @@ enum hv_kvp_exchg_op {
- 	KVP_OP_SET,
- 	KVP_OP_DELETE,
- 	KVP_OP_ENUMERATE,
-+	KVP_OP_GET_IP_INFO,
-+	KVP_OP_SET_IP_INFO,
- 	KVP_OP_REGISTER,
- 	KVP_OP_COUNT /* Number of operations, must be last. */
- };
-@@ -140,6 +142,26 @@ enum hv_kvp_exchg_pool {
- 	KVP_POOL_COUNT /* Number of pools, must be last. */
- };
+diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
+index 2160462..8a153c5 100644
+--- a/tools/hv/hv_kvp_daemon.c
++++ b/tools/hv/hv_kvp_daemon.c
+@@ -490,6 +490,15 @@ done:
+ 	return;
+ }
  
-+#define ADDR_FAMILY_NONE	0x00
-+#define ADDR_FAMILY_IPV4	0x01
-+#define ADDR_FAMILY_IPV6	0x02
++static unsigned int hweight32(unsigned int *w)
++{
++	unsigned int res = *w - ((*w >> 1) & 0x55555555);
++	res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
++	res = (res + (res >> 4)) & 0x0F0F0F0F;
++	res = res + (res >> 8);
++	return (res + (res >> 16)) & 0x000000FF;
++}
 +
-+#define MAX_ADAPTER_ID_SIZE	128
-+#define MAX_IP_ADDR_SIZE	1024
-+#define MAX_GATEWAY_SIZE	512
-+
-+
-+struct hv_kvp_ipaddr_value {
-+	__u16	adapter_id[MAX_ADAPTER_ID_SIZE];
-+	__u8	addr_family;
-+	__u8	dhcp_enabled;
-+	__u16	ip_addr[MAX_IP_ADDR_SIZE];
-+	__u16	sub_net[MAX_IP_ADDR_SIZE];
-+	__u16	gate_way[MAX_GATEWAY_SIZE];
-+	__u16	dns_addr[MAX_IP_ADDR_SIZE];
-+} __attribute__((packed));
-+
-+
- struct hv_kvp_hdr {
- 	__u8 operation;
- 	__u8 pool;
-@@ -187,6 +209,7 @@ struct hv_kvp_msg {
- 		struct hv_kvp_msg_set		kvp_set;
- 		struct hv_kvp_msg_delete	kvp_delete;
- 		struct hv_kvp_msg_enumerate	kvp_enum_data;
-+		struct hv_kvp_ipaddr_value	kvp_ip_val;
- 		struct hv_kvp_register		kvp_register;
- 	} body;
- } __attribute__((packed));
-@@ -982,6 +1005,7 @@ void vmbus_driver_unregister(struct hv_driver *hv_driver);
- #define HV_S_CONT			0x80070103
- #define HV_ERROR_NOT_SUPPORTED		0x80070032
- #define HV_ERROR_MACHINE_LOCKED		0x800704F7
-+#define HV_ERROR_DEVICE_NOT_CONNECTED	0x8007048F
+ static int kvp_process_ip_address(void *addrp,
+ 				int family, char *buffer,
+ 				int length,  int *offset)
+@@ -538,6 +547,12 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ 	int error = 0;
+ 	char *buffer;
+ 	struct hv_kvp_ipaddr_value *ip_buffer;
++	char cidr_mask[5]; /* /xyz */
++	int weight;
++	int i;
++	int *w;
++	char *sn_str;
++	struct sockaddr_in6 *addr6;
  
- /*
-  * While we want to handle util services as regular devices,
+ 	if (op == KVP_OP_ENUMERATE) {
+ 		buffer = out_buffer;
+@@ -611,17 +626,28 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ 			} else {
+ 				ip_buffer->addr_family |= ADDR_FAMILY_IPV6;
+ 				/*
+-				 * Get subnet info.
++				 * Get subnet info in CIDR format.
+ 				 */
+-				error = kvp_process_ip_address(
+-							curp->ifa_netmask,
+-							AF_INET6,
+-							(char *)
+-							ip_buffer->sub_net,
+-							length,
+-							&sn_offset);
+-				if (error)
++				weight = 0;
++				sn_str = (char *)ip_buffer->sub_net;
++				addr6 = (struct sockaddr_in6 *)
++					curp->ifa_netmask;
++				w = addr6->sin6_addr.s6_addr32;
++
++				for (i = 0; i < 4; i++)
++					weight += hweight32(&w[i]);
++
++				sprintf(cidr_mask, "/%d", weight);
++				if ((length - sn_offset) <
++					(strlen(cidr_mask) + 1))
+ 					goto gather_ipaddr;
++
++				if (sn_offset == 0)
++					strcpy(sn_str, cidr_mask);
++				else
++					strcat(sn_str, cidr_mask);
++				strcat((char *)ip_buffer->sub_net, ";");
++				sn_offset += strlen(sn_str) + 1;
+ 			}
+ 		}
+ 
 -- 
 1.7.4.1
