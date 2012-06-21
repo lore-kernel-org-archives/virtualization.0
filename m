@@ -1,206 +1,42 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 04/13] Tools: hv: Prepare to expand  kvp_get_ip_address() functionality
-Date: Thu, 21 Jun 2012 14:31:36 -0700
-Message-ID: <1340314305-27126-4-git-send-email-kys@microsoft.com>
-References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
- <1340314305-27126-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1340314305-27126-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, apw@canonical.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+From: KVM Forum 2012 Program Committee <kvm-forum-2012-pc@redhat.com>
+Subject: KVM Forum and oVirt Workshop Europe 2012 Save the Date
+Date: Thu, 21 Jun 2012 15:45:49 -0700
+Message-ID: <20120621224549.GX25074__44240.7270813876$1340318796$gmane$org@x200.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: announce@ovirt.org, kvm@vger.kernel.org, libvir-list@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-kvp_get_ip_address() implemented the functionality to retrieve IP address info.
-Make this function more generic so that we could retrieve additional
-per-interface information.
+KVM is an industry leading open source hypervisor that provides an ideal
+platform for datacenter virtualization, virtual desktop infrastructure,
+and cloud computing.  Once again, it's time to bring together the
+community of developers and users that define the KVM ecosystem for
+our annual technical conference.  We will discuss the current state of
+affairs and plan for the future of KVM, its surrounding infrastructure,
+and management tools.  We are also excited to announce the oVirt Workshop
+will run in parallel with the KVM Forum, bringing in a community focused
+on enterprise datacenter virtualization management built on KVM.  So mark
+your calendar and join us in advancing KVM.
 
+Once again we are colocated with The Linux Foundation's LinuxCon,
+Based on feedback from last year, this time it's LinuxCon Europe!
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- tools/hv/hv_kvp_daemon.c |  129 ++++++++++++++++++++++++++++++----------------
- 1 files changed, 84 insertions(+), 45 deletions(-)
+Conference: November 7 - 9, 2012
+Location: Hotel Fira Palace - Barcelona, Spain
 
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 4831997..4fa6f95 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -491,7 +491,8 @@ done:
- }
- 
- static int
--kvp_get_ip_address(int family, char *buffer, int length)
-+kvp_get_ip_address(int family, char *if_name, int op,
-+		 void  *out_buffer, int length)
- {
- 	struct ifaddrs *ifap;
- 	struct ifaddrs *curp;
-@@ -501,10 +502,19 @@ kvp_get_ip_address(int family, char *buffer, int length)
- 	const char *str;
- 	char tmp[50];
- 	int error = 0;
--
-+	char *buffer;
-+	struct hv_kvp_ipaddr_value *ip_buffer;
-+
-+	if (op == KVP_OP_ENUMERATE) {
-+		buffer = out_buffer;
-+	} else {
-+		ip_buffer = out_buffer;
-+		buffer = (char *)ip_buffer->ip_addr;
-+		ip_buffer->addr_family = 0;
-+	}
- 	/*
- 	 * On entry into this function, the buffer is capable of holding the
--	 * maximum key value (2048 bytes).
-+	 * maximum key value.
- 	 */
- 
- 	if (getifaddrs(&ifap)) {
-@@ -514,58 +524,87 @@ kvp_get_ip_address(int family, char *buffer, int length)
- 
- 	curp = ifap;
- 	while (curp != NULL) {
--		if ((curp->ifa_addr != NULL) &&
--		   (curp->ifa_addr->sa_family == family)) {
--			if (family == AF_INET) {
--				struct sockaddr_in *addr =
--				(struct sockaddr_in *) curp->ifa_addr;
--
--				str = inet_ntop(family, &addr->sin_addr,
--						tmp, 50);
--				if (str == NULL) {
--					strcpy(buffer, "inet_ntop failed\n");
--					error = 1;
--					goto getaddr_done;
--				}
--				if (offset == 0)
--					strcpy(buffer, tmp);
--				else
--					strcat(buffer, tmp);
--				strcat(buffer, ";");
-+		if (curp->ifa_addr == NULL) {
-+			curp = curp->ifa_next;
-+			continue;
-+		}
- 
--				offset += strlen(str) + 1;
--				if ((length - offset) < (ipv4_len + 1))
--					goto getaddr_done;
-+		if ((if_name != NULL) &&
-+			(strncmp(curp->ifa_name, if_name, strlen(if_name)))) {
-+			/*
-+			 * We want info about a specific interface;
-+			 * just continue.
-+			 */
-+			curp = curp->ifa_next;
-+			continue;
-+		}
- 
--			} else {
-+		/*
-+		 * We only support two address families: AF_INET and AF_INET6.
-+		 * If a family value of 0 is specified, we collect both
-+		 * supported address families; if not we gather info on
-+		 * the specified address family.
-+		 */
-+		if ((family != 0) && (curp->ifa_addr->sa_family != family)) {
-+			curp = curp->ifa_next;
-+			continue;
-+		}
-+		if ((curp->ifa_addr->sa_family != AF_INET) &&
-+			(curp->ifa_addr->sa_family != AF_INET6)) {
-+			curp = curp->ifa_next;
-+			continue;
-+		}
-+
-+		if ((curp->ifa_addr->sa_family == AF_INET) &&
-+			((family == AF_INET) || (family == 0))) {
-+			struct sockaddr_in *addr =
-+			(struct sockaddr_in *) curp->ifa_addr;
-+
-+			str = inet_ntop(AF_INET, &addr->sin_addr, tmp, 50);
-+			if (str == NULL) {
-+				strcpy(buffer, "inet_ntop failed\n");
-+				error = 1;
-+				goto getaddr_done;
-+			}
-+			if (offset == 0)
-+				strcpy(buffer, tmp);
-+			else
-+				strcat(buffer, tmp);
-+			strcat(buffer, ";");
-+
-+			offset += strlen(str) + 1;
-+			if ((length - offset) < (ipv4_len + 1))
-+				goto getaddr_done;
-+
-+		} else if ((family == AF_INET6) || (family == 0)) {
- 
- 			/*
- 			 * We only support AF_INET and AF_INET6
- 			 * and the list of addresses is separated by a ";".
- 			 */
--				struct sockaddr_in6 *addr =
-+			struct sockaddr_in6 *addr =
- 				(struct sockaddr_in6 *) curp->ifa_addr;
- 
--				str = inet_ntop(family,
-+			str = inet_ntop(AF_INET6,
- 					&addr->sin6_addr.s6_addr,
- 					tmp, 50);
--				if (str == NULL) {
--					strcpy(buffer, "inet_ntop failed\n");
--					error = 1;
--					goto getaddr_done;
--				}
--				if (offset == 0)
--					strcpy(buffer, tmp);
--				else
--					strcat(buffer, tmp);
--				strcat(buffer, ";");
--				offset += strlen(str) + 1;
--				if ((length - offset) < (ipv6_len + 1))
--					goto getaddr_done;
--
-+			if (str == NULL) {
-+				strcpy(buffer, "inet_ntop failed\n");
-+				error = 1;
-+				goto getaddr_done;
- 			}
-+			if (offset == 0)
-+				strcpy(buffer, tmp);
-+			else
-+				strcat(buffer, tmp);
-+			strcat(buffer, ";");
-+			offset += strlen(str) + 1;
-+			if ((length - offset) < (ipv6_len + 1))
-+				goto getaddr_done;
- 
- 		}
-+
-+
- 		curp = curp->ifa_next;
- 	}
- 
-@@ -812,13 +851,13 @@ int main(void)
- 			strcpy(key_value, lic_version);
- 			break;
- 		case NetworkAddressIPv4:
--			kvp_get_ip_address(AF_INET, key_value,
--					HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
-+			kvp_get_ip_address(AF_INET, NULL, KVP_OP_ENUMERATE,
-+				key_value, HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
- 			strcpy(key_name, "NetworkAddressIPv4");
- 			break;
- 		case NetworkAddressIPv6:
--			kvp_get_ip_address(AF_INET6, key_value,
--					HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
-+			kvp_get_ip_address(AF_INET6, NULL, KVP_OP_ENUMERATE,
-+				key_value, HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
- 			strcpy(key_name, "NetworkAddressIPv6");
- 			break;
- 		case OSBuildNumber:
--- 
-1.7.4.1
+Details regarding registration and proposal submission are forthcoming.
+
+thanks,
+your KVM Forum 2012 Program Commitee
