@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 03/13] Drivers: hv: kvp: Support the new IP injection messages
-Date: Thu, 21 Jun 2012 14:31:35 -0700
-Message-ID: <1340314305-27126-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 10/13] Tools: hv: Gather ipv[4,6] gateway information
+Date: Thu, 21 Jun 2012 14:31:42 -0700
+Message-ID: <1340314305-27126-10-git-send-email-kys@microsoft.com>
 References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
  <1340314305-27126-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,159 +11,123 @@ To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverp
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Implement support for the new IP injection messages in the driver code.
+Collect ipv4 and ipv6 gateway information.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- drivers/hv/hv_kvp.c |   70 +++++++++++++++++++++++++++++++++++++++++++++-----
- 1 files changed, 63 insertions(+), 7 deletions(-)
+ tools/hv/hv_kvp_daemon.c |   80 ++++++++++++++++++++++++++++++++++------------
+ 1 files changed, 59 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/hv/hv_kvp.c b/drivers/hv/hv_kvp.c
-index 6e6f0c2..4fd0932 100644
---- a/drivers/hv/hv_kvp.c
-+++ b/drivers/hv/hv_kvp.c
-@@ -51,7 +51,7 @@ static struct {
- static void kvp_send_key(struct work_struct *dummy);
- 
- 
--static void kvp_respond_to_host(char *key, char *value, int error);
-+static void kvp_respond_to_host(struct hv_kvp_msg *msg, int error);
- static void kvp_work_func(struct work_struct *dummy);
- static void kvp_register(void);
- 
-@@ -96,7 +96,7 @@ kvp_work_func(struct work_struct *dummy)
- 	 * If the timer fires, the user-mode component has not responded;
- 	 * process the pending transaction.
- 	 */
--	kvp_respond_to_host("Unknown key", "Guest timed out", HV_E_FAIL);
-+	kvp_respond_to_host(NULL, HV_E_FAIL);
+diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
+index 101ab7f..68a4cc1 100644
+--- a/tools/hv/hv_kvp_daemon.c
++++ b/tools/hv/hv_kvp_daemon.c
+@@ -490,16 +490,40 @@ done:
+ 	return;
  }
  
- /*
-@@ -107,7 +107,6 @@ static void
- kvp_cn_callback(struct cn_msg *msg, struct netlink_skb_parms *nsp)
- {
- 	struct hv_kvp_msg *message;
--	struct hv_kvp_msg_enumerate *data;
- 	int	error;
- 
- 	message = (struct hv_kvp_msg *)msg->data;
-@@ -126,13 +125,59 @@ kvp_cn_callback(struct cn_msg *msg, struct netlink_skb_parms *nsp)
- 	 * the user level daemon to transmit errors.
- 	 */
- 	error = *((int *)(&message->kvp_hdr.operation));
--	data = &message->body.kvp_enum_data;
- 	/*
- 	 * Complete the transaction by forwarding the key value
- 	 * to the host. But first, cancel the timeout.
- 	 */
- 	if (cancel_delayed_work_sync(&kvp_work))
--		kvp_respond_to_host(data->data.key, data->data.value, error);
-+		kvp_respond_to_host(message, error);
++static void kvp_process_ipconfig_file(char *config_file,
++					char *config_buf, int len,
++					int element_size, int offset)
++{
++	char buf[256];
++	char *p;
++	char *x;
++	FILE *file;
++
++	file = fopen(config_file, "r");
++	if (file == NULL)
++		return;
++
++	if (offset == 0)
++		memset(config_buf, 0, len);
++	while ((p = fgets(buf, sizeof(buf), file)) != NULL) {
++		if ((len - strlen(config_buf)) < (element_size + 1))
++			break;
++
++		x = strchr(p, '\n');
++		*x = '\0';
++		strcat(config_buf, p);
++		strcat(config_buf, ";");
++	}
++	fclose(file);
++
 +}
 +
-+static void process_ipinfo(struct hv_kvp_msg *in_msg,
-+		struct hv_kvp_msg *out_msg, int op)
-+{
-+	switch (op) {
-+	case KVP_OP_SET_IP_INFO:
-+		/*
-+		 * Transform all parameters into utf8 encoding.
-+		 */
-+		utf16s_to_utf8s((wchar_t *)in_msg->body.kvp_ip_val.ip_addr,
-+				MAX_IP_ADDR_SIZE,
-+				UTF16_LITTLE_ENDIAN,
-+				(__u8 *)out_msg->body.kvp_ip_val.ip_addr,
-+				MAX_IP_ADDR_SIZE);
-+
-+		utf16s_to_utf8s((wchar_t *)in_msg->body.kvp_ip_val.sub_net,
-+				MAX_IP_ADDR_SIZE,
-+				UTF16_LITTLE_ENDIAN,
-+				(__u8 *)out_msg->body.kvp_ip_val.sub_net,
-+				MAX_IP_ADDR_SIZE);
-+
-+		utf16s_to_utf8s((wchar_t *)in_msg->body.kvp_ip_val.gate_way,
-+				MAX_GATEWAY_SIZE,
-+				UTF16_LITTLE_ENDIAN,
-+				(__u8 *)out_msg->body.kvp_ip_val.gate_way,
-+				MAX_GATEWAY_SIZE);
-+
-+		utf16s_to_utf8s((wchar_t *)in_msg->body.kvp_ip_val.dns_addr,
-+				MAX_IP_ADDR_SIZE,
-+				UTF16_LITTLE_ENDIAN,
-+				(__u8 *)out_msg->body.kvp_ip_val.dns_addr,
-+				MAX_IP_ADDR_SIZE);
-+
-+		out_msg->body.kvp_ip_val.dhcp_enabled =
-+		in_msg->body.kvp_ip_val.dhcp_enabled;
-+
-+	default:
-+		utf16s_to_utf8s((wchar_t *)in_msg->body.kvp_ip_val.adapter_id,
-+				MAX_ADAPTER_ID_SIZE,
-+				UTF16_LITTLE_ENDIAN,
-+				(__u8 *)out_msg->body.kvp_ip_val.adapter_id,
-+				MAX_ADAPTER_ID_SIZE);
-+
-+		out_msg->body.kvp_ip_val.addr_family =
-+		in_msg->body.kvp_ip_val.addr_family;
-+	}
- }
- 
- static void
-@@ -170,6 +215,12 @@ kvp_send_key(struct work_struct *dummy)
- 	 */
- 
- 	switch (message->kvp_hdr.operation) {
-+	case KVP_OP_SET_IP_INFO:
-+		process_ipinfo(in_msg, message, KVP_OP_SET_IP_INFO);
-+		break;
-+	case KVP_OP_GET_IP_INFO:
-+		process_ipinfo(in_msg, message, KVP_OP_GET_IP_INFO);
-+		break;
- 	case KVP_OP_SET:
- 		switch (in_msg->body.kvp_set.data.value_type) {
- 		case REG_SZ:
-@@ -246,11 +297,12 @@ kvp_send_key(struct work_struct *dummy)
-  */
- 
- static void
--kvp_respond_to_host(char *key, char *value, int error)
-+kvp_respond_to_host(struct hv_kvp_msg *msg_to_host, int error)
+ static void kvp_get_ipconfig_info(char *if_name,
+ 				 struct hv_kvp_ipaddr_value *buffer)
  {
- 	struct hv_kvp_msg  *kvp_msg;
- 	struct hv_kvp_exchg_msg_value  *kvp_data;
- 	char	*key_name;
-+	char	*value;
- 	struct icmsg_hdr *icmsghdrp;
- 	int	keylen = 0;
- 	int	valuelen = 0;
-@@ -309,6 +361,9 @@ kvp_respond_to_host(char *key, char *value, int error)
- 			sizeof(struct icmsg_hdr)];
+ 	char cmd[512];
+ 	char *dns_config = "/var/opt/hyperv/.kvp_dns_cfg";
+-	FILE *file;
+-	char buf[256];
+-	char *dns_buf;
+-	char *p;
+-	char *x;
++	char *gw_config = "/var/opt/hyperv/.kvp_gw_cfg";
  
- 	switch (kvp_transaction.kvp_msg->kvp_hdr.operation) {
-+	case KVP_OP_GET_IP_INFO:
-+		process_ipinfo(msg_to_host, kvp_msg, KVP_OP_SET_IP_INFO);
-+		goto response_done;
- 	case KVP_OP_GET:
- 		kvp_data = &kvp_msg->body.kvp_get.data;
- 		goto copy_value;
-@@ -322,7 +377,7 @@ kvp_respond_to_host(char *key, char *value, int error)
- 	}
- 
- 	kvp_data = &kvp_msg->body.kvp_enum_data.data;
--	key_name = key;
-+	key_name = msg_to_host->body.kvp_enum_data.data.key;
+ 	memset(cmd, 0, 512);
+ 	strcat(cmd, "cat /etc/resolv.conf 2>/tmp/null | ");
+@@ -508,29 +532,43 @@ static void kvp_get_ipconfig_info(char *if_name,
  
  	/*
- 	 * The windows host expects the key/value pair to be encoded
-@@ -336,6 +391,7 @@ kvp_respond_to_host(char *key, char *value, int error)
- 	kvp_data->key_size = 2*(keylen + 1); /* utf16 encoding */
+ 	 * Execute the command to gather dns info.
++	 * Note that all buffers are arrays of __u16.
+ 	 */
+ 	system(cmd);
+-	file = fopen(dns_config, "r");
+-	if (file == NULL)
+-		return;
++	kvp_process_ipconfig_file(dns_config, (char *)buffer->dns_addr,
++				(MAX_IP_ADDR_SIZE * 2), INET6_ADDRSTRLEN, 0);
  
- copy_value:
-+	value = msg_to_host->body.kvp_enum_data.data.value;
- 	valuelen = utf8s_to_utf16s(value, strlen(value), UTF16_HOST_ENDIAN,
- 				(wchar_t *) kvp_data->value,
- 				(HV_KVP_EXCHANGE_MAX_VALUE_SIZE / 2) - 2);
+-	dns_buf = (char *)(buffer->dns_addr);
+ 	/*
+-	 * The buffer is an array of __u16 elements.
++	 * Get the address of default gateway (ipv4).
+ 	 */
+-	memset(dns_buf, 0, (MAX_IP_ADDR_SIZE * 2));
+-	while ((p = fgets(buf, sizeof(buf), file)) != NULL) {
+-		if (((MAX_IP_ADDR_SIZE * 2) - strlen(dns_buf)) <
+-				(INET6_ADDRSTRLEN + 1))
+-			break;
++	memset(cmd, 0, 512);
++	strcat(cmd, "/sbin/ip -f inet  route | grep -w ");
++	strcat(cmd, if_name);
++	strcat(cmd, " | awk '/default/ {print $3 }' > ");
++	strcat(cmd, "/var/opt/hyperv/.kvp_gw_cfg");
+ 
+-		x = strchr(p, '\n');
+-		*x = '\0';
+-		strcat(dns_buf, p);
+-		strcat(dns_buf, ";");
+-	}
+-	fclose(file);
++	/*
++	 * Execute the command to gather gateway info.
++	 */
++	system(cmd);
++	kvp_process_ipconfig_file(gw_config, (char *)buffer->gate_way,
++				(MAX_GATEWAY_SIZE * 2), INET_ADDRSTRLEN, 0);
++	/*
++	 * Get the address of default gateway (ipv6).
++	 */
++	memset(cmd, 0, 512);
++	strcat(cmd, "/sbin/ip -f inet6  route | grep -w ");
++	strcat(cmd, if_name);
++	strcat(cmd, " | awk '/default/ {print $3 }' > ");
++	strcat(cmd, "/var/opt/hyperv/.kvp_gw_cfg");
+ 
++	/*
++	 * Execute the command to gather gateway info (ipv6).
++	 */
++	system(cmd);
++	kvp_process_ipconfig_file(gw_config, (char *)buffer->gate_way,
++				(MAX_GATEWAY_SIZE * 2), INET6_ADDRSTRLEN,
++				strlen(gw_config));
+ }
+ 
+ 
 -- 
 1.7.4.1
