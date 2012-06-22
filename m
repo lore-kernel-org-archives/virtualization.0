@@ -1,91 +1,41 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 09/13] Tools: hv: Gather DNS information
-Date: Thu, 21 Jun 2012 14:31:41 -0700
-Message-ID: <1340314305-27126-9-git-send-email-kys@microsoft.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 00/13] drivers: hv: kvp
+Date: Fri, 22 Jun 2012 13:06:53 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF9155EC47A@SN2PRD0310MB382.namprd03.prod.outlook.com>
 References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
- <1340314305-27126-1-git-send-email-kys@microsoft.com>
+ <20120621224737.GA5933@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1340314305-27126-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <20120621224737.GA5933@kroah.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, ohering@suse.com, apw@canonical.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "ohering@suse.com" <ohering@suse.com>, "apw@canonical.com" <apw@canonical.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now gather DNS information.
+Are you still missing it; do you want me to resend the whole set?
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- tools/hv/hv_kvp_daemon.c |   50 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 50 insertions(+), 0 deletions(-)
+K. Y
 
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 8a153c5..101ab7f 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -490,6 +490,50 @@ done:
- 	return;
- }
- 
-+static void kvp_get_ipconfig_info(char *if_name,
-+				 struct hv_kvp_ipaddr_value *buffer)
-+{
-+	char cmd[512];
-+	char *dns_config = "/var/opt/hyperv/.kvp_dns_cfg";
-+	FILE *file;
-+	char buf[256];
-+	char *dns_buf;
-+	char *p;
-+	char *x;
-+
-+	memset(cmd, 0, 512);
-+	strcat(cmd, "cat /etc/resolv.conf 2>/tmp/null | ");
-+	strcat(cmd, " awk '/nameserver/ {print $2 }' > ");
-+	strcat(cmd, "/var/opt/hyperv/.kvp_dns_cfg");
-+
-+	/*
-+	 * Execute the command to gather dns info.
-+	 */
-+	system(cmd);
-+	file = fopen(dns_config, "r");
-+	if (file == NULL)
-+		return;
-+
-+	dns_buf = (char *)(buffer->dns_addr);
-+	/*
-+	 * The buffer is an array of __u16 elements.
-+	 */
-+	memset(dns_buf, 0, (MAX_IP_ADDR_SIZE * 2));
-+	while ((p = fgets(buf, sizeof(buf), file)) != NULL) {
-+		if (((MAX_IP_ADDR_SIZE * 2) - strlen(dns_buf)) <
-+				(INET6_ADDRSTRLEN + 1))
-+			break;
-+
-+		x = strchr(p, '\n');
-+		*x = '\0';
-+		strcat(dns_buf, p);
-+		strcat(dns_buf, ";");
-+	}
-+	fclose(file);
-+
-+}
-+
-+
- static unsigned int hweight32(unsigned int *w)
- {
- 	unsigned int res = *w - ((*w >> 1) & 0x55555555);
-@@ -649,6 +693,12 @@ kvp_get_ip_address(int family, char *if_name, int op,
- 				strcat((char *)ip_buffer->sub_net, ";");
- 				sn_offset += strlen(sn_str) + 1;
- 			}
-+
-+			/*
-+			 * Collect other ip related configuration info.
-+			 */
-+
-+			kvp_get_ipconfig_info(if_name, ip_buffer);
- 		}
- 
- gather_ipaddr:
--- 
-1.7.4.1
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@linuxfoundation.org]
+> Sent: Thursday, June 21, 2012 6:48 PM
+> To: KY Srinivasan
+> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org; ohering@suse.com; apw@canonical.com
+> Subject: Re: [PATCH 00/13] drivers: hv: kvp
+> 
+> On Thu, Jun 21, 2012 at 02:30:00PM -0700, K. Y. Srinivasan wrote:
+> > This patchset expands the KVP (Key Value Pair) functionality to
+> > implement the mechanism to get/set IP addresses in the guest. This
+> > functionality is used in Windows Server 2012 to implement VM
+> > replication functionality. The way IP configuration information
+> > is managed is distro specific. The current implementation supports
+> > RedHat way of doing things. We will expand support to other distros
+> > incrementally.
+> 
+> I'm missing 09/13, did it get stuck somewhere?
+> 
+> 
