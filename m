@@ -1,63 +1,66 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 00/13] drivers: hv: kvp
-Date: Fri, 22 Jun 2012 18:54:34 +0000
-Message-ID: <426367E2313C2449837CD2DE46E7EAF9155EC53B@SN2PRD0310MB382.namprd03.prod.outlook.com>
-References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
- <alpine.LNX.2.00.1206220125410.7671@swampdragon.chaosbits.net>
+From: mc@linux.vnet.ibm.com
+Subject: Re: [Qemu-devel] [PATCH 2/2] virtio-scsi: Implement hotplug support
+	for virtio-scsi
+Date: Mon, 25 Jun 2012 03:51:13 -0400
+Message-ID: <20120625035113.Horde.eaU3vZir309P6Bhxk01CidA@imap.linux.ibm.com>
+References: <cover.1340022196.git.mc@linux.vnet.ibm.com>
+	<69a1a349ba21144e66843ab335cb3a243926bba8.1340022196.git.mc@linux.vnet.ibm.com>
+	<CAJSP0QWoRt-GgWytPpSBEjNDtSHHRXOs7hDnyUpspW-knYPY5g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <alpine.LNX.2.00.1206220125410.7671@swampdragon.chaosbits.net>
-Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: Jesper Juhl <jj@chaosbits.net>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "ohering@suse.com" <ohering@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"; DelSp="Yes"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAJSP0QWoRt-GgWytPpSBEjNDtSHHRXOs7hDnyUpspW-knYPY5g@mail.gmail.com>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: stefanha@linux.vnet.ibm.com, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, senwang@linux.vnet.ibm.com, Anthony Liguori <anthony@codemonkey.ws>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, Andreas =?iso-8859-1?b?RuRyYmVy?= <afaerber@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
+Quoting Stefan Hajnoczi <stefanha@gmail.com>:
 
-> -----Original Message-----
-> From: Jesper Juhl [mailto:jj@chaosbits.net]
-> Sent: Thursday, June 21, 2012 7:31 PM
-> To: KY Srinivasan
-> Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; ohering@suse.com;
-> apw@canonical.com
-> Subject: Re: [PATCH 00/13] drivers: hv: kvp
-> 
-> On Thu, 21 Jun 2012, K. Y. Srinivasan wrote:
-> 
-> > This patchset expands the KVP (Key Value Pair) functionality to
-> > implement the mechanism to get/set IP addresses in the guest. This
-> > functionality is used in Windows Server 2012 to implement VM
-> > replication functionality. The way IP configuration information
-> > is managed is distro specific. The current implementation supports
-> > RedHat way of doing things. We will expand support to other distros
-> > incrementally.
-> >
-> So there is going to be a continuous flow of patches to add support for
-> new distros (Arch Linux, Slackware, Linux Mint, SuSE, Debian, etc etc) and
-> if different versions of a distro handles things differently then you are
-> also going to deal with that? Might be fine, but it just sounds a bit
-> scary to me to try to support m different distros, each in n different
-> versions from the kernel... Couldn't this somehow be done once and for all
-> in a distro neutral way?
-> Just asking :-)
+> On Wed, Jun 20, 2012 at 7:47 AM, Cong Meng <mc@linux.vnet.ibm.com> wrote:
+>> Implement the hotplug() and hot_unplug() interfaces in virtio-scsi,  =
 
-Most of the code is not going to be distro specific. Obviously the kernel component
-Is not distro specific. To the extent that the way the IP configuration state is managed
-differently across distros, the user level component of the KVP code needs to 
-accommodate that. Even here most of the code is distro independent. 
+>> by signal
+>> the virtio_scsi.ko in guest kernel via event virtual queue.
+>>
+>> The counterpart patch of virtio_scsi.ko will be sent soon in another thr=
+ead.
+>
+>> Signed-off-by: Cong Meng <mc@linux.vnet.ibm.com>
+>> Signed-off-by: Sen Wang <senwang@linux.vnet.ibm.com>
+>> ---
+>> =A0hw/virtio-scsi.c | =A0 72  =
 
-Regards,
+>> +++++++++++++++++++++++++++++++++++++++++++++++++++--
+>> =A01 files changed, 69 insertions(+), 3 deletions(-)
+>
+> I compared against the virtio-scsi specification and this looks good:
+> http://ozlabs.org/~rusty/virtio-spec/virtio-0.9.5.pdf
+>
+> Dropped events and event throttling are not implemented by this patch.
+>  This means that the guest can miss events if it runs out of event
+> queue elements.  A scenario that might be able to trigger this is if
+> multiple LUNs are hotplugged in a single QEMU monitor callback.
+>
+> Implementing dropped events is easy in hw/virtio-scsi.c.  Keep a bool
+> or counter of dropped events and report them when the guest kicks us
+> with a free event element (virtio_scsi_handle_event).
 
-K. Y
+Yes. It's easy to do this in qemu. But I'm not sure what should be done
+in virtio-scsi.ko to respond the "VIRTIO_SCSI_T_EVENTS_MISSED" event.
+The spec says "poll the logical units for unit attention conditions", or
+just a whole bus rescan?
+
+>
+> Stefan
