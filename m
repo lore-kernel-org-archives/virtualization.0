@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC V2 PATCH 2/4] tap: multiqueue support
-Date: Mon, 25 Jun 2012 18:04:25 +0800
-Message-ID: <20120625100425.8096.69950.stgit@amd-6168-8-1.englab.nay.redhat.com>
+Subject: [RFC V2 PATCH 3/4] net: multiqueue support
+Date: Mon, 25 Jun 2012 18:04:37 +0800
+Message-ID: <20120625100437.8096.89752.stgit@amd-6168-8-1.englab.nay.redhat.com>
 References: <20120625095059.8096.49429.stgit@amd-6168-8-1.englab.nay.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,553 +21,286 @@ To: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, aliguori@us.ibm.com, rusty
 Cc: kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds basic support for the multiple queue capable tap device. When
-multiqueue were enabled for a tap device, user can attach/detach multiple files
-(sockets) to the device through TUNATTACHQUEUE/TUNDETACHQUEUE.
-
-Two helpers tun_attach() and tun_deatch() were introduced to attach and detach
-file. Platform-specific helpers were called and only linux helper has its
-content as multiqueue tap were only supported in linux.
+This patch adds the multiqueues support for emulated nics. Each VLANClientState
+pairs are now abstract as a queue instead of a nic, and multiple VLANClientState
+pointers were stored in the NICState. A queue_index were also introduced to let
+the emulated nics know which queue the packet were came from or sent
+out. Virtio-net would be the first user.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- net.c             |    4 +
- net/tap-aix.c     |   13 +++-
- net/tap-bsd.c     |   13 +++-
- net/tap-haiku.c   |   13 +++-
- net/tap-linux.c   |   55 +++++++++++++++
- net/tap-linux.h   |    3 +
- net/tap-solaris.c |   13 +++-
- net/tap-win32.c   |   11 +++
- net/tap.c         |  189 ++++++++++++++++++++++++++++++++++-------------------
- net/tap.h         |    7 ++
- 10 files changed, 245 insertions(+), 76 deletions(-)
+ hw/dp8393x.c         |    2 +-
+ hw/mcf_fec.c         |    2 +-
+ hw/qdev-properties.c |   33 +++++++++++++++++++++++-----
+ hw/qdev.h            |    3 ++-
+ net.c                |   58 +++++++++++++++++++++++++++++++++++++++++++-------
+ net.h                |   16 ++++++++++----
+ 6 files changed, 93 insertions(+), 21 deletions(-)
 
+diff --git a/hw/dp8393x.c b/hw/dp8393x.c
+index 017d074..483a868 100644
+--- a/hw/dp8393x.c
++++ b/hw/dp8393x.c
+@@ -900,7 +900,7 @@ void dp83932_init(NICInfo *nd, target_phys_addr_t base, int it_shift,
+ 
+     s->conf.macaddr = nd->macaddr;
+     s->conf.vlan = nd->vlan;
+-    s->conf.peer = nd->netdev;
++    s->conf.peers[0] = nd->netdev;
+ 
+     s->nic = qemu_new_nic(&net_dp83932_info, &s->conf, nd->model, nd->name, s);
+ 
+diff --git a/hw/mcf_fec.c b/hw/mcf_fec.c
+index ae37bef..69f508d 100644
+--- a/hw/mcf_fec.c
++++ b/hw/mcf_fec.c
+@@ -473,7 +473,7 @@ void mcf_fec_init(MemoryRegion *sysmem, NICInfo *nd,
+ 
+     s->conf.macaddr = nd->macaddr;
+     s->conf.vlan = nd->vlan;
+-    s->conf.peer = nd->netdev;
++    s->conf.peers[0] = nd->netdev;
+ 
+     s->nic = qemu_new_nic(&net_mcf_fec_info, &s->conf, nd->model, nd->name, s);
+ 
+diff --git a/hw/qdev-properties.c b/hw/qdev-properties.c
+index 9ae3187..d45fcef 100644
+--- a/hw/qdev-properties.c
++++ b/hw/qdev-properties.c
+@@ -554,16 +554,37 @@ PropertyInfo qdev_prop_chr = {
+ 
+ static int parse_netdev(DeviceState *dev, const char *str, void **ptr)
+ {
+-    VLANClientState *netdev = qemu_find_netdev(str);
++    VLANClientState ***nc = (VLANClientState ***)ptr;
++    VLANClientState *vcs[MAX_QUEUE_NUM];
++    int queues, i = 0;
++    int ret;
+ 
+-    if (netdev == NULL) {
+-        return -ENOENT;
++    *nc = g_malloc(MAX_QUEUE_NUM * sizeof(VLANClientState *));
++    queues = qemu_find_netdev_all(str, vcs, MAX_QUEUE_NUM);
++    if (queues == 0) {
++        ret = -ENOENT;
++        goto err;
+     }
+-    if (netdev->peer) {
+-        return -EEXIST;
++
++    for (i = 0; i < queues; i++) {
++        if (vcs[i] == NULL) {
++            ret = -ENOENT;
++            goto err;
++        }
++
++        if (vcs[i]->peer) {
++            ret = -EEXIST;
++            goto err;
++        }
++
++        (*nc)[i] = vcs[i];
+     }
+-    *ptr = netdev;
++
+     return 0;
++
++err:
++    g_free(*nc);
++    return ret;
+ }
+ 
+ static const char *print_netdev(void *ptr)
+diff --git a/hw/qdev.h b/hw/qdev.h
+index 5386b16..1c023b4 100644
+--- a/hw/qdev.h
++++ b/hw/qdev.h
+@@ -248,6 +248,7 @@ extern PropertyInfo qdev_prop_blocksize;
+         .defval    = (bool)_defval,                              \
+         }
+ 
++
+ #define DEFINE_PROP_UINT8(_n, _s, _f, _d)                       \
+     DEFINE_PROP_DEFAULT(_n, _s, _f, _d, qdev_prop_uint8, uint8_t)
+ #define DEFINE_PROP_UINT16(_n, _s, _f, _d)                      \
+@@ -274,7 +275,7 @@ extern PropertyInfo qdev_prop_blocksize;
+ #define DEFINE_PROP_STRING(_n, _s, _f)             \
+     DEFINE_PROP(_n, _s, _f, qdev_prop_string, char*)
+ #define DEFINE_PROP_NETDEV(_n, _s, _f)             \
+-    DEFINE_PROP(_n, _s, _f, qdev_prop_netdev, VLANClientState*)
++    DEFINE_PROP(_n, _s, _f, qdev_prop_netdev, VLANClientState**)
+ #define DEFINE_PROP_VLAN(_n, _s, _f)             \
+     DEFINE_PROP(_n, _s, _f, qdev_prop_vlan, VLANState*)
+ #define DEFINE_PROP_DRIVE(_n, _s, _f) \
 diff --git a/net.c b/net.c
-index 4aa416c..eabe830 100644
+index eabe830..026a03a 100644
 --- a/net.c
 +++ b/net.c
-@@ -978,6 +978,10 @@ static const struct {
-                 .name = "vhostforce",
-                 .type = QEMU_OPT_BOOL,
-                 .help = "force vhost on for non-MSIX virtio guests",
-+            }, {
-+                .name = "queues",
-+                .type = QEMU_OPT_NUMBER,
-+                .help = "number of queues the backend can provides",
-         },
- #endif /* _WIN32 */
-             { /* end of list */ }
-diff --git a/net/tap-aix.c b/net/tap-aix.c
-index e19aaba..f111e0f 100644
---- a/net/tap-aix.c
-+++ b/net/tap-aix.c
-@@ -25,7 +25,8 @@
- #include "net/tap.h"
- #include <stdio.h>
+@@ -238,16 +238,40 @@ NICState *qemu_new_nic(NetClientInfo *info,
+ {
+     VLANClientState *nc;
+     NICState *nic;
++    int i;
  
--int tap_open(char *ifname, int ifname_size, int *vnet_hdr, int vnet_hdr_required)
-+int tap_open(char *ifname, int ifname_size, int *vnet_hdr,
-+             int vnet_hdr_required, int attach)
- {
-     fprintf(stderr, "no tap on AIX\n");
-     return -1;
-@@ -59,3 +60,13 @@ void tap_fd_set_offload(int fd, int csum, int tso4,
-                         int tso6, int ecn, int ufo)
- {
+     assert(info->type == NET_CLIENT_TYPE_NIC);
+     assert(info->size >= sizeof(NICState));
+ 
+-    nc = qemu_new_net_client(info, conf->vlan, conf->peer, model, name);
++    if (conf->peers) {
++        nc = qemu_new_net_client(info, NULL, conf->peers[0], model, name);
++    } else {
++        nc = qemu_new_net_client(info, conf->vlan, NULL, model, name);
++    }
+ 
+     nic = DO_UPCAST(NICState, nc, nc);
+     nic->conf = conf;
+     nic->opaque = opaque;
+ 
++    /* For compatiablity with single queue nic */
++    nic->ncs[0] = nc;
++    nc->opaque = nic;
++
++    for (i = 1 ; i < conf->queues; i++) {
++        VLANClientState *vc = g_malloc0(sizeof(*vc));
++        vc->opaque = nic;
++        nic->ncs[i] = vc;
++        vc->peer = conf->peers[i];
++        vc->info = info;
++        vc->queue_index = i;
++        vc->peer->peer = vc;
++        QTAILQ_INSERT_TAIL(&non_vlan_clients, vc, next);
++
++        vc->send_queue = qemu_new_net_queue(qemu_deliver_packet,
++                                            qemu_deliver_packet_iov,
++                                            vc);
++    }
++
+     return nic;
  }
-+
-+int tap_fd_attach(int fd, const char *ifname)
-+{
-+    return -1;
-+}
-+
-+int tap_fd_detach(int fd, const char *ifname)
-+{
-+    return -1;
-+}
-diff --git a/net/tap-bsd.c b/net/tap-bsd.c
-index 937a94b..44f3421 100644
---- a/net/tap-bsd.c
-+++ b/net/tap-bsd.c
-@@ -33,7 +33,8 @@
- #include <net/if_tap.h>
- #endif
  
--int tap_open(char *ifname, int ifname_size, int *vnet_hdr, int vnet_hdr_required)
-+int tap_open(char *ifname, int ifname_size, int *vnet_hdr,
-+             int vnet_hdr_required, int attach)
+@@ -283,11 +307,10 @@ void qemu_del_vlan_client(VLANClientState *vc)
  {
-     int fd;
- #ifdef TAPGIFNAME
-@@ -145,3 +146,13 @@ void tap_fd_set_offload(int fd, int csum, int tso4,
-                         int tso6, int ecn, int ufo)
- {
- }
-+
-+int tap_fd_attach(int fd, const char *ifname)
-+{
-+    return -1;
-+}
-+
-+int tap_fd_detach(int fd, const char *ifname)
-+{
-+    return -1;
-+}
-diff --git a/net/tap-haiku.c b/net/tap-haiku.c
-index 91dda8e..6fb6719 100644
---- a/net/tap-haiku.c
-+++ b/net/tap-haiku.c
-@@ -25,7 +25,8 @@
- #include "net/tap.h"
- #include <stdio.h>
+     /* If there is a peer NIC, delete and cleanup client, but do not free. */
+     if (!vc->vlan && vc->peer && vc->peer->info->type == NET_CLIENT_TYPE_NIC) {
+-        NICState *nic = DO_UPCAST(NICState, nc, vc->peer);
+-        if (nic->peer_deleted) {
++        if (vc->peer_deleted) {
+             return;
+         }
+-        nic->peer_deleted = true;
++        vc->peer_deleted = true;
+         /* Let NIC know peer is gone. */
+         vc->peer->link_down = true;
+         if (vc->peer->info->link_status_changed) {
+@@ -299,8 +322,7 @@ void qemu_del_vlan_client(VLANClientState *vc)
  
--int tap_open(char *ifname, int ifname_size, int *vnet_hdr, int vnet_hdr_required)
-+int tap_open(char *ifname, int ifname_size, int *vnet_hdr,
-+             int vnet_hdr_required, int attach)
- {
-     fprintf(stderr, "no tap on Haiku\n");
-     return -1;
-@@ -59,3 +60,13 @@ void tap_fd_set_offload(int fd, int csum, int tso4,
-                         int tso6, int ecn, int ufo)
- {
- }
-+
-+int tap_fd_attach(int fd, const char *ifname)
-+{
-+    return -1;
-+}
-+
-+int tap_fd_detach(int fd, const char *ifname)
-+{
-+    return -1;
-+}
-diff --git a/net/tap-linux.c b/net/tap-linux.c
-index 41d581b..5d74b53 100644
---- a/net/tap-linux.c
-+++ b/net/tap-linux.c
-@@ -35,7 +35,8 @@
- 
- #define PATH_NET_TUN "/dev/net/tun"
- 
--int tap_open(char *ifname, int ifname_size, int *vnet_hdr, int vnet_hdr_required)
-+int tap_open(char *ifname, int ifname_size, int *vnet_hdr,
-+             int vnet_hdr_required, int attach)
- {
-     struct ifreq ifr;
-     int fd, ret;
-@@ -47,6 +48,8 @@ int tap_open(char *ifname, int ifname_size, int *vnet_hdr, int vnet_hdr_required
-     }
-     memset(&ifr, 0, sizeof(ifr));
-     ifr.ifr_flags = IFF_TAP | IFF_NO_PI;
-+    if (!attach)
-+        ifr.ifr_flags |= IFF_MULTI_QUEUE;
- 
-     if (*vnet_hdr) {
-         unsigned int features;
-@@ -71,7 +74,10 @@ int tap_open(char *ifname, int ifname_size, int *vnet_hdr, int vnet_hdr_required
-         pstrcpy(ifr.ifr_name, IFNAMSIZ, ifname);
-     else
-         pstrcpy(ifr.ifr_name, IFNAMSIZ, "tap%d");
--    ret = ioctl(fd, TUNSETIFF, (void *) &ifr);
-+    if (attach)
-+        ret = ioctl(fd, TUNATTACHQUEUE, (void *) &ifr);
-+    else
-+        ret = ioctl(fd, TUNSETIFF, (void *) &ifr);
-     if (ret != 0) {
-         if (ifname[0] != '\0') {
-             error_report("could not configure %s (%s): %m", PATH_NET_TUN, ifr.ifr_name);
-@@ -197,3 +203,48 @@ void tap_fd_set_offload(int fd, int csum, int tso4,
+     /* If this is a peer NIC and peer has already been deleted, free it now. */
+     if (!vc->vlan && vc->peer && vc->info->type == NET_CLIENT_TYPE_NIC) {
+-        NICState *nic = DO_UPCAST(NICState, nc, vc);
+-        if (nic->peer_deleted) {
++        if (vc->peer_deleted) {
+             qemu_free_vlan_client(vc->peer);
          }
      }
- }
-+
-+/* Attach a file descriptor to a TUN/TAP device. This descriptor should be
-+ * detached before.
-+ */
-+int tap_fd_attach(int fd, const char *ifname)
-+{
-+    struct ifreq ifr;
-+    int ret;
-+
-+    memset(&ifr, 0, sizeof(ifr));
-+
-+    ifr.ifr_flags = IFF_TAP | IFF_NO_PI | IFF_VNET_HDR;
-+    pstrcpy(ifr.ifr_name, IFNAMSIZ, ifname);
-+
-+    ret = ioctl(fd, TUNATTACHQUEUE, (void *) &ifr);
-+
-+    if (ret != 0) {
-+        error_report("could not attach to %s", ifname);
-+    }
-+
-+    return ret;
-+}
-+
-+/* Detach a file descriptor to a TUN/TAP device. This file descriptor must have
-+ * been attach to a device.
-+ */
-+int tap_fd_detach(int fd, const char *ifname)
-+{
-+    struct ifreq ifr;
-+    int ret;
-+
-+    memset(&ifr, 0, sizeof(ifr));
-+
-+    ifr.ifr_flags = IFF_TAP | IFF_NO_PI | IFF_VNET_HDR;
-+    pstrcpy(ifr.ifr_name, IFNAMSIZ, ifname);
-+
-+    ret = ioctl(fd, TUNDETACHQUEUE, (void *) &ifr);
-+
-+    if (ret != 0) {
-+        error_report("could not detach to %s", ifname);
-+    }
-+
-+    return ret;
-+}
-+
-diff --git a/net/tap-linux.h b/net/tap-linux.h
-index 659e981..0f5e34e 100644
---- a/net/tap-linux.h
-+++ b/net/tap-linux.h
-@@ -29,6 +29,8 @@
- #define TUNSETSNDBUF   _IOW('T', 212, int)
- #define TUNGETVNETHDRSZ _IOR('T', 215, int)
- #define TUNSETVNETHDRSZ _IOW('T', 216, int)
-+#define TUNATTACHQUEUE  _IOW('T', 217, int)
-+#define TUNDETACHQUEUE  _IOW('T', 218, int)
+@@ -342,14 +364,14 @@ void qemu_foreach_nic(qemu_nic_foreach func, void *opaque)
  
- #endif
+     QTAILQ_FOREACH(nc, &non_vlan_clients, next) {
+         if (nc->info->type == NET_CLIENT_TYPE_NIC) {
+-            func(DO_UPCAST(NICState, nc, nc), opaque);
++            func((NICState *)nc->opaque, opaque);
+         }
+     }
  
-@@ -36,6 +38,7 @@
- #define IFF_TAP		0x0002
- #define IFF_NO_PI	0x1000
- #define IFF_VNET_HDR	0x4000
-+#define IFF_MULTI_QUEUE 0x0100
- 
- /* Features for GSO (TUNSETOFFLOAD). */
- #define TUN_F_CSUM	0x01	/* You can hand me unchecksummed packets. */
-diff --git a/net/tap-solaris.c b/net/tap-solaris.c
-index cf76463..f7c8e8d 100644
---- a/net/tap-solaris.c
-+++ b/net/tap-solaris.c
-@@ -173,7 +173,8 @@ static int tap_alloc(char *dev, size_t dev_size)
-     return tap_fd;
- }
- 
--int tap_open(char *ifname, int ifname_size, int *vnet_hdr, int vnet_hdr_required)
-+int tap_open(char *ifname, int ifname_size, int *vnet_hdr,
-+             int vnet_hdr_required, int attach)
- {
-     char  dev[10]="";
-     int fd;
-@@ -225,3 +226,13 @@ void tap_fd_set_offload(int fd, int csum, int tso4,
-                         int tso6, int ecn, int ufo)
- {
- }
-+
-+int tap_fd_attach(int fd, const char *ifname)
-+{
-+    return -1;
-+}
-+
-+int tap_fd_detach(int fd, const char *ifname)
-+{
-+    return -1;
-+}
-diff --git a/net/tap-win32.c b/net/tap-win32.c
-index a801a55..dae1c00 100644
---- a/net/tap-win32.c
-+++ b/net/tap-win32.c
-@@ -749,3 +749,14 @@ struct vhost_net *tap_get_vhost_net(VLANClientState *nc)
- {
+     QTAILQ_FOREACH(vlan, &vlans, next) {
+         QTAILQ_FOREACH(nc, &vlan->clients, next) {
+             if (nc->info->type == NET_CLIENT_TYPE_NIC) {
+-                func(DO_UPCAST(NICState, nc, nc), opaque);
++                func((NICState *)nc->opaque, opaque);
+             }
+         }
+     }
+@@ -674,6 +696,26 @@ VLANClientState *qemu_find_netdev(const char *id)
      return NULL;
  }
-+
-+int tap_attach(VLANClientState *nc)
-+{
-+    return -1;
-+}
-+
-+int tap_detach(VLANClientState *nc)
-+{
-+    return -1;
-+}
-+
-diff --git a/net/tap.c b/net/tap.c
-index 5ac4ba3..2b9dcb5 100644
---- a/net/tap.c
-+++ b/net/tap.c
-@@ -53,11 +53,13 @@ typedef struct TAPState {
-     int fd;
-     char down_script[1024];
-     char down_script_arg[128];
-+    char ifname[128];
-     uint8_t buf[TAP_BUFSIZE];
-     unsigned int read_poll : 1;
-     unsigned int write_poll : 1;
-     unsigned int using_vnet_hdr : 1;
-     unsigned int has_ufo: 1;
-+    unsigned int enabled:1;
-     VHostNetState *vhost_net;
-     unsigned host_vnet_hdr_len;
- } TAPState;
-@@ -546,7 +548,7 @@ int net_init_bridge(QemuOpts *opts, const char *name, VLANState *vlan)
-     return 0;
- }
  
--static int net_tap_init(QemuOpts *opts, int *vnet_hdr)
-+static int net_tap_init(QemuOpts *opts, int *vnet_hdr, int attach)
++int qemu_find_netdev_all(const char *id, VLANClientState **vcs, int max)
++{
++    VLANClientState *vc;
++    int ret = 0;
++
++    QTAILQ_FOREACH(vc, &non_vlan_clients, next) {
++        if (vc->info->type == NET_CLIENT_TYPE_NIC) {
++            continue;
++        }
++        if (!strcmp(vc->name, id) && ret < max) {
++            vcs[ret++] = vc;
++        }
++        if (ret >= max) {
++            break;
++        }
++    }
++
++    return ret;
++}
++
+ static int nic_get_free_idx(void)
  {
-     int fd, vnet_hdr_required;
-     char ifname[128] = {0,};
-@@ -563,7 +565,9 @@ static int net_tap_init(QemuOpts *opts, int *vnet_hdr)
-         vnet_hdr_required = 0;
-     }
+     int index;
+diff --git a/net.h b/net.h
+index bdc2a06..40378ce 100644
+--- a/net.h
++++ b/net.h
+@@ -12,20 +12,24 @@ struct MACAddr {
+     uint8_t a[6];
+ };
  
--    TFR(fd = tap_open(ifname, sizeof(ifname), vnet_hdr, vnet_hdr_required));
-+    TFR(fd = tap_open(ifname, sizeof(ifname), vnet_hdr, vnet_hdr_required,
-+                      attach));
++#define MAX_QUEUE_NUM 32
 +
-     if (fd < 0) {
-         return -1;
-     }
-@@ -572,7 +576,7 @@ static int net_tap_init(QemuOpts *opts, int *vnet_hdr)
-     if (setup_script &&
-         setup_script[0] != '\0' &&
-         strcmp(setup_script, "no") != 0 &&
--        launch_script(setup_script, ifname, fd)) {
-+        (!attach && launch_script(setup_script, ifname, fd))) {
-         close(fd);
-         return -1;
-     }
-@@ -582,74 +586,11 @@ static int net_tap_init(QemuOpts *opts, int *vnet_hdr)
-     return fd;
- }
+ /* qdev nic properties */
  
--int net_init_tap(QemuOpts *opts, const char *name, VLANState *vlan)
-+static int __net_init_tap(QemuOpts *opts, Monitor *mon, const char *name,
-+                          VLANState *vlan, int fd, int vnet_hdr)
- {
--    TAPState *s;
--    int fd, vnet_hdr = 0;
--    const char *model;
--
--    if (qemu_opt_get(opts, "fd")) {
--        if (qemu_opt_get(opts, "ifname") ||
--            qemu_opt_get(opts, "script") ||
--            qemu_opt_get(opts, "downscript") ||
--            qemu_opt_get(opts, "vnet_hdr") ||
--            qemu_opt_get(opts, "helper")) {
--            error_report("ifname=, script=, downscript=, vnet_hdr=, "
--                         "and helper= are invalid with fd=");
--            return -1;
--        }
--
--        fd = net_handle_fd_param(cur_mon, qemu_opt_get(opts, "fd"));
--        if (fd == -1) {
--            return -1;
--        }
--
--        fcntl(fd, F_SETFL, O_NONBLOCK);
--
--        vnet_hdr = tap_probe_vnet_hdr(fd);
--
--        model = "tap";
--
--    } else if (qemu_opt_get(opts, "helper")) {
--        if (qemu_opt_get(opts, "ifname") ||
--            qemu_opt_get(opts, "script") ||
--            qemu_opt_get(opts, "downscript") ||
--            qemu_opt_get(opts, "vnet_hdr")) {
--            error_report("ifname=, script=, downscript=, and vnet_hdr= "
--                         "are invalid with helper=");
--            return -1;
--        }
--
--        fd = net_bridge_run_helper(qemu_opt_get(opts, "helper"),
--                                   DEFAULT_BRIDGE_INTERFACE);
--        if (fd == -1) {
--            return -1;
--        }
--
--        fcntl(fd, F_SETFL, O_NONBLOCK);
--
--        vnet_hdr = tap_probe_vnet_hdr(fd);
--
--        model = "bridge";
--
--    } else {
--        if (!qemu_opt_get(opts, "script")) {
--            qemu_opt_set(opts, "script", DEFAULT_NETWORK_SCRIPT);
--        }
--
--        if (!qemu_opt_get(opts, "downscript")) {
--            qemu_opt_set(opts, "downscript", DEFAULT_NETWORK_DOWN_SCRIPT);
--        }
-+    TAPState *s = net_tap_fd_init(vlan, "tap", name, fd, vnet_hdr);
+ typedef struct NICConf {
+     MACAddr macaddr;
+     VLANState *vlan;
+-    VLANClientState *peer;
++    VLANClientState **peers;
+     int32_t bootindex;
++    int32_t queues;
+ } NICConf;
  
--        fd = net_tap_init(opts, &vnet_hdr);
--        if (fd == -1) {
--            return -1;
--        }
--
--        model = "tap";
--    }
--
--    s = net_tap_fd_init(vlan, model, name, fd, vnet_hdr);
-     if (!s) {
-         close(fd);
-         return -1;
-@@ -671,6 +612,7 @@ int net_init_tap(QemuOpts *opts, const char *name, VLANState *vlan)
-         script     = qemu_opt_get(opts, "script");
-         downscript = qemu_opt_get(opts, "downscript");
+ #define DEFINE_NIC_PROPERTIES(_state, _conf)                            \
+     DEFINE_PROP_MACADDR("mac",   _state, _conf.macaddr),                \
+     DEFINE_PROP_VLAN("vlan",     _state, _conf.vlan),                   \
+-    DEFINE_PROP_NETDEV("netdev", _state, _conf.peer),                   \
+-    DEFINE_PROP_INT32("bootindex", _state, _conf.bootindex, -1)
++    DEFINE_PROP_NETDEV("netdev", _state, _conf.peers),                   \
++    DEFINE_PROP_INT32("bootindex", _state, _conf.bootindex, -1),        \
++    DEFINE_PROP_INT32("queues", _state, _conf.queues, 1)
  
-+        pstrcpy(s->ifname, sizeof(s->ifname), ifname);
-         snprintf(s->nc.info_str, sizeof(s->nc.info_str),
-                  "ifname=%s,script=%s,downscript=%s",
-                  ifname, script, downscript);
-@@ -704,6 +646,82 @@ int net_init_tap(QemuOpts *opts, const char *name, VLANState *vlan)
-         return -1;
-     }
+ /* VLANs support */
  
-+    s->enabled = 1;
-+    return 0;
-+}
-+
-+int net_init_tap(QemuOpts *opts, const char *name, VLANState *vlan)
-+{
-+    int i, fd, vnet_hdr = 0;
-+    int numqueues = qemu_opt_get_number(opts, "queues", 1);
-+
-+    if (qemu_opt_get(opts, "fd")) {
-+        const char *fdp[16];
-+        if (qemu_opt_get(opts, "ifname") ||
-+            qemu_opt_get(opts, "script") ||
-+            qemu_opt_get(opts, "downscript") ||
-+            qemu_opt_get(opts, "vnet_hdr") ||
-+            qemu_opt_get(opts, "helper")) {
-+            error_report("ifname=, script=, downscript=, vnet_hdr=, "
-+                         "and helper= are invalid with fd=");
-+            return -1;
-+        }
-+
-+        if (numqueues != qemu_opt_get_all(opts, "fd", fdp, 16)) {
-+            error_report("the number of queue does not match the"
-+                         "number of fd passed");
-+            return -1;
-+        }
-+
-+        for (i = 0; i < numqueues; i++) {
-+            fd = net_handle_fd_param(cur_mon, fdp[i]);
-+            if (fd == -1) {
-+                return -1;
-+            }
-+
-+            fcntl(fd, F_SETFL, O_NONBLOCK);
-+
-+            vnet_hdr = tap_probe_vnet_hdr(fd);
-+
-+            __net_init_tap(opts, cur_mon, name, vlan, fd, vnet_hdr);
-+        }
-+    } else if (qemu_opt_get(opts, "helper")) {
-+        if (qemu_opt_get(opts, "ifname") ||
-+            qemu_opt_get(opts, "script") ||
-+            qemu_opt_get(opts, "downscript") ||
-+            qemu_opt_get(opts, "vnet_hdr")) {
-+            error_report("ifname=, script=, downscript=, and vnet_hdr= "
-+                         "are invalid with helper=");
-+            return -1;
-+        }
-+
-+        /* FIXME: multiqueue helper */
-+        fd = net_bridge_run_helper(qemu_opt_get(opts, "helper"),
-+                                   DEFAULT_BRIDGE_INTERFACE);
-+        if (fd == -1) {
-+            return -1;
-+        }
-+
-+        fcntl(fd, F_SETFL, O_NONBLOCK);
-+
-+        vnet_hdr = tap_probe_vnet_hdr(fd);
-+    } else {
-+        if (!qemu_opt_get(opts, "script")) {
-+            qemu_opt_set(opts, "script", DEFAULT_NETWORK_SCRIPT);
-+        }
-+
-+        if (!qemu_opt_get(opts, "downscript")) {
-+            qemu_opt_set(opts, "downscript", DEFAULT_NETWORK_DOWN_SCRIPT);
-+        }
-+
-+        for (i = 0; i < numqueues; i++) {
-+            fd = net_tap_init(opts, &vnet_hdr, i != 0);
-+            if (fd == -1) {
-+                return -1;
-+            }
-+            __net_init_tap(opts, cur_mon, name, vlan, fd, vnet_hdr);
-+        }
-+    }
-     return 0;
- }
+@@ -72,13 +76,16 @@ struct VLANClientState {
+     char *name;
+     char info_str[256];
+     unsigned receive_disabled : 1;
++    unsigned int queue_index;
++    bool peer_deleted;
++    void *opaque;
+ };
  
-@@ -713,3 +731,36 @@ VHostNetState *tap_get_vhost_net(VLANClientState *nc)
-     assert(nc->info->type == NET_CLIENT_TYPE_TAP);
-     return s->vhost_net;
- }
-+
-+int tap_attach(VLANClientState *nc)
-+{
-+    TAPState *s = DO_UPCAST(TAPState, nc, nc);
-+    int ret;
-+
-+    if (s->enabled) {
-+        return 0;
-+    } else {
-+        ret = tap_fd_attach(s->fd, s->ifname);
-+        if (ret == 0) {
-+            s->enabled = 1;
-+        }
-+        return ret;
-+    }
-+}
-+
-+int tap_detach(VLANClientState *nc)
-+{
-+    TAPState *s = DO_UPCAST(TAPState, nc, nc);
-+    int ret;
-+
-+    if (s->enabled == 0) {
-+        return 0;
-+    } else {
-+        ret = tap_fd_detach(s->fd, s->ifname);
-+        if (ret == 0) {
-+            s->enabled = 0;
-+        }
-+        return ret;
-+    }
-+}
-+
-diff --git a/net/tap.h b/net/tap.h
-index b2a9450..cead7ca 100644
---- a/net/tap.h
-+++ b/net/tap.h
-@@ -34,7 +34,8 @@
+ typedef struct NICState {
+     VLANClientState nc;
++    VLANClientState *ncs[MAX_QUEUE_NUM];
+     NICConf *conf;
+     void *opaque;
+-    bool peer_deleted;
+ } NICState;
  
- int net_init_tap(QemuOpts *opts, const char *name, VLANState *vlan);
+ struct VLANState {
+@@ -90,6 +97,7 @@ struct VLANState {
  
--int tap_open(char *ifname, int ifname_size, int *vnet_hdr, int vnet_hdr_required);
-+int tap_open(char *ifname, int ifname_size, int *vnet_hdr,
-+             int vnet_hdr_required, int attach);
- 
- ssize_t tap_read_packet(int tapfd, uint8_t *buf, int maxlen);
- 
-@@ -51,6 +52,10 @@ int tap_probe_vnet_hdr_len(int fd, int len);
- int tap_probe_has_ufo(int fd);
- void tap_fd_set_offload(int fd, int csum, int tso4, int tso6, int ecn, int ufo);
- void tap_fd_set_vnet_hdr_len(int fd, int len);
-+int tap_attach(VLANClientState *vc);
-+int tap_detach(VLANClientState *vc);
-+int tap_fd_attach(int fd, const char *ifname);
-+int tap_fd_detach(int fd, const char *ifname);
- 
- int tap_get_fd(VLANClientState *vc);
+ VLANState *qemu_find_vlan(int id, int allocate);
+ VLANClientState *qemu_find_netdev(const char *id);
++int qemu_find_netdev_all(const char *id, VLANClientState **vcs, int max);
+ VLANClientState *qemu_new_net_client(NetClientInfo *info,
+                                      VLANState *vlan,
+                                      VLANClientState *peer,
