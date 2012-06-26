@@ -1,16 +1,14 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [net-next RFC V4 PATCH 3/4] virtio: introduce a method to get
-	the irq of a specific virtqueue
-Date: Tue, 26 Jun 2012 13:59:00 +0800
-Message-ID: <4FE94FA4.8070300@redhat.com>
+Subject: Re: [net-next RFC V4 PATCH 0/4] Multiqueue virtio-net
+Date: Tue, 26 Jun 2012 14:02:46 +0800
+Message-ID: <4FE95086.2020207@redhat.com>
 References: <20120625090829.7263.65026.stgit@amd-6168-8-1.englab.nay.redhat.com>
-	<1340617278-8022-1-git-send-email-jasowang@redhat.com>
-	<20120625101439.GC19169@redhat.com>
+	<4FE8A4B6.1080200@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120625101439.GC19169@redhat.com>
+In-Reply-To: <4FE8A4B6.1080200@us.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,171 +18,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, kvm@vger.kernel.org, qemu-devel@nongnu.org, netdev@vger.kernel.org, mashirle@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net
+To: Sridhar Samudrala <sri@us.ibm.com>
+Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, mashirle@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/25/2012 06:14 PM, Michael S. Tsirkin wrote:
-> On Mon, Jun 25, 2012 at 05:41:17PM +0800, Jason Wang wrote:
->> Device specific irq optimizations such as irq affinity may be used by virtio
->> drivers. So this patch introduce a new method to get the irq of a specific
->> virtqueue.
+On 06/26/2012 01:49 AM, Sridhar Samudrala wrote:
+> On 6/25/2012 2:16 AM, Jason Wang wrote:
+>> Hello All:
 >>
->> After this patch, virtio device drivers could query the irq and do device
->> specific optimizations. First user would be virtio-net.
+>> This series is an update version of multiqueue virtio-net driver 
+>> based on
+>> Krishna Kumar's work to let virtio-net use multiple rx/tx queues to 
+>> do the
+>> packets reception and transmission. Please review and comments.
 >>
->> Signed-off-by: Jason Wang<jasowang@redhat.com>
->> ---
->>   drivers/lguest/lguest_device.c |    8 ++++++++
->>   drivers/s390/kvm/kvm_virtio.c  |    6 ++++++
->>   drivers/virtio/virtio_mmio.c   |    8 ++++++++
->>   drivers/virtio/virtio_pci.c    |   12 ++++++++++++
->>   include/linux/virtio_config.h  |    4 ++++
->>   5 files changed, 38 insertions(+), 0 deletions(-)
+>> Test Environment:
+>> - Intel(R) Xeon(R) CPU E5620 @ 2.40GHz, 8 cores 2 numa nodes
+>> - Two directed connected 82599
 >>
->> diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
->> index 9e8388e..bcd080f 100644
->> --- a/drivers/lguest/lguest_device.c
->> +++ b/drivers/lguest/lguest_device.c
->> @@ -392,6 +392,13 @@ static const char *lg_bus_name(struct virtio_device *vdev)
->>   	return "";
->>   }
+>> Test Summary:
 >>
->> +static int lg_get_vq_irq(struct virtio_device *vdev, struct virtqueue *vq)
->> +{
->> +	struct lguest_vq_info *lvq = vq->priv;
->> +
->> +	return lvq->config.irq;
->> +}
->> +
->>   /* The ops structure which hooks everything together. */
->>   static struct virtio_config_ops lguest_config_ops = {
->>   	.get_features = lg_get_features,
->> @@ -404,6 +411,7 @@ static struct virtio_config_ops lguest_config_ops = {
->>   	.find_vqs = lg_find_vqs,
->>   	.del_vqs = lg_del_vqs,
->>   	.bus_name = lg_bus_name,
->> +	.get_vq_irq = lg_get_vq_irq,
->>   };
->>
->>   /*
->> diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
->> index d74e9ae..a897de2 100644
->> --- a/drivers/s390/kvm/kvm_virtio.c
->> +++ b/drivers/s390/kvm/kvm_virtio.c
->> @@ -268,6 +268,11 @@ static const char *kvm_bus_name(struct virtio_device *vdev)
->>   	return "";
->>   }
->>
->> +static int kvm_get_vq_irq(struct virtio_device *vdev, struct virtqueue *vq)
->> +{
->> +	return 0x2603;
->> +}
->> +
->>   /*
->>    * The config ops structure as defined by virtio config
->>    */
->> @@ -282,6 +287,7 @@ static struct virtio_config_ops kvm_vq_configspace_ops = {
->>   	.find_vqs = kvm_find_vqs,
->>   	.del_vqs = kvm_del_vqs,
->>   	.bus_name = kvm_bus_name,
->> +	.get_vq_irq = kvm_get_vq_irq,
->>   };
->>
->>   /*
->> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
->> index f5432b6..2ba37ed 100644
->> --- a/drivers/virtio/virtio_mmio.c
->> +++ b/drivers/virtio/virtio_mmio.c
->> @@ -411,6 +411,13 @@ static const char *vm_bus_name(struct virtio_device *vdev)
->>   	return vm_dev->pdev->name;
->>   }
->>
->> +static int vm_get_vq_irq(struct virtio_device *vdev, struct virtqueue *vq)
->> +{
->> +	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
->> +
->> +	return platform_get_irq(vm_dev->pdev, 0);
->> +}
->> +
->>   static struct virtio_config_ops virtio_mmio_config_ops = {
->>   	.get		= vm_get,
->>   	.set		= vm_set,
->> @@ -422,6 +429,7 @@ static struct virtio_config_ops virtio_mmio_config_ops = {
->>   	.get_features	= vm_get_features,
->>   	.finalize_features = vm_finalize_features,
->>   	.bus_name	= vm_bus_name,
->> +	.get_vq_irq     = vm_get_vq_irq,
->>   };
->>
->>
->> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
->> index adb24f2..c062227 100644
->> --- a/drivers/virtio/virtio_pci.c
->> +++ b/drivers/virtio/virtio_pci.c
->> @@ -607,6 +607,17 @@ static const char *vp_bus_name(struct virtio_device *vdev)
->>   	return pci_name(vp_dev->pci_dev);
->>   }
->>
->> +static int vp_get_vq_irq(struct virtio_device *vdev, struct virtqueue *vq)
->> +{
->> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
->> +	struct virtio_pci_vq_info *info = vq->priv;
->> +
->> +	if (vp_dev->intx_enabled)
->> +		return vp_dev->pci_dev->irq;
->> +	else
->> +		return vp_dev->msix_entries[info->msix_vector].vector;
->> +}
->> +
->>   static struct virtio_config_ops virtio_pci_config_ops = {
->>   	.get		= vp_get,
->>   	.set		= vp_set,
->> @@ -618,6 +629,7 @@ static struct virtio_config_ops virtio_pci_config_ops = {
->>   	.get_features	= vp_get_features,
->>   	.finalize_features = vp_finalize_features,
->>   	.bus_name	= vp_bus_name,
->> +	.get_vq_irq     = vp_get_vq_irq,
->>   };
->>
->>   static void virtio_pci_release_dev(struct device *_d)
->> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
->> index fc457f4..acd6930 100644
->> --- a/include/linux/virtio_config.h
->> +++ b/include/linux/virtio_config.h
->> @@ -98,6 +98,9 @@
->>    *	vdev: the virtio_device
->>    *      This returns a pointer to the bus name a la pci_name from which
->>    *      the caller can then copy.
->> + * @get_vq_irq: get the irq numer of the specific virt queue.
->> + *      vdev: the virtio_device
->> + *      vq: the virtqueue
-> What if the vq does not have an IRQ? E.g. control vqs don't.
-> What if the IRQ is shared between VQs? Between devices?
-> The need to cleanup affinity on destroy is also nasty.
-> How about we expose a set_affinity API instead?
-
-Or exposed the irq information such as sharing, level/edge. But I think 
-exposing the set_affinity API is enough for multiqueue virtio-net.
-> Then:
-> 	- non PCI can ignore for now
-> 	- with a per vq vector we can force it
-> 	- with a shared MSI we make it an OR over all affinities
-> 	- with a level interrupt we can ignore it
-> 	- on cleanup we can do it in core
-
-Looks good, thanks.
+>> - Highlights: huge improvements on TCP_RR test
+>> - Lowlights: regression on small packet transmission, higher cpu 
+>> utilization
+>>               than single queue, need further optimization
+> Does this also scale with increased number of VMs?
 >
->>    */
->>   typedef void vq_callback_t(struct virtqueue *);
->>   struct virtio_config_ops {
->> @@ -116,6 +119,7 @@ struct virtio_config_ops {
->>   	u32 (*get_features)(struct virtio_device *vdev);
->>   	void (*finalize_features)(struct virtio_device *vdev);
->>   	const char *(*bus_name)(struct virtio_device *vdev);
->> +	int (*get_vq_irq)(struct virtio_device *vdev, struct virtqueue *vq);
->>   };
+
+Hi Sridhar:
+
+Good suggestions, I didn't measure them. I would run test and post them.
+
+Thanks
+
+> Thanks
+> Sridhar
 >>
->>   /* If driver didn't advertise the feature, it will never appear. */
->> -- 
->> 1.7.1
+>> Analysis of the performance result:
+>>
+>> - I count the number of packets sending/receiving during the test, and
+>>    multiqueue show much more ability in terms of packets per second.
+>>
+>> - For the tx regression, multiqueue send about 1-2 times of more packets
+>>    compared to single queue, and the packets size were much smaller 
+>> than single
+>>    queue does. I suspect tcp does less batching in multiqueue, so I 
+>> hack the
+>>    tcp_write_xmit() to forece more batching, multiqueue works as well as
+>>    singlequeue for both small transmission and throughput
+>>
+>> - I didn't pack the accelerate RFS with virtio-net in this sereis as 
+>> it still
+>>    need further shaping, for the one that interested in this please see:
+>>    http://www.mail-archive.com/kvm@vger.kernel.org/msg64111.html
+>>
+>>
+>
+> -- 
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
