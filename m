@@ -1,19 +1,13 @@
-From: Andi Kleen <andi@firstfloor.org>
-Subject: Re: [PATCH 1/4] mm: introduce compaction and migration for virtio
-	ballooned pages
-Date: Tue, 26 Jun 2012 22:34:00 +0200
-Message-ID: <20120626203400.GA11413__12237.101692199$1340742852$gmane$org@one.firstfloor.org>
-References: <cover.1340665087.git.aquini@redhat.com>
-	<7f83427b3894af7969c67acc0f27ab5aa68b4279.1340665087.git.aquini@redhat.com>
-	<20120626101729.GF8103@csn.ul.ie>
-	<20120626165258.GY11413@one.firstfloor.org>
-	<20120626201513.GJ8103@csn.ul.ie>
+From: Rik van Riel <riel@redhat.com>
+Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
+Date: Tue, 26 Jun 2012 16:40:14 -0400
+Message-ID: <4FEA1E2E.4020806@redhat.com>
+References: <1340742778-11282-1-git-send-email-fes@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120626201513.GJ8103@csn.ul.ie>
+In-Reply-To: <1340742778-11282-1-git-send-email-fes@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,27 +17,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>
+To: Frank Swiderski <fes@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, Rafael Aquini <aquini@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ying Han <yinghan@google.com>, mikew@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> How is the compiler meant to optimise away "cond" if it's a function
-> call?
+On 06/26/2012 04:32 PM, Frank Swiderski wrote:
+> This implementation of a virtio balloon driver uses the page cache to
+> "store" pages that have been released to the host.  The communication
+> (outside of target counts) is one way--the guest notifies the host when
+> it adds a page to the page cache, allowing the host to madvise(2) with
+> MADV_DONTNEED.  Reclaim in the guest is therefore automatic and implicit
+> (via the regular page reclaim).  This means that inflating the balloon
+> is similar to the existing balloon mechanism, but the deflate is
+> different--it re-uses existing Linux kernel functionality to
+> automatically reclaim.
+>
+> Signed-off-by: Frank Swiderski<fes@google.com>
 
-Inlines can be optimized away.  These tests are usually inlines.
+It is a great idea, but how can this memory balancing
+possibly work if someone uses memory cgroups inside a
+guest?
 
-> What did I miss? If nothing, then I will revert this particular change
-> and Rafael will need to be sure his patch is not using VM_BUG_ON to call
-> a function with side-effects.
+Having said that, we currently do not have proper
+memory reclaim balancing between cgroups at all, so
+requiring that of this balloon driver would be
+unreasonable.
 
-Do you have an example where the code is actually different,
-or are you just speculating?
-
-FWIW for my config both generates the same code:
-
-size vmlinux-andi-vmbug vmlinux-vmbug-nothing 
-   text    data     bss     dec     hex filename
-11809704        1457352 1159168 14426224         dc2070 vmlinux-andi-vmbug
-11809704        1457352 1159168 14426224         dc2070 vmlinux-vmbug-nothing
-
--Andi
+The code looks good to me, my only worry is the
+code duplication. We now have 5 balloon drivers,
+for 4 hypervisors, all implementing everything
+from scratch...
