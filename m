@@ -1,48 +1,47 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 00/13] drivers: hv: kvp
-Date: Tue, 26 Jun 2012 16:44:30 -0700
-Message-ID: <20120626234430.GA17907@kroah.com>
-References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
- <20120621224737.GA5933@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155EC47A@SN2PRD0310MB382.namprd03.prod.outlook.com>
- <20120622132547.GA2639@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155ED14D@SN2PRD0310MB382.namprd03.prod.outlook.com>
- <20120626213954.GA4840@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155ED64A@SN2PRD0310MB382.namprd03.prod.outlook.com>
- <20120626222205.GA5948@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155ED68D@SN2PRD0310MB382.namprd03.prod.outlook.com>
+From: Konrad Rzeszutek Wilk <konrad@darnok.org>
+Subject: Re: [PATCH 1/4] mm: introduce compaction and migration for virtio
+	ballooned pages
+Date: Tue, 26 Jun 2012 19:57:55 -0400
+Message-ID: <20120626235754.GB14782__8054.37999447367$1340755087$gmane$org@localhost.localdomain>
+References: <cover.1340665087.git.aquini@redhat.com>
+	<7f83427b3894af7969c67acc0f27ab5aa68b4279.1340665087.git.aquini@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <426367E2313C2449837CD2DE46E7EAF9155ED68D@SN2PRD0310MB382.namprd03.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "ohering@suse.com" <ohering@suse.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+In-Reply-To: <7f83427b3894af7969c67acc0f27ab5aa68b4279.1340665087.git.aquini@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 26, 2012 at 10:28:48PM +0000, KY Srinivasan wrote:
-> > The fact that it was Red Hat specific was the main part, this should be
-> > done in a standard way, with standard tools, right?
-> 
-> The reason I asked this question was to make sure I address these
-> issues in addition to whatever I am debugging now. I use the standard
-> tools and calls to retrieve all the IP configuration. As I look at
-> each distribution the files they keep persistent IP configuration
-> Information is different and that is the reason I chose to start with
-> RedHat. If there is a standard way to store the configuration, I will
-> do that.
+> +#if defined(CONFIG_VIRTIO_BALLOON) || defined(CONFIG_VIRTIO_BALLOON_MODULE)
+> +/*
+> + * Balloon pages special page->mapping.
+> + * users must properly allocate and initiliaze an instance of balloon_mapping,
 
-You shouldn't be looking at any files, but rather calling programs to
-get the information.  Think about systems with NetworkManager, and not
-just the older Red Hat static scripts?  What about Gentoo and Ubuntu and
-Arch and LFS and Slackware and SLES and Fedora?  You are quickly going
-to go crazy if you are going to be mucking around looking in files for
-things.
+initialize
 
-What exactly are you trying to do here?  That might be the better place
-to start with instead of the implementation you have created.
+> + * and set it as the page->mapping for balloon enlisted page instances.
+> + *
+> + * address_space_operations necessary methods for ballooned pages:
+> + *   .migratepage    - used to perform balloon's page migration (as is)
+> + *   .invalidatepage - used to isolate a page from balloon's page list
+> + *   .freepage       - used to reinsert an isolated page to balloon's page list
+> + */
+> +struct address_space *balloon_mapping;
+> +EXPORT_SYMBOL(balloon_mapping);
 
-thanks,
-
-greg k-h
+Why don't you call this kvm_balloon_mapping - and when other balloon
+drivers use it, then change it to something more generic. Also at that
+future point the other balloon drivers might do it a bit differently so
+it might be that will be reworked completly.
