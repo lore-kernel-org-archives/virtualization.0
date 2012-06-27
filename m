@@ -1,14 +1,20 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
-Date: Wed, 27 Jun 2012 15:10:46 +0530
-Message-ID: <20120627094046.GE19023@amit.redhat.com>
-References: <1340742778-11282-1-git-send-email-fes@google.com>
+From: Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [PATCH 1/4] mm: introduce compaction and migration for virtio
+	ballooned pages
+Date: Wed, 27 Jun 2012 10:42:13 +0100
+Message-ID: <20120627094213.GK8103__22303.4399482005$1340790148$gmane$org@csn.ul.ie>
+References: <cover.1340665087.git.aquini@redhat.com>
+	<7f83427b3894af7969c67acc0f27ab5aa68b4279.1340665087.git.aquini@redhat.com>
+	<20120626101729.GF8103@csn.ul.ie>
+	<20120626165258.GY11413@one.firstfloor.org>
+	<20120626201513.GJ8103@csn.ul.ie>
+	<20120626203400.GA11413@one.firstfloor.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1340742778-11282-1-git-send-email-fes@google.com>
+In-Reply-To: <20120626203400.GA11413@one.firstfloor.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,35 +24,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Frank Swiderski <fes@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, riel@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, mikew@google.com, virtualization@lists.linux-foundation.org
+To: Andi Kleen <andi@firstfloor.org>
+Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 26 Jun 2012 [13:32:58], Frank Swiderski wrote:
-> This implementation of a virtio balloon driver uses the page cache to
-> "store" pages that have been released to the host.  The communication
-> (outside of target counts) is one way--the guest notifies the host when
-> it adds a page to the page cache, allowing the host to madvise(2) with
-> MADV_DONTNEED.  Reclaim in the guest is therefore automatic and implicit
-> (via the regular page reclaim).  This means that inflating the balloon
-> is similar to the existing balloon mechanism, but the deflate is
-> different--it re-uses existing Linux kernel functionality to
-> automatically reclaim.
+On Tue, Jun 26, 2012 at 10:34:00PM +0200, Andi Kleen wrote:
+> > How is the compiler meant to optimise away "cond" if it's a function
+> > call?
+> 
+> Inlines can be optimized away.  These tests are usually inlines.
+> 
+> > What did I miss? If nothing, then I will revert this particular change
+> > and Rafael will need to be sure his patch is not using VM_BUG_ON to call
+> > a function with side-effects.
+> 
+> Do you have an example where the code is actually different,
+> or are you just speculating?
+> 
+> FWIW for my config both generates the same code:
+> 
+> size vmlinux-andi-vmbug vmlinux-vmbug-nothing 
+>    text    data     bss     dec     hex filename
+> 11809704        1457352 1159168 14426224         dc2070 vmlinux-andi-vmbug
+> 11809704        1457352 1159168 14426224         dc2070 vmlinux-vmbug-nothing
+> 
 
-This is a good idea for a guest co-operative balloon driver.  I don't
-think it'll replace the original driver.  The traditional balloon
-model is essentially driven by the host to increase guest density on
-the host.  This driver can't work in that case.  However, using both
-the types of drivers will be helpful, as unused pages on the guest
-will be able to be used by the host.
+They are the same size because CONFIG_DEBUG_VM and !CONFIG_DEBUG_VM
+generate the same code! I applied the patch below again 3.4 and got the
+following results
 
-Balbir Singh had done some work earlier on a guest co-operative
-balloon driver, but AFAIR it was with modification of the existing
-virtio-balloon driver.
+   text	   data	    bss	    dec	    hex	        filename
+6918617	1795640	2260992	10975249	 a77811 vmlinux-default-no-vmdebug
+6916633	1795640	2260992	10973265	 a77051 vmlinux-patched-no-vmdebug
 
-I don't think a separate driver is necessary for the functionality,
-though.  Perhaps just a new config space item which mentions how many
-pages are present in the page cache, so that host do some accounting
-as well.
+That's almost 2K of text!
 
-		Amit
+I see now that in 3.5 this was already spotted and fixed by Konstantin
+in commit [02602a18: bug: completely remove code generated by disabled
+VM_BUG_ON()]. That patch restores the rule that VM_BUG_ON() cannot call
+anything with side-effects. So Rafael, watch your use of VM_BUG_ON or
+you'll find that the your patches work in 3.4 and leak in 3.5.
+
+diff --git a/include/linux/mmdebug.h b/include/linux/mmdebug.h
+index c04ecfe..ee24ef8 100644
+--- a/include/linux/mmdebug.h
++++ b/include/linux/mmdebug.h
+@@ -4,7 +4,7 @@
+ #ifdef CONFIG_DEBUG_VM
+ #define VM_BUG_ON(cond) BUG_ON(cond)
+ #else
+-#define VM_BUG_ON(cond) do { (void)(cond); } while (0)
++#define VM_BUG_ON(cond) do { } while (0)
+ #endif
+ 
+ #ifdef CONFIG_DEBUG_VIRTUAL
