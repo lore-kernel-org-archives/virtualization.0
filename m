@@ -1,18 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
 Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
-Date: Wed, 27 Jun 2012 12:04:10 +0300
-Message-ID: <20120627090410.GB17507@redhat.com>
+Date: Wed, 27 Jun 2012 15:10:46 +0530
+Message-ID: <20120627094046.GE19023@amit.redhat.com>
 References: <1340742778-11282-1-git-send-email-fes@google.com>
-	<4FEA1E2E.4020806@redhat.com>
-	<CAK+C7kWKtoYC=1fBQ45RTFfNc3p2PwZbLMOefMTtzOfsqe_k8w@mail.gmail.com>
-	<4FEA2D85.60002@redhat.com>
-	<CAK+C7kVHeUz7nUV1vtSHrK6vXorLsZoos82NFm0P0Ux0rEOZGQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAK+C7kVHeUz7nUV1vtSHrK6vXorLsZoos82NFm0P0Ux0rEOZGQ@mail.gmail.com>
+In-Reply-To: <1340742778-11282-1-git-send-email-fes@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,69 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Frank Swiderski <fes@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ying Han <yinghan@google.com>, mikew@google.com
+Cc: Andrea Arcangeli <aarcange@redhat.com>, riel@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, mikew@google.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 26, 2012 at 04:45:36PM -0700, Frank Swiderski wrote:
-> On Tue, Jun 26, 2012 at 2:45 PM, Rik van Riel <riel@redhat.com> wrote:
-> > On 06/26/2012 05:31 PM, Frank Swiderski wrote:
-> >>
-> >> On Tue, Jun 26, 2012 at 1:40 PM, Rik van Riel<riel@redhat.com> =A0wrot=
-e:
-> >
-> >
-> >>> The code looks good to me, my only worry is the
-> >>> code duplication. We now have 5 balloon drivers,
-> >>> for 4 hypervisors, all implementing everything
-> >>> from scratch...
-> >>
-> >>
-> >> Do you have any recommendations on this? =A0I could (I think reasonably
-> >> so) modify the existing virtio_balloon.c and have it change behavior
-> >> based on a feature bit or other configuration. =A0I'm not sure that
-> >> really addresses the root of what you're pointing out--it's still
-> >> adding a different implementation, but doing so as an extension of an
-> >> existing one.
-> >
-> >
-> > Ideally, I believe we would have two balloon
-> > top parts in a guest (one classical balloon,
-> > one on the LRU), and four bottom parts (kvm,
-> > xen, vmware & s390).
-> >
-> > That way the virt specific bits of a balloon
-> > driver would be essentially a ->balloon_page
-> > and ->release_page callback for pages, as well
-> > as methods to communicate with the host.
-> >
-> > All the management of pages, including stuff
-> > like putting them on the LRU, or isolating
-> > them for migration, would be done with the
-> > same common code, regardless of what virt
-> > software we are running on.
-> >
-> > Of course, that is a substantial amount of
-> > work and I feel it would be unreasonable to
-> > block anyone's code on that kind of thing
-> > (especially considering that your code is good),
-> > but I do believe the explosion of balloon
-> > code is a little worrying.
-> >
-> =
+On (Tue) 26 Jun 2012 [13:32:58], Frank Swiderski wrote:
+> This implementation of a virtio balloon driver uses the page cache to
+> "store" pages that have been released to the host.  The communication
+> (outside of target counts) is one way--the guest notifies the host when
+> it adds a page to the page cache, allowing the host to madvise(2) with
+> MADV_DONTNEED.  Reclaim in the guest is therefore automatic and implicit
+> (via the regular page reclaim).  This means that inflating the balloon
+> is similar to the existing balloon mechanism, but the deflate is
+> different--it re-uses existing Linux kernel functionality to
+> automatically reclaim.
 
-> Hm, that makes a lot of sense.  That would be a few patches definitely
-> worth doing, IMHO.  I'm not entirely sure how I feel about inflating
-> the balloon drivers in the meantime.  Sigh, and I didn't even mean
-> that as a pun.
-> =
+This is a good idea for a guest co-operative balloon driver.  I don't
+think it'll replace the original driver.  The traditional balloon
+model is essentially driven by the host to increase guest density on
+the host.  This driver can't work in that case.  However, using both
+the types of drivers will be helpful, as unused pages on the guest
+will be able to be used by the host.
 
-> fes
+Balbir Singh had done some work earlier on a guest co-operative
+balloon driver, but AFAIR it was with modification of the existing
+virtio-balloon driver.
 
-Actually I'm not 100% sure the num_pages interface
-of the classical balloon is a good fit for the LRU
-balloon. Let's figure that out first: if we fork the interface
-there might not be all that much common code ...
+I don't think a separate driver is necessary for the functionality,
+though.  Perhaps just a new config space item which mentions how many
+pages are present in the page cache, so that host do some accounting
+as well.
 
--- =
-
-MST
+		Amit
