@@ -1,17 +1,11 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [PATCH 1/4] mm: introduce compaction and migration for virtio
-	ballooned pages
-Date: Wed, 27 Jun 2012 12:17:17 -0300
-Message-ID: <20120627151716.GA3653__29470.0651117184$1340810311$gmane$org@t510.redhat.com>
-References: <cover.1340665087.git.aquini@redhat.com>
-	<7f83427b3894af7969c67acc0f27ab5aa68b4279.1340665087.git.aquini@redhat.com>
-	<20120626235754.GB14782@localhost.localdomain>
+From: Jiri Pirko <jpirko@redhat.com>
+Subject: [patch net-next] virtio_net: allow to change mac when iface is running
+Date: Wed, 27 Jun 2012 17:27:46 +0200
+Message-ID: <1340810866-1017-1-git-send-email-jpirko__15265.7588049353$1340810992$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120626235754.GB14782@localhost.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,46 +15,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad@darnok.org>
-Cc: Rik van Riel <riel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+To: netdev@vger.kernel.org
+Cc: brouer@redhat.com, virtualization@lists.linux-foundation.org, davem@davemloft.net, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 26, 2012 at 07:57:55PM -0400, Konrad Rzeszutek Wilk wrote:
-> > +#if defined(CONFIG_VIRTIO_BALLOON) || defined(CONFIG_VIRTIO_BALLOON_MODULE)
-> > +/*
-> > + * Balloon pages special page->mapping.
-> > + * users must properly allocate and initiliaze an instance of balloon_mapping,
-> 
-> initialize
->
-Thanks! will fix it.
+Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+---
+ drivers/net/virtio_net.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index f18149a..36a16d5 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -679,11 +679,12 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+ 	struct virtio_device *vdev = vi->vdev;
+-	int ret;
++	struct sockaddr *addr = p;
  
-> > + * and set it as the page->mapping for balloon enlisted page instances.
-> > + *
-> > + * address_space_operations necessary methods for ballooned pages:
-> > + *   .migratepage    - used to perform balloon's page migration (as is)
-> > + *   .invalidatepage - used to isolate a page from balloon's page list
-> > + *   .freepage       - used to reinsert an isolated page to balloon's page list
-> > + */
-> > +struct address_space *balloon_mapping;
-> > +EXPORT_SYMBOL(balloon_mapping);
-> 
-> Why don't you call this kvm_balloon_mapping - and when other balloon
-> drivers use it, then change it to something more generic. Also at that
-> future point the other balloon drivers might do it a bit differently so
-> it might be that will be reworked completly.
-
-Ok, I see your point. However I really think it's better to keep the naming as
-generic as possible today and, in the future, those who need to change it a bit can
-do it with no pain at all. I believe this way we potentially prevent unnecessary code
-duplication, as it will just be a matter of adjusting those preprocessor checking to
-include other balloon driver to the scheme, or get rid of all of them (in case all 
-balloon drivers assume the very same technique for their page mobility primitives).
-
-As I can be utterly wrong on this, lets see if other folks raise the same
-concerns about this naming scheme I'm using here. If it ends up being a general
-concern that it would be better not being generic at this point, I'll happily
-switch my approach to whatever comes up to be the most feasible way of doing it.
-
-Thanks a lot for taking such consideration and provide good feedback on this
-work.
+-	ret = eth_mac_addr(dev, p);
+-	if (ret)
+-		return ret;
++	if (!is_valid_ether_addr(addr->sa_data))
++		return -EADDRNOTAVAIL;
++	memcpy(dev->dev_addr, addr->sa_data, ETH_ALEN);
++	dev->addr_assign_type &= ~NET_ADDR_RANDOM;
+ 
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
+ 		vdev->config->set(vdev, offsetof(struct virtio_net_config, mac),
+-- 
+1.7.10.4
