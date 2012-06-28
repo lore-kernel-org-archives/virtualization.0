@@ -1,70 +1,62 @@
-From: Jiri Pirko <jpirko@redhat.com>
-Subject: [patch net-next 4/4] dummy: use IFF_LIFE_ADDR_CHANGE priv_flag
-Date: Thu, 28 Jun 2012 16:10:39 +0200
-Message-ID: <1340892639-1111-5-git-send-email-jpirko__25571.6533204124$1340892701$gmane$org@redhat.com>
-References: <1340892639-1111-1-git-send-email-jpirko@redhat.com>
+From: Olaf Hering <olaf@aepfle.de>
+Subject: Re: [PATCH 00/13] drivers: hv: kvp
+Date: Thu, 28 Jun 2012 16:23:40 +0200
+Message-ID: <20120628142340.GA21537@aepfle.de>
+References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
+ <20120621224737.GA5933@kroah.com>
+ <426367E2313C2449837CD2DE46E7EAF9155EC47A@SN2PRD0310MB382.namprd03.prod.outlook.com>
+ <20120622132547.GA2639@kroah.com>
+ <426367E2313C2449837CD2DE46E7EAF9155ED14D@SN2PRD0310MB382.namprd03.prod.outlook.com>
+ <20120626213954.GA4840@kroah.com>
+ <426367E2313C2449837CD2DE46E7EAF9155ED64A@SN2PRD0310MB382.namprd03.prod.outlook.com>
+ <20120626222205.GA5948@kroah.com>
+ <426367E2313C2449837CD2DE46E7EAF9155ED68D@SN2PRD0310MB382.namprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1340892639-1111-1-git-send-email-jpirko@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: mst@redhat.com, shimoda.hiroaki@gmail.com, virtualization@lists.linux-foundation.org, danny.kukawka@bisect.de, edumazet@google.com, davem@davemloft.net
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <426367E2313C2449837CD2DE46E7EAF9155ED68D@SN2PRD0310MB382.namprd03.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: KY Srinivasan <kys@microsoft.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>, apw@canonical.com, devel@linuxdriverproject.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Jiri Pirko <jpirko@redhat.com>
----
- drivers/net/dummy.c |   15 ++-------------
- 1 file changed, 2 insertions(+), 13 deletions(-)
+On Tue, Jun 26, KY Srinivasan wrote:
 
-diff --git a/drivers/net/dummy.c b/drivers/net/dummy.c
-index bab0158..0352246 100644
---- a/drivers/net/dummy.c
-+++ b/drivers/net/dummy.c
-@@ -40,18 +40,6 @@
- 
- static int numdummies = 1;
- 
--static int dummy_set_address(struct net_device *dev, void *p)
--{
--	struct sockaddr *sa = p;
--
--	if (!is_valid_ether_addr(sa->sa_data))
--		return -EADDRNOTAVAIL;
--
--	dev->addr_assign_type &= ~NET_ADDR_RANDOM;
--	memcpy(dev->dev_addr, sa->sa_data, ETH_ALEN);
--	return 0;
--}
--
- /* fake multicast ability */
- static void set_multicast_list(struct net_device *dev)
- {
-@@ -118,7 +106,7 @@ static const struct net_device_ops dummy_netdev_ops = {
- 	.ndo_start_xmit		= dummy_xmit,
- 	.ndo_validate_addr	= eth_validate_addr,
- 	.ndo_set_rx_mode	= set_multicast_list,
--	.ndo_set_mac_address	= dummy_set_address,
-+	.ndo_set_mac_address	= eth_mac_addr,
- 	.ndo_get_stats64	= dummy_get_stats64,
- };
- 
-@@ -134,6 +122,7 @@ static void dummy_setup(struct net_device *dev)
- 	dev->tx_queue_len = 0;
- 	dev->flags |= IFF_NOARP;
- 	dev->flags &= ~IFF_MULTICAST;
-+	dev->priv_flags |= IFF_LIFE_ADDR_CHANGE;
- 	dev->features	|= NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_TSO;
- 	dev->features	|= NETIF_F_HW_CSUM | NETIF_F_HIGHDMA | NETIF_F_LLTX;
- 	eth_hw_addr_random(dev);
--- 
-1.7.10.4
+> > From: Greg KH [mailto:gregkh@linuxfoundation.org]
+> > The fact that it was Red Hat specific was the main part, this should be
+> > done in a standard way, with standard tools, right?
+> 
+> The reason I asked this question was to make sure I address these
+> issues in addition to whatever I am debugging now. I use the standard
+> tools and calls to retrieve all the IP configuration. As I look at
+> each distribution the files they keep persistent IP configuration
+> Information is different and that is the reason I chose to start with
+> RedHat. If there is a standard way to store the configuration, I will
+> do that.
+
+
+KY,
+
+instead of using system() in kvp_get_ipconfig_info and kvp_set_ip_info,
+wouldnt it be easier to call an external helper script which does all
+the distribution specific work? Just define some API to pass values to
+the script, and something to read values collected by the script back
+into the daemon.
+
+If the work is done in a script it will be much easier for an admin to
+debug and adjust it.
+
+I think there is no standard way to configure all relevant distros in
+the same way. Maybe one day NetworkManager can finally handle all
+possible ways to configure network related things. But until that
+happens the config files need to be adjusted manually.
+
+
+
+Some of the functions have deep indention levels due to 'while() {
+switch() }' usage. Perhaps such code could be moved into its own
+function so that lines dont need to be wrapped that much due to the odd
+80 column limit.
+
+Olaf
