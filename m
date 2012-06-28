@@ -1,15 +1,15 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: Re: [patch net-next 1/4] net: introduce new priv_flag indicating
-	iface capable of change mac when running
-Date: Thu, 28 Jun 2012 17:24:52 +0200
-Message-ID: <1340897092.13187.110.camel@edumazet-glaptop>
+From: Jiri Pirko <jpirko@redhat.com>
+Subject: Re: [patch net-next 0/4] net: introduce and use IFF_LIFE_ADDR_CHANGE
+Date: Thu, 28 Jun 2012 17:41:09 +0200
+Message-ID: <20120628154109.GG1520@minipsycho.orion>
 References: <1340892639-1111-1-git-send-email-jpirko@redhat.com>
-	<1340892639-1111-2-git-send-email-jpirko@redhat.com>
+	<20120628151507.GA5920@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1340892639-1111-2-git-send-email-jpirko@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20120628151507.GA5920@localhost.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,46 +19,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jpirko@redhat.com>
+To: Richard Cochran <richardcochran@gmail.com>
 Cc: mst@redhat.com, netdev@vger.kernel.org, shimoda.hiroaki@gmail.com, virtualization@lists.linux-foundation.org, danny.kukawka@bisect.de, edumazet@google.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2012-06-28 at 16:10 +0200, Jiri Pirko wrote:
-> Introduce IFF_LIFE_ADDR_CHANGE priv_flag and use it to disable
-> netif_running() check in eth_mac_addr()
-> 
-> Signed-off-by: Jiri Pirko <jpirko@redhat.com>
-> ---
->  include/linux/if.h |    2 ++
->  net/ethernet/eth.c |    2 +-
->  2 files changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/include/linux/if.h b/include/linux/if.h
-> index f995c66..fd9ee7c 100644
-> --- a/include/linux/if.h
-> +++ b/include/linux/if.h
-> @@ -81,6 +81,8 @@
->  #define IFF_UNICAST_FLT	0x20000		/* Supports unicast filtering	*/
->  #define IFF_TEAM_PORT	0x40000		/* device used as team port */
->  #define IFF_SUPP_NOFCS	0x80000		/* device supports sending custom FCS */
-> +#define IFF_LIFE_ADDR_CHANGE 0x100000	/* device supports hardware address
-> +					 * change when it's running */
->  
-> 
->  #define IF_GET_IFACE	0x0001		/* for querying only */
-> diff --git a/net/ethernet/eth.c b/net/ethernet/eth.c
-> index 36e5880..8f8ded4 100644
-> --- a/net/ethernet/eth.c
-> +++ b/net/ethernet/eth.c
-> @@ -283,7 +283,7 @@ int eth_mac_addr(struct net_device *dev, void *p)
->  {
->  	struct sockaddr *addr = p;
->  
-> -	if (netif_running(dev))
-> +	if (!(dev->priv_flags & IFF_LIFE_ADDR_CHANGE) && netif_running(dev))
->  		return -EBUSY;
->  	if (!is_valid_ether_addr(addr->sa_data))
->  		return -EADDRNOTAVAIL;
+Thu, Jun 28, 2012 at 05:15:07PM CEST, richardcochran@gmail.com wrote:
+>On Thu, Jun 28, 2012 at 04:10:35PM +0200, Jiri Pirko wrote:
+>> three drivers updated, but this can be used in many others.
+>> 
+>> Jiri Pirko (4):
+>>   net: introduce new priv_flag indicating iface capable of change mac
+>>     when running
+>>   virtio_net: use IFF_LIFE_ADDR_CHANGE priv_flag
+>>   team: use IFF_LIFE_ADDR_CHANGE priv_flag
+>>   dummy: use IFF_LIFE_ADDR_CHANGE priv_flag
+>
+>I think you must mean LIVE and not LIFE...
 
-Since the memcpy() is not atomic, there is a small window where a reader
-could get a half-changed mac address. I guess its a detail.
+Good point. I will change it and repost, but I will give it some time so
+people can express themselves.
+
+Thanks!
+
+Jirka
+>
+>Thanks,
+>Richard
+>
+>
+>> 
+>>  drivers/net/dummy.c      |   15 ++-------------
+>>  drivers/net/team/team.c  |    9 +++++----
+>>  drivers/net/virtio_net.c |   11 +++++------
+>>  include/linux/if.h       |    2 ++
+>>  net/ethernet/eth.c       |    2 +-
+>>  5 files changed, 15 insertions(+), 24 deletions(-)
+>> 
+>> -- 
+>> 1.7.10.4
+>> 
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe netdev" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
