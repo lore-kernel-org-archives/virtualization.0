@@ -1,62 +1,64 @@
-From: Olaf Hering <olaf@aepfle.de>
-Subject: Re: [PATCH 00/13] drivers: hv: kvp
-Date: Thu, 28 Jun 2012 16:23:40 +0200
-Message-ID: <20120628142340.GA21537@aepfle.de>
-References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
- <20120621224737.GA5933@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155EC47A@SN2PRD0310MB382.namprd03.prod.outlook.com>
- <20120622132547.GA2639@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155ED14D@SN2PRD0310MB382.namprd03.prod.outlook.com>
- <20120626213954.GA4840@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155ED64A@SN2PRD0310MB382.namprd03.prod.outlook.com>
- <20120626222205.GA5948@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155ED68D@SN2PRD0310MB382.namprd03.prod.outlook.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [patch net-next 1/4] net: introduce new priv_flag indicating
+	iface capable of change mac when running
+Date: Thu, 28 Jun 2012 17:24:52 +0200
+Message-ID: <1340897092.13187.110.camel@edumazet-glaptop>
+References: <1340892639-1111-1-git-send-email-jpirko@redhat.com>
+	<1340892639-1111-2-git-send-email-jpirko@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <426367E2313C2449837CD2DE46E7EAF9155ED68D@SN2PRD0310MB382.namprd03.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, apw@canonical.com, devel@linuxdriverproject.org, virtualization@lists.osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1340892639-1111-2-git-send-email-jpirko@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jiri Pirko <jpirko@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, shimoda.hiroaki@gmail.com, virtualization@lists.linux-foundation.org, danny.kukawka@bisect.de, edumazet@google.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 26, KY Srinivasan wrote:
-
-> > From: Greg KH [mailto:gregkh@linuxfoundation.org]
-> > The fact that it was Red Hat specific was the main part, this should be
-> > done in a standard way, with standard tools, right?
+On Thu, 2012-06-28 at 16:10 +0200, Jiri Pirko wrote:
+> Introduce IFF_LIFE_ADDR_CHANGE priv_flag and use it to disable
+> netif_running() check in eth_mac_addr()
 > 
-> The reason I asked this question was to make sure I address these
-> issues in addition to whatever I am debugging now. I use the standard
-> tools and calls to retrieve all the IP configuration. As I look at
-> each distribution the files they keep persistent IP configuration
-> Information is different and that is the reason I chose to start with
-> RedHat. If there is a standard way to store the configuration, I will
-> do that.
+> Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+> ---
+>  include/linux/if.h |    2 ++
+>  net/ethernet/eth.c |    2 +-
+>  2 files changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/if.h b/include/linux/if.h
+> index f995c66..fd9ee7c 100644
+> --- a/include/linux/if.h
+> +++ b/include/linux/if.h
+> @@ -81,6 +81,8 @@
+>  #define IFF_UNICAST_FLT	0x20000		/* Supports unicast filtering	*/
+>  #define IFF_TEAM_PORT	0x40000		/* device used as team port */
+>  #define IFF_SUPP_NOFCS	0x80000		/* device supports sending custom FCS */
+> +#define IFF_LIFE_ADDR_CHANGE 0x100000	/* device supports hardware address
+> +					 * change when it's running */
+>  
+> 
+>  #define IF_GET_IFACE	0x0001		/* for querying only */
+> diff --git a/net/ethernet/eth.c b/net/ethernet/eth.c
+> index 36e5880..8f8ded4 100644
+> --- a/net/ethernet/eth.c
+> +++ b/net/ethernet/eth.c
+> @@ -283,7 +283,7 @@ int eth_mac_addr(struct net_device *dev, void *p)
+>  {
+>  	struct sockaddr *addr = p;
+>  
+> -	if (netif_running(dev))
+> +	if (!(dev->priv_flags & IFF_LIFE_ADDR_CHANGE) && netif_running(dev))
+>  		return -EBUSY;
+>  	if (!is_valid_ether_addr(addr->sa_data))
+>  		return -EADDRNOTAVAIL;
 
-
-KY,
-
-instead of using system() in kvp_get_ipconfig_info and kvp_set_ip_info,
-wouldnt it be easier to call an external helper script which does all
-the distribution specific work? Just define some API to pass values to
-the script, and something to read values collected by the script back
-into the daemon.
-
-If the work is done in a script it will be much easier for an admin to
-debug and adjust it.
-
-I think there is no standard way to configure all relevant distros in
-the same way. Maybe one day NetworkManager can finally handle all
-possible ways to configure network related things. But until that
-happens the config files need to be adjusted manually.
-
-
-
-Some of the functions have deep indention levels due to 'while() {
-switch() }' usage. Perhaps such code could be moved into its own
-function so that lines dont need to be wrapped that much due to the odd
-80 column limit.
-
-Olaf
+Since the memcpy() is not atomic, there is a small window where a reader
+could get a half-changed mac address. I guess its a detail.
