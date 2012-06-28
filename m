@@ -1,15 +1,15 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: [PATCH v2 4/4] mm: add vm event counters for balloon pages compaction
-Date: Thu, 28 Jun 2012 18:49:42 -0300
-Message-ID: <d1826d0e66be31077ebf381ab776a11bf4e23a70.1340916058.git.aquini__16161.3392447636$1340920279$gmane$org@redhat.com>
-References: <cover.1340916058.git.aquini@redhat.com>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Subject: Re: [patch net-next 1/4] net: introduce new priv_flag indicating
+	iface capable of change mac when running
+Date: Thu, 28 Jun 2012 23:17:34 +0100
+Message-ID: <1340921854.2577.16.camel@bwh-desktop.uk.solarflarecom.com>
+References: <1340892639-1111-1-git-send-email-jpirko@redhat.com>
+	<1340892639-1111-2-git-send-email-jpirko@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1340916058.git.aquini@redhat.com>
-In-Reply-To: <cover.1340916058.git.aquini@redhat.com>
-References: <cover.1340916058.git.aquini@redhat.com>
+In-Reply-To: <1340892639-1111-2-git-send-email-jpirko@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,98 +19,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-mm@kvack.org
-Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>
+To: Jiri Pirko <jpirko@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, shimoda.hiroaki@gmail.com, virtualization@lists.linux-foundation.org, danny.kukawka@bisect.de, edumazet@google.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch is only for testing report purposes and shall be dropped in case of
-the rest of this patchset getting accepted for merging.
+On Thu, 2012-06-28 at 16:10 +0200, Jiri Pirko wrote:
+> Introduce IFF_LIFE_ADDR_CHANGE priv_flag and use it to disable
+> netif_running() check in eth_mac_addr()
+>
+> Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+> ---
+>  include/linux/if.h |    2 ++
+>  net/ethernet/eth.c |    2 +-
+>  2 files changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/linux/if.h b/include/linux/if.h
+> index f995c66..fd9ee7c 100644
+> --- a/include/linux/if.h
+> +++ b/include/linux/if.h
+> @@ -81,6 +81,8 @@
+>  #define IFF_UNICAST_FLT	0x20000		/* Supports unicast filtering	*/
+>  #define IFF_TEAM_PORT	0x40000		/* device used as team port */
+>  #define IFF_SUPP_NOFCS	0x80000		/* device supports sending custom FCS */
+> +#define IFF_LIFE_ADDR_CHANGE 0x100000	/* device supports hardware address
+> +					 * change when it's running */
+[...]
 
-Signed-off-by: Rafael Aquini <aquini@redhat.com>
----
- drivers/virtio/virtio_balloon.c |    1 +
- include/linux/vm_event_item.h   |    2 ++
- mm/compaction.c                 |    1 +
- mm/migrate.c                    |    6 ++++--
- mm/vmstat.c                     |    4 ++++
- 5 files changed, 12 insertions(+), 2 deletions(-)
+Any device that has IFF_UNICAST_FLT can update the unicast MAC filter
+while it's running; doesn't that go hand-in-hand with being able to
+handle changes to the primary MAC address?  Is the new flag really
+necessary at all?
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 53386aa..c4a929d 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -406,6 +406,7 @@ int virtballoon_migratepage(struct address_space *mapping,
- 	spin_unlock(&vb->pfn_list_lock);
- 	tell_host(vb, vb->deflate_vq, &sg);
- 
-+	count_vm_event(COMPACTBALLOONMIGRATED);
- 	return 0;
- }
- 
-diff --git a/include/linux/vm_event_item.h b/include/linux/vm_event_item.h
-index 06f8e38..e330c5a 100644
---- a/include/linux/vm_event_item.h
-+++ b/include/linux/vm_event_item.h
-@@ -40,6 +40,8 @@ enum vm_event_item { PGPGIN, PGPGOUT, PSWPIN, PSWPOUT,
- #ifdef CONFIG_COMPACTION
- 		COMPACTBLOCKS, COMPACTPAGES, COMPACTPAGEFAILED,
- 		COMPACTSTALL, COMPACTFAIL, COMPACTSUCCESS,
-+		COMPACTBALLOONMIGRATED, COMPACTBALLOONFAILED,
-+		COMPACTBALLOONISOLATED, COMPACTBALLOONFREED,
- #endif
- #ifdef CONFIG_HUGETLB_PAGE
- 		HTLB_BUDDY_PGALLOC, HTLB_BUDDY_PGALLOC_FAIL,
-diff --git a/mm/compaction.c b/mm/compaction.c
-index 6c6e572..650cdda 100644
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -947,6 +947,7 @@ bool isolate_balloon_page(struct page *page)
- 			if (is_balloon_page(page) && (page_count(page) == 2)) {
- 				page->mapping->a_ops->invalidatepage(page, 0);
- 				unlock_page(page);
-+				count_vm_event(COMPACTBALLOONISOLATED);
- 				return true;
- 			}
- 			unlock_page(page);
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 59c7bc5..5838719 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -78,9 +78,10 @@ void putback_lru_pages(struct list_head *l)
- 		list_del(&page->lru);
- 		dec_zone_page_state(page, NR_ISOLATED_ANON +
- 				page_is_file_cache(page));
--		if (unlikely(is_balloon_page(page)))
-+		if (unlikely(is_balloon_page(page))) {
-+			count_vm_event(COMPACTBALLOONFAILED);
- 			WARN_ON(!putback_balloon_page(page));
--		else
-+		} else
- 			putback_lru_page(page);
- 	}
- }
-@@ -878,6 +879,7 @@ static int unmap_and_move(new_page_t get_new_page, unsigned long private,
- 				    page_is_file_cache(page));
- 		put_page(page);
- 		__free_page(page);
-+		count_vm_event(COMPACTBALLOONFREED);
- 		return rc;
- 	}
- out:
-diff --git a/mm/vmstat.c b/mm/vmstat.c
-index 1bbbbd9..3b7109f 100644
---- a/mm/vmstat.c
-+++ b/mm/vmstat.c
-@@ -767,6 +767,10 @@ const char * const vmstat_text[] = {
- 	"compact_stall",
- 	"compact_fail",
- 	"compact_success",
-+	"compact_balloon_migrated",
-+	"compact_balloon_failed",
-+	"compact_balloon_isolated",
-+	"compact_balloon_freed",
- #endif
- 
- #ifdef CONFIG_HUGETLB_PAGE
+Ben.
+
 -- 
-1.7.10.2
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
