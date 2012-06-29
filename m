@@ -1,15 +1,15 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
-Subject: Re: [patch net-next 1/4] net: introduce new priv_flag indicating
-	iface capable of change mac when running
-Date: Thu, 28 Jun 2012 23:17:34 +0100
-Message-ID: <1340921854.2577.16.camel@bwh-desktop.uk.solarflarecom.com>
-References: <1340892639-1111-1-git-send-email-jpirko@redhat.com>
-	<1340892639-1111-2-git-send-email-jpirko@redhat.com>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: Re: [PATCH v2 0/4] make balloon pages movable by compaction
+Date: Fri, 29 Jun 2012 00:51:24 -0300
+Message-ID: <20120629035123.GA1763__24866.6447274902$1340941937$gmane$org@t510.redhat.com>
+References: <cover.1340916058.git.aquini@redhat.com>
+	<4FED06C8.1090003@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1340892639-1111-2-git-send-email-jpirko@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <4FED06C8.1090003@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +19,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Pirko <jpirko@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, shimoda.hiroaki@gmail.com, virtualization@lists.linux-foundation.org, danny.kukawka@bisect.de, edumazet@google.com, davem@davemloft.net
+To: Minchan Kim <minchan@kernel.org>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2012-06-28 at 16:10 +0200, Jiri Pirko wrote:
-> Introduce IFF_LIFE_ADDR_CHANGE priv_flag and use it to disable
-> netif_running() check in eth_mac_addr()
->
-> Signed-off-by: Jiri Pirko <jpirko@redhat.com>
-> ---
->  include/linux/if.h |    2 ++
->  net/ethernet/eth.c |    2 +-
->  2 files changed, 3 insertions(+), 1 deletion(-)
+On Fri, Jun 29, 2012 at 10:37:12AM +0900, Minchan Kim wrote:
+> Hi Rafael,
 > 
-> diff --git a/include/linux/if.h b/include/linux/if.h
-> index f995c66..fd9ee7c 100644
-> --- a/include/linux/if.h
-> +++ b/include/linux/if.h
-> @@ -81,6 +81,8 @@
->  #define IFF_UNICAST_FLT	0x20000		/* Supports unicast filtering	*/
->  #define IFF_TEAM_PORT	0x40000		/* device used as team port */
->  #define IFF_SUPP_NOFCS	0x80000		/* device supports sending custom FCS */
-> +#define IFF_LIFE_ADDR_CHANGE 0x100000	/* device supports hardware address
-> +					 * change when it's running */
-[...]
+> On 06/29/2012 06:49 AM, Rafael Aquini wrote:
+> 
+> > This patchset follows the main idea discussed at 2012 LSFMMS section:
+> > "Ballooning for transparent huge pages" -- http://lwn.net/Articles/490114/
+> 
+> 
+> Could you summarize the problem, solution instead of link URL in cover-letter?
+> IIUC, the problem is that it is hard to get contiguous memory in guest-side 
+> after ballooning happens because guest-side memory could be very fragmented
+> by ballooned page. It makes THP page allocation of guest-side very poor success ratio.
+> 
+> The solution is that when memory ballooning happens, we allocates ballooned page
+> as a movable page in guest-side because they can be migrated easily so compaction of
+> guest-side could put together them into either side so that we can get contiguous memory.
+> For it, compaction should be aware of ballooned page.
+> 
+> Right?
+>
+Yes, you surely got it correct, sir. 
 
-Any device that has IFF_UNICAST_FLT can update the unicast MAC filter
-while it's running; doesn't that go hand-in-hand with being able to
-handle changes to the primary MAC address?  Is the new flag really
-necessary at all?
+Thanks Minchan, for taking time to provide me such feedback. I'll rework commit
+messages to make them more elucidative, yet concise for the next submission.
 
-Ben.
+Please, let me know if you have other concerns I shall be addressing here.
 
--- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
+Best regards!
