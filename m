@@ -1,13 +1,16 @@
-From: Jiri Pirko <jpirko@redhat.com>
-Subject: [patch net-next v2 4/4] dummy: use IFF_LIVE_ADDR_CHANGE priv_flag
-Date: Fri, 29 Jun 2012 17:10:08 +0200
-Message-ID: <1340982608-897-5-git-send-email-jpirko__194.029257591133$1340982663$gmane$org@redhat.com>
-References: <1340982608-897-1-git-send-email-jpirko@redhat.com>
+From: Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [PATCH v2 1/4] mm: introduce compaction and migration for virtio
+	ballooned pages
+Date: Fri, 29 Jun 2012 16:31:57 +0100
+Message-ID: <20120629153157.GB13141__19281.7738083706$1340983929$gmane$org@csn.ul.ie>
+References: <cover.1340916058.git.aquini@redhat.com>
+	<d0f33a6492501a0d420abbf184f9b956cff3e3fc.1340916058.git.aquini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1340982608-897-1-git-send-email-jpirko@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <d0f33a6492501a0d420abbf184f9b956cff3e3fc.1340916058.git.aquini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,54 +20,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: mst@redhat.com, shimoda.hiroaki@gmail.com, virtualization@lists.linux-foundation.org, danny.kukawka@bisect.de, edumazet@google.com, davem@davemloft.net
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Jiri Pirko <jpirko@redhat.com>
----
- drivers/net/dummy.c |   15 ++-------------
- 1 file changed, 2 insertions(+), 13 deletions(-)
+On Thu, Jun 28, 2012 at 06:49:39PM -0300, Rafael Aquini wrote:
+> This patch introduces the helper functions as well as the necessary changes
+> to teach compaction and migration bits how to cope with pages which are
+> part of a guest memory balloon, in order to make them movable by memory
+> compaction procedures.
+> 
+> Signed-off-by: Rafael Aquini <aquini@redhat.com>
 
-diff --git a/drivers/net/dummy.c b/drivers/net/dummy.c
-index bab0158..9d6a067 100644
---- a/drivers/net/dummy.c
-+++ b/drivers/net/dummy.c
-@@ -40,18 +40,6 @@
- 
- static int numdummies = 1;
- 
--static int dummy_set_address(struct net_device *dev, void *p)
--{
--	struct sockaddr *sa = p;
--
--	if (!is_valid_ether_addr(sa->sa_data))
--		return -EADDRNOTAVAIL;
--
--	dev->addr_assign_type &= ~NET_ADDR_RANDOM;
--	memcpy(dev->dev_addr, sa->sa_data, ETH_ALEN);
--	return 0;
--}
--
- /* fake multicast ability */
- static void set_multicast_list(struct net_device *dev)
- {
-@@ -118,7 +106,7 @@ static const struct net_device_ops dummy_netdev_ops = {
- 	.ndo_start_xmit		= dummy_xmit,
- 	.ndo_validate_addr	= eth_validate_addr,
- 	.ndo_set_rx_mode	= set_multicast_list,
--	.ndo_set_mac_address	= dummy_set_address,
-+	.ndo_set_mac_address	= eth_mac_addr,
- 	.ndo_get_stats64	= dummy_get_stats64,
- };
- 
-@@ -134,6 +122,7 @@ static void dummy_setup(struct net_device *dev)
- 	dev->tx_queue_len = 0;
- 	dev->flags |= IFF_NOARP;
- 	dev->flags &= ~IFF_MULTICAST;
-+	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
- 	dev->features	|= NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_TSO;
- 	dev->features	|= NETIF_F_HW_CSUM | NETIF_F_HIGHDMA | NETIF_F_LLTX;
- 	eth_hw_addr_random(dev);
+I have two minor comments but it is not critical they be addressed. If you
+doa V3 then fix it but if it is picked up as it is, I'm ok with that.
+From a compaction point of view;
+
+Acked-by: Mel Gorman <mel@csn.ul.ie>
+
+> ---
+>  include/linux/mm.h |   16 ++++++++
+>  mm/compaction.c    |  110 +++++++++++++++++++++++++++++++++++++++++++---------
+>  mm/migrate.c       |   30 +++++++++++++-
+>  3 files changed, 136 insertions(+), 20 deletions(-)
+> 
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index b36d08c..35568fc 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -1629,5 +1629,21 @@ static inline unsigned int debug_guardpage_minorder(void) { return 0; }
+>  static inline bool page_is_guard(struct page *page) { return false; }
+>  #endif /* CONFIG_DEBUG_PAGEALLOC */
+>  
+> +#if (defined(CONFIG_VIRTIO_BALLOON) || \
+> +	defined(CONFIG_VIRTIO_BALLOON_MODULE)) && defined(CONFIG_COMPACTION)
+> +extern bool isolate_balloon_page(struct page *);
+> +extern bool putback_balloon_page(struct page *);
+> +extern struct address_space *balloon_mapping;
+> +
+> +static inline bool is_balloon_page(struct page *page)
+> +{
+> +        return (page->mapping == balloon_mapping) ? true : false;
+> +}
+> +#else
+> +static inline bool is_balloon_page(struct page *page)       { return false; }
+> +static inline bool isolate_balloon_page(struct page *page)  { return false; }
+> +static inline bool putback_balloon_page(struct page *page)  { return false; }
+> +#endif /* (VIRTIO_BALLOON || VIRTIO_BALLOON_MODULE) && COMPACTION */
+> +
+>  #endif /* __KERNEL__ */
+>  #endif /* _LINUX_MM_H */
+
+isolate_balloon_page is only used in compaction.c and could declared static
+to compaction.c. You could move them all between struct compact_control
+and release_pages to avoid forward declarations.
+
+> <SNIP>
+> +/* putback_lru_page() counterpart for a ballooned page */
+> +bool putback_balloon_page(struct page *page)
+> +{
+> +	if (WARN_ON(!is_balloon_page(page)))
+> +		return false;
+> +
+> +	if (likely(trylock_page(page))) {
+> +		if(is_balloon_page(page)) {
+
+Stick a space in there. Run checkpatch.pl if you haven't already. I suspect
+it would have caught this.
+
+As I said, not worth spinning a V3 for :)
+
 -- 
-1.7.10.4
+Mel Gorman
+SUSE Labs
