@@ -1,7 +1,7 @@
 From: Jiri Pirko <jpirko@redhat.com>
-Subject: [patch net-next v2 2/4] virtio_net: use IFF_LIVE_ADDR_CHANGE priv_flag
-Date: Fri, 29 Jun 2012 17:10:06 +0200
-Message-ID: <1340982608-897-3-git-send-email-jpirko__3791.49248260564$1340982651$gmane$org@redhat.com>
+Subject: [patch net-next v2 4/4] dummy: use IFF_LIVE_ADDR_CHANGE priv_flag
+Date: Fri, 29 Jun 2012 17:10:08 +0200
+Message-ID: <1340982608-897-5-git-send-email-jpirko__194.029257591133$1340982663$gmane$org@redhat.com>
 References: <1340982608-897-1-git-send-email-jpirko@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,41 +21,50 @@ To: netdev@vger.kernel.org
 Cc: mst@redhat.com, shimoda.hiroaki@gmail.com, virtualization@lists.linux-foundation.org, danny.kukawka@bisect.de, edumazet@google.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Jiri Pirko <jpirko@redhat.com>
 ---
- drivers/net/virtio_net.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/net/dummy.c |   15 ++-------------
+ 1 file changed, 2 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 36a16d5..1db445b 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -679,12 +679,11 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	struct virtio_device *vdev = vi->vdev;
--	struct sockaddr *addr = p;
-+	int ret;
+diff --git a/drivers/net/dummy.c b/drivers/net/dummy.c
+index bab0158..9d6a067 100644
+--- a/drivers/net/dummy.c
++++ b/drivers/net/dummy.c
+@@ -40,18 +40,6 @@
  
--	if (!is_valid_ether_addr(addr->sa_data))
+ static int numdummies = 1;
+ 
+-static int dummy_set_address(struct net_device *dev, void *p)
+-{
+-	struct sockaddr *sa = p;
+-
+-	if (!is_valid_ether_addr(sa->sa_data))
 -		return -EADDRNOTAVAIL;
--	memcpy(dev->dev_addr, addr->sa_data, ETH_ALEN);
+-
 -	dev->addr_assign_type &= ~NET_ADDR_RANDOM;
-+	ret = eth_mac_addr(dev, p);
-+	if (ret)
-+		return ret;
+-	memcpy(dev->dev_addr, sa->sa_data, ETH_ALEN);
+-	return 0;
+-}
+-
+ /* fake multicast ability */
+ static void set_multicast_list(struct net_device *dev)
+ {
+@@ -118,7 +106,7 @@ static const struct net_device_ops dummy_netdev_ops = {
+ 	.ndo_start_xmit		= dummy_xmit,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ 	.ndo_set_rx_mode	= set_multicast_list,
+-	.ndo_set_mac_address	= dummy_set_address,
++	.ndo_set_mac_address	= eth_mac_addr,
+ 	.ndo_get_stats64	= dummy_get_stats64,
+ };
  
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
- 		vdev->config->set(vdev, offsetof(struct virtio_net_config, mac),
-@@ -1063,7 +1062,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		return -ENOMEM;
- 
- 	/* Set up network device as normal. */
--	dev->priv_flags |= IFF_UNICAST_FLT;
-+	dev->priv_flags |= IFF_UNICAST_FLT | IFF_LIVE_ADDR_CHANGE;
- 	dev->netdev_ops = &virtnet_netdev;
- 	dev->features = NETIF_F_HIGHDMA;
- 
+@@ -134,6 +122,7 @@ static void dummy_setup(struct net_device *dev)
+ 	dev->tx_queue_len = 0;
+ 	dev->flags |= IFF_NOARP;
+ 	dev->flags &= ~IFF_MULTICAST;
++	dev->priv_flags |= IFF_LIVE_ADDR_CHANGE;
+ 	dev->features	|= NETIF_F_SG | NETIF_F_FRAGLIST | NETIF_F_TSO;
+ 	dev->features	|= NETIF_F_HW_CSUM | NETIF_F_HIGHDMA | NETIF_F_LLTX;
+ 	eth_hw_addr_random(dev);
 -- 
 1.7.10.4
