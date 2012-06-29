@@ -1,17 +1,11 @@
 From: Jiri Pirko <jpirko@redhat.com>
-Subject: Re: [patch net-next 1/4] net: introduce new priv_flag indicating
-	iface capable of change mac when running
-Date: Fri, 29 Jun 2012 08:41:39 +0200
-Message-ID: <20120629064139.GA1522@minipsycho.orion>
-References: <1340892639-1111-1-git-send-email-jpirko@redhat.com>
-	<1340892639-1111-2-git-send-email-jpirko@redhat.com>
-	<1340921854.2577.16.camel@bwh-desktop.uk.solarflarecom.com>
+Subject: [patch net-next v2 0/4] net: introduce and use IFF_LIFE_ADDR_CHANGE
+Date: Fri, 29 Jun 2012 17:10:04 +0200
+Message-ID: <1340982608-897-1-git-send-email-jpirko@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1340921854.2577.16.camel@bwh-desktop.uk.solarflarecom.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,50 +15,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <bhutchings@solarflare.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, shimoda.hiroaki@gmail.com, virtualization@lists.linux-foundation.org, danny.kukawka@bisect.de, edumazet@google.com, davem@davemloft.net
+To: netdev@vger.kernel.org
+Cc: mst@redhat.com, shimoda.hiroaki@gmail.com, virtualization@lists.linux-foundation.org, danny.kukawka@bisect.de, edumazet@google.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fri, Jun 29, 2012 at 12:17:34AM CEST, bhutchings@solarflare.com wrote:
->On Thu, 2012-06-28 at 16:10 +0200, Jiri Pirko wrote:
->> Introduce IFF_LIFE_ADDR_CHANGE priv_flag and use it to disable
->> netif_running() check in eth_mac_addr()
->>
->> Signed-off-by: Jiri Pirko <jpirko@redhat.com>
->> ---
->>  include/linux/if.h |    2 ++
->>  net/ethernet/eth.c |    2 +-
->>  2 files changed, 3 insertions(+), 1 deletion(-)
->> 
->> diff --git a/include/linux/if.h b/include/linux/if.h
->> index f995c66..fd9ee7c 100644
->> --- a/include/linux/if.h
->> +++ b/include/linux/if.h
->> @@ -81,6 +81,8 @@
->>  #define IFF_UNICAST_FLT	0x20000		/* Supports unicast filtering	*/
->>  #define IFF_TEAM_PORT	0x40000		/* device used as team port */
->>  #define IFF_SUPP_NOFCS	0x80000		/* device supports sending custom FCS */
->> +#define IFF_LIFE_ADDR_CHANGE 0x100000	/* device supports hardware address
->> +					 * change when it's running */
->[...]
->
->Any device that has IFF_UNICAST_FLT can update the unicast MAC filter
->while it's running; doesn't that go hand-in-hand with being able to
->handle changes to the primary MAC address?  Is the new flag really
->necessary at all?
+three drivers updated, but this can be used in many others.
 
-Hmm, this makes sense. But, can you guarantee that all devices behave like this?
+v1->v2:
+%s/LIFE/LIVE
 
-Also, there are many devices that does not support unicast filtering
-and yet they support updating mac adress while running.
+Jiri Pirko (4):
+  net: introduce new priv_flag indicating iface capable of change mac
+    when running
+  virtio_net: use IFF_LIVE_ADDR_CHANGE priv_flag
+  team: use IFF_LIVE_ADDR_CHANGE priv_flag
+  dummy: use IFF_LIVE_ADDR_CHANGE priv_flag
 
-Jirka
+ drivers/net/dummy.c      |   15 ++-------------
+ drivers/net/team/team.c  |    9 +++++----
+ drivers/net/virtio_net.c |   11 +++++------
+ include/linux/if.h       |    2 ++
+ net/ethernet/eth.c       |    2 +-
+ 5 files changed, 15 insertions(+), 24 deletions(-)
 
->
->Ben.
->
->-- 
->Ben Hutchings, Staff Engineer, Solarflare
->Not speaking for my employer; that's the marketing department's job.
->They asked us to note that Solarflare product names are trademarked.
->
+-- 
+1.7.10.4
