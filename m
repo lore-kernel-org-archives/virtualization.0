@@ -1,17 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
-Date: Mon, 02 Jul 2012 09:59:16 +0930
-Message-ID: <87obnzxaxv.fsf@rustcorp.com.au>
-References: <1340742778-11282-1-git-send-email-fes@google.com>
-	<4FEA1E2E.4020806@redhat.com>
-	<CAK+C7kWKtoYC=1fBQ45RTFfNc3p2PwZbLMOefMTtzOfsqe_k8w@mail.gmail.com>
-	<20120626214709.GA15406@redhat.com>
-	<CAK+C7kUN-kYVK9AnEhcof98p+eZN1dkt9qVyYppETOeS2n3CMQ@mail.gmail.com>
+Subject: Re: [PATCH 3/3] virtio-blk: Add bio-based IO path for virtio-blk
+Date: Mon, 02 Jul 2012 09:24:27 +0930
+Message-ID: <87r4svxcjw.fsf__38084.2054532424$1341194004$gmane$org@rustcorp.com.au>
+References: <1340002390-3950-1-git-send-email-asias@redhat.com>
+	<1340002390-3950-4-git-send-email-asias@redhat.com>
+	<87hau9yse7.fsf@rustcorp.com.au> <4FDEE0CB.1030505@redhat.com>
+	<87zk81x7dp.fsf@rustcorp.com.au> <4FDF0DA7.40604@redhat.com>
+	<1340019575.22848.2.camel@lappy> <4FDFE926.7030309@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAK+C7kUN-kYVK9AnEhcof98p+eZN1dkt9qVyYppETOeS2n3CMQ@mail.gmail.com>
+In-Reply-To: <4FDFE926.7030309@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,38 +21,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Frank Swiderski <fes@google.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mikew@google.com, Ying Han <yinghan@google.com>, virtualization@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>, Sasha Levin <levinsasha928@gmail.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 26 Jun 2012 16:21:58 -0700, Frank Swiderski <fes@google.com> wrote:
-> On Tue, Jun 26, 2012 at 2:47 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > Let's assume it's a feature bit: how would you
-> > formulate what the feature does *from host point of view*?
+On Tue, 19 Jun 2012 10:51:18 +0800, Asias He <asias@redhat.com> wrote:
+> On 06/18/2012 07:39 PM, Sasha Levin wrote:
+> > On Mon, 2012-06-18 at 14:14 +0300, Dor Laor wrote:
+> >> On 06/18/2012 01:05 PM, Rusty Russell wrote:
+> >>> On Mon, 18 Jun 2012 16:03:23 +0800, Asias He<asias@redhat.com>  wrote:
+> >>>> On 06/18/2012 03:46 PM, Rusty Russell wrote:
+> >>>>> On Mon, 18 Jun 2012 14:53:10 +0800, Asias He<asias@redhat.com>  wrote:
+> >>>>>> This patch introduces bio-based IO path for virtio-blk.
+> >>>>>
+> >>>>> Why make it optional?
+> >>>>
+> >>>> request-based IO path is useful for users who do not want to bypass the
+> >>>> IO scheduler in guest kernel, e.g. users using spinning disk. For users
+> >>>> using fast disk device, e.g. SSD device, they can use bio-based IO path.
+> >>>
+> >>> Users using a spinning disk still get IO scheduling in the host though.
+> >>> What benefit is there in doing it in the guest as well?
+> >>
+> >> The io scheduler waits for requests to merge and thus batch IOs
+> >> together. It's not important w.r.t spinning disks since the host can do
+> >> it but it causes much less vmexits which is the key issue for VMs.
+> >
+> > Is the amount of exits caused by virtio-blk significant at all with
+> > EVENT_IDX?
 > 
-> In this implementation, the host doesn't keep track of pages in the
-> balloon, as there is no explicit deflate path.  The host device for
-> this implementation should merely, for example, MADV_DONTNEED on the
-> pages sent in an inflate.  Thus, the inflate becomes a notification
-> that the guest doesn't need those pages mapped in, but that they
-> should be available if the guest touches them.  In that sense, it's
-> not a rigid shrink of guest memory.  I'm not sure what I'd call the
-> feature bit though.
-> 
-> Was that the question you were asking, or did I misread?
+> Yes. EVENT_IDX saves the number of notify and interrupt. Let's take the 
+> interrupt as an example, The guest fires 200K request to host, the 
+> number of interrupt is about 6K thanks to EVENT_IDX. The ratio is 200K / 
+> 6K = 33. The ratio of merging is 40000K / 200K = 20.
 
-Hmm, the spec is unfortunately vague: !VIRTIO_BALLOON_F_MUST_TELL_HOST
-implies you should tell the host (eventually).  I don't know if any
-implementations actually care though.
+Confused.  So, without merging we get 6k exits (per second?)  How many
+do we get when we use the request-based IO path?
 
-We could add a VIRTIO_BALLOON_F_NEVER_TELL_DEFLATE which would mean the
-deflate vq need not be used at all.
-
-Is it altogether impossible to know when a page is reused in your
-implementation?  If we could do that, we could replace our balloon with
-this one.
-
-(My deep ignorance of vm issues is hurting us here, sorry.)
+If your device is slow, then you won't be able to make many requests per
+second: why worry about exit costs?  If your device is fast (eg. ram),
+you've already shown that your patch is a win, right?
 
 Cheers,
 Rusty.
