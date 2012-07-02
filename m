@@ -1,13 +1,16 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] virtio-scsi: hotplug suppot for virtio-scsi
-Date: Sun, 01 Jul 2012 15:24:09 +0200
-Message-ID: <4FF04F79.4090304@redhat.com>
-References: <1340175333-16803-1-git-send-email-mc@linux.vnet.ibm.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: RFD: virtio balloon API use (was Re: [PATCH 5 of 5] virtio:
+	expose added descriptors immediately)
+Date: Mon, 02 Jul 2012 10:35:47 +0930
+Message-ID: <87d34fx990.fsf@rustcorp.com.au>
+References: <patchbomb.1320306168@localhost6.localdomain6>
+	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
+	<20120701092051.GA4515@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1340175333-16803-1-git-send-email-mc@linux.vnet.ibm.com>
+In-Reply-To: <20120701092051.GA4515@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,225 +20,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cong Meng <mc@linux.vnet.ibm.com>
-Cc: stefanha@linux.vnet.ibm.com, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org, zwanp@cn.ibm.com, linuxram@us.ibm.com, senwang@linux.vnet.ibm.com, virtualization@lists.linux-foundation.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Anthony Liguori <anthony@codemonkey.ws>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization <virtualization@lists.linux-foundation.org>, Rafael Aquini <aquini@redhat.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 20/06/2012 08:55, Cong Meng ha scritto:
-> This patch implements the hotplug support for virtio-scsi.
-> When there is a device attached/detached, the virtio-scsi driver will be
-> signaled via event virtual queue and it will add/remove the scsi device 
-> in question automatically.
+On Sun, 1 Jul 2012 12:20:51 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Thu, Nov 03, 2011 at 06:12:53PM +1030, Rusty Russell wrote:
+> > A virtio driver does virtqueue_add_buf() multiple times before finally
+> > calling virtqueue_kick(); previously we only exposed the added buffers
+> > in the virtqueue_kick() call.  This means we don't need a memory
+> > barrier in virtqueue_add_buf(), but it reduces concurrency as the
+> > device (ie. host) can't see the buffers until the kick.
+> > 
+> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 > 
-> Signed-off-by: Cong Meng <mc@linux.vnet.ibm.com>
-> Signed-off-by: Sen Wang <senwang@linux.vnet.ibm.com>
-
-Looks good (with one nit below), but please rebase over the four patches
-at http://permalink.gmane.org/gmane.linux.kernel/1312496
-
-> ---
->  drivers/scsi/virtio_scsi.c  |  109 ++++++++++++++++++++++++++++++++++++++++++-
->  include/linux/virtio_scsi.h |    9 ++++
->  2 files changed, 116 insertions(+), 2 deletions(-)
+> Looking at recent mm compaction patches made me look at locking
+> in balloon closely. And I noticed the referenced patch (commit
+> ee7cd8981e15bcb365fc762afe3fc47b8242f630 upstream) interacts strangely
+> with virtio balloon; balloon currently does:
 > 
-> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> index 1b38431..6dad625 100644
-> --- a/drivers/scsi/virtio_scsi.c
-> +++ b/drivers/scsi/virtio_scsi.c
-> @@ -25,6 +25,7 @@
->  #include <scsi/scsi_cmnd.h>
->  
->  #define VIRTIO_SCSI_MEMPOOL_SZ 64
-> +#define VIRTIO_SCSI_EVENT_LEN 8
->  
->  /* Command queue element */
->  struct virtio_scsi_cmd {
-> @@ -43,9 +44,15 @@ struct virtio_scsi_cmd {
->  	} resp;
->  } ____cacheline_aligned_in_smp;
->  
-> +struct virtio_scsi_event_node {
-> +	struct virtio_scsi *vscsi;
-> +	struct virtio_scsi_event event;
-> +	struct work_struct work;
-> +};
-> +
->  /* Driver instance state */
->  struct virtio_scsi {
-> -	/* Protects ctrl_vq, req_vq and sg[] */
-> +	/* Protects ctrl_vq, event_vq, req_vq and sg[] */
->  	spinlock_t vq_lock;
->  
->  	struct virtio_device *vdev;
-> @@ -53,6 +60,9 @@ struct virtio_scsi {
->  	struct virtqueue *event_vq;
->  	struct virtqueue *req_vq;
->  
-> +	/* Get some buffers reday for event vq */
-> +	struct virtio_scsi_event_node event_list[VIRTIO_SCSI_EVENT_LEN];
-> +
->  	/* For sglist construction when adding commands to the virtqueue.  */
->  	struct scatterlist sg[];
->  };
-> @@ -184,9 +194,93 @@ static void virtscsi_ctrl_done(struct virtqueue *vq)
->  	virtscsi_vq_done(vq, virtscsi_complete_free);
->  };
->  
-> +static int virtscsi_kick_event(struct virtio_scsi *vscsi,
-> +			       struct virtio_scsi_event_node *event_node)
-> +{
-> +	int ret;
-> +	struct scatterlist sg;
-> +	unsigned long flags;
-> +
-> +	sg_set_buf(&sg, &event_node->event, sizeof(struct virtio_scsi_event));
-> +
-> +	spin_lock_irqsave(&vscsi->vq_lock, flags);
-> +
-> +	ret = virtqueue_add_buf(vscsi->event_vq, &sg, 0, 1, event_node, GFP_ATOMIC);
-> +	if (ret >= 0)
-> +		virtqueue_kick(vscsi->event_vq);
-> +
-> +	spin_unlock_irqrestore(&vscsi->vq_lock, flags);
-> +
-> +	return ret;
-> +}
-> +
-> +static int virtscsi_kick_event_all(struct virtio_scsi *vscsi)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < VIRTIO_SCSI_EVENT_LEN; i++) {
-> +		vscsi->event_list[i].vscsi = vscsi;
-> +		virtscsi_kick_event(vscsi, &vscsi->event_list[i]);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void virtscsi_handle_transport_reset(struct virtio_scsi *vscsi,
-> +                                            struct virtio_scsi_event *event)
-> +{
-> +	struct scsi_device *sdev;
-> +	struct Scsi_Host *shost = virtio_scsi_host(vscsi->vdev);
-> +	unsigned int target = event->lun[1];
-> +	unsigned int lun = (event->lun[2] << 8) | event->lun[3];
-> +
-> +	switch (event->reason) {
-> +	case VIRTIO_SCSI_EVT_RESET_RESCAN:
-> +		scsi_add_device(shost, 0, target, lun);
-> +		break;
-> +	case VIRTIO_SCSI_EVT_RESET_REMOVED:
-> +		sdev = scsi_device_lookup(shost, 0, target, lun);
-> +		if (sdev) {
-> +			scsi_remove_device(sdev);
-> +			scsi_device_put(sdev);
-> +		} else {
-> +			pr_err("SCSI device %d 0 %d %d not found\n",
-> +				shost->host_no, target, lun);
-> +		}
-> +		break;
-> +	default:
-> +		pr_info("Unsupport virtio scsi event reason %x\n", event->reason);
-> +	}
-> +}
-> +
-> +static void virtscsi_handle_event(struct work_struct *work)
-> +{
-> +	struct virtio_scsi_event_node *event_node = 
-> +		container_of(work, struct virtio_scsi_event_node, work);
-> +	struct virtio_scsi *vscsi = event_node->vscsi;
-> +	struct virtio_scsi_event *event = &event_node->event;
-> +
-> +	switch (event->event) {
-> +	case VIRTIO_SCSI_T_TRANSPORT_RESET:
-> +		virtscsi_handle_transport_reset(vscsi, event);
-> +		break;
-
-Please handle VIRTIO_SCSI_T_NO_EVENT too here, and mask out
-VIRTIO_SCSI_T_EVENTS_MISSED even if you do not handle it by triggering a
-full rescan.
-
-Paolo
-
-> +	default:
-> +		pr_err("Unsupport virtio scsi event %x\n", event->event);
-
-
-> +	}
-> +	virtscsi_kick_event(vscsi, event_node);
-> +}
-> +
-> +static void virtscsi_complete_event(void *buf)
-> +{
-> +	struct virtio_scsi_event_node *event_node = buf;
-> +
-> +	INIT_WORK(&event_node->work, virtscsi_handle_event);
-> +	schedule_work(&event_node->work);
-> +}
-> +
->  static void virtscsi_event_done(struct virtqueue *vq)
->  {
-> -	virtscsi_vq_done(vq, virtscsi_complete_free);
-> +	virtscsi_vq_done(vq, virtscsi_complete_event);
->  };
->  
->  static void virtscsi_map_sgl(struct scatterlist *sg, unsigned int *p_idx,
-> @@ -435,6 +529,11 @@ static int virtscsi_init(struct virtio_device *vdev,
->  
->  	virtscsi_config_set(vdev, cdb_size, VIRTIO_SCSI_CDB_SIZE);
->  	virtscsi_config_set(vdev, sense_size, VIRTIO_SCSI_SENSE_SIZE);
-> +
-> +	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG)) {
-> +		virtscsi_kick_event_all(vscsi);
-> +	}
-> +
->  	return 0;
->  }
->  
-> @@ -532,7 +631,13 @@ static struct virtio_device_id id_table[] = {
->  	{ 0 },
->  };
->  
-> +static unsigned int features[] = {
-> +	VIRTIO_SCSI_F_HOTPLUG
-> +};
-> +
->  static struct virtio_driver virtio_scsi_driver = {
-> +	.feature_table = features,
-> +	.feature_table_size = ARRAY_SIZE(features),
->  	.driver.name = KBUILD_MODNAME,
->  	.driver.owner = THIS_MODULE,
->  	.id_table = id_table,
-> diff --git a/include/linux/virtio_scsi.h b/include/linux/virtio_scsi.h
-> index 8ddeafd..dc8d305 100644
-> --- a/include/linux/virtio_scsi.h
-> +++ b/include/linux/virtio_scsi.h
-> @@ -69,6 +69,10 @@ struct virtio_scsi_config {
->  	u32 max_lun;
->  } __packed;
->  
-> +/* Feature Bits */
-> +#define VIRTIO_SCSI_F_INOUT                    0
-> +#define VIRTIO_SCSI_F_HOTPLUG                  1
-> +
->  /* Response codes */
->  #define VIRTIO_SCSI_S_OK                       0
->  #define VIRTIO_SCSI_S_OVERRUN                  1
-> @@ -105,6 +109,11 @@ struct virtio_scsi_config {
->  #define VIRTIO_SCSI_T_TRANSPORT_RESET          1
->  #define VIRTIO_SCSI_T_ASYNC_NOTIFY             2
->  
-> +/* Reasons of transport reset event */
-> +#define VIRTIO_SCSI_EVT_RESET_HARD             0
-> +#define VIRTIO_SCSI_EVT_RESET_RESCAN           1
-> +#define VIRTIO_SCSI_EVT_RESET_REMOVED          2
-> +
->  #define VIRTIO_SCSI_S_SIMPLE                   0
->  #define VIRTIO_SCSI_S_ORDERED                  1
->  #define VIRTIO_SCSI_S_HEAD                     2
+> static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+> {
+>         struct scatterlist sg;
 > 
+>         sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
+> 
+>         init_completion(&vb->acked);
+> 
+>         /* We should always be able to add one buffer to an empty queue. */
+>         if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
+>                 BUG();
+>         virtqueue_kick(vq);
+> 
+>         /* When host has read buffer, this completes via balloon_ack */
+>         wait_for_completion(&vb->acked);
+> }
+> 
+> 
+> While vq callback does:
+> 
+> static void balloon_ack(struct virtqueue *vq)
+> {
+>         struct virtio_balloon *vb;
+>         unsigned int len;
+> 
+>         vb = virtqueue_get_buf(vq, &len);
+>         if (vb)
+>                 complete(&vb->acked);
+> }
+> 
+> 
+> So virtqueue_get_buf might now run concurrently with virtqueue_kick.
+> I audited both and this seems safe in practice but I think
+
+Good spotting!
+
+Agreed.  Because there's only add_buf, we get away with it: the add_buf
+must be almost finished by the time get_buf runs because the device has
+seen the buffer.
+
+> we need to either declare this legal at the API level
+> or add locking in driver.
+
+I wonder if we should just lock in the balloon driver, rather than
+document this corner case and set a bad example.  Are there other
+drivers which take the same shortcut?
+
+> Further, is there a guarantee that we never get
+> spurious callbacks?  We currently check ring not empty
+> but esp for non shared MSI this might not be needed.
+
+Yes, I think this saves us.  A spurious interrupt won't trigger
+a spurious callback.
+
+> If a spurious callback triggers, virtqueue_get_buf can run
+> concurrently with virtqueue_add_buf which is known to be racy.
+> Again I think this is currently safe as no spurious callbacks in
+> practice but should we guarantee no spurious callbacks at the API level
+> or add locking in driver?
+
+I think we should guarantee it, but is there a hole in the current
+implementation?
 
 Thanks,
-
-Paolo
+Rusty.
