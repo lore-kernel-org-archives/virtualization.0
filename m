@@ -1,85 +1,137 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 00/13] drivers: hv: kvp
-Date: Mon, 2 Jul 2012 15:22:25 +0000
-Message-ID: <426367E2313C2449837CD2DE46E7EAF9155EF399@SN2PRD0310MB382.namprd03.prod.outlook.com>
-References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
- <20120621224737.GA5933@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155EC47A@SN2PRD0310MB382.namprd03.prod.outlook.com>
- <20120622132547.GA2639@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155ED14D@SN2PRD0310MB382.namprd03.prod.outlook.com>
- <20120626213954.GA4840@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155ED64A@SN2PRD0310MB382.namprd03.prod.outlook.com>
- <20120626222205.GA5948@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9155ED68D@SN2PRD0310MB382.namprd03.prod.outlook.com>
- <20120628142340.GA21537@aepfle.de>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: Re: RFD: virtio balloon API use (was Re: [PATCH 5 of 5] virtio:
+	expose added descriptors immediately)
+Date: Mon, 2 Jul 2012 13:08:19 -0300
+Message-ID: <20120702160814.GB1750@t510.redhat.com>
+References: <patchbomb.1320306168@localhost6.localdomain6>
+	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
+	<20120701092051.GA4515@redhat.com> <87d34fx990.fsf@rustcorp.com.au>
+	<20120702072558.GA8268@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120628142340.GA21537@aepfle.de>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Olaf Hering <olaf@aepfle.de>
-Cc: Greg KH <gregkh@linuxfoundation.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20120702072558.GA8268@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogT2xhZiBIZXJpbmcgW21h
-aWx0bzpvbGFmQGFlcGZsZS5kZV0NCj4gU2VudDogVGh1cnNkYXksIEp1bmUgMjgsIDIwMTIgMTA6
-MjQgQU0NCj4gVG86IEtZIFNyaW5pdmFzYW4NCj4gQ2M6IEdyZWcgS0g7IGFwd0BjYW5vbmljYWwu
-Y29tOyBkZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3JnOw0KPiB2aXJ0dWFsaXphdGlvbkBsaXN0
-cy5vc2RsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTog
-W1BBVENIIDAwLzEzXSBkcml2ZXJzOiBodjoga3ZwDQo+IA0KPiBPbiBUdWUsIEp1biAyNiwgS1kg
-U3Jpbml2YXNhbiB3cm90ZToNCj4gDQo+ID4gPiBGcm9tOiBHcmVnIEtIIFttYWlsdG86Z3JlZ2to
-QGxpbnV4Zm91bmRhdGlvbi5vcmddDQo+ID4gPiBUaGUgZmFjdCB0aGF0IGl0IHdhcyBSZWQgSGF0
-IHNwZWNpZmljIHdhcyB0aGUgbWFpbiBwYXJ0LCB0aGlzIHNob3VsZCBiZQ0KPiA+ID4gZG9uZSBp
-biBhIHN0YW5kYXJkIHdheSwgd2l0aCBzdGFuZGFyZCB0b29scywgcmlnaHQ/DQo+ID4NCj4gPiBU
-aGUgcmVhc29uIEkgYXNrZWQgdGhpcyBxdWVzdGlvbiB3YXMgdG8gbWFrZSBzdXJlIEkgYWRkcmVz
-cyB0aGVzZQ0KPiA+IGlzc3VlcyBpbiBhZGRpdGlvbiB0byB3aGF0ZXZlciBJIGFtIGRlYnVnZ2lu
-ZyBub3cuIEkgdXNlIHRoZSBzdGFuZGFyZA0KPiA+IHRvb2xzIGFuZCBjYWxscyB0byByZXRyaWV2
-ZSBhbGwgdGhlIElQIGNvbmZpZ3VyYXRpb24uIEFzIEkgbG9vayBhdA0KPiA+IGVhY2ggZGlzdHJp
-YnV0aW9uIHRoZSBmaWxlcyB0aGV5IGtlZXAgcGVyc2lzdGVudCBJUCBjb25maWd1cmF0aW9uDQo+
-ID4gSW5mb3JtYXRpb24gaXMgZGlmZmVyZW50IGFuZCB0aGF0IGlzIHRoZSByZWFzb24gSSBjaG9z
-ZSB0byBzdGFydCB3aXRoDQo+ID4gUmVkSGF0LiBJZiB0aGVyZSBpcyBhIHN0YW5kYXJkIHdheSB0
-byBzdG9yZSB0aGUgY29uZmlndXJhdGlvbiwgSSB3aWxsDQo+ID4gZG8gdGhhdC4NCj4gDQo+IA0K
-PiBLWSwNCj4gDQo+IGluc3RlYWQgb2YgdXNpbmcgc3lzdGVtKCkgaW4ga3ZwX2dldF9pcGNvbmZp
-Z19pbmZvIGFuZCBrdnBfc2V0X2lwX2luZm8sDQo+IHdvdWxkbnQgaXQgYmUgZWFzaWVyIHRvIGNh
-bGwgYW4gZXh0ZXJuYWwgaGVscGVyIHNjcmlwdCB3aGljaCBkb2VzIGFsbA0KPiB0aGUgZGlzdHJp
-YnV0aW9uIHNwZWNpZmljIHdvcms/IEp1c3QgZGVmaW5lIHNvbWUgQVBJIHRvIHBhc3MgdmFsdWVz
-IHRvDQo+IHRoZSBzY3JpcHQsIGFuZCBzb21ldGhpbmcgdG8gcmVhZCB2YWx1ZXMgY29sbGVjdGVk
-IGJ5IHRoZSBzY3JpcHQgYmFjaw0KPiBpbnRvIHRoZSBkYWVtb24uDQoNCk9uIHRoZSAiR2V0IiBz
-aWRlIEkgbW9zdGx5IHVzZSBzdGFuZGFyZCBjb21tYW5kcy9BUElzIHRvIGdldCBhbGwgdGhlIGlu
-Zm9ybWF0aW9uOg0KDQoxKSBJUCBhZGRyZXNzIGluZm9ybWF0aW9uIGFuZCBzdWJuZXQgbWFzazog
-Z2V0aWZhZGRycygpDQoyKSBETlMgaW5mb3JtYXRpb246ICBQYXJzaW5nIC9ldGMvcmVzb2x2LmNv
-bmYNCjMpIC9zYmluL2lwIGNvbW1hbmQgZm9yIGFsbCB0aGUgcm91dGluZyBpbmZvcm1hdGlvbg0K
-NCkgIFBhcnNlIC9ldGMvc3lzY29uZmlnL25ldHdvcmstc2NyaXB0cy9pZmNmZy1ldGh4IGZvciBi
-b290IHByb3RvY29sDQoNCkFzIHlvdSBjYW4gc2VlLCBhbGwgYnV0IHRoZSBib290IHByb3RvY29s
-IGlzIGdhdGhlcmVkIHVzaW5nIHRoZSAic3RhbmRhcmQgZGlzdHJvDQppbmRlcGVuZGVudCBtZWNo
-YW5pc21zLiBJIHdhcyBsb29raW5nIGF0IE5ldHdvcmtNYW5hZ2VyIGNsaSBhbmQgaXQgbG9va3MN
-Cmxpa2UgSSBjb3VsZCBnYXRoZXIgYWxsIHRoZSBpbmZvcm1hdGlvbiBleGNlcHQgdGhlIGJvb3Qg
-cHJvdG9jb2wgaW5mb3JtYXRpb24uIEkgYW0gDQpub3Qgc3VyZSBob3cgdG8gZ2F0aGVyIHRoZSBi
-b290IHByb3RvY29sIGluZm9ybWF0aW9uIGluIGEgZGlzdHJvIGluZGVwZW5kZW50IGZhc2hpb24u
-DQoNCk9uIHRoZSBTRVQgc2lkZSwgSSBuZWVkIHRvIHBlcnNpc3RlbnRseSBzdG9yZSB0aGUgc2V0
-dGluZ3MgaW4gYW4gYXBwcm9wcmlhdGUgY29uZmlndXJhdGlvbg0KZmlsZSBhbmQgZmx1c2ggdGhl
-c2Ugc2V0dGluZ3MgZG93biBzbyB0aGF0IHRoZSBpbnRlcmZhY2UgaXMgYXBwcm9wcmlhdGVseSBj
-b25maWd1cmVkLiBJdCBpcyBoZXJlDQp0aGF0IEkgYW0gc3RydWdnbGluZyB0byBmaW5kIGEgZGlz
-dHJvIGluZGVwZW5kZW50IHdheSBvZiBkb2luZyB0aGluZ3MuIEl0IHdvdWxkIGJlIGdyZWF0IGlm
-IEkgY2FuDQp1c2UgTmV0d29ya01hbmFnZXIgY2xpIChubWNsaSkgdG8gYWNjb21wbGlzaCB0aGlz
-LiBBbnkgaGVscCBoZXJlIHdvdWxkIGJlIGdyZWF0bHkgYXBwcmVjaWF0ZWQuDQoNCldoaWxlIEkg
-dG95ZWQgd2l0aCB5b3VyIHByb3Bvc2FsLCBJIGZlZWwgaXQganVzdCBwdXNoZXMgdGhlIHByb2Js
-ZW0gb3V0IG9mIHRoZSBkYWVtb24gY29kZSAtDQp3ZSB3b3VsZCBzdGlsbCBuZWVkIHRvIHdyaXRl
-IGRpc3RybyBzcGVjaWZpYyBzY3JpcHRzLiBJZiB0aGlzIGFwcHJvYWNoIGlzIHNvbWV0aGluZyB0
-aGF0IGV2ZXJ5Ym9keQ0KaXMgY29tZm9ydGFibGUgd2l0aCwgSSBjYW4gdGFrZSBhIHN0YWIgYXQg
-aW1wbGVtZW50aW5nIHRoYXQuIA0KDQo+IA0KPiBJZiB0aGUgd29yayBpcyBkb25lIGluIGEgc2Ny
-aXB0IGl0IHdpbGwgYmUgbXVjaCBlYXNpZXIgZm9yIGFuIGFkbWluIHRvDQo+IGRlYnVnIGFuZCBh
-ZGp1c3QgaXQuDQo+IA0KPiBJIHRoaW5rIHRoZXJlIGlzIG5vIHN0YW5kYXJkIHdheSB0byBjb25m
-aWd1cmUgYWxsIHJlbGV2YW50IGRpc3Ryb3MgaW4NCj4gdGhlIHNhbWUgd2F5LiBNYXliZSBvbmUg
-ZGF5IE5ldHdvcmtNYW5hZ2VyIGNhbiBmaW5hbGx5IGhhbmRsZSBhbGwNCj4gcG9zc2libGUgd2F5
-cyB0byBjb25maWd1cmUgbmV0d29yayByZWxhdGVkIHRoaW5ncy4gQnV0IHVudGlsIHRoYXQNCj4g
-aGFwcGVucyB0aGUgY29uZmlnIGZpbGVzIG5lZWQgdG8gYmUgYWRqdXN0ZWQgbWFudWFsbHkuDQo+
-IA0KPiANCj4gDQo+IFNvbWUgb2YgdGhlIGZ1bmN0aW9ucyBoYXZlIGRlZXAgaW5kZW50aW9uIGxl
-dmVscyBkdWUgdG8gJ3doaWxlKCkgew0KPiBzd2l0Y2goKSB9JyB1c2FnZS4gUGVyaGFwcyBzdWNo
-IGNvZGUgY291bGQgYmUgbW92ZWQgaW50byBpdHMgb3duDQo+IGZ1bmN0aW9uIHNvIHRoYXQgbGlu
-ZXMgZG9udCBuZWVkIHRvIGJlIHdyYXBwZWQgdGhhdCBtdWNoIGR1ZSB0byB0aGUgb2RkDQo+IDgw
-IGNvbHVtbiBsaW1pdC4NCg0KSSB3aWxsIHRha2UgY2FyZSBvZiB0aGlzLiBBcyBzdWdnZXN0ZWQg
-YnkgR3JlZywgSSBhbSBhZGRpbmcgbmV0ZGV2IGRldmVsb3BlcnMgaGVyZSB0bw0Kc2VlayB0aGVp
-ciBpbnB1dC4gDQoNClJlZ2FyZHMsDQoNCksuIFkNCg==
+On Mon, Jul 02, 2012 at 10:25:58AM +0300, Michael S. Tsirkin wrote:
+> On Mon, Jul 02, 2012 at 10:35:47AM +0930, Rusty Russell wrote:
+> > On Sun, 1 Jul 2012 12:20:51 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > On Thu, Nov 03, 2011 at 06:12:53PM +1030, Rusty Russell wrote:
+> > > > A virtio driver does virtqueue_add_buf() multiple times before finally
+> > > > calling virtqueue_kick(); previously we only exposed the added buffers
+> > > > in the virtqueue_kick() call.  This means we don't need a memory
+> > > > barrier in virtqueue_add_buf(), but it reduces concurrency as the
+> > > > device (ie. host) can't see the buffers until the kick.
+> > > > 
+> > > > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> > > 
+> > > Looking at recent mm compaction patches made me look at locking
+> > > in balloon closely. And I noticed the referenced patch (commit
+> > > ee7cd8981e15bcb365fc762afe3fc47b8242f630 upstream) interacts strangely
+> > > with virtio balloon; balloon currently does:
+> > > 
+> > > static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+> > > {
+> > >         struct scatterlist sg;
+> > > 
+> > >         sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
+> > > 
+> > >         init_completion(&vb->acked);
+> > > 
+> > >         /* We should always be able to add one buffer to an empty queue. */
+> > >         if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
+> > >                 BUG();
+> > >         virtqueue_kick(vq);
+> > > 
+> > >         /* When host has read buffer, this completes via balloon_ack */
+> > >         wait_for_completion(&vb->acked);
+> > > }
+> > > 
+> > > 
+> > > While vq callback does:
+> > > 
+> > > static void balloon_ack(struct virtqueue *vq)
+> > > {
+> > >         struct virtio_balloon *vb;
+> > >         unsigned int len;
+> > > 
+> > >         vb = virtqueue_get_buf(vq, &len);
+> > >         if (vb)
+> > >                 complete(&vb->acked);
+> > > }
+> > > 
+> > > 
+> > > So virtqueue_get_buf might now run concurrently with virtqueue_kick.
+> > > I audited both and this seems safe in practice but I think
+> > 
+> > Good spotting!
+> > 
+> > Agreed.  Because there's only add_buf, we get away with it: the add_buf
+> > must be almost finished by the time get_buf runs because the device has
+> > seen the buffer.
+> > 
+> > > we need to either declare this legal at the API level
+> > > or add locking in driver.
+> > 
+> > I wonder if we should just lock in the balloon driver, rather than
+> > document this corner case and set a bad example.
+> 
+> We'll need to replace &vb->acked with a waitqueue
+> and do get_buf from the same thread.
+> But I note that stats_request hash the same issue.
+> Let's see if we can fix it.
+> 
+> > Are there other
+> > drivers which take the same shortcut?
+> 
+> Not that I know.
+> 
+> > > Further, is there a guarantee that we never get
+> > > spurious callbacks?  We currently check ring not empty
+> > > but esp for non shared MSI this might not be needed.
+> > 
+> > Yes, I think this saves us.  A spurious interrupt won't trigger
+> > a spurious callback.
+> > 
+> > > If a spurious callback triggers, virtqueue_get_buf can run
+> > > concurrently with virtqueue_add_buf which is known to be racy.
+> > > Again I think this is currently safe as no spurious callbacks in
+> > > practice but should we guarantee no spurious callbacks at the API level
+> > > or add locking in driver?
+> > 
+> > I think we should guarantee it, but is there a hole in the current
+> > implementation?
+> > 
+> > Thanks,
+> > Rusty.
+> 
+> Could be. The check for ring empty looks somewhat suspicious.
+> It might be expensive to make it 100% robust - that check was
+> intended as an optimization for shared interrupts.
+> Whith per vq interrupts we IMO do not need the check.
+> If we add locking in balloon I think there's no need
+> to guarantee no spurious interrupts.
+> 
+
+As 'locking in balloon', may I assume the approach I took for the compaction case
+is OK and aligned to address these concerns of yours? If not, do not hesitate in
+giving me your thoughts, please. I'm respinning a V3 series to address a couple
+of extra nitpicks from the compaction standpoint, and I'd love to be able to
+address any extra concern you might have on the balloon side of that work.
+
+
+Thanks!
+Rafael.
