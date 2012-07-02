@@ -1,98 +1,85 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 1/2 v2] scsi bus: introduce hotplug() and hot_unplug()
-	interfaces for SCSI bus
-Date: Mon, 02 Jul 2012 10:27:44 +0200
-Message-ID: <4FF15B80.9090200@redhat.com>
-References: <cover.1340264611.git.mc@linux.vnet.ibm.com>
-	<ad3714e594248d5a8d558b6983db3fb2da65ae9a.1340264611.git.mc@linux.vnet.ibm.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 00/13] drivers: hv: kvp
+Date: Mon, 2 Jul 2012 15:22:25 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF9155EF399@SN2PRD0310MB382.namprd03.prod.outlook.com>
+References: <1340314200-27078-1-git-send-email-kys@microsoft.com>
+ <20120621224737.GA5933@kroah.com>
+ <426367E2313C2449837CD2DE46E7EAF9155EC47A@SN2PRD0310MB382.namprd03.prod.outlook.com>
+ <20120622132547.GA2639@kroah.com>
+ <426367E2313C2449837CD2DE46E7EAF9155ED14D@SN2PRD0310MB382.namprd03.prod.outlook.com>
+ <20120626213954.GA4840@kroah.com>
+ <426367E2313C2449837CD2DE46E7EAF9155ED64A@SN2PRD0310MB382.namprd03.prod.outlook.com>
+ <20120626222205.GA5948@kroah.com>
+ <426367E2313C2449837CD2DE46E7EAF9155ED68D@SN2PRD0310MB382.namprd03.prod.outlook.com>
+ <20120628142340.GA21537@aepfle.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <ad3714e594248d5a8d558b6983db3fb2da65ae9a.1340264611.git.mc@linux.vnet.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cong Meng <mc@linux.vnet.ibm.com>
-Cc: stefanha@linux.vnet.ibm.com, zwanp@cn.ibm.com, linuxram@us.ibm.com, senwang@linux.vnet.ibm.com, qemu-devel@nongnu.org, Anthony Liguori <anthony@codemonkey.ws>, virtualization@lists.linux-foundation.org, =?ISO-8859-15?Q?Andreas_F=E4rber?= <afaerber@suse.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120628142340.GA21537@aepfle.de>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Olaf Hering <olaf@aepfle.de>
+Cc: Greg KH <gregkh@linuxfoundation.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 21/06/2012 09:54, Cong Meng ha scritto:
-> Add two interfaces hotplug() and hot_unplug() to scsi bus info.
-> The embody scsi bus can implement these two interfaces to signal the HBA driver
-> of guest kernel to add/remove the scsi device in question.
-> 
-> Signed-off-by: Cong Meng <mc@linux.vnet.ibm.com>
-> Signed-off-by: Sen Wang <senwang@linux.vnet.ibm.com>
-> ---
->  hw/scsi-bus.c |   16 +++++++++++++++-
->  hw/scsi.h     |    2 ++
->  2 files changed, 17 insertions(+), 1 deletions(-)
-> 
-> diff --git a/hw/scsi-bus.c b/hw/scsi-bus.c
-> index dbdb99c..f08900e 100644
-> --- a/hw/scsi-bus.c
-> +++ b/hw/scsi-bus.c
-> @@ -177,6 +177,10 @@ static int scsi_qdev_init(DeviceState *qdev)
->                                                           dev);
->      }
->  
-> +    if (bus->info->hotplug) {
-> +        bus->info->hotplug(bus, dev);
-> +    }
-> +
->  err:
->      return rc;
->  }
-> @@ -1539,6 +1543,16 @@ static int get_scsi_requests(QEMUFile *f, void *pv, size_t size)
->      return 0;
->  }
->  
-> +static int scsi_qdev_unplug(DeviceState *qdev)
-> +{
-> +    SCSIDevice *dev = SCSI_DEVICE(qdev);
-> +    SCSIBus *bus = scsi_bus_from_device(dev);
-> +
-> +    if (bus->info->hot_unplug)
-> +        bus->info->hot_unplug(bus, dev);
-
-Tab indentation and braces missing.  I fixed this up and applied it to
-the scsi-next branch.
-
-Paolo
-
-> +    return qdev_simple_unplug_cb(qdev);
-> +}
-> +
->  const VMStateInfo vmstate_info_scsi_requests = {
->      .name = "scsi-requests",
->      .get  = get_scsi_requests,
-> @@ -1575,7 +1589,7 @@ static void scsi_device_class_init(ObjectClass *klass, void *data)
->      DeviceClass *k = DEVICE_CLASS(klass);
->      k->bus_info = &scsi_bus_info;
->      k->init     = scsi_qdev_init;
-> -    k->unplug   = qdev_simple_unplug_cb;
-> +    k->unplug   = scsi_qdev_unplug;
->      k->exit     = scsi_qdev_exit;
->  }
->  
-> diff --git a/hw/scsi.h b/hw/scsi.h
-> index 2eb66f7..5768071 100644
-> --- a/hw/scsi.h
-> +++ b/hw/scsi.h
-> @@ -130,6 +130,8 @@ struct SCSIBusInfo {
->      void (*transfer_data)(SCSIRequest *req, uint32_t arg);
->      void (*complete)(SCSIRequest *req, uint32_t arg, size_t resid);
->      void (*cancel)(SCSIRequest *req);
-> +    void (*hotplug)(SCSIBus *bus, SCSIDevice *dev);
-> +    void (*hot_unplug)(SCSIBus *bus, SCSIDevice *dev);
->      QEMUSGList *(*get_sg_list)(SCSIRequest *req);
->  
->      void (*save_request)(QEMUFile *f, SCSIRequest *req);
-> 
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogT2xhZiBIZXJpbmcgW21h
+aWx0bzpvbGFmQGFlcGZsZS5kZV0NCj4gU2VudDogVGh1cnNkYXksIEp1bmUgMjgsIDIwMTIgMTA6
+MjQgQU0NCj4gVG86IEtZIFNyaW5pdmFzYW4NCj4gQ2M6IEdyZWcgS0g7IGFwd0BjYW5vbmljYWwu
+Y29tOyBkZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3JnOw0KPiB2aXJ0dWFsaXphdGlvbkBsaXN0
+cy5vc2RsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTog
+W1BBVENIIDAwLzEzXSBkcml2ZXJzOiBodjoga3ZwDQo+IA0KPiBPbiBUdWUsIEp1biAyNiwgS1kg
+U3Jpbml2YXNhbiB3cm90ZToNCj4gDQo+ID4gPiBGcm9tOiBHcmVnIEtIIFttYWlsdG86Z3JlZ2to
+QGxpbnV4Zm91bmRhdGlvbi5vcmddDQo+ID4gPiBUaGUgZmFjdCB0aGF0IGl0IHdhcyBSZWQgSGF0
+IHNwZWNpZmljIHdhcyB0aGUgbWFpbiBwYXJ0LCB0aGlzIHNob3VsZCBiZQ0KPiA+ID4gZG9uZSBp
+biBhIHN0YW5kYXJkIHdheSwgd2l0aCBzdGFuZGFyZCB0b29scywgcmlnaHQ/DQo+ID4NCj4gPiBU
+aGUgcmVhc29uIEkgYXNrZWQgdGhpcyBxdWVzdGlvbiB3YXMgdG8gbWFrZSBzdXJlIEkgYWRkcmVz
+cyB0aGVzZQ0KPiA+IGlzc3VlcyBpbiBhZGRpdGlvbiB0byB3aGF0ZXZlciBJIGFtIGRlYnVnZ2lu
+ZyBub3cuIEkgdXNlIHRoZSBzdGFuZGFyZA0KPiA+IHRvb2xzIGFuZCBjYWxscyB0byByZXRyaWV2
+ZSBhbGwgdGhlIElQIGNvbmZpZ3VyYXRpb24uIEFzIEkgbG9vayBhdA0KPiA+IGVhY2ggZGlzdHJp
+YnV0aW9uIHRoZSBmaWxlcyB0aGV5IGtlZXAgcGVyc2lzdGVudCBJUCBjb25maWd1cmF0aW9uDQo+
+ID4gSW5mb3JtYXRpb24gaXMgZGlmZmVyZW50IGFuZCB0aGF0IGlzIHRoZSByZWFzb24gSSBjaG9z
+ZSB0byBzdGFydCB3aXRoDQo+ID4gUmVkSGF0LiBJZiB0aGVyZSBpcyBhIHN0YW5kYXJkIHdheSB0
+byBzdG9yZSB0aGUgY29uZmlndXJhdGlvbiwgSSB3aWxsDQo+ID4gZG8gdGhhdC4NCj4gDQo+IA0K
+PiBLWSwNCj4gDQo+IGluc3RlYWQgb2YgdXNpbmcgc3lzdGVtKCkgaW4ga3ZwX2dldF9pcGNvbmZp
+Z19pbmZvIGFuZCBrdnBfc2V0X2lwX2luZm8sDQo+IHdvdWxkbnQgaXQgYmUgZWFzaWVyIHRvIGNh
+bGwgYW4gZXh0ZXJuYWwgaGVscGVyIHNjcmlwdCB3aGljaCBkb2VzIGFsbA0KPiB0aGUgZGlzdHJp
+YnV0aW9uIHNwZWNpZmljIHdvcms/IEp1c3QgZGVmaW5lIHNvbWUgQVBJIHRvIHBhc3MgdmFsdWVz
+IHRvDQo+IHRoZSBzY3JpcHQsIGFuZCBzb21ldGhpbmcgdG8gcmVhZCB2YWx1ZXMgY29sbGVjdGVk
+IGJ5IHRoZSBzY3JpcHQgYmFjaw0KPiBpbnRvIHRoZSBkYWVtb24uDQoNCk9uIHRoZSAiR2V0IiBz
+aWRlIEkgbW9zdGx5IHVzZSBzdGFuZGFyZCBjb21tYW5kcy9BUElzIHRvIGdldCBhbGwgdGhlIGlu
+Zm9ybWF0aW9uOg0KDQoxKSBJUCBhZGRyZXNzIGluZm9ybWF0aW9uIGFuZCBzdWJuZXQgbWFzazog
+Z2V0aWZhZGRycygpDQoyKSBETlMgaW5mb3JtYXRpb246ICBQYXJzaW5nIC9ldGMvcmVzb2x2LmNv
+bmYNCjMpIC9zYmluL2lwIGNvbW1hbmQgZm9yIGFsbCB0aGUgcm91dGluZyBpbmZvcm1hdGlvbg0K
+NCkgIFBhcnNlIC9ldGMvc3lzY29uZmlnL25ldHdvcmstc2NyaXB0cy9pZmNmZy1ldGh4IGZvciBi
+b290IHByb3RvY29sDQoNCkFzIHlvdSBjYW4gc2VlLCBhbGwgYnV0IHRoZSBib290IHByb3RvY29s
+IGlzIGdhdGhlcmVkIHVzaW5nIHRoZSAic3RhbmRhcmQgZGlzdHJvDQppbmRlcGVuZGVudCBtZWNo
+YW5pc21zLiBJIHdhcyBsb29raW5nIGF0IE5ldHdvcmtNYW5hZ2VyIGNsaSBhbmQgaXQgbG9va3MN
+Cmxpa2UgSSBjb3VsZCBnYXRoZXIgYWxsIHRoZSBpbmZvcm1hdGlvbiBleGNlcHQgdGhlIGJvb3Qg
+cHJvdG9jb2wgaW5mb3JtYXRpb24uIEkgYW0gDQpub3Qgc3VyZSBob3cgdG8gZ2F0aGVyIHRoZSBi
+b290IHByb3RvY29sIGluZm9ybWF0aW9uIGluIGEgZGlzdHJvIGluZGVwZW5kZW50IGZhc2hpb24u
+DQoNCk9uIHRoZSBTRVQgc2lkZSwgSSBuZWVkIHRvIHBlcnNpc3RlbnRseSBzdG9yZSB0aGUgc2V0
+dGluZ3MgaW4gYW4gYXBwcm9wcmlhdGUgY29uZmlndXJhdGlvbg0KZmlsZSBhbmQgZmx1c2ggdGhl
+c2Ugc2V0dGluZ3MgZG93biBzbyB0aGF0IHRoZSBpbnRlcmZhY2UgaXMgYXBwcm9wcmlhdGVseSBj
+b25maWd1cmVkLiBJdCBpcyBoZXJlDQp0aGF0IEkgYW0gc3RydWdnbGluZyB0byBmaW5kIGEgZGlz
+dHJvIGluZGVwZW5kZW50IHdheSBvZiBkb2luZyB0aGluZ3MuIEl0IHdvdWxkIGJlIGdyZWF0IGlm
+IEkgY2FuDQp1c2UgTmV0d29ya01hbmFnZXIgY2xpIChubWNsaSkgdG8gYWNjb21wbGlzaCB0aGlz
+LiBBbnkgaGVscCBoZXJlIHdvdWxkIGJlIGdyZWF0bHkgYXBwcmVjaWF0ZWQuDQoNCldoaWxlIEkg
+dG95ZWQgd2l0aCB5b3VyIHByb3Bvc2FsLCBJIGZlZWwgaXQganVzdCBwdXNoZXMgdGhlIHByb2Js
+ZW0gb3V0IG9mIHRoZSBkYWVtb24gY29kZSAtDQp3ZSB3b3VsZCBzdGlsbCBuZWVkIHRvIHdyaXRl
+IGRpc3RybyBzcGVjaWZpYyBzY3JpcHRzLiBJZiB0aGlzIGFwcHJvYWNoIGlzIHNvbWV0aGluZyB0
+aGF0IGV2ZXJ5Ym9keQ0KaXMgY29tZm9ydGFibGUgd2l0aCwgSSBjYW4gdGFrZSBhIHN0YWIgYXQg
+aW1wbGVtZW50aW5nIHRoYXQuIA0KDQo+IA0KPiBJZiB0aGUgd29yayBpcyBkb25lIGluIGEgc2Ny
+aXB0IGl0IHdpbGwgYmUgbXVjaCBlYXNpZXIgZm9yIGFuIGFkbWluIHRvDQo+IGRlYnVnIGFuZCBh
+ZGp1c3QgaXQuDQo+IA0KPiBJIHRoaW5rIHRoZXJlIGlzIG5vIHN0YW5kYXJkIHdheSB0byBjb25m
+aWd1cmUgYWxsIHJlbGV2YW50IGRpc3Ryb3MgaW4NCj4gdGhlIHNhbWUgd2F5LiBNYXliZSBvbmUg
+ZGF5IE5ldHdvcmtNYW5hZ2VyIGNhbiBmaW5hbGx5IGhhbmRsZSBhbGwNCj4gcG9zc2libGUgd2F5
+cyB0byBjb25maWd1cmUgbmV0d29yayByZWxhdGVkIHRoaW5ncy4gQnV0IHVudGlsIHRoYXQNCj4g
+aGFwcGVucyB0aGUgY29uZmlnIGZpbGVzIG5lZWQgdG8gYmUgYWRqdXN0ZWQgbWFudWFsbHkuDQo+
+IA0KPiANCj4gDQo+IFNvbWUgb2YgdGhlIGZ1bmN0aW9ucyBoYXZlIGRlZXAgaW5kZW50aW9uIGxl
+dmVscyBkdWUgdG8gJ3doaWxlKCkgew0KPiBzd2l0Y2goKSB9JyB1c2FnZS4gUGVyaGFwcyBzdWNo
+IGNvZGUgY291bGQgYmUgbW92ZWQgaW50byBpdHMgb3duDQo+IGZ1bmN0aW9uIHNvIHRoYXQgbGlu
+ZXMgZG9udCBuZWVkIHRvIGJlIHdyYXBwZWQgdGhhdCBtdWNoIGR1ZSB0byB0aGUgb2RkDQo+IDgw
+IGNvbHVtbiBsaW1pdC4NCg0KSSB3aWxsIHRha2UgY2FyZSBvZiB0aGlzLiBBcyBzdWdnZXN0ZWQg
+YnkgR3JlZywgSSBhbSBhZGRpbmcgbmV0ZGV2IGRldmVsb3BlcnMgaGVyZSB0bw0Kc2VlayB0aGVp
+ciBpbnB1dC4gDQoNClJlZ2FyZHMsDQoNCksuIFkNCg==
