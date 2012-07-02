@@ -1,8 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: RFD: virtio balloon API use (was Re: [PATCH 5 of 5] virtio:
-	expose added descriptors immediately)
-Date: Mon, 2 Jul 2012 10:25:58 +0300
-Message-ID: <20120702072558.GA8268@redhat.com>
+Subject: [PATCH RFC] virtio-balloon: fix add/get API use
+Date: Mon, 2 Jul 2012 10:33:08 +0300
+Message-ID: <20120702073308.GB8268@redhat.com>
 References: <patchbomb.1320306168@localhost6.localdomain6>
 	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
 	<20120701092051.GA4515@redhat.com> <87d34fx990.fsf@rustcorp.com.au>
@@ -25,104 +24,103 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: virtualization <virtualization@lists.linux-foundation.org>, Rafael Aquini <aquini@redhat.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 02, 2012 at 10:35:47AM +0930, Rusty Russell wrote:
-> On Sun, 1 Jul 2012 12:20:51 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Thu, Nov 03, 2011 at 06:12:53PM +1030, Rusty Russell wrote:
-> > > A virtio driver does virtqueue_add_buf() multiple times before finally
-> > > calling virtqueue_kick(); previously we only exposed the added buffers
-> > > in the virtqueue_kick() call.  This means we don't need a memory
-> > > barrier in virtqueue_add_buf(), but it reduces concurrency as the
-> > > device (ie. host) can't see the buffers until the kick.
-> > > 
-> > > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> > 
-> > Looking at recent mm compaction patches made me look at locking
-> > in balloon closely. And I noticed the referenced patch (commit
-> > ee7cd8981e15bcb365fc762afe3fc47b8242f630 upstream) interacts strangely
-> > with virtio balloon; balloon currently does:
-> > 
-> > static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
-> > {
-> >         struct scatterlist sg;
-> > 
-> >         sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
-> > 
-> >         init_completion(&vb->acked);
-> > 
-> >         /* We should always be able to add one buffer to an empty queue. */
-> >         if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
-> >                 BUG();
-> >         virtqueue_kick(vq);
-> > 
-> >         /* When host has read buffer, this completes via balloon_ack */
-> >         wait_for_completion(&vb->acked);
-> > }
-> > 
-> > 
-> > While vq callback does:
-> > 
-> > static void balloon_ack(struct virtqueue *vq)
-> > {
-> >         struct virtio_balloon *vb;
-> >         unsigned int len;
-> > 
-> >         vb = virtqueue_get_buf(vq, &len);
-> >         if (vb)
-> >                 complete(&vb->acked);
-> > }
-> > 
-> > 
-> > So virtqueue_get_buf might now run concurrently with virtqueue_kick.
-> > I audited both and this seems safe in practice but I think
-> 
-> Good spotting!
-> 
-> Agreed.  Because there's only add_buf, we get away with it: the add_buf
-> must be almost finished by the time get_buf runs because the device has
-> seen the buffer.
-> 
-> > we need to either declare this legal at the API level
-> > or add locking in driver.
-> 
-> I wonder if we should just lock in the balloon driver, rather than
-> document this corner case and set a bad example.
+In virtio balloon virtqueue_get_buf might now run concurrently with
+virtqueue_kick.  I audited both and this seems safe in practice but
+this is not guaranteed by the API.
+Additionally, a spurious interrupt might in theory make
+virtqueue_get_buf run in parallel with virtqueue_add_buf, which is racy.
 
-We'll need to replace &vb->acked with a waitqueue
-and do get_buf from the same thread.
-But I note that stats_request hash the same issue.
-Let's see if we can fix it.
+While we might try to protect against spurious callbacks it's
+easier to fix the driver: balloon seems to be the only one
+(mis)using the API like this, so let's just fix balloon.
 
-> Are there other
-> drivers which take the same shortcut?
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Not that I know.
+---
 
-> > Further, is there a guarantee that we never get
-> > spurious callbacks?  We currently check ring not empty
-> > but esp for non shared MSI this might not be needed.
-> 
-> Yes, I think this saves us.  A spurious interrupt won't trigger
-> a spurious callback.
-> 
-> > If a spurious callback triggers, virtqueue_get_buf can run
-> > concurrently with virtqueue_add_buf which is known to be racy.
-> > Again I think this is currently safe as no spurious callbacks in
-> > practice but should we guarantee no spurious callbacks at the API level
-> > or add locking in driver?
-> 
-> I think we should guarantee it, but is there a hole in the current
-> implementation?
-> 
-> Thanks,
-> Rusty.
+Warning: completely untested.
 
-Could be. The check for ring empty looks somewhat suspicious.
-It might be expensive to make it 100% robust - that check was
-intended as an optimization for shared interrupts.
-Whith per vq interrupts we IMO do not need the check.
-If we add locking in balloon I think there's no need
-to guarantee no spurious interrupts.
-
-
--- 
-MST
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index bfbc15c..a26eb4f 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -47,7 +47,7 @@ struct virtio_balloon
+ 	struct task_struct *thread;
+ 
+ 	/* Waiting for host to ack the pages we released. */
+-	struct completion acked;
++	wait_queue_head_t acked;
+ 
+ 	/* Number of balloon pages we've told the Host we're not using. */
+ 	unsigned int num_pages;
+@@ -89,29 +89,26 @@ static struct page *balloon_pfn_to_page(u32 pfn)
+ 
+ static void balloon_ack(struct virtqueue *vq)
+ {
+-	struct virtio_balloon *vb;
+-	unsigned int len;
++	struct virtio_balloon *vb = vq->vdev->priv;
+ 
+-	vb = virtqueue_get_buf(vq, &len);
+-	if (vb)
+-		complete(&vb->acked);
++	wake_up(&vb->acked);
+ }
+ 
+ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+ {
+ 	struct scatterlist sg;
++	unsigned int len;
++	void *buf;
+ 
+ 	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
+ 
+-	init_completion(&vb->acked);
+-
+ 	/* We should always be able to add one buffer to an empty queue. */
+ 	if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
+ 		BUG();
+ 	virtqueue_kick(vq);
+ 
+ 	/* When host has read buffer, this completes via balloon_ack */
+-	wait_for_completion(&vb->acked);
++	wait_event(vb->acked, virtqueue_get_buf(vq, &len));
+ }
+ 
+ static void set_page_pfns(u32 pfns[], struct page *page)
+@@ -231,12 +228,8 @@ static void update_balloon_stats(struct virtio_balloon *vb)
+  */
+ static void stats_request(struct virtqueue *vq)
+ {
+-	struct virtio_balloon *vb;
+-	unsigned int len;
++	struct virtio_balloon *vb = vq->vdev->priv;
+ 
+-	vb = virtqueue_get_buf(vq, &len);
+-	if (!vb)
+-		return;
+ 	vb->need_stats_update = 1;
+ 	wake_up(&vb->config_change);
+ }
+@@ -245,11 +238,14 @@ static void stats_handle_request(struct virtio_balloon *vb)
+ {
+ 	struct virtqueue *vq;
+ 	struct scatterlist sg;
++	unsigned int len;
+ 
+ 	vb->need_stats_update = 0;
+ 	update_balloon_stats(vb);
+ 
+ 	vq = vb->stats_vq;
++	if (!virtqueue_get_buf(vq, &len))
++		return;
+ 	sg_init_one(&sg, vb->stats, sizeof(vb->stats));
+ 	if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
+ 		BUG();
+@@ -358,6 +354,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	INIT_LIST_HEAD(&vb->pages);
+ 	vb->num_pages = 0;
+ 	init_waitqueue_head(&vb->config_change);
++	init_waitqueue_head(&vb->acked);
+ 	vb->vdev = vdev;
+ 	vb->need_stats_update = 0;
