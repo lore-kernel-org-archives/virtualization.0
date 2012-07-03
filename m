@@ -1,19 +1,18 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 3/3] virtio-blk: Add bio-based IO path for virtio-blk
-Date: Tue, 03 Jul 2012 08:39:39 +0800
-Message-ID: <4FF23F4B.2040803@redhat.com>
-References: <1340002390-3950-1-git-send-email-asias@redhat.com>
-	<1340002390-3950-4-git-send-email-asias@redhat.com>
-	<87hau9yse7.fsf@rustcorp.com.au> <4FDEE0CB.1030505@redhat.com>
-	<87zk81x7dp.fsf@rustcorp.com.au> <4FDF0DA7.40604@redhat.com>
-	<1340019575.22848.2.camel@lappy> <4FDFE926.7030309@redhat.com>
-	<87r4svxcjw.fsf@rustcorp.com.au> <4FF10B31.60609@redhat.com>
-	<8762a6y89v.fsf@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: RFD: virtio balloon API use (was Re: [PATCH 5 of 5] virtio:
+	expose added descriptors immediately)
+Date: Tue, 03 Jul 2012 10:17:46 +0930
+Message-ID: <87vci5wtzh.fsf@rustcorp.com.au>
+References: <patchbomb.1320306168@localhost6.localdomain6>
+	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
+	<20120701092051.GA4515@redhat.com> <87d34fx990.fsf@rustcorp.com.au>
+	<20120702072558.GA8268@redhat.com>
+	<20120702160814.GB1750@t510.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8762a6y89v.fsf@rustcorp.com.au>
+In-Reply-To: <20120702160814.GB1750@t510.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,62 +22,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, Christoph Hellwig <hch@lst.de>
+To: Rafael Aquini <aquini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/02/2012 02:41 PM, Rusty Russell wrote:
-> On Mon, 02 Jul 2012 10:45:05 +0800, Asias He <asias@redhat.com> wrote:
->> On 07/02/2012 07:54 AM, Rusty Russell wrote:
->>> Confused.  So, without merging we get 6k exits (per second?)  How many
->>> do we get when we use the request-based IO path?
->>
->> Sorry for the confusion. The numbers were collected from request-based
->> IO path where we can have the guest block layer merge the requests.
->>
->> With the same workload in guest, the guest fires 200K requests to host
->> with merges enabled in guest (echo 0 > /sys/block/vdb/queue/nomerges),
->> while the guest fires 40000K requests to host with merges disabled in
->> guest (echo 2 > /sys/block/vdb/queue/nomerges). This show that the merge
->> in block layer reduces the total number of requests fire to host a lot
->> (40000K / 200K = 20).
->>
->> The guest fires 200K requests to host with merges enabled in guest (echo
->> 0 > /sys/block/vdb/queue/nomerges), the host fires 6K interrupts in
->> total for the 200K requests. This show that the ratio of interrupts
->> coalesced (200K / 6K = 33).
->
-> OK, got it!  Guest merging cuts requests by a factor of 20.  EVENT_IDX
-> cuts interrupts by a factor of 33.
+On Mon, 2 Jul 2012 13:08:19 -0300, Rafael Aquini <aquini@redhat.com> wrote:
+> As 'locking in balloon', may I assume the approach I took for the compaction case
+> is OK and aligned to address these concerns of yours? If not, do not hesitate in
+> giving me your thoughts, please. I'm respinning a V3 series to address a couple
+> of extra nitpicks from the compaction standpoint, and I'd love to be able to
+> address any extra concern you might have on the balloon side of that work.
 
-Yes.
+It's orthogonal, though looks like they clash textually :(
 
->
->>> If your device is slow, then you won't be able to make many requests per
->>> second: why worry about exit costs?
->>
->> If a device is slow, the merge would merge more requests and reduce the
->> total number of requests to host. This saves exit costs, no?
->
-> Sure, our guest merging might save us 100x as many exits as no merging.
-> But since we're not doing many requests, does it matter?
+I'll re-spin MST's patch on top of yours, and include both in my tree,
+otherwise linux-next will have to do the merge.  But I'll await your
+push before pushing to Linus next merge window.
 
-We can still have many requests with slow devices. The number of 
-requests depends on the workload in guest. E.g. 512 IO threads in guest 
-keeping doing IO.
-
-> Ideally we'd merge requests only if the device queue is full.  But that
-> sounds hard.
->
->>> If your device is fast (eg. ram),
->>> you've already shown that your patch is a win, right?
->>
->> Yes. Both on ramdisk and fast SSD device (e.g. FusionIO).
->
-> Thanks,
-> Rusty.
->
-
-
--- 
-Asias
+Thanks,
+Rusty.
