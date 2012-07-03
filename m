@@ -1,20 +1,21 @@
 From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: RFD: virtio balloon API use (was Re: [PATCH 5 of 5] virtio:
-	expose added descriptors immediately)
-Date: Tue, 3 Jul 2012 13:26:07 -0300
-Message-ID: <20120703162606.GA1727__21179.6070718721$1341332788$gmane$org@t510.redhat.com>
-References: <patchbomb.1320306168@localhost6.localdomain6>
-	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
-	<20120701092051.GA4515@redhat.com> <87d34fx990.fsf@rustcorp.com.au>
-	<20120702072558.GA8268@redhat.com>
-	<20120702160814.GB1750@t510.redhat.com>
-	<87vci5wtzh.fsf@rustcorp.com.au>
+Subject: Re: [PATCH v2 1/4] mm: introduce compaction and migration for virtio
+	ballooned pages
+Date: Tue, 3 Jul 2012 15:31:36 -0300
+Message-ID: <20120703183135.GE1727__45152.0646842711$1341340328$gmane$org@t510.redhat.com>
+References: <cover.1340916058.git.aquini@redhat.com>
+	<d0f33a6492501a0d420abbf184f9b956cff3e3fc.1340916058.git.aquini@redhat.com>
+	<4FED3DDB.1000903@kernel.org>
+	<20120629173653.GA1774@t510.redhat.com>
+	<20120629220333.GA2079@barrios>
+	<20120630013447.GA1545@x61.redhat.com>
+	<4FF0DEE2.5080200@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87vci5wtzh.fsf@rustcorp.com.au>
+In-Reply-To: <4FF0DEE2.5080200@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,30 +25,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization <virtualization@lists.linux-foundation.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Minchan Kim <minchan@kernel.org>
+Cc: Rik van Riel <riel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 03, 2012 at 10:17:46AM +0930, Rusty Russell wrote:
-> On Mon, 2 Jul 2012 13:08:19 -0300, Rafael Aquini <aquini@redhat.com> wrote:
-> > As 'locking in balloon', may I assume the approach I took for the compaction case
-> > is OK and aligned to address these concerns of yours? If not, do not hesitate in
-> > giving me your thoughts, please. I'm respinning a V3 series to address a couple
-> > of extra nitpicks from the compaction standpoint, and I'd love to be able to
-> > address any extra concern you might have on the balloon side of that work.
+On Mon, Jul 02, 2012 at 08:36:02AM +0900, Minchan Kim wrote:
+> On 06/30/2012 10:34 AM, Rafael Aquini wrote:
 > 
-> It's orthogonal, though looks like they clash textually :(
+> >> void isolate_page_from_balloonlist(struct page* page)
+> >> > {
+> >> > 	page->mapping->a_ops->invalidatepage(page, 0);
+> >> > }
+> >> > 
+> >> > 	if (is_balloon_page(page) && (page_count(page) == 2)) {
+> >> > 		isolate_page_from_balloonlist(page);
+> >> > 	}
+> >> > 
+> > Humm, my feelings on your approach here: just an unecessary indirection that
+> > doesn't bring the desired code readability improvement.
+> > If the header comment statement on balloon_mapping->a_ops is not clear enough 
+> > on those methods usage for ballooned pages:
+> > 
+> > ..... 
+> > /*
+> >  * Balloon pages special page->mapping.
+> >  * users must properly allocate and initialize an instance of balloon_mapping,
+> >  * and set it as the page->mapping for balloon enlisted page instances.
+> >  *
+> >  * address_space_operations necessary methods for ballooned pages:
+> >  *   .migratepage    - used to perform balloon's page migration (as is)
+> >  *   .invalidatepage - used to isolate a page from balloon's page list
+> >  *   .freepage       - used to reinsert an isolated page to balloon's page list
+> >  */
+> > struct address_space *balloon_mapping;
+> > EXPORT_SYMBOL_GPL(balloon_mapping);
+> > .....
+> > 
+> > I can add an extra commentary, to recollect folks about that usage, next to the
+> > points where those callbacks are used at isolate_balloon_page() &
+> > putback_balloon_page(). What do you think?
+> > 
+> > 
 > 
-> I'll re-spin MST's patch on top of yours, and include both in my tree,
-> otherwise linux-next will have to do the merge.  But I'll await your
-> push before pushing to Linus next merge window.
+> 
+> I am not strongly against you.
+> It trivial nitpick must not prevent your great work. :)
+> 
+> Thanks!
+> 
 >
-Thanks, Rusty.
+Nah, I'm the one who should be thanking everyone else here. :)
 
-I'll post V3 series quite soon.
+After a second thought I decided to follow your suggestion on this one as well.
+Soon, I'll be posting the re-spin
 
-Cheers!
+Thanks Minchan!
+
 Rafael
- 
-> Thanks,
-> Rusty.
