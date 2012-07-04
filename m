@@ -1,19 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/6] tcm_vhost/virtio-scsi WIP code for-3.6
-Date: Thu, 5 Jul 2012 20:26:57 +0300
-Message-ID: <20120705172656.GF31257@redhat.com>
-References: <20120704140259.GB26485@redhat.com> <4FF45890.6000205@redhat.com>
-	<20120704150557.GA26951@redhat.com> <4FF4BFBD.2080000@us.ibm.com>
-	<1341453135.23954.214.camel@haakon2.linux-iscsi.org>
-	<4FF56AE9.9060201@redhat.com> <20120705135318.GG30572@redhat.com>
-	<4FF59F6B.2000101@us.ibm.com> <20120705144001.GB31257@redhat.com>
-	<4FF5A90F.5050902@redhat.com>
+From: "zhenzhong.duan" <zhenzhong.duan@oracle.com>
+Subject: [PATCH] xen: populate correct number of pages when across mem boundary
+Date: Wed, 04 Jul 2012 14:49:37 +0800
+Message-ID: <4FF3E781.5040603__28556.0414231897$1341510100$gmane$org@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4FF5A90F.5050902@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,59 +15,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Anthony Liguori <aliguori@us.ibm.com>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, jeremy@goop.org, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, xen-devel@lists.xensource.com
+Cc: x86@kernel.org, Feng Jin <joe.jin@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 05, 2012 at 04:47:43PM +0200, Paolo Bonzini wrote:
-> Il 05/07/2012 16:40, Michael S. Tsirkin ha scritto:
-> >> virtio-scsi is brand new.  It's not as if we've had any significant
-> >> time to make virtio-scsi-qemu faster.  In fact, tcm_vhost existed
-> >> before virtio-scsi-qemu did if I understand correctly.
-> 
-> Yes.
-> 
-> > Can't same can be said about virtio scsi - it seems to be
-> > slower so we force a bad choice between blk and scsi at the user?
-> 
-> virtio-scsi supports multiple devices per PCI slot (or even function),
-> can talk to tapes, has better passthrough support for disks, and does a
-> bunch of other things that virtio-blk by design doesn't do.  This
-> applies to both tcm_vhost and virtio-scsi-qemu.
-> 
-> So far, all that virtio-scsi vs. virtio-blk benchmarks say is that more
-> benchmarking is needed.  Some people see it faster, some people see it
-> slower.  In some sense, it's consistent with the expectation that the
-> two should roughly be the same. :)
+When populate pages across a mem boundary at bootup, the page count
+populated isn't correct. This is due to mem populated to non-mem
+region and ignored.
 
-Anyway, all I was saying is new technology often lacks some features of
-the old one. We are not forcing new inferior one on anyone, so we can
-let it mature it tree.
+Pfn range is also wrongly aligned when mem boundary isn't page aligned.
 
-> >> But guest/user facing decisions cannot be easily unmade and making
-> >> the wrong technical choices because of premature concerns of "time
-> >> to market" just result in a long term mess.
-> >>
-> >> There is no technical reason why tcm_vhost is going to be faster
-> >> than doing it in userspace.
-> > 
-> > But doing what in userspace exactly?
-> 
-> Processing virtqueues in separate threads, switching the block and SCSI
-> layer to fine-grained locking, adding some more fast paths.
-> 
-> >> Basically, the issue is that the kernel has more complete SCSI
-> >> emulation that QEMU does right now.
-> >>
-> >> There are lots of ways to try to solve this--like try to reuse the
-> >> kernel code in userspace or just improving the userspace code.  If
-> >> we were able to make the two paths identical, then I strongly
-> >> suspect there'd be no point in having tcm_vhost anyway.
-> > 
-> > However, a question we should ask ourselves is whether this will happen
-> > in practice, and when.
-> 
-> It's already happening, but it takes a substantial amount of preparatory
-> work before you can actually see results.
-> 
-> Paolo
+Also need consider the rare case when xen_do_chunk fail(populate).
+
+For a dom0 booted with dom_mem=3368952K(0xcd9ff000-4k) dmesg diff is:
+ [    0.000000] Freeing 9e-100 pfn range: 98 pages freed
+ [    0.000000] 1-1 mapping on 9e->100
+ [    0.000000] 1-1 mapping on cd9ff->100000
+ [    0.000000] Released 98 pages of unused memory
+ [    0.000000] Set 206435 page(s) to 1-1 mapping
+-[    0.000000] Populating cd9fe-cda00 pfn range: 1 pages added
++[    0.000000] Populating cd9fe-cd9ff pfn range: 1 pages added
++[    0.000000] Populating 100000-100061 pfn range: 97 pages added
+ [    0.000000] BIOS-provided physical RAM map:
+ [    0.000000] Xen: 0000000000000000 - 000000000009e000 (usable)
+ [    0.000000] Xen: 00000000000a0000 - 0000000000100000 (reserved)
+ [    0.000000] Xen: 0000000000100000 - 00000000cd9ff000 (usable)
+ [    0.000000] Xen: 00000000cd9ffc00 - 00000000cda53c00 (ACPI NVS)
+...
+ [    0.000000] Xen: 0000000100000000 - 0000000100061000 (usable)
+ [    0.000000] Xen: 0000000100061000 - 000000012c000000 (unusable)
+...
+ [    0.000000] MEMBLOCK configuration:
+...
+-[    0.000000]  reserved[0x4]       [0x000000cd9ff000-0x000000cd9ffbff], 0xc00 bytes
+-[    0.000000]  reserved[0x5]       [0x00000100000000-0x00000100060fff], 0x61000 bytes
+
+Related xen memory layout:
+(XEN) Xen-e820 RAM map:
+(XEN)  0000000000000000 - 000000000009ec00 (usable)
+(XEN)  00000000000f0000 - 0000000000100000 (reserved)
+(XEN)  0000000000100000 - 00000000cd9ffc00 (usable)
+
+Signed-off-by: Zhenzhong Duan <zhenzhong.duan@oracle.com>
+---
+ arch/x86/xen/setup.c |   24 +++++++++++-------------
+ 1 files changed, 11 insertions(+), 13 deletions(-)
+
+diff --git a/arch/x86/xen/setup.c b/arch/x86/xen/setup.c
+index a4790bf..bd78773 100644
+--- a/arch/x86/xen/setup.c
++++ b/arch/x86/xen/setup.c
+@@ -157,50 +157,48 @@ static unsigned long __init xen_populate_chunk(
+ 	unsigned long dest_pfn;
+ 
+ 	for (i = 0, entry = list; i < map_size; i++, entry++) {
+-		unsigned long credits = credits_left;
+ 		unsigned long s_pfn;
+ 		unsigned long e_pfn;
+ 		unsigned long pfns;
+ 		long capacity;
+ 
+-		if (credits <= 0)
++		if (credits_left <= 0)
+ 			break;
+ 
+ 		if (entry->type != E820_RAM)
+ 			continue;
+ 
+-		e_pfn = PFN_UP(entry->addr + entry->size);
++		e_pfn = PFN_DOWN(entry->addr + entry->size);
+ 
+ 		/* We only care about E820 after the xen_start_info->nr_pages */
+ 		if (e_pfn <= max_pfn)
+ 			continue;
+ 
+-		s_pfn = PFN_DOWN(entry->addr);
++		s_pfn = PFN_UP(entry->addr);
+ 		/* If the E820 falls within the nr_pages, we want to start
+ 		 * at the nr_pages PFN.
+ 		 * If that would mean going past the E820 entry, skip it
+ 		 */
++again:
+ 		if (s_pfn <= max_pfn) {
+ 			capacity = e_pfn - max_pfn;
+ 			dest_pfn = max_pfn;
+ 		} else {
+-			/* last_pfn MUST be within E820_RAM regions */
+-			if (*last_pfn && e_pfn >= *last_pfn)
+-				s_pfn = *last_pfn;
+ 			capacity = e_pfn - s_pfn;
+ 			dest_pfn = s_pfn;
+ 		}
+-		/* If we had filled this E820_RAM entry, go to the next one. */
+-		if (capacity <= 0)
+-			continue;
+ 
+-		if (credits > capacity)
+-			credits = capacity;
++		if (credits_left < capacity)
++			capacity = credits_left;
+ 
+-		pfns = xen_do_chunk(dest_pfn, dest_pfn + credits, false);
++		pfns = xen_do_chunk(dest_pfn, dest_pfn + capacity, false);
+ 		done += pfns;
+ 		credits_left -= pfns;
+ 		*last_pfn = (dest_pfn + pfns);
++		if (credits_left > 0 && *last_pfn < e_pfn) {
++			s_pfn = *last_pfn;
++			goto again;
++		}
+ 	}
+ 	return done;
+ }
+-- 
+1.7.3
