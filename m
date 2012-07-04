@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-blk: allow toggling host cache between writeback
-	and writethrough
-Date: Thu, 5 Jul 2012 00:30:37 +0300
-Message-ID: <20120704213037.GA27713@redhat.com>
-References: <1341321577-24435-1-git-send-email-pbonzini@redhat.com>
-	<20120704154220.GB27064@redhat.com> <4FF46728.7030302@redhat.com>
-	<20120704160258.GB27271@redhat.com> <4FF46A92.3020009@redhat.com>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: Re: [PATCH 0/6] tcm_vhost/virtio-scsi WIP code for-3.6
+Date: Wed, 04 Jul 2012 17:12:13 -0500
+Message-ID: <4FF4BFBD.2080000@us.ibm.com>
+References: <1341375846-27882-1-git-send-email-nab@linux-iscsi.org>
+	<20120704140259.GB26485@redhat.com> <4FF45890.6000205@redhat.com>
+	<20120704150557.GA26951@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <4FF46A92.3020009@redhat.com>
+In-Reply-To: <20120704150557.GA26951@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,67 +19,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 04, 2012 at 06:08:50PM +0200, Paolo Bonzini wrote:
-> Il 04/07/2012 18:02, Michael S. Tsirkin ha scritto:
-> > On Wed, Jul 04, 2012 at 05:54:16PM +0200, Paolo Bonzini wrote:
-> >> Il 04/07/2012 17:42, Michael S. Tsirkin ha scritto:
-> >>> On Tue, Jul 03, 2012 at 03:19:37PM +0200, Paolo Bonzini wrote:
-> >>>> This patch adds support for the new VIRTIO_BLK_F_CONFIG_WCE feature,
-> >>>> which exposes the cache mode in the configuration space and lets the
-> >>>> driver modify it.  The cache mode is exposed via sysfs.
-> >>>>
-> >>>> Even if the host does not support the new feature, the cache mode is
-> >>>> visible (thanks to the existing VIRTIO_BLK_F_WCE), but not modifiable.
-> >>>>
-> >>>> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> >>>
-> >>> I note this has been applied but I think the userspace
-> >>> API is a bit painful to use. Let's fix it before
-> >>> it gets set in stone?
-> >>
-> >> I'm trying to mimic the existing userspace API for SCSI disks.  FWIW I
-> >> would totally agree with you.
-> > 
-> > Hmm. Want to try fixing scsi? Need to be compatible but it could
-> > maybe ignore spaces.
-> 
-> Honestly I'm not sure it's really worthwhile...  And you also have the
-> same problem when printing.  You cannot remove the spaces, because
-> clients will look for the "old" string, with the spaces.
+On 07/04/2012 10:05 AM, Michael S. Tsirkin wrote:
+> On Wed, Jul 04, 2012 at 04:52:00PM +0200, Paolo Bonzini wrote:
+>> Il 04/07/2012 16:02, Michael S. Tsirkin ha scritto:
+>>> On Wed, Jul 04, 2012 at 04:24:00AM +0000, Nicholas A. Bellinger wrote:
+>>>> From: Nicholas Bellinger<nab@linux-iscsi.org>
+>>>>
+>>>> Hi folks,
+>>>>
+>>>> This series contains patches required to update tcm_vhost<->  virtio-scsi
+>>>> connected hosts<->  guests to run on v3.5-rc2 mainline code.  This series is
+>>>> available on top of target-pending/auto-next here:
+>>>>
+>>>>     git://git.kernel.org/pub/scm/linux/kernel/git/nab/target-pending.git tcm_vhost
+>>>>
+>>>> This includes the necessary vhost changes from Stefan to to get tcm_vhost
+>>>> functioning, along a virtio-scsi LUN scanning change to address a client bug
+>>>> with tcm_vhost I ran into..  Also, tcm_vhost driver has been merged into a single
+>>>> source + header file that is now living under /drivers/vhost/, along with latest
+>>>> tcm_vhost changes from Zhi's tcm_vhost tree.
+>>>>
+>>>> Here are a couple of screenshots of the code in action using raw IBLOCK
+>>>> backends provided by FusionIO ioDrive Duo:
+>>>>
+>>>>     http://linux-iscsi.org/images/Virtio-scsi-tcm-vhost-3.5-rc2-3.png
+>>>>     http://linux-iscsi.org/images/Virtio-scsi-tcm-vhost-3.5-rc2-4.png
+>>>>
+>>>> So the next steps on my end will be converting tcm_vhost to submit backend I/O from
+>>>> cmwq context, along with fio benchmark numbers between tcm_vhost/virtio-scsi and
+>>>> virtio-scsi-raw using raw IBLOCK iomemory_vsl flash.
+>>>
+>>> OK so this is an RFC, not for merge yet?
+>>
+>> Patch 6 definitely looks RFCish, but patch 5 should go in anyway.
+>>
+>> Paolo
+>
+> I was talking about 4/6 first of all.
+> Anyway, it's best to split, not to mix RFCs and fixes.
 
-Right. Oh well.
+What is the use-case that we're targeting for this?
 
-> >>>> +static int virtblk_get_cache_mode(struct virtio_device *vdev)
-> >>>
-> >>> Why are you converting u8 to int here?
-> >>
-> >> The fact that it is a u8 is really an internal detail.  Perhaps the bug
-> >> is using u8 in the callers.
-> > 
-> > Make it bool then?
-> > 
-> > You are using u8 in the config. So you could get any value
-> > besides 0 and 1, and you interpret that as 1.
-> > Is 1 always a safe value? If not maybe it's better to set
-> > to a safe value if it is not 0 or 1, that is we don't know how to interpret it.
-> 
-> That would be a host bug; the spec only gives meaning to 0 and 1.
+I certainly think it's fine to merge this into the kernel...  maybe something 
+will use it.  But I'm pretty opposed to taking support for this into QEMU.  It's 
+going to create more problems than it solves specifically because I have no idea 
+what problem it actually solves.
 
-Yes but if the other side does not validate values implementations
-*will* have bugs. Why not declare bits 1-7 reserved?
-Then we can reuse other bits later.
+We cannot avoid doing better SCSI emulation in QEMU.  That cannot be a long term 
+strategy on our part and vhost-scsi isn't going to solve that problem for us.
 
->  In
-> any case, "have a cache" means "needs to flush", so it's always safe.
-> If you interpret another value as 0, you risk omitting flushes.
-> 
-> Paolo
+Regards,
 
-OK, that's good.
-
--- 
-MST
+Anthony Liguori
