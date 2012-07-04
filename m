@@ -1,16 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC] virtio-balloon: fix add/get API use
-Date: Wed, 04 Jul 2012 12:57:40 +0930
-Message-ID: <87ipe4w6hf.fsf@rustcorp.com.au>
-References: <patchbomb.1320306168@localhost6.localdomain6>
-	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
-	<20120701092051.GA4515@redhat.com> <87d34fx990.fsf@rustcorp.com.au>
-	<20120702073308.GB8268@redhat.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: [PATCH 0/6] tcm_vhost/virtio-scsi WIP code for-3.6
+Date: Wed,  4 Jul 2012 04:24:00 +0000
+Message-ID: <1341375846-27882-1-git-send-email-nab__25471.3528710001$1341376012$gmane$org@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120702073308.GB8268@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,27 +15,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization <virtualization@lists.linux-foundation.org>, Rafael Aquini <aquini@redhat.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: target-devel <target-devel@vger.kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2 Jul 2012 10:33:08 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> In virtio balloon virtqueue_get_buf might now run concurrently with
-> virtqueue_kick.  I audited both and this seems safe in practice but
-> this is not guaranteed by the API.
-> Additionally, a spurious interrupt might in theory make
-> virtqueue_get_buf run in parallel with virtqueue_add_buf, which is racy.
-> 
-> While we might try to protect against spurious callbacks it's
-> easier to fix the driver: balloon seems to be the only one
-> (mis)using the API like this, so let's just fix balloon.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-I was thinking of a spinlock, but this is far more elegant.
+Hi folks,
 
-And I added an explicit reference to the 'virtio: expose added
-descriptors immediately.' commit in your commit msg.
+This series contains patches required to update tcm_vhost <-> virtio-scsi
+connected hosts <-> guests to run on v3.5-rc2 mainline code.  This series is
+available on top of target-pending/auto-next here:
 
-Kudos!
-Rusty.
+   git://git.kernel.org/pub/scm/linux/kernel/git/nab/target-pending.git tcm_vhost
+
+This includes the necessary vhost changes from Stefan to to get tcm_vhost
+functioning, along a virtio-scsi LUN scanning change to address a client bug
+with tcm_vhost I ran into..  Also, tcm_vhost driver has been merged into a single
+source + header file that is now living under /drivers/vhost/, along with latest
+tcm_vhost changes from Zhi's tcm_vhost tree.
+
+Here are a couple of screenshots of the code in action using raw IBLOCK
+backends provided by FusionIO ioDrive Duo:
+
+   http://linux-iscsi.org/images/Virtio-scsi-tcm-vhost-3.5-rc2-3.png
+   http://linux-iscsi.org/images/Virtio-scsi-tcm-vhost-3.5-rc2-4.png
+
+So the next steps on my end will be converting tcm_vhost to submit backend I/O from
+cmwq context, along with fio benchmark numbers between tcm_vhost/virtio-scsi and
+virtio-scsi-raw using raw IBLOCK iomemory_vsl flash.
+
+Please have a look vhost + virtio-scsi folks (mst + paolo CC'ed) and let us
+know if you have any concerns.
+
+Thanks!
+
+--nab
+
+Nicholas Bellinger (4):
+  vhost: Add vhost_scsi specific defines
+  tcm_vhost: Initial merge for vhost level target fabric driver
+  virtio-scsi: Add vdrv->scan for post VIRTIO_CONFIG_S_DRIVER_OK LUN
+    scanning
+  virtio-scsi: Set shost->max_id=1 for tcm_vhost WWPNs
+
+Stefan Hajnoczi (2):
+  vhost: Separate vhost-net features from vhost features
+  vhost: make vhost work queue visible
+
+ drivers/scsi/virtio_scsi.c |   20 +-
+ drivers/vhost/Kconfig      |    6 +
+ drivers/vhost/Makefile     |    1 +
+ drivers/vhost/net.c        |    4 +-
+ drivers/vhost/tcm_vhost.c  | 1592 ++++++++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/tcm_vhost.h  |   70 ++
+ drivers/vhost/vhost.c      |    5 +-
+ drivers/vhost/vhost.h      |    6 +-
+ drivers/virtio/virtio.c    |    5 +-
+ include/linux/vhost.h      |    9 +
+ include/linux/virtio.h     |    1 +
+ 11 files changed, 1708 insertions(+), 11 deletions(-)
+ create mode 100644 drivers/vhost/tcm_vhost.c
+ create mode 100644 drivers/vhost/tcm_vhost.h
+
+-- 
+1.7.2.5
