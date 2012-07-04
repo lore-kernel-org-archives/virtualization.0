@@ -1,50 +1,112 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/2] virtio-blk spec: document topology info
-Date: Wed, 4 Jul 2012 18:49:07 +0300
-Message-ID: <20120704154907.GA27167@redhat.com>
-References: <1341321412-24214-1-git-send-email-pbonzini@redhat.com>
- <1341321412-24214-2-git-send-email-pbonzini@redhat.com>
- <87d34cvzrv.fsf@rustcorp.com.au>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] virtio-blk: allow toggling host cache between writeback
+	and writethrough
+Date: Wed, 04 Jul 2012 17:54:16 +0200
+Message-ID: <4FF46728.7030302__41390.5265661471$1341417276$gmane$org@redhat.com>
+References: <1341321577-24435-1-git-send-email-pbonzini@redhat.com>
+	<20120704154220.GB27064@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <87d34cvzrv.fsf@rustcorp.com.au>
-Sender: kvm-owner@vger.kernel.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.osdl.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120704154220.GB27064@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 04, 2012 at 03:22:36PM +0930, Rusty Russell wrote:
-> On Tue,  3 Jul 2012 15:16:51 +0200, Paolo Bonzini <pbonzini@redhat.com> wrote:
-> > Current QEMU and Linux drivers can export queue parameters via the
-> > virtio-blk configuration space.  Document this, since the next patch
-> > will have to add another configuration field after these.
-> > 
-> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Il 04/07/2012 17:42, Michael S. Tsirkin ha scritto:
+> On Tue, Jul 03, 2012 at 03:19:37PM +0200, Paolo Bonzini wrote:
+>> This patch adds support for the new VIRTIO_BLK_F_CONFIG_WCE feature,
+>> which exposes the cache mode in the configuration space and lets the
+>> driver modify it.  The cache mode is exposed via sysfs.
+>>
+>> Even if the host does not support the new feature, the cache mode is
+>> visible (thanks to the existing VIRTIO_BLK_F_WCE), but not modifiable.
+>>
+>> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 > 
-> Applied, thanks for the grammar fix, too!
-> 
-> > +        u8 physical_block_exp;
-> > +        u8 alignment_offset;
-> > +        u16 min_io_size;
-> > +        u32 opt_io_size;
-> 
-> These aren't entirely self-evident though :(
-> 
-> I've put the latest on github (your changes included!), so please patch
-> against that:
-> 
-> https://github.com/rustyrussell/virtio-spec
-> 
-> Thanks,
-> Rusty.
+> I note this has been applied but I think the userspace
+> API is a bit painful to use. Let's fix it before
+> it gets set in stone?
 
-Cool!
-Could you please add tags that refer to various point releases
-v0.8.9 to 0.9.5?
+I'm trying to mimic the existing userspace API for SCSI disks.  FWIW I
+would totally agree with you.
 
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> +static int virtblk_get_cache_mode(struct virtio_device *vdev)
+> 
+> Why are you converting u8 to int here?
+
+The fact that it is a u8 is really an internal detail.  Perhaps the bug
+is using u8 in the callers.
+
+>> +static const char *virtblk_cache_types[] = {
+>> +	"write through", "write back"
+>> +};
+>> +
+> 
+> I wonder whether something that lacks space would have been better,
+> especially for show: shells might get confused and split
+> a string at a space. How about we change it to writethrough,
+> writeback before it's too late? It's part of a userspace API
+> after all, and you see to prefer writeback in one word in your own
+> code so let's not inflict pain on others :)
+> 
+> Also, would be nice to make it discoverable what the legal
+> values are. Another attribute valid_cache_types with all values
+> space separated?
+
+We probably should add such an attribute to SCSI disks too... Even with
+the spaces we could make the values \n-separated.
+
+>> +static ssize_t
+>> +virtblk_cache_type_store(struct device *dev, struct device_attribute *attr,
+>> +			 const char *buf, size_t count)
+>> +{
+>> +	struct gendisk *disk = dev_to_disk(dev);
+>> +	struct virtio_blk *vblk = disk->private_data;
+>> +	struct virtio_device *vdev = vblk->vdev;
+>> +	int i;
+>> +	u8 writeback;
+>> +
+>> +	BUG_ON(!virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_CONFIG_WCE));
+>> +	for (i = ARRAY_SIZE(virtblk_cache_types); --i >= 0; )
+>> +		if (sysfs_streq(buf, virtblk_cache_types[i]))
+>> +			break;
+>> +
+>> +	if (i < 0)
+>> +		return -EINVAL;
+>> +
+>> +	writeback = i;
+>> +	vdev->config->set(vdev,
+>> +			  offsetof(struct virtio_blk_config, wce),
+>> +			  &writeback, sizeof(writeback));
+>> +
+>> +	virtblk_update_cache_mode(vdev);
+>> +	return count;
+>> +}
+>> +
+>> +static ssize_t
+>> +virtblk_cache_type_show(struct device *dev, struct device_attribute *attr,
+>> +			 char *buf)
+>> +{
+>> +	struct gendisk *disk = dev_to_disk(dev);
+>> +	struct virtio_blk *vblk = disk->private_data;
+>> +	u8 writeback = virtblk_get_cache_mode(vblk->vdev);
+>> +
+>> +	BUG_ON(writeback >= ARRAY_SIZE(virtblk_cache_types));
+>> +	return snprintf(buf, 40, "%s\n", virtblk_cache_types[writeback]);
+> 
+> Why 40? Why snprintf? A plain sprintf won't do?
+
+I plead guilty of cut-and-paste from drivers/scsi/sd.c. :)
+
+Paolo
