@@ -1,13 +1,16 @@
-From: Rick Jones <rick.jones2@hp.com>
-Subject: Re: [net-next RFC V5 0/5] Multiqueue virtio-net
-Date: Thu, 05 Jul 2012 10:45:27 -0700
-Message-ID: <4FF5D2B7.6080602@hp.com>
-References: <1341484194-8108-1-git-send-email-jasowang@redhat.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Subject: Re: [PATCH 0/6] tcm_vhost/virtio-scsi WIP code for-3.6
+Date: Thu, 05 Jul 2012 17:53:24 +0000
+Message-ID: <4FF5D494.2090707__38558.0710987144$1341511534$gmane$org@acm.org>
+References: <1341375846-27882-1-git-send-email-nab@linux-iscsi.org>
+	<20120704140259.GB26485@redhat.com> <4FF45890.6000205@redhat.com>
+	<20120704150557.GA26951@redhat.com> <4FF4BFBD.2080000@us.ibm.com>
+	<1341453135.23954.214.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1341484194-8108-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1341453135.23954.214.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,43 +20,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, mashirle@us.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net, sri@us.ibm.com
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Anthony Liguori <aliguori@us.ibm.com>, kvm-devel <kvm@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/05/2012 03:29 AM, Jason Wang wrote:
+On 07/05/12 01:52, Nicholas A. Bellinger wrote:
 
->
-> Test result:
->
-> 1) 1 vm 2 vcpu 1q vs 2q, 1 - 1q, 2 - 2q, no pinning
->
-> - Guest to External Host TCP STREAM
-> sessions size throughput1 throughput2   norm1 norm2
-> 1 64 650.55 655.61 100% 24.88 24.86 99%
-> 2 64 1446.81 1309.44 90% 30.49 27.16 89%
-> 4 64 1430.52 1305.59 91% 30.78 26.80 87%
-> 8 64 1450.89 1270.82 87% 30.83 25.95 84%
+> fio randrw workload | virtio-scsi-raw | virtio-scsi+tcm_vhost | bare-metal raw block
+> ------------------------------------------------------------------------------------
+> 25 Write / 75 Read  |      ~15K       |         ~45K          |         ~70K
+> 75 Write / 25 Read  |      ~20K       |         ~55K          |         ~60K
 
-Was the -D test-specific option used to set TCP_NODELAY?  I'm guessing 
-from your description of how packet sizes were smaller with multiqueue 
-and your need to hack tcp_write_xmit() it wasn't but since we don't have 
-the specific netperf command lines (hint hint :) I wanted to make certain.
 
-Instead of calling them throughput1 and throughput2, it might be more 
-clear in future to identify them as singlequeue and multiqueue.
+These numbers are interesting. To me these numbers mean that there is a
+huge performance bottleneck in the virtio-scsi-raw storage path. Why is
+the virtio-scsi-raw bandwidth only one third of the bare-metal raw block
+bandwidth ?
 
-Also, how are you combining the concurrent netperf results?  Are you 
-taking sums of what netperf reports, or are you gathering statistics 
-outside of netperf?
-
-> - TCP RR
-> sessions size throughput1 throughput2   norm1 norm2
-> 50 1 54695.41 84164.98 153% 1957.33 1901.31 97%
-
-A single instance TCP_RR test would help confirm/refute any non-trivial 
-change in (effective) path length between the two cases.
-
-happy benchmarking,
-
-rick jones
+Bart.
