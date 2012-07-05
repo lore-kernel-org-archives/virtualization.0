@@ -1,15 +1,14 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [net-next RFC V5 2/5] virtio_ring: move queue_index to
-	vring_virtqueue
-Date: Thu, 05 Jul 2012 13:40:54 +0200
-Message-ID: <1341488454.18786.15.camel@lappy>
-References: <1341484194-8108-1-git-send-email-jasowang@redhat.com>
-	<1341484194-8108-3-git-send-email-jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] MAINTAINERS: add kvm list for virtio components
+Date: Thu, 5 Jul 2012 15:22:25 +0300
+Message-ID: <20120705122225.GA30572@redhat.com>
+References: <1341482827-13195-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1341484194-8108-3-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1341482827-13195-1-git-send-email-pbonzini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +18,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, mashirle@us.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net, sri@us.ibm.com
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, avi@redhat.com, amit.shah@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCAyMDEyLTA3LTA1IGF0IDE4OjI5ICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+IElu
-c3RlYWQgb2Ygc3RvcmluZyB0aGUgcXVldWUgaW5kZXggaW4gdmlydGlvIGluZm9zLCB0aGlzIHBh
-dGNoIG1vdmVzIHRoZW0gdG8KPiB2cmluZ192aXJ0cXVldWUgYW5kIGludHJvZHVjZXMgaGVscGVy
-cyB0byBzZXQgYW5kIGdldCB0aGUgdmFsdWUuIFRoaXMgd291bGQKPiBzaW1wbGlmeSB0aGUgbWFu
-YWdlbWVudCBhbmQgdHJhY2luZy4KPiAKPiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nIDxqYXNv
-d2FuZ0ByZWRoYXQuY29tPgoKVGhpcyBwYXRjaCBhY3R1YWxseSBmYWlscyB0byBjb21waWxlOgoK
-ZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYzogSW4gZnVuY3Rpb24g4oCYdm1fbm90aWZ54oCZ
-Ogpkcml2ZXJzL3ZpcnRpby92aXJ0aW9fbW1pby5jOjIyOToxMzogZXJyb3I6IOKAmHN0cnVjdCB2
-aXJ0aW9fbW1pb192cV9pbmZv4oCZIGhhcyBubyBtZW1iZXIgbmFtZWQg4oCYcXVldWVfaW5kZXji
-gJkKZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYzogSW4gZnVuY3Rpb24g4oCYdm1fZGVsX3Zx
-4oCZOgpkcml2ZXJzL3ZpcnRpby92aXJ0aW9fbW1pby5jOjI3ODoxMzogZXJyb3I6IOKAmHN0cnVj
-dCB2aXJ0aW9fbW1pb192cV9pbmZv4oCZIGhhcyBubyBtZW1iZXIgbmFtZWQg4oCYcXVldWVfaW5k
-ZXjigJkKbWFrZVsyXTogKioqIFtkcml2ZXJzL3ZpcnRpby92aXJ0aW9fbW1pby5vXSBFcnJvciAx
-CgpJdCBwcm9iYWJseSBtaXNzZXMgdGhlIGZvbGxvd2luZyBodW5rczoKCmRpZmYgLS1naXQgYS9k
-cml2ZXJzL3ZpcnRpby92aXJ0aW9fbW1pby5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8u
-YwppbmRleCBmNTQzMmI2Li4xMmI2MTgwIDEwMDY0NAotLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fbW1pby5jCisrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMKQEAgLTIyMiwxMSAr
-MjIyLDEwIEBAIHN0YXRpYyB2b2lkIHZtX3Jlc2V0KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2
-KQogc3RhdGljIHZvaWQgdm1fbm90aWZ5KHN0cnVjdCB2aXJ0cXVldWUgKnZxKQogewogICAgICAg
-IHN0cnVjdCB2aXJ0aW9fbW1pb19kZXZpY2UgKnZtX2RldiA9IHRvX3ZpcnRpb19tbWlvX2Rldmlj
-ZSh2cS0+dmRldik7Ci0gICAgICAgc3RydWN0IHZpcnRpb19tbWlvX3ZxX2luZm8gKmluZm8gPSB2
-cS0+cHJpdjsKIAogICAgICAgIC8qIFdlIHdyaXRlIHRoZSBxdWV1ZSdzIHNlbGVjdG9yIGludG8g
-dGhlIG5vdGlmaWNhdGlvbiByZWdpc3RlciB0bwogICAgICAgICAqIHNpZ25hbCB0aGUgb3RoZXIg
-ZW5kICovCi0gICAgICAgd3JpdGVsKGluZm8tPnF1ZXVlX2luZGV4LCB2bV9kZXYtPmJhc2UgKyBW
-SVJUSU9fTU1JT19RVUVVRV9OT1RJRlkpOworICAgICAgIHdyaXRlbCh2aXJ0cXVldWVfZ2V0X3F1
-ZXVlX2luZGV4KHZxKSwgdm1fZGV2LT5iYXNlICsgVklSVElPX01NSU9fUVVFVUVfTk9USUZZKTsK
-IH0KIAogLyogTm90aWZ5IGFsbCB2aXJ0cXVldWVzIG9uIGFuIGludGVycnVwdC4gKi8KQEAgLTI3
-NSw3ICsyNzQsNyBAQCBzdGF0aWMgdm9pZCB2bV9kZWxfdnEoc3RydWN0IHZpcnRxdWV1ZSAqdnEp
-CiAgICAgICAgdnJpbmdfZGVsX3ZpcnRxdWV1ZSh2cSk7CiAKICAgICAgICAvKiBTZWxlY3QgYW5k
-IGRlYWN0aXZhdGUgdGhlIHF1ZXVlICovCi0gICAgICAgd3JpdGVsKGluZm8tPnF1ZXVlX2luZGV4
-LCB2bV9kZXYtPmJhc2UgKyBWSVJUSU9fTU1JT19RVUVVRV9TRUwpOworICAgICAgIHdyaXRlbCh2
-aXJ0cXVldWVfZ2V0X3F1ZXVlX2luZGV4KHZxKSwgdm1fZGV2LT5iYXNlICsgVklSVElPX01NSU9f
-UVVFVUVfU0VMKTsKICAgICAgICB3cml0ZWwoMCwgdm1fZGV2LT5iYXNlICsgVklSVElPX01NSU9f
-UVVFVUVfUEZOKTsKIAogICAgICAgIHNpemUgPSBQQUdFX0FMSUdOKHZyaW5nX3NpemUoaW5mby0+
-bnVtLCBWSVJUSU9fTU1JT19WUklOR19BTElHTikpOwoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, Jul 05, 2012 at 12:07:07PM +0200, Paolo Bonzini wrote:
+> The KVM list is followed by more people than the generic
+> virtualization@lists.linux-foundation.org mailing list, and is
+> already "de facto" the place where virtio patches are posted.
+
+I have no data on the first statement (do you?) and I disagree with the
+last statement, but have no objection to people adding kvm list as well.
+
+> pv-ops still has no other lists than virtualization@lists.linux-foundation.org.
+> However, pv-ops patches will likely touch Xen or KVM files as well and
+> the respective mailing list will usually be reached as well.
+> 
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+So pls please replace the 1st paragraph in the commit log with
+"virtio changes are likely to affect many KVM users as virtio is
+ the de-facto standard for PV devices under KVM". Otherwise ok.
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+> ---
+>  MAINTAINERS |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 14bc707..e265f2e 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -7340,6 +7340,7 @@ F:	include/media/videobuf2-*
+>  VIRTIO CONSOLE DRIVER
+>  M:	Amit Shah <amit.shah@redhat.com>
+>  L:	virtualization@lists.linux-foundation.org
+> +L:	kvm@vger.kernel.org
+>  S:	Maintained
+>  F:	drivers/char/virtio_console.c
+>  F:	include/linux/virtio_console.h
+> @@ -7348,6 +7349,7 @@ VIRTIO CORE, NET AND BLOCK DRIVERS
+>  M:	Rusty Russell <rusty@rustcorp.com.au>
+>  M:	"Michael S. Tsirkin" <mst@redhat.com>
+>  L:	virtualization@lists.linux-foundation.org
+> +L:	kvm@vger.kernel.org
+>  S:	Maintained
+>  F:	drivers/virtio/
+>  F:	drivers/net/virtio_net.c
+> -- 
+> 1.7.1
