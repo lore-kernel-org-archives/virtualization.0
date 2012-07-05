@@ -1,16 +1,15 @@
 From: Bart Van Assche <bvanassche@acm.org>
-Subject: Re: [PATCH 0/6] tcm_vhost/virtio-scsi WIP code for-3.6
-Date: Thu, 05 Jul 2012 17:53:24 +0000
-Message-ID: <4FF5D494.2090707__38558.0710987144$1341511534$gmane$org@acm.org>
+Subject: Re: [PATCH 4/6] tcm_vhost: Initial merge for vhost level target fabric
+	driver
+Date: Thu, 05 Jul 2012 17:47:11 +0000
+Message-ID: <4FF5D31F.90404__20771.3811345913$1341511540$gmane$org@acm.org>
 References: <1341375846-27882-1-git-send-email-nab@linux-iscsi.org>
-	<20120704140259.GB26485@redhat.com> <4FF45890.6000205@redhat.com>
-	<20120704150557.GA26951@redhat.com> <4FF4BFBD.2080000@us.ibm.com>
-	<1341453135.23954.214.camel@haakon2.linux-iscsi.org>
+	<1341375846-27882-5-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1341453135.23954.214.camel@haakon2.linux-iscsi.org>
+In-Reply-To: <1341375846-27882-5-git-send-email-nab@linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,20 +20,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Anthony Liguori <aliguori@us.ibm.com>, kvm-devel <kvm@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/05/12 01:52, Nicholas A. Bellinger wrote:
+On 07/04/12 04:24, Nicholas A. Bellinger wrote:
 
-> fio randrw workload | virtio-scsi-raw | virtio-scsi+tcm_vhost | bare-metal raw block
-> ------------------------------------------------------------------------------------
-> 25 Write / 75 Read  |      ~15K       |         ~45K          |         ~70K
-> 75 Write / 25 Read  |      ~20K       |         ~55K          |         ~60K
+> +/* Fill in status and signal that we are done processing this command
+> + *
+> + * This is scheduled in the vhost work queue so we are called with the owner
+> + * process mm and can access the vring.
+> + */
+> +static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
+> +{
 
 
-These numbers are interesting. To me these numbers mean that there is a
-huge performance bottleneck in the virtio-scsi-raw storage path. Why is
-the virtio-scsi-raw bandwidth only one third of the bare-metal raw block
-bandwidth ?
+As far as I can see vhost_scsi_complete_cmd_work() runs on the context
+of a work queue kernel thread and hence doesn't have an mm context. Did
+I misunderstand something ?
 
 Bart.
