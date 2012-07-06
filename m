@@ -1,11 +1,13 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC V3 0/5] Multiqueue support for tap and virtio-net/vhost
-Date: Fri,  6 Jul 2012 17:31:05 +0800
-Message-ID: <1341567070-14136-1-git-send-email-jasowang@redhat.com>
+Subject: [RFC V3 1/5] option: introduce qemu_get_opt_all()
+Date: Fri,  6 Jul 2012 17:31:06 +0800
+Message-ID: <1341567070-14136-2-git-send-email-jasowang@redhat.com>
+References: <1341567070-14136-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1341567070-14136-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,89 +21,59 @@ To: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, aliguori@us.ibm.com, rusty
 Cc: kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello all:
+Sometimes, we need to pass option like -netdev tap,fd=100,fd=101,fd=102 which
+can not be properly parsed by qemu_find_opt() because it only returns the first
+matched option. So qemu_get_opt_all() were introduced to return an array of
+pointers which contains all matched option.
 
-This seires is an update of last version of multiqueue support to add multiqueue
-capability to both tap and virtio-net.
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ qemu-option.c |   19 +++++++++++++++++++
+ qemu-option.h |    2 ++
+ 2 files changed, 21 insertions(+), 0 deletions(-)
 
-Some kinds of tap backends has (macvatp in linux) or would (tap) support
-multiqueue. In such kind of tap backend, each file descriptor of a tap is a
-qeueu and ioctls were prodived to attach an exist tap file descriptor to the
-tun/tap device. So the patch let qemu to use this kind of backend, and let it
-can transmit and receving packets through multiple file descriptors.
-
-Patch 1 introduce a new help to get all matched options, after this patch, we
-could pass multiple file descriptors to a signle netdev by:
-
-      qemu -netdev tap,id=h0,queues=2,fd=10,fd=11 ...
-
-Patch 2 introduce generic helpers in tap to attach or detach a file descriptor
-from a tap device, emulated nics could use this helper to enable/disable queues.
-
-Patch 3 modifies the NICState to allow multiple VLANClientState to be stored in
-it, with this patch, qemu has basic support of multiple capable tap backend.
-
-Patch 4 implement 1:1 mapping of tx/rx virtqueue pairs with vhost_net backend.
-
-Patch 5 converts virtio-net to multiqueue device, after this patch, multiqueue
-virtio-net device could be specified by:
-
-      qemu -netdev tap,id=h0,queues=2 -device virtio-net-pci,netdev=h0,queues=2
-
-Performace numbers:
-
-I post them in the threads of RFC of multiqueue virtio-net driver:
-http://www.spinics.net/lists/kvm/msg75386.html
-
-Multiqueue with vhost shows improvemnt in TCP_RR, and degradate for small packet
-transmission.
-
-Changes from V2:
-- split vhost patch from virtio-net
-- add the support of queue number negotiation through control virtqueue
-- hotplug, set_link and migration support
-- bug fixes
-
-Changes from V1:
-
-- rebase to the latest
-- fix memory leak in parse_netdev
-- fix guest notifiers assignment/de-assignment
-- changes the command lines to:
-   qemu -netdev tap,queues=2 -device virtio-net-pci,queues=2
-
-References:
-- V2 http://www.spinics.net/lists/kvm/msg74588.html
-- V1 http://comments.gmane.org/gmane.comp.emulators.qemu/100481
-
-Jason Wang (5):
-  option: introduce qemu_get_opt_all()
-  tap: multiqueue support
-  net: multiqueue support
-  vhost: multiqueue support
-  virtio-net: add multiqueue support
-
- hw/dp8393x.c         |    2 +-
- hw/mcf_fec.c         |    2 +-
- hw/qdev-properties.c |   34 +++-
- hw/qdev.h            |    3 +-
- hw/vhost.c           |   53 ++++--
- hw/vhost.h           |    2 +
- hw/vhost_net.c       |    7 +-
- hw/vhost_net.h       |    2 +-
- hw/virtio-net.c      |  505 ++++++++++++++++++++++++++++++++++----------------
- hw/virtio-net.h      |   12 ++
- net.c                |   83 +++++++--
- net.h                |   16 ++-
- net/tap-aix.c        |   13 ++-
- net/tap-bsd.c        |   13 ++-
- net/tap-haiku.c      |   13 ++-
- net/tap-linux.c      |   56 ++++++-
- net/tap-linux.h      |    4 +
- net/tap-solaris.c    |   13 ++-
- net/tap-win32.c      |   11 +
- net/tap.c            |  199 +++++++++++++-------
- net/tap.h            |    7 +-
- qemu-option.c        |   19 ++
- qemu-option.h        |    2 +
- 23 files changed, 787 insertions(+), 284 deletions(-)
+diff --git a/qemu-option.c b/qemu-option.c
+index bb3886c..9263125 100644
+--- a/qemu-option.c
++++ b/qemu-option.c
+@@ -545,6 +545,25 @@ static QemuOpt *qemu_opt_find(QemuOpts *opts, const char *name)
+     return NULL;
+ }
+ 
++int qemu_opt_get_all(QemuOpts *opts, const char *name, const char **optp,
++                     int max)
++{
++    QemuOpt *opt;
++    int index = 0;
++
++    QTAILQ_FOREACH_REVERSE(opt, &opts->head, QemuOptHead, next) {
++        if (strcmp(opt->name, name) == 0) {
++            if (index < max) {
++                optp[index++] = opt->str;
++            }
++            if (index == max) {
++                break;
++            }
++        }
++    }
++    return index;
++}
++
+ const char *qemu_opt_get(QemuOpts *opts, const char *name)
+ {
+     QemuOpt *opt = qemu_opt_find(opts, name);
+diff --git a/qemu-option.h b/qemu-option.h
+index 951dec3..3c9a273 100644
+--- a/qemu-option.h
++++ b/qemu-option.h
+@@ -106,6 +106,8 @@ struct QemuOptsList {
+     QemuOptDesc desc[];
+ };
+ 
++int qemu_opt_get_all(QemuOpts *opts, const char *name, const char **optp,
++                     int max);
+ const char *qemu_opt_get(QemuOpts *opts, const char *name);
+ bool qemu_opt_get_bool(QemuOpts *opts, const char *name, bool defval);
+ uint64_t qemu_opt_get_number(QemuOpts *opts, const char *name, uint64_t defval);
+-- 
+1.7.1
