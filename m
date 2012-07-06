@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [RFC V3 3/5] net: multiqueue support
-Date: Fri,  6 Jul 2012 17:31:08 +0800
-Message-ID: <1341567070-14136-4-git-send-email-jasowang__10217.6119843081$1341567488$gmane$org@redhat.com>
+Subject: [RFC V3 4/5] vhost: multiqueue support
+Date: Fri,  6 Jul 2012 17:31:09 +0800
+Message-ID: <1341567070-14136-5-git-send-email-jasowang__22895.9615495571$1341567494$gmane$org@redhat.com>
 References: <1341567070-14136-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,348 +21,234 @@ To: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, aliguori@us.ibm.com, rusty
 Cc: kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the multiqueues support for emulated nics. Each VLANClientState
-pairs are now abstract as a queue instead of a nic, and multiple VLANClientState
-pointers were stored in the NICState. A queue_index were also introduced to let
-the emulated nics know which queue the packet were came from or sent
-out. Virtio-net would be the first user.
+This patch converts the vhost to support multiqueue queues. It implement a 1:1
+mapping of vhost devs and tap fds. That it to say, the patch creates and uses
+N vhost devs as the backend of the N queues virtio-net deivce.
+
+The main work is to convert the virtqueue index into vhost queue index, this is
+done by introducing an vq_index filed in vhost_dev struct to record the index of
+first virtuque that is used by the vhost devs. Then vhost could simply convert
+it to the local vhost queue index and issue ioctls.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- hw/dp8393x.c         |    2 +-
- hw/mcf_fec.c         |    2 +-
- hw/qdev-properties.c |   34 +++++++++++++++++----
- hw/qdev.h            |    3 +-
- net.c                |   79 +++++++++++++++++++++++++++++++++++++++++---------
- net.h                |   16 +++++++--
- net/tap.c            |    2 +-
- 7 files changed, 110 insertions(+), 28 deletions(-)
+ hw/vhost.c      |   53 ++++++++++++++++++++++++++++++++++-------------------
+ hw/vhost.h      |    2 ++
+ hw/vhost_net.c  |    7 +++++--
+ hw/vhost_net.h  |    2 +-
+ hw/virtio-net.c |    2 +-
+ 5 files changed, 43 insertions(+), 23 deletions(-)
 
-diff --git a/hw/dp8393x.c b/hw/dp8393x.c
-index 017d074..483a868 100644
---- a/hw/dp8393x.c
-+++ b/hw/dp8393x.c
-@@ -900,7 +900,7 @@ void dp83932_init(NICInfo *nd, target_phys_addr_t base, int it_shift,
- 
-     s->conf.macaddr = nd->macaddr;
-     s->conf.vlan = nd->vlan;
--    s->conf.peer = nd->netdev;
-+    s->conf.peers[0] = nd->netdev;
- 
-     s->nic = qemu_new_nic(&net_dp83932_info, &s->conf, nd->model, nd->name, s);
- 
-diff --git a/hw/mcf_fec.c b/hw/mcf_fec.c
-index ae37bef..69f508d 100644
---- a/hw/mcf_fec.c
-+++ b/hw/mcf_fec.c
-@@ -473,7 +473,7 @@ void mcf_fec_init(MemoryRegion *sysmem, NICInfo *nd,
- 
-     s->conf.macaddr = nd->macaddr;
-     s->conf.vlan = nd->vlan;
--    s->conf.peer = nd->netdev;
-+    s->conf.peers[0] = nd->netdev;
- 
-     s->nic = qemu_new_nic(&net_mcf_fec_info, &s->conf, nd->model, nd->name, s);
- 
-diff --git a/hw/qdev-properties.c b/hw/qdev-properties.c
-index 9ae3187..88e97e9 100644
---- a/hw/qdev-properties.c
-+++ b/hw/qdev-properties.c
-@@ -554,16 +554,38 @@ PropertyInfo qdev_prop_chr = {
- 
- static int parse_netdev(DeviceState *dev, const char *str, void **ptr)
+diff --git a/hw/vhost.c b/hw/vhost.c
+index 43664e7..3eb6037 100644
+--- a/hw/vhost.c
++++ b/hw/vhost.c
+@@ -620,11 +620,12 @@ static int vhost_virtqueue_init(struct vhost_dev *dev,
  {
--    VLANClientState *netdev = qemu_find_netdev(str);
-+    VLANClientState ***nc = (VLANClientState ***)ptr;
-+    VLANClientState *vcs[MAX_QUEUE_NUM];
-+    int queues, i = 0;
-+    int ret;
+     target_phys_addr_t s, l, a;
+     int r;
++    int vhost_vq_index = (idx > 2 ? idx - 1 : idx) % dev->nvqs;
+     struct vhost_vring_file file = {
+-        .index = idx,
++        .index = vhost_vq_index
+     };
+     struct vhost_vring_state state = {
+-        .index = idx,
++        .index = vhost_vq_index
+     };
+     struct VirtQueue *vvq = virtio_get_queue(vdev, idx);
  
--    if (netdev == NULL) {
--        return -ENOENT;
-+    *nc = g_malloc(MAX_QUEUE_NUM * sizeof(VLANClientState *));
-+    queues = qemu_find_netdev_all(str, vcs, MAX_QUEUE_NUM);
-+    if (queues == 0) {
-+        ret = -ENOENT;
-+        goto err;
+@@ -670,11 +671,12 @@ static int vhost_virtqueue_init(struct vhost_dev *dev,
+         goto fail_alloc_ring;
      }
--    if (netdev->peer) {
--        return -EEXIST;
-+
-+    for (i = 0; i < queues; i++) {
-+        if (vcs[i] == NULL) {
-+            ret = -ENOENT;
-+            goto err;
-+        }
-+
-+        if (vcs[i]->peer) {
-+            ret = -EEXIST;
-+            goto err;
-+        }
-+
-+        (*nc)[i] = vcs[i];
-+	vcs[i]->queue_index = i;
+ 
+-    r = vhost_virtqueue_set_addr(dev, vq, idx, dev->log_enabled);
++    r = vhost_virtqueue_set_addr(dev, vq, vhost_vq_index, dev->log_enabled);
+     if (r < 0) {
+         r = -errno;
+         goto fail_alloc;
      }
--    *ptr = netdev;
 +
+     file.fd = event_notifier_get_fd(virtio_queue_get_host_notifier(vvq));
+     r = ioctl(dev->control, VHOST_SET_VRING_KICK, &file);
+     if (r) {
+@@ -715,7 +717,7 @@ static void vhost_virtqueue_cleanup(struct vhost_dev *dev,
+                                     unsigned idx)
+ {
+     struct vhost_vring_state state = {
+-        .index = idx,
++        .index = (idx > 2 ? idx - 1 : idx) % dev->nvqs,
+     };
+     int r;
+     r = ioctl(dev->control, VHOST_GET_VRING_BASE, &state);
+@@ -829,7 +831,9 @@ int vhost_dev_enable_notifiers(struct vhost_dev *hdev, VirtIODevice *vdev)
+     }
+ 
+     for (i = 0; i < hdev->nvqs; ++i) {
+-        r = vdev->binding->set_host_notifier(vdev->binding_opaque, i, true);
++        r = vdev->binding->set_host_notifier(vdev->binding_opaque,
++					     hdev->vq_index + i,
++					     true);
+         if (r < 0) {
+             fprintf(stderr, "vhost VQ %d notifier binding failed: %d\n", i, -r);
+             goto fail_vq;
+@@ -839,7 +843,9 @@ int vhost_dev_enable_notifiers(struct vhost_dev *hdev, VirtIODevice *vdev)
      return 0;
-+
-+err:
-+    g_free(*nc);
-+    return ret;
- }
+ fail_vq:
+     while (--i >= 0) {
+-        r = vdev->binding->set_host_notifier(vdev->binding_opaque, i, false);
++        r = vdev->binding->set_host_notifier(vdev->binding_opaque,
++					     hdev->vq_index + i,
++					     false);
+         if (r < 0) {
+             fprintf(stderr, "vhost VQ %d notifier cleanup error: %d\n", i, -r);
+             fflush(stderr);
+@@ -860,7 +866,9 @@ void vhost_dev_disable_notifiers(struct vhost_dev *hdev, VirtIODevice *vdev)
+     int i, r;
  
- static const char *print_netdev(void *ptr)
-diff --git a/hw/qdev.h b/hw/qdev.h
-index 5386b16..1c023b4 100644
---- a/hw/qdev.h
-+++ b/hw/qdev.h
-@@ -248,6 +248,7 @@ extern PropertyInfo qdev_prop_blocksize;
-         .defval    = (bool)_defval,                              \
+     for (i = 0; i < hdev->nvqs; ++i) {
+-        r = vdev->binding->set_host_notifier(vdev->binding_opaque, i, false);
++        r = vdev->binding->set_host_notifier(vdev->binding_opaque,
++                                             hdev->vq_index + i,
++                                             false);
+         if (r < 0) {
+             fprintf(stderr, "vhost VQ %d notifier cleanup failed: %d\n", i, -r);
+             fflush(stderr);
+@@ -879,10 +887,12 @@ int vhost_dev_start(struct vhost_dev *hdev, VirtIODevice *vdev)
+         goto fail;
+     }
+ 
+-    r = vdev->binding->set_guest_notifiers(vdev->binding_opaque, true);
+-    if (r < 0) {
+-        fprintf(stderr, "Error binding guest notifier: %d\n", -r);
+-        goto fail_notifiers;
++    if (hdev->vq_index == 0) {
++        r = vdev->binding->set_guest_notifiers(vdev->binding_opaque, true);
++        if (r < 0) {
++            fprintf(stderr, "Error binding guest notifier: %d\n", -r);
++            goto fail_notifiers;
++        }
+     }
+ 
+     r = vhost_dev_set_features(hdev, hdev->log_enabled);
+@@ -898,7 +908,7 @@ int vhost_dev_start(struct vhost_dev *hdev, VirtIODevice *vdev)
+         r = vhost_virtqueue_init(hdev,
+                                  vdev,
+                                  hdev->vqs + i,
+-                                 i);
++                                 hdev->vq_index + i);
+         if (r < 0) {
+             goto fail_vq;
          }
- 
+@@ -925,8 +935,9 @@ fail_vq:
+         vhost_virtqueue_cleanup(hdev,
+                                 vdev,
+                                 hdev->vqs + i,
+-                                i);
++                                hdev->vq_index + i);
+     }
++    i = hdev->nvqs;
+ fail_mem:
+ fail_features:
+     vdev->binding->set_guest_notifiers(vdev->binding_opaque, false);
+@@ -944,18 +955,22 @@ void vhost_dev_stop(struct vhost_dev *hdev, VirtIODevice *vdev)
+         vhost_virtqueue_cleanup(hdev,
+                                 vdev,
+                                 hdev->vqs + i,
+-                                i);
++                                hdev->vq_index + i);
+     }
 +
- #define DEFINE_PROP_UINT8(_n, _s, _f, _d)                       \
-     DEFINE_PROP_DEFAULT(_n, _s, _f, _d, qdev_prop_uint8, uint8_t)
- #define DEFINE_PROP_UINT16(_n, _s, _f, _d)                      \
-@@ -274,7 +275,7 @@ extern PropertyInfo qdev_prop_blocksize;
- #define DEFINE_PROP_STRING(_n, _s, _f)             \
-     DEFINE_PROP(_n, _s, _f, qdev_prop_string, char*)
- #define DEFINE_PROP_NETDEV(_n, _s, _f)             \
--    DEFINE_PROP(_n, _s, _f, qdev_prop_netdev, VLANClientState*)
-+    DEFINE_PROP(_n, _s, _f, qdev_prop_netdev, VLANClientState**)
- #define DEFINE_PROP_VLAN(_n, _s, _f)             \
-     DEFINE_PROP(_n, _s, _f, qdev_prop_vlan, VLANState*)
- #define DEFINE_PROP_DRIVE(_n, _s, _f) \
-diff --git a/net.c b/net.c
-index eabe830..f5db537 100644
---- a/net.c
-+++ b/net.c
-@@ -238,16 +238,33 @@ NICState *qemu_new_nic(NetClientInfo *info,
- {
-     VLANClientState *nc;
-     NICState *nic;
-+    int i;
- 
-     assert(info->type == NET_CLIENT_TYPE_NIC);
-     assert(info->size >= sizeof(NICState));
- 
--    nc = qemu_new_net_client(info, conf->vlan, conf->peer, model, name);
-+    if (conf->peers) {
-+        nc = qemu_new_net_client(info, NULL, conf->peers[0], model, name);
-+    } else {
-+        nc = qemu_new_net_client(info, conf->vlan, NULL, model, name);
-+    }
- 
-     nic = DO_UPCAST(NICState, nc, nc);
-     nic->conf = conf;
-     nic->opaque = opaque;
- 
-+    /* For compatiablity with single queue nic */
-+    nic->ncs[0] = nc;
-+    nc->opaque = nic;
+     for (i = 0; i < hdev->n_mem_sections; ++i) {
+         vhost_sync_dirty_bitmap(hdev, &hdev->mem_sections[i],
+                                 0, (target_phys_addr_t)~0x0ull);
+     }
+-    r = vdev->binding->set_guest_notifiers(vdev->binding_opaque, false);
+-    if (r < 0) {
+-        fprintf(stderr, "vhost guest notifier cleanup failed: %d\n", r);
+-        fflush(stderr);
 +
-+    for (i = 1 ; i < conf->queues; i++) {
-+        VLANClientState *vc = qemu_new_net_client(info, NULL, conf->peers[i],
-+                                                  model, name);
-+        vc->opaque = nic;
-+        nic->ncs[i] = vc;
-+        vc->queue_index = i;
-+    }
-+
-     return nic;
++    if (hdev->vq_index == 0) {
++	r = vdev->binding->set_guest_notifiers(vdev->binding_opaque, false);
++	if (r < 0) {
++	    fprintf(stderr, "vhost guest notifier cleanup failed: %d\n", r);
++	    fflush(stderr);
++	}
++	assert (r >= 0);
+     }
+-    assert (r >= 0);
+ 
+     hdev->started = false;
+     g_free(hdev->log);
+diff --git a/hw/vhost.h b/hw/vhost.h
+index 80e64df..edfe9d2 100644
+--- a/hw/vhost.h
++++ b/hw/vhost.h
+@@ -34,6 +34,8 @@ struct vhost_dev {
+     MemoryRegionSection *mem_sections;
+     struct vhost_virtqueue *vqs;
+     int nvqs;
++    /* the first virtuque which would be used by this vhost dev */
++    int vq_index;
+     unsigned long long features;
+     unsigned long long acked_features;
+     unsigned long long backend_features;
+diff --git a/hw/vhost_net.c b/hw/vhost_net.c
+index f672e9d..7cc3339 100644
+--- a/hw/vhost_net.c
++++ b/hw/vhost_net.c
+@@ -138,13 +138,15 @@ bool vhost_net_query(VHostNetState *net, VirtIODevice *dev)
  }
  
-@@ -283,11 +300,10 @@ void qemu_del_vlan_client(VLANClientState *vc)
+ int vhost_net_start(struct vhost_net *net,
+-                    VirtIODevice *dev)
++                    VirtIODevice *dev,
++                    int vq_index)
  {
-     /* If there is a peer NIC, delete and cleanup client, but do not free. */
-     if (!vc->vlan && vc->peer && vc->peer->info->type == NET_CLIENT_TYPE_NIC) {
--        NICState *nic = DO_UPCAST(NICState, nc, vc->peer);
--        if (nic->peer_deleted) {
-+        if (vc->peer_deleted) {
+     struct vhost_vring_file file = { };
+     int r;
+ 
+     net->dev.nvqs = 2;
+     net->dev.vqs = net->vqs;
++    net->dev.vq_index = vq_index;
+ 
+     r = vhost_dev_enable_notifiers(&net->dev, dev);
+     if (r < 0) {
+@@ -227,7 +229,8 @@ bool vhost_net_query(VHostNetState *net, VirtIODevice *dev)
+ }
+ 
+ int vhost_net_start(struct vhost_net *net,
+-		    VirtIODevice *dev)
++                    VirtIODevice *dev,
++		int vq_index)
+ {
+     return -ENOSYS;
+ }
+diff --git a/hw/vhost_net.h b/hw/vhost_net.h
+index 91e40b1..6282b2c 100644
+--- a/hw/vhost_net.h
++++ b/hw/vhost_net.h
+@@ -9,7 +9,7 @@ typedef struct vhost_net VHostNetState;
+ VHostNetState *vhost_net_init(VLANClientState *backend, int devfd, bool force);
+ 
+ bool vhost_net_query(VHostNetState *net, VirtIODevice *dev);
+-int vhost_net_start(VHostNetState *net, VirtIODevice *dev);
++int vhost_net_start(VHostNetState *net, VirtIODevice *dev, int vq_index);
+ void vhost_net_stop(VHostNetState *net, VirtIODevice *dev);
+ 
+ void vhost_net_cleanup(VHostNetState *net);
+diff --git a/hw/virtio-net.c b/hw/virtio-net.c
+index 3f190d4..30eb4f4 100644
+--- a/hw/virtio-net.c
++++ b/hw/virtio-net.c
+@@ -124,7 +124,7 @@ static void virtio_net_vhost_status(VirtIONet *n, uint8_t status)
+         if (!vhost_net_query(tap_get_vhost_net(n->nic->nc.peer), &n->vdev)) {
              return;
          }
--        nic->peer_deleted = true;
-+        vc->peer_deleted = true;
-         /* Let NIC know peer is gone. */
-         vc->peer->link_down = true;
-         if (vc->peer->info->link_status_changed) {
-@@ -299,8 +315,7 @@ void qemu_del_vlan_client(VLANClientState *vc)
- 
-     /* If this is a peer NIC and peer has already been deleted, free it now. */
-     if (!vc->vlan && vc->peer && vc->info->type == NET_CLIENT_TYPE_NIC) {
--        NICState *nic = DO_UPCAST(NICState, nc, vc);
--        if (nic->peer_deleted) {
-+        if (vc->peer_deleted) {
-             qemu_free_vlan_client(vc->peer);
-         }
-     }
-@@ -342,14 +357,14 @@ void qemu_foreach_nic(qemu_nic_foreach func, void *opaque)
- 
-     QTAILQ_FOREACH(nc, &non_vlan_clients, next) {
-         if (nc->info->type == NET_CLIENT_TYPE_NIC) {
--            func(DO_UPCAST(NICState, nc, nc), opaque);
-+            func((NICState *)nc->opaque, opaque);
-         }
-     }
- 
-     QTAILQ_FOREACH(vlan, &vlans, next) {
-         QTAILQ_FOREACH(nc, &vlan->clients, next) {
-             if (nc->info->type == NET_CLIENT_TYPE_NIC) {
--                func(DO_UPCAST(NICState, nc, nc), opaque);
-+                func((NICState *)nc->opaque, opaque);
-             }
-         }
-     }
-@@ -674,6 +689,26 @@ VLANClientState *qemu_find_netdev(const char *id)
-     return NULL;
- }
- 
-+int qemu_find_netdev_all(const char *id, VLANClientState **vcs, int max)
-+{
-+    VLANClientState *vc;
-+    int ret = 0;
-+
-+    QTAILQ_FOREACH(vc, &non_vlan_clients, next) {
-+        if (vc->info->type == NET_CLIENT_TYPE_NIC) {
-+            continue;
-+        }
-+        if (!strcmp(vc->name, id) && ret < max) {
-+            vcs[ret++] = vc;
-+        }
-+        if (ret >= max) {
-+            break;
-+        }
-+    }
-+
-+    return ret;
-+}
-+
- static int nic_get_free_idx(void)
- {
-     int index;
-@@ -1275,22 +1310,27 @@ exit_err:
- 
- void qmp_netdev_del(const char *id, Error **errp)
- {
--    VLANClientState *vc;
-+    VLANClientState *vcs[MAX_QUEUE_NUM];
-+    int queues, i;
- 
--    vc = qemu_find_netdev(id);
--    if (!vc) {
-+    queues = qemu_find_netdev_all(id, vcs, MAX_QUEUE_NUM);
-+    if (queues == 0) {
-         error_set(errp, QERR_DEVICE_NOT_FOUND, id);
-         return;
-     }
- 
--    qemu_del_vlan_client(vc);
-+    for (i = 0; i < queues; i++) {
-+        /* FIXME: pointer check? */
-+        qemu_del_vlan_client(vcs[i]);
-+    }
-     qemu_opts_del(qemu_opts_find(qemu_find_opts_err("netdev", errp), id));
- }
- 
- static void print_net_client(Monitor *mon, VLANClientState *vc)
- {
--    monitor_printf(mon, "%s: type=%s,%s\n", vc->name,
--                   net_client_types[vc->info->type].type, vc->info_str);
-+    monitor_printf(mon, "%s: type=%s,%s, queue=%d\n", vc->name,
-+                   net_client_types[vc->info->type].type, vc->info_str,
-+                   vc->queue_index);
- }
- 
- void do_info_network(Monitor *mon)
-@@ -1326,6 +1366,17 @@ void qmp_set_link(const char *name, bool up, Error **errp)
- {
-     VLANState *vlan;
-     VLANClientState *vc = NULL;
-+    VLANClientState *vcs[MAX_QUEUE_NUM];
-+    int queues, i;
-+
-+    queues = qemu_find_netdev_all(name, vcs, MAX_QUEUE_NUM);
-+    if (queues) {
-+	    for (i = 1; i < queues; i++) {
-+		    vcs[i]->link_down = !up;
-+	    }
-+	    vc = vcs[0];
-+	    goto done;
-+    }
- 
-     QTAILQ_FOREACH(vlan, &vlans, next) {
-         QTAILQ_FOREACH(vc, &vlan->clients, next) {
-diff --git a/net.h b/net.h
-index bdc2a06..40378ce 100644
---- a/net.h
-+++ b/net.h
-@@ -12,20 +12,24 @@ struct MACAddr {
-     uint8_t a[6];
- };
- 
-+#define MAX_QUEUE_NUM 32
-+
- /* qdev nic properties */
- 
- typedef struct NICConf {
-     MACAddr macaddr;
-     VLANState *vlan;
--    VLANClientState *peer;
-+    VLANClientState **peers;
-     int32_t bootindex;
-+    int32_t queues;
- } NICConf;
- 
- #define DEFINE_NIC_PROPERTIES(_state, _conf)                            \
-     DEFINE_PROP_MACADDR("mac",   _state, _conf.macaddr),                \
-     DEFINE_PROP_VLAN("vlan",     _state, _conf.vlan),                   \
--    DEFINE_PROP_NETDEV("netdev", _state, _conf.peer),                   \
--    DEFINE_PROP_INT32("bootindex", _state, _conf.bootindex, -1)
-+    DEFINE_PROP_NETDEV("netdev", _state, _conf.peers),                   \
-+    DEFINE_PROP_INT32("bootindex", _state, _conf.bootindex, -1),        \
-+    DEFINE_PROP_INT32("queues", _state, _conf.queues, 1)
- 
- /* VLANs support */
- 
-@@ -72,13 +76,16 @@ struct VLANClientState {
-     char *name;
-     char info_str[256];
-     unsigned receive_disabled : 1;
-+    unsigned int queue_index;
-+    bool peer_deleted;
-+    void *opaque;
- };
- 
- typedef struct NICState {
-     VLANClientState nc;
-+    VLANClientState *ncs[MAX_QUEUE_NUM];
-     NICConf *conf;
-     void *opaque;
--    bool peer_deleted;
- } NICState;
- 
- struct VLANState {
-@@ -90,6 +97,7 @@ struct VLANState {
- 
- VLANState *qemu_find_vlan(int id, int allocate);
- VLANClientState *qemu_find_netdev(const char *id);
-+int qemu_find_netdev_all(const char *id, VLANClientState **vcs, int max);
- VLANClientState *qemu_new_net_client(NetClientInfo *info,
-                                      VLANState *vlan,
-                                      VLANClientState *peer,
-diff --git a/net/tap.c b/net/tap.c
-index 65457e5..4ce83b8 100644
---- a/net/tap.c
-+++ b/net/tap.c
-@@ -290,7 +290,7 @@ static void tap_cleanup(VLANClientState *nc)
- 
-     qemu_purge_queued_packets(nc);
- 
--    if (s->down_script[0])
-+    if (s->down_script[0] && nc->queue_index == 0)
-         launch_script(s->down_script, s->down_script_arg, s->fd);
- 
-     tap_read_poll(s, 0);
+-        r = vhost_net_start(tap_get_vhost_net(n->nic->nc.peer), &n->vdev);
++        r = vhost_net_start(tap_get_vhost_net(n->nic->nc.peer), &n->vdev, 0);
+         if (r < 0) {
+             error_report("unable to start vhost net: %d: "
+                          "falling back on userspace virtio", -r);
 -- 
 1.7.1
