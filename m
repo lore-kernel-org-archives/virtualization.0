@@ -1,13 +1,21 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 2/2] virtio-scsi spec: add configuration change event
-Date: Mon, 16 Jul 2012 16:24:37 +0200
-Message-ID: <1342448677-7453-3-git-send-email-pbonzini__26263.0003890537$1342448711$gmane$org@redhat.com>
-References: <1342448677-7453-1-git-send-email-pbonzini@redhat.com>
+From: Christoph Lameter <cl@linux.com>
+Subject: Re: [Ksummit-2012-discuss] SCSI Performance regression [was Re:
+	[PATCH 0/6] tcm_vhost/virtio-scsi WIP code for-3.6]
+Date: Fri, 6 Jul 2012 15:30:57 -0500 (CDT)
+Message-ID: <alpine.DEB.2.00.1207061528520.2656__40795.5077280805$1342460694$gmane$org@router.home>
+References: <1341375846-27882-1-git-send-email-nab@linux-iscsi.org>
+	<20120704140259.GB26485@redhat.com> <4FF45890.6000205@redhat.com>
+	<20120704150557.GA26951@redhat.com> <4FF4BFBD.2080000@us.ibm.com>
+	<1341453135.23954.214.camel@haakon2.linux-iscsi.org>
+	<4FF56AE9.9060201@redhat.com> <20120705135318.GG30572@redhat.com>
+	<4FF59F6B.2000101@us.ibm.com>
+	<1341543672.23954.285.camel@haakon2.linux-iscsi.org>
+	<1341553397.3023.16.camel@dabdike.hilton.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1342448677-7453-1-git-send-email-pbonzini@redhat.com>
+In-Reply-To: <1341553397.3023.16.camel@dabdike.hilton.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,142 +25,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, rusty@rustcorp.com.au
-Cc: qemu-devel@nongnu.org
+To: James Bottomley <James.Bottomley@HansenPartnership.com>
+Cc: Jens Axboe <axboe@kernel.dk>, Anthony Liguori <aliguori@us.ibm.com>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, ksummit-2012-discuss <ksummit-2012-discuss@lists.linuxfoundation.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This adds an event for changes to LUN parameters, for example capacity.  These
-are reported in virtio-blk via configuration changes, and we want a similar
-functionality in virtio-scsi too.
+On Fri, 6 Jul 2012, James Bottomley wrote:
 
-There is no list of supported parameter changes, instead we just refer to
-the list of sense codes in the SCSI specification.
+> What people might pay attention to is evidence that there's a problem in
+> 3.5-rc6 (without any OFED crap).  If you're not going to bother
+> investigating, it has to be in an environment they can reproduce (so
+> ordinary hardware, not infiniband) otherwise it gets ignored as an
+> esoteric hardware issue.
 
-This event will usually be serviced in one of three ways: 1) call an OS
-service to revalidate the disk, either always or only for some specific
-sense codes; 2) somehow pass the sense directly to the upper-level driver;
-3) inject a TEST UNIT READY command into the upper-level device, so that
-the OS will see the unit attention code and react.  Of course a mix of
-the three is also possible, depending on how the driver writer prefers
-to have his layering violations served.
+The OFED stuff in the meantime is part of 3.5-rc6. Infiniband has been
+supported for a long time and its a very important technology given the
+problematic nature of ethernet at high network speeds.
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- virtio-spec.lyx |   95 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 95 insertions(+)
-
-diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index f8b214b..8d2ac9a 100644
---- a/virtio-spec.lyx
-+++ b/virtio-spec.lyx
-@@ -6995,6 +6995,21 @@ VIRTIO_SCSI_F_HOTPLUG
- 
- (1) The host should enable hot-plug/hot-unplug of new LUNs and targets on
-  the SCSI bus.
-+\change_inserted 1531152142 1342440342
-+
-+\end_layout
-+
-+\begin_layout Description
-+
-+\change_inserted 1531152142 1342440768
-+VIRTIO_SCSI_F_CHANGE
-+\begin_inset space ~
-+\end_inset
-+
-+(2) The host will report changes to LUN parameters via a VIRTIO_SCSI_T_PARAM_CHA
-+NGE event.
-+\change_unchanged
-+
- \end_layout
- 
- \end_deeper
-@@ -8673,6 +8688,86 @@ reason
- \begin_layout Standard
- When dropped events are reported, the driver should poll for asynchronous
-  events manually using SCSI commands.
-+\change_inserted 1531152142 1342439104
-+
-+\end_layout
-+
-+\end_deeper
-+\begin_layout Description
-+
-+\change_inserted 1531152142 1342440778
-+LUN
-+\begin_inset space ~
-+\end_inset
-+
-+parameter
-+\begin_inset space ~
-+\end_inset
-+
-+change 
-+\begin_inset space ~
-+\end_inset
-+
-+
-+\begin_inset Newline newline
-+\end_inset
-+
-+
-+\begin_inset listings
-+inline false
-+status open
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 1531152142 1342440783
-+
-+#define VIRTIO_SCSI_T_PARAM_CHANGE  3
-+\end_layout
-+
-+\end_inset
-+
-+
-+\end_layout
-+
-+\begin_deeper
-+\begin_layout Standard
-+
-+\change_inserted 1531152142 1342440882
-+By sending this event, the device signals that the configuration parameters
-+ (for example the capacity) of a logical unit have changed.
-+ The 
-+\series bold
-+event
-+\series default
-+ field is set to VIRTIO_SCSI_T_PARAM_CHANGE.
-+ The 
-+\series bold
-+lun
-+\series default
-+ field addresses a logical unit in the SCSI host.
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 1531152142 1342440916
-+The same event is also reported as a unit attention condition.
-+ The 
-+\series bold
-+reason
-+\series default
-+ field contains the additional sense code and additional sense code qualifier,
-+ respectively in bits 0..7 and 8..15.
-+ For example, a change in capacity will be reported as asc 0x2a, ascq 0x09
-+ (CAPACITY DATA HAS CHANGED).
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 1531152142 1342442803
-+For MMC devices (inquiry type 5) there would be some overlap between this
-+ event and the asynchronous notification event.
-+ For simplicity, as of this version of the specification the host must
-+ never report this event for MMC devices.
- \end_layout
- 
- \end_deeper
--- 
-1.7.10.4
+OFED crap exists for those running RHEL5/6. The new enterprise distros are
+based on the 3.2 kernel which has pretty good Infiniband support
+out of the box.
