@@ -1,14 +1,20 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] MAINTAINERS: add kvm list for virtio components
-Date: Mon, 09 Jul 2012 10:07:32 +0930
-Message-ID: <878vet3h2r.fsf@rustcorp.com.au>
-References: <1341482827-13195-1-git-send-email-pbonzini@redhat.com>
-	<20120705122225.GA30572@redhat.com>
+Subject: Re: RFD: virtio balloon API use (was Re: [PATCH 5 of 5] virtio:
+	expose added descriptors immediately)
+Date: Mon, 09 Jul 2012 09:09:45 +0930
+Message-ID: <877gud4ybi.fsf@rustcorp.com.au>
+References: <patchbomb.1320306168@localhost6.localdomain6>
+	<f3831c1617c86a51d875.1320306173@localhost6.localdomain6>
+	<20120701092051.GA4515@redhat.com> <87d34fx990.fsf@rustcorp.com.au>
+	<20120702072558.GA8268@redhat.com>
+	<20120702160814.GB1750@t510.redhat.com>
+	<87vci5wtzh.fsf@rustcorp.com.au>
+	<20120704105533.GB21704@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120705122225.GA30572@redhat.com>
+In-Reply-To: <20120704105533.GB21704@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +24,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
-Cc: amit.shah@redhat.com, avi@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization <virtualization@lists.linux-foundation.org>, Rafael Aquini <aquini@redhat.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 5 Jul 2012 15:22:25 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Thu, Jul 05, 2012 at 12:07:07PM +0200, Paolo Bonzini wrote:
-> > The KVM list is followed by more people than the generic
-> > virtualization@lists.linux-foundation.org mailing list, and is
-> > already "de facto" the place where virtio patches are posted.
+On Wed, 4 Jul 2012 13:55:33 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Tue, Jul 03, 2012 at 10:17:46AM +0930, Rusty Russell wrote:
+> > On Mon, 2 Jul 2012 13:08:19 -0300, Rafael Aquini <aquini@redhat.com> wrote:
+> > > As 'locking in balloon', may I assume the approach I took for the compaction case
+> > > is OK and aligned to address these concerns of yours? If not, do not hesitate in
+> > > giving me your thoughts, please. I'm respinning a V3 series to address a couple
+> > > of extra nitpicks from the compaction standpoint, and I'd love to be able to
+> > > address any extra concern you might have on the balloon side of that work.
+> > 
+> > It's orthogonal, though looks like they clash textually :(
+> > 
+> > I'll re-spin MST's patch on top of yours, and include both in my tree,
+> > otherwise linux-next will have to do the merge.  But I'll await your
+> > push before pushing to Linus next merge window.
+> > 
+> > Thanks,
+> > Rusty.
 > 
-> I have no data on the first statement (do you?) and I disagree with the
-> last statement, but have no objection to people adding kvm list as well.
+> While theoretical mine is a bugfix so could be 3.5 material, no?
 
-Well, the kvm list is far more active.  It's annoying to have two lists,
-but it is how things are so best to document it.
-
-I'm OK with the original commit message, but MST is smarter than me, so
-let's do what he suggests :)
+It's a little thin, but it's a good idea.  I'll try.
 
 Cheers,
 Rusty.
