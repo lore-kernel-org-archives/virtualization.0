@@ -1,15 +1,15 @@
-From: Rick Jones <rick.jones2@hp.com>
-Subject: Re: [net-next RFC V5 0/5] Multiqueue virtio-net
-Date: Mon, 09 Jul 2012 09:46:47 -0700
-Message-ID: <4FFB0AF7.1080604@hp.com>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Subject: Re: [net-next RFC V5 5/5] virtio_net: support negotiating the
+	number of queues through ctrl vq
+Date: Mon, 9 Jul 2012 21:13:23 +0100
+Message-ID: <1341864803.2535.53.camel@bwh-desktop.uk.solarflarecom.com>
 References: <1341484194-8108-1-git-send-email-jasowang@redhat.com>
-	<4FF5D2B7.6080602@hp.com> <4FF696C9.5070907@redhat.com>
-	<4FF710FD.2090100@hp.com> <4FFA4EAD.7000707@redhat.com>
+	<1341484194-8108-6-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4FFA4EAD.7000707@redhat.com>
+In-Reply-To: <1341484194-8108-6-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,28 +23,62 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, mashirle@us.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net, sri@us.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/08/2012 08:23 PM, Jason Wang wrote:
-> On 07/07/2012 12:23 AM, Rick Jones wrote:
->> On 07/06/2012 12:42 AM, Jason Wang wrote:
->> Which mechanism to address skew error?  The netperf manual describes
->> more than one:
->
-> This mechanism is missed in my test, I would add them to my test scripts.
->>
->> http://www.netperf.org/svn/netperf2/trunk/doc/netperf.html#Using-Netperf-to-Measure-Aggregate-Performance
->>
->>
->> Personally, my preference these days is to use the "demo mode" method
->> of aggregate results as it can be rather faster than (ab)using the
->> confidence intervals mechanism, which I suspect may not really scale
->> all that well to large numbers of concurrent netperfs.
->
-> During my test, the confidence interval would even hard to achieved in
-> RR test when I pin vhost/vcpus in the processors, so I didn't use it.
+On Thu, 2012-07-05 at 18:29 +0800, Jason Wang wrote:
+> This patch let the virtio_net driver can negotiate the number of queues it
+> wishes to use through control virtqueue and export an ethtool interface to let
+> use tweak it.
+> 
+> As current multiqueue virtio-net implementation has optimizations on per-cpu
+> virtuqueues, so only two modes were support:
+> 
+> - single queue pair mode
+> - multiple queue paris mode, the number of queues matches the number of vcpus
+> 
+> The single queue mode were used by default currently due to regression of
+> multiqueue mode in some test (especially in stream test).
+> 
+> Since virtio core does not support paritially deleting virtqueues, so during
+> mode switching the whole virtqueue were deleted and the driver would re-create
+> the virtqueues it would used.
+> 
+> btw. The queue number negotiating were defered to .ndo_open(), this is because
+> only after feature negotitaion could we send the command to control virtqueue
+> (as it may also use event index).
+[...]
+> +static int virtnet_set_channels(struct net_device *dev,
+> +				struct ethtool_channels *channels)
+> +{
+> +	struct virtnet_info *vi = netdev_priv(dev);
+> +	u16 queues = channels->rx_count;
+> +	unsigned status = VIRTIO_CONFIG_S_ACKNOWLEDGE | VIRTIO_CONFIG_S_DRIVER;
+> +
+> +	if (channels->rx_count != channels->tx_count)
+> +		return -EINVAL;
+[...]
+> +static void virtnet_get_channels(struct net_device *dev,
+> +				 struct ethtool_channels *channels)
+> +{
+> +	struct virtnet_info *vi = netdev_priv(dev);
+> +
+> +	channels->max_rx = vi->total_queue_pairs;
+> +	channels->max_tx = vi->total_queue_pairs;
+> +	channels->max_other = 0;
+> +	channels->max_combined = 0;
+> +	channels->rx_count = vi->num_queue_pairs;
+> +	channels->tx_count = vi->num_queue_pairs;
+> +	channels->other_count = 0;
+> +	channels->combined_count = 0;
+> +}
+[...]
 
-When running aggregate netperfs, *something* has to be done to address 
-the prospect of skew error.  Otherwise the results are suspect.
+It looks like the queue-pairs should be treated as 'combined channels',
+not separate RX and TX channels.  Also you don't need to clear the other
+members; you can assume that the ethtool core will zero-initialise
+structures for 'get' operations.
 
-happy benchmarking,
+Ben.
 
-rick jones
+-- 
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
