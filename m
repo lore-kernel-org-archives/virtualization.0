@@ -1,15 +1,16 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
-Subject: Re: [net-next RFC V5 5/5] virtio_net: support negotiating the
-	number of queues through ctrl vq
-Date: Mon, 9 Jul 2012 21:13:23 +0100
-Message-ID: <1341864803.2535.53.camel@bwh-desktop.uk.solarflarecom.com>
-References: <1341484194-8108-1-git-send-email-jasowang@redhat.com>
-	<1341484194-8108-6-git-send-email-jasowang@redhat.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [PATCH 0/6] tcm_vhost/virtio-scsi WIP code for-3.6
+Date: Mon, 09 Jul 2012 17:29:14 -0700
+Message-ID: <1341880154.23954.608.camel__30252.7527594522$1341880182$gmane$org@haakon2.linux-iscsi.org>
+References: <1341375846-27882-1-git-send-email-nab@linux-iscsi.org>
+	<20120704140259.GB26485@redhat.com> <4FF45890.6000205@redhat.com>
+	<20120704150557.GA26951@redhat.com>  <4FF4BFBD.2080000@us.ibm.com>
+	<1341453135.23954.214.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1341484194-8108-6-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1341453135.23954.214.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,66 +20,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, mashirle@us.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net, sri@us.ibm.com
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2012-07-05 at 18:29 +0800, Jason Wang wrote:
-> This patch let the virtio_net driver can negotiate the number of queues it
-> wishes to use through control virtqueue and export an ethtool interface to let
-> use tweak it.
-> 
-> As current multiqueue virtio-net implementation has optimizations on per-cpu
-> virtuqueues, so only two modes were support:
-> 
-> - single queue pair mode
-> - multiple queue paris mode, the number of queues matches the number of vcpus
-> 
-> The single queue mode were used by default currently due to regression of
-> multiqueue mode in some test (especially in stream test).
-> 
-> Since virtio core does not support paritially deleting virtqueues, so during
-> mode switching the whole virtqueue were deleted and the driver would re-create
-> the virtqueues it would used.
-> 
-> btw. The queue number negotiating were defered to .ndo_open(), this is because
-> only after feature negotitaion could we send the command to control virtqueue
-> (as it may also use event index).
-[...]
-> +static int virtnet_set_channels(struct net_device *dev,
-> +				struct ethtool_channels *channels)
-> +{
-> +	struct virtnet_info *vi = netdev_priv(dev);
-> +	u16 queues = channels->rx_count;
-> +	unsigned status = VIRTIO_CONFIG_S_ACKNOWLEDGE | VIRTIO_CONFIG_S_DRIVER;
-> +
-> +	if (channels->rx_count != channels->tx_count)
-> +		return -EINVAL;
-[...]
-> +static void virtnet_get_channels(struct net_device *dev,
-> +				 struct ethtool_channels *channels)
-> +{
-> +	struct virtnet_info *vi = netdev_priv(dev);
-> +
-> +	channels->max_rx = vi->total_queue_pairs;
-> +	channels->max_tx = vi->total_queue_pairs;
-> +	channels->max_other = 0;
-> +	channels->max_combined = 0;
-> +	channels->rx_count = vi->num_queue_pairs;
-> +	channels->tx_count = vi->num_queue_pairs;
-> +	channels->other_count = 0;
-> +	channels->combined_count = 0;
-> +}
-[...]
+Hi folks,
 
-It looks like the queue-pairs should be treated as 'combined channels',
-not separate RX and TX channels.  Also you don't need to clear the other
-members; you can assume that the ethtool core will zero-initialise
-structures for 'get' operations.
+On Wed, 2012-07-04 at 18:52 -0700, Nicholas A. Bellinger wrote:
+> 
+> To give an idea of how things are looking on the performance side, here
+> some initial numbers for small block (4k) mixed random IOPs using the
+> following fio test setup:
 
-Ben.
+<SNIP>
 
--- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
+> fio randrw workload | virtio-scsi-raw | virtio-scsi+tcm_vhost | bare-metal raw block
+> ------------------------------------------------------------------------------------
+> 25 Write / 75 Read  |      ~15K       |         ~45K          |         ~70K
+> 75 Write / 25 Read  |      ~20K       |         ~55K          |         ~60K
+> 
+> 
+
+After checking the original benchmarks here again, I realized that for
+virtio-scsi+tcm_vhost the results where actually switched..
+
+So this should have been: heavier READ case (25 / 75) == 55K, and
+heavier WRITE case (75 / 25) == 45K.
+
+> In the first case, virtio-scsi+tcm_vhost is out performing by 3x
+> compared to virtio-scsi-raw using QEMU SCSI emulation with the same raw
+> flash backend device.  For the second case heavier WRITE case, tcm_vhost
+> is nearing full bare-metal utilization (~55K vs. ~60K).
+> 
+> Also converting tcm_vhost to use proper cmwq process context I/O
+> submission will help to get even closer to bare metal speeds for both
+> work-loads.
+> 
+
+Here are initial follow-up virtio-scsi randrw 4k benchmarks with
+tcm_vhost recently converted to run backend I/O dispatch via modern cmwq
+primitives (kworkerd).
+
+fio randrw 4k workload | virtio-scsi+tcm_vhost+cmwq
+---------------------------------------------------
+  25 Write / 75 Read   |          ~60K
+  75 Write / 25 Read   |	  ~45K
+
+So aside from the minor performance improvement for the 25 / 75
+workload, the other main improvement is lower CPU usage using the
+iomemory_vsl backends.  This is attributed to cmwq providing process
+context on the same core as the vhost thread pulling items off vq, which
+ends up being on the order of 1/3 less host CPU usage (for both
+workloads) primarly from positive cache effects.
+
+This patch is now available in target-pending/tcm_vhost, and I'll be
+respinning the initial merge series into for-next-merge over the next
+days + another round of list review.
+
+Please let us know if you have any concerns.
+
+Thanks!
+
+--nab
