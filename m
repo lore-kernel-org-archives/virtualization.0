@@ -1,7 +1,7 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [PATCH] hw/virtio-scsi: Set max_target=0 during vhost-scsi operation
-Date: Wed, 11 Jul 2012 20:55:28 +0000
-Message-ID: <1342040128-29176-1-git-send-email-nab__827.950603752647$1342040313$gmane$org@linux-iscsi.org>
+Subject: [RFC-v2 0/4] tcm_vhost+cmwq fabric driver code for-3.6
+Date: Wed, 11 Jul 2012 21:15:00 +0000
+Message-ID: <1342041304-29728-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,48 +15,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: qemu-devel <qemu-devel@nongnu.org>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>
+To: target-devel <target-devel@vger.kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-This QEMU patch sets VirtIOSCSIConfig->max_target=0 for vhost-scsi operation
-to restrict virtio-scsi LLD guest scanning to max_id=0 (a single target ID
-instance) when connected to individual tcm_vhost endpoints as requested by
-Paolo.
+Hi folks,
 
-This ensures that virtio-scsi LLD only attempts to scan target IDs up to
-VIRTIO_SCSI_MAX_TARGET when connected via virtio-scsi-raw.
+The following is a RFC-v2 series of tcm_vhost target fabric driver code
+currently in-flight for-3.6 mainline code.
 
-It's currently cut against Zhi's qemu vhost-scsi tree here:
+After last week's developments along with the help of some new folks, the
+changelog v1 -> v2 so far looks like:
 
-   https://github.com/wuzhy/qemu/tree/vhost-scsi
+*) Fix drivers/vhost/test.c to use VHOST_NET_FEATURES in patch #1 (Asias He)
+*) Fix tv_cmd completion -> release SGL memory leak (nab)
+*) Fix sparse warnings for static variable usage (Fengguang Wu)
+*) Fix sparse warnings for min() typing + printk format specs (Fengguang Wu)
+*) Convert to cmwq submission for I/O dispatch (nab + hch)
 
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
----
- hw/virtio-scsi.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
+Also following Paolo's request, a patch for hw/virtio-scsi.c that sets
+scsi_host->max_target=0 that removes the need for virtio-scsi LLD to hardcode
+VirtIOSCSIConfig->max_id=1 in order to function with tcm_vhost.
 
-diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
-index e38cdd0..71276b6 100644
---- a/hw/virtio-scsi.c
-+++ b/hw/virtio-scsi.c
-@@ -523,7 +523,11 @@ static void virtio_scsi_get_config(VirtIODevice *vdev,
-     stl_raw(&scsiconf->sense_size, s->sense_size);
-     stl_raw(&scsiconf->cdb_size, s->cdb_size);
-     stl_raw(&scsiconf->max_channel, VIRTIO_SCSI_MAX_CHANNEL);
--    stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
-+    if (s->vhost_scsi) {
-+        stl_raw(&scsiconf->max_target, 0);
-+    } else {
-+        stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
-+    }
-     stl_raw(&scsiconf->max_lun, VIRTIO_SCSI_MAX_LUN);
- }
- 
+Note this series has been pushed into target-pending.git/for-next-merge, and
+should be getting picked up for tomorrow's linux-next build.
+
+Please let us know if you have any concerns and/or additional review feedback.
+
+Thank you!
+
+Nicholas Bellinger (2):
+  vhost: Add vhost_scsi specific defines
+  tcm_vhost: Initial merge for vhost level target fabric driver
+
+Stefan Hajnoczi (2):
+  vhost: Separate vhost-net features from vhost features
+  vhost: make vhost work queue visible
+
+ drivers/vhost/Kconfig     |    6 +
+ drivers/vhost/Makefile    |    1 +
+ drivers/vhost/net.c       |    4 +-
+ drivers/vhost/tcm_vhost.c | 1609 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/tcm_vhost.h |   74 ++
+ drivers/vhost/test.c      |    4 +-
+ drivers/vhost/vhost.c     |    5 +-
+ drivers/vhost/vhost.h     |    6 +-
+ include/linux/vhost.h     |    9 +
+ 9 files changed, 1710 insertions(+), 8 deletions(-)
+ create mode 100644 drivers/vhost/tcm_vhost.c
+ create mode 100644 drivers/vhost/tcm_vhost.h
+
 -- 
 1.7.2.5
