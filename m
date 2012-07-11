@@ -1,16 +1,11 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH 0/6] tcm_vhost/virtio-scsi WIP code for-3.6
-Date: Mon, 09 Jul 2012 17:29:14 -0700
-Message-ID: <1341880154.23954.608.camel__30252.7527594522$1341880182$gmane$org@haakon2.linux-iscsi.org>
-References: <1341375846-27882-1-git-send-email-nab@linux-iscsi.org>
-	<20120704140259.GB26485@redhat.com> <4FF45890.6000205@redhat.com>
-	<20120704150557.GA26951@redhat.com>  <4FF4BFBD.2080000@us.ibm.com>
-	<1341453135.23954.214.camel@haakon2.linux-iscsi.org>
+Subject: [PATCH] hw/virtio-scsi: Set max_target=0 during vhost-scsi operation
+Date: Wed, 11 Jul 2012 20:55:28 +0000
+Message-ID: <1342040128-29176-1-git-send-email-nab__827.950603752647$1342040313$gmane$org@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1341453135.23954.214.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,65 +15,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+To: qemu-devel <qemu-devel@nongnu.org>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi folks,
+From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-On Wed, 2012-07-04 at 18:52 -0700, Nicholas A. Bellinger wrote:
-> 
-> To give an idea of how things are looking on the performance side, here
-> some initial numbers for small block (4k) mixed random IOPs using the
-> following fio test setup:
+This QEMU patch sets VirtIOSCSIConfig->max_target=0 for vhost-scsi operation
+to restrict virtio-scsi LLD guest scanning to max_id=0 (a single target ID
+instance) when connected to individual tcm_vhost endpoints as requested by
+Paolo.
 
-<SNIP>
+This ensures that virtio-scsi LLD only attempts to scan target IDs up to
+VIRTIO_SCSI_MAX_TARGET when connected via virtio-scsi-raw.
 
-> fio randrw workload | virtio-scsi-raw | virtio-scsi+tcm_vhost | bare-metal raw block
-> ------------------------------------------------------------------------------------
-> 25 Write / 75 Read  |      ~15K       |         ~45K          |         ~70K
-> 75 Write / 25 Read  |      ~20K       |         ~55K          |         ~60K
-> 
-> 
+It's currently cut against Zhi's qemu vhost-scsi tree here:
 
-After checking the original benchmarks here again, I realized that for
-virtio-scsi+tcm_vhost the results where actually switched..
+   https://github.com/wuzhy/qemu/tree/vhost-scsi
 
-So this should have been: heavier READ case (25 / 75) == 55K, and
-heavier WRITE case (75 / 25) == 45K.
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+---
+ hw/virtio-scsi.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-> In the first case, virtio-scsi+tcm_vhost is out performing by 3x
-> compared to virtio-scsi-raw using QEMU SCSI emulation with the same raw
-> flash backend device.  For the second case heavier WRITE case, tcm_vhost
-> is nearing full bare-metal utilization (~55K vs. ~60K).
-> 
-> Also converting tcm_vhost to use proper cmwq process context I/O
-> submission will help to get even closer to bare metal speeds for both
-> work-loads.
-> 
-
-Here are initial follow-up virtio-scsi randrw 4k benchmarks with
-tcm_vhost recently converted to run backend I/O dispatch via modern cmwq
-primitives (kworkerd).
-
-fio randrw 4k workload | virtio-scsi+tcm_vhost+cmwq
----------------------------------------------------
-  25 Write / 75 Read   |          ~60K
-  75 Write / 25 Read   |	  ~45K
-
-So aside from the minor performance improvement for the 25 / 75
-workload, the other main improvement is lower CPU usage using the
-iomemory_vsl backends.  This is attributed to cmwq providing process
-context on the same core as the vhost thread pulling items off vq, which
-ends up being on the order of 1/3 less host CPU usage (for both
-workloads) primarly from positive cache effects.
-
-This patch is now available in target-pending/tcm_vhost, and I'll be
-respinning the initial merge series into for-next-merge over the next
-days + another round of list review.
-
-Please let us know if you have any concerns.
-
-Thanks!
-
---nab
+diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
+index e38cdd0..71276b6 100644
+--- a/hw/virtio-scsi.c
++++ b/hw/virtio-scsi.c
+@@ -523,7 +523,11 @@ static void virtio_scsi_get_config(VirtIODevice *vdev,
+     stl_raw(&scsiconf->sense_size, s->sense_size);
+     stl_raw(&scsiconf->cdb_size, s->cdb_size);
+     stl_raw(&scsiconf->max_channel, VIRTIO_SCSI_MAX_CHANNEL);
+-    stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
++    if (s->vhost_scsi) {
++        stl_raw(&scsiconf->max_target, 0);
++    } else {
++        stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
++    }
+     stl_raw(&scsiconf->max_lun, VIRTIO_SCSI_MAX_LUN);
+ }
+ 
+-- 
+1.7.2.5
