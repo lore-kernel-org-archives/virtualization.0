@@ -1,21 +1,16 @@
-From: Christoph Lameter <cl@linux.com>
-Subject: Re: [Ksummit-2012-discuss] SCSI Performance regression [was Re:
-	[PATCH 0/6] tcm_vhost/virtio-scsi WIP code for-3.6]
-Date: Fri, 6 Jul 2012 15:30:57 -0500 (CDT)
-Message-ID: <alpine.DEB.2.00.1207061528520.2656__40795.5077280805$1342460694$gmane$org@router.home>
-References: <1341375846-27882-1-git-send-email-nab@linux-iscsi.org>
-	<20120704140259.GB26485@redhat.com> <4FF45890.6000205@redhat.com>
-	<20120704150557.GA26951@redhat.com> <4FF4BFBD.2080000@us.ibm.com>
-	<1341453135.23954.214.camel@haakon2.linux-iscsi.org>
-	<4FF56AE9.9060201@redhat.com> <20120705135318.GG30572@redhat.com>
-	<4FF59F6B.2000101@us.ibm.com>
-	<1341543672.23954.285.camel@haakon2.linux-iscsi.org>
-	<1341553397.3023.16.camel@dabdike.hilton.com>
+From: James Bottomley <jbottomley@parallels.com>
+Subject: Re: [PATCH-v2] virtio-scsi: Add vdrv->scan for post
+	VIRTIO_CONFIG_S_DRIVER_OK LUN scanning
+Date: Thu, 12 Jul 2012 07:23:50 +0000
+Message-ID: <1342077828.3021.1.camel__5400.00239057026$1342460699$gmane$org@dabdike.int.hansenpartnership.com>
+References: <1342041736-30043-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1341553397.3023.16.camel@dabdike.hilton.com>
+In-Reply-To: <1342041736-30043-1-git-send-email-nab@linux-iscsi.org>
+Content-Language: en-US
+Content-ID: <70DBEFFB34AC3441A72A54E8983784BA@sw.swsoft.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,22 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Anthony Liguori <aliguori@us.ibm.com>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, ksummit-2012-discuss <ksummit-2012-discuss@lists.linuxfoundation.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 6 Jul 2012, James Bottomley wrote:
+On Wed, 2012-07-11 at 21:22 +0000, Nicholas A. Bellinger wrote:
+> From: Nicholas Bellinger <nab@linux-iscsi.org>
+> 
+> This patch changes virtio-scsi to use a new virtio_driver->scan() callback
+> so that scsi_scan_host() can be properly invoked once virtio_dev_probe() has
+> set add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK) to signal active virtio-ring
+> operation, instead of from within virtscsi_probe().
+> 
+> This fixes a bug where SCSI LUN scanning for both virtio-scsi-raw and
+> virtio-scsi/tcm_vhost setups was happening before VIRTIO_CONFIG_S_DRIVER_OK
+> had been set, causing VIRTIO_SCSI_S_BAD_TARGET to occur.  This fixes a bug
+> with virtio-scsi/tcm_vhost where LUN scan was not detecting LUNs.
+> 
+> Tested with virtio-scsi-raw + virtio-scsi/tcm_vhost w/ IBLOCK on 3.5-rc2 code.
+> 
+> (nab: Fix up minor apply fuzz against scsi.git/misc)
+> 
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+> Cc: Zhi Yong Wu <wuzhy@cn.ibm.com>
+> Cc: Christoph Hellwig <hch@lst.de>
+> Cc: Hannes Reinecke <hare@suse.de>
+> Cc: James Bottomley <JBottomley@Parallels.com>
+> Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 
-> What people might pay attention to is evidence that there's a problem in
-> 3.5-rc6 (without any OFED crap).  If you're not going to bother
-> investigating, it has to be in an environment they can reproduce (so
-> ordinary hardware, not infiniband) otherwise it gets ignored as an
-> esoteric hardware issue.
+Was the change so great that it needs re acking?
 
-The OFED stuff in the meantime is part of 3.5-rc6. Infiniband has been
-supported for a long time and its a very important technology given the
-problematic nature of ethernet at high network speeds.
+I assume it also now no longer applies to stable because it will reject?
 
-OFED crap exists for those running RHEL5/6. The new enterprise distros are
-based on the 3.2 kernel which has pretty good Infiniband support
-out of the box.
+James
