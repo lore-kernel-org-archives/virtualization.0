@@ -1,15 +1,14 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH] virtio-scsi: Add vdrv->scan for post
-	VIRTIO_CONFIG_S_DRIVER_OK LUN scanning
-Date: Wed, 11 Jul 2012 14:26:32 -0700
-Message-ID: <1342041992.18004.20.camel@haakon2.linux-iscsi.org>
-References: <1341605705-13114-1-git-send-email-nab@linux-iscsi.org>
-	<1342031856.3522.41.camel@dabdike.int.hansenpartnership.com>
+From: Zhi Yong Wu <zwu.kernel@gmail.com>
+Subject: Re: [PATCH] hw/virtio-scsi: Set max_target=0 during vhost-scsi
+	operation
+Date: Thu, 12 Jul 2012 13:34:35 +0800
+Message-ID: <CAEH94Lhkz81S9hV4_MHejs1c30YoCiwwKk1bCp3gyYNeq9-Veg__27614.059058442$1342071286$gmane$org@mail.gmail.com>
+References: <1342040128-29176-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1342031856.3522.41.camel@dabdike.int.hansenpartnership.com>
+In-Reply-To: <1342040128-29176-1-git-send-email-nab@linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,52 +18,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael
-	S. Tsirkin" <mst@redhat.com>, stable@vger.kernel.org, Zhi Yong Wu <wuzhy@cn.ibm.com>, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: linux-iscsi-target-dev@googlegroups.com
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2012-07-11 at 19:37 +0100, James Bottomley wrote:
-> On Fri, 2012-07-06 at 20:15 +0000, Nicholas A. Bellinger wrote:
-> > From: Nicholas Bellinger <nab@linux-iscsi.org>
-> > 
-> > This patch changes virtio-scsi to use a new virtio_driver->scan() callback
-> > so that scsi_scan_host() can be properly invoked once virtio_dev_probe() has
-> > set add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK) to signal active virtio-ring
-> > operation, instead of from within virtscsi_probe().
-> > 
-> > This fixes a bug where SCSI LUN scanning for both virtio-scsi-raw and
-> > virtio-scsi/tcm_vhost setups was happening before VIRTIO_CONFIG_S_DRIVER_OK
-> > had been set, causing VIRTIO_SCSI_S_BAD_TARGET to occur.  This fixes a bug
-> > with virtio-scsi/tcm_vhost where LUN scan was not detecting LUNs.
-> > 
-> > Tested with virtio-scsi-raw + virtio-scsi/tcm_vhost w/ IBLOCK on 3.5-rc2 code.
-> > 
-> > Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-> > Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-> > Cc: Zhi Yong Wu <wuzhy@cn.ibm.com>
-> > Cc: Christoph Hellwig <hch@lst.de>
-> > Cc: Hannes Reinecke <hare@suse.de>
-> > Cc: <stable@vger.kernel.org>
-> > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
-> > ---
-> >  drivers/scsi/virtio_scsi.c |   15 ++++++++++++---
-> >  drivers/virtio/virtio.c    |    5 ++++-
-> >  include/linux/virtio.h     |    1 +
-> >  3 files changed, 17 insertions(+), 4 deletions(-)
-> 
-> This doesn't apply:
-> 
-> patching file drivers/scsi/virtio_scsi.c
-> Hunk #1 succeeded at 677 (offset 196 lines).
-> Hunk #2 FAILED at 494.
-> Hunk #3 succeeded at 736 (offset 198 lines).
-> 1 out of 3 hunks FAILED -- saving rejects to file
-> drivers/scsi/virtio_scsi.c.rej
-> 
-> could you respin against scsi-misc head?
-> 
+HI,
 
-The updated patch is on it's way rebased against scsi.git/misc.
+Do we need to maintain one QEMU branch to collect all useful latest
+patches for tcm_vhost support?  You know, those patches will not get
+merged into qemu.git/master.
 
-Thanks James!
+
+On Thu, Jul 12, 2012 at 4:55 AM, Nicholas A. Bellinger
+<nab@linux-iscsi.org> wrote:
+> From: Nicholas Bellinger <nab@linux-iscsi.org>
+>
+> This QEMU patch sets VirtIOSCSIConfig->max_target=0 for vhost-scsi operation
+> to restrict virtio-scsi LLD guest scanning to max_id=0 (a single target ID
+> instance) when connected to individual tcm_vhost endpoints as requested by
+> Paolo.
+>
+> This ensures that virtio-scsi LLD only attempts to scan target IDs up to
+> VIRTIO_SCSI_MAX_TARGET when connected via virtio-scsi-raw.
+>
+> It's currently cut against Zhi's qemu vhost-scsi tree here:
+>
+>    https://github.com/wuzhy/qemu/tree/vhost-scsi
+>
+> Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+> Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> ---
+>  hw/virtio-scsi.c |    6 +++++-
+>  1 files changed, 5 insertions(+), 1 deletions(-)
+>
+> diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
+> index e38cdd0..71276b6 100644
+> --- a/hw/virtio-scsi.c
+> +++ b/hw/virtio-scsi.c
+> @@ -523,7 +523,11 @@ static void virtio_scsi_get_config(VirtIODevice *vdev,
+>      stl_raw(&scsiconf->sense_size, s->sense_size);
+>      stl_raw(&scsiconf->cdb_size, s->cdb_size);
+>      stl_raw(&scsiconf->max_channel, VIRTIO_SCSI_MAX_CHANNEL);
+> -    stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
+> +    if (s->vhost_scsi) {
+> +        stl_raw(&scsiconf->max_target, 0);
+> +    } else {
+> +        stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
+> +    }
+>      stl_raw(&scsiconf->max_lun, VIRTIO_SCSI_MAX_LUN);
+>  }
+>
+> --
+> 1.7.2.5
+>
+> --
+> You received this message because you are subscribed to the Google Groups "Linux-iSCSI.org Target Development" group.
+> To post to this group, send email to linux-iscsi-target-dev@googlegroups.com.
+> To unsubscribe from this group, send email to linux-iscsi-target-dev+unsubscribe@googlegroups.com.
+> For more options, visit this group at http://groups.google.com/group/linux-iscsi-target-dev?hl=en.
+>
+
+
+
+-- 
+Regards,
+
+Zhi Yong Wu
