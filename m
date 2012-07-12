@@ -1,8 +1,8 @@
 From: Zhi Yong Wu <zwu.kernel@gmail.com>
 Subject: Re: [PATCH] hw/virtio-scsi: Set max_target=0 during vhost-scsi
 	operation
-Date: Thu, 12 Jul 2012 14:59:13 +0800
-Message-ID: <CAEH94Lg6drDECcyZ3cSUsx_hUjmFeHuyb4H2cdvGZsM0ypRVfQ@mail.gmail.com>
+Date: Thu, 12 Jul 2012 14:59:56 +0800
+Message-ID: <CAEH94LgNkuomE3-8auuEWhe1hGoF3qpMs45G8fsY1xjvQe=2QQ__4609.89086791432$1342076406$gmane$org@mail.gmail.com>
 References: <1342040128-29176-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,8 +23,7 @@ Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.or
 List-Id: virtualization@lists.linuxfoundation.org
 
 thanks, it is applied to my vhost_scsi git tree
-git://github.com/mdroth/qemu.git vhost-scsi
-
+git://github.com/wuzhy/qemu.git vhost-scsi
 
 On Thu, Jul 12, 2012 at 4:55 AM, Nicholas A. Bellinger
 <nab@linux-iscsi.org> wrote:
