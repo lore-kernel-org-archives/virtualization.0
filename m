@@ -1,13 +1,15 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [patch 3/3 -next] tcm_vhost: call kfree() on an error path
-Date: Thu, 12 Jul 2012 14:49:22 -0700
-Message-ID: <1342129762.18004.101.camel__27147.8760907941$1342129771$gmane$org@haakon2.linux-iscsi.org>
-References: <20120712144852.GF24202@elgon.mountain>
+Subject: Re: [PATCH] hw/virtio-scsi: Set max_target=0 during vhost-scsi
+	operation
+Date: Thu, 12 Jul 2012 15:08:38 -0700
+Message-ID: <1342130918.18004.116.camel__47381.4887846403$1342130932$gmane$org@haakon2.linux-iscsi.org>
+References: <1342040128-29176-1-git-send-email-nab@linux-iscsi.org>
+	<CAEH94LgNkuomE3-8auuEWhe1hGoF3qpMs45G8fsY1xjvQe=2QQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120712144852.GF24202@elgon.mountain>
+In-Reply-To: <CAEH94LgNkuomE3-8auuEWhe1hGoF3qpMs45G8fsY1xjvQe=2QQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,31 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: target-devel <target-devel@vger.kernel.org>, virtualization@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Zhi Yong Wu <zwu.kernel@gmail.com>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael
+	S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, linux-iscsi-target-dev@googlegroups.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2012-07-12 at 17:48 +0300, Dan Carpenter wrote:
-> There is a memory leak here.
-> 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> 
-> diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> index 57d39c5..29850cb 100644
-> --- a/drivers/vhost/tcm_vhost.c
-> +++ b/drivers/vhost/tcm_vhost.c
-> @@ -1420,6 +1420,7 @@ static struct se_wwn *tcm_vhost_make_tport(
->  
->  	pr_err("Unable to locate prefix for emulated Target Port:"
->  			" %s\n", name);
-> +	kfree(tport);
->  	return ERR_PTR(-EINVAL);
->  
->  check_len:
+Hi Zhi,
 
-Applied to for-next-merge, and folding the series into the initial merge
-commit now..
+On Thu, 2012-07-12 at 14:59 +0800, Zhi Yong Wu wrote:
+> thanks, it is applied to my vhost_scsi git tree
+> git://github.com/wuzhy/qemu.git vhost-scsi
+> 
 
-Thank you!
+Thanks for picking up this patch in your vhost-scsi tree.
+
+As mentioned off-list, I'd like to rebase to a more recent qemu.git to
+include megasas 8708EM2 HBA emulation from Dr. Hannes so we can
+experiment with a few more types of target setups.  ;)
+
+I'll likely do this on my local branch for now, but if you have the
+extra cycles please feel free to update vhost-scsi to the latest
+qemu.git HEAD so we can have both vhost-scsi + megasas HBA emulation in
+the same working tree.
+
+Depending upon how long we'll need to hold vhost-scsi patches
+out-of-tree (hopefully it's less than infinity ;) a qemu/vhost-scsi
+working tree on kernel.org might also be helpful.
+
+Thanks!
 
 --nab
