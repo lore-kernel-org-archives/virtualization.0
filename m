@@ -1,48 +1,40 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: 0xB16B00B5? Really? (was Re: Move hyperv out of the drivers/staging/
- directory)
-Date: Fri, 13 Jul 2012 12:23:13 +0200
-Message-ID: <4FFFF711.8040003@redhat.com>
-References: <1316708240-25048-1-git-send-email-kys@microsoft.com> <20110922170450.GA4490@suse.de> <6E21E5352C11B742B20C142EB499E048081E935D@TK5EX14MBXC124.redmond.corp.microsoft.com> <20110922173618.GA5624@suse.de> <6E21E5352C11B742B20C142EB499E048081EB789@TK5EX14MBXC124.redmond.corp.microsoft.com> <20111004170415.GA1320@suse.de> <6E21E5352C11B742B20C142EB499E048081EB86F@TK5EX14MBXC124.redmond.corp.microsoft.com> <20111004193414.GA15672@suse.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch -next] tcm_vhost: another strlen() off by one
+Date: Fri, 13 Jul 2012 13:45:47 +0300
+Message-ID: <20120713104547.GA31435@elgon.mountain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20111004193414.GA15672@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Greg KH <gregkh@suse.de>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Nicholas Bellinger <nab@linux-iscsi.org>
+Cc: kernel-janitors@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 04/10/2011 21:34, Greg KH ha scritto:
-> diff --git a/drivers/staging/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
-> similarity index 99%
-> rename from drivers/staging/hv/hyperv_vmbus.h
-> rename to drivers/hv/hyperv_vmbus.h
-> index 3d2d836..8261cb6 100644
-> --- a/drivers/staging/hv/hyperv_vmbus.h
-> +++ b/drivers/hv/hyperv_vmbus.h
-> @@ -28,8 +28,7 @@
->  #include <linux/list.h>
->  #include <asm/sync_bitops.h>
->  #include <linux/atomic.h>
-> -
-> -#include "hyperv.h"
-> +#include <linux/hyperv.h>
->  
->  /*
->   * The below CPUID leaves are present if VersionAndFeatures.HypervisorPresent
+strlen() doesn't count the NUL terminator.  I missed this one in the
+patches I sent yesterday.
 
-git's rename detection snips away this gem:
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-+#define HV_LINUX_GUEST_ID_LO		0x00000000
-+#define HV_LINUX_GUEST_ID_HI		0xB16B00B5
-+#define HV_LINUX_GUEST_ID		(((u64)HV_LINUX_GUEST_ID_HI << 32) | \
-+					   HV_LINUX_GUEST_ID_LO)
-
-Somone was trying to be funny, I guess.
-
-KY, I suppose you have access to Hyper-V code or can ask someone who does.
-Is this signature actually used in the Hyper-V host code?
-
-Paolo
+diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+index 29850cb..ea72198 100644
+--- a/drivers/vhost/tcm_vhost.c
++++ b/drivers/vhost/tcm_vhost.c
+@@ -1424,7 +1424,7 @@ static struct se_wwn *tcm_vhost_make_tport(
+ 	return ERR_PTR(-EINVAL);
+ 
+ check_len:
+-	if (strlen(name) > TCM_VHOST_NAMELEN) {
++	if (strlen(name) >= TCM_VHOST_NAMELEN) {
+ 		pr_err("Emulated %s Address: %s, exceeds"
+ 			" max: %d\n", name, tcm_vhost_dump_proto_id(tport),
+ 			TCM_VHOST_NAMELEN);
