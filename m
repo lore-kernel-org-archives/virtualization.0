@@ -1,16 +1,13 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 1/5] aio: Export symbols and struct kiocb_batch for in
-	kernel aio usage
-Date: Fri, 13 Jul 2012 09:40:03 +0800
-Message-ID: <4FFF7C73.2060707__7501.69405150718$1342143507$gmane$org@redhat.com>
-References: <1342107302-28116-1-git-send-email-asias@redhat.com>
-	<1342107302-28116-2-git-send-email-asias@redhat.com>
-	<1342115416.3021.60.camel@dabdike.int.hansenpartnership.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: virtio config access races
+Date: Fri, 13 Jul 2012 13:25:15 +0930
+Message-ID: <871ukgz55o.fsf__20965.4473852881$1342153143$gmane$org@rustcorp.com.au>
+References: <20120712225941.GA9317@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1342115416.3021.60.camel@dabdike.int.hansenpartnership.com>
+In-Reply-To: <20120712225941.GA9317@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,33 +17,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-aio@kvack.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi James,
+On Fri, 13 Jul 2012 01:59:41 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> It looks like there's a problem in the way virtio config currently
+> works: if driver reads config in probe routine, config
+> subsequently can change before core sets DRIVER_OK.
+> This will not cause an interrupt and so this event is lost.
+> Maybe we should document that devices should delay such
+> events until after DRIVER_OK?
 
-On 07/13/2012 01:50 AM, James Bottomley wrote:
-> On Thu, 2012-07-12 at 23:35 +0800, Asias He wrote:
->> This is useful for people who want to use aio in kernel, e.g. vhost-blk.
->>
->> Signed-off-by: Asias He <asias@redhat.com>
->> ---
->>   fs/aio.c            |   37 ++++++++++++++++++-------------------
->>   include/linux/aio.h |   21 +++++++++++++++++++++
->>   2 files changed, 39 insertions(+), 19 deletions(-)
->
-> Um, I think you don't quite understand how aio in the kernel would work;
-> it's not as simple as just exporting the interfaces.  There's already a
-> (very long) patch set from oracle to do this so loop can use aio:
->
-> http://marc.info/?l=linux-fsdevel&m=133312234313122
+The device is currently defined to be active from the time we
+acknowledge the features (which means we may get a spurious interrupt
+before we probe, I think).  We abuse this for virtio_blk for example,
+where we add_disk() inside the probe function.
 
-Oh, I did not see this patch set. Thanks for pointing it out! This bit 
-hasn't merged, right? I'd love to use the aio_kernel_() interface if it 
-is merged. It will simply vhost-blk. Due to lack of better kernel aio 
-interface, we are currently doing io_setup, io_submit, etc. in vhost-blk 
-on our own.
+Hmm, the changed interrupt is live from find_vqs, right?  Perhaps we
+should leave it to drivers to set that up in the right order.
 
--- 
-Asias
+Thoughts?
+Rusty.
