@@ -1,40 +1,79 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch -next] tcm_vhost: another strlen() off by one
-Date: Fri, 13 Jul 2012 13:45:47 +0300
-Message-ID: <20120713104547.GA31435@elgon.mountain>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: 0xB16B00B5? Really? (was Re: Move hyperv out of the
+ drivers/staging/ directory)
+Date: Fri, 13 Jul 2012 13:13:42 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF9223B57EC@SN2PRD0310MB382.namprd03.prod.outlook.com>
+References: <1316708240-25048-1-git-send-email-kys@microsoft.com>
+ <20110922170450.GA4490@suse.de>
+ <6E21E5352C11B742B20C142EB499E048081E935D@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20110922173618.GA5624@suse.de>
+ <6E21E5352C11B742B20C142EB499E048081EB789@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20111004170415.GA1320@suse.de>
+ <6E21E5352C11B742B20C142EB499E048081EB86F@TK5EX14MBXC124.redmond.corp.microsoft.com>
+ <20111004193414.GA15672@suse.de> <4FFFF711.8040003@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Nicholas Bellinger <nab@linux-iscsi.org>
-Cc: kernel-janitors@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <4FFFF711.8040003@redhat.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Greg KH <gregkh@suse.de>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-strlen() doesn't count the NUL terminator.  I missed this one in the
-patches I sent yesterday.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 29850cb..ea72198 100644
---- a/drivers/vhost/tcm_vhost.c
-+++ b/drivers/vhost/tcm_vhost.c
-@@ -1424,7 +1424,7 @@ static struct se_wwn *tcm_vhost_make_tport(
- 	return ERR_PTR(-EINVAL);
- 
- check_len:
--	if (strlen(name) > TCM_VHOST_NAMELEN) {
-+	if (strlen(name) >= TCM_VHOST_NAMELEN) {
- 		pr_err("Emulated %s Address: %s, exceeds"
- 			" max: %d\n", name, tcm_vhost_dump_proto_id(tport),
- 			TCM_VHOST_NAMELEN);
+> -----Original Message-----
+> From: Paolo Bonzini [mailto:paolo.bonzini@gmail.com] On Behalf Of Paolo
+> Bonzini
+> Sent: Friday, July 13, 2012 6:23 AM
+> To: KY Srinivasan
+> Cc: Greg KH; devel@linuxdriverproject.org; linux-kernel@vger.kernel.org;
+> virtualization@lists.osdl.org
+> Subject: 0xB16B00B5? Really? (was Re: Move hyperv out of the drivers/staging/
+> directory)
+> 
+> Il 04/10/2011 21:34, Greg KH ha scritto:
+> > diff --git a/drivers/staging/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
+> > similarity index 99%
+> > rename from drivers/staging/hv/hyperv_vmbus.h
+> > rename to drivers/hv/hyperv_vmbus.h
+> > index 3d2d836..8261cb6 100644
+> > --- a/drivers/staging/hv/hyperv_vmbus.h
+> > +++ b/drivers/hv/hyperv_vmbus.h
+> > @@ -28,8 +28,7 @@
+> >  #include <linux/list.h>
+> >  #include <asm/sync_bitops.h>
+> >  #include <linux/atomic.h>
+> > -
+> > -#include "hyperv.h"
+> > +#include <linux/hyperv.h>
+> >
+> >  /*
+> >   * The below CPUID leaves are present if
+> VersionAndFeatures.HypervisorPresent
+> 
+> git's rename detection snips away this gem:
+> 
+> +#define HV_LINUX_GUEST_ID_LO		0x00000000
+> +#define HV_LINUX_GUEST_ID_HI		0xB16B00B5
+> +#define HV_LINUX_GUEST_ID		(((u64)HV_LINUX_GUEST_ID_HI
+> << 32) | \
+> +					   HV_LINUX_GUEST_ID_LO)
+> 
+> Somone was trying to be funny, I guess.
+> 
+> KY, I suppose you have access to Hyper-V code or can ask someone who does.
+> Is this signature actually used in the Hyper-V host code?
+
+It is still early in the morning here and pardon me if I am not seeing the issue.
+Could you elaborate on what you want changed and why. This is a guest
+signature that is stashed away in the hypervisor and perhaps can be retrieved
+by the host. Other than that, this is not used anywhere else. MSFT has defined a
+a namespace for guest IDs and while some ranges are reserved for MSFT operating
+systems, there really is nothing special about the guest ID.
+
+Regards,
+
+K. Y
