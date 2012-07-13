@@ -1,13 +1,13 @@
 From: "zhenzhong.duan" <zhenzhong.duan@oracle.com>
-Subject: Re: [Xen-devel] [PATCH] xen: populate correct number of pages when
+Subject: [Xen-devel] [PATCH-v2] xen: populate correct number of pages when
 	across mem boundary
-Date: Fri, 13 Jul 2012 13:37:46 +0800
-Message-ID: <4FFFB42A.60303@oracle.com>
+Date: Fri, 13 Jul 2012 16:31:21 +0800
+Message-ID: <4FFFDCD9.7030305@oracle.com>
 References: <4FF3E781.5040603@oracle.com> <4FFEE552.4070201@citrix.com>
 Reply-To: zhenzhong.duan@oracle.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <4FFEE552.4070201@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -23,87 +23,108 @@ To: David Vrabel <david.vrabel@citrix.com>
 Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, x86@kernel.org, Feng Jin <joe.jin@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, hpa@zytor.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cgrkuo4gMjAxMi0wNy0xMiAyMjo1NSwgRGF2aWQgVnJhYmVsIOWGmemBkzoKPiBPbiAwNC8wNy8x
-MiAwNzo0OSwgemhlbnpob25nLmR1YW4gd3JvdGU6Cj4+IFdoZW4gcG9wdWxhdGUgcGFnZXMgYWNy
-b3NzIGEgbWVtIGJvdW5kYXJ5IGF0IGJvb3R1cCwgdGhlIHBhZ2UgY291bnQKPj4gcG9wdWxhdGVk
-IGlzbid0IGNvcnJlY3QuIFRoaXMgaXMgZHVlIHRvIG1lbSBwb3B1bGF0ZWQgdG8gbm9uLW1lbQo+
-PiByZWdpb24gYW5kIGlnbm9yZWQuCj4+Cj4+IFBmbiByYW5nZSBpcyBhbHNvIHdyb25nbHkgYWxp
-Z25lZCB3aGVuIG1lbSBib3VuZGFyeSBpc24ndCBwYWdlIGFsaWduZWQuCj4+Cj4+IEFsc28gbmVl
-ZCBjb25zaWRlciB0aGUgcmFyZSBjYXNlIHdoZW4geGVuX2RvX2NodW5rIGZhaWwocG9wdWxhdGUp
-Lgo+Pgo+PiBGb3IgYSBkb20wIGJvb3RlZCB3aXRoIGRvbV9tZW09MzM2ODk1MksoMHhjZDlmZjAw
-MC00aykgZG1lc2cgZGlmZiBpczoKPj4gICBbICAgIDAuMDAwMDAwXSBGcmVlaW5nIDllLTEwMCBw
-Zm4gcmFuZ2U6IDk4IHBhZ2VzIGZyZWVkCj4+ICAgWyAgICAwLjAwMDAwMF0gMS0xIG1hcHBpbmcg
-b24gOWUtPjEwMAo+PiAgIFsgICAgMC4wMDAwMDBdIDEtMSBtYXBwaW5nIG9uIGNkOWZmLT4xMDAw
-MDAKPj4gICBbICAgIDAuMDAwMDAwXSBSZWxlYXNlZCA5OCBwYWdlcyBvZiB1bnVzZWQgbWVtb3J5
-Cj4+ICAgWyAgICAwLjAwMDAwMF0gU2V0IDIwNjQzNSBwYWdlKHMpIHRvIDEtMSBtYXBwaW5nCj4+
-IC1bICAgIDAuMDAwMDAwXSBQb3B1bGF0aW5nIGNkOWZlLWNkYTAwIHBmbiByYW5nZTogMSBwYWdl
-cyBhZGRlZAo+PiArWyAgICAwLjAwMDAwMF0gUG9wdWxhdGluZyBjZDlmZS1jZDlmZiBwZm4gcmFu
-Z2U6IDEgcGFnZXMgYWRkZWQKPj4gK1sgICAgMC4wMDAwMDBdIFBvcHVsYXRpbmcgMTAwMDAwLTEw
-MDA2MSBwZm4gcmFuZ2U6IDk3IHBhZ2VzIGFkZGVkCj4+ICAgWyAgICAwLjAwMDAwMF0gQklPUy1w
-cm92aWRlZCBwaHlzaWNhbCBSQU0gbWFwOgo+PiAgIFsgICAgMC4wMDAwMDBdIFhlbjogMDAwMDAw
-MDAwMDAwMDAwMCAtIDAwMDAwMDAwMDAwOWUwMDAgKHVzYWJsZSkKPj4gICBbICAgIDAuMDAwMDAw
-XSBYZW46IDAwMDAwMDAwMDAwYTAwMDAgLSAwMDAwMDAwMDAwMTAwMDAwIChyZXNlcnZlZCkKPj4g
-ICBbICAgIDAuMDAwMDAwXSBYZW46IDAwMDAwMDAwMDAxMDAwMDAgLSAwMDAwMDAwMGNkOWZmMDAw
-ICh1c2FibGUpCj4+ICAgWyAgICAwLjAwMDAwMF0gWGVuOiAwMDAwMDAwMGNkOWZmYzAwIC0gMDAw
-MDAwMDBjZGE1M2MwMCAoQUNQSSBOVlMpCj4+IC4uLgo+PiAgIFsgICAgMC4wMDAwMDBdIFhlbjog
-MDAwMDAwMDEwMDAwMDAwMCAtIDAwMDAwMDAxMDAwNjEwMDAgKHVzYWJsZSkKPj4gICBbICAgIDAu
-MDAwMDAwXSBYZW46IDAwMDAwMDAxMDAwNjEwMDAgLSAwMDAwMDAwMTJjMDAwMDAwICh1bnVzYWJs
-ZSkKPj4gLi4uCj4+ICAgWyAgICAwLjAwMDAwMF0gTUVNQkxPQ0sgY29uZmlndXJhdGlvbjoKPj4g
-Li4uCj4+IC1bICAgIDAuMDAwMDAwXSAgcmVzZXJ2ZWRbMHg0XSAgICAgICBbMHgwMDAwMDBjZDlm
-ZjAwMC0weDAwMDAwMGNkOWZmYmZmXSwgMHhjMDAgYnl0ZXMKPj4gLVsgICAgMC4wMDAwMDBdICBy
-ZXNlcnZlZFsweDVdICAgICAgIFsweDAwMDAwMTAwMDAwMDAwLTB4MDAwMDAxMDAwNjBmZmZdLCAw
-eDYxMDAwIGJ5dGVzCj4+Cj4+IFJlbGF0ZWQgeGVuIG1lbW9yeSBsYXlvdXQ6Cj4+IChYRU4pIFhl
-bi1lODIwIFJBTSBtYXA6Cj4+IChYRU4pICAwMDAwMDAwMDAwMDAwMDAwIC0gMDAwMDAwMDAwMDA5
-ZWMwMCAodXNhYmxlKQo+PiAoWEVOKSAgMDAwMDAwMDAwMDBmMDAwMCAtIDAwMDAwMDAwMDAxMDAw
-MDAgKHJlc2VydmVkKQo+PiAoWEVOKSAgMDAwMDAwMDAwMDEwMDAwMCAtIDAwMDAwMDAwY2Q5ZmZj
-MDAgKHVzYWJsZSkKPj4KPj4gU2lnbmVkLW9mZi1ieTogWmhlbnpob25nIER1YW48emhlbnpob25n
-LmR1YW5Ab3JhY2xlLmNvbT4KPj4gLS0tCj4+ICAgYXJjaC94ODYveGVuL3NldHVwLmMgfCAgIDI0
-ICsrKysrKysrKysrLS0tLS0tLS0tLS0tLQo+PiAgIDEgZmlsZXMgY2hhbmdlZCwgMTEgaW5zZXJ0
-aW9ucygrKSwgMTMgZGVsZXRpb25zKC0pCj4+Cj4+IGRpZmYgLS1naXQgYS9hcmNoL3g4Ni94ZW4v
-c2V0dXAuYyBiL2FyY2gveDg2L3hlbi9zZXR1cC5jCj4+IGluZGV4IGE0NzkwYmYuLmJkNzg3NzMg
-MTAwNjQ0Cj4+IC0tLSBhL2FyY2gveDg2L3hlbi9zZXR1cC5jCj4+ICsrKyBiL2FyY2gveDg2L3hl
-bi9zZXR1cC5jCj4+IEBAIC0xNTcsNTAgKzE1Nyw0OCBAQCBzdGF0aWMgdW5zaWduZWQgbG9uZyBf
-X2luaXQgeGVuX3BvcHVsYXRlX2NodW5rKAo+PiAgIAl1bnNpZ25lZCBsb25nIGRlc3RfcGZuOwo+
-Pgo+PiAgIAlmb3IgKGkgPSAwLCBlbnRyeSA9IGxpc3Q7IGk8ICBtYXBfc2l6ZTsgaSsrLCBlbnRy
-eSsrKSB7Cj4+IC0JCXVuc2lnbmVkIGxvbmcgY3JlZGl0cyA9IGNyZWRpdHNfbGVmdDsKPj4gICAJ
-CXVuc2lnbmVkIGxvbmcgc19wZm47Cj4+ICAgCQl1bnNpZ25lZCBsb25nIGVfcGZuOwo+PiAgIAkJ
-dW5zaWduZWQgbG9uZyBwZm5zOwo+PiAgIAkJbG9uZyBjYXBhY2l0eTsKPj4KPj4gLQkJaWYgKGNy
-ZWRpdHM8PSAwKQo+PiArCQlpZiAoY3JlZGl0c19sZWZ0PD0gMCkKPj4gICAJCQlicmVhazsKPj4K
-Pj4gICAJCWlmIChlbnRyeS0+dHlwZSAhPSBFODIwX1JBTSkKPj4gICAJCQljb250aW51ZTsKPj4K
-Pj4gLQkJZV9wZm4gPSBQRk5fVVAoZW50cnktPmFkZHIgKyBlbnRyeS0+c2l6ZSk7Cj4+ICsJCWVf
-cGZuID0gUEZOX0RPV04oZW50cnktPmFkZHIgKyBlbnRyeS0+c2l6ZSk7Cj4gT2suCj4KPj4KPj4g
-ICAJCS8qIFdlIG9ubHkgY2FyZSBhYm91dCBFODIwIGFmdGVyIHRoZSB4ZW5fc3RhcnRfaW5mby0+
-bnJfcGFnZXMgKi8KPj4gICAJCWlmIChlX3Bmbjw9IG1heF9wZm4pCj4+ICAgCQkJY29udGludWU7
-Cj4+Cj4+IC0JCXNfcGZuID0gUEZOX0RPV04oZW50cnktPmFkZHIpOwo+PiArCQlzX3BmbiA9IFBG
-Tl9VUChlbnRyeS0+YWRkcik7Cj4gT2suCj4KPj4gICAJCS8qIElmIHRoZSBFODIwIGZhbGxzIHdp
-dGhpbiB0aGUgbnJfcGFnZXMsIHdlIHdhbnQgdG8gc3RhcnQKPj4gICAJCSAqIGF0IHRoZSBucl9w
-YWdlcyBQRk4uCj4+ICAgCQkgKiBJZiB0aGF0IHdvdWxkIG1lYW4gZ29pbmcgcGFzdCB0aGUgRTgy
-MCBlbnRyeSwgc2tpcCBpdAo+PiAgIAkJICovCj4+ICthZ2FpbjoKPj4gICAJCWlmIChzX3Bmbjw9
-IG1heF9wZm4pIHsKPj4gICAJCQljYXBhY2l0eSA9IGVfcGZuIC0gbWF4X3BmbjsKPj4gICAJCQlk
-ZXN0X3BmbiA9IG1heF9wZm47Cj4+ICAgCQl9IGVsc2Ugewo+PiAtCQkJLyogbGFzdF9wZm4gTVVT
-VCBiZSB3aXRoaW4gRTgyMF9SQU0gcmVnaW9ucyAqLwo+PiAtCQkJaWYgKCpsYXN0X3BmbiYmICBl
-X3Bmbj49ICpsYXN0X3BmbikKPj4gLQkJCQlzX3BmbiA9ICpsYXN0X3BmbjsKPj4gICAJCQljYXBh
-Y2l0eSA9IGVfcGZuIC0gc19wZm47Cj4+ICAgCQkJZGVzdF9wZm4gPSBzX3BmbjsKPj4gICAJCX0K
-Pj4gLQkJLyogSWYgd2UgaGFkIGZpbGxlZCB0aGlzIEU4MjBfUkFNIGVudHJ5LCBnbyB0byB0aGUg
-bmV4dCBvbmUuICovCj4+IC0JCWlmIChjYXBhY2l0eTw9IDApCj4+IC0JCQljb250aW51ZTsKPj4K
-Pj4gLQkJaWYgKGNyZWRpdHM+ICBjYXBhY2l0eSkKPj4gLQkJCWNyZWRpdHMgPSBjYXBhY2l0eTsK
-Pj4gKwkJaWYgKGNyZWRpdHNfbGVmdDwgIGNhcGFjaXR5KQo+PiArCQkJY2FwYWNpdHkgPSBjcmVk
-aXRzX2xlZnQ7Cj4+Cj4+IC0JCXBmbnMgPSB4ZW5fZG9fY2h1bmsoZGVzdF9wZm4sIGRlc3RfcGZu
-ICsgY3JlZGl0cywgZmFsc2UpOwo+PiArCQlwZm5zID0geGVuX2RvX2NodW5rKGRlc3RfcGZuLCBk
-ZXN0X3BmbiArIGNhcGFjaXR5LCBmYWxzZSk7Cj4+ICAgCQlkb25lICs9IHBmbnM7Cj4+ICAgCQlj
-cmVkaXRzX2xlZnQgLT0gcGZuczsKPj4gICAJCSpsYXN0X3BmbiA9IChkZXN0X3BmbiArIHBmbnMp
-Owo+PiArCQlpZiAoY3JlZGl0c19sZWZ0PiAgMCYmICAqbGFzdF9wZm48ICBlX3Bmbikgewo+PiAr
-CQkJc19wZm4gPSAqbGFzdF9wZm47Cj4+ICsJCQlnb3RvIGFnYWluOwo+PiArCQl9Cj4gVGhpcyBs
-b29rcyBsaWtlIGl0IHdpbGwgbG9vcCBmb3JldmVyIGlmIHhlbl9kb19jaHVuaygpIHJlcGVhdGVk
-bHkgZmFpbHMKPiBiZWNhdXNlIFhlbiBpcyBvdXQgb2YgcGFnZXMuICBJIHRoaW5rIGlmIHhlbl9k
-b19jaHVuaygpIGNhbm5vdCBnZXQgYQo+IHBhZ2UgZnJvbSBYZW4gdGhlIHJlcG9wdWxhdGlvbiBw
-cm9jZXNzIHNob3VsZCBzdG9wIC0tIGFib3J0aW5nIHRoaXMKPiBjaHVuayBhbmQgYW55IG90aGVy
-cy4gIFRoaXMgd2lsbCBhbGxvdyB0aGUgZ3Vlc3QgdG8gY29udGludWUgdG8gYm9vdAo+IGp1c3Qg
-d2l0aCBsZXNzIG1lbW9yeSB0aGFuIGV4cGVjdGVkLgo+Cj4gRGF2aWQKT2ssIEknbGwgdXBkYXRl
-IHRoZSBwYXRjaCwgbG9vcCBmb3JldmVyIGlzbid0IGEgZ29vZCBpZGVhLgpPcmlnaW5hbGx5LCBJ
-IGNvbnNpZGVyZWQgdGhlIGNhc2UgdGhlcmUgaXMgZHluYW1pYyBtZW1vcnkgY29udHJvbCAKZnVu
-Y3Rpb25hbGl0eSBpbiB0aGUgc3lzdGVtLgp0aGFua3MgZm9yIGNvbW1lbnQuCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
-L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
-bg==
+When populate pages across a mem boundary at bootup, the page count
+populated isn't correct. This is due to mem populated to non-mem
+region and ignored.
+
+Pfn range is also wrongly aligned when mem boundary isn't page aligned.
+
+-v2: If xen_do_chunk fail(populate), abort this chunk and any others.
+Suggested by David, thanks.
+
+For a dom0 booted with dom_mem=3368952K(0xcd9ff000-4k) dmesg diff is:
+  [    0.000000] Freeing 9e-100 pfn range: 98 pages freed
+  [    0.000000] 1-1 mapping on 9e->100
+  [    0.000000] 1-1 mapping on cd9ff->100000
+  [    0.000000] Released 98 pages of unused memory
+  [    0.000000] Set 206435 page(s) to 1-1 mapping
+-[    0.000000] Populating cd9fe-cda00 pfn range: 1 pages added
++[    0.000000] Populating cd9fe-cd9ff pfn range: 1 pages added
++[    0.000000] Populating 100000-100061 pfn range: 97 pages added
+  [    0.000000] BIOS-provided physical RAM map:
+  [    0.000000] Xen: 0000000000000000 - 000000000009e000 (usable)
+  [    0.000000] Xen: 00000000000a0000 - 0000000000100000 (reserved)
+  [    0.000000] Xen: 0000000000100000 - 00000000cd9ff000 (usable)
+  [    0.000000] Xen: 00000000cd9ffc00 - 00000000cda53c00 (ACPI NVS)
+...
+  [    0.000000] Xen: 0000000100000000 - 0000000100061000 (usable)
+  [    0.000000] Xen: 0000000100061000 - 000000012c000000 (unusable)
+...
+  [    0.000000] MEMBLOCK configuration:
+...
+-[    0.000000]  reserved[0x4]       [0x000000cd9ff000-0x000000cd9ffbff], 0xc00 bytes
+-[    0.000000]  reserved[0x5]       [0x00000100000000-0x00000100060fff], 0x61000 bytes
+
+Related xen memory layout:
+(XEN) Xen-e820 RAM map:
+(XEN)  0000000000000000 - 000000000009ec00 (usable)
+(XEN)  00000000000f0000 - 0000000000100000 (reserved)
+(XEN)  0000000000100000 - 00000000cd9ffc00 (usable)
+
+Signed-off-by: Zhenzhong Duan<zhenzhong.duan@oracle.com>
+---
+diff --git a/arch/x86/xen/setup.c b/arch/x86/xen/setup.c
+index a4790bf..ead8557 100644
+--- a/arch/x86/xen/setup.c
++++ b/arch/x86/xen/setup.c
+@@ -157,25 +157,24 @@ static unsigned long __init xen_populate_chunk(
+  	unsigned long dest_pfn;
+
+  	for (i = 0, entry = list; i<  map_size; i++, entry++) {
+-		unsigned long credits = credits_left;
+  		unsigned long s_pfn;
+  		unsigned long e_pfn;
+  		unsigned long pfns;
+  		long capacity;
+
+-		if (credits<= 0)
++		if (credits_left<= 0)
+  			break;
+
+  		if (entry->type != E820_RAM)
+  			continue;
+
+-		e_pfn = PFN_UP(entry->addr + entry->size);
++		e_pfn = PFN_DOWN(entry->addr + entry->size);
+
+  		/* We only care about E820 after the xen_start_info->nr_pages */
+  		if (e_pfn<= max_pfn)
+  			continue;
+
+-		s_pfn = PFN_DOWN(entry->addr);
++		s_pfn = PFN_UP(entry->addr);
+  		/* If the E820 falls within the nr_pages, we want to start
+  		 * at the nr_pages PFN.
+  		 * If that would mean going past the E820 entry, skip it
+@@ -184,23 +183,19 @@ static unsigned long __init xen_populate_chunk(
+  			capacity = e_pfn - max_pfn;
+  			dest_pfn = max_pfn;
+  		} else {
+-			/* last_pfn MUST be within E820_RAM regions */
+-			if (*last_pfn&&  e_pfn>= *last_pfn)
+-				s_pfn = *last_pfn;
+  			capacity = e_pfn - s_pfn;
+  			dest_pfn = s_pfn;
+  		}
+-		/* If we had filled this E820_RAM entry, go to the next one. */
+-		if (capacity<= 0)
+-			continue;
+
+-		if (credits>  capacity)
+-			credits = capacity;
++		if (credits_left<  capacity)
++			capacity = credits_left;
+
+-		pfns = xen_do_chunk(dest_pfn, dest_pfn + credits, false);
++		pfns = xen_do_chunk(dest_pfn, dest_pfn + capacity, false);
+  		done += pfns;
+-		credits_left -= pfns;
+  		*last_pfn = (dest_pfn + pfns);
++		if (pfns<  capacity)
++			break;
++		credits_left -= pfns;
+  	}
+  	return done;
+  }
+-- 
+1.7.3
