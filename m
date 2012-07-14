@@ -1,73 +1,144 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 11/15] Tools: hv: Gather DNS information
-Date: Sat, 14 Jul 2012 13:34:16 -0700
-Message-ID: <1342298060-12662-11-git-send-email-kys@microsoft.com>
+Subject: [PATCH 06/15] Tools: hv: Further refactor kvp_get_ip_address()
+Date: Sat, 14 Jul 2012 13:34:11 -0700
+Message-ID: <1342298060-12662-6-git-send-email-kys@microsoft.com>
 References: <1342297930-12607-1-git-send-email-kys@microsoft.com>
  <1342298060-12662-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1342298060-12662-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now gather DNS information. This information cannot be gathered in
-a distro independent fashion. Invoke an external script (that can be
-distro dependent) to gather the DNS information.
+In preparation for making kvp_get_ip_address() more generic, factor out
+the code for handling IP addresses.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- tools/hv/hv_kvp_daemon.c |   27 +++++++++++++++++++++++++++
- 1 files changed, 27 insertions(+), 0 deletions(-)
+ tools/hv/hv_kvp_daemon.c |   94 ++++++++++++++++++++-------------------------
+ 1 files changed, 42 insertions(+), 52 deletions(-)
 
 diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index b7a2df0..a81ce67 100644
+index 3128e77..218f28d 100644
 --- a/tools/hv/hv_kvp_daemon.c
 +++ b/tools/hv/hv_kvp_daemon.c
-@@ -553,6 +553,33 @@ static void kvp_get_ipconfig_info(char *if_name,
- 	kvp_process_ipconfig_file(cmd, (char *)buffer->gate_way,
- 				(MAX_GATEWAY_SIZE * 2), INET6_ADDRSTRLEN, 1);
- 
-+
-+	/*
-+	 * Gather the DNS  state.
-+	 * Since there is no standard way to get this information
-+	 * across various distributions of interest; we just invoke
-+	 * an external script that needs to be ported across distros
-+	 * of interest.
-+	 * Input to the script:
-+	 * 1) Interface name
-+	 *
-+	 * Following is the expected format of the information from the script:
-+	 *
-+	 * ipaddr1 (nameserver1)
-+	 * ipaddr2 (nameserver2)
-+	 * .
-+	 * .
-+	 */
-+
-+	memset(cmd, 0, 512);
-+	strcat(cmd, "/sbin/hv_get_dns_info ");
-+	strcat(cmd, if_name);
-+
-+	/*
-+	 * Execute the command to gather DNS info.
-+	 */
-+	kvp_process_ipconfig_file(cmd, (char *)buffer->dns_addr,
-+				(MAX_IP_ADDR_SIZE * 2), INET_ADDRSTRLEN, 0);
+@@ -490,17 +490,50 @@ done:
+ 	return;
  }
  
++static int kvp_process_ip_address(void *addrp,
++				int family, char *buffer,
++				int length,  int *offset)
++{
++	struct sockaddr_in *addr;
++	struct sockaddr_in6 *addr6;
++	int addr_length;
++	char tmp[50];
++	const char *str;
++
++	if (family == AF_INET) {
++		addr = (struct sockaddr_in *)addrp;
++		str = inet_ntop(family, &addr->sin_addr, tmp, 50);
++		addr_length = INET_ADDRSTRLEN;
++	} else {
++		addr6 = (struct sockaddr_in6 *)addrp;
++		str = inet_ntop(family, &addr6->sin6_addr.s6_addr, tmp, 50);
++		addr_length = INET6_ADDRSTRLEN;
++	}
++
++	if ((length - *offset) < addr_length + 1)
++		return 1;
++	if (str == NULL) {
++		strcpy(buffer, "inet_ntop failed\n");
++		return 1;
++	}
++	if (*offset == 0)
++		strcpy(buffer, tmp);
++	else
++		strcat(buffer, tmp);
++	strcat(buffer, ";");
++
++	*offset += strlen(str) + 1;
++	return 0;
++}
++
+ static int
+ kvp_get_ip_address(int family, char *if_name, int op,
+ 		 void  *out_buffer, int length)
+ {
+ 	struct ifaddrs *ifap;
+ 	struct ifaddrs *curp;
+-	int ipv4_len = strlen("255.255.255.255") + 1;
+-	int ipv6_len = strlen("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")+1;
+ 	int offset = 0;
+ 	const char *str;
+-	char tmp[50];
+ 	int error = 0;
+ 	char *buffer;
+ 	struct hv_kvp_ipaddr_value *ip_buffer;
+@@ -555,55 +588,12 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ 			continue;
+ 		}
  
+-		if ((curp->ifa_addr->sa_family == AF_INET) &&
+-			((family == AF_INET) || (family == 0))) {
+-			struct sockaddr_in *addr =
+-			(struct sockaddr_in *) curp->ifa_addr;
+-
+-			str = inet_ntop(AF_INET, &addr->sin_addr, tmp, 50);
+-			if (str == NULL) {
+-				strcpy(buffer, "inet_ntop failed\n");
+-				error = 1;
+-				goto getaddr_done;
+-			}
+-			if (offset == 0)
+-				strcpy(buffer, tmp);
+-			else
+-				strcat(buffer, tmp);
+-			strcat(buffer, ";");
+-
+-			offset += strlen(str) + 1;
+-			if ((length - offset) < (ipv4_len + 1))
+-				goto getaddr_done;
+-
+-		} else if ((family == AF_INET6) || (family == 0)) {
+-
+-			/*
+-			 * We only support AF_INET and AF_INET6
+-			 * and the list of addresses is separated by a ";".
+-			 */
+-			struct sockaddr_in6 *addr =
+-				(struct sockaddr_in6 *) curp->ifa_addr;
+-
+-			str = inet_ntop(AF_INET6,
+-					&addr->sin6_addr.s6_addr,
+-					tmp, 50);
+-			if (str == NULL) {
+-				strcpy(buffer, "inet_ntop failed\n");
+-				error = 1;
+-				goto getaddr_done;
+-			}
+-			if (offset == 0)
+-				strcpy(buffer, tmp);
+-			else
+-				strcat(buffer, tmp);
+-			strcat(buffer, ";");
+-			offset += strlen(str) + 1;
+-			if ((length - offset) < (ipv6_len + 1))
+-				goto getaddr_done;
+-
+-		}
+-
++		error = kvp_process_ip_address(curp->ifa_addr,
++						curp->ifa_addr->sa_family,
++						buffer,
++						length, &offset);
++		if (error)
++			goto getaddr_done;
+ 
+ 		curp = curp->ifa_next;
+ 	}
 -- 
 1.7.4.1
