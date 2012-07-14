@@ -1,51 +1,55 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 00/15] drivers: hv: kvp
-Date: Sat, 14 Jul 2012 13:32:10 -0700
-Message-ID: <1342297930-12607-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 07/15] Tools: hv: Gather address family information
+Date: Sat, 14 Jul 2012 13:34:12 -0700
+Message-ID: <1342298060-12662-7-git-send-email-kys@microsoft.com>
+References: <1342297930-12607-1-git-send-email-kys@microsoft.com>
+ <1342298060-12662-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1342298060-12662-1-git-send-email-kys@microsoft.com>
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patchset expands the KVP (Key Value Pair) functionality to
-implement the mechanism to GET/SET IP addresses in the guest. This
-functionality is used in Windows Server 2012 to implement VM
-replication functionality. The way IP configuration information
-is managed is distro specific. Based on the feedback I have gotten
-from Olaf, Greg, Steve, Ben and Mairus, I have chosen to seperate
-distro specific code from this patch-set. Most of the GET operation
-can be implemented in a way that is completely distro independent and
-I have implemented that as such and is included in this patch-set.
-Some of the attributes that can only be fetched in a distro
-dependent way as well the mechanism for configuring an interface
-(the SET operation) that is cledarly distro specific is to be
-implemented via external scripts that will be invoked via the KVP
-code. We define here the interface to these scripts.
+Now, gather address family information for the specified interface.
 
-K. Y. Srinivasan (15):
-  Drivers: hv: Format GUIDS as per MSFT standards
-  Drivers: hv: Add KVP definitions for IP address injection
-  Drivers: hv: kvp: Cleanup error handling in KVP
-  Drivers: hv: kvp: Support the new IP injection messages
-  Tools: hv: Prepare to expand  kvp_get_ip_address() functionality
-  Tools: hv: Further refactor kvp_get_ip_address()
-  Tools: hv: Gather address family information
-  Tools: hv: Gather subnet information
-  Tools: hv: Represent the ipv6 mask using CIDR notation
-  Tools: hv: Gather ipv[4,6] gateway information
-  Tools: hv: Gather DNS information
-  Tools: hv: Gather DHCP information
-  Tools: hv: Implement the KVP verb - KVP_OP_SET_IP_INFO
-  Tools: hv: Rename the function kvp_get_ip_address()
-  Tools: hv: Implement the KVP verb - KVP_OP_GET_IP_INFO
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ tools/hv/hv_kvp_daemon.c |   11 +++++++++++
+ 1 files changed, 11 insertions(+), 0 deletions(-)
 
- drivers/hv/hv_kvp.c      |  172 +++++++++--
- drivers/hv/hv_util.c     |    4 +-
- drivers/hv/vmbus_drv.c   |    4 +-
- include/linux/hyperv.h   |   45 +++-
- tools/hv/hv_kvp_daemon.c |  804 +++++++++++++++++++++++++++++++++++++++++-----
- 5 files changed, 914 insertions(+), 115 deletions(-)
-
+diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
+index 218f28d..f687fa5 100644
+--- a/tools/hv/hv_kvp_daemon.c
++++ b/tools/hv/hv_kvp_daemon.c
+@@ -588,6 +588,17 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ 			continue;
+ 		}
+ 
++		if (op == KVP_OP_GET_IP_INFO) {
++			/*
++			 * Gather info other than the IP address.
++			 * IP address info will be gathered later.
++			 */
++			if (curp->ifa_addr->sa_family == AF_INET)
++				ip_buffer->addr_family |= ADDR_FAMILY_IPV4;
++			else
++				ip_buffer->addr_family |= ADDR_FAMILY_IPV6;
++		}
++
+ 		error = kvp_process_ip_address(curp->ifa_addr,
+ 						curp->ifa_addr->sa_family,
+ 						buffer,
 -- 
 1.7.4.1
