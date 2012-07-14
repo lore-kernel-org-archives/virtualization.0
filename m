@@ -1,36 +1,27 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: RE: 2976579765? Really? (was Re: Move hyperv out of the
- drivers/staging/ directory)
-Date: Fri, 13 Jul 2012 22:30:57 +0200
-Message-ID: <1342211457.15453.4.camel@x61.thuisdomein>
-References: <1316708240-25048-1-git-send-email-kys@microsoft.com>
-	 <20110922170450.GA4490@suse.de>
-	 <6E21E5352C11B742B20C142EB499E048081E935D@TK5EX14MBXC124.redmond.corp.microsoft.com>
-	 <20110922173618.GA5624@suse.de>
-	 <6E21E5352C11B742B20C142EB499E048081EB789@TK5EX14MBXC124.redmond.corp.microsoft.com>
-	 <20111004170415.GA1320@suse.de>
-	 <6E21E5352C11B742B20C142EB499E048081EB86F@TK5EX14MBXC124.redmond.corp.microsoft.com>
-	 <20111004193414.GA15672@suse.de> <4FFFF711.8040003@redhat.com>
-	 <426367E2313C2449837CD2DE46E7EAF9223B57EC@SN2PRD0310MB382.namprd03.prod.outlook.com>
-	 <50001F71.9070806@redhat.com>
-	 <426367E2313C2449837CD2DE46E7EAF9223B580C@SN2PRD0310MB382.namprd03.prod.outlook.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH RESEND 0/5] Add vhost-blk support
+Date: Sat, 14 Jul 2012 03:49:11 -0400
+Message-ID: <20120714074911.GA31684__39956.5918175087$1342255431$gmane$org@infradead.org>
+References: <1342169711-12386-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <426367E2313C2449837CD2DE46E7EAF9223B580C@SN2PRD0310MB382.namprd03.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Greg KH <gregkh@suse.de>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1342169711-12386-1-git-send-email-asias@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>
+Cc: linux-aio@kvack.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@HansenPartnership.com>, Jeff Moyer <jmoyer@redhat.com>, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2012-07-13 at 13:21 +0000, KY Srinivasan wrote:
-> Ok! I don't know how easy it is to change this.
-
-I'd say nothing could possibly break if you just changed that line to
-    #define HV_LINUX_GUEST_ID_HI           2976579765
-
-(Not that I, somehow, tested this.)
-
-
-Paul Bolle
+Please send a version that does direct block I/O similar to xen-blkback
+for now.  If we get proper in-kernel aio support one day you can add
+back file backend support.
