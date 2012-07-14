@@ -1,144 +1,50 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 06/15] Tools: hv: Further refactor kvp_get_ip_address()
-Date: Sat, 14 Jul 2012 13:34:11 -0700
-Message-ID: <1342298060-12662-6-git-send-email-kys@microsoft.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH 01/15] Drivers: hv: Format GUIDS as per MSFT standards
+Date: Sat, 14 Jul 2012 13:24:44 -0700
+Message-ID: <1342297484.8377.28.camel@joe2Laptop>
 References: <1342297930-12607-1-git-send-email-kys@microsoft.com>
- <1342298060-12662-1-git-send-email-kys@microsoft.com>
+	 <1342298060-12662-1-git-send-email-kys@microsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1342298060-12662-1-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for making kvp_get_ip_address() more generic, factor out
-the code for handling IP addresses.
+On Sat, 2012-07-14 at 13:34 -0700, K. Y. Srinivasan wrote:
+> Format GUIDS as per MSFT standard. This makes interacting with MSFT
+> tool stack easier.
+> 
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+> ---
+>  drivers/hv/vmbus_drv.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+> index a220e57..1f7e54a 100644
+> --- a/drivers/hv/vmbus_drv.c
+> +++ b/drivers/hv/vmbus_drv.c
+> @@ -147,7 +147,7 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
+>  
+>  	if (!strcmp(dev_attr->attr.name, "class_id")) {
+>  		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+> -			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
+> +			       "%02x%02x-%02x%02x%02x%02x%02x%02x}\n",
+>  			       device_info->chn_type.b[3],
+>  			       device_info->chn_type.b[2],
+>  			       device_info->chn_type.b[1],
+> @@ -166,7 +166,7 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
+>  			       device_info->chn_type.b[15]);
+>  	} else if (!strcmp(dev_attr->attr.name, "device_id")) {
+>  		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+> -			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
+> +			       "%02x%02x-%02x%02x%02x%02x%02x%02x}\n",
+>  			       device_info->chn_instance.b[3],
+>  			       device_info->chn_instance.b[2],
+>  			       device_info->chn_instance.b[1],
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- tools/hv/hv_kvp_daemon.c |   94 ++++++++++++++++++++-------------------------
- 1 files changed, 42 insertions(+), 52 deletions(-)
-
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 3128e77..218f28d 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -490,17 +490,50 @@ done:
- 	return;
- }
- 
-+static int kvp_process_ip_address(void *addrp,
-+				int family, char *buffer,
-+				int length,  int *offset)
-+{
-+	struct sockaddr_in *addr;
-+	struct sockaddr_in6 *addr6;
-+	int addr_length;
-+	char tmp[50];
-+	const char *str;
-+
-+	if (family == AF_INET) {
-+		addr = (struct sockaddr_in *)addrp;
-+		str = inet_ntop(family, &addr->sin_addr, tmp, 50);
-+		addr_length = INET_ADDRSTRLEN;
-+	} else {
-+		addr6 = (struct sockaddr_in6 *)addrp;
-+		str = inet_ntop(family, &addr6->sin6_addr.s6_addr, tmp, 50);
-+		addr_length = INET6_ADDRSTRLEN;
-+	}
-+
-+	if ((length - *offset) < addr_length + 1)
-+		return 1;
-+	if (str == NULL) {
-+		strcpy(buffer, "inet_ntop failed\n");
-+		return 1;
-+	}
-+	if (*offset == 0)
-+		strcpy(buffer, tmp);
-+	else
-+		strcat(buffer, tmp);
-+	strcat(buffer, ";");
-+
-+	*offset += strlen(str) + 1;
-+	return 0;
-+}
-+
- static int
- kvp_get_ip_address(int family, char *if_name, int op,
- 		 void  *out_buffer, int length)
- {
- 	struct ifaddrs *ifap;
- 	struct ifaddrs *curp;
--	int ipv4_len = strlen("255.255.255.255") + 1;
--	int ipv6_len = strlen("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")+1;
- 	int offset = 0;
- 	const char *str;
--	char tmp[50];
- 	int error = 0;
- 	char *buffer;
- 	struct hv_kvp_ipaddr_value *ip_buffer;
-@@ -555,55 +588,12 @@ kvp_get_ip_address(int family, char *if_name, int op,
- 			continue;
- 		}
- 
--		if ((curp->ifa_addr->sa_family == AF_INET) &&
--			((family == AF_INET) || (family == 0))) {
--			struct sockaddr_in *addr =
--			(struct sockaddr_in *) curp->ifa_addr;
--
--			str = inet_ntop(AF_INET, &addr->sin_addr, tmp, 50);
--			if (str == NULL) {
--				strcpy(buffer, "inet_ntop failed\n");
--				error = 1;
--				goto getaddr_done;
--			}
--			if (offset == 0)
--				strcpy(buffer, tmp);
--			else
--				strcat(buffer, tmp);
--			strcat(buffer, ";");
--
--			offset += strlen(str) + 1;
--			if ((length - offset) < (ipv4_len + 1))
--				goto getaddr_done;
--
--		} else if ((family == AF_INET6) || (family == 0)) {
--
--			/*
--			 * We only support AF_INET and AF_INET6
--			 * and the list of addresses is separated by a ";".
--			 */
--			struct sockaddr_in6 *addr =
--				(struct sockaddr_in6 *) curp->ifa_addr;
--
--			str = inet_ntop(AF_INET6,
--					&addr->sin6_addr.s6_addr,
--					tmp, 50);
--			if (str == NULL) {
--				strcpy(buffer, "inet_ntop failed\n");
--				error = 1;
--				goto getaddr_done;
--			}
--			if (offset == 0)
--				strcpy(buffer, tmp);
--			else
--				strcat(buffer, tmp);
--			strcat(buffer, ";");
--			offset += strlen(str) + 1;
--			if ((length - offset) < (ipv6_len + 1))
--				goto getaddr_done;
--
--		}
--
-+		error = kvp_process_ip_address(curp->ifa_addr,
-+						curp->ifa_addr->sa_family,
-+						buffer,
-+						length, &offset);
-+		if (error)
-+			goto getaddr_done;
- 
- 		curp = curp->ifa_next;
- 	}
--- 
-1.7.4.1
+	ret = sprintf(buf, "{%pUl}\n", device_info->chn_instance.b);
