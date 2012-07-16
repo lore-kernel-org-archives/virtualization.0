@@ -1,14 +1,13 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH RESEND 0/5] Add vhost-blk support
-Date: Mon, 16 Jul 2012 17:05:02 +0800
-Message-ID: <5003D93E.2000304__30665.4563210488$1342429414$gmane$org@redhat.com>
-References: <1342169711-12386-1-git-send-email-asias@redhat.com>
-	<20120714074911.GA31684@infradead.org>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH 0/5] Add vhost-blk support
+Date: Mon, 16 Jul 2012 12:58:21 +0100
+Message-ID: <CAJSP0QWgmXns89se+xdGgM6i1_hsfVWPQ8caHua9d-dDA4CTDQ__32822.6363556043$1342439917$gmane$org@mail.gmail.com>
+References: <1342107302-28116-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120714074911.GA31684@infradead.org>
+In-Reply-To: <1342107302-28116-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,29 +17,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux-aio@kvack.org, Dave Kleikamp <dave.kleikamp@oracle.com>, Zach Brown <zab@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@HansenPartnership.com>, Jeff Moyer <jmoyer@redhat.com>, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
+To: Asias He <asias@redhat.com>
+Cc: linux-aio@kvack.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Christoph,
+On Thu, Jul 12, 2012 at 4:35 PM, Asias He <asias@redhat.com> wrote:
+> This patchset adds vhost-blk support. vhost-blk is a in kernel virito-blk
+> device accelerator. Compared to userspace virtio-blk implementation, vhost-blk
+> gives about 5% to 15% performance improvement.
 
-On 07/14/2012 03:49 PM, Christoph Hellwig wrote:
-> Please send a version that does direct block I/O similar to xen-blkback
-> for now.
+Why is it 5-15% faster?  vhost-blk and the userspace virtio-blk you
+benchmarked should be doing basically the same thing:
 
-Seems xen-blkback converts the guest IO request to host bio and submit 
-them directly. I was wondering whether this has a performance gain 
-compared to AIO implementation.
+1. An eventfd file descriptor is signalled when the vring has new
+requests available from the guest.
+2. A thread wakes up and processes the virtqueue.
+3. Linux AIO is used to issue host I/O.
+4. An interrupt is injected into the guest.
 
-> If we get proper in-kernel aio support one day you can add
-> back file backend support.
+Does the vhost-blk implementation do anything fundamentally different
+from userspace?  Where is the overhead that userspace virtio-blk has?
 
-I talked with Dave and Zack on the in-kernel aio patch which James 
-pointed out:
+I'm asking because it would be beneficial to fix the overhead
+(especially it that could speed up all userspace applications) instead
+of adding a special-purpose kernel module to work around the overhead.
 
-http://marc.info/?l=linux-fsdevel&m=133312234313122
-
-Dave will post a new version soon. I will wait for it.
-
--- 
-Asias
+Stefan
