@@ -1,53 +1,69 @@
-From: Joe Perches <joe@perches.com>
-Subject: RE: [PATCH 01/15] Drivers: hv: Format GUIDS as per MSFT standards
-Date: Sat, 14 Jul 2012 16:28:31 -0700
-Message-ID: <1342308511.8377.51.camel@joe2Laptop>
-References: <1342297930-12607-1-git-send-email-kys@microsoft.com>
- <1342298060-12662-1-git-send-email-kys@microsoft.com>
- <1342297484.8377.28.camel@joe2Laptop>
- <426367E2313C2449837CD2DE46E7EAF9223B702C@SN2PRD0310MB382.namprd03.prod.outlook.com>
+From: Zhi Yong Wu <zwu.kernel@gmail.com>
+Subject: Re: [PATCH] hw/virtio-scsi: Set max_target=0 during vhost-scsi
+	operation
+Date: Mon, 16 Jul 2012 09:55:18 +0800
+Message-ID: <CAEH94LhHuE5tiidayqcmGrG=wKMP-1EGEDH338x4qZHHrKp0=A__14070.558260619$1342403731$gmane$org@mail.gmail.com>
+References: <1342040128-29176-1-git-send-email-nab@linux-iscsi.org>
+	<CAEH94LgNkuomE3-8auuEWhe1hGoF3qpMs45G8fsY1xjvQe=2QQ@mail.gmail.com>
+	<1342130918.18004.116.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <426367E2313C2449837CD2DE46E7EAF9223B702C@SN2PRD0310MB382.namprd03.prod.outlook.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: "olaf@aepfle.de" <olaf@aepfle.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1342130918.18004.116.camel@haakon2.linux-iscsi.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, linux-iscsi-target-dev@googlegroups.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2012-07-14 at 23:23 +0000, KY Srinivasan wrote:
-> > -----Original Message-----
-> > From: Joe Perches [mailto:joe@perches.com]
-> > Sent: Saturday, July 14, 2012 4:25 PM
-[]
-> > On Sat, 2012-07-14 at 13:34 -0700, K. Y. Srinivasan wrote:
-> > > Format GUIDS as per MSFT standard. This makes interacting with MSFT
-> > > tool stack easier.
-[]
-> > > @@ -166,7 +166,7 @@ static ssize_t vmbus_show_device_attr(struct device
-> > *dev,
-> > >  			       device_info->chn_type.b[15]);
-> > >  	} else if (!strcmp(dev_attr->attr.name, "device_id")) {
-> > >  		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
-> > > -			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
-> > > +			       "%02x%02x-%02x%02x%02x%02x%02x%02x}\n",
-> > >  			       device_info->chn_instance.b[3],
-> > >  			       device_info->chn_instance.b[2],
-> > >  			       device_info->chn_instance.b[1],
-> > 
-> > 	ret = sprintf(buf, "{%pUl}\n", device_info->chn_instance.b);
-> 
-> Thank you Joe. I recall seeing some patches from you a longtime ago on this.
-> I was just modifying existing code in this patch; if it is ok with you I will send a
-> separate patch using the preferred format string for printing GUIDS.
+HI, nab,
 
-Hi KY.  It's your code.  Do what you think best.  cheers, Joe
+On Fri, Jul 13, 2012 at 6:08 AM, Nicholas A. Bellinger
+<nab@linux-iscsi.org> wrote:
+> Hi Zhi,
+>
+> On Thu, 2012-07-12 at 14:59 +0800, Zhi Yong Wu wrote:
+>> thanks, it is applied to my vhost_scsi git tree
+>> git://github.com/wuzhy/qemu.git vhost-scsi
+>>
+>
+> Thanks for picking up this patch in your vhost-scsi tree.
+>
+> As mentioned off-list, I'd like to rebase to a more recent qemu.git to
+> include megasas 8708EM2 HBA emulation from Dr. Hannes so we can
+> experiment with a few more types of target setups.  ;)
+I have rebased my vhost-scsi tree to latest qemu.git.
+>
+> I'll likely do this on my local branch for now, but if you have the
+> extra cycles please feel free to update vhost-scsi to the latest
+> qemu.git HEAD so we can have both vhost-scsi + megasas HBA emulation in
+> the same working tree.
+I have push rebased vhost-scsi tree to my public git.
+>
+> Depending upon how long we'll need to hold vhost-scsi patches
+> out-of-tree (hopefully it's less than infinity ;) a qemu/vhost-scsi
+Heh, i also hope so, but have not anthority to push it to kernel.org.
+
+> working tree on kernel.org might also be helpful.
+>
+> Thanks!
+>
+> --nab
+>
+>
+>
+
+
+
+-- 
+Regards,
+
+Zhi Yong Wu
