@@ -1,17 +1,15 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [RFC-v2 0/4] tcm_vhost+cmwq fabric driver code for-3.6
-Date: Wed, 18 Jul 2012 11:00:42 -0500
-Message-ID: <5006DDAA.6080304__44616.207390982$1342628208$gmane$org@us.ibm.com>
-References: <1342041304-29728-1-git-send-email-nab@linux-iscsi.org>
-	<20120717150548.GA11587@redhat.com> <5005B52E.20509@us.ibm.com>
-	<1342561819.18004.470.camel@haakon2.linux-iscsi.org>
-	<5006BD3D.7090104@us.ibm.com>
-	<20120718155338.GA21817@infradead.org>
+From: Jeff Moyer <jmoyer@redhat.com>
+Subject: Re: [PATCH RESEND 5/5] vhost-blk: Add vhost-blk support
+Date: Tue, 17 Jul 2012 15:10:58 -0400
+Message-ID: <x49mx2yyzi5.fsf__30911.4406853498$1342629360$gmane$org@segfault.boston.devel.redhat.com>
+References: <1342169711-12386-1-git-send-email-asias@redhat.com>
+	<1342169711-12386-6-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120718155338.GA21817@infradead.org>
+In-Reply-To: <1342169711-12386-6-git-send-email-asias@redhat.com> (Asias He's
+	message of "Fri, 13 Jul 2012 16:55:11 +0800")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,46 +19,157 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+To: Asias He <asias@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/18/2012 10:53 AM, Christoph Hellwig wrote:
-> On Wed, Jul 18, 2012 at 08:42:21AM -0500, Anthony Liguori wrote:
->>
->> If you add support for a new command, you need to provide userspace
->> a way to disable this command.  If you change what gets reported for
->> VPD, you need to provide userspace a way to make VPD look like what
->> it did in a previous version.
->>
->> Basically, you need to be able to make a TCM device behave 100% the
->> same as it did in an older version of the kernel.
->>
->> This is unique to virtualization due to live migration.  If you
->> migrate from a 3.6 kernel to a 3.8 kernel, you need to make sure
->> that the 3.8 kernel's TCM device behaves exactly like the 3.6 kernel
->> because the guest that is interacting with it does not realize that
->> live migration happened.
+Asias He <asias@redhat.com> writes:
+
+> vhost-blk is a in kernel virito-blk device accelerator.
 >
-> I don't think these strict live migration rules apply to SCSI targets.
->
-> Real life storage systems get new features and different behaviour with
-> firmware upgrades all the time, and SCSI initiators deal with that just
-> fine.  I don't see any reason to be more picky just because we're
-> virtualized.
+> This patch is based on Liu Yuan's implementation with various
+> improvements and bug fixes. Notably, this patch makes guest notify and
+> host completion processing in parallel which gives about 60% performance
+> improvement compared to Liu Yuan's implementation.
 
-But would this happen while a system is running live?
+So, first off, some basic questions.  Is it correct to assume that you
+tested this with buffered I/O (files opened *without* O_DIRECT)?  I'm
+pretty sure that if you used O_DIRECT, you'd run into problems (which
+are solved by the patch set posted by Shaggy, based on Zach Brown's work
+of many moons ago).  Note that, with buffered I/O, the submission path
+is NOT asynchronous.  So, any speedups you've reported are extremely
+suspect.  ;-)
 
-I agree that in general, SCSI targets don't need this, but I'm pretty sure that 
-if a guest probes for a command, you migrate to an old version, and that command 
-is no longer there, badness will ensue.
+Next, did you look at Shaggy's patch set?  I think it would be best to
+focus your efforts on testing *that*, and implementing your work on top
+of it.
 
-It's different when you're talking about a reboot happening or a 
-disconnect/reconnect due to firmware upgrade.  The OS would naturally be 
-reprobing in this case.
+Having said that, I did do some review of this patch, inlined below.
 
-Regards,
+> +static int vhost_blk_setup(struct vhost_blk *blk)
+> +{
+> +	struct kioctx *ctx;
+> +
+> +	if (blk->ioctx)
+> +		return 0;
+> +
+> +	blk->ioevent_nr = blk->vq.num;
+> +	ctx = ioctx_alloc(blk->ioevent_nr);
+> +	if (IS_ERR(ctx)) {
+> +		pr_err("Failed to ioctx_alloc");
+> +		return PTR_ERR(ctx);
+> +	}
+> +	put_ioctx(ctx);
+> +	blk->ioctx = ctx;
+> +
+> +	blk->ioevent = kmalloc(sizeof(struct io_event) * blk->ioevent_nr,
+> +			       GFP_KERNEL);
+> +	if (!blk->ioevent) {
+> +		pr_err("Failed to allocate memory for io_events");
+> +		return -ENOMEM;
 
-Anthony Liguori
+You've just leaked blk->ioctx.
 
->
+> +	}
+> +
+> +	blk->reqs = kmalloc(sizeof(struct vhost_blk_req) * blk->ioevent_nr,
+> +			    GFP_KERNEL);
+> +	if (!blk->reqs) {
+> +		pr_err("Failed to allocate memory for vhost_blk_req");
+> +		return -ENOMEM;
+
+And here.
+
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+[snip]
+> +static int vhost_blk_io_submit(struct vhost_blk *blk, struct file *file,
+> +			       struct vhost_blk_req *req,
+> +			       struct iovec *iov, u64 nr_vecs, loff_t offset,
+> +			       int opcode)
+> +{
+> +	struct kioctx *ioctx = blk->ioctx;
+> +	mm_segment_t oldfs = get_fs();
+> +	struct kiocb_batch batch;
+> +	struct blk_plug plug;
+> +	struct kiocb *iocb;
+> +	int ret;
+> +
+> +	if (!try_get_ioctx(ioctx)) {
+> +		pr_info("Failed to get ioctx");
+> +		return -EAGAIN;
+> +	}
+
+Using try_get_ioctx directly gives me a slightly uneasy feeling.  I
+understand that you don't need to do the lookup, but at least wrap it
+and check for ->dead.
+
+> +
+> +	atomic_long_inc_not_zero(&file->f_count);
+> +	eventfd_ctx_get(blk->ectx);
+> +
+> +	/* TODO: batch to 1 is not good! */
+
+Agreed.  You should setup the batching in vhost_blk_handle_guest_kick.
+The way you've written the code, the batching is not at all helpful.
+
+> +	kiocb_batch_init(&batch, 1);
+> +	blk_start_plug(&plug);
+> +
+> +	iocb = aio_get_req(ioctx, &batch);
+> +	if (unlikely(!iocb)) {
+> +		ret = -EAGAIN;
+> +		goto out;
+> +	}
+> +
+> +	iocb->ki_filp	= file;
+> +	iocb->ki_pos	= offset;
+> +	iocb->ki_buf	= (void *)iov;
+> +	iocb->ki_left	= nr_vecs;
+> +	iocb->ki_nbytes	= nr_vecs;
+> +	iocb->ki_opcode	= opcode;
+> +	iocb->ki_obj.user = req;
+> +	iocb->ki_eventfd  = blk->ectx;
+> +
+> +	set_fs(KERNEL_DS);
+> +	ret = aio_setup_iocb(iocb, false);
+> +	set_fs(oldfs);
+> +	if (unlikely(ret))
+> +		goto out_put_iocb;
+> +
+> +	spin_lock_irq(&ioctx->ctx_lock);
+> +	if (unlikely(ioctx->dead)) {
+> +		spin_unlock_irq(&ioctx->ctx_lock);
+> +		ret = -EINVAL;
+> +		goto out_put_iocb;
+> +	}
+> +	aio_run_iocb(iocb);
+> +	spin_unlock_irq(&ioctx->ctx_lock);
+> +
+> +	aio_put_req(iocb);
+> +
+> +	blk_finish_plug(&plug);
+> +	kiocb_batch_free(ioctx, &batch);
+> +	put_ioctx(ioctx);
+> +
+> +	return ret;
+> +out_put_iocb:
+> +	aio_put_req(iocb); /* Drop extra ref to req */
+> +	aio_put_req(iocb); /* Drop I/O ref to req */
+> +out:
+> +	put_ioctx(ioctx);
+> +	return ret;
+> +}
+> +
+
+You've duplicated a lot of io_submit_one.  I'd rather see that factored
+out than to have to maintain two copies.
+
+Again, what I'd *really* like to see is you rebase on top of Shaggy's
+work.
+
+Cheers,
+Jeff
