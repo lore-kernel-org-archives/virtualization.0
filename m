@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [PATCH 0/5] Add vhost-blk support
-Date: Tue, 17 Jul 2012 12:51:43 +0300
-Message-ID: <20120717095143.GD7949__44419.3337615163$1342518689$gmane$org@redhat.com>
+Date: Tue, 17 Jul 2012 12:14:33 +0200
+Message-ID: <50053B09.2060703@redhat.com>
 References: <1342107302-28116-1-git-send-email-asias@redhat.com>
 	<CAJSP0QWgmXns89se+xdGgM6i1_hsfVWPQ8caHua9d-dDA4CTDQ@mail.gmail.com>
 	<50052276.2080906@redhat.com> <500527BA.9000001@redhat.com>
-	<50052E7E.6020100@redhat.com> <5005313D.1000300@redhat.com>
+	<20120717094526.GC7949@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5005313D.1000300@redhat.com>
+In-Reply-To: <20120717094526.GC7949@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,54 +20,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-aio@kvack.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 17, 2012 at 11:32:45AM +0200, Paolo Bonzini wrote:
-> Il 17/07/2012 11:21, Asias He ha scritto:
-> >> It depends.  Like vhost-scsi, vhost-blk has the problem of a crippled
-> >> feature set: no support for block device formats, non-raw protocols,
-> >> etc.  This makes it different from vhost-net.
-> > 
-> > Data-plane qemu also has this cripppled feature set problem, no?
+Il 17/07/2012 11:45, Michael S. Tsirkin ha scritto:
+>> So it begs the question, is it going to be used in production, or just a
+>> useful reference tool?
 > 
-> Yes, but that is just a proof of concept.  We can implement a separate
-> I/O thread within the QEMU block layer, and add fast paths that resemble
-> data-path QEMU, without limiting the feature set.
+> Sticking to raw already makes virtio-blk faster, doesn't it?
+> In that vhost-blk looks to me like just another optimization option.
+> Ideally I think user just should not care where do we handle virtio:
+> in-kernel or in userspace.  One can imagine it being enabled/disabled
+> automatically if none of the features unsupported by it are used.
+
+Ok, that would make more sense.  One difference between vhost-blk and
+vhost-net is that for vhost-blk there are also management actions that
+would trigger the switch, for example a live snapshot.
+
+So a prerequisite for vhost-blk would be that it is possible to disable
+it on the fly while the VM is running, as soon as all in-flight I/O is
+completed.
+
+(Note that, however, this is not possible for vhost-scsi, because it
+really exposes different hardware to the guest.  It must not happen that
+a kernel upgrade or downgrade toggles between userspace SCSI and
+vhost-scsi, for example).
+
+>> having to
+>> support the API; having to handle transition from one more thing when
+>> something better comes out.
 > 
-> > Does user always choose to use block devices format like qcow2? What
-> > if they prefer raw image or raw block device?
-> 
-> If they do, the code should hit fast paths and be fast.  But it should
-> be automatic, without the need for extra knobs.  aio=thread vs.
-> aio=native is already one knob too much IMHO.
+> Well this is true for any code. If the limited featureset which
+> vhost-blk can accelerate is something many people use, then accelerating
+> by 5-15% might outweight support costs.
 
-Well one extra knob at qemu level is harmless IMO since
-the complexity can be handled by libvirt. For vhost-net
-libvirt already enables vhost automatically dependeing on backend
-used and I imagine a similar thing can happen here.
+It is definitely what people use if they are interested in performance.
 
-
-> >> So it begs the question, is it going to be used in production, or just a
-> >> useful reference tool?
-> > 
-> > This should be decided by user, I can not speak for them. What is wrong
-> > with adding one option for user which they can decide?
-> 
-> Having to explain the user about the relative benefits;
-
-This can just be done automatically by libvirt.
-
-> having to
-> support the API; having to handle transition from one more thing when
-> something better comes out.
-> 
-> Paolo
-
-Well this is true for any code. If the limited featureset which
-vhost-blk can accelerate is something many people use, then accelerating
-by 5-15% might outweight support costs.
-
--- 
-MST
+Paolo
