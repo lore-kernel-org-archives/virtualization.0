@@ -1,44 +1,47 @@
-From: Greg KH <gregkh@linuxfoundation.org>
+From: Joe Perches <joe@perches.com>
 Subject: Re: [PATCH 01/15] Drivers: hv: Format GUIDS as per MSFT standards
-Date: Tue, 17 Jul 2012 09:04:02 -0700
-Message-ID: <20120717160402.GA20481@kroah.com>
+Date: Tue, 17 Jul 2012 09:19:26 -0700
+Message-ID: <1342541966.15318.4.camel@joe2Laptop>
 References: <1342297930-12607-1-git-send-email-kys@microsoft.com>
- <1342298060-12662-1-git-send-email-kys@microsoft.com>
+	<1342298060-12662-1-git-send-email-kys@microsoft.com>
+	<20120717160402.GA20481@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1342298060-12662-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120717160402.GA20481@kroah.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: olaf@aepfle.de, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, apw@canonical.com, devel@linuxdriverproject.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Jul 14, 2012 at 01:34:06PM -0700, K. Y. Srinivasan wrote:
-> Format GUIDS as per MSFT standard. This makes interacting with MSFT
-> tool stack easier.
+On Tue, 2012-07-17 at 09:04 -0700, Greg KH wrote:
+> On Sat, Jul 14, 2012 at 01:34:06PM -0700, K. Y. Srinivasan wrote:
+> > Format GUIDS as per MSFT standard. This makes interacting with MSFT
+> > tool stack easier.
+[]
+> > diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+[]
+> > @@ -147,7 +147,7 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
+> >  
+> >  	if (!strcmp(dev_attr->attr.name, "class_id")) {
+> >  		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+> > -			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
+> > +			       "%02x%02x-%02x%02x%02x%02x%02x%02x}\n",
 > 
-> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-> ---
->  drivers/hv/vmbus_drv.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-> index a220e57..1f7e54a 100644
-> --- a/drivers/hv/vmbus_drv.c
-> +++ b/drivers/hv/vmbus_drv.c
-> @@ -147,7 +147,7 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
->  
->  	if (!strcmp(dev_attr->attr.name, "class_id")) {
->  		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
-> -			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
-> +			       "%02x%02x-%02x%02x%02x%02x%02x%02x}\n",
+> As Joe pointed out, please just use the printk modifier the kernel
+> already has for GUIDS, and don't roll your own here.  That will work
+> properly for you, right?
 
-As Joe pointed out, please just use the printk modifier the kernel
-already has for GUIDS, and don't roll your own here.  That will work
-properly for you, right?
+%pU became available in 2.6.33
 
-thanks,
-
-greg k-h
+I think one of their support targets is RHEL6 which
+I believe is 2.6.32+.
