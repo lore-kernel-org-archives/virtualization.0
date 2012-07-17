@@ -1,49 +1,44 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RESEND 0/5] Add vhost-blk support
-Date: Tue, 17 Jul 2012 18:09:28 +0300
-Message-ID: <20120717150928.GB11587__22061.9383072064$1342537832$gmane$org@redhat.com>
-References: <1342169711-12386-1-git-send-email-asias@redhat.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 01/15] Drivers: hv: Format GUIDS as per MSFT standards
+Date: Tue, 17 Jul 2012 09:04:02 -0700
+Message-ID: <20120717160402.GA20481@kroah.com>
+References: <1342297930-12607-1-git-send-email-kys@microsoft.com>
+ <1342298060-12662-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1342169711-12386-1-git-send-email-asias@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-aio@kvack.org, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, James Bottomley <James.Bottomley@HansenPartnership.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Jeff Moyer <jmoyer@redhat.com>, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+In-Reply-To: <1342298060-12662-1-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 13, 2012 at 04:55:06PM +0800, Asias He wrote:
+On Sat, Jul 14, 2012 at 01:34:06PM -0700, K. Y. Srinivasan wrote:
+> Format GUIDS as per MSFT standard. This makes interacting with MSFT
+> tool stack easier.
 > 
-> Hi folks,
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+> ---
+>  drivers/hv/vmbus_drv.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
 > 
-> [I am resending to fix the broken thread in the previous one.]
-> 
-> This patchset adds vhost-blk support. vhost-blk is a in kernel virito-blk
-> device accelerator. Compared to userspace virtio-blk implementation, vhost-blk
-> gives about 5% to 15% performance improvement.
+> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+> index a220e57..1f7e54a 100644
+> --- a/drivers/hv/vmbus_drv.c
+> +++ b/drivers/hv/vmbus_drv.c
+> @@ -147,7 +147,7 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
+>  
+>  	if (!strcmp(dev_attr->attr.name, "class_id")) {
+>  		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+> -			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
+> +			       "%02x%02x-%02x%02x%02x%02x%02x%02x}\n",
 
-Same thing as tcm_host comment:
+As Joe pointed out, please just use the printk modifier the kernel
+already has for GUIDS, and don't roll your own here.  That will work
+properly for you, right?
 
-	It seems not 100% clear whether this driver will have major
-	userspace using it. And if not, it would be very hard to support a
-	driver when recent userspace does not use it in the end.
+thanks,
 
-	I think a good idea for 3.6 would be to make it depend on
-	CONFIG_STAGING.  Then we don't commit to an ABI.  For this, you can add
-	a separate Kconfig and source it from drivers/staging/Kconfig.  Maybe it
-	needs to be in a separate directory drivers/vhost/staging/Kconfig.
-
-I Cc'd the list of tcm_host in the hope that you can cooperate on this.
-
--- 
-MST
+greg k-h
