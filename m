@@ -1,17 +1,11 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 01/15] Drivers: hv: Format GUIDS as per MSFT standards
-Date: Tue, 17 Jul 2012 09:32:48 -0700
-Message-ID: <20120717163248.GA29345@kroah.com>
-References: <1342297930-12607-1-git-send-email-kys@microsoft.com>
-	<1342298060-12662-1-git-send-email-kys@microsoft.com>
-	<20120717160402.GA20481@kroah.com>
-	<1342541966.15318.4.camel@joe2Laptop>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: [PATCH v4 0/3] make balloon pages movable by compaction
+Date: Tue, 17 Jul 2012 13:50:40 -0300
+Message-ID: <cover.1342485774.git.aquini__20809.2615860098$1342543901$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1342541966.15318.4.camel@joe2Laptop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,35 +15,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joe Perches <joe@perches.com>
-Cc: olaf@aepfle.de, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, apw@canonical.com, devel@linuxdriverproject.org
+To: linux-mm@kvack.org
+Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>, Rafael Aquini <aquini@linux.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 17, 2012 at 09:19:26AM -0700, Joe Perches wrote:
-> On Tue, 2012-07-17 at 09:04 -0700, Greg KH wrote:
-> > On Sat, Jul 14, 2012 at 01:34:06PM -0700, K. Y. Srinivasan wrote:
-> > > Format GUIDS as per MSFT standard. This makes interacting with MSFT
-> > > tool stack easier.
-> []
-> > > diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-> []
-> > > @@ -147,7 +147,7 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
-> > >  
-> > >  	if (!strcmp(dev_attr->attr.name, "class_id")) {
-> > >  		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
-> > > -			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
-> > > +			       "%02x%02x-%02x%02x%02x%02x%02x%02x}\n",
-> > 
-> > As Joe pointed out, please just use the printk modifier the kernel
-> > already has for GUIDS, and don't roll your own here.  That will work
-> > properly for you, right?
-> 
-> %pU became available in 2.6.33
-> 
-> I think one of their support targets is RHEL6 which
-> I believe is 2.6.32+.
+Memory fragmentation introduced by ballooning might reduce significantly
+the number of 2MB contiguous memory blocks that can be used within a guest,
+thus imposing performance penalties associated with the reduced number of
+transparent huge pages that could be used by the guest workload.
 
-That's nice, but it's nothing that I care about for in-kernel code, nor
-should anyone else.
+This patch-set follows the main idea discussed at 2012 LSFMMS session:
+"Ballooning for transparent huge pages" -- http://lwn.net/Articles/490114/
+to introduce the required changes to the virtio_balloon driver, as well as
+the changes to the core compaction & migration bits, in order to make those
+subsystems aware of ballooned pages and allow memory balloon pages become
+movable within a guest, thus avoiding the aforementioned fragmentation issue
 
-greg k-h
+Rafael Aquini (3):
+  mm: introduce compaction and migration for virtio ballooned pages
+  virtio_balloon: introduce migration primitives to balloon pages
+  mm: add vm event counters for balloon pages compaction
+
+ drivers/virtio/virtio_balloon.c |  146 ++++++++++++++++++++++++++++++++++++---
+ include/linux/mm.h              |   15 ++++
+ include/linux/virtio_balloon.h  |    4 ++
+ include/linux/vm_event_item.h   |    2 +
+ mm/compaction.c                 |  127 +++++++++++++++++++++++++++++-----
+ mm/migrate.c                    |   32 ++++++++-
+ mm/vmstat.c                     |    4 ++
+ 7 files changed, 302 insertions(+), 28 deletions(-)
+
+Change log:
+v4: 
+ * address Rusty Russel's review comments on PATCH 02;
+ * re-base virtio_balloon patch on 9c378abc5c0c6fc8e3acf5968924d274503819b3;
+V3: 
+ * address reviewers nitpick suggestions on PATCH 01 (Mel, Minchan);
+V2: 
+ * address Mel Gorman's review comments on PATCH 01;
+
+
+Preliminary test results:
+(2 VCPU 1024mB RAM KVM guest running 3.5.0_rc7+ -- after a reboot)
+* 64mB balloon:
+[root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
+compact_blocks_moved 0
+compact_pages_moved 0
+compact_pagemigrate_failed 0
+compact_stall 0
+compact_fail 0
+compact_success 0
+compact_balloon_migrated 0
+compact_balloon_failed 0
+compact_balloon_isolated 0
+compact_balloon_freed 0
+[root@localhost ~]#
+[root@localhost ~]# for i in $(seq 1 4); do echo 1 > /proc/sys/vm/compact_memory & done &>/dev/null
+[1]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[2]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[3]-  Done                    echo 1 > /proc/sys/vm/compact_memory
+[4]+  Done                    echo 1 > /proc/sys/vm/compact_memory
+[root@localhost ~]#
+[root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
+compact_blocks_moved 2842
+compact_pages_moved 48429
+compact_pagemigrate_failed 81
+compact_stall 0
+compact_fail 0
+compact_success 0
+compact_balloon_migrated 16364
+compact_balloon_failed 0
+compact_balloon_isolated 16364
+compact_balloon_freed 16364
+
+
+* 128mB balloon:
+[root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
+compact_blocks_moved 0
+compact_pages_moved 0
+compact_pagemigrate_failed 0
+compact_stall 0
+compact_fail 0
+compact_success 0
+compact_balloon_migrated 0
+compact_balloon_failed 0
+compact_balloon_isolated 0
+compact_balloon_freed 0
+[root@localhost ~]#
+[root@localhost ~]# for i in $(seq 1 4); do echo 1 > /proc/sys/vm/compact_memory & done &>/dev/null
+[1]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[2]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[3]-  Done                    echo 1 > /proc/sys/vm/compact_memory
+[4]+  Done                    echo 1 > /proc/sys/vm/compact_memory
+[root@localhost ~]#
+[root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
+compact_blocks_moved 2162
+compact_pages_moved 33735
+compact_pagemigrate_failed 69
+compact_stall 0
+compact_fail 0
+compact_success 0
+compact_balloon_migrated 21731
+compact_balloon_failed 0
+compact_balloon_isolated 21731
+compact_balloon_freed 21731
+
+-- 
+1.7.10.4
