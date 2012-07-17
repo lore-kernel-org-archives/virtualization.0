@@ -1,14 +1,14 @@
-From: Jeff Moyer <jmoyer@redhat.com>
-Subject: Re: [PATCH 0/5] Add vhost-blk support
-Date: Thu, 12 Jul 2012 12:06:01 -0400
-Message-ID: <x498vepklqu.fsf__16840.7349651263$1342460718$gmane$org@segfault.boston.devel.redhat.com>
-References: <1342107302-28116-1-git-send-email-asias@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 2/2] virtio-scsi spec: add configuration change event
+Date: Tue, 17 Jul 2012 09:51:56 +0930
+Message-ID: <874np7xmmz.fsf@rustcorp.com.au>
+References: <1342448677-7453-1-git-send-email-pbonzini@redhat.com>
+	<1342448677-7453-3-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1342107302-28116-1-git-send-email-asias@redhat.com> (Asias He's
-	message of "Thu, 12 Jul 2012 23:35:01 +0800")
+In-Reply-To: <1342448677-7453-3-git-send-email-pbonzini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,28 +18,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: linux-aio@kvack.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Asias He <asias@redhat.com> writes:
+On Mon, 16 Jul 2012 16:24:37 +0200, Paolo Bonzini <pbonzini@redhat.com> wrote:
+> This adds an event for changes to LUN parameters, for example capacity.  These
+> are reported in virtio-blk via configuration changes, and we want a similar
+> functionality in virtio-scsi too.
 
-> Hi folks,
->
-> This patchset adds vhost-blk support. vhost-blk is a in kernel virito-blk
-> device accelerator. Compared to userspace virtio-blk implementation, vhost-blk
-> gives about 5% to 15% performance improvement.
->
-> Asias He (5):
->   aio: Export symbols and struct kiocb_batch for in kernel aio usage
->   eventfd: Export symbol eventfd_file_create()
->   vhost: Make vhost a separate module
->   vhost-net: Use VHOST_NET_FEATURES for vhost-net
->   vhost-blk: Add vhost-blk support
+Both applied.
 
-I only saw patches 0 and 1.  Where are the other 4?  If the answer is,
-"not on lkml," then please resend them, CC'ing lkml.  I'd like to be
-able to see the usage of the aio routines.
-
-Cheers,
-Jeff
+Thanks!
+Rusty.
