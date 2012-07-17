@@ -1,21 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/5] Add vhost-blk support
-Date: Tue, 17 Jul 2012 16:26:42 +0300
-Message-ID: <20120717132642.GA10590__21794.7511272088$1342531605$gmane$org@redhat.com>
-References: <50052276.2080906@redhat.com> <500527BA.9000001@redhat.com>
-	<50052E7E.6020100@redhat.com>
-	<CAJSP0QW0tPV3WASGOBRE4hL=8zzSFQ6T=bHbEwMAzmHR9wnwJg@mail.gmail.com>
-	<20120717112645.GA9363@redhat.com>
-	<CAJSP0QXPkrVvgA+1fhhwsB5J8oApOObK8D3fk_Lm0Bt3T+Wfuw@mail.gmail.com>
-	<20120717115450.GA9796@redhat.com>
-	<CAJSP0QXwGuUaD9piktOptJasdpci_fA90d=vV4m0SuORMvc2=Q@mail.gmail.com>
-	<20120717124859.GA9883@redhat.com> <50056275.6000407@redhat.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [Xen-devel] [PATCH-v2] xen: populate correct number of pages
+	when across mem boundary
+Date: Tue, 17 Jul 2012 10:45:40 -0400
+Message-ID: <20120717144540.GC12374@phenom.dumpdata.com>
+References: <4FF3E781.5040603@oracle.com> <4FFEE552.4070201@citrix.com>
+	<4FFFDCD9.7030305@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <50056275.6000407@redhat.com>
+In-Reply-To: <4FFFDCD9.7030305@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,61 +20,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: linux-aio@kvack.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
+To: "zhenzhong.duan" <zhenzhong.duan@oracle.com>
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, x86@kernel.org, Feng Jin <joe.jin@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, David Vrabel <david.vrabel@citrix.com>, hpa@zytor.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 17, 2012 at 03:02:45PM +0200, Paolo Bonzini wrote:
-> Il 17/07/2012 14:48, Michael S. Tsirkin ha scritto:
-> > On Tue, Jul 17, 2012 at 01:03:39PM +0100, Stefan Hajnoczi wrote:
-> >> On Tue, Jul 17, 2012 at 12:54 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >>>> Knowing the answer to that is important before anyone can say whether
-> >>>> this approach is good or not.
-> >>>>
-> >>>> Stefan
-> >>>
-> >>> Why is it?
-> >>
-> >> Because there might be a fix to kvmtool which closes the gap.  It
-> >> would be embarassing if vhost-blk was pushed just because no one
-> >> looked into what is actually going on.
-> > 
-> > Embarrasing to whom? Is someone working on an optimization that
-> > makes the work in question redundant, with posting just around
-> > the corner? Then maybe the thing to do is just wait a bit.
+On Fri, Jul 13, 2012 at 04:31:21PM +0800, zhenzhong.duan wrote:
+> When populate pages across a mem boundary at bootup, the page count
+> populated isn't correct. This is due to mem populated to non-mem
+> region and ignored.
 > 
-> Of course there is work going on to make QEMU perform better.
-> Not sure about lkvm.
+> Pfn range is also wrongly aligned when mem boundary isn't page aligned.
 > 
-> >> And on the flipside, hard evidence of an overhead that cannot be
-> >> resolved could be good reason to do more vhost devices in the future.
-> > 
-> > How can one have hard evidence of an overhead that cannot be resolved?
+> -v2: If xen_do_chunk fail(populate), abort this chunk and any others.
+> Suggested by David, thanks.
 > 
-> Since we do have two completely independent userspaces (lkvm and
-> data-plane QEMU), you can build up some compelling evidence of an
-> overhead that cannot be resolved in user space.
+> For a dom0 booted with dom_mem=3368952K(0xcd9ff000-4k) dmesg diff is:
+>  [    0.000000] Freeing 9e-100 pfn range: 98 pages freed
+>  [    0.000000] 1-1 mapping on 9e->100
+>  [    0.000000] 1-1 mapping on cd9ff->100000
+>  [    0.000000] Released 98 pages of unused memory
+>  [    0.000000] Set 206435 page(s) to 1-1 mapping
+> -[    0.000000] Populating cd9fe-cda00 pfn range: 1 pages added
+> +[    0.000000] Populating cd9fe-cd9ff pfn range: 1 pages added
+> +[    0.000000] Populating 100000-100061 pfn range: 97 pages added
+>  [    0.000000] BIOS-provided physical RAM map:
+>  [    0.000000] Xen: 0000000000000000 - 000000000009e000 (usable)
+>  [    0.000000] Xen: 00000000000a0000 - 0000000000100000 (reserved)
+>  [    0.000000] Xen: 0000000000100000 - 00000000cd9ff000 (usable)
+>  [    0.000000] Xen: 00000000cd9ffc00 - 00000000cda53c00 (ACPI NVS)
+> ...
+>  [    0.000000] Xen: 0000000100000000 - 0000000100061000 (usable)
+>  [    0.000000] Xen: 0000000100061000 - 000000012c000000 (unusable)
+> ...
+>  [    0.000000] MEMBLOCK configuration:
+> ...
+> -[    0.000000]  reserved[0x4]       [0x000000cd9ff000-0x000000cd9ffbff], 0xc00 bytes
+> -[    0.000000]  reserved[0x5]       [0x00000100000000-0x00000100060fff], 0x61000 bytes
+> 
+> Related xen memory layout:
+> (XEN) Xen-e820 RAM map:
+> (XEN)  0000000000000000 - 000000000009ec00 (usable)
+> (XEN)  00000000000f0000 - 0000000000100000 (reserved)
+> (XEN)  0000000000100000 - 00000000cd9ffc00 (usable)
+> 
+> Signed-off-by: Zhenzhong Duan<zhenzhong.duan@oracle.com>
 
-OK, so what you are saying benchmark against data-plane QEMU?
-I agree actually. Asias, any data?
+Please run this first through scripts/cleanpatch.pl and fix up the issues
+and then resend.
 
-> >> Either way, it's useful to do this before going further.
-> > 
-> > I think each work should be discussed on its own merits.  Maybe
-> > vhost-blk is just well written. So? What is your conclusion?
-> 
-> If it's just that vhost-blk is written well, my conclusion is that lkvm
-> people should look into improving their virtio-blk userspace.  We take
-> hints from each other all the time, for example virtio-scsi will have
-> unlocked kick in 3.6.
-> 
-> Why can't vhost-* just get into staging, and we call it a day?
-> 
-> Paolo
+Thanks!
 
-staging is not a destination. Even if we put a driver in staging it
-won't stay there indefinitely if qemu-kvm is not using it,
-something that doesn't seem to be addressed for vhost-blk yet.
-
--- 
-MST
+> ---
+> diff --git a/arch/x86/xen/setup.c b/arch/x86/xen/setup.c
+> index a4790bf..ead8557 100644
+> --- a/arch/x86/xen/setup.c
+> +++ b/arch/x86/xen/setup.c
+> @@ -157,25 +157,24 @@ static unsigned long __init xen_populate_chunk(
+>  	unsigned long dest_pfn;
+> 
+>  	for (i = 0, entry = list; i<  map_size; i++, entry++) {
+> -		unsigned long credits = credits_left;
+>  		unsigned long s_pfn;
+>  		unsigned long e_pfn;
+>  		unsigned long pfns;
+>  		long capacity;
+> 
+> -		if (credits<= 0)
+> +		if (credits_left<= 0)
+>  			break;
+> 
+>  		if (entry->type != E820_RAM)
+>  			continue;
+> 
+> -		e_pfn = PFN_UP(entry->addr + entry->size);
+> +		e_pfn = PFN_DOWN(entry->addr + entry->size);
+> 
+>  		/* We only care about E820 after the xen_start_info->nr_pages */
+>  		if (e_pfn<= max_pfn)
+>  			continue;
+> 
+> -		s_pfn = PFN_DOWN(entry->addr);
+> +		s_pfn = PFN_UP(entry->addr);
+>  		/* If the E820 falls within the nr_pages, we want to start
+>  		 * at the nr_pages PFN.
+>  		 * If that would mean going past the E820 entry, skip it
+> @@ -184,23 +183,19 @@ static unsigned long __init xen_populate_chunk(
+>  			capacity = e_pfn - max_pfn;
+>  			dest_pfn = max_pfn;
+>  		} else {
+> -			/* last_pfn MUST be within E820_RAM regions */
+> -			if (*last_pfn&&  e_pfn>= *last_pfn)
+> -				s_pfn = *last_pfn;
+>  			capacity = e_pfn - s_pfn;
+>  			dest_pfn = s_pfn;
+>  		}
+> -		/* If we had filled this E820_RAM entry, go to the next one. */
+> -		if (capacity<= 0)
+> -			continue;
+> 
+> -		if (credits>  capacity)
+> -			credits = capacity;
+> +		if (credits_left<  capacity)
+> +			capacity = credits_left;
+> 
+> -		pfns = xen_do_chunk(dest_pfn, dest_pfn + credits, false);
+> +		pfns = xen_do_chunk(dest_pfn, dest_pfn + capacity, false);
+>  		done += pfns;
+> -		credits_left -= pfns;
+>  		*last_pfn = (dest_pfn + pfns);
+> +		if (pfns<  capacity)
+> +			break;
+> +		credits_left -= pfns;
+>  	}
+>  	return done;
+>  }
+> -- 
+> 1.7.3
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
