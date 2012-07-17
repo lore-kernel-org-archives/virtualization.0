@@ -1,18 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
 Subject: Re: [PATCH 0/5] Add vhost-blk support
-Date: Tue, 17 Jul 2012 14:09:52 +0300
-Message-ID: <20120717110951.GA9258__37549.1768857048$1342523377$gmane$org@redhat.com>
+Date: Tue, 17 Jul 2012 12:11:15 +0100
+Message-ID: <CAJSP0QW0tPV3WASGOBRE4hL=8zzSFQ6T=bHbEwMAzmHR9wnwJg__35402.1680345342$1342523487$gmane$org@mail.gmail.com>
 References: <1342107302-28116-1-git-send-email-asias@redhat.com>
 	<CAJSP0QWgmXns89se+xdGgM6i1_hsfVWPQ8caHua9d-dDA4CTDQ@mail.gmail.com>
 	<50052276.2080906@redhat.com> <500527BA.9000001@redhat.com>
-	<20120717094526.GC7949@redhat.com> <50053B09.2060703@redhat.com>
-	<20120717104920.GJ7949@redhat.com> <500544DF.3050400@redhat.com>
+	<50052E7E.6020100@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <500544DF.3050400@redhat.com>
+In-Reply-To: <50052E7E.6020100@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,85 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: linux-aio@kvack.org, target-devel@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Anthony Liguori <anthony@codemonkey.ws>, linux-fsdevel@vger.kernel.org
+To: Asias He <asias@redhat.com>
+Cc: linux-aio@kvack.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 17, 2012 at 12:56:31PM +0200, Paolo Bonzini wrote:
-> Il 17/07/2012 12:49, Michael S. Tsirkin ha scritto:
-> >> Ok, that would make more sense.  One difference between vhost-blk and
-> >> vhost-net is that for vhost-blk there are also management actions that
-> >> would trigger the switch, for example a live snapshot.
-> >> So a prerequisite for vhost-blk would be that it is possible to disable
-> >> it on the fly while the VM is running, as soon as all in-flight I/O is
-> >> completed.
-> > 
-> > It applies for vhost-net too. For example if you bring link down,
-> > we switch to userspace. So vhost-net supports this switch on the fly.
-> 
-> Cool.
-> 
-> >> (Note that, however, this is not possible for vhost-scsi, because it
-> >> really exposes different hardware to the guest.  It must not happen that
-> >> a kernel upgrade or downgrade toggles between userspace SCSI and
-> >> vhost-scsi, for example).
-> > 
-> > I would say this is not a prerequisite for merging in qemu.
-> > It might be a required feature for production but it
-> > is also solvable at the management level.
-> 
-> I'm thinking of the level interrupts here.  You cannot make a change in
-> the guest, and have it do completely unrelated changes the hardware that
-> the guest sees.
+On Tue, Jul 17, 2012 at 10:21 AM, Asias He <asias@redhat.com> wrote:
+> On 07/17/2012 04:52 PM, Paolo Bonzini wrote:
+>>
+>> Il 17/07/2012 10:29, Asias He ha scritto:
+>>>
+>>> So, vhost-blk at least saves ~6 syscalls for us in each request.
+>>
+>>
+>> Are they really 6?  If I/O is coalesced by a factor of 3, for example
+>> (i.e. each exit processes 3 requests), it's really 2 syscalls per request.
+>
+>
+> Well. I am counting the number of syscalls in one notify and response
+> process. Sure the IO can be coalesced.
 
-Absolutely.
+Linux AIO also supports batching in io_submit() and io_getevents().
+Depending on the request pattern in the vring when you process it, you
+should be able to do better than 1 set of syscalls per host I/O
+request.
 
-So the right thing for vhost-scsi might be to just support level
-(equivalent for "force" flag in vhost-net).
-We don't in vhost-net because it is triggered by some old guests
-but all virtio-scsi guests use MSI so level is just a spec compatibility
-issue.
+Are you taking advantage of that at the moment in your userspace benchmark?
 
-We might also gain kernel support for level at some point.
-
-> >>>> having to
-> >>>> support the API; having to handle transition from one more thing when
-> >>>> something better comes out.
-> >>>
-> >>> Well this is true for any code. If the limited featureset which
-> >>> vhost-blk can accelerate is something many people use, then accelerating
-> >>> by 5-15% might outweight support costs.
-> >>
-> >> It is definitely what people use if they are interested in performance.
-> > 
-> > In that case it seems to me we should stop using the feature set as
-> > an argument and focus on whether the extra code is worth the 5-15% gain.
-> > No one seems to have commented on that so everyone on list thinks that
-> > aspect is OK?
-> 
-> I would like to see a breakdown of _where_ the 5-15% lies, something
-> like http://www.linux-kvm.org/page/Virtio/Block/Latency.
-
-Yes but I think it's also nice to have. It's hard to argue IMO that
-virtio as kernel interface cuts out some overhead.
-
-> > Kernel merge windows is coming up and I would like to see whether
-> > any of vhost-blk / vhost-scsi is going to be actually used by userspace.
-> > I guess we could tag it for staging but would be nice to avoid that.
-> 
-> Staging would be fine by me for both vhost-blk and vhost-scsi.
-> 
-> Paolo
-
-The reason I say staging is because there seems to be a deadlock
-where userspace waits for kernel to merge a driver and
-kernel does not want to commit to an ABI that will then
-go unused.
-
-So even if it gets tagged as staging it would only
-make sense for it to stay there for one cycle. And then either
-get removed if no userspace materializes or lose staging tag
-if it does.
-
--- 
-MST
+Stefan
