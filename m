@@ -1,116 +1,65 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: [PATCH v4 3/3] mm: add vm event counters for balloon pages compaction
-Date: Tue, 17 Jul 2012 13:50:43 -0300
-Message-ID: <4af2f0d495db34075d6bf4f921f326c6eb71cf2d.1342485774.git.aquini__33936.7527085871$1342543918$gmane$org@redhat.com>
-References: <cover.1342485774.git.aquini@redhat.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 01/15] Drivers: hv: Format GUIDS as per MSFT standards
+Date: Tue, 17 Jul 2012 17:42:33 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF9224EA2E5@SN2PRD0310MB382.namprd03.prod.outlook.com>
+References: <1342297930-12607-1-git-send-email-kys@microsoft.com>
+ <1342298060-12662-1-git-send-email-kys@microsoft.com>
+ <20120717160402.GA20481@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1342485774.git.aquini@redhat.com>
-In-Reply-To: <cover.1342485774.git.aquini@redhat.com>
-References: <cover.1342485774.git.aquini@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-mm@kvack.org
-Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>, Rafael Aquini <aquini@linux.com>
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20120717160402.GA20481@kroah.com>
+Content-Language: en-US
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch is only for testing report purposes and shall be dropped in case of
-the rest of this patchset getting accepted for merging.
 
-Signed-off-by: Rafael Aquini <aquini@redhat.com>
----
- drivers/virtio/virtio_balloon.c |    1 +
- include/linux/vm_event_item.h   |    2 ++
- mm/compaction.c                 |    1 +
- mm/migrate.c                    |    6 ++++--
- mm/vmstat.c                     |    4 ++++
- 5 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 7669bc8..c4ddcd7 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -410,6 +410,7 @@ int virtballoon_migratepage(struct address_space *mapping,
- 
- 	mutex_unlock(&balloon_lock);
- 
-+	count_vm_event(COMPACTBALLOONMIGRATED);
- 	return 0;
- }
- 
-diff --git a/include/linux/vm_event_item.h b/include/linux/vm_event_item.h
-index 06f8e38..e330c5a 100644
---- a/include/linux/vm_event_item.h
-+++ b/include/linux/vm_event_item.h
-@@ -40,6 +40,8 @@ enum vm_event_item { PGPGIN, PGPGOUT, PSWPIN, PSWPOUT,
- #ifdef CONFIG_COMPACTION
- 		COMPACTBLOCKS, COMPACTPAGES, COMPACTPAGEFAILED,
- 		COMPACTSTALL, COMPACTFAIL, COMPACTSUCCESS,
-+		COMPACTBALLOONMIGRATED, COMPACTBALLOONFAILED,
-+		COMPACTBALLOONISOLATED, COMPACTBALLOONFREED,
- #endif
- #ifdef CONFIG_HUGETLB_PAGE
- 		HTLB_BUDDY_PGALLOC, HTLB_BUDDY_PGALLOC_FAIL,
-diff --git a/mm/compaction.c b/mm/compaction.c
-index 51eac0c..d212dde 100644
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -72,6 +72,7 @@ static bool isolate_balloon_page(struct page *page)
- 			if (is_balloon_page(page) && (page_count(page) == 2)) {
- 				__isolate_balloon_page(page);
- 				unlock_page(page);
-+				count_vm_event(COMPACTBALLOONISOLATED);
- 				return true;
- 			}
- 			unlock_page(page);
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 59c7bc5..5838719 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -78,9 +78,10 @@ void putback_lru_pages(struct list_head *l)
- 		list_del(&page->lru);
- 		dec_zone_page_state(page, NR_ISOLATED_ANON +
- 				page_is_file_cache(page));
--		if (unlikely(is_balloon_page(page)))
-+		if (unlikely(is_balloon_page(page))) {
-+			count_vm_event(COMPACTBALLOONFAILED);
- 			WARN_ON(!putback_balloon_page(page));
--		else
-+		} else
- 			putback_lru_page(page);
- 	}
- }
-@@ -878,6 +879,7 @@ static int unmap_and_move(new_page_t get_new_page, unsigned long private,
- 				    page_is_file_cache(page));
- 		put_page(page);
- 		__free_page(page);
-+		count_vm_event(COMPACTBALLOONFREED);
- 		return rc;
- 	}
- out:
-diff --git a/mm/vmstat.c b/mm/vmstat.c
-index 1bbbbd9..3b7109f 100644
---- a/mm/vmstat.c
-+++ b/mm/vmstat.c
-@@ -767,6 +767,10 @@ const char * const vmstat_text[] = {
- 	"compact_stall",
- 	"compact_fail",
- 	"compact_success",
-+	"compact_balloon_migrated",
-+	"compact_balloon_failed",
-+	"compact_balloon_isolated",
-+	"compact_balloon_freed",
- #endif
- 
- #ifdef CONFIG_HUGETLB_PAGE
--- 
-1.7.10.4
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@linuxfoundation.org]
+> Sent: Tuesday, July 17, 2012 12:04 PM
+> To: KY Srinivasan
+> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org; olaf@aepfle.de; apw@canonical.com
+> Subject: Re: [PATCH 01/15] Drivers: hv: Format GUIDS as per MSFT standards
+> 
+> On Sat, Jul 14, 2012 at 01:34:06PM -0700, K. Y. Srinivasan wrote:
+> > Format GUIDS as per MSFT standard. This makes interacting with MSFT
+> > tool stack easier.
+> >
+> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > ---
+> >  drivers/hv/vmbus_drv.c |    4 ++--
+> >  1 files changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+> > index a220e57..1f7e54a 100644
+> > --- a/drivers/hv/vmbus_drv.c
+> > +++ b/drivers/hv/vmbus_drv.c
+> > @@ -147,7 +147,7 @@ static ssize_t vmbus_show_device_attr(struct device
+> *dev,
+> >
+> >  	if (!strcmp(dev_attr->attr.name, "class_id")) {
+> >  		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+> > -			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
+> > +			       "%02x%02x-%02x%02x%02x%02x%02x%02x}\n",
+> 
+> As Joe pointed out, please just use the printk modifier the kernel
+> already has for GUIDS, and don't roll your own here.  That will work
+> properly for you, right?
+
+Will do. Please drop the patch-set; I will post new patches soon.
+
+K. Y
