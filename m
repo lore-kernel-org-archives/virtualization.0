@@ -1,15 +1,17 @@
 From: Jeff Moyer <jmoyer@redhat.com>
 Subject: Re: [PATCH RESEND 5/5] vhost-blk: Add vhost-blk support
-Date: Tue, 17 Jul 2012 15:10:58 -0400
-Message-ID: <x49mx2yyzi5.fsf__30911.4406853498$1342629360$gmane$org@segfault.boston.devel.redhat.com>
+Date: Wed, 18 Jul 2012 10:31:28 -0400
+Message-ID: <x49fw8pb0ov.fsf__3845.99448084391$1342629374$gmane$org@segfault.boston.devel.redhat.com>
 References: <1342169711-12386-1-git-send-email-asias@redhat.com>
 	<1342169711-12386-6-git-send-email-asias@redhat.com>
+	<x49mx2yyzi5.fsf@segfault.boston.devel.redhat.com>
+	<50060FE8.4040607@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1342169711-12386-6-git-send-email-asias@redhat.com> (Asias He's
-	message of "Fri, 13 Jul 2012 16:55:11 +0800")
+In-Reply-To: <50060FE8.4040607@redhat.com> (Asias He's message of "Wed, 18 Jul
+	2012 09:22:48 +0800")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,151 +27,32 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Asias He <asias@redhat.com> writes:
 
-> vhost-blk is a in kernel virito-blk device accelerator.
+> On 07/18/2012 03:10 AM, Jeff Moyer wrote:
+>> Asias He <asias@redhat.com> writes:
+>>
+>>> vhost-blk is a in kernel virito-blk device accelerator.
+>>>
+>>> This patch is based on Liu Yuan's implementation with various
+>>> improvements and bug fixes. Notably, this patch makes guest notify and
+>>> host completion processing in parallel which gives about 60% performance
+>>> improvement compared to Liu Yuan's implementation.
+>>
+>> So, first off, some basic questions.  Is it correct to assume that you
+>> tested this with buffered I/O (files opened *without* O_DIRECT)?
+>>  I'm pretty sure that if you used O_DIRECT, you'd run into problems (which
+>> are solved by the patch set posted by Shaggy, based on Zach Brown's work
+>> of many moons ago).  Note that, with buffered I/O, the submission path
+>> is NOT asynchronous.  So, any speedups you've reported are extremely
+>> suspect.  ;-)
 >
-> This patch is based on Liu Yuan's implementation with various
-> improvements and bug fixes. Notably, this patch makes guest notify and
-> host completion processing in parallel which gives about 60% performance
-> improvement compared to Liu Yuan's implementation.
+> I always used O_DIRECT to test this patchset. And I mostly used raw
+> block device as guest image. Is this the reason why I did not hit the
+> problem you mentioned. Btw, I do have run this patchset on image based
+> file. I still do not see problems like IO hangs.
 
-So, first off, some basic questions.  Is it correct to assume that you
-tested this with buffered I/O (files opened *without* O_DIRECT)?  I'm
-pretty sure that if you used O_DIRECT, you'd run into problems (which
-are solved by the patch set posted by Shaggy, based on Zach Brown's work
-of many moons ago).  Note that, with buffered I/O, the submission path
-is NOT asynchronous.  So, any speedups you've reported are extremely
-suspect.  ;-)
-
-Next, did you look at Shaggy's patch set?  I think it would be best to
-focus your efforts on testing *that*, and implementing your work on top
-of it.
-
-Having said that, I did do some review of this patch, inlined below.
-
-> +static int vhost_blk_setup(struct vhost_blk *blk)
-> +{
-> +	struct kioctx *ctx;
-> +
-> +	if (blk->ioctx)
-> +		return 0;
-> +
-> +	blk->ioevent_nr = blk->vq.num;
-> +	ctx = ioctx_alloc(blk->ioevent_nr);
-> +	if (IS_ERR(ctx)) {
-> +		pr_err("Failed to ioctx_alloc");
-> +		return PTR_ERR(ctx);
-> +	}
-> +	put_ioctx(ctx);
-> +	blk->ioctx = ctx;
-> +
-> +	blk->ioevent = kmalloc(sizeof(struct io_event) * blk->ioevent_nr,
-> +			       GFP_KERNEL);
-> +	if (!blk->ioevent) {
-> +		pr_err("Failed to allocate memory for io_events");
-> +		return -ENOMEM;
-
-You've just leaked blk->ioctx.
-
-> +	}
-> +
-> +	blk->reqs = kmalloc(sizeof(struct vhost_blk_req) * blk->ioevent_nr,
-> +			    GFP_KERNEL);
-> +	if (!blk->reqs) {
-> +		pr_err("Failed to allocate memory for vhost_blk_req");
-> +		return -ENOMEM;
-
-And here.
-
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-[snip]
-> +static int vhost_blk_io_submit(struct vhost_blk *blk, struct file *file,
-> +			       struct vhost_blk_req *req,
-> +			       struct iovec *iov, u64 nr_vecs, loff_t offset,
-> +			       int opcode)
-> +{
-> +	struct kioctx *ioctx = blk->ioctx;
-> +	mm_segment_t oldfs = get_fs();
-> +	struct kiocb_batch batch;
-> +	struct blk_plug plug;
-> +	struct kiocb *iocb;
-> +	int ret;
-> +
-> +	if (!try_get_ioctx(ioctx)) {
-> +		pr_info("Failed to get ioctx");
-> +		return -EAGAIN;
-> +	}
-
-Using try_get_ioctx directly gives me a slightly uneasy feeling.  I
-understand that you don't need to do the lookup, but at least wrap it
-and check for ->dead.
-
-> +
-> +	atomic_long_inc_not_zero(&file->f_count);
-> +	eventfd_ctx_get(blk->ectx);
-> +
-> +	/* TODO: batch to 1 is not good! */
-
-Agreed.  You should setup the batching in vhost_blk_handle_guest_kick.
-The way you've written the code, the batching is not at all helpful.
-
-> +	kiocb_batch_init(&batch, 1);
-> +	blk_start_plug(&plug);
-> +
-> +	iocb = aio_get_req(ioctx, &batch);
-> +	if (unlikely(!iocb)) {
-> +		ret = -EAGAIN;
-> +		goto out;
-> +	}
-> +
-> +	iocb->ki_filp	= file;
-> +	iocb->ki_pos	= offset;
-> +	iocb->ki_buf	= (void *)iov;
-> +	iocb->ki_left	= nr_vecs;
-> +	iocb->ki_nbytes	= nr_vecs;
-> +	iocb->ki_opcode	= opcode;
-> +	iocb->ki_obj.user = req;
-> +	iocb->ki_eventfd  = blk->ectx;
-> +
-> +	set_fs(KERNEL_DS);
-> +	ret = aio_setup_iocb(iocb, false);
-> +	set_fs(oldfs);
-> +	if (unlikely(ret))
-> +		goto out_put_iocb;
-> +
-> +	spin_lock_irq(&ioctx->ctx_lock);
-> +	if (unlikely(ioctx->dead)) {
-> +		spin_unlock_irq(&ioctx->ctx_lock);
-> +		ret = -EINVAL;
-> +		goto out_put_iocb;
-> +	}
-> +	aio_run_iocb(iocb);
-> +	spin_unlock_irq(&ioctx->ctx_lock);
-> +
-> +	aio_put_req(iocb);
-> +
-> +	blk_finish_plug(&plug);
-> +	kiocb_batch_free(ioctx, &batch);
-> +	put_ioctx(ioctx);
-> +
-> +	return ret;
-> +out_put_iocb:
-> +	aio_put_req(iocb); /* Drop extra ref to req */
-> +	aio_put_req(iocb); /* Drop I/O ref to req */
-> +out:
-> +	put_ioctx(ioctx);
-> +	return ret;
-> +}
-> +
-
-You've duplicated a lot of io_submit_one.  I'd rather see that factored
-out than to have to maintain two copies.
-
-Again, what I'd *really* like to see is you rebase on top of Shaggy's
-work.
+Hmm, so do the iovec's passed in point to buffers in userspace?  I
+thought they were kernel buffers, which would have blown up in
+get_user_pages_fast.
 
 Cheers,
 Jeff
