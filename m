@@ -1,17 +1,17 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH RESEND 5/5] vhost-blk: Add vhost-blk support
-Date: Wed, 18 Jul 2012 22:45:58 +0800
-Message-ID: <5006CC26.20203@redhat.com>
-References: <1342169711-12386-1-git-send-email-asias@redhat.com>
-	<1342169711-12386-6-git-send-email-asias@redhat.com>
-	<x49mx2yyzi5.fsf@segfault.boston.devel.redhat.com>
-	<50060FE8.4040607@redhat.com>
-	<x49fw8pb0ov.fsf@segfault.boston.devel.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC-v2 0/4] tcm_vhost+cmwq fabric driver code for-3.6
+Date: Wed, 18 Jul 2012 18:33:11 +0300
+Message-ID: <20120718153311.GA1777@redhat.com>
+References: <1342041304-29728-1-git-send-email-nab@linux-iscsi.org>
+	<20120717150548.GA11587@redhat.com> <5005B52E.20509@us.ibm.com>
+	<1342561819.18004.470.camel@haakon2.linux-iscsi.org>
+	<5006BD3D.7090104@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <x49fw8pb0ov.fsf@segfault.boston.devel.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <5006BD3D.7090104@us.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +21,122 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/18/2012 10:31 PM, Jeff Moyer wrote:
-> Asias He <asias@redhat.com> writes:
->
->> On 07/18/2012 03:10 AM, Jeff Moyer wrote:
->>> Asias He <asias@redhat.com> writes:
->>>
->>>> vhost-blk is a in kernel virito-blk device accelerator.
->>>>
->>>> This patch is based on Liu Yuan's implementation with various
->>>> improvements and bug fixes. Notably, this patch makes guest notify and
->>>> host completion processing in parallel which gives about 60% performance
->>>> improvement compared to Liu Yuan's implementation.
->>>
->>> So, first off, some basic questions.  Is it correct to assume that you
->>> tested this with buffered I/O (files opened *without* O_DIRECT)?
->>>   I'm pretty sure that if you used O_DIRECT, you'd run into problems (which
->>> are solved by the patch set posted by Shaggy, based on Zach Brown's work
->>> of many moons ago).  Note that, with buffered I/O, the submission path
->>> is NOT asynchronous.  So, any speedups you've reported are extremely
->>> suspect.  ;-)
->>
->> I always used O_DIRECT to test this patchset. And I mostly used raw
->> block device as guest image. Is this the reason why I did not hit the
->> problem you mentioned. Btw, I do have run this patchset on image based
->> file. I still do not see problems like IO hangs.
->
-> Hmm, so do the iovec's passed in point to buffers in userspace?  I
-> thought they were kernel buffers, which would have blown up in
-> get_user_pages_fast.
+On Wed, Jul 18, 2012 at 08:42:21AM -0500, Anthony Liguori wrote:
+> On 07/17/2012 04:50 PM, Nicholas A. Bellinger wrote:
+> >On Tue, 2012-07-17 at 13:55 -0500, Anthony Liguori wrote:
+> >>On 07/17/2012 10:05 AM, Michael S. Tsirkin wrote:
+> >>>On Wed, Jul 11, 2012 at 09:15:00PM +0000, Nicholas A. Bellinger wrote:
+> >
+> ><SNIP>
+> >
+> >>>
+> >>>It still seems not 100% clear whether this driver will have major
+> >>>userspace using it. And if not, it would be very hard to support a driver
+> >>>when recent userspace does not use it in the end.
+> >>
+> >>I don't think this is a good reason to exclude something from the kernel.
+> >>However, there are good reasons why this doesn't make sense for something like
+> >>QEMU--specifically because we have a large number of features in our block layer
+> >>that tcm_vhost would bypass.
+> >>
+> >
+> >I can definitely appreciate your concern here as the QEMU maintainer.
+> >
+> >>But perhaps it makes sense for something like native kvm tool.  And if it did go
+> >>into the kernel, we would certainly support it in QEMU.
+> >>
+> >
+> >...
+> >
+> >>But I do think the kernel should carefully consider whether it wants to support
+> >>an interface like this.  This an extremely complicated ABI with a lot of subtle
+> >>details around state and compatibility.
+> >>
+> >>Are you absolutely confident that you can support a userspace application that
+> >>expects to get exactly the same response from all possible commands in 20 kernel
+> >>versions from now?  Virtualization requires absolutely precise compatibility in
+> >>terms of bugs and features.  This is probably not something the TCM stack has
+> >>had to consider yet.
+> >>
+> >
+> >We most certainly have thought about long term userspace compatibility
+> >with TCM.  Our userspace code (that's now available in all major
+> >distros) is completely forward-compatible with new fabric modules such
+> >as tcm_vhost.  No update required.
+> 
+> I'm not sure we're talking about the same thing when we say compatibility.
+> 
+> I'm not talking about the API.  I'm talking about the behavior of
+> the commands that tcm_vhost supports.
+> 
+> If you add support for a new command, you need to provide userspace
+> a way to disable this command.  If you change what gets reported for
+> VPD, you need to provide userspace a way to make VPD look like what
+> it did in a previous version.
+> 
+> Basically, you need to be able to make a TCM device behave 100% the
+> same as it did in an older version of the kernel.
+> 
+> This is unique to virtualization due to live migration.  If you
+> migrate from a 3.6 kernel to a 3.8 kernel, you need to make sure
+> that the 3.8 kernel's TCM device behaves exactly like the 3.6 kernel
+> because the guest that is interacting with it does not realize that
+> live migration happened.
+> 
+> Yes, you can add knobs via configfs to control this behavior, but I
+> think the question is, what's the plan for this?
+> 
+> BTW, I think this is a good thing to cover in
+> Documentation/vhost/tcm_vhost.txt.  I think that's probably the only
+> change that's needed here.
+> 
+> Regards,
+> 
+> Anthony Liguori
 
-Yes. The iovec's passed in point to userspace buffers. ;-)
+I agree it's needed but it's not a requirement for merging IMHO.
+As a first step we can disable live migration.
 
--- 
-Asias
+> >
+> >Also, by virtue of the fact that we are using configfs + rtslib (python
+> >object library) on top, it's very easy to keep any type of compatibility
+> >logic around in python code.  With rtslib, we are able to hide configfs
+> >ABI changes from higher level apps.
+> >
+> >So far we've had a track record of 100% userspace ABI compatibility in
+> >mainline since .38, and I don't intend to merge a patch that breaks this
+> >any time soon.  But if that ever happens, apps using rtslib are not
+> >going to be effected.
+> >
+> >>>I think a good idea for 3.6 would be to make it depend on CONFIG_STAGING.
+> >>>Then we don't commit to an ABI.
+> >>
+> >>I think this is a good idea.  Even if it goes in, a really clear policy would be
+> >>needed wrt the userspace ABI.
+> >>
+> >>While tcm_vhost is probably more useful than vhost_blk, it's a much more complex
+> >>ABI to maintain.
+> >>
+> >
+> >As far as I am concerned, the kernel API (eg: configfs directory layout)
+> >as it is now in sys/kernel/config/target/vhost/ is not going to change.
+> >It's based on the same drivers/target/target_core_fabric_configfs.c
+> >generic layout that we've had since .38.
+> >
+> >The basic functional fabric layout in configfs is identical (with fabric
+> >dependent WWPN naming of course) regardless of fabric driver, and by
+> >virtue of being generic it means we can add things like fabric dependent
+> >attributes + parameters in the future for existing fabrics without
+> >breaking userspace.
+> >
+> >So while I agree the ABI is more complex than vhost-blk, the logic in
+> >target_core_fabric_configfs.c is a basic ABI fabric definition that we
+> >are enforcing across all fabric modules in mainline for long term
+> >compatibility.
+> >
+> >--nab
+> >
