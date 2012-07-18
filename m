@@ -1,8 +1,8 @@
 From: "zhenzhong.duan" <zhenzhong.duan@oracle.com>
-Subject: [Xen-devel] [PATCH -v2] xen: populate correct number of pages when
+Subject: [Xen-devel] [PATCH-v2] xen: populate correct number of pages when
 	across mem boundary
-Date: Wed, 18 Jul 2012 10:48:48 +0800
-Message-ID: <50062410.5090805@oracle.com>
+Date: Wed, 18 Jul 2012 11:08:17 +0800
+Message-ID: <500628A1.3060609@oracle.com>
 References: <4FF3E781.5040603@oracle.com> <4FFEE552.4070201@citrix.com>
 	<4FFFDCD9.7030305@oracle.com>
 	<20120717144540.GC12374@phenom.dumpdata.com>
@@ -24,6 +24,11 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Cc: jeremy@goop.org, xen-devel@lists.xensource.com, x86@kernel.org, Feng Jin <joe.jin@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, David Vrabel <david.vrabel@citrix.com>, hpa@zytor.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
+
+ From c40ea05842fec8f6caa053b2d58f54608ed0835f Mon Sep 17 00:00:00 2001
+From: Zhenzhong Duan<zhenzhong.duan@oracle.com>
+Date: Wed, 4 Jul 2012 14:08:10 +0800
+Subject: [PATCH] xen: populate right count of pages when across mem boundary
 
 When populate pages across a mem boundary at bootup, the page count
 populated isn't correct. This is due to mem populated to non-mem
