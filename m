@@ -1,16 +1,17 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC-v2 0/4] tcm_vhost+cmwq fabric driver code for-3.6
-Date: Wed, 18 Jul 2012 15:56:02 +0200
-Message-ID: <5006C072.2040204@redhat.com>
-References: <1342041304-29728-1-git-send-email-nab@linux-iscsi.org>
-	<20120717150548.GA11587@redhat.com> <5005B52E.20509@us.ibm.com>
-	<1342561819.18004.470.camel@haakon2.linux-iscsi.org>
-	<5006BD3D.7090104@us.ibm.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH RESEND 5/5] vhost-blk: Add vhost-blk support
+Date: Wed, 18 Jul 2012 22:45:58 +0800
+Message-ID: <5006CC26.20203@redhat.com>
+References: <1342169711-12386-1-git-send-email-asias@redhat.com>
+	<1342169711-12386-6-git-send-email-asias@redhat.com>
+	<x49mx2yyzi5.fsf@segfault.boston.devel.redhat.com>
+	<50060FE8.4040607@redhat.com>
+	<x49fw8pb0ov.fsf@segfault.boston.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5006BD3D.7090104@us.ibm.com>
+In-Reply-To: <x49fw8pb0ov.fsf@segfault.boston.devel.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,23 +21,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 18/07/2012 15:42, Anthony Liguori ha scritto:
-> If you add support for a new command, you need to provide userspace a
-> way to disable this command.  If you change what gets reported for VPD,
-> you need to provide userspace a way to make VPD look like what it did in
-> a previous version.
+On 07/18/2012 10:31 PM, Jeff Moyer wrote:
+> Asias He <asias@redhat.com> writes:
+>
+>> On 07/18/2012 03:10 AM, Jeff Moyer wrote:
+>>> Asias He <asias@redhat.com> writes:
+>>>
+>>>> vhost-blk is a in kernel virito-blk device accelerator.
+>>>>
+>>>> This patch is based on Liu Yuan's implementation with various
+>>>> improvements and bug fixes. Notably, this patch makes guest notify and
+>>>> host completion processing in parallel which gives about 60% performance
+>>>> improvement compared to Liu Yuan's implementation.
+>>>
+>>> So, first off, some basic questions.  Is it correct to assume that you
+>>> tested this with buffered I/O (files opened *without* O_DIRECT)?
+>>>   I'm pretty sure that if you used O_DIRECT, you'd run into problems (which
+>>> are solved by the patch set posted by Shaggy, based on Zach Brown's work
+>>> of many moons ago).  Note that, with buffered I/O, the submission path
+>>> is NOT asynchronous.  So, any speedups you've reported are extremely
+>>> suspect.  ;-)
+>>
+>> I always used O_DIRECT to test this patchset. And I mostly used raw
+>> block device as guest image. Is this the reason why I did not hit the
+>> problem you mentioned. Btw, I do have run this patchset on image based
+>> file. I still do not see problems like IO hangs.
+>
+> Hmm, so do the iovec's passed in point to buffers in userspace?  I
+> thought they were kernel buffers, which would have blown up in
+> get_user_pages_fast.
 
-The QEMU target is not enforcing this to this level.  We didn't for
-CD-ROM ATAPI, and we're not doing it for SCSI.
+Yes. The iovec's passed in point to userspace buffers. ;-)
 
-It may indeed be useful for changes to VPD pages or major features.
-However, so far we've never introduced any feature that deserved it.
-This is also because OSes typically don't care: they use a small subset
-of the features and all the remaining "decorations" are only needed to
-be pedantically compliant to the spec.
-
-Paolo
+-- 
+Asias
