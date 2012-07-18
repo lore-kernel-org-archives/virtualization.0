@@ -1,34 +1,92 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 1/1] Drivers: hv: Change the hex constant to a decimal constant
-Date: Wed, 18 Jul 2012 15:57:25 -0700
-Message-ID: <1342652245-931-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [RFC-v2 0/4] tcm_vhost+cmwq fabric driver code for-3.6
+Date: Wed, 18 Jul 2012 15:45:36 -0700
+Message-ID: <1342651536.18004.702.camel__16310.1563499824$1342651555$gmane$org@haakon2.linux-iscsi.org>
+References: <1342041304-29728-1-git-send-email-nab@linux-iscsi.org>
+	<20120717150548.GA11587@redhat.com>  <5005B52E.20509@us.ibm.com>
+	<1342561819.18004.470.camel@haakon2.linux-iscsi.org>
+	<5006BD3D.7090104@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <5006BD3D.7090104@us.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The hex constant chosen for HV_LINUX_GUEST_ID_HI was offensive, update to use
-the decimal equivalent instead.
-
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
----
- drivers/hv/hyperv_vmbus.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
-index b9426a6..0614ff3 100644
---- a/drivers/hv/hyperv_vmbus.h
-+++ b/drivers/hv/hyperv_vmbus.h
-@@ -411,7 +411,7 @@ enum {
- #define HV_PRESENT_BIT			0x80000000
- 
- #define HV_LINUX_GUEST_ID_LO		0x00000000
--#define HV_LINUX_GUEST_ID_HI		0xB16B00B5
-+#define HV_LINUX_GUEST_ID_HI		2976579765
- #define HV_LINUX_GUEST_ID		(((u64)HV_LINUX_GUEST_ID_HI << 32) | \
- 					   HV_LINUX_GUEST_ID_LO)
- 
--- 
-1.7.4.1
+T24gV2VkLCAyMDEyLTA3LTE4IGF0IDA4OjQyIC0wNTAwLCBBbnRob255IExpZ3Vvcmkgd3JvdGU6
+Cj4gT24gMDcvMTcvMjAxMiAwNDo1MCBQTSwgTmljaG9sYXMgQS4gQmVsbGluZ2VyIHdyb3RlOgo+
+ID4gT24gVHVlLCAyMDEyLTA3LTE3IGF0IDEzOjU1IC0wNTAwLCBBbnRob255IExpZ3Vvcmkgd3Jv
+dGU6Cj4gPj4gT24gMDcvMTcvMjAxMiAxMDowNSBBTSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3Rl
+Ogo+ID4+PiBPbiBXZWQsIEp1bCAxMSwgMjAxMiBhdCAwOToxNTowMFBNICswMDAwLCBOaWNob2xh
+cyBBLiBCZWxsaW5nZXIgd3JvdGU6Cj4gPgoKPFNOSVA+Cgo+ID4KPiA+PiBCdXQgSSBkbyB0aGlu
+ayB0aGUga2VybmVsIHNob3VsZCBjYXJlZnVsbHkgY29uc2lkZXIgd2hldGhlciBpdCB3YW50cyB0
+byBzdXBwb3J0Cj4gPj4gYW4gaW50ZXJmYWNlIGxpa2UgdGhpcy4gIFRoaXMgYW4gZXh0cmVtZWx5
+IGNvbXBsaWNhdGVkIEFCSSB3aXRoIGEgbG90IG9mIHN1YnRsZQo+ID4+IGRldGFpbHMgYXJvdW5k
+IHN0YXRlIGFuZCBjb21wYXRpYmlsaXR5Lgo+ID4+Cj4gPj4gQXJlIHlvdSBhYnNvbHV0ZWx5IGNv
+bmZpZGVudCB0aGF0IHlvdSBjYW4gc3VwcG9ydCBhIHVzZXJzcGFjZSBhcHBsaWNhdGlvbiB0aGF0
+Cj4gPj4gZXhwZWN0cyB0byBnZXQgZXhhY3RseSB0aGUgc2FtZSByZXNwb25zZSBmcm9tIGFsbCBw
+b3NzaWJsZSBjb21tYW5kcyBpbiAyMCBrZXJuZWwKPiA+PiB2ZXJzaW9ucyBmcm9tIG5vdz8gIFZp
+cnR1YWxpemF0aW9uIHJlcXVpcmVzIGFic29sdXRlbHkgcHJlY2lzZSBjb21wYXRpYmlsaXR5IGlu
+Cj4gPj4gdGVybXMgb2YgYnVncyBhbmQgZmVhdHVyZXMuICBUaGlzIGlzIHByb2JhYmx5IG5vdCBz
+b21ldGhpbmcgdGhlIFRDTSBzdGFjayBoYXMKPiA+PiBoYWQgdG8gY29uc2lkZXIgeWV0Lgo+ID4+
+Cj4gPgo+ID4gV2UgbW9zdCBjZXJ0YWlubHkgaGF2ZSB0aG91Z2h0IGFib3V0IGxvbmcgdGVybSB1
+c2Vyc3BhY2UgY29tcGF0aWJpbGl0eQo+ID4gd2l0aCBUQ00uICBPdXIgdXNlcnNwYWNlIGNvZGUg
+KHRoYXQncyBub3cgYXZhaWxhYmxlIGluIGFsbCBtYWpvcgo+ID4gZGlzdHJvcykgaXMgY29tcGxl
+dGVseSBmb3J3YXJkLWNvbXBhdGlibGUgd2l0aCBuZXcgZmFicmljIG1vZHVsZXMgc3VjaAo+ID4g
+YXMgdGNtX3Zob3N0LiAgTm8gdXBkYXRlIHJlcXVpcmVkLgo+IAo+IEknbSBub3Qgc3VyZSB3ZSdy
+ZSB0YWxraW5nIGFib3V0IHRoZSBzYW1lIHRoaW5nIHdoZW4gd2Ugc2F5IGNvbXBhdGliaWxpdHku
+Cj4gCj4gSSdtIG5vdCB0YWxraW5nIGFib3V0IHRoZSBBUEkuICBJJ20gdGFsa2luZyBhYm91dCB0
+aGUgYmVoYXZpb3Igb2YgdGhlIGNvbW1hbmRzIAo+IHRoYXQgdGNtX3Zob3N0IHN1cHBvcnRzLgo+
+IAoKT0ssIEkgdW5kZXJzdGFuZCB3aGF0IHlvdXIgZ2V0dGluZyBhdCBub3cuLgoKPiBJZiB5b3Ug
+YWRkIHN1cHBvcnQgZm9yIGEgbmV3IGNvbW1hbmQsIHlvdSBuZWVkIHRvIHByb3ZpZGUgdXNlcnNw
+YWNlIGEgd2F5IHRvIAo+IGRpc2FibGUgdGhpcyBjb21tYW5kLiAgSWYgeW91IGNoYW5nZSB3aGF0
+IGdldHMgcmVwb3J0ZWQgZm9yIFZQRCwgeW91IG5lZWQgdG8gCj4gcHJvdmlkZSB1c2Vyc3BhY2Ug
+YSB3YXkgdG8gbWFrZSBWUEQgbG9vayBsaWtlIHdoYXQgaXQgZGlkIGluIGEgcHJldmlvdXMgdmVy
+c2lvbi4KPiAKPiBCYXNpY2FsbHksIHlvdSBuZWVkIHRvIGJlIGFibGUgdG8gbWFrZSBhIFRDTSBk
+ZXZpY2UgYmVoYXZlIDEwMCUgdGhlIHNhbWUgYXMgaXQgCj4gZGlkIGluIGFuIG9sZGVyIHZlcnNp
+b24gb2YgdGhlIGtlcm5lbC4KPiAKPiBUaGlzIGlzIHVuaXF1ZSB0byB2aXJ0dWFsaXphdGlvbiBk
+dWUgdG8gbGl2ZSBtaWdyYXRpb24uICBJZiB5b3UgbWlncmF0ZSBmcm9tIGEgCj4gMy42IGtlcm5l
+bCB0byBhIDMuOCBrZXJuZWwsIHlvdSBuZWVkIHRvIG1ha2Ugc3VyZSB0aGF0IHRoZSAzLjgga2Vy
+bmVsJ3MgVENNIAo+IGRldmljZSBiZWhhdmVzIGV4YWN0bHkgbGlrZSB0aGUgMy42IGtlcm5lbCBi
+ZWNhdXNlIHRoZSBndWVzdCB0aGF0IGlzIGludGVyYWN0aW5nIAo+IHdpdGggaXQgZG9lcyBub3Qg
+cmVhbGl6ZSB0aGF0IGxpdmUgbWlncmF0aW9uIGhhcHBlbmVkLgo+IAo+IFllcywgeW91IGNhbiBh
+ZGQga25vYnMgdmlhIGNvbmZpZ2ZzIHRvIGNvbnRyb2wgdGhpcyBiZWhhdmlvciwgYnV0IEkgdGhp
+bmsgdGhlIAo+IHF1ZXN0aW9uIGlzLCB3aGF0J3MgdGhlIHBsYW4gZm9yIHRoaXM/Cj4gCgpTbyB3
+ZSBhbHJlYWR5IGFsbG93IGZvciBzb21lIHR5cGVzIG9mIENEQnMgZW11bGF0aW9uIHRvIGJlIHRv
+Z2dsZWQgdmlhCmJhY2tlbmQgZGV2aWNlIGF0dHJpYnV0ZXM6Cgpyb290QHRpZmE6L3Vzci9zcmMv
+dGFyZ2V0LXBlbmRpbmcuZ2l0IyB0cmVlIC9zeXMva2VybmVsL2NvbmZpZy90YXJnZXQvY29yZS9p
+YmxvY2tfMi9maW9hL2F0dHJpYi8KL3N5cy9rZXJuZWwvY29uZmlnL3RhcmdldC9jb3JlL2libG9j
+a18yL2Zpb2EvYXR0cmliLwrilJzilIDilIAgYmxvY2tfc2l6ZQrilJzilIDilIAgZW11bGF0ZV9k
+cG8K4pSc4pSA4pSAIGVtdWxhdGVfZnVhX3JlYWQK4pSc4pSA4pSAIGVtdWxhdGVfZnVhX3dyaXRl
+CuKUnOKUgOKUgCBlbXVsYXRlX3Jlc3RfcmVvcmQK4pSc4pSA4pSAIGVtdWxhdGVfdGFzCuKUnOKU
+gOKUgCBlbXVsYXRlX3RwdQrilJzilIDilIAgZW11bGF0ZV90cHdzCuKUnOKUgOKUgCBlbXVsYXRl
+X3VhX2ludGxja19jdHJsCuKUnOKUgOKUgCBlbXVsYXRlX3dyaXRlX2NhY2hlCuKUnOKUgOKUgCBl
+bmZvcmNlX3ByX2lzaWRzCgo8U05JUD4KClNvbWUgdGhpbmdzIGxpa2UgU1BDLTMgcGVyc2lzdGVu
+dCByZXNlcnZhdGlvbnMgKyBpbXBsaWN0L2V4cGxpY3QgQUxVQQptdWx0aXBhdGggY3VycmVudGx5
+IGNhbid0IGJlIGRpc2FibGVkLCBidXQgYWRkaW5nIHR3byBtb3JlIGJhY2tlbmQKYXR0cmlidXRl
+cyB0byBkaXNhYmxlL2VuYWJsZSB0aGlzIGxvZ2ljIGluZGl2aWR1YWwgaXMgZWFzeSBlbm91Z2gg
+dG8gZG8uCgpTbyB0aGF0IHNhaWQsIEkgZG9uJ3QgaGF2ZSBhIHByb2JsZW0gd2l0aCBhZGRpbmcg
+dGhlIG5lY2Vzc2FyeSBkZXZpY2UKYXR0cmlidXRlcyB0byBsaW1pdCB3aGF0IHR5cGUgb2YgQ0RC
+cyBhIGJhY2tlbmQgZGV2aWNlIGlzIGNhcGFibGUgb2YKcHJvY2Vzc2luZy4KClRyeWluZyB0byBs
+aW1pdGluZyB0aGlzIHBlci1ndWVzdCAoaW5zdGVhZCBvZiBwZXItZGV2aWNlKSBpcyB3aGVyZQp0
+aGluZ3MgZ2V0IGEgbGl0dGxlIG1vcmUgdHJpY2t5Li4KCj4gQlRXLCBJIHRoaW5rIHRoaXMgaXMg
+YSBnb29kIHRoaW5nIHRvIGNvdmVyIGluIERvY3VtZW50YXRpb24vdmhvc3QvdGNtX3Zob3N0LnR4
+dC4gCj4gICBJIHRoaW5rIHRoYXQncyBwcm9iYWJseSB0aGUgb25seSBjaGFuZ2UgdGhhdCdzIG5l
+ZWRlZCBoZXJlLgo+IAoKU3VyZSwgYnV0IEknbGwgbmVlZCB0byBrbm93IHdoYXQgZWxzZSB0aGF0
+IHlvdSdkIGxpa2UgdG8gb3B0aW9uYWxseQpyZXN0cmljdCBpdCB0ZXJtcyBvZiBDREIgcHJvY2Vz
+c2luZyB0aGF0J3Mgbm90IGFscmVhZHkgdGhlcmUuLgoKVGhhbmtzIGZvciB5b3VyIGZlZWRiYWNr
+IQoKLS1uYWIKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
