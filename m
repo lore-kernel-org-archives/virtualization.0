@@ -1,21 +1,15 @@
-From: "Rustad, Mark D" <mark.d.rustad@intel.com>
-Subject: Re: [RFC-v2 0/4] tcm_vhost+cmwq fabric driver code for-3.6
-Date: Wed, 18 Jul 2012 20:12:23 +0000
-Message-ID: <3F0FFDE7-B463-42B3-A812-2980FC0DD2C6__17429.9989980229$1342642357$gmane$org@intel.com>
-References: <1342041304-29728-1-git-send-email-nab@linux-iscsi.org>
-	<20120717150548.GA11587@redhat.com> <5005B52E.20509@us.ibm.com>
-	<1342561819.18004.470.camel@haakon2.linux-iscsi.org>
-	<5006BD3D.7090104@us.ibm.com> <20120718155338.GA21817@infradead.org>
-	<20120718160015.GH1777@redhat.com>
-	<4872F2B9-F952-48C9-9724-D30239ACD989@intel.com>
-	<20120718171722.GA2347@redhat.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [RFC-v3 3/4] vhost: Add vhost_scsi specific defines
+Date: Wed, 18 Jul 2012 14:17:05 -0700
+Message-ID: <1342646225.18004.633.camel__33228.4958604307$1342646252$gmane$org@haakon2.linux-iscsi.org>
+References: <1342573172-17421-1-git-send-email-nab@linux-iscsi.org>
+	<1342573172-17421-4-git-send-email-nab@linux-iscsi.org>
+	<20120718130518.GB5589@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120718171722.GA2347@redhat.com>
-Content-Language: en-US
-Content-ID: <028FC98CC55FA842A182FFD93AF313C7@intel.com>
+In-Reply-To: <20120718130518.GB5589@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,18 +20,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Anthony Liguori <aliguori@us.ibm.com>, kvm-devel <kvm@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Jul 18, 2012, at 10:17 AM, Michael S. Tsirkin wrote:
-
-<snip>
-
->> You do have to pay very close attention to some things however. Don't change the device identity in any way - even version information, otherwise a Windows initiator will blue-screen. I made that mistake myself, so I remember it well. It seemed like such an innocent change. I don't recall there being any issue with adding commands and we did do that on occasion.
-> 
-> How about removing commands?
-
-Good question. With the storage system I am familiar with, that would only be a risk if firmware were downgraded. Downgrading would never have been recommended. I am sure that if something like persistent reserve suddenly went away it would cause big trouble for some initiators.
-
--- 
-Mark Rustad, LAN Access Division, Intel Corporation
+T24gV2VkLCAyMDEyLTA3LTE4IGF0IDE2OjA1ICswMzAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3Jv
+dGU6Cj4gT24gV2VkLCBKdWwgMTgsIDIwMTIgYXQgMTI6NTk6MzFBTSArMDAwMCwgTmljaG9sYXMg
+QS4gQmVsbGluZ2VyIHdyb3RlOgo+ID4gRnJvbTogTmljaG9sYXMgQmVsbGluZ2VyIDxuYWJAcmlz
+aW5ndGlkZXN5c3RlbXMuY29tPgo+ID4gCj4gPiBUaGlzIHBhdGNoIGFkZHMgdGhlIGluaXRpYWwg
+dmhvc3Rfc2NzaV9pb2N0bCgpIGNhbGxlcnMgZm9yIFZIT1NUX1NDU0lfU0VUX0VORFBPSU5UCj4g
+PiBhbmQgVkhPU1RfU0NTSV9DTEVBUl9FTkRQT0lOVCByZXNwZWN0aXZlbHksIGFuZCBhbHNvIGFk
+ZHMgc3RydWN0IHZob3N0X3ZyaW5nX3RhcmdldAo+ID4gdGhhdCBpcyB1c2VkIGJ5IHRjbV92aG9z
+dCBjb2RlIHdoZW4gbG9jYXRpbmcgdGFyZ2V0IHBvcnRzIGR1cmluZyBxZW11IHNldHVwLgo+ID4g
+Cj4gPiBTaWduZWQtb2ZmLWJ5OiBTdGVmYW4gSGFqbm9jemkgPHN0ZWZhbmhhQGxpbnV4LnZuZXQu
+aWJtLmNvbT4KPiA+IENjOiBaaGkgWW9uZyBXdSA8d3V6aHlAY24uaWJtLmNvbT4KPiA+IENjOiBN
+aWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+ID4gQ2M6IFBhb2xvIEJvbnppbmkg
+PHBib256aW5pQHJlZGhhdC5jb20+LAo+ID4gU2lnbmVkLW9mZi1ieTogTmljaG9sYXMgQS4gQmVs
+bGluZ2VyIDxuYWJAcmlzaW5ndGlkZXN5c3RlbXMuY29tPgo+ID4gLS0tCj4gPiAgaW5jbHVkZS9s
+aW51eC92aG9zdC5oIHwgICAgOSArKysrKysrKysKPiA+ICAxIGZpbGVzIGNoYW5nZWQsIDkgaW5z
+ZXJ0aW9ucygrKSwgMCBkZWxldGlvbnMoLSkKPiA+IAo+ID4gZGlmZiAtLWdpdCBhL2luY2x1ZGUv
+bGludXgvdmhvc3QuaCBiL2luY2x1ZGUvbGludXgvdmhvc3QuaAo+ID4gaW5kZXggZTg0N2YxZS4u
+MzNiMzEzYiAxMDA2NDQKPiA+IC0tLSBhL2luY2x1ZGUvbGludXgvdmhvc3QuaAo+ID4gKysrIGIv
+aW5jbHVkZS9saW51eC92aG9zdC5oCj4gPiBAQCAtMjQsNyArMjQsMTEgQEAgc3RydWN0IHZob3N0
+X3ZyaW5nX3N0YXRlIHsKPiA+ICBzdHJ1Y3Qgdmhvc3RfdnJpbmdfZmlsZSB7Cj4gPiAgCXVuc2ln
+bmVkIGludCBpbmRleDsKPiA+ICAJaW50IGZkOyAvKiBQYXNzIC0xIHRvIHVuYmluZCBmcm9tIGZp
+bGUuICovCj4gPiArfTsKPiA+ICAKPiA+ICtzdHJ1Y3Qgdmhvc3RfdnJpbmdfdGFyZ2V0IHsKPiAK
+PiBDYW4gdGhpcyBiZSByZW5hbWVkIHZob3N0X3Njc2lfdGFyZ2V0PwoKRG9uZQoKPiAKPiA+ICsJ
+dW5zaWduZWQgY2hhciB2aG9zdF93d3BuWzIyNF07Cj4gCj4gMjI0PyBJIGFtIGd1ZXNzaW5nIElT
+Q1NJX05BTUVfTEVOIGZyb20gaW5jbHVkZS9zY3NpL2lzY3NpX3Byb3RvLmg/Cj4gVW5mb3J0dW5h
+dGVseSB3ZSBjYW4ndCBpbmNsdWRlIGlzY3NpX3Byb3RvLmggaGVyZSBhcyBpdAo+IGlzIG5vdCBl
+eHBvcnRlZCB0byB1c2Vycy4gQnV0IGxldCdzIGFkZCBhIGNvbW1lbnQgZm9yIG5vdy4KPiAKClRo
+aXMgaXMgYWN0dWFsbHkgZnJvbSB0YXJnZXQvdGFyZ2V0X2NvcmVfYmFzZS5oOlRSQU5TUE9SVF9J
+UU5fTEVOLgoKRml4aW5nIHRoaXMgdXAgbm93Li4KCj4gPiArCXVuc2lnbmVkIHNob3J0IHZob3N0
+X3RwZ3Q7Cj4gPiAgfTsKPiA+ICAKPiA+ICBzdHJ1Y3Qgdmhvc3RfdnJpbmdfYWRkciB7Cj4gPiBA
+QCAtMTIxLDYgKzEyNSwxMSBAQCBzdHJ1Y3Qgdmhvc3RfbWVtb3J5IHsKPiA+ICAgKiBkZXZpY2Uu
+ICBUaGlzIGNhbiBiZSB1c2VkIHRvIHN0b3AgdGhlIHJpbmcgKGUuZy4gZm9yIG1pZ3JhdGlvbiku
+ICovCj4gPiAgI2RlZmluZSBWSE9TVF9ORVRfU0VUX0JBQ0tFTkQgX0lPVyhWSE9TVF9WSVJUSU8s
+IDB4MzAsIHN0cnVjdCB2aG9zdF92cmluZ19maWxlKQo+ID4gIAo+ID4gKy8qIFZIT1NUX1NDU0kg
+c3BlY2lmaWMgZGVmaW5lcyAqLwo+ID4gKwo+ID4gKyNkZWZpbmUgVkhPU1RfU0NTSV9TRVRfRU5E
+UE9JTlQgX0lPVyhWSE9TVF9WSVJUSU8sIDB4NDAsIHN0cnVjdCB2aG9zdF92cmluZ190YXJnZXQp
+Cj4gPiArI2RlZmluZSBWSE9TVF9TQ1NJX0NMRUFSX0VORFBPSU5UIF9JT1coVkhPU1RfVklSVElP
+LCAweDQxLCBzdHJ1Y3Qgdmhvc3RfdnJpbmdfdGFyZ2V0KQo+ID4gKwo+ID4gIC8qIEZlYXR1cmUg
+Yml0cyAqLwo+ID4gIC8qIExvZyBhbGwgd3JpdGUgZGVzY3JpcHRvcnMuIENhbiBiZSBjaGFuZ2Vk
+IHdoaWxlIGRldmljZSBpcyBhY3RpdmUuICovCj4gCj4gQ2FuIHRoZXNlIGdvIGludG8gYXBwcm9w
+cmlhdGUgaWZkZWYgQ09ORklHX1RDUF9WSE9TVCBwbGVhc2U/Cj4gCgpNbW1tbSwgSSBkb24ndCB0
+aGluayB3ZSBjYW4gZG8gdGhhdCB3aXRoIENPTkZJR19UQ01fVkhPU1Q9bSwgb3IgYXQgbGVhc3QK
+bm90IHdpdGggdGhlIGZvbGxvd2luZyBwYXRjaAoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgv
+dmhvc3QuaCBiL2luY2x1ZGUvbGludXgvdmhvc3QuaAppbmRleCAzM2IzMTNiLi5lNGIxZWUzIDEw
+MDY0NAotLS0gYS9pbmNsdWRlL2xpbnV4L3Zob3N0LmgKKysrIGIvaW5jbHVkZS9saW51eC92aG9z
+dC5oCkBAIC0xMjUsMTAgKzEyNiwxNCBAQCBzdHJ1Y3Qgdmhvc3RfbWVtb3J5IHsKICAqIGRldmlj
+ZS4gIFRoaXMgY2FuIGJlIHVzZWQgdG8gc3RvcCB0aGUgcmluZyAoZS5nLiBmb3IgbWlncmF0aW9u
+KS4gKi8KICNkZWZpbmUgVkhPU1RfTkVUX1NFVF9CQUNLRU5EIF9JT1coVkhPU1RfVklSVElPLCAw
+eDMwLCBzdHJ1Y3Qgdmhvc3RfdnJpbmdfZmlsZSkKIAorI2lmZGVmIENPTkZJR19UQ01fVkhPU1QK
+KwogLyogVkhPU1RfU0NTSSBzcGVjaWZpYyBkZWZpbmVzICovCiAKLSNkZWZpbmUgVkhPU1RfU0NT
+SV9TRVRfRU5EUE9JTlQgX0lPVyhWSE9TVF9WSVJUSU8sIDB4NDAsIHN0cnVjdCB2aG9zdF92cmlu
+Z190YXJnZXQpCi0jZGVmaW5lIFZIT1NUX1NDU0lfQ0xFQVJfRU5EUE9JTlQgX0lPVyhWSE9TVF9W
+SVJUSU8sIDB4NDEsIHN0cnVjdCB2aG9zdF92cmluZ190YXJnZXQpCisjIGRlZmluZSBWSE9TVF9T
+Q1NJX1NFVF9FTkRQT0lOVCBfSU9XKFZIT1NUX1ZJUlRJTywgMHg0MCwgc3RydWN0IHZob3N0X3Nj
+c2lfdGFyZ2V0KQorIyBkZWZpbmUgVkhPU1RfU0NTSV9DTEVBUl9FTkRQT0lOVCBfSU9XKFZIT1NU
+X1ZJUlRJTywgMHg0MSwgc3RydWN0IHZob3N0X3Njc2lfdGFyZ2V0KQorCisjZW5kaWYKCi0tCgpk
+cml2ZXJzL3Zob3N0L3RjbS90Y21fdmhvc3QuYzogSW4gZnVuY3Rpb24g4oCYdmhvc3Rfc2NzaV9p
+b2N0bOKAmToKZHJpdmVycy92aG9zdC90Y20vdGNtX3Zob3N0LmM6OTcwOiBlcnJvcjog4oCYVkhP
+U1RfU0NTSV9TRVRfRU5EUE9JTlTigJkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVu
+Y3Rpb24pCmRyaXZlcnMvdmhvc3QvdGNtL3RjbV92aG9zdC5jOjk3MDogZXJyb3I6IChFYWNoIHVu
+ZGVjbGFyZWQgaWRlbnRpZmllciBpcyByZXBvcnRlZCBvbmx5IG9uY2UKZHJpdmVycy92aG9zdC90
+Y20vdGNtX3Zob3N0LmM6OTcwOiBlcnJvcjogZm9yIGVhY2ggZnVuY3Rpb24gaXQgYXBwZWFycyBp
+bi4pCmRyaXZlcnMvdmhvc3QvdGNtL3RjbV92aG9zdC5jOjk3NTogZXJyb3I6IOKAmFZIT1NUX1ND
+U0lfQ0xFQVJfRU5EUE9JTlTigJkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rp
+b24pCm1ha2VbM106ICoqKiBbZHJpdmVycy92aG9zdC90Y20vdGNtX3Zob3N0Lm9dIEVycm9yIDEK
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
