@@ -1,14 +1,17 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH RESEND 0/5] Add vhost-blk support
-Date: Wed, 18 Jul 2012 10:09:23 +0800
-Message-ID: <50061AD3.6030704__26621.9376506799$1342577271$gmane$org@redhat.com>
-References: <1342169711-12386-1-git-send-email-asias@redhat.com>
-	<20120717150928.GB11587@redhat.com>
+From: "zhenzhong.duan" <zhenzhong.duan@oracle.com>
+Subject: [Xen-devel] [PATCH -v2] xen: populate correct number of pages when
+	across mem boundary
+Date: Wed, 18 Jul 2012 10:48:48 +0800
+Message-ID: <50062410.5090805@oracle.com>
+References: <4FF3E781.5040603@oracle.com> <4FFEE552.4070201@citrix.com>
+	<4FFFDCD9.7030305@oracle.com>
+	<20120717144540.GC12374@phenom.dumpdata.com>
+Reply-To: zhenzhong.duan@oracle.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120717150928.GB11587@redhat.com>
+In-Reply-To: <20120717144540.GC12374@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,37 +21,112 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-aio@kvack.org, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, James Bottomley <James.Bottomley@HansenPartnership.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Jeff Moyer <jmoyer@redhat.com>, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, x86@kernel.org, Feng Jin <joe.jin@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, David Vrabel <david.vrabel@citrix.com>, hpa@zytor.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/17/2012 11:09 PM, Michael S. Tsirkin wrote:
-> On Fri, Jul 13, 2012 at 04:55:06PM +0800, Asias He wrote:
->>
->> Hi folks,
->>
->> [I am resending to fix the broken thread in the previous one.]
->>
->> This patchset adds vhost-blk support. vhost-blk is a in kernel virito-blk
->> device accelerator. Compared to userspace virtio-blk implementation, vhost-blk
->> gives about 5% to 15% performance improvement.
->
-> Same thing as tcm_host comment:
->
-> 	It seems not 100% clear whether this driver will have major
-> 	userspace using it. And if not, it would be very hard to support a
-> 	driver when recent userspace does not use it in the end.
->
-> 	I think a good idea for 3.6 would be to make it depend on
-> 	CONFIG_STAGING.  Then we don't commit to an ABI.  For this, you can add
-> 	a separate Kconfig and source it from drivers/staging/Kconfig.  Maybe it
-> 	needs to be in a separate directory drivers/vhost/staging/Kconfig.
+When populate pages across a mem boundary at bootup, the page count
+populated isn't correct. This is due to mem populated to non-mem
+region and ignored.
 
-OK.
+Pfn range is also wrongly aligned when mem boundary isn't page aligned.
 
-> I Cc'd the list of tcm_host in the hope that you can cooperate on this.
+-v2: If xen_do_chunk fail(populate), abort this chunk and any others.
+Suggested by David, thanks.
 
-Sure.
+For a dom0 booted with dom_mem=3368952K(0xcd9ff000-4k) dmesg diff is:
+  [    0.000000] Freeing 9e-100 pfn range: 98 pages freed
+  [    0.000000] 1-1 mapping on 9e->100
+  [    0.000000] 1-1 mapping on cd9ff->100000
+  [    0.000000] Released 98 pages of unused memory
+  [    0.000000] Set 206435 page(s) to 1-1 mapping
+-[    0.000000] Populating cd9fe-cda00 pfn range: 1 pages added
++[    0.000000] Populating cd9fe-cd9ff pfn range: 1 pages added
++[    0.000000] Populating 100000-100061 pfn range: 97 pages added
+  [    0.000000] BIOS-provided physical RAM map:
+  [    0.000000] Xen: 0000000000000000 - 000000000009e000 (usable)
+  [    0.000000] Xen: 00000000000a0000 - 0000000000100000 (reserved)
+  [    0.000000] Xen: 0000000000100000 - 00000000cd9ff000 (usable)
+  [    0.000000] Xen: 00000000cd9ffc00 - 00000000cda53c00 (ACPI NVS)
+...
+  [    0.000000] Xen: 0000000100000000 - 0000000100061000 (usable)
+  [    0.000000] Xen: 0000000100061000 - 000000012c000000 (unusable)
+...
+  [    0.000000] MEMBLOCK configuration:
+...
+-[    0.000000]  reserved[0x4]       [0x000000cd9ff000-0x000000cd9ffbff], 0xc00 bytes
+-[    0.000000]  reserved[0x5]       [0x00000100000000-0x00000100060fff], 0x61000 bytes
 
+Related xen memory layout:
+(XEN) Xen-e820 RAM map:
+(XEN)  0000000000000000 - 000000000009ec00 (usable)
+(XEN)  00000000000f0000 - 0000000000100000 (reserved)
+(XEN)  0000000000100000 - 00000000cd9ffc00 (usable)
+
+Signed-off-by: Zhenzhong Duan<zhenzhong.duan@oracle.com>
+---
+diff --git a/arch/x86/xen/setup.c b/arch/x86/xen/setup.c
+index a4790bf..ead8557 100644
+--- a/arch/x86/xen/setup.c
++++ b/arch/x86/xen/setup.c
+@@ -157,25 +157,24 @@ static unsigned long __init xen_populate_chunk(
+  	unsigned long dest_pfn;
+
+  	for (i = 0, entry = list; i<  map_size; i++, entry++) {
+-		unsigned long credits = credits_left;
+  		unsigned long s_pfn;
+  		unsigned long e_pfn;
+  		unsigned long pfns;
+  		long capacity;
+
+-		if (credits<= 0)
++		if (credits_left<= 0)
+  			break;
+
+  		if (entry->type != E820_RAM)
+  			continue;
+
+-		e_pfn = PFN_UP(entry->addr + entry->size);
++		e_pfn = PFN_DOWN(entry->addr + entry->size);
+
+  		/* We only care about E820 after the xen_start_info->nr_pages */
+  		if (e_pfn<= max_pfn)
+  			continue;
+
+-		s_pfn = PFN_DOWN(entry->addr);
++		s_pfn = PFN_UP(entry->addr);
+  		/* If the E820 falls within the nr_pages, we want to start
+  		 * at the nr_pages PFN.
+  		 * If that would mean going past the E820 entry, skip it
+@@ -184,23 +183,19 @@ static unsigned long __init xen_populate_chunk(
+  			capacity = e_pfn - max_pfn;
+  			dest_pfn = max_pfn;
+  		} else {
+-			/* last_pfn MUST be within E820_RAM regions */
+-			if (*last_pfn&&  e_pfn>= *last_pfn)
+-				s_pfn = *last_pfn;
+  			capacity = e_pfn - s_pfn;
+  			dest_pfn = s_pfn;
+  		}
+-		/* If we had filled this E820_RAM entry, go to the next one. */
+-		if (capacity<= 0)
+-			continue;
+
+-		if (credits>  capacity)
+-			credits = capacity;
++		if (credits_left<  capacity)
++			capacity = credits_left;
+
+-		pfns = xen_do_chunk(dest_pfn, dest_pfn + credits, false);
++		pfns = xen_do_chunk(dest_pfn, dest_pfn + capacity, false);
+  		done += pfns;
+-		credits_left -= pfns;
+  		*last_pfn = (dest_pfn + pfns);
++		if (pfns<  capacity)
++			break;
++		credits_left -= pfns;
+  	}
+  	return done;
+  }
 -- 
-Asias
+1.7.3
