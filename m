@@ -1,17 +1,22 @@
 From: Asias He <asias@redhat.com>
 Subject: Re: [PATCH 0/5] Add vhost-blk support
-Date: Wed, 18 Jul 2012 16:12:57 +0800
-Message-ID: <50067009.9030508__15375.9396788248$1342599078$gmane$org@redhat.com>
+Date: Wed, 18 Jul 2012 16:47:27 +0800
+Message-ID: <5006781F.1060900__41588.1400731907$1342601144$gmane$org@redhat.com>
 References: <1342107302-28116-1-git-send-email-asias@redhat.com>
 	<CAJSP0QWgmXns89se+xdGgM6i1_hsfVWPQ8caHua9d-dDA4CTDQ@mail.gmail.com>
 	<50052276.2080906@redhat.com> <500527BA.9000001@redhat.com>
 	<50052E7E.6020100@redhat.com>
 	<CAJSP0QW0tPV3WASGOBRE4hL=8zzSFQ6T=bHbEwMAzmHR9wnwJg@mail.gmail.com>
+	<20120717112645.GA9363@redhat.com>
+	<CAJSP0QXPkrVvgA+1fhhwsB5J8oApOObK8D3fk_Lm0Bt3T+Wfuw@mail.gmail.com>
+	<20120717115450.GA9796@redhat.com>
+	<CAJSP0QXwGuUaD9piktOptJasdpci_fA90d=vV4m0SuORMvc2=Q@mail.gmail.com>
+	<20120717124859.GA9883@redhat.com> <50056275.6000407@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QW0tPV3WASGOBRE4hL=8zzSFQ6T=bHbEwMAzmHR9wnwJg@mail.gmail.com>
+In-Reply-To: <50056275.6000407@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,37 +26,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: linux-aio@kvack.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: linux-aio@kvack.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/17/2012 07:11 PM, Stefan Hajnoczi wrote:
-> On Tue, Jul 17, 2012 at 10:21 AM, Asias He <asias@redhat.com> wrote:
->> On 07/17/2012 04:52 PM, Paolo Bonzini wrote:
->>>
->>> Il 17/07/2012 10:29, Asias He ha scritto:
+On 07/17/2012 09:02 PM, Paolo Bonzini wrote:
+> Il 17/07/2012 14:48, Michael S. Tsirkin ha scritto:
+>> On Tue, Jul 17, 2012 at 01:03:39PM +0100, Stefan Hajnoczi wrote:
+>>> On Tue, Jul 17, 2012 at 12:54 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>>>>> Knowing the answer to that is important before anyone can say whether
+>>>>> this approach is good or not.
+>>>>>
+>>>>> Stefan
 >>>>
->>>> So, vhost-blk at least saves ~6 syscalls for us in each request.
+>>>> Why is it?
 >>>
->>>
->>> Are they really 6?  If I/O is coalesced by a factor of 3, for example
->>> (i.e. each exit processes 3 requests), it's really 2 syscalls per request.
+>>> Because there might be a fix to kvmtool which closes the gap.  It
+>>> would be embarassing if vhost-blk was pushed just because no one
+>>> looked into what is actually going on.
 >>
->>
->> Well. I am counting the number of syscalls in one notify and response
->> process. Sure the IO can be coalesced.
+>> Embarrasing to whom? Is someone working on an optimization that
+>> makes the work in question redundant, with posting just around
+>> the corner? Then maybe the thing to do is just wait a bit.
 >
-> Linux AIO also supports batching in io_submit() and io_getevents().
-> Depending on the request pattern in the vring when you process it, you
-> should be able to do better than 1 set of syscalls per host I/O
-> request.
->
-> Are you taking advantage of that at the moment in your userspace benchmark?
+> Of course there is work going on to make QEMU perform better.  Not sure
+> about lkvm.
 
-OK. I know that batching in io_submit() and io_getevetns(). There was a 
-patch for kvm tool long time ago. Now, both vhost-blk and kvm tool are 
-not taking advantage of that atm. There are issues: e.g. How many number 
-of request we want to batch? Does this batching hurt latency?
+Of course for lkvm also.
+
+>>> And on the flipside, hard evidence of an overhead that cannot be
+>>> resolved could be good reason to do more vhost devices in the future.
+>>
+>> How can one have hard evidence of an overhead that cannot be resolved?
+>
+> Since we do have two completely independent userspaces (lkvm and
+> data-plane QEMU), you can build up some compelling evidence of an
+> overhead that cannot be resolved in user space.
+
+This does not build the hard evidence either. How can one prove that 
+userspace lkvm and data-plane QEMU can not be improved further? The same 
+for vhost-blk.
+
+>>> Either way, it's useful to do this before going further.
+>>
+>> I think each work should be discussed on its own merits.  Maybe
+>> vhost-blk is just well written. So? What is your conclusion?
+>
+> If it's just that vhost-blk is written well, my conclusion is that lkvm
+> people should look into improving their virtio-blk userspace.  We take
+> hints from each other all the time, for example virtio-scsi will have
+> unlocked kick in 3.6.
+>
+> Why can't vhost-* just get into staging, and we call it a day?
+
+OK. I'm fine with staging.
 
 -- 
 Asias
