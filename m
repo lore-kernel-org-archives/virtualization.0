@@ -1,16 +1,14 @@
-From: Ronen Hod <rhod@redhat.com>
-Subject: Re: [PATCH 0/5] Add vhost-blk support
-Date: Wed, 18 Jul 2012 12:46:02 +0300
-Message-ID: <500685DA.2090402__1460.86317622593$1342604788$gmane$org@redhat.com>
-References: <1342107302-28116-1-git-send-email-asias@redhat.com>
-	<CAJSP0QWgmXns89se+xdGgM6i1_hsfVWPQ8caHua9d-dDA4CTDQ@mail.gmail.com>
-	<50052276.2080906@redhat.com> <500527BA.9000001@redhat.com>
-	<50052E7E.6020100@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH RESEND 0/5] Add vhost-blk support
+Date: Wed, 18 Jul 2012 12:42:09 +0100
+Message-ID: <CAJSP0QWKtsRDYB9uPPg7K8k2HHvgrQKBP9+biDwfyCmN=WmJqQ__34279.6647259549$1342611753$gmane$org@mail.gmail.com>
+References: <1342169711-12386-1-git-send-email-asias@redhat.com>
+	<20120717150928.GB11587@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50052E7E.6020100@redhat.com>
+In-Reply-To: <20120717150928.GB11587@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,45 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: linux-aio@kvack.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-aio@kvack.org, linux-scsi <linux-scsi@vger.kernel.org>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, James Bottomley <James.Bottomley@hansenpartnership.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Jeff Moyer <jmoyer@redhat.com>, target-devel <target-devel@vger.kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Paolo Bonzini <pbonzini@redhat.com>, Benjamin LaHaise <bcrl@kvack.org>, linux-fsdevel@vger.kernel.org, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/17/2012 12:21 PM, Asias He wrote:
-> On 07/17/2012 04:52 PM, Paolo Bonzini wrote:
->> Il 17/07/2012 10:29, Asias He ha scritto:
->>> So, vhost-blk at least saves ~6 syscalls for us in each request.
+On Tue, Jul 17, 2012 at 4:09 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Fri, Jul 13, 2012 at 04:55:06PM +0800, Asias He wrote:
 >>
->> Are they really 6?  If I/O is coalesced by a factor of 3, for example
->> (i.e. each exit processes 3 requests), it's really 2 syscalls per request.
+>> Hi folks,
+>>
+>> [I am resending to fix the broken thread in the previous one.]
+>>
+>> This patchset adds vhost-blk support. vhost-blk is a in kernel virito-blk
+>> device accelerator. Compared to userspace virtio-blk implementation, vhost-blk
+>> gives about 5% to 15% performance improvement.
 >
-> Well. I am counting the number of syscalls in one notify and response process. Sure the IO can be coalesced.
+> Same thing as tcm_host comment:
+>
+>         It seems not 100% clear whether this driver will have major
+>         userspace using it. And if not, it would be very hard to support a
+>         driver when recent userspace does not use it in the end.
+>
+>         I think a good idea for 3.6 would be to make it depend on
+>         CONFIG_STAGING.  Then we don't commit to an ABI.  For this, you can add
+>         a separate Kconfig and source it from drivers/staging/Kconfig.  Maybe it
+>         needs to be in a separate directory drivers/vhost/staging/Kconfig.
+>
+> I Cc'd the list of tcm_host in the hope that you can cooperate on this.
+>
 
-Note that Asias is using very fast "disks" (FusionIO & Ramdisk).
-- This might affect the level of coalescing both ways, depending on the scenario and algorithm.
-- This also means that the 5%-15% gain will probably be lower in real life.
-Ronen.
+Adding it to staging allows more people to try it out, so that's a
+good thing.  If I get a moment to play with it I'll let you know the
+results.
 
->
->> Also, is there anything we can improve? Perhaps we can modify epoll and
->> ask it to clear the eventfd for us (would save 2 reads)?  Or
->> io_getevents (would save 1)?
->>
->>> I guess you mean qemu here. Yes, in theory, qemu's block layer can be
->>> improved to achieve similar performance as vhost-blk or kvm tool's
->>> userspace virito-blk has. But I think it makes no sense to prevent one
->>> solution becase there is another in theory solution called: we can do
->>> similar in qemu.
->>
->> It depends.  Like vhost-scsi, vhost-blk has the problem of a crippled
->> feature set: no support for block device formats, non-raw protocols,
->> etc.  This makes it different from vhost-net.
->
-> Data-plane qemu also has this cripppled feature set problem, no? Does user always choose to use block devices format like qcow2? What if they prefer raw image or raw block device?
->
->>
->> So it begs the question, is it going to be used in production, or just a
->> useful reference tool?
->
-> This should be decided by user, I can not speak for them. What is wrong with adding one option for user which they can decide?
->
+Stefan
