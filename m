@@ -1,15 +1,14 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH RESEND 5/5] vhost-blk: Add vhost-blk support
-Date: Wed, 18 Jul 2012 09:22:48 +0800
-Message-ID: <50060FE8.4040607@redhat.com>
+Subject: Re: [PATCH RESEND 0/5] Add vhost-blk support
+Date: Wed, 18 Jul 2012 10:09:23 +0800
+Message-ID: <50061AD3.6030704__26621.9376506799$1342577271$gmane$org@redhat.com>
 References: <1342169711-12386-1-git-send-email-asias@redhat.com>
-	<1342169711-12386-6-git-send-email-asias@redhat.com>
-	<x49mx2yyzi5.fsf@segfault.boston.devel.redhat.com>
+	<20120717150928.GB11587@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <x49mx2yyzi5.fsf@segfault.boston.devel.redhat.com>
+In-Reply-To: <20120717150928.GB11587@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,190 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-aio@kvack.org, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, James Bottomley <James.Bottomley@HansenPartnership.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Jeff Moyer <jmoyer@redhat.com>, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/18/2012 03:10 AM, Jeff Moyer wrote:
-> Asias He <asias@redhat.com> writes:
->
->> vhost-blk is a in kernel virito-blk device accelerator.
+On 07/17/2012 11:09 PM, Michael S. Tsirkin wrote:
+> On Fri, Jul 13, 2012 at 04:55:06PM +0800, Asias He wrote:
 >>
->> This patch is based on Liu Yuan's implementation with various
->> improvements and bug fixes. Notably, this patch makes guest notify and
->> host completion processing in parallel which gives about 60% performance
->> improvement compared to Liu Yuan's implementation.
+>> Hi folks,
+>>
+>> [I am resending to fix the broken thread in the previous one.]
+>>
+>> This patchset adds vhost-blk support. vhost-blk is a in kernel virito-blk
+>> device accelerator. Compared to userspace virtio-blk implementation, vhost-blk
+>> gives about 5% to 15% performance improvement.
 >
-> So, first off, some basic questions.  Is it correct to assume that you
-> tested this with buffered I/O (files opened *without* O_DIRECT)?
->  I'm pretty sure that if you used O_DIRECT, you'd run into problems (which
-> are solved by the patch set posted by Shaggy, based on Zach Brown's work
-> of many moons ago).  Note that, with buffered I/O, the submission path
-> is NOT asynchronous.  So, any speedups you've reported are extremely
-> suspect.  ;-)
-
-I always used O_DIRECT to test this patchset. And I mostly used raw 
-block device as guest image. Is this the reason why I did not hit the 
-problem you mentioned. Btw, I do have run this patchset on image based 
-file. I still do not see problems like IO hangs.
-
-> Next, did you look at Shaggy's patch set?  I think it would be best to
-> focus your efforts on testing *that*, and implementing your work on top
-> of it.
-
-I guess you mean this one:
-
-http://marc.info/?l=linux-fsdevel&m=133312234313122
-
-I did not notice that until James pointed that out.
-
-I talked with Zach and Shaggy. Shaggy said he is still working on that 
-patch set and will send that patch out soon.
-
-
-> Having said that, I did do some review of this patch, inlined below.
-
-Thanks, Jeff!
-
->> +static int vhost_blk_setup(struct vhost_blk *blk)
->> +{
->> +	struct kioctx *ctx;
->> +
->> +	if (blk->ioctx)
->> +		return 0;
->> +
->> +	blk->ioevent_nr = blk->vq.num;
->> +	ctx = ioctx_alloc(blk->ioevent_nr);
->> +	if (IS_ERR(ctx)) {
->> +		pr_err("Failed to ioctx_alloc");
->> +		return PTR_ERR(ctx);
->> +	}
->> +	put_ioctx(ctx);
->> +	blk->ioctx = ctx;
->> +
->> +	blk->ioevent = kmalloc(sizeof(struct io_event) * blk->ioevent_nr,
->> +			       GFP_KERNEL);
->> +	if (!blk->ioevent) {
->> +		pr_err("Failed to allocate memory for io_events");
->> +		return -ENOMEM;
+> Same thing as tcm_host comment:
 >
-> You've just leaked blk->ioctx.
-
-Yes. Will fix.
-
->> +	}
->> +
->> +	blk->reqs = kmalloc(sizeof(struct vhost_blk_req) * blk->ioevent_nr,
->> +			    GFP_KERNEL);
->> +	if (!blk->reqs) {
->> +		pr_err("Failed to allocate memory for vhost_blk_req");
->> +		return -ENOMEM;
+> 	It seems not 100% clear whether this driver will have major
+> 	userspace using it. And if not, it would be very hard to support a
+> 	driver when recent userspace does not use it in the end.
 >
-> And here.
-
-Yes. Will fix.
-
->
->> +	}
->> +
->> +	return 0;
->> +}
->> +
-> [snip]
->> +static int vhost_blk_io_submit(struct vhost_blk *blk, struct file *file,
->> +			       struct vhost_blk_req *req,
->> +			       struct iovec *iov, u64 nr_vecs, loff_t offset,
->> +			       int opcode)
->> +{
->> +	struct kioctx *ioctx = blk->ioctx;
->> +	mm_segment_t oldfs = get_fs();
->> +	struct kiocb_batch batch;
->> +	struct blk_plug plug;
->> +	struct kiocb *iocb;
->> +	int ret;
->> +
->> +	if (!try_get_ioctx(ioctx)) {
->> +		pr_info("Failed to get ioctx");
->> +		return -EAGAIN;
->> +	}
->
-> Using try_get_ioctx directly gives me a slightly uneasy feeling.  I
-> understand that you don't need to do the lookup, but at least wrap it
-> and check for ->dead.
+> 	I think a good idea for 3.6 would be to make it depend on
+> 	CONFIG_STAGING.  Then we don't commit to an ABI.  For this, you can add
+> 	a separate Kconfig and source it from drivers/staging/Kconfig.  Maybe it
+> 	needs to be in a separate directory drivers/vhost/staging/Kconfig.
 
 OK.
 
->
->> +
->> +	atomic_long_inc_not_zero(&file->f_count);
->> +	eventfd_ctx_get(blk->ectx);
->> +
->> +	/* TODO: batch to 1 is not good! */
->
-> Agreed.  You should setup the batching in vhost_blk_handle_guest_kick.
-> The way you've written the code, the batching is not at all helpful.
+> I Cc'd the list of tcm_host in the hope that you can cooperate on this.
 
-Yes. that's why there is a TODO.
-
->> +	kiocb_batch_init(&batch, 1);
->> +	blk_start_plug(&plug);
->> +
->> +	iocb = aio_get_req(ioctx, &batch);
->> +	if (unlikely(!iocb)) {
->> +		ret = -EAGAIN;
->> +		goto out;
->> +	}
->> +
->> +	iocb->ki_filp	= file;
->> +	iocb->ki_pos	= offset;
->> +	iocb->ki_buf	= (void *)iov;
->> +	iocb->ki_left	= nr_vecs;
->> +	iocb->ki_nbytes	= nr_vecs;
->> +	iocb->ki_opcode	= opcode;
->> +	iocb->ki_obj.user = req;
->> +	iocb->ki_eventfd  = blk->ectx;
->> +
->> +	set_fs(KERNEL_DS);
->> +	ret = aio_setup_iocb(iocb, false);
->> +	set_fs(oldfs);
->> +	if (unlikely(ret))
->> +		goto out_put_iocb;
->> +
->> +	spin_lock_irq(&ioctx->ctx_lock);
->> +	if (unlikely(ioctx->dead)) {
->> +		spin_unlock_irq(&ioctx->ctx_lock);
->> +		ret = -EINVAL;
->> +		goto out_put_iocb;
->> +	}
->> +	aio_run_iocb(iocb);
->> +	spin_unlock_irq(&ioctx->ctx_lock);
->> +
->> +	aio_put_req(iocb);
->> +
->> +	blk_finish_plug(&plug);
->> +	kiocb_batch_free(ioctx, &batch);
->> +	put_ioctx(ioctx);
->> +
->> +	return ret;
->> +out_put_iocb:
->> +	aio_put_req(iocb); /* Drop extra ref to req */
->> +	aio_put_req(iocb); /* Drop I/O ref to req */
->> +out:
->> +	put_ioctx(ioctx);
->> +	return ret;
->> +}
->> +
->
-> You've duplicated a lot of io_submit_one.  I'd rather see that factored
-> out than to have to maintain two copies.
-
-Agree.
-
-> Again, what I'd *really* like to see is you rebase on top of Shaggy's
-> work.
-
-Sure. Let's wait for Shaggy's new version.
-
+Sure.
 
 -- 
 Asias
