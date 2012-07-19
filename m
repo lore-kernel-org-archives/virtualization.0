@@ -1,21 +1,21 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC-v2 0/4] tcm_vhost+cmwq fabric driver code for-3.6
-Date: Thu, 19 Jul 2012 09:30:51 +0200
-Message-ID: <5007B7AB.6060906@redhat.com>
-References: <1342041304-29728-1-git-send-email-nab@linux-iscsi.org>
-	<20120717150548.GA11587@redhat.com> <5005B52E.20509@us.ibm.com>
-	<1342561819.18004.470.camel@haakon2.linux-iscsi.org>
-	<5006BD3D.7090104@us.ibm.com>
-	<20120718155338.GA21817@infradead.org>
-	<5006DDAA.6080304@us.ibm.com>
-	<1342630038.3022.111.camel@dabdike.int.hansenpartnership.com>
-	<50070A8D.7020203@us.ibm.com> <5007A28C.602@redhat.com>
-	<1342682881.3059.3.camel@dabdike.int.hansenpartnership.com>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: Re: [PATCH v4 1/3] mm: introduce compaction and migration for virtio
+	ballooned pages
+Date: Thu, 19 Jul 2012 09:32:06 -0300
+Message-ID: <20120719123205.GA1752@t510.redhat.com>
+References: <cover.1342485774.git.aquini@redhat.com>
+	<49f828a9331c9b729fcf77226006921ec5bc52fa.1342485774.git.aquini@redhat.com>
+	<20120718154605.cb0591bc.akpm@linux-foundation.org>
+	<20120718230706.GB2313@t510.redhat.com>
+	<20120718161239.9449e6b5.akpm@linux-foundation.org>
+	<20120719010047.GD2313@t510.redhat.com>
+	<20120718182944.24f59012.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1342682881.3059.3.camel@dabdike.int.hansenpartnership.com>
+Content-Disposition: inline
+In-Reply-To: <20120718182944.24f59012.akpm@linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,20 +25,124 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Anthony Liguori <aliguori@us.ibm.com>, kvm-devel <kvm@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Rafael Aquini <aquini@linux.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 19/07/2012 09:28, James Bottomley ha scritto:
->> > INQUIRY responses (at least vendor/product/type) should not change.
-> INQUIRY responses often change for arrays because a firmware upgrade
-> enables new features and new features have to declare themselves,
-> usually in the INQUIRY data.  What you mean, I think, is that previously
-> exposed features in INQUIRY data, as well as strings
-> (vendor/product/type, as you say), shouldn't change, but unexposed data
-> (read 0 in the fields) may.
+On Wed, Jul 18, 2012 at 06:29:44PM -0700, Andrew Morton wrote:
+> On Wed, 18 Jul 2012 22:00:48 -0300 Rafael Aquini <aquini@redhat.com> wrote:
+> 
+> > > So the function needs a better name - one which communicates that it is
+> > > a balloon page *for the purposes of processing by the compaction code*. 
+> > > Making the function private to compaction.c would help with that, if
+> > > feasible.
+> > > 
+> > 
+> > How about this (adjusted) approach:
+> 
+> it fails checkpatch ;)
+>
+Ugh! it fails due to a lacking whitespace... will fix that right away.
+ 
+> > --- a/include/linux/mm.h
+> > +++ b/include/linux/mm.h
+> > @@ -1629,8 +1629,7 @@ static inline unsigned int debug_guardpage_minorder(void)
+> > { return 0; }
+> >  static inline bool page_is_guard(struct page *page) { return false; }
+> >  #endif /* CONFIG_DEBUG_PAGEALLOC */
+> >  
+> > -#if (defined(CONFIG_VIRTIO_BALLOON) || \
+> > -	defined(CONFIG_VIRTIO_BALLOON_MODULE)) && defined(CONFIG_COMPACTION)
+> > +#if (defined(CONFIG_VIRTIO_BALLOON) ||defined(CONFIG_VIRTIO_BALLOON_MODULE))
+> >  extern bool putback_balloon_page(struct page *);
+> >  extern struct address_space *balloon_mapping;
+> >  
+> > @@ -1638,11 +1637,13 @@ static inline bool is_balloon_page(struct page *page)
+> >  {
+> >  	return (page->mapping && page->mapping == balloon_mapping);
+> >  }
+> > +#if defined(CONFIG_COMPACTION)
+> > +static inline bool balloon_compaction_enabled(void) { return true; }
+> >  #else
+> > -static inline bool is_balloon_page(struct page *page)       { return false; }
+> > -static inline bool isolate_balloon_page(struct page *page)  { return false; }
+> > -static inline bool putback_balloon_page(struct page *page)  { return false; }
+> > -#endif /* (VIRTIO_BALLOON || VIRTIO_BALLOON_MODULE) && COMPACTION */
+> > +static inline bool putback_balloon_page(struct page *page) { return false; }
+> > +static inline bool balloon_compaction_enabled(void) { return false; }
+> > +#endif /* CONFIG_COMPACTION */
+> > +#endif /* (CONFIG_VIRTIO_BALLOON || CONFIG_VIRTIO_BALLOON_MODULE) */
+> >  
+> >  #endif /* __KERNEL__ */
+> >  #endif /* _LINUX_MM_H */
+> > diff --git a/mm/migrate.c b/mm/migrate.c
+> > index 59c7bc5..f5f6a7d 100644
+> > --- a/mm/migrate.c
+> > +++ b/mm/migrate.c
+> > @@ -78,7 +78,8 @@ void putback_lru_pages(struct list_head *l)
+> >  		list_del(&page->lru);
+> >  		dec_zone_page_state(page, NR_ISOLATED_ANON +
+> >  				page_is_file_cache(page));
+> > -		if (unlikely(is_balloon_page(page)))
+> > +		if (unlikely(is_balloon_page(page)) &&
+> > +		    balloon_compaction_enabled())
+> 
+> well, that helps readability.  But what does is_balloon_page() return
+> when invoked on a balloon page when CONFIG_COMPACTION=n?  False,
+> methinks.
+It will (now) return the right thing accordingly to the page->mapping tests.
 
-What I meant is that it's unlikely that Windows fingerprinting is using
-anything but vendor/product/type, because everything else can change.
+> 
+> I think the code as you previously had it was OK, but the
+> is_balloon_page() name is misleading.  It really wants to be called
+> is_potentially_compactible_balloon_page() :( Maybe rename it to
+> compactible_balloon_page()?
 
-Paolo
+With all due respect, sir, I don't believe renaming it is the right thing to do.
+My major supporting reason is since Lumpy Reclaim is already evicted it looks
+natural CONFIG_COMPACTION=y becoming a permanent feature, thus making that
+preprocessor test useless and the renamed function signature nonsense, IMHO.
+That's why I keep respectfully figthing against your argument.
+
+Here goes another suggestion, to keep is_balloon_page() name as is. This way I
+believe all concerns are potentially addressed, as there's no implicit and
+misleading relationship between is_balloon_page and CONFIG_COMPACTION=y anymore,
+as well as there are no potential build breakages due to (unexpected) config options.
+
+
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index b36d08c..e29ad44 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1629,5 +1629,30 @@ static inline unsigned int debug_guardpage_minorder(void)
+{ return 0; }
+ static inline bool page_is_guard(struct page *page) { return false; }
+ #endif /* CONFIG_DEBUG_PAGEALLOC */
+ 
++#if (defined(CONFIG_VIRTIO_BALLOON) || defined(CONFIG_VIRTIO_BALLOON_MODULE))
++extern bool putback_balloon_page(struct page *);
++extern struct address_space *balloon_mapping;
++
++static inline bool is_balloon_page(struct page *page)
++{
++	return (page->mapping && page->mapping == balloon_mapping);
++}
++
++static inline bool balloon_compaction_enabled(void)
++{
++#if defined(CONFIG_COMPACTION)
++	return true;
++#else
++	return false;
++#endif /* CONFIG_COMPACTION */
++}
++
++#else
++static inline bool isolate_balloon_page(struct page *page) { return false; }
++static inline bool putback_balloon_page(struct page *page) { return false; }
++static inline bool is_balloon_page(struct page *page)      { return false; }
++static inline bool balloon_compaction_enabled(void)        { return false; }
++#endif /* (CONFIG_VIRTIO_BALLOON || CONFIG_VIRTIO_BALLOON_MODULE) */
++
+ #endif /* __KERNEL__ */
+ #endif /* _LINUX_MM_H */
