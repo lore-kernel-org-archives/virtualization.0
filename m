@@ -1,19 +1,14 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [RFC-v3 4/4] tcm_vhost: Initial merge for vhost level target
-	fabric driver
-Date: Fri, 20 Jul 2012 11:02:45 -0700
-Message-ID: <1342807365.25472.11.camel@haakon2.linux-iscsi.org>
-References: <1342573172-17421-1-git-send-email-nab@linux-iscsi.org>
-	<1342573172-17421-5-git-send-email-nab@linux-iscsi.org>
-	<20120718160919.GA2152@redhat.com>
-	<1342646458.18004.637.camel@haakon2.linux-iscsi.org>
-	<20120720120347.GA16550@redhat.com>
-	<1342807247.25472.9.camel@haakon2.linux-iscsi.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RESEND 0/5] Add vhost-blk support
+Date: Fri, 20 Jul 2012 22:30:35 +0300
+Message-ID: <20120720193035.GA20031__33375.5966312767$1342812624$gmane$org@redhat.com>
+References: <1342169711-12386-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1342807247.25472.9.camel@haakon2.linux-iscsi.org>
+Content-Disposition: inline
+In-Reply-To: <1342169711-12386-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,77 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: Asias He <asias@redhat.com>
+Cc: linux-aio@kvack.org, kvm@vger.kernel.org, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@HansenPartnership.com>, Jeff Moyer <jmoyer@redhat.com>, Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2012-07-20 at 11:00 -0700, Nicholas A. Bellinger wrote:
-> On Fri, 2012-07-20 at 15:03 +0300, Michael S. Tsirkin wrote:
-> > On Wed, Jul 18, 2012 at 02:20:58PM -0700, Nicholas A. Bellinger wrote:
-> > > On Wed, 2012-07-18 at 19:09 +0300, Michael S. Tsirkin wrote:
-> > > > On Wed, Jul 18, 2012 at 12:59:32AM +0000, Nicholas A. Bellinger wrote:
-> > > 
-> > > <SNIP>
-> > > 
-> > > > > 
-> > > > > Changelog v2 -> v3:
-> > > > > 
-> > > > >   Unlock on error in tcm_vhost_drop_nexus() (DanC)
-> > > > >   Fix strlen() doesn't count the terminator (DanC)
-> > > > >   Call kfree() on an error path (DanC)
-> > > > >   Convert tcm_vhost_write_pending to use target_execute_cmd (hch + nab)
-> > > > >   Fix another strlen() off by one in tcm_vhost_make_tport (DanC)
-> > > > >   Add option under drivers/staging/Kconfig, and move to drivers/vhost/tcm/
-> > > > >   as requested by MST (nab)
-> > > > > 
-> > > > > ---
-> > > > >  drivers/staging/Kconfig       |    2 +
-> > > > >  drivers/vhost/Makefile        |    2 +
-> > > > >  drivers/vhost/tcm/Kconfig     |    6 +
-> > > > >  drivers/vhost/tcm/Makefile    |    1 +
-> > > > >  drivers/vhost/tcm/tcm_vhost.c | 1611 +++++++++++++++++++++++++++++++++++++++++
-> > > > >  drivers/vhost/tcm/tcm_vhost.h |   74 ++
-> > > > >  6 files changed, 1696 insertions(+), 0 deletions(-)
-> > > > >  create mode 100644 drivers/vhost/tcm/Kconfig
-> > > > >  create mode 100644 drivers/vhost/tcm/Makefile
-> > > > >  create mode 100644 drivers/vhost/tcm/tcm_vhost.c
-> > > > >  create mode 100644 drivers/vhost/tcm/tcm_vhost.h
-> > > > > 
-> > > > 
-> > > > Really sorry about making you run around like that,
-> > > > I did not mean moving all of tcm to a directory,
-> > > > just adding tcm/Kconfig or adding drivers/vhost/Kconfig.tcm
-> > > > because eventually it's easier to keep it all together
-> > > > in one place.
-> > > > 
-> > > 
-> > > Er, apologies for the slight mis-understanding here..  Moving back now +
-> > > fixing up the Kbuild bits.
-> > 
-> > I'm going offline in several hours and am on vacation for a week
-> > starting tomorrow. So to make 3.6, and if you intend to merge through my
-> > tree, the best bet is if you can send the final version real soon now.
-> > 
+On Fri, Jul 13, 2012 at 04:55:06PM +0800, Asias He wrote:
 > 
-> Ok, thanks for the heads up here..
+> Hi folks,
 > 
-> So aside from Greg-KH's feedback to avoid the drivers/staging/ Kconfig
-> include usage, and one more bugfix from DanC from this morning those are
-> the only pending changes for RFC-v4.
+> [I am resending to fix the broken thread in the previous one.]
 > 
-> If it's OK I'd prefer to take these via target-pending with the
-> necessary Acked-By's, especially if you'll be AFK next week..
+> This patchset adds vhost-blk support. vhost-blk is a in kernel virito-blk
+> device accelerator. Compared to userspace virtio-blk implementation, vhost-blk
+> gives about 5% to 15% performance improvement.
 > 
-> Would you like to see a RFC-v4 with these changes included..?
-> 
-> Thank you,
-> 
+> Asias He (5):
+>   aio: Export symbols and struct kiocb_batch for in kernel aio usage
+>   eventfd: Export symbol eventfd_file_create()
+>   vhost: Make vhost a separate module
+>   vhost-net: Use VHOST_NET_FEATURES for vhost-net
+>   vhost-blk: Add vhost-blk support
 
-Actually sorry, the patch from DanC is for target core, and not
-tcm_vhost specific change..
 
-So really the only thing left to resolve for an initial merge is
-Greg-KH's comments wrt to drivers/staging Kconfig usage..
+OK so given the state it's in, and assuming you think it is helpful
+to let it mature in tree and not out of tree, I think it's
+reasonable to try to do it like tcm_vhost is going to do it:
+- send me changes to vhost core ASAP (and keep it minimal, e.g.
+  use your own header file to export to userspace)
+- for other stuff - put in drivers/staging, and ask Greg to merge
 
-Are you OK with just adding CONFIG_STAGING following Greg-KH's
-feedback..?
+-- 
+MST
