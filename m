@@ -1,16 +1,11 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH RESEND 5/5] vhost-blk: Add vhost-blk support
-Date: Sat, 21 Jul 2012 09:07:57 +0800
-Message-ID: <500A00ED.9090508@redhat.com>
-References: <1342169711-12386-1-git-send-email-asias@redhat.com>
-	<1342169711-12386-6-git-send-email-asias@redhat.com>
-	<87mx2vrjdl.fsf@codemonkey.ws> <20120719130957.GD9303@redhat.com>
-	<87obnaup70.fsf@codemonkey.ws>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: [RFC-v4 0/3] tcm_vhost+cmwq fabric driver code for-3.6
+Date: Sat, 21 Jul 2012 06:55:35 +0000
+Message-ID: <1342853738-27682-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87obnaup70.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +15,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: target-devel <target-devel@vger.kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/21/2012 04:56 AM, Anthony Liguori wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
->
->> On Thu, Jul 19, 2012 at 08:05:42AM -0500, Anthony Liguori wrote:
->>> Of course, the million dollar question is why would using AIO in the
->>> kernel be faster than using AIO in userspace?
->>
->> Actually for me a more important question is how does it compare
->> with virtio-blk dataplane?
->
-> I'm not even asking for a benchmark comparision.  It's the same API
-> being called from a kernel thread vs. a userspace thread.  Why would
-> there be a 60% performance difference between the two?  That doesn't
-> make any sense.
+From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-Please read the commit log again. I am not saying vhost-blk v.s 
-userspace implementation gives 60% improvement. I am saying the 
-vhost-blk v.s original vhost-blk gives 60% improvement.
+Hi MST, Greg-KH & Co,
 
+The following is -v4 of the in-flight TCM vhost fabric driver for-3.6 code.
+This series has been rebased into target-pending.git/for-next-merge this
+evening, and the changelog over the last days from v3 -> v4 has been:
+    
+*) Rename vhost_vring_target -> vhost_scsi_target (mst + nab)
+*) Use TRANSPORT_IQN_LEN in vhost_scsi_target->vhost_wwpn[] def (nab)
+*) Move back to drivers/vhost/, and just use drivers/vhost/Kconfig.tcm (mst)
+*) Move TCM_VHOST related ioctl defines from include/linux/vhost.h ->
+   drivers/vhost/tcm_vhost.h as requested by MST (nab)
+*) Move Kbuild.tcm include back from drivers/staging -> drivers/vhost/, and
+   just use 'if STAGING' around 'source drivers/vhost/Kbuild.tcm'
 
-"""
-This patch is based on Liu Yuan's implementation with various
-improvements and bug fixes. Notably, this patch makes guest notify and
-host completion processing in parallel which gives about 60% performance
-improvement compared to Liu Yuan's implementation.
-"""
+This series uses Greg-KH's last recommendation from the linux-next thread
+to just KISS + use the STAGING bit for this driver short of moving wholesale
+into drivers/staging/tcm_vhost/.
 
->
-> There's got to be a better justification for putting this in the kernel
-> than just that we can.
->
-> I completely understand why Christoph's suggestion of submitting BIOs
-> directly would be faster.  There's no way to do that in userspace.
+As mentioned in the same thread, MST would like to see this in staging so we
+don't have to commit to a ABI for QEMU userspace just yet.  Can we agree that
+the STAGING bit usage here is enough to mark this code as staging for users..? 
+Pretty please..?
 
-Well. With Zach and Dave's new in-kernel aio API, the aio usage in 
-kernel is much simpler than in userspace. This a potential reason that 
-in kernel one is better than userspace one. I am working on it right 
-now. And for block based image, as suggested by Christoph, we can submit 
-bio directly. This is another potential reason.
+The reason that -v4 currently avoids a drivers/staging/tcm_vhost/ move is to
+prevent the staging tree needing to merge vhost + target-pending/for-next for
+tcm_vhost build requirements.  It is easier to merge via target-pending w/ the
+necessary ACKs for the drivers/vhost/ bits, but I'm fine with posting a -v5
+series ASAP to move this code into drivers/staging/tcm_vhost + let staging
+handle the necessary vhost + target merge dependencies.
 
-Why can't we just go further to see if we can improve the IO stack from 
-guest kernel side all the way down to host kernel side. We can not do 
-that if we stick to doing everything in userspace (qemu).
+I'll let the staging folks (Greg-KH..?) decided if they are OK with the
+extra tree merges here before nominating them.  ;)
+
+So aside from the 'marked as staging' directory location back <-> forth,
+please consider ACK'ing the main bits for an initial merge.
+
+Thank you!
+
+Nicholas Bellinger (1):
+  tcm_vhost: Initial merge for vhost level target fabric driver
+
+Stefan Hajnoczi (2):
+  vhost: Separate vhost-net features from vhost features
+  vhost: make vhost work queue visible
+
+ drivers/vhost/Kconfig     |    3 +
+ drivers/vhost/Kconfig.tcm |    6 +
+ drivers/vhost/Makefile    |    2 +
+ drivers/vhost/net.c       |    4 +-
+ drivers/vhost/tcm_vhost.c | 1611 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/tcm_vhost.h |   90 +++
+ drivers/vhost/test.c      |    4 +-
+ drivers/vhost/vhost.c     |    5 +-
+ drivers/vhost/vhost.h     |    6 +-
+ 9 files changed, 1723 insertions(+), 8 deletions(-)
+ create mode 100644 drivers/vhost/Kconfig.tcm
+ create mode 100644 drivers/vhost/tcm_vhost.c
+ create mode 100644 drivers/vhost/tcm_vhost.h
 
 -- 
-Asias
+1.7.2.5
