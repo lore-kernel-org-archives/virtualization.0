@@ -1,7 +1,7 @@
-From: Ben Hutchings <ben@decadent.org.uk>
-Subject: Re: [PATCH 00/13] drivers: hv: kvp
-Date: Sun, 22 Jul 2012 03:50:58 +0100
-Message-ID: <1342925458.11373.210.camel@deadeye.wl.decadent.org.uk>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 00/13] drivers: hv: kvp
+Date: Sun, 22 Jul 2012 15:08:52 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF923548B42@SN2PRD0310MB382.namprd03.prod.outlook.com>
 References: <20120621224737.GA5933@kroah.com>
 	 <426367E2313C2449837CD2DE46E7EAF9155EC47A@SN2PRD0310MB382.namprd03.prod.outlook.com>
 	 <20120622132547.GA2639@kroah.com>
@@ -14,127 +14,92 @@ References: <20120621224737.GA5933@kroah.com>
 	 <426367E2313C2449837CD2DE46E7EAF9155EF399@SN2PRD0310MB382.namprd03.prod.outlook.com>
 	 <20120702195721.GE1894@decadent.org.uk>
 	 <426367E2313C2449837CD2DE46E7EAF9155EF7C6@SN2PRD0310MB382.namprd03.prod.outlook.com>
+ <1342925458.11373.210.camel@deadeye.wl.decadent.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-HSWNoAn65+LsjDKWl4J7"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <426367E2313C2449837CD2DE46E7EAF9155EF7C6@SN2PRD0310MB382.namprd03.prod.outlook.com>
+In-Reply-To: <1342925458.11373.210.camel@deadeye.wl.decadent.org.uk>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
+To: Ben Hutchings <ben@decadent.org.uk>
 Cc: Olaf Hering <olaf@aepfle.de>, Greg KH <gregkh@linuxfoundation.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---=-HSWNoAn65+LsjDKWl4J7
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2012-07-03 at 15:24 +0000, KY Srinivasan wrote:
->=20
-> > -----Original Message-----
-> > From: Ben Hutchings [mailto:ben@decadent.org.uk]
-> > Sent: Monday, July 02, 2012 3:57 PM
-> > To: KY Srinivasan
-> > Cc: Olaf Hering; Greg KH; apw@canonical.com; devel@linuxdriverproject.o=
-rg;
-> > virtualization@lists.osdl.org; linux-kernel@vger.kernel.org;
-> > netdev@vger.kernel.org
-> > Subject: Re: [PATCH 00/13] drivers: hv: kvp
-> >=20
-> > On Mon, Jul 02, 2012 at 03:22:25PM +0000, KY Srinivasan wrote:
-> > >
-> > >
-> > > > -----Original Message-----
-> > > > From: Olaf Hering [mailto:olaf@aepfle.de]
-> > > > Sent: Thursday, June 28, 2012 10:24 AM
-> > > > To: KY Srinivasan
-> > > > Cc: Greg KH; apw@canonical.com; devel@linuxdriverproject.org;
-> > > > virtualization@lists.osdl.org; linux-kernel@vger.kernel.org
-> > > > Subject: Re: [PATCH 00/13] drivers: hv: kvp
-> > > >
-> > > > On Tue, Jun 26, KY Srinivasan wrote:
-> > > >
-> > > > > > From: Greg KH [mailto:gregkh@linuxfoundation.org]
-> > > > > > The fact that it was Red Hat specific was the main part, this s=
-hould be
-> > > > > > done in a standard way, with standard tools, right?
-> > > > >
-> > > > > The reason I asked this question was to make sure I address these
-> > > > > issues in addition to whatever I am debugging now. I use the stan=
-dard
-> > > > > tools and calls to retrieve all the IP configuration. As I look a=
-t
-> > > > > each distribution the files they keep persistent IP configuration
-> > > > > Information is different and that is the reason I chose to start =
-with
-> > > > > RedHat. If there is a standard way to store the configuration, I =
-will
-> > > > > do that.
-> > > >
-> > > >
-> > > > KY,
-> > > >
-> > > > instead of using system() in kvp_get_ipconfig_info and kvp_set_ip_i=
-nfo,
-> > > > wouldnt it be easier to call an external helper script which does a=
-ll
-> > > > the distribution specific work? Just define some API to pass values=
- to
-> > > > the script, and something to read values collected by the script ba=
-ck
-> > > > into the daemon.
-> > >
-> > > On the "Get" side I mostly use standard commands/APIs to get all the
-> > information:
-> > >
-> > > 1) IP address information and subnet mask: getifaddrs()
-> > > 2) DNS information:  Parsing /etc/resolv.conf
-> > > 3) /sbin/ip command for all the routing information
-> >=20
-> > If you're interested in the *current* configuration then (1) and (3)
-> > are OK but you should really use the rtnetlink API.
-> >=20
-> > However, I suspect that Hyper-V assumes that current and persistent
-> > configuration are the same thing, which is obviously not true in
-> > general on Linux.  But if NetworkManager is running then you can
-> > assume they are.
->=20
-> I am only interested in the currently active information. Why do you
-> recommend the use of rtnetlink API over the "ip" command. If I am not
-> mistaken, the ip command uses netlink to get the information.=20
-[...]
-
-'Screen-scraping' the output of administrative tools is not good
-practice.  It may be the best you can do when writing a shell script,
-but for a C program it's generaly less reliable and often more difficult
-than using the underlying C API.
-
-Ben.
-
---=20
-Ben Hutchings
-73.46% of all statistics are made up.
-
---=-HSWNoAn65+LsjDKWl4J7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIVAwUAUAtqkue/yOyVhhEJAQrhbRAAlwuiKyx4IkTbeZtGobWpsiO0k9uTblaC
-/u6PRlcTf/H/e78pd8PcvrE0789Uwmxmj2KsMXkLtr6/+mIK91lhCMik6CeOcwUn
-p4Zj1LnjaiHo9T12spUjW/ua6/CGDD9DPfHfTbl0HTsC2JVwwkxSQckC127GOvOf
-Oi9KEUOyl6S/BkvZMp5MK2o7Gu45wP7kOCzwTnG6FlJQuxHxbxNLifmxaVB5XzF6
-0I1pdlOOQH0Tg7GzSPjnX05MRUqOfmksXg3/xCiGBs7Mn/BuOTVpWjYBhtw3IaLr
-10HNFBfywtGNVed4XKJjdP1OwID7FRAHphl8d8GptkVzzjwb1K+//UpQFot+w+6o
-VeaFg/ttAuz3Pv5BpSZbkh0GLmf6Ew403eZkg2J4RasNF+dKRvKV47ibMYui62t/
-R+vruFdqyMoMJfyY7mYlzjZz9i13ofTSRm3oOY1QDbbdZf8FCcAPLygOF9phvTEn
-dzqRQZIvqdOvsRZtEo2n1y1kYtp8sCeS0iGFQQyGBo7xsHMbtVnsF71NK/3t9wD+
-vi7UI6lIqFZXWzqDDDj6qmOW1QhN2r8FzV1I0qOhvBPMonW3xwh6dVbYJsLBppQT
-5ZlCkQBehdvqD8KD+Z0Bq4TMK2ytVRyCUFB0lG5mwH2vZvFZuhOmA434ddBhu2uS
-oFF+Qg31fCg=
-=ujxn
------END PGP SIGNATURE-----
-
---=-HSWNoAn65+LsjDKWl4J7--
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQmVuIEh1dGNoaW5ncyBb
+bWFpbHRvOmJlbkBkZWNhZGVudC5vcmcudWtdDQo+IFNlbnQ6IFNhdHVyZGF5LCBKdWx5IDIxLCAy
+MDEyIDEwOjUxIFBNDQo+IFRvOiBLWSBTcmluaXZhc2FuDQo+IENjOiBPbGFmIEhlcmluZzsgR3Jl
+ZyBLSDsgYXB3QGNhbm9uaWNhbC5jb207IGRldmVsQGxpbnV4ZHJpdmVycHJvamVjdC5vcmc7DQo+
+IHZpcnR1YWxpemF0aW9uQGxpc3RzLm9zZGwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwu
+b3JnOw0KPiBuZXRkZXZAdmdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMDAv
+MTNdIGRyaXZlcnM6IGh2OiBrdnANCj4gDQo+IE9uIFR1ZSwgMjAxMi0wNy0wMyBhdCAxNToyNCAr
+MDAwMCwgS1kgU3Jpbml2YXNhbiB3cm90ZToNCj4gPg0KPiA+ID4gLS0tLS1PcmlnaW5hbCBNZXNz
+YWdlLS0tLS0NCj4gPiA+IEZyb206IEJlbiBIdXRjaGluZ3MgW21haWx0bzpiZW5AZGVjYWRlbnQu
+b3JnLnVrXQ0KPiA+ID4gU2VudDogTW9uZGF5LCBKdWx5IDAyLCAyMDEyIDM6NTcgUE0NCj4gPiA+
+IFRvOiBLWSBTcmluaXZhc2FuDQo+ID4gPiBDYzogT2xhZiBIZXJpbmc7IEdyZWcgS0g7IGFwd0Bj
+YW5vbmljYWwuY29tOyBkZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3JnOw0KPiA+ID4gdmlydHVh
+bGl6YXRpb25AbGlzdHMub3NkbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+
+ID4gPiBuZXRkZXZAdmdlci5rZXJuZWwub3JnDQo+ID4gPiBTdWJqZWN0OiBSZTogW1BBVENIIDAw
+LzEzXSBkcml2ZXJzOiBodjoga3ZwDQo+ID4gPg0KPiA+ID4gT24gTW9uLCBKdWwgMDIsIDIwMTIg
+YXQgMDM6MjI6MjVQTSArMDAwMCwgS1kgU3Jpbml2YXNhbiB3cm90ZToNCj4gPiA+ID4NCj4gPiA+
+ID4NCj4gPiA+ID4gPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+ID4gPiA+IEZyb206
+IE9sYWYgSGVyaW5nIFttYWlsdG86b2xhZkBhZXBmbGUuZGVdDQo+ID4gPiA+ID4gU2VudDogVGh1
+cnNkYXksIEp1bmUgMjgsIDIwMTIgMTA6MjQgQU0NCj4gPiA+ID4gPiBUbzogS1kgU3Jpbml2YXNh
+bg0KPiA+ID4gPiA+IENjOiBHcmVnIEtIOyBhcHdAY2Fub25pY2FsLmNvbTsgZGV2ZWxAbGludXhk
+cml2ZXJwcm9qZWN0Lm9yZzsNCj4gPiA+ID4gPiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9y
+ZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KPiA+ID4gPiA+IFN1YmplY3Q6IFJlOiBb
+UEFUQ0ggMDAvMTNdIGRyaXZlcnM6IGh2OiBrdnANCj4gPiA+ID4gPg0KPiA+ID4gPiA+IE9uIFR1
+ZSwgSnVuIDI2LCBLWSBTcmluaXZhc2FuIHdyb3RlOg0KPiA+ID4gPiA+DQo+ID4gPiA+ID4gPiA+
+IEZyb206IEdyZWcgS0ggW21haWx0bzpncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZ10NCj4gPiA+
+ID4gPiA+ID4gVGhlIGZhY3QgdGhhdCBpdCB3YXMgUmVkIEhhdCBzcGVjaWZpYyB3YXMgdGhlIG1h
+aW4gcGFydCwgdGhpcyBzaG91bGQgYmUNCj4gPiA+ID4gPiA+ID4gZG9uZSBpbiBhIHN0YW5kYXJk
+IHdheSwgd2l0aCBzdGFuZGFyZCB0b29scywgcmlnaHQ/DQo+ID4gPiA+ID4gPg0KPiA+ID4gPiA+
+ID4gVGhlIHJlYXNvbiBJIGFza2VkIHRoaXMgcXVlc3Rpb24gd2FzIHRvIG1ha2Ugc3VyZSBJIGFk
+ZHJlc3MgdGhlc2UNCj4gPiA+ID4gPiA+IGlzc3VlcyBpbiBhZGRpdGlvbiB0byB3aGF0ZXZlciBJ
+IGFtIGRlYnVnZ2luZyBub3cuIEkgdXNlIHRoZSBzdGFuZGFyZA0KPiA+ID4gPiA+ID4gdG9vbHMg
+YW5kIGNhbGxzIHRvIHJldHJpZXZlIGFsbCB0aGUgSVAgY29uZmlndXJhdGlvbi4gQXMgSSBsb29r
+IGF0DQo+ID4gPiA+ID4gPiBlYWNoIGRpc3RyaWJ1dGlvbiB0aGUgZmlsZXMgdGhleSBrZWVwIHBl
+cnNpc3RlbnQgSVAgY29uZmlndXJhdGlvbg0KPiA+ID4gPiA+ID4gSW5mb3JtYXRpb24gaXMgZGlm
+ZmVyZW50IGFuZCB0aGF0IGlzIHRoZSByZWFzb24gSSBjaG9zZSB0byBzdGFydCB3aXRoDQo+ID4g
+PiA+ID4gPiBSZWRIYXQuIElmIHRoZXJlIGlzIGEgc3RhbmRhcmQgd2F5IHRvIHN0b3JlIHRoZSBj
+b25maWd1cmF0aW9uLCBJIHdpbGwNCj4gPiA+ID4gPiA+IGRvIHRoYXQuDQo+ID4gPiA+ID4NCj4g
+PiA+ID4gPg0KPiA+ID4gPiA+IEtZLA0KPiA+ID4gPiA+DQo+ID4gPiA+ID4gaW5zdGVhZCBvZiB1
+c2luZyBzeXN0ZW0oKSBpbiBrdnBfZ2V0X2lwY29uZmlnX2luZm8gYW5kIGt2cF9zZXRfaXBfaW5m
+bywNCj4gPiA+ID4gPiB3b3VsZG50IGl0IGJlIGVhc2llciB0byBjYWxsIGFuIGV4dGVybmFsIGhl
+bHBlciBzY3JpcHQgd2hpY2ggZG9lcyBhbGwNCj4gPiA+ID4gPiB0aGUgZGlzdHJpYnV0aW9uIHNw
+ZWNpZmljIHdvcms/IEp1c3QgZGVmaW5lIHNvbWUgQVBJIHRvIHBhc3MgdmFsdWVzIHRvDQo+ID4g
+PiA+ID4gdGhlIHNjcmlwdCwgYW5kIHNvbWV0aGluZyB0byByZWFkIHZhbHVlcyBjb2xsZWN0ZWQg
+YnkgdGhlIHNjcmlwdCBiYWNrDQo+ID4gPiA+ID4gaW50byB0aGUgZGFlbW9uLg0KPiA+ID4gPg0K
+PiA+ID4gPiBPbiB0aGUgIkdldCIgc2lkZSBJIG1vc3RseSB1c2Ugc3RhbmRhcmQgY29tbWFuZHMv
+QVBJcyB0byBnZXQgYWxsIHRoZQ0KPiA+ID4gaW5mb3JtYXRpb246DQo+ID4gPiA+DQo+ID4gPiA+
+IDEpIElQIGFkZHJlc3MgaW5mb3JtYXRpb24gYW5kIHN1Ym5ldCBtYXNrOiBnZXRpZmFkZHJzKCkN
+Cj4gPiA+ID4gMikgRE5TIGluZm9ybWF0aW9uOiAgUGFyc2luZyAvZXRjL3Jlc29sdi5jb25mDQo+
+ID4gPiA+IDMpIC9zYmluL2lwIGNvbW1hbmQgZm9yIGFsbCB0aGUgcm91dGluZyBpbmZvcm1hdGlv
+bg0KPiA+ID4NCj4gPiA+IElmIHlvdSdyZSBpbnRlcmVzdGVkIGluIHRoZSAqY3VycmVudCogY29u
+ZmlndXJhdGlvbiB0aGVuICgxKSBhbmQgKDMpDQo+ID4gPiBhcmUgT0sgYnV0IHlvdSBzaG91bGQg
+cmVhbGx5IHVzZSB0aGUgcnRuZXRsaW5rIEFQSS4NCj4gPiA+DQo+ID4gPiBIb3dldmVyLCBJIHN1
+c3BlY3QgdGhhdCBIeXBlci1WIGFzc3VtZXMgdGhhdCBjdXJyZW50IGFuZCBwZXJzaXN0ZW50DQo+
+ID4gPiBjb25maWd1cmF0aW9uIGFyZSB0aGUgc2FtZSB0aGluZywgd2hpY2ggaXMgb2J2aW91c2x5
+IG5vdCB0cnVlIGluDQo+ID4gPiBnZW5lcmFsIG9uIExpbnV4LiAgQnV0IGlmIE5ldHdvcmtNYW5h
+Z2VyIGlzIHJ1bm5pbmcgdGhlbiB5b3UgY2FuDQo+ID4gPiBhc3N1bWUgdGhleSBhcmUuDQo+ID4N
+Cj4gPiBJIGFtIG9ubHkgaW50ZXJlc3RlZCBpbiB0aGUgY3VycmVudGx5IGFjdGl2ZSBpbmZvcm1h
+dGlvbi4gV2h5IGRvIHlvdQ0KPiA+IHJlY29tbWVuZCB0aGUgdXNlIG9mIHJ0bmV0bGluayBBUEkg
+b3ZlciB0aGUgImlwIiBjb21tYW5kLiBJZiBJIGFtIG5vdA0KPiA+IG1pc3Rha2VuLCB0aGUgaXAg
+Y29tbWFuZCB1c2VzIG5ldGxpbmsgdG8gZ2V0IHRoZSBpbmZvcm1hdGlvbi4NCj4gWy4uLl0NCj4g
+DQo+ICdTY3JlZW4tc2NyYXBpbmcnIHRoZSBvdXRwdXQgb2YgYWRtaW5pc3RyYXRpdmUgdG9vbHMg
+aXMgbm90IGdvb2QNCj4gcHJhY3RpY2UuICBJdCBtYXkgYmUgdGhlIGJlc3QgeW91IGNhbiBkbyB3
+aGVuIHdyaXRpbmcgYSBzaGVsbCBzY3JpcHQsDQo+IGJ1dCBmb3IgYSBDIHByb2dyYW0gaXQncyBn
+ZW5lcmFseSBsZXNzIHJlbGlhYmxlIGFuZCBvZnRlbiBtb3JlIGRpZmZpY3VsdA0KPiB0aGFuIHVz
+aW5nIHRoZSB1bmRlcmx5aW5nIEMgQVBJLg0KDQpCZW4sDQpCYXNlZCBvbiB0aGUgaW5wdXQgSSBo
+YXZlIGdvdHRlbiwgdGhlIGNvbnNlbnN1cyBhcHBlYXJzIHRvIGJlIHRvIGhhdmUgZXh0ZXJuYWwN
+CnNjcmlwdHMgdG8gYm90aCBHRVQgYW5kIFNFVCBJUCByZWxhdGVkIGNvbmZpZ3VyYXRpb24gaW5m
+b3JtYXRpb24uIFNvLCB0aGUgS1ZQDQpkYWVtb24gd2lsbCBuZWVkIHRvIHBhcnNlIGluZm9ybWF0
+aW9uIHJldHVybmVkIGZyb20gdGhlc2UgZXh0ZXJuYWwgZGlzdHJvIHNwZWNpZmljDQpzY3JpcHRz
+IChvbiB0aGUgR0VUIHNpZGUpLiAgV2hpbGUgSSBhZ3JlZSB3aXRoIHlvdSB0aGF0IGl0IGlzIGdv
+b2QgdG8gdXNlIEMgQVBJcywgSSBjdXJyZW50bHkNCmhhdmUgdGhlIGltcGxlbWVudGF0aW9uIHVz
+aW5nIHRoZSAiaXAiIGNvbW1hbmQgYW5kIGl0IGFwcGVhcnMgdG8gYmUgcXVpdGUgc2ltcGxlLg0K
+RnVydGhlcm1vcmUsIGdpdmVuIHRoYXQgdGhlIGluZm9ybWF0aW9uIEkgbmVlZCB0byBwYXNzIGJh
+Y2sgdG8gdGhlIGhvc3QgbmVlZHMgdG8gYmUNCmFwcHJvcHJpYXRlbHkgZm9ybWF0dGVkIChiYXNl
+ZCBvbiBob3N0IHNwZWNpZmllZCBmb3JtYXQpLCBJIHN1c3BlY3QgdXNpbmcgdGhlICJpcCIgY29t
+bWFuZA0KbWF5IGFjdHVhbGx5IHNpbXBsaWZ5IHRoZSBjb2RlLg0KDQpSZWdhcmRzLA0KDQpLLiBZ
+DQo=
