@@ -1,13 +1,18 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: [RFC 2/2] kvm tools: support virtio-notifier
-Date: Mon, 23 Jul 2012 22:32:41 +0200
-Message-ID: <1343075561-29316-3-git-send-email-levinsasha928@gmail.com>
-References: <1343075561-29316-1-git-send-email-levinsasha928@gmail.com>
+From: Minchan Kim <minchan@kernel.org>
+Subject: Re: [PATCH v4 1/3] mm: introduce compaction and migration for virtio
+	ballooned pages
+Date: Mon, 23 Jul 2012 11:33:32 +0900
+Message-ID: <20120723023332.GA6832__20902.3986863487$1343076672$gmane$org@bbox>
+References: <cover.1342485774.git.aquini@redhat.com>
+	<49f828a9331c9b729fcf77226006921ec5bc52fa.1342485774.git.aquini@redhat.com>
+	<20120718054824.GA32341@bbox>
+	<20120720194858.GA16249@t510.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1343075561-29316-1-git-send-email-levinsasha928@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20120720194858.GA16249@t510.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,316 +22,330 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, mst@redhat.com, penberg@kernel.org, asias.hejun@gmail.com
-Cc: kvm@vger.kernel.org, wency@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, avi@redhat.com, anthony@codemonkey.ws, Sasha Levin <levinsasha928@gmail.com>
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>, Rafael Aquini <aquini@linux.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch supports the new virtio-notifier driver.
+Hi Rafael,
 
-When the guest experiences a panic or an OOM, it will notify the host and
-the host will notify the user of the event.
+On Fri, Jul 20, 2012 at 04:48:59PM -0300, Rafael Aquini wrote:
+> Howdy Minchan,
+> 
+> Once again, thanks for raising such valuable feedback over here.
+> 
+> On Wed, Jul 18, 2012 at 02:48:24PM +0900, Minchan Kim wrote:
+> > > +/* __isolate_lru_page() counterpart for a ballooned page */
+> > > +static bool isolate_balloon_page(struct page *page)
+> > > +{
+> > > +	if (WARN_ON(!is_balloon_page(page)))
+> > > +		return false;
+> > 
+> > I am not sure we need this because you alreay check it before calling
+> > isolate_balloon_page. If you really need it, it would be better to
+> > add likely in isolate_balloon_page, too.
+> > 
+> 
+> This check point was set in place because isolate_balloon_page() was a publicly
+> visible function and while our current usage looks correct it would not hurt to
+> have something like that done -- think of it as an insurance policy, in case
+> someone else, in the future, attempts to use it on any other place outside this
+> specifc context. 
+> Despite not seeing it as a dealbreaker for the patch as is, I do agree, however,
+> this snippet can _potentially_ be removed from isolate_balloon_page(), since
+> this function has become static to compaction.c.
 
-We also ping echo packets every second to the guest to see if it's still
-alive and well, I haven't actually taken care of the case when echos are
-gone for some reason since I'm trying to think of something useful to do
-with that besides yell on stdout.
+Yes. It's not static.
 
-Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
----
- tools/kvm/Makefile                      |    1 +
- tools/kvm/builtin-run.c                 |    6 +
- tools/kvm/include/kvm/virtio-notifier.h |    9 ++
- tools/kvm/include/kvm/virtio-pci-dev.h  |    1 +
- tools/kvm/virtio/notifier.c             |  203 +++++++++++++++++++++++++++++++
- 5 files changed, 220 insertions(+), 0 deletions(-)
- create mode 100644 tools/kvm/include/kvm/virtio-notifier.h
- create mode 100644 tools/kvm/virtio/notifier.c
+> 
+> 
+> > > +
+> > > +	if (likely(get_page_unless_zero(page))) {
+> > > +		/*
+> > > +		 * We can race against move_to_new_page() & __unmap_and_move().
+> > > +		 * If we stumble across a locked balloon page and succeed on
+> > > +		 * isolating it, the result tends to be disastrous.
+> > > +		 */
+> > > +		if (likely(trylock_page(page))) {
+> > 
+> > Hmm, I can't understand your comment.
+> > What does this lock protect? Could you elaborate it with code sequence?
+> > 
+> 
+> As we are coping with a corner case -- balloon pages are not on LRU lists --
+> compaction concurrency can lead to a disastrous race which results in
+> isolate_balloon_page() re-isolating already isolated balloon pages, or isolating
+> a 'newpage' recently promoted to 'balloon page', while these pages are still
+> under migration. The only way we have to prevent that from happening is
+> attempting to grab the page lock, as pages under migration are already locked.
+> I had that comment rephrased to what follows (please, tell me how it sounds to
+> you now)
+>   	if (likely(get_page_unless_zero(page))) {
+>  		/*
+> -		 * We can race against move_to_new_page() & __unmap_and_move().
+> -		 * If we stumble across a locked balloon page and succeed on
+> -		 * isolating it, the result tends to be disastrous.
+> +		 * As balloon pages are not isolated from LRU lists, several
+> +		 * concurrent compaction threads will potentially race against
+> +		 * page migration at move_to_new_page() & __unmap_and_move().
+> +		 * In order to avoid having an already isolated balloon page
+> +		 * being (wrongly) re-isolated while it is under migration,
+> +		 * lets be sure we have the page lock before proceeding with
+> +		 * the balloon page isolation steps.
 
-diff --git a/tools/kvm/Makefile b/tools/kvm/Makefile
-index f9e1ec1..6827c1f 100644
---- a/tools/kvm/Makefile
-+++ b/tools/kvm/Makefile
-@@ -89,6 +89,7 @@ OBJS	+= hw/pci-shmem.o
- OBJS	+= kvm-ipc.o
- OBJS	+= builtin-sandbox.o
- OBJS	+= virtio/mmio.o
-+OBJS	+= virtio/notifier.o
- 
- # Translate uname -m into ARCH string
- ARCH ?= $(shell uname -m | sed -e s/i.86/i386/ -e s/ppc.*/powerpc/)
-diff --git a/tools/kvm/builtin-run.c b/tools/kvm/builtin-run.c
-index 750d30c..90ac622 100644
---- a/tools/kvm/builtin-run.c
-+++ b/tools/kvm/builtin-run.c
-@@ -33,6 +33,7 @@
- #include "kvm/pci-shmem.h"
- #include "kvm/kvm-ipc.h"
- #include "kvm/builtin-debug.h"
-+#include "kvm/virtio-notifier.h"
- 
- #include <linux/types.h>
- #include <linux/err.h>
-@@ -99,6 +100,7 @@ static bool using_rootfs;
- static bool custom_rootfs;
- static bool no_net;
- static bool no_dhcp;
-+static bool virtio_notifier;
- extern bool ioport_debug;
- extern bool mmio_debug;
- static int  kvm_run_wrapper;
-@@ -442,6 +444,7 @@ static const struct option options[] = {
- 	OPT_BOOLEAN('\0', "vnc", &vnc, "Enable VNC framebuffer"),
- 	OPT_BOOLEAN('\0', "sdl", &sdl, "Enable SDL framebuffer"),
- 	OPT_BOOLEAN('\0', "rng", &virtio_rng, "Enable virtio Random Number Generator"),
-+	OPT_BOOLEAN('\0', "notifier", &virtio_notifier, "Enable virtio notifier"),
- 	OPT_CALLBACK('\0', "9p", NULL, "dir_to_share,tag_name",
- 		     "Enable virtio 9p to share files between host and guest", virtio_9p_rootdir_parser),
- 	OPT_STRING('\0', "console", &console, "serial, virtio or hv",
-@@ -1182,6 +1185,9 @@ static int kvm_cmd_run_init(int argc, const char **argv)
- 	if (virtio_rng)
- 		virtio_rng__init(kvm);
- 
-+	if (virtio_notifier)
-+		virtio_notif__init(kvm);
-+
- 	if (balloon)
- 		virtio_bln__init(kvm);
- 
-diff --git a/tools/kvm/include/kvm/virtio-notifier.h b/tools/kvm/include/kvm/virtio-notifier.h
-new file mode 100644
-index 0000000..5673fc2
---- /dev/null
-+++ b/tools/kvm/include/kvm/virtio-notifier.h
-@@ -0,0 +1,9 @@
-+#ifndef KVM__NOTIF_VIRTIO_H
-+#define KVM__NOTIF_VIRTIO_H
-+
-+struct kvm;
-+
-+int virtio_notif__init(struct kvm *kvm);
-+int virtio_notif__exit(struct kvm *kvm);
-+
-+#endif /* KVM__RNG_VIRTIO_H */
-diff --git a/tools/kvm/include/kvm/virtio-pci-dev.h b/tools/kvm/include/kvm/virtio-pci-dev.h
-index 7ceb125..a387ecd 100644
---- a/tools/kvm/include/kvm/virtio-pci-dev.h
-+++ b/tools/kvm/include/kvm/virtio-pci-dev.h
-@@ -13,6 +13,7 @@
- #define PCI_DEVICE_ID_VIRTIO_CONSOLE		0x1003
- #define PCI_DEVICE_ID_VIRTIO_RNG		0x1004
- #define PCI_DEVICE_ID_VIRTIO_BLN		0x1005
-+#define PCI_DEVICE_ID_VIRTIO_NOTIFIER		0x1006
- #define PCI_DEVICE_ID_VIRTIO_9P			0x1009
- #define PCI_DEVICE_ID_VESA			0x2000
- #define PCI_DEVICE_ID_PCI_SHMEM			0x0001
-diff --git a/tools/kvm/virtio/notifier.c b/tools/kvm/virtio/notifier.c
-new file mode 100644
-index 0000000..c17546b
---- /dev/null
-+++ b/tools/kvm/virtio/notifier.c
-@@ -0,0 +1,203 @@
-+#include "kvm/virtio-notifier.h"
-+
-+#include "kvm/virtio-pci-dev.h"
-+
-+#include "kvm/virtio.h"
-+#include "kvm/util.h"
-+#include "kvm/kvm.h"
-+#include "kvm/threadpool.h"
-+#include "kvm/guest_compat.h"
-+
-+#include <linux/virtio_ring.h>
-+#include <linux/virtio_notifier.h>
-+
-+#include <linux/list.h>
-+#include <fcntl.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <pthread.h>
-+#include <linux/kernel.h>
-+
-+#define NUM_VIRT_QUEUES			2
-+#define VIRTIO_NOTIFIER_QUEUE_SIZE	128
-+
-+struct ntf_dev_job {
-+	struct virt_queue	*vq;
-+	struct ntf_dev		*ndev;
-+	struct thread_pool__job	job_id;
-+};
-+
-+struct ntf_dev {
-+	struct list_head	list;
-+	struct virtio_device	vdev;
-+
-+	/* virtio queue */
-+	struct virt_queue	vqs[NUM_VIRT_QUEUES];
-+	struct ntf_dev_job	jobs[NUM_VIRT_QUEUES];
-+};
-+
-+static LIST_HEAD(ndevs);
-+static int compat_id = -1;
-+
-+static void set_config(struct kvm *kvm, void *dev, u8 data, u32 offset)
-+{
-+	/* Unused */
-+}
-+
-+static u8 get_config(struct kvm *kvm, void *dev, u32 offset)
-+{
-+	/* Unused */
-+	return 0;
-+}
-+
-+static u32 get_host_features(struct kvm *kvm, void *dev)
-+{
-+	/* Unused */
-+	return 0;
-+}
-+
-+static void set_guest_features(struct kvm *kvm, void *dev, u32 features)
-+{
-+	/* Unused */
-+}
-+
-+static bool virtio_ntf_do_io_request(struct kvm *kvm, struct ntf_dev *ndev, struct virt_queue *queue)
-+{
-+	struct iovec iov[VIRTIO_NOTIFIER_QUEUE_SIZE];
-+	unsigned int len = 0;
-+	u16 out, in, head;
-+	u32 *counters;
-+
-+	head = virt_queue__get_iov(queue, iov, &out, &in, kvm);
-+	counters = iov[0].iov_base;
-+
-+	printf("\n\n New updated counters from guest:\n\tPanic: %u OOM: %u\n\n",
-+		counters[VIRTIO_NOTIF_PANIC], counters[VIRTIO_NOTIF_OOM]);
-+
-+	virt_queue__set_used_elem(queue, head, len);
-+
-+	return true;
-+}
-+
-+static bool virtio_ntf_do_echo_request(struct kvm *kvm, struct ntf_dev *ndev, struct virt_queue *queue)
-+{
-+	struct iovec iov[VIRTIO_NOTIFIER_QUEUE_SIZE];
-+	u16 out, in, head;
-+
-+	sleep(1);
-+	head = virt_queue__get_iov(queue, iov, &out, &in, kvm);
-+	virt_queue__set_used_elem(queue, head, iov[0].iov_len);
-+
-+	return true;
-+}
-+
-+static void virtio_ntf_do_io(struct kvm *kvm, void *param)
-+{
-+	struct ntf_dev_job *job	= param;
-+	struct virt_queue *vq	= job->vq;
-+	struct ntf_dev *ndev	= job->ndev;
-+
-+	if ((vq - ndev->vqs) == 0) {
-+		while (virt_queue__available(vq))
-+			virtio_ntf_do_io_request(kvm, ndev, vq);
-+	} else {
-+		virtio_ntf_do_echo_request(kvm, ndev, vq);
-+	}
-+
-+	ndev->vdev.ops->signal_vq(kvm, &ndev->vdev, vq - ndev->vqs);
-+}
-+
-+static int init_vq(struct kvm *kvm, void *dev, u32 vq, u32 pfn)
-+{
-+	struct ntf_dev *ndev = dev;
-+	struct virt_queue *queue;
-+	struct ntf_dev_job *job;
-+	void *p;
-+
-+	compat__remove_message(compat_id);
-+
-+	queue		= &ndev->vqs[vq];
-+	queue->pfn	= pfn;
-+	p		= guest_pfn_to_host(kvm, queue->pfn);
-+
-+	job = &ndev->jobs[vq];
-+
-+	vring_init(&queue->vring, VIRTIO_NOTIFIER_QUEUE_SIZE, p, VIRTIO_PCI_VRING_ALIGN);
-+
-+	*job = (struct ntf_dev_job) {
-+		.vq	= queue,
-+		.ndev	= ndev,
-+	};
-+
-+	thread_pool__init_job(&job->job_id, kvm, virtio_ntf_do_io, job);
-+
-+	return 0;
-+}
-+
-+static int notify_vq(struct kvm *kvm, void *dev, u32 vq)
-+{
-+	struct ntf_dev *ndev = dev;
-+
-+	thread_pool__do_job(&ndev->jobs[vq].job_id);
-+
-+	return 0;
-+}
-+
-+static int get_pfn_vq(struct kvm *kvm, void *dev, u32 vq)
-+{
-+	struct ntf_dev *ndev = dev;
-+
-+	return ndev->vqs[vq].pfn;
-+}
-+
-+static int get_size_vq(struct kvm *kvm, void *dev, u32 vq)
-+{
-+	return VIRTIO_NOTIFIER_QUEUE_SIZE;
-+}
-+
-+static struct virtio_ops ntf_dev_virtio_ops = (struct virtio_ops) {
-+	.set_config		= set_config,
-+	.get_config		= get_config,
-+	.get_host_features	= get_host_features,
-+	.set_guest_features	= set_guest_features,
-+	.init_vq		= init_vq,
-+	.notify_vq		= notify_vq,
-+	.get_pfn_vq		= get_pfn_vq,
-+	.get_size_vq		= get_size_vq,
-+};
-+
-+int virtio_notif__init(struct kvm *kvm)
-+{
-+	struct ntf_dev *ndev;
-+	int r;
-+
-+	ndev = malloc(sizeof(*ndev));
-+	if (ndev == NULL)
-+		return -ENOMEM;
-+
-+	r = virtio_init(kvm, ndev, &ndev->vdev, &ntf_dev_virtio_ops,
-+			VIRTIO_PCI, PCI_DEVICE_ID_VIRTIO_NOTIFIER, VIRTIO_ID_NOTIFIER, PCI_CLASS_RNG);
-+	if (r < 0)
-+		goto cleanup;
-+
-+	list_add_tail(&ndev->list, &ndevs);
-+
-+	return 0;
-+cleanup:
-+	free(ndev);
-+
-+	return r;
-+}
-+
-+int virtio_notif__exit(struct kvm *kvm)
-+{
-+	struct ntf_dev *ndev, *tmp;
-+
-+	list_for_each_entry_safe(ndev, tmp, &ndevs, list) {
-+		list_del(&ndev->list);
-+		ndev->vdev.ops->exit(kvm, &ndev->vdev);
-+		free(ndev);
-+	}
-+
-+	return 0;
-+}
+Looks good to me.
+
+>  		 */
+>  		if (likely(trylock_page(page))) {
+>  			/*
+> 
+> 
+> > > +/* putback_lru_page() counterpart for a ballooned page */
+> > > +bool putback_balloon_page(struct page *page)
+> > > +{
+> > > +	if (WARN_ON(!is_balloon_page(page)))
+> > > +		return false;
+> > 
+> > You already check WARN_ON in putback_lru_pages so we don't need it in here.
+> > And you can add likely in here, too.
+> >
+> 
+> This check point is in place by the same reason why it is for
+> isolate_balloon_page(). However, I don't think we should drop it here because
+> putback_balloon_page() is still a publicly visible symbol. Besides, the check
+> that is performed at putback_lru_pages() level has a different meaning, which is
+> to warn us when we fail on re-inserting an isolated (but not migrated) page back
+> to the balloon page list, thus it does not superceeds nor it's superceeded by
+> this checkpoint here.
+
+I'm not against you strongly but IMHO, putback_balloon_page is never generic
+function which is likely to be used by many others so I hope not overdesign.
+
+> 
+>  
+> > > +		} else if (is_balloon_page(page)) {
+> > 
+> > unlikely?
+> 
+> This can be done, for sure. Also, it reminds me that I had a
+> 'likely(PageLRU(page))' set in place for this vary same patch, on v2 submission.
+> Do you recollect you've asked me to get rid of it?. Wouldn't it be better having
+> that suggestion of yours reverted, since PageLRU(page) is the likelihood case
+> here anyway? What about this?
+> 
+>    " if (likely(PageLRU(page))) { 
+>        ... 
+>      } else if (unlikely(is_balloon_page(page))) {
+>        ...
+>      } else
+> 	continue;
+>    "
+
+I don't like that.
+PageLRU isn't likelihood case in this.
+
+> 
+> > 
+> > > @@ -78,7 +78,10 @@ void putback_lru_pages(struct list_head *l)
+> > >  		list_del(&page->lru);
+> > >  		dec_zone_page_state(page, NR_ISOLATED_ANON +
+> > >  				page_is_file_cache(page));
+> > > -		putback_lru_page(page);
+> > > +		if (unlikely(is_balloon_page(page)))
+> > > +			WARN_ON(!putback_balloon_page(page));
+> > > +		else
+> > > +			putback_lru_page(page);
+> > 
+> > Hmm, I don't like this.
+> > The function name says we putback *lru* pages, but balloon page isn't.
+> > How about this?
+> > 
+> > diff --git a/mm/compaction.c b/mm/compaction.c
+> > index aad0a16..b07cd67 100644
+> > --- a/mm/compaction.c
+> > +++ b/mm/compaction.c
+> > @@ -298,6 +298,8 @@ static bool too_many_isolated(struct zone *zone)
+> >   * Apart from cc->migratepages and cc->nr_migratetypes this function
+> >   * does not modify any cc's fields, in particular it does not modify
+> >   * (or read for that matter) cc->migrate_pfn.
+> > + * 
+> > + * For returning page, you should use putback_pages instead of putback_lru_pages
+> >   */
+> >  unsigned long
+> >  isolate_migratepages_range(struct zone *zone, struct compact_control *cc,
+> > @@ -827,7 +829,7 @@ static int compact_zone(struct zone *zone, struct compact_control *cc)
+> >  
+> >                 /* Release LRU pages not migrated */
+> >                 if (err) {
+> > -                       putback_lru_pages(&cc->migratepages);
+> > +                       putback_pages(&cc->migratepages);
+> >                         cc->nr_migratepages = 0;
+> >                         if (err == -ENOMEM) {
+> >                                 ret = COMPACT_PARTIAL;
+> > diff --git a/mm/migrate.c b/mm/migrate.c
+> > index 9705e70..a96b840 100644
+> > --- a/mm/migrate.c
+> > +++ b/mm/migrate.c
+> > @@ -86,6 +86,22 @@ void putback_lru_pages(struct list_head *l)
+> >         }
+> >  }
+> > 
+> > + /* blah blah .... */ 
+> > +void putback_pages(struct list_head *l)
+> > +{
+> > +       struct page *page;
+> > +       struct page *page2;
+> > +
+> > +       list_for_each_entry_safe(page, page2, l, lru) {
+> > +               list_del(&page->lru);
+> > +               dec_zone_page_state(page, NR_ISOLATED_ANON +
+> > +                               page_is_file_cache(page));
+> > +               if (unlikely(is_balloon_page(page)))
+> > +                       WARN_ON(!putback_balloon_page(page));
+> > +               else
+> > +                       putback_lru_page(page);
+> > +       }
+> > +}
+> > +
+> >  /*
+> >   * Restore a potential migration pte to a working pte entry
+> >   */
+> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> > index 32985dd..decb82a 100644
+> > --- a/mm/page_alloc.c
+> > +++ b/mm/page_alloc.c
+> > @@ -5655,7 +5655,7 @@ static int __alloc_contig_migrate_range(unsigned long start, unsigned long end)
+> >                                     0, false, MIGRATE_SYNC);
+> >         }
+> >  
+> > -       putback_lru_pages(&cc.migratepages);
+> > +       putback_pages(&cc.migratepages);
+> >         return ret > 0 ? 0 : ret;
+> >  }
+> > 
+> 
+> Despite being a very nice cleanup, this code refactoring has nothing to do with
+> this particular patch purpose. For the sake of this implementation, think about
+> the balloon page list acting as a particular LRU, so although ballooned pages
+> are not enlisted on real LRUs, per se, this doesn't mean we cannot have them
+> dealt as a corner case amongst putback_lru_pages() code for the sake of
+> simplicity and maintainability ease. OTOH, I do agree with your nice suggestion,
+> thus I can submit it as a separate clean-up patch attached to this series (if
+> you don't mind).
+
+No problem. But the concern is that I can't agree this patch implementation.
+Please see below.
+
+> 
+> 
+> > >  
+> > > +	if (is_balloon_page(page)) {
+> > 
+> > unlikely?
+> >
+> 
+> Yeah, why not? Will do it.
+>  
+> > > +	if (is_balloon_page(newpage)) {
+> > 
+> > unlikely?
+> > 
+> 
+> ditto.
+> 
+> > > +		/*
+> > > +		 * A ballooned page has been migrated already. Now, it is the
+> > > +		 * time to wrap-up counters, handle the old page back to Buddy
+> > > +		 * and return.
+> > > +		 */
+> > > +		list_del(&page->lru);
+> > > +		dec_zone_page_state(page, NR_ISOLATED_ANON +
+> > > +				    page_is_file_cache(page));
+> > > +		put_page(page);
+> > > +		__free_page(page);
+> > 
+> > Why do you use __free_page instead of put_page?
+> > 
+> 
+> Do you mean perform an extra put_page() and let putback_lru_page() do the rest?
+> Besides looking odd at code level, what other improvement we can potentially gain here?
+
+I mean just do
+put_page(page); /* blah blah */
+put_page(page); /* It will free the page to buddy */
+
+Yeb it's more fat than __free_page for your case. If so, please comment write out
+why you use __free_page instead of put_page.
+
+/*
+ * balloon page should be never compund page and not on the LRU so we
+ * call __free_page directly instead of put_page.
+ */
+
+> 
+> 
+> > The feeling I look at your code in detail is that it makes compaction/migration
+> > code rather complicated because compaction/migration assumes source/target would
+> > be LRU pages. 
+> > 
+> > How often memory ballooning happens? Does it make sense to hook it in generic
+> > functions if it's very rare?
+> > 
+> > Couldn't you implement it like huge page?
+> > It doesn't make current code complicated and doesn't affect performance
+> > 
+> > In compaction,
+> > #ifdef CONFIG_VIRTIO_BALLOON
+> > static int compact_zone(struct zone *zone, struct compact_control *cc, bool balloon)
+> > {
+> >         if (balloon) {
+> >                 isolate_balloonpages
+> > 
+> >                 migrate_balloon_pages
+> >                         unmap_and_move_balloon_page
+> > 
+> >                 putback_balloonpages
+> >         }
+> > }
+> > #endif
+> > 
+> > I'm not sure memory ballooning so it might be dumb question.
+> > Can we trigger it once only when ballooning happens?
+> 
+> I strongly believe, this is the simplest and easiest way to get this task
+> accomplished, mostly becasue:
+>   i. It does not require any code duplication at all;
+>  ii. It requires very few code insertion/surgery to be fully operative;
+> iii. It is embeded on already well established and maintained code;
+>  iv. The approach makes easier to other balloon drivers leverage compaction
+> code;
+>   v. It shows no significative impact to the entangled code paths;
+
+But it is adding a few hooks to generic functions which all assume they
+are LRU pages. Although it's trivial for performance, we don't need get
+such loss due to very infrequent event.
+
+More concern to me that it makes code complicated because we assume
+functions related migration/compaction depend on LRU pages.
+Let me say a example.
+suitable_migration_target in isolate_freepages returns true pageblock
+type is MIGRATE_MOVABLE or MIGRATE_CMA which expect pages in that block
+is migratable so they should be moved into another location or reclaimed
+if we have no space for getting big contiguos space.
+All of such code should consider balloon page but balloon page can't be
+reclaimed unlike normal LRU page so it makes design more complex.
+
+Look at memory-hotplug, offline_page calls has_unmovable_pages, scan_lru_pages
+and do_migrate_range which calls isolate_lru_page. They consider only LRU pages
+to migratable ones.
+
+IMHO, better approach is that after we can get complete free pageblocks
+by compaction or reclaim, move balloon pages into that pageblocks and make
+that blocks to unmovable. It can prevent fragmentation and it makes
+current or future code don't need to consider balloon page.
+
+Of course, it needs more code but I think it's valuable.
+What do you think about it?
+
 -- 
-1.7.8.6
+Kind regards,
+Minchan Kim
