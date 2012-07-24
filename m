@@ -1,51 +1,182 @@
-From: Dan Williams <dcbw@redhat.com>
-Subject: Re: [PATCH 10/17] Tools: hv: Gather ipv[4,6] gateway information
-Date: Tue, 24 Jul 2012 13:36:50 -0500
-Message-ID: <1343155010.29196.1.camel@dcbw.foobar.com>
-References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
-	 <1343145701-3691-1-git-send-email-kys@microsoft.com>
-	 <1343145701-3691-10-git-send-email-kys@microsoft.com>
-	 <20120724092914.60f3d90a@nehalam.linuxnetplumber.net>
-	 <20120724165359.GA8409@aepfle.de>
-	 <20120724095659.5c869511@nehalam.linuxnetplumber.net>
+From: Blue Swirl <blauwirbel@gmail.com>
+Subject: Re: [Qemu-devel] [RFC PATCH 0/6] virtio-trace: Support virtio-trace
+Date: Tue, 24 Jul 2012 20:26:03 +0000
+Message-ID: <CAAu8pHsfRBsfSCB5gBFX5pweN2j2PdNrQZyCfjJ3sYYmVjCRfA@mail.gmail.com>
+References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120724095659.5c869511@nehalam.linuxnetplumber.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: Olaf Hering <olaf@aepfle.de>, "K. Y. Srinivasan" <kys@microsoft.com>, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, apw@canonical.com, netdev@vger.kernel.org, ben@decadent.org.uk
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, qemu-devel@nongnu.org, Borislav Petkov <bp@amd64.org>, linux-kernel@vger.kernel.org, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, yrl.pp-manager.tt@hitachi.com, Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2012-07-24 at 09:56 -0700, Stephen Hemminger wrote:
-> On Tue, 24 Jul 2012 18:53:59 +0200
-> Olaf Hering <olaf@aepfle.de> wrote:
-> 
-> > On Tue, Jul 24, Stephen Hemminger wrote:
-> > 
-> > > On Tue, 24 Jul 2012 09:01:34 -0700
-> > > "K. Y. Srinivasan" <kys@microsoft.com> wrote:
-> > > 
-> > > > +	memset(cmd, 0, sizeof(cmd));
-> > > > +	strcat(cmd, "/sbin/ip -f inet  route | grep -w ");
-> > > > +	strcat(cmd, if_name);
-> > > > +	strcat(cmd, " | awk '/default/ {print $3 }'");
-> > > 
-> > > 
-> > > Much simpler method:
-> > > 
-> > > ip route show match 0/0
-> > 
-> > This also has the benefit that ip is not called with absolute path, now
-> > that distros move binaries around.
-> > 
-> > Olaf
-> 
-> It is also not hard to do the same thing with a little function
-> using libmnl
+On Tue, Jul 24, 2012 at 2:36 AM, Yoshihiro YUNOMAE
+<yoshihiro.yunomae.ez@hitachi.com> wrote:
+> Hi All,
+>
+> The following patch set provides a low-overhead system for collecting kernel
+> tracing data of guests by a host in a virtualization environment.
+>
+> A guest OS generally shares some devices with other guests or a host, so
+> reasons of any problems occurring in a guest may be from other guests or a host.
+> Then, to collect some tracing data of a number of guests and a host is needed
+> when some problems occur in a virtualization environment. One of methods to
+> realize that is to collect tracing data of guests in a host. To do this, network
+> is generally used. However, high load will be taken to applications on guests
+> using network I/O because there are many network stack layers. Therefore,
+> a communication method for collecting the data without using network is needed.
 
-Yeah seriously, netlink anyone?  You'll even get nicer error reporting
-that way.
+I implemented something similar earlier by passing trace data from
+OpenBIOS to QEMU using the firmware configuration device. The data
+format was the same as QEMU used for simpletrace event structure
+instead of ftrace. I didn't commit it because of a few problems.
 
-Dan
+I'm not familiar with ftrace, is it possible to trace two guest
+applications (BIOS and kernel) at the same time? Or could this be
+handled by opening two different virtio-serial pipes, one for BIOS and
+the other for the kernel?
+
+In my version, the tracepoint ID would have been used to demultiplex
+QEMU tracepoints from BIOS tracepoints, but something like separate ID
+spaces would have been better.
+
+>
+> We submitted a patch set of "IVRing", a ring-buffer driver constructed on
+> Inter-VM shared memory (IVShmem), to LKML http://lwn.net/Articles/500304/ in
+> this June. IVRing and the IVRing reader use POSIX shared memory each other
+> without using network, so a low-overhead system for collecting guest tracing
+> data is realized. However, this patch set has some problems as follows:
+>  - use IVShmem instead of virtio
+>  - create a new ring-buffer without using existing ring-buffer in kernel
+>  - scalability
+>    -- not support SMP environment
+>    -- buffer size limitation
+>    -- not support live migration (maybe difficult for realize this)
+>
+> Therefore, we propose a new system "virtio-trace", which uses enhanced
+> virtio-serial and existing ring-buffer of ftrace, for collecting guest kernel
+> tracing data. In this system, there are 5 main components:
+>  (1) Ring-buffer of ftrace in a guest
+>      - When trace agent reads ring-buffer, a page is removed from ring-buffer.
+>  (2) Trace agent in the guest
+>      - Splice the page of ring-buffer to read_pipe using splice() without
+>        memory copying. Then, the page is spliced from write_pipe to virtio
+>        without memory copying.
+>  (3) Virtio-console driver in the guest
+>      - Pass the page to virtio-ring
+>  (4) Virtio-serial bus in QEMU
+>      - Copy the page to kernel pipe
+>  (5) Reader in the host
+>      - Read guest tracing data via FIFO(named pipe)
+>
+> ***Evaluation***
+> When a host collects tracing data of a guest, the performance of using
+> virtio-trace is compared with that of using native(just running ftrace),
+> IVRing, and virtio-serial(normal method of read/write).
+>
+> <environment>
+> The overview of this evaluation is as follows:
+>  (a) A guest on a KVM is prepared.
+>      - The guest is dedicated one physical CPU as a virtual CPU(VCPU).
+>
+>  (b) The guest starts to write tracing data to ring-buffer of ftrace.
+>      - The probe points are all trace points of sched, timer, and kmem.
+>
+>  (c) Writing trace data, dhrystone 2 in UNIX bench is executed as a benchmark
+>      tool in the guest.
+>      - Dhrystone 2 intends system performance by repeating integer arithmetic
+>        as a score.
+>      - Since higher score equals to better system performance, if the score
+>        decrease based on bare environment, it indicates that any operation
+>        disturbs the integer arithmetic. Then, we define the overhead of
+>        transporting trace data is calculated as follows:
+>                 OVERHEAD = (1 - SCORE_OF_A_METHOD/NATIVE_SCORE) * 100.
+>
+> The performance of each method is compared as follows:
+>  [1] Native
+>      - only recording trace data to ring-buffer on a guest
+>  [2] Virtio-trace
+>      - running a trace agent on a guest
+>      - a reader on a host opens FIFO using cat command
+>  [3] IVRing
+>      - A SystemTap script in a guest records trace data to IVRing.
+>        -- probe points are same as ftrace.
+>  [4] Virtio-serial(normal)
+>      - A reader(using cat) on a guest output trace data to a host using
+>        standard output via virtio-serial.
+>
+> Other information is as follows:
+>  - host
+>    kernel: 3.3.7-1 (Fedora16)
+>    CPU: Intel Xeon x5660@2.80GHz(12core)
+>    Memory: 48GB
+>
+>  - guest(only booting one guest)
+>    kernel: 3.5.0-rc4+ (Fedora16)
+>    CPU: 1VCPU(dedicated)
+>    Memory: 1GB
+>
+> <result>
+> 3 patterns based on the bare environment were indicated as follows:
+>                            Scores      overhead against [0] Native
+>     [0] Native:          28807569.5               -
+>     [1] Virtio-trace:    28685049.5             0.43%
+>     [2] IVRing:          28418595.5             1.35%
+>     [3] Virtio-serial:   13262258.7            53.96%
+>
+>
+> ***Just enhancement ideas***
+>  - Support for trace-cmd
+>  - Support for 9pfs protocol
+>  - Support for non-blocking mode in QEMU
+>  - Make "vhost-serial"
+>
+> Thank you,
+>
+> ---
+>
+> Masami Hiramatsu (5):
+>       virtio/console: Allocate scatterlist according to the current pipe size
+>       ftrace: Allow stealing pages from pipe buffer
+>       virtio/console: Wait until the port is ready on splice
+>       virtio/console: Add a failback for unstealable pipe buffer
+>       virtio/console: Add splice_write support
+>
+> Yoshihiro YUNOMAE (1):
+>       tools: Add guest trace agent as a user tool
+>
+>
+>  drivers/char/virtio_console.c               |  198 ++++++++++++++++++--
+>  kernel/trace/trace.c                        |    8 -
+>  tools/virtio/virtio-trace/Makefile          |   14 +
+>  tools/virtio/virtio-trace/README            |  118 ++++++++++++
+>  tools/virtio/virtio-trace/trace-agent-ctl.c |  137 ++++++++++++++
+>  tools/virtio/virtio-trace/trace-agent-rw.c  |  192 +++++++++++++++++++
+>  tools/virtio/virtio-trace/trace-agent.c     |  270 +++++++++++++++++++++++++++
+>  tools/virtio/virtio-trace/trace-agent.h     |   75 ++++++++
+>  8 files changed, 985 insertions(+), 27 deletions(-)
+>  create mode 100644 tools/virtio/virtio-trace/Makefile
+>  create mode 100644 tools/virtio/virtio-trace/README
+>  create mode 100644 tools/virtio/virtio-trace/trace-agent-ctl.c
+>  create mode 100644 tools/virtio/virtio-trace/trace-agent-rw.c
+>  create mode 100644 tools/virtio/virtio-trace/trace-agent.c
+>  create mode 100644 tools/virtio/virtio-trace/trace-agent.h
+>
+> --
+> Yoshihiro YUNOMAE
+> Software Platform Research Dept. Linux Technology Center
+> Hitachi, Ltd., Yokohama Research Laboratory
+> E-mail: yoshihiro.yunomae.ez@hitachi.com
+>
+>
