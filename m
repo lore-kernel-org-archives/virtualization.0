@@ -1,7 +1,7 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [RFC 5/9] virtio-scsi: Add wwpn and tgpt properties
-Date: Tue, 24 Jul 2012 22:34:02 +0000
-Message-ID: <1343169246-17636-6-git-send-email-nab__4745.03088412366$1343169485$gmane$org@linux-iscsi.org>
+Subject: [RFC 6/9] virtio-scsi: Open and initialize /dev/vhost-scsi
+Date: Tue, 24 Jul 2012 22:34:03 +0000
+Message-ID: <1343169246-17636-7-git-send-email-nab__16132.2860549719$1343169494$gmane$org@linux-iscsi.org>
 References: <1343169246-17636-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,54 +23,68 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 
-A vhost-scsi device must be bound to a tcm_vhost target port.  This will
-be done by issuing an ioctl to the device with the wwpn and tgpt.  This
-patch adds these properties to the virtio-scsi-pci device:
+Begin adding vhost support by opening /dev/vhost-scsi.
 
-  qemu -device virtio-scsi-pci,wwpn=$TARGET_WWN,tgpt=$TPGT
-
-Future patches will open /dev/vhost-scsi and issue the ioctl.
-
-This patch also moves the virtio_scsi_init() prototype to
-hw/virtio-scsi.h where the VirtIOSCSIConf structure is defined.  I think
-this is cleaner than defining it in hw/virtio.h.
-
-(v2: Use modern VirtIOSCSIConf define in virtio-scsi.h)
+(v2: Drop legacy ->vhost_vqs[] usage)
 
 Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 Signed-off-by: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 ---
- hw/virtio-scsi.c |    2 ++
- hw/virtio-scsi.h |    1 +
- 2 files changed, 3 insertions(+), 0 deletions(-)
+ hw/virtio-scsi.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
 
 diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
-index 0a5ac40..4a787d3 100644
+index 4a787d3..dea3269 100644
 --- a/hw/virtio-scsi.c
 +++ b/hw/virtio-scsi.c
-@@ -13,6 +13,8 @@
-  *
-  */
- 
-+#include "qemu-common.h"
-+#include "qemu-error.h"
+@@ -18,6 +18,7 @@
  #include "virtio-scsi.h"
  #include <hw/scsi.h>
  #include <hw/scsi-defs.h>
-diff --git a/hw/virtio-scsi.h b/hw/virtio-scsi.h
-index 4bc889d..74e9422 100644
---- a/hw/virtio-scsi.h
-+++ b/hw/virtio-scsi.h
-@@ -22,6 +22,7 @@
- #define VIRTIO_ID_SCSI  8
++#include "vhost.h"
  
- struct VirtIOSCSIConf {
+ #define VIRTIO_SCSI_VQ_SIZE     128
+ #define VIRTIO_SCSI_CDB_SIZE    32
+@@ -137,6 +138,9 @@ typedef struct {
+     VirtQueue *ctrl_vq;
+     VirtQueue *event_vq;
+     VirtQueue *cmd_vqs[0];
++
++    bool vhost_started;
 +    VHostSCSI *vhost_scsi;
-     uint32_t num_queues;
-     uint32_t max_sectors;
-     uint32_t cmd_per_lun;
+ } VirtIOSCSI;
+ 
+ typedef struct VirtIOSCSIReq {
+@@ -456,6 +460,11 @@ static void virtio_scsi_fail_cmd_req(VirtIOSCSIReq *req)
+     virtio_scsi_complete_req(req);
+ }
+ 
++static VirtIOSCSI *to_virtio_scsi(VirtIODevice *vdev)
++{
++    return (VirtIOSCSI *)vdev;
++}
++
+ static void virtio_scsi_handle_cmd(VirtIODevice *vdev, VirtQueue *vq)
+ {
+     VirtIOSCSI *s = (VirtIOSCSI *)vdev;
+@@ -605,6 +614,8 @@ VirtIODevice *virtio_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf)
+ 
+     s->qdev = dev;
+     s->conf = proxyconf;
++    s->vhost_started = false;
++    s->vhost_scsi = proxyconf->vhost_scsi;
+ 
+     /* TODO set up vdev function pointers */
+     s->vdev.get_config = virtio_scsi_get_config;
+@@ -636,5 +647,6 @@ void virtio_scsi_exit(VirtIODevice *vdev)
+ {
+     VirtIOSCSI *s = (VirtIOSCSI *)vdev;
+     unregister_savevm(s->qdev, "virtio-scsi", s);
++    vhost_dev_cleanup(&s->vhost_scsi);
+     virtio_cleanup(vdev);
+ }
 -- 
 1.7.2.5
