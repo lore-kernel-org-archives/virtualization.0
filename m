@@ -1,13 +1,15 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC PATCH 0/6] virtio-trace: Support virtio-trace
-Date: Tue, 24 Jul 2012 11:02:04 +0100
-Message-ID: <CAJSP0QW_2JJ0nf=NW0y30VSid2HSxaqb=mRGV8CTtAKj0ujDWw@mail.gmail.com>
+From: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
+Subject: Re: Re: [RFC PATCH 0/6] virtio-trace: Support virtio-trace
+Date: Tue, 24 Jul 2012 20:19:51 +0900
+Message-ID: <500E84D7.7060103@hitachi.com>
 References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
+	<CAJSP0QW_2JJ0nf=NW0y30VSid2HSxaqb=mRGV8CTtAKj0ujDWw@mail.gmail.com>
+	<500E810A.4030309@hitachi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
+In-Reply-To: <500E810A.4030309@hitachi.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,34 +19,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, Dhaval Giani <dhaval.giani@gmail.com>, qemu-devel@nongnu.org, Borislav Petkov <bp@amd64.org>, linux-kernel@vger.kernel.org, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, yrl.pp-manager.tt@hitachi.com, Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org, Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, Dhaval Giani <dhaval.giani@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, qemu-devel@nongnu.org, Amit Shah <amit.shah@redhat.com>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, yrl.pp-manager.tt@hitachi.com, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, virtualization@lists.linux-foundation.org, Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 24, 2012 at 3:36 AM, Yoshihiro YUNOMAE
-<yoshihiro.yunomae.ez@hitachi.com> wrote:
-> The performance of each method is compared as follows:
->  [1] Native
->      - only recording trace data to ring-buffer on a guest
->  [2] Virtio-trace
->      - running a trace agent on a guest
->      - a reader on a host opens FIFO using cat command
->  [3] IVRing
->      - A SystemTap script in a guest records trace data to IVRing.
->        -- probe points are same as ftrace.
->  [4] Virtio-serial(normal)
->      - A reader(using cat) on a guest output trace data to a host using
->        standard output via virtio-serial.
-
-The first time I read this I thought you are adding a new virtio-trace
-device.  But it looks like this series really add splice support to
-virtio-console and that yields a big performance improvement when
-sending trace_pipe_raw.
-
-Guest ftrace is useful and I like this.  Have you thought about
-controlling ftrace from the host?  Perhaps a command could be added to
-the QEMU guest agent which basically invokes trace-cmd/perf.
-
-Are you using text formatted ftrace?
-
-Stefan
+SGkgU3RlZmFuLAoKVGhhbmsgeW91IGZvciBjb21tZW50aW5nIG9uIG91ciBwYXRjaCBzZXQuCgoo
+MjAxMi8wNy8yNCAyMDowMyksIE1hc2FtaSBIaXJhbWF0c3Ugd3JvdGU6Cj4gKDIwMTIvMDcvMjQg
+MTk6MDIpLCBTdGVmYW4gSGFqbm9jemkgd3JvdGU6Cj4+IE9uIFR1ZSwgSnVsIDI0LCAyMDEyIGF0
+IDM6MzYgQU0sIFlvc2hpaGlybyBZVU5PTUFFCj4+IDx5b3NoaWhpcm8ueXVub21hZS5lekBoaXRh
+Y2hpLmNvbT4gd3JvdGU6Cj4+PiBUaGUgcGVyZm9ybWFuY2Ugb2YgZWFjaCBtZXRob2QgaXMgY29t
+cGFyZWQgYXMgZm9sbG93czoKPj4+ICAgWzFdIE5hdGl2ZQo+Pj4gICAgICAgLSBvbmx5IHJlY29y
+ZGluZyB0cmFjZSBkYXRhIHRvIHJpbmctYnVmZmVyIG9uIGEgZ3Vlc3QKPj4+ICAgWzJdIFZpcnRp
+by10cmFjZQo+Pj4gICAgICAgLSBydW5uaW5nIGEgdHJhY2UgYWdlbnQgb24gYSBndWVzdAo+Pj4g
+ICAgICAgLSBhIHJlYWRlciBvbiBhIGhvc3Qgb3BlbnMgRklGTyB1c2luZyBjYXQgY29tbWFuZAo+
+Pj4gICBbM10gSVZSaW5nCj4+PiAgICAgICAtIEEgU3lzdGVtVGFwIHNjcmlwdCBpbiBhIGd1ZXN0
+IHJlY29yZHMgdHJhY2UgZGF0YSB0byBJVlJpbmcuCj4+PiAgICAgICAgIC0tIHByb2JlIHBvaW50
+cyBhcmUgc2FtZSBhcyBmdHJhY2UuCj4+PiAgIFs0XSBWaXJ0aW8tc2VyaWFsKG5vcm1hbCkKPj4+
+ICAgICAgIC0gQSByZWFkZXIodXNpbmcgY2F0KSBvbiBhIGd1ZXN0IG91dHB1dCB0cmFjZSBkYXRh
+IHRvIGEgaG9zdCB1c2luZwo+Pj4gICAgICAgICBzdGFuZGFyZCBvdXRwdXQgdmlhIHZpcnRpby1z
+ZXJpYWwuCj4+Cj4+IFRoZSBmaXJzdCB0aW1lIEkgcmVhZCB0aGlzIEkgdGhvdWdodCB5b3UgYXJl
+IGFkZGluZyBhIG5ldyB2aXJ0aW8tdHJhY2UKPj4gZGV2aWNlLiAgQnV0IGl0IGxvb2tzIGxpa2Ug
+dGhpcyBzZXJpZXMgcmVhbGx5IGFkZCBzcGxpY2Ugc3VwcG9ydCB0bwo+PiB2aXJ0aW8tY29uc29s
+ZSBhbmQgdGhhdCB5aWVsZHMgYSBiaWcgcGVyZm9ybWFuY2UgaW1wcm92ZW1lbnQgd2hlbgo+PiBz
+ZW5kaW5nIHRyYWNlX3BpcGVfcmF3Lgo+Cj4gWWVzLCBzb3JyeSBmb3IgdGhlIGNvbmZ1c2lvbi4g
+QWN0dWFsbHkgdGhpcyBpcyBhbiBlbmhhbmNlbWVudCBvZgo+IHZpcnRpby1zZXJpYWwuIEknbSB3
+b3JraW5nIHdpdGggWW9zaGloaXJvIG9uIHRoaXMgZmVhdHVyZS4KPgo+PiBHdWVzdCBmdHJhY2Ug
+aXMgdXNlZnVsIGFuZCBJIGxpa2UgdGhpcy4gIEhhdmUgeW91IHRob3VnaHQgYWJvdXQKPj4gY29u
+dHJvbGxpbmcgZnRyYWNlIGZyb20gdGhlIGhvc3Q/ICBQZXJoYXBzIGEgY29tbWFuZCBjb3VsZCBi
+ZSBhZGRlZCB0bwo+PiB0aGUgUUVNVSBndWVzdCBhZ2VudCB3aGljaCBiYXNpY2FsbHkgaW52b2tl
+cyB0cmFjZS1jbWQvcGVyZi4KPgo+IEFzIHlvdSBjYW4gc2VlLCBndWVzdCB0cmFjZS1hZ2VudCBj
+YW4gYmUgY29udHJvbGxlZCB2aWEgYQo+IGNvbnRyb2wgY2hhbm5lbC4gSW4gb3VyIHNjZW5hcmlv
+LCBob3N0IHRvb2xzIGNhbiBjb250cm9sIHRoYXQKPiBpbnN0ZWFkIG9mIGd1ZXN0IG9uZS4KPgo+
+IFdlIGFyZSBjb25zaWRlcmluZyB0aGF0IGV4cG9ydGluZyB0aGUgdHJhY2luZyBwYXJ0IG9mIGd1
+ZXN0J3MKPiBkZWJ1Z2ZzIHRvIGhvc3QgdmlhIGFub3RoZXIgdmlydGlvLXNlcmlhbCBjaGFubmVs
+IGJ5IHVzaW5nCj4gOXBmcywgc28gdGhhdCB0aGUgaG9zdCB0b29scyBjYW4gcmVmZXIgdGhhdC4K
+Pgo+IChJbiB0aGlzIHNjZW5hcmlvLCBndWVzdCB0cmFjZS1hZ2VudCB3aWxsIGFsc28gcHJvdmlk
+ZSA5cGZzIHNlcnZlci4KPiBTaW5jZSBpdCBtZWFucyB0aGF0IHRoZSBhZ2VudCBjYW4gaGFuZGxl
+IHdyaXRpbmcgYSBzcGVjaWFsIGZpbGUsCj4gdHJhY2UtYWdlbnQgY2FuIGJlIGNvbnRyb2xsZWQg
+dmlhIHRoZSBzcGVjaWFsIGZpbGUgb24gZXhwb3J0ZWQKPiBkZWJ1Z2ZzLikKPgo+IE9mIGNvdXJz
+ZSwgdGhpcyBhbHNvIHJlcXVpcmVzIG1vZGlmeWluZyB0cmFjZS1jbWQvcGVyZiB0byBhY2NlcHQK
+PiBzb21lIG9wdGlvbnMgbGlrZSBndWVzdC1kZWJ1Z2ZzIG1vdW50IHBvaW50LCBndWVzdCdzIHNl
+cmlhbAo+IGNoYW5uZWwgcGlwZSAob3IgdW5peCBzb2NrZXQ/KSwgZXRjLiBIb3dldmVyLCBpdCB3
+aWxsIGJlIGEgc21hbGwKPiBjaGFuZ2UuCj4KPiBUaGFuayB5b3UsCj4KCiA+PiBBcmUgeW91IHVz
+aW5nIHRleHQgZm9ybWF0dGVkIGZ0cmFjZT8KTm8sIGN1cnJlbnRseSB1c2luZyByYXcgZm9ybWF0
+LCBidXTjgIB3ZSdkIGxpa2UgdG8gcmVmb3JtYXQgaXQgaW4gdGV4dC4KClRoYW5rIHlvdSwKCi0t
+IApZb3NoaWhpcm8gWVVOT01BRQpTb2Z0d2FyZSBQbGF0Zm9ybSBSZXNlYXJjaCBEZXB0LiBMaW51
+eCBUZWNobm9sb2d5IENlbnRlcgpIaXRhY2hpLCBMdGQuLCBZb2tvaGFtYSBSZXNlYXJjaCBMYWJv
+cmF0b3J5CkUtbWFpbDogeW9zaGloaXJvLnl1bm9tYWUuZXpAaGl0YWNoaS5jb20KCgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
