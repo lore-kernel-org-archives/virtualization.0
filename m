@@ -1,7 +1,7 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [RFC 1/9] notifier: add validity check and notify function
-Date: Tue, 24 Jul 2012 22:33:58 +0000
-Message-ID: <1343169246-17636-2-git-send-email-nab__37361.7121288136$1343169449$gmane$org@linux-iscsi.org>
+Subject: [RFC 2/9] virtio-pci: support host notifiers in TCG mode
+Date: Tue, 24 Jul 2012 22:33:59 +0000
+Message-ID: <1343169246-17636-3-git-send-email-nab__700.562625616108$1343169462$gmane$org@linux-iscsi.org>
 References: <1343169246-17636-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,92 +23,86 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 
-Event notifiers that have not had the event_notifier_init() function
-called on them are invalid.  The event_notifier_valid() function checks
-whether or not an event notifier is valild.  This can be used to check
-whether a notifier is in use or not.
-
-It sometimes useful to notify the event notifier, for example when vhost
-is on the receiving end of the event notifier and qemu needs to notify
-it.  The event_notifier_notify() function will signal the eventfd and
-increment it by one.
+Normally host notifiers are only used together with vhost-net in KVM
+mode.  It is occassionally useful to use vhost with TCG mode, mainly for
+testing and development.  This isn't hard to achieve, simply fall back
+to notifying the host notifier manually from qemu if KVM mode is
+disabled.
 
 Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 Cc: Anthony Liguori <aliguori@us.ibm.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 ---
- event_notifier.c |   21 +++++++++++++++++++++
- event_notifier.h |    4 ++++
- 2 files changed, 25 insertions(+), 0 deletions(-)
+ hw/virtio-pci.c |   23 ++++++++++++++++++++---
+ hw/virtio.c     |    7 +++++++
+ 2 files changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/event_notifier.c b/event_notifier.c
-index 2c207e1..efe00ea 100644
---- a/event_notifier.c
-+++ b/event_notifier.c
-@@ -25,6 +25,7 @@ void event_notifier_init_fd(EventNotifier *e, int fd)
- 
- int event_notifier_init(EventNotifier *e, int active)
- {
-+    assert(!event_notifier_valid(e));
- #ifdef CONFIG_EVENTFD
-     int fd = eventfd(!!active, EFD_NONBLOCK | EFD_CLOEXEC);
-     if (fd < 0)
-@@ -39,6 +40,12 @@ int event_notifier_init(EventNotifier *e, int active)
- void event_notifier_cleanup(EventNotifier *e)
- {
-     close(e->fd);
-+    e->fd = -1;
-+}
-+
-+bool event_notifier_valid(EventNotifier *e)
-+{
-+    return e->fd != -1;
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index 4e03f0b..538eef4 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -249,6 +249,25 @@ void virtio_pci_reset(DeviceState *d)
+     proxy->flags &= ~VIRTIO_PCI_FLAG_BUS_MASTER_BUG;
  }
  
- int event_notifier_get_fd(EventNotifier *e)
-@@ -65,3 +72,17 @@ int event_notifier_test_and_clear(EventNotifier *e)
-     int r = read(e->fd, &value, sizeof(value));
-     return r == sizeof(value);
- }
-+
-+int event_notifier_notify(EventNotifier *e)
++static void virtio_pci_queue_notify(VirtIOPCIProxy *proxy, uint32_t n)
 +{
-+    uint64_t value = 1;
-+    int r;
++    VirtQueue *vq;
++    EventNotifier *notifier;
 +
-+    assert(event_notifier_valid(e));
-+    r = write(e->fd, &value, sizeof(value));
-+    if (r < 0) {
-+        return -errno;
++    if (n >= VIRTIO_PCI_QUEUE_MAX) {
++        return;
 +    }
-+    assert(r == sizeof(value));
-+    return 0;
-+}
-diff --git a/event_notifier.h b/event_notifier.h
-index f0ec2f2..eea10a9 100644
---- a/event_notifier.h
-+++ b/event_notifier.h
-@@ -15,6 +15,8 @@
- 
- #include "qemu-common.h"
- 
-+#define EVENT_NOTIFIER_INITIALIZER ((EventNotifier){ .fd = -1 })
 +
- struct EventNotifier {
-     int fd;
- };
-@@ -24,9 +26,11 @@ typedef void EventNotifierHandler(EventNotifier *);
- void event_notifier_init_fd(EventNotifier *, int fd);
- int event_notifier_init(EventNotifier *, int active);
- void event_notifier_cleanup(EventNotifier *);
-+bool event_notifier_valid(EventNotifier *e);
- int event_notifier_get_fd(EventNotifier *);
- int event_notifier_set(EventNotifier *);
- int event_notifier_test_and_clear(EventNotifier *);
- int event_notifier_set_handler(EventNotifier *, EventNotifierHandler *);
-+int event_notifier_notify(EventNotifier *e);
++    vq = virtio_get_queue(proxy->vdev, n);
++    notifier = virtio_queue_get_host_notifier(vq);
++    if (event_notifier_valid(notifier)) {
++        printf("notifying vq %u host notifier from userspace\n", n);
++        event_notifier_notify(notifier);
++    } else {
++        virtio_queue_notify_vq(vq);
++    }
++}
++
+ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
+ {
+     VirtIOPCIProxy *proxy = opaque;
+@@ -278,9 +297,7 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
+             vdev->queue_sel = val;
+         break;
+     case VIRTIO_PCI_QUEUE_NOTIFY:
+-        if (val < VIRTIO_PCI_QUEUE_MAX) {
+-            virtio_queue_notify(vdev, val);
+-        }
++        virtio_pci_queue_notify(proxy, val);
+         break;
+     case VIRTIO_PCI_STATUS:
+         if (!(val & VIRTIO_CONFIG_S_DRIVER_OK)) {
+diff --git a/hw/virtio.c b/hw/virtio.c
+index d146f86..36a18b5 100644
+--- a/hw/virtio.c
++++ b/hw/virtio.c
+@@ -536,6 +536,11 @@ void virtio_reset(void *opaque)
+         vdev->vq[i].signalled_used = 0;
+         vdev->vq[i].signalled_used_valid = false;
+         vdev->vq[i].notification = true;
++
++        assert(!event_notifier_valid(&vdev->vq[i].guest_notifier));
++        assert(!event_notifier_valid(&vdev->vq[i].host_notifier));
++        vdev->vq[i].guest_notifier = EVENT_NOTIFIER_INITIALIZER;
++        vdev->vq[i].host_notifier = EVENT_NOTIFIER_INITIALIZER;
+     }
+ }
  
- #endif
+@@ -905,6 +910,8 @@ VirtIODevice *virtio_common_init(const char *name, uint16_t device_id,
+     for(i = 0; i < VIRTIO_PCI_QUEUE_MAX; i++) {
+         vdev->vq[i].vector = VIRTIO_NO_VECTOR;
+         vdev->vq[i].vdev = vdev;
++        vdev->vq[i].guest_notifier = EVENT_NOTIFIER_INITIALIZER;
++        vdev->vq[i].host_notifier = EVENT_NOTIFIER_INITIALIZER;
+     }
+ 
+     vdev->name = name;
 -- 
 1.7.2.5
