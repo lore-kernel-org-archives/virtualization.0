@@ -1,7 +1,7 @@
 From: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Subject: [RFC PATCH 3/6] virtio/console: Wait until the port is ready on splice
-Date: Tue, 24 Jul 2012 11:37:28 +0900
-Message-ID: <20120724023728.6600.36390.stgit@ltc189.sdl.hitachi.co.jp>
+Subject: [RFC PATCH 4/6] ftrace: Allow stealing pages from pipe buffer
+Date: Tue, 24 Jul 2012 11:37:38 +0900
+Message-ID: <20120724023738.6600.59837.stgit@ltc189.sdl.hitachi.co.jp>
 References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,79 +23,49 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
 
-Wait if the port is not connected or full on splice
-like as write is doing.
+Use generic steal operation on pipe buffer to allow stealing
+ring buffer's read page from pipe buffer.
+
+Note that this could reduce the performance of splice on the
+splice_write side operation without affinity setting.
+Since the ring buffer's read pages are allocated on the
+tracing-node, but the splice user does not always execute
+splice write side operation on the same node. In this case,
+the page will be accessed from the another node.
+Thus, it is strongly recommended to assign the splicing
+thread to corresponding node.
 
 Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Cc: Amit Shah <amit.shah@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Frederic Weisbecker <fweisbec@gmail.com>
+Cc: Ingo Molnar <mingo@redhat.com>
 ---
 
- drivers/char/virtio_console.c |   39 +++++++++++++++++++++++++++------------
- 1 files changed, 27 insertions(+), 12 deletions(-)
+ kernel/trace/trace.c |    8 +-------
+ 1 files changed, 1 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 911cb3e..e49d435 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -724,6 +724,26 @@ static ssize_t port_fops_read(struct file *filp, char __user *ubuf,
- 	return fill_readbuf(port, ubuf, count, true);
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index a120f98..ae01930 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -4194,12 +4194,6 @@ static void buffer_pipe_buf_release(struct pipe_inode_info *pipe,
+ 	buf->private = 0;
  }
  
-+static int wait_port_writable(struct port *port, bool nonblock)
-+{
-+	int ret;
-+
-+	if (will_write_block(port)) {
-+		if (nonblock)
-+			return -EAGAIN;
-+
-+		ret = wait_event_freezable(port->waitqueue,
-+					   !will_write_block(port));
-+		if (ret < 0)
-+			return ret;
-+	}
-+	/* Port got hot-unplugged. */
-+	if (!port->guest_connected)
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
- static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
- 			       size_t count, loff_t *offp)
- {
-@@ -740,18 +760,9 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
- 
- 	nonblock = filp->f_flags & O_NONBLOCK;
- 
--	if (will_write_block(port)) {
--		if (nonblock)
--			return -EAGAIN;
+-static int buffer_pipe_buf_steal(struct pipe_inode_info *pipe,
+-				 struct pipe_buffer *buf)
+-{
+-	return 1;
+-}
 -
--		ret = wait_event_freezable(port->waitqueue,
--					   !will_write_block(port));
--		if (ret < 0)
--			return ret;
--	}
--	/* Port got hot-unplugged. */
--	if (!port->guest_connected)
--		return -ENODEV;
-+	ret = wait_port_writable(port, nonblock);
-+	if (ret < 0)
-+		return ret;
- 
- 	count = min((size_t)(32 * 1024), count);
- 
-@@ -851,6 +862,10 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
- 		.u.data = &sgl,
- 	};
- 
-+	ret = wait_port_writable(port, filp->f_flags & O_NONBLOCK);
-+	if (ret < 0)
-+		return ret;
-+
- 	sgl.n = 0;
- 	sgl.len = 0;
- 	sgl.sg = kmalloc(sizeof(struct scatterlist) * MAX_SPLICE_PAGES,
+ static void buffer_pipe_buf_get(struct pipe_inode_info *pipe,
+ 				struct pipe_buffer *buf)
+ {
+@@ -4215,7 +4209,7 @@ static const struct pipe_buf_operations buffer_pipe_buf_ops = {
+ 	.unmap			= generic_pipe_buf_unmap,
+ 	.confirm		= generic_pipe_buf_confirm,
+ 	.release		= buffer_pipe_buf_release,
+-	.steal			= buffer_pipe_buf_steal,
++	.steal			= generic_pipe_buf_steal,
+ 	.get			= buffer_pipe_buf_get,
+ };
