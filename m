@@ -1,13 +1,14 @@
 From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: Re: [RFC PATCH 0/6] virtio-trace: Support virtio-trace
-Date: Tue, 24 Jul 2012 12:27:27 +0900
-Message-ID: <500E161F.5020207__37711.13608168$1343147613$gmane$org@hitachi.com>
+Subject: Re: Re: [RFC PATCH 0/6] virtio-trace: Support virtio-trace
+Date: Tue, 24 Jul 2012 20:03:38 +0900
+Message-ID: <500E810A.4030309__32282.5355841362$1343147622$gmane$org@hitachi.com>
 References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
+	<CAJSP0QW_2JJ0nf=NW0y30VSid2HSxaqb=mRGV8CTtAKj0ujDWw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
+In-Reply-To: <CAJSP0QW_2JJ0nf=NW0y30VSid2HSxaqb=mRGV8CTtAKj0ujDWw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,36 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, qemu-devel@nongnu.org, Frederic Weisbecker <fweisbec@gmail.com>, yrl.pp-manager.tt@hitachi.com, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, Dhaval Giani <dhaval.giani@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, qemu-devel@nongnu.org, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, yrl.pp-manager.tt@hitachi.com, Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org, Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(2012/07/24 11:36), Yoshihiro YUNOMAE wrote:
-> Therefore, we propose a new system "virtio-trace", which uses enhanced
-> virtio-serial and existing ring-buffer of ftrace, for collecting guest kernel
-> tracing data. In this system, there are 5 main components:
->  (1) Ring-buffer of ftrace in a guest
->      - When trace agent reads ring-buffer, a page is removed from ring-buffer.
->  (2) Trace agent in the guest
->      - Splice the page of ring-buffer to read_pipe using splice() without
->        memory copying. Then, the page is spliced from write_pipe to virtio
->        without memory copying.
->  (3) Virtio-console driver in the guest
->      - Pass the page to virtio-ring
->  (4) Virtio-serial bus in QEMU
->      - Copy the page to kernel pipe
->  (5) Reader in the host
->      - Read guest tracing data via FIFO(named pipe)
+(2012/07/24 19:02), Stefan Hajnoczi wrote:
+> On Tue, Jul 24, 2012 at 3:36 AM, Yoshihiro YUNOMAE
+> <yoshihiro.yunomae.ez@hitachi.com> wrote:
+>> The performance of each method is compared as follows:
+>>  [1] Native
+>>      - only recording trace data to ring-buffer on a guest
+>>  [2] Virtio-trace
+>>      - running a trace agent on a guest
+>>      - a reader on a host opens FIFO using cat command
+>>  [3] IVRing
+>>      - A SystemTap script in a guest records trace data to IVRing.
+>>        -- probe points are same as ftrace.
+>>  [4] Virtio-serial(normal)
+>>      - A reader(using cat) on a guest output trace data to a host using
+>>        standard output via virtio-serial.
+> 
+> The first time I read this I thought you are adding a new virtio-trace
+> device.  But it looks like this series really add splice support to
+> virtio-console and that yields a big performance improvement when
+> sending trace_pipe_raw.
 
-So, this is our answer for the argued points in previous thread.
-This virtio-serial and ftrace enhancements doesn't introduce new
-"ringbuffer" in the kernel, and just use virtio's ringbuffer.
-Also, using splice gives us a great advantage in the performance
-because of copy-less trace-data transfer.
+Yes, sorry for the confusion. Actually this is an enhancement of
+virtio-serial. I'm working with Yoshihiro on this feature.
 
-Actually, one copy should occur in the host (to write it into the pipe),
-because removing physical pages of the guest is hard to track and may
-involve a TLB flush per page, even if it is done in background.
+> Guest ftrace is useful and I like this.  Have you thought about
+> controlling ftrace from the host?  Perhaps a command could be added to
+> the QEMU guest agent which basically invokes trace-cmd/perf.
+
+As you can see, guest trace-agent can be controlled via a
+control channel. In our scenario, host tools can control that
+instead of guest one.
+
+We are considering that exporting the tracing part of guest's
+debugfs to host via another virtio-serial channel by using
+9pfs, so that the host tools can refer that.
+
+(In this scenario, guest trace-agent will also provide 9pfs server.
+Since it means that the agent can handle writing a special file,
+trace-agent can be controlled via the special file on exported
+debugfs.)
+
+Of course, this also requires modifying trace-cmd/perf to accept
+some options like guest-debugfs mount point, guest's serial
+channel pipe (or unix socket?), etc. However, it will be a small
+change.
 
 Thank you,
 
