@@ -1,41 +1,51 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 00/17] drivers: hv: kvp
-Date: Tue, 24 Jul 2012 08:54:12 -0700
-Message-ID: <20120724155412.GA23918@kroah.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH 09/17] Tools: hv: Represent the ipv6 mask using CIDR
+ notation
+Date: Tue, 24 Jul 2012 18:01:09 +0200
+Message-ID: <20120724160108.GA13749@x1.osrc.amd.com>
 References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
+ <1343145701-3691-1-git-send-email-kys@microsoft.com>
+ <1343145701-3691-9-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1343145672-3641-1-git-send-email-kys@microsoft.com>
+In-Reply-To: <1343145701-3691-9-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, netdev@vger.kernel.org, ben@decadent.org.uk
+Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, netdev@vger.kernel.org, ben@decadent.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 24, 2012 at 09:01:12AM -0700, K. Y. Srinivasan wrote:
-> This patchset expands the KVP (Key Value Pair) functionality to
-> implement the mechanism to GET/SET IP addresses in the guest. This
-> functionality is used in Windows Server 2012 to implement VM
-> replication functionality. The way IP configuration information
-> is managed is distro specific. Based on the feedback I have gotten
-> from Olaf, Greg, Steve, Ben and Mairus, I have chosen to seperate
-> distro specific code from this patch-set. Most of the GET operation
-> can be implemented in a way that is completely distro independent and
-> I have implemented that as such and is included in this patch-set.
-> Some of the attributes that can only be fetched in a distro
-> dependent way as well the mechanism for configuring an interface
-> (the SET operation) that is clearly distro specific is to be
-> implemented via external scripts that will be invoked via the KVP
-> code. We define here the interface to these scripts.
+On Tue, Jul 24, 2012 at 09:01:33AM -0700, K. Y. Srinivasan wrote:
+> Transform ipv6 subnet information to CIDR notation.
 > 
-> Adding support for IP injection resulted in some changes to the
-> protocol between the user level daemon and the kernel driver.
-> These changes have been implemented in way that would retain
-> compatibility with older daemons. I would like to thank Olaf and
-> Greg for pointing out the compatibility issue.
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+> ---
+>  tools/hv/hv_kvp_daemon.c |   45 +++++++++++++++++++++++++++++++++++----------
+>  1 files changed, 35 insertions(+), 10 deletions(-)
+> 
+> diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
+> index 2c24ebf..007e698 100644
+> --- a/tools/hv/hv_kvp_daemon.c
+> +++ b/tools/hv/hv_kvp_daemon.c
+> @@ -491,6 +491,15 @@ done:
+>  	return;
+>  }
+>  
+> +static unsigned int hweight32(unsigned int *w)
+> +{
+> +	unsigned int res = *w - ((*w >> 1) & 0x55555555);
+> +	res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
+> +	res = (res + (res >> 4)) & 0x0F0F0F0F;
+> +	res = res + (res >> 8);
+> +	return (res + (res >> 16)) & 0x000000FF;
+> +}
 
-Due to this being the middle of the merge window, I will not be able to
-look at this until after 3.6-rc1 is out.
+What's wrong with the hweight32 version we have already in
+<include/asm-generic/bitops/const_hweight.h> which you can include by
+simply by including <asm-generic/bitops.h>?
 
-greg k-h
+-- 
+Regards/Gruss,
+Boris.
