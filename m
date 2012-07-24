@@ -1,7 +1,7 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [RFC 3/9] virtio-pci: check that event notification worked
-Date: Tue, 24 Jul 2012 22:34:00 +0000
-Message-ID: <1343169246-17636-4-git-send-email-nab__40114.0200360262$1343169467$gmane$org@linux-iscsi.org>
+Subject: [RFC 4/9] vhost: Pass device path to vhost_dev_init()
+Date: Tue, 24 Jul 2012 22:34:01 +0000
+Message-ID: <1343169246-17636-5-git-send-email-nab__31629.4731259861$1343169478$gmane$org@linux-iscsi.org>
 References: <1343169246-17636-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,37 +18,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: target-devel <target-devel@vger.kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Anthony Liguori <aliguori@us.ibm.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 
-For sanity assert that event notification succeeds.
+The path to /dev/vhost-net is currently hardcoded in vhost_dev_init().
+This needs to be changed so that /dev/vhost-scsi can be used.  Pass in
+the device path instead of hardcoding it.
 
 Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 ---
- hw/virtio-pci.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+ hw/vhost.c     |    5 +++--
+ hw/vhost.h     |    3 ++-
+ hw/vhost_net.c |    2 +-
+ 3 files changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-index 538eef4..0f0f766 100644
---- a/hw/virtio-pci.c
-+++ b/hw/virtio-pci.c
-@@ -261,8 +261,11 @@ static void virtio_pci_queue_notify(VirtIOPCIProxy *proxy, uint32_t n)
-     vq = virtio_get_queue(proxy->vdev, n);
-     notifier = virtio_queue_get_host_notifier(vq);
-     if (event_notifier_valid(notifier)) {
-+        int r;
-+
-         printf("notifying vq %u host notifier from userspace\n", n);
--        event_notifier_notify(notifier);
-+        r = event_notifier_notify(notifier);
-+        assert(r == 0);
+diff --git a/hw/vhost.c b/hw/vhost.c
+index 0fd8da8..d0ce5aa 100644
+--- a/hw/vhost.c
++++ b/hw/vhost.c
+@@ -747,14 +747,15 @@ static void vhost_eventfd_del(MemoryListener *listener,
+ {
+ }
+ 
+-int vhost_dev_init(struct vhost_dev *hdev, int devfd, bool force)
++int vhost_dev_init(struct vhost_dev *hdev, int devfd, const char *devpath,
++                   bool force)
+ {
+     uint64_t features;
+     int r;
+     if (devfd >= 0) {
+         hdev->control = devfd;
      } else {
-         virtio_queue_notify_vq(vq);
+-        hdev->control = open("/dev/vhost-net", O_RDWR);
++        hdev->control = open(devpath, O_RDWR);
+         if (hdev->control < 0) {
+             return -errno;
+         }
+diff --git a/hw/vhost.h b/hw/vhost.h
+index 80e64df..0c47229 100644
+--- a/hw/vhost.h
++++ b/hw/vhost.h
+@@ -44,7 +44,8 @@ struct vhost_dev {
+     bool force;
+ };
+ 
+-int vhost_dev_init(struct vhost_dev *hdev, int devfd, bool force);
++int vhost_dev_init(struct vhost_dev *hdev, int devfd, const char *devpath,
++                   bool force);
+ void vhost_dev_cleanup(struct vhost_dev *hdev);
+ bool vhost_dev_query(struct vhost_dev *hdev, VirtIODevice *vdev);
+ int vhost_dev_start(struct vhost_dev *hdev, VirtIODevice *vdev);
+diff --git a/hw/vhost_net.c b/hw/vhost_net.c
+index 75f8211..9faadfd 100644
+--- a/hw/vhost_net.c
++++ b/hw/vhost_net.c
+@@ -109,7 +109,7 @@ struct vhost_net *vhost_net_init(VLANClientState *backend, int devfd,
+         (1 << VHOST_NET_F_VIRTIO_NET_HDR);
+     net->backend = r;
+ 
+-    r = vhost_dev_init(&net->dev, devfd, force);
++    r = vhost_dev_init(&net->dev, devfd, "/dev/vhost-net", force);
+     if (r < 0) {
+         goto fail;
      }
 -- 
 1.7.2.5
