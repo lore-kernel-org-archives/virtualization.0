@@ -1,7 +1,7 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [RFC 4/9] vhost: Pass device path to vhost_dev_init()
-Date: Tue, 24 Jul 2012 22:34:01 +0000
-Message-ID: <1343169246-17636-5-git-send-email-nab__31629.4731259861$1343169478$gmane$org@linux-iscsi.org>
+Subject: [RFC 5/9] virtio-scsi: Add wwpn and tgpt properties
+Date: Tue, 24 Jul 2012 22:34:02 +0000
+Message-ID: <1343169246-17636-6-git-send-email-nab__4745.03088412366$1343169485$gmane$org@linux-iscsi.org>
 References: <1343169246-17636-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,68 +23,54 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 
-The path to /dev/vhost-net is currently hardcoded in vhost_dev_init().
-This needs to be changed so that /dev/vhost-scsi can be used.  Pass in
-the device path instead of hardcoding it.
+A vhost-scsi device must be bound to a tcm_vhost target port.  This will
+be done by issuing an ioctl to the device with the wwpn and tgpt.  This
+patch adds these properties to the virtio-scsi-pci device:
+
+  qemu -device virtio-scsi-pci,wwpn=$TARGET_WWN,tgpt=$TPGT
+
+Future patches will open /dev/vhost-scsi and issue the ioctl.
+
+This patch also moves the virtio_scsi_init() prototype to
+hw/virtio-scsi.h where the VirtIOSCSIConf structure is defined.  I think
+this is cleaner than defining it in hw/virtio.h.
+
+(v2: Use modern VirtIOSCSIConf define in virtio-scsi.h)
 
 Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Signed-off-by: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Cc: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 ---
- hw/vhost.c     |    5 +++--
- hw/vhost.h     |    3 ++-
- hw/vhost_net.c |    2 +-
- 3 files changed, 6 insertions(+), 4 deletions(-)
+ hw/virtio-scsi.c |    2 ++
+ hw/virtio-scsi.h |    1 +
+ 2 files changed, 3 insertions(+), 0 deletions(-)
 
-diff --git a/hw/vhost.c b/hw/vhost.c
-index 0fd8da8..d0ce5aa 100644
---- a/hw/vhost.c
-+++ b/hw/vhost.c
-@@ -747,14 +747,15 @@ static void vhost_eventfd_del(MemoryListener *listener,
- {
- }
+diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
+index 0a5ac40..4a787d3 100644
+--- a/hw/virtio-scsi.c
++++ b/hw/virtio-scsi.c
+@@ -13,6 +13,8 @@
+  *
+  */
  
--int vhost_dev_init(struct vhost_dev *hdev, int devfd, bool force)
-+int vhost_dev_init(struct vhost_dev *hdev, int devfd, const char *devpath,
-+                   bool force)
- {
-     uint64_t features;
-     int r;
-     if (devfd >= 0) {
-         hdev->control = devfd;
-     } else {
--        hdev->control = open("/dev/vhost-net", O_RDWR);
-+        hdev->control = open(devpath, O_RDWR);
-         if (hdev->control < 0) {
-             return -errno;
-         }
-diff --git a/hw/vhost.h b/hw/vhost.h
-index 80e64df..0c47229 100644
---- a/hw/vhost.h
-+++ b/hw/vhost.h
-@@ -44,7 +44,8 @@ struct vhost_dev {
-     bool force;
- };
++#include "qemu-common.h"
++#include "qemu-error.h"
+ #include "virtio-scsi.h"
+ #include <hw/scsi.h>
+ #include <hw/scsi-defs.h>
+diff --git a/hw/virtio-scsi.h b/hw/virtio-scsi.h
+index 4bc889d..74e9422 100644
+--- a/hw/virtio-scsi.h
++++ b/hw/virtio-scsi.h
+@@ -22,6 +22,7 @@
+ #define VIRTIO_ID_SCSI  8
  
--int vhost_dev_init(struct vhost_dev *hdev, int devfd, bool force);
-+int vhost_dev_init(struct vhost_dev *hdev, int devfd, const char *devpath,
-+                   bool force);
- void vhost_dev_cleanup(struct vhost_dev *hdev);
- bool vhost_dev_query(struct vhost_dev *hdev, VirtIODevice *vdev);
- int vhost_dev_start(struct vhost_dev *hdev, VirtIODevice *vdev);
-diff --git a/hw/vhost_net.c b/hw/vhost_net.c
-index 75f8211..9faadfd 100644
---- a/hw/vhost_net.c
-+++ b/hw/vhost_net.c
-@@ -109,7 +109,7 @@ struct vhost_net *vhost_net_init(VLANClientState *backend, int devfd,
-         (1 << VHOST_NET_F_VIRTIO_NET_HDR);
-     net->backend = r;
- 
--    r = vhost_dev_init(&net->dev, devfd, force);
-+    r = vhost_dev_init(&net->dev, devfd, "/dev/vhost-net", force);
-     if (r < 0) {
-         goto fail;
-     }
+ struct VirtIOSCSIConf {
++    VHostSCSI *vhost_scsi;
+     uint32_t num_queues;
+     uint32_t max_sectors;
+     uint32_t cmd_per_lun;
 -- 
 1.7.2.5
