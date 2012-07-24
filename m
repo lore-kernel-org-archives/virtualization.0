@@ -1,40 +1,67 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH 09/17] Tools: hv: Represent the ipv6 mask using CIDR
- notation
-Date: Tue, 24 Jul 2012 19:08:32 +0200
-Message-ID: <20120724170832.GB13749@x1.osrc.amd.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 10/17] Tools: hv: Gather ipv[4,6] gateway information
+Date: Tue, 24 Jul 2012 17:17:23 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF9236A776D@SN2PRD0310MB382.namprd03.prod.outlook.com>
 References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
  <1343145701-3691-1-git-send-email-kys@microsoft.com>
- <1343145701-3691-9-git-send-email-kys@microsoft.com>
- <20120724160108.GA13749@x1.osrc.amd.com>
- <426367E2313C2449837CD2DE46E7EAF9236A7733@SN2PRD0310MB382.namprd03.prod.outlook.com>
+ <1343145701-3691-10-git-send-email-kys@microsoft.com>
+ <20120724092914.60f3d90a@nehalam.linuxnetplumber.net>
+ <20120724165359.GA8409@aepfle.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <426367E2313C2449837CD2DE46E7EAF9236A7733@SN2PRD0310MB382.namprd03.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "ben@decadent.org.uk" <ben@decadent.org.uk>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20120724165359.GA8409@aepfle.de>
+Content-Language: en-US
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: Olaf Hering <olaf@aepfle.de>, Stephen Hemminger <shemminger@vyatta.com>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "ben@decadent.org.uk" <ben@decadent.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 24, 2012 at 04:53:50PM +0000, KY Srinivasan wrote:
-> This code is a user-level daemon that will be compiled outside of the
-> kernel. I did not want to include Kernel header files for this one
-> function and deal with all the dependencies that will have to be dealt
-> with.
 
-Ah, I missed the tools/ prefix in the patch, sorry.
 
-Well, FWIW, we have hweight32 in <tools/perf/util/hweight.c> too and
-there was a patchset preparing a generic kernel tools library where
-tools can share functions but the author doesn't have time to dust the
-patches off and get it upstream... :-).
+> -----Original Message-----
+> From: Olaf Hering [mailto:olaf@aepfle.de]
+> Sent: Tuesday, July 24, 2012 12:54 PM
+> To: Stephen Hemminger
+> Cc: KY Srinivasan; gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; apw@canonical.com;
+> netdev@vger.kernel.org; ben@decadent.org.uk
+> Subject: Re: [PATCH 10/17] Tools: hv: Gather ipv[4,6] gateway information
+> 
+> On Tue, Jul 24, Stephen Hemminger wrote:
+> 
+> > On Tue, 24 Jul 2012 09:01:34 -0700
+> > "K. Y. Srinivasan" <kys@microsoft.com> wrote:
+> >
+> > > +	memset(cmd, 0, sizeof(cmd));
+> > > +	strcat(cmd, "/sbin/ip -f inet  route | grep -w ");
+> > > +	strcat(cmd, if_name);
+> > > +	strcat(cmd, " | awk '/default/ {print $3 }'");
+> >
+> >
+> > Much simpler method:
+> >
+> > ip route show match 0/0
+> 
+> This also has the benefit that ip is not called with absolute path, now
+> that distros move binaries around.
 
-I guess having a local function is the easiest for now.
+I could have chosen to not specify the full path for the ip command and for that
+matter all the external scripts I invoke from the KVP daemon. Do you mind if I 
+submitted a patch to get rid of the absolute paths in this code.
 
-Thanks.
+Stephen's suggestion is clearly simpler (I don't need to invoke awk to filter what 
+we want). Steve, I could make this change as well as an additional patch.
 
--- 
-Regards/Gruss,
-Boris.
+Regards,
+
+K. Y 
