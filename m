@@ -1,29 +1,57 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
-Subject: Re: [PATCH 10/17] Tools: hv: Gather ipv[4,6] gateway information
-Date: Tue, 24 Jul 2012 09:29:14 -0700
-Message-ID: <20120724092914.60f3d90a@nehalam.linuxnetplumber.net>
-References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
-	<1343145701-3691-1-git-send-email-kys@microsoft.com>
-	<1343145701-3691-10-git-send-email-kys@microsoft.com>
+From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Subject: Re: [RFC PATCH 0/6] virtio-trace: Support virtio-trace
+Date: Tue, 24 Jul 2012 12:27:27 +0900
+Message-ID: <500E161F.5020207__37711.13608168$1343147613$gmane$org@hitachi.com>
+References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1343145701-3691-10-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, netdev@vger.kernel.org, ben@decadent.org.uk
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, qemu-devel@nongnu.org, Frederic Weisbecker <fweisbec@gmail.com>, yrl.pp-manager.tt@hitachi.com, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 24 Jul 2012 09:01:34 -0700
-"K. Y. Srinivasan" <kys@microsoft.com> wrote:
+(2012/07/24 11:36), Yoshihiro YUNOMAE wrote:
+> Therefore, we propose a new system "virtio-trace", which uses enhanced
+> virtio-serial and existing ring-buffer of ftrace, for collecting guest kernel
+> tracing data. In this system, there are 5 main components:
+>  (1) Ring-buffer of ftrace in a guest
+>      - When trace agent reads ring-buffer, a page is removed from ring-buffer.
+>  (2) Trace agent in the guest
+>      - Splice the page of ring-buffer to read_pipe using splice() without
+>        memory copying. Then, the page is spliced from write_pipe to virtio
+>        without memory copying.
+>  (3) Virtio-console driver in the guest
+>      - Pass the page to virtio-ring
+>  (4) Virtio-serial bus in QEMU
+>      - Copy the page to kernel pipe
+>  (5) Reader in the host
+>      - Read guest tracing data via FIFO(named pipe)
 
-> +	memset(cmd, 0, sizeof(cmd));
-> +	strcat(cmd, "/sbin/ip -f inet  route | grep -w ");
-> +	strcat(cmd, if_name);
-> +	strcat(cmd, " | awk '/default/ {print $3 }'");
+So, this is our answer for the argued points in previous thread.
+This virtio-serial and ftrace enhancements doesn't introduce new
+"ringbuffer" in the kernel, and just use virtio's ringbuffer.
+Also, using splice gives us a great advantage in the performance
+because of copy-less trace-data transfer.
 
+Actually, one copy should occur in the host (to write it into the pipe),
+because removing physical pages of the guest is hard to track and may
+involve a TLB flush per page, even if it is done in background.
 
-Much simpler method:
+Thank you,
 
-ip route show match 0/0
+-- 
+Masami HIRAMATSU
+Software Platform Research Dept. Linux Technology Center
+Hitachi, Ltd., Yokohama Research Laboratory
+E-mail: masami.hiramatsu.pt@hitachi.com
