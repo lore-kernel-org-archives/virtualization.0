@@ -1,77 +1,37 @@
-From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: Re: Re: [RFC PATCH 0/6] virtio-trace: Support virtio-trace
-Date: Tue, 24 Jul 2012 20:03:38 +0900
-Message-ID: <500E810A.4030309__32282.5355841362$1343147622$gmane$org@hitachi.com>
-References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
-	<CAJSP0QW_2JJ0nf=NW0y30VSid2HSxaqb=mRGV8CTtAKj0ujDWw@mail.gmail.com>
+From: Olaf Hering <olaf@aepfle.de>
+Subject: Re: [PATCH 10/17] Tools: hv: Gather ipv[4,6] gateway information
+Date: Tue, 24 Jul 2012 18:53:59 +0200
+Message-ID: <20120724165359.GA8409@aepfle.de>
+References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
+ <1343145701-3691-1-git-send-email-kys@microsoft.com>
+ <1343145701-3691-10-git-send-email-kys@microsoft.com>
+ <20120724092914.60f3d90a@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QW_2JJ0nf=NW0y30VSid2HSxaqb=mRGV8CTtAKj0ujDWw@mail.gmail.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, Dhaval Giani <dhaval.giani@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, qemu-devel@nongnu.org, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, yrl.pp-manager.tt@hitachi.com, Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org, Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20120724092914.60f3d90a@nehalam.linuxnetplumber.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, apw@canonical.com, netdev@vger.kernel.org, ben@decadent.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-(2012/07/24 19:02), Stefan Hajnoczi wrote:
-> On Tue, Jul 24, 2012 at 3:36 AM, Yoshihiro YUNOMAE
-> <yoshihiro.yunomae.ez@hitachi.com> wrote:
->> The performance of each method is compared as follows:
->>  [1] Native
->>      - only recording trace data to ring-buffer on a guest
->>  [2] Virtio-trace
->>      - running a trace agent on a guest
->>      - a reader on a host opens FIFO using cat command
->>  [3] IVRing
->>      - A SystemTap script in a guest records trace data to IVRing.
->>        -- probe points are same as ftrace.
->>  [4] Virtio-serial(normal)
->>      - A reader(using cat) on a guest output trace data to a host using
->>        standard output via virtio-serial.
+On Tue, Jul 24, Stephen Hemminger wrote:
+
+> On Tue, 24 Jul 2012 09:01:34 -0700
+> "K. Y. Srinivasan" <kys@microsoft.com> wrote:
 > 
-> The first time I read this I thought you are adding a new virtio-trace
-> device.  But it looks like this series really add splice support to
-> virtio-console and that yields a big performance improvement when
-> sending trace_pipe_raw.
+> > +	memset(cmd, 0, sizeof(cmd));
+> > +	strcat(cmd, "/sbin/ip -f inet  route | grep -w ");
+> > +	strcat(cmd, if_name);
+> > +	strcat(cmd, " | awk '/default/ {print $3 }'");
+> 
+> 
+> Much simpler method:
+> 
+> ip route show match 0/0
 
-Yes, sorry for the confusion. Actually this is an enhancement of
-virtio-serial. I'm working with Yoshihiro on this feature.
+This also has the benefit that ip is not called with absolute path, now
+that distros move binaries around.
 
-> Guest ftrace is useful and I like this.  Have you thought about
-> controlling ftrace from the host?  Perhaps a command could be added to
-> the QEMU guest agent which basically invokes trace-cmd/perf.
-
-As you can see, guest trace-agent can be controlled via a
-control channel. In our scenario, host tools can control that
-instead of guest one.
-
-We are considering that exporting the tracing part of guest's
-debugfs to host via another virtio-serial channel by using
-9pfs, so that the host tools can refer that.
-
-(In this scenario, guest trace-agent will also provide 9pfs server.
-Since it means that the agent can handle writing a special file,
-trace-agent can be controlled via the special file on exported
-debugfs.)
-
-Of course, this also requires modifying trace-cmd/perf to accept
-some options like guest-debugfs mount point, guest's serial
-channel pipe (or unix socket?), etc. However, it will be a small
-change.
-
-Thank you,
-
--- 
-Masami HIRAMATSU
-Software Platform Research Dept. Linux Technology Center
-Hitachi, Ltd., Yokohama Research Laboratory
-E-mail: masami.hiramatsu.pt@hitachi.com
+Olaf
