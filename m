@@ -1,13 +1,15 @@
-From: Blue Swirl <blauwirbel@gmail.com>
-Subject: Re: [Qemu-devel] [RFC PATCH 0/6] virtio-trace: Support virtio-trace
-Date: Tue, 24 Jul 2012 20:26:03 +0000
-Message-ID: <CAAu8pHsfRBsfSCB5gBFX5pweN2j2PdNrQZyCfjJ3sYYmVjCRfA@mail.gmail.com>
-References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [PATCH] tcm_vhost: Expose ABI version via
+	VHOST_SCSI_GET_ABI_VERSION
+Date: Tue, 24 Jul 2012 13:45:24 -0700
+Message-ID: <1343162724.1813.111.camel__31294.5304242477$1343162744$gmane$org@haakon2.linux-iscsi.org>
+References: <1343093180-5598-1-git-send-email-nab@linux-iscsi.org>
+	<20120724015634.GD4093@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
+In-Reply-To: <20120724015634.GD4093@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,166 +19,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, qemu-devel@nongnu.org, Borislav Petkov <bp@amd64.org>, linux-kernel@vger.kernel.org, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, yrl.pp-manager.tt@hitachi.com, Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 24, 2012 at 2:36 AM, Yoshihiro YUNOMAE
-<yoshihiro.yunomae.ez@hitachi.com> wrote:
-> Hi All,
->
-> The following patch set provides a low-overhead system for collecting kernel
-> tracing data of guests by a host in a virtualization environment.
->
-> A guest OS generally shares some devices with other guests or a host, so
-> reasons of any problems occurring in a guest may be from other guests or a host.
-> Then, to collect some tracing data of a number of guests and a host is needed
-> when some problems occur in a virtualization environment. One of methods to
-> realize that is to collect tracing data of guests in a host. To do this, network
-> is generally used. However, high load will be taken to applications on guests
-> using network I/O because there are many network stack layers. Therefore,
-> a communication method for collecting the data without using network is needed.
+On Mon, 2012-07-23 at 18:56 -0700, Greg Kroah-Hartman wrote:
+> On Tue, Jul 24, 2012 at 01:26:20AM +0000, Nicholas A. Bellinger wrote:
+> > From: Nicholas Bellinger <nab@linux-iscsi.org>
+> > 
+> > As requested by Anthony, here is a patch against target-pending/for-next-merge
+> > to expose an ABI version to userspace via a new VHOST_SCSI_GET_ABI_VERSION
+> > ioctl operation.
+> > 
+> > As mentioned in the comment, ABI Rev 0 is for pre 2012 out-of-tree code, and
+> > ABI Rev 1 (the current rev) is for current WIP v3.6 kernel merge candiate code.
+> > 
+> > I think this is what you had in mind, and hopefully it will make MST happy too.
+> > The incremental vhost-scsi patches against Zhi's QEMU are going out shortly ahead
+> > of cutting a new vhost-scsi RFC over the next days.
+> > 
+> > Please have a look and let me know if you have any concerns here.
+> > 
+> > Thanks!
+> > 
+> > Reported-by: Anthony Liguori <aliguori@us.ibm.com>
+> > Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+> > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
+> > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> > ---
+> >  drivers/vhost/tcm_vhost.c |    9 +++++++++
+> >  drivers/vhost/tcm_vhost.h |   11 +++++++++++
+> >  2 files changed, 20 insertions(+), 0 deletions(-)
+> > 
 
-I implemented something similar earlier by passing trace data from
-OpenBIOS to QEMU using the firmware configuration device. The data
-format was the same as QEMU used for simpletrace event structure
-instead of ftrace. I didn't commit it because of a few problems.
+<SNIP>
 
-I'm not familiar with ftrace, is it possible to trace two guest
-applications (BIOS and kernel) at the same time? Or could this be
-handled by opening two different virtio-serial pipes, one for BIOS and
-the other for the kernel?
+> > diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
+> > index e942df9..3d5378f 100644
+> > --- a/drivers/vhost/tcm_vhost.h
+> > +++ b/drivers/vhost/tcm_vhost.h
+> > @@ -80,7 +80,17 @@ struct tcm_vhost_tport {
+> >  
+> >  #include <linux/vhost.h>
+> >  
+> > +/*
+> > + * Used by QEMU userspace to ensure a consistent vhost-scsi ABI.
+> > + *
+> > + * ABI Rev 0: All pre 2012 revisions used by prototype out-of-tree code
+> > + * ABI Rev 1: 2012 version for v3.6 kernel merge candiate
+> > + */
+> > +
+> > +#define VHOST_SCSI_ABI_VERSION	1
+> > +
+> >  struct vhost_scsi_target {
+> > +	int abi_version;
+> >  	unsigned char vhost_wwpn[TRANSPORT_IQN_LEN];
+> >  	unsigned short vhost_tpgt;
+> >  };
+> > @@ -88,3 +98,4 @@ struct vhost_scsi_target {
+> >  /* VHOST_SCSI specific defines */
+> >  #define VHOST_SCSI_SET_ENDPOINT _IOW(VHOST_VIRTIO, 0x40, struct vhost_scsi_target)
+> >  #define VHOST_SCSI_CLEAR_ENDPOINT _IOW(VHOST_VIRTIO, 0x41, struct vhost_scsi_target)
+> > +#define VHOST_SCSI_GET_ABI_VERSION _IOW(VHOST_VIRTIO, 0x42, struct vhost_scsi_target)
+> 
+> No, you just broke the ABI for version "0" here, that's not how you do
+> this at all.
+> 
 
-In my version, the tracepoint ID would have been used to demultiplex
-QEMU tracepoints from BIOS tracepoints, but something like separate ID
-spaces would have been better.
+The intention of this patch is use ABI=1 as a starting point for
+tcm_vhost moving forward, with no back-wards compat for the ABI=0
+prototype userspace code because:
 
->
-> We submitted a patch set of "IVRing", a ring-buffer driver constructed on
-> Inter-VM shared memory (IVShmem), to LKML http://lwn.net/Articles/500304/ in
-> this June. IVRing and the IVRing reader use POSIX shared memory each other
-> without using network, so a low-overhead system for collecting guest tracing
-> data is realized. However, this patch set has some problems as follows:
->  - use IVShmem instead of virtio
->  - create a new ring-buffer without using existing ring-buffer in kernel
->  - scalability
->    -- not support SMP environment
->    -- buffer size limitation
->    -- not support live migration (maybe difficult for realize this)
->
-> Therefore, we propose a new system "virtio-trace", which uses enhanced
-> virtio-serial and existing ring-buffer of ftrace, for collecting guest kernel
-> tracing data. In this system, there are 5 main components:
->  (1) Ring-buffer of ftrace in a guest
->      - When trace agent reads ring-buffer, a page is removed from ring-buffer.
->  (2) Trace agent in the guest
->      - Splice the page of ring-buffer to read_pipe using splice() without
->        memory copying. Then, the page is spliced from write_pipe to virtio
->        without memory copying.
->  (3) Virtio-console driver in the guest
->      - Pass the page to virtio-ring
->  (4) Virtio-serial bus in QEMU
->      - Copy the page to kernel pipe
->  (5) Reader in the host
->      - Read guest tracing data via FIFO(named pipe)
->
-> ***Evaluation***
-> When a host collects tracing data of a guest, the performance of using
-> virtio-trace is compared with that of using native(just running ftrace),
-> IVRing, and virtio-serial(normal method of read/write).
->
-> <environment>
-> The overview of this evaluation is as follows:
->  (a) A guest on a KVM is prepared.
->      - The guest is dedicated one physical CPU as a virtual CPU(VCPU).
->
->  (b) The guest starts to write tracing data to ring-buffer of ftrace.
->      - The probe points are all trace points of sched, timer, and kmem.
->
->  (c) Writing trace data, dhrystone 2 in UNIX bench is executed as a benchmark
->      tool in the guest.
->      - Dhrystone 2 intends system performance by repeating integer arithmetic
->        as a score.
->      - Since higher score equals to better system performance, if the score
->        decrease based on bare environment, it indicates that any operation
->        disturbs the integer arithmetic. Then, we define the overhead of
->        transporting trace data is calculated as follows:
->                 OVERHEAD = (1 - SCORE_OF_A_METHOD/NATIVE_SCORE) * 100.
->
-> The performance of each method is compared as follows:
->  [1] Native
->      - only recording trace data to ring-buffer on a guest
->  [2] Virtio-trace
->      - running a trace agent on a guest
->      - a reader on a host opens FIFO using cat command
->  [3] IVRing
->      - A SystemTap script in a guest records trace data to IVRing.
->        -- probe points are same as ftrace.
->  [4] Virtio-serial(normal)
->      - A reader(using cat) on a guest output trace data to a host using
->        standard output via virtio-serial.
->
-> Other information is as follows:
->  - host
->    kernel: 3.3.7-1 (Fedora16)
->    CPU: Intel Xeon x5660@2.80GHz(12core)
->    Memory: 48GB
->
->  - guest(only booting one guest)
->    kernel: 3.5.0-rc4+ (Fedora16)
->    CPU: 1VCPU(dedicated)
->    Memory: 1GB
->
-> <result>
-> 3 patterns based on the bare environment were indicated as follows:
->                            Scores      overhead against [0] Native
->     [0] Native:          28807569.5               -
->     [1] Virtio-trace:    28685049.5             0.43%
->     [2] IVRing:          28418595.5             1.35%
->     [3] Virtio-serial:   13262258.7            53.96%
->
->
-> ***Just enhancement ideas***
->  - Support for trace-cmd
->  - Support for 9pfs protocol
->  - Support for non-blocking mode in QEMU
->  - Make "vhost-serial"
->
-> Thank you,
->
-> ---
->
-> Masami Hiramatsu (5):
->       virtio/console: Allocate scatterlist according to the current pipe size
->       ftrace: Allow stealing pages from pipe buffer
->       virtio/console: Wait until the port is ready on splice
->       virtio/console: Add a failback for unstealable pipe buffer
->       virtio/console: Add splice_write support
->
-> Yoshihiro YUNOMAE (1):
->       tools: Add guest trace agent as a user tool
->
->
->  drivers/char/virtio_console.c               |  198 ++++++++++++++++++--
->  kernel/trace/trace.c                        |    8 -
->  tools/virtio/virtio-trace/Makefile          |   14 +
->  tools/virtio/virtio-trace/README            |  118 ++++++++++++
->  tools/virtio/virtio-trace/trace-agent-ctl.c |  137 ++++++++++++++
->  tools/virtio/virtio-trace/trace-agent-rw.c  |  192 +++++++++++++++++++
->  tools/virtio/virtio-trace/trace-agent.c     |  270 +++++++++++++++++++++++++++
->  tools/virtio/virtio-trace/trace-agent.h     |   75 ++++++++
->  8 files changed, 985 insertions(+), 27 deletions(-)
->  create mode 100644 tools/virtio/virtio-trace/Makefile
->  create mode 100644 tools/virtio/virtio-trace/README
->  create mode 100644 tools/virtio/virtio-trace/trace-agent-ctl.c
->  create mode 100644 tools/virtio/virtio-trace/trace-agent-rw.c
->  create mode 100644 tools/virtio/virtio-trace/trace-agent.c
->  create mode 100644 tools/virtio/virtio-trace/trace-agent.h
->
-> --
-> Yoshihiro YUNOMAE
-> Software Platform Research Dept. Linux Technology Center
-> Hitachi, Ltd., Yokohama Research Laboratory
-> E-mail: yoshihiro.yunomae.ez@hitachi.com
->
->
+- It's based on a slightly older version of QEMU (updating the QEMU series now)
+- It does not have an GET_ABI_VERSION ioctl cmd (that starts with ABI=1)
+- It has a small user-base of target + virtio-scsi developers
+
+So I did consider just starting from ABI=0, but figured this would help
+reduce the confusion for QEMU userspace wrt to the vhost-scsi code
+that's been floating around out-of-tree for the last 2 years.
+
+Stefan & Co folks, do you have a preference for a starting point..?
+
+Thanks,
+
+--nab
