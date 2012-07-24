@@ -1,17 +1,17 @@
-From: Gleb Natapov <gleb@redhat.com>
+From: Dor Laor <dlaor@redhat.com>
 Subject: Re: [RFC 0/2] virtio: provide a way for host to monitor critical
 	events in the device
-Date: Tue, 24 Jul 2012 15:33:01 +0300
-Message-ID: <20120724123301.GH26120@redhat.com>
+Date: Tue, 24 Jul 2012 15:46:58 +0300
+Message-ID: <500E9942.3080505@redhat.com>
 References: <1343075561-29316-1-git-send-email-levinsasha928@gmail.com>
-	<20120724074434.GE26120@redhat.com> <500E9479.3050405@gmail.com>
-	<20120724122824.GG26120@redhat.com> <500E959D.70009@gmail.com>
+	<87a9yprc4v.fsf@rustcorp.com.au> <500E5C36.2070601@redhat.com>
+	<500E954F.8090102@gmail.com>
+Reply-To: dlaor@redhat.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <500E959D.70009@gmail.com>
+In-Reply-To: <500E954F.8090102@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,36 +25,45 @@ To: Sasha Levin <levinsasha928@gmail.com>
 Cc: wency@cn.fujitsu.com, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, penberg@kernel.org, avi@redhat.com, anthony@codemonkey.ws
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 24, 2012 at 02:31:25PM +0200, Sasha Levin wrote:
-> On 07/24/2012 02:28 PM, Gleb Natapov wrote:
-> > On Tue, Jul 24, 2012 at 02:26:33PM +0200, Sasha Levin wrote:
-> >> On 07/24/2012 09:44 AM, Gleb Natapov wrote:
-> >>> On Mon, Jul 23, 2012 at 10:32:39PM +0200, Sasha Levin wrote:
-> >>>> As it was discussed recently, there's currently no way for the guest to notify
-> >>>> the host about panics. Further more, there's no reasonable way to notify the
-> >>>> host of other critical events such as an OOM kill.
-> >>>>
-> >>>> This short patch series introduces a new device named virtio-notifier which
-> >>>> does two simple things:
-> >>>>
-> >>>>  1. Provide a simple interface for the guest to notify the host of critical
-> >>> To get early OOPSes virtio will have to be compiled into the kernel. If
-> >>> your are so keen on using virtio for this though, why not just use
-> >>> dedicated virtio serial channel?
-> >>
-> >> Let's separate between having log for these events and receiving notifications about them.
-> >>
-> >> For the log part, I can already run a simple serial console to dump everything somewhere. I'm more concerned about having notifications about something critical happening when the guest is already up and running.
-> >>
-> > I am talking about notifications. Run your notification protocol over
-> > dedicated virtio-serial channel. Logs goes to virtio-console as you've
-> > said.
-> 
-> Ah, so just add another channel into virtio-serial to pass these notifications? Good idea - I'll look into it.
-> 
-Yes, that's what I mean. This solution still has the disadvantage of not
-been able to catch early boot oopses without compiling the whole virtio
-into a kernel image.
+On 07/24/2012 03:30 PM, Sasha Levin wrote:
+> On 07/24/2012 10:26 AM, Dor Laor wrote:
+>> On 07/24/2012 07:55 AM, Rusty Russell wrote:
+>>> On Mon, 23 Jul 2012 22:32:39 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
+>>>> As it was discussed recently, there's currently no way for the guest to notify
+>>>> the host about panics. Further more, there's no reasonable way to notify the
+>>>> host of other critical events such as an OOM kill.
+>>>
+>>> I clearly missed the discussion.  Is this actually useful?  In practice,
+>>
+>> Admit this is not a killer feature..
+>>
+>>> won't you want the log from the guest?  What makes a virtual guest
+>>> different from a physical guest?
+>>
+>> Most times virt guest can do better than a physical OS. In that sense, this is where virtualization shines (live migration, hotplug for any virtual resource including net/block/cpu/memory/..).
+>>
+>> There are plenty of niche but worth while small features such as the virtio-trace series and other that allow the host/virt-mgmt to get more insight into the guest w/o a need to configure the guest.
+>>
+>> In theory guest OOM can trigger a host memory hot plug action. Again, I don't see it as a key feature..
+>>
+>>>
+>>> Guest watchdog functionality might be useful, but that's simpler to
+>>
+>> There is already a fully emulated watchdog device in qemu.
+>
+> There is, but why emulate physical devices when you can take advantage of virtio?
+>
+> You could say the same about the rest of the virtio family - "There is already a fully emulated NIC device in qemu".
 
---
-			Gleb.
+The single issue virtio-nic solves is performance enhancements that can 
+be done w/ a fully emulated NIC. The reason is that such NIC tend to 
+access pio/mmio space a lot while virtio is designed for virtualization.
+
+Standard watchdog device (isn't it time you'll try qemu?)  isn't about 
+performance and if that's all the functionality you need it should work 
+fine.
+
+btw: check the virtio-trace series that was just send in a parallel thread.
+
+Cheers,
+Dor
