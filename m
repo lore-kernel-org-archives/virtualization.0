@@ -1,107 +1,53 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH] tcm_vhost: Expose ABI version via
-	VHOST_SCSI_GET_ABI_VERSION
-Date: Tue, 24 Jul 2012 13:45:24 -0700
-Message-ID: <1343162724.1813.111.camel__31294.5304242477$1343162744$gmane$org@haakon2.linux-iscsi.org>
-References: <1343093180-5598-1-git-send-email-nab@linux-iscsi.org>
-	<20120724015634.GD4093@kroah.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 10/17] Tools: hv: Gather ipv[4,6] gateway information
+Date: Tue, 24 Jul 2012 22:13:00 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF9236A78D1@SN2PRD0310MB382.namprd03.prod.outlook.com>
+References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
+	 <1343145701-3691-1-git-send-email-kys@microsoft.com>
+	 <1343145701-3691-10-git-send-email-kys@microsoft.com>
+	 <20120724092914.60f3d90a@nehalam.linuxnetplumber.net>
+	 <20120724165359.GA8409@aepfle.de>
+	 <20120724095659.5c869511@nehalam.linuxnetplumber.net>
+ <1343155010.29196.1.camel@dcbw.foobar.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120724015634.GD4093@kroah.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Avi Kivity <avi@redhat.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1343155010.29196.1.camel@dcbw.foobar.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dan Williams <dcbw@redhat.com>, Stephen Hemminger <shemminger@vyatta.com>
+Cc: Olaf Hering <olaf@aepfle.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "apw@canonical.com" <apw@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "ben@decadent.org.uk" <ben@decadent.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2012-07-23 at 18:56 -0700, Greg Kroah-Hartman wrote:
-> On Tue, Jul 24, 2012 at 01:26:20AM +0000, Nicholas A. Bellinger wrote:
-> > From: Nicholas Bellinger <nab@linux-iscsi.org>
-> > 
-> > As requested by Anthony, here is a patch against target-pending/for-next-merge
-> > to expose an ABI version to userspace via a new VHOST_SCSI_GET_ABI_VERSION
-> > ioctl operation.
-> > 
-> > As mentioned in the comment, ABI Rev 0 is for pre 2012 out-of-tree code, and
-> > ABI Rev 1 (the current rev) is for current WIP v3.6 kernel merge candiate code.
-> > 
-> > I think this is what you had in mind, and hopefully it will make MST happy too.
-> > The incremental vhost-scsi patches against Zhi's QEMU are going out shortly ahead
-> > of cutting a new vhost-scsi RFC over the next days.
-> > 
-> > Please have a look and let me know if you have any concerns here.
-> > 
-> > Thanks!
-> > 
-> > Reported-by: Anthony Liguori <aliguori@us.ibm.com>
-> > Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-> > Cc: Michael S. Tsirkin <mst@redhat.com>
-> > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
-> > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
-> > ---
-> >  drivers/vhost/tcm_vhost.c |    9 +++++++++
-> >  drivers/vhost/tcm_vhost.h |   11 +++++++++++
-> >  2 files changed, 20 insertions(+), 0 deletions(-)
-> > 
-
-<SNIP>
-
-> > diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
-> > index e942df9..3d5378f 100644
-> > --- a/drivers/vhost/tcm_vhost.h
-> > +++ b/drivers/vhost/tcm_vhost.h
-> > @@ -80,7 +80,17 @@ struct tcm_vhost_tport {
-> >  
-> >  #include <linux/vhost.h>
-> >  
-> > +/*
-> > + * Used by QEMU userspace to ensure a consistent vhost-scsi ABI.
-> > + *
-> > + * ABI Rev 0: All pre 2012 revisions used by prototype out-of-tree code
-> > + * ABI Rev 1: 2012 version for v3.6 kernel merge candiate
-> > + */
-> > +
-> > +#define VHOST_SCSI_ABI_VERSION	1
-> > +
-> >  struct vhost_scsi_target {
-> > +	int abi_version;
-> >  	unsigned char vhost_wwpn[TRANSPORT_IQN_LEN];
-> >  	unsigned short vhost_tpgt;
-> >  };
-> > @@ -88,3 +98,4 @@ struct vhost_scsi_target {
-> >  /* VHOST_SCSI specific defines */
-> >  #define VHOST_SCSI_SET_ENDPOINT _IOW(VHOST_VIRTIO, 0x40, struct vhost_scsi_target)
-> >  #define VHOST_SCSI_CLEAR_ENDPOINT _IOW(VHOST_VIRTIO, 0x41, struct vhost_scsi_target)
-> > +#define VHOST_SCSI_GET_ABI_VERSION _IOW(VHOST_VIRTIO, 0x42, struct vhost_scsi_target)
-> 
-> No, you just broke the ABI for version "0" here, that's not how you do
-> this at all.
-> 
-
-The intention of this patch is use ABI=1 as a starting point for
-tcm_vhost moving forward, with no back-wards compat for the ABI=0
-prototype userspace code because:
-
-- It's based on a slightly older version of QEMU (updating the QEMU series now)
-- It does not have an GET_ABI_VERSION ioctl cmd (that starts with ABI=1)
-- It has a small user-base of target + virtio-scsi developers
-
-So I did consider just starting from ABI=0, but figured this would help
-reduce the confusion for QEMU userspace wrt to the vhost-scsi code
-that's been floating around out-of-tree for the last 2 years.
-
-Stefan & Co folks, do you have a preference for a starting point..?
-
-Thanks,
-
---nab
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogRGFuIFdpbGxpYW1zIFtt
+YWlsdG86ZGNid0ByZWRoYXQuY29tXQ0KPiBTZW50OiBUdWVzZGF5LCBKdWx5IDI0LCAyMDEyIDI6
+MzcgUE0NCj4gVG86IFN0ZXBoZW4gSGVtbWluZ2VyDQo+IENjOiBPbGFmIEhlcmluZzsgS1kgU3Jp
+bml2YXNhbjsgZ3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc7IGxpbnV4LQ0KPiBrZXJuZWxAdmdl
+ci5rZXJuZWwub3JnOyBkZXZlbEBsaW51eGRyaXZlcnByb2plY3Qub3JnOw0KPiB2aXJ0dWFsaXph
+dGlvbkBsaXN0cy5vc2RsLm9yZzsgYXB3QGNhbm9uaWNhbC5jb207IG5ldGRldkB2Z2VyLmtlcm5l
+bC5vcmc7DQo+IGJlbkBkZWNhZGVudC5vcmcudWsNCj4gU3ViamVjdDogUmU6IFtQQVRDSCAxMC8x
+N10gVG9vbHM6IGh2OiBHYXRoZXIgaXB2WzQsNl0gZ2F0ZXdheSBpbmZvcm1hdGlvbg0KPiANCj4g
+T24gVHVlLCAyMDEyLTA3LTI0IGF0IDA5OjU2IC0wNzAwLCBTdGVwaGVuIEhlbW1pbmdlciB3cm90
+ZToNCj4gPiBPbiBUdWUsIDI0IEp1bCAyMDEyIDE4OjUzOjU5ICswMjAwDQo+ID4gT2xhZiBIZXJp
+bmcgPG9sYWZAYWVwZmxlLmRlPiB3cm90ZToNCj4gPg0KPiA+ID4gT24gVHVlLCBKdWwgMjQsIFN0
+ZXBoZW4gSGVtbWluZ2VyIHdyb3RlOg0KPiA+ID4NCj4gPiA+ID4gT24gVHVlLCAyNCBKdWwgMjAx
+MiAwOTowMTozNCAtMDcwMA0KPiA+ID4gPiAiSy4gWS4gU3Jpbml2YXNhbiIgPGt5c0BtaWNyb3Nv
+ZnQuY29tPiB3cm90ZToNCj4gPiA+ID4NCj4gPiA+ID4gPiArCW1lbXNldChjbWQsIDAsIHNpemVv
+ZihjbWQpKTsNCj4gPiA+ID4gPiArCXN0cmNhdChjbWQsICIvc2Jpbi9pcCAtZiBpbmV0ICByb3V0
+ZSB8IGdyZXAgLXcgIik7DQo+ID4gPiA+ID4gKwlzdHJjYXQoY21kLCBpZl9uYW1lKTsNCj4gPiA+
+ID4gPiArCXN0cmNhdChjbWQsICIgfCBhd2sgJy9kZWZhdWx0LyB7cHJpbnQgJDMgfSciKTsNCj4g
+PiA+ID4NCj4gPiA+ID4NCj4gPiA+ID4gTXVjaCBzaW1wbGVyIG1ldGhvZDoNCj4gPiA+ID4NCj4g
+PiA+ID4gaXAgcm91dGUgc2hvdyBtYXRjaCAwLzANCj4gPiA+DQo+ID4gPiBUaGlzIGFsc28gaGFz
+IHRoZSBiZW5lZml0IHRoYXQgaXAgaXMgbm90IGNhbGxlZCB3aXRoIGFic29sdXRlIHBhdGgsIG5v
+dw0KPiA+ID4gdGhhdCBkaXN0cm9zIG1vdmUgYmluYXJpZXMgYXJvdW5kLg0KPiA+ID4NCj4gPiA+
+IE9sYWYNCj4gPg0KPiA+IEl0IGlzIGFsc28gbm90IGhhcmQgdG8gZG8gdGhlIHNhbWUgdGhpbmcg
+d2l0aCBhIGxpdHRsZSBmdW5jdGlvbg0KPiA+IHVzaW5nIGxpYm1ubA0KPiANCj4gWWVhaCBzZXJp
+b3VzbHksIG5ldGxpbmsgYW55b25lPyAgWW91J2xsIGV2ZW4gZ2V0IG5pY2VyIGVycm9yIHJlcG9y
+dGluZw0KPiB0aGF0IHdheS4NCg0KV2hpbGUgSSB3aWxsIGJlIHRoZSBmaXJzdCBhZG1pdCB0aGF0
+IHVzaW5nIEMgQVBJIGlzIGFsd2F5cyBiZXR0ZXIgKGluIEMgY29kZSksDQppbiB0aGlzIHBhcnRp
+Y3VsYXIgaW5zdGFuY2UgSSBhbSBub3Qgc28gc3VyZS4gQWxsIEkgYW0gZG9pbmcgaXMgcmV0cmll
+dmluZyBpbmZvcm1hdGlvbg0Kb24gZGVmYXVsdCBnYXRld2F5cy4gSWYgdGhlcmUgaXMgYW4gZXJy
+b3IsIHRoYXQgaXMgb2sgYW5kIHRoaXMgd29uJ3QgYmUgcmVwb3J0ZWQNCmJhY2sgdG8gdGhlIGhv
+c3QuIFVzaW5nIHRoZSBpcCBjb21tYW5kIHNpZ25pZmljYW50bHkgc2ltcGxpZmllcyB0aGUgY29k
+ZSBoZXJlLg0KDQpSZWdhcmRzLA0KDQpLLiBZICANCg0K
