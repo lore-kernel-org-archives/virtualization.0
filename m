@@ -1,15 +1,16 @@
-From: Gleb Natapov <gleb@redhat.com>
+From: Dor Laor <dlaor@redhat.com>
 Subject: Re: [RFC 0/2] virtio: provide a way for host to monitor critical
 	events in the device
-Date: Tue, 24 Jul 2012 10:44:34 +0300
-Message-ID: <20120724074434.GE26120@redhat.com>
+Date: Tue, 24 Jul 2012 11:26:30 +0300
+Message-ID: <500E5C36.2070601@redhat.com>
 References: <1343075561-29316-1-git-send-email-levinsasha928@gmail.com>
+	<87a9yprc4v.fsf@rustcorp.com.au>
+Reply-To: dlaor@redhat.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1343075561-29316-1-git-send-email-levinsasha928@gmail.com>
+In-Reply-To: <87a9yprc4v.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,58 +20,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: wency@cn.fujitsu.com, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, penberg@kernel.org, avi@redhat.com, anthony@codemonkey.ws
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: wency@cn.fujitsu.com, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, penberg@kernel.org, Sasha Levin <levinsasha928@gmail.com>, anthony@codemonkey.ws, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 23, 2012 at 10:32:39PM +0200, Sasha Levin wrote:
-> As it was discussed recently, there's currently no way for the guest to notify
-> the host about panics. Further more, there's no reasonable way to notify the
-> host of other critical events such as an OOM kill.
-> 
-> This short patch series introduces a new device named virtio-notifier which
-> does two simple things:
-> 
->  1. Provide a simple interface for the guest to notify the host of critical
-To get early OOPSes virtio will have to be compiled into the kernel. If
-your are so keen on using virtio for this though, why not just use
-dedicated virtio serial channel?
+On 07/24/2012 07:55 AM, Rusty Russell wrote:
+> On Mon, 23 Jul 2012 22:32:39 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
+>> As it was discussed recently, there's currently no way for the guest to notify
+>> the host about panics. Further more, there's no reasonable way to notify the
+>> host of other critical events such as an OOM kill.
+>
+> I clearly missed the discussion.  Is this actually useful?  In practice,
 
->  events. This is easily expandible to add support for any events we may find
->  interesting for the host to know about.
-> 
->  2. Provide an "echo" interface for the host to ping the guest. This allows
->  the host to ping the guest at intervals chosen by the host, and act
->  accordingly if no response has been received.
-> 
-> Sasha Levin (2):
->   virtio: Introduce virtio-notifier
->   kvm tools: support virtio-notifier
-> 
->  drivers/virtio/Kconfig                  |   11 ++
->  drivers/virtio/Makefile                 |    1 +
->  drivers/virtio/virtio_notifier.c        |  135 ++++++++++++++++++++
->  include/linux/virtio_ids.h              |    1 +
->  include/linux/virtio_notifier.h         |   15 +++
->  tools/kvm/Makefile                      |    1 +
->  tools/kvm/builtin-run.c                 |    6 +
->  tools/kvm/include/kvm/virtio-notifier.h |    9 ++
->  tools/kvm/include/kvm/virtio-pci-dev.h  |    1 +
->  tools/kvm/virtio/notifier.c             |  203 +++++++++++++++++++++++++++++++
->  10 files changed, 383 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/virtio/virtio_notifier.c
->  create mode 100644 include/linux/virtio_notifier.h
->  create mode 100644 tools/kvm/include/kvm/virtio-notifier.h
->  create mode 100644 tools/kvm/virtio/notifier.c
-> 
-> -- 
-> 1.7.8.6
-> 
+Admit this is not a killer feature..
+
+> won't you want the log from the guest?  What makes a virtual guest
+> different from a physical guest?
+
+Most times virt guest can do better than a physical OS. In that sense, 
+this is where virtualization shines (live migration, hotplug for any 
+virtual resource including net/block/cpu/memory/..).
+
+There are plenty of niche but worth while small features such as the 
+virtio-trace series and other that allow the host/virt-mgmt to get more 
+insight into the guest w/o a need to configure the guest.
+
+In theory guest OOM can trigger a host memory hot plug action. Again, I 
+don't see it as a key feature..
+
+>
+> Guest watchdog functionality might be useful, but that's simpler to
+
+There is already a fully emulated watchdog device in qemu.
+Cheers,
+Dor
+
+> implement via a virtio watchdog device, and more effective to implement
+> via a host facility that actually pings guest functionality (rather than
+> the kernel).
+>
+> Cheers,
+> Rusty.
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
---
-			Gleb.
+>
