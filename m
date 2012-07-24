@@ -1,46 +1,41 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 1/1] Drivers: hv: Cleanup the guest ID computation
-Date: Tue, 24 Jul 2012 23:28:22 +0000
-Message-ID: <426367E2313C2449837CD2DE46E7EAF9236A899F@SN2PRD0310MB382.namprd03.prod.outlook.com>
-References: <1343171518-15189-1-git-send-email-kys@microsoft.com>
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: Re: [PATCH 11/17] Tools: hv: Gather DNS information
+Date: Wed, 25 Jul 2012 00:38:09 +0100
+Message-ID: <20120724233809.GC1894@decadent.org.uk>
+References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
+ <1343145701-3691-1-git-send-email-kys@microsoft.com>
+ <1343145701-3691-11-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1343171518-15189-1-git-send-email-kys@microsoft.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <1343145701-3691-11-git-send-email-kys@microsoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
+To: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Jul 24, 2012 at 09:01:35AM -0700, K. Y. Srinivasan wrote:
+> Now gather DNS information. This information cannot be gathered in
+> a distro independent fashion. Invoke an external script (that can be
+> distro dependent) to gather the DNS information.
+[...]
+> +	memset(cmd, 0, sizeof(cmd));
+> +	strcat(cmd, "/sbin/hv_get_dns_info ");
+> +	strcat(cmd, if_name);
+[...]
 
+This is a weird way to build a string; why are you not using
+snprintf()?  Not to mention that interface names can contain several
+characters that are special to the shell - in fact the only disallowed
+characters are / and whitespace.
+ 
+Also, the external script will not be useful to anything other than
+hv_kvp_daemon, so it probably belongs somewhere under /usr/share.
+ 
+Ben.
 
-> -----Original Message-----
-> From: K. Y. Srinivasan [mailto:kys@microsoft.com]
-> Sent: Tuesday, July 24, 2012 7:12 PM
-> To: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; olaf@aepfle.de;
-> apw@canonical.com
-> Cc: KY Srinivasan
-> Subject: [PATCH 1/1] Drivers: hv: Cleanup the guest ID computation
-> 
-> The current guest ID string in use in vmbus driver does not conform
-> to the MSFT guidelines on guest ID. MSFT currently does not specify
-> Linux specific guidelines. MSFT however has plans to publish Linux
-> specific guidelines. This implementation conforms to the yet unpublished
-> Linux specific guidelines for guest ID. This implementation also broadly
-> conforms to the current guidelines as well.
-> 
-> 
-> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-
-Haiyang reviewed this code but I forgot include the
-
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-
-line. Greg, do you want me to resend this patch with that addition.
-
-Regards,
-
-K. Y
+-- 
+Ben Hutchings
+We get into the habit of living before acquiring the habit of thinking.
+                                                              - Albert Camus
