@@ -1,187 +1,122 @@
-From: Ben Hutchings <ben@decadent.org.uk>
-Subject: Re: [PATCH 13/17] Tools: hv: Implement the KVP verb -
- KVP_OP_SET_IP_INFO
-Date: Wed, 25 Jul 2012 02:24:51 +0100
-Message-ID: <1343179491.5132.112.camel@deadeye.wl.decadent.org.uk>
-References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
- <1343145701-3691-1-git-send-email-kys@microsoft.com>
- <1343145701-3691-13-git-send-email-kys@microsoft.com>
+From: Zhi Yong Wu <zwu.kernel@gmail.com>
+Subject: Re: [RFC 0/9] vhost-scsi: Add support for host virtualized target
+Date: Wed, 25 Jul 2012 10:53:40 +0800
+Message-ID: <CAEH94LgTHccNsCX01GRN2UWFXa+p6s6e0m6GiYD7Lh1FRhD6Ow__8944.7577753619$1343184829$gmane$org@mail.gmail.com>
+References: <1343169246-17636-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0101586630=="
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1343145701-3691-13-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: olaf@aepfle.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, apw@canonical.com, devel@linuxdriverproject.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1343169246-17636-1-git-send-email-nab@linux-iscsi.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: linux-iscsi-target-dev@googlegroups.com
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Jul 25, 2012 at 6:33 AM, Nicholas A. Bellinger
+<nab@linux-iscsi.org> wrote:
+> From: Nicholas Bellinger <nab@linux-iscsi.org>
+>
+> Hi Anthony + QEMU storage folks,
+>
+> The following is a reviewable RFC series of vhost-scsi against yesterday's
+> QEMU.git/master @ commit 401a66357d.
+>
+> The series is available directly from:
+>
+>   git://git.kernel.org/pub/scm/virt/kvm/nab/qemu-kvm.git vhost-scsi-merge
+Is this git tree cloned from qemu-kvm.git/master or qemu.git/master?
+But from above info, it seems to be from latter. I got confused.
 
---===============0101586630==
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-fuawdY8gKvNSWFmESB/i"
+>
+> It contains the squashed + re-ordered patches from Stefan -> Zhi's QEMU
+> original work into a updated series against recent QEMU code.
+>
+> As mentioned recently on qemu-devel here:
+>
+>   http://lists.gnu.org/archive/html/qemu-devel/2012-07/msg03280.html
+>
+> the 'vhost-scsi-merge' branch is currently failing with vhost/virtio
+> errors using the latest HEAD.  Stefan + myself are currently working through
+> the 1.1.0 regressions, and will be posting incremental patches against this
+> working tree as individual progress is made..
+>
+> Please have a look.
+>
+> --nab
+>
+> P.S:
+>
+> Also, for folks who are interested in trying out a working virtio-scsi <-> tcm_vhost
+> setup, check out using branch 'vhost-scsi' with the last pre-regression
+> commit from upstream QEMU that appears to be performing very well.
+>
+> This along with target-pending.git/for-next-merge for KVM host + a virtio-scsi
+> SCSI LLD bugfix for KVM guest that's headed into 3.6-rc1 here should be enough
+> to get up and running:
+>
+> virtio-scsi: Add vdrv->scan for post VIRTIO_CONFIG_S_DRIVER_OK LUN scanning
+> http://git.kernel.org/?p=linux/kernel/git/jejb/scsi.git;a=commitdiff;h=59057fbc37178f10a196ab7ec170b80273f75a47;hp=0b1017aab197271a78169fde3d7e487bb721997c
+>
+> Thanks!
+>
+> Nicholas Bellinger (1):
+>   virtio-scsi: Set max_target=0 during vhost-scsi operation
+>
+> Stefan Hajnoczi (8):
+>   notifier: add validity check and notify function
+>   virtio-pci: support host notifiers in TCG mode
+>   virtio-pci: check that event notification worked
+>   vhost: Pass device path to vhost_dev_init()
+>   virtio-scsi: Add wwpn and tgpt properties
+>   virtio-scsi: Open and initialize /dev/vhost-scsi
+>   virtio-scsi: Start/stop vhost
+>   vhost-scsi: add -vhost-scsi host device
+>
+>  configure            |   10 +++
+>  event_notifier.c     |   21 ++++++
+>  event_notifier.h     |    4 +
+>  hw/Makefile.objs     |    1 +
+>  hw/qdev-properties.c |   32 +++++++++
+>  hw/qdev.h            |    3 +
+>  hw/vhost-scsi.c      |  173 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>  hw/vhost-scsi.h      |   50 ++++++++++++++
+>  hw/vhost.c           |    5 +-
+>  hw/vhost.h           |    3 +-
+>  hw/vhost_net.c       |    2 +-
+>  hw/virtio-pci.c      |   28 +++++++-
+>  hw/virtio-scsi.c     |   59 +++++++++++++++++-
+>  hw/virtio-scsi.h     |    1 +
+>  hw/virtio.c          |    7 ++
+>  qemu-common.h        |    1 +
+>  qemu-config.c        |   16 +++++
+>  qemu-options.hx      |    4 +
+>  vl.c                 |   18 +++++
+>  19 files changed, 430 insertions(+), 8 deletions(-)
+>  create mode 100644 hw/vhost-scsi.c
+>  create mode 100644 hw/vhost-scsi.h
+>
+> --
+> 1.7.2.5
+>
+> --
+> You received this message because you are subscribed to the Google Groups "Linux-iSCSI.org Target Development" group.
+> To post to this group, send email to linux-iscsi-target-dev@googlegroups.com.
+> To unsubscribe from this group, send email to linux-iscsi-target-dev+unsubscribe@googlegroups.com.
+> For more options, visit this group at http://groups.google.com/group/linux-iscsi-target-dev?hl=en.
+>
 
 
---=-fuawdY8gKvNSWFmESB/i
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2012-07-24 at 09:01 -0700, K. Y. Srinivasan wrote:
-> Implement the KVP verb - KVP_OP_SET_IP_INFO. This operation configures th=
-e
-> specified interface based on the given configuration. Since configuring
-> an interface is very distro specific, we invoke an external script to
-> configure the interface.
-[...]
-> +static int kvp_write_file(FILE *f, char *s1, char *s2, char *s3)
-> +{
-> +	char str[256];
-> +	int error;
-> +
-> +	memset(str, 0, sizeof(str));
-> +	strcat(str, s1);
-> +	if (s2 !=3D NULL)
-> +		strcat(str, s2);
-> +	strcat(str, "=3D");
-> +	strcat(str, s3);
-> +	strcat(str, "\n");
-> +
-> +	error =3D fputs(str, f);
+-- 
+Regards,
 
-This style of string pasting is crazy; have you never heard of
-fprintf()?
-
-[...]
-> +	/*
-> +	 * Set the configuration for the specified interface with
-> +	 * the information provided. Since there is no standard
-> +	 * way to configure an interface, we will have an external
-> +	 * script that does the job of configuring the interface and
-> +	 * flushing the configuration.
-> +	 *
-> +	 * The parameters passed to this external script are:
-> +	 * 1. A configuration file that has the specified configuration.
-> +	 *
-> +	 * We will embed the name of the interface in the configuration
-> +	 * file: ifcfg-ethx (where ethx is the interface name).
-> +	 *
-> +	 * Here is the format of the ip configuration file:
-> +	 *
-> +	 * HWADDR=3Dmacaddr
-
-Is the interface supposed to be matched by name or by MAC address?
-
-> +	 * BOOTPROTO=3Ddhcp (dhcp enabled for the interface)
-
-The BOOTPROTO line may or may not appear.
-
-> +	 * NM_CONTROLLED=3Dno (this interface will not be controlled by NM)
-> +	 * PEERDNS=3Dyes
-
-I wonder what the point is of including constant lines in the file.
-What is the external script supposed to do if it these apparent
-constants change in future?
-
-> +	 * IPADDR_x=3Dipaddr
-> +	 * NETMASK_x=3Dnetmask
-> +	 * GATEWAY_x=3Dgateway
-> +	 * DNSx=3Ddns
-
-A strangely familiar format...
-
-> +	 * IPV6 addresses will be tagged as IPV6ADDR, IPV6 gateway will be
-> +	 * tagged as IPV6_DEFAULTGW and IPV6 NETMASK will be tagged as
-> +	 * IPV6NETMASK.
-> +	 */
-> +
-> +	memset(if_file, 0, sizeof(if_file));
-> +	strcat(if_file, "/var/opt/hyperv/ifcfg-");
-
-Like I said before about the key-value files, this should be under
-/var/lib if the daemon is included in a distribution.  You should
-perhaps use a macro for the "/var/opt" part so it can be overridden
-depending on whether it's built as a distribution or add-on package.
-
-> +	strcat(if_file, if_name);
-> +
-> +	file =3D fopen(if_file, "w");
-> +
-> +	if (file =3D=3D NULL) {
-> +		syslog(LOG_ERR, "Failed to open config file");
-> +		return HV_E_FAIL;
-> +	}
-> +
-> +	/*
-> +	 * First write out the MAC address.
-> +	 */
-> +
-> +	mac_addr =3D kvp_if_name_to_mac(if_name);
-> +	if (mac_addr =3D=3D NULL) {
-> +		error =3D HV_E_FAIL;
-> +		goto setval_error;
-> +	}
-> +
-> +	error =3D kvp_write_file(file, "HWADDR", NULL, mac_addr);
-> +	if (error)
-> +		goto setval_error;
-> +
-> +	error =3D kvp_write_file(file, "ONBOOT", NULL, "yes");
-> +	if (error)
-> +		goto setval_error;
-> +
-> +	error =3D kvp_write_file(file, "IPV6INIT", NULL, "yes");
-> +	if (error)
-> +		goto setval_error;
-[...]
-
-This line isn't mentioned in the above comment.
-
-Ben.
-
---=20
-Ben Hutchings
-If more than one person is responsible for a bug, no one is at fault.
-
---=-fuawdY8gKvNSWFmESB/i
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIVAwUAUA9K4+e/yOyVhhEJAQryng//bKD7ka+9ZRPwYr44Mr/gm7QFvicDbw5m
-f4u1YDAQZVFVUdafi/qR5QDcxpUfD4WiLP2swQvQ4vMW7Mpytn1xMaOBqJdof8c2
-rf5vKDCf0uKcfMn9oohkc5XUjxFUuGO5sSKqMvg1kA1KYFTLoPGUXkiw8UqJ4fj9
-HaN3yMnMfiAjHySnkRc2lJFBvvuf/jPNFA23URzAZh11YlvKpkAoZrjCeOt8WqBx
-YJeDlGEznOWPyAiTHNIDaVRV69sXRhyG41n6E9TLgAXsgvzYfKcub302hM2AEZ32
-AgLAyP3xfKj2XtaYo463YylA6bgf0eSx43r3i17FFZXg5Tx+Zd0wM04T6qnaiB1j
-IMfBTdHY9cfXp18AOOiJADFb5zYNDSlIT7lenY2J4ib/5pyyEkHC47447eNnIyII
-CH87/qpOdE7zLJHMCy+Od+MU/O6RijVz7D+4iUCMd7rYsKJgnBTg33D57v6e1178
-EowR7oLXMrHZAvEllci+SSepvrX2vasXxDQX1r1sRCSYDXckOOXlhoRgZqkUstN7
-8I+mAdzKjgBeqbvrM0DDMYlND8apB7rw5oYj/f7laD1C2HvQcBR8kGdxtYuXABC1
-jDq6Q4DZuHMIvCXH/shi/rVstEcf8WuCwiN0XaXxS2hfS1ONC61QFMpZwLuk2I4e
-ZhcsO7/h8Ks=
-=RcvY
------END PGP SIGNATURE-----
-
---=-fuawdY8gKvNSWFmESB/i--
-
---===============0101586630==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-devel mailing list
-devel@linuxdriverproject.org
-http://driverdev.linuxdriverproject.org/mailman/listinfo/devel
-
---===============0101586630==--
+Zhi Yong Wu
