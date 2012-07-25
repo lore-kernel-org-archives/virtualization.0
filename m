@@ -1,16 +1,17 @@
-From: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Subject: Re: Re: Re: [RFC PATCH 0/6] virtio-trace: Support virtio-trace
-Date: Wed, 25 Jul 2012 18:13:08 +0900
-Message-ID: <500FB8A4.6060503@hitachi.com>
-References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
-	<CAJSP0QW_2JJ0nf=NW0y30VSid2HSxaqb=mRGV8CTtAKj0ujDWw@mail.gmail.com>
-	<500E810A.4030309@hitachi.com> <500E84D7.7060103@hitachi.com>
-	<CAJSP0QVuQnE68n=jyW+AE=WF3yDHjgdn7tdiz7rPTbtqGYFL4w@mail.gmail.com>
+From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Subject: Re: [PATCH] tcm_vhost: Expose ABI version via
+	VHOST_SCSI_GET_ABI_VERSION
+Date: Wed, 25 Jul 2012 12:55:52 +0100
+Message-ID: <20120725115552.GB11098@stefanha-thinkpad.localdomain>
+References: <1343093180-5598-1-git-send-email-nab@linux-iscsi.org>
+	<20120724015634.GD4093@kroah.com>
+	<1343162724.1813.111.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QVuQnE68n=jyW+AE=WF3yDHjgdn7tdiz7rPTbtqGYFL4w@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1343162724.1813.111.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,31 +21,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, Dhaval Giani <dhaval.giani@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, qemu-devel@nongnu.org, Amit Shah <amit.shah@redhat.com>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, yrl.pp-manager.tt@hitachi.com, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, virtualization@lists.linux-foundation.org, Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Avi Kivity <avi@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgU3RlZmFuLAoKKDIwMTIvMDcvMjQgMjI6NDEpLCBTdGVmYW4gSGFqbm9jemkgd3JvdGU6Cj4g
-T24gVHVlLCBKdWwgMjQsIDIwMTIgYXQgMTI6MTkgUE0sIFlvc2hpaGlybyBZVU5PTUFFCj4gPHlv
-c2hpaGlyby55dW5vbWFlLmV6QGhpdGFjaGkuY29tPiB3cm90ZToKPj4+PiBBcmUgeW91IHVzaW5n
-IHRleHQgZm9ybWF0dGVkIGZ0cmFjZT8KPj4gTm8sIGN1cnJlbnRseSB1c2luZyByYXcgZm9ybWF0
-LCBidXTjgIB3ZSdkIGxpa2UgdG8gcmVmb3JtYXQgaXQgaW4gdGV4dC4KPgo+IENhcHR1cmluZyB0
-aGUgaW5mbyBuZWNlc3NhcnkgdG8gdHJhbnNsYXRlIG51bWJlcnMgaW50byBzeW1ib2xzIGlzIG9u
-ZQo+IG9mIHRoZSBwcm9ibGVtcyBvZiBob3N0PC0+Z3Vlc3QgdHJhY2luZyBzbyBJJ20gY3VyaW91
-cyBob3cgeW91IGhhbmRsZQo+IHRoaXMgOikuCgpSaWdodCwgeW91ciBjb25zaWRlcmF0aW9uIGlz
-IHRydWUuCgo+IEFwb2xvZ2llcyBmb3IgbXkgbGFjayBvZiBmdHJhY2Uga25vd2xlZGdlIGJ1dCBo
-b3cgdXNlZnVsIGlzIHRoZSByYXcKPiB0cmFjaW5nIGRhdGEgb24gdGhlIGhvc3Q/ICBIb3cgZG8g
-eW91IHByZXR0eS1wcmludCBpdCBpbgo+IGh1bWFuLXJlYWRhYmxlIGZvcm0/CgpwZXJmIGFuZCB0
-cmFjZS1jbWQgY2FuIGFjdHVhbGx5IHRyYW5zbGF0ZSByYXctZm9ybWF0dGVkIHRyYWNlIGRhdGEg
-dG8KdGV4dC1mb3JtYXR0ZWQgdHJhY2UgZGF0YSBieSB1c2luZyBpbmZvcm1hdGlvbiBvZiBrZXJu
-ZWwgb3IgdHJhY2UKZm9ybWF0IHVuZGVyIHRyYWNpbmcvZXZlbnRzIGRpcmVjdG9yeSBpbiBkZWJ1
-Z2ZzLiBJbiB0aGUgc2FtZSB3YXksIGlmCnRoZSBpbmZvcm1hdGlvbiBvZiBhIGd1ZXN0IGlzIGV4
-cG9ydGVkIHRvIGEgaG9zdCwgd2UgY2FuIHRyYW5zbGF0ZQpyYXcgdHJhY2UgZGF0YSBvZiBhIGd1
-ZXN0IHRvIHRleHQgdHJhY2UgZGF0YSBvbiBhIGhvc3QuIFdlIHdpbGwgdXNlCjlwZnMgdG8gZXhw
-b3J0IHRoYXQuCgpUaGFuayB5b3UsCgotLSAKWW9zaGloaXJvIFlVTk9NQUUKU29mdHdhcmUgUGxh
-dGZvcm0gUmVzZWFyY2ggRGVwdC4gTGludXggVGVjaG5vbG9neSBDZW50ZXIKSGl0YWNoaSwgTHRk
-LiwgWW9rb2hhbWEgUmVzZWFyY2ggTGFib3JhdG9yeQpFLW1haWw6IHlvc2hpaGlyby55dW5vbWFl
-LmV6QGhpdGFjaGkuY29tCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
-LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
-YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, Jul 24, 2012 at 01:45:24PM -0700, Nicholas A. Bellinger wrote:
+> On Mon, 2012-07-23 at 18:56 -0700, Greg Kroah-Hartman wrote:
+> > On Tue, Jul 24, 2012 at 01:26:20AM +0000, Nicholas A. Bellinger wrote:
+> > > From: Nicholas Bellinger <nab@linux-iscsi.org>
+> > > 
+> > > As requested by Anthony, here is a patch against target-pending/for-next-merge
+> > > to expose an ABI version to userspace via a new VHOST_SCSI_GET_ABI_VERSION
+> > > ioctl operation.
+> > > 
+> > > As mentioned in the comment, ABI Rev 0 is for pre 2012 out-of-tree code, and
+> > > ABI Rev 1 (the current rev) is for current WIP v3.6 kernel merge candiate code.
+> > > 
+> > > I think this is what you had in mind, and hopefully it will make MST happy too.
+> > > The incremental vhost-scsi patches against Zhi's QEMU are going out shortly ahead
+> > > of cutting a new vhost-scsi RFC over the next days.
+> > > 
+> > > Please have a look and let me know if you have any concerns here.
+> > > 
+> > > Thanks!
+> > > 
+> > > Reported-by: Anthony Liguori <aliguori@us.ibm.com>
+> > > Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+> > > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > > Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
+> > > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> > > ---
+> > >  drivers/vhost/tcm_vhost.c |    9 +++++++++
+> > >  drivers/vhost/tcm_vhost.h |   11 +++++++++++
+> > >  2 files changed, 20 insertions(+), 0 deletions(-)
+> > > 
+> 
+> <SNIP>
+> 
+> > > diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
+> > > index e942df9..3d5378f 100644
+> > > --- a/drivers/vhost/tcm_vhost.h
+> > > +++ b/drivers/vhost/tcm_vhost.h
+> > > @@ -80,7 +80,17 @@ struct tcm_vhost_tport {
+> > >  
+> > >  #include <linux/vhost.h>
+> > >  
+> > > +/*
+> > > + * Used by QEMU userspace to ensure a consistent vhost-scsi ABI.
+> > > + *
+> > > + * ABI Rev 0: All pre 2012 revisions used by prototype out-of-tree code
+> > > + * ABI Rev 1: 2012 version for v3.6 kernel merge candiate
+> > > + */
+> > > +
+> > > +#define VHOST_SCSI_ABI_VERSION	1
+> > > +
+> > >  struct vhost_scsi_target {
+> > > +	int abi_version;
+> > >  	unsigned char vhost_wwpn[TRANSPORT_IQN_LEN];
+> > >  	unsigned short vhost_tpgt;
+> > >  };
+> > > @@ -88,3 +98,4 @@ struct vhost_scsi_target {
+> > >  /* VHOST_SCSI specific defines */
+> > >  #define VHOST_SCSI_SET_ENDPOINT _IOW(VHOST_VIRTIO, 0x40, struct vhost_scsi_target)
+> > >  #define VHOST_SCSI_CLEAR_ENDPOINT _IOW(VHOST_VIRTIO, 0x41, struct vhost_scsi_target)
+> > > +#define VHOST_SCSI_GET_ABI_VERSION _IOW(VHOST_VIRTIO, 0x42, struct vhost_scsi_target)
+> > 
+> > No, you just broke the ABI for version "0" here, that's not how you do
+> > this at all.
+> > 
+> 
+> The intention of this patch is use ABI=1 as a starting point for
+> tcm_vhost moving forward, with no back-wards compat for the ABI=0
+> prototype userspace code because:
+> 
+> - It's based on a slightly older version of QEMU (updating the QEMU series now)
+> - It does not have an GET_ABI_VERSION ioctl cmd (that starts with ABI=1)
+> - It has a small user-base of target + virtio-scsi developers
+> 
+> So I did consider just starting from ABI=0, but figured this would help
+> reduce the confusion for QEMU userspace wrt to the vhost-scsi code
+> that's been floating around out-of-tree for the last 2 years.
+
+There is no real user base beyond the handful of people who have hacked
+on this.  Adding the GET_ABI_VERSION ioctl() at this stage is fine,
+especially considering that the userspace code that talks to tcm_vhost
+isn't in mainline in userspace yet either.
+
+Stefan
