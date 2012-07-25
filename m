@@ -1,54 +1,141 @@
 From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 08/17] Tools: hv: Gather subnet information
-Date: Wed, 25 Jul 2012 14:10:51 +0000
-Message-ID: <426367E2313C2449837CD2DE46E7EAF9236A8B6D@SN2PRD0310MB382.namprd03.prod.outlook.com>
-References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
-	 <1343145701-3691-1-git-send-email-kys@microsoft.com>
-	 <1343145701-3691-8-git-send-email-kys@microsoft.com>
- <1343178850.5132.104.camel@deadeye.wl.decadent.org.uk>
+Subject: RE: [PATCH 1/1] Drivers: hv: Cleanup the guest ID computation
+Date: Wed, 25 Jul 2012 14:18:03 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF9236A8B9A@SN2PRD0310MB382.namprd03.prod.outlook.com>
+References: <1343171518-15189-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1343178850.5132.104.camel@deadeye.wl.decadent.org.uk>
+In-Reply-To: <1343171518-15189-1-git-send-email-kys@microsoft.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ben Hutchings <ben@decadent.org.uk>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+To: KY Srinivasan <kys@microsoft.com>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQmVuIEh1dGNoaW5ncyBb
-bWFpbHRvOmJlbkBkZWNhZGVudC5vcmcudWtdDQo+IFNlbnQ6IFR1ZXNkYXksIEp1bHkgMjQsIDIw
-MTIgOToxNCBQTQ0KPiBUbzogS1kgU3Jpbml2YXNhbg0KPiBDYzogZ3JlZ2toQGxpbnV4Zm91bmRh
-dGlvbi5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+IGRldmVsQGxpbnV4ZHJp
-dmVycHJvamVjdC5vcmc7IHZpcnR1YWxpemF0aW9uQGxpc3RzLm9zZGwub3JnOyBvbGFmQGFlcGZs
-ZS5kZTsNCj4gYXB3QGNhbm9uaWNhbC5jb207IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmcNCj4gU3Vi
-amVjdDogUmU6IFtQQVRDSCAwOC8xN10gVG9vbHM6IGh2OiBHYXRoZXIgc3VibmV0IGluZm9ybWF0
-aW9uDQo+IA0KPiBPbiBUdWUsIDIwMTItMDctMjQgYXQgMDk6MDEgLTA3MDAsIEsuIFkuIFNyaW5p
-dmFzYW4gd3JvdGU6DQo+ID4gTm93IGdhdGhlciBzdWItbmV0IGluZm9ybWF0aW9uIGZvciB0aGUg
-c3BlY2lmaWVkIGludGVyZmFjZS4NCj4gPg0KPiA+IFNpZ25lZC1vZmYtYnk6IEsuIFkuIFNyaW5p
-dmFzYW4gPGt5c0BtaWNyb3NvZnQuY29tPg0KPiA+IFJldmlld2VkLWJ5OiBIYWl5YW5nIFpoYW5n
-IDxoYWl5YW5nekBtaWNyb3NvZnQuY29tPg0KPiA+IC0tLQ0KPiA+ICB0b29scy9odi9odl9rdnBf
-ZGFlbW9uLmMgfCAgIDMxICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0NCj4gPiAgMSBm
-aWxlcyBjaGFuZ2VkLCAyOSBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQ0KPiA+DQo+ID4g
-ZGlmZiAtLWdpdCBhL3Rvb2xzL2h2L2h2X2t2cF9kYWVtb24uYyBiL3Rvb2xzL2h2L2h2X2t2cF9k
-YWVtb24uYw0KPiA+IGluZGV4IDc5ZWIxMzAuLjJjMjRlYmYgMTAwNjQ0DQo+ID4gLS0tIGEvdG9v
-bHMvaHYvaHZfa3ZwX2RhZW1vbi5jDQo+ID4gKysrIGIvdG9vbHMvaHYvaHZfa3ZwX2RhZW1vbi5j
-DQo+ID4gQEAgLTUzNCw2ICs1MzQsNyBAQCBrdnBfZ2V0X2lwX2FkZHJlc3MoaW50IGZhbWlseSwg
-Y2hhciAqaWZfbmFtZSwgaW50IG9wLA0KPiA+ICAJc3RydWN0IGlmYWRkcnMgKmlmYXA7DQo+ID4g
-IAlzdHJ1Y3QgaWZhZGRycyAqY3VycDsNCj4gPiAgCWludCBvZmZzZXQgPSAwOw0KPiA+ICsJaW50
-IHNuX29mZnNldCA9IDA7DQo+ID4gIAljb25zdCBjaGFyICpzdHI7DQo+ID4gIAlpbnQgZXJyb3Ig
-PSAwOw0KPiA+ICAJY2hhciAqYnVmZmVyOw0KPiA+IEBAIC01OTQsMTIgKzU5NSwzOCBAQCBrdnBf
-Z2V0X2lwX2FkZHJlc3MoaW50IGZhbWlseSwgY2hhciAqaWZfbmFtZSwgaW50IG9wLA0KPiA+ICAJ
-CQkgKiBHYXRoZXIgaW5mbyBvdGhlciB0aGFuIHRoZSBJUCBhZGRyZXNzLg0KPiA+ICAJCQkgKiBJ
-UCBhZGRyZXNzIGluZm8gd2lsbCBiZSBnYXRoZXJlZCBsYXRlci4NCj4gPiAgCQkJICovDQo+ID4g
-LQkJCWlmIChjdXJwLT5pZmFfYWRkci0+c2FfZmFtaWx5ID09IEFGX0lORVQpDQo+ID4gKwkJCWlm
-IChjdXJwLT5pZmFfYWRkci0+c2FfZmFtaWx5ID09IEFGX0lORVQpIHsNCj4gPiAgCQkJCWlwX2J1
-ZmZlci0+YWRkcl9mYW1pbHkgfD0gQUREUl9GQU1JTFlfSVBWNDsNCj4gPiAtCQkJZWxzZQ0KPiA+
-ICsJCQkJLyoNCj4gPiArCQkJCSAqIEdldCBzdWJuZXQgaW5mby4NCj4gPiArCQkJCSAqLw0KPiA+
-ICsJCQkJZXJyb3IgPSBrdnBfcHJvY2Vzc19pcF9hZGRyZXNzKA0KPiA+ICsJCQkJCQkJY3VycC0+
-aWZhX25ldG1hc2ssDQo+ID4gKwkJCQkJCQlBRl9JTkVULA0KPiA+ICsJCQkJCQkJKGNoYXIgKikN
-Cj4gPiArCQkJCQkJCWlwX2J1ZmZlci0+c3ViX25ldCwNCj4gPiArCQkJCQkJCWxlbmd0aCwNCj4g
-PiArCQkJCQkJCSZzbl9vZmZzZXQpOw0KPiBbLi4uXQ0KPiANCj4gVGhpcyBpcyBiYXJlbHkgcmVh
-ZGFibGU7IHdoeSBkb24ndCB5b3UgaW5kZW50IHRoZSBhcmd1bWVudHMgYnkganVzdCBvbmUNCj4g
-ZXh0cmEgdGFiPw0KDQpXaWxsIGRvLg0KDQpSZWdhcmRzLA0KDQpLLiBZDQo=
+This is the patch I sent out yesterday for Linux to clean up the guest ID mess. For FreeBSD, you can use the following constant:
+
+HV_FREEBSD_VENDOR_ID		0x8200
+
+and use the function to generate the ID appropriately. Larry, I will forward you the proposal for guest ID in a separate email.
+
+Regards.
+
+K. Y
+
+> -----Original Message-----
+> From: K. Y. Srinivasan [mailto:kys@microsoft.com]
+> Sent: Tuesday, July 24, 2012 7:12 PM
+> To: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; olaf@aepfle.de;
+> apw@canonical.com
+> Cc: KY Srinivasan
+> Subject: [PATCH 1/1] Drivers: hv: Cleanup the guest ID computation
+> 
+> The current guest ID string in use in vmbus driver does not conform
+> to the MSFT guidelines on guest ID. MSFT currently does not specify
+> Linux specific guidelines. MSFT however has plans to publish Linux
+> specific guidelines. This implementation conforms to the yet unpublished
+> Linux specific guidelines for guest ID. This implementation also broadly
+> conforms to the current guidelines as well.
+> 
+> 
+> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> ---
+>  drivers/hv/hv.c           |    9 +++++--
+>  drivers/hv/hyperv_vmbus.h |   48
+> +++++++++++++++++++++++++++++++++++++++++---
+>  2 files changed, 50 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/hv/hv.c b/drivers/hv/hv.c
+> index 86f8885..771e24f 100644
+> --- a/drivers/hv/hv.c
+> +++ b/drivers/hv/hv.c
+> @@ -26,6 +26,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/vmalloc.h>
+>  #include <linux/hyperv.h>
+> +#include <linux/version.h>
+>  #include <asm/hyperv.h>
+>  #include "hyperv_vmbus.h"
+> 
+> @@ -164,9 +165,11 @@ int hv_init(void)
+> 
+>  	max_leaf = query_hypervisor_info();
+> 
+> -	/* Write our OS info */
+> -	wrmsrl(HV_X64_MSR_GUEST_OS_ID, HV_LINUX_GUEST_ID);
+> -	hv_context.guestid = HV_LINUX_GUEST_ID;
+> +	/*
+> +	 * Write our OS ID.
+> +	 */
+> +	hv_context.guestid = generate_guest_id(0, LINUX_VERSION_CODE, 0);
+> +	wrmsrl(HV_X64_MSR_GUEST_OS_ID, hv_context.guestid);
+> 
+>  	/* See if the hypercall page is already set */
+>  	rdmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
+> diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
+> index 0614ff3..108a441 100644
+> --- a/drivers/hv/hyperv_vmbus.h
+> +++ b/drivers/hv/hyperv_vmbus.h
+> @@ -410,10 +410,50 @@ enum {
+> 
+>  #define HV_PRESENT_BIT			0x80000000
+> 
+> -#define HV_LINUX_GUEST_ID_LO		0x00000000
+> -#define HV_LINUX_GUEST_ID_HI		2976579765
+> -#define HV_LINUX_GUEST_ID		(((u64)HV_LINUX_GUEST_ID_HI << 32) |
+> \
+> -					   HV_LINUX_GUEST_ID_LO)
+> +/*
+> + * The guest OS needs to register the guest ID with the hypervisor.
+> + * The guest ID is a 64 bit entity and the structure of this ID is
+> + * specified in the Hyper-V specification:
+> + *
+> + * http://msdn.microsoft.com/en-us/library/windows/
+> + * hardware/ff542653%28v=vs.85%29.aspx
+> + *
+> + * While the current guideline does not specify how Linux guest ID(s)
+> + * need to be generated, our plan is to publish the guidelines for
+> + * Linux and other guest operating systems that currently are hosted
+> + * on Hyper-V. The implementation here conforms to this yet
+> + * unpublished guidelines.
+> + *
+> + *
+> + * Bit(s)
+> + * 63 - Indicates if the OS is Open Source or not; 1 is Open Source
+> + * 62:56 - Os Type; Linux is 0x100
+> + * 55:48 - Distro specific identification
+> + * 47:16 - Linux kernel version number
+> + * 15:0  - Distro specific identification
+> + *
+> + *
+> + */
+> +
+> +#define HV_LINUX_VENDOR_ID		0x8100
+> +
+> +/*
+> + * Generate the guest ID based on the guideline described above.
+> + */
+> +
+> +static inline  __u64 generate_guest_id(__u8 d_info1, __u32 kernel_version,
+> +					__u16 d_info2)
+> +{
+> +	__u64 guest_id = 0;
+> +
+> +	guest_id = (((__u64)HV_LINUX_VENDOR_ID) << 48);
+> +	guest_id |= (((__u64)(d_info1)) << 48);
+> +	guest_id |= (((__u64)(kernel_version)) << 16);
+> +	guest_id |= ((__u64)(d_info2));
+> +
+> +	return guest_id;
+> +}
+> +
+> 
+>  #define HV_CPU_POWER_MANAGEMENT		(1 << 0)
+>  #define HV_RECOMMENDATIONS_MAX		4
+> --
+> 1.7.4.1
+> 
+> 
+> 
