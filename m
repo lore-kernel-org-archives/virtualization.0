@@ -1,114 +1,65 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 03/17] Drivers: hv: kvp: Cleanup error handling in KVP
-Date: Wed, 25 Jul 2012 14:51:43 +0000
-Message-ID: <426367E2313C2449837CD2DE46E7EAF9236A8BEA@SN2PRD0310MB382.namprd03.prod.outlook.com>
-References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
- <1343145701-3691-1-git-send-email-kys@microsoft.com>
- <1343145701-3691-3-git-send-email-kys@microsoft.com>
- <1343178644.5132.103.camel@deadeye.wl.decadent.org.uk>
- <426367E2313C2449837CD2DE46E7EAF9236A8B61@SN2PRD0310MB382.namprd03.prod.outlook.com>
- <20120725144724.GD1894@decadent.org.uk>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [PATCH] tcm_vhost: Expose ABI version via
+	VHOST_SCSI_GET_ABI_VERSION
+Date: Wed, 25 Jul 2012 14:10:48 -0700
+Message-ID: <1343250648.1813.169.camel__49367.0140429915$1343250666$gmane$org@haakon2.linux-iscsi.org>
+References: <1343093180-5598-1-git-send-email-nab@linux-iscsi.org>
+	<20120724015634.GD4093@kroah.com>
+	<1343162724.1813.111.camel@haakon2.linux-iscsi.org>
+	<500FF05B.8060602@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120725144724.GD1894@decadent.org.uk>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ben Hutchings <ben@decadent.org.uk>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <500FF05B.8060602@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Avi Kivity <avi@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Ben Hutchings [mailto:ben@decadent.org.uk]
-> Sent: Wednesday, July 25, 2012 10:47 AM
-> To: KY Srinivasan
-> Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> devel@linuxdriverproject.org; virtualization@lists.osdl.org; olaf@aepfle.de;
-> apw@canonical.com; netdev@vger.kernel.org
-> Subject: Re: [PATCH 03/17] Drivers: hv: kvp: Cleanup error handling in KVP
+On Wed, 2012-07-25 at 16:10 +0300, Avi Kivity wrote:
+> On 07/24/2012 11:45 PM, Nicholas A. Bellinger wrote:
 > 
-> On Wed, Jul 25, 2012 at 02:10:05PM +0000, KY Srinivasan wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Ben Hutchings [mailto:ben@decadent.org.uk]
-> > > Sent: Tuesday, July 24, 2012 9:11 PM
-> > > To: KY Srinivasan
-> > > Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
-> > > devel@linuxdriverproject.org; virtualization@lists.osdl.org; olaf@aepfle.de;
-> > > apw@canonical.com; netdev@vger.kernel.org
-> > > Subject: Re: [PATCH 03/17] Drivers: hv: kvp: Cleanup error handling in KVP
-> > >
-> > > On Tue, 2012-07-24 at 09:01 -0700, K. Y. Srinivasan wrote:
-> > > > In preparation to implementing IP injection, cleanup the way we propagate
-> > > > and handle errors both in the driver as well as in the user level daemon.
-> > > >
-> > > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > > > Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > > > ---
-> > > >  drivers/hv/hv_kvp.c      |  112
-> +++++++++++++++++++++++++++++++++++++-
-> > > --------
-> > > >  include/linux/hyperv.h   |   17 +++++---
-> > > >  tools/hv/hv_kvp_daemon.c |   70 +++++++++++++++-------------
-> > > >  3 files changed, 138 insertions(+), 61 deletions(-)
-> > > >
-> > > > diff --git a/drivers/hv/hv_kvp.c b/drivers/hv/hv_kvp.c
-> > > > index 0012eed..9b7fc4a 100644
-> > > > --- a/drivers/hv/hv_kvp.c
-> > > > +++ b/drivers/hv/hv_kvp.c
-> > > [...]
-> > > > @@ -109,27 +154,52 @@ kvp_cn_callback(struct cn_msg *msg, struct
-> > > netlink_skb_parms *nsp)
-> > > >  {
-> > > >  	struct hv_kvp_msg *message;
-> > > >  	struct hv_kvp_msg_enumerate *data;
-> > > > +	int	error = 0;
-> > > >
-> > > >  	message = (struct hv_kvp_msg *)msg->data;
-> > > > -	switch (message->kvp_hdr.operation) {
-> > > > +
-> > > > +	/*
-> > > > +	 * If we are negotiating the version information
-> > > > +	 * with the daemon; handle that first.
-> > > > +	 */
-> > > > +
-> > > > +	if (in_hand_shake) {
-> > > > +		if (kvp_handle_handshake(message))
-> > > > +			in_hand_shake = false;
-> > > > +		return;
-> > > > +	}
-> > > > +
-> > > > +	/*
-> > > > +	 * Based on the version of the daemon, we propagate errors from the
-> > > > +	 * daemon differently.
-> > > > +	 */
-> > > > +
-> > > > +	data = &message->body.kvp_enum_data;
-> > > > +
-> > > > +	switch (dm_reg_value) {
-> > > >  	case KVP_OP_REGISTER:
-> > > > -		pr_info("KVP: user-mode registering done.\n");
-> > > > -		kvp_register();
-> > > > -		kvp_transaction.active = false;
-> > > > -		hv_kvp_onchannelcallback(kvp_transaction.kvp_context);
-> > > > +		/*
-> > > > +		 * Null string is used to pass back error condition.
-> > > > +		 */
-> > > > +		if (!strlen(data->data.key))
-> > >
-> > > Do we know that the key is null-terminated here?  Shouldn't we just
-> > > check whether data->data.key[0] == 0?
-> >
-> > Yes, currently we do return null string to indicate error.
-> [...]
+> >> > diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
+> >> > index e942df9..3d5378f 100644
+> >> > --- a/drivers/vhost/tcm_vhost.h
+> >> > +++ b/drivers/vhost/tcm_vhost.h
+> >> > @@ -80,7 +80,17 @@ struct tcm_vhost_tport {
+> >> >  
+> >> >  #include <linux/vhost.h>
+> >> >  
+> >> > +/*
+> >> > + * Used by QEMU userspace to ensure a consistent vhost-scsi ABI.
+> >> > + *
+> >> > + * ABI Rev 0: All pre 2012 revisions used by prototype out-of-tree code
+> >> > + * ABI Rev 1: 2012 version for v3.6 kernel merge candiate
+> >> > + */
 > 
-> So the kernel should assume userland input is always valid?
+> 
+> If it's out of tree, why consider it at all?  Put a stable ABI in tree
+> and extend it in compatible ways.
+> 
+> 
 
-Good point! This is the existing code and this patch-set cleans up all
-the error handling and would not have this problem.
+This comment was supposed to convey that ABI=0 vhost-scsi userspace code
+is not supported with tcm_vhost mainline code.
 
-K. Y
+But obviously that was not clear enough here.  Updating the comment to
+reflect to make this clear.
+
+So the main question here was if it's fine to start with ABI=1, and
+require >= ABI=1 for all vhost-scsi userspace code to function with
+tcm_vhost.
+
+The idea was to avoid confusion for the ABI=0 vhost-scsi code that's
+been floating around for the last 2 years.
+
+--nab
