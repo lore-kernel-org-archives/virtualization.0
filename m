@@ -1,18 +1,16 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [RFC 0/2] virtio: provide a way for host to monitor critical
-	events in the device
-Date: Wed, 25 Jul 2012 14:16:28 +0530
-Message-ID: <20120725084628.GF9473@amit.redhat.com>
-References: <1343075561-29316-1-git-send-email-levinsasha928@gmail.com>
-	<87a9yprc4v.fsf@rustcorp.com.au> <500E5C36.2070601@redhat.com>
-	<500E954F.8090102@gmail.com> <500E9942.3080505@redhat.com>
-	<500E9CC7.9020201@gmail.com> <87haswptgq.fsf@rustcorp.com.au>
+From: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
+Subject: Re: Re: Re: [RFC PATCH 0/6] virtio-trace: Support virtio-trace
+Date: Wed, 25 Jul 2012 18:13:08 +0900
+Message-ID: <500FB8A4.6060503@hitachi.com>
+References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
+	<CAJSP0QW_2JJ0nf=NW0y30VSid2HSxaqb=mRGV8CTtAKj0ujDWw@mail.gmail.com>
+	<500E810A.4030309@hitachi.com> <500E84D7.7060103@hitachi.com>
+	<CAJSP0QVuQnE68n=jyW+AE=WF3yDHjgdn7tdiz7rPTbtqGYFL4w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87haswptgq.fsf@rustcorp.com.au>
+In-Reply-To: <CAJSP0QVuQnE68n=jyW+AE=WF3yDHjgdn7tdiz7rPTbtqGYFL4w@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,45 +20,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, wency@cn.fujitsu.com, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, penberg@kernel.org, Sasha Levin <levinsasha928@gmail.com>, anthony@codemonkey.ws, avi@redhat.com
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, Dhaval Giani <dhaval.giani@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, qemu-devel@nongnu.org, Amit Shah <amit.shah@redhat.com>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, yrl.pp-manager.tt@hitachi.com, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, virtualization@lists.linux-foundation.org, Srikar Dronamraju <srikar@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) 25 Jul 2012 [10:06:37], Rusty Russell wrote:
-> On Tue, 24 Jul 2012 15:01:59 +0200, Sasha Levin <levinsasha928@gmail.com> wrote:
-> > virtio on it's own was introduced to help solve the fragmentation
-> > around virtualized devices, so I don't think that the main purpose of
-> > doing virtio drivers is due to any performance benefits virtio may
-> > provide.
-> 
-> There's one argument in your favor (with my Linaro hat on): ARM wants a
-> virtio reboot button, which would look remarkably similar.  There's no
-> standard ARM hardware for this.
-> 
-> So a more generalized virtio-event device might make sense.  But there
-> are almost an infinite number of guest events we might want: panics,
-> oom, low memory, stuck devices, deadlock, etc, etc.  I'm concerned about
-> trying to standardize them.  If we include a unspecified free-form
-> string, people will end up relying on the contents.  If we add a feature
-> bit for every new event, we'll end up running out of feature bits :)
-> 
-> CC'ing Amit for opinion over how much of this should be done via
-> virtio-serial.
-
-The prevoius discussion happend on kvm-devel; it was suggested then to
-use virtio-serial for that as well.  We don't have an in-kernel
-interface for communication yet (barring the console interface, which
-we don't want to re-use for other reasons).
-
-Writing the in-kernel interface for communication with the host is not
-too much work as well.
-
-I agree using virtio-serial for several such free-form message-passing
-between the guest and host is the right way to implement such stuff.
-
-The lack of dedicated devices over either virtio or emulation of
-real hardware can be overcome by adding some documentation -
-preferably to the virtio spec's appendix, showing how watchdogs, etc.,
-are implemented using virtio-serial.
-
-		Amit
+SGkgU3RlZmFuLAoKKDIwMTIvMDcvMjQgMjI6NDEpLCBTdGVmYW4gSGFqbm9jemkgd3JvdGU6Cj4g
+T24gVHVlLCBKdWwgMjQsIDIwMTIgYXQgMTI6MTkgUE0sIFlvc2hpaGlybyBZVU5PTUFFCj4gPHlv
+c2hpaGlyby55dW5vbWFlLmV6QGhpdGFjaGkuY29tPiB3cm90ZToKPj4+PiBBcmUgeW91IHVzaW5n
+IHRleHQgZm9ybWF0dGVkIGZ0cmFjZT8KPj4gTm8sIGN1cnJlbnRseSB1c2luZyByYXcgZm9ybWF0
+LCBidXTjgIB3ZSdkIGxpa2UgdG8gcmVmb3JtYXQgaXQgaW4gdGV4dC4KPgo+IENhcHR1cmluZyB0
+aGUgaW5mbyBuZWNlc3NhcnkgdG8gdHJhbnNsYXRlIG51bWJlcnMgaW50byBzeW1ib2xzIGlzIG9u
+ZQo+IG9mIHRoZSBwcm9ibGVtcyBvZiBob3N0PC0+Z3Vlc3QgdHJhY2luZyBzbyBJJ20gY3VyaW91
+cyBob3cgeW91IGhhbmRsZQo+IHRoaXMgOikuCgpSaWdodCwgeW91ciBjb25zaWRlcmF0aW9uIGlz
+IHRydWUuCgo+IEFwb2xvZ2llcyBmb3IgbXkgbGFjayBvZiBmdHJhY2Uga25vd2xlZGdlIGJ1dCBo
+b3cgdXNlZnVsIGlzIHRoZSByYXcKPiB0cmFjaW5nIGRhdGEgb24gdGhlIGhvc3Q/ICBIb3cgZG8g
+eW91IHByZXR0eS1wcmludCBpdCBpbgo+IGh1bWFuLXJlYWRhYmxlIGZvcm0/CgpwZXJmIGFuZCB0
+cmFjZS1jbWQgY2FuIGFjdHVhbGx5IHRyYW5zbGF0ZSByYXctZm9ybWF0dGVkIHRyYWNlIGRhdGEg
+dG8KdGV4dC1mb3JtYXR0ZWQgdHJhY2UgZGF0YSBieSB1c2luZyBpbmZvcm1hdGlvbiBvZiBrZXJu
+ZWwgb3IgdHJhY2UKZm9ybWF0IHVuZGVyIHRyYWNpbmcvZXZlbnRzIGRpcmVjdG9yeSBpbiBkZWJ1
+Z2ZzLiBJbiB0aGUgc2FtZSB3YXksIGlmCnRoZSBpbmZvcm1hdGlvbiBvZiBhIGd1ZXN0IGlzIGV4
+cG9ydGVkIHRvIGEgaG9zdCwgd2UgY2FuIHRyYW5zbGF0ZQpyYXcgdHJhY2UgZGF0YSBvZiBhIGd1
+ZXN0IHRvIHRleHQgdHJhY2UgZGF0YSBvbiBhIGhvc3QuIFdlIHdpbGwgdXNlCjlwZnMgdG8gZXhw
+b3J0IHRoYXQuCgpUaGFuayB5b3UsCgotLSAKWW9zaGloaXJvIFlVTk9NQUUKU29mdHdhcmUgUGxh
+dGZvcm0gUmVzZWFyY2ggRGVwdC4gTGludXggVGVjaG5vbG9neSBDZW50ZXIKSGl0YWNoaSwgTHRk
+LiwgWW9rb2hhbWEgUmVzZWFyY2ggTGFib3JhdG9yeQpFLW1haWw6IHlvc2hpaGlyby55dW5vbWFl
+LmV6QGhpdGFjaGkuY29tCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
+YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
