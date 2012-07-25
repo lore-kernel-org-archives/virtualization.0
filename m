@@ -1,50 +1,135 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH] tcm_vhost: Expose ABI version via
-	VHOST_SCSI_GET_ABI_VERSION
-Date: Wed, 25 Jul 2012 16:10:51 +0300
-Message-ID: <500FF05B.8060602@redhat.com>
-References: <1343093180-5598-1-git-send-email-nab@linux-iscsi.org>
-	<20120724015634.GD4093@kroah.com>
-	<1343162724.1813.111.camel@haakon2.linux-iscsi.org>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH 03/17] Drivers: hv: kvp: Cleanup error handling in KVP
+Date: Wed, 25 Jul 2012 14:10:05 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF9236A8B61@SN2PRD0310MB382.namprd03.prod.outlook.com>
+References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
+ <1343145701-3691-1-git-send-email-kys@microsoft.com>
+ <1343145701-3691-3-git-send-email-kys@microsoft.com>
+ <1343178644.5132.103.camel@deadeye.wl.decadent.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1343162724.1813.111.camel@haakon2.linux-iscsi.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <1343178644.5132.103.camel@deadeye.wl.decadent.org.uk>
+Content-Language: en-US
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: Ben Hutchings <ben@decadent.org.uk>
+Cc: "olaf@aepfle.de" <olaf@aepfle.de>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/24/2012 11:45 PM, Nicholas A. Bellinger wrote:
-
->> > diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
->> > index e942df9..3d5378f 100644
->> > --- a/drivers/vhost/tcm_vhost.h
->> > +++ b/drivers/vhost/tcm_vhost.h
->> > @@ -80,7 +80,17 @@ struct tcm_vhost_tport {
->> >  
->> >  #include <linux/vhost.h>
->> >  
->> > +/*
->> > + * Used by QEMU userspace to ensure a consistent vhost-scsi ABI.
->> > + *
->> > + * ABI Rev 0: All pre 2012 revisions used by prototype out-of-tree code
->> > + * ABI Rev 1: 2012 version for v3.6 kernel merge candiate
->> > + */
 
 
-If it's out of tree, why consider it at all?  Put a stable ABI in tree
-and extend it in compatible ways.
+> -----Original Message-----
+> From: Ben Hutchings [mailto:ben@decadent.org.uk]
+> Sent: Tuesday, July 24, 2012 9:11 PM
+> To: KY Srinivasan
+> Cc: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; olaf@aepfle.de;
+> apw@canonical.com; netdev@vger.kernel.org
+> Subject: Re: [PATCH 03/17] Drivers: hv: kvp: Cleanup error handling in KVP
+> 
+> On Tue, 2012-07-24 at 09:01 -0700, K. Y. Srinivasan wrote:
+> > In preparation to implementing IP injection, cleanup the way we propagate
+> > and handle errors both in the driver as well as in the user level daemon.
+> >
+> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > ---
+> >  drivers/hv/hv_kvp.c      |  112 +++++++++++++++++++++++++++++++++++++-
+> --------
+> >  include/linux/hyperv.h   |   17 +++++---
+> >  tools/hv/hv_kvp_daemon.c |   70 +++++++++++++++-------------
+> >  3 files changed, 138 insertions(+), 61 deletions(-)
+> >
+> > diff --git a/drivers/hv/hv_kvp.c b/drivers/hv/hv_kvp.c
+> > index 0012eed..9b7fc4a 100644
+> > --- a/drivers/hv/hv_kvp.c
+> > +++ b/drivers/hv/hv_kvp.c
+> [...]
+> > @@ -109,27 +154,52 @@ kvp_cn_callback(struct cn_msg *msg, struct
+> netlink_skb_parms *nsp)
+> >  {
+> >  	struct hv_kvp_msg *message;
+> >  	struct hv_kvp_msg_enumerate *data;
+> > +	int	error = 0;
+> >
+> >  	message = (struct hv_kvp_msg *)msg->data;
+> > -	switch (message->kvp_hdr.operation) {
+> > +
+> > +	/*
+> > +	 * If we are negotiating the version information
+> > +	 * with the daemon; handle that first.
+> > +	 */
+> > +
+> > +	if (in_hand_shake) {
+> > +		if (kvp_handle_handshake(message))
+> > +			in_hand_shake = false;
+> > +		return;
+> > +	}
+> > +
+> > +	/*
+> > +	 * Based on the version of the daemon, we propagate errors from the
+> > +	 * daemon differently.
+> > +	 */
+> > +
+> > +	data = &message->body.kvp_enum_data;
+> > +
+> > +	switch (dm_reg_value) {
+> >  	case KVP_OP_REGISTER:
+> > -		pr_info("KVP: user-mode registering done.\n");
+> > -		kvp_register();
+> > -		kvp_transaction.active = false;
+> > -		hv_kvp_onchannelcallback(kvp_transaction.kvp_context);
+> > +		/*
+> > +		 * Null string is used to pass back error condition.
+> > +		 */
+> > +		if (!strlen(data->data.key))
+> 
+> Do we know that the key is null-terminated here?  Shouldn't we just
+> check whether data->data.key[0] == 0?
 
+Yes, currently we do return null string to indicate error.
 
--- 
-error compiling committee.c: too many arguments to function
+> 
+> > +			error = HV_S_CONT;
+> >  		break;
+> >
+> > -	default:
+> > -		data = &message->body.kvp_enum_data;
+> > +	case KVP_OP_REGISTER1:
+> >  		/*
+> > -		 * Complete the transaction by forwarding the key value
+> > -		 * to the host. But first, cancel the timeout.
+> > +		 * We use the message header information from
+> > +		 * the user level daemon to transmit errors.
+> >  		 */
+> > -		if (cancel_delayed_work_sync(&kvp_work))
+> > -			kvp_respond_to_host(data->data.key,
+> > -					 data->data.value,
+> > -					!strlen(data->data.key));
+> > +		error = *((int *)(&message->kvp_hdr.operation));
+> [...]
+> 
+> What's with the casting (repeated in many other places)?  Wouldn't it be
+> better to redefine struct hv_kvp_msg to start with something like:
+> 
+> 	union {
+> 		struct hv_kvp_hdr	request;
+> 		int			error;
+> 	} kvp_hdr;
+
+Agreed; will do.
+> 
+> Ben.
+> 
+> --
+> Ben Hutchings
+> If more than one person is responsible for a bug, no one is at fault.
