@@ -1,13 +1,11 @@
-From: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
-Subject: [vmw_vmci 11/11] Apply the header code to make VMCI build
-Date: Thu, 26 Jul 2012 16:39:40 -0700
-Message-ID: <1343345980-32397-12-git-send-email-astiegmann@vmware.com>
-References: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: [RFC-v5] tcm_vhost: Initial merge for vhost level target fabric driver
+Date: Thu, 26 Jul 2012 23:43:20 +0000
+Message-ID: <1343346200-19850-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,1205 +15,1865 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: pv-drivers@vmware.com, vm-crosstalk@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, cschamp@vmware.com, gregkh@linuxfoundation.org
+To: target-devel <target-devel@vger.kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Anthony Liguori <aliguori@us.ibm.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Adds all the necessary files to enable building of the VMCI module
-with the Linux Makefiles and Kconfig systems. Also adds the header
-files used for building modules against the driver.
+From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-Signed-off-by: Andrew Stiegmann (stieg) <astiegmann@vmware.com>
+Hello KVM + QEMU folks,
+
+This is -v5 of the in-flight tcm_vhost fabric driver for KVM host virtualized
+target support using the in-kernel storage stack with for-3.6 code.
+
+The changes since -v4 have been pretty minimal.  A new GET_ABI_VERSION ioctl
+has been added as requested by Anthony & Co, and after some back <-> forth on
+the lists we've decided upon a starting point of VHOST_SCSI_ABI_VERSION=0,
+and vhost-scsi RFC userspace has been updated accordingly.
+
+Along with that, a few handfuls of vq related error messages where converted
+to use vq_err as requested by MST, along with some minor checkpatch fixes.
+
+So this point everything required to run tcm_vhost from drivers/target +
+drivers/vhost, and virtio-scsi LLD bugfix has been merged into v3.6-rc0 code.
+
+Please have a look and let us know if there are any last-minute pre-merge
+comments ahead of MST returning from holiday this weekend.
+
+Thank you!
+
+--nab
+
+Changelog v4 -> v5:
+
+  Expose ABI version via VHOST_SCSI_GET_ABI_VERSION + use Rev 0 as
+  starting point for v3.6-rc code (Stefan + ALiguori + nab)
+  Convert vhost_scsi_handle_vq() to vq_err() (nab + MST)
+  Minor style fixes from checkpatch (nab)
+
+Changelog v3 -> v4:
+
+  Rename vhost_vring_target -> vhost_scsi_target (mst + nab)
+  Use TRANSPORT_IQN_LEN in vhost_scsi_target->vhost_wwpn[] def (nab)
+  Move back to drivers/vhost/, and just use drivers/vhost/Kconfig.tcm (mst)
+  Move TCM_VHOST related ioctl defines from include/linux/vhost.h ->
+  drivers/vhost/tcm_vhost.h as requested by MST (nab)
+  Move Kbuild.tcm include from drivers/staging -> drivers/vhost/, and
+  just use 'if STAGING' around 'source drivers/vhost/Kbuild.tcm'
+
+Changelog v2 -> v3:
+
+  Unlock on error in tcm_vhost_drop_nexus() (DanC)
+  Fix strlen() doesn't count the terminator (DanC)
+  Call kfree() on an error path (DanC)
+  Convert tcm_vhost_write_pending to use target_execute_cmd (hch + nab)
+  Fix another strlen() off by one in tcm_vhost_make_tport (DanC)
+  Add option under drivers/staging/Kconfig, and move to drivers/vhost/tcm/
+  as requested by MST (nab)
+
+Changelog v1 -> v2:
+
+  Fix tv_cmd completion -> release SGL memory leak (nab)
+  Fix sparse warnings for static variable usage ((Fengguang Wu)
+  Fix sparse warnings for min() typing + printk format specs (Fengguang Wu)
+  Convert to cmwq submission for I/O dispatch (nab + hch)
+
+Changelog v0 -> v1:
+
+  Merge into single source + header file, and move to drivers/vhost/
+
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Zhi Yong Wu <wuzhy@cn.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Hannes Reinecke <hare@suse.de>
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 ---
- drivers/misc/Kconfig                    |    1 +
- drivers/misc/Makefile                   |    1 +
- drivers/misc/vmw_vmci/Kconfig           |   16 +
- drivers/misc/vmw_vmci/Makefile          |   43 ++
- drivers/misc/vmw_vmci/vmci_common_int.h |   58 ++
- include/linux/vmw_vmci_api.h            |   89 +++
- include/linux/vmw_vmci_defs.h           |  921 +++++++++++++++++++++++++++++++
- 7 files changed, 1129 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/vmw_vmci/Kconfig
- create mode 100644 drivers/misc/vmw_vmci/Makefile
- create mode 100644 drivers/misc/vmw_vmci/vmci_common_int.h
- create mode 100644 include/linux/vmw_vmci_api.h
- create mode 100644 include/linux/vmw_vmci_defs.h
+ drivers/vhost/Kconfig     |    3 +
+ drivers/vhost/Kconfig.tcm |    6 +
+ drivers/vhost/Makefile    |    2 +
+ drivers/vhost/tcm_vhost.c | 1628 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/tcm_vhost.h |  101 +++
+ 5 files changed, 1740 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/vhost/Kconfig.tcm
+ create mode 100644 drivers/vhost/tcm_vhost.c
+ create mode 100644 drivers/vhost/tcm_vhost.h
 
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 2661f6e..fe38c7a 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -517,4 +517,5 @@ source "drivers/misc/lis3lv02d/Kconfig"
- source "drivers/misc/carma/Kconfig"
- source "drivers/misc/altera-stapl/Kconfig"
- source "drivers/misc/mei/Kconfig"
-+source "drivers/misc/vmw_vmci/Kconfig"
- endmenu
-diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 456972f..af9e413 100644
---- a/drivers/misc/Makefile
-+++ b/drivers/misc/Makefile
-@@ -51,3 +51,4 @@ obj-y				+= carma/
- obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
- obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
- obj-$(CONFIG_INTEL_MEI)		+= mei/
-+obj-y				+= vmw_vmci/
-diff --git a/drivers/misc/vmw_vmci/Kconfig b/drivers/misc/vmw_vmci/Kconfig
+diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+index e4e2fd1..202bba6 100644
+--- a/drivers/vhost/Kconfig
++++ b/drivers/vhost/Kconfig
+@@ -9,3 +9,6 @@ config VHOST_NET
+ 	  To compile this driver as a module, choose M here: the module will
+ 	  be called vhost_net.
+ 
++if STAGING
++source "drivers/vhost/Kconfig.tcm"
++endif
+diff --git a/drivers/vhost/Kconfig.tcm b/drivers/vhost/Kconfig.tcm
 new file mode 100644
-index 0000000..55015e7
+index 0000000..a9c6f76
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/Kconfig
-@@ -0,0 +1,16 @@
-+#
-+# VMware VMCI device
-+#
++++ b/drivers/vhost/Kconfig.tcm
+@@ -0,0 +1,6 @@
++config TCM_VHOST
++	tristate "TCM_VHOST fabric module (EXPERIMENTAL)"
++	depends on TARGET_CORE && EVENTFD && EXPERIMENTAL && m
++	default n
++	---help---
++	Say M here to enable the TCM_VHOST fabric module for use with virtio-scsi guests
+diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
+index 72dd020..a27b053 100644
+--- a/drivers/vhost/Makefile
++++ b/drivers/vhost/Makefile
+@@ -1,2 +1,4 @@
+ obj-$(CONFIG_VHOST_NET) += vhost_net.o
+ vhost_net-y := vhost.o net.o
 +
-+config VMWARE_VMCI
-+	tristate "VMware VMCI Driver"
-+	depends on X86
-+	help
-+	  This is VMware's Virtual Machine Communication Interface.  It enables
-+	  high-speed communication between host and guest in a virtual
-+	  environment via the VMCI virtual device.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called vmw_vmci.
-diff --git a/drivers/misc/vmw_vmci/Makefile b/drivers/misc/vmw_vmci/Makefile
++obj-$(CONFIG_TCM_VHOST) += tcm_vhost.o
+diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
 new file mode 100644
-index 0000000..19755fb
+index 0000000..fb36654
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/Makefile
-@@ -0,0 +1,43 @@
-+################################################################################
-+#
-+# Linux driver for VMware's VMCI device.
-+#
-+# Copyright (C) 2007-2012, VMware, Inc. All Rights Reserved.
-+#
-+# This program is free software; you can redistribute it and/or modify it
-+# under the terms of the GNU General Public License as published by the
-+# Free Software Foundation; version 2 of the License and no later version.
-+#
-+# This program is distributed in the hope that it will be useful, but
-+# WITHOUT ANY WARRANTY; without even the implied warranty of
-+# MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+# NON INFRINGEMENT.  See the GNU General Public License for more
-+# details.
-+#
-+# You should have received a copy of the GNU General Public License
-+# along with this program; if not, write to the Free Software
-+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-+#
-+# The full GNU General Public License is included in this distribution in
-+# the file called "COPYING".
-+#
-+# Maintained by: Andrew Stiegmann <pv-drivers@vmware.com>
-+#
-+################################################################################
++++ b/drivers/vhost/tcm_vhost.c
+@@ -0,0 +1,1628 @@
++/*******************************************************************************
++ * Vhost kernel TCM fabric driver for virtio SCSI initiators
++ *
++ * (C) Copyright 2010-2012 RisingTide Systems LLC.
++ * (C) Copyright 2010-2012 IBM Corp.
++ *
++ * Licensed to the Linux Foundation under the General Public License (GPL) version 2.
++ *
++ * Authors: Nicholas A. Bellinger <nab@risingtidesystems.com>
++ *          Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ ****************************************************************************/
 +
-+#
-+# Makefile for the VMware VMCI
-+#
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <generated/utsrelease.h>
++#include <linux/utsname.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/kthread.h>
++#include <linux/types.h>
++#include <linux/string.h>
++#include <linux/configfs.h>
++#include <linux/ctype.h>
++#include <linux/compat.h>
++#include <linux/eventfd.h>
++#include <linux/vhost.h>
++#include <linux/fs.h>
++#include <linux/miscdevice.h>
++#include <asm/unaligned.h>
++#include <scsi/scsi.h>
++#include <scsi/scsi_tcq.h>
++#include <target/target_core_base.h>
++#include <target/target_core_fabric.h>
++#include <target/target_core_fabric_configfs.h>
++#include <target/target_core_configfs.h>
++#include <target/configfs_macros.h>
++#include <linux/vhost.h>
++#include <linux/virtio_net.h> /* TODO vhost.h currently depends on this */
++#include <linux/virtio_scsi.h>
 +
-+obj-$(CONFIG_VMWARE_VMCI) += vmw_vmci.o
++#include "vhost.c"
++#include "vhost.h"
++#include "tcm_vhost.h"
 +
-+vmw_vmci-objs += vmci_context.o
-+vmw_vmci-objs += vmci_datagram.o
-+vmw_vmci-objs += vmci_doorbell.o
-+vmw_vmci-objs += vmci_driver.o
-+vmw_vmci-objs += vmci_event.o
-+vmw_vmci-objs += vmci_handle_array.o
-+vmw_vmci-objs += vmci_hash_table.o
-+vmw_vmci-objs += vmci_queue_pair.o
-+vmw_vmci-objs += vmci_resource.o
-+vmw_vmci-objs += vmci_route.o
-diff --git a/drivers/misc/vmw_vmci/vmci_common_int.h b/drivers/misc/vmw_vmci/vmci_common_int.h
-new file mode 100644
-index 0000000..6e82610
---- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_common_int.h
-@@ -0,0 +1,58 @@
-+/*
-+ * VMware VMCI Driver
++struct vhost_scsi {
++	atomic_t vhost_ref_cnt;
++	struct tcm_vhost_tpg *vs_tpg;
++	struct vhost_dev dev;
++	struct vhost_virtqueue vqs[3];
++
++	struct vhost_work vs_completion_work; /* cmd completion work item */
++	struct list_head vs_completion_list;  /* cmd completion queue */
++	spinlock_t vs_completion_lock;        /* protects s_completion_list */
++};
++
++/* Local pointer to allocated TCM configfs fabric module */
++static struct target_fabric_configfs *tcm_vhost_fabric_configfs;
++
++static struct workqueue_struct *tcm_vhost_workqueue;
++
++/* Global spinlock to protect tcm_vhost TPG list for vhost IOCTL access */
++static DEFINE_MUTEX(tcm_vhost_mutex);
++static LIST_HEAD(tcm_vhost_list);
++
++static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
++{
++	return 1;
++}
++
++static int tcm_vhost_check_false(struct se_portal_group *se_tpg)
++{
++	return 0;
++}
++
++static char *tcm_vhost_get_fabric_name(void)
++{
++	return "vhost";
++}
++
++static u8 tcm_vhost_get_fabric_proto_ident(struct se_portal_group *se_tpg)
++{
++	struct tcm_vhost_tpg *tpg = container_of(se_tpg,
++				struct tcm_vhost_tpg, se_tpg);
++	struct tcm_vhost_tport *tport = tpg->tport;
++
++	switch (tport->tport_proto_id) {
++	case SCSI_PROTOCOL_SAS:
++		return sas_get_fabric_proto_ident(se_tpg);
++	case SCSI_PROTOCOL_FCP:
++		return fc_get_fabric_proto_ident(se_tpg);
++	case SCSI_PROTOCOL_ISCSI:
++		return iscsi_get_fabric_proto_ident(se_tpg);
++	default:
++		pr_err("Unknown tport_proto_id: 0x%02x, using"
++			" SAS emulation\n", tport->tport_proto_id);
++		break;
++	}
++
++	return sas_get_fabric_proto_ident(se_tpg);
++}
++
++static char *tcm_vhost_get_fabric_wwn(struct se_portal_group *se_tpg)
++{
++	struct tcm_vhost_tpg *tpg = container_of(se_tpg,
++				struct tcm_vhost_tpg, se_tpg);
++	struct tcm_vhost_tport *tport = tpg->tport;
++
++	return &tport->tport_name[0];
++}
++
++static u16 tcm_vhost_get_tag(struct se_portal_group *se_tpg)
++{
++	struct tcm_vhost_tpg *tpg = container_of(se_tpg,
++				struct tcm_vhost_tpg, se_tpg);
++	return tpg->tport_tpgt;
++}
++
++static u32 tcm_vhost_get_default_depth(struct se_portal_group *se_tpg)
++{
++	return 1;
++}
++
++static u32 tcm_vhost_get_pr_transport_id(
++	struct se_portal_group *se_tpg,
++	struct se_node_acl *se_nacl,
++	struct t10_pr_registration *pr_reg,
++	int *format_code,
++	unsigned char *buf)
++{
++	struct tcm_vhost_tpg *tpg = container_of(se_tpg,
++				struct tcm_vhost_tpg, se_tpg);
++	struct tcm_vhost_tport *tport = tpg->tport;
++
++	switch (tport->tport_proto_id) {
++	case SCSI_PROTOCOL_SAS:
++		return sas_get_pr_transport_id(se_tpg, se_nacl, pr_reg,
++					format_code, buf);
++	case SCSI_PROTOCOL_FCP:
++		return fc_get_pr_transport_id(se_tpg, se_nacl, pr_reg,
++					format_code, buf);
++	case SCSI_PROTOCOL_ISCSI:
++		return iscsi_get_pr_transport_id(se_tpg, se_nacl, pr_reg,
++					format_code, buf);
++	default:
++		pr_err("Unknown tport_proto_id: 0x%02x, using"
++			" SAS emulation\n", tport->tport_proto_id);
++		break;
++	}
++
++	return sas_get_pr_transport_id(se_tpg, se_nacl, pr_reg,
++			format_code, buf);
++}
++
++static u32 tcm_vhost_get_pr_transport_id_len(
++	struct se_portal_group *se_tpg,
++	struct se_node_acl *se_nacl,
++	struct t10_pr_registration *pr_reg,
++	int *format_code)
++{
++	struct tcm_vhost_tpg *tpg = container_of(se_tpg,
++				struct tcm_vhost_tpg, se_tpg);
++	struct tcm_vhost_tport *tport = tpg->tport;
++
++	switch (tport->tport_proto_id) {
++	case SCSI_PROTOCOL_SAS:
++		return sas_get_pr_transport_id_len(se_tpg, se_nacl, pr_reg,
++					format_code);
++	case SCSI_PROTOCOL_FCP:
++		return fc_get_pr_transport_id_len(se_tpg, se_nacl, pr_reg,
++					format_code);
++	case SCSI_PROTOCOL_ISCSI:
++		return iscsi_get_pr_transport_id_len(se_tpg, se_nacl, pr_reg,
++					format_code);
++	default:
++		pr_err("Unknown tport_proto_id: 0x%02x, using"
++			" SAS emulation\n", tport->tport_proto_id);
++		break;
++	}
++
++	return sas_get_pr_transport_id_len(se_tpg, se_nacl, pr_reg,
++			format_code);
++}
++
++static char *tcm_vhost_parse_pr_out_transport_id(
++	struct se_portal_group *se_tpg,
++	const char *buf,
++	u32 *out_tid_len,
++	char **port_nexus_ptr)
++{
++	struct tcm_vhost_tpg *tpg = container_of(se_tpg,
++				struct tcm_vhost_tpg, se_tpg);
++	struct tcm_vhost_tport *tport = tpg->tport;
++
++	switch (tport->tport_proto_id) {
++	case SCSI_PROTOCOL_SAS:
++		return sas_parse_pr_out_transport_id(se_tpg, buf, out_tid_len,
++					port_nexus_ptr);
++	case SCSI_PROTOCOL_FCP:
++		return fc_parse_pr_out_transport_id(se_tpg, buf, out_tid_len,
++					port_nexus_ptr);
++	case SCSI_PROTOCOL_ISCSI:
++		return iscsi_parse_pr_out_transport_id(se_tpg, buf, out_tid_len,
++					port_nexus_ptr);
++	default:
++		pr_err("Unknown tport_proto_id: 0x%02x, using"
++			" SAS emulation\n", tport->tport_proto_id);
++		break;
++	}
++
++	return sas_parse_pr_out_transport_id(se_tpg, buf, out_tid_len,
++			port_nexus_ptr);
++}
++
++static struct se_node_acl *tcm_vhost_alloc_fabric_acl(
++	struct se_portal_group *se_tpg)
++{
++	struct tcm_vhost_nacl *nacl;
++
++	nacl = kzalloc(sizeof(struct tcm_vhost_nacl), GFP_KERNEL);
++	if (!nacl) {
++		pr_err("Unable to alocate struct tcm_vhost_nacl\n");
++		return NULL;
++	}
++
++	return &nacl->se_node_acl;
++}
++
++static void tcm_vhost_release_fabric_acl(
++	struct se_portal_group *se_tpg,
++	struct se_node_acl *se_nacl)
++{
++	struct tcm_vhost_nacl *nacl = container_of(se_nacl,
++			struct tcm_vhost_nacl, se_node_acl);
++	kfree(nacl);
++}
++
++static u32 tcm_vhost_tpg_get_inst_index(struct se_portal_group *se_tpg)
++{
++	return 1;
++}
++
++static void tcm_vhost_release_cmd(struct se_cmd *se_cmd)
++{
++	return;
++}
++
++static int tcm_vhost_shutdown_session(struct se_session *se_sess)
++{
++	return 0;
++}
++
++static void tcm_vhost_close_session(struct se_session *se_sess)
++{
++	return;
++}
++
++static u32 tcm_vhost_sess_get_index(struct se_session *se_sess)
++{
++	return 0;
++}
++
++static int tcm_vhost_write_pending(struct se_cmd *se_cmd)
++{
++	/* Go ahead and process the write immediately */
++	target_execute_cmd(se_cmd);
++	return 0;
++}
++
++static int tcm_vhost_write_pending_status(struct se_cmd *se_cmd)
++{
++	return 0;
++}
++
++static void tcm_vhost_set_default_node_attrs(struct se_node_acl *nacl)
++{
++	return;
++}
++
++static u32 tcm_vhost_get_task_tag(struct se_cmd *se_cmd)
++{
++	return 0;
++}
++
++static int tcm_vhost_get_cmd_state(struct se_cmd *se_cmd)
++{
++	return 0;
++}
++
++static void vhost_scsi_complete_cmd(struct tcm_vhost_cmd *);
++
++static int tcm_vhost_queue_data_in(struct se_cmd *se_cmd)
++{
++	struct tcm_vhost_cmd *tv_cmd = container_of(se_cmd,
++				struct tcm_vhost_cmd, tvc_se_cmd);
++	vhost_scsi_complete_cmd(tv_cmd);
++	return 0;
++}
++
++static int tcm_vhost_queue_status(struct se_cmd *se_cmd)
++{
++	struct tcm_vhost_cmd *tv_cmd = container_of(se_cmd,
++				struct tcm_vhost_cmd, tvc_se_cmd);
++	vhost_scsi_complete_cmd(tv_cmd);
++	return 0;
++}
++
++static int tcm_vhost_queue_tm_rsp(struct se_cmd *se_cmd)
++{
++	return 0;
++}
++
++static u16 tcm_vhost_set_fabric_sense_len(struct se_cmd *se_cmd,
++	u32 sense_length)
++{
++	return 0;
++}
++
++static u16 tcm_vhost_get_fabric_sense_len(void)
++{
++	return 0;
++}
++
++static void vhost_scsi_free_cmd(struct tcm_vhost_cmd *tv_cmd)
++{
++	struct se_cmd *se_cmd = &tv_cmd->tvc_se_cmd;
++
++	/* TODO locking against target/backend threads? */
++	transport_generic_free_cmd(se_cmd, 1);
++
++	if (tv_cmd->tvc_sgl_count) {
++		u32 i;
++		for (i = 0; i < tv_cmd->tvc_sgl_count; i++)
++			put_page(sg_page(&tv_cmd->tvc_sgl[i]));
++
++		kfree(tv_cmd->tvc_sgl);
++	}
++
++	kfree(tv_cmd);
++}
++
++/* Dequeue a command from the completion list */
++static struct tcm_vhost_cmd *vhost_scsi_get_cmd_from_completion(
++	struct vhost_scsi *vs)
++{
++	struct tcm_vhost_cmd *tv_cmd = NULL;
++
++	spin_lock_bh(&vs->vs_completion_lock);
++	if (list_empty(&vs->vs_completion_list)) {
++		spin_unlock_bh(&vs->vs_completion_lock);
++		return NULL;
++	}
++
++	list_for_each_entry(tv_cmd, &vs->vs_completion_list,
++			    tvc_completion_list) {
++		list_del(&tv_cmd->tvc_completion_list);
++		break;
++	}
++	spin_unlock_bh(&vs->vs_completion_lock);
++	return tv_cmd;
++}
++
++/* Fill in status and signal that we are done processing this command
 + *
-+ * Copyright (C) 2012 VMware, Inc. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation version 2 and no later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-+ * for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write to the Free Software Foundation, Inc.,
-+ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
++ * This is scheduled in the vhost work queue so we are called with the owner
++ * process mm and can access the vring.
 + */
++static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
++{
++	struct vhost_scsi *vs = container_of(work, struct vhost_scsi,
++					vs_completion_work);
++	struct tcm_vhost_cmd *tv_cmd;
 +
-+#ifndef _VMCI_COMMONINT_H_
-+#define _VMCI_COMMONINT_H_
++	while ((tv_cmd = vhost_scsi_get_cmd_from_completion(vs)) != NULL) {
++		struct virtio_scsi_cmd_resp v_rsp;
++		struct se_cmd *se_cmd = &tv_cmd->tvc_se_cmd;
++		int ret;
 +
-+#include <linux/printk.h>
-+#include <linux/vmw_vmci_defs.h>
++		pr_debug("%s tv_cmd %p resid %u status %#02x\n", __func__,
++			tv_cmd, se_cmd->residual_count, se_cmd->scsi_status);
 +
-+#include "vmci_handle_array.h"
++		memset(&v_rsp, 0, sizeof(v_rsp));
++		v_rsp.resid = se_cmd->residual_count;
++		/* TODO is status_qualifier field needed? */
++		v_rsp.status = se_cmd->scsi_status;
++		v_rsp.sense_len = se_cmd->scsi_sense_length;
++		memcpy(v_rsp.sense, tv_cmd->tvc_sense_buf,
++		       v_rsp.sense_len);
++		ret = copy_to_user(tv_cmd->tvc_resp, &v_rsp, sizeof(v_rsp));
++		if (likely(ret == 0))
++			vhost_add_used(&vs->vqs[2], tv_cmd->tvc_vq_desc, 0);
++		else
++			pr_err("Faulted on virtio_scsi_cmd_resp\n");
 +
-+#define ASSERT(cond) BUG_ON(!(cond))
++		vhost_scsi_free_cmd(tv_cmd);
++	}
 +
-+#define CAN_BLOCK(_f) (!((_f) & VMCI_QPFLAG_NONBLOCK))
-+#define QP_PINNED(_f) ((_f) & VMCI_QPFLAG_PINNED)
++	vhost_signal(&vs->dev, &vs->vqs[2]);
++}
 +
-+#define PCI_VENDOR_ID_VMWARE	0x15AD
-+#define PCI_DEVICE_ID_VMWARE_VMCI	0x0740
-+#define VMCI_DRIVER_VERSION_STRING	"9.5.5.0-k"
-+#define MODULE_NAME "vmw_vmci"
++static void vhost_scsi_complete_cmd(struct tcm_vhost_cmd *tv_cmd)
++{
++	struct vhost_scsi *vs = tv_cmd->tvc_vhost;
 +
-+/* Print magic... whee! */
-+#ifdef pr_fmt
-+#undef pr_fmt
-+#define pr_fmt(fmt) MODULE_NAME ": " fmt
++	pr_debug("%s tv_cmd %p\n", __func__, tv_cmd);
++
++	spin_lock_bh(&vs->vs_completion_lock);
++	list_add_tail(&tv_cmd->tvc_completion_list, &vs->vs_completion_list);
++	spin_unlock_bh(&vs->vs_completion_lock);
++
++	vhost_work_queue(&vs->dev, &vs->vs_completion_work);
++}
++
++static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
++	struct tcm_vhost_tpg *tv_tpg,
++	struct virtio_scsi_cmd_req *v_req,
++	u32 exp_data_len,
++	int data_direction)
++{
++	struct tcm_vhost_cmd *tv_cmd;
++	struct tcm_vhost_nexus *tv_nexus;
++	struct se_portal_group *se_tpg = &tv_tpg->se_tpg;
++	struct se_session *se_sess;
++	struct se_cmd *se_cmd;
++	int sam_task_attr;
++
++	tv_nexus = tv_tpg->tpg_nexus;
++	if (!tv_nexus) {
++		pr_err("Unable to locate active struct tcm_vhost_nexus\n");
++		return ERR_PTR(-EIO);
++	}
++	se_sess = tv_nexus->tvn_se_sess;
++
++	tv_cmd = kzalloc(sizeof(struct tcm_vhost_cmd), GFP_ATOMIC);
++	if (!tv_cmd) {
++		pr_err("Unable to allocate struct tcm_vhost_cmd\n");
++		return ERR_PTR(-ENOMEM);
++	}
++	INIT_LIST_HEAD(&tv_cmd->tvc_completion_list);
++	tv_cmd->tvc_tag = v_req->tag;
++
++	se_cmd = &tv_cmd->tvc_se_cmd;
++	/*
++	 * Locate the SAM Task Attr from virtio_scsi_cmd_req
++	 */
++	sam_task_attr = v_req->task_attr;
++	/*
++	 * Initialize struct se_cmd descriptor from TCM infrastructure
++	 */
++	transport_init_se_cmd(se_cmd, se_tpg->se_tpg_tfo, se_sess, exp_data_len,
++				data_direction, sam_task_attr,
++				&tv_cmd->tvc_sense_buf[0]);
++
++#if 0	/* FIXME: vhost_scsi_allocate_cmd() BIDI operation */
++	if (bidi)
++		se_cmd->se_cmd_flags |= SCF_BIDI;
 +#endif
-+
-+/*
-+ * Utilility function that checks whether two entities are allowed
-+ * to interact. If one of them is restricted, the other one must
-+ * be trusted.
-+ */
-+static inline bool vmci_deny_interaction(uint32_t partOne,
-+					 uint32_t partTwo)
-+{
-+	return ((partOne & VMCI_PRIVILEGE_FLAG_RESTRICTED) &&
-+		!(partTwo & VMCI_PRIVILEGE_FLAG_TRUSTED)) ||
-+	       ((partTwo & VMCI_PRIVILEGE_FLAG_RESTRICTED) &&
-+		!(partOne & VMCI_PRIVILEGE_FLAG_TRUSTED));
++	return tv_cmd;
 +}
 +
-+#endif				/* _VMCI_COMMONINT_H_ */
-diff --git a/include/linux/vmw_vmci_api.h b/include/linux/vmw_vmci_api.h
++/*
++ * Map a user memory range into a scatterlist
++ *
++ * Returns the number of scatterlist entries used or -errno on error.
++ */
++static int vhost_scsi_map_to_sgl(struct scatterlist *sgl,
++	unsigned int sgl_count, void __user *ptr, size_t len, int write)
++{
++	struct scatterlist *sg = sgl;
++	unsigned int npages = 0;
++	int ret;
++
++	while (len > 0) {
++		struct page *page;
++		unsigned int offset = (uintptr_t)ptr & ~PAGE_MASK;
++		unsigned int nbytes = min_t(unsigned int,
++				PAGE_SIZE - offset, len);
++
++		if (npages == sgl_count) {
++			ret = -ENOBUFS;
++			goto err;
++		}
++
++		ret = get_user_pages_fast((unsigned long)ptr, 1, write, &page);
++		BUG_ON(ret == 0); /* we should either get our page or fail */
++		if (ret < 0)
++			goto err;
++
++		sg_set_page(sg, page, nbytes, offset);
++		ptr += nbytes;
++		len -= nbytes;
++		sg++;
++		npages++;
++	}
++	return npages;
++
++err:
++	/* Put pages that we hold */
++	for (sg = sgl; sg != &sgl[npages]; sg++)
++		put_page(sg_page(sg));
++	return ret;
++}
++
++static int vhost_scsi_map_iov_to_sgl(struct tcm_vhost_cmd *tv_cmd,
++	struct iovec *iov, unsigned int niov, int write)
++{
++	int ret;
++	unsigned int i;
++	u32 sgl_count;
++	struct scatterlist *sg;
++
++	/*
++	 * Find out how long sglist needs to be
++	 */
++	sgl_count = 0;
++	for (i = 0; i < niov; i++) {
++		sgl_count += (((uintptr_t)iov[i].iov_base + iov[i].iov_len +
++				PAGE_SIZE - 1) >> PAGE_SHIFT) -
++				((uintptr_t)iov[i].iov_base >> PAGE_SHIFT);
++	}
++	/* TODO overflow checking */
++
++	sg = kmalloc(sizeof(tv_cmd->tvc_sgl[0]) * sgl_count, GFP_ATOMIC);
++	if (!sg)
++		return -ENOMEM;
++	pr_debug("%s sg %p sgl_count %u is_err %ld\n", __func__,
++	       sg, sgl_count, IS_ERR(sg));
++	sg_init_table(sg, sgl_count);
++
++	tv_cmd->tvc_sgl = sg;
++	tv_cmd->tvc_sgl_count = sgl_count;
++
++	pr_debug("Mapping %u iovecs for %u pages\n", niov, sgl_count);
++	for (i = 0; i < niov; i++) {
++		ret = vhost_scsi_map_to_sgl(sg, sgl_count, iov[i].iov_base,
++					iov[i].iov_len, write);
++		if (ret < 0) {
++			for (i = 0; i < tv_cmd->tvc_sgl_count; i++)
++				put_page(sg_page(&tv_cmd->tvc_sgl[i]));
++			kfree(tv_cmd->tvc_sgl);
++			tv_cmd->tvc_sgl = NULL;
++			tv_cmd->tvc_sgl_count = 0;
++			return ret;
++		}
++
++		sg += ret;
++		sgl_count -= ret;
++	}
++	return 0;
++}
++
++static void tcm_vhost_submission_work(struct work_struct *work)
++{
++	struct tcm_vhost_cmd *tv_cmd =
++		container_of(work, struct tcm_vhost_cmd, work);
++	struct se_cmd *se_cmd = &tv_cmd->tvc_se_cmd;
++	struct scatterlist *sg_ptr, *sg_bidi_ptr = NULL;
++	int rc, sg_no_bidi = 0;
++	/*
++	 * Locate the struct se_lun pointer based on v_req->lun, and
++	 * attach it to struct se_cmd
++	 */
++	rc = transport_lookup_cmd_lun(&tv_cmd->tvc_se_cmd, tv_cmd->tvc_lun);
++	if (rc < 0) {
++		pr_err("Failed to look up lun: %d\n", tv_cmd->tvc_lun);
++		transport_send_check_condition_and_sense(&tv_cmd->tvc_se_cmd,
++			tv_cmd->tvc_se_cmd.scsi_sense_reason, 0);
++		transport_generic_free_cmd(se_cmd, 0);
++		return;
++	}
++
++	rc = target_setup_cmd_from_cdb(se_cmd, tv_cmd->tvc_cdb);
++	if (rc == -ENOMEM) {
++		transport_send_check_condition_and_sense(se_cmd,
++				TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE, 0);
++		transport_generic_free_cmd(se_cmd, 0);
++		return;
++	} else if (rc < 0) {
++		if (se_cmd->se_cmd_flags & SCF_SCSI_RESERVATION_CONFLICT)
++			tcm_vhost_queue_status(se_cmd);
++		else
++			transport_send_check_condition_and_sense(se_cmd,
++					se_cmd->scsi_sense_reason, 0);
++		transport_generic_free_cmd(se_cmd, 0);
++		return;
++	}
++
++	if (tv_cmd->tvc_sgl_count) {
++		sg_ptr = tv_cmd->tvc_sgl;
++		/*
++		 * For BIDI commands, pass in the extra READ buffer
++		 * to transport_generic_map_mem_to_cmd() below..
++		 */
++/* FIXME: Fix BIDI operation in tcm_vhost_submission_work() */
++#if 0
++		if (se_cmd->se_cmd_flags & SCF_BIDI) {
++			sg_bidi_ptr = NULL;
++			sg_no_bidi = 0;
++		}
++#endif
++	} else {
++		sg_ptr = NULL;
++	}
++
++	rc = transport_generic_map_mem_to_cmd(se_cmd, sg_ptr,
++				tv_cmd->tvc_sgl_count, sg_bidi_ptr,
++				sg_no_bidi);
++	if (rc < 0) {
++		transport_send_check_condition_and_sense(se_cmd,
++				se_cmd->scsi_sense_reason, 0);
++		transport_generic_free_cmd(se_cmd, 0);
++		return;
++	}
++	transport_handle_cdb_direct(se_cmd);
++}
++
++static void vhost_scsi_handle_vq(struct vhost_scsi *vs)
++{
++	struct vhost_virtqueue *vq = &vs->vqs[2];
++	struct virtio_scsi_cmd_req v_req;
++	struct tcm_vhost_tpg *tv_tpg;
++	struct tcm_vhost_cmd *tv_cmd;
++	u32 exp_data_len, data_first, data_num, data_direction;
++	unsigned out, in, i;
++	int head, ret;
++
++	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
++	tv_tpg = vs->vs_tpg;
++	if (unlikely(!tv_tpg)) {
++		pr_err("%s endpoint not set\n", __func__);
++		return;
++	}
++
++	mutex_lock(&vq->mutex);
++	vhost_disable_notify(&vs->dev, vq);
++
++	for (;;) {
++		head = vhost_get_vq_desc(&vs->dev, vq, vq->iov,
++					ARRAY_SIZE(vq->iov), &out, &in,
++					NULL, NULL);
++		pr_debug("vhost_get_vq_desc: head: %d, out: %u in: %u\n",
++					head, out, in);
++		/* On error, stop handling until the next kick. */
++		if (unlikely(head < 0))
++			break;
++		/* Nothing new?  Wait for eventfd to tell us they refilled. */
++		if (head == vq->num) {
++			if (unlikely(vhost_enable_notify(&vs->dev, vq))) {
++				vhost_disable_notify(&vs->dev, vq);
++				continue;
++			}
++			break;
++		}
++
++/* FIXME: BIDI operation */
++		if (out == 1 && in == 1) {
++			data_direction = DMA_NONE;
++			data_first = 0;
++			data_num = 0;
++		} else if (out == 1 && in > 1) {
++			data_direction = DMA_FROM_DEVICE;
++			data_first = out + 1;
++			data_num = in - 1;
++		} else if (out > 1 && in == 1) {
++			data_direction = DMA_TO_DEVICE;
++			data_first = 1;
++			data_num = out - 1;
++		} else {
++			vq_err(vq, "Invalid buffer layout out: %u in: %u\n",
++					out, in);
++			break;
++		}
++
++		/*
++		 * Check for a sane resp buffer so we can report errors to
++		 * the guest.
++		 */
++		if (unlikely(vq->iov[out].iov_len !=
++					sizeof(struct virtio_scsi_cmd_resp))) {
++			vq_err(vq, "Expecting virtio_scsi_cmd_resp, got %zu"
++				" bytes\n", vq->iov[out].iov_len);
++			break;
++		}
++
++		if (unlikely(vq->iov[0].iov_len != sizeof(v_req))) {
++			vq_err(vq, "Expecting virtio_scsi_cmd_req, got %zu"
++				" bytes\n", vq->iov[0].iov_len);
++			break;
++		}
++		pr_debug("Calling __copy_from_user: vq->iov[0].iov_base: %p,"
++			" len: %zu\n", vq->iov[0].iov_base, sizeof(v_req));
++		ret = __copy_from_user(&v_req, vq->iov[0].iov_base,
++				sizeof(v_req));
++		if (unlikely(ret)) {
++			vq_err(vq, "Faulted on virtio_scsi_cmd_req\n");
++			break;
++		}
++
++		exp_data_len = 0;
++		for (i = 0; i < data_num; i++)
++			exp_data_len += vq->iov[data_first + i].iov_len;
++
++		tv_cmd = vhost_scsi_allocate_cmd(tv_tpg, &v_req,
++					exp_data_len, data_direction);
++		if (IS_ERR(tv_cmd)) {
++			vq_err(vq, "vhost_scsi_allocate_cmd failed %ld\n",
++					PTR_ERR(tv_cmd));
++			break;
++		}
++		pr_debug("Allocated tv_cmd: %p exp_data_len: %d, data_direction"
++			": %d\n", tv_cmd, exp_data_len, data_direction);
++
++		tv_cmd->tvc_vhost = vs;
++
++		if (unlikely(vq->iov[out].iov_len !=
++				sizeof(struct virtio_scsi_cmd_resp))) {
++			vq_err(vq, "Expecting virtio_scsi_cmd_resp, got %zu"
++				" bytes, out: %d, in: %d\n",
++				vq->iov[out].iov_len, out, in);
++			break;
++		}
++
++		tv_cmd->tvc_resp = vq->iov[out].iov_base;
++
++		/*
++		 * Copy in the recieved CDB descriptor into tv_cmd->tvc_cdb
++		 * that will be used by tcm_vhost_new_cmd_map() and down into
++		 * target_setup_cmd_from_cdb()
++		 */
++		memcpy(tv_cmd->tvc_cdb, v_req.cdb, TCM_VHOST_MAX_CDB_SIZE);
++		/*
++		 * Check that the recieved CDB size does not exceeded our
++		 * hardcoded max for tcm_vhost
++		 */
++		/* TODO what if cdb was too small for varlen cdb header? */
++		if (unlikely(scsi_command_size(tv_cmd->tvc_cdb) >
++					TCM_VHOST_MAX_CDB_SIZE)) {
++			vq_err(vq, "Received SCSI CDB with command_size: %d that"
++				" exceeds SCSI_MAX_VARLEN_CDB_SIZE: %d\n",
++				scsi_command_size(tv_cmd->tvc_cdb),
++				TCM_VHOST_MAX_CDB_SIZE);
++			break; /* TODO */
++		}
++		tv_cmd->tvc_lun = ((v_req.lun[2] << 8) | v_req.lun[3]) & 0x3FFF;
++
++		pr_debug("vhost_scsi got command opcode: %#02x, lun: %d\n",
++			tv_cmd->tvc_cdb[0], tv_cmd->tvc_lun);
++
++		if (data_direction != DMA_NONE) {
++			ret = vhost_scsi_map_iov_to_sgl(tv_cmd,
++					&vq->iov[data_first], data_num,
++					data_direction == DMA_TO_DEVICE);
++			if (unlikely(ret)) {
++				vq_err(vq, "Failed to map iov to sgl\n");
++				break; /* TODO */
++			}
++		}
++
++		/*
++		 * Save the descriptor from vhost_get_vq_desc() to be used to
++		 * complete the virtio-scsi request in TCM callback context via
++		 * tcm_vhost_queue_data_in() and tcm_vhost_queue_status()
++		 */
++		tv_cmd->tvc_vq_desc = head;
++		/*
++		 * Dispatch tv_cmd descriptor for cmwq execution in process
++		 * context provided by tcm_vhost_workqueue.  This also ensures
++		 * tv_cmd is executed on the same kworker CPU as this vhost
++		 * thread to gain positive L2 cache locality effects..
++		 */
++		INIT_WORK(&tv_cmd->work, tcm_vhost_submission_work);
++		queue_work(tcm_vhost_workqueue, &tv_cmd->work);
++	}
++
++	mutex_unlock(&vq->mutex);
++}
++
++static void vhost_scsi_ctl_handle_kick(struct vhost_work *work)
++{
++	pr_err("%s: The handling func for control queue.\n", __func__);
++}
++
++static void vhost_scsi_evt_handle_kick(struct vhost_work *work)
++{
++	pr_err("%s: The handling func for event queue.\n", __func__);
++}
++
++static void vhost_scsi_handle_kick(struct vhost_work *work)
++{
++	struct vhost_virtqueue *vq = container_of(work, struct vhost_virtqueue,
++						poll.work);
++	struct vhost_scsi *vs = container_of(vq->dev, struct vhost_scsi, dev);
++
++	vhost_scsi_handle_vq(vs);
++}
++
++/*
++ * Called from vhost_scsi_ioctl() context to walk the list of available
++ * tcm_vhost_tpg with an active struct tcm_vhost_nexus
++ */
++static int vhost_scsi_set_endpoint(
++	struct vhost_scsi *vs,
++	struct vhost_scsi_target *t)
++{
++	struct tcm_vhost_tport *tv_tport;
++	struct tcm_vhost_tpg *tv_tpg;
++	int index;
++
++	mutex_lock(&vs->dev.mutex);
++	/* Verify that ring has been setup correctly. */
++	for (index = 0; index < vs->dev.nvqs; ++index) {
++		/* Verify that ring has been setup correctly. */
++		if (!vhost_vq_access_ok(&vs->vqs[index])) {
++			mutex_unlock(&vs->dev.mutex);
++			return -EFAULT;
++		}
++	}
++
++	if (vs->vs_tpg) {
++		mutex_unlock(&vs->dev.mutex);
++		return -EEXIST;
++	}
++	mutex_unlock(&vs->dev.mutex);
++
++	mutex_lock(&tcm_vhost_mutex);
++	list_for_each_entry(tv_tpg, &tcm_vhost_list, tv_tpg_list) {
++		mutex_lock(&tv_tpg->tv_tpg_mutex);
++		if (!tv_tpg->tpg_nexus) {
++			mutex_unlock(&tv_tpg->tv_tpg_mutex);
++			continue;
++		}
++		if (atomic_read(&tv_tpg->tv_tpg_vhost_count)) {
++			mutex_unlock(&tv_tpg->tv_tpg_mutex);
++			continue;
++		}
++		tv_tport = tv_tpg->tport;
++
++		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn) &&
++		    (tv_tpg->tport_tpgt == t->vhost_tpgt)) {
++			atomic_inc(&tv_tpg->tv_tpg_vhost_count);
++			smp_mb__after_atomic_inc();
++			mutex_unlock(&tv_tpg->tv_tpg_mutex);
++			mutex_unlock(&tcm_vhost_mutex);
++
++			mutex_lock(&vs->dev.mutex);
++			vs->vs_tpg = tv_tpg;
++			atomic_inc(&vs->vhost_ref_cnt);
++			smp_mb__after_atomic_inc();
++			mutex_unlock(&vs->dev.mutex);
++			return 0;
++		}
++		mutex_unlock(&tv_tpg->tv_tpg_mutex);
++	}
++	mutex_unlock(&tcm_vhost_mutex);
++	return -EINVAL;
++}
++
++static int vhost_scsi_clear_endpoint(
++	struct vhost_scsi *vs,
++	struct vhost_scsi_target *t)
++{
++	struct tcm_vhost_tport *tv_tport;
++	struct tcm_vhost_tpg *tv_tpg;
++	int index;
++
++	mutex_lock(&vs->dev.mutex);
++	/* Verify that ring has been setup correctly. */
++	for (index = 0; index < vs->dev.nvqs; ++index) {
++		if (!vhost_vq_access_ok(&vs->vqs[index])) {
++			mutex_unlock(&vs->dev.mutex);
++			return -EFAULT;
++		}
++	}
++
++	if (!vs->vs_tpg) {
++		mutex_unlock(&vs->dev.mutex);
++		return -ENODEV;
++	}
++	tv_tpg = vs->vs_tpg;
++	tv_tport = tv_tpg->tport;
++
++	if (strcmp(tv_tport->tport_name, t->vhost_wwpn) ||
++	    (tv_tpg->tport_tpgt != t->vhost_tpgt)) {
++		mutex_unlock(&vs->dev.mutex);
++		pr_warn("tv_tport->tport_name: %s, tv_tpg->tport_tpgt: %hu"
++			" does not match t->vhost_wwpn: %s, t->vhost_tpgt: %hu\n",
++			tv_tport->tport_name, tv_tpg->tport_tpgt,
++			t->vhost_wwpn, t->vhost_tpgt);
++		return -EINVAL;
++	}
++	atomic_dec(&tv_tpg->tv_tpg_vhost_count);
++	vs->vs_tpg = NULL;
++	mutex_unlock(&vs->dev.mutex);
++
++	return 0;
++}
++
++static int vhost_scsi_open(struct inode *inode, struct file *f)
++{
++	struct vhost_scsi *s;
++	int r;
++
++	s = kzalloc(sizeof(*s), GFP_KERNEL);
++	if (!s)
++		return -ENOMEM;
++
++	vhost_work_init(&s->vs_completion_work, vhost_scsi_complete_cmd_work);
++	INIT_LIST_HEAD(&s->vs_completion_list);
++	spin_lock_init(&s->vs_completion_lock);
++
++	s->vqs[0].handle_kick = vhost_scsi_ctl_handle_kick;
++	s->vqs[1].handle_kick = vhost_scsi_evt_handle_kick;
++	s->vqs[2].handle_kick = vhost_scsi_handle_kick;
++	r = vhost_dev_init(&s->dev, s->vqs, 3);
++	if (r < 0) {
++		kfree(s);
++		return r;
++	}
++
++	f->private_data = s;
++	return 0;
++}
++
++static int vhost_scsi_release(struct inode *inode, struct file *f)
++{
++	struct vhost_scsi *s = f->private_data;
++
++	if (s->vs_tpg && s->vs_tpg->tport) {
++		struct vhost_scsi_target backend;
++
++		memcpy(backend.vhost_wwpn, s->vs_tpg->tport->tport_name,
++				sizeof(backend.vhost_wwpn));
++		backend.vhost_tpgt = s->vs_tpg->tport_tpgt;
++		vhost_scsi_clear_endpoint(s, &backend);
++	}
++
++	vhost_dev_cleanup(&s->dev, false);
++	kfree(s);
++	return 0;
++}
++
++static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
++{
++	if (features & ~VHOST_FEATURES)
++		return -EOPNOTSUPP;
++
++	mutex_lock(&vs->dev.mutex);
++	if ((features & (1 << VHOST_F_LOG_ALL)) &&
++	    !vhost_log_access_ok(&vs->dev)) {
++		mutex_unlock(&vs->dev.mutex);
++		return -EFAULT;
++	}
++	vs->dev.acked_features = features;
++	/* TODO possibly smp_wmb() and flush vqs */
++	mutex_unlock(&vs->dev.mutex);
++	return 0;
++}
++
++static long vhost_scsi_ioctl(struct file *f, unsigned int ioctl,
++				unsigned long arg)
++{
++	struct vhost_scsi *vs = f->private_data;
++	struct vhost_scsi_target backend;
++	void __user *argp = (void __user *)arg;
++	u64 __user *featurep = argp;
++	u64 features;
++	int r;
++
++	switch (ioctl) {
++	case VHOST_SCSI_SET_ENDPOINT:
++		if (copy_from_user(&backend, argp, sizeof backend))
++			return -EFAULT;
++
++		return vhost_scsi_set_endpoint(vs, &backend);
++	case VHOST_SCSI_CLEAR_ENDPOINT:
++		if (copy_from_user(&backend, argp, sizeof backend))
++			return -EFAULT;
++
++		return vhost_scsi_clear_endpoint(vs, &backend);
++	case VHOST_SCSI_GET_ABI_VERSION:
++		if (copy_from_user(&backend, argp, sizeof backend))
++			return -EFAULT;
++
++		backend.abi_version = VHOST_SCSI_ABI_VERSION;
++
++		if (copy_to_user(argp, &backend, sizeof backend))
++			return -EFAULT;
++		return 0;
++	case VHOST_GET_FEATURES:
++		features = VHOST_FEATURES;
++		if (copy_to_user(featurep, &features, sizeof features))
++			return -EFAULT;
++		return 0;
++	case VHOST_SET_FEATURES:
++		if (copy_from_user(&features, featurep, sizeof features))
++			return -EFAULT;
++		return vhost_scsi_set_features(vs, features);
++	default:
++		mutex_lock(&vs->dev.mutex);
++		r = vhost_dev_ioctl(&vs->dev, ioctl, arg);
++		mutex_unlock(&vs->dev.mutex);
++		return r;
++	}
++}
++
++static const struct file_operations vhost_scsi_fops = {
++	.owner          = THIS_MODULE,
++	.release        = vhost_scsi_release,
++	.unlocked_ioctl = vhost_scsi_ioctl,
++	/* TODO compat ioctl? */
++	.open           = vhost_scsi_open,
++	.llseek		= noop_llseek,
++};
++
++static struct miscdevice vhost_scsi_misc = {
++	MISC_DYNAMIC_MINOR,
++	"vhost-scsi",
++	&vhost_scsi_fops,
++};
++
++static int __init vhost_scsi_register(void)
++{
++	return misc_register(&vhost_scsi_misc);
++}
++
++static int vhost_scsi_deregister(void)
++{
++	return misc_deregister(&vhost_scsi_misc);
++}
++
++static char *tcm_vhost_dump_proto_id(struct tcm_vhost_tport *tport)
++{
++	switch (tport->tport_proto_id) {
++	case SCSI_PROTOCOL_SAS:
++		return "SAS";
++	case SCSI_PROTOCOL_FCP:
++		return "FCP";
++	case SCSI_PROTOCOL_ISCSI:
++		return "iSCSI";
++	default:
++		break;
++	}
++
++	return "Unknown";
++}
++
++static int tcm_vhost_port_link(
++	struct se_portal_group *se_tpg,
++	struct se_lun *lun)
++{
++	struct tcm_vhost_tpg *tv_tpg = container_of(se_tpg,
++				struct tcm_vhost_tpg, se_tpg);
++
++	atomic_inc(&tv_tpg->tv_tpg_port_count);
++	smp_mb__after_atomic_inc();
++
++	return 0;
++}
++
++static void tcm_vhost_port_unlink(
++	struct se_portal_group *se_tpg,
++	struct se_lun *se_lun)
++{
++	struct tcm_vhost_tpg *tv_tpg = container_of(se_tpg,
++				struct tcm_vhost_tpg, se_tpg);
++
++	atomic_dec(&tv_tpg->tv_tpg_port_count);
++	smp_mb__after_atomic_dec();
++}
++
++static struct se_node_acl *tcm_vhost_make_nodeacl(
++	struct se_portal_group *se_tpg,
++	struct config_group *group,
++	const char *name)
++{
++	struct se_node_acl *se_nacl, *se_nacl_new;
++	struct tcm_vhost_nacl *nacl;
++	u64 wwpn = 0;
++	u32 nexus_depth;
++
++	/* tcm_vhost_parse_wwn(name, &wwpn, 1) < 0)
++		return ERR_PTR(-EINVAL); */
++	se_nacl_new = tcm_vhost_alloc_fabric_acl(se_tpg);
++	if (!se_nacl_new)
++		return ERR_PTR(-ENOMEM);
++
++	nexus_depth = 1;
++	/*
++	 * se_nacl_new may be released by core_tpg_add_initiator_node_acl()
++	 * when converting a NodeACL from demo mode -> explict
++	 */
++	se_nacl = core_tpg_add_initiator_node_acl(se_tpg, se_nacl_new,
++				name, nexus_depth);
++	if (IS_ERR(se_nacl)) {
++		tcm_vhost_release_fabric_acl(se_tpg, se_nacl_new);
++		return se_nacl;
++	}
++	/*
++	 * Locate our struct tcm_vhost_nacl and set the FC Nport WWPN
++	 */
++	nacl = container_of(se_nacl, struct tcm_vhost_nacl, se_node_acl);
++	nacl->iport_wwpn = wwpn;
++
++	return se_nacl;
++}
++
++static void tcm_vhost_drop_nodeacl(struct se_node_acl *se_acl)
++{
++	struct tcm_vhost_nacl *nacl = container_of(se_acl,
++				struct tcm_vhost_nacl, se_node_acl);
++	core_tpg_del_initiator_node_acl(se_acl->se_tpg, se_acl, 1);
++	kfree(nacl);
++}
++
++static int tcm_vhost_make_nexus(
++	struct tcm_vhost_tpg *tv_tpg,
++	const char *name)
++{
++	struct se_portal_group *se_tpg;
++	struct tcm_vhost_nexus *tv_nexus;
++
++	mutex_lock(&tv_tpg->tv_tpg_mutex);
++	if (tv_tpg->tpg_nexus) {
++		mutex_unlock(&tv_tpg->tv_tpg_mutex);
++		pr_debug("tv_tpg->tpg_nexus already exists\n");
++		return -EEXIST;
++	}
++	se_tpg = &tv_tpg->se_tpg;
++
++	tv_nexus = kzalloc(sizeof(struct tcm_vhost_nexus), GFP_KERNEL);
++	if (!tv_nexus) {
++		mutex_unlock(&tv_tpg->tv_tpg_mutex);
++		pr_err("Unable to allocate struct tcm_vhost_nexus\n");
++		return -ENOMEM;
++	}
++	/*
++	 *  Initialize the struct se_session pointer
++	 */
++	tv_nexus->tvn_se_sess = transport_init_session();
++	if (IS_ERR(tv_nexus->tvn_se_sess)) {
++		mutex_unlock(&tv_tpg->tv_tpg_mutex);
++		kfree(tv_nexus);
++		return -ENOMEM;
++	}
++	/*
++	 * Since we are running in 'demo mode' this call with generate a
++	 * struct se_node_acl for the tcm_vhost struct se_portal_group with
++	 * the SCSI Initiator port name of the passed configfs group 'name'.
++	 */
++	tv_nexus->tvn_se_sess->se_node_acl = core_tpg_check_initiator_node_acl(
++				se_tpg, (unsigned char *)name);
++	if (!tv_nexus->tvn_se_sess->se_node_acl) {
++		mutex_unlock(&tv_tpg->tv_tpg_mutex);
++		pr_debug("core_tpg_check_initiator_node_acl() failed"
++				" for %s\n", name);
++		transport_free_session(tv_nexus->tvn_se_sess);
++		kfree(tv_nexus);
++		return -ENOMEM;
++	}
++	/*
++	 * Now register the TCM vHost virtual I_T Nexus as active with the
++	 * call to __transport_register_session()
++	 */
++	__transport_register_session(se_tpg, tv_nexus->tvn_se_sess->se_node_acl,
++			tv_nexus->tvn_se_sess, tv_nexus);
++	tv_tpg->tpg_nexus = tv_nexus;
++
++	mutex_unlock(&tv_tpg->tv_tpg_mutex);
++	return 0;
++}
++
++static int tcm_vhost_drop_nexus(
++	struct tcm_vhost_tpg *tpg)
++{
++	struct se_session *se_sess;
++	struct tcm_vhost_nexus *tv_nexus;
++
++	mutex_lock(&tpg->tv_tpg_mutex);
++	tv_nexus = tpg->tpg_nexus;
++	if (!tv_nexus) {
++		mutex_unlock(&tpg->tv_tpg_mutex);
++		return -ENODEV;
++	}
++
++	se_sess = tv_nexus->tvn_se_sess;
++	if (!se_sess) {
++		mutex_unlock(&tpg->tv_tpg_mutex);
++		return -ENODEV;
++	}
++
++	if (atomic_read(&tpg->tv_tpg_port_count)) {
++		mutex_unlock(&tpg->tv_tpg_mutex);
++		pr_err("Unable to remove TCM_vHost I_T Nexus with"
++			" active TPG port count: %d\n",
++			atomic_read(&tpg->tv_tpg_port_count));
++		return -EPERM;
++	}
++
++	if (atomic_read(&tpg->tv_tpg_vhost_count)) {
++		mutex_unlock(&tpg->tv_tpg_mutex);
++		pr_err("Unable to remove TCM_vHost I_T Nexus with"
++			" active TPG vhost count: %d\n",
++			atomic_read(&tpg->tv_tpg_vhost_count));
++		return -EPERM;
++	}
++
++	pr_debug("TCM_vHost_ConfigFS: Removing I_T Nexus to emulated"
++		" %s Initiator Port: %s\n", tcm_vhost_dump_proto_id(tpg->tport),
++		tv_nexus->tvn_se_sess->se_node_acl->initiatorname);
++	/*
++	 * Release the SCSI I_T Nexus to the emulated vHost Target Port
++	 */
++	transport_deregister_session(tv_nexus->tvn_se_sess);
++	tpg->tpg_nexus = NULL;
++	mutex_unlock(&tpg->tv_tpg_mutex);
++
++	kfree(tv_nexus);
++	return 0;
++}
++
++static ssize_t tcm_vhost_tpg_show_nexus(
++	struct se_portal_group *se_tpg,
++	char *page)
++{
++	struct tcm_vhost_tpg *tv_tpg = container_of(se_tpg,
++				struct tcm_vhost_tpg, se_tpg);
++	struct tcm_vhost_nexus *tv_nexus;
++	ssize_t ret;
++
++	mutex_lock(&tv_tpg->tv_tpg_mutex);
++	tv_nexus = tv_tpg->tpg_nexus;
++	if (!tv_nexus) {
++		mutex_unlock(&tv_tpg->tv_tpg_mutex);
++		return -ENODEV;
++	}
++	ret = snprintf(page, PAGE_SIZE, "%s\n",
++			tv_nexus->tvn_se_sess->se_node_acl->initiatorname);
++	mutex_unlock(&tv_tpg->tv_tpg_mutex);
++
++	return ret;
++}
++
++static ssize_t tcm_vhost_tpg_store_nexus(
++	struct se_portal_group *se_tpg,
++	const char *page,
++	size_t count)
++{
++	struct tcm_vhost_tpg *tv_tpg = container_of(se_tpg,
++				struct tcm_vhost_tpg, se_tpg);
++	struct tcm_vhost_tport *tport_wwn = tv_tpg->tport;
++	unsigned char i_port[TCM_VHOST_NAMELEN], *ptr, *port_ptr;
++	int ret;
++	/*
++	 * Shutdown the active I_T nexus if 'NULL' is passed..
++	 */
++	if (!strncmp(page, "NULL", 4)) {
++		ret = tcm_vhost_drop_nexus(tv_tpg);
++		return (!ret) ? count : ret;
++	}
++	/*
++	 * Otherwise make sure the passed virtual Initiator port WWN matches
++	 * the fabric protocol_id set in tcm_vhost_make_tport(), and call
++	 * tcm_vhost_make_nexus().
++	 */
++	if (strlen(page) >= TCM_VHOST_NAMELEN) {
++		pr_err("Emulated NAA Sas Address: %s, exceeds"
++				" max: %d\n", page, TCM_VHOST_NAMELEN);
++		return -EINVAL;
++	}
++	snprintf(&i_port[0], TCM_VHOST_NAMELEN, "%s", page);
++
++	ptr = strstr(i_port, "naa.");
++	if (ptr) {
++		if (tport_wwn->tport_proto_id != SCSI_PROTOCOL_SAS) {
++			pr_err("Passed SAS Initiator Port %s does not"
++				" match target port protoid: %s\n", i_port,
++				tcm_vhost_dump_proto_id(tport_wwn));
++			return -EINVAL;
++		}
++		port_ptr = &i_port[0];
++		goto check_newline;
++	}
++	ptr = strstr(i_port, "fc.");
++	if (ptr) {
++		if (tport_wwn->tport_proto_id != SCSI_PROTOCOL_FCP) {
++			pr_err("Passed FCP Initiator Port %s does not"
++				" match target port protoid: %s\n", i_port,
++				tcm_vhost_dump_proto_id(tport_wwn));
++			return -EINVAL;
++		}
++		port_ptr = &i_port[3]; /* Skip over "fc." */
++		goto check_newline;
++	}
++	ptr = strstr(i_port, "iqn.");
++	if (ptr) {
++		if (tport_wwn->tport_proto_id != SCSI_PROTOCOL_ISCSI) {
++			pr_err("Passed iSCSI Initiator Port %s does not"
++				" match target port protoid: %s\n", i_port,
++				tcm_vhost_dump_proto_id(tport_wwn));
++			return -EINVAL;
++		}
++		port_ptr = &i_port[0];
++		goto check_newline;
++	}
++	pr_err("Unable to locate prefix for emulated Initiator Port:"
++			" %s\n", i_port);
++	return -EINVAL;
++	/*
++	 * Clear any trailing newline for the NAA WWN
++	 */
++check_newline:
++	if (i_port[strlen(i_port)-1] == '\n')
++		i_port[strlen(i_port)-1] = '\0';
++
++	ret = tcm_vhost_make_nexus(tv_tpg, port_ptr);
++	if (ret < 0)
++		return ret;
++
++	return count;
++}
++
++TF_TPG_BASE_ATTR(tcm_vhost, nexus, S_IRUGO | S_IWUSR);
++
++static struct configfs_attribute *tcm_vhost_tpg_attrs[] = {
++	&tcm_vhost_tpg_nexus.attr,
++	NULL,
++};
++
++static struct se_portal_group *tcm_vhost_make_tpg(
++	struct se_wwn *wwn,
++	struct config_group *group,
++	const char *name)
++{
++	struct tcm_vhost_tport *tport = container_of(wwn,
++			struct tcm_vhost_tport, tport_wwn);
++
++	struct tcm_vhost_tpg *tpg;
++	unsigned long tpgt;
++	int ret;
++
++	if (strstr(name, "tpgt_") != name)
++		return ERR_PTR(-EINVAL);
++	if (kstrtoul(name + 5, 10, &tpgt) || tpgt > UINT_MAX)
++		return ERR_PTR(-EINVAL);
++
++	tpg = kzalloc(sizeof(struct tcm_vhost_tpg), GFP_KERNEL);
++	if (!tpg) {
++		pr_err("Unable to allocate struct tcm_vhost_tpg");
++		return ERR_PTR(-ENOMEM);
++	}
++	mutex_init(&tpg->tv_tpg_mutex);
++	INIT_LIST_HEAD(&tpg->tv_tpg_list);
++	tpg->tport = tport;
++	tpg->tport_tpgt = tpgt;
++
++	ret = core_tpg_register(&tcm_vhost_fabric_configfs->tf_ops, wwn,
++				&tpg->se_tpg, tpg, TRANSPORT_TPG_TYPE_NORMAL);
++	if (ret < 0) {
++		kfree(tpg);
++		return NULL;
++	}
++	mutex_lock(&tcm_vhost_mutex);
++	list_add_tail(&tpg->tv_tpg_list, &tcm_vhost_list);
++	mutex_unlock(&tcm_vhost_mutex);
++
++	return &tpg->se_tpg;
++}
++
++static void tcm_vhost_drop_tpg(struct se_portal_group *se_tpg)
++{
++	struct tcm_vhost_tpg *tpg = container_of(se_tpg,
++				struct tcm_vhost_tpg, se_tpg);
++
++	mutex_lock(&tcm_vhost_mutex);
++	list_del(&tpg->tv_tpg_list);
++	mutex_unlock(&tcm_vhost_mutex);
++	/*
++	 * Release the virtual I_T Nexus for this vHost TPG
++	 */
++	tcm_vhost_drop_nexus(tpg);
++	/*
++	 * Deregister the se_tpg from TCM..
++	 */
++	core_tpg_deregister(se_tpg);
++	kfree(tpg);
++}
++
++static struct se_wwn *tcm_vhost_make_tport(
++	struct target_fabric_configfs *tf,
++	struct config_group *group,
++	const char *name)
++{
++	struct tcm_vhost_tport *tport;
++	char *ptr;
++	u64 wwpn = 0;
++	int off = 0;
++
++	/* if (tcm_vhost_parse_wwn(name, &wwpn, 1) < 0)
++		return ERR_PTR(-EINVAL); */
++
++	tport = kzalloc(sizeof(struct tcm_vhost_tport), GFP_KERNEL);
++	if (!tport) {
++		pr_err("Unable to allocate struct tcm_vhost_tport");
++		return ERR_PTR(-ENOMEM);
++	}
++	tport->tport_wwpn = wwpn;
++	/*
++	 * Determine the emulated Protocol Identifier and Target Port Name
++	 * based on the incoming configfs directory name.
++	 */
++	ptr = strstr(name, "naa.");
++	if (ptr) {
++		tport->tport_proto_id = SCSI_PROTOCOL_SAS;
++		goto check_len;
++	}
++	ptr = strstr(name, "fc.");
++	if (ptr) {
++		tport->tport_proto_id = SCSI_PROTOCOL_FCP;
++		off = 3; /* Skip over "fc." */
++		goto check_len;
++	}
++	ptr = strstr(name, "iqn.");
++	if (ptr) {
++		tport->tport_proto_id = SCSI_PROTOCOL_ISCSI;
++		goto check_len;
++	}
++
++	pr_err("Unable to locate prefix for emulated Target Port:"
++			" %s\n", name);
++	kfree(tport);
++	return ERR_PTR(-EINVAL);
++
++check_len:
++	if (strlen(name) >= TCM_VHOST_NAMELEN) {
++		pr_err("Emulated %s Address: %s, exceeds"
++			" max: %d\n", name, tcm_vhost_dump_proto_id(tport),
++			TCM_VHOST_NAMELEN);
++		kfree(tport);
++		return ERR_PTR(-EINVAL);
++	}
++	snprintf(&tport->tport_name[0], TCM_VHOST_NAMELEN, "%s", &name[off]);
++
++	pr_debug("TCM_VHost_ConfigFS: Allocated emulated Target"
++		" %s Address: %s\n", tcm_vhost_dump_proto_id(tport), name);
++
++	return &tport->tport_wwn;
++}
++
++static void tcm_vhost_drop_tport(struct se_wwn *wwn)
++{
++	struct tcm_vhost_tport *tport = container_of(wwn,
++				struct tcm_vhost_tport, tport_wwn);
++
++	pr_debug("TCM_VHost_ConfigFS: Deallocating emulated Target"
++		" %s Address: %s\n", tcm_vhost_dump_proto_id(tport),
++		tport->tport_name);
++
++	kfree(tport);
++}
++
++static ssize_t tcm_vhost_wwn_show_attr_version(
++	struct target_fabric_configfs *tf,
++	char *page)
++{
++	return sprintf(page, "TCM_VHOST fabric module %s on %s/%s"
++		"on "UTS_RELEASE"\n", TCM_VHOST_VERSION, utsname()->sysname,
++		utsname()->machine);
++}
++
++TF_WWN_ATTR_RO(tcm_vhost, version);
++
++static struct configfs_attribute *tcm_vhost_wwn_attrs[] = {
++	&tcm_vhost_wwn_version.attr,
++	NULL,
++};
++
++static struct target_core_fabric_ops tcm_vhost_ops = {
++	.get_fabric_name		= tcm_vhost_get_fabric_name,
++	.get_fabric_proto_ident		= tcm_vhost_get_fabric_proto_ident,
++	.tpg_get_wwn			= tcm_vhost_get_fabric_wwn,
++	.tpg_get_tag			= tcm_vhost_get_tag,
++	.tpg_get_default_depth		= tcm_vhost_get_default_depth,
++	.tpg_get_pr_transport_id	= tcm_vhost_get_pr_transport_id,
++	.tpg_get_pr_transport_id_len	= tcm_vhost_get_pr_transport_id_len,
++	.tpg_parse_pr_out_transport_id	= tcm_vhost_parse_pr_out_transport_id,
++	.tpg_check_demo_mode		= tcm_vhost_check_true,
++	.tpg_check_demo_mode_cache	= tcm_vhost_check_true,
++	.tpg_check_demo_mode_write_protect = tcm_vhost_check_false,
++	.tpg_check_prod_mode_write_protect = tcm_vhost_check_false,
++	.tpg_alloc_fabric_acl		= tcm_vhost_alloc_fabric_acl,
++	.tpg_release_fabric_acl		= tcm_vhost_release_fabric_acl,
++	.tpg_get_inst_index		= tcm_vhost_tpg_get_inst_index,
++	.release_cmd			= tcm_vhost_release_cmd,
++	.shutdown_session		= tcm_vhost_shutdown_session,
++	.close_session			= tcm_vhost_close_session,
++	.sess_get_index			= tcm_vhost_sess_get_index,
++	.sess_get_initiator_sid		= NULL,
++	.write_pending			= tcm_vhost_write_pending,
++	.write_pending_status		= tcm_vhost_write_pending_status,
++	.set_default_node_attributes	= tcm_vhost_set_default_node_attrs,
++	.get_task_tag			= tcm_vhost_get_task_tag,
++	.get_cmd_state			= tcm_vhost_get_cmd_state,
++	.queue_data_in			= tcm_vhost_queue_data_in,
++	.queue_status			= tcm_vhost_queue_status,
++	.queue_tm_rsp			= tcm_vhost_queue_tm_rsp,
++	.get_fabric_sense_len		= tcm_vhost_get_fabric_sense_len,
++	.set_fabric_sense_len		= tcm_vhost_set_fabric_sense_len,
++	/*
++	 * Setup callers for generic logic in target_core_fabric_configfs.c
++	 */
++	.fabric_make_wwn		= tcm_vhost_make_tport,
++	.fabric_drop_wwn		= tcm_vhost_drop_tport,
++	.fabric_make_tpg		= tcm_vhost_make_tpg,
++	.fabric_drop_tpg		= tcm_vhost_drop_tpg,
++	.fabric_post_link		= tcm_vhost_port_link,
++	.fabric_pre_unlink		= tcm_vhost_port_unlink,
++	.fabric_make_np			= NULL,
++	.fabric_drop_np			= NULL,
++	.fabric_make_nodeacl		= tcm_vhost_make_nodeacl,
++	.fabric_drop_nodeacl		= tcm_vhost_drop_nodeacl,
++};
++
++static int tcm_vhost_register_configfs(void)
++{
++	struct target_fabric_configfs *fabric;
++	int ret;
++
++	pr_debug("TCM_VHOST fabric module %s on %s/%s"
++		" on "UTS_RELEASE"\n", TCM_VHOST_VERSION, utsname()->sysname,
++		utsname()->machine);
++	/*
++	 * Register the top level struct config_item_type with TCM core
++	 */
++	fabric = target_fabric_configfs_init(THIS_MODULE, "vhost");
++	if (IS_ERR(fabric)) {
++		pr_err("target_fabric_configfs_init() failed\n");
++		return PTR_ERR(fabric);
++	}
++	/*
++	 * Setup fabric->tf_ops from our local tcm_vhost_ops
++	 */
++	fabric->tf_ops = tcm_vhost_ops;
++	/*
++	 * Setup default attribute lists for various fabric->tf_cit_tmpl
++	 */
++	TF_CIT_TMPL(fabric)->tfc_wwn_cit.ct_attrs = tcm_vhost_wwn_attrs;
++	TF_CIT_TMPL(fabric)->tfc_tpg_base_cit.ct_attrs = tcm_vhost_tpg_attrs;
++	TF_CIT_TMPL(fabric)->tfc_tpg_attrib_cit.ct_attrs = NULL;
++	TF_CIT_TMPL(fabric)->tfc_tpg_param_cit.ct_attrs = NULL;
++	TF_CIT_TMPL(fabric)->tfc_tpg_np_base_cit.ct_attrs = NULL;
++	TF_CIT_TMPL(fabric)->tfc_tpg_nacl_base_cit.ct_attrs = NULL;
++	TF_CIT_TMPL(fabric)->tfc_tpg_nacl_attrib_cit.ct_attrs = NULL;
++	TF_CIT_TMPL(fabric)->tfc_tpg_nacl_auth_cit.ct_attrs = NULL;
++	TF_CIT_TMPL(fabric)->tfc_tpg_nacl_param_cit.ct_attrs = NULL;
++	/*
++	 * Register the fabric for use within TCM
++	 */
++	ret = target_fabric_configfs_register(fabric);
++	if (ret < 0) {
++		pr_err("target_fabric_configfs_register() failed"
++				" for TCM_VHOST\n");
++		return ret;
++	}
++	/*
++	 * Setup our local pointer to *fabric
++	 */
++	tcm_vhost_fabric_configfs = fabric;
++	pr_debug("TCM_VHOST[0] - Set fabric -> tcm_vhost_fabric_configfs\n");
++	return 0;
++};
++
++static void tcm_vhost_deregister_configfs(void)
++{
++	if (!tcm_vhost_fabric_configfs)
++		return;
++
++	target_fabric_configfs_deregister(tcm_vhost_fabric_configfs);
++	tcm_vhost_fabric_configfs = NULL;
++	pr_debug("TCM_VHOST[0] - Cleared tcm_vhost_fabric_configfs\n");
++};
++
++static int __init tcm_vhost_init(void)
++{
++	int ret = -ENOMEM;
++
++	tcm_vhost_workqueue = alloc_workqueue("tcm_vhost", 0, 0);
++	if (!tcm_vhost_workqueue)
++		goto out;
++
++	ret = vhost_scsi_register();
++	if (ret < 0)
++		goto out_destroy_workqueue;
++
++	ret = tcm_vhost_register_configfs();
++	if (ret < 0)
++		goto out_vhost_scsi_deregister;
++
++	return 0;
++
++out_vhost_scsi_deregister:
++	vhost_scsi_deregister();
++out_destroy_workqueue:
++	destroy_workqueue(tcm_vhost_workqueue);
++out:
++	return ret;
++};
++
++static void tcm_vhost_exit(void)
++{
++	tcm_vhost_deregister_configfs();
++	vhost_scsi_deregister();
++	destroy_workqueue(tcm_vhost_workqueue);
++};
++
++MODULE_DESCRIPTION("TCM_VHOST series fabric driver");
++MODULE_LICENSE("GPL");
++module_init(tcm_vhost_init);
++module_exit(tcm_vhost_exit);
+diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
 new file mode 100644
-index 0000000..71a4668
+index 0000000..c983ed2
 --- /dev/null
-+++ b/include/linux/vmw_vmci_api.h
-@@ -0,0 +1,89 @@
-+/*
-+ * VMware VMCI Driver
-+ *
-+ * Copyright (C) 2012 VMware, Inc. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation version 2 and no later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-+ * for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write to the Free Software Foundation, Inc.,
-+ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-+ */
++++ b/drivers/vhost/tcm_vhost.h
+@@ -0,0 +1,101 @@
++#define TCM_VHOST_VERSION  "v0.1"
++#define TCM_VHOST_NAMELEN 256
++#define TCM_VHOST_MAX_CDB_SIZE 32
 +
-+#ifndef __VMW_VMCI_API_H__
-+#define __VMW_VMCI_API_H__
-+
-+#include <linux/vmw_vmci_defs.h>
-+
-+#undef  VMCI_KERNEL_API_VERSION
-+#define VMCI_KERNEL_API_VERSION_2 2
-+#define VMCI_KERNEL_API_VERSION   VMCI_KERNEL_API_VERSION_2
-+
-+typedef void (VMCI_DeviceShutdownFn) (void *deviceRegistration, void *userData);
-+
-+bool VMCI_DeviceGet(uint32_t *apiVersion,
-+		    VMCI_DeviceShutdownFn *deviceShutdownCB,
-+		    void *userData, void **deviceRegistration);
-+void VMCI_DeviceRelease(void *deviceRegistration);
-+int VMCIDatagram_CreateHnd(uint32_t resourceID, uint32_t flags,
-+			   VMCIDatagramRecvCB recvCB, void *clientData,
-+			   struct vmci_handle *outHandle);
-+int VMCIDatagram_CreateHndPriv(uint32_t resourceID, uint32_t flags,
-+			       uint32_t privFlags,
-+			       VMCIDatagramRecvCB recvCB, void *clientData,
-+			       struct vmci_handle *outHandle);
-+int VMCIDatagram_DestroyHnd(struct vmci_handle handle);
-+int VMCIDatagram_Send(struct vmci_dg *msg);
-+int VMCIDoorbell_Create(struct vmci_handle *handle, uint32_t flags,
-+			uint32_t privFlags,
-+			VMCICallback notifyCB, void *clientData);
-+int VMCIDoorbell_Destroy(struct vmci_handle handle);
-+int VMCIDoorbell_Notify(struct vmci_handle handle, uint32_t privFlags);
-+uint32_t VMCI_GetContextID(void);
-+uint32_t VMCI_Version(void);
-+int VMCI_ContextID2HostVmID(uint32_t contextID, void *hostVmID,
-+			    size_t hostVmIDLen);
-+int VMCI_IsContextOwner(uint32_t contextID, void *hostUser);
-+
-+int VMCIEvent_Subscribe(uint32_t event, uint32_t flags,
-+			VMCI_EventCB callback, void *callbackData,
-+			uint32_t *subID);
-+int VMCIEvent_Unsubscribe(uint32_t subID);
-+uint32_t VMCIContext_GetPrivFlags(uint32_t contextID);
-+int VMCIQPair_Alloc(struct vmci_qp **qpair,
-+		    struct vmci_handle *handle,
-+		    uint64_t produceQSize,
-+		    uint64_t consumeQSize,
-+		    uint32_t peer, uint32_t flags, uint32_t privFlags);
-+int VMCIQPair_Detach(struct vmci_qp **qpair);
-+int VMCIQPair_GetProduceIndexes(const struct vmci_qp *qpair,
-+				uint64_t *producerTail,
-+				uint64_t *consumerHead);
-+int VMCIQPair_GetConsumeIndexes(const struct vmci_qp *qpair,
-+				uint64_t *consumerTail,
-+				uint64_t *producerHead);
-+int64_t VMCIQPair_ProduceFreeSpace(const struct vmci_qp *qpair);
-+int64_t VMCIQPair_ProduceBufReady(const struct vmci_qp *qpair);
-+int64_t VMCIQPair_ConsumeFreeSpace(const struct vmci_qp *qpair);
-+int64_t VMCIQPair_ConsumeBufReady(const struct vmci_qp *qpair);
-+ssize_t VMCIQPair_Enqueue(struct vmci_qp *qpair,
-+			  const void *buf, size_t bufSize, int mode);
-+ssize_t VMCIQPair_Dequeue(struct vmci_qp *qpair,
-+			  void *buf, size_t bufSize, int mode);
-+ssize_t VMCIQPair_Peek(struct vmci_qp *qpair, void *buf, size_t bufSize,
-+		       int mode);
-+ssize_t VMCIQPair_EnqueueV(struct vmci_qp *qpair,
-+			   void *iov, size_t iovSize, int mode);
-+ssize_t VMCIQPair_DequeueV(struct vmci_qp *qpair,
-+			   void *iov, size_t iovSize, int mode);
-+ssize_t VMCIQPair_PeekV(struct vmci_qp *qpair, void *iov, size_t iovSize,
-+			int mode);
-+
-+#endif /* !__VMW_VMCI_API_H__ */
-diff --git a/include/linux/vmw_vmci_defs.h b/include/linux/vmw_vmci_defs.h
-new file mode 100644
-index 0000000..d71d5e0
---- /dev/null
-+++ b/include/linux/vmw_vmci_defs.h
-@@ -0,0 +1,921 @@
-+/*
-+ * VMware VMCI Driver
-+ *
-+ * Copyright (C) 2012 VMware, Inc. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the
-+ * Free Software Foundation version 2 and no later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
-+ * for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program; if not, write to the Free Software Foundation, Inc.,
-+ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-+ */
-+
-+#ifndef _VMW_VMCI_DEF_H_
-+#define _VMW_VMCI_DEF_H_
-+
-+#include <linux/atomic.h>
-+
-+/* Register offsets. */
-+#define VMCI_STATUS_ADDR      0x00
-+#define VMCI_CONTROL_ADDR     0x04
-+#define VMCI_ICR_ADDR	      0x08
-+#define VMCI_IMR_ADDR         0x0c
-+#define VMCI_DATA_OUT_ADDR    0x10
-+#define VMCI_DATA_IN_ADDR     0x14
-+#define VMCI_CAPS_ADDR        0x18
-+#define VMCI_RESULT_LOW_ADDR  0x1c
-+#define VMCI_RESULT_HIGH_ADDR 0x20
-+
-+/* Max number of devices. */
-+#define VMCI_MAX_DEVICES 1
-+
-+/* Status register bits. */
-+#define VMCI_STATUS_INT_ON     0x1
-+
-+/* Control register bits. */
-+#define VMCI_CONTROL_RESET        0x1
-+#define VMCI_CONTROL_INT_ENABLE   0x2
-+#define VMCI_CONTROL_INT_DISABLE  0x4
-+
-+/* Capabilities register bits. */
-+#define VMCI_CAPS_HYPERCALL     0x1
-+#define VMCI_CAPS_GUESTCALL     0x2
-+#define VMCI_CAPS_DATAGRAM      0x4
-+#define VMCI_CAPS_NOTIFICATIONS 0x8
-+
-+/* Interrupt Cause register bits. */
-+#define VMCI_ICR_DATAGRAM      0x1
-+#define VMCI_ICR_NOTIFICATION  0x2
-+
-+/* Interrupt Mask register bits. */
-+#define VMCI_IMR_DATAGRAM      0x1
-+#define VMCI_IMR_NOTIFICATION  0x2
-+
-+/* Interrupt type. */
-+enum {
-+	VMCI_INTR_TYPE_INTX = 0,
-+	VMCI_INTR_TYPE_MSI = 1,
-+	VMCI_INTR_TYPE_MSIX = 2,
++struct tcm_vhost_cmd {
++	/* Descriptor from vhost_get_vq_desc() for virt_queue segment */
++	int tvc_vq_desc;
++	/* The Tag from include/linux/virtio_scsi.h:struct virtio_scsi_cmd_req */
++	u64 tvc_tag;
++	/* The number of scatterlists associated with this cmd */
++	u32 tvc_sgl_count;
++	/* Saved unpacked SCSI LUN for tcm_vhost_submission_work() */
++	u32 tvc_lun;
++	/* Pointer to the SGL formatted memory from virtio-scsi */
++	struct scatterlist *tvc_sgl;
++	/* Pointer to response */
++	struct virtio_scsi_cmd_resp __user *tvc_resp;
++	/* Pointer to vhost_scsi for our device */
++	struct vhost_scsi *tvc_vhost;
++	/* The TCM I/O descriptor that is accessed via container_of() */
++	struct se_cmd tvc_se_cmd;
++	/* work item used for cmwq dispatch to tcm_vhost_submission_work() */
++	struct work_struct work;
++	/* Copy of the incoming SCSI command descriptor block (CDB) */
++	unsigned char tvc_cdb[TCM_VHOST_MAX_CDB_SIZE];
++	/* Sense buffer that will be mapped into outgoing status */
++	unsigned char tvc_sense_buf[TRANSPORT_SENSE_BUFFER];
++	/* Completed commands list, serviced from vhost worker thread */
++	struct list_head tvc_completion_list;
 +};
 +
-+/* Maximum MSI/MSI-X interrupt vectors in the device. */
-+#define VMCI_MAX_INTRS 2
++struct tcm_vhost_nexus {
++	/* Pointer to TCM session for I_T Nexus */
++	struct se_session *tvn_se_sess;
++};
 +
-+/*
-+ * Supported interrupt vectors.  There is one for each ICR value above,
-+ * but here they indicate the position in the vector array/message ID.
-+ */
-+enum {
-+	VMCI_INTR_DATAGRAM = 0,
-+	VMCI_INTR_NOTIFICATION = 1,
++struct tcm_vhost_nacl {
++	/* Binary World Wide unique Port Name for Vhost Initiator port */
++	u64 iport_wwpn;
++	/* ASCII formatted WWPN for Sas Initiator port */
++	char iport_name[TCM_VHOST_NAMELEN];
++	/* Returned by tcm_vhost_make_nodeacl() */
++	struct se_node_acl se_node_acl;
++};
++
++struct tcm_vhost_tpg {
++	/* Vhost port target portal group tag for TCM */
++	u16 tport_tpgt;
++	/* Used to track number of TPG Port/Lun Links wrt to explict I_T Nexus shutdown */
++	atomic_t tv_tpg_port_count;
++	/* Used for vhost_scsi device reference to tpg_nexus */
++	atomic_t tv_tpg_vhost_count;
++	/* list for tcm_vhost_list */
++	struct list_head tv_tpg_list;
++	/* Used to protect access for tpg_nexus */
++	struct mutex tv_tpg_mutex;
++	/* Pointer to the TCM VHost I_T Nexus for this TPG endpoint */
++	struct tcm_vhost_nexus *tpg_nexus;
++	/* Pointer back to tcm_vhost_tport */
++	struct tcm_vhost_tport *tport;
++	/* Returned by tcm_vhost_make_tpg() */
++	struct se_portal_group se_tpg;
++};
++
++struct tcm_vhost_tport {
++	/* SCSI protocol the tport is providing */
++	u8 tport_proto_id;
++	/* Binary World Wide unique Port Name for Vhost Target port */
++	u64 tport_wwpn;
++	/* ASCII formatted WWPN for Vhost Target port */
++	char tport_name[TCM_VHOST_NAMELEN];
++	/* Returned by tcm_vhost_make_tport() */
++	struct se_wwn tport_wwn;
 +};
 +
 +/*
-+ * A single VMCI device has an upper limit of 128MB on the amount of
-+ * memory that can be used for queue pairs.
++ * As per request from MST, keep TCM_VHOST related ioctl defines out of
++ * linux/vhost.h (user-space) for now..
 + */
-+#define VMCI_MAX_GUEST_QP_MEMORY (128 * 1024 * 1024)
++
++#include <linux/vhost.h>
 +
 +/*
-+ * Queues with pre-mapped data pages must be small, so that we don't pin
-+ * too much kernel memory (especially on vmkernel).  We limit a queuepair to
-+ * 32 KB, or 16 KB per queue for symmetrical pairs.
-+ */
-+#define VMCI_MAX_PINNED_QP_MEMORY (32 * 1024)
-+
-+/*
-+ * We have a fixed set of resource IDs available in the VMX.
-+ * This allows us to have a very simple implementation since we statically
-+ * know how many will create datagram handles. If a new caller arrives and
-+ * we have run out of slots we can manually increment the maximum size of
-+ * available resource IDs.
++ * Used by QEMU userspace to ensure a consistent vhost-scsi ABI.
 + *
-+ * VMCI reserved hypervisor datagram resource IDs.
++ * ABI Rev 0: July 2012 version starting point for v3.6-rc merge candidate +
++ *            RFC-v2 vhost-scsi userspace.  Add GET_ABI_VERSION ioctl usage
 + */
-+enum {
-+	VMCI_RESOURCES_QUERY = 0,
-+	VMCI_GET_CONTEXT_ID = 1,
-+	VMCI_SET_NOTIFY_BITMAP = 2,
-+	VMCI_DOORBELL_LINK = 3,
-+	VMCI_DOORBELL_UNLINK = 4,
-+	VMCI_DOORBELL_NOTIFY = 5,
-+/*
-+ * VMCI_DATAGRAM_REQUEST_MAP and VMCI_DATAGRAM_REMOVE_MAP are
-+ * obsoleted by the removal of VM to VM communication.
-+ */
-+	VMCI_DATAGRAM_REQUEST_MAP = 6,
-+	VMCI_DATAGRAM_REMOVE_MAP = 7,
-+	VMCI_EVENT_SUBSCRIBE = 8,
-+	VMCI_EVENT_UNSUBSCRIBE = 9,
-+	VMCI_QUEUEPAIR_ALLOC = 10,
-+	VMCI_QUEUEPAIR_DETACH = 11,
 +
-+/*
-+ * VMCI_VSOCK_VMX_LOOKUP was assigned to 12 for Fusion 3.0/3.1,
-+ * WS 7.0/7.1 and ESX 4.1
-+ */
-+	VMCI_HGFS_TRANSPORT = 13,
-+	VMCI_UNITY_PBRPC_REGISTER = 14,
-+	VMCI_RESOURCE_MAX = 15,
++#define VHOST_SCSI_ABI_VERSION	0
++
++struct vhost_scsi_target {
++	int abi_version;
++	unsigned char vhost_wwpn[TRANSPORT_IQN_LEN];
++	unsigned short vhost_tpgt;
 +};
 +
-+/**
-+ * struct vmci_handle - Ownership information structure
-+ * @context:	The VMX context ID.
-+ * @resource:	The resource ID (used for locating in resource hash).
-+ *
-+ * The vmci_handle structure is used to track resources used within
-+ * vmw_vmci.
-+ */
-+struct vmci_handle {
-+	uint32_t context;
-+	uint32_t resource;
-+};
-+
-+#define VMCI_HANDLE_EQUAL(_h1, _h2) ((_h1).context == (_h2).context &&	\
-+				     (_h1).resource == (_h2).resource)
-+
-+#define VMCI_INVALID_ID ~0
-+static const struct vmci_handle VMCI_INVALID_HANDLE = { VMCI_INVALID_ID,
-+							VMCI_INVALID_ID
-+};
-+
-+#define VMCI_HANDLE_INVALID(_handle)				\
-+	VMCI_HANDLE_EQUAL((_handle), VMCI_INVALID_HANDLE)
-+
-+/*
-+ * The below defines can be used to send anonymous requests.
-+ * This also indicates that no response is expected.
-+ */
-+#define VMCI_ANON_SRC_CONTEXT_ID   VMCI_INVALID_ID
-+#define VMCI_ANON_SRC_RESOURCE_ID  VMCI_INVALID_ID
-+#define VMCI_ANON_SRC_HANDLE       vmci_make_handle(VMCI_ANON_SRC_CONTEXT_ID, \
-+						    VMCI_ANON_SRC_RESOURCE_ID)
-+
-+/* The lowest 16 context ids are reserved for internal use. */
-+#define VMCI_RESERVED_CID_LIMIT ((uint32_t) 16)
-+
-+/*
-+ * Hypervisor context id, used for calling into hypervisor
-+ * supplied services from the VM.
-+ */
-+#define VMCI_HYPERVISOR_CONTEXT_ID 0
-+
-+/*
-+ * Well-known context id, a logical context that contains a set of
-+ * well-known services. This context ID is now obsolete.
-+ */
-+#define VMCI_WELL_KNOWN_CONTEXT_ID 1
-+
-+/*
-+ * Context ID used by host endpoints.
-+ */
-+#define VMCI_HOST_CONTEXT_ID  2
-+
-+#define VMCI_CONTEXT_IS_VM(_cid) (VMCI_INVALID_ID != (_cid) &&		\
-+				  (_cid) > VMCI_HOST_CONTEXT_ID)
-+
-+/*
-+ * The VMCI_CONTEXT_RESOURCE_ID is used together with vmci_make_handle to make
-+ * handles that refer to a specific context.
-+ */
-+#define VMCI_CONTEXT_RESOURCE_ID 0
-+
-+/*
-+ * VMCI error codes.
-+ */
-+enum {
-+	VMCI_SUCCESS_QUEUEPAIR_ATTACH	=  5,
-+	VMCI_SUCCESS_QUEUEPAIR_CREATE	=  4,
-+	VMCI_SUCCESS_LAST_DETACH	=  3,
-+	VMCI_SUCCESS_ACCESS_GRANTED	=  2,
-+	VMCI_SUCCESS_ENTRY_DEAD	=  1,
-+	VMCI_SUCCESS			=  0,
-+	VMCI_ERROR_INVALID_RESOURCE	= (-1),
-+	VMCI_ERROR_INVALID_ARGS	= (-2),
-+	VMCI_ERROR_NO_MEM		= (-3),
-+	VMCI_ERROR_DATAGRAM_FAILED	= (-4),
-+	VMCI_ERROR_MORE_DATA		= (-5),
-+	VMCI_ERROR_NO_MORE_DATAGRAMS	= (-6),
-+	VMCI_ERROR_NO_ACCESS		= (-7),
-+	VMCI_ERROR_NO_HANDLE		= (-8),
-+	VMCI_ERROR_DUPLICATE_ENTRY	= (-9),
-+	VMCI_ERROR_DST_UNREACHABLE	= (-10),
-+	VMCI_ERROR_PAYLOAD_TOO_LARGE	= (-11),
-+	VMCI_ERROR_INVALID_PRIV	= (-12),
-+	VMCI_ERROR_GENERIC		= (-13),
-+	VMCI_ERROR_PAGE_ALREADY_SHARED	= (-14),
-+	VMCI_ERROR_CANNOT_SHARE_PAGE	= (-15),
-+	VMCI_ERROR_CANNOT_UNSHARE_PAGE	= (-16),
-+	VMCI_ERROR_NO_PROCESS		= (-17),
-+	VMCI_ERROR_NO_DATAGRAM	= (-18),
-+	VMCI_ERROR_NO_RESOURCES	= (-19),
-+	VMCI_ERROR_UNAVAILABLE	= (-20),
-+	VMCI_ERROR_NOT_FOUND		= (-21),
-+	VMCI_ERROR_ALREADY_EXISTS	= (-22),
-+	VMCI_ERROR_NOT_PAGE_ALIGNED	= (-23),
-+	VMCI_ERROR_INVALID_SIZE	= (-24),
-+	VMCI_ERROR_REGION_ALREADY_SHARED = (-25),
-+	VMCI_ERROR_TIMEOUT	= (-26),
-+	VMCI_ERROR_DATAGRAM_INCOMPLETE	= (-27),
-+	VMCI_ERROR_INCORRECT_IRQL	= (-28),
-+	VMCI_ERROR_EVENT_UNKNOWN	= (-29),
-+	VMCI_ERROR_OBSOLETE	= (-30),
-+	VMCI_ERROR_QUEUEPAIR_MISMATCH	= (-31),
-+	VMCI_ERROR_QUEUEPAIR_NOTSET	= (-32),
-+	VMCI_ERROR_QUEUEPAIR_NOTOWNER	= (-33),
-+	VMCI_ERROR_QUEUEPAIR_NOTATTACHED	= (-34),
-+	VMCI_ERROR_QUEUEPAIR_NOSPACE	= (-35),
-+	VMCI_ERROR_QUEUEPAIR_NODATA	= (-36),
-+	VMCI_ERROR_BUSMEM_INVALIDATION	= (-37),
-+	VMCI_ERROR_MODULE_NOT_LOADED	= (-38),
-+	VMCI_ERROR_DEVICE_NOT_FOUND	= (-39),
-+	VMCI_ERROR_QUEUEPAIR_NOT_READY	= (-40),
-+	VMCI_ERROR_WOULD_BLOCK	= (-41),
-+
-+	/* VMCI clients should return error code within this range */
-+	VMCI_ERROR_CLIENT_MIN		= (-500),
-+	VMCI_ERROR_CLIENT_MAX	= (-550),
-+
-+	/* Internal error codes. */
-+	VMCI_SHAREDMEM_ERROR_BAD_CONTEXT	= (-1000),
-+};
-+
-+/* VMCI reserved events. */
-+enum {
-+	/* Only applicable to guest endpoints */
-+	VMCI_EVENT_CTX_ID_UPDATE  = 0,
-+
-+	/* Applicable to guest and host */
-+	VMCI_EVENT_CTX_REMOVED    = 1,
-+
-+	/* Only applicable to guest endpoints */
-+	VMCI_EVENT_QP_RESUMED	  = 2,
-+
-+	/* Applicable to guest and host */
-+	VMCI_EVENT_QP_PEER_ATTACH = 3,
-+
-+	/* Applicable to guest and host */
-+	VMCI_EVENT_QP_PEER_DETACH = 4,
-+
-+	/*
-+	 * Applicable to VMX and vmk.  On vmk,
-+	 * this event has the Context payload type.
-+	 */
-+	VMCI_EVENT_MEM_ACCESS_ON  = 5,
-+
-+	/*
-+	 * Applicable to VMX and vmk.  Same as
-+	 * above for the payload type.
-+	 */
-+	VMCI_EVENT_MEM_ACCESS_OFF = 6,
-+	VMCI_EVENT_MAX = 7,
-+};
-+
-+/*
-+ * Of the above events, a few are reserved for use in the VMX, and
-+ * other endpoints (guest and host kernel) should not use them. For
-+ * the rest of the events, we allow both host and guest endpoints to
-+ * subscribe to them, to maintain the same API for host and guest
-+ * endpoints.
-+ */
-+#define VMCI_EVENT_VALID_VMX(_event) ((_event) == VMCI_EVENT_MEM_ACCESS_ON || \
-+				      (_event) == VMCI_EVENT_MEM_ACCESS_OFF)
-+
-+#define VMCI_EVENT_VALID(_event) ((_event) < VMCI_EVENT_MAX &&		\
-+				  !VMCI_EVENT_VALID_VMX(_event))
-+
-+/* Reserved guest datagram resource ids. */
-+#define VMCI_EVENT_HANDLER 0
-+
-+/*
-+ * VMCI coarse-grained privileges (per context or host
-+ * process/endpoint. An entity with the restricted flag is only
-+ * allowed to interact with the hypervisor and trusted entities.
-+ */
-+enum {
-+	VMCI_NO_PRIVILEGE_FLAGS = 0,
-+	VMCI_PRIVILEGE_FLAG_RESTRICTED = 1,
-+	VMCI_PRIVILEGE_FLAG_TRUSTED = 2,
-+	VMCI_PRIVILEGE_ALL_FLAGS = (VMCI_PRIVILEGE_FLAG_RESTRICTED |
-+				    VMCI_PRIVILEGE_FLAG_TRUSTED),
-+	VMCI_DEFAULT_PROC_PRIVILEGE_FLAGS = VMCI_NO_PRIVILEGE_FLAGS,
-+	VMCI_LEAST_PRIVILEGE_FLAGS = VMCI_PRIVILEGE_FLAG_RESTRICTED,
-+	VMCI_MAX_PRIVILEGE_FLAGS = VMCI_PRIVILEGE_FLAG_TRUSTED,
-+};
-+
-+/* 0 through VMCI_RESERVED_RESOURCE_ID_MAX are reserved. */
-+#define VMCI_RESERVED_RESOURCE_ID_MAX 1023
-+
-+/*
-+ * Driver version.
-+ *
-+ * Increment major version when you make an incompatible change.
-+ * Compatibility goes both ways (old driver with new executable
-+ * as well as new driver with old executable).
-+ */
-+
-+/* Never change VMCI_VERSION_SHIFT_WIDTH */
-+#define VMCI_VERSION_SHIFT_WIDTH 16
-+#define VMCI_MAKE_VERSION(_major, _minor)				\
-+	((_major) << VMCI_VERSION_SHIFT_WIDTH | (uint16_t) (_minor))
-+
-+#define VMCI_VERSION_MAJOR(v)  ((uint32) (v) >> VMCI_VERSION_SHIFT_WIDTH)
-+#define VMCI_VERSION_MINOR(v)  ((uint16_t) (v))
-+
-+/*
-+ * VMCI_VERSION is always the current version.  Subsequently listed
-+ * versions are ways of detecting previous versions of the connecting
-+ * application (i.e., VMX).
-+ *
-+ * VMCI_VERSION_NOVMVM: This version removed support for VM to VM
-+ * communication.
-+ *
-+ * VMCI_VERSION_NOTIFY: This version introduced doorbell notification
-+ * support.
-+ *
-+ * VMCI_VERSION_HOSTQP: This version introduced host end point support
-+ * for hosted products.
-+ *
-+ * VMCI_VERSION_PREHOSTQP: This is the version prior to the adoption of
-+ * support for host end-points.
-+ *
-+ * VMCI_VERSION_PREVERS2: This fictional version number is intended to
-+ * represent the version of a VMX which doesn't call into the driver
-+ * with ioctl VERSION2 and thus doesn't establish its version with the
-+ * driver.
-+ */
-+
-+#define VMCI_VERSION                VMCI_VERSION_NOVMVM
-+#define VMCI_VERSION_NOVMVM         VMCI_MAKE_VERSION(11, 0)
-+#define VMCI_VERSION_NOTIFY         VMCI_MAKE_VERSION(10, 0)
-+#define VMCI_VERSION_HOSTQP         VMCI_MAKE_VERSION(9, 0)
-+#define VMCI_VERSION_PREHOSTQP      VMCI_MAKE_VERSION(8, 0)
-+#define VMCI_VERSION_PREVERS2       VMCI_MAKE_VERSION(1, 0)
-+
-+/*
-+ * Linux defines _IO* macros, but the core kernel code ignore the encoded
-+ * ioctl value. It is up to individual drivers to decode the value (for
-+ * example to look at the size of a structure to determine which version
-+ * of a specific command should be used) or not (which is what we
-+ * currently do, so right now the ioctl value for a given command is the
-+ * command itself).
-+ *
-+ * Hence, we just define the IOCTL_VMCI_foo values directly, with no
-+ * intermediate IOCTLCMD_ representation.
-+ */
-+#  define IOCTLCMD(_cmd) IOCTL_VMCI_ ## _cmd
-+
-+enum {
-+	/*
-+	 * We need to bracket the range of values used for ioctls,
-+	 * because x86_64 Linux forces us to explicitly register ioctl
-+	 * handlers by value for handling 32 bit ioctl syscalls.
-+	 * Hence FIRST and LAST.  Pick something for FIRST that
-+	 * doesn't collide with vmmon (2001+).
-+	 */
-+	IOCTLCMD(FIRST) = 1951,
-+	IOCTLCMD(VERSION) = IOCTLCMD(FIRST),
-+
-+	/* BEGIN VMCI */
-+	IOCTLCMD(INIT_CONTEXT),
-+
-+	/*
-+	 * The following two were used for process and datagram
-+	 * process creation.  They are not used anymore and reserved
-+	 * for future use.  They will fail if issued.
-+	 */
-+	IOCTLCMD(RESERVED1),
-+	IOCTLCMD(RESERVED2),
-+
-+	/*
-+	 * The following used to be for shared memory. It is now
-+	 * unused and and is reserved for future use. It will fail if
-+	 * issued.
-+	 */
-+	IOCTLCMD(RESERVED3),
-+
-+	/*
-+	 * The follwoing three were also used to be for shared
-+	 * memory. An old WS6 user-mode client might try to use them
-+	 * with the new driver, but since we ensure that only contexts
-+	 * created by VMX'en of the appropriate version
-+	 * (VMCI_VERSION_NOTIFY or VMCI_VERSION_NEWQP) or higher use
-+	 * these ioctl, everything is fine.
-+	 */
-+	IOCTLCMD(QUEUEPAIR_SETVA),
-+	IOCTLCMD(NOTIFY_RESOURCE),
-+	IOCTLCMD(NOTIFICATIONS_RECEIVE),
-+	IOCTLCMD(VERSION2),
-+	IOCTLCMD(QUEUEPAIR_ALLOC),
-+	IOCTLCMD(QUEUEPAIR_SETPAGEFILE),
-+	IOCTLCMD(QUEUEPAIR_DETACH),
-+	IOCTLCMD(DATAGRAM_SEND),
-+	IOCTLCMD(DATAGRAM_RECEIVE),
-+	IOCTLCMD(DATAGRAM_REQUEST_MAP),
-+	IOCTLCMD(DATAGRAM_REMOVE_MAP),
-+	IOCTLCMD(CTX_ADD_NOTIFICATION),
-+	IOCTLCMD(CTX_REMOVE_NOTIFICATION),
-+	IOCTLCMD(CTX_GET_CPT_STATE),
-+	IOCTLCMD(CTX_SET_CPT_STATE),
-+	IOCTLCMD(GET_CONTEXT_ID),
-+	IOCTLCMD(LAST),
-+	/* END VMCI */
-+
-+	/*
-+	 * VMCI Socket IOCTLS are defined next and go from
-+	 * IOCTLCMD(LAST) (1972) to 1990.  VMware reserves a range of
-+	 * 4 ioctls for VMCI Sockets to grow.  We cannot reserve many
-+	 * ioctls here since we are close to overlapping with vmmon
-+	 * ioctls (2001+).  Define a meta-ioctl if running out of this
-+	 * binary space.
-+	 */
-+	IOCTLCMD(SOCKETS_LAST) = 1994,	/* 1994 on Linux. */
-+
-+	/*
-+	 * The VSockets ioctls occupy the block above.  We define a
-+	 * new range of VMCI ioctls to maintain binary compatibility
-+	 * between the user land and the kernel driver.  Careful,
-+	 * vmmon ioctls start from 2001, so this means we can add only
-+	 * 4 new VMCI ioctls.  Define a meta-ioctl if running out of
-+	 * this binary space.
-+	 */
-+	IOCTLCMD(FIRST2),
-+	IOCTLCMD(SET_NOTIFY) = IOCTLCMD(FIRST2),	/* 1995 on Linux. */
-+	IOCTLCMD(LAST2),
-+};
-+
-+/* Clean up helper macros */
-+#undef IOCTLCMD
-+
-+/*
-+ * struct vmci_queue_header - VMCI Queue Header information.
-+ *
-+ * A Queue cannot stand by itself as designed.  Each Queue's header
-+ * contains a pointer into itself (the producerTail) and into its peer
-+ * (consumerHead).  The reason for the separation is one of
-+ * accessibility: Each end-point can modify two things: where the next
-+ * location to enqueue is within its produceQ (producerTail); and
-+ * where the next dequeue location is in its consumeQ (consumerHead).
-+ *
-+ * An end-point cannot modify the pointers of its peer (guest to
-+ * guest; NOTE that in the host both queue headers are mapped r/w).
-+ * But, each end-point needs read access to both Queue header
-+ * structures in order to determine how much space is used (or left)
-+ * in the Queue.  This is because for an end-point to know how full
-+ * its produceQ is, it needs to use the consumerHead that points into
-+ * the produceQ but -that- consumerHead is in the Queue header for
-+ * that end-points consumeQ.
-+ *
-+ * Thoroughly confused?  Sorry.
-+ *
-+ * producerTail: the point to enqueue new entrants.  When you approach
-+ * a line in a store, for example, you walk up to the tail.
-+ *
-+ * consumerHead: the point in the queue from which the next element is
-+ * dequeued.  In other words, who is next in line is he who is at the
-+ * head of the line.
-+ *
-+ * Also, producerTail points to an empty byte in the Queue, whereas
-+ * consumerHead points to a valid byte of data (unless producerTail ==
-+ * consumerHead in which case consumerHead does not point to a valid
-+ * byte of data).
-+ *
-+ * For a queue of buffer 'size' bytes, the tail and head pointers will be in
-+ * the range [0, size-1].
-+ *
-+ * If produceQHeader->producerTail == consumeQHeader->consumerHead
-+ * then the produceQ is empty.
-+ */
-+struct vmci_queue_header {
-+	/* All fields are 64bit and aligned. */
-+	struct vmci_handle handle;	/* Identifier. */
-+	atomic64_t producerTail;	/* Offset in this queue. */
-+	atomic64_t consumerHead;	/* Offset in peer queue. */
-+};
-+
-+/**
-+ * struct vmci_dg - Base struct for vmci datagrams.
-+ * @dst:	A vmci_handle that tracks the destination of the datagram.
-+ * @src:	A vmci_handle that tracks the source of the datagram.
-+ * @payloadSize:	The size of the payload.
-+ *
-+ * vmci_dg structs are used when sending vmci datagrams.  They include
-+ * the necessary source and destination information to properly route
-+ * the information along with the size of the package.
-+ */
-+struct vmci_dg {
-+	struct vmci_handle dst;
-+	struct vmci_handle src;
-+	uint64_t payloadSize;
-+};
-+
-+/*
-+ * Second flag is for creating a well-known handle instead of a per context
-+ * handle.  Next flag is for deferring datagram delivery, so that the
-+ * datagram callback is invoked in a delayed context (not interrupt context).
-+ */
-+#define VMCI_FLAG_DG_NONE          0
-+#define VMCI_FLAG_WELLKNOWN_DG_HND 0x1
-+#define VMCI_FLAG_ANYCID_DG_HND    0x2
-+#define VMCI_FLAG_DG_DELAYED_CB    0x4
-+
-+/* Event callback should fire in a delayed context (not interrupt context.) */
-+#define VMCI_FLAG_EVENT_NONE       0
-+#define VMCI_FLAG_EVENT_DELAYED_CB 0x1
-+
-+/*
-+ * Maximum supported size of a VMCI datagram for routable datagrams.
-+ * Datagrams going to the hypervisor are allowed to be larger.
-+ */
-+#define VMCI_MAX_DG_SIZE (17 * 4096)
-+#define VMCI_MAX_DG_PAYLOAD_SIZE (VMCI_MAX_DG_SIZE - sizeof(struct vmci_dg))
-+#define VMCI_DG_PAYLOAD(_dg) (void *)((char *)(_dg) + sizeof(struct vmci_dg))
-+#define VMCI_DG_HEADERSIZE sizeof(struct vmci_dg)
-+#define VMCI_DG_SIZE(_dg) (VMCI_DG_HEADERSIZE + (size_t)(_dg)->payloadSize)
-+#define VMCI_DG_SIZE_ALIGNED(_dg) ((VMCI_DG_SIZE(_dg) + 7) & (~((size_t) 0x7)))
-+#define VMCI_MAX_DATAGRAM_QUEUE_SIZE (VMCI_MAX_DG_SIZE * 2)
-+
-+/* Flags for VMCI QueuePair API. */
-+enum {
-+	/* Fail alloc if QP not created by peer. */
-+	VMCI_QPFLAG_ATTACH_ONLY = 1 << 0,
-+
-+	/* Only allow attaches from local context. */
-+	VMCI_QPFLAG_LOCAL = 1 << 1,
-+
-+	/* Host won't block when guest is quiesced. */
-+	VMCI_QPFLAG_NONBLOCK = 1 << 2,
-+
-+	/* Pin data pages in ESX.  Used with NONBLOCK */
-+	VMCI_QPFLAG_PINNED = 1 << 3,
-+
-+	/* Update the following flag when adding new flags. */
-+	VMCI_QP_ALL_FLAGS = (VMCI_QPFLAG_ATTACH_ONLY | VMCI_QPFLAG_LOCAL |
-+			     VMCI_QPFLAG_NONBLOCK | VMCI_QPFLAG_PINNED),
-+
-+	/* Convenience flags */
-+	VMCI_QP_ASYMM = (VMCI_QPFLAG_NONBLOCK | VMCI_QPFLAG_PINNED),
-+	VMCI_QP_ASYMM_PEER = (VMCI_QPFLAG_ATTACH_ONLY | VMCI_QP_ASYMM),
-+};
-+
-+/*
-+ * We allow at least 1024 more event datagrams from the hypervisor past the
-+ * normally allowed datagrams pending for a given context.  We define this
-+ * limit on event datagrams from the hypervisor to guard against DoS attack
-+ * from a malicious VM which could repeatedly attach to and detach from a queue
-+ * pair, causing events to be queued at the destination VM.  However, the rate
-+ * at which such events can be generated is small since it requires a VM exit
-+ * and handling of queue pair attach/detach call at the hypervisor.  Event
-+ * datagrams may be queued up at the destination VM if it has interrupts
-+ * disabled or if it is not draining events for some other reason.  1024
-+ * datagrams is a grossly conservative estimate of the time for which
-+ * interrupts may be disabled in the destination VM, but at the same time does
-+ * not exacerbate the memory pressure problem on the host by much (size of each
-+ * event datagram is small).
-+ */
-+#define VMCI_MAX_DATAGRAM_AND_EVENT_QUEUE_SIZE				\
-+	(VMCI_MAX_DATAGRAM_QUEUE_SIZE +					\
-+	 1024 * (sizeof(struct vmci_dg) + sizeof(struct vmci_event_data_max)))
-+
-+/*
-+ * Struct used for querying, via VMCI_RESOURCES_QUERY, the availability of
-+ * hypervisor resources.  Struct size is 16 bytes. All fields in struct are
-+ * aligned to their natural alignment.
-+ */
-+struct vmci_resource_query_hdr {
-+	struct vmci_dg hdr;
-+	uint32_t numResources;
-+	uint32_t _padding;
-+};
-+
-+/*
-+ * Convenience struct for negotiating vectors. Must match layout of
-+ * VMCIResourceQueryHdr minus the struct vmci_dg header.
-+ */
-+struct vmci_resource_query_msg {
-+	uint32_t numResources;
-+	uint32_t _padding;
-+	uint32_t resources[1];
-+};
-+
-+/*
-+ * The maximum number of resources that can be queried using
-+ * VMCI_RESOURCE_QUERY is 31, as the result is encoded in the lower 31
-+ * bits of a positive return value. Negative values are reserved for
-+ * errors.
-+ */
-+#define VMCI_RESOURCE_QUERY_MAX_NUM 31
-+
-+/* Maximum size for the VMCI_RESOURCE_QUERY request. */
-+#define VMCI_RESOURCE_QUERY_MAX_SIZE				\
-+	(sizeof(struct vmci_resource_query_hdr) +		\
-+	 sizeof(uint32_t) * VMCI_RESOURCE_QUERY_MAX_NUM)
-+
-+/*
-+ * Struct used for setting the notification bitmap.  All fields in
-+ * struct are aligned to their natural alignment.
-+ */
-+struct vmci_notify_bm_set_msg {
-+	struct vmci_dg hdr;
-+	uint32_t bitmapPPN;
-+	uint32_t _pad;
-+};
-+
-+/*
-+ * Struct used for linking a doorbell handle with an index in the
-+ * notify bitmap. All fields in struct are aligned to their natural
-+ * alignment.
-+ */
-+struct vmci_doorbell_link_msg {
-+	struct vmci_dg hdr;
-+	struct vmci_handle handle;
-+	uint64_t notifyIdx;
-+};
-+
-+/*
-+ * Struct used for unlinking a doorbell handle from an index in the
-+ * notify bitmap. All fields in struct are aligned to their natural
-+ * alignment.
-+ */
-+struct vmci_doorbell_unlink_msg {
-+	struct vmci_dg hdr;
-+	struct vmci_handle handle;
-+};
-+
-+/*
-+ * Struct used for generating a notification on a doorbell handle. All
-+ * fields in struct are aligned to their natural alignment.
-+ */
-+struct vmci_doorbell_ntfy_msg {
-+	struct vmci_dg hdr;
-+	struct vmci_handle handle;
-+};
-+
-+/*
-+ * This struct is used to contain data for events.  Size of this struct is a
-+ * multiple of 8 bytes, and all fields are aligned to their natural alignment.
-+ */
-+struct vmci_event_data {
-+	uint32_t event;		/* 4 bytes. */
-+	uint32_t _pad;
-+	/* Event payload is put here. */
-+};
-+
-+
-+/*
-+ * Define the different VMCI_EVENT payload data types here.  All structs must
-+ * be a multiple of 8 bytes, and fields must be aligned to their natural
-+ * alignment.
-+ */
-+struct vmci_event_payld_ctx {
-+	uint32_t contextID;	/* 4 bytes. */
-+	uint32_t _pad;
-+};
-+
-+struct vmci_event_payld_qp {
-+	struct vmci_handle handle;	/* QueuePair handle. */
-+	uint32_t peerId;	/* Context id of attaching/detaching VM. */
-+	uint32_t _pad;
-+};
-+
-+/*
-+ * We define the following struct to get the size of the maximum event
-+ * data the hypervisor may send to the guest.  If adding a new event
-+ * payload type above, add it to the following struct too (inside the
-+ * union).
-+ */
-+struct vmci_event_data_max {
-+	struct vmci_event_data eventData;
-+	union {
-+		struct vmci_event_payld_ctx contextPayload;
-+		struct vmci_event_payld_qp qpPayload;
-+	} evDataPayload;
-+};
-+
-+/*
-+ * Struct used for VMCI_EVENT_SUBSCRIBE/UNSUBSCRIBE and
-+ * VMCI_EVENT_HANDLER messages.  Struct size is 32 bytes.  All fields
-+ * in struct are aligned to their natural alignment.
-+ */
-+struct vmci_event_msg {
-+	struct vmci_dg hdr;
-+
-+	/* Has event type and payload. */
-+	struct vmci_event_data eventData;
-+
-+	/* Payload gets put here. */
-+};
-+
-+/*
-+ * Structs used for QueuePair alloc and detach messages.  We align fields of
-+ * these structs to 64bit boundaries.
-+ */
-+struct vmci_qp_alloc_msg {
-+	struct vmci_dg hdr;
-+	struct vmci_handle handle;
-+	uint32_t peer;
-+	uint32_t flags;
-+	uint64_t produceSize;
-+	uint64_t consumeSize;
-+	uint64_t numPPNs;
-+
-+	/* List of PPNs placed here. */
-+};
-+
-+struct vmci_qp_detach_msg {
-+	struct vmci_dg hdr;
-+	struct vmci_handle handle;
-+};
-+
-+/* VMCI Doorbell API. */
-+#define VMCI_FLAG_DELAYED_CB 0x01
-+
-+typedef void (*VMCICallback) (void *clientData);
-+
-+/**
-+ * struct vmci_qp - A vmw_vmci queue pair handle.
-+ *
-+ * This structure is used as a handle to a queue pair created by
-+ * VMCI.  It is intentionally left opaque to clients.
-+ */
-+struct vmci_qp;
-+
-+/* Callback needed for correctly waiting on events. */
-+typedef int (*VMCIDatagramRecvCB) (void *clientData,
-+				   struct vmci_dg *msg);
-+
-+/* VMCI Event API. */
-+typedef void (*VMCI_EventCB) (uint32_t subID, struct vmci_event_data *ed,
-+			      void *clientData);
-+
-+/*
-+ * We use the following inline function to access the payload data
-+ * associated with an event data.
-+ */
-+static inline void *vmci_event_data_payload(struct vmci_event_data *evData)
-+{
-+	return (void *)((char *)evData + sizeof *evData);
-+}
-+
-+/*
-+ * Helper to add a given offset to a head or tail pointer. Wraps the
-+ * value of the pointer around the max size of the queue.
-+ */
-+static inline void vmci_qp_add_pointer(atomic64_t *var,
-+				       size_t add,
-+				       uint64_t size)
-+{
-+	uint64_t newVal = atomic64_read(var);
-+
-+	if (newVal >= size - add)
-+		newVal -= size;
-+
-+	newVal += add;
-+
-+	atomic64_set(var, newVal);
-+}
-+
-+/*
-+ * Helper routine to get the Producer Tail from the supplied queue.
-+ */
-+static inline uint64_t
-+vmci_q_header_producer_tail(const struct vmci_queue_header *qHeader)
-+{
-+	struct vmci_queue_header *qh = (struct vmci_queue_header *)qHeader;
-+	return atomic64_read(&qh->producerTail);
-+}
-+
-+/*
-+ * Helper routine to get the Consumer Head from the supplied queue.
-+ */
-+static inline uint64_t
-+vmci_q_header_consumer_head(const struct vmci_queue_header *qHeader)
-+{
-+	struct vmci_queue_header *qh = (struct vmci_queue_header *)qHeader;
-+	return atomic64_read(&qh->consumerHead);
-+}
-+
-+/*
-+ * Helper routine to increment the Producer Tail.  Fundamentally,
-+ * vmci_qp_add_pointer() is used to manipulate the tail itself.
-+ */
-+static inline void
-+vmci_q_header_add_producer_tail(struct vmci_queue_header *qHeader,
-+				size_t add,
-+				uint64_t queueSize)
-+{
-+	vmci_qp_add_pointer(&qHeader->producerTail, add, queueSize);
-+}
-+
-+/*
-+ * Helper routine to increment the Consumer Head.  Fundamentally,
-+ * vmci_qp_add_pointer() is used to manipulate the head itself.
-+ */
-+static inline void
-+vmci_q_header_add_consumer_head(struct vmci_queue_header *qHeader,
-+				size_t add,
-+				uint64_t queueSize)
-+{
-+	vmci_qp_add_pointer(&qHeader->consumerHead, add, queueSize);
-+}
-+
-+/*
-+ * Helper routine for getting the head and the tail pointer for a queue.
-+ * Both the VMCIQueues are needed to get both the pointers for one queue.
-+ */
-+static inline void
-+vmci_q_header_get_pointers(const struct vmci_queue_header *produceQHeader,
-+			   const struct vmci_queue_header *consumeQHeader,
-+			   uint64_t *producerTail,
-+			   uint64_t *consumerHead)
-+{
-+	if (producerTail)
-+		*producerTail = vmci_q_header_producer_tail(produceQHeader);
-+
-+	if (consumerHead)
-+		*consumerHead = vmci_q_header_consumer_head(consumeQHeader);
-+}
-+
-+static inline void vmci_q_header_init(struct vmci_queue_header *qHeader,
-+				      const struct vmci_handle handle)
-+{
-+	qHeader->handle = handle;
-+	atomic64_set(&qHeader->producerTail, 0);
-+	atomic64_set(&qHeader->consumerHead, 0);
-+}
-+
-+/*
-+ * Finds available free space in a produce queue to enqueue more
-+ * data or reports an error if queue pair corruption is detected.
-+ */
-+static int64_t
-+vmci_q_header_free_space(const struct vmci_queue_header *produceQHeader,
-+			 const struct vmci_queue_header *consumeQHeader,
-+			 const uint64_t produceQSize)
-+{
-+	uint64_t tail;
-+	uint64_t head;
-+	uint64_t freeSpace;
-+
-+	tail = vmci_q_header_producer_tail(produceQHeader);
-+	head = vmci_q_header_consumer_head(consumeQHeader);
-+
-+	if (tail >= produceQSize || head >= produceQSize)
-+		return VMCI_ERROR_INVALID_SIZE;
-+
-+	/*
-+	 * Deduct 1 to avoid tail becoming equal to head which causes
-+	 * ambiguity. If head and tail are equal it means that the
-+	 * queue is empty.
-+	 */
-+	if (tail >= head)
-+		freeSpace = produceQSize - (tail - head) - 1;
-+	else
-+		freeSpace = head - tail - 1;
-+
-+	return freeSpace;
-+}
-+
-+/*
-+ * vmci_q_header_free_space() does all the heavy lifting of
-+ * determing the number of free bytes in a Queue.  This routine,
-+ * then subtracts that size from the full size of the Queue so
-+ * the caller knows how many bytes are ready to be dequeued.
-+ * Results:
-+ * On success, available data size in bytes (up to MAX_INT64).
-+ * On failure, appropriate error code.
-+ */
-+static inline int64_t
-+vmci_q_header_buf_ready(const struct vmci_queue_header *consumeQHeader,
-+			const struct vmci_queue_header *produceQHeader,
-+			const uint64_t consumeQSize)
-+{
-+	int64_t freeSpace;
-+
-+	freeSpace = vmci_q_header_free_space(consumeQHeader,
-+					     produceQHeader, consumeQSize);
-+	if (freeSpace < VMCI_SUCCESS)
-+		return freeSpace;
-+
-+	return consumeQSize - freeSpace - 1;
-+}
-+
-+static inline struct vmci_handle vmci_make_handle(uint32_t cid, uint32_t rid)
-+{
-+	struct vmci_handle h;
-+
-+	h.context = cid;
-+	h.resource = rid;
-+
-+	return h;
-+}
-+
-+#endif /* _VMW_VMCI_DEF_H_ */
++/* VHOST_SCSI specific defines */
++#define VHOST_SCSI_SET_ENDPOINT _IOW(VHOST_VIRTIO, 0x40, struct vhost_scsi_target)
++#define VHOST_SCSI_CLEAR_ENDPOINT _IOW(VHOST_VIRTIO, 0x41, struct vhost_scsi_target)
++#define VHOST_SCSI_GET_ABI_VERSION _IOW(VHOST_VIRTIO, 0x42, struct vhost_scsi_target)
 -- 
-1.7.0.4
+1.7.2.5
