@@ -1,17 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: Re: Re: [RFC PATCH 0/6] virtio-trace: Support virtio-trace
-Date: Thu, 26 Jul 2012 11:52:09 +0100
-Message-ID: <CAJSP0QUJkZrMMU6_OZsX7jCCnikvYmmPKkQui=qsdYxWTz1xCw@mail.gmail.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [RFC PATCH 0/6] virtio-trace: Support virtio-trace
+Date: Thu, 26 Jul 2012 17:05:37 +0530
+Message-ID: <20120726113537.GH9473@amit.redhat.com>
 References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
-	<CAJSP0QW_2JJ0nf=NW0y30VSid2HSxaqb=mRGV8CTtAKj0ujDWw@mail.gmail.com>
-	<500E810A.4030309@hitachi.com> <500E84D7.7060103@hitachi.com>
-	<CAJSP0QVuQnE68n=jyW+AE=WF3yDHjgdn7tdiz7rPTbtqGYFL4w@mail.gmail.com>
-	<500FB8A4.6060503@hitachi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <500FB8A4.6060503@hitachi.com>
+Content-Disposition: inline
+In-Reply-To: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,30 +19,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, Dhaval Giani <dhaval.giani@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, qemu-devel@nongnu.org, Amit Shah <amit.shah@redhat.com>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, yrl.pp-manager.tt@hitachi.com, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, virtualization@lists.linux-foundation.org, Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, qemu-devel@nongnu.org, Borislav Petkov <bp@amd64.org>, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, yrl.pp-manager.tt@hitachi.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBKdWwgMjUsIDIwMTIgYXQgMTA6MTMgQU0sIFlvc2hpaGlybyBZVU5PTUFFCjx5b3No
-aWhpcm8ueXVub21hZS5lekBoaXRhY2hpLmNvbT4gd3JvdGU6Cj4gSGkgU3RlZmFuLAo+Cj4KPiAo
-MjAxMi8wNy8yNCAyMjo0MSksIFN0ZWZhbiBIYWpub2N6aSB3cm90ZToKPj4KPj4gT24gVHVlLCBK
-dWwgMjQsIDIwMTIgYXQgMTI6MTkgUE0sIFlvc2hpaGlybyBZVU5PTUFFCj4+IDx5b3NoaWhpcm8u
-eXVub21hZS5lekBoaXRhY2hpLmNvbT4gd3JvdGU6Cj4+Pj4+Cj4+Pj4+IEFyZSB5b3UgdXNpbmcg
-dGV4dCBmb3JtYXR0ZWQgZnRyYWNlPwo+Pj4KPj4+IE5vLCBjdXJyZW50bHkgdXNpbmcgcmF3IGZv
-cm1hdCwgYnV044CAd2UnZCBsaWtlIHRvIHJlZm9ybWF0IGl0IGluIHRleHQuCj4+Cj4+Cj4+IENh
-cHR1cmluZyB0aGUgaW5mbyBuZWNlc3NhcnkgdG8gdHJhbnNsYXRlIG51bWJlcnMgaW50byBzeW1i
-b2xzIGlzIG9uZQo+PiBvZiB0aGUgcHJvYmxlbXMgb2YgaG9zdDwtPmd1ZXN0IHRyYWNpbmcgc28g
-SSdtIGN1cmlvdXMgaG93IHlvdSBoYW5kbGUKPj4gdGhpcyA6KS4KPgo+Cj4gUmlnaHQsIHlvdXIg
-Y29uc2lkZXJhdGlvbiBpcyB0cnVlLgo+Cj4KPj4gQXBvbG9naWVzIGZvciBteSBsYWNrIG9mIGZ0
-cmFjZSBrbm93bGVkZ2UgYnV0IGhvdyB1c2VmdWwgaXMgdGhlIHJhdwo+PiB0cmFjaW5nIGRhdGEg
-b24gdGhlIGhvc3Q/ICBIb3cgZG8geW91IHByZXR0eS1wcmludCBpdCBpbgo+PiBodW1hbi1yZWFk
-YWJsZSBmb3JtPwo+Cj4KPiBwZXJmIGFuZCB0cmFjZS1jbWQgY2FuIGFjdHVhbGx5IHRyYW5zbGF0
-ZSByYXctZm9ybWF0dGVkIHRyYWNlIGRhdGEgdG8KPiB0ZXh0LWZvcm1hdHRlZCB0cmFjZSBkYXRh
-IGJ5IHVzaW5nIGluZm9ybWF0aW9uIG9mIGtlcm5lbCBvciB0cmFjZQo+IGZvcm1hdCB1bmRlciB0
-cmFjaW5nL2V2ZW50cyBkaXJlY3RvcnkgaW4gZGVidWdmcy4gSW4gdGhlIHNhbWUgd2F5LCBpZgo+
-IHRoZSBpbmZvcm1hdGlvbiBvZiBhIGd1ZXN0IGlzIGV4cG9ydGVkIHRvIGEgaG9zdCwgd2UgY2Fu
-IHRyYW5zbGF0ZQo+IHJhdyB0cmFjZSBkYXRhIG9mIGEgZ3Vlc3QgdG8gdGV4dCB0cmFjZSBkYXRh
-IG9uIGEgaG9zdC4gV2Ugd2lsbCB1c2UKPiA5cGZzIHRvIGV4cG9ydCB0aGF0LgoKVGhhbmtzLCBp
-dCdzIGNsZWFyIG5vdyA6KS4KClN0ZWZhbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On (Tue) 24 Jul 2012 [11:36:57], Yoshihiro YUNOMAE wrote:
+> Hi All,
+> 
+> The following patch set provides a low-overhead system for collecting kernel
+> tracing data of guests by a host in a virtualization environment.
+> 
+> A guest OS generally shares some devices with other guests or a host, so
+> reasons of any problems occurring in a guest may be from other guests or a host.
+> Then, to collect some tracing data of a number of guests and a host is needed
+> when some problems occur in a virtualization environment. One of methods to
+> realize that is to collect tracing data of guests in a host. To do this, network
+> is generally used. However, high load will be taken to applications on guests
+> using network I/O because there are many network stack layers. Therefore,
+> a communication method for collecting the data without using network is needed.
+> 
+> We submitted a patch set of "IVRing", a ring-buffer driver constructed on
+> Inter-VM shared memory (IVShmem), to LKML http://lwn.net/Articles/500304/ in
+> this June. IVRing and the IVRing reader use POSIX shared memory each other
+> without using network, so a low-overhead system for collecting guest tracing
+> data is realized. However, this patch set has some problems as follows:
+>  - use IVShmem instead of virtio
+>  - create a new ring-buffer without using existing ring-buffer in kernel
+>  - scalability
+>    -- not support SMP environment
+>    -- buffer size limitation
+>    -- not support live migration (maybe difficult for realize this)
+> 
+> Therefore, we propose a new system "virtio-trace", which uses enhanced
+> virtio-serial and existing ring-buffer of ftrace, for collecting guest kernel
+> tracing data. In this system, there are 5 main components:
+>  (1) Ring-buffer of ftrace in a guest
+>      - When trace agent reads ring-buffer, a page is removed from ring-buffer.
+>  (2) Trace agent in the guest
+>      - Splice the page of ring-buffer to read_pipe using splice() without
+>        memory copying. Then, the page is spliced from write_pipe to virtio
+>        without memory copying.
+
+I really like the splicing idea.
+
+>  (3) Virtio-console driver in the guest
+>      - Pass the page to virtio-ring
+>  (4) Virtio-serial bus in QEMU
+>      - Copy the page to kernel pipe
+>  (5) Reader in the host
+>      - Read guest tracing data via FIFO(named pipe) 
+
+So will this be useful only if guest and host run the same kernel?
+
+I'd like to see the host kernel not being used at all -- collect all
+relevant info from the guest and send it out to qemu, where it can be
+consumed directly by apps driving the tracing.
+
+> ***Evaluation***
+> When a host collects tracing data of a guest, the performance of using
+> virtio-trace is compared with that of using native(just running ftrace),
+> IVRing, and virtio-serial(normal method of read/write).
+
+Why is tracing performance-sensitive?  i.e. why try to optimise this
+at all?
+
+> <environment>
+> The overview of this evaluation is as follows:
+>  (a) A guest on a KVM is prepared.
+>      - The guest is dedicated one physical CPU as a virtual CPU(VCPU).
+> 
+>  (b) The guest starts to write tracing data to ring-buffer of ftrace.
+>      - The probe points are all trace points of sched, timer, and kmem.
+> 
+>  (c) Writing trace data, dhrystone 2 in UNIX bench is executed as a benchmark
+>      tool in the guest.
+>      - Dhrystone 2 intends system performance by repeating integer arithmetic
+>        as a score.
+>      - Since higher score equals to better system performance, if the score
+>        decrease based on bare environment, it indicates that any operation
+>        disturbs the integer arithmetic. Then, we define the overhead of
+>        transporting trace data is calculated as follows:
+> 		OVERHEAD = (1 - SCORE_OF_A_METHOD/NATIVE_SCORE) * 100.
+> 
+> The performance of each method is compared as follows:
+>  [1] Native
+>      - only recording trace data to ring-buffer on a guest
+>  [2] Virtio-trace
+>      - running a trace agent on a guest
+>      - a reader on a host opens FIFO using cat command
+>  [3] IVRing
+>      - A SystemTap script in a guest records trace data to IVRing.
+>        -- probe points are same as ftrace.
+>  [4] Virtio-serial(normal)
+>      - A reader(using cat) on a guest output trace data to a host using
+>        standard output via virtio-serial.
+> 
+> Other information is as follows:
+>  - host
+>    kernel: 3.3.7-1 (Fedora16)
+>    CPU: Intel Xeon x5660@2.80GHz(12core)
+>    Memory: 48GB
+> 
+>  - guest(only booting one guest)
+>    kernel: 3.5.0-rc4+ (Fedora16)
+>    CPU: 1VCPU(dedicated)
+>    Memory: 1GB
+> 
+> <result>
+> 3 patterns based on the bare environment were indicated as follows:
+> 	                   Scores      overhead against [0] Native
+>     [0] Native:          28807569.5               -
+>     [1] Virtio-trace:    28685049.5             0.43%
+>     [2] IVRing:          28418595.5             1.35%
+>     [3] Virtio-serial:   13262258.7            53.96%
+> 
+> 
+> ***Just enhancement ideas***
+>  - Support for trace-cmd
+>  - Support for 9pfs protocol
+>  - Support for non-blocking mode in QEMU
+
+There were patches long back (by me) to make chardevs non-blocking but
+they didn't make it upstream.  Fedora carries them, if you want to try
+out.  Though we want to converge on a reasonable solution that's
+acceptable upstream as well.  Just that no one's working on it
+currently.  Any help here will be appreciated.
+
+>  - Make "vhost-serial"
+
+I need to understand a) why it's perf-critical, and b) why should the
+host be involved at all, to comment on these.
+
+Thanks,
+
+		Amit
