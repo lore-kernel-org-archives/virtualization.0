@@ -1,21 +1,11 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH] tcm_vhost: Expose ABI version via
-	VHOST_SCSI_GET_ABI_VERSION
-Date: Thu, 26 Jul 2012 13:15:26 -0700
-Message-ID: <1343333727.22538.3.camel@haakon2.linux-iscsi.org>
-References: <1343093180-5598-1-git-send-email-nab@linux-iscsi.org>
-	<20120724015634.GD4093@kroah.com>
-	<1343162724.1813.111.camel@haakon2.linux-iscsi.org>
-	<20120725115552.GB11098@stefanha-thinkpad.localdomain>
-	<1343250890.1813.173.camel@haakon2.linux-iscsi.org>
-	<20120725223559.GA4786@stefanha-thinkpad.localdomain>
-	<1343270061.1813.181.camel@haakon2.linux-iscsi.org>
-	<5011069A.2080203@redhat.com>
+From: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
+Subject: [vmw_vmci 00/11] VMCI for Linux
+Date: Thu, 26 Jul 2012 16:39:29 -0700
+Message-ID: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5011069A.2080203@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,32 +15,124 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
+To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: pv-drivers@vmware.com, vm-crosstalk@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, cschamp@vmware.com, gregkh@linuxfoundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2012-07-26 at 11:58 +0300, Avi Kivity wrote:
-> On 07/26/2012 05:34 AM, Nicholas A. Bellinger wrote:
-> > 
-> > In that case, respinning a -v5 for tcm_vhost to start from ABI=0 and
-> > will post an updated patch shortly.
-> > 
-> >> The main thing I would like to confirm is that this only versions the
-> >> tcm_vhost ioctls?  In that case a single version number works.
-> >> 
-> > 
-> > Correct, the GET_ABI_VERSION call is only intended to identify the
-> > changing of tcm_vhost ioctls.
-> 
-> Why use version numbers at all?
-> 
+In an effort to improve the out-of-the-box experience with Linux
+kernels for VMware users, VMware is working on readying the Virtual
+Machine Communication Interface (vmw_vmci) and VMCI Sockets
+(vmw_vsock) kernel modules for inclusion in the Linux kernel. The
+purpose of this post is to acquire feedback on the vmw_vmci kernel
+module. The vmw_vsock kernel module will be presented in a later post.
 
-This was a request by QEMU folks.. 
+VMCI allows virtual machines to communicate with host kernel modules
+and the VMware hypervisors. User level applications both in a virtual
+machine and on the host can use vmw_vmci through VMCI Sockets, a socket
+address family designed to be compatible with UDP and TCP at the
+interface level. Today, VMCI and VMCI Sockets are used by the VMware
+shared folders (HGFS) and various VMware Tools components inside the
+guest for zero-config, network-less access to VMware host services. In
+addition to this, VMware's users are using VMCI Sockets for various
+applications, where network access of the virtual machine is
+restricted or non-existent. Examples of this are VMs communicating
+with device proxies for proprietary hardware running as host
+applications and automated testing of applications running within
+virtual machines.
 
+In a virtual machine, VMCI is exposed as a regular PCI device. The
+primary communication mechanisms supported are a point-to-point
+bidirectional transport based on a pair of memory-mapped queues, and
+asynchronous notifications in the form of datagrams and
+doorbells. These features are available to kernel level components
+such as HGFS and VMCI Sockets through the VMCI kernel API. In addition
+to this, the VMCI kernel API provides support for receiving events
+related to the state of the VMCI communication channels, and the
+virtual machine itself.
 
-> Feature maps are better, because you can get very fine granularity.
-> 
-> 
+Outside the virtual machine, the host side support of the VMCI kernel
+module makes the same VMCI kernel API available to VMCI endpoints on
+the host. In addition to this, the host side manages each VMCI device
+in a virtual machine through a context object. This context object
+serves to identify the virtual machine for communication, and to track
+the resource consumption of the given VMCI device. Both operations
+related to communication between the virtual machine and the host
+kernel, and those related to the management of the VMCI device state
+in the host kernel, are invoked by the user level component of the
+hypervisor through a set of ioctls on the VMCI device node.  To
+provide seamless support for nested virtualization, where a virtual
+machine may use both a VMCI PCI device to talk to its hypervisor, and
+the VMCI host side support to run nested virtual machines, the VMCI
+host and virtual machine support are combined in a single kernel
+module.
 
-Example..?  If there is a better way to handle ioctl compat I'd
-certainly like to hear about it.
+For additional information about the use of VMCI and in particular
+VMCI Sockets, please refer to the VMCI Socket Programming Guide
+available at https://www.vmware.com/support/developer/vmci-sdk/.
+
+Andrew Stiegmann (stieg) (11):
+  Apply VMCI context code
+  Apply VMCI datagram code
+  Apply VMCI doorbell code
+  Apply VMCI driver code
+  Apply VMCI event code
+  Apply dynamic array code
+  Apply VMCI hash table
+  Apply VMCI queue pairs
+  Apply VMCI resource code
+  Apply vmci routing code
+  Apply the header code to make VMCI build
+
+ drivers/misc/Kconfig                      |    1 +
+ drivers/misc/Makefile                     |    1 +
+ drivers/misc/vmw_vmci/Kconfig             |   16 +
+ drivers/misc/vmw_vmci/Makefile            |   43 +
+ drivers/misc/vmw_vmci/vmci_common_int.h   |   58 +
+ drivers/misc/vmw_vmci/vmci_context.c      | 1269 +++++++++++
+ drivers/misc/vmw_vmci/vmci_context.h      |  161 ++
+ drivers/misc/vmw_vmci/vmci_datagram.c     |  586 +++++
+ drivers/misc/vmw_vmci/vmci_datagram.h     |   56 +
+ drivers/misc/vmw_vmci/vmci_doorbell.c     |  751 ++++++
+ drivers/misc/vmw_vmci/vmci_doorbell.h     |   57 +
+ drivers/misc/vmw_vmci/vmci_driver.c       | 2298 +++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_driver.h       |   52 +
+ drivers/misc/vmw_vmci/vmci_event.c        |  451 ++++
+ drivers/misc/vmw_vmci/vmci_event.h        |   29 +
+ drivers/misc/vmw_vmci/vmci_handle_array.c |  174 ++
+ drivers/misc/vmw_vmci/vmci_handle_array.h |   50 +
+ drivers/misc/vmw_vmci/vmci_hash_table.c   |  332 +++
+ drivers/misc/vmw_vmci/vmci_hash_table.h   |   56 +
+ drivers/misc/vmw_vmci/vmci_queue_pair.c   | 3548 +++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_queue_pair.h   |  182 ++
+ drivers/misc/vmw_vmci/vmci_resource.c     |  194 ++
+ drivers/misc/vmw_vmci/vmci_resource.h     |   62 +
+ drivers/misc/vmw_vmci/vmci_route.c        |  241 ++
+ drivers/misc/vmw_vmci/vmci_route.h        |   34 +
+ include/linux/vmw_vmci_api.h              |   89 +
+ include/linux/vmw_vmci_defs.h             |  921 ++++++++
+ 27 files changed, 11712 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/vmw_vmci/Kconfig
+ create mode 100644 drivers/misc/vmw_vmci/Makefile
+ create mode 100644 drivers/misc/vmw_vmci/vmci_common_int.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_context.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_context.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_driver.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_driver.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_hash_table.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_hash_table.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_route.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_route.h
+ create mode 100644 include/linux/vmw_vmci_api.h
+ create mode 100644 include/linux/vmw_vmci_defs.h
