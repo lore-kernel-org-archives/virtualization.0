@@ -1,7 +1,7 @@
 From: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
-Subject: [vmw_vmci 03/11] Apply VMCI doorbell code
-Date: Thu, 26 Jul 2012 16:39:32 -0700
-Message-ID: <1343345980-32397-4-git-send-email-astiegmann@vmware.com>
+Subject: [vmw_vmci 05/11] Apply VMCI event code
+Date: Thu, 26 Jul 2012 16:39:34 -0700
+Message-ID: <1343345980-32397-6-git-send-email-astiegmann@vmware.com>
 References: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,22 +21,23 @@ To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 Cc: pv-drivers@vmware.com, vm-crosstalk@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, cschamp@vmware.com, gregkh@linuxfoundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Doorbell code allows for notifcations between host and guest.
+Code that manages event handlers and handles callbacks when
+specific events fire.
 
 Signed-off-by: Andrew Stiegmann (stieg) <astiegmann@vmware.com>
 ---
- drivers/misc/vmw_vmci/vmci_doorbell.c |  751 +++++++++++++++++++++++++++++++++
- drivers/misc/vmw_vmci/vmci_doorbell.h |   57 +++
- 2 files changed, 808 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.h
+ drivers/misc/vmw_vmci/vmci_event.c |  451 ++++++++++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_event.h |   29 +++
+ 2 files changed, 480 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.h
 
-diff --git a/drivers/misc/vmw_vmci/vmci_doorbell.c b/drivers/misc/vmw_vmci/vmci_doorbell.c
+diff --git a/drivers/misc/vmw_vmci/vmci_event.c b/drivers/misc/vmw_vmci/vmci_event.c
 new file mode 100644
-index 0000000..389ba4c
+index 0000000..bc4e976
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_doorbell.c
-@@ -0,0 +1,751 @@
++++ b/drivers/misc/vmw_vmci/vmci_event.c
+@@ -0,0 +1,451 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -56,744 +57,444 @@ index 0000000..389ba4c
 + * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 + */
 +
-+#include <linux/kernel.h>
 +#include <linux/module.h>
++#include <linux/list.h>
 +#include <linux/sched.h>
 +#include <linux/vmw_vmci_api.h>
 +#include <linux/vmw_vmci_defs.h>
 +
-+#include "vmci_common_int.h"
-+#include "vmci_datagram.h"
-+#include "vmci_doorbell.h"
++#include "vmci_event.h"
 +#include "vmci_driver.h"
-+#include "vmci_resource.h"
-+#include "vmci_route.h"
 +
-+#define VMCI_DOORBELL_INDEX_TABLE_SIZE (1 << 6)
-+#define VMCI_DOORBELL_HASH(_idx)				\
-+	vmci_hash_calc((_idx), VMCI_DOORBELL_INDEX_TABLE_SIZE)
++#define EVENT_MAGIC 0xEABE0000
++#define VMCI_EVENT_MAX_ATTEMPTS 10
 +
-+/*
-+ * DoorbellEntry describes the a doorbell notification handle allocated by the
-+ * host.
-+ */
-+struct dbell_entry {
-+	struct vmci_resource resource;
-+	uint32_t idx;
-+	struct list_head idxListItem;
-+	uint32_t privFlags;
++struct vmci_subscription {
++	uint32_t id;
++	int refCount;
 +	bool runDelayed;
-+	VMCICallback notifyCB;
-+	void *clientData;
 +	wait_queue_head_t destroyEvent;
-+	atomic_t active;	/* Only used by guest personality */
++	uint32_t event;
++	VMCI_EventCB callback;
++	void *callbackData;
++	struct list_head subscriberListItem;
 +};
 +
-+/* The VMCI index table keeps track of currently registered doorbells. */
-+static struct dbell_index_table {
-+	spinlock_t lock;
-+	struct list_head entries[VMCI_DOORBELL_INDEX_TABLE_SIZE];
-+} vmciDoorbellIT;
++static struct list_head subscriberArray[VMCI_EVENT_MAX];
++static spinlock_t subscriberLock;
 +
-+/*
-+ * The maxNotifyIdx is one larger than the currently known bitmap index in
-+ * use, and is used to determine how much of the bitmap needs to be scanned.
-+ */
-+static uint32_t maxNotifyIdx;
++struct delayed_event_info {
++	struct vmci_subscription *sub;
++	uint8_t eventPayload[sizeof(struct vmci_event_data_max)];
++};
 +
-+/*
-+ * The notifyIdxCount is used for determining whether there are free entries
-+ * within the bitmap (if notifyIdxCount + 1 < maxNotifyIdx).
-+ */
-+static uint32_t notifyIdxCount;
++struct event_ref {
++	struct vmci_subscription *sub;
++	struct list_head listItem;
++};
 +
-+/*
-+ * The lastNotifyIdxReserved is used to track the last index handed out - in
-+ * the case where multiple handles share a notification index, we hand out
-+ * indexes round robin based on lastNotifyIdxReserved.
-+ */
-+static uint32_t lastNotifyIdxReserved;
-+
-+/* This is a one entry cache used to by the index allocation. */
-+static uint32_t lastNotifyIdxReleased = PAGE_SIZE;
-+
-+/*
-+ * General init code.
-+ */
-+int __init vmci_dbell_init(void)
++int __init vmci_event_init(void)
 +{
-+	uint32_t bucket;
++	int i;
 +
-+	for (bucket = 0; bucket < ARRAY_SIZE(vmciDoorbellIT.entries); ++bucket)
-+		INIT_LIST_HEAD(&vmciDoorbellIT.entries[bucket]);
++	for (i = 0; i < VMCI_EVENT_MAX; i++)
++		INIT_LIST_HEAD(&subscriberArray[i]);
 +
-+	spin_lock_init(&vmciDoorbellIT.lock);
++	spin_lock_init(&subscriberLock);
 +	return VMCI_SUCCESS;
 +}
 +
-+/*
-+ * Callback to free doorbell entry structure when resource is no longer used,
-+ * The entry is freed in VMCIDoorbell_Destroy(), which is waiting on the
-+ * signal that gets fired here.
-+ */
-+static void dbell_free_cb(void *clientData)
++void vmci_event_exit(void)
 +{
-+	struct dbell_entry *entry = (struct dbell_entry *)clientData;
-+	ASSERT(entry);
-+	wake_up(&entry->destroyEvent);
++	int e;
++
++	/* We free all memory at exit. */
++	for (e = 0; e < VMCI_EVENT_MAX; e++) {
++		struct vmci_subscription *cur, *p2;
++		list_for_each_entry_safe(cur, p2, &subscriberArray[e],
++					 subscriberListItem) {
++
++			/*
++			 * We should never get here because all events
++			 * should have been unregistered before we try
++			 * to unload the driver module.  Also, delayed
++			 * callbacks could still be firing so this
++			 * cleanup would not be safe.  Still it is
++			 * better to free the memory than not ... so
++			 * we leave this code in just in case....
++			 */
++			pr_warn("Unexpected free events occuring.");
++			kfree(cur);
++		}
++	}
++
 +}
 +
-+static int dbell_release_cb(void *clientData)
++/*
++ * Gets a reference to the given VMCISubscription.
++ */
++static void event_get(struct vmci_subscription *entry)
 +{
-+	struct dbell_entry *entry = (struct dbell_entry *)clientData;
 +	ASSERT(entry);
-+	vmci_resource_release(&entry->resource);
++
++	entry->refCount++;
++}
++
++/*
++ * Releases the given VMCISubscription.
++ * Fires the destroy event if the reference count has gone to zero.
++ */
++static void event_release(struct vmci_subscription *entry)
++{
++	ASSERT(entry);
++	ASSERT(entry->refCount > 0);
++
++	entry->refCount--;
++	if (entry->refCount == 0)
++		wake_up(&entry->destroyEvent);
++}
++
++/*
++ * Callback to release the event entry reference. It is called by the
++ * VMCI_WaitOnEvent function before it blocks.
++ */
++static int event_release_cb(void *clientData)
++{
++	struct vmci_subscription *sub = (struct vmci_subscription *)clientData;
++
++	ASSERT(sub);
++
++	spin_lock_bh(&subscriberLock);
++	event_release(sub);
++	spin_unlock_bh(&subscriberLock);
++
 +	return 0;
 +}
 +
 +/*
-+ * Utility function that retrieves the privilege flags associated
-+ * with a given doorbell handle. For guest endpoints, the
-+ * privileges are determined by the context ID, but for host
-+ * endpoints privileges are associated with the complete
-+ * handle. Hypervisor endpoints are not yet supported.
++ * Find entry. Assumes lock is held.
++ * Increments the VMCISubscription refcount if an entry is found.
 + */
-+int vmci_dbell_get_priv_flags(struct vmci_handle handle,
-+			      uint32_t *privFlags)
++static struct vmci_subscription *event_find(uint32_t subID)
 +{
-+	if (privFlags == NULL || handle.context == VMCI_INVALID_ID)
-+		return VMCI_ERROR_INVALID_ARGS;
++	int e;
 +
-+	if (handle.context == VMCI_HOST_CONTEXT_ID) {
-+		struct dbell_entry *entry;
-+		struct vmci_resource *resource;
-+
-+		resource =
-+			vmci_resource_get(handle, VMCI_RESOURCE_TYPE_DOORBELL);
-+		if (resource == NULL)
-+			return VMCI_ERROR_NOT_FOUND;
-+
-+		entry =
-+			container_of(resource, struct dbell_entry,
-+				     resource);
-+		*privFlags = entry->privFlags;
-+		vmci_resource_release(resource);
-+	} else if (handle.context == VMCI_HYPERVISOR_CONTEXT_ID) {
-+		/*
-+		 * Hypervisor endpoints for notifications are not
-+		 * supported (yet).
-+		 */
-+		return VMCI_ERROR_INVALID_ARGS;
-+	} else {
-+		*privFlags = VMCIContext_GetPrivFlags(handle.context);
++	for (e = 0; e < VMCI_EVENT_MAX; e++) {
++		struct vmci_subscription *cur;
++		list_for_each_entry(cur, &subscriberArray[e],
++				    subscriberListItem) {
++			if (cur->id == subID) {
++				event_get(cur);
++				return cur;
++			}
++		}
 +	}
-+
-+	return VMCI_SUCCESS;
-+}
-+
-+/*
-+ * Find doorbell entry by bitmap index.
-+ */
-+static struct dbell_entry *dbell_index_table_find(uint32_t idx)
-+{
-+	uint32_t bucket = VMCI_DOORBELL_HASH(idx);
-+	struct dbell_entry *cur;
-+
-+	ASSERT(vmci_guest_code_active());
-+
-+	list_for_each_entry(cur, &vmciDoorbellIT.entries[bucket], idxListItem) {
-+		if (idx == cur->idx)
-+			return cur;
-+	}
-+
 +	return NULL;
-+}
-+
-+/*
-+ * Add the given entry to the index table.  This will hold() the entry's
-+ * resource so that the entry is not deleted before it is removed from the
-+ * table.
-+ */
-+static void dbell_index_table_add(struct dbell_entry *entry)
-+{
-+	uint32_t bucket;
-+	uint32_t newNotifyIdx;
-+
-+	ASSERT(entry);
-+	ASSERT(vmci_guest_code_active());
-+
-+	vmci_resource_hold(&entry->resource);
-+
-+	spin_lock_bh(&vmciDoorbellIT.lock);
-+
-+	/*
-+	 * Below we try to allocate an index in the notification
-+	 * bitmap with "not too much" sharing between resources. If we
-+	 * use less that the full bitmap, we either add to the end if
-+	 * there are no unused flags within the currently used area,
-+	 * or we search for unused ones. If we use the full bitmap, we
-+	 * allocate the index round robin.
-+	 */
-+	if (maxNotifyIdx < PAGE_SIZE || notifyIdxCount < PAGE_SIZE) {
-+		if (lastNotifyIdxReleased < maxNotifyIdx &&
-+		    !dbell_index_table_find(lastNotifyIdxReleased)) {
-+			newNotifyIdx = lastNotifyIdxReleased;
-+			lastNotifyIdxReleased = PAGE_SIZE;
-+		} else {
-+			bool reused = false;
-+			newNotifyIdx = lastNotifyIdxReserved;
-+			if (notifyIdxCount + 1 < maxNotifyIdx) {
-+				do {
-+					if (!dbell_index_table_find
-+					    (newNotifyIdx)) {
-+						reused = true;
-+						break;
-+					}
-+					newNotifyIdx = (newNotifyIdx + 1) %
-+						maxNotifyIdx;
-+				} while (newNotifyIdx != lastNotifyIdxReleased);
-+			}
-+			if (!reused) {
-+				newNotifyIdx = maxNotifyIdx;
-+				maxNotifyIdx++;
-+			}
-+		}
-+	} else {
-+		newNotifyIdx = (lastNotifyIdxReserved + 1) % PAGE_SIZE;
-+	}
-+
-+	lastNotifyIdxReserved = newNotifyIdx;
-+	notifyIdxCount++;
-+
-+	entry->idx = newNotifyIdx;
-+	bucket = VMCI_DOORBELL_HASH(entry->idx);
-+	list_add(&entry->idxListItem, &vmciDoorbellIT.entries[bucket]);
-+
-+	spin_unlock_bh(&vmciDoorbellIT.lock);
-+}
-+
-+/*
-+ * Remove the given entry from the index table.  This will release() the
-+ * entry's resource.
-+ */
-+static void dbell_index_table_remove(struct dbell_entry *entry)
-+{
-+	ASSERT(entry);
-+	ASSERT(vmci_guest_code_active());
-+
-+	spin_lock_bh(&vmciDoorbellIT.lock);
-+
-+	list_del(&entry->idxListItem);
-+
-+	notifyIdxCount--;
-+	if (entry->idx == maxNotifyIdx - 1) {
-+		/*
-+		 * If we delete an entry with the maximum known
-+		 * notification index, we take the opportunity to
-+		 * prune the current max. As there might be other
-+		 * unused indices immediately below, we lower the
-+		 * maximum until we hit an index in use.
-+		 */
-+		while (maxNotifyIdx > 0 &&
-+		       !dbell_index_table_find(maxNotifyIdx - 1)) {
-+			maxNotifyIdx--;
-+		}
-+	}
-+
-+	lastNotifyIdxReleased = entry->idx;
-+
-+	spin_unlock_bh(&vmciDoorbellIT.lock);
-+
-+	vmci_resource_release(&entry->resource);
-+}
-+
-+/*
-+ * Creates a link between the given doorbell handle and the given
-+ * index in the bitmap in the device backend. A notification state
-+ * is created in hypervisor.
-+ */
-+static int dbell_link(struct vmci_handle handle,
-+		      uint32_t notifyIdx)
-+{
-+	struct vmci_doorbell_link_msg linkMsg;
-+
-+	ASSERT(!VMCI_HANDLE_INVALID(handle));
-+	ASSERT(vmci_guest_code_active());
-+
-+	linkMsg.hdr.dst = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
-+					   VMCI_DOORBELL_LINK);
-+	linkMsg.hdr.src = VMCI_ANON_SRC_HANDLE;
-+	linkMsg.hdr.payloadSize = sizeof linkMsg - VMCI_DG_HEADERSIZE;
-+	linkMsg.handle = handle;
-+	linkMsg.notifyIdx = notifyIdx;
-+
-+	return vmci_send_dg((struct vmci_dg *)&linkMsg);
-+}
-+
-+/*
-+ * Unlinks the given doorbell handle from an index in the bitmap in
-+ * the device backend. The notification state is destroyed in hypervisor.
-+ */
-+static int dbell_unlink(struct vmci_handle handle)
-+{
-+	struct vmci_doorbell_unlink_msg unlinkMsg;
-+
-+	ASSERT(!VMCI_HANDLE_INVALID(handle));
-+	ASSERT(vmci_guest_code_active());
-+
-+	unlinkMsg.hdr.dst = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
-+					     VMCI_DOORBELL_UNLINK);
-+	unlinkMsg.hdr.src = VMCI_ANON_SRC_HANDLE;
-+	unlinkMsg.hdr.payloadSize = sizeof unlinkMsg - VMCI_DG_HEADERSIZE;
-+	unlinkMsg.handle = handle;
-+
-+	return vmci_send_dg((struct vmci_dg *)&unlinkMsg);
-+}
-+
-+/*
-+ * Notify another guest or the host.  We send a datagram down to the
-+ * host via the hypervisor with the notification info.
-+ */
-+static int dbell_notify_as_guest(struct vmci_handle handle,
-+				 uint32_t privFlags)
-+{
-+	struct vmci_doorbell_ntfy_msg notifyMsg;
-+
-+	ASSERT(vmci_guest_code_active());
-+
-+	notifyMsg.hdr.dst = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
-+					     VMCI_DOORBELL_NOTIFY);
-+	notifyMsg.hdr.src = VMCI_ANON_SRC_HANDLE;
-+	notifyMsg.hdr.payloadSize = sizeof notifyMsg - VMCI_DG_HEADERSIZE;
-+	notifyMsg.handle = handle;
-+
-+	return vmci_send_dg((struct vmci_dg *)&notifyMsg);
 +}
 +
 +/*
 + * Calls the specified callback in a delayed context.
 + */
-+static void dbell_delayed_dispatch_cb(void *data)
++static void event_delayed_dispatch_cb(void *data)
 +{
-+	struct dbell_entry *entry = (struct dbell_entry *)data;
++	struct delayed_event_info *eventInfo;
++	struct vmci_subscription *sub;
++	struct vmci_event_data *ed;
 +
-+	ASSERT(data);
++	eventInfo = data;
 +
-+	entry->notifyCB(entry->clientData);
-+	vmci_resource_release(&entry->resource);
++	ASSERT(eventInfo);
++	ASSERT(eventInfo->sub);
++
++	sub = eventInfo->sub;
++	ed = (struct vmci_event_data *)eventInfo->eventPayload;
++
++	sub->callback(sub->id, ed, sub->callbackData);
++
++	spin_lock_bh(&subscriberLock);
++	event_release(sub);
++	spin_unlock_bh(&subscriberLock);
++
++	kfree(eventInfo);
 +}
 +
 +/*
-+ * Dispatches a doorbell notification to the host context.
++ * Actually delivers the events to the subscribers.
++ * The callback function for each subscriber is invoked.
 + */
-+int vmci_dbell_host_context_notify(uint32_t srcCID,
-+				   struct vmci_handle handle)
++static int event_deliver(struct vmci_event_msg *eventMsg)
 +{
-+	struct dbell_entry *entry;
-+	struct vmci_resource *resource;
-+	int result;
++	int err = VMCI_SUCCESS;
++	struct vmci_subscription *cur;
++	struct list_head noDelayList;
++	struct vmci_event_data *ed;
++	struct event_ref *eventRef, *p2;
 +
-+	ASSERT(vmci_host_code_active());
++	ASSERT(eventMsg);
 +
-+	if (VMCI_HANDLE_INVALID(handle)) {
-+		pr_devel("Notifying an invalid doorbell " \
-+			 "(handle=0x%x:0x%x).", handle.context,
-+			 handle.resource);
-+		return VMCI_ERROR_INVALID_ARGS;
-+	}
++	INIT_LIST_HEAD(&noDelayList);
 +
-+	resource = vmci_resource_get(handle, VMCI_RESOURCE_TYPE_DOORBELL);
-+	if (resource == NULL) {
-+		pr_devel("Notifying an unknown doorbell " \
-+			 "(handle=0x%x:0x%x).", handle.context,
-+			 handle.resource);
-+		return VMCI_ERROR_NOT_FOUND;
-+	}
-+	entry = container_of(resource, struct dbell_entry, resource);
++	spin_lock_bh(&subscriberLock);
++	list_for_each_entry(cur, &subscriberArray[eventMsg->eventData.event],
++			    subscriberListItem) {
++		ASSERT(cur && cur->event == eventMsg->eventData.event);
 +
-+	if (entry->runDelayed) {
-+		result = vmci_drv_schedule_delayed_work(
-+			dbell_delayed_dispatch_cb,
-+			entry);
++		if (cur->runDelayed) {
++			struct delayed_event_info *eventInfo;
++			eventInfo = kzalloc(sizeof *eventInfo, GFP_ATOMIC);
++			if (!eventInfo) {
++				err = VMCI_ERROR_NO_MEM;
++				goto out;
++			}
 +
-+		if (result < VMCI_SUCCESS) {
++			event_get(cur);
++			memcpy(eventInfo->eventPayload,
++			       VMCI_DG_PAYLOAD(eventMsg),
++			       (size_t) eventMsg->hdr.payloadSize);
++			eventInfo->sub = cur;
++			err = vmci_drv_schedule_delayed_work(
++				event_delayed_dispatch_cb,
++				eventInfo);
++			if (err != VMCI_SUCCESS) {
++				event_release(cur);
++				kfree(eventInfo);
++				goto out;
++			}
++
++		} else {
 +			/*
-+			 * If we failed to schedule the delayed work,
-+			 * we need to release the resource
-+			 * immediately. Otherwise, the resource will
-+			 * be released once the delayed callback has
-+			 * been completed.
++			 * To avoid possible lock rank voilation when holding
++			 * subscriberLock, we construct a local list of
++			 * subscribers and release subscriberLock before
++			 * invokes the callbacks. This is similar to delayed
++			 * callbacks, but callbacks is invoked right away here.
 +			 */
-+			pr_devel("Failed to schedule delayed doorbell " \
-+				 "notification (result=%d).", result);
-+			vmci_resource_release(resource);
-+		}
-+	} else {
-+		entry->notifyCB(entry->clientData);
-+		vmci_resource_release(resource);
-+		result = VMCI_SUCCESS;
-+	}
-+	return result;
-+}
-+
-+/*
-+ * When a guest leaves hibernation, the device driver state is out of sync
-+ * with the device state, since the driver state has doorbells registered
-+ * that aren't known to the device.  This function takes care of
-+ * reregistering any doorbells. In case an error occurs during
-+ * reregistration (this is highly unlikely since 1) it succeeded the first
-+ * time 2) the device driver is the only source of doorbell registrations),
-+ * we simply log the error.  The doorbell can still be destroyed using
-+ * VMCIDoorbell_Destroy.
-+ */
-+void vmci_dbell_hibernate(bool enterHibernate)
-+{
-+	uint32_t bucket;
-+	struct dbell_entry *cur;
-+
-+	if (!vmci_guest_code_active() || enterHibernate)
-+		return;
-+
-+	spin_lock_bh(&vmciDoorbellIT.lock);
-+
-+	for (bucket = 0; bucket < ARRAY_SIZE(vmciDoorbellIT.entries);
-+	     bucket++) {
-+		list_for_each_entry(cur, &vmciDoorbellIT.entries[bucket],
-+				    idxListItem) {
-+			int result;
-+			struct vmci_handle h;
-+
-+			h = vmci_resource_handle(&cur->resource);
-+			result = dbell_link(h, cur->idx);
-+			if (result != VMCI_SUCCESS
-+			    && result != VMCI_ERROR_DUPLICATE_ENTRY) {
-+				pr_warn("Failed to reregister doorbell " \
-+					"(handle=0x%x:0x%x) to index " \
-+					"(error=%d).", h.context, h.resource,
-+					result);
++			eventRef = kzalloc(sizeof *eventRef, GFP_ATOMIC);
++			if (!eventRef) {
++				err = VMCI_ERROR_NO_MEM;
++				goto out;
 +			}
-+		}
-+	}
 +
-+	spin_unlock_bh(&vmciDoorbellIT.lock);
-+}
-+
-+/*
-+ * Register the notification bitmap with the host.
-+ */
-+bool vmci_dbell_register_notification_bitmap(uint32_t bitmapPPN)
-+{
-+	int result;
-+	struct vmci_notify_bm_set_msg bitmapSetMsg;
-+
-+	/*
-+	 * Do not ASSERT() on the guest device here.  This function
-+	 * can get called during device initialization, so the
-+	 * ASSERT() will fail even though the device is (almost) up.
-+	 */
-+	bitmapSetMsg.hdr.dst = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
-+						VMCI_SET_NOTIFY_BITMAP);
-+	bitmapSetMsg.hdr.src = VMCI_ANON_SRC_HANDLE;
-+	bitmapSetMsg.hdr.payloadSize = sizeof bitmapSetMsg - VMCI_DG_HEADERSIZE;
-+	bitmapSetMsg.bitmapPPN = bitmapPPN;
-+
-+	result = vmci_send_dg((struct vmci_dg *)&bitmapSetMsg);
-+	if (result != VMCI_SUCCESS) {
-+		pr_devel("Failed to register (PPN=%u) as " \
-+			 "notification bitmap (error=%d).",
-+			 bitmapPPN, result);
-+		return false;
-+	}
-+	return true;
-+}
-+
-+/*
-+ * Executes or schedules the handlers for a given notify index.
-+ */
-+static void dbell_fire_entries(uint32_t notifyIdx)
-+{
-+	uint32_t bucket = VMCI_DOORBELL_HASH(notifyIdx);
-+	struct dbell_entry *cur;
-+
-+	ASSERT(vmci_guest_code_active());
-+
-+	spin_lock_bh(&vmciDoorbellIT.lock);
-+
-+	list_for_each_entry(cur, &vmciDoorbellIT.entries[bucket], idxListItem) {
-+		if (cur->idx == notifyIdx && atomic_read(&cur->active) == 1) {
-+			ASSERT(cur->notifyCB);
-+			if (cur->runDelayed) {
-+				int err;
-+
-+				vmci_resource_hold(&cur->resource);
-+				err =
-+					vmci_drv_schedule_delayed_work
-+					(dbell_delayed_dispatch_cb, cur);
-+				if (err != VMCI_SUCCESS) {
-+					vmci_resource_release(&cur->resource);
-+					goto out;
-+				}
-+			} else {
-+				cur->notifyCB(cur->clientData);
-+			}
++			event_get(cur);
++			eventRef->sub = cur;
++			INIT_LIST_HEAD(&eventRef->listItem);
++			list_add(&eventRef->listItem, &noDelayList);
 +		}
 +	}
 +
 +out:
-+	spin_unlock_bh(&vmciDoorbellIT.lock);
++	spin_unlock_bh(&subscriberLock);
++
++	list_for_each_entry_safe(eventRef, p2, &noDelayList, listItem) {
++		uint8_t eventPayload[sizeof(struct vmci_event_data_max)]
++			= { 0 };
++
++		/*
++		 * We set event data before each callback to ensure
++		 * isolation.
++		 */
++		memcpy(eventPayload, VMCI_DG_PAYLOAD(eventMsg),
++		       (size_t) eventMsg->hdr.payloadSize);
++		ed = (struct vmci_event_data *)eventPayload;
++		cur = eventRef->sub;
++		cur->callback(cur->id, ed, cur->callbackData);
++
++		spin_lock_bh(&subscriberLock);
++		event_release(cur);
++		spin_unlock_bh(&subscriberLock);
++		kfree(eventRef);
++	}
++
++	return err;
 +}
 +
 +/*
-+ * Scans the notification bitmap, collects pending notifications,
-+ * resets the bitmap and invokes appropriate callbacks.
++ * Dispatcher for the VMCI_EVENT_RECEIVE datagrams. Calls all
++ * subscribers for given event.
 + */
-+void vmci_dbell_scan_notification_entries(uint8_t *bitmap)
++int vmci_event_dispatch(struct vmci_dg *msg)
 +{
-+	uint32_t idx;
++	struct vmci_event_msg *eventMsg = (struct vmci_event_msg *)msg;
 +
-+	ASSERT(bitmap);
-+	ASSERT(vmci_guest_code_active());
++	ASSERT(msg &&
++	       msg->src.context == VMCI_HYPERVISOR_CONTEXT_ID &&
++	       msg->dst.resource == VMCI_EVENT_HANDLER);
 +
-+	for (idx = 0; idx < maxNotifyIdx; idx++) {
-+		if (bitmap[idx] & 0x1) {
-+			bitmap[idx] &= ~1;
-+			dbell_fire_entries(idx);
-+		}
-+	}
-+}
-+
-+/**
-+ * VMCIDoorbell_Create() - Creates a doorbell
-+ * @handle:	A handle used to track the resource.  Can be invalid.
-+ * @flags:	Flag that determines context of callback.
-+ * @privFlags:	Privileges flags.
-+ * @notifyCB:	The callback to be ivoked when the doorbell fires.
-+ * @clientData:	A parameter to be passed to the callback.
-+ *
-+ * Creates a doorbell with the given callback. If the handle is
-+ * VMCI_INVALID_HANDLE, a free handle will be assigned, if
-+ * possible. The callback can be run immediately (potentially with
-+ * locks held - the default) or delayed (in a kernel thread) by
-+ * specifying the flag VMCI_FLAG_DELAYED_CB. If delayed execution
-+ * is selected, a given callback may not be run if the kernel is
-+ * unable to allocate memory for the delayed execution (highly
-+ * unlikely).
-+ */
-+int VMCIDoorbell_Create(struct vmci_handle *handle,
-+			uint32_t flags,
-+			uint32_t privFlags,
-+			VMCICallback notifyCB,
-+			void *clientData)
-+{
-+	struct dbell_entry *entry;
-+	struct vmci_handle newHandle;
-+	int result;
-+
-+	if (!handle || !notifyCB || flags & ~VMCI_FLAG_DELAYED_CB ||
-+	    privFlags & ~VMCI_PRIVILEGE_ALL_FLAGS)
++	if (msg->payloadSize < sizeof(uint32_t) ||
++	    msg->payloadSize > sizeof(struct vmci_event_data_max))
 +		return VMCI_ERROR_INVALID_ARGS;
 +
-+	entry = kmalloc(sizeof *entry, GFP_KERNEL);
-+	if (entry == NULL) {
-+		pr_warn("Failed allocating memory for datagram entry.");
-+		return VMCI_ERROR_NO_MEM;
++	if (!VMCI_EVENT_VALID(eventMsg->eventData.event))
++		return VMCI_ERROR_EVENT_UNKNOWN;
++
++	event_deliver(eventMsg);
++	return VMCI_SUCCESS;
++}
++
++/*
++ * Initialize and add subscription to subscriber list.
++ */
++static int event_register_subscription(struct vmci_subscription *sub,
++				       uint32_t event,
++				       uint32_t flags,
++				       VMCI_EventCB callback,
++				       void *callbackData)
++{
++	static uint32_t subscriptionID;
++	uint32_t attempts = 0;
++	int result;
++	bool success;
++
++	ASSERT(sub);
++
++	if (!VMCI_EVENT_VALID(event) || callback == NULL) {
++		pr_devel("Failed to subscribe to event (type=%d) " \
++			 "(callback=%p) (data=%p).", event,
++			 callback, callbackData);
++		return VMCI_ERROR_INVALID_ARGS;
 +	}
 +
-+	if (VMCI_HANDLE_INVALID(*handle)) {
-+		uint32_t contextID = VMCI_GetContextID();
-+		uint32_t resourceID = vmci_resource_get_id(contextID);
-+		if (resourceID == VMCI_INVALID_ID) {
-+			result = VMCI_ERROR_NO_HANDLE;
-+			goto freeMem;
-+		}
-+		newHandle = vmci_make_handle(contextID, resourceID);
-+	} else {
-+		bool validContext = false;
++	sub->runDelayed = !!(flags & VMCI_FLAG_EVENT_DELAYED_CB);
++	sub->refCount = 1;
++	sub->event = event;
++	sub->callback = callback;
++	sub->callbackData = callbackData;
++	INIT_LIST_HEAD(&sub->subscriberListItem);
++
++	spin_lock_bh(&subscriberLock);
++
++	/* Creation of a new event is always allowed. */
++	for (success = false, attempts = 0;
++	     success == false && attempts < VMCI_EVENT_MAX_ATTEMPTS;
++	     attempts++) {
++		struct vmci_subscription *existingSub = NULL;
 +
 +		/*
-+		 * Validate the handle.  We must do both of the checks below
-+		 * because we can be acting as both a host and a guest at the
-+		 * same time. We always allow the host context ID, since the
-+		 * host functionality is in practice always there with the
-+		 * unified driver.
++		 * We try to get an id a couple of time before
++		 * claiming we are out of resources.
 +		 */
-+		if (VMCI_HOST_CONTEXT_ID == handle->context ||
-+		    (vmci_guest_code_active() &&
-+		     VMCI_GetContextID() == handle->context))
-+			validContext = true;
++		sub->id = ++subscriptionID;
 +
-+		if (!validContext || VMCI_INVALID_ID == handle->resource) {
-+			pr_devel("Invalid argument (handle=0x%x:0x%x).",
-+				 handle->context, handle->resource);
-+			result = VMCI_ERROR_INVALID_ARGS;
-+			goto freeMem;
-+		}
-+
-+		newHandle = *handle;
++		/* Test for duplicate id. */
++		existingSub = event_find(sub->id);
++		if (existingSub == NULL)
++			success = true;
++		else
++			event_release(existingSub);
 +	}
 +
-+	entry->idx = 0;
-+	INIT_LIST_HEAD(&entry->idxListItem);
-+	entry->privFlags = privFlags;
-+	entry->runDelayed = (flags & VMCI_FLAG_DELAYED_CB) ? true : false;
-+	entry->notifyCB = notifyCB;
-+	entry->clientData = clientData;
-+	atomic_set(&entry->active, 0);
-+	init_waitqueue_head(&entry->destroyEvent);
-+
-+	result =
-+		vmci_resource_add(&entry->resource, VMCI_RESOURCE_TYPE_DOORBELL,
-+				  newHandle, dbell_free_cb, entry);
-+	if (result != VMCI_SUCCESS) {
-+		pr_warn("Failed to add new resource (handle=0x%x:0x%x).",
-+			newHandle.context, newHandle.resource);
-+		if (result == VMCI_ERROR_DUPLICATE_ENTRY)
-+			result = VMCI_ERROR_ALREADY_EXISTS;
-+
-+		goto freeMem;
++	if (success) {
++		init_waitqueue_head(&sub->destroyEvent);
++		list_add(&sub->subscriberListItem, &subscriberArray[event]);
++		result = VMCI_SUCCESS;
++	} else {
++		result = VMCI_ERROR_NO_RESOURCES;
 +	}
 +
-+	if (vmci_guest_code_active()) {
-+		dbell_index_table_add(entry);
-+		result = dbell_link(newHandle, entry->idx);
-+		if (VMCI_SUCCESS != result)
-+			goto destroyResource;
-+
-+		atomic_set(&entry->active, 1);
-+	}
-+
-+	if (VMCI_HANDLE_INVALID(*handle))
-+		*handle = newHandle;
-+
-+	return result;
-+
-+destroyResource:
-+	dbell_index_table_remove(entry);
-+	vmci_resource_remove(newHandle, VMCI_RESOURCE_TYPE_DOORBELL);
-+freeMem:
-+	kfree(entry);
++	spin_unlock_bh(&subscriberLock);
 +	return result;
 +}
-+EXPORT_SYMBOL(VMCIDoorbell_Create);
++
++/*
++ * Remove subscription from subscriber list.
++ */
++static struct vmci_subscription *event_unregister_subscription(uint32_t subID)
++{
++	struct vmci_subscription *s;
++
++	spin_lock_bh(&subscriberLock);
++	s = event_find(subID);
++	if (s != NULL) {
++		event_release(s);
++		list_del(&s->subscriberListItem);
++	}
++	spin_unlock_bh(&subscriberLock);
++
++	if (s != NULL)
++		vmci_drv_wait_on_event_intr(&s->destroyEvent,
++					    event_release_cb, s);
++
++	return s;
++}
 +
 +/**
-+ * VMCIDoorbell_Destroy() - Destroy a doorbell.
-+ * @handle:	The handle tracking the resource.
++ * VMCIEvent_Subscribe() - Subscribe to a given event.
++ * @event:	The event to subscribe to.
++ * @flags:	Event flags.  VMCI_FLAG_EVENT_*
++ * @callback:	The callback to invoke upon the event.
++ * @callbackData:	Data to pass to the callback.
++ * @subscriptionID:	ID used to track subscription.  Used with
++ *		VMCIEvent_Unsubscribe()
 + *
-+ * Destroys a doorbell previously created with VMCIDoorbell_Create. This
-+ * operation may block waiting for a callback to finish.
++ * Subscribes to the provided event.  The callback specified can be fired
++ * in different contexts depending on what flag is specified while
++ * registering. If flags contains VMCI_FLAG_EVENT_NONE then the
++ * callback is fired with the subscriber lock held (and BH context
++ * on the guest). If flags contain VMCI_FLAG_EVENT_DELAYED_CB then
++ * the callback is fired with no locks held in thread context.
++ * This is useful because other VMCIEvent functions can be called,
++ * but it also increases the chances that an event will be dropped.
 + */
-+int VMCIDoorbell_Destroy(struct vmci_handle handle)
++int VMCIEvent_Subscribe(uint32_t event,
++			uint32_t flags,
++			VMCI_EventCB callback,
++			void *callbackData,
++			uint32_t *subscriptionID)
 +{
-+	struct dbell_entry *entry;
-+	struct vmci_resource *resource;
++	int retval;
++	struct vmci_subscription *s = NULL;
 +
-+	if (VMCI_HANDLE_INVALID(handle))
++	if (subscriptionID == NULL) {
++		pr_devel("Invalid subscription (NULL).");
 +		return VMCI_ERROR_INVALID_ARGS;
++	}
 +
-+	resource = vmci_resource_get(handle, VMCI_RESOURCE_TYPE_DOORBELL);
-+	if (resource == NULL) {
-+		pr_devel("Failed to destroy doorbell " \
-+			 "(handle=0x%x:0x%x).", handle.context,
-+			 handle.resource);
++	s = kmalloc(sizeof *s, GFP_KERNEL);
++	if (s == NULL)
++		return VMCI_ERROR_NO_MEM;
++
++	retval = event_register_subscription(s, event, flags,
++					     callback, callbackData);
++	if (retval < VMCI_SUCCESS) {
++		kfree(s);
++		return retval;
++	}
++
++	*subscriptionID = s->id;
++	return retval;
++}
++EXPORT_SYMBOL(VMCIEvent_Subscribe);
++
++/**
++ * VMCIEvent_Unsubscribe() - Unsubscribe to an event.
++ * @subID:	A subscription ID ad provided by VMCIEvent_Subscribe()
++ *
++ * Unsubscribe to given event. Removes it from list and frees it.
++ * Will return callbackData if requested by caller.
++ */
++int VMCIEvent_Unsubscribe(uint32_t subID)
++{
++	struct vmci_subscription *s;
++
++	/*
++	 * Return subscription. At this point we know noone else is accessing
++	 * the subscription so we can free it.
++	 */
++	s = event_unregister_subscription(subID);
++	if (s == NULL)
 +		return VMCI_ERROR_NOT_FOUND;
-+	}
 +
-+	entry = container_of(resource, struct dbell_entry, resource);
-+
-+	if (vmci_guest_code_active()) {
-+		int result;
-+
-+		dbell_index_table_remove(entry);
-+
-+		result = dbell_unlink(handle);
-+		if (VMCI_SUCCESS != result) {
-+
-+			/*
-+			 * The only reason this should fail would be
-+			 * an inconsistency between guest and
-+			 * hypervisor state, where the guest believes
-+			 * it has an active registration whereas the
-+			 * hypervisor doesn't. One case where this may
-+			 * happen is if a doorbell is unregistered
-+			 * following a hibernation at a time where the
-+			 * doorbell state hasn't been restored on the
-+			 * hypervisor side yet. Since the handle has
-+			 * now been removed in the guest, we just
-+			 * print a warning and return success.
-+			 */
-+			pr_devel("Unlink of doorbell (handle=0x%x:0x%x) " \
-+				 "unknown by hypervisor (error=%d).",
-+				 handle.context, handle.resource,
-+				 result);
-+		}
-+	}
-+
-+	/*
-+	 * Now remove the resource from the table.  It might still be in use
-+	 * after this, in a callback or still on the delayed work queue.
-+	 */
-+	vmci_resource_remove(handle, VMCI_RESOURCE_TYPE_DOORBELL);
-+
-+	/*
-+	 * We now wait on the destroyEvent and release the reference we got
-+	 * above.
-+	 */
-+	vmci_drv_wait_on_event_intr(&entry->destroyEvent,
-+				    dbell_release_cb, entry);
-+
-+	/*
-+	 * We know that we are now the only reference to the above entry so
-+	 * can safely free it.
-+	 */
-+	kfree(entry);
++	kfree(s);
 +
 +	return VMCI_SUCCESS;
 +}
-+EXPORT_SYMBOL(VMCIDoorbell_Destroy);
-+
-+/**
-+ * VMCIDoorbell_Notify() - Ring the doorbell (and hide in the bushes).
-+ * @dst:	The handlle identifying the doorbell resource
-+ * @privFlags:	Priviledge flags.
-+ *
-+ * Generates a notification on the doorbell identified by the
-+ * handle. For host side generation of notifications, the caller
-+ * can specify what the privilege of the calling side is.
-+ */
-+int VMCIDoorbell_Notify(struct vmci_handle dst,
-+			uint32_t privFlags)
-+{
-+	int retval;
-+	enum vmci_route route;
-+	struct vmci_handle src;
-+
-+	if (VMCI_HANDLE_INVALID(dst)
-+	    || (privFlags & ~VMCI_PRIVILEGE_ALL_FLAGS))
-+		return VMCI_ERROR_INVALID_ARGS;
-+
-+	src = VMCI_INVALID_HANDLE;
-+	retval = vmci_route(&src, &dst, false, &route);
-+	if (retval < VMCI_SUCCESS)
-+		return retval;
-+
-+	if (VMCI_ROUTE_AS_HOST == route)
-+		return vmci_ctx_notify_dbell(VMCI_HOST_CONTEXT_ID,
-+					     dst, privFlags);
-+
-+	if (VMCI_ROUTE_AS_GUEST == route)
-+		return dbell_notify_as_guest(dst, privFlags);
-+
-+	pr_warn("Unknown route (%d) for doorbell.", route);
-+	return VMCI_ERROR_DST_UNREACHABLE;
-+}
-+EXPORT_SYMBOL(VMCIDoorbell_Notify);
-diff --git a/drivers/misc/vmw_vmci/vmci_doorbell.h b/drivers/misc/vmw_vmci/vmci_doorbell.h
++EXPORT_SYMBOL(VMCIEvent_Unsubscribe);
+diff --git a/drivers/misc/vmw_vmci/vmci_event.h b/drivers/misc/vmw_vmci/vmci_event.h
 new file mode 100644
-index 0000000..f56a44b
+index 0000000..83574c6
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_doorbell.h
-@@ -0,0 +1,57 @@
++++ b/drivers/misc/vmw_vmci/vmci_event.h
+@@ -0,0 +1,29 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -813,43 +514,15 @@ index 0000000..f56a44b
 + * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 + */
 +
-+#ifndef VMCI_DOORBELL_H
-+#define VMCI_DOORBELL_H
++#ifndef __VMCI_EVENT_H__
++#define __VMCI_EVENT_H__
 +
-+#include <linux/vmw_vmci_defs.h>
++#include <linux/vmw_vmci_api.h>
 +
-+#include "vmci_driver.h"
++int vmci_event_init(void);
++void vmci_event_exit(void);
++int vmci_event_dispatch(struct vmci_dg *msg);
 +
-+/*
-+ * VMCINotifyResourceInfo: Used to create and destroy doorbells, and
-+ * generate a notification for a doorbell or queue pair.
-+ */
-+struct vmci_dbell_notify_resource_info {
-+	struct vmci_handle handle;
-+	uint16_t resource;
-+	uint16_t action;
-+	int32_t result;
-+};
-+
-+/*
-+ * Structure used for checkpointing the doorbell mappings. It is
-+ * written to the checkpoint as is, so changing this structure will
-+ * break checkpoint compatibility.
-+ */
-+struct dbell_cpt_state {
-+	struct vmci_handle handle;
-+	uint64_t bitmapIdx;
-+};
-+
-+int vmci_dbell_init(void);
-+void vmci_dbell_hibernate(bool enterHibernation);
-+
-+int vmci_dbell_host_context_notify(uint32_t srcCID, struct vmci_handle handle);
-+int vmci_dbell_get_priv_flags(struct vmci_handle handle, uint32_t *privFlags);
-+
-+bool vmci_dbell_register_notification_bitmap(uint32_t bitmapPPN);
-+void vmci_dbell_scan_notification_entries(uint8_t *bitmap);
-+
-+#endif /* VMCI_DOORBELL_H */
++#endif /*__VMCI_EVENT_H__ */
 -- 
 1.7.0.4
