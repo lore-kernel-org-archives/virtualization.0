@@ -1,14 +1,11 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [RFC PATCH 0/6] virtio-trace: Support virtio-trace
-Date: Thu, 26 Jul 2012 17:05:37 +0530
-Message-ID: <20120726113537.GH9473@amit.redhat.com>
-References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 0/2] virtio-scsi fixes for 3.6
+Date: Thu, 26 Jul 2012 15:28:06 +0200
+Message-ID: <1343309288-32615-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,137 +15,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, qemu-devel@nongnu.org, Borislav Petkov <bp@amd64.org>, linux-kernel@vger.kernel.org, Herbert Xu <herbert@gondor.hengli.com.au>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, yrl.pp-manager.tt@hitachi.com, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: JBottomley@parallels.com, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 24 Jul 2012 [11:36:57], Yoshihiro YUNOMAE wrote:
-> Hi All,
-> 
-> The following patch set provides a low-overhead system for collecting kernel
-> tracing data of guests by a host in a virtualization environment.
-> 
-> A guest OS generally shares some devices with other guests or a host, so
-> reasons of any problems occurring in a guest may be from other guests or a host.
-> Then, to collect some tracing data of a number of guests and a host is needed
-> when some problems occur in a virtualization environment. One of methods to
-> realize that is to collect tracing data of guests in a host. To do this, network
-> is generally used. However, high load will be taken to applications on guests
-> using network I/O because there are many network stack layers. Therefore,
-> a communication method for collecting the data without using network is needed.
-> 
-> We submitted a patch set of "IVRing", a ring-buffer driver constructed on
-> Inter-VM shared memory (IVShmem), to LKML http://lwn.net/Articles/500304/ in
-> this June. IVRing and the IVRing reader use POSIX shared memory each other
-> without using network, so a low-overhead system for collecting guest tracing
-> data is realized. However, this patch set has some problems as follows:
->  - use IVShmem instead of virtio
->  - create a new ring-buffer without using existing ring-buffer in kernel
->  - scalability
->    -- not support SMP environment
->    -- buffer size limitation
->    -- not support live migration (maybe difficult for realize this)
-> 
-> Therefore, we propose a new system "virtio-trace", which uses enhanced
-> virtio-serial and existing ring-buffer of ftrace, for collecting guest kernel
-> tracing data. In this system, there are 5 main components:
->  (1) Ring-buffer of ftrace in a guest
->      - When trace agent reads ring-buffer, a page is removed from ring-buffer.
->  (2) Trace agent in the guest
->      - Splice the page of ring-buffer to read_pipe using splice() without
->        memory copying. Then, the page is spliced from write_pipe to virtio
->        without memory copying.
+James,
 
-I really like the splicing idea.
+patch 1 fixes scanning of LUNs whose number is greater than 255.  QEMU
+passes a max_lun of 16383 (because it uses SAM numbering) but in Linux
+it must become 32768 (because LUNs above 255 are "relocated" to 16640).
+Patch 2 is a resubmission of the patch for online resizing of virtio-scsi
+LUNs, which needs to be rebased.
 
->  (3) Virtio-console driver in the guest
->      - Pass the page to virtio-ring
->  (4) Virtio-serial bus in QEMU
->      - Copy the page to kernel pipe
->  (5) Reader in the host
->      - Read guest tracing data via FIFO(named pipe) 
-
-So will this be useful only if guest and host run the same kernel?
-
-I'd like to see the host kernel not being used at all -- collect all
-relevant info from the guest and send it out to qemu, where it can be
-consumed directly by apps driving the tracing.
-
-> ***Evaluation***
-> When a host collects tracing data of a guest, the performance of using
-> virtio-trace is compared with that of using native(just running ftrace),
-> IVRing, and virtio-serial(normal method of read/write).
-
-Why is tracing performance-sensitive?  i.e. why try to optimise this
-at all?
-
-> <environment>
-> The overview of this evaluation is as follows:
->  (a) A guest on a KVM is prepared.
->      - The guest is dedicated one physical CPU as a virtual CPU(VCPU).
-> 
->  (b) The guest starts to write tracing data to ring-buffer of ftrace.
->      - The probe points are all trace points of sched, timer, and kmem.
-> 
->  (c) Writing trace data, dhrystone 2 in UNIX bench is executed as a benchmark
->      tool in the guest.
->      - Dhrystone 2 intends system performance by repeating integer arithmetic
->        as a score.
->      - Since higher score equals to better system performance, if the score
->        decrease based on bare environment, it indicates that any operation
->        disturbs the integer arithmetic. Then, we define the overhead of
->        transporting trace data is calculated as follows:
-> 		OVERHEAD = (1 - SCORE_OF_A_METHOD/NATIVE_SCORE) * 100.
-> 
-> The performance of each method is compared as follows:
->  [1] Native
->      - only recording trace data to ring-buffer on a guest
->  [2] Virtio-trace
->      - running a trace agent on a guest
->      - a reader on a host opens FIFO using cat command
->  [3] IVRing
->      - A SystemTap script in a guest records trace data to IVRing.
->        -- probe points are same as ftrace.
->  [4] Virtio-serial(normal)
->      - A reader(using cat) on a guest output trace data to a host using
->        standard output via virtio-serial.
-> 
-> Other information is as follows:
->  - host
->    kernel: 3.3.7-1 (Fedora16)
->    CPU: Intel Xeon x5660@2.80GHz(12core)
->    Memory: 48GB
-> 
->  - guest(only booting one guest)
->    kernel: 3.5.0-rc4+ (Fedora16)
->    CPU: 1VCPU(dedicated)
->    Memory: 1GB
-> 
-> <result>
-> 3 patterns based on the bare environment were indicated as follows:
-> 	                   Scores      overhead against [0] Native
->     [0] Native:          28807569.5               -
->     [1] Virtio-trace:    28685049.5             0.43%
->     [2] IVRing:          28418595.5             1.35%
->     [3] Virtio-serial:   13262258.7            53.96%
-> 
-> 
-> ***Just enhancement ideas***
->  - Support for trace-cmd
->  - Support for 9pfs protocol
->  - Support for non-blocking mode in QEMU
-
-There were patches long back (by me) to make chardevs non-blocking but
-they didn't make it upstream.  Fedora carries them, if you want to try
-out.  Though we want to converge on a reasonable solution that's
-acceptable upstream as well.  Just that no one's working on it
-currently.  Any help here will be appreciated.
-
->  - Make "vhost-serial"
-
-I need to understand a) why it's perf-critical, and b) why should the
-host be involved at all, to comment on these.
+LUNs above 255 now work for all of scanning, hotplug, hotunplug and
+resize.
 
 Thanks,
 
-		Amit
+Paolo
+
+Paolo Bonzini (2):
+  virtio-scsi: fix LUNs greater than 255
+  virtio-scsi: support online resizing of disks
+
+ drivers/scsi/virtio_scsi.c  |   37 +++++++++++++++++++++++++++++++++++--
+ include/linux/virtio_scsi.h |    2 ++
+ 2 files changed, 37 insertions(+), 2 deletions(-)
