@@ -1,16 +1,20 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [net-next RFC V5 2/5] virtio_ring: move queue_index to
-	vring_virtqueue
-Date: Thu, 26 Jul 2012 10:20:02 +0200
-Message-ID: <5010FDB2.5040505@redhat.com>
-References: <1341484194-8108-1-git-send-email-jasowang@redhat.com>
-	<1341484194-8108-3-git-send-email-jasowang@redhat.com>
-	<1341488454.18786.15.camel@lappy>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH] tcm_vhost: Expose ABI version via
+	VHOST_SCSI_GET_ABI_VERSION
+Date: Thu, 26 Jul 2012 11:58:02 +0300
+Message-ID: <5011069A.2080203@redhat.com>
+References: <1343093180-5598-1-git-send-email-nab@linux-iscsi.org>
+	<20120724015634.GD4093@kroah.com>
+	<1343162724.1813.111.camel@haakon2.linux-iscsi.org>
+	<20120725115552.GB11098@stefanha-thinkpad.localdomain>
+	<1343250890.1813.173.camel@haakon2.linux-iscsi.org>
+	<20120725223559.GA4786@stefanha-thinkpad.localdomain>
+	<1343270061.1813.181.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1341488454.18786.15.camel@lappy>
+In-Reply-To: <1343270061.1813.181.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +24,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, mashirle@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net, sri@us.ibm.com
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 05/07/2012 13:40, Sasha Levin ha scritto:
-> @@ -275,7 +274,7 @@ static void vm_del_vq(struct virtqueue *vq)
->         vring_del_virtqueue(vq);
->  
->         /* Select and deactivate the queue */
-> -       writel(info->queue_index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
-> +       writel(virtqueue_get_queue_index(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
->         writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
->  
+On 07/26/2012 05:34 AM, Nicholas A. Bellinger wrote:
+> 
+> In that case, respinning a -v5 for tcm_vhost to start from ABI=0 and
+> will post an updated patch shortly.
+> 
+>> The main thing I would like to confirm is that this only versions the
+>> tcm_vhost ioctls?  In that case a single version number works.
+>> 
+> 
+> Correct, the GET_ABI_VERSION call is only intended to identify the
+> changing of tcm_vhost ioctls.
 
-This accesses vq after vring_del_virtqueue has freed it.
+Why use version numbers at all?
 
-Paolo
+Feature maps are better, because you can get very fine granularity.
+
+
+-- 
+error compiling committee.c: too many arguments to function
