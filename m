@@ -1,17 +1,12 @@
-From: Dmitry Torokhov <dtor@vmware.com>
-Subject: Re: [Pv-drivers] [vmw_vmci 11/11] Apply the header code to make VMCI
-	build
-Date: Fri, 27 Jul 2012 13:29:27 -0700
-Message-ID: <20120727202926.GC8262@dtor-ws.eng.vmware.com>
-References: <20120727103455.GA4639@merkur.ravnborg.org>
-	<1693394101.5749000.1343409643934.JavaMail.root@vmware.com>
-	<20120727181639.GA23564@kroah.com>
+From: KVM Forum 2012 Program Committee <kvm-forum-2012-pc@redhat.com>
+Subject: KVM Forum 2012 Call For Participation
+Date: Fri, 27 Jul 2012 16:31:45 -0700
+Message-ID: <20120727233145.GZ11578@x200.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120727181639.GA23564@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,61 +16,153 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vm-crosstalk@vmware.com, Andrew Stiegmann <astiegmann@vmware.com>, Sam Ravnborg <sam@ravnborg.org>
+To: kvm@vger.kernel.org, libvir-list@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+Cc: kvm-forum-2012-pc@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 27, 2012 at 11:16:39AM -0700, Greg KH wrote:
-> On Fri, Jul 27, 2012 at 10:20:43AM -0700, Andrew Stiegmann wrote:
-> > > The kernel style is to use lower_case for everything.
-> > > So this would become:
-> > > 
-> > >     vmci_device_get()
-> > > 
-> > > This is obviously a very general comment and applies everywhere.
-> > 
-> > I wish I could lower case these symbols but VMCI has already existed
-> > outside the mainline Linux tree for some time now and changing these
-> > exported symbols would mean that other drivers that depend on VMCI
-> > (vSock, vmhgfs) would need to change as well.   One thought that did
-> > come to mind was exporting both VMCI_Device_Get and vmci_device_get
-> > but that would likely just confuse people.  So in short I have made
-> > function names lower case where possible, but exported symbols could
-> > not be changed.
-> 
-> Not true at all.  You want those drivers to be merged as well, right?
-> So they will need to have their functions changed, and their code as
-> well.
-> 
-> Just wait until we get to the "change your functionality around"
-> requests, those will require those drivers to change.  Right now we are
-> at the "silly and obvious things you did wrong" stage of the review
-> process :)
-> 
-> So please fix these, and also, post these drivers as well, so we can see
-> how they interact with the core code.
-> 
-> Actually, if you are going to need lots of refactoring for these
-> drivers, and the core, I would recommend putting this all in the staging
-> tree, to allow that to happen over time.  That would ensure that your
-> users keep having working systems, and let you modify the interfaces
-> better and easier, than having to keep it all out-of-tree.
-> 
-> What do you think?
+=================================================================
+KVM Forum 2012: Call For Participation
+November 7-9, 2012 - Hotel Fira Palace - Barcelona, Spain
 
-Actually I think that we'd prefer to keep this in a patch-based form, at
-least for now, because majority of our users get these drivers with
-VMware Tools and will continue doing so until ditsributions start
-enabling VMCI in their kernels. Which they probably won't until VMCI
-moves form staging. We'd also have to constantly adjust drivers that we
-are not working on getting upstream at this time to work with the
-rapidly changing version of VMCI in staging, which will just add work
-for us.
+(All submissions must be received before midnight Aug 31st, 2012)
+=================================================================
 
-So we'd like to get more feedback and have a chance to address issues
-and then decide whether staying in staging makes sense or not.
+KVM is an industry leading open source hypervisor that provides
+an ideal platform for datacenter virtualization, virtual desktop
+infrastructure, and cloud computing.  Once again, it's time to bring
+together the community of developers and users that define the KVM
+ecosystem for our annual technical conference.  We will discuss the
+current state of affairs and plan for the future of KVM, its surrounding
+infrastructure, and management tools.  We are also excited to announce
+the oVirt Workshop will run in parallel with the KVM Forum, bringing in
+a community focused on enterprise datacenter virtualization management
+built on KVM.  For topics which overlap we will have shared sessions.
+So mark your calendar and join us in advancing KVM.
 
-Thanks.
+http://events.linuxfoundation.org/events/kvm-forum/
 
--- 
-Dmitry
+Once again we are colocated with The Linux Foundation's LinuxCon,
+Based on feedback from last year, this time it's LinuxCon Europe!
+KVM Forum attendees will be able to attend oVirt Workshop sessions and
+are eligible to attend LinuxCon Europe for a discounted rate.
+
+http://events.linuxfoundation.org/events/kvm-forum/register
+
+We invite you to lead part of the discussion by submitting a speaking
+proposal for KVM Forum 2012.
+
+http://events.linuxfoundation.org/cfp
+
+Suggested topics:
+
+ KVM
+ - Scaling and performance
+ - Nested virtualization
+ - I/O improvements
+ - PCI device assignment
+ - Driver domains
+ - Time keeping
+ - Resource management (cpu, memory, i/o)
+ - Memory management (page sharing, swapping, huge pages, etc)
+ - VEPA, VN-Link, vswitch
+ - Security
+ - Architecture ports
+ 
+ QEMU
+ - Device model improvements
+ - New devices and chipsets
+ - Scaling and performance
+ - Desktop virtualization
+ - Spice
+ - Increasing robustness and hardening
+ - Security model
+ - Management interfaces
+ - QMP protocol and implementation
+ - Image formats
+ - Firmware (SeaBIOS, OVMF, UEFI, etc)
+ - Live migration
+ - Live snapshots and merging
+ - Fault tolerance, high availability, continuous backup
+ - Real-time guest support
+ 
+ Virtio
+ - Speeding up existing devices
+ - Alternatives
+ - Virtio on non-Linux or non-virtualized
+ 
+ Management infrastructure
+ - oVirt (shared track w/ oVirt Workshop)
+ - Libvirt
+ - KVM autotest
+ - OpenStack
+ - Network virtualization management
+ - Enterprise storage management
+ 
+ Cloud computing
+ - Scalable storage
+ - Virtual networking
+ - Security
+ - Provisioning
+
+SUBMISSION REQUIREMENTS
+
+Abstracts due: Aug 31st, 2012
+Notification: Sep 14th, 2012
+
+Please submit a short abstract (~150 words) describing your presentation
+proposal.  In your submission please note how long your talk will take.
+Slots vary in length up to 45 minutes.  Also include in your proposal
+the proposal type -- one of:
+
+- technical talk
+- end-user talk
+- birds of a feather (BOF) session
+
+Submit your proposal here:
+
+http://events.linuxfoundation.org/cfp
+
+You will receive a notification whether or not your presentation proposal
+was accepted by Sep 14th.
+
+END-USER COLLABORATION
+
+One of the big challenges as developers is to know what, where and how
+people actually use our software.  We will reserve a few slots for end
+users talking about their deployment challenges and achievements.
+
+If you are using KVM in production you are encouraged submit a speaking
+proposal.  Simply mark it as an end-user collaboration proposal.  As an
+end user, this is a unique opportunity to get your input to developers.
+
+BOF SESSION
+
+We will reserve some slots in the evening after the main conference
+tracks, for birds of a feather (BOF) sessions. These sessions will be
+less formal than presentation tracks and targetted for people who would
+like to discuss specific issues with other developers and/or users.
+If you are interested in getting developers and/or uses together to
+discuss a specific problem, please submit a BOF proposal.
+
+LIGHTNING TALKS
+
+In addition to submitted talks we will also have some room for lightning
+talks. These are short (5 minute) discussions to highlight new work or
+ideas that aren't complete enough to warrant a full presentation slot.
+Lightning talk submissions and scheduling will be handled on-site at
+KVM Forum.
+
+HOTEL / TRAVEL
+
+The KVM Forum 2012 will be held in Barcelona, Spain at the Hotel Fira Palace.
+
+http://events.linuxfoundation.org/events/kvm-forum/hotel
+
+Thank you for your interest in KVM.  We're looking forward to your
+submissions and seeing you at the KVM Forum 2012 in November!
+
+Thanks,
+your KVM Forum 2012 Program Commitee
+
+Please contact us with any questions or comments.
+KVM-Forum-2012-PC@redhat.com
