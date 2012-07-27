@@ -1,17 +1,15 @@
-From: Dmitry Torokhov <dtor@vmware.com>
-Subject: Re: [Pv-drivers] [vmw_vmci 11/11] Apply the header code to make VMCI
-	build
-Date: Fri, 27 Jul 2012 11:04:19 -0700
-Message-ID: <20120727180419.GA8262@dtor-ws.eng.vmware.com>
-References: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
-	<1343345980-32397-12-git-send-email-astiegmann@vmware.com>
-	<20120727105357.2e40dd10@pyramind.ukuu.org.uk>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [vmw_vmci 11/11] Apply the header code to make VMCI build
+Date: Fri, 27 Jul 2012 11:16:39 -0700
+Message-ID: <20120727181639.GA23564@kroah.com>
+References: <20120727103455.GA4639@merkur.ravnborg.org>
+	<1693394101.5749000.1343409643934.JavaMail.root@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120727105357.2e40dd10@pyramind.ukuu.org.uk>
+In-Reply-To: <1693394101.5749000.1343409643934.JavaMail.root@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,31 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vm-crosstalk@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
+To: Andrew Stiegmann <astiegmann@vmware.com>
+Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vm-crosstalk@vmware.com, Sam Ravnborg <sam@ravnborg.org>, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Alan,
-
-On Fri, Jul 27, 2012 at 10:53:57AM +0100, Alan Cox wrote:
-> > +enum {
-> > +	VMCI_SUCCESS_QUEUEPAIR_ATTACH	=  5,
-> > +	VMCI_SUCCESS_QUEUEPAIR_CREATE	=  4,
-> > +	VMCI_SUCCESS_LAST_DETACH	=  3,
-> > +	VMCI_SUCCESS_ACCESS_GRANTED	=  2,
-> > +	VMCI_SUCCESS_ENTRY_DEAD	=  1,
+On Fri, Jul 27, 2012 at 10:20:43AM -0700, Andrew Stiegmann wrote:
+> > The kernel style is to use lower_case for everything.
+> > So this would become:
+> > 
+> >     vmci_device_get()
+> > 
+> > This is obviously a very general comment and applies everywhere.
 > 
-> We've got a nice collection of Linux error codes than you, and it would
-> make the driver enormously more readable on the Linux side if as low
-> level as possible it started using Linux error codes.
+> I wish I could lower case these symbols but VMCI has already existed
+> outside the mainline Linux tree for some time now and changing these
+> exported symbols would mean that other drivers that depend on VMCI
+> (vSock, vmhgfs) would need to change as well.   One thought that did
+> come to mind was exporting both VMCI_Device_Get and vmci_device_get
+> but that would likely just confuse people.  So in short I have made
+> function names lower case where possible, but exported symbols could
+> not be changed.
 
-If VMCI was only used on Linux we'd definitely do that; however VMCI
-core is shared among several operating systems (much like ACPI is) and
-we'd like to limit divergencies between them while conforming to the
-kernel coding style as much as possible.
+Not true at all.  You want those drivers to be merged as well, right?
+So they will need to have their functions changed, and their code as
+well.
 
-We'll make sure that we will not leak VMCI-specific errors to the
-standard kernel APIs.
+Just wait until we get to the "change your functionality around"
+requests, those will require those drivers to change.  Right now we are
+at the "silly and obvious things you did wrong" stage of the review
+process :)
 
-Thanks,
-Dmitry
+So please fix these, and also, post these drivers as well, so we can see
+how they interact with the core code.
+
+Actually, if you are going to need lots of refactoring for these
+drivers, and the core, I would recommend putting this all in the staging
+tree, to allow that to happen over time.  That would ensure that your
+users keep having working systems, and let you modify the interfaces
+better and easier, than having to keep it all out-of-tree.
+
+What do you think?
+
+greg k-h
