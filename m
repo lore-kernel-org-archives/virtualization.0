@@ -1,13 +1,15 @@
-From: Andrew Stiegmann <astiegmann@vmware.com>
-Subject: Re: [vmw_vmci 07/11] Apply VMCI hash table
-Date: Thu, 26 Jul 2012 17:01:41 -0700 (PDT)
-Message-ID: <1388691188.5122729.1343347301577.JavaMail.root@vmware.com>
-References: <20120726234954.GC3849@kroah.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [vmw_vmci 00/11] VMCI for Linux
+Date: Thu, 26 Jul 2012 18:46:50 -0700
+Message-ID: <20120727014650.GB17168@kroah.com>
+References: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
+	<CA+5PVA6RFthz5vjf-0BOogocMEwVKn5uE2q1_frjPFoVeUPACg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120726234954.GC3849@kroah.com>
+Content-Disposition: inline
+In-Reply-To: <CA+5PVA6RFthz5vjf-0BOogocMEwVKn5uE2q1_frjPFoVeUPACg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,24 +19,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: pv-drivers@vmware.com, vm-crosstalk@vmware.com, linux-kernel@vger.kernel.org, cschamp@vmware.com, virtualization@lists.linux-foundation.org
+To: Josh Boyer <jwboyer@gmail.com>
+Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vm-crosstalk@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Must have missed it.  Will look into it.
+On Thu, Jul 26, 2012 at 09:06:25PM -0400, Josh Boyer wrote:
+> On Thu, Jul 26, 2012 at 7:39 PM, Andrew Stiegmann (stieg)
+> <astiegmann@vmware.com> wrote:
+> >  drivers/misc/Kconfig                      |    1 +
+> >  drivers/misc/Makefile                     |    1 +
+> >  drivers/misc/vmw_vmci/Kconfig             |   16 +
+> 
+> Is there a reason this isn't going into staging first?  The Hyper-V
+> drivers went through staging and that actually seemed to work fairly
+> well.
 
------ Original Message -----
-> From: "Greg KH" <gregkh@linuxfoundation.org>
-> To: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
-> Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pv-drivers@vmware.com,
-> vm-crosstalk@vmware.com, cschamp@vmware.com
-> Sent: Thursday, July 26, 2012 4:49:54 PM
-> Subject: Re: [vmw_vmci 07/11] Apply VMCI hash table
-> 
-> On Thu, Jul 26, 2012 at 04:39:36PM -0700, Andrew Stiegmann (stieg)
-> wrote:
-> > Implements a hash table for VMCI's use.
-> 
-> What's wrong with the in-kernel hash table(s)?
-> 
-> 
+Is there some reason you feel this should be in the staging tree now?
+Why?
+
+greg k-h
