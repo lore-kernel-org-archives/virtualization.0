@@ -1,15 +1,15 @@
-From: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [vmw_vmci 11/11] Apply the header code to make VMCI build
-Date: Fri, 27 Jul 2012 12:34:55 +0200
-Message-ID: <20120727103455.GA4639__10383.7658222348$1343385798$gmane$org@merkur.ravnborg.org>
-References: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
-	<1343345980-32397-12-git-send-email-astiegmann@vmware.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [net-next RFC V5 3/5] virtio: intorduce an API to set affinity
+	for a virtqueue
+Date: Fri, 27 Jul 2012 16:38:11 +0200
+Message-ID: <5012A7D3.4040800@redhat.com>
+References: <1341484194-8108-1-git-send-email-jasowang@redhat.com>
+	<1341484194-8108-4-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1343345980-32397-12-git-send-email-astiegmann@vmware.com>
+In-Reply-To: <1341484194-8108-4-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,154 +19,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vm-crosstalk@vmware.com, cschamp@vmware.com
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, mashirle@us.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net, sri@us.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Andrew.
-
-A few things noted in the following..
-
+Il 05/07/2012 12:29, Jason Wang ha scritto:
+> Sometimes, virtio device need to configure irq affiniry hint to maximize the
+> performance. Instead of just exposing the irq of a virtqueue, this patch
+> introduce an API to set the affinity for a virtqueue.
 > 
-> diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-> index 2661f6e..fe38c7a 100644
-> --- a/drivers/misc/Kconfig
-> +++ b/drivers/misc/Kconfig
-> @@ -517,4 +517,5 @@ source "drivers/misc/lis3lv02d/Kconfig"
->  source "drivers/misc/carma/Kconfig"
->  source "drivers/misc/altera-stapl/Kconfig"
->  source "drivers/misc/mei/Kconfig"
-> +source "drivers/misc/vmw_vmci/Kconfig"
->  endmenu
-> diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-> index 456972f..af9e413 100644
-> --- a/drivers/misc/Makefile
-> +++ b/drivers/misc/Makefile
-> @@ -51,3 +51,4 @@ obj-y				+= carma/
->  obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
->  obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
->  obj-$(CONFIG_INTEL_MEI)		+= mei/
-> +obj-y				+= vmw_vmci/
+> The api is best-effort, the affinity hint may not be set as expected due to
+> platform support, irq sharing or irq type. Currently, only pci method were
+> implemented and we set the affinity according to:
+> 
+> - if device uses INTX, we just ignore the request
+> - if device has per vq vector, we force the affinity hint
+> - if the virtqueues share MSI, make the affinity OR over all affinities
+>  requested
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Please use obj-$(CONFIG_VMWARE_VMCI) += vmw_vmci/
+Hmm, I don't see any benefit from this patch, I need to use
+irq_set_affinity (which however is not exported) to actually bind IRQs
+to CPUs.  Example:
 
-like we do in the other cases. This prevents us from visiting the directory
-when this feature is not enabled.
+with irq_set_affinity_hint:
+ 43:   89  107  100   97   PCI-MSI-edge   virtio0-request
+ 44:  178  195  268  199   PCI-MSI-edge   virtio0-request
+ 45:   97  100   97  155   PCI-MSI-edge   virtio0-request
+ 46:  234  261  213  218   PCI-MSI-edge   virtio0-request
 
-> +++ b/drivers/misc/vmw_vmci/Makefile
-> @@ -0,0 +1,43 @@
-> +################################################################################
-> +#
-> +# Linux driver for VMware's VMCI device.
-> +#
-> +# Copyright (C) 2007-2012, VMware, Inc. All Rights Reserved.
-> +#
-> +# This program is free software; you can redistribute it and/or modify it
-> +# under the terms of the GNU General Public License as published by the
-> +# Free Software Foundation; version 2 of the License and no later version.
-> +#
-> +# This program is distributed in the hope that it will be useful, but
-> +# WITHOUT ANY WARRANTY; without even the implied warranty of
-> +# MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-> +# NON INFRINGEMENT.  See the GNU General Public License for more
-> +# details.
-> +#
-> +# You should have received a copy of the GNU General Public License
-> +# along with this program; if not, write to the Free Software
-> +# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-> +#
-> +# The full GNU General Public License is included in this distribution in
-> +# the file called "COPYING".
-> +#
-> +# Maintained by: Andrew Stiegmann <pv-drivers@vmware.com>
-> +#
-> +################################################################################
-Lot's of boilerplate noise for such a simple file...
+with irq_set_affinity:
+ 43:  721    0    0    1   PCI-MSI-edge   virtio0-request
+ 44:    0  746    0    1   PCI-MSI-edge   virtio0-request
+ 45:    0    0  658    0   PCI-MSI-edge   virtio0-request
+ 46:    0    0    1  547   PCI-MSI-edge   virtio0-request
 
-> +
-> +#
-> +# Makefile for the VMware VMCI
-> +#
-> +
-> +obj-$(CONFIG_VMWARE_VMCI) += vmw_vmci.o
-> +
-> +vmw_vmci-objs += vmci_context.o
-> +vmw_vmci-objs += vmci_datagram.o
-> +vmw_vmci-objs += vmci_doorbell.o
-> +vmw_vmci-objs += vmci_driver.o
-> +vmw_vmci-objs += vmci_event.o
-> +vmw_vmci-objs += vmci_handle_array.o
-> +vmw_vmci-objs += vmci_hash_table.o
-> +vmw_vmci-objs += vmci_queue_pair.o
-> +vmw_vmci-objs += vmci_resource.o
-> +vmw_vmci-objs += vmci_route.o
+I gathered these quickly after boot, but real benchmarks show the same
+behavior, and performance gets actually worse with virtio-scsi
+multiqueue+irq_set_affinity_hint than with irq_set_affinity.
 
-please use:
-vmw_vmci-y += vmci_context.o
-vmw_vmci-y += vmci_datagram.o
-vmw_vmci-y += vmci_doorbell.o
+I also tried adding IRQ_NO_BALANCING, but the only effect is that I
+cannot set the affinity
 
-This is recommended these days and allows you to enable/disable
-single files later using a config option.
+The queue steering algorithm I use in virtio-scsi is extremely simple
+and based on your tx code.  See how my nice pinning is destroyed:
 
+# taskset -c 0 dd if=/dev/sda bs=1M count=1000 of=/dev/null iflag=direct
+# cat /proc/interrupts
+ 43:  2690 2709 2691 2696   PCI-MSI-edge      virtio0-request
+ 44:   109  122  199  124   PCI-MSI-edge      virtio0-request
+ 45:   170  183  170  237   PCI-MSI-edge      virtio0-request
+ 46:   143  166  125  125   PCI-MSI-edge      virtio0-request
 
+All my requests come from CPU#0 and thus go to the first virtqueue, but
+the interrupts are serviced all over the place.
 
-> diff --git a/drivers/misc/vmw_vmci/vmci_common_int.h b/drivers/misc/vmw_vmci/vmci_common_int.h
-> +
-> +#ifndef _VMCI_COMMONINT_H_
-> +#define _VMCI_COMMONINT_H_
-> +
-> +#include <linux/printk.h>
-> +#include <linux/vmw_vmci_defs.h>
+Did you set the affinity manually in your experiments, or perhaps there
+is a difference between scsi and networking... (interrupt mitigation?)
 
-Use inverse chrismas tree here.
-Longer include lines first, and soret alphabetically when
-lines are of the same length.
-This applies likely in many cases.
-
-> +#include "vmci_handle_array.h"
-> +
-> +#define ASSERT(cond) BUG_ON(!(cond))
-> +
-> +#define CAN_BLOCK(_f) (!((_f) & VMCI_QPFLAG_NONBLOCK))
-> +#define QP_PINNED(_f) ((_f) & VMCI_QPFLAG_PINNED)
-
-Looks like poor obscufation.
-Use a statis inline function if you need a helper for this.
-
-> +
-> +/*
-> + * Utilility function that checks whether two entities are allowed
-> + * to interact. If one of them is restricted, the other one must
-> + * be trusted.
-> + */
-> +static inline bool vmci_deny_interaction(uint32_t partOne,
-> +					 uint32_t partTwo)
-
-The kernel types are u32 not uint32_t - these types belongs in user-space.
-
-> +++ b/include/linux/vmw_vmci_api.h
-> +
-> +#ifndef __VMW_VMCI_API_H__
-> +#define __VMW_VMCI_API_H__
-> +
-> +#include <linux/vmw_vmci_defs.h>
-> +
-> +#undef  VMCI_KERNEL_API_VERSION
-> +#define VMCI_KERNEL_API_VERSION_2 2
-> +#define VMCI_KERNEL_API_VERSION   VMCI_KERNEL_API_VERSION_2
-> +
-> +typedef void (VMCI_DeviceShutdownFn) (void *deviceRegistration, void *userData);
-> +
-> +bool VMCI_DeviceGet(uint32_t *apiVersion,
-> +		    VMCI_DeviceShutdownFn *deviceShutdownCB,
-> +		    void *userData, void **deviceRegistration);
-
-The kernel style is to use lower_case for everything.
-So this would become:
-
-    vmci_device_get()
-
-This is obviously a very general comment and applies everywhere.
-
-	Sam
+Paolo
