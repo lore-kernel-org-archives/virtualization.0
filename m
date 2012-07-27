@@ -1,13 +1,14 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Sam Ravnborg <sam@ravnborg.org>
 Subject: Re: [vmw_vmci 11/11] Apply the header code to make VMCI build
-Date: Fri, 27 Jul 2012 10:53:57 +0100
-Message-ID: <20120727105357.2e40dd10@pyramind.ukuu.org.uk>
+Date: Fri, 27 Jul 2012 12:34:55 +0200
+Message-ID: <20120727103455.GA4639__10383.7658222348$1343385798$gmane$org@merkur.ravnborg.org>
 References: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
 	<1343345980-32397-12-git-send-email-astiegmann@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1343345980-32397-12-git-send-email-astiegmann@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -22,28 +23,150 @@ To: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
 Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vm-crosstalk@vmware.com, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> +enum {
-> +	VMCI_SUCCESS_QUEUEPAIR_ATTACH	=  5,
-> +	VMCI_SUCCESS_QUEUEPAIR_CREATE	=  4,
-> +	VMCI_SUCCESS_LAST_DETACH	=  3,
-> +	VMCI_SUCCESS_ACCESS_GRANTED	=  2,
-> +	VMCI_SUCCESS_ENTRY_DEAD	=  1,
+Hi Andrew.
 
-We've got a nice collection of Linux error codes than you, and it would
-make the driver enormously more readable on the Linux side if as low
-level as possible it started using Linux error codes.
+A few things noted in the following..
+
+> 
+> diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+> index 2661f6e..fe38c7a 100644
+> --- a/drivers/misc/Kconfig
+> +++ b/drivers/misc/Kconfig
+> @@ -517,4 +517,5 @@ source "drivers/misc/lis3lv02d/Kconfig"
+>  source "drivers/misc/carma/Kconfig"
+>  source "drivers/misc/altera-stapl/Kconfig"
+>  source "drivers/misc/mei/Kconfig"
+> +source "drivers/misc/vmw_vmci/Kconfig"
+>  endmenu
+> diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+> index 456972f..af9e413 100644
+> --- a/drivers/misc/Makefile
+> +++ b/drivers/misc/Makefile
+> @@ -51,3 +51,4 @@ obj-y				+= carma/
+>  obj-$(CONFIG_USB_SWITCH_FSA9480) += fsa9480.o
+>  obj-$(CONFIG_ALTERA_STAPL)	+=altera-stapl/
+>  obj-$(CONFIG_INTEL_MEI)		+= mei/
+> +obj-y				+= vmw_vmci/
+
+Please use obj-$(CONFIG_VMWARE_VMCI) += vmw_vmci/
+
+like we do in the other cases. This prevents us from visiting the directory
+when this feature is not enabled.
+
+> +++ b/drivers/misc/vmw_vmci/Makefile
+> @@ -0,0 +1,43 @@
+> +################################################################################
+> +#
+> +# Linux driver for VMware's VMCI device.
+> +#
+> +# Copyright (C) 2007-2012, VMware, Inc. All Rights Reserved.
+> +#
+> +# This program is free software; you can redistribute it and/or modify it
+> +# under the terms of the GNU General Public License as published by the
+> +# Free Software Foundation; version 2 of the License and no later version.
+> +#
+> +# This program is distributed in the hope that it will be useful, but
+> +# WITHOUT ANY WARRANTY; without even the implied warranty of
+> +# MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
+> +# NON INFRINGEMENT.  See the GNU General Public License for more
+> +# details.
+> +#
+> +# You should have received a copy of the GNU General Public License
+> +# along with this program; if not, write to the Free Software
+> +# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+> +#
+> +# The full GNU General Public License is included in this distribution in
+> +# the file called "COPYING".
+> +#
+> +# Maintained by: Andrew Stiegmann <pv-drivers@vmware.com>
+> +#
+> +################################################################################
+Lot's of boilerplate noise for such a simple file...
+
+> +
+> +#
+> +# Makefile for the VMware VMCI
+> +#
+> +
+> +obj-$(CONFIG_VMWARE_VMCI) += vmw_vmci.o
+> +
+> +vmw_vmci-objs += vmci_context.o
+> +vmw_vmci-objs += vmci_datagram.o
+> +vmw_vmci-objs += vmci_doorbell.o
+> +vmw_vmci-objs += vmci_driver.o
+> +vmw_vmci-objs += vmci_event.o
+> +vmw_vmci-objs += vmci_handle_array.o
+> +vmw_vmci-objs += vmci_hash_table.o
+> +vmw_vmci-objs += vmci_queue_pair.o
+> +vmw_vmci-objs += vmci_resource.o
+> +vmw_vmci-objs += vmci_route.o
+
+please use:
+vmw_vmci-y += vmci_context.o
+vmw_vmci-y += vmci_datagram.o
+vmw_vmci-y += vmci_doorbell.o
+
+This is recommended these days and allows you to enable/disable
+single files later using a config option.
 
 
-> +	VMCI_SUCCESS			=  0,
-> +	VMCI_ERROR_INVALID_RESOURCE	= (-1),
-> +	VMCI_ERROR_INVALID_ARGS	= (-2),
-> +	VMCI_ERROR_NO_MEM		= (-3),
-> +	VMCI_ERROR_DATAGRAM_FAILED	= (-4),
-> +	VMCI_ERROR_MORE_DATA		= (-5),
-> +	VMCI_ERROR_NO_MORE_DATAGRAMS	= (-6),
-> +	VMCI_ERROR_NO_ACCESS		= (-7),
-> +	VMCI_ERROR_NO_HANDLE		= (-8),
-> +	VMCI_ERROR_DUPLICATE_ENTRY	= (-9),
-> +	VMCI_ERROR_DST_UNREACHABLE	= (-10),
-> +	VMCI_ERROR_PAYLOAD_TOO_LARGE	= (-11),
-> +	VMCI_ERROR_INVALID_PRIV	= (-12),
+
+> diff --git a/drivers/misc/vmw_vmci/vmci_common_int.h b/drivers/misc/vmw_vmci/vmci_common_int.h
+> +
+> +#ifndef _VMCI_COMMONINT_H_
+> +#define _VMCI_COMMONINT_H_
+> +
+> +#include <linux/printk.h>
+> +#include <linux/vmw_vmci_defs.h>
+
+Use inverse chrismas tree here.
+Longer include lines first, and soret alphabetically when
+lines are of the same length.
+This applies likely in many cases.
+
+> +#include "vmci_handle_array.h"
+> +
+> +#define ASSERT(cond) BUG_ON(!(cond))
+> +
+> +#define CAN_BLOCK(_f) (!((_f) & VMCI_QPFLAG_NONBLOCK))
+> +#define QP_PINNED(_f) ((_f) & VMCI_QPFLAG_PINNED)
+
+Looks like poor obscufation.
+Use a statis inline function if you need a helper for this.
+
+> +
+> +/*
+> + * Utilility function that checks whether two entities are allowed
+> + * to interact. If one of them is restricted, the other one must
+> + * be trusted.
+> + */
+> +static inline bool vmci_deny_interaction(uint32_t partOne,
+> +					 uint32_t partTwo)
+
+The kernel types are u32 not uint32_t - these types belongs in user-space.
+
+> +++ b/include/linux/vmw_vmci_api.h
+> +
+> +#ifndef __VMW_VMCI_API_H__
+> +#define __VMW_VMCI_API_H__
+> +
+> +#include <linux/vmw_vmci_defs.h>
+> +
+> +#undef  VMCI_KERNEL_API_VERSION
+> +#define VMCI_KERNEL_API_VERSION_2 2
+> +#define VMCI_KERNEL_API_VERSION   VMCI_KERNEL_API_VERSION_2
+> +
+> +typedef void (VMCI_DeviceShutdownFn) (void *deviceRegistration, void *userData);
+> +
+> +bool VMCI_DeviceGet(uint32_t *apiVersion,
+> +		    VMCI_DeviceShutdownFn *deviceShutdownCB,
+> +		    void *userData, void **deviceRegistration);
+
+The kernel style is to use lower_case for everything.
+So this would become:
+
+    vmci_device_get()
+
+This is obviously a very general comment and applies everywhere.
+
+	Sam
