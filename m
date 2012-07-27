@@ -1,13 +1,13 @@
 From: Andrew Stiegmann <astiegmann@vmware.com>
-Subject: Re: [vmw_vmci 01/11] Apply VMCI context code
-Date: Thu, 26 Jul 2012 17:01:26 -0700 (PDT)
-Message-ID: <1313122679.5122648.1343347286224.JavaMail.root@vmware.com>
-References: <20120726234850.GB3849@kroah.com>
+Subject: Re: [vmw_vmci 07/11] Apply VMCI hash table
+Date: Thu, 26 Jul 2012 17:01:41 -0700 (PDT)
+Message-ID: <1388691188.5122729.1343347301577.JavaMail.root@vmware.com>
+References: <20120726234954.GC3849@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120726234850.GB3849@kroah.com>
+In-Reply-To: <20120726234954.GC3849@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,62 +21,20 @@ To: Greg KH <gregkh@linuxfoundation.org>
 Cc: pv-drivers@vmware.com, vm-crosstalk@vmware.com, linux-kernel@vger.kernel.org, cschamp@vmware.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Removed.  Thanks.
+Must have missed it.  Will look into it.
 
 ----- Original Message -----
 > From: "Greg KH" <gregkh@linuxfoundation.org>
 > To: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
 > Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pv-drivers@vmware.com,
 > vm-crosstalk@vmware.com, cschamp@vmware.com
-> Sent: Thursday, July 26, 2012 4:48:50 PM
-> Subject: Re: [vmw_vmci 01/11] Apply VMCI context code
+> Sent: Thursday, July 26, 2012 4:49:54 PM
+> Subject: Re: [vmw_vmci 07/11] Apply VMCI hash table
 > 
-> On Thu, Jul 26, 2012 at 04:39:30PM -0700, Andrew Stiegmann (stieg)
+> On Thu, Jul 26, 2012 at 04:39:36PM -0700, Andrew Stiegmann (stieg)
 > wrote:
-> > Context code maintains state for vmci and allows the driver
-> > to communicate with multiple VMs.
-> > 
-> > Signed-off-by: Andrew Stiegmann (stieg) <astiegmann@vmware.com>
+> > Implements a hash table for VMCI's use.
 > 
-> One tiny nit:
+> What's wrong with the in-kernel hash table(s)?
 > 
-> > diff --git a/drivers/misc/vmw_vmci/vmci_context.c
-> > b/drivers/misc/vmw_vmci/vmci_context.c
-> > new file mode 100644
-> > index 0000000..46faf10
-> > --- /dev/null
-> > +++ b/drivers/misc/vmw_vmci/vmci_context.c
-> > @@ -0,0 +1,1269 @@
-> > +/*
-> > + * VMware VMCI Driver
-> > + *
-> > + * Copyright (C) 2012 VMware, Inc. All rights reserved.
-> > + *
-> > + * This program is free software; you can redistribute it and/or
-> > modify it
-> > + * under the terms of the GNU General Public License as published
-> > by the
-> > + * Free Software Foundation version 2 and no later version.
-> > + *
-> > + * This program is distributed in the hope that it will be useful,
-> > but
-> > + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> > MERCHANTABILITY
-> > + * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
-> > Public License
-> > + * for more details.
-> > + *
-> > + * You should have received a copy of the GNU General Public
-> > License along
-> > + * with this program; if not, write to the Free Software
-> > Foundation, Inc.,
-> > + * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-> 
-> Are you prepared to track the office movements of the FSF for the
-> next
-> 40 years to keep this up to date?  If not, please don't include it,
-> it's
-> not needed at all.
-> 
-> greg k-h
 > 
