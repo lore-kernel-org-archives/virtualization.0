@@ -1,15 +1,13 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC-v5] tcm_vhost: Initial merge for vhost level target fabric
-	driver
-Date: Wed, 01 Aug 2012 08:42:36 +0200
-Message-ID: <5018CFDC.4020703@redhat.com>
-References: <1343346200-19850-1-git-send-email-nab@linux-iscsi.org>
-	<CAG7+5M35QAK=ggAJRZtga0PWw5VZFi-mraKEAkWiq16U3ysxjg@mail.gmail.com>
+From: Josh Boyer <jwboyer@gmail.com>
+Subject: Re: [vmw_vmci 00/11] VMCI for Linux
+Date: Thu, 26 Jul 2012 21:06:25 -0400
+Message-ID: <CA+5PVA6RFthz5vjf-0BOogocMEwVKn5uE2q1_frjPFoVeUPACg__49033.2025955015$1343846614$gmane$org@mail.gmail.com>
+References: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAG7+5M35QAK=ggAJRZtga0PWw5VZFi-mraKEAkWiq16U3ysxjg@mail.gmail.com>
+In-Reply-To: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +17,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Northup <digitaleric@google.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Anthony Liguori <aliguori@us.ibm.com>, linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+To: "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vm-crosstalk@vmware.com, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 31/07/2012 22:52, Eric Northup ha scritto:
-> It seems to me like this is not the way that virtio devices are supposed
-> to behave - if a guest splits a virtio_scsi_cmd_req or _resp across a
-> page boundary, then this code won't work.
+On Thu, Jul 26, 2012 at 7:39 PM, Andrew Stiegmann (stieg)
+<astiegmann@vmware.com> wrote:
+>  drivers/misc/Kconfig                      |    1 +
+>  drivers/misc/Makefile                     |    1 +
+>  drivers/misc/vmw_vmci/Kconfig             |   16 +
 
-Buffers can cover several pages.  Of course, data buffers have to be at
-least sector aligned, but this restriction does not apply to
-request/response descriptors.
+Is there a reason this isn't going into staging first?  The Hyper-V
+drivers went through staging and that actually seemed to work fairly
+well.
 
-> Quoting the 'Message Framing' part of the virtio spec:
-> 
-> "In particular, no implementation should use the descriptor boundaries
-> to determine the size of any header in a request. "
-
-True,  but this has never matched reality.
-
-Paolo
+josh
