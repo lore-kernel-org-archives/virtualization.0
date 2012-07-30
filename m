@@ -1,16 +1,15 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [net-next RFC V5 4/5] virtio_net: multiqueue support
-Date: Mon, 30 Jul 2012 15:00:29 +0200
-Message-ID: <5016856D.8060009@gmail.com>
-References: <1341484194-8108-1-git-send-email-jasowang@redhat.com>
-	<1341484194-8108-5-git-send-email-jasowang@redhat.com>
-	<20120720134014.GD16550@redhat.com> <500A9A72.20507@gmail.com>
-	<20120729094451.GB8977@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH V3 3/3] virtio-blk: Add bio-based IO path for virtio-blk
+Date: Mon, 30 Jul 2012 15:44:24 +0200
+Message-ID: <20120730134424.GC6041@lst.de>
+References: <971756309.4742543.1343457753475.JavaMail.root@redhat.com>
+	<501610E0.8000504@redhat.com> <5016383A.5090008@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120729094451.GB8977@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <5016383A.5090008@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,26 +19,14 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, mashirle@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net, sri@us.ibm.com
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/29/2012 11:44 AM, Michael S. Tsirkin wrote:
-> On Sat, Jul 21, 2012 at 02:02:58PM +0200, Sasha Levin wrote:
->> On 07/20/2012 03:40 PM, Michael S. Tsirkin wrote:
->>>> -	err = init_vqs(vi);
->>>>> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
->>>>> +		vi->has_cvq = true;
->>>>> +
->>> How about we disable multiqueue if there's no cvq?
->>> Will make logic a bit simpler, won't it?
->>
->> multiqueues don't really depend on cvq. Does this added complexity really justifies adding an artificial limit?
-> 
-> Well !cvq support is a legacy feature: the reason we support it
-> in driver is to avoid breaking on old hosts. Adding more code to that
-> path just doesn't make much sense since old hosts won't have mq.
+On Mon, Jul 30, 2012 at 09:31:06AM +0200, Paolo Bonzini wrote:
+> You only need to add REQ_FLUSH support.  The virtio-blk protocol does
+> not support REQ_FUA, because there's no easy way to do it in userspace.
 
-Is it really a legacy feature? The spec suggests that its an optional queue which is not necessary for the operation of the device.
-
-Which is why we never implemented it in lkvm - we weren't interested in any of the features it provided at that time and we could provide high performance with vhost support even without it.
+A bio-based driver needs to handle both REQ_FLUSH and REQ_FUA as it does
+not get the sequencing of REQ_FUA into REQ_FLUSH that request based drivers
+can request.  To what the REQ_FUA request gets translated is a different story.
