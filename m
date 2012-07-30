@@ -1,69 +1,83 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH 00/17] drivers: hv: kvp
-Date: Sun, 29 Jul 2012 22:50:56 +0000
-Message-ID: <426367E2313C2449837CD2DE46E7EAF9236AA5A6@SN2PRD0310MB382.namprd03.prod.outlook.com>
-References: <1343145672-3641-1-git-send-email-kys@microsoft.com>
- <20120724155412.GA23918@kroah.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH V3 3/3] virtio-blk: Add bio-based IO path for virtio-blk
+Date: Mon, 30 Jul 2012 08:26:48 +0800
+Message-ID: <5015D4C8.9090601@redhat.com>
+References: <1342168731-11797-1-git-send-email-asias@redhat.com>
+	<1342168731-11797-4-git-send-email-asias@redhat.com>
+	<87d33initv.fsf@rustcorp.com.au> <501350B1.7080908@redhat.com>
+	<20120729125948.GA10041@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <20120724155412.GA23918@kroah.com>
-Content-Language: en-US
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: "olaf@aepfle.de" <olaf@aepfle.de>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "ben@decadent.org.uk" <ben@decadent.org.uk>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120729125948.GA10041@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 07/29/2012 08:59 PM, Michael S. Tsirkin wrote:
+> On Sat, Jul 28, 2012 at 10:38:41AM +0800, Asias He wrote:
+>> On 07/27/2012 08:33 AM, Rusty Russell wrote:
+>>> On Fri, 13 Jul 2012 16:38:51 +0800, Asias He <asias@redhat.com> wrote:
+>>>> Add 'virtio_blk.use_bio=1' to kernel cmdline or 'modprobe virtio_blk
+>>>> use_bio=1' to enable ->make_request_fn() based I/O path.
+>>>
+>>> This patch conflicts with Paolo's Bonzini's 'virtio-blk: allow toggling
+>>> host cache between writeback and writethrough' which is also queued (see
+>>> linux-next).
+>>
+>> Rebased against Paolo's patch in V4.
+>>
+>>> I'm not sure what the correct behavior for bio & cacheflush is, if any.
+>>
+>> REQ_FLUSH is not supported in the bio path.
+>>
+>>> But as to the patch itself: it's a hack.
+>>>
+>>> 1) Leaving the guest's admin to turn on the switch is a terrible choice.
+>>> 2) The block layer should stop merging and sorting when a device is
+>>>     fast, not the driver.
+>>> 3) I pointed out that slow disks have low IOPS, so why is this
+>>>     conditional?  Sure, more guest exits, but it's still a small number
+>>>     for a slow device.
+>>> 4) The only case where we want merging is on a slow device when the host
+>>>     isn't doing it.
+>>>
+>>> Now, despite this, I'm prepared to commit it.  But in my mind it's a
+>>> hack: we should aim for use_bio to be based on a feature bit fed from
+>>> the host, and use the module parameter only if we want to override it.
+>>
+>> OK. A feature bit from host sound like a choice but a switch is also
+>> needed on host side.
+>
+> qemu automatically gives you the ability to control
+> any feature bit.
+
+Automatically?
+
+>> And for other OS, e.g. Windows, the bio thing
+>> does not apply at all.
+>
+> Let's try to define when it's a good idea. Is it a hint to guest that
+> backend handles small accesses efficiently so ok to disable batching?
+
+Yes. It's also a hint for latency reduction.
+
+>> Anyway, I have to admit that adding a module parameter here is not
+>> the best choice. Let's think more.
+>>
+>> --
+>> Asias
 
 
-> -----Original Message-----
-> From: Greg KH [mailto:gregkh@linuxfoundation.org]
-> Sent: Tuesday, July 24, 2012 11:54 AM
-> To: KY Srinivasan
-> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> virtualization@lists.osdl.org; olaf@aepfle.de; apw@canonical.com;
-> netdev@vger.kernel.org; ben@decadent.org.uk
-> Subject: Re: [PATCH 00/17] drivers: hv: kvp
-> 
-> On Tue, Jul 24, 2012 at 09:01:12AM -0700, K. Y. Srinivasan wrote:
-> > This patchset expands the KVP (Key Value Pair) functionality to
-> > implement the mechanism to GET/SET IP addresses in the guest. This
-> > functionality is used in Windows Server 2012 to implement VM
-> > replication functionality. The way IP configuration information
-> > is managed is distro specific. Based on the feedback I have gotten
-> > from Olaf, Greg, Steve, Ben and Mairus, I have chosen to seperate
-> > distro specific code from this patch-set. Most of the GET operation
-> > can be implemented in a way that is completely distro independent and
-> > I have implemented that as such and is included in this patch-set.
-> > Some of the attributes that can only be fetched in a distro
-> > dependent way as well the mechanism for configuring an interface
-> > (the SET operation) that is clearly distro specific is to be
-> > implemented via external scripts that will be invoked via the KVP
-> > code. We define here the interface to these scripts.
-> >
-> > Adding support for IP injection resulted in some changes to the
-> > protocol between the user level daemon and the kernel driver.
-> > These changes have been implemented in way that would retain
-> > compatibility with older daemons. I would like to thank Olaf and
-> > Greg for pointing out the compatibility issue.
-> 
-> Due to this being the middle of the merge window, I will not be able to
-> look at this until after 3.6-rc1 is out.
-
-Thanks Greg. In the meantime, I have addressed all the comments that both Olaf
-and Ben have posted on this patch-set. Since addressing these comments changed
-some data structures, I think it will be best if you dropped this patch-set. I will post the 
-updated patch-set shortly.
-
-Regards,
-
-K. Y
+-- 
+Asias
