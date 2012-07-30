@@ -1,16 +1,14 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [net-next RFC V5 3/5] virtio: intorduce an API to set affinity
-	for a virtqueue
-Date: Mon, 30 Jul 2012 08:27:54 +0200
-Message-ID: <5016296A.5070809@redhat.com>
-References: <1341484194-8108-1-git-send-email-jasowang@redhat.com>
-	<1341484194-8108-4-git-send-email-jasowang@redhat.com>
-	<5012A7D3.4040800@redhat.com> <20120729204030.GB13802@redhat.com>
+Subject: Re: [PATCH V3 3/3] virtio-blk: Add bio-based IO path for virtio-blk
+Date: Mon, 30 Jul 2012 09:31:06 +0200
+Message-ID: <5016383A.5090008@redhat.com>
+References: <971756309.4742543.1343457753475.JavaMail.root@redhat.com>
+	<501610E0.8000504@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120729204030.GB13802@redhat.com>
+In-Reply-To: <501610E0.8000504@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,17 +18,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, mashirle@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net, sri@us.ibm.com
+To: Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 29/07/2012 22:40, Michael S. Tsirkin ha scritto:
->> > Did you set the affinity manually in your experiments, or perhaps there
->> > is a difference between scsi and networking... (interrupt mitigation?)
+Il 30/07/2012 06:43, Asias He ha scritto:
+>>
 > 
-> You need to run irqbalancer in guest to make it actually work. Do you?
+> Yes. Something like this:
+> 
+>   qemu -drive file=foo.img,cache=writeback/unsafe
+> 
+> is not safe against power losses also?
 
-Yes, of course, now on to debugging that one.  I just wanted to ask
-before the weekend if I was missing something as obvious as that.
+cache=writeback and cache=none are safe, cache=unsafe isn't.
+
+> I think we can add REQ_FLUSH & REQ_FUA support to bio path and that
+> deserves another patch.
+
+You only need to add REQ_FLUSH support.  The virtio-blk protocol does
+not support REQ_FUA, because there's no easy way to do it in userspace.
 
 Paolo
