@@ -1,16 +1,15 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH V3 3/3] virtio-blk: Add bio-based IO path for virtio-blk
-Date: Mon, 30 Jul 2012 08:26:48 +0800
-Message-ID: <5015D4C8.9090601@redhat.com>
-References: <1342168731-11797-1-git-send-email-asias@redhat.com>
-	<1342168731-11797-4-git-send-email-asias@redhat.com>
-	<87d33initv.fsf@rustcorp.com.au> <501350B1.7080908@redhat.com>
-	<20120729125948.GA10041@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH V4 3/3] virtio-blk: Add bio-based IO path for virtio-blk
+Date: Mon, 30 Jul 2012 11:25:51 +0930
+Message-ID: <87a9yim2qg.fsf@rustcorp.com.au>
+References: <1343442065-15646-1-git-send-email-asias@redhat.com>
+	<1343442065-15646-4-git-send-email-asias@redhat.com>
+	<20120729111115.GD8977@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120729125948.GA10041@redhat.com>
+In-Reply-To: <20120729111115.GD8977@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,64 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Asias He <asias@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/29/2012 08:59 PM, Michael S. Tsirkin wrote:
-> On Sat, Jul 28, 2012 at 10:38:41AM +0800, Asias He wrote:
->> On 07/27/2012 08:33 AM, Rusty Russell wrote:
->>> On Fri, 13 Jul 2012 16:38:51 +0800, Asias He <asias@redhat.com> wrote:
->>>> Add 'virtio_blk.use_bio=1' to kernel cmdline or 'modprobe virtio_blk
->>>> use_bio=1' to enable ->make_request_fn() based I/O path.
->>>
->>> This patch conflicts with Paolo's Bonzini's 'virtio-blk: allow toggling
->>> host cache between writeback and writethrough' which is also queued (see
->>> linux-next).
->>
->> Rebased against Paolo's patch in V4.
->>
->>> I'm not sure what the correct behavior for bio & cacheflush is, if any.
->>
->> REQ_FLUSH is not supported in the bio path.
->>
->>> But as to the patch itself: it's a hack.
->>>
->>> 1) Leaving the guest's admin to turn on the switch is a terrible choice.
->>> 2) The block layer should stop merging and sorting when a device is
->>>     fast, not the driver.
->>> 3) I pointed out that slow disks have low IOPS, so why is this
->>>     conditional?  Sure, more guest exits, but it's still a small number
->>>     for a slow device.
->>> 4) The only case where we want merging is on a slow device when the host
->>>     isn't doing it.
->>>
->>> Now, despite this, I'm prepared to commit it.  But in my mind it's a
->>> hack: we should aim for use_bio to be based on a feature bit fed from
->>> the host, and use the module parameter only if we want to override it.
->>
->> OK. A feature bit from host sound like a choice but a switch is also
->> needed on host side.
->
-> qemu automatically gives you the ability to control
-> any feature bit.
+On Sun, 29 Jul 2012 14:11:15 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Sat, Jul 28, 2012 at 10:21:05AM +0800, Asias He wrote:
+> > This patch introduces bio-based IO path for virtio-blk.
+> > 
+> > Compared to request-based IO path, bio-based IO path uses driver
+> > provided ->make_request_fn() method to bypasses the IO scheduler. It
+> > handles the bio to device directly without allocating a request in block
+> > layer. This reduces the IO path in guest kernel to achieve high IOPS
+> > and lower latency. The downside is that guest can not use the IO
+> > scheduler to merge and sort requests. However, this is not a big problem
+> > if the backend disk in host side uses faster disk device.
+> 
+> If this optimization depends on the host, then it
+> should be reported to the guest using a feature bit,
+> as opposed to being guest driven.
 
-Automatically?
+I consider this approach a half-way step.  Quick attempts on my laptop
+and I couldn't find a case where the bio path was a loss, but in theory
+if the host wasn't doing any reordering and it was a slow device, you'd
+want the guest to do so.
 
->> And for other OS, e.g. Windows, the bio thing
->> does not apply at all.
->
-> Let's try to define when it's a good idea. Is it a hint to guest that
-> backend handles small accesses efficiently so ok to disable batching?
+I'm not sure if current qemu can be configured to do such a thing?
 
-Yes. It's also a hint for latency reduction.
-
->> Anyway, I have to admit that adding a module parameter here is not
->> the best choice. Let's think more.
->>
->> --
->> Asias
-
-
--- 
-Asias
+Cheers,
+Rusty.
