@@ -1,16 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [net-next RFC V5 4/5] virtio_net: multiqueue support
-Date: Mon, 30 Jul 2012 13:15:00 +0800
-Message-ID: <50161854.6050705@redhat.com>
-References: <1341484194-8108-1-git-send-email-jasowang@redhat.com>
-	<1341484194-8108-5-git-send-email-jasowang@redhat.com>
-	<20120720134014.GD16550@redhat.com> <500CE5B3.3040404@redhat.com>
-	<20120729095021.GC8977@redhat.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH V4 3/3] virtio-blk: Add bio-based IO path for virtio-blk
+Date: Mon, 30 Jul 2012 14:27:00 +0800
+Message-ID: <50162934.2060704@redhat.com>
+References: <1343442065-15646-1-git-send-email-asias@redhat.com>
+	<1343442065-15646-4-git-send-email-asias@redhat.com>
+	<50138834.5090907@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120729095021.GC8977@redhat.com>
+In-Reply-To: <50138834.5090907@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,39 +19,174 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, mashirle@us.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net, sri@us.ibm.com
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/29/2012 05:50 PM, Michael S. Tsirkin wrote:
-> On Mon, Jul 23, 2012 at 01:48:35PM +0800, Jason Wang wrote:
->>>> +	}
->>>>
->>>> -	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ)) {
->>>> +	ret = vi->vdev->config->find_vqs(vi->vdev, total_vqs, vqs, callbacks,
->>>> +					 (const char **)names);
->>>> +	if (ret)
->>>> +		goto err;
->>>> +
->>>> +	if (vi->has_cvq)
->>>>   		vi->cvq = vqs[2];
->>>>
->>>> -		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VLAN))
->>>> -			vi->dev->features |= NETIF_F_HW_VLAN_FILTER;
->>>> +	for (i = 0; i<   vi->num_queue_pairs * 2; i += 2) {
->>>> +		int j = i == 0 ? i : i + vi->has_cvq;
->>>> +		vi->rq[i / 2]->vq = vqs[j];
->>>> +		vi->sq[i / 2]->vq = vqs[j + 1];
->>> Same here.
->> Consider the code is really simple, seem no need to use helpers.
-> Well it was not simple to at least one reader :)
-> The problem is not this logic is complex,
-> it is that it is spread all over the code.
->
-> If we had e.g. vnet_tx_vqn_to_queuenum vnet_tx_queuenum_to_vqn
-> and same for rx, then the logic would all be
-> in one place, and have a tidy comment on top explaining
-> the VQ numbering scheme.
->
+Hello Sasha,
 
-Looks reasonable, thanks.
+On 07/28/2012 02:35 PM, Sasha Levin wrote:
+> On 07/28/2012 04:21 AM, Asias He wrote:
+>> This patch introduces bio-based IO path for virtio-blk.
+>>
+>> Compared to request-based IO path, bio-based IO path uses driver
+>> provided ->make_request_fn() method to bypasses the IO scheduler. It
+>> handles the bio to device directly without allocating a request in block
+>> layer. This reduces the IO path in guest kernel to achieve high IOPS
+>> and lower latency. The downside is that guest can not use the IO
+>> scheduler to merge and sort requests. However, this is not a big problem
+>> if the backend disk in host side uses faster disk device.
+>>
+>> When the bio-based IO path is not enabled, virtio-blk still uses the
+>> original request-based IO path, no performance difference is observed.
+>>
+>> Performance evaluation:
+>> -----------------------------
+>> 1) Fio test is performed in a 8 vcpu guest with ramdisk based guest using
+>> kvm tool.
+>>
+>> Short version:
+>>   With bio-based IO path, sequential read/write, random read/write
+>>   IOPS boost         : 28%, 24%, 21%, 16%
+>>   Latency improvement: 32%, 17%, 21%, 16%
+>>
+>> Long version:
+>>   With bio-based IO path:
+>>    seq-read  : io=2048.0MB, bw=116996KB/s, iops=233991 , runt= 17925msec
+>>    seq-write : io=2048.0MB, bw=100829KB/s, iops=201658 , runt= 20799msec
+>>    rand-read : io=3095.7MB, bw=112134KB/s, iops=224268 , runt= 28269msec
+>>    rand-write: io=3095.7MB, bw=96198KB/s,  iops=192396 , runt= 32952msec
+>>      clat (usec): min=0 , max=2631.6K, avg=58716.99, stdev=191377.30
+>>      clat (usec): min=0 , max=1753.2K, avg=66423.25, stdev=81774.35
+>>      clat (usec): min=0 , max=2915.5K, avg=61685.70, stdev=120598.39
+>>      clat (usec): min=0 , max=1933.4K, avg=76935.12, stdev=96603.45
+>>    cpu : usr=74.08%, sys=703.84%, ctx=29661403, majf=21354, minf=22460954
+>>    cpu : usr=70.92%, sys=702.81%, ctx=77219828, majf=13980, minf=27713137
+>>    cpu : usr=72.23%, sys=695.37%, ctx=88081059, majf=18475, minf=28177648
+>>    cpu : usr=69.69%, sys=654.13%, ctx=145476035, majf=15867, minf=26176375
+>>   With request-based IO path:
+>>    seq-read  : io=2048.0MB, bw=91074KB/s, iops=182147 , runt= 23027msec
+>>    seq-write : io=2048.0MB, bw=80725KB/s, iops=161449 , runt= 25979msec
+>>    rand-read : io=3095.7MB, bw=92106KB/s, iops=184211 , runt= 34416msec
+>>    rand-write: io=3095.7MB, bw=82815KB/s, iops=165630 , runt= 38277msec
+>>      clat (usec): min=0 , max=1932.4K, avg=77824.17, stdev=170339.49
+>>      clat (usec): min=0 , max=2510.2K, avg=78023.96, stdev=146949.15
+>>      clat (usec): min=0 , max=3037.2K, avg=74746.53, stdev=128498.27
+>>      clat (usec): min=0 , max=1363.4K, avg=89830.75, stdev=114279.68
+>>    cpu : usr=53.28%, sys=724.19%, ctx=37988895, majf=17531, minf=23577622
+>>    cpu : usr=49.03%, sys=633.20%, ctx=205935380, majf=18197, minf=27288959
+>>    cpu : usr=55.78%, sys=722.40%, ctx=101525058, majf=19273, minf=28067082
+>>    cpu : usr=56.55%, sys=690.83%, ctx=228205022, majf=18039, minf=26551985
+>>
+>> 2) Fio test is performed in a 8 vcpu guest with Fusion-IO based guest using
+>> kvm tool.
+>>
+>> Short version:
+>>   With bio-based IO path, sequential read/write, random read/write
+>>   IOPS boost         : 11%, 11%, 13%, 10%
+>>   Latency improvement: 10%, 10%, 12%, 10%
+>> Long Version:
+>>   With bio-based IO path:
+>>    read : io=2048.0MB, bw=58920KB/s, iops=117840 , runt= 35593msec
+>>    write: io=2048.0MB, bw=64308KB/s, iops=128616 , runt= 32611msec
+>>    read : io=3095.7MB, bw=59633KB/s, iops=119266 , runt= 53157msec
+>>    write: io=3095.7MB, bw=62993KB/s, iops=125985 , runt= 50322msec
+>>      clat (usec): min=0 , max=1284.3K, avg=128109.01, stdev=71513.29
+>>      clat (usec): min=94 , max=962339 , avg=116832.95, stdev=65836.80
+>>      clat (usec): min=0 , max=1846.6K, avg=128509.99, stdev=89575.07
+>>      clat (usec): min=0 , max=2256.4K, avg=121361.84, stdev=82747.25
+>>    cpu : usr=56.79%, sys=421.70%, ctx=147335118, majf=21080, minf=19852517
+>>    cpu : usr=61.81%, sys=455.53%, ctx=143269950, majf=16027, minf=24800604
+>>    cpu : usr=63.10%, sys=455.38%, ctx=178373538, majf=16958, minf=24822612
+>>    cpu : usr=62.04%, sys=453.58%, ctx=226902362, majf=16089, minf=23278105
+>>   With request-based IO path:
+>>    read : io=2048.0MB, bw=52896KB/s, iops=105791 , runt= 39647msec
+>>    write: io=2048.0MB, bw=57856KB/s, iops=115711 , runt= 36248msec
+>>    read : io=3095.7MB, bw=52387KB/s, iops=104773 , runt= 60510msec
+>>    write: io=3095.7MB, bw=57310KB/s, iops=114619 , runt= 55312msec
+>>      clat (usec): min=0 , max=1532.6K, avg=142085.62, stdev=109196.84
+>>      clat (usec): min=0 , max=1487.4K, avg=129110.71, stdev=114973.64
+>>      clat (usec): min=0 , max=1388.6K, avg=145049.22, stdev=107232.55
+>>      clat (usec): min=0 , max=1465.9K, avg=133585.67, stdev=110322.95
+>>    cpu : usr=44.08%, sys=590.71%, ctx=451812322, majf=14841, minf=17648641
+>>    cpu : usr=48.73%, sys=610.78%, ctx=418953997, majf=22164, minf=26850689
+>>    cpu : usr=45.58%, sys=581.16%, ctx=714079216, majf=21497, minf=22558223
+>>    cpu : usr=48.40%, sys=599.65%, ctx=656089423, majf=16393, minf=23824409
+>
+> What are the cases where we'll see a performance degradation with using the bio path? Could we measure performance for those as well?
+>
+>> How to use:
+>> -----------------------------
+>> Add 'virtio_blk.use_bio=1' to kernel cmdline or 'modprobe virtio_blk
+>> use_bio=1' to enable ->make_request_fn() based I/O path.
+>
+> If there are, in fact, no cases where performance is degraded, can use_bio=1 be the default?
+
+Here are some results on a SATA based image file. In this case, the bio 
+path is slower than req path doing sequential read/write.
+
+qemu use_bio=0 (req-based)
+-------------------------------------
+   read : io=120964KB, bw=26098KB/s, iops=6470 , runt=  4635msec
+   write: io=190236KB, bw=35505KB/s, iops=8829 , runt=  5358msec
+   read : io=257400KB, bw=1963.7KB/s, iops=488 , runt=131081msec
+   write: io=258944KB, bw=1302.7KB/s, iops=324 , runt=198872msec
+     clat (msec): min=1 , max=1527 , avg=30.73, stdev=144.73
+     clat (usec): min=811 , max=247072 , avg=28451.71, stdev=16107.22
+     clat (msec): min=6 , max=2519 , avg=513.91, stdev=231.07
+     clat (msec): min=33 , max=2621 , avg=772.33, stdev=348.39
+   cpu          : usr=4.05%, sys=14.56%, ctx=38199, majf=0, minf=4
+   cpu          : usr=4.02%, sys=15.48%, ctx=53724, majf=0, minf=0
+   cpu          : usr=0.15%, sys=0.30%, ctx=20535, majf=0, minf=16
+   cpu          : usr=0.32%, sys=0.96%, ctx=101465, majf=0, minf=0
+
+
+qemu use_bio=1 (bio-based)
+-------------------------------------
+   read : io=202736KB, bw=25569KB/s, iops=6360 , runt=  7929msec
+   write: io=217844KB, bw=20335KB/s, iops=5060 , runt= 10713msec
+   read : io=256980KB, bw=1958.2KB/s, iops=487 , runt=131235msec
+   write: io=258288KB, bw=1423.9KB/s, iops=354 , runt=181405msec
+     clat (usec): min=922 , max=1578.2K, avg=38702.18, stdev=99248.33
+     clat (usec): min=460 , max=241314 , avg=49326.52, stdev=18705.68
+     clat (msec): min=19 , max=2370 , avg=515.30, stdev=200.84
+     clat (msec): min=11 , max=3751 , avg=702.60, stdev=286.93
+   cpu          : usr=2.54%, sys=8.75%, ctx=68522, majf=0, minf=6
+   cpu          : usr=1.96%, sys=7.70%, ctx=70003, majf=0, minf=0
+   cpu          : usr=0.39%, sys=1.46%, ctx=259459, majf=0, minf=16
+   cpu          : usr=0.28%, sys=1.21%, ctx=265148, majf=0, minf=0
+
+
+lkvm use_bio=0 (req-based)
+-------------------------------------
+   read : io=150120KB, bw=40420KB/s, iops=10037 , runt=  3714msec
+   write: io=194932KB, bw=27029KB/s, iops=6722 , runt=  7212msec
+   read : io=257136KB, bw=2001.1KB/s, iops=498 , runt=128443msec
+   write: io=258276KB, bw=1537.2KB/s, iops=382 , runt=168028msec
+     clat (msec): min=1 , max=1542 , avg=24.84, stdev=32.45
+     clat (msec): min=3 , max=628 , avg=35.62, stdev=39.71
+     clat (msec): min=8 , max=2540 , avg=503.28, stdev=236.97
+     clat (msec): min=41 , max=4398 , avg=653.88, stdev=302.61
+   cpu          : usr=3.91%, sys=15.75%, ctx=26968, majf=0, minf=23
+   cpu          : usr=2.50%, sys=10.56%, ctx=19090, majf=0, minf=0
+   cpu          : usr=0.16%, sys=0.43%, ctx=20159, majf=0, minf=16
+   cpu          : usr=0.18%, sys=0.53%, ctx=81364, majf=0, minf=0
+
+
+lkvm use_bio=1 (bio-based)
+-------------------------------------
+   read : io=124812KB, bw=36537KB/s, iops=9060 , runt=  3416msec
+   write: io=169180KB, bw=24406KB/s, iops=6065 , runt=  6932msec
+   read : io=256200KB, bw=2089.3KB/s, iops=520 , runt=122630msec
+   write: io=257988KB, bw=1545.7KB/s, iops=384 , runt=166910msec
+     clat (msec): min=1 , max=1527 , avg=28.06, stdev=89.54
+     clat (msec): min=2 , max=344 , avg=41.12, stdev=38.70
+     clat (msec): min=8 , max=1984 , avg=490.63, stdev=207.28
+     clat (msec): min=33 , max=4131 , avg=659.19, stdev=304.71
+   cpu          : usr=4.85%, sys=17.15%, ctx=31593, majf=0, minf=7
+   cpu          : usr=3.04%, sys=11.45%, ctx=39377, majf=0, minf=0
+   cpu          : usr=0.47%, sys=1.59%, ctx=262986, majf=0, minf=16
+   cpu          : usr=0.47%, sys=1.46%, ctx=337410, majf=0, minf=0
+
+-- 
+Asias
