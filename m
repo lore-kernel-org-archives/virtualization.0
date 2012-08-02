@@ -1,13 +1,15 @@
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [PATCH V5 0/4] Improve virtio-blk performance
-Date: Thu, 02 Aug 2012 23:40:51 +0200
-Message-ID: <501AF3E3.6090403@kernel.dk>
-References: <1343888757-25723-1-git-send-email-asias@redhat.com>
+From: Jan Engelhardt <jengelh@inai.de>
+Subject: Re: [vmw_vmci 11/11] Apply the header code to make VMCI build
+Date: Thu, 2 Aug 2012 21:50:02 +0200 (CEST)
+Message-ID: <alpine.LNX.2.01.1208022145380.30631__23949.4684305557$1343946124$gmane$org@frira.zrqbmnf.qr>
+References: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
+	<1343345980-32397-12-git-send-email-astiegmann@vmware.com>
+	<20120727103455.GA4639@merkur.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1343888757-25723-1-git-send-email-asias@redhat.com>
+In-Reply-To: <20120727103455.GA4639@merkur.ravnborg.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,21 +19,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>, Shaohua Li <shli@kernel.org>, Christoph Hellwig <hch@lst.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vm-crosstalk@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, cschamp@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/02/2012 08:25 AM, Asias He wrote:
-> Hi folks,
-> 
-> This version added REQ_FLUSH and REQ_FUA support as suggested by Christoph and
-> rebased against latest linus's tree. 
-> 
-> Jens, could you please consider picking up the dependencies 1/4 and
-> 2/4 in your tree. Thanks!
 
-Pickedup, thanks for getting that done!
+On Friday 2012-07-27 12:34, Sam Ravnborg wrote:
+>> +#ifndef _VMCI_COMMONINT_H_
+>> +#define _VMCI_COMMONINT_H_
+>> +
+>> +#include <linux/printk.h>
+>> +#include <linux/vmw_vmci_defs.h>
+>
+>Use inverse chrismas tree here.
+>Longer include lines first, and soret alphabetically when
+>lines are of the same length.
 
+So that's where unreadable include lists come from.
+Depth-first lexicographically-sorted is a lot less hassle,
+especially when it comes to merging patches that each
+add one different include.
 
--- 
-Jens Axboe
+>> +/*
+>> + * Utilility function that checks whether two entities are allowed
+>> + * to interact. If one of them is restricted, the other one must
+>> + * be trusted.
+>> + */
+>> +static inline bool vmci_deny_interaction(uint32_t partOne,
+>> +					 uint32_t partTwo)
+>
+>The kernel types are u32 not uint32_t - these types belongs in user-space.
+
+Not really. uint32_t is the C99 type for a 32-bit quantity, and I see
+absolutely zero reason not to use standardized things. The only
+exception are header files visible to user space where __u32 should
+be used for (obscure) reasons of avoiding naming clashes.
+
+(Obscure because uint32_t is always supposed to be 32 bits.)
