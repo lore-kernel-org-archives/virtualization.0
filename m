@@ -1,19 +1,11 @@
-From: Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH v4 1/3] mm: introduce compaction and migration for virtio
-	ballooned pages
-Date: Wed, 01 Aug 2012 16:53:47 -0400
-Message-ID: <5019975B.6010708__27464.4157536843$1343854541$gmane$org@redhat.com>
-References: <cover.1342485774.git.aquini@redhat.com>
-	<49f828a9331c9b729fcf77226006921ec5bc52fa.1342485774.git.aquini@redhat.com>
-	<20120718054824.GA32341@bbox>
-	<20120720194858.GA16249@t510.redhat.com>
-	<20120723023332.GA6832@bbox>
-	<20120723181952.GA27373@t510.redhat.com>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH V5 0/4] Improve virtio-blk performance
+Date: Thu,  2 Aug 2012 14:25:52 +0800
+Message-ID: <1343888757-25723-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120723181952.GA27373@t510.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,22 +15,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rafael Aquini <aquini@redhat.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Minchan Kim <minchan@kernel.org>, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>, Rafael Aquini <aquini@linux.com>
+To: linux-kernel@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>, Shaohua Li <shli@kernel.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/23/2012 02:19 PM, Rafael Aquini wrote:
 
-> In a glance, I believe this whole dance you're suggesting might just be too much
-> of an overcomplication, and the best approach would be simply teaching the
-> hotplug bits about the ballooned corner case just like it's being done to
-> compaction/migration. However, I'll look at it carefully before making any other
-> adjustments/propositions over here.
+Hi folks,
 
-Compaction and hotplug do essentially the same thing
-here: "collect all the movable pages from a page block,
-and move them elsewhere".
+This version added REQ_FLUSH and REQ_FUA support as suggested by Christoph and
+rebased against latest linus's tree. 
 
-Whether or not it is easier for them to share code, or
-to duplicate a few lines of code, is something that can
-be looked into later.
+Jens, could you please consider picking up the dependencies 1/4 and 2/4 in your
+tree. Thanks!
+
+This patchset implements bio-based IO path for virito-blk to improve
+performance.
+
+Fio test shows bio-based IO path gives the following performance improvement:
+
+1) Ramdisk device
+     With bio-based IO path, sequential read/write, random read/write
+     IOPS boost         : 28%, 24%, 21%, 16%
+     Latency improvement: 32%, 17%, 21%, 16%
+2) Fusion IO device
+     With bio-based IO path, sequential read/write, random read/write
+     IOPS boost         : 11%, 11%, 13%, 10%
+     Latency improvement: 10%, 10%, 12%, 10%
+
+Asias He (4):
+  block: Introduce __blk_segment_map_sg() helper
+  block: Add blk_bio_map_sg() helper
+  virtio-blk: Add bio-based IO path for virtio-blk
+  virtio-blk: Add REQ_FLUSH and REQ_FUA support to bio path
+
+ block/blk-merge.c          | 117 +++++++++++++------
+ drivers/block/virtio_blk.c | 279 ++++++++++++++++++++++++++++++++++++++-------
+ include/linux/blkdev.h     |   2 +
+ 3 files changed, 324 insertions(+), 74 deletions(-)
+
+-- 
+1.7.11.2
