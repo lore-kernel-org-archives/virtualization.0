@@ -1,17 +1,15 @@
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH V5 4/4] virtio-blk: Add REQ_FLUSH and REQ_FUA support
-	to bio path
-Date: Mon, 6 Aug 2012 17:17:31 +0200
-Message-ID: <20120806151731.GA23220@lst.de>
-References: <1343888757-25723-1-git-send-email-asias@redhat.com>
-	<1343888757-25723-5-git-send-email-asias@redhat.com>
-	<20120802062742.GA23573@lst.de> <501A2178.3000906@redhat.com>
+From: Rik van Riel <riel@redhat.com>
+Subject: Re: [PATCH v5 1/3] mm: introduce compaction and migration for virtio
+	ballooned pages
+Date: Mon, 06 Aug 2012 14:38:23 -0400
+Message-ID: <50200F1F.7060605@redhat.com>
+References: <cover.1344259054.git.aquini@redhat.com>
+	<212b5297df32cb4e3f60d5b76a8cb0629d328a4e.1344259054.git.aquini@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <501A2178.3000906@redhat.com>
+In-Reply-To: <212b5297df32cb4e3f60d5b76a8cb0629d328a4e.1344259054.git.aquini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,29 +19,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>, Shaohua Li <shli@kernel.org>, Christoph Hellwig <hch@lst.de>
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 02, 2012 at 02:43:04PM +0800, Asias He wrote:
->> Even if it has a payload waiting is highly suboptimal and it should
->> use a non-blocking sequencing like it is done in the request layer.
+On 08/06/2012 09:56 AM, Rafael Aquini wrote:
+
+> @@ -846,6 +861,21 @@ static int unmap_and_move(new_page_t get_new_page, unsigned long private,
+>   			goto out;
 >
-> So, for REQ_FLUSH, what we need is that send out the VIRTIO_BLK_T_FLUSH and 
-> not to wait.
+>   	rc = __unmap_and_move(page, newpage, force, offlining, mode);
+> +
+> +	if (unlikely(is_balloon_page(newpage)&&
+> +		     balloon_compaction_enabled())) {
 
-If it's REQ_FLUSH without data a VIRTIO_BLK_T_FLUSH should be sent out only,
-if it's a REQ_FLUSH that has data a VIRTIO_BLK_T_FLUSH should be sent out,
-but instead of waiting for it to finish the I/O completion handler should
-then submit the actual write.
+Could that be collapsed into one movable_balloon_page(newpage) function
+call?
 
-> We still need to wait until the actual write is finished here?
-> Like,
->
-> REQ_FUA is emulated by:
-> 1. Send the actual write
-> 2. Wait until the actual write is finished
-> 3. Send VIRTIO_BLK_T_FLUSH to device
-> 4. Signal the end of the write to upper layer
-
-Remove step 2 and run step 3 from the I/O completion handler.
+-- 
+All rights reversed
