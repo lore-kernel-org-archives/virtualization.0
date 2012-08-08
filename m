@@ -1,14 +1,16 @@
-From: Asias He <asias@redhat.com>
-Subject: [PATCH V7 2/2] virtio-blk: Add REQ_FLUSH and REQ_FUA support to bio
-	path
-Date: Wed,  8 Aug 2012 16:07:05 +0800
-Message-ID: <1344413225-1843-3-git-send-email-asias@redhat.com>
-References: <1344413225-1843-1-git-send-email-asias@redhat.com>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: [PATCH v6 1/3] mm: introduce compaction and migration for virtio
+	ballooned pages
+Date: Wed,  8 Aug 2012 19:53:19 -0300
+Message-ID: <efb9756c5d6de8952a793bfc99a9db9cdd66b12f.1344463786.git.aquini__19348.2268987738$1344466440$gmane$org@redhat.com>
+References: <cover.1344463786.git.aquini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1344413225-1843-1-git-send-email-asias@redhat.com>
+In-Reply-To: <cover.1344463786.git.aquini@redhat.com>
+In-Reply-To: <cover.1344463786.git.aquini@redhat.com>
+References: <cover.1344463786.git.aquini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,400 +20,271 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Tejun Heo <tj@kernel.org>, Shaohua Li <shli@kernel.org>, Christoph Hellwig <hch@lst.de>
+To: linux-mm@kvack.org
+Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We need to support both REQ_FLUSH and REQ_FUA for bio based path since
-it does not get the sequencing of REQ_FUA into REQ_FLUSH that request
-based drivers can request.
+Memory fragmentation introduced by ballooning might reduce significantly
+the number of 2MB contiguous memory blocks that can be used within a guest,
+thus imposing performance penalties associated with the reduced number of
+transparent huge pages that could be used by the guest workload.
 
-REQ_FLUSH is emulated by:
-A) If the bio has no data to write:
-1. Send VIRTIO_BLK_T_FLUSH to device,
-2. In the flush I/O completion handler, finish the bio
+This patch introduces the helper functions as well as the necessary changes
+to teach compaction and migration bits how to cope with pages which are
+part of a guest memory balloon, in order to make them movable by memory
+compaction procedures.
 
-B) If the bio has data to write:
-1. Send VIRTIO_BLK_T_FLUSH to device
-2. In the flush I/O completion handler, send the actual write data to device
-3. In the write I/O completion handler, finish the bio
-
-REQ_FUA is emulated by:
-1. Send the actual write data to device
-2. In the write I/O completion handler, send VIRTIO_BLK_T_FLUSH to device
-3. In the flush I/O completion handler, finish the bio
-
-Changes in v7:
-- Using vbr->flags to trace request type
-- Dropped unnecessary struct virtio_blk *vblk parameter
-- Reuse struct virtblk_req in bio done function
-
-Cahnges in v6:
-- Reworked REQ_FLUSH and REQ_FUA emulatation order
-
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Shaohua Li <shli@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Asias He <asias@redhat.com>
+Signed-off-by: Rafael Aquini <aquini@redhat.com>
 ---
- drivers/block/virtio_blk.c | 272 +++++++++++++++++++++++++++++++--------------
- 1 file changed, 188 insertions(+), 84 deletions(-)
+ include/linux/mm.h |  17 +++++++
+ mm/compaction.c    | 131 +++++++++++++++++++++++++++++++++++++++++++++--------
+ mm/migrate.c       |  30 +++++++++++-
+ 3 files changed, 158 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 95cfeed..2edfb5c 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -58,10 +58,20 @@ struct virtblk_req
- 	struct bio *bio;
- 	struct virtio_blk_outhdr out_hdr;
- 	struct virtio_scsi_inhdr in_hdr;
-+	struct work_struct work;
-+	struct virtio_blk *vblk;
-+	int flags;
- 	u8 status;
- 	struct scatterlist sg[];
- };
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 311be90..18f978b 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1662,5 +1662,22 @@ static inline unsigned int debug_guardpage_minorder(void) { return 0; }
+ static inline bool page_is_guard(struct page *page) { return false; }
+ #endif /* CONFIG_DEBUG_PAGEALLOC */
  
-+enum {
-+	VBLK_IS_FLUSH		= 1,
-+	VBLK_REQ_FLUSH		= 2,
-+	VBLK_REQ_DATA		= 4,
-+	VBLK_REQ_FUA		= 8,
-+};
++#if (defined(CONFIG_VIRTIO_BALLOON) || \
++	defined(CONFIG_VIRTIO_BALLOON_MODULE)) && defined(CONFIG_COMPACTION)
++extern bool isolate_balloon_page(struct page *);
++extern bool putback_balloon_page(struct page *);
++extern struct address_space *balloon_mapping;
 +
- static inline int virtblk_result(struct virtblk_req *vbr)
++static inline bool movable_balloon_page(struct page *page)
++{
++	return (page->mapping && page->mapping == balloon_mapping);
++}
++
++#else
++static inline bool isolate_balloon_page(struct page *page) { return false; }
++static inline bool putback_balloon_page(struct page *page) { return false; }
++static inline bool movable_balloon_page(struct page *page) { return false; }
++#endif /* (VIRTIO_BALLOON || VIRTIO_BALLOON_MODULE) && CONFIG_COMPACTION */
++
+ #endif /* __KERNEL__ */
+ #endif /* _LINUX_MM_H */
+diff --git a/mm/compaction.c b/mm/compaction.c
+index e78cb96..7372592 100644
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -14,6 +14,7 @@
+ #include <linux/backing-dev.h>
+ #include <linux/sysctl.h>
+ #include <linux/sysfs.h>
++#include <linux/export.h>
+ #include "internal.h"
+ 
+ #if defined CONFIG_COMPACTION || defined CONFIG_CMA
+@@ -21,6 +22,90 @@
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/compaction.h>
+ 
++#if defined(CONFIG_VIRTIO_BALLOON) || defined(CONFIG_VIRTIO_BALLOON_MODULE)
++/*
++ * Balloon pages special page->mapping.
++ * Users must properly allocate and initialize an instance of balloon_mapping,
++ * and set it as the page->mapping for balloon enlisted page instances.
++ * There is no need on utilizing struct address_space locking schemes for
++ * balloon_mapping as, once it gets initialized at balloon driver, it will
++ * remain just like a static reference that helps us on identifying a guest
++ * ballooned page by its mapping, as well as it will keep the 'a_ops' callback
++ * pointers to the functions that will execute the balloon page mobility tasks.
++ *
++ * address_space_operations necessary methods for ballooned pages:
++ *   .migratepage    - used to perform balloon's page migration (as is)
++ *   .invalidatepage - used to isolate a page from balloon's page list
++ *   .freepage       - used to reinsert an isolated page to balloon's page list
++ */
++struct address_space *balloon_mapping;
++EXPORT_SYMBOL_GPL(balloon_mapping);
++
++static inline void __isolate_balloon_page(struct page *page)
++{
++	page->mapping->a_ops->invalidatepage(page, 0);
++}
++
++static inline void __putback_balloon_page(struct page *page)
++{
++	page->mapping->a_ops->freepage(page);
++}
++
++/* __isolate_lru_page() counterpart for a ballooned page */
++bool isolate_balloon_page(struct page *page)
++{
++	if (WARN_ON(!movable_balloon_page(page)))
++		return false;
++
++	if (likely(get_page_unless_zero(page))) {
++		/*
++		 * As balloon pages are not isolated from LRU lists, concurrent
++		 * compaction threads can race against page migration functions
++		 * move_to_new_page() & __unmap_and_move().
++		 * In order to avoid having an already isolated balloon page
++		 * being (wrongly) re-isolated while it is under migration,
++		 * lets be sure we have the page lock before proceeding with
++		 * the balloon page isolation steps.
++		 */
++		if (likely(trylock_page(page))) {
++			/*
++			 * A ballooned page, by default, has just one refcount.
++			 * Prevent concurrent compaction threads from isolating
++			 * an already isolated balloon page.
++			 */
++			if (movable_balloon_page(page) &&
++			    (page_count(page) == 2)) {
++				__isolate_balloon_page(page);
++				unlock_page(page);
++				return true;
++			}
++			unlock_page(page);
++		}
++		/* Drop refcount taken for this already isolated page */
++		put_page(page);
++	}
++	return false;
++}
++
++/* putback_lru_page() counterpart for a ballooned page */
++bool putback_balloon_page(struct page *page)
++{
++	if (WARN_ON(!movable_balloon_page(page)))
++		return false;
++
++	if (likely(trylock_page(page))) {
++		if (movable_balloon_page(page)) {
++			__putback_balloon_page(page);
++			put_page(page);
++			unlock_page(page);
++			return true;
++		}
++		unlock_page(page);
++	}
++	return false;
++}
++#endif /* CONFIG_VIRTIO_BALLOON || CONFIG_VIRTIO_BALLOON_MODULE */
++
+ static unsigned long release_freepages(struct list_head *freelist)
  {
- 	switch (vbr->status) {
-@@ -74,9 +84,133 @@ static inline int virtblk_result(struct virtblk_req *vbr)
+ 	struct page *page, *next;
+@@ -312,32 +397,40 @@ isolate_migratepages_range(struct zone *zone, struct compact_control *cc,
+ 			continue;
+ 		}
+ 
+-		if (!PageLRU(page))
+-			continue;
+-
+ 		/*
+-		 * PageLRU is set, and lru_lock excludes isolation,
+-		 * splitting and collapsing (collapsing has already
+-		 * happened if PageLRU is set).
++		 * It is possible to migrate LRU pages and balloon pages.
++		 * Skip any other type of page.
+ 		 */
+-		if (PageTransHuge(page)) {
+-			low_pfn += (1 << compound_order(page)) - 1;
+-			continue;
+-		}
++		if (PageLRU(page)) {
++			/*
++			 * PageLRU is set, and lru_lock excludes isolation,
++			 * splitting and collapsing (collapsing has already
++			 * happened if PageLRU is set).
++			 */
++			if (PageTransHuge(page)) {
++				low_pfn += (1 << compound_order(page)) - 1;
++				continue;
++			}
+ 
+-		if (!cc->sync)
+-			mode |= ISOLATE_ASYNC_MIGRATE;
++			if (!cc->sync)
++				mode |= ISOLATE_ASYNC_MIGRATE;
+ 
+-		lruvec = mem_cgroup_page_lruvec(page, zone);
++			lruvec = mem_cgroup_page_lruvec(page, zone);
+ 
+-		/* Try isolate the page */
+-		if (__isolate_lru_page(page, mode) != 0)
+-			continue;
++			/* Try isolate the page */
++			if (__isolate_lru_page(page, mode) != 0)
++				continue;
++
++			VM_BUG_ON(PageTransCompound(page));
+ 
+-		VM_BUG_ON(PageTransCompound(page));
++			/* Successfully isolated */
++			del_page_from_lru_list(page, lruvec, page_lru(page));
++		} else if (unlikely(movable_balloon_page(page))) {
++			if (!isolate_balloon_page(page))
++				continue;
++		} else
++			continue;
+ 
+-		/* Successfully isolated */
+-		del_page_from_lru_list(page, lruvec, page_lru(page));
+ 		list_add(&page->lru, migratelist);
+ 		cc->nr_migratepages++;
+ 		nr_isolated++;
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 77ed2d7..871a304 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -79,7 +79,10 @@ void putback_lru_pages(struct list_head *l)
+ 		list_del(&page->lru);
+ 		dec_zone_page_state(page, NR_ISOLATED_ANON +
+ 				page_is_file_cache(page));
+-		putback_lru_page(page);
++		if (unlikely(movable_balloon_page(page)))
++			WARN_ON(!putback_balloon_page(page));
++		else
++			putback_lru_page(page);
  	}
  }
  
--static inline void virtblk_request_done(struct virtio_blk *vblk,
--					struct virtblk_req *vbr)
-+static inline struct virtblk_req *virtblk_alloc_req(struct virtio_blk *vblk,
-+						    gfp_t gfp_mask)
-+{
-+	struct virtblk_req *vbr;
-+
-+	vbr = mempool_alloc(vblk->pool, gfp_mask);
-+	if (vbr && use_bio)
-+		sg_init_table(vbr->sg, vblk->sg_elems);
-+
-+	vbr->vblk = vblk;
-+
-+	return vbr;
-+}
-+
-+static void virtblk_add_buf_wait(struct virtio_blk *vblk,
-+				 struct virtblk_req *vbr,
-+				 unsigned long out,
-+				 unsigned long in)
-+{
-+	DEFINE_WAIT(wait);
-+
-+	for (;;) {
-+		prepare_to_wait_exclusive(&vblk->queue_wait, &wait,
-+					  TASK_UNINTERRUPTIBLE);
-+
-+		spin_lock_irq(vblk->disk->queue->queue_lock);
-+		if (virtqueue_add_buf(vblk->vq, vbr->sg, out, in, vbr,
-+				      GFP_ATOMIC) < 0) {
-+			spin_unlock_irq(vblk->disk->queue->queue_lock);
-+			io_schedule();
-+		} else {
-+			virtqueue_kick(vblk->vq);
-+			spin_unlock_irq(vblk->disk->queue->queue_lock);
-+			break;
-+		}
-+
-+	}
-+
-+	finish_wait(&vblk->queue_wait, &wait);
-+}
-+
-+static inline void virtblk_add_req(struct virtblk_req *vbr,
-+				   unsigned int out, unsigned int in)
-+{
-+	struct virtio_blk *vblk = vbr->vblk;
-+
-+	spin_lock_irq(vblk->disk->queue->queue_lock);
-+	if (unlikely(virtqueue_add_buf(vblk->vq, vbr->sg, out, in, vbr,
-+					GFP_ATOMIC) < 0)) {
-+		spin_unlock_irq(vblk->disk->queue->queue_lock);
-+		virtblk_add_buf_wait(vblk, vbr, out, in);
-+		return;
-+	}
-+	virtqueue_kick(vblk->vq);
-+	spin_unlock_irq(vblk->disk->queue->queue_lock);
-+}
-+
-+static int virtblk_bio_send_flush(struct virtblk_req *vbr)
-+{
-+	unsigned int out = 0, in = 0;
-+
-+	vbr->flags |= VBLK_IS_FLUSH;
-+	vbr->out_hdr.type = VIRTIO_BLK_T_FLUSH;
-+	vbr->out_hdr.sector = 0;
-+	vbr->out_hdr.ioprio = 0;
-+	sg_set_buf(&vbr->sg[out++], &vbr->out_hdr, sizeof(vbr->out_hdr));
-+	sg_set_buf(&vbr->sg[out + in++], &vbr->status, sizeof(vbr->status));
-+
-+	virtblk_add_req(vbr, out, in);
-+
-+	return 0;
-+}
-+
-+static int virtblk_bio_send_data(struct virtblk_req *vbr)
- {
-+	struct virtio_blk *vblk = vbr->vblk;
-+	unsigned int num, out = 0, in = 0;
-+	struct bio *bio = vbr->bio;
-+
-+	vbr->flags &= ~VBLK_IS_FLUSH;
-+	vbr->out_hdr.type = 0;
-+	vbr->out_hdr.sector = bio->bi_sector;
-+	vbr->out_hdr.ioprio = bio_prio(bio);
-+
-+	sg_set_buf(&vbr->sg[out++], &vbr->out_hdr, sizeof(vbr->out_hdr));
-+
-+	num = blk_bio_map_sg(vblk->disk->queue, bio, vbr->sg + out);
-+
-+	sg_set_buf(&vbr->sg[num + out + in++], &vbr->status,
-+		   sizeof(vbr->status));
-+
-+	if (num) {
-+		if (bio->bi_rw & REQ_WRITE) {
-+			vbr->out_hdr.type |= VIRTIO_BLK_T_OUT;
-+			out += num;
-+		} else {
-+			vbr->out_hdr.type |= VIRTIO_BLK_T_IN;
-+			in += num;
-+		}
-+	}
-+
-+	virtblk_add_req(vbr, out, in);
-+
-+	return 0;
-+}
-+
-+static void virtblk_bio_send_data_work(struct work_struct *work)
-+{
-+	struct virtblk_req *vbr;
-+
-+	vbr = container_of(work, struct virtblk_req, work);
-+
-+	virtblk_bio_send_data(vbr);
-+}
-+
-+static void virtblk_bio_send_flush_work(struct work_struct *work)
-+{
-+	struct virtblk_req *vbr;
-+
-+	vbr = container_of(work, struct virtblk_req, work);
-+
-+	virtblk_bio_send_flush(vbr);
-+}
-+
-+static inline void virtblk_request_done(struct virtblk_req *vbr)
-+{
-+	struct virtio_blk *vblk = vbr->vblk;
- 	struct request *req = vbr->req;
- 	int error = virtblk_result(vbr);
- 
-@@ -92,17 +226,47 @@ static inline void virtblk_request_done(struct virtio_blk *vblk,
- 	mempool_free(vbr, vblk->pool);
- }
- 
--static inline void virtblk_bio_done(struct virtio_blk *vblk,
--				    struct virtblk_req *vbr)
-+static inline void virtblk_bio_flush_done(struct virtblk_req *vbr)
- {
--	bio_endio(vbr->bio, virtblk_result(vbr));
--	mempool_free(vbr, vblk->pool);
-+	struct virtio_blk *vblk = vbr->vblk;
-+
-+	if (vbr->flags & VBLK_REQ_DATA) {
-+		/* Send out the actual write data */
-+		INIT_WORK(&vbr->work, virtblk_bio_send_data_work);
-+		queue_work(virtblk_wq, &vbr->work);
-+	} else {
-+		bio_endio(vbr->bio, virtblk_result(vbr));
-+		mempool_free(vbr, vblk->pool);
-+	}
-+}
-+
-+static inline void virtblk_bio_data_done(struct virtblk_req *vbr)
-+{
-+	struct virtio_blk *vblk = vbr->vblk;
-+
-+	if (unlikely(vbr->flags & VBLK_REQ_FUA)) {
-+		/* Send out a flush before end the bio */
-+		vbr->flags &= ~VBLK_REQ_DATA;
-+		INIT_WORK(&vbr->work, virtblk_bio_send_flush_work);
-+		queue_work(virtblk_wq, &vbr->work);
-+	} else {
-+		bio_endio(vbr->bio, virtblk_result(vbr));
-+		mempool_free(vbr, vblk->pool);
-+	}
-+}
-+
-+static inline void virtblk_bio_done(struct virtblk_req *vbr)
-+{
-+	if (unlikely(vbr->flags & VBLK_IS_FLUSH))
-+		virtblk_bio_flush_done(vbr);
-+	else
-+		virtblk_bio_data_done(vbr);
- }
- 
- static void virtblk_done(struct virtqueue *vq)
- {
- 	struct virtio_blk *vblk = vq->vdev->priv;
--	unsigned long bio_done = 0, req_done = 0;
-+	bool bio_done = false, req_done = false;
- 	struct virtblk_req *vbr;
- 	unsigned long flags;
- 	unsigned int len;
-@@ -110,11 +274,11 @@ static void virtblk_done(struct virtqueue *vq)
- 	spin_lock_irqsave(vblk->disk->queue->queue_lock, flags);
- 	while ((vbr = virtqueue_get_buf(vblk->vq, &len)) != NULL) {
- 		if (vbr->bio) {
--			virtblk_bio_done(vblk, vbr);
--			bio_done++;
-+			virtblk_bio_done(vbr);
-+			bio_done = true;
- 		} else {
--			virtblk_request_done(vblk, vbr);
--			req_done++;
-+			virtblk_request_done(vbr);
-+			req_done = true;
+@@ -778,6 +781,17 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
  		}
  	}
- 	/* In case queue is stopped waiting for more buffers. */
-@@ -126,18 +290,6 @@ static void virtblk_done(struct virtqueue *vq)
- 		wake_up(&vblk->queue_wait);
- }
  
--static inline struct virtblk_req *virtblk_alloc_req(struct virtio_blk *vblk,
--						    gfp_t gfp_mask)
--{
--	struct virtblk_req *vbr;
--
--	vbr = mempool_alloc(vblk->pool, gfp_mask);
--	if (vbr && use_bio)
--		sg_init_table(vbr->sg, vblk->sg_elems);
--
--	return vbr;
--}
--
- static bool do_req(struct request_queue *q, struct virtio_blk *vblk,
- 		   struct request *req)
- {
-@@ -242,41 +394,12 @@ static void virtblk_request(struct request_queue *q)
- 		virtqueue_kick(vblk->vq);
- }
- 
--static void virtblk_add_buf_wait(struct virtio_blk *vblk,
--				 struct virtblk_req *vbr,
--				 unsigned long out,
--				 unsigned long in)
--{
--	DEFINE_WAIT(wait);
--
--	for (;;) {
--		prepare_to_wait_exclusive(&vblk->queue_wait, &wait,
--					  TASK_UNINTERRUPTIBLE);
--
--		spin_lock_irq(vblk->disk->queue->queue_lock);
--		if (virtqueue_add_buf(vblk->vq, vbr->sg, out, in, vbr,
--				      GFP_ATOMIC) < 0) {
--			spin_unlock_irq(vblk->disk->queue->queue_lock);
--			io_schedule();
--		} else {
--			virtqueue_kick(vblk->vq);
--			spin_unlock_irq(vblk->disk->queue->queue_lock);
--			break;
--		}
--
--	}
--
--	finish_wait(&vblk->queue_wait, &wait);
--}
--
- static void virtblk_make_request(struct request_queue *q, struct bio *bio)
- {
- 	struct virtio_blk *vblk = q->queuedata;
--	unsigned int num, out = 0, in = 0;
- 	struct virtblk_req *vbr;
- 
- 	BUG_ON(bio->bi_phys_segments + 2 > vblk->sg_elems);
--	BUG_ON(bio->bi_rw & (REQ_FLUSH | REQ_FUA));
- 
- 	vbr = virtblk_alloc_req(vblk, GFP_NOIO);
- 	if (!vbr) {
-@@ -285,37 +408,18 @@ static void virtblk_make_request(struct request_queue *q, struct bio *bio)
- 	}
- 
- 	vbr->bio = bio;
--	vbr->req = NULL;
--	vbr->out_hdr.type = 0;
--	vbr->out_hdr.sector = bio->bi_sector;
--	vbr->out_hdr.ioprio = bio_prio(bio);
--
--	sg_set_buf(&vbr->sg[out++], &vbr->out_hdr, sizeof(vbr->out_hdr));
--
--	num = blk_bio_map_sg(q, bio, vbr->sg + out);
--
--	sg_set_buf(&vbr->sg[num + out + in++], &vbr->status,
--		   sizeof(vbr->status));
--
--	if (num) {
--		if (bio->bi_rw & REQ_WRITE) {
--			vbr->out_hdr.type |= VIRTIO_BLK_T_OUT;
--			out += num;
--		} else {
--			vbr->out_hdr.type |= VIRTIO_BLK_T_IN;
--			in += num;
--		}
--	}
--
--	spin_lock_irq(vblk->disk->queue->queue_lock);
--	if (unlikely(virtqueue_add_buf(vblk->vq, vbr->sg, out, in, vbr,
--				       GFP_ATOMIC) < 0)) {
--		spin_unlock_irq(vblk->disk->queue->queue_lock);
--		virtblk_add_buf_wait(vblk, vbr, out, in);
--		return;
--	}
--	virtqueue_kick(vblk->vq);
--	spin_unlock_irq(vblk->disk->queue->queue_lock);
-+	vbr->flags = 0;
-+	if (bio->bi_rw & REQ_FLUSH)
-+		vbr->flags |= VBLK_REQ_FLUSH;
-+	if (bio->bi_rw & REQ_FUA)
-+		vbr->flags |= VBLK_REQ_FUA;
-+	if (bio->bi_size)
-+		vbr->flags |= VBLK_REQ_DATA;
++	if (unlikely(movable_balloon_page(page))) {
++		/*
++		 * A ballooned page does not need any special attention from
++		 * physical to virtual reverse mapping procedures.
++		 * Skip any attempt to unmap PTEs or to remap swap cache,
++		 * in order to avoid burning cycles at rmap level.
++		 */
++		remap_swapcache = 0;
++		goto skip_unmap;
++	}
 +
-+	if (unlikely(vbr->flags & VBLK_REQ_FLUSH))
-+		virtblk_bio_send_flush(vbr);
-+	else
-+		virtblk_bio_send_data(vbr);
- }
+ 	/*
+ 	 * Corner case handling:
+ 	 * 1. When a new swap-cache page is read into, it is added to the LRU
+@@ -846,6 +860,20 @@ static int unmap_and_move(new_page_t get_new_page, unsigned long private,
+ 			goto out;
  
- /* return id (s/n) string for *disk to *id_str
-@@ -529,7 +633,7 @@ static void virtblk_update_cache_mode(struct virtio_device *vdev)
- 	u8 writeback = virtblk_get_cache_mode(vdev);
- 	struct virtio_blk *vblk = vdev->priv;
- 
--	if (writeback && !use_bio)
-+	if (writeback)
- 		blk_queue_flush(vblk->disk->queue, REQ_FLUSH);
- 	else
- 		blk_queue_flush(vblk->disk->queue, 0);
+ 	rc = __unmap_and_move(page, newpage, force, offlining, mode);
++
++	if (unlikely(movable_balloon_page(newpage))) {
++		/*
++		 * A ballooned page has been migrated already. Now, it is the
++		 * time to wrap-up counters, handle the old page back to Buddy
++		 * and return.
++		 */
++		list_del(&page->lru);
++		dec_zone_page_state(page, NR_ISOLATED_ANON +
++				    page_is_file_cache(page));
++		put_page(page);
++		__free_page(page);
++		return rc;
++	}
+ out:
+ 	if (rc != -EAGAIN) {
+ 		/*
 -- 
 1.7.11.2
