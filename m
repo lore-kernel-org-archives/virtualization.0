@@ -1,15 +1,15 @@
 From: Rik van Riel <riel@redhat.com>
-Subject: Re: [PATCH v6 1/3] mm: introduce compaction and migration for virtio
-	ballooned pages
-Date: Wed, 08 Aug 2012 21:37:43 -0400
-Message-ID: <50231467.80603__28374.9213013381$1344476312$gmane$org@redhat.com>
+Subject: Re: [PATCH v6 2/3] virtio_balloon: introduce migration primitives
+	to balloon pages
+Date: Wed, 08 Aug 2012 21:39:15 -0400
+Message-ID: <502314C3.2020509__21800.872780341$1344476391$gmane$org@redhat.com>
 References: <cover.1344463786.git.aquini@redhat.com>
-	<efb9756c5d6de8952a793bfc99a9db9cdd66b12f.1344463786.git.aquini@redhat.com>
+	<5f4b30060e252e557882595984a8225ba6e0c9f2.1344463786.git.aquini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <efb9756c5d6de8952a793bfc99a9db9cdd66b12f.1344463786.git.aquini@redhat.com>
+In-Reply-To: <5f4b30060e252e557882595984a8225ba6e0c9f2.1344463786.git.aquini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,10 +29,16 @@ On 08/08/2012 06:53 PM, Rafael Aquini wrote:
 > thus imposing performance penalties associated with the reduced number of
 > transparent huge pages that could be used by the guest workload.
 >
-> This patch introduces the helper functions as well as the necessary changes
-> to teach compaction and migration bits how to cope with pages which are
-> part of a guest memory balloon, in order to make them movable by memory
-> compaction procedures.
+> Besides making balloon pages movable at allocation time and introducing
+> the necessary primitives to perform balloon page migration/compaction,
+> this patch also introduces the following locking scheme to provide the
+> proper synchronization and protection for struct virtio_balloon elements
+> against concurrent accesses due to parallel operations introduced by
+> memory compaction / page migration.
+>   - balloon_lock (mutex) : synchronizes the access demand to elements of
+> 			  struct virtio_balloon and its queue operations;
+>   - pages_lock (spinlock): special protection to balloon pages list against
+> 			  concurrent list handling operations;
 >
 > Signed-off-by: Rafael Aquini<aquini@redhat.com>
 
