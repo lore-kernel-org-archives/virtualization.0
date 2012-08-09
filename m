@@ -1,16 +1,15 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [RFC PATCH 2/6] virtio/console: Add a failback for unstealable
-	pipe buffer
-Date: Thu, 9 Aug 2012 14:33:12 +0530
-Message-ID: <20120809090312.GH3280@amit.redhat.com>
+From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Subject: Re: Re: [RFC PATCH 1/6] virtio/console: Add splice_write support
+Date: Thu, 09 Aug 2012 18:12:39 +0900
+Message-ID: <50237F07.2020907@hitachi.com>
 References: <20120724023657.6600.52706.stgit@ltc189.sdl.hitachi.co.jp>
-	<20120724023718.6600.68836.stgit@ltc189.sdl.hitachi.co.jp>
+	<20120724023707.6600.69536.stgit@ltc189.sdl.hitachi.co.jp>
+	<20120809090015.GG3280@amit.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120724023718.6600.68836.stgit@ltc189.sdl.hitachi.co.jp>
+In-Reply-To: <20120809090015.GG3280@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,51 +19,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, qemu-devel@nongnu.org, Frederic Weisbecker <fweisbec@gmail.com>, yrl.pp-manager.tt@hitachi.com, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, qemu-devel@nongnu.org, Frederic Weisbecker <fweisbec@gmail.com>, yrl.pp-manager.tt@hitachi.com, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 24 Jul 2012 [11:37:18], Yoshihiro YUNOMAE wrote:
-> From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+(2012/08/09 18:00), Amit Shah wrote:
+> On (Tue) 24 Jul 2012 [11:37:07], Yoshihiro YUNOMAE wrote:
+>> From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+>>
+>> Enable to use splice_write from pipe to virtio-console port.
+>> This steals pages from pipe and directly send it to host.
+>>
+>> Note that this may accelerate only the guest to host path.
+>>
+>> Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+>> Cc: Amit Shah <amit.shah@redhat.com>
+>> Cc: Arnd Bergmann <arnd@arndb.de>
+>> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> ---
 > 
-> Add a failback memcpy path for unstealable pipe buffer.
-> If buf->ops->steal() fails, virtio-serial tries to
-> copy the page contents to an allocated page, instead
-> of just failing splice().
+>> +/* Faster zero-copy write by splicing */
+>> +static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
+>> +				      struct file *filp, loff_t *ppos,
+>> +				      size_t len, unsigned int flags)
+>> +{
+>> +	struct port *port = filp->private_data;
+>> +	struct sg_list sgl;
+>> +	ssize_t ret;
+>> +	struct splice_desc sd = {
+>> +		.total_len = len,
+>> +		.flags = flags,
+>> +		.pos = *ppos,
+>> +		.u.data = &sgl,
+>> +	};
+>> +
+>> +	sgl.n = 0;
+>> +	sgl.len = 0;
+>> +	sgl.sg = kmalloc(sizeof(struct scatterlist) * MAX_SPLICE_PAGES,
+>> +			 GFP_ATOMIC);
 > 
-> Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-> Cc: Amit Shah <amit.shah@redhat.com>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
-> 
->  drivers/char/virtio_console.c |   28 +++++++++++++++++++++++++---
->  1 files changed, 25 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index fe31b2f..911cb3e 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -794,7 +794,7 @@ static int pipe_to_sg(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
->  			struct splice_desc *sd)
->  {
->  	struct sg_list *sgl = sd->u.data;
-> -	unsigned int len = 0;
-> +	unsigned int offset, len;
->  
->  	if (sgl->n == MAX_SPLICE_PAGES)
->  		return 0;
-> @@ -807,9 +807,31 @@ static int pipe_to_sg(struct pipe_inode_info *pipe, struct pipe_buffer *buf,
->  
->  		len = min(buf->len, sd->len);
->  		sg_set_page(&(sgl->sg[sgl->n]), buf->page, len, buf->offset);
-> -		sgl->n++;
-> -		sgl->len += len;
-> +	} else {
-> +		/* Failback to copying a page */
-> +		struct page *page = alloc_page(GFP_KERNEL);
+> Do you expect this function to be called from interrupt context?
 
-I prefer zeroing out the page.  If there's not enough data to be
-filled in the page, the remaining data can be leaked to the host.
+No, not at all. Oops, that should be GFP_KERNEL...
 
-		Amit
+Thank you for pointing it out.
+
+-- 
+Masami HIRAMATSU
+Software Platform Research Dept. Linux Technology Center
+Hitachi, Ltd., Yokohama Research Laboratory
+E-mail: masami.hiramatsu.pt@hitachi.com
