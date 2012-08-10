@@ -1,16 +1,19 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [net-next RFC V5 3/5] virtio: intorduce an API to set affinity
-	for a virtqueue
-Date: Thu, 09 Aug 2012 18:35:45 +0300
-Message-ID: <5023D8D1.3060604@redhat.com>
-References: <1341484194-8108-1-git-send-email-jasowang@redhat.com>
-	<1341484194-8108-4-git-send-email-jasowang@redhat.com>
-	<5023D3A1.8040102@redhat.com>
+From: Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [PATCH v6 1/3] mm: introduce compaction and migration for virtio
+	ballooned pages
+Date: Fri, 10 Aug 2012 13:46:49 +0100
+Message-ID: <20120810124649.GL10288__27411.1559069299$1344602829$gmane$org@csn.ul.ie>
+References: <cover.1344463786.git.aquini@redhat.com>
+	<efb9756c5d6de8952a793bfc99a9db9cdd66b12f.1344463786.git.aquini@redhat.com>
+	<20120809090019.GB10288@csn.ul.ie>
+	<20120809144835.GA2719@t510.redhat.com>
+	<20120809151218.GB2719@t510.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5023D3A1.8040102@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20120809151218.GB2719@t510.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,33 +23,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: krkumar2@in.ibm.com, habanero@linux.vnet.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, mashirle@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, tahm@linux.vnet.ibm.com, jwhan@filewood.snu.ac.kr, davem@davemloft.net, sri@us.ibm.com
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/09/2012 06:13 PM, Paolo Bonzini wrote:
-> Il 05/07/2012 12:29, Jason Wang ha scritto:
->> Sometimes, virtio device need to configure irq affiniry hint to maximize the
->> performance. Instead of just exposing the irq of a virtqueue, this patch
->> introduce an API to set the affinity for a virtqueue.
->> 
->> The api is best-effort, the affinity hint may not be set as expected due to
->> platform support, irq sharing or irq type. Currently, only pci method were
->> implemented and we set the affinity according to:
->> 
->> - if device uses INTX, we just ignore the request
->> - if device has per vq vector, we force the affinity hint
->> - if the virtqueues share MSI, make the affinity OR over all affinities
->>  requested
->> 
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> 
-> It looks like both I and Jason will need these patches during the 3.7
-> merge window, and from different trees (net-next vs. scsi).  How do we
-> synchronize?
+On Thu, Aug 09, 2012 at 12:12:19PM -0300, Rafael Aquini wrote:
+> On Thu, Aug 09, 2012 at 11:48:36AM -0300, Rafael Aquini wrote:
+> > Sure! 
+> > what do you think of:
+> > 
+> > +/* putback_lru_page() counterpart for a ballooned page */
+> > +void putback_balloon_page(struct page *page)
+> > +{
+> > +   lock_page(page);
+> > +   if (!WARN_ON(!movable_balloon_page(page))) {
+> > +           __putback_balloon_page(page);
+> > +           put_page(page);
+> > +   }
+> > +   unlock_page(page);
+> > +}
+> >
+> Or perhaps
+>  
+> +/* putback_lru_page() counterpart for a ballooned page */
+> +void putback_balloon_page(struct page *page)
+> +{
+> +   if (!WARN_ON(!movable_balloon_page(page))) {
+> +           lock_page(page);
+> +           __putback_balloon_page(page);
+> +           put_page(page);
+> +           unlock_page(page);
+> +   }
+> +}
 
-Get one of them to promise not to rebase, merge it, and base your
-patches on top of the merge.
+That should be fine. I find the WARN_ON construct odd to read but only
+because it's unusual. It is more typical to see something like
+
+if (WARN_ON(!movable_balooon_page(page)))
+	return;
+
+lock_page(page);
+__putback_balloon_page(page);
+put_page(page);
+unlock_page(page);
+
+but either works. Do not forget to update the caller of course.
+
+Thanks.
+
 
 -- 
-error compiling committee.c: too many arguments to function
+Mel Gorman
+SUSE Labs
