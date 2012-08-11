@@ -1,14 +1,13 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: virtio-scsi <-> vhost multi lun/adapter performance results with
-	3.6-rc0
-Date: Sat, 11 Aug 2012 13:52:04 +0100
-Message-ID: <CAJSP0QXX=4etJ_uGYFzXQ0eEE0M+Ude7ha0aH5SaX1oEUvQoLA__4231.96357810429$1344689550$gmane$org@mail.gmail.com>
-References: <1344641012.22564.294.camel@haakon2.linux-iscsi.org>
+From: Stephen Hemminger <shemminger@vyatta.com>
+Subject: Re: [Question]About KVM network zero-copy  feature!
+Date: Sat, 11 Aug 2012 13:55:56 -0700
+Message-ID: <20120811135556.58ddf48d@nehalam.linuxnetplumber.net>
+References: <50248148.4070204@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1344641012.22564.294.camel@haakon2.linux-iscsi.org>
+In-Reply-To: <50248148.4070204@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +17,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: linux-scsi <linux-scsi@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, Jens Axboe <jaxboe@fusionio.com>, LKML <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, James Bottomley <James.Bottomley@hansenpartnership.com>, target-devel <target-devel@vger.kernel.org>, Anthony Liguori <anthony@codemonkey.ws>, Paolo Bonzini <pbonzini@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: "Peter Huang(Peng)" <peter.huangpeng@huawei.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Aug 11, 2012 at 12:23 AM, Nicholas A. Bellinger
-<nab@linux-iscsi.org> wrote:
-> Using a KVM guest with 32x vCPUs and 4G memory, the results for 4x
-> random I/O now look like:
->
-> workload         | jobs | 25% write / 75% read | 75% write / 25% read
-> -----------------|------|----------------------|---------------------
-> 1x rd_mcp LUN    |   8  |     ~155K IOPs       |      ~145K IOPs
-> 16x rd_mcp LUNs  |  16  |     ~315K IOPs       |      ~305K IOPs
-> 32x rd_mcp LUNs  |  16  |     ~425K IOPs       |      ~410K IOPs
->
-> The full fio randrw results for the six test cases are attached below.
-> Also, using a workload of fio numjobs > 16 currently makes performance
-> start to fall off pretty sharply regardless of the number of vCPUs..
->
-> So running a similar workload with loopback SCSI ports on bare-metal
-> produces ~1M random IOPs with 12x LUNs + numjobs=32.  At numjobs=16 here
-> with vhost the 16x LUN configuration ends up being in the range of ~310K
-> IOPs for the current sweet spot..
+On Fri, 10 Aug 2012 11:34:32 +0800
+"Peter Huang(Peng)" <peter.huangpeng@huawei.com> wrote:
 
-This makes me wonder what a comparison against baremetal looks like
-and the perf top, mpstat, and kvm_stat results on the host.
-
-Stefan
+> Hi,All
+> 
+> I searched from git-log, and found that until now we have vhost TX zero-copy experiment feature, how
+> about RX zero-copy?
+> 
+> For XEN, net-back also only has TX zero-copy, Is there any reason that RX zero-copy still not implemented?
+> 
+There is no guarantee that packet will ever be read by receiver. This means zero-copy could
+create memory back pressure stalls.
