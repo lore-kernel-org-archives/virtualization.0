@@ -1,15 +1,13 @@
-From: Minchan Kim <minchan@kernel.org>
-Subject: Re: [PATCH v7 3/4] mm: introduce putback_movable_pages()
-Date: Mon, 13 Aug 2012 08:26:36 +0900
-Message-ID: <20120812232636.GI21033@bbox>
-References: <cover.1344619987.git.aquini@redhat.com>
-	<9147e5cccc4bb2d3f2e5f155e640148eb5365af5.1344619987.git.aquini@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH V2 0/6] virtio-trace: Support virtio-trace
+Date: Mon, 13 Aug 2012 08:58:41 +0930
+Message-ID: <87393ru1ue.fsf@rustcorp.com.au>
+References: <20120809123029.8542.38311.stgit@ltc189.sdl.hitachi.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <9147e5cccc4bb2d3f2e5f155e640148eb5365af5.1344619987.git.aquini@redhat.com>
+In-Reply-To: <20120809123029.8542.38311.stgit@ltc189.sdl.hitachi.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,25 +17,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rafael Aquini <aquini@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>
+To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>, linux-kernel@vger.kernel.org
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Frederic Weisbecker <fweisbec@gmail.com>, yrl.pp-manager.tt@hitachi.com, qemu-devel@nongnu.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 10, 2012 at 02:55:16PM -0300, Rafael Aquini wrote:
-> The PATCH "mm: introduce compaction and migration for virtio ballooned pages"
-> hacks around putback_lru_pages() in order to allow ballooned pages to be
-> re-inserted on balloon page list as if a ballooned page was like a LRU page.
+On Thu, 09 Aug 2012 21:30:29 +0900, Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com> wrote:
+> Hi All,
 > 
-> As ballooned pages are not legitimate LRU pages, this patch introduces
-> putback_movable_pages() to properly cope with cases where the isolated
-> pageset contains ballooned pages and LRU pages, thus fixing the mentioned
-> inelegant hack around putback_lru_pages().
-> 
-> Signed-off-by: Rafael Aquini <aquini@redhat.com>
-Reviewed-by: Minchan Kim <minchan@kernel.org>
+> The following patch set provides a low-overhead system for collecting kernel
+> tracing data of guests by a host in a virtualization environment.
 
-Thanks for your good work, Rafael.
+Thankyou!
 
--- 
-Kind regards,
-Minchan Kim
+I've applied this, and it will head into linux-next in the next few
+days.
+
+Cheers,
+Rusty.
