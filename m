@@ -1,15 +1,16 @@
-From: Robert Vineyard <vineyard@tuffmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [Question]About KVM network zero-copy  feature!
-Date: Sat, 11 Aug 2012 20:42:44 -0400
-Message-ID: <5026FC04.6080108@tuffmail.com>
+Date: Sun, 12 Aug 2012 12:37:31 +0300
+Message-ID: <20120812093730.GD1421@redhat.com>
 References: <50248148.4070204@huawei.com>
 	<20120811135556.58ddf48d@nehalam.linuxnetplumber.net>
-	<5026D49B.10305@tuffmail.com>
+	<5026D49B.10305@tuffmail.com> <5026FC04.6080108@tuffmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5026D49B.10305@tuffmail.com>
+Content-Disposition: inline
+In-Reply-To: <5026FC04.6080108@tuffmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,71 +20,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: xiaohui.xin@intel.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, "Peter Huang(Peng)" <peter.huangpeng@huawei.com>, virtualization@lists.linux-foundation.org, avi@redhat.com
+To: Robert Vineyard <vineyard@tuffmail.com>
+Cc: xiaohui.xin@intel.com, kvm@vger.kernel.org, netdev@vger.kernel.org, "Peter Huang(Peng)" <peter.huangpeng@huawei.com>, virtualization@lists.linux-foundation.org, avi@redhat.com, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(adding Xin Xiaohui to the conversation for comment)
+On Sat, Aug 11, 2012 at 08:42:44PM -0400, Robert Vineyard wrote:
+> (adding Xin Xiaohui to the conversation for comment)
+> 
+> According to the NetworkingTodo page on the KVM wiki, zero-copy RX
+> for macvtap is in fact on the roadmap, assigned to Xin:
+> 
+> http://www.linux-kvm.org/page/NetworkingTodo
 
-According to the NetworkingTodo page on the KVM wiki, zero-copy RX for 
-macvtap is in fact on the roadmap, assigned to Xin:
+AFAIK Xin left Intel and is not working on it.
+Contributions are welcome.
 
-http://www.linux-kvm.org/page/NetworkingTodo
-
-The Release Notes for RHEL 6.2 (originally published on 12/06/2011) also 
-specifically mention macvtap/vhost zero-copy capabilities as being 
-included as a Technology Preview:
-
-http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6/html/6.2_Release_Notes/virtualization.html
-
-Since I've been unable to find much information on the current status of 
-this development, can anyone confirm if this functionality is still in 
-the works? If so, is there any planned ETA?
-
-Thanks,
-Robert Vineyard
-
-
-On 08/11/2012 05:54 PM, Robert Vineyard wrote:
->> On Fri, 10 Aug 2012 11:34:32 +0800
->> "Peter Huang(Peng)" <peter.huangpeng@huawei.com> wrote:
->>
->>> I searched from git-log, and found that until now we have vhost TX
->>> zero-copy experiment feature, how
->>> about RX zero-copy?
->
-> On 08/11/2012 04:55 PM, Stephen Hemminger wrote:
->> There is no guarantee that packet will ever be read by receiver. This
->> means zero-copy could
->> create memory back pressure stalls.
->
-> It would be handy if this could be an optional feature, perhaps not
-> enabled by default due to the problem with stalls you mentioned. I would
-> love to see RX zero-copy implemented natively in KVM, as it might
-> alleviate the need for custom solutions like vPF_RING:
->
-> http://www.ntop.org/products/pf_ring/vpf_ring/
->
-> Every time a packet is copied, especially from kernel space to user
-> space, there is an opportunity for it to be dropped on its way to the
-> receiving application - which is unacceptable when monitoring high-speed
-> networks for security or bandwidth accounting purposes.
->
-> I am attempting to find a highly-efficient way to deploy virtualized
-> network monitoring sensors (Snort, for example). Ideally I want to
-> exploit symmetric hardware-based RSS and SR-IOV functionality for
-> load-balancing and packet distribution completely in ASIC. I've found
-> other existing work in this area (also using custom drivers) indicating
-> significant performance gains in the non-virtualized case:
->
-> http://www.ndsl.kaist.edu/~shinae/papers/TR-symRSS.pdf
->
-> Is there any interest in exploring native RX zero-copy within the
-> mainline KVM networking code?
->
+> The Release Notes for RHEL 6.2 (originally published on 12/06/2011)
+> also specifically mention macvtap/vhost zero-copy capabilities as
+> being included as a Technology Preview:
+> 
+> http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6/html/6.2_Release_Notes/virtualization.html
+> 
+> Since I've been unable to find much information on the current
+> status of this development, can anyone confirm if this functionality
+> is still in the works? If so, is there any planned ETA?
+> 
 > Thanks,
 > Robert Vineyard
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+I think this means TX.
+
+-- 
+MST
