@@ -1,15 +1,11 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH V2 09/18] Tools: hv: Represent the ipv6 mask using CIDR
- notation
-Date: Mon, 13 Aug 2012 10:06:58 -0700
-Message-ID: <1344877627-21779-9-git-send-email-kys@microsoft.com>
-References: <1344877584-21738-1-git-send-email-kys@microsoft.com>
- <1344877627-21779-1-git-send-email-kys@microsoft.com>
+Subject: [PATCH V2 00/18] drivers: hv: kvp
+Date: Mon, 13 Aug 2012 10:06:24 -0700
+Message-ID: <1344877584-21738-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1344877627-21779-1-git-send-email-kys@microsoft.com>
 List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
  <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
 List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
@@ -22,92 +18,61 @@ Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, ben@decadent.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-Transform ipv6 subnet information to CIDR notation.
+This patchset expands the KVP (Key Value Pair) functionality to
+implement the mechanism to GET/SET IP addresses in the guest. This
+functionality is used in Windows Server 2012 to implement VM
+replication functionality. The way IP configuration information
+is managed is distro specific. Based on the feedback I have gotten
+from Olaf, Greg, Steve, Ben and Mairus, I have chosen to seperate
+distro specific code from this patch-set. Most of the GET operation
+can be implemented in a way that is completely distro independent and
+I have implemented that as such and is included in this patch-set.
+Some of the attributes that can only be fetched in a distro
+dependent way as well the mechanism for configuring an interface
+(the SET operation) that is clearly distro specific is to be
+implemented via external scripts that will be invoked via the KVP
+code. We define here the interface to these scripts.
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-Reviewed-by: Olaf Hering <olaf@aepfle.de>
-Reviewed-by: Ben Hutchings <ben@decadent.org.uk>
----
- tools/hv/hv_kvp_daemon.c |   46 ++++++++++++++++++++++++++++++++++++----------
- 1 files changed, 36 insertions(+), 10 deletions(-)
+Adding support for IP injection resulted in some changes to the
+protocol between the user level daemon and the kernel driver.
+These changes have been implemented in way that would retain
+compatibility with older daemons. I would like to thank Olaf and
+Greg for pointing out the compatibility issue.
 
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index de1724c..a63e83a 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -491,6 +491,15 @@ done:
- 	return;
- }
- 
-+static unsigned int hweight32(unsigned int *w)
-+{
-+	unsigned int res = *w - ((*w >> 1) & 0x55555555);
-+	res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
-+	res = (res + (res >> 4)) & 0x0F0F0F0F;
-+	res = res + (res >> 8);
-+	return (res + (res >> 16)) & 0x000000FF;
-+}
-+
- static int kvp_process_ip_address(void *addrp,
- 				int family, char *buffer,
- 				int length,  int *offset)
-@@ -535,10 +544,15 @@ kvp_get_ip_address(int family, char *if_name, int op,
- 	struct ifaddrs *curp;
- 	int offset = 0;
- 	int sn_offset = 0;
--	const char *str;
- 	int error = 0;
- 	char *buffer;
- 	struct hv_kvp_ipaddr_value *ip_buffer;
-+	char cidr_mask[5]; /* /xyz */
-+	int weight;
-+	int i;
-+	unsigned int *w;
-+	char *sn_str;
-+	struct sockaddr_in6 *addr6;
- 
- 	if (op == KVP_OP_ENUMERATE) {
- 		buffer = out_buffer;
-@@ -611,18 +625,30 @@ kvp_get_ip_address(int family, char *if_name, int op,
- 					goto gather_ipaddr;
- 			} else {
- 				ip_buffer->addr_family |= ADDR_FAMILY_IPV6;
-+
- 				/*
--				 * Get subnet info.
-+				 * Get subnet info in CIDR format.
- 				 */
--				error = kvp_process_ip_address(
--							     curp->ifa_netmask,
--							     AF_INET6,
--							     (char *)
--							     ip_buffer->sub_net,
--							     length,
--							     &sn_offset);
--				if (error)
-+				weight = 0;
-+				sn_str = (char *)ip_buffer->sub_net;
-+				addr6 = (struct sockaddr_in6 *)
-+					curp->ifa_netmask;
-+				w = addr6->sin6_addr.s6_addr32;
-+
-+				for (i = 0; i < 4; i++)
-+					weight += hweight32(&w[i]);
-+
-+				sprintf(cidr_mask, "/%d", weight);
-+				if ((length - sn_offset) <
-+					(strlen(cidr_mask) + 1))
- 					goto gather_ipaddr;
-+
-+				if (sn_offset == 0)
-+					strcpy(sn_str, cidr_mask);
-+				else
-+					strcat(sn_str, cidr_mask);
-+				strcat((char *)ip_buffer->sub_net, ";");
-+				sn_offset += strlen(sn_str) + 1;
- 			}
- 		}
- 
+This version of the patch set addresses all of the comments that I
+have received to date from Olaf, Ben and others. Specifically, I have
+cleanedup all of the string manipulation code. Furthermore, I have also
+simplified the format of the interface configuration file that is
+generated by the KVP daemon and gotten rid of some constant strings that
+may not be relevant on all distros. I would like to thank Olaf and Ben
+for their detailed review.
+
+K. Y. Srinivasan (18):
+  Drivers: hv: vmbus: Use the standard format string to format GUIDs
+  Drivers: hv: Add KVP definitions for IP address injection
+  Drivers: hv: kvp: Cleanup error handling in KVP
+  Drivers: hv: kvp: Support the new IP injection messages
+  Tools: hv: Prepare to expand  kvp_get_ip_address() functionality
+  Tools: hv: Further refactor kvp_get_ip_address()
+  Tools: hv: Gather address family information
+  Tools: hv: Gather subnet information
+  Tools: hv: Represent the ipv6 mask using CIDR notation
+  Tools: hv: Gather ipv[4,6] gateway information
+  Tools: hv: Gather DNS information
+  Tools: hv: Gather DHCP information
+  Tools: hv: Implement the KVP verb - KVP_OP_SET_IP_INFO
+  Tools: hv: Rename the function kvp_get_ip_address()
+  Tools: hv: Implement the KVP verb - KVP_OP_GET_IP_INFO
+  Tools: hv: Get rid of some unused variables
+  Tools: hv: Correctly type string variables
+  Tools: hv: Properly manage open streams
+
+ drivers/hv/hv_kvp.c      |  253 +++++++++++--
+ drivers/hv/hv_util.c     |    4 +-
+ drivers/hv/vmbus_drv.c   |   38 +--
+ include/linux/hyperv.h   |   93 +++++-
+ tools/hv/hv_kvp_daemon.c |  928 +++++++++++++++++++++++++++++++++++++++++-----
+ 5 files changed, 1147 insertions(+), 169 deletions(-)
+
 -- 
 1.7.4.1
