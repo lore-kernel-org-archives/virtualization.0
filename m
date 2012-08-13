@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH V2 06/18] Tools: hv: Further refactor kvp_get_ip_address()
-Date: Mon, 13 Aug 2012 10:06:55 -0700
-Message-ID: <1344877627-21779-6-git-send-email-kys@microsoft.com>
+Subject: [PATCH V2 02/18] Drivers: hv: Add KVP definitions for IP address injection
+Date: Mon, 13 Aug 2012 10:06:51 -0700
+Message-ID: <1344877627-21779-2-git-send-email-kys@microsoft.com>
 References: <1344877584-21738-1-git-send-email-kys@microsoft.com>
  <1344877627-21779-1-git-send-email-kys@microsoft.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -11,136 +11,174 @@ To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverp
 Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-In preparation for making kvp_get_ip_address() more generic, factor out
-the code for handling IP addresses.
+Add the necessary definitions for supporting the IP injection functionality.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 Reviewed-by: Olaf Hering <olaf@aepfle.de>
 Reviewed-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- tools/hv/hv_kvp_daemon.c |   94 ++++++++++++++++++++-------------------------
- 1 files changed, 42 insertions(+), 52 deletions(-)
+ drivers/hv/hv_util.c     |    4 +-
+ include/linux/hyperv.h   |   76 ++++++++++++++++++++++++++++++++++++++++++++-
+ tools/hv/hv_kvp_daemon.c |    2 +-
+ 3 files changed, 77 insertions(+), 5 deletions(-)
 
+diff --git a/drivers/hv/hv_util.c b/drivers/hv/hv_util.c
+index d3ac6a4..a0667de 100644
+--- a/drivers/hv/hv_util.c
++++ b/drivers/hv/hv_util.c
+@@ -263,7 +263,7 @@ static int util_probe(struct hv_device *dev,
+ 		(struct hv_util_service *)dev_id->driver_data;
+ 	int ret;
+ 
+-	srv->recv_buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
++	srv->recv_buffer = kmalloc(PAGE_SIZE * 2, GFP_KERNEL);
+ 	if (!srv->recv_buffer)
+ 		return -ENOMEM;
+ 	if (srv->util_init) {
+@@ -274,7 +274,7 @@ static int util_probe(struct hv_device *dev,
+ 		}
+ 	}
+ 
+-	ret = vmbus_open(dev->channel, 2 * PAGE_SIZE, 2 * PAGE_SIZE, NULL, 0,
++	ret = vmbus_open(dev->channel, 4 * PAGE_SIZE, 4 * PAGE_SIZE, NULL, 0,
+ 			srv->util_cb, dev->channel);
+ 	if (ret)
+ 		goto error;
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 68ed7f7..11afc4e 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -122,12 +122,53 @@
+ #define REG_U32 4
+ #define REG_U64 8
+ 
++/*
++ * As we look at expanding the KVP functionality to include
++ * IP injection functionality, we need to maintain binary
++ * compatibility with older daemons.
++ *
++ * The KVP opcodes are defined by the host and it was unfortunate
++ * that I chose to treat the registration operation as part of the
++ * KVP operations defined by the host.
++ * Here is the level of compatibility
++ * (between the user level daemon and the kernel KVP driver) that we
++ * will implement:
++ *
++ * An older daemon will always be supported on a newer driver.
++ * A given user level daemon will require a minimal version of the
++ * kernel driver.
++ * If we cannot handle the version differences, we will fail gracefully
++ * (this can happen when we have a user level daemon that is more
++ * advanced than the KVP driver.
++ *
++ * We will use values used in this handshake for determining if we have
++ * workable user level daemon and the kernel driver. We begin by taking the
++ * registration opcode out of the KVP opcode namespace. We will however,
++ * maintain compatibility with the existing user-level daemon code.
++ */
++
++/*
++ * Daemon code not supporting IP injection (legacy daemon).
++ */
++
++#define KVP_OP_REGISTER	4
++
++/*
++ * Daemon code supporting IP injection.
++ * The KVP opcode field is used to communicate the
++ * registration information; so define a namespace that
++ * will be distinct from the host defined KVP opcode.
++ */
++
++#define KVP_OP_REGISTER1 100
++
+ enum hv_kvp_exchg_op {
+ 	KVP_OP_GET = 0,
+ 	KVP_OP_SET,
+ 	KVP_OP_DELETE,
+ 	KVP_OP_ENUMERATE,
+-	KVP_OP_REGISTER,
++	KVP_OP_GET_IP_INFO,
++	KVP_OP_SET_IP_INFO,
+ 	KVP_OP_COUNT /* Number of operations, must be last. */
+ };
+ 
+@@ -140,6 +181,26 @@ enum hv_kvp_exchg_pool {
+ 	KVP_POOL_COUNT /* Number of pools, must be last. */
+ };
+ 
++#define ADDR_FAMILY_NONE	0x00
++#define ADDR_FAMILY_IPV4	0x01
++#define ADDR_FAMILY_IPV6	0x02
++
++#define MAX_ADAPTER_ID_SIZE	128
++#define MAX_IP_ADDR_SIZE	1024
++#define MAX_GATEWAY_SIZE	512
++
++
++struct hv_kvp_ipaddr_value {
++	__u16	adapter_id[MAX_ADAPTER_ID_SIZE];
++	__u8	addr_family;
++	__u8	dhcp_enabled;
++	__u16	ip_addr[MAX_IP_ADDR_SIZE];
++	__u16	sub_net[MAX_IP_ADDR_SIZE];
++	__u16	gate_way[MAX_GATEWAY_SIZE];
++	__u16	dns_addr[MAX_IP_ADDR_SIZE];
++} __attribute__((packed));
++
++
+ struct hv_kvp_hdr {
+ 	__u8 operation;
+ 	__u8 pool;
+@@ -181,16 +242,26 @@ struct hv_kvp_register {
+ };
+ 
+ struct hv_kvp_msg {
+-	struct hv_kvp_hdr	kvp_hdr;
++	union {
++		struct hv_kvp_hdr	kvp_hdr;
++		int error;
++	};
+ 	union {
+ 		struct hv_kvp_msg_get		kvp_get;
+ 		struct hv_kvp_msg_set		kvp_set;
+ 		struct hv_kvp_msg_delete	kvp_delete;
+ 		struct hv_kvp_msg_enumerate	kvp_enum_data;
++		struct hv_kvp_ipaddr_value      kvp_ip_val;
+ 		struct hv_kvp_register		kvp_register;
+ 	} body;
+ } __attribute__((packed));
+ 
++struct hv_kvp_ip_msg {
++	__u8 operation;
++	__u8 pool;
++	struct hv_kvp_ipaddr_value      kvp_ip_val;
++} __attribute__((packed));
++
+ #ifdef __KERNEL__
+ #include <linux/scatterlist.h>
+ #include <linux/list.h>
+@@ -982,6 +1053,7 @@ void vmbus_driver_unregister(struct hv_driver *hv_driver);
+ #define HV_S_CONT			0x80070103
+ #define HV_ERROR_NOT_SUPPORTED		0x80070032
+ #define HV_ERROR_MACHINE_LOCKED		0x800704F7
++#define HV_ERROR_DEVICE_NOT_CONNECTED	0x8007048F
+ 
+ /*
+  * While we want to handle util services as regular devices,
 diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 3af37f0..3dc989f 100644
+index d9834b3..8fbcf7b 100644
 --- a/tools/hv/hv_kvp_daemon.c
 +++ b/tools/hv/hv_kvp_daemon.c
-@@ -491,17 +491,50 @@ done:
- 	return;
- }
+@@ -69,7 +69,7 @@ enum key_index {
+ };
  
-+static int kvp_process_ip_address(void *addrp,
-+				int family, char *buffer,
-+				int length,  int *offset)
-+{
-+	struct sockaddr_in *addr;
-+	struct sockaddr_in6 *addr6;
-+	int addr_length;
-+	char tmp[50];
-+	const char *str;
-+
-+	if (family == AF_INET) {
-+		addr = (struct sockaddr_in *)addrp;
-+		str = inet_ntop(family, &addr->sin_addr, tmp, 50);
-+		addr_length = INET_ADDRSTRLEN;
-+	} else {
-+		addr6 = (struct sockaddr_in6 *)addrp;
-+		str = inet_ntop(family, &addr6->sin6_addr.s6_addr, tmp, 50);
-+		addr_length = INET6_ADDRSTRLEN;
-+	}
-+
-+	if ((length - *offset) < addr_length + 1)
-+		return 1;
-+	if (str == NULL) {
-+		strcpy(buffer, "inet_ntop failed\n");
-+		return 1;
-+	}
-+	if (*offset == 0)
-+		strcpy(buffer, tmp);
-+	else
-+		strcat(buffer, tmp);
-+	strcat(buffer, ";");
-+
-+	*offset += strlen(str) + 1;
-+	return 0;
-+}
-+
- static int
- kvp_get_ip_address(int family, char *if_name, int op,
- 		 void  *out_buffer, int length)
- {
- 	struct ifaddrs *ifap;
- 	struct ifaddrs *curp;
--	int ipv4_len = strlen("255.255.255.255") + 1;
--	int ipv6_len = strlen("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")+1;
- 	int offset = 0;
- 	const char *str;
--	char tmp[50];
- 	int error = 0;
- 	char *buffer;
- 	struct hv_kvp_ipaddr_value *ip_buffer;
-@@ -556,55 +589,12 @@ kvp_get_ip_address(int family, char *if_name, int op,
- 			continue;
- 		}
+ static char kvp_send_buffer[4096];
+-static char kvp_recv_buffer[4096];
++static char kvp_recv_buffer[4096 * 2];
+ static struct sockaddr_nl addr;
  
--		if ((curp->ifa_addr->sa_family == AF_INET) &&
--			((family == AF_INET) || (family == 0))) {
--			struct sockaddr_in *addr =
--			(struct sockaddr_in *) curp->ifa_addr;
--
--			str = inet_ntop(AF_INET, &addr->sin_addr, tmp, 50);
--			if (str == NULL) {
--				strcpy(buffer, "inet_ntop failed\n");
--				error = 1;
--				goto getaddr_done;
--			}
--			if (offset == 0)
--				strcpy(buffer, tmp);
--			else
--				strcat(buffer, tmp);
--			strcat(buffer, ";");
--
--			offset += strlen(str) + 1;
--			if ((length - offset) < (ipv4_len + 1))
--				goto getaddr_done;
--
--		} else if ((family == AF_INET6) || (family == 0)) {
--
--			/*
--			 * We only support AF_INET and AF_INET6
--			 * and the list of addresses is separated by a ";".
--			 */
--			struct sockaddr_in6 *addr =
--				(struct sockaddr_in6 *) curp->ifa_addr;
--
--			str = inet_ntop(AF_INET6,
--					&addr->sin6_addr.s6_addr,
--					tmp, 50);
--			if (str == NULL) {
--				strcpy(buffer, "inet_ntop failed\n");
--				error = 1;
--				goto getaddr_done;
--			}
--			if (offset == 0)
--				strcpy(buffer, tmp);
--			else
--				strcat(buffer, tmp);
--			strcat(buffer, ";");
--			offset += strlen(str) + 1;
--			if ((length - offset) < (ipv6_len + 1))
--				goto getaddr_done;
--
--		}
--
-+		error = kvp_process_ip_address(curp->ifa_addr,
-+						curp->ifa_addr->sa_family,
-+						buffer,
-+						length, &offset);
-+		if (error)
-+			goto getaddr_done;
- 
- 		curp = curp->ifa_next;
- 	}
+ static char *os_name = "";
 -- 
 1.7.4.1
