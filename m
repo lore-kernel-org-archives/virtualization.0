@@ -1,7 +1,7 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [ 02/82] virtio-blk: Reset device after blk_cleanup_queue()
-Date: Mon, 13 Aug 2012 13:18:38 -0700
-Message-ID: <20120813201746.665355912@linuxfoundation.org>
+Subject: [ 03/82] virtio-blk: Use block layer provided spinlock
+Date: Mon, 13 Aug 2012 13:18:39 -0700
+Message-ID: <20120813201746.757026394@linuxfoundation.org>
 References: <20120813201746.448504360@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -29,40 +29,43 @@ From: Greg KH <gregkh@linuxfoundation.org>
 
 From: Asias He <asias@redhat.com>
 
-commit 483001c765af6892b3fc3726576cb42f17d1d6b5 upstream.
+commit 2c95a3290919541b846bee3e0fbaa75860929f53 upstream.
 
-blk_cleanup_queue() will call blk_drian_queue() to drain all the
-requests before queue DEAD marking. If we reset the device before
-blk_cleanup_queue() the drain would fail.
+Block layer will allocate a spinlock for the queue if the driver does
+not provide one in blk_init_queue().
 
-1) if the queue is stopped in do_virtblk_request() because device is
-full, the q->request_fn() will not be called.
+The reason to use the internal spinlock is that blk_cleanup_queue() will
+switch to use the internal spinlock in the cleanup code path.
 
-blk_drain_queue() {
-   while(true) {
-      ...
-      if (!list_empty(&q->queue_head))
-        __blk_run_queue(q) {
-	    if (queue is not stoped)
-		q->request_fn()
-	}
-      ...
-   }
-}
+        if (q->queue_lock != &q->__queue_lock)
+                q->queue_lock = &q->__queue_lock;
 
-Do no reset the device before blk_cleanup_queue() gives the chance to
-start the queue in interrupt handler blk_done().
+However, processes which are in D state might have taken the driver
+provided spinlock, when the processes wake up, they would release the
+block provided spinlock.
 
-2) In commit b79d866c8b7014a51f611a64c40546109beaf24a, We abort requests
-dispatched to driver before blk_cleanup_queue(). There is a race if
-requests are dispatched to driver after the abort and before the queue
-DEAD mark. To fix this, instead of aborting the requests explicitly, we
-can just reset the device after after blk_cleanup_queue so that the
-device can complete all the requests before queue DEAD marking in the
-drain process.
+=====================================
+[ BUG: bad unlock balance detected! ]
+3.4.0-rc7+ #238 Not tainted
+-------------------------------------
+fio/3587 is trying to release lock (&(&q->__queue_lock)->rlock) at:
+[<ffffffff813274d2>] blk_queue_bio+0x2a2/0x380
+but there are no more locks to release!
+
+other info that might help us debug this:
+1 lock held by fio/3587:
+ #0:  (&(&vblk->lock)->rlock){......}, at:
+[<ffffffff8132661a>] get_request_wait+0x19a/0x250
+
+Other drivers use block layer provided spinlock as well, e.g. SCSI.
+
+Switching to the block layer provided spinlock saves a bit of memory and
+does not increase lock contention. Performance test shows no real
+difference is observed before and after this patch.
+
+Changes in v2: Improve commit log as Michael suggested.
 
 Signed-off-by: Asias He <asias@redhat.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
 Cc: virtualization@lists.linux-foundation.org
 Cc: kvm@vger.kernel.org
 Acked-by: Michael S. Tsirkin <mst@redhat.com>
@@ -70,40 +73,52 @@ Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/virtio_blk.c |   12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/block/virtio_blk.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -576,8 +576,6 @@ static void __devexit virtblk_remove(str
+@@ -21,8 +21,6 @@ struct workqueue_struct *virtblk_wq;
+ 
+ struct virtio_blk
  {
- 	struct virtio_blk *vblk = vdev->priv;
- 	int index = vblk->index;
--	struct virtblk_req *vbr;
--	unsigned long flags;
- 
- 	/* Prevent config work handler from accessing the device. */
- 	mutex_lock(&vblk->config_lock);
-@@ -585,21 +583,13 @@ static void __devexit virtblk_remove(str
- 	mutex_unlock(&vblk->config_lock);
- 
- 	del_gendisk(vblk->disk);
-+	blk_cleanup_queue(vblk->disk->queue);
- 
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
- 
- 	flush_work(&vblk->config_work);
- 
--	/* Abort requests dispatched to driver. */
--	spin_lock_irqsave(&vblk->lock, flags);
--	while ((vbr = virtqueue_detach_unused_buf(vblk->vq))) {
--		__blk_end_request_all(vbr->req, -EIO);
--		mempool_free(vbr, vblk->pool);
--	}
--	spin_unlock_irqrestore(&vblk->lock, flags);
+-	spinlock_t lock;
 -
--	blk_cleanup_queue(vblk->disk->queue);
- 	put_disk(vblk->disk);
- 	mempool_destroy(vblk->pool);
- 	vdev->config->del_vqs(vdev);
+ 	struct virtio_device *vdev;
+ 	struct virtqueue *vq;
+ 
+@@ -65,7 +63,7 @@ static void blk_done(struct virtqueue *v
+ 	unsigned int len;
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&vblk->lock, flags);
++	spin_lock_irqsave(vblk->disk->queue->queue_lock, flags);
+ 	while ((vbr = virtqueue_get_buf(vblk->vq, &len)) != NULL) {
+ 		int error;
+ 
+@@ -99,7 +97,7 @@ static void blk_done(struct virtqueue *v
+ 	}
+ 	/* In case queue is stopped waiting for more buffers. */
+ 	blk_start_queue(vblk->disk->queue);
+-	spin_unlock_irqrestore(&vblk->lock, flags);
++	spin_unlock_irqrestore(vblk->disk->queue->queue_lock, flags);
+ }
+ 
+ static bool do_req(struct request_queue *q, struct virtio_blk *vblk,
+@@ -431,7 +429,6 @@ static int __devinit virtblk_probe(struc
+ 		goto out_free_index;
+ 	}
+ 
+-	spin_lock_init(&vblk->lock);
+ 	vblk->vdev = vdev;
+ 	vblk->sg_elems = sg_elems;
+ 	sg_init_table(vblk->sg, vblk->sg_elems);
+@@ -456,7 +453,7 @@ static int __devinit virtblk_probe(struc
+ 		goto out_mempool;
+ 	}
+ 
+-	q = vblk->disk->queue = blk_init_queue(do_virtblk_request, &vblk->lock);
++	q = vblk->disk->queue = blk_init_queue(do_virtblk_request, NULL);
+ 	if (!q) {
+ 		err = -ENOMEM;
+ 		goto out_put_disk;
