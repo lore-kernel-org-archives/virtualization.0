@@ -1,7 +1,7 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [RFC-v2 4/6] virtio-scsi: Add start/stop functionality for vhost-scsi
-Date: Mon, 13 Aug 2012 08:35:15 +0000
-Message-ID: <1344846917-7411-5-git-send-email-nab__27384.8356483088$1344847184$gmane$org@linux-iscsi.org>
+Subject: [RFC-v2 5/6] virtio-scsi: Set max_target=0 during vhost-scsi operation
+Date: Mon, 13 Aug 2012 08:35:16 +0000
+Message-ID: <1344846917-7411-6-git-send-email-nab__41947.5451497876$1344847186$gmane$org@linux-iscsi.org>
 References: <1344846917-7411-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,152 +21,39 @@ To: target-devel <target-devel@vger.kernel.org>
 Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-This patch starts and stops vhost as the virtio device transitions
-through its status phases.  Vhost can only be started once the guest
-reports its driver has successfully initialized, which means the
-virtqueues have been set up by the guest.
+This QEMU patch sets VirtIOSCSIConfig->max_target=0 for vhost-scsi operation
+to restrict virtio-scsi LLD guest scanning to max_id=0 (a single target ID
+instance) when connected to individual tcm_vhost endpoints.
 
-v2: - Squash virtio-scsi: use the vhost-scsi host device from stefan (nab)
-    - Fix up virtio_scsi_properties[] conflict w/ upstream qemu (nab)
-    - Drop usage of to_virtio_scsi() in virtio_scsi_set_status()
-      (reported by paolo)
-    - Use modern VirtIOSCSIConf define in virtio-scsi.h (reported by paolo)
-    - Use s->conf->vhost_scsi instead of proxyconf->vhost_scsi in
-      virtio_scsi_init() (reported by paolo)
-    - Only register QEMU SCSI bus is vhost-scsi is not active (reported
-      by paolo)
+This ensures that virtio-scsi LLD only attempts to scan target IDs up to
+VIRTIO_SCSI_MAX_TARGET when connected via virtio-scsi-raw.
 
 Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 ---
- hw/virtio-pci.c  |    1 +
- hw/virtio-scsi.c |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
- hw/virtio-scsi.h |    1 +
- 3 files changed, 50 insertions(+), 0 deletions(-)
+ hw/virtio-scsi.c |    6 +++++-
+ 1 files changed, 5 insertions(+), 1 deletions(-)
 
-diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-index 125eded..b29fc3b 100644
---- a/hw/virtio-pci.c
-+++ b/hw/virtio-pci.c
-@@ -1036,6 +1036,7 @@ static void virtio_scsi_exit_pci(PCIDevice *pci_dev)
- }
- 
- static Property virtio_scsi_properties[] = {
-+    DEFINE_PROP_VHOST_SCSI("vhost-scsi", VirtIOPCIProxy, scsi.vhost_scsi),
-     DEFINE_PROP_BIT("ioeventfd", VirtIOPCIProxy, flags, VIRTIO_PCI_FLAG_USE_IOEVENTFD_BIT, true),
-     DEFINE_PROP_UINT32("vectors", VirtIOPCIProxy, nvectors, DEV_NVECTORS_UNSPECIFIED),
-     DEFINE_VIRTIO_SCSI_PROPERTIES(VirtIOPCIProxy, host_features, scsi),
 diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
-index 5f737ac..8130956 100644
+index 8130956..5e2ff6b 100644
 --- a/hw/virtio-scsi.c
 +++ b/hw/virtio-scsi.c
-@@ -13,9 +13,13 @@
-  *
-  */
- 
-+#include "qemu-common.h"
-+#include "qemu-error.h"
-+#include "vhost-scsi.h"
- #include "virtio-scsi.h"
- #include <hw/scsi.h>
- #include <hw/scsi-defs.h>
-+#include "vhost.h"
- 
- #define VIRTIO_SCSI_VQ_SIZE     128
- #define VIRTIO_SCSI_CDB_SIZE    32
-@@ -147,6 +151,9 @@ typedef struct {
-     VirtQueue *ctrl_vq;
-     VirtQueue *event_vq;
-     VirtQueue *cmd_vqs[0];
-+
-+    bool vhost_started;
-+    VHostSCSI *vhost_scsi;
- } VirtIOSCSI;
- 
- typedef struct VirtIOSCSIReq {
-@@ -699,6 +706,38 @@ static struct SCSIBusInfo virtio_scsi_scsi_info = {
-     .load_request = virtio_scsi_load_request,
- };
- 
-+static bool virtio_scsi_started(VirtIOSCSI *s, uint8_t val)
-+{
-+    return (val & VIRTIO_CONFIG_S_DRIVER_OK) && s->vdev.vm_running;
-+}
-+
-+static void virtio_scsi_set_status(VirtIODevice *vdev, uint8_t val)
-+{
-+    VirtIOSCSI *s = (VirtIOSCSI *)vdev;
-+    bool start = virtio_scsi_started(s, val);
-+
-+    if (s->vhost_started == start) {
-+        return;
-+    }
-+
-+    if (start) {
-+        int ret;
-+
-+        ret = vhost_scsi_start(s->vhost_scsi, vdev);
-+        if (ret < 0) {
-+            error_report("virtio-scsi: unable to start vhost: %s\n",
-+                         strerror(-ret));
-+
-+            /* There is no userspace virtio-scsi fallback so exit */
-+            exit(1);
-+        }
-+    } else {
-+        vhost_scsi_stop(s->vhost_scsi, vdev);
-+    }
-+
-+    s->vhost_started = start;
-+}
-+
- VirtIODevice *virtio_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf)
- {
-     VirtIOSCSI *s;
-@@ -712,12 +751,17 @@ VirtIODevice *virtio_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf)
- 
-     s->qdev = dev;
-     s->conf = proxyconf;
-+    s->vhost_started = false;
-+    s->vhost_scsi = s->conf->vhost_scsi;
- 
-     /* TODO set up vdev function pointers */
-     s->vdev.get_config = virtio_scsi_get_config;
-     s->vdev.set_config = virtio_scsi_set_config;
-     s->vdev.get_features = virtio_scsi_get_features;
-     s->vdev.reset = virtio_scsi_reset;
+@@ -545,7 +545,11 @@ static void virtio_scsi_get_config(VirtIODevice *vdev,
+     stl_raw(&scsiconf->sense_size, s->sense_size);
+     stl_raw(&scsiconf->cdb_size, s->cdb_size);
+     stl_raw(&scsiconf->max_channel, VIRTIO_SCSI_MAX_CHANNEL);
+-    stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
 +    if (s->vhost_scsi) {
-+        s->vdev.set_status = virtio_scsi_set_status;
++        stl_raw(&scsiconf->max_target, 0);
++    } else {
++        stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
 +    }
- 
-     s->ctrl_vq = virtio_add_queue(&s->vdev, VIRTIO_SCSI_VQ_SIZE,
-                                    virtio_scsi_handle_ctrl);
-@@ -743,5 +787,9 @@ void virtio_scsi_exit(VirtIODevice *vdev)
- {
-     VirtIOSCSI *s = (VirtIOSCSI *)vdev;
-     unregister_savevm(s->qdev, "virtio-scsi", s);
-+
-+    /* This will stop vhost backend if appropriate. */
-+    virtio_scsi_set_status(vdev, 0);
-+
-     virtio_cleanup(vdev);
+     stl_raw(&scsiconf->max_lun, VIRTIO_SCSI_MAX_LUN);
  }
-diff --git a/hw/virtio-scsi.h b/hw/virtio-scsi.h
-index 4bc889d..74e9422 100644
---- a/hw/virtio-scsi.h
-+++ b/hw/virtio-scsi.h
-@@ -22,6 +22,7 @@
- #define VIRTIO_ID_SCSI  8
  
- struct VirtIOSCSIConf {
-+    VHostSCSI *vhost_scsi;
-     uint32_t num_queues;
-     uint32_t max_sectors;
-     uint32_t cmd_per_lun;
 -- 
 1.7.2.5
