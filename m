@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 1/4] mm: introduce compaction and migration for virtio
-	ballooned pages
-Date: Mon, 13 Aug 2012 11:26:19 +0300
-Message-ID: <20120813082619.GE14081__41086.4327488982$1344846345$gmane$org@redhat.com>
-References: <cover.1344619987.git.aquini@redhat.com>
-	<292b1b52e863a05b299f94bda69a61371011ac19.1344619987.git.aquini@redhat.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: [RFC-v2 0/6] vhost-scsi: Add support for host virtualized target
+Date: Mon, 13 Aug 2012 08:35:11 +0000
+Message-ID: <1344846917-7411-1-git-send-email-nab__3234.32339723713$1344847156$gmane$org@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <292b1b52e863a05b299f94bda69a61371011ac19.1344619987.git.aquini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,279 +15,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rafael Aquini <aquini@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+To: target-devel <target-devel@vger.kernel.org>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 10, 2012 at 02:55:14PM -0300, Rafael Aquini wrote:
-> Memory fragmentation introduced by ballooning might reduce significantly
-> the number of 2MB contiguous memory blocks that can be used within a guest,
-> thus imposing performance penalties associated with the reduced number of
-> transparent huge pages that could be used by the guest workload.
-> 
-> This patch introduces the helper functions as well as the necessary changes
-> to teach compaction and migration bits how to cope with pages which are
-> part of a guest memory balloon, in order to make them movable by memory
-> compaction procedures.
-> 
-> Signed-off-by: Rafael Aquini <aquini@redhat.com>
-> ---
->  include/linux/mm.h |  17 ++++++++
->  mm/compaction.c    | 125 +++++++++++++++++++++++++++++++++++++++++++++--------
->  mm/migrate.c       |  30 ++++++++++++-
->  3 files changed, 152 insertions(+), 20 deletions(-)
-> 
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 311be90..56cc553 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -1662,5 +1662,22 @@ static inline unsigned int debug_guardpage_minorder(void) { return 0; }
->  static inline bool page_is_guard(struct page *page) { return false; }
->  #endif /* CONFIG_DEBUG_PAGEALLOC */
->  
-> +#if (defined(CONFIG_VIRTIO_BALLOON) || \
-> +	defined(CONFIG_VIRTIO_BALLOON_MODULE)) && defined(CONFIG_COMPACTION)
-> +extern bool isolate_balloon_page(struct page *);
-> +extern void putback_balloon_page(struct page *);
-> +extern struct address_space *balloon_mapping;
-> +
-> +static inline bool movable_balloon_page(struct page *page)
-> +{
-> +	return (page->mapping && page->mapping == balloon_mapping);
+From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-I am guessing this needs smp_read_barrier_depends, and maybe
-ACCESS_ONCE ...
+Hi Paolo, Stefan, & QEMU folks,
 
-> +}
-> +
-> +#else
-> +static inline bool isolate_balloon_page(struct page *page) { return false; }
-> +static inline void putback_balloon_page(struct page *page) { return false; }
-> +static inline bool movable_balloon_page(struct page *page) { return false; }
-> +#endif /* (VIRTIO_BALLOON || VIRTIO_BALLOON_MODULE) && CONFIG_COMPACTION */
-> +
+The following is the second RFC series for vhost-scsi patches against mainline
+QEMU v1.1.0.  The series is available from the following working branch:
 
-This does mean that only one type of balloon is useable at a time.
-I wonder whether using a flag in address_space structure instead
-is possible ...
+  git://git.kernel.org/pub/scm/virt/kvm/nab/qemu-kvm.git vhost-scsi-merge
 
->  #endif /* __KERNEL__ */
->  #endif /* _LINUX_MM_H */
-> diff --git a/mm/compaction.c b/mm/compaction.c
-> index e78cb96..e4e871b 100644
-> --- a/mm/compaction.c
-> +++ b/mm/compaction.c
-> @@ -14,6 +14,7 @@
->  #include <linux/backing-dev.h>
->  #include <linux/sysctl.h>
->  #include <linux/sysfs.h>
-> +#include <linux/export.h>
->  #include "internal.h"
->  
->  #if defined CONFIG_COMPACTION || defined CONFIG_CMA
-> @@ -21,6 +22,84 @@
->  #define CREATE_TRACE_POINTS
->  #include <trace/events/compaction.h>
->  
-> +#if defined(CONFIG_VIRTIO_BALLOON) || defined(CONFIG_VIRTIO_BALLOON_MODULE)
-> +/*
-> + * Balloon pages special page->mapping.
-> + * Users must properly allocate and initialize an instance of balloon_mapping,
-> + * and set it as the page->mapping for balloon enlisted page instances.
-> + * There is no need on utilizing struct address_space locking schemes for
-> + * balloon_mapping as, once it gets initialized at balloon driver, it will
-> + * remain just like a static reference that helps us on identifying a guest
-> + * ballooned page by its mapping, as well as it will keep the 'a_ops' callback
-> + * pointers to the functions that will execute the balloon page mobility tasks.
-> + *
-> + * address_space_operations necessary methods for ballooned pages:
-> + *   .migratepage    - used to perform balloon's page migration (as is)
-> + *   .invalidatepage - used to isolate a page from balloon's page list
-> + *   .freepage       - used to reinsert an isolated page to balloon's page list
-> + */
-> +struct address_space *balloon_mapping;
-> +EXPORT_SYMBOL_GPL(balloon_mapping);
-> +
-> +static inline void __isolate_balloon_page(struct page *page)
-> +{
-> +	page->mapping->a_ops->invalidatepage(page, 0);
-> +}
-> +
-> +static inline void __putback_balloon_page(struct page *page)
-> +{
-> +	page->mapping->a_ops->freepage(page);
-> +}
-> +
-> +/* __isolate_lru_page() counterpart for a ballooned page */
-> +bool isolate_balloon_page(struct page *page)
-> +{
-> +	if (WARN_ON(!movable_balloon_page(page)))
+Apologies for the delayed follow-up on this series.  The changes detailed below
+addresses Paolo's original comments on vhost-scsi code from the last weeks.
 
-Looks like this actually can happen if the page is leaked
-between previous movable_balloon_page and here.
+As of this evening the tcm_vhost driver has now been merged into the mainline
+kernel for 3.6-rc2 here:
 
-> +		return false;
-> +
-> +	if (likely(get_page_unless_zero(page))) {
-> +		/*
-> +		 * As balloon pages are not isolated from LRU lists, concurrent
-> +		 * compaction threads can race against page migration functions
-> +		 * move_to_new_page() & __unmap_and_move().
-> +		 * In order to avoid having an already isolated balloon page
-> +		 * being (wrongly) re-isolated while it is under migration,
-> +		 * lets be sure we have the page lock before proceeding with
-> +		 * the balloon page isolation steps.
-> +		 */
-> +		if (likely(trylock_page(page))) {
-> +			/*
-> +			 * A ballooned page, by default, has just one refcount.
-> +			 * Prevent concurrent compaction threads from isolating
-> +			 * an already isolated balloon page.
-> +			 */
-> +			if (movable_balloon_page(page) &&
-> +			    (page_count(page) == 2)) {
-> +				__isolate_balloon_page(page);
-> +				unlock_page(page);
-> +				return true;
-> +			}
-> +			unlock_page(page);
-> +		}
-> +		/* Drop refcount taken for this already isolated page */
-> +		put_page(page);
-> +	}
-> +	return false;
-> +}
-> +
-> +/* putback_lru_page() counterpart for a ballooned page */
-> +void putback_balloon_page(struct page *page)
-> +{
-> +	if (WARN_ON(!movable_balloon_page(page)))
-> +		return;
-> +
-> +	lock_page(page);
-> +	__putback_balloon_page(page);
-> +	put_page(page);
-> +	unlock_page(page);
-> +}
-> +#endif /* CONFIG_VIRTIO_BALLOON || CONFIG_VIRTIO_BALLOON_MODULE */
-> +
->  static unsigned long release_freepages(struct list_head *freelist)
->  {
->  	struct page *page, *next;
-> @@ -312,32 +391,40 @@ isolate_migratepages_range(struct zone *zone, struct compact_control *cc,
->  			continue;
->  		}
->  
-> -		if (!PageLRU(page))
-> -			continue;
-> -
->  		/*
-> -		 * PageLRU is set, and lru_lock excludes isolation,
-> -		 * splitting and collapsing (collapsing has already
-> -		 * happened if PageLRU is set).
-> +		 * It is possible to migrate LRU pages and balloon pages.
-> +		 * Skip any other type of page.
->  		 */
-> -		if (PageTransHuge(page)) {
-> -			low_pfn += (1 << compound_order(page)) - 1;
-> -			continue;
-> -		}
-> +		if (PageLRU(page)) {
-> +			/*
-> +			 * PageLRU is set, and lru_lock excludes isolation,
-> +			 * splitting and collapsing (collapsing has already
-> +			 * happened if PageLRU is set).
-> +			 */
-> +			if (PageTransHuge(page)) {
-> +				low_pfn += (1 << compound_order(page)) - 1;
-> +				continue;
-> +			}
->  
-> -		if (!cc->sync)
-> -			mode |= ISOLATE_ASYNC_MIGRATE;
-> +			if (!cc->sync)
-> +				mode |= ISOLATE_ASYNC_MIGRATE;
->  
-> -		lruvec = mem_cgroup_page_lruvec(page, zone);
-> +			lruvec = mem_cgroup_page_lruvec(page, zone);
->  
-> -		/* Try isolate the page */
-> -		if (__isolate_lru_page(page, mode) != 0)
-> -			continue;
-> +			/* Try isolate the page */
-> +			if (__isolate_lru_page(page, mode) != 0)
-> +				continue;
-> +
-> +			VM_BUG_ON(PageTransCompound(page));
->  
-> -		VM_BUG_ON(PageTransCompound(page));
-> +			/* Successfully isolated */
-> +			del_page_from_lru_list(page, lruvec, page_lru(page));
-> +		} else if (unlikely(movable_balloon_page(page))) {
-> +			if (!isolate_balloon_page(page))
-> +				continue;
-> +		} else
-> +			continue;
->  
-> -		/* Successfully isolated */
-> -		del_page_from_lru_list(page, lruvec, page_lru(page));
->  		list_add(&page->lru, migratelist);
->  		cc->nr_migratepages++;
->  		nr_isolated++;
-> diff --git a/mm/migrate.c b/mm/migrate.c
-> index 77ed2d7..80f22bb 100644
-> --- a/mm/migrate.c
-> +++ b/mm/migrate.c
-> @@ -79,7 +79,10 @@ void putback_lru_pages(struct list_head *l)
->  		list_del(&page->lru);
->  		dec_zone_page_state(page, NR_ISOLATED_ANON +
->  				page_is_file_cache(page));
-> -		putback_lru_page(page);
-> +		if (unlikely(movable_balloon_page(page)))
-> +			putback_balloon_page(page);
-> +		else
-> +			putback_lru_page(page);
->  	}
->  }
->  
-> @@ -778,6 +781,17 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
->  		}
->  	}
->  
-> +	if (unlikely(movable_balloon_page(page))) {
-> +		/*
-> +		 * A ballooned page does not need any special attention from
-> +		 * physical to virtual reverse mapping procedures.
-> +		 * Skip any attempt to unmap PTEs or to remap swap cache,
-> +		 * in order to avoid burning cycles at rmap level.
-> +		 */
-> +		remap_swapcache = 0;
-> +		goto skip_unmap;
-> +	}
-> +
->  	/*
->  	 * Corner case handling:
->  	 * 1. When a new swap-cache page is read into, it is added to the LRU
-> @@ -846,6 +860,20 @@ static int unmap_and_move(new_page_t get_new_page, unsigned long private,
->  			goto out;
->  
->  	rc = __unmap_and_move(page, newpage, force, offlining, mode);
-> +
-> +	if (unlikely(movable_balloon_page(newpage))) {
-> +		/*
-> +		 * A ballooned page has been migrated already. Now, it is the
-> +		 * time to wrap-up counters, handle the old page back to Buddy
-> +		 * and return.
-> +		 */
-> +		list_del(&page->lru);
-> +		dec_zone_page_state(page, NR_ISOLATED_ANON +
-> +				    page_is_file_cache(page));
-> +		put_page(page);
-> +		__free_page(page);
-> +		return rc;
-> +	}
->  out:
->  	if (rc != -EAGAIN) {
->  		/*
-> -- 
-> 1.7.11.2
+  tcm_vhost: Initial merge for vhost level target fabric driver    
+  http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commitdiff;h=057cbf49a1f08297877
+
+Also, after following up on the qemu-kvm IRQ injection changes (from Jan) that
+caused a performance regerssion with QEMU 1.1.0 code originally reported here:
+
+  vhost-scsi port to v1.1.0 + MSI-X performance regression
+  http://comments.gmane.org/gmane.linux.scsi.target.devel/2277
+
+It turns out that setting explict virtio-queue IRQ affinity within guest appears
+to bring small block random IOPs performance back up to the pre IRQ injection
+conversion levels.  I'm not sure why this ended up making so much of a difference
+post IRQ injection conversion, but setting virtio-queue affinity is now getting
+us back to pre IQN injection conversion levels.
+
+Changes from v1 -> v2:
+
+ - Expose ABI version via VHOST_SCSI_GET_ABI_VERSION + use Rev 0 as
+   starting point for v3.6-rc code (Stefan + ALiguori + nab)
+ - Fix upstream qemu conflict in hw/qdev-properties.c
+ - Make GET_ABI_VERSION use int (nab + mst)
+ - Drop unnecessary event-notifier changes (nab)
+ - Fix vhost-scsi case lables in configure (reported by paolo)
+ - Convert qdev_prop_vhost_scsi to use ->get() + ->set() following
+   qdev_prop_netdev (reported by paolo)
+ - Fix typo in qemu-options.hx definition of vhost-scsi (reported by paolo)
+ - Squash virtio-scsi: use the vhost-scsi host device from stefan (nab)
+ - Fix up virtio_scsi_properties[] conflict w/ upstream qemu (nab)
+ - Drop usage of to_virtio_scsi() in virtio_scsi_set_status()
+      (reported by paolo)
+ - Use modern VirtIOSCSIConf define in virtio-scsi.h (reported by paolo)
+ - Use s->conf->vhost_scsi instead of proxyconf->vhost_scsi in
+   virtio_scsi_init() (reported by paolo)
+ - Only register QEMU SCSI bus is vhost-scsi is not active (reported by paolo)
+ - Fix incorrect VirtIOSCSI->cmd_vqs[0] definition (nab)
+
+Please have another look, and let me know if anything else needs to be
+addressed.
+
+Thanks!
+
+--nab
+
+Nicholas Bellinger (3):
+  msix: Work-around for vhost-scsi with KVM in-kernel MSI injection
+  virtio-scsi: Set max_target=0 during vhost-scsi operation
+  virtio-scsi: Fix incorrect VirtIOSCSI->cmd_vqs[0] definition
+
+Stefan Hajnoczi (3):
+  vhost: Pass device path to vhost_dev_init()
+  vhost-scsi: add -vhost-scsi host device for use with tcm-vhost
+  virtio-scsi: Add start/stop functionality for vhost-scsi
+
+ configure            |   10 +++
+ hw/Makefile.objs     |    1 +
+ hw/msix.c            |    3 +
+ hw/qdev-properties.c |   40 ++++++++++++
+ hw/qdev.h            |    3 +
+ hw/vhost-scsi.c      |  170 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/vhost-scsi.h      |   50 +++++++++++++++
+ hw/vhost.c           |    5 +-
+ hw/vhost.h           |    3 +-
+ hw/vhost_net.c       |    2 +-
+ hw/virtio-pci.c      |    1 +
+ hw/virtio-scsi.c     |   56 ++++++++++++++++-
+ hw/virtio-scsi.h     |    1 +
+ qemu-common.h        |    1 +
+ qemu-config.c        |   16 +++++
+ qemu-options.hx      |    4 +
+ vl.c                 |   18 +++++
+ 17 files changed, 378 insertions(+), 6 deletions(-)
+ create mode 100644 hw/vhost-scsi.c
+ create mode 100644 hw/vhost-scsi.h
+
+-- 
+1.7.2.5
