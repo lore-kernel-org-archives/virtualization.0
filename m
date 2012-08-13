@@ -1,75 +1,74 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH V2 01/18] Drivers: hv: vmbus: Use the standard format string to format GUIDs
-Date: Mon, 13 Aug 2012 10:06:50 -0700
-Message-ID: <1344877627-21779-1-git-send-email-kys@microsoft.com>
-References: <1344877584-21738-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1344877584-21738-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, ben@decadent.org.uk
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC-v2 1/6] msix: Work-around for vhost-scsi with KVM in-kernel
+	MSI injection
+Date: Mon, 13 Aug 2012 21:03:12 +0300
+Message-ID: <20120813180312.GA19379@redhat.com>
+References: <1344846917-7411-1-git-send-email-nab@linux-iscsi.org>
+	<1344846917-7411-2-git-send-email-nab@linux-iscsi.org>
+	<5028EDB2.10506@siemens.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <5028EDB2.10506@siemens.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Format GUIDS as per MSFT standard. This makes interacting with MSFT
-tool stack easier.
+On Mon, Aug 13, 2012 at 02:06:10PM +0200, Jan Kiszka wrote:
+> On 2012-08-13 10:35, Nicholas A. Bellinger wrote:
+> > From: Nicholas Bellinger <nab@linux-iscsi.org>
+> > 
+> > This is required to get past the following assert with:
+> > 
+> > commit 1523ed9e1d46b0b54540049d491475ccac7e6421
+> > Author: Jan Kiszka <jan.kiszka@siemens.com>
+> > Date:   Thu May 17 10:32:39 2012 -0300
+> > 
+> >     virtio/vhost: Add support for KVM in-kernel MSI injection
+> > 
+> > Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+> > Cc: Jan Kiszka <jan.kiszka@siemens.com>
+> > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > Cc: Anthony Liguori <aliguori@us.ibm.com>
+> > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> > ---
+> >  hw/msix.c |    3 +++
+> >  1 files changed, 3 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/hw/msix.c b/hw/msix.c
+> > index 800fc32..c1e6dc3 100644
+> > --- a/hw/msix.c
+> > +++ b/hw/msix.c
+> > @@ -544,6 +544,9 @@ void msix_unset_vector_notifiers(PCIDevice *dev)
+> >  {
+> >      int vector;
+> >  
+> > +    if (!dev->msix_vector_use_notifier && !dev->msix_vector_release_notifier)
+> > +        return;
+> > +
+> >      assert(dev->msix_vector_use_notifier &&
+> >             dev->msix_vector_release_notifier);
+> >  
+> > 
+> 
+> I think to remember pointing out that there is a bug somewhere in the
+> reset code which deactivates a non-active vhost instance, no?
+> 
+> Jan
 
-Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-Reviewed-by: Olaf Hering <olaf@aepfle.de>
-Reviewed-by: Ben Hutchings <ben@decadent.org.uk>
----
- drivers/hv/vmbus_drv.c |   38 ++------------------------------------
- 1 files changed, 2 insertions(+), 36 deletions(-)
+Could not find it. Could you dig it up pls?
 
-diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-index 4748086..b76e8b3 100644
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -146,43 +146,9 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
- 	get_channel_info(hv_dev, device_info);
- 
- 	if (!strcmp(dev_attr->attr.name, "class_id")) {
--		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
--			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
--			       device_info->chn_type.b[3],
--			       device_info->chn_type.b[2],
--			       device_info->chn_type.b[1],
--			       device_info->chn_type.b[0],
--			       device_info->chn_type.b[5],
--			       device_info->chn_type.b[4],
--			       device_info->chn_type.b[7],
--			       device_info->chn_type.b[6],
--			       device_info->chn_type.b[8],
--			       device_info->chn_type.b[9],
--			       device_info->chn_type.b[10],
--			       device_info->chn_type.b[11],
--			       device_info->chn_type.b[12],
--			       device_info->chn_type.b[13],
--			       device_info->chn_type.b[14],
--			       device_info->chn_type.b[15]);
-+		ret = sprintf(buf, "{%pUl}\n", device_info->chn_type.b);
- 	} else if (!strcmp(dev_attr->attr.name, "device_id")) {
--		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
--			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
--			       device_info->chn_instance.b[3],
--			       device_info->chn_instance.b[2],
--			       device_info->chn_instance.b[1],
--			       device_info->chn_instance.b[0],
--			       device_info->chn_instance.b[5],
--			       device_info->chn_instance.b[4],
--			       device_info->chn_instance.b[7],
--			       device_info->chn_instance.b[6],
--			       device_info->chn_instance.b[8],
--			       device_info->chn_instance.b[9],
--			       device_info->chn_instance.b[10],
--			       device_info->chn_instance.b[11],
--			       device_info->chn_instance.b[12],
--			       device_info->chn_instance.b[13],
--			       device_info->chn_instance.b[14],
--			       device_info->chn_instance.b[15]);
-+		ret = sprintf(buf, "{%pUl}\n", device_info->chn_instance.b);
- 	} else if (!strcmp(dev_attr->attr.name, "modalias")) {
- 		print_alias_name(hv_dev, alias_name);
- 		ret = sprintf(buf, "vmbus:%s\n", alias_name);
--- 
-1.7.4.1
+> -- 
+> Siemens AG, Corporate Technology, CT RTC ITP SDP-DE
+> Corporate Competence Center Embedded Linux
