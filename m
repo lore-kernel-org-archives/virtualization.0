@@ -1,59 +1,121 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH V2 17/18] Tools: hv: Correctly type string variables
-Date: Mon, 13 Aug 2012 10:07:06 -0700
-Message-ID: <1344877627-21779-17-git-send-email-kys@microsoft.com>
+Subject: [PATCH V2 10/18] Tools: hv: Gather ipv[4,6] gateway information
+Date: Mon, 13 Aug 2012 10:06:59 -0700
+Message-ID: <1344877627-21779-10-git-send-email-kys@microsoft.com>
 References: <1344877584-21738-1-git-send-email-kys@microsoft.com>
  <1344877627-21779-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1344877627-21779-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, ben@decadent.org.uk
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Correctly type character strings. I would like to thank Ben Hutchings
-for pointing out the issue (ben@decadent.org.uk).
+Gather information on the default gateways - ipv4/ipv6.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 Reviewed-by: Olaf Hering <olaf@aepfle.de>
 Reviewed-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- tools/hv/hv_kvp_daemon.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ tools/hv/hv_kvp_daemon.c |   68 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 68 insertions(+), 0 deletions(-)
 
 diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 4a1428c..c8e1013 100644
+index a63e83a..65d54c8 100644
 --- a/tools/hv/hv_kvp_daemon.c
 +++ b/tools/hv/hv_kvp_daemon.c
-@@ -101,8 +101,8 @@ static struct utsname uts_buf;
- #define ENTRIES_PER_BLOCK 50
+@@ -491,6 +491,68 @@ done:
+ 	return;
+ }
  
- struct kvp_record {
--	__u8 key[HV_KVP_EXCHANGE_MAX_KEY_SIZE];
--	__u8 value[HV_KVP_EXCHANGE_MAX_VALUE_SIZE];
-+	char key[HV_KVP_EXCHANGE_MAX_KEY_SIZE];
-+	char value[HV_KVP_EXCHANGE_MAX_VALUE_SIZE];
- };
++static void kvp_process_ipconfig_file(char *cmd,
++					char *config_buf, int len,
++					int element_size, int offset)
++{
++	char buf[256];
++	char *p;
++	char *x;
++	FILE *file;
++
++	/*
++	 * First execute the command.
++	 */
++	file = popen(cmd, "r");
++	if (file == NULL)
++		return;
++
++	if (offset == 0)
++		memset(config_buf, 0, len);
++	while ((p = fgets(buf, sizeof(buf), file)) != NULL) {
++		if ((len - strlen(config_buf)) < (element_size + 1))
++			break;
++
++		x = strchr(p, '\n');
++		*x = '\0';
++		strcat(config_buf, p);
++		strcat(config_buf, ";");
++	}
++	pclose(file);
++}
++
++static void kvp_get_ipconfig_info(char *if_name,
++				 struct hv_kvp_ipaddr_value *buffer)
++{
++	char cmd[512];
++
++	/*
++	 * Get the address of default gateway (ipv4).
++	 */
++	sprintf(cmd, "%s %s", "ip route show dev", if_name);
++	strcat(cmd, " | awk '/default/ {print $3 }'");
++
++	/*
++	 * Execute the command to gather gateway info.
++	 */
++	kvp_process_ipconfig_file(cmd, (char *)buffer->gate_way,
++				(MAX_GATEWAY_SIZE * 2), INET_ADDRSTRLEN, 0);
++
++	/*
++	 * Get the address of default gateway (ipv6).
++	 */
++	sprintf(cmd, "%s %s", "ip -f inet6  route show dev", if_name);
++	strcat(cmd, " | awk '/default/ {print $3 }'");
++
++	/*
++	 * Execute the command to gather gateway info (ipv6).
++	 */
++	kvp_process_ipconfig_file(cmd, (char *)buffer->gate_way,
++				(MAX_GATEWAY_SIZE * 2), INET6_ADDRSTRLEN, 1);
++
++}
++
++
+ static unsigned int hweight32(unsigned int *w)
+ {
+ 	unsigned int res = *w - ((*w >> 1) & 0x55555555);
+@@ -650,6 +712,12 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ 				strcat((char *)ip_buffer->sub_net, ";");
+ 				sn_offset += strlen(sn_str) + 1;
+ 			}
++
++			/*
++			 * Collect other ip related configuration info.
++			 */
++
++			kvp_get_ipconfig_info(if_name, ip_buffer);
+ 		}
  
- struct kvp_file_state {
-@@ -110,7 +110,7 @@ struct kvp_file_state {
- 	int num_blocks;
- 	struct kvp_record *records;
- 	int num_records;
--	__u8 fname[MAX_FILE_NAME];
-+	char fname[MAX_FILE_NAME];
- };
- 
- static struct kvp_file_state kvp_file_info[KVP_POOL_COUNT];
-@@ -214,7 +214,7 @@ static int kvp_file_init(void)
- 	int  fd;
- 	FILE *filep;
- 	size_t records_read;
--	__u8 *fname;
-+	char *fname;
- 	struct kvp_record *record;
- 	struct kvp_record *readp;
- 	int num_blocks;
+ gather_ipaddr:
 -- 
 1.7.4.1
