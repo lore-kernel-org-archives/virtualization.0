@@ -1,8 +1,8 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [RFC-v2 3/6] vhost-scsi: add -vhost-scsi host device for use
 	with tcm-vhost
-Date: Mon, 13 Aug 2012 11:53:25 +0300
-Message-ID: <20120813085325.GH14081@redhat.com>
+Date: Mon, 13 Aug 2012 11:59:29 +0300
+Message-ID: <20120813085929.GI14081@redhat.com>
 References: <1344846917-7411-1-git-send-email-nab@linux-iscsi.org>
 	<1344846917-7411-4-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
@@ -67,6 +67,10 @@ On Mon, Aug 13, 2012 at 08:35:14AM +0000, Nicholas A. Bellinger wrote:
 > Cc: Paolo Bonzini <pbonzini@redhat.com>
 > Cc: Michael S. Tsirkin <mst@redhat.com>
 > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+
+
+Sent mail too fast, sorry. More comments below.
+
 > ---
 >  configure            |   10 +++
 >  hw/Makefile.objs     |    1 +
@@ -201,6 +205,10 @@ On Mon, Aug 13, 2012 at 08:35:14AM +0000, Nicholas A. Bellinger wrote:
 >  /* --- pointer --- */
 >  
 >  /* Not a proper property, just for dirty hacks.  TODO Remove it!  */
+
+Why does this make sense in the generic qdev-properties?
+There's exactly one device that can use this, no?
+
 > diff --git a/hw/qdev.h b/hw/qdev.h
 > index d699194..d5873bb 100644
 > --- a/hw/qdev.h
@@ -219,7 +227,10 @@ On Mon, Aug 13, 2012 at 08:35:14AM +0000, Nicholas A. Bellinger wrote:
 >      DEFINE_PROP(_n, _s, _f, qdev_prop_pci_host_devaddr, PCIHostDeviceAddress)
 > +#define DEFINE_PROP_VHOST_SCSI(_n, _s, _f)       \
 > +    DEFINE_PROP(_n, _s, _f, qdev_prop_vhost_scsi, VHostSCSI*)
->  
+>
+
+Can this move to vhost-scsi.c?
+  
 >  #define DEFINE_PROP_END_OF_LIST()               \
 >      {}
 > diff --git a/hw/vhost-scsi.c b/hw/vhost-scsi.c
@@ -253,6 +264,9 @@ On Mon, Aug 13, 2012 at 08:35:14AM +0000, Nicholas A. Bellinger wrote:
 > +    uint16_t tpgt;
 > +    struct vhost_dev dev;
 > +    struct vhost_virtqueue vqs[3];
+
+Could you add enum for vq numbers pls?
+
 > +    QLIST_ENTRY(VHostSCSI) list;
 > +};
 > +
@@ -265,6 +279,9 @@ On Mon, Aug 13, 2012 at 08:35:14AM +0000, Nicholas A. Bellinger wrote:
 > +
 > +    QLIST_FOREACH(vs, &vhost_scsi_list, list) {
 > +        if (strcmp(id, vs->id) == 0) {
+
+!strcmp
+
 > +            return vs;
 > +        }
 > +    }
@@ -351,14 +368,19 @@ On Mon, Aug 13, 2012 at 08:35:14AM +0000, Nicholas A. Bellinger wrote:
 > +    /* TODO set up vhost-scsi device and bind to tcm_vhost/$wwpm/tpgt_$tpgt */
 > +    fprintf(stderr, "wwpn = \"%s\" tpgt = \"%u\"\n", id, tpgt);
 > +
+
+Please do not keep debugging fprintfs around.
+
 > +    ret = vhost_dev_init(&vs->dev, -1, "/dev/vhost-scsi", false);
 
-This -1 is a hack. You need to support passing in fd from
-the monitor, and pass it here.
+commented on this separately
 
 > +    if (ret < 0) {
 > +        fprintf(stderr, "vhost-scsi: vhost initialization failed: %s\n",
 > +                strerror(-ret));
+
+errors should go to monitor, here and elsewhere.
+
 > +        return NULL;
 > +    }
 > +    vs->dev.backend_features = 0;
