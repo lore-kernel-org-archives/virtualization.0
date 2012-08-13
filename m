@@ -1,16 +1,17 @@
-From: Robert Vineyard <vineyard@tuffmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [Question]About KVM network zero-copy  feature!
-Date: Mon, 13 Aug 2012 01:59:09 -0400
-Message-ID: <502897AD.7010408__38865.8229065642$1344837567$gmane$org@tuffmail.com>
+Date: Mon, 13 Aug 2012 10:18:44 +0300
+Message-ID: <20120813071843.GC14081@redhat.com>
 References: <50248148.4070204@huawei.com>
 	<20120811135556.58ddf48d@nehalam.linuxnetplumber.net>
 	<5026D49B.10305@tuffmail.com> <5026FC04.6080108@tuffmail.com>
-	<20120812093730.GD1421@redhat.com> <50287857.2060305@tuffmail.com>
+	<20120812093730.GD1421@redhat.com> <50285766.50307@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50287857.2060305@tuffmail.com>
+Content-Disposition: inline
+In-Reply-To: <50285766.50307@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +21,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: xiaohui.xin@intel.com, kvm@vger.kernel.org, netdev@vger.kernel.org, "Peter Huang(Peng)" <peter.huangpeng@huawei.com>, virtualization@lists.linux-foundation.org, avi@redhat.com, Stephen Hemminger <shemminger@vyatta.com>
+To: "Peter Huang(Peng)" <peter.huangpeng@huawei.com>
+Cc: xiaohui.xin@intel.com, kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, avi@redhat.com, Stephen Hemminger <shemminger@vyatta.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/12/2012 11:45 PM, Robert Vineyard wrote:
-> On 08/12/2012 05:37 AM, Michael S. Tsirkin wrote:
->> Contributions are welcome.
->
-> That's too bad... do you know of anyone else (at Intel or otherwise) who
-> might be familiar enough with the existing codebase to get me started?
+Last patchset version was this:
+[PATCH v16 00/17] Provide a zero-copy method on KVM virtio-net
 
-I suppose I should have done my homework... *ahem* time for me to finish 
-RTFM on git...
+IIRC the main issue was the need to integrate the patchset with
+macvtap (as opposed to using a separate device).
 
-I'll come back after digging through more kernel code :-)
-
--- Robert
+On Mon, Aug 13, 2012 at 09:24:54AM +0800, Peter Huang(Peng) wrote:
+> Hi, Michael
+> 
+> IIt will be usefull if we can implement rx zero-copy, could you give
+>  me some help if you know some technical details or some
+> references on the internet?
+> 
+> I am wondering may be I can take a deep look on it first then decide
+> if I can take it over or not.
+> 
+> Thanks a lot.
+> 
+> On 2012/8/12 17:37, Michael S. Tsirkin wrote:
+> > On Sat, Aug 11, 2012 at 08:42:44PM -0400, Robert Vineyard wrote:
+> >> (adding Xin Xiaohui to the conversation for comment)
+> >>
+> >> According to the NetworkingTodo page on the KVM wiki, zero-copy RX
+> >> for macvtap is in fact on the roadmap, assigned to Xin:
+> >>
+> >> http://www.linux-kvm.org/page/NetworkingTodo
+> > AFAIK Xin left Intel and is not working on it.
+> > Contributions are welcome.
+> >
