@@ -1,121 +1,75 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH V2 10/18] Tools: hv: Gather ipv[4,6] gateway information
-Date: Mon, 13 Aug 2012 10:06:59 -0700
-Message-ID: <1344877627-21779-10-git-send-email-kys@microsoft.com>
+Subject: [PATCH V2 01/18] Drivers: hv: vmbus: Use the standard format string to format GUIDs
+Date: Mon, 13 Aug 2012 10:06:50 -0700
+Message-ID: <1344877627-21779-1-git-send-email-kys@microsoft.com>
 References: <1344877584-21738-1-git-send-email-kys@microsoft.com>
- <1344877627-21779-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1344877627-21779-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1344877584-21738-1-git-send-email-kys@microsoft.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, ben@decadent.org.uk
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gather information on the default gateways - ipv4/ipv6.
+Format GUIDS as per MSFT standard. This makes interacting with MSFT
+tool stack easier.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 Reviewed-by: Olaf Hering <olaf@aepfle.de>
 Reviewed-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- tools/hv/hv_kvp_daemon.c |   68 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 68 insertions(+), 0 deletions(-)
+ drivers/hv/vmbus_drv.c |   38 ++------------------------------------
+ 1 files changed, 2 insertions(+), 36 deletions(-)
 
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index a63e83a..65d54c8 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -491,6 +491,68 @@ done:
- 	return;
- }
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 4748086..b76e8b3 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -146,43 +146,9 @@ static ssize_t vmbus_show_device_attr(struct device *dev,
+ 	get_channel_info(hv_dev, device_info);
  
-+static void kvp_process_ipconfig_file(char *cmd,
-+					char *config_buf, int len,
-+					int element_size, int offset)
-+{
-+	char buf[256];
-+	char *p;
-+	char *x;
-+	FILE *file;
-+
-+	/*
-+	 * First execute the command.
-+	 */
-+	file = popen(cmd, "r");
-+	if (file == NULL)
-+		return;
-+
-+	if (offset == 0)
-+		memset(config_buf, 0, len);
-+	while ((p = fgets(buf, sizeof(buf), file)) != NULL) {
-+		if ((len - strlen(config_buf)) < (element_size + 1))
-+			break;
-+
-+		x = strchr(p, '\n');
-+		*x = '\0';
-+		strcat(config_buf, p);
-+		strcat(config_buf, ";");
-+	}
-+	pclose(file);
-+}
-+
-+static void kvp_get_ipconfig_info(char *if_name,
-+				 struct hv_kvp_ipaddr_value *buffer)
-+{
-+	char cmd[512];
-+
-+	/*
-+	 * Get the address of default gateway (ipv4).
-+	 */
-+	sprintf(cmd, "%s %s", "ip route show dev", if_name);
-+	strcat(cmd, " | awk '/default/ {print $3 }'");
-+
-+	/*
-+	 * Execute the command to gather gateway info.
-+	 */
-+	kvp_process_ipconfig_file(cmd, (char *)buffer->gate_way,
-+				(MAX_GATEWAY_SIZE * 2), INET_ADDRSTRLEN, 0);
-+
-+	/*
-+	 * Get the address of default gateway (ipv6).
-+	 */
-+	sprintf(cmd, "%s %s", "ip -f inet6  route show dev", if_name);
-+	strcat(cmd, " | awk '/default/ {print $3 }'");
-+
-+	/*
-+	 * Execute the command to gather gateway info (ipv6).
-+	 */
-+	kvp_process_ipconfig_file(cmd, (char *)buffer->gate_way,
-+				(MAX_GATEWAY_SIZE * 2), INET6_ADDRSTRLEN, 1);
-+
-+}
-+
-+
- static unsigned int hweight32(unsigned int *w)
- {
- 	unsigned int res = *w - ((*w >> 1) & 0x55555555);
-@@ -650,6 +712,12 @@ kvp_get_ip_address(int family, char *if_name, int op,
- 				strcat((char *)ip_buffer->sub_net, ";");
- 				sn_offset += strlen(sn_str) + 1;
- 			}
-+
-+			/*
-+			 * Collect other ip related configuration info.
-+			 */
-+
-+			kvp_get_ipconfig_info(if_name, ip_buffer);
- 		}
- 
- gather_ipaddr:
+ 	if (!strcmp(dev_attr->attr.name, "class_id")) {
+-		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+-			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
+-			       device_info->chn_type.b[3],
+-			       device_info->chn_type.b[2],
+-			       device_info->chn_type.b[1],
+-			       device_info->chn_type.b[0],
+-			       device_info->chn_type.b[5],
+-			       device_info->chn_type.b[4],
+-			       device_info->chn_type.b[7],
+-			       device_info->chn_type.b[6],
+-			       device_info->chn_type.b[8],
+-			       device_info->chn_type.b[9],
+-			       device_info->chn_type.b[10],
+-			       device_info->chn_type.b[11],
+-			       device_info->chn_type.b[12],
+-			       device_info->chn_type.b[13],
+-			       device_info->chn_type.b[14],
+-			       device_info->chn_type.b[15]);
++		ret = sprintf(buf, "{%pUl}\n", device_info->chn_type.b);
+ 	} else if (!strcmp(dev_attr->attr.name, "device_id")) {
+-		ret = sprintf(buf, "{%02x%02x%02x%02x-%02x%02x-%02x%02x-"
+-			       "%02x%02x%02x%02x%02x%02x%02x%02x}\n",
+-			       device_info->chn_instance.b[3],
+-			       device_info->chn_instance.b[2],
+-			       device_info->chn_instance.b[1],
+-			       device_info->chn_instance.b[0],
+-			       device_info->chn_instance.b[5],
+-			       device_info->chn_instance.b[4],
+-			       device_info->chn_instance.b[7],
+-			       device_info->chn_instance.b[6],
+-			       device_info->chn_instance.b[8],
+-			       device_info->chn_instance.b[9],
+-			       device_info->chn_instance.b[10],
+-			       device_info->chn_instance.b[11],
+-			       device_info->chn_instance.b[12],
+-			       device_info->chn_instance.b[13],
+-			       device_info->chn_instance.b[14],
+-			       device_info->chn_instance.b[15]);
++		ret = sprintf(buf, "{%pUl}\n", device_info->chn_instance.b);
+ 	} else if (!strcmp(dev_attr->attr.name, "modalias")) {
+ 		print_alias_name(hv_dev, alias_name);
+ 		ret = sprintf(buf, "vmbus:%s\n", alias_name);
 -- 
 1.7.4.1
