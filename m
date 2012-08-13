@@ -1,7 +1,8 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [RFC-v2 5/6] virtio-scsi: Set max_target=0 during vhost-scsi operation
-Date: Mon, 13 Aug 2012 08:35:16 +0000
-Message-ID: <1344846917-7411-6-git-send-email-nab__41947.5451497876$1344847186$gmane$org@linux-iscsi.org>
+Subject: [RFC-v2 6/6] virtio-scsi: Fix incorrect VirtIOSCSI->cmd_vqs[0]
+	definition
+Date: Mon, 13 Aug 2012 08:35:17 +0000
+Message-ID: <1344846917-7411-7-git-send-email-nab__46066.747341729$1344847197$gmane$org@linux-iscsi.org>
 References: <1344846917-7411-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,37 +24,33 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-This QEMU patch sets VirtIOSCSIConfig->max_target=0 for vhost-scsi operation
-to restrict virtio-scsi LLD guest scanning to max_id=0 (a single target ID
-instance) when connected to individual tcm_vhost endpoints.
+This patch fixes bug in the definition of VirtIOSCSI->cmd_vqs[0],
+where the return of virtio_add_queue() in virtio_scsi_init() ends up
+overwriting past the end of ->cmd_vqs[0].
 
-This ensures that virtio-scsi LLD only attempts to scan target IDs up to
-VIRTIO_SCSI_MAX_TARGET when connected via virtio-scsi-raw.
+Since virtio_scsi currently assumes a single vqs for data, this patch
+simply changes ->cmd_vqs[1] to handle the single VirtQueue.
 
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 ---
- hw/virtio-scsi.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
+ hw/virtio-scsi.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
-index 8130956..5e2ff6b 100644
+index 5e2ff6b..2c70f89 100644
 --- a/hw/virtio-scsi.c
 +++ b/hw/virtio-scsi.c
-@@ -545,7 +545,11 @@ static void virtio_scsi_get_config(VirtIODevice *vdev,
-     stl_raw(&scsiconf->sense_size, s->sense_size);
-     stl_raw(&scsiconf->cdb_size, s->cdb_size);
-     stl_raw(&scsiconf->max_channel, VIRTIO_SCSI_MAX_CHANNEL);
--    stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
-+    if (s->vhost_scsi) {
-+        stl_raw(&scsiconf->max_target, 0);
-+    } else {
-+        stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
-+    }
-     stl_raw(&scsiconf->max_lun, VIRTIO_SCSI_MAX_LUN);
- }
+@@ -150,7 +150,7 @@ typedef struct {
+     bool events_dropped;
+     VirtQueue *ctrl_vq;
+     VirtQueue *event_vq;
+-    VirtQueue *cmd_vqs[0];
++    VirtQueue *cmd_vqs[1];
  
+     bool vhost_started;
+     VHostSCSI *vhost_scsi;
 -- 
 1.7.2.5
