@@ -1,20 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 2/4] virtio_balloon: introduce migration primitives to
-	balloon pages
-Date: Tue, 14 Aug 2012 23:31:23 +0300
-Message-ID: <20120814203123.GC28990__38001.7349416905$1344976238$gmane$org@redhat.com>
-References: <cover.1344619987.git.aquini@redhat.com>
-	<f19b63dfa026fe2f8f11ec017771161775744781.1344619987.git.aquini@redhat.com>
-	<20120813084123.GF14081@redhat.com>
-	<20120814182244.GB13338@t510.redhat.com>
-	<20120814195139.GA28870@redhat.com>
-	<20120814201113.GE22133@t510.redhat.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [RFC-v2 3/6] vhost-scsi: add -vhost-scsi host device for use
+	with tcm-vhost
+Date: Tue, 14 Aug 2012 13:31:14 -0700
+Message-ID: <1344976274.22433.93.camel@haakon2.linux-iscsi.org>
+References: <1344846917-7411-1-git-send-email-nab@linux-iscsi.org>
+	<1344846917-7411-4-git-send-email-nab@linux-iscsi.org>
+	<20120813085325.GH14081@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120814201113.GE22133@t510.redhat.com>
+In-Reply-To: <20120813085325.GH14081@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,24 +20,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rafael Aquini <aquini@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 14, 2012 at 05:11:13PM -0300, Rafael Aquini wrote:
-> On Tue, Aug 14, 2012 at 10:51:39PM +0300, Michael S. Tsirkin wrote:
-> > What I think you should do is use rcu for access.
-> > And here sync rcu before freeing.
-> > Maybe an overkill but at least a documented synchronization
-> > primitive, and it is very light weight.
+On Mon, 2012-08-13 at 11:53 +0300, Michael S. Tsirkin wrote:
+> On Mon, Aug 13, 2012 at 08:35:14AM +0000, Nicholas A. Bellinger wrote:
+> > From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 > > 
-> 
-> I liked your suggestion on barriers, as well.
-> 
-> Rik, Mel ?
+> > This patch adds a new type of host device that drives the vhost_scsi
+> > device.  The syntax to add vhost-scsi is:
+> > 
+> >   qemu -vhost-scsi id=vhost-scsi0,wwpn=...,tpgt=123
+> > 
+> > The virtio-scsi emulated device will make use of vhost-scsi to process
+> > virtio-scsi requests inside the kernel and hand them to the in-kernel
+> > SCSI target stack using the tcm_vhost fabric driver.
 
-Further instead of simple assignment I would add an api
-in mm to set/clear the balloon mapping, with proper locking.
+<SNIP>
 
-This could fail if already set, and thus fix crash with
-many ballons.
+> > +static VHostSCSI *vhost_scsi_add(const char *id, const char *wwpn,
+> > +                                 uint16_t tpgt)
+> > +{
+> > +    VHostSCSI *vs = g_malloc0(sizeof(*vs));
+> > +    int ret;
+> > +
+> > +    /* TODO set up vhost-scsi device and bind to tcm_vhost/$wwpm/tpgt_$tpgt */
+> > +    fprintf(stderr, "wwpn = \"%s\" tpgt = \"%u\"\n", id, tpgt);
+> > +
+> > +    ret = vhost_dev_init(&vs->dev, -1, "/dev/vhost-scsi", false);
+> 
+> This -1 is a hack. You need to support passing in fd from
+> the monitor, and pass it here.
+> 
+
+Mmm, looking at how vhost_net_init + tap.c does this, but am not quite
+what fd needs to be propagated up for virtio-scsi -> vhost-scsi..
+
+Can you please elaborate on this one a bit more..?
+
+--nab
