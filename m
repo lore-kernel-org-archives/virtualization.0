@@ -1,16 +1,20 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [RFC-v2 6/6] virtio-scsi: Fix incorrect VirtIOSCSI->cmd_vqs[0]
-	definition
-Date: Tue, 14 Aug 2012 13:20:25 -0700
-Message-ID: <1344975625.22433.88.camel__7701.57435113123$1344975649$gmane$org@haakon2.linux-iscsi.org>
-References: <1344846917-7411-1-git-send-email-nab@linux-iscsi.org>
-	<1344846917-7411-7-git-send-email-nab@linux-iscsi.org>
-	<20120813090259.GJ14081@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7 1/4] mm: introduce compaction and migration for virtio
+	ballooned pages
+Date: Tue, 14 Aug 2012 23:23:10 +0300
+Message-ID: <20120814202310.GA28990__18804.6838659377$1344975744$gmane$org@redhat.com>
+References: <cover.1344619987.git.aquini@redhat.com>
+	<292b1b52e863a05b299f94bda69a61371011ac19.1344619987.git.aquini@redhat.com>
+	<20120813082619.GE14081@redhat.com>
+	<20120814174404.GA13338@t510.redhat.com>
+	<20120814193525.GB28840@redhat.com>
+	<20120814200043.GB22133@t510.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120813090259.GJ14081@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20120814200043.GB22133@t510.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,57 +24,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2012-08-13 at 12:02 +0300, Michael S. Tsirkin wrote:
-> On Mon, Aug 13, 2012 at 08:35:17AM +0000, Nicholas A. Bellinger wrote:
-> > From: Nicholas Bellinger <nab@linux-iscsi.org>
+On Tue, Aug 14, 2012 at 05:00:49PM -0300, Rafael Aquini wrote:
+> On Tue, Aug 14, 2012 at 10:35:25PM +0300, Michael S. Tsirkin wrote:
+> > > > > +/* __isolate_lru_page() counterpart for a ballooned page */
+> > > > > +bool isolate_balloon_page(struct page *page)
+> > > > > +{
+> > > > > +	if (WARN_ON(!movable_balloon_page(page)))
+> > > > 
+> > > > Looks like this actually can happen if the page is leaked
+> > > > between previous movable_balloon_page and here.
+> > > > 
+> > > > > +		return false;
+> > > 
+> > > Yes, it surely can happen, and it does not harm to catch it here, print a warn and
+> > > return.
 > > 
-> > This patch fixes bug in the definition of VirtIOSCSI->cmd_vqs[0],
-> > where the return of virtio_add_queue() in virtio_scsi_init() ends up
-> > overwriting past the end of ->cmd_vqs[0].
-> > 
-> > Since virtio_scsi currently assumes a single vqs for data, this patch
-> > simply changes ->cmd_vqs[1] to handle the single VirtQueue.
-> > 
-> > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-> > Cc: Michael S. Tsirkin <mst@redhat.com>
-> > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> > If it is legal, why warn? For that matter why test here at all?
+> >
 > 
-> This is a bugfix we need even without vhost, right?
+> As this is a public symbol, and despite the usage we introduce is sane, the warn
+> was placed as an insurance policy to let us know about any insane attempt to use
+> the procedure in the future. That was due to a nice review nitpick, actually.
 > 
+> Even though the code already had a test to properly avoid this race you
+> mention, I thought that sustaining the warn was a good thing. As I told you,
+> despite real, I've never got (un)lucky enough to stumble across that race window
+> while testing the patch.
+> 
+> If your concern is about being too much verbose on logging, under certain
+> conditions, perhaps we can change that test to a WARN_ON_ONCE() ?
+> 
+> Mel, what are your thoughts here?
+>  
+> > > While testing it, I wasn't lucky to see this small window opening, though.
 
-I believe so, as it appears to be stomping past the end of memory for
-every virtio-scsi initialization regardless of vhost usage.. 
 
-Paolo, can you pickup this fix now for stable so it can be dropped from
-RFC-v3..?
-
---nab
-
-> > ---
-> >  hw/virtio-scsi.c |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
-> > index 5e2ff6b..2c70f89 100644
-> > --- a/hw/virtio-scsi.c
-> > +++ b/hw/virtio-scsi.c
-> > @@ -150,7 +150,7 @@ typedef struct {
-> >      bool events_dropped;
-> >      VirtQueue *ctrl_vq;
-> >      VirtQueue *event_vq;
-> > -    VirtQueue *cmd_vqs[0];
-> > +    VirtQueue *cmd_vqs[1];
-> >  
-> >      bool vhost_started;
-> >      VHostSCSI *vhost_scsi;
-> > -- 
-> > 1.7.2.5
-> --
-> To unsubscribe from this list: send the line "unsubscribe target-devel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+think about it: you see it in log. so you know race triggered.
+now what? why is it useful to know this?
