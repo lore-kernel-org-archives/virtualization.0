@@ -1,88 +1,160 @@
-From: Ben Hutchings <ben@decadent.org.uk>
-Subject: Re: [PATCH V2 18/18] Tools: hv: Properly manage open streams
-Date: Tue, 14 Aug 2012 02:57:49 +0100
-Message-ID: <1344909469.824.167.camel@deadeye.wl.decadent.org.uk>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH V2 02/18] Drivers: hv: Add KVP definitions for IP
+ address injection
+Date: Tue, 14 Aug 2012 02:56:38 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF9236BF8D0@SN2PRD0310MB382.namprd03.prod.outlook.com>
 References: <1344877584-21738-1-git-send-email-kys@microsoft.com>
-	 <1344877627-21779-1-git-send-email-kys@microsoft.com>
-	 <1344877627-21779-18-git-send-email-kys@microsoft.com>
+ <1344877627-21779-1-git-send-email-kys@microsoft.com>
+ <1344877627-21779-2-git-send-email-kys@microsoft.com>
+ <20120814013815.GA29829@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha512";
-	protocol="application/pgp-signature"; boundary="=-znHtwbmEefZ5rG/S+JU3"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1344877627-21779-18-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
+In-Reply-To: <20120814013815.GA29829@kroah.com>
+Content-Language: en-US
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: "olaf@aepfle.de" <olaf@aepfle.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "ben@decadent.org.uk" <ben@decadent.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---=-znHtwbmEefZ5rG/S+JU3
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2012-08-13 at 10:07 -0700, K. Y. Srinivasan wrote:
-> Close the open streams properly.
->=20
-> Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-> Reviewed-by: Olaf Hering <olaf@aepfle.de>
-> Reviewed-by: Ben Hutchings <ben@decadent.org.uk>
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@linuxfoundation.org]
+> Sent: Monday, August 13, 2012 9:38 PM
+> To: KY Srinivasan
+> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org; olaf@aepfle.de; apw@canonical.com;
+> ben@decadent.org.uk
+> Subject: Re: [PATCH V2 02/18] Drivers: hv: Add KVP definitions for IP address
+> injection
+> 
+> On Mon, Aug 13, 2012 at 10:06:51AM -0700, K. Y. Srinivasan wrote:
+> > Add the necessary definitions for supporting the IP injection functionality.
+> >
+> > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+> > Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+> > Reviewed-by: Olaf Hering <olaf@aepfle.de>
+> > Reviewed-by: Ben Hutchings <ben@decadent.org.uk>
+> > ---
+> >  drivers/hv/hv_util.c     |    4 +-
+> >  include/linux/hyperv.h   |   76
+> ++++++++++++++++++++++++++++++++++++++++++++-
+> >  tools/hv/hv_kvp_daemon.c |    2 +-
+> >  3 files changed, 77 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/drivers/hv/hv_util.c b/drivers/hv/hv_util.c
+> > index d3ac6a4..a0667de 100644
+> > --- a/drivers/hv/hv_util.c
+> > +++ b/drivers/hv/hv_util.c
+> > @@ -263,7 +263,7 @@ static int util_probe(struct hv_device *dev,
+> >  		(struct hv_util_service *)dev_id->driver_data;
+> >  	int ret;
+> >
+> > -	srv->recv_buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
+> > +	srv->recv_buffer = kmalloc(PAGE_SIZE * 2, GFP_KERNEL);
+> >  	if (!srv->recv_buffer)
+> >  		return -ENOMEM;
+> >  	if (srv->util_init) {
+> > @@ -274,7 +274,7 @@ static int util_probe(struct hv_device *dev,
+> >  		}
+> >  	}
+> >
+> > -	ret = vmbus_open(dev->channel, 2 * PAGE_SIZE, 2 * PAGE_SIZE, NULL,
+> 0,
+> > +	ret = vmbus_open(dev->channel, 4 * PAGE_SIZE, 4 * PAGE_SIZE, NULL,
+> 0,
+> >  			srv->util_cb, dev->channel);
+> >  	if (ret)
+> >  		goto error;
+> > diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+> > index 68ed7f7..11afc4e 100644
+> > --- a/include/linux/hyperv.h
+> > +++ b/include/linux/hyperv.h
+> > @@ -122,12 +122,53 @@
+> >  #define REG_U32 4
+> >  #define REG_U64 8
+> >
+> > +/*
+> > + * As we look at expanding the KVP functionality to include
+> > + * IP injection functionality, we need to maintain binary
+> > + * compatibility with older daemons.
+> > + *
+> > + * The KVP opcodes are defined by the host and it was unfortunate
+> > + * that I chose to treat the registration operation as part of the
+> > + * KVP operations defined by the host.
+> > + * Here is the level of compatibility
+> > + * (between the user level daemon and the kernel KVP driver) that we
+> > + * will implement:
+> > + *
+> > + * An older daemon will always be supported on a newer driver.
+> > + * A given user level daemon will require a minimal version of the
+> > + * kernel driver.
+> > + * If we cannot handle the version differences, we will fail gracefully
+> > + * (this can happen when we have a user level daemon that is more
+> > + * advanced than the KVP driver.
+> > + *
+> > + * We will use values used in this handshake for determining if we have
+> > + * workable user level daemon and the kernel driver. We begin by taking the
+> > + * registration opcode out of the KVP opcode namespace. We will however,
+> > + * maintain compatibility with the existing user-level daemon code.
+> > + */
+> > +
+> > +/*
+> > + * Daemon code not supporting IP injection (legacy daemon).
+> > + */
+> > +
+> > +#define KVP_OP_REGISTER	4
+> 
+> Huh?
+> 
+> > +/*
+> > + * Daemon code supporting IP injection.
+> > + * The KVP opcode field is used to communicate the
+> > + * registration information; so define a namespace that
+> > + * will be distinct from the host defined KVP opcode.
+> > + */
+> > +
+> > +#define KVP_OP_REGISTER1 100
+> > +
+> >  enum hv_kvp_exchg_op {
+> >  	KVP_OP_GET = 0,
+> >  	KVP_OP_SET,
+> >  	KVP_OP_DELETE,
+> >  	KVP_OP_ENUMERATE,
+> > -	KVP_OP_REGISTER,
+> > +	KVP_OP_GET_IP_INFO,
+> > +	KVP_OP_SET_IP_INFO,
+> 
+> So you overloaded the command and somehow think that is ok?  How is that
+> supposed to work?  Why not just always keep it there, but fail if it is
+> called as you know you have a mismatch?
+> 
+> Otherwise, again, you just broke older tools on a newer kernel.
+> 
+> Or am I missing something here?
 
-This isn't reviewed by me, I'm the author!
+Greg,
 
-Ben.
+The registration operation occurs when the daemon first starts up. I should have established
+a distinct namespace for the daemon versions that would not overlap with the host
+defined KVP operations initially. Unfortunately when I first implemented KVP, I did not know
+about the new KVP verbs and so selected a value that ended up colliding with the new KVP 
+operations. To maintain compatibility with older daemons, I have to support this old registration 
+value, which is what you are seeing here. Since the initial driver/daemon handshake phase does
+not overlap with the normal functioning of the KVP stack, we can use the old daemon 
+registration value to distinguish that the daemon does not support IP injection. The current
+implementation does support a compatible environment for older daemons.
 
-> ---
->  tools/hv/hv_kvp_daemon.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-> index c8e1013..ca6424f 100644
-> --- a/tools/hv/hv_kvp_daemon.c
-> +++ b/tools/hv/hv_kvp_daemon.c
-> @@ -160,7 +160,7 @@ static void kvp_update_file(int pool)
->  				sizeof(struct kvp_record),
->  				kvp_file_info[pool].num_records, filep);
-> =20
-> -	fflush(filep);
-> +	fclose(filep);
->  	kvp_release_lock(pool);
->  }
-> =20
-> @@ -206,7 +206,7 @@ static void kvp_update_mem_state(int pool)
->  	kvp_file_info[pool].num_blocks =3D num_blocks;
->  	kvp_file_info[pool].records =3D record;
->  	kvp_file_info[pool].num_records =3D records_read;
-> -
-> +	fclose(filep);
->  	kvp_release_lock(pool);
->  }
->  static int kvp_file_init(void)
+Regards,
 
---=20
-Ben Hutchings
-I say we take off; nuke the site from orbit.  It's the only way to be sure.
-
---=-znHtwbmEefZ5rG/S+JU3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIVAwUAUCmwnee/yOyVhhEJAQpiPg//Sd1D9ET9mvxVVagye9unfp6x+mFLaBFp
-lpobukk4YLqzignczfSNj1kP6Q4tp+fHZi/k2OE4Y4OLt6233a+B7PyRwLLIcVrN
-4Ybm0xOhY+PiP8xBc/D0nijHnQFIRkYe7Z3+bLRtbYtkfg/AsIMAzlBnIQJHAmnY
-o7u0T7HEt3SeEnhiP1mzvgB5q9ib11z1VyE1exZfhXQ1sanI81DPzVKwP8zd7RwI
-PUTyB/RxTmTiS37Q0aM/VXt1BdfFkaUfdjceeZ541u2byAiDXfnFShKnIUdKWCvS
-0P0Mt4hMzCjg/1Rm/xtEyxWv+FJcrqiFcOII1CyMVIH4SHmoo1tqwz8Esqq1V9Xl
-cYsgobwfKudgJnCHJwCkkrkO2xuOWP4+QuEw3IuHEolf53fyphFkRnV1EVJjRqvL
-YmnOw7ImZOSdg4nXIxgXxBBZ53PcmlF8m0oN0xYYkQWVxdUU5i8YbJp7IxlhZJVS
-SczOcA0OpOxBwJ1+NB2MR2F3ZGxemZq7lGaPZWtYoVTcI4QYQHvwhD2F21gvgPXt
-Jn7qL911CekdGgQSKJuikXgPxZ+mq44EJYk+IXJSFsMcg8BiHAHuTJ+g/ws+SIwb
-Z32sIp4UlRdqTLNSR57Btw7L5kPh8e5vMar+1z23RSDjk2ayYPl74GTm9GXqM8Pb
-SD43gS1dj04=
-=PEhr
------END PGP SIGNATURE-----
-
---=-znHtwbmEefZ5rG/S+JU3--
+K. Y 
