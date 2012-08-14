@@ -1,17 +1,18 @@
 From: Rafael Aquini <aquini@redhat.com>
 Subject: Re: [PATCH v7 2/4] virtio_balloon: introduce migration primitives to
 	balloon pages
-Date: Tue, 14 Aug 2012 15:22:45 -0300
-Message-ID: <20120814182244.GB13338__25226.6962932937$1344968601$gmane$org@t510.redhat.com>
+Date: Tue, 14 Aug 2012 15:44:09 -0300
+Message-ID: <20120814184409.GC13338__18761.5893818021$1344969875$gmane$org@t510.redhat.com>
 References: <cover.1344619987.git.aquini@redhat.com>
 	<f19b63dfa026fe2f8f11ec017771161775744781.1344619987.git.aquini@redhat.com>
 	<20120813084123.GF14081@redhat.com>
+	<87lihis5qi.fsf@rustcorp.com.au> <20120814083320.GA3597@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120813084123.GF14081@redhat.com>
+In-Reply-To: <20120814083320.GA3597@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,149 +26,67 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Aug 13, 2012 at 11:41:23AM +0300, Michael S. Tsirkin wrote:
-> > @@ -141,7 +151,10 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
-> >  		set_page_pfns(vb->pfns + vb->num_pfns, page);
-> >  		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> >  		totalram_pages--;
-> > +		spin_lock(&pages_lock);
-> >  		list_add(&page->lru, &vb->pages);
+On Tue, Aug 14, 2012 at 11:33:20AM +0300, Michael S. Tsirkin wrote:
+> On Tue, Aug 14, 2012 at 09:29:49AM +0930, Rusty Russell wrote:
+> > On Mon, 13 Aug 2012 11:41:23 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > On Fri, Aug 10, 2012 at 02:55:15PM -0300, Rafael Aquini wrote:
+> > > > +/*
+> > > > + * Populate balloon_mapping->a_ops->freepage method to help compaction on
+> > > > + * re-inserting an isolated page into the balloon page list.
+> > > > + */
+> > > > +void virtballoon_putbackpage(struct page *page)
+> > > > +{
+> > > > +	spin_lock(&pages_lock);
+> > > > +	list_add(&page->lru, &vb_ptr->pages);
+> > > > +	spin_unlock(&pages_lock);
+> > > 
+> > > Could the following race trigger:
+> > > migration happens while module unloading is in progress,
+> > > module goes away between here and when the function
+> > > returns, then code for this function gets overwritten?
+> > > If yes we need locking external to module to prevent this.
+> > > Maybe add a spinlock to struct address_space?
+> > 
+> > The balloon module cannot be unloaded until it has leaked all its pages,
+> > so I think this is safe:
+> > 
+> >         static void remove_common(struct virtio_balloon *vb)
+> >         {
+> >         	/* There might be pages left in the balloon: free them. */
+> >         	while (vb->num_pages)
+> >         		leak_balloon(vb, vb->num_pages);
+> > 
+> > Cheers,
+> > Rusty.
 > 
-> If list_add above is reordered with mapping assignment below,
-> then nothing bad happens because balloon_mapping takes
-> pages_lock.
+> I know I meant something else.
+> Let me lay this out:
 > 
-> > +		page->mapping = balloon_mapping;
-> > +		spin_unlock(&pages_lock);
-> >  	}
-> >  
-> >  	/* Didn't get any?  Oh well. */
-> > @@ -149,6 +162,7 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
-> >  		return;
-> >  
-> >  	tell_host(vb, vb->inflate_vq);
-> > +	mutex_unlock(&balloon_lock);
-> >  }
-> >  
-> >  static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
-> > @@ -169,10 +183,22 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
-> >  	/* We can only do one array worth at a time. */
-> >  	num = min(num, ARRAY_SIZE(vb->pfns));
-> >  
-> > +	mutex_lock(&balloon_lock);
-> >  	for (vb->num_pfns = 0; vb->num_pfns < num;
-> >  	     vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
-> > +		/*
-> > +		 * We can race against virtballoon_isolatepage() and end up
-> > +		 * stumbling across a _temporarily_ empty 'pages' list.
-> > +		 */
-> > +		spin_lock(&pages_lock);
-> > +		if (unlikely(list_empty(&vb->pages))) {
-> > +			spin_unlock(&pages_lock);
-> > +			break;
-> > +		}
-> >  		page = list_first_entry(&vb->pages, struct page, lru);
-> > +		page->mapping = NULL;
+> CPU1 executes:
+> void virtballoon_putbackpage(struct page *page)
+> {
+> 	spin_lock(&pages_lock);
+> 	list_add(&page->lru, &vb_ptr->pages);
+> 	spin_unlock(&pages_lock);
 > 
-> Unlike the case above, here
-> if = NULL write above is reordered with list_del below,
-> then isolate_page can run on a page that is not
-> on lru.
 > 
-> So I think this needs a wmb().
-> And maybe a comment above explaining why it is safe?
-
-Good point. Presumably, this nit has potential to explain your guessing on the
-read barrier stuff at movable_balloon_page() on the other patch.
-
- 
-> >  		list_del(&page->lru);
+> 		at this point CPU2 unloads module:
+> 						leak_balloon
+> 						......
 > 
-> I wonder why changing page->lru here is safe against
-> races with unmap_and_move in the previous patch.
-
-leak_balloon() doesn't race against unmap_and_move() because the later works on
-an isolated page set. So, theoretically, pages being dequeued from balloon page
-list here are either migrated (already) or they were not isolated yet.
-
-
-> > +/*
-> > + * '*vb_ptr' allows virtballoon_migratepage() & virtballoon_putbackpage() to
-> > + * access pertinent elements from struct virtio_balloon
-> > + */
+> 		next CPU2 loads another module so code memory gets overwritten
 > 
-> What if there is more than one balloon device?
-
-Is it possible to load this driver twice, or are you foreseeing a future case
-where this driver will be able to manage several distinct memory balloons for
-the same guest?
-
-
-> > +	/* Init the ballooned page->mapping special balloon_mapping */
-> > +	balloon_mapping = kmalloc(sizeof(*balloon_mapping), GFP_KERNEL);
-> > +	if (!balloon_mapping) {
-> > +		err = -ENOMEM;
-> > +		goto out_free_vb;
-> > +	}
+> now CPU1 executes the next instruction:
 > 
-> Can balloon_mapping be dereferenced at this point?
-> Then what happens?
-
-Since there's no balloon page enqueued for this balloon driver yet, there's no
-chance of balloon_mapping being dereferenced at this point.
-
- 
-> > +
-> > +	INIT_RADIX_TREE(&balloon_mapping->page_tree, GFP_ATOMIC | __GFP_NOWARN);
-> > +	INIT_LIST_HEAD(&balloon_mapping->i_mmap_nonlinear);
-> > +	spin_lock_init(&balloon_mapping->tree_lock);
-> > +	balloon_mapping->a_ops = &virtio_balloon_aops;
-> >  
-> >  	err = init_vqs(vb);
-> >  	if (err)
-> > @@ -373,6 +493,7 @@ out_del_vqs:
-> >  	vdev->config->del_vqs(vdev);
-> >  out_free_vb:
-> >  	kfree(vb);
-> > +	kfree(balloon_mapping);
+> }
 > 
-> No need to set it to NULL? It seems if someone else allocates a mapping
-> and gets this chunk of memory by chance, the logic in mm will get
-> confused.
-
-Good point. It surely doesn't hurt be asured of this sort of safety.
-
-> >  out:
-> >  	return err;
-> >  }
-> > @@ -397,6 +518,7 @@ static void __devexit virtballoon_remove(struct virtio_device *vdev)
-> >  	kthread_stop(vb->thread);
-> >  	remove_common(vb);
-> >  	kfree(vb);
-> > +	kfree(balloon_mapping);
+> which would normally return to function's caller,
+> but it has been overwritten by CPU2 so we get corruption.
 > 
-> Neither here?
+> No?
 
-ditto.
-
- 
-> >  }
-> >  
-> >  #ifdef CONFIG_PM
-> > diff --git a/include/linux/virtio_balloon.h b/include/linux/virtio_balloon.h
-> > index 652dc8b..930f1b7 100644
-> > --- a/include/linux/virtio_balloon.h
-> > +++ b/include/linux/virtio_balloon.h
-> > @@ -56,4 +56,8 @@ struct virtio_balloon_stat {
-> >  	u64 val;
-> >  } __attribute__((packed));
-> >  
-> > +#if !defined(CONFIG_COMPACTION)
-> > +struct address_space *balloon_mapping;
-> > +#endif
-> > +
-> 
-> Anyone including this header will get a different copy of
-> balloon_mapping. Besides, need to be ifdef KERNEL.
-
-Good point. I'll move this hunk to the balloon driver itself.
+At the point CPU2 is unloading the module, it will be kept looping at the
+snippet Rusty pointed out because the isolation / migration steps do not mess
+with 'vb->num_pages'. The driver will only unload after leaking the total amount
+of balloon's inflated pages, which means (for this hypothetical case) CPU2 will
+wait until CPU1 finishes the putaback procedure.
