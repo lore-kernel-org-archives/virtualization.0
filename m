@@ -1,12 +1,24 @@
-From: workshop-pc@ovirt.org
-Subject: oVirt Workshop Europe 2012: Call For Participation
-Date: Tue, 14 Aug 2012 14:44:05 -0700
-Message-ID: <20120814214405.GN20407@x200.localdomain>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7 2/4] virtio_balloon: introduce migration primitives to
+	balloon pages
+Date: Wed, 15 Aug 2012 01:48:16 +0300
+Message-ID: <20120814224816.GB29180__24842.7875027575$1344984454$gmane$org@redhat.com>
+References: <f19b63dfa026fe2f8f11ec017771161775744781.1344619987.git.aquini@redhat.com>
+	<20120813084123.GF14081@redhat.com>
+	<20120814182244.GB13338@t510.redhat.com>
+	<20120814195139.GA28870@redhat.com>
+	<20120814195916.GC28870@redhat.com>
+	<20120814200830.GD22133@t510.redhat.com>
+	<20120814202401.GB28990@redhat.com>
+	<20120814202949.GF22133@t510.redhat.com>
+	<20120814204906.GD28990@redhat.com>
+	<20120814213412.GG22133@t510.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20120814213412.GG22133@t510.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,89 +28,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: announce@ovirt.org, users@ovirt.org, engine-devel@ovirt.org, vdsm-devel@ovirt.org, virtualization@lists.linux-foundation.org
-Cc: workshop-pc@ovirt.org
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT0Kb1ZpcnQgV29ya3Nob3AgRXVyb3BlIDIwMTI6IENhbGwgRm9yIFBhcnRpY2lwYXRp
-b24KTm92ZW1iZXIgNy05LCAyMDEyIC0gSG90ZWwgRmlyYSBQYWxhY2UgLSBCYXJjZWxvbmEsIFNw
-YWluCgooQWxsIHN1Ym1pc3Npb25zIG11c3QgYmUgcmVjZWl2ZWQgYmVmb3JlIG1pZG5pZ2h0IFNl
-cCAxNHRoLCAyMDEyKQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PQoKVGhlIG9WaXJ0IFByb2plY3QgaXMgYW4gb3BlbiB2aXJ0
-dWFsaXphdGlvbiBwcm9qZWN0IGZvciBhbnlvbmUgd2hvIGNhcmVzCmFib3V0IExpbnV4LWJhc2Vk
-IEtWTSB2aXJ0dWFsaXphdGlvbi4gUHJvdmlkaW5nIGEgZmVhdHVyZS1yaWNoIHNlcnZlcgp2aXJ0
-dWFsaXphdGlvbiBtYW5hZ2VtZW50IHN5c3RlbSB3aXRoIGFkdmFuY2VkIGNhcGFiaWxpdGllcyBm
-b3IgaG9zdHMKYW5kIGd1ZXN0cywgaW5jbHVkaW5nIGhpZ2ggYXZhaWxhYmlsaXR5LCBsaXZlIG1p
-Z3JhdGlvbiwgc3RvcmFnZQptYW5hZ2VtZW50LCBzeXN0ZW0gc2NoZWR1bGVyLCBhbmQgbW9yZS4g
-Qnkgb3BlbiB3ZSBtZWFuIG9wZW4gc291cmNlICYKb3BlbiBnb3Zlcm5hbmNlLCBkb25lIHJpZ2h0
-LgoKRHVyaW5nIHRoaXMgd29ya3Nob3AgeW914oCZbGwgbGVhcm4gYWJvdXQgdGhlIHRlY2huaWNh
-bCBiYWNrZ3JvdW5kIGFuZApkaXJlY3Rpb24gb2YgdGhlIG9WaXJ0IHByb2plY3QuIFlvdeKAmWxs
-IG1lZXQgdGhlIGRldmVsb3BlcnMsIGFuZCBoYXZlIGFuCm9wcG9ydHVuaXR5IHRvIHNlZSBhbmQg
-ZGl2ZSBpbnRvIHRoZSBjb2RlIHJpZ2h0IGF3YXkuIFRoZSB3b3Jrc2hvcCBpcwpvcGVuIHRvIGFs
-bCB3aG8gd2FudCB0byB1c2UsIGdldCBpbnZvbHZlZCB3aXRoLCBvciAgbGVhcm4gYWJvdXQgdGhl
-CmNvbXByZWhlbnNpdmUgb3BlbiB2aXJ0dWFsaXphdGlvbiBtYW5hZ2VtZW50IHBsYXRmb3JtLCBv
-VmlydC4gVGhlCnNlc3Npb25zIGNvdmVyIHRoZSB0ZWNobmljYWwgcHJvamVjdHMgZGV0YWlscywg
-Z292ZXJuYW5jZSwgZ2V0dGluZwppbnZvbHZlZCwgdXNhZ2UsIGFuZCBtdWNoIG1vcmUuIElmIHlv
-dSBoYXZlIGFueSBpbnRlcmVzdCBpbiBhbiBPcGVuClZpcnR1YWxpemF0aW9uIE1hbmFnZW1lbnQg
-cGxhdGZvcm0sIHRoaXMgd29ya3Nob3AgaXMgZm9yIHlvdSEKCldlIGFyZSBleGNpdGVkIHRvIGFu
-bm91bmNlIHRoYXQgdGhpcyBvVmlydCBXb3Jrc2hvcCB3aWxsIGJlIGhlbGQgaW4KY29uanVuY3Rp
-b24gd2l0aCB0aGUgS1ZNIEZvcnVtLgoKaHR0cDovL2V2ZW50cy5saW51eGZvdW5kYXRpb24ub3Jn
-L2V2ZW50cy9rdm0tZm9ydW0vCgpUaGUgS1ZNIEZvcnVtIGFuZCBvVmlydCBXb3Jrc2hvcCBhcmUg
-Y28tbG9jYXRlZCB3aXRoIHRoZSBMaW51eApGb3VuZGF0aW9uJ3MgMjAxMiBMaW51eENvbiBFdXJv
-cGUgaW4gQmFyY2Vsb25hLCBTcGFpbi4KCm9WaXJ0IFdvcmtzaG9wIGF0dGVuZGVlcyB3aWxsIGJl
-IGFibGUgdG8gYXR0ZW5kIEtWTSBGb3J1bSBzZXNzaW9ucyBhbmQKYXJlIGVsaWdpYmxlIHRvIGF0
-dGVuZCBMaW51eENvbiBFdXJvcGUgZm9yIGEgZGlzY291bnRlZCByYXRlLgoKaHR0cDovL2V2ZW50
-cy5saW51eGZvdW5kYXRpb24ub3JnL2V2ZW50cy9rdm0tZm9ydW0vcmVnaXN0ZXIKCldlIGludml0
-ZSB5b3UgdG8gbGVhZCBwYXJ0IG9mIHRoZSBkaXNjdXNzaW9uIGJ5IHN1Ym1pdHRpbmcgYSBzcGVh
-a2luZwpwcm9wb3NhbCBmb3Igb1ZpcnQgV29ya3Nob3AgMjAxMi4KCmh0dHA6Ly9ldmVudHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9jZnAKClN1Z2dlc3RlZCB0b3BpY3M6CgogLSBjb21tdW5pdHkgdXNl
-IGNhc2Uvc3RvcmllcwogLSByb2FkbWFwcwogLSBkZWVwIGRpdmVzIGludG8gZmVhdHVyZXMvYXJl
-YXMKIC0gZGVlcCBkaXZlcyBpbnRvIGNvZGUvZGVidWdnaW5nL3R1bmluZwogLSBpbnRlZ3JhdGlv
-biBhbmQgZXh0ZW5zaW9ucwogLSBjb21wb25lbnRzOiBlbmdpbmUsIHZkc20sIG5vZGUsIHNkay9j
-bGksIHJlcG9ydHMsIG1vbSwgZ3Vlc3QgYWdlbnQsIGV0Yy4KIC0gc3ViamVjdHM6IG5ldHdvcmss
-IHN0b3JhZ2UsIHZtIGxpZmUgY3ljbGUsIHNjaGVkdWxpbmcgJiBzbGEsIGdsdXN0ZXIsIGV0Yy4K
-IC0gcGFja2FnaW5nLCBpbnN0YWxsYXRpb24gYW5kIGRpc3RyaWJ1dGlvbnMKIC0gY29tbXVuaXR5
-IGluZnJhc3RydWN0dXJlIGFuZCBzZXJ2aWNlcwoKU1VCTUlTU0lPTiBSRVFVSVJFTUVOVFMKCkFi
-c3RyYWN0cyBkdWU6IFNlcCAxNHRoLCAyMDEyCk5vdGlmaWNhdGlvbjogU2VwIDI4dGgsIDIwMTIK
-ClBsZWFzZSBzdWJtaXQgYSBzaG9ydCBhYnN0cmFjdCAofjE1MCB3b3JkcykgZGVzY3JpYmluZyB5
-b3VyIHByZXNlbnRhdGlvbgpwcm9wb3NhbC4gIEluIHlvdXIgc3VibWlzc2lvbiBwbGVhc2Ugbm90
-ZSBob3cgbG9uZyB5b3VyIHRhbGsgd2lsbCB0YWtlLgpTbG90cyB2YXJ5IGluIGxlbmd0aCB1cCB0
-byA0NSBtaW51dGVzLiAgQWxzbyBpbmNsdWRlIGluIHlvdXIgcHJvcG9zYWwKdGhlIHByb3Bvc2Fs
-IHR5cGUgLS0gb25lIG9mOgoKLSB0ZWNobmljYWwgdGFsawotIGVuZC11c2VyIHRhbGsKLSBiaXJk
-cyBvZiBhIGZlYXRoZXIgKEJPRikgc2Vzc2lvbgoKU3VibWl0IHlvdXIgcHJvcG9zYWwgaGVyZToK
-Cmh0dHA6Ly9ldmVudHMubGludXhmb3VuZGF0aW9uLm9yZy9jZnAKCllvdSB3aWxsIHJlY2VpdmUg
-YSBub3RpZmljYXRpb24gd2hldGhlciBvciBub3QgeW91ciBwcmVzZW50YXRpb24gcHJvcG9zYWwK
-d2FzIGFjY2VwdGVkIGJ5IFNlcCAxNHRoLgoKRU5ELVVTRVIgQ09MTEFCT1JBVElPTgoKT25lIG9m
-IHRoZSBiaWcgY2hhbGxlbmdlcyBhcyBkZXZlbG9wZXJzIGlzIHRvIGtub3cgd2hhdCwgd2hlcmUg
-YW5kIGhvdwpwZW9wbGUgYWN0dWFsbHkgdXNlIG91ciBzb2Z0d2FyZS4gIFdlIHdpbGwgcmVzZXJ2
-ZSBhIGZldyBzbG90cyBmb3IgZW5kCnVzZXJzIHRhbGtpbmcgYWJvdXQgdGhlaXIgZGVwbG95bWVu
-dCBjaGFsbGVuZ2VzIGFuZCBhY2hpZXZlbWVudHMuCgpJZiB5b3UgYXJlIHVzaW5nIG9WaXJ0IGlu
-IHByb2R1Y3Rpb24geW91IGFyZSBlbmNvdXJhZ2VkIHN1Ym1pdCBhIHNwZWFraW5nCnByb3Bvc2Fs
-LiAgU2ltcGx5IG1hcmsgaXQgYXMgYW4gZW5kLXVzZXIgY29sbGFib3JhdGlvbiBwcm9wb3NhbC4g
-IEFzIGFuCmVuZCB1c2VyLCB0aGlzIGlzIGEgdW5pcXVlIG9wcG9ydHVuaXR5IHRvIGdldCB5b3Vy
-IGlucHV0IHRvIGRldmVsb3BlcnMuCgpCT0YgU0VTU0lPTgoKV2Ugd2lsbCByZXNlcnZlIHNvbWUg
-c2xvdHMgaW4gdGhlIGV2ZW5pbmcgYWZ0ZXIgdGhlIG1haW4gY29uZmVyZW5jZQp0cmFja3MsIGZv
-ciBiaXJkcyBvZiBhIGZlYXRoZXIgKEJPRikgc2Vzc2lvbnMuIFRoZXNlIHNlc3Npb25zIHdpbGwg
-YmUKbGVzcyBmb3JtYWwgdGhhbiBwcmVzZW50YXRpb24gdHJhY2tzIGFuZCB0YXJnZXR0ZWQgZm9y
-IHBlb3BsZSB3aG8gd291bGQKbGlrZSB0byBkaXNjdXNzIHNwZWNpZmljIGlzc3VlcyB3aXRoIG90
-aGVyIGRldmVsb3BlcnMgYW5kL29yIHVzZXJzLgpJZiB5b3UgYXJlIGludGVyZXN0ZWQgaW4gZ2V0
-dGluZyBkZXZlbG9wZXJzIGFuZC9vciB1c2VzIHRvZ2V0aGVyIHRvCmRpc2N1c3MgYSBzcGVjaWZp
-YyBwcm9ibGVtLCBwbGVhc2Ugc3VibWl0IGEgQk9GIHByb3Bvc2FsLgoKTElHSFROSU5HIFRBTEtT
-CgpJbiBhZGRpdGlvbiB0byBzdWJtaXR0ZWQgdGFsa3Mgd2Ugd2lsbCBhbHNvIGhhdmUgc29tZSBy
-b29tIGZvciBsaWdodG5pbmcKdGFsa3MuIFRoZXNlIGFyZSBzaG9ydCAoNSBtaW51dGUpIGRpc2N1
-c3Npb25zIHRvIGhpZ2hsaWdodCBuZXcgd29yayBvcgppZGVhcyB0aGF0IGFyZW4ndCBjb21wbGV0
-ZSBlbm91Z2ggdG8gd2FycmFudCBhIGZ1bGwgcHJlc2VudGF0aW9uIHNsb3QuCkxpZ2h0bmluZyB0
-YWxrIHN1Ym1pc3Npb25zIGFuZCBzY2hlZHVsaW5nIHdpbGwgYmUgaGFuZGxlZCBvbi1zaXRlIGF0
-Cm9WaXJ0IFdvcmtzaG9wLgoKSE9URUwgLyBUUkFWRUwKClRoZSBvVmlydCBXb3Jrc2hvcCBFdXJv
-cGUgMjAxMiB3aWxsIGJlIGhlbGQgaW4gQmFyY2Vsb25hLCBTcGFpbiBhdCB0aGUKSG90ZWwgRmly
-YSBQYWxhY2UuCgpodHRwOi8vZXZlbnRzLmxpbnV4Zm91bmRhdGlvbi5vcmcvZXZlbnRzL2t2bS1m
-b3J1bS9ob3RlbAoKVGhhbmsgeW91IGZvciB5b3VyIGludGVyZXN0IGluIG9WaXJ0LiAgV2UncmUg
-bG9va2luZyBmb3J3YXJkIHRvIHlvdXIKc3VibWlzc2lvbnMgYW5kIHNlZWluZyB5b3UgYXQgdGhl
-IG9WaXJ0IFdvcmtzaG9wIEV1cm9wZSAyMDEyIGluIE5vdmVtYmVyIQoKVGhhbmtzLAp5b3VyIG9W
-aXJ0IFdvcmtzaG9wIEV1cm9wZSAyMDEyIFByb2dyYW0gQ29tbWl0ZWUKClBsZWFzZSBjb250YWN0
-IHVzIHdpdGggYW55IHF1ZXN0aW9ucyBvciBjb21tZW50cy4Kd29ya3Nob3AtcGNAb3ZpcnQub3Jn
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+On Tue, Aug 14, 2012 at 06:34:13PM -0300, Rafael Aquini wrote:
+> On Tue, Aug 14, 2012 at 11:49:06PM +0300, Michael S. Tsirkin wrote:
+> > On Tue, Aug 14, 2012 at 05:29:50PM -0300, Rafael Aquini wrote:
+> > > On Tue, Aug 14, 2012 at 11:24:01PM +0300, Michael S. Tsirkin wrote:
+> > > > On Tue, Aug 14, 2012 at 05:08:31PM -0300, Rafael Aquini wrote:
+> > > > > On Tue, Aug 14, 2012 at 10:59:16PM +0300, Michael S. Tsirkin wrote:
+> > > > > > > > > What if there is more than one balloon device?
+> > > > > > > > 
+> > > > > > > > Is it possible to load this driver twice, or are you foreseeing a future case
+> > > > > > > > where this driver will be able to manage several distinct memory balloons for
+> > > > > > > > the same guest?
+> > > > > > > > 
+> > > > > > > 
+> > > > > > > Second.
+> > > > > > > It is easy to create several balloons they are just
+> > > > > > > pci devices.
+> > > > > >  
+> > > > > > 
+> > > > > > 
+> > > > > > and it might not be too important to make it work but
+> > > > > > at least would be nice not to have a crash in this
+> > > > > > setup.
+> > > > > >
+> > > > > Fair enough. For now, as I believe it's safe to assume we are only inflating one
+> > > > > balloon per guest, I'd like to propose this as a future enhancement. Sounds
+> > > > > good?
+> > > > >  
+> > > > 
+> > > > Since guest crashes when it's not the case, no it doesn't, sorry :(.
+> > > >
+> > > Ok, but right now this driver only takes care of 1 balloon per guest,
+> > 
+> > It does? Are you sure? There is no global state as far as I can see. So
+> > I can create 2 devices and driver will happily create two instances,
+> > each one can be inflated/deflated independently.
+> > 
+> > > so how
+> > > could this approach crash it? 
+> > 
+> > Add device. inflate. Add another device. inflate. deflate. unplug.
+> > Now you have pointer to freed memory and when mm touches
+> > page from first device, you ge use after free.
+> > 
+> > > Your point is a good thing to be on a to-do list for future enhancements, but
+> > > it's not a dealbreaker for the present balloon driver implementation, IMHO.
+> > > 
+> > 
+> > Yes it looks like a dealbreaker to me.
+> 
+> Sorry. You're right, I'm wrong.
+> 
+> I'll get back to the scracthpad to overcome this constraint. I believe the way
+> this patch was at its v4 revision (wrt this particular case) could possibly
+> address this concern of yours.
+
+Almost. We still have a global balloon_mapping. The only reason for
+it to exist seems solely to detect balloon mappings, so it
+can just be replaced by a flag in the mapping, or in mapping
+ops, or elsewhere. Also, please add APIs to mm so we can
+avoid doing internal mm stuff like
+
+INIT_RADIX_TREE(&balloon_mapping->page_tree, GFP_ATOMIC | __GFP_NOWARN);
+
+in the driver. It should be
+alloc_address_mapping(&virtio_balloon_aops);
+free_address_mapping
+
+Make page->mapping use rcu, and sync rcu in
+free_address_mapping.
+
+-- 
+MST
