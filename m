@@ -1,22 +1,20 @@
-From: Rafael Aquini <aquini@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v7 2/4] virtio_balloon: introduce migration primitives to
 	balloon pages
-Date: Tue, 14 Aug 2012 17:29:50 -0300
-Message-ID: <20120814202949.GF22133__22411.3990240314$1344976218$gmane$org@t510.redhat.com>
+Date: Tue, 14 Aug 2012 23:31:23 +0300
+Message-ID: <20120814203123.GC28990__38001.7349416905$1344976238$gmane$org@redhat.com>
 References: <cover.1344619987.git.aquini@redhat.com>
 	<f19b63dfa026fe2f8f11ec017771161775744781.1344619987.git.aquini@redhat.com>
 	<20120813084123.GF14081@redhat.com>
 	<20120814182244.GB13338@t510.redhat.com>
 	<20120814195139.GA28870@redhat.com>
-	<20120814195916.GC28870@redhat.com>
-	<20120814200830.GD22133@t510.redhat.com>
-	<20120814202401.GB28990@redhat.com>
+	<20120814201113.GE22133@t510.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120814202401.GB28990@redhat.com>
+In-Reply-To: <20120814201113.GE22133@t510.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,39 +24,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Rafael Aquini <aquini@redhat.com>
 Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 14, 2012 at 11:24:01PM +0300, Michael S. Tsirkin wrote:
-> On Tue, Aug 14, 2012 at 05:08:31PM -0300, Rafael Aquini wrote:
-> > On Tue, Aug 14, 2012 at 10:59:16PM +0300, Michael S. Tsirkin wrote:
-> > > > > > What if there is more than one balloon device?
-> > > > > 
-> > > > > Is it possible to load this driver twice, or are you foreseeing a future case
-> > > > > where this driver will be able to manage several distinct memory balloons for
-> > > > > the same guest?
-> > > > > 
-> > > > 
-> > > > Second.
-> > > > It is easy to create several balloons they are just
-> > > > pci devices.
-> > >  
-> > > 
-> > > 
-> > > and it might not be too important to make it work but
-> > > at least would be nice not to have a crash in this
-> > > setup.
-> > >
-> > Fair enough. For now, as I believe it's safe to assume we are only inflating one
-> > balloon per guest, I'd like to propose this as a future enhancement. Sounds
-> > good?
-> >  
+On Tue, Aug 14, 2012 at 05:11:13PM -0300, Rafael Aquini wrote:
+> On Tue, Aug 14, 2012 at 10:51:39PM +0300, Michael S. Tsirkin wrote:
+> > What I think you should do is use rcu for access.
+> > And here sync rcu before freeing.
+> > Maybe an overkill but at least a documented synchronization
+> > primitive, and it is very light weight.
+> > 
 > 
-> Since guest crashes when it's not the case, no it doesn't, sorry :(.
->
-Ok, but right now this driver only takes care of 1 balloon per guest, so how
-could this approach crash it? 
+> I liked your suggestion on barriers, as well.
+> 
+> Rik, Mel ?
 
-Your point is a good thing to be on a to-do list for future enhancements, but
-it's not a dealbreaker for the present balloon driver implementation, IMHO.
+Further instead of simple assignment I would add an api
+in mm to set/clear the balloon mapping, with proper locking.
+
+This could fail if already set, and thus fix crash with
+many ballons.
