@@ -1,54 +1,88 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH V2 18/18] Tools: hv: Properly manage open streams
-Date: Tue, 14 Aug 2012 03:17:28 +0000
-Message-ID: <426367E2313C2449837CD2DE46E7EAF9236BF917@SN2PRD0310MB382.namprd03.prod.outlook.com>
-References: <1344877584-21738-1-git-send-email-kys@microsoft.com>
-	 <1344877627-21779-1-git-send-email-kys@microsoft.com>
-	 <1344877627-21779-18-git-send-email-kys@microsoft.com>
- <1344909469.824.167.camel@deadeye.wl.decadent.org.uk>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7 2/4] virtio_balloon: introduce migration primitives to
+	balloon pages
+Date: Tue, 14 Aug 2012 11:33:20 +0300
+Message-ID: <20120814083320.GA3597__3360.31641713834$1344933165$gmane$org@redhat.com>
+References: <cover.1344619987.git.aquini@redhat.com>
+	<f19b63dfa026fe2f8f11ec017771161775744781.1344619987.git.aquini@redhat.com>
+	<20120813084123.GF14081@redhat.com>
+	<87lihis5qi.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1344909469.824.167.camel@deadeye.wl.decadent.org.uk>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ben Hutchings <ben@decadent.org.uk>
-Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <87lihis5qi.fsf@rustcorp.com.au>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogQmVuIEh1dGNoaW5ncyBb
-bWFpbHRvOmJlbkBkZWNhZGVudC5vcmcudWtdDQo+IFNlbnQ6IE1vbmRheSwgQXVndXN0IDEzLCAy
-MDEyIDk6NTggUE0NCj4gVG86IEtZIFNyaW5pdmFzYW4NCj4gQ2M6IGdyZWdraEBsaW51eGZvdW5k
-YXRpb24ub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOw0KPiBkZXZlbEBsaW51eGRy
-aXZlcnByb2plY3Qub3JnOyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5vc2RsLm9yZzsgb2xhZkBhZXBm
-bGUuZGU7DQo+IGFwd0BjYW5vbmljYWwuY29tDQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggVjIgMTgv
-MThdIFRvb2xzOiBodjogUHJvcGVybHkgbWFuYWdlIG9wZW4gc3RyZWFtcw0KPiANCj4gT24gTW9u
-LCAyMDEyLTA4LTEzIGF0IDEwOjA3IC0wNzAwLCBLLiBZLiBTcmluaXZhc2FuIHdyb3RlOg0KPiA+
-IENsb3NlIHRoZSBvcGVuIHN0cmVhbXMgcHJvcGVybHkuDQo+ID4NCj4gPiBTaWduZWQtb2ZmLWJ5
-OiBLLiBZLiBTcmluaXZhc2FuIDxreXNAbWljcm9zb2Z0LmNvbT4NCj4gPiBSZXZpZXdlZC1ieTog
-SGFpeWFuZyBaaGFuZyA8aGFpeWFuZ3pAbWljcm9zb2Z0LmNvbT4NCj4gPiBSZXZpZXdlZC1ieTog
-T2xhZiBIZXJpbmcgPG9sYWZAYWVwZmxlLmRlPg0KPiA+IFJldmlld2VkLWJ5OiBCZW4gSHV0Y2hp
-bmdzIDxiZW5AZGVjYWRlbnQub3JnLnVrPg0KPiANCj4gVGhpcyBpc24ndCByZXZpZXdlZCBieSBt
-ZSwgSSdtIHRoZSBhdXRob3IhDQoNCkkgYW0gdHJ1bHkgc29ycnkgZm9yIHRoaXMgY29uZnVzaW9u
-LiBJIHdhcyBjbGVhbmluZyB1cCB0aGUgY29kZSBiYXNlZCBvbiB0aGUNCmxhc3Qgc2V0IG9mIGNv
-bW1lbnRzIEkgZ290IGZyb20gT2xhZiBhbmQgSSBkaWQgbm90IHJlYWxpemUgdGhhdCB5b3UgaGFk
-IGF1dGhvcmVkDQp0aGlzIHZlcnkgcGF0Y2ghIFBlcmhhcHMgd2UgY2FuIGRyb3AgdGhpcyBwYXRj
-aCBmcm9tIHRoaXMgc2V0Lg0KDQpSZWdhcmRzLA0KDQpLLiBZDQoNCg0KPiANCj4gQmVuLg0KPiAN
-Cj4gPiAtLS0NCj4gPiAgdG9vbHMvaHYvaHZfa3ZwX2RhZW1vbi5jIHwgICAgNCArKy0tDQo+ID4g
-IDEgZmlsZXMgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQ0KPiA+DQo+
-ID4gZGlmZiAtLWdpdCBhL3Rvb2xzL2h2L2h2X2t2cF9kYWVtb24uYyBiL3Rvb2xzL2h2L2h2X2t2
-cF9kYWVtb24uYw0KPiA+IGluZGV4IGM4ZTEwMTMuLmNhNjQyNGYgMTAwNjQ0DQo+ID4gLS0tIGEv
-dG9vbHMvaHYvaHZfa3ZwX2RhZW1vbi5jDQo+ID4gKysrIGIvdG9vbHMvaHYvaHZfa3ZwX2RhZW1v
-bi5jDQo+ID4gQEAgLTE2MCw3ICsxNjAsNyBAQCBzdGF0aWMgdm9pZCBrdnBfdXBkYXRlX2ZpbGUo
-aW50IHBvb2wpDQo+ID4gIAkJCQlzaXplb2Yoc3RydWN0IGt2cF9yZWNvcmQpLA0KPiA+ICAJCQkJ
-a3ZwX2ZpbGVfaW5mb1twb29sXS5udW1fcmVjb3JkcywgZmlsZXApOw0KPiA+DQo+ID4gLQlmZmx1
-c2goZmlsZXApOw0KPiA+ICsJZmNsb3NlKGZpbGVwKTsNCj4gPiAgCWt2cF9yZWxlYXNlX2xvY2so
-cG9vbCk7DQo+ID4gIH0NCj4gPg0KPiA+IEBAIC0yMDYsNyArMjA2LDcgQEAgc3RhdGljIHZvaWQg
-a3ZwX3VwZGF0ZV9tZW1fc3RhdGUoaW50IHBvb2wpDQo+ID4gIAlrdnBfZmlsZV9pbmZvW3Bvb2xd
-Lm51bV9ibG9ja3MgPSBudW1fYmxvY2tzOw0KPiA+ICAJa3ZwX2ZpbGVfaW5mb1twb29sXS5yZWNv
-cmRzID0gcmVjb3JkOw0KPiA+ICAJa3ZwX2ZpbGVfaW5mb1twb29sXS5udW1fcmVjb3JkcyA9IHJl
-Y29yZHNfcmVhZDsNCj4gPiAtDQo+ID4gKwlmY2xvc2UoZmlsZXApOw0KPiA+ICAJa3ZwX3JlbGVh
-c2VfbG9jayhwb29sKTsNCj4gPiAgfQ0KPiA+ICBzdGF0aWMgaW50IGt2cF9maWxlX2luaXQodm9p
-ZCkNCj4gDQo+IC0tDQo+IEJlbiBIdXRjaGluZ3MNCj4gSSBzYXkgd2UgdGFrZSBvZmY7IG51a2Ug
-dGhlIHNpdGUgZnJvbSBvcmJpdC4gIEl0J3MgdGhlIG9ubHkgd2F5IHRvIGJlIHN1cmUuDQo=
+On Tue, Aug 14, 2012 at 09:29:49AM +0930, Rusty Russell wrote:
+> On Mon, 13 Aug 2012 11:41:23 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > On Fri, Aug 10, 2012 at 02:55:15PM -0300, Rafael Aquini wrote:
+> > > +/*
+> > > + * Populate balloon_mapping->a_ops->freepage method to help compaction on
+> > > + * re-inserting an isolated page into the balloon page list.
+> > > + */
+> > > +void virtballoon_putbackpage(struct page *page)
+> > > +{
+> > > +	spin_lock(&pages_lock);
+> > > +	list_add(&page->lru, &vb_ptr->pages);
+> > > +	spin_unlock(&pages_lock);
+> > 
+> > Could the following race trigger:
+> > migration happens while module unloading is in progress,
+> > module goes away between here and when the function
+> > returns, then code for this function gets overwritten?
+> > If yes we need locking external to module to prevent this.
+> > Maybe add a spinlock to struct address_space?
+> 
+> The balloon module cannot be unloaded until it has leaked all its pages,
+> so I think this is safe:
+> 
+>         static void remove_common(struct virtio_balloon *vb)
+>         {
+>         	/* There might be pages left in the balloon: free them. */
+>         	while (vb->num_pages)
+>         		leak_balloon(vb, vb->num_pages);
+> 
+> Cheers,
+> Rusty.
+
+I know I meant something else.
+Let me lay this out:
+
+CPU1 executes:
+void virtballoon_putbackpage(struct page *page)
+{
+	spin_lock(&pages_lock);
+	list_add(&page->lru, &vb_ptr->pages);
+	spin_unlock(&pages_lock);
+
+
+		at this point CPU2 unloads module:
+						leak_balloon
+						......
+
+		next CPU2 loads another module so code memory gets overwritten
+
+now CPU1 executes the next instruction:
+
+}
+
+which would normally return to function's caller,
+but it has been overwritten by CPU2 so we get corruption.
+
+No?
+
+-- 
+MST
