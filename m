@@ -1,21 +1,23 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 2/4] virtio_balloon: introduce migration primitives to
-	balloon pages
-Date: Wed, 15 Aug 2012 17:40:19 +0300
-Message-ID: <20120815144019.GH3068@redhat.com>
-References: <cover.1344619987.git.aquini@redhat.com>
-	<f19b63dfa026fe2f8f11ec017771161775744781.1344619987.git.aquini@redhat.com>
-	<20120813084123.GF14081@redhat.com>
-	<87lihis5qi.fsf@rustcorp.com.au> <20120814083320.GA3597@redhat.com>
-	<20120814184409.GC13338@t510.redhat.com>
-	<20120814193109.GA28840@redhat.com>
-	<20120815123457.GA2175@t510.redhat.com>
+From: Rik van Riel <riel@redhat.com>
+Subject: Re: [PATCH v7 2/4] virtio_balloon: introduce migration primitives
+	to balloon pages
+Date: Wed, 15 Aug 2012 11:30:34 -0400
+Message-ID: <502BC09A.5050104@redhat.com>
+References: <20120813084123.GF14081@redhat.com>
+	<20120814182244.GB13338@t510.redhat.com>
+	<20120814195139.GA28870@redhat.com>
+	<20120814195916.GC28870@redhat.com>
+	<20120814200830.GD22133@t510.redhat.com>
+	<20120814202401.GB28990@redhat.com>
+	<20120814202949.GF22133@t510.redhat.com>
+	<20120814204906.GD28990@redhat.com>
+	<20120814205426.GA29162@redhat.com> <502ABB9B.90108@redhat.com>
+	<20120814213832.GA29180@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120815123457.GA2175@t510.redhat.com>
+In-Reply-To: <20120814213832.GA29180@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,76 +27,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rafael Aquini <aquini@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 15, 2012 at 09:34:58AM -0300, Rafael Aquini wrote:
-> On Tue, Aug 14, 2012 at 10:31:09PM +0300, Michael S. Tsirkin wrote:
-> > > > now CPU1 executes the next instruction:
-> > > > 
-> > > > }
-> > > > 
-> > > > which would normally return to function's caller,
-> > > > but it has been overwritten by CPU2 so we get corruption.
-> > > > 
-> > > > No?
-> > > 
-> > > At the point CPU2 is unloading the module, it will be kept looping at the
-> > > snippet Rusty pointed out because the isolation / migration steps do not mess
-> > > with 'vb->num_pages'. The driver will only unload after leaking the total amount
-> > > of balloon's inflated pages, which means (for this hypothetical case) CPU2 will
-> > > wait until CPU1 finishes the putaback procedure.
-> > > 
-> > 
-> > Yes but only until unlock finishes. The last return from function
-> > is not guarded and can be overwritten.
-> 
-> CPU1 will be returning to putback_balloon_page() which code is located at core
-> mm/compaction.c, outside the driver.
+On 08/14/2012 05:38 PM, Michael S. Tsirkin wrote:
 
-Sorry, I don't seem to be able to articulate this clearly.
-But this is a correctness issue so I am compelled to try again.
+> And even ignoring that, global pointer to a device
+> is an ugly hack and ugly hacks tend to explode.
+>
+> And even ignoring estetics, and if we decide we are fine
+> with a single balloon, it needs to fail gracefully not
+> crash like it does now.
 
-Here is some pseudo code:
+Fair enough.  That certainly seems easy enough to fix.
 
-int pages_lock;
+Each balloon driver can have its own struct address_space,
+and simply point mapping->host (or any of the others) at
+a global balloon thing somewhere.
 
-void virtballoon_isolatepage(void *page, unsigned long mode)
-{
-       pages_lock = 0;
-}
-
-assignment of 0 emulates spin unlock.
-I removed all other content. Now look at disassembly:
-
-080483d0 <virtballoon_isolatepage>:
-virtballoon_isolatepage():
- 80483d0:       c7 05 88 96 04 08 00    movl   $0x0,0x8049688
- 80483d7:       00 00 00 
-
-<----------- Above is "spin unlock"
-
- 80483da:       c3                      ret    
-
-^^^^
-Here we are still executing module code (one instruction of it!)
-after we have dropped the lock.
-
-
-So if module goes away at the point marked by <--------
-above (and nothing seems to prevent that,
-since pages_lock is unlocked), the last instruction can get overwritten
-and then random code will get executed instead.
-
-In the end the rule is simple: you can not
-prevent module unloading from within module
-itself. It always must be the caller of your
-module that uses some lock to do this.
-
-My proposal is to use rcu for this since it is lightweight
-and also does not require us to pass extra
-state around.
-
--- 
-MST
+if (page->mapping && page->mapping->host == balloon_magic)
