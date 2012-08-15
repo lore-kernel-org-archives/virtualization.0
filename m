@@ -1,17 +1,20 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v7 2/4] virtio_balloon: introduce migration primitives to
-	balloon pages
-Date: Wed, 15 Aug 2012 12:43:00 +0930
-Message-ID: <87vcgkrgoz.fsf@rustcorp.com.au>
+From: Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [PATCH v7 1/4] mm: introduce compaction and migration for virtio
+	ballooned pages
+Date: Wed, 15 Aug 2012 09:52:18 +0100
+Message-ID: <20120815085218.GG4052@csn.ul.ie>
 References: <cover.1344619987.git.aquini@redhat.com>
-	<f19b63dfa026fe2f8f11ec017771161775744781.1344619987.git.aquini@redhat.com>
-	<20120813084123.GF14081@redhat.com>
-	<87lihis5qi.fsf@rustcorp.com.au> <20120814083320.GA3597@redhat.com>
+	<292b1b52e863a05b299f94bda69a61371011ac19.1344619987.git.aquini@redhat.com>
+	<20120813082619.GE14081@redhat.com>
+	<20120814174404.GA13338@t510.redhat.com>
+	<20120814193525.GB28840@redhat.com>
+	<20120814200043.GB22133@t510.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120814083320.GA3597@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20120814200043.GB22133@t510.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,74 +24,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 14 Aug 2012 11:33:20 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> On Tue, Aug 14, 2012 at 09:29:49AM +0930, Rusty Russell wrote:
-> > On Mon, 13 Aug 2012 11:41:23 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > On Fri, Aug 10, 2012 at 02:55:15PM -0300, Rafael Aquini wrote:
-> > > > +/*
-> > > > + * Populate balloon_mapping->a_ops->freepage method to help compaction on
-> > > > + * re-inserting an isolated page into the balloon page list.
-> > > > + */
-> > > > +void virtballoon_putbackpage(struct page *page)
-> > > > +{
-> > > > +	spin_lock(&pages_lock);
-> > > > +	list_add(&page->lru, &vb_ptr->pages);
-> > > > +	spin_unlock(&pages_lock);
+On Tue, Aug 14, 2012 at 05:00:49PM -0300, Rafael Aquini wrote:
+> On Tue, Aug 14, 2012 at 10:35:25PM +0300, Michael S. Tsirkin wrote:
+> > > > > +/* __isolate_lru_page() counterpart for a ballooned page */
+> > > > > +bool isolate_balloon_page(struct page *page)
+> > > > > +{
+> > > > > +	if (WARN_ON(!movable_balloon_page(page)))
+> > > > 
+> > > > Looks like this actually can happen if the page is leaked
+> > > > between previous movable_balloon_page and here.
+> > > > 
+> > > > > +		return false;
 > > > 
-> > > Could the following race trigger:
-> > > migration happens while module unloading is in progress,
-> > > module goes away between here and when the function
-> > > returns, then code for this function gets overwritten?
-> > > If yes we need locking external to module to prevent this.
-> > > Maybe add a spinlock to struct address_space?
+> > > Yes, it surely can happen, and it does not harm to catch it here, print a warn and
+> > > return.
 > > 
-> > The balloon module cannot be unloaded until it has leaked all its pages,
-> > so I think this is safe:
-> > 
-> >         static void remove_common(struct virtio_balloon *vb)
-> >         {
-> >         	/* There might be pages left in the balloon: free them. */
-> >         	while (vb->num_pages)
-> >         		leak_balloon(vb, vb->num_pages);
-> > 
-> > Cheers,
-> > Rusty.
+> > If it is legal, why warn? For that matter why test here at all?
+> >
 > 
-> I know I meant something else.
-> Let me lay this out:
+> As this is a public symbol, and despite the usage we introduce is sane, the warn
+> was placed as an insurance policy to let us know about any insane attempt to use
+> the procedure in the future. That was due to a nice review nitpick, actually.
 > 
-> CPU1 executes:
-> void virtballoon_putbackpage(struct page *page)
-> {
-> 	spin_lock(&pages_lock);
-> 	list_add(&page->lru, &vb_ptr->pages);
-> 	spin_unlock(&pages_lock);
+> Even though the code already had a test to properly avoid this race you
+> mention, I thought that sustaining the warn was a good thing. As I told you,
+> despite real, I've never got (un)lucky enough to stumble across that race window
+> while testing the patch.
 > 
+> If your concern is about being too much verbose on logging, under certain
+> conditions, perhaps we can change that test to a WARN_ON_ONCE() ?
 > 
-> 		at this point CPU2 unloads module:
-> 						leak_balloon
-> 						......
-> 
-> 		next CPU2 loads another module so code memory gets overwritten
-> 
-> now CPU1 executes the next instruction:
-> 
-> }
-> 
-> which would normally return to function's caller,
-> but it has been overwritten by CPU2 so we get corruption.
+> Mel, what are your thoughts here?
+>  
 
-Actually, I have no idea.
+I viewed it as being defensive programming. VM_BUG_ON would be less
+useful as it can be compiled out. If the race can be routinely hit then
+multiple warnings is instructive in itself. I have no strong feelings
+about this though. I see little harm in making the check but in light of
+this conversation add a short comment explaining that the check should
+be redundant.
 
-Where does virtballoon_putbackpage get called from?  It's some weird mm
-thing, and I stay out of that mess.
-
-The vb thread is stopped before we spin checking vb->num_pages, so it's
-not touching pages; who would be calling this?
-
-Confused,
-Rusty.
+-- 
+Mel Gorman
+SUSE Labs
