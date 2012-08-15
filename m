@@ -1,180 +1,100 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH V2 02/18] Drivers: hv: Add KVP definitions for IP
- address injection
-Date: Wed, 15 Aug 2012 12:39:55 +0000
-Message-ID: <426367E2313C2449837CD2DE46E7EAF9236C0FA1@SN2PRD0310MB382.namprd03.prod.outlook.com>
-References: <1344877584-21738-1-git-send-email-kys@microsoft.com>
- <1344877627-21779-1-git-send-email-kys@microsoft.com>
- <1344877627-21779-2-git-send-email-kys@microsoft.com>
- <20120814013815.GA29829@kroah.com>
- <426367E2313C2449837CD2DE46E7EAF9236BF8D0@SN2PRD0310MB382.namprd03.prod.outlook.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7 2/4] virtio_balloon: introduce migration primitives to
+	balloon pages
+Date: Wed, 15 Aug 2012 17:40:19 +0300
+Message-ID: <20120815144019.GH3068@redhat.com>
+References: <cover.1344619987.git.aquini@redhat.com>
+	<f19b63dfa026fe2f8f11ec017771161775744781.1344619987.git.aquini@redhat.com>
+	<20120813084123.GF14081@redhat.com>
+	<87lihis5qi.fsf@rustcorp.com.au> <20120814083320.GA3597@redhat.com>
+	<20120814184409.GC13338@t510.redhat.com>
+	<20120814193109.GA28840@redhat.com>
+	<20120815123457.GA2175@t510.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <426367E2313C2449837CD2DE46E7EAF9236BF8D0@SN2PRD0310MB382.namprd03.prod.outlook.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: KY Srinivasan <kys@microsoft.com>, Greg KH <gregkh@linuxfoundation.org>
-Cc: "olaf@aepfle.de" <olaf@aepfle.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "apw@canonical.com" <apw@canonical.com>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "ben@decadent.org.uk" <ben@decadent.org.uk>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20120815123457.GA2175@t510.redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Aug 15, 2012 at 09:34:58AM -0300, Rafael Aquini wrote:
+> On Tue, Aug 14, 2012 at 10:31:09PM +0300, Michael S. Tsirkin wrote:
+> > > > now CPU1 executes the next instruction:
+> > > > 
+> > > > }
+> > > > 
+> > > > which would normally return to function's caller,
+> > > > but it has been overwritten by CPU2 so we get corruption.
+> > > > 
+> > > > No?
+> > > 
+> > > At the point CPU2 is unloading the module, it will be kept looping at the
+> > > snippet Rusty pointed out because the isolation / migration steps do not mess
+> > > with 'vb->num_pages'. The driver will only unload after leaking the total amount
+> > > of balloon's inflated pages, which means (for this hypothetical case) CPU2 will
+> > > wait until CPU1 finishes the putaback procedure.
+> > > 
+> > 
+> > Yes but only until unlock finishes. The last return from function
+> > is not guarded and can be overwritten.
+> 
+> CPU1 will be returning to putback_balloon_page() which code is located at core
+> mm/compaction.c, outside the driver.
+
+Sorry, I don't seem to be able to articulate this clearly.
+But this is a correctness issue so I am compelled to try again.
+
+Here is some pseudo code:
+
+int pages_lock;
+
+void virtballoon_isolatepage(void *page, unsigned long mode)
+{
+       pages_lock = 0;
+}
+
+assignment of 0 emulates spin unlock.
+I removed all other content. Now look at disassembly:
+
+080483d0 <virtballoon_isolatepage>:
+virtballoon_isolatepage():
+ 80483d0:       c7 05 88 96 04 08 00    movl   $0x0,0x8049688
+ 80483d7:       00 00 00 
+
+<----------- Above is "spin unlock"
+
+ 80483da:       c3                      ret    
+
+^^^^
+Here we are still executing module code (one instruction of it!)
+after we have dropped the lock.
 
 
-> -----Original Message-----
-> From: devel-bounces@linuxdriverproject.org [mailto:devel-
-> bounces@linuxdriverproject.org] On Behalf Of KY Srinivasan
-> Sent: Monday, August 13, 2012 10:57 PM
-> To: Greg KH
-> Cc: olaf@aepfle.de; linux-kernel@vger.kernel.org; virtualization@lists.osdl.org;
-> apw@canonical.com; devel@linuxdriverproject.org; ben@decadent.org.uk
-> Subject: RE: [PATCH V2 02/18] Drivers: hv: Add KVP definitions for IP address
-> injection
-> 
-> 
-> 
-> > -----Original Message-----
-> > From: Greg KH [mailto:gregkh@linuxfoundation.org]
-> > Sent: Monday, August 13, 2012 9:38 PM
-> > To: KY Srinivasan
-> > Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> > virtualization@lists.osdl.org; olaf@aepfle.de; apw@canonical.com;
-> > ben@decadent.org.uk
-> > Subject: Re: [PATCH V2 02/18] Drivers: hv: Add KVP definitions for IP address
-> > injection
-> >
-> > On Mon, Aug 13, 2012 at 10:06:51AM -0700, K. Y. Srinivasan wrote:
-> > > Add the necessary definitions for supporting the IP injection functionality.
-> > >
-> > > Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
-> > > Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
-> > > Reviewed-by: Olaf Hering <olaf@aepfle.de>
-> > > Reviewed-by: Ben Hutchings <ben@decadent.org.uk>
-> > > ---
-> > >  drivers/hv/hv_util.c     |    4 +-
-> > >  include/linux/hyperv.h   |   76
-> > ++++++++++++++++++++++++++++++++++++++++++++-
-> > >  tools/hv/hv_kvp_daemon.c |    2 +-
-> > >  3 files changed, 77 insertions(+), 5 deletions(-)
-> > >
-> > > diff --git a/drivers/hv/hv_util.c b/drivers/hv/hv_util.c
-> > > index d3ac6a4..a0667de 100644
-> > > --- a/drivers/hv/hv_util.c
-> > > +++ b/drivers/hv/hv_util.c
-> > > @@ -263,7 +263,7 @@ static int util_probe(struct hv_device *dev,
-> > >  		(struct hv_util_service *)dev_id->driver_data;
-> > >  	int ret;
-> > >
-> > > -	srv->recv_buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
-> > > +	srv->recv_buffer = kmalloc(PAGE_SIZE * 2, GFP_KERNEL);
-> > >  	if (!srv->recv_buffer)
-> > >  		return -ENOMEM;
-> > >  	if (srv->util_init) {
-> > > @@ -274,7 +274,7 @@ static int util_probe(struct hv_device *dev,
-> > >  		}
-> > >  	}
-> > >
-> > > -	ret = vmbus_open(dev->channel, 2 * PAGE_SIZE, 2 * PAGE_SIZE, NULL,
-> > 0,
-> > > +	ret = vmbus_open(dev->channel, 4 * PAGE_SIZE, 4 * PAGE_SIZE, NULL,
-> > 0,
-> > >  			srv->util_cb, dev->channel);
-> > >  	if (ret)
-> > >  		goto error;
-> > > diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
-> > > index 68ed7f7..11afc4e 100644
-> > > --- a/include/linux/hyperv.h
-> > > +++ b/include/linux/hyperv.h
-> > > @@ -122,12 +122,53 @@
-> > >  #define REG_U32 4
-> > >  #define REG_U64 8
-> > >
-> > > +/*
-> > > + * As we look at expanding the KVP functionality to include
-> > > + * IP injection functionality, we need to maintain binary
-> > > + * compatibility with older daemons.
-> > > + *
-> > > + * The KVP opcodes are defined by the host and it was unfortunate
-> > > + * that I chose to treat the registration operation as part of the
-> > > + * KVP operations defined by the host.
-> > > + * Here is the level of compatibility
-> > > + * (between the user level daemon and the kernel KVP driver) that we
-> > > + * will implement:
-> > > + *
-> > > + * An older daemon will always be supported on a newer driver.
-> > > + * A given user level daemon will require a minimal version of the
-> > > + * kernel driver.
-> > > + * If we cannot handle the version differences, we will fail gracefully
-> > > + * (this can happen when we have a user level daemon that is more
-> > > + * advanced than the KVP driver.
-> > > + *
-> > > + * We will use values used in this handshake for determining if we have
-> > > + * workable user level daemon and the kernel driver. We begin by taking the
-> > > + * registration opcode out of the KVP opcode namespace. We will however,
-> > > + * maintain compatibility with the existing user-level daemon code.
-> > > + */
-> > > +
-> > > +/*
-> > > + * Daemon code not supporting IP injection (legacy daemon).
-> > > + */
-> > > +
-> > > +#define KVP_OP_REGISTER	4
-> >
-> > Huh?
-> >
-> > > +/*
-> > > + * Daemon code supporting IP injection.
-> > > + * The KVP opcode field is used to communicate the
-> > > + * registration information; so define a namespace that
-> > > + * will be distinct from the host defined KVP opcode.
-> > > + */
-> > > +
-> > > +#define KVP_OP_REGISTER1 100
-> > > +
-> > >  enum hv_kvp_exchg_op {
-> > >  	KVP_OP_GET = 0,
-> > >  	KVP_OP_SET,
-> > >  	KVP_OP_DELETE,
-> > >  	KVP_OP_ENUMERATE,
-> > > -	KVP_OP_REGISTER,
-> > > +	KVP_OP_GET_IP_INFO,
-> > > +	KVP_OP_SET_IP_INFO,
-> >
-> > So you overloaded the command and somehow think that is ok?  How is that
-> > supposed to work?  Why not just always keep it there, but fail if it is
-> > called as you know you have a mismatch?
-> >
-> > Otherwise, again, you just broke older tools on a newer kernel.
-> >
-> > Or am I missing something here?
-> 
-> Greg,
-> 
-> The registration operation occurs when the daemon first starts up. I should have
-> established
-> a distinct namespace for the daemon versions that would not overlap with the
-> host
-> defined KVP operations initially. Unfortunately when I first implemented KVP, I
-> did not know
-> about the new KVP verbs and so selected a value that ended up colliding with the
-> new KVP
-> operations. To maintain compatibility with older daemons, I have to support this
-> old registration
-> value, which is what you are seeing here. Since the initial driver/daemon
-> handshake phase does
-> not overlap with the normal functioning of the KVP stack, we can use the old
-> daemon
-> registration value to distinguish that the daemon does not support IP injection.
-> The current
-> implementation does support a compatible environment for older daemons.
-> 
+So if module goes away at the point marked by <--------
+above (and nothing seems to prevent that,
+since pages_lock is unlocked), the last instruction can get overwritten
+and then random code will get executed instead.
 
-Greg,
+In the end the rule is simple: you can not
+prevent module unloading from within module
+itself. It always must be the caller of your
+module that uses some lock to do this.
 
-I hope this explanation is satisfactory. If there are other issues that you would
-want me to address before this patch set can be accepted, let me know and I will
-address them right away.
+My proposal is to use rcu for this since it is lightweight
+and also does not require us to pass extra
+state around.
 
-Regards,
-
-K. Y 
+-- 
+MST
