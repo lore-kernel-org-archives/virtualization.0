@@ -1,63 +1,62 @@
-From: Jan Engelhardt <jengelh@inai.de>
-Subject: Re: [vmw_vmci 11/11] Apply the header code to make VMCI build
-Date: Wed, 15 Aug 2012 22:45:00 +0200 (CEST)
-Message-ID: <alpine.LNX.2.01.1208152240550.23372@frira.zrqbmnf.qr>
-References: <1343345980-32397-1-git-send-email-astiegmann@vmware.com>
-	<1343345980-32397-12-git-send-email-astiegmann@vmware.com>
-	<20120727103455.GA4639@merkur.ravnborg.org>
-	<alpine.LNX.2.01.1208022145380.30631@frira.zrqbmnf.qr>
-	<20120802202205.GA9096@merkur.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120802202205.GA9096@merkur.ravnborg.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, vm-crosstalk@vmware.com, "Andrew Stiegmann (stieg)" <astiegmann@vmware.com>, cschamp@vmware.com
+From: "K. Y. Srinivasan" <kys@microsoft.com>
+Subject: [PATCH 1/1] Drivers: hv: Explicitly size elements of protocol structures
+Date: Thu, 16 Aug 2012 08:23:20 -0700
+Message-ID: <1345130600-2862-1-git-send-email-kys@microsoft.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, jagrelo@cisco.com
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Use explicitly sized types in data structures defining the host/guest
+protocol. I would like to thank Juan Sanchez-Agrelo  <jagrelo@cisco.com> 
+for reporting this.
 
-On Thursday 2012-08-02 22:22, Sam Ravnborg wrote:
->> On Friday 2012-07-27 12:34, Sam Ravnborg wrote:
->> >> +#ifndef _VMCI_COMMONINT_H_
->> >> +#define _VMCI_COMMONINT_H_
->> >> +
->> >> +#include <linux/printk.h>
->> >> +#include <linux/vmw_vmci_defs.h>
->> >
->> >Use inverse chrismas tree here.
->> >Longer include lines first, and soret alphabetically when
->> >lines are of the same length.
->> 
->> So that's where unreadable include lists come from.
->> Depth-first lexicographically-sorted is a lot less hassle,
->> especially when it comes to merging patches that each
->> add one different include.
->This is applied in many parts of the kernels and has some benefits:
->- easy to spot duplicates
->- clash is less likely when two commit adds includes
+Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
+Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
+---
+ include/linux/hyperv.h |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-Sorting already addresses the two, the christmas thing (for
-files in a single dir) seems like adding no extra value.
-
-
->>>The kernel types are u32 not uint32_t - these types belongs in user-space.
->Found the following somewhere on the net:
->
->|	- the kernel should not depend on, or pollute user-space naming.
->|	  YOU MUST NOT USE "uint32_t" when that may not be defined, and
->|	  user-space rules for when it is defined are arcane and totally
->|	  arbitrary.
-
-I can see the reasoning for header files, but it seems
-irrelevant for code, in particular .c files, that never
-practically get exposed to userspace.
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index 588d8f2..e73b852 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -489,7 +489,7 @@ struct vmtransfer_page_range {
+ struct vmtransfer_page_packet_header {
+ 	struct vmpacket_descriptor d;
+ 	u16 xfer_pageset_id;
+-	bool sender_owns_set;
++	u8  sender_owns_set;
+ 	u8 reserved;
+ 	u32 range_cnt;
+ 	struct vmtransfer_page_range ranges[1];
+@@ -643,7 +643,7 @@ struct vmbus_channel_query_vmbus_version {
+ /* VMBus Version Supported parameters */
+ struct vmbus_channel_version_supported {
+ 	struct vmbus_channel_message_header header;
+-	bool version_supported;
++	u8 version_supported;
+ } __packed;
+ 
+ /* Offer Channel parameters */
+@@ -652,7 +652,7 @@ struct vmbus_channel_offer_channel {
+ 	struct vmbus_channel_offer offer;
+ 	u32 child_relid;
+ 	u8 monitorid;
+-	bool monitor_allocated;
++	u8 monitor_allocated;
+ } __packed;
+ 
+ /* Rescind Offer parameters */
+@@ -788,7 +788,7 @@ struct vmbus_channel_initiate_contact {
+ 
+ struct vmbus_channel_version_response {
+ 	struct vmbus_channel_message_header header;
+-	bool version_supported;
++	u8 version_supported;
+ } __packed;
+ 
+ enum vmbus_channel_state {
+-- 
+1.7.4.1
