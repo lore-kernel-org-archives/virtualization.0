@@ -1,7 +1,8 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH V3 07/14] Tools: hv: Gather ipv[4,6] gateway information
-Date: Thu, 16 Aug 2012 18:32:18 -0700
-Message-ID: <1345167145-5513-7-git-send-email-kys@microsoft.com>
+Subject: [PATCH V3 06/14] Tools: hv: Represent the ipv6 mask using CIDR
+ notation
+Date: Thu, 16 Aug 2012 18:32:17 -0700
+Message-ID: <1345167145-5513-6-git-send-email-kys@microsoft.com>
 References: <1345167068-5461-1-git-send-email-kys@microsoft.com>
  <1345167145-5513-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -21,99 +22,90 @@ Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, ben@decadent.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gather information on the default gateways - ipv4/ipv6.
+Transform ipv6 subnet information to CIDR notation.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- tools/hv/hv_kvp_daemon.c |   68 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 68 insertions(+), 0 deletions(-)
+ tools/hv/hv_kvp_daemon.c |   46 ++++++++++++++++++++++++++++++++++++----------
+ 1 files changed, 36 insertions(+), 10 deletions(-)
 
 diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index a63e83a..65d54c8 100644
+index de1724c..a63e83a 100644
 --- a/tools/hv/hv_kvp_daemon.c
 +++ b/tools/hv/hv_kvp_daemon.c
-@@ -491,6 +491,68 @@ done:
+@@ -491,6 +491,15 @@ done:
  	return;
  }
  
-+static void kvp_process_ipconfig_file(char *cmd,
-+					char *config_buf, int len,
-+					int element_size, int offset)
++static unsigned int hweight32(unsigned int *w)
 +{
-+	char buf[256];
-+	char *p;
-+	char *x;
-+	FILE *file;
-+
-+	/*
-+	 * First execute the command.
-+	 */
-+	file = popen(cmd, "r");
-+	if (file == NULL)
-+		return;
-+
-+	if (offset == 0)
-+		memset(config_buf, 0, len);
-+	while ((p = fgets(buf, sizeof(buf), file)) != NULL) {
-+		if ((len - strlen(config_buf)) < (element_size + 1))
-+			break;
-+
-+		x = strchr(p, '\n');
-+		*x = '\0';
-+		strcat(config_buf, p);
-+		strcat(config_buf, ";");
-+	}
-+	pclose(file);
++	unsigned int res = *w - ((*w >> 1) & 0x55555555);
++	res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
++	res = (res + (res >> 4)) & 0x0F0F0F0F;
++	res = res + (res >> 8);
++	return (res + (res >> 16)) & 0x000000FF;
 +}
 +
-+static void kvp_get_ipconfig_info(char *if_name,
-+				 struct hv_kvp_ipaddr_value *buffer)
-+{
-+	char cmd[512];
+ static int kvp_process_ip_address(void *addrp,
+ 				int family, char *buffer,
+ 				int length,  int *offset)
+@@ -535,10 +544,15 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ 	struct ifaddrs *curp;
+ 	int offset = 0;
+ 	int sn_offset = 0;
+-	const char *str;
+ 	int error = 0;
+ 	char *buffer;
+ 	struct hv_kvp_ipaddr_value *ip_buffer;
++	char cidr_mask[5]; /* /xyz */
++	int weight;
++	int i;
++	unsigned int *w;
++	char *sn_str;
++	struct sockaddr_in6 *addr6;
+ 
+ 	if (op == KVP_OP_ENUMERATE) {
+ 		buffer = out_buffer;
+@@ -611,18 +625,30 @@ kvp_get_ip_address(int family, char *if_name, int op,
+ 					goto gather_ipaddr;
+ 			} else {
+ 				ip_buffer->addr_family |= ADDR_FAMILY_IPV6;
 +
-+	/*
-+	 * Get the address of default gateway (ipv4).
-+	 */
-+	sprintf(cmd, "%s %s", "ip route show dev", if_name);
-+	strcat(cmd, " | awk '/default/ {print $3 }'");
+ 				/*
+-				 * Get subnet info.
++				 * Get subnet info in CIDR format.
+ 				 */
+-				error = kvp_process_ip_address(
+-							     curp->ifa_netmask,
+-							     AF_INET6,
+-							     (char *)
+-							     ip_buffer->sub_net,
+-							     length,
+-							     &sn_offset);
+-				if (error)
++				weight = 0;
++				sn_str = (char *)ip_buffer->sub_net;
++				addr6 = (struct sockaddr_in6 *)
++					curp->ifa_netmask;
++				w = addr6->sin6_addr.s6_addr32;
 +
-+	/*
-+	 * Execute the command to gather gateway info.
-+	 */
-+	kvp_process_ipconfig_file(cmd, (char *)buffer->gate_way,
-+				(MAX_GATEWAY_SIZE * 2), INET_ADDRSTRLEN, 0);
++				for (i = 0; i < 4; i++)
++					weight += hweight32(&w[i]);
 +
-+	/*
-+	 * Get the address of default gateway (ipv6).
-+	 */
-+	sprintf(cmd, "%s %s", "ip -f inet6  route show dev", if_name);
-+	strcat(cmd, " | awk '/default/ {print $3 }'");
++				sprintf(cidr_mask, "/%d", weight);
++				if ((length - sn_offset) <
++					(strlen(cidr_mask) + 1))
+ 					goto gather_ipaddr;
 +
-+	/*
-+	 * Execute the command to gather gateway info (ipv6).
-+	 */
-+	kvp_process_ipconfig_file(cmd, (char *)buffer->gate_way,
-+				(MAX_GATEWAY_SIZE * 2), INET6_ADDRSTRLEN, 1);
-+
-+}
-+
-+
- static unsigned int hweight32(unsigned int *w)
- {
- 	unsigned int res = *w - ((*w >> 1) & 0x55555555);
-@@ -650,6 +712,12 @@ kvp_get_ip_address(int family, char *if_name, int op,
- 				strcat((char *)ip_buffer->sub_net, ";");
- 				sn_offset += strlen(sn_str) + 1;
++				if (sn_offset == 0)
++					strcpy(sn_str, cidr_mask);
++				else
++					strcat(sn_str, cidr_mask);
++				strcat((char *)ip_buffer->sub_net, ";");
++				sn_offset += strlen(sn_str) + 1;
  			}
-+
-+			/*
-+			 * Collect other ip related configuration info.
-+			 */
-+
-+			kvp_get_ipconfig_info(if_name, ip_buffer);
  		}
  
- gather_ipaddr:
 -- 
 1.7.4.1
