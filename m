@@ -1,76 +1,162 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH V3 05/14] Tools: hv: Gather subnet information
-Date: Thu, 16 Aug 2012 18:32:16 -0700
-Message-ID: <1345167145-5513-5-git-send-email-kys@microsoft.com>
+Subject: [PATCH V3 12/14] Tools: hv: Implement the KVP verb -
+ KVP_OP_GET_IP_INFO
+Date: Thu, 16 Aug 2012 18:32:23 -0700
+Message-ID: <1345167145-5513-12-git-send-email-kys@microsoft.com>
 References: <1345167068-5461-1-git-send-email-kys@microsoft.com>
  <1345167145-5513-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1345167145-5513-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, ben@decadent.org.uk
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now, gather sub-net information for the specified interface.
+Now implement the KVP verb - KVP_OP_GET_IP_INFO. This operation retrieves IP
+information for the specified interface.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- tools/hv/hv_kvp_daemon.c |   31 +++++++++++++++++++++++++++++--
- 1 files changed, 29 insertions(+), 2 deletions(-)
+ tools/hv/hv_kvp_daemon.c |   93 ++++++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 90 insertions(+), 3 deletions(-)
 
 diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 13ae098..de1724c 100644
+index bb2a6c4..e7db9ac 100644
 --- a/tools/hv/hv_kvp_daemon.c
 +++ b/tools/hv/hv_kvp_daemon.c
-@@ -534,6 +534,7 @@ kvp_get_ip_address(int family, char *if_name, int op,
- 	struct ifaddrs *ifap;
- 	struct ifaddrs *curp;
- 	int offset = 0;
-+	int sn_offset = 0;
- 	const char *str;
- 	int error = 0;
- 	char *buffer;
-@@ -594,12 +595,38 @@ kvp_get_ip_address(int family, char *if_name, int op,
- 			 * Gather info other than the IP address.
- 			 * IP address info will be gathered later.
- 			 */
--			if (curp->ifa_addr->sa_family == AF_INET)
-+			if (curp->ifa_addr->sa_family == AF_INET) {
- 				ip_buffer->addr_family |= ADDR_FAMILY_IPV4;
--			else
+@@ -604,6 +604,69 @@ static char *kvp_if_name_to_mac(char *if_name)
+ }
+ 
+ 
++/*
++ * Retrieve the interface name given tha MAC address.
++ */
++
++static char *kvp_mac_to_if_name(char *mac)
++{
++	DIR *dir;
++	struct dirent *entry;
++	FILE    *file;
++	char    *p, *q, *x;
++	char    *if_name = NULL;
++	char    buf[256];
++	char *kvp_net_dir = "/sys/class/net/";
++	char dev_id[256];
++	int i;
++
++	dir = opendir(kvp_net_dir);
++	if (dir == NULL)
++		return NULL;
++
++	snprintf(dev_id, sizeof(dev_id), kvp_net_dir);
++	q = dev_id + strlen(kvp_net_dir);
++
++	while ((entry = readdir(dir)) != NULL) {
++		/*
++		 * Set the state for the next pass.
++		 */
++		*q = '\0';
++
++		strcat(dev_id, entry->d_name);
++		strcat(dev_id, "/address");
++
++		file = fopen(dev_id, "r");
++		if (file == NULL)
++			continue;
++
++		p = fgets(buf, sizeof(buf), file);
++		if (p) {
++			x = strchr(p, '\n');
++			if (x)
++				*x = '\0';
++
++			for (i = 0; i < strlen(p); i++)
++				p[i] = toupper(p[i]);
++
++			if (!strcmp(p, mac)) {
 +				/*
-+				 * Get subnet info.
++				 * Found the MAC match; return the interface
++				 * name. The caller will free the memory.
 +				 */
-+				error = kvp_process_ip_address(
-+							     curp->ifa_netmask,
-+							     AF_INET,
-+							     (char *)
-+							     ip_buffer->sub_net,
-+							     length,
-+							     &sn_offset);
-+				if (error)
-+					goto gather_ipaddr;
-+			} else {
- 				ip_buffer->addr_family |= ADDR_FAMILY_IPV6;
-+				/*
-+				 * Get subnet info.
-+				 */
-+				error = kvp_process_ip_address(
-+							     curp->ifa_netmask,
-+							     AF_INET6,
-+							     (char *)
-+							     ip_buffer->sub_net,
-+							     length,
-+							     &sn_offset);
-+				if (error)
-+					goto gather_ipaddr;
++				if_name = strdup(entry->d_name);
++				fclose(file);
++				break;
 +			}
++		}
++		fclose(file);
++	}
++
++	closedir(dir);
++	return if_name;
++}
++
++
+ static void kvp_process_ipconfig_file(char *cmd,
+ 					char *config_buf, int len,
+ 					int element_size, int offset)
+@@ -750,10 +813,10 @@ static int kvp_process_ip_address(void *addrp,
+ 	}
+ 
+ 	if ((length - *offset) < addr_length + 1)
+-		return 1;
++		return HV_E_FAIL;
+ 	if (str == NULL) {
+ 		strcpy(buffer, "inet_ntop failed\n");
+-		return 1;
++		return HV_E_FAIL;
+ 	}
+ 	if (*offset == 0)
+ 		strcpy(buffer, tmp);
+@@ -797,7 +860,7 @@ kvp_get_ip_info(int family, char *if_name, int op,
+ 
+ 	if (getifaddrs(&ifap)) {
+ 		strcpy(buffer, "getifaddrs failed\n");
+-		return 1;
++		return HV_E_FAIL;
+ 	}
+ 
+ 	curp = ifap;
+@@ -1387,6 +1450,30 @@ int main(void)
  		}
  
-+gather_ipaddr:
- 		error = kvp_process_ip_address(curp->ifa_addr,
- 						curp->ifa_addr->sa_family,
- 						buffer,
+ 		switch (op) {
++		case KVP_OP_GET_IP_INFO:
++			kvp_ip_val = &hv_msg->body.kvp_ip_val;
++			if_name =
++			kvp_mac_to_if_name((char *)kvp_ip_val->adapter_id);
++
++			if (if_name == NULL) {
++				/*
++				 * We could not map the mac address to an
++				 * interface name; return error.
++				 */
++				hv_msg->error = HV_E_FAIL;
++				break;
++			}
++			error = kvp_get_ip_info(
++						0, if_name, KVP_OP_GET_IP_INFO,
++						kvp_ip_val,
++						(MAX_IP_ADDR_SIZE * 2));
++
++			if (error)
++				hv_msg->error = error;
++
++			free(if_name);
++			break;
++
+ 		case KVP_OP_SET_IP_INFO:
+ 			kvp_ip_val = &hv_msg->body.kvp_ip_val;
+ 			if_name = kvp_get_if_name(
 -- 
 1.7.4.1
