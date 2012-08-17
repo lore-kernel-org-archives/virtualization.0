@@ -1,199 +1,249 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 02/14] Tools: hv: Prepare to expand  kvp_get_ip_address() functionality
-Date: Thu, 16 Aug 2012 17:45:13 -0700
-Message-ID: <1345164325-5198-3-git-send-email-kys@microsoft.com>
+Subject: [PATCH 01/14] Drivers: hv: kvp: Support the new IP injection messages
+Date: Thu, 16 Aug 2012 17:45:12 -0700
+Message-ID: <1345164325-5198-2-git-send-email-kys@microsoft.com>
 References: <1345164300-5146-1-git-send-email-kys@microsoft.com>
  <1345164325-5198-1-git-send-email-kys@microsoft.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1345164325-5198-1-git-send-email-kys@microsoft.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
+List-Post: <mailto:devel@linuxdriverproject.org>
+List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
+ <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: devel-bounces@linuxdriverproject.org
+Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, ben@decadent.org.uk
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 ---
- tools/hv/hv_kvp_daemon.c |  129 ++++++++++++++++++++++++++++++----------------
- 1 files changed, 84 insertions(+), 45 deletions(-)
+ drivers/hv/hv_kvp.c |  141 ++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 135 insertions(+), 6 deletions(-)
 
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 069e2b3..3af37f0 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -492,7 +492,8 @@ done:
+diff --git a/drivers/hv/hv_kvp.c b/drivers/hv/hv_kvp.c
+index eb4d073..d906050 100644
+--- a/drivers/hv/hv_kvp.c
++++ b/drivers/hv/hv_kvp.c
+@@ -63,7 +63,7 @@ static int dm_reg_value;
+ static void kvp_send_key(struct work_struct *dummy);
+ 
+ 
+-static void kvp_respond_to_host(char *key, char *value, int error);
++static void kvp_respond_to_host(struct hv_kvp_msg *msg, int error);
+ static void kvp_work_func(struct work_struct *dummy);
+ static void kvp_register(int);
+ 
+@@ -108,7 +108,7 @@ kvp_work_func(struct work_struct *dummy)
+ 	 * If the timer fires, the user-mode component has not responded;
+ 	 * process the pending transaction.
+ 	 */
+-	kvp_respond_to_host("Unknown key", "Guest timed out", HV_E_FAIL);
++	kvp_respond_to_host(NULL, HV_E_FAIL);
  }
  
- static int
--kvp_get_ip_address(int family, char *buffer, int length)
-+kvp_get_ip_address(int family, char *if_name, int op,
-+		 void  *out_buffer, int length)
- {
- 	struct ifaddrs *ifap;
- 	struct ifaddrs *curp;
-@@ -502,10 +503,19 @@ kvp_get_ip_address(int family, char *buffer, int length)
- 	const char *str;
- 	char tmp[50];
- 	int error = 0;
--
-+	char *buffer;
-+	struct hv_kvp_ipaddr_value *ip_buffer;
+ static int kvp_handle_handshake(struct hv_kvp_msg *msg)
+@@ -199,9 +199,118 @@ kvp_cn_callback(struct cn_msg *msg, struct netlink_skb_parms *nsp)
+ 	 * to the host. But first, cancel the timeout.
+ 	 */
+ 	if (cancel_delayed_work_sync(&kvp_work))
+-		kvp_respond_to_host(data->data.key, data->data.value, error);
++		kvp_respond_to_host(message, error);
+ }
+ 
 +
-+	if (op == KVP_OP_ENUMERATE) {
-+		buffer = out_buffer;
-+	} else {
-+		ip_buffer = out_buffer;
-+		buffer = (char *)ip_buffer->ip_addr;
-+		ip_buffer->addr_family = 0;
++static int process_ob_ipinfo(void *in_msg, void *out_msg, int op)
++{
++	struct hv_kvp_msg *in = in_msg;
++	struct hv_kvp_ip_msg *out = out_msg;
++	int len;
++
++	switch (op) {
++	case KVP_OP_GET_IP_INFO:
++		/*
++		 * Transform all parameters into utf16 encoding.
++		 */
++		len = utf8s_to_utf16s((char *)in->body.kvp_ip_val.ip_addr,
++				strlen((char *)in->body.kvp_ip_val.ip_addr),
++				UTF16_HOST_ENDIAN,
++				(wchar_t *)out->kvp_ip_val.ip_addr,
++				MAX_IP_ADDR_SIZE);
++		if (len < 0)
++			return len;
++
++		len = utf8s_to_utf16s((char *)in->body.kvp_ip_val.sub_net,
++				strlen((char *)in->body.kvp_ip_val.sub_net),
++				UTF16_HOST_ENDIAN,
++				(wchar_t *)out->kvp_ip_val.sub_net,
++				MAX_IP_ADDR_SIZE);
++		if (len < 0)
++			return len;
++
++		len = utf8s_to_utf16s((char *)in->body.kvp_ip_val.gate_way,
++				strlen((char *)in->body.kvp_ip_val.gate_way),
++				UTF16_HOST_ENDIAN,
++				(wchar_t *)out->kvp_ip_val.gate_way,
++				MAX_GATEWAY_SIZE);
++		if (len < 0)
++			return len;
++
++		len = utf8s_to_utf16s((char *)in->body.kvp_ip_val.dns_addr,
++				strlen((char *)in->body.kvp_ip_val.dns_addr),
++				UTF16_HOST_ENDIAN,
++				(wchar_t *)out->kvp_ip_val.dns_addr,
++				MAX_IP_ADDR_SIZE);
++		if (len < 0)
++			return len;
++
++		len = utf8s_to_utf16s((char *)in->body.kvp_ip_val.adapter_id,
++				strlen((char *)in->body.kvp_ip_val.adapter_id),
++				UTF16_HOST_ENDIAN,
++				(wchar_t *)out->kvp_ip_val.adapter_id,
++				MAX_IP_ADDR_SIZE);
++		if (len < 0)
++			return len;
++
++		out->kvp_ip_val.dhcp_enabled =
++			in->body.kvp_ip_val.dhcp_enabled;
 +	}
- 	/*
- 	 * On entry into this function, the buffer is capable of holding the
--	 * maximum key value (2048 bytes).
-+	 * maximum key value.
++
++	return 0;
++}
++
++static void process_ib_ipinfo(void *in_msg, void *out_msg, int op)
++{
++	struct hv_kvp_ip_msg *in = in_msg;
++	struct hv_kvp_msg *out = out_msg;
++
++	switch (op) {
++	case KVP_OP_SET_IP_INFO:
++		/*
++		 * Transform all parameters into utf8 encoding.
++		 */
++		utf16s_to_utf8s((wchar_t *)in->kvp_ip_val.ip_addr,
++				MAX_IP_ADDR_SIZE,
++				UTF16_LITTLE_ENDIAN,
++				(__u8 *)out->body.kvp_ip_val.ip_addr,
++				MAX_IP_ADDR_SIZE);
++
++		utf16s_to_utf8s((wchar_t *)in->kvp_ip_val.sub_net,
++				MAX_IP_ADDR_SIZE,
++				UTF16_LITTLE_ENDIAN,
++				(__u8 *)out->body.kvp_ip_val.sub_net,
++				MAX_IP_ADDR_SIZE);
++
++		utf16s_to_utf8s((wchar_t *)in->kvp_ip_val.gate_way,
++				MAX_GATEWAY_SIZE,
++				UTF16_LITTLE_ENDIAN,
++				(__u8 *)out->body.kvp_ip_val.gate_way,
++				MAX_GATEWAY_SIZE);
++
++		utf16s_to_utf8s((wchar_t *)in->kvp_ip_val.dns_addr,
++				MAX_IP_ADDR_SIZE,
++				UTF16_LITTLE_ENDIAN,
++				(__u8 *)out->body.kvp_ip_val.dns_addr,
++				MAX_IP_ADDR_SIZE);
++
++		out->body.kvp_ip_val.dhcp_enabled = in->kvp_ip_val.dhcp_enabled;
++
++	default:
++		utf16s_to_utf8s((wchar_t *)in->kvp_ip_val.adapter_id,
++				MAX_ADAPTER_ID_SIZE,
++				UTF16_LITTLE_ENDIAN,
++				(__u8 *)out->body.kvp_ip_val.adapter_id,
++				MAX_ADAPTER_ID_SIZE);
++
++		out->body.kvp_ip_val.addr_family = in->kvp_ip_val.addr_family;
++	}
++}
++
++
++
++
+ static void
+ kvp_send_key(struct work_struct *dummy)
+ {
+@@ -237,6 +346,12 @@ kvp_send_key(struct work_struct *dummy)
  	 */
  
- 	if (getifaddrs(&ifap)) {
-@@ -515,58 +525,87 @@ kvp_get_ip_address(int family, char *buffer, int length)
+ 	switch (message->kvp_hdr.operation) {
++	case KVP_OP_SET_IP_INFO:
++		process_ib_ipinfo(in_msg, message, KVP_OP_SET_IP_INFO);
++		break;
++	case KVP_OP_GET_IP_INFO:
++		process_ib_ipinfo(in_msg, message, KVP_OP_GET_IP_INFO);
++		break;
+ 	case KVP_OP_SET:
+ 		switch (in_msg->body.kvp_set.data.value_type) {
+ 		case REG_SZ:
+@@ -313,17 +428,19 @@ kvp_send_key(struct work_struct *dummy)
+  */
  
- 	curp = ifap;
- 	while (curp != NULL) {
--		if ((curp->ifa_addr != NULL) &&
--		   (curp->ifa_addr->sa_family == family)) {
--			if (family == AF_INET) {
--				struct sockaddr_in *addr =
--				(struct sockaddr_in *) curp->ifa_addr;
--
--				str = inet_ntop(family, &addr->sin_addr,
--						tmp, 50);
--				if (str == NULL) {
--					strcpy(buffer, "inet_ntop failed\n");
--					error = 1;
--					goto getaddr_done;
--				}
--				if (offset == 0)
--					strcpy(buffer, tmp);
--				else
--					strcat(buffer, tmp);
--				strcat(buffer, ";");
-+		if (curp->ifa_addr == NULL) {
-+			curp = curp->ifa_next;
-+			continue;
-+		}
+ static void
+-kvp_respond_to_host(char *key, char *value, int error)
++kvp_respond_to_host(struct hv_kvp_msg *msg_to_host, int error)
+ {
+ 	struct hv_kvp_msg  *kvp_msg;
+ 	struct hv_kvp_exchg_msg_value  *kvp_data;
+ 	char	*key_name;
++	char	*value;
+ 	struct icmsg_hdr *icmsghdrp;
+ 	int	keylen = 0;
+ 	int	valuelen = 0;
+ 	u32	buf_len;
+ 	struct vmbus_channel *channel;
+ 	u64	req_id;
++	int ret;
  
--				offset += strlen(str) + 1;
--				if ((length - offset) < (ipv4_len + 1))
--					goto getaddr_done;
-+		if ((if_name != NULL) &&
-+			(strncmp(curp->ifa_name, if_name, strlen(if_name)))) {
-+			/*
-+			 * We want info about a specific interface;
-+			 * just continue.
-+			 */
-+			curp = curp->ifa_next;
-+			continue;
-+		}
+ 	/*
+ 	 * If a transaction is not active; log and return.
+@@ -376,6 +493,16 @@ kvp_respond_to_host(char *key, char *value, int error)
+ 			sizeof(struct icmsg_hdr)];
  
--			} else {
-+		/*
-+		 * We only support two address families: AF_INET and AF_INET6.
-+		 * If a family value of 0 is specified, we collect both
-+		 * supported address families; if not we gather info on
-+		 * the specified address family.
-+		 */
-+		if ((family != 0) && (curp->ifa_addr->sa_family != family)) {
-+			curp = curp->ifa_next;
-+			continue;
-+		}
-+		if ((curp->ifa_addr->sa_family != AF_INET) &&
-+			(curp->ifa_addr->sa_family != AF_INET6)) {
-+			curp = curp->ifa_next;
-+			continue;
-+		}
+ 	switch (kvp_transaction.kvp_msg->kvp_hdr.operation) {
++	case KVP_OP_GET_IP_INFO:
++		ret = process_ob_ipinfo(msg_to_host,
++				 (struct hv_kvp_ip_msg *)kvp_msg,
++				 KVP_OP_GET_IP_INFO);
++		if (ret < 0)
++			icmsghdrp->status = HV_E_FAIL;
 +
-+		if ((curp->ifa_addr->sa_family == AF_INET) &&
-+			((family == AF_INET) || (family == 0))) {
-+			struct sockaddr_in *addr =
-+			(struct sockaddr_in *) curp->ifa_addr;
-+
-+			str = inet_ntop(AF_INET, &addr->sin_addr, tmp, 50);
-+			if (str == NULL) {
-+				strcpy(buffer, "inet_ntop failed\n");
-+				error = 1;
-+				goto getaddr_done;
-+			}
-+			if (offset == 0)
-+				strcpy(buffer, tmp);
-+			else
-+				strcat(buffer, tmp);
-+			strcat(buffer, ";");
-+
-+			offset += strlen(str) + 1;
-+			if ((length - offset) < (ipv4_len + 1))
-+				goto getaddr_done;
-+
-+		} else if ((family == AF_INET6) || (family == 0)) {
- 
- 			/*
- 			 * We only support AF_INET and AF_INET6
- 			 * and the list of addresses is separated by a ";".
- 			 */
--				struct sockaddr_in6 *addr =
-+			struct sockaddr_in6 *addr =
- 				(struct sockaddr_in6 *) curp->ifa_addr;
- 
--				str = inet_ntop(family,
-+			str = inet_ntop(AF_INET6,
- 					&addr->sin6_addr.s6_addr,
- 					tmp, 50);
--				if (str == NULL) {
--					strcpy(buffer, "inet_ntop failed\n");
--					error = 1;
--					goto getaddr_done;
--				}
--				if (offset == 0)
--					strcpy(buffer, tmp);
--				else
--					strcat(buffer, tmp);
--				strcat(buffer, ";");
--				offset += strlen(str) + 1;
--				if ((length - offset) < (ipv6_len + 1))
--					goto getaddr_done;
--
-+			if (str == NULL) {
-+				strcpy(buffer, "inet_ntop failed\n");
-+				error = 1;
-+				goto getaddr_done;
- 			}
-+			if (offset == 0)
-+				strcpy(buffer, tmp);
-+			else
-+				strcat(buffer, tmp);
-+			strcat(buffer, ";");
-+			offset += strlen(str) + 1;
-+			if ((length - offset) < (ipv6_len + 1))
-+				goto getaddr_done;
- 
- 		}
-+
-+
- 		curp = curp->ifa_next;
++		goto response_done;
++	case KVP_OP_SET_IP_INFO:
++		goto response_done;
+ 	case KVP_OP_GET:
+ 		kvp_data = &kvp_msg->body.kvp_get.data;
+ 		goto copy_value;
+@@ -389,7 +516,7 @@ kvp_respond_to_host(char *key, char *value, int error)
  	}
  
-@@ -811,13 +850,13 @@ int main(void)
- 			strcpy(key_value, lic_version);
- 			break;
- 		case NetworkAddressIPv4:
--			kvp_get_ip_address(AF_INET, key_value,
--					HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
-+			kvp_get_ip_address(AF_INET, NULL, KVP_OP_ENUMERATE,
-+				key_value, HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
- 			strcpy(key_name, "NetworkAddressIPv4");
- 			break;
- 		case NetworkAddressIPv6:
--			kvp_get_ip_address(AF_INET6, key_value,
--					HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
-+			kvp_get_ip_address(AF_INET6, NULL, KVP_OP_ENUMERATE,
-+				key_value, HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
- 			strcpy(key_name, "NetworkAddressIPv6");
- 			break;
- 		case OSBuildNumber:
+ 	kvp_data = &kvp_msg->body.kvp_enum_data.data;
+-	key_name = key;
++	key_name = msg_to_host->body.kvp_enum_data.data.key;
+ 
+ 	/*
+ 	 * The windows host expects the key/value pair to be encoded
+@@ -403,6 +530,7 @@ kvp_respond_to_host(char *key, char *value, int error)
+ 	kvp_data->key_size = 2*(keylen + 1); /* utf16 encoding */
+ 
+ copy_value:
++	value = msg_to_host->body.kvp_enum_data.data.value;
+ 	valuelen = utf8s_to_utf16s(value, strlen(value), UTF16_HOST_ENDIAN,
+ 				(wchar_t *) kvp_data->value,
+ 				(HV_KVP_EXCHANGE_MAX_VALUE_SIZE / 2) - 2);
+@@ -455,7 +583,8 @@ void hv_kvp_onchannelcallback(void *context)
+ 		return;
+ 	}
+ 
+-	vmbus_recvpacket(channel, recv_buffer, PAGE_SIZE, &recvlen, &requestid);
++	vmbus_recvpacket(channel, recv_buffer, PAGE_SIZE * 2, &recvlen,
++			 &requestid);
+ 
+ 	if (recvlen > 0) {
+ 		icmsghdrp = (struct icmsg_hdr *)&recv_buffer[
 -- 
 1.7.4.1
