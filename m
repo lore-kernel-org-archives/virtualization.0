@@ -1,78 +1,106 @@
-From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH 09/14] Tools: hv: Gather DHCP information
-Date: Thu, 16 Aug 2012 17:45:20 -0700
-Message-ID: <1345164325-5198-10-git-send-email-kys@microsoft.com>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH V3 00/14] drivers: hv: kvp
+Date: Fri, 17 Aug 2012 01:12:18 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF9236C1A10@SN2PRD0310MB382.namprd03.prod.outlook.com>
 References: <1345164300-5146-1-git-send-email-kys@microsoft.com>
- <1345164325-5198-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1345164325-5198-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, ben@decadent.org.uk
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1345164300-5146-1-git-send-email-kys@microsoft.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: KY Srinivasan <kys@microsoft.com>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "ben@decadent.org.uk" <ben@decadent.org.uk>
 List-Id: virtualization@lists.linuxfoundation.org
 
----
- tools/hv/hv_kvp_daemon.c |   31 +++++++++++++++++++++++++++++++
- 1 files changed, 31 insertions(+), 0 deletions(-)
 
-diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index 2f8e0b9..8a18819 100644
---- a/tools/hv/hv_kvp_daemon.c
-+++ b/tools/hv/hv_kvp_daemon.c
-@@ -525,6 +525,9 @@ static void kvp_get_ipconfig_info(char *if_name,
- 				 struct hv_kvp_ipaddr_value *buffer)
- {
- 	char cmd[512];
-+	char dhcp_info[128];
-+	char *p;
-+	FILE *file;
- 
- 	/*
- 	 * Get the address of default gateway (ipv4).
-@@ -573,6 +576,34 @@ static void kvp_get_ipconfig_info(char *if_name,
- 	 */
- 	kvp_process_ipconfig_file(cmd, (char *)buffer->dns_addr,
- 				(MAX_IP_ADDR_SIZE * 2), INET_ADDRSTRLEN, 0);
-+
-+	/*
-+	 * Gather the DHCP state.
-+	 * We will gather this state by invoking an external script.
-+	 * The parameter to the script is the interface name.
-+	 * Here is the expected output:
-+	 *
-+	 * Enabled: DHCP enabled.
-+	 */
-+
-+	sprintf(cmd, "%s %s", "hv_get_dhcp_info", if_name);
-+
-+	file = popen(cmd, "r");
-+	if (file == NULL)
-+		return;
-+
-+	p = fgets(dhcp_info, sizeof(dhcp_info), file);
-+	if (p == NULL) {
-+		pclose(file);
-+		return;
-+	}
-+
-+	if (!strncmp(p, "Enabled", 7))
-+		buffer->dhcp_enabled = 1;
-+	else
-+		buffer->dhcp_enabled = 0;
-+
-+	pclose(file);
- }
- 
- 
--- 
-1.7.4.1
+
+> -----Original Message-----
+> From: K. Y. Srinivasan [mailto:kys@microsoft.com]
+> Sent: Thursday, August 16, 2012 8:45 PM
+> To: gregkh@linuxfoundation.org; linux-kernel@vger.kernel.org;
+> devel@linuxdriverproject.org; virtualization@lists.osdl.org; olaf@aepfle.de;
+> apw@canonical.com; ben@decadent.org.uk
+> Cc: KY Srinivasan
+> Subject: [PATCH V3 00/14] drivers: hv: kvp
+> 
+> This patch set expands the KVP (Key Value Pair) functionality to
+> implement the mechanism to GET/SET IP addresses in the guest. This
+> functionality is used in Windows Server 2012 to implement VM
+> replication functionality. The way IP configuration information
+> is managed is distro specific. Based on the feedback I have gotten
+> from Olaf, Greg, Steve, Ben and Mairus, I have chosen to seperate
+> distro specific code from this patch-set. Most of the GET operation
+> can be implemented in a way that is completely distro independent and
+> I have implemented that as such and is included in this patch-set.
+> Some of the attributes that can only be fetched in a distro
+> dependent way as well the mechanism for configuring an interface
+> (the SET operation) that is clearly distro specific is to be
+> implemented via external scripts that will be invoked via the KVP
+> code. We define here the interface to these scripts.
+> 
+> Adding support for IP injection resulted in some changes to the
+> protocol between the user level daemon and the kernel driver.
+> These changes have been implemented in way that would retain
+> compatibility with older daemons. I would like to thank Olaf and
+> Greg for pointing out the compatibility issue.
+> 
+> This version of the patch set addresses all of the comments that I
+> have received to date from Olaf, Ben and others. Specifically, I have
+> cleanedup all of the string manipulation code. Furthermore, I have also
+> simplified the format of the interface configuration file that is
+> generated by the KVP daemon and gotten rid of some constant strings that
+> may not be relevant on all distros. I would like to thank Olaf and Ben
+> for their detailed review.
+> 
+> Following are the changes from V2 of this patch set:
+> 
+> 1. Addressed the indentation issue Greg noted in the patch:
+> 0001-Drivers-hv-kvp-Support-the-new-IP-injection-messages.patch
+> 
+> 2. Cleaned up the Reviewed-byi line  based on input from Ben and Greg.
+> 
+> 3. Since Ben had an identical patch for properly closing the open
+> streams, I have not included that patch in this series.
+> 
+> 4. Greg applied the first 3 patches of the V2 patch set. This version
+> has the remaining patches.
+
+Greg,
+
+Please drop this set. In my haste to send out the patches, I have sent out the wrong patches. I am going to send out the correct set in a minute.
+
+Regards,
+
+K. Y
+
+
+> 
+> 
+> K. Y. Srinivasan (14):
+>   Drivers: hv: kvp: Support the new IP injection messages
+>   Tools: hv: Prepare to expand  kvp_get_ip_address() functionality
+>   Tools: hv: Further refactor kvp_get_ip_address()
+>   Tools: hv: Gather address family information
+>   Tools: hv: Gather subnet information
+>   Tools: hv: Represent the ipv6 mask using CIDR notation
+>   Tools: hv: Gather ipv[4,6] gateway information
+>   Tools: hv: Gather DNS information
+>   Tools: hv: Gather DHCP information
+>   Tools: hv: Implement the KVP verb - KVP_OP_SET_IP_INFO
+>   Tools: hv: Rename the function kvp_get_ip_address()
+>   Tools: hv: Implement the KVP verb - KVP_OP_GET_IP_INFO
+>   Tools: hv: Get rid of some unused variables
+>   Tools: hv: Correctly type string variables
+> 
+>  drivers/hv/hv_kvp.c      |  141 +++++++-
+>  include/linux/hyperv.h   |    2 +
+>  tools/hv/hv_kvp_daemon.c |  866
+> ++++++++++++++++++++++++++++++++++++++++++----
+>  3 files changed, 942 insertions(+), 67 deletions(-)
+> 
+> --
+> 1.7.4.1
+> 
+> 
+> 
