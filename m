@@ -1,7 +1,7 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH V3 13/14] Tools: hv: Get rid of some unused variables
-Date: Thu, 16 Aug 2012 18:32:24 -0700
-Message-ID: <1345167145-5513-13-git-send-email-kys@microsoft.com>
+Subject: [PATCH V3 11/14] Tools: hv: Rename the function kvp_get_ip_address()
+Date: Thu, 16 Aug 2012 18:32:22 -0700
+Message-ID: <1345167145-5513-11-git-send-email-kys@microsoft.com>
 References: <1345167068-5461-1-git-send-email-kys@microsoft.com>
  <1345167145-5513-1-git-send-email-kys@microsoft.com>
 Mime-Version: 1.0
@@ -21,35 +21,42 @@ Sender: devel-bounces@linuxdriverproject.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, ben@decadent.org.uk
 List-Id: virtualization@lists.linuxfoundation.org
 
-Get rid of unused variables.
+Rename the function kvp_get_ip_address() to better reflect the functionality
+being implemented.
 
-Reported-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- tools/hv/hv_kvp_daemon.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+ tools/hv/hv_kvp_daemon.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index e7db9ac..4a1428c 100644
+index 59669a8..bb2a6c4 100644
 --- a/tools/hv/hv_kvp_daemon.c
 +++ b/tools/hv/hv_kvp_daemon.c
-@@ -211,7 +211,7 @@ static void kvp_update_mem_state(int pool)
+@@ -766,7 +766,7 @@ static int kvp_process_ip_address(void *addrp,
  }
- static int kvp_file_init(void)
+ 
+ static int
+-kvp_get_ip_address(int family, char *if_name, int op,
++kvp_get_ip_info(int family, char *if_name, int op,
+ 		 void  *out_buffer, int length)
  {
--	int ret, fd;
-+	int  fd;
- 	FILE *filep;
- 	size_t records_read;
- 	__u8 *fname;
-@@ -327,7 +327,6 @@ static int kvp_key_add_or_modify(int pool, __u8 *key, int key_size, __u8 *value,
- 			int value_size)
- {
- 	int i;
--	int j, k;
- 	int num_records;
- 	struct kvp_record *record;
- 	int num_blocks;
+ 	struct ifaddrs *ifap;
+@@ -1469,12 +1469,12 @@ int main(void)
+ 			strcpy(key_value, lic_version);
+ 			break;
+ 		case NetworkAddressIPv4:
+-			kvp_get_ip_address(AF_INET, NULL, KVP_OP_ENUMERATE,
++			kvp_get_ip_info(AF_INET, NULL, KVP_OP_ENUMERATE,
+ 				key_value, HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
+ 			strcpy(key_name, "NetworkAddressIPv4");
+ 			break;
+ 		case NetworkAddressIPv6:
+-			kvp_get_ip_address(AF_INET6, NULL, KVP_OP_ENUMERATE,
++			kvp_get_ip_info(AF_INET6, NULL, KVP_OP_ENUMERATE,
+ 				key_value, HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
+ 			strcpy(key_name, "NetworkAddressIPv6");
+ 			break;
 -- 
 1.7.4.1
