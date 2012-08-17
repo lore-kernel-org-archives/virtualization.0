@@ -1,162 +1,205 @@
 From: "K. Y. Srinivasan" <kys@microsoft.com>
-Subject: [PATCH V3 12/14] Tools: hv: Implement the KVP verb -
- KVP_OP_GET_IP_INFO
-Date: Thu, 16 Aug 2012 18:32:23 -0700
-Message-ID: <1345167145-5513-12-git-send-email-kys@microsoft.com>
+Subject: [PATCH V3 02/14] Tools: hv: Prepare to expand  kvp_get_ip_address() functionality
+Date: Thu, 16 Aug 2012 18:32:13 -0700
+Message-ID: <1345167145-5513-2-git-send-email-kys@microsoft.com>
 References: <1345167068-5461-1-git-send-email-kys@microsoft.com>
  <1345167145-5513-1-git-send-email-kys@microsoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1345167145-5513-1-git-send-email-kys@microsoft.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, devel@linuxdriverproject.org, virtualization@lists.osdl.org, olaf@aepfle.de, apw@canonical.com, ben@decadent.org.uk
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now implement the KVP verb - KVP_OP_GET_IP_INFO. This operation retrieves IP
-information for the specified interface.
+kvp_get_ip_address() implemented the functionality to retrieve IP address info.
+Make this function more generic so that we could retrieve additional
+per-interface information.
 
 Signed-off-by: K. Y. Srinivasan <kys@microsoft.com>
 Reviewed-by: Haiyang Zhang <haiyangz@microsoft.com>
 ---
- tools/hv/hv_kvp_daemon.c |   93 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 90 insertions(+), 3 deletions(-)
+ tools/hv/hv_kvp_daemon.c |  129 ++++++++++++++++++++++++++++++----------------
+ 1 files changed, 84 insertions(+), 45 deletions(-)
 
 diff --git a/tools/hv/hv_kvp_daemon.c b/tools/hv/hv_kvp_daemon.c
-index bb2a6c4..e7db9ac 100644
+index 069e2b3..3af37f0 100644
 --- a/tools/hv/hv_kvp_daemon.c
 +++ b/tools/hv/hv_kvp_daemon.c
-@@ -604,6 +604,69 @@ static char *kvp_if_name_to_mac(char *if_name)
+@@ -492,7 +492,8 @@ done:
  }
  
- 
-+/*
-+ * Retrieve the interface name given tha MAC address.
-+ */
+ static int
+-kvp_get_ip_address(int family, char *buffer, int length)
++kvp_get_ip_address(int family, char *if_name, int op,
++		 void  *out_buffer, int length)
+ {
+ 	struct ifaddrs *ifap;
+ 	struct ifaddrs *curp;
+@@ -502,10 +503,19 @@ kvp_get_ip_address(int family, char *buffer, int length)
+ 	const char *str;
+ 	char tmp[50];
+ 	int error = 0;
+-
++	char *buffer;
++	struct hv_kvp_ipaddr_value *ip_buffer;
 +
-+static char *kvp_mac_to_if_name(char *mac)
-+{
-+	DIR *dir;
-+	struct dirent *entry;
-+	FILE    *file;
-+	char    *p, *q, *x;
-+	char    *if_name = NULL;
-+	char    buf[256];
-+	char *kvp_net_dir = "/sys/class/net/";
-+	char dev_id[256];
-+	int i;
-+
-+	dir = opendir(kvp_net_dir);
-+	if (dir == NULL)
-+		return NULL;
-+
-+	snprintf(dev_id, sizeof(dev_id), kvp_net_dir);
-+	q = dev_id + strlen(kvp_net_dir);
-+
-+	while ((entry = readdir(dir)) != NULL) {
-+		/*
-+		 * Set the state for the next pass.
-+		 */
-+		*q = '\0';
-+
-+		strcat(dev_id, entry->d_name);
-+		strcat(dev_id, "/address");
-+
-+		file = fopen(dev_id, "r");
-+		if (file == NULL)
-+			continue;
-+
-+		p = fgets(buf, sizeof(buf), file);
-+		if (p) {
-+			x = strchr(p, '\n');
-+			if (x)
-+				*x = '\0';
-+
-+			for (i = 0; i < strlen(p); i++)
-+				p[i] = toupper(p[i]);
-+
-+			if (!strcmp(p, mac)) {
-+				/*
-+				 * Found the MAC match; return the interface
-+				 * name. The caller will free the memory.
-+				 */
-+				if_name = strdup(entry->d_name);
-+				fclose(file);
-+				break;
-+			}
-+		}
-+		fclose(file);
++	if (op == KVP_OP_ENUMERATE) {
++		buffer = out_buffer;
++	} else {
++		ip_buffer = out_buffer;
++		buffer = (char *)ip_buffer->ip_addr;
++		ip_buffer->addr_family = 0;
 +	}
-+
-+	closedir(dir);
-+	return if_name;
-+}
-+
-+
- static void kvp_process_ipconfig_file(char *cmd,
- 					char *config_buf, int len,
- 					int element_size, int offset)
-@@ -750,10 +813,10 @@ static int kvp_process_ip_address(void *addrp,
- 	}
- 
- 	if ((length - *offset) < addr_length + 1)
--		return 1;
-+		return HV_E_FAIL;
- 	if (str == NULL) {
- 		strcpy(buffer, "inet_ntop failed\n");
--		return 1;
-+		return HV_E_FAIL;
- 	}
- 	if (*offset == 0)
- 		strcpy(buffer, tmp);
-@@ -797,7 +860,7 @@ kvp_get_ip_info(int family, char *if_name, int op,
+ 	/*
+ 	 * On entry into this function, the buffer is capable of holding the
+-	 * maximum key value (2048 bytes).
++	 * maximum key value.
+ 	 */
  
  	if (getifaddrs(&ifap)) {
- 		strcpy(buffer, "getifaddrs failed\n");
--		return 1;
-+		return HV_E_FAIL;
- 	}
+@@ -515,58 +525,87 @@ kvp_get_ip_address(int family, char *buffer, int length)
  
  	curp = ifap;
-@@ -1387,6 +1450,30 @@ int main(void)
- 		}
+ 	while (curp != NULL) {
+-		if ((curp->ifa_addr != NULL) &&
+-		   (curp->ifa_addr->sa_family == family)) {
+-			if (family == AF_INET) {
+-				struct sockaddr_in *addr =
+-				(struct sockaddr_in *) curp->ifa_addr;
+-
+-				str = inet_ntop(family, &addr->sin_addr,
+-						tmp, 50);
+-				if (str == NULL) {
+-					strcpy(buffer, "inet_ntop failed\n");
+-					error = 1;
+-					goto getaddr_done;
+-				}
+-				if (offset == 0)
+-					strcpy(buffer, tmp);
+-				else
+-					strcat(buffer, tmp);
+-				strcat(buffer, ";");
++		if (curp->ifa_addr == NULL) {
++			curp = curp->ifa_next;
++			continue;
++		}
  
- 		switch (op) {
-+		case KVP_OP_GET_IP_INFO:
-+			kvp_ip_val = &hv_msg->body.kvp_ip_val;
-+			if_name =
-+			kvp_mac_to_if_name((char *)kvp_ip_val->adapter_id);
+-				offset += strlen(str) + 1;
+-				if ((length - offset) < (ipv4_len + 1))
+-					goto getaddr_done;
++		if ((if_name != NULL) &&
++			(strncmp(curp->ifa_name, if_name, strlen(if_name)))) {
++			/*
++			 * We want info about a specific interface;
++			 * just continue.
++			 */
++			curp = curp->ifa_next;
++			continue;
++		}
+ 
+-			} else {
++		/*
++		 * We only support two address families: AF_INET and AF_INET6.
++		 * If a family value of 0 is specified, we collect both
++		 * supported address families; if not we gather info on
++		 * the specified address family.
++		 */
++		if ((family != 0) && (curp->ifa_addr->sa_family != family)) {
++			curp = curp->ifa_next;
++			continue;
++		}
++		if ((curp->ifa_addr->sa_family != AF_INET) &&
++			(curp->ifa_addr->sa_family != AF_INET6)) {
++			curp = curp->ifa_next;
++			continue;
++		}
 +
-+			if (if_name == NULL) {
-+				/*
-+				 * We could not map the mac address to an
-+				 * interface name; return error.
-+				 */
-+				hv_msg->error = HV_E_FAIL;
-+				break;
++		if ((curp->ifa_addr->sa_family == AF_INET) &&
++			((family == AF_INET) || (family == 0))) {
++			struct sockaddr_in *addr =
++			(struct sockaddr_in *) curp->ifa_addr;
++
++			str = inet_ntop(AF_INET, &addr->sin_addr, tmp, 50);
++			if (str == NULL) {
++				strcpy(buffer, "inet_ntop failed\n");
++				error = 1;
++				goto getaddr_done;
 +			}
-+			error = kvp_get_ip_info(
-+						0, if_name, KVP_OP_GET_IP_INFO,
-+						kvp_ip_val,
-+						(MAX_IP_ADDR_SIZE * 2));
++			if (offset == 0)
++				strcpy(buffer, tmp);
++			else
++				strcat(buffer, tmp);
++			strcat(buffer, ";");
 +
-+			if (error)
-+				hv_msg->error = error;
++			offset += strlen(str) + 1;
++			if ((length - offset) < (ipv4_len + 1))
++				goto getaddr_done;
 +
-+			free(if_name);
-+			break;
++		} else if ((family == AF_INET6) || (family == 0)) {
+ 
+ 			/*
+ 			 * We only support AF_INET and AF_INET6
+ 			 * and the list of addresses is separated by a ";".
+ 			 */
+-				struct sockaddr_in6 *addr =
++			struct sockaddr_in6 *addr =
+ 				(struct sockaddr_in6 *) curp->ifa_addr;
+ 
+-				str = inet_ntop(family,
++			str = inet_ntop(AF_INET6,
+ 					&addr->sin6_addr.s6_addr,
+ 					tmp, 50);
+-				if (str == NULL) {
+-					strcpy(buffer, "inet_ntop failed\n");
+-					error = 1;
+-					goto getaddr_done;
+-				}
+-				if (offset == 0)
+-					strcpy(buffer, tmp);
+-				else
+-					strcat(buffer, tmp);
+-				strcat(buffer, ";");
+-				offset += strlen(str) + 1;
+-				if ((length - offset) < (ipv6_len + 1))
+-					goto getaddr_done;
+-
++			if (str == NULL) {
++				strcpy(buffer, "inet_ntop failed\n");
++				error = 1;
++				goto getaddr_done;
+ 			}
++			if (offset == 0)
++				strcpy(buffer, tmp);
++			else
++				strcat(buffer, tmp);
++			strcat(buffer, ";");
++			offset += strlen(str) + 1;
++			if ((length - offset) < (ipv6_len + 1))
++				goto getaddr_done;
+ 
+ 		}
 +
- 		case KVP_OP_SET_IP_INFO:
- 			kvp_ip_val = &hv_msg->body.kvp_ip_val;
- 			if_name = kvp_get_if_name(
++
+ 		curp = curp->ifa_next;
+ 	}
+ 
+@@ -811,13 +850,13 @@ int main(void)
+ 			strcpy(key_value, lic_version);
+ 			break;
+ 		case NetworkAddressIPv4:
+-			kvp_get_ip_address(AF_INET, key_value,
+-					HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
++			kvp_get_ip_address(AF_INET, NULL, KVP_OP_ENUMERATE,
++				key_value, HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
+ 			strcpy(key_name, "NetworkAddressIPv4");
+ 			break;
+ 		case NetworkAddressIPv6:
+-			kvp_get_ip_address(AF_INET6, key_value,
+-					HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
++			kvp_get_ip_address(AF_INET6, NULL, KVP_OP_ENUMERATE,
++				key_value, HV_KVP_EXCHANGE_MAX_VALUE_SIZE);
+ 			strcpy(key_name, "NetworkAddressIPv6");
+ 			break;
+ 		case OSBuildNumber:
 -- 
 1.7.4.1
