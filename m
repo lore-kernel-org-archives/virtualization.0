@@ -1,18 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC-v2 3/6] vhost-scsi: add -vhost-scsi host device for use
-	with tcm-vhost
-Date: Sat, 18 Aug 2012 22:12:43 +0300
-Message-ID: <20120818191243.GB17770@redhat.com>
-References: <1344846917-7411-1-git-send-email-nab@linux-iscsi.org>
-	<1344846917-7411-4-git-send-email-nab@linux-iscsi.org>
-	<20120813085325.GH14081@redhat.com>
-	<1344976274.22433.93.camel@haakon2.linux-iscsi.org>
+Subject: Re: [GIT PULL] tcm_vhost: Initial merge of vhost level target fabric
+	driver
+Date: Sat, 18 Aug 2012 23:04:32 +0300
+Message-ID: <20120818200432.GA26215@redhat.com>
+References: <1343697577.22538.661.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1344976274.22433.93.camel@haakon2.linux-iscsi.org>
+In-Reply-To: <1343697577.22538.661.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,52 +20,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, kvm-devel <kvm@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, target-devel <target-devel@vger.kernel.org>, Anthony Liguori <anthony@codemonkey.ws>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 14, 2012 at 01:31:14PM -0700, Nicholas A. Bellinger wrote:
-> On Mon, 2012-08-13 at 11:53 +0300, Michael S. Tsirkin wrote:
-> > On Mon, Aug 13, 2012 at 08:35:14AM +0000, Nicholas A. Bellinger wrote:
-> > > From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-> > > 
-> > > This patch adds a new type of host device that drives the vhost_scsi
-> > > device.  The syntax to add vhost-scsi is:
-> > > 
-> > >   qemu -vhost-scsi id=vhost-scsi0,wwpn=...,tpgt=123
-> > > 
-> > > The virtio-scsi emulated device will make use of vhost-scsi to process
-> > > virtio-scsi requests inside the kernel and hand them to the in-kernel
-> > > SCSI target stack using the tcm_vhost fabric driver.
-> 
-> <SNIP>
-> 
-> > > +static VHostSCSI *vhost_scsi_add(const char *id, const char *wwpn,
-> > > +                                 uint16_t tpgt)
-> > > +{
-> > > +    VHostSCSI *vs = g_malloc0(sizeof(*vs));
-> > > +    int ret;
-> > > +
-> > > +    /* TODO set up vhost-scsi device and bind to tcm_vhost/$wwpm/tpgt_$tpgt */
-> > > +    fprintf(stderr, "wwpn = \"%s\" tpgt = \"%u\"\n", id, tpgt);
-> > > +
-> > > +    ret = vhost_dev_init(&vs->dev, -1, "/dev/vhost-scsi", false);
-> > 
-> > This -1 is a hack. You need to support passing in fd from
-> > the monitor, and pass it here.
-> > 
-> 
-> Mmm, looking at how vhost_net_init + tap.c does this, but am not quite
-> what fd needs to be propagated up for virtio-scsi -> vhost-scsi..
-> 
-> Can you please elaborate on this one a bit more..?
-> 
-> --nab
-> 
+Hi Nicholas,
+I just noticed this problem in the interface:
 
++#include <linux/vhost.h>
++
++/*
++ * Used by QEMU userspace to ensure a consistent vhost-scsi ABI.
++ *
++ * ABI Rev 0: July 2012 version starting point for v3.6-rc merge
+candidate +
++ *            RFC-v2 vhost-scsi userspace.  Add GET_ABI_VERSION ioctl
+usage
++ */
++
++#define VHOST_SCSI_ABI_VERSION 0
++
++struct vhost_scsi_target {
++       int abi_version;
++       unsigned char vhost_wwpn[TRANSPORT_IQN_LEN];
++       unsigned short vhost_tpgt;
++};
++
 
-The idea is to allow running as a user without access to
-/dev/vhost-scsi.
-For this, allow passing in the fd of /dev/vhost-scsi through unix domain sockets.
+Here TRANSPORT_IQN_LEN is 224, which is a multiple of 4.
+Since vhost_tpgt is 2 bytes and abi_version is 4, the total size would
+be 230.  But gcc needs struct size be aligned to first field size, which
+is 4 bytes, so it pads the structure by extra 2 bytes to the total of
+232.
+
+This padding is very undesirable in an ABI:
+- it can not be initialized easily
+- it can not be checked easily
+- it can leak information between kernel and userspace
+
+Simplest solution is probably just to make the padding
+explicit:
+
++struct vhost_scsi_target {
++       int abi_version;
++       unsigned char vhost_wwpn[TRANSPORT_IQN_LEN];
++       unsigned short vhost_tpgt;
++       unsigned short reserved;
++};
++
+
+I think we should fix this buglet before it goes out to users.
 
 -- 
 MST
