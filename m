@@ -1,15 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [GIT PULL] tcm_vhost: Initial merge of vhost level target fabric
-	driver
-Date: Sat, 18 Aug 2012 23:04:32 +0300
-Message-ID: <20120818200432.GA26215@redhat.com>
-References: <1343697577.22538.661.camel@haakon2.linux-iscsi.org>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [RFC-v2 6/6] virtio-scsi: Fix incorrect VirtIOSCSI->cmd_vqs[0]
+	definition
+Date: Sat, 18 Aug 2012 14:47:10 -0700
+Message-ID: <1345326430.25161.327.camel__7731.75874860517$1345326450$gmane$org@haakon2.linux-iscsi.org>
+References: <1344846917-7411-1-git-send-email-nab@linux-iscsi.org>
+	<1344846917-7411-7-git-send-email-nab@linux-iscsi.org>
+	<20120813090259.GJ14081@redhat.com>
+	<1344975625.22433.88.camel@haakon2.linux-iscsi.org>
+	<502FE488.3000303@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1343697577.22538.661.camel@haakon2.linux-iscsi.org>
+In-Reply-To: <502FE488.3000303@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,56 +22,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: Jens Axboe <axboe@kernel.dk>, kvm-devel <kvm@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, target-devel <target-devel@vger.kernel.org>, Anthony Liguori <anthony@codemonkey.ws>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>, LKML <linux-kernel@vger.kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Nicholas,
-I just noticed this problem in the interface:
+On Sat, 2012-08-18 at 20:52 +0200, Paolo Bonzini wrote:
+> Il 14/08/2012 22:20, Nicholas A. Bellinger ha scritto:
+> >>> > > Since virtio_scsi currently assumes a single vqs for data, this patch
+> >>> > > simply changes ->cmd_vqs[1] to handle the single VirtQueue.
+> 
+> Wrong, multiqueue works just fine. :)  It's just the kernel driver that
+> doesn't support it yet.
+> 
 
-+#include <linux/vhost.h>
-+
-+/*
-+ * Used by QEMU userspace to ensure a consistent vhost-scsi ABI.
-+ *
-+ * ABI Rev 0: July 2012 version starting point for v3.6-rc merge
-candidate +
-+ *            RFC-v2 vhost-scsi userspace.  Add GET_ABI_VERSION ioctl
-usage
-+ */
-+
-+#define VHOST_SCSI_ABI_VERSION 0
-+
-+struct vhost_scsi_target {
-+       int abi_version;
-+       unsigned char vhost_wwpn[TRANSPORT_IQN_LEN];
-+       unsigned short vhost_tpgt;
-+};
-+
+<nod>
 
-Here TRANSPORT_IQN_LEN is 224, which is a multiple of 4.
-Since vhost_tpgt is 2 bytes and abi_version is 4, the total size would
-be 230.  But gcc needs struct size be aligned to first field size, which
-is 4 bytes, so it pads the structure by extra 2 bytes to the total of
-232.
+> >>> > > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> >>> > > Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+> >>> > > Cc: Michael S. Tsirkin <mst@redhat.com>
+> >>> > > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> >> > 
+> >> > This is a bugfix we need even without vhost, right?
+> >> > 
+> > I believe so, as it appears to be stomping past the end of memory for
+> > every virtio-scsi initialization regardless of vhost usage.. 
+> 
+> You just did a wrong merge.  When commit d2ad7dd (virtio-scsi: add
+> multiqueue capability, 2012-04-06) changed cmd_vq from pointer to array
+> of pointers, you should have moved the following fields to the middle of
+> the struct, just like that commit did.
 
-This padding is very undesirable in an ABI:
-- it can not be initialized easily
-- it can not be checked easily
-- it can leak information between kernel and userspace
+Ahh, I see how virtio_scsi_init() -> virtio_common_init() are setting up
+the memory now..  Apologies, my mistake.
 
-Simplest solution is probably just to make the padding
-explicit:
+So moving the vhost-scsi related structure members ahead of the
+VirtQueue releated definitions for RFC-v3, and dropping this patch.
 
-+struct vhost_scsi_target {
-+       int abi_version;
-+       unsigned char vhost_wwpn[TRANSPORT_IQN_LEN];
-+       unsigned short vhost_tpgt;
-+       unsigned short reserved;
-+};
-+
+Thanks Paolo!
 
-I think we should fix this buglet before it goes out to users.
-
--- 
-MST
+--nab
