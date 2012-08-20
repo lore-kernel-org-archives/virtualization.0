@@ -1,13 +1,15 @@
-From: McPacino <mcpacino@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [PATCH] virtio-scsi spec: add per-LUN parameter query
-Date: Mon, 20 Aug 2012 22:44:16 +0800
-Message-ID: <CAOKNXO7PLs8ansCf0YajruO=yX8B_FAeZ==iuYwN2mAqoOLVuQ@mail.gmail.com>
+Date: Mon, 20 Aug 2012 17:57:28 +0200
+Message-ID: <50325E68.6080401@redhat.com>
 References: <1345453404-15244-1-git-send-email-mc@linux.vnet.ibm.com>
 	<50323926.8000205@redhat.com>
+	<CAOKNXO7PLs8ansCf0YajruO=yX8B_FAeZ==iuYwN2mAqoOLVuQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4101280328984521091=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50323926.8000205@redhat.com>
+In-Reply-To: <CAOKNXO7PLs8ansCf0YajruO=yX8B_FAeZ==iuYwN2mAqoOLVuQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,129 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
+To: McPacino <mcpacino@gmail.com>
 Cc: stefanha@linux.vnet.ibm.com, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Cong Meng <mc@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============4101280328984521091==
-Content-Type: multipart/alternative; boundary=f46d043890c54af01004c7b38bc3
-
---f46d043890c54af01004c7b38bc3
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-=E5=9C=A8 2012-8-20 =E4=B8=8B=E5=8D=889:18=EF=BC=8C"Paolo Bonzini" <pbonzin=
-i@redhat.com>=E5=86=99=E9=81=93=EF=BC=9A
->
-> Il 20/08/2012 11:03, Cong Meng ha scritto:
-> > Each virtio scsi HBA has global request queue limits. But the
-passthrough
-> > LUNs (scsi-generic) come from different host HBAs may have different
-request
-> > queue limits. If the guest sends commands that exceed the host limits,
-the
-> > commands will be rejected by host HAB.
-> >
-> > To address this issue, this patch adds a per-LUN parameter query via
-the control
-> > queue, and defines some parameter query types. The driver can query and
-set the
-> > needed per-LUN parameters if the device enables this feature.
-> >
-> > Signed-off-by: Cong Meng <mc@linux.vnet.ibm.com>
-> > --
-> >  virtio-spec.lyx |  218
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++
-> >  1 files changed, 218 insertions(+), 0 deletions(-)
->
-> Do you have kernel and QEMU patches for this?  That would help me
-> evaluate whether the interface is the correct one.
->
-yes,I have a demo. I will post it after I polish it tomorrow.
-
-> In any case, I'd rather have a single command returning all three values
-> (VIRTIO_SCSI_T_LUN_QUEUE_PARAMS), since it's unlikely that you need just
-> one.
-
-I intend to seperat them one by one. As there is opportunity that other new
-parameters are needed for other features.
-
-Thanks.
-Cong.
-
->
-> Paolo
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-
---f46d043890c54af01004c7b38bc3
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<p dir=3D"ltr"><br>
-=E5=9C=A8 2012-8-20 =E4=B8=8B=E5=8D=889:18=EF=BC=8C&quot;Paolo Bonzini&quot=
-; &lt;<a href=3D"mailto:pbonzini@redhat.com">pbonzini@redhat.com</a>&gt;=E5=
-=86=99=E9=81=93=EF=BC=9A<br>
-&gt;<br>
-&gt; Il 20/08/2012 11:03, Cong Meng ha scritto:<br>
-&gt; &gt; Each virtio scsi HBA has global request queue limits. But the pas=
-sthrough<br>
-&gt; &gt; LUNs (scsi-generic) come from different host HBAs may have differ=
-ent request<br>
-&gt; &gt; queue limits. If the guest sends commands that exceed the host li=
-mits, the<br>
-&gt; &gt; commands will be rejected by host HAB.<br>
-&gt; &gt;<br>
-&gt; &gt; To address this issue, this patch adds a per-LUN parameter query =
-via the control<br>
-&gt; &gt; queue, and defines some parameter query types. The driver can que=
-ry and set the<br>
-&gt; &gt; needed per-LUN parameters if the device enables this feature.<br>
-&gt; &gt;<br>
-&gt; &gt; Signed-off-by: Cong Meng &lt;<a href=3D"mailto:mc@linux.vnet.ibm.=
-com">mc@linux.vnet.ibm.com</a>&gt;<br>
-&gt; &gt; --<br>
-&gt; &gt; =C2=A0virtio-spec.lyx | =C2=A0218 +++++++++++++++++++++++++++++++=
-++++++++++++++++++++++++<br>
-&gt; &gt; =C2=A01 files changed, 218 insertions(+), 0 deletions(-)<br>
-&gt;<br>
-&gt; Do you have kernel and QEMU patches for this? =C2=A0That would help me=
-<br>
-&gt; evaluate whether the interface is the correct one.<br>
-&gt;<br>
-yes,I have a demo. I will post it after I polish it tomorrow.</p>
-<p dir=3D"ltr">&gt; In any case, I&#39;d rather have a single command retur=
-ning all three values<br>
-&gt; (VIRTIO_SCSI_T_LUN_QUEUE_PARAMS), since it&#39;s unlikely that you nee=
-d just<br>
-&gt; one.</p>
-<p dir=3D"ltr">I intend to seperat them one by one. As there is opportunity=
- that other new parameters are needed for other features.</p>
-<p dir=3D"ltr">Thanks.<br>
-Cong.</p>
-<p dir=3D"ltr">&gt;<br>
-&gt; Paolo<br>
-&gt; _______________________________________________<br>
-&gt; Virtualization mailing list<br>
-&gt; <a href=3D"mailto:Virtualization@lists.linux-foundation.org">Virtualiz=
-ation@lists.linux-foundation.org</a><br>
-&gt; <a href=3D"https://lists.linuxfoundation.org/mailman/listinfo/virtuali=
-zation">https://lists.linuxfoundation.org/mailman/listinfo/virtualization</=
-a><br>
-</p>
-
---f46d043890c54af01004c7b38bc3--
-
---===============4101280328984521091==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4101280328984521091==--
+SWwgMjAvMDgvMjAxMiAxNjo0NCwgTWNQYWNpbm8gaGEgc2NyaXR0bzoKPiAKPiDlnKggMjAxMi04
+LTIwIOS4i+WNiDk6MTjvvIwiUGFvbG8gQm9uemluaSIgPHBib256aW5pQHJlZGhhdC5jb20KPiA8
+bWFpbHRvOnBib256aW5pQHJlZGhhdC5jb20+PuWGmemBk++8mgo+Pgo+PiBJbCAyMC8wOC8yMDEy
+IDExOjAzLCBDb25nIE1lbmcgaGEgc2NyaXR0bzoKPj4gPiBFYWNoIHZpcnRpbyBzY3NpIEhCQSBo
+YXMgZ2xvYmFsIHJlcXVlc3QgcXVldWUgbGltaXRzLiBCdXQgdGhlCj4gcGFzc3Rocm91Z2gKPj4g
+PiBMVU5zIChzY3NpLWdlbmVyaWMpIGNvbWUgZnJvbSBkaWZmZXJlbnQgaG9zdCBIQkFzIG1heSBo
+YXZlIGRpZmZlcmVudAo+IHJlcXVlc3QKPj4gPiBxdWV1ZSBsaW1pdHMuIElmIHRoZSBndWVzdCBz
+ZW5kcyBjb21tYW5kcyB0aGF0IGV4Y2VlZCB0aGUgaG9zdAo+IGxpbWl0cywgdGhlCj4+ID4gY29t
+bWFuZHMgd2lsbCBiZSByZWplY3RlZCBieSBob3N0IEhBQi4KPj4gPgo+PiA+IFRvIGFkZHJlc3Mg
+dGhpcyBpc3N1ZSwgdGhpcyBwYXRjaCBhZGRzIGEgcGVyLUxVTiBwYXJhbWV0ZXIgcXVlcnkgdmlh
+Cj4gdGhlIGNvbnRyb2wKPj4gPiBxdWV1ZSwgYW5kIGRlZmluZXMgc29tZSBwYXJhbWV0ZXIgcXVl
+cnkgdHlwZXMuIFRoZSBkcml2ZXIgY2FuIHF1ZXJ5Cj4gYW5kIHNldCB0aGUKPj4gPiBuZWVkZWQg
+cGVyLUxVTiBwYXJhbWV0ZXJzIGlmIHRoZSBkZXZpY2UgZW5hYmxlcyB0aGlzIGZlYXR1cmUuCj4+
+ID4KPj4gPiBTaWduZWQtb2ZmLWJ5OiBDb25nIE1lbmcgPG1jQGxpbnV4LnZuZXQuaWJtLmNvbQo+
+IDxtYWlsdG86bWNAbGludXgudm5ldC5pYm0uY29tPj4KPj4gPiAtLQo+PiA+ICB2aXJ0aW8tc3Bl
+Yy5seXggfCAgMjE4Cj4gKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKwo+PiA+ICAxIGZpbGVzIGNoYW5nZWQsIDIxOCBpbnNlcnRpb25zKCspLCAw
+IGRlbGV0aW9ucygtKQo+Pgo+PiBEbyB5b3UgaGF2ZSBrZXJuZWwgYW5kIFFFTVUgcGF0Y2hlcyBm
+b3IgdGhpcz8gIFRoYXQgd291bGQgaGVscCBtZQo+PiBldmFsdWF0ZSB3aGV0aGVyIHRoZSBpbnRl
+cmZhY2UgaXMgdGhlIGNvcnJlY3Qgb25lLgo+Pgo+IHllcyxJIGhhdmUgYSBkZW1vLiBJIHdpbGwg
+cG9zdCBpdCBhZnRlciBJIHBvbGlzaCBpdCB0b21vcnJvdy4KPiAKPj4gSW4gYW55IGNhc2UsIEkn
+ZCByYXRoZXIgaGF2ZSBhIHNpbmdsZSBjb21tYW5kIHJldHVybmluZyBhbGwgdGhyZWUgdmFsdWVz
+Cj4+IChWSVJUSU9fU0NTSV9UX0xVTl9RVUVVRV9QQVJBTVMpLCBzaW5jZSBpdCdzIHVubGlrZWx5
+IHRoYXQgeW91IG5lZWQganVzdAo+PiBvbmUuCj4gCj4gSSBpbnRlbmQgdG8gc2VwZXJhdCB0aGVt
+IG9uZSBieSBvbmUuIEFzIHRoZXJlIGlzIG9wcG9ydHVuaXR5IHRoYXQgb3RoZXIKPiBuZXcgcGFy
+YW1ldGVycyBhcmUgbmVlZGVkIGZvciBvdGhlciBmZWF0dXJlcy4KCllvdSBjYW4gdXNlIG1vcmUg
+ZmVhdHVyZSBiaXRzIHRvIGRpY3RhdGUgd2hpY2ggYml0cyBhcmUgcHJlc2VudC4KClBhb2xvCgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
