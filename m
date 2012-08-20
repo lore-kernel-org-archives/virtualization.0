@@ -1,18 +1,13 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC-v2 4/6] virtio-scsi: Add start/stop functionality for
-	vhost-scsi
-Date: Mon, 20 Aug 2012 14:00:36 +0200
-Message-ID: <503226E4.1050206@redhat.com>
-References: <1344846917-7411-1-git-send-email-nab@linux-iscsi.org>
-	<1344846917-7411-5-git-send-email-nab@linux-iscsi.org>
-	<5031FD9E.9080204@redhat.com>
-	<CAJSP0QUPX2CiNrBAxD=vvEcV_32Qf-=Ed3=Ck5c+wKsSDZ4heQ@mail.gmail.com>
-	<20120820115704.GA3580@redhat.com>
+Subject: Re: [PATCH] virtio-scsi spec: add per-LUN parameter query
+Date: Mon, 20 Aug 2012 15:18:30 +0200
+Message-ID: <50323926.8000205@redhat.com>
+References: <1345453404-15244-1-git-send-email-mc@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120820115704.GA3580@redhat.com>
+In-Reply-To: <1345453404-15244-1-git-send-email-mc@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,22 +17,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: Cong Meng <mc@linux.vnet.ibm.com>
+Cc: stefanha@linux.vnet.ibm.com, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 20/08/2012 13:57, Michael S. Tsirkin ha scritto:
->>> > > How much of the functionality of virtio-scsi.[ch] is still in use at
->>> > > this point?  Would it make more sense to use a separate vhost-scsi-pci
->>> > > device instead?
->> > 
->> > Since the SCSI target lives in the kernel, almost everything is driven
->> > from tcm_vhost.ko.  tcm_vhost.ko basically implements the full device
->> > so I see the argument for -device vhost-scsi-pci.
-> A bit unhappy that there is no virtio in the name since it is
-> implementing virtio protocol.
+Il 20/08/2012 11:03, Cong Meng ha scritto:
+> Each virtio scsi HBA has global request queue limits. But the passthrough
+> LUNs (scsi-generic) come from different host HBAs may have different request
+> queue limits. If the guest sends commands that exceed the host limits, the
+> commands will be rejected by host HAB. 
 > 
+> To address this issue, this patch adds a per-LUN parameter query via the control
+> queue, and defines some parameter query types. The driver can query and set the
+> needed per-LUN parameters if the device enables this feature.
+> 
+> Signed-off-by: Cong Meng <mc@linux.vnet.ibm.com>
+> --
+>  virtio-spec.lyx |  218 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 218 insertions(+), 0 deletions(-)
 
-Yeah, but vhost \subseteq virtio...
+Do you have kernel and QEMU patches for this?  That would help me
+evaluate whether the interface is the correct one.
+
+In any case, I'd rather have a single command returning all three values
+(VIRTIO_SCSI_T_LUN_QUEUE_PARAMS), since it's unlikely that you need just
+one.
 
 Paolo
