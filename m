@@ -1,16 +1,18 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v8 3/5] virtio_balloon: introduce migration primitives
-	to balloon pages
-Date: Tue, 21 Aug 2012 17:34:20 +0200
-Message-ID: <1345563260.26596.0.camel__19477.8402722024$1345566127$gmane$org@twins>
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: Re: [PATCH v8 1/5] mm: introduce a common interface for balloon
+	pages mobility
+Date: Tue, 21 Aug 2012 09:24:32 -0700
+Message-ID: <20120821162432.GG2456@linux.vnet.ibm.com>
 References: <cover.1345519422.git.aquini@redhat.com>
-	<c5f02c618c99b0da11240c1b504672de6f70a074.1345519422.git.aquini@redhat.com>
-	<20120821144013.GA7784@redhat.com>
+	<e24f3073ef539985dea52943dcb84762213a0857.1345519422.git.aquini@redhat.com>
+	<1345562411.23018.111.camel@twins>
+Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120821144013.GA7784@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1345562411.23018.111.camel@twins>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,15 +22,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2012-08-21 at 17:40 +0300, Michael S. Tsirkin wrote:
-> > +     vb->balloon_status = BALLOON_REMOVAL;
+On Tue, Aug 21, 2012 at 05:20:11PM +0200, Peter Zijlstra wrote:
+> On Tue, 2012-08-21 at 09:47 -0300, Rafael Aquini wrote:
+> > +       mapping = rcu_access_pointer(page->mapping);
+> > +       if (mapping)
+> > +               mapping = mapping->assoc_mapping; 
 > 
-> This needs some kind of barrier.
+> The comment near rcu_access_pointer() explicitly says:
 > 
-> >       kthread_stop(vb->thread); 
+>  * Return the value of the specified RCU-protected pointer, but omit the
+>  * smp_read_barrier_depends() and keep the ACCESS_ONCE().  This is useful
+>  * when the value of this pointer is accessed, but the pointer is not
+>  * dereferenced,
+> 
+> Yet you dereference the pointer... smells like fail to me.
 
-kthread_stop() implies an smp_wmb() [ because it needs to do a wakeup ].
+Indeed!
+
+This will break DEC Alpha.  In addition, if ->mapping can transition
+from non-NULL to NULL, and if you used rcu_access_pointer() rather
+than rcu_dereference() to avoid lockdep-RCU from yelling at you about
+not either being in an RCU read-side critical section or holding an
+update-side lock, you can see failures as follows:
+
+1.	CPU 0 runs the above code, picks up mapping, and finds it non-NULL.
+
+2.	CPU 0 is preempted or otherwise delayed.  (Keep in mind that
+	even disabling interrupts in a guest OS does not prevent the
+	host hypervisor from preempting!)
+
+3.	Some other CPU NULLs page->mapping.  Because CPU 0 isn't doing
+	anything to prevent it, this other CPU frees the memory.
+
+4.	CPU 0 resumes, and then accesses what is now the freelist.
+	Arbitrarily bad things start happening.
+
+If you are in a read-side critical section, use rcu_dereference() instead
+of rcu_access_pointer().  If you are holding an update-side lock, use
+rcu_dereference_protected() and say what lock you are holding.  If you
+are doing something else, please say what it is.
+
+							Thanx, Paul
