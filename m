@@ -1,14 +1,13 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 1/2 v1] blkdrv: Add queue limits parameters for sg block
-	drive
-Date: Tue, 21 Aug 2012 10:48:17 +0200
-Message-ID: <50334B51.6050900@redhat.com>
-References: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH v1] virtio-scsi: get and set the queue limits for sg device
+Date: Tue, 21 Aug 2012 09:53:59 +0100
+Message-ID: <CAJSP0QXwFZdoDsizTozmXa2P=iRT7RQ_yQcVRC4FemiSpKG_bA@mail.gmail.com>
+References: <1345537609-21676-1-git-send-email-mc@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
+In-Reply-To: <1345537609-21676-1-git-send-email-mc@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,53 +18,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Cong Meng <mc@linux.vnet.ibm.com>
-Cc: stefanha@linux.vnet.ibm.com, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+Cc: stefanha@linux.vnet.ibm.com, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, linux-kernel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 21/08/2012 10:23, Cong Meng ha scritto:
-> +static void sg_get_queue_limits(BlockDriverState *bs, const char *filename)
+On Tue, Aug 21, 2012 at 9:26 AM, Cong Meng <mc@linux.vnet.ibm.com> wrote:
+> Each virtio scsi HBA has global request queue limits. But the passthrough
+> LUNs (scsi-generic) come from different host HBAs may have different request
+> queue limits. If the guest sends commands that exceed the host limits, the
+> commands will be rejected by host HAB.
+>
+> This patch addresses this issue by getting the per-LUN queue limits via the the
+> newly added virtio control request, then setting them properly.
+>
+> Signed-off-by: Cong Meng <mc@linux.vnet.ibm.com>
+> ---
+>  drivers/scsi/virtio_scsi.c  |  113 +++++++++++++++++++++++++++++++++++++------
+>  include/linux/virtio_scsi.h |   18 +++++++
+>  2 files changed, 116 insertions(+), 15 deletions(-)
+>
+> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> index 173cb39..ec5066f 100644
+> --- a/drivers/scsi/virtio_scsi.c
+> +++ b/drivers/scsi/virtio_scsi.c
+> @@ -35,12 +35,14 @@ struct virtio_scsi_cmd {
+>                 struct virtio_scsi_cmd_req       cmd;
+>                 struct virtio_scsi_ctrl_tmf_req  tmf;
+>                 struct virtio_scsi_ctrl_an_req   an;
+> +               struct virtio_scsi_ctrl_lq_req   lq;
+>         } req;
+>         union {
+>                 struct virtio_scsi_cmd_resp      cmd;
+>                 struct virtio_scsi_ctrl_tmf_resp tmf;
+>                 struct virtio_scsi_ctrl_an_resp  an;
+>                 struct virtio_scsi_event         evt;
+> +               struct virtio_scsi_ctrl_lq_resp  lq;
+>         } resp;
+>  } ____cacheline_aligned_in_smp;
+>
+> @@ -469,6 +471,46 @@ out:
+>         return ret;
+>  }
+>
+> +static u32 virtscsi_lun_query(struct scsi_device *sdev, u32 *value, u32 subtype)
 > +{
-> +    DIR *ffs;
-> +    struct dirent *d;
-> +    char path[MAXPATHLEN];
+> +       struct Scsi_Host *shost = sdev->host;
+> +       struct virtio_scsi *vscsi = shost_priv(shost);
+> +       DECLARE_COMPLETION_ONSTACK(comp);
+> +       struct virtio_scsi_cmd *cmd;
+> +       struct virtio_scsi_target_state *tgt = vscsi->tgt[sdev->id];
+> +       unsigned int ret = VIRTIO_SCSI_S_FAILURE;
 > +
-> +    snprintf(path, MAXPATHLEN,
-> +             "/sys/class/scsi_generic/sg%s/device/block/",
-> +             filename + strlen("/dev/sg"));
+> +       cmd = mempool_alloc(virtscsi_cmd_pool, GFP_ATOMIC);
+> +       if (!cmd)
+> +               goto out;
 > +
-> +    ffs = opendir(path);
-> +    if (!ffs) {
-> +        return;
-> +    }
-> +
-> +    for (;;) {
-> +        d = readdir(ffs);
-> +        if (!d) {
-> +            return;
-> +        }
-> +
-> +        if (strcmp(d->d_name, ".") == 0 || strcmp(d->d_name, "..") == 0) {
-> +            continue;
-> +        }
-> +
-> +        break;
-> +    }
-> +
-> +    closedir(ffs);
-> +
-> +    pstrcat(path, MAXPATHLEN, d->d_name);
-> +    pstrcat(path, MAXPATHLEN, "/queue/");
-> +
-> +    read_queue_limit(path, "max_sectors_kb", &bs->max_sectors);
-> +    read_queue_limit(path, "max_segments", &bs->max_segments);
-> +    read_queue_limit(path, "max_segment_size", &bs->max_segment_size);
-> +}
+> +       memset(cmd, 0, sizeof(*cmd));
+> +       cmd->comp = &comp;
+> +       cmd->req.lq = (struct virtio_scsi_ctrl_lq_req){
+> +               .type = VIRTIO_SCSI_T_LUN_QUERY,
+> +               .subtype = subtype,
+> +               .lun[0] = 1,
+> +               .lun[1] = sdev->id,
+> +               .lun[2] = (sdev->lun >> 8) | 0x40,
+> +               .lun[3] = sdev->lun & 0xff,
 
-Using /sys/dev/block or /sys/dev/char seems easier, and lets you
-retrieve the parameters for block devices too.
+The LUN addressing code has been duplicated several times now.  How
+about replacing it with something like
 
-However, I'm worried of the consequences this has for migration.  You
-could have the same physical disk accessed with two different HBAs, with
-different limits.  So I don't know if this can really be solved at all.
-
-Paolo
+static void virtio_scsi_set_lun(u8 *lun, struct scsi_device *sdev)
+{
+    lun[0] = 1;
+    lun[1] = sdev->id;
+    lun[2] = (sdev->lun >> 8) | 0x40;
+    lun[3] = sdev->lun & 0xff;
+    lun[4] = lun[5] = lun[6] = lun[7] = 0;
+}
