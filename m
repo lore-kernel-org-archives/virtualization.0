@@ -1,11 +1,13 @@
 From: Cong Meng <mc@linux.vnet.ibm.com>
-Subject: [PATCH 1/2 v1] blkdrv: Add queue limits parameters for sg block drive
-Date: Tue, 21 Aug 2012 16:23:46 +0800
-Message-ID: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
+Subject: [PATCH 2/2 v1] virtio-scsi: set per-LUN queue limits for sg devices
+Date: Tue, 21 Aug 2012 16:23:47 +0800
+Message-ID: <1345537427-21601-2-git-send-email-mc@linux.vnet.ibm.com>
+References: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,149 +21,150 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: stefanha@linux.vnet.ibm.com, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Cong Meng <mc@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds some queue limit parameters into block drive. And inits them
-for sg block drive. Some interfaces are also added for accessing them.
+Each virtio scsi HBA has global request queue limits. But the passthrough
+LUNs (scsi-generic) come from different host HBAs may have different request
+queue limits. If the guest sends commands that exceed the host limits, the
+commands will be rejected by host HAB. 
+
+To address the issue, this patch responses the newly added virtio control
+queue request by returning the per-LUN queue limits.
 
 Signed-off-by: Cong Meng <mc@linux.vnet.ibm.com>
 ---
- block/raw-posix.c |   58 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- block_int.h       |    4 +++
- blockdev.c        |   15 +++++++++++++
- hw/block-common.h |    3 ++
- 4 files changed, 80 insertions(+), 0 deletions(-)
+ hw/virtio-scsi.c |   65 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 65 insertions(+), 0 deletions(-)
 
-diff --git a/block/raw-posix.c b/block/raw-posix.c
-index 0dce089..a086f89 100644
---- a/block/raw-posix.c
-+++ b/block/raw-posix.c
-@@ -53,6 +53,7 @@
- #include <linux/cdrom.h>
- #include <linux/fd.h>
- #include <linux/fs.h>
-+#include <dirent.h>
- #endif
- #ifdef CONFIG_FIEMAP
- #include <linux/fiemap.h>
-@@ -829,6 +830,62 @@ static int hdev_probe_device(const char *filename)
-     return 0;
+diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
+index c4a5b22..3c0bd99 100644
+--- a/hw/virtio-scsi.c
++++ b/hw/virtio-scsi.c
+@@ -28,6 +28,7 @@
+ #define VIRTIO_SCSI_F_INOUT                    0
+ #define VIRTIO_SCSI_F_HOTPLUG                  1
+ #define VIRTIO_SCSI_F_CHANGE                   2
++#define VIRTIO_SCSI_F_LUN_QUERY                3
+ 
+ /* Response codes */
+ #define VIRTIO_SCSI_S_OK                       0
+@@ -48,6 +49,7 @@
+ #define VIRTIO_SCSI_T_TMF                      0
+ #define VIRTIO_SCSI_T_AN_QUERY                 1
+ #define VIRTIO_SCSI_T_AN_SUBSCRIBE             2
++#define VIRTIO_SCSI_T_LUN_QUERY                3
+ 
+ /* Valid TMF subtypes.  */
+ #define VIRTIO_SCSI_T_TMF_ABORT_TASK           0
+@@ -66,6 +68,11 @@
+ #define VIRTIO_SCSI_T_ASYNC_NOTIFY             2
+ #define VIRTIO_SCSI_T_PARAM_CHANGE             3
+ 
++/* LUN Query */
++#define VIRTIO_SCSI_T_LQ_MAX_SECTORS           0
++#define VIRTIO_SCSI_T_LQ_MAX_SEGMENTS          1
++#define VIRTIO_SCSI_T_LQ_MAX_SEGMENT_SIZE      2
++
+ /* Reasons for transport reset event */
+ #define VIRTIO_SCSI_EVT_RESET_HARD             0
+ #define VIRTIO_SCSI_EVT_RESET_RESCAN           1
+@@ -115,6 +122,18 @@ typedef struct {
+     uint8_t response;
+ } QEMU_PACKED VirtIOSCSICtrlANResp;
+ 
++/* LUN qeury */
++typedef struct {
++    uint32_t type;
++    uint8_t lun[8];
++    uint32_t subtype;
++} QEMU_PACKED VirtIOSCSICtrlLQReq;
++
++typedef struct {
++    uint32_t response;
++    uint32_t value;
++} QEMU_PACKED VirtIOSCSICtrlLQResp;
++
+ typedef struct {
+     uint32_t event;
+     uint8_t lun[8];
+@@ -160,6 +179,7 @@ typedef struct VirtIOSCSIReq {
+         VirtIOSCSICmdReq      *cmd;
+         VirtIOSCSICtrlTMFReq  *tmf;
+         VirtIOSCSICtrlANReq   *an;
++        VirtIOSCSICtrlLQReq   *lq;
+     } req;
+     union {
+         char                  *buf;
+@@ -167,6 +187,7 @@ typedef struct VirtIOSCSIReq {
+         VirtIOSCSICtrlTMFResp *tmf;
+         VirtIOSCSICtrlANResp  *an;
+         VirtIOSCSIEvent       *event;
++        VirtIOSCSICtrlLQResp  *lq;
+     } resp;
+ } VirtIOSCSIReq;
+ 
+@@ -285,6 +306,43 @@ static void *virtio_scsi_load_request(QEMUFile *f, SCSIRequest *sreq)
+     return req;
  }
  
-+static void read_queue_limit(char *path, const char *filename, unsigned int *val)
++static void virtio_scsi_do_lun_query(VirtIOSCSI *s, VirtIOSCSIReq *req)
 +{
-+    FILE *f;
-+    char *tail = path + strlen(path);
++    SCSIDevice *d = virtio_scsi_device_find(s, req->req.lq->lun);
 +
-+    pstrcat(path, MAXPATHLEN, filename);
-+    f = fopen(path, "r");
-+    if (!f) {
-+        goto out;
++    if (!d) {
++        goto fail;
 +    }
 +
-+    fscanf(f, "%u", val);
-+    fclose(f);
-+
-+out:
-+    *tail = 0;
-+}
-+
-+static void sg_get_queue_limits(BlockDriverState *bs, const char *filename)
-+{
-+    DIR *ffs;
-+    struct dirent *d;
-+    char path[MAXPATHLEN];
-+
-+    snprintf(path, MAXPATHLEN,
-+             "/sys/class/scsi_generic/sg%s/device/block/",
-+             filename + strlen("/dev/sg"));
-+
-+    ffs = opendir(path);
-+    if (!ffs) {
-+        return;
-+    }
-+
-+    for (;;) {
-+        d = readdir(ffs);
-+        if (!d) {
-+            return;
++    switch (req->req.lq->subtype) {
++    case VIRTIO_SCSI_T_LQ_MAX_SECTORS:
++        req->resp.lq->value = get_queue_max_sectors(d->conf.bs);
++        if (!req->resp.lq->value) {
++            goto fail;
 +        }
-+
-+        if (strcmp(d->d_name, ".") == 0 || strcmp(d->d_name, "..") == 0) {
-+            continue;
-+        }
-+
 +        break;
++    case VIRTIO_SCSI_T_LQ_MAX_SEGMENTS:
++        req->resp.lq->value = get_queue_max_segments(d->conf.bs);
++        if (!req->resp.lq->value) {
++            goto fail;
++        }
++        break;
++    case VIRTIO_SCSI_T_LQ_MAX_SEGMENT_SIZE:
++        req->resp.lq->value = get_queue_max_segment_size(d->conf.bs);
++        if (!req->resp.lq->value) {
++            goto fail;
++        }
++        break;
++    default:
++        goto fail;
 +    }
 +
-+    closedir(ffs);
-+
-+    pstrcat(path, MAXPATHLEN, d->d_name);
-+    pstrcat(path, MAXPATHLEN, "/queue/");
-+
-+    read_queue_limit(path, "max_sectors_kb", &bs->max_sectors);
-+    read_queue_limit(path, "max_segments", &bs->max_segments);
-+    read_queue_limit(path, "max_segment_size", &bs->max_segment_size);
++    req->resp.lq->response = VIRTIO_SCSI_S_OK;
++    return;
++fail:
++    req->resp.lq->response = VIRTIO_SCSI_S_FAILURE;
 +}
 +
- static int hdev_open(BlockDriverState *bs, const char *filename, int flags)
+ static void virtio_scsi_do_tmf(VirtIOSCSI *s, VirtIOSCSIReq *req)
  {
-     BDRVRawState *s = bs->opaque;
-@@ -868,6 +925,7 @@ static int hdev_open(BlockDriverState *bs, const char *filename, int flags)
-         temp = realpath(filename, resolved_path);
-         if (temp && strstart(temp, "/dev/sg", NULL)) {
-             bs->sg = 1;
-+            sg_get_queue_limits(bs, temp);
+     SCSIDevice *d = virtio_scsi_device_find(s, req->req.tmf->lun);
+@@ -414,6 +472,12 @@ static void virtio_scsi_handle_ctrl(VirtIODevice *vdev, VirtQueue *vq)
+             }
+             req->resp.an->event_actual = 0;
+             req->resp.an->response = VIRTIO_SCSI_S_OK;
++        } else if (req->req.lq->type == VIRTIO_SCSI_T_LUN_QUERY) {
++            if (out_size < sizeof(VirtIOSCSICtrlLQReq) ||
++                in_size < sizeof(VirtIOSCSICtrlLQResp)) {
++                virtio_scsi_bad_req();
++            }
++            virtio_scsi_do_lun_query(s, req);
          }
+         virtio_scsi_complete_req(req);
      }
- #endif
-diff --git a/block_int.h b/block_int.h
-index d72317f..a9d07a2 100644
---- a/block_int.h
-+++ b/block_int.h
-@@ -333,6 +333,10 @@ struct BlockDriverState {
- 
-     /* long-running background operation */
-     BlockJob *job;
-+
-+    unsigned int max_sectors;
-+    unsigned int max_segments;
-+    unsigned int max_segment_size;
- };
- 
- int get_tmp_filename(char *filename, int size);
-diff --git a/blockdev.c b/blockdev.c
-index 3d75015..e17edbf 100644
---- a/blockdev.c
-+++ b/blockdev.c
-@@ -1191,3 +1191,18 @@ BlockJobInfoList *qmp_query_block_jobs(Error **errp)
-     bdrv_iterate(do_qmp_query_block_jobs_one, &prev);
-     return dummy.next;
+@@ -557,6 +621,7 @@ static uint32_t virtio_scsi_get_features(VirtIODevice *vdev,
+ {
+     requested_features |= (1UL << VIRTIO_SCSI_F_HOTPLUG);
+     requested_features |= (1UL << VIRTIO_SCSI_F_CHANGE);
++    requested_features |= (1UL << VIRTIO_SCSI_F_LUN_QUERY);
+     return requested_features;
  }
-+
-+unsigned int get_queue_max_sectors(BlockDriverState *bs)
-+{
-+    return (bs->file && bs->file->sg) ? bs->file->max_sectors : 0;
-+}
-+
-+unsigned int get_queue_max_segments(BlockDriverState *bs)
-+{
-+    return (bs->file && bs->file->sg) ? bs->file->max_segments : 0;
-+}
-+
-+unsigned int get_queue_max_segment_size(BlockDriverState *bs)
-+{
-+    return (bs->file && bs->file->sg) ? bs->file->max_segment_size : 0;
-+}
-diff --git a/hw/block-common.h b/hw/block-common.h
-index bb808f7..d47fcd7 100644
---- a/hw/block-common.h
-+++ b/hw/block-common.h
-@@ -76,4 +76,7 @@ void hd_geometry_guess(BlockDriverState *bs,
-                        int *ptrans);
- int hd_bios_chs_auto_trans(uint32_t cyls, uint32_t heads, uint32_t secs);
  
-+unsigned int get_queue_max_sectors(BlockDriverState *bs);
-+unsigned int get_queue_max_segments(BlockDriverState *bs);
-+unsigned int get_queue_max_segment_size(BlockDriverState *bs);
- #endif
 -- 
 1.7.7.6
