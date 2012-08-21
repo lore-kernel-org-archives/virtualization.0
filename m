@@ -1,13 +1,24 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [RFC-v3 5/5] virtio-scsi: Set max_target=0 during vhost-scsi operation
-Date: Tue, 21 Aug 2012 20:52:11 +0000
-Message-ID: <1345582331-22593-6-git-send-email-nab__1132.14769303358$1345582619$gmane$org@linux-iscsi.org>
-References: <1345582331-22593-1-git-send-email-nab@linux-iscsi.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v7 2/4] virtio_balloon: introduce migration primitives to
+	balloon pages
+Date: Tue, 21 Aug 2012 15:01:37 +0930
+Message-ID: <87mx1o3j5y.fsf__20220.3661822297$1345592574$gmane$org@rustcorp.com.au>
+References: <f19b63dfa026fe2f8f11ec017771161775744781.1344619987.git.aquini@redhat.com>
+	<20120813084123.GF14081@redhat.com>
+	<20120814182244.GB13338@t510.redhat.com>
+	<20120814195139.GA28870@redhat.com>
+	<20120814201113.GE22133@t510.redhat.com>
+	<20120815090528.GH4052@csn.ul.ie>
+	<20120815092528.GA29214@redhat.com>
+	<20120815094839.GJ4052@csn.ul.ie>
+	<20120815100108.GA1999@redhat.com>
+	<20120815111651.GL4052@csn.ul.ie>
+	<20120815112851.GA2707@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1345582331-22593-1-git-send-email-nab@linux-iscsi.org>
+In-Reply-To: <20120815112851.GA2707@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,43 +28,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: target-devel <target-devel@vger.kernel.org>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Mel Gorman <mel@csn.ul.ie>
+Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicholas Bellinger <nab@linux-iscsi.org>
+On Wed, 15 Aug 2012 14:28:51 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> On Wed, Aug 15, 2012 at 12:16:51PM +0100, Mel Gorman wrote:
+> > I was thinking of exactly that page->mapping == balloon_mapping check. As I
+> > do not know how many active balloon drivers there might be I cannot guess
+> > in advance how much of a scalability problem it will be.
+> 
+> Not at all sure multiple drivers are worth supporting, but multiple
+> *devices* is I think worth supporting, if for no other reason than that
+> they can work today. For that, we need a device pointer which Rafael
+> wants to put into the mapping, this means multiple balloon mappings.
 
-This QEMU patch sets VirtIOSCSIConfig->max_target=0 for vhost-scsi operation
-to restrict virtio-scsi LLD guest scanning to max_id=0 (a single target ID
-instance) when connected to individual tcm_vhost endpoints.
+Rafael, please make sure that the balloon driver fails on the second and
+subsequent balloon devices.
 
-This ensures that virtio-scsi LLD only attempts to scan target IDs up to
-VIRTIO_SCSI_MAX_TARGET when connected via virtio-scsi-raw.
+Michael, we only allow multiple balloon devices because it fell out of
+the implementation.  If it causes us even the slightest issue, we should
+not support it.  It's not a sensible setup.
 
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
----
- hw/virtio-scsi.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
-
-diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
-index edda097..ab5ca72 100644
---- a/hw/virtio-scsi.c
-+++ b/hw/virtio-scsi.c
-@@ -546,7 +546,11 @@ static void virtio_scsi_get_config(VirtIODevice *vdev,
-     stl_raw(&scsiconf->sense_size, s->sense_size);
-     stl_raw(&scsiconf->cdb_size, s->cdb_size);
-     stl_raw(&scsiconf->max_channel, VIRTIO_SCSI_MAX_CHANNEL);
--    stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
-+    if (s->vhost_scsi) {
-+        stl_raw(&scsiconf->max_target, 0);
-+    } else {
-+        stl_raw(&scsiconf->max_target, VIRTIO_SCSI_MAX_TARGET);
-+    }
-     stl_raw(&scsiconf->max_lun, VIRTIO_SCSI_MAX_LUN);
- }
- 
--- 
-1.7.2.5
+Cheers,
+Rusty.
