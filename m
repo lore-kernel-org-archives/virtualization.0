@@ -1,19 +1,18 @@
 From: Rafael Aquini <aquini@redhat.com>
 Subject: Re: [PATCH v8 1/5] mm: introduce a common interface for balloon
 	pages mobility
-Date: Tue, 21 Aug 2012 14:42:52 -0300
-Message-ID: <20120821174251.GB12294__29160.8703708791$1345573358$gmane$org@t510.redhat.com>
+Date: Tue, 21 Aug 2012 14:28:20 -0300
+Message-ID: <20120821172819.GA12294__20385.4946689264$1345573390$gmane$org@t510.redhat.com>
 References: <cover.1345519422.git.aquini@redhat.com>
 	<e24f3073ef539985dea52943dcb84762213a0857.1345519422.git.aquini@redhat.com>
-	<20120821135223.GA7117@redhat.com>
-	<1345562166.23018.109.camel@twins>
-	<20120821154142.GA8268@redhat.com>
+	<1345562411.23018.111.camel@twins>
+	<20120821162432.GG2456@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120821154142.GA8268@redhat.com>
+In-Reply-To: <20120821162432.GG2456@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,41 +22,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+To: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 21, 2012 at 06:41:42PM +0300, Michael S. Tsirkin wrote:
-> On Tue, Aug 21, 2012 at 05:16:06PM +0200, Peter Zijlstra wrote:
-> > On Tue, 2012-08-21 at 16:52 +0300, Michael S. Tsirkin wrote:
-> > > > +             rcu_read_lock();
-> > > > +             mapping = rcu_dereference(page->mapping);
-> > > > +             if (mapping_balloon(mapping))
-> > > > +                     ret = true;
-> > > > +             rcu_read_unlock();
-> > > 
-> > > This looks suspicious: you drop rcu_read_unlock
-> > > so can't page switch from balloon to non balloon? 
+On Tue, Aug 21, 2012 at 09:24:32AM -0700, Paul E. McKenney wrote:
+> On Tue, Aug 21, 2012 at 05:20:11PM +0200, Peter Zijlstra wrote:
+> > On Tue, 2012-08-21 at 09:47 -0300, Rafael Aquini wrote:
+> > > +       mapping = rcu_access_pointer(page->mapping);
+> > > +       if (mapping)
+> > > +               mapping = mapping->assoc_mapping; 
 > > 
-> > RCU read lock is a non-exclusive lock, it cannot avoid anything like
-> > that.
+> > The comment near rcu_access_pointer() explicitly says:
+> > 
+> >  * Return the value of the specified RCU-protected pointer, but omit the
+> >  * smp_read_barrier_depends() and keep the ACCESS_ONCE().  This is useful
+> >  * when the value of this pointer is accessed, but the pointer is not
+> >  * dereferenced,
+> > 
+> > Yet you dereference the pointer... smells like fail to me.
 > 
-> You are right, of course. So even keeping rcu_read_lock across both test
-> and operation won't be enough - you need to make this function return
-> the mapping and pass it to isolate_page/putback_page so that it is only
-> dereferenced once.
+> Indeed!
+> 
+> This will break DEC Alpha.  In addition, if ->mapping can transition
+> from non-NULL to NULL, and if you used rcu_access_pointer() rather
+> than rcu_dereference() to avoid lockdep-RCU from yelling at you about
+> not either being in an RCU read-side critical section or holding an
+> update-side lock, you can see failures as follows:
+> 
+> 1.	CPU 0 runs the above code, picks up mapping, and finds it non-NULL.
+> 
+> 2.	CPU 0 is preempted or otherwise delayed.  (Keep in mind that
+> 	even disabling interrupts in a guest OS does not prevent the
+> 	host hypervisor from preempting!)
+> 
+> 3.	Some other CPU NULLs page->mapping.  Because CPU 0 isn't doing
+> 	anything to prevent it, this other CPU frees the memory.
+> 
+> 4.	CPU 0 resumes, and then accesses what is now the freelist.
+> 	Arbitrarily bad things start happening.
+> 
+> If you are in a read-side critical section, use rcu_dereference() instead
+> of rcu_access_pointer().  If you are holding an update-side lock, use
+> rcu_dereference_protected() and say what lock you are holding.  If you
+> are doing something else, please say what it is.
+> 
+> 							Thanx, Paul
 >
-No, I need to dereference page->mapping to check ->mapping flags here, before
-returning. Remember this function is used at MM's compaction/migration inner
-circles to identify ballooned pages and decide what's the next step. This
-function is doing the right thing, IMHO.
+Paul & Peter,
 
-Also, looking at how compaction/migration work, we verify the only critical path
-for this function is the page isolation step. The other steps (migration and
-putback) perform their work on private lists previouly isolated from a given
-source.
+Thanks for looking into this stuff and providing me such valuable feedback, and
+RCU usage crashcourse.
 
-So, we just need to make sure that the isolation part does not screw things up
-by isolating pages that balloon driver is about to release. That's why there are
-so many checkpoints down the page isolation path assuring we really are
-isolating a balloon page. 
+I believe rcu_dereference_protected() is what I want/need here, since this code
+is always called for pages which we hold locked (PG_locked bit). So, it brings me
+to ask you if the following usage looks sane enough to fix the well pointed issue,
+or if it's another misuse of RCU API:
+
++       mapping = rcu_dereference_protecetd(page->mapping, PageLocked(page));
++       if (mapping)
++               mapping = mapping->assoc_mapping; 
