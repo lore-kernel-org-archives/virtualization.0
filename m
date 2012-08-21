@@ -1,11 +1,14 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [RFC-v3 0/5] vhost-scsi: Add support for host virtualized target
-Date: Tue, 21 Aug 2012 20:52:06 +0000
-Message-ID: <1345582331-22593-1-git-send-email-nab__32930.0481862903$1345582582$gmane$org@linux-iscsi.org>
+Subject: [RFC-v3 1/5] monitor: Rename+move net_handle_fd_param ->
+	monitor_handle_fd_param
+Date: Tue, 21 Aug 2012 20:52:07 +0000
+Message-ID: <1345582331-22593-2-git-send-email-nab__30745.6020186239$1345582598$gmane$org@linux-iscsi.org>
+References: <1345582331-22593-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1345582331-22593-1-git-send-email-nab@linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,106 +19,150 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: target-devel <target-devel@vger.kernel.org>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-Hi folks,
+This patch renames+moves the net_handle_fd_param() caller used to
+obtain a file descriptor from either qemu_parse_fd() (the normal case)
+or from monitor_get_fd() (migration case) into a generically prefixed
+monitor_handle_fd_param() to be used by vhost-scsi code.
 
-This is the third RFC for vhost-scsi patches against mainline QEMU v1.1
-to support the upstream tcm_vhost host virtualized target driver now
-available in v3.6-rc kernel code.  This series is based upon last week's
-commit 346fe0c4c0b, and is aiming for a future QEMU v1.3 merge.
+Also update net/[socket,tap].c consumers to use the new prefix.
 
-The patch series is available directly from:
+Reported-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>
+Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+---
+ monitor.c    |   18 ++++++++++++++++++
+ monitor.h    |    1 +
+ net.c        |   18 ------------------
+ net.h        |    2 --
+ net/socket.c |    2 +-
+ net/tap.c    |    4 ++--
+ 6 files changed, 22 insertions(+), 23 deletions(-)
 
-   git://git.kernel.org/pub/scm/virt/kvm/nab/qemu-kvm.git vhost-scsi-merge-v3
-
-This -v3 series contains further review changes based upon feedback from
-MST, Paolo, and Blue.  It also contains the changes to function against
-the changes in target-pending/master -> headed for v3.6-rc3 code.
-
-Changes from v3 -> v2:
-
- - Move qdev_prop_vhost_scsi + DEFINE_PROP_VHOST_SCSI defs into vhost-scsi.[c,h]
-   (reported by MST)
- - Add enum vhost_scsi_vq_list for VHostSCSI->vqs[] enumeration (reported by MST)
- - Add missing braces around single like if statement to following QEMU
-   style (reported by Blue Swirl)
- - Change vhost_scsi_target->vhost_wwpn to char *, in order to drop casts to
-   pstrcpy in vhost_scsi_start() + vhost_scsi_stop() (reported by Blue Swirl)
- - Change VHOST_SCSI_GET_ABI_VERSION to 'int' type (MST)
- - Add vhost-scsi.h include for DEFINE_PROP_VHOST_SCSI (mst + nab)
- - Move vhost-scsi related struct members ahead of *cmd_vqs[0] within
-   VirtIOSCSI definition.  (paolo + nab)
- - Fix 4 byte alignment of vhost_scsi_target (MST)
- - Convert fprintf(stderr, ...) usage to -> error_report() (reported by MST)
- - Do explict memset of backend before calling VHOST_SCSI_CLEAR_ENDPOINT
-   in vhost_scsi_stop() (reported by MST)
- - Add support for vhostfd passing in vhost_scsi_add() (reported by MST)
- - Move net_handle_fd_param() -> monitor_handle_fd_param() for generic
-   usage by net/ + vhost-scsi (reported by MST)
- - Change vhost_scsi_add() to use monitor_handle_fd_param() (reported by MST)
-
-Changes from v1 -> v2:
-
- - Expose ABI version via VHOST_SCSI_GET_ABI_VERSION + use Rev 0 as
-   starting point for v3.6-rc code (Stefan + ALiguori + nab)
- - Fix upstream qemu conflict in hw/qdev-properties.c
- - Make GET_ABI_VERSION use int (nab + mst)
- - Drop unnecessary event-notifier changes (nab)
- - Fix vhost-scsi case lables in configure (reported by paolo)
- - Convert qdev_prop_vhost_scsi to use ->get() + ->set() following
-   qdev_prop_netdev (reported by paolo)
- - Fix typo in qemu-options.hx definition of vhost-scsi (reported by paolo)
- - Squash virtio-scsi: use the vhost-scsi host device from stefan (nab)
- - Fix up virtio_scsi_properties[] conflict w/ upstream qemu (nab)
- - Drop usage of to_virtio_scsi() in virtio_scsi_set_status()
-      (reported by paolo)
- - Use modern VirtIOSCSIConf define in virtio-scsi.h (reported by paolo)
- - Use s->conf->vhost_scsi instead of proxyconf->vhost_scsi in
-   virtio_scsi_init() (reported by paolo)
- - Only register QEMU SCSI bus is vhost-scsi is not active (reported by paolo)
- - Fix incorrect VirtIOSCSI->cmd_vqs[0] definition (nab)
-
-Thanks again to everyone who has been reviewing this series!
-
---nab
-
-Nicholas Bellinger (2):
-  monitor: Rename+move net_handle_fd_param -> monitor_handle_fd_param
-  virtio-scsi: Set max_target=0 during vhost-scsi operation
-
-Stefan Hajnoczi (3):
-  vhost: Pass device path to vhost_dev_init()
-  vhost-scsi: add -vhost-scsi host device for use with tcm-vhost
-  virtio-scsi: Add start/stop functionality for vhost-scsi
-
- configure            |   10 +++
- hw/Makefile.objs     |    1 +
- hw/qdev-properties.c |   41 +++++++++++
- hw/vhost-scsi.c      |  190 ++++++++++++++++++++++++++++++++++++++++++++++++++
- hw/vhost-scsi.h      |   62 ++++++++++++++++
- hw/vhost.c           |    5 +-
- hw/vhost.h           |    3 +-
- hw/vhost_net.c       |    2 +-
- hw/virtio-pci.c      |    2 +
- hw/virtio-scsi.c     |   55 ++++++++++++++-
- hw/virtio-scsi.h     |    1 +
- monitor.c            |   18 +++++
- monitor.h            |    1 +
- net.c                |   18 -----
- net.h                |    2 -
- net/socket.c         |    2 +-
- net/tap.c            |    4 +-
- qemu-common.h        |    1 +
- qemu-config.c        |   19 +++++
- qemu-options.hx      |    4 +
- vl.c                 |   18 +++++
- 21 files changed, 431 insertions(+), 28 deletions(-)
- create mode 100644 hw/vhost-scsi.c
- create mode 100644 hw/vhost-scsi.h
-
+diff --git a/monitor.c b/monitor.c
+index 49dccfe..0641efe 100644
+--- a/monitor.c
++++ b/monitor.c
+@@ -2389,6 +2389,24 @@ int monitor_get_fd(Monitor *mon, const char *fdname)
+     return -1;
+ }
+ 
++int monitor_handle_fd_param(Monitor *mon, const char *fdname)
++{
++    int fd;
++
++    if (!qemu_isdigit(fdname[0]) && mon) {
++
++        fd = monitor_get_fd(mon, fdname);
++        if (fd == -1) {
++            error_report("No file descriptor named %s found", fdname);
++            return -1;
++        }
++    } else {
++        fd = qemu_parse_fd(fdname);
++    }
++
++    return fd;
++}
++
+ /* mon_cmds and info_cmds would be sorted at runtime */
+ static mon_cmd_t mon_cmds[] = {
+ #include "hmp-commands.h"
+diff --git a/monitor.h b/monitor.h
+index 5f4de1b..d557e97 100644
+--- a/monitor.h
++++ b/monitor.h
+@@ -65,6 +65,7 @@ int monitor_read_block_device_key(Monitor *mon, const char *device,
+                                   void *opaque);
+ 
+ int monitor_get_fd(Monitor *mon, const char *fdname);
++int monitor_handle_fd_param(Monitor *mon, const char *fdname);
+ 
+ void monitor_vprintf(Monitor *mon, const char *fmt, va_list ap)
+     GCC_FMT_ATTR(2, 0);
+diff --git a/net.c b/net.c
+index 60043dd..e5d25d4 100644
+--- a/net.c
++++ b/net.c
+@@ -522,24 +522,6 @@ int qemu_find_nic_model(NICInfo *nd, const char * const *models,
+     return -1;
+ }
+ 
+-int net_handle_fd_param(Monitor *mon, const char *param)
+-{
+-    int fd;
+-
+-    if (!qemu_isdigit(param[0]) && mon) {
+-
+-        fd = monitor_get_fd(mon, param);
+-        if (fd == -1) {
+-            error_report("No file descriptor named %s found", param);
+-            return -1;
+-        }
+-    } else {
+-        fd = qemu_parse_fd(param);
+-    }
+-
+-    return fd;
+-}
+-
+ static int net_init_nic(const NetClientOptions *opts, const char *name,
+                         NetClientState *peer)
+ {
+diff --git a/net.h b/net.h
+index 2975056..04fda1d 100644
+--- a/net.h
++++ b/net.h
+@@ -168,8 +168,6 @@ int qmp_netdev_add(Monitor *mon, const QDict *qdict, QObject **ret);
+ 
+ void qdev_set_nic_properties(DeviceState *dev, NICInfo *nd);
+ 
+-int net_handle_fd_param(Monitor *mon, const char *param);
+-
+ #define POLYNOMIAL 0x04c11db6
+ unsigned compute_mcast_idx(const uint8_t *ep);
+ 
+diff --git a/net/socket.c b/net/socket.c
+index c172c24..7c602e4 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -629,7 +629,7 @@ int net_init_socket(const NetClientOptions *opts, const char *name,
+     if (sock->has_fd) {
+         int fd;
+ 
+-        fd = net_handle_fd_param(cur_mon, sock->fd);
++        fd = monitor_handle_fd_param(cur_mon, sock->fd);
+         if (fd == -1 || !net_socket_fd_init(peer, "socket", name, fd, 1)) {
+             return -1;
+         }
+diff --git a/net/tap.c b/net/tap.c
+index 1971525..a88ae8f 100644
+--- a/net/tap.c
++++ b/net/tap.c
+@@ -610,7 +610,7 @@ int net_init_tap(const NetClientOptions *opts, const char *name,
+             return -1;
+         }
+ 
+-        fd = net_handle_fd_param(cur_mon, tap->fd);
++        fd = monitor_handle_fd_param(cur_mon, tap->fd);
+         if (fd == -1) {
+             return -1;
+         }
+@@ -686,7 +686,7 @@ int net_init_tap(const NetClientOptions *opts, const char *name,
+         int vhostfd;
+ 
+         if (tap->has_vhostfd) {
+-            vhostfd = net_handle_fd_param(cur_mon, tap->vhostfd);
++            vhostfd = monitor_handle_fd_param(cur_mon, tap->vhostfd);
+             if (vhostfd == -1) {
+                 return -1;
+             }
 -- 
 1.7.2.5
