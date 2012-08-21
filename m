@@ -1,15 +1,16 @@
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v8 1/5] mm: introduce a common interface for balloon
-	pages mobility
-Date: Tue, 21 Aug 2012 17:20:11 +0200
-Message-ID: <1345562411.23018.111.camel__45477.9057916769$1345565559$gmane$org@twins>
+Subject: Re: [PATCH v8 3/5] virtio_balloon: introduce migration primitives
+	to balloon pages
+Date: Tue, 21 Aug 2012 17:37:13 +0200
+Message-ID: <1345563433.26596.2.camel__30698.0442641818$1345566122$gmane$org@twins>
 References: <cover.1345519422.git.aquini@redhat.com>
-	<e24f3073ef539985dea52943dcb84762213a0857.1345519422.git.aquini@redhat.com>
+	<c5f02c618c99b0da11240c1b504672de6f70a074.1345519422.git.aquini@redhat.com>
+	<20120821144013.GA7784@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <e24f3073ef539985dea52943dcb84762213a0857.1345519422.git.aquini@redhat.com>
+In-Reply-To: <20120821144013.GA7784@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,20 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rafael Aquini <aquini@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, paulmck <paulmck@linux.vnet.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, paulmck <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2012-08-21 at 09:47 -0300, Rafael Aquini wrote:
-> +       mapping = rcu_access_pointer(page->mapping);
-> +       if (mapping)
-> +               mapping = mapping->assoc_mapping; 
+On Tue, 2012-08-21 at 17:40 +0300, Michael S. Tsirkin wrote:
+> > +             spin_lock(&vb->pages_lock);
+> > +             page = list_first_or_null_rcu(&vb->pages, struct page, lru);
+> 
+> Why is list_first_or_null_rcu called outside
+> RCU critical section here?
 
-The comment near rcu_access_pointer() explicitly says:
+It looks like vb->pages_lock is the exclusive (or modification)
+counterpart to the rcu-read-lock in this particular case, so it should
+be fine.
 
- * Return the value of the specified RCU-protected pointer, but omit the
- * smp_read_barrier_depends() and keep the ACCESS_ONCE().  This is useful
- * when the value of this pointer is accessed, but the pointer is not
- * dereferenced,
+Although for that same reason, it seems superfluous to use the RCU list
+method since we're exclusive with list manipulations anyway.
 
-Yet you dereference the pointer... smells like fail to me.
+> > +             if (!page) {
+> > +                     spin_unlock(&vb->pages_lock);
+> > +                     break;
+> > +             }
+> > +             /*
+> > +              * It is safe now to drop page->mapping and delete this page
+> > +              * from balloon page list, since we are grabbing 'pages_lock'
+> > +              * which prevents 'virtballoon_isolatepage()' from acting.
+> > +              */
+> > +             clear_balloon_mapping(page);
+> > +             list_del_rcu(&page->lru);
+> > +             spin_unlock(&vb->pages_lock); 
