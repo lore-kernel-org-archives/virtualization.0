@@ -1,14 +1,11 @@
-From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: Re: Re: [PATCH V2 0/6] virtio-trace: Support virtio-trace
-Date: Tue, 21 Aug 2012 21:33:12 +0900
-Message-ID: <50338008.6000708@hitachi.com>
-References: <20120809123029.8542.38311.stgit@ltc189.sdl.hitachi.co.jp>
-	<20120821051619.GF29197@amit.redhat.com>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: [PATCH v8 0/5] make balloon pages movable by compaction
+Date: Tue, 21 Aug 2012 09:47:43 -0300
+Message-ID: <cover.1345519422.git.aquini__29172.7531854578$1345553301$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120821051619.GF29197@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,45 +15,138 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, qemu-devel@nongnu.org, Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, Herbert Xu <herbert@gondor.hengli.com.au>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Steven Rostedt <rostedt@goodmis.org>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, yrl.pp-manager.tt@hitachi.com
+To: linux-mm@kvack.org
+Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(2012/08/21 14:16), Amit Shah wrote:
-> On (Thu) 09 Aug 2012 [21:30:29], Yoshihiro YUNOMAE wrote:
->> Hi All,
->>
->> The following patch set provides a low-overhead system for collecting kernel
->> tracing data of guests by a host in a virtualization environment.
-> 
-> ACK this series.
+Memory fragmentation introduced by ballooning might reduce significantly
+the number of 2MB contiguous memory blocks that can be used within a guest,
+thus imposing performance penalties associated with the reduced number of
+transparent huge pages that could be used by the guest workload.
 
-Thank you!
+This patch-set follows the main idea discussed at 2012 LSFMMS session:
+"Ballooning for transparent huge pages" -- http://lwn.net/Articles/490114/
+to introduce the required changes to the virtio_balloon driver, as well as
+the changes to the core compaction & migration bits, in order to make those
+subsystems aware of ballooned pages and allow memory balloon pages become
+movable within a guest, thus avoiding the aforementioned fragmentation issue
 
-> I ran it through the virtio-serial test suite, and there's no
-> regression in existing functionality.
-> 
-> I encourage you to check out the virtio-serial test suite[1] as well
-> as the virtio-serial unit tests in the autotest[2] code, and
-> contribute to them to add tests for the new functionality you've
-> added.
+Rafael Aquini (5):
+  mm: introduce a common interface for balloon pages mobility
+  mm: introduce compaction and migration for ballooned pages
+  virtio_balloon: introduce migration primitives to balloon pages
+  mm: introduce putback_movable_pages()
+  mm: add vm event counters for balloon pages compaction
 
-Ah, OK we'll look into them for adding some tests for
-splice support :)
+ drivers/virtio/virtio_balloon.c    | 212 +++++++++++++++++++++++++++++++++++--
+ include/linux/balloon_compaction.h | 113 ++++++++++++++++++++
+ include/linux/migrate.h            |   2 +
+ include/linux/pagemap.h            |  18 ++++
+ include/linux/vm_event_item.h      |   8 +-
+ mm/Kconfig                         |  15 +++
+ mm/Makefile                        |   2 +-
+ mm/balloon_compaction.c            | 147 +++++++++++++++++++++++++
+ mm/compaction.c                    |  51 +++++----
+ mm/migrate.c                       |  52 ++++++++-
+ mm/page_alloc.c                    |   2 +-
+ mm/vmstat.c                        |  10 +-
+ 12 files changed, 595 insertions(+), 37 deletions(-)
+ create mode 100644 include/linux/balloon_compaction.h
+ create mode 100644 mm/balloon_compaction.c
 
-> 
-> [1]
-> http://fedorapeople.org/cgit/amitshah/public_git/test-virtserial.git/
-> 
-> [2]
-> https://github.com/autotest/autotest/blob/e91cd67b845b291622c8d079a8289c4b0cb1e6ae/client/tests/kvm/tests/virtio_console.py
-> 
-> 
 
-Thank you again,
+Change log:
+v8:
+ * introduce a common MM interface for balloon driver page compaction (Michael);
+ * remove the global state preventing multiple balloon device support (Michael);
+ * introduce RCU protection/syncrhonization to balloon page->mapping (Michael);
+v7:
+ * fix a potential page leak case at 'putback_balloon_page' (Mel);
+ * adjust vm-events-counter patch and remove its drop-on-merge message (Rik);
+ * add 'putback_movable_pages' to avoid hacks on 'putback_lru_pages' (Minchan);
+v6:
+ * rename 'is_balloon_page()' to 'movable_balloon_page()' (Rik);
+v5:
+ * address Andrew Morton's review comments on the patch series;
+ * address a couple extra nitpick suggestions on PATCH 01 (Minchan);
+v4: 
+ * address Rusty Russel's review comments on PATCH 02;
+ * re-base virtio_balloon patch on 9c378abc5c0c6fc8e3acf5968924d274503819b3;
+V3: 
+ * address reviewers nitpick suggestions on PATCH 01 (Mel, Minchan);
+V2: 
+ * address Mel Gorman's review comments on PATCH 01;
+
+
+Preliminary test results:
+(2 VCPU 2048mB RAM KVM guest running 3.6.0_rc2+ -- after a reboot)
+
+* 64mB balloon:
+[root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
+compact_blocks_moved 0
+compact_pages_moved 0
+compact_pagemigrate_failed 0
+compact_stall 0
+compact_fail 0
+compact_success 0
+compact_balloon_isolated 0
+compact_balloon_migrated 0
+compact_balloon_returned 0
+compact_balloon_released 0
+[root@localhost ~]# 
+[root@localhost ~]# for i in $(seq 1 6); do echo 1 > /proc/sys/vm/compact_memory & done &>/dev/null 
+[1]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[2]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[3]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[4]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[5]-  Done                    echo 1 > /proc/sys/vm/compact_memory
+[6]+  Done                    echo 1 > /proc/sys/vm/compact_memory
+[root@localhost ~]# 
+[root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
+compact_blocks_moved 3108
+compact_pages_moved 43169
+compact_pagemigrate_failed 95
+compact_stall 0
+compact_fail 0
+compact_success 0
+compact_balloon_isolated 16384
+compact_balloon_migrated 16384
+compact_balloon_returned 0
+compact_balloon_released 16384
+
+
+* 128 mB balloon:
+[root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
+compact_blocks_moved 0
+compact_pages_moved 0
+compact_pagemigrate_failed 0
+compact_stall 0
+compact_fail 0
+compact_success 0
+compact_balloon_isolated 0
+compact_balloon_migrated 0
+compact_balloon_returned 0
+compact_balloon_released 0
+[root@localhost ~]# 
+[root@localhost ~]# for i in $(seq 1 6); do echo 1 > /proc/sys/vm/compact_memory & done &>/dev/null  
+[1]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[2]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[3]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[4]   Done                    echo 1 > /proc/sys/vm/compact_memory
+[5]-  Done                    echo 1 > /proc/sys/vm/compact_memory
+[6]+  Done                    echo 1 > /proc/sys/vm/compact_memory
+[root@localhost ~]# 
+[root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
+compact_blocks_moved 3062
+compact_pages_moved 49774
+compact_pagemigrate_failed 129
+compact_stall 0
+compact_fail 0
+compact_success 0
+compact_balloon_isolated 26076
+compact_balloon_migrated 25957
+compact_balloon_returned 119
+compact_balloon_released 25957
 
 -- 
-Masami HIRAMATSU
-Software Platform Research Dept. Linux Technology Center
-Hitachi, Ltd., Yokohama Research Laboratory
-E-mail: masami.hiramatsu.pt@hitachi.com
+1.7.11.4
