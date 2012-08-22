@@ -1,7 +1,7 @@
 From: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Subject: [PATCH 2/5] trace-cmd: Use tracing directory to count CPUs
-Date: Wed, 22 Aug 2012 17:43:12 +0900
-Message-ID: <20120822084312.17293.47596.stgit@ltc189.sdl.hitachi.co.jp>
+Subject: [PATCH 3/5] trace-cmd: Support trace-agent of virtio-trace
+Date: Wed, 22 Aug 2012 17:43:22 +0900
+Message-ID: <20120822084322.17293.70186.stgit@ltc189.sdl.hitachi.co.jp>
 References: <20120822084251.17293.69086.stgit@ltc189.sdl.hitachi.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,74 +21,182 @@ To: Steven Rostedt <rostedt@goodmis.org>
 Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, qemu-devel@nongnu.org, Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>, yrl.pp-manager.tt@hitachi.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Add read path and control path to use trace-agent of virtio-trace.
+When we use trace-agent, trace-cmd will be used as follows:
+	# AGENT_READ_DIR=/tmp/virtio-trace/tracing \
+	  AGENT_CTL=/tmp/virtio-trace/agent-ctl-path.in \
+	  TRACING_DIR=/tmp/virtio-trace/debugfs/tracing \
+	  trace-cmd record -e "sched:*"
+Here, AGENT_READ_DIR is the path for a reading directory of virtio-trace,
+AGENT_CTL is a control path of trace-agent, and TRACING_DIR is a debugfs path
+of a guest.
 
-Count debugfs/tracing/per_cpu/cpu* to determine the
-number of CPUs.
-
-Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
 Signed-off-by: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
 ---
 
- trace-record.c |   41 +++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 41 insertions(+), 0 deletions(-)
+ trace-cmd.h      |    1 +
+ trace-recorder.c |   57 +++++++++++++++++++++++++++++++++++++++++++++++++++++-
+ trace-util.c     |   18 +++++++++++++++++
+ 3 files changed, 75 insertions(+), 1 deletions(-)
 
-diff --git a/trace-record.c b/trace-record.c
-index 9dc18a9..ed18951 100644
---- a/trace-record.c
-+++ b/trace-record.c
-@@ -1179,6 +1179,41 @@ static void expand_event_list(void)
- 	}
+diff --git a/trace-cmd.h b/trace-cmd.h
+index f904dc5..75506ed 100644
+--- a/trace-cmd.h
++++ b/trace-cmd.h
+@@ -72,6 +72,7 @@ static inline int tracecmd_host_bigendian(void)
  }
  
-+static int count_tracingdir_cpus(void)
+ char *tracecmd_find_tracing_dir(void);
++char *guest_agent_tracing_read_dir(void);
+ 
+ /* --- Opening and Reading the trace.dat file --- */
+ 
+diff --git a/trace-recorder.c b/trace-recorder.c
+index 215affc..3b750e9 100644
+--- a/trace-recorder.c
++++ b/trace-recorder.c
+@@ -33,6 +33,7 @@
+ #include <unistd.h>
+ #include <ctype.h>
+ #include <errno.h>
++#include <stdbool.h>
+ 
+ #include "trace-cmd.h"
+ 
+@@ -43,6 +44,8 @@ struct tracecmd_recorder {
+ 	int		page_size;
+ 	int		cpu;
+ 	int		stop;
++	int		ctl_fd;
++	bool		agent_existing;
+ };
+ 
+ void tracecmd_free_recorder(struct tracecmd_recorder *recorder)
+@@ -59,11 +62,29 @@ void tracecmd_free_recorder(struct tracecmd_recorder *recorder)
+ 	free(recorder);
+ }
+ 
++static char *use_trace_agent_dir(char *ctl_path,
++					struct tracecmd_recorder *recorder)
 +{
-+	char *tracing_dir = NULL;
-+	char *percpu_dir = NULL;
-+	struct dirent **namelist;
-+	int count = 0, n;
++	ctl_path = strdup(ctl_path);
++	if (!ctl_path)
++		die("malloc");
++	warning("Use environmental control path: %s\n", ctl_path);
 +
-+	/* Count cpus in per_cpu directory */
-+	tracing_dir = tracecmd_find_tracing_dir();
-+	if (!tracing_dir)
-+		return 0;
-+	percpu_dir = malloc_or_die(strlen(tracing_dir) + 9);
-+	if (!percpu_dir)
-+		goto err;
++	recorder->ctl_fd = open(ctl_path, O_WRONLY);
++	if (recorder->ctl_fd < 0)
++		return NULL;
 +
-+	sprintf(percpu_dir, "%s/per_cpu", tracing_dir);
++	recorder->agent_existing = true;
 +
-+	n = scandir(percpu_dir, &namelist, NULL, alphasort);
-+	if (n > 0) {
-+		while (n--) {
-+			if (strncmp("cpu", namelist[n]->d_name, 3) == 0)
-+				count++;
-+			free(namelist[n]);
-+		}
-+		free(namelist);
-+	}
-+
-+	if (percpu_dir)
-+		free(percpu_dir);
-+err:
-+	if (tracing_dir)
-+		free(tracing_dir);
-+	return count;
++	return guest_agent_tracing_read_dir();
 +}
 +
- static int count_cpus(void)
+ struct tracecmd_recorder *tracecmd_create_recorder_fd(int fd, int cpu)
  {
- 	FILE *fp;
-@@ -1189,6 +1224,12 @@ static int count_cpus(void)
- 	size_t n;
- 	int r;
+ 	struct tracecmd_recorder *recorder;
+ 	char *tracing = NULL;
+ 	char *path = NULL;
++	char *ctl_path = NULL;
+ 	int ret;
  
-+	cpus = count_tracingdir_cpus();
-+	if (cpus > 0)
-+		return cpus;
+ 	recorder = malloc_or_die(sizeof(*recorder));
+@@ -76,12 +97,23 @@ struct tracecmd_recorder *tracecmd_create_recorder_fd(int fd, int cpu)
+ 	recorder->trace_fd = -1;
+ 	recorder->brass[0] = -1;
+ 	recorder->brass[1] = -1;
++	recorder->ctl_fd = -1;
++	recorder->agent_existing = false;
+ 
+ 	recorder->page_size = getpagesize();
+ 
+ 	recorder->fd = fd;
+ 
+-	tracing = tracecmd_find_tracing_dir();
++	/*
++	 * The trace-agent on a guest is controlled to run or stop by a host,
++	 * so we need to assign the control path of the trace-agent to use
++	 * virtio-trace.
++	 */
++	ctl_path = getenv("AGENT_CTL");
++	if (ctl_path)
++		tracing = use_trace_agent_dir(ctl_path, recorder);
++	else
++		tracing = tracecmd_find_tracing_dir();
+ 	if (!tracing) {
+ 		errno = ENODEV;
+ 		goto out_free;
+@@ -182,6 +214,24 @@ long tracecmd_flush_recording(struct tracecmd_recorder *recorder)
+ 	return total;
+ }
+ 
++static void operation_to_trace_agent(int ctl_fd, bool run_agent)
++{
++	if (run_agent == true)
++		write(ctl_fd, "1", 2);
++	else
++		write(ctl_fd, "0", 2);
++}
 +
-+	warning("failed to use tracing_dir to determine number of CPUS");
++static void run_operation_to_trace_agent(int ctl_fd)
++{
++	operation_to_trace_agent(ctl_fd, true);
++}
 +
- 	cpus = sysconf(_SC_NPROCESSORS_CONF);
- 	if (cpus > 0)
- 		return cpus;
++static void stop_operation_to_trace_agent(int ctl_fd)
++{
++	operation_to_trace_agent(ctl_fd, false);
++}
++
+ int tracecmd_start_recording(struct tracecmd_recorder *recorder, unsigned long sleep)
+ {
+ 	struct timespec req;
+@@ -189,6 +239,9 @@ int tracecmd_start_recording(struct tracecmd_recorder *recorder, unsigned long s
+ 
+ 	recorder->stop = 0;
+ 
++	if (recorder->agent_existing)
++		run_operation_to_trace_agent(recorder->ctl_fd);
++	
+ 	do {
+ 		if (sleep) {
+ 			req.tv_sec = sleep / 1000000;
+@@ -214,6 +267,8 @@ void tracecmd_stop_recording(struct tracecmd_recorder *recorder)
+ 	if (!recorder)
+ 		return;
+ 
++	if (recorder->agent_existing)
++		stop_operation_to_trace_agent(recorder->ctl_fd);
+ 	recorder->stop = 1;
+ }
+ 
+diff --git a/trace-util.c b/trace-util.c
+index d5a3eb4..ff639be 100644
+--- a/trace-util.c
++++ b/trace-util.c
+@@ -304,6 +304,24 @@ static int mount_debugfs(void)
+ 	return ret;
+ }
+ 
++char *guest_agent_tracing_read_dir(void)
++{
++	char *tracing_read_dir;
++
++	tracing_read_dir = getenv("AGENT_READ_DIR");
++	if (tracing_read_dir) {
++		tracing_read_dir = strdup(tracing_read_dir);
++		if (!tracing_read_dir)
++			die("malloc");
++		warning("Use environmental read directory of trace-agent: %s\n",
++							tracing_read_dir);
++		return tracing_read_dir;
++	}
++
++	warning("AGENT_READ_DIR was not declared");
++	return NULL;
++}
++
+ char *tracecmd_find_tracing_dir(void)
+ {
+ 	char debugfs[MAX_PATH+1];
