@@ -1,14 +1,19 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH 3/5] trace-cmd: Support trace-agent of virtio-trace
-Date: Wed, 22 Aug 2012 09:51:45 -0400
-Message-ID: <1345643505.5069.36.camel@gandalf.local.home>
-References: <20120822084251.17293.69086.stgit@ltc189.sdl.hitachi.co.jp>
-	<20120822084322.17293.70186.stgit@ltc189.sdl.hitachi.co.jp>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 1/2 v1] blkdrv: Add queue limits parameters for sg block
+	drive
+Date: Wed, 22 Aug 2012 16:13:44 +0200
+Message-ID: <5034E918.4030305@redhat.com>
+References: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
+	<50334B51.6050900@redhat.com> <503357B2.5040901@linux.vnet.ibm.com>
+	<CAJSP0QX8BL9R_M0NxisiP+wejjgh6C6-nz9LPAfgHppPpNpYnA@mail.gmail.com>
+	<50335F78.1030005@redhat.com> <5034BCD1.9020603@linux.vnet.ibm.com>
+	<5034CBF8.3050602@redhat.com>
+	<20120822131348.GA3512@stefanha-thinkpad.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120822084322.17293.70186.stgit@ltc189.sdl.hitachi.co.jp>
+In-Reply-To: <20120822131348.GA3512@stefanha-thinkpad.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,96 +23,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, qemu-devel@nongnu.org, Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>, yrl.pp-manager.tt@hitachi.com
+To: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Cong Meng <mc@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2012-08-22 at 17:43 +0900, Yoshihiro YUNOMAE wrote:
-> Add read path and control path to use trace-agent of virtio-trace.
-> When we use trace-agent, trace-cmd will be used as follows:
-> 	# AGENT_READ_DIR=/tmp/virtio-trace/tracing \
-> 	  AGENT_CTL=/tmp/virtio-trace/agent-ctl-path.in \
-> 	  TRACING_DIR=/tmp/virtio-trace/debugfs/tracing \\
-
-Ha! You used "TRACING_DIR" but patch one introduces TRACE_DIR. Lets
-change this to DEBUG_TRACING_DIR instead anyway.
-
-Also, I don't like the generic environment variables. Perhaps
-VIRTIO_TRACE_DIR, or AGENT_TRACE_DIR and AGENT_TRACE_CTL. Lets try to
-keep the environment namespace sparse.
-
-> 	  trace-cmd record -e "sched:*"
-> Here, AGENT_READ_DIR is the path for a reading directory of virtio-trace,
-> AGENT_CTL is a control path of trace-agent, and TRACING_DIR is a debugfs path
-> of a guest.
+Il 22/08/2012 15:13, Stefan Hajnoczi ha scritto:
+> http://lists.gnu.org/archive/html/qemu-devel/2010-12/msg01741.html
 > 
-> Signed-off-by: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-> ---
+> "This is a real problem in practice. IE. the USB CD-ROM on this POWER7
+> blade limits transfers to 0x1e000 bytes for example and the Linux "sr"
+> driver on the guest is going to try to give me bigger requests than that
+> if I don't start limiting them, which will cause all sort of errors."
 > 
->  trace-cmd.h      |    1 +
->  trace-recorder.c |   57 +++++++++++++++++++++++++++++++++++++++++++++++++++++-
->  trace-util.c     |   18 +++++++++++++++++
->  3 files changed, 75 insertions(+), 1 deletions(-)
-> 
-> diff --git a/trace-cmd.h b/trace-cmd.h
-> index f904dc5..75506ed 100644
-> --- a/trace-cmd.h
-> +++ b/trace-cmd.h
-> @@ -72,6 +72,7 @@ static inline int tracecmd_host_bigendian(void)
->  }
->  
->  char *tracecmd_find_tracing_dir(void);
-> +char *guest_agent_tracing_read_dir(void);
->  
->  /* --- Opening and Reading the trace.dat file --- */
->  
-> diff --git a/trace-recorder.c b/trace-recorder.c
-> index 215affc..3b750e9 100644
-> --- a/trace-recorder.c
-> +++ b/trace-recorder.c
-> @@ -33,6 +33,7 @@
->  #include <unistd.h>
->  #include <ctype.h>
->  #include <errno.h>
-> +#include <stdbool.h>
->  
->  #include "trace-cmd.h"
->  
-> @@ -43,6 +44,8 @@ struct tracecmd_recorder {
->  	int		page_size;
->  	int		cpu;
->  	int		stop;
-> +	int		ctl_fd;
-> +	bool		agent_existing;
+> It cannot be fixed for emulated SCSI HBAs in general but it can for
+> virtio-scsi.
 
-Thanks for the reminder. I need to convert a lot to use 'bool' instead.
+For disks, this should be fixed simply by using scsi-block instead of
+scsi-generic.
 
->  };
->  
->  void tracecmd_free_recorder(struct tracecmd_recorder *recorder)
-> @@ -59,11 +62,29 @@ void tracecmd_free_recorder(struct tracecmd_recorder *recorder)
->  	free(recorder);
->  }
->  
-> +static char *use_trace_agent_dir(char *ctl_path,
-> +					struct tracecmd_recorder *recorder)
-> +{
-> +	ctl_path = strdup(ctl_path);
-> +	if (!ctl_path)
-> +		die("malloc");
-> +	warning("Use environmental control path: %s\n", ctl_path);
+CD-ROMs are indeed more complicated because burning CDs cannot be done
+with syscalls. :/
 
-s/Use/Using/
-
--- Steve
-
-> +
-> +	recorder->ctl_fd = open(ctl_path, O_WRONLY);
-> +	if (recorder->ctl_fd < 0)
-> +		return NULL;
-> +
-> +	recorder->agent_existing = true;
-> +
-> +	return guest_agent_tracing_read_dir();
-> +}
-> +
+Paolo
