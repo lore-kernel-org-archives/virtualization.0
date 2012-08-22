@@ -1,23 +1,24 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 2/4] virtio_balloon: introduce migration primitives to
-	balloon pages
-Date: Wed, 22 Aug 2012 03:37:24 +0300
-Message-ID: <20120822003723.GL9027__36705.4467242726$1345595801$gmane$org@redhat.com>
-References: <20120814182244.GB13338@t510.redhat.com>
-	<20120814195139.GA28870@redhat.com>
-	<20120814201113.GE22133@t510.redhat.com>
-	<20120815090528.GH4052@csn.ul.ie>
-	<20120815092528.GA29214@redhat.com>
-	<20120815094839.GJ4052@csn.ul.ie>
-	<20120815100108.GA1999@redhat.com>
-	<20120815111651.GL4052@csn.ul.ie>
-	<20120815112851.GA2707@redhat.com> <87mx1o3j5y.fsf@rustcorp.com.au>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: Re: [PATCH v8 1/5] mm: introduce a common interface for balloon
+	pages mobility
+Date: Tue, 21 Aug 2012 22:19:31 -0300
+Message-ID: <20120822011930.GA23753__4338.91342622719$1345598404$gmane$org@t510.redhat.com>
+References: <cover.1345519422.git.aquini@redhat.com>
+	<e24f3073ef539985dea52943dcb84762213a0857.1345519422.git.aquini@redhat.com>
+	<1345562411.23018.111.camel@twins>
+	<20120821162432.GG2456@linux.vnet.ibm.com>
+	<20120821172819.GA12294@t510.redhat.com>
+	<20120821191330.GA8324@redhat.com>
+	<20120821192357.GD12294@t510.redhat.com>
+	<20120821193031.GC9027@redhat.com>
+	<20120821204556.GF12294@t510.redhat.com>
+	<20120822000741.GI9027@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87mx1o3j5y.fsf@rustcorp.com.au>
+In-Reply-To: <20120822000741.GI9027@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,34 +28,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 21, 2012 at 03:01:37PM +0930, Rusty Russell wrote:
-> On Wed, 15 Aug 2012 14:28:51 +0300, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > On Wed, Aug 15, 2012 at 12:16:51PM +0100, Mel Gorman wrote:
-> > > I was thinking of exactly that page->mapping == balloon_mapping check. As I
-> > > do not know how many active balloon drivers there might be I cannot guess
-> > > in advance how much of a scalability problem it will be.
+On Wed, Aug 22, 2012 at 03:07:41AM +0300, Michael S. Tsirkin wrote:
+> On Tue, Aug 21, 2012 at 05:45:56PM -0300, Rafael Aquini wrote:
+> > On Tue, Aug 21, 2012 at 10:30:31PM +0300, Michael S. Tsirkin wrote:
+> > > On Tue, Aug 21, 2012 at 04:23:58PM -0300, Rafael Aquini wrote:
+> > > > On Tue, Aug 21, 2012 at 10:13:30PM +0300, Michael S. Tsirkin wrote:
+> > > > > > 
+> > > > > > I believe rcu_dereference_protected() is what I want/need here, since this code
+> > > > > > is always called for pages which we hold locked (PG_locked bit).
+> > > > > 
+> > > > > It would only help if we locked the page while updating the mapping,
+> > > > > as far as I can see we don't.
+> > > > >
+> > > > 
+> > > > But we can do it. In fact, by doing it (locking the page) we can easily avoid
+> > > > the nasty race balloon_isolate_page / leak_balloon, in a much simpler way, IMHO.
+> > > 
+> > > Absolutely. Further, we should look hard at whether most RCU uses
+> > > in this patchset can be replaced with page lock.
+> > >
 > > 
-> > Not at all sure multiple drivers are worth supporting, but multiple
-> > *devices* is I think worth supporting, if for no other reason than that
-> > they can work today. For that, we need a device pointer which Rafael
-> > wants to put into the mapping, this means multiple balloon mappings.
+> > Yeah, In fact, by testing/grabbing the page lock at leak_balloon() even the
+> > module unload X migration / putback race seems to fade away, since migration
+> > code holds the page locked all the way.
+> > And that seems a quite easy task to be accomplished:
+> > 
+> > ....
+> > @@ -169,21 +197,61 @@ static void leak_balloon(struct virtio_balloon *vb, size_t
+> > num)
+> >         /* We can only do one array worth at a time. */
+> >         num = min(num, ARRAY_SIZE(vb->pfns));
+> > 
+> > +       mutex_lock(&vb->balloon_lock);
+> >         for (vb->num_pfns = 0; vb->num_pfns < num;
+> >              vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+> > +               spin_lock(&vb->pages_lock);
+> > +               /*
+> > +                * 'virtballoon_isolatepage()' can drain vb->pages list
+> > +                * making us to stumble across a _temporarily_ empty list.
 > 
-> Rafael, please make sure that the balloon driver fails on the second and
-> subsequent balloon devices.
-> 
-> Michael, we only allow multiple balloon devices because it fell out of
-> the implementation.  If it causes us even the slightest issue, we should
-> not support it.  It's not a sensible setup.
-> 
-> Cheers,
-> Rusty.
+> This still worries me. If this happens we do not
+> lock the page so module can go away?
+> if not need to document why.
+>
+The module won't unload unless it leaks all its pages. If we hit that test that
+worries you, leak_balloon() will get back to its caller -- remove_common(), and
+it will kept looping at:
 
-Looks like latest revision does it using a flag which seems cleaner,
-so I think the point is moot.
+        /* There might be pages left in the balloon: free them. */
+        while (vb->num_pages)
+                leak_balloon(vb, vb->num_pages);
 
--- 
-MST
+This is true because we do not mess with vb->num_pages while isolating/migrating
+balloon pages, so the module will only unload when all isolated pages get back
+to vb->pages_list and leak_balloon() reap them appropriatelly. As we will be
+doing isolation/migration/putback steps under 'page lock' that race is gone.
