@@ -1,19 +1,15 @@
-From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-Subject: Re: [PATCH 1/2 v1] blkdrv: Add queue limits parameters for sg block
-	drive
-Date: Wed, 22 Aug 2012 14:13:48 +0100
-Message-ID: <20120822131348.GA3512@stefanha-thinkpad.localdomain>
-References: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
-	<50334B51.6050900@redhat.com> <503357B2.5040901@linux.vnet.ibm.com>
-	<CAJSP0QX8BL9R_M0NxisiP+wejjgh6C6-nz9LPAfgHppPpNpYnA@mail.gmail.com>
-	<50335F78.1030005@redhat.com> <5034BCD1.9020603@linux.vnet.ibm.com>
-	<5034CBF8.3050602@redhat.com>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH 1/5] trace-cmd: Use TRACE_DIR envrionment variable if
+	defined
+Date: Wed, 22 Aug 2012 09:37:42 -0400
+Message-ID: <1345642662.5069.28.camel@gandalf.local.home>
+References: <20120822084251.17293.69086.stgit@ltc189.sdl.hitachi.co.jp>
+	<20120822084301.17293.90649.stgit@ltc189.sdl.hitachi.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5034CBF8.3050602@redhat.com>
+In-Reply-To: <20120822084301.17293.90649.stgit@ltc189.sdl.hitachi.co.jp>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,41 +19,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Cong Meng <mc@linux.vnet.ibm.com>
+To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, qemu-devel@nongnu.org, Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>, yrl.pp-manager.tt@hitachi.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 22, 2012 at 02:09:28PM +0200, Paolo Bonzini wrote:
-> Il 22/08/2012 13:04, Cong Meng ha scritto:
-> >>
-> >> Cong, what is the limit that the host HBA enforces (and what is the
-> >> HBA)?  What commands see a problem?  Is it fixed by using scsi-block
-> >> instead of scsi-generic (if you can use scsi-block at all, i.e. it's not
-> >> a tape or similar device)?
-> >>
-> > I don't see real problem caused by the the queue limits actually. It's a
-> > bug which Stefan told me.
+On Wed, 2012-08-22 at 17:43 +0900, Yoshihiro YUNOMAE wrote:
+> From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
 > 
-> I'd rather avoid patching the specification if not to solve real (rather
-> than known-but-theoretical) problems.
+> Use TRACE_DIR environment variable for setting
 
-Benjamin Herrenschmidt reported this in problem in 2010:
+TRACING_DIR would be better, as we are searching for /debug/tracing and
+not /debug/trace. Perhaps DEBUG_TRACING_DIR would be even better as to
+be less of a generic term.
 
-http://lists.gnu.org/archive/html/qemu-devel/2010-12/msg01741.html
+-- Steve
 
-"This is a real problem in practice. IE. the USB CD-ROM on this POWER7
-blade limits transfers to 0x1e000 bytes for example and the Linux "sr"
-driver on the guest is going to try to give me bigger requests than that
-if I don't start limiting them, which will cause all sort of errors."
-
-It cannot be fixed for emulated SCSI HBAs in general but it can for
-virtio-scsi.
-
-I/O requests will be failed with EIO if they exceed block queue limits.
-Take a look at block/blk-core.c:generic_make_request_checks() and
-blk_rq_check_limits().
-
-Cong: Have you checked the block queue limits on your test machine and
-exceeded them to see what happens?
-
-Stefan
+> debugfs/tracing directory if defined. This is
+> for controlling guest(or remote) ftrace.
+> 
+> Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+> Signed-off-by: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
+> ---
+> 
+>  trace-util.c |    9 +++++++++
+>  1 files changed, 9 insertions(+), 0 deletions(-)
+> 
+> diff --git a/trace-util.c b/trace-util.c
+> index e128188..d5a3eb4 100644
+> --- a/trace-util.c
+> +++ b/trace-util.c
+> @@ -311,6 +311,15 @@ char *tracecmd_find_tracing_dir(void)
+>  	char type[100];
+>  	FILE *fp;
+>  	
+> +	tracing_dir = getenv("TRACE_DIR");
+> +	if (tracing_dir) {
+> +		tracing_dir = strdup(tracing_dir);
+> +		if (!tracing_dir)
+> +			die("malloc");
+> +		warning("Use environmental tracing directory: %s\n", tracing_dir);
+> +		return tracing_dir;
+> +	}
+> +
+>  	if ((fp = fopen("/proc/mounts","r")) == NULL) {
+>  		warning("Can't open /proc/mounts for read");
+>  		return NULL;
+> 
