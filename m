@@ -1,47 +1,65 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 1/2 v1] blkdrv: Add queue limits parameters for sg block
-	drive
-Date: Wed, 22 Aug 2012 16:13:44 +0200
-Message-ID: <5034E918.4030305@redhat.com>
-References: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
-	<50334B51.6050900@redhat.com> <503357B2.5040901@linux.vnet.ibm.com>
-	<CAJSP0QX8BL9R_M0NxisiP+wejjgh6C6-nz9LPAfgHppPpNpYnA@mail.gmail.com>
-	<50335F78.1030005@redhat.com> <5034BCD1.9020603@linux.vnet.ibm.com>
-	<5034CBF8.3050602@redhat.com>
-	<20120822131348.GA3512@stefanha-thinkpad.localdomain>
+From: KY Srinivasan <kys@microsoft.com>
+Subject: RE: [PATCH V3 08/14] Tools: hv: Gather DNS information
+Date: Wed, 22 Aug 2012 15:45:31 +0000
+Message-ID: <426367E2313C2449837CD2DE46E7EAF9236C3FF4@SN2PRD0310MB382.namprd03.prod.outlook.com>
+References: <1345167068-5461-1-git-send-email-kys@microsoft.com>
+ <1345167145-5513-1-git-send-email-kys@microsoft.com>
+ <1345167145-5513-8-git-send-email-kys@microsoft.com>
+ <20120817165109.GA11323@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120822131348.GA3512@stefanha-thinkpad.localdomain>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-Cc: zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Cong Meng <mc@linux.vnet.ibm.com>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120817165109.GA11323@kroah.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "ben@decadent.org.uk" <ben@decadent.org.uk>, "Thomas Graf (tgraf@redhat.com)" <tgraf@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 22/08/2012 15:13, Stefan Hajnoczi ha scritto:
-> http://lists.gnu.org/archive/html/qemu-devel/2010-12/msg01741.html
+
+
+> -----Original Message-----
+> From: Greg KH [mailto:gregkh@linuxfoundation.org]
+> Sent: Friday, August 17, 2012 12:51 PM
+> To: KY Srinivasan
+> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
+> virtualization@lists.osdl.org; olaf@aepfle.de; apw@canonical.com;
+> ben@decadent.org.uk
+> Subject: Re: [PATCH V3 08/14] Tools: hv: Gather DNS information
 > 
-> "This is a real problem in practice. IE. the USB CD-ROM on this POWER7
-> blade limits transfers to 0x1e000 bytes for example and the Linux "sr"
-> driver on the guest is going to try to give me bigger requests than that
-> if I don't start limiting them, which will cause all sort of errors."
+> On Thu, Aug 16, 2012 at 06:32:19PM -0700, K. Y. Srinivasan wrote:
+> > Now, gather DNS information. Invoke an external script (that can be
+> > distro dependent) to gather the DNS information.
 > 
-> It cannot be fixed for emulated SCSI HBAs in general but it can for
-> virtio-scsi.
+> Where is that script? 
 
-For disks, this should be fixed simply by using scsi-block instead of
-scsi-generic.
+If you think it is useful, I could send you the scripts that I have used to test this
+functionality as example scripts. 
+  
+> Why a script, this really isn't in a standard
+> method for all Linux distros?  If not, why not work to do that like the
+> freedesktop.org people have done for other system configuration items?
 
-CD-ROMs are indeed more complicated because burning CDs cannot be done
-with syscalls. :/
+When discussing this while preparing the patches it was clear that there
+really is no single way to obtain the network information, if you are
+using network manager you need to use dbus, basic debian networking as
+on a server you need to look in /etc/resolv.conf, if you have dnsmasq
+installed you need to look in a third place.  On the SLES side that I am somewhat 
+familiar with, if I recall correctly, none of the appliance images have Network Manager installed.
+The consensus was that  we should avoid pulling a vast pile of distro smarts into the source which
+lead to the hook API proposed in these patches.
 
-Paolo
+The approach chosen here does not preclude using Network Manager in the external scripts
+if a particular distro chooses to go that route. The current implementation supports maximum
+flexibility without sacrificing anything. While the current scripts I have do not use NM APIs, we could
+work on external scripts using DBUS APIs.
+
+If it is ok with you, I could send you the remaining 7 patches along with the scripts I am
+currently using to test this code. These scripts should be viewed just example code. 
+
+Regards,
+
+K. Y
+
+ 
