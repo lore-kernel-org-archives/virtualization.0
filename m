@@ -1,24 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v8 1/5] mm: introduce a common interface for balloon
-	pages mobility
-Date: Wed, 22 Aug 2012 12:33:17 +0300
-Message-ID: <20120822093317.GC10680__30008.6199575619$1345627979$gmane$org@redhat.com>
-References: <e24f3073ef539985dea52943dcb84762213a0857.1345519422.git.aquini@redhat.com>
-	<1345562411.23018.111.camel@twins>
-	<20120821162432.GG2456@linux.vnet.ibm.com>
-	<20120821172819.GA12294@t510.redhat.com>
-	<20120821191330.GA8324@redhat.com>
-	<20120821192357.GD12294@t510.redhat.com>
-	<20120821193031.GC9027@redhat.com>
-	<20120821204556.GF12294@t510.redhat.com>
-	<20120822000741.GI9027@redhat.com>
-	<20120822011930.GA23753@t510.redhat.com>
+From: Cong Meng <mc@linux.vnet.ibm.com>
+Subject: Re: [PATCH 1/2 v1] blkdrv: Add queue limits parameters for sg block
+	drive
+Date: Wed, 22 Aug 2012 19:04:49 +0800
+Message-ID: <5034BCD1.9020603@linux.vnet.ibm.com>
+References: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
+	<50334B51.6050900@redhat.com> <503357B2.5040901@linux.vnet.ibm.com>
+	<CAJSP0QX8BL9R_M0NxisiP+wejjgh6C6-nz9LPAfgHppPpNpYnA@mail.gmail.com>
+	<50335F78.1030005@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120822011930.GA23753@t510.redhat.com>
+In-Reply-To: <50335F78.1030005@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,80 +21,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rafael Aquini <aquini@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: stefanha@linux.vnet.ibm.com, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 21, 2012 at 10:19:31PM -0300, Rafael Aquini wrote:
-> On Wed, Aug 22, 2012 at 03:07:41AM +0300, Michael S. Tsirkin wrote:
-> > On Tue, Aug 21, 2012 at 05:45:56PM -0300, Rafael Aquini wrote:
-> > > On Tue, Aug 21, 2012 at 10:30:31PM +0300, Michael S. Tsirkin wrote:
-> > > > On Tue, Aug 21, 2012 at 04:23:58PM -0300, Rafael Aquini wrote:
-> > > > > On Tue, Aug 21, 2012 at 10:13:30PM +0300, Michael S. Tsirkin wrote:
-> > > > > > > 
-> > > > > > > I believe rcu_dereference_protected() is what I want/need here, since this code
-> > > > > > > is always called for pages which we hold locked (PG_locked bit).
-> > > > > > 
-> > > > > > It would only help if we locked the page while updating the mapping,
-> > > > > > as far as I can see we don't.
-> > > > > >
-> > > > > 
-> > > > > But we can do it. In fact, by doing it (locking the page) we can easily avoid
-> > > > > the nasty race balloon_isolate_page / leak_balloon, in a much simpler way, IMHO.
-> > > > 
-> > > > Absolutely. Further, we should look hard at whether most RCU uses
-> > > > in this patchset can be replaced with page lock.
-> > > >
-> > > 
-> > > Yeah, In fact, by testing/grabbing the page lock at leak_balloon() even the
-> > > module unload X migration / putback race seems to fade away, since migration
-> > > code holds the page locked all the way.
-> > > And that seems a quite easy task to be accomplished:
-> > > 
-> > > ....
-> > > @@ -169,21 +197,61 @@ static void leak_balloon(struct virtio_balloon *vb, size_t
-> > > num)
-> > >         /* We can only do one array worth at a time. */
-> > >         num = min(num, ARRAY_SIZE(vb->pfns));
-> > > 
-> > > +       mutex_lock(&vb->balloon_lock);
-> > >         for (vb->num_pfns = 0; vb->num_pfns < num;
-> > >              vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
-> > > +               spin_lock(&vb->pages_lock);
-> > > +               /*
-> > > +                * 'virtballoon_isolatepage()' can drain vb->pages list
-> > > +                * making us to stumble across a _temporarily_ empty list.
-> > 
-> > This still worries me. If this happens we do not
-> > lock the page so module can go away?
-> > if not need to document why.
-> >
-> The module won't unload unless it leaks all its pages. If we hit that test that
-> worries you, leak_balloon() will get back to its caller -- remove_common(), and
-> it will kept looping at:
-> 
->         /* There might be pages left in the balloon: free them. */
->         while (vb->num_pages)
->                 leak_balloon(vb, vb->num_pages);
-> 
-> This is true because we do not mess with vb->num_pages while isolating/migrating
-> balloon pages, so the module will only unload when all isolated pages get back
-> to vb->pages_list and leak_balloon() reap them appropriatelly. As we will be
-> doing isolation/migration/putback steps under 'page lock' that race is gone.
 
 
-Hmm, so this will busy wait which is unelegant.
-We need some event IMO.
-Also, reading num_pages without a lock here
-which seems wrong.
+On 08/21/2012 06:14 PM, Paolo Bonzini wrote:
+> Il 21/08/2012 11:52, Stefan Hajnoczi ha scritto:
+>>>>>> Using /sys/dev/block or /sys/dev/char seems easier, and lets you
+>>>>>> retrieve the parameters for block devices too.
+>>>>>>
+>>>> what do you mean with "block devices"?   Using "/dev/sda" instead of
+>>>> "/dev/sg0"?
+>
+> Yes.
+>
+>>>>>> However, I'm worried of the consequences this has for migration.  You
+>>>>>> could have the same physical disk accessed with two different HBAs, with
+>>>>>> different limits.  So I don't know if this can really be solved at all.
+>>>>>>
+>>>> I know little about qemu migration now.  The pending scsi commands will be
+>>>> saved and
+>>>> transfered to remote machine when starting migration?
+>>
+>> Passthrough is already a migration blocker if both hosts do not have
+>> access to the same LUNs.
+>
+> Yes, but requiring the exact same hardware may be too much.  I'm trying
+> to understand the problem better before committing to a threefold
+> spec/qemu/kernel change.
+>
+> Cong, what is the limit that the host HBA enforces (and what is the
+> HBA)?  What commands see a problem?  Is it fixed by using scsi-block
+> instead of scsi-generic (if you can use scsi-block at all, i.e. it's not
+> a tape or similar device)?
+>
+I don't see real problem caused by the the queue limits actually. It's a 
+bug which Stefan told me.
 
-A similar concern applies to normal leaking
-of the balloon: here we might leak less than
-required, then wait for the next config change
-event.
+> With scsi-generic, QEMU uses a bounce buffer for non-I/O commands to a
+> SCSI passthrough device, so the only problem in that case should be the
+> maximum segment size.  This could change in the future, but max_segments
+> and max_sectors should not yet be a problem.
 
-How about we signal config_change
-event when pages are back to pages_list?
+about bounce buffer, do you meat the buffer allocated in 
+scsi_send_command() of hw/scsi-generic.c?
 
--- 
-MST
+Cong.
+
+>
+> With scsi-block, QEMU will use read/write on the block device and the
+> host kernel will then obey the host HBA's block limits.  QEMU will still
+> use a bounce buffer for non-I/O commands to a scsi-block device, but the
+> payload is usually small for non-I/O commands.
+>
+> Paolo
+>
+>> When both hosts do have access to the same LUNs it's possible to
+>> extract the block queue limits (using sysfs) and compare them.
+>>
+>> Today you can start QEMU with different image files on both hosts.
+>> Migration will appear to work but the disk image on the destination
+>> host could be junk.  This is a similar case, I don't see a problem
+>> except that there should be a safety check (maybe at the libvirt
+>> level) to make this safe.
+>
