@@ -1,15 +1,12 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [Qemu-devel] [PATCH 1/2 v1] blkdrv: Add queue limits parameters
-	for sg block drive
-Date: Wed, 22 Aug 2012 09:25:08 +0100
-Message-ID: <CAJSP0QXipm60x1K063sE-2M1Lz3Vj+FB5OJ8Ed9bsTxfZGmH8Q@mail.gmail.com>
-References: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
-	<CAAu8pHvN+mSoqDuug0iODipDMQ7rMPy6FEFbQqhsR5ZS9RQFEQ@mail.gmail.com>
+From: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
+Subject: [PATCH 0/5] trace-cmd: Add a recorder readable feature for
+	virtio-trace
+Date: Wed, 22 Aug 2012 17:42:51 +0900
+Message-ID: <20120822084251.17293.69086.stgit@ltc189.sdl.hitachi.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAAu8pHvN+mSoqDuug0iODipDMQ7rMPy6FEFbQqhsR5ZS9RQFEQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +16,138 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Blue Swirl <blauwirbel@gmail.com>
-Cc: stefanha@linux.vnet.ibm.com, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Cong Meng <mc@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, qemu-devel@nongnu.org, Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>, yrl.pp-manager.tt@hitachi.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 21, 2012 at 7:31 PM, Blue Swirl <blauwirbel@gmail.com> wrote:
-> On Tue, Aug 21, 2012 at 8:23 AM, Cong Meng <mc@linux.vnet.ibm.com> wrote:
->> diff --git a/block_int.h b/block_int.h
->> index d72317f..a9d07a2 100644
->> --- a/block_int.h
->> +++ b/block_int.h
->> @@ -333,6 +333,10 @@ struct BlockDriverState {
->>
->>      /* long-running background operation */
->>      BlockJob *job;
->> +
->> +    unsigned int max_sectors;
->
-> With 32 bit ints and even with 4k sector size, the maximum disk size
-> would be 16TB which may be soon exceeded by disks on the market.
-> Please use 64 bit values, probably also for segment values below.
+Hi Steven,
 
-This doesn't specify device size, it specifies max sectors per I/O
-request.  When reviewing, I checked that the Linux kernel also uses
-unsigned int for these fields.
+The following patch set provides a feature which can read trace data of a guest
+using virtio-trace (https://lkml.org/lkml/2012/8/9/210) for a recorder
+function of trace-cmd. This patch set depends on the trace-agent running on a
+guest in the virtio-trace system.
 
-Stefan
+To translate raw data of a guest to text data on a host, information of debugfs
+in the guest is also needed on the host. In other words, the guest's debugfs
+must be exposed (mounted) on the host via other serial line (we don't like to
+depend on network connection). For this purpose, we'll use DIOD 9pfs server
+(http://code.google.com/p/diod/) as below.
+
+***HOW TO USE***
+We explain about how to translate raw data to text data on a host using
+trace-cmd applied this patch set and virtio-trace.
+
+- Preparation
+1. Make FIFO in a host
+ virtio-trace uses virtio-serial pipe as trace data paths as to the number
+of CPUs and a control path, so FIFO (named pipe) should be created as follows:
+        # mkdir /tmp/virtio-trace/
+        # mkfifo /tmp/virtio-trace/trace-path-cpu{0,1,2,...,X}.{in,out}
+        # mkfifo /tmp/virtio-trace/agent-ctl-path.{in,out}
+
+Here, if we assign 1VCPU for a guest, then we set as follows:
+        trace-path-cpu0.{in.out}
+and
+        agent-ctl-path.{in,out}.
+
+2. Set up of virtio-serial pipe and unix in a host
+ Add qemu option to use virtio-serial pipe for tracing and unix for debugfs.
+
+ ##virtio-serial device##
+     -device virtio-serial-pci,id=virtio-serial0\
+ ##control path##
+     -chardev pipe,id=charchannel0,path=/tmp/virtio-trace/agent-ctl-path\
+     -device virtserialport,bus=virtio-serial0.0,nr=1,chardev=charchannel0,\
+      id=channel0,name=agent-ctl-path\
+ ##data path##
+     -chardev pipe,id=charchannel1,path=/tmp/virtio-trace/trace-path-cpu0\
+     -device virtserialport,bus=virtio-serial0.0,nr=2,chardev=charchannel1,\
+      id=channel1,name=trace-path-cpu0\
+ ##9pfs path##
+     -device virtio-serial \
+     -chardev socket,path=/tmp/virtio-trace/trace-9pfs,server,nowait, \
+      id=trace-9pfs \
+     -device virtserialport,chardev=trace-9pfs,name=virtioserial
+
+If you manage guests with libvirt, add the following tags to domain XML files.
+Then, libvirt passes the same command option to qemu.
+
+        <channel type='pipe'>
+           <source path='/tmp/virtio-trace/agent-ctl-path'/>
+           <target type='virtio' name='agent-ctl-path'/>
+           <address type='virtio-serial' controller='0' bus='0' port='0'/>
+        </channel>
+        <channel type='pipe'>
+           <source path='/tmp/virtio-trace/trace-path-cpu0'/>
+           <target type='virtio' name='trace-path-cpu0'/>
+           <address type='virtio-serial' controller='0' bus='0' port='1'/>
+        </channel>
+	<channel type='unix'>
+           <source mode='bind' path='/tmp/virtio-trace/trace-9pfs'/>
+           <target type='virtio' name='trace-9pfs'/>
+           <address type='virtio-serial' controller='0' bus='0' port='2'/>
+        </channel>
+Here, chardev names are restricted to trace-path-cpu0 and agent-ctl-path. UNIX
+domain socket is automatically created on a host.
+
+3. Boot the guest
+ You can find some chardev in /dev/virtio-ports/ in the guest.
+
+4. Create symbolic link for trace-cmd on the host
+	# ln -s /tmp/virtio-trace/trace-path-cpu0.out \
+	  /tmp/virtio-tracing/tracing/per_cpu/cpu0/trace_pipe_raw
+
+5. Wait for 9pfs server on the host
+	# mount -t 9p -o trans=unix,access=any,uname=root, \
+	  aname=/sys/kernel/debug,version=9p2000.L \
+	  /tmp/virtio-trace/trace-9pfs /tmp/virtio-trace/debugfs
+
+6. Run DIOD on the guest
+	# diod -E -Nn -u 0
+
+7. Connect DIOD to virtio-console on the guest
+	# socat TCP4:127.0.0.1:564 /dev/virtio-ports/trace-9pfs
+
+- Execution
+1. Run trace-agent on the guest
+	# ./trace-agent
+
+2. Execute trace-cmd on the host
+	# AGENT_READ_DIR=/tmp/virtio-trace/tracing \
+	  AGENT_CTL=/tmp/virtio-trace/agent-ctl-path.in \
+	  TRACE_DIR=/tmp/virtio-trace/debugfs/tracing \
+	  ./trace-cmd record -e "sched:*
+
+3. Translate raw data to text data on the host
+	# ./trace-cmd report trace.dat
+
+***Just enhancement ideas***
+ - Support for trace-cmd => done
+ - Support for 9pfs protocol
+ - Support for non-blocking mode in QEMU
+
+Thank you,
+
+---
+
+Masami Hiramatsu (2):
+      trace-cmd: Use tracing directory to count CPUs
+      trace-cmd: Use TRACE_DIR envrionment variable if defined
+
+Yoshihiro YUNOMAE (3):
+      trace-cmd: Use polling function
+      trace-cmd: Add non-blocking option for open() and splice_read()
+      trace-cmd: Support trace-agent of virtio-trace
+
+
+ trace-cmd.h      |    1 
+ trace-record.c   |   41 ++++++++++++++++++++
+ trace-recorder.c |  112 ++++++++++++++++++++++++++++++++++++++++++++++++------
+ trace-util.c     |   27 +++++++++++++
+ 4 files changed, 169 insertions(+), 12 deletions(-)
+
+-- 
+Yoshihiro YUNOMAE
+Software Platform Research Dept. Linux Technology Center
+Hitachi, Ltd., Yokohama Research Laboratory
+E-mail: yoshihiro.yunomae.ez@hitachi.com
