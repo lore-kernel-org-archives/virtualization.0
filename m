@@ -1,23 +1,24 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH 1/2 v1] blkdrv: Add queue limits parameters for sg block
-	drive
-Date: Thu, 23 Aug 2012 13:08:50 +0100
-Message-ID: <CAJSP0QWDrV3qJ+n0JWrJKR-xPn+b2ifQD359TLSFDnYu+oNxsQ@mail.gmail.com>
-References: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
-	<50334B51.6050900@redhat.com> <503357B2.5040901@linux.vnet.ibm.com>
-	<CAJSP0QX8BL9R_M0NxisiP+wejjgh6C6-nz9LPAfgHppPpNpYnA@mail.gmail.com>
-	<50335F78.1030005@redhat.com> <5034BCD1.9020603@linux.vnet.ibm.com>
-	<5034CBF8.3050602@redhat.com>
-	<20120822131348.GA3512@stefanha-thinkpad.localdomain>
-	<5034E918.4030305@redhat.com> <5035F873.6090305@linux.vnet.ibm.com>
-	<5035FFF4.4040603@redhat.com>
-	<CAJSP0QXG3yzxnwAJd3s0M0eSUM39XRdYEmGtj0h83_de4mxaAA@mail.gmail.com>
-	<50360B80.1080609@redhat.com>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: Re: [PATCH v8 1/5] mm: introduce a common interface for balloon
+	pages mobility
+Date: Thu, 23 Aug 2012 09:13:39 -0300
+Message-ID: <20120823121338.GA3062__4794.96927368945$1345724120$gmane$org@t510.redhat.com>
+References: <20120821172819.GA12294@t510.redhat.com>
+	<20120821191330.GA8324@redhat.com>
+	<20120821192357.GD12294@t510.redhat.com>
+	<20120821193031.GC9027@redhat.com>
+	<20120821204556.GF12294@t510.redhat.com>
+	<20120822000741.GI9027@redhat.com>
+	<20120822011930.GA23753@t510.redhat.com>
+	<20120822093317.GC10680@redhat.com>
+	<20120823021903.GA23660@x61.redhat.com>
+	<20120823100107.GA17409@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50360B80.1080609@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20120823100107.GA17409@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,42 +28,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Cong Meng <mc@linux.vnet.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 23, 2012 at 11:52 AM, Paolo Bonzini <pbonzini@redhat.com> wrote:
-> Il 23/08/2012 12:08, Stefan Hajnoczi ha scritto:
->>> I'm still trying to understand the extent of the problem.
->>>
->>> The problem occurs for _USB_ CD-ROMs according to Ben.  Passthrough of
->>> USB storage devices should be done via USB passthrough, not virtio-scsi.
->>>  If we do USB passthrough via the SCSI layer we miss on all the quirks
->>> that the OS may do based on the USB product/vendor pairs.  There's no
->>> end to these, and some of the quirks may cause the device to lock up or
->>> corruption.
->>>
->>> I'd rather see a reproducer using SAS/ATA/ATAPI disks before punting.
->>
->> This issue affects passthrough: either an entire sg device or at least
->> a SG_IO ioctl (e.g. a non-READ/WRITE SCSI command).
->>
->> To reproduce it, check host queue limits and guest virtio-scsi queue
->> limits.  Then pick a command that can exceed the limits and try it
->> from inside the guest :).
+On Thu, Aug 23, 2012 at 01:01:07PM +0300, Michael S. Tsirkin wrote:
+> > So, when remove_common() calls leak_balloon() looping on
+> > vb->num_pages, that won't become a tight loop. 
+> > The scheme was apparently working before this series, and it will remain working
+> > after it.
+> 
+> It seems that before we would always leak all requested memory
+> in one go. I can't tell why we have a while loop there at all.
+> Rusty, could you clarify please?
 >
-> Yes, so much is clear.  But does it happen _in practice_?  Do initiators
-> actually issue commands that are that big?
 
-Here I think we need to err on the side of caution.  A user passes
-through a tape drive or exotic SCSI device.  They run a vendor utility
-inside the guest that issues a command that exceeds the host block
-queue limits.
+It seems that your claim isn't right. leak_balloon() cannot do it all at once,
+as for each round it only releases 256 pages, at most; and the 'one go' would
+require a couple of loop rounds at remove_common().
+So, nothing has changed here.
 
-Passing through limits is intended to make SCSI device passthrough
-work, in all cases.
+ 
+> > Just as before, same thing here. If you leaked less than required, balloon()
+> > will keep calling leak_balloon() until the balloon target is reached. This
+> > scheme was working before, and it will keep working after this patch.
+> >
+> 
+> IIUC we never hit this path before.
+>  
+So, how does balloon() works then?
 
-Is the number of real cases where it happens small?  Probably.  I
-still think we should make passthrough bulletproof.
 
-Stefan
+> > > How about we signal config_change
+> > > event when pages are back to pages_list?
+> > 
+> > I really don't know what to tell you here, but, to me, it seems like an
+> > overcomplication that isn't directly entangled with this patch purposes.
+> > Besides, you cannot expect compation / migration happening and racing against
+> > leak_balloon() all the time to make them signal events to the later, so we might
+> > just be creating a wait-forever condition for leak_balloon(), IMHO.
+> 
+> So use wait_event or similar, check for existance of isolated pages.
+> 
+
+The thing here is expecting compaction as being an external event to signal
+actions to the balloon driver won't work as you desire. Also, as far as the
+balloon driver is concerned, it's only a matter of time to accomplish a total,
+or partial, balloon leak, even when we have some pages isolated from balloon's
+page list.
+
+IMHO, you're attempting to complicate a simple thing that is already working
+well. As said before, there are no guarantees you'll have isolated pages 
+by the time you're leaking the balloon, so you might leave it waiting forever
+on something that will not happen. And if there are isolated pages while balloon
+is leaking, they'll have their chance to get back to the list before the device
+finishes its leaking job.
