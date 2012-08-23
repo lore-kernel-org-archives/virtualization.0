@@ -1,65 +1,53 @@
-From: KY Srinivasan <kys@microsoft.com>
-Subject: RE: [PATCH V3 08/14] Tools: hv: Gather DNS information
-Date: Wed, 22 Aug 2012 15:45:31 +0000
-Message-ID: <426367E2313C2449837CD2DE46E7EAF9236C3FF4@SN2PRD0310MB382.namprd03.prod.outlook.com>
-References: <1345167068-5461-1-git-send-email-kys@microsoft.com>
- <1345167145-5513-1-git-send-email-kys@microsoft.com>
- <1345167145-5513-8-git-send-email-kys@microsoft.com>
- <20120817165109.GA11323@kroah.com>
+From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Subject: Re: [PATCH 2/5] trace-cmd: Use tracing directory to count CPUs
+Date: Thu, 23 Aug 2012 11:01:55 +0900
+Message-ID: <50358F13.1030607@hitachi.com>
+References: <20120822084251.17293.69086.stgit@ltc189.sdl.hitachi.co.jp>
+	<20120822084312.17293.47596.stgit@ltc189.sdl.hitachi.co.jp>
+	<1345642893.5069.31.camel@gandalf.local.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120817165109.GA11323@kroah.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "virtualization@lists.osdl.org" <virtualization@lists.osdl.org>, "olaf@aepfle.de" <olaf@aepfle.de>, "apw@canonical.com" <apw@canonical.com>, "ben@decadent.org.uk" <ben@decadent.org.uk>, "Thomas Graf (tgraf@redhat.com)" <tgraf@redhat.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1345642893.5069.31.camel@gandalf.local.home>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, qemu-devel@nongnu.org, Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, "Franch Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>, yrl.pp-manager.tt@hitachi.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> -----Original Message-----
-> From: Greg KH [mailto:gregkh@linuxfoundation.org]
-> Sent: Friday, August 17, 2012 12:51 PM
-> To: KY Srinivasan
-> Cc: linux-kernel@vger.kernel.org; devel@linuxdriverproject.org;
-> virtualization@lists.osdl.org; olaf@aepfle.de; apw@canonical.com;
-> ben@decadent.org.uk
-> Subject: Re: [PATCH V3 08/14] Tools: hv: Gather DNS information
+(2012/08/22 22:41), Steven Rostedt wrote:
+> On Wed, 2012-08-22 at 17:43 +0900, Yoshihiro YUNOMAE wrote:
+>> From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+>>
+>> Count debugfs/tracing/per_cpu/cpu* to determine the
+>> number of CPUs.
 > 
-> On Thu, Aug 16, 2012 at 06:32:19PM -0700, K. Y. Srinivasan wrote:
-> > Now, gather DNS information. Invoke an external script (that can be
-> > distro dependent) to gather the DNS information.
-> 
-> Where is that script? 
+> I'm curious, do you find that sysconf doesn't return the # of CPUs the
+> system has?
 
-If you think it is useful, I could send you the scripts that I have used to test this
-functionality as example scripts. 
-  
-> Why a script, this really isn't in a standard
-> method for all Linux distros?  If not, why not work to do that like the
-> freedesktop.org people have done for other system configuration items?
+No, sysconf returns the number of hosts CPUs, not guests.
 
-When discussing this while preparing the patches it was clear that there
-really is no single way to obtain the network information, if you are
-using network manager you need to use dbus, basic debian networking as
-on a server you need to look in /etc/resolv.conf, if you have dnsmasq
-installed you need to look in a third place.  On the SLES side that I am somewhat 
-familiar with, if I recall correctly, none of the appliance images have Network Manager installed.
-The consensus was that  we should avoid pulling a vast pile of distro smarts into the source which
-lead to the hook API proposed in these patches.
+> I've had boxes where the per_cpu/cpu* had more cpus than the
+> box actually holds. But this was a bug in the kernel, not the tool. This
+> change log needs to have rational instead of just explaining what the
+> patch does.
 
-The approach chosen here does not preclude using Network Manager in the external scripts
-if a particular distro chooses to go that route. The current implementation supports maximum
-flexibility without sacrificing anything. While the current scripts I have do not use NM APIs, we could
-work on external scripts using DBUS APIs.
+Ah, I see. Hmm, then this should be enabled by a command line
+option or an environment variable.
 
-If it is ok with you, I could send you the remaining 7 patches along with the scripts I am
-currently using to test this code. These scripts should be viewed just example code. 
+Thank you,
 
-Regards,
 
-K. Y
-
- 
+-- 
+Masami HIRAMATSU
+Software Platform Research Dept. Linux Technology Center
+Hitachi, Ltd., Yokohama Research Laboratory
+E-mail: masami.hiramatsu.pt@hitachi.com
