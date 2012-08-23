@@ -1,23 +1,24 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v8 1/5] mm: introduce a common interface for balloon
 	pages mobility
-Date: Thu, 23 Aug 2012 19:10:26 +0300
-Message-ID: <20120823161026.GA29059__45320.7309045412$1345738217$gmane$org@redhat.com>
-References: <20120823021903.GA23660@x61.redhat.com>
+Date: Thu, 23 Aug 2012 19:25:05 +0300
+Message-ID: <20120823162504.GA1522__49461.9465935559$1345739061$gmane$org@redhat.com>
+References: <20120821204556.GF12294@t510.redhat.com>
+	<20120822000741.GI9027@redhat.com>
+	<20120822011930.GA23753@t510.redhat.com>
+	<20120822093317.GC10680@redhat.com>
+	<20120823021903.GA23660@x61.redhat.com>
 	<20120823100107.GA17409@redhat.com>
 	<20120823121338.GA3062@t510.redhat.com>
 	<20120823123432.GA25659@redhat.com>
 	<20120823130606.GB3746@t510.redhat.com>
 	<20120823135328.GB25709@redhat.com>
-	<20120823152128.GA8975@t510.redhat.com>
-	<20120823155401.GA28876@redhat.com> <50365443.1070104@redhat.com>
-	<20120823160647.GA10777@t510.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120823160647.GA10777@t510.redhat.com>
+In-Reply-To: <20120823135328.GB25709@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -31,30 +32,22 @@ To: Rafael Aquini <aquini@redhat.com>
 Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 23, 2012 at 01:06:48PM -0300, Rafael Aquini wrote:
-> On Thu, Aug 23, 2012 at 12:03:15PM -0400, Rik van Riel wrote:
-> > >
-> > >Not "longer" - apparently forever unless user resend the leak command.
-> > >It's wrong - it should
-> > >1. not tell host if nothing was done
-> > >2. after migration finished leak and tell host
-> > 
-> > Agreed.  If the balloon is told to leak N pages, and could
-> > not do so because those pages were locked, the balloon driver
-> > needs to retry (maybe waiting on a page lock?) and not signal
-> > completion until after the job has been completed.
-> > 
-> > Having the balloon driver wait on the page lock should be
-> > fine, because compaction does not hold the page lock for
-> > long.
+On Thu, Aug 23, 2012 at 04:53:28PM +0300, Michael S. Tsirkin wrote:
+> Basically it was very simple: we assumed page->lru was never
+> touched for an allocated page, so it's safe to use it for
+> internal book-keeping by the driver.
 > 
-> And that is precisely what leak_balloon is doing. When it stumbles across a
-> locked page it gets rid of that leak round to give a shot for compaction to
-> finish its task.
-> 
+> Now, this is not the case anymore, you add some logic in mm/ that might
+> or might not touch page->lru depending on things like reference count.
 
-Yes but I do not see where it will retry.
-If it does, please add a comment pointing out where it happens.
+Another thought: would the issue go away if balloon used
+page->private to link pages instead of LRU?
+mm core could keep a reference on page to avoid it
+being used while mm handles it (maybe it does already?).
+
+If we do this, will not the only change to balloon be to tell mm that it
+can use compaction for these pages when it allocates the page: using
+some GPF flag or a new API?
 
 -- 
 MST
