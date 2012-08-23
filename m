@@ -1,16 +1,20 @@
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH 2/5] trace-cmd: Use tracing directory to count CPUs
-Date: Thu, 23 Aug 2012 05:08:06 -0400
-Message-ID: <1345712886.5069.41.camel@gandalf.local.home>
-References: <20120822084251.17293.69086.stgit@ltc189.sdl.hitachi.co.jp>
-	<20120822084312.17293.47596.stgit@ltc189.sdl.hitachi.co.jp>
-	<1345642893.5069.31.camel@gandalf.local.home>
-	<50358F13.1030607@hitachi.com> <50359CE9.3000509@hitachi.com>
+From: Cong Meng <mc@linux.vnet.ibm.com>
+Subject: Re: [PATCH 1/2 v1] blkdrv: Add queue limits parameters for sg block
+	drive
+Date: Thu, 23 Aug 2012 17:31:31 +0800
+Message-ID: <5035F873.6090305@linux.vnet.ibm.com>
+References: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
+	<50334B51.6050900@redhat.com> <503357B2.5040901@linux.vnet.ibm.com>
+	<CAJSP0QX8BL9R_M0NxisiP+wejjgh6C6-nz9LPAfgHppPpNpYnA@mail.gmail.com>
+	<50335F78.1030005@redhat.com> <5034BCD1.9020603@linux.vnet.ibm.com>
+	<5034CBF8.3050602@redhat.com>
+	<20120822131348.GA3512@stefanha-thinkpad.localdomain>
+	<5034E918.4030305@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50359CE9.3000509@hitachi.com>
+In-Reply-To: <5034E918.4030305@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,43 +24,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, qemu-devel@nongnu.org, Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, Borislav Petkov <bp@amd64.org>, virtualization@lists.linux-foundation.org, "Franch Ch.
-	Eigler" <fche@redhat.com>, Ingo Molnar <mingo@redhat.com>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, Anthony Liguori <anthony@codemonkey.ws>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Amit Shah <amit.shah@redhat.com>, yrl.pp-manager.tt@hitachi.com
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2012-08-23 at 12:00 +0900, Masami Hiramatsu wrote:
-> (2012/08/23 11:01), Masami Hiramatsu wrote:
-> > (2012/08/22 22:41), Steven Rostedt wrote:
-> >> On Wed, 2012-08-22 at 17:43 +0900, Yoshihiro YUNOMAE wrote:
-> >>> From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-> >>>
-> >>> Count debugfs/tracing/per_cpu/cpu* to determine the
-> >>> number of CPUs.
-> >>
-> >> I'm curious, do you find that sysconf doesn't return the # of CPUs the
-> >> system has?
-> > 
-> > No, sysconf returns the number of hosts CPUs, not guests.
-> > 
-> >> I've had boxes where the per_cpu/cpu* had more cpus than the
-> >> box actually holds. But this was a bug in the kernel, not the tool. This
-> >> change log needs to have rational instead of just explaining what the
-> >> patch does.
-> > 
-> > Ah, I see. Hmm, then this should be enabled by a command line
-> > option or an environment variable.
-> 
-> Oops, I misunderstood. I'll add more comment for why this
-> should be tried instead of sysconf.
 
-And now that I understand why you are doing this, why not only do this
-if the TRACE_AGENT or DEBUG_TRACING_DIR is defined. That is, if we are
-doing it against a bare metal system, then sysconf should suffice, but
-if we are tracing against a guest, then it should use the tracing
-directory to determine the buffers.
 
-We could add options to override this, but I would think the default
-should just Do The Right Thing(tm).
+On Wed 22 Aug 2012 10:13:44 PM CST, Paolo Bonzini wrote:
+> Il 22/08/2012 15:13, Stefan Hajnoczi ha scritto:
+>> http://lists.gnu.org/archive/html/qemu-devel/2010-12/msg01741.html
+>>
+>> "This is a real problem in practice. IE. the USB CD-ROM on this POWER7
+>> blade limits transfers to 0x1e000 bytes for example and the Linux "sr"
+>> driver on the guest is going to try to give me bigger requests than that
+>> if I don't start limiting them, which will cause all sort of errors."
+>>
+>> It cannot be fixed for emulated SCSI HBAs in general but it can for
+>> virtio-scsi.
+>
+> For disks, this should be fixed simply by using scsi-block instead of
+> scsi-generic.
+>
+> CD-ROMs are indeed more complicated because burning CDs cannot be done
+> with syscalls. :/
+>
 
--- Steve
+So, as the problem exist to CD-ROM, I will continue to get these 
+patches move on.
+
+As Paolo pointed out,  the only limit is max_sectors (the total size of 
+a scatter-list),
+I will drop the other 2 parameters.
+
+Paolo, what's your opinion?
+
+Cong
+
+> Paolo
+>
