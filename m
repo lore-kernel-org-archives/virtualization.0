@@ -1,22 +1,24 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH 1/2 v1] blkdrv: Add queue limits parameters for sg
-	block drive
-Date: Thu, 23 Aug 2012 17:45:01 -0700
-Message-ID: <1345769101.10190.124.camel__12002.5150165477$1345769118$gmane$org@haakon2.linux-iscsi.org>
-References: <1345537427-21601-1-git-send-email-mc@linux.vnet.ibm.com>
-	<50334B51.6050900@redhat.com> <503357B2.5040901@linux.vnet.ibm.com>
-	<CAJSP0QX8BL9R_M0NxisiP+wejjgh6C6-nz9LPAfgHppPpNpYnA@mail.gmail.com>
-	<50335F78.1030005@redhat.com> <5034BCD1.9020603@linux.vnet.ibm.com>
-	<5034CBF8.3050602@redhat.com>
-	<20120822131348.GA3512@stefanha-thinkpad.localdomain>
-	<5034E918.4030305@redhat.com> <5035F873.6090305@linux.vnet.ibm.com>
-	<5035FFF4.4040603@redhat.com>
-	<CAJSP0QXG3yzxnwAJd3s0M0eSUM39XRdYEmGtj0h83_de4mxaAA@mail.gmail.com>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: Re: [PATCH v8 1/5] mm: introduce a common interface for balloon
+	pages mobility
+Date: Thu, 23 Aug 2012 21:49:45 -0300
+Message-ID: <20120824004944.GI10777__5612.04344635389$1345769421$gmane$org@t510.redhat.com>
+References: <20120823100107.GA17409@redhat.com>
+	<20120823121338.GA3062@t510.redhat.com>
+	<20120823123432.GA25659@redhat.com>
+	<20120823130606.GB3746@t510.redhat.com>
+	<20120823135328.GB25709@redhat.com>
+	<20120823162504.GA1522@redhat.com>
+	<20120823172844.GC10777@t510.redhat.com>
+	<20120823233616.GB2775@redhat.com>
+	<20120824003353.GG10777@t510.redhat.com>
+	<20120824003848.GH10777@t510.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QXG3yzxnwAJd3s0M0eSUM39XRdYEmGtj0h83_de4mxaAA@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20120824003848.GH10777@t510.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,66 +28,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, zwanp@cn.ibm.com, linuxram@us.ibm.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Cong Meng <mc@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2012-08-23 at 11:08 +0100, Stefan Hajnoczi wrote:
-> On Thu, Aug 23, 2012 at 11:03 AM, Paolo Bonzini <pbonzini@redhat.com> wrote:
-> > Il 23/08/2012 11:31, Cong Meng ha scritto:
-> >>> For disks, this should be fixed simply by using scsi-block instead of
-> >>> scsi-generic.
-> >>>
-> >>> CD-ROMs are indeed more complicated because burning CDs cannot be done
-> >>> with syscalls. :/
-> >>
-> >> So, as the problem exist to CD-ROM, I will continue to get these patches
-> >> move on.
-> >
-> > I'm still trying to understand the extent of the problem.
-> >
-> > The problem occurs for _USB_ CD-ROMs according to Ben.  Passthrough of
-> > USB storage devices should be done via USB passthrough, not virtio-scsi.
-> >  If we do USB passthrough via the SCSI layer we miss on all the quirks
-> > that the OS may do based on the USB product/vendor pairs.  There's no
-> > end to these, and some of the quirks may cause the device to lock up or
-> > corruption.
-> >
-> > I'd rather see a reproducer using SAS/ATA/ATAPI disks before punting.
+On Thu, Aug 23, 2012 at 09:38:48PM -0300, Rafael Aquini wrote:
+> On Thu, Aug 23, 2012 at 09:33:53PM -0300, Rafael Aquini wrote:
+> > On Fri, Aug 24, 2012 at 02:36:16AM +0300, Michael S. Tsirkin wrote:
+> > > I would wake it each time after adding a page, then it
+> > > can stop waiting when it leaks enough.
+> > > But again, it's cleaner to just keep tracking all
+> > > pages, let mm hang on to them by keeping a reference.
+> > > 
 > 
-> This issue affects passthrough: either an entire sg device or at least
-> a SG_IO ioctl (e.g. a non-READ/WRITE SCSI command).
+> Btw, it's also late here, and there still some work to be done around those
+> bits, but I guess that has potential to get this issue nailed.
 > 
-> To reproduce it, check host queue limits and guest virtio-scsi queue
-> limits.  Then pick a command that can exceed the limits and try it
-> from inside the guest :).
-> 
+> > Here is a rough idea on how it's getting:
+> > 
+> > Basically, I'm have introducing an atomic counter to track isolated pages, I
+> > also have changed vb->num_pages into an atomic conter. All inc/dec operations
+> > take place under pages_lock spinlock, and we only perform work under page lock.
+> > 
+> > It's still missing the wait-part (I'll write it during the weekend) and your
+> > concerns (and mine) will be addressed, IMHO.
+> > 
+> > ---8<---
+> > +/*
+> > + *
+> > + */
+> > +static inline void __wait_on_isolated_pages(struct virtio_balloon *vb,
+> > +                                           size_t num)
+> > +{
+> > +       /* There are no isolated pages for this balloon device */
+> > +       if (!atomic_read(&vb->num_isolated_pages))
+> > +               return;
+> > +
+> > +       /* the leak target is smaller than # of pages on vb->pages list */
+> > +       if (num < (atomic_read(&vb->num_pages) -
+> > +           atomic_read(&vb->num_isolated_pages)))
+> > +               return;
+> > +       else {
+> > +               spin_unlock(&vb->pages_lock);
+> > +               /* wait stuff goes here */
+> > +               spin_lock(&vb->pages_lock);
+> > +       }
+> > +}
+> > +
+> >  static void leak_balloon(struct virtio_balloon *vb, size_t num)
+> >  {
+> > -       struct page *page;
+> > +       /* The array of pfns we tell the Host about. */
+> > +       unsigned int num_pfns;
+> > +       u32 pfns[VIRTIO_BALLOON_ARRAY_PFNS_MAX];
+> > 
+> >         /* We can only do one array worth at a time. */
+> > -       num = min(num, ARRAY_SIZE(vb->pfns));
+> > +       num = min(num, ARRAY_SIZE(pfns));
+> > 
+> > -       for (vb->num_pfns = 0; vb->num_pfns < num;
+> > -            vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+> > -               page = list_first_entry(&vb->pages, struct page, lru);
+> > -               list_del(&page->lru);
+> > -               set_page_pfns(vb->pfns + vb->num_pfns, page);
+> > -               vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
+> > +       for (num_pfns = 0; num_pfns < num;
+> > +            num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
 
-Just following along on this thread, and wanted to add a few of my
-experiences with this scenario from the kernel target perspective..
+Doh, here I need a while(num_pfns < num;)
 
-So up until very recently, TCM would accept an I/O request for an DATA
-I/O type CDB with a max_sectors larger than the reported max_sectors for
-it's TCM backend (regardless of backend type), and silently generate N
-backend 'tasks' to complete the single initiator generated command.
-Also FYI for Paolo, for control type CDBs I've never actually seen an
-allocation length exceed max_sectors, so in practice AFAIK this only
-happens for DATA I/O type CDBs.
 
-This was historically required by the pSCSI backend driver (using a
-number of old SCSI passthrough interfaces) in order to support this very
-type of case described above, but over the years the logic ended up
-creeping into various other non-passthrough backend drivers like IBLOCK
-+FILEIO.  So for v3.6-rc1 code, hch ended up removing the 'task' logic
-thus allowing backends (and the layers below) to the I/O sectors >
-max_sectors handling work, allowing modern pSCSI using struct request to
-do the same.  (hch assured me this works now for pSCSI)
+> > +               struct page *page = NULL;
+> > +               spin_lock(&vb->pages_lock);
+> > +               __wait_on_isolated_pages(vb, num);
+> > +
+> > +               if (!list_empty(&vb->pages))
+> > +                       page = list_first_entry(&vb->pages, struct page, lru);
+> > +               /*
+> > +                * Grab the page lock to avoid racing against threads isolating
+> > +                * pages from, or migrating pages back to vb->pages list.
+> > +                * (both tasks are done under page lock protection)
+> > +                *
+> > +                * Failing to grab the page lock here means this page is being
+> > +                * isolated already, or its migration has not finished yet.
+> > +                */
+> > +               if (page && trylock_page(page)) {
+> > +                       clear_balloon_mapping(page);
+> > +                       list_del(&page->lru);
+> > +                       set_page_pfns(pfns + num_pfns, page);
+> > +                       atomic_sub(VIRTIO_BALLOON_PAGES_PER_PAGE,
+> > +                                  &vb->num_pages);
 
-Anyways, I think having the guest limit virtio-scsi DATA I/O to
-max_sectors based upon the host accessible block limits is reasonable
-approach to consider.  Reducing this value even further based upon the
-lowest max_sectors available amongst possible migration hosts would be a
-good idea here to avoid having to reject any I/O's exceeding a new
-host's device block queue limits.
+and here: num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;		
 
---nab
+> > +                       unlock_page(page);
+> > +               }
+> > +               spin_unlock(&vb->pages_lock);
+> >         }
+> > 
+> >         /*
+> > @@ -182,8 +251,10 @@ static void leak_balloon(struct virtio_balloon *vb, size_t
+> > num)
+> >          * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+> >          * is true, we *have* to do it in this order
+> >          */
+> > +       mutex_lock(&vb->balloon_lock);
+> >         tell_host(vb, vb->deflate_vq);
+> > -       release_pages_by_pfn(vb->pfns, vb->num_pfns);
+> > +       mutex_unlock(&vb->balloon_lock);
+> > +       release_pages_by_pfn(pfns, num_pfns);
+> >  }
+> > ---8<---
+
+Well, I'll assume that's because I'm working for 14h already and running out of
+caffeine.
