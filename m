@@ -1,10 +1,14 @@
-From: DataCloud Workshop <datacloud12@gmail.com>
-Subject: Extended Deadline: DataCloud 2012 - The Third International Workshop
-	on Data Intensive Computing in the Clouds
-Date: Thu, 30 Aug 2012 14:40:58 -0500
-Message-ID: <CAOsgFp=cxzSVCA2ZL0VFkNU6vaUSLEgqftpeti9WLbGgwb5O2Q@mail.gmail.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: Call for Participation: The 9th ACM International Conference on
+	Autonomic
+	Computing (ICAC 2012) - September 17-21, 2012 in San Jose, California,
+	USA
+Date: Fri, 24 Aug 2012 22:09:57 -0500
+Message-ID: <50384205.2030509@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7556826139017489237=="
+Content-Type: text/plain; charset="windows-1252"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,264 +19,434 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "iraicu@cs.iit.edu" <iraicu@cs.iit.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============7556826139017489237==
-Content-Type: multipart/alternative; boundary=00235452ea70c117e904c880daba
+**********************************************************************
 
---00235452ea70c117e904c880daba
-Content-Type: text/plain; charset=ISO-8859-1
+CALL FOR PARTICIPATION
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-*Call for Papers: The Third International Workshop on Data Intensive
-Computing in the Clouds (DataCloud 2012)*
+The 9th ACM International Conference on Autonomic Computing (ICAC 2012)
 
-November 11, Salt Lake City, UT, USA (
-http://www.cse.buffalo.edu/faculty/tkosar/datacloud2012)
+San Jose, California, USA
+September 17-21, 2012
+http://icac2012.cs.fiu.edu
 
-Co-Located with Super Computing 2012, November 10-16, Salt Lake City, UT,
-USA (http://sc12.supercomputing.org/)
+Sponsored by ACM
 
----------------------------------------------------------------------------------------------------------------------
- *IMPORTANT DATES*
+**********************************************************************
 
-Abstract and Paper Submission: *September 27, 2012* (extended)
-Notification of Acceptance: October 15, 2012
-Final Paper Due: October 29, 2012
-Workshop: November 11, 2012
+Online registration is open at
+http://icac2012.cs.fiu.edu/registration.shtm
+Reduced fees are available for those registering by September 2, 2012.
 
----------------------------------------------------------------------------------------------------------------------
-*OVERVIEW*
+This year's technical program features:
 
-Applications and experiments in all areas of science are becoming
-increasingly complex and more demanding in terms of their computational and
-data requirements. Some applications generate data volumes reaching
-hundreds of terabytes and even petabytes. As scientific applications become
-more data intensive, the management of data resources and dataflow between
-the storage and compute resources is becoming the main bottleneck.
-Analyzing, visualizing, and disseminating these large data sets has become
-a major challenge and data intensive computing is now considered as the
-''fourth paradigm'' in scientific discovery after theoretical,
-experimental, and computational science.
+- 3 distinguished keynote speakers:
+* Dr. Amin Vahdat, Google/UCSD
+* Dr. Subutai Ahmad (VP Engineering), Numenta
+* Dr. Eitan Frachtenberg, Facebook
 
-DataCloud 2012 will provide the scientific community a dedicated forum for
-discussing new research, development, and deployment efforts in running
-data-intensive computing workloads on Cloud Computing infrastructures. The
-DataCloud 2012 workshop will focus on the use of cloud-based technologies
-to meet the new data intensive scientific challenges that are not well
-served by the current supercomputers, grids or compute-intensive clouds. We
-believe the workshop will be an excellent place to help the community
-define the current state, determine future goals, and present architectures
-and services for future clouds supporting data intensive computing.
+- 24 outstanding technical papers (15 full + 9 short):
+* covering core and emerging topics such as clouds, virtualization,
+control, monitoring and diagnosis, and energy
+* Half of the papers involve authors from industry or government labs
 
----------------------------------------------------------------------------------------------------------------------
-*WORKSHOP SCOPE*
-
-Topics of interest include, but are not limited to:
-
-   - Data-intensive cloud computing applications, characteristics,
-   challenges
-   - Case studies of data intensive computing in the clouds
-   - Performance evaluation of data clouds, data grids, and data centers
-   - Energy-efficient data cloud design and management
-   - Data placement, scheduling, and interoperability in the clouds
-   - Accountability, QoS, and SLAs
-   - Data privacy and protection in a public cloud environment
-   - Distributed file systems for clouds
-   - Data streaming and parallelization
-   - New programming models for data-intensive cloud computing
-   - Scalability issues in clouds
-   - Social computing and massively social gaming
-   - 3D Internet and implications
-   - Future research challenges in data-intensive cloud computing
-
----------------------------------------------------------------------------------------------------------------------
-*ORGANIZERS*
-
-   - Tevfik Kosar, University at Buffalo
-   - Ioan Raicu, Illinois Institute of Technology & Argonne National
-   Laboratory, USA
-   - Roger Barga, Microsoft Research
-
-*STEERING COMMITTEE*
-
-   - Ian Foster, University of Chicago & Argonne National Laboratory, USA
-   - Geoffrey Fox, Indiana University
-   - James Hamilton, Amazon Web Services
-   - Manish Parashar, Rutgers University & National Science Foundation
-   - Dan Reed, Microsoft Research
-   - Rich Wolski, University of California, Santa Barbara
-
-*PROGRAMME COMMITTEE*
-
-   - Samer Al-Kiswany, University of British Columbia, Canada
-   - Abhishek Chandra, University of Minnesota
-   - Rong N. ChangI, BM Research
-   - Kyle Chard, University of Chicago & Argonne National Laboratory
-   - Terence Critchlow, Pacific Northwest National Laboratory
-   - Murat Demirbas, University at Buffalo
-   - Jaliya Ekanayake, Microsoft Research
-   - Geoffrey Fox, Indiana University
-   - Dennis Gannon, Microsoft Research
-   - Rob Gillen, Oak Ridge National Laboratory
-   - Maria Indrawan, Monash University, Australia
-   - Hui Jin, Oracle
-   - Dan Katz, National Science Foundation
-   - Steven Ko, University at Buffalo
-   - Reagan Moore, University of North Carolina
-   - Judy Qui, Indiana University
-   - Lavanya Ramakrishnan, Lawrence Berkeley National Laboratory
-   - Kui Ren, University at Buffalo
-   - Yogesh Simmhan, University of Southern California, USA
-   - Borjo Sotomayor, University of Chicago
-   - Wei Tang, Argonne National Laboratory
-   - Bernard Traversat, Oracle
-   - Zhifeng Yun, Louisiana State University
-   - Ziming Zheng, Illinois Institute of Technology
-
---00235452ea70c117e904c880daba
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<b><font size=3D"4">Call for Papers: The Third International Workshop on Da=
-ta Intensive Computing in the Clouds (DataCloud 2012)</font></b><br>
+- 4 co-located workshops covering hot topics in:
+* Feedback Computing
+* Self-Aware Internet of Things
+* Management of Big Data Systems
+* Federated Clouds
 
 
 
+The Conference will be held at the Fairmont Hotel in downtown San Jose, =
 
-<br>
-
-
-November 11, Salt Lake City, UT, USA (<a href=3D"http://www.cse.buffalo.edu=
-/faculty/tkosar/datacloud2012" target=3D"_blank">http://www.cse.buffalo.edu=
-/faculty/tkosar/datacloud2012</a>)<br>
+CA, USA.
 
 
+**********************************************************************
 
+IMPORTANT DATES
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-<br>
+Early registration deadline: September 2, 2012
+Hotel special rate deadline: September 7, 2012
 
+**********************************************************************
 
-Co-Located with Super Computing 2012, November 10-16, Salt Lake City, UT, U=
-SA (<a href=3D"http://sc12.supercomputing.org/" target=3D"_blank">http://sc=
-12.supercomputing.org/</a>)<br>
+CORPORATE SPONSORS
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
+Gold Level Partner: IBM
+Conference partners: VMware, HP, Neustar
+PhD Student Sponsor: Google
+Other Sponsor: NEC Labs
 
-<br>
+**********************************************************************
 
+PRELIMINARY PROGRAM
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
----------------------------------------------------------------------------=
-------------------------------------------<br>
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
+MONDAY, SEPTEMBER 17, 2012 - WORKSHOPS
 
-<div id=3D":du"><div><div><div class=3D"gmail_quote">
+Feedback Computing 2012
+Self-Aware Internet of Things 2012
 
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-<b>IMPORTANT DATES</b><br><br>Abstract and Paper Submission: <b style=3D"co=
-lor:rgb(255,0,0)">September 27, 2012</b> (extended)<br>Notification of Acce=
-ptance: October 15, 2012<br>Final Paper Due: October 29, 2012<br>Workshop: =
-November 11, 2012<br>
+TUESDAY, SEPTEMBER 18, 2012 - MAIN CONFERENCE
 
+8:00AM =96 8:45AM
+Registration
 
+8:45AM =96 9:00AM
+Welcome Remarks
 
+9:00AM =96 10:00AM
+Keynote Talk I
 
+Symbiosis in Scale Out Networking and Data Management
+Amin Vahdat, Google and University of California, San Diego
 
+10:00AM =96 10.30AM
+Break
 
-<br>-----------------------------------------------------------------------=
-----------------------------------------------<br><b>OVERVIEW</b><br><br>Ap=
-plications
- and experiments in all areas of science are becoming increasingly=20
-complex and more demanding in terms of their computational and data=20
-requirements. Some applications generate data volumes reaching hundreds=20
-of terabytes and even petabytes. As scientific applications become more=20
-data intensive, the management of data resources and dataflow between=20
-the storage and compute resources is becoming the main bottleneck.=20
-Analyzing, visualizing, and disseminating these large data sets has=20
-become a major challenge and data intensive computing is now considered=20
-as the &#39;&#39;fourth paradigm&#39;&#39; in scientific discovery after th=
-eoretical,=20
-experimental, and computational science.<br>
+10:30AM =96 12:00PM
+Session : Virtualization
 
-<br>DataCloud 2012 will provide the scientific community a dedicated=20
-forum for discussing new research, development, and deployment efforts=20
-in running data-intensive computing workloads on Cloud Computing=20
-infrastructures. The DataCloud 2012 workshop will focus on the use of=20
-cloud-based technologies to meet the new data intensive scientific=20
-challenges that are not well served by the current supercomputers, grids
- or compute-intensive clouds. We believe the workshop will be an=20
-excellent place to help the community define the current state,=20
-determine future goals, and present architectures and services for=20
-future clouds supporting data intensive computing.<br>
+Net-Cohort: Detecting and Managing VM Ensembles in Virtualized Data Centers
+Liting Hu, Karsten Schwan (Georgia Institute of Technology);
+Ajay Gulati (VMware); Junjie Zhang, Chengwei Wang (Georgia Institute
+of Technology)
 
-<br>-----------------------------------------------------------------------=
-----------------------------------------------<br><b>WORKSHOP SCOPE</b><br>=
-<br>Topics of interest include, but are not limited to:<br><ul><li>Data-int=
-ensive cloud computing applications, characteristics, challenges</li>
-<li>Case studies of data intensive computing in the clouds</li><li>Performa=
-nce evaluation of data clouds, data grids, and data centers</li><li>Energy-=
-efficient data cloud design and management</li><li>Data placement, scheduli=
-ng, and interoperability in the clouds</li>
-<li>Accountability, QoS, and SLAs</li><li>Data privacy and protection in a =
-public cloud environment</li><li>Distributed file systems for clouds</li><l=
-i>Data streaming and parallelization</li><li>New programming models for dat=
-a-intensive cloud computing</li>
-<li>Scalability issues in clouds</li><li>Social computing and massively soc=
-ial gaming</li><li>3D Internet and implications</li><li>Future research cha=
-llenges in data-intensive cloud computing</li></ul>------------------------=
----------------------------------------------------------------------------=
-------------------<br>
+Application-aware Cross-layer Virtual Machine Resource Management
+Lixi Wang, Jing Xu, Ming Zhao (Florida International University)
 
+Shifting GEARS to Enable Guest-context Virtual Services
+Kyle Hale, Lei Xia, Peter Dinda (Northwestern University)
 
+12:00PM-1:30PM
+Lunch
 
+----------------------------------------------------------------------
+1:30PM - 3:30PM
+Session: Performance and Resource Management
 
+When Average is Not Average: Large Response Time Fluctuations in N-tier =
 
+Systems
+Qingyang Wang (Georgia Institute of Technology); Yasuhiko Kanemasa,
+Motoyuki Kawaba (Fujitsu Laboratories Ltd.); Calton Pu (Georgia Institute
+of Technology)
 
-<b>ORGANIZERS</b><br><ul><li>Tevfik Kosar, University at Buffalo</li><li>Io=
-an Raicu, Illinois Institute of Technology &amp; Argonne National Laborator=
-y, USA</li><li>Roger Barga, Microsoft Research</li></ul><b>STEERING COMMITT=
-EE</b><br>
+Provisioning Multi-tier Cloud Applications Using Statistical Bounds on
+Sojourn Time
+Upendra Sharma, Prashant Shenoy, Don Towsley (University of =
 
+Massachusetts Amherst)
 
+Automated Profiling and Resource Management of Pig Programs for Meeting
+Service Level Objectives
+Zhuoyao Zhang (University of Pennsylvania); Ludmila Cherkasova =
 
+(Hewlett-Packard Labs);
+Abhishek Verma (University of Illinois at Urbana-Champaign);
+Boon Thau Loo (University of Pennsylvania)
 
+AROMA: Automated Resource Allocation and Configuration of MapReduce =
 
+Environment
+in the Cloud
+Palden Lama, Xiaobo Zhou (University of Colorado at Colorado Springs)
 
-<ul><li>Ian Foster, University of Chicago &amp; Argonne National Laboratory=
-, USA</li><li>Geoffrey Fox, Indiana University</li><li>James Hamilton, Amaz=
-on Web Services</li><li>Manish Parashar, Rutgers University &amp; National =
-Science Foundation</li>
-<li>Dan Reed, Microsoft Research</li><li>Rich Wolski, University of Califor=
-nia, Santa Barbara</li></ul><b>PROGRAMME COMMITTEE</b><br><ul><li>Samer Al-=
-Kiswany, University of British Columbia, Canada</li><li>Abhishek Chandra, U=
-niversity of Minnesota</li>
-<li>Rong N. ChangI, BM Research</li><li>Kyle Chard, University of Chicago &=
-amp; Argonne National Laboratory</li><li>Terence Critchlow, Pacific Northwe=
-st National Laboratory</li><li>Murat Demirbas, University at Buffalo</li>
-<li>Jaliya Ekanayake, Microsoft Research</li><li>Geoffrey Fox, Indiana Univ=
-ersity</li><li>Dennis Gannon, Microsoft Research</li><li>Rob Gillen, Oak Ri=
-dge National Laboratory</li><li>Maria Indrawan, Monash University, Australi=
-a</li>
-<li>Hui Jin, Oracle</li><li>Dan Katz, National Science Foundation</li><li>S=
-teven Ko, University at Buffalo</li><li>Reagan Moore, University of North C=
-arolina</li><li>Judy Qui, Indiana University</li><li>Lavanya Ramakrishnan, =
-Lawrence Berkeley National Laboratory</li>
-<li>Kui Ren, University at Buffalo</li><li>Yogesh Simmhan, University of So=
-uthern California, USA</li><li>Borjo Sotomayor, University of Chicago</li><=
-li>Wei Tang, Argonne National Laboratory</li><li>Bernard Traversat, Oracle<=
-/li>
-<li>Zhifeng Yun, Louisiana State University</li><li>Ziming Zheng, Illinois =
-Institute of Technology</li></ul></div></div></div></div>
+3:30PM-4:00PM
+Break
 
---00235452ea70c117e904c880daba--
+4:00PM =96 5:15PM
+Short Papers I
 
---===============7556826139017489237==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Locomotion@Location: When the Rubber hits the Road
+Gerold Hoelzl, Marc Kurz, Alois Ferscha (Johannes Kepler University =
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7556826139017489237==--
+Linz, Austria)
+
+An Autonomic Resource Provisioning Framework for Mobile Computing Grids
+Hariharasudhan Viswanathan, Eun Kyung Lee, Ivan Rodero, Dario Pompili =
+
+(Rutgers University)
+
+A Self-Tuning Self-Optimizing Approach for Automated Network Anomaly =
+
+Detection Systems
+Dennis Ippoliti, Xiaobo Zhou (University of Colorado at Colorado Springs)
+
+Offline and On-Demand Event Correlation for Operations Management of =
+
+Large Scale IT Systems
+Chetan Gupta (Hewlett-Packard Labs)
+
+PowerTracer: Tracing Requests in Multi-tier Services to Diagnose Energy =
+
+Inefficiency
+Gang Lu, Jianfeng Zhan (Institute of Computing Technology, Chinese =
+
+Academy of Sciences);
+Haining Wang (College of William and Mary); Lin Yuan (Institute of =
+
+Computing Technology,
+Chinese Academy of Sciences); Chuliang Weng (Shanghai Jiao Tong =
+
+University, China)
+
+6:00PM - 9:00PM
+Conference Dinner
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+WEDNESDAY, SEPTEMBER 19 - MAIN CONFERENCE
+
+8:00AM =96 9:00AM
+Registration
+
+9:00AM =96 10:00AM
+Keynote Talk II
+
+Automated Machine Learning For Autonomic Computing
+Subutai Ahmad, VP Engineering, Numenta
+
+10:00AM - 10:30AM
+Break
+
+10:30AM =96 12:00PM
+Session: Control-Based Approaches
+
+Budget-based Control for Interactive Services with Adaptive Execution
+Yuxiong He, Zihao Ye, Qiang Fu, Sameh Elnikety (Microsoft Research)
+
+On the Design of Decentralized Control Architectures for Workload =
+
+Consolidation in
+Large-Scale Server Clusters
+Rui Wang, Nagarajan Kandasamy (Drexel University)
+
+Transactional Auto Scaler: Elastic Scaling of In-Memory Transactional =
+
+Data Grids
+Diego Didona, Paolo Romano (Instituto Superior T=E9cnico/INESC-ID); =
+
+Sebastiano Peluso,
+Francesco Quaglia (Sapienza, Universit=E0 di Roma)
+
+12:00PM - 1:30PM
+Lunch
+
+----------------------------------------------------------------------
+
+1:30PM - 2:30PM
+Session: Energy
+
+Adaptive Green Hosting
+Nan Deng, Christopher Stewart, Jaimie Kelley (The Ohio State =
+
+University); Daniel Gmach,
+Martin Arlitt (Hewlett Packard Labs)
+
+Dynamic Energy-Aware Capacity Provisioning for Cloud Computing Environments
+Qi Zhang, Mohamed Faten Zhani (University of Waterloo); Shuo Zhang =
+
+(National University
+of Defense Technology); Quanyan Zhu (University of Illinois at =
+
+Urbana-Champaign);
+Raouf Boutaba (University of Waterloo); Joseph L. Hellerstein (Google, =
+
+Inc.)
+
+2:30PM - 3:30PM
+Short Papers II
+
+VESPA: Multi-Layered Self-Protection for Cloud Resources
+Aur=E9lien Wailly, Marc Lacoste (Orange Labs); Herv=E9 Debar (T=E9l=E9com S=
+udParis)
+
+Usage Patterns in Multi-tenant Data Centers: a Temporal Perspective
+Robert Birke, Lydia Y. Chen (IBM Research Zurich Lab); Evgenia Smirni =
+
+(College of
+William and Mary)
+
+Toward Fast Eventual Consistency with Performance Guarantees
+Feng Yan (College of William and Mary); Alma Riska (EMC Corporation); =
+
+Evgenia Smirni (College
+of William and Mary)
+
+Optimal Autoscaling in the IaaS Cloud
+Hamoun Ghanbari, Bradley Simmons, Marin Litoiu, Cornel Barna (York =
+
+University);
+Gabriel Iszlai (IBM Toronto)
+
+3:30PM =96 4:00PM
+Break
+
+4:00PM - 6:00PM
+Poster and Demo Session
+
+6:00PM-9:00PM
+Conference Outing (tentative)
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+THURSDAY, SEPTEMBER 20, 2012 - MAIN CONFERENCE
+
+8:00AM =96 9:00AM
+Registration
+
+9:00AM =96 10:00AM
+Keynote Talk III
+
+High Efficiency at Web Scale
+Eitan Frachtenberg, Facebook
+
+10:00AM-10:30AM
+Break
+
+10:30AM - 12:00PM
+Session: Diagnosis and Monitoring
+Chair: TBD
+
+3-Dimensional Root Cause Diagnosis via Co-analysi
+Ziming Zheng, Li Yu, Zhiling Lan (Illinois Institute of Technology); =
+
+Terry Jones
+(Oak Ridge National Laboratory)
+
+UBL: Unsupervised Behavior Learning for Predicting Performance Anomalies =
+
+in Virtualized Cloud Systems
+Daniel J. Dean, Hiep Nguyen, Xiaohui Gu (North Carolina State University)
+
+Evaluating Compressive Sampling Strategies for Performance Monitoring of =
+
+Data Centers
+Tingshan Huang, Nagarajan Kandasamy, Harish Sethu (Drexel University)
+
+12:00PM
+Adjourn
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+FRIDAY, SEPTEMBER 21, 2012 - WORKSHOPS
+
+Management of Big Data Systems 2012
+Federated Clouds 2012
+
+**********************************************************************
+
+ORGANIZERS
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+GENERAL CHAIR
+Dejan Milojicic, HP Labs
+
+PROGRAM CHAIRS
+Dongyan Xu, Purdue University
+Vanish Talwar, HP Labs
+
+INDUSTRY CHAIR
+Xiaoyun Zhu, VMware
+
+WORKSHOPS CHAIR
+Fred Douglis, EMC
+
+POSTERS/DEMO/EXHIBITS CHAIR
+Eno Thereska, Microsoft Research
+
+FINANCE CHAIR
+Michael Kozuch, Intel
+
+LOCAL ARRANGEMENT CHAIR
+Jessica Blaine
+
+PUBLICITY CHAIRS
+Daniel Batista, University of S=E3o Paulo
+Vartan Padaryan, ISP/Russian Academy of Sci.
+Ioan Raicu, Illinois Inst. of Technology
+Jianfeng Zhan, ICT/Chinese Academy of Sci.
+Ming Zhao, Florida Intl. University
+
+PROGRAM COMMITTEE
+Tarek Abdelzaher, UIUC
+Umesh Bellur, IIT, Bombay
+Ken Birman, Cornell University
+Rajkumar Buyya, Univ. of Melbourne
+Rocky Chang, Hong Kong Polytechnic University
+Yuan Chen, HP Labs
+Alva Couch, Tufts University
+Peter Dinda, Northwestern University
+Fred Douglis, EMC
+Renato Figueiredo, University of Florida
+Mohamed Hefeeda, QCRI
+Joe Hellerstein, Google
+Geoff Jiang, NEC Labs
+Jeff Kephart, IBM Research
+Emre Kiciman, Microsoft Research
+Fabio Kon, University of S=E3o Paulo
+Mike Kozuch, Intel Labs
+Dejan Milojicic, HP Labs
+Klara Nahrstedt, UIUC
+Priya Narasimhan, CMU
+Manish Parashar, Rutgers University
+Ioan Raicu, Illinois Inst. of Technology
+Omer Rana, Cardiff University
+Masoud Sadjadi, Florida Intl. University
+Richard Schlichting, AT&T Labs
+Hartmut Schmeck, KIT
+Karsten Schwan, Georgia Tech
+Onn Shehory, IBM Research
+Eno Thereska, Microsoft Research
+Xiaoyun Zhu, VMware
+**********************************************************************
+
+-- =
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  iraicu@cs.iit.edu
+Web:    http://www.cs.iit.edu/~iraicu/
+Web:    http://datasys.cs.iit.edu/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
