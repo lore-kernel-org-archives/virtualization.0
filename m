@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v9 0/5] make balloon pages movable by compaction
-Date: Sun, 26 Aug 2012 10:58:40 +0300
-Message-ID: <20120826075840.GE19551@redhat.com>
-References: <cover.1345869378.git.aquini@redhat.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: CFP: The 5th Workshop on Many-Task Computing on Grids and
+	Supercomputers (MTAGS) 2012 -- co-located with SC12
+Date: Sun, 26 Aug 2012 09:17:10 -0500
+Message-ID: <503A2FE6.8040402@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1345869378.git.aquini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,150 +17,203 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rafael Aquini <aquini@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Aug 25, 2012 at 02:24:55AM -0300, Rafael Aquini wrote:
-> Memory fragmentation introduced by ballooning might reduce significantly
-> the number of 2MB contiguous memory blocks that can be used within a guest,
-> thus imposing performance penalties associated with the reduced number of
-> transparent huge pages that could be used by the guest workload.
-> 
-> This patch-set follows the main idea discussed at 2012 LSFMMS session:
-> "Ballooning for transparent huge pages" -- http://lwn.net/Articles/490114/
-> to introduce the required changes to the virtio_balloon driver, as well as
-> the changes to the core compaction & migration bits, in order to make those
-> subsystems aware of ballooned pages and allow memory balloon pages become
-> movable within a guest, thus avoiding the aforementioned fragmentation issue
+Call for Papers
 
-Meta-question: are there any numbers showing gain from this patchset?
+---------------------------------------------------------------------------------------
+The 5th Workshop on Many-Task Computing on Grids and Supercomputers (MTAGS) 2012
+http://datasys.cs.iit.edu/events/MTAGS12/
+---------------------------------------------------------------------------------------
+November 12th, 2012
+Salt Lake City, Utah, USA
 
-The reason I ask, on migration we notify host about each page
-individually.  If this is rare maybe the patchset does not help much.
-If this is common we would be better off building up a list of multiple
-pages and passing them in one go.
+Co-located with with IEEE/ACM International Conference for
+High Performance Computing, Networking, Storage and Analysis (SC12)
 
-> Rafael Aquini (5):
->   mm: introduce a common interface for balloon pages mobility
->   mm: introduce compaction and migration for ballooned pages
->   virtio_balloon: introduce migration primitives to balloon pages
->   mm: introduce putback_movable_pages()
->   mm: add vm event counters for balloon pages compaction
-> 
->  drivers/virtio/virtio_balloon.c    | 287 ++++++++++++++++++++++++++++++++++---
->  include/linux/balloon_compaction.h | 137 ++++++++++++++++++
->  include/linux/migrate.h            |   2 +
->  include/linux/pagemap.h            |  18 +++
->  include/linux/vm_event_item.h      |   8 +-
->  mm/Kconfig                         |  15 ++
->  mm/Makefile                        |   2 +-
->  mm/balloon_compaction.c            | 174 ++++++++++++++++++++++
->  mm/compaction.c                    |  51 ++++---
->  mm/migrate.c                       |  57 +++++++-
->  mm/page_alloc.c                    |   2 +-
->  mm/vmstat.c                        |  10 +-
->  12 files changed, 715 insertions(+), 48 deletions(-)
->  create mode 100644 include/linux/balloon_compaction.h
->  create mode 100644 mm/balloon_compaction.c
-> 
-> 
-> Change log:
-> v9:
->  * Adjust rcu_dereference usage to leverage page lock protection  (Paul, Peter);
->  * Enhance doc on compaction interface introduced to balloon driver   (Michael);
->  * Fix issue with isolated pages breaking leak_balloon() logics       (Michael);
-> v8:
->  * introduce a common MM interface for balloon driver page compaction (Michael);
->  * remove the global state preventing multiple balloon device support (Michael);
->  * introduce RCU protection/syncrhonization to balloon page->mapping  (Michael);
-> v7:
->  * fix a potential page leak case at 'putback_balloon_page'               (Mel);
->  * adjust vm-events-counter patch and remove its drop-on-merge message    (Rik);
->  * add 'putback_movable_pages' to avoid hacks on 'putback_lru_pages'  (Minchan);
-> v6:
->  * rename 'is_balloon_page()' to 'movable_balloon_page()' 		  (Rik);
-> v5:
->  * address Andrew Morton's review comments on the patch series;
->  * address a couple extra nitpick suggestions on PATCH 01 	      (Minchan);
-> v4: 
->  * address Rusty Russel's review comments on PATCH 02;
->  * re-base virtio_balloon patch on 9c378abc5c0c6fc8e3acf5968924d274503819b3;
-> V3: 
->  * address reviewers nitpick suggestions on PATCH 01		 (Mel, Minchan);
-> V2: 
->  * address Mel Gorman's review comments on PATCH 01;
-> 
-> 
-> Preliminary test results:
-> (2 VCPU 2048mB RAM KVM guest running 3.6.0_rc3+ -- after a reboot)
-> 
-> * 64mB balloon:
-> [root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
-> compact_blocks_moved 0
-> compact_pages_moved 0
-> compact_pagemigrate_failed 0
-> compact_stall 0
-> compact_fail 0
-> compact_success 0
-> compact_balloon_isolated 0
-> compact_balloon_migrated 0
-> compact_balloon_released 0
-> compact_balloon_returned 0
-> [root@localhost ~]# 
-> [root@localhost ~]# for i in $(seq 1 6); do echo 1 > /proc/sys/vm/compact_memory & done &>/dev/null 
-> [1]   Done                    echo 1 > /proc/sys/vm/compact_memory
-> [2]   Done                    echo 1 > /proc/sys/vm/compact_memory
-> [3]   Done                    echo 1 > /proc/sys/vm/compact_memory
-> [4]   Done                    echo 1 > /proc/sys/vm/compact_memory
-> [5]-  Done                    echo 1 > /proc/sys/vm/compact_memory
-> [6]+  Done                    echo 1 > /proc/sys/vm/compact_memory
-> [root@localhost ~]# 
-> [root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
-> compact_blocks_moved 3108
-> compact_pages_moved 43169
-> compact_pagemigrate_failed 95
-> compact_stall 0
-> compact_fail 0
-> compact_success 0
-> compact_balloon_isolated 16384
-> compact_balloon_migrated 16384
-> compact_balloon_released 16384
-> compact_balloon_returned 0
-> 
-> 
-> * 128 mB balloon:
-> [root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
-> compact_blocks_moved 0
-> compact_pages_moved 0
-> compact_pagemigrate_failed 0
-> compact_stall 0
-> compact_fail 0
-> compact_success 0
-> compact_balloon_isolated 0
-> compact_balloon_migrated 0
-> compact_balloon_released 0
-> compact_balloon_returned 0
-> [root@localhost ~]# 
-> [root@localhost ~]# for i in $(seq 1 6); do echo 1 > /proc/sys/vm/compact_memory & done &>/dev/null  
-> [1]   Done                    echo 1 > /proc/sys/vm/compact_memory
-> [2]   Done                    echo 1 > /proc/sys/vm/compact_memory
-> [3]   Done                    echo 1 > /proc/sys/vm/compact_memory
-> [4]   Done                    echo 1 > /proc/sys/vm/compact_memory
-> [5]-  Done                    echo 1 > /proc/sys/vm/compact_memory
-> [6]+  Done                    echo 1 > /proc/sys/vm/compact_memory
-> [root@localhost ~]# 
-> [root@localhost ~]# awk '/compact/ {print}' /proc/vmstat
-> compact_blocks_moved 3062
-> compact_pages_moved 49774
-> compact_pagemigrate_failed 129
-> compact_stall 0
-> compact_fail 0
-> compact_success 0
-> compact_balloon_isolated 26076
-> compact_balloon_migrated 25957
-> compact_balloon_released 25957
-> compact_balloon_returned 119
-> 
-> -- 
-> 1.7.11.4
+=======================================================================================
+The 5th workshop on Many-Task Computing on Grids and Supercomputers (MTAGS) will
+provide the scientific community a dedicated forum for presenting new research,
+development, and deployment efforts of large-scale many-task computing (MTC)
+applications on large scale clusters, Grids, Supercomputers, and Cloud Computing
+infrastructure. MTC, the theme of the workshop encompasses loosely coupled applications,
+which are generally composed of many tasks (both independent and dependent tasks) to
+achieve some larger application goal.  This workshop will cover challenges that can
+hamper efficiency and utilization in running applications on large-scale systems, such
+as local resource manager scalability and granularity, efficient utilization of raw
+hardware, parallel file system contention and scalability, data management, I/O
+management, reliability at scale, and application scalability. We welcome paper
+submissions on all theoretical, simulations, and systems topics related to MTC, but we
+give special consideration to papers addressing petascale to exascale challenges.
+Papers will be peer-reviewed, and accepted papers will be published in the workshop
+proceedings as part of the IEEE digital library (pending approval). The workshop will
+be co-located with the IEEE/ACM Supercomputing 2012 Conference in Salt Lake City Utah
+on November 12th, 2012.
+  
+For more information, please see http://datasys.cs.iit.edu/events/MTAGS12/. For more
+information on past workshops, please see MTAGS11, MTAGS10, MTAGS09, and MTAGS08. We also
+ran a Special Issue on Many-Task Computing in the IEEE Transactions on Parallel and
+Distributed Systems (TPDS) which has appeared in June 2011; the proceedings can be found
+online at http://www.computer.org/portal/web/csdl/abs/trans/td/2011/06/ttd201106toc.htm.
+We, the workshop organizers, also published a highly relevant paper that defines
+Many-Task Computing which was published in MTAGS08, titled "Many-Task Computing for
+Grids and Supercomputers"
+(http://www.cs.iit.edu/~iraicu/research/publications/2008_MTAGS08_MTC.pdf); we encourage
+potential authors to read this paper.
+
+Topics
+---------------------------------------------------------------------------------------
+We invite the submission of original work that is related to the topics below. The
+papers can be either short (4 pages) position papers, or long (8 pages) research
+papers. Topics of interest include (in the context of Many-Task Computing):
+* Compute Resource Management
+   * Scheduling
+   * Job execution frameworks
+   * Local resource manager extensions
+   * Performance evaluation of resource managers in use on large scale systems
+   * Dynamic resource provisioning
+   * Techniques to manage many-core resources and/or GPUs
+   * Challenges and opportunities in running many-task workloads on HPC systems
+   * Challenges and opportunities in running many-task workloads on Cloud Computing
+     infrastructure
+* Storage architectures and implementations
+   * Distributed file systems
+   * Parallel file systems
+   * Distributed meta-data management
+   * Content distribution systems for large data
+   * Data caching frameworks and techniques
+   * Data management within and across data centers
+   * Data-aware scheduling
+   * Data-intensive computing applications
+   * Eventual-consistency storage usage and management
+* Programming models and tools
+   * Map-reduce and its generalizations
+   * Many-task computing middleware and applications
+   * Parallel programming frameworks
+   * Ensemble MPI techniques and frameworks
+   * Service-oriented science applications
+* Large-Scale Workflow Systems
+   * Workflow system performance and scalability analysis
+   * Scalability of workflow systems
+   * Workflow infrastructure and e-Science middleware
+   * Programming Paradigms and Models
+* Large-Scale Many-Task Applications
+   * High-throughput computing (HTC) applications
+   * Data-intensive applications
+   * Quasi-supercomputing applications, deployments, and experiences
+   * Performance Evaluation
+* Performance evaluation
+   * Real systems
+   * Simulations
+   * Reliability of large systems
+* How MTC Addresses Challenges of Petascale and Exascale Computing
+   * Concurrency & Programmability
+   * I/O & Memory
+   * Energy
+   * Resilience
+   * Heterogeneity
+
+Paper Submission and Publication
+---------------------------------------------------------------------------------------
+Authors are invited to submit papers with unpublished, original work of not more than 8
+pages of double column text using single spaced 10 point size on 8.5 x 11 inch pages,
+as per IEEE 8.5 x 11 manuscript guidelines; document templates can be found at
+http://www.ieee.org/conferences_events/conferences/publishing/templates.html. We are
+also seeking position papers of no more than 4 pages in length. The final 4/8 page
+papers in PDF format must be submitted online at
+https://cmt.research.microsoft.com/MTAGS2012/ before the deadline. Papers will be
+peer-reviewed, and accepted papers will be published in the workshop proceedings as part
+of the IEEE digital library (pending approval). Notifications of the paper decisions
+will be sent out by October 12th, 2012. Selected excellent work may be eligible for
+additional post-conference publication as journal articles or book chapters, such as the
+previous Special Issue on Many-Task Computing in the IEEE Transactions on Parallel and
+Distributed Systems (TPDS) which has appeared in June 2011. Submission implies the
+willingness of at least one of the authors to register and present the paper. For more
+information, please http://datasys.cs.iit.edu/events/MTAGS12/, or send email to
+mtags12-chairs@datasys.cs.iit.edu.
+
+Important Dates
+---------------------------------------------------------------------------------------
+* Abstract submission: September 10th, 2012 (11:59PM PST)
+* Paper submission: September 17th, 2012 (11:59PM PST)
+* Acceptance notification: October 12th, 2012
+* Final papers due: November 7th, 2012
+
+Committee Members
+---------------------------------------------------------------------------------------
+Workshop Chairs (mtags12-chairs@datasys.cs.iit.edu)
+* Ioan Raicu, Illinois Institute of Technology & Argonne National Laboratory
+* Ian Foster, University of Chicago & Argonne National Laboratory
+* Yong Zhao, University of Electronic Science and Technology of China
+
+Steering Committee
+* David Abramson, Monash University, Australia
+* Jack Dongara, University of Tennessee, USA
+* Geoffrey Fox, Indiana University, USA
+* Manish Parashar, Rutgers University, USA
+* Marc Snir, Argonne National Laboratory & University of Illinois at Urbana Champaign, USA
+* Xian-He Sun, Illinois Institute of Technology, USA
+* Weimin Zheng, Tsinghua University, China
+
+Publicity Chair (mtags12-publicity@datasys.cs.iit.edu)
+* Zhao Zhang, University of Chicago, USA
+
+Program Committee Chair (mtags12-pc-chair@datasys.cs.iit.edu)
+* Justin Wozniak, Argonne National Laboratory, USA
+
+Technical Committee
+* Roger Barga, Microsoft Research, USA
+* Mihai Budiu, Microsoft Research, USA
+* Kyle Chard, University of Chicago, USA
+* Yong Chen, Texas Tech University, USA
+* Evangelinos Constantinos, Massachusetts Institute of Technology, USA
+* John Dennis, National Center for Atmospheric Research, USA
+* Catalin Dumitrescu, Fermi National Labs, USA
+* Dennis Gannon, Microsoft Research, USA
+* Indranil Gupta, University of Illinois at Urbana Champaign, USA
+* Florin Isaila, Universidad Carlos III de Madrid, Spain
+* Kamil Iskra, Argonne National Laboratory, USA
+* Alexandru Iosup, Delft University of Technology, Netherlands
+* Hui Jin, Oracle Corporation, USA
+* Daniel S. Katz, University of Chicago & Argonne National Laboratory, USA
+* Carl Kesselman, University of Southern California, USA
+* Zhiling Lan, Illinois Institute of Technology, USA
+* Mike Lang, Los Alamos National Laboratory, USA
+* Gregor von Laszewski, Indiana University, USA
+* Reagan Moore, University of North Carolina, Chappel Hill, USA
+* Jose Moreira, IBM Research, USA
+* Chris Moretti, Princeton University, USA
+* David O'Hallaron, Carnegie Mellon University, Intel Labs, USA
+* Marlon Pierce, Indiana University, USA
+* Judy Qiu, Indiana University, USA
+* Lavanya Ramakrishnan, Lawrence Berkeley National Laboratory, USA
+* Kui Ren, SUNY Buffalo, USA
+* Matei Ripeanu, University of British Columbia, Canada
+* Karen Schuchardt, Pacific Northwest National Laboratory, USA
+* Wei Tang, Argonne National Laboratory, USA
+* Valerie Taylor, Texas A&M, USA
+* Douglas Thain University of Notre Dame, USA
+* Edward Walker, Whitworth University, USA
+* Matthew Woitaszek, Occipital, Inc., USA
+* Ken Yocum, University of California, San Diego, USA
+* Zhifeng Yun, Louisiana State University, USA
+* Zhao Zhang, University of Chicago, USA
+* Ziming Zheng, Illinois Institute of Technology, USA
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  iraicu@cs.iit.edu
+Web:    http://www.cs.iit.edu/~iraicu/
+Web:    http://datasys.cs.iit.edu/
+=================================================================
+=================================================================
