@@ -1,16 +1,17 @@
 From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [PATCH v9 0/5] make balloon pages movable by compaction
-Date: Mon, 27 Aug 2012 17:22:32 -0300
-Message-ID: <20120827202231.GB6517__15713.0473795862$1346098993$gmane$org@t510.redhat.com>
+Subject: Re: [PATCH v9 1/5] mm: introduce a common interface for balloon
+	pages mobility
+Date: Mon, 27 Aug 2012 17:28:35 -0300
+Message-ID: <20120827202834.GC6517__10567.3201302581$1346099347$gmane$org@t510.redhat.com>
 References: <cover.1345869378.git.aquini@redhat.com>
-	<20120826075840.GE19551@redhat.com> <503A3565.2060004@redhat.com>
-	<20120826154423.GA15478@redhat.com>
+	<aa4af6e819584cb05fc0dba44594ae23ab761d03.1345869378.git.aquini@redhat.com>
+	<20120826075557.GD19551@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120826154423.GA15478@redhat.com>
+In-Reply-To: <20120826075557.GD19551@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,18 +25,23 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Aug 26, 2012 at 06:44:23PM +0300, Michael S. Tsirkin wrote:
+On Sun, Aug 26, 2012 at 10:55:58AM +0300, Michael S. Tsirkin wrote:
+> On Sat, Aug 25, 2012 at 02:24:56AM -0300, Rafael Aquini wrote:
+> > Memory fragmentation introduced by ballooning might reduce significantly
+> > the number of 2MB contiguous memory blocks that can be used within a guest,
+> > thus imposing performance penalties associated with the reduced number of
+> > transparent huge pages that could be used by the guest workload.
+> > 
+> > This patch introduces a common interface to help a balloon driver on
+> > making its page set movable to compaction, and thus allowing the system
+> > to better leverage the compation efforts on memory defragmentation.
+> > 
+> > Signed-off-by: Rafael Aquini <aquini@redhat.com>
 > 
-> I am simply asking how was this patchset tested.
-> It would be nice to have this info in commit log.
-> Since this is an optimization patch it is strange
-> to see one with no numbers at all.
-> For example, you probably run some workload and
-> played with the balloon, and then saw less huge pages
-> without the patch and more with?
-> Please put this info in the cover letter.
+> Tons of rcu uses but not sync in sight. This looks suspicious.
 
-Will do it, for sure. As soon as we get closer to an agreement on how the code
-has to behave and looks like. I'll use Mel's mmtests bench suite for that.
-
-Cheers!
+There's no critical section marked with rcu_read_lock/rcu_read_unlock. that's
+why there's no call for sync anywhere. As we are behaving mostly as updaters,
+the hole rcu usage is awkward and it's placed basically to enforce the proper
+order. To avoid hurting the RCU API usage with this awk approach I'll drop it
+for the next series submission (it will use barriers instead).
