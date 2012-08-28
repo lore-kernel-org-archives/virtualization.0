@@ -1,16 +1,15 @@
 From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCH v2 2/2] virtio-ring: Allocate indirect buffers from cache
-	when possible
-Date: Tue, 28 Aug 2012 15:35:00 +0200
-Message-ID: <503CC904.3050207@gmail.com>
-References: <1346159043-16446-1-git-send-email-levinsasha928@gmail.com>
-	<1346159043-16446-2-git-send-email-levinsasha928@gmail.com>
-	<20120828132032.GB2039@redhat.com>
+Subject: Re: [PATCH 3/5] virtio-scsi: allocate target pointers in a separate
+	memory block
+Date: Tue, 28 Aug 2012 16:07:19 +0200
+Message-ID: <503CD097.2020900@gmail.com>
+References: <1346154857-12487-1-git-send-email-pbonzini@redhat.com>
+	<1346154857-12487-4-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120828132032.GB2039@redhat.com>
+In-Reply-To: <1346154857-12487-4-git-send-email-pbonzini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,42 +19,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: avi@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/28/2012 03:20 PM, Michael S. Tsirkin wrote:
-> On Tue, Aug 28, 2012 at 03:04:03PM +0200, Sasha Levin wrote:
->> Currently if VIRTIO_RING_F_INDIRECT_DESC is enabled we will
->> use indirect descriptors and allocate them using a simple
->> kmalloc().
->>
->> This patch adds a cache which will allow indirect buffers under
->> a configurable size to be allocated from that cache instead.
->>
->> Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
+On 08/28/2012 01:54 PM, Paolo Bonzini wrote:
+> We will place the request virtqueues in the flexible array member.
 > 
-> I imagine this helps performance? Any numbers?
+> Refining the virtqueue API would let us drop the sglist copy, at
+> which point the pointer-to-array-of-pointers can become a simple
+> pointer-to-array.  It would both simplify the allocation and remove a
+> dereference in several hot paths.
+> 
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> ---
+>  drivers/scsi/virtio_scsi.c |   23 +++++++++++++++--------
+>  1 files changed, 15 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> index 595af1a..62fec04 100644
+> --- a/drivers/scsi/virtio_scsi.c
+> +++ b/drivers/scsi/virtio_scsi.c
+> @@ -77,7 +77,7 @@ struct virtio_scsi {
+>  	/* Get some buffers ready for event vq */
+>  	struct virtio_scsi_event_node event_list[VIRTIO_SCSI_EVENT_LEN];
+>  
+> -	struct virtio_scsi_target_state *tgt[];
+> +	struct virtio_scsi_target_state **tgt;
+>  };
+>  
+>  static struct kmem_cache *virtscsi_cmd_cache;
+> @@ -615,10 +615,13 @@ static void virtscsi_remove_vqs(struct virtio_device *vdev)
+>  	/* Stop all the virtqueues. */
+>  	vdev->config->reset(vdev);
+>  
+> -	num_targets = sh->max_id;
+> -	for (i = 0; i < num_targets; i++) {
+> -		kfree(vscsi->tgt[i]);
+> -		vscsi->tgt[i] = NULL;
+> +	if (vscsi->tgt) {
+> +		num_targets = sh->max_id;
+> +		for (i = 0; i < num_targets; i++) {
+> +			kfree(vscsi->tgt[i]);
 
-I ran benchmarks on the original RFC, I've re-tested it now and got similar
-numbers to the original ones (virtio-net using vhost-net, thresh=16):
+Since we now kmalloc() the vscsi->tgt array, it doesn't get zeroed anymore.
 
-Before:
-	Recv   Send    Send
-	Socket Socket  Message  Elapsed
-	Size   Size    Size     Time     Throughput
-	bytes  bytes   bytes    secs.    10^6bits/sec
-
-	 87380  16384  16384    10.00    4512.12
-
-After:
-	Recv   Send    Send
-	Socket Socket  Message  Elapsed
-	Size   Size    Size     Time     Throughput
-	bytes  bytes   bytes    secs.    10^6bits/sec
-
-	 87380  16384  16384    10.00    5399.18
+This means that if for example, num_targets=3, and the second
+virtscsi_alloc_tgt() in virtscsi_init() failed, we're going to kfree() garbage here.
 
 
 Thanks,
 Sasha
+
+> +			vscsi->tgt[i] = NULL;
+> +		}
+> +		kfree(vscsi->tgt);
+>  	}
+>  	vdev->config->del_vqs(vdev);
+> @@ -660,6 +663,12 @@ static int virtscsi_init(struct virtio_device *vdev,
+>  	/* We need to know how many segments before we allocate.  */
+>  	sg_elems = virtscsi_config_get(vdev, seg_max) ?: 1;
+>  
+> +	vscsi->tgt = kmalloc(num_targets *
+> +			sizeof(struct virtio_scsi_target_state *), GFP_KERNEL);
+> +	if (!vscsi->tgt) {
+> +		err = -ENOMEM;
+> +		goto out;
+> +	}
+>  	for (i = 0; i < num_targets; i++) {
+>  		vscsi->tgt[i] = virtscsi_alloc_tgt(vdev, sg_elems);
+>  		if (!vscsi->tgt[i]) {
+> @@ -685,9 +694,7 @@ static int __devinit virtscsi_probe(struct virtio_device *vdev)
+>  
+>  	/* Allocate memory and link the structs together.  */
+>  	num_targets = virtscsi_config_get(vdev, max_target) + 1;
+> -	shost = scsi_host_alloc(&virtscsi_host_template,
+> -		sizeof(*vscsi)
+> -		+ num_targets * sizeof(struct virtio_scsi_target_state));
+> +	shost = scsi_host_alloc(&virtscsi_host_template, sizeof(*vscsi));
+>  
+>  	if (!shost)
+>  		return -ENOMEM;
+> 
