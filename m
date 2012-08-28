@@ -1,12 +1,11 @@
-From: KVM Forum 2012 Program Committee <kvm-forum-2012-pc@redhat.com>
-Subject: Reminder: KVM Forum 2012 Call For Participation
-Date: Mon, 27 Aug 2012 16:15:26 -0700
-Message-ID: <20120827231526.GL10127__35735.5652879507$1346109345$gmane$org@x200.localdomain>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 0/5] Multiqueue virtio-scsi
+Date: Tue, 28 Aug 2012 13:54:12 +0200
+Message-ID: <1346154857-12487-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,156 +15,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, libvir-list@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
-Cc: kvm-forum-2012-pc@redhat.com
+To: linux-kernel@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Just a reminder, the CFP ends this Friday.
---
+Hi all,
 
-=================================================================
-KVM Forum 2012: Call For Participation
-November 7-9, 2012 - Hotel Fira Palace - Barcelona, Spain
+this series adds multiqueue support to the virtio-scsi driver, based
+on Jason Wang's work on virtio-net.  It uses a simple queue steering
+algorithm that expects one queue per CPU.  LUNs in the same target always
+use the same queue (so that commands are not reordered); queue switching
+occurs when the request being queued is the only one for the target.
+Also based on Jason's patches, the virtqueue affinity is set so that
+each CPU is associated to one virtqueue.
 
-(All submissions must be received before midnight Aug 31st, 2012)
-=================================================================
+I tested the patches with fio, using up to 32 virtio-scsi disks backed
+by tmpfs on the host, and 1 LUN per target.
 
-KVM is an industry leading open source hypervisor that provides
-an ideal platform for datacenter virtualization, virtual desktop
-infrastructure, and cloud computing.  Once again, it's time to bring
-together the community of developers and users that define the KVM
-ecosystem for our annual technical conference.  We will discuss the
-current state of affairs and plan for the future of KVM, its surrounding
-infrastructure, and management tools.  We are also excited to announce
-the oVirt Workshop will run in parallel with the KVM Forum, bringing in
-a community focused on enterprise datacenter virtualization management
-built on KVM.  For topics which overlap we will have shared sessions.
-So mark your calendar and join us in advancing KVM.
+FIO configuration
+-----------------
+[global]
+rw=read
+bsrange=4k-64k
+ioengine=libaio
+direct=1
+iodepth=4
+loops=20
 
-http://events.linuxfoundation.org/events/kvm-forum/
+overall bandwidth (MB/s)
+-----------------
 
-Once again we are colocated with The Linux Foundation's LinuxCon,
-Based on feedback from last year, this time it's LinuxCon Europe!
-KVM Forum attendees will be able to attend oVirt Workshop sessions and
-are eligible to attend LinuxCon Europe for a discounted rate.
+# of targets    single-queue    multi-queue, 4 VCPUs    multi-queue, 8 VCPUs
+1                  540               626                     599
+2                  795               965                     925
+4                  997              1376                    1500
+8                 1136              2130                    2060
+16                1440              2269                    2474
+24                1408              2179                    2436
+32                1515              1978                    2319
 
-http://events.linuxfoundation.org/events/kvm-forum/register
+(These numbers for single-queue are with 4 VCPUs, but the impact of adding
+more VCPUs is very limited).
 
-We invite you to lead part of the discussion by submitting a speaking
-proposal for KVM Forum 2012.
+avg bandwidth per LUN (MB/s)
+---------------------
 
-http://events.linuxfoundation.org/cfp
+# of targets    single-queue    multi-queue, 4 VCPUs    multi-queue, 8 VCPUs
+1                  540               626                     599
+2                  397               482                     462
+4                  249               344                     375
+8                  142               266                     257
+16                  90               141                     154
+24                  58                90                     101
+32                  47                61                      72
 
-Suggested topics:
+Testing this may require an irqbalance daemon that is built from git,
+due to http://code.google.com/p/irqbalance/issues/detail?id=37.
+Alternatively you can just set the affinity manually in /proc.
 
- KVM
- - Scaling and performance
- - Nested virtualization
- - I/O improvements
- - PCI device assignment
- - Driver domains
- - Time keeping
- - Resource management (cpu, memory, i/o)
- - Memory management (page sharing, swapping, huge pages, etc)
- - VEPA, VN-Link, vswitch
- - Security
- - Architecture ports
- 
- QEMU
- - Device model improvements
- - New devices and chipsets
- - Scaling and performance
- - Desktop virtualization
- - Spice
- - Increasing robustness and hardening
- - Security model
- - Management interfaces
- - QMP protocol and implementation
- - Image formats
- - Firmware (SeaBIOS, OVMF, UEFI, etc)
- - Live migration
- - Live snapshots and merging
- - Fault tolerance, high availability, continuous backup
- - Real-time guest support
- 
- Virtio
- - Speeding up existing devices
- - Alternatives
- - Virtio on non-Linux or non-virtualized
- 
- Management infrastructure
- - oVirt (shared track w/ oVirt Workshop)
- - Libvirt
- - KVM autotest
- - OpenStack
- - Network virtualization management
- - Enterprise storage management
- 
- Cloud computing
- - Scalable storage
- - Virtual networking
- - Security
- - Provisioning
+Rusty, can you please give your Acked-by to the first two patches?
 
-SUBMISSION REQUIREMENTS
+Jason Wang (2):
+  virtio-ring: move queue_index to vring_virtqueue
+  virtio: introduce an API to set affinity for a virtqueue
 
-Abstracts due: Aug 31st, 2012
-Notification: Sep 14th, 2012
+Paolo Bonzini (3):
+  virtio-scsi: allocate target pointers in a separate memory block
+  virtio-scsi: pass struct virtio_scsi to virtqueue completion function
+  virtio-scsi: introduce multiqueue support
 
-Please submit a short abstract (~150 words) describing your presentation
-proposal.  In your submission please note how long your talk will take.
-Slots vary in length up to 45 minutes.  Also include in your proposal
-the proposal type -- one of:
-
-- technical talk
-- end-user talk
-- birds of a feather (BOF) session
-
-Submit your proposal here:
-
-http://events.linuxfoundation.org/cfp
-
-You will receive a notification whether or not your presentation proposal
-was accepted by Sep 14th.
-
-END-USER COLLABORATION
-
-One of the big challenges as developers is to know what, where and how
-people actually use our software.  We will reserve a few slots for end
-users talking about their deployment challenges and achievements.
-
-If you are using KVM in production you are encouraged submit a speaking
-proposal.  Simply mark it as an end-user collaboration proposal.  As an
-end user, this is a unique opportunity to get your input to developers.
-
-BOF SESSION
-
-We will reserve some slots in the evening after the main conference
-tracks, for birds of a feather (BOF) sessions. These sessions will be
-less formal than presentation tracks and targetted for people who would
-like to discuss specific issues with other developers and/or users.
-If you are interested in getting developers and/or uses together to
-discuss a specific problem, please submit a BOF proposal.
-
-LIGHTNING TALKS
-
-In addition to submitted talks we will also have some room for lightning
-talks. These are short (5 minute) discussions to highlight new work or
-ideas that aren't complete enough to warrant a full presentation slot.
-Lightning talk submissions and scheduling will be handled on-site at
-KVM Forum.
-
-HOTEL / TRAVEL
-
-The KVM Forum 2012 will be held in Barcelona, Spain at the Hotel Fira Palace.
-
-http://events.linuxfoundation.org/events/kvm-forum/hotel
-
-Thank you for your interest in KVM.  We're looking forward to your
-submissions and seeing you at the KVM Forum 2012 in November!
-
-Thanks,
-your KVM Forum 2012 Program Commitee
-
-Please contact us with any questions or comments.
-KVM-Forum-2012-PC@redhat.com
+ drivers/lguest/lguest_device.c         |    1 +
+ drivers/remoteproc/remoteproc_virtio.c |    1 +
+ drivers/s390/kvm/kvm_virtio.c          |    1 +
+ drivers/scsi/virtio_scsi.c             |  200 ++++++++++++++++++++++++--------
+ drivers/virtio/virtio_mmio.c           |   11 +-
+ drivers/virtio/virtio_pci.c            |   58 ++++++++-
+ drivers/virtio/virtio_ring.c           |   17 +++
+ include/linux/virtio.h                 |    4 +
+ include/linux/virtio_config.h          |   21 ++++
+ 9 files changed, 253 insertions(+), 61 deletions(-)
