@@ -1,18 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Sasha Levin <levinsasha928@gmail.com>
 Subject: Re: [PATCH v2 2/2] virtio-ring: Allocate indirect buffers from cache
 	when possible
-Date: Wed, 29 Aug 2012 18:38:33 +0300
-Message-ID: <20120829153833.GE7407@redhat.com>
+Date: Wed, 29 Aug 2012 18:50:59 +0200
+Message-ID: <503E4873.6060607@gmail.com>
 References: <1346159043-16446-1-git-send-email-levinsasha928@gmail.com>
 	<1346159043-16446-2-git-send-email-levinsasha928@gmail.com>
 	<20120828132032.GB2039@redhat.com> <503CC904.3050207@gmail.com>
 	<20120829110748.GB5970@redhat.com> <503E2F27.5060904@gmail.com>
+	<20120829153833.GE7407@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <503E2F27.5060904@gmail.com>
+In-Reply-To: <20120829153833.GE7407@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,105 +22,114 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: avi@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 29, 2012 at 05:03:03PM +0200, Sasha Levin wrote:
-> On 08/29/2012 01:07 PM, Michael S. Tsirkin wrote:
-> > On Tue, Aug 28, 2012 at 03:35:00PM +0200, Sasha Levin wrote:
-> >> On 08/28/2012 03:20 PM, Michael S. Tsirkin wrote:
-> >>> On Tue, Aug 28, 2012 at 03:04:03PM +0200, Sasha Levin wrote:
-> >>>> Currently if VIRTIO_RING_F_INDIRECT_DESC is enabled we will
-> >>>> use indirect descriptors and allocate them using a simple
-> >>>> kmalloc().
-> >>>>
-> >>>> This patch adds a cache which will allow indirect buffers under
-> >>>> a configurable size to be allocated from that cache instead.
-> >>>>
-> >>>> Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
-> >>>
-> >>> I imagine this helps performance? Any numbers?
-> >>
-> >> I ran benchmarks on the original RFC, I've re-tested it now and got similar
-> >> numbers to the original ones (virtio-net using vhost-net, thresh=16):
-> >>
-> >> Before:
-> >> 	Recv   Send    Send
-> >> 	Socket Socket  Message  Elapsed
-> >> 	Size   Size    Size     Time     Throughput
-> >> 	bytes  bytes   bytes    secs.    10^6bits/sec
-> >>
-> >> 	 87380  16384  16384    10.00    4512.12
-> >>
-> >> After:
-> >> 	Recv   Send    Send
-> >> 	Socket Socket  Message  Elapsed
-> >> 	Size   Size    Size     Time     Throughput
-> >> 	bytes  bytes   bytes    secs.    10^6bits/sec
-> >>
-> >> 	 87380  16384  16384    10.00    5399.18
-> >>
-> >>
-> >> Thanks,
-> >> Sasha
-> > 
-> > This is with both patches 1 + 2?
-> > Sorry could you please also test what happens if you apply
-> > - just patch 1
-> > - just patch 2
-> > 
-> > Thanks!
+On 08/29/2012 05:38 PM, Michael S. Tsirkin wrote:
+> On Wed, Aug 29, 2012 at 05:03:03PM +0200, Sasha Levin wrote:
+>> On 08/29/2012 01:07 PM, Michael S. Tsirkin wrote:
+>>> On Tue, Aug 28, 2012 at 03:35:00PM +0200, Sasha Levin wrote:
+>>>> On 08/28/2012 03:20 PM, Michael S. Tsirkin wrote:
+>>>>> On Tue, Aug 28, 2012 at 03:04:03PM +0200, Sasha Levin wrote:
+>>>>>> Currently if VIRTIO_RING_F_INDIRECT_DESC is enabled we will
+>>>>>> use indirect descriptors and allocate them using a simple
+>>>>>> kmalloc().
+>>>>>>
+>>>>>> This patch adds a cache which will allow indirect buffers under
+>>>>>> a configurable size to be allocated from that cache instead.
+>>>>>>
+>>>>>> Signed-off-by: Sasha Levin <levinsasha928@gmail.com>
+>>>>>
+>>>>> I imagine this helps performance? Any numbers?
+>>>>
+>>>> I ran benchmarks on the original RFC, I've re-tested it now and got similar
+>>>> numbers to the original ones (virtio-net using vhost-net, thresh=16):
+>>>>
+>>>> Before:
+>>>> 	Recv   Send    Send
+>>>> 	Socket Socket  Message  Elapsed
+>>>> 	Size   Size    Size     Time     Throughput
+>>>> 	bytes  bytes   bytes    secs.    10^6bits/sec
+>>>>
+>>>> 	 87380  16384  16384    10.00    4512.12
+>>>>
+>>>> After:
+>>>> 	Recv   Send    Send
+>>>> 	Socket Socket  Message  Elapsed
+>>>> 	Size   Size    Size     Time     Throughput
+>>>> 	bytes  bytes   bytes    secs.    10^6bits/sec
+>>>>
+>>>> 	 87380  16384  16384    10.00    5399.18
+>>>>
+>>>>
+>>>> Thanks,
+>>>> Sasha
+>>>
+>>> This is with both patches 1 + 2?
+>>> Sorry could you please also test what happens if you apply
+>>> - just patch 1
+>>> - just patch 2
+>>>
+>>> Thanks!
+>>
+>> Sure thing!
+>>
+>> I've also re-ran it on a IBM server type host instead of my laptop. Here are the
+>> results:
+>>
+>> Vanilla kernel:
+>>
+>> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.33.1
+>> () port 0 AF_INET
+>> enable_enobufs failed: getprotobyname
+>> Recv   Send    Send
+>> Socket Socket  Message  Elapsed
+>> Size   Size    Size     Time     Throughput
+>> bytes  bytes   bytes    secs.    10^6bits/sec
+>>
+>>  87380  16384  16384    10.00    7922.72
+>>
+>> Patch 1, with threshold=16:
+>>
+>> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.33.1
+>> () port 0 AF_INET
+>> enable_enobufs failed: getprotobyname
+>> Recv   Send    Send
+>> Socket Socket  Message  Elapsed
+>> Size   Size    Size     Time     Throughput
+>> bytes  bytes   bytes    secs.    10^6bits/sec
+>>
+>>  87380  16384  16384    10.00    8415.07
+>>
+>> Patch 2:
+>>
+>> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.33.1
+>> () port 0 AF_INET
+>> enable_enobufs failed: getprotobyname
+>> Recv   Send    Send
+>> Socket Socket  Message  Elapsed
+>> Size   Size    Size     Time     Throughput
+>> bytes  bytes   bytes    secs.    10^6bits/sec
+>>
+>>  87380  16384  16384    10.00    8931.05
+>>
+>>
+>> Note that these are simple tests with netperf listening on one end and a simple
+>> 'netperf -H [host]' within the guest. If there are other tests which may be
+>> interesting please let me know.
+>>
+>>
+>> Thanks,
+>> Sasha
 > 
-> Sure thing!
 > 
-> I've also re-ran it on a IBM server type host instead of my laptop. Here are the
-> results:
+> And which parameter did you use for patch 2?
 > 
-> Vanilla kernel:
-> 
-> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.33.1
-> () port 0 AF_INET
-> enable_enobufs failed: getprotobyname
-> Recv   Send    Send
-> Socket Socket  Message  Elapsed
-> Size   Size    Size     Time     Throughput
-> bytes  bytes   bytes    secs.    10^6bits/sec
-> 
->  87380  16384  16384    10.00    7922.72
-> 
-> Patch 1, with threshold=16:
-> 
-> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.33.1
-> () port 0 AF_INET
-> enable_enobufs failed: getprotobyname
-> Recv   Send    Send
-> Socket Socket  Message  Elapsed
-> Size   Size    Size     Time     Throughput
-> bytes  bytes   bytes    secs.    10^6bits/sec
-> 
->  87380  16384  16384    10.00    8415.07
-> 
-> Patch 2:
-> 
-> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.33.1
-> () port 0 AF_INET
-> enable_enobufs failed: getprotobyname
-> Recv   Send    Send
-> Socket Socket  Message  Elapsed
-> Size   Size    Size     Time     Throughput
-> bytes  bytes   bytes    secs.    10^6bits/sec
-> 
->  87380  16384  16384    10.00    8931.05
-> 
-> 
-> Note that these are simple tests with netperf listening on one end and a simple
-> 'netperf -H [host]' within the guest. If there are other tests which may be
-> interesting please let me know.
-> 
-> 
-> Thanks,
-> Sasha
+
+Same as in the first one, 16, the only difference in patch 2 is that we use a
+kmemcache, so there's no point in changing the threshold vs patch 1.
 
 
-And which parameter did you use for patch 2?
+Thanks,
+Sasha
