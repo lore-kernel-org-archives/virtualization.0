@@ -1,14 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
-Date: Thu, 30 Aug 2012 11:57:24 +0300
-Message-ID: <20120830085724.GF10269@redhat.com>
-References: <1340742778-11282-1-git-send-email-fes@google.com>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PATCH v2 2/2] virtio-ring: Allocate indirect buffers from cache
+	when possible
+Date: Thu, 30 Aug 2012 12:34:07 +0200
+Message-ID: <503F419F.5040800@gmail.com>
+References: <1346159043-16446-1-git-send-email-levinsasha928@gmail.com>
+	<1346159043-16446-2-git-send-email-levinsasha928@gmail.com>
+	<20120828132032.GB2039@redhat.com> <503CC904.3050207@gmail.com>
+	<20120829110748.GB5970@redhat.com> <503E2F27.5060904@gmail.com>
+	<20120829151445.GC7407@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1340742778-11282-1-git-send-email-fes@google.com>
+In-Reply-To: <20120829151445.GC7407@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,47 +22,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Frank Swiderski <fes@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, riel@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mikew@google.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: avi@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 26, 2012 at 01:32:58PM -0700, Frank Swiderski wrote:
-> +static void fill_balloon(struct virtio_balloon *vb, size_t num)
-> +{
-> +	int err;
-> +
-> +	/* We can only do one array worth at a time. */
-> +	num = min(num, ARRAY_SIZE(vb->pfns));
-> +
-> +	for (vb->num_pfns = 0; vb->num_pfns < num; vb->num_pfns++) {
-> +		struct page *page;
-> +		unsigned long inode_pfn = find_available_inode_page(vb);
-> +		/* Should always be able to find a page. */
-> +		BUG_ON(!inode_pfn);
-> +		page = read_mapping_page(the_inode.inode.i_mapping, inode_pfn,
-> +					 NULL);
-> +		if (IS_ERR(page)) {
-> +			if (printk_ratelimit())
-> +				dev_printk(KERN_INFO, &vb->vdev->dev,
-> +					   "Out of puff! Can't get %zu pages\n",
-> +					   num);
-> +			break;
-> +		}
-> +
-> +		/* Set the page to be dirty */
-> +		set_page_dirty(page);
-> +
-> +		vb->pfns[vb->num_pfns] = page_to_pfn(page);
-> +	}
-> +
-> +	/* Didn't get any?  Oh well. */
-> +	if (vb->num_pfns == 0)
-> +		return;
+On 08/29/2012 05:14 PM, Michael S. Tsirkin wrote:
+>> > Note that these are simple tests with netperf listening on one end and a simple
+>> > 'netperf -H [host]' within the guest. If there are other tests which may be
+>> > interesting please let me know.
+> Checking that host CPU utilization did not jump would be nice.
+> E.g. measure BW/host CPU.
 
-Went to look at this driver, and noticed caller will re-invoke
-this immediately if this triggers, so we busy-wait
-re-trying this. When does read_mapping_page fail?
-Is there any condition we could wait on?
+Tested it now, no change in CPU between the original, patch 1 and patch 2.
 
--- 
-MST
+
+Thanks,
+Sasha
