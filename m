@@ -1,18 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 2/2] virtio-ring: Allocate indirect buffers from cache
-	when possible
-Date: Thu, 30 Aug 2012 01:52:49 +0300
-Message-ID: <20120829225249.GB9146@redhat.com>
-References: <1346159043-16446-1-git-send-email-levinsasha928@gmail.com>
-	<1346159043-16446-2-git-send-email-levinsasha928@gmail.com>
-	<20120829153812.GD7407@redhat.com> <503E4DD9.1020102@gmail.com>
-	<20120829181235.GE7877@redhat.com> <503E7F9B.8010402@gmail.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH 0/5] Multiqueue virtio-scsi
+Date: Thu, 30 Aug 2012 08:13:42 +0100
+Message-ID: <20120830071342.GA6221@stefanha-thinkpad.localdomain>
+References: <1346154857-12487-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <503E7F9B.8010402@gmail.com>
+In-Reply-To: <1346154857-12487-1-git-send-email-pbonzini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,42 +18,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: virtualization@lists.linux-foundation.org, avi@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 29, 2012 at 10:46:19PM +0200, Sasha Levin wrote:
-> On 08/29/2012 08:12 PM, Michael S. Tsirkin wrote:
-> >>> > > What is a good default for net? I guess max sg?
-> >> > 
-> >> > I think that it depends on the workload. I'd say we should keep the default to 0
-> >> > (disabled) unless we can have a good way to adjust it to the load.
-> > For *all* drivers?
-> > 
-> > Then it is mostly useless. No one has the time to tweak module
-> > parameters in real life.
-> > 
-> > For virtio-net, 16+1 is not too much and ensures we always
-> > use the cache.
-> > 
-> > If that works better than 0 I would say run with 17.
-> 
-> I was being extra-cautious with leaving it disabled until specifically enabled
-> because I assumed that this would be one of the first comments I'll get if it
-> was enabled by default :)
-> 
-> If you're comfortable with setting it to a sane default like 17, I'm perfectly
-> fine with that as well.
-> 
-> 
-> Thanks,
-> Sasha
+On Tue, Aug 28, 2012 at 01:54:12PM +0200, Paolo Bonzini wrote:
+> this series adds multiqueue support to the virtio-scsi driver, based
+> on Jason Wang's work on virtio-net.  It uses a simple queue steering
+> algorithm that expects one queue per CPU.  LUNs in the same target always
+> use the same queue (so that commands are not reordered); queue switching
+> occurs when the request being queued is the only one for the target.
+> Also based on Jason's patches, the virtqueue affinity is set so that
+> each CPU is associated to one virtqueue.
 
-If our testing shows it helps and does not trigger regressions, then
-why not? module params are mostly there for developers.
-They are not all that helpful to users.
-
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Reviewed-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
