@@ -1,14 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH 0/5] Multiqueue virtio-scsi
-Date: Thu, 30 Aug 2012 08:13:42 +0100
-Message-ID: <20120830071342.GA6221@stefanha-thinkpad.localdomain>
-References: <1346154857-12487-1-git-send-email-pbonzini@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
+Date: Thu, 30 Aug 2012 11:57:24 +0300
+Message-ID: <20120830085724.GF10269@redhat.com>
+References: <1340742778-11282-1-git-send-email-fes@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1346154857-12487-1-git-send-email-pbonzini@redhat.com>
+In-Reply-To: <1340742778-11282-1-git-send-email-fes@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,17 +18,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, kvm@vger.kernel.org
+To: Frank Swiderski <fes@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, riel@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mikew@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Aug 28, 2012 at 01:54:12PM +0200, Paolo Bonzini wrote:
-> this series adds multiqueue support to the virtio-scsi driver, based
-> on Jason Wang's work on virtio-net.  It uses a simple queue steering
-> algorithm that expects one queue per CPU.  LUNs in the same target always
-> use the same queue (so that commands are not reordered); queue switching
-> occurs when the request being queued is the only one for the target.
-> Also based on Jason's patches, the virtqueue affinity is set so that
-> each CPU is associated to one virtqueue.
+On Tue, Jun 26, 2012 at 01:32:58PM -0700, Frank Swiderski wrote:
+> +static void fill_balloon(struct virtio_balloon *vb, size_t num)
+> +{
+> +	int err;
+> +
+> +	/* We can only do one array worth at a time. */
+> +	num = min(num, ARRAY_SIZE(vb->pfns));
+> +
+> +	for (vb->num_pfns = 0; vb->num_pfns < num; vb->num_pfns++) {
+> +		struct page *page;
+> +		unsigned long inode_pfn = find_available_inode_page(vb);
+> +		/* Should always be able to find a page. */
+> +		BUG_ON(!inode_pfn);
+> +		page = read_mapping_page(the_inode.inode.i_mapping, inode_pfn,
+> +					 NULL);
+> +		if (IS_ERR(page)) {
+> +			if (printk_ratelimit())
+> +				dev_printk(KERN_INFO, &vb->vdev->dev,
+> +					   "Out of puff! Can't get %zu pages\n",
+> +					   num);
+> +			break;
+> +		}
+> +
+> +		/* Set the page to be dirty */
+> +		set_page_dirty(page);
+> +
+> +		vb->pfns[vb->num_pfns] = page_to_pfn(page);
+> +	}
+> +
+> +	/* Didn't get any?  Oh well. */
+> +	if (vb->num_pfns == 0)
+> +		return;
 
-Reviewed-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Went to look at this driver, and noticed caller will re-invoke
+this immediately if this triggers, so we busy-wait
+re-trying this. When does read_mapping_page fail?
+Is there any condition we could wait on?
+
+-- 
+MST
