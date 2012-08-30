@@ -1,11 +1,13 @@
 From: George Zhang <georgezhang@vmware.com>
 Subject: [Pv-drivers] [vmw_vmci 00/11] VMCI driver for Linux
-Date: Thu, 30 Aug 2012 09:31:25 -0700
-Message-ID: <15333E71B3DDCB48A90165AD57993F285685DB43D5__44099.5899531574$1346779665$gmane$org@exch-mbx-114.vmware.com>
+Date: Thu, 30 Aug 2012 09:35:08 -0700
+Message-ID: <15333E71B3DDCB48A90165AD57993F285685DB43D6__40563.299941323$1346779672$gmane$org@exch-mbx-114.vmware.com>
+References: <20120824171042.4775.36871.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20120824171042.4775.36871.stgit@promb-2n-dhcp175.eng.vmware.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,9 +18,11 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc: George Zhang <georgezhang@vmware.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, George Zhang <georgezhang@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
+
+
 
 The following series implements VMware VMCI linux kernel driver.
 Changes includes VMCI driver public API naming conversion from
