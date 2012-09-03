@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: Don't access device data after unregistration.
-Date: Mon, 3 Sep 2012 17:14:45 +0300
-Message-ID: <20120903141445.GA5054@redhat.com>
-References: <1346680242-5717-1-git-send-email-sjur.brandeland@stericsson.com>
+From: sjur.brandeland@stericsson.com
+Subject: [RFC 2/2] virtio_console: Add feature to disable console port
+Date: Mon,  3 Sep 2012 15:51:17 +0200
+Message-ID: <1346680277-5887-2-git-send-email-sjur.brandeland__42047.3037673675$1346682129$gmane$org@stericsson.com>
+References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1346680242-5717-1-git-send-email-sjur.brandeland@stericsson.com>
+In-Reply-To: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,59 +17,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: sjur.brandeland@stericsson.com
-Cc: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>, "Guzman Lugo,
-	Fernadndo" <fernando.lugo@ti.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjurbren@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 03, 2012 at 03:50:42PM +0200, sjur.brandeland@stericsson.com wr=
-ote:
-> From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-> =
-
-> Fix panic in virtio.c when CONFIG_DEBUG_SLAB is set.
-
-What's the root cause of the panic?
-
-
-> Use device_del() and put_device() instead of
-> device_unregister(), and access device data before
-> calling put_device().
-
-Why does this help? Does device_unregister free the
-device so dev->index access crashes?
-If yes virtio_pci_remove will crash too
-as it accesses the device after the
-call to unregister_virtio_device so the
-fix won't be effective.
-
-> Signed-off-by: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-> cc: Guzman Lugo, Fernadndo <fernando.lugo@ti.com>
-> cc: Michael S. Tsirkin <mst@redhat.com>
-> cc: virtualization@lists.linux-foundation.org
-> cc: Ohad Ben-Cohen <ohad@wizery.com>
-> ---
->  drivers/virtio/virtio.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
-> =
-
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index c3b3f7f..71eacd1 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -225,8 +225,9 @@ EXPORT_SYMBOL_GPL(register_virtio_device);
->  =
-
->  void unregister_virtio_device(struct virtio_device *dev)
->  {
-> -	device_unregister(&dev->dev);
-> +	device_del(&dev->dev);
->  	ida_simple_remove(&virtio_index_ida, dev->index);
-> +	put_device(&dev->dev);
->  }
->  EXPORT_SYMBOL_GPL(unregister_virtio_device);
->  =
-
-> -- =
-
-> 1.7.5.4
+RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
+QWRkIHRoZSBmZWF0dXJlIFZJUlRJT19DT05TT0xFX0ZfTk9fSFZDLiBXaXRoIHRoaXMgYml0IHNl
+dApvbmx5IHBvcnQtZGV2aWNlcyBhcmUgY3JlYXRlZC4gVGhlIGNvbnNvbGUgcG9ydCBhbmQKcG9y
+dCBjb250cm9sIHZpcnRpby1xdWV1ZXMgYXJlIG5vdCBjcmVhdGVkLgoKVGhlIGNvbnNvbGUgcG9y
+dCBpcyBub3Qgc3VpdGVkIGZvciBjb21tdW5pY2F0aW5nCnRvIGEgcmVtb3RlIHByb2Nlc3NvciBi
+ZWNhdXNlIG9mIGl0J3MgYmxvY2tpbmcgYmVoYXZpb3IuCkJ1dCB0aGUgcG9ydC1kZXZpY2Ugc3Vw
+cG9ydHMgZWZmaWNpZW50IG5vbi1ibG9ja2luZyBJTwp0byBhIHJlbW90ZSBwcm9jZXNzb3IuCgpT
+aWduZWQtb2ZmLWJ5OiBTanVyIEJyw6ZuZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nv
+bi5jb20+CmNjOiBSdXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+CmNjOiBNaWNo
+YWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgpjYzogdmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKY2M6IE9oYWQgQmVuLUNvaGVuIDxvaGFkQHdpemVyeS5jb20+
+CmNjOiBMaW51cyBXYWxsZWlqIDxsaW51cy53YWxsZWlqQGxpbmFyby5vcmc+Ci0tLQogZHJpdmVy
+cy9jaGFyL3ZpcnRpb19jb25zb2xlLmMgIHwgICAgNSArKysrLQogaW5jbHVkZS9saW51eC92aXJ0
+aW9fY29uc29sZS5oIHwgICAgMSArCiAyIGZpbGVzIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwg
+MSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUu
+YyBiL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCmluZGV4IDZiZmJkMDkuLjgxNTQ2ZTkg
+MTAwNjQ0Ci0tLSBhL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCisrKyBiL2RyaXZlcnMv
+Y2hhci92aXJ0aW9fY29uc29sZS5jCkBAIC0xMjQ2LDcgKzEyNDYsOSBAQCBzdGF0aWMgaW50IGFk
+ZF9wb3J0KHN0cnVjdCBwb3J0c19kZXZpY2UgKnBvcnRkZXYsIHUzMiBpZCkKIAkvKgogCSAqIElm
+IHdlJ3JlIG5vdCB1c2luZyBtdWx0aXBvcnQgc3VwcG9ydCwgdGhpcyBoYXMgdG8gYmUgYSBjb25z
+b2xlIHBvcnQKIAkgKi8KLQlpZiAoIXVzZV9tdWx0aXBvcnQocG9ydC0+cG9ydGRldikpIHsKKwlp
+ZiAodmlydGlvX2hhc19mZWF0dXJlKHBvcnQtPnBvcnRkZXYtPnZkZXYsIFZJUlRJT19DT05TT0xF
+X0ZfTk9fSFZDKSkKKwkJcG9ydC0+aG9zdF9jb25uZWN0ZWQgPSB0cnVlOworCWVsc2UgaWYgKCF1
+c2VfbXVsdGlwb3J0KHBvcnQtPnBvcnRkZXYpKSB7CiAJCWVyciA9IGluaXRfcG9ydF9jb25zb2xl
+KHBvcnQpOwogCQlpZiAoZXJyKQogCQkJZ290byBmcmVlX2luYnVmczsKQEAgLTE4ODIsNiArMTg4
+NCw3IEBAIHN0YXRpYyB1bnNpZ25lZCBpbnQgZmVhdHVyZXNbXSA9IHsKIAlWSVJUSU9fQ09OU09M
+RV9GX1NJWkUsCiAJVklSVElPX0NPTlNPTEVfRl9NVUxUSVBPUlQsCiAJVklSVElPX0NPTlNPTEVf
+Rl9ETUFfTUVNLAorCVZJUlRJT19DT05TT0xFX0ZfTk9fSFZDLAogfTsKIAogI2lmZGVmIENPTkZJ
+R19QTQpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92aXJ0aW9fY29uc29sZS5oIGIvaW5jbHVk
+ZS9saW51eC92aXJ0aW9fY29uc29sZS5oCmluZGV4IGIyN2Y3ZmEuLmE3Yzg5NzQgMTAwNjQ0Ci0t
+LSBhL2luY2x1ZGUvbGludXgvdmlydGlvX2NvbnNvbGUuaAorKysgYi9pbmNsdWRlL2xpbnV4L3Zp
+cnRpb19jb25zb2xlLmgKQEAgLTM5LDYgKzM5LDcgQEAKICNkZWZpbmUgVklSVElPX0NPTlNPTEVf
+Rl9TSVpFCTAJLyogRG9lcyBob3N0IHByb3ZpZGUgY29uc29sZSBzaXplPyAqLwogI2RlZmluZSBW
+SVJUSU9fQ09OU09MRV9GX01VTFRJUE9SVCAxCS8qIERvZXMgaG9zdCBwcm92aWRlIG11bHRpcGxl
+IHBvcnRzPyAqLwogI2RlZmluZSBWSVJUSU9fQ09OU09MRV9GX0RNQV9NRU0gMgkvKiBVc2UgRE1B
+IG1lbW9yeSBpbiB2cmluZ3MgKi8KKyNkZWZpbmUgVklSVElPX0NPTlNPTEVfRl9OT19IVkMgMwkv
+KiBEaXNhYmxlIHVzZSBvZiBIVkMgKi8KIAogI2RlZmluZSBWSVJUSU9fQ09OU09MRV9CQURfSUQJ
+CSh+KHUzMikwKQogCi0tIAoxLjcuNS40CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
