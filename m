@@ -1,17 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 2/2] virtio-ring: Allocate indirect buffers from cache
-	when possible
-Date: Fri, 31 Aug 2012 12:56:28 +0300
-Message-ID: <20120831095628.GB24244@redhat.com>
-References: <1346325718-11151-1-git-send-email-levinsasha928@gmail.com>
-	<1346325718-11151-2-git-send-email-levinsasha928@gmail.com>
-	<20120830133820.GC21132@redhat.com> <50408587.5030603@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
+Date: Mon, 03 Sep 2012 08:35:27 +0200
+Message-ID: <50444FAF.7030304@redhat.com>
+References: <1340742778-11282-1-git-send-email-fes@google.com>
+	<4FEA1E2E.4020806@redhat.com>
+	<CAK+C7kWKtoYC=1fBQ45RTFfNc3p2PwZbLMOefMTtzOfsqe_k8w@mail.gmail.com>
+	<20120626214709.GA15406@redhat.com>
+	<CAK+C7kUN-kYVK9AnEhcof98p+eZN1dkt9qVyYppETOeS2n3CMQ@mail.gmail.com>
+	<87obnzxaxv.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <50408587.5030603@gmail.com>
+In-Reply-To: <87obnzxaxv.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,29 +22,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: avi@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Frank Swiderski <fes@google.com>, Andrea Arcangeli <aarcange@redhat.com>, Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, mikew@google.com, Ying Han <yinghan@google.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Aug 31, 2012 at 11:36:07AM +0200, Sasha Levin wrote:
-> On 08/30/2012 03:38 PM, Michael S. Tsirkin wrote:
-> >> +static unsigned int indirect_alloc_thresh = 16;
-> > Why 16?  Please make is MAX_SG + 1 this makes some sense.
-> 
-> Wouldn't MAX_SG mean we always allocate from the cache? Isn't the memory waste
-> too big in this case?
+Il 02/07/2012 02:29, Rusty Russell ha scritto:
+> VIRTIO_BALLOON_F_MUST_TELL_HOST
+> implies you should tell the host (eventually).  I don't know if any
+> implementations actually care though.
 
-Sorry. I really meant MAX_SKB_FRAGS + 1. MAX_SKB_FRAGS is 17 so gets us
-threshold of 18. It is less than the size of an skb+shinfo itself so -
-does it look too big to you? Also why do you think 16 is not too big but
-18 is?  If there's a reason then I am fine with 16 too but then please
-put it in code comment near where the value is set.
+This is indeed broken, because it is a "negative" feature: it tells you
+that "implicit deflate" is _not_ supported.
 
-Yes this means virtio net always allocates from cache
-but this is a good thing, isn't it? Gets us more consistent
-performance.
+Right now, QEMU refuses migration if the target does not support all the
+features that were negotiated.  But then:
 
+- a migration from non-MUST_TELL_HOST to MUST_TELL_HOST will succeed,
+which is wrong;
 
+- a migration from MUST_TELL_HOST to non-MUST_TELL_HOST will fail, which
+is useless.
 
--- 
-MST
+> We could add a VIRTIO_BALLOON_F_NEVER_TELL_DEFLATE which would mean the
+> deflate vq need not be used at all.
+
+That would work.  At the same time we could deprecate MUST_TELL_HOST.
+Certainly the guest implementations don't care, or we would have
+experienced problems such as the one above.  The QEMU implementation
+also does not care but, for example, a Xen implementation would care.
+
+Paolo
