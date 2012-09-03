@@ -1,13 +1,11 @@
-From: Avi Kivity <avi@redhat.com>
-Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
-Date: Mon, 03 Sep 2012 18:09:32 +0300
-Message-ID: <5044C82C.10507@redhat.com>
-References: <1340742778-11282-1-git-send-email-fes@google.com>
+From: Pawel Moll <pawel.moll@arm.com>
+Subject: [PATCH] virtio_mmio: fix off by one error allocating queue
+Date: Mon,  3 Sep 2012 18:12:18 +0100
+Message-ID: <1346692338-5922-1-git-send-email-pawel.moll@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1340742778-11282-1-git-send-email-fes@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,27 +15,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Frank Swiderski <fes@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>, riel@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mikew@google.com
+To: virtualization@lists.linux-foundation.org
+Cc: Pawel Moll <pawel.moll@arm.com>, Brian Foley <brian.foley@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/26/2012 11:32 PM, Frank Swiderski wrote:
-> This implementation of a virtio balloon driver uses the page cache to
-> "store" pages that have been released to the host.  The communication
-> (outside of target counts) is one way--the guest notifies the host when
-> it adds a page to the page cache, allowing the host to madvise(2) with
-> MADV_DONTNEED.  Reclaim in the guest is therefore automatic and implicit
-> (via the regular page reclaim).  This means that inflating the balloon
-> is similar to the existing balloon mechanism, but the deflate is
-> different--it re-uses existing Linux kernel functionality to
-> automatically reclaim.
+From: Brian Foley <brian.foley@arm.com>
 
-Interesting idea.
+vm_setup_vq fails to allow VirtQueues needing only 2 pages of
+storage, as it should. Found with a kernel using 64kB pages, but
+can be provoked if a virtio device reports QueueNumMax where the
+descriptor table and available ring fit in one page, and the used
+ring on the second (<= 227 descriptors with 4kB pages and <= 3640
+with 64kB pages.)
 
-How is the host able to manage overcommit this way?  If deflate is not
-host controlled, the host may start swapping guests out to disk if they
-all self-deflate.
+Signed-off-by: Brian Foley <brian.foley@arm.com>
+---
+ drivers/virtio/virtio_mmio.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 453db0c..58e2d78 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -335,8 +335,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
+ 	while (1) {
+ 		size = PAGE_ALIGN(vring_size(info->num,
+ 				VIRTIO_MMIO_VRING_ALIGN));
+-		/* Already smallest possible allocation? */
+-		if (size <= VIRTIO_MMIO_VRING_ALIGN * 2) {
++		/* Did the last iter shrink the queue below minimum size? */
++		if (size < VIRTIO_MMIO_VRING_ALIGN * 2) {
+ 			err = -ENOMEM;
+ 			goto error_alloc_pages;
+ 		}
 -- 
-error compiling committee.c: too many arguments to function
+1.7.9.5
