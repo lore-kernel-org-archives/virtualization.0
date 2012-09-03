@@ -1,11 +1,14 @@
-From: sjur.brandeland@stericsson.com
-Subject: [RFC 1/2] virtio_console: Add support for DMA memory allocation
-Date: Mon,  3 Sep 2012 15:51:16 +0200
-Message-ID: <1346680277-5887-1-git-send-email-sjur.brandeland__18243.6453681023$1346682198$gmane$org@stericsson.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
+Date: Mon, 3 Sep 2012 17:30:18 +0300
+Message-ID: <20120903143018.GA5353@redhat.com>
+References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,129 +18,286 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjurbren@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: sjur.brandeland@stericsson.com
+Cc: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
-QWRkIGZlYXR1cmUgVklSVElPX0NPTlNPTEVfRl9ETUFfTUVNLiBJZiB0aGUgYXJjaGl0ZWN0dXJl
-IGhhcwpETUEgc3VwcG9ydCBhbmQgdGhpcyBmZWF0dXJlIGJpdCBpcyBzZXQsIHRoZSB2aXJ0aW8g
-ZGF0YSBidWZmZXJzCndpbGwgYmUgYWxsb2NhdGVkIGZyb20gRE1BIG1lbW9yeS4KClRoaXMgaXMg
-bmVlZGVkIGZvciB1c2luZyB2aXJ0aW9fY29uc29sZSBmcm9tIHRoZSByZW1vdGVwcm9jCmZyYW1l
-d29yay4KClNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBz
-dGVyaWNzc29uLmNvbT4KY2M6IFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4K
-Y2M6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+CmNjOiBPaGFkIEJlbi1Db2hl
-biA8b2hhZEB3aXplcnkuY29tPgpjYzogTGludXMgV2FsbGVpaiA8bGludXMud2FsbGVpakBsaW5h
-cm8ub3JnPgpjYzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKLS0t
-CiBkcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYyAgfCAgIDc2ICsrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrLS0tLS0tLS0KIGluY2x1ZGUvbGludXgvdmlydGlvX2NvbnNvbGUuaCB8
-ICAgIDEgKwogMiBmaWxlcyBjaGFuZ2VkLCA2MiBpbnNlcnRpb25zKCspLCAxNSBkZWxldGlvbnMo
-LSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYyBiL2RyaXZlcnMv
-Y2hhci92aXJ0aW9fY29uc29sZS5jCmluZGV4IGNkZjJmNTQuLjZiZmJkMDkgMTAwNjQ0Ci0tLSBh
-L2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCisrKyBiL2RyaXZlcnMvY2hhci92aXJ0aW9f
-Y29uc29sZS5jCkBAIC0zNSw2ICszNSw3IEBACiAjaW5jbHVkZSA8bGludXgvd2FpdC5oPgogI2lu
-Y2x1ZGUgPGxpbnV4L3dvcmtxdWV1ZS5oPgogI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgorI2lu
-Y2x1ZGUgPGxpbnV4L2RtYS1tYXBwaW5nLmg+CiAjaW5jbHVkZSAiLi4vdHR5L2h2Yy9odmNfY29u
-c29sZS5oIgogCiAvKgpAQCAtMzM0LDIwICszMzUsNjAgQEAgc3RhdGljIGlubGluZSBib29sIHVz
-ZV9tdWx0aXBvcnQoc3RydWN0IHBvcnRzX2RldmljZSAqcG9ydGRldikKIAlyZXR1cm4gcG9ydGRl
-di0+dmRldi0+ZmVhdHVyZXNbMF0gJiAoMSA8PCBWSVJUSU9fQ09OU09MRV9GX01VTFRJUE9SVCk7
-CiB9CiAKLXN0YXRpYyB2b2lkIGZyZWVfYnVmKHN0cnVjdCBwb3J0X2J1ZmZlciAqYnVmKQorLyog
-QWxsY29hdGUgZGF0YSBidWZmZXIgZnJvbSBETUEgbWVtb3J5IGlmIHJlcXVlc3RlZCAqLworc3Rh
-dGljIGlubGluZSB2b2lkICoKK2FsbG9jX2RhdGFidWYoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZk
-ZXYsIHNpemVfdCBzaXplLCBkbWFfYWRkcl90ICpkbWFfaGFuZGxlLAorCQkgICBnZnBfdCBmbGFn
-KQogewotCWtmcmVlKGJ1Zi0+YnVmKTsKKyNpZmRlZiBDT05GSUdfSEFTX0RNQQorCWlmICh2aXJ0
-aW9faGFzX2ZlYXR1cmUodmRldiwgVklSVElPX0NPTlNPTEVfRl9ETUFfTUVNKSkgeworCQlzdHJ1
-Y3QgZGV2aWNlICpkZXYgPSAmdmRldi0+ZGV2OworCQkvKgorCQkgKiBBbGxvY2F0ZSBETUEgbWVt
-b3J5IGZyb20gYW5jZXN0b3JzLiBGaW5kaW5nIHRoZSBhbmNlc3RvcgorCQkgKiBpcyBhIGJpdCBx
-dWlya3kgd2hlbiBETUFfTUVNT1JZX0lOQ0xVREVTX0NISUxEUkVOIGlzIG5vdAorCQkgKiBpbXBs
-ZW1lbnRlZC4KKwkJICovCisJCWRldiA9IGRldi0+cGFyZW50ID8gZGV2LT5wYXJlbnQgOiBkZXY7
-CisJCWRldiA9IGRldi0+cGFyZW50ID8gZGV2LT5wYXJlbnQgOiBkZXY7CisJCXJldHVybiBkbWFf
-YWxsb2NfY29oZXJlbnQoZGV2LCBzaXplLCBkbWFfaGFuZGxlLCBmbGFnKTsKKwl9CisjZW5kaWYK
-KwlyZXR1cm4ga3phbGxvYyhzaXplLCBmbGFnKTsKK30KKworc3RhdGljIGlubGluZSB2b2lkCitm
-cmVlX2RhdGFidWYoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsIHNpemVfdCBzaXplLCB2b2lk
-ICpjcHVfYWRkcikKK3sKKyNpZmRlZiBDT05GSUdfSEFTX0RNQQorCWRtYV9hZGRyX3QgZG1hX2hh
-bmRsZSA9IHZpcnRfdG9fYnVzKGNwdV9hZGRyKTsKKwlpZiAodmlydGlvX2hhc19mZWF0dXJlKHZk
-ZXYsIFZJUlRJT19DT05TT0xFX0ZfRE1BX01FTSkpIHsKKwkJc3RydWN0IGRldmljZSAqZGV2ID0g
-JnZkZXYtPmRldjsKKworCQlkZXYgPSBkZXYtPnBhcmVudCA/IGRldi0+cGFyZW50IDogZGV2Owor
-CQlkZXYgPSBkZXYtPnBhcmVudCA/IGRldi0+cGFyZW50IDogZGV2OworCQlkbWFfZnJlZV9jb2hl
-cmVudChkZXYsIHNpemUsIGNwdV9hZGRyLCBkbWFfaGFuZGxlKTsKKwkJcmV0dXJuOworCX0KKyNl
-bmRpZgorCWtmcmVlKGNwdV9hZGRyKTsKK30KKworc3RhdGljIHZvaWQKK2ZyZWVfYnVmKHN0cnVj
-dCB2aXJ0cXVldWUgKnZxLCBzdHJ1Y3QgcG9ydF9idWZmZXIgKmJ1Ziwgc2l6ZV90IGJ1Zl9zaXpl
-KQoreworCWZyZWVfZGF0YWJ1Zih2cS0+dmRldiwgYnVmX3NpemUsIGJ1Zik7CiAJa2ZyZWUoYnVm
-KTsKIH0KIAotc3RhdGljIHN0cnVjdCBwb3J0X2J1ZmZlciAqYWxsb2NfYnVmKHNpemVfdCBidWZf
-c2l6ZSkKK3N0YXRpYyBzdHJ1Y3QgcG9ydF9idWZmZXIgKmFsbG9jX2J1ZihzdHJ1Y3QgdmlydHF1
-ZXVlICp2cSwgc2l6ZV90IGJ1Zl9zaXplKQogewogCXN0cnVjdCBwb3J0X2J1ZmZlciAqYnVmOwor
-CWRtYV9hZGRyX3QgZG1hOwogCiAJYnVmID0ga21hbGxvYyhzaXplb2YoKmJ1ZiksIEdGUF9LRVJO
-RUwpOwogCWlmICghYnVmKQogCQlnb3RvIGZhaWw7Ci0JYnVmLT5idWYgPSBremFsbG9jKGJ1Zl9z
-aXplLCBHRlBfS0VSTkVMKTsKKwlidWYtPmJ1ZiA9IGFsbG9jX2RhdGFidWYodnEtPnZkZXYsIGJ1
-Zl9zaXplLCAmZG1hLCBHRlBfS0VSTkVMKTsKIAlpZiAoIWJ1Zi0+YnVmKQogCQlnb3RvIGZyZWVf
-YnVmOwogCWJ1Zi0+bGVuID0gMDsKQEAgLTQxNCw3ICs0NTUsNyBAQCBzdGF0aWMgdm9pZCBkaXNj
-YXJkX3BvcnRfZGF0YShzdHJ1Y3QgcG9ydCAqcG9ydCkKIAkJcG9ydC0+c3RhdHMuYnl0ZXNfZGlz
-Y2FyZGVkICs9IGJ1Zi0+bGVuIC0gYnVmLT5vZmZzZXQ7CiAJCWlmIChhZGRfaW5idWYocG9ydC0+
-aW5fdnEsIGJ1ZikgPCAwKSB7CiAJCQllcnIrKzsKLQkJCWZyZWVfYnVmKGJ1Zik7CisJCQlmcmVl
-X2J1Zihwb3J0LT5pbl92cSwgYnVmLCBQQUdFX1NJWkUpOwogCQl9CiAJCXBvcnQtPmluYnVmID0g
-TlVMTDsKIAkJYnVmID0gZ2V0X2luYnVmKHBvcnQpOwpAQCAtNDg1LDcgKzUyNiw3IEBAIHN0YXRp
-YyB2b2lkIHJlY2xhaW1fY29uc3VtZWRfYnVmZmVycyhzdHJ1Y3QgcG9ydCAqcG9ydCkKIAkJcmV0
-dXJuOwogCX0KIAl3aGlsZSAoKGJ1ZiA9IHZpcnRxdWV1ZV9nZXRfYnVmKHBvcnQtPm91dF92cSwg
-JmxlbikpKSB7Ci0JCWtmcmVlKGJ1Zik7CisJCWZyZWVfZGF0YWJ1Zihwb3J0LT5wb3J0ZGV2LT52
-ZGV2LCBsZW4sIGJ1Zik7CiAJCXBvcnQtPm91dHZxX2Z1bGwgPSBmYWxzZTsKIAl9CiB9CkBAIC02
-NzIsNiArNzEzLDggQEAgc3RhdGljIHNzaXplX3QgcG9ydF9mb3BzX3dyaXRlKHN0cnVjdCBmaWxl
-ICpmaWxwLCBjb25zdCBjaGFyIF9fdXNlciAqdWJ1ZiwKIAljaGFyICpidWY7CiAJc3NpemVfdCBy
-ZXQ7CiAJYm9vbCBub25ibG9jazsKKwlzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldjsKKwlkbWFf
-YWRkcl90IGRtYTsKIAogCS8qIFVzZXJzcGFjZSBjb3VsZCBiZSBvdXQgdG8gZm9vbCB1cyAqLwog
-CWlmICghY291bnQpCkBAIC02OTQsOSArNzM3LDEwIEBAIHN0YXRpYyBzc2l6ZV90IHBvcnRfZm9w
-c193cml0ZShzdHJ1Y3QgZmlsZSAqZmlscCwgY29uc3QgY2hhciBfX3VzZXIgKnVidWYsCiAJaWYg
-KCFwb3J0LT5ndWVzdF9jb25uZWN0ZWQpCiAJCXJldHVybiAtRU5PREVWOwogCisJdmRldiA9IHBv
-cnQtPnBvcnRkZXYtPnZkZXY7CiAJY291bnQgPSBtaW4oKHNpemVfdCkoMzIgKiAxMDI0KSwgY291
-bnQpOwogCi0JYnVmID0ga21hbGxvYyhjb3VudCwgR0ZQX0tFUk5FTCk7CisJYnVmID0gYWxsb2Nf
-ZGF0YWJ1Zih2ZGV2LCBjb3VudCwgJmRtYSwgR0ZQX0tFUk5FTCk7CiAJaWYgKCFidWYpCiAJCXJl
-dHVybiAtRU5PTUVNOwogCkBAIC03MjAsNyArNzY0LDggQEAgc3RhdGljIHNzaXplX3QgcG9ydF9m
-b3BzX3dyaXRlKHN0cnVjdCBmaWxlICpmaWxwLCBjb25zdCBjaGFyIF9fdXNlciAqdWJ1ZiwKIAkJ
-Z290byBvdXQ7CiAKIGZyZWVfYnVmOgotCWtmcmVlKGJ1Zik7CisJZnJlZV9kYXRhYnVmKHZkZXYs
-IGNvdW50LCBidWYpOworCiBvdXQ6CiAJcmV0dXJuIHJldDsKIH0KQEAgLTExMDIsNyArMTE0Nyw3
-IEBAIHN0YXRpYyB1bnNpZ25lZCBpbnQgZmlsbF9xdWV1ZShzdHJ1Y3QgdmlydHF1ZXVlICp2cSwg
-c3BpbmxvY2tfdCAqbG9jaykKIAogCW5yX2FkZGVkX2J1ZnMgPSAwOwogCWRvIHsKLQkJYnVmID0g
-YWxsb2NfYnVmKFBBR0VfU0laRSk7CisJCWJ1ZiA9IGFsbG9jX2J1Zih2cSwgUEFHRV9TSVpFKTsK
-IAkJaWYgKCFidWYpCiAJCQlicmVhazsKIApAQCAtMTExMCw3ICsxMTU1LDcgQEAgc3RhdGljIHVu
-c2lnbmVkIGludCBmaWxsX3F1ZXVlKHN0cnVjdCB2aXJ0cXVldWUgKnZxLCBzcGlubG9ja190ICps
-b2NrKQogCQlyZXQgPSBhZGRfaW5idWYodnEsIGJ1Zik7CiAJCWlmIChyZXQgPCAwKSB7CiAJCQlz
-cGluX3VubG9ja19pcnEobG9jayk7Ci0JCQlmcmVlX2J1ZihidWYpOworCQkJZnJlZV9idWYodnEs
-IGJ1ZiwgUEFHRV9TSVpFKTsKIAkJCWJyZWFrOwogCQl9CiAJCW5yX2FkZGVkX2J1ZnMrKzsKQEAg
-LTEyMzQsNyArMTI3OSw3IEBAIHN0YXRpYyBpbnQgYWRkX3BvcnQoc3RydWN0IHBvcnRzX2Rldmlj
-ZSAqcG9ydGRldiwgdTMyIGlkKQogCiBmcmVlX2luYnVmczoKIAl3aGlsZSAoKGJ1ZiA9IHZpcnRx
-dWV1ZV9kZXRhY2hfdW51c2VkX2J1Zihwb3J0LT5pbl92cSkpKQotCQlmcmVlX2J1ZihidWYpOwor
-CQlmcmVlX2J1Zihwb3J0LT5pbl92cSwgYnVmLCBQQUdFX1NJWkUpOwogZnJlZV9kZXZpY2U6CiAJ
-ZGV2aWNlX2Rlc3Ryb3kocGRydmRhdGEuY2xhc3MsIHBvcnQtPmRldi0+ZGV2dCk7CiBmcmVlX2Nk
-ZXY6CkBAIC0xMjc2LDcgKzEzMjEsNyBAQCBzdGF0aWMgdm9pZCByZW1vdmVfcG9ydF9kYXRhKHN0
-cnVjdCBwb3J0ICpwb3J0KQogCiAJLyogUmVtb3ZlIGJ1ZmZlcnMgd2UgcXVldWVkIHVwIGZvciB0
-aGUgSG9zdCB0byBzZW5kIHVzIGRhdGEgaW4uICovCiAJd2hpbGUgKChidWYgPSB2aXJ0cXVldWVf
-ZGV0YWNoX3VudXNlZF9idWYocG9ydC0+aW5fdnEpKSkKLQkJZnJlZV9idWYoYnVmKTsKKwkJZnJl
-ZV9idWYocG9ydC0+aW5fdnEsIGJ1ZiwgUEFHRV9TSVpFKTsKIH0KIAogLyoKQEAgLTE0NzgsNyAr
-MTUyMyw3IEBAIHN0YXRpYyB2b2lkIGNvbnRyb2xfd29ya19oYW5kbGVyKHN0cnVjdCB3b3JrX3N0
-cnVjdCAqd29yaykKIAkJaWYgKGFkZF9pbmJ1Zihwb3J0ZGV2LT5jX2l2cSwgYnVmKSA8IDApIHsK
-IAkJCWRldl93YXJuKCZwb3J0ZGV2LT52ZGV2LT5kZXYsCiAJCQkJICJFcnJvciBhZGRpbmcgYnVm
-ZmVyIHRvIHF1ZXVlXG4iKTsKLQkJCWZyZWVfYnVmKGJ1Zik7CisJCQlmcmVlX2J1Zihwb3J0ZGV2
-LT5jX2l2cSwgYnVmLCBQQUdFX1NJWkUpOwogCQl9CiAJfQogCXNwaW5fdW5sb2NrKCZwb3J0ZGV2
-LT5jdnFfbG9jayk7CkBAIC0xNjc0LDEwICsxNzE5LDEwIEBAIHN0YXRpYyB2b2lkIHJlbW92ZV9j
-b250cm9scV9kYXRhKHN0cnVjdCBwb3J0c19kZXZpY2UgKnBvcnRkZXYpCiAJCXJldHVybjsKIAog
-CXdoaWxlICgoYnVmID0gdmlydHF1ZXVlX2dldF9idWYocG9ydGRldi0+Y19pdnEsICZsZW4pKSkK
-LQkJZnJlZV9idWYoYnVmKTsKKwkJZnJlZV9idWYocG9ydGRldi0+Y19pdnEsIGJ1ZiwgUEFHRV9T
-SVpFKTsKIAogCXdoaWxlICgoYnVmID0gdmlydHF1ZXVlX2RldGFjaF91bnVzZWRfYnVmKHBvcnRk
-ZXYtPmNfaXZxKSkpCi0JCWZyZWVfYnVmKGJ1Zik7CisJCWZyZWVfYnVmKHBvcnRkZXYtPmNfaXZx
-LCBidWYsIFBBR0VfU0laRSk7CiB9CiAKIC8qCkBAIC0xODM2LDYgKzE4ODEsNyBAQCBzdGF0aWMg
-c3RydWN0IHZpcnRpb19kZXZpY2VfaWQgaWRfdGFibGVbXSA9IHsKIHN0YXRpYyB1bnNpZ25lZCBp
-bnQgZmVhdHVyZXNbXSA9IHsKIAlWSVJUSU9fQ09OU09MRV9GX1NJWkUsCiAJVklSVElPX0NPTlNP
-TEVfRl9NVUxUSVBPUlQsCisJVklSVElPX0NPTlNPTEVfRl9ETUFfTUVNLAogfTsKIAogI2lmZGVm
-IENPTkZJR19QTQpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92aXJ0aW9fY29uc29sZS5oIGIv
-aW5jbHVkZS9saW51eC92aXJ0aW9fY29uc29sZS5oCmluZGV4IGJkZjRiMDAuLmIyN2Y3ZmEgMTAw
-NjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvX2NvbnNvbGUuaAorKysgYi9pbmNsdWRlL2xp
-bnV4L3ZpcnRpb19jb25zb2xlLmgKQEAgLTM4LDYgKzM4LDcgQEAKIC8qIEZlYXR1cmUgYml0cyAq
-LwogI2RlZmluZSBWSVJUSU9fQ09OU09MRV9GX1NJWkUJMAkvKiBEb2VzIGhvc3QgcHJvdmlkZSBj
-b25zb2xlIHNpemU/ICovCiAjZGVmaW5lIFZJUlRJT19DT05TT0xFX0ZfTVVMVElQT1JUIDEJLyog
-RG9lcyBob3N0IHByb3ZpZGUgbXVsdGlwbGUgcG9ydHM/ICovCisjZGVmaW5lIFZJUlRJT19DT05T
-T0xFX0ZfRE1BX01FTSAyCS8qIFVzZSBETUEgbWVtb3J5IGluIHZyaW5ncyAqLwogCiAjZGVmaW5l
-IFZJUlRJT19DT05TT0xFX0JBRF9JRAkJKH4odTMyKTApCiAKLS0gCjEuNy41LjQKCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+On Mon, Sep 03, 2012 at 03:51:16PM +0200, sjur.brandeland@stericsson.com wr=
+ote:
+> From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> =
+
+> Add feature VIRTIO_CONSOLE_F_DMA_MEM. If the architecture has
+> DMA support and this feature bit is set, the virtio data buffers
+> will be allocated from DMA memory.
+> =
+
+> This is needed for using virtio_console from the remoteproc
+> framework.
+> =
+
+> Signed-off-by: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> cc: Rusty Russell <rusty@rustcorp.com.au>
+> cc: Michael S. Tsirkin <mst@redhat.com>
+> cc: Ohad Ben-Cohen <ohad@wizery.com>
+> cc: Linus Walleij <linus.walleij@linaro.org>
+> cc: virtualization@lists.linux-foundation.org
+
+How does access to descriptors work in this setup?
+
+> ---
+>  drivers/char/virtio_console.c  |   76 ++++++++++++++++++++++++++++++++--=
+------
+>  include/linux/virtio_console.h |    1 +
+>  2 files changed, 62 insertions(+), 15 deletions(-)
+> =
+
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index cdf2f54..6bfbd09 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -35,6 +35,7 @@
+>  #include <linux/wait.h>
+>  #include <linux/workqueue.h>
+>  #include <linux/module.h>
+> +#include <linux/dma-mapping.h>
+>  #include "../tty/hvc/hvc_console.h"
+>  =
+
+>  /*
+> @@ -334,20 +335,60 @@ static inline bool use_multiport(struct ports_devic=
+e *portdev)
+>  	return portdev->vdev->features[0] & (1 << VIRTIO_CONSOLE_F_MULTIPORT);
+>  }
+>  =
+
+> -static void free_buf(struct port_buffer *buf)
+> +/* Allcoate data buffer from DMA memory if requested */
+
+typo
+
+> +static inline void *
+> +alloc_databuf(struct virtio_device *vdev, size_t size, dma_addr_t *dma_h=
+andle,
+> +		   gfp_t flag)
+>  {
+> -	kfree(buf->buf);
+> +#ifdef CONFIG_HAS_DMA
+> +	if (virtio_has_feature(vdev, VIRTIO_CONSOLE_F_DMA_MEM)) {
+> +		struct device *dev =3D &vdev->dev;
+> +		/*
+> +		 * Allocate DMA memory from ancestors. Finding the ancestor
+> +		 * is a bit quirky when DMA_MEMORY_INCLUDES_CHILDREN is not
+> +		 * implemented.
+> +		 */
+> +		dev =3D dev->parent ? dev->parent : dev;
+> +		dev =3D dev->parent ? dev->parent : dev;
+> +		return dma_alloc_coherent(dev, size, dma_handle, flag);
+> +	}
+> +#endif
+
+Are these ifdefs really needed? If DMA_MEM is set,
+can't we use dma_alloc_coherent
+unconditionally?
+
+> +	return kzalloc(size, flag);
+> +}
+> +
+> +static inline void
+> +free_databuf(struct virtio_device *vdev, size_t size, void *cpu_addr)
+> +{
+> +#ifdef CONFIG_HAS_DMA
+> +	dma_addr_t dma_handle =3D virt_to_bus(cpu_addr);
+> +	if (virtio_has_feature(vdev, VIRTIO_CONSOLE_F_DMA_MEM)) {
+> +		struct device *dev =3D &vdev->dev;
+> +
+> +		dev =3D dev->parent ? dev->parent : dev;
+> +		dev =3D dev->parent ? dev->parent : dev;
+> +		dma_free_coherent(dev, size, cpu_addr, dma_handle);
+> +		return;
+> +	}
+> +#endif
+> +	kfree(cpu_addr);
+> +}
+> +
+> +static void
+> +free_buf(struct virtqueue *vq, struct port_buffer *buf, size_t buf_size)
+> +{
+> +	free_databuf(vq->vdev, buf_size, buf);
+>  	kfree(buf);
+>  }
+>  =
+
+> -static struct port_buffer *alloc_buf(size_t buf_size)
+> +static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_si=
+ze)
+>  {
+>  	struct port_buffer *buf;
+> +	dma_addr_t dma;
+>  =
+
+>  	buf =3D kmalloc(sizeof(*buf), GFP_KERNEL);
+>  	if (!buf)
+>  		goto fail;
+> -	buf->buf =3D kzalloc(buf_size, GFP_KERNEL);
+> +	buf->buf =3D alloc_databuf(vq->vdev, buf_size, &dma, GFP_KERNEL);
+>  	if (!buf->buf)
+>  		goto free_buf;
+>  	buf->len =3D 0;
+> @@ -414,7 +455,7 @@ static void discard_port_data(struct port *port)
+>  		port->stats.bytes_discarded +=3D buf->len - buf->offset;
+>  		if (add_inbuf(port->in_vq, buf) < 0) {
+>  			err++;
+> -			free_buf(buf);
+> +			free_buf(port->in_vq, buf, PAGE_SIZE);
+>  		}
+>  		port->inbuf =3D NULL;
+>  		buf =3D get_inbuf(port);
+> @@ -485,7 +526,7 @@ static void reclaim_consumed_buffers(struct port *por=
+t)
+>  		return;
+>  	}
+>  	while ((buf =3D virtqueue_get_buf(port->out_vq, &len))) {
+> -		kfree(buf);
+> +		free_databuf(port->portdev->vdev, len, buf);
+>  		port->outvq_full =3D false;
+>  	}
+>  }
+> @@ -672,6 +713,8 @@ static ssize_t port_fops_write(struct file *filp, con=
+st char __user *ubuf,
+>  	char *buf;
+>  	ssize_t ret;
+>  	bool nonblock;
+> +	struct virtio_device *vdev;
+> +	dma_addr_t dma;
+>  =
+
+>  	/* Userspace could be out to fool us */
+>  	if (!count)
+> @@ -694,9 +737,10 @@ static ssize_t port_fops_write(struct file *filp, co=
+nst char __user *ubuf,
+>  	if (!port->guest_connected)
+>  		return -ENODEV;
+>  =
+
+> +	vdev =3D port->portdev->vdev;
+>  	count =3D min((size_t)(32 * 1024), count);
+>  =
+
+> -	buf =3D kmalloc(count, GFP_KERNEL);
+> +	buf =3D alloc_databuf(vdev, count, &dma, GFP_KERNEL);
+>  	if (!buf)
+>  		return -ENOMEM;
+>  =
+
+> @@ -720,7 +764,8 @@ static ssize_t port_fops_write(struct file *filp, con=
+st char __user *ubuf,
+>  		goto out;
+>  =
+
+>  free_buf:
+> -	kfree(buf);
+> +	free_databuf(vdev, count, buf);
+> +
+>  out:
+>  	return ret;
+>  }
+> @@ -1102,7 +1147,7 @@ static unsigned int fill_queue(struct virtqueue *vq=
+, spinlock_t *lock)
+>  =
+
+>  	nr_added_bufs =3D 0;
+>  	do {
+> -		buf =3D alloc_buf(PAGE_SIZE);
+> +		buf =3D alloc_buf(vq, PAGE_SIZE);
+>  		if (!buf)
+>  			break;
+>  =
+
+> @@ -1110,7 +1155,7 @@ static unsigned int fill_queue(struct virtqueue *vq=
+, spinlock_t *lock)
+>  		ret =3D add_inbuf(vq, buf);
+>  		if (ret < 0) {
+>  			spin_unlock_irq(lock);
+> -			free_buf(buf);
+> +			free_buf(vq, buf, PAGE_SIZE);
+>  			break;
+>  		}
+>  		nr_added_bufs++;
+> @@ -1234,7 +1279,7 @@ static int add_port(struct ports_device *portdev, u=
+32 id)
+>  =
+
+>  free_inbufs:
+>  	while ((buf =3D virtqueue_detach_unused_buf(port->in_vq)))
+> -		free_buf(buf);
+> +		free_buf(port->in_vq, buf, PAGE_SIZE);
+>  free_device:
+>  	device_destroy(pdrvdata.class, port->dev->devt);
+>  free_cdev:
+> @@ -1276,7 +1321,7 @@ static void remove_port_data(struct port *port)
+>  =
+
+>  	/* Remove buffers we queued up for the Host to send us data in. */
+>  	while ((buf =3D virtqueue_detach_unused_buf(port->in_vq)))
+> -		free_buf(buf);
+> +		free_buf(port->in_vq, buf, PAGE_SIZE);
+>  }
+>  =
+
+>  /*
+> @@ -1478,7 +1523,7 @@ static void control_work_handler(struct work_struct=
+ *work)
+>  		if (add_inbuf(portdev->c_ivq, buf) < 0) {
+>  			dev_warn(&portdev->vdev->dev,
+>  				 "Error adding buffer to queue\n");
+> -			free_buf(buf);
+> +			free_buf(portdev->c_ivq, buf, PAGE_SIZE);
+>  		}
+>  	}
+>  	spin_unlock(&portdev->cvq_lock);
+> @@ -1674,10 +1719,10 @@ static void remove_controlq_data(struct ports_dev=
+ice *portdev)
+>  		return;
+>  =
+
+>  	while ((buf =3D virtqueue_get_buf(portdev->c_ivq, &len)))
+> -		free_buf(buf);
+> +		free_buf(portdev->c_ivq, buf, PAGE_SIZE);
+>  =
+
+>  	while ((buf =3D virtqueue_detach_unused_buf(portdev->c_ivq)))
+> -		free_buf(buf);
+> +		free_buf(portdev->c_ivq, buf, PAGE_SIZE);
+>  }
+>  =
+
+>  /*
+> @@ -1836,6 +1881,7 @@ static struct virtio_device_id id_table[] =3D {
+>  static unsigned int features[] =3D {
+>  	VIRTIO_CONSOLE_F_SIZE,
+>  	VIRTIO_CONSOLE_F_MULTIPORT,
+> +	VIRTIO_CONSOLE_F_DMA_MEM,
+>  };
+>  =
+
+>  #ifdef CONFIG_PM
+> diff --git a/include/linux/virtio_console.h b/include/linux/virtio_consol=
+e.h
+> index bdf4b00..b27f7fa 100644
+> --- a/include/linux/virtio_console.h
+> +++ b/include/linux/virtio_console.h
+> @@ -38,6 +38,7 @@
+>  /* Feature bits */
+>  #define VIRTIO_CONSOLE_F_SIZE	0	/* Does host provide console size? */
+>  #define VIRTIO_CONSOLE_F_MULTIPORT 1	/* Does host provide multiple ports=
+? */
+> +#define VIRTIO_CONSOLE_F_DMA_MEM 2	/* Use DMA memory in vrings */
+>  =
+
+>  #define VIRTIO_CONSOLE_BAD_ID		(~(u32)0)
+>  =
+
+> -- =
+
+> 1.7.5.4
