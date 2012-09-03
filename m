@@ -1,14 +1,13 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
-Date: Mon, 3 Sep 2012 16:57:45 +0200
-Message-ID: <CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
-References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20120903143018.GA5353@redhat.com>
+From: Avi Kivity <avi@redhat.com>
+Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
+Date: Mon, 03 Sep 2012 18:09:32 +0300
+Message-ID: <5044C82C.10507@redhat.com>
+References: <1340742778-11282-1-git-send-email-fes@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120903143018.GA5353@redhat.com>
+In-Reply-To: <1340742778-11282-1-git-send-email-fes@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,49 +17,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
+To: Frank Swiderski <fes@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, riel@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mikew@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
+On 06/26/2012 11:32 PM, Frank Swiderski wrote:
+> This implementation of a virtio balloon driver uses the page cache to
+> "store" pages that have been released to the host.  The communication
+> (outside of target counts) is one way--the guest notifies the host when
+> it adds a page to the page cache, allowing the host to madvise(2) with
+> MADV_DONTNEED.  Reclaim in the guest is therefore automatic and implicit
+> (via the regular page reclaim).  This means that inflating the balloon
+> is similar to the existing balloon mechanism, but the deflate is
+> different--it re-uses existing Linux kernel functionality to
+> automatically reclaim.
 
-> How does access to descriptors work in this setup?
+Interesting idea.
 
-When the ring is setup by remoteproc the descriptors are
-also allocated using dma_alloc_coherent().
+How is the host able to manage overcommit this way?  If deflate is not
+host controlled, the host may start swapping guests out to disk if they
+all self-deflate.
 
->> -static void free_buf(struct port_buffer *buf)
->> +/* Allcoate data buffer from DMA memory if requested */
->
-> typo
 
-Thanks.
-
->> +static inline void *
->> +alloc_databuf(struct virtio_device *vdev, size_t size, dma_addr_t *dma_handle,
->> +                gfp_t flag)
->>  {
->> -     kfree(buf->buf);
->> +#ifdef CONFIG_HAS_DMA
->> +     if (virtio_has_feature(vdev, VIRTIO_CONSOLE_F_DMA_MEM)) {
->> +             struct device *dev = &vdev->dev;
->> +             /*
->> +              * Allocate DMA memory from ancestors. Finding the ancestor
->> +              * is a bit quirky when DMA_MEMORY_INCLUDES_CHILDREN is not
->> +              * implemented.
->> +              */
->> +             dev = dev->parent ? dev->parent : dev;
->> +             dev = dev->parent ? dev->parent : dev;
->> +             return dma_alloc_coherent(dev, size, dma_handle, flag);
->> +     }
->> +#endif
->
-> Are these ifdefs really needed? If DMA_MEM is set,
-> can't we use dma_alloc_coherent
-> unconditionally?
-
-If an architecture do not support DMA you will get
-a link error: "unknown symbol" for dma_alloc_coherent.
-
-Regards,
-Sjur
+-- 
+error compiling committee.c: too many arguments to function
