@@ -1,11 +1,16 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: [PATCH] virtio_mmio: fix off by one error allocating queue
-Date: Mon,  3 Sep 2012 18:12:18 +0100
-Message-ID: <1346692338-5922-1-git-send-email-pawel.moll@arm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio: Don't access device data after unregistration.
+Date: Mon, 3 Sep 2012 23:18:47 +0300
+Message-ID: <20120903201847.GC6181@redhat.com>
+References: <1346680242-5717-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20120903141445.GA5054@redhat.com>
+	<CAJK669aRsbOOmjmT+K8OHYvenOhkYWuSOx6nBM7hxC_C4mmw-g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <CAJK669aRsbOOmjmT+K8OHYvenOhkYWuSOx6nBM7hxC_C4mmw-g@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,38 +20,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Pawel Moll <pawel.moll@arm.com>, Brian Foley <brian.foley@arm.com>
+To: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Guzman Lugo,
+	Fernadndo" <fernando.lugo@ti.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Brian Foley <brian.foley@arm.com>
+On Mon, Sep 03, 2012 at 04:50:10PM +0200, Sjur Br=E6ndeland wrote:
+> Hi Michael,
+> =
 
-vm_setup_vq fails to allow VirtQueues needing only 2 pages of
-storage, as it should. Found with a kernel using 64kB pages, but
-can be provoked if a virtio device reports QueueNumMax where the
-descriptor table and available ring fit in one page, and the used
-ring on the second (<= 227 descriptors with 4kB pages and <= 3640
-with 64kB pages.)
+> >> Fix panic in virtio.c when CONFIG_DEBUG_SLAB is set.
+> >
+> > What's the root cause of the panic?
+> =
 
-Signed-off-by: Brian Foley <brian.foley@arm.com>
----
- drivers/virtio/virtio_mmio.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> I believe the cause of the panic is calling
+> ida_simple_remove(&virtio_index_ida, dev->index);
+> when the dev structure is "poisoned" after kfree.
+> It might be the "BUG_ON((int)id < 0)" that bites...
+> =
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 453db0c..58e2d78 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -335,8 +335,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 	while (1) {
- 		size = PAGE_ALIGN(vring_size(info->num,
- 				VIRTIO_MMIO_VRING_ALIGN));
--		/* Already smallest possible allocation? */
--		if (size <= VIRTIO_MMIO_VRING_ALIGN * 2) {
-+		/* Did the last iter shrink the queue below minimum size? */
-+		if (size < VIRTIO_MMIO_VRING_ALIGN * 2) {
- 			err = -ENOMEM;
- 			goto error_alloc_pages;
- 		}
--- 
-1.7.9.5
+> >> Use device_del() and put_device() instead of
+> >> device_unregister(), and access device data before
+> >> calling put_device().
+> =
+
+> > Why does this help? Does device_unregister free the
+> > device so dev->index access crashes?
+> =
+
+> Yes, if device ref-count is one when calling unregister
+> the device is freed.
+
+Interesting. Where exactly? Note that:
+
+struct rproc_vdev {
+        struct list_head node;
+        struct rproc *rproc;
+        struct virtio_device vdev;
+        struct rproc_vring vring[RVDEV_NUM_VRINGS];
+        unsigned long dfeatures;
+        unsigned long gfeatures;
+};              =
+
+
+kfree(&proc_vdev->vdev) is unlikely to be the right thing to do.
+
+> > If yes virtio_pci_remove will crash too
+> > as it accesses the device after the
+> > call to unregister_virtio_device so the
+> > fix won't be effective.
+> =
+
+> I discovered this using the remoteproc framework.
+> It might be that device is unregistered with ref-count greater
+> than one normally, in that case this bug will not show up.
+> =
+
+> Regards,
+> Sjur
+
+It might be remoteproc has an unrelated bug?
+
+-- =
+
+MST
