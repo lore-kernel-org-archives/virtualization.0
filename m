@@ -1,11 +1,12 @@
-From: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Subject: [PATCH] virtio: console: fix error handling in init() function
-Date: Sat,  1 Sep 2012 23:49:37 +0400
-Message-ID: <1346528977-23066-1-git-send-email-khoroshilov__28769.8011416525$1346779805$gmane$org@ispras.ru>
+From: Kent Overstreet <koverstreet@google.com>
+Subject: [PATCH] virtio-blk: Fix kconfig option
+Date: Sun, 2 Sep 2012 21:41:33 -0700
+Message-ID: <20120903044133.GA9980__8815.55354358188$1346779812$gmane$org@moria.home.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,42 +16,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, ldv-project@ispras.ru, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Alexey Khoroshilov <khoroshilov@ispras.ru>
+To: rusty@rustcorp.com.au, mst@redhat.com
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-If register_virtio_driver() fails, virtio-ports class is not destroyed.
-The patch adds error handling of register_virtio_driver().
+CONFIG_VIRTIO isn't exposed, everything else is supposed to select it
+instead.
 
-Found by Linux Driver Verification project (linuxtesting.org).
-
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Signed-off-by: Kent Overstreet <koverstreet@google.com>
 ---
- drivers/char/virtio_console.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/block/Kconfig |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index cdf2f54..060a672 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1941,7 +1941,17 @@ static int __init init(void)
- 	INIT_LIST_HEAD(&pdrvdata.consoles);
- 	INIT_LIST_HEAD(&pdrvdata.portdevs);
+diff --git a/drivers/block/Kconfig b/drivers/block/Kconfig
+index a796407..d4e1d12 100644
+--- a/drivers/block/Kconfig
++++ b/drivers/block/Kconfig
+@@ -521,7 +521,8 @@ config XEN_BLKDEV_BACKEND
  
--	return register_virtio_driver(&virtio_console);
-+	err = register_virtio_driver(&virtio_console);
-+	if (err < 0) {
-+		pr_err("Error %d registering virtio driver\n", err);
-+		goto free;
-+	}
-+	return 0;
-+free:
-+	if (pdrvdata.debugfs_dir)
-+		debugfs_remove_recursive(pdrvdata.debugfs_dir);
-+	class_destroy(pdrvdata.class);
-+	return err;
- }
- 
- static void __exit fini(void)
+ config VIRTIO_BLK
+ 	tristate "Virtio block driver (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL && VIRTIO
++	select VIRTIO
++	depends on EXPERIMENTAL
+ 	---help---
+ 	  This is the virtual block driver for virtio.  It can be used with
+           lguest or QEMU based VMMs (like KVM or Xen).  Say Y or M.
 -- 
-1.7.9.5
+1.7.10.4
