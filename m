@@ -1,17 +1,16 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 5/5] virtio-scsi: introduce multiqueue support
-Date: Tue, 04 Sep 2012 13:18:31 +0200
-Message-ID: <5045E387.4030103@redhat.com>
-References: <1346154857-12487-1-git-send-email-pbonzini@redhat.com>
-	<1346154857-12487-6-git-send-email-pbonzini@redhat.com>
-	<1346725294.4162.79.camel@haakon2.linux-iscsi.org>
-	<5045A3B4.2030101@redhat.com> <20120904084628.GA8437@redhat.com>
-	<5045D6FF.5020801@redhat.com> <20120904110905.GA9119@redhat.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
+Date: Tue, 4 Sep 2012 13:28:36 +0200
+Message-ID: <CAJK669ZvnnG6fGOog-Z47B7xqyn9hcx5dAD7S--+2PSgE+hrLA@mail.gmail.com>
+References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20120903143018.GA5353@redhat.com>
+	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
+	<20120903202737.GD6181@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120904110905.GA9119@redhat.com>
+In-Reply-To: <20120903202737.GD6181@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,25 +21,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-scsi@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel <target-devel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 04/09/2012 13:09, Michael S. Tsirkin ha scritto:
->> >     queuecommand on CPU #0         queuecommand #2 on CPU #1
->> >   --------------------------------------------------------------
->> >     atomic_inc_return(...) == 1
->> >                                    atomic_inc_return(...) == 2
->> >                                    virtscsi_queuecommand to queue #1
->> >     tgt->req_vq = queue #0
->> >     virtscsi_queuecommand to queue #0
->> > 
->> > then two requests are issued to different queues without a quiescent
->> > point in the middle.
-> What happens then? Does this break correctness?
+Hi Michael,
 
-Yes, requests to the same target should be processed in FIFO order, or
-you have things like a flush issued before the write it was supposed to
-flush.  This is why I can only change the queue when there is no request
-pending.
+>> If an architecture do not support DMA you will get
+>> a link error: "unknown symbol" for dma_alloc_coherent.
+>
+> Yes, it even seems intentional.
+> But I have a question: can the device work without DMA?
 
-Paolo
+The main dependency is actually on the dma-allocation.
+In my case I do dma_declare_coherent_memory() with
+the memory area shared with the remote device as argument.
+Subsequent calls to dma_alloc_coherent() will then allocate
+from this memory area.
+
+> Does not VIRTIO_CONSOLE_F_DMA_MEM mean dma api is required?
+
+Yes.dma_alloc_coherent to work.
+
+> If yes you should just fail load.
+
+Agree, I'll check on VIRTIO_CONSOLE_HAS_DMA before adding
+VIRTIO_CONSOLE_F_DMA_MEM to the feature array.
+
+> Also let's add a wrapper at top of file so ifdefs
+> do not litter the code like this. For example:
+>
+> #ifdef CONFIG_HAS_DMA
+> #define VIRTIO_CONSOLE_HAS_DMA (1)
+> #else
+> #define VIRTIO_CONSOLE_HAS_DMA (0)
+> #endif
+
+OK, good point. Perhaps we could even exploit gcc's
+ability to remove dead code and do something like this:
+
+       if (VIRTIO_CONSOLE_HAS_DMA &&
+           virtio_has_feature(vdev, VIRTIO_CONSOLE_F_DMA_MEM)) {
+...
+
+This does not give any linker warnings when compiling for UML (no DMA).
+
+Regards,
+Sjur
