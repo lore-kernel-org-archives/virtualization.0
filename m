@@ -1,18 +1,20 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 2/2] virtio-ring: Allocate indirect buffers from cache
-	when possible
-Date: Tue, 4 Sep 2012 21:41:22 +0300
-Message-ID: <20120904184122.GA3602@redhat.com>
-References: <1346325718-11151-1-git-send-email-levinsasha928@gmail.com>
-	<1346325718-11151-2-git-send-email-levinsasha928@gmail.com>
-	<20120830133820.GC21132@redhat.com> <50408587.5030603@gmail.com>
-	<20120831095628.GB24244@redhat.com> <50462D8B.7040004@redhat.com>
+Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
+Date: Tue, 4 Sep 2012 21:55:41 +0300
+Message-ID: <20120904185541.GB3602@redhat.com>
+References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20120903143018.GA5353@redhat.com>
+	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
+	<20120903202737.GD6181@redhat.com>
+	<CAJK669ZvnnG6fGOog-Z47B7xqyn9hcx5dAD7S--+2PSgE+hrLA@mail.gmail.com>
+	<20120904135022.GI9805@redhat.com>
+	<CAJK669Z1UYakBWartChfoeKL_eU5=GFZMGhH8R_Q-difVm0ygQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <50462D8B.7040004@redhat.com>
+In-Reply-To: <CAJK669Z1UYakBWartChfoeKL_eU5=GFZMGhH8R_Q-difVm0ygQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,36 +24,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Sasha Levin <levinsasha928@gmail.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 04, 2012 at 07:34:19PM +0300, Avi Kivity wrote:
-> On 08/31/2012 12:56 PM, Michael S. Tsirkin wrote:
-> > On Fri, Aug 31, 2012 at 11:36:07AM +0200, Sasha Levin wrote:
-> >> On 08/30/2012 03:38 PM, Michael S. Tsirkin wrote:
-> >> >> +static unsigned int indirect_alloc_thresh = 16;
-> >> > Why 16?  Please make is MAX_SG + 1 this makes some sense.
-> >> 
-> >> Wouldn't MAX_SG mean we always allocate from the cache? Isn't the memory waste
-> >> too big in this case?
-> > 
-> > Sorry. I really meant MAX_SKB_FRAGS + 1. MAX_SKB_FRAGS is 17 so gets us
-> > threshold of 18. It is less than the size of an skb+shinfo itself so -
-> > does it look too big to you? Also why do you think 16 is not too big but
-> > 18 is?  If there's a reason then I am fine with 16 too but then please
-> > put it in code comment near where the value is set.
-> > 
-> > Yes this means virtio net always allocates from cache
-> > but this is a good thing, isn't it? Gets us more consistent
-> > performance.
-> 
-> kmalloc() also goes to a cache.  Is there a measurable difference?
+On Tue, Sep 04, 2012 at 06:58:47PM +0200, Sjur Br=E6ndeland wrote:
+> Hi Michael,
+> =
 
-Yes see 0/2 and followup discussion.
+> > Exactly. Though if we just fail load it will be much less code.
+> >
+> > Generally, using a feature bit for this is a bit of a problem though:
+> > normally driver is expected to be able to simply ignore
+> > a feature bit. In this case driver is required to
+> > do something so a feature bit is not a good fit.
+> > I am not sure what the right thing to do is.
+> =
 
-> Ugh, there's an ugly loop in __find_general_cachep(), which really wants
-> to be replaced with fls().
-> 
-> -- 
-> error compiling committee.c: too many arguments to function
+> I see - so in order to avoid the binding between driver and device
+> there are two options I guess. Either make virtio_dev_match() or
+> virtcons_probe() fail. Neither of them seems like the obvious choice.
+> =
+
+> Maybe adding a check for VIRTIO_CONSOLE_F_DMA_MEM match
+> between device and driver in virtcons_probe() is the lesser evil?
+> =
+
+> Regards,
+> Sjur
+
+A simplest thing to do is change dev id. rusty?
+
+-- =
+
+MST
