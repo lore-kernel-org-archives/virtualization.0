@@ -1,16 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
-Date: Tue, 04 Sep 2012 15:37:43 +0930
-Message-ID: <87zk56e2xc.fsf@rustcorp.com.au>
-References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20120903143018.GA5353@redhat.com>
-	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
-	<20120903202737.GD6181@redhat.com>
+From: Kent Overstreet <koverstreet@google.com>
+Subject: Re: [PATCH] virtio-blk: Fix kconfig option
+Date: Tue, 4 Sep 2012 16:12:50 -0700
+Message-ID: <CAH+dOxKGg0ROpKos+633rvpe+r4BAZvY-ppXJwgnri=aipk2+Q@mail.gmail.com>
+References: <20120903044133.GA9980@moria.home.lan>
+	<87wr0ae26e.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120903202737.GD6181@redhat.com>
+In-Reply-To: <87wr0ae26e.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,24 +18,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Cc: Amit Shah <amit.shah@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> Also let's add a wrapper at top of file so ifdefs
-> do not litter the code like this. For example:
+On Mon, Sep 3, 2012 at 11:23 PM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> Kent Overstreet <koverstreet@google.com> writes:
 >
-> #ifdef CONFIG_HAS_DMA
-> #define VIRTIO_CONSOLE_HAS_DMA (1)
-> #else
-> #define VIRTIO_CONSOLE_HAS_DMA (0)
-> #endif
+>> CONFIG_VIRTIO isn't exposed, everything else is supposed to select it
+>> instead.
 >
-> Now use if instead of ifdef.
+> This is a slight mis-understanding.  It's supposed to be selected by
+> the particular driver, probably virtio_pci in your case.
 
-The driver certainly shouldn't offer VIRTIO_CONSOLE_F_DMA_MEM if you
-don't have DMA!
-
-Cheers,
-Rusty.
+Yes... VIRT_BLOCK isn't selecting it.
