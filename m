@@ -1,16 +1,14 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
-Date: Wed, 5 Sep 2012 15:00:20 +0200
-Message-ID: <CAJK669bUXHqaDUZDNZ9i85pRKENUMS_RXw4z7BsSq7Hiw=OOfg@mail.gmail.com>
-References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20120903143018.GA5353@redhat.com>
-	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
-	<20120903202737.GD6181@redhat.com> <87zk56e2xc.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [patch] virtio-blk: fix NULL checking in virtblk_alloc_req()
+Date: Wed, 5 Sep 2012 16:11:44 +0300
+Message-ID: <20120905131144.GA10738@redhat.com>
+References: <20120905123252.GE6128@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87zk56e2xc.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <20120905123252.GE6128@elgon.mountain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,39 +18,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> The driver certainly shouldn't offer VIRTIO_CONSOLE_F_DMA_MEM if you
-> don't have DMA!
+On Wed, Sep 05, 2012 at 03:32:53PM +0300, Dan Carpenter wrote:
+> Smatch complains about the inconsistent NULL checking here.  Fix it to
+> return NULL on failure.
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-OK, so the feature table could be done like this:
+ACK
 
- static unsigned int features[] = {
-	VIRTIO_CONSOLE_F_SIZE,
-	VIRTIO_CONSOLE_F_MULTIPORT,
-#if VIRTIO_CONSOLE_HAS_DMA
-	VIRTIO_CONSOLE_F_DMA_MEM,
-#endif
-}
+> ---
+> This is only needed in linux-next.
 
-If the device then asks for VIRTIO_CONSOLE_F_DMA_MEM
-when DMA is not supported, virtio will do BUG_ON() from
-virtio_check_driver_offered_feature().
+Yes upstream is OK.
 
-Is this acceptable or should we add a check in virtcons_probe()
-and let the probing fail instead?
+linux-next picks up stuff from rusty's patch queue so
+presumably this can be folded into patch that
+triggered this.
 
-E.g:
-	/* Refuse to bind if F_DMA_MEM request cannot be met */
-	if (!VIRTIO_CONSOLE_HAS_DMA &&
-	    (vdev->config->get_features(vdev) & (1 << VIRTIO_CONSOLE_F_DMA_MEM))){
-		dev_err(&vdev->dev,
-			"DMA_MEM requested, but arch does not support DMA\n");
-		err = -EINVAL;
-		goto fail;
-	}
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 2edfb5c..457db0c 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -90,10 +90,11 @@ static inline struct virtblk_req *virtblk_alloc_req(struct virtio_blk *vblk,
+>  	struct virtblk_req *vbr;
+>  
+>  	vbr = mempool_alloc(vblk->pool, gfp_mask);
+> -	if (vbr && use_bio)
+> -		sg_init_table(vbr->sg, vblk->sg_elems);
+> +	if (!vbr)
+> +		return NULL;
+>  
+> -	vbr->vblk = vblk;
 
-Regards,
-Sjur
+Smatch is right to complain: on memory allocation
+failure this will dereference NULL.
+
+> +	if (use_bio)
+> +		sg_init_table(vbr->sg, vblk->sg_elems);
+>  
+>  	return vbr;
+>  }
