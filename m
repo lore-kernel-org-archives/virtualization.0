@@ -1,14 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv2] x86info: dump kvm cpuid's
-Date: Wed, 5 Sep 2012 20:33:35 +0300
-Message-ID: <20120905173335.GA15141@redhat.com>
-References: <20120430143835.GA10190@redhat.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
+Date: Wed, 5 Sep 2012 20:15:36 +0200
+Message-ID: <CAJK669bhVfgnxuF6wVtdnzs2bgiJ2HzgwfWw4uZ=EqTdm43Jow@mail.gmail.com>
+References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20120903143018.GA5353@redhat.com>
+	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
+	<20120903202737.GD6181@redhat.com> <87zk56e2xc.fsf@rustcorp.com.au>
+	<CAJK669bUXHqaDUZDNZ9i85pRKENUMS_RXw4z7BsSq7Hiw=OOfg@mail.gmail.com>
+	<20120905143558.GB10925@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120430143835.GA10190@redhat.com>
+In-Reply-To: <20120905143558.GB10925@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,105 +22,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: davej@redhat.com
-Cc: xen-devel@lists.xensource.com, kvm@vger.kernel.org, pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, devel@linuxdriverproject.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, Ohad Ben-Cohen <ohad@wizery.com>
+Cc: Amit Shah <amit.shah@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 30, 2012 at 05:38:35PM +0300, Michael S. Tsirkin wrote:
-> The following makes 'x86info -r' dump hypervisor leaf cpu ids
-> (for kvm this is signature+features) when running in a vm.
-> 
-> On the guest we see the signature and the features:
-> eax in: 0x40000000, eax = 00000000 ebx = 4b4d564b ecx = 564b4d56 edx = 0000004d
-> eax in: 0x40000001, eax = 0100007b ebx = 00000000 ecx = 00000000 edx = 00000000
-> 
-> Hypervisor flag is checked to avoid output changes when not
-> running on a VM.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> Changes from v1:
-> 	Make work on non KVM hypervisors (only KVM was tested).
-> 	Avi Kivity said kvm will in the future report
-> 	max HV leaf in eax. For now it reports eax = 0
->         so add a work around for that.
+Hi Michael.
 
-Ping.
-Davej, any comments?
-Would be nice to have this in.
+>> If the device then asks for VIRTIO_CONSOLE_F_DMA_MEM
+>> when DMA is not supported, virtio will do BUG_ON() from
+>> virtio_check_driver_offered_feature().
+>>
+>> Is this acceptable or should we add a check in virtcons_probe()
+>> and let the probing fail instead?
+>>
+>> E.g:
+>>       /* Refuse to bind if F_DMA_MEM request cannot be met */
+>>       if (!VIRTIO_CONSOLE_HAS_DMA &&
+>>           (vdev->config->get_features(vdev) & (1 << VIRTIO_CONSOLE_F_DMA_MEM))){
+>>               dev_err(&vdev->dev,
+>>                       "DMA_MEM requested, but arch does not support DMA\n");
+>>               err = -EINVAL;
+>>               goto fail;
+>>       }
+>>
+>> Regards,
+>> Sjur
+>
+> Failing probe would be cleaner. But there is still a problem:
+> old driver will happily bind to that device and then
+> fail to work, right?
+
+Not just fail to work, the kernel will panic on the BUG_ON().
+Remoteproc gets the virtio configuration from firmware loaded
+from user space. So this type of problem might be triggered
+for other virtio drivers as well.
 
 
-> ---
-> 
-> diff --git a/identify.c b/identify.c
-> index 33f35de..a4a3763 100644
-> --- a/identify.c
-> +++ b/identify.c
-> @@ -9,8 +9,8 @@
->  
->  void get_cpu_info_basics(struct cpudata *cpu)
->  {
-> -	unsigned int maxi, maxei, vendor, address_bits;
-> -	unsigned int eax;
-> +	unsigned int maxi, maxei, maxhv, vendor, address_bits;
-> +	unsigned int eax, ebx, ecx;
->  
->  	cpuid(cpu->number, 0, &maxi, &vendor, NULL, NULL);
->  	maxi &= 0xffff;		/* The high-order word is non-zero on some Cyrix CPUs */
-> @@ -19,7 +19,7 @@ void get_cpu_info_basics(struct cpudata *cpu)
->  		return;
->  
->  	/* Everything that supports cpuid supports these. */
-> -	cpuid(cpu->number, 1, &eax, NULL, NULL, NULL);
-> +	cpuid(cpu->number, 1, &eax, &ebx, &ecx, NULL);
->  	cpu->stepping = eax & 0xf;
->  	cpu->model = (eax >> 4) & 0xf;
->  	cpu->family = (eax >> 8) & 0xf;
-> @@ -29,6 +29,19 @@ void get_cpu_info_basics(struct cpudata *cpu)
->  
->  	cpuid(cpu->number, 0xC0000000, &maxei, NULL, NULL, NULL);
->  	cpu->maxei2 = maxei;
-> +	if (ecx & 0x80000000) {
-> +		cpuid(cpu->number, 0x40000000, &maxhv, NULL, NULL, NULL);
-> +		/*
-> +		 * KVM up to linux 3.4 reports 0 as the max hypervisor leaf,
-> +		 * where it really means 0x40000001.
-> +		 * Most (all?) hypervisors have at least one CPUID besides
-> +		 * the vendor ID so assume that.
-> +		 */
-> +		cpu->maxhv = maxhv ? maxhv : 0x40000001;
-> +	} else {
-> +		/* Suppress hypervisor cpuid unless running on a hypervisor */
-> +		cpu->maxhv = 0;
-> +	}
->  
->  	cpuid(cpu->number, 0x80000008,&address_bits, NULL, NULL, NULL);
->  	cpu->phyaddr_bits = address_bits & 0xFF;
-> diff --git a/x86info.c b/x86info.c
-> index 22c4734..80cae36 100644
-> --- a/x86info.c
-> +++ b/x86info.c
-> @@ -44,6 +44,10 @@ static void display_detailed_info(struct cpudata *cpu)
->  
->  		if (cpu->maxei2 >=0xC0000000)
->  			dump_raw_cpuid(cpu->number, 0xC0000000, cpu->maxei2);
-> +
-> +		if (cpu->maxhv >= 0x40000000)
-> +			dump_raw_cpuid(cpu->number, 0x40000000, cpu->maxhv);
-> +
->  	}
->  
->  	if (show_cacheinfo) {
-> diff --git a/x86info.h b/x86info.h
-> index 7d2a455..c4f5d81 100644
-> --- a/x86info.h
-> +++ b/x86info.h
-> @@ -84,7 +84,7 @@ struct cpudata {
->  	unsigned int cachesize_trace;
->  	unsigned int phyaddr_bits;
->  	unsigned int viraddr_bits;
-> -	unsigned int cpuid_level, maxei, maxei2;
-> +	unsigned int cpuid_level, maxei, maxei2, maxhv;
->  	char name[CPU_NAME_LEN];
->  	enum connector connector;
->  	unsigned int flags_ecx;
+> virtio pci has revision id for this, but remoteproc doesn't
+> seem to have anything similar. Or did I miss it?
+
+No there are currently no sanity check of
+virtio type and feature bits in remoteproc.
+One option may be to add this...
+
+> If not -
+> we probably need to use a different
+> device id, and not a feature bit.
+
+But if I create a new virtio console type, remoteproc
+could still call the existing virtio_console with random
+bad feature bits, causing kernel panic.
+
+Even if we fix this particular problem, the general problem
+still exists: bogus virtio declarations in remoteproc's firmware
+may cause BUG_ON(). (Note the fundamental difference
+between visualizations and remoteproc. For remoteproc
+the virtio configuration comes from binaries loaded from
+user space).
+
+So maybe we should look for a more generic solution, e.g.
+changing virtio probe functionality so that devices with
+bad feature bits will not trigger BUG_ON(), but rather refuse
+to bind the driver.
+
+Regards,
+Sjur
