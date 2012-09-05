@@ -1,18 +1,12 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
-Date: Wed, 5 Sep 2012 20:15:36 +0200
-Message-ID: <CAJK669bhVfgnxuF6wVtdnzs2bgiJ2HzgwfWw4uZ=EqTdm43Jow@mail.gmail.com>
-References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20120903143018.GA5353@redhat.com>
-	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
-	<20120903202737.GD6181@redhat.com> <87zk56e2xc.fsf@rustcorp.com.au>
-	<CAJK669bUXHqaDUZDNZ9i85pRKENUMS_RXw4z7BsSq7Hiw=OOfg@mail.gmail.com>
-	<20120905143558.GB10925@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio: support reserved vqs
+Date: Wed, 5 Sep 2012 21:47:45 +0300
+Message-ID: <20120905184745.GA15861@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120905143558.GB10925@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,68 +16,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Amit Shah <amit.shah@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>, Ohad Ben-Cohen <ohad@wizery.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Stratos Psomadakis <psomas@cslab.ece.ntua.gr>, "David S. Miller" <davem@davemloft.net>, lguest@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael.
+virtio network device multiqueue support reserves
+vq 3 for future use (useful both for future extensions and to make it
+pretty - this way receive vqs have even and transmit - odd numbers).
+Make it possible to skip initialization for
+specific vq numbers by specifying NULL for name.
+Document this usage as well as (existing) NULL callback.
 
->> If the device then asks for VIRTIO_CONSOLE_F_DMA_MEM
->> when DMA is not supported, virtio will do BUG_ON() from
->> virtio_check_driver_offered_feature().
->>
->> Is this acceptable or should we add a check in virtcons_probe()
->> and let the probing fail instead?
->>
->> E.g:
->>       /* Refuse to bind if F_DMA_MEM request cannot be met */
->>       if (!VIRTIO_CONSOLE_HAS_DMA &&
->>           (vdev->config->get_features(vdev) & (1 << VIRTIO_CONSOLE_F_DMA_MEM))){
->>               dev_err(&vdev->dev,
->>                       "DMA_MEM requested, but arch does not support DMA\n");
->>               err = -EINVAL;
->>               goto fail;
->>       }
->>
->> Regards,
->> Sjur
->
-> Failing probe would be cleaner. But there is still a problem:
-> old driver will happily bind to that device and then
-> fail to work, right?
+Drivers using this not coded up yet, so I simply tested
+with virtio-pci and verified that this patch does
+not break existing drivers.
 
-Not just fail to work, the kernel will panic on the BUG_ON().
-Remoteproc gets the virtio configuration from firmware loaded
-from user space. So this type of problem might be triggered
-for other virtio drivers as well.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/lguest/lguest_device.c         | 3 +++
+ drivers/remoteproc/remoteproc_virtio.c | 3 +++
+ drivers/s390/kvm/kvm_virtio.c          | 3 +++
+ drivers/virtio/virtio_mmio.c           | 3 +++
+ drivers/virtio/virtio_pci.c            | 5 ++++-
+ include/linux/virtio_config.h          | 2 ++
+ 6 files changed, 18 insertions(+), 1 deletion(-)
 
-
-> virtio pci has revision id for this, but remoteproc doesn't
-> seem to have anything similar. Or did I miss it?
-
-No there are currently no sanity check of
-virtio type and feature bits in remoteproc.
-One option may be to add this...
-
-> If not -
-> we probably need to use a different
-> device id, and not a feature bit.
-
-But if I create a new virtio console type, remoteproc
-could still call the existing virtio_console with random
-bad feature bits, causing kernel panic.
-
-Even if we fix this particular problem, the general problem
-still exists: bogus virtio declarations in remoteproc's firmware
-may cause BUG_ON(). (Note the fundamental difference
-between visualizations and remoteproc. For remoteproc
-the virtio configuration comes from binaries loaded from
-user space).
-
-So maybe we should look for a more generic solution, e.g.
-changing virtio probe functionality so that devices with
-bad feature bits will not trigger BUG_ON(), but rather refuse
-to bind the driver.
-
-Regards,
-Sjur
+diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
+index 9e8388e..e849e12 100644
+--- a/drivers/lguest/lguest_device.c
++++ b/drivers/lguest/lguest_device.c
+@@ -263,6 +263,9 @@ static struct virtqueue *lg_find_vq(struct virtio_device *vdev,
+ 	struct virtqueue *vq;
+ 	int err;
+ 
++	if (!name)
++		return NULL;
++
+ 	/* We must have this many virtqueues. */
+ 	if (index >= ldev->desc->num_vq)
+ 		return ERR_PTR(-ENOENT);
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index 3541b44..bda6750 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -84,6 +84,9 @@ static struct virtqueue *rp_find_vq(struct virtio_device *vdev,
+ 	if (id >= ARRAY_SIZE(rvdev->vring))
+ 		return ERR_PTR(-EINVAL);
+ 
++	if (!name)
++		return NULL;
++
+ 	ret = rproc_alloc_vring(rvdev, id);
+ 	if (ret)
+ 		return ERR_PTR(ret);
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index 47cccd5..6e842d1 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -190,6 +190,9 @@ static struct virtqueue *kvm_find_vq(struct virtio_device *vdev,
+ 	if (index >= kdev->desc->num_vq)
+ 		return ERR_PTR(-ENOENT);
+ 
++	if (!name)
++		return NULL;
++
+ 	config = kvm_vq_config(kdev->desc)+index;
+ 
+ 	err = vmem_add_mapping(config->address,
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 453db0c..b1f342e 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -309,6 +309,9 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
+ 	unsigned long flags, size;
+ 	int err;
+ 
++	if (!name)
++		return NULL;
++
+ 	/* Select the queue we're interested in */
+ 	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
+ 
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 2e03d41..92809ba 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -542,7 +542,10 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev, unsigned nvqs,
+ 	vp_dev->per_vq_vectors = per_vq_vectors;
+ 	allocated_vectors = vp_dev->msix_used_vectors;
+ 	for (i = 0; i < nvqs; ++i) {
+-		if (!callbacks[i] || !vp_dev->msix_enabled)
++		if (!names[i]) {
++			vqs[i] = NULL;
++			continue;
++		} else if (!callbacks[i] || !vp_dev->msix_enabled)
+ 			msix_vec = VIRTIO_MSI_NO_VECTOR;
+ 		else if (vp_dev->per_vq_vectors)
+ 			msix_vec = allocated_vectors++;
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index fc457f4..07c0c69 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -84,7 +84,9 @@
+  *	nvqs: the number of virtqueues to find
+  *	vqs: on success, includes new virtqueues
+  *	callbacks: array of callbacks, for each virtqueue
++ *		include a NULL entry for vqs that do not need a callback
+  *	names: array of virtqueue names (mainly for debugging)
++ *		include a NULL entry for vqs unused by driver
+  *	Returns 0 on success or error status
+  * @del_vqs: free virtqueues found by find_vqs().
+  * @get_features: get the array of feature bits for this device.
+-- 
+MST
