@@ -1,17 +1,22 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
-	deflate" feature that works
-Date: Thu, 6 Sep 2012 13:53:01 +0300
-Message-ID: <20120906105301.GC32325@redhat.com>
-References: <1346917610-14568-1-git-send-email-pbonzini@redhat.com>
-	<20120906084736.GF17656@redhat.com> <50486BB2.7070108@redhat.com>
-	<20120906094442.GA22816@redhat.com> <50487382.8030303@redhat.com>
+Subject: Re: [PATCH] virtio-blk: Fix kconfig option
+Date: Thu, 6 Sep 2012 14:09:22 +0300
+Message-ID: <20120906110922.GD32325@redhat.com>
+References: <20120903044133.GA9980@moria.home.lan>
+	<87wr0ae26e.fsf@rustcorp.com.au>
+	<20120906074113.GA5902@koverstreet-glaptop>
+	<20120906084403.GD17656@redhat.com>
+	<20120906092512.GB5902@koverstreet-glaptop>
+	<20120906094956.GB22816@redhat.com>
+	<20120906100247.GA27355@koverstreet-glaptop>
+	<20120906101842.GB32325@redhat.com>
+	<20120906103143.GA22299@moria.home.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <50487382.8030303@redhat.com>
+In-Reply-To: <20120906103143.GA22299@moria.home.lan>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,103 +26,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
+To: Kent Overstreet <koverstreet@google.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2012 at 11:57:22AM +0200, Paolo Bonzini wrote:
-> Il 06/09/2012 11:44, Michael S. Tsirkin ha scritto:
-> >> In fact, it's not clear how the driver should use the feature.  My guess
-> >> is that, if it wants to use silent deflate, it tries to negotiate
-> >> VIRTIO_BALLOON_F_MUST_TELL_HOST, and can use silent deflate if
-> >> negotiation fails.  This is against the logic of all other features.
-> > 
-> > Let's take a step back from the implementation details.
-> > You are trying to add a new feature bit, after all.
-> > Why? Why is silent deflate useful? This is what is
-> > missing in all this discussion. If it is not useful
-> > we do not need a bit for it.
-> 
-> It is useful because it lets guests inflate the balloon aggressively,
-> and then use ballooned-out pages even in places where the guest OS
-> cannot sleep, such as kmalloc(GFP_ATOMIC).
-
-Interesting.
-Do you intend to develop a driver patch using this?  I'd like to see how
-that works.  Because if not, IMO it's best to wait until someone asks
-for it.
-
-> >>> Can you show a scenario with old driver/new hypervisor or
-> >>> new driver/old hypervisor that fails?
-> >
-> > Sorry this is not the example I asked for.  Please give and example
-> > without migration.
-> > 
-> > Migration is qemu's problem: it is hypervisor's job to
-> > make sure guest sees no change during migration.
-> 
-> Quoting my message: "Of course you can just teach QEMU to be smarter,
-> but that would be a one-off hack for the only ill-defined feature that
-> says something is _not_ supported".
->
-> Currently migration works the same way for all virtio devices,
-> and
-> assumes that features are defined only in the "positive" direction:
-> drivers request features if they want to use it, devices provide
-> features to say they support something.
-
-Well this approach is buggy. If I reread features after migration what
-do I see? Something changed right? So this is a bug. Migration should
-not change hardware. And it is not a "one off" thing it is
-fundamental for any hardware.
-
-Fix that in qemu, and the problem goes away without spec changes.
-
-> Instead, in the case of this feature, the driver requests it before
-> relying on its lack (which is odd);
-
-Which code in driver do you refer to?
-
-> the device provides if they do not
-> support something (which is wrong).
-
-Not support?
-It just seems to be asking guest to tell it about deflates.
-If guest acks the bit, we know it will. If it does not,
-it will not.
-
->  You can see that this just cannot
-> provide backwards-compatibility in the device;
-
-Sorry I do not understand this meta argument.
-There should be an example where a driver and device
-fail to work together. And without migration: as
-I showed migration is simply broken atm for
-an unrelated reason. Otherwise all's well.
-
-> it happens to work only
-> because the feature was there in the first version of the spec.
-
-This is how we do compatiblity in virtio. If we want driver to do
-something, we add a feature and it can ack, if it does we know it will
-do what we want.  Another example is network announce bit.  If driver
-acks it, we know we do not need to send gratitious arp from qemu.  You
-are saying it is also broken?
-
-> > It should be able to do this with any hardware it emulates,
-> > there should be no need to change hardware to make it
-> > "migrateable" somehow.
-> 
-> Of course, but if we can fix the hardware with no bad effects, let's do
-> that instead.
-> 
-> Paolo
-
-Don't fix what is not broken. We get to carry compatibility
-in both driver and host for a long time for each feature.
-
-Note: adding
-new features adds zero value in this respect - it will not
-allow simplifying the hypervisor.
--- 
-MST
+T24gVGh1LCBTZXAgMDYsIDIwMTIgYXQgMDM6MzE6NDRBTSAtMDcwMCwgS2VudCBPdmVyc3RyZWV0
+IHdyb3RlOgo+IE9uIFRodSwgU2VwIDA2LCAyMDEyIGF0IDAxOjE4OjQzUE0gKzAzMDAsIE1pY2hh
+ZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+IE9uIFRodSwgU2VwIDA2LCAyMDEyIGF0IDAzOjAyOjQ4
+QU0gLTA3MDAsIEtlbnQgT3ZlcnN0cmVldCB3cm90ZToKPiA+ID4gT24gVGh1LCBTZXAgMDYsIDIw
+MTIgYXQgMTI6NDk6NTZQTSArMDMwMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4gPiA+
+IE9uIFRodSwgU2VwIDA2LCAyMDEyIGF0IDAyOjI1OjEyQU0gLTA3MDAsIEtlbnQgT3ZlcnN0cmVl
+dCB3cm90ZToKPiA+ID4gPiA+IE9uIFRodSwgU2VwIDA2LCAyMDEyIGF0IDExOjQ0OjAzQU0gKzAz
+MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+ID4gPiA+ID4gT24gVGh1LCBTZXAgMDYs
+IDIwMTIgYXQgMTI6NDE6MTNBTSAtMDcwMCwgS2VudCBPdmVyc3RyZWV0IHdyb3RlOgo+ID4gPiA+
+ID4gPiA+IE9uIFR1ZSwgU2VwIDA0LCAyMDEyIGF0IDAzOjUzOjUzUE0gKzA5MzAsIFJ1c3R5IFJ1
+c3NlbGwgd3JvdGU6Cj4gPiA+ID4gPiA+ID4gPiBLZW50IE92ZXJzdHJlZXQgPGtvdmVyc3RyZWV0
+QGdvb2dsZS5jb20+IHdyaXRlczoKPiA+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ID4gPiBD
+T05GSUdfVklSVElPIGlzbid0IGV4cG9zZWQsIGV2ZXJ5dGhpbmcgZWxzZSBpcyBzdXBwb3NlZCB0
+byBzZWxlY3QgaXQKPiA+ID4gPiA+ID4gPiA+ID4gaW5zdGVhZC4KPiA+ID4gPiA+ID4gPiA+IAo+
+ID4gPiA+ID4gPiA+ID4gVGhpcyBpcyBhIHNsaWdodCBtaXMtdW5kZXJzdGFuZGluZy4gIEl0J3Mg
+c3VwcG9zZWQgdG8gYmUgc2VsZWN0ZWQgYnkKPiA+ID4gPiA+ID4gPiA+IHRoZSBwYXJ0aWN1bGFy
+IGRyaXZlciwgcHJvYmFibHkgdmlydGlvX3BjaSBpbiB5b3VyIGNhc2UuCj4gPiA+ID4gPiA+ID4g
+Cj4gPiA+ID4gPiA+ID4gU28gYXJlIHlvdSBzYXlpbmcgdmlydGlvLWJsayBkZXBlbmRzIG9uIHZp
+cnRpby1wY2k/IElmIHNvLCB0aGUga2NvbmZpZwo+ID4gPiA+ID4gPiA+IHNob3VsZCBoYXZlIHRo
+YXQuCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gQXMgaXMsIFZJUlRJT19CTEsganVzdCBo
+YXM6Cj4gPiA+ID4gPiA+ID4gCWRlcGVuZHMgb24gRVhQRVJJTUVOVEFMICYmIFZJUlRJTwo+ID4g
+PiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+IHdoaWNoIGlzIGZsYXQgb3V0IGJyb2tlbi4KPiA+ID4g
+PiA+ID4gCj4gPiA+ID4gPiA+IEkgZG9uJ3QgdGhpbmsgYW55dGhpbmcgaXMgYnJva2VuLgo+ID4g
+PiA+ID4gPiBDYW4geW91IHNob3cgYW4gZXhhbXBsZSBvZiBhIGJyb2tlbiBjb25maWd1cmF0aW9u
+Pwo+ID4gPiA+ID4gCj4gPiA+ID4gPiBEbyB5b3Ugbm90IHVuZGVyc3RhbmQgdGhlIGRpZmZlcmVu
+Y2UgYmV0d2VlbiBkZXBlbmRzIGFuIHNlbGVjdHM/Cj4gPiA+ID4gPiBPciBkaWQgeW91IG5vdCBy
+ZWFkIG15IG9yaWdpbmFsIG1haWw/Cj4gPiA+ID4gPiBGbGlwIG9mZiBldmVyeXRoaW5nIGluIGRy
+aXZlcnMgLT4gdmlydGlvCj4gPiA+ID4gPiAKPiA+ID4gPiA+IE5vdyBnbyB0byBkcml2ZXJzIC0+
+IGJsb2NrIGFuZCB0cnkgdG8gdHVybiBvbiB2aXJ0aW8tYmxrLgo+ID4gPiA+ID4gCj4gPiA+ID4g
+PiBJdCdzIG5vdCBsaXN0ZWQhCj4gPiA+ID4gCj4gPiA+ID4gWWVzLiBCZWNhdXNlIHlvdSBkaXNh
+YmxlZCBhbGwgdmlydGlvIGJhY2tlbmRzLgo+ID4gPiA+IEl0IGRvZXMgbm90IG1ha2Ugc2Vuc2Ug
+dG8gaGF2ZSBhbnkgZnJvbnRlbmRzLgo+ID4gPiAKPiA+ID4gSG93J3MgYSB1c2VyIC0gb3IgZXZl
+biBhbm90aGVyIGtlcm5lbCBkZXZlbG9wZXIgd2hvIGlzbid0IGZhbWlsaWFyIHdpdGgKPiA+ID4g
+dmlydGlvIC0gc3VwcG9zZWQgdG8ga25vdyB0aGF0Pwo+ID4gPiAKPiA+ID4gSSBzdGlsbCBkb24n
+dCBrbm93IHdoYXQgZXhhY3RseSBhIHZpcnRpbyBiYWNrZW5kIGlzIC0gdGhlIHRlcm0gaXNuJ3QK
+PiA+ID4gZXZlbiBtZW50aW9uZWQgYW55d2hlcmUgdGhhdCBJJ3ZlIHNlZW4uCj4gPiA+IAo+ID4g
+PiBXaGF0ZXZlciBpdCBpcyB0aG91Z2ggdmlydGlvLWJsayBzaG91bGQgYmUgZGVwZW5kaW5nIG9u
+IF90aGF0Xywgbm90IGEKPiA+ID4gY29uZmlnIG9wdGlvbiB0aGF0IF9pc24ndCBleHBvc2VkIGlu
+IHRoZSBtZW51XyEKPiA+ID4gCj4gPiA+ID4gPiBOb3cgZ28gYmFjayB0byBkcml2ZXJzIC0+IHZp
+cnRpbyBhbmQgdHVybiBvbiAocmFuZG9tbHkpIGJhbGxvb24uCj4gPiA+ID4gPiAKPiA+ID4gPiA+
+IEdvIGJhY2sgdG8gZHJpdmVycyAtPiBibG9jaywgYW5kIG5vdyB5b3UgY2FuIHR1cm4gb24gdmly
+dGlvLWJsayEKPiA+ID4gPiA+IAo+ID4gPiA+ID4gRG8geW91IHNlZSB3aGF0J3Mgd3Jvbmcgd2l0
+aCB0aGlzIHBpY3R1cmU/Cj4gPiA+ID4gCj4gPiA+ID4gWWVzLiBZb3UgZ290IHVubHVja3kgd2l0
+aCB5b3VyIHJhbmRvbSBndWVzcy4KPiA+ID4gPiBJdCdzIGEgYnVnIGluIGJhbGxvb24ga2NvbmZp
+ZzogaXQgc2hvdWxkIG5vdAo+ID4gPiA+IHNlbGVjdCB2aXJ0aW8uCj4gPiA+ID4gSSBzZW50IGEg
+cGF0Y2ggdG8gZml4IHRoYXQgeWVzdGVyZGF5Lgo+ID4gPiAKPiA+ID4gVGhlbiBpdCdzIGFsc28g
+YSBidWcgaW4gdGhlIGNvbW1lbnRzIGF0IHRoZSB0b3Agb2YKPiA+ID4gZHJpdmVycy92aXJ0aW8v
+S2NvbmZpZy4KPiA+ID4gCj4gPiA+IEFuZCBiZXNpZGVzIHRoYXQsIGhvdyB0aGUgX2hlbGxfIGlz
+IGEgdXNlciBzdXBwb3NlZCB0byBrbm93IHRvIHR1cm4gb24KPiA+ID4gVklSVElPX1BDSSBiZWZv
+cmUgVklSVElPX0JMSz8gSXQncyBub3QgZG9jdW1lbnRlZCBhbnl3aGVyZSAoaWYgdGhhdCBpcwo+
+ID4gPiB3aGF0J3Mgc3VwcG9zZWQgdG8gaGFwcGVuISBJIHN0aWxsIGRvbid0IGtub3cpCj4gPiAK
+PiA+IFdlbGwsIHdoYXQga2luZCBvZiBkZXZpY2UgZG8geW91IGhhdmU/IFRlbGwgdXMgOikKPiA+
+IElmIGl0J3MgYSB2aXJ0aW8gcGNpIGRldmljZSwKPiA+IHlvdSBuZWVkIHRvIGVuYWJsZSB2aXJ0
+aW8tcGNpIGFuZCB2aXJ0aW8tYmxrLgo+IAo+IEkgcnVuIHFlbXUgd2l0aCAtZHJpdmUgaWY9dmly
+dGlvLiBZb3UgdGVsbCBtZSEKCi1kcml2ZSBpZj0gaXMgYSBjb21wYXRpYmlsaXR5IG9wdGlvbi4g
+cWVtdSBtYWtlcwphbiBlZmZvcnQgdG8gZ3Vlc3Mgd2hhdCBpdCBpcyB5b3Ugd2FudCB0byBkby4K
+UmVzdWx0IGlzIHVzdWFsbHkgY29ycmVjdCBidXQgaXQgbWVhbnMgcGVvcGxlIGJ1aWxkaW5nCnRo
+ZWlyIG93biBrZXJuZWxzIGdldCBjb25mdXNlZC4KCkZvciB4ODYga3ZtIHRoZSBtb2Rlcm4gZXF1
+aXZhbGVudCBpczoKCi1kZXZpY2UgdmlydGlvLWJsay1wY2ksZHJpdmU9Zm9vYmFyIC1kcml2ZSBp
+Zj1ubywuLi4KCklmIHlvdSB1c2UgdGhpcyB5b3UgZ2V0IHdoYXQgeW91IGFza2VkIGZvciA6KS4K
+ClllcyB0aGlzIHVzYWdlIGlzIG5vdCBkb2N1bWVudGVkIGFueXdoZXJlLCBidXQgdGhpcyBpcwpu
+b3QgZ3Vlc3QgZHJpdmVyJ3MgcHJvYmxlbS4KCj4gQmV0dGVyIHlldCwgdGVsbCBtZSBob3cgdGhl
+IHVzZXIgaXMgc3VwcG9zZWQgdG8gZmlndXJlIGl0IG91dCEKCkFzIHVzdWFsIHdoZW4geW91IGRv
+IG5vdCBrbm93IHdoaWNoIGRyaXZlciB0byBzZWxlY3QuCkJvb3QgYSBkaXN0cm8ga2VybmVsIGFu
+ZCBsb29rIGFyb3VuZC4KV2hlcmUgaXMgeW91ciB2aXJ0aW8gZGV2aWNlPyBPbiBhIHBjaSBidXM/
+ClRoZXJlIHlvdSBhcmUuCgo+ID4gCj4gPiA+IGFuZCBldmVuIGlmIGl0IHdhcwo+ID4gPiBkb2N1
+bWVudGVkLCBoYXZpbmcgb25lIGtjb25maWcgb3B0aW9uIGRlcGVuZCBvbiBzb21ldGhpbmcgdGhh
+dCdzIGV4cG9zZWQKPiA+ID4gaW4gYSBfY29tcGxldGVseSBkaWZmZXJlbnQgbWVudV8gaXMganVz
+dCBtYWRlIG9mIGZhaWwuCj4gPiAKPiA+IEZpbmUsIGJ1dCB3aHkgcGljayBvbiB2aXJ0aW8/Cj4g
+PiBUaGlzIGlzIGV4dHJlbWVseSBjb21tb24gaW4ga2NvbmZpZy4KPiA+IEZvciBleGFtcGxlLCBh
+IHRvbiBvZiBuZXR3b3JrIGRyaXZlcnMgZGVwZW5kCj4gPiBvbiBQQ0ksIGl0J3MgZXhhY3RseSB0
+aGUgc2FtZSB0aGluZy4KPiAKPiBOZXZlciBub3RpY2VkIHdoZXJlIENPTkZJR19QQ0kgaXMgZXhw
+b3NlZCBpbiBidXMgb3B0aW9ucz8KCkkgc2VlIGl0OgoKQ09ORklHX1BDSToKICDilIIgRmluZCBv
+dXQgd2hldGhlciB5b3UgaGF2ZSBhIFBDSSBtb3RoZXJib2FyZC4gUENJIGlzIHRoZSBuYW1lIG9m
+IGEg4pSCICAKICDilIIgYnVzIHN5c3RlbSwgaS5lLiB0aGUgd2F5IHRoZSBDUFUgdGFsa3MgdG8g
+dGhlIG90aGVyIHN0dWZmIGluc2lkZSDilIIgIAogIOKUgiB5b3VyIGJveC4gT3RoZXIgYnVzIHN5
+c3RlbXMgYXJlIElTQSwgRUlTQSwgTWljcm9DaGFubmVsIChNQ0EpIG9yIOKUgiAgCiAg4pSCIFZF
+U0EuIElmIHlvdSBoYXZlIFBDSSwgc2F5IFksIG90aGVyd2lzZSBOLiAg4pSCICAKCj4gTm9wZSwg
+bm90IHRoZSBzYW1lIHRoaW5nLgoKWW91IGp1c3QgaGFwcGVuIHRvIGtub3cgd2hhdCBQQ0kgaXMg
+YnV0IG5vdCB3aGF0IFZJUlRJTyBQQ0kgaXMuClRoaXMgaXMgZmFpciBlbm91Z2gsIGJ1dCBub3Qg
+c3VyZSBob3cgdG8gaGVscCBpbiB0aGlzIGNhc2UuCllvdXIgcGF0Y2ggd29uJ3QgaGVscCB0aG91
+Z2guCgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
