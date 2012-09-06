@@ -1,16 +1,21 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-blk: Fix kconfig option
-Date: Thu, 6 Sep 2012 11:44:03 +0300
-Message-ID: <20120906084403.GD17656@redhat.com>
-References: <20120903044133.GA9980@moria.home.lan>
-	<87wr0ae26e.fsf@rustcorp.com.au>
-	<20120906074113.GA5902@koverstreet-glaptop>
+Subject: Re: [PATCH v2 2/2] virtio-ring: Allocate indirect buffers from cache
+	when possible
+Date: Thu, 6 Sep 2012 11:45:26 +0300
+Message-ID: <20120906084526.GE17656@redhat.com>
+References: <1346159043-16446-2-git-send-email-levinsasha928@gmail.com>
+	<20120828132032.GB2039@redhat.com> <503CC904.3050207@gmail.com>
+	<20120829110748.GB5970@redhat.com> <503E2F27.5060904@gmail.com>
+	<20120829153833.GE7407@redhat.com> <503E4873.6060607@gmail.com>
+	<871uigj747.fsf@rustcorp.com.au>
+	<20120906050257.GA17656@redhat.com>
+	<877gs7inx8.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120906074113.GA5902@koverstreet-glaptop>
+In-Reply-To: <877gs7inx8.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,30 +25,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Kent Overstreet <koverstreet@google.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, avi@redhat.com, Sasha Levin <levinsasha928@gmail.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2012 at 12:41:13AM -0700, Kent Overstreet wrote:
-> On Tue, Sep 04, 2012 at 03:53:53PM +0930, Rusty Russell wrote:
-> > Kent Overstreet <koverstreet@google.com> writes:
-> > 
-> > > CONFIG_VIRTIO isn't exposed, everything else is supposed to select it
-> > > instead.
-> > 
-> > This is a slight mis-understanding.  It's supposed to be selected by
-> > the particular driver, probably virtio_pci in your case.
+On Thu, Sep 06, 2012 at 05:27:23PM +0930, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > Yes without checksum net core always linearizes packets, so yes it is
+> > screwed.
+> > For -net, skb always allocates space for 17 frags + linear part so
+> > it seems sane to do same in virtio core, and allocate, for -net,
+> > up to max_frags + 1 from cache.
+> > We can adjust it: no _SG -> 2 otherwise 18.
 > 
-> So are you saying virtio-blk depends on virtio-pci? If so, the kconfig
-> should have that.
-> 
-> As is, VIRTIO_BLK just has:
-> 	depends on EXPERIMENTAL && VIRTIO
-> 
-> which is flat out broken.
+> But I thought it used individual buffers these days?
 
-I don't think anything is broken.
-Can you show an example of a broken configuration?
+Yes for receive, no for transmit. That's probably why
+we should have the threshold per vq, not per device, BTW.
 
 -- 
 MST
