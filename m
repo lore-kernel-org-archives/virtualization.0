@@ -1,22 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-blk: Fix kconfig option
-Date: Thu, 6 Sep 2012 14:09:22 +0300
-Message-ID: <20120906110922.GD32325@redhat.com>
-References: <20120903044133.GA9980@moria.home.lan>
-	<87wr0ae26e.fsf@rustcorp.com.au>
-	<20120906074113.GA5902@koverstreet-glaptop>
-	<20120906084403.GD17656@redhat.com>
-	<20120906092512.GB5902@koverstreet-glaptop>
-	<20120906094956.GB22816@redhat.com>
-	<20120906100247.GA27355@koverstreet-glaptop>
-	<20120906101842.GB32325@redhat.com>
-	<20120906103143.GA22299@moria.home.lan>
+Subject: [PATCHv3] virtio-spec: virtio network device multiqueue support
+Date: Thu, 6 Sep 2012 15:08:29 +0300
+Message-ID: <20120906120828.GA1534@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120906103143.GA22299@moria.home.lan>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,92 +16,564 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Kent Overstreet <koverstreet@google.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBTZXAgMDYsIDIwMTIgYXQgMDM6MzE6NDRBTSAtMDcwMCwgS2VudCBPdmVyc3RyZWV0
-IHdyb3RlOgo+IE9uIFRodSwgU2VwIDA2LCAyMDEyIGF0IDAxOjE4OjQzUE0gKzAzMDAsIE1pY2hh
-ZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+IE9uIFRodSwgU2VwIDA2LCAyMDEyIGF0IDAzOjAyOjQ4
-QU0gLTA3MDAsIEtlbnQgT3ZlcnN0cmVldCB3cm90ZToKPiA+ID4gT24gVGh1LCBTZXAgMDYsIDIw
-MTIgYXQgMTI6NDk6NTZQTSArMDMwMCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+ID4gPiA+
-IE9uIFRodSwgU2VwIDA2LCAyMDEyIGF0IDAyOjI1OjEyQU0gLTA3MDAsIEtlbnQgT3ZlcnN0cmVl
-dCB3cm90ZToKPiA+ID4gPiA+IE9uIFRodSwgU2VwIDA2LCAyMDEyIGF0IDExOjQ0OjAzQU0gKzAz
-MDAsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+ID4gPiA+ID4gT24gVGh1LCBTZXAgMDYs
-IDIwMTIgYXQgMTI6NDE6MTNBTSAtMDcwMCwgS2VudCBPdmVyc3RyZWV0IHdyb3RlOgo+ID4gPiA+
-ID4gPiA+IE9uIFR1ZSwgU2VwIDA0LCAyMDEyIGF0IDAzOjUzOjUzUE0gKzA5MzAsIFJ1c3R5IFJ1
-c3NlbGwgd3JvdGU6Cj4gPiA+ID4gPiA+ID4gPiBLZW50IE92ZXJzdHJlZXQgPGtvdmVyc3RyZWV0
-QGdvb2dsZS5jb20+IHdyaXRlczoKPiA+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ID4gPiBD
-T05GSUdfVklSVElPIGlzbid0IGV4cG9zZWQsIGV2ZXJ5dGhpbmcgZWxzZSBpcyBzdXBwb3NlZCB0
-byBzZWxlY3QgaXQKPiA+ID4gPiA+ID4gPiA+ID4gaW5zdGVhZC4KPiA+ID4gPiA+ID4gPiA+IAo+
-ID4gPiA+ID4gPiA+ID4gVGhpcyBpcyBhIHNsaWdodCBtaXMtdW5kZXJzdGFuZGluZy4gIEl0J3Mg
-c3VwcG9zZWQgdG8gYmUgc2VsZWN0ZWQgYnkKPiA+ID4gPiA+ID4gPiA+IHRoZSBwYXJ0aWN1bGFy
-IGRyaXZlciwgcHJvYmFibHkgdmlydGlvX3BjaSBpbiB5b3VyIGNhc2UuCj4gPiA+ID4gPiA+ID4g
-Cj4gPiA+ID4gPiA+ID4gU28gYXJlIHlvdSBzYXlpbmcgdmlydGlvLWJsayBkZXBlbmRzIG9uIHZp
-cnRpby1wY2k/IElmIHNvLCB0aGUga2NvbmZpZwo+ID4gPiA+ID4gPiA+IHNob3VsZCBoYXZlIHRo
-YXQuCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gQXMgaXMsIFZJUlRJT19CTEsganVzdCBo
-YXM6Cj4gPiA+ID4gPiA+ID4gCWRlcGVuZHMgb24gRVhQRVJJTUVOVEFMICYmIFZJUlRJTwo+ID4g
-PiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+IHdoaWNoIGlzIGZsYXQgb3V0IGJyb2tlbi4KPiA+ID4g
-PiA+ID4gCj4gPiA+ID4gPiA+IEkgZG9uJ3QgdGhpbmsgYW55dGhpbmcgaXMgYnJva2VuLgo+ID4g
-PiA+ID4gPiBDYW4geW91IHNob3cgYW4gZXhhbXBsZSBvZiBhIGJyb2tlbiBjb25maWd1cmF0aW9u
-Pwo+ID4gPiA+ID4gCj4gPiA+ID4gPiBEbyB5b3Ugbm90IHVuZGVyc3RhbmQgdGhlIGRpZmZlcmVu
-Y2UgYmV0d2VlbiBkZXBlbmRzIGFuIHNlbGVjdHM/Cj4gPiA+ID4gPiBPciBkaWQgeW91IG5vdCBy
-ZWFkIG15IG9yaWdpbmFsIG1haWw/Cj4gPiA+ID4gPiBGbGlwIG9mZiBldmVyeXRoaW5nIGluIGRy
-aXZlcnMgLT4gdmlydGlvCj4gPiA+ID4gPiAKPiA+ID4gPiA+IE5vdyBnbyB0byBkcml2ZXJzIC0+
-IGJsb2NrIGFuZCB0cnkgdG8gdHVybiBvbiB2aXJ0aW8tYmxrLgo+ID4gPiA+ID4gCj4gPiA+ID4g
-PiBJdCdzIG5vdCBsaXN0ZWQhCj4gPiA+ID4gCj4gPiA+ID4gWWVzLiBCZWNhdXNlIHlvdSBkaXNh
-YmxlZCBhbGwgdmlydGlvIGJhY2tlbmRzLgo+ID4gPiA+IEl0IGRvZXMgbm90IG1ha2Ugc2Vuc2Ug
-dG8gaGF2ZSBhbnkgZnJvbnRlbmRzLgo+ID4gPiAKPiA+ID4gSG93J3MgYSB1c2VyIC0gb3IgZXZl
-biBhbm90aGVyIGtlcm5lbCBkZXZlbG9wZXIgd2hvIGlzbid0IGZhbWlsaWFyIHdpdGgKPiA+ID4g
-dmlydGlvIC0gc3VwcG9zZWQgdG8ga25vdyB0aGF0Pwo+ID4gPiAKPiA+ID4gSSBzdGlsbCBkb24n
-dCBrbm93IHdoYXQgZXhhY3RseSBhIHZpcnRpbyBiYWNrZW5kIGlzIC0gdGhlIHRlcm0gaXNuJ3QK
-PiA+ID4gZXZlbiBtZW50aW9uZWQgYW55d2hlcmUgdGhhdCBJJ3ZlIHNlZW4uCj4gPiA+IAo+ID4g
-PiBXaGF0ZXZlciBpdCBpcyB0aG91Z2ggdmlydGlvLWJsayBzaG91bGQgYmUgZGVwZW5kaW5nIG9u
-IF90aGF0Xywgbm90IGEKPiA+ID4gY29uZmlnIG9wdGlvbiB0aGF0IF9pc24ndCBleHBvc2VkIGlu
-IHRoZSBtZW51XyEKPiA+ID4gCj4gPiA+ID4gPiBOb3cgZ28gYmFjayB0byBkcml2ZXJzIC0+IHZp
-cnRpbyBhbmQgdHVybiBvbiAocmFuZG9tbHkpIGJhbGxvb24uCj4gPiA+ID4gPiAKPiA+ID4gPiA+
-IEdvIGJhY2sgdG8gZHJpdmVycyAtPiBibG9jaywgYW5kIG5vdyB5b3UgY2FuIHR1cm4gb24gdmly
-dGlvLWJsayEKPiA+ID4gPiA+IAo+ID4gPiA+ID4gRG8geW91IHNlZSB3aGF0J3Mgd3Jvbmcgd2l0
-aCB0aGlzIHBpY3R1cmU/Cj4gPiA+ID4gCj4gPiA+ID4gWWVzLiBZb3UgZ290IHVubHVja3kgd2l0
-aCB5b3VyIHJhbmRvbSBndWVzcy4KPiA+ID4gPiBJdCdzIGEgYnVnIGluIGJhbGxvb24ga2NvbmZp
-ZzogaXQgc2hvdWxkIG5vdAo+ID4gPiA+IHNlbGVjdCB2aXJ0aW8uCj4gPiA+ID4gSSBzZW50IGEg
-cGF0Y2ggdG8gZml4IHRoYXQgeWVzdGVyZGF5Lgo+ID4gPiAKPiA+ID4gVGhlbiBpdCdzIGFsc28g
-YSBidWcgaW4gdGhlIGNvbW1lbnRzIGF0IHRoZSB0b3Agb2YKPiA+ID4gZHJpdmVycy92aXJ0aW8v
-S2NvbmZpZy4KPiA+ID4gCj4gPiA+IEFuZCBiZXNpZGVzIHRoYXQsIGhvdyB0aGUgX2hlbGxfIGlz
-IGEgdXNlciBzdXBwb3NlZCB0byBrbm93IHRvIHR1cm4gb24KPiA+ID4gVklSVElPX1BDSSBiZWZv
-cmUgVklSVElPX0JMSz8gSXQncyBub3QgZG9jdW1lbnRlZCBhbnl3aGVyZSAoaWYgdGhhdCBpcwo+
-ID4gPiB3aGF0J3Mgc3VwcG9zZWQgdG8gaGFwcGVuISBJIHN0aWxsIGRvbid0IGtub3cpCj4gPiAK
-PiA+IFdlbGwsIHdoYXQga2luZCBvZiBkZXZpY2UgZG8geW91IGhhdmU/IFRlbGwgdXMgOikKPiA+
-IElmIGl0J3MgYSB2aXJ0aW8gcGNpIGRldmljZSwKPiA+IHlvdSBuZWVkIHRvIGVuYWJsZSB2aXJ0
-aW8tcGNpIGFuZCB2aXJ0aW8tYmxrLgo+IAo+IEkgcnVuIHFlbXUgd2l0aCAtZHJpdmUgaWY9dmly
-dGlvLiBZb3UgdGVsbCBtZSEKCi1kcml2ZSBpZj0gaXMgYSBjb21wYXRpYmlsaXR5IG9wdGlvbi4g
-cWVtdSBtYWtlcwphbiBlZmZvcnQgdG8gZ3Vlc3Mgd2hhdCBpdCBpcyB5b3Ugd2FudCB0byBkby4K
-UmVzdWx0IGlzIHVzdWFsbHkgY29ycmVjdCBidXQgaXQgbWVhbnMgcGVvcGxlIGJ1aWxkaW5nCnRo
-ZWlyIG93biBrZXJuZWxzIGdldCBjb25mdXNlZC4KCkZvciB4ODYga3ZtIHRoZSBtb2Rlcm4gZXF1
-aXZhbGVudCBpczoKCi1kZXZpY2UgdmlydGlvLWJsay1wY2ksZHJpdmU9Zm9vYmFyIC1kcml2ZSBp
-Zj1ubywuLi4KCklmIHlvdSB1c2UgdGhpcyB5b3UgZ2V0IHdoYXQgeW91IGFza2VkIGZvciA6KS4K
-ClllcyB0aGlzIHVzYWdlIGlzIG5vdCBkb2N1bWVudGVkIGFueXdoZXJlLCBidXQgdGhpcyBpcwpu
-b3QgZ3Vlc3QgZHJpdmVyJ3MgcHJvYmxlbS4KCj4gQmV0dGVyIHlldCwgdGVsbCBtZSBob3cgdGhl
-IHVzZXIgaXMgc3VwcG9zZWQgdG8gZmlndXJlIGl0IG91dCEKCkFzIHVzdWFsIHdoZW4geW91IGRv
-IG5vdCBrbm93IHdoaWNoIGRyaXZlciB0byBzZWxlY3QuCkJvb3QgYSBkaXN0cm8ga2VybmVsIGFu
-ZCBsb29rIGFyb3VuZC4KV2hlcmUgaXMgeW91ciB2aXJ0aW8gZGV2aWNlPyBPbiBhIHBjaSBidXM/
-ClRoZXJlIHlvdSBhcmUuCgo+ID4gCj4gPiA+IGFuZCBldmVuIGlmIGl0IHdhcwo+ID4gPiBkb2N1
-bWVudGVkLCBoYXZpbmcgb25lIGtjb25maWcgb3B0aW9uIGRlcGVuZCBvbiBzb21ldGhpbmcgdGhh
-dCdzIGV4cG9zZWQKPiA+ID4gaW4gYSBfY29tcGxldGVseSBkaWZmZXJlbnQgbWVudV8gaXMganVz
-dCBtYWRlIG9mIGZhaWwuCj4gPiAKPiA+IEZpbmUsIGJ1dCB3aHkgcGljayBvbiB2aXJ0aW8/Cj4g
-PiBUaGlzIGlzIGV4dHJlbWVseSBjb21tb24gaW4ga2NvbmZpZy4KPiA+IEZvciBleGFtcGxlLCBh
-IHRvbiBvZiBuZXR3b3JrIGRyaXZlcnMgZGVwZW5kCj4gPiBvbiBQQ0ksIGl0J3MgZXhhY3RseSB0
-aGUgc2FtZSB0aGluZy4KPiAKPiBOZXZlciBub3RpY2VkIHdoZXJlIENPTkZJR19QQ0kgaXMgZXhw
-b3NlZCBpbiBidXMgb3B0aW9ucz8KCkkgc2VlIGl0OgoKQ09ORklHX1BDSToKICDilIIgRmluZCBv
-dXQgd2hldGhlciB5b3UgaGF2ZSBhIFBDSSBtb3RoZXJib2FyZC4gUENJIGlzIHRoZSBuYW1lIG9m
-IGEg4pSCICAKICDilIIgYnVzIHN5c3RlbSwgaS5lLiB0aGUgd2F5IHRoZSBDUFUgdGFsa3MgdG8g
-dGhlIG90aGVyIHN0dWZmIGluc2lkZSDilIIgIAogIOKUgiB5b3VyIGJveC4gT3RoZXIgYnVzIHN5
-c3RlbXMgYXJlIElTQSwgRUlTQSwgTWljcm9DaGFubmVsIChNQ0EpIG9yIOKUgiAgCiAg4pSCIFZF
-U0EuIElmIHlvdSBoYXZlIFBDSSwgc2F5IFksIG90aGVyd2lzZSBOLiAg4pSCICAKCj4gTm9wZSwg
-bm90IHRoZSBzYW1lIHRoaW5nLgoKWW91IGp1c3QgaGFwcGVuIHRvIGtub3cgd2hhdCBQQ0kgaXMg
-YnV0IG5vdCB3aGF0IFZJUlRJTyBQQ0kgaXMuClRoaXMgaXMgZmFpciBlbm91Z2gsIGJ1dCBub3Qg
-c3VyZSBob3cgdG8gaGVscCBpbiB0aGlzIGNhc2UuCllvdXIgcGF0Y2ggd29uJ3QgaGVscCB0aG91
-Z2guCgotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Add multiqueue support to virtio network device.
+Add a new feature flag VIRTIO_NET_F_MULTIQUEUE for this feature, a new
+configuration field max_virtqueue_pairs to detect supported number of
+virtqueues as well as a new command VIRTIO_NET_CTRL_STEERING to program
+packet steering.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+--
+
+Changes from v2:
+Address Jason's comments on v2:
+- Changed STEERING_HOST to STEERING_RX_FOLLOWS_TX:
+  this is both clearer and easier to support.
+  It does not look like we need a separate steering command
+  since host can just watch tx packets as they go.
+- Moved RX and TX steering sections near each other.
+- Add motivation for other changes in v2
+
+Changes from Jason's rfc:
+- reserved vq 3: this makes all rx vqs even and tx vqs odd, which
+  looks nicer to me.
+- documented packet steering, added a generalized steering programming
+  command. Current modes are single queue and host driven multiqueue,
+  but I envision support for guest driven multiqueue in the future.
+- make default vqs unused when in mq mode - this wastes some memory
+  but makes it more efficient to switch between modes as
+  we can avoid this causing packet reordering.
+
+Rusty, could you please take a look and comment?
+If this looks OK to everyone, we can proceed with finalizing the
+implementation.  This patch is against
+eb9fc84d0d3c46438aaab190e2401a9e5409a052 in virtio-spec git tree.
+
+diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+index 7a073f4..a713807 100644
+--- a/virtio-spec.lyx
++++ b/virtio-spec.lyx
+@@ -58,6 +58,7 @@
+ \html_be_strict false
+ \author -608949062 "Rusty Russell,,," 
+ \author 1531152142 "Paolo Bonzini,,," 
++\author 1986246365 "Michael S. Tsirkin" 
+ \end_header
+ 
+ \begin_body
+@@ -3896,6 +3897,37 @@ Only if VIRTIO_NET_F_CTRL_VQ set
+ \end_inset
+ 
+ 
++\change_inserted 1986246365 1346663522
++ 3: reserved
++\end_layout
++
++\begin_layout Description
++
++\change_inserted 1986246365 1346663550
++4: receiveq1.
++ 5: transmitq1.
++ 6: receiveq2.
++ 7.
++ transmitq2.
++ ...
++ 2N+2:receivqN, 2N+3:transmitqN
++\begin_inset Foot
++status open
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346663558
++Only if VIRTIO_NET_F_CTRL_VQ set.
++ N is indicated by max_virtqueue_pairs field.
++\change_unchanged
++
++\end_layout
++
++\end_inset
++
++
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Description
+@@ -4056,6 +4088,17 @@ VIRTIO_NET_F_CTRL_VLAN
+ 
+ \begin_layout Description
+ VIRTIO_NET_F_GUEST_ANNOUNCE(21) Guest can send gratuitous packets.
++\change_inserted 1986246365 1346617842
++
++\end_layout
++
++\begin_layout Description
++
++\change_inserted 1986246365 1346618103
++VIRTIO_NET_F_MULTIQUEUE(22) Device has multiple receive and transmission
++ queues.
++\change_unchanged
++
+ \end_layout
+ 
+ \end_deeper
+@@ -4068,11 +4111,45 @@ configuration
+ \begin_inset space ~
+ \end_inset
+ 
+-layout Two configuration fields are currently defined.
++layout 
++\change_deleted 1986246365 1346671560
++Two
++\change_inserted 1986246365 1346671647
++Six
++\change_unchanged
++ configuration fields are currently defined.
+  The mac address field always exists (though is only valid if VIRTIO_NET_F_MAC
+  is set), and the status field only exists if VIRTIO_NET_F_STATUS is set.
+  Two read-only bits are currently defined for the status field: VIRTIO_NET_S_LIN
+ K_UP and VIRTIO_NET_S_ANNOUNCE.
++
++\change_inserted 1986246365 1346930950
++ The following four read-only fields only exists if VIRTIO_NET_F_MULTIQUEUE
++ is set.
++ The max_virtqueue_pairs field specifies the maximum number of each of transmit
++ and receive virtqueues that can be used for multiqueue operation.
++ The following read-only fields: 
++\emph on
++current_steering_rule
++\emph default
++, 
++\emph on
++reserved
++\emph default
++ and 
++\emph on
++current_steering_param
++\emph default
++ store the last successful VIRTIO_NET_CTRL_STEERING
++\begin_inset CommandInset ref
++LatexCommand ref
++reference "sub:Transmit-Packet-Steering"
++
++\end_inset
++
++ command executed by driver, for debugging purposes.
++
++\change_unchanged
+  
+ \begin_inset listings
+ inline false
+@@ -4105,6 +4182,40 @@ struct virtio_net_config {
+ \begin_layout Plain Layout
+ 
+     u16 status;
++\change_inserted 1986246365 1346671221
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346671532
++
++    u16 max_virtqueue_pairs;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346671531
++
++    u8 current_steering_rule;
++\change_unchanged
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346671499
++
++    u8 reserved;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346671530
++
++    u16 current_steering_param;
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Plain Layout
+@@ -4151,6 +4262,18 @@ physical
+ \begin_layout Enumerate
+ If the VIRTIO_NET_F_CTRL_VQ feature bit is negotiated, identify the control
+  virtqueue.
++\change_inserted 1986246365 1346618052
++
++\end_layout
++
++\begin_layout Enumerate
++
++\change_inserted 1986246365 1346618175
++If VIRTIO_NET_F_MULTIQUEUE feature bit is negotiated, identify the receive
++ and transmission queues that are going to be used in multiqueue mode.
++ Only queues that are going to be used need to be initialized.
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Enumerate
+@@ -4168,7 +4291,11 @@ status
+ \end_layout
+ 
+ \begin_layout Enumerate
+-The receive virtqueue should be filled with receive buffers.
++The receive virtqueue
++\change_inserted 1986246365 1346618180
++(s)
++\change_unchanged
++ should be filled with receive buffers.
+  This is described in detail below in 
+ \begin_inset Quotes eld
+ \end_inset
+@@ -4513,6 +4640,8 @@ Note that the header will be two bytes longer for the VIRTIO_NET_F_MRG_RXBUF
+ \end_inset
+ 
+ 
++\change_deleted 1986246365 1346932640
++
+ \end_layout
+ 
+ \begin_layout Subsection*
+@@ -4988,8 +5117,24 @@ status open
+ The Guest needs to check VIRTIO_NET_S_ANNOUNCE bit in status field when
+  it notices the changes of device configuration.
+  The command VIRTIO_NET_CTRL_ANNOUNCE_ACK is used to indicate that driver
+- has recevied the notification and device would clear the VIRTIO_NET_S_ANNOUNCE
+- bit in the status filed after it received this command.
++ has rece
++\change_inserted 1986246365 1346663932
++i
++\change_unchanged
++v
++\change_deleted 1986246365 1346663934
++i
++\change_unchanged
++ed the notification and device would clear the VIRTIO_NET_S_ANNOUNCE bit
++ in the status fi
++\change_inserted 1986246365 1346663942
++e
++\change_unchanged
++l
++\change_deleted 1986246365 1346663943
++e
++\change_unchanged
++d after it received this command.
+ \end_layout
+ 
+ \begin_layout Standard
+@@ -5004,10 +5149,298 @@ Sending the gratuitous packets or marking there are pending gratuitous packets
+ \begin_layout Enumerate
+ Sending VIRTIO_NET_CTRL_ANNOUNCE_ACK command through control vq.
+  
++\change_deleted 1986246365 1346662247
++
+ \end_layout
+ 
+-\begin_layout Enumerate
++\begin_layout Subsection*
++
++\change_inserted 1986246365 1346932658
++\begin_inset CommandInset label
++LatexCommand label
++name "sub:Transmit-Packet-Steering"
++
++\end_inset
++
++Transmit Packet Steering
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346932658
++When VIRTIO_NET_F_MULTIQUEUE feature bit is negotiated, guest can use any
++ of multiple configured transmit queues to transmit a given packet.
++ To avoid packet reordering by device (which generally leads to performance
++ degradation) driver should attempt to utilize the same transmit virtqueue
++ for all packets of a given transmit flow.
++ For bi-directional protocols (in practice, TCP), a given network connection
++ can utilize both transmit and receive queues.
++ For best performance, packets from a single connection should utilize the
++ paired transmit and receive queues from the same virtqueue pair; for example
++ both transmitqN and receiveqN.
++ This rule makes it possible to optimize processing on the device side,
++ but this is not a hard requirement: devices should function correctly even
++ when this rule is not followed.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346932658
++Driver selects an active steering rule using VIRTIO_NET_CTRL_STEERING command
++ (this controls both which virtqueue is selected for a given packet for
++ receive and notifies the device which virtqueues are about to be used for
++ transmit).
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346932658
++This command accepts a single out argument in the following format:
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346932658
++\begin_inset listings
++inline false
++status open
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346932658
++
++#define VIRTIO_NET_CTRL_STEERING       4
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346932658
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346932658
++
++struct virtio_net_ctrl_steering {
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346932658
++
++	u8 current_steering_rule;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346932658
++
++    u8 reserved;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346932658
++
++	u16 current_steering_param;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346932658
++
++};
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346932658
++
++#define VIRTIO_NET_CTRL_STEERING_SINGLE       0
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1346932658
++
++#define VIRTIO_NET_CTRL_STEERING_HOST  1
++\end_layout
++
++\end_inset
++
++
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346932658
++The field 
++\emph on
++rule
++\emph default
++ specifies the function used to select transmit virtqueue for a given packet;
++ the field 
++\emph on
++param
++\emph default
++ makes it possible to pass an extra parameter if appropriate.
++ When 
++\emph on
++rule
++\emph default
++ is set to VIRTIO_NET_CTRL_STEERING_SINGLE (this is the default) all packets
++ are steered to the default virtqueue transmitq (1); param is unused; this
++ is the default.
++ With any other rule, When 
++\emph on
++rule
++\emph default
++ is set to VIRTIO_NET_CTRL_STEERING_RX_FOLLOWS_TX packets are steered by
++ driver to the first (
++\emph on
++param
++\emph default
+++1) multiqueue virtqueues transmitq1...transmitqN; the default transmitq is
++ unused.
++ Driver must have configured all these (
++\emph on
++param
++\emph default
+++1) virtqueues beforehand.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346932658
++Supported steering rules can be added and removed in the future.
++ Driver should check that the request to change the steering rule was successful
++ by checking ack values of the command.
++ As selecting a specific steering ais n optimization feature, drivers should
++ avoid hard failure and fall back on using a supported steering rule if
++ this command fails.
++ The default steering rule is VIRTIO_NET_CTRL_STEERING_SINGLE.
++ It will not be removed.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346932658
++When the steering rule is modified, some packets can still be outstanding
++ in one or more of the transmit virtqueues.
++ Since drivers might choose to modify the current steering rule at a high
++ rate (e.g.
++ adaptively in response to changes in the workload) to avoid reordering
++ packets, device is recommended to complete processing of the transmit queue(s)
++ utilized by the original steering before processing any packets delivered
++ by the modified steering rule.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346932658
++For debugging, the current steering rule can also be read from the configuration
++ space.
++\end_layout
++
++\begin_layout Subsection*
++
++\change_inserted 1986246365 1346670357
++\begin_inset CommandInset label
++LatexCommand label
++name "sub:Receive-Packet-Steering"
++
++\end_inset
++
++Receive Packet Steering
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346671046
++When VIRTIO_NET_F_MULTIQUEUE feature bit is negotiated, device can use any
++ of multiple configured receive queues to pass a given packet to driver.
++ Driver controls which virtqueue is selected in practice by configuring
++ packet steering rule using VIRTIO_NET_CTRL_STEERING command, as described
++ above
++\begin_inset CommandInset ref
++LatexCommand ref
++reference "sub:Transmit-Packet-Steering"
++
++\end_inset
++
++.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346931532
++The field 
++\emph on
++rule
++\emph default
++ specifies the function used to select receive virtqueue for a given packet;
++ the field 
++\emph on
++param
++\emph default
++ makes it possible to pass an extra parameter if appropriate.
++ When 
++\emph on
++rule
++\emph default
++ is set to VIRTIO_NET_CTRL_STEERING_SINGLE all packets are steered to the
++ default virtqueue receveq (0); param is unused; this is the default.
++ When 
++\emph on
++rule
++\emph default
++ is set to VIRTIO_NET_CTRL_STEERING_RX_FOLLOWS_TX packets are steered by
++ host to the first (
++\emph on
++param
++\emph default
+++1) multiqueue virtqueues receiveq1...receiveqN; the default receiveq is unused.
++ Driver must have configured all these (
++\emph on
++param
++\emph default
+++1) virtqueues beforehand.
++ For best performance for bi-directional flows (such as TCP) device should
++ detect the flow to virtqueue pair mapping on transmit and select the receive
++ virtqueue from the same virtqueue pair.
++ For uni-directional flows, or when this mapping information is missing,
++ a device-specific steering function is used.
++\change_unchanged
++
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346669564
++Supported steering rules can be added and removed in the future.
++ Driver should probe for supported rules by checking ack values of the command.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1346932135
++When the steering rule is modified, some packets can still be outstanding
++ in one or more of the virtqueues.
++ Device is not required to wait for these packets to be consumed before
++ delivering packets using the new streering rule.
++ Drivers modifying the steering rule at a high rate (e.g.
++ adaptively in response to changes in the workload) are recommended to complete
++ processing of the receive queue(s) utilized by the original steering before
++ processing any packets delivered by the modified steering rule.
++\end_layout
++
++\begin_layout Standard
++
++\change_deleted 1986246365 1346664095
+ .
++
++\change_unchanged
+  
+ \end_layout
