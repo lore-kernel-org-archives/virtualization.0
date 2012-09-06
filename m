@@ -1,17 +1,21 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
-	deflate" feature that works
-Date: Fri, 07 Sep 2012 09:15:46 +0930
-Message-ID: <87wr06hg0l.fsf@rustcorp.com.au>
-References: <1346917610-14568-1-git-send-email-pbonzini@redhat.com>
-	<20120906084736.GF17656@redhat.com> <50486BB2.7070108@redhat.com>
-	<20120906094442.GA22816@redhat.com> <50487382.8030303@redhat.com>
-	<20120906105301.GC32325@redhat.com> <5048935A.8090308@redhat.com>
+Subject: Re: [PATCH v2 2/2] virtio-ring: Allocate indirect buffers from cache
+	when possible
+Date: Fri, 07 Sep 2012 09:19:04 +0930
+Message-ID: <87txvahfv3.fsf__43555.8436591693$1346976172$gmane$org@rustcorp.com.au>
+References: <1346159043-16446-2-git-send-email-levinsasha928@gmail.com>
+	<20120828132032.GB2039@redhat.com> <503CC904.3050207@gmail.com>
+	<20120829110748.GB5970@redhat.com> <503E2F27.5060904@gmail.com>
+	<20120829153833.GE7407@redhat.com> <503E4873.6060607@gmail.com>
+	<871uigj747.fsf@rustcorp.com.au>
+	<20120906050257.GA17656@redhat.com>
+	<877gs7inx8.fsf@rustcorp.com.au>
+	<20120906084526.GE17656@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5048935A.8090308@redhat.com>
+In-Reply-To: <20120906084526.GE17656@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,32 +25,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, avi@redhat.com, Sasha Levin <levinsasha928@gmail.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
-> Instead, VIRTIO_NET_F_HOST_MUST_SEND_GARP would be a "negative" feature:
-> if set, the host _may not_ rely on the guest to send a gARP.  Similarly
-> if VIRTIO_BALLOON_F_MUST_TELL_HOST is set, the guest _may not_ use
-> ballooned pages directly.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+
+> On Thu, Sep 06, 2012 at 05:27:23PM +0930, Rusty Russell wrote:
+>> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> > Yes without checksum net core always linearizes packets, so yes it is
+>> > screwed.
+>> > For -net, skb always allocates space for 17 frags + linear part so
+>> > it seems sane to do same in virtio core, and allocate, for -net,
+>> > up to max_frags + 1 from cache.
+>> > We can adjust it: no _SG -> 2 otherwise 18.
+>> 
+>> But I thought it used individual buffers these days?
 >
-> There are _no_ other negative features besides
-> VIRTIO_BALLOON_F_MUST_TELL_HOST in the spec, and for a good
-> reason---because they're broken.
->
-> (Hmm, actually we have one, VIRTIO_BLK_F_RO.  It is also a bit broken,
-> but it is not so important because it depends on user input more than
-> hypervisor version).
+> Yes for receive, no for transmit. That's probably why
+> we should have the threshold per vq, not per device, BTW.
 
-Yes, this is the key observation, and an important lesson for the
-future.  Thanks!
+Can someone actually run with my histogram patch and see what the real
+numbers are?
 
-Note that these two negative features were in the original spec, where
-it's assumed that every device supports them.  That's not explicitly
-documented, however.
+I'm not convinced that the ideal 17-buffer case actually happens as much
+as we think.  And if it's not happening with this netperf test, we're
+testing the wrong thing.
 
-I like killing the totally unused feature.
-
-Cheers,
+Thanks,
 Rusty.
