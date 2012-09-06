@@ -1,13 +1,15 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCHv3] virtio-spec: virtio network device multiqueue support
-Date: Thu, 06 Sep 2012 18:43:36 +0200
-Message-ID: <5048D2B8.4060003@redhat.com>
+Date: Fri, 7 Sep 2012 02:16:47 +0300
+Message-ID: <20120906231647.GB1873@redhat.com>
 References: <20120906120828.GA1534@redhat.com>
+ <5048D2B8.4060003@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120906120828.GA1534@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <5048D2B8.4060003@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,13 +19,14 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 06/09/2012 14:08, Michael S. Tsirkin ha scritto:
-> +#define VIRTIO_NET_CTRL_STEERING_HOST  1
+On Thu, Sep 06, 2012 at 06:43:36PM +0200, Paolo Bonzini wrote:
+> Il 06/09/2012 14:08, Michael S. Tsirkin ha scritto:
+> > +#define VIRTIO_NET_CTRL_STEERING_HOST  1
+> 
+> You didn't change this occurrence.
 
-You didn't change this occurrence.
-
-Paolo
+Good catch, thanks!
