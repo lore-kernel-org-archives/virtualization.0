@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
 	deflate" feature that works
-Date: Thu, 6 Sep 2012 11:47:36 +0300
-Message-ID: <20120906084736.GF17656@redhat.com>
+Date: Thu, 06 Sep 2012 11:24:02 +0200
+Message-ID: <50486BB2.7070108@redhat.com>
 References: <1346917610-14568-1-git-send-email-pbonzini@redhat.com>
+	<20120906084736.GF17656@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1346917610-14568-1-git-send-email-pbonzini@redhat.com>
+In-Reply-To: <20120906084736.GF17656@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,98 +19,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2012 at 09:46:50AM +0200, Paolo Bonzini wrote:
-> VIRTIO_BALLOON_F_MUST_TELL_HOST cannot be used properly because it is a
-> "negative" feature: it tells you that silent defalte is not supported.
-> Right now, QEMU refuses migration if the target does not support all the
-> features that were negotiated.  But then:
-> 
-> - a migration from non-MUST_TELL_HOST to MUST_TELL_HOST will succeed,
-> which is wrong;
-> 
-> - a migration from MUST_TELL_HOST to non-MUST_TELL_HOST will fail, which
-> is useless.
-> 
-> Add instead a new feature VIRTIO_BALLOON_F_SILENT_DEFLATE, and deprecate
-> VIRTIO_BALLOON_F_MUST_TELL_HOST since it is never actually used.
-> 
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Il 06/09/2012 10:47, Michael S. Tsirkin ha scritto:
+>> > - a migration from non-MUST_TELL_HOST to MUST_TELL_HOST will succeed,
+>> > which is wrong;
+>> > 
+>> > - a migration from MUST_TELL_HOST to non-MUST_TELL_HOST will fail, which
+>> > is useless.
+>> > 
+>> > Add instead a new feature VIRTIO_BALLOON_F_SILENT_DEFLATE, and deprecate
+>> > VIRTIO_BALLOON_F_MUST_TELL_HOST since it is never actually used.
+>> > 
+>> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> Frankly I think it's a qemu migration bug. I don't see why
+> we need to tweak spec: just teach qemu to be smarter
+> during migration.
 
-Frankly I think it's a qemu migration bug. I don't see why
-we need to tweak spec: just teach qemu to be smarter
-during migration.
+Of course you can just teach QEMU to be smarter, but that would be a
+one-off hack for the only ill-defined feature that says something is
+_not_ supported.  Since in practice all virtio_balloon-enbled
+hypervisors supported silent deflate (so the bit was always zero), and
+no client used it (so it was never checked), it's easier to just reverse
+the direction.
 
-Can you show a scenario with old driver/new hypervisor or
-new driver/old hypervisor that fails?
+In fact, it's not clear how the driver should use the feature.  My guess
+is that, if it wants to use silent deflate, it tries to negotiate
+VIRTIO_BALLOON_F_MUST_TELL_HOST, and can use silent deflate if
+negotiation fails.  This is against the logic of all other features.
 
-> ---
->  virtio-spec.lyx | 36 +++++++++++++++++++++++++++++++++---
->  1 file modificato, 33 inserzioni(+), 3 rimozioni(-)
-> 
-> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-> index 7a073f4..1a25a18 100644
-> --- a/virtio-spec.lyx
-> +++ b/virtio-spec.lyx
-> @@ -6238,6 +6238,8 @@ bits
->  
->  \begin_deeper
->  \begin_layout Description
-> +
-> +\change_deleted 1531152142 1346917221
->  VIRTIO_BALLOON_F_MUST_TELL_HOST
->  \begin_inset space ~
->  \end_inset
-> @@ -6251,6 +6253,20 @@ VIRTIO_BALLOON_F_STATS_VQ
->  \end_inset
->  
->  (1) A virtqueue for reporting guest memory statistics is present.
-> +\change_inserted 1531152142 1346917193
-> +
-> +\end_layout
-> +
-> +\begin_layout Description
-> +
-> +\change_inserted 1531152142 1346917219
-> +VIRTIO_BALLOON_F_SILENT_DEFLATE
-> +\begin_inset space ~
-> +\end_inset
-> +
-> +(2) Host does not need to be told before pages from the balloon are used.
-> +\change_unchanged
-> +
->  \end_layout
->  
->  \end_deeper
-> @@ -6401,9 +6417,23 @@ The driver constructs an array of addresses of memory pages it has previously
->  \end_layout
->  
->  \begin_layout Enumerate
-> -If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is set, the guest may not
-> - use these requested pages until that descriptor in the deflateq has been
-> - used by the device.
-> +If the VIRTIO_BALLOON_F_
-> +\change_deleted 1531152142 1346917234
-> +MUST_TELL_HOST
-> +\change_inserted 1531152142 1346917237
-> +SILENT_DEFLATE
-> +\change_unchanged
-> + feature is 
-> +\change_inserted 1531152142 1346917241
-> +not 
-> +\change_unchanged
-> +set, the guest may not use these requested pages until that descriptor in
-> + the deflateq has been used by the device.
-> +
-> +\change_inserted 1531152142 1346917253
-> + If it is set, the guest may choose to not use the deflateq at all.
-> +\change_unchanged
-> +
->  \end_layout
->  
->  \begin_layout Enumerate
-> -- 
-> 1.7.11.2
+> Can you show a scenario with old driver/new hypervisor or
+> new driver/old hypervisor that fails?
+
+Suppose the driver tried to negotiate the feature as above.  We then
+have the two scenarios above.
+
+In the harmless but annoying scenario, the source hypervisor doesn't
+support silent deflate, so VIRTIO_BALLOON_F_MUST_TELL_HOST has been
+negotiated successfully.  The destination hypervisor supports silent
+deflate, so it does _not_ include the feature.  It sees that the guest
+requests VIRTIO_BALLOON_F_MUST_TELL_HOST, and fails migration.
+
+In the incorrect scenario, you are migrating to an older hypervisor.
+The source hypervisor is newer and supports silent deflate, so
+VIRTIO_BALLOON_F_MUST_TELL_HOST was _not_ negotiated.  The destination
+hypervisor does not supports silent deflate.  However, the guest is not
+requesting VIRTIO_BALLOON_F_MUST_TELL_HOST, and migration succeeds.
+Next time the guest tries to do use a page from the balloon, badness
+happens, because the hypervisor does not expect it.
+
+Paolo
