@@ -1,15 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/5] virtio: introduce an API to set affinity for a
-	virtqueue
-Date: Thu, 06 Sep 2012 09:02:04 +0930
-Message-ID: <878vcojbbf.fsf@rustcorp.com.au>
-References: <1346154857-12487-1-git-send-email-pbonzini@redhat.com>
-	<1346154857-12487-3-git-send-email-pbonzini@redhat.com>
+Subject: Re: [PATCH] virtio: support reserved vqs
+Date: Thu, 06 Sep 2012 12:11:50 +0930
+Message-ID: <874nnbj2j5.fsf__16268.4547053233$1346900516$gmane$org@rustcorp.com.au>
+References: <20120905184745.GA15861@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1346154857-12487-3-git-send-email-pbonzini@redhat.com>
+In-Reply-To: <20120905184745.GA15861@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,33 +17,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cornelia.huck@de.ibm.com>, linux390@de.ibm.com, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>"Michael S. Tsirkin" <mst@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Stratos Psomadakis <psomas@cslab.ece.ntua.gr>, "David S. Miller" <davem@davemloft.net>, lguest@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
+"Michael S. Tsirkin" <mst@redhat.com> writes:
 
-> From: Jason Wang <jasowang@redhat.com>
+> virtio network device multiqueue support reserves
+> vq 3 for future use (useful both for future extensions and to make it
+> pretty - this way receive vqs have even and transmit - odd numbers).
+> Make it possible to skip initialization for
+> specific vq numbers by specifying NULL for name.
+> Document this usage as well as (existing) NULL callback.
 >
-> Sometimes, virtio device need to configure irq affinity hint to maximize the
-> performance. Instead of just exposing the irq of a virtqueue, this patch
-> introduce an API to set the affinity for a virtqueue.
+> Drivers using this not coded up yet, so I simply tested
+> with virtio-pci and verified that this patch does
+> not break existing drivers.
 >
-> The api is best-effort, the affinity hint may not be set as expected due to
-> platform support, irq sharing or irq type. Currently, only pci method were
-> implemented and we set the affinity according to:
->
-> - if device uses INTX, we just ignore the request
-> - if device has per vq vector, we force the affinity hint
-> - if the virtqueues share MSI, make the affinity OR over all affinities
->   requested
->
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Applied, thanks.
+This seems sane.  Applied.
 
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-
-Cheers,
+Thanks,
 Rusty.
