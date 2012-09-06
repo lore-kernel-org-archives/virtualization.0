@@ -1,20 +1,21 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 2/2] virtio-ring: Allocate indirect buffers from cache
-	when possible
-Date: Thu, 6 Sep 2012 08:02:57 +0300
-Message-ID: <20120906050257.GA17656@redhat.com>
-References: <1346159043-16446-1-git-send-email-levinsasha928@gmail.com>
-	<1346159043-16446-2-git-send-email-levinsasha928@gmail.com>
-	<20120828132032.GB2039@redhat.com> <503CC904.3050207@gmail.com>
-	<20120829110748.GB5970@redhat.com> <503E2F27.5060904@gmail.com>
-	<20120829153833.GE7407@redhat.com> <503E4873.6060607@gmail.com>
-	<871uigj747.fsf@rustcorp.com.au>
+Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
+Date: Thu, 6 Sep 2012 08:27:35 +0300
+Message-ID: <20120906052735.GB17656@redhat.com>
+References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20120903143018.GA5353@redhat.com>
+	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
+	<20120903202737.GD6181@redhat.com>
+	<CAJK669ZvnnG6fGOog-Z47B7xqyn9hcx5dAD7S--+2PSgE+hrLA@mail.gmail.com>
+	<20120904135022.GI9805@redhat.com>
+	<CAJK669Z1UYakBWartChfoeKL_eU5=GFZMGhH8R_Q-difVm0ygQ@mail.gmail.com>
+	<20120904185541.GB3602@redhat.com> <87k3w7j49i.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <871uigj747.fsf@rustcorp.com.au>
+In-Reply-To: <87k3w7j49i.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,191 +26,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, avi@redhat.com, Sasha Levin <levinsasha928@gmail.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2012 at 10:32:48AM +0930, Rusty Russell wrote:
-> Sasha Levin <levinsasha928@gmail.com> writes:
-> >> On Wed, Aug 29, 2012 at 05:03:03PM +0200, Sasha Levin wrote:
-> >>> I've also re-ran it on a IBM server type host instead of my laptop. Here are the
-> >>> results:
-> >>>
-> >>> Vanilla kernel:
-> >>>
-> >>> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.33.1
-> >>> () port 0 AF_INET
-> >>> enable_enobufs failed: getprotobyname
-> >>> Recv   Send    Send
-> >>> Socket Socket  Message  Elapsed
-> >>> Size   Size    Size     Time     Throughput
-> >>> bytes  bytes   bytes    secs.    10^6bits/sec
-> >>>
-> >>>  87380  16384  16384    10.00    7922.72
-> >>>
-> >>> Patch 1, with threshold=16:
-> >>>
-> >>> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.33.1
-> >>> () port 0 AF_INET
-> >>> enable_enobufs failed: getprotobyname
-> >>> Recv   Send    Send
-> >>> Socket Socket  Message  Elapsed
-> >>> Size   Size    Size     Time     Throughput
-> >>> bytes  bytes   bytes    secs.    10^6bits/sec
-> >>>
-> >>>  87380  16384  16384    10.00    8415.07
-> >>>
-> >>> Patch 2:
-> >>>
-> >>> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.33.1
-> >>> () port 0 AF_INET
-> >>> enable_enobufs failed: getprotobyname
-> >>> Recv   Send    Send
-> >>> Socket Socket  Message  Elapsed
-> >>> Size   Size    Size     Time     Throughput
-> >>> bytes  bytes   bytes    secs.    10^6bits/sec
-> >>>
-> >>>  87380  16384  16384    10.00    8931.05
-> >>>
-> >>>
-> >>> Note that these are simple tests with netperf listening on one end and a simple
-> >>> 'netperf -H [host]' within the guest. If there are other tests which may be
-> >>> interesting please let me know.
-> 
-> It might be worth just unconditionally having a cache for the 2
-> descriptor case.  This is what I get with qemu tap, though for some
-> reason the device features don't have guest or host CSUM, so my setup is
-> probably screwed:
+On Thu, Sep 06, 2012 at 11:34:25AM +0930, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > On Tue, Sep 04, 2012 at 06:58:47PM +0200, Sjur Br=E6ndeland wrote:
+> >> Hi Michael,
+> >> =
 
-Yes without checksum net core always linearizes packets, so yes it is
-screwed.
-For -net, skb always allocates space for 17 frags + linear part so
-it seems sane to do same in virtio core, and allocate, for -net,
-up to max_frags + 1 from cache.
-We can adjust it: no _SG -> 2 otherwise 18.
+> >> > Exactly. Though if we just fail load it will be much less code.
+> >> >
+> >> > Generally, using a feature bit for this is a bit of a problem though:
+> >> > normally driver is expected to be able to simply ignore
+> >> > a feature bit. In this case driver is required to
+> >> > do something so a feature bit is not a good fit.
+> >> > I am not sure what the right thing to do is.
+> >> =
 
-Not sure about other drivers, maybe really use 2 there for now.
+> >> I see - so in order to avoid the binding between driver and device
+> >> there are two options I guess. Either make virtio_dev_match() or
+> >> virtcons_probe() fail. Neither of them seems like the obvious choice.
+> >> =
 
-> Queue histogram for virtio0:
-> Size distribution for input (max=128427):
->   1: 128427  ################################################################
-> Size distribution for output (max=256485):
->   2: 256485  ################################################################
-> Size distribution for control (max=10):
->   3: 10      ################################################################
->   4: 5       ################################
-> 
-> Here's a patch, what do you get (run ifconfig to trigger the dump; yeah,
-> it's a hack!)
-> 
-> Hack: histogram of buffer sizes for virtio devices.
-> 
-> Currently triggered by a stats query (eg ifconfig) on a net device.
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -727,6 +727,8 @@ static struct rtnl_link_stats64 *virtnet
->  	tot->rx_length_errors = dev->stats.rx_length_errors;
->  	tot->rx_frame_errors = dev->stats.rx_frame_errors;
->  
-> +	virtio_dev_dump_histogram(vi->vdev);
-> +
->  	return tot;
->  }
->  
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -108,6 +108,16 @@ void virtio_check_driver_offered_feature
->  }
->  EXPORT_SYMBOL_GPL(virtio_check_driver_offered_feature);
->  
-> +void virtio_dev_dump_histogram(const struct virtio_device *vdev)
-> +{
-> +	const struct virtqueue *vq;
-> +
-> +	printk("Queue histogram for %s:\n", dev_name(&vdev->dev));
-> +	list_for_each_entry(vq, &vdev->vqs, list)
-> +		virtqueue_dump_histogram(vq);
-> +}
-> +EXPORT_SYMBOL_GPL(virtio_dev_dump_histogram);
-> +
->  static int virtio_dev_probe(struct device *_d)
->  {
->  	int err, i;
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -120,6 +120,8 @@ struct vring_virtqueue
->  	ktime_t last_add_time;
->  #endif
->  
-> +	unsigned int *histo;
-> +
->  	/* Tokens for callbacks. */
->  	void *data[];
->  };
-> @@ -259,6 +261,8 @@ int virtqueue_add_buf(struct virtqueue *
->  	BUG_ON(out + in > vq->vring.num);
->  	BUG_ON(out + in == 0);
->  
-> +	vq->histo[out+in]++;
-> +
->  	/* If the host supports indirect descriptor tables, consider it. */
->  	if (vq->indirect) {
->  		bool try_indirect;
-> @@ -726,6 +730,7 @@ struct virtqueue *vring_new_virtqueue(un
->  	}
->  	vq->data[i] = NULL;
->  
-> +	vq->histo = kzalloc(num * sizeof(vq->histo[0]), GFP_KERNEL);
->  	return &vq->vq;
->  }
->  EXPORT_SYMBOL_GPL(vring_new_virtqueue);
-> @@ -772,4 +777,33 @@ unsigned int virtqueue_get_vring_size(st
->  }
->  EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
->  
-> +void virtqueue_dump_histogram(const struct virtqueue *_vq)
-> +{
-> +	const struct vring_virtqueue *vq = to_vvq(_vq);
-> +	int i, j, start = 0, end = 0, max = 1;
-> +	char line[120];
-> +
-> +	for (i = 0; i < vq->vring.num; i++) {
-> +		if (!vq->histo[i])
-> +			continue;
-> +
-> +		end = i;
-> +		if (!vq->histo[start])
-> +			start = i;
-> +
-> +		if (vq->histo[i] > max)
-> +			max = vq->histo[i];
-> +	}
-> +
-> +	printk("Size distribution for %s (max=%u):\n", _vq->name, max);
-> +	for (i = start; i <= end; i++) {
-> +		unsigned int off;
-> +		off = sprintf(line, "%3u: %-7u ", i, vq->histo[i]);
-> +		for (j = 0; j < vq->histo[i] * 64 / max; j++)
-> +			line[off++] = '#';
-> +		line[off] = '\0';
-> +		printk("%s\n", line);
-> +	}
-> +}
-> +
->  MODULE_LICENSE("GPL");
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -52,6 +52,9 @@ unsigned int virtqueue_get_vring_size(st
->  
->  int virtqueue_get_queue_index(struct virtqueue *vq);
->  
-> +void virtio_dev_dump_histogram(const struct virtio_device *vdev);
-> +void virtqueue_dump_histogram(const struct virtqueue *vq);
-> +
->  /**
->   * virtio_device - representation of a device using virtio
->   * @index: unique position on the virtio bus
+> >> Maybe adding a check for VIRTIO_CONSOLE_F_DMA_MEM match
+> >> between device and driver in virtcons_probe() is the lesser evil?
+> >> =
+
+> >> Regards,
+> >> Sjur
+> >
+> > A simplest thing to do is change dev id. rusty?
+> =
+
+> For generic usage, this is correct.  But my opinion is that fallback on
+> feature non-ack is quality-of-implementation issue: great to have, but
+> there are cases where you just want to fail with "you're too old".
+> =
+
+> And in this case, an old system simply will never work.  So it's a
+> question of how graceful the failure is.
+> =
+
+> Can your userspace loader can refuse to proceed if the driver doesn't
+> ack the bits?  If so, it's simpler than a whole new ID.
+> =
+
+> Cheers,
+> Rusty.
+
+Yes but how can it signal guest that it will never proceed?
+
+Also grep for BUG_ON in core found this:
+
+       drv->remove(dev);
+
+       /* Driver should have reset device. */
+       BUG_ON(dev->config->get_status(dev));
+
+I think below is what Sjur refers to.
+I think below is a good idea for 3.6. Thoughts?
+
+--->
+
+virtio: don't crash when device is buggy
+
+Because of a sanity check in virtio_dev_remove, a buggy device can crash
+kernel.  And in case of rproc it's userspace so it's not a good idea.
+We are unloading a driver so how bad can it be?
+Be less aggressive in handling this error: if it's a driver bug,
+warning once should be enough.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+--
+
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index c3b3f7f..1e8659c 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -159,7 +159,7 @@ static int virtio_dev_remove(struct device *_d)
+ 	drv->remove(dev);
+ =
+
+ 	/* Driver should have reset device. */
+-	BUG_ON(dev->config->get_status(dev));
++	WARN_ON_ONCE(dev->config->get_status(dev));
+ =
+
+ 	/* Acknowledge the device's existence again. */
+ 	add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+
+-- =
+
+MST
