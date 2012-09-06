@@ -1,21 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
-Date: Thu, 6 Sep 2012 08:27:35 +0300
-Message-ID: <20120906052735.GB17656@redhat.com>
-References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20120903143018.GA5353@redhat.com>
-	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
-	<20120903202737.GD6181@redhat.com>
-	<CAJK669ZvnnG6fGOog-Z47B7xqyn9hcx5dAD7S--+2PSgE+hrLA@mail.gmail.com>
-	<20120904135022.GI9805@redhat.com>
-	<CAJK669Z1UYakBWartChfoeKL_eU5=GFZMGhH8R_Q-difVm0ygQ@mail.gmail.com>
-	<20120904185541.GB3602@redhat.com> <87k3w7j49i.fsf@rustcorp.com.au>
+From: Kent Overstreet <koverstreet@google.com>
+Subject: Re: [PATCH] virtio-blk: Fix kconfig option
+Date: Thu, 6 Sep 2012 00:41:13 -0700
+Message-ID: <20120906074113.GA5902@koverstreet-glaptop>
+References: <20120903044133.GA9980@moria.home.lan>
+	<87wr0ae26e.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87k3w7j49i.fsf@rustcorp.com.au>
+In-Reply-To: <87wr0ae26e.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,97 +20,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2012 at 11:34:25AM +0930, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > On Tue, Sep 04, 2012 at 06:58:47PM +0200, Sjur Br=E6ndeland wrote:
-> >> Hi Michael,
-> >> =
+On Tue, Sep 04, 2012 at 03:53:53PM +0930, Rusty Russell wrote:
+> Kent Overstreet <koverstreet@google.com> writes:
+> 
+> > CONFIG_VIRTIO isn't exposed, everything else is supposed to select it
+> > instead.
+> 
+> This is a slight mis-understanding.  It's supposed to be selected by
+> the particular driver, probably virtio_pci in your case.
 
-> >> > Exactly. Though if we just fail load it will be much less code.
-> >> >
-> >> > Generally, using a feature bit for this is a bit of a problem though:
-> >> > normally driver is expected to be able to simply ignore
-> >> > a feature bit. In this case driver is required to
-> >> > do something so a feature bit is not a good fit.
-> >> > I am not sure what the right thing to do is.
-> >> =
+So are you saying virtio-blk depends on virtio-pci? If so, the kconfig
+should have that.
 
-> >> I see - so in order to avoid the binding between driver and device
-> >> there are two options I guess. Either make virtio_dev_match() or
-> >> virtcons_probe() fail. Neither of them seems like the obvious choice.
-> >> =
+As is, VIRTIO_BLK just has:
+	depends on EXPERIMENTAL && VIRTIO
 
-> >> Maybe adding a check for VIRTIO_CONSOLE_F_DMA_MEM match
-> >> between device and driver in virtcons_probe() is the lesser evil?
-> >> =
-
-> >> Regards,
-> >> Sjur
-> >
-> > A simplest thing to do is change dev id. rusty?
-> =
-
-> For generic usage, this is correct.  But my opinion is that fallback on
-> feature non-ack is quality-of-implementation issue: great to have, but
-> there are cases where you just want to fail with "you're too old".
-> =
-
-> And in this case, an old system simply will never work.  So it's a
-> question of how graceful the failure is.
-> =
-
-> Can your userspace loader can refuse to proceed if the driver doesn't
-> ack the bits?  If so, it's simpler than a whole new ID.
-> =
-
-> Cheers,
-> Rusty.
-
-Yes but how can it signal guest that it will never proceed?
-
-Also grep for BUG_ON in core found this:
-
-       drv->remove(dev);
-
-       /* Driver should have reset device. */
-       BUG_ON(dev->config->get_status(dev));
-
-I think below is what Sjur refers to.
-I think below is a good idea for 3.6. Thoughts?
-
---->
-
-virtio: don't crash when device is buggy
-
-Because of a sanity check in virtio_dev_remove, a buggy device can crash
-kernel.  And in case of rproc it's userspace so it's not a good idea.
-We are unloading a driver so how bad can it be?
-Be less aggressive in handling this error: if it's a driver bug,
-warning once should be enough.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
---
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index c3b3f7f..1e8659c 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -159,7 +159,7 @@ static int virtio_dev_remove(struct device *_d)
- 	drv->remove(dev);
- =
-
- 	/* Driver should have reset device. */
--	BUG_ON(dev->config->get_status(dev));
-+	WARN_ON_ONCE(dev->config->get_status(dev));
- =
-
- 	/* Acknowledge the device's existence again. */
- 	add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-
--- =
-
-MST
+which is flat out broken.
