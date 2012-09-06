@@ -1,14 +1,20 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/5] virtio-ring: move queue_index to vring_virtqueue
-Date: Thu, 06 Sep 2012 09:02:24 +0930
-Message-ID: <877gs8jbav.fsf@rustcorp.com.au>
-References: <1346154857-12487-1-git-send-email-pbonzini@redhat.com>
-	<1346154857-12487-2-git-send-email-pbonzini@redhat.com>
+Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
+Date: Thu, 06 Sep 2012 11:34:25 +0930
+Message-ID: <87k3w7j49i.fsf@rustcorp.com.au>
+References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20120903143018.GA5353@redhat.com>
+	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
+	<20120903202737.GD6181@redhat.com>
+	<CAJK669ZvnnG6fGOog-Z47B7xqyn9hcx5dAD7S--+2PSgE+hrLA@mail.gmail.com>
+	<20120904135022.GI9805@redhat.com>
+	<CAJK669Z1UYakBWartChfoeKL_eU5=GFZMGhH8R_Q-difVm0ygQ@mail.gmail.com>
+	<20120904185541.GB3602@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1346154857-12487-2-git-send-email-pbonzini@redhat.com>
+In-Reply-To: <20120904185541.GB3602@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,30 +24,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Cc: Amit Shah <amit.shah@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
-
-> From: Jason Wang <jasowang@redhat.com>
->
-> Instead of storing the queue index in transport-specific virtio structs,
-> this patch moves them to vring_virtqueue and introduces an helper to get
-> the value.  This lets drivers simplify their management and tracing of
-> virtqueues.
->
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-Sorry for the delay, I was at Kernel Summit and am only now actually
-reading (vs skimming) my backlog.
-
-Putting it in vring_virtqueue rather than virtqueue seems weird, though.
-But I've applied as-is, we can clean up that later if we want (probably
-by merging the two structures, I'll have to think harder on that).
-
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-
-Cheers,
-Rusty.
+Ik1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cml0ZXM6Cj4gT24gVHVlLCBT
+ZXAgMDQsIDIwMTIgYXQgMDY6NTg6NDdQTSArMDIwMCwgU2p1ciBCcsOmbmRlbGFuZCB3cm90ZToK
+Pj4gSGkgTWljaGFlbCwKPj4gCj4+ID4gRXhhY3RseS4gVGhvdWdoIGlmIHdlIGp1c3QgZmFpbCBs
+b2FkIGl0IHdpbGwgYmUgbXVjaCBsZXNzIGNvZGUuCj4+ID4KPj4gPiBHZW5lcmFsbHksIHVzaW5n
+IGEgZmVhdHVyZSBiaXQgZm9yIHRoaXMgaXMgYSBiaXQgb2YgYSBwcm9ibGVtIHRob3VnaDoKPj4g
+PiBub3JtYWxseSBkcml2ZXIgaXMgZXhwZWN0ZWQgdG8gYmUgYWJsZSB0byBzaW1wbHkgaWdub3Jl
+Cj4+ID4gYSBmZWF0dXJlIGJpdC4gSW4gdGhpcyBjYXNlIGRyaXZlciBpcyByZXF1aXJlZCB0bwo+
+PiA+IGRvIHNvbWV0aGluZyBzbyBhIGZlYXR1cmUgYml0IGlzIG5vdCBhIGdvb2QgZml0Lgo+PiA+
+IEkgYW0gbm90IHN1cmUgd2hhdCB0aGUgcmlnaHQgdGhpbmcgdG8gZG8gaXMuCj4+IAo+PiBJIHNl
+ZSAtIHNvIGluIG9yZGVyIHRvIGF2b2lkIHRoZSBiaW5kaW5nIGJldHdlZW4gZHJpdmVyIGFuZCBk
+ZXZpY2UKPj4gdGhlcmUgYXJlIHR3byBvcHRpb25zIEkgZ3Vlc3MuIEVpdGhlciBtYWtlIHZpcnRp
+b19kZXZfbWF0Y2goKSBvcgo+PiB2aXJ0Y29uc19wcm9iZSgpIGZhaWwuIE5laXRoZXIgb2YgdGhl
+bSBzZWVtcyBsaWtlIHRoZSBvYnZpb3VzIGNob2ljZS4KPj4gCj4+IE1heWJlIGFkZGluZyBhIGNo
+ZWNrIGZvciBWSVJUSU9fQ09OU09MRV9GX0RNQV9NRU0gbWF0Y2gKPj4gYmV0d2VlbiBkZXZpY2Ug
+YW5kIGRyaXZlciBpbiB2aXJ0Y29uc19wcm9iZSgpIGlzIHRoZSBsZXNzZXIgZXZpbD8KPj4gCj4+
+IFJlZ2FyZHMsCj4+IFNqdXIKPgo+IEEgc2ltcGxlc3QgdGhpbmcgdG8gZG8gaXMgY2hhbmdlIGRl
+diBpZC4gcnVzdHk/CgpGb3IgZ2VuZXJpYyB1c2FnZSwgdGhpcyBpcyBjb3JyZWN0LiAgQnV0IG15
+IG9waW5pb24gaXMgdGhhdCBmYWxsYmFjayBvbgpmZWF0dXJlIG5vbi1hY2sgaXMgcXVhbGl0eS1v
+Zi1pbXBsZW1lbnRhdGlvbiBpc3N1ZTogZ3JlYXQgdG8gaGF2ZSwgYnV0CnRoZXJlIGFyZSBjYXNl
+cyB3aGVyZSB5b3UganVzdCB3YW50IHRvIGZhaWwgd2l0aCAieW91J3JlIHRvbyBvbGQiLgoKQW5k
+IGluIHRoaXMgY2FzZSwgYW4gb2xkIHN5c3RlbSBzaW1wbHkgd2lsbCBuZXZlciB3b3JrLiAgU28g
+aXQncyBhCnF1ZXN0aW9uIG9mIGhvdyBncmFjZWZ1bCB0aGUgZmFpbHVyZSBpcy4KCkNhbiB5b3Vy
+IHVzZXJzcGFjZSBsb2FkZXIgY2FuIHJlZnVzZSB0byBwcm9jZWVkIGlmIHRoZSBkcml2ZXIgZG9l
+c24ndAphY2sgdGhlIGJpdHM/ICBJZiBzbywgaXQncyBzaW1wbGVyIHRoYW4gYSB3aG9sZSBuZXcg
+SUQuCgpDaGVlcnMsClJ1c3R5LgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
