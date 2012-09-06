@@ -1,17 +1,16 @@
-From: Kent Overstreet <koverstreet@google.com>
-Subject: Re: [PATCH] virtio-blk: Fix kconfig option
-Date: Thu, 6 Sep 2012 02:25:12 -0700
-Message-ID: <20120906092512.GB5902@koverstreet-glaptop>
-References: <20120903044133.GA9980@moria.home.lan>
-	<87wr0ae26e.fsf@rustcorp.com.au>
-	<20120906074113.GA5902@koverstreet-glaptop>
-	<20120906084403.GD17656@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
+	deflate" feature that works
+Date: Thu, 6 Sep 2012 12:44:42 +0300
+Message-ID: <20120906094442.GA22816@redhat.com>
+References: <1346917610-14568-1-git-send-email-pbonzini@redhat.com>
+	<20120906084736.GF17656@redhat.com> <50486BB2.7070108@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120906084403.GD17656@redhat.com>
+In-Reply-To: <50486BB2.7070108@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,43 +20,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2012 at 11:44:03AM +0300, Michael S. Tsirkin wrote:
-> On Thu, Sep 06, 2012 at 12:41:13AM -0700, Kent Overstreet wrote:
-> > On Tue, Sep 04, 2012 at 03:53:53PM +0930, Rusty Russell wrote:
-> > > Kent Overstreet <koverstreet@google.com> writes:
-> > > 
-> > > > CONFIG_VIRTIO isn't exposed, everything else is supposed to select it
-> > > > instead.
-> > > 
-> > > This is a slight mis-understanding.  It's supposed to be selected by
-> > > the particular driver, probably virtio_pci in your case.
-> > 
-> > So are you saying virtio-blk depends on virtio-pci? If so, the kconfig
-> > should have that.
-> > 
-> > As is, VIRTIO_BLK just has:
-> > 	depends on EXPERIMENTAL && VIRTIO
-> > 
-> > which is flat out broken.
+On Thu, Sep 06, 2012 at 11:24:02AM +0200, Paolo Bonzini wrote:
+> Il 06/09/2012 10:47, Michael S. Tsirkin ha scritto:
+> >> > - a migration from non-MUST_TELL_HOST to MUST_TELL_HOST will succeed,
+> >> > which is wrong;
+> >> > 
+> >> > - a migration from MUST_TELL_HOST to non-MUST_TELL_HOST will fail, which
+> >> > is useless.
+> >> > 
+> >> > Add instead a new feature VIRTIO_BALLOON_F_SILENT_DEFLATE, and deprecate
+> >> > VIRTIO_BALLOON_F_MUST_TELL_HOST since it is never actually used.
+> >> > 
+> >> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> > Frankly I think it's a qemu migration bug. I don't see why
+> > we need to tweak spec: just teach qemu to be smarter
+> > during migration.
 > 
-> I don't think anything is broken.
-> Can you show an example of a broken configuration?
+> Of course you can just teach QEMU to be smarter, but that would be a
+> one-off hack for the only ill-defined feature that says something is
+> _not_ supported.  Since in practice all virtio_balloon-enbled
+> hypervisors supported silent deflate (so the bit was always zero), and
+> no client used it (so it was never checked), it's easier to just reverse
+> the direction.
+> 
+> In fact, it's not clear how the driver should use the feature.  My guess
+> is that, if it wants to use silent deflate, it tries to negotiate
+> VIRTIO_BALLOON_F_MUST_TELL_HOST, and can use silent deflate if
+> negotiation fails.  This is against the logic of all other features.
 
-Do you not understand the difference between depends an selects? Or did
-you not read my original mail?
+Let's take a step back from the implementation details.
+You are trying to add a new feature bit, after all.
+Why? Why is silent deflate useful? This is what is
+missing in all this discussion. If it is not useful
+we do not need a bit for it.
 
-Flip off everything in drivers -> virtio
+> > Can you show a scenario with old driver/new hypervisor or
+> > new driver/old hypervisor that fails?
+> 
+> Suppose the driver tried to negotiate the feature as above.  We then
+> have the two scenarios above.
+> 
+> In the harmless but annoying scenario, the source hypervisor doesn't
+> support silent deflate, so VIRTIO_BALLOON_F_MUST_TELL_HOST has been
+> negotiated successfully.  The destination hypervisor supports silent
+> deflate, so it does _not_ include the feature.  It sees that the guest
+> requests VIRTIO_BALLOON_F_MUST_TELL_HOST, and fails migration.
+> 
+> In the incorrect scenario, you are migrating to an older hypervisor.
+> The source hypervisor is newer and supports silent deflate, so
+> VIRTIO_BALLOON_F_MUST_TELL_HOST was _not_ negotiated.  The destination
+> hypervisor does not supports silent deflate.  However, the guest is not
+> requesting VIRTIO_BALLOON_F_MUST_TELL_HOST, and migration succeeds.
+> Next time the guest tries to do use a page from the balloon, badness
+> happens, because the hypervisor does not expect it.
+> 
+> Paolo
 
-Now go to drivers -> block and try to turn on virtio-blk.
+Sorry this is not the example I asked for.  Please give and example
+without migration.
 
-It's not listed!
+Migration is qemu's problem: it is hypervisor's job to
+make sure guest sees no change during migration.
+It should be able to do this with any hardware it emulates,
+there should be no need to change hardware to make it
+"migrateable" somehow.
 
-Now go back to drivers -> virtio and turn on (randomly) balloon.
-
-Go back to drivers -> block, and now you can turn on virtio-blk!
-
-Do you see what's wrong with this picture?
+-- 
+MST
