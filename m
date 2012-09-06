@@ -1,15 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
-	deflate" feature that works
-Date: Fri, 7 Sep 2012 02:41:27 +0300
-Message-ID: <20120906234127.GC1873@redhat.com>
-References: <1346917610-14568-1-git-send-email-pbonzini@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-blk: Fix kconfig option
+Date: Fri, 07 Sep 2012 09:10:25 +0930
+Message-ID: <87zk52hg9i.fsf@rustcorp.com.au>
+References: <20120903044133.GA9980@moria.home.lan>
+	<87wr0ae26e.fsf@rustcorp.com.au>
+	<20120906074113.GA5902@koverstreet-glaptop>
+	<20120906084403.GD17656@redhat.com>
+	<20120906092512.GB5902@koverstreet-glaptop>
+	<20120906094956.GB22816@redhat.com>
+	<20120906100247.GA27355@koverstreet-glaptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1346917610-14568-1-git-send-email-pbonzini@redhat.com>
+In-Reply-To: <20120906100247.GA27355@koverstreet-glaptop>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,115 +23,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
+To: Kent Overstreet <koverstreet@google.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2012 at 09:46:50AM +0200, Paolo Bonzini wrote:
-> VIRTIO_BALLOON_F_MUST_TELL_HOST cannot be used properly because it is a
-> "negative" feature: it tells you that silent defalte is not supported.
-> Right now, QEMU refuses migration if the target does not support all the
-> features that were negotiated.  But then:
-> - a migration from non-MUST_TELL_HOST to MUST_TELL_HOST will succeed,
-> which is wrong;
+Kent Overstreet <koverstreet@google.com> writes:
 
-It need not be wrong. It depends on how host behaves.
-The right thing for qemu to do would be to assume that
-since this bit was not acked it can not assume specific
-guest behaviour.
+> On Thu, Sep 06, 2012 at 12:49:56PM +0300, Michael S. Tsirkin wrote:
+>> On Thu, Sep 06, 2012 at 02:25:12AM -0700, Kent Overstreet wrote:
+>> > Do you not understand the difference between depends an selects?
+>> > Or did you not read my original mail?
 
-Even ignoring that, looking at this at a high level: basically you have
-configured two different machines with different qemu flags, and are
-complaning that migration did not fail cleanly.
+Now you're getting insulting.
 
-However
-- This is still a user/management bug. You should not even try
-  such migration. Yes I put a sanity check there but it is
-  just a debugging aid. It is not indended to be exhaustive.
-  This is far from the only case where user error might cause
-  problems silently.
-- Yes clean failure would be nicer, if
-  you want to guarantee this just teach qemu to send
-  all host
-  features and verify they match on destination.
-  Or more generally send machine configuration.
-  No need to change spec or special case this bit at all.
+It's normal for options to depend on other options.  Sometimes they're
+directly nested (eg. E1000 depends on NETDEVICES, and it's nested under
+that option), sometimes they're not (eg. E1000 depends on PCI, which is
+selected elsewhere).
 
-> 
-> - a migration from MUST_TELL_HOST to non-MUST_TELL_HOST will fail, which
-> is useless.
+The fact that you are only just realizing this is not Michael's problem.
 
-It is correct. device feature bits should not change across migration.
+>> > Flip off everything in drivers -> virtio
+>> > 
+>> > Now go to drivers -> block and try to turn on virtio-blk.
+>> > 
+>> > It's not listed!
+>> 
+>> Yes. Because you disabled all virtio backends.
+>> It does not make sense to have any frontends.
+>
+> How's a user - or even another kernel developer who isn't familiar with
+> virtio - supposed to know that?
 
+I get annoyed that menuconfig doesn't show options whose dependencies
+aren't possible, too.  (I got bitten the other way: it doesn't show
+dependencies which can't be disabled, and I was trying to turn KALLSYMS
+off).
 
-> Add instead a new feature VIRTIO_BALLOON_F_SILENT_DEFLATE, and deprecate
-> VIRTIO_BALLOON_F_MUST_TELL_HOST since it is never actually used.
-> 
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> ---
->  virtio-spec.lyx | 36 +++++++++++++++++++++++++++++++++---
->  1 file modificato, 33 inserzioni(+), 3 rimozioni(-)
-> 
-> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-> index 7a073f4..1a25a18 100644
-> --- a/virtio-spec.lyx
-> +++ b/virtio-spec.lyx
-> @@ -6238,6 +6238,8 @@ bits
->  
->  \begin_deeper
->  \begin_layout Description
-> +
-> +\change_deleted 1531152142 1346917221
->  VIRTIO_BALLOON_F_MUST_TELL_HOST
->  \begin_inset space ~
->  \end_inset
-> @@ -6251,6 +6253,20 @@ VIRTIO_BALLOON_F_STATS_VQ
->  \end_inset
->  
->  (1) A virtqueue for reporting guest memory statistics is present.
-> +\change_inserted 1531152142 1346917193
-> +
-> +\end_layout
-> +
-> +\begin_layout Description
-> +
-> +\change_inserted 1531152142 1346917219
-> +VIRTIO_BALLOON_F_SILENT_DEFLATE
-> +\begin_inset space ~
-> +\end_inset
-> +
-> +(2) Host does not need to be told before pages from the balloon are used.
-> +\change_unchanged
-> +
->  \end_layout
->  
->  \end_deeper
-> @@ -6401,9 +6417,23 @@ The driver constructs an array of addresses of memory pages it has previously
->  \end_layout
->  
->  \begin_layout Enumerate
-> -If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is set, the guest may not
-> - use these requested pages until that descriptor in the deflateq has been
-> - used by the device.
-> +If the VIRTIO_BALLOON_F_
-> +\change_deleted 1531152142 1346917234
-> +MUST_TELL_HOST
-> +\change_inserted 1531152142 1346917237
-> +SILENT_DEFLATE
-> +\change_unchanged
-> + feature is 
-> +\change_inserted 1531152142 1346917241
-> +not 
-> +\change_unchanged
-> +set, the guest may not use these requested pages until that descriptor in
-> + the deflateq has been used by the device.
-> +
-> +\change_inserted 1531152142 1346917253
-> + If it is set, the guest may choose to not use the deflateq at all.
-> +\change_unchanged
-> +
->  \end_layout
->  
->  \begin_layout Enumerate
-> -- 
-> 1.7.11.2
+But as I found out just last week, the '/' key allows you to find any
+option, and shows what dependencies it has, and their values.
+
+Hope that helps,
+Rusty.
