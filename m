@@ -1,20 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
-Date: Thu, 06 Sep 2012 11:34:25 +0930
-Message-ID: <87k3w7j49i.fsf@rustcorp.com.au>
-References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20120903143018.GA5353@redhat.com>
-	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
-	<20120903202737.GD6181@redhat.com>
-	<CAJK669ZvnnG6fGOog-Z47B7xqyn9hcx5dAD7S--+2PSgE+hrLA@mail.gmail.com>
-	<20120904135022.GI9805@redhat.com>
-	<CAJK669Z1UYakBWartChfoeKL_eU5=GFZMGhH8R_Q-difVm0ygQ@mail.gmail.com>
-	<20120904185541.GB3602@redhat.com>
+Subject: Re: [PATCH] virtio-blk: Fix kconfig option
+Date: Thu, 06 Sep 2012 11:16:46 +0930
+Message-ID: <87mx13j52x.fsf@rustcorp.com.au>
+References: <20120903044133.GA9980@moria.home.lan>
+	<87wr0ae26e.fsf@rustcorp.com.au> <20120905061219.GC7517@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120904185541.GB3602@redhat.com>
+In-Reply-To: <20120905061219.GC7517@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,35 +18,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Cc: Amit Shah <amit.shah@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Kent Overstreet <koverstreet@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ik1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cml0ZXM6Cj4gT24gVHVlLCBT
-ZXAgMDQsIDIwMTIgYXQgMDY6NTg6NDdQTSArMDIwMCwgU2p1ciBCcsOmbmRlbGFuZCB3cm90ZToK
-Pj4gSGkgTWljaGFlbCwKPj4gCj4+ID4gRXhhY3RseS4gVGhvdWdoIGlmIHdlIGp1c3QgZmFpbCBs
-b2FkIGl0IHdpbGwgYmUgbXVjaCBsZXNzIGNvZGUuCj4+ID4KPj4gPiBHZW5lcmFsbHksIHVzaW5n
-IGEgZmVhdHVyZSBiaXQgZm9yIHRoaXMgaXMgYSBiaXQgb2YgYSBwcm9ibGVtIHRob3VnaDoKPj4g
-PiBub3JtYWxseSBkcml2ZXIgaXMgZXhwZWN0ZWQgdG8gYmUgYWJsZSB0byBzaW1wbHkgaWdub3Jl
-Cj4+ID4gYSBmZWF0dXJlIGJpdC4gSW4gdGhpcyBjYXNlIGRyaXZlciBpcyByZXF1aXJlZCB0bwo+
-PiA+IGRvIHNvbWV0aGluZyBzbyBhIGZlYXR1cmUgYml0IGlzIG5vdCBhIGdvb2QgZml0Lgo+PiA+
-IEkgYW0gbm90IHN1cmUgd2hhdCB0aGUgcmlnaHQgdGhpbmcgdG8gZG8gaXMuCj4+IAo+PiBJIHNl
-ZSAtIHNvIGluIG9yZGVyIHRvIGF2b2lkIHRoZSBiaW5kaW5nIGJldHdlZW4gZHJpdmVyIGFuZCBk
-ZXZpY2UKPj4gdGhlcmUgYXJlIHR3byBvcHRpb25zIEkgZ3Vlc3MuIEVpdGhlciBtYWtlIHZpcnRp
-b19kZXZfbWF0Y2goKSBvcgo+PiB2aXJ0Y29uc19wcm9iZSgpIGZhaWwuIE5laXRoZXIgb2YgdGhl
-bSBzZWVtcyBsaWtlIHRoZSBvYnZpb3VzIGNob2ljZS4KPj4gCj4+IE1heWJlIGFkZGluZyBhIGNo
-ZWNrIGZvciBWSVJUSU9fQ09OU09MRV9GX0RNQV9NRU0gbWF0Y2gKPj4gYmV0d2VlbiBkZXZpY2Ug
-YW5kIGRyaXZlciBpbiB2aXJ0Y29uc19wcm9iZSgpIGlzIHRoZSBsZXNzZXIgZXZpbD8KPj4gCj4+
-IFJlZ2FyZHMsCj4+IFNqdXIKPgo+IEEgc2ltcGxlc3QgdGhpbmcgdG8gZG8gaXMgY2hhbmdlIGRl
-diBpZC4gcnVzdHk/CgpGb3IgZ2VuZXJpYyB1c2FnZSwgdGhpcyBpcyBjb3JyZWN0LiAgQnV0IG15
-IG9waW5pb24gaXMgdGhhdCBmYWxsYmFjayBvbgpmZWF0dXJlIG5vbi1hY2sgaXMgcXVhbGl0eS1v
-Zi1pbXBsZW1lbnRhdGlvbiBpc3N1ZTogZ3JlYXQgdG8gaGF2ZSwgYnV0CnRoZXJlIGFyZSBjYXNl
-cyB3aGVyZSB5b3UganVzdCB3YW50IHRvIGZhaWwgd2l0aCAieW91J3JlIHRvbyBvbGQiLgoKQW5k
-IGluIHRoaXMgY2FzZSwgYW4gb2xkIHN5c3RlbSBzaW1wbHkgd2lsbCBuZXZlciB3b3JrLiAgU28g
-aXQncyBhCnF1ZXN0aW9uIG9mIGhvdyBncmFjZWZ1bCB0aGUgZmFpbHVyZSBpcy4KCkNhbiB5b3Vy
-IHVzZXJzcGFjZSBsb2FkZXIgY2FuIHJlZnVzZSB0byBwcm9jZWVkIGlmIHRoZSBkcml2ZXIgZG9l
-c24ndAphY2sgdGhlIGJpdHM/ICBJZiBzbywgaXQncyBzaW1wbGVyIHRoYW4gYSB3aG9sZSBuZXcg
-SUQuCgpDaGVlcnMsClJ1c3R5LgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Tue, Sep 04, 2012 at 03:53:53PM +0930, Rusty Russell wrote:
+>> Kent Overstreet <koverstreet@google.com> writes:
+>> 
+>> > CONFIG_VIRTIO isn't exposed, everything else is supposed to select it
+>> > instead.
+>> 
+>> This is a slight mis-understanding.  It's supposed to be selected by
+>> the particular driver, probably virtio_pci in your case.
+>> 
+>> Cheers,
+>> Rusty.
+>
+> Actually balloon selects VIRTIO, I think it's a bug.
+> Also isn't it time we dropped the experimental tag?
+> Leaving it in for now.
+
+Thanks, I applied this, and killed the EXPERIMENTAL in a separate patch.
+
+Cheers,
+Rusty.
