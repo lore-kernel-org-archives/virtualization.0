@@ -1,13 +1,20 @@
-From: sjur.brandeland@stericsson.com
-Subject: [RFCv2 2/2] virtio_console: Add feature to disable console port
-Date: Fri,  7 Sep 2012 08:57:46 +0200
-Message-ID: <1347001066-13521-3-git-send-email-sjur.brandeland@stericsson.com>
-References: <1347001066-13521-1-git-send-email-sjur.brandeland@stericsson.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
+Date: Fri, 7 Sep 2012 10:35:50 +0200
+Message-ID: <CAJK669avB+nsq6YrvKwODSSz=5NzFP5JdM41qkHz9k5ZOVyc2w@mail.gmail.com>
+References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20120903143018.GA5353@redhat.com>
+	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
+	<20120903202737.GD6181@redhat.com>
+	<CAJK669ZvnnG6fGOog-Z47B7xqyn9hcx5dAD7S--+2PSgE+hrLA@mail.gmail.com>
+	<20120904135022.GI9805@redhat.com>
+	<CAJK669Z1UYakBWartChfoeKL_eU5=GFZMGhH8R_Q-difVm0ygQ@mail.gmail.com>
+	<20120904185541.GB3602@redhat.com> <87k3w7j49i.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1347001066-13521-1-git-send-email-sjur.brandeland@stericsson.com>
+In-Reply-To: <87k3w7j49i.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,50 +24,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjurbren@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: Ohad Ben-Cohen <ohad@wizery.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: Amit Shah <amit.shah@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
-QWRkIHRoZSBmZWF0dXJlIFZJUlRJT19DT05TT0xFX0ZfTk9fSFZDLiBXaXRoIHRoaXMgYml0IHNl
-dApvbmx5IHBvcnQtZGV2aWNlcyBhcmUgY3JlYXRlZC4gVGhlIGNvbnNvbGUgcG9ydCBhbmQKcG9y
-dCBjb250cm9sIHZpcnRpby1xdWV1ZXMgYXJlIG5vdCBjcmVhdGVkLgoKVGhlIGNvbnNvbGUgcG9y
-dCBpcyBub3Qgc3VpdGVkIGZvciBjb21tdW5pY2F0aW5nCnRvIGEgcmVtb3RlIHByb2Nlc3NvciBi
-ZWNhdXNlIG9mIGl0J3MgYmxvY2tpbmcgYmVoYXZpb3IuCkJ1dCB0aGUgcG9ydC1kZXZpY2Ugc3Vw
-cG9ydHMgZWZmaWNpZW50IG5vbi1ibG9ja2luZyBJTwp0byBhIHJlbW90ZSBwcm9jZXNzb3IuCgpT
-aWduZWQtb2ZmLWJ5OiBTanVyIEJyw6ZuZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nv
-bi5jb20+CmNjOiBSdXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+CmNjOiBNaWNo
-YWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgpjYzogQW1pdCBTaGFoIDxhbWl0LnNoYWhA
-cmVkaGF0LmNvbT4KY2M6IE9oYWQgQmVuLUNvaGVuIDxvaGFkQHdpemVyeS5jb20+CmNjOiBMaW51
-cyBXYWxsZWlqIDxsaW51cy53YWxsZWlqQGxpbmFyby5vcmc+CmNjOiB2aXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpjYzogbGludXgta2VybmVsQHZnZXIua2VybmVsLm9y
-ZwotLS0KIGRyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jICB8ICAgIDYgKysrKystCiBpbmNs
-dWRlL2xpbnV4L3ZpcnRpb19jb25zb2xlLmggfCAgICAxICsKIDIgZmlsZXMgY2hhbmdlZCwgNiBp
-bnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9jaGFyL3Zp
-cnRpb19jb25zb2xlLmMgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwppbmRleCA0Njlj
-MDVmLi43NDA4YzAwIDEwMDY0NAotLS0gYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwor
-KysgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwpAQCAtMTI0NCwxMCArMTI0NCwxMyBA
-QCBzdGF0aWMgaW50IGFkZF9wb3J0KHN0cnVjdCBwb3J0c19kZXZpY2UgKnBvcnRkZXYsIHUzMiBp
-ZCkKIAkJZ290byBmcmVlX2RldmljZTsKIAl9CiAKKwkvKiBEb24ndCBpbml0aWFsaXplIHRoZSBw
-b3J0X2NvbnNvbGUgaWYgRl9OT19IVkMgaXMgc2V0Ki8KKwlpZiAodmlydGlvX2hhc19mZWF0dXJl
-KHBvcnQtPnBvcnRkZXYtPnZkZXYsIFZJUlRJT19DT05TT0xFX0ZfTk9fSFZDKSkKKwkJcG9ydC0+
-aG9zdF9jb25uZWN0ZWQgPSB0cnVlOwogCS8qCiAJICogSWYgd2UncmUgbm90IHVzaW5nIG11bHRp
-cG9ydCBzdXBwb3J0LCB0aGlzIGhhcyB0byBiZSBhIGNvbnNvbGUgcG9ydAogCSAqLwotCWlmICgh
-dXNlX211bHRpcG9ydChwb3J0LT5wb3J0ZGV2KSkgeworCWVsc2UgaWYgKCF1c2VfbXVsdGlwb3J0
-KHBvcnQtPnBvcnRkZXYpKSB7CiAJCWVyciA9IGluaXRfcG9ydF9jb25zb2xlKHBvcnQpOwogCQlp
-ZiAoZXJyKQogCQkJZ290byBmcmVlX2luYnVmczsKQEAgLTE4OTYsNiArMTg5OSw3IEBAIHN0YXRp
-YyB1bnNpZ25lZCBpbnQgZmVhdHVyZXNbXSA9IHsKICNpZiBWSVJUSU9fQ09OU09MRV9IQVNfRE1B
-CiAJVklSVElPX0NPTlNPTEVfRl9ETUFfTUVNLAogI2VuZGlmCisJVklSVElPX0NPTlNPTEVfRl9O
-T19IVkMsCiAKIH07CiAKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvdmlydGlvX2NvbnNvbGUu
-aCBiL2luY2x1ZGUvbGludXgvdmlydGlvX2NvbnNvbGUuaAppbmRleCBiMjdmN2ZhLi5hN2M4OTc0
-IDEwMDY0NAotLS0gYS9pbmNsdWRlL2xpbnV4L3ZpcnRpb19jb25zb2xlLmgKKysrIGIvaW5jbHVk
-ZS9saW51eC92aXJ0aW9fY29uc29sZS5oCkBAIC0zOSw2ICszOSw3IEBACiAjZGVmaW5lIFZJUlRJ
-T19DT05TT0xFX0ZfU0laRQkwCS8qIERvZXMgaG9zdCBwcm92aWRlIGNvbnNvbGUgc2l6ZT8gKi8K
-ICNkZWZpbmUgVklSVElPX0NPTlNPTEVfRl9NVUxUSVBPUlQgMQkvKiBEb2VzIGhvc3QgcHJvdmlk
-ZSBtdWx0aXBsZSBwb3J0cz8gKi8KICNkZWZpbmUgVklSVElPX0NPTlNPTEVfRl9ETUFfTUVNIDIJ
-LyogVXNlIERNQSBtZW1vcnkgaW4gdnJpbmdzICovCisjZGVmaW5lIFZJUlRJT19DT05TT0xFX0Zf
-Tk9fSFZDIDMJLyogRGlzYWJsZSB1c2Ugb2YgSFZDICovCiAKICNkZWZpbmUgVklSVElPX0NPTlNP
-TEVfQkFEX0lECQkofih1MzIpMCkKIAotLSAKMS43LjkuNQoKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Ohad,
+
+>> A simplest thing to do is change dev id. rusty?
+>
+> For generic usage, this is correct.  But my opinion is that fallback on
+> feature non-ack is quality-of-implementation issue: great to have, but
+> there are cases where you just want to fail with "you're too old".
+>
+> And in this case, an old system simply will never work.  So it's a
+> question of how graceful the failure is.
+>
+> Can your userspace loader can refuse to proceed if the driver doesn't
+> ack the bits?  If so, it's simpler than a whole new ID.
+
+Ohad: Are there any way we could avoid starting up the remote processor
+if mandatory virtio features (such as DMA memory) are not supported by
+the virtio-driver?
+
+Regards,
+Sjur
