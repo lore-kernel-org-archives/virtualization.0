@@ -1,19 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
 	deflate" feature that works
-Date: Fri, 7 Sep 2012 17:25:45 +0300
-Message-ID: <20120907142545.GC17397@redhat.com>
+Date: Fri, 07 Sep 2012 16:44:40 +0200
+Message-ID: <504A0858.4080508@redhat.com>
 References: <87wr06hg0l.fsf@rustcorp.com.au> <20120907054202.GA3452@redhat.com>
 	<87vcfqfia1.fsf@rustcorp.com.au> <5049BE0E.6040202@redhat.com>
 	<20120907105335.GB17211@redhat.com> <5049D899.60705@redhat.com>
 	<20120907121712.GA17397@redhat.com> <5049E717.8080307@redhat.com>
 	<20120907124432.GB17397@redhat.com> <5049FEDD.40303@redhat.com>
+	<20120907142545.GC17397@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5049FEDD.40303@redhat.com>
+In-Reply-To: <20120907142545.GC17397@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,98 +23,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, yvugenfi@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 07, 2012 at 04:04:13PM +0200, Paolo Bonzini wrote:
-> Il 07/09/2012 14:44, Michael S. Tsirkin ha scritto:
-> >> Well, according to your reading of the spec.
-> >>
-> >> In the spec I'm reading "Host must be told before pages from the balloon
-> >> are used".  Doesn't say anything about the guest.
-> > 
-> > No? How is host told then? By divine force?
+Il 07/09/2012 16:25, Michael S. Tsirkin ha scritto:
+>> > Silent deflate is deflating just by using the page, without using the
+>> > deflateq at all.  So it can be done even from GFP_ATOMIC context.
+> BTW I don't see a need to avoid deflateq.
+> Without MUST_TELL_HOST you can just deflate and then
+> bounce telling the host out to a thread.
+
+Yes, that's fine too.
+
+>> > But knowing that the guest will _not_ deflate silently also benefits the
+>> > host. This is the cause of unpinning ballooned pages and pinning them
+>> > again upon deflation. This allows cooperative memory overcommit even if
+>> > the guests' memory is pinned, similar to what Xen did before it
+>> > supported overcommit.  This is the second feature bit.
+> This is the MUST_TELL_HOST.
+
+Almost.  One is "the guest, if really needed, can tell the host of
+pages".  If not negotiated, and the host does not support it, the host
+must break the guest (e.g. fail to offer any virtqueues).
+
+The other is "the guest, though, would prefer not to do so".  It is
+different because the guest can proceed in a fallback mode even if the
+host doesn't offer it.
+
+You're interpreting features as something that dictates behavior, but
+they're really just advisory.  You could negotiate VIRTIO_BLK_F_TOPOLOGY
+and end up never reading the fields; you could negotiate
+VIRTIO_NET_F_GUEST_ANNOUNCE and never send a guest announcement.
+
+>> > * guest will always do silent deflation: current Windows driver.
+> Not exactly. It is not silent. It tells host
+> just after use.
+
+Yeah, but no difference from the POV of the driver.
+
+Delaying or avoiding is the same in the end.  The spec says it well: "In
+this case, deflation advice is merely a courtesy".
+
+>> > Negotiates nothing, or if it cares it can negotiate
+>> > VIRTIO_BALLOON_F_SILENT_DEFLATE.  Host mustn't do munlock/mlock dance.
+>> >
+>> > * guest may do silent deflation if available: combo of Linux driver +
+>> > Frank's driver.  Negotiates both features, looks at
+>> > VIRTIO_BALLOON_F_SILENT_DEFLATE host feature to decide how to behave:
+>> > 
+>> >   ** If PCI passthrough, the host will not negotiate
+>> >      VIRTIO_BALLOON_F_SILENT_DEFLATE.  The driver will behave as the
+>> >      current Linux driver, the host can do the munlock/mlock dance.
+> So this case is just existing interface. OK.
 > 
-> For a simple madvise-based implementation such as the one in QEMU, the
-> host doesn't need to be told about anything (except periodic updating of
-> the "actual" field, or the statsq).
-> 
-> The guest doesn't need at all to use the deflateq in fact.
-> 
-> >> Now, indeed a very free interpretation is "Guest will tell host before
-> >> pages from the balloon are used".  It turns out that it's exactly what
-> >> guests have been doing, hence that's exactly what I'm proposing now:
-> >> rename the feature to VIRTIO_BALLOON_F_WILL_TELL_HOST.
-> > 
-> > Rename is fine.
-> 
-> Cool.
-> 
-> >> Yes, that part we agree on I think.  We disagree that (after the rename)
-> >> QEMU should start always proposing VIRTIO_BALLOON_F_WILL_TELL_HOST.
-> > 
-> > Not always. It must be off if compatibility with old qemu is disabled.
-> 
-> Yes, of course.
-> 
-> >> _Plus_ adding the new feature bit, which is needed to actually tell the
-> > 
-> > This part I do not get.  What is silent deflate, why is it useful
-> > and what it has to do with what we are discussing here?
-> 
-> Silent deflate is deflating just by using the page, without using the
-> deflateq at all.  So it can be done even from GFP_ATOMIC context.
+>> >   ** If no PCI passthrough, the host will negotiate
+>> >      VIRTIO_BALLOON_F_SILENT_DEFLATE, and the driver can balloon more
+>> >      aggressively and not use the deflateq.
+>> > 
+> This last trickery confuses me.  It just does not make sense to set both
+> SILENT and TELL: either you are silent or you tell.
 
-BTW I don't see a need to avoid deflateq.
-Without MUST_TELL_HOST you can just deflate and then
-bounce telling the host out to a thread.
+"I can be chatty if you ask me, but I'd rather be silent if you let me".
 
-> But knowing that the guest will _not_ deflate silently also benefits the
-> host. This is the cause of unpinning ballooned pages and pinning them
-> again upon deflation. This allows cooperative memory overcommit even if
-> the guests' memory is pinned, similar to what Xen did before it
-> supported overcommit.  This is the second feature bit.
+TELL is a request of the host to the guest; the guest can agree or not.
 
-This is the MUST_TELL_HOST.
+SILENT is a request of the guest to the host; the host can agree or not.
 
-> There are three cases:
-> 
-> * guest will never do silent deflation: current Linux driver.  Host may
-> do munlock/mlock dance.  Negotiates VIRTIO_BALLOON_F_WILL_TELL_HOST
-> only, features = VIRTIO_BALLOON_F_WILL_TELL_HOST.
-> 
-> * guest will always do silent deflation: current Windows driver.
+> What is the benefit of avoiding host notification?
+> It seems cleaner for the host to know the state.
 
-Not exactly. It is not silent. It tells host
-just after use.
+Yeah, if you want to do it you can.
 
-> Negotiates nothing, or if it cares it can negotiate
-> VIRTIO_BALLOON_F_SILENT_DEFLATE.  Host mustn't do munlock/mlock dance.
->
-> * guest may do silent deflation if available: combo of Linux driver +
-> Frank's driver.  Negotiates both features, looks at
-> VIRTIO_BALLOON_F_SILENT_DEFLATE host feature to decide how to behave:
-> 
->   ** If PCI passthrough, the host will not negotiate
->      VIRTIO_BALLOON_F_SILENT_DEFLATE.  The driver will behave as the
->      current Linux driver, the host can do the munlock/mlock dance.
-
-So this case is just existing interface. OK.
-
->   ** If no PCI passthrough, the host will negotiate
->      VIRTIO_BALLOON_F_SILENT_DEFLATE, and the driver can balloon more
->      aggressively and not use the deflateq.
-> 
-> Paolo
-
-This last trickery confuses me.  It just does not make sense to set both
-SILENT and TELL: either you are silent or you tell.
-
-What is the benefit of avoiding host notification?
-It seems cleaner for the host to know the state.
-
-
-
--- 
-MST
+Paolo
