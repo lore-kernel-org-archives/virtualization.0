@@ -1,18 +1,19 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
 	deflate" feature that works
-Date: Fri, 07 Sep 2012 11:27:42 +0200
-Message-ID: <5049BE0E.6040202@redhat.com>
+Date: Fri, 7 Sep 2012 13:43:06 +0300
+Message-ID: <20120907104306.GA17211@redhat.com>
 References: <1346917610-14568-1-git-send-email-pbonzini@redhat.com>
 	<20120906084736.GF17656@redhat.com> <50486BB2.7070108@redhat.com>
 	<20120906094442.GA22816@redhat.com> <50487382.8030303@redhat.com>
-	<20120906105301.GC32325@redhat.com>
-	<5048935A.8090308@redhat.com> <87wr06hg0l.fsf@rustcorp.com.au>
-	<20120907054202.GA3452@redhat.com> <87vcfqfia1.fsf@rustcorp.com.au>
+	<20120906105301.GC32325@redhat.com> <5048935A.8090308@redhat.com>
+	<87wr06hg0l.fsf@rustcorp.com.au> <20120907054202.GA3452@redhat.com>
+	<87vcfqfia1.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <87vcfqfia1.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,76 +25,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
+Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 07/09/2012 08:39, Rusty Russell ha scritto:
->> > So it looks like a bug: we should teach driver to tell host first on leak?
->> > Yan, Vadim, can you comment please?
->> >
->> > Also if true, looks like this bit will be useful to detect a fixed driver on
->> > the hypervisor side - to avoid unmapping such pages? Rusty what do you
->> > think?
+On Fri, Sep 07, 2012 at 04:09:50PM +0930, Rusty Russell wrote:
+> > So it looks like a bug: we should teach driver to tell host first on leak?
+> > Yan, Vadim, can you comment please?
+> >
+> > Also if true, looks like this bit will be useful to detect a fixed driver on
+> > the hypervisor side - to avoid unmapping such pages? Rusty what do you
+> > think?
+> 
 > So, feature is unimplemented in qemu, and broken in drivers.  I starting
 > to share Paolo's dislike of it.
-> 
+
+What is broken in drivers?
+
+To me it looks like it works exactly as advertized: linux and bsd ack
+TELL_HOST and tells host first. windows does not do either.  Do windows
+drivers currently are not broken: they just do not support the feature.
+
+The claim that drivers and hyprevisors do not support it is false:
+qemu does not support it but drivers do and in non trivial way.
+
 > Don't understand why we'd care about fixed drivers though, if we remove
 > the feature bit....
+> 
+> Cheers,
+> Rusty.
 
-Hmm, Michael has a point here.  Basically, the Windows driver is using
-silent deflate, but not telling the host (yet) about it.  So, we must
-assume that a driver that does not negotiate
-VIRTIO_BALLOON_F_MUST_TELL_HOST _will_ use silent deflate.
+Do we really know there are no hypervisors implementing it?
+As I said above drivers do have support.
 
-Here's a way to proceed.
-
-We add VIRTIO_BALLOON_F_SILENT_DEFLATE, which is negotiated normally.
-If not available, at worst the guest driver may refuse to start, or
-revert to using the deflateq.
-
-We rename VIRTIO_BALLOON_F_MUST_TELL_HOST to WILL_TELL_HOST, since
-that's how it's being used.  Now for the device there are three cases:
-
-- does not support silent deflate at all: it should always propose
-  VIRTIO_BALLOON_F_WILL_TELL_HOST; if the (bad) driver does not
-  negotiate it, the device must assume that the guest will use silent
-  deflate, and fail to start the guest if the device does not support
-  silent deflate.
-
-- optionally supports silent deflate: it should always propose
-  VIRTIO_BALLOON_F_WILL_TELL_HOST; if the (bad) driver does not
-  negotiate it, the device must assume that the guest will use silent
-  deflate
-
-- always supports silent deflate: does not need to do anything,
-  current behavior works fine.  But the driver might as well propose
-  VIRTIO_BALLOON_F_WILL_TELL_HOST, so that migration works fine.  (This
-  is a hardware change, so it must be versioned, yadda yadda).
-
-I can prepare a spec patch for this.
-
-
-BTW, since we have in the archives an example of using silent deflate,
-here is an example of non-silent deflate.  It may help understanding the
-above with an actual example of a device.  Suppose a guest is using PCI
-passthrough, so it has all memory pinned.
-
-- If the guest will _not_ use silent deflate, we can unlock memory on
-inflate and lock it back on deflate.  (The question is what to do if
-locking fail; left for when someone actually implements this thing).
-
-- If the guest will use silent deflate, we cannot do that.
-
-So this is the second case above.  The device must propose
-VIRTIO_BALLOON_F_WILL_TELL_HOST.  Then:
-
-- if the guest negotiates VIRTIO_BALLOON_F_SILENT_DEFLATE,
-  we cannot do the munlock/mlock
-
-- if the guest negotiates VIRTIO_BALLOON_F_WILL_TELL_HOST,
-  we can do the munlock/mlock
-
-- if the guest does not negotiate either, the driver is buggy
-  and we cannot do the munlock/mlock
-
-Paolo
+-- 
+MST
