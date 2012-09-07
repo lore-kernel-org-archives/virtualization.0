@@ -1,19 +1,15 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
-	deflate" feature that works
-Date: Fri, 07 Sep 2012 16:44:40 +0200
-Message-ID: <504A0858.4080508@redhat.com>
-References: <87wr06hg0l.fsf@rustcorp.com.au> <20120907054202.GA3452@redhat.com>
-	<87vcfqfia1.fsf@rustcorp.com.au> <5049BE0E.6040202@redhat.com>
-	<20120907105335.GB17211@redhat.com> <5049D899.60705@redhat.com>
-	<20120907121712.GA17397@redhat.com> <5049E717.8080307@redhat.com>
-	<20120907124432.GB17397@redhat.com> <5049FEDD.40303@redhat.com>
-	<20120907142545.GC17397@redhat.com>
+Subject: Re: [PATCH 4/5] virtio-scsi: Add start/stop functionality for
+	vhost-scsi
+Date: Fri, 07 Sep 2012 18:00:50 +0200
+Message-ID: <504A1A32.5050705@redhat.com>
+References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
+	<1347000499-28701-5-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120907142545.GC17397@redhat.com>
+In-Reply-To: <1347000499-28701-5-git-send-email-nab@linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,76 +19,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, yvugenfi@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 07/09/2012 16:25, Michael S. Tsirkin ha scritto:
->> > Silent deflate is deflating just by using the page, without using the
->> > deflateq at all.  So it can be done even from GFP_ATOMIC context.
-> BTW I don't see a need to avoid deflateq.
-> Without MUST_TELL_HOST you can just deflate and then
-> bounce telling the host out to a thread.
+Il 07/09/2012 08:48, Nicholas A. Bellinger ha scritto:
+> Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+> Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> ---
+>  hw/virtio-pci.c  |    2 ++
+>  hw/virtio-scsi.c |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
+>  hw/virtio-scsi.h |    1 +
+>  3 files changed, 52 insertions(+), 0 deletions(-)
 
-Yes, that's fine too.
-
->> > But knowing that the guest will _not_ deflate silently also benefits the
->> > host. This is the cause of unpinning ballooned pages and pinning them
->> > again upon deflation. This allows cooperative memory overcommit even if
->> > the guests' memory is pinned, similar to what Xen did before it
->> > supported overcommit.  This is the second feature bit.
-> This is the MUST_TELL_HOST.
-
-Almost.  One is "the guest, if really needed, can tell the host of
-pages".  If not negotiated, and the host does not support it, the host
-must break the guest (e.g. fail to offer any virtqueues).
-
-The other is "the guest, though, would prefer not to do so".  It is
-different because the guest can proceed in a fallback mode even if the
-host doesn't offer it.
-
-You're interpreting features as something that dictates behavior, but
-they're really just advisory.  You could negotiate VIRTIO_BLK_F_TOPOLOGY
-and end up never reading the fields; you could negotiate
-VIRTIO_NET_F_GUEST_ANNOUNCE and never send a guest announcement.
-
->> > * guest will always do silent deflation: current Windows driver.
-> Not exactly. It is not silent. It tells host
-> just after use.
-
-Yeah, but no difference from the POV of the driver.
-
-Delaying or avoiding is the same in the end.  The spec says it well: "In
-this case, deflation advice is merely a courtesy".
-
->> > Negotiates nothing, or if it cares it can negotiate
->> > VIRTIO_BALLOON_F_SILENT_DEFLATE.  Host mustn't do munlock/mlock dance.
->> >
->> > * guest may do silent deflation if available: combo of Linux driver +
->> > Frank's driver.  Negotiates both features, looks at
->> > VIRTIO_BALLOON_F_SILENT_DEFLATE host feature to decide how to behave:
->> > 
->> >   ** If PCI passthrough, the host will not negotiate
->> >      VIRTIO_BALLOON_F_SILENT_DEFLATE.  The driver will behave as the
->> >      current Linux driver, the host can do the munlock/mlock dance.
-> So this case is just existing interface. OK.
-> 
->> >   ** If no PCI passthrough, the host will negotiate
->> >      VIRTIO_BALLOON_F_SILENT_DEFLATE, and the driver can balloon more
->> >      aggressively and not use the deflateq.
->> > 
-> This last trickery confuses me.  It just does not make sense to set both
-> SILENT and TELL: either you are silent or you tell.
-
-"I can be chatty if you ask me, but I'd rather be silent if you let me".
-
-TELL is a request of the host to the guest; the guest can agree or not.
-
-SILENT is a request of the guest to the host; the host can agree or not.
-
-> What is the benefit of avoiding host notification?
-> It seems cleaner for the host to know the state.
-
-Yeah, if you want to do it you can.
+Please create a completely separate device vhost-scsi-pci instead (or
+virtio-scsi-tcm-pci, or something like that).  It is used completely
+differently from virtio-scsi-pci, it does not make sense to conflate the
+two.
 
 Paolo
