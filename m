@@ -1,7 +1,7 @@
-From: Kent Overstreet <koverstreet@google.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH] virtio-blk: Fix kconfig option
-Date: Thu, 6 Sep 2012 17:25:33 -0700
-Message-ID: <20120907002533.GB16360@google.com>
+Date: Fri, 07 Sep 2012 12:27:18 +0930
+Message-ID: <874nnah75d.fsf@rustcorp.com.au>
 References: <20120903044133.GA9980@moria.home.lan>
 	<87wr0ae26e.fsf@rustcorp.com.au>
 	<20120906074113.GA5902@koverstreet-glaptop>
@@ -10,12 +10,12 @@ References: <20120903044133.GA9980@moria.home.lan>
 	<20120906094956.GB22816@redhat.com>
 	<20120906100247.GA27355@koverstreet-glaptop>
 	<87zk52hg9i.fsf@rustcorp.com.au>
+	<20120907002533.GB16360@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87zk52hg9i.fsf@rustcorp.com.au>
+In-Reply-To: <20120907002533.GB16360@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,95 +25,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: Kent Overstreet <koverstreet@google.com>
 Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 07, 2012 at 09:10:25AM +0930, Rusty Russell wrote:
-> Kent Overstreet <koverstreet@google.com> writes:
-> 
-> > On Thu, Sep 06, 2012 at 12:49:56PM +0300, Michael S. Tsirkin wrote:
-> >> On Thu, Sep 06, 2012 at 02:25:12AM -0700, Kent Overstreet wrote:
-> >> > Do you not understand the difference between depends an selects?
-> >> > Or did you not read my original mail?
-> 
-> Now you're getting insulting.
+Kent Overstreet <koverstreet@google.com> writes:
+> On Fri, Sep 07, 2012 at 09:10:25AM +0930, Rusty Russell wrote:
+>> Kent Overstreet <koverstreet@google.com> writes:
+>> 
+>> > On Thu, Sep 06, 2012 at 12:49:56PM +0300, Michael S. Tsirkin wrote:
+>> >> On Thu, Sep 06, 2012 at 02:25:12AM -0700, Kent Overstreet wrote:
+>> >> > Do you not understand the difference between depends an selects?
+>> >> > Or did you not read my original mail?
+>> 
+>> Now you're getting insulting.
+>
+> Yes, but at least I'm not being intentionally obtuse.
 
-Yes, but at least I'm not being intentionally obtuse.
+Insulting again.  Wow.
 
-> It's normal for options to depend on other options.  Sometimes they're
-> directly nested (eg. E1000 depends on NETDEVICES, and it's nested under
-> that option), sometimes they're not (eg. E1000 depends on PCI, which is
-> selected elsewhere).
-> 
-> The fact that you are only just realizing this is not Michael's problem.
+It took me this long to understand your complaint.  Perhaps I'm stupid.
+Or perhaps you are terrible at explaining yourself, and it is only
+through our patient and heroic efforts that we can comprehend you at
+all?
 
-Like I said, I'm well aware of that. The issue here isn't the
-dependency, it's that it depends on something that isn't exposed
-anywhere!
+> Think about it from the user's pov. They check what VIRTIO_BLK depends
+> on - just VIRTIO.
+>
+> So they try to figure out how to flip on VIRTIO, or what VIRTIO even is.
+>
+> See how that last step might be problematic? CONFIG_VIRTIO is not
+> exposed! It doesn't even seem to control anything!
+>
+> Go back to your example. Checking the dependencies for E1000 would tell
+> you the user needs to flip on CONFIG_PCI. Done. Easy.
 
-Think about it from the user's pov. They check what VIRTIO_BLK depends
-on - just VIRTIO.
+Actually, it depends on NET_VENDOR_INTEL which depends on CONFIG_PCI,
+but yes, it's discoverable.
 
-So they try to figure out how to flip on VIRTIO, or what VIRTIO even is.
+So your actual complaint is that:
+1) CONFIG_VIRTIO is misleadingly documented both in comment and name.
+2) It's not discoverable, since it's only selected via other things.
 
-See how that last step might be problematic? CONFIG_VIRTIO is not
-exposed! It doesn't even seem to control anything!
+> And, if that is what you're doing with CONFIG_VIRTIO (I'm still not
+> sure) the comment at the top of drivers/virtio/Kconfig is _wrong_:
 
-Go back to your example. Checking the dependencies for E1000 would tell
-you the user needs to flip on CONFIG_PCI. Done. Easy.
+As grep would show you, it's selected by LGUEST, S390_GUEST, RPMSG,
+VIRTIO_PCI and VIRTIO_MMIO (VIRTIO_BALLOON is a cut & paste bug, already
+patched by MST).
 
-User checks the dependencies here and... what do _you_ expect people to
-do?
+We could change every virtio device to depend on (CONFIG_LGUEST |
+CONFIG_S390_GUEST | CONFIG_RPMSG | CONFIG_VIRTIO_PCI |
+CONFIG_VIRTIO_MMIO), which is more discoverable but uglier.  How's this
+workaround?
 
-Look, depending on a kconfig option that's supposed to be user
-controllable but isn't exposed anywhere is flat out broken. The fact
-that it's in a different submenu just makes it worse.
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: virtio: add help to CONFIG_VIRTIO option.
 
-The problem is that VIRTIO_BLK's dependencies are not actually specified
-in the kconfig. If it depends on VIRTIO_PCI, that's what the kconfig
-should say. If it depends on having any of multiple virtio backends
-enabled, then specify that!
+Trying to enable a virtio driver (eg CONFIG_VIRTIO_BLK) is painful
+because it depends on CONFIG_VIRTIO.  CONFIG_VIRTIO doesn't tell you
+how to turn it on (it's selected from anything which provides a virtio
+bus).
 
-depends VIRTIO_PCI || VIRTIO_WHATEVER
+This patch at least adds some documentation, visible in menuconfig, as
+a hint.
 
-Or if you really want to have a fake config option that's enabled if you
-have any virtio backend enabled, fix the damn comments and naming!
+Reported-by: Kent Overstreet <koverstreet@google.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-How is anyone supposed to know that CONFIG_VIRTIO really means "any
-virtio backend?" Call it VIRTIO_ANY_BACKEND if that's what it really is.
-
-And, if that is what you're doing with CONFIG_VIRTIO (I'm still not
-sure) the comment at the top of drivers/virtio/Kconfig is _wrong_:
-
-# Virtio always gets selected by whoever wants it.
-VIRTIO
-        tristate
-
-How is _anyone_ supposed to know that really means "VIRTIO gets selected
-by things that provide a virtio backend?"
-
-C'mon, you've had to debug other people's code before. What would _you_
-think if you were tripped up by something like that?
-
-> >> > Flip off everything in drivers -> virtio
-> >> > 
-> >> > Now go to drivers -> block and try to turn on virtio-blk.
-> >> > 
-> >> > It's not listed!
-> >> 
-> >> Yes. Because you disabled all virtio backends.
-> >> It does not make sense to have any frontends.
-> >
-> > How's a user - or even another kernel developer who isn't familiar with
-> > virtio - supposed to know that?
-> 
-> I get annoyed that menuconfig doesn't show options whose dependencies
-> aren't possible, too.  (I got bitten the other way: it doesn't show
-> dependencies which can't be disabled, and I was trying to turn KALLSYMS
-> off).
-> 
-> But as I found out just last week, the '/' key allows you to find any
-> option, and shows what dependencies it has, and their values.
-
-Yep, use it all the time. 
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -1,8 +1,10 @@
+-# Virtio always gets selected by whoever wants it.
+ config VIRTIO
+ 	tristate
++	---help---
++	  This option is selected by any driver which implements the virtio
++	  bus, such as CONFIG_VIRTIO_PCI, CONFIG_VIRTIO_MMIO, CONFIG_LGUEST,
++	  CONFIG_RPMSG or CONFIG_S390_GUEST.
+ 
+-# Similarly the virtio ring implementation.
+ config VIRTIO_RING
+ 	tristate
+ 	depends on VIRTIO
