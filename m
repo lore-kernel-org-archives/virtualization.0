@@ -1,19 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
 	deflate" feature that works
-Date: Fri, 7 Sep 2012 15:44:32 +0300
-Message-ID: <20120907124432.GB17397@redhat.com>
+Date: Fri, 07 Sep 2012 16:04:13 +0200
+Message-ID: <5049FEDD.40303@redhat.com>
 References: <20120906105301.GC32325@redhat.com> <5048935A.8090308@redhat.com>
 	<87wr06hg0l.fsf@rustcorp.com.au> <20120907054202.GA3452@redhat.com>
 	<87vcfqfia1.fsf@rustcorp.com.au> <5049BE0E.6040202@redhat.com>
 	<20120907105335.GB17211@redhat.com> <5049D899.60705@redhat.com>
 	<20120907121712.GA17397@redhat.com> <5049E717.8080307@redhat.com>
+	<20120907124432.GB17397@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5049E717.8080307@redhat.com>
+In-Reply-To: <20120907124432.GB17397@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,89 +23,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, yvugenfi@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 07, 2012 at 02:22:47PM +0200, Paolo Bonzini wrote:
-> Il 07/09/2012 14:17, Michael S. Tsirkin ha scritto:
-> >>> Next, consider the interface proposed here. You defacto declare
-> >>> all existing drivers buggy.
-> >>
-> >> No, only Windows (and it is buggy, it calls tell_host last).
-> > 
-> > It is not buggy. It does not ack MUST_TELL_HOST. So it is free to tell
-> > host at any point, it behaves exactly
-> > to spec. You can not retroactively declare drivers buggy like that.
+Il 07/09/2012 14:44, Michael S. Tsirkin ha scritto:
+>> Well, according to your reading of the spec.
+>>
+>> In the spec I'm reading "Host must be told before pages from the balloon
+>> are used".  Doesn't say anything about the guest.
 > 
-> Well, according to your reading of the spec.
+> No? How is host told then? By divine force?
+
+For a simple madvise-based implementation such as the one in QEMU, the
+host doesn't need to be told about anything (except periodic updating of
+the "actual" field, or the statsq).
+
+The guest doesn't need at all to use the deflateq in fact.
+
+>> Now, indeed a very free interpretation is "Guest will tell host before
+>> pages from the balloon are used".  It turns out that it's exactly what
+>> guests have been doing, hence that's exactly what I'm proposing now:
+>> rename the feature to VIRTIO_BALLOON_F_WILL_TELL_HOST.
 > 
-> In the spec I'm reading "Host must be told before pages from the balloon
-> are used".  Doesn't say anything about the guest.
+> Rename is fine.
 
-No? How is host told then? By divine force?
+Cool.
 
-> Now, indeed a very free interpretation is "Guest will tell host before
-> pages from the balloon are used".  It turns out that it's exactly what
-> guests have been doing, hence that's exactly what I'm proposing now:
-> rename the feature to VIRTIO_BALLOON_F_WILL_TELL_HOST.
-
-Rename is fine.
-
-> >> True, but the choice is:
-> >>
-> >> 1) add a once-only hack to QEMU that fixes migration of
-> >> VIRTIO_BALLOON_F_MUST_TELL_HOST;
-> >>
-> >> 2) always advertise VIRTIO_BALLOON_F_MUST_TELL_HOST.  If you do this,
-> >> guests cannot use anymore silent deflate, which is a regression.
-> >>
-> >> 3) use two bits.  One tells the device that the driver supports chatty
-> >> deflate; one tells the driver that the device supports silent deflate.
-> > 
-> > The right thing to do is either
-> > 4. realize we can not address all user errors, so no real issue
-> > 5. address this class of user errors by migrating host features
-> > 
-> >> So in the end you do use two feature bits for two different things.
-> >> Plus, both feature bits are "positive" and I'm happy.
-> > 
-> > I am not happy.
-> > We lose compatibility with all existing drivers
+>> Yes, that part we agree on I think.  We disagree that (after the rename)
+>> QEMU should start always proposing VIRTIO_BALLOON_F_WILL_TELL_HOST.
 > 
-> How so?
+> Not always. It must be off if compatibility with old qemu is disabled.
+
+Yes, of course.
+
+>> _Plus_ adding the new feature bit, which is needed to actually tell the
 > 
-> > so it will take years until the feature is actually
-> > useful.
-> 
-> No, we don't!  Windows guests will just not be able to use munlock/mlock
-> until the driver is fixed.  Which will probably happen before someone
-> writes the munlock/mlock code.
+> This part I do not get.  What is silent deflate, why is it useful
+> and what it has to do with what we are discussing here?
 
-If the only change is rename then ofcourse things keep working.
-I don't care about the name it is up to Rusty.
+Silent deflate is deflating just by using the page, without using the
+deflateq at all.  So it can be done even from GFP_ATOMIC context.
 
-> > Is this just a matter of naming? Same functionality:
-> > driver that acks this bit will tell host first,
-> > driver that does not will not?
-> > 
-> > If yes that is fine.
-> 
-> Yes, that part we agree on I think.  We disagree that (after the rename)
-> QEMU should start always proposing VIRTIO_BALLOON_F_WILL_TELL_HOST.
+But knowing that the guest will _not_ deflate silently also benefits the
+host. This is the cause of unpinning ballooned pages and pinning them
+again upon deflation. This allows cooperative memory overcommit even if
+the guests' memory is pinned, similar to what Xen did before it
+supported overcommit.  This is the second feature bit.
 
-Not always. It must be off if compatibility with old qemu is disabled.
+There are three cases:
 
-> _Plus_ adding the new feature bit, which is needed to actually tell the
+* guest will never do silent deflation: current Linux driver.  Host may
+do munlock/mlock dance.  Negotiates VIRTIO_BALLOON_F_WILL_TELL_HOST
+only, features = VIRTIO_BALLOON_F_WILL_TELL_HOST.
 
-This part I do not get.  What is silent deflate, why is it useful
-and what it has to do with what we are discussing here?
+* guest will always do silent deflation: current Windows driver.
+Negotiates nothing, or if it cares it can negotiate
+VIRTIO_BALLOON_F_SILENT_DEFLATE.  Host mustn't do munlock/mlock dance.
 
-> driver that the host supports the silent deflate.
->  Spec patch on the way.
-> 
-> Paolo
+* guest may do silent deflation if available: combo of Linux driver +
+Frank's driver.  Negotiates both features, looks at
+VIRTIO_BALLOON_F_SILENT_DEFLATE host feature to decide how to behave:
 
-Hang on.
-Can we please talk about motivation? These patches which come
-without motivation are very hard to review.
+  ** If PCI passthrough, the host will not negotiate
+     VIRTIO_BALLOON_F_SILENT_DEFLATE.  The driver will behave as the
+     current Linux driver, the host can do the munlock/mlock dance.
+
+  ** If no PCI passthrough, the host will negotiate
+     VIRTIO_BALLOON_F_SILENT_DEFLATE, and the driver can balloon more
+     aggressively and not use the deflateq.
+
+Paolo
