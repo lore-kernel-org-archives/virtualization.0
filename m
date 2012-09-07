@@ -1,20 +1,19 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
-Date: Fri, 7 Sep 2012 11:24:24 +0200
-Message-ID: <CAJK669bqRF6WiQ8=21pEyUB565i80CeN0eniWcPBxXNLCOcxXA@mail.gmail.com>
-References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20120903143018.GA5353@redhat.com>
-	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
-	<20120903202737.GD6181@redhat.com> <87zk56e2xc.fsf@rustcorp.com.au>
-	<CAJK669bUXHqaDUZDNZ9i85pRKENUMS_RXw4z7BsSq7Hiw=OOfg@mail.gmail.com>
-	<20120905143558.GB10925@redhat.com>
-	<CAJK669bhVfgnxuF6wVtdnzs2bgiJ2HzgwfWw4uZ=EqTdm43Jow@mail.gmail.com>
-	<20120905191657.GA15868@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
+	deflate" feature that works
+Date: Fri, 07 Sep 2012 11:27:42 +0200
+Message-ID: <5049BE0E.6040202@redhat.com>
+References: <1346917610-14568-1-git-send-email-pbonzini@redhat.com>
+	<20120906084736.GF17656@redhat.com> <50486BB2.7070108@redhat.com>
+	<20120906094442.GA22816@redhat.com> <50487382.8030303@redhat.com>
+	<20120906105301.GC32325@redhat.com>
+	<5048935A.8090308@redhat.com> <87wr06hg0l.fsf@rustcorp.com.au>
+	<20120907054202.GA3452@redhat.com> <87vcfqfia1.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120905191657.GA15868@redhat.com>
+In-Reply-To: <87vcfqfia1.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,46 +23,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael.
+Il 07/09/2012 08:39, Rusty Russell ha scritto:
+>> > So it looks like a bug: we should teach driver to tell host first on leak?
+>> > Yan, Vadim, can you comment please?
+>> >
+>> > Also if true, looks like this bit will be useful to detect a fixed driver on
+>> > the hypervisor side - to avoid unmapping such pages? Rusty what do you
+>> > think?
+> So, feature is unimplemented in qemu, and broken in drivers.  I starting
+> to share Paolo's dislike of it.
+> 
+> Don't understand why we'd care about fixed drivers though, if we remove
+> the feature bit....
 
->> Not just fail to work, the kernel will panic on the BUG_ON().
->> Remoteproc gets the virtio configuration from firmware loaded
->> from user space. So this type of problem might be triggered
->> for other virtio drivers as well.
->
-> how?
-...
->> Even if we fix this particular problem, the general problem
->> still exists: bogus virtio declarations in remoteproc's firmware
->> may cause BUG_ON().
->
-> which BUG_ON exactly?
+Hmm, Michael has a point here.  Basically, the Windows driver is using
+silent deflate, but not telling the host (yet) about it.  So, we must
+assume that a driver that does not negotiate
+VIRTIO_BALLOON_F_MUST_TELL_HOST _will_ use silent deflate.
 
-I am afraid I have been barking up the wrong tree here.
-Please ignore my previous rambling about panics related
-to device features.
+Here's a way to proceed.
 
-I hit the  BUG() in virtio_check_driver_offered_feature():
-First I did not declare the feature because DMA was not set:
-static unsigned int features[] = {
-...
-#if VIRTIO_CONSOLE_HAS_DMA
-	VIRTIO_CONSOLE_F_DMA_MEM,
-#endif
-};
+We add VIRTIO_BALLOON_F_SILENT_DEFLATE, which is negotiated normally.
+If not available, at worst the guest driver may refuse to start, or
+revert to using the deflateq.
 
-and then in probe I checked if the feature was supported:
-	    virtio_has_feature(vdev, VIRTIO_CONSOLE_F_DMA_MEM)
+We rename VIRTIO_BALLOON_F_MUST_TELL_HOST to WILL_TELL_HOST, since
+that's how it's being used.  Now for the device there are three cases:
 
-This triggered the BUG() in virtio_check_driver_offered_feature(),
-because the driver was asking for a unknown-feature.
+- does not support silent deflate at all: it should always propose
+  VIRTIO_BALLOON_F_WILL_TELL_HOST; if the (bad) driver does not
+  negotiate it, the device must assume that the guest will use silent
+  deflate, and fail to start the guest if the device does not support
+  silent deflate.
 
-I can get avoid this by simply checking the devices feature bits directly
-instead of using virtio_has_feature().
+- optionally supports silent deflate: it should always propose
+  VIRTIO_BALLOON_F_WILL_TELL_HOST; if the (bad) driver does not
+  negotiate it, the device must assume that the guest will use silent
+  deflate
 
-Regards,
-Sjur
+- always supports silent deflate: does not need to do anything,
+  current behavior works fine.  But the driver might as well propose
+  VIRTIO_BALLOON_F_WILL_TELL_HOST, so that migration works fine.  (This
+  is a hardware change, so it must be versioned, yadda yadda).
+
+I can prepare a spec patch for this.
+
+
+BTW, since we have in the archives an example of using silent deflate,
+here is an example of non-silent deflate.  It may help understanding the
+above with an actual example of a device.  Suppose a guest is using PCI
+passthrough, so it has all memory pinned.
+
+- If the guest will _not_ use silent deflate, we can unlock memory on
+inflate and lock it back on deflate.  (The question is what to do if
+locking fail; left for when someone actually implements this thing).
+
+- If the guest will use silent deflate, we cannot do that.
+
+So this is the second case above.  The device must propose
+VIRTIO_BALLOON_F_WILL_TELL_HOST.  Then:
+
+- if the guest negotiates VIRTIO_BALLOON_F_SILENT_DEFLATE,
+  we cannot do the munlock/mlock
+
+- if the guest negotiates VIRTIO_BALLOON_F_WILL_TELL_HOST,
+  we can do the munlock/mlock
+
+- if the guest does not negotiate either, the driver is buggy
+  and we cannot do the munlock/mlock
+
+Paolo
