@@ -1,15 +1,21 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCHv3] virtio-spec: virtio network device multiqueue support
-Date: Fri, 7 Sep 2012 03:26:03 +0300
-Message-ID: <20120907002603.GA3178@redhat.com>
-References: <20120906120828.GA1534@redhat.com>
- <50493D04.1090408@gmail.com>
+From: Kent Overstreet <koverstreet@google.com>
+Subject: Re: [PATCH] virtio-blk: Fix kconfig option
+Date: Thu, 6 Sep 2012 17:25:33 -0700
+Message-ID: <20120907002533.GB16360@google.com>
+References: <20120903044133.GA9980@moria.home.lan>
+	<87wr0ae26e.fsf@rustcorp.com.au>
+	<20120906074113.GA5902@koverstreet-glaptop>
+	<20120906084403.GD17656@redhat.com>
+	<20120906092512.GB5902@koverstreet-glaptop>
+	<20120906094956.GB22816@redhat.com>
+	<20120906100247.GA27355@koverstreet-glaptop>
+	<87zk52hg9i.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <50493D04.1090408@gmail.com>
+In-Reply-To: <87zk52hg9i.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,61 +25,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 07, 2012 at 02:17:08AM +0200, Sasha Levin wrote:
-> Hi Michael,
+On Fri, Sep 07, 2012 at 09:10:25AM +0930, Rusty Russell wrote:
+> Kent Overstreet <koverstreet@google.com> writes:
 > 
-> On 09/06/2012 02:08 PM, Michael S. Tsirkin wrote:
-> > Add multiqueue support to virtio network device.
-> > Add a new feature flag VIRTIO_NET_F_MULTIQUEUE for this feature, a new
-> > configuration field max_virtqueue_pairs to detect supported number of
-> > virtqueues as well as a new command VIRTIO_NET_CTRL_STEERING to program
-> > packet steering.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > On Thu, Sep 06, 2012 at 12:49:56PM +0300, Michael S. Tsirkin wrote:
+> >> On Thu, Sep 06, 2012 at 02:25:12AM -0700, Kent Overstreet wrote:
+> >> > Do you not understand the difference between depends an selects?
+> >> > Or did you not read my original mail?
 > 
-> Some comments about the change:
-> 
->  - "The following four read-only fields only exists if VIRTIO_NET_F_MULTIQUEUE
-> is set." => Should be "exist" (I think).
-> 
->  - "When rule is set to VIRTIO_NET_CTRL_STEERING_RX_FOLLOWS_TX packets are
-> steered by driver to the first (param+1) multiqueue virtqueues
-> transmitq1...transmitqN;" - Why param+1?  I thought we ignore the default
-> transmit/receive in this case.
+> Now you're getting insulting.
 
-This is so that all values are valid. E.g. param=0 -> use q1.
+Yes, but at least I'm not being intentionally obtuse.
 
+> It's normal for options to depend on other options.  Sometimes they're
+> directly nested (eg. E1000 depends on NETDEVICES, and it's nested under
+> that option), sometimes they're not (eg. E1000 depends on PCI, which is
+> selected elsewhere).
 > 
->  - "As selecting a specific steering ais n optimization feature" - "is an".
+> The fact that you are only just realizing this is not Michael's problem.
+
+Like I said, I'm well aware of that. The issue here isn't the
+dependency, it's that it depends on something that isn't exposed
+anywhere!
+
+Think about it from the user's pov. They check what VIRTIO_BLK depends
+on - just VIRTIO.
+
+So they try to figure out how to flip on VIRTIO, or what VIRTIO even is.
+
+See how that last step might be problematic? CONFIG_VIRTIO is not
+exposed! It doesn't even seem to control anything!
+
+Go back to your example. Checking the dependencies for E1000 would tell
+you the user needs to flip on CONFIG_PCI. Done. Easy.
+
+User checks the dependencies here and... what do _you_ expect people to
+do?
+
+Look, depending on a kconfig option that's supposed to be user
+controllable but isn't exposed anywhere is flat out broken. The fact
+that it's in a different submenu just makes it worse.
+
+The problem is that VIRTIO_BLK's dependencies are not actually specified
+in the kconfig. If it depends on VIRTIO_PCI, that's what the kconfig
+should say. If it depends on having any of multiple virtio backends
+enabled, then specify that!
+
+depends VIRTIO_PCI || VIRTIO_WHATEVER
+
+Or if you really want to have a fake config option that's enabled if you
+have any virtio backend enabled, fix the damn comments and naming!
+
+How is anyone supposed to know that CONFIG_VIRTIO really means "any
+virtio backend?" Call it VIRTIO_ANY_BACKEND if that's what it really is.
+
+And, if that is what you're doing with CONFIG_VIRTIO (I'm still not
+sure) the comment at the top of drivers/virtio/Kconfig is _wrong_:
+
+# Virtio always gets selected by whoever wants it.
+VIRTIO
+        tristate
+
+How is _anyone_ supposed to know that really means "VIRTIO gets selected
+by things that provide a virtio backend?"
+
+C'mon, you've had to debug other people's code before. What would _you_
+think if you were tripped up by something like that?
+
+> >> > Flip off everything in drivers -> virtio
+> >> > 
+> >> > Now go to drivers -> block and try to turn on virtio-blk.
+> >> > 
+> >> > It's not listed!
+> >> 
+> >> Yes. Because you disabled all virtio backends.
+> >> It does not make sense to have any frontends.
+> >
+> > How's a user - or even another kernel developer who isn't familiar with
+> > virtio - supposed to know that?
 > 
->  - It's mentioned several times that the ability to read the steering rule from
-> the virtio-net config is there for debug reasons. Is it really necessary? I
-> think it's the first time I see debug features go in as part of the spec.
-
-I actually think we need to work on more debug features.
-
->  - I'm slightly confused, why are there both receive and transmit steering? I
-> can't find a difference in the way to configure the rule for transmit and
-> receive. Is it a plan for the future to allow different rules for tx and rx? If
-> so, shouldn't we use different ctrl commands (
-> VIRTIO_NET_CTRL_TX_STEERING/VIRTIO_NET_CTRL_RX_STEERING)?
-
-No. Receive steering is done by device. Documented for driver writer's
-benefit. xmit streering by driver. documented for device benefit.
-They must match for tcp to work well so I doubt we will have
-commands to control them separately.
-
->  - "When rule is set to VIRTIO_NET_CTRL_STEERING_SINGLE all packets are steered
-> to the default virtqueue receveq (0);" - "receiveq (0)"
+> I get annoyed that menuconfig doesn't show options whose dependencies
+> aren't possible, too.  (I got bitten the other way: it doesn't show
+> dependencies which can't be disabled, and I was trying to turn KALLSYMS
+> off).
 > 
-> 
-> 
-> Thanks,
-> Sasha
+> But as I found out just last week, the '/' key allows you to find any
+> option, and shows what dependencies it has, and their values.
 
-
-Thanks for the comments will address!
+Yep, use it all the time. 
