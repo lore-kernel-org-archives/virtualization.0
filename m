@@ -1,11 +1,13 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [PATCH 0/5] vhost-scsi: Add support for host virtualized target
-Date: Fri,  7 Sep 2012 06:48:14 +0000
-Message-ID: <1347000499-28701-1-git-send-email-nab__5200.91647417775$1347000785$gmane$org@linux-iscsi.org>
+Subject: [PATCH 2/5] vhost: Pass device path to vhost_dev_init()
+Date: Fri,  7 Sep 2012 06:48:16 +0000
+Message-ID: <1347000499-28701-3-git-send-email-nab__16048.9071779468$1347000789$gmane$org@linux-iscsi.org>
+References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,67 +21,70 @@ To: target-devel <target-devel@vger.kernel.org>
 Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicholas Bellinger <nab@linux-iscsi.org>
+From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 
-Hello Anthony & Co,
+The path to /dev/vhost-net is currently hardcoded in vhost_dev_init().
+This needs to be changed so that /dev/vhost-scsi can be used.  Pass in
+the device path instead of hardcoding it.
 
-This is the fourth installment to add host virtualized target support for
-the mainline tcm_vhost fabric driver using Linux v3.6-rc into QEMU 1.3.0-rc.
+Signed-off-by: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+---
+ hw/vhost.c     |    5 +++--
+ hw/vhost.h     |    3 ++-
+ hw/vhost_net.c |    2 +-
+ 3 files changed, 6 insertions(+), 4 deletions(-)
 
-The series is available directly from the following git branch:
-
-   git://git.kernel.org/pub/scm/virt/kvm/nab/qemu-kvm.git vhost-scsi-for-1.3
-
-Note the code is cut against yesterday's QEMU head, and dispite the name
-of the tree is based upon mainline qemu.org git code + has thus far been
-running overnight with > 100K IOPs small block 4k workloads using v3.6-rc2+
-based target code with RAMDISK_DR backstores.
-
-Other than some minor fuzz between jumping from QEMU 1.2.0 -> 1.2.50, this
-series is functionally identical to what's been posted for vhost-scsi RFC-v3
-to qemu-devel.
-
-Please consider applying these patches for an initial vhost-scsi merge into
-QEMU 1.3.0-rc code, or let us know what else you'd like to see addressed for
-this series to in order to merge.
-
-Thank you!
-
---nab
-
-Nicholas Bellinger (2):
-  monitor: Rename+move net_handle_fd_param -> monitor_handle_fd_param
-  virtio-scsi: Set max_target=0 during vhost-scsi operation
-
-Stefan Hajnoczi (3):
-  vhost: Pass device path to vhost_dev_init()
-  vhost-scsi: add -vhost-scsi host device for use with tcm-vhost
-  virtio-scsi: Add start/stop functionality for vhost-scsi
-
- configure            |   10 +++
- hw/Makefile.objs     |    1 +
- hw/qdev-properties.c |   41 +++++++++++
- hw/vhost-scsi.c      |  190 ++++++++++++++++++++++++++++++++++++++++++++++++++
- hw/vhost-scsi.h      |   62 ++++++++++++++++
- hw/vhost.c           |    5 +-
- hw/vhost.h           |    3 +-
- hw/vhost_net.c       |    2 +-
- hw/virtio-pci.c      |    2 +
- hw/virtio-scsi.c     |   55 ++++++++++++++-
- hw/virtio-scsi.h     |    1 +
- monitor.c            |   18 +++++
- monitor.h            |    1 +
- net.c                |   18 -----
- net.h                |    2 -
- net/socket.c         |    2 +-
- net/tap.c            |    4 +-
- qemu-common.h        |    1 +
- qemu-config.c        |   19 +++++
- qemu-options.hx      |    4 +
- vl.c                 |   18 +++++
- 21 files changed, 431 insertions(+), 28 deletions(-)
- create mode 100644 hw/vhost-scsi.c
- create mode 100644 hw/vhost-scsi.h
-
+diff --git a/hw/vhost.c b/hw/vhost.c
+index 0fd8da8..d0ce5aa 100644
+--- a/hw/vhost.c
++++ b/hw/vhost.c
+@@ -747,14 +747,15 @@ static void vhost_eventfd_del(MemoryListener *listener,
+ {
+ }
+ 
+-int vhost_dev_init(struct vhost_dev *hdev, int devfd, bool force)
++int vhost_dev_init(struct vhost_dev *hdev, int devfd, const char *devpath,
++                   bool force)
+ {
+     uint64_t features;
+     int r;
+     if (devfd >= 0) {
+         hdev->control = devfd;
+     } else {
+-        hdev->control = open("/dev/vhost-net", O_RDWR);
++        hdev->control = open(devpath, O_RDWR);
+         if (hdev->control < 0) {
+             return -errno;
+         }
+diff --git a/hw/vhost.h b/hw/vhost.h
+index 80e64df..0c47229 100644
+--- a/hw/vhost.h
++++ b/hw/vhost.h
+@@ -44,7 +44,8 @@ struct vhost_dev {
+     bool force;
+ };
+ 
+-int vhost_dev_init(struct vhost_dev *hdev, int devfd, bool force);
++int vhost_dev_init(struct vhost_dev *hdev, int devfd, const char *devpath,
++                   bool force);
+ void vhost_dev_cleanup(struct vhost_dev *hdev);
+ bool vhost_dev_query(struct vhost_dev *hdev, VirtIODevice *vdev);
+ int vhost_dev_start(struct vhost_dev *hdev, VirtIODevice *vdev);
+diff --git a/hw/vhost_net.c b/hw/vhost_net.c
+index ecaa22d..df2c4a3 100644
+--- a/hw/vhost_net.c
++++ b/hw/vhost_net.c
+@@ -109,7 +109,7 @@ struct vhost_net *vhost_net_init(NetClientState *backend, int devfd,
+         (1 << VHOST_NET_F_VIRTIO_NET_HDR);
+     net->backend = r;
+ 
+-    r = vhost_dev_init(&net->dev, devfd, force);
++    r = vhost_dev_init(&net->dev, devfd, "/dev/vhost-net", force);
+     if (r < 0) {
+         goto fail;
+     }
 -- 
 1.7.2.5
