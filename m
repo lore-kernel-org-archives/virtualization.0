@@ -1,8 +1,7 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [PATCH 1/5] monitor: Rename+move net_handle_fd_param ->
-	monitor_handle_fd_param
-Date: Fri,  7 Sep 2012 06:48:15 +0000
-Message-ID: <1347000499-28701-2-git-send-email-nab__40685.3151195266$1347000802$gmane$org@linux-iscsi.org>
+Subject: [PATCH 4/5] virtio-scsi: Add start/stop functionality for vhost-scsi
+Date: Fri,  7 Sep 2012 06:48:18 +0000
+Message-ID: <1347000499-28701-5-git-send-email-nab__8713.42081013626$1347000813$gmane$org@linux-iscsi.org>
 References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,150 +18,168 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: target-devel <target-devel@vger.kernel.org>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicholas Bellinger <nab@linux-iscsi.org>
+From: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
 
-This patch renames+moves the net_handle_fd_param() caller used to
-obtain a file descriptor from either qemu_parse_fd() (the normal case)
-or from monitor_get_fd() (migration case) into a generically prefixed
-monitor_handle_fd_param() to be used by vhost-scsi code.
+This patch starts and stops vhost as the virtio device transitions
+through its status phases.  Vhost can only be started once the guest
+reports its driver has successfully initialized, which means the
+virtqueues have been set up by the guest.
 
-Also update net/[socket,tap].c consumers to use the new prefix.
+v3: - Add vhost-scsi.h include for DEFINE_PROP_VHOST_SCSI (mst + nab)
+    - Move vhost-scsi related struct members ahead of *cmd_vqs[0] within
+      VirtIOSCSI definition.  (paolo + nab)
 
-Reported-by: Michael S. Tsirkin <mst@redhat.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
+v2: - Squash virtio-scsi: use the vhost-scsi host device from stefan (nab)
+    - Fix up virtio_scsi_properties[] conflict w/ upstream qemu (nab)
+    - Drop usage of to_virtio_scsi() in virtio_scsi_set_status()
+      (reported by paolo)
+    - Use modern VirtIOSCSIConf define in virtio-scsi.h (reported by paolo)
+    - Use s->conf->vhost_scsi instead of proxyconf->vhost_scsi in
+      virtio_scsi_init() (reported by paolo)
+    - Only register QEMU SCSI bus is vhost-scsi is not active (reported
+      by paolo)
+
 Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>
 Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 ---
- monitor.c    |   18 ++++++++++++++++++
- monitor.h    |    1 +
- net.c        |   18 ------------------
- net.h        |    2 --
- net/socket.c |    2 +-
- net/tap.c    |    4 ++--
- 6 files changed, 22 insertions(+), 23 deletions(-)
+ hw/virtio-pci.c  |    2 ++
+ hw/virtio-scsi.c |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/virtio-scsi.h |    1 +
+ 3 files changed, 52 insertions(+), 0 deletions(-)
 
-diff --git a/monitor.c b/monitor.c
-index 49dccfe..0641efe 100644
---- a/monitor.c
-+++ b/monitor.c
-@@ -2389,6 +2389,24 @@ int monitor_get_fd(Monitor *mon, const char *fdname)
-     return -1;
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index 125eded..8ec7cf1 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -22,6 +22,7 @@
+ #include "virtio-net.h"
+ #include "virtio-serial.h"
+ #include "virtio-scsi.h"
++#include "vhost-scsi.h"
+ #include "pci.h"
+ #include "qemu-error.h"
+ #include "msi.h"
+@@ -1036,6 +1037,7 @@ static void virtio_scsi_exit_pci(PCIDevice *pci_dev)
  }
  
-+int monitor_handle_fd_param(Monitor *mon, const char *fdname)
+ static Property virtio_scsi_properties[] = {
++    DEFINE_PROP_VHOST_SCSI("vhost-scsi", VirtIOPCIProxy, scsi.vhost_scsi),
+     DEFINE_PROP_BIT("ioeventfd", VirtIOPCIProxy, flags, VIRTIO_PCI_FLAG_USE_IOEVENTFD_BIT, true),
+     DEFINE_PROP_UINT32("vectors", VirtIOPCIProxy, nvectors, DEV_NVECTORS_UNSPECIFIED),
+     DEFINE_VIRTIO_SCSI_PROPERTIES(VirtIOPCIProxy, host_features, scsi),
+diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
+index 5f737ac..edda097 100644
+--- a/hw/virtio-scsi.c
++++ b/hw/virtio-scsi.c
+@@ -13,9 +13,13 @@
+  *
+  */
+ 
++#include "qemu-common.h"
++#include "qemu-error.h"
++#include "vhost-scsi.h"
+ #include "virtio-scsi.h"
+ #include <hw/scsi.h>
+ #include <hw/scsi-defs.h>
++#include "vhost.h"
+ 
+ #define VIRTIO_SCSI_VQ_SIZE     128
+ #define VIRTIO_SCSI_CDB_SIZE    32
+@@ -144,6 +148,10 @@ typedef struct {
+     uint32_t cdb_size;
+     int resetting;
+     bool events_dropped;
++
++    bool vhost_started;
++    VHostSCSI *vhost_scsi;
++
+     VirtQueue *ctrl_vq;
+     VirtQueue *event_vq;
+     VirtQueue *cmd_vqs[0];
+@@ -699,6 +707,38 @@ static struct SCSIBusInfo virtio_scsi_scsi_info = {
+     .load_request = virtio_scsi_load_request,
+ };
+ 
++static bool virtio_scsi_started(VirtIOSCSI *s, uint8_t val)
 +{
-+    int fd;
-+
-+    if (!qemu_isdigit(fdname[0]) && mon) {
-+
-+        fd = monitor_get_fd(mon, fdname);
-+        if (fd == -1) {
-+            error_report("No file descriptor named %s found", fdname);
-+            return -1;
-+        }
-+    } else {
-+        fd = qemu_parse_fd(fdname);
-+    }
-+
-+    return fd;
++    return (val & VIRTIO_CONFIG_S_DRIVER_OK) && s->vdev.vm_running;
 +}
 +
- /* mon_cmds and info_cmds would be sorted at runtime */
- static mon_cmd_t mon_cmds[] = {
- #include "hmp-commands.h"
-diff --git a/monitor.h b/monitor.h
-index 5f4de1b..d557e97 100644
---- a/monitor.h
-+++ b/monitor.h
-@@ -65,6 +65,7 @@ int monitor_read_block_device_key(Monitor *mon, const char *device,
-                                   void *opaque);
- 
- int monitor_get_fd(Monitor *mon, const char *fdname);
-+int monitor_handle_fd_param(Monitor *mon, const char *fdname);
- 
- void monitor_vprintf(Monitor *mon, const char *fmt, va_list ap)
-     GCC_FMT_ATTR(2, 0);
-diff --git a/net.c b/net.c
-index 60043dd..e5d25d4 100644
---- a/net.c
-+++ b/net.c
-@@ -522,24 +522,6 @@ int qemu_find_nic_model(NICInfo *nd, const char * const *models,
-     return -1;
- }
- 
--int net_handle_fd_param(Monitor *mon, const char *param)
--{
--    int fd;
--
--    if (!qemu_isdigit(param[0]) && mon) {
--
--        fd = monitor_get_fd(mon, param);
--        if (fd == -1) {
--            error_report("No file descriptor named %s found", param);
--            return -1;
--        }
--    } else {
--        fd = qemu_parse_fd(param);
--    }
--
--    return fd;
--}
--
- static int net_init_nic(const NetClientOptions *opts, const char *name,
-                         NetClientState *peer)
++static void virtio_scsi_set_status(VirtIODevice *vdev, uint8_t val)
++{
++    VirtIOSCSI *s = (VirtIOSCSI *)vdev;
++    bool start = virtio_scsi_started(s, val);
++
++    if (s->vhost_started == start) {
++        return;
++    }
++
++    if (start) {
++        int ret;
++
++        ret = vhost_scsi_start(s->vhost_scsi, vdev);
++        if (ret < 0) {
++            error_report("virtio-scsi: unable to start vhost: %s\n",
++                         strerror(-ret));
++
++            /* There is no userspace virtio-scsi fallback so exit */
++            exit(1);
++        }
++    } else {
++        vhost_scsi_stop(s->vhost_scsi, vdev);
++    }
++
++    s->vhost_started = start;
++}
++
+ VirtIODevice *virtio_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf)
  {
-diff --git a/net.h b/net.h
-index 2975056..04fda1d 100644
---- a/net.h
-+++ b/net.h
-@@ -168,8 +168,6 @@ int qmp_netdev_add(Monitor *mon, const QDict *qdict, QObject **ret);
+     VirtIOSCSI *s;
+@@ -712,12 +752,17 @@ VirtIODevice *virtio_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf)
  
- void qdev_set_nic_properties(DeviceState *dev, NICInfo *nd);
+     s->qdev = dev;
+     s->conf = proxyconf;
++    s->vhost_started = false;
++    s->vhost_scsi = s->conf->vhost_scsi;
  
--int net_handle_fd_param(Monitor *mon, const char *param);
--
- #define POLYNOMIAL 0x04c11db6
- unsigned compute_mcast_idx(const uint8_t *ep);
+     /* TODO set up vdev function pointers */
+     s->vdev.get_config = virtio_scsi_get_config;
+     s->vdev.set_config = virtio_scsi_set_config;
+     s->vdev.get_features = virtio_scsi_get_features;
+     s->vdev.reset = virtio_scsi_reset;
++    if (s->vhost_scsi) {
++        s->vdev.set_status = virtio_scsi_set_status;
++    }
  
-diff --git a/net/socket.c b/net/socket.c
-index c172c24..7c602e4 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -629,7 +629,7 @@ int net_init_socket(const NetClientOptions *opts, const char *name,
-     if (sock->has_fd) {
-         int fd;
+     s->ctrl_vq = virtio_add_queue(&s->vdev, VIRTIO_SCSI_VQ_SIZE,
+                                    virtio_scsi_handle_ctrl);
+@@ -743,5 +788,9 @@ void virtio_scsi_exit(VirtIODevice *vdev)
+ {
+     VirtIOSCSI *s = (VirtIOSCSI *)vdev;
+     unregister_savevm(s->qdev, "virtio-scsi", s);
++
++    /* This will stop vhost backend if appropriate. */
++    virtio_scsi_set_status(vdev, 0);
++
+     virtio_cleanup(vdev);
+ }
+diff --git a/hw/virtio-scsi.h b/hw/virtio-scsi.h
+index 4bc889d..74e9422 100644
+--- a/hw/virtio-scsi.h
++++ b/hw/virtio-scsi.h
+@@ -22,6 +22,7 @@
+ #define VIRTIO_SCSI_F_CHANGE                   2
  
--        fd = net_handle_fd_param(cur_mon, sock->fd);
-+        fd = monitor_handle_fd_param(cur_mon, sock->fd);
-         if (fd == -1 || !net_socket_fd_init(peer, "socket", name, fd, 1)) {
-             return -1;
-         }
-diff --git a/net/tap.c b/net/tap.c
-index 1971525..a88ae8f 100644
---- a/net/tap.c
-+++ b/net/tap.c
-@@ -610,7 +610,7 @@ int net_init_tap(const NetClientOptions *opts, const char *name,
-             return -1;
-         }
- 
--        fd = net_handle_fd_param(cur_mon, tap->fd);
-+        fd = monitor_handle_fd_param(cur_mon, tap->fd);
-         if (fd == -1) {
-             return -1;
-         }
-@@ -686,7 +686,7 @@ int net_init_tap(const NetClientOptions *opts, const char *name,
-         int vhostfd;
- 
-         if (tap->has_vhostfd) {
--            vhostfd = net_handle_fd_param(cur_mon, tap->vhostfd);
-+            vhostfd = monitor_handle_fd_param(cur_mon, tap->vhostfd);
-             if (vhostfd == -1) {
-                 return -1;
-             }
+ struct VirtIOSCSIConf {
++    VHostSCSI *vhost_scsi;
+     uint32_t num_queues;
+     uint32_t max_sectors;
+     uint32_t cmd_per_lun;
 -- 
 1.7.2.5
