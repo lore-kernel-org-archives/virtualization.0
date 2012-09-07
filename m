@@ -1,19 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
 	deflate" feature that works
-Date: Fri, 7 Sep 2012 15:17:12 +0300
-Message-ID: <20120907121712.GA17397@redhat.com>
+Date: Fri, 07 Sep 2012 14:22:47 +0200
+Message-ID: <5049E717.8080307@redhat.com>
 References: <20120906094442.GA22816@redhat.com> <50487382.8030303@redhat.com>
-	<20120906105301.GC32325@redhat.com> <5048935A.8090308@redhat.com>
-	<87wr06hg0l.fsf@rustcorp.com.au> <20120907054202.GA3452@redhat.com>
+	<20120906105301.GC32325@redhat.com>
+	<5048935A.8090308@redhat.com> <87wr06hg0l.fsf@rustcorp.com.au>
+	<20120907054202.GA3452@redhat.com>
 	<87vcfqfia1.fsf@rustcorp.com.au> <5049BE0E.6040202@redhat.com>
 	<20120907105335.GB17211@redhat.com> <5049D899.60705@redhat.com>
+	<20120907121712.GA17397@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5049D899.60705@redhat.com>
+In-Reply-To: <20120907121712.GA17397@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,114 +24,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, yvugenfi@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 07, 2012 at 01:20:57PM +0200, Paolo Bonzini wrote:
-> Il 07/09/2012 12:53, Michael S. Tsirkin ha scritto:
-> > Let us start with what is broken currently. Looking at
-> > it very closely, I think the answer is nothing.
-> > Even migration in qemu is not broken as you claimed initially.
+Il 07/09/2012 14:17, Michael S. Tsirkin ha scritto:
+>>> Next, consider the interface proposed here. You defacto declare
+>>> all existing drivers buggy.
+>>
+>> No, only Windows (and it is buggy, it calls tell_host last).
 > 
-> Correct, migration would be broken as soon as QEMU starts using
-> MUST_TELL_HOST.  I'm trying to think ahead, since we have many ideas
-> floating around on the implementation of ballooning.
+> It is not buggy. It does not ack MUST_TELL_HOST. So it is free to tell
+> host at any point, it behaves exactly
+> to spec. You can not retroactively declare drivers buggy like that.
+
+Well, according to your reading of the spec.
+
+In the spec I'm reading "Host must be told before pages from the balloon
+are used".  Doesn't say anything about the guest.
+
+Now, indeed a very free interpretation is "Guest will tell host before
+pages from the balloon are used".  It turns out that it's exactly what
+guests have been doing, hence that's exactly what I'm proposing now:
+rename the feature to VIRTIO_BALLOON_F_WILL_TELL_HOST.
+
+>> True, but the choice is:
+>>
+>> 1) add a once-only hack to QEMU that fixes migration of
+>> VIRTIO_BALLOON_F_MUST_TELL_HOST;
+>>
+>> 2) always advertise VIRTIO_BALLOON_F_MUST_TELL_HOST.  If you do this,
+>> guests cannot use anymore silent deflate, which is a regression.
+>>
+>> 3) use two bits.  One tells the device that the driver supports chatty
+>> deflate; one tells the driver that the device supports silent deflate.
 > 
-> If you implement the mlock/munlock trick, you must start using
-> MUST_TELL_HOST in QEMU to advertise it to guests, and migration breaks.
-
-Migration does not break.
-
-Since I wrote this code in qemu let me explain what is going on.
-
-qemu requires that local and remote side are started with
-same feature bits.
-To support cross version migration, code in hw/pc_piix.c
-disables features if you require migration from/to old qemu.
-
-At some point I added a sanity check:
-if we get guest features we know that any bit
-set there must be set in host features.
-Yes, this catches some user mistakes.
-
-This was never intended as a compatibility guarantee.
-User is still required to start qemu such
-that host features match exactly, anything else
-can lead to failures some of them hard to debug.
-
-Here is a simple example:
-
-1. guest reads host features
-2. guest is migrated - check passes since no features are acked
-3. guest acks features -> failure
-
-This applies to any feature. Nothing special with this one.
-
-Yes, we can if we want to make this more robust
-against user errors, e.g. by migrating host feature
-bits. Patches welcome. If we do it will help all
-features, not just this one.
-
-
-> > Next, consider the interface proposed here. You defacto declare
-> > all existing drivers buggy.
+> The right thing to do is either
+> 4. realize we can not address all user errors, so no real issue
+> 5. address this class of user errors by migrating host features
 > 
-> No, only Windows (and it is buggy, it calls tell_host last).
-
-It is not buggy. It does not ack MUST_TELL_HOST. So it is free to tell
-host at any point, it behaves exactly
-to spec. You can not retroactively declare drivers buggy like that.
-
->  Linux and
-> BSD drivers do negotiate MUST_TELL_HOST, and are not buggy.
+>> So in the end you do use two feature bits for two different things.
+>> Plus, both feature bits are "positive" and I'm happy.
 > 
-> > This is a wrong thing to do.
-> > You also use two feature bits for a single simple thing,
-> > this is inelegant.
+> I am not happy.
+> We lose compatibility with all existing drivers
+
+How so?
+
+> so it will take years until the feature is actually
+> useful.
+
+No, we don't!  Windows guests will just not be able to use munlock/mlock
+until the driver is fixed.  Which will probably happen before someone
+writes the munlock/mlock code.
+
+> Is this just a matter of naming? Same functionality:
+> driver that acks this bit will tell host first,
+> driver that does not will not?
 > 
-> True, but the choice is:
-> 
-> 1) add a once-only hack to QEMU that fixes migration of
-> VIRTIO_BALLOON_F_MUST_TELL_HOST;
-> 
-> 2) always advertise VIRTIO_BALLOON_F_MUST_TELL_HOST.  If you do this,
-> guests cannot use anymore silent deflate, which is a regression.
-> 
-> 3) use two bits.  One tells the device that the driver supports chatty
-> deflate; one tells the driver that the device supports silent deflate.
+> If yes that is fine.
 
-The right thing to do is either
-4. realize we can not address all user errors, so no real issue
-5. address this class of user errors by migrating host features
+Yes, that part we agree on I think.  We disagree that (after the rename)
+QEMU should start always proposing VIRTIO_BALLOON_F_WILL_TELL_HOST.
 
-> So in the end you do use two feature bits for two different things.
-> Plus, both feature bits are "positive" and I'm happy.
+_Plus_ adding the new feature bit, which is needed to actually tell the
+driver that the host supports the silent deflate.  Spec patch on the way.
 
-I am not happy.
-We lose compatibility with all existing drivers
-so it will take years until the feature is actually
-useful.
-
-> > Last, let us consider how existing feature can be used
-> > in the hypervisor. If driver did not ack
-> > MUST_TELL_HOST, it is *not* buggy but it means we can not
-> > do munlock. This applies to current windows drivers.
-> > If driver *did* ack MUST_TELL_HOST, we can munlock
-> > and mlock back on leak.
-> > Seems useful, driver support is already there,
-> > so removing the MUST_TELL_HOST bit seems like a bad idea.
-> 
-> Indeed, repurposing MUST_TELL_HOST to WILL_TELL_HOST is better than
-> killing it.
-> 
-> Paolo
-
-Is this just a matter of naming? Same functionality:
-driver that acks this bit will tell host first,
-driver that does not will not?
-
-If yes that is fine.
-
--- 
-MST
+Paolo
