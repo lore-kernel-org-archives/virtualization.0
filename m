@@ -1,21 +1,19 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-blk: Fix kconfig option
-Date: Fri, 07 Sep 2012 12:27:18 +0930
-Message-ID: <874nnah75d.fsf@rustcorp.com.au>
-References: <20120903044133.GA9980@moria.home.lan>
-	<87wr0ae26e.fsf@rustcorp.com.au>
-	<20120906074113.GA5902@koverstreet-glaptop>
-	<20120906084403.GD17656@redhat.com>
-	<20120906092512.GB5902@koverstreet-glaptop>
-	<20120906094956.GB22816@redhat.com>
-	<20120906100247.GA27355@koverstreet-glaptop>
-	<87zk52hg9i.fsf@rustcorp.com.au>
-	<20120907002533.GB16360@google.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
+	deflate" feature that works
+Date: Fri, 7 Sep 2012 08:42:02 +0300
+Message-ID: <20120907054202.GA3452@redhat.com>
+References: <1346917610-14568-1-git-send-email-pbonzini@redhat.com>
+	<20120906084736.GF17656@redhat.com> <50486BB2.7070108@redhat.com>
+	<20120906094442.GA22816@redhat.com> <50487382.8030303@redhat.com>
+	<20120906105301.GC32325@redhat.com> <5048935A.8090308@redhat.com>
+	<87wr06hg0l.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120907002533.GB16360@google.com>
+Content-Disposition: inline
+In-Reply-To: <87wr06hg0l.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,87 +23,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Kent Overstreet <koverstreet@google.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Kent Overstreet <koverstreet@google.com> writes:
-> On Fri, Sep 07, 2012 at 09:10:25AM +0930, Rusty Russell wrote:
->> Kent Overstreet <koverstreet@google.com> writes:
->> 
->> > On Thu, Sep 06, 2012 at 12:49:56PM +0300, Michael S. Tsirkin wrote:
->> >> On Thu, Sep 06, 2012 at 02:25:12AM -0700, Kent Overstreet wrote:
->> >> > Do you not understand the difference between depends an selects?
->> >> > Or did you not read my original mail?
->> 
->> Now you're getting insulting.
->
-> Yes, but at least I'm not being intentionally obtuse.
+On Fri, Sep 07, 2012 at 09:15:46AM +0930, Rusty Russell wrote:
+> Paolo Bonzini <pbonzini@redhat.com> writes:
+> > Instead, VIRTIO_NET_F_HOST_MUST_SEND_GARP would be a "negative" feature:
+> > if set, the host _may not_ rely on the guest to send a gARP.  Similarly
+> > if VIRTIO_BALLOON_F_MUST_TELL_HOST is set, the guest _may not_ use
+> > ballooned pages directly.
+> >
+> > There are _no_ other negative features besides
+> > VIRTIO_BALLOON_F_MUST_TELL_HOST in the spec, and for a good
+> > reason---because they're broken.
+> >
+> > (Hmm, actually we have one, VIRTIO_BLK_F_RO.  It is also a bit broken,
+> > but it is not so important because it depends on user input more than
+> > hypervisor version).
+> 
+> Yes, this is the key observation, and an important lesson for the
+> future.  Thanks!
+> Note that these two negative features were in the original spec, where
+> it's assumed that every device supports them.  That's not explicitly
+> documented, however.
 
-Insulting again.  Wow.
+I'm curious what would we do for the future? I tried to imagine that _RO
+was not in the original spec, so virtio-blk expects a r/w device.
+Now we can not add _RW - old hypervisors do not set it, and old
+drivers do not ack it.
+What would a new flag with equivalent functionality be?
 
-It took me this long to understand your complaint.  Perhaps I'm stupid.
-Or perhaps you are terrible at explaining yourself, and it is only
-through our patient and heroic efforts that we can comprehend you at
-all?
+> I like killing the totally unused feature.
+> 
+> Cheers,
+> Rusty.
 
-> Think about it from the user's pov. They check what VIRTIO_BLK depends
-> on - just VIRTIO.
->
-> So they try to figure out how to flip on VIRTIO, or what VIRTIO even is.
->
-> See how that last step might be problematic? CONFIG_VIRTIO is not
-> exposed! It doesn't even seem to control anything!
->
-> Go back to your example. Checking the dependencies for E1000 would tell
-> you the user needs to flip on CONFIG_PCI. Done. Easy.
+I tried verifying that it is unused. And found this:
+Linux drivers currently try to ack this feature if it is there,
+so do BSD drivers. Both from v1. And they tell host before leak.
+So that is fine.
 
-Actually, it depends on NET_VENDOR_INTEL which depends on CONFIG_PCI,
-but yes, it's discoverable.
+But looking at windows drivers:
+https://github.com/YanVugenfirer/kvm-guest-drivers-windows/blob/master/Balloon/sys/balloon.c
+they do *not* ack this bit, and BalloonLeak calls TellHost at the last
+line.
 
-So your actual complaint is that:
-1) CONFIG_VIRTIO is misleadingly documented both in comment and name.
-2) It's not discoverable, since it's only selected via other things.
+So it looks like a bug: we should teach driver to tell host first on leak?
+Yan, Vadim, can you comment please?
 
-> And, if that is what you're doing with CONFIG_VIRTIO (I'm still not
-> sure) the comment at the top of drivers/virtio/Kconfig is _wrong_:
+Also if true, looks like this bit will be useful to detect a fixed driver on
+the hypervisor side - to avoid unmapping such pages? Rusty what do you
+think?
 
-As grep would show you, it's selected by LGUEST, S390_GUEST, RPMSG,
-VIRTIO_PCI and VIRTIO_MMIO (VIRTIO_BALLOON is a cut & paste bug, already
-patched by MST).
-
-We could change every virtio device to depend on (CONFIG_LGUEST |
-CONFIG_S390_GUEST | CONFIG_RPMSG | CONFIG_VIRTIO_PCI |
-CONFIG_VIRTIO_MMIO), which is more discoverable but uglier.  How's this
-workaround?
-
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: virtio: add help to CONFIG_VIRTIO option.
-
-Trying to enable a virtio driver (eg CONFIG_VIRTIO_BLK) is painful
-because it depends on CONFIG_VIRTIO.  CONFIG_VIRTIO doesn't tell you
-how to turn it on (it's selected from anything which provides a virtio
-bus).
-
-This patch at least adds some documentation, visible in menuconfig, as
-a hint.
-
-Reported-by: Kent Overstreet <koverstreet@google.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -1,8 +1,10 @@
--# Virtio always gets selected by whoever wants it.
- config VIRTIO
- 	tristate
-+	---help---
-+	  This option is selected by any driver which implements the virtio
-+	  bus, such as CONFIG_VIRTIO_PCI, CONFIG_VIRTIO_MMIO, CONFIG_LGUEST,
-+	  CONFIG_RPMSG or CONFIG_S390_GUEST.
- 
--# Similarly the virtio ring implementation.
- config VIRTIO_RING
- 	tristate
- 	depends on VIRTIO
+-- 
+MST
