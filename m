@@ -1,19 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
-	deflate" feature that works
-Date: Fri, 07 Sep 2012 16:09:50 +0930
-Message-ID: <87vcfqfia1.fsf@rustcorp.com.au>
-References: <1346917610-14568-1-git-send-email-pbonzini@redhat.com>
-	<20120906084736.GF17656@redhat.com> <50486BB2.7070108@redhat.com>
-	<20120906094442.GA22816@redhat.com> <50487382.8030303@redhat.com>
-	<20120906105301.GC32325@redhat.com>
-	<5048935A.8090308@redhat.com> <87wr06hg0l.fsf@rustcorp.com.au>
-	<20120907054202.GA3452@redhat.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: [PATCH 0/5] vhost-scsi: Add support for host virtualized target
+Date: Fri,  7 Sep 2012 06:48:14 +0000
+Message-ID: <1347000499-28701-1-git-send-email-nab__5200.91647417775$1347000785$gmane$org@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120907054202.GA3452@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,59 +15,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
+To: target-devel <target-devel@vger.kernel.org>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
+From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-> On Fri, Sep 07, 2012 at 09:15:46AM +0930, Rusty Russell wrote:
->> Paolo Bonzini <pbonzini@redhat.com> writes:
->> > Instead, VIRTIO_NET_F_HOST_MUST_SEND_GARP would be a "negative" feature:
->> > if set, the host _may not_ rely on the guest to send a gARP.  Similarly
->> > if VIRTIO_BALLOON_F_MUST_TELL_HOST is set, the guest _may not_ use
->> > ballooned pages directly.
->> >
->> > There are _no_ other negative features besides
->> > VIRTIO_BALLOON_F_MUST_TELL_HOST in the spec, and for a good
->> > reason---because they're broken.
->> >
->> > (Hmm, actually we have one, VIRTIO_BLK_F_RO.  It is also a bit broken,
->> > but it is not so important because it depends on user input more than
->> > hypervisor version).
->> 
->> Yes, this is the key observation, and an important lesson for the
->> future.  Thanks!
->> Note that these two negative features were in the original spec, where
->> it's assumed that every device supports them.  That's not explicitly
->> documented, however.
->
-> I'm curious what would we do for the future? I tried to imagine that _RO
-> was not in the original spec, so virtio-blk expects a r/w device.
-> Now we can not add _RW - old hypervisors do not set it, and old
-> drivers do not ack it.
-> What would a new flag with equivalent functionality be?
+Hello Anthony & Co,
 
-Backwards compatibility in the R/O case would actually work: just fail
-writes.  Because it's just friendly advice to the OS, really.
+This is the fourth installment to add host virtualized target support for
+the mainline tcm_vhost fabric driver using Linux v3.6-rc into QEMU 1.3.0-rc.
 
-The final test is always: does it break users?  If there are no users
-who will notice, we can do anything.  If there are users, we have to
-keep backwards compatibility, and that implies we can't add "must know"
-features.
+The series is available directly from the following git branch:
 
-> So it looks like a bug: we should teach driver to tell host first on leak?
-> Yan, Vadim, can you comment please?
->
-> Also if true, looks like this bit will be useful to detect a fixed driver on
-> the hypervisor side - to avoid unmapping such pages? Rusty what do you
-> think?
+   git://git.kernel.org/pub/scm/virt/kvm/nab/qemu-kvm.git vhost-scsi-for-1.3
 
-So, feature is unimplemented in qemu, and broken in drivers.  I starting
-to share Paolo's dislike of it.
+Note the code is cut against yesterday's QEMU head, and dispite the name
+of the tree is based upon mainline qemu.org git code + has thus far been
+running overnight with > 100K IOPs small block 4k workloads using v3.6-rc2+
+based target code with RAMDISK_DR backstores.
 
-Don't understand why we'd care about fixed drivers though, if we remove
-the feature bit....
+Other than some minor fuzz between jumping from QEMU 1.2.0 -> 1.2.50, this
+series is functionally identical to what's been posted for vhost-scsi RFC-v3
+to qemu-devel.
 
-Cheers,
-Rusty.
+Please consider applying these patches for an initial vhost-scsi merge into
+QEMU 1.3.0-rc code, or let us know what else you'd like to see addressed for
+this series to in order to merge.
+
+Thank you!
+
+--nab
+
+Nicholas Bellinger (2):
+  monitor: Rename+move net_handle_fd_param -> monitor_handle_fd_param
+  virtio-scsi: Set max_target=0 during vhost-scsi operation
+
+Stefan Hajnoczi (3):
+  vhost: Pass device path to vhost_dev_init()
+  vhost-scsi: add -vhost-scsi host device for use with tcm-vhost
+  virtio-scsi: Add start/stop functionality for vhost-scsi
+
+ configure            |   10 +++
+ hw/Makefile.objs     |    1 +
+ hw/qdev-properties.c |   41 +++++++++++
+ hw/vhost-scsi.c      |  190 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ hw/vhost-scsi.h      |   62 ++++++++++++++++
+ hw/vhost.c           |    5 +-
+ hw/vhost.h           |    3 +-
+ hw/vhost_net.c       |    2 +-
+ hw/virtio-pci.c      |    2 +
+ hw/virtio-scsi.c     |   55 ++++++++++++++-
+ hw/virtio-scsi.h     |    1 +
+ monitor.c            |   18 +++++
+ monitor.h            |    1 +
+ net.c                |   18 -----
+ net.h                |    2 -
+ net/socket.c         |    2 +-
+ net/tap.c            |    4 +-
+ qemu-common.h        |    1 +
+ qemu-config.c        |   19 +++++
+ qemu-options.hx      |    4 +
+ vl.c                 |   18 +++++
+ 21 files changed, 431 insertions(+), 28 deletions(-)
+ create mode 100644 hw/vhost-scsi.c
+ create mode 100644 hw/vhost-scsi.h
+
+-- 
+1.7.2.5
