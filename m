@@ -1,20 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
-	deflate" feature that works
-Date: Sun, 9 Sep 2012 01:37:24 +0300
-Message-ID: <20120908223724.GB20588@redhat.com>
-References: <50486BB2.7070108@redhat.com> <20120906094442.GA22816@redhat.com>
-	<50487382.8030303@redhat.com> <20120906105301.GC32325@redhat.com>
-	<5048935A.8090308@redhat.com> <87wr06hg0l.fsf@rustcorp.com.au>
-	<20120907054202.GA3452@redhat.com> <87vcfqfia1.fsf@rustcorp.com.au>
-	<20120907104306.GA17211@redhat.com>
-	<87sjatf6iv.fsf@rustcorp.com.au>
+Subject: Re: [PATCH 4/5] virtio-scsi: Add start/stop functionality for
+	vhost-scsi
+Date: Sun, 9 Sep 2012 01:40:32 +0300
+Message-ID: <20120908224032.GC20588@redhat.com>
+References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
+	<1347000499-28701-5-git-send-email-nab@linux-iscsi.org>
+	<504A1A32.5050705@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87sjatf6iv.fsf@rustcorp.com.au>
+In-Reply-To: <504A1A32.5050705@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,80 +21,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Sep 08, 2012 at 02:36:00PM +0930, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > On Fri, Sep 07, 2012 at 04:09:50PM +0930, Rusty Russell wrote:
-> >> > So it looks like a bug: we should teach driver to tell host first on leak?
-> >> > Yan, Vadim, can you comment please?
-> >> >
-> >> > Also if true, looks like this bit will be useful to detect a fixed driver on
-> >> > the hypervisor side - to avoid unmapping such pages? Rusty what do you
-> >> > think?
-> >> 
-> >> So, feature is unimplemented in qemu, and broken in drivers.  I starting
-> >> to share Paolo's dislike of it.
-> >
-> > What is broken in drivers?
+On Fri, Sep 07, 2012 at 06:00:50PM +0200, Paolo Bonzini wrote:
+> Il 07/09/2012 08:48, Nicholas A. Bellinger ha scritto:
+> > Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
+> > Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
+> > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> > ---
+> >  hw/virtio-pci.c  |    2 ++
+> >  hw/virtio-scsi.c |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
+> >  hw/virtio-scsi.h |    1 +
+> >  3 files changed, 52 insertions(+), 0 deletions(-)
 > 
-> Because supporting the feature is *not* optional for a driver.
+> Please create a completely separate device vhost-scsi-pci instead (or
+> virtio-scsi-tcm-pci, or something like that).  It is used completely
+> differently from virtio-scsi-pci, it does not make sense to conflate the
+> two.
 > 
-> If the device said MUST_TELL_HOST, it meant that the driver *had* to
-> tell the host before it touched the page, otherwise Bad Things might
-> happen.  It was in the original spec precisely to allow devices to
-> actually *remove* pages.
-> 
-> Noone ever noticed the windows driver didn't support it, because qemu
-> never requires MUST_TELL_HOST.
-> 
-> So in practice, it's now an optional feature.  Since no device used it
-> anyway, we're better off discarding it than trying to fix it.
+> Paolo
 
-I trust you this was not the intent. But it seems to be
-the intent in spec, because almost all features are optional.
-
-And so windows driver authors interpreted it
-this way. And it is *useful* like this.  See below.
-
-> If someone wants an *optional* "tell me first" feature later, that's
-> easy to add, but I don't see why they'd want to.
-
-Suggested use is for device assignment which needs all guest memory
-locked.  hypervisor can unlock pages in balloon but guest must wait for
-hypervisor to lock them back before use.
-
-when a hypervisor implements this,
-this will work with linux guests but not windows
-guests and the existing bit fits exactly the purpose.
-
-
-> > Do we really know there are no hypervisors implementing it?
-> 
-> As much as can be known.  Qemu doesn't, lkvm doesn't.
-
-But we can add it in qemu and it will be a useful feature.
-
-> > As I said above drivers do have support.
-> 
-> Not the windows drivers.  So it's optional, thus removing it will likely
-> harm noone.
-> 
-> Cheers,
-> Rusty.
-
-I think the issue is that kvm always locked all guest memory
-for assignment. This restriction is removed
-with vfio which has separate page tables.
-Now that vfio is upstream and work on qemu integration
-is being worked on, we might finally see people using this bit
-to allow memory overcommit with device assignment.
-
-So let's not remove yet, there is no rush.
-Let's document it that this feature is optional,
-maybe renaming as Paolo suggests.
+Ideally the name would say how it is different, not what backend it
+uses. Any good suggestions?
 
 -- 
 MST
