@@ -1,12 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio-spec: serial: english tweak
-Date: Sun, 9 Sep 2012 15:11:17 +0300
-Message-ID: <20120909121116.GA2972@redhat.com>
+Subject: Re: [PATCHv3] virtio-spec: virtio network device multiqueue support
+Date: Sun, 9 Sep 2012 15:40:33 +0300
+Message-ID: <20120909124033.GA2986@redhat.com>
+References: <20120906120828.GA1534@redhat.com>
+ <50493D04.1090408@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <50493D04.1090408@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,34 +19,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"A number of virtqueues are created" seems clearer
-than "the number of virtqueues": it's
-virtqueues that are created not the number.
+On Fri, Sep 07, 2012 at 02:17:08AM +0200, Sasha Levin wrote:
+> Hi Michael,
+> 
+> On 09/06/2012 02:08 PM, Michael S. Tsirkin wrote:
+> > Add multiqueue support to virtio network device.
+> > Add a new feature flag VIRTIO_NET_F_MULTIQUEUE for this feature, a new
+> > configuration field max_virtqueue_pairs to detect supported number of
+> > virtqueues as well as a new command VIRTIO_NET_CTRL_STEERING to program
+> > packet steering.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> Some comments about the change:
+> 
+>  - "The following four read-only fields only exists if VIRTIO_NET_F_MULTIQUEUE
+> is set." => Should be "exist" (I think).
+> 
+>  - "When rule is set to VIRTIO_NET_CTRL_STEERING_RX_FOLLOWS_TX packets are
+> steered by driver to the first (param+1) multiqueue virtqueues
+> transmitq1...transmitqN;" - Why param+1?  I thought we ignore the default
+> transmit/receive in this case.
+> 
+>  - "As selecting a specific steering ais n optimization feature" - "is an".
+> 
+>  - It's mentioned several times that the ability to read the steering rule from
+> the virtio-net config is there for debug reasons. Is it really necessary? I
+> think it's the first time I see debug features go in as part of the spec.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+Yes, let features -> less stuff to debug. I'll drop it.
 
-I'm not a native english speaker but the below
-seems correct to me. Rusty?
+>  - I'm slightly confused, why are there both receive and transmit steering? I
+> can't find a difference in the way to configure the rule for transmit and
+> receive.
 
- virtio-spec.lyx | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This paragraph is there to address this:
+	Driver selects an active steering rule using VIRTIO_NET_CTRL_STEERING
+	command (this controls both which virtqueue is selected for a given
+	packet for receive and notifies the device which virtqueues are about to
+	be used for transmit).
 
-diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index d9626a9..a29315c 100644
---- a/virtio-spec.lyx
-+++ b/virtio-spec.lyx
-@@ -6406,7 +6406,7 @@ If the VIRTIO_CONSOLE_F_MULTIPORT feature is negotiated, the driver can
-  spawn multiple ports, not all of which may be attached to a console.
-  Some could be generic ports.
-  In this case, the control virtqueues are enabled and according to the max_nr_po
--rts configuration-space value, the appropriate number of virtqueues are
-+rts configuration-space value, an appropriate number of virtqueues are
-  created.
-  A control message indicating the driver is ready is sent to the host.
-  The host can then send control messages for adding new ports to the device.
--- 
-MST
+How can I clarify this better?
+
+> Is it a plan for the future to allow different rules for tx and rx? If
+> so, shouldn't we use different ctrl commands (
+> VIRTIO_NET_CTRL_TX_STEERING/VIRTIO_NET_CTRL_RX_STEERING)?
+
+I don't see separate steering as very useful:
+it does not work for RX follows TX or for TX follows
+RX, and separate commands imediately create lots of
+options with behaviour which hard to define.
+For example if you configure SINGLE on TX but RX_FOLLOWS_TX
+on RX what does it mean?
+
+>  - "When rule is set to VIRTIO_NET_CTRL_STEERING_SINGLE all packets are steered
+> to the default virtqueue receveq (0);" - "receiveq (0)"
+> 
+> 
+> 
+> Thanks,
+> Sasha
