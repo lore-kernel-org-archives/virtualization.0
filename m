@@ -1,22 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
-Date: Tue, 11 Sep 2012 01:11:11 +0300
-Message-ID: <20120910221111.GA21854@redhat.com>
-References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20120903143018.GA5353@redhat.com>
-	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
-	<20120903202737.GD6181@redhat.com>
-	<CAJK669ZvnnG6fGOog-Z47B7xqyn9hcx5dAD7S--+2PSgE+hrLA@mail.gmail.com>
-	<20120904135022.GI9805@redhat.com>
-	<CAJK669Z1UYakBWartChfoeKL_eU5=GFZMGhH8R_Q-difVm0ygQ@mail.gmail.com>
-	<20120904185541.GB3602@redhat.com> <87k3w7j49i.fsf@rustcorp.com.au>
-	<20120906052735.GB17656@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+From: Andres Lagar-Cavilla <andreslc@gridcentric.ca>
+Subject: Re: [patch 1/3] xen/privcmd: check for integer overflow in ioctl
+Date: Sun, 9 Sep 2012 15:49:17 -0400
+Message-ID: <61BA4F5D-682D-4D29-92E5-70299C0D9A70__42091.4738243029$1347316617$gmane$org@gridcentric.ca>
+References: <20120908095208.GA608@elgon.mountain>
+Mime-Version: 1.0 (Apple Message framework v1278)
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120906052735.GB17656@redhat.com>
+In-Reply-To: <20120908095208.GA608@elgon.mountain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,113 +17,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andres Lagar-Cavilla <andreslc@gridcentric.ca>, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 06, 2012 at 08:27:35AM +0300, Michael S. Tsirkin wrote:
-> On Thu, Sep 06, 2012 at 11:34:25AM +0930, Rusty Russell wrote:
-> > "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > > On Tue, Sep 04, 2012 at 06:58:47PM +0200, Sjur Br=E6ndeland wrote:
-> > >> Hi Michael,
-> > >> =
+On Sep 8, 2012, at 5:52 AM, Dan Carpenter wrote:
 
-> > >> > Exactly. Though if we just fail load it will be much less code.
-> > >> >
-> > >> > Generally, using a feature bit for this is a bit of a problem thou=
-gh:
-> > >> > normally driver is expected to be able to simply ignore
-> > >> > a feature bit. In this case driver is required to
-> > >> > do something so a feature bit is not a good fit.
-> > >> > I am not sure what the right thing to do is.
-> > >> =
-
-> > >> I see - so in order to avoid the binding between driver and device
-> > >> there are two options I guess. Either make virtio_dev_match() or
-> > >> virtcons_probe() fail. Neither of them seems like the obvious choice.
-> > >> =
-
-> > >> Maybe adding a check for VIRTIO_CONSOLE_F_DMA_MEM match
-> > >> between device and driver in virtcons_probe() is the lesser evil?
-> > >> =
-
-> > >> Regards,
-> > >> Sjur
-> > >
-> > > A simplest thing to do is change dev id. rusty?
-> > =
-
-> > For generic usage, this is correct.  But my opinion is that fallback on
-> > feature non-ack is quality-of-implementation issue: great to have, but
-> > there are cases where you just want to fail with "you're too old".
-> > =
-
-> > And in this case, an old system simply will never work.  So it's a
-> > question of how graceful the failure is.
-> > =
-
-> > Can your userspace loader can refuse to proceed if the driver doesn't
-> > ack the bits?  If so, it's simpler than a whole new ID.
-> > =
-
-> > Cheers,
-> > Rusty.
-> =
-
-> Yes but how can it signal guest that it will never proceed?
-> =
-
-> Also grep for BUG_ON in core found this:
-> =
-
->        drv->remove(dev);
-> =
-
->        /* Driver should have reset device. */
->        BUG_ON(dev->config->get_status(dev));
-> =
-
-> I think below is what Sjur refers to.
-> I think below is a good idea for 3.6. Thoughts?
-> =
-
-> --->
-> =
-
-> virtio: don't crash when device is buggy
-> =
-
-> Because of a sanity check in virtio_dev_remove, a buggy device can crash
-> kernel.  And in case of rproc it's userspace so it's not a good idea.
-> We are unloading a driver so how bad can it be?
-> Be less aggressive in handling this error: if it's a driver bug,
-> warning once should be enough.
-> =
-
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> =
-
-> --
-
-Rusty?
-
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index c3b3f7f..1e8659c 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -159,7 +159,7 @@ static int virtio_dev_remove(struct device *_d)
->  	drv->remove(dev);
->  =
-
->  	/* Driver should have reset device. */
-> -	BUG_ON(dev->config->get_status(dev));
-> +	WARN_ON_ONCE(dev->config->get_status(dev));
->  =
-
->  	/* Acknowledge the device's existence again. */
->  	add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> =
-
-> -- =
-
-> MST
+> If m.num is too large then the "m.num * sizeof(*m.arr)" multiplication
+> could overflow and the access_ok() check wouldn't test the right size.
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Andres Lagar-Cavilla <andres@lagarcavilla.org>
+> ---
+> Only needed in linux-next.
+> 
+> diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
+> index 215a3c0..fdff8f9 100644
+> --- a/drivers/xen/privcmd.c
+> +++ b/drivers/xen/privcmd.c
+> @@ -325,6 +325,8 @@ static long privcmd_ioctl_mmap_batch(void __user *udata, int version)
+> 			return -EFAULT;
+> 		/* Returns per-frame error in m.arr. */
+> 		m.err = NULL;
+> +		if (m.num > SIZE_MAX / sizeof(*m.arr))
+> +			return -EINVAL;
+> 		if (!access_ok(VERIFY_WRITE, m.arr, m.num * sizeof(*m.arr)))
+> 			return -EFAULT;
+> 		break;
+> @@ -332,6 +334,8 @@ static long privcmd_ioctl_mmap_batch(void __user *udata, int version)
+> 		if (copy_from_user(&m, udata, sizeof(struct privcmd_mmapbatch_v2)))
+> 			return -EFAULT;
+> 		/* Returns per-frame error code in m.err. */
+> +		if (m.num > SIZE_MAX / sizeof(*m.err))
+> +			return -EINVAL;
+> 		if (!access_ok(VERIFY_WRITE, m.err, m.num * (sizeof(*m.err))))
+> 			return -EFAULT;
+> 		break;
