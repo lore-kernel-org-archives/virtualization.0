@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio-spec: fix thinko in multiport documentation
-Date: Sun, 9 Sep 2012 14:08:37 +0300
-Message-ID: <20120909110837.GA2395@redhat.com>
+Subject: [PATCH] virtio-spec: balloon: MUST_TELL_HOST is optional
+Date: Sun, 9 Sep 2012 14:36:51 +0300
+Message-ID: <20120909113650.GA2775@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,36 +16,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-spec numbers ports port0, port 1 etc, then goes on to say
-"ports 2 onwards only if MULTIPORT is set".
-An obvious thinko, should be port 1 onwards.
+Drivers treat MUST_TELL_HOST as optional: windows drivers do not ack it
+and expect this means they can tell host *after* deflate.  This was not
+the intent but the documentation was not very clear on this point.
+
+Luckily hyprevisors did not implement this feature yet so to provide
+guidance for future devices make spec match drivers expectations, and
+clarify that this feature only has effect if negotiated.
+This is needed as recent developments in kvm (memory
+region rework and the addition of vfio) finally make
+it practical to implement this in devices.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- virtio-spec.lyx | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+
+OK how about this minimal patch for starters?
+Other changes are possible on top but I think
+both me and Paolo agree on this one.
+Paolo?
+
+ virtio-spec.lyx | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
 diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index a713807..d801aa6 100644
+index d801aa6..d9626a9 100644
 --- a/virtio-spec.lyx
 +++ b/virtio-spec.lyx
-@@ -6298,7 +6298,13 @@ Virtqueues 0:receiveq(port0).
- status open
+@@ -6331,8 +6331,13 @@ VIRTIO_CONSOLE_F_SIZE
  
- \begin_layout Plain Layout
--Ports 2 onwards only if VIRTIO_CONSOLE_F_MULTIPORT is set
-+Ports 
-+\change_inserted 1986246365 1347188327
-+1
-+\change_deleted 1986246365 1347188327
-+2
+ \begin_layout Description
+ VIRTIO_CONSOLE_F_MULTIPORT(1) Device has support for multiple ports; configurati
+-on fields nr_ports and max_nr_ports are valid and control virtqueues will
+- be used.
++on fields nr_ports and max_nr_ports are valid
++\change_inserted 1986246365 1347188404
++; if this bit is negotiated,
++\change_deleted 1986246365 1347188406
++ and
 +\change_unchanged
-+ onwards only if VIRTIO_CONSOLE_F_MULTIPORT is set
++ control virtqueues will be used.
  \end_layout
  
- \end_inset
+ \end_deeper
+@@ -6840,9 +6845,14 @@ The driver constructs an array of addresses of memory pages it has previously
+ \end_layout
+ 
+ \begin_layout Enumerate
+-If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is set, the guest may not
+- use these requested pages until that descriptor in the deflateq has been
+- used by the device.
++If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is 
++\change_inserted 1986246365 1347188540
++negotiated
++\change_deleted 1986246365 1347188542
++set
++\change_unchanged
++, the guest may not use these requested pages until that descriptor in the
++ deflateq has been used by the device.
+ \end_layout
+ 
+ \begin_layout Enumerate
 -- 
 MST
