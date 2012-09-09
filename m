@@ -1,17 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 4/5] virtio-scsi: Add start/stop functionality for
-	vhost-scsi
-Date: Sun, 9 Sep 2012 01:40:32 +0300
-Message-ID: <20120908224032.GC20588@redhat.com>
-References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
-	<1347000499-28701-5-git-send-email-nab@linux-iscsi.org>
-	<504A1A32.5050705@redhat.com>
+Subject: [PATCH] virtio-spec: fix thinko in multiport documentation
+Date: Sun, 9 Sep 2012 14:08:37 +0300
+Message-ID: <20120909110837.GA2395@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <504A1A32.5050705@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,32 +16,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
+To: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 07, 2012 at 06:00:50PM +0200, Paolo Bonzini wrote:
-> Il 07/09/2012 08:48, Nicholas A. Bellinger ha scritto:
-> > Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>
-> > Cc: Zhi Yong Wu <wuzhy@linux.vnet.ibm.com>
-> > Cc: Michael S. Tsirkin <mst@redhat.com>
-> > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
-> > ---
-> >  hw/virtio-pci.c  |    2 ++
-> >  hw/virtio-scsi.c |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
-> >  hw/virtio-scsi.h |    1 +
-> >  3 files changed, 52 insertions(+), 0 deletions(-)
-> 
-> Please create a completely separate device vhost-scsi-pci instead (or
-> virtio-scsi-tcm-pci, or something like that).  It is used completely
-> differently from virtio-scsi-pci, it does not make sense to conflate the
-> two.
-> 
-> Paolo
+spec numbers ports port0, port 1 etc, then goes on to say
+"ports 2 onwards only if MULTIPORT is set".
+An obvious thinko, should be port 1 onwards.
 
-Ideally the name would say how it is different, not what backend it
-uses. Any good suggestions?
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ virtio-spec.lyx | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
+diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+index a713807..d801aa6 100644
+--- a/virtio-spec.lyx
++++ b/virtio-spec.lyx
+@@ -6298,7 +6298,13 @@ Virtqueues 0:receiveq(port0).
+ status open
+ 
+ \begin_layout Plain Layout
+-Ports 2 onwards only if VIRTIO_CONSOLE_F_MULTIPORT is set
++Ports 
++\change_inserted 1986246365 1347188327
++1
++\change_deleted 1986246365 1347188327
++2
++\change_unchanged
++ onwards only if VIRTIO_CONSOLE_F_MULTIPORT is set
+ \end_layout
+ 
+ \end_inset
 -- 
 MST
