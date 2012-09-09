@@ -1,13 +1,13 @@
 From: Andres Lagar-Cavilla <andreslc@gridcentric.ca>
-Subject: Re: [patch 1/3] xen/privcmd: check for integer overflow in ioctl
-Date: Sun, 9 Sep 2012 15:49:17 -0400
-Message-ID: <61BA4F5D-682D-4D29-92E5-70299C0D9A70__42091.4738243029$1347316617$gmane$org@gridcentric.ca>
-References: <20120908095208.GA608@elgon.mountain>
+Subject: Re: [patch 2/3] xen/privcmd: return -EFAULT on error
+Date: Sun, 9 Sep 2012 15:49:29 -0400
+Message-ID: <CBDACA0A-1E68-4FFE-860B-2801019E03E2__15153.7156700671$1347316622$gmane$org@gridcentric.ca>
+References: <20120908095735.GB608@elgon.mountain>
 Mime-Version: 1.0 (Apple Message framework v1278)
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120908095208.GA608@elgon.mountain>
+In-Reply-To: <20120908095735.GB608@elgon.mountain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,35 +21,29 @@ To: Dan Carpenter <dan.carpenter@oracle.com>
 Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andres Lagar-Cavilla <andreslc@gridcentric.ca>, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sep 8, 2012, at 5:52 AM, Dan Carpenter wrote:
 
-> If m.num is too large then the "m.num * sizeof(*m.arr)" multiplication
-> could overflow and the access_ok() check wouldn't test the right size.
+On Sep 8, 2012, at 5:57 AM, Dan Carpenter wrote:
+
+> __copy_to_user() returns the number of bytes remaining to be copied but
+> we want to return a negative error code here.
 > 
 > Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Acked-by: Andres Lagar-Cavilla <andres@lagarcavilla.org>
-> ---
-> Only needed in linux-next.
 > 
 > diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
-> index 215a3c0..fdff8f9 100644
+> index fdff8f9..0ce006a 100644
 > --- a/drivers/xen/privcmd.c
 > +++ b/drivers/xen/privcmd.c
-> @@ -325,6 +325,8 @@ static long privcmd_ioctl_mmap_batch(void __user *udata, int version)
-> 			return -EFAULT;
-> 		/* Returns per-frame error in m.arr. */
-> 		m.err = NULL;
-> +		if (m.num > SIZE_MAX / sizeof(*m.arr))
-> +			return -EINVAL;
-> 		if (!access_ok(VERIFY_WRITE, m.arr, m.num * sizeof(*m.arr)))
-> 			return -EFAULT;
-> 		break;
-> @@ -332,6 +334,8 @@ static long privcmd_ioctl_mmap_batch(void __user *udata, int version)
-> 		if (copy_from_user(&m, udata, sizeof(struct privcmd_mmapbatch_v2)))
-> 			return -EFAULT;
-> 		/* Returns per-frame error code in m.err. */
-> +		if (m.num > SIZE_MAX / sizeof(*m.err))
-> +			return -EINVAL;
-> 		if (!access_ok(VERIFY_WRITE, m.err, m.num * (sizeof(*m.err))))
-> 			return -EFAULT;
-> 		break;
+> @@ -393,8 +393,11 @@ static long privcmd_ioctl_mmap_batch(void __user *udata, int version)
+> 		state.err      = err_array;
+> 		ret = traverse_pages(m.num, sizeof(xen_pfn_t),
+> 				     &pagelist, mmap_return_errors_v1, &state);
+> -	} else if (version == 2)
+> +	} else if (version == 2) {
+> 		ret = __copy_to_user(m.err, err_array, m.num * sizeof(int));
+> +		if (ret)
+> +			ret = -EFAULT;
+> +	}
+> 
+> 	/* If we have not had any EFAULT-like global errors then set the global
+> 	 * error to -ENOENT if necessary. */
