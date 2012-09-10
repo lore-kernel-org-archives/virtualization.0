@@ -1,19 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
-	deflate" feature that works
-Date: Mon, 10 Sep 2012 09:03:59 +0300
-Message-ID: <20120910060359.GB16819@redhat.com>
-References: <20120907105335.GB17211@redhat.com> <5049D899.60705@redhat.com>
-	<20120907121712.GA17397@redhat.com> <5049E717.8080307@redhat.com>
-	<20120907124432.GB17397@redhat.com> <5049FEDD.40303@redhat.com>
-	<20120907142545.GC17397@redhat.com> <504A0858.4080508@redhat.com>
-	<20120908222221.GA20588@redhat.com> <504D7F95.9070700@redhat.com>
+Subject: Re: [PATCHv4] virtio-spec: virtio network device multiqueue support
+Date: Mon, 10 Sep 2012 09:16:29 +0300
+Message-ID: <20120910061629.GC16819@redhat.com>
+References: <20120909130308.GA3471@redhat.com> <878vcifwxi.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <504D7F95.9070700@redhat.com>
+In-Reply-To: <878vcifwxi.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,66 +18,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, rick.jones2@hp.com, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, pbonzini@redhat.com, Tom Herbert <therbert@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 10, 2012 at 07:50:13AM +0200, Paolo Bonzini wrote:
-> Il 09/09/2012 00:22, Michael S. Tsirkin ha scritto:
-> >> Almost.  One is "the guest, if really needed, can tell the host of
-> >> pages".  If not negotiated, and the host does not support it, the host
-> >> must break the guest (e.g. fail to offer any virtqueues).
-> > 
-> > There is no way in spec to break the guest.
-> > You can not fail to offer virtqueues.
+On Mon, Sep 10, 2012 at 11:42:25AM +0930, Rusty Russell wrote:
+> OK, I read the spec (pasted below for easy of reading), but I'm still
+> confused over how this will work.
 > 
-> You can always return 0 for the first queue.
+> I thought normal net drivers have the hardware provide an rxhash for
+> each packet, and we map that to CPU to queue the packet on[1].  We hope
+> that the receiving process migrates to that CPU, so xmit queue
+> matches.
 
-I don't think guest drivers recover gracefully from this.
-Do they?
+This ony works sometimes.  For example it's common to pin netperf to a
+cpu to get consistent performance.  Proper hardware must obey what
+applications want it to do, not the other way around.
 
-> > Besides, there is no guarantee that virtqueue setup
-> > happens after feature negotiation.
+> For virtio this would mean a new per-packet rxhash value, right?
 > 
-> It is the only way that makes sense though (unless the guest would write
-> 0 for its features).
->  Should we change that?
-
-Not sure.  This was not always the case. Further
-setup can fail with e.g ENOMEM and
-driver could retry with a set of more conservative features.
-
-I do think it would be nice to add a generic way for device to
-notify guest about an internal failure.
-This can only happen after DRIVER_OK status is written though,
-and since existing drivers do not expect such failure, it might
-be too late.
-
-> >> The other is "the guest, though, would prefer not to do so".  It is
-> >> different because the guest can proceed in a fallback mode even if the
-> >> host doesn't offer it.
-> > 
-> > I think I get what your proposed SILENT means what I do not get
-> > is the motivation. It looks like a premature optimization to me.
+> Why are we doing something different?  What am I missing?
 > 
-> The motivation is to let the driver choose between two behaviors: the
-> current one where ballooning is only done on request, and a more
-> aggressive one.
+> Thanks,
+> Rusty.
+> [1] Everything I Know About Networking I Learned From LWN:
+>     https://lwn.net/Articles/362339/
 
-Yes but why is being silent any good? Optimization?
-Any data to show that it will help some workload?
+I think you missed this:
 
-...
+	Some network interfaces can help with the distribution of incoming
+	packets; they have multiple receive queues and multiple interrupt lines.
+	Others, though, are equipped with a single queue, meaning that the
+	driver for that hardware must deal with all incoming packets in a
+	single, serialized stream. Parallelizing such a stream requires some
+	intelligence on the part of the host operating system. 
 
-> > OK so TELL says *when* to notify host, SILENT if set allows guest
-> > to skip leak notifications? In this case TELL should just be ignored
-> > when SILENT is set.
+In other words RPS is a hack to speed up networking on cheapo
+hardware, this is one of the reasons it is off by default.
+Good hardware has multiple receive queues.
+We can implement a good one so we do not need RPS.
+
+Also not all guest OS-es support RPS.
+
+Does this clarify?
+
+> ---
+> Transmit Packet Steering
 > 
-> Yeah, that was my first idea.  However, there are existing drivers that
-> ignore SILENT, so that would not be 100% exact.
-
-Not sure I follow the logic.
-They don't ack SILENT so that would be 100% exact.
-
--- 
-MST
+> When VIRTIO_NET_F_MULTIQUEUE feature bit is negotiated, guest can use any of multiple configured transmit queues to transmit a given packet. To avoid packet reordering by device (which generally leads to performance degradation) driver should attempt to utilize the same transmit virtqueue for all packets of a given transmit flow. For bi-directional protocols (in practice, TCP), a given network connection can utilize both transmit and receive queues. For best performance, packets from a single connection should utilize the paired transmit and receive queues from the same virtqueue pair; for example both transmitqN and receiveqN. This rule makes it possible to optimize processing on the device side, but this is not a hard requirement: devices should function correctly even when this rule i
+ s not followed.
+> 
+> Driver selects an active steering rule using VIRTIO_NET_CTRL_STEERING command (this controls both which virtqueue is selected for a given packet for receive and notifies the device which virtqueues are about to be used for transmit).
+> 
+> This command accepts a single out argument in the following format:
+> 
+> #define VIRTIO_NET_CTRL_STEERING               4
+> 
+> The field rule specifies the function used to select transmit virtqueue for a given packet; the field param makes it possible to pass an extra parameter if appropriate. When rule is set to VIRTIO_NET_CTRL_STEERING_SINGLE (this is the default) all packets are steered to the default virtqueue transmitq (1); param is unused; this is the default. With any other rule, When rule is set to VIRTIO_NET_CTRL_STEERING_RX_FOLLOWS_TX packets are steered by driver to the first N=(param+1) multiqueue virtqueues transmitq1...transmitqN; the default transmitq is unused. Driver must have configured all these (param+1) virtqueues beforehand.
+> 
+> Supported steering rules can be added and removed in the future. Driver should check that the request to change the steering rule was successful by checking ack values of the command. As selecting a specific steering is an optimization feature, drivers should avoid hard failure and fall back on using a supported steering rule if this command fails. The default steering rule is VIRTIO_NET_CTRL_STEERING_SINGLE. It will not be removed.
+> 
+> When the steering rule is modified, some packets can still be outstanding in one or more of the transmit virtqueues. Since drivers might choose to modify the current steering rule at a high rate (e.g. adaptively in response to changes in the workload) to avoid reordering packets, device is recommended to complete processing of the transmit queue(s) utilized by the original steering before processing any packets delivered by the modified steering rule.
+> 
+> For debugging, the current steering rule can also be read from the configuration space.
+> 
+> Receive Packet Steering
+> 
+> When VIRTIO_NET_F_MULTIQUEUE feature bit is negotiated, device can use any of multiple configured receive queues to pass a given packet to driver. Driver controls which virtqueue is selected in practice by configuring packet steering rule using VIRTIO_NET_CTRL_STEERING command, as described above[sub:Transmit-Packet-Steering].
+> 
+> The field rule specifies the function used to select receive virtqueue for a given packet; the field param makes it possible to pass an extra parameter if appropriate. When rule is set to VIRTIO_NET_CTRL_STEERING_SINGLE all packets are steered to the default virtqueue receiveq (0); param is unused; this is the default. When rule is set to VIRTIO_NET_CTRL_STEERING_RX_FOLLOWS_TX packets are steered by host to the first N=(param+1) multiqueue virtqueues receiveq1...receiveqN; the default receiveq is unused. Driver must have configured all these (param+1) virtqueues beforehand. For best performance for bi-directional flows (such as TCP) device should detect the flow to virtqueue pair mapping on transmit and select the receive virtqueue from the same virtqueue pair. For uni-directional flows,
+  or when this mapping information is missing, a device-specific steering function is used.
+> 
+> Supported steering rules can be added and removed in the future. Driver should probe for supported rules by checking ack values of the command.
+> 
+> When the steering rule is modified, some packets can still be outstanding in one or more of the virtqueues. Device is not required to wait for these packets to be consumed before delivering packets using the new streering rule. Drivers modifying the steering rule at a high rate (e.g. adaptively in response to changes in the workload) are recommended to complete processing of the receive queue(s) utilized by the original steering before processing any packets delivered by the modified steering rule.
