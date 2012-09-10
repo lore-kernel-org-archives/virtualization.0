@@ -1,21 +1,19 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
 	deflate" feature that works
-Date: Mon, 10 Sep 2012 07:51:42 +0200
-Message-ID: <504D7FEE.20008@redhat.com>
-References: <50486BB2.7070108@redhat.com> <20120906094442.GA22816@redhat.com>
-	<50487382.8030303@redhat.com> <20120906105301.GC32325@redhat.com>
-	<5048935A.8090308@redhat.com> <87wr06hg0l.fsf@rustcorp.com.au>
-	<20120907054202.GA3452@redhat.com> <87vcfqfia1.fsf@rustcorp.com.au>
-	<20120907104306.GA17211@redhat.com>
-	<87sjatf6iv.fsf@rustcorp.com.au>
-	<20120908223724.GB20588@redhat.com>
-	<87fw6qfya7.fsf@rustcorp.com.au>
+Date: Mon, 10 Sep 2012 09:03:59 +0300
+Message-ID: <20120910060359.GB16819@redhat.com>
+References: <20120907105335.GB17211@redhat.com> <5049D899.60705@redhat.com>
+	<20120907121712.GA17397@redhat.com> <5049E717.8080307@redhat.com>
+	<20120907124432.GB17397@redhat.com> <5049FEDD.40303@redhat.com>
+	<20120907142545.GC17397@redhat.com> <504A0858.4080508@redhat.com>
+	<20120908222221.GA20588@redhat.com> <504D7F95.9070700@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87fw6qfya7.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <504D7F95.9070700@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,25 +23,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 10/09/2012 03:43, Rusty Russell ha scritto:
->> Now that vfio is upstream and work on qemu integration
->> is being worked on, we might finally see people using this bit
->> to allow memory overcommit with device assignment.
-> That was left-field.... so you're saying some guest might pull a page
-> from the balloon and DMA to it, and the vfio device needs to know in
-> advance that it's going to do it?
+On Mon, Sep 10, 2012 at 07:50:13AM +0200, Paolo Bonzini wrote:
+> Il 09/09/2012 00:22, Michael S. Tsirkin ha scritto:
+> >> Almost.  One is "the guest, if really needed, can tell the host of
+> >> pages".  If not negotiated, and the host does not support it, the host
+> >> must break the guest (e.g. fail to offer any virtqueues).
+> > 
+> > There is no way in spec to break the guest.
+> > You can not fail to offer virtqueues.
+> 
+> You can always return 0 for the first queue.
 
-Not the vfio device, but the page needs to be pinned with mlock so the
-effect is the same.
+I don't think guest drivers recover gracefully from this.
+Do they?
 
-> But what will we do if the guest doesn't ack the bit?
+> > Besides, there is no guarantee that virtqueue setup
+> > happens after feature negotiation.
+> 
+> It is the only way that makes sense though (unless the guest would write
+> 0 for its features).
+>  Should we change that?
 
-Just pin the whole memory.
+Not sure.  This was not always the case. Further
+setup can fail with e.g ENOMEM and
+driver could retry with a set of more conservative features.
 
-Paolo
+I do think it would be nice to add a generic way for device to
+notify guest about an internal failure.
+This can only happen after DRIVER_OK status is written though,
+and since existing drivers do not expect such failure, it might
+be too late.
 
-> ie. I don't think it can really be optional.
+> >> The other is "the guest, though, would prefer not to do so".  It is
+> >> different because the guest can proceed in a fallback mode even if the
+> >> host doesn't offer it.
+> > 
+> > I think I get what your proposed SILENT means what I do not get
+> > is the motivation. It looks like a premature optimization to me.
+> 
+> The motivation is to let the driver choose between two behaviors: the
+> current one where ballooning is only done on request, and a more
+> aggressive one.
+
+Yes but why is being silent any good? Optimization?
+Any data to show that it will help some workload?
+
+...
+
+> > OK so TELL says *when* to notify host, SILENT if set allows guest
+> > to skip leak notifications? In this case TELL should just be ignored
+> > when SILENT is set.
+> 
+> Yeah, that was my first idea.  However, there are existing drivers that
+> ignore SILENT, so that would not be 100% exact.
+
+Not sure I follow the logic.
+They don't ack SILENT so that would be 100% exact.
+
+-- 
+MST
