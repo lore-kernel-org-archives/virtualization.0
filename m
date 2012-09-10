@@ -1,14 +1,16 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch 3/3 v2] xen/privcmd: add a __user annotation to a cast
-Date: Mon, 10 Sep 2012 13:21:07 +0300
-Message-ID: <20120910102107.GA27456@mwanda>
-References: <504DC8FE020000780009A190@nat28.tlf.novell.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCHv4] virtio-spec: virtio network device multiqueue support
+Date: Mon, 10 Sep 2012 19:00:01 +0800
+Message-ID: <504DC831.1000709@redhat.com>
+References: <20120909130308.GA3471@redhat.com> <878vcifwxi.fsf@rustcorp.com.au>
+	<20120910061629.GC16819@redhat.com>
+	<20120910062738.GA17331@redhat.com>
+	<20120910063346.GA17338@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <504DC8FE020000780009A190@nat28.tlf.novell.com>
+In-Reply-To: <20120910063346.GA17338@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +20,100 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andres Lagar-Cavilla <andreslc@gridcentric.ca>
-Cc: kernel-janitors@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: rick.jones2@hp.com, kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, pbonzini@redhat.com, Tom Herbert <therbert@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sparse complains that we lose the __user annotation in the cast here.
+On 09/10/2012 02:33 PM, Michael S. Tsirkin wrote:
+> On Mon, Sep 10, 2012 at 09:27:38AM +0300, Michael S. Tsirkin wrote:
+>> On Mon, Sep 10, 2012 at 09:16:29AM +0300, Michael S. Tsirkin wrote:
+>>> On Mon, Sep 10, 2012 at 11:42:25AM +0930, Rusty Russell wrote:
+>>>> OK, I read the spec (pasted below for easy of reading), but I'm still
+>>>> confused over how this will work.
+>>>>
+>>>> I thought normal net drivers have the hardware provide an rxhash for
+>>>> each packet, and we map that to CPU to queue the packet on[1].  We hope
+>>>> that the receiving process migrates to that CPU, so xmit queue
+>>>> matches.
+>>> This ony works sometimes.  For example it's common to pin netperf to a
+>>> cpu to get consistent performance.  Proper hardware must obey what
+>>> applications want it to do, not the other way around.
+>>>
+>>>> For virtio this would mean a new per-packet rxhash value, right?
+>>>>
+>>>> Why are we doing something different?  What am I missing?
+>>>>
+>>>> Thanks,
+>>>> Rusty.
+>>>> [1] Everything I Know About Networking I Learned From LWN:
+>>>>      https://lwn.net/Articles/362339/
+>>> I think you missed this:
+>>>
+>>> 	Some network interfaces can help with the distribution of incoming
+>>> 	packets; they have multiple receive queues and multiple interrupt lines.
+>>> 	Others, though, are equipped with a single queue, meaning that the
+>>> 	driver for that hardware must deal with all incoming packets in a
+>>> 	single, serialized stream. Parallelizing such a stream requires some
+>>> 	intelligence on the part of the host operating system.
+>>>
+>>> In other words RPS is a hack to speed up networking on cheapo
+>>> hardware, this is one of the reasons it is off by default.
+>>> Good hardware has multiple receive queues.
+>>> We can implement a good one so we do not need RPS.
+>>>
+>>> Also not all guest OS-es support RPS.
+>>>
+>>> Does this clarify?
+>> I would like to add that on many processors, sending
+>> IPCs between guest CPUs requires exits on sending *and*
+>> receiving path, making it very expensive.
+> A final addition: what you suggest above would be
+> "TX follows RX", right?
+> It is in anticipation of something like that, that I made
+> steering programming so generic.
+> I think TX follows RX is more immediately useful for reasons above
+> but we can add both to spec and let drivers and devices
+> decide what they want to support.
+> Pls let me know.
 
-drivers/xen/privcmd.c:388:35: warning: cast removes address space of expression
-drivers/xen/privcmd.c:388:32: warning: incorrect type in assignment (different address spaces)
-drivers/xen/privcmd.c:388:32:    expected unsigned long [noderef] [usertype] <asn:1>*[addressable] [assigned] user_mfn
-drivers/xen/privcmd.c:388:32:    got unsigned long [usertype] *<noident>
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
----
-v2: In v1 I removed the const from the declaration but now I just removed it
-from the cast.  This data can either be a v1 or a v2 type struct.  The m.arr
-data is const in version 2 but not in version 1.
-
-diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
-index 0ce006a..fceb83e 100644
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -389,7 +389,7 @@ static long privcmd_ioctl_mmap_batch(void __user *udata, int version)
- 
- 	if (state.global_error && (version == 1)) {
- 		/* Write back errors in second pass. */
--		state.user_mfn = (xen_pfn_t *)m.arr;
-+		state.user_mfn = (xen_pfn_t __user *)m.arr;
- 		state.err      = err_array;
- 		ret = traverse_pages(m.num, sizeof(xen_pfn_t),
- 				     &pagelist, mmap_return_errors_v1, &state);
+AFAIK, ixgbe does "rx follows tx". The only differences between ixgbe 
+and virtio-net is that ixgbe driver programs the flow director during 
+packet transmission but we suggest to do it silently in the device for 
+simplicity. Even with this, more co-operation is still needed for the 
+driver ( e.g ixgbe try to use per-cpu queue by setting affinity hint and 
+using cpuid to choose the txq which could be reused in virtio-net driver).
+>
+>>>> ---
+>>>> Transmit Packet Steering
+>>>>
+>>>> When VIRTIO_NET_F_MULTIQUEUE feature bit is negotiated, guest can use any of multiple configured transmit queues to transmit a given packet. To avoid packet reordering by device (which generally leads to performance degradation) driver should attempt to utilize the same transmit virtqueue for all packets of a given transmit flow. For bi-directional protocols (in practice, TCP), a given network connection can utilize both transmit and receive queues. For best performance, packets from a single connection should utilize the paired transmit and receive queues from the same virtqueue pair; for example both transmitqN and receiveqN. This rule makes it possible to optimize processing on the device side, but this is not a hard requirement: devices should function correctly even when this rul
+ e is not followed.
+>>>>
+>>>> Driver selects an active steering rule using VIRTIO_NET_CTRL_STEERING command (this controls both which virtqueue is selected for a given packet for receive and notifies the device which virtqueues are about to be used for transmit).
+>>>>
+>>>> This command accepts a single out argument in the following format:
+>>>>
+>>>> #define VIRTIO_NET_CTRL_STEERING               4
+>>>>
+>>>> The field rule specifies the function used to select transmit virtqueue for a given packet; the field param makes it possible to pass an extra parameter if appropriate. When rule is set to VIRTIO_NET_CTRL_STEERING_SINGLE (this is the default) all packets are steered to the default virtqueue transmitq (1); param is unused; this is the default. With any other rule, When rule is set to VIRTIO_NET_CTRL_STEERING_RX_FOLLOWS_TX packets are steered by driver to the first N=(param+1) multiqueue virtqueues transmitq1...transmitqN; the default transmitq is unused. Driver must have configured all these (param+1) virtqueues beforehand.
+>>>>
+>>>> Supported steering rules can be added and removed in the future. Driver should check that the request to change the steering rule was successful by checking ack values of the command. As selecting a specific steering is an optimization feature, drivers should avoid hard failure and fall back on using a supported steering rule if this command fails. The default steering rule is VIRTIO_NET_CTRL_STEERING_SINGLE. It will not be removed.
+>>>>
+>>>> When the steering rule is modified, some packets can still be outstanding in one or more of the transmit virtqueues. Since drivers might choose to modify the current steering rule at a high rate (e.g. adaptively in response to changes in the workload) to avoid reordering packets, device is recommended to complete processing of the transmit queue(s) utilized by the original steering before processing any packets delivered by the modified steering rule.
+>>>>
+>>>> For debugging, the current steering rule can also be read from the configuration space.
+>>>>
+>>>> Receive Packet Steering
+>>>>
+>>>> When VIRTIO_NET_F_MULTIQUEUE feature bit is negotiated, device can use any of multiple configured receive queues to pass a given packet to driver. Driver controls which virtqueue is selected in practice by configuring packet steering rule using VIRTIO_NET_CTRL_STEERING command, as described above[sub:Transmit-Packet-Steering].
+>>>>
+>>>> The field rule specifies the function used to select receive virtqueue for a given packet; the field param makes it possible to pass an extra parameter if appropriate. When rule is set to VIRTIO_NET_CTRL_STEERING_SINGLE all packets are steered to the default virtqueue receiveq (0); param is unused; this is the default. When rule is set to VIRTIO_NET_CTRL_STEERING_RX_FOLLOWS_TX packets are steered by host to the first N=(param+1) multiqueue virtqueues receiveq1...receiveqN; the default receiveq is unused. Driver must have configured all these (param+1) virtqueues beforehand. For best performance for bi-directional flows (such as TCP) device should detect the flow to virtqueue pair mapping on transmit and select the receive virtqueue from the same virtqueue pair. For uni-directional flo
+ ws, or when this mapping information is missing, a device-specific steering function is used.
+>>>>
+>>>> Supported steering rules can be added and removed in the future. Driver should probe for supported rules by checking ack values of the command.
+>>>>
+>>>> When the steering rule is modified, some packets can still be outstanding in one or more of the virtqueues. Device is not required to wait for these packets to be consumed before delivering packets using the new streering rule. Drivers modifying the steering rule at a high rate (e.g. adaptively in response to changes in the workload) are recommended to complete processing of the receive queue(s) utilized by the original steering before processing any packets delivered by the modified steering rule.
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
