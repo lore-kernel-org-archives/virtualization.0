@@ -1,19 +1,17 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
-	deflate" feature that works
-Date: Mon, 10 Sep 2012 08:38:09 +0200
-Message-ID: <504D8AD1.6050006@redhat.com>
-References: <20120907105335.GB17211@redhat.com> <5049D899.60705@redhat.com>
-	<20120907121712.GA17397@redhat.com> <5049E717.8080307@redhat.com>
-	<20120907124432.GB17397@redhat.com> <5049FEDD.40303@redhat.com>
-	<20120907142545.GC17397@redhat.com> <504A0858.4080508@redhat.com>
-	<20120908222221.GA20588@redhat.com> <504D7F95.9070700@redhat.com>
-	<20120910060359.GB16819@redhat.com>
+Subject: Re: [PATCH 4/5] virtio-scsi: Add start/stop functionality for
+	vhost-scsi
+Date: Mon, 10 Sep 2012 08:42:15 +0200
+Message-ID: <504D8BC7.8070900__30263.1040256985$1347259367$gmane$org@redhat.com>
+References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
+	<1347000499-28701-5-git-send-email-nab@linux-iscsi.org>
+	<504A1A32.5050705@redhat.com> <20120908224032.GC20588@redhat.com>
+	<504D85D6.2090703@redhat.com> <20120910062437.GD16819@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120910060359.GB16819@redhat.com>
+In-Reply-To: <20120910062437.GD16819@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,73 +22,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 10/09/2012 08:03, Michael S. Tsirkin ha scritto:
-> On Mon, Sep 10, 2012 at 07:50:13AM +0200, Paolo Bonzini wrote:
->> Il 09/09/2012 00:22, Michael S. Tsirkin ha scritto:
->>>> Almost.  One is "the guest, if really needed, can tell the host of
->>>> pages".  If not negotiated, and the host does not support it, the host
->>>> must break the guest (e.g. fail to offer any virtqueues).
->>>
->>> There is no way in spec to break the guest.
->>> You can not fail to offer virtqueues.
->>
->> You can always return 0 for the first queue.
+Il 10/09/2012 08:24, Michael S. Tsirkin ha scritto:
+>> > I chose the backend name because, ideally, there would be no other
+>> > difference.  QEMU _could_ implement all the goodies in vhost-scsi (such
+>> > as reservations or ALUA), it just doesn't do that yet.
+>> > 
+>> > Paolo
+> Then why do you say "It is used completely differently from
+> virtio-scsi-pci"?
+
+It is configured differently (and I haven't seen a proposal yet for how
+to bridge the two), it does not interoperate, it has right now a
+different set of features.
+
+The "does not interoperate" bit is particularly important.  Say QEMU
+were to implement persistent reservations (right now only a vhost-scsi
+feature).  Then QEMU and vhost-scsi PR would not be interchangeable, a
+reservation made by QEMU would not be visible in vhost and vice versa.
+
+> Isn't it just a different backend?
 > 
-> I don't think guest drivers recover gracefully from this.
-> Do they?
+> If yes then it should be a backend option, like it is
+> for virtio-net.
 
-No, that's the point ("break the guest" is really "break the driver").
-
->>> Besides, there is no guarantee that virtqueue setup
->>> happens after feature negotiation.
->>
->> It is the only way that makes sense though (unless the guest would write
->> 0 for its features).  Should we change that?
-> 
-> I do think it would be nice to add a generic way for device to
-> notify guest about an internal failure.
-> This can only happen after DRIVER_OK status is written though,
-> and since existing drivers do not expect such failure, it might
-> be too late.
-
-Agreed.
-
->>>> The other is "the guest, though, would prefer not to do so".  It is
->>>> different because the guest can proceed in a fallback mode even if the
->>>> host doesn't offer it.
->>>
->>> I think I get what your proposed SILENT means what I do not get
->>> is the motivation. It looks like a premature optimization to me.
->>
->> The motivation is to let the driver choose between two behaviors: the
->> current one where ballooning is only done on request, and a more
->> aggressive one.
-> 
-> Yes but why is being silent any good? Optimization?
-> Any data to show that it will help some workload?
-
-Idle guests can move cache pages to the balloon.  You can overcommit
-more aggressively, because the host can madvise away a lot more memory.
-
->>> OK so TELL says *when* to notify host, SILENT if set allows guest
->>> to skip leak notifications? In this case TELL should just be ignored
->>> when SILENT is set.
->>
->> Yeah, that was my first idea.  However, there are existing drivers that
->> ignore SILENT, so that would not be 100% exact.
-> 
-> Not sure I follow the logic.
-> They don't ack SILENT so that would be 100% exact.
-
-Hmm, then I'm not sure I follow yours.  We agreed that delaying
-notifications or skipping them is really the same thing, right?
-
-I think we're just stuck in a linguistic problem, with "must not" being
-wrong and "does not have to" being too verbose.  Calling it
-VIRTIO_BALLOON_F_SILENT_DEFLATE was a workaround for this, but perhaps
-it adds more confusion.
+You mean a -drive option?  That would mean adding the logic to configure
+vhost-scsi to the QEMU block layer, that's a completely different project...
 
 Paolo
