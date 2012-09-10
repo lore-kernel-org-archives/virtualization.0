@@ -1,19 +1,13 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
-	deflate" feature that works
-Date: Mon, 10 Sep 2012 08:55:07 +0200
-Message-ID: <504D8ECB.8040702@redhat.com>
-References: <20120907121712.GA17397@redhat.com> <5049E717.8080307@redhat.com>
-	<20120907124432.GB17397@redhat.com> <5049FEDD.40303@redhat.com>
-	<20120907142545.GC17397@redhat.com> <504A0858.4080508@redhat.com>
-	<20120908222221.GA20588@redhat.com> <504D7F95.9070700@redhat.com>
-	<20120910060359.GB16819@redhat.com> <504D8AD1.6050006@redhat.com>
-	<20120910064705.GB17949@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFCv2 1/2] virtio_console: Add support for DMA memory allocation
+Date: Mon, 10 Sep 2012 17:23:52 +0930
+Message-ID: <87zk4ye2jz.fsf@rustcorp.com.au>
+References: <1347001066-13521-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120910064705.GB17949@redhat.com>
+In-Reply-To: <1347001066-13521-1-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,57 +17,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, virtualization@lists.linux-foundation.org
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 10/09/2012 08:47, Michael S. Tsirkin ha scritto:
-> On Mon, Sep 10, 2012 at 08:38:09AM +0200, Paolo Bonzini wrote:
->> Il 10/09/2012 08:03, Michael S. Tsirkin ha scritto:
->>> On Mon, Sep 10, 2012 at 07:50:13AM +0200, Paolo Bonzini wrote:
->>>> Il 09/09/2012 00:22, Michael S. Tsirkin ha scritto:
->>>>>> Almost.  One is "the guest, if really needed, can tell the host of
->>>>>> pages".  If not negotiated, and the host does not support it, the host
->>>>>> must break the guest (e.g. fail to offer any virtqueues).
->>>>>
->>>>> There is no way in spec to break the guest.
->>>>> You can not fail to offer virtqueues.
->>>>
->>>> You can always return 0 for the first queue.
->>>
->>> I don't think guest drivers recover gracefully from this.
->>> Do they?
->>
->> No, that's the point ("break the guest" is really "break the driver").
-> 
-> You can just stop VM then. No need for a side channel.
-
-Keeping the VM running, just with no balloon driver is preferrable.
-
->>>>>> The other is "the guest, though, would prefer not to do so".  It is
->>>>>> different because the guest can proceed in a fallback mode even if the
->>>>>> host doesn't offer it.
->>>>>
->>>>> I think I get what your proposed SILENT means what I do not get
->>>>> is the motivation. It looks like a premature optimization to me.
->>>>
->>>> The motivation is to let the driver choose between two behaviors: the
->>>> current one where ballooning is only done on request, and a more
->>>> aggressive one.
->>>
->>> Yes but why is being silent any good? Optimization?
->>> Any data to show that it will help some workload?
->>
->> Idle guests can move cache pages to the balloon.  You can overcommit
->> more aggressively, because the host can madvise away a lot more memory.
-> 
-> IMHO this feature needs more thought. E.g. how will this work with assignment?
-
-Revert to normal cooperative ballooning.
-
-> If we build something let's build it in a way that plays nicely
-> with other features.
-
-Yes, that's the point of SILENT. :)
-
-Paolo
+c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyaXRlczoKCj4gRnJvbTogU2p1ciBCcsOm
+bmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+Cj4gQWRkIGZlYXR1cmUg
+VklSVElPX0NPTlNPTEVfRl9ETUFfTUVNLiBJZiB0aGUgYXJjaGl0ZWN0dXJlIGhhcwo+IERNQSBz
+dXBwb3J0IGFuZCB0aGlzIGZlYXR1cmUgYml0IGlzIHNldCwgdGhlIHZpcnRpbyBkYXRhIGJ1ZmZl
+cnMKPiB3aWxsIGJlIGFsbG9jYXRlZCBmcm9tIERNQSBtZW1vcnkuIElmIHRoZSBkZXZpY2UgcmVx
+dWVzdHMKPiB0aGUgZmVhdHVyZSBWSVJUSU9fQ09OU09MRV9GX0RNQV9NRU0sIGJ1dCB0aGUgYXJj
+aGl0ZWN0dXJlCj4gZG9uJ3Qgc3VwcG9ydCBETUEgdGhlIGRyaXZlcidzIHByb2JlIGZ1bmN0aW9u
+IHdpbGwgZmFpbC4KPgo+IFRoaXMgaXMgbmVlZGVkIGZvciB1c2luZyB2aXJ0aW9fY29uc29sZSBm
+cm9tIHRoZSByZW1vdGVwcm9jCj4gZnJhbWV3b3JrLgoKU29ycnkgZm9yIHRoZSBiYWNrIGFuZCBm
+b3J0aCwgSSd2ZSBiZWVuIHBvbmRlcmluZyBNU1QncyBwb2ludHMuCgpJZiB3ZSBtYWtlIGEgbmV3
+IGRtYS1tdWx0aXBvcnQgZGV2aWNlIChlZy4gSUQgMTEpLCBob3cgdWdseSBpcyB0aGUgY29kZT8K
+Ckl0IHdvdWxkIGJlIGEgdmlydGlvIGNvbnNvbGUgd2l0aCBETUEgYnVmZmVycyBhbmQgbm8gY29u
+c29sZSwganVzdCB0aGUKbXVsdGlwb3J0IHN0dWZmLiAgVGhpcyB3b3VsZCBoYXZlIG5vIGltcGFj
+dCBvbiB0aGUgY3VycmVudCBzcGVjIGZvcgp2aXJ0aW8gY29uc29sZS4KClRoYW5rcywKUnVzdHku
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
+emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
+Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
+aXJ0dWFsaXphdGlvbg==
