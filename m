@@ -1,14 +1,14 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH] virtio-spec: fix thinko in multiport documentation
-Date: Mon, 10 Sep 2012 02:28:44 +0530
-Message-ID: <20120909205844.GJ16985@amit.redhat.com>
-References: <20120909110837.GA2395@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio: console: fix error handling in init() function
+Date: Mon, 10 Sep 2012 11:49:37 +0930
+Message-ID: <87627mfwli.fsf@rustcorp.com.au>
+References: <1346528977-23066-1-git-send-email-khoroshilov@ispras.ru>
+	<20120909201947.GF16985@amit.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120909110837.GA2395@redhat.com>
+In-Reply-To: <20120909201947.GF16985@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,17 +18,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>, Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: ldv-project@ispras.ru, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Sun) 09 Sep 2012 [14:08:37], Michael S. Tsirkin wrote:
-> spec numbers ports port0, port 1 etc, then goes on to say
-> "ports 2 onwards only if MULTIPORT is set".
-> An obvious thinko, should be port 1 onwards.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Amit Shah <amit.shah@redhat.com> writes:
+> On (Sat) 01 Sep 2012 [23:49:37], Alexey Khoroshilov wrote:
+>> If register_virtio_driver() fails, virtio-ports class is not destroyed.
+>> The patch adds error handling of register_virtio_driver().
+>> 
+>> Found by Linux Driver Verification project (linuxtesting.org).
+>> 
+>> Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+>
+> Acked-by: Amit Shah <amit.shah@redhat.com>
+>
+> Rusty, please pick this up.
 
-Acked-by: Amit Shah <amit.shah@redhat.com>
+Thanks for the CC.
 
-		Amit
+Applied,
+Rusty.
