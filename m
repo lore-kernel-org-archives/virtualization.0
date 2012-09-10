@@ -1,14 +1,15 @@
 From: David Vrabel <david.vrabel@citrix.com>
-Subject: Re: [Xen-devel] [patch 1/3] xen/privcmd: check for integer overflow
-	in	ioctl
-Date: Mon, 10 Sep 2012 11:35:11 +0100
-Message-ID: <504DC25F.7000508__36933.7523509332$1347316636$gmane$org@citrix.com>
-References: <20120908095208.GA608@elgon.mountain>
+Subject: Re: [Xen-devel] [patch 3/3] xen/privcmd: remove const modifier from
+	declaration
+Date: Mon, 10 Sep 2012 11:43:19 +0100
+Message-ID: <504DC447.9010301__24852.003347087$1347316641$gmane$org@citrix.com>
+References: <20120908095808.GC608@elgon.mountain>
+	<504DC8FE020000780009A190@nat28.tlf.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120908095208.GA608@elgon.mountain>
+In-Reply-To: <504DC8FE020000780009A190@nat28.tlf.novell.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,47 +19,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andres Lagar-Cavilla <andreslc@gridcentric.ca>, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jan Beulich <JBeulich@suse.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andres Lagar-Cavilla <andreslc@gridcentric.ca>, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org, Dan Carpenter <dan.carpenter@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/09/12 10:52, Dan Carpenter wrote:
-> If m.num is too large then the "m.num * sizeof(*m.arr)" multiplication
-> could overflow and the access_ok() check wouldn't test the right size.
+On 10/09/12 10:03, Jan Beulich wrote:
+>>>> On 08.09.12 at 11:58, Dan Carpenter <dan.carpenter@oracle.com> wrote:
+>> When we use this pointer, we cast away the const modifier and modify the
+>> data.  I think it was an accident to declare it as const.
+> 
+> NAK - the const is very valid here, as the v2 interface (as opposed
+> to the v1 one) does _not_ modify this array (or if it does, it's a
+> bug). This is a guarantee made to user mode, so it should also be
+> expressed that way in the interface.
+> 
+> But of course the cast used before this patch isn't right either, as
+> it indeed inappropriately discards the qualifier. Afaiu this was done
+> to simplify the internal workings of the code, but I don't think it's
+> desirable to sacrifice type safety for implementation simplicity.
 
-m.num is range checked later on so it doesn't matter that the
-access_ok() checks might be wrong.  A bit subtle, perhaps.
+m.arr here isn't const as m is really the V1 structure where m.arr is
+non-const.
 
 David
-
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> ---
-> Only needed in linux-next.
-> 
-> diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
-> index 215a3c0..fdff8f9 100644
-> --- a/drivers/xen/privcmd.c
-> +++ b/drivers/xen/privcmd.c
-> @@ -325,6 +325,8 @@ static long privcmd_ioctl_mmap_batch(void __user *udata, int version)
->  			return -EFAULT;
->  		/* Returns per-frame error in m.arr. */
->  		m.err = NULL;
-> +		if (m.num > SIZE_MAX / sizeof(*m.arr))
-> +			return -EINVAL;
->  		if (!access_ok(VERIFY_WRITE, m.arr, m.num * sizeof(*m.arr)))
->  			return -EFAULT;
->  		break;
-> @@ -332,6 +334,8 @@ static long privcmd_ioctl_mmap_batch(void __user *udata, int version)
->  		if (copy_from_user(&m, udata, sizeof(struct privcmd_mmapbatch_v2)))
->  			return -EFAULT;
->  		/* Returns per-frame error code in m.err. */
-> +		if (m.num > SIZE_MAX / sizeof(*m.err))
-> +			return -EINVAL;
->  		if (!access_ok(VERIFY_WRITE, m.err, m.num * (sizeof(*m.err))))
->  			return -EFAULT;
->  		break;
-> 
-> _______________________________________________
-> Xen-devel mailing list
-> Xen-devel@lists.xen.org
-> http://lists.xen.org/xen-devel
