@@ -1,16 +1,13 @@
-From: Mike Waychison <mikew@google.com>
-Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
-Date: Mon, 10 Sep 2012 14:29:48 -0400
-Message-ID: <CAGTjWtDmS8Tjw1nWr8sw=u6KuBfDOmcdBnvcZpDDf32FW1_KrA@mail.gmail.com>
-References: <1340742778-11282-1-git-send-email-fes@google.com>
-	<20120910090521.GB18544@redhat.com>
-	<CAGTjWtBa5jW6+y1k6zZmD9TUNHBgv8WRbO_iy7huY_dJSumStw@mail.gmail.com>
-	<504E2B98.3010007@redhat.com>
+From: Rick Jones <rick.jones2@hp.com>
+Subject: Re: [PATCHv4] virtio-spec: virtio network device multiqueue support
+Date: Mon, 10 Sep 2012 11:39:25 -0700
+Message-ID: <504E33DD.3040504@hp.com>
+References: <20120909130308.GA3471@redhat.com> <878vcifwxi.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <504E2B98.3010007@redhat.com>
+In-Reply-To: <878vcifwxi.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,42 +17,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rik van Riel <riel@redhat.com>
-Cc: Frank Swiderski <fes@google.com>, Andrea Arcangeli <aarcange@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, pbonzini@redhat.com, Tom Herbert <therbert@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 10, 2012 at 2:04 PM, Rik van Riel <riel@redhat.com> wrote:
-> On 09/10/2012 01:37 PM, Mike Waychison wrote:
->>
->> On Mon, Sep 10, 2012 at 5:05 AM, Michael S. Tsirkin <mst@redhat.com>
->> wrote:
+On 09/09/2012 07:12 PM, Rusty Russell wrote:
+> OK, I read the spec (pasted below for easy of reading), but I'm still
+> confused over how this will work.
 >
+> I thought normal net drivers have the hardware provide an rxhash for
+> each packet, and we map that to CPU to queue the packet on[1].  We hope
+> that the receiving process migrates to that CPU, so xmit queue
+> matches.
 >
->>> Also can you pls answer Avi's question?
->>> How is overcommit managed?
->>
->>
->> Overcommit in our deployments is managed using memory cgroups on the
->> host.  This allows us to have very directed policies as to how
->> competing VMs on a host may overcommit.
+> For virtio this would mean a new per-packet rxhash value, right?
 >
+> Why are we doing something different?  What am I missing?
 >
-> How do your memory cgroups lead to guests inflating their balloons?
+> Thanks,
+> Rusty.
+> [1] Everything I Know About Networking I Learned From LWN:
+>      https://lwn.net/Articles/362339/
 
-The control loop that is driving the cgroup on the host can still move
-the balloon target page count causing the balloon in the guest to try
-and inflate.  This allows the host to effectively slowly grow the
-balloon in the guest, allowing reclaim of guest free memory, followed
-by guest page cache (and memory on the host system).  This can then be
-compared with the subsequent growth (as this balloon setup allows the
-guest to grow as it sees fit), which in effect gives us a memory
-pressure indicator on the host, allowing it to back-off shrinking the
-guest if the guest balloon quickly deflates.
+In my taxonomy at least, "multi-queue" predates RPS and RFS and is 
+simply where the NIC via some means, perhaps a headers hash, separates 
+incoming frames to different queues.
 
-The net effect is an opportunistic release of memory from the guest
-back to the host, and the ability to quickly grow a VM's memory
-footprint as the workload within it requires.
+RPS can be thought of as doing something similar inside the host.  That 
+could be used to get a spread from an otherwise "dumb" NIC (certainly 
+that is what one of its predecessors - Inbound Packet Scheduling - used 
+it for in HP-UX 10.20), or it could be used to augment the multi-queue 
+support of a not-so-dump NIC - say if said NIC had a limit of queues 
+that was rather lower than the number of cores/threads in the host. 
+Indeed some driver/NIC combinations provide a hash value to the host for 
+the host to use as it sees fit.
 
-This dynamic memory sizing of VMs is much more in line with what we
-can expect from native tasks today (and which is what our resource
-management systems are designed to handle).
+However, there is still the matter of a single thread of an application 
+servicing multiple connections, each of which would hash to different 
+locations.
+
+RFS  (Receive Flow Steering) then goes one step further, and looks-up 
+where the flow endpoint was last accessed and steers the traffic there. 
+  The idea being that a thread of execution servicing multiple flows 
+will have the traffic of those flows sent to the same place.  It then 
+allows the scheduler to decide where things should be run rather than 
+the networking code.
+
+rick jones
