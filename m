@@ -1,18 +1,22 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
-Date: Tue, 11 Sep 2012 00:10:19 +0300
-Message-ID: <20120910211018.GB21484@redhat.com>
-References: <1340742778-11282-1-git-send-email-fes@google.com>
-	<20120910090521.GB18544@redhat.com>
-	<CAGTjWtBa5jW6+y1k6zZmD9TUNHBgv8WRbO_iy7huY_dJSumStw@mail.gmail.com>
-	<20120910195931.GD20721@redhat.com>
-	<CAGTjWtCiqjkR_Ze=0-ebO08+eziz6c8TXLb+O1iiArRQeSE6zw@mail.gmail.com>
+Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
+Date: Tue, 11 Sep 2012 01:11:11 +0300
+Message-ID: <20120910221111.GA21854@redhat.com>
+References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20120903143018.GA5353@redhat.com>
+	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
+	<20120903202737.GD6181@redhat.com>
+	<CAJK669ZvnnG6fGOog-Z47B7xqyn9hcx5dAD7S--+2PSgE+hrLA@mail.gmail.com>
+	<20120904135022.GI9805@redhat.com>
+	<CAJK669Z1UYakBWartChfoeKL_eU5=GFZMGhH8R_Q-difVm0ygQ@mail.gmail.com>
+	<20120904185541.GB3602@redhat.com> <87k3w7j49i.fsf@rustcorp.com.au>
+	<20120906052735.GB17656@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAGTjWtCiqjkR_Ze=0-ebO08+eziz6c8TXLb+O1iiArRQeSE6zw@mail.gmail.com>
+In-Reply-To: <20120906052735.GB17656@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,265 +26,113 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mike Waychison <mikew@google.com>
-Cc: Frank Swiderski <fes@google.com>, Andrea Arcangeli <aarcange@redhat.com>, Rik van Riel <riel@redhat.com>, kvm@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 10, 2012 at 04:49:40PM -0400, Mike Waychison wrote:
-> On Mon, Sep 10, 2012 at 3:59 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Mon, Sep 10, 2012 at 01:37:06PM -0400, Mike Waychison wrote:
-> >> On Mon, Sep 10, 2012 at 5:05 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >> > On Tue, Jun 26, 2012 at 01:32:58PM -0700, Frank Swiderski wrote:
-> >> >> This implementation of a virtio balloon driver uses the page cache to
-> >> >> "store" pages that have been released to the host.  The communication
-> >> >> (outside of target counts) is one way--the guest notifies the host when
-> >> >> it adds a page to the page cache, allowing the host to madvise(2) with
-> >> >> MADV_DONTNEED.  Reclaim in the guest is therefore automatic and implicit
-> >> >> (via the regular page reclaim).  This means that inflating the balloon
-> >> >> is similar to the existing balloon mechanism, but the deflate is
-> >> >> different--it re-uses existing Linux kernel functionality to
-> >> >> automatically reclaim.
-> >> >>
-> >> >> Signed-off-by: Frank Swiderski <fes@google.com>
-> >>
-> >> Hi Michael,
-> >>
-> >> I'm very sorry that Frank and I have been silent on these threads.
-> >> I've been out of the office and Frank has been been swamped :)
-> >>
-> >> I'll take a stab at answering some of your questions below, and
-> >> hopefully we can end up on the same page.
-> >>
-> >> > I've been trying to understand this, and I have
-> >> > a question: what exactly is the benefit
-> >> > of this new device?r balloon is told upper limit on target size by host and pulls
-> >>
-> >> The key difference between this device/driver and the pre-existing
-> >> virtio_balloon device/driver is in how the memory pressure loop is
-> >> controlled.
-> >>
-> >> With the pre-existing balloon device/driver, the control loop for how
-> >> much memory a given VM is allowed to use is controlled completely by
-> >> the host.  This is probably fine if the goal is to pack as much work
-> >> on a given host as possible, but it says nothing about the expected
-> >> performance that any given VM is expecting to have.  Specifically, it
-> >> allows the host to set a target goal for the size of a VM, and the
-> >> driver in the guest does whatever is needed to get to that goal.  This
-> >> is great for systems where one wants to "grow or shrink" a VM from the
-> >> outside.
-> >>
-> >>
-> >> This behaviour however doesn't match what applications actually expectr balloon is told upper limit on target size by host and pulls
-> >> from a memory control loop however.  In a native setup, an application
-> >> can usually expect to allocate memory from the kernel on an as-needed
-> >> basis, and can in turn return memory back to the system (using a heap
-> >> implementation that actually releases memory that is).  The dynamic
-> >> size of an application is completely controlled by the application,
-> >> and there is very little that cluster management software can do to
-> >> ensure that the application fits some prescribed size.
-> >>
-> >> We recognized this in the development of our cluster management
-> >> software long ago, so our systems are designed for managing tasks that
-> >> have a dynamic memory footprint.  Overcommit is possible (as most
-> >> applications do not use the full reservation of memory they asked for
-> >> originally), letting us do things like schedule lower priority/lower
-> >> service-classification work using resources that are otherwise
-> >> available in stand-by for high-priority/low-latency workloads.
-> >
-> > OK I am not sure I got this right so pls tell me if this summary is
-> > correct (note: this does not talk about what guest does with memory,
-> > ust what it is that device does):
-> >
-> > - existing balloon is told lower limit on target size by host and pulls in at least
-> >   target size. Guest can inflate > target size if it likes
-> >   and then it is OK to deflate back to target size but not less.
-> 
-> Is this true?   I take it nothing is keeping the existing balloon
-> driver from going over the target, but the same can be said about
-> either balloon implementation.
-> 
-> > - your balloon is told upper limit on target size by host and pulls at most
-> >   target size. Guest can deflate down to 0 at any point.
-> >
-> > If so I think both approaches make sense and in fact they
-> > can be useful at the same time for the same guest.
-> > In that case, I see two ways how this can be done:
-> >
-> > 1. two devices: existing ballon + cache balloon the
-> > 2. add "upper limit" to existing ballon
-> >
-> > A single device looks a bit more natural in that we don't
-> > really care in which balloon a page is as long as we
-> > are between lower and upper limit. Right?
-> 
-> I agree that this may be better done using a single device if possible.
+On Thu, Sep 06, 2012 at 08:27:35AM +0300, Michael S. Tsirkin wrote:
+> On Thu, Sep 06, 2012 at 11:34:25AM +0930, Rusty Russell wrote:
+> > "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > > On Tue, Sep 04, 2012 at 06:58:47PM +0200, Sjur Br=E6ndeland wrote:
+> > >> Hi Michael,
+> > >> =
 
-I am not sure myself, just asking.
+> > >> > Exactly. Though if we just fail load it will be much less code.
+> > >> >
+> > >> > Generally, using a feature bit for this is a bit of a problem thou=
+gh:
+> > >> > normally driver is expected to be able to simply ignore
+> > >> > a feature bit. In this case driver is required to
+> > >> > do something so a feature bit is not a good fit.
+> > >> > I am not sure what the right thing to do is.
+> > >> =
 
-> > From implementation POV we could have it use
-> > pagecache for pages above lower limit but that
-> > is a separate question about driver design,
-> > I would like to make sure I understand the highr balloon is told upper limit on tr balloon is told upper limit on target size by host and pullsarget size by host and pulls
-> > level design first.
-> 
-> I agree that this is an implementation detail that is separate from
-> discussions of high and low limits.  That said, there are several
-> advantages to pushing these pages to the page cache (memory defrag
-> still works for one).
+> > >> I see - so in order to avoid the binding between driver and device
+> > >> there are two options I guess. Either make virtio_dev_match() or
+> > >> virtcons_probe() fail. Neither of them seems like the obvious choice.
+> > >> =
 
-I'm not arguing against it at all.
+> > >> Maybe adding a check for VIRTIO_CONSOLE_F_DMA_MEM match
+> > >> between device and driver in virtcons_probe() is the lesser evil?
+> > >> =
 
-> >> > Note that users could not care less about how a driver
-> >> > is implemented internally.
-> >> >
-> >> > Is there some workload where you see VM working better with
-> >> > this than regular balloon? Any numbers?
-> >>
-> >> This device is less about performance as it is about getting the
-> >> memory size of a job (or in this case, a job in a VM) to grow and
-> >> shrink as the application workload sees fit, much like how processes
-> >> today can grow and shrink without external direction.
-> >
-> > Still, e.g. swap in host achieves more or less the same functionality.
-> 
-> Swap comes at the extremely prejudiced cost of latency.  Swap is very
-> very rarely used in our production environment for this reason.
-> 
-> > I am guessing balloon can work better by getting more cooperation
-> > from guest but aren't there any tests showing this is true in practice?
-> 
-> There aren't any meaningful test-specific numbers that I can readily
-> share unfortunately :(  If you have suggestions for specific things we
-> should try, that may be useful.
-> 
-> The way this change is validated on our end is to ensure that VM
-> processes on the host "shrink" to a reasonable working set in size
-> that is near-linear with the expected working set size for the
-> embedded tasks as if they were running native on the host.  Making
-> this happen with the current balloon just isn't possible as there
-> isn't enough visibility on the host as to how much pressure there is
-> in the guest.
-> 
-> >
-> >
-> >> >
-> >> > Also, can't we just replace existing balloon implementation
-> >> > with this one?
-> >>
-> >> Perhaps, but as described above, both devices have very different
-> >> characteristics.
-> >>
-> >> > Why it is so important to deflate silently?
-> >>
-> >> It may not be so important to deflate silently.  I'm not sure why it
-> >> is important that we deflate "loudly" though either :)  Doing so seems
-> >> like unnecessary guest/host communication IMO, especially if the guest
-> >> is expecting to be able to grow to totalram (and the host isn't able
-> >> to nack any pages reclaimed anyway...).
-> >
-> > First, we could add nack easily enough :)
-> 
-> :) Sure.  Not sure how the driver is going to expect to handle that though ! :D
+> > >> Regards,
+> > >> Sjur
+> > >
+> > > A simplest thing to do is change dev id. rusty?
+> > =
 
-Not sure about pagecache backed - regular one can just hang on
-to the page for a while more and try later or with another page.
+> > For generic usage, this is correct.  But my opinion is that fallback on
+> > feature non-ack is quality-of-implementation issue: great to have, but
+> > there are cases where you just want to fail with "you're too old".
+> > =
 
-> > Second, access gets an exit anyway. If you tell
-> > host first you can maybe batch these and actually speed things up.
-> > It remains to be measured but historically we told host
-> > so the onus of proof would be on whoever wants to remove this.
-> 
-> I'll concede that there isn't a very compelling argument as to why the
-> balloon should deflate silently.  You are right that it may be better
-> to deflate in batches (amortizing exit costs). That said, it isn't
-> totally obvious that queue'ing pfns to the virtio queue is the right
-> thing to do algorithmically either.  Currently, the file balloon
-> driver can reclaim memory inline with memory reclaim (via the
-> ->writepage callback). Doing otherwise may cause the LRU shrinking to
-> queue large numbers of pages to the virtio queue, without any
-> immediate progress made with regards to actually freeing memory.  I'm
-> worried that such an enqueue scheme will cause large bursts of pages
-> to be deflated unnecessarily when we go into reclaim.
+> > And in this case, an old system simply will never work.  So it's a
+> > question of how graceful the failure is.
+> > =
 
-Yes it would seem writepage is not a good mechanism since
-it can try to write pages speculatively.
-Maybe add a flag to tell LRU to only write pages when
-we really need the memory?
+> > Can your userspace loader can refuse to proceed if the driver doesn't
+> > ack the bits?  If so, it's simpler than a whole new ID.
+> > =
 
-> On the plus side, having an exit taken here on each page turns out to
-> be relatively cheap, as the vmexit from the page fault should be
-> faster to process as it is fully handled within the host kernel.
-> 
-> Perhaps some combination of both methods is required? I'm not sure :\
+> > Cheers,
+> > Rusty.
+> =
 
-Perhaps some benchmarking is in order :)
-Can you try telling host, potentially MADV_WILL_NEED
-in that case like qemu does, then run your proprietary test
-and see if things work well enough?
+> Yes but how can it signal guest that it will never proceed?
+> =
 
-> >
-> > Third, see discussion on ML - we came up with
-> > the idea of locking/unlocking balloon memory
-> > which is useful for an assigned device.
-> > Requires telling host first.
-> 
-> I just skimmed the other thread (sorry, I'm very much backlogged on
-> email).  By "locking", does this mean pinning the pages so that they
-> are not changed?
+> Also grep for BUG_ON in core found this:
+> =
 
-Yes by get user pages.
+>        drv->remove(dev);
+> =
 
-> I'll admit that I'm not familiar with the details for device
-> assignment.  If a page for a given bus address isn't present in the
-> IOMMU, does this not result in a serviceable fault?
+>        /* Driver should have reset device. */
+>        BUG_ON(dev->config->get_status(dev));
+> =
 
-Yes.
+> I think below is what Sjur refers to.
+> I think below is a good idea for 3.6. Thoughts?
+> =
 
-> >
-> > Also knowing how much memory there is in a balloon
-> > would be useful for admin.
-> 
-> This is just another counter and should already be exposed.
-> 
-> >
-> > There could be other uses.
-> >
-> >> > I guess filesystem does not currently get a callback
-> >> > before page is reclaimed but this isan implementation detail -
-> >> > maybe this can be fixed?
-> >>
-> >> I do not follow this question.
-> >
-> > Assume we want to tell host before use.
-> > Can you implement this on top of your patch?
-> 
-> Potentially, yes.  Both drivers are bare-bones at the moment IIRC and
-> don't support sending multiple outstanding commands to the host, but
-> this could be conceivably fixed (although one would have to work out
-> what happens when virtio_add_buf() returns -ENOBUFS).
+> --->
+> =
 
-It's not enough to add buf. You need to wait for host ack.
-Once you got ack you know you can add another buf.
+> virtio: don't crash when device is buggy
+> =
 
-> >
-> >> >
-> >> > Also can you pls answer Avi's question?
-> >> > How is overcommit managed?
-> >>
-> >> Overcommit in our deployments is managed using memory cgroups on the
-> >> host.  This allows us to have very directed policies as to how
-> >> competing VMs on a host may overcommit.
-> >
-> > So you push VM out to swap if it's over allowed memory?
-> 
-> As mentioned above, we don't use swap. If the task is of a lower
-> service band, it may end up blocking a lot more waiting for host
-> memory to become available, or may even be killed by the system and
-> restarted elsewhere.  Tasks that are of the higher service bands will
-> cause other tasks of lower service band to give up the ram (by will or
-> by force).
+> Because of a sanity check in virtio_dev_remove, a buggy device can crash
+> kernel.  And in case of rproc it's userspace so it's not a good idea.
+> We are unloading a driver so how bad can it be?
+> Be less aggressive in handling this error: if it's a driver bug,
+> warning once should be enough.
+> =
 
-Right. I think the comment below applies.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> =
 
-> > Existing balloon does this better as it is cooperative,
-> > it seems.
+> --
+
+Rusty?
+
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index c3b3f7f..1e8659c 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -159,7 +159,7 @@ static int virtio_dev_remove(struct device *_d)
+>  	drv->remove(dev);
+>  =
+
+>  	/* Driver should have reset device. */
+> -	BUG_ON(dev->config->get_status(dev));
+> +	WARN_ON_ONCE(dev->config->get_status(dev));
+>  =
+
+>  	/* Acknowledge the device's existence again. */
+>  	add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
+> =
+
+> -- =
+
+> MST
