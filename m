@@ -1,13 +1,17 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 0/5] vhost-scsi: Add support for host virtualized target
-Date: Tue, 11 Sep 2012 12:36:37 +0800
-Message-ID: <504EBFD5.6050203@redhat.com>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: Re: [PATCH 4/5] virtio-scsi: Add start/stop functionality for
+	vhost-scsi
+Date: Tue, 11 Sep 2012 08:46:34 -0500
+Message-ID: <504F40BA.7020800__28822.6401935846$1347371246$gmane$org@us.ibm.com>
 References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
+	<1347000499-28701-5-git-send-email-nab@linux-iscsi.org>
+	<504A1A32.5050705@redhat.com> <20120908224032.GC20588@redhat.com>
+	<504D85D6.2090703@redhat.com> <20120910062437.GD16819@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
+In-Reply-To: <20120910062437.GD16819@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,82 +21,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Nicholas,
+On 09/10/2012 01:24 AM, Michael S. Tsirkin wrote:
+> On Mon, Sep 10, 2012 at 08:16:54AM +0200, Paolo Bonzini wrote:
+>> Il 09/09/2012 00:40, Michael S. Tsirkin ha scritto:
+>>> On Fri, Sep 07, 2012 at 06:00:50PM +0200, Paolo Bonzini wrote:
+>>>> Il 07/09/2012 08:48, Nicholas A. Bellinger ha scritto:
+>>>>> Cc: Stefan Hajnoczi<stefanha@linux.vnet.ibm.com>
+>>>>> Cc: Zhi Yong Wu<wuzhy@linux.vnet.ibm.com>
+>>>>> Cc: Michael S. Tsirkin<mst@redhat.com>
+>>>>> Cc: Paolo Bonzini<pbonzini@redhat.com>
+>>>>> Signed-off-by: Nicholas Bellinger<nab@linux-iscsi.org>
+>>>>> ---
+>>>>>   hw/virtio-pci.c  |    2 ++
+>>>>>   hw/virtio-scsi.c |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
+>>>>>   hw/virtio-scsi.h |    1 +
+>>>>>   3 files changed, 52 insertions(+), 0 deletions(-)
+>>>>
+>>>> Please create a completely separate device vhost-scsi-pci instead (or
+>>>> virtio-scsi-tcm-pci, or something like that).  It is used completely
+>>>> differently from virtio-scsi-pci, it does not make sense to conflate the
+>>>> two.
+>>>
+>>> Ideally the name would say how it is different, not what backend it
+>>> uses. Any good suggestions?
+>>
+>> I chose the backend name because, ideally, there would be no other
+>> difference.  QEMU _could_ implement all the goodies in vhost-scsi (such
+>> as reservations or ALUA), it just doesn't do that yet.
+>>
+>> Paolo
+>
+> Then why do you say "It is used completely differently from
+> virtio-scsi-pci"?  Isn't it just a different backend?
+>
+> If yes then it should be a backend option, like it is
+> for virtio-net.
 
-On 09/07/2012 02:48 PM, Nicholas A. Bellinger wrote:
-> From: Nicholas Bellinger <nab@linux-iscsi.org>
-> 
-> Hello Anthony & Co,
-> 
-> This is the fourth installment to add host virtualized target support for
-> the mainline tcm_vhost fabric driver using Linux v3.6-rc into QEMU 1.3.0-rc.
-> 
-> The series is available directly from the following git branch:
-> 
->    git://git.kernel.org/pub/scm/virt/kvm/nab/qemu-kvm.git vhost-scsi-for-1.3
-> 
-> Note the code is cut against yesterday's QEMU head, and dispite the name
-> of the tree is based upon mainline qemu.org git code + has thus far been
-> running overnight with > 100K IOPs small block 4k workloads using v3.6-rc2+
-> based target code with RAMDISK_DR backstores.
+I don't mean to bike shed here so don't take this as a nack on making it a 
+backend option, but in retrospect, the way we did vhost-net was a mistake even 
+though I strongly advocated for it to be a backend option.
 
-Are you still seeing the performance degradation discussed in the thread
+The code to do it is really, really ugly.  I think it would have made a lot more 
+sense to just make it a device and then have it not use a netdev backend or any 
+other kind of backend split.
 
- "vhost-scsi port to v1.1.0 + MSI-X performance regression"
+For instance:
 
-?
+qemu -device vhost-net-pci,tapfd=X
 
-> Other than some minor fuzz between jumping from QEMU 1.2.0 -> 1.2.50, this
-> series is functionally identical to what's been posted for vhost-scsi RFC-v3
-> to qemu-devel.
-> 
-> Please consider applying these patches for an initial vhost-scsi merge into
-> QEMU 1.3.0-rc code, or let us know what else you'd like to see addressed for
-> this series to in order to merge.
-> 
-> Thank you!
-> 
-> --nab
-> 
-> Nicholas Bellinger (2):
->   monitor: Rename+move net_handle_fd_param -> monitor_handle_fd_param
->   virtio-scsi: Set max_target=0 during vhost-scsi operation
-> 
-> Stefan Hajnoczi (3):
->   vhost: Pass device path to vhost_dev_init()
->   vhost-scsi: add -vhost-scsi host device for use with tcm-vhost
->   virtio-scsi: Add start/stop functionality for vhost-scsi
-> 
->  configure            |   10 +++
->  hw/Makefile.objs     |    1 +
->  hw/qdev-properties.c |   41 +++++++++++
->  hw/vhost-scsi.c      |  190 ++++++++++++++++++++++++++++++++++++++++++++++++++
->  hw/vhost-scsi.h      |   62 ++++++++++++++++
->  hw/vhost.c           |    5 +-
->  hw/vhost.h           |    3 +-
->  hw/vhost_net.c       |    2 +-
->  hw/virtio-pci.c      |    2 +
->  hw/virtio-scsi.c     |   55 ++++++++++++++-
->  hw/virtio-scsi.h     |    1 +
->  monitor.c            |   18 +++++
->  monitor.h            |    1 +
->  net.c                |   18 -----
->  net.h                |    2 -
->  net/socket.c         |    2 +-
->  net/tap.c            |    4 +-
->  qemu-common.h        |    1 +
->  qemu-config.c        |   19 +++++
->  qemu-options.hx      |    4 +
->  vl.c                 |   18 +++++
->  21 files changed, 431 insertions(+), 28 deletions(-)
->  create mode 100644 hw/vhost-scsi.c
->  create mode 100644 hw/vhost-scsi.h
-> 
+I know this breaks the model of separate backends and frontends but since 
+vhost-net absolutely requires a tap fd, I think it's better in the long run to 
+not abuse the netdev backend to prevent user confusion.  Having a dedicated 
+backend type that only has one possible option and can only be used by one 
+device is a bit silly too.
 
+So I would be in favor of dropping/squashing 3/5 and radically simplifying how 
+this was exposed to the user.
 
--- 
-Asias
+I would just take qemu_vhost_scsi_opts and make them device properties.
+
+Regards,
+
+Anthony Liguori
+
+>
