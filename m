@@ -1,15 +1,13 @@
-From: David Vrabel <david.vrabel@citrix.com>
-Subject: Re: [Xen-devel] [patch 3/3] xen/privcmd: remove const modifier from
-	declaration
-Date: Mon, 10 Sep 2012 11:43:19 +0100
-Message-ID: <504DC447.9010301__24852.003347087$1347316641$gmane$org@citrix.com>
-References: <20120908095808.GC608@elgon.mountain>
-	<504DC8FE020000780009A190@nat28.tlf.novell.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH 0/5] vhost-scsi: Add support for host virtualized target
+Date: Tue, 11 Sep 2012 12:36:37 +0800
+Message-ID: <504EBFD5.6050203@redhat.com>
+References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <504DC8FE020000780009A190@nat28.tlf.novell.com>
+In-Reply-To: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,26 +17,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Beulich <JBeulich@suse.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andres Lagar-Cavilla <andreslc@gridcentric.ca>, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org, Dan Carpenter <dan.carpenter@oracle.com>
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/09/12 10:03, Jan Beulich wrote:
->>>> On 08.09.12 at 11:58, Dan Carpenter <dan.carpenter@oracle.com> wrote:
->> When we use this pointer, we cast away the const modifier and modify the
->> data.  I think it was an accident to declare it as const.
-> 
-> NAK - the const is very valid here, as the v2 interface (as opposed
-> to the v1 one) does _not_ modify this array (or if it does, it's a
-> bug). This is a guarantee made to user mode, so it should also be
-> expressed that way in the interface.
-> 
-> But of course the cast used before this patch isn't right either, as
-> it indeed inappropriately discards the qualifier. Afaiu this was done
-> to simplify the internal workings of the code, but I don't think it's
-> desirable to sacrifice type safety for implementation simplicity.
+Hello Nicholas,
 
-m.arr here isn't const as m is really the V1 structure where m.arr is
-non-const.
+On 09/07/2012 02:48 PM, Nicholas A. Bellinger wrote:
+> From: Nicholas Bellinger <nab@linux-iscsi.org>
+> 
+> Hello Anthony & Co,
+> 
+> This is the fourth installment to add host virtualized target support for
+> the mainline tcm_vhost fabric driver using Linux v3.6-rc into QEMU 1.3.0-rc.
+> 
+> The series is available directly from the following git branch:
+> 
+>    git://git.kernel.org/pub/scm/virt/kvm/nab/qemu-kvm.git vhost-scsi-for-1.3
+> 
+> Note the code is cut against yesterday's QEMU head, and dispite the name
+> of the tree is based upon mainline qemu.org git code + has thus far been
+> running overnight with > 100K IOPs small block 4k workloads using v3.6-rc2+
+> based target code with RAMDISK_DR backstores.
 
-David
+Are you still seeing the performance degradation discussed in the thread
+
+ "vhost-scsi port to v1.1.0 + MSI-X performance regression"
+
+?
+
+> Other than some minor fuzz between jumping from QEMU 1.2.0 -> 1.2.50, this
+> series is functionally identical to what's been posted for vhost-scsi RFC-v3
+> to qemu-devel.
+> 
+> Please consider applying these patches for an initial vhost-scsi merge into
+> QEMU 1.3.0-rc code, or let us know what else you'd like to see addressed for
+> this series to in order to merge.
+> 
+> Thank you!
+> 
+> --nab
+> 
+> Nicholas Bellinger (2):
+>   monitor: Rename+move net_handle_fd_param -> monitor_handle_fd_param
+>   virtio-scsi: Set max_target=0 during vhost-scsi operation
+> 
+> Stefan Hajnoczi (3):
+>   vhost: Pass device path to vhost_dev_init()
+>   vhost-scsi: add -vhost-scsi host device for use with tcm-vhost
+>   virtio-scsi: Add start/stop functionality for vhost-scsi
+> 
+>  configure            |   10 +++
+>  hw/Makefile.objs     |    1 +
+>  hw/qdev-properties.c |   41 +++++++++++
+>  hw/vhost-scsi.c      |  190 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>  hw/vhost-scsi.h      |   62 ++++++++++++++++
+>  hw/vhost.c           |    5 +-
+>  hw/vhost.h           |    3 +-
+>  hw/vhost_net.c       |    2 +-
+>  hw/virtio-pci.c      |    2 +
+>  hw/virtio-scsi.c     |   55 ++++++++++++++-
+>  hw/virtio-scsi.h     |    1 +
+>  monitor.c            |   18 +++++
+>  monitor.h            |    1 +
+>  net.c                |   18 -----
+>  net.h                |    2 -
+>  net/socket.c         |    2 +-
+>  net/tap.c            |    4 +-
+>  qemu-common.h        |    1 +
+>  qemu-config.c        |   19 +++++
+>  qemu-options.hx      |    4 +
+>  vl.c                 |   18 +++++
+>  21 files changed, 431 insertions(+), 28 deletions(-)
+>  create mode 100644 hw/vhost-scsi.c
+>  create mode 100644 hw/vhost-scsi.h
+> 
+
+
+-- 
+Asias
