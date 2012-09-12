@@ -1,22 +1,21 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC 1/2] virtio_console: Add support for DMA memory allocation
-Date: Wed, 12 Sep 2012 15:54:40 +0930
-Message-ID: <877grzdahj.fsf@rustcorp.com.au>
-References: <1346680277-5887-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20120903143018.GA5353@redhat.com>
-	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
-	<20120903202737.GD6181@redhat.com>
-	<CAJK669ZvnnG6fGOog-Z47B7xqyn9hcx5dAD7S--+2PSgE+hrLA@mail.gmail.com>
-	<20120904135022.GI9805@redhat.com>
-	<CAJK669Z1UYakBWartChfoeKL_eU5=GFZMGhH8R_Q-difVm0ygQ@mail.gmail.com>
-	<20120904185541.GB3602@redhat.com> <87k3w7j49i.fsf@rustcorp.com.au>
-	<20120906052735.GB17656@redhat.com>
-	<20120910221111.GA21854@redhat.com>
+Subject: Re: [PATCH] virtio-balloon spec: provide a version of the "silent
+	deflate" feature that works
+Date: Wed, 12 Sep 2012 15:54:28 +0930
+Message-ID: <878vcfdahv.fsf@rustcorp.com.au>
+References: <50487382.8030303@redhat.com> <20120906105301.GC32325@redhat.com>
+	<5048935A.8090308@redhat.com> <87wr06hg0l.fsf@rustcorp.com.au>
+	<20120907054202.GA3452@redhat.com> <87vcfqfia1.fsf@rustcorp.com.au>
+	<20120907104306.GA17211@redhat.com>
+	<87sjatf6iv.fsf@rustcorp.com.au>
+	<20120908223724.GB20588@redhat.com>
+	<87fw6qfya7.fsf@rustcorp.com.au>
+	<20120910055150.GA16819@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120910221111.GA21854@redhat.com>
+In-Reply-To: <20120910055150.GA16819@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,28 +26,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
+Cc: fes@google.com, aarcange@redhat.com, riel@redhat.com, kvm@vger.kernel.org, yvugenfi@redhat.com, linux-kernel@vger.kernel.org, mikew@google.com, yinghan@google.com, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 "Michael S. Tsirkin" <mst@redhat.com> writes:
->> virtio: don't crash when device is buggy
->> 
->> Because of a sanity check in virtio_dev_remove, a buggy device can crash
->> kernel.  And in case of rproc it's userspace so it's not a good idea.
->> We are unloading a driver so how bad can it be?
->> Be less aggressive in handling this error: if it's a driver bug,
->> warning once should be enough.
->> 
->> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->
-> Rusty?
+> We have several options:
+> 1. No memory overcommit feature. This is always the case ATM!
+> 2. Do not hot-plug assigned device.
+> 3. Hot-unplug assigned device.
+> 4. Some assigned devices can be able to handle memory errors
+>    e.g. using ATS. Limit hotplug to these.
 
-Thanks, applied.
+OK, let's leave it alone, and the first person to try to implement it in
+a device can figure out how to fall back.
 
-I really want to implement CONFIG_VIRTIO_DEVEL_DEBUG which would
-incorporate the checks in virtio_ring.c as well as this.  Then I could
-also reshuffle descriptors (eg. split them) to find buggy devices like
-qemu which assume the first descriptor is the struct virtio_net_hdr...
+I replied on the other thread: I think a SILENT_DEFLATE option is
+a future optimization.
 
 Cheers,
-Rusty,
+Rusty.
