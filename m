@@ -1,14 +1,18 @@
-From: workshop-pc@ovirt.org
-Subject: Re: oVirt Workshop Europe 2012: Call For Participation
-Date: Thu, 13 Sep 2012 15:30:10 -0700
-Message-ID: <20120913223010.GE12386__7904.07030513069$1347575429$gmane$org@x200.localdomain>
-References: <20120814214405.GN20407@x200.localdomain>
+From: Tom Herbert <therbert@google.com>
+Subject: Re: [PATCHv4] virtio-spec: virtio network device multiqueue support
+Date: Wed, 12 Sep 2012 07:40:50 -0700
+Message-ID: <CA+mtBx9NB=t=3YAB=MdRY_6hMe9J=z4U9o-pPe3iYfmxkeKJRw__31200.209997087$1347590252$gmane$org@mail.gmail.com>
+References: <20120909130308.GA3471@redhat.com> <878vcifwxi.fsf@rustcorp.com.au>
+	<20120910061629.GC16819@redhat.com>
+	<20120910062738.GA17331@redhat.com>
+	<20120910063346.GA17338@redhat.com> <504DC831.1000709@redhat.com>
+	<87har3dc4o.fsf@rustcorp.com.au>
+	<20120912075737.GA30455@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120814214405.GN20407@x200.localdomain>
+In-Reply-To: <20120912075737.GA30455@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,100 +22,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: announce@ovirt.org, users@ovirt.org, engine-devel@ovirt.org, vdsm-devel@fedorahosted.org, virtualization@lists.linux-foundation.org
-Cc: workshop-pc@ovirt.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: rick.jones2@hp.com, kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-KiB3b3Jrc2hvcC1wY0BvdmlydC5vcmcgKHdvcmtzaG9wLXBjQG92aXJ0Lm9yZykgd3JvdGU6Cj4g
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT0KPiBvVmlydCBXb3Jrc2hvcCBFdXJvcGUgMjAxMjogQ2FsbCBGb3IgUGFydGljaXBh
-dGlvbgo+IE5vdmVtYmVyIDctOSwgMjAxMiAtIEhvdGVsIEZpcmEgUGFsYWNlIC0gQmFyY2Vsb25h
-LCBTcGFpbgo+IAo+IChBbGwgc3VibWlzc2lvbnMgbXVzdCBiZSByZWNlaXZlZCBiZWZvcmUgbWlk
-bmlnaHQgU2VwIDE0dGgsIDIwMTIpCj4gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KClRoZSBzdWJtaXNzaW9uIGRlYWRsaW5l
-IGlzIGJlaW5nIHB1c2hlZCBvdXQgb25lIHdlZWsgdG8gU2VwIDIxc3QsIDIwMTIuCgpUaGVyZSB3
-YXMgYSBnbGl0Y2ggaW4gdGhlIENGUCBzeXN0ZW0gY2F1c2luZyB0aGUgb1ZpcnQgV29ya3Nob3Ag
-b3B0aW9uCmR1cmluZyBDRlAgc3VibWlzc2lvbiB0byBkaXNhcHBlYXIuICBJdCBoYXMgYmVlbiBm
-aXhlZCBhbmQgd2UncmUgZ29pbmcKdG8gZXh0ZW5kIHRoZSBzdWJtaXNzaW9uIGRlYWRsaW5lIGJ5
-IG9uZSB3ZWVrIHRvIGFjY29tbW9kYXRlLiAgSWYgeW91CndlcmUgaGF2aW5nIHRyb3VibGUgc3Vi
-bWl0dGluZyBhIHByb3Bvc2FsLCBwbGVhc2UgdHJ5IGFnYWluLiAgU29ycnkgZm9yCmFueSBpbmNv
-bnZlbmllbmNlLgoKPiBUaGUgb1ZpcnQgUHJvamVjdCBpcyBhbiBvcGVuIHZpcnR1YWxpemF0aW9u
-IHByb2plY3QgZm9yIGFueW9uZSB3aG8gY2FyZXMKPiBhYm91dCBMaW51eC1iYXNlZCBLVk0gdmly
-dHVhbGl6YXRpb24uIFByb3ZpZGluZyBhIGZlYXR1cmUtcmljaCBzZXJ2ZXIKPiB2aXJ0dWFsaXph
-dGlvbiBtYW5hZ2VtZW50IHN5c3RlbSB3aXRoIGFkdmFuY2VkIGNhcGFiaWxpdGllcyBmb3IgaG9z
-dHMKPiBhbmQgZ3Vlc3RzLCBpbmNsdWRpbmcgaGlnaCBhdmFpbGFiaWxpdHksIGxpdmUgbWlncmF0
-aW9uLCBzdG9yYWdlCj4gbWFuYWdlbWVudCwgc3lzdGVtIHNjaGVkdWxlciwgYW5kIG1vcmUuIEJ5
-IG9wZW4gd2UgbWVhbiBvcGVuIHNvdXJjZSAmCj4gb3BlbiBnb3Zlcm5hbmNlLCBkb25lIHJpZ2h0
-Lgo+IAo+IER1cmluZyB0aGlzIHdvcmtzaG9wIHlvdeKAmWxsIGxlYXJuIGFib3V0IHRoZSB0ZWNo
-bmljYWwgYmFja2dyb3VuZCBhbmQKPiBkaXJlY3Rpb24gb2YgdGhlIG9WaXJ0IHByb2plY3QuIFlv
-deKAmWxsIG1lZXQgdGhlIGRldmVsb3BlcnMsIGFuZCBoYXZlIGFuCj4gb3Bwb3J0dW5pdHkgdG8g
-c2VlIGFuZCBkaXZlIGludG8gdGhlIGNvZGUgcmlnaHQgYXdheS4gVGhlIHdvcmtzaG9wIGlzCj4g
-b3BlbiB0byBhbGwgd2hvIHdhbnQgdG8gdXNlLCBnZXQgaW52b2x2ZWQgd2l0aCwgb3IgIGxlYXJu
-IGFib3V0IHRoZQo+IGNvbXByZWhlbnNpdmUgb3BlbiB2aXJ0dWFsaXphdGlvbiBtYW5hZ2VtZW50
-IHBsYXRmb3JtLCBvVmlydC4gVGhlCj4gc2Vzc2lvbnMgY292ZXIgdGhlIHRlY2huaWNhbCBwcm9q
-ZWN0cyBkZXRhaWxzLCBnb3Zlcm5hbmNlLCBnZXR0aW5nCj4gaW52b2x2ZWQsIHVzYWdlLCBhbmQg
-bXVjaCBtb3JlLiBJZiB5b3UgaGF2ZSBhbnkgaW50ZXJlc3QgaW4gYW4gT3Blbgo+IFZpcnR1YWxp
-emF0aW9uIE1hbmFnZW1lbnQgcGxhdGZvcm0sIHRoaXMgd29ya3Nob3AgaXMgZm9yIHlvdSEKPiAK
-PiBXZSBhcmUgZXhjaXRlZCB0byBhbm5vdW5jZSB0aGF0IHRoaXMgb1ZpcnQgV29ya3Nob3Agd2ls
-bCBiZSBoZWxkIGluCj4gY29uanVuY3Rpb24gd2l0aCB0aGUgS1ZNIEZvcnVtLgo+IAo+IGh0dHA6
-Ly9ldmVudHMubGludXhmb3VuZGF0aW9uLm9yZy9ldmVudHMva3ZtLWZvcnVtLwo+IAo+IFRoZSBL
-Vk0gRm9ydW0gYW5kIG9WaXJ0IFdvcmtzaG9wIGFyZSBjby1sb2NhdGVkIHdpdGggdGhlIExpbnV4
-Cj4gRm91bmRhdGlvbidzIDIwMTIgTGludXhDb24gRXVyb3BlIGluIEJhcmNlbG9uYSwgU3BhaW4u
-Cj4gCj4gb1ZpcnQgV29ya3Nob3AgYXR0ZW5kZWVzIHdpbGwgYmUgYWJsZSB0byBhdHRlbmQgS1ZN
-IEZvcnVtIHNlc3Npb25zIGFuZAo+IGFyZSBlbGlnaWJsZSB0byBhdHRlbmQgTGludXhDb24gRXVy
-b3BlIGZvciBhIGRpc2NvdW50ZWQgcmF0ZS4KPiAKPiBodHRwOi8vZXZlbnRzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvZXZlbnRzL2t2bS1mb3J1bS9yZWdpc3Rlcgo+IAo+IFdlIGludml0ZSB5b3UgdG8g
-bGVhZCBwYXJ0IG9mIHRoZSBkaXNjdXNzaW9uIGJ5IHN1Ym1pdHRpbmcgYSBzcGVha2luZwo+IHBy
-b3Bvc2FsIGZvciBvVmlydCBXb3Jrc2hvcCAyMDEyLgo+IAo+IGh0dHA6Ly9ldmVudHMubGludXhm
-b3VuZGF0aW9uLm9yZy9jZnAKPiAKPiBTdWdnZXN0ZWQgdG9waWNzOgo+IAo+ICAtIGNvbW11bml0
-eSB1c2UgY2FzZS9zdG9yaWVzCj4gIC0gcm9hZG1hcHMKPiAgLSBkZWVwIGRpdmVzIGludG8gZmVh
-dHVyZXMvYXJlYXMKPiAgLSBkZWVwIGRpdmVzIGludG8gY29kZS9kZWJ1Z2dpbmcvdHVuaW5nCj4g
-IC0gaW50ZWdyYXRpb24gYW5kIGV4dGVuc2lvbnMKPiAgLSBjb21wb25lbnRzOiBlbmdpbmUsIHZk
-c20sIG5vZGUsIHNkay9jbGksIHJlcG9ydHMsIG1vbSwgZ3Vlc3QgYWdlbnQsIGV0Yy4KPiAgLSBz
-dWJqZWN0czogbmV0d29yaywgc3RvcmFnZSwgdm0gbGlmZSBjeWNsZSwgc2NoZWR1bGluZyAmIHNs
-YSwgZ2x1c3RlciwgZXRjLgo+ICAtIHBhY2thZ2luZywgaW5zdGFsbGF0aW9uIGFuZCBkaXN0cmli
-dXRpb25zCj4gIC0gY29tbXVuaXR5IGluZnJhc3RydWN0dXJlIGFuZCBzZXJ2aWNlcwo+IAo+IFNV
-Qk1JU1NJT04gUkVRVUlSRU1FTlRTCj4gCj4gQWJzdHJhY3RzIGR1ZTogU2VwIDE0dGgsIDIwMTIK
-PiBOb3RpZmljYXRpb246IFNlcCAyOHRoLCAyMDEyCj4gCj4gUGxlYXNlIHN1Ym1pdCBhIHNob3J0
-IGFic3RyYWN0ICh+MTUwIHdvcmRzKSBkZXNjcmliaW5nIHlvdXIgcHJlc2VudGF0aW9uCj4gcHJv
-cG9zYWwuICBJbiB5b3VyIHN1Ym1pc3Npb24gcGxlYXNlIG5vdGUgaG93IGxvbmcgeW91ciB0YWxr
-IHdpbGwgdGFrZS4KPiBTbG90cyB2YXJ5IGluIGxlbmd0aCB1cCB0byA0NSBtaW51dGVzLiAgQWxz
-byBpbmNsdWRlIGluIHlvdXIgcHJvcG9zYWwKPiB0aGUgcHJvcG9zYWwgdHlwZSAtLSBvbmUgb2Y6
-Cj4gCj4gLSB0ZWNobmljYWwgdGFsawo+IC0gZW5kLXVzZXIgdGFsawo+IC0gYmlyZHMgb2YgYSBm
-ZWF0aGVyIChCT0YpIHNlc3Npb24KPiAKPiBTdWJtaXQgeW91ciBwcm9wb3NhbCBoZXJlOgo+IAo+
-IGh0dHA6Ly9ldmVudHMubGludXhmb3VuZGF0aW9uLm9yZy9jZnAKPiAKPiBZb3Ugd2lsbCByZWNl
-aXZlIGEgbm90aWZpY2F0aW9uIHdoZXRoZXIgb3Igbm90IHlvdXIgcHJlc2VudGF0aW9uIHByb3Bv
-c2FsCj4gd2FzIGFjY2VwdGVkIGJ5IFNlcCAxNHRoLgo+IAo+IEVORC1VU0VSIENPTExBQk9SQVRJ
-T04KPiAKPiBPbmUgb2YgdGhlIGJpZyBjaGFsbGVuZ2VzIGFzIGRldmVsb3BlcnMgaXMgdG8ga25v
-dyB3aGF0LCB3aGVyZSBhbmQgaG93Cj4gcGVvcGxlIGFjdHVhbGx5IHVzZSBvdXIgc29mdHdhcmUu
-ICBXZSB3aWxsIHJlc2VydmUgYSBmZXcgc2xvdHMgZm9yIGVuZAo+IHVzZXJzIHRhbGtpbmcgYWJv
-dXQgdGhlaXIgZGVwbG95bWVudCBjaGFsbGVuZ2VzIGFuZCBhY2hpZXZlbWVudHMuCj4gCj4gSWYg
-eW91IGFyZSB1c2luZyBvVmlydCBpbiBwcm9kdWN0aW9uIHlvdSBhcmUgZW5jb3VyYWdlZCBzdWJt
-aXQgYSBzcGVha2luZwo+IHByb3Bvc2FsLiAgU2ltcGx5IG1hcmsgaXQgYXMgYW4gZW5kLXVzZXIg
-Y29sbGFib3JhdGlvbiBwcm9wb3NhbC4gIEFzIGFuCj4gZW5kIHVzZXIsIHRoaXMgaXMgYSB1bmlx
-dWUgb3Bwb3J0dW5pdHkgdG8gZ2V0IHlvdXIgaW5wdXQgdG8gZGV2ZWxvcGVycy4KPiAKPiBCT0Yg
-U0VTU0lPTgo+IAo+IFdlIHdpbGwgcmVzZXJ2ZSBzb21lIHNsb3RzIGluIHRoZSBldmVuaW5nIGFm
-dGVyIHRoZSBtYWluIGNvbmZlcmVuY2UKPiB0cmFja3MsIGZvciBiaXJkcyBvZiBhIGZlYXRoZXIg
-KEJPRikgc2Vzc2lvbnMuIFRoZXNlIHNlc3Npb25zIHdpbGwgYmUKPiBsZXNzIGZvcm1hbCB0aGFu
-IHByZXNlbnRhdGlvbiB0cmFja3MgYW5kIHRhcmdldHRlZCBmb3IgcGVvcGxlIHdobyB3b3VsZAo+
-IGxpa2UgdG8gZGlzY3VzcyBzcGVjaWZpYyBpc3N1ZXMgd2l0aCBvdGhlciBkZXZlbG9wZXJzIGFu
-ZC9vciB1c2Vycy4KPiBJZiB5b3UgYXJlIGludGVyZXN0ZWQgaW4gZ2V0dGluZyBkZXZlbG9wZXJz
-IGFuZC9vciB1c2VzIHRvZ2V0aGVyIHRvCj4gZGlzY3VzcyBhIHNwZWNpZmljIHByb2JsZW0sIHBs
-ZWFzZSBzdWJtaXQgYSBCT0YgcHJvcG9zYWwuCj4gCj4gTElHSFROSU5HIFRBTEtTCj4gCj4gSW4g
-YWRkaXRpb24gdG8gc3VibWl0dGVkIHRhbGtzIHdlIHdpbGwgYWxzbyBoYXZlIHNvbWUgcm9vbSBm
-b3IgbGlnaHRuaW5nCj4gdGFsa3MuIFRoZXNlIGFyZSBzaG9ydCAoNSBtaW51dGUpIGRpc2N1c3Np
-b25zIHRvIGhpZ2hsaWdodCBuZXcgd29yayBvcgo+IGlkZWFzIHRoYXQgYXJlbid0IGNvbXBsZXRl
-IGVub3VnaCB0byB3YXJyYW50IGEgZnVsbCBwcmVzZW50YXRpb24gc2xvdC4KPiBMaWdodG5pbmcg
-dGFsayBzdWJtaXNzaW9ucyBhbmQgc2NoZWR1bGluZyB3aWxsIGJlIGhhbmRsZWQgb24tc2l0ZSBh
-dAo+IG9WaXJ0IFdvcmtzaG9wLgo+IAo+IEhPVEVMIC8gVFJBVkVMCj4gCj4gVGhlIG9WaXJ0IFdv
-cmtzaG9wIEV1cm9wZSAyMDEyIHdpbGwgYmUgaGVsZCBpbiBCYXJjZWxvbmEsIFNwYWluIGF0IHRo
-ZQo+IEhvdGVsIEZpcmEgUGFsYWNlLgo+IAo+IGh0dHA6Ly9ldmVudHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9ldmVudHMva3ZtLWZvcnVtL2hvdGVsCj4gCj4gVGhhbmsgeW91IGZvciB5b3VyIGludGVy
-ZXN0IGluIG9WaXJ0LiAgV2UncmUgbG9va2luZyBmb3J3YXJkIHRvIHlvdXIKPiBzdWJtaXNzaW9u
-cyBhbmQgc2VlaW5nIHlvdSBhdCB0aGUgb1ZpcnQgV29ya3Nob3AgRXVyb3BlIDIwMTIgaW4gTm92
-ZW1iZXIhCj4gCj4gVGhhbmtzLAo+IHlvdXIgb1ZpcnQgV29ya3Nob3AgRXVyb3BlIDIwMTIgUHJv
-Z3JhbSBDb21taXRlZQo+IAo+IFBsZWFzZSBjb250YWN0IHVzIHdpdGggYW55IHF1ZXN0aW9ucyBv
-ciBjb21tZW50cy4KPiB3b3Jrc2hvcC1wY0BvdmlydC5vcmcKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Sep 12, 2012 at 12:57 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Wed, Sep 12, 2012 at 03:19:11PM +0930, Rusty Russell wrote:
+>> Jason Wang <jasowang@redhat.com> writes:
+>> > On 09/10/2012 02:33 PM, Michael S. Tsirkin wrote:
+>> >> A final addition: what you suggest above would be
+>> >> "TX follows RX", right?
+>>
+>> BTW, yes.  But it's a weird way to express what the nic is doing.
+>
+> It explains what the system is doing.
+> TX is done by driver, RX by nic.
+> We document both driver and device in the spec
+> so I thought it's fine. any suggestions wellcome.
+>
+>> >> It is in anticipation of something like that, that I made
+>> >> steering programming so generic.
+>>
+>> >> I think TX follows RX is more immediately useful for reasons above
+>> >> but we can add both to spec and let drivers and devices
+>> >> decide what they want to support.
+>>
+>> You mean "RX follows TX"?  ie. accelerated RFS.  I agree.
+>
+RX following TX is logic of flow director I believe.  {a}RFS has RX
+follow CPU where application receive is done on the socket.  So in RFS
+there is no requirement to have a 1-1 correspondence between TX and RX
+queues, and in fact this allows different number of queues between TX
+and RX.  We found this necessary when using priority HW queues, so
+that there are more TX queues than RX.
+
+>
+> Yes that's what I meant. Thanks for the correction.
+>
+>> Perhaps Tom can explain how we avoid out-of-order receive for the
+>> accelerated RFS case?  It's not clear to me, but we need to be able to
+>> do that for virtio-net if it implements accelerated RFS.
+>
+AFAIK ooo RX is still possible with accelerated RFS.  We have an
+algorithm that prevents this for RFS by deferring a migration to a new
+queue as long as it's possible that a flow might have outstanding
+packets on the old queue.  I suppose this could be implemented in the
+device for the HW queues, but I don't think it would be easy to cover
+all cases where packets were already in transit to the host or other
+cases where host and device queues are out of sync.
+
+> Basically this has tx vq per cpu and relies on scheduler not bouncing threads
+> between cpus too aggressively. Appears to be what ixgbe does.
+>
+>> > AFAIK, ixgbe does "rx follows tx". The only differences between ixgbe
+>> > and virtio-net is that ixgbe driver programs the flow director during
+>> > packet transmission but we suggest to do it silently in the device for
+>> > simplicity.
+>>
+>> Implying the receive queue by xmit will be slightly laggy.  Don't know
+>> if that's a problem.
+>>
+>> Cheers,
+>> Rusty.
+>
+> Doesn't seem to be a problem in Jason's testing so far.
