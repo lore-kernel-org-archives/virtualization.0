@@ -1,17 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
-Date: Wed, 12 Sep 2012 14:55:08 +0930
-Message-ID: <87ligfdd8r.fsf@rustcorp.com.au>
-References: <1340742778-11282-1-git-send-email-fes@google.com>
-	<20120910090521.GB18544@redhat.com>
-	<CAGTjWtBa5jW6+y1k6zZmD9TUNHBgv8WRbO_iy7huY_dJSumStw@mail.gmail.com>
-	<20120910195931.GD20721@redhat.com>
-	<CAGTjWtCiqjkR_Ze=0-ebO08+eziz6c8TXLb+O1iiArRQeSE6zw@mail.gmail.com>
+Subject: Re: [PATCHv4] virtio-spec: virtio network device multiqueue support
+Date: Wed, 12 Sep 2012 15:19:11 +0930
+Message-ID: <87har3dc4o.fsf@rustcorp.com.au>
+References: <20120909130308.GA3471@redhat.com> <878vcifwxi.fsf@rustcorp.com.au>
+	<20120910061629.GC16819@redhat.com>
+	<20120910062738.GA17331@redhat.com>
+	<20120910063346.GA17338@redhat.com> <504DC831.1000709@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAGTjWtCiqjkR_Ze=0-ebO08+eziz6c8TXLb+O1iiArRQeSE6zw@mail.gmail.com>
+In-Reply-To: <504DC831.1000709@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,50 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mike Waychison <mikew@google.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Frank Swiderski <fes@google.com>, Andrea Arcangeli <aarcange@redhat.com>, Rik van Riel <riel@redhat.com>, kvm@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, rick.jones2@hp.com, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, pbonzini@redhat.com, Tom Herbert <therbert@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Mike Waychison <mikew@google.com> writes:
-> On Mon, Sep 10, 2012 at 3:59 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> On Mon, Sep 10, 2012 at 01:37:06PM -0400, Mike Waychison wrote:
->>> On Mon, Sep 10, 2012 at 5:05 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->>> > On Tue, Jun 26, 2012 at 01:32:58PM -0700, Frank Swiderski wrote:
->>> >> This implementation of a virtio balloon driver uses the page cache to
->>> >> "store" pages that have been released to the host.  The communication
->>> >> (outside of target counts) is one way--the guest notifies the host when
->>> >> it adds a page to the page cache, allowing the host to madvise(2) with
->>> >> MADV_DONTNEED.  Reclaim in the guest is therefore automatic and implicit
->>> >> (via the regular page reclaim).  This means that inflating the balloon
->>> >> is similar to the existing balloon mechanism, but the deflate is
->>> >> different--it re-uses existing Linux kernel functionality to
->>> >> automatically reclaim.
->>> >>
->>> >> Signed-off-by: Frank Swiderski <fes@google.com>
->>>
->>> Hi Michael,
->>>
->>> I'm very sorry that Frank and I have been silent on these threads.
->>> I've been out of the office and Frank has been been swamped :)
->>>
->>> I'll take a stab at answering some of your questions below, and
->>> hopefully we can end up on the same page.
+Jason Wang <jasowang@redhat.com> writes:
+> On 09/10/2012 02:33 PM, Michael S. Tsirkin wrote:
+>> A final addition: what you suggest above would be
+>> "TX follows RX", right?
 
-Hi Mike, Frank, Michael,
+BTW, yes.  But it's a weird way to express what the nic is doing.
 
-        Thanks for the explanation and discussion.  I like that this
-implementation is more dynamic: the guest can use more pages for a while
-(and the balloon kthread will furiously start trying to grab more pages
-to give back).  This part is a completely reasonable implementation, and
-more sophisticated that what we have.
+>> It is in anticipation of something like that, that I made
+>> steering programming so generic.
 
-It doesn't *quite* meet the spec, because we don't notify the host when
-we pull a page from the balloon, but I think that is quite possible.  If
-this is a performance waster, we should add a "SILENT_DEFLATE" feature
-to tell the driver that it doesn't need to, though we should stll
-support the !SILENT_DEFLATE case.
+>> I think TX follows RX is more immediately useful for reasons above
+>> but we can add both to spec and let drivers and devices
+>> decide what they want to support.
 
-And Michael: thanks again for doing the heavy lifting on this!
+You mean "RX follows TX"?  ie. accelerated RFS.  I agree.
+
+Perhaps Tom can explain how we avoid out-of-order receive for the
+accelerated RFS case?  It's not clear to me, but we need to be able to
+do that for virtio-net if it implements accelerated RFS.
+
+> AFAIK, ixgbe does "rx follows tx". The only differences between ixgbe 
+> and virtio-net is that ixgbe driver programs the flow director during 
+> packet transmission but we suggest to do it silently in the device for 
+> simplicity.
+
+Implying the receive queue by xmit will be slightly laggy.  Don't know
+if that's a problem.
 
 Cheers,
 Rusty.
