@@ -1,17 +1,18 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v2 2/2] virtio-ring: Allocate indirect buffers from cache
-	when possible
-Date: Wed, 12 Sep 2012 15:43:11 +0930
-Message-ID: <87bohbdb0o.fsf__10664.3379702748$1347431655$gmane$org@rustcorp.com.au>
-References: <1346159043-16446-2-git-send-email-levinsasha928@gmail.com>
-	<20120906084526.GE17656@redhat.com>
-	<87txvahfv3.fsf@rustcorp.com.au>
-	<14037987.hiN6MSGY6z@tomlt1.ibmoffice.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv4] virtio-spec: virtio network device multiqueue support
+Date: Wed, 12 Sep 2012 10:57:37 +0300
+Message-ID: <20120912075737.GA30455@redhat.com>
+References: <20120909130308.GA3471@redhat.com> <878vcifwxi.fsf@rustcorp.com.au>
+	<20120910061629.GC16819@redhat.com>
+	<20120910062738.GA17331@redhat.com>
+	<20120910063346.GA17338@redhat.com> <504DC831.1000709@redhat.com>
+	<87har3dc4o.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <14037987.hiN6MSGY6z@tomlt1.ibmoffice.com>
+Content-Disposition: inline
+In-Reply-To: <87har3dc4o.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,85 +22,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Lendacky <tahm@linux.vnet.ibm.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, avi@redhat.com, Sasha Levin <levinsasha928@gmail.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, rick.jones2@hp.com, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, pbonzini@redhat.com, Tom Herbert <therbert@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thomas Lendacky <tahm@linux.vnet.ibm.com> writes:
-> I ran some TCP_RR and TCP_STREAM sessions, both host-to-guest and
-> guest-to-host, with a form of the histogram patch applied against a
-> RHEL6.3 kernel. The histogram values were reset after each test.
+On Wed, Sep 12, 2012 at 03:19:11PM +0930, Rusty Russell wrote:
+> Jason Wang <jasowang@redhat.com> writes:
+> > On 09/10/2012 02:33 PM, Michael S. Tsirkin wrote:
+> >> A final addition: what you suggest above would be
+> >> "TX follows RX", right?
+> 
+> BTW, yes.  But it's a weird way to express what the nic is doing.
 
-Hey, thanks!  This is exactly what I wanted to see...
+It explains what the system is doing.
+TX is done by driver, RX by nic.
+We document both driver and device in the spec
+so I thought it's fine. any suggestions wellcome.
 
-> 60 session TCP_RR from host-to-guest with 256 byte request and 256 byte
-> response for 60 seconds:
->
-> Queue histogram for virtio1:
-> Size distribution for input (max=7818456):
->  1: 7818456 ################################################################
+> >> It is in anticipation of something like that, that I made
+> >> steering programming so generic.
+> 
+> >> I think TX follows RX is more immediately useful for reasons above
+> >> but we can add both to spec and let drivers and devices
+> >> decide what they want to support.
+> 
+> You mean "RX follows TX"?  ie. accelerated RFS.  I agree.
 
-These are always 1, so we don't indirect them anyway, so no cache required.
 
-> Size distribution for output (max=7816698):
->  2: 149     
->  3: 7816698 ################################################################
->  4: 2       
->  5: 1       
-> Size distribution for control (max=1):
->  0: 0
+Yes that's what I meant. Thanks for the correction.
 
-OK, tiny TCP data, but latency sensitive.
+> Perhaps Tom can explain how we avoid out-of-order receive for the
+> accelerated RFS case?  It's not clear to me, but we need to be able to
+> do that for virtio-net if it implements accelerated RFS.
 
-> Queue histogram for virtio1:
-> Size distribution for input (max=16050941):
->  1: 16050941 ################################################################
-> Size distribution for output (max=1877796):
->  2: 1877796 ################################################################
->  3: 5       
-> Size distribution for control (max=1):
->  0: 0
+Basically this has tx vq per cpu and relies on scheduler not bouncing threads
+between cpus too aggressively. Appears to be what ixgbe does.
 
-Acks.  Not that many, not that latency sensitive.
+> > AFAIK, ixgbe does "rx follows tx". The only differences between ixgbe 
+> > and virtio-net is that ixgbe driver programs the flow director during 
+> > packet transmission but we suggest to do it silently in the device for 
+> > simplicity.
+> 
+> Implying the receive queue by xmit will be slightly laggy.  Don't know
+> if that's a problem.
+> 
+> Cheers,
+> Rusty.
 
-> 4 session TCP_STREAM from guest-to-host with 4K message size for 60 seconds:
->
-> Queue histogram for virtio1:
-> Size distribution for input (max=1316069):
->  1: 1316069 ################################################################
-> Size distribution for output (max=879213):
->  2: 24      
->  3: 24097   #
->  4: 23176   #
->  5: 3412    
->  6: 4446    
->  7: 4663    
->  8: 4195    
->  9: 3772    
-> 10: 3388    
-> 11: 3666    
-> 12: 2885    
-> 13: 2759    
-> 14: 2997    
-> 15: 3060    
-> 16: 2651    
-> 17: 2235    
-> 18: 92721   ######  
-> 19: 879213  ################################################################
-
-Hey, that +1 is there in MAX_SKB_FRAGS for a reason!  Who knew?
-
-This looks like we could really use a:
-
-        int vq_set_indirect_cache(struct virtqueue *vq, unsigned num);
-
-Which networking would set on the xmit queue(s) if we have GSO.
-
-The real question is now whether we'd want a separate indirect cache for
-the 3 case (so num above should be a bitmap?), or reuse the same one, or
-not use it at all?
-
-Benchmarking will tell...
-
-Thanks,
-Rusty.
+Doesn't seem to be a problem in Jason's testing so far.
