@@ -1,14 +1,18 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH 0/5] vhost-scsi: Add support for host virtualized target
-Date: Thu, 13 Sep 2012 13:12:09 -0700
-Message-ID: <1347567129.7359.14.camel__29663.2885504097$1347567152$gmane$org@haakon2.linux-iscsi.org>
+Subject: Re: [PATCH 4/5] virtio-scsi: Add start/stop functionality for
+	vhost-scsi
+Date: Thu, 13 Sep 2012 15:27:43 -0700
+Message-ID: <1347575263.7359.76.camel__15945.3090899207$1347575286$gmane$org@haakon2.linux-iscsi.org>
 References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
-	<504EBFD5.6050203@redhat.com>
+	<1347000499-28701-5-git-send-email-nab@linux-iscsi.org>
+	<504A1A32.5050705@redhat.com> <20120908224032.GC20588@redhat.com>
+	<504D85D6.2090703@redhat.com> <20120910062437.GD16819@redhat.com>
+	<504F40BA.7020800@us.ibm.com>  <20120911150757.GA26666@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <504EBFD5.6050203@redhat.com>
+In-Reply-To: <20120911150757.GA26666@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,48 +22,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2012-09-11 at 12:36 +0800, Asias He wrote:
-> Hello Nicholas,
-> 
-
-Hello Asias!
-
-> On 09/07/2012 02:48 PM, Nicholas A. Bellinger wrote:
-> > From: Nicholas Bellinger <nab@linux-iscsi.org>
-> > 
-> > Hello Anthony & Co,
-> > 
-> > This is the fourth installment to add host virtualized target support for
-> > the mainline tcm_vhost fabric driver using Linux v3.6-rc into QEMU 1.3.0-rc.
-> > 
-> > The series is available directly from the following git branch:
-> > 
-> >    git://git.kernel.org/pub/scm/virt/kvm/nab/qemu-kvm.git vhost-scsi-for-1.3
-> > 
-> > Note the code is cut against yesterday's QEMU head, and dispite the name
-> > of the tree is based upon mainline qemu.org git code + has thus far been
-> > running overnight with > 100K IOPs small block 4k workloads using v3.6-rc2+
-> > based target code with RAMDISK_DR backstores.
-> 
-> Are you still seeing the performance degradation discussed in the thread
-> 
->  "vhost-scsi port to v1.1.0 + MSI-X performance regression"
-> 
-
-So the performance regression reported here with QEMU v1.2-rc +
-virtio-scsi ended up being related to virtio interrupts being delivered
-across multiple CPUs.
-
-After explicitly setting the IRQ affinity of the virtio0-request MSI-X
-vector to a specific CPU, the small block (4k) mixed random I/O
-performance jumped back up to the expected ~100K IOPs for a single LUN.
-
-FYI, I just tried this again with the most recent QEMU v1.2.50 (v1.3-rc)
-code, and both cases appear to be performing as expected once again
-regardless of the explicit IRQ affinity setting.
-
---nab
+T24gVHVlLCAyMDEyLTA5LTExIGF0IDE4OjA3ICswMzAwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3Jv
+dGU6Cj4gT24gVHVlLCBTZXAgMTEsIDIwMTIgYXQgMDg6NDY6MzRBTSAtMDUwMCwgQW50aG9ueSBM
+aWd1b3JpIHdyb3RlOgo+ID4gT24gMDkvMTAvMjAxMiAwMToyNCBBTSwgTWljaGFlbCBTLiBUc2ly
+a2luIHdyb3RlOgo+ID4gPk9uIE1vbiwgU2VwIDEwLCAyMDEyIGF0IDA4OjE2OjU0QU0gKzAyMDAs
+IFBhb2xvIEJvbnppbmkgd3JvdGU6Cj4gPiA+PklsIDA5LzA5LzIwMTIgMDA6NDAsIE1pY2hhZWwg
+Uy4gVHNpcmtpbiBoYSBzY3JpdHRvOgo+ID4gPj4+T24gRnJpLCBTZXAgMDcsIDIwMTIgYXQgMDY6
+MDA6NTBQTSArMDIwMCwgUGFvbG8gQm9uemluaSB3cm90ZToKCjxTTklQPgoKPiA+ID4+Pj5QbGVh
+c2UgY3JlYXRlIGEgY29tcGxldGVseSBzZXBhcmF0ZSBkZXZpY2Ugdmhvc3Qtc2NzaS1wY2kgaW5z
+dGVhZCAob3IKPiA+ID4+Pj52aXJ0aW8tc2NzaS10Y20tcGNpLCBvciBzb21ldGhpbmcgbGlrZSB0
+aGF0KS4gIEl0IGlzIHVzZWQgY29tcGxldGVseQo+ID4gPj4+PmRpZmZlcmVudGx5IGZyb20gdmly
+dGlvLXNjc2ktcGNpLCBpdCBkb2VzIG5vdCBtYWtlIHNlbnNlIHRvIGNvbmZsYXRlIHRoZQo+ID4g
+Pj4+PnR3by4KPiA+ID4+Pgo+ID4gPj4+SWRlYWxseSB0aGUgbmFtZSB3b3VsZCBzYXkgaG93IGl0
+IGlzIGRpZmZlcmVudCwgbm90IHdoYXQgYmFja2VuZCBpdAo+ID4gPj4+dXNlcy4gQW55IGdvb2Qg
+c3VnZ2VzdGlvbnM/Cj4gPiA+Pgo+ID4gPj5JIGNob3NlIHRoZSBiYWNrZW5kIG5hbWUgYmVjYXVz
+ZSwgaWRlYWxseSwgdGhlcmUgd291bGQgYmUgbm8gb3RoZXIKPiA+ID4+ZGlmZmVyZW5jZS4gIFFF
+TVUgX2NvdWxkXyBpbXBsZW1lbnQgYWxsIHRoZSBnb29kaWVzIGluIHZob3N0LXNjc2kgKHN1Y2gK
+PiA+ID4+YXMgcmVzZXJ2YXRpb25zIG9yIEFMVUEpLCBpdCBqdXN0IGRvZXNuJ3QgZG8gdGhhdCB5
+ZXQuCj4gPiA+Pgo+ID4gPj5QYW9sbwo+ID4gPgo+ID4gPlRoZW4gd2h5IGRvIHlvdSBzYXkgIkl0
+IGlzIHVzZWQgY29tcGxldGVseSBkaWZmZXJlbnRseSBmcm9tCj4gPiA+dmlydGlvLXNjc2ktcGNp
+Ij8gIElzbid0IGl0IGp1c3QgYSBkaWZmZXJlbnQgYmFja2VuZD8KPiA+ID4KPiA+ID5JZiB5ZXMg
+dGhlbiBpdCBzaG91bGQgYmUgYSBiYWNrZW5kIG9wdGlvbiwgbGlrZSBpdCBpcwo+ID4gPmZvciB2
+aXJ0aW8tbmV0Lgo+ID4gCj4gPiBJIGRvbid0IG1lYW4gdG8gYmlrZSBzaGVkIGhlcmUgc28gZG9u
+J3QgdGFrZSB0aGlzIGFzIGEgbmFjayBvbgo+ID4gbWFraW5nIGl0IGEgYmFja2VuZCBvcHRpb24s
+IGJ1dCBpbiByZXRyb3NwZWN0LCB0aGUgd2F5IHdlIGRpZAo+ID4gdmhvc3QtbmV0IHdhcyBhIG1p
+c3Rha2UgZXZlbiB0aG91Z2ggSSBzdHJvbmdseSBhZHZvY2F0ZWQgZm9yIGl0IHRvCj4gPiBiZSBh
+IGJhY2tlbmQgb3B0aW9uLgo+ID4gCj4gPiBUaGUgY29kZSB0byBkbyBpdCBpcyByZWFsbHksIHJl
+YWxseSB1Z2x5LiAgSSB0aGluayBpdCB3b3VsZCBoYXZlCj4gPiBtYWRlIGEgbG90IG1vcmUgc2Vu
+c2UgdG8ganVzdCBtYWtlIGl0IGEgZGV2aWNlIGFuZCB0aGVuIGhhdmUgaXQgbm90Cj4gPiB1c2Ug
+YSBuZXRkZXYgYmFja2VuZCBvciBhbnkgb3RoZXIga2luZCBvZiBiYWNrZW5kIHNwbGl0Lgo+ID4g
+Cj4gPiBGb3IgaW5zdGFuY2U6Cj4gPiAKPiA+IHFlbXUgLWRldmljZSB2aG9zdC1uZXQtcGNpLHRh
+cGZkPVgKPiA+IAo+ID4gSSBrbm93IHRoaXMgYnJlYWtzIHRoZSBtb2RlbCBvZiBzZXBhcmF0ZSBi
+YWNrZW5kcyBhbmQgZnJvbnRlbmRzIGJ1dAo+ID4gc2luY2Ugdmhvc3QtbmV0IGFic29sdXRlbHkg
+cmVxdWlyZXMgYSB0YXAgZmQsIEkgdGhpbmsgaXQncyBiZXR0ZXIgaW4KPiA+IHRoZSBsb25nIHJ1
+biB0byBub3QgYWJ1c2UgdGhlIG5ldGRldiBiYWNrZW5kIHRvIHByZXZlbnQgdXNlcgo+ID4gY29u
+ZnVzaW9uLiAgSGF2aW5nIGEgZGVkaWNhdGVkIGJhY2tlbmQgdHlwZSB0aGF0IG9ubHkgaGFzIG9u
+ZQo+ID4gcG9zc2libGUgb3B0aW9uIGFuZCBjYW4gb25seSBiZSB1c2VkIGJ5IG9uZSBkZXZpY2Ug
+aXMgYSBiaXQgc2lsbHkKPiA+IHRvby4KPiA+IAo+ID4gU28gSSB3b3VsZCBiZSBpbiBmYXZvciBv
+ZiBkcm9wcGluZy9zcXVhc2hpbmcgMy81IGFuZCByYWRpY2FsbHkKPiA+IHNpbXBsaWZ5aW5nIGhv
+dyB0aGlzIHdhcyBleHBvc2VkIHRvIHRoZSB1c2VyLgo+ID4gCj4gPiBJIHdvdWxkIGp1c3QgdGFr
+ZSBxZW11X3Zob3N0X3Njc2lfb3B0cyBhbmQgbWFrZSB0aGVtIGRldmljZSBwcm9wZXJ0aWVzLgo+
+ID4gCj4gPiBSZWdhcmRzLAo+ID4gCj4gPiBBbnRob255IExpZ3VvcmkKPiAKPiBJJ2QgbGlrZSB0
+byBjbGFyaWZ5IHRoYXQgSSdtIGZpbmUgd2l0aCBlaXRoZXIgYXBwcm9hY2guCj4gRXZlbiBhIHNl
+cGFyYXRlIGRldmljZSBpcyBPSyBpZiB0aGlzIGlzIHdoYXQgb3RoZXJzIHdhbnQKPiB0aG91Z2gg
+SSBsaWtlIGl0IHRoZSBsZWFzdC4KPiAKCkhpIE1TVCwgUGFvbG8gJiBDbywKCkkndmUgYmVlbiBv
+dXQgdGhlIGJldHRlciBwYXJ0IG9mIHRoZSB3ZWVrIHdpdGggdGhlIGZsdSwgYW5kIGFtIGp1c3Qg
+bm93CmNhdGNoaW5nIHVwIG9uIGVtYWlscyBmcm9tIHRoZSBsYXN0IGRheXMuLgoKU28gdG8gYmV0
+dGVyIHVuZGVyc3RhbmQgdGhlIHJlYXNvbmluZyBmb3IgYWRkaW5nIGFuIHNlcGFyYXRlIFBDSSBk
+ZXZpY2UKZm9yIHZob3N0LXNjc2kgYWhlYWQgb2YgaW1wbGVtZW50aW5nIHRoZSBjb2RlIGNoYW5n
+ZXMsIGhlcmUgYXJlIG1haW4KcG9pbnRzIGZyb20gZm9saydzIGNvbW1lbnRzOgoKKikgQ29udmVy
+dCB2aG9zdC1zY3NpIGludG8gYSBzZXBhcmF0ZSBzdGFuZGFsb25lIHZob3N0LXNjc2ktcGNpIGRl
+dmljZQoKICAtIExldHMgdXNlcnNwYWNlIGtub3cgdGhhdCB2aXJ0aW8tc2NzaSArIFFFTVUgYmxv
+Y2sgYW5kIHZpcnRpby1zY3NpICsgCiAgICB0Y21fdmhvc3QgZG8gbm90IHRyYWNrIFNDU0kgc3Rh
+dGUgKHN1Y2ggYXMgcmVzZXJ2YXRpb25zICsgQUxVQSksIGFuZAogICAgaGVuY2UgYXJlIG5vdCBp
+bnRlcmNoYW5nZWFibGUgZHVyaW5nIGxpdmUtbWlncmF0aW9uLgogIAogIC0gUmVkdWNlcyBjb21w
+bGV4aXR5IG9mIGFkZGluZyB2aG9zdC1zY3NpIHJlbGF0ZWQgbG9naWMgaW50byBleGlzdGluZwog
+ICAgdmlydGlvLXNjc2ktcGNpIGNvZGUgcGF0aC4KCiAgLSBIYXZpbmcgYmFja2VuZHMgd2l0aCBv
+bmUgcG9zc2libGUgb3B0aW9uIGRvZXNu4oCZdCBtYWtlIG11Y2ggc2Vuc2UuCgoqKSBLZWVwIHZo
+b3N0LXNjc2kgYXMgYSBiYWNrZW5kIHRvIHZpcnRpby1zY3NpLXBjaQoKICAtIFJlZHVjZXMgZHVw
+bGljYXRlZCBjb2RlIGFtb25nc3QgbXVsdGlwbGUgdmlydGlvLXNjc2kgYmFja2VuZHMuCiAgCiAg
+LSBGb2xsb3dzIHRoZSBzcGxpdCBmb3Igd2hhdCBleGlzdGluZyB2aG9zdC1uZXQgY29kZSBhbHJl
+YWR5IGRvZXMuCgpTbyB0aGF0IHNhaWQsIHR3byBxdWljayBxdWVzdGlvbnMgZm9yIFBhb2xvICYg
+Q28uLgoKRm9yIHRoZSBzdGFuZGFsb25lIHZob3N0LXNjc2ktcGNpIGRldmljZSBjYXNlLCBjYW4g
+eW91IGdpdmUgYSBicmllZiBpZGVhCmFzIHRvIHdoYXQgZXh0ZW50IHlvdSdkIGxpa2UgdG8gc2Vl
+IHZpcnRpby1zY3NpLmMgY29kZS9kZWZzIGR1cGxpY2F0ZWQKYW5kL29yIHNoYXJlZCBhbW9uZ3N0
+IGEgbmV3IHZob3N0LXNjc2ktcGNpIGRldmljZS4uPwoKQWxzbyB0byBoZWxwIG1lIGFsb25nLCBj
+YW4geW91IGdpdmUgYW4gZXhhbXBsZSBiYXNlZCBvbiB0aGUgY3VycmVudAp1c2FnZSBiZWxvdyBo
+b3cgdGhlIFFFTVUgY29tbWFuZCBsaW5lIGFyZ3VtZW50cyB3b3VsZCBjaGFuZ2Ugd2l0aCBhCnN0
+YW5kYWxvbmUgdmhvc3Qtc2NzaS1wY2kgZGV2aWNlLi4/CgouL3g4Nl82NC1zb2Z0bW11L3FlbXUt
+c3lzdGVtLXg4Nl82NCAtZW5hYmxlLWt2bSAtc21wIDQgLW0gMjA0OCBcCiAgICAtaGRhIC91c3Iv
+c3JjL3FlbXUtdmhvc3QuZ2l0L2RlYmlhbl9zcXVlZXplX2FtZDY0X3N0YW5kYXJkLW9sZC5xY293
+MiBcCiAgICAtdmhvc3Qtc2NzaSBpZD12aG9zdC1zY3NpMCx3d3BuPW5hYS42MDAxNDA1NzlhZDIx
+MDg4LHRwZ3Q9MSBcCiAgICAtZGV2aWNlIHZpcnRpby1zY3NpLXBjaSx2aG9zdC1zY3NpPXZob3N0
+LXNjc2kwLGV2ZW50X2lkeD1vZmYKClRoYW5rIHlvdSEKCi0tbmFiCgpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
+c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
+cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
