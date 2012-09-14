@@ -1,16 +1,19 @@
-From: Tom Herbert <therbert@google.com>
-Subject: Re: [PATCHv4] virtio-spec: virtio network device multiqueue support
-Date: Wed, 12 Sep 2012 07:38:06 -0700
-Message-ID: <CA+mtBx_Kjp62UYJs-7OSFsFKndx6H1oOkuD8U3ooAUuR1PMF=Q@mail.gmail.com>
-References: <20120909130308.GA3471@redhat.com> <878vcifwxi.fsf@rustcorp.com.au>
-	<20120910061629.GC16819@redhat.com>
-	<20120910062738.GA17331@redhat.com>
-	<20120910063346.GA17338@redhat.com> <504DC831.1000709@redhat.com>
-	<87har3dc4o.fsf@rustcorp.com.au>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 4/5] virtio-scsi: Add start/stop functionality for
+	vhost-scsi
+Date: Fri, 14 Sep 2012 08:45:11 +0200
+Message-ID: <5052D277.7010900@redhat.com>
+References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
+	<1347000499-28701-5-git-send-email-nab@linux-iscsi.org>
+	<504A1A32.5050705@redhat.com> <20120908224032.GC20588@redhat.com>
+	<504D85D6.2090703@redhat.com> <20120910062437.GD16819@redhat.com>
+	<504F40BA.7020800@us.ibm.com> <20120911150757.GA26666@redhat.com>
+	<1347575263.7359.76.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3676898754626341326=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87har3dc4o.fsf@rustcorp.com.au>
+In-Reply-To: <1347575263.7359.76.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,143 +23,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, rick.jones2@hp.com, virtualization@lists.linux-foundation.org, levinsasha928@gmail.com, pbonzini@redhat.com
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============3676898754626341326==
-Content-Type: multipart/alternative; boundary=14dae934086d96697e04c9822350
+Il 14/09/2012 00:27, Nicholas A. Bellinger ha scritto:
+> *) Keep vhost-scsi as a backend to virtio-scsi-pci
+> 
+>   - Reduces duplicated code amongst multiple virtio-scsi backends.
+>   
+>   - Follows the split for what existing vhost-net code already does.
+> 
+> So that said, two quick questions for Paolo & Co..
+> 
+> For the standalone vhost-scsi-pci device case, can you give a brief idea
+> as to what extent you'd like to see virtio-scsi.c code/defs duplicated
+> and/or shared amongst a new vhost-scsi-pci device..?
 
---14dae934086d96697e04c9822350
-Content-Type: text/plain; charset=ISO-8859-1
+Not much, in the end, would be shared; it could end up being just
+parts of virtio_scsi_init and virtio_scsi_exit, and virtio_scsi_get_config.
 
-On Tue, Sep 11, 2012 at 10:49 PM, Rusty Russell <rusty@rustcorp.com.au>wrote:
+Almost all the other code is to implement the SCSI bus interface,
+which you do not need.
 
-> Jason Wang <jasowang@redhat.com> writes:
-> > On 09/10/2012 02:33 PM, Michael S. Tsirkin wrote:
-> >> A final addition: what you suggest above would be
-> >> "TX follows RX", right?
->
-> BTW, yes.  But it's a weird way to express what the nic is doing.
->
-> >> It is in anticipation of something like that, that I made
-> >> steering programming so generic.
->
-> >> I think TX follows RX is more immediately useful for reasons above
-> >> but we can add both to spec and let drivers and devices
-> >> decide what they want to support.
->
-> You mean "RX follows TX"?  ie. accelerated RFS.  I agree.
->
-> RX following TX is logic of flow director I believe.  {a}RFS has RX follow
-CPU where application receive is done on the socket.  So in RFS there is no
-requirement to have a 1-1 correspondence between TX and RX queues, and in
-fact this allows different number of queues between TX and RX.  We found
-this necessary when using priority HW queues, so that there are more TX
-queues than RX.
+I don't remember if and how vhost handles configuration changes.  If you
+need any struct in virtio-scsi.c, either move it to virtio-scsi.h or
+add the new device in the same file.
 
-Perhaps Tom can explain how we avoid out-of-order receive for the
-> accelerated RFS case?  It's not clear to me, but we need to be able to
-> do that for virtio-net if it implements accelerated RFS.
->
-> AFAIK ooo RX is possible with accelerated RFS.  We have an algorithm that
-prevents this for RFS case by deferring a migration to a new queue as long
-as it's possible that a flow might have outstanding packets on the old
-queue.  I suppose this could be implemented in the device for the HW
-queues, but I don't think it would be easy to cover all cases where packets
-were already in transit to the host or other cases where host and device
-queues are out of sync.
+> Also to help me along, can you give an example based on the current
+> usage below how the QEMU command line arguments would change with a
+> standalone vhost-scsi-pci device..?
+> 
+> ./x86_64-softmmu/qemu-system-x86_64 -enable-kvm -smp 4 -m 2048 \
+>     -hda /usr/src/qemu-vhost.git/debian_squeeze_amd64_standard-old.qcow2 \
+>     -vhost-scsi id=vhost-scsi0,wwpn=naa.600140579ad21088,tpgt=1 \
+>     -device virtio-scsi-pci,vhost-scsi=vhost-scsi0,event_idx=off
 
+Two possibilities.  Either simply do s/virtio-scsi-pci/vhost-scsi-pci/ or do
 
-> > AFAIK, ixgbe does "rx follows tx". The only differences between ixgbe
-> > and virtio-net is that ixgbe driver programs the flow director during
-> > packet transmission but we suggest to do it silently in the device for
-> > simplicity.
->
-> Implying the receive queue by xmit will be slightly laggy.  Don't know
-> if that's a problem.
->
-> Cheers,
-> Rusty.
->
-
---14dae934086d96697e04c9822350
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<br><br><div class=3D"gmail_quote">On Tue, Sep 11, 2012 at 10:49 PM, Rusty =
-Russell <span dir=3D"ltr">&lt;<a href=3D"mailto:rusty@rustcorp.com.au" targ=
-et=3D"_blank">rusty@rustcorp.com.au</a>&gt;</span> wrote:<br><blockquote cl=
-ass=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;p=
-adding-left:1ex">
-
-<div>Jason Wang &lt;<a href=3D"mailto:jasowang@redhat.com" target=3D"_blank=
-">jasowang@redhat.com</a>&gt; writes:<br>
-&gt; On 09/10/2012 02:33 PM, Michael S. Tsirkin wrote:<br>
-</div><div>&gt;&gt; A final addition: what you suggest above would be<br>
-&gt;&gt; &quot;TX follows RX&quot;, right?<br>
-<br>
-</div>BTW, yes. =A0But it&#39;s a weird way to express what the nic is doin=
-g.<br>
-<div><br>
-&gt;&gt; It is in anticipation of something like that, that I made<br>
-&gt;&gt; steering programming so generic.<br>
-<br>
-&gt;&gt; I think TX follows RX is more immediately useful for reasons above=
-<br>
-&gt;&gt; but we can add both to spec and let drivers and devices<br>
-&gt;&gt; decide what they want to support.<br>
-<br>
-</div>You mean &quot;RX follows TX&quot;? =A0ie. accelerated RFS. =A0I agre=
-e.<br>
-<br></blockquote><div>RX following TX is logic of flow director I believe. =
-=A0{a}RFS has RX follow CPU where application receive is done on the socket=
-. =A0So in RFS there is no requirement to have a 1-1 correspondence between=
- TX and RX queues, and in fact this allows different number of queues betwe=
-en TX and RX. =A0We found this necessary when using priority HW queues, so =
-that there are more TX queues than RX.</div>
-<div><br></div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex=
-;border-left:1px #ccc solid;padding-left:1ex">
-
-Perhaps Tom can explain how we avoid out-of-order receive for the<br>
-accelerated RFS case? =A0It&#39;s not clear to me, but we need to be able t=
-o<br>
-do that for virtio-net if it implements accelerated RFS.<br>
-<div><br></div></blockquote><div>AFAIK ooo RX is possible with accelerated =
-RFS. =A0We have an algorithm that prevents this for RFS case by deferring a=
- migration to a new queue as long as it&#39;s possible that a flow might ha=
-ve outstanding packets on the old queue. =A0I suppose this could be impleme=
-nted in the device for the HW queues, but I don&#39;t think it would be eas=
-y to cover all cases where packets were already in transit to the host or o=
-ther cases where host and device queues are out of sync.</div>
-<div>=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;=
-border-left:1px #ccc solid;padding-left:1ex"><div>
-&gt; AFAIK, ixgbe does &quot;rx follows tx&quot;. The only differences betw=
-een ixgbe<br>
-&gt; and virtio-net is that ixgbe driver programs the flow director during<=
-br>
-&gt; packet transmission but we suggest to do it silently in the device for=
-<br>
-&gt; simplicity.<br>
-<br>
-</div>Implying the receive queue by xmit will be slightly laggy. =A0Don&#39=
-;t know<br>
-if that&#39;s a problem.<br>
-<br>
-Cheers,<br>
-Rusty.<br>
-</blockquote></div><br>
-
---14dae934086d96697e04c9822350--
-
---===============3676898754626341326==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3676898754626341326==--
+./x86_64-softmmu/qemu-system-x86_64 -enable-kvm -smp 4 -m 2048 \
+    -hda /usr/src/qemu-vhost.git/debian_squeeze_amd64_standard-old.qcow2 \
+    -device virtio-scsi-pci,wwpn=naa.600140579ad21088,tpgt=1,event_idx=off
