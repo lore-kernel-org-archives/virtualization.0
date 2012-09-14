@@ -1,19 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 4/5] virtio-scsi: Add start/stop functionality for
-	vhost-scsi
-Date: Fri, 14 Sep 2012 15:50:23 +0300
-Message-ID: <20120914125023.GG1490@redhat.com>
-References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
-	<1347000499-28701-5-git-send-email-nab@linux-iscsi.org>
-	<504A1A32.5050705@redhat.com> <20120908224032.GC20588@redhat.com>
-	<504D85D6.2090703@redhat.com> <20120910062437.GD16819@redhat.com>
-	<504F40BA.7020800@us.ibm.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: HPDC 2013 Call for Workshops
+Date: Fri, 14 Sep 2012 16:33:12 -0500
+Message-ID: <5053A298.10109@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1547731448758269031=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <504F40BA.7020800@us.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,95 +15,170 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
+To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, hpc-ft@lists.ncsu.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 11, 2012 at 08:46:34AM -0500, Anthony Liguori wrote:
-> On 09/10/2012 01:24 AM, Michael S. Tsirkin wrote:
-> >On Mon, Sep 10, 2012 at 08:16:54AM +0200, Paolo Bonzini wrote:
-> >>Il 09/09/2012 00:40, Michael S. Tsirkin ha scritto:
-> >>>On Fri, Sep 07, 2012 at 06:00:50PM +0200, Paolo Bonzini wrote:
-> >>>>Il 07/09/2012 08:48, Nicholas A. Bellinger ha scritto:
-> >>>>>Cc: Stefan Hajnoczi<stefanha@linux.vnet.ibm.com>
-> >>>>>Cc: Zhi Yong Wu<wuzhy@linux.vnet.ibm.com>
-> >>>>>Cc: Michael S. Tsirkin<mst@redhat.com>
-> >>>>>Cc: Paolo Bonzini<pbonzini@redhat.com>
-> >>>>>Signed-off-by: Nicholas Bellinger<nab@linux-iscsi.org>
-> >>>>>---
-> >>>>>  hw/virtio-pci.c  |    2 ++
-> >>>>>  hw/virtio-scsi.c |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
-> >>>>>  hw/virtio-scsi.h |    1 +
-> >>>>>  3 files changed, 52 insertions(+), 0 deletions(-)
-> >>>>
-> >>>>Please create a completely separate device vhost-scsi-pci instead (or
-> >>>>virtio-scsi-tcm-pci, or something like that).  It is used completely
-> >>>>differently from virtio-scsi-pci, it does not make sense to conflate the
-> >>>>two.
-> >>>
-> >>>Ideally the name would say how it is different, not what backend it
-> >>>uses. Any good suggestions?
-> >>
-> >>I chose the backend name because, ideally, there would be no other
-> >>difference.  QEMU _could_ implement all the goodies in vhost-scsi (such
-> >>as reservations or ALUA), it just doesn't do that yet.
-> >>
-> >>Paolo
-> >
-> >Then why do you say "It is used completely differently from
-> >virtio-scsi-pci"?  Isn't it just a different backend?
-> >
-> >If yes then it should be a backend option, like it is
-> >for virtio-net.
-> 
-> I don't mean to bike shed here so don't take this as a nack on
-> making it a backend option, but in retrospect, the way we did
-> vhost-net was a mistake even though I strongly advocated for it to
-> be a backend option.
-> 
-> The code to do it is really, really ugly.  I think it would have
-> made a lot more sense to just make it a device and then have it not
-> use a netdev backend or any other kind of backend split.
-> 
-> For instance:
-> 
-> qemu -device vhost-net-pci,tapfd=X
+This is a multi-part message in MIME format.
+--===============1547731448758269031==
+Content-Type: multipart/alternative;
+ boundary="------------030707020504090309010902"
 
-We'd have to duplicate all tap options such as upscript then,
-and educate users that vhost-net-pci is in fact same as virtio-net-pci
-just faster. They have enough trouble guessing "-net-pci"
-in virtio-net-pci.
+This is a multi-part message in MIME format.
+--------------030707020504090309010902
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-IMHO a simple -device virtio-net-pci,vhost=on
-would have been the right thing to do in retrospect.
+HPDC 2013 Call for Workshops
+http://www.hpdc.org/2013/workshops/call-for-workshops/
 
-> since vhost-net absolutely requires a tap fd, I think it's better in
-> the long run to not abuse the netdev backend to prevent user
-> confusion.
+The organizers of the 22nd International ACM Symposium on High-Performance
+Parallel and Distributed Computing (HPDC'13) call for proposals for workshops
+to be held with HPDC'13. The workshops will be held on June 17-18, 2013.
 
-In practice adding an option (even if it was in the wrong place)
-did not result in user confusion. Also in practice, renaming "virtio"
-to virtio-net-pci etc did create confusion.
+Workshops should provide forums for discussion among researchers and
+practitioners on focused topics or emerging research areas relevant to the HPDC
+community. Organizers may structure workshops as they see fit, including
+invited talks, panel discussions, presentations of work in progress, fully
+peer-reviewed papers, or some combination. Workshops could be scheduled for
+half a day or a full day, depending on interest, space constraints, and
+organizer preference. Organizers should design workshops for approximately 20-40
+participants, to balance impact and effective discussion.
+
+Workshop proposals must be sent in PDF format to the HPDC'13 Workshops Chair,
+Abhishek Chandra (Email: chandra AT cs DOT umn DOT edu) with the subject line
+"HPDC 2013 Workshop Proposal", and should include:
+- The name and acronym of the workshop
+- A description (0.5-1 page) of the theme of the workshop
+- A description (one paragraph) of the relation between the theme of the
+   workshop and of HPDC
+- A list of topics of interest
+- The names and affiliations of the workshop organizers, and if applicable, of
+   a significant portion of the program committee
+- A description of the expected structure of the workshop (papers, invited talks,
+   panel discussions, etc.)
+- Data about previous offerings of the workshop (if any), including the
+   attendance, the numbers of papers or presentations submitted and accepted, and
+   the links to the corresponding websites
+- A publicity plan for attracting submissions and attendees. Please also include
+   expected number of submissions, accepted papers, and attendees that you
+   anticipate for a successful workshop.
+
+Due to publication deadlines, workshops must operate within roughly the
+following timeline: papers due mid February (2-3 weeks after the HPDC deadline),
+and selected and sent to the publisher by mid April.
+
+Important dates:
+Workshop Proposals Due: October 25, 2012
+Notifications: November 2, 2012
+Workshop CFPs Online and Distributed: November 25, 2012
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  iraicu@cs.iit.edu
+Web:    http://www.cs.iit.edu/~iraicu/
+Web:    http://datasys.cs.iit.edu/
+=================================================================
+=================================================================
 
 
-> Having a dedicated backend type that only has one
-> possible option and can only be used by one device is a bit silly
-> too.
+--------------030707020504090309010902
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-By now we can just enable it by default. This was always the
-idea.
+<html>
+  <head>
 
-> So I would be in favor of dropping/squashing 3/5 and radically
-> simplifying how this was exposed to the user.
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <div style="font-family: &quot;Courier New&quot;; font-size:10.0pt;
+      color: #000000;background-color: #ffffff; font-style: normal;
+      font-weight: normal; text-decoration: none;">
+      <pre>HPDC 2013 Call for Workshops
+<a class="moz-txt-link-freetext" href="http://www.hpdc.org/2013/workshops/call-for-workshops/">http://www.hpdc.org/2013/workshops/call-for-workshops/</a>
 
-Let's just make sure we don't have implementation tail wagging
-the user interface dog :)
+The organizers of the 22nd International ACM Symposium on High-Performance 
+Parallel and Distributed Computing (HPDC'13) call for proposals for workshops 
+to be held with HPDC'13. The workshops will be held on June 17-18, 2013. 
 
-> 
-> I would just take qemu_vhost_scsi_opts and make them device properties.
-> 
-> Regards,
-> 
-> Anthony Liguori
-> 
-> >
+Workshops should provide forums for discussion among researchers and 
+practitioners on focused topics or emerging research areas relevant to the HPDC 
+community. Organizers may structure workshops as they see fit, including 
+invited talks, panel discussions, presentations of work in progress, fully 
+peer-reviewed papers, or some combination. Workshops could be scheduled for 
+half a day or a full day, depending on interest, space constraints, and 
+organizer preference. Organizers should design workshops for approximately 20-40 
+participants, to balance impact and effective discussion.
+
+Workshop proposals must be sent in PDF format to the HPDC'13 Workshops Chair, 
+Abhishek Chandra (Email: chandra AT cs DOT umn DOT edu) with the subject line 
+"HPDC 2013 Workshop Proposal", and should include:
+- The name and acronym of the workshop 
+- A description (0.5-1 page) of the theme of the workshop 
+- A description (one paragraph) of the relation between the theme of the 
+  workshop and of HPDC 
+- A list of topics of interest 
+- The names and affiliations of the workshop organizers, and if applicable, of 
+  a significant portion of the program committee 
+- A description of the expected structure of the workshop (papers, invited talks, 
+  panel discussions, etc.)
+- Data about previous offerings of the workshop (if any), including the 
+  attendance, the numbers of papers or presentations submitted and accepted, and 
+  the links to the corresponding websites 
+- A publicity plan for attracting submissions and attendees. Please also include 
+  expected number of submissions, accepted papers, and attendees that you 
+  anticipate for a successful workshop.
+
+Due to publication deadlines, workshops must operate within roughly the 
+following timeline: papers due mid February (2-3 weeks after the HPDC deadline), 
+and selected and sent to the publisher by mid April. 
+
+Important dates:
+Workshop Proposals Due: October 25, 2012
+Notifications: November 2, 2012
+Workshop CFPs Online and Distributed: November 25, 2012
+</pre>
+    </div>
+    <pre class="moz-signature" cols="72">-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Cel:    1-847-722-0876
+Office: 1-312-567-5704
+Email:  <a class="moz-txt-link-abbreviated" href="mailto:iraicu@cs.iit.edu">iraicu@cs.iit.edu</a>
+Web:    <a class="moz-txt-link-freetext" href="http://www.cs.iit.edu/~iraicu/">http://www.cs.iit.edu/~iraicu/</a>
+Web:    <a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/">http://datasys.cs.iit.edu/</a>
+=================================================================
+=================================================================
+
+</pre>
+  </body>
+</html>
+
+--------------030707020504090309010902--
+
+--===============1547731448758269031==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1547731448758269031==--
