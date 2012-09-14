@@ -1,15 +1,12 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 0/5] vhost-scsi: Add support for host virtualized target
-Date: Fri, 14 Sep 2012 10:21:05 +0200
-Message-ID: <5052E8F1.8060401@redhat.com>
-References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
-	<504EBFD5.6050203@redhat.com>
-	<1347567129.7359.14.camel@haakon2.linux-iscsi.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: memory corruption in HYPERVISOR_physdev_op()
+Date: Fri, 14 Sep 2012 14:24:27 +0300
+Message-ID: <20120914112427.GA1454@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1347567129.7359.14.camel@haakon2.linux-iscsi.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +16,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
+To: Jeremy Fitzhardinge <jeremy@xensource.com>
+Cc: Tang Liang <liang.tang@oracle.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 13/09/2012 22:12, Nicholas A. Bellinger ha scritto:
->> > Are you still seeing the performance degradation discussed in the thread
->> > 
->> >  "vhost-scsi port to v1.1.0 + MSI-X performance regression"
->> > 
-> So the performance regression reported here with QEMU v1.2-rc +
-> virtio-scsi ended up being related to virtio interrupts being delivered
-> across multiple CPUs.
-> 
-> After explicitly setting the IRQ affinity of the virtio0-request MSI-X
-> vector to a specific CPU, the small block (4k) mixed random I/O
-> performance jumped back up to the expected ~100K IOPs for a single LUN.
 
-Have you tried setting rq_affinity to 2?  Benchmarking this against
-multiqueue virtio-scsi is on my todo list.
+Hi Jeremy,
 
-Paolo
+My static analyzer complains about potential memory corruption in
+HYPERVISOR_physdev_op()
 
-> FYI, I just tried this again with the most recent QEMU v1.2.50 (v1.3-rc)
-> code, and both cases appear to be performing as expected once again
-> regardless of the explicit IRQ affinity setting.
+arch/x86/include/asm/xen/hypercall.h
+   389  static inline int
+   390  HYPERVISOR_physdev_op(int cmd, void *arg)
+   391  {
+   392          int rc = _hypercall2(int, physdev_op, cmd, arg);
+   393          if (unlikely(rc == -ENOSYS)) {
+   394                  struct physdev_op op;
+   395                  op.cmd = cmd;
+   396                  memcpy(&op.u, arg, sizeof(op.u));
+   397                  rc = _hypercall1(int, physdev_op_compat, &op);
+   398                  memcpy(arg, &op.u, sizeof(op.u));
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Some of the arg buffers are not as large as sizeof(op.u) which is either
+12 or 16 depending on the size of longs in struct physdev_apic.
+
+   399          }
+   400          return rc;
+   401  }
+
+One example of this is in xen_initdom_restore_msi_irqs().
+
+arch/x86/pci/xen.c
+   337                  struct physdev_pci_device restore_ext;
+   338  
+   339                  restore_ext.seg = pci_domain_nr(dev->bus);
+   340                  restore_ext.bus = dev->bus->number;
+   341                  restore_ext.devfn = dev->devfn;
+   342                  ret = HYPERVISOR_physdev_op(PHYSDEVOP_restore_msi_ext,
+   343                                          &restore_ext);
+                                                ^^^^^^^^^^^^
+There are only 4 bytes here.
+
+   344                  if (ret == -ENOSYS)
+                            ^^^^^^^^^^^^^^
+If we hit this condition, we have corrupted some memory.
+
+   345                          pci_seg_supported = false;
+
+regards,
+dan carpenter
