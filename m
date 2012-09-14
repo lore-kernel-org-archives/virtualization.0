@@ -1,10 +1,11 @@
 From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: HPDC 2013 Call for Workshops
-Date: Fri, 14 Sep 2012 16:33:12 -0500
-Message-ID: <5053A298.10109@cs.iit.edu>
+Subject: CFP: 13th IEEE/ACM International Symposium on Cluster, Cloud and
+	Grid Computing (CCGrid) 2013
+Date: Fri, 14 Sep 2012 16:58:25 -0500
+Message-ID: <5053A881.2080705@cs.iit.edu>
 Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1547731448758269031=="
+Content-Type: multipart/mixed; boundary="===============0561204290616776058=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,62 +16,158 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, hpc-ft@lists.ncsu.edu
+To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
 This is a multi-part message in MIME format.
---===============1547731448758269031==
+--===============0561204290616776058==
 Content-Type: multipart/alternative;
- boundary="------------030707020504090309010902"
+ boundary="------------040808030407010804020106"
 
 This is a multi-part message in MIME format.
---------------030707020504090309010902
+--------------040808030407010804020106
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-HPDC 2013 Call for Workshops
-http://www.hpdc.org/2013/workshops/call-for-workshops/
+                       **** CALL FOR PAPERS ****
 
-The organizers of the 22nd International ACM Symposium on High-Performance
-Parallel and Distributed Computing (HPDC'13) call for proposals for workshops
-to be held with HPDC'13. The workshops will be held on June 17-18, 2013.
+                 The 13th IEEE/ACM International Symposium on
+                      Cluster, Cloud and Grid Computing
+                             (CCGrid 2013)
 
-Workshops should provide forums for discussion among researchers and
-practitioners on focused topics or emerging research areas relevant to the HPDC
-community. Organizers may structure workshops as they see fit, including
-invited talks, panel discussions, presentations of work in progress, fully
-peer-reviewed papers, or some combination. Workshops could be scheduled for
-half a day or a full day, depending on interest, space constraints, and
-organizer preference. Organizers should design workshops for approximately 20-40
-participants, to balance impact and effective discussion.
+           Delft University of Technology, Delft, the Netherlands
 
-Workshop proposals must be sent in PDF format to the HPDC'13 Workshops Chair,
-Abhishek Chandra (Email: chandra AT cs DOT umn DOT edu) with the subject line
-"HPDC 2013 Workshop Proposal", and should include:
-- The name and acronym of the workshop
-- A description (0.5-1 page) of the theme of the workshop
-- A description (one paragraph) of the relation between the theme of the
-   workshop and of HPDC
-- A list of topics of interest
-- The names and affiliations of the workshop organizers, and if applicable, of
-   a significant portion of the program committee
-- A description of the expected structure of the workshop (papers, invited talks,
-   panel discussions, etc.)
-- Data about previous offerings of the workshop (if any), including the
-   attendance, the numbers of papers or presentations submitted and accepted, and
-   the links to the corresponding websites
-- A publicity plan for attracting submissions and attendees. Please also include
-   expected number of submissions, accepted papers, and attendees that you
-   anticipate for a successful workshop.
+                            May 13-16, 2013
 
-Due to publication deadlines, workshops must operate within roughly the
-following timeline: papers due mid February (2-3 weeks after the HPDC deadline),
-and selected and sent to the publisher by mid April.
+                http://www.pds.ewi.tudelft.nl/ccgrid2013
 
-Important dates:
-Workshop Proposals Due: October 25, 2012
-Notifications: November 2, 2012
-Workshop CFPs Online and Distributed: November 25, 2012
+
+
+Rapid advances in architectures, networks, and systems and middleware technologies
+are leading to new concepts in and platforms for computing, ranging from Clusters and
+Grids to Clouds and Datacenters. CCGrid is a series of very successful conferences,
+sponsored by the IEEE Computer Society Technical Committee on Scalable Computing (TCSC)
+and the ACM, with the overarching goal of bringing together international researchers,
+developers, and users to provide an international forum to present leading research
+activities and results on a broad range of topics related to these concepts and platforms,
+and their applications. The conference features keynotes, technical presentations,
+workshops, tutorials, and posters, as well as the SCALE challenge featuring live demonstrations.
+
+In 2013, CCGrid will come to the Netherlands for the first time, and will be held in Delft,
+a historical, picturesque city that is less than one hour away from Amsterdam-Schiphol airport.
+The main conference will be held on May 14-16 (Tuesday to Thursday), with tutorials and
+affiliated workshops taking place on May 13 (Monday).
+
+
+**** IMPORTANT DATES ****
+Papers Due:                             12 November 2012
+Author Notifications:                   24 January 2013
+Final Papers Due:                       22 February 2013
+  
+
+**** TOPICS OF INTEREST ****
+CCGrid 2013 will have a focus on important and immediate issues that are significantly
+influencing all aspects of cluster, cloud and grid computing. Topics of interest include,
+but are not limited to:
+
+* Applications and Experiences: Applications to real and complex problems in science,
+   engineering, business, and society; User studies; Experiences with large-scale deployments,
+   systems, or applications
+* Architecture: System architectures, design and deployment; Power and cooling; Security
+   and reliability; High availability solutions
+* Autonomic Computing and Cyberinfrastructure: Self-managed behavior, models and technologies;
+   Autonomic paradigms and systems (control-based, bio-inspired, emergent, etc.); Bio-inspired
+   optimizations and computing
+* Cloud Computing: Cloud architectures; Software tools and techniques for clouds
+* Multicore and Accelerator-based Computing: Software and application techniques to utilize
+   multicore architectures and accelerators in clusters, grids, and clouds
+* Performance Modeling and Evaluation: Performance prediction and modeling; Monitoring and
+   evaluation tools; Analysis of system and application performance; Benchmarks and testbeds
+* Programming Models, Systems, and Fault-Tolerant Computing: Programming models and
+   environments for cluster, cloud, and grid computing; Fault-tolerant systems, programs and
+   algorithms; Systems software to support efficient computing
+* Scheduling and Resource Management: Techniques to schedule jobs and resources on cluster,
+   cloud, and grid computing platforms; SLA definition and enforcement
+
+
+**** PAPER SUBMISSION GUIDELINES ****
+Authors are invited to submit papers electronically in PDF format. Submitted manuscripts
+should be structured as technical papers and may not exceed 8 letter-size (8.5 x 11) pages
+including figures, tables and references using the IEEE format for conference proceedings.
+Submissions not conforming to these guidelines may be returned without review. Authors
+should make sure that their file will print on a printer that uses letter-size (8.5 x 11)
+paper. The official language of the conference is English. All manuscripts will be reviewed
+and will be judged on correctness, originality, technical strength, significance, quality of
+presentation, and interest and relevance to the conference attendees.
+
+Submitted papers must represent original unpublished research that is not currently under
+review for any other conference or journal. Papers not following these guidelines will be
+rejected without review and further action may be taken, including (but not limited to)
+notifications sent to the heads of the institutions of the authors and sponsors of the
+conference. Submissions received after the due date, exceeding the page limit, or not
+appropriately structured may not be considered. Authors may contact the conference chairs
+for more information. The proceedings will be published through the IEEE Computer Society
+Press, USA, and will be made available online through the IEEE Digital Library.
+
+
+**** CALL FOR TUTORIAL AND WORKSHOP PROPOSALS ****
+Tutorials and workshops affiliated with CCGrid 2013 will be held on May 13 (Monday). For
+more information on the tutorials and workshops and for the complete Call for Tutorial and
+Workshop Proposals, please see the conference website.
+
+
+**** GENERAL CHAIR ****
+Dick Epema, Delft University of Technology, the Netherlands
+
+
+**** PROGRAM CHAIR ****
+Thomas Fahringer, University of Innsbruck, Austria
+
+
+**** PROGRAM VICE-CHAIRS ****
+Rosa Badia, Barcelona Supercomputing Center, Spain
+Henri Bal, Vrije Universiteit, the Netherlands
+Marios Dikaiakos, University of Cyprus, Cyprus
+Kirk Cameron, VirginiaTech, USA
+Daniel Katz, University of Chicago & Argonne Nat Lab, USA
+Kate Keahey, Argonne National Laboratory, USA
+Martin Schulz, Lawrence Livermore National Laboratory, USA
+Douglas Thain, University of Notre Dame, USA
+Cheng-Zhong Xu, Shenzhen Inst. of Advanced Techn, China
+
+
+**** WORKSHOPS CO-CHAIRS ****
+Shantenu Jha, Rutgers and Louisana State University, USA
+Ioan Raicu, Illinois Institute of Technology, USA
+
+
+**** TOTORIALS CHAIR ****
+Radu Prodan, University of Innsbruck, Austria
+
+
+**** DOCTORAL SYMPOSIUM CO-CHAIRS ****
+Yogesh Simmhan, University of Southern California, USA
+Ana Varbanescu, Delft Univ of Technology, the Netherlands
+
+
+**** SUBMISSIONS AND PROCEEDINGS CHAIR ****
+Pavan Balaji, Argonne National Laboratory, USA
+
+
+**** FINANCE AND REGISTRATION CHAIR ****
+Alexandru Iosup, Delft Univ of Technology, the Netherlands
+
+
+**** PUBLICITY CHAIRS ****
+Nazareno Andrade, University Federal de Campina Grance, Brazil
+Gabriel Antoniu, INRIA, France
+Bahman Javadi, University of Western Sysney, Australia
+Ioan Raicu, Illinois Institute of Technology and Argonne National Laboratory, USA
+Kin Choong Yow, Shenzhen Inst. of Advanced Technology, China
+
+
+**** CYBER CHAIR ****
+Stephen van der Laan, Delft University of Technology, the Netherlands
 
 -- 
 =================================================================
@@ -90,7 +187,7 @@ Web:    http://datasys.cs.iit.edu/
 =================================================================
 
 
---------------030707020504090309010902
+--------------040808030407010804020106
 Content-Type: text/html; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
@@ -103,49 +200,145 @@ Content-Transfer-Encoding: 7bit
     <div style="font-family: &quot;Courier New&quot;; font-size:10.0pt;
       color: #000000;background-color: #ffffff; font-style: normal;
       font-weight: normal; text-decoration: none;">
-      <pre>HPDC 2013 Call for Workshops
-<a class="moz-txt-link-freetext" href="http://www.hpdc.org/2013/workshops/call-for-workshops/">http://www.hpdc.org/2013/workshops/call-for-workshops/</a>
+      <pre>                      **** CALL FOR PAPERS ****
 
-The organizers of the 22nd International ACM Symposium on High-Performance 
-Parallel and Distributed Computing (HPDC'13) call for proposals for workshops 
-to be held with HPDC'13. The workshops will be held on June 17-18, 2013. 
+                The 13th IEEE/ACM International Symposium on 
+                     Cluster, Cloud and Grid Computing 
+                            (CCGrid 2013)
 
-Workshops should provide forums for discussion among researchers and 
-practitioners on focused topics or emerging research areas relevant to the HPDC 
-community. Organizers may structure workshops as they see fit, including 
-invited talks, panel discussions, presentations of work in progress, fully 
-peer-reviewed papers, or some combination. Workshops could be scheduled for 
-half a day or a full day, depending on interest, space constraints, and 
-organizer preference. Organizers should design workshops for approximately 20-40 
-participants, to balance impact and effective discussion.
+          Delft University of Technology, Delft, the Netherlands
 
-Workshop proposals must be sent in PDF format to the HPDC'13 Workshops Chair, 
-Abhishek Chandra (Email: chandra AT cs DOT umn DOT edu) with the subject line 
-"HPDC 2013 Workshop Proposal", and should include:
-- The name and acronym of the workshop 
-- A description (0.5-1 page) of the theme of the workshop 
-- A description (one paragraph) of the relation between the theme of the 
-  workshop and of HPDC 
-- A list of topics of interest 
-- The names and affiliations of the workshop organizers, and if applicable, of 
-  a significant portion of the program committee 
-- A description of the expected structure of the workshop (papers, invited talks, 
-  panel discussions, etc.)
-- Data about previous offerings of the workshop (if any), including the 
-  attendance, the numbers of papers or presentations submitted and accepted, and 
-  the links to the corresponding websites 
-- A publicity plan for attracting submissions and attendees. Please also include 
-  expected number of submissions, accepted papers, and attendees that you 
-  anticipate for a successful workshop.
+                           May 13-16, 2013
 
-Due to publication deadlines, workshops must operate within roughly the 
-following timeline: papers due mid February (2-3 weeks after the HPDC deadline), 
-and selected and sent to the publisher by mid April. 
+               <a class="moz-txt-link-freetext" href="http://www.pds.ewi.tudelft.nl/ccgrid2013">http://www.pds.ewi.tudelft.nl/ccgrid2013</a>
 
-Important dates:
-Workshop Proposals Due: October 25, 2012
-Notifications: November 2, 2012
-Workshop CFPs Online and Distributed: November 25, 2012
+
+
+Rapid advances in architectures, networks, and systems and middleware technologies 
+are leading to new concepts in and platforms for computing, ranging from Clusters and 
+Grids to Clouds and Datacenters. CCGrid is a series of very successful conferences, 
+sponsored by the IEEE Computer Society Technical Committee on Scalable Computing (TCSC) 
+and the ACM, with the overarching goal of bringing together international researchers, 
+developers, and users to provide an international forum to present leading research 
+activities and results on a broad range of topics related to these concepts and platforms, 
+and their applications. The conference features keynotes, technical presentations, 
+workshops, tutorials, and posters, as well as the SCALE challenge featuring live demonstrations.  
+
+In 2013, CCGrid will come to the Netherlands for the first time, and will be held in Delft, 
+a historical, picturesque city that is less than one hour away from Amsterdam-Schiphol airport. 
+The main conference will be held on May 14-16 (Tuesday to Thursday), with tutorials and 
+affiliated workshops taking place on May 13 (Monday).
+
+
+**** IMPORTANT DATES ****
+Papers Due:                             12 November 2012
+Author Notifications:                   24 January 2013
+Final Papers Due:                       22 February 2013
+ 
+
+**** TOPICS OF INTEREST ****
+CCGrid 2013 will have a focus on important and immediate issues that are significantly 
+influencing all aspects of cluster, cloud and grid computing. Topics of interest include, 
+but are not limited to:   
+
+* Applications and Experiences: Applications to real and complex problems in science, 
+  engineering, business, and society; User studies; Experiences with large-scale deployments, 
+  systems, or applications
+* Architecture: System architectures, design and deployment; Power and cooling; Security 
+  and reliability; High availability solutions   
+* Autonomic Computing and Cyberinfrastructure: Self-managed behavior, models and technologies;
+  Autonomic paradigms and systems (control-based, bio-inspired, emergent, etc.); Bio-inspired 
+  optimizations and computing 
+* Cloud Computing: Cloud architectures; Software tools and techniques for clouds
+* Multicore and Accelerator-based Computing: Software and application techniques to utilize 
+  multicore architectures and accelerators in clusters, grids, and clouds
+* Performance Modeling and Evaluation: Performance prediction and modeling; Monitoring and 
+  evaluation tools; Analysis of system and application performance; Benchmarks and testbeds   
+* Programming Models, Systems, and Fault-Tolerant Computing: Programming models and 
+  environments for cluster, cloud, and grid computing; Fault-tolerant systems, programs and 
+  algorithms; Systems software to support efficient computing
+* Scheduling and Resource Management: Techniques to schedule jobs and resources on cluster, 
+  cloud, and grid computing platforms; SLA definition and enforcement
+
+
+**** PAPER SUBMISSION GUIDELINES ****
+Authors are invited to submit papers electronically in PDF format. Submitted manuscripts 
+should be structured as technical papers and may not exceed 8 letter-size (8.5 x 11) pages 
+including figures, tables and references using the IEEE format for conference proceedings.
+Submissions not conforming to these guidelines may be returned without review. Authors 
+should make sure that their file will print on a printer that uses letter-size (8.5 x 11) 
+paper. The official language of the conference is English. All manuscripts will be reviewed 
+and will be judged on correctness, originality, technical strength, significance, quality of 
+presentation, and interest and relevance to the conference attendees.  
+
+Submitted papers must represent original unpublished research that is not currently under 
+review for any other conference or journal. Papers not following these guidelines will be 
+rejected without review and further action may be taken, including (but not limited to)
+notifications sent to the heads of the institutions of the authors and sponsors of the 
+conference. Submissions received after the due date, exceeding the page limit, or not 
+appropriately structured may not be considered. Authors may contact the conference chairs 
+for more information. The proceedings will be published through the IEEE Computer Society 
+Press, USA, and will be made available online through the IEEE Digital Library.
+
+
+**** CALL FOR TUTORIAL AND WORKSHOP PROPOSALS ****
+Tutorials and workshops affiliated with CCGrid 2013 will be held on May 13 (Monday). For 
+more information on the tutorials and workshops and for the complete Call for Tutorial and 
+Workshop Proposals, please see the conference website.
+
+
+**** GENERAL CHAIR ****
+Dick Epema, Delft University of Technology, the Netherlands
+
+
+**** PROGRAM CHAIR ****
+Thomas Fahringer, University of Innsbruck, Austria 
+
+
+**** PROGRAM VICE-CHAIRS ****
+Rosa Badia, Barcelona Supercomputing Center, Spain
+Henri Bal, Vrije Universiteit, the Netherlands
+Marios Dikaiakos, University of Cyprus, Cyprus
+Kirk Cameron, VirginiaTech, USA
+Daniel Katz, University of Chicago &amp; Argonne Nat Lab, USA
+Kate Keahey, Argonne National Laboratory, USA
+Martin Schulz, Lawrence Livermore National Laboratory, USA
+Douglas Thain, University of Notre Dame, USA
+Cheng-Zhong Xu, Shenzhen Inst. of Advanced Techn, China
+
+
+**** WORKSHOPS CO-CHAIRS ****
+Shantenu Jha, Rutgers and Louisana State University, USA
+Ioan Raicu, Illinois Institute of Technology, USA
+
+
+**** TOTORIALS CHAIR ****
+Radu Prodan, University of Innsbruck, Austria
+
+
+**** DOCTORAL SYMPOSIUM CO-CHAIRS ****
+Yogesh Simmhan, University of Southern California, USA
+Ana Varbanescu, Delft Univ of Technology, the Netherlands
+
+
+**** SUBMISSIONS AND PROCEEDINGS CHAIR ****
+Pavan Balaji, Argonne National Laboratory, USA
+
+
+**** FINANCE AND REGISTRATION CHAIR ****
+Alexandru Iosup, Delft Univ of Technology, the Netherlands
+
+
+**** PUBLICITY CHAIRS ****
+Nazareno Andrade, University Federal de Campina Grance, Brazil
+Gabriel Antoniu, INRIA, France
+Bahman Javadi, University of Western Sysney, Australia
+Ioan Raicu, Illinois Institute of Technology and Argonne National Laboratory, USA
+Kin Choong Yow, Shenzhen Inst. of Advanced Technology, China
+
+
+**** CYBER CHAIR ****
+Stephen van der Laan, Delft University of Technology, the Netherlands
 </pre>
     </div>
     <pre class="moz-signature" cols="72">-- 
@@ -169,9 +362,9 @@ Web:    <a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/">http:
   </body>
 </html>
 
---------------030707020504090309010902--
+--------------040808030407010804020106--
 
---===============1547731448758269031==
+--===============0561204290616776058==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -181,4 +374,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1547731448758269031==--
+--===============0561204290616776058==--
