@@ -1,12 +1,21 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: memory corruption in HYPERVISOR_physdev_op()
-Date: Fri, 14 Sep 2012 14:24:27 +0300
-Message-ID: <20120914112427.GA1454@elgon.mountain>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 4/5] virtio-scsi: Add start/stop functionality for
+	vhost-scsi
+Date: Fri, 14 Sep 2012 15:34:16 +0300
+Message-ID: <20120914123416.GF1490@redhat.com>
+References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
+	<1347000499-28701-5-git-send-email-nab@linux-iscsi.org>
+	<504A1A32.5050705@redhat.com> <20120908224032.GC20588@redhat.com>
+	<504D85D6.2090703@redhat.com> <20120910062437.GD16819@redhat.com>
+	<504F40BA.7020800@us.ibm.com> <20120911150757.GA26666@redhat.com>
+	<1347575263.7359.76.camel@haakon2.linux-iscsi.org>
+	<5052D277.7010900@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <5052D277.7010900@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,53 +25,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@xensource.com>
-Cc: Tang Liang <liang.tang@oracle.com>, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Fri, Sep 14, 2012 at 08:45:11AM +0200, Paolo Bonzini wrote:
+> Il 14/09/2012 00:27, Nicholas A. Bellinger ha scritto:
+> > *) Keep vhost-scsi as a backend to virtio-scsi-pci
+> > 
+> >   - Reduces duplicated code amongst multiple virtio-scsi backends.
+> >   
+> >   - Follows the split for what existing vhost-net code already does.
+> > 
+> > So that said, two quick questions for Paolo & Co..
+> > 
+> > For the standalone vhost-scsi-pci device case, can you give a brief idea
+> > as to what extent you'd like to see virtio-scsi.c code/defs duplicated
+> > and/or shared amongst a new vhost-scsi-pci device..?
+> 
+> Not much, in the end, would be shared; it could end up being just
+> parts of virtio_scsi_init and virtio_scsi_exit, and virtio_scsi_get_config.
+> 
+> Almost all the other code is to implement the SCSI bus interface,
+> which you do not need.
+> 
+> I don't remember if and how vhost handles configuration changes.
 
-Hi Jeremy,
+All configuration changes are handled in userspace.
 
-My static analyzer complains about potential memory corruption in
-HYPERVISOR_physdev_op()
+>  If you
+> need any struct in virtio-scsi.c, either move it to virtio-scsi.h or
+> add the new device in the same file.
+> 
+> > Also to help me along, can you give an example based on the current
+> > usage below how the QEMU command line arguments would change with a
+> > standalone vhost-scsi-pci device..?
+> > 
+> > ./x86_64-softmmu/qemu-system-x86_64 -enable-kvm -smp 4 -m 2048 \
+> >     -hda /usr/src/qemu-vhost.git/debian_squeeze_amd64_standard-old.qcow2 \
+> >     -vhost-scsi id=vhost-scsi0,wwpn=naa.600140579ad21088,tpgt=1 \
+> >     -device virtio-scsi-pci,vhost-scsi=vhost-scsi0,event_idx=off
+> 
+> Two possibilities.  Either simply do s/virtio-scsi-pci/vhost-scsi-pci/ or do
+> 
+> ./x86_64-softmmu/qemu-system-x86_64 -enable-kvm -smp 4 -m 2048 \
+>     -hda /usr/src/qemu-vhost.git/debian_squeeze_amd64_standard-old.qcow2 \
+>     -device virtio-scsi-pci,wwpn=naa.600140579ad21088,tpgt=1,event_idx=off
 
-arch/x86/include/asm/xen/hypercall.h
-   389  static inline int
-   390  HYPERVISOR_physdev_op(int cmd, void *arg)
-   391  {
-   392          int rc = _hypercall2(int, physdev_op, cmd, arg);
-   393          if (unlikely(rc == -ENOSYS)) {
-   394                  struct physdev_op op;
-   395                  op.cmd = cmd;
-   396                  memcpy(&op.u, arg, sizeof(op.u));
-   397                  rc = _hypercall1(int, physdev_op_compat, &op);
-   398                  memcpy(arg, &op.u, sizeof(op.u));
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Some of the arg buffers are not as large as sizeof(op.u) which is either
-12 or 16 depending on the size of longs in struct physdev_apic.
+I think I like the second option better.
 
-   399          }
-   400          return rc;
-   401  }
-
-One example of this is in xen_initdom_restore_msi_irqs().
-
-arch/x86/pci/xen.c
-   337                  struct physdev_pci_device restore_ext;
-   338  
-   339                  restore_ext.seg = pci_domain_nr(dev->bus);
-   340                  restore_ext.bus = dev->bus->number;
-   341                  restore_ext.devfn = dev->devfn;
-   342                  ret = HYPERVISOR_physdev_op(PHYSDEVOP_restore_msi_ext,
-   343                                          &restore_ext);
-                                                ^^^^^^^^^^^^
-There are only 4 bytes here.
-
-   344                  if (ret == -ENOSYS)
-                            ^^^^^^^^^^^^^^
-If we hit this condition, we have corrupted some memory.
-
-   345                          pci_seg_supported = false;
-
-regards,
-dan carpenter
+-- 
+MST
