@@ -1,13 +1,11 @@
-From: Aravind Menon <aravind@fb.com>
-Subject: International Workshop on Management of Big Data Systems (MBDS
-	2012) - Call for Participation
-Date: Fri, 14 Sep 2012 18:29:03 +0000
-Message-ID: <5A99C9E213203D488658E5F6F05D831636158E61@SC-MBX01-1.TheFacebook.com>
+From: Peter Senna Tschudin <peter.senna@gmail.com>
+Subject: [PATCH] drivers/virtio/virtio_pci.c: fix error return code
+Date: Mon, 17 Sep 2012 19:31:17 +0200
+Message-ID: <1347903077-19906-1-git-send-email-peter.senna__10125.9997617037$1347986748$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,132 +15,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: rusty@rustcorp.com.au
+Cc: Peter Senna Tschudin <peter.senna@gmail.com>, virtualization@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Peter Senna Tschudin <peter.senna@gmail.com>
 
-Apologies if you received duplicate copies of this Call for Participation.
+Convert a nonnegative error return code to a negative one, as returned
+elsewhere in the function.
 
-Sincerely,
-Aravind Menon
-MBDS 2012
+A simplified version of the semantic match that finds this problem is as
+follows: (http://coccinelle.lip6.fr/)
 
-**********************************************************************
+// <smpl>
+(
+if@p1 (\(ret < 0\|ret != 0\))
+ { ... return ret; }
+|
+ret@p1 = 0
+)
+... when != ret = e1
+    when != &ret
+*if(...)
+{
+  ... when != ret = e2
+      when forall
+ return ret;
+}
+// </smpl>
 
-CALL FOR PARTICIPATION
-======================
+Signed-off-by: Peter Senna Tschudin <peter.senna@gmail.com>
+---
+ drivers/virtio/virtio_pci.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Workshop on Management of Big Data Systems (MBDS 2012)
-http://www.cercs.gatech.edu/mbds12
-
-In conjunction with ICAC 2012
-http://icac2012.cs.fiu.edu
-
-September 21, 2012, San Jose, CA
-
-**********************************************************************
-
-Online registration is open and handled through ICAC 2012
-(register for entire ICAC conference or only MBDS workshop):
-
-http://icac2012.cs.fiu.edu/registration.shtm
-
-**********************************************************************
-
-PROGRAM
-
-8:45-9:00AM
-Opening Remarks
-
-9:00-10:00AM
-Keynote
-
-An Overview of BDAS: the Berkeley (Big) Data Analytics System
-Mike Franklin, AMPLab, UC Berkeley
-
-10:00-10:30AM
-Break
-
-10:30-12:00PM
-Session I: Academia Perspectives
-
-Hierarchical Merge for Scalable MapReduce
-Xinyu Que, Yandong Wang, Cong Xu and Weikuan Yu (Auburn University)
-
-Project Hoover: Auto-Scaling Streaming Map-Reduce Applications
-Rajalakshmi Ramesh, Liting Hu and Karsten Schwan (Georgia Tech)
-
-Lightweight Black-box Failure Detection for Distributed Systems
-Jiaqi Tan, Soila Kavulya, Rajeev Gandhi and Priya Narasimhan (Carnegie Mellon University)
-
-Flex-KV: Enabling High-performance and Flexible KV Systems
-Amar Phanishayee, David Andersen (Carnegie Mellon University) Himabindu Pucha, Anna Povzner and Wendy Belluomini (IBM Almaden)
-
-12:00-1:30PM
-Lunch
-
-----------------------------------------------------------------------
-
-1:30-4:00PM
-Session II: Industry Perspectives
-
-Experiences With Workload Management in Splunk
-Archana Ganapathi, Ledion Bitincka and Steve Zhang (Splunk)
-
-Big Data@Facebook
-Aravind Menon (Facebook)
-
-Challenges and Lessons Learned Building Monitoring and Diagnostics Tools for Hadoop
-Matt Jacobs (Cloudera)
-
-Break
-
-Provisioning Disk Usage in a Large-Scale Cloud Environment
-Murray Stokely (Google)
-
-Big Data Benchmarking
-Chaitan Baru (SDSC)
-
-Big Data and NoSQL with Amazon DynamoDB
-Simone Brunozzi (Amazon)
-
-4:00-5:00PM
-Open Discussion
-
-**********************************************************************
-
-WORKSHOP ORGANIZERS
-
-Karsten Schwan, Georgia Tech
-Vanish Talwar, HP Labs
-
-PUBLICITY CHAIR
-
-Aravind Menon, Facebook
-
-ARRANGEMENTS CHAIR
-
-Ada Gavrilovska, Georgia Tech
-
-PROGRAM COMMITTEE
-
-Amitanand Aiyer, Facebook
-Adhyas Avasthi, Nokia Research
-Milind Bhandarkar, Greenplum Labs, EMC
-Randal Burns, John Hopkins University
-Garth Gibson, Carnegie Mellon University and Panasas Inc.
-Herodotos Herodotou, Duke University
-Michael A Kozuch, Intel
-Kai Li, Princeton University
-Mohamed Mansour, Amazon
-Aravind Menon, Facebook
-Arif Merchant, Google
-Beth Plale, Indiana University
-Indrajit Roy, HP Labs
-Gabor Szabo, Twitter
-Craig Ulmer, Sandia National Lab
-Kushagra Vaid, Microsoft
-Weikuan Yu, Auburn University
-Philip Zeyliger, Cloudera
-
-**********************************************************************
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index 42b2076..c33aea3 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -719,8 +719,10 @@ static int __devinit virtio_pci_probe(struct pci_dev *pci_dev,
+ 		goto out_enable_device;
+ 
+ 	vp_dev->ioaddr = pci_iomap(pci_dev, 0, 0);
+-	if (vp_dev->ioaddr == NULL)
++	if (vp_dev->ioaddr == NULL) {
++		err = -ENOMEM;
+ 		goto out_req_regions;
++	}
+ 
+ 	pci_set_drvdata(pci_dev, vp_dev);
+ 	pci_set_master(pci_dev);
+-- 
+1.7.11.4
