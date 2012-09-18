@@ -1,7 +1,7 @@
-From: Peter Senna Tschudin <peter.senna@gmail.com>
-Subject: [PATCH] drivers/virtio/virtio_pci.c: fix error return code
-Date: Mon, 17 Sep 2012 19:31:17 +0200
-Message-ID: <1347903077-19906-1-git-send-email-peter.senna__10125.9997617037$1347986748$gmane$org@gmail.com>
+From: Laszlo Ersek <lersek@redhat.com>
+Subject: miscalculated vring size in virtio-0.9.5.pdf?
+Date: Tue, 18 Sep 2012 23:49:57 +0200
+Message-ID: <5058EC85.5080402@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,55 +15,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au
-Cc: Peter Senna Tschudin <peter.senna@gmail.com>, virtualization@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Peter Senna Tschudin <peter.senna@gmail.com>
+Hi,
 
-Convert a nonnegative error return code to a negative one, as returned
-elsewhere in the function.
+the vring_size() formula in section 2.3 seems to miss
 
-A simplified version of the semantic match that finds this problem is as
-follows: (http://coccinelle.lip6.fr/)
+(a) "vring_avail.used_event" in the first ALIGN(), and
 
-// <smpl>
-(
-if@p1 (\(ret < 0\|ret != 0\))
- { ... return ret; }
-|
-ret@p1 = 0
-)
-... when != ret = e1
-    when != &ret
-*if(...)
-{
-  ... when != ret = e2
-      when forall
- return ret;
-}
-// </smpl>
+(b) "vring_used.flags", "vring_used.idx", "vring_used.avail_event" in
+the second ALIGN().
 
-Signed-off-by: Peter Senna Tschudin <peter.senna@gmail.com>
----
- drivers/virtio/virtio_pci.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+vring_size() in Appendix A fixes (b) (no rounding up to page size
+though), but (a) is wrong there too, I believe.
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 42b2076..c33aea3 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -719,8 +719,10 @@ static int __devinit virtio_pci_probe(struct pci_dev *pci_dev,
- 		goto out_enable_device;
- 
- 	vp_dev->ioaddr = pci_iomap(pci_dev, 0, 0);
--	if (vp_dev->ioaddr == NULL)
-+	if (vp_dev->ioaddr == NULL) {
-+		err = -ENOMEM;
- 		goto out_req_regions;
-+	}
- 
- 	pci_set_drvdata(pci_dev, vp_dev);
- 	pci_set_master(pci_dev);
--- 
-1.7.11.4
+Thanks,
+Laszlo
