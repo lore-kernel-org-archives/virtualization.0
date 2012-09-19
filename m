@@ -1,22 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH repost] virtio: don't crash when device is buggy
-Date: Wed, 19 Sep 2012 01:24:05 +0300
-Message-ID: <20120918222405.GB20285@redhat.com>
-References: <20120903143018.GA5353@redhat.com>
-	<CAJK669bkHHMAPYMEr22-6uOwfgJv1uKTbzNBQVVCq=OooExC0g@mail.gmail.com>
-	<20120903202737.GD6181@redhat.com>
-	<CAJK669ZvnnG6fGOog-Z47B7xqyn9hcx5dAD7S--+2PSgE+hrLA@mail.gmail.com>
-	<20120904135022.GI9805@redhat.com>
-	<CAJK669Z1UYakBWartChfoeKL_eU5=GFZMGhH8R_Q-difVm0ygQ@mail.gmail.com>
-	<20120904185541.GB3602@redhat.com> <87k3w7j49i.fsf@rustcorp.com.au>
-	<20120916094427.GA24075@redhat.com>
-	<87ehm1s28q.fsf@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: miscalculated vring size in virtio-0.9.5.pdf?
+Date: Wed, 19 Sep 2012 15:12:43 +0930
+Message-ID: <87a9wmpnzg.fsf@rustcorp.com.au>
+References: <5058EC85.5080402@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87ehm1s28q.fsf@rustcorp.com.au>
+In-Reply-To: <5058EC85.5080402@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,35 +17,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
+To: Laszlo Ersek <lersek@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 17, 2012 at 01:57:17PM +0930, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> 
-> > Because of a sanity check in virtio_dev_remove, a buggy device can crash
-> > kernel.  And in case of rproc it's userspace so it's not a good idea.
-> > We are unloading a driver so how bad can it be?
-> > Be less aggressive in handling this error: if it's a driver bug,
-> > warning once should be enough.
-> >
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> >
-> > --
-> >
-> > 3.6 material?
-> 
-> I have already applied, this, but it's not for stable, since it's a
-> "theoretical bugfix".  That check has been in there forever and noone
-> AFAIK has actually struck it.
-> 
-> Cheers,
-> Rusty.
+Laszlo Ersek <lersek@redhat.com> writes:
+> Hi,
+>
+> the vring_size() formula in section 2.3 seems to miss
+>
+> (a) "vring_avail.used_event" in the first ALIGN(), and
+>
+> (b) "vring_used.flags", "vring_used.idx", "vring_used.avail_event" in
+> the second ALIGN().
+>
+> vring_size() in Appendix A fixes (b) (no rounding up to page size
+> though), but (a) is wrong there too, I believe.
 
-Yes but can't malicious userspace trigger this with remoteproc? If yes
-it's not a question of whether anyone has struck it since people don't
-normally run malicious userspace :)
+Hi Laszlo,
 
--- 
-MST
+        The effect is the same, due to ALIGN().  However, the latest
+copy of the spec on github should be consistent.  Indeed, I cleaned up
+the header in the Appendix so it actually compiles...
+
+Cheers,
+Rusty.
