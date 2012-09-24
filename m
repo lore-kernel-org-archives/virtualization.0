@@ -1,7 +1,7 @@
 From: Pawel Moll <pawel.moll@arm.com>
-Subject: [PATCH 2/2] virtio_mmio: Don't attempt to create empty virtqueues
-Date: Mon, 24 Sep 2012 14:33:42 +0100
-Message-ID: <1348493622-26091-3-git-send-email-pawel.moll@arm.com>
+Subject: [PATCH 1/2] virtio_mmio: fix off by one error allocating queue
+Date: Mon, 24 Sep 2012 14:33:41 +0100
+Message-ID: <1348493622-26091-2-git-send-email-pawel.moll@arm.com>
 References: <1348493622-26091-1-git-send-email-pawel.moll@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,39 +23,33 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Brian Foley <brian.foley@arm.com>
 
-If a virtio device reports a QueueNumMax of 0, vring_new_virtqueue()
-doesn't check this, and thanks to an unsigned (i < num - 1) loop
-guard, scribbles over memory when initialising the free list.
-
-Avoid by not trying to create zero-descriptor queues, as there's no
-way to do any I/O with one.
+vm_setup_vq fails to allow VirtQueues needing only 2 pages of
+storage, as it should. Found with a kernel using 64kB pages, but
+can be provoked if a virtio device reports QueueNumMax where the
+descriptor table and available ring fit in one page, and the used
+ring on the second (<= 227 descriptors with 4kB pages and <= 3640
+with 64kB pages.)
 
 Signed-off-by: Brian Foley <brian.foley@arm.com>
 Signed-off-by: Pawel Moll <pawel.moll@arm.com>
 ---
- drivers/virtio/virtio_mmio.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/virtio/virtio_mmio.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 58e2d78..6979c1b 100644
+index 453db0c..58e2d78 100644
 --- a/drivers/virtio/virtio_mmio.c
 +++ b/drivers/virtio/virtio_mmio.c
-@@ -332,6 +332,16 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 	 * and two rings (which makes it "alignment_size * 2")
- 	 */
- 	info->num = readl(vm_dev->base + VIRTIO_MMIO_QUEUE_NUM_MAX);
-+
-+	/* If the device reports a 0 entry queue, we won't be able to
-+	 * use it to perform I/O, and vring_new_virtqueue() can't create
-+	 * empty queues anyway, so don't bother to set up the device.
-+	 */
-+	if (info->num == 0) {
-+		err = -ENOENT;
-+		goto error_alloc_pages;
-+	}
-+
+@@ -335,8 +335,8 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
  	while (1) {
  		size = PAGE_ALIGN(vring_size(info->num,
  				VIRTIO_MMIO_VRING_ALIGN));
+-		/* Already smallest possible allocation? */
+-		if (size <= VIRTIO_MMIO_VRING_ALIGN * 2) {
++		/* Did the last iter shrink the queue below minimum size? */
++		if (size < VIRTIO_MMIO_VRING_ALIGN * 2) {
+ 			err = -ENOMEM;
+ 			goto error_alloc_pages;
+ 		}
 -- 
 1.7.9.5
