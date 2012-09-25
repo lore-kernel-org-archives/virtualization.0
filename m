@@ -1,13 +1,19 @@
-From: sjur.brandeland@stericsson.com
-Subject: [PATCH 3/3] virtio_console: Don't initialize buffers to zero
-Date: Tue, 25 Sep 2012 15:47:17 +0200
-Message-ID: <1348580837-10919-4-git-send-email-sjur.brandeland@stericsson.com>
-References: <1348580837-10919-1-git-send-email-sjur.brandeland@stericsson.com>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: Re: [PATCH v10 1/5] mm: introduce a common interface for balloon
+	pages mobility
+Date: Tue, 25 Sep 2012 11:00:55 -0300
+Message-ID: <20120925140054.GA1638__7447.66280190579$1348581698$gmane$org@optiplex.redhat.com>
+References: <cover.1347897793.git.aquini@redhat.com>
+	<89c9f4096bbad072e155445fcdf1805d47ddf48e.1347897793.git.aquini@redhat.com>
+	<20120917151543.fd523040.akpm@linux-foundation.org>
+	<20120918162420.GB1645@optiplex.redhat.com>
+	<20120925010549.GA22893@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1348580837-10919-1-git-send-email-sjur.brandeland@stericsson.com>
+Content-Disposition: inline
+In-Reply-To: <20120925010549.GA22893@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,22 +23,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: sjurbren@stericsson.com, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
-U2tpcCBpbml0aWFsaXppbmcgdGhlIHJlY2VpdmUgYnVmZmVycy4KClNpZ25lZC1vZmYtYnk6IFNq
-dXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KLS0tCiBkcml2
-ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYyB8ICAgIDEgLQogMSBmaWxlcyBjaGFuZ2VkLCAwIGlu
-c2VydGlvbnMoKyksIDEgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9jaGFyL3Zp
-cnRpb19jb25zb2xlLmMgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwppbmRleCBmYWVk
-ZDJjLi5lN2Q4Nzg3IDEwMDY0NAotLS0gYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwor
-KysgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwpAQCAtMTM0NCw3ICsxMzQ0LDYgQEAg
-c3RhdGljIHVuc2lnbmVkIGludCBmaWxsX3F1ZXVlKHN0cnVjdCB2aXJ0cXVldWUgKnZxLCBzcGlu
-bG9ja190ICpsb2NrKQogCQlpZiAoIWJ1ZikKIAkJCWJyZWFrOwogCi0JCW1lbXNldChidWYtPmJ1
-ZiwgMCwgUEFHRV9TSVpFKTsKIAkJc3Bpbl9sb2NrX2lycShsb2NrKTsKIAkJcmV0ID0gYWRkX2lu
-YnVmKHZxLCBidWYpOwogCQlpZiAocmV0IDwgMCkgewotLSAKMS43LjUuNAoKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, Sep 25, 2012 at 03:05:49AM +0200, Michael S. Tsirkin wrote:
+> If these are all under page lock these barriers just confuse things,
+> because they are almost never enough by themselves.
+> So in that case it would be better to drop them and document
+> usage as you are going to.
+>
+
+Would the following make more sense (with the proprer comments, as well) ?
+
+---8<---
++static inline void balloon_page_set(struct page *page,
++                                   struct address_space *mapping,
++                                   struct list_head *head)
++{
++       list_add(&page->lru, head);
++       smp_wmb();
++       page->mapping = mapping;
++}
++
++static inline void balloon_page_del(struct page *page)
++{
++       page->mapping = NULL;
++       smp_wmb();
++       list_del(&page->lru);
++}
++
++static inline bool __is_movable_balloon_page(struct page *page)
++{
++       struct address_space *mapping = ACCESS_ONCE(page->mapping);
++       smp_read_barrier_depends();
++       return mapping_balloon(mapping);
++}
++
+---8<---
+
+There's still a case where we have to test page->mapping->flags and we cannot
+afford to wait for, or grab, the page lock @ isolate_migratepages_range().
+The barriers won't avoid leak_ballon() racing against isolate_migratepages_range(),
+but they surely will make tests for page->mapping more consistent. And for those
+cases where leak_balloon() races against
+isolate_migratepages_range->isolate_balloon_page(), we solve the conflict of
+interest through page refcounting and page lock. I'm preparing a more extensive
+doc to include at Documentation/ to explain the interfaces and how we cope with
+these mentioned races, as well.
