@@ -1,13 +1,17 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH] virtio-blk: Disable callback in virtblk_done()
-Date: Tue, 25 Sep 2012 22:08:45 +0800
-Message-ID: <5061BAED.9020205@redhat.com>
-References: <1348540577-7474-1-git-send-email-asias@redhat.com>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: Re: [PATCH v10 3/5] virtio_balloon: introduce migration primitives
+	to balloon pages
+Date: Tue, 25 Sep 2012 15:07:49 -0300
+Message-ID: <20120925180749.GB1638__27225.2415227287$1348596519$gmane$org@optiplex.redhat.com>
+References: <cover.1347897793.git.aquini@redhat.com>
+	<39738cbd4b596714210e453440833db7cca73172.1347897793.git.aquini@redhat.com>
+	<20120925004024.GA22665@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1348540577-7474-1-git-send-email-asias@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20120925004024.GA22665@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,107 +21,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/25/2012 10:36 AM, Asias He wrote:
-> This reduces unnecessary interrupts that host could send to guest while
-> guest is in the progress of irq handling.
+On Tue, Sep 25, 2012 at 02:40:24AM +0200, Michael S. Tsirkin wrote:
+> > @@ -139,9 +158,15 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+> >  			break;
+> >  		}
+> >  		set_page_pfns(vb->pfns + vb->num_pfns, page);
+> > -		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+> >  		totalram_pages--;
+> > +
+> > +		BUG_ON(!trylock_page(page));
 > 
-> If one vcpu is handling the irq, while another interrupt comes, in
-> handle_edge_irq(), the guest will mask the interrupt via mask_msi_irq()
-> which is a very heavy operation that goes all the way down to host.
+> So here page lock is nested within balloon_lock.
 > 
-> Signed-off-by: Asias He <asias@redhat.com>
-> ---
+This page is coming from Buddy free-lists and as such, fill_balloon does not
+race against page migration (which takes pages from an already isolated page list).
+We need to grab page lock here, to prevent page isolation from happening while
+this page is yet under "balloon insertion" step (mapping assign). Also, failing
+to grab the page lock here (remember this page is coming from Buddy) means a
+BUG.
 
-Here are some performance numbers on qemu:
+I'll make sure to comment that on the code. Thanks for the nit.
 
-Before:
--------------------------------------
-  seq-read  : io=0 B, bw=269730KB/s, iops=67432 , runt= 62200msec
-  seq-write : io=0 B, bw=339716KB/s, iops=84929 , runt= 49386msec
-  rand-read : io=0 B, bw=270435KB/s, iops=67608 , runt= 62038msec
-  rand-write: io=0 B, bw=354436KB/s, iops=88608 , runt= 47335msec
-    clat (usec): min=101 , max=138052 , avg=14822.09, stdev=11771.01
-    clat (usec): min=96 , max=81543 , avg=11798.94, stdev=7735.60
-    clat (usec): min=128 , max=140043 , avg=14835.85, stdev=11765.33
-    clat (usec): min=109 , max=147207 , avg=11337.09, stdev=5990.35
-  cpu          : usr=15.93%, sys=60.37%, ctx=7764972, majf=0, minf=54
-  cpu          : usr=32.73%, sys=120.49%, ctx=7372945, majf=0, minf=1
-  cpu          : usr=18.84%, sys=58.18%, ctx=7775420, majf=0, minf=1
-  cpu          : usr=24.20%, sys=59.85%, ctx=8307886, majf=0, minf=0
-  vdb: ios=8389107/8368136, merge=0/0, ticks=19457874/14616506,
-in_queue=34206098, util=99.68%
- 43: interrupt in total: 887320
-fio --exec_prerun="echo 3 > /proc/sys/vm/drop_caches" --group_reporting
---ioscheduler=noop --thread --bs=4k --size=512MB --direct=1 --numjobs=16
---ioengine=libaio --iodepth=64 --loops=3 --ramp_time=0
---filename=/dev/vdb --name=seq-read --stonewall --rw=read
---name=seq-write --stonewall --rw=write --name=rnd-read --stonewall
---rw=randread --name=rnd-write --stonewall --rw=randwrite
-
-After:
--------------------------------------
-  seq-read  : io=0 B, bw=309503KB/s, iops=77375 , runt= 54207msec
-  seq-write : io=0 B, bw=448205KB/s, iops=112051 , runt= 37432msec
-  rand-read : io=0 B, bw=311254KB/s, iops=77813 , runt= 53902msec
-  rand-write: io=0 B, bw=377152KB/s, iops=94287 , runt= 44484msec
-    clat (usec): min=81 , max=90588 , avg=12946.06, stdev=9085.94
-    clat (usec): min=57 , max=72264 , avg=8967.97, stdev=5951.04
-    clat (usec): min=29 , max=101046 , avg=12889.95, stdev=9067.91
-    clat (usec): min=52 , max=106152 , avg=10660.56, stdev=4778.19
-  cpu          : usr=15.05%, sys=57.92%, ctx=7710941, majf=0, minf=54
-  cpu          : usr=26.78%, sys=101.40%, ctx=7387891, majf=0, minf=2
-  cpu          : usr=19.03%, sys=58.17%, ctx=7681976, majf=0, minf=8
-  cpu          : usr=24.65%, sys=58.34%, ctx=8442632, majf=0, minf=4
-  vdb: ios=8389086/8361888, merge=0/0, ticks=17243780/12742010,
-in_queue=30078377, util=99.59%
- 43: interrupt in total: 1259639
-fio --exec_prerun="echo 3 > /proc/sys/vm/drop_caches" --group_reporting
---ioscheduler=noop --thread --bs=4k --size=512MB --direct=1 --numjobs=16
---ioengine=libaio --iodepth=64 --loops=3 --ramp_time=0
---filename=/dev/vdb --name=seq-read --stonewall --rw=read
---name=seq-write --stonewall --rw=write --name=rnd-read --stonewall
---rw=randread --name=rnd-write --stonewall --rw=randwrite
-
->  drivers/block/virtio_blk.c | 19 +++++++++++--------
->  1 file changed, 11 insertions(+), 8 deletions(-)
+> > +int virtballoon_migratepage(struct address_space *mapping,
+> > +		struct page *newpage, struct page *page, enum migrate_mode mode)
+> > +{
+> > +	struct virtio_balloon *vb = __page_balloon_device(page);
+> > +
+> > +	BUG_ON(!vb);
+> > +
+> > +	mutex_lock(&vb->balloon_lock);
 > 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 53b81d5..0bdde8f 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -274,15 +274,18 @@ static void virtblk_done(struct virtqueue *vq)
->  	unsigned int len;
->  
->  	spin_lock_irqsave(vblk->disk->queue->queue_lock, flags);
-> -	while ((vbr = virtqueue_get_buf(vblk->vq, &len)) != NULL) {
-> -		if (vbr->bio) {
-> -			virtblk_bio_done(vbr);
-> -			bio_done = true;
-> -		} else {
-> -			virtblk_request_done(vbr);
-> -			req_done = true;
-> +	do {
-> +		virtqueue_disable_cb(vq);
-> +		while ((vbr = virtqueue_get_buf(vblk->vq, &len)) != NULL) {
-> +			if (vbr->bio) {
-> +				virtblk_bio_done(vbr);
-> +				bio_done = true;
-> +			} else {
-> +				virtblk_request_done(vbr);
-> +				req_done = true;
-> +			}
->  		}
-> -	}
-> +	} while (!virtqueue_enable_cb(vq));
->  	/* In case queue is stopped waiting for more buffers. */
->  	if (req_done)
->  		blk_start_queue(vblk->disk->queue);
 > 
+> While here balloon_lock is taken and according to documentation
+> this is called under page lock.
+> 
+> So nesting is reversed which is normally a problem.
+> Unfortunately lockep does not seem to work for page lock
+> otherwise it would detect this.
+> If this reversed nesting is not a problem, please add
+> comments in code documenting that this is intentional
+> and how it works.
+>
 
+The scheme works because we do not invert the page locking, actually. If we
+stumble accross a locked page while holding mutex(balloon_lock) we just give up
+that page for that round. The comment @ __leak_balloon explains that already:
+----
++               /*
++                * Grab the page lock to avoid racing against threads isolating
++                * pages from, or migrating pages back to vb->pages list.
++                * (both tasks are done under page lock protection)
++                *
++                * Failing to grab the page lock here means this page is being
++                * isolated already, or its migration has not finished yet.
++                *
++                * We simply cannot afford to keep waiting on page lock here,
++                * otherwise we might cause a lock inversion and remain dead-
++                * locked with threads isolating/migrating pages.
++                * So, we give up this round if we fail to grab the page lock.
++                */
++               if (!trylock_page(page))
++                       break;
+----
 
--- 
-Asias
+The otherwise is true as well. If the thread trying to isolate pages stumbles
+across a balloon page already locked at leak_balloon, it gives up the isolation
+step and mutex(&balloon_lock) is never attempted down the code path. Check this
+isolate_balloon_page() snippet out:
+----
++               /*
++                * As balloon pages are not isolated from LRU lists, concurrent
++                * compaction threads can race against page migration functions
++                * move_to_new_page() & __unmap_and_move().
++                * In order to avoid having an already isolated balloon page
++                * being (wrongly) re-isolated while it is under migration,
++                * lets be sure we have the page lock before proceeding with
++                * the balloon page isolation steps.
++                */
++               if (likely(trylock_page(page))) {
+----
+
+I'll rework the comment to indicate the leak_balloon() case as well.
