@@ -1,15 +1,16 @@
-From: Sjur BRENDELAND <sjur.brandeland@stericsson.com>
-Subject: RE: [PATCHv4] virtio_console: Add support for remoteproc serial
-Date: Mon, 24 Sep 2012 23:50:01 +0200
-Message-ID: <81C3A93C17462B4BBD7E272753C1057923BD79D728@EXDCVYMBSTM005.EQ1STM.local>
-References: <1348489987-6768-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20120924174523.GA14390@amit.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v10 3/5] virtio_balloon: introduce migration primitives
+	to balloon pages
+Date: Tue, 25 Sep 2012 02:40:24 +0200
+Message-ID: <20120925004024.GA22665__44196.4819482111$1348533572$gmane$org@redhat.com>
+References: <cover.1347897793.git.aquini@redhat.com>
+	<39738cbd4b596714210e453440833db7cca73172.1347897793.git.aquini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120924174523.GA14390@amit.redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <39738cbd4b596714210e453440833db7cca73172.1347897793.git.aquini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,407 +20,196 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: "sjurbren@gmail.com" <sjurbren@gmail.com>, Arnd Bergmann <arnd@arndb.de>, "Michael S.  Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Amit,
+On Mon, Sep 17, 2012 at 01:38:18PM -0300, Rafael Aquini wrote:
+> Memory fragmentation introduced by ballooning might reduce significantly
+> the number of 2MB contiguous memory blocks that can be used within a guest,
+> thus imposing performance penalties associated with the reduced number of
+> transparent huge pages that could be used by the guest workload.
+> 
+> Besides making balloon pages movable at allocation time and introducing
+> the necessary primitives to perform balloon page migration/compaction,
+> this patch also introduces the following locking scheme, in order to
+> enhance the syncronization methods for accessing elements of struct
+> virtio_balloon, thus providing protection against concurrent access
+> introduced by parallel memory compaction threads.
+> 
+>  - balloon_lock (mutex) : synchronizes the access demand to elements of
+>                           struct virtio_balloon and its queue operations;
+>  - pages_lock (spinlock): special protection to balloon's pages bookmarking
+>                           elements (list and atomic counters) against the
+>                           potential memory compaction concurrency;
+> 
+> Signed-off-by: Rafael Aquini <aquini@redhat.com>
+> ---
+>  drivers/virtio/virtio_balloon.c | 305 +++++++++++++++++++++++++++++++++++++---
+>  1 file changed, 286 insertions(+), 19 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 0908e60..a52c768 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/slab.h>
+>  #include <linux/module.h>
+> +#include <linux/balloon_compaction.h>
+>  
+>  /*
+>   * Balloon device works in 4K page units.  So each page is pointed to by
+> @@ -34,6 +35,7 @@
+>   * page units.
+>   */
+>  #define VIRTIO_BALLOON_PAGES_PER_PAGE (PAGE_SIZE >> VIRTIO_BALLOON_PFN_SHIFT)
+> +#define VIRTIO_BALLOON_ARRAY_PFNS_MAX 256
+>  
+>  struct virtio_balloon
+>  {
+> @@ -46,11 +48,24 @@ struct virtio_balloon
+>  	/* The thread servicing the balloon. */
+>  	struct task_struct *thread;
+>  
+> +	/* balloon special page->mapping */
+> +	struct address_space *mapping;
+> +
+> +	/* Synchronize access/update to this struct virtio_balloon elements */
+> +	struct mutex balloon_lock;
 
-> I'm sorry for not being able to look at this earlier.
+Please document here nesting rules wrt page lock for this and pages_lock.
 
-No worries. I'll try to respin and retest this patch by tomorrow.
-If you by any chance could find time to review so could make it in time
-for 3.7 it would be great :-)
-
-> A general comment is to base this patchset on linux-next; we've been
-> seeing more than usual activity for virtio_console this time around.
-> I don't expect the conflicts to be big, though.
-
-Sure, I'll based the next patch on linux-next.
+> +
+>  	/* Waiting for host to ack the pages we released. */
+>  	wait_queue_head_t acked;
+>  
+> +	/* Protect pages list, and pages bookeeping counters */
+> +	spinlock_t pages_lock;
+> +
+> +	/* Number of balloon pages isolated from 'pages' list for compaction */
+> +	unsigned int num_isolated_pages;
+> +
+>  	/* Number of balloon pages we've told the Host we're not using. */
+>  	unsigned int num_pages;
+> +
+>  	/*
+>  	 * The pages we've told the Host we're not using.
+>  	 * Each page on this list adds VIRTIO_BALLOON_PAGES_PER_PAGE
 
 ...
-> > This implementation reuses the existing virtio_console
-> > implementation, and adds support for DMA allocation
-> > of data buffers and disables use of tty console and
-> > the virtio control queue.
-> 
-> Any specific reason to not use the control queue?  It's just another
-> virtio-serial port; the only special thing about it being it's an
-> internal channel between the device and driver.
 
-Yes, as mention to Michael earlier. I use rproc_serial for talking
-to a modem running in early boot phases, before the OS has started,
-or when the modem is executing it's crash handler. In both these 
-cases the modem run in a very limited execution environment, so
-I want to keep the protocol and handling of the vqs as simple as
-possible. Due to this I really don't want more than single pair
-of vqs.
 
-We also have very simple use-cases. The port is opened once
-in the life-time of the modem, and only reopened after a
-cold-start of the modem. So I should not get into any issues
-with race conditions.
+> @@ -122,13 +137,17 @@ static void set_page_pfns(u32 pfns[], struct page *page)
+>  
+>  static void fill_balloon(struct virtio_balloon *vb, size_t num)
+>  {
+> +	/* Get the proper GFP alloc mask from vb->mapping flags */
+> +	gfp_t vb_gfp_mask = mapping_gfp_mask(vb->mapping);
+> +
+>  	/* We can only do one array worth at a time. */
+>  	num = min(num, ARRAY_SIZE(vb->pfns));
+>  
+> +	mutex_lock(&vb->balloon_lock);
+>  	for (vb->num_pfns = 0; vb->num_pfns < num;
+>  	     vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+> -		struct page *page = alloc_page(GFP_HIGHUSER | __GFP_NORETRY |
+> -					__GFP_NOMEMALLOC | __GFP_NOWARN);
+> +		struct page *page = alloc_page(vb_gfp_mask | __GFP_NORETRY |
+> +					       __GFP_NOWARN | __GFP_NOMEMALLOC);
+>  		if (!page) {
+>  			if (printk_ratelimit())
+>  				dev_printk(KERN_INFO, &vb->vdev->dev,
+> @@ -139,9 +158,15 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+>  			break;
+>  		}
+>  		set_page_pfns(vb->pfns + vb->num_pfns, page);
+> -		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+>  		totalram_pages--;
+> +
+> +		BUG_ON(!trylock_page(page));
 
-> If you're not going to implement any control commands, I guess you
-> could conveniently not use the actual port, but keep it around, in
-> case you find use for it later.  The advantage will be that older
-> kernels will work without any updates on newer devices.
+So here page lock is nested within balloon_lock.
 
-With the current usage pattern I have in mind, I'd rather add this
-feature later when/if needed. We can always add a new feature bit
-for this if we introduce the control channel later on.
-
-...
-
-> > +#define rproc_enabled IS_ENABLED(CONFIG_REMOTEPROC)
-> 
-> Since 'rproc_enabled' could be false, suggest using 'is_rproc_enabled'.
-
-Ok, I'll change this.
-
-...
-> > @@ -109,6 +113,15 @@ struct port_buffer {
-> >  	size_t len;
-> >  	/* offset in the buf from which to consume data */
-> >  	size_t offset;
-> > +
-> > +	/* DMA address of buffer */
-> > +	dma_addr_t dma;
-> > +
-> > +	/* Device we got DMA memory from */
-> > +	struct device *dev;
-> > +
-> > +	/* List of pending dma buffers to free */
-> > +	struct list_head list;
-> 
-> Aha, nice.  One of the comments I had with the earlier versions (I
-> just went through all the revisions) was that you weren't using the
-> port_buffer struct, and instead modifying all alloc_buf() and
-> free_buf() calls.  This is much more saner.
-
-Yes, it was cleaner when I started using port_buffer more place.
-And as mentioned below, I'll start using port buffer from
-put_chars() as well, this will improve a few things.
-
-> > +static DEFINE_SPINLOCK(list_lock);
-> > +static LIST_HEAD(pending_free_list);
-> 
-> The names list_lock, pending_free_list are very generic in the file's
-> context.  Please use more specific names.
-
-Sure, I'll rename these.
-
-> 
-> > +
-> >  static void free_buf(struct port_buffer *buf)
-> >  {
-> > -	kfree(buf->buf);
-> > +	unsigned long flags;
-> > +
-> > +	if (!buf->dev) {
-> > +		kfree(buf->buf);
-> > +		goto freebuf;
-> > +	}
-> > +
-> > +	BUG_ON(!rproc_enabled);
-> > +
-> > +	/* dma_free_coherent requires interrupts to be enabled */
-> > +	if (rproc_enabled && !irqs_disabled()) {
-> 
-> You don't need to check for rproc_enabled here.
-
-Actually I do need this check. The reason is that I am
-exploiting gcc's ability to discard dead code. When I compile
-for arch's that does not have DMA, this block is dead and will be
-discarded. This way I avoid the link error for the missing
-symbol dma_free_coherent(). But I can add a comment on this.
-
-> Then, you can just invert the if condition (if (irqs_disabled()) and
-> include the relevant block here.  This way, you can make do without
-> the goto and return mess below.
-
-Yeah, I did an earlier version without goto, but I wanted to separate
-the rproc / non-rproc clearly to make it easier to see what happened
-if rproc was disabled. But I'll have a stab at refactoring this code
-again.
-
-> > +		dma_free_coherent(buf->dev, buf->size, buf->buf, buf->dma);
-> > +
-> > +		/* Release device refcnt and allow it to be freed */
-> > +		might_sleep();
-> > +		put_device(buf->dev);
-> > +		goto freebuf;
-> > +	}
-> > +
+> +		spin_lock(&vb->pages_lock);
+>  		list_add(&page->lru, &vb->pages);
+> +		assign_balloon_mapping(page, vb->mapping);
+> +		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+> +		spin_unlock(&vb->pages_lock);
+> +		unlock_page(page);
+>  	}
+>  
+>  	/* Didn't get any?  Oh well. */
+> @@ -149,6 +174,7 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+>  		return;
+>  
+>  	tell_host(vb, vb->inflate_vq);
+> +	mutex_unlock(&vb->balloon_lock);
+>  }
 
 ...
-> > +		if (!vq->vdev->dev.parent || !vq->vdev->dev.parent->parent)
-> > +			goto free_buf;
-> > +		buf->dev = vq->vdev->dev.parent->parent;
-> > +
-> > +		/* Increase device refcnt to avoid freeing it*/
-> > +		get_device(buf->dev);
-> > +		buf->buf = dma_alloc_coherent(buf->dev, buf_size, &buf-
-> >dma,
-> > +						GFP_KERNEL);
-> 
-> incorrect indentation
 
-OK, I'll fix this.
 
-> > @@ -485,7 +582,10 @@ static void reclaim_consumed_buffers(struct port
-> *port)
-> >  		return;
-> >  	}
-> >  	while ((buf = virtqueue_get_buf(port->out_vq, &len))) {
-> > -		kfree(buf);
-> > +		if (is_console_port(port))
-> > +			kfree(buf);
-> > +		else
-> > +			free_buf(buf);
-> 
-> Hm?
+> +/*
+> + * virtballoon_migratepage - perform the balloon page migration on behalf of
+> + *			     a compation thread.     (called under page lock)
+> + * @mapping: the page->mapping which will be assigned to the new migrated page.
+> + * @newpage: page that will replace the isolated page after migration finishes.
+> + * @page   : the isolated (old) page that is about to be migrated to newpage.
+> + * @mode   : compaction mode -- not used for balloon page migration.
+> + *
+> + * After a ballooned page gets isolated by compaction procedures, this is the
+> + * function that performs the page migration on behalf of a compaction thread
+> + * The page migration for virtio balloon is done in a simple swap fashion which
+> + * follows these two macro steps:
+> + *  1) insert newpage into vb->pages list and update the host about it;
+> + *  2) update the host about the old page removed from vb->pages list;
+> + *
+> + * This function preforms the balloon page migration task.
+> + * Called through balloon_mapping->a_ops.
+> + */
+> +int virtballoon_migratepage(struct address_space *mapping,
+> +		struct page *newpage, struct page *page, enum migrate_mode mode)
+> +{
+> +	struct virtio_balloon *vb = __page_balloon_device(page);
+> +
+> +	BUG_ON(!vb);
+> +
+> +	mutex_lock(&vb->balloon_lock);
 
-See below.
 
-> 
-> >  		port->outvq_full = false;
-> >  	}
-> >  }
-> > @@ -498,6 +598,7 @@ static ssize_t send_buf(struct port *port, void
-> *in_buf, size_t in_count,
-> >  	ssize_t ret;
-> >  	unsigned long flags;
-> >  	unsigned int len;
-> > +	struct port_buffer *buf = in_buf;
-> 
-> This looks wrong: the buffer we receive here is the actual data
-> (buf->buf).  It can never be a port_buffer (buf).
+While here balloon_lock is taken and according to documentation
+this is called under page lock.
 
-See below.
+> +
+> +	/* balloon's page migration 1st step */
+> +	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
+> +	spin_lock(&vb->pages_lock);
+> +	list_add(&newpage->lru, &vb->pages);
+> +	assign_balloon_mapping(newpage, mapping);
+> +	vb->num_isolated_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
+> +	spin_unlock(&vb->pages_lock);
+> +	set_page_pfns(vb->pfns, newpage);
+> +	tell_host(vb, vb->inflate_vq);
+> +
+> +	/* balloon's page migration 2nd step */
+> +	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
+> +	clear_balloon_mapping(page);
+> +	set_page_pfns(vb->pfns, page);
+> +	tell_host(vb, vb->deflate_vq);
+> +
+> +	mutex_unlock(&vb->balloon_lock);
+> +	wake_up(&vb->config_change);
+> +
+> +	return BALLOON_MIGRATION_RETURN;
+> +}
 
-> 
-> >
-> >  	out_vq = port->out_vq;
-> >
-> > @@ -505,8 +606,11 @@ static ssize_t send_buf(struct port *port, void
-> *in_buf, size_t in_count,
-> >
-> >  	reclaim_consumed_buffers(port);
-> >
-> > -	sg_init_one(sg, in_buf, in_count);
-> > -	ret = virtqueue_add_buf(out_vq, sg, 1, 0, in_buf, GFP_ATOMIC);
-> > +	if (is_console_port(port))
-> 
-> I think you're misinterpreting what is_console_port() is.  It means if
-> a port is associated with an hvc/tty device.
+So nesting is reversed which is normally a problem.
+Unfortunately lockep does not seem to work for page lock
+otherwise it would detect this.
+If this reversed nesting is not a problem, please add
+comments in code documenting that this is intentional
+and how it works.
 
-See below.
-
-> 
-> > +		sg_init_one(sg, in_buf, in_count);
-> > +	else
-> > +		sg_init_one(sg, buf->buf, in_count);
-> > +	ret = virtqueue_add_buf(out_vq, sg, 1, 0, buf, GFP_ATOMIC);
-> >
-> >  	/* Tell Host to go! */
-> >  	virtqueue_kick(out_vq);
-> > @@ -669,7 +773,7 @@ static ssize_t port_fops_write(struct file *filp,
-> const char __user *ubuf,
-> >  			       size_t count, loff_t *offp)
-> >  {
-> >  	struct port *port;
-> > -	char *buf;
-> > +	struct port_buffer *buf;
-> >  	ssize_t ret;
-> >  	bool nonblock;
-> >
-> > @@ -696,11 +800,11 @@ static ssize_t port_fops_write(struct file
-> *filp, const char __user *ubuf,
-> >
-> >  	count = min((size_t)(32 * 1024), count);
-> >
-> > -	buf = kmalloc(count, GFP_KERNEL);
-> > +	buf = alloc_buf(port->out_vq, count);
-> >  	if (!buf)
-> >  		return -ENOMEM;
-> >
-> > -	ret = copy_from_user(buf, ubuf, count);
-> > +	ret = copy_from_user(buf->buf, ubuf, count);
-> >  	if (ret) {
-> >  		ret = -EFAULT;
-> >  		goto free_buf;
-> > @@ -720,7 +824,7 @@ static ssize_t port_fops_write(struct file *filp,
-> const char __user *ubuf,
-> >  		goto out;
-> >
-> >  free_buf:
-> > -	kfree(buf);
-> > +	free_buf(buf);
-> >  out:
-> >  	return ret;
-> >  }
-> 
-> OK, I now get what you did with send_buf() above.  However, send_buf()
-> now should be completely broken for non-rproc devices: you're
-> allocating a buf instead of a buf->buf and passing that on to
-> send_buf() as a void*.  You should instead modify send_buf() to accept
-> a struct port_buffer instead.
-> 
-> Second, send_buf() receives a struct port_buffer(), but in the
-> 'is_console_port()' case, you ignore that fact, and just pass on the
-> void* pointer to sg_init_one().  You should instead pass buf->buf.
-
-OK, so the issue here it that currently put_chars() passes a
-char-buffer to send_buf() instead of a port_buffer. The tests above
-tries to handle this case, distingusing between a tty and char device.
-I agree that this is not the best solution.
-
-But if I change put_chars to create a port_buffer and copy
-data into it I can avoid the crap you pointed at above.
-
-...
-> > -	if (virtio_has_feature(vdev, VIRTIO_CONSOLE_F_SIZE))
-> > +	if (!is_rproc_serial(vdev) &&
-> > +	    virtio_has_feature(vdev, VIRTIO_CONSOLE_F_SIZE))
-> >  		hvc_resize(port->cons.hvc, port->cons.ws);
-> 
-> Why do you want to ensure !is_rproc_serial() here?  As long as the
-> device doesn't expose the VIRTIO_CONSOLE_F_SIZE feature, you should be
-> fine, so this hunk can be dropped.
-
-I need this test because virtio_check_driver_offered_feature() called
-from virtio_has_feature will throw a BUG() if you test on a feature
-not declared in the driver's feature-set.
-
-> > @@ -1102,10 +1209,10 @@ static unsigned int fill_queue(struct
-> virtqueue *vq, spinlock_t *lock)
-> >
-> >  	nr_added_bufs = 0;
-> >  	do {
-> > -		buf = alloc_buf(PAGE_SIZE);
-> > +		buf = alloc_buf(vq, PAGE_SIZE);
-> >  		if (!buf)
-> >  			break;
-> > -
-> > +		memset(buf->buf, 0, PAGE_SIZE);
-> 
-> Why this memset here?
-> 
-> 1. alloc_buf() already does kzalloc()
-
-It used to do that, but not anymore. This patch
-changes kzalloc() to kmalloc() in alloc_buf()
-
-> 2. Is there any specific reason you want the buffer to be zeroed?
-> 
-> I've recently realised zeroing out the buffer before giving it to the
-> device serves no real purpose, and we're just slowing down the
-> allocation here, so I'm tempted to convert the kzalloc() to
-> kmalloc(), unless you have a specific need for zeroed pages.
-
-Agree, the only reason is that I did memset was not to change legacy
-behavior. I'd prefer to skip the memset too, so let's do that.
-
-> 
-> >  		spin_lock_irq(lock);
-> >  		ret = add_inbuf(vq, buf);
-> >  		if (ret < 0) {
-> > @@ -1198,10 +1305,18 @@ static int add_port(struct ports_device
-> *portdev, u32 id)
-> >  		goto free_device;
-> >  	}
-> >
-> > -	/*
-> > -	 * If we're not using multiport support, this has to be a console
-> port
-> > -	 */
-> > -	if (!use_multiport(port->portdev)) {
-> > +	if (is_rproc_serial(port->portdev->vdev))
-> > +		/*
-> > +		 * For rproc_serial assume remote processor is connected.
-> > +		 * rproc_serial does not want the console port, but
-> > +		 * the generic port implementation.
-> 
-> s/but/only
-
-OK, thanks.
-
-> 
-> > +		 */
-> > +		port->host_connected = true;
-> > +	else if (!use_multiport(port->portdev)) {
-> > +		/*
-> > +		 * If we're not using multiport support,
-> > +		 * this has to be a console port.
-> > +		 */
-> >  		err = init_port_console(port);
-> >  		if (err)
-> >  			goto free_inbufs;
-> > @@ -1277,6 +1392,16 @@ static void remove_port_data(struct port
-> *port)
-> >  	/* Remove buffers we queued up for the Host to send us data in.
-> */
-> >  	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
-> >  		free_buf(buf);
-> > +
-> > +	/*
-> > +	 * Remove buffers from out queue for rproc-serial. We cannot
-> afford
-> > +	 * to leak any DMA mem, so reclaim this memory even if this might
-> be
-> > +	 * racy for the remote processor.
-> > +	 */
-> > +	if (is_rproc_serial(port->portdev->vdev)) {
-> > +		while ((buf = virtqueue_detach_unused_buf(port->out_vq)))
-> > +			free_buf(buf);
-> > +	}
-> 
-> braces around if can be dropped.
-
-OK,
-
-> > @@ -1722,13 +1847,17 @@ static int __devinit virtcons_probe(struct
-> virtio_device *vdev)
-> >  		goto free;
-> >  	}
-> >
-> > -	multiport = false;
-> > -	portdev->config.max_nr_ports = 1;
-> > -	if (virtio_config_val(vdev, VIRTIO_CONSOLE_F_MULTIPORT,
-> > -			      offsetof(struct virtio_console_config,
-> > -				       max_nr_ports),
-> > -			      &portdev->config.max_nr_ports) == 0)
-> > +	/* Don't test MULTIPORT at all if we're rproc: not a valid
-> feature! */
-> > +	if (!is_rproc_serial(vdev) &&
-> > +	    virtio_config_val(vdev, VIRTIO_CONSOLE_F_MULTIPORT,
-> > +				  offsetof(struct virtio_console_config,
-> > +					   max_nr_ports),
-> > +				  &portdev->config.max_nr_ports) == 0) {
-> >  		multiport = true;
-> > +	} else {
-> > +		multiport = false;
-> > +		portdev->config.max_nr_ports = 1;
-> > +	}
-> 
-> Why introduce the else part at all?  Let these two statements be as
-> they are, and just add the !is_rproc_serial check to the if statement?
-
-OK, I'll keep assignments before "if" and skip the else part.
-
-...
-> -	return register_virtio_driver(&virtio_console);
-> > +	err = register_virtio_driver(&virtio_console);
-> > +	if (err < 0) {
-> > +		pr_err("Error %d registering virtio driver\n", err);
-> > +		goto free;
-> > +	}
-> 
-> This hunk is already present in linux-next; rebasing over that should
-> get rid of it.
-
-Sure, I'll rebase next patch to linux-next and send a new patch tomorrow.
-
-Thanks,
-Sjur
+-- 
+MST
