@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v10 0/5] make balloon pages movable by compaction
-Date: Tue, 25 Sep 2012 03:17:25 +0200
-Message-ID: <20120925011725.GB22893__9925.46418351612$1348535780$gmane$org@redhat.com>
-References: <cover.1347897793.git.aquini@redhat.com>
-	<20120917151531.e9ac59f2.akpm@linux-foundation.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 0/2] virtio-mmio updates for 3.7
+Date: Tue, 25 Sep 2012 09:41:22 +0930
+Message-ID: <87d31bufkl.fsf@rustcorp.com.au>
+References: <1348493622-26091-1-git-send-email-pawel.moll@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120917151531.e9ac59f2.akpm@linux-foundation.org>
+In-Reply-To: <1348493622-26091-1-git-send-email-pawel.moll@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +17,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: Brian Foley <brian.foley@arm.com>, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 17, 2012 at 03:15:31PM -0700, Andrew Morton wrote:
-> How can a patchset reach v10 and have zero Reviewed-by's?
+Pawel Moll <pawel.moll@arm.com> writes:
 
-I think the problem is, this adds an API between mm and balloon
-device that is pretty complex: consider that previously we literally
-only used alloc_page, __free_page and page->lru field.
+> Hi Rusty,
+>
+> Would you be so kind and consider getting those two small fixes into
+> 3.7 merge? All credits go to Brian, all shame on me :-)
 
-So you end up with a problem: mm bits don't do anything
-by themselves so mm people aren't very interested and
-don't know about virtio anyway, while
-we virtio device driver people lack a clue about compaction.
+Should these also be cc'd to stable@kernel.org?
 
-Having said that I think I'm getting my head about some of the issues so
-I commented and the patchset is hopefully getting there.
-
--- 
-MST
+Cheers,
+Rusty.
