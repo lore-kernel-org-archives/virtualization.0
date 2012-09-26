@@ -1,17 +1,17 @@
-From: Sjur BRENDELAND <sjur.brandeland@stericsson.com>
-Subject: RE: [PATCH 1/3] virtio_console:Merge struct buffer_token into
-	struct port_buffer
-Date: Wed, 26 Sep 2012 09:48:12 +0200
-Message-ID: <81C3A93C17462B4BBD7E272753C1057923BD8365F7@EXDCVYMBSTM005.EQ1STM.local>
+From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Subject: Re: [PATCH 1/3] virtio_console:Merge struct buffer_token into struct
+	port_buffer
+Date: Wed, 26 Sep 2012 18:40:35 +0900
+Message-ID: <5062CD93.8090600@hitachi.com>
 References: <1348580837-10919-1-git-send-email-sjur.brandeland@stericsson.com>
 	<1348580837-10919-2-git-send-email-sjur.brandeland@stericsson.com>
 	<50626C11.9040708@hitachi.com>
+	<81C3A93C17462B4BBD7E272753C1057923BD8365F7@EXDCVYMBSTM005.EQ1STM.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50626C11.9040708@hitachi.com>
-Content-Language: en-US
+In-Reply-To: <81C3A93C17462B4BBD7E272753C1057923BD8365F7@EXDCVYMBSTM005.EQ1STM.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,89 +21,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Cc: "sjurbren@gmail.com" <sjurbren@gmail.com>, "Michael S.  Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "yrl.pp-manager.tt@hitachi.com" <yrl.pp-manager.tt@hitachi.com>, Amit Shah <amit.shah@redhat.com>
+To: Sjur BRENDELAND <sjur.brandeland@stericsson.com>
+Cc: "sjurbren@gmail.com" <sjurbren@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "yrl.pp-manager.tt@hitachi.com" <yrl.pp-manager.tt@hitachi.com>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > This merge reduces code size by unifying the approach for
-> > sending scatter-lists and regular buffers. Any type of
-> > write operation (splice, write, put_chars) will now allocate
-> > a port_buffer and send_buf() and free_buf() can always be used.
+(2012/09/26 16:48), Sjur BRENDELAND wrote:
+>>> -static struct port_buffer *alloc_buf(size_t buf_size)
+>>> +static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
+>>> +				     int nrbufs)
+>>>  {
+>>>  	struct port_buffer *buf;
+>>> +	size_t alloc_size;
+>>>
+>>> -	buf = kmalloc(sizeof(*buf), GFP_KERNEL);
+>>> +	/* Allocate buffer and the scatter list */
+>>> +	alloc_size = sizeof(*buf) + sizeof(struct scatterlist) * nrbufs;
+>>
+>> This allocates one redundant sg entry when nrbuf > 0,
+>> but I think it is OK. (just a comment)
 > 
-> Thanks!
-> This looks much nicer and simpler. I just have some comments below.
+> I did this on purpose for the sake of simplicity, but I can
+> change this to something like:
+> 	 alloc_size = sizeof(*buf) + sizeof(buf->sg) * max(nrbufs - 1, 1);
 
-OK, good to hear that you agree to this kind of change. I'll do a respin
-of this patch fixing the issues you have pointed out.
+You wouldn't need to change that. I think current code is enough simple
+and reasonable. :)
 
-> >  static void free_buf(struct port_buffer *buf)
-> >  {
-> > +	int i;
-> > +
-> >  	kfree(buf->buf);
-> 
-> this should be done only when !buf->sgpages, or (see below)
+Thanks!
 
-Agree, I'll put this statement in an else branch to the if-statement below.
-
-> 
-> > +
-> > +	if (buf->sgpages)
-> > +		for (i = 0; i < buf->sgpages; i++) {
-> > +			struct page *page = sg_page(&buf->sg[i]);
-> > +			if (!page)
-> > +				break;
-> > +			put_page(page);
-> > +		}
-> > +
-> >  	kfree(buf);
-> >  }
-> >
-> > -static struct port_buffer *alloc_buf(size_t buf_size)
-> > +static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
-> > +				     int nrbufs)
-> >  {
-> >  	struct port_buffer *buf;
-> > +	size_t alloc_size;
-> >
-> > -	buf = kmalloc(sizeof(*buf), GFP_KERNEL);
-> > +	/* Allocate buffer and the scatter list */
-> > +	alloc_size = sizeof(*buf) + sizeof(struct scatterlist) * nrbufs;
-> 
-> This allocates one redundant sg entry when nrbuf > 0,
-> but I think it is OK. (just a comment)
-
-I did this on purpose for the sake of simplicity, but I can
-change this to something like:
-	 alloc_size = sizeof(*buf) + sizeof(buf->sg) * max(nrbufs - 1, 1);
-
-
-> > +	buf = kmalloc(alloc_size, GFP_ATOMIC);
-> 
-> This should be kzalloc(), or buf->buf and others are not initialized,
-> which will cause unexpected kfree bug at kfree(buf->buf) in free_buf.
-
-Agree, kzalloc() is better in this case. 
-
-> >  	if (!buf)
-> >  		goto fail;
-> > -	buf->buf = kzalloc(buf_size, GFP_KERNEL);
-> > +
-> > +	buf->sgpages = nrbufs;
-> > +	if (nrbufs > 0)
-> > +		return buf;
-> > +
-> > +	buf->buf = kmalloc(buf_size, GFP_ATOMIC);
-> 
-> You can also use kzalloc here as previous code does.
-> But if the reason why using kzalloc comes from the security,
-> I think kmalloc is enough here, since the host can access
-> all the guest pages anyway.
-
-With this new patch alloc_buf() is used both for both RX and TX.
-The out_vq did previously use malloc(). But I have preserved
-the legacy behavior for the in_vq by calling memset() in function
-fill_queue().
-
-Thanks,
-Sjur
+-- 
+Masami HIRAMATSU
+Software Platform Research Dept. Linux Technology Center
+Hitachi, Ltd., Yokohama Research Laboratory
+E-mail: masami.hiramatsu.pt@hitachi.com
