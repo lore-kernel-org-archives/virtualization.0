@@ -1,17 +1,15 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [PATCH v10 3/5] virtio_balloon: introduce migration primitives
-	to balloon pages
-Date: Tue, 25 Sep 2012 15:07:49 -0300
-Message-ID: <20120925180749.GB1638__27225.2415227287$1348596519$gmane$org@optiplex.redhat.com>
-References: <cover.1347897793.git.aquini@redhat.com>
-	<39738cbd4b596714210e453440833db7cca73172.1347897793.git.aquini@redhat.com>
-	<20120925004024.GA22665@redhat.com>
+From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Subject: Re: [PATCH 1/3] virtio_console:Merge struct buffer_token into struct
+	port_buffer
+Date: Wed, 26 Sep 2012 11:44:33 +0900
+Message-ID: <50626C11.9040708@hitachi.com>
+References: <1348580837-10919-1-git-send-email-sjur.brandeland@stericsson.com>
+	<1348580837-10919-2-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20120925004024.GA22665@redhat.com>
+In-Reply-To: <1348580837-10919-2-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,88 +19,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: sjur.brandeland@stericsson.com
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, sjurbren@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, yrl.pp-manager.tt@hitachi.com, Amit Shah <amit.shah@redhat.com>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 25, 2012 at 02:40:24AM +0200, Michael S. Tsirkin wrote:
-> > @@ -139,9 +158,15 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
-> >  			break;
-> >  		}
-> >  		set_page_pfns(vb->pfns + vb->num_pfns, page);
-> > -		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> >  		totalram_pages--;
-> > +
-> > +		BUG_ON(!trylock_page(page));
-> 
-> So here page lock is nested within balloon_lock.
-> 
-This page is coming from Buddy free-lists and as such, fill_balloon does not
-race against page migration (which takes pages from an already isolated page list).
-We need to grab page lock here, to prevent page isolation from happening while
-this page is yet under "balloon insertion" step (mapping assign). Also, failing
-to grab the page lock here (remember this page is coming from Buddy) means a
-BUG.
-
-I'll make sure to comment that on the code. Thanks for the nit.
-
-> > +int virtballoon_migratepage(struct address_space *mapping,
-> > +		struct page *newpage, struct page *page, enum migrate_mode mode)
-> > +{
-> > +	struct virtio_balloon *vb = __page_balloon_device(page);
-> > +
-> > +	BUG_ON(!vb);
-> > +
-> > +	mutex_lock(&vb->balloon_lock);
-> 
-> 
-> While here balloon_lock is taken and according to documentation
-> this is called under page lock.
-> 
-> So nesting is reversed which is normally a problem.
-> Unfortunately lockep does not seem to work for page lock
-> otherwise it would detect this.
-> If this reversed nesting is not a problem, please add
-> comments in code documenting that this is intentional
-> and how it works.
->
-
-The scheme works because we do not invert the page locking, actually. If we
-stumble accross a locked page while holding mutex(balloon_lock) we just give up
-that page for that round. The comment @ __leak_balloon explains that already:
-----
-+               /*
-+                * Grab the page lock to avoid racing against threads isolating
-+                * pages from, or migrating pages back to vb->pages list.
-+                * (both tasks are done under page lock protection)
-+                *
-+                * Failing to grab the page lock here means this page is being
-+                * isolated already, or its migration has not finished yet.
-+                *
-+                * We simply cannot afford to keep waiting on page lock here,
-+                * otherwise we might cause a lock inversion and remain dead-
-+                * locked with threads isolating/migrating pages.
-+                * So, we give up this round if we fail to grab the page lock.
-+                */
-+               if (!trylock_page(page))
-+                       break;
-----
-
-The otherwise is true as well. If the thread trying to isolate pages stumbles
-across a balloon page already locked at leak_balloon, it gives up the isolation
-step and mutex(&balloon_lock) is never attempted down the code path. Check this
-isolate_balloon_page() snippet out:
-----
-+               /*
-+                * As balloon pages are not isolated from LRU lists, concurrent
-+                * compaction threads can race against page migration functions
-+                * move_to_new_page() & __unmap_and_move().
-+                * In order to avoid having an already isolated balloon page
-+                * being (wrongly) re-isolated while it is under migration,
-+                * lets be sure we have the page lock before proceeding with
-+                * the balloon page isolation steps.
-+                */
-+               if (likely(trylock_page(page))) {
-----
-
-I'll rework the comment to indicate the leak_balloon() case as well.
+KDIwMTIvMDkvMjUgMjI6NDcpLCBzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20gd3JvdGU6
+Cj4gRnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29t
+Pgo+IAo+IFRoaXMgbWVyZ2UgcmVkdWNlcyBjb2RlIHNpemUgYnkgdW5pZnlpbmcgdGhlIGFwcHJv
+YWNoIGZvcgo+IHNlbmRpbmcgc2NhdHRlci1saXN0cyBhbmQgcmVndWxhciBidWZmZXJzLiBBbnkg
+dHlwZSBvZgo+IHdyaXRlIG9wZXJhdGlvbiAoc3BsaWNlLCB3cml0ZSwgcHV0X2NoYXJzKSB3aWxs
+IG5vdyBhbGxvY2F0ZQo+IGEgcG9ydF9idWZmZXIgYW5kIHNlbmRfYnVmKCkgYW5kIGZyZWVfYnVm
+KCkgY2FuIGFsd2F5cyBiZSB1c2VkLgoKVGhhbmtzIQpUaGlzIGxvb2tzIG11Y2ggbmljZXIgYW5k
+IHNpbXBsZXIuIEkganVzdCBoYXZlIHNvbWUgY29tbWVudHMgYmVsb3cuCgo+IFNpZ25lZC1vZmYt
+Ynk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KPiBj
+YzogUnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNvcnAuY29tLmF1Pgo+IGNjOiBNaWNoYWVsIFMu
+IFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+IGNjOiBBbWl0IFNoYWggPGFtaXQuc2hhaEByZWRo
+YXQuY29tPgo+IGNjOiBMaW51cyBXYWxsZWlqIDxsaW51cy53YWxsZWlqQGxpbmFyby5vcmc+Cj4g
+Y2M6IE1hc2FtaSBIaXJhbWF0c3UgPG1hc2FtaS5oaXJhbWF0c3UucHRAaGl0YWNoaS5jb20+Cj4g
+LS0tCj4gIGRyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jIHwgIDE0MSArKysrKysrKysrKysr
+KysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+ICAxIGZpbGVzIGNoYW5nZWQsIDYyIGluc2Vy
+dGlvbnMoKyksIDc5IGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2NoYXIv
+dmlydGlvX2NvbnNvbGUuYyBiL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCj4gaW5kZXgg
+OGFiOWMzZC4uZjRmN2IwNCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNv
+bGUuYwo+ICsrKyBiL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCj4gQEAgLTExMSw2ICsx
+MTEsMTEgQEAgc3RydWN0IHBvcnRfYnVmZmVyIHsKPiAgCXNpemVfdCBsZW47Cj4gIAkvKiBvZmZz
+ZXQgaW4gdGhlIGJ1ZiBmcm9tIHdoaWNoIHRvIGNvbnN1bWUgZGF0YSAqLwo+ICAJc2l6ZV90IG9m
+ZnNldDsKPiArCj4gKwkvKiBJZiBzZ3BhZ2VzID09IDAgdGhlbiBidWYgaXMgdXNlZCwgZWxzZSBz
+ZyBpcyB1c2VkICovCj4gKwl1bnNpZ25lZCBpbnQgc2dwYWdlczsKPiArCj4gKwlzdHJ1Y3Qgc2Nh
+dHRlcmxpc3Qgc2dbMV07Cj4gIH07Cj4gIAo+ICAvKgo+IEBAIC0zMzgsMjMgKzM0Myw0NiBAQCBz
+dGF0aWMgaW5saW5lIGJvb2wgdXNlX211bHRpcG9ydChzdHJ1Y3QgcG9ydHNfZGV2aWNlICpwb3J0
+ZGV2KQo+ICAKPiAgc3RhdGljIHZvaWQgZnJlZV9idWYoc3RydWN0IHBvcnRfYnVmZmVyICpidWYp
+Cj4gIHsKPiArCWludCBpOwo+ICsKPiAgCWtmcmVlKGJ1Zi0+YnVmKTsKCnRoaXMgc2hvdWxkIGJl
+IGRvbmUgb25seSB3aGVuICFidWYtPnNncGFnZXMsIG9yIChzZWUgYmVsb3cpCgo+ICsKPiArCWlm
+IChidWYtPnNncGFnZXMpCj4gKwkJZm9yIChpID0gMDsgaSA8IGJ1Zi0+c2dwYWdlczsgaSsrKSB7
+Cj4gKwkJCXN0cnVjdCBwYWdlICpwYWdlID0gc2dfcGFnZSgmYnVmLT5zZ1tpXSk7Cj4gKwkJCWlm
+ICghcGFnZSkKPiArCQkJCWJyZWFrOwo+ICsJCQlwdXRfcGFnZShwYWdlKTsKPiArCQl9Cj4gKwo+
+ICAJa2ZyZWUoYnVmKTsKPiAgfQo+ICAKPiAtc3RhdGljIHN0cnVjdCBwb3J0X2J1ZmZlciAqYWxs
+b2NfYnVmKHNpemVfdCBidWZfc2l6ZSkKPiArc3RhdGljIHN0cnVjdCBwb3J0X2J1ZmZlciAqYWxs
+b2NfYnVmKHN0cnVjdCB2aXJ0cXVldWUgKnZxLCBzaXplX3QgYnVmX3NpemUsCj4gKwkJCQkgICAg
+IGludCBucmJ1ZnMpCj4gIHsKPiAgCXN0cnVjdCBwb3J0X2J1ZmZlciAqYnVmOwo+ICsJc2l6ZV90
+IGFsbG9jX3NpemU7Cj4gIAo+IC0JYnVmID0ga21hbGxvYyhzaXplb2YoKmJ1ZiksIEdGUF9LRVJO
+RUwpOwo+ICsJLyogQWxsb2NhdGUgYnVmZmVyIGFuZCB0aGUgc2NhdHRlciBsaXN0ICovCj4gKwlh
+bGxvY19zaXplID0gc2l6ZW9mKCpidWYpICsgc2l6ZW9mKHN0cnVjdCBzY2F0dGVybGlzdCkgKiBu
+cmJ1ZnM7CgpUaGlzIGFsbG9jYXRlcyBvbmUgcmVkdW5kYW50IHNnIGVudHJ5IHdoZW4gbnJidWYg
+PiAwLApidXQgSSB0aGluayBpdCBpcyBPSy4gKGp1c3QgYSBjb21tZW50KQoKPiArCWJ1ZiA9IGtt
+YWxsb2MoYWxsb2Nfc2l6ZSwgR0ZQX0FUT01JQyk7CgpUaGlzIHNob3VsZCBiZSBremFsbG9jKCks
+IG9yIGJ1Zi0+YnVmIGFuZCBvdGhlcnMgYXJlIG5vdCBpbml0aWFsaXplZCwKd2hpY2ggd2lsbCBj
+YXVzZSB1bmV4cGVjdGVkIGtmcmVlIGJ1ZyBhdCBrZnJlZShidWYtPmJ1ZikgaW4gZnJlZV9idWYu
+Cgo+ICAJaWYgKCFidWYpCj4gIAkJZ290byBmYWlsOwo+IC0JYnVmLT5idWYgPSBremFsbG9jKGJ1
+Zl9zaXplLCBHRlBfS0VSTkVMKTsKPiArCj4gKwlidWYtPnNncGFnZXMgPSBucmJ1ZnM7Cj4gKwlp
+ZiAobnJidWZzID4gMCkKPiArCQlyZXR1cm4gYnVmOwo+ICsKPiArCWJ1Zi0+YnVmID0ga21hbGxv
+YyhidWZfc2l6ZSwgR0ZQX0FUT01JQyk7CgpZb3UgY2FuIGFsc28gdXNlIGt6YWxsb2MgaGVyZSBh
+cyBwcmV2aW91cyBjb2RlIGRvZXMuCkJ1dCBpZiB0aGUgcmVhc29uIHdoeSB1c2luZyBremFsbG9j
+IGNvbWVzIGZyb20gdGhlIHNlY3VyaXR5LApJIHRoaW5rIGttYWxsb2MgaXMgZW5vdWdoIGhlcmUs
+IHNpbmNlIHRoZSBob3N0IGNhbiBhY2Nlc3MKYWxsIHRoZSBndWVzdCBwYWdlcyBhbnl3YXkuCgo+
+ICAJaWYgKCFidWYtPmJ1ZikKPiAgCQlnb3RvIGZyZWVfYnVmOwo+ICAJYnVmLT5sZW4gPSAwOwo+
+ICAJYnVmLT5vZmZzZXQgPSAwOwo+ICAJYnVmLT5zaXplID0gYnVmX3NpemU7Cj4gKwo+ICsJLyog
+UHJlcGFyZSBzY2F0dGVyIGJ1ZmZlciBmb3Igc2VuZGluZyAqLwo+ICsJc2dfaW5pdF9vbmUoYnVm
+LT5zZywgYnVmLT5idWYsIGJ1Zl9zaXplKTsKPiAgCXJldHVybiBidWY7Cj4gIAo+ICBmcmVlX2J1
+ZjoKClRoYW5rIHlvdSwKCgotLSAKTWFzYW1pIEhJUkFNQVRTVQpTb2Z0d2FyZSBQbGF0Zm9ybSBS
+ZXNlYXJjaCBEZXB0LiBMaW51eCBUZWNobm9sb2d5IENlbnRlcgpIaXRhY2hpLCBMdGQuLCBZb2tv
+aGFtYSBSZXNlYXJjaCBMYWJvcmF0b3J5CkUtbWFpbDogbWFzYW1pLmhpcmFtYXRzdS5wdEBoaXRh
+Y2hpLmNvbQoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
