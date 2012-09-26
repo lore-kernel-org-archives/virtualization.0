@@ -1,11 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Proposal for virtio standardization.
-Date: Thu, 27 Sep 2012 09:59:33 +0930
-Message-ID: <87zk4c2tqq.fsf__12100.5428991795$1348711572$gmane$org@rustcorp.com.au>
+Subject: RE: [PATCH 1/3] virtio_console:Merge struct buffer_token into struct
+	port_buffer
+Date: Thu, 27 Sep 2012 09:12:33 +0930
+Message-ID: <87k3vg4ahi.fsf__7049.35731268979$1348711581$gmane$org@rustcorp.com.au>
+References: <1348580837-10919-1-git-send-email-sjur.brandeland@stericsson.com>
+	<1348580837-10919-2-git-send-email-sjur.brandeland@stericsson.com>
+	<50626C11.9040708@hitachi.com>
+	<81C3A93C17462B4BBD7E272753C1057923BD8365F7@EXDCVYMBSTM005.EQ1STM.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <81C3A93C17462B4BBD7E272753C1057923BD8365F7@EXDCVYMBSTM005.EQ1STM.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,51 +21,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>, Adam Litke <agl@us.ibm.com>, Amit Shah <amit.shah@redhat.com>, Avi Kivity <avi@redhat.com>, Avishay Traeger <AVISHAY@il.ibm.com>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Paolo Bonzini <pbonzini@redhat.com>, Pawel Moll <pawel.moll@arm.com>, Sasha Levin <levinsasha928@gmail.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: qemu-devel <qemu-devel@nongnu.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Sjur BRENDELAND <sjur.brandeland@stericsson.com>, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Cc: "sjurbren@gmail.com" <sjurbren@gmail.com>, "Michael S.  Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "yrl.pp-manager.tt@hitachi.com" <yrl.pp-manager.tt@hitachi.com>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all,
+Sjur BRENDELAND <sjur.brandeland@stericsson.com> writes:
+>> This allocates one redundant sg entry when nrbuf > 0,
+>> but I think it is OK. (just a comment)
+>
+> I did this on purpose for the sake of simplicity, but I can
+> change this to something like:
+> 	 alloc_size = sizeof(*buf) + sizeof(buf->sg) * max(nrbufs - 1, 1);
 
-	I've had several requests for a more formal approach to the
-virtio draft spec, and (after some soul-searching) I'd like to try that.
+That's why we use [0] in the definition (a GCC extension).
 
-	The proposal is to use OASIS as the standards body, as it's
-fairly light-weight as these things go.  For me this means paperwork and
-setting up a Working Group and getting the right people involved as
-Voting members starting with the current contributors; for most of you
-it just means a new mailing list, though I'll be cross-posting any
-drafts and major changes here anyway.
-
-	I believe that a documented standard (aka virtio 1.0) will
-increase visibility and adoption in areas outside our normal linux/kvm
-universe.  There's been some of that already, but this is the clearest
-path to accelerate it.  Not the easiest path, but I believe that a solid
-I/O standard is a Good Thing for everyone.
-
-	Yet I also want to decouple new and experimental development
-from the standards effort; running code comes first.  New feature bits
-and new device numbers should be reservable without requiring a full
-spec change.
-
-So the essence of my proposal is:
-1) I start a Working Group within OASIS where we can aim for virtio spec
-   1.0.
-
-2) The current spec is textually reordered so the core is clearly
-   bus-independent, with PCI, mmio, etc appendices.
-
-3) Various clarifications, formalizations and cleanups to the spec text,
-   and possibly elimination of old deprecated features.
-
-4) The only significant change to the spec is that we use PCI
-   capabilities, so we can have infinite feature bits.
-   (see
-http://lists.linuxfoundation.org/pipermail/virtualization/2011-December/019198.html)
-
-5) Changes to the ring layout and other such things are deferred to a
-   future virtio version; whether this is done within OASIS or
-   externally depends on how well this works for the 1.0 release.
-
-Thoughts?
+Cheers,
 Rusty.
