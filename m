@@ -1,15 +1,14 @@
-From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: Re: [PATCH 1/3] virtio_console:Merge struct buffer_token into struct
-	port_buffer
-Date: Wed, 26 Sep 2012 11:44:33 +0900
-Message-ID: <50626C11.9040708@hitachi.com>
-References: <1348580837-10919-1-git-send-email-sjur.brandeland@stericsson.com>
-	<1348580837-10919-2-git-send-email-sjur.brandeland@stericsson.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 0/2] virtio-mmio updates for 3.7
+Date: Wed, 26 Sep 2012 09:40:48 +0930
+Message-ID: <87mx0d3apj.fsf@rustcorp.com.au>
+References: <1348493622-26091-1-git-send-email-pawel.moll@arm.com>
+	<87d31bufkl.fsf@rustcorp.com.au> <1348571527.27071.37.camel@hornet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1348580837-10919-2-git-send-email-sjur.brandeland@stericsson.com>
+In-Reply-To: <1348571527.27071.37.camel@hornet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,68 +18,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: sjur.brandeland@stericsson.com
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, sjurbren@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, yrl.pp-manager.tt@hitachi.com, Amit Shah <amit.shah@redhat.com>, Linus Walleij <linus.walleij@linaro.org>
+To: Pawel Moll <pawel.moll@arm.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Brian Foley <Brian.Foley@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-KDIwMTIvMDkvMjUgMjI6NDcpLCBzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20gd3JvdGU6
-Cj4gRnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29t
-Pgo+IAo+IFRoaXMgbWVyZ2UgcmVkdWNlcyBjb2RlIHNpemUgYnkgdW5pZnlpbmcgdGhlIGFwcHJv
-YWNoIGZvcgo+IHNlbmRpbmcgc2NhdHRlci1saXN0cyBhbmQgcmVndWxhciBidWZmZXJzLiBBbnkg
-dHlwZSBvZgo+IHdyaXRlIG9wZXJhdGlvbiAoc3BsaWNlLCB3cml0ZSwgcHV0X2NoYXJzKSB3aWxs
-IG5vdyBhbGxvY2F0ZQo+IGEgcG9ydF9idWZmZXIgYW5kIHNlbmRfYnVmKCkgYW5kIGZyZWVfYnVm
-KCkgY2FuIGFsd2F5cyBiZSB1c2VkLgoKVGhhbmtzIQpUaGlzIGxvb2tzIG11Y2ggbmljZXIgYW5k
-IHNpbXBsZXIuIEkganVzdCBoYXZlIHNvbWUgY29tbWVudHMgYmVsb3cuCgo+IFNpZ25lZC1vZmYt
-Ynk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KPiBj
-YzogUnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNvcnAuY29tLmF1Pgo+IGNjOiBNaWNoYWVsIFMu
-IFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+IGNjOiBBbWl0IFNoYWggPGFtaXQuc2hhaEByZWRo
-YXQuY29tPgo+IGNjOiBMaW51cyBXYWxsZWlqIDxsaW51cy53YWxsZWlqQGxpbmFyby5vcmc+Cj4g
-Y2M6IE1hc2FtaSBIaXJhbWF0c3UgPG1hc2FtaS5oaXJhbWF0c3UucHRAaGl0YWNoaS5jb20+Cj4g
-LS0tCj4gIGRyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jIHwgIDE0MSArKysrKysrKysrKysr
-KysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQo+ICAxIGZpbGVzIGNoYW5nZWQsIDYyIGluc2Vy
-dGlvbnMoKyksIDc5IGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2NoYXIv
-dmlydGlvX2NvbnNvbGUuYyBiL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCj4gaW5kZXgg
-OGFiOWMzZC4uZjRmN2IwNCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNv
-bGUuYwo+ICsrKyBiL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCj4gQEAgLTExMSw2ICsx
-MTEsMTEgQEAgc3RydWN0IHBvcnRfYnVmZmVyIHsKPiAgCXNpemVfdCBsZW47Cj4gIAkvKiBvZmZz
-ZXQgaW4gdGhlIGJ1ZiBmcm9tIHdoaWNoIHRvIGNvbnN1bWUgZGF0YSAqLwo+ICAJc2l6ZV90IG9m
-ZnNldDsKPiArCj4gKwkvKiBJZiBzZ3BhZ2VzID09IDAgdGhlbiBidWYgaXMgdXNlZCwgZWxzZSBz
-ZyBpcyB1c2VkICovCj4gKwl1bnNpZ25lZCBpbnQgc2dwYWdlczsKPiArCj4gKwlzdHJ1Y3Qgc2Nh
-dHRlcmxpc3Qgc2dbMV07Cj4gIH07Cj4gIAo+ICAvKgo+IEBAIC0zMzgsMjMgKzM0Myw0NiBAQCBz
-dGF0aWMgaW5saW5lIGJvb2wgdXNlX211bHRpcG9ydChzdHJ1Y3QgcG9ydHNfZGV2aWNlICpwb3J0
-ZGV2KQo+ICAKPiAgc3RhdGljIHZvaWQgZnJlZV9idWYoc3RydWN0IHBvcnRfYnVmZmVyICpidWYp
-Cj4gIHsKPiArCWludCBpOwo+ICsKPiAgCWtmcmVlKGJ1Zi0+YnVmKTsKCnRoaXMgc2hvdWxkIGJl
-IGRvbmUgb25seSB3aGVuICFidWYtPnNncGFnZXMsIG9yIChzZWUgYmVsb3cpCgo+ICsKPiArCWlm
-IChidWYtPnNncGFnZXMpCj4gKwkJZm9yIChpID0gMDsgaSA8IGJ1Zi0+c2dwYWdlczsgaSsrKSB7
-Cj4gKwkJCXN0cnVjdCBwYWdlICpwYWdlID0gc2dfcGFnZSgmYnVmLT5zZ1tpXSk7Cj4gKwkJCWlm
-ICghcGFnZSkKPiArCQkJCWJyZWFrOwo+ICsJCQlwdXRfcGFnZShwYWdlKTsKPiArCQl9Cj4gKwo+
-ICAJa2ZyZWUoYnVmKTsKPiAgfQo+ICAKPiAtc3RhdGljIHN0cnVjdCBwb3J0X2J1ZmZlciAqYWxs
-b2NfYnVmKHNpemVfdCBidWZfc2l6ZSkKPiArc3RhdGljIHN0cnVjdCBwb3J0X2J1ZmZlciAqYWxs
-b2NfYnVmKHN0cnVjdCB2aXJ0cXVldWUgKnZxLCBzaXplX3QgYnVmX3NpemUsCj4gKwkJCQkgICAg
-IGludCBucmJ1ZnMpCj4gIHsKPiAgCXN0cnVjdCBwb3J0X2J1ZmZlciAqYnVmOwo+ICsJc2l6ZV90
-IGFsbG9jX3NpemU7Cj4gIAo+IC0JYnVmID0ga21hbGxvYyhzaXplb2YoKmJ1ZiksIEdGUF9LRVJO
-RUwpOwo+ICsJLyogQWxsb2NhdGUgYnVmZmVyIGFuZCB0aGUgc2NhdHRlciBsaXN0ICovCj4gKwlh
-bGxvY19zaXplID0gc2l6ZW9mKCpidWYpICsgc2l6ZW9mKHN0cnVjdCBzY2F0dGVybGlzdCkgKiBu
-cmJ1ZnM7CgpUaGlzIGFsbG9jYXRlcyBvbmUgcmVkdW5kYW50IHNnIGVudHJ5IHdoZW4gbnJidWYg
-PiAwLApidXQgSSB0aGluayBpdCBpcyBPSy4gKGp1c3QgYSBjb21tZW50KQoKPiArCWJ1ZiA9IGtt
-YWxsb2MoYWxsb2Nfc2l6ZSwgR0ZQX0FUT01JQyk7CgpUaGlzIHNob3VsZCBiZSBremFsbG9jKCks
-IG9yIGJ1Zi0+YnVmIGFuZCBvdGhlcnMgYXJlIG5vdCBpbml0aWFsaXplZCwKd2hpY2ggd2lsbCBj
-YXVzZSB1bmV4cGVjdGVkIGtmcmVlIGJ1ZyBhdCBrZnJlZShidWYtPmJ1ZikgaW4gZnJlZV9idWYu
-Cgo+ICAJaWYgKCFidWYpCj4gIAkJZ290byBmYWlsOwo+IC0JYnVmLT5idWYgPSBremFsbG9jKGJ1
-Zl9zaXplLCBHRlBfS0VSTkVMKTsKPiArCj4gKwlidWYtPnNncGFnZXMgPSBucmJ1ZnM7Cj4gKwlp
-ZiAobnJidWZzID4gMCkKPiArCQlyZXR1cm4gYnVmOwo+ICsKPiArCWJ1Zi0+YnVmID0ga21hbGxv
-YyhidWZfc2l6ZSwgR0ZQX0FUT01JQyk7CgpZb3UgY2FuIGFsc28gdXNlIGt6YWxsb2MgaGVyZSBh
-cyBwcmV2aW91cyBjb2RlIGRvZXMuCkJ1dCBpZiB0aGUgcmVhc29uIHdoeSB1c2luZyBremFsbG9j
-IGNvbWVzIGZyb20gdGhlIHNlY3VyaXR5LApJIHRoaW5rIGttYWxsb2MgaXMgZW5vdWdoIGhlcmUs
-IHNpbmNlIHRoZSBob3N0IGNhbiBhY2Nlc3MKYWxsIHRoZSBndWVzdCBwYWdlcyBhbnl3YXkuCgo+
-ICAJaWYgKCFidWYtPmJ1ZikKPiAgCQlnb3RvIGZyZWVfYnVmOwo+ICAJYnVmLT5sZW4gPSAwOwo+
-ICAJYnVmLT5vZmZzZXQgPSAwOwo+ICAJYnVmLT5zaXplID0gYnVmX3NpemU7Cj4gKwo+ICsJLyog
-UHJlcGFyZSBzY2F0dGVyIGJ1ZmZlciBmb3Igc2VuZGluZyAqLwo+ICsJc2dfaW5pdF9vbmUoYnVm
-LT5zZywgYnVmLT5idWYsIGJ1Zl9zaXplKTsKPiAgCXJldHVybiBidWY7Cj4gIAo+ICBmcmVlX2J1
-ZjoKClRoYW5rIHlvdSwKCgotLSAKTWFzYW1pIEhJUkFNQVRTVQpTb2Z0d2FyZSBQbGF0Zm9ybSBS
-ZXNlYXJjaCBEZXB0LiBMaW51eCBUZWNobm9sb2d5IENlbnRlcgpIaXRhY2hpLCBMdGQuLCBZb2tv
-aGFtYSBSZXNlYXJjaCBMYWJvcmF0b3J5CkUtbWFpbDogbWFzYW1pLmhpcmFtYXRzdS5wdEBoaXRh
-Y2hpLmNvbQoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Pawel Moll <pawel.moll@arm.com> writes:
+
+> On Tue, 2012-09-25 at 01:11 +0100, Rusty Russell wrote:
+>> > Would you be so kind and consider getting those two small fixes into
+>> > 3.7 merge? All credits go to Brian, all shame on me :-)
+>> 
+>> Should these also be cc'd to stable@kernel.org?
+>
+> I was thinking about it, but as the problem manifests itself mainly on
+> architectures with large page size, the impact is limited.
+>
+> But if you think it's worth it, I will repost with Cc: stable.
+
+I agree with you. But if it's not CC' stable, it's not for 3.7 either,
+since at this late stage the rules are basically synonymous.
+
+Cheers,
+Rusty.
