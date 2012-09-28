@@ -1,15 +1,15 @@
-From: Asias He <asias@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio-blk: Disable callback in virtblk_done()
-Date: Fri, 28 Sep 2012 15:03:56 +0800
-Message-ID: <50654BDC.4060805@redhat.com>
+Date: Fri, 28 Sep 2012 10:32:22 +0200
+Message-ID: <20120928083222.GA5848@redhat.com>
 References: <1348540577-7474-1-git-send-email-asias@redhat.com>
 	<5061BAED.9020205@redhat.com> <87ehlo497o.fsf@rustcorp.com.au>
-	<5063F6D2.7030908@redhat.com> <87fw623chz.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87fw623chz.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <87ehlo497o.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +20,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/28/2012 02:08 PM, Rusty Russell wrote:
-> Asias He <asias@redhat.com> writes:
->>> I forgot about the cool hack which MST put in to defer event updates
->>> using disable_cb/enable_cb.
->>
->> Hmm, are you talking about virtqueue_enable_cb_delayed()?
-> 
-> Just the fact that virtqueue_disable_cb() prevents updates of
-> used_index, and then we do the update in virtqueue_enable_cb().
+On Thu, Sep 27, 2012 at 09:40:03AM +0930, Rusty Russell wrote:
+> I forgot about the cool hack which MST put in to defer event updates
+> using disable_cb/enable_cb.
 
-Okay.
+I considered sticking some invalid value
+in event index on disable but in my testing it did not seem to
+give any gain, and knowing actual index of the other side
+is better for debugging.
 
 -- 
-Asias
+MST
