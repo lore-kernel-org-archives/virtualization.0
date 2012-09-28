@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH qemu] virtio-net: add feature bit for any header s/g
-Date: Fri, 28 Sep 2012 11:31:10 +0200
-Message-ID: <20120928093110.GA6935@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCHv6 0/3] virtio_console: Add rproc_serial device
+Date: Fri, 28 Sep 2012 18:18:10 +0530
+Message-ID: <20120928124810.GB25916@amit.redhat.com>
+References: <1348580837-10919-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <1348580837-10919-1-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,45 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Lendacky <tahm@linux.vnet.ibm.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, avi@redhat.com, Sasha Levin <levinsasha928@gmail.com>
+To: sjur.brandeland@stericsson.com
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, sjurbren@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Old qemu versions required that 1st s/g entry is the header.
+On (Tue) 25 Sep 2012 [15:47:14], sjur.brandeland@stericsson.com wrote:
+> From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> =
 
-My recent patchset titled "virtio-net: iovec handling cleanup"
-removed this limitation but a feature
-bit is needed so guests know it's safe to lay out
-header differently.
+> I thought rebasing rproc_serial to linux-next was going to be trivial.
+> But when starting the merge I realized that I had to refactor the
+> the patches from  Masami Hiramatsu. The splice support has the same issue
+> as I faced, with different type of buffers in the out_vq.
+> So I ended up refactoring the splice functionality. The code
+> size got smaller so hopefully this a step in the right direction.
+> =
 
-This patch applies on top and adds such a feature bit.
-virtio net header inline with the data is beneficial
-for latency and small packet bandwidth.
+> This refactoring also make introduction of rproc_serial cleaner.
+> =
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- hw/virtio-net.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+> As requested I also added a patch for not initializing buffers.
+> =
 
-diff --git a/hw/virtio-net.h b/hw/virtio-net.h
-index 36aa463..e7187e4 100644
---- a/hw/virtio-net.h
-+++ b/hw/virtio-net.h
-@@ -44,6 +44,7 @@
- #define VIRTIO_NET_F_CTRL_RX    18      /* Control channel RX mode support */
- #define VIRTIO_NET_F_CTRL_VLAN  19      /* Control channel VLAN filtering */
- #define VIRTIO_NET_F_CTRL_RX_EXTRA 20   /* Extra RX mode control support */
-+#define VIRTIO_NET_F_ANY_HEADER_SG 22   /* Host can handle any header s/g */
- 
- #define VIRTIO_NET_S_LINK_UP    1       /* Link is up */
- 
-@@ -186,5 +187,6 @@ struct virtio_net_ctrl_mac {
-         DEFINE_PROP_BIT("ctrl_vq", _state, _field, VIRTIO_NET_F_CTRL_VQ, true), \
-         DEFINE_PROP_BIT("ctrl_rx", _state, _field, VIRTIO_NET_F_CTRL_RX, true), \
-         DEFINE_PROP_BIT("ctrl_vlan", _state, _field, VIRTIO_NET_F_CTRL_VLAN, true), \
--        DEFINE_PROP_BIT("ctrl_rx_extra", _state, _field, VIRTIO_NET_F_CTRL_RX_EXTRA, true)
-+        DEFINE_PROP_BIT("ctrl_rx_extra", _state, _field, VIRTIO_NET_F_CTRL_RX_EXTRA, true), \
-+        DEFINE_PROP_BIT("any_header_sg", _state, _field, VIRTIO_NET_F_ANY_HEADER_SG, true)
- #endif
--- 
-MST
+> I have tested the VIRTIO_CONSOLE device by looping large amount of data
+> through character device and tty, with lockdep and slub-debug on.
+> This looks stable for me. I've also done a simple test of splice.
+
+Thanks; I just passed these patches through my testsuite and things
+are working fine.  I'll review them in some time.
+
+		Amit
