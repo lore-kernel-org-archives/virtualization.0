@@ -1,18 +1,15 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 1/3] virtio_console:Merge struct buffer_token into struct
-	port_buffer
-Date: Mon, 1 Oct 2012 15:09:49 +0530
-Message-ID: <20121001093949.GE9810@amit.redhat.com>
+Subject: Re: [PATCHv5 2/3] virtio_console: Add support for remoteproc serial
+Date: Mon, 1 Oct 2012 15:22:57 +0530
+Message-ID: <20121001095257.GF9810@amit.redhat.com>
 References: <1348580837-10919-1-git-send-email-sjur.brandeland@stericsson.com>
-	<1348580837-10919-2-git-send-email-sjur.brandeland@stericsson.com>
-	<50626C11.9040708@hitachi.com>
-	<81C3A93C17462B4BBD7E272753C1057923BD8365F7@EXDCVYMBSTM005.EQ1STM.local>
+	<1348580837-10919-3-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <81C3A93C17462B4BBD7E272753C1057923BD8365F7@EXDCVYMBSTM005.EQ1STM.local>
+In-Reply-To: <1348580837-10919-3-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,85 +19,154 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur BRENDELAND <sjur.brandeland@stericsson.com>
-Cc: "sjurbren@gmail.com" <sjurbren@gmail.com>, "Michael S.  Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "yrl.pp-manager.tt@hitachi.com" <yrl.pp-manager.tt@hitachi.com>, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+To: sjur.brandeland@stericsson.com
+Cc: Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, sjurbren@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Linus Walleij <linus.walleij@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) 26 Sep 2012 [09:48:12], Sjur BRENDELAND wrote:
-> > > This merge reduces code size by unifying the approach for
-> > > sending scatter-lists and regular buffers. Any type of
-> > > write operation (splice, write, put_chars) will now allocate
-> > > a port_buffer and send_buf() and free_buf() can always be used.
-> > 
-> > Thanks!
-> > This looks much nicer and simpler. I just have some comments below.
-> 
-> OK, good to hear that you agree to this kind of change. I'll do a respin
-> of this patch fixing the issues you have pointed out.
-> 
-> > >  static void free_buf(struct port_buffer *buf)
-> > >  {
-> > > +	int i;
-> > > +
-> > >  	kfree(buf->buf);
-> > 
-> > this should be done only when !buf->sgpages, or (see below)
-> 
-> Agree, I'll put this statement in an else branch to the if-statement below.
+On (Tue) 25 Sep 2012 [15:47:16], sjur.brandeland@stericsson.com wrote:
 
-Not necessary; see my comments in another mail.
+> +static DEFINE_SPINLOCK(dma_bufs_lock);
+> +static LIST_HEAD(pending_free_dma_bufs);
+> +
+>  static void free_buf(struct port_buffer *buf)
+>  {
+>  	int i;
+> +	unsigned long flags;
+>  
+> -	kfree(buf->buf);
+> +	if (!buf->dev)
+> +		kfree(buf->buf);
 
-> > > -static struct port_buffer *alloc_buf(size_t buf_size)
-> > > +static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
-> > > +				     int nrbufs)
-> > >  {
-> > >  	struct port_buffer *buf;
-> > > +	size_t alloc_size;
-> > >
-> > > -	buf = kmalloc(sizeof(*buf), GFP_KERNEL);
-> > > +	/* Allocate buffer and the scatter list */
-> > > +	alloc_size = sizeof(*buf) + sizeof(struct scatterlist) * nrbufs;
-> > 
-> > This allocates one redundant sg entry when nrbuf > 0,
-> > but I think it is OK. (just a comment)
-> 
-> I did this on purpose for the sake of simplicity, but I can
-> change this to something like:
-> 	 alloc_size = sizeof(*buf) + sizeof(buf->sg) * max(nrbufs - 1, 1);
-> 
-> 
-> > > +	buf = kmalloc(alloc_size, GFP_ATOMIC);
-> > 
-> > This should be kzalloc(), or buf->buf and others are not initialized,
-> > which will cause unexpected kfree bug at kfree(buf->buf) in free_buf.
-> 
-> Agree, kzalloc() is better in this case. 
+Doesn't hurt to just kfree a NULL pointer; so check is not needed.
 
-Not really -- one thing I've picked up from Rusty is to use kmallocs
-and explicitly initialise values.  Then, missing such initialisations
-(like in this case) will cause tools like valgrind to show the error
-pretty quickly.
+> -	if (buf->sgpages)
+> +	if (buf->sgpages) {
+>  		for (i = 0; i < buf->sgpages; i++) {
+>  			struct page *page = sg_page(&buf->sg[i]);
+>  			if (!page)
+>  				break;
+>  			put_page(page);
+>  		}
+> +		return;
+> +	}
 
-> > >  	if (!buf)
-> > >  		goto fail;
-> > > -	buf->buf = kzalloc(buf_size, GFP_KERNEL);
-> > > +
-> > > +	buf->sgpages = nrbufs;
-> > > +	if (nrbufs > 0)
-> > > +		return buf;
-> > > +
-> > > +	buf->buf = kmalloc(buf_size, GFP_ATOMIC);
-> > 
-> > You can also use kzalloc here as previous code does.
-> > But if the reason why using kzalloc comes from the security,
-> > I think kmalloc is enough here, since the host can access
-> > all the guest pages anyway.
-> 
-> With this new patch alloc_buf() is used both for both RX and TX.
-> The out_vq did previously use malloc(). But I have preserved
-> the legacy behavior for the in_vq by calling memset() in function
-> fill_queue().
+No kfree(buf)?
 
-But we're dropping the memset/kzalloc anyway.
+> +	if (buf->dev && is_rproc_enabled) {
+> +
+> +		/* dma_free_coherent requires interrupts to be enabled. */
+> +		if (irqs_disabled()) {
+> +			/* queue up dma-buffers to be freed later */
+> +			spin_lock_irqsave(&dma_bufs_lock, flags);
+> +			list_add_tail(&buf->list, &pending_free_dma_bufs);
+> +			spin_unlock_irqrestore(&dma_bufs_lock, flags);
+> +			return;
+> +		}
+> +		dma_free_coherent(buf->dev, buf->size, buf->buf, buf->dma);
+> +
+> +		/* Release device refcnt and allow it to be freed */
+> +		might_sleep();
+> +		put_device(buf->dev);
+> +	}
+>  
+>  	kfree(buf);
+>  }
+>  
+> +static void reclaim_dma_bufs(void)
+> +{
+> +	unsigned long flags;
+> +	struct port_buffer *buf, *tmp;
+> +	LIST_HEAD(tmp_list);
+> +
+> +	WARN_ON(irqs_disabled());
+> +	if (list_empty(&pending_free_dma_bufs))
+> +		return;
+> +
+> +	BUG_ON(!is_rproc_enabled);
+> +
+> +	/* Create a copy of the pending_free_dma_bufs while holding the lock*/
+> +	spin_lock_irqsave(&dma_bufs_lock, flags);
+> +	list_cut_position(&tmp_list, &pending_free_dma_bufs,
+> +			  pending_free_dma_bufs.prev);
+> +	spin_unlock_irqrestore(&dma_bufs_lock, flags);
+> +
+> +	/* Release the dma buffers, without irqs enabled */
+> +	list_for_each_entry_safe(buf, tmp, &tmp_list, list) {
+> +		list_del(&buf->list);
+> +		free_buf(buf);
+> +	}
+> +}
+> +
+>  static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
+>  				     int nrbufs)
+>  {
+>  	struct port_buffer *buf;
+>  	size_t alloc_size;
+>  
+> +	if (is_rproc_serial(vq->vdev) && !irqs_disabled())
+> +		reclaim_dma_bufs();
+> +
+>  	/* Allocate buffer and the scatter list */
+>  	alloc_size = sizeof(*buf) + sizeof(struct scatterlist) * nrbufs;
+> -	buf = kmalloc(alloc_size, GFP_ATOMIC);
+> +	buf = kzalloc(alloc_size, GFP_ATOMIC);
+
+Why change from kmalloc to kzalloc?  It's better to split out such
+changes into separate patch for easier review.
+
+>  	if (!buf)
+>  		goto fail;
+>  
+> @@ -374,11 +444,30 @@ static struct port_buffer *alloc_buf(struct virtqueue *vq, size_t buf_size,
+>  	if (nrbufs > 0)
+>  		return buf;
+>  
+> -	buf->buf = kmalloc(buf_size, GFP_ATOMIC);
+> +	if (is_rproc_serial(vq->vdev)) {
+> +		/*
+> +		 * Allocate DMA memory from ancestor. When a virtio
+> +		 * device is created by remoteproc, the DMA memory is
+> +		 * associated with the grandparent device:
+> +		 * vdev => rproc => platform-dev.
+> +		 * The code here would have been less quirky if
+> +		 * DMA_MEMORY_INCLUDES_CHILDREN had been supported
+> +		 * in dma-coherent.c
+> +		 */
+> +		if (!vq->vdev->dev.parent || !vq->vdev->dev.parent->parent)
+> +			goto free_buf;
+> +		buf->dev = vq->vdev->dev.parent->parent;
+> +
+> +		/* Increase device refcnt to avoid freeing it*/
+
+missing space before */
+
+> +		get_device(buf->dev);
+> +		buf->buf = dma_alloc_coherent(buf->dev, buf_size, &buf->dma,
+> +					      GFP_ATOMIC);
+> +	} else {
+> +		buf->buf = kmalloc(buf_size, GFP_ATOMIC);
+> +	}
+> +
+>  	if (!buf->buf)
+>  		goto free_buf;
+> -	buf->len = 0;
+> -	buf->offset = 0;
+
+As noted in a comment to previous patch, please use kmalloc and
+explicit initialisation of variables.
+
+>  	buf->size = buf_size;
+>  
+>  	/* Prepare scatter buffer for sending */
+> @@ -838,6 +927,10 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
+>  		.u.data = &sgl,
+>  	};
+>  
+> +	/* rproc_serial does not support splice */
+> +	if (is_rproc_serial(port->out_vq->vdev))
+> +		return -EINVAL;
+
+Will something break if this is not done?
+
 
 		Amit
