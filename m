@@ -1,14 +1,15 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCHv6 0/3] virtio_console: Add rproc_serial device
-Date: Fri, 28 Sep 2012 18:18:10 +0530
-Message-ID: <20120928124810.GB25916@amit.redhat.com>
+Subject: Re: [PATCH 3/3] virtio_console: Don't initialize buffers to zero
+Date: Mon, 1 Oct 2012 13:54:17 +0530
+Message-ID: <20121001082417.GC9810@amit.redhat.com>
 References: <1348580837-10919-1-git-send-email-sjur.brandeland@stericsson.com>
+	<1348580837-10919-4-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1348580837-10919-1-git-send-email-sjur.brandeland@stericsson.com>
+In-Reply-To: <1348580837-10919-4-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: sjur.brandeland@stericsson.com
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, sjurbren@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Linus Walleij <linus.walleij@linaro.org>
+Cc: sjurbren@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 25 Sep 2012 [15:47:14], sjur.brandeland@stericsson.com wrote:
+On (Tue) 25 Sep 2012 [15:47:17], sjur.brandeland@stericsson.com wrote:
 > From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
 > =
 
-> I thought rebasing rproc_serial to linux-next was going to be trivial.
-> But when starting the merge I realized that I had to refactor the
-> the patches from  Masami Hiramatsu. The splice support has the same issue
-> as I faced, with different type of buffers in the out_vq.
-> So I ended up refactoring the splice functionality. The code
-> size got smaller so hopefully this a step in the right direction.
-> =
+> Skip initializing the receive buffers.
 
-> This refactoring also make introduction of rproc_serial cleaner.
-> =
+This tells 'what', but not 'why'.  Please add some more description.
+For the generic virtio ports case, at least, my original thinking was
+to not send random guest data to the host device.  However, we don't
+have any device isolation in the host yet, and doing that will be
+expensive, so it's not going to be done in the near future.. this can
+be safely skipped.
 
-> As requested I also added a patch for not initializing buffers.
-> =
+Also, please make this patch 1/3, so we don't end up doing
 
-> I have tested the VIRTIO_CONSOLE device by looping large amount of data
-> through character device and tty, with lockdep and slub-debug on.
-> This looks stable for me. I've also done a simple test of splice.
+ kzalloc->kmalloc+memset->kmalloc
 
-Thanks; I just passed these patches through my testsuite and things
-are working fine.  I'll review them in some time.
-
+Thanks,
 		Amit
