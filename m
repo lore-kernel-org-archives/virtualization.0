@@ -1,15 +1,15 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 0/2] virtio-scsi fixes for 3.6
-Date: Tue, 02 Oct 2012 11:12:13 +0200
-Message-ID: <506AAFED.2050600__6067.59343431822$1349169196$gmane$org@redhat.com>
-References: <1343309288-32615-1-git-send-email-pbonzini@redhat.com>
-	<50699682.9020804@redhat.com>
-	<1349165906.2406.13.camel@dabdike.int.hansenpartnership.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH] virtio-blk: Disable callback in virtblk_done()
+Date: Tue, 2 Oct 2012 16:42:58 +0200
+Message-ID: <CAJSP0QW4_1LJ5y=MCHt3pZYE+Tvw_xEb1-WpYtRGueAphmUhYw@mail.gmail.com>
+References: <1348540577-7474-1-git-send-email-asias@redhat.com>
+	<5061BAED.9020205@redhat.com> <87ehlo497o.fsf@rustcorp.com.au>
+	<50642400.5030906@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1349165906.2406.13.camel@dabdike.int.hansenpartnership.com>
+In-Reply-To: <50642400.5030906@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +19,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-scsi@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 02/10/2012 10:18, James Bottomley ha scritto:
-> On Mon, 2012-10-01 at 15:11 +0200, Paolo Bonzini wrote:
->> Il 26/07/2012 15:28, Paolo Bonzini ha scritto:
->>> James,
->>>
->>> patch 1 fixes scanning of LUNs whose number is greater than 255.  QEMU
->>> passes a max_lun of 16383 (because it uses SAM numbering) but in Linux
->>> it must become 32768 (because LUNs above 255 are "relocated" to 16640).
->>> Patch 2 is a resubmission of the patch for online resizing of virtio-scsi
->>> LUNs, which needs to be rebased.
->>>
->>> LUNs above 255 now work for all of scanning, hotplug, hotunplug and
->>> resize.
->>>
->>> Thanks,
->>>
->>> Paolo
->>>
->>> Paolo Bonzini (2):
->>>   virtio-scsi: fix LUNs greater than 255
->>>   virtio-scsi: support online resizing of disks
->>>
->>>  drivers/scsi/virtio_scsi.c  |   37 +++++++++++++++++++++++++++++++++++--
->>>  include/linux/virtio_scsi.h |    2 ++
->>>  2 files changed, 37 insertions(+), 2 deletions(-)
->>>
->>
->> Ping, are these patches going into 3.7?
-> 
-> They're 3.7 candidates yes (enhancements certainly aren't 3.6).
-> I seem to have become lost with the virtio-scsi updates since what I have
-> marked for inclusion is a patch series that's a partial intersection
-> with this.  I'll flush my queue for virto-scsi, please resend all the
-> missing patches you want in 3.7.
+On Thu, Sep 27, 2012 at 12:01 PM, Paolo Bonzini <pbonzini@redhat.com> wrote:
+> Il 27/09/2012 02:10, Rusty Russell ha scritto:
+>>>> >> +        do {
+>>>> >> +                virtqueue_disable_cb(vq);
+>>>> >> +                while ((vbr = virtqueue_get_buf(vblk->vq, &len)) != NULL) {
+>>>> >> +                        if (vbr->bio) {
+>>>> >> +                                virtblk_bio_done(vbr);
+>>>> >> +                                bio_done = true;
+>>>> >> +                        } else {
+>>>> >> +                                virtblk_request_done(vbr);
+>>>> >> +                                req_done = true;
+>>>> >> +                        }
+>>>> >>                  }
+>>>> >> -        }
+>>>> >> +        } while (!virtqueue_enable_cb(vq));
+>>>> >>          /* In case queue is stopped waiting for more buffers. */
+>>>> >>          if (req_done)
+>>>> >>                  blk_start_queue(vblk->disk->queue);
+>> Fascinating.  Please just confirm that VIRTIO_RING_F_EVENT_IDX is
+>> enabled?
+>
+> Yeah, it's a nice and cheap trick.  Stefan, I see that you had this in
+> virtio-scsi since even before I picked it up.  Do you remember how you
+> came up with it?
 
-Ok, will do so soon and tag the appropriate ones for stable.
+I've played with disable_cb/enable_cb previously in virtio-blk and
+virtio-scsi when aliguori had suggested reducing notifies.  I
+definitely didn't invent it :).
 
-Paolo
+Stefan
