@@ -1,13 +1,11 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [Qemu-devel] Proposal for virtio standardization.
-Date: Thu, 04 Oct 2012 13:49:56 -0500
-Message-ID: <874nmajcmj.fsf__9889.53479468382$1349391806$gmane$org@codemonkey.ws>
-References: <87zk4c2tqq.fsf@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PULL] virtio
+Date: Fri, 05 Oct 2012 11:09:51 +0930
+Message-ID: <87bogh1yu0.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87zk4c2tqq.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,76 +15,102 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, Adam Litke <agl@us.ibm.com>, Amit Shah <amit.shah@redhat.com>, Avi Kivity <avi@redhat.com>, Avishay Traeger <AVISHAY@il.ibm.com>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Paolo Bonzini <pbonzini@redhat.com>, Pawel Moll <pawel.moll@arm.com>, Sasha Levin <levinsasha928@gmail.com>, Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: virtualization@lists.linux-foundation.org, qemu-devel <qemu-devel@nongnu.org>, kvm@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Kent Overstreet <koverstreet@google.com>, Peter Senna Tschudin <peter.senna@gmail.com>, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Christoph Hellwig <hch@lst.de>, Alexey Khoroshilov <khoroshilov@ispras.ru>, Brian Foley <brian.foley@arm.com>, Shaohua Li <shli@kernel.org>, Dan Carpenter <dan.carpenter@oracle.com>, Pawel Moll <pawel.moll@arm.com>, Steven Rostedt <rostedt@goodmis.org>, Amit Shah <amit.shah@redhat.com>, Jens Axboe <axboe@kernel.dk>, LKML <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell <rusty@rustcorp.com.au> writes:
+The following changes since commit 925a6f0bf8bd122d5d2429af7f0ca0fecf4ae71f:
 
-> Hi all,
->
-> 	I've had several requests for a more formal approach to the
-> virtio draft spec, and (after some soul-searching) I'd like to try that.
->
-> 	The proposal is to use OASIS as the standards body, as it's
-> fairly light-weight as these things go.  For me this means paperwork and
-> setting up a Working Group and getting the right people involved as
-> Voting members starting with the current contributors; for most of you
-> it just means a new mailing list, though I'll be cross-posting any
-> drafts and major changes here anyway.
->
-> 	I believe that a documented standard (aka virtio 1.0) will
-> increase visibility and adoption in areas outside our normal linux/kvm
-> universe.  There's been some of that already, but this is the clearest
-> path to accelerate it.  Not the easiest path, but I believe that a solid
-> I/O standard is a Good Thing for everyone.
->
-> 	Yet I also want to decouple new and experimental development
-> from the standards effort; running code comes first.  New feature bits
-> and new device numbers should be reservable without requiring a full
-> spec change.
->
-> So the essence of my proposal is:
-> 1) I start a Working Group within OASIS where we can aim for virtio spec
->    1.0.
->
-> 2) The current spec is textually reordered so the core is clearly
->    bus-independent, with PCI, mmio, etc appendices.
->
-> 3) Various clarifications, formalizations and cleanups to the spec text,
->    and possibly elimination of old deprecated features.
->
-> 4) The only significant change to the spec is that we use PCI
->    capabilities, so we can have infinite feature bits.
->    (see http://lists.linuxfoundation.org/pipermail/virtualization/2011-December/019198.html)
+  Merge tag 'hwspinlock-3.6-fix' of git://git.kernel.org/pub/scm/linux/kernel/git/ohad/hwspinlock (2012-09-18 11:58:54 -0700)
 
-We discussed this on IRC last night.  I don't think PCI capabilites are
-a good mechanism to use...
+are available in the git repository at:
 
-PCI capabilities are there to organize how the PCI config space is
-allocated to allow vendor extensions to co-exist with future PCI
-extensions.
 
-But we've never used the PCI config space within virtio-pci.  We do
-everything in BAR0.  I don't think there's any real advantage of using
-the config space vs. a BAR for virtio-pci.
+  git://git.kernel.org/pub/scm/linux/kernel/git/rusty/linux.git virtio-next
 
-The nice thing about using a BAR is that the region is MMIO or PIO.
-This maps really nicely to non-PCI transports too.  But extending the
-PCI config space (especially dealing with capability allocation) is
-pretty gnarly and there isn't an obvious equivalent outside of PCI.
+for you to fetch changes up to ca16f580a5db7e60bfafe59a50bb133bd3347491:
 
-There are very devices that we emulate today that make use of extended
-PCI device registers outside the platform devices (that have no BARs).
+  lguest: fix occasional crash in example launcher. (2012-10-04 12:12:59 +0930)
 
-Regards,
+----------------------------------------------------------------
+New workflow: same git trees pulled by linux-next get sent straight to Linus.
+Git is awkward at shuffling patches compared with quilt or mq, but that doesn't
+happen often once things get into my -next branch.
 
-Anthony Liguori
+----------------------------------------------------------------
+Alexey Khoroshilov (1):
+      virtio: console: fix error handling in init() function
 
->
-> 5) Changes to the ring layout and other such things are deferred to a
->    future virtio version; whether this is done within OASIS or
->    externally depends on how well this works for the 1.0 release.
->
-> Thoughts?
-> Rusty.
+Asias He (3):
+      virtio-blk: Add bio-based IO path for virtio-blk
+      virtio-blk: Add REQ_FLUSH and REQ_FUA support to bio path
+      virtio-blk: Disable callback in virtblk_done()
+
+Brian Foley (2):
+      virtio_mmio: fix off by one error allocating queue
+      virtio_mmio: Don't attempt to create empty virtqueues
+
+Dan Carpenter (1):
+      virtio-blk: fix NULL checking in virtblk_alloc_req()
+
+Jason Wang (2):
+      virtio-ring: move queue_index to vring_virtqueue
+      virtio: introduce an API to set affinity for a virtqueue
+
+Masami Hiramatsu (5):
+      virtio/console: Add splice_write support
+      virtio/console: Add a failback for unstealable pipe buffer
+      virtio/console: Wait until the port is ready on splice
+      ftrace: Allow stealing pages from pipe buffer
+      virtio/console: Allocate scatterlist according to the current pipe size
+
+Michael S. Tsirkin (3):
+      virtio-balloon: dependency fix
+      virtio: support reserved vqs
+      virtio: don't crash when device is buggy
+
+Peter Senna Tschudin (1):
+      drivers/virtio/virtio_pci.c: fix error return code
+
+Rusty Russell (4):
+      virtio_balloon: not EXPERIMENTAL any more.
+      virtio: add help to CONFIG_VIRTIO option.
+      virtio: remove CONFIG_VIRTIO_RING
+      lguest: fix occasional crash in example launcher.
+
+Yoshihiro YUNOMAE (2):
+      tools: Add guest trace agent as a user tool
+      tools: Fix pthread flag for Makefile of trace-agent used by virtio-trace
+
+ arch/s390/Kconfig                           |    1 -
+ arch/x86/lguest/Kconfig                     |    1 -
+ drivers/block/virtio_blk.c                  |  306 +++++++++++++++++++++++----
+ drivers/char/virtio_console.c               |  210 ++++++++++++++++--
+ drivers/lguest/lguest_device.c              |    5 +-
+ drivers/remoteproc/remoteproc_virtio.c      |    5 +-
+ drivers/rpmsg/Kconfig                       |    1 -
+ drivers/s390/kvm/kvm_virtio.c               |    5 +-
+ drivers/virtio/Kconfig                      |   17 +-
+ drivers/virtio/Makefile                     |    3 +-
+ drivers/virtio/virtio.c                     |    2 +-
+ drivers/virtio/virtio_mmio.c                |   29 ++-
+ drivers/virtio/virtio_pci.c                 |   68 +++++-
+ drivers/virtio/virtio_ring.c                |   14 +-
+ include/linux/virtio.h                      |    2 +
+ include/linux/virtio_config.h               |   23 ++
+ include/linux/virtio_ring.h                 |    3 +-
+ kernel/trace/trace.c                        |    8 +-
+ tools/lguest/lguest.c                       |    1 +
+ tools/virtio/virtio-trace/Makefile          |   13 ++
+ tools/virtio/virtio-trace/README            |  118 +++++++++++
+ tools/virtio/virtio-trace/trace-agent-ctl.c |  137 ++++++++++++
+ tools/virtio/virtio-trace/trace-agent-rw.c  |  192 +++++++++++++++++
+ tools/virtio/virtio-trace/trace-agent.c     |  270 +++++++++++++++++++++++
+ tools/virtio/virtio-trace/trace-agent.h     |   75 +++++++
+ 25 files changed, 1402 insertions(+), 107 deletions(-)
+ create mode 100644 tools/virtio/virtio-trace/Makefile
+ create mode 100644 tools/virtio/virtio-trace/README
+ create mode 100644 tools/virtio/virtio-trace/trace-agent-ctl.c
+ create mode 100644 tools/virtio/virtio-trace/trace-agent-rw.c
+ create mode 100644 tools/virtio/virtio-trace/trace-agent.c
+ create mode 100644 tools/virtio/virtio-trace/trace-agent.h
