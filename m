@@ -1,16 +1,17 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 0/3] virtio-net: inline header support
-Date: Fri, 05 Oct 2012 09:47:01 +0200
-Message-ID: <506E9075.6000104@redhat.com>
+Date: Fri, 05 Oct 2012 15:13:01 +0930
+Message-ID: <87391t1nkq.fsf__40391.6521034718$1349505001$gmane$org@rustcorp.com.au>
 References: <cover.1348824232.git.mst@redhat.com>
-	<87vces2gxq.fsf@rustcorp.com.au> <87mx033u74.fsf@codemonkey.ws>
-	<87391u3o67.fsf@rustcorp.com.au> <87wqz6kgg4.fsf@codemonkey.ws>
-	<87lifm1y1n.fsf@rustcorp.com.au>
+	<87vces2gxq.fsf__45058.6618776017$1349247807$gmane$org@rustcorp.com.au>
+	<506C192E.5060700@redhat.com> <87bogj2j1b.fsf@rustcorp.com.au>
+	<506D3610.7000103@redhat.com> <87ipaq1jtt.fsf@rustcorp.com.au>
+	<506D8DD5.20904@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87lifm1y1n.fsf@rustcorp.com.au>
+In-Reply-To: <506D8DD5.20904@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,24 +21,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, Anthony Liguori <anthony@codemonkey.ws>, avi@redhat.com, Thomas Lendacky <tahm@linux.vnet.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <levinsasha928@gmail.com>, virtualization@lists.linux-foundation.org, Thomas Lendacky <tahm@linux.vnet.ibm.com>, avi@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 04/10/2012 09:44, Rusty Russell ha scritto:
-> -In particular, no implementation should use the descriptor
-> -boundaries to determine the size of any header in a request.[footnote:
-> -The current qemu device implementations mistakenly insist that
-> -the first descriptor cover the header in these cases exactly, so
-> -a cautious driver should arrange it so.
-> +[footnote:
-> +It was previously asserted that framing should be independent of
-> +message contents, yet invariably drivers layed out messages in
-> +reliable ways and devices assumed it. In addition, the
-> +specifications for virtio_blk and virtio_scsi require intuiting
-> +field lengths from frame boundaries.
->  ]
+Paolo Bonzini <pbonzini@redhat.com> writes:
 
-Not true for virtio_scsi...
+> Il 04/10/2012 14:51, Rusty Russell ha scritto:
+>> Paolo Bonzini <pbonzini@redhat.com> writes:
+>> 
+>>> Il 04/10/2012 02:11, Rusty Russell ha scritto:
+>>>>>> There's a reason I haven't done this.  I really, really dislike "my
+>>>>>> implemention isn't broken" feature bits.  We could have an infinite
+>>>>>> number of them, for each bug in each device.
+>>>>>
+>>>>> However, this bug affects (almost) all implementations and (almost) all
+>>>>> devices.  It even makes sense to reserve a transport feature bit for it
+>>>>> instead of a device feature bit.
+>>>>
+>>>> Perhaps, but we have to fix the bugs first!
+>>>
+>>> Yes. :)  Isn't that what mst's patch does?
+>>>
+>>>> As I said, my torture patch broke qemu immediately.  Since noone has
+>>>> leapt onto fixing that, I'll take a look now...
+>>>
+>>> I can look at virtio-scsi.
+>> 
+>> Actually, you can't, see my reply to Anthony...
+>> 
+>> Message-ID: <87lifm1y1n.fsf@rustcorp.com.au>
+>
+>     struct virtio_scsi_req_cmd {
+>         // Read-only
+>         u8 lun[8];
+>         u64 id;
+>         u8 task_attr;
+>         u8 prio;
+>         u8 crn;
+>         char cdb[cdb_size];
+>         char dataout[];
+>         // Write-only part
+>         u32 sense_len;
+>         u32 residual;
+>         u16 status_qualifier;
+>         u8 status;
+>         u8 response;
+>         u8 sense[sense_size];
+>         char datain[];
+>     };
+>
+> where cdb_size and sense_size come from configuration space.  The device
+> right now expects everything before dataout/datain to be in a single
+> descriptor, but that's in no way part of the spec.  Am I missing
+> something egregious?
 
-Paolo
+Since you wrote it, I hope not :)
+
+That's good.  But virtio_blk's scsi command is insoluble AFAICT.  As I
+said to Anthony, the best rules are "always" and "never", so I'd really
+rather not have to grandfather that in.
+
+Cheers,
+Rusty.
