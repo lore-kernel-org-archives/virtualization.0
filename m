@@ -1,14 +1,14 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
 Subject: Re: [Qemu-devel] Using PCI config space to indicate config location
-Date: Mon, 08 Oct 2012 08:58:34 -0500
-Message-ID: <87bogddq0l.fsf__18057.0666598671$1349704742$gmane$org@codemonkey.ws>
+Date: Mon, 08 Oct 2012 16:58:28 +0200
+Message-ID: <5072EA14.30809@redhat.com>
 References: <87zk4c2tqq.fsf@rustcorp.com.au> <874nmajcmj.fsf@codemonkey.ws>
-	<87y5jhpuu2.fsf@rustcorp.com.au>
+	<87y5jhpuu2.fsf@rustcorp.com.au> <87bogddq0l.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87y5jhpuu2.fsf@rustcorp.com.au>
+In-Reply-To: <87bogddq0l.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,113 +18,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
+To: Anthony Liguori <aliguori@us.ibm.com>
 Cc: virtualization@lists.linux-foundation.org, qemu-devel <qemu-devel@nongnu.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell <rusty@rustcorp.com.au> writes:
+  Hi,
 
-> (Topic updated, cc's trimmed).
->
-> Anthony Liguori <aliguori@us.ibm.com> writes:
->> Rusty Russell <rusty@rustcorp.com.au> writes:
->>> 4) The only significant change to the spec is that we use PCI
->>>    capabilities, so we can have infinite feature bits.
->>>    (see http://lists.linuxfoundation.org/pipermail/virtualization/2011-December/019198.html)
->>
->> We discussed this on IRC last night.  I don't think PCI capabilites are
->> a good mechanism to use...
->>
->> PCI capabilities are there to organize how the PCI config space is
->> allocated to allow vendor extensions to co-exist with future PCI
->> extensions.
->>
->> But we've never used the PCI config space within virtio-pci.  We do
->> everything in BAR0.  I don't think there's any real advantage of using
->> the config space vs. a BAR for virtio-pci.
->
-> Note before anyone gets confused; we were talking about using the PCI
-> config space to indicate what BAR(s) the virtio stuff is in.  An
-> alternative would be to simply specify a new layout format in BAR1.
->
-> The arguments for a more flexible format that I know of:
->
-> 1) virtio-pci has already extended the pci-specific part of the
->    configuration once (for MSI-X), so I don't want to assume it won't
->    happen again.
+> But I think we could solve this in a different way.  I think we could
+> just move the virtio configuration space to BAR1 by using a transport
+> feature bit.
 
-"configuration" is the wrong word here.
+Why hard-code stuff?
 
-The virtio-pci BAR0 layout is:
+I think it makes alot of sense to have a capability simliar to msi-x
+which simply specifies bar and offset of the register sets:
 
-   0..19   virtio-pci registers
-   20+     virtio configuration space
+[root@fedora ~]# lspci -vvs4
+00:04.0 SCSI storage controller: Red Hat, Inc Virtio block device
+        [ ... ]
+	Region 0: I/O ports at c000 [size=64]
+	Region 1: Memory at fc029000 (32-bit) [size=4K]
+	Capabilities: [40] MSI-X: Enable+ Count=2 Masked-
+		Vector table: BAR=1 offset=00000000
+		PBA: BAR=1 offset=00000800
 
-MSI-X needed to add additional virtio-pci registers, so now we have:
+So we could have for virtio something like this:
 
-   0..19   virtio-pci registers
+        Capabilities: [??] virtio-regs:
+                legacy: BAR=0 offset=0
+                virtio-pci: BAR=1 offset=1000
+                virtio-cfg: BAR=1 offset=1800
 
-if MSI-X:
-   20..23  virtio-pci MSI-X registers
-   24+     virtio configuration space
-else:
-   20+     virtio configuration space
+> That then frees up the entire BAR0 for use as virtio-pci registers.  We
+> can then always include the virtio-pci MSI-X register space and
+> introduce all new virtio-pci registers as simply being appended.
 
-I agree, this stinks.
+BAR0 needs to stay as-is for compatibility reasons.  New devices which
+don't have to care about old guests don't need to provide a 'legacy'
+register region.
 
-But I think we could solve this in a different way.  I think we could
-just move the virtio configuration space to BAR1 by using a transport
-feature bit.
+Most devices have mmio at BAR1 for msi-x support anyway, we can place
+the virtio-pci and virtio configuration registers there too by default.
+ I wouldn't hardcode that though.
 
-That then frees up the entire BAR0 for use as virtio-pci registers.  We
-can then always include the virtio-pci MSI-X register space and
-introduce all new virtio-pci registers as simply being appended.
+> This new feature bit then becomes essentially a virtio configuration
+> latch.  When unacked, virtio configuration hides new registers, when
+> acked, those new registers are exposed.
 
-This new feature bit then becomes essentially a virtio configuration
-latch.  When unacked, virtio configuration hides new registers, when
-acked, those new registers are exposed.
+I'd just expose them all all the time.
 
-Another option is to simply put new registers after the virtio
-configuration blob.
+>> 2) ISTR an argument about mapping the ISR register separately, for
+>>    performance, but I can't find a reference to it.
+> 
+> I think the rationale is that ISR really needs to be PIO but everything
+> else doesn't.  PIO is much faster on x86 because it doesn't require
+> walking page tables or instruction emulation to handle the exit.
 
-> 2) ISTR an argument about mapping the ISR register separately, for
->    performance, but I can't find a reference to it.
+Is this still a pressing issue?  With MSI-X enabled ISR isn't needed,
+correct?  Which would imply that pretty much only old guests without
+MSI-X support need this, and we don't need to worry that much when
+designing something new ...
 
-I think the rationale is that ISR really needs to be PIO but everything
-else doesn't.  PIO is much faster on x86 because it doesn't require
-walking page tables or instruction emulation to handle the exit.
-
-The argument to move the remaining registers to MMIO is to allow 64-bit
-accesses to registers which isn't possible with PIO.
-
->> This maps really nicely to non-PCI transports too.
->
-> This isn't right.  Noone else can use the PCI layout.  While parts are
-> common, other parts are pci-specific (MSI-X and ISR for example), and
-> yet other parts are specified by PCI elsewhere (eg interrupt numbers).
->
->> But extending the
->> PCI config space (especially dealing with capability allocation) is
->> pretty gnarly and there isn't an obvious equivalent outside of PCI.
->
-> That's OK, because general changes should be done with feature bits, and
-> the others all have an infinite number.  Being the first, virtio-pci has
-> some unique limitations we'd like to fix.
->
->> There are very devices that we emulate today that make use of extended
->> PCI device registers outside the platform devices (that have no BARs).
->
-> This sentence confused me?
-
-There is a missing "few".  "There are very few devices..."
-
-Extending the PCI configuration space is unusual for PCI devices.  That
-was the point.
-
-Regards,
-
-Anthony Liguori
-
->
-> Thanks,
-> Rusty.
+cheers,
+  Gerd
