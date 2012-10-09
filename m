@@ -1,14 +1,18 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v2
-Date: Tue, 9 Oct 2012 13:39:37 -0400
-Message-ID: <20121009173937.GA28399__5777.12975577942$1349808049$gmane$org@infradead.org>
-References: <1349769918-8611-1-git-send-email-asias@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [Qemu-devel] Using PCI config space to indicate config location
+Date: Tue, 09 Oct 2012 22:24:16 +0200
+Message-ID: <507487F0.2050609@redhat.com>
+References: <87zk4c2tqq.fsf@rustcorp.com.au> <874nmajcmj.fsf@codemonkey.ws>
+	<87y5jhpuu2.fsf@rustcorp.com.au> <87bogddq0l.fsf@codemonkey.ws>
+	<5072EA14.30809@redhat.com> <87k3v1gfw1.fsf@codemonkey.ws>
+	<507333F1.1060000@redhat.com> <874nm4u1in.fsf@codemonkey.ws>
+	<87sj9o8qn7.fsf@rustcorp.com.au> <87sj9oh0pm.fsf@codemonkey.ws>
+	<5073C52D.20802@redhat.com> <87wqyzll8r.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1349769918-8611-1-git-send-email-asias@redhat.com>
+In-Reply-To: <87wqyzll8r.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,57 +22,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: virtualization@lists.linux-foundation.org, qemu-devel <qemu-devel@nongnu.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> +static int vhost_blk_req_submit(struct vhost_blk_req *req, struct file *file)
-> +{
-> +
-> +	struct inode *inode = file->f_mapping->host;
-> +	struct block_device *bdev = inode->i_bdev;
-> +	int ret;
+  Hi,
 
-Please just pass the block_device directly instead of a file struct.
+>> Why use two bars for this?  You can put them into one mmio bar, together
+>> with the msi-x vector table and PBA.  Of course a pci capability
+>> describing the location is helpful for that ;)
+> 
+> You don't need a capability.  You can also just add a "config offset"
+> field to the register set and then make the semantics that it occurs in
+> the same region.
 
-> +
-> +	ret = vhost_blk_bio_make(req, bdev);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	vhost_blk_bio_send(req);
-> +
-> +	return ret;
-> +}
+Yes, that will work too.  Removes some freedom to place the register
+ranges, but given that we don't want burn bars and thus prefer to place
+everything into a single mmio bar that shouldn't be an issue.  Real
+hardware does this too btw (xhci for example).
 
-Then again how simple the this function is it probably should just go
-away entirely.
+>> Main advantage of defining a register set with just isr is that it
+>> reduces pio address space consumtion for new virtio devices which don't
+>> have to worry about the legacy layout (8 bytes which is minimum size for
+>> io bars instead of 64 bytes).
+> 
+> Doing some rough math, we should have at least 16k of PIO space.  That
+> let's us have well over 500 virtio-pci devices with the current register
+> layout.
 
-> +	set_fs(USER_DS);
+I've seen worries nevertheless, but given we have virtio-scsi now which
+can handle lots of disks without needing lots of virtio-pci devices it
+is probably not that a big issue any more.
 
-What do we actually need the set_fs for here?
+>>>> The detection is simple: if BAR1 has non-zero length, it's new-style,
+>>>> otherwise legacy.
+>>
+>> Doesn't fly.  BAR1 is in use today for MSI-X support.
+> 
+> But the location is specified via capabilities so we can change the
+> location to be within BAR1 at a non-conflicting offset.
 
-> +
-> +static inline void vhost_blk_stop(struct vhost_blk *blk, struct file **file)
-> +{
-> +
-> +	*file = vhost_blk_stop_vq(blk, &blk->vq);
-> +}
+Sure.  Nevertheless "BAR1 has non-zero length" can't be used to detect
+new-style virtio as old-style devices already have BAR1 with a non-zero
+length.
 
-What is the point of this helper?  Also I can't see anyone actually
-using the returned struct file.
+So how about this:
 
-> +	case VIRTIO_BLK_T_FLUSH:
-> +		ret = vfs_fsync(file, 1);
-> +		status = ret < 0 ? VIRTIO_BLK_S_IOERR : VIRTIO_BLK_S_OK;
-> +		if (!vhost_blk_set_status(req, status))
-> +			vhost_add_used_and_signal(&blk->dev, vq, head, ret);
-> +		break;
+(1) Add a vendor specific pci capability for new-style virtio.
+    Specifies the pci bar used for new-style virtio registers.
+    Guests can use it to figure whenever new-style virtio is
+    supported and to map the correct bar (which will probably
+    be bar 1 in most cases).
 
-Sending a fsync here is actually wrong in two different ways:
+(2) Have virtio-offsets register set, located at the new-style bar,
+    offset 0:
 
- a) it operates at the filesystem level instead of bio level
- b) it's a blocking operation
+    struct virtio_offsets {
+       __le32 num_offsets;        // so we can extend this later
+       __le32 virtio_pci_offset;  // location of virtio-pci registers
+       __le32 virtio_cfg_offset;  // location of virtio config space
+    };
 
-It should instead send a REQ_FLUSH bio using the same submission scheme
-as the read/write requests.
+(3) place virtio-pci registers (same as 0..23 in bar 0) in the new-style
+    bar, offset virtio_pci_offset
+
+(4) place virtio config space (same as 20+/24+ in bar 0) in the
+    new-style bar, offset virtio_cfg_offset
+
+cheers,
+  Gerd
