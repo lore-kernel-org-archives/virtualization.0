@@ -1,18 +1,14 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [Qemu-devel] Using PCI config space to indicate config location
-Date: Tue, 09 Oct 2012 10:26:44 -0500
-Message-ID: <87wqyzll8r.fsf__16340.6415297233$1349796438$gmane$org@codemonkey.ws>
-References: <87zk4c2tqq.fsf@rustcorp.com.au> <874nmajcmj.fsf@codemonkey.ws>
-	<87y5jhpuu2.fsf@rustcorp.com.au> <87bogddq0l.fsf@codemonkey.ws>
-	<5072EA14.30809@redhat.com> <87k3v1gfw1.fsf@codemonkey.ws>
-	<507333F1.1060000@redhat.com> <874nm4u1in.fsf@codemonkey.ws>
-	<87sj9o8qn7.fsf@rustcorp.com.au> <87sj9oh0pm.fsf@codemonkey.ws>
-	<5073C52D.20802@redhat.com>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v2
+Date: Tue, 9 Oct 2012 13:39:37 -0400
+Message-ID: <20121009173937.GA28399__5777.12975577942$1349808049$gmane$org@infradead.org>
+References: <1349769918-8611-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5073C52D.20802@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1349769918-8611-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,141 +18,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, qemu-devel <qemu-devel@nongnu.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Asias He <asias@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Gerd Hoffmann <kraxel@redhat.com> writes:
+> +static int vhost_blk_req_submit(struct vhost_blk_req *req, struct file *file)
+> +{
+> +
+> +	struct inode *inode = file->f_mapping->host;
+> +	struct block_device *bdev = inode->i_bdev;
+> +	int ret;
 
->   Hi,
->
->>> Well, we also want to clean up the registers, so how about:
->>>
->>> BAR0: legacy, as is.  If you access this, don't use the others.
->
-> Ok.
->
->>> BAR1: new format virtio-pci layout.  If you use this, don't use BAR0.
->>> BAR2: virtio-cfg.  If you use this, don't use BAR0.
->
-> Why use two bars for this?  You can put them into one mmio bar, together
-> with the msi-x vector table and PBA.  Of course a pci capability
-> describing the location is helpful for that ;)
+Please just pass the block_device directly instead of a file struct.
 
-You don't need a capability.  You can also just add a "config offset"
-field to the register set and then make the semantics that it occurs in
-the same region.
+> +
+> +	ret = vhost_blk_bio_make(req, bdev);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	vhost_blk_bio_send(req);
+> +
+> +	return ret;
+> +}
 
->
->>> BAR3: ISR. If you use this, don't use BAR0.
->
-> Again, I wouldn't hardcode that but use a capability.
->
->>> I prefer the cases exclusive (ie. use one or the other) as a clear path
->>> to remove the legacy layout; and leaving the ISR in BAR0 leaves us with
->>> an ugly corner case in future (ISR is BAR0 + 19?  WTF?).
->
-> Ok, so we have four register sets:
->
->   (1) legacy layout
->   (2) new virtio-pci
->   (3) new virtio-config
->   (4) new virtio-isr
->
-> We can have a vendor pci capability, with a dword for each register set:
->
->   bit  31    -- present bit
->   bits 26-24 -- bar
->   bits 23-0  -- offset
->
-> So current drivers which must support legacy can use this:
->
->   legacy layout     -- present, bar 0, offset 0
->   new virtio-pci    -- present, bar 1, offset 0
->   new virtio-config -- present, bar 1, offset 256
->   new virtio-isr    -- present, bar 0, offset 19
->
-> [ For completeness: msi-x capability could add this: ]
->
->   msi-x vector table            bar 1, offset 512
->   msi-x pba                     bar 1, offset 768
->
->> We'll never remove legacy so we shouldn't plan on it.  There are
->> literally hundreds of thousands of VMs out there with the current virtio
->> drivers installed in them.  We'll be supporting them for a very, very
->> long time :-)
->
-> But new devices (virtio-qxl being a candidate) don't have old guests and
-> don't need to worry.
->
-> They could use this if they care about fast isr:
->
->   legacy layout     -- not present
->   new virtio-pci    -- present, bar 1, offset 0
->   new virtio-config -- present, bar 1, offset 256
->   new virtio-isr    -- present, bar 0, offset 0
->
-> Or this if they don't worry about isr performance:
->
->   legacy layout     -- not present
->   new virtio-pci    -- present, bar 0, offset 0
->   new virtio-config -- present, bar 0, offset 256
->   new virtio-isr    -- not present
->
->> I don't think we gain a lot by moving the ISR into a separate BAR.
->> Splitting up registers like that seems weird to me too.
->
-> Main advantage of defining a register set with just isr is that it
-> reduces pio address space consumtion for new virtio devices which don't
-> have to worry about the legacy layout (8 bytes which is minimum size for
-> io bars instead of 64 bytes).
+Then again how simple the this function is it probably should just go
+away entirely.
 
-Doing some rough math, we should have at least 16k of PIO space.  That
-let's us have well over 500 virtio-pci devices with the current register
-layout.
+> +	set_fs(USER_DS);
 
-I don't think we're at risk of running out of space...
+What do we actually need the set_fs for here?
 
->> If we added an additional constraints that BAR1 was mirrored except for
->
-> Why add constraints?  We want something future-proof, don't we?
->
->>> The detection is simple: if BAR1 has non-zero length, it's new-style,
->>> otherwise legacy.
->
-> Doesn't fly.  BAR1 is in use today for MSI-X support.
+> +
+> +static inline void vhost_blk_stop(struct vhost_blk *blk, struct file **file)
+> +{
+> +
+> +	*file = vhost_blk_stop_vq(blk, &blk->vq);
+> +}
 
-But the location is specified via capabilities so we can change the
-location to be within BAR1 at a non-conflicting offset.
+What is the point of this helper?  Also I can't see anyone actually
+using the returned struct file.
 
->> I agree that this is the best way to extend, but I think we should still
->> use a transport feature bit.  We want to be able to detect within QEMU
->> whether a guest is using these new features because we need to adjust
->> migration state accordingly.
->
-> Why does migration need adjustments?
+> +	case VIRTIO_BLK_T_FLUSH:
+> +		ret = vfs_fsync(file, 1);
+> +		status = ret < 0 ? VIRTIO_BLK_S_IOERR : VIRTIO_BLK_S_OK;
+> +		if (!vhost_blk_set_status(req, status))
+> +			vhost_add_used_and_signal(&blk->dev, vq, head, ret);
+> +		break;
 
-Because there is additional state in the "new" layout.  We need to
-understand whether a guest is relying on that state or not.
+Sending a fsync here is actually wrong in two different ways:
 
-For instance, extended virtio features.  If a guest is in the process
-of reading extended virtio features, it may not have changed any state
-but we must ensure that we don't migrate to an older verison of QEMU w/o
-the extended virtio features.
+ a) it operates at the filesystem level instead of bio level
+ b) it's a blocking operation
 
-This cannot be handled by subsections today because there is no guest
-written state that's affected.
-
-Regards,
-
-Anthony Liguori
-
->
-> [ Not that I want veto a feature bit, but I don't see the need yet ]
->
-> cheers,
->   Gerd
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+It should instead send a REQ_FLUSH bio using the same submission scheme
+as the read/write requests.
