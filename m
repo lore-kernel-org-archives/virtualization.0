@@ -1,18 +1,13 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [Qemu-devel] Using PCI config space to indicate config location
-Date: Tue, 09 Oct 2012 09:03:40 -0500
-Message-ID: <87y5jfwxmr.fsf@codemonkey.ws>
-References: <87zk4c2tqq.fsf@rustcorp.com.au> <874nmajcmj.fsf@codemonkey.ws>
-	<87y5jhpuu2.fsf@rustcorp.com.au> <87bogddq0l.fsf@codemonkey.ws>
-	<5072EA14.30809@redhat.com> <87k3v1gfw1.fsf@codemonkey.ws>
-	<507333F1.1060000@redhat.com> <874nm4u1in.fsf@codemonkey.ws>
-	<87sj9o8qn7.fsf@rustcorp.com.au> <87sj9oh0pm.fsf@codemonkey.ws>
-	<87haq48hds.fsf@rustcorp.com.au> <5073F9D4.5060000@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: Proposal for virtio standardization.
+Date: Tue, 9 Oct 2012 16:02:01 +0200
+Message-ID: <20121009160201.5303a7ca__10546.6113113382$1349791951$gmane$org@BR9GNB5Z>
+References: <87zk4c2tqq.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5073F9D4.5060000@redhat.com>
+In-Reply-To: <87zk4c2tqq.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,61 +17,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Avi Kivity <avi@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: qemu-devel <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, Avishay Traeger <AVISHAY@il.ibm.com>, kvm@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S.
+	Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Avi Kivity <avi@redhat.com>, Amit Shah <amit.shah@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Sasha Levin <levinsasha928@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avi Kivity <avi@redhat.com> writes:
+On Thu, 27 Sep 2012 09:59:33 +0930
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-> On 10/09/2012 05:16 AM, Rusty Russell wrote:
->> Anthony Liguori <aliguori@us.ibm.com> writes:
->>> We'll never remove legacy so we shouldn't plan on it.  There are
->>> literally hundreds of thousands of VMs out there with the current virtio
->>> drivers installed in them.  We'll be supporting them for a very, very
->>> long time :-)
->> 
->> You will be supporting this for qemu on x86, sure.  As I think we're
->> still in the growth phase for virtio, I prioritize future spec
->> cleanliness pretty high.
->
-> If a pure ppc hypervisor was on the table, this might have been
-> worthwhile.  As it is the codebase is shared, and the Linux drivers are
-> shared, so cleaning up the spec doesn't help the code.
+> Hi all,
+> 
+> 	I've had several requests for a more formal approach to the
+> virtio draft spec, and (after some soul-searching) I'd like to try that.
+> 
+> 	The proposal is to use OASIS as the standards body, as it's
+> fairly light-weight as these things go.  For me this means paperwork and
+> setting up a Working Group and getting the right people involved as
+> Voting members starting with the current contributors; for most of you
+> it just means a new mailing list, though I'll be cross-posting any
+> drafts and major changes here anyway.
+> 
+> 	I believe that a documented standard (aka virtio 1.0) will
+> increase visibility and adoption in areas outside our normal linux/kvm
+> universe.  There's been some of that already, but this is the clearest
+> path to accelerate it.  Not the easiest path, but I believe that a solid
+> I/O standard is a Good Thing for everyone.
+> 
+> 	Yet I also want to decouple new and experimental development
+> from the standards effort; running code comes first.  New feature bits
+> and new device numbers should be reservable without requiring a full
+> spec change.
+> 
+> So the essence of my proposal is:
+> 1) I start a Working Group within OASIS where we can aim for virtio spec
+>    1.0.
+> 
+> 2) The current spec is textually reordered so the core is clearly
+>    bus-independent, with PCI, mmio, etc appendices.
+> 
+> 3) Various clarifications, formalizations and cleanups to the spec text,
+>    and possibly elimination of old deprecated features.
+> 
+> 4) The only significant change to the spec is that we use PCI
+>    capabilities, so we can have infinite feature bits.
+>    (see
+> http://lists.linuxfoundation.org/pipermail/virtualization/2011-December/019198.html)
 
-Note that distros have been (perhaps unknowingly) shipping virtio-pci
-for PPC for some time now.
+"Infinite" only applies to virtio-pci, no?
 
-So even though there wasn't a hypervisor that supported virtio-pci, the
-guests already support it and are out there in the wild.
+> 
+> 5) Changes to the ring layout and other such things are deferred to a
+>    future virtio version; whether this is done within OASIS or
+>    externally depends on how well this works for the 1.0 release.
+> 
+> Thoughts?
+> Rusty.
+> 
 
-There's a lot of value in maintaining "legacy" support even for PPC.
- 
->> But I think you'll be surprised how fast this is deprecated:
->> 1) Bigger queues for block devices (guest-specified ringsize)
->> 2) Smaller rings for openbios (guest-specified alignment)
->> 3) All-mmio mode (powerpc)
->> 4) Whatever network features get numbers > 31.
->> 
->>> I don't think we gain a lot by moving the ISR into a separate BAR.
->>> Splitting up registers like that seems weird to me too.
->> 
->> Confused.  I proposed the same split as you have, just ISR by itself.
->
-> I believe Anthony objects to having the ISR by itself.  What is the
-> motivation for that?
+Sounds like a good idea. I'll be happy to review the spec with an eye
+to virtio-ccw.
 
-Right, BARs are a precious resource not to be spent lightly.  Having an
-entire BAR dedicated to a 1-byte register seems like a waste to me.
-
-Regards,
-
-Anthony Liguori
-
->
->
-> -- 
-> error compiling committee.c: too many arguments to function
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cornelia
