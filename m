@@ -1,18 +1,14 @@
-From: Jamie Lokier <jamie@shareable.org>
-Subject: Re: [Qemu-devel] Using PCI config space to indicate config location
-Date: Tue, 9 Oct 2012 22:09:01 +0100
-Message-ID: <20121009210901.GY14867__17609.1450652622$1349819015$gmane$org@jl-vm1.vm.bytemark.co.uk>
-References: <874nmajcmj.fsf@codemonkey.ws> <87y5jhpuu2.fsf@rustcorp.com.au>
-	<87bogddq0l.fsf@codemonkey.ws> <5072EA14.30809@redhat.com>
-	<87k3v1gfw1.fsf@codemonkey.ws> <507333F1.1060000@redhat.com>
-	<874nm4u1in.fsf@codemonkey.ws> <87sj9o8qn7.fsf@rustcorp.com.au>
-	<87sj9oh0pm.fsf@codemonkey.ws> <87haq48hds.fsf@rustcorp.com.au>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v2
+Date: Wed, 10 Oct 2012 10:27:16 +0800
+Message-ID: <5074DD04.7000809@redhat.com>
+References: <1349769918-8611-1-git-send-email-asias@redhat.com>
+	<20121009173937.GA28399@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87haq48hds.fsf@rustcorp.com.au>
+In-Reply-To: <20121009173937.GA28399@infradead.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,21 +18,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell wrote:
-> I don't think it'll be that bad; reset clears the device to unknown,
-> bar0 moves it from unknown->legacy mode, bar1/2/3 changes it from
-> unknown->modern mode, and anything else is bad (I prefer being strict so
-> we catch bad implementations from the beginning).
+Hello Christoph!
 
-Will that work, if the guest with kernel that uses modern mode, kexecs
-to an older (but presumed reliable) kernel that only knows about legacy mode?
+On 10/10/2012 01:39 AM, Christoph Hellwig wrote:
+>> +static int vhost_blk_req_submit(struct vhost_blk_req *req, struct file *file)
+>> +{
+>> +
+>> +	struct inode *inode = file->f_mapping->host;
+>> +	struct block_device *bdev = inode->i_bdev;
+>> +	int ret;
+> 
+> Please just pass the block_device directly instead of a file struct.
 
-I.e. will the replacement kernel, or (ideally) replacement driver on
-the rare occasion that is needed on a running kernel, be able to reset
-the device hard enough?
+vhost_blk_req_submit() can be used to handle file based image later.
+Using the file interface will work for both cases.
 
--- Jamie
+I do need a check in vhost_blk_set_backend() to tell if the user passed
+file is a raw device file for now.
+
+>> +
+>> +	ret = vhost_blk_bio_make(req, bdev);
+>> +	if (ret < 0)
+>> +		return ret;
+>> +
+>> +	vhost_blk_bio_send(req);
+>> +
+>> +	return ret;
+>> +}
+> 
+> Then again how simple the this function is it probably should just go
+> away entirely.
+
+No, vhost_blk_req_submit() is used for both read and write ops. It makes
+no sense to write the code twice. Plus, this function might be complexer
+when the file based image support is added.
+
+>> +	set_fs(USER_DS);
+> 
+> What do we actually need the set_fs for here?
+
+See this commit: d7ffde35e31a81100d2d0d2c4013cbf527bb32ea
+
+>> +
+>> +static inline void vhost_blk_stop(struct vhost_blk *blk, struct file **file)
+>> +{
+>> +
+>> +	*file = vhost_blk_stop_vq(blk, &blk->vq);
+>> +}
+> 
+> What is the point of this helper?  Also I can't see anyone actually
+> using the returned struct file.
+
+It is used in both vhost_blk_reset_owner() and vhost_blk_release(). The
+returned struct file is used for fput(). We have similar helper in
+vhost_net: vhost_net_stop().
+
+
+>> +	case VIRTIO_BLK_T_FLUSH:
+>> +		ret = vfs_fsync(file, 1);
+>> +		status = ret < 0 ? VIRTIO_BLK_S_IOERR : VIRTIO_BLK_S_OK;
+>> +		if (!vhost_blk_set_status(req, status))
+>> +			vhost_add_used_and_signal(&blk->dev, vq, head, ret);
+>> +		break;
+> 
+> Sending a fsync here is actually wrong in two different ways:
+> 
+>  a) it operates at the filesystem level instead of bio level
+>  b) it's a blocking operation
+> 
+> It should instead send a REQ_FLUSH bio using the same submission scheme
+> as the read/write requests.
+
+Will fix this.
+
+Thanks for the review!
+
+-- 
+Asias
