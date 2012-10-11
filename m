@@ -1,20 +1,18 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/3] virtio-net: inline header support
-Date: Thu, 11 Oct 2012 10:33:31 +1030
-Message-ID: <87k3ux98oc.fsf@rustcorp.com.au>
-References: <cover.1348824232.git.mst@redhat.com>
-	<87vces2gxq.fsf__45058.6618776017$1349247807$gmane$org@rustcorp.com.au>
-	<506C192E.5060700@redhat.com> <87bogj2j1b.fsf@rustcorp.com.au>
-	<506D3610.7000103@redhat.com> <87ipaq1jtt.fsf@rustcorp.com.au>
-	<506D8DD5.20904@redhat.com>
-	<87391t1nkq.fsf__40391.6521034718$1349505001$gmane$org@rustcorp.com.au>
-	<507029EB.2050405@redhat.com> <878vbg8cma.fsf@rustcorp.com.au>
-	<5073D1D8.3060905@redhat.com>
+Subject: Re: [Qemu-devel] Using PCI config space to indicate config location
+Date: Thu, 11 Oct 2012 11:13:25 +1030
+Message-ID: <87ehl596tu.fsf__18238.6165172376$1349917866$gmane$org@rustcorp.com.au>
+References: <87k3v1gfw1.fsf@codemonkey.ws> <507333F1.1060000@redhat.com>
+	<874nm4u1in.fsf@codemonkey.ws> <87sj9o8qn7.fsf@rustcorp.com.au>
+	<87sj9oh0pm.fsf@codemonkey.ws> <5073C52D.20802@redhat.com>
+	<87wqyzll8r.fsf@codemonkey.ws> <507487F0.2050609@redhat.com>
+	<87zk3v6npm.fsf@rustcorp.com.au> <87vceiih4j.fsf@codemonkey.ws>
+	<20121010134157.GA7922@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5073D1D8.3060905@redhat.com>
+In-Reply-To: <20121010134157.GA7922@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,53 +22,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <levinsasha928@gmail.com>, avi@redhat.com, Thomas Lendacky <tahm@linux.vnet.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel <qemu-devel@nongnu.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
-> Il 09/10/2012 06:59, Rusty Russell ha scritto:
->> Paolo Bonzini <pbonzini@redhat.com> writes:
->>> Il 05/10/2012 07:43, Rusty Russell ha scritto:
->>>> That's good.  But virtio_blk's scsi command is insoluble AFAICT.  As I
->>>> said to Anthony, the best rules are "always" and "never", so I'd really
->>>> rather not have to grandfather that in.
->>>
->>> It is, but we can add a rule that if the (transport) flag
->>> VIRTIO_RING_F_ANY_HEADER_SG is set, the cdb field is always 32 bytes in
->>> virtio-blk.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Wed, Oct 10, 2012 at 08:36:12AM -0500, Anthony Liguori wrote:
+>> Rusty Russell <rusty@rustcorp.com.au> writes:
 >> 
->> Could we do that?  It's the cmd length I'm concerned about; is it always
->> 32 in practice for some reason?
->
-> It is always 32 or less except in very obscure cases that are pretty
-> much confined to iSCSI.  We don't care about the obscure cases, and the
-> extra bytes don't hurt.
->
-> BTW, 32 is the default cdb_size used by virtio-scsi.
->
->> Currently qemu does:
+>> > Gerd Hoffmann <kraxel@redhat.com> writes:
+>> >> So how about this:
+>> >>
+>> >> (1) Add a vendor specific pci capability for new-style virtio.
+>> >>     Specifies the pci bar used for new-style virtio registers.
+>> >>     Guests can use it to figure whenever new-style virtio is
+>> >>     supported and to map the correct bar (which will probably
+>> >>     be bar 1 in most cases).
+>> >
+>> > This was closer to the original proposal[1], which I really liked (you
+>> > can layout bars however you want).  Anthony thought that vendor
+>> > capabilities were a PCI-e feature, but it seems they're blessed in PCI
+>> > 2.3.
 >> 
->>     struct sg_io_hdr hdr;
->>     memset(&hdr, 0, sizeof(struct sg_io_hdr));
->>     hdr.interface_id = 'S';
->>     hdr.cmd_len = req->elem.out_sg[1].iov_len;
->>     hdr.cmdp = req->elem.out_sg[1].iov_base;
->>     hdr.dxfer_len = 0;
->> 
->> If it's a command which expects more output data, there's no way to
->> guess where the boundary is between that command and the data.
->
-> Yep, so I understood the problem right.
+>> 2.3 was standardized in 2002.  Are we confident that vendor extensions
+>> play nice with pre-2.3 OSes like Win2k, WinXP, etc?
 
-OK.  Well, Anthony wants qemu to be robust in this regard, so I am
-tempted to rework all the qemu drivers to handle arbitrary layouts.
-They could use a good audit anyway.
+2.2 (1998) had the capability IDs linked list, indicated by bit 4 in the
+status register, but reserved ids 7 and above.  ID 9 (vendor specific)
+was added in 2.3; it should be ignored, but will require testing of
+course, like any change.
 
-This would become a glaring exception, but I'm tempted to fix it to 32
-bytes at the same time as we get the new pci layout (ie. for the virtio
-1.0 spec).  The Linux driver would carefully be backwards compatible, of
-course, and the spec would document why.
+2.1 didn't have the capability ID linked list at all; bit 4 in the
+status register was reserved.
+
+QEMU's pci.c has capability support, and sets the capabiliy status bit
+and list pointer when the driver requests (eg. the eepro100).
+
+> Pre 2.3 it was the case that *all* space outside
+> the capability linked list, and any capability not
+> recognized by space, was considered vendor specific.
+> So there's no problem really.
+
+Oh in theory, sure.  In practice, almost certainly.  But this needs to
+be proved with actual testing.
 
 Cheers,
 Rusty.
