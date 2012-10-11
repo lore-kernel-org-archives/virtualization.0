@@ -1,11 +1,13 @@
-From: Bryan Venteicher <bryan.venteicher@gmail.com>
-Subject: [PATCH] [SCSI] virtio-scsi: Add real 2-clause BSD license to header
-Date: Thu, 11 Oct 2012 01:41:31 -0500
-Message-ID: <1349937691-60084-1-git-send-email-bryanv__3916.65185238725$1349980682$gmane$org@daemoninthecloset.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-pci: use module_pci_driver to simplify the code
+Date: Thu, 11 Oct 2012 19:02:50 +1030
+Message-ID: <87ipah76j1.fsf__14122.1870239407$1349988571$gmane$org@rustcorp.com.au>
+References: <CAPgLHd-GzSDQ+E-zboLA8RfbOVk5bHFK+NTDe2WkWihVFVCtmA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAPgLHd-GzSDQ+E-zboLA8RfbOVk5bHFK+NTDe2WkWihVFVCtmA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,56 +17,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Cong Meng <mc@linux.vnet.ibm.com>
+To: Wei Yongjun <weiyj.lk@gmail.com>, mst@redhat.com
+Cc: yongjun_wei@trendmicro.com.cn, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is analogous to commit a1b383870a made by Rusty Russell to all
-the VirtIO headers at the time. This eases the use of the header as
-is by other OSes.
+Wei Yongjun <weiyj.lk@gmail.com> writes:
 
-Signed-off-by: Bryan Venteicher <bryanv@daemoninthecloset.org>
----
- include/linux/virtio_scsi.h | 28 ++++++++++++++++++++++++++--
- 1 file changed, 26 insertions(+), 2 deletions(-)
+> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+>
+> Use the module_pci_driver() macro to make the code simpler
+> by eliminating module_init and module_exit calls.
+>
+> dpatch engine is used to auto generate this patch.
+> (https://github.com/weiyj/dpatch)
+>
+> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
 
-diff --git a/include/linux/virtio_scsi.h b/include/linux/virtio_scsi.h
-index dc8d305..a91fb52 100644
---- a/include/linux/virtio_scsi.h
-+++ b/include/linux/virtio_scsi.h
-@@ -1,7 +1,31 @@
-+/*
-+ * This header is BSD licensed so anyone can use the definitions to implement
-+ * compatible drivers/servers.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED.  IN NO EVENT SHALL AUTHOR OR CONTRIBUTORS BE LIABLE
-+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+ * SUCH DAMAGE.
-+ */
-+
- #ifndef _LINUX_VIRTIO_SCSI_H
- #define _LINUX_VIRTIO_SCSI_H
--/* This header is BSD licensed so anyone can use the definitions to implement
-- * compatible drivers/servers. */
- 
- #define VIRTIO_SCSI_CDB_SIZE   32
- #define VIRTIO_SCSI_SENSE_SIZE 96
--- 
-1.7.11.4
+Thanks, applied!
+Rusty.
