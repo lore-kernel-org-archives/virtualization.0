@@ -1,13 +1,13 @@
 From: Ian Campbell <Ian.Campbell@citrix.com>
-Subject: Re: memory corruption in HYPERVISOR_physdev_op()
-Date: Mon, 15 Oct 2012 11:27:48 +0100
-Message-ID: <1350296868.18058.24.camel__37681.2077979141$1350297143$gmane$org@zakaz.uk.xensource.com>
-References: <20120914112427.GA1454@elgon.mountain>
+Subject: Re: potential integer overflow in xenbus_file_write()
+Date: Mon, 15 Oct 2012 11:25:57 +0100
+Message-ID: <1350296757.18058.21.camel__3945.9029133015$1350297396$gmane$org@zakaz.uk.xensource.com>
+References: <20120913160032.GA29082@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120914112427.GA1454@elgon.mountain>
+In-Reply-To: <20120913160032.GA29082@elgon.mountain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,62 +18,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Tang Liang <liang.tang@oracle.com>, xen-devel <xen-devel@lists.xen.org>, Jeremy Fitzhardinge <jeremy@xensource.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org
+Cc: xen-devel <xen-devel@lists.xen.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2012-09-14 at 14:24 +0300, Dan Carpenter wrote:
-> Hi Jeremy,
+On Thu, 2012-09-13 at 19:00 +0300, Dan Carpenter wrote:
+> Hi,
 
-Jeremy doesn't work on Xen much any more. Adding Konrad and the
-xen-devel@ list.
-
-> My static analyzer complains about potential memory corruption in
-> HYPERVISOR_physdev_op()
-> 
-> arch/x86/include/asm/xen/hypercall.h
->    389  static inline int
->    390  HYPERVISOR_physdev_op(int cmd, void *arg)
->    391  {
->    392          int rc = _hypercall2(int, physdev_op, cmd, arg);
->    393          if (unlikely(rc == -ENOSYS)) {
->    394                  struct physdev_op op;
->    395                  op.cmd = cmd;
->    396                  memcpy(&op.u, arg, sizeof(op.u));
->    397                  rc = _hypercall1(int, physdev_op_compat, &op);
->    398                  memcpy(arg, &op.u, sizeof(op.u));
->                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> Some of the arg buffers are not as large as sizeof(op.u) which is either
-> 12 or 16 depending on the size of longs in struct physdev_apic.
-
-Nasty!
+Thanks Dan. I'm not sure anyone from Xen-land really monitors
+virtualization@. Adding xen-devel and Konrad.
 
 > 
->    399          }
->    400          return rc;
->    401  }
+> I was reading some code and had a question in xenbus_file_write()
 > 
-> One example of this is in xen_initdom_restore_msi_irqs().
-> 
-> arch/x86/pci/xen.c
->    337                  struct physdev_pci_device restore_ext;
->    338  
->    339                  restore_ext.seg = pci_domain_nr(dev->bus);
->    340                  restore_ext.bus = dev->bus->number;
->    341                  restore_ext.devfn = dev->devfn;
->    342                  ret = HYPERVISOR_physdev_op(PHYSDEVOP_restore_msi_ext,
->    343                                          &restore_ext);
->                                                 ^^^^^^^^^^^^
-> There are only 4 bytes here.
-> 
->    344                  if (ret == -ENOSYS)
->                             ^^^^^^^^^^^^^^
-> If we hit this condition, we have corrupted some memory.
+> drivers/xen/xenbus/xenbus_dev_frontend.c
+>    461          if ((len + u->len) > sizeof(u->u.buffer)) {
+>                      ^^^^^^^^^^^^
+> Can this addition overflow?
 
-I can see the memory corruption but how does it relate to ret ==
--ENOSYS?
+len is a size_t and u->len is an unsigned int, so I expect so.
 
+>   Should the test be something like:
 > 
->    345                          pci_seg_supported = false;
+> 	if (len > sizeof(u->u.buffer) || len + u->len > sizeof(u->u.buffer)) {
+
+I think that would do it.
+
+Ian.
+
+>    462                  /* On error, dump existing buffer */
+>    463                  u->len = 0;
+>    464                  rc = -EINVAL;
+>    465                  goto out;
+>    466          }
+>    467  
+>    468          ret = copy_from_user(u->u.buffer + u->len, ubuf, len);
+>    469  
 > 
 > regards,
 > dan carpenter
@@ -82,10 +61,3 @@ I can see the memory corruption but how does it relate to ret ==
 > Virtualization@lists.linux-foundation.org
 > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
 > 
-
--- 
-Ian Campbell
-Current Noise: Therapy? - Femtex
-
-Riffle West Virginia is so small that the Boy Scout had to double as the
-town drunk.
