@@ -1,17 +1,14 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: Re: [Xen-devel] memory corruption in HYPERVISOR_physdev_op()
-Date: Mon, 15 Oct 2012 13:46:49 +0100
-Message-ID: <507C21D902000078000A1630@nat28.tlf.novell.com>
-References: <20120914112427.GA1454@elgon.mountain>
-	<1350296868.18058.24.camel@zakaz.uk.xensource.com>
-	<507C062002000078000A1574@nat28.tlf.novell.com>
-	<1350298696.18058.33.camel@zakaz.uk.xensource.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH] xen/xenbus: silence GCC warning
+Date: Mon, 15 Oct 2012 09:20:52 -0400
+Message-ID: <20121015132052.GD4000@phenom.dumpdata.com>
+References: <1350295389.1516.27.camel@x61.thuisdomein>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1350298696.18058.33.camel@zakaz.uk.xensource.com>
 Content-Disposition: inline
+In-Reply-To: <1350295389.1516.27.camel@x61.thuisdomein>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,66 +18,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian Campbell <Ian.Campbell@citrix.com>
-Cc: Jeremy Fitzhardinge <jeremy@xensource.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel <xen-devel@lists.xen.org>, Tang Liang <liang.tang@oracle.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Dan Carpenter <dan.carpenter@oracle.com>
+To: Paul Bolle <pebolle@tiscali.nl>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 15.10.12 at 12:58, Ian Campbell <Ian.Campbell@citrix.com> wrote:
-> On Mon, 2012-10-15 at 11:48 +0100, Jan Beulich wrote:
->> >>> On 15.10.12 at 12:27, Ian Campbell <Ian.Campbell@citrix.com> wrote:
->> > On Fri, 2012-09-14 at 14:24 +0300, Dan Carpenter wrote:
->> >> My static analyzer complains about potential memory corruption in
->> >> HYPERVISOR_physdev_op()
->> >> 
->> >> arch/x86/include/asm/xen/hypercall.h
->> >>    389  static inline int
->> >>    390  HYPERVISOR_physdev_op(int cmd, void *arg)
->> >>    391  {
->> >>    392          int rc = _hypercall2(int, physdev_op, cmd, arg);
->> >>    393          if (unlikely(rc == -ENOSYS)) {
->> >>    394                  struct physdev_op op;
->> >>    395                  op.cmd = cmd;
->> >>    396                  memcpy(&op.u, arg, sizeof(op.u));
->> >>    397                  rc = _hypercall1(int, physdev_op_compat, &op);
->> >>    398                  memcpy(arg, &op.u, sizeof(op.u));
->> >>                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->> >> Some of the arg buffers are not as large as sizeof(op.u) which is either
->> >> 12 or 16 depending on the size of longs in struct physdev_apic.
->> > 
->> > Nasty!
->> 
->> Wasn't it that pv-ops expects Xen 4.0.1 or newer anyway? If so,
->> what does this code exist for in the first place (it's framed by
->> #if CONFIG_XEN_COMPAT <= 0x030002 in the Xenified kernel)?
-> 
-> I think the 4.0.1 or newer requirement is for dom0 only. I guess physdev
-> op is only used in dom0 though? Or does passthrough need it?
-
-No, it's only platform_op that is Dom0-only.
-
->> > I can see the memory corruption but how does it relate to ret ==
->> > -ENOSYS?
->> 
->> The (supposedly) corrupting code site inside an
->> 
->> 	if (unlikely(rc == -ENOSYS)) {
-> 
-> Ah, for some reason I assumed this was in the eventual caller, even
-> though it was staring me right in the face in the full quote.
-
-I think Dan's reference was to an eventual caller - it would see
-the -ENOSYS, as the compat call wouldn't return anything else
-than the modern one, and the modern one (to enter the code
-in question) must have returned -ENOSYS.
-
->> Fixing this other than by removing the broken code would be
->> pretty hard I'm afraid (and I tend to leave the code untouched
->> altogether in the Xenified tree).
-> 
-> Given that it is compat code the list of subops which needs to supported
-> in this case is small and finite so a simple lookup table or even switch
-> stmt for the size might be an option.
-
-Ugly, particularly for an inline function. But possible of course.
-
-Jan
+T24gTW9uLCBPY3QgMTUsIDIwMTIgYXQgMTI6MDM6MDlQTSArMDIwMCwgUGF1bCBCb2xsZSB3cm90
+ZToKPiBDb21waWxpbmcgeGVuYnVzX3hzLm8gdHJpZ2dlcnMgdGhpcyBHQ0Mgd2FybmluZzoKPiAg
+ICAgZHJpdmVycy94ZW4veGVuYnVzL3hlbmJ1c194cy5jOjYyODoxMzogd2FybmluZzogZnVuY3Rp
+b24gZGVjbGFyYXRpb24gaXNu4oCZdCBhIHByb3RvdHlwZSBbLVdzdHJpY3QtcHJvdG90eXBlc10K
+PiAKPiBBZGQgdGhlIG9idmlvdXMgYW5kIHRyaXZpYWwgZml4LgoKSSBhbHJlYWR5IGdvdCB0aGUg
+Zml4IGZvciB0aGlzIGluIG15IHRyZWUuIFRoYW5rcyEKCj4gCj4gV2hpbGUgd2UncmUgdG91Y2hp
+bmcgdGhpcyBmdW5jdGlvbiBhZGQgc29tZSBlcXVhbGx5IG9idmlvdXMgYW5kIHRyaXZpYWwKPiB3
+aGl0ZXNwYWNlIGZpeGVzLgo+IAo+IFNpZ25lZC1vZmYtYnk6IFBhdWwgQm9sbGUgPHBlYm9sbGVA
+dGlzY2FsaS5ubD4KPiAtLS0KPiAwKSBUcmlnZ2VyZWQgYnkgY29tcGlsaW5nIHYzLjctcmMxIHVz
+aW5nIChiYXNpY2FsbHkpIEZlZG9yYSAxNydzIGN1cnJlbnQKPiBjb25maWcuIENvbXBpbGUgdGVz
+dGVkIG9ubHkuCj4gCj4gMSkgT2JsaWdhdG9yeSByZWZlcmVuY2U6IGh0dHBzOi8vbHduLm5ldC9B
+cnRpY2xlcy80ODc0OTMvIC4KPiAKPiAgZHJpdmVycy94ZW4veGVuYnVzL3hlbmJ1c194cy5jIHwg
+NSArKystLQo+ICAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygt
+KQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3hlbi94ZW5idXMveGVuYnVzX3hzLmMgYi9kcml2
+ZXJzL3hlbi94ZW5idXMveGVuYnVzX3hzLmMKPiBpbmRleCA0ODIyMGUxLi43YTJiMGRhIDEwMDY0
+NAo+IC0tLSBhL2RyaXZlcnMveGVuL3hlbmJ1cy94ZW5idXNfeHMuYwo+ICsrKyBiL2RyaXZlcnMv
+eGVuL3hlbmJ1cy94ZW5idXNfeHMuYwo+IEBAIC02MTksMTMgKzYxOSwxNCBAQCBzdGF0aWMgc3Ry
+dWN0IHhlbmJ1c193YXRjaCAqZmluZF93YXRjaChjb25zdCBjaGFyICp0b2tlbikKPiAgCj4gIAly
+ZXR1cm4gTlVMTDsKPiAgfQo+ICsKPiAgLyoKPiAgICogQ2VydGFpbiBvbGRlciBYZW5CdXMgdG9v
+bHN0YWNrIGNhbm5vdCBoYW5kbGUgcmVhZGluZyB2YWx1ZXMgdGhhdCBhcmUKPiAgICogbm90IHBv
+cHVsYXRlZC4gU29tZSBYZW4gMy40IGluc3RhbGxhdGlvbiBhcmUgaW5jYXBhYmxlIG9mIGRvaW5n
+IHRoaXMKPiAgICogc28gaWYgd2UgYXJlIHJ1bm5pbmcgb24gYW55dGhpbmcgb2xkZXIgdGhhbiA0
+IGRvIG5vdCBhdHRlbXB0IHRvIHJlYWQKPiAgICogY29udHJvbC9wbGF0Zm9ybS1mZWF0dXJlLXhz
+X3Jlc2V0X3dhdGNoZXMuCj4gICAqLwo+IC1zdGF0aWMgYm9vbCB4ZW5fc3RyaWN0X3hlbmJ1c19x
+dWlyaygpCj4gK3N0YXRpYyBib29sIHhlbl9zdHJpY3RfeGVuYnVzX3F1aXJrKHZvaWQpCj4gIHsK
+PiAgCXVpbnQzMl90IGVheCwgZWJ4LCBlY3gsIGVkeCwgYmFzZTsKPiAgCj4gQEAgLTYzNSw4ICs2
+MzYsOCBAQCBzdGF0aWMgYm9vbCB4ZW5fc3RyaWN0X3hlbmJ1c19xdWlyaygpCj4gIAlpZiAoKGVh
+eCA+PiAxNikgPCA0KQo+ICAJCXJldHVybiB0cnVlOwo+ICAJcmV0dXJuIGZhbHNlOwo+IC0KPiAg
+fQo+ICsKPiAgc3RhdGljIHZvaWQgeHNfcmVzZXRfd2F0Y2hlcyh2b2lkKQo+ICB7Cj4gIAlpbnQg
+ZXJyLCBzdXBwb3J0ZWQgPSAwOwo+IC0tIAo+IDEuNy4xMS43Cl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
