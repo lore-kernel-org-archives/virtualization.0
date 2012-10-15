@@ -1,13 +1,11 @@
-From: sjur.brandeland@stericsson.com
-Subject: [PATCHv7 4/4] virtio_console: Add support for remoteproc serial
-Date: Mon, 15 Oct 2012 09:57:36 +0200
-Message-ID: <1350287856-5284-5-git-send-email-sjur.brandeland@stericsson.com>
-References: <1350287856-5284-1-git-send-email-sjur.brandeland@stericsson.com>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH 1/1] vhost-blk: Add vhost-blk support v4
+Date: Mon, 15 Oct 2012 17:57:03 +0800
+Message-ID: <1350295023-9179-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1350287856-5284-1-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,229 +15,806 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
-QWRkIGEgc2ltcGxlIHNlcmlhbCBjb25uZWN0aW9uIGRyaXZlciBjYWxsZWQKVklSVElPX0lEX1JQ
-Uk9DX1NFUklBTCAoMTEpIGZvciBjb21tdW5pY2F0aW5nIHdpdGggYQpyZW1vdGUgcHJvY2Vzc29y
-IGluIGFuIGFzeW1tZXRyaWMgbXVsdGktcHJvY2Vzc2luZwpjb25maWd1cmF0aW9uLgoKVGhpcyBp
-bXBsZW1lbnRhdGlvbiByZXVzZXMgdGhlIGV4aXN0aW5nIHZpcnRpb19jb25zb2xlCmltcGxlbWVu
-dGF0aW9uLCBhbmQgYWRkcyBzdXBwb3J0IGZvciBETUEgYWxsb2NhdGlvbgpvZiBkYXRhIGJ1ZmZl
-cnMgYW5kIGRpc2FibGVzIHVzZSBvZiB0dHkgY29uc29sZSBhbmQKdGhlIHZpcnRpbyBjb250cm9s
-IHF1ZXVlLgoKU2lnbmVkLW9mZi1ieTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5k
-QHN0ZXJpY3Nzb24uY29tPgotLS0KIGRyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jIHwgIDIw
-MSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLQogaW5jbHVkZS9saW51
-eC92aXJ0aW9faWRzLmggICAgfCAgICAxICsKIDIgZmlsZXMgY2hhbmdlZCwgMTgwIGluc2VydGlv
-bnMoKyksIDIyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvY2hhci92aXJ0aW9f
-Y29uc29sZS5jIGIvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKaW5kZXggOTE3Y2M4MzAu
-LmVlYjliMzUgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCisrKyBi
-L2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCkBAIC0zNyw4ICszNywxMiBAQAogI2luY2x1
-ZGUgPGxpbnV4L3dhaXQuaD4KICNpbmNsdWRlIDxsaW51eC93b3JrcXVldWUuaD4KICNpbmNsdWRl
-IDxsaW51eC9tb2R1bGUuaD4KKyNpbmNsdWRlIDxsaW51eC9kbWEtbWFwcGluZy5oPgorI2luY2x1
-ZGUgPGxpbnV4L2tjb25maWcuaD4KICNpbmNsdWRlICIuLi90dHkvaHZjL2h2Y19jb25zb2xlLmgi
-CiAKKyNkZWZpbmUgaXNfcnByb2NfZW5hYmxlZCBJU19FTkFCTEVEKENPTkZJR19SRU1PVEVQUk9D
-KQorCiAvKgogICogVGhpcyBpcyBhIGdsb2JhbCBzdHJ1Y3QgZm9yIHN0b3JpbmcgY29tbW9uIGRh
-dGEgZm9yIGFsbCB0aGUgZGV2aWNlcwogICogdGhpcyBkcml2ZXIgaGFuZGxlcy4KQEAgLTExMiw2
-ICsxMTYsMTUgQEAgc3RydWN0IHBvcnRfYnVmZmVyIHsKIAkvKiBvZmZzZXQgaW4gdGhlIGJ1ZiBm
-cm9tIHdoaWNoIHRvIGNvbnN1bWUgZGF0YSAqLwogCXNpemVfdCBvZmZzZXQ7CiAKKwkvKiBETUEg
-YWRkcmVzcyBvZiBidWZmZXIgKi8KKwlkbWFfYWRkcl90IGRtYTsKKworCS8qIERldmljZSB3ZSBn
-b3QgRE1BIG1lbW9yeSBmcm9tICovCisJc3RydWN0IGRldmljZSAqZGV2OworCisJLyogTGlzdCBv
-ZiBwZW5kaW5nIGRtYSBidWZmZXJzIHRvIGZyZWUgKi8KKwlzdHJ1Y3QgbGlzdF9oZWFkIGxpc3Q7
-CisKIAkvKiBJZiBzZ3BhZ2VzID09IDAgdGhlbiBidWYgaXMgdXNlZCAqLwogCXVuc2lnbmVkIGlu
-dCBzZ3BhZ2VzOwogCkBAIC0zMzEsNiArMzQ0LDExIEBAIHN0YXRpYyBib29sIGlzX2NvbnNvbGVf
-cG9ydChzdHJ1Y3QgcG9ydCAqcG9ydCkKIAlyZXR1cm4gZmFsc2U7CiB9CiAKK3N0YXRpYyBib29s
-IGlzX3Jwcm9jX3NlcmlhbChjb25zdCBzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKK3sKKwly
-ZXR1cm4gaXNfcnByb2NfZW5hYmxlZCAmJiB2ZGV2LT5pZC5kZXZpY2UgPT0gVklSVElPX0lEX1JQ
-Uk9DX1NFUklBTDsKK30KKwogc3RhdGljIGlubGluZSBib29sIHVzZV9tdWx0aXBvcnQoc3RydWN0
-IHBvcnRzX2RldmljZSAqcG9ydGRldikKIHsKIAkvKgpAQCAtMzQyLDExICszNjAsMTMgQEAgc3Rh
-dGljIGlubGluZSBib29sIHVzZV9tdWx0aXBvcnQoc3RydWN0IHBvcnRzX2RldmljZSAqcG9ydGRl
-dikKIAlyZXR1cm4gcG9ydGRldi0+dmRldi0+ZmVhdHVyZXNbMF0gJiAoMSA8PCBWSVJUSU9fQ09O
-U09MRV9GX01VTFRJUE9SVCk7CiB9CiAKLXN0YXRpYyB2b2lkIGZyZWVfYnVmKHN0cnVjdCBwb3J0
-X2J1ZmZlciAqYnVmKQorc3RhdGljIERFRklORV9TUElOTE9DSyhkbWFfYnVmc19sb2NrKTsKK3N0
-YXRpYyBMSVNUX0hFQUQocGVuZGluZ19mcmVlX2RtYV9idWZzKTsKKworc3RhdGljIHZvaWQgZnJl
-ZV9idWYoc3RydWN0IHBvcnRfYnVmZmVyICpidWYsIGJvb2wgY2FuX3NsZWVwKQogewogCXVuc2ln
-bmVkIGludCBpOwogCi0Ja2ZyZWUoYnVmLT5idWYpOwogCWZvciAoaSA9IDA7IGkgPCBidWYtPnNn
-cGFnZXM7IGkrKykgewogCQlzdHJ1Y3QgcGFnZSAqcGFnZSA9IHNnX3BhZ2UoJmJ1Zi0+c2dbaV0p
-OwogCQlpZiAoIXBhZ2UpCkBAIC0zNTQsMTQgKzM3NCw1OCBAQCBzdGF0aWMgdm9pZCBmcmVlX2J1
-ZihzdHJ1Y3QgcG9ydF9idWZmZXIgKmJ1ZikKIAkJcHV0X3BhZ2UocGFnZSk7CiAJfQogCisJaWYg
-KCFidWYtPmRldikgeworCQlrZnJlZShidWYtPmJ1Zik7CisJfSBlbHNlIGlmIChpc19ycHJvY19l
-bmFibGVkKSB7CisJCXVuc2lnbmVkIGxvbmcgZmxhZ3M7CisKKwkJLyogZG1hX2ZyZWVfY29oZXJl
-bnQgcmVxdWlyZXMgaW50ZXJydXB0cyB0byBiZSBlbmFibGVkLiAqLworCQlpZiAoIWNhbl9zbGVl
-cCkgeworCQkJLyogcXVldWUgdXAgZG1hLWJ1ZmZlcnMgdG8gYmUgZnJlZWQgbGF0ZXIgKi8KKwkJ
-CXNwaW5fbG9ja19pcnFzYXZlKCZkbWFfYnVmc19sb2NrLCBmbGFncyk7CisJCQlsaXN0X2FkZF90
-YWlsKCZidWYtPmxpc3QsICZwZW5kaW5nX2ZyZWVfZG1hX2J1ZnMpOworCQkJc3Bpbl91bmxvY2tf
-aXJxcmVzdG9yZSgmZG1hX2J1ZnNfbG9jaywgZmxhZ3MpOworCQkJcmV0dXJuOworCQl9CisJCWRt
-YV9mcmVlX2NvaGVyZW50KGJ1Zi0+ZGV2LCBidWYtPnNpemUsIGJ1Zi0+YnVmLCBidWYtPmRtYSk7
-CisKKwkJLyogUmVsZWFzZSBkZXZpY2UgcmVmY250IGFuZCBhbGxvdyBpdCB0byBiZSBmcmVlZCAq
-LworCQlwdXRfZGV2aWNlKGJ1Zi0+ZGV2KTsKKwl9CisKIAlrZnJlZShidWYpOwogfQogCitzdGF0
-aWMgdm9pZCByZWNsYWltX2RtYV9idWZzKHZvaWQpCit7CisJdW5zaWduZWQgbG9uZyBmbGFnczsK
-KwlzdHJ1Y3QgcG9ydF9idWZmZXIgKmJ1ZiwgKnRtcDsKKwlMSVNUX0hFQUQodG1wX2xpc3QpOwor
-CisJaWYgKGxpc3RfZW1wdHkoJnBlbmRpbmdfZnJlZV9kbWFfYnVmcykpCisJCXJldHVybjsKKwor
-CS8qIENyZWF0ZSBhIGNvcHkgb2YgdGhlIHBlbmRpbmdfZnJlZV9kbWFfYnVmcyB3aGlsZSBob2xk
-aW5nIHRoZSBsb2NrICovCisJc3Bpbl9sb2NrX2lycXNhdmUoJmRtYV9idWZzX2xvY2ssIGZsYWdz
-KTsKKwlsaXN0X2N1dF9wb3NpdGlvbigmdG1wX2xpc3QsICZwZW5kaW5nX2ZyZWVfZG1hX2J1ZnMs
-CisJCQkgIHBlbmRpbmdfZnJlZV9kbWFfYnVmcy5wcmV2KTsKKwlzcGluX3VubG9ja19pcnFyZXN0
-b3JlKCZkbWFfYnVmc19sb2NrLCBmbGFncyk7CisKKwkvKiBSZWxlYXNlIHRoZSBkbWEgYnVmZmVy
-cywgd2l0aG91dCBpcnFzIGVuYWJsZWQgKi8KKwlsaXN0X2Zvcl9lYWNoX2VudHJ5X3NhZmUoYnVm
-LCB0bXAsICZ0bXBfbGlzdCwgbGlzdCkgeworCQlsaXN0X2RlbCgmYnVmLT5saXN0KTsKKwkJZnJl
-ZV9idWYoYnVmLCB0cnVlKTsKKwl9Cit9CisKIHN0YXRpYyBzdHJ1Y3QgcG9ydF9idWZmZXIgKmFs
-bG9jX2J1ZihzdHJ1Y3QgdmlydHF1ZXVlICp2cSwgc2l6ZV90IGJ1Zl9zaXplLAogCQkJCSAgICAg
-aW50IHBhZ2VzKQogewogCXN0cnVjdCBwb3J0X2J1ZmZlciAqYnVmOwogCisJaWYgKGlzX3Jwcm9j
-X3NlcmlhbCh2cS0+dmRldikpCisJCXJlY2xhaW1fZG1hX2J1ZnMoKTsKKwogCS8qCiAJICogQWxs
-b2NhdGUgYnVmZmVyIGFuZCB0aGUgc2cgbGlzdC4gVGhlIHNnIGxpc3QgYXJyYXkgaXMgYWxsb2Nh
-dGVkCiAJICogZGlyZWN0bHkgYWZ0ZXIgdGhlIHBvcnRfYnVmZmVyIHN0cnVjdC4KQEAgLTM3Mywx
-MSArNDM3LDM0IEBAIHN0YXRpYyBzdHJ1Y3QgcG9ydF9idWZmZXIgKmFsbG9jX2J1ZihzdHJ1Y3Qg
-dmlydHF1ZXVlICp2cSwgc2l6ZV90IGJ1Zl9zaXplLAogCiAJYnVmLT5zZ3BhZ2VzID0gcGFnZXM7
-CiAJaWYgKHBhZ2VzID4gMCkgeworCQlidWYtPmRldiA9IE5VTEw7CiAJCWJ1Zi0+YnVmID0gTlVM
-TDsKIAkJcmV0dXJuIGJ1ZjsKIAl9CiAKLQlidWYtPmJ1ZiA9IGttYWxsb2MoYnVmX3NpemUsIEdG
-UF9LRVJORUwpOworCWlmIChpc19ycHJvY19zZXJpYWwodnEtPnZkZXYpKSB7CisJCS8qCisJCSAq
-IEFsbG9jYXRlIERNQSBtZW1vcnkgZnJvbSBhbmNlc3Rvci4gV2hlbiBhIHZpcnRpbworCQkgKiBk
-ZXZpY2UgaXMgY3JlYXRlZCBieSByZW1vdGVwcm9jLCB0aGUgRE1BIG1lbW9yeSBpcworCQkgKiBh
-c3NvY2lhdGVkIHdpdGggdGhlIGdyYW5kcGFyZW50IGRldmljZToKKwkJICogdmRldiA9PiBycHJv
-YyA9PiBwbGF0Zm9ybS1kZXYuCisJCSAqIFRoZSBjb2RlIGhlcmUgd291bGQgaGF2ZSBiZWVuIGxl
-c3MgcXVpcmt5IGlmCisJCSAqIERNQV9NRU1PUllfSU5DTFVERVNfQ0hJTERSRU4gaGFkIGJlZW4g
-c3VwcG9ydGVkCisJCSAqIGluIGRtYS1jb2hlcmVudC5jCisJCSAqLworCQlpZiAoIXZxLT52ZGV2
-LT5kZXYucGFyZW50IHx8ICF2cS0+dmRldi0+ZGV2LnBhcmVudC0+cGFyZW50KQorCQkJZ290byBm
-cmVlX2J1ZjsKKwkJYnVmLT5kZXYgPSB2cS0+dmRldi0+ZGV2LnBhcmVudC0+cGFyZW50OworCisJ
-CS8qIEluY3JlYXNlIGRldmljZSByZWZjbnQgdG8gYXZvaWQgZnJlZWluZyBpdCAqLworCQlnZXRf
-ZGV2aWNlKGJ1Zi0+ZGV2KTsKKwkJYnVmLT5idWYgPSBkbWFfYWxsb2NfY29oZXJlbnQoYnVmLT5k
-ZXYsIGJ1Zl9zaXplLCAmYnVmLT5kbWEsCisJCQkJCSAgICAgIEdGUF9LRVJORUwpOworCX0gZWxz
-ZSB7CisJCWJ1Zi0+ZGV2ID0gTlVMTDsKKwkJYnVmLT5idWYgPSBrbWFsbG9jKGJ1Zl9zaXplLCBH
-RlBfS0VSTkVMKTsKKwl9CisKIAlpZiAoIWJ1Zi0+YnVmKQogCQlnb3RvIGZyZWVfYnVmOwogCWJ1
-Zi0+bGVuID0gMDsKQEAgLTQ0NCw3ICs1MzEsNyBAQCBzdGF0aWMgdm9pZCBkaXNjYXJkX3BvcnRf
-ZGF0YShzdHJ1Y3QgcG9ydCAqcG9ydCkKIAkJcG9ydC0+c3RhdHMuYnl0ZXNfZGlzY2FyZGVkICs9
-IGJ1Zi0+bGVuIC0gYnVmLT5vZmZzZXQ7CiAJCWlmIChhZGRfaW5idWYocG9ydC0+aW5fdnEsIGJ1
-ZikgPCAwKSB7CiAJCQllcnIrKzsKLQkJCWZyZWVfYnVmKGJ1Zik7CisJCQlmcmVlX2J1ZihidWYs
-IGZhbHNlKTsKIAkJfQogCQlwb3J0LT5pbmJ1ZiA9IE5VTEw7CiAJCWJ1ZiA9IGdldF9pbmJ1Zihw
-b3J0KTsKQEAgLTUxNiw3ICs2MDMsNyBAQCBzdGF0aWMgdm9pZCByZWNsYWltX2NvbnN1bWVkX2J1
-ZmZlcnMoc3RydWN0IHBvcnQgKnBvcnQpCiAJCXJldHVybjsKIAl9CiAJd2hpbGUgKChidWYgPSB2
-aXJ0cXVldWVfZ2V0X2J1Zihwb3J0LT5vdXRfdnEsICZsZW4pKSkgewotCQlmcmVlX2J1ZihidWYp
-OworCQlmcmVlX2J1ZihidWYsIGZhbHNlKTsKIAkJcG9ydC0+b3V0dnFfZnVsbCA9IGZhbHNlOwog
-CX0KIH0KQEAgLTc2Myw3ICs4NTAsNyBAQCBzdGF0aWMgc3NpemVfdCBwb3J0X2ZvcHNfd3JpdGUo
-c3RydWN0IGZpbGUgKmZpbHAsIGNvbnN0IGNoYXIgX191c2VyICp1YnVmLAogCQlnb3RvIG91dDsK
-IAogZnJlZV9idWY6Ci0JZnJlZV9idWYoYnVmKTsKKwlmcmVlX2J1ZihidWYsIHRydWUpOwogb3V0
-OgogCXJldHVybiByZXQ7CiB9CkBAIC04MzcsNiArOTI0LDE1IEBAIHN0YXRpYyBzc2l6ZV90IHBv
-cnRfZm9wc19zcGxpY2Vfd3JpdGUoc3RydWN0IHBpcGVfaW5vZGVfaW5mbyAqcGlwZSwKIAkJLnUu
-ZGF0YSA9ICZzZ2wsCiAJfTsKIAorCS8qCisJICogUnByb2Nfc2VyaWFsIGRvZXMgbm90IHlldCBz
-dXBwb3J0IHNwbGljZS4gVG8gc3VwcG9ydCBzcGxpY2UKKwkgKiBwaXBlX3RvX3NnKCkgbXVzdCBh
-bGxvY2F0ZSBkbWEtYnVmZmVycyBhbmQgY29weSBjb250ZW50IGZyb20KKwkgKiByZWd1bGFyIHBh
-Z2VzIHRvIGRtYSBwYWdlcy4gQW5kIGFsbG9jX2J1ZiBhbmQgZnJlZV9idWYgbXVzdAorCSAqIHN1
-cHBvcnQgYWxsb2NhdGluZyBhbmQgZnJlZWluZyBzdWNoIGEgbGlzdCBvZiBkbWEtYnVmZmVycy4K
-KwkgKi8KKwlpZiAoaXNfcnByb2Nfc2VyaWFsKHBvcnQtPm91dF92cS0+dmRldikpCisJCXJldHVy
-biAtRUlOVkFMOworCiAJcmV0ID0gd2FpdF9wb3J0X3dyaXRhYmxlKHBvcnQsIGZpbHAtPmZfZmxh
-Z3MgJiBPX05PTkJMT0NLKTsKIAlpZiAocmV0IDwgMCkKIAkJcmV0dXJuIHJldDsKQEAgLTg1NSw3
-ICs5NTEsNyBAQCBzdGF0aWMgc3NpemVfdCBwb3J0X2ZvcHNfc3BsaWNlX3dyaXRlKHN0cnVjdCBw
-aXBlX2lub2RlX2luZm8gKnBpcGUsCiAJCXJldCA9IF9fc2VuZF90b19wb3J0KHBvcnQsIGJ1Zi0+
-c2csIHNnbC5uLCBzZ2wubGVuLCBidWYsIHRydWUpOwogCiAJaWYgKHVubGlrZWx5KHJldCA8PSAw
-KSkKLQkJa2ZyZWUoc2dsLnNnKTsKKwkJZnJlZV9idWYoYnVmLCB0cnVlKTsKIAlyZXR1cm4gcmV0
-OwogfQogCkBAIC05MDQsNiArMTAwMCw4IEBAIHN0YXRpYyBpbnQgcG9ydF9mb3BzX3JlbGVhc2Uo
-c3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGUgKmZpbHApCiAJcmVjbGFpbV9jb25zdW1l
-ZF9idWZmZXJzKHBvcnQpOwogCXNwaW5fdW5sb2NrX2lycSgmcG9ydC0+b3V0dnFfbG9jayk7CiAK
-KwlpZiAoaXNfcnByb2Nfc2VyaWFsKHBvcnQtPnBvcnRkZXYtPnZkZXYpKQorCQlyZWNsYWltX2Rt
-YV9idWZzKCk7CiAJLyoKIAkgKiBMb2NrcyBhcmVuJ3QgbmVjZXNzYXJ5IGhlcmUgYXMgYSBwb3J0
-IGNhbid0IGJlIG9wZW5lZCBhZnRlcgogCSAqIHVucGx1ZywgYW5kIGlmIGEgcG9ydCBpc24ndCB1
-bnBsdWdnZWQsIGEga3JlZiB3b3VsZCBhbHJlYWR5CkBAIC0xMDU3LDcgKzExNTUsMTAgQEAgc3Rh
-dGljIHZvaWQgcmVzaXplX2NvbnNvbGUoc3RydWN0IHBvcnQgKnBvcnQpCiAJCXJldHVybjsKIAog
-CXZkZXYgPSBwb3J0LT5wb3J0ZGV2LT52ZGV2OwotCWlmICh2aXJ0aW9faGFzX2ZlYXR1cmUodmRl
-diwgVklSVElPX0NPTlNPTEVfRl9TSVpFKSkKKworCS8qIERvbid0IHRlc3QgRl9TSVpFIGF0IGFs
-bCBpZiB3ZSdyZSBycHJvYzogbm90IGEgdmFsaWQgZmVhdHVyZSEgKi8KKwlpZiAoIWlzX3Jwcm9j
-X3NlcmlhbCh2ZGV2KSAmJgorCSAgICB2aXJ0aW9faGFzX2ZlYXR1cmUodmRldiwgVklSVElPX0NP
-TlNPTEVfRl9TSVpFKSkKIAkJaHZjX3Jlc2l6ZShwb3J0LT5jb25zLmh2YywgcG9ydC0+Y29ucy53
-cyk7CiB9CiAKQEAgLTEyNDksNyArMTM1MCw3IEBAIHN0YXRpYyB1bnNpZ25lZCBpbnQgZmlsbF9x
-dWV1ZShzdHJ1Y3QgdmlydHF1ZXVlICp2cSwgc3BpbmxvY2tfdCAqbG9jaykKIAkJcmV0ID0gYWRk
-X2luYnVmKHZxLCBidWYpOwogCQlpZiAocmV0IDwgMCkgewogCQkJc3Bpbl91bmxvY2tfaXJxKGxv
-Y2spOwotCQkJZnJlZV9idWYoYnVmKTsKKwkJCWZyZWVfYnVmKGJ1ZiwgdHJ1ZSk7CiAJCQlicmVh
-azsKIAkJfQogCQlucl9hZGRlZF9idWZzKys7CkBAIC0xMzM3LDEwICsxNDM4LDE4IEBAIHN0YXRp
-YyBpbnQgYWRkX3BvcnQoc3RydWN0IHBvcnRzX2RldmljZSAqcG9ydGRldiwgdTMyIGlkKQogCQln
-b3RvIGZyZWVfZGV2aWNlOwogCX0KIAotCS8qCi0JICogSWYgd2UncmUgbm90IHVzaW5nIG11bHRp
-cG9ydCBzdXBwb3J0LCB0aGlzIGhhcyB0byBiZSBhIGNvbnNvbGUgcG9ydAotCSAqLwotCWlmICgh
-dXNlX211bHRpcG9ydChwb3J0LT5wb3J0ZGV2KSkgeworCWlmIChpc19ycHJvY19zZXJpYWwocG9y
-dC0+cG9ydGRldi0+dmRldikpCisJCS8qCisJCSAqIEZvciBycHJvY19zZXJpYWwgYXNzdW1lIHJl
-bW90ZSBwcm9jZXNzb3IgaXMgY29ubmVjdGVkLgorCQkgKiBycHJvY19zZXJpYWwgZG9lcyBub3Qg
-d2FudCB0aGUgY29uc29sZSBwb3J0LCBvbmx5CisJCSAqIHRoZSBnZW5lcmljIHBvcnQgaW1wbGVt
-ZW50YXRpb24uCisJCSAqLworCQlwb3J0LT5ob3N0X2Nvbm5lY3RlZCA9IHRydWU7CisJZWxzZSBp
-ZiAoIXVzZV9tdWx0aXBvcnQocG9ydC0+cG9ydGRldikpIHsKKwkJLyoKKwkJICogSWYgd2UncmUg
-bm90IHVzaW5nIG11bHRpcG9ydCBzdXBwb3J0LAorCQkgKiB0aGlzIGhhcyB0byBiZSBhIGNvbnNv
-bGUgcG9ydC4KKwkJICovCiAJCWVyciA9IGluaXRfcG9ydF9jb25zb2xlKHBvcnQpOwogCQlpZiAo
-ZXJyKQogCQkJZ290byBmcmVlX2luYnVmczsKQEAgLTEzNzMsNyArMTQ4Miw3IEBAIHN0YXRpYyBp
-bnQgYWRkX3BvcnQoc3RydWN0IHBvcnRzX2RldmljZSAqcG9ydGRldiwgdTMyIGlkKQogCiBmcmVl
-X2luYnVmczoKIAl3aGlsZSAoKGJ1ZiA9IHZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1Zihwb3J0
-LT5pbl92cSkpKQotCQlmcmVlX2J1ZihidWYpOworCQlmcmVlX2J1ZihidWYsIHRydWUpOwogZnJl
-ZV9kZXZpY2U6CiAJZGV2aWNlX2Rlc3Ryb3kocGRydmRhdGEuY2xhc3MsIHBvcnQtPmRldi0+ZGV2
-dCk7CiBmcmVlX2NkZXY6CkBAIC0xNDE1LDcgKzE1MjQsMTYgQEAgc3RhdGljIHZvaWQgcmVtb3Zl
-X3BvcnRfZGF0YShzdHJ1Y3QgcG9ydCAqcG9ydCkKIAogCS8qIFJlbW92ZSBidWZmZXJzIHdlIHF1
-ZXVlZCB1cCBmb3IgdGhlIEhvc3QgdG8gc2VuZCB1cyBkYXRhIGluLiAqLwogCXdoaWxlICgoYnVm
-ID0gdmlydHF1ZXVlX2RldGFjaF91bnVzZWRfYnVmKHBvcnQtPmluX3ZxKSkpCi0JCWZyZWVfYnVm
-KGJ1Zik7CisJCWZyZWVfYnVmKGJ1ZiwgdHJ1ZSk7CisKKwkvKgorCSAqIFJlbW92ZSBidWZmZXJz
-IGZyb20gb3V0IHF1ZXVlIGZvciBycHJvYy1zZXJpYWwuIFdlIGNhbm5vdCBhZmZvcmQKKwkgKiB0
-byBsZWFrIGFueSBETUEgbWVtLCBzbyByZWNsYWltIHRoaXMgbWVtb3J5IGV2ZW4gaWYgdGhpcyBt
-aWdodCBiZQorCSAqIHJhY3kgZm9yIHRoZSByZW1vdGUgcHJvY2Vzc29yLgorCSAqLworCWlmIChp
-c19ycHJvY19zZXJpYWwocG9ydC0+cG9ydGRldi0+dmRldikpCisJCXdoaWxlICgoYnVmID0gdmly
-dHF1ZXVlX2RldGFjaF91bnVzZWRfYnVmKHBvcnQtPm91dF92cSkpKQorCQkJZnJlZV9idWYoYnVm
-LCB0cnVlKTsKIH0KIAogLyoKQEAgLTE2MTcsNyArMTczNSw3IEBAIHN0YXRpYyB2b2lkIGNvbnRy
-b2xfd29ya19oYW5kbGVyKHN0cnVjdCB3b3JrX3N0cnVjdCAqd29yaykKIAkJaWYgKGFkZF9pbmJ1
-Zihwb3J0ZGV2LT5jX2l2cSwgYnVmKSA8IDApIHsKIAkJCWRldl93YXJuKCZwb3J0ZGV2LT52ZGV2
-LT5kZXYsCiAJCQkJICJFcnJvciBhZGRpbmcgYnVmZmVyIHRvIHF1ZXVlXG4iKTsKLQkJCWZyZWVf
-YnVmKGJ1Zik7CisJCQlmcmVlX2J1ZihidWYsIGZhbHNlKTsKIAkJfQogCX0KIAlzcGluX3VubG9j
-aygmcG9ydGRldi0+Y3ZxX2xvY2spOwpAQCAtMTgxMywxMCArMTkzMSwxMCBAQCBzdGF0aWMgdm9p
-ZCByZW1vdmVfY29udHJvbHFfZGF0YShzdHJ1Y3QgcG9ydHNfZGV2aWNlICpwb3J0ZGV2KQogCQly
-ZXR1cm47CiAKIAl3aGlsZSAoKGJ1ZiA9IHZpcnRxdWV1ZV9nZXRfYnVmKHBvcnRkZXYtPmNfaXZx
-LCAmbGVuKSkpCi0JCWZyZWVfYnVmKGJ1Zik7CisJCWZyZWVfYnVmKGJ1ZiwgdHJ1ZSk7CiAKIAl3
-aGlsZSAoKGJ1ZiA9IHZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1Zihwb3J0ZGV2LT5jX2l2cSkp
-KQotCQlmcmVlX2J1ZihidWYpOworCQlmcmVlX2J1ZihidWYsIHRydWUpOwogfQogCiAvKgpAQCAt
-MTg2MywxMSArMTk4MSwxNSBAQCBzdGF0aWMgaW50IF9fZGV2aW5pdCB2aXJ0Y29uc19wcm9iZShz
-dHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKIAogCW11bHRpcG9ydCA9IGZhbHNlOwogCXBvcnRk
-ZXYtPmNvbmZpZy5tYXhfbnJfcG9ydHMgPSAxOwotCWlmICh2aXJ0aW9fY29uZmlnX3ZhbCh2ZGV2
-LCBWSVJUSU9fQ09OU09MRV9GX01VTFRJUE9SVCwKLQkJCSAgICAgIG9mZnNldG9mKHN0cnVjdCB2
-aXJ0aW9fY29uc29sZV9jb25maWcsCi0JCQkJICAgICAgIG1heF9ucl9wb3J0cyksCi0JCQkgICAg
-ICAmcG9ydGRldi0+Y29uZmlnLm1heF9ucl9wb3J0cykgPT0gMCkKKworCS8qIERvbid0IHRlc3Qg
-TVVMVElQT1JUIGF0IGFsbCBpZiB3ZSdyZSBycHJvYzogbm90IGEgdmFsaWQgZmVhdHVyZSEgKi8K
-KwlpZiAoIWlzX3Jwcm9jX3NlcmlhbCh2ZGV2KSAmJgorCSAgICB2aXJ0aW9fY29uZmlnX3ZhbCh2
-ZGV2LCBWSVJUSU9fQ09OU09MRV9GX01VTFRJUE9SVCwKKwkJCQkgIG9mZnNldG9mKHN0cnVjdCB2
-aXJ0aW9fY29uc29sZV9jb25maWcsCisJCQkJCSAgIG1heF9ucl9wb3J0cyksCisJCQkJICAmcG9y
-dGRldi0+Y29uZmlnLm1heF9ucl9wb3J0cykgPT0gMCkgewogCQltdWx0aXBvcnQgPSB0cnVlOwor
-CX0KIAogCWVyciA9IGluaXRfdnFzKHBvcnRkZXYpOwogCWlmIChlcnIgPCAwKSB7CkBAIC0xOTc3
-LDYgKzIwOTksMTYgQEAgc3RhdGljIHVuc2lnbmVkIGludCBmZWF0dXJlc1tdID0gewogCVZJUlRJ
-T19DT05TT0xFX0ZfTVVMVElQT1JULAogfTsKIAorc3RhdGljIHN0cnVjdCB2aXJ0aW9fZGV2aWNl
-X2lkIHJwcm9jX3NlcmlhbF9pZF90YWJsZVtdID0geworI2lmIElTX0VOQUJMRUQoQ09ORklHX1JF
-TU9URVBST0MpCisJeyBWSVJUSU9fSURfUlBST0NfU0VSSUFMLCBWSVJUSU9fREVWX0FOWV9JRCB9
-LAorI2VuZGlmCisJeyAwIH0sCit9OworCitzdGF0aWMgdW5zaWduZWQgaW50IHJwcm9jX3Nlcmlh
-bF9mZWF0dXJlc1tdID0geworfTsKKwogI2lmZGVmIENPTkZJR19QTQogc3RhdGljIGludCB2aXJ0
-Y29uc19mcmVlemUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCiB7CkBAIC0yMDYxLDYgKzIx
-OTMsMjAgQEAgc3RhdGljIHN0cnVjdCB2aXJ0aW9fZHJpdmVyIHZpcnRpb19jb25zb2xlID0gewog
-I2VuZGlmCiB9OwogCisvKgorICogdmlydGlvX3Jwcm9jX3NlcmlhbCByZWZlcnMgdG8gX19kZXZp
-bml0IGZ1bmN0aW9uIHdoaWNoIGNhdXNlcworICogc2VjdGlvbiBtaXNtYXRjaCB3YXJuaW5ncy4g
-U28gdXNlIF9fcmVmZGF0YSB0byBzaWxlbmNlIHdhcm5pbmdzLgorICovCitzdGF0aWMgc3RydWN0
-IHZpcnRpb19kcml2ZXIgX19yZWZkYXRhIHZpcnRpb19ycHJvY19zZXJpYWwgPSB7CisJLmZlYXR1
-cmVfdGFibGUgPSBycHJvY19zZXJpYWxfZmVhdHVyZXMsCisJLmZlYXR1cmVfdGFibGVfc2l6ZSA9
-IEFSUkFZX1NJWkUocnByb2Nfc2VyaWFsX2ZlYXR1cmVzKSwKKwkuZHJpdmVyLm5hbWUgPQkidmly
-dGlvX3Jwcm9jX3NlcmlhbCIsCisJLmRyaXZlci5vd25lciA9CVRISVNfTU9EVUxFLAorCS5pZF90
-YWJsZSA9CXJwcm9jX3NlcmlhbF9pZF90YWJsZSwKKwkucHJvYmUgPQl2aXJ0Y29uc19wcm9iZSwK
-KwkucmVtb3ZlID0JdmlydGNvbnNfcmVtb3ZlLAorfTsKKwogc3RhdGljIGludCBfX2luaXQgaW5p
-dCh2b2lkKQogewogCWludCBlcnI7CkBAIC0yMDg1LDcgKzIyMzEsMTUgQEAgc3RhdGljIGludCBf
-X2luaXQgaW5pdCh2b2lkKQogCQlwcl9lcnIoIkVycm9yICVkIHJlZ2lzdGVyaW5nIHZpcnRpbyBk
-cml2ZXJcbiIsIGVycik7CiAJCWdvdG8gZnJlZTsKIAl9CisJZXJyID0gcmVnaXN0ZXJfdmlydGlv
-X2RyaXZlcigmdmlydGlvX3Jwcm9jX3NlcmlhbCk7CisJaWYgKGVyciA8IDApIHsKKwkJcHJfZXJy
-KCJFcnJvciAlZCByZWdpc3RlcmluZyB2aXJ0aW8gcnByb2Mgc2VyaWFsIGRyaXZlclxuIiwKKwkJ
-ICAgICAgIGVycik7CisJCWdvdG8gdW5yZWdpc3RlcjsKKwl9CiAJcmV0dXJuIDA7Cit1bnJlZ2lz
-dGVyOgorCXVucmVnaXN0ZXJfdmlydGlvX2RyaXZlcigmdmlydGlvX2NvbnNvbGUpOwogZnJlZToK
-IAlpZiAocGRydmRhdGEuZGVidWdmc19kaXIpCiAJCWRlYnVnZnNfcmVtb3ZlX3JlY3Vyc2l2ZShw
-ZHJ2ZGF0YS5kZWJ1Z2ZzX2Rpcik7CkBAIC0yMDk1LDcgKzIyNDksMTAgQEAgZnJlZToKIAogc3Rh
-dGljIHZvaWQgX19leGl0IGZpbmkodm9pZCkKIHsKKwlyZWNsYWltX2RtYV9idWZzKCk7CisKIAl1
-bnJlZ2lzdGVyX3ZpcnRpb19kcml2ZXIoJnZpcnRpb19jb25zb2xlKTsKKwl1bnJlZ2lzdGVyX3Zp
-cnRpb19kcml2ZXIoJnZpcnRpb19ycHJvY19zZXJpYWwpOwogCiAJY2xhc3NfZGVzdHJveShwZHJ2
-ZGF0YS5jbGFzcyk7CiAJaWYgKHBkcnZkYXRhLmRlYnVnZnNfZGlyKQpkaWZmIC0tZ2l0IGEvaW5j
-bHVkZS9saW51eC92aXJ0aW9faWRzLmggYi9pbmNsdWRlL2xpbnV4L3ZpcnRpb19pZHMuaAppbmRl
-eCA3NTI5Yjg1Li45NzQwZDMzIDEwMDY0NAotLS0gYS9pbmNsdWRlL2xpbnV4L3ZpcnRpb19pZHMu
-aAorKysgYi9pbmNsdWRlL2xpbnV4L3ZpcnRpb19pZHMuaApAQCAtMzcsNSArMzcsNiBAQAogI2Rl
-ZmluZSBWSVJUSU9fSURfUlBNU0cJCTcgLyogdmlydGlvIHJlbW90ZSBwcm9jZXNzb3IgbWVzc2Fn
-aW5nICovCiAjZGVmaW5lIFZJUlRJT19JRF9TQ1NJCQk4IC8qIHZpcnRpbyBzY3NpICovCiAjZGVm
-aW5lIFZJUlRJT19JRF85UAkJOSAvKiA5cCB2aXJ0aW8gY29uc29sZSAqLworI2RlZmluZSBWSVJU
-SU9fSURfUlBST0NfU0VSSUFMIDExIC8qIHZpcnRpbyByZW1vdGVwcm9jIHNlcmlhbCBsaW5rICov
-CiAKICNlbmRpZiAvKiBfTElOVVhfVklSVElPX0lEU19IICovCi0tIAoxLjcuNS40CgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+vhost-blk is an in-kernel virito-blk device accelerator.
+
+Due to lack of proper in-kernel AIO interface, this version converts
+guest's I/O request to bio and use submit_bio() to submit I/O directly.
+So this version any supports raw block device as guest's disk image,
+e.g. /dev/sda, /dev/ram0. We can add file based image support to
+vhost-blk once we have in-kernel AIO interface. There are some work in
+progress for in-kernel AIO interface from Dave Kleikamp and Zach Brown:
+
+   http://marc.info/?l=linux-fsdevel&m=133312234313122
+
+Performance evaluation:
+-----------------------------
+1) LKVM
+Fio with libaio ioengine on Fusion IO device using kvm tool
+IOPS       Before       After   Improvement
+seq-read   107          121     +13.0%
+seq-write  130          179     +37.6%
+rnd-read   102          122     +19.6%
+rnd-write  125          159     +27.0%
+
+2) QEMU
+Fio with libaio ioengine on Fusion IO device using QEMU
+IOPS       Before       After   Improvement
+seq-read   76           123     +61.8%
+seq-write  139          173     +24.4%
+rnd-read   73           120     +64.3%
+rnd-write  75           156     +108.0%
+
+Userspace bits:
+-----------------------------
+1) LKVM
+The latest vhost-blk userspace bits for kvm tool can be found here:
+git@github.com:asias/linux-kvm.git blk.vhost-blk
+
+2) QEMU
+The latest vhost-blk userspace prototype for QEMU can be found here:
+git@github.com:asias/qemu.git blk.vhost-blk
+
+Changes in v4:
+- Mark req->status as userspace pointer
+- Use __copy_to_user() instead of copy_to_user() in vhost_blk_set_status()
+- Add if (need_resched()) schedule() in blk thread
+- Kill vhost_blk_stop_vq() and move it into vhost_blk_stop()
+- Use vq_err() instead of pr_warn()
+- Fail un Unsupported request
+- Add flush in vhost_blk_set_features()
+
+Changes in v3:
+- Sending REQ_FLUSH bio instead of vfs_fsync, thanks Christoph!
+- Check file passed by user is a raw block device file
+
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/Kconfig     |   1 +
+ drivers/vhost/Kconfig.blk |  10 +
+ drivers/vhost/Makefile    |   2 +
+ drivers/vhost/blk.c       | 677 ++++++++++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/blk.h       |   8 +
+ 5 files changed, 698 insertions(+)
+ create mode 100644 drivers/vhost/Kconfig.blk
+ create mode 100644 drivers/vhost/blk.c
+ create mode 100644 drivers/vhost/blk.h
+
+diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+index 202bba6..acd8038 100644
+--- a/drivers/vhost/Kconfig
++++ b/drivers/vhost/Kconfig
+@@ -11,4 +11,5 @@ config VHOST_NET
+ 
+ if STAGING
+ source "drivers/vhost/Kconfig.tcm"
++source "drivers/vhost/Kconfig.blk"
+ endif
+diff --git a/drivers/vhost/Kconfig.blk b/drivers/vhost/Kconfig.blk
+new file mode 100644
+index 0000000..ff8ab76
+--- /dev/null
++++ b/drivers/vhost/Kconfig.blk
+@@ -0,0 +1,10 @@
++config VHOST_BLK
++	tristate "Host kernel accelerator for virtio blk (EXPERIMENTAL)"
++	depends on BLOCK &&  EXPERIMENTAL && m
++	---help---
++	  This kernel module can be loaded in host kernel to accelerate
++	  guest block with virtio_blk. Not to be confused with virtio_blk
++	  module itself which needs to be loaded in guest kernel.
++
++	  To compile this driver as a module, choose M here: the module will
++	  be called vhost_blk.
+diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
+index a27b053..1a8a4a5 100644
+--- a/drivers/vhost/Makefile
++++ b/drivers/vhost/Makefile
+@@ -2,3 +2,5 @@ obj-$(CONFIG_VHOST_NET) += vhost_net.o
+ vhost_net-y := vhost.o net.o
+ 
+ obj-$(CONFIG_TCM_VHOST) += tcm_vhost.o
++obj-$(CONFIG_VHOST_BLK) += vhost_blk.o
++vhost_blk-y := blk.o
+diff --git a/drivers/vhost/blk.c b/drivers/vhost/blk.c
+new file mode 100644
+index 0000000..5c2b790
+--- /dev/null
++++ b/drivers/vhost/blk.c
+@@ -0,0 +1,677 @@
++/*
++ * Copyright (C) 2011 Taobao, Inc.
++ * Author: Liu Yuan <tailai.ly@taobao.com>
++ *
++ * Copyright (C) 2012 Red Hat, Inc.
++ * Author: Asias He <asias@redhat.com>
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2.
++ *
++ * virtio-blk server in host kernel.
++ */
++
++#include <linux/miscdevice.h>
++#include <linux/module.h>
++#include <linux/vhost.h>
++#include <linux/virtio_blk.h>
++#include <linux/mutex.h>
++#include <linux/file.h>
++#include <linux/kthread.h>
++#include <linux/blkdev.h>
++
++#include "vhost.c"
++#include "vhost.h"
++#include "blk.h"
++
++/* The block header is in the first and separate buffer. */
++#define BLK_HDR	0
++
++static DEFINE_IDA(vhost_blk_index_ida);
++
++enum {
++	VHOST_BLK_VQ_REQ = 0,
++	VHOST_BLK_VQ_MAX = 1,
++};
++
++struct req_page_list {
++	struct page **pages;
++	int pages_nr;
++};
++
++struct vhost_blk_req {
++	struct llist_node llnode;
++	struct req_page_list *pl;
++	struct vhost_blk *blk;
++
++	struct iovec *iov;
++	int iov_nr;
++
++	struct bio **bio;
++	atomic_t bio_nr;
++
++	sector_t sector;
++	int write;
++	u16 head;
++	long len;
++
++	u8 __user *status;
++};
++
++struct vhost_blk {
++	struct task_struct *host_kick;
++	struct vhost_blk_req *reqs;
++	struct vhost_virtqueue vq;
++	struct llist_head llhead;
++	struct vhost_dev dev;
++	u16 reqs_nr;
++	int index;
++};
++
++static inline int iov_num_pages(struct iovec *iov)
++{
++	return (PAGE_ALIGN((unsigned long)iov->iov_base + iov->iov_len) -
++	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
++}
++
++static int vhost_blk_setup(struct vhost_blk *blk)
++{
++	blk->reqs_nr = blk->vq.num;
++
++	blk->reqs = kmalloc(sizeof(struct vhost_blk_req) * blk->reqs_nr,
++			    GFP_KERNEL);
++	if (!blk->reqs)
++		return -ENOMEM;
++
++	return 0;
++}
++
++static inline int vhost_blk_set_status(struct vhost_blk_req *req, u8 status)
++{
++	struct vhost_blk *blk = req->blk;
++
++	if (__copy_to_user(req->status, &status, sizeof(status))) {
++		vq_err(&blk->vq, "Failed to write status\n");
++		return -EFAULT;
++	}
++
++	return 0;
++}
++
++static void vhost_blk_enable_vq(struct vhost_blk *blk,
++				struct vhost_virtqueue *vq)
++{
++	wake_up_process(blk->host_kick);
++}
++
++static void vhost_blk_req_done(struct bio *bio, int err)
++{
++	struct vhost_blk_req *req = bio->bi_private;
++	struct vhost_blk *blk = req->blk;
++
++	if (err)
++		req->len = err;
++
++	if (atomic_dec_and_test(&req->bio_nr)) {
++		llist_add(&req->llnode, &blk->llhead);
++		wake_up_process(blk->host_kick);
++	}
++
++	bio_put(bio);
++}
++
++static void vhost_blk_req_umap(struct vhost_blk_req *req)
++{
++	struct req_page_list *pl;
++	int i, j;
++
++
++	if (!req->pl) {
++		kfree(req->bio);
++		return;
++	}
++
++	for (i = 0; i < req->iov_nr; i++) {
++		pl = &req->pl[i];
++		for (j = 0; j < pl->pages_nr; j++) {
++			if (!req->write)
++				set_page_dirty_lock(pl->pages[j]);
++			page_cache_release(pl->pages[j]);
++		}
++	}
++
++	kfree(req->pl);
++}
++
++static int vhost_blk_bio_make(struct vhost_blk_req *req,
++			      struct block_device *bdev)
++{
++	int pages_nr_total, i, j, ret;
++	struct iovec *iov = req->iov;
++	int iov_nr = req->iov_nr;
++	struct page **pages, *page;
++	struct bio *bio = NULL;
++	int bio_nr = 0;
++
++	req->len = 0;
++	pages_nr_total = 0;
++	for (i = 0; i < iov_nr; i++) {
++		req->len += iov[i].iov_len;
++		pages_nr_total += iov_num_pages(&iov[i]);
++	}
++
++	if (unlikely(req->write == WRITE_FLUSH)) {
++		req->pl = NULL;
++		req->bio = kmalloc(sizeof(struct bio *), GFP_KERNEL);
++		bio = bio_alloc(GFP_KERNEL, 1);
++		if (!bio) {
++			kfree(req->bio);
++			return -ENOMEM;
++		}
++		bio->bi_sector  = req->sector;
++		bio->bi_bdev    = bdev;
++		bio->bi_private = req;
++		bio->bi_end_io  = vhost_blk_req_done;
++		req->bio[bio_nr++] = bio;
++
++		goto out;
++	}
++
++	req->pl = kmalloc((iov_nr * sizeof(struct req_page_list)) +
++			  (pages_nr_total * sizeof(struct page *)) +
++			  (pages_nr_total * sizeof(struct bio *)),
++			  GFP_KERNEL);
++	if (!req->pl)
++		return -ENOMEM;
++	pages = (struct page **)&req->pl[iov_nr];
++	req->bio = (struct bio **)&pages[pages_nr_total];
++
++	req->iov_nr = 0;
++	for (i = 0; i < iov_nr; i++) {
++		int pages_nr = iov_num_pages(&iov[i]);
++		unsigned long iov_base, iov_len;
++		struct req_page_list *pl;
++
++		iov_base = (unsigned long)iov[i].iov_base;
++		iov_len  = (unsigned long)iov[i].iov_len;
++
++		ret = get_user_pages_fast(iov_base, pages_nr,
++					  !req->write, pages);
++		if (ret != pages_nr)
++			goto fail;
++
++		req->iov_nr++;
++		pl = &req->pl[i];
++		pl->pages_nr = pages_nr;
++		pl->pages = pages;
++
++		for (j = 0; j < pages_nr; j++) {
++			unsigned int off, len;
++			page = pages[j];
++			off = iov_base & ~PAGE_MASK;
++			len = PAGE_SIZE - off;
++			if (len > iov_len)
++				len = iov_len;
++
++			while (!bio || bio_add_page(bio, page, len, off) <= 0) {
++				bio = bio_alloc(GFP_KERNEL, pages_nr);
++				if (!bio)
++					goto fail;
++				bio->bi_sector  = req->sector;
++				bio->bi_bdev    = bdev;
++				bio->bi_private = req;
++				bio->bi_end_io  = vhost_blk_req_done;
++				req->bio[bio_nr++] = bio;
++			}
++			req->sector	+= len >> 9;
++			iov_base	+= len;
++			iov_len		-= len;
++		}
++
++		pages += pages_nr;
++	}
++out:
++	atomic_set(&req->bio_nr, bio_nr);
++	return 0;
++
++fail:
++	for (i = 0; i < bio_nr; i++)
++		bio_put(req->bio[i]);
++	vhost_blk_req_umap(req);
++	return -ENOMEM;
++}
++
++static inline void vhost_blk_bio_send(struct vhost_blk_req *req)
++{
++	struct blk_plug plug;
++	int i, bio_nr;
++
++	bio_nr = atomic_read(&req->bio_nr);
++	blk_start_plug(&plug);
++	for (i = 0; i < bio_nr; i++)
++		submit_bio(req->write, req->bio[i]);
++	blk_finish_plug(&plug);
++}
++
++static int vhost_blk_req_submit(struct vhost_blk_req *req, struct file *file)
++{
++
++	struct inode *inode = file->f_mapping->host;
++	struct block_device *bdev = inode->i_bdev;
++	int ret;
++
++	ret = vhost_blk_bio_make(req, bdev);
++	if (ret < 0)
++		return ret;
++
++	vhost_blk_bio_send(req);
++
++	return ret;
++}
++
++static int vhost_blk_req_done_thread(void *data)
++{
++	mm_segment_t oldfs = get_fs();
++	struct vhost_blk *blk = data;
++	struct vhost_virtqueue *vq;
++	struct llist_node *llnode;
++	struct vhost_blk_req *req;
++	bool added;
++	u8 status;
++	int ret;
++
++	vq = &blk->vq;
++	set_fs(USER_DS);
++	use_mm(blk->dev.mm);
++	for (;;) {
++		llnode = llist_del_all(&blk->llhead);
++		if (!llnode) {
++			set_current_state(TASK_INTERRUPTIBLE);
++			schedule();
++			if (unlikely(kthread_should_stop()))
++				break;
++			continue;
++		}
++
++		if (need_resched())
++			schedule();
++
++		added = false;
++		while (llnode) {
++			req = llist_entry(llnode, struct vhost_blk_req, llnode);
++			llnode = llist_next(llnode);
++
++			vhost_blk_req_umap(req);
++
++			status = req->len > 0 ?
++				 VIRTIO_BLK_S_OK : VIRTIO_BLK_S_IOERR;
++			ret = vhost_blk_set_status(req, status);
++			if (unlikely(ret))
++				continue;
++			vhost_add_used(&blk->vq, req->head, req->len);
++			added = true;
++		}
++		if (likely(added))
++			vhost_signal(&blk->dev, &blk->vq);
++	}
++	unuse_mm(blk->dev.mm);
++	set_fs(oldfs);
++	return 0;
++}
++
++static void vhost_blk_flush(struct vhost_blk *blk)
++{
++	vhost_poll_flush(&blk->vq.poll);
++}
++
++static inline void vhost_blk_stop(struct vhost_blk *blk, struct file **file)
++{
++	struct vhost_virtqueue *vq = &blk->vq;
++	struct file *f;
++
++	mutex_lock(&vq->mutex);
++	f = rcu_dereference_protected(vq->private_data,
++				      lockdep_is_held(&vq->mutex));
++	rcu_assign_pointer(vq->private_data, NULL);
++	mutex_unlock(&vq->mutex);
++
++	*file = f;
++}
++
++/* Handle guest request */
++static int vhost_blk_req_handle(struct vhost_virtqueue *vq,
++				struct virtio_blk_outhdr *hdr,
++				u16 head, u16 out, u16 in,
++				struct file *file)
++{
++	struct vhost_blk *blk = container_of(vq->dev, struct vhost_blk, dev);
++	struct vhost_blk_req *req;
++	int iov_nr, ret;
++	u8 status;
++
++	if (hdr->type == VIRTIO_BLK_T_IN || hdr->type == VIRTIO_BLK_T_GET_ID)
++		iov_nr = in - 1;
++	else
++		iov_nr = out - 1;
++
++	req		= &blk->reqs[head];
++	req->head	= head;
++	req->blk	= blk;
++	/* The block data buffer follows block header buffer */
++	req->iov	= &vq->iov[BLK_HDR + 1];
++	req->iov_nr	= iov_nr;
++	/* The block status buffer follows block data buffer */
++	req->status	= vq->iov[iov_nr + 1].iov_base;
++	req->sector	= hdr->sector;
++
++	switch (hdr->type) {
++	case VIRTIO_BLK_T_OUT:
++		req->write = WRITE;
++		ret = vhost_blk_req_submit(req, file);
++		break;
++	case VIRTIO_BLK_T_IN:
++		req->write = READ;
++		ret = vhost_blk_req_submit(req, file);
++		break;
++	case VIRTIO_BLK_T_FLUSH:
++		req->write = WRITE_FLUSH;
++		ret = vhost_blk_req_submit(req, file);
++		break;
++	case VIRTIO_BLK_T_GET_ID: {
++		char id[VIRTIO_BLK_ID_BYTES];
++		int len;
++
++		ret = snprintf(id, VIRTIO_BLK_ID_BYTES,
++			       "vhost-blk%d", blk->index);
++		if (ret < 0)
++			break;
++		len = ret;
++		ret = __copy_to_user(req->iov[0].iov_base, id, len);
++		status = ret < 0 ? VIRTIO_BLK_S_IOERR : VIRTIO_BLK_S_OK;
++		ret = vhost_blk_set_status(req, status);
++		if (ret)
++			break;
++		vhost_add_used_and_signal(&blk->dev, vq, head, len);
++		break;
++	}
++	default:
++		vq_err(vq, "Unsupported request type %d\n", hdr->type);
++		status = VIRTIO_BLK_S_UNSUPP;
++		ret = vhost_blk_set_status(req, status);
++		if (ret)
++			break;
++		vhost_add_used_and_signal(&blk->dev, vq, head, 0);
++	}
++
++	return ret;
++}
++
++/* Guest kick us for IO request */
++static void vhost_blk_handle_guest_kick(struct vhost_work *work)
++{
++	struct virtio_blk_outhdr hdr;
++	struct vhost_virtqueue *vq;
++	struct vhost_blk *blk;
++	struct blk_plug plug;
++	struct file *f;
++	int in, out;
++	u16 head;
++
++	vq = container_of(work, struct vhost_virtqueue, poll.work);
++	blk = container_of(vq->dev, struct vhost_blk, dev);
++
++	/* TODO: check that we are running from vhost_worker? */
++	f = rcu_dereference_check(vq->private_data, 1);
++	if (!f)
++		return;
++
++	vhost_disable_notify(&blk->dev, vq);
++	blk_start_plug(&plug);
++	for (;;) {
++		head = vhost_get_vq_desc(&blk->dev, vq, vq->iov,
++					 ARRAY_SIZE(vq->iov),
++					 &out, &in, NULL, NULL);
++		if (unlikely(head < 0))
++			break;
++
++		if (unlikely(head == vq->num)) {
++			if (unlikely(vhost_enable_notify(&blk->dev, vq))) {
++				vhost_disable_notify(&blk->dev, vq);
++				continue;
++			}
++			break;
++		}
++
++		if (unlikely(copy_from_user(&hdr, vq->iov[BLK_HDR].iov_base,
++					    sizeof(hdr)))) {
++			vq_err(vq, "Failed to get block header!\n");
++			vhost_discard_vq_desc(vq, 1);
++			break;
++		}
++
++		if (vhost_blk_req_handle(vq, &hdr, head, out, in, f) < 0)
++			break;
++	}
++	blk_finish_plug(&plug);
++}
++
++static int vhost_blk_open(struct inode *inode, struct file *file)
++{
++	struct vhost_blk *blk;
++	int ret;
++
++	blk = kzalloc(sizeof(*blk), GFP_KERNEL);
++	if (!blk) {
++		ret = -ENOMEM;
++		goto out;
++	}
++
++	ret = ida_simple_get(&vhost_blk_index_ida, 0, 0, GFP_KERNEL);
++	if (ret < 0)
++		goto out_dev;
++	blk->index = ret;
++
++	blk->vq.handle_kick = vhost_blk_handle_guest_kick;
++
++	ret = vhost_dev_init(&blk->dev, &blk->vq, VHOST_BLK_VQ_MAX);
++	if (ret < 0)
++		goto out_dev;
++	file->private_data = blk;
++
++	blk->host_kick = kthread_create(vhost_blk_req_done_thread,
++			 blk, "vhost-blk-%d", current->pid);
++	if (IS_ERR(blk->host_kick)) {
++		ret = PTR_ERR(blk->host_kick);
++		goto out_dev;
++	}
++
++	return ret;
++out_dev:
++	kfree(blk);
++out:
++	return ret;
++}
++
++static int vhost_blk_release(struct inode *inode, struct file *f)
++{
++	struct vhost_blk *blk = f->private_data;
++	struct file *file;
++
++	ida_simple_remove(&vhost_blk_index_ida, blk->index);
++	vhost_blk_stop(blk, &file);
++	vhost_blk_flush(blk);
++	vhost_dev_cleanup(&blk->dev, false);
++	if (file)
++		fput(file);
++	kthread_stop(blk->host_kick);
++	kfree(blk->reqs);
++	kfree(blk);
++
++	return 0;
++}
++
++static int vhost_blk_set_features(struct vhost_blk *blk, u64 features)
++{
++	mutex_lock(&blk->dev.mutex);
++	blk->dev.acked_features = features;
++	vhost_blk_flush(blk);
++	mutex_unlock(&blk->dev.mutex);
++
++	return 0;
++}
++
++static long vhost_blk_set_backend(struct vhost_blk *blk, unsigned index, int fd)
++{
++	struct vhost_virtqueue *vq = &blk->vq;
++	struct file *file, *oldfile;
++	struct inode *inode;
++	int ret;
++
++	mutex_lock(&blk->dev.mutex);
++	ret = vhost_dev_check_owner(&blk->dev);
++	if (ret)
++		goto out_dev;
++
++	if (index >= VHOST_BLK_VQ_MAX) {
++		ret = -ENOBUFS;
++		goto out_dev;
++	}
++
++	mutex_lock(&vq->mutex);
++
++	if (!vhost_vq_access_ok(vq)) {
++		ret = -EFAULT;
++		goto out_vq;
++	}
++
++	file = fget(fd);
++	if (IS_ERR(file)) {
++		ret = PTR_ERR(file);
++		goto out_vq;
++	}
++
++	/* Only raw block device is supported for now */
++	inode = file->f_mapping->host;
++	if (!S_ISBLK(inode->i_mode)) {
++		ret = -EFAULT;
++		goto out_file;
++	}
++
++	oldfile = rcu_dereference_protected(vq->private_data,
++			lockdep_is_held(&vq->mutex));
++	if (file != oldfile) {
++		rcu_assign_pointer(vq->private_data, file);
++		vhost_blk_enable_vq(blk, vq);
++
++		ret = vhost_init_used(vq);
++		if (ret)
++			goto out_file;
++	}
++
++	mutex_unlock(&vq->mutex);
++
++	if (oldfile) {
++		vhost_blk_flush(blk);
++		fput(oldfile);
++	}
++
++	mutex_unlock(&blk->dev.mutex);
++	return 0;
++
++out_file:
++	fput(file);
++out_vq:
++	mutex_unlock(&vq->mutex);
++out_dev:
++	mutex_unlock(&blk->dev.mutex);
++	return ret;
++}
++
++static long vhost_blk_reset_owner(struct vhost_blk *blk)
++{
++	struct file *file = NULL;
++	int err;
++
++	mutex_lock(&blk->dev.mutex);
++	err = vhost_dev_check_owner(&blk->dev);
++	if (err)
++		goto done;
++	vhost_blk_stop(blk, &file);
++	vhost_blk_flush(blk);
++	err = vhost_dev_reset_owner(&blk->dev);
++done:
++	mutex_unlock(&blk->dev.mutex);
++	if (file)
++		fput(file);
++	return err;
++}
++
++static long vhost_blk_ioctl(struct file *f, unsigned int ioctl,
++			    unsigned long arg)
++{
++	struct vhost_blk *blk = f->private_data;
++	void __user *argp = (void __user *)arg;
++	struct vhost_vring_file backend;
++	u64 __user *featurep = argp;
++	u64 features;
++	int ret;
++
++	switch (ioctl) {
++	case VHOST_BLK_SET_BACKEND:
++		if (copy_from_user(&backend, argp, sizeof(backend)))
++			return -EFAULT;
++		return vhost_blk_set_backend(blk, backend.index, backend.fd);
++	case VHOST_GET_FEATURES:
++		features = VHOST_BLK_FEATURES;
++		if (copy_to_user(featurep, &features, sizeof(features)))
++			return -EFAULT;
++		return 0;
++	case VHOST_SET_FEATURES:
++		if (copy_from_user(&features, featurep, sizeof(features)))
++			return -EFAULT;
++		if (features & ~VHOST_BLK_FEATURES)
++			return -EOPNOTSUPP;
++		return vhost_blk_set_features(blk, features);
++	case VHOST_RESET_OWNER:
++		return vhost_blk_reset_owner(blk);
++	default:
++		mutex_lock(&blk->dev.mutex);
++		ret = vhost_dev_ioctl(&blk->dev, ioctl, arg);
++		if (!ret && ioctl == VHOST_SET_VRING_NUM)
++			ret = vhost_blk_setup(blk);
++		vhost_blk_flush(blk);
++		mutex_unlock(&blk->dev.mutex);
++		return ret;
++	}
++}
++
++static const struct file_operations vhost_blk_fops = {
++	.owner          = THIS_MODULE,
++	.open           = vhost_blk_open,
++	.release        = vhost_blk_release,
++	.llseek		= noop_llseek,
++	.unlocked_ioctl = vhost_blk_ioctl,
++};
++
++static struct miscdevice vhost_blk_misc = {
++	MISC_DYNAMIC_MINOR,
++	"vhost-blk",
++	&vhost_blk_fops,
++};
++
++static int vhost_blk_init(void)
++{
++	return misc_register(&vhost_blk_misc);
++}
++
++static void vhost_blk_exit(void)
++{
++	misc_deregister(&vhost_blk_misc);
++}
++
++module_init(vhost_blk_init);
++module_exit(vhost_blk_exit);
++
++MODULE_VERSION("0.0.3");
++MODULE_LICENSE("GPL v2");
++MODULE_AUTHOR("Asias He");
++MODULE_DESCRIPTION("Host kernel accelerator for virtio_blk");
+diff --git a/drivers/vhost/blk.h b/drivers/vhost/blk.h
+new file mode 100644
+index 0000000..2f674f0
+--- /dev/null
++++ b/drivers/vhost/blk.h
+@@ -0,0 +1,8 @@
++#include <linux/vhost.h>
++
++enum {
++	VHOST_BLK_FEATURES = (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
++			     (1ULL << VIRTIO_RING_F_EVENT_IDX),
++};
++/* VHOST_BLK specific defines */
++#define VHOST_BLK_SET_BACKEND _IOW(VHOST_VIRTIO, 0x50, struct vhost_vring_file)
+-- 
+1.7.11.7
