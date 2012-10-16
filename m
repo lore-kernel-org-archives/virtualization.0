@@ -1,16 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 4/5] virtio_net: don't rely on virtqueue_add_buf()
-	returning capacity.
-Date: Tue, 16 Oct 2012 15:47:37 +0200
-Message-ID: <20121016134737.GA12972@redhat.com>
+Subject: Re: [PATCH 1/5] virtio: move queue_index and num_free fields into
+	core struct virtqueue.
+Date: Tue, 16 Oct 2012 15:53:22 +0200
+Message-ID: <20121016135322.GB12972@redhat.com>
 References: <1350394252-23934-1-git-send-email-rusty@rustcorp.com.au>
-	<1350394252-23934-4-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1350394252-23934-4-git-send-email-rusty@rustcorp.com.au>
+In-Reply-To: <1350394252-23934-1-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,90 +23,235 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 17, 2012 at 12:00:51AM +1030, Rusty Russell wrote:
-> Now we can easily use vq->num_free to determine if there are descriptors
-> left in the queue, we're about to change virtqueue_add_buf() to return 0
-> on success.  The virtio_net driver is the only one which actually uses
-> the return value, so change that.
+On Wed, Oct 17, 2012 at 12:00:48AM +1030, Rusty Russell wrote:
+> They're generic concepts, so hoist them.  This also avoids accessor
+> functions.
+> 
+> This goes even further than Jason Wang's 17bb6d4088 patch
+> ("virtio-ring: move queue_index to vring_virtqueue") which moved the
+> queue_index from the specific transport.
 > 
 > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 > ---
->  drivers/net/virtio_net.c |   33 +++++++++++++--------------------
->  1 file changed, 13 insertions(+), 20 deletions(-)
+>  drivers/virtio/virtio_mmio.c |    4 ++--
+>  drivers/virtio/virtio_pci.c  |    6 ++----
+>  drivers/virtio/virtio_ring.c |   34 +++++++++++-----------------------
+>  include/linux/virtio.h       |    6 ++++--
+>  4 files changed, 19 insertions(+), 31 deletions(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 6c094c8..7c7f5a9 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -471,10 +471,11 @@ static bool try_fill_recv(struct virtnet_info *vi, gfp_t gfp)
->  			err = add_recvbuf_small(vi, gfp);
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 6b1b7e1..5a0e1d3 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -225,7 +225,7 @@ static void vm_notify(struct virtqueue *vq)
 >  
->  		oom = err == -ENOMEM;
-> -		if (err < 0)
-> +		if (err)
->  			break;
->  		++vi->num;
-> -	} while (err > 0);
-> +	} while (vi->rvq->num_free);
-> +
->  	if (unlikely(vi->num > vi->max))
->  		vi->max = vi->num;
->  	virtqueue_kick(vi->rvq);
+>  	/* We write the queue's selector into the notification register to
+>  	 * signal the other end */
+> -	writel(virtqueue_get_queue_index(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
+> +	writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
+>  }
+>  
+>  /* Notify all virtqueues on an interrupt. */
+> @@ -266,7 +266,7 @@ static void vm_del_vq(struct virtqueue *vq)
+>  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
+>  	struct virtio_mmio_vq_info *info = vq->priv;
+>  	unsigned long flags, size;
+> -	unsigned int index = virtqueue_get_queue_index(vq);
+> +	unsigned int index = vq->index;
+>  
+>  	spin_lock_irqsave(&vm_dev->lock, flags);
+>  	list_del(&info->node);
+> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+> index b59237c..e3ecc94 100644
+> --- a/drivers/virtio/virtio_pci.c
+> +++ b/drivers/virtio/virtio_pci.c
+> @@ -203,8 +203,7 @@ static void vp_notify(struct virtqueue *vq)
+>  
+>  	/* we write the queue's selector into the notification register to
+>  	 * signal the other end */
+> -	iowrite16(virtqueue_get_queue_index(vq),
+> -		  vp_dev->ioaddr + VIRTIO_PCI_QUEUE_NOTIFY);
+> +	iowrite16(vq->index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_NOTIFY);
+>  }
+>  
+>  /* Handle a configuration change: Tell driver if it wants to know. */
+> @@ -479,8 +478,7 @@ static void vp_del_vq(struct virtqueue *vq)
+>  	list_del(&info->node);
+>  	spin_unlock_irqrestore(&vp_dev->lock, flags);
+>  
+> -	iowrite16(virtqueue_get_queue_index(vq),
+> -		vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
+> +	iowrite16(vq->index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_SEL);
+>  
+>  	if (vp_dev->msix_enabled) {
+>  		iowrite16(VIRTIO_MSI_NO_VECTOR,
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index e639584..335dcec 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -93,8 +93,6 @@ struct vring_virtqueue
+>  	/* Host publishes avail event idx */
+>  	bool event;
+>  
+> -	/* Number of free buffers */
+> -	unsigned int num_free;
+>  	/* Head of free buffer list. */
+>  	unsigned int free_head;
+>  	/* Number we've added since last sync. */
+> @@ -106,9 +104,6 @@ struct vring_virtqueue
+>  	/* How to notify other side. FIXME: commonalize hcalls! */
+>  	void (*notify)(struct virtqueue *vq);
+>  
+> -	/* Index of the queue */
+> -	int queue_index;
+> -
+>  #ifdef DEBUG
+>  	/* They're supposed to lock for us. */
+>  	unsigned int in_use;
+> @@ -160,7 +155,7 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+>  	desc[i-1].next = 0;
+>  
+>  	/* We're about to use a buffer */
+> -	vq->num_free--;
+> +	vq->vq.num_free--;
+>  
+>  	/* Use a single buffer which doesn't continue */
+>  	head = vq->free_head;
+> @@ -174,13 +169,6 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+>  	return head;
+>  }
+>  
+> -int virtqueue_get_queue_index(struct virtqueue *_vq)
+> -{
+> -	struct vring_virtqueue *vq = to_vvq(_vq);
+> -	return vq->queue_index;
+> -}
+> -EXPORT_SYMBOL_GPL(virtqueue_get_queue_index);
+> -
+>  /**
+>   * virtqueue_add_buf - expose buffer to other end
+>   * @vq: the struct virtqueue we're talking about.
+> @@ -228,7 +216,7 @@ int virtqueue_add_buf(struct virtqueue *_vq,
+>  
+>  	/* If the host supports indirect descriptor tables, and we have multiple
+>  	 * buffers, then go indirect. FIXME: tune this threshold */
+> -	if (vq->indirect && (out + in) > 1 && vq->num_free) {
+> +	if (vq->indirect && (out + in) > 1 && vq->vq.num_free) {
+>  		head = vring_add_indirect(vq, sg, out, in, gfp);
+>  		if (likely(head >= 0))
+>  			goto add_head;
+> @@ -237,9 +225,9 @@ int virtqueue_add_buf(struct virtqueue *_vq,
+>  	BUG_ON(out + in > vq->vring.num);
+>  	BUG_ON(out + in == 0);
+>  
+> -	if (vq->num_free < out + in) {
+> +	if (vq->vq.num_free < out + in) {
+>  		pr_debug("Can't add buf len %i - avail = %i\n",
+> -			 out + in, vq->num_free);
+> +			 out + in, vq->vq.num_free);
+>  		/* FIXME: for historical reasons, we force a notify here if
+>  		 * there are outgoing parts to the buffer.  Presumably the
+>  		 * host should service the ring ASAP. */
+> @@ -250,7 +238,7 @@ int virtqueue_add_buf(struct virtqueue *_vq,
+>  	}
+>  
+>  	/* We're about to use some buffers from the free list. */
+> -	vq->num_free -= out + in;
+> +	vq->vq.num_free -= out + in;
+>  
+>  	head = vq->free_head;
+>  	for (i = vq->free_head; out; i = vq->vring.desc[i].next, out--) {
+> @@ -296,7 +284,7 @@ add_head:
+>  	pr_debug("Added buffer head %i to %p\n", head, vq);
+>  	END_USE(vq);
+>  
+> -	return vq->num_free;
+> +	return vq->vq.num_free;
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_add_buf);
+>  
+> @@ -393,13 +381,13 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+>  
+>  	while (vq->vring.desc[i].flags & VRING_DESC_F_NEXT) {
+>  		i = vq->vring.desc[i].next;
+> -		vq->num_free++;
+> +		vq->vq.num_free++;
+>  	}
+>  
+>  	vq->vring.desc[i].next = vq->free_head;
+>  	vq->free_head = head;
+>  	/* Plus final descriptor */
+> -	vq->num_free++;
+> +	vq->vq.num_free++;
+>  }
+>  
+>  static inline bool more_used(const struct vring_virtqueue *vq)
+> @@ -599,7 +587,7 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
+>  		return buf;
+>  	}
+>  	/* That should have freed everything. */
+> -	BUG_ON(vq->num_free != vq->vring.num);
+> +	BUG_ON(vq->vq.num_free != vq->vring.num);
+>  
+>  	END_USE(vq);
+>  	return NULL;
+> @@ -653,12 +641,13 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+>  	vq->vq.callback = callback;
+>  	vq->vq.vdev = vdev;
+>  	vq->vq.name = name;
+> +	vq->vq.num_free = num;
+> +	vq->vq.index = index;
+>  	vq->notify = notify;
+>  	vq->weak_barriers = weak_barriers;
+>  	vq->broken = false;
+>  	vq->last_used_idx = 0;
+>  	vq->num_added = 0;
+> -	vq->queue_index = index;
+>  	list_add_tail(&vq->vq.list, &vdev->vqs);
+>  #ifdef DEBUG
+>  	vq->in_use = false;
+> @@ -673,7 +662,6 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+>  		vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
+>  
+>  	/* Put everything in free lists. */
+> -	vq->num_free = num;
+>  	vq->free_head = 0;
+>  	for (i = 0; i < num-1; i++) {
+>  		vq->vring.desc[i].next = i+1;
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 533b115..ed4c437 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -16,12 +16,16 @@
+>   * @name: the name of this virtqueue (mainly for debugging)
+>   * @vdev: the virtio device this queue was created for.
+>   * @priv: a pointer for the virtqueue implementation to use.
+> + * @index: the zero-based ordinal number for this queue.
+> + * @num_free: number of buffers we expect to be able to fit.
 
-I like this, it always bothered me that RX intentionally
-triggers a failure path in virtqueue_add_buf.
+Only it's not exactly buffers: a single buffer can use
+multiple s/g entries, right?
+Maybe clarify as 'linear buffers'?
 
-> @@ -625,27 +626,20 @@ static int xmit_skb(struct virtnet_info *vi, struct sk_buff *skb)
->  static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
-> -	int capacity;
-> +	int err;
+>   */
+>  struct virtqueue {
+>  	struct list_head list;
+>  	void (*callback)(struct virtqueue *vq);
+>  	const char *name;
+>  	struct virtio_device *vdev;
+> +	unsigned int index;
+> +	unsigned int num_free;
+>  	void *priv;
+>  };
 >  
->  	/* Free up any pending old buffers before queueing new ones. */
->  	free_old_xmit_skbs(vi);
+> @@ -50,8 +54,6 @@ void *virtqueue_detach_unused_buf(struct virtqueue *vq);
 >  
->  	/* Try to transmit */
-> -	capacity = xmit_skb(vi, skb);
-> +	err = xmit_skb(vi, skb);
+>  unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
 >  
-> -	/* This can happen with OOM and indirect buffers. */
-> -	if (unlikely(capacity < 0)) {
-> -		if (likely(capacity == -ENOMEM)) {
-> -			if (net_ratelimit())
-> -				dev_warn(&dev->dev,
-> -					 "TX queue failure: out of memory\n");
-> -		} else {
-> -			dev->stats.tx_fifo_errors++;
-> -			if (net_ratelimit())
-> -				dev_warn(&dev->dev,
-> -					 "Unexpected TX queue failure: %d\n",
-> -					 capacity);
-> -		}
-> +	/* This should not happen! */
-> +	if (unlikely(err < 0)) {
-> +		dev->stats.tx_fifo_errors++;
-> +		if (net_ratelimit())
-> +			dev_warn(&dev->dev,
-> +				 "Unexpected TX queue failure: %d\n", err);
->  		dev->stats.tx_dropped++;
->  		kfree_skb(skb);
->  		return NETDEV_TX_OK;
-> @@ -658,13 +652,12 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
->  
->  	/* Apparently nice girls don't return TX_BUSY; stop the queue
->  	 * before it gets out of hand.  Naturally, this wastes entries. */
-> -	if (capacity < 2+MAX_SKB_FRAGS) {
-> +	if (vi->svq->num_free < 2+MAX_SKB_FRAGS) {
->  		netif_stop_queue(dev);
->  		if (unlikely(!virtqueue_enable_cb_delayed(vi->svq))) {
->  			/* More just got used, free them then recheck. */
->  			free_old_xmit_skbs(vi);
-> -			capacity = vi->svq->num_free;
-> -			if (capacity >= 2+MAX_SKB_FRAGS) {
-> +			if (vi->svq->num_free >= 2+MAX_SKB_FRAGS) {
->  				netif_start_queue(dev);
->  				virtqueue_disable_cb(vi->svq);
->  			}
+> -int virtqueue_get_queue_index(struct virtqueue *vq);
+> -
+>  /**
+>   * virtio_device - representation of a device using virtio
+>   * @index: unique position on the virtio bus
 > -- 
 > 1.7.9.5
