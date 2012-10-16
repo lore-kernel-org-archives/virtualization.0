@@ -1,20 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Using PCI config space to indicate config location
-Date: Wed, 17 Oct 2012 00:22:25 +1030
-Message-ID: <87d30iplra.fsf__10701.0733722293$1350395629$gmane$org@rustcorp.com.au>
-References: <874nmajcmj.fsf@codemonkey.ws> <87y5jhpuu2.fsf@rustcorp.com.au>
-	<20121010083033.GA4799@redhat.com> <87bog9957l.fsf@rustcorp.com.au>
-	<20121011102333.GA5552@redhat.com> <87391k7icv.fsf@rustcorp.com.au>
-	<20121012093330.GA32014@redhat.com>
-	<871uh4587d.fsf@rustcorp.com.au>
-	<20121012100231.GA32517@redhat.com>
-	<87k3uqpngi.fsf@rustcorp.com.au>
-	<20121016133045.GA12766@redhat.com>
+Subject: Re: [PATCH 1/5] virtio: move queue_index and num_free fields into
+	core struct virtqueue.
+Date: Wed, 17 Oct 2012 00:49:34 +1030
+Message-ID: <878vb6pki1.fsf@rustcorp.com.au>
+References: <1350394252-23934-1-git-send-email-rusty@rustcorp.com.au>
+	<20121016135322.GB12972@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121016133045.GA12766@redhat.com>
+In-Reply-To: <20121016135322.GB12972@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,50 +20,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 "Michael S. Tsirkin" <mst@redhat.com> writes:
-> On Tue, Oct 16, 2012 at 11:45:41PM +1030, Rusty Russell wrote:
->> "Michael S. Tsirkin" <mst@redhat.com> writes:
->> I was assuming the implementation would keep two complete copies of the
->> config space: writes go to the scratch version, which gets copied to the
->> master version upon latch write.
+> On Wed, Oct 17, 2012 at 12:00:48AM +1030, Rusty Russell wrote:
+>>   * @priv: a pointer for the virtqueue implementation to use.
+>> + * @index: the zero-based ordinal number for this queue.
+>> + * @num_free: number of buffers we expect to be able to fit.
 >
-> Yes but config space has some host modifiable registers too.
-> So host needs to be careful to avoid overwriting these.
->
-> If accesses have side effects that of course breaks too ...
+> Only it's not exactly buffers: a single buffer can use
+> multiple s/g entries, right?
+> Maybe clarify as 'linear buffers'?
 
-Yes.
+Yes, it needs clarification, but I don't think I can do so tersely.
 
->
->> But I do wonder if we should just skip this for now, since we don't
->> have any immediate need.
->> 
->> Cheers,
->> Rusty.
->
-> MAC setting from guest needs this right now, no?
+Here's what I ended up with:
 
-Ah, I missed that in my table:
+ * @num_free: number of elements we expect to be able to fit.
+ *
+ * A note on @num_free: with indirect buffers, each buffer needs one
+ * element in the queue, otherwise a buffer will need one element per
+ * sg element.
 
-    Driver          Config       Device changes    Driver writes... after init?
-    net             Y            Y                 N                N
-    block           Y            Y                 Y                Y
-    console         Y            Y                 N                N
-    rng             N            N                 N                N
-    balloon         Y            Y                 Y                Y
-    scsi            Y            N                 Y                N
-    9p              Y            N                 N                N
-
-First line should be:
-
-    net             Y            Y                 Y                N
-
-So we could add a new cvq command (eg. #define VIRTIO_NET_CTRL_MAC_SET
-1) and a VIRTIO_NET_F_CVQ_MAC_SET feature.  Or go ahead with the
-latching scheme (which doesn't really help other busses).
-
-Cheers,
+Thanks,
 Rusty.
