@@ -1,8 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 5/5] virtio: make virtqueue_add_buf() returning 0 on success,
-	not capacity.
-Date: Wed, 17 Oct 2012 00:00:52 +1030
-Message-ID: <1350394252-23934-5-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 3/5] virtio-net: correct capacity math on ring full
+Date: Wed, 17 Oct 2012 00:00:50 +1030
+Message-ID: <1350394252-23934-3-git-send-email-rusty@rustcorp.com.au>
 References: <1350394252-23934-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,38 +20,64 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now noone relies on this behavior, we simplify virtqueue_add_buf() so it
-return 0 or -errno.
+From: "Michael S. Tsirkin" <mst@redhat.com>
 
+Capacity math on ring full is wrong: we are
+looking at num_sg but that might be optimistic
+because of indirect buffer use.
+
+The implementation also penalizes fast path
+with extra memory accesses for the benefit of
+ring full condition handling which is slow path.
+
+It's easy to query ring capacity so let's do just that.
+
+This change also makes it easier to move vnet header
+for tx around as follow-up patch does.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/virtio/virtio_ring.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/net/virtio_net.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 335dcec..5fde312 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -181,10 +181,7 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
-  * Caller must ensure we don't call this with other virtqueue operations
-  * at the same time (except where noted).
-  *
-- * Returns remaining capacity of queue or a negative error
-- * (ie. ENOSPC).  Note that it only really makes sense to treat all
-- * positive return values as "available": indirect buffers mean that
-- * we can put an entire sg[] array inside a single queue entry.
-+ * Returns zero or a negative error (ie. ENOSPC, ENOMEM).
-  */
- int virtqueue_add_buf(struct virtqueue *_vq,
- 		      struct scatterlist sg[],
-@@ -284,7 +281,7 @@ add_head:
- 	pr_debug("Added buffer head %i to %p\n", head, vq);
- 	END_USE(vq);
- 
--	return vq->vq.num_free;
-+	return 0;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 20880fb..6c094c8 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -556,10 +556,10 @@ again:
+ 	return received;
  }
- EXPORT_SYMBOL_GPL(virtqueue_add_buf);
  
+-static unsigned int free_old_xmit_skbs(struct virtnet_info *vi)
++static void free_old_xmit_skbs(struct virtnet_info *vi)
+ {
+ 	struct sk_buff *skb;
+-	unsigned int len, tot_sgs = 0;
++	unsigned int len;
+ 	struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
+ 
+ 	while ((skb = virtqueue_get_buf(vi->svq, &len)) != NULL) {
+@@ -570,10 +570,8 @@ static unsigned int free_old_xmit_skbs(struct virtnet_info *vi)
+ 		stats->tx_packets++;
+ 		u64_stats_update_end(&stats->tx_syncp);
+ 
+-		tot_sgs += skb_vnet_hdr(skb)->num_sg;
+ 		dev_kfree_skb_any(skb);
+ 	}
+-	return tot_sgs;
+ }
+ 
+ static int xmit_skb(struct virtnet_info *vi, struct sk_buff *skb)
+@@ -664,7 +662,8 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		netif_stop_queue(dev);
+ 		if (unlikely(!virtqueue_enable_cb_delayed(vi->svq))) {
+ 			/* More just got used, free them then recheck. */
+-			capacity += free_old_xmit_skbs(vi);
++			free_old_xmit_skbs(vi);
++			capacity = vi->svq->num_free;
+ 			if (capacity >= 2+MAX_SKB_FRAGS) {
+ 				netif_start_queue(dev);
+ 				virtqueue_disable_cb(vi->svq);
 -- 
 1.7.9.5
