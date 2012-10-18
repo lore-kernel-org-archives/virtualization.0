@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v2
-Date: Thu, 18 Oct 2012 08:30:40 +0200
-Message-ID: <20121018063040.GA15676@redhat.com>
-References: <1349769918-8611-1-git-send-email-asias@redhat.com>
-	<20121011124125.GA8074@redhat.com> <507818BE.7060404@redhat.com>
-	<87d30go1g7.fsf@rustcorp.com.au>
+From: Hannes Reinecke <hare@suse.de>
+Subject: PCI device not properly reset after VFIO
+Date: Thu, 18 Oct 2012 08:47:30 +0200
+Message-ID: <507FA602.9050801@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87d30go1g7.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,25 +15,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: kvm-devel <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 18, 2012 at 02:50:56PM +1030, Rusty Russell wrote:
-> Asias He <asias@redhat.com> writes:
-> >>> +#define BLK_HDR	0
-> >> 
-> >> What's this for, exactly? Please add a comment.
-> >
-> > The block headr is in the first and separate buffer.
-> 
-> Please don't assume this!  We're trying to fix all the assumptions in
-> qemu at the moment.
-> 
-> vhost_net handles this correctly, taking bytes off the descriptor chain
-> as required.
-> 
-> Thanks,
-> Rusty.
+Hi Alex,
 
-BTW are we agreed on the spec update that makes cmd 32 bytes?
+I've been playing around with VFIO and megasas (of course).
+What I did now was switching between VFIO and 'normal' operation, ie =
+
+emulated access.
+
+megasas is happily running under VFIO, but when I do an emergency =
+
+stop like killing the Qemu session the PCI device is not properly reset.
+IE when I load 'megaraid_sas' after unbinding the vfio_pci module
+the driver cannot initialize the card and waits forever for the =
+
+firmware state to change.
+
+I need to do a proper pci reset via
+echo 1 > /sys/bus/pci/device/XXXX/reset
+to get it into a working state again.
+
+Looking at vfio_pci_disable() pci reset is called before the config =
+
+state and BARs are restored.
+Seeing that vfio_pci_enable() calls pci reset right at the start, =
+
+too, before modifying anything I do wonder whether the pci reset is =
+
+at the correct location for disable.
+
+I would have expected to call pci reset in vfio_pci_disable() =
+
+_after_ we have restored the configuration, to ensure a sane state =
+
+after reset.
+And, as experience show, we do need to call it there.
+
+So what is the rationale for the pci reset?
+Can we move it to the end of vfio_pci_disable() or do we need to =
+
+call pci reset twice?
+
+Cheers,
+
+Hannes
+-- =
+
+Dr. Hannes Reinecke		      zSeries & Storage
+hare@suse.de			      +49 911 74053 688
+SUSE LINUX Products GmbH, Maxfeldstr. 5, 90409 N=FCrnberg
+GF: J. Hawn, J. Guild, F. Imend=F6rffer, HRB 16746 (AG N=FCrnberg)
