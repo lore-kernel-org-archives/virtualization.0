@@ -1,11 +1,14 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: [PATCH] xen/xenbus: silence GCC warning
-Date: Mon, 15 Oct 2012 12:03:09 +0200
-Message-ID: <1350295389.1516.27.camel__49766.0264758908$1350430654$gmane$org@x61.thuisdomein>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio: 9p: correctly pass physical address to userspace
+	for high pages
+Date: Thu, 18 Oct 2012 12:49:06 +1030
+Message-ID: <87lif4o739.fsf@rustcorp.com.au>
+References: <1350468877-7677-1-git-send-email-will.deacon@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1350468877-7677-1-git-send-email-will.deacon@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,37 +18,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>
+To: linux-kernel@vger.kernel.org
+Cc: Marc Zyngier <marc.zyngier@arm.com>, Will Deacon <will.deacon@arm.com>, lf-virt <virtualization@lists.linux-foundation.org>, Eric Van Hensbergen <ericvh@gmail.com>, Sasha Levin <levinsasha928@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Q29tcGlsaW5nIHhlbmJ1c194cy5vIHRyaWdnZXJzIHRoaXMgR0NDIHdhcm5pbmc6CiAgICBkcml2
-ZXJzL3hlbi94ZW5idXMveGVuYnVzX3hzLmM6NjI4OjEzOiB3YXJuaW5nOiBmdW5jdGlvbiBkZWNs
-YXJhdGlvbiBpc27igJl0IGEgcHJvdG90eXBlIFstV3N0cmljdC1wcm90b3R5cGVzXQoKQWRkIHRo
-ZSBvYnZpb3VzIGFuZCB0cml2aWFsIGZpeC4KCldoaWxlIHdlJ3JlIHRvdWNoaW5nIHRoaXMgZnVu
-Y3Rpb24gYWRkIHNvbWUgZXF1YWxseSBvYnZpb3VzIGFuZCB0cml2aWFsCndoaXRlc3BhY2UgZml4
-ZXMuCgpTaWduZWQtb2ZmLWJ5OiBQYXVsIEJvbGxlIDxwZWJvbGxlQHRpc2NhbGkubmw+Ci0tLQow
-KSBUcmlnZ2VyZWQgYnkgY29tcGlsaW5nIHYzLjctcmMxIHVzaW5nIChiYXNpY2FsbHkpIEZlZG9y
-YSAxNydzIGN1cnJlbnQKY29uZmlnLiBDb21waWxlIHRlc3RlZCBvbmx5LgoKMSkgT2JsaWdhdG9y
-eSByZWZlcmVuY2U6IGh0dHBzOi8vbHduLm5ldC9BcnRpY2xlcy80ODc0OTMvIC4KCiBkcml2ZXJz
-L3hlbi94ZW5idXMveGVuYnVzX3hzLmMgfCA1ICsrKy0tCiAxIGZpbGUgY2hhbmdlZCwgMyBpbnNl
-cnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMveGVuL3hlbmJ1
-cy94ZW5idXNfeHMuYyBiL2RyaXZlcnMveGVuL3hlbmJ1cy94ZW5idXNfeHMuYwppbmRleCA0ODIy
-MGUxLi43YTJiMGRhIDEwMDY0NAotLS0gYS9kcml2ZXJzL3hlbi94ZW5idXMveGVuYnVzX3hzLmMK
-KysrIGIvZHJpdmVycy94ZW4veGVuYnVzL3hlbmJ1c194cy5jCkBAIC02MTksMTMgKzYxOSwxNCBA
-QCBzdGF0aWMgc3RydWN0IHhlbmJ1c193YXRjaCAqZmluZF93YXRjaChjb25zdCBjaGFyICp0b2tl
-bikKIAogCXJldHVybiBOVUxMOwogfQorCiAvKgogICogQ2VydGFpbiBvbGRlciBYZW5CdXMgdG9v
-bHN0YWNrIGNhbm5vdCBoYW5kbGUgcmVhZGluZyB2YWx1ZXMgdGhhdCBhcmUKICAqIG5vdCBwb3B1
-bGF0ZWQuIFNvbWUgWGVuIDMuNCBpbnN0YWxsYXRpb24gYXJlIGluY2FwYWJsZSBvZiBkb2luZyB0
-aGlzCiAgKiBzbyBpZiB3ZSBhcmUgcnVubmluZyBvbiBhbnl0aGluZyBvbGRlciB0aGFuIDQgZG8g
-bm90IGF0dGVtcHQgdG8gcmVhZAogICogY29udHJvbC9wbGF0Zm9ybS1mZWF0dXJlLXhzX3Jlc2V0
-X3dhdGNoZXMuCiAgKi8KLXN0YXRpYyBib29sIHhlbl9zdHJpY3RfeGVuYnVzX3F1aXJrKCkKK3N0
-YXRpYyBib29sIHhlbl9zdHJpY3RfeGVuYnVzX3F1aXJrKHZvaWQpCiB7CiAJdWludDMyX3QgZWF4
-LCBlYngsIGVjeCwgZWR4LCBiYXNlOwogCkBAIC02MzUsOCArNjM2LDggQEAgc3RhdGljIGJvb2wg
-eGVuX3N0cmljdF94ZW5idXNfcXVpcmsoKQogCWlmICgoZWF4ID4+IDE2KSA8IDQpCiAJCXJldHVy
-biB0cnVlOwogCXJldHVybiBmYWxzZTsKLQogfQorCiBzdGF0aWMgdm9pZCB4c19yZXNldF93YXRj
-aGVzKHZvaWQpCiB7CiAJaW50IGVyciwgc3VwcG9ydGVkID0gMDsKLS0gCjEuNy4xMS43CgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+Will Deacon <will.deacon@arm.com> writes:
+> When using a virtio transport, the 9p net device allocates pages to back
+> the descriptors inserted into the virtqueue. These allocations may be
+> performed from atomic context (under the channel lock) and can therefore
+> return high mappings which aren't suitable for virt_to_phys.
+
+I had not appreciated that subtlety about GFP_ATOMIC :(
+
+This isn't just 9p, the console, block, scsi and net devices also use
+GFP_ATOMIC.
+
+> @@ -165,7 +166,8 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+>  	/* Use a single buffer which doesn't continue */
+>  	head = vq->free_head;
+>  	vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
+> -	vq->vring.desc[head].addr = virt_to_phys(desc);
+> +	vq->vring.desc[head].addr = page_to_phys(kmap_to_page(desc)) +
+> +				    ((unsigned long)desc & ~PAGE_MASK);
+>  	vq->vring.desc[head].len = i * sizeof(struct vring_desc);
+
+Gah, virt_to_phys_harder()?
+
+What's the performance effect?  If it's negligible, why doesn't
+virt_to_phys() just do this for us?
+
+We do have an alternate solution: masking out __GFP_HIGHMEM from the
+kmalloc of desc.  If it fails, we will fall back to laying out the
+virtio request directly inside the ring; if it doesn't fit, we'll wait
+for the device to consume more buffers.
+
+> @@ -325,7 +326,7 @@ static int p9_get_mapped_pages(struct virtio_chan *chan,
+>  		int count = nr_pages;
+>  		while (nr_pages) {
+>  			s = rest_of_page(data);
+> -			pages[index++] = virt_to_page(data);
+> +			pages[index++] = kmap_to_page(data);
+>  			data += s;
+>  			nr_pages--;
+>  		}
+
+This seems like a separate bug fix.
+
+Cheers,
+Rusty.
