@@ -1,14 +1,16 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: PCI device not properly reset after VFIO
-Date: Thu, 18 Oct 2012 14:40:27 -0600
-Message-ID: <1350592827.2112.432.camel@bling.home>
-References: <507FA602.9050801@suse.de>
-	<1350571230.2112.344.camel@bling.home> <50801AF8.7040305@suse.de>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH] virtio: 9p: correctly pass physical address to userspace
+	for high pages
+Date: Thu, 18 Oct 2012 10:42:47 +0100
+Message-ID: <20121018094247.GA17296__22199.5652457283$1350597077$gmane$org@mudshark.cambridge.arm.com>
+References: <1350468877-7677-1-git-send-email-will.deacon@arm.com>
+	<87lif4o739.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50801AF8.7040305@suse.de>
+Content-Disposition: inline
+In-Reply-To: <87lif4o739.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,135 +20,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Hannes Reinecke <hare@suse.de>
-Cc: linux-pci <linux-pci@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Marc Zyngier <Marc.Zyngier@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Eric Van Hensbergen <ericvh@gmail.com>, Sasha Levin <levinsasha928@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2012-10-18 at 17:06 +0200, Hannes Reinecke wrote:
-> On 10/18/2012 04:40 PM, Alex Williamson wrote:
-> > Hi Hannes,
-> >
-> > Thanks for testing vfio
-> >
-> > On Thu, 2012-10-18 at 08:47 +0200, Hannes Reinecke wrote:
-> >> Hi Alex,
-> >>
-> >> I've been playing around with VFIO and megasas (of course).
-> >> What I did now was switching between VFIO and 'normal' operation, ie
-> >> emulated access.
-> >>
-> >> megasas is happily running under VFIO, but when I do an emergency
-> >> stop like killing the Qemu session the PCI device is not properly reset.
-> >> IE when I load 'megaraid_sas' after unbinding the vfio_pci module
-> >> the driver cannot initialize the card and waits forever for the
-> >> firmware state to change.
-> >>
-> >> I need to do a proper pci reset via
-> >> echo 1 > /sys/bus/pci/device/XXXX/reset
-> >> to get it into a working state again.
-> >>
-> >> Looking at vfio_pci_disable() pci reset is called before the config
-> >> state and BARs are restored.
-> >> Seeing that vfio_pci_enable() calls pci reset right at the start,
-> >> too, before modifying anything I do wonder whether the pci reset is
-> >> at the correct location for disable.
-> >>
-> >> I would have expected to call pci reset in vfio_pci_disable()
-> >> _after_ we have restored the configuration, to ensure a sane state
-> >> after reset.
-> >> And, as experience show, we do need to call it there.
-> >>
-> >> So what is the rationale for the pci reset?
-> >> Can we move it to the end of vfio_pci_disable() or do we need to
-> >> call pci reset twice?
-> >
-> > I believe the rationale was that by resetting the device before we
-> > restore the state we stop anything that the device was doing.  Restoring
-> > the saved state on a running device seems like it could cause problems,
-> > so you may be right and we actually need to do reset, load, restore,
-> > reset.  Does adding another call to pci_reset_function in the
-> > pci_restore_state (as below) solve the problem?  Traditional KVM device
-> > assignment has a nearly identical path, does it have this same bug?
+Hi Rusty,
+
+On Thu, Oct 18, 2012 at 03:19:06AM +0100, Rusty Russell wrote:
+> Will Deacon <will.deacon@arm.com> writes:
+> > When using a virtio transport, the 9p net device allocates pages to back
+> > the descriptors inserted into the virtqueue. These allocations may be
+> > performed from atomic context (under the channel lock) and can therefore
+> > return high mappings which aren't suitable for virt_to_phys.
 > 
-> It's actually the first time I've been able to test this (the 
-> hardware is a bit tricky to setup ...), so I cannot tell (yet)
-> if KVM exhibited the same thing.
+> I had not appreciated that subtlety about GFP_ATOMIC :(
+
+Yeah, it's unfortunate for poor old userspace.
+
+> This isn't just 9p, the console, block, scsi and net devices also use
+> GFP_ATOMIC.
+
+Ok, I'll split this patch in two since I think that only 9p has the
+zero-copy stuff, which is why an extra fix is needed there for creating the
+scatterlist correctly.
+
+> > @@ -165,7 +166,8 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+> >  	/* Use a single buffer which doesn't continue */
+> >  	head = vq->free_head;
+> >  	vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
+> > -	vq->vring.desc[head].addr = virt_to_phys(desc);
+> > +	vq->vring.desc[head].addr = page_to_phys(kmap_to_page(desc)) +
+> > +				    ((unsigned long)desc & ~PAGE_MASK);
+> >  	vq->vring.desc[head].len = i * sizeof(struct vring_desc);
 > 
-> > Thanks,
-> >
-> > Alex
-> >
-> > diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-> > index 6c11994..d07a45c 100644
-> > --- a/drivers/vfio/pci/vfio_pci.c
-> > +++ b/drivers/vfio/pci/vfio_pci.c
-> > @@ -107,9 +107,10 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
-> >          pci_reset_function(vdev->pdev);
-> >
-> >          if (pci_load_and_free_saved_state(vdev->pdev,
-> > -                                         &vdev->pci_saved_state) == 0)
-> > +                                         &vdev->pci_saved_state) == 0) {
-> >                  pci_restore_state(vdev->pdev);
-> > -       else
-> > +               pci_reset_function(vdev->pdev);
-> > +       } else
-> >                  pr_info("%s: Couldn't reload %s saved state\n",
-> >                          __func__, dev_name(&vdev->pdev->dev));
-> >
-> >
-> >
-> I would have called reset after unmapping the BARs; the HBA I'm 
-> working with does need to access the BARs, so the content of them 
-> might be relevant, too.
+> Gah, virt_to_phys_harder()?
 
-I think I copied the ordering from kvm since it seems to work there,
-maybe it doesn't for your device if the kvm path is still an unknown.
-Logically it does seem like we'd want to unmap and release before the
-final reset, but I can't find that those paths actually cause
-interactions where it would matter.
+Tell me about it...
 
-Since we first disable the device and free the interrupt config it seems
-like we should be relatively at ease restoring the saved config prior to
-reset and, as you suggest, re-ordering the unmap and region release.
-That leaves us with something like below.  Does that work better for
-your device?  Anyone on linux-pci have advice on ordering of
-pci_reset_function?  Thanks,
+> What's the performance effect?  If it's negligible, why doesn't
+> virt_to_phys() just do this for us?
 
-Alex
+I've not measured it, but even when you don't have CONFIG_HIGHMEM, there's
+going to be an overhead here because we go around the houses to get the page
+and then add the offset on afterwards. I doubt it's something we want to
+plumb directly into virt_to_phys (also, kmap_to_page may call virt_to_phys via
+the __pa macro so we'd get stuck).
 
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+> We do have an alternate solution: masking out __GFP_HIGHMEM from the
+> kmalloc of desc.  If it fails, we will fall back to laying out the
+> virtio request directly inside the ring; if it doesn't fit, we'll wait
+> for the device to consume more buffers.
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 6c11994..af0b165 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -104,7 +104,13 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
- 
-        vfio_config_free(vdev);
- 
--       pci_reset_function(vdev->pdev);
-+       for (bar = PCI_STD_RESOURCES; bar <= PCI_STD_RESOURCE_END; bar++) {
-+               if (!vdev->barmap[bar])
-+                       continue;
-+               pci_iounmap(vdev->pdev, vdev->barmap[bar]);
-+               pci_release_selected_regions(vdev->pdev, 1 << bar);
-+               vdev->barmap[bar] = NULL;
-+       }
- 
-        if (pci_load_and_free_saved_state(vdev->pdev,
-                                          &vdev->pci_saved_state) == 0)
-@@ -113,13 +119,7 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
-                pr_info("%s: Couldn't reload %s saved state\n",
-                        __func__, dev_name(&vdev->pdev->dev));
- 
--       for (bar = PCI_STD_RESOURCES; bar <= PCI_STD_RESOURCE_END; bar++) {
--               if (!vdev->barmap[bar])
--                       continue;
--               pci_iounmap(vdev->pdev, vdev->barmap[bar]);
--               pci_release_selected_regions(vdev->pdev, 1 << bar);
--               vdev->barmap[bar] = NULL;
--       }
-+       pci_reset_function(vdev->pdev);
- }
- 
- static void vfio_pci_release(void *device_data)
+Hmm, that will probably work for the vring but the zero-copy code for 9p may
+just give us an address from userspace if I'm understanding it correctly. In
+that case, we really have to do the translation as below (which is actually
+much cleaner because everything is page-aligned).
+
+> > @@ -325,7 +326,7 @@ static int p9_get_mapped_pages(struct virtio_chan *chan,
+> >  		int count = nr_pages;
+> >  		while (nr_pages) {
+> >  			s = rest_of_page(data);
+> > -			pages[index++] = virt_to_page(data);
+> > +			pages[index++] = kmap_to_page(data);
+> >  			data += s;
+> >  			nr_pages--;
+> >  		}
+
+So what do you reckon? How about I leave this hunk as a separate patch and
+have a play masking out __GFP_HIGHMEM for the vring descriptor?
+
+Cheers,
+
+Will
