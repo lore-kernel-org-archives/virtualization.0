@@ -1,13 +1,14 @@
-From: Hannes Reinecke <hare@suse.de>
+From: Alex Williamson <alex.williamson@redhat.com>
 Subject: Re: PCI device not properly reset after VFIO
-Date: Thu, 18 Oct 2012 17:06:32 +0200
-Message-ID: <50801AF8.7040305__33548.7600452781$1350572807$gmane$org@suse.de>
-References: <507FA602.9050801@suse.de> <1350571230.2112.344.camel@bling.home>
+Date: Thu, 18 Oct 2012 14:40:27 -0600
+Message-ID: <1350592827.2112.432.camel@bling.home>
+References: <507FA602.9050801@suse.de>
+	<1350571230.2112.344.camel@bling.home> <50801AF8.7040305@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1350571230.2112.344.camel@bling.home>
+In-Reply-To: <50801AF8.7040305@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,69 +18,135 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alex Williamson <alex.williamson@redhat.com>
-Cc: kvm-devel <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Hannes Reinecke <hare@suse.de>
+Cc: linux-pci <linux-pci@vger.kernel.org>, kvm-devel <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMTAvMTgvMjAxMiAwNDo0MCBQTSwgQWxleCBXaWxsaWFtc29uIHdyb3RlOgo+IEhpIEhhbm5l
-cywKPgo+IFRoYW5rcyBmb3IgdGVzdGluZyB2ZmlvCj4KPiBPbiBUaHUsIDIwMTItMTAtMTggYXQg
-MDg6NDcgKzAyMDAsIEhhbm5lcyBSZWluZWNrZSB3cm90ZToKPj4gSGkgQWxleCwKPj4KPj4gSSd2
-ZSBiZWVuIHBsYXlpbmcgYXJvdW5kIHdpdGggVkZJTyBhbmQgbWVnYXNhcyAob2YgY291cnNlKS4K
-Pj4gV2hhdCBJIGRpZCBub3cgd2FzIHN3aXRjaGluZyBiZXR3ZWVuIFZGSU8gYW5kICdub3JtYWwn
-IG9wZXJhdGlvbiwgaWUKPj4gZW11bGF0ZWQgYWNjZXNzLgo+Pgo+PiBtZWdhc2FzIGlzIGhhcHBp
-bHkgcnVubmluZyB1bmRlciBWRklPLCBidXQgd2hlbiBJIGRvIGFuIGVtZXJnZW5jeQo+PiBzdG9w
-IGxpa2Uga2lsbGluZyB0aGUgUWVtdSBzZXNzaW9uIHRoZSBQQ0kgZGV2aWNlIGlzIG5vdCBwcm9w
-ZXJseSByZXNldC4KPj4gSUUgd2hlbiBJIGxvYWQgJ21lZ2FyYWlkX3NhcycgYWZ0ZXIgdW5iaW5k
-aW5nIHRoZSB2ZmlvX3BjaSBtb2R1bGUKPj4gdGhlIGRyaXZlciBjYW5ub3QgaW5pdGlhbGl6ZSB0
-aGUgY2FyZCBhbmQgd2FpdHMgZm9yZXZlciBmb3IgdGhlCj4+IGZpcm13YXJlIHN0YXRlIHRvIGNo
-YW5nZS4KPj4KPj4gSSBuZWVkIHRvIGRvIGEgcHJvcGVyIHBjaSByZXNldCB2aWEKPj4gZWNobyAx
-ID4gL3N5cy9idXMvcGNpL2RldmljZS9YWFhYL3Jlc2V0Cj4+IHRvIGdldCBpdCBpbnRvIGEgd29y
-a2luZyBzdGF0ZSBhZ2Fpbi4KPj4KPj4gTG9va2luZyBhdCB2ZmlvX3BjaV9kaXNhYmxlKCkgcGNp
-IHJlc2V0IGlzIGNhbGxlZCBiZWZvcmUgdGhlIGNvbmZpZwo+PiBzdGF0ZSBhbmQgQkFScyBhcmUg
-cmVzdG9yZWQuCj4+IFNlZWluZyB0aGF0IHZmaW9fcGNpX2VuYWJsZSgpIGNhbGxzIHBjaSByZXNl
-dCByaWdodCBhdCB0aGUgc3RhcnQsCj4+IHRvbywgYmVmb3JlIG1vZGlmeWluZyBhbnl0aGluZyBJ
-IGRvIHdvbmRlciB3aGV0aGVyIHRoZSBwY2kgcmVzZXQgaXMKPj4gYXQgdGhlIGNvcnJlY3QgbG9j
-YXRpb24gZm9yIGRpc2FibGUuCj4+Cj4+IEkgd291bGQgaGF2ZSBleHBlY3RlZCB0byBjYWxsIHBj
-aSByZXNldCBpbiB2ZmlvX3BjaV9kaXNhYmxlKCkKPj4gX2FmdGVyXyB3ZSBoYXZlIHJlc3RvcmVk
-IHRoZSBjb25maWd1cmF0aW9uLCB0byBlbnN1cmUgYSBzYW5lIHN0YXRlCj4+IGFmdGVyIHJlc2V0
-Lgo+PiBBbmQsIGFzIGV4cGVyaWVuY2Ugc2hvdywgd2UgZG8gbmVlZCB0byBjYWxsIGl0IHRoZXJl
-Lgo+Pgo+PiBTbyB3aGF0IGlzIHRoZSByYXRpb25hbGUgZm9yIHRoZSBwY2kgcmVzZXQ/Cj4+IENh
-biB3ZSBtb3ZlIGl0IHRvIHRoZSBlbmQgb2YgdmZpb19wY2lfZGlzYWJsZSgpIG9yIGRvIHdlIG5l
-ZWQgdG8KPj4gY2FsbCBwY2kgcmVzZXQgdHdpY2U/Cj4KPiBJIGJlbGlldmUgdGhlIHJhdGlvbmFs
-ZSB3YXMgdGhhdCBieSByZXNldHRpbmcgdGhlIGRldmljZSBiZWZvcmUgd2UKPiByZXN0b3JlIHRo
-ZSBzdGF0ZSB3ZSBzdG9wIGFueXRoaW5nIHRoYXQgdGhlIGRldmljZSB3YXMgZG9pbmcuICBSZXN0
-b3JpbmcKPiB0aGUgc2F2ZWQgc3RhdGUgb24gYSBydW5uaW5nIGRldmljZSBzZWVtcyBsaWtlIGl0
-IGNvdWxkIGNhdXNlIHByb2JsZW1zLAo+IHNvIHlvdSBtYXkgYmUgcmlnaHQgYW5kIHdlIGFjdHVh
-bGx5IG5lZWQgdG8gZG8gcmVzZXQsIGxvYWQsIHJlc3RvcmUsCj4gcmVzZXQuICBEb2VzIGFkZGlu
-ZyBhbm90aGVyIGNhbGwgdG8gcGNpX3Jlc2V0X2Z1bmN0aW9uIGluIHRoZQo+IHBjaV9yZXN0b3Jl
-X3N0YXRlIChhcyBiZWxvdykgc29sdmUgdGhlIHByb2JsZW0/ICBUcmFkaXRpb25hbCBLVk0gZGV2
-aWNlCj4gYXNzaWdubWVudCBoYXMgYSBuZWFybHkgaWRlbnRpY2FsIHBhdGgsIGRvZXMgaXQgaGF2
-ZSB0aGlzIHNhbWUgYnVnPwoKSXQncyBhY3R1YWxseSB0aGUgZmlyc3QgdGltZSBJJ3ZlIGJlZW4g
-YWJsZSB0byB0ZXN0IHRoaXMgKHRoZSAKaGFyZHdhcmUgaXMgYSBiaXQgdHJpY2t5IHRvIHNldHVw
-IC4uLiksIHNvIEkgY2Fubm90IHRlbGwgKHlldCkKaWYgS1ZNIGV4aGliaXRlZCB0aGUgc2FtZSB0
-aGluZy4KCj4gVGhhbmtzLAo+Cj4gQWxleAo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmZpby9w
-Y2kvdmZpb19wY2kuYyBiL2RyaXZlcnMvdmZpby9wY2kvdmZpb19wY2kuYwo+IGluZGV4IDZjMTE5
-OTQuLmQwN2E0NWMgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92ZmlvL3BjaS92ZmlvX3BjaS5jCj4g
-KysrIGIvZHJpdmVycy92ZmlvL3BjaS92ZmlvX3BjaS5jCj4gQEAgLTEwNyw5ICsxMDcsMTAgQEAg
-c3RhdGljIHZvaWQgdmZpb19wY2lfZGlzYWJsZShzdHJ1Y3QgdmZpb19wY2lfZGV2aWNlICp2ZGV2
-KQo+ICAgICAgICAgIHBjaV9yZXNldF9mdW5jdGlvbih2ZGV2LT5wZGV2KTsKPgo+ICAgICAgICAg
-IGlmIChwY2lfbG9hZF9hbmRfZnJlZV9zYXZlZF9zdGF0ZSh2ZGV2LT5wZGV2LAo+IC0gICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICZ2ZGV2LT5wY2lfc2F2ZWRfc3RhdGUp
-ID09IDApCj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJnZkZXYt
-PnBjaV9zYXZlZF9zdGF0ZSkgPT0gMCkgewo+ICAgICAgICAgICAgICAgICAgcGNpX3Jlc3RvcmVf
-c3RhdGUodmRldi0+cGRldik7Cj4gLSAgICAgICBlbHNlCj4gKyAgICAgICAgICAgICAgIHBjaV9y
-ZXNldF9mdW5jdGlvbih2ZGV2LT5wZGV2KTsKPiArICAgICAgIH0gZWxzZQo+ICAgICAgICAgICAg
-ICAgICAgcHJfaW5mbygiJXM6IENvdWxkbid0IHJlbG9hZCAlcyBzYXZlZCBzdGF0ZVxuIiwKPiAg
-ICAgICAgICAgICAgICAgICAgICAgICAgX19mdW5jX18sIGRldl9uYW1lKCZ2ZGV2LT5wZGV2LT5k
-ZXYpKTsKPgo+Cj4KSSB3b3VsZCBoYXZlIGNhbGxlZCByZXNldCBhZnRlciB1bm1hcHBpbmcgdGhl
-IEJBUnM7IHRoZSBIQkEgSSdtIAp3b3JraW5nIHdpdGggZG9lcyBuZWVkIHRvIGFjY2VzcyB0aGUg
-QkFScywgc28gdGhlIGNvbnRlbnQgb2YgdGhlbSAKbWlnaHQgYmUgcmVsZXZhbnQsIHRvby4KCkJ1
-dCB0aGVuIEknbSBub3QgcmVhbGx5IGEgUENJIGV4cGVydC4KTWF5YmUgd2Ugc2hvdWxkIGFzayBU
-b255IEx1Y2sgb3IgQmpvcm4gSGVsZ2Fhcy4KCkNoZWVycywKCkhhbm5lcwotLSAKRHIuIEhhbm5l
-cyBSZWluZWNrZQkJICAgICAgelNlcmllcyAmIFN0b3JhZ2UKaGFyZUBzdXNlLmRlCQkJICAgICAg
-KzQ5IDkxMSA3NDA1MyA2ODgKU1VTRSBMSU5VWCBQcm9kdWN0cyBHbWJILCBNYXhmZWxkc3RyLiA1
-LCA5MDQwOSBOw7xybmJlcmcKR0Y6IEouIEhhd24sIEouIEd1aWxkLCBGLiBJbWVuZMO2cmZmZXIs
-IEhSQiAxNjc0NiAoQUcgTsO8cm5iZXJnKQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, 2012-10-18 at 17:06 +0200, Hannes Reinecke wrote:
+> On 10/18/2012 04:40 PM, Alex Williamson wrote:
+> > Hi Hannes,
+> >
+> > Thanks for testing vfio
+> >
+> > On Thu, 2012-10-18 at 08:47 +0200, Hannes Reinecke wrote:
+> >> Hi Alex,
+> >>
+> >> I've been playing around with VFIO and megasas (of course).
+> >> What I did now was switching between VFIO and 'normal' operation, ie
+> >> emulated access.
+> >>
+> >> megasas is happily running under VFIO, but when I do an emergency
+> >> stop like killing the Qemu session the PCI device is not properly reset.
+> >> IE when I load 'megaraid_sas' after unbinding the vfio_pci module
+> >> the driver cannot initialize the card and waits forever for the
+> >> firmware state to change.
+> >>
+> >> I need to do a proper pci reset via
+> >> echo 1 > /sys/bus/pci/device/XXXX/reset
+> >> to get it into a working state again.
+> >>
+> >> Looking at vfio_pci_disable() pci reset is called before the config
+> >> state and BARs are restored.
+> >> Seeing that vfio_pci_enable() calls pci reset right at the start,
+> >> too, before modifying anything I do wonder whether the pci reset is
+> >> at the correct location for disable.
+> >>
+> >> I would have expected to call pci reset in vfio_pci_disable()
+> >> _after_ we have restored the configuration, to ensure a sane state
+> >> after reset.
+> >> And, as experience show, we do need to call it there.
+> >>
+> >> So what is the rationale for the pci reset?
+> >> Can we move it to the end of vfio_pci_disable() or do we need to
+> >> call pci reset twice?
+> >
+> > I believe the rationale was that by resetting the device before we
+> > restore the state we stop anything that the device was doing.  Restoring
+> > the saved state on a running device seems like it could cause problems,
+> > so you may be right and we actually need to do reset, load, restore,
+> > reset.  Does adding another call to pci_reset_function in the
+> > pci_restore_state (as below) solve the problem?  Traditional KVM device
+> > assignment has a nearly identical path, does it have this same bug?
+> 
+> It's actually the first time I've been able to test this (the 
+> hardware is a bit tricky to setup ...), so I cannot tell (yet)
+> if KVM exhibited the same thing.
+> 
+> > Thanks,
+> >
+> > Alex
+> >
+> > diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+> > index 6c11994..d07a45c 100644
+> > --- a/drivers/vfio/pci/vfio_pci.c
+> > +++ b/drivers/vfio/pci/vfio_pci.c
+> > @@ -107,9 +107,10 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
+> >          pci_reset_function(vdev->pdev);
+> >
+> >          if (pci_load_and_free_saved_state(vdev->pdev,
+> > -                                         &vdev->pci_saved_state) == 0)
+> > +                                         &vdev->pci_saved_state) == 0) {
+> >                  pci_restore_state(vdev->pdev);
+> > -       else
+> > +               pci_reset_function(vdev->pdev);
+> > +       } else
+> >                  pr_info("%s: Couldn't reload %s saved state\n",
+> >                          __func__, dev_name(&vdev->pdev->dev));
+> >
+> >
+> >
+> I would have called reset after unmapping the BARs; the HBA I'm 
+> working with does need to access the BARs, so the content of them 
+> might be relevant, too.
+
+I think I copied the ordering from kvm since it seems to work there,
+maybe it doesn't for your device if the kvm path is still an unknown.
+Logically it does seem like we'd want to unmap and release before the
+final reset, but I can't find that those paths actually cause
+interactions where it would matter.
+
+Since we first disable the device and free the interrupt config it seems
+like we should be relatively at ease restoring the saved config prior to
+reset and, as you suggest, re-ordering the unmap and region release.
+That leaves us with something like below.  Does that work better for
+your device?  Anyone on linux-pci have advice on ordering of
+pci_reset_function?  Thanks,
+
+Alex
+
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 6c11994..af0b165 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -104,7 +104,13 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
+ 
+        vfio_config_free(vdev);
+ 
+-       pci_reset_function(vdev->pdev);
++       for (bar = PCI_STD_RESOURCES; bar <= PCI_STD_RESOURCE_END; bar++) {
++               if (!vdev->barmap[bar])
++                       continue;
++               pci_iounmap(vdev->pdev, vdev->barmap[bar]);
++               pci_release_selected_regions(vdev->pdev, 1 << bar);
++               vdev->barmap[bar] = NULL;
++       }
+ 
+        if (pci_load_and_free_saved_state(vdev->pdev,
+                                          &vdev->pci_saved_state) == 0)
+@@ -113,13 +119,7 @@ static void vfio_pci_disable(struct vfio_pci_device *vdev)
+                pr_info("%s: Couldn't reload %s saved state\n",
+                        __func__, dev_name(&vdev->pdev->dev));
+ 
+-       for (bar = PCI_STD_RESOURCES; bar <= PCI_STD_RESOURCE_END; bar++) {
+-               if (!vdev->barmap[bar])
+-                       continue;
+-               pci_iounmap(vdev->pdev, vdev->barmap[bar]);
+-               pci_release_selected_regions(vdev->pdev, 1 << bar);
+-               vdev->barmap[bar] = NULL;
+-       }
++       pci_reset_function(vdev->pdev);
+ }
+ 
+ static void vfio_pci_release(void *device_data)
