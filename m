@@ -1,8 +1,8 @@
 From: Will Deacon <will.deacon@arm.com>
-Subject: [PATCH v2 3/3] virtio: force vring descriptors to be allocated from
-	lowmem
-Date: Fri, 19 Oct 2012 14:03:33 +0100
-Message-ID: <1350651813-8694-3-git-send-email-will.deacon@arm.com>
+Subject: [PATCH v2 2/3] virtio: 9p: correctly pass physical address to
+	userspace for high pages
+Date: Fri, 19 Oct 2012 14:03:32 +0100
+Message-ID: <1350651813-8694-2-git-send-email-will.deacon@arm.com>
 References: <1350651813-8694-1-git-send-email-will.deacon@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,41 +22,42 @@ To: linux-kernel@vger.kernel.org
 Cc: Marc.Zyngier@arm.com, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, ericvh@gmail.com, levinsasha928@gmail.com, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Virtio devices may attempt to add descriptors to a virtqueue from atomic
-context using GFP_ATOMIC allocation. This is problematic because such
-allocations can fall outside of the lowmem mapping, causing virt_to_phys
-to report bogus physical addresses which are subsequently passed to
-userspace via the buffers for the virtual device.
+When using a virtio transport, the 9p net device may pass the physical
+address of a kernel buffer to userspace via a scatterlist inside a
+virtqueue. If the kernel buffer is mapped outside of the linear mapping
+(e.g. highmem), then virt_to_page will return a bogus value and we will
+populate the scatterlist with junk.
 
-This patch masks out __GFP_HIGH and __GFP_HIGHMEM from the requested
-flags when allocating descriptors for a virtqueue. If an atomic
-allocation is requested and later fails, we will return -ENOSPC which
-will be handled by the driver.
+This patch uses kmap_to_page when populating the page array for a kernel
+buffer.
 
 Cc: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Sasha Levin <levinsasha928@gmail.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 ---
- drivers/virtio/virtio_ring.c |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+ net/9p/trans_virtio.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index e639584..286c30c 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -135,6 +135,13 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
- 	unsigned head;
- 	int i;
- 
-+	/*
-+	 * We require lowmem mappings for the descriptors because
-+	 * otherwise virt_to_phys will give us bogus addresses in the
-+	 * virtqueue.
-+	 */
-+	gfp &= ~(__GFP_HIGHMEM | __GFP_HIGH);
-+
- 	desc = kmalloc((out + in) * sizeof(struct vring_desc), gfp);
- 	if (!desc)
- 		return -ENOMEM;
+diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
+index 35b8911..fd05c81 100644
+--- a/net/9p/trans_virtio.c
++++ b/net/9p/trans_virtio.c
+@@ -39,6 +39,7 @@
+ #include <linux/inet.h>
+ #include <linux/idr.h>
+ #include <linux/file.h>
++#include <linux/highmem.h>
+ #include <linux/slab.h>
+ #include <net/9p/9p.h>
+ #include <linux/parser.h>
+@@ -325,7 +326,7 @@ static int p9_get_mapped_pages(struct virtio_chan *chan,
+ 		int count = nr_pages;
+ 		while (nr_pages) {
+ 			s = rest_of_page(data);
+-			pages[index++] = virt_to_page(data);
++			pages[index++] = kmap_to_page(data);
+ 			data += s;
+ 			nr_pages--;
+ 		}
 -- 
 1.7.4.1
