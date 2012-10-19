@@ -1,15 +1,11 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v2
-Date: Fri, 19 Oct 2012 14:44:05 +0800
-Message-ID: <5080F6B5.5070608@redhat.com>
-References: <1349769918-8611-1-git-send-email-asias@redhat.com>
-	<20121011124125.GA8074@redhat.com>
-	<507818BE.7060404@redhat.com> <87d30go1g7.fsf@rustcorp.com.au>
+From: Will Deacon <will.deacon@arm.com>
+Subject: [PATCH v2 1/3] mm: highmem: export kmap_to_page for modules
+Date: Fri, 19 Oct 2012 14:03:31 +0100
+Message-ID: <1350651813-8694-1-git-send-email-will.deacon@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87d30go1g7.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +15,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Marc.Zyngier@arm.com, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, ericvh@gmail.com, levinsasha928@gmail.com, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/18/2012 12:20 PM, Rusty Russell wrote:
-> Asias He <asias@redhat.com> writes:
->>>> +#define BLK_HDR	0
->>>
->>> What's this for, exactly? Please add a comment.
->>
->> The block headr is in the first and separate buffer.
-> 
-> Please don't assume this!  We're trying to fix all the assumptions in
-> qemu at the moment.
-> 
-> vhost_net handles this correctly, taking bytes off the descriptor chain
-> as required.
+Some virtio device drivers (9p) need to translate high virtual addresses
+to physical addresses, which are inserted into the virtqueue for
+processing by userspace.
 
+This patch exports the kmap_to_page symbol, so that the affected drivers
+can be compiled as modules.
 
-Well, I will switch to "no assumption about the buffer layout" in next
-version.
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+---
+ mm/highmem.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-
+diff --git a/mm/highmem.c b/mm/highmem.c
+index d517cd1..2a07f97 100644
+--- a/mm/highmem.c
++++ b/mm/highmem.c
+@@ -105,6 +105,7 @@ struct page *kmap_to_page(void *vaddr)
+ 
+ 	return virt_to_page(addr);
+ }
++EXPORT_SYMBOL(kmap_to_page);
+ 
+ static void flush_all_zero_pkmaps(void)
+ {
 -- 
-Asias
+1.7.4.1
