@@ -1,11 +1,14 @@
 From: Will Deacon <will.deacon@arm.com>
-Subject: [PATCH v2 1/3] mm: highmem: export kmap_to_page for modules
-Date: Fri, 19 Oct 2012 14:03:31 +0100
-Message-ID: <1350651813-8694-1-git-send-email-will.deacon@arm.com>
+Subject: [PATCH v2 3/3] virtio: force vring descriptors to be allocated from
+	lowmem
+Date: Fri, 19 Oct 2012 14:03:33 +0100
+Message-ID: <1350651813-8694-3-git-send-email-will.deacon@arm.com>
+References: <1350651813-8694-1-git-send-email-will.deacon@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1350651813-8694-1-git-send-email-will.deacon@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +22,41 @@ To: linux-kernel@vger.kernel.org
 Cc: Marc.Zyngier@arm.com, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, ericvh@gmail.com, levinsasha928@gmail.com, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some virtio device drivers (9p) need to translate high virtual addresses
-to physical addresses, which are inserted into the virtqueue for
-processing by userspace.
+Virtio devices may attempt to add descriptors to a virtqueue from atomic
+context using GFP_ATOMIC allocation. This is problematic because such
+allocations can fall outside of the lowmem mapping, causing virt_to_phys
+to report bogus physical addresses which are subsequently passed to
+userspace via the buffers for the virtual device.
 
-This patch exports the kmap_to_page symbol, so that the affected drivers
-can be compiled as modules.
+This patch masks out __GFP_HIGH and __GFP_HIGHMEM from the requested
+flags when allocating descriptors for a virtqueue. If an atomic
+allocation is requested and later fails, we will return -ENOSPC which
+will be handled by the driver.
 
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Sasha Levin <levinsasha928@gmail.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 ---
- mm/highmem.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ drivers/virtio/virtio_ring.c |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
-diff --git a/mm/highmem.c b/mm/highmem.c
-index d517cd1..2a07f97 100644
---- a/mm/highmem.c
-+++ b/mm/highmem.c
-@@ -105,6 +105,7 @@ struct page *kmap_to_page(void *vaddr)
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index e639584..286c30c 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -135,6 +135,13 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+ 	unsigned head;
+ 	int i;
  
- 	return virt_to_page(addr);
- }
-+EXPORT_SYMBOL(kmap_to_page);
- 
- static void flush_all_zero_pkmaps(void)
- {
++	/*
++	 * We require lowmem mappings for the descriptors because
++	 * otherwise virt_to_phys will give us bogus addresses in the
++	 * virtqueue.
++	 */
++	gfp &= ~(__GFP_HIGHMEM | __GFP_HIGH);
++
+ 	desc = kmalloc((out + in) * sizeof(struct vring_desc), gfp);
+ 	if (!desc)
+ 		return -ENOMEM;
 -- 
 1.7.4.1
