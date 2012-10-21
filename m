@@ -1,14 +1,14 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: [PATCH v2 2/3] virtio: 9p: correctly pass physical address to
-	userspace for high pages
-Date: Fri, 19 Oct 2012 14:03:32 +0100
-Message-ID: <1350651813-8694-2-git-send-email-will.deacon@arm.com>
-References: <1350651813-8694-1-git-send-email-will.deacon@arm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH for-3.7] vhost: fix mergeable bufs on BE hosts
+Date: Sun, 21 Oct 2012 14:49:01 +0200
+Message-ID: <20121021124901.GA5315@redhat.com>
+References: <20121015175534.GA19489@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1350651813-8694-1-git-send-email-will.deacon@arm.com>
+Content-Disposition: inline
+In-Reply-To: <20121015175534.GA19489@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,46 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Marc.Zyngier@arm.com, Will Deacon <will.deacon@arm.com>, virtualization@lists.linux-foundation.org, ericvh@gmail.com, levinsasha928@gmail.com, akpm@linux-foundation.org
+To: Alexander Graf <agraf@suse.de>
+Cc: netdev@vger.kernel.org, stable@kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When using a virtio transport, the 9p net device may pass the physical
-address of a kernel buffer to userspace via a scatterlist inside a
-virtqueue. If the kernel buffer is mapped outside of the linear mapping
-(e.g. highmem), then virt_to_page will return a bogus value and we will
-populate the scatterlist with junk.
+On Mon, Oct 15, 2012 at 07:55:34PM +0200, Michael S. Tsirkin wrote:
+> We copy head count to a 16 bit field,
+> this works by chance on LE but on BE
+> guest gets 0. Fix it up.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Tested-by: Alexander Graf <agraf@suse.de>
+> Cc: stable@kernel.org
 
-This patch uses kmap_to_page when populating the page array for a kernel
-buffer.
+Ping. Dave, could you apply this to -net please?
 
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sasha Levin <levinsasha928@gmail.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
----
- net/9p/trans_virtio.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
-
-diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
-index 35b8911..fd05c81 100644
---- a/net/9p/trans_virtio.c
-+++ b/net/9p/trans_virtio.c
-@@ -39,6 +39,7 @@
- #include <linux/inet.h>
- #include <linux/idr.h>
- #include <linux/file.h>
-+#include <linux/highmem.h>
- #include <linux/slab.h>
- #include <net/9p/9p.h>
- #include <linux/parser.h>
-@@ -325,7 +326,7 @@ static int p9_get_mapped_pages(struct virtio_chan *chan,
- 		int count = nr_pages;
- 		while (nr_pages) {
- 			s = rest_of_page(data);
--			pages[index++] = virt_to_page(data);
-+			pages[index++] = kmap_to_page(data);
- 			data += s;
- 			nr_pages--;
- 		}
--- 
-1.7.4.1
+> ---
+>  drivers/vhost/net.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 9ab6d47..2bb463c 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -448,7 +448,8 @@ static void handle_rx(struct vhost_net *net)
+>  		.hdr.gso_type = VIRTIO_NET_HDR_GSO_NONE
+>  	};
+>  	size_t total_len = 0;
+> -	int err, headcount, mergeable;
+> +	int err, mergeable;
+> +	s16 headcount;
+>  	size_t vhost_hlen, sock_hlen;
+>  	size_t vhost_len, sock_len;
+>  	/* TODO: check that we are running from vhost_worker? */
+> -- 
+> MST
