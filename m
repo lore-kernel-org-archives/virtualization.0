@@ -1,14 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv7 4/4] virtio_console: Add support for remoteproc serial
-Date: Tue, 23 Oct 2012 12:17:49 +1030
-Message-ID: <878vayhsca.fsf__23174.3530756377$1350957711$gmane$org@rustcorp.com.au>
-References: <1350287856-5284-1-git-send-email-sjur.brandeland@stericsson.com>
-	<1350287856-5284-5-git-send-email-sjur.brandeland@stericsson.com>
+From: Will Deacon <will.deacon@arm.com>
+Subject: Re: [PATCH v2 1/3] mm: highmem: export kmap_to_page for modules
+Date: Tue, 23 Oct 2012 11:33:52 +0100
+Message-ID: <20121023103352.GC20210@mudshark.cambridge.arm.com>
+References: <1350651813-8694-1-git-send-email-will.deacon@arm.com>
+	<87objuhxiq.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1350287856-5284-5-git-send-email-sjur.brandeland@stericsson.com>
+Content-Disposition: inline
+In-Reply-To: <87objuhxiq.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,71 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Marc Zyngier <Marc.Zyngier@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "ericvh@gmail.com" <ericvh@gmail.com>, "levinsasha928@gmail.com" <levinsasha928@gmail.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyaXRlczoKPiBGcm9tOiBTanVyIEJyw6Zu
-ZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Cj4KPiBBZGQgYSBzaW1wbGUg
-c2VyaWFsIGNvbm5lY3Rpb24gZHJpdmVyIGNhbGxlZAo+IFZJUlRJT19JRF9SUFJPQ19TRVJJQUwg
-KDExKSBmb3IgY29tbXVuaWNhdGluZyB3aXRoIGEKPiByZW1vdGUgcHJvY2Vzc29yIGluIGFuIGFz
-eW1tZXRyaWMgbXVsdGktcHJvY2Vzc2luZwo+IGNvbmZpZ3VyYXRpb24uCj4KPiBUaGlzIGltcGxl
-bWVudGF0aW9uIHJldXNlcyB0aGUgZXhpc3RpbmcgdmlydGlvX2NvbnNvbGUKPiBpbXBsZW1lbnRh
-dGlvbiwgYW5kIGFkZHMgc3VwcG9ydCBmb3IgRE1BIGFsbG9jYXRpb24KPiBvZiBkYXRhIGJ1ZmZl
-cnMgYW5kIGRpc2FibGVzIHVzZSBvZiB0dHkgY29uc29sZSBhbmQKPiB0aGUgdmlydGlvIGNvbnRy
-b2wgcXVldWUuCj4KPiBTaWduZWQtb2ZmLWJ5OiBTanVyIEJyw6ZuZGVsYW5kIDxzanVyLmJyYW5k
-ZWxhbmRAc3Rlcmljc3Nvbi5jb20+CgpUaGUgZnJlZS1vdXRzaWRlLWludGVycnVwdCBpc3N1ZSBp
-cyB1c3VhbGx5IGRlYWx0IHdpdGggYnkgb2ZmbG9hZGluZyB0bwphIHdxLCBidXQgeW91ciB2YXJp
-YW50IHdvcmtzIChhbmQgaXNuJ3QgdG9vIHVnbHkpLgoKPiArCQkvKiBkbWFfZnJlZV9jb2hlcmVu
-dCByZXF1aXJlcyBpbnRlcnJ1cHRzIHRvIGJlIGVuYWJsZWQuICovCj4gKwkJaWYgKCFjYW5fc2xl
-ZXApIHsKPiArCQkJLyogcXVldWUgdXAgZG1hLWJ1ZmZlcnMgdG8gYmUgZnJlZWQgbGF0ZXIgKi8K
-PiArCQkJc3Bpbl9sb2NrX2lycXNhdmUoJmRtYV9idWZzX2xvY2ssIGZsYWdzKTsKPiArCQkJbGlz
-dF9hZGRfdGFpbCgmYnVmLT5saXN0LCAmcGVuZGluZ19mcmVlX2RtYV9idWZzKTsKPiArCQkJc3Bp
-bl91bmxvY2tfaXJxcmVzdG9yZSgmZG1hX2J1ZnNfbG9jaywgZmxhZ3MpOwo+ICsJCQlyZXR1cm47
-Cj4gKwkJfQo+ICsJCWRtYV9mcmVlX2NvaGVyZW50KGJ1Zi0+ZGV2LCBidWYtPnNpemUsIGJ1Zi0+
-YnVmLCBidWYtPmRtYSk7Cj4gKwo+ICsJCS8qIFJlbGVhc2UgZGV2aWNlIHJlZmNudCBhbmQgYWxs
-b3cgaXQgdG8gYmUgZnJlZWQgKi8KPiArCQlwdXRfZGV2aWNlKGJ1Zi0+ZGV2KTsKCi4uLgoKPiAr
-c3RhdGljIHZvaWQgcmVjbGFpbV9kbWFfYnVmcyh2b2lkKQo+ICt7Cj4gKwl1bnNpZ25lZCBsb25n
-IGZsYWdzOwo+ICsJc3RydWN0IHBvcnRfYnVmZmVyICpidWYsICp0bXA7Cj4gKwlMSVNUX0hFQUQo
-dG1wX2xpc3QpOwo+ICsKPiArCWlmIChsaXN0X2VtcHR5KCZwZW5kaW5nX2ZyZWVfZG1hX2J1ZnMp
-KQo+ICsJCXJldHVybjsKPiArCj4gKwkvKiBDcmVhdGUgYSBjb3B5IG9mIHRoZSBwZW5kaW5nX2Zy
-ZWVfZG1hX2J1ZnMgd2hpbGUgaG9sZGluZyB0aGUgbG9jayAqLwo+ICsJc3Bpbl9sb2NrX2lycXNh
-dmUoJmRtYV9idWZzX2xvY2ssIGZsYWdzKTsKPiArCWxpc3RfY3V0X3Bvc2l0aW9uKCZ0bXBfbGlz
-dCwgJnBlbmRpbmdfZnJlZV9kbWFfYnVmcywKPiArCQkJICBwZW5kaW5nX2ZyZWVfZG1hX2J1ZnMu
-cHJldik7Cj4gKwlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZkbWFfYnVmc19sb2NrLCBmbGFncyk7
-Cj4gKwo+ICsJLyogUmVsZWFzZSB0aGUgZG1hIGJ1ZmZlcnMsIHdpdGhvdXQgaXJxcyBlbmFibGVk
-ICovCj4gKwlsaXN0X2Zvcl9lYWNoX2VudHJ5X3NhZmUoYnVmLCB0bXAsICZ0bXBfbGlzdCwgbGlz
-dCkgewo+ICsJCWxpc3RfZGVsKCZidWYtPmxpc3QpOwo+ICsJCWZyZWVfYnVmKGJ1ZiwgdHJ1ZSk7
-Cj4gKwl9Cj4gK30KCkxvb2tzIGxpa2UgdGhpcyBzaG91bGQgYmUgYW4gZWFzeSBub29wIGV2ZW4g
-aWYgIWlzX3Jwcm9jX3NlcmlhbC4KCj4gKwo+ICBzdGF0aWMgc3RydWN0IHBvcnRfYnVmZmVyICph
-bGxvY19idWYoc3RydWN0IHZpcnRxdWV1ZSAqdnEsIHNpemVfdCBidWZfc2l6ZSwKPiAgCQkJCSAg
-ICAgaW50IHBhZ2VzKQo+ICB7Cj4gIAlzdHJ1Y3QgcG9ydF9idWZmZXIgKmJ1ZjsKPiAgCj4gKwlp
-ZiAoaXNfcnByb2Nfc2VyaWFsKHZxLT52ZGV2KSkKPiArCQlyZWNsYWltX2RtYV9idWZzKCk7Cj4g
-KwoKLi4uCgo+IEBAIC05MDQsNiArMTAwMCw4IEBAIHN0YXRpYyBpbnQgcG9ydF9mb3BzX3JlbGVh
-c2Uoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGUgKmZpbHApCj4gIAlyZWNsYWltX2Nv
-bnN1bWVkX2J1ZmZlcnMocG9ydCk7Cj4gIAlzcGluX3VubG9ja19pcnEoJnBvcnQtPm91dHZxX2xv
-Y2spOwo+ICAKPiArCWlmIChpc19ycHJvY19zZXJpYWwocG9ydC0+cG9ydGRldi0+dmRldikpCj4g
-KwkJcmVjbGFpbV9kbWFfYnVmcygpOwoKU28gdGhlc2UgYXJlIHJlZHVuZGFudC4KCj4gQEAgLTE0
-MTUsNyArMTUyNCwxNiBAQCBzdGF0aWMgdm9pZCByZW1vdmVfcG9ydF9kYXRhKHN0cnVjdCBwb3J0
-ICpwb3J0KQo+ICAKPiAgCS8qIFJlbW92ZSBidWZmZXJzIHdlIHF1ZXVlZCB1cCBmb3IgdGhlIEhv
-c3QgdG8gc2VuZCB1cyBkYXRhIGluLiAqLwo+ICAJd2hpbGUgKChidWYgPSB2aXJ0cXVldWVfZGV0
-YWNoX3VudXNlZF9idWYocG9ydC0+aW5fdnEpKSkKPiAtCQlmcmVlX2J1ZihidWYpOwo+ICsJCWZy
-ZWVfYnVmKGJ1ZiwgdHJ1ZSk7Cj4gKwo+ICsJLyoKPiArCSAqIFJlbW92ZSBidWZmZXJzIGZyb20g
-b3V0IHF1ZXVlIGZvciBycHJvYy1zZXJpYWwuIFdlIGNhbm5vdCBhZmZvcmQKPiArCSAqIHRvIGxl
-YWsgYW55IERNQSBtZW0sIHNvIHJlY2xhaW0gdGhpcyBtZW1vcnkgZXZlbiBpZiB0aGlzIG1pZ2h0
-IGJlCj4gKwkgKiByYWN5IGZvciB0aGUgcmVtb3RlIHByb2Nlc3Nvci4KPiArCSAqLwo+ICsJaWYg
-KGlzX3Jwcm9jX3NlcmlhbChwb3J0LT5wb3J0ZGV2LT52ZGV2KSkKPiArCQl3aGlsZSAoKGJ1ZiA9
-IHZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1Zihwb3J0LT5vdXRfdnEpKSkKPiArCQkJZnJlZV9i
-dWYoYnVmLCB0cnVlKTsKPiAgfQoKVGhpcyBzZWVtcyB3cm9uZzsgZWl0aGVyIHRoaXMgaXMgbmVl
-ZGVkIGV2ZW4gaWYgIWlzX3Jwcm9jX3NlcmlhbCgpLCBvcgppdCdzIG5vdCBuZWNlc3NhcnkgYXMg
-dGhlIG91dF92cSBpcyBlbXB0eS4KCkV2ZXJ5IHBhdGggSSBjYW4gc2VlIGhhcyB0aGUgZGV2aWNl
-IHJlc2V0IChpbiB3aGljaCBjYXNlIHRoZSBxdWV1ZXMKc2hvdWxkIG5vdCBiZSBhY3RpdmUpLCBv
-ciB3ZSBnb3QgYSBWSVJUSU9fQ09OU09MRV9QT1JUX1JFTU9WRSBldmVudCAoaW4Kd2hpY2ggY2Fz
-ZSwgdGhlIHNhbWUpLgoKSSB0aGluayB3ZSBjYW4gaGF2ZSBub24tYmxvY2tpbmcgd3JpdGVzIHdo
-aWNoIGNvdWxkIGxlYXZlIGJ1ZmZlcnMgaW4Kb3V0X3ZxOiBBbWl0Pwo+ICBzdGF0aWMgdm9pZCBf
-X2V4aXQgZmluaSh2b2lkKQo+ICB7Cj4gKwlyZWNsYWltX2RtYV9idWZzKCk7CgpIbW0sIHlvdSBk
-aWRuJ3QgcHJvdGVjdCBpdCBoZXJlIGFueXdheS4uLgoKQ2hlZXJzLApSdXN0eS4KX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+On Tue, Oct 23, 2012 at 12:55:57AM +0100, Rusty Russell wrote:
+> Will Deacon <will.deacon@arm.com> writes:
+> 
+> > Some virtio device drivers (9p) need to translate high virtual addresses
+> > to physical addresses, which are inserted into the virtqueue for
+> > processing by userspace.
+> >
+> > This patch exports the kmap_to_page symbol, so that the affected drivers
+> > can be compiled as modules.
+> 
+> Thanks Will!
+> 
+> I've applied these, and add cc:stable.  I'll push them to Linus after a
+> little time in linux-next.
+
+Cheers Rusty. Andrew's right about this affecting highmem on x86 too (I
+guess that's what Sasha saw with the 9p memory issues), so stable makes
+sense.
+
+Will
