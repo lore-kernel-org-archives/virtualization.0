@@ -1,15 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv7 3/4] virtio_console: Merge struct buffer_token into
-	struct port_buffer
-Date: Tue, 23 Oct 2012 10:49:24 +1030
-Message-ID: <87fw56hwfn.fsf@rustcorp.com.au>
-References: <1350287856-5284-1-git-send-email-sjur.brandeland@stericsson.com>
-	<1350287856-5284-4-git-send-email-sjur.brandeland@stericsson.com>
+Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v2
+Date: Tue, 23 Oct 2012 10:37:29 +1030
+Message-ID: <87mwzehwzi.fsf@rustcorp.com.au>
+References: <1349769918-8611-1-git-send-email-asias@redhat.com>
+	<20121011124125.GA8074@redhat.com>
+	<507818BE.7060404@redhat.com> <87d30go1g7.fsf@rustcorp.com.au>
+	<20121018063040.GA15676@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1350287856-5284-4-git-send-email-sjur.brandeland@stericsson.com>
+In-Reply-To: <20121018063040.GA15676@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,30 +20,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyaXRlczoKPiBGcm9tOiBTanVyIEJyw6Zu
-ZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Cj4KPiBSZWZhY3RvcmluZyB0
-aGUgc3BsaWNlIGZ1bmN0aW9uYWxpdHkgYnkgdW5pZnlpbmcgdGhlIGFwcHJvYWNoIGZvcgo+IHNl
-bmRpbmcgc2NhdHRlci1saXN0cyBhbmQgcmVndWxhciBidWZmZXJzLiBUaGlzIHNpbXBsaWZpZXMK
-PiBidWZmZXIgaGFuZGxpbmcgYW5kIHJlZHVjZXMgY29kZSBzaXplLiBTcGxpY2Ugd2lsbCBub3cg
-YWxsb2NhdGUKPiBhIHBvcnRfYnVmZmVyIGFuZCBzZW5kX2J1ZigpIGFuZCBmcmVlX2J1ZigpIGNh
-biBhbHdheXMgYmUgdXNlZAo+IGZvciBhbnkgYnVmZmVyLgo+Cj4gU2lnbmVkLW9mZi1ieTogU2p1
-ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoKVGhpcyBsb29r
-cyBzZW5zaWJsZTsgYSBjb3VwbGUgb2YgZXh0cmEgYmxhbmsgbGluZXMgaW5zZXJ0ZWQgdGhvdWdo
-LgoKQW1pdD8KCj4gQEAgLTEwMzMsNiArMTAwOCw4IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgZmls
-ZV9vcGVyYXRpb25zIHBvcnRfZm9wcyA9IHsKPiAgc3RhdGljIGludCBwdXRfY2hhcnModTMyIHZ0
-ZXJtbm8sIGNvbnN0IGNoYXIgKmJ1ZiwgaW50IGNvdW50KQo+ICB7Cj4gIAlzdHJ1Y3QgcG9ydCAq
-cG9ydDsKPiArCXN0cnVjdCBzY2F0dGVybGlzdCBzZ1sxXTsKPiArCj4gIAo+ICAJaWYgKHVubGlr
-ZWx5KGVhcmx5X3B1dF9jaGFycykpCj4gIAkJcmV0dXJuIGVhcmx5X3B1dF9jaGFycyh2dGVybW5v
-LCBidWYsIGNvdW50KTsKPiBAQCAtMTA0MSw3ICsxMDE4LDkgQEAgc3RhdGljIGludCBwdXRfY2hh
-cnModTMyIHZ0ZXJtbm8sIGNvbnN0IGNoYXIgKmJ1ZiwgaW50IGNvdW50KQo+ICAJaWYgKCFwb3J0
-KQo+ICAJCXJldHVybiAtRVBJUEU7Cj4gIAo+IC0JcmV0dXJuIHNlbmRfYnVmKHBvcnQsICh2b2lk
-ICopYnVmLCBjb3VudCwgZmFsc2UpOwo+ICsJc2dfaW5pdF9vbmUoc2csIGJ1ZiwgY291bnQpOwo+
-ICsJcmV0dXJuIF9fc2VuZF90b19wb3J0KHBvcnQsIHNnLCAxLCBjb3VudCwgKHZvaWQgKilidWYs
-IGZhbHNlKTsKPiArCj4gIH0KPiAgCj4gIC8qCgpDaGVlcnMsClJ1c3R5LgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Thu, Oct 18, 2012 at 02:50:56PM +1030, Rusty Russell wrote:
+>> Asias He <asias@redhat.com> writes:
+>> >>> +#define BLK_HDR	0
+>> >> 
+>> >> What's this for, exactly? Please add a comment.
+>> >
+>> > The block headr is in the first and separate buffer.
+>> 
+>> Please don't assume this!  We're trying to fix all the assumptions in
+>> qemu at the moment.
+>> 
+>> vhost_net handles this correctly, taking bytes off the descriptor chain
+>> as required.
+>> 
+>> Thanks,
+>> Rusty.
+>
+> BTW are we agreed on the spec update that makes cmd 32 bytes?
+
+vhost-blk doesn't handle scsi requests, does it?
+
+But since we're forced to use a feature bit, we could just put the cmd
+size in explicitly.  Though Paulo seems convinced that 32 is always
+sufficient.  Whoever implements it gets to decide...
+
+Here's my TODO list:
+1) Create qemu helpers to efficiently handle iovecs.
+2) Switch all the qemu devices to use them.
+3) ... except a special hack for virtio-blk in old-layout mode.
+4) Implement pci capability layout RFC for qemu.
+   - Detect whether guest uses capabilities.
+   - Device config in new mode is le.
+   - Add strict checking mode for extra compliance checks?
+5) Add explicit size-based accessors to virtio_config in kernel.
+6) Update pci capability RFC patches for linux to match.
+   - Use explicit accessors to allow for endian conversion.
+6) Push virtio torture patch to test variable boundaries.
+7) Update spec.
+
+That should keep me amused for a while...
+
+Cheers,
+Rusty.
