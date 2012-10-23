@@ -1,15 +1,19 @@
-From: Will Deacon <will.deacon@arm.com>
-Subject: Re: [PATCH v2 1/3] mm: highmem: export kmap_to_page for modules
-Date: Tue, 23 Oct 2012 11:33:52 +0100
-Message-ID: <20121023103352.GC20210@mudshark.cambridge.arm.com>
-References: <1350651813-8694-1-git-send-email-will.deacon@arm.com>
-	<87objuhxiq.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 2/2] virtio-ring: Allocate indirect buffers from cache
+	when possible
+Date: Tue, 23 Oct 2012 17:14:43 +0200
+Message-ID: <20121023151442.GA27478@redhat.com>
+References: <1346159043-16446-2-git-send-email-levinsasha928@gmail.com>
+	<20120906084526.GE17656@redhat.com>
+	<87txvahfv3.fsf@rustcorp.com.au>
+	<14037987.hiN6MSGY6z@tomlt1.ibmoffice.com>
+	<87bohbdb0o.fsf@rustcorp.com.au> <5050679F.9030002@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87objuhxiq.fsf@rustcorp.com.au>
+In-Reply-To: <5050679F.9030002@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,27 +23,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Marc Zyngier <Marc.Zyngier@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "ericvh@gmail.com" <ericvh@gmail.com>, "levinsasha928@gmail.com" <levinsasha928@gmail.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, avi@redhat.com, Thomas Lendacky <tahm@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 23, 2012 at 12:55:57AM +0100, Rusty Russell wrote:
-> Will Deacon <will.deacon@arm.com> writes:
+On Wed, Sep 12, 2012 at 12:44:47PM +0200, Sasha Levin wrote:
+> On 09/12/2012 08:13 AM, Rusty Russell wrote:
+> > The real question is now whether we'd want a separate indirect cache for
+> > the 3 case (so num above should be a bitmap?), or reuse the same one, or
+> > not use it at all?
+> > 
+> > Benchmarking will tell...
 > 
-> > Some virtio device drivers (9p) need to translate high virtual addresses
-> > to physical addresses, which are inserted into the virtqueue for
-> > processing by userspace.
-> >
-> > This patch exports the kmap_to_page symbol, so that the affected drivers
-> > can be compiled as modules.
+> Since there are no specific decisions about actual values, I'll just modify the
+> code to use cache per-vq instead of per-device.
 > 
-> Thanks Will!
 > 
-> I've applied these, and add cc:stable.  I'll push them to Linus after a
-> little time in linux-next.
+> Thanks,
+> Sasha
 
-Cheers Rusty. Andrew's right about this affecting highmem on x86 too (I
-guess that's what Sasha saw with the 9p memory issues), so stable makes
-sense.
+One wonders whether we can still use the slab caches
+and improve the locality by aligning the size.
+Something like the below - this passed basic testing but
+didn't measure performance yet.
 
-Will
+    virtio: align size for indirect buffers
+    
+    Improve locality for indirect buffer allocations
+    and avoid false cache sharing by aligning
+    allocations to cache line size.
+    
+    Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 2fc85f2..93e6c3a 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -119,7 +119,8 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+ 	unsigned head;
+ 	int i;
+ 
+-	desc = kmalloc((out + in) * sizeof(struct vring_desc), GFP_ATOMIC);
++	desc = kmalloc(L1_CACHE_ALIGN((out + in) * sizeof(struct vring_desc)),
++		       GFP_ATOMIC);
+ 	if (!desc)
+ 		return vq->vring.num;
