@@ -1,17 +1,16 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v2
-Date: Wed, 24 Oct 2012 11:08:38 +0800
-Message-ID: <50875BB6.90809@redhat.com>
-References: <1349769918-8611-1-git-send-email-asias@redhat.com>
-	<20121011124125.GA8074@redhat.com>
-	<507818BE.7060404@redhat.com> <87d30go1g7.fsf@rustcorp.com.au>
-	<20121018063040.GA15676@redhat.com>
-	<87mwzehwzi.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH for-3.7] vhost: fix mergeable bufs on BE hosts
+Date: Wed, 24 Oct 2012 18:24:38 +0200
+Message-ID: <20121024162437.GA10764@redhat.com>
+References: <20121015175534.GA19489@redhat.com>
+	<20121021124901.GA5315@redhat.com>
+	<20121021.192402.1010682456837361393.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87mwzehwzi.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <20121021.192402.1010682456837361393.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,60 +20,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, stable@kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/23/2012 08:07 AM, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
->> On Thu, Oct 18, 2012 at 02:50:56PM +1030, Rusty Russell wrote:
->>> Asias He <asias@redhat.com> writes:
->>>>>> +#define BLK_HDR	0
->>>>>
->>>>> What's this for, exactly? Please add a comment.
->>>>
->>>> The block headr is in the first and separate buffer.
->>>
->>> Please don't assume this!  We're trying to fix all the assumptions in
->>> qemu at the moment.
->>>
->>> vhost_net handles this correctly, taking bytes off the descriptor chain
->>> as required.
->>>
->>> Thanks,
->>> Rusty.
->>
->> BTW are we agreed on the spec update that makes cmd 32 bytes?
+On Sun, Oct 21, 2012 at 07:24:02PM -0400, David Miller wrote:
+> From: "Michael S. Tsirkin" <mst@redhat.com>
+> Date: Sun, 21 Oct 2012 14:49:01 +0200
 > 
-> vhost-blk doesn't handle scsi requests, does it?
+> > On Mon, Oct 15, 2012 at 07:55:34PM +0200, Michael S. Tsirkin wrote:
+> >> We copy head count to a 16 bit field,
+> >> this works by chance on LE but on BE
+> >> guest gets 0. Fix it up.
+> >> 
+> >> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> >> Tested-by: Alexander Graf <agraf@suse.de>
+> >> Cc: stable@kernel.org
+> > 
+> > Ping. Dave, could you apply this to -net please?
+> 
+> Pinging me but not cc:'ing me?  That's really strange.
+> 
+> What if I operate by just mass deleting things that I'm
+> not explicitly on the To: or CC: when I'm very backlogged?
 
-No, it doesn't handle scsi requests currently.
-
-> 
-> But since we're forced to use a feature bit, we could just put the cmd
-> size in explicitly.  Though Paulo seems convinced that 32 is always
-> sufficient.  Whoever implements it gets to decide...
-> 
-> Here's my TODO list:
-> 1) Create qemu helpers to efficiently handle iovecs.
-> 2) Switch all the qemu devices to use them.
-> 3) ... except a special hack for virtio-blk in old-layout mode.
-> 4) Implement pci capability layout RFC for qemu.
->    - Detect whether guest uses capabilities.
->    - Device config in new mode is le.
->    - Add strict checking mode for extra compliance checks?
-> 5) Add explicit size-based accessors to virtio_config in kernel.
-> 6) Update pci capability RFC patches for linux to match.
->    - Use explicit accessors to allow for endian conversion.
-> 6) Push virtio torture patch to test variable boundaries.
-> 7) Update spec.
-> 
-> That should keep me amused for a while...
-> 
-> Cheers,
-> Rusty.
-> 
-
+Yes, that was silly. Would you like me to repost the patch?
 
 -- 
-Asias
+MST
