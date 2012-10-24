@@ -1,19 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 2/2] virtio-ring: Allocate indirect buffers from cache
-	when possible
-Date: Tue, 23 Oct 2012 17:14:43 +0200
-Message-ID: <20121023151442.GA27478@redhat.com>
-References: <1346159043-16446-2-git-send-email-levinsasha928@gmail.com>
-	<20120906084526.GE17656@redhat.com>
-	<87txvahfv3.fsf@rustcorp.com.au>
-	<14037987.hiN6MSGY6z@tomlt1.ibmoffice.com>
-	<87bohbdb0o.fsf@rustcorp.com.au> <5050679F.9030002@gmail.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v2
+Date: Wed, 24 Oct 2012 11:08:38 +0800
+Message-ID: <50875BB6.90809@redhat.com>
+References: <1349769918-8611-1-git-send-email-asias@redhat.com>
+	<20121011124125.GA8074@redhat.com>
+	<507818BE.7060404@redhat.com> <87d30go1g7.fsf@rustcorp.com.au>
+	<20121018063040.GA15676@redhat.com>
+	<87mwzehwzi.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <5050679F.9030002@gmail.com>
+In-Reply-To: <87mwzehwzi.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,48 +21,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, avi@redhat.com, Thomas Lendacky <tahm@linux.vnet.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 12, 2012 at 12:44:47PM +0200, Sasha Levin wrote:
-> On 09/12/2012 08:13 AM, Rusty Russell wrote:
-> > The real question is now whether we'd want a separate indirect cache for
-> > the 3 case (so num above should be a bitmap?), or reuse the same one, or
-> > not use it at all?
-> > 
-> > Benchmarking will tell...
+On 10/23/2012 08:07 AM, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> On Thu, Oct 18, 2012 at 02:50:56PM +1030, Rusty Russell wrote:
+>>> Asias He <asias@redhat.com> writes:
+>>>>>> +#define BLK_HDR	0
+>>>>>
+>>>>> What's this for, exactly? Please add a comment.
+>>>>
+>>>> The block headr is in the first and separate buffer.
+>>>
+>>> Please don't assume this!  We're trying to fix all the assumptions in
+>>> qemu at the moment.
+>>>
+>>> vhost_net handles this correctly, taking bytes off the descriptor chain
+>>> as required.
+>>>
+>>> Thanks,
+>>> Rusty.
+>>
+>> BTW are we agreed on the spec update that makes cmd 32 bytes?
 > 
-> Since there are no specific decisions about actual values, I'll just modify the
-> code to use cache per-vq instead of per-device.
+> vhost-blk doesn't handle scsi requests, does it?
+
+No, it doesn't handle scsi requests currently.
+
 > 
+> But since we're forced to use a feature bit, we could just put the cmd
+> size in explicitly.  Though Paulo seems convinced that 32 is always
+> sufficient.  Whoever implements it gets to decide...
 > 
-> Thanks,
-> Sasha
+> Here's my TODO list:
+> 1) Create qemu helpers to efficiently handle iovecs.
+> 2) Switch all the qemu devices to use them.
+> 3) ... except a special hack for virtio-blk in old-layout mode.
+> 4) Implement pci capability layout RFC for qemu.
+>    - Detect whether guest uses capabilities.
+>    - Device config in new mode is le.
+>    - Add strict checking mode for extra compliance checks?
+> 5) Add explicit size-based accessors to virtio_config in kernel.
+> 6) Update pci capability RFC patches for linux to match.
+>    - Use explicit accessors to allow for endian conversion.
+> 6) Push virtio torture patch to test variable boundaries.
+> 7) Update spec.
+> 
+> That should keep me amused for a while...
+> 
+> Cheers,
+> Rusty.
+> 
 
-One wonders whether we can still use the slab caches
-and improve the locality by aligning the size.
-Something like the below - this passed basic testing but
-didn't measure performance yet.
 
-    virtio: align size for indirect buffers
-    
-    Improve locality for indirect buffer allocations
-    and avoid false cache sharing by aligning
-    allocations to cache line size.
-    
-    Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 2fc85f2..93e6c3a 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -119,7 +119,8 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
- 	unsigned head;
- 	int i;
- 
--	desc = kmalloc((out + in) * sizeof(struct vring_desc), GFP_ATOMIC);
-+	desc = kmalloc(L1_CACHE_ALIGN((out + in) * sizeof(struct vring_desc)),
-+		       GFP_ATOMIC);
- 	if (!desc)
- 		return vq->vring.num;
+-- 
+Asias
