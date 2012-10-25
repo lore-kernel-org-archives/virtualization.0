@@ -1,19 +1,15 @@
-From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Subject: Re: [Xen-devel] linux-next: Tree for Oct 24 (xen)
-Date: Thu, 25 Oct 2012 07:15:35 -0700
-Message-ID: <20121025141535.GA29620@kroah.com>
-References: <20121024151957.28a1626cd9a59c014e78c401@canb.auug.org.au>
-	<50885EA8.3050007@xenotime.net>
-	<508906CE02000078000A4553@nat28.tlf.novell.com>
-	<alpine.DEB.2.02.1210251118010.2689@kaball.uk.xensource.com>
-	<20121025134628.GE26209@localhost.localdomain>
-	<5089635702000078000A48D7@nat28.tlf.novell.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 04/10] VMCI: device driver implementaton.
+Date: Thu, 25 Oct 2012 12:28:51 -0700
+Message-ID: <20121025192851.GA26627@kroah.com>
+References: <20121016002550.26205.67037.stgit@promb-2n-dhcp175.eng.vmware.com>
+	<20121016002832.26205.60696.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5089635702000078000A48D7@nat28.tlf.novell.com>
+In-Reply-To: <20121016002832.26205.60696.stgit@promb-2n-dhcp175.eng.vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,58 +19,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Beulich <JBeulich@suse.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Jeremy Fitzhardinge <jeremy@goop.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>, xen-devel <xen-devel@lists.xen.org>
+To: George Zhang <georgezhang@vmware.com>
+Cc: pv-drivers@vmware.com, vm-crosstalk@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Oct 25, 2012 at 03:05:43PM +0100, Jan Beulich wrote:
-> >>> On 25.10.12 at 15:46, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
-> > On Thu, Oct 25, 2012 at 11:48:30AM +0100, Stefano Stabellini wrote:
-> >> On Thu, 25 Oct 2012, Jan Beulich wrote:
-> >> > >>> On 24.10.12 at 23:33, Randy Dunlap <rdunlap@xenotime.net> wrote:
-> >> > > On 10/23/2012 09:19 PM, Stephen Rothwell wrote:
-> >> > > 
-> >> > >> Hi all,
-> >> > >> 
-> >> > >> Changes since 201201023:
-> >> > >> 
-> >> > > 
-> >> > > on x86_64:
-> >> > > 
-> >> > > drivers/built-in.o: In function `dbgp_reset_prep':
-> >> > > (.text+0xb96b5): undefined reference to `xen_dbgp_reset_prep'
-> >> > > drivers/built-in.o: In function `dbgp_external_startup':
-> >> > > (.text+0xb9d95): undefined reference to `xen_dbgp_external_startup'
-> >> > > 
-> >> > > 
-> >> > > Full randconfig file is attached.
-> >> > 
-> >> > So this is because with !USB_SUPPORT but EARLY_PRINTK_DBGP
-> >> > dbgp_reset_prep() and dbgp_external_startup() get pointlessly
-> >> > defined and exported. This got broken by the merge
-> >> > recommendation for the ARM side changes (originally compilation
-> >> > of drivers/xen/dbgp.c depended on just CONFIG_XEN_DOM0).
-> >> > 
-> >> > >From my pov, fixing the USB side would be the clean solution (i.e.
-> >> > putting those function definitions inside a CONFIG_USB_SUPPORT
-> >> > conditional).
-> >> >
-> >> > The alternative of a smaller change would be to extend the
-> >> > conditional around the respective xen_dbgp_...() declarations
-> >> > in include/linux/usb/ehci_def.h to become
-> >> > 
-> >> > #if defined(CONFIG_XEN_DOM0) && defined(CONFIG_USB_SUPPORT)
-> >> > 
-> >> > Please advise towards your preference.
-> >> 
-> >> I think that your first suggestion is the right one.
-> > 
-> > Can you guys spin up a patch pls and make sure it does not break
-> > compilation. Thx.
-> 
-> I'd really like to hear Greg's opinion on which route to take before
-> pointlessly trying the other one.
+On Mon, Oct 15, 2012 at 05:28:47PM -0700, George Zhang wrote:
+> +/*
+> + * vmci_device_get() - Checks for VMCI device.
+> + * @api_version:        The API version to use
+> + * @device_shutdown_cb: Callback used when shutdown happens (Unused)
+> + * @user_data:  Data to be passed to the callback (Unused)
+> + * @device_registration:        A device registration handle. (Unused)
+> + *
+> + * Verifies that a valid VMCI device is present, and indicates
+> + * the callers intention to use the device until it calls
+> + * vmci_device_release().
+> + */
+> +bool vmci_device_get(u32 *api_version,
+> +		     vmci_device_shutdown_fn *device_shutdown_cb,
+> +		     void *user_data, void **device_registration)
+> +{
+> +	if (*api_version > VMCI_KERNEL_API_VERSION) {
+> +		*api_version = VMCI_KERNEL_API_VERSION;
+> +		return false;
+> +	}
+> +
+> +	return drv_device_enabled();
+> +}
+> +EXPORT_SYMBOL(vmci_device_get);
 
-I have no idea, please send patches.
+EXPORT_SYMBOL_GPL() for this, and all other exports?
+
+And it seems that you have a bunch of "unused" parameters for this, and
+other public functions.  Please just remove them entirely, otherwise it
+just confuses reviewers, and anyone who wants to write code to interface
+with the code.  You can always add parameters at a later point in time
+if you find that you really need them.
+
+thanks,
 
 greg k-h
