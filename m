@@ -1,11 +1,11 @@
 From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: Call for Workshops: ACM HPDC 2013 -- deadline extended to November
-	1, 2012
-Date: Fri, 26 Oct 2012 13:43:24 -0400
-Message-ID: <508ACBBC.3040003@cs.iit.edu>
+Subject: CFP: 22nd Int. ACM Symposium on High-Performance Parallel and
+	Distributed Computing (HPDC'13)
+Date: Fri, 26 Oct 2012 14:13:54 -0400
+Message-ID: <508AD2E2.6020704@cs.iit.edu>
 Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2260518372782211207=="
+Content-Type: multipart/mixed; boundary="===============5902058422786481701=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,180 +19,214 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, infodir_SIGARCH@acm.org, infodir_sigcomm@acm.org, performance@merlot.usc.edu, sigplan-l@acm.uiuc.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---===============2260518372782211207==
-Content-Type: multipart/alternative;
- boundary="------------010700000206090504050904"
+--===============5902058422786481701==
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-This is a multi-part message in MIME format.
---------------010700000206090504050904
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+                       **** CALL FOR PAPERS ****
 
+                 The 22nd International ACM Symposium on
+          High-Performance Parallel and Distributed Computing
+                             (HPDC'13)
 
-      Call for Workshops
+               New York City, USA - June 17-21, 2013
 
-The organizers of the /22nd International ACM Symposium on 
-High-Performance Parallel and Distributed Computing/ (HPDC'13) *call for 
-proposals for workshops* to be held with HPDC'13. The workshops will be 
-held on June 17-18, 2013.
-
-Workshops should provide forums for discussion among researchers and 
-practitioners on focused topics or emerging research areas relevant to 
-the HPDC community. Organizers may structure workshops as they see fit, 
-including invited talks, panel discussions, presentations of work in 
-progress, fully peer-reviewed papers, or some combination. Workshops 
-could be scheduled for half a day or a full day, depending on interest, 
-space constraints, and organizer preference. Organizers should design 
-workshops for approximately 20-40 participants, to balance impact and 
-effective discussion.
-
-*Workshop proposals* must be sent in PDF format to the HPDC'13 Workshops 
-Chair, Abhishek Chandra (Email: chandra AT cs DOT umn DOT edu 
-<mailto:chandra@cs.umn.edu>) with the subject line *"HPDC 2013 Workshop 
-Proposal"*, and should include:
-
-  * The name and acronym of the workshop
-  * A description (0.5-1 page) of the theme of the workshop
-  * A description (one paragraph) of the relation between the theme of
-    the workshop and of HPDC
-  * A list of topics of interest
-  * The names and affiliations of the workshop organizers, and if
-    applicable, of a significant portion of the program committee
-  * A description of the expected structure of the workshop (papers,
-    invited talks, panel discussions, etc.)
-  * Data about previous offerings of the workshop (if any), including
-    the attendance, the numbers of papers or presentations submitted and
-    accepted, and the links to the corresponding websites
-  * A publicity plan for attracting submissions and attendees. Please
-    also include expected number of submissions, accepted papers, and
-    attendees that you anticipate for a successful workshop.
-
-Due to publication deadlines, workshops must operate within roughly the 
-following timeline: papers due mid February (2-3 weeks after the HPDC 
-deadline), and selected and sent to the publisher by mid April.
+                     http://www.hpdc.org/2013
 
 
-      Important dates:
+The ACM International Symposium on High-Performance Parallel and Distribu=
+ted Computing (HPDC)
+is the premier annual conference for presenting the latest research on th=
+e design,
+implementation, evaluation, and the use of parallel and distributed syste=
+ms for high-end computing.
 
-*Workshop Proposals Due: * 	*November 1, 2012*
-Notifications: 	November 7, 2012
-Workshop CFPs Online and Distributed: 	November 25, 2012
+In 2013, the 22nd HPDC and affiliated workshops will take place in the he=
+art of iconic New York
+City from June 17-21.
+
+**** SUBMISSION DEADLINES ****
+Abstracts:      14 January 2013
+Papers:         21 January 2013 (no extensions)
+
+**** HPDC'13 GENERAL CO-CHAIRS ****
+Manish Parashar, Rutgers University
+Jon Weissman, University of Minnesota
+
+**** HPDC'13 PROGRAM CO-CHAIRS ****
+Dick Epema, Delft University of Technology
+Renato Figueiredo, University of Florida
+
+**** HPDC'13 WORKSHOPS CHAIR ****
+Abhishek Chandra, University of Minnesota
+
+**** HPDC'13 LOCAL ARRANGEMENTS CHAIR ****
+Daniele Scarpazza, DEShaw Research
+
+**** HPDC'13 SPONSORSHIP CHAIR ****
+Dean Hildebrand, IBM Almaden
+
+**** HPDC'13 PUBLICITY CO-CHAIRS ****
+Alexandru Iosup, Delft University of Technology, the Netherlands
+Ioan Raicu, Illinois Institute of Technology, USA
+Kenjiro Taura, University of Tokyo, Japan
+Bruno Schulze, National Laboratory for Scientific Computing, Brazil
 
 
--- 
-=================================================================
+**** SCOPE AND TOPICS ****
+Submissions are welcomed on high-performance parallel and distributed com=
+puting topics including but not limited to:
+clusters, clouds, grids, data-intensive computing, massively multicore, a=
+nd global-scale computing systems.
+New scholarly research showing empirical and reproducible results in arch=
+itectures, systems, and networks is strongly encouraged,
+as are experience reports of operational deployments that can provide ins=
+ights for future research on HPDC applications and systems.
+All papers will be evaluated for their originality, technical depth and c=
+orrectness, potential impact,
+relevance to the conference, and quality of presentation. Research papers=
+ must clearly demonstrate research contributions and novelty,
+while experience reports must clearly describe lessons learned and demons=
+trate impact.
+
+In the context of high-=C2=AD=E2=80=90performance parallel and distribute=
+d computing, the topics of interest include, but are not limited to:
+
+   * Systems, networks, and architectures for high-end computing
+   * Massively multicore systems
+   * Resource virtualization
+   * Programming languages and environments
+   * I/O, storage systems, and data management
+   * Resource management and scheduling, including energy-=C2=AD=E2=80=90=
+aware techniques
+   * Performance modeling and analysis
+   * Fault tolerance, reliability, and availability
+   * Data-intensive computing
+   * Applications of parallel and distributed computing
+
+**** PAPER SUBMISSION GUIDELINES ****
+Authors are invited to submit technical papers of at most 12 pages in PDF=
+ format, including figures and references.
+Papers should be formatted in the ACM Proceedings Style and submitted via=
+ the conference web site.
+No changes to the margins, spacing, or font sizes as specified by the sty=
+le file are allowed.
+Accepted papers will appear in the conference proceedings, and will be in=
+corporated into the ACM Digital Library.
+A limited number of papers will be accepted as posters.
+
+Papers must be self-contained and provide the technical substance require=
+d for the program committee to evaluate their contributions.
+Papers should thoughtfully address all related work, particularly work pr=
+esented at previous HPDC events.
+Submitted papers must be original work that has not appeared in and is no=
+t under consideration for another conference or a journal.
+See the ACM Prior Publication Policy for more details.
+
+**** IMPORTANT DATES ****
+Abstracts Due:      14 January 2013
+Papers Due:         21 January 2013 (no extensions)
+
+**** Program Committee ****
+David Abramson, Monash University, Australia
+Kento Aida, National Institute of Informatics, Japan
+Gabriel Antoniu	INRIA, France
+Henri Bal, Vrije Universiteit, the Netherlands
+Adam Barker, University of St Andrews, UK
+Michela Becchi, University of Missouri - Columbia, USA
+John Bent, EMC, USA
+Ali Butt, Virginia Tech, USA
+Kirk Cameron, Virginia Tech, USA
+Franck Cappello, INRIA, France and University of Illinois at Urbana-Champ=
+aign, USA
+Henri Casanova, University of Hawaii, USA
+Abhishek Chandra, University of Minnesota, USA
+Andrew Chien, University of Chicago and Argonne National Laboratory, USA
+Paolo Costa, Imperial College London, UK
+Peter Dinda, Northwestern University, USA
+Gilles Fedak, INRIA, France
+Ian Foster, University of Chicago and Argonne National Laboratory, USA
+Clemens Grelck, University of Amsterdam, the Netherlands
+Dean Hildebrand, IBM Research, USA
+Fabrice Huet, INRIA-University of Nice, France
+Adriana Iamnitchi, University of South Florida, USA
+Alexandru Iosup, Delft University of Technology, the Netherlands
+Kate Keahey, Argonne National Laboratory, USA
+Thilo Kielmann, Vrije Universiteit, the Netherlands
+Charles Kilian, Purdue University, USA
+Zhiling Lan, Illinois Institute of Technology, USA
+John Lange, University of Pittsburgh, USA
+Barney Maccabe, Oak Ridge National Laboratory, USA
+Carlos Maltzahn, University of California, Santa Cruz, USA
+Naoya Maruyama, RIKEN Advanced Institute for Computational Science, Japan
+Satoshi Matsuoka, Tokyo Institute of Technology, Japan
+Manish Parashar, Rutgers University, USA
+Judy Qiu, Indiana University, USA
+Ioan Raicu, Illinois Institute of Technology, USA
+Philip Rhodes, University of Mississippi, USA
+Matei Ripeanu, University of British Columbia, Canada
+Prasenjit Sarkar, IBM Research, USA
+Daniele Scarpazza, D.E. Shaw Research, USA
+Karsten Schwan, Georgia Institute of Technology, USA
+Martin Swany, Indiana University, USA
+Michela Taufer, University of Delaware, USA
+Kenjiro Taura, University of Tokyo, Japan
+Douglas Thain, University of Notre Dame, USA
+Cristian Ungureanu, NEC Research, USA
+Ana Varbanescu, Delft University of Technology, the Netherlands
+Chuliang Weng, Shanghai Jiao Tong University, China
+Jon Weissman, University of Minnesota, USA
+Yongwei Wu, Tsinghua University, China
+Dongyan Xu, Purdue University, USA
+Ming Zhao, Florida International University, USA
+
+**** Steering Committee ****
+Henri Bal, Vrije Universiteit, the Netherlands
+Andrew A. Chien, University of Chicago and Argonne National Laboratory, U=
+SA
+Peter Dinda, Northwestern University, USA
+Dick Epema, Delft University of Technology, the Netherlands
+Ian Foster, University of Chicago and Argonne National Laboratory, USA
+Salim Hariri, University of Arizona, USA
+Thilo Kielmann, Vrije Universiteit, the Netherlands
+Dieter Kranzlmueller, Ludwig-Maximilians-Universitaet Muenchen, Germany
+Arthur "Barney" Maccabe, Oak Ridge National Laboratory, USA
+Satoshi Matsuoka, Tokyo Institute of Technology, Japan
+Manish Parashar, Rutgers University, USA
+Matei Ripeanu, University of British Columbia, Canada
+Karsten Schwan, Georgia Tech, USA
+Doug Thain, University of Notre Dame, USA
+Jon Weissman, University of Minnesota (Chair), USA
+
+--=20
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 Ioan Raicu, Ph.D.
 Assistant Professor, Illinois Institute of Technology (IIT)
 Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 Data-Intensive Distributed Systems Laboratory, CS/IIT
 Distributed Systems Laboratory, MCS/ANL
-=================================================================
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 Cel:    1-847-722-0876
 Office: 1-312-567-5704
 Email:  iraicu@cs.iit.edu
 Web:    http://www.cs.iit.edu/~iraicu/
 Web:    http://datasys.cs.iit.edu/
-=================================================================
-=================================================================
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
 
---------------010700000206090504050904
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-<html>
-  <head>
-
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-  </head>
-  <body bgcolor="#FFFFFF" text="#000000">
-    <h3>Call for Workshops </h3>
-    <p>The organizers of the <i>22nd International ACM Symposium on
-        High-Performance Parallel and Distributed Computing</i>
-      (HPDC'13) <strong>call for proposals for workshops</strong> to be
-      held with HPDC'13. The workshops will be held on June 17-18, 2013.</p>
-    <p>Workshops should provide forums for discussion among researchers
-      and practitioners on focused topics or emerging research areas
-      relevant to the HPDC community. Organizers may structure workshops
-      as they see fit, including invited talks, panel discussions,
-      presentations of work in progress, fully peer-reviewed papers, or
-      some combination. Workshops could be scheduled for half a day or a
-      full day, depending on interest, space constraints, and organizer
-      preference. Organizers should design workshops for approximately
-      20-40 participants, to balance impact and effective discussion.</p>
-    <p><strong>Workshop proposals</strong> must be sent in PDF format to
-      the HPDC'13 Workshops Chair, Abhishek Chandra (Email: <a
-        href="mailto:chandra@cs.umn.edu">chandra AT cs DOT umn DOT edu</a>)
-      with the subject line <b>&#8220;HPDC 2013 Workshop Proposal&#8221;</b>, and
-      should include:
-    </p>
-    <ul>
-      <li>The name and acronym of the workshop</li>
-      <li>A description (0.5-1 page) of the theme of the workshop</li>
-      <li>A description (one paragraph) of the relation between the
-        theme of the workshop and of HPDC</li>
-      <li>A list of topics of interest</li>
-      <li>The names and affiliations of the workshop organizers, and if
-        applicable, of a significant portion of the program committee</li>
-      <li>A description of the expected structure of the workshop
-        (papers, invited talks, panel discussions, etc.)</li>
-      <li>Data about previous offerings of the workshop (if any),
-        including the attendance, the numbers of papers or presentations
-        submitted and accepted, and the links to the corresponding
-        websites</li>
-      <li>A publicity plan for attracting submissions and attendees.
-        Please also include expected number of submissions, accepted
-        papers, and attendees that you anticipate for a successful
-        workshop.</li>
-    </ul>
-    <p>Due to publication deadlines, workshops must operate within
-      roughly the following timeline: papers due mid February (2-3 weeks
-      after the HPDC deadline), and selected and sent to the publisher
-      by mid April.</p>
-    <h3>Important dates:</h3>
-    <table style="width: 70%" class="contenttable">
-      <tbody>
-        <tr>
-          <td><b>Workshop Proposals Due: </b></td>
-          <td><b>November 1, 2012</b></td>
-        </tr>
-        <tr>
-          <td>Notifications: </td>
-          <td>November 7, 2012</td>
-        </tr>
-        <tr>
-          <td>Workshop CFPs Online and Distributed: </td>
-          <td>November 25, 2012</td>
-        </tr>
-      </tbody>
-    </table>
-    <br>
-    <pre class="moz-signature" cols="72">-- 
-=================================================================
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=================================================================
-Cel:    1-847-722-0876
-Office: 1-312-567-5704
-Email:  <a class="moz-txt-link-abbreviated" href="mailto:iraicu@cs.iit.edu">iraicu@cs.iit.edu</a>
-Web:    <a class="moz-txt-link-freetext" href="http://www.cs.iit.edu/~iraicu/">http://www.cs.iit.edu/~iraicu/</a>
-Web:    <a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/">http://datasys.cs.iit.edu/</a>
-=================================================================
-=================================================================
-
-</pre>
-  </body>
-</html>
-
---------------010700000206090504050904--
-
---===============2260518372782211207==
+--===============5902058422786481701==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -202,4 +236,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2260518372782211207==--
+--===============5902058422786481701==--
