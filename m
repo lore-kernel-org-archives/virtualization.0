@@ -1,15 +1,11 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [Pv-drivers] [PATCH 04/10] VMCI: device driver implementaton.
-Date: Fri, 26 Oct 2012 13:11:23 -0700
-Message-ID: <20121026201123.GA15366__2519.46333232826$1351282699$gmane$org@kroah.com>
-References: <723255296.2652440.1351199329247.JavaMail.root@vmware.com>
-	<1734741434.3740170.1351281773036.JavaMail.root@vmware.com>
+From: "Robert P. J. Day" <rpjday@crashcourse.ca>
+Subject: [PATCH] VIRTIO: Remove reference to now non-existent __KERNEL__ check.
+Date: Fri, 26 Oct 2012 07:34:09 -0400 (EDT)
+Message-ID: <alpine.DEB.2.02.1210260732150.4995@oneiric>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1734741434.3740170.1351281773036.JavaMail.root@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +15,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy King <acking@vmware.com>
-Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Oct 26, 2012 at 01:02:53PM -0700, Andy King wrote:
-> Hi Greg,
-> 
-> > in the next few days with that change along with any modifications
-> > necessary after a sparse sanity check.
-> 
-> We have a change that fixes things, but I wanted to check if you
-> had any additional comments before we send out more patches.  In
-> all likelihood you'd probably already given up in disgust after
-> the vanilla exports, but I wanted to be sure :)
 
-Yes, I stopped reviewing at this point.
+Since the header file is now under uapi/, there is no __KERNEL__check,
+so fix the comment.
 
-> Also, would you prefer a complete refresh of the series or just
-> diffs?
+Signed-off-by: Robert P. J. Day <rpjday@crashcourse.ca>
 
-Complete refresh, with a short summary on the 00/10 patch of what the
-changes are.  That's the usual way to do this type of thing.
+---
 
-thanks,
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index b7cda39..72a09e1 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -1,7 +1,7 @@
+ #ifndef _UAPI_LINUX_VIRTIO_CONFIG_H
+ #define _UAPI_LINUX_VIRTIO_CONFIG_H
+-/* This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
+- * anyone can use the definitions to implement compatible drivers/servers.
++/* This header is BSD licensed so anyone can use the definitions to
++ * implement compatible drivers/servers.
+  *
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted provided that the following conditions
 
-greg k-h
+-- 
+
+========================================================================
+Robert P. J. Day                                 Ottawa, Ontario, CANADA
+                        http://crashcourse.ca
+
+Twitter:                                       http://twitter.com/rpjday
+LinkedIn:                               http://ca.linkedin.com/in/rpjday
+========================================================================
