@@ -1,18 +1,14 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [Pv-drivers] [PATCH 00/12] VMCI for Linux upstreaming
-Date: Tue, 30 Oct 2012 09:27:23 -0700
-Message-ID: <20121030162723.GA16135@kroah.com>
-References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
-	<20121030021938.GC1920@kroah.com>
-	<20121030040744.GB32055@dtor-ws.eng.vmware.com>
-	<20121030154801.GC14167@kroah.com>
-	<20121030161807.GA9709@dtor-ws.eng.vmware.com>
+From: Sergei Shtylyov <sshtylyov@mvista.com>
+Subject: Re: [PATCH 00/16] treewide: Convert dev_printk(KERN_<LEVEL> to
+	dev_<level>(
+Date: Sun, 28 Oct 2012 14:54:02 +0400
+Message-ID: <508D0ECA.8040008__6160.57340889728$1351616675$gmane$org@mvista.com>
+References: <cover.1351411047.git.joe@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20121030161807.GA9709@dtor-ws.eng.vmware.com>
+In-Reply-To: <cover.1351411047.git.joe@perches.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,37 +18,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dmitry Torokhov <dtor@vmware.com>
-Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
+To: Joe Perches <joe@perches.com>
+Cc: alsa-devel@alsa-project.org, linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-scsi@vger.kernel.org, linux-pci@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-ide@vger.kernel.org, devel@open-fcoe.org, netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 30, 2012 at 09:18:07AM -0700, Dmitry Torokhov wrote:
-> > > I think that even if we had a special directory for vmci having network
-> > > drivers in Dave's realm and pvscsi in James's is best option, so the new
-> > > directory would contain vmci and the balloon driver (vsock will go into
-> > > net/).  Given that balloon is already in drivers/misc it looked like
-> > > obvious place for VMCI as well.
-> > 
-> > I agree that the individual drivers should go in the subsystem area,
-> > it's this "hypervisor bus core" type code that I'm questioning.  Right
-> > now every hypervisor is putting that logic in a different place in the
-> > kernel, having some consistency here would be nice.
-> 
-> Hmm, I wonder if miscellaneous and core hypervisor drivers should end
-> up in drivers/platform:
-> 
-> 	drivers/platform/hyperv
-> 	drivers/platform/olpc
-> 	drivers/platform/vmware
-> 	drivers/platform/xen
-> 	drivers/platform/x86
+Hello.
 
-That makes sense to me, nice.
+On 28-10-2012 12:05, Joe Perches wrote:
 
-> But really we'd like to get VMCI into mainline first and move to a new
-> place later if such a better place is found.
+> dev_<level> create smaller objects than dev_printk(KERN_<LEVEL>.
+> Convert non-debug calls to this form.
 
-Heh, no one wants to fight for something to help everyone out, they just
-want their own code accepted :)
+> Joe Perches (16):
+>    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+[...]
+>    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+[...]
+>    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
 
-greg k-h
+    Hm, somehow this patch is repeated thrice?
+
+MBR, Sergei
