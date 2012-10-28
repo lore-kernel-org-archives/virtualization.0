@@ -1,13 +1,15 @@
 From: Joe Perches <joe@perches.com>
-Subject: [PATCH 14/16] virtio: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
-Date: Sun, 28 Oct 2012 01:05:52 -0700
-Message-ID: <a32fa314ea4f0318869f62d0942d3f1f936219d6.1351411048.git.joe@perches.com>
+Subject: Re: [PATCH 00/16] treewide: Convert dev_printk(KERN_<LEVEL> to
+	dev_<level>(
+Date: Sun, 28 Oct 2012 05:12:15 -0700
+Message-ID: <1351426335.2008.6.camel__36421.9991992742$1351427203$gmane$org@joe-AO722>
 References: <cover.1351411047.git.joe@perches.com>
+	<508D0ECA.8040008@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1351411047.git.joe@perches.com>
+In-Reply-To: <508D0ECA.8040008@mvista.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,36 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Sergei Shtylyov <sshtylyov@mvista.com>
+Cc: alsa-devel@alsa-project.org, linux-usb@vger.kernel.org, linux-watchdog@vger.kernel.org, linux-scsi@vger.kernel.org, linux-pci@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-ide@vger.kernel.org, devel@open-fcoe.org, netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-dev_<level> calls take less code than dev_printk(KERN_<LEVEL>
-and reducing object size is good.
-Convert if (printk_ratelimit()) dev_printk to dev_<level>_ratelimited.
+On Sun, 2012-10-28 at 14:54 +0400, Sergei Shtylyov wrote:
+> Hello.
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/virtio/virtio_balloon.c |    7 +++----
- 1 files changed, 3 insertions(+), 4 deletions(-)
+Hi Sergei.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 0908e60..586395c 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -130,10 +130,9 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
- 		struct page *page = alloc_page(GFP_HIGHUSER | __GFP_NORETRY |
- 					__GFP_NOMEMALLOC | __GFP_NOWARN);
- 		if (!page) {
--			if (printk_ratelimit())
--				dev_printk(KERN_INFO, &vb->vdev->dev,
--					   "Out of puff! Can't get %zu pages\n",
--					   num);
-+			dev_info_ratelimited(&vb->vdev->dev,
-+					     "Out of puff! Can't get %zu pages\n",
-+					     num);
- 			/* Sleep for at least 1/5 of a second before retry. */
- 			msleep(200);
- 			break;
--- 
-1.7.8.112.g3fd21
+> On 28-10-2012 12:05, Joe Perches wrote:
+> 
+> > dev_<level> create smaller objects than dev_printk(KERN_<LEVEL>.
+> > Convert non-debug calls to this form.
+> 
+> > Joe Perches (16):
+> >    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+> [...]
+> >    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+> [...]
+> >    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+> 
+>     Hm, somehow this patch is repeated thrice?
+
+Nope, I forgot to edit the 0000 file after I edited
+patches locally when I noticed I forgot to update
+the subject lines.  Patches are corrected, 0000 not.
+
+I don't think it's a bit deal, I could repost just the 0000
+if you want though.
+
+cheers, Joe
