@@ -1,13 +1,12 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH] virtio-ccw: Clarifications.
-Date: Mon, 29 Oct 2012 14:02:38 +0100
-Message-ID: <1351515758-22295-2-git-send-email-cornelia.huck@de.ibm.com>
-References: <1351515758-22295-1-git-send-email-cornelia.huck@de.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH net-next 0/8] enable/disable zero copy tx dynamically
+Date: Mon, 29 Oct 2012 17:49:32 +0200
+Message-ID: <cover.1351524501.git.mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1351515758-22295-1-git-send-email-cornelia.huck@de.ibm.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,47 +16,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Ian Campbell <Ian.Campbell@citrix.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Clarify how indicator location is communicated and that the
-feature bits are little-endian.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- virtio-spec.lyx |    9 +++++----
- 1 files changed, 5 insertions(+), 4 deletions(-)
+tun supports zero copy transmit since 0690899b4d4501b3505be069b9a687e68ccbe15b,
+however you can only enable this mode if you know your workload does not
+trigger heavy guest to host/host to guest traffic - otherwise you
+get a (minor) performance regression.
+This patchset addresses this problem by notifying the owner
+device when callback is invoked because of a data copy.
+This makes it possible to detect whether zero copy is appropriate
+dynamically: we start in zero copy mode, when we detect
+data copied we disable zero copy for a while.
 
-diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index b0532ef..83f2771 100644
---- a/virtio-spec.lyx
-+++ b/virtio-spec.lyx
-@@ -9973,9 +9973,10 @@ Handling Device Features
- 
- \begin_layout Standard
- 
--\change_inserted -385801441 1345027079
-+\change_inserted -385801441 1351067713
- Feature bits are arranged in an array of 32 bit values, making for a total
-  of 8192 feature bits.
-+ Feature bits are in little-endian byte order.
- \end_layout
- 
- \begin_layout Standard
-@@ -10112,10 +10113,10 @@ Setting Up Indicators
- 
- \begin_layout Standard
- 
--\change_inserted -385801441 1347015710
-+\change_inserted -385801441 1351067651
- To communicate the location of the indicator bits for host->guest notification,
-- the guest uses the CCW_CMD_SET_IND command which sends the guest address
-- of the indicators in a 64 bit value.
-+ the guest uses the CCW_CMD_SET_IND command, pointing to a location containing
-+ the guest address of the indicators in a 64 bit value.
- \end_layout
- 
- \begin_layout Standard
+With this patch applied, I get the same performance for
+guest to host and guest to guest both with and without zero copy tx.
+
+Michael S. Tsirkin (8):
+  skb: report completion status for zero copy skbs
+  skb: api to report errors for zero copy skbs
+  tun: report orphan frags errors to zero copy callback
+  vhost-net: cleanup macros for DMA status tracking
+  vhost: track zero copy failures using DMA length
+  vhost: move -net specific code out
+  vhost-net: select tx zero copy dynamically
+  vhost-net: reduce vq polling on tx zerocopy
+
+ drivers/net/tun.c         |   1 +
+ drivers/vhost/net.c       | 109 +++++++++++++++++++++++++++++++++++++++++++---
+ drivers/vhost/tcm_vhost.c |   1 +
+ drivers/vhost/vhost.c     |  52 +++-------------------
+ drivers/vhost/vhost.h     |  11 ++---
+ include/linux/skbuff.h    |   5 ++-
+ net/core/skbuff.c         |  23 +++++++++-
+ 7 files changed, 141 insertions(+), 61 deletions(-)
+
 -- 
-1.7.5.4
+MST
