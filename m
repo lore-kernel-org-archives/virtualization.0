@@ -1,7 +1,7 @@
 From: George Zhang <georgezhang@vmware.com>
-Subject: [PATCH 09/12] VMCI: routing implementation.
-Date: Mon, 29 Oct 2012 18:05:08 -0700
-Message-ID: <20121030010503.17788.25168.stgit__47905.2364280962$1351559533$gmane$org@promb-2n-dhcp175.eng.vmware.com>
+Subject: [PATCH 04/12] VMCI: device driver implementaton.
+Date: Mon, 29 Oct 2012 18:04:15 -0700
+Message-ID: <20121030010409.17788.6745.stgit@promb-2n-dhcp175.eng.vmware.com>
 References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,24 +21,23 @@ To: linux-kernel@vger.kernel.org, georgezhang@vmware.com, virtualization@lists.l
 Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-VMCI routing code is responsible for routing between various hosts/guests
-as well as routing in nested scenarios.
+VMCI driver code implementes both the host and guest personalities of the VMCI driver.
 
 
 Signed-off-by: George Zhang <georgezhang@vmware.com>
 ---
- drivers/misc/vmw_vmci/vmci_route.c |  237 ++++++++++++++++++++++++++++++++++++
- drivers/misc/vmw_vmci/vmci_route.h |   30 +++++
- 2 files changed, 267 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/vmw_vmci/vmci_route.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_route.h
+ drivers/misc/vmw_vmci/vmci_driver.c |  159 +++++++++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_driver.h |   50 +++++++++++
+ 2 files changed, 209 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/vmw_vmci/vmci_driver.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_driver.h
 
-diff --git a/drivers/misc/vmw_vmci/vmci_route.c b/drivers/misc/vmw_vmci/vmci_route.c
+diff --git a/drivers/misc/vmw_vmci/vmci_driver.c b/drivers/misc/vmw_vmci/vmci_driver.c
 new file mode 100644
-index 0000000..8aa43ee
+index 0000000..1ca0c7e
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_route.c
-@@ -0,0 +1,237 @@
++++ b/drivers/misc/vmw_vmci/vmci_driver.c
+@@ -0,0 +1,159 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -56,232 +55,154 @@ index 0000000..8aa43ee
 +
 +#include <linux/vmw_vmci_defs.h>
 +#include <linux/vmw_vmci_api.h>
++#include <linux/atomic.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
 +
-+#include "vmci_common_int.h"
-+#include "vmci_context.h"
 +#include "vmci_driver.h"
-+#include "vmci_route.h"
++#include "vmci_event.h"
++
++static bool vmci_disable_host;
++module_param_named(disable_host, vmci_disable_host, bool, 0);
++MODULE_PARM_DESC(disable_host,
++		 "Disable driver host personality (default=enabled)");
++
++static bool vmci_disable_guest;
++module_param_named(disable_guest, vmci_disable_guest, bool, 0);
++MODULE_PARM_DESC(disable_guest,
++		 "Disable driver guest personality (default=enabled)");
++
++static bool vmci_guest_personality_initialized;
++static bool vmci_host_personality_initialized;
 +
 +/*
-+ * Make a routing decision for the given source and destination handles.
-+ * This will try to determine the route using the handles and the available
-+ * devices.  Will set the source context if it is invalid.
++ * vmci_get_context_id() - Gets the current context ID.
++ *
++ * Returns the current context ID.  Note that since this is accessed only
++ * from code running in the host, this always returns the host context ID.
 + */
-+int vmci_route(struct vmci_handle *src,
-+	       const struct vmci_handle *dst,
-+	       bool from_guest,
-+	       enum vmci_route *route)
++u32 vmci_get_context_id(void)
 +{
-+	bool has_host_device = vmci_host_code_active();
-+	bool has_guest_device = vmci_guest_code_active();
-+
-+	ASSERT(src);
-+	ASSERT(dst);
-+	ASSERT(route);
-+
-+	*route = VMCI_ROUTE_NONE;
-+
-+	/*
-+	 * "from_guest" is only ever set to true by
-+	 * IOCTL_VMCI_DATAGRAM_SEND (or by the vmkernel equivalent),
-+	 * which comes from the VMX, so we know it is coming from a
-+	 * guest.
-+	 *
-+	 * To avoid inconsistencies, test these once.  We will test
-+	 * them again when we do the actual send to ensure that we do
-+	 * not touch a non-existent device.
-+	 */
-+
-+	/* Must have a valid destination context. */
-+	if (VMCI_INVALID_ID == dst->context)
-+		return VMCI_ERROR_INVALID_ARGS;
-+
-+	/* Anywhere to hypervisor. */
-+	if (VMCI_HYPERVISOR_CONTEXT_ID == dst->context) {
-+
-+		/*
-+		 * If this message already came from a guest then we
-+		 * cannot send it to the hypervisor.  It must come
-+		 * from a local client.
-+		 */
-+		if (from_guest)
-+			return VMCI_ERROR_DST_UNREACHABLE;
-+
-+		/*
-+		 * We must be acting as a guest in order to send to
-+		 * the hypervisor.
-+		 */
-+		if (!has_guest_device)
-+			return VMCI_ERROR_DEVICE_NOT_FOUND;
-+
-+		/* And we cannot send if the source is the host context. */
-+		if (VMCI_HOST_CONTEXT_ID == src->context)
-+			return VMCI_ERROR_INVALID_ARGS;
-+
-+		/*
-+		 * If the client passed the ANON source handle then
-+		 * respect it (both context and resource are invalid).
-+		 * However, if they passed only an invalid context,
-+		 * then they probably mean ANY, in which case we
-+		 * should set the real context here before passing it
-+		 * down.
-+		 */
-+		if (VMCI_INVALID_ID == src->context &&
-+		    VMCI_INVALID_ID != src->resource)
-+			src->context = vmci_get_context_id();
-+
-+		/* Send from local client down to the hypervisor. */
-+		*route = VMCI_ROUTE_AS_GUEST;
-+		return VMCI_SUCCESS;
++	if (vmci_guest_code_active()) {
++		return vmci_get_vm_context_id();
++	} else if (vmci_host_code_active()) {
++		return VMCI_HOST_CONTEXT_ID;
++	} else {
++		return VMCI_INVALID_ID;
 +	}
-+
-+	/* Anywhere to local client on host. */
-+	if (VMCI_HOST_CONTEXT_ID == dst->context) {
-+		/*
-+		 * If it is not from a guest but we are acting as a
-+		 * guest, then we need to send it down to the host.
-+		 * Note that if we are also acting as a host then this
-+		 * will prevent us from sending from local client to
-+		 * local client, but we accept that restriction as a
-+		 * way to remove any ambiguity from the host context.
-+		 */
-+		if (src->context == VMCI_HYPERVISOR_CONTEXT_ID) {
-+			/*
-+			 * If the hypervisor is the source, this is
-+			 * host local communication. The hypervisor
-+			 * may send vmci event datagrams to the host
-+			 * itself, but it will never send datagrams to
-+			 * an "outer host" through the guest device.
-+			 */
-+
-+			if (has_host_device) {
-+				*route = VMCI_ROUTE_AS_HOST;
-+				return VMCI_SUCCESS;
-+			} else {
-+				return VMCI_ERROR_DEVICE_NOT_FOUND;
-+			}
-+		}
-+
-+		if (!from_guest && has_guest_device) {
-+			/* If no source context then use the current. */
-+			if (VMCI_INVALID_ID == src->context)
-+				src->context = vmci_get_context_id();
-+
-+			/* Send it from local client down to the host. */
-+			*route = VMCI_ROUTE_AS_GUEST;
-+			return VMCI_SUCCESS;
-+		}
-+
-+		/*
-+		 * Otherwise we already received it from a guest and
-+		 * it is destined for a local client on this host, or
-+		 * it is from another local client on this host.  We
-+		 * must be acting as a host to service it.
-+		 */
-+		if (!has_host_device)
-+			return VMCI_ERROR_DEVICE_NOT_FOUND;
-+
-+		if (VMCI_INVALID_ID == src->context) {
-+			/*
-+			 * If it came from a guest then it must have a
-+			 * valid context.  Otherwise we can use the
-+			 * host context.
-+			 */
-+			if (from_guest)
-+				return VMCI_ERROR_INVALID_ARGS;
-+
-+			src->context = VMCI_HOST_CONTEXT_ID;
-+		}
-+
-+		/* Route to local client. */
-+		*route = VMCI_ROUTE_AS_HOST;
-+		return VMCI_SUCCESS;
-+	}
-+
-+	/*
-+	 * If we are acting as a host then this might be destined for
-+	 * a guest.
-+	 */
-+	if (has_host_device) {
-+		/* It will have a context if it is meant for a guest. */
-+		if (vmci_ctx_exists(dst->context)) {
-+			if (VMCI_INVALID_ID == src->context) {
-+				/*
-+				 * If it came from a guest then it
-+				 * must have a valid context.
-+				 * Otherwise we can use the host
-+				 * context.
-+				 */
-+
-+				if (from_guest)
-+					return VMCI_ERROR_INVALID_ARGS;
-+
-+				src->context = VMCI_HOST_CONTEXT_ID;
-+			} else if (VMCI_CONTEXT_IS_VM(src->context) &&
-+				   src->context != dst->context) {
-+				/*
-+				 * VM to VM communication is not
-+				 * allowed. Since we catch all
-+				 * communication destined for the host
-+				 * above, this must be destined for a
-+				 * VM since there is a valid context.
-+				 */
-+
-+				ASSERT(VMCI_CONTEXT_IS_VM(dst->context));
-+
-+				return VMCI_ERROR_DST_UNREACHABLE;
-+			}
-+
-+			/* Pass it up to the guest. */
-+			*route = VMCI_ROUTE_AS_HOST;
-+			return VMCI_SUCCESS;
-+		} else if (!has_guest_device) {
-+			/*
-+			 * The host is attempting to reach a CID
-+			 * without an active context, and we can't
-+			 * send it down, since we have no guest
-+			 * device.
-+			 */
-+
-+			return VMCI_ERROR_DST_UNREACHABLE;
-+		}
-+	}
-+
-+	/*
-+	 * We must be a guest trying to send to another guest, which means
-+	 * we need to send it down to the host. We do not filter out VM to
-+	 * VM communication here, since we want to be able to use the guest
-+	 * driver on older versions that do support VM to VM communication.
-+	 */
-+	if (!has_guest_device) {
-+		/*
-+		 * Ending up here means we have neither guest nor host
-+		 * device. That shouldn't happen, since any VMCI
-+		 * client in the kernel should have done a successful
-+		 * VMCI_DeviceGet.
-+		 */
-+
-+		ASSERT(false);
-+		return VMCI_ERROR_DEVICE_NOT_FOUND;
-+	}
-+
-+	/* If no source context then use the current context. */
-+	if (VMCI_INVALID_ID == src->context)
-+		src->context = vmci_get_context_id();
-+
-+	/*
-+	 * Send it from local client down to the host, which will
-+	 * route it to the other guest for us.
-+	 */
-+	*route = VMCI_ROUTE_AS_GUEST;
-+	return VMCI_SUCCESS;
 +}
-diff --git a/drivers/misc/vmw_vmci/vmci_route.h b/drivers/misc/vmw_vmci/vmci_route.h
++EXPORT_SYMBOL_GPL(vmci_get_context_id);
++
++/*
++ * vmci_version() - Returns the version of the driver.
++ *
++ * Returns the version of the VMCI driver.
++ */
++u32 vmci_version(void)
++{
++	return VMCI_VERSION;
++}
++EXPORT_SYMBOL_GPL(vmci_version);
++
++static int __init vmci_core_init(void)
++{
++	int result;
++
++	result = vmci_ctx_init();
++	if (result < VMCI_SUCCESS) {
++		pr_err("Failed to initialize VMCIContext (result=%d).\n",
++			result);
++		return -EINVAL;
++	}
++
++	result = vmci_datagram_init();
++	if (result < VMCI_SUCCESS) {
++		pr_err("Failed to initialize VMCIDatagram (result=%d).\n",
++			result);
++		return -EINVAL;
++	}
++
++	result = vmci_event_init();
++	if (result < VMCI_SUCCESS) {
++		pr_err("Failed to initialize VMCIEvent (result=%d).\n", result);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static void __exit vmci_core_exit(void)
++{
++	vmci_event_exit();
++}
++
++static int __init vmci_drv_init(void)
++{
++	int error;
++
++	error = vmci_core_init();
++	if (error)
++		return error;
++
++	if (!vmci_disable_guest) {
++		error = vmci_guest_init();
++		if (error) {
++			pr_warn("Failed to initialize guest personality (err=%d).\n",
++				error);
++		} else {
++			vmci_guest_personality_initialized = true;
++			pr_info("Guest personality initialized and is %s\n",
++				vmci_guest_code_active() ?
++				"active" : "inactive");
++		}
++	}
++
++	if (!vmci_disable_host) {
++		error = vmci_host_init();
++		if (error) {
++			pr_warn("Unable to initialize host personality (err=%d).\n",
++				error);
++		} else {
++			vmci_host_personality_initialized = true;
++			pr_info("Initialized host personality\n");
++		}
++	}
++
++	if (!vmci_guest_personality_initialized &&
++	    !vmci_host_personality_initialized) {
++		vmci_core_exit();
++		return -ENODEV;
++	}
++
++	pr_debug("Module is initialized\n");
++	return 0;
++}
++module_init(vmci_drv_init);
++
++static void __exit vmci_drv_exit(void)
++{
++	if (vmci_guest_personality_initialized)
++		vmci_guest_exit();
++
++	if (vmci_host_personality_initialized)
++		vmci_host_exit();
++
++	vmci_core_exit();
++	pr_debug("Module is unloaded\n");
++}
++module_exit(vmci_drv_exit);
++
++MODULE_AUTHOR("VMware, Inc.");
++MODULE_DESCRIPTION("VMware Virtual Machine Communication Interface.");
++MODULE_VERSION(VMCI_DRIVER_VERSION_STRING);
++MODULE_LICENSE("GPL v2");
+diff --git a/drivers/misc/vmw_vmci/vmci_driver.h b/drivers/misc/vmw_vmci/vmci_driver.h
 new file mode 100644
-index 0000000..3b30e82
+index 0000000..f69156a
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_route.h
-@@ -0,0 +1,30 @@
++++ b/drivers/misc/vmw_vmci/vmci_driver.h
+@@ -0,0 +1,50 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -297,18 +218,38 @@ index 0000000..3b30e82
 + * for more details.
 + */
 +
-+#ifndef _VMCI_ROUTE_H_
-+#define _VMCI_ROUTE_H_
++#ifndef _VMCI_DRIVER_H_
++#define _VMCI_DRIVER_H_
 +
 +#include <linux/vmw_vmci_defs.h>
++#include <linux/wait.h>
 +
-+enum vmci_route {
-+	VMCI_ROUTE_NONE,
-+	VMCI_ROUTE_AS_HOST,
-+	VMCI_ROUTE_AS_GUEST,
++#include "vmci_queue_pair.h"
++#include "vmci_context.h"
++
++enum vmci_obj_type {
++	VMCIOBJ_VMX_VM = 10,
++	VMCIOBJ_CONTEXT,
++	VMCIOBJ_SOCKET,
++	VMCIOBJ_NOT_SET,
 +};
 +
-+int vmci_route(struct vmci_handle *src, const struct vmci_handle *dst,
-+	       bool from_guest, enum vmci_route *route);
++/* For storing VMCI structures in file handles. */
++struct vmci_obj {
++	void *ptr;
++	enum vmci_obj_type type;
++};
 +
-+#endif /* _VMCI_ROUTE_H_ */
++u32 vmci_get_context_id(void);
++int vmci_send_datagram(struct vmci_datagram *dg);
++
++int vmci_host_init(void);
++void vmci_host_exit(void);
++bool vmci_host_code_active(void);
++
++int vmci_guest_init(void);
++void vmci_guest_exit(void);
++bool vmci_guest_code_active(void);
++u32 vmci_get_vm_context_id(void);
++
++#endif /* _VMCI_DRIVER_H_ */
