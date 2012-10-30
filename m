@@ -1,14 +1,19 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [rfc net-next v6 3/3] virtio-net: change the number of queues through
-	ethtool
-Date: Tue, 30 Oct 2012 18:03:23 +0800
-Message-ID: <1351591403-23065-4-git-send-email-jasowang@redhat.com>
-References: <1351591403-23065-1-git-send-email-jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
+Date: Tue, 30 Oct 2012 17:29:25 +0200
+Message-ID: <20121030152925.GA7023@redhat.com>
+References: <1340742778-11282-1-git-send-email-fes@google.com>
+	<20120910090521.GB18544@redhat.com>
+	<CAGTjWtBa5jW6+y1k6zZmD9TUNHBgv8WRbO_iy7huY_dJSumStw@mail.gmail.com>
+	<20120910195931.GD20721@redhat.com>
+	<CAGTjWtCiqjkR_Ze=0-ebO08+eziz6c8TXLb+O1iiArRQeSE6zw@mail.gmail.com>
+	<20120910211018.GB21484@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1351591403-23065-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20120910211018.GB21484@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,76 +23,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, davem@davemloft.net, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, rusty@rustcorp.com.au, krkumar2@in.ibm.com
-Cc: kvm@vger.kernel.org
+To: Mike Waychison <mikew@google.com>
+Cc: Frank Swiderski <fes@google.com>, Andrea Arcangeli <aarcange@redhat.com>, Rik van Riel <riel@redhat.com>, kvm@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch implement the {set|get}_channels method of ethool to allow user to
-change the number of queues dymaically when the device is running. This would
-let the user to tune the device for specific applications.
+On Tue, Sep 11, 2012 at 12:10:18AM +0300, Michael S. Tsirkin wrote:
+> > On the plus side, having an exit taken here on each page turns out to
+> > be relatively cheap, as the vmexit from the page fault should be
+> > faster to process as it is fully handled within the host kernel.
+> > 
+> > Perhaps some combination of both methods is required? I'm not sure :\
+> 
+> Perhaps some benchmarking is in order :)
+> Can you try telling host, potentially MADV_WILL_NEED
+> in that case like qemu does, then run your proprietary test
+> and see if things work well enough?
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c |   43 +++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 43 insertions(+), 0 deletions(-)
+Ping. Had a chance to try that?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 8cc43e5..66fc129 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1616,10 +1616,53 @@ static struct virtio_driver virtio_net_driver = {
- #endif
- };
- 
-+/* TODO: Eliminate OOO packets during switching */
-+static int virtnet_set_channels(struct net_device *dev,
-+				struct ethtool_channels *channels)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	u16 queue_pairs = channels->combined_count;
-+
-+	/* Only two modes were support currently */
-+	if (queue_pairs == 0)
-+		return -EINVAL;
-+	if (queue_pairs != vi->total_queue_pairs - 1 && queue_pairs != 1)
-+		return -EINVAL;
-+
-+	vi->num_queue_pairs = queue_pairs > 1 ? queue_pairs + 1 : 1;
-+	BUG_ON(virtnet_set_queues(vi));
-+
-+	netif_set_real_num_tx_queues(dev, vi->num_queue_pairs);
-+	netif_set_real_num_rx_queues(dev, vi->num_queue_pairs);
-+
-+	return 0;
-+}
-+
-+static void virtnet_get_channels(struct net_device *dev,
-+				 struct ethtool_channels *channels)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+
-+	if (vi->total_queue_pairs != 1) {
-+		channels->combined_count = vi->num_queue_pairs;
-+		channels->max_combined = vi->total_queue_pairs - 1;
-+	} else {
-+		channels->combined_count = 1;
-+		channels->max_combined = 1;
-+	}
-+
-+	channels->max_other = 0;
-+	channels->rx_count = 0;
-+	channels->tx_count = 0;
-+	channels->other_count = 0;
-+}
-+
- static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.get_drvinfo = virtnet_get_drvinfo,
- 	.get_link = ethtool_op_get_link,
- 	.get_ringparam = virtnet_get_ringparam,
-+	.set_channels = virtnet_set_channels,
-+	.get_channels = virtnet_get_channels,
- };
- 
- static int __init init(void)
 -- 
-1.7.1
+MST
