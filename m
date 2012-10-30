@@ -1,11 +1,13 @@
 From: George Zhang <georgezhang@vmware.com>
-Subject: [PATCH 00/12] VMCI for Linux upstreaming
-Date: Mon, 29 Oct 2012 18:03:28 -0700
-Message-ID: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
+Subject: [PATCH 06/12] VMCI: handle array implementation.
+Date: Mon, 29 Oct 2012 18:04:38 -0700
+Message-ID: <20121030010432.17788.46172.stgit@promb-2n-dhcp175.eng.vmware.com>
+References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,147 +21,234 @@ To: linux-kernel@vger.kernel.org, georgezhang@vmware.com, virtualization@lists.l
 Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-* * *
-This series of VMCI linux upstreaming patches include latest udpate from
-VMware.
-    -split guest, host and core driver code into different files
-    -use EXPORT_SYMBOLS_GPL
-    -remove vmci_device_get and vmci_device_release APIs
-    -simplify the event deliver mechanism
-    -driver ioctl code cleanup
-    -sparse clean
+VMCI handle code adds support for dynamic arrays that will grow if they need to.
 
 
-
-
-* * *
-
-In an effort to improve the out-of-the-box experience with Linux
-kernels for VMware users, VMware is working on readying the Virtual
-Machine Communication Interface (vmw_vmci) and VMCI Sockets
-(vmw_vsock) kernel modules for inclusion in the Linux kernel. The
-purpose of this post is to acquire feedback on the vmw_vmci kernel
-module. The vmw_vsock kernel module will be presented in a later post.
-
-
-* * *
-
-VMCI allows virtual machines to communicate with host kernel modules
-and the VMware hypervisors. User level applications both in a virtual
-machine and on the host can use vmw_vmci through VMCI Sockets, a socket
-address family designed to be compatible with UDP and TCP at the
-interface level. Today, VMCI and VMCI Sockets are used by the VMware
-shared folders (HGFS) and various VMware Tools components inside the
-guest for zero-config, network-less access to VMware host services. In
-addition to this, VMware's users are using VMCI Sockets for various
-applications, where network access of the virtual machine is
-restricted or non-existent. Examples of this are VMs communicating
-with device proxies for proprietary hardware running as host
-applications and automated testing of applications running within
-virtual machines.
-
-In a virtual machine, VMCI is exposed as a regular PCI device. The
-primary communication mechanisms supported are a point-to-point
-bidirectional transport based on a pair of memory-mapped queues, and
-asynchronous notifications in the form of datagrams and
-doorbells. These features are available to kernel level components
-such as HGFS and VMCI Sockets through the VMCI kernel API. In addition
-to this, the VMCI kernel API provides support for receiving events
-related to the state of the VMCI communication channels, and the
-virtual machine itself.
-
-Outside the virtual machine, the host side support of the VMCI kernel
-module makes the same VMCI kernel API available to VMCI endpoints on
-the host. In addition to this, the host side manages each VMCI device
-in a virtual machine through a context object. This context object
-serves to identify the virtual machine for communication, and to track
-the resource consumption of the given VMCI device. Both operations
-related to communication between the virtual machine and the host
-kernel, and those related to the management of the VMCI device state
-in the host kernel, are invoked by the user level component of the
-hypervisor through a set of ioctls on the VMCI device node.  To
-provide seamless support for nested virtualization, where a virtual
-machine may use both a VMCI PCI device to talk to its hypervisor, and
-the VMCI host side support to run nested virtual machines, the VMCI
-host and virtual machine support are combined in a single kernel
-module.
-
-For additional information about the use of VMCI and in particular
-VMCI Sockets, please refer to the VMCI Socket Programming Guide
-available at https://www.vmware.com/support/developer/vmci-sdk/.
-
-
-
+Signed-off-by: George Zhang <georgezhang@vmware.com>
 ---
-
-George Zhang (12):
-      VMCI: context implementation.
-      VMCI: datagram implementation.
-      VMCI: doorbell implementation.
-      VMCI: device driver implementaton.
-      VMCI: event handling implementation.
-      VMCI: handle array implementation.
-      VMCI: queue pairs implementation.
-      VMCI: resource object implementation.
-      VMCI: routing implementation.
-      VMCI: guest side driver implementation.
-      VMCI: host side driver implementation.
-      VMCI: Some header and config files.
-
-
- drivers/misc/Kconfig                      |    1
- drivers/misc/Makefile                     |    2
- drivers/misc/vmw_vmci/Kconfig             |   16
- drivers/misc/vmw_vmci/Makefile            |   43
- drivers/misc/vmw_vmci/vmci_common_int.h   |   34
- drivers/misc/vmw_vmci/vmci_context.c      | 1290 +++++++++++
- drivers/misc/vmw_vmci/vmci_context.h      |  177 +
- drivers/misc/vmw_vmci/vmci_datagram.c     |  520 ++++
- drivers/misc/vmw_vmci/vmci_datagram.h     |   55
- drivers/misc/vmw_vmci/vmci_doorbell.c     |  673 +++++
- drivers/misc/vmw_vmci/vmci_doorbell.h     |   53
- drivers/misc/vmw_vmci/vmci_driver.c       |  159 +
- drivers/misc/vmw_vmci/vmci_driver.h       |   50
- drivers/misc/vmw_vmci/vmci_event.c        |  371 +++
- drivers/misc/vmw_vmci/vmci_event.h        |   25
- drivers/misc/vmw_vmci/vmci_guest.c        |  765 ++++++
- drivers/misc/vmw_vmci/vmci_handle_array.c |  162 +
- drivers/misc/vmw_vmci/vmci_handle_array.h |   46
- drivers/misc/vmw_vmci/vmci_host.c         | 1046 +++++++++
- drivers/misc/vmw_vmci/vmci_queue_pair.c   | 3556 +++++++++++++++++++++++++++++
- drivers/misc/vmw_vmci/vmci_queue_pair.h   |  191 ++
- drivers/misc/vmw_vmci/vmci_resource.c     |  237 ++
- drivers/misc/vmw_vmci/vmci_resource.h     |   59
- drivers/misc/vmw_vmci/vmci_route.c        |  237 ++
- drivers/misc/vmw_vmci/vmci_route.h        |   30
- include/linux/vmw_vmci_api.h              |   85 +
- include/linux/vmw_vmci_defs.h             |  977 ++++++++
- 27 files changed, 10860 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/vmw_vmci/Kconfig
- create mode 100644 drivers/misc/vmw_vmci/Makefile
- create mode 100644 drivers/misc/vmw_vmci/vmci_common_int.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_context.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_context.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_driver.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_driver.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_event.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_event.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_guest.c
+ drivers/misc/vmw_vmci/vmci_handle_array.c |  162 +++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_handle_array.h |   46 ++++++++
+ 2 files changed, 208 insertions(+), 0 deletions(-)
  create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.c
  create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_host.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_resource.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_resource.h
- create mode 100644 drivers/misc/vmw_vmci/vmci_route.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_route.h
- create mode 100644 include/linux/vmw_vmci_api.h
- create mode 100644 include/linux/vmw_vmci_defs.h
 
---
-Signature
+diff --git a/drivers/misc/vmw_vmci/vmci_handle_array.c b/drivers/misc/vmw_vmci/vmci_handle_array.c
+new file mode 100644
+index 0000000..c7db831
+--- /dev/null
++++ b/drivers/misc/vmw_vmci/vmci_handle_array.c
+@@ -0,0 +1,162 @@
++/*
++ * VMware VMCI Driver
++ *
++ * Copyright (C) 2012 VMware, Inc. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation version 2 and no later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
++ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++ * for more details.
++ */
++
++#include <linux/slab.h>
++#include "vmci_handle_array.h"
++
++static size_t handle_arr_calc_size(size_t capacity)
++{
++	return sizeof(struct vmci_handle_arr) +
++	    capacity * sizeof(struct vmci_handle);
++}
++
++struct vmci_handle_arr *vmci_handle_arr_create(size_t capacity)
++{
++	struct vmci_handle_arr *array;
++
++	if (capacity == 0)
++		capacity = VMCI_HANDLE_ARRAY_DEFAULT_SIZE;
++
++	array = kmalloc(handle_arr_calc_size(capacity), GFP_ATOMIC);
++	if (!array)
++		return NULL;
++
++	array->capacity = capacity;
++	array->size = 0;
++
++	return array;
++}
++
++void vmci_handle_arr_destroy(struct vmci_handle_arr *array)
++{
++	kfree(array);
++}
++
++void vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
++				  struct vmci_handle handle)
++{
++	struct vmci_handle_arr *array;
++
++	BUG_ON(!array_ptr || !*array_ptr);
++	array = *array_ptr;
++
++	if (unlikely(array->size >= array->capacity)) {
++		/* reallocate. */
++		struct vmci_handle_arr *new_array;
++		size_t new_capacity = array->capacity * VMCI_ARR_CAP_MULT;
++		size_t new_size = handle_arr_calc_size(new_capacity);
++
++		new_array = krealloc(array, new_size, GFP_ATOMIC);
++		if (!new_array)
++			return;
++
++		new_array->capacity = new_capacity;
++		*array_ptr = array = new_array;
++	}
++
++	array->entries[array->size] = handle;
++	array->size++;
++}
++
++/*
++ * Handle that was removed, VMCI_INVALID_HANDLE if entry not found.
++ */
++struct vmci_handle vmci_handle_arr_remove_entry(struct vmci_handle_arr *array,
++						struct vmci_handle entry_handle)
++{
++	struct vmci_handle handle = VMCI_INVALID_HANDLE;
++	size_t i;
++
++	BUG_ON(!array);
++
++	for (i = 0; i < array->size; i++) {
++		if (VMCI_HANDLE_EQUAL(array->entries[i], entry_handle)) {
++			handle = array->entries[i];
++			array->size--;
++			array->entries[i] = array->entries[array->size];
++			array->entries[array->size] = VMCI_INVALID_HANDLE;
++			break;
++		}
++	}
++
++	return handle;
++}
++
++/*
++ * Handle that was removed, VMCI_INVALID_HANDLE if array was empty.
++ */
++struct vmci_handle vmci_handle_arr_remove_tail(struct vmci_handle_arr *array)
++{
++	struct vmci_handle handle = VMCI_INVALID_HANDLE;
++
++	BUG_ON(!array);
++
++	if (array->size) {
++		array->size--;
++		handle = array->entries[array->size];
++		array->entries[array->size] = VMCI_INVALID_HANDLE;
++	}
++
++	return handle;
++}
++
++/*
++ * Handle at given index, VMCI_INVALID_HANDLE if invalid index.
++ */
++struct vmci_handle
++vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, size_t index)
++{
++	BUG_ON(!array);
++
++	if (unlikely(index >= array->size))
++		return VMCI_INVALID_HANDLE;
++
++	return array->entries[index];
++}
++
++size_t vmci_handle_arr_get_size(const struct vmci_handle_arr *array)
++{
++	BUG_ON(!array);
++
++	return array->size;
++}
++
++bool vmci_handle_arr_has_entry(const struct vmci_handle_arr *array,
++			       struct vmci_handle entry_handle)
++{
++	size_t i;
++
++	BUG_ON(!array);
++
++	for (i = 0; i < array->size; i++)
++		if (VMCI_HANDLE_EQUAL(array->entries[i], entry_handle))
++			return true;
++
++	return false;
++}
++
++/*
++ * NULL if the array is empty. Otherwise, a pointer to the array
++ * of VMCI handles in the handle array.
++ */
++struct vmci_handle *vmci_handle_arr_get_handles(struct vmci_handle_arr *array)
++{
++	BUG_ON(!array);
++
++	if (array->size)
++		return array->entries;
++
++	return NULL;
++}
+diff --git a/drivers/misc/vmw_vmci/vmci_handle_array.h b/drivers/misc/vmw_vmci/vmci_handle_array.h
+new file mode 100644
+index 0000000..37d1214
+--- /dev/null
++++ b/drivers/misc/vmw_vmci/vmci_handle_array.h
+@@ -0,0 +1,46 @@
++/*
++ * VMware VMCI Driver
++ *
++ * Copyright (C) 2012 VMware, Inc. All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation version 2 and no later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
++ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++ * for more details.
++ */
++
++#ifndef _VMCI_HANDLE_ARRAY_H_
++#define _VMCI_HANDLE_ARRAY_H_
++
++#include <linux/vmw_vmci_defs.h>
++#include <linux/types.h>
++
++#define VMCI_HANDLE_ARRAY_DEFAULT_SIZE 4
++#define VMCI_ARR_CAP_MULT 2	/* Array capacity multiplier */
++
++struct vmci_handle_arr {
++	size_t capacity;
++	size_t size;
++	struct vmci_handle entries[];
++};
++
++struct vmci_handle_arr *vmci_handle_arr_create(size_t capacity);
++void vmci_handle_arr_destroy(struct vmci_handle_arr *array);
++void vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
++				  struct vmci_handle handle);
++struct vmci_handle vmci_handle_arr_remove_entry(struct vmci_handle_arr *array,
++						struct vmci_handle
++						entry_handle);
++struct vmci_handle vmci_handle_arr_remove_tail(struct vmci_handle_arr *array);
++struct vmci_handle
++vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, size_t index);
++size_t vmci_handle_arr_get_size(const struct vmci_handle_arr *array);
++bool vmci_handle_arr_has_entry(const struct vmci_handle_arr *array,
++			       struct vmci_handle entry_handle);
++struct vmci_handle *vmci_handle_arr_get_handles(struct vmci_handle_arr *array);
++
++#endif /* _VMCI_HANDLE_ARRAY_H_ */
