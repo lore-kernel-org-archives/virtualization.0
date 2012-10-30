@@ -1,16 +1,16 @@
 From: Dmitry Torokhov <dtor@vmware.com>
-Subject: Re: [Pv-drivers] [PATCH 04/12] VMCI: device driver implementaton.
-Date: Mon, 29 Oct 2012 21:15:22 -0700
-Message-ID: <20121030041522.GC32055@dtor-ws.eng.vmware.com>
+Subject: Re: [Pv-drivers] [PATCH 05/12] VMCI: event handling implementation.
+Date: Mon, 29 Oct 2012 21:58:21 -0700
+Message-ID: <20121030045821.GD32055@dtor-ws.eng.vmware.com>
 References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
-	<20121030010409.17788.6745.stgit@promb-2n-dhcp175.eng.vmware.com>
-	<20121030022347.GE1920@kroah.com>
+	<20121030010420.17788.59187.stgit@promb-2n-dhcp175.eng.vmware.com>
+	<20121030022446.GF1920@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20121030022347.GE1920@kroah.com>
+In-Reply-To: <20121030022446.GF1920@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,120 +24,23 @@ To: Greg KH <gregkh@linuxfoundation.org>
 Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 29, 2012 at 07:23:47PM -0700, Greg KH wrote:
-> On Mon, Oct 29, 2012 at 06:04:15PM -0700, George Zhang wrote:
-> > +static int __init vmci_core_init(void)
+On Mon, Oct 29, 2012 at 07:24:46PM -0700, Greg KH wrote:
+> On Mon, Oct 29, 2012 at 06:04:27PM -0700, George Zhang wrote:
+> > +/*
+> > + * Releases the given VMCISubscription.
+> > + * Fires the destroy event if the reference count has gone to zero.
+> > + */
+> > +static void event_release(struct vmci_subscription *entry)
 > > +{
-> > +	int result;
-> > +
-> > +	result = vmci_ctx_init();
-> > +	if (result < VMCI_SUCCESS) {
-> > +		pr_err("Failed to initialize VMCIContext (result=%d).\n",
-> > +			result);
-> 
-> If you are going to use pr_* functions, it's usually a good idea to
-> define pr_fmt in a consistant way so that it shows up the same across
-> all of your .c files.  See other drivers for examples of how to do this
-> properly.
-
-pr_fmt() is defined in drivers/misc/vmw_vmci/vmci_common_int.h
-
-> 
-> > +		return -EINVAL;
-> > +	}
-> > +
-> > +	result = vmci_datagram_init();
-> > +	if (result < VMCI_SUCCESS) {
-> > +		pr_err("Failed to initialize VMCIDatagram (result=%d).\n",
-> > +			result);
-> > +		return -EINVAL;
-> > +	}
-> > +
-> > +	result = vmci_event_init();
-> > +	if (result < VMCI_SUCCESS) {
-> > +		pr_err("Failed to initialize VMCIEvent (result=%d).\n", result);
-> > +		return -EINVAL;
-> > +	}
-> 
-> You don't free and unwind things properly if things go wrong here, why
-> not?
-
-We do, the above calls do not need to be cleaned up.
- 
-> 
-> > +
-> > +	return 0;
+> > +	kref_put(&entry->kref, event_signal_destroy);
 > > +}
-> > +
-> > +static void __exit vmci_core_exit(void)
-> > +{
-> > +	vmci_event_exit();
-> > +}
-> > +
-> > +static int __init vmci_drv_init(void)
-> > +{
-> > +	int error;
-> > +
-> > +	error = vmci_core_init();
-> > +	if (error)
-> > +		return error;
-> > +
-> > +	if (!vmci_disable_guest) {
-> > +		error = vmci_guest_init();
-> > +		if (error) {
-> > +			pr_warn("Failed to initialize guest personality (err=%d).\n",
-> > +				error);
-> > +		} else {
-> > +			vmci_guest_personality_initialized = true;
-> > +			pr_info("Guest personality initialized and is %s\n",
-> > +				vmci_guest_code_active() ?
-> > +				"active" : "inactive");
-> > +		}
-> > +	}
-> > +
-> > +	if (!vmci_disable_host) {
-> > +		error = vmci_host_init();
-> > +		if (error) {
-> > +			pr_warn("Unable to initialize host personality (err=%d).\n",
-> > +				error);
-> > +		} else {
-> > +			vmci_host_personality_initialized = true;
-> > +			pr_info("Initialized host personality\n");
-> > +		}
-> > +	}
-> > +
-> > +	if (!vmci_guest_personality_initialized &&
-> > +	    !vmci_host_personality_initialized) {
-> > +		vmci_core_exit();
-> > +		return -ENODEV;
-> > +	}
-> > +
-> > +	pr_debug("Module is initialized\n");
 > 
-> Really?  You need this message still?
+> Same question as before with the kref_put() call, what is handling the
+> locking here?  It looks like a race to me.
 
-These are debug messages so do not show up in logs by default.
-
-> 
-> > +	return 0;
-> > +}
-> > +module_init(vmci_drv_init);
-> > +
-> > +static void __exit vmci_drv_exit(void)
-> > +{
-> > +	if (vmci_guest_personality_initialized)
-> > +		vmci_guest_exit();
-> > +
-> > +	if (vmci_host_personality_initialized)
-> > +		vmci_host_exit();
-> > +
-> > +	vmci_core_exit();
-> > +	pr_debug("Module is unloaded\n");
-> 
-> Same here, is this really needed?
-> 
-
-Still debug so no littering in logs.
+The reference is taken only if event is on the list (which managed by
+RCU and a mutex), so it is not possible to go from 0->1 for that
+refcount.
 
 Thanks,
 Dmitry
