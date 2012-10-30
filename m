@@ -1,16 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 2/8] skb: api to report errors for zero copy skbs
-Date: Tue, 30 Oct 2012 17:54:36 +0200
-Message-ID: <20121030155436.GB7256@redhat.com>
-References: <cover.1351524501.git.mst@redhat.com>
-	<ee85ad5053a929c90e0347b6ba33778d96690e9b.1351524501.git.mst@redhat.com>
-	<508FF5D0.6080107@redhat.com>
+From: Dmitry Torokhov <dtor@vmware.com>
+Subject: Re: [Pv-drivers] [PATCH 01/12] VMCI: context implementation.
+Date: Tue, 30 Oct 2012 08:56:47 -0700
+Message-ID: <6866362.eNDmFOn8qX@dtor-d630.eng.vmware.com>
+References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
+	<20121030040139.GA32055@dtor-ws.eng.vmware.com>
+	<20121030154652.GB14167@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <508FF5D0.6080107@redhat.com>
+In-Reply-To: <20121030154652.GB14167@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,73 +19,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vlad Yasevich <vyasevic@redhat.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Ian Campbell <Ian.Campbell@citrix.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 30, 2012 at 11:44:16AM -0400, Vlad Yasevich wrote:
-> On 10/29/2012 11:49 AM, Michael S. Tsirkin wrote:
-> >Orphaning frags for zero copy skbs needs to allocate data in atomic
-> >context so is has a chance to fail. If it does we currently discard
-> >the skb which is safe, but we don't report anything to the caller,
-> >so it can not recover by e.g. disabling zero copy.
-> >
-> >Add an API to free skb reporting such errors: this is used
-> >by tun in case orphaning frags fails.
-> >
-> >Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> >---
-> >  include/linux/skbuff.h |  1 +
-> >  net/core/skbuff.c      | 19 +++++++++++++++++++
-> >  2 files changed, 20 insertions(+)
-> >
-> >diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-> >index 8bac11b..0644432 100644
-> >--- a/include/linux/skbuff.h
-> >+++ b/include/linux/skbuff.h
-> >@@ -568,6 +568,7 @@ static inline struct rtable *skb_rtable(const struct sk_buff *skb)
-> >  }
-> >
-> >  extern void kfree_skb(struct sk_buff *skb);
-> >+extern void skb_tx_error(struct sk_buff *skb, int err);
-> >  extern void consume_skb(struct sk_buff *skb);
-> >  extern void	       __kfree_skb(struct sk_buff *skb);
-> >  extern struct kmem_cache *skbuff_head_cache;
-> >diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-> >index eb31f6e..ad99c64 100644
-> >--- a/net/core/skbuff.c
-> >+++ b/net/core/skbuff.c
-> >@@ -635,6 +635,25 @@ void kfree_skb(struct sk_buff *skb)
-> >  EXPORT_SYMBOL(kfree_skb);
-> >
-> >  /**
-> >+ *	kfree_skb_on_error - report an sk_buff xmit error
-> >+ *	@skb: buffer that triggered an error
-> >+ *
-> >+ *	Report xmit error if a device callback is tracking this skb.
-> >+ */
+On Tuesday, October 30, 2012 08:46:52 AM Greg KH wrote:
+> On Mon, Oct 29, 2012 at 09:01:40PM -0700, Dmitry Torokhov wrote:
+> > Hi Greg,
+> > 
+> > On Mon, Oct 29, 2012 at 07:10:58PM -0700, Greg KH wrote:
+> > > On Mon, Oct 29, 2012 at 06:03:42PM -0700, George Zhang wrote:
+> > > > +/*
+> > > > + * Releases the VMCI context. If this is the last reference to
+> > > > + * the context it will be deallocated. A context is created with
+> > > > + * a reference count of one, and on destroy, it is removed from
+> > > > + * the context list before its reference count is
+> > > > + * decremented. Thus, if we reach zero, we are sure that nobody
+> > > > + * else are about to increment it (they need the entry in the
+> > > > + * context list for that). This function musn't be called with a
+> > > > + * lock held.
+> > > > + */
+> > > > +void vmci_ctx_release(struct vmci_ctx *context)
+> > > > +{
+> > > > +	ASSERT(context);
+> > > > +	kref_put(&context->kref, ctx_free_ctx);
+> > > > +}
+> > > > +
+> > > 
+> > > Hm, are you _sure_ you should be calling this without a lock held?
+> > > That's usually kref-101, you MUST hold a lock when calling put,
+> > > otherwise you can race a kref_get() call, and all hell can break loose.
+> > > 
+> > > Because of this, some saner people (like Al Viro), have suggested that I
+> > > force the kref_put() and kref_get() calls pass in a spinlock just to
+> > > enforce this.
+> > > 
+> > > So, tell me what I'm missing here, and why you put the comment here
+> > > saying that it really is supposed to be called without a lock held?  How
+> > > is that safe?
+> > 
+> > Contexts are created/registered in vmci_ctx_init_ctx() and unregistered in
+> > vmci_ctx_release_ctx() and these operations are protected by
+> > ctx_list.lock spinlock. Context lookup (vmci_ctx_get) also uses spinlock
+> > to traverse list of registered contexts and then grabs reference to the
+> > [valid] context. The use of kref_put() without additional locking in
+> > vmci_ctx_release() is fine as there is no chance of another thread
+> > bumping count from 0 to 1.
 > 
-> Nit:  Comment doesn't match new function.
-> 
-> -vlad
+> As I didn't see all callers of this holding that spinlock, it was
+> confusing.  You should put this type of description somewhere so that
+> other reviewers don't have the same questions.
 
-Good catch, thanks.
+Fair enough, we'll add better comments to this code.
 
-> >+void skb_tx_error(struct sk_buff *skb, int err)
-> >+{
-> >+	if (skb_shinfo(skb)->tx_flags & SKBTX_DEV_ZEROCOPY) {
-> >+		struct ubuf_info *uarg;
-> >+
-> >+		uarg = skb_shinfo(skb)->destructor_arg;
-> >+		if (uarg->callback)
-> >+			uarg->callback(uarg, err);
-> >+		skb_shinfo(skb)->tx_flags &= ~SKBTX_DEV_ZEROCOPY;
-> >+	}
-> >+}
-> >+EXPORT_SYMBOL(skb_tx_error);
-> >+
-> >+/**
-> >   *	consume_skb - free an skbuff
-> >   *	@skb: buffer to free
-> >   *
-> >
+Thanks,
+Dmitry
