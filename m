@@ -1,19 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
-Date: Tue, 30 Oct 2012 17:29:25 +0200
-Message-ID: <20121030152925.GA7023@redhat.com>
-References: <1340742778-11282-1-git-send-email-fes@google.com>
-	<20120910090521.GB18544@redhat.com>
-	<CAGTjWtBa5jW6+y1k6zZmD9TUNHBgv8WRbO_iy7huY_dJSumStw@mail.gmail.com>
-	<20120910195931.GD20721@redhat.com>
-	<CAGTjWtCiqjkR_Ze=0-ebO08+eziz6c8TXLb+O1iiArRQeSE6zw@mail.gmail.com>
-	<20120910211018.GB21484@redhat.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [Pv-drivers] [PATCH 01/12] VMCI: context implementation.
+Date: Tue, 30 Oct 2012 08:46:52 -0700
+Message-ID: <20121030154652.GB14167@kroah.com>
+References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
+	<20121030010333.17788.94988.stgit@promb-2n-dhcp175.eng.vmware.com>
+	<20121030021058.GB1920@kroah.com>
+	<20121030040139.GA32055@dtor-ws.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120910211018.GB21484@redhat.com>
+In-Reply-To: <20121030040139.GA32055@dtor-ws.eng.vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,23 +21,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mike Waychison <mikew@google.com>
-Cc: Frank Swiderski <fes@google.com>, Andrea Arcangeli <aarcange@redhat.com>, Rik van Riel <riel@redhat.com>, kvm@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Dmitry Torokhov <dtor@vmware.com>
+Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Sep 11, 2012 at 12:10:18AM +0300, Michael S. Tsirkin wrote:
-> > On the plus side, having an exit taken here on each page turns out to
-> > be relatively cheap, as the vmexit from the page fault should be
-> > faster to process as it is fully handled within the host kernel.
-> > 
-> > Perhaps some combination of both methods is required? I'm not sure :\
+On Mon, Oct 29, 2012 at 09:01:40PM -0700, Dmitry Torokhov wrote:
+> Hi Greg,
 > 
-> Perhaps some benchmarking is in order :)
-> Can you try telling host, potentially MADV_WILL_NEED
-> in that case like qemu does, then run your proprietary test
-> and see if things work well enough?
+> On Mon, Oct 29, 2012 at 07:10:58PM -0700, Greg KH wrote:
+> > On Mon, Oct 29, 2012 at 06:03:42PM -0700, George Zhang wrote:
+> > > +/*
+> > > + * Releases the VMCI context. If this is the last reference to
+> > > + * the context it will be deallocated. A context is created with
+> > > + * a reference count of one, and on destroy, it is removed from
+> > > + * the context list before its reference count is
+> > > + * decremented. Thus, if we reach zero, we are sure that nobody
+> > > + * else are about to increment it (they need the entry in the
+> > > + * context list for that). This function musn't be called with a
+> > > + * lock held.
+> > > + */
+> > > +void vmci_ctx_release(struct vmci_ctx *context)
+> > > +{
+> > > +	ASSERT(context);
+> > > +	kref_put(&context->kref, ctx_free_ctx);
+> > > +}
+> > > +
+> > 
+> > Hm, are you _sure_ you should be calling this without a lock held?
+> > That's usually kref-101, you MUST hold a lock when calling put,
+> > otherwise you can race a kref_get() call, and all hell can break loose.
+> > 
+> > Because of this, some saner people (like Al Viro), have suggested that I
+> > force the kref_put() and kref_get() calls pass in a spinlock just to
+> > enforce this.
+> > 
+> > So, tell me what I'm missing here, and why you put the comment here
+> > saying that it really is supposed to be called without a lock held?  How
+> > is that safe?
+> > 
+> 
+> Contexts are created/registered in vmci_ctx_init_ctx() and unregistered in
+> vmci_ctx_release_ctx() and these operations are protected by
+> ctx_list.lock spinlock. Context lookup (vmci_ctx_get) also uses spinlock
+> to traverse list of registered contexts and then grabs reference to the
+> [valid] context. The use of kref_put() without additional locking in
+> vmci_ctx_release() is fine as there is no chance of another thread
+> bumping count from 0 to 1.
 
-Ping. Had a chance to try that?
+As I didn't see all callers of this holding that spinlock, it was
+confusing.  You should put this type of description somewhere so that
+other reviewers don't have the same questions.
 
--- 
-MST
+> I believe the comment should actually read that the function should not
+> be called from atomic contexts.
+
+That might be nice to document, but could it ever happen?
+
+thanks,
+
+greg k-h
