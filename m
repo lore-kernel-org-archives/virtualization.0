@@ -1,18 +1,18 @@
-From: Mike Waychison <mikew@google.com>
-Subject: Re: [PATCH] Add a page cache-backed balloon device driver.
-Date: Tue, 30 Oct 2012 09:25:49 -0700
-Message-ID: <CAGTjWtAyoqDS9vAc1HShBLfsdfuBy4-Aev+_Rn-f0H2V2C1PTg@mail.gmail.com>
-References: <1340742778-11282-1-git-send-email-fes@google.com>
-	<20120910090521.GB18544@redhat.com>
-	<CAGTjWtBa5jW6+y1k6zZmD9TUNHBgv8WRbO_iy7huY_dJSumStw@mail.gmail.com>
-	<20120910195931.GD20721@redhat.com>
-	<CAGTjWtCiqjkR_Ze=0-ebO08+eziz6c8TXLb+O1iiArRQeSE6zw@mail.gmail.com>
-	<20120910211018.GB21484@redhat.com> <20121030152925.GA7023@redhat.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [Pv-drivers] [PATCH 00/12] VMCI for Linux upstreaming
+Date: Tue, 30 Oct 2012 09:27:23 -0700
+Message-ID: <20121030162723.GA16135@kroah.com>
+References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
+	<20121030021938.GC1920@kroah.com>
+	<20121030040744.GB32055@dtor-ws.eng.vmware.com>
+	<20121030154801.GC14167@kroah.com>
+	<20121030161807.GA9709@dtor-ws.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121030152925.GA7023@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20121030161807.GA9709@dtor-ws.eng.vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,25 +22,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Frank Swiderski <fes@google.com>, Andrea Arcangeli <aarcange@redhat.com>, Rik van Riel <riel@redhat.com>, kvm@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Dmitry Torokhov <dtor@vmware.com>
+Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 30, 2012 at 8:29 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Tue, Sep 11, 2012 at 12:10:18AM +0300, Michael S. Tsirkin wrote:
->> > On the plus side, having an exit taken here on each page turns out to
->> > be relatively cheap, as the vmexit from the page fault should be
->> > faster to process as it is fully handled within the host kernel.
->> >
->> > Perhaps some combination of both methods is required? I'm not sure :\
->>
->> Perhaps some benchmarking is in order :)
->> Can you try telling host, potentially MADV_WILL_NEED
->> in that case like qemu does, then run your proprietary test
->> and see if things work well enough?
->
-> Ping. Had a chance to try that?
+On Tue, Oct 30, 2012 at 09:18:07AM -0700, Dmitry Torokhov wrote:
+> > > I think that even if we had a special directory for vmci having network
+> > > drivers in Dave's realm and pvscsi in James's is best option, so the new
+> > > directory would contain vmci and the balloon driver (vsock will go into
+> > > net/).  Given that balloon is already in drivers/misc it looked like
+> > > obvious place for VMCI as well.
+> > 
+> > I agree that the individual drivers should go in the subsystem area,
+> > it's this "hypervisor bus core" type code that I'm questioning.  Right
+> > now every hypervisor is putting that logic in a different place in the
+> > kernel, having some consistency here would be nice.
+> 
+> Hmm, I wonder if miscellaneous and core hypervisor drivers should end
+> up in drivers/platform:
+> 
+> 	drivers/platform/hyperv
+> 	drivers/platform/olpc
+> 	drivers/platform/vmware
+> 	drivers/platform/xen
+> 	drivers/platform/x86
 
-Not yet.  We've been focused on other things recently and probably
-won't have a chance to return to this for a couple months at best.
-Sorry :(
+That makes sense to me, nice.
+
+> But really we'd like to get VMCI into mainline first and move to a new
+> place later if such a better place is found.
+
+Heh, no one wants to fight for something to help everyone out, they just
+want their own code accepted :)
+
+greg k-h
