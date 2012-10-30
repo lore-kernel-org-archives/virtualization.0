@@ -1,17 +1,16 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [Pv-drivers] [PATCH 05/12] VMCI: event handling implementation.
-Date: Tue, 30 Oct 2012 08:50:41 -0700
-Message-ID: <20121030155041.GF14167@kroah.com>
-References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
-	<20121030010420.17788.59187.stgit@promb-2n-dhcp175.eng.vmware.com>
-	<20121030022605.GG1920@kroah.com>
-	<20121030050152.GE32055@dtor-ws.eng.vmware.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next 8/8] vhost-net: reduce vq polling on tx zerocopy
+Date: Tue, 30 Oct 2012 17:54:12 +0200
+Message-ID: <20121030155412.GA7256@redhat.com>
+References: <cover.1351524501.git.mst@redhat.com>
+	<3e57e2cde71a4270a8fef395c31f5f0e8a130c28.1351524502.git.mst@redhat.com>
+	<508FF6A1.5060201@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20121030050152.GE32055@dtor-ws.eng.vmware.com>
+In-Reply-To: <508FF6A1.5060201@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,28 +20,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dmitry Torokhov <dtor@vmware.com>
-Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
+To: Vlad Yasevich <vyasevic@redhat.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Ian Campbell <Ian.Campbell@citrix.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 29, 2012 at 10:01:52PM -0700, Dmitry Torokhov wrote:
-> On Mon, Oct 29, 2012 at 07:26:05PM -0700, Greg KH wrote:
-> > On Mon, Oct 29, 2012 at 06:04:27PM -0700, George Zhang wrote:
-> > > +static void event_signal_destroy(struct kref *kref)
-> > > +{
-> > > +	struct vmci_subscription *entry =
-> > > +			container_of(kref, struct vmci_subscription, kref);
-> > > +
-> > > +	complete(&entry->done);
-> > > +}
-> > 
-> > Didn't you just leak memory here?  What frees the structure up?
+On Tue, Oct 30, 2012 at 11:47:45AM -0400, Vlad Yasevich wrote:
+> On 10/29/2012 11:49 AM, Michael S. Tsirkin wrote:
+> >It seems that to avoid deadlocks it is enough to poll vq before
+> >  we are going to use the last buffer.  This should be faster than
+> >c70aa540c7a9f67add11ad3161096fb95233aa2e.
+> >
+> >Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> >---
+> >  drivers/vhost/net.c | 12 ++++++++++--
+> >  1 file changed, 10 insertions(+), 2 deletions(-)
+> >
+> >diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> >index 8e9de79..3967f82 100644
+> >--- a/drivers/vhost/net.c
+> >+++ b/drivers/vhost/net.c
+> >@@ -197,8 +197,16 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, int status)
+> >  {
+> >  	struct vhost_ubuf_ref *ubufs = ubuf->ctx;
+> >  	struct vhost_virtqueue *vq = ubufs->vq;
+> >-
+> >-	vhost_poll_queue(&vq->poll);
+> >+	int cnt = atomic_read(&ubufs->kref.refcount);
+> >+
+> >+	/*
+> >+	 * Trigger polling thread if guest stopped submitting new buffers:
+> >+	 * in this case, the refcount after decrement will eventually reach 1
+> >+	 * so here it is 2.
+> >+	 * We also trigger polling periodically after each 16 packets.
+> >+	 */
+> >+	if (cnt <= 2 || !(cnt % 16))
 > 
-> event_unregister_subscription() waits for that completion and frees the
-> structure. We want event_unregister_subscription() to wait until all
-> fired callbacks completed before unregister is complete.
+> Why 16?  Does it make sense to make it configurable?
+> 
+> -vlad
 
-So all calls to this can just sit and spin waiting for others to clean
-up?  Odd, but ok.
+Probably not but I'll add a comment explaining why.
 
-greg k-h
+> >+		vhost_poll_queue(&vq->poll);
+> >  	/* set len to mark this desc buffers done DMA */
+> >  	vq->heads[ubuf->desc].len = status ?
+> >  		VHOST_DMA_FAILED_LEN : VHOST_DMA_DONE_LEN;
+> >
