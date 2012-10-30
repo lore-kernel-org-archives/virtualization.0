@@ -1,7 +1,7 @@
 From: George Zhang <georgezhang@vmware.com>
-Subject: [PATCH 04/12] VMCI: device driver implementaton.
-Date: Mon, 29 Oct 2012 18:04:15 -0700
-Message-ID: <20121030010409.17788.6745.stgit@promb-2n-dhcp175.eng.vmware.com>
+Subject: [PATCH 08/12] VMCI: resource object implementation.
+Date: Mon, 29 Oct 2012 18:04:58 -0700
+Message-ID: <20121030010453.17788.90295.stgit__17346.6215994724$1351559589$gmane$org@promb-2n-dhcp175.eng.vmware.com>
 References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,23 +21,23 @@ To: linux-kernel@vger.kernel.org, georgezhang@vmware.com, virtualization@lists.l
 Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-VMCI driver code implementes both the host and guest personalities of the VMCI driver.
+VMCI resource tracks all used resources within the vmci code.
 
 
 Signed-off-by: George Zhang <georgezhang@vmware.com>
 ---
- drivers/misc/vmw_vmci/vmci_driver.c |  159 +++++++++++++++++++++++++++++++++++
- drivers/misc/vmw_vmci/vmci_driver.h |   50 +++++++++++
- 2 files changed, 209 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/vmw_vmci/vmci_driver.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_driver.h
+ drivers/misc/vmw_vmci/vmci_resource.c |  237 +++++++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_resource.h |   59 ++++++++
+ 2 files changed, 296 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.h
 
-diff --git a/drivers/misc/vmw_vmci/vmci_driver.c b/drivers/misc/vmw_vmci/vmci_driver.c
+diff --git a/drivers/misc/vmw_vmci/vmci_resource.c b/drivers/misc/vmw_vmci/vmci_resource.c
 new file mode 100644
-index 0000000..1ca0c7e
+index 0000000..a2f5fd0
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_driver.c
-@@ -0,0 +1,159 @@
++++ b/drivers/misc/vmw_vmci/vmci_resource.c
+@@ -0,0 +1,237 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -54,155 +54,233 @@ index 0000000..1ca0c7e
 + */
 +
 +#include <linux/vmw_vmci_defs.h>
-+#include <linux/vmw_vmci_api.h>
-+#include <linux/atomic.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
++#include <linux/hash.h>
++#include <linux/types.h>
++#include <linux/rculist.h>
 +
++#include "vmci_common_int.h"
++#include "vmci_resource.h"
 +#include "vmci_driver.h"
-+#include "vmci_event.h"
 +
-+static bool vmci_disable_host;
-+module_param_named(disable_host, vmci_disable_host, bool, 0);
-+MODULE_PARM_DESC(disable_host,
-+		 "Disable driver host personality (default=enabled)");
 +
-+static bool vmci_disable_guest;
-+module_param_named(disable_guest, vmci_disable_guest, bool, 0);
-+MODULE_PARM_DESC(disable_guest,
-+		 "Disable driver guest personality (default=enabled)");
++#define VMCI_RESOURCE_HASH_BITS         7
++#define VMCI_RESOURCE_HASH_BUCKETS      (1 << VMCI_RESOURCE_HASH_BITS)
 +
-+static bool vmci_guest_personality_initialized;
-+static bool vmci_host_personality_initialized;
++struct vmci_hash_table {
++	spinlock_t lock;
++	struct hlist_head entries[VMCI_RESOURCE_HASH_BUCKETS];
++};
++
++static struct vmci_hash_table vmci_resource_table = {
++	.lock = __SPIN_LOCK_UNLOCKED(vmci_resource_table.lock),
++};
++
++static unsigned int vmci_resource_hash(struct vmci_handle handle)
++{
++	return hash_32(VMCI_HANDLE_TO_RESOURCE_ID(handle),
++		       VMCI_RESOURCE_HASH_BITS);
++}
 +
 +/*
-+ * vmci_get_context_id() - Gets the current context ID.
-+ *
-+ * Returns the current context ID.  Note that since this is accessed only
-+ * from code running in the host, this always returns the host context ID.
++ * Gets a resource (if one exists) matching given handle from the hash table.
 + */
-+u32 vmci_get_context_id(void)
++static struct vmci_resource *vmci_resource_lookup(struct vmci_handle handle)
 +{
-+	if (vmci_guest_code_active()) {
-+		return vmci_get_vm_context_id();
-+	} else if (vmci_host_code_active()) {
-+		return VMCI_HOST_CONTEXT_ID;
-+	} else {
-+		return VMCI_INVALID_ID;
++	struct vmci_resource *r, *resource = NULL;
++	struct hlist_node *node;
++	unsigned int idx = vmci_resource_hash(handle);
++
++	BUG_ON(VMCI_HANDLE_EQUAL(handle, VMCI_INVALID_HANDLE));
++
++	rcu_read_lock();
++	hlist_for_each_entry_rcu(r, node,
++				 &vmci_resource_table.entries[idx], node) {
++		u32 rid = VMCI_HANDLE_TO_RESOURCE_ID(r->handle);
++		u32 cid = VMCI_HANDLE_TO_CONTEXT_ID(r->handle);
++
++		if (rid == VMCI_HANDLE_TO_RESOURCE_ID(handle) &&
++		    (cid == VMCI_HANDLE_TO_CONTEXT_ID(handle) ||
++		     cid == VMCI_INVALID_ID)) {
++			resource = r;
++			break;
++		}
 +	}
++	rcu_read_unlock();
++
++	return resource;
 +}
-+EXPORT_SYMBOL_GPL(vmci_get_context_id);
 +
 +/*
-+ * vmci_version() - Returns the version of the driver.
-+ *
-+ * Returns the version of the VMCI driver.
++ * Find an unused resource ID and return it. The first
++ * VMCI_RESERVED_RESOURCE_ID_MAX are reserved so we start from
++ * its value + 1.
++ * Returns VMCI resource id on success, VMCI_INVALID_ID on failure.
 + */
-+u32 vmci_version(void)
++static u32 vmci_resource_find_id(u32 context_id)
 +{
-+	return VMCI_VERSION;
-+}
-+EXPORT_SYMBOL_GPL(vmci_version);
++	static u32 resource_id = VMCI_RESERVED_RESOURCE_ID_MAX + 1;
++	u32 old_rid = resource_id;
++	u32 current_rid;
 +
-+static int __init vmci_core_init(void)
++	/*
++	 * Generate a unique resource ID.  Keep on trying until we wrap around
++	 * in the RID space.
++	 */
++	BUG_ON(old_rid <= VMCI_RESERVED_RESOURCE_ID_MAX);
++
++	do {
++		struct vmci_handle handle;
++
++		current_rid = resource_id;
++		resource_id++;
++		if (unlikely(resource_id == VMCI_INVALID_ID)) {
++			/* Skip the reserved rids. */
++			resource_id = VMCI_RESERVED_RESOURCE_ID_MAX + 1;
++		}
++
++		handle = vmci_make_handle(context_id, current_rid);
++		if (!vmci_resource_lookup(handle))
++			return current_rid;
++	} while (resource_id != old_rid);
++
++	return VMCI_INVALID_ID;
++}
++
++
++int vmci_resource_add(struct vmci_resource *resource,
++		      enum vmci_resource_type resource_type,
++		      struct vmci_handle handle)
++
 +{
++	unsigned int idx;
 +	int result;
 +
-+	result = vmci_ctx_init();
-+	if (result < VMCI_SUCCESS) {
-+		pr_err("Failed to initialize VMCIContext (result=%d).\n",
-+			result);
-+		return -EINVAL;
++	BUG_ON(!resource);
++
++	spin_lock(&vmci_resource_table.lock);
++
++	if (handle.resource == VMCI_INVALID_ID) {
++		handle.resource = vmci_resource_find_id(handle.context);
++		if (handle.resource == VMCI_INVALID_ID) {
++			result = VMCI_ERROR_NO_HANDLE;
++			goto out;
++		}
++	} else if (vmci_resource_lookup(handle)) {
++		result = VMCI_ERROR_ALREADY_EXISTS;
++		goto out;
 +	}
 +
-+	result = vmci_datagram_init();
-+	if (result < VMCI_SUCCESS) {
-+		pr_err("Failed to initialize VMCIDatagram (result=%d).\n",
-+			result);
-+		return -EINVAL;
-+	}
++	resource->handle = handle;
++	resource->type = resource_type;
++	INIT_HLIST_NODE(&resource->node);
++	kref_init(&resource->kref);
++	init_completion(&resource->done);
 +
-+	result = vmci_event_init();
-+	if (result < VMCI_SUCCESS) {
-+		pr_err("Failed to initialize VMCIEvent (result=%d).\n", result);
-+		return -EINVAL;
-+	}
++	idx = vmci_resource_hash(resource->handle);
++	BUG_ON(idx >= VMCI_RESOURCE_HASH_BUCKETS);
++	hlist_add_head_rcu(&resource->node, &vmci_resource_table.entries[idx]);
 +
-+	return 0;
++	result = VMCI_SUCCESS;
++
++out:
++	spin_unlock(&vmci_resource_table.lock);
++	return result;
 +}
 +
-+static void __exit vmci_core_exit(void)
++void vmci_resource_remove(struct vmci_resource *resource)
 +{
-+	vmci_event_exit();
-+}
++	struct vmci_handle handle = resource->handle;
++	unsigned int idx = vmci_resource_hash(handle);
++	struct vmci_resource *r;
++	struct hlist_node *node;
 +
-+static int __init vmci_drv_init(void)
-+{
-+	int error;
++	/* Remove resource from hash table. */
++	spin_lock(&vmci_resource_table.lock);
 +
-+	error = vmci_core_init();
-+	if (error)
-+		return error;
-+
-+	if (!vmci_disable_guest) {
-+		error = vmci_guest_init();
-+		if (error) {
-+			pr_warn("Failed to initialize guest personality (err=%d).\n",
-+				error);
-+		} else {
-+			vmci_guest_personality_initialized = true;
-+			pr_info("Guest personality initialized and is %s\n",
-+				vmci_guest_code_active() ?
-+				"active" : "inactive");
++	hlist_for_each_entry(r, node, &vmci_resource_table.entries[idx], node) {
++		if (VMCI_HANDLE_EQUAL(r->handle, resource->handle)) {
++			BUG_ON(r != resource);
++			hlist_del_init_rcu(&r->node);
++			break;
 +		}
 +	}
 +
-+	if (!vmci_disable_host) {
-+		error = vmci_host_init();
-+		if (error) {
-+			pr_warn("Unable to initialize host personality (err=%d).\n",
-+				error);
-+		} else {
-+			vmci_host_personality_initialized = true;
-+			pr_info("Initialized host personality\n");
-+		}
-+	}
++	spin_unlock(&vmci_resource_table.lock);
++	synchronize_rcu();
 +
-+	if (!vmci_guest_personality_initialized &&
-+	    !vmci_host_personality_initialized) {
-+		vmci_core_exit();
-+		return -ENODEV;
-+	}
-+
-+	pr_debug("Module is initialized\n");
-+	return 0;
++	vmci_resource_put(resource);
++	wait_for_completion(&resource->done);
 +}
-+module_init(vmci_drv_init);
 +
-+static void __exit vmci_drv_exit(void)
++struct vmci_resource *
++vmci_resource_by_handle(struct vmci_handle resource_handle,
++			enum vmci_resource_type resource_type)
 +{
-+	if (vmci_guest_personality_initialized)
-+		vmci_guest_exit();
++	struct vmci_resource *r, *resource = NULL;
 +
-+	if (vmci_host_personality_initialized)
-+		vmci_host_exit();
++	rcu_read_lock();
 +
-+	vmci_core_exit();
-+	pr_debug("Module is unloaded\n");
++	r = vmci_resource_lookup(resource_handle);
++	if (r &&
++	    (resource_type == r->type ||
++	     resource_type == VMCI_RESOURCE_TYPE_ANY)) {
++		resource = vmci_resource_get(r);
++	}
++
++	rcu_read_unlock();
++
++	return resource;
 +}
-+module_exit(vmci_drv_exit);
 +
-+MODULE_AUTHOR("VMware, Inc.");
-+MODULE_DESCRIPTION("VMware Virtual Machine Communication Interface.");
-+MODULE_VERSION(VMCI_DRIVER_VERSION_STRING);
-+MODULE_LICENSE("GPL v2");
-diff --git a/drivers/misc/vmw_vmci/vmci_driver.h b/drivers/misc/vmw_vmci/vmci_driver.h
++/*
++ * Get a reference to given resource.
++ */
++struct vmci_resource *vmci_resource_get(struct vmci_resource *resource)
++{
++	kref_get(&resource->kref);
++
++	return resource;
++}
++
++static void vmci_release_resource(struct kref *kref)
++{
++	struct vmci_resource *resource =
++		container_of(kref, struct vmci_resource, kref);
++
++	/* Verify the resource has been unlinked from hash table */
++	WARN_ON(!hlist_unhashed(&resource->node));
++
++	/* Signal that container of this resource can now be destroyed */
++	complete(&resource->done);
++}
++
++/*
++ * resource's release function will get called if last reference.
++ */
++int vmci_resource_put(struct vmci_resource *resource)
++{
++	BUG_ON(!resource);
++
++	/*
++	 * We propagate the information back to caller in case it wants to know
++	 * whether entry was freed.
++	 */
++	return kref_put(&resource->kref, vmci_release_resource) ?
++		VMCI_SUCCESS_ENTRY_DEAD : VMCI_SUCCESS;
++}
++
++struct vmci_handle vmci_resource_handle(struct vmci_resource *resource)
++{
++	BUG_ON(!resource);
++
++	return resource->handle;
++}
+diff --git a/drivers/misc/vmw_vmci/vmci_resource.h b/drivers/misc/vmw_vmci/vmci_resource.h
 new file mode 100644
-index 0000000..f69156a
+index 0000000..9190cd2
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_driver.h
-@@ -0,0 +1,50 @@
++++ b/drivers/misc/vmw_vmci/vmci_resource.h
+@@ -0,0 +1,59 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -218,38 +296,47 @@ index 0000000..f69156a
 + * for more details.
 + */
 +
-+#ifndef _VMCI_DRIVER_H_
-+#define _VMCI_DRIVER_H_
++#ifndef _VMCI_RESOURCE_H_
++#define _VMCI_RESOURCE_H_
 +
 +#include <linux/vmw_vmci_defs.h>
-+#include <linux/wait.h>
++#include <linux/types.h>
 +
-+#include "vmci_queue_pair.h"
 +#include "vmci_context.h"
 +
-+enum vmci_obj_type {
-+	VMCIOBJ_VMX_VM = 10,
-+	VMCIOBJ_CONTEXT,
-+	VMCIOBJ_SOCKET,
-+	VMCIOBJ_NOT_SET,
++
++enum vmci_resource_type {
++	VMCI_RESOURCE_TYPE_ANY,
++	VMCI_RESOURCE_TYPE_API,
++	VMCI_RESOURCE_TYPE_GROUP,
++	VMCI_RESOURCE_TYPE_DATAGRAM,
++	VMCI_RESOURCE_TYPE_DOORBELL,
++	VMCI_RESOURCE_TYPE_QPAIR_GUEST,
++	VMCI_RESOURCE_TYPE_QPAIR_HOST
 +};
 +
-+/* For storing VMCI structures in file handles. */
-+struct vmci_obj {
-+	void *ptr;
-+	enum vmci_obj_type type;
++struct vmci_resource {
++	struct vmci_handle handle;
++	enum vmci_resource_type type;
++	struct hlist_node node;
++	struct kref kref;
++	struct completion done;
 +};
 +
-+u32 vmci_get_context_id(void);
-+int vmci_send_datagram(struct vmci_datagram *dg);
 +
-+int vmci_host_init(void);
-+void vmci_host_exit(void);
-+bool vmci_host_code_active(void);
++int vmci_resource_add(struct vmci_resource *resource,
++		      enum vmci_resource_type resource_type,
++		      struct vmci_handle handle);
 +
-+int vmci_guest_init(void);
-+void vmci_guest_exit(void);
-+bool vmci_guest_code_active(void);
-+u32 vmci_get_vm_context_id(void);
++void vmci_resource_remove(struct vmci_resource *resource);
 +
-+#endif /* _VMCI_DRIVER_H_ */
++struct vmci_resource *
++vmci_resource_by_handle(struct vmci_handle resource_handle,
++			enum vmci_resource_type resource_type);
++
++struct vmci_resource *vmci_resource_get(struct vmci_resource *resource);
++int vmci_resource_put(struct vmci_resource *resource);
++
++struct vmci_handle vmci_resource_handle(struct vmci_resource *resource);
++
++#endif /* _VMCI_RESOURCE_H_ */
