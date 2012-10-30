@@ -1,19 +1,20 @@
-From: Dmitry Torokhov <dtor@vmware.com>
+From: Greg KH <gregkh@linuxfoundation.org>
 Subject: Re: [Pv-drivers] [PATCH 00/12] VMCI for Linux upstreaming
-Date: Tue, 30 Oct 2012 12:43:54 -0700
-Message-ID: <20121030194354.GA32137@dtor-ws.eng.vmware.com>
+Date: Tue, 30 Oct 2012 12:59:45 -0700
+Message-ID: <20121030195945.GA32243@kroah.com>
 References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
 	<20121030021938.GC1920@kroah.com>
 	<20121030040744.GB32055@dtor-ws.eng.vmware.com>
 	<20121030154801.GC14167@kroah.com>
 	<20121030161807.GA9709@dtor-ws.eng.vmware.com>
 	<20121030162723.GA16135@kroah.com>
+	<20121030194354.GA32137@dtor-ws.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20121030162723.GA16135@kroah.com>
+In-Reply-To: <20121030194354.GA32137@dtor-ws.eng.vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,47 +24,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>
+To: Dmitry Torokhov <dtor@vmware.com>
 Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 30, 2012 at 09:27:23AM -0700, Greg KH wrote:
-> On Tue, Oct 30, 2012 at 09:18:07AM -0700, Dmitry Torokhov wrote:
-> > > > I think that even if we had a special directory for vmci having network
-> > > > drivers in Dave's realm and pvscsi in James's is best option, so the new
-> > > > directory would contain vmci and the balloon driver (vsock will go into
-> > > > net/).  Given that balloon is already in drivers/misc it looked like
-> > > > obvious place for VMCI as well.
+On Tue, Oct 30, 2012 at 12:43:54PM -0700, Dmitry Torokhov wrote:
+> On Tue, Oct 30, 2012 at 09:27:23AM -0700, Greg KH wrote:
+> > On Tue, Oct 30, 2012 at 09:18:07AM -0700, Dmitry Torokhov wrote:
+> > > > > I think that even if we had a special directory for vmci having network
+> > > > > drivers in Dave's realm and pvscsi in James's is best option, so the new
+> > > > > directory would contain vmci and the balloon driver (vsock will go into
+> > > > > net/).  Given that balloon is already in drivers/misc it looked like
+> > > > > obvious place for VMCI as well.
+> > > > 
+> > > > I agree that the individual drivers should go in the subsystem area,
+> > > > it's this "hypervisor bus core" type code that I'm questioning.  Right
+> > > > now every hypervisor is putting that logic in a different place in the
+> > > > kernel, having some consistency here would be nice.
 > > > 
-> > > I agree that the individual drivers should go in the subsystem area,
-> > > it's this "hypervisor bus core" type code that I'm questioning.  Right
-> > > now every hypervisor is putting that logic in a different place in the
-> > > kernel, having some consistency here would be nice.
+> > > Hmm, I wonder if miscellaneous and core hypervisor drivers should end
+> > > up in drivers/platform:
+> > > 
+> > > 	drivers/platform/hyperv
+> > > 	drivers/platform/olpc
+> > > 	drivers/platform/vmware
+> > > 	drivers/platform/xen
+> > > 	drivers/platform/x86
 > > 
-> > Hmm, I wonder if miscellaneous and core hypervisor drivers should end
-> > up in drivers/platform:
+> > That makes sense to me, nice.
 > > 
-> > 	drivers/platform/hyperv
-> > 	drivers/platform/olpc
-> > 	drivers/platform/vmware
-> > 	drivers/platform/xen
-> > 	drivers/platform/x86
+> > > But really we'd like to get VMCI into mainline first and move to a new
+> > > place later if such a better place is found.
+> > 
+> > Heh, no one wants to fight for something to help everyone out, they just
+> > want their own code accepted :)
 > 
-> That makes sense to me, nice.
+> No, this is more about finding a person who would be maintaining it and
+> thus would review our code. For now we got you tagged and do not want to
+> let go of you :P
 > 
-> > But really we'd like to get VMCI into mainline first and move to a new
-> > place later if such a better place is found.
-> 
-> Heh, no one wants to fight for something to help everyone out, they just
-> want their own code accepted :)
+> Or should we maintain our own stuff and have Linus pull it directly,
+> like Xen guys appear to be doing? Really, moving it is not an issue for
+> us.
 
-No, this is more about finding a person who would be maintaining it and
-thus would review our code. For now we got you tagged and do not want to
-let go of you :P
+No, I don't mind doing some of the review, and getting it to Linus to
+start with, but over time, having you all be the owners and push stuff
+directly to him is fine with me.
 
-Or should we maintain our own stuff and have Linus pull it directly,
-like Xen guys appear to be doing? Really, moving it is not an issue for
-us.
+So I agree, for now, let's leave it as-is.
 
-Thanks,
-Dmitry
+thanks,
+
+greg k-h
