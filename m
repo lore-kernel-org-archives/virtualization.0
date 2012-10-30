@@ -1,7 +1,7 @@
 From: Greg KH <gregkh@linuxfoundation.org>
 Subject: Re: [PATCH 01/12] VMCI: context implementation.
-Date: Mon, 29 Oct 2012 19:07:52 -0700
-Message-ID: <20121030020752.GA1920@kroah.com>
+Date: Mon, 29 Oct 2012 19:10:58 -0700
+Message-ID: <20121030021058.GB1920@kroah.com>
 References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
 	<20121030010333.17788.94988.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
@@ -24,32 +24,35 @@ Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.li
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Mon, Oct 29, 2012 at 06:03:42PM -0700, George Zhang wrote:
-> VMCI Context code maintains state for vmci and allows the driver to communicate with multiple VMs.
-> 
-
-Very minor nit, wrap your changelog comments at 72 columns or at the
-least, 80.  Didn't checkpatch complain about that?
-
 > +/*
-> + * vmci_context_id_to_host_vmid() - Map CID to HostID
-> + * @context_id: Context ID of VMCI context.
-> + * @host_vmid:  Host VM ID data
-> + * @host_vmid_len:      Length of Host VM ID Data.
-> + *
-> + * Maps a context ID to the host specific (process/world) ID
-> + * of the VM/VMX.  This function is not used on Linux systems
-> + * and should be ignored.
+> + * Releases the VMCI context. If this is the last reference to
+> + * the context it will be deallocated. A context is created with
+> + * a reference count of one, and on destroy, it is removed from
+> + * the context list before its reference count is
+> + * decremented. Thus, if we reach zero, we are sure that nobody
+> + * else are about to increment it (they need the entry in the
+> + * context list for that). This function musn't be called with a
+> + * lock held.
 > + */
-> +int vmci_context_id_to_host_vmid(u32 context_id,
-> +				 void *host_vmid, size_t host_vmid_len)
+> +void vmci_ctx_release(struct vmci_ctx *context)
 > +{
-> +	return VMCI_ERROR_UNAVAILABLE;
+> +	ASSERT(context);
+> +	kref_put(&context->kref, ctx_free_ctx);
 > +}
-> +EXPORT_SYMBOL_GPL(vmci_context_id_to_host_vmid);
+> +
 
-Why even have this function if it doesn't do anything?
+Hm, are you _sure_ you should be calling this without a lock held?
+That's usually kref-101, you MUST hold a lock when calling put,
+otherwise you can race a kref_get() call, and all hell can break loose.
 
+Because of this, some saner people (like Al Viro), have suggested that I
+force the kref_put() and kref_get() calls pass in a spinlock just to
+enforce this.
 
-thanks,
+So, tell me what I'm missing here, and why you put the comment here
+saying that it really is supposed to be called without a lock held?  How
+is that safe?
+
+confused,
 
 greg k-h
