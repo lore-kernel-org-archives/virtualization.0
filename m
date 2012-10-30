@@ -1,7 +1,7 @@
 From: Greg KH <gregkh@linuxfoundation.org>
 Subject: Re: [PATCH 08/12] VMCI: resource object implementation.
-Date: Mon, 29 Oct 2012 19:29:05 -0700
-Message-ID: <20121030022905.GH1920@kroah.com>
+Date: Mon, 29 Oct 2012 19:29:46 -0700
+Message-ID: <20121030022946.GI1920@kroah.com>
 References: <20121030005923.17788.21797.stgit@promb-2n-dhcp175.eng.vmware.com>
 	<20121030010453.17788.90295.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
@@ -24,25 +24,10 @@ Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.li
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Mon, Oct 29, 2012 at 06:04:58PM -0700, George Zhang wrote:
-> +static struct vmci_resource *vmci_resource_lookup(struct vmci_handle handle)
-> +{
-> +	struct vmci_resource *r, *resource = NULL;
-> +	struct hlist_node *node;
-> +	unsigned int idx = vmci_resource_hash(handle);
-> +
-> +	BUG_ON(VMCI_HANDLE_EQUAL(handle, VMCI_INVALID_HANDLE));
+> VMCI resource tracks all used resources within the vmci code.
 
-You just crashed a machine, with no chance for recovery.  Not a good
-idea.  Never a good idea.  Customers just lost data, and now they are
-mad.  Make sure you at least print out your email address so they know
-who to blame :)
-
-Seriously, never BUG() in a driver, warn, sure, but this just looks like
-a debugging assert().  Please remove all of these, they are sprinkled
-all over the driver code here, I'm only responding to one of them here.
-
-Even better yet, properly handle the error and keep on going, that's
-what the rest of the kernel does.  Or should :)
+Same "kref_put() with no lock seen" question in this file, prove me
+wrong please.
 
 thanks,
 
