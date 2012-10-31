@@ -1,14 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [rfc net-next v6 0/3] Multiqueue virtio-net
-Date: Wed, 31 Oct 2012 18:33:15 +0800
-Message-ID: <5090FE6B.4030001@redhat.com>
-References: <1351591403-23065-1-git-send-email-jasowang@redhat.com>
-	<509024F4.8080408@hp.com>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: Linux-next changes for module and virtio trees.
+Date: Wed, 31 Oct 2012 22:53:04 +1100
+Message-ID: <20121031225304.5a1f3885dcb1cae725f77a81__9750.32784413106$1351684413$gmane$org@canb.auug.org.au>
+References: <871uhh4cen.fsf@rustcorp.com.au>
+	<20121003011239.3445171ec17e422a289d2997@canb.auug.org.au>
+	<87pq3z5nhs.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8770698007274070553=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <509024F4.8080408@hp.com>
+In-Reply-To: <87pq3z5nhs.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,62 +18,110 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rick Jones <rick.jones2@hp.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, kvm-devel <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/31/2012 03:05 AM, Rick Jones wrote:
-> On 10/30/2012 03:03 AM, Jason Wang wrote:
->> Hi all:
->>
->> This series is an update version of multiqueue virtio-net driver 
->> based on
->> Krishna Kumar's work to let virtio-net use multiple rx/tx queues to 
->> do the
->> packets reception and transmission. Please review and comments.
->>
->> Changes from v5:
->> - Align the implementation with the RFC spec update v4
->> - Switch the mode between single mode and multiqueue mode without reset
->> - Remove the 256 limitation of queues
->> - Use helpers to do the mapping between virtqueues and tx/rx queues
->> - Use commbined channels instead of separated rx/tx queus when do the 
->> queue
->> number configuartion
->> - Other coding style comments from Michael
->>
->> Reference:
->> - A protype implementation of qemu-kvm support could by found in
->> git://github.com/jasowang/qemu-kvm-mq.git
->> - V5 could be found at http://lwn.net/Articles/505388/
->> - V4 could be found at https://lkml.org/lkml/2012/6/25/120
->> - V2 could be found at http://lwn.net/Articles/467283/
->> - Michael virtio-spec: 
->> http://www.spinics.net/lists/netdev/msg209986.html
->>
->> Perf Numbers:
->>
->> - Pktgen test shows the receiving capability of the multiqueue 
->> virtio-net were
->>    dramatically improved.
->> - Netperf result shows latency were greately improved according to 
->> the test
->> result.
->
-> I suppose it is technically correct to say that latency was improved, 
-> but usually for aggregate request/response tests I tend to talk about 
-> the aggregate transactions per second.
+--===============8770698007274070553==
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA256";
+ boundary="Signature=_Wed__31_Oct_2012_22_53_04_+1100_h=LAw3Q5AxjsGdIf"
 
-Sure.
->
-> Do you have a hypothesis as to why the improvement dropped going to 20 
-> concurrent sessions from 10?
->
-> rick jones 
+--Signature=_Wed__31_Oct_2012_22_53_04_+1100_h=LAw3Q5AxjsGdIf
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm investigating this issuse currently, but with no much ideas. The 
-aggregate transactions per second scales pretty well even with 20 
-cocurrent sessions when doing test between a local host and a local vm. 
-Looks like some bottleneck were reached when doing testing over 10gb or 
-vms as even if I increase the number of sessions, the result would not 
-increase.
+Hi Rusty,
+
+On Wed, 31 Oct 2012 13:58:15 +1030 Rusty Russell <rusty@rustcorp.com.au> wr=
+ote:
+>
+> Stephen Rothwell <sfr@canb.auug.org.au> writes:
+> >
+> > On Tue, 02 Oct 2012 15:56:56 +0930 Rusty Russell <rusty@rustcorp.com.au=
+> wrote:
+> >>
+> >>         Please remove my quilt tree
+> >> http://ozlabs.org/~rusty/kernel/rr-latest/ from linux-next, and use my
+> >> git trees from now on:
+> >>=20
+> >> git://git.kernel.org/pub/scm/linux/kernel/git/rusty/linux.git
+> >> Branches:
+> >>         modules-next
+> >>         virtio-next
+> >
+> > Done.
+>=20
+> And please add my 'fixes' branch from the same tree.
+
+Done.
+
+Thanks for adding your subsystem tree as a participant of linux-next.  As
+you may know, this is not a judgment of your code.  The purpose of
+linux-next is for integration testing and to lower the impact of
+conflicts between subsystems in the next merge window.=20
+
+You will need to ensure that the patches/commits in your tree/series have
+been:
+     * submitted under GPL v2 (or later) and include the Contributor's
+	Signed-off-by,
+     * posted to the relevant mailing list,
+     * reviewed by you (or another maintainer of your subsystem tree),
+     * successfully unit tested, and=20
+     * destined for the current or next Linux merge window.
+
+Basically, this should be just what you would send to Linus (or ask him
+to fetch).  It is allowed to be rebased if you deem it necessary.
+
+--=20
+Cheers,
+Stephen Rothwell=20
+sfr@canb.auug.org.au
+
+Legal Stuff:
+By participating in linux-next, your subsystem tree contributions are
+public and will be included in the linux-next trees.  You may be sent
+e-mail messages indicating errors or other issues when the
+patches/commits from your subsystem tree are merged and tested in
+linux-next.  These messages may also be cross-posted to the linux-next
+mailing list, the linux-kernel mailing list, etc.  The linux-next tree
+project and IBM (my employer) make no warranties regarding the linux-next
+project, the testing procedures, the results, the e-mails, etc.  If you
+don't agree to these ground rules, let me know and I'll remove your tree
+from participation in linux-next.
+
+--Signature=_Wed__31_Oct_2012_22_53_04_+1100_h=LAw3Q5AxjsGdIf
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBCAAGBQJQkREgAAoJEECxmPOUX5FEOWwP/00/8OX7xHd8xHVgWMQU0cXm
+2WfLo+hT5wGyFNOPRemfOSrd407mRmP8SlMdcH/PrvNlBRHYlC+p0OyNyBBTvc8y
+1Inn6FKDMkp6sYcyEtfeIuiga+FuzY/kBtWm6VO1mQedSslJbh96WgJkustC5dz+
+lpHYrX6pnFWJtt4lg3Sng8hewcHrhutW6OtidIagZ8UN+pK21qT0jLIk/DW23ffK
+7PltalQUzB4F/2RUGLzy8q+HN+CpWeGxXBMLak0Q7au2ZnqUzE7PRajYqpMQcHhO
+vLPv6PjBvah0euR+D0h7cf0hhX8ba0wv16beANHF39QinDrWDLCxnm1uMuYFyfqi
+/8lAYd/SXh29Nh6lDaVaicZ5wajG1R2haDLmkmmrZD5cPMmQGdY7po6n/MOC9gkj
+jiFc0Qyg3agc9M3pDLYY4nMqE6L8mqP+a7T0s4zo/IpklAqOrBF7+0K71hAKojq6
+06i3EdUpZ4kgi3YxJQNngspiMFLS6INKSqllFef4klqoJz6DYT0bAJxFDFs1I9m6
+aguJkP/wFTVLKmjed2y+eowKA4MuN25q/BvygL0W+Gdb3OpftzbzFNkGr1uqMxMy
+hINOLWVcBBR57hFWB4g1sfLMAkQFGMh+O8AP7PJjIYItgzY0TXGsIDhJ6PQ6wAe3
+G3rRVHHzuOjfURdWirMi
+=n8gR
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__31_Oct_2012_22_53_04_+1100_h=LAw3Q5AxjsGdIf--
+
+--===============8770698007274070553==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8770698007274070553==--
