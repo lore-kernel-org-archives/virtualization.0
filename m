@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-ccw: Clarifications.
-Date: Wed, 31 Oct 2012 11:41:23 +1030
-Message-ID: <877gq778ec.fsf@rustcorp.com.au>
-References: <1351515758-22295-1-git-send-email-cornelia.huck@de.ibm.com>
-	<1351515758-22295-2-git-send-email-cornelia.huck@de.ibm.com>
+Subject: Re: Linux-next changes for module and virtio trees.
+Date: Wed, 31 Oct 2012 13:58:15 +1030
+Message-ID: <87pq3z5nhs.fsf__19288.5390170433$1351654403$gmane$org@rustcorp.com.au>
+References: <871uhh4cen.fsf@rustcorp.com.au>
+	<20121003011239.3445171ec17e422a289d2997@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1351515758-22295-2-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <20121003011239.3445171ec17e422a289d2997@canb.auug.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,18 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, kvm-devel <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cornelia Huck <cornelia.huck@de.ibm.com> writes:
-
-> Clarify how indicator location is communicated and that the
-> feature bits are little-endian.
+Stephen Rothwell <sfr@canb.auug.org.au> writes:
+> Hi Rusty,
 >
-> Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> On Tue, 02 Oct 2012 15:56:56 +0930 Rusty Russell <rusty@rustcorp.com.au> wrote:
+>>
+>>         Please remove my quilt tree
+>> http://ozlabs.org/~rusty/kernel/rr-latest/ from linux-next, and use my
+>> git trees from now on:
+>> 
+>> git://git.kernel.org/pub/scm/linux/kernel/git/rusty/linux.git
+>> Branches:
+>>         modules-next
+>>         virtio-next
+>
+> Done.
 
-Thanks, applied!
+And please add my 'fixes' branch from the same tree.
 
-Cheers,
+Thanks,
 Rusty.
