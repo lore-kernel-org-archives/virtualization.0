@@ -1,14 +1,11 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: Linux-next changes for module and virtio trees.
-Date: Wed, 31 Oct 2012 22:53:04 +1100
-Message-ID: <20121031225304.5a1f3885dcb1cae725f77a81__9750.32784413106$1351684413$gmane$org@canb.auug.org.au>
-References: <871uhh4cen.fsf@rustcorp.com.au>
-	<20121003011239.3445171ec17e422a289d2997@canb.auug.org.au>
-	<87pq3z5nhs.fsf@rustcorp.com.au>
+From: =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur@brendeland.net>
+Subject: [RFC virtio-next 0/4] Introduce CAIF Virtio and reversed Vrings
+Date: Wed, 31 Oct 2012 23:46:50 +0100
+Message-ID: <1351723614-4145-1-git-send-email-sjur@brendeland.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8770698007274070553=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87pq3z5nhs.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,109 +16,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, kvm-devel <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, dmitry.tarnyagin@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, sjur@brendeland.net
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============8770698007274070553==
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA256";
- boundary="Signature=_Wed__31_Oct_2012_22_53_04_+1100_h=LAw3Q5AxjsGdIf"
-
---Signature=_Wed__31_Oct_2012_22_53_04_+1100_h=LAw3Q5AxjsGdIf
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Rusty,
-
-On Wed, 31 Oct 2012 13:58:15 +1030 Rusty Russell <rusty@rustcorp.com.au> wr=
-ote:
->
-> Stephen Rothwell <sfr@canb.auug.org.au> writes:
-> >
-> > On Tue, 02 Oct 2012 15:56:56 +0930 Rusty Russell <rusty@rustcorp.com.au=
-> wrote:
-> >>
-> >>         Please remove my quilt tree
-> >> http://ozlabs.org/~rusty/kernel/rr-latest/ from linux-next, and use my
-> >> git trees from now on:
-> >>=20
-> >> git://git.kernel.org/pub/scm/linux/kernel/git/rusty/linux.git
-> >> Branches:
-> >>         modules-next
-> >>         virtio-next
-> >
-> > Done.
->=20
-> And please add my 'fixes' branch from the same tree.
-
-Done.
-
-Thanks for adding your subsystem tree as a participant of linux-next.  As
-you may know, this is not a judgment of your code.  The purpose of
-linux-next is for integration testing and to lower the impact of
-conflicts between subsystems in the next merge window.=20
-
-You will need to ensure that the patches/commits in your tree/series have
-been:
-     * submitted under GPL v2 (or later) and include the Contributor's
-	Signed-off-by,
-     * posted to the relevant mailing list,
-     * reviewed by you (or another maintainer of your subsystem tree),
-     * successfully unit tested, and=20
-     * destined for the current or next Linux merge window.
-
-Basically, this should be just what you would send to Linus (or ask him
-to fetch).  It is allowed to be rebased if you deem it necessary.
-
---=20
-Cheers,
-Stephen Rothwell=20
-sfr@canb.auug.org.au
-
-Legal Stuff:
-By participating in linux-next, your subsystem tree contributions are
-public and will be included in the linux-next trees.  You may be sent
-e-mail messages indicating errors or other issues when the
-patches/commits from your subsystem tree are merged and tested in
-linux-next.  These messages may also be cross-posted to the linux-next
-mailing list, the linux-kernel mailing list, etc.  The linux-next tree
-project and IBM (my employer) make no warranties regarding the linux-next
-project, the testing procedures, the results, the e-mails, etc.  If you
-don't agree to these ground rules, let me know and I'll remove your tree
-from participation in linux-next.
-
---Signature=_Wed__31_Oct_2012_22_53_04_+1100_h=LAw3Q5AxjsGdIf
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBCAAGBQJQkREgAAoJEECxmPOUX5FEOWwP/00/8OX7xHd8xHVgWMQU0cXm
-2WfLo+hT5wGyFNOPRemfOSrd407mRmP8SlMdcH/PrvNlBRHYlC+p0OyNyBBTvc8y
-1Inn6FKDMkp6sYcyEtfeIuiga+FuzY/kBtWm6VO1mQedSslJbh96WgJkustC5dz+
-lpHYrX6pnFWJtt4lg3Sng8hewcHrhutW6OtidIagZ8UN+pK21qT0jLIk/DW23ffK
-7PltalQUzB4F/2RUGLzy8q+HN+CpWeGxXBMLak0Q7au2ZnqUzE7PRajYqpMQcHhO
-vLPv6PjBvah0euR+D0h7cf0hhX8ba0wv16beANHF39QinDrWDLCxnm1uMuYFyfqi
-/8lAYd/SXh29Nh6lDaVaicZ5wajG1R2haDLmkmmrZD5cPMmQGdY7po6n/MOC9gkj
-jiFc0Qyg3agc9M3pDLYY4nMqE6L8mqP+a7T0s4zo/IpklAqOrBF7+0K71hAKojq6
-06i3EdUpZ4kgi3YxJQNngspiMFLS6INKSqllFef4klqoJz6DYT0bAJxFDFs1I9m6
-aguJkP/wFTVLKmjed2y+eowKA4MuN25q/BvygL0W+Gdb3OpftzbzFNkGr1uqMxMy
-hINOLWVcBBR57hFWB4g1sfLMAkQFGMh+O8AP7PJjIYItgzY0TXGsIDhJ6PQ6wAe3
-G3rRVHHzuOjfURdWirMi
-=n8gR
------END PGP SIGNATURE-----
-
---Signature=_Wed__31_Oct_2012_22_53_04_+1100_h=LAw3Q5AxjsGdIf--
-
---===============8770698007274070553==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8770698007274070553==--
+VGhpcyBwYXRjaC1zZXQgaW50cm9kdWNlcyB0aGUgQ0FJRiBWaXJ0aW8gTGluayBsYXllci4gVGhl
+IHB1cnBvc2UgaXMgdG8KY29tbXVuaWNhdGUgd2l0aCBhIHJlbW90ZSBwcm9jZXNzb3IgKGEgbW9k
+ZW0pIG92ZXIgc2hhcmVkIG1lbW9yeS4gVmlydGlvCmlzIHVzZWQgYXMgdGhlIHRyYW5zcG9ydCBt
+ZWNoYW5pc20sIGFuZCB0aGUgUmVtb3RlcHJvYyBmcmFtZXdvcmsgcHJvdmlkZXMKY29uZmlndXJh
+dGlvbiBhbmQgbWFuYWdlbWVudCBvZiB0aGUgVmlydGlvIHJpbmdzIGFuZCBkZXZpY2VzLiBUaGUg
+bW9kZW0KYW5kIExpbnV4IGhvc3QgbWF5IGJlIG9uIHRoZSBzYW1lIFNvQywgb3IgY29ubmVjdGVk
+IG92ZXIgYSBzaGFyZWQgbWVtb3J5CmludGVyZmFjZSBzdWNoIGFzIExMSS4KClplcm8tQ29weSBk
+YXRhIHRyYW5zcG9ydCBvbiB0aGUgbW9kZW0gaXMgcHJpbWFyeSBnb2FsIGZvciBDQUlGIFZpcnRp
+by4KSW4gb3JkZXIgdG8gYWNoaWV2ZSBaZXJvLUNvcHkgdGhlIGRpcmVjdGlvbiBvZiB0aGUgVmly
+dGlvIHJpbmdzIGFyZQpmbGlwcGVkIGluIHRoZSBSWCBkaXJlY3Rpb24uIFNvIHdlIGhhdmUgaW1w
+bGVtZW50ZWQgdGhlIFZpcnRpbwphY2Nlc3MtZnVuY3Rpb24gc2ltaWxhciB0byB3aGF0IGlzIGZv
+dW5kIGluIHZob3N0LmMuCgpUaGUgY29ubmVjdGVkIExURS1tb2RlbSBpcyBhIG11bHRpLXByb2Nl
+c3NvciBzeXN0ZW0gd2l0aCBhbiBhZHZhbmNlZAptZW1vcnkgYWxsb2NhdG9yIG9uIGJvYXJkLiBJ
+biBvcmRlciB0byBwcm92aWRlIHplcm8tY29weSBmcm9tIHRoZSBtb2RlbQp0byB0aGUgY29ubmVj
+dGVkIExpbnV4IGhvc3QsIHRoZSBkaXJlY3Rpb24gb2YgdGhlIFZpcnRpbyByaW5ncyBhcmUKcmV2
+ZXJzZWQuIFRoaXMgYWxsb3dzIHRoZSBtb2RlbSB0byBhbGxvY2F0ZSBkYXRhLWJ1ZmZlcnMgaW4g
+UlgKZGlyZWN0aW9uIGFuZCBwYXNzIHRoZW0gdG8gdGhlIExpbnV4IGhvc3QsIGFuZCByZWN5Y2xl
+ZCBidWZmZXJzIHRvIGJlCnNlbnQgYmFjayB0byB0aGUgbW9kZW0uCgpUaGUgb3B0aW9uIG9mIHBy
+b3ZpZGluZyBwcmUtYWxsb2NhdGVkIGJ1ZmZlcnMgaW4gUlggZGlyZWN0aW9uIGhhcyBiZWVuCmNv
+bnNpZGVyZWQsIGJ1dCByZWplY3RlZC4gVGhlIGFsbG9jYXRpb24gb2YgZGF0YSBidWZmZXJzIGhh
+cHBlbnMgZGVlcApkb3duIGluIHRoZSBuZXR3b3JrIHNpZ25hbGluZyBzdGFjayBvbiB0aGUgTFRF
+IG1vZGVtIGJlZm9yZSBpdCBpcyBrbm93bgp3aGF0IHR5cGUgb2YgZGF0YSBpcyByZWNlaXZlZC4g
+SXQgbWF5IGJlIGRhdGEgdGhhdCBpcyBoYW5kbGVkIHdpdGhpbiB0aGUKbW9kZW0gYW5kIG5ldmVy
+IHNlbnQgdG8gdGhlIExpbnV4IGhvc3QsIG9yIElQIHRyYWZmaWMgZ29pbmcgdG8gdGhlIGhvc3Qu
+ClByZS1hbGxvY2F0ZWQgVmlydGlvIGJ1ZmZlcnMgZG9lcyBub3QgZml0IGZvciB0aGlzIHVzYWdl
+LiBBbm90aGVyIGlzc3VlCmlzIHRoYXQgdGhlIG5ldHdvcmsgdHJhZmZpYyBwYXR0ZXJuIG1heSB2
+YXJ5LCByZXN1bHRpbmcgaW4gdmFyaWF0aW9uIG9mCm51bWJlciBhbmQgc2l6ZSBvZiBidWZmZXJz
+IGFsbG9jYXRlZCBmcm9tIHRoZSBtZW1vcnkgYWxsb2NhdG9yLiBEeW5hbWljCmFsbG9jYXRpb24g
+aXMgbmVlZGVkIGluIG9yZGVyIHRvIHV0aWxpemUgbWVtb3J5IHByb3Blcmx5LiBEdWUgdG8gdGhp
+cywKd2UgZGVjaWRlZCB3ZSBoYWQgdG8gaW1wbGVtZW50ICJyZXZlcnNlZCIgdnJpbmdzLiBSZXZl
+cnNlZCB2cmluZ3MgYWxsb3dzCnVzIHRvIG1pbmltaXplIHRoZSBpbXBhY3Qgb24gdGhlIGN1cnJl
+bnQgbWVtb3J5IGFsbG9jYXRvciBhbmQgYnVmZmVyCmhhbmRsaW5nIG9uIHRoZSBtb2RlbS4gCgpJ
+biBvcmRlciB0byBpbXBsZW1lbnQgcmV2ZXJzZWQgcmluZ3Mgd2UgaGF2ZSBhZGRlZCBmdW5jdGlv
+bnMgZm9yIHJlYWRpbmcKZGVzY3JpcHRvcnMgZnJvbSB0aGUgYXZhaWxhYmxlLXJpbmcgYW5kIGFk
+ZGluZyBkZXNjcmlwdG9ycyB0byB0aGUgdXNlZC1yaW5nLgpUaGUgaW50ZXJuYWwgZGF0YS1zdHJ1
+Y3R1cmVzIGluIHZpcnRpb19yaW5nLmMgYXJlIG1vdmVkIGludG8gYSBuZXcgaGVhZGVyCmZpbGUg
+c28gdGhlIGRhdGEtc3RydWN0dXJlcyBjYW4gYmUgYWNjZXNzZWQgYnkgY2FpZl92aXJ0aW8uCgpU
+aGUgZGF0YSBidWZmZXJzIGluIFRYIGRpcmVjdGlvbiBhcmUgYWxsb2NhdGVkIHVzaW5nIGRtYV9h
+bGxvY19jb2hlcmVudCgpLgpUaGlzIGFsbG93cyBtZW1vcnkgdG8gYmUgYWxsb2NhdGVkIGZyb20g
+dGhlIG1lbW9yeSByZWdpb24gc2hhcmVkIGJldHdlZW4KdGhlIEhvc3QgYW5kIG1vZGVtLgoKSW4g
+VFggZGlyZWN0aW9uIHNpbmdsZSBsaW5lYXJpemVkIFRYIGJ1ZmZlcnMgYXJlIGFkZGVkIHRvIHRo
+ZSB2cmluZy4gSW4KUlggZGlyZWN0aW9uIGxpbmVhcml6ZWQgZnJhbWVzIGFyZSBhbHNvIHVzZWQs
+IGJ1dCBtdWx0aXBsZSBkZXNjcmlwdG9ycyBtYXkKYmUgbGlua2VkLiBUaGlzIGlzIGRvbmUgdG8g
+YWxsb3cgbWF4aW11bSBlZmZpY2llbmN5IGZvciB0aGUgTFRFIG1vZGVtLgoKVGhpcyBwYXRjaCBz
+ZXQgaXMgbm90IHlldCBmdWxseSB0ZXN0ZWQgYW5kIGRvZXMgbm90IGhhbmRsZSBhbGwgbmVnYXRp
+dmUKc2NlbmFyaW9zIGNvcnJlY3RseS4gU28gYXQgdGhpcyBzdGFnZSB3ZSdyZSBwcmltYXJpbHkg
+bG9va2luZyBmb3IgcmV2aWV3CmNvbW1lbnRzIHJlbGF0ZWQgdG8gdGhlIHN0cnVjdHVyZSBvZiB0
+aGUgVmlydGlvIGNvZGUuIFRoZXJlIGFyZSBzZXZlcmFsCm9wdGlvbnMgb24gaG93IHRvIHN0cnVj
+dHVyZSB0aGlzLCBhbmQgZmVlZGJhY2sgaXMgd2VsY29tZWQuCgpUaGFua3MsClNqdXIKClNqdXIg
+QnLDpm5kZWxhbmQgKDQpOgogIHZpcnRpbzogTW92ZSBkZWZpbml0aW9ucyB0byBoZWFkZXIgZmls
+ZSB2cmluZy5oCiAgaW5jbHVkZS92cmluZy5oOiBBZGQgc3VwcG9ydCBmb3IgcmV2ZXJzZWQgdnJp
+dGlvIHJpbmdzLgogIHZpcnRpb19yaW5nOiBDYWxsIGNhbGxiYWNrIGZ1bmN0aW9uIGV2ZW4gd2hl
+biB1c2VkIHJpbmcgaXMgZW1wdHkKICBjYWlmX3ZpcnRpbzogQWRkIENBSUYgb3ZlciB2aXJ0aW8K
+CiBkcml2ZXJzL25ldC9jYWlmL0tjb25maWcgICAgICAgICAgICAgICB8ICAgIDkgKwogZHJpdmVy
+cy9uZXQvY2FpZi9NYWtlZmlsZSAgICAgICAgICAgICAgfCAgICAzICsKIGRyaXZlcnMvbmV0L2Nh
+aWYvY2FpZl92aXJ0aW8uYyAgICAgICAgIHwgIDYyNyArKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKwogZHJpdmVycy9yZW1vdGVwcm9jL3JlbW90ZXByb2NfdmlydGlvLmMgfCAgICAyICst
+CiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jICAgICAgICAgICB8ICAxMDIgKy0tLS0tCiBk
+cml2ZXJzL3ZpcnRpby92cmluZy5oICAgICAgICAgICAgICAgICB8ICAxMjQgKysrKysrKwogaW5j
+bHVkZS9saW51eC92aXJ0aW9fcmluZy5oICAgICAgICAgICAgfCAgICA4ICstCiBpbmNsdWRlL3Vh
+cGkvbGludXgvdmlydGlvX2lkcy5oICAgICAgICB8ICAgIDEgKwogOCBmaWxlcyBjaGFuZ2VkLCA3
+NzYgaW5zZXJ0aW9ucygrKSwgMTAwIGRlbGV0aW9ucygtKQogY3JlYXRlIG1vZGUgMTAwNjQ0IGRy
+aXZlcnMvbmV0L2NhaWYvY2FpZl92aXJ0aW8uYwogY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMv
+dmlydGlvL3ZyaW5nLmgKCi0tIAoxLjcuOS41CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
