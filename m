@@ -1,13 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC virtio-next 0/4] Introduce CAIF Virtio and reversed Vrings
-Date: Thu, 01 Nov 2012 18:11:35 +1030
-Message-ID: <87wqy54vo0.fsf@rustcorp.com.au>
-References: <1351723614-4145-1-git-send-email-sjur@brendeland.net>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCHv7 4/4] virtio_console: Add support for remoteproc serial
+Date: Thu, 1 Nov 2012 13:09:51 +0530
+Message-ID: <20121101073951.GA17012__7635.54136869988$1351756104$gmane$org@amit.redhat.com>
+References: <1350287856-5284-1-git-send-email-sjur.brandeland@stericsson.com>
+	<1350287856-5284-5-git-send-email-sjur.brandeland@stericsson.com>
+	<878vayhsca.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1351723614-4145-1-git-send-email-sjur@brendeland.net>
+Content-Disposition: inline
+In-Reply-To: <878vayhsca.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,26 +20,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, dmitry.tarnyagin@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, sjur@brendeland.net
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1ckBicmVuZGVsYW5kLm5ldD4gd3JpdGVzOgo+IFplcm8tQ29w
-eSBkYXRhIHRyYW5zcG9ydCBvbiB0aGUgbW9kZW0gaXMgcHJpbWFyeSBnb2FsIGZvciBDQUlGIFZp
-cnRpby4KPiBJbiBvcmRlciB0byBhY2hpZXZlIFplcm8tQ29weSB0aGUgZGlyZWN0aW9uIG9mIHRo
-ZSBWaXJ0aW8gcmluZ3MgYXJlCj4gZmxpcHBlZCBpbiB0aGUgUlggZGlyZWN0aW9uLiBTbyB3ZSBo
-YXZlIGltcGxlbWVudGVkIHRoZSBWaXJ0aW8KPiBhY2Nlc3MtZnVuY3Rpb24gc2ltaWxhciB0byB3
-aGF0IGlzIGZvdW5kIGluIHZob3N0LmMuCgpTbywgdGhpcyBhZGRzIGFub3RoZXIgaG9zdC1zaWRl
-IHZpcnRxdWV1ZSBpbXBsZW1lbnRhdGlvbi4KCkNhbiB3ZSBjb21iaW5lIHRoZW0gdG9nZXRoZXIg
-Y29udmVuaWVudGx5PyAgWW91IHB1bGxlZCBvdXQgbW9yZSBzdHVmZgppbnRvIHZyaW5nLmggd2hp
-Y2ggaXMgYSBzdGFydCwgYnV0IGl0J3MgYSBiaXQgb3ZlcmxvYWRlZC4KClBlcmhhcHMgd2Ugc2hv
-dWxkIHNlcGFyYXRlIHRoZSBjb21tb24gZmllbGRzIGludG8gc3RydWN0IHZyaW5nLCBhbmQgdXNl
-Cml0IHRvIGJ1aWxkOgoKICAgICAgICBzdHJ1Y3QgdnJpbmdfZ3Vlc3QgewogICAgICAgICAgICAg
-ICAgc3RydWN0IHZyaW5nIHZyOwogICAgICAgICAgICAgICAgdTE2IGxhc3RfdXNlZF9pZHg7CiAg
-ICAgICAgfTsKCiAgICAgICAgc3RydWN0IHZyaW5nX2hvc3QgewogICAgICAgICAgICAgICAgc3Ry
-dWN0IHZyaW5nIHZyOwogICAgICAgICAgICAgICAgdTE2IGxhc3RfYXZhaWxfaWR4OwogICAgICAg
-IH07CgpJIGhhdmVuJ3QgbG9va2VkIGNsb3NlbHkgYXQgdmhvc3QgdG8gc2VlIHdoYXQgaXQgd2Fu
-dHMsIGJ1dCBJIHdvdWxkCnRoaW5rIHdlIGNvdWxkIHNoYXJlIG1vcmUgY29kZS4KCkNoZWVycywK
-UnVzdHkuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+On (Tue) 23 Oct 2012 [12:17:49], Rusty Russell wrote:
+> sjur.brandeland@stericsson.com writes:
+> > From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+
+> > @@ -1415,7 +1524,16 @@ static void remove_port_data(struct port *port)
+> >  =
+
+> >  	/* Remove buffers we queued up for the Host to send us data in. */
+> >  	while ((buf =3D virtqueue_detach_unused_buf(port->in_vq)))
+> > -		free_buf(buf);
+> > +		free_buf(buf, true);
+> > +
+> > +	/*
+> > +	 * Remove buffers from out queue for rproc-serial. We cannot afford
+> > +	 * to leak any DMA mem, so reclaim this memory even if this might be
+> > +	 * racy for the remote processor.
+> > +	 */
+> > +	if (is_rproc_serial(port->portdev->vdev))
+> > +		while ((buf =3D virtqueue_detach_unused_buf(port->out_vq)))
+> > +			free_buf(buf, true);
+> >  }
+> =
+
+> This seems wrong; either this is needed even if !is_rproc_serial(), or
+> it's not necessary as the out_vq is empty.
+> =
+
+> Every path I can see has the device reset (in which case the queues
+> should not be active), or we got a VIRTIO_CONSOLE_PORT_REMOVE event (in
+> which case, the same).
+> =
+
+> I think we can have non-blocking writes which could leave buffers in
+> out_vq: Amit?
+
+Those get 'reclaimed' just above this hunk:
+
+
+static void remove_port_data(struct port *port)
+{
+	struct port_buffer *buf;
+
+	/* Remove unused data this port might have received. */
+	discard_port_data(port);
+
+	reclaim_consumed_buffers(port);
+
+	/* Remove buffers we queued up for the Host to send us data in. */
+	while ((buf =3D virtqueue_detach_unused_buf(port->in_vq)))
+	      free_buf(buf, true);
+
+  ...
+
+
+
+
+> >  static void __exit fini(void)
+> >  {
+> > +	reclaim_dma_bufs();
+> =
+
+> Hmm, you didn't protect it here anyway...
+> =
+
+> Cheers,
+> Rusty.
+
+		Amit
