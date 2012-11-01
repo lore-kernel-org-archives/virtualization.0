@@ -1,15 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 14/16] virtio: Convert dev_printk(KERN_<LEVEL> to
-	dev_<level>(
-Date: Thu, 01 Nov 2012 10:24:03 +1030
-Message-ID: <87ip9q5hb8.fsf@rustcorp.com.au>
-References: <cover.1351411047.git.joe@perches.com>
-	<a32fa314ea4f0318869f62d0942d3f1f936219d6.1351411048.git.joe@perches.com>
+Subject: Re: [RFC virtio-next 0/4] Introduce CAIF Virtio and reversed Vrings
+Date: Thu, 01 Nov 2012 18:11:35 +1030
+Message-ID: <87wqy54vo0.fsf@rustcorp.com.au>
+References: <1351723614-4145-1-git-send-email-sjur@brendeland.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a32fa314ea4f0318869f62d0942d3f1f936219d6.1351411048.git.joe@perches.com>
+In-Reply-To: <1351723614-4145-1-git-send-email-sjur@brendeland.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,19 +17,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Joe Perches <joe@perches.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, dmitry.tarnyagin@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, sjur@brendeland.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Joe Perches <joe@perches.com> writes:
-
-> dev_<level> calls take less code than dev_printk(KERN_<LEVEL>
-> and reducing object size is good.
-> Convert if (printk_ratelimit()) dev_printk to dev_<level>_ratelimited.
->
-> Signed-off-by: Joe Perches <joe@perches.com>
-
-Applied.
-
-Thanks,
-Rusty.
+U2p1ciBCcsOmbmRlbGFuZCA8c2p1ckBicmVuZGVsYW5kLm5ldD4gd3JpdGVzOgo+IFplcm8tQ29w
+eSBkYXRhIHRyYW5zcG9ydCBvbiB0aGUgbW9kZW0gaXMgcHJpbWFyeSBnb2FsIGZvciBDQUlGIFZp
+cnRpby4KPiBJbiBvcmRlciB0byBhY2hpZXZlIFplcm8tQ29weSB0aGUgZGlyZWN0aW9uIG9mIHRo
+ZSBWaXJ0aW8gcmluZ3MgYXJlCj4gZmxpcHBlZCBpbiB0aGUgUlggZGlyZWN0aW9uLiBTbyB3ZSBo
+YXZlIGltcGxlbWVudGVkIHRoZSBWaXJ0aW8KPiBhY2Nlc3MtZnVuY3Rpb24gc2ltaWxhciB0byB3
+aGF0IGlzIGZvdW5kIGluIHZob3N0LmMuCgpTbywgdGhpcyBhZGRzIGFub3RoZXIgaG9zdC1zaWRl
+IHZpcnRxdWV1ZSBpbXBsZW1lbnRhdGlvbi4KCkNhbiB3ZSBjb21iaW5lIHRoZW0gdG9nZXRoZXIg
+Y29udmVuaWVudGx5PyAgWW91IHB1bGxlZCBvdXQgbW9yZSBzdHVmZgppbnRvIHZyaW5nLmggd2hp
+Y2ggaXMgYSBzdGFydCwgYnV0IGl0J3MgYSBiaXQgb3ZlcmxvYWRlZC4KClBlcmhhcHMgd2Ugc2hv
+dWxkIHNlcGFyYXRlIHRoZSBjb21tb24gZmllbGRzIGludG8gc3RydWN0IHZyaW5nLCBhbmQgdXNl
+Cml0IHRvIGJ1aWxkOgoKICAgICAgICBzdHJ1Y3QgdnJpbmdfZ3Vlc3QgewogICAgICAgICAgICAg
+ICAgc3RydWN0IHZyaW5nIHZyOwogICAgICAgICAgICAgICAgdTE2IGxhc3RfdXNlZF9pZHg7CiAg
+ICAgICAgfTsKCiAgICAgICAgc3RydWN0IHZyaW5nX2hvc3QgewogICAgICAgICAgICAgICAgc3Ry
+dWN0IHZyaW5nIHZyOwogICAgICAgICAgICAgICAgdTE2IGxhc3RfYXZhaWxfaWR4OwogICAgICAg
+IH07CgpJIGhhdmVuJ3QgbG9va2VkIGNsb3NlbHkgYXQgdmhvc3QgdG8gc2VlIHdoYXQgaXQgd2Fu
+dHMsIGJ1dCBJIHdvdWxkCnRoaW5rIHdlIGNvdWxkIHNoYXJlIG1vcmUgY29kZS4KCkNoZWVycywK
+UnVzdHkuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
