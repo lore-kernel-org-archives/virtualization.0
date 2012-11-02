@@ -1,16 +1,18 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Amit Shah <amit.shah@redhat.com>
 Subject: Re: [PATCHv7 4/4] virtio_console: Add support for remoteproc serial
-Date: Fri, 02 Nov 2012 09:52:08 +1030
-Message-ID: <87r4oc52ov.fsf@rustcorp.com.au>
+Date: Fri, 2 Nov 2012 15:50:47 +0530
+Message-ID: <20121102102047.GE10483@amit.redhat.com>
 References: <1350287856-5284-1-git-send-email-sjur.brandeland@stericsson.com>
 	<1350287856-5284-5-git-send-email-sjur.brandeland@stericsson.com>
 	<878vayhsca.fsf@rustcorp.com.au>
 	<20121101073951.GA17012@amit.redhat.com>
+	<87r4oc52ov.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121101073951.GA17012@amit.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <87r4oc52ov.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +22,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-QW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4gd3JpdGVzOgo+IE9uIChUdWUpIDIzIE9j
-dCAyMDEyIFsxMjoxNzo0OV0sIFJ1c3R5IFJ1c3NlbGwgd3JvdGU6Cj4+IHNqdXIuYnJhbmRlbGFu
-ZEBzdGVyaWNzc29uLmNvbSB3cml0ZXM6Cj4+ID4gRnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1
-ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+Cj4+ID4gQEAgLTE0MTUsNyArMTUyNCwxNiBA
-QCBzdGF0aWMgdm9pZCByZW1vdmVfcG9ydF9kYXRhKHN0cnVjdCBwb3J0ICpwb3J0KQo+PiA+ICAK
-Pj4gPiAgCS8qIFJlbW92ZSBidWZmZXJzIHdlIHF1ZXVlZCB1cCBmb3IgdGhlIEhvc3QgdG8gc2Vu
-ZCB1cyBkYXRhIGluLiAqLwo+PiA+ICAJd2hpbGUgKChidWYgPSB2aXJ0cXVldWVfZGV0YWNoX3Vu
-dXNlZF9idWYocG9ydC0+aW5fdnEpKSkKPj4gPiAtCQlmcmVlX2J1ZihidWYpOwo+PiA+ICsJCWZy
-ZWVfYnVmKGJ1ZiwgdHJ1ZSk7Cj4+ID4gKwo+PiA+ICsJLyoKPj4gPiArCSAqIFJlbW92ZSBidWZm
-ZXJzIGZyb20gb3V0IHF1ZXVlIGZvciBycHJvYy1zZXJpYWwuIFdlIGNhbm5vdCBhZmZvcmQKPj4g
-PiArCSAqIHRvIGxlYWsgYW55IERNQSBtZW0sIHNvIHJlY2xhaW0gdGhpcyBtZW1vcnkgZXZlbiBp
-ZiB0aGlzIG1pZ2h0IGJlCj4+ID4gKwkgKiByYWN5IGZvciB0aGUgcmVtb3RlIHByb2Nlc3Nvci4K
-Pj4gPiArCSAqLwo+PiA+ICsJaWYgKGlzX3Jwcm9jX3NlcmlhbChwb3J0LT5wb3J0ZGV2LT52ZGV2
-KSkKPj4gPiArCQl3aGlsZSAoKGJ1ZiA9IHZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1Zihwb3J0
-LT5vdXRfdnEpKSkKPj4gPiArCQkJZnJlZV9idWYoYnVmLCB0cnVlKTsKPj4gPiAgfQo+PiAKPj4g
-VGhpcyBzZWVtcyB3cm9uZzsgZWl0aGVyIHRoaXMgaXMgbmVlZGVkIGV2ZW4gaWYgIWlzX3Jwcm9j
-X3NlcmlhbCgpLCBvcgo+PiBpdCdzIG5vdCBuZWNlc3NhcnkgYXMgdGhlIG91dF92cSBpcyBlbXB0
-eS4KPj4gCj4+IEV2ZXJ5IHBhdGggSSBjYW4gc2VlIGhhcyB0aGUgZGV2aWNlIHJlc2V0IChpbiB3
-aGljaCBjYXNlIHRoZSBxdWV1ZXMKPj4gc2hvdWxkIG5vdCBiZSBhY3RpdmUpLCBvciB3ZSBnb3Qg
-YSBWSVJUSU9fQ09OU09MRV9QT1JUX1JFTU9WRSBldmVudCAoaW4KPj4gd2hpY2ggY2FzZSwgdGhl
-IHNhbWUpLgo+PiAKPj4gSSB0aGluayB3ZSBjYW4gaGF2ZSBub24tYmxvY2tpbmcgd3JpdGVzIHdo
-aWNoIGNvdWxkIGxlYXZlIGJ1ZmZlcnMgaW4KPj4gb3V0X3ZxOiBBbWl0Pwo+Cj4gVGhvc2UgZ2V0
-ICdyZWNsYWltZWQnIGp1c3QgYWJvdmUgdGhpcyBodW5rOgo+Cj4KPiBzdGF0aWMgdm9pZCByZW1v
-dmVfcG9ydF9kYXRhKHN0cnVjdCBwb3J0ICpwb3J0KQo+IHsKPiAJc3RydWN0IHBvcnRfYnVmZmVy
-ICpidWY7Cj4KPiAJLyogUmVtb3ZlIHVudXNlZCBkYXRhIHRoaXMgcG9ydCBtaWdodCBoYXZlIHJl
-Y2VpdmVkLiAqLwo+IAlkaXNjYXJkX3BvcnRfZGF0YShwb3J0KTsKPgo+IAlyZWNsYWltX2NvbnN1
-bWVkX2J1ZmZlcnMocG9ydCk7Cj4KPiAJLyogUmVtb3ZlIGJ1ZmZlcnMgd2UgcXVldWVkIHVwIGZv
-ciB0aGUgSG9zdCB0byBzZW5kIHVzIGRhdGEgaW4uICovCj4gCXdoaWxlICgoYnVmID0gdmlydHF1
-ZXVlX2RldGFjaF91bnVzZWRfYnVmKHBvcnQtPmluX3ZxKSkpCj4gCSAgICAgIGZyZWVfYnVmKGJ1
-ZiwgdHJ1ZSk7CgpObywgdGhhdCdzIHBlbmRpbmcgaW5wdXQgYnVmZmVycywgbm90IG91dHB1dCBi
-dWZmZXJzLgoKQ2hlZXJzLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On (Fri) 02 Nov 2012 [09:52:08], Rusty Russell wrote:
+> Amit Shah <amit.shah@redhat.com> writes:
+> > On (Tue) 23 Oct 2012 [12:17:49], Rusty Russell wrote:
+> >> sjur.brandeland@stericsson.com writes:
+> >> > From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> >
+> >> > @@ -1415,7 +1524,16 @@ static void remove_port_data(struct port *por=
+t)
+> >> >  =
+
+> >> >  	/* Remove buffers we queued up for the Host to send us data in. */
+> >> >  	while ((buf =3D virtqueue_detach_unused_buf(port->in_vq)))
+> >> > -		free_buf(buf);
+> >> > +		free_buf(buf, true);
+> >> > +
+> >> > +	/*
+> >> > +	 * Remove buffers from out queue for rproc-serial. We cannot afford
+> >> > +	 * to leak any DMA mem, so reclaim this memory even if this might =
+be
+> >> > +	 * racy for the remote processor.
+> >> > +	 */
+> >> > +	if (is_rproc_serial(port->portdev->vdev))
+> >> > +		while ((buf =3D virtqueue_detach_unused_buf(port->out_vq)))
+> >> > +			free_buf(buf, true);
+> >> >  }
+> >> =
+
+> >> This seems wrong; either this is needed even if !is_rproc_serial(), or
+> >> it's not necessary as the out_vq is empty.
+> >> =
+
+> >> Every path I can see has the device reset (in which case the queues
+> >> should not be active), or we got a VIRTIO_CONSOLE_PORT_REMOVE event (in
+> >> which case, the same).
+> >> =
+
+> >> I think we can have non-blocking writes which could leave buffers in
+> >> out_vq: Amit?
+> >
+> > Those get 'reclaimed' just above this hunk:
+> >
+> >
+> > static void remove_port_data(struct port *port)
+> > {
+> > 	struct port_buffer *buf;
+> >
+> > 	/* Remove unused data this port might have received. */
+> > 	discard_port_data(port);
+> >
+> > 	reclaim_consumed_buffers(port);
+> >
+> > 	/* Remove buffers we queued up for the Host to send us data in. */
+> > 	while ((buf =3D virtqueue_detach_unused_buf(port->in_vq)))
+> > 	      free_buf(buf, true);
+> =
+
+> No, that's pending input buffers, not output buffers.
+
+You're right.  Nice catch.
+
+Sjur, can you remove the WARN_ON in your latest series, even generic
+ports may have buffers in the outq.
+
+It'll also need to be done in the port_fops_release() function.  Let
+me know if you prefer I send a patch instead.
+
+Thanks,
+		Amit
