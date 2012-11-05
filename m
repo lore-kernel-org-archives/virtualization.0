@@ -1,14 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [rfc net-next v6 2/3] virtio_net: multiqueue support
-Date: Mon, 05 Nov 2012 11:38:39 +1030
-Message-ID: <87y5igyhyg.fsf@rustcorp.com.au>
-References: <1351591403-23065-1-git-send-email-jasowang@redhat.com>
-	<1351591403-23065-3-git-send-email-jasowang@redhat.com>
+Subject: Re: [PATCH 6/9] virtio_mmio: Cast &resources[1].start to
+	=?utf-8?Q?=E2=80=98unsigned?= int =?utf-8?Q?*=E2=80=99?= to rid
+	compiler warning
+Date: Mon, 05 Nov 2012 13:08:57 +1030
+Message-ID: <87k3u0ydry.fsf@rustcorp.com.au>
+References: <1351980150-24145-1-git-send-email-lee.jones@linaro.org>
+	<1351980150-24145-7-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1351591403-23065-3-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1351980150-24145-7-git-send-email-lee.jones@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,150 +20,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, davem@davemloft.net, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, krkumar2@in.ibm.com
-Cc: kvm@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jason Wang <jasowang@redhat.com> writes:
-> +struct virtnet_info {
-> +	u16 num_queue_pairs;		/* # of RX/TX vq pairs */
-> +	u16 total_queue_pairs;
-> +
-> +	struct send_queue *sq;
-> +	struct receive_queue *rq;
-> +	struct virtqueue *cvq;
-> +
-> +	struct virtio_device *vdev;
-> +	struct net_device *dev;
-> +	unsigned int status;
-
-status seems unused?
-
-> +static const struct ethtool_ops virtnet_ethtool_ops;
-
-Strange hoist, but I can't tell from the patch if this is necessary.
-Assume it is.
-
-> +static inline int vq2txq(struct virtqueue *vq)
-> +{
-> +	int index = virtqueue_get_queue_index(vq);
-> +	return index == 1 ? 0 : (index - 3) / 2;
-> +}
-> +
-> +static inline int txq2vq(int txq)
-> +{
-> +	return txq ? 2 * txq + 3 : 1;
-> +}
-> +
-> +static inline int vq2rxq(struct virtqueue *vq)
-> +{
-> +	int index = virtqueue_get_queue_index(vq);
-> +	return index ? (index - 2) / 2 : 0;
-> +}
-> +
-> +static inline int rxq2vq(int rxq)
-> +{
-> +	return rxq ? 2 * rxq + 2 : 0;
-> +}
-> +
->  static inline struct skb_vnet_hdr *skb_vnet_hdr(struct sk_buff *skb)
-
-I know skb_vnet_hdr() does it, but I generally dislike inline in C
-files; gcc is generally smart enough these days, and inline suppresses
-unused function warnings.
-
-I guess these mappings have to work even when we're switching from mq to
-single queue mode; otherwise we could simplify them using a 'bool mq'
-flag.
-
-> +static int virtnet_set_queues(struct virtnet_info *vi)
-> +{
-> +	struct scatterlist sg;
-> +	struct virtio_net_ctrl_steering s;
-> +	struct net_device *dev = vi->dev;
-> +
-> +	if (vi->num_queue_pairs == 1) {
-> +		s.current_steering_rule = VIRTIO_NET_CTRL_STEERING_SINGLE;
-> +		s.current_steering_param = 1;
-> +	} else {
-> +		s.current_steering_rule =
-> +			VIRTIO_NET_CTRL_STEERING_RX_FOLLOWS_TX;
-> +		s.current_steering_param = vi->num_queue_pairs;
-> +	}
-
-(BTW, VIRTIO_NET_CTRL_STEERING_RX_FOLLOWS_TX etc not defined anywhere?)
-
-Hmm, it's not clear that anything other than RX_FOLLOWS_TX will ever
-make sense, so this is really just turning mq on and off.
-
-Unfortunately, we can't turn feature bits on and off after startup, so
-if we want this level of control (and I think we do), there does need to
-be a mechanism.
-
-Michael?  I'd prefer this to be further simplfied, to just
-disable/enable.  We can extend it later, but for now the second
-parameter is redundant, ie.:
-
-        struct virtio_net_ctrl_steering {
-                u8 mode; /* 0 == off, 1 == on */
-        } __attribute__((packed));
-
-
-> @@ -924,11 +1032,10 @@ static void virtnet_get_ringparam(struct net_device *dev,
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
->  
-> -	ring->rx_max_pending = virtqueue_get_vring_size(vi->rvq);
-> -	ring->tx_max_pending = virtqueue_get_vring_size(vi->svq);
-> +	ring->rx_max_pending = virtqueue_get_vring_size(vi->rq[0].vq);
-> +	ring->tx_max_pending = virtqueue_get_vring_size(vi->sq[0].vq);
->  	ring->rx_pending = ring->rx_max_pending;
->  	ring->tx_pending = ring->tx_max_pending;
-> -
->  }
-
-This assumes all vqs are the same size.  I think this should probably
-check: for mq mode, use the first vq, otherewise use the 0th.
-
-For bonus points, check this assertion at probe time.
-
-> +	/*
-> +	 * We expect 1 RX virtqueue followed by 1 TX virtqueue, followd by
-> +	 * possible control virtqueue, followed by 1 reserved vq, followed
-> +	 * by RX/TX queue pairs used in multiqueue mode.
-> +	 */
-> +	if (vi->total_queue_pairs == 1)
-> +		total_vqs = 2 + virtio_has_feature(vi->vdev,
-> +						   VIRTIO_NET_F_CTRL_VQ);
-> +	else
-> +		total_vqs = 2 * vi->total_queue_pairs + 2;
-
-What's the allergy to odd numbers?  Why the reserved queue?
-
-> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
-> +		vi->has_cvq = true;
-> +
-> +	/* Use single tx/rx queue pair as default */
-> +	vi->num_queue_pairs = 1;
-> +	vi->total_queue_pairs = num_queue_pairs;
-> +
-> +	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
-> +	err = virtnet_setup_vqs(vi);
->  	if (err)
->  		goto free_stats;
->  
-> +	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) &&
-> +	    virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VLAN))
-> +		dev->features |= NETIF_F_HW_VLAN_FILTER;
-
-We should be using has_cvq here...
-
-> -#ifdef CONFIG_PM
-> -static int virtnet_freeze(struct virtio_device *vdev)
-> +static void virtnet_stop(struct virtnet_info *vi)
-
-I think you still want this under CONFIG_PM, right?  Doesn't seem used
-elsewhere.
-
-Cheers,
-Rusty.
+TGVlIEpvbmVzIDxsZWUuam9uZXNAbGluYXJvLm9yZz4gd3JpdGVzOgo+IGRyaXZlcnMvdmlydGlv
+L3ZpcnRpb19tbWlvLmM6IEluIGZ1bmN0aW9uIOKAmHZtX2NtZGxpbmVfc2V04oCZOgo+IGRyaXZl
+cnMvdmlydGlvL3ZpcnRpb19tbWlvLmM6NTM1OjQ6IHdhcm5pbmc6IGZvcm1hdCDigJgldeKAmSBl
+eHBlY3RzIGFyZ3VtZW50IG9mIHR5cGUg4oCYdW5zaWduZWQgaW50ICrigJksIGJ1dCBhcmd1bWVu
+dCA0IGhhcyB0eXBlIOKAmHJlc291cmNlX3NpemVfdCAq4oCZIFstV2Zvcm1hdF0KPgo+IENjOiBS
+dXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+Cj4gQ2M6IHZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCj4gU2lnbmVkLW9mZi1ieTogTGVlIEpvbmVzIDxs
+ZWUuam9uZXNAbGluYXJvLm9yZz4KPiAtLS0KPiAgZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8u
+YyB8ICAgIDIgKy0KPiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9u
+KC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYyBiL2RyaXZl
+cnMvdmlydGlvL3ZpcnRpb19tbWlvLmMKPiBpbmRleCA2YjFiN2UxLi4wNzdlOWNhIDEwMDY0NAo+
+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMKPiArKysgYi9kcml2ZXJzL3ZpcnRp
+by92aXJ0aW9fbW1pby5jCj4gQEAgLTUzMSw3ICs1MzEsNyBAQCBzdGF0aWMgaW50IHZtX2NtZGxp
+bmVfc2V0KGNvbnN0IGNoYXIgKmRldmljZSwKPiAgCXJlc291cmNlc1swXS5lbmQgPSBtZW1wYXJz
+ZShkZXZpY2UsICZzdHIpIC0gMTsKPiAgCj4gIAlwcm9jZXNzZWQgPSBzc2NhbmYoc3RyLCAiQCVs
+bGk6JXUlbjolZCVuIiwKPiAtCQkJJmJhc2UsICZyZXNvdXJjZXNbMV0uc3RhcnQsICZjb25zdW1l
+ZCwKPiArCQkJJmJhc2UsICh1bnNpZ25lZCBpbnQgKikmcmVzb3VyY2VzWzFdLnN0YXJ0LCAmY29u
+c3VtZWQsCj4gIAkJCSZ2bV9jbWRsaW5lX2lkLCAmY29uc3VtZWQpOwoKVGhpcyBzdXBwcmVzc2Vz
+IGEgdmFsaWQgd2FybmluZywgbGVhdmluZyBvdXIgY29kZSBubyBsZXNzIHdyb25nIHRoYW4KYmVm
+b3JlLiAgQnV0IG5vdyBpdCdzIHNpbGVudGx5IHdyb25nIQoKRG8geW91IHdhbnQgdG8gdHJ5IGFn
+YWluPwoKQ2hlZXJzLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
