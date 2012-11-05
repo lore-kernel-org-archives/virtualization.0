@@ -1,17 +1,13 @@
 From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH 6/9] virtio_mmio: Cast &resources[1].start to
-	=?UTF-8?Q?=E2=80=98unsigned?= int =?UTF-8?Q?*=E2=80=99?= to rid
-	compiler warning
-Date: Mon, 05 Nov 2012 13:00:54 +0000
-Message-ID: <1352120454.10947.5.camel@hornet>
-References: <1351980150-24145-1-git-send-email-lee.jones@linaro.org>
-	<1351980150-24145-7-git-send-email-lee.jones@linaro.org>
-	<87k3u0ydry.fsf@rustcorp.com.au> <20121105082116.GB2699@gmail.com>
+Subject: [PATCH] virtio-mmio: Fix irq parsing in command line parameter
+Date: Mon,  5 Nov 2012 13:02:52 +0000
+Message-ID: <1352120572-16256-1-git-send-email-pawel.moll@arm.com>
+References: <1352120454.10947.5.camel@hornet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121105082116.GB2699@gmail.com>
+In-Reply-To: <1352120454.10947.5.camel@hornet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,22 +17,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Lee Jones <lee.jones@linaro.org>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCAyMDEyLTExLTA1IGF0IDA4OjIxICswMDAwLCBMZWUgSm9uZXMgd3JvdGU6Cj4gPiA+
-ICAJcHJvY2Vzc2VkID0gc3NjYW5mKHN0ciwgIkAlbGxpOiV1JW46JWQlbiIsCj4gPiA+IC0JCQkm
-YmFzZSwgJnJlc291cmNlc1sxXS5zdGFydCwgJmNvbnN1bWVkLAo+ID4gPiArCQkJJmJhc2UsICh1
-bnNpZ25lZCBpbnQgKikmcmVzb3VyY2VzWzFdLnN0YXJ0LCAmY29uc3VtZWQsCj4gPiA+ICAJCQkm
-dm1fY21kbGluZV9pZCwgJmNvbnN1bWVkKTsKPiA+IAo+ID4gVGhpcyBzdXBwcmVzc2VzIGEgdmFs
-aWQgd2FybmluZywgbGVhdmluZyBvdXIgY29kZSBubyBsZXNzIHdyb25nIHRoYW4KPiA+IGJlZm9y
-ZS4gIEJ1dCBub3cgaXQncyBzaWxlbnRseSB3cm9uZyEKPiA+IAo+ID4gRG8geW91IHdhbnQgdG8g
-dHJ5IGFnYWluPwo+IAo+IEZvciBzdXJlIEknbGwgdHJ5IGFnYWluLgo+IAo+IEhvdyBkb2VzIGBz
-LyV1LyVwL2Agc3VpdD8KCnNzY2FuZiBkb2Vzbid0IGRvICIlcCIuLi4gVGhlIG9ubHkgcmVhc29u
-YWJsZSB3YXkgb2YgZml4aW5nIHRoaXMgaXMgYQppbnRlcm1lZGlhdGUgbG9jYWwgdmFyaWFibGUg
-LSB3aWxsIHBvc3QgYSBwYXRjaCBpbiBhIHNlY29uZC4KClRoYW5rcyBmb3Igc3BvdHRpbmcgdGhp
-cyEKClBhd2XFggoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 64-bit machines resource_size_t is a 64-bit value, while
+sscanf() format for this argument was defined as "%u". Fixed
+by using an intermediate local value of a known length.
+
+Also added cleaned up the resource creation and adde extra
+comments to make the parameters parsing easier to follow.
+
+Reported-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Pawel Moll <pawel.moll@arm.com>
+---
+ drivers/virtio/virtio_mmio.c |   26 ++++++++++++++++++--------
+ 1 file changed, 18 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 6b1b7e1..0d08843 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -521,25 +521,35 @@ static int vm_cmdline_set(const char *device,
+ 	int err;
+ 	struct resource resources[2] = {};
+ 	char *str;
+-	long long int base;
++	long long int base, size;
++	unsigned int irq;
+ 	int processed, consumed = 0;
+ 	struct platform_device *pdev;
+ 
+-	resources[0].flags = IORESOURCE_MEM;
+-	resources[1].flags = IORESOURCE_IRQ;
+-
+-	resources[0].end = memparse(device, &str) - 1;
++	/* Get "size" part of the command line parameter */
++	size = memparse(device, &str) - 1;
+ 
++	/* Get "@<base>:<irq>[:<id>]" chunks */
+ 	processed = sscanf(str, "@%lli:%u%n:%d%n",
+-			&base, &resources[1].start, &consumed,
++			&base, &irq, &consumed,
+ 			&vm_cmdline_id, &consumed);
+ 
++	/*
++	 * sscanf() processes 3 chunks if "<id>" is given, 2 if not;
++	 * also there must be no extra characters after the last
++	 * chunk, so str[consumed] should be '\0'
++	 */
+ 	if (processed < 2 || processed > 3 || str[consumed])
+ 		return -EINVAL;
+ 
++	/* Memory resource */
++	resources[0].flags = IORESOURCE_MEM;
+ 	resources[0].start = base;
+-	resources[0].end += base;
+-	resources[1].end = resources[1].start;
++	resources[0].end = base + size;
++
++	/* Interrupt resource */
++	resources[1].flags = IORESOURCE_IRQ;
++	resources[1].start = resources[1].end = irq;
+ 
+ 	if (!vm_cmdline_parent_registered) {
+ 		err = device_register(&vm_cmdline_parent);
+-- 
+1.7.10.4
