@@ -1,16 +1,11 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH] virtio-mmio: Fix irq parsing in command line parameter
-Date: Mon, 5 Nov 2012 15:35:41 +0100
-Message-ID: <20121105143541.GD5220@gmail.com>
-References: <1352120454.10947.5.camel@hornet>
-	<1352120572-16256-1-git-send-email-pawel.moll@arm.com>
-	<20121105134413.GC5220@gmail.com> <1352124778.10947.8.camel@hornet>
+From: George Zhang <georgezhang@vmware.com>
+Subject: [PATCH 0/6] VSOCK for Linux upstreaming
+Date: Mon, 05 Nov 2012 10:00:38 -0800
+Message-ID: <20121105175730.21472.99155.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1352124778.10947.8.camel@hornet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,32 +15,114 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, georgezhang@vmware.com, virtualization@lists.linux-foundation.org
+Cc: pv-drivers@vmware.com, vm-crosstalk@vmware.com, davem@davemloft.net, gregkh@linuxfoundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCAwNSBOb3YgMjAxMiwgUGF3ZWwgTW9sbCB3cm90ZToKCj4gT24gTW9uLCAyMDEyLTEx
-LTA1IGF0IDEzOjQ0ICswMDAwLCBMZWUgSm9uZXMgd3JvdGU6Cj4gPiBPbiBNb24sIDA1IE5vdiAy
-MDEyLCBQYXdlbCBNb2xsIHdyb3RlOgo+ID4gCj4gPiA+IE9uIDY0LWJpdCBtYWNoaW5lcyByZXNv
-dXJjZV9zaXplX3QgaXMgYSA2NC1iaXQgdmFsdWUsIHdoaWxlCj4gPiA+IHNzY2FuZigpIGZvcm1h
-dCBmb3IgdGhpcyBhcmd1bWVudCB3YXMgZGVmaW5lZCBhcyAiJXUiLiBGaXhlZAo+ID4gPiBieSB1
-c2luZyBhbiBpbnRlcm1lZGlhdGUgbG9jYWwgdmFsdWUgb2YgYSBrbm93biBsZW5ndGguCj4gPiA+
-IAo+ID4gPiBBbHNvIGFkZGVkIGNsZWFuZWQgdXAgdGhlIHJlc291cmNlIGNyZWF0aW9uIGFuZCBh
-ZGRlIGV4dHJhCj4gPiA+IGNvbW1lbnRzIHRvIG1ha2UgdGhlIHBhcmFtZXRlcnMgcGFyc2luZyBl
-YXNpZXIgdG8gZm9sbG93Lgo+ID4gPiAKPiA+ID4gUmVwb3J0ZWQtYnk6IExlZSBKb25lcyA8bGVl
-LmpvbmVzQGxpbmFyby5vcmc+Cj4gPiA+IFNpZ25lZC1vZmYtYnk6IFBhd2VsIE1vbGwgPHBhd2Vs
-Lm1vbGxAYXJtLmNvbT4KPiA+ID4gLS0tCj4gPiA+ICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fbW1p
-by5jIHwgICAyNiArKysrKysrKysrKysrKysrKystLS0tLS0tLQo+ID4gPiAgMSBmaWxlIGNoYW5n
-ZWQsIDE4IGluc2VydGlvbnMoKyksIDggZGVsZXRpb25zKC0pCj4gPiAKPiA+IFJlc29ydGVkIHRv
-IHBvYWNoaW5nIG5vdyBoYXZlIHdlIFBhd2VsPyA7KQo+IAo+IFN1cmUgdGhpbmcgLSB0aGUgcG9h
-Y2hlZCBlZ2dzIGFyZSBteSBmaXJtIGZhdm91cml0ZSA6LVAgOy0pCj4gCj4gQnV0IHNlcmlvdXNs
-eSBzcGVha2luZyAtIGl0J3MgYW4gb2xkIHBhdGNoIChhbGwgdGhlIGNvbW1lbnRzIGFuZAo+IHJl
-c291cmNlcyBjcmVhdGlvbiwgdGhlIElSUSBzdHVmZiBpcyBhIG5ldyB0aGluZyA6LSksIGJ1dCBu
-ZXZlciBoYWQKPiBlbm91Z2ggbW90aXZhdGlvbiB0byBwdXNoIGl0IG91dC4uLgoKSSBiZWxpZXZl
-IHlvdSwgbWFueSB3b3VsZCBub3QuIDspCgotLSAKTGVlIEpvbmVzCkxpbmFybyBTVC1Fcmljc3Nv
-biBMYW5kaW5nIFRlYW0gTGVhZApMaW5hcm8ub3JnIOKUgiBPcGVuIHNvdXJjZSBzb2Z0d2FyZSBm
-b3IgQVJNIFNvQ3MKRm9sbG93IExpbmFybzogRmFjZWJvb2sgfCBUd2l0dGVyIHwgQmxvZwpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+* * *
+This series of VSOCK linux upstreaming patches include latest udpate from
+VMware.
+
+Summary of changes:
+	- Add include/linux/socket.h for AF_VSOCK.
+        - Cleanup some comments.
+        - Cleanup makefiles.
+
+
+
+* * *
+
+In an effort to improve the out-of-the-box experience with Linux
+kernels for VMware users, VMware is working on readying the Virtual
+Machine Communication Interface (vmw_vmci) and VMCI Sockets (VSOCK)
+(vmw_vsock) kernel modules for inclusion in the Linux kernel. The
+purpose of this post is to acquire feedback on the vmw_vsock kernel
+module. The vmw_vmci kernel module has been presented in an early post.
+
+
+* * *
+
+VMCI Sockets allows virtual machines to communicate with host kernel
+modules and the VMware hypervisors. VMCI Sockets kernel module has
+dependency on VMCI kernel module. User level applications both in
+a virtual machine and on the host can use vmw_vmci through VMCI
+Sockets API which facilitates fast and efficient communication
+between guest virtual machines and their host. A socket
+address family designed to be compatible with UDP and TCP at the
+interface level. Today, VMCI and VMCI Sockets are used by the VMware
+shared folders (HGFS) and various VMware Tools components inside the
+guest for zero-config, network-less access to VMware host services. In
+addition to this, VMware's users are using VMCI Sockets for various
+applications, where network access of the virtual machine is
+restricted or non-existent. Examples of this are VMs communicating
+with device proxies for proprietary hardware running as host
+applications and automated testing of applications running within
+virtual machines.
+
+The VMware VMCI Sockets are similar to other socket types, like
+Berkeley UNIX socket interface. The VMCI sockets module supports
+both connection-oriented stream sockets like TCP, and connectionless
+datagram sockets like UDP. The VSOCK protocol family is defined as
+"AF_VSOCK" and the socket operations split for SOCK_DGRAM and
+SOCK_STREAM.
+
+For additional information about the use of VMCI and in particular
+VMCI Sockets, please refer to the VMCI Socket Programming Guide
+available at https://www.vmware.com/support/developer/vmci-sdk/.
+
+
+
+---
+
+George Zhang (6):
+      VSOCK: vsock protocol implementation.
+      VSOCK: vsock address implementaion.
+      VSOCK: notification implementation.
+      VSOCK: statistics implementation.
+      VSOCK: utility functions.
+      VSOCK: header and config files.
+
+
+ include/linux/socket.h              |    4 
+ net/Kconfig                         |    1 
+ net/Makefile                        |    1 
+ net/vmw_vsock/Kconfig               |   14 
+ net/vmw_vsock/Makefile              |    4 
+ net/vmw_vsock/af_vsock.c            | 4165 +++++++++++++++++++++++++++++++++++
+ net/vmw_vsock/af_vsock.h            |  179 ++
+ net/vmw_vsock/notify.c              |  984 ++++++++
+ net/vmw_vsock/notify.h              |  130 +
+ net/vmw_vsock/notify_qstate.c       |  627 +++++
+ net/vmw_vsock/stats.c               |   37 
+ net/vmw_vsock/stats.h               |  219 ++
+ net/vmw_vsock/util.c                |  626 +++++
+ net/vmw_vsock/util.h                |  312 +++
+ net/vmw_vsock/vmci_sockets.h        |  517 ++++
+ net/vmw_vsock/vmci_sockets_packet.h |  106 +
+ net/vmw_vsock/vsock_addr.c          |  264 ++
+ net/vmw_vsock/vsock_addr.h          |   40 
+ net/vmw_vsock/vsock_common.h        |  130 +
+ net/vmw_vsock/vsock_packet.h        |  131 +
+ net/vmw_vsock/vsock_version.h       |   29 
+ 21 files changed, 8519 insertions(+), 1 deletions(-)
+ create mode 100644 net/vmw_vsock/Kconfig
+ create mode 100644 net/vmw_vsock/Makefile
+ create mode 100644 net/vmw_vsock/af_vsock.c
+ create mode 100644 net/vmw_vsock/af_vsock.h
+ create mode 100644 net/vmw_vsock/notify.c
+ create mode 100644 net/vmw_vsock/notify.h
+ create mode 100644 net/vmw_vsock/notify_qstate.c
+ create mode 100644 net/vmw_vsock/stats.c
+ create mode 100644 net/vmw_vsock/stats.h
+ create mode 100644 net/vmw_vsock/util.c
+ create mode 100644 net/vmw_vsock/util.h
+ create mode 100644 net/vmw_vsock/vmci_sockets.h
+ create mode 100644 net/vmw_vsock/vmci_sockets_packet.h
+ create mode 100644 net/vmw_vsock/vsock_addr.c
+ create mode 100644 net/vmw_vsock/vsock_addr.h
+ create mode 100644 net/vmw_vsock/vsock_common.h
+ create mode 100644 net/vmw_vsock/vsock_packet.h
+ create mode 100644 net/vmw_vsock/vsock_version.h
+
+-- 
+Signature
