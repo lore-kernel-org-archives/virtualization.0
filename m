@@ -1,16 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 6/9] virtio_mmio: Cast &resources[1].start to
-	=?utf-8?Q?=E2=80=98unsigned?= int =?utf-8?Q?*=E2=80=99?= to rid
-	compiler warning
-Date: Mon, 05 Nov 2012 13:08:57 +1030
-Message-ID: <87k3u0ydry.fsf@rustcorp.com.au>
-References: <1351980150-24145-1-git-send-email-lee.jones@linaro.org>
-	<1351980150-24145-7-git-send-email-lee.jones@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] xen/privcmd: fix condition in privcmd_close()
+Date: Mon, 5 Nov 2012 09:42:17 +0300
+Message-ID: <20121105064217.GA26179@elgon.mountain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1351980150-24145-7-git-send-email-lee.jones@linaro.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,31 +16,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Lee Jones <lee.jones@linaro.org>, virtualization@lists.linux-foundation.org
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Mukesh Rathor <mukesh.rathor@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-TGVlIEpvbmVzIDxsZWUuam9uZXNAbGluYXJvLm9yZz4gd3JpdGVzOgo+IGRyaXZlcnMvdmlydGlv
-L3ZpcnRpb19tbWlvLmM6IEluIGZ1bmN0aW9uIOKAmHZtX2NtZGxpbmVfc2V04oCZOgo+IGRyaXZl
-cnMvdmlydGlvL3ZpcnRpb19tbWlvLmM6NTM1OjQ6IHdhcm5pbmc6IGZvcm1hdCDigJgldeKAmSBl
-eHBlY3RzIGFyZ3VtZW50IG9mIHR5cGUg4oCYdW5zaWduZWQgaW50ICrigJksIGJ1dCBhcmd1bWVu
-dCA0IGhhcyB0eXBlIOKAmHJlc291cmNlX3NpemVfdCAq4oCZIFstV2Zvcm1hdF0KPgo+IENjOiBS
-dXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+Cj4gQ2M6IHZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCj4gU2lnbmVkLW9mZi1ieTogTGVlIEpvbmVzIDxs
-ZWUuam9uZXNAbGluYXJvLm9yZz4KPiAtLS0KPiAgZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8u
-YyB8ICAgIDIgKy0KPiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9u
-KC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYyBiL2RyaXZl
-cnMvdmlydGlvL3ZpcnRpb19tbWlvLmMKPiBpbmRleCA2YjFiN2UxLi4wNzdlOWNhIDEwMDY0NAo+
-IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMKPiArKysgYi9kcml2ZXJzL3ZpcnRp
-by92aXJ0aW9fbW1pby5jCj4gQEAgLTUzMSw3ICs1MzEsNyBAQCBzdGF0aWMgaW50IHZtX2NtZGxp
-bmVfc2V0KGNvbnN0IGNoYXIgKmRldmljZSwKPiAgCXJlc291cmNlc1swXS5lbmQgPSBtZW1wYXJz
-ZShkZXZpY2UsICZzdHIpIC0gMTsKPiAgCj4gIAlwcm9jZXNzZWQgPSBzc2NhbmYoc3RyLCAiQCVs
-bGk6JXUlbjolZCVuIiwKPiAtCQkJJmJhc2UsICZyZXNvdXJjZXNbMV0uc3RhcnQsICZjb25zdW1l
-ZCwKPiArCQkJJmJhc2UsICh1bnNpZ25lZCBpbnQgKikmcmVzb3VyY2VzWzFdLnN0YXJ0LCAmY29u
-c3VtZWQsCj4gIAkJCSZ2bV9jbWRsaW5lX2lkLCAmY29uc3VtZWQpOwoKVGhpcyBzdXBwcmVzc2Vz
-IGEgdmFsaWQgd2FybmluZywgbGVhdmluZyBvdXIgY29kZSBubyBsZXNzIHdyb25nIHRoYW4KYmVm
-b3JlLiAgQnV0IG5vdyBpdCdzIHNpbGVudGx5IHdyb25nIQoKRG8geW91IHdhbnQgdG8gdHJ5IGFn
-YWluPwoKQ2hlZXJzLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+The parenthesis are in the wrong place so the original code is
+equivalent to:
+
+	if (!xen_feature(XENFEAT_writable_descriptor_tables)) { ...
+
+Which obviously was not intended.
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+
+diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
+index b9d0898..6011f3b 100644
+--- a/drivers/xen/privcmd.c
++++ b/drivers/xen/privcmd.c
+@@ -495,7 +495,7 @@ static void privcmd_close(struct vm_area_struct *vma)
+ 	struct page **pages = vma->vm_private_data;
+ 	int numpgs = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
+ 
+-	if (!xen_feature(XENFEAT_auto_translated_physmap || !numpgs || !pages))
++	if (!xen_feature(XENFEAT_auto_translated_physmap) || !numpgs || !pages)
+ 		return;
+ 
+ 	xen_unmap_domain_mfn_range(vma, numpgs, pages);
