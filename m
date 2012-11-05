@@ -1,12 +1,18 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [patch] xen/privcmd: fix condition in privcmd_close()
-Date: Mon, 5 Nov 2012 09:42:17 +0300
-Message-ID: <20121105064217.GA26179@elgon.mountain>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 6/9] virtio_mmio: =?utf-8?Q?Cas?=
+	=?utf-8?Q?t_&resources=5B1=5D=2Estart_to_=E2=80=98unsigned_int_*?=
+	=?utf-8?B?4oCZ?= to rid compiler warning
+Date: Mon, 5 Nov 2012 09:21:16 +0100
+Message-ID: <20121105082116.GB2699@gmail.com>
+References: <1351980150-24145-1-git-send-email-lee.jones@linaro.org>
+	<1351980150-24145-7-git-send-email-lee.jones@linaro.org>
+	<87k3u0ydry.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <87k3u0ydry.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,29 +22,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Mukesh Rathor <mukesh.rathor@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The parenthesis are in the wrong place so the original code is
-equivalent to:
-
-	if (!xen_feature(XENFEAT_writable_descriptor_tables)) { ...
-
-Which obviously was not intended.
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-
-diff --git a/drivers/xen/privcmd.c b/drivers/xen/privcmd.c
-index b9d0898..6011f3b 100644
---- a/drivers/xen/privcmd.c
-+++ b/drivers/xen/privcmd.c
-@@ -495,7 +495,7 @@ static void privcmd_close(struct vm_area_struct *vma)
- 	struct page **pages = vma->vm_private_data;
- 	int numpgs = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
- 
--	if (!xen_feature(XENFEAT_auto_translated_physmap || !numpgs || !pages))
-+	if (!xen_feature(XENFEAT_auto_translated_physmap) || !numpgs || !pages)
- 		return;
- 
- 	xen_unmap_domain_mfn_range(vma, numpgs, pages);
+T24gTW9uLCAwNSBOb3YgMjAxMiwgUnVzdHkgUnVzc2VsbCB3cm90ZToKCj4gTGVlIEpvbmVzIDxs
+ZWUuam9uZXNAbGluYXJvLm9yZz4gd3JpdGVzOgo+ID4gZHJpdmVycy92aXJ0aW8vdmlydGlvX21t
+aW8uYzogSW4gZnVuY3Rpb24g4oCYdm1fY21kbGluZV9zZXTigJk6Cj4gPiBkcml2ZXJzL3ZpcnRp
+by92aXJ0aW9fbW1pby5jOjUzNTo0OiB3YXJuaW5nOiBmb3JtYXQg4oCYJXXigJkgZXhwZWN0cyBh
+cmd1bWVudCBvZiB0eXBlIOKAmHVuc2lnbmVkIGludCAq4oCZLCBidXQgYXJndW1lbnQgNCBoYXMg
+dHlwZSDigJhyZXNvdXJjZV9zaXplX3QgKuKAmSBbLVdmb3JtYXRdCj4gPgo+ID4gQ2M6IFJ1c3R5
+IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4KPiA+IENjOiB2aXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwo+ID4gU2lnbmVkLW9mZi1ieTogTGVlIEpvbmVzIDxs
+ZWUuam9uZXNAbGluYXJvLm9yZz4KPiA+IC0tLQo+ID4gIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19t
+bWlvLmMgfCAgICAyICstCj4gPiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspLCAxIGRl
+bGV0aW9uKC0pCj4gPgo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19tbWlv
+LmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fbW1pby5jCj4gPiBpbmRleCA2YjFiN2UxLi4wNzdl
+OWNhIDEwMDY0NAo+ID4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYwo+ID4gKysr
+IGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYwo+ID4gQEAgLTUzMSw3ICs1MzEsNyBAQCBz
+dGF0aWMgaW50IHZtX2NtZGxpbmVfc2V0KGNvbnN0IGNoYXIgKmRldmljZSwKPiA+ICAJcmVzb3Vy
+Y2VzWzBdLmVuZCA9IG1lbXBhcnNlKGRldmljZSwgJnN0cikgLSAxOwo+ID4gIAo+ID4gIAlwcm9j
+ZXNzZWQgPSBzc2NhbmYoc3RyLCAiQCVsbGk6JXUlbjolZCVuIiwKPiA+IC0JCQkmYmFzZSwgJnJl
+c291cmNlc1sxXS5zdGFydCwgJmNvbnN1bWVkLAo+ID4gKwkJCSZiYXNlLCAodW5zaWduZWQgaW50
+ICopJnJlc291cmNlc1sxXS5zdGFydCwgJmNvbnN1bWVkLAo+ID4gIAkJCSZ2bV9jbWRsaW5lX2lk
+LCAmY29uc3VtZWQpOwo+IAo+IFRoaXMgc3VwcHJlc3NlcyBhIHZhbGlkIHdhcm5pbmcsIGxlYXZp
+bmcgb3VyIGNvZGUgbm8gbGVzcyB3cm9uZyB0aGFuCj4gYmVmb3JlLiAgQnV0IG5vdyBpdCdzIHNp
+bGVudGx5IHdyb25nIQo+IAo+IERvIHlvdSB3YW50IHRvIHRyeSBhZ2Fpbj8KCkZvciBzdXJlIEkn
+bGwgdHJ5IGFnYWluLgoKSG93IGRvZXMgYHMvJXUvJXAvYCBzdWl0PwoKLS0gCkxlZSBKb25lcwpM
+aW5hcm8gU1QtRXJpY3Nzb24gTGFuZGluZyBUZWFtIExlYWQKTGluYXJvLm9yZyDilIIgT3BlbiBz
+b3VyY2Ugc29mdHdhcmUgZm9yIEFSTSBTb0NzCkZvbGxvdyBMaW5hcm86IEZhY2Vib29rIHwgVHdp
+dHRlciB8IEJsb2cKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
