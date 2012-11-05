@@ -1,13 +1,15 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: [PATCH] virtio-mmio: Fix irq parsing in command line parameter
-Date: Mon,  5 Nov 2012 13:02:52 +0000
-Message-ID: <1352120572-16256-1-git-send-email-pawel.moll@arm.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH] virtio-mmio: Fix irq parsing in command line parameter
+Date: Mon, 5 Nov 2012 14:44:13 +0100
+Message-ID: <20121105134413.GC5220@gmail.com>
 References: <1352120454.10947.5.camel@hornet>
+	<1352120572-16256-1-git-send-email-pawel.moll@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1352120454.10947.5.camel@hornet>
+Content-Disposition: inline
+In-Reply-To: <1352120572-16256-1-git-send-email-pawel.moll@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,70 +19,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Lee Jones <lee.jones@linaro.org>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+To: Pawel Moll <pawel.moll@arm.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 64-bit machines resource_size_t is a 64-bit value, while
-sscanf() format for this argument was defined as "%u". Fixed
-by using an intermediate local value of a known length.
-
-Also added cleaned up the resource creation and adde extra
-comments to make the parameters parsing easier to follow.
-
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Pawel Moll <pawel.moll@arm.com>
----
- drivers/virtio/virtio_mmio.c |   26 ++++++++++++++++++--------
- 1 file changed, 18 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 6b1b7e1..0d08843 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -521,25 +521,35 @@ static int vm_cmdline_set(const char *device,
- 	int err;
- 	struct resource resources[2] = {};
- 	char *str;
--	long long int base;
-+	long long int base, size;
-+	unsigned int irq;
- 	int processed, consumed = 0;
- 	struct platform_device *pdev;
- 
--	resources[0].flags = IORESOURCE_MEM;
--	resources[1].flags = IORESOURCE_IRQ;
--
--	resources[0].end = memparse(device, &str) - 1;
-+	/* Get "size" part of the command line parameter */
-+	size = memparse(device, &str) - 1;
- 
-+	/* Get "@<base>:<irq>[:<id>]" chunks */
- 	processed = sscanf(str, "@%lli:%u%n:%d%n",
--			&base, &resources[1].start, &consumed,
-+			&base, &irq, &consumed,
- 			&vm_cmdline_id, &consumed);
- 
-+	/*
-+	 * sscanf() processes 3 chunks if "<id>" is given, 2 if not;
-+	 * also there must be no extra characters after the last
-+	 * chunk, so str[consumed] should be '\0'
-+	 */
- 	if (processed < 2 || processed > 3 || str[consumed])
- 		return -EINVAL;
- 
-+	/* Memory resource */
-+	resources[0].flags = IORESOURCE_MEM;
- 	resources[0].start = base;
--	resources[0].end += base;
--	resources[1].end = resources[1].start;
-+	resources[0].end = base + size;
-+
-+	/* Interrupt resource */
-+	resources[1].flags = IORESOURCE_IRQ;
-+	resources[1].start = resources[1].end = irq;
- 
- 	if (!vm_cmdline_parent_registered) {
- 		err = device_register(&vm_cmdline_parent);
--- 
-1.7.10.4
+T24gTW9uLCAwNSBOb3YgMjAxMiwgUGF3ZWwgTW9sbCB3cm90ZToKCj4gT24gNjQtYml0IG1hY2hp
+bmVzIHJlc291cmNlX3NpemVfdCBpcyBhIDY0LWJpdCB2YWx1ZSwgd2hpbGUKPiBzc2NhbmYoKSBm
+b3JtYXQgZm9yIHRoaXMgYXJndW1lbnQgd2FzIGRlZmluZWQgYXMgIiV1Ii4gRml4ZWQKPiBieSB1
+c2luZyBhbiBpbnRlcm1lZGlhdGUgbG9jYWwgdmFsdWUgb2YgYSBrbm93biBsZW5ndGguCj4gCj4g
+QWxzbyBhZGRlZCBjbGVhbmVkIHVwIHRoZSByZXNvdXJjZSBjcmVhdGlvbiBhbmQgYWRkZSBleHRy
+YQo+IGNvbW1lbnRzIHRvIG1ha2UgdGhlIHBhcmFtZXRlcnMgcGFyc2luZyBlYXNpZXIgdG8gZm9s
+bG93Lgo+IAo+IFJlcG9ydGVkLWJ5OiBMZWUgSm9uZXMgPGxlZS5qb25lc0BsaW5hcm8ub3JnPgo+
+IFNpZ25lZC1vZmYtYnk6IFBhd2VsIE1vbGwgPHBhd2VsLm1vbGxAYXJtLmNvbT4KPiAtLS0KPiAg
+ZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYyB8ICAgMjYgKysrKysrKysrKysrKysrKysrLS0t
+LS0tLS0KPiAgMSBmaWxlIGNoYW5nZWQsIDE4IGluc2VydGlvbnMoKyksIDggZGVsZXRpb25zKC0p
+CgpSZXNvcnRlZCB0byBwb2FjaGluZyBub3cgaGF2ZSB3ZSBQYXdlbD8gOykKCi0tIApMZWUgSm9u
+ZXMKTGluYXJvIFNULUVyaWNzc29uIExhbmRpbmcgVGVhbSBMZWFkCkxpbmFyby5vcmcg4pSCIE9w
+ZW4gc291cmNlIHNvZnR3YXJlIGZvciBBUk0gU29DcwpGb2xsb3cgTGluYXJvOiBGYWNlYm9vayB8
+IFR3aXR0ZXIgfCBCbG9nCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
