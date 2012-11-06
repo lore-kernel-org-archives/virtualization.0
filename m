@@ -1,14 +1,11 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbr@gmail.com>
-Subject: Re: [RFC virtio-next 0/4] Introduce CAIF Virtio and reversed Vrings
-Date: Mon, 5 Nov 2012 13:12:00 +0100
-Message-ID: <CANHm3PgrsTD4uYuXN0AMuZFX794CJmmus4AST=G0+nP1ha3VyQ__802.604124374007$1352196742$gmane$org@mail.gmail.com>
-References: <1351723614-4145-1-git-send-email-sjur@brendeland.net>
-	<87wqy54vo0.fsf@rustcorp.com.au>
+From: Mojiong Qiu <qiumojiong@gmail.com>
+Subject: [PATCH] xen/events: xen/events: fix RCU warning
+Date: Tue,  6 Nov 2012 16:08:15 +0800
+Message-ID: <1352189295-7111-1-git-send-email-qiumojiong__19500.2055530951$1352196748$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87wqy54vo0.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,151 +15,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, dmitry.tarnyagin@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Mojiong Qiu <qiumojiong@gmail.com>, Mojiong Qiu <mjqiu@tencent.com>, virtualization@lists.linux-foundation.org, "at least to 3.0.y" <stable@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Rusty,
+exit_idle() should be called after irq_enter(), otherwise it throws:
 
-> So, this adds another host-side virtqueue implementation.
->
-> Can we combine them together conveniently?  You pulled out more stuff
-> into vring.h which is a start, but it's a bit overloaded.
-> Perhaps we should separate the common fields into struct vring, and use
-> it to build:
->
->         struct vring_guest {
->                 struct vring vr;
->                 u16 last_used_idx;
->         };
->
->         struct vring_host {
->                 struct vring vr;
->                 u16 last_avail_idx;
->         };
-> I haven't looked closely at vhost to see what it wants, but I would
-> think we could share more code.
+[    2.513020] [ INFO: suspicious RCU usage. ]
+[    2.513076] 3.6.5 #1 Not tainted
+[    2.513128] -------------------------------
+[    2.513183] include/linux/rcupdate.h:725 rcu_read_lock() used illegally while idle!
+[    2.513271]
+[    2.513271] other info that might help us debug this:
+[    2.513271]
+[    2.513388]
+[    2.513388] RCU used illegally from idle CPU!
+[    2.513388] rcu_scheduler_active = 1, debug_locks = 1
+[    2.513511] RCU used illegally from extended quiescent state!
+[    2.513572] 1 lock held by swapper/0/0:
+[    2.513626]  #0:  (rcu_read_lock){......}, at: [<ffffffff810e9fe0>] __atomic_notifier_call_chain+0x0/0x140
+[    2.513815]
+[    2.513815] stack backtrace:
+[    2.513897] Pid: 0, comm: swapper/0 Not tainted 3.6.5 #1
+[    2.513954] Call Trace:
+[    2.514005]  <IRQ>  [<ffffffff811259a2>] lockdep_rcu_suspicious+0xe2/0x130
+[    2.514107]  [<ffffffff810ea10c>] __atomic_notifier_call_chain+0x12c/0x140
+[    2.514169]  [<ffffffff810e9fe0>] ? atomic_notifier_chain_unregister+0x90/0x90
+[    2.514258]  [<ffffffff811216cd>] ? trace_hardirqs_off+0xd/0x10
+[    2.514318]  [<ffffffff810ea136>] atomic_notifier_call_chain+0x16/0x20
+[    2.514381]  [<ffffffff810777c3>] exit_idle+0x43/0x50
+[    2.514441]  [<ffffffff81568865>] xen_evtchn_do_upcall+0x25/0x50
+[    2.514503]  [<ffffffff81aa690e>] xen_do_hypervisor_callback+0x1e/0x30
+[    2.514562]  <EOI>  [<ffffffff810013aa>] ? hypercall_page+0x3aa/0x1000
+[    2.514662]  [<ffffffff810013aa>] ? hypercall_page+0x3aa/0x1000
+[    2.514722]  [<ffffffff81061540>] ? xen_safe_halt+0x10/0x20
+[    2.514782]  [<ffffffff81075cfa>] ? default_idle+0xba/0x570
+[    2.514841]  [<ffffffff810778af>] ? cpu_idle+0xdf/0x140
+[    2.514900]  [<ffffffff81a4d881>] ? rest_init+0x135/0x144
+[    2.514960]  [<ffffffff81a4d74c>] ? csum_partial_copy_generic+0x16c/0x16c
+[    2.515022]  [<ffffffff82520c45>] ? start_kernel+0x3db/0x3e8
+[    2.515081]  [<ffffffff8252066a>] ? repair_env_string+0x5a/0x5a
+[    2.515141]  [<ffffffff82520356>] ? x86_64_start_reservations+0x131/0x135
+[    2.515202]  [<ffffffff82524aca>] ? xen_start_kernel+0x465/0x46
 
-I have played around with the code in vhost.c to explore your idea.
-The main issue I run into is that vhost.c is accessing user data while my new
-code does not. So I end up with some quirky code testing if the ring lives in
-user memory or not.  Another issue is sparse warnings when
-accessing user memory.
+Signed-off-by: Mojiong Qiu <mjqiu@tencent.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xen-devel@lists.xensource.com
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@kernel.org (at least to 3.0.y)
+---
+ drivers/xen/events.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-With your suggested changes I end up sharing about 100 lines of code.
-So in sum, I feel this add more complexity than what we gain by sharing.
-
-Below is an initial draft of the re-usable code. I added "is_uaccess" to struct
-virtio_ring in order to know if the ring lives in user memory.
-
-Let me know what you think.
-
-[snip]
-int virtqueue_add_used(struct vring_host *vr, unsigned int head, int len,
-		    struct vring_used_elem  **used)
-{
-	/* The virtqueue contains a ring of used buffers.  Get a pointer to the
-	 * next entry in that used ring. */
-	*used = &vr->vring.used->ring[vr->last_used_idx % vr->vring.num];
-	if (vr->is_uaccess) {
-		if(unlikely(__put_user(head, &(*used)->id))) {
-			pr_debug("Failed to write used id");
-			return -EFAULT;
-		}
-		if (unlikely(__put_user(len, &(*used)->len))) {
-			pr_debug("Failed to write used len");
-			return -EFAULT;
-		}
-		smp_wmb();
-		if (__put_user(vr->last_used_idx + 1,
-			       &vr->vring.used->idx)) {
-			pr_debug("Failed to increment used idx");
-			return -EFAULT;
-		}
-	} else {
-		(*used)->id = head;
-		(*used)->len = len;
-		smp_wmb();
-		vr->vring.used->idx = vr->last_used_idx + 1;
-	}
-	vr->last_used_idx++;
-	return 0;
-}
-
-/* Each buffer in the virtqueues is actually a chain of descriptors.  This
- * function returns the next descriptor in the chain,
- * or -1U if we're at the end. */
-unsigned virtqueue_next_desc(struct vring_desc *desc)
-{
-	unsigned int next;
-
-	/* If this descriptor says it doesn't chain, we're done. */
-	if (!(desc->flags & VRING_DESC_F_NEXT))
-		return -1U;
-
-	/* Check they're not leading us off end of descriptors. */
-	next = desc->next;
-	/* Make sure compiler knows to grab that: we don't want it changing! */
-	/* We will use the result as an index in an array, so most
-	 * architectures only need a compiler barrier here. */
-	read_barrier_depends();
-
-	return next;
-}
-
-static int virtqueue_next_avail_desc(struct vring_host *vr)
-{
-	int head;
-	u16 last_avail_idx;
-
-	/* Check it isn't doing very strange things with descriptor numbers. */
-	last_avail_idx = vr->last_avail_idx;
-	if (vr->is_uaccess) {
-		if (__get_user(vr->avail_idx, &vr->vring.avail->idx)) {
-			pr_debug("Failed to access avail idx at %p\n",
-				 &vr->vring.avail->idx);
-			return -EFAULT;
-		}
-	} else
-		vr->avail_idx = vr->vring.avail->idx;
-
-	if (unlikely((u16)(vr->avail_idx - last_avail_idx) > vr->vring.num)) {
-		pr_debug("Guest moved used index from %u to %u",
-		       last_avail_idx, vr->avail_idx);
-		return -EFAULT;
-	}
-
-	/* If there's nothing new since last we looked, return invalid. */
-	if (vr->avail_idx == last_avail_idx)
-		return vr->vring.num;
-
-	/* Only get avail ring entries after they have been exposed by guest. */
-	smp_rmb();
-
-	/* Grab the next descriptor number they're advertising, and increment
-	 * the index we've seen. */
-	if (vr->is_uaccess) {
-		if (unlikely(__get_user(head,
-				&vr->vring.avail->ring[last_avail_idx
-						       % vr->vring.num]))) {
-			pr_debug("Failed to read head: idx %d address %p\n",
-				 last_avail_idx,
-				 &vr->vring.avail->ring[last_avail_idx %
-							vr->vring.num]);
-			return -EFAULT;
-		}
-	} else
-		head = vr->vring.avail->ring[last_avail_idx % vr->vring.num];
-
-	/* If their number is silly, that's an error. */
-	if (unlikely(head >= vr->vring.num)) {
-		pr_debug("Guest says index %u > %u is available",
-		       head, vr->vring.num);
-		return -EINVAL;
-	}
-
-	return head;
-}
-
-Thanks,
-Sjur
+diff --git a/drivers/xen/events.c b/drivers/xen/events.c
+index 912ac81..0be4df3 100644
+--- a/drivers/xen/events.c
++++ b/drivers/xen/events.c
+@@ -1395,10 +1395,10 @@ void xen_evtchn_do_upcall(struct pt_regs *regs)
+ {
+ 	struct pt_regs *old_regs = set_irq_regs(regs);
+ 
++	irq_enter();
+ #ifdef CONFIG_X86
+ 	exit_idle();
+ #endif
+-	irq_enter();
+ 
+ 	__xen_evtchn_do_upcall();
+ 
+-- 
+1.6.3.2
