@@ -1,15 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC virtio-next 0/4] Introduce CAIF Virtio and reversed Vrings
-Date: Tue, 06 Nov 2012 12:39:14 +1030
-Message-ID: <871ug75vp1.fsf@rustcorp.com.au>
-References: <1351723614-4145-1-git-send-email-sjur@brendeland.net>
-	<87wqy54vo0.fsf@rustcorp.com.au>
-	<CANHm3PgrsTD4uYuXN0AMuZFX794CJmmus4AST=G0+nP1ha3VyQ@mail.gmail.com>
+From: Stephen Hemminger <shemminger@vyatta.com>
+Subject: Re: [PATCH 0/6] VSOCK for Linux upstreaming
+Date: Tue, 6 Nov 2012 10:00:21 +0100
+Message-ID: <20121106100021.538486e7@s6510.linuxnetplumber.net>
+References: <20121105175730.21472.99155.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CANHm3PgrsTD4uYuXN0AMuZFX794CJmmus4AST=G0+nP1ha3VyQ@mail.gmail.com>
+In-Reply-To: <20121105175730.21472.99155.stgit@promb-2n-dhcp175.eng.vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,74 +17,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbr@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, dmitry.tarnyagin@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: George Zhang <georgezhang@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, vm-crosstalk@vmware.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyQGdtYWlsLmNvbT4gd3JpdGVzOgo+IEhpIFJ1c3R5LAo+
-Cj4+IFNvLCB0aGlzIGFkZHMgYW5vdGhlciBob3N0LXNpZGUgdmlydHF1ZXVlIGltcGxlbWVudGF0
-aW9uLgo+Pgo+PiBDYW4gd2UgY29tYmluZSB0aGVtIHRvZ2V0aGVyIGNvbnZlbmllbnRseT8gIFlv
-dSBwdWxsZWQgb3V0IG1vcmUgc3R1ZmYKPj4gaW50byB2cmluZy5oIHdoaWNoIGlzIGEgc3RhcnQs
-IGJ1dCBpdCdzIGEgYml0IG92ZXJsb2FkZWQuCj4+IFBlcmhhcHMgd2Ugc2hvdWxkIHNlcGFyYXRl
-IHRoZSBjb21tb24gZmllbGRzIGludG8gc3RydWN0IHZyaW5nLCBhbmQgdXNlCj4+IGl0IHRvIGJ1
-aWxkOgo+Pgo+PiAgICAgICAgIHN0cnVjdCB2cmluZ19ndWVzdCB7Cj4+ICAgICAgICAgICAgICAg
-ICBzdHJ1Y3QgdnJpbmcgdnI7Cj4+ICAgICAgICAgICAgICAgICB1MTYgbGFzdF91c2VkX2lkeDsK
-Pj4gICAgICAgICB9Owo+Pgo+PiAgICAgICAgIHN0cnVjdCB2cmluZ19ob3N0IHsKPj4gICAgICAg
-ICAgICAgICAgIHN0cnVjdCB2cmluZyB2cjsKPj4gICAgICAgICAgICAgICAgIHUxNiBsYXN0X2F2
-YWlsX2lkeDsKPj4gICAgICAgICB9Owo+PiBJIGhhdmVuJ3QgbG9va2VkIGNsb3NlbHkgYXQgdmhv
-c3QgdG8gc2VlIHdoYXQgaXQgd2FudHMsIGJ1dCBJIHdvdWxkCj4+IHRoaW5rIHdlIGNvdWxkIHNo
-YXJlIG1vcmUgY29kZS4KPgo+IEkgaGF2ZSBwbGF5ZWQgYXJvdW5kIHdpdGggdGhlIGNvZGUgaW4g
-dmhvc3QuYyB0byBleHBsb3JlIHlvdXIgaWRlYS4KPiBUaGUgbWFpbiBpc3N1ZSBJIHJ1biBpbnRv
-IGlzIHRoYXQgdmhvc3QuYyBpcyBhY2Nlc3NpbmcgdXNlciBkYXRhIHdoaWxlIG15IG5ldwo+IGNv
-ZGUgZG9lcyBub3QuIFNvIEkgZW5kIHVwIHdpdGggc29tZSBxdWlya3kgY29kZSB0ZXN0aW5nIGlm
-IHRoZSByaW5nIGxpdmVzIGluCj4gdXNlciBtZW1vcnkgb3Igbm90LiAgQW5vdGhlciBpc3N1ZSBp
-cyBzcGFyc2Ugd2FybmluZ3Mgd2hlbgo+IGFjY2Vzc2luZyB1c2VyIG1lbW9yeS4KClNwYXJzZSBp
-cyBhIHNlcnZhbnQsIG5vdCBhIG1hc3Rlci4gIElmIHRoYXQncyB0aGUgb25seSB0aGluZyBzdG9w
-cGluZwp1cywgd2UgY2FuIGlnbm9yZSBpdCAob3IgaGFjayBhcm91bmQgaXQpLgoKPiBXaXRoIHlv
-dXIgc3VnZ2VzdGVkIGNoYW5nZXMgSSBlbmQgdXAgc2hhcmluZyBhYm91dCAxMDAgbGluZXMgb2Yg
-Y29kZS4KPiBTbyBpbiBzdW0sIEkgZmVlbCB0aGlzIGFkZCBtb3JlIGNvbXBsZXhpdHkgdGhhbiB3
-aGF0IHdlIGdhaW4gYnkgc2hhcmluZy4KPgo+IEJlbG93IGlzIGFuIGluaXRpYWwgZHJhZnQgb2Yg
-dGhlIHJlLXVzYWJsZSBjb2RlLiBJIGFkZGVkICJpc191YWNjZXNzIiB0byBzdHJ1Y3QKPiB2aXJ0
-aW9fcmluZyBpbiBvcmRlciB0byBrbm93IGlmIHRoZSByaW5nIGxpdmVzIGluIHVzZXIgbWVtb3J5
-Lgo+Cj4gTGV0IG1lIGtub3cgd2hhdCB5b3UgdGhpbmsuCgpBZ3JlZWQsIHRoYXQncyBob3JyaWJs
-ZS4uLgoKRm9ydHVuYXRlbHksIHJlY2VudCBHQ0NzIHdpbGwgaW5saW5lIGZ1bmN0aW9uIHBvaW50
-ZXJzLCBzbyBpbmxpbmluZyB0aGlzCmFuZCBoYW5kaW5nIGFuIGFjY2Vzc29yIGZ1bmN0aW9uIGdl
-dHMgb3B0aW1pemVkIGF3YXkuCgpJIHdvdWxkIHJlYWxseSBsaWtlIHRoaXMsIGJlY2F1c2UgSSdk
-IGxvdmUgdG8gaGF2ZSBhIGNvbmZpZyBvcHRpb24gdG8gZG8Kc3RyaWN0IGNoZWNraW5nIG9uIHRo
-ZSBmb3JtYXQgb2YgdGhlc2UgdGhpbmdzIChzaW1pbGFyIHRvIG15IHJlY2VudGx5CnBvc3RlZCBD
-T05GSUdfVklSVElPX0RFVklDRV9UT1JUVVJFIHBhdGNoKS4KClNlZSBiZWxvdy4KCj4gaW50IHZp
-cnRxdWV1ZV9hZGRfdXNlZChzdHJ1Y3QgdnJpbmdfaG9zdCAqdnIsIHVuc2lnbmVkIGludCBoZWFk
-LCBpbnQgbGVuLAo+IAkJICAgIHN0cnVjdCB2cmluZ191c2VkX2VsZW0gICoqdXNlZCkKPiB7Cj4g
-CS8qIFRoZSB2aXJ0cXVldWUgY29udGFpbnMgYSByaW5nIG9mIHVzZWQgYnVmZmVycy4gIEdldCBh
-IHBvaW50ZXIgdG8gdGhlCj4gCSAqIG5leHQgZW50cnkgaW4gdGhhdCB1c2VkIHJpbmcuICovCj4g
-CSp1c2VkID0gJnZyLT52cmluZy51c2VkLT5yaW5nW3ZyLT5sYXN0X3VzZWRfaWR4ICUgdnItPnZy
-aW5nLm51bV07Cj4gCWlmICh2ci0+aXNfdWFjY2Vzcykgewo+IAkJaWYodW5saWtlbHkoX19wdXRf
-dXNlcihoZWFkLCAmKCp1c2VkKS0+aWQpKSkgewo+IAkJCXByX2RlYnVnKCJGYWlsZWQgdG8gd3Jp
-dGUgdXNlZCBpZCIpOwo+IAkJCXJldHVybiAtRUZBVUxUOwo+IAkJfQo+IAkJaWYgKHVubGlrZWx5
-KF9fcHV0X3VzZXIobGVuLCAmKCp1c2VkKS0+bGVuKSkpIHsKPiAJCQlwcl9kZWJ1ZygiRmFpbGVk
-IHRvIHdyaXRlIHVzZWQgbGVuIik7Cj4gCQkJcmV0dXJuIC1FRkFVTFQ7Cj4gCQl9Cj4gCQlzbXBf
-d21iKCk7Cj4gCQlpZiAoX19wdXRfdXNlcih2ci0+bGFzdF91c2VkX2lkeCArIDEsCj4gCQkJICAg
-ICAgICZ2ci0+dnJpbmcudXNlZC0+aWR4KSkgewo+IAkJCXByX2RlYnVnKCJGYWlsZWQgdG8gaW5j
-cmVtZW50IHVzZWQgaWR4Iik7Cj4gCQkJcmV0dXJuIC1FRkFVTFQ7Cj4gCQl9Cj4gCX0gZWxzZSB7
-Cj4gCQkoKnVzZWQpLT5pZCA9IGhlYWQ7Cj4gCQkoKnVzZWQpLT5sZW4gPSBsZW47Cj4gCQlzbXBf
-d21iKCk7Cj4gCQl2ci0+dnJpbmcudXNlZC0+aWR4ID0gdnItPmxhc3RfdXNlZF9pZHggKyAxOwo+
-IAl9Cj4gCXZyLT5sYXN0X3VzZWRfaWR4Kys7Cj4gCXJldHVybiAwOwo+IH0KCi8qIFVudGVzdGVk
-ISAqLwpzdGF0aWMgaW5saW5lIGJvb2wgaW5fa2VybmVsX3B1dCh1MzIgKmRzdCwgdTMyIHYpCnsK
-ICAgICAgICAqZHN0ID0gdjsKICAgICAgICByZXR1cm4gdHJ1ZTsKfQoKc3RhdGljIGlubGluZSBi
-b29sIHVzZXJzcGFjZV9wdXQodTMyICpkc3QsIHUzMiB2KQp7CglyZXR1cm4gX19wdXRfdXNlcihk
-c3QsIHYpID09IDA7Cn0KCnN0YXRpYyBpbmxpbmUgc3RydWN0IHZyaW5nX3VzZWRfZWxlbSAqdnJo
-X2FkZF91c2VkKHN0cnVjdCB2cmluZ19ob3N0ICp2ciwKICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgdW5zaWduZWQgaW50IGhlYWQsIHUzMiBsZW4sCiAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGJvb2wgKCpw
-dXQpKHUzMiAqZHN0LCB1MzIgdikpCnsKICAgICAgICBzdHJ1Y3QgdnJpbmdfdXNlZF9lbGVtICp1
-c2VkOwoKCS8qIFRoZSB2aXJ0cXVldWUgY29udGFpbnMgYSByaW5nIG9mIHVzZWQgYnVmZmVycy4g
-IEdldCBhIHBvaW50ZXIgdG8gdGhlCgkgKiBuZXh0IGVudHJ5IGluIHRoYXQgdXNlZCByaW5nLiAq
-LwoJdXNlZCA9ICZ2ci0+dnJpbmcudXNlZC0+cmluZ1t2ci0+bGFzdF91c2VkX2lkeCAlIHZyLT52
-cmluZy5udW1dOwogICAgICAgIAoJaWYgKCFwdXQoJnVzZWQtPmlkLCBoZWFkKSB8fCAhcHV0KCZ1
-c2VkLT5sZW4gPSBsZW4pKQogICAgICAgICAgICAgICAgcmV0dXJuIE5VTEw7CglzbXBfd21iKCk7
-CiAgICAgICAgaWYgKCFwdXQoJnZyLT52cmluZy51c2VkLT5pZHgsIHZyLT5sYXN0X3VzZWRfaWR4
-ICsgMSkpCiAgICAgICAgICAgICAgICByZXR1cm4gTlVMTDsKCXZyLT5sYXN0X3VzZWRfaWR4Kys7
-CglyZXR1cm4gdXNlZDsKfQoKQ2hlZXJzLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, 05 Nov 2012 10:00:38 -0800
+George Zhang <georgezhang@vmware.com> wrote:
+
+> * * *
+> This series of VSOCK linux upstreaming patches include latest udpate from
+> VMware.
+> 
+> Summary of changes:
+> 	- Add include/linux/socket.h for AF_VSOCK.
+>         - Cleanup some comments.
+>         - Cleanup makefiles.
+> 
+> 
+> 
+> * * *
+> 
+> In an effort to improve the out-of-the-box experience with Linux
+> kernels for VMware users, VMware is working on readying the Virtual
+> Machine Communication Interface (vmw_vmci) and VMCI Sockets (VSOCK)
+> (vmw_vsock) kernel modules for inclusion in the Linux kernel. The
+> purpose of this post is to acquire feedback on the vmw_vsock kernel
+> module. The vmw_vmci kernel module has been presented in an early post.
+> 
+> 
+> * * *
+> 
+> VMCI Sockets allows virtual machines to communicate with host kernel
+> modules and the VMware hypervisors. VMCI Sockets kernel module has
+> dependency on VMCI kernel module. User level applications both in
+> a virtual machine and on the host can use vmw_vmci through VMCI
+> Sockets API which facilitates fast and efficient communication
+> between guest virtual machines and their host. A socket
+> address family designed to be compatible with UDP and TCP at the
+> interface level. Today, VMCI and VMCI Sockets are used by the VMware
+> shared folders (HGFS) and various VMware Tools components inside the
+> guest for zero-config, network-less access to VMware host services. In
+> addition to this, VMware's users are using VMCI Sockets for various
+> applications, where network access of the virtual machine is
+> restricted or non-existent. Examples of this are VMs communicating
+> with device proxies for proprietary hardware running as host
+> applications and automated testing of applications running within
+> virtual machines.
+> 
+> The VMware VMCI Sockets are similar to other socket types, like
+> Berkeley UNIX socket interface. The VMCI sockets module supports
+> both connection-oriented stream sockets like TCP, and connectionless
+> datagram sockets like UDP. The VSOCK protocol family is defined as
+> "AF_VSOCK" and the socket operations split for SOCK_DGRAM and
+> SOCK_STREAM.
+> 
+> For additional information about the use of VMCI and in particular
+> VMCI Sockets, please refer to the VMCI Socket Programming Guide
+> available at https://www.vmware.com/support/developer/vmci-sdk/.
+> 
+
+This should go to netdev as well since it is a new address family.
