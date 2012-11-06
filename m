@@ -1,11 +1,13 @@
-From: Mojiong Qiu <qiumojiong@gmail.com>
-Subject: [PATCH] xen/events: xen/events: fix RCU warning
-Date: Tue,  6 Nov 2012 16:08:15 +0800
-Message-ID: <1352189295-7111-1-git-send-email-qiumojiong__19500.2055530951$1352196748$gmane$org@gmail.com>
+From: Andy King <acking@vmware.com>
+Subject: Re: [Pv-drivers] [PATCH 1/6] VSOCK: vsock protocol implementation.
+Date: Tue, 6 Nov 2012 06:31:09 -0800 (PST)
+Message-ID: <1891962703.13755196.1352212269838.JavaMail.root@vmware.com>
+References: <20121106101013.09806f81@s6510.linuxnetplumber.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20121106101013.09806f81@s6510.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,75 +17,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Mojiong Qiu <qiumojiong@gmail.com>, Mojiong Qiu <mjqiu@tencent.com>, virtualization@lists.linux-foundation.org, "at least to 3.0.y" <stable@kernel.org>
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net, George Zhang <georgezhang@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-exit_idle() should be called after irq_enter(), otherwise it throws:
+Hi Stephen,
 
-[    2.513020] [ INFO: suspicious RCU usage. ]
-[    2.513076] 3.6.5 #1 Not tainted
-[    2.513128] -------------------------------
-[    2.513183] include/linux/rcupdate.h:725 rcu_read_lock() used illegally while idle!
-[    2.513271]
-[    2.513271] other info that might help us debug this:
-[    2.513271]
-[    2.513388]
-[    2.513388] RCU used illegally from idle CPU!
-[    2.513388] rcu_scheduler_active = 1, debug_locks = 1
-[    2.513511] RCU used illegally from extended quiescent state!
-[    2.513572] 1 lock held by swapper/0/0:
-[    2.513626]  #0:  (rcu_read_lock){......}, at: [<ffffffff810e9fe0>] __atomic_notifier_call_chain+0x0/0x140
-[    2.513815]
-[    2.513815] stack backtrace:
-[    2.513897] Pid: 0, comm: swapper/0 Not tainted 3.6.5 #1
-[    2.513954] Call Trace:
-[    2.514005]  <IRQ>  [<ffffffff811259a2>] lockdep_rcu_suspicious+0xe2/0x130
-[    2.514107]  [<ffffffff810ea10c>] __atomic_notifier_call_chain+0x12c/0x140
-[    2.514169]  [<ffffffff810e9fe0>] ? atomic_notifier_chain_unregister+0x90/0x90
-[    2.514258]  [<ffffffff811216cd>] ? trace_hardirqs_off+0xd/0x10
-[    2.514318]  [<ffffffff810ea136>] atomic_notifier_call_chain+0x16/0x20
-[    2.514381]  [<ffffffff810777c3>] exit_idle+0x43/0x50
-[    2.514441]  [<ffffffff81568865>] xen_evtchn_do_upcall+0x25/0x50
-[    2.514503]  [<ffffffff81aa690e>] xen_do_hypervisor_callback+0x1e/0x30
-[    2.514562]  <EOI>  [<ffffffff810013aa>] ? hypercall_page+0x3aa/0x1000
-[    2.514662]  [<ffffffff810013aa>] ? hypercall_page+0x3aa/0x1000
-[    2.514722]  [<ffffffff81061540>] ? xen_safe_halt+0x10/0x20
-[    2.514782]  [<ffffffff81075cfa>] ? default_idle+0xba/0x570
-[    2.514841]  [<ffffffff810778af>] ? cpu_idle+0xdf/0x140
-[    2.514900]  [<ffffffff81a4d881>] ? rest_init+0x135/0x144
-[    2.514960]  [<ffffffff81a4d74c>] ? csum_partial_copy_generic+0x16c/0x16c
-[    2.515022]  [<ffffffff82520c45>] ? start_kernel+0x3db/0x3e8
-[    2.515081]  [<ffffffff8252066a>] ? repair_env_string+0x5a/0x5a
-[    2.515141]  [<ffffffff82520356>] ? x86_64_start_reservations+0x131/0x135
-[    2.515202]  [<ffffffff82524aca>] ? xen_start_kernel+0x465/0x46
+> You did some scrubbing of the macro's to support multiple kernel
+> versions, but there are still some leftovers.
+> This code seems to have a lot of "this added in version xxx"
+> type comments. These are probably not a good idea to include
+> in the mainline kernel code.
 
-Signed-off-by: Mojiong Qiu <mjqiu@tencent.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel@lists.xensource.com
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@kernel.org (at least to 3.0.y)
----
- drivers/xen/events.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Thanks so much for taking a look.  Sorry about that, we'll remove
+all such occurrences and send out a new series of patches in a bit.
 
-diff --git a/drivers/xen/events.c b/drivers/xen/events.c
-index 912ac81..0be4df3 100644
---- a/drivers/xen/events.c
-+++ b/drivers/xen/events.c
-@@ -1395,10 +1395,10 @@ void xen_evtchn_do_upcall(struct pt_regs *regs)
- {
- 	struct pt_regs *old_regs = set_irq_regs(regs);
- 
-+	irq_enter();
- #ifdef CONFIG_X86
- 	exit_idle();
- #endif
--	irq_enter();
- 
- 	__xen_evtchn_do_upcall();
- 
--- 
-1.6.3.2
+Thanks!
+- Andy
