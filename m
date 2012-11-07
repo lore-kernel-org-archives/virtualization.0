@@ -1,20 +1,13 @@
-From: sjur.brandeland@stericsson.com
-Subject: [PATCH resend] virtio_console: Free buffers from out-queue upon close
-Date: Wed,  7 Nov 2012 14:43:42 +0100
-Message-ID: <1352295822-22906-1-git-send-email-sjur.brandeland@stericsson.com>
-References: <1350287856-5284-1-git-send-email-sjur.brandeland@stericsson.com>
-	<1350287856-5284-5-git-send-email-sjur.brandeland@stericsson.com>
-	<878vayhsca.fsf@rustcorp.com.au>
-	<20121101073951.GA17012@amit.redhat.com>
-	<87r4oc52ov.fsf@rustcorp.com.au>
-	<20121102102047.GE10483@amit.redhat.com>
-	<81C3A93C17462B4BBD7E272753C1057923BE98E5C6@EXDCVYMBSTM005.EQ1STM.local>
-	<1352298171-21869-1-git-send-email-sjur.brandeland@stericsson.com>
+From: Pawel Moll <pawel.moll@arm.com>
+Subject: [PATCH v2] virtio-mmio: Fix irq parsing in the command line
+Date: Wed,  7 Nov 2012 14:18:12 +0000
+Message-ID: <1352297892-27838-1-git-send-email-pawel.moll@arm.com>
+References: <1352120572-16256-1-git-send-email-pawel.moll@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121102102047.GE10483@amit.redhat.com>
+In-Reply-To: <1352120572-16256-1-git-send-email-pawel.moll@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,45 +17,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, sjur@brendeland.net, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
-RnJlZSBwZW5kaW5nIG91dHB1dCBidWZmZXJzIGZyb20gdGhlIHZpcnRpbyBvdXQtcXVldWUgd2hl
-bgpob3N0IGhhcyBhY2tub3dsZWRnZWQgcG9ydF9jbG9zZS4gQWxzbyByZW1vdmVkIFdBUk5fT04o
-KQppbiByZW1vdmVfcG9ydF9kYXRhKCkuCgpTaWduZWQtb2ZmLWJ5OiBTanVyIEJyw6ZuZGVsYW5k
-IDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Ci0tLQoKUmVzZW5kaW5nLCB0aGlzIHRp
-bWUgaW5jbHVkaW5nIGEgcHJvcGVyICJTdWJqZWN0Ii4uLgotLQoKSGkgQW1pdCwKCk5vdGU6IFRo
-aXMgcGF0Y2ggaXMgY29tcGlsZSB0ZXN0ZWQgb25seS4gSSBoYXZlIGRvbmUgdGhlIHJlbW92YWwK
-b2YgYnVmZmVycyBmcm9tIG91dC1xdWV1ZSBpbiBoYW5kbGVfY29udHJvbF9tZXNzYWdlKCkKd2hl
-biBob3N0IGhhcyBhY2tlZCB0aGUgY2xvc2UgcmVxdWVzdC4gVGhpcyBzZWVtcyBsZXNzCnJhY3kg
-dGhhbiBkb2luZyBpdCBpbiB0aGUgcmVsZWFzZSBmdW5jdGlvbi4KCkkgeW91IHdhbnQgdG8gY2hh
-bmdlIHRoaXMgZnVydGhlciwgZmVlbCBmcmVlIHRvIHRha2Ugb3ZlciBmcm9tCmhlcmUgYW5kIHJl
-ZmluZSB0aGlzLgoKVGhhbmtzLApTanVyCgogZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMg
-fCAgIDE0ICsrKysrKy0tLS0tLS0tCiAxIGZpbGVzIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKSwg
-OCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUu
-YyBiL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCmluZGV4IDNmYTAzNmEuLjNhNTgzMWQg
-MTAwNjQ0Ci0tLSBhL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCisrKyBiL2RyaXZlcnMv
-Y2hhci92aXJ0aW9fY29uc29sZS5jCkBAIC0xNTIyLDE1ICsxNTIyLDkgQEAgc3RhdGljIHZvaWQg
-cmVtb3ZlX3BvcnRfZGF0YShzdHJ1Y3QgcG9ydCAqcG9ydCkKIAl3aGlsZSAoKGJ1ZiA9IHZpcnRx
-dWV1ZV9kZXRhY2hfdW51c2VkX2J1Zihwb3J0LT5pbl92cSkpKQogCQlmcmVlX2J1ZihidWYsIHRy
-dWUpOwogCi0JLyoKLQkgKiBDaGVjayB0aGUgb3V0LXF1ZXVlIGZvciBidWZmZXJzLiBGb3IgVklS
-VElPX0NPTlNPTEUgaXQgaXMgYQotCSAqIGJ1ZyBpZiB0aGlzIGhhcHBlbnMuIEJ1dCBmb3IgUlBS
-T0NfU0VSSUFMIHRoZSByZW1vdGUgcHJvY2Vzc29yCi0JICogbWF5IGhhdmUgY3Jhc2hlZCwgbGVh
-dmluZyBidWZmZXJzIGhhbmdpbmcgaW4gdGhlIG91dC1xdWV1ZS4KLQkgKi8KLQl3aGlsZSAoKGJ1
-ZiA9IHZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1Zihwb3J0LT5vdXRfdnEpKSkgewotCQlXQVJO
-X09OX09OQ0UoIWlzX3Jwcm9jX3NlcmlhbChwb3J0LT5wb3J0ZGV2LT52ZGV2KSk7CisJLyogRnJl
-ZSBwZW5kaW5nIGJ1ZmZlcnMgZnJvbSB0aGUgb3V0LXF1ZXVlLiAqLworCXdoaWxlICgoYnVmID0g
-dmlydHF1ZXVlX2RldGFjaF91bnVzZWRfYnVmKHBvcnQtPm91dF92cSkpKQogCQlmcmVlX2J1Zihi
-dWYsIHRydWUpOwotCX0KIH0KIAogLyoKQEAgLTE2NTUsNiArMTY0OSwxMCBAQCBzdGF0aWMgdm9p
-ZCBoYW5kbGVfY29udHJvbF9tZXNzYWdlKHN0cnVjdCBwb3J0c19kZXZpY2UgKnBvcnRkZXYsCiAJ
-CSAqLwogCQlzcGluX2xvY2tfaXJxKCZwb3J0LT5vdXR2cV9sb2NrKTsKIAkJcmVjbGFpbV9jb25z
-dW1lZF9idWZmZXJzKHBvcnQpOworCisJCS8qIEZyZWUgcGVuZGluZyBidWZmZXJzIGZyb20gdGhl
-IG91dC1xdWV1ZS4gKi8KKwkJd2hpbGUgKChidWYgPSB2aXJ0cXVldWVfZGV0YWNoX3VudXNlZF9i
-dWYocG9ydC0+b3V0X3ZxKSkpCisJCQlmcmVlX2J1ZihidWYsIHRydWUpOwogCQlzcGluX3VubG9j
-a19pcnEoJnBvcnQtPm91dHZxX2xvY2spOwogCiAJCS8qCi0tIAoxLjcuNS40CgpfX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
-aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
-Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
-b24=
+On 64-bit machines resource_size_t is a 64-bit value, while
+sscanf() format for this argument was defined as "%u". Fixed
+by using an intermediate local value of a known length.
+
+Also added cleaned up the resource creation and adde extra
+comments to make the parameters parsing easier to follow.
+
+Reported-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Pawel Moll <pawel.moll@arm.com>
+---
+ drivers/virtio/virtio_mmio.c |   24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
+
+Comparing to v1 I've simply "polished" the size assignment
+(moved -1 from one place to another) and removed two of the
+new comments, as they weren't really useful any more.
+
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 6b1b7e1..e807c2a 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -521,25 +521,33 @@ static int vm_cmdline_set(const char *device,
+ 	int err;
+ 	struct resource resources[2] = {};
+ 	char *str;
+-	long long int base;
++	long long int base, size;
++	unsigned int irq;
+ 	int processed, consumed = 0;
+ 	struct platform_device *pdev;
+ 
+-	resources[0].flags = IORESOURCE_MEM;
+-	resources[1].flags = IORESOURCE_IRQ;
+-
+-	resources[0].end = memparse(device, &str) - 1;
++	/* Consume "size" part of the command line parameter */
++	size = memparse(device, &str);
+ 
++	/* Get "@<base>:<irq>[:<id>]" chunks */
+ 	processed = sscanf(str, "@%lli:%u%n:%d%n",
+-			&base, &resources[1].start, &consumed,
++			&base, &irq, &consumed,
+ 			&vm_cmdline_id, &consumed);
+ 
++	/*
++	 * sscanf() processes 3 chunks if "<id>" is given, 2 if not;
++	 * also there must be no extra characters after the last
++	 * chunk, so str[consumed] should be '\0'
++	 */
+ 	if (processed < 2 || processed > 3 || str[consumed])
+ 		return -EINVAL;
+ 
++	resources[0].flags = IORESOURCE_MEM;
+ 	resources[0].start = base;
+-	resources[0].end += base;
+-	resources[1].end = resources[1].start;
++	resources[0].end = base + size - 1;
++
++	resources[1].flags = IORESOURCE_IRQ;
++	resources[1].start = resources[1].end = irq;
+ 
+ 	if (!vm_cmdline_parent_registered) {
+ 		err = device_register(&vm_cmdline_parent);
+-- 
+1.7.10.4
