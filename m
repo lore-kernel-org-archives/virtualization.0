@@ -1,15 +1,15 @@
 From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v11 1/7] mm: adjust
-	address_space_operations.migratepage() return code
-Date: Wed, 7 Nov 2012 11:56:10 -0800
-Message-ID: <20121107115610.c0cb650c.akpm@linux-foundation.org>
+Subject: Re: [PATCH v11 5/7] virtio_balloon: introduce migration primitives
+	to balloon pages
+Date: Wed, 7 Nov 2012 11:58:10 -0800
+Message-ID: <20121107115810.1ae286ac.akpm@linux-foundation.org>
 References: <cover.1352256081.git.aquini@redhat.com>
-	<74bc30697313206e1225f6fc658bc5952b588dcc.1352256085.git.aquini@redhat.com>
+	<265aaff9a79f503672f0cdcdff204114b5b5ba5b.1352256088.git.aquini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <74bc30697313206e1225f6fc658bc5952b588dcc.1352256085.git.aquini@redhat.com>
+In-Reply-To: <265aaff9a79f503672f0cdcdff204114b5b5ba5b.1352256088.git.aquini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,24 +23,53 @@ To: Rafael Aquini <aquini@redhat.com>
 Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed,  7 Nov 2012 01:05:48 -0200
+On Wed,  7 Nov 2012 01:05:52 -0200
 Rafael Aquini <aquini@redhat.com> wrote:
 
-> This patch introduces MIGRATEPAGE_SUCCESS as the default return code
-> for address_space_operations.migratepage() method and documents the
-> expected return code for the same method in failure cases.
+> Memory fragmentation introduced by ballooning might reduce significantly
+> the number of 2MB contiguous memory blocks that can be used within a guest,
+> thus imposing performance penalties associated with the reduced number of
+> transparent huge pages that could be used by the guest workload.
+> 
+> Besides making balloon pages movable at allocation time and introducing
+> the necessary primitives to perform balloon page migration/compaction,
+> this patch also introduces the following locking scheme, in order to
+> enhance the syncronization methods for accessing elements of struct
+> virtio_balloon, thus providing protection against concurrent access
+> introduced by parallel memory migration threads.
+> 
+> ...
+>
+> @@ -122,18 +128,25 @@ static void set_page_pfns(u32 pfns[], struct page *page)
+>  
+>  static void fill_balloon(struct virtio_balloon *vb, size_t num)
+>  {
+> +	struct balloon_dev_info *vb_dev_info = vb->vb_dev_info;
+> +
+> +	static DEFINE_RATELIMIT_STATE(fill_balloon_rs,
+> +				      DEFAULT_RATELIMIT_INTERVAL,
+> +				      DEFAULT_RATELIMIT_BURST);
+> +
+>  	/* We can only do one array worth at a time. */
+>  	num = min(num, ARRAY_SIZE(vb->pfns));
+>  
+> +	mutex_lock(&vb->balloon_lock);
+>  	for (vb->num_pfns = 0; vb->num_pfns < num;
+>  	     vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+> -		struct page *page = alloc_page(GFP_HIGHUSER | __GFP_NORETRY |
+> -					__GFP_NOMEMALLOC | __GFP_NOWARN);
+> +		struct page *page = balloon_page_enqueue(vb_dev_info);
+> +
+>  		if (!page) {
+> -			if (printk_ratelimit())
+> +			if (__ratelimit(&fill_balloon_rs))
+>  				dev_printk(KERN_INFO, &vb->vdev->dev,
+>  					   "Out of puff! Can't get %zu pages\n",
+> -					   num);
+> +					   VIRTIO_BALLOON_PAGES_PER_PAGE);
+>  			/* Sleep for at least 1/5 of a second before retry. */
+>  			msleep(200);
+>  			break;
 
-I hit a large number of rejects applying this against linux-next.  Due
-to the increasingly irritating sched/numa code in there.
-
-I attempted to fix it up and also converted some (but not all) of the
-implicit tests of `rc' against zero.
-
-Please check the result very carefully - more changes will be needed.
-
-All those
-
--	if (rc)
-+	if (rc != MIGRATEPAGE_SUCCESS)
-
-changes are a pain.  Perhaps we shouldn't bother.
+linux-next's fill_balloon() has already been converted to
+dev_info_ratelimited().  I fixed everything up.  Please check the result.
