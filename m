@@ -1,12 +1,19 @@
-From: Wei Yongjun <weiyj.lk@gmail.com>
-Subject: [PATCH -next] tcm_vhost: remove unused variable in
-	vhost_scsi_allocate_cmd()
-Date: Wed, 7 Nov 2012 20:53:25 +0800
-Message-ID: <CAPgLHd81=dTwwSTgUtd9YbgWf8YLMfi3VJQ-76h71+0W_mx_2g@mail.gmail.com>
+From: sjur.brandeland@stericsson.com
+Subject: =?UTF8?q??=
+Date: Wed,  7 Nov 2012 15:22:51 +0100
+Message-ID: <1352298171-21869-1-git-send-email-sjur.brandeland@stericsson.com>
+References: <1350287856-5284-1-git-send-email-sjur.brandeland@stericsson.com>
+	<1350287856-5284-5-git-send-email-sjur.brandeland@stericsson.com>
+	<878vayhsca.fsf@rustcorp.com.au>
+	<20121101073951.GA17012@amit.redhat.com>
+	<87r4oc52ov.fsf@rustcorp.com.au>
+	<20121102102047.GE10483@amit.redhat.com>
+	<81C3A93C17462B4BBD7E272753C1057923BE98E5C6@EXDCVYMBSTM005.EQ1STM.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20121102102047.GE10483@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,39 +23,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: netdev@vger.kernel.org, yongjun_wei@trendmicro.com.cn, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, sjur@brendeland.net, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-
-The variable se_sess is initialized but never used
-otherwise, so remove the unused variable.
-
-dpatch engine is used to auto generate this patch.
-(https://github.com/weiyj/dpatch)
-
-Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
----
- drivers/vhost/tcm_vhost.c | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 23c138f..551fff0 100644
---- a/drivers/vhost/tcm_vhost.c
-+++ b/drivers/vhost/tcm_vhost.c
-@@ -415,14 +415,12 @@ static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
- {
- 	struct tcm_vhost_cmd *tv_cmd;
- 	struct tcm_vhost_nexus *tv_nexus;
--	struct se_session *se_sess;
- 
- 	tv_nexus = tv_tpg->tpg_nexus;
- 	if (!tv_nexus) {
- 		pr_err("Unable to locate active struct tcm_vhost_nexus\n");
- 		return ERR_PTR(-EIO);
- 	}
--	se_sess = tv_nexus->tvn_se_sess;
- 
- 	tv_cmd = kzalloc(sizeof(struct tcm_vhost_cmd), GFP_ATOMIC);
- 	if (!tv_cmd) {
+RnJvbSAwY2UxNmQ2YTAyNzBkYWViZDk5NzJlOTRhODM0MDM0YTA5MzIyOGIwIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiA9P1VURi04P3E/U2p1cj0yMEJyPUMzPUE2bmRlbGFuZD89IDxz
+anVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+CkRhdGU6IFdlZCwgNyBOb3YgMjAxMiAxMjoy
+MDowNyArMDEwMApTdWJqZWN0OiBbUEFUQ0hdIHZpcnRpb19jb25zb2xlOkZyZWUgYnVmZmVycyBm
+cm9tIG91dC1xdWV1ZSB1cG9uIGNsb3NlCk1JTUUtVmVyc2lvbjogMS4wCkNvbnRlbnQtVHlwZTog
+dGV4dC9wbGFpbjsgY2hhcnNldD1VVEYtOApDb250ZW50LVRyYW5zZmVyLUVuY29kaW5nOiA4Yml0
+CgpGcmVlIHBlbmRpbmcgb3V0cHV0IGJ1ZmZlcnMgZnJvbSB0aGUgdmlydGlvIG91dC1xdWV1ZSB3
+aGVuCmhvc3QgaGFzIGFja25vd2xlZGdlZCBwb3J0X2Nsb3NlLiBBbHNvIHJlbW92ZWQgV0FSTl9P
+TigpCmluIHJlbW92ZV9wb3J0X2RhdGEoKS4KClNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxh
+bmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KLS0tCkhpIEFtaXQsCgpOb3RlOiBU
+aGlzIHBhdGNoIGlzIGNvbXBpbGUgdGVzdGVkIG9ubHkuIEkgaGF2ZSBkb25lIHRoZSByZW1vdmFs
+Cm9mIGJ1ZmZlcnMgZnJvbSBvdXQtcXVldWUgaW4gaGFuZGxlX2NvbnRyb2xfbWVzc2FnZSgpCndo
+ZW4gaG9zdCBoYXMgYWNrZWQgdGhlIGNsb3NlIHJlcXVlc3QuIFRoaXMgc2VlbXMgbGVzcwpyYWN5
+IHRoYW4gZG9pbmcgaXQgaW4gdGhlIHJlbGVhc2UgZnVuY3Rpb24uCgpJIHlvdSB3YW50IHRvIGNo
+YW5nZSB0aGlzIGZ1cnRoZXIsIGZlZWwgZnJlZSB0byB0YWtlIG92ZXIgZnJvbQpoZXJlIGFuZCBy
+ZWZpbmUgdGhpcy4KClRoYW5rcywKU2p1cgoKIGRyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5j
+IHwgICAxNCArKysrKystLS0tLS0tLQogMSBmaWxlcyBjaGFuZ2VkLCA2IGluc2VydGlvbnMoKyks
+IDggZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xl
+LmMgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwppbmRleCAzZmEwMzZhLi4zYTU4MzFk
+IDEwMDY0NAotLS0gYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYworKysgYi9kcml2ZXJz
+L2NoYXIvdmlydGlvX2NvbnNvbGUuYwpAQCAtMTUyMiwxNSArMTUyMiw5IEBAIHN0YXRpYyB2b2lk
+IHJlbW92ZV9wb3J0X2RhdGEoc3RydWN0IHBvcnQgKnBvcnQpCiAJd2hpbGUgKChidWYgPSB2aXJ0
+cXVldWVfZGV0YWNoX3VudXNlZF9idWYocG9ydC0+aW5fdnEpKSkKIAkJZnJlZV9idWYoYnVmLCB0
+cnVlKTsKIAotCS8qCi0JICogQ2hlY2sgdGhlIG91dC1xdWV1ZSBmb3IgYnVmZmVycy4gRm9yIFZJ
+UlRJT19DT05TT0xFIGl0IGlzIGEKLQkgKiBidWcgaWYgdGhpcyBoYXBwZW5zLiBCdXQgZm9yIFJQ
+Uk9DX1NFUklBTCB0aGUgcmVtb3RlIHByb2Nlc3NvcgotCSAqIG1heSBoYXZlIGNyYXNoZWQsIGxl
+YXZpbmcgYnVmZmVycyBoYW5naW5nIGluIHRoZSBvdXQtcXVldWUuCi0JICovCi0Jd2hpbGUgKChi
+dWYgPSB2aXJ0cXVldWVfZGV0YWNoX3VudXNlZF9idWYocG9ydC0+b3V0X3ZxKSkpIHsKLQkJV0FS
+Tl9PTl9PTkNFKCFpc19ycHJvY19zZXJpYWwocG9ydC0+cG9ydGRldi0+dmRldikpOworCS8qIEZy
+ZWUgcGVuZGluZyBidWZmZXJzIGZyb20gdGhlIG91dC1xdWV1ZS4gKi8KKwl3aGlsZSAoKGJ1ZiA9
+IHZpcnRxdWV1ZV9kZXRhY2hfdW51c2VkX2J1Zihwb3J0LT5vdXRfdnEpKSkKIAkJZnJlZV9idWYo
+YnVmLCB0cnVlKTsKLQl9CiB9CiAKIC8qCkBAIC0xNjU1LDYgKzE2NDksMTAgQEAgc3RhdGljIHZv
+aWQgaGFuZGxlX2NvbnRyb2xfbWVzc2FnZShzdHJ1Y3QgcG9ydHNfZGV2aWNlICpwb3J0ZGV2LAog
+CQkgKi8KIAkJc3Bpbl9sb2NrX2lycSgmcG9ydC0+b3V0dnFfbG9jayk7CiAJCXJlY2xhaW1fY29u
+c3VtZWRfYnVmZmVycyhwb3J0KTsKKworCQkvKiBGcmVlIHBlbmRpbmcgYnVmZmVycyBmcm9tIHRo
+ZSBvdXQtcXVldWUuICovCisJCXdoaWxlICgoYnVmID0gdmlydHF1ZXVlX2RldGFjaF91bnVzZWRf
+YnVmKHBvcnQtPm91dF92cSkpKQorCQkJZnJlZV9idWYoYnVmLCB0cnVlKTsKIAkJc3Bpbl91bmxv
+Y2tfaXJxKCZwb3J0LT5vdXR2cV9sb2NrKTsKIAogCQkvKgotLSAKMS43LjUuNAoKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
