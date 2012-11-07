@@ -1,14 +1,16 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH] xen/events: xen/events: fix RCU warning
-Date: Tue, 6 Nov 2012 11:17:42 -0500
-Message-ID: <20121106161742.GJ9966@phenom.dumpdata.com>
-References: <1352189295-7111-1-git-send-email-qiumojiong@gmail.com>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: [PATCH v11 1/7] mm: adjust address_space_operations.migratepage()
+	return code
+Date: Wed,  7 Nov 2012 01:05:48 -0200
+Message-ID: <74bc30697313206e1225f6fc658bc5952b588dcc.1352256085.git.aquini__25548.5072885223$1352257616$gmane$org@redhat.com>
+References: <cover.1352256081.git.aquini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1352189295-7111-1-git-send-email-qiumojiong@gmail.com>
+In-Reply-To: <cover.1352256081.git.aquini@redhat.com>
+In-Reply-To: <cover.1352256081.git.aquini@redhat.com>
+References: <cover.1352256081.git.aquini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,100 +20,155 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mojiong Qiu <qiumojiong@gmail.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Mojiong Qiu <mjqiu@tencent.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "at least to 3.0.y" <stable@kernel.org>
+To: linux-mm@kvack.org
+Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 06, 2012 at 04:08:15PM +0800, Mojiong Qiu wrote:
-> exit_idle() should be called after irq_enter(), otherwise it throws:
+This patch introduces MIGRATEPAGE_SUCCESS as the default return code
+for address_space_operations.migratepage() method and documents the
+expected return code for the same method in failure cases.
 
-That seems odd - wouldn't "smp_x86_platform_ipi"
-also need the same treatment [edit: I was looking at 3.0 kernel code] ?
+Signed-off-by: Rafael Aquini <aquini@redhat.com>
+---
+ fs/hugetlbfs/inode.c    |  4 ++--
+ include/linux/migrate.h |  7 +++++++
+ mm/migrate.c            | 22 +++++++++++-----------
+ 3 files changed, 20 insertions(+), 13 deletions(-)
 
-Ah, this is caused by
-
-commit 98ad1cc14a5c4fd658f9d72c6ba5c86dfd3ce0d5
-Author: Frederic Weisbecker <fweisbec@gmail.com>
-Date:   Fri Oct 7 18:22:09 2011 +0200
-
-    x86: Call idle notifier after irq_enter()
-    
-
-and it missed the xen-case
-
-which means that any kernel v3.3 and newer need this, but earlier do
-not.
-
-Thx. Will put in 3.7 tree.
-
-> 
-> [    2.513020] [ INFO: suspicious RCU usage. ]
-> [    2.513076] 3.6.5 #1 Not tainted
-> [    2.513128] -------------------------------
-> [    2.513183] include/linux/rcupdate.h:725 rcu_read_lock() used illegally while idle!
-> [    2.513271]
-> [    2.513271] other info that might help us debug this:
-> [    2.513271]
-> [    2.513388]
-> [    2.513388] RCU used illegally from idle CPU!
-> [    2.513388] rcu_scheduler_active = 1, debug_locks = 1
-> [    2.513511] RCU used illegally from extended quiescent state!
-> [    2.513572] 1 lock held by swapper/0/0:
-> [    2.513626]  #0:  (rcu_read_lock){......}, at: [<ffffffff810e9fe0>] __atomic_notifier_call_chain+0x0/0x140
-> [    2.513815]
-> [    2.513815] stack backtrace:
-> [    2.513897] Pid: 0, comm: swapper/0 Not tainted 3.6.5 #1
-> [    2.513954] Call Trace:
-> [    2.514005]  <IRQ>  [<ffffffff811259a2>] lockdep_rcu_suspicious+0xe2/0x130
-> [    2.514107]  [<ffffffff810ea10c>] __atomic_notifier_call_chain+0x12c/0x140
-> [    2.514169]  [<ffffffff810e9fe0>] ? atomic_notifier_chain_unregister+0x90/0x90
-> [    2.514258]  [<ffffffff811216cd>] ? trace_hardirqs_off+0xd/0x10
-> [    2.514318]  [<ffffffff810ea136>] atomic_notifier_call_chain+0x16/0x20
-> [    2.514381]  [<ffffffff810777c3>] exit_idle+0x43/0x50
-> [    2.514441]  [<ffffffff81568865>] xen_evtchn_do_upcall+0x25/0x50
-> [    2.514503]  [<ffffffff81aa690e>] xen_do_hypervisor_callback+0x1e/0x30
-> [    2.514562]  <EOI>  [<ffffffff810013aa>] ? hypercall_page+0x3aa/0x1000
-> [    2.514662]  [<ffffffff810013aa>] ? hypercall_page+0x3aa/0x1000
-> [    2.514722]  [<ffffffff81061540>] ? xen_safe_halt+0x10/0x20
-> [    2.514782]  [<ffffffff81075cfa>] ? default_idle+0xba/0x570
-> [    2.514841]  [<ffffffff810778af>] ? cpu_idle+0xdf/0x140
-> [    2.514900]  [<ffffffff81a4d881>] ? rest_init+0x135/0x144
-> [    2.514960]  [<ffffffff81a4d74c>] ? csum_partial_copy_generic+0x16c/0x16c
-> [    2.515022]  [<ffffffff82520c45>] ? start_kernel+0x3db/0x3e8
-> [    2.515081]  [<ffffffff8252066a>] ? repair_env_string+0x5a/0x5a
-> [    2.515141]  [<ffffffff82520356>] ? x86_64_start_reservations+0x131/0x135
-> [    2.515202]  [<ffffffff82524aca>] ? xen_start_kernel+0x465/0x46
-> 
-> Signed-off-by: Mojiong Qiu <mjqiu@tencent.com>
-> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-> Cc: xen-devel@lists.xensource.com
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: stable@kernel.org (at least to 3.0.y)
-             ^^^- vger.kernel.org
-
-You mean 3.3.x
-
-> ---
->  drivers/xen/events.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/xen/events.c b/drivers/xen/events.c
-> index 912ac81..0be4df3 100644
-> --- a/drivers/xen/events.c
-> +++ b/drivers/xen/events.c
-> @@ -1395,10 +1395,10 @@ void xen_evtchn_do_upcall(struct pt_regs *regs)
->  {
->  	struct pt_regs *old_regs = set_irq_regs(regs);
->  
-> +	irq_enter();
->  #ifdef CONFIG_X86
->  	exit_idle();
->  #endif
-> -	irq_enter();
->  
->  	__xen_evtchn_do_upcall();
->  
-> -- 
-> 1.6.3.2
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index c5bc355..bdeda2c 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -608,11 +608,11 @@ static int hugetlbfs_migrate_page(struct address_space *mapping,
+ 	int rc;
+ 
+ 	rc = migrate_huge_page_move_mapping(mapping, newpage, page);
+-	if (rc)
++	if (rc != MIGRATEPAGE_SUCCESS)
+ 		return rc;
+ 	migrate_page_copy(newpage, page);
+ 
+-	return 0;
++	return MIGRATEPAGE_SUCCESS;
+ }
+ 
+ static int hugetlbfs_statfs(struct dentry *dentry, struct kstatfs *buf)
+diff --git a/include/linux/migrate.h b/include/linux/migrate.h
+index ce7e667..a4e886d 100644
+--- a/include/linux/migrate.h
++++ b/include/linux/migrate.h
+@@ -7,6 +7,13 @@
+ 
+ typedef struct page *new_page_t(struct page *, unsigned long private, int **);
+ 
++/*
++ * Return values from addresss_space_operations.migratepage():
++ * - negative errno on page migration failure;
++ * - zero on page migration success;
++ */
++#define MIGRATEPAGE_SUCCESS		0
++
+ #ifdef CONFIG_MIGRATION
+ 
+ extern void putback_lru_pages(struct list_head *l);
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 77ed2d7..98c7a89 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -286,7 +286,7 @@ static int migrate_page_move_mapping(struct address_space *mapping,
+ 		/* Anonymous page without mapping */
+ 		if (page_count(page) != 1)
+ 			return -EAGAIN;
+-		return 0;
++		return MIGRATEPAGE_SUCCESS;
+ 	}
+ 
+ 	spin_lock_irq(&mapping->tree_lock);
+@@ -356,7 +356,7 @@ static int migrate_page_move_mapping(struct address_space *mapping,
+ 	}
+ 	spin_unlock_irq(&mapping->tree_lock);
+ 
+-	return 0;
++	return MIGRATEPAGE_SUCCESS;
+ }
+ 
+ /*
+@@ -372,7 +372,7 @@ int migrate_huge_page_move_mapping(struct address_space *mapping,
+ 	if (!mapping) {
+ 		if (page_count(page) != 1)
+ 			return -EAGAIN;
+-		return 0;
++		return MIGRATEPAGE_SUCCESS;
+ 	}
+ 
+ 	spin_lock_irq(&mapping->tree_lock);
+@@ -399,7 +399,7 @@ int migrate_huge_page_move_mapping(struct address_space *mapping,
+ 	page_unfreeze_refs(page, expected_count - 1);
+ 
+ 	spin_unlock_irq(&mapping->tree_lock);
+-	return 0;
++	return MIGRATEPAGE_SUCCESS;
+ }
+ 
+ /*
+@@ -486,11 +486,11 @@ int migrate_page(struct address_space *mapping,
+ 
+ 	rc = migrate_page_move_mapping(mapping, newpage, page, NULL, mode);
+ 
+-	if (rc)
++	if (rc != MIGRATEPAGE_SUCCESS)
+ 		return rc;
+ 
+ 	migrate_page_copy(newpage, page);
+-	return 0;
++	return MIGRATEPAGE_SUCCESS;
+ }
+ EXPORT_SYMBOL(migrate_page);
+ 
+@@ -513,7 +513,7 @@ int buffer_migrate_page(struct address_space *mapping,
+ 
+ 	rc = migrate_page_move_mapping(mapping, newpage, page, head, mode);
+ 
+-	if (rc)
++	if (rc != MIGRATEPAGE_SUCCESS)
+ 		return rc;
+ 
+ 	/*
+@@ -549,7 +549,7 @@ int buffer_migrate_page(struct address_space *mapping,
+ 
+ 	} while (bh != head);
+ 
+-	return 0;
++	return MIGRATEPAGE_SUCCESS;
+ }
+ EXPORT_SYMBOL(buffer_migrate_page);
+ #endif
+@@ -814,7 +814,7 @@ skip_unmap:
+ 		put_anon_vma(anon_vma);
+ 
+ uncharge:
+-	mem_cgroup_end_migration(mem, page, newpage, rc == 0);
++	mem_cgroup_end_migration(mem, page, newpage, rc == MIGRATEPAGE_SUCCESS);
+ unlock:
+ 	unlock_page(page);
+ out:
+@@ -987,7 +987,7 @@ int migrate_pages(struct list_head *from,
+ 			case -EAGAIN:
+ 				retry++;
+ 				break;
+-			case 0:
++			case MIGRATEPAGE_SUCCESS:
+ 				break;
+ 			default:
+ 				/* Permanent failure */
+@@ -1024,7 +1024,7 @@ int migrate_huge_page(struct page *hpage, new_page_t get_new_page,
+ 			/* try again */
+ 			cond_resched();
+ 			break;
+-		case 0:
++		case MIGRATEPAGE_SUCCESS:
+ 			goto out;
+ 		default:
+ 			rc = -EIO;
+-- 
+1.7.11.7
