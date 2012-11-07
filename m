@@ -1,7 +1,8 @@
 From: Rafael Aquini <aquini@redhat.com>
-Subject: [PATCH v11 2/7] mm: redefine address_space.assoc_mapping
-Date: Wed,  7 Nov 2012 01:05:49 -0200
-Message-ID: <b6cc6e80a47d500e23499c85adba6cd8e1246874.1352256086.git.aquini__11348.9358489916$1352257634$gmane$org@redhat.com>
+Subject: [PATCH v11 4/7] mm: introduce compaction and migration for ballooned
+	pages
+Date: Wed,  7 Nov 2012 01:05:51 -0200
+Message-ID: <08be4346b620ae9344691cc6c2ad0bc51f492e01.1352256088.git.aquini__42399.0644551397$1352257640$gmane$org@redhat.com>
 References: <cover.1352256081.git.aquini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,120 +24,143 @@ To: linux-mm@kvack.org
 Cc: Rik van Riel <riel@redhat.com>, aquini@redhat.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch overhauls struct address_space.assoc_mapping renaming it to
-address_space.private_data and its type is redefined to void*.
-By this approach we consistently name the .private_* elements from
-struct address_space as well as allow extended usage for address_space
-association with other data structures through ->private_data.
+Memory fragmentation introduced by ballooning might reduce significantly
+the number of 2MB contiguous memory blocks that can be used within a guest,
+thus imposing performance penalties associated with the reduced number of
+transparent huge pages that could be used by the guest workload.
 
-Also, all users of old ->assoc_mapping element are converted to reflect
-its new name and type change.
+This patch introduces the helper functions as well as the necessary changes
+to teach compaction and migration bits how to cope with pages which are
+part of a guest memory balloon, in order to make them movable by memory
+compaction procedures.
 
 Signed-off-by: Rafael Aquini <aquini@redhat.com>
 ---
- fs/buffer.c        | 12 ++++++------
- fs/gfs2/glock.c    |  2 +-
- fs/inode.c         |  2 +-
- fs/nilfs2/page.c   |  2 +-
- include/linux/fs.h |  2 +-
- 5 files changed, 10 insertions(+), 10 deletions(-)
+ mm/compaction.c | 21 +++++++++++++++++++--
+ mm/migrate.c    | 36 ++++++++++++++++++++++++++++++++++--
+ 2 files changed, 53 insertions(+), 4 deletions(-)
 
-diff --git a/fs/buffer.c b/fs/buffer.c
-index b5f0442..e0bad95 100644
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -555,7 +555,7 @@ void emergency_thaw_all(void)
-  */
- int sync_mapping_buffers(struct address_space *mapping)
- {
--	struct address_space *buffer_mapping = mapping->assoc_mapping;
-+	struct address_space *buffer_mapping = mapping->private_data;
+diff --git a/mm/compaction.c b/mm/compaction.c
+index 9eef558..76abd84 100644
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -14,6 +14,7 @@
+ #include <linux/backing-dev.h>
+ #include <linux/sysctl.h>
+ #include <linux/sysfs.h>
++#include <linux/balloon_compaction.h>
+ #include "internal.h"
  
- 	if (buffer_mapping == NULL || list_empty(&mapping->private_list))
- 		return 0;
-@@ -588,10 +588,10 @@ void mark_buffer_dirty_inode(struct buffer_head *bh, struct inode *inode)
- 	struct address_space *buffer_mapping = bh->b_page->mapping;
+ #if defined CONFIG_COMPACTION || defined CONFIG_CMA
+@@ -565,9 +566,24 @@ isolate_migratepages_range(struct zone *zone, struct compact_control *cc,
+ 			goto next_pageblock;
+ 		}
  
- 	mark_buffer_dirty(bh);
--	if (!mapping->assoc_mapping) {
--		mapping->assoc_mapping = buffer_mapping;
-+	if (!mapping->private_data) {
-+		mapping->private_data = buffer_mapping;
- 	} else {
--		BUG_ON(mapping->assoc_mapping != buffer_mapping);
-+		BUG_ON(mapping->private_data != buffer_mapping);
+-		/* Check may be lockless but that's ok as we recheck later */
+-		if (!PageLRU(page))
++		/*
++		 * Check may be lockless but that's ok as we recheck later.
++		 * It's possible to migrate LRU pages and balloon pages
++		 * Skip any other type of page
++		 */
++		if (!PageLRU(page)) {
++			if (unlikely(balloon_page_movable(page))) {
++				if (locked && balloon_page_isolate(page)) {
++					/* Successfully isolated */
++					cc->finished_update_migrate = true;
++					list_add(&page->lru, migratelist);
++					cc->nr_migratepages++;
++					nr_isolated++;
++					goto check_compact_cluster;
++				}
++			}
+ 			continue;
++		}
+ 
+ 		/*
+ 		 * PageLRU is set. lru_lock normally excludes isolation
+@@ -621,6 +637,7 @@ isolate_migratepages_range(struct zone *zone, struct compact_control *cc,
+ 		cc->nr_migratepages++;
+ 		nr_isolated++;
+ 
++check_compact_cluster:
+ 		/* Avoid isolating too much */
+ 		if (cc->nr_migratepages == COMPACT_CLUSTER_MAX) {
+ 			++low_pfn;
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 98c7a89..87ffe54 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -35,6 +35,7 @@
+ #include <linux/hugetlb.h>
+ #include <linux/hugetlb_cgroup.h>
+ #include <linux/gfp.h>
++#include <linux/balloon_compaction.h>
+ 
+ #include <asm/tlbflush.h>
+ 
+@@ -79,7 +80,10 @@ void putback_lru_pages(struct list_head *l)
+ 		list_del(&page->lru);
+ 		dec_zone_page_state(page, NR_ISOLATED_ANON +
+ 				page_is_file_cache(page));
+-		putback_lru_page(page);
++		if (unlikely(balloon_page_movable(page)))
++			balloon_page_putback(page);
++		else
++			putback_lru_page(page);
  	}
- 	if (!bh->b_assoc_map) {
- 		spin_lock(&buffer_mapping->private_lock);
-@@ -788,7 +788,7 @@ void invalidate_inode_buffers(struct inode *inode)
- 	if (inode_has_buffers(inode)) {
- 		struct address_space *mapping = &inode->i_data;
- 		struct list_head *list = &mapping->private_list;
--		struct address_space *buffer_mapping = mapping->assoc_mapping;
-+		struct address_space *buffer_mapping = mapping->private_data;
- 
- 		spin_lock(&buffer_mapping->private_lock);
- 		while (!list_empty(list))
-@@ -811,7 +811,7 @@ int remove_inode_buffers(struct inode *inode)
- 	if (inode_has_buffers(inode)) {
- 		struct address_space *mapping = &inode->i_data;
- 		struct list_head *list = &mapping->private_list;
--		struct address_space *buffer_mapping = mapping->assoc_mapping;
-+		struct address_space *buffer_mapping = mapping->private_data;
- 
- 		spin_lock(&buffer_mapping->private_lock);
- 		while (!list_empty(list)) {
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index e6c2fd5..0f22d09 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -768,7 +768,7 @@ int gfs2_glock_get(struct gfs2_sbd *sdp, u64 number,
- 		mapping->host = s->s_bdev->bd_inode;
- 		mapping->flags = 0;
- 		mapping_set_gfp_mask(mapping, GFP_NOFS);
--		mapping->assoc_mapping = NULL;
-+		mapping->private_data = NULL;
- 		mapping->backing_dev_info = s->s_bdi;
- 		mapping->writeback_index = 0;
- 	}
-diff --git a/fs/inode.c b/fs/inode.c
-index b03c719..4cac8e1 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -165,7 +165,7 @@ int inode_init_always(struct super_block *sb, struct inode *inode)
- 	mapping->host = inode;
- 	mapping->flags = 0;
- 	mapping_set_gfp_mask(mapping, GFP_HIGHUSER_MOVABLE);
--	mapping->assoc_mapping = NULL;
-+	mapping->private_data = NULL;
- 	mapping->backing_dev_info = &default_backing_dev_info;
- 	mapping->writeback_index = 0;
- 
-diff --git a/fs/nilfs2/page.c b/fs/nilfs2/page.c
-index 3e7b2a0..07f76db 100644
---- a/fs/nilfs2/page.c
-+++ b/fs/nilfs2/page.c
-@@ -431,7 +431,7 @@ void nilfs_mapping_init(struct address_space *mapping, struct inode *inode,
- 	mapping->host = inode;
- 	mapping->flags = 0;
- 	mapping_set_gfp_mask(mapping, GFP_NOFS);
--	mapping->assoc_mapping = NULL;
-+	mapping->private_data = NULL;
- 	mapping->backing_dev_info = bdi;
- 	mapping->a_ops = &empty_aops;
  }
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index b33cfc9..0982565 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -418,7 +418,7 @@ struct address_space {
- 	struct backing_dev_info *backing_dev_info; /* device readahead, etc */
- 	spinlock_t		private_lock;	/* for use by the address_space */
- 	struct list_head	private_list;	/* ditto */
--	struct address_space	*assoc_mapping;	/* ditto */
-+	void			*private_data;	/* ditto */
- } __attribute__((aligned(sizeof(long))));
+ 
+@@ -778,6 +782,18 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
+ 		}
+ 	}
+ 
++	if (unlikely(balloon_page_movable(page))) {
++		/*
++		 * A ballooned page does not need any special attention from
++		 * physical to virtual reverse mapping procedures.
++		 * Skip any attempt to unmap PTEs or to remap swap cache,
++		 * in order to avoid burning cycles at rmap level, and perform
++		 * the page migration right away (proteced by page lock).
++		 */
++		rc = balloon_page_migrate(newpage, page, mode);
++		goto uncharge;
++	}
++
  	/*
- 	 * On most architectures that alignment is already the case; but
+ 	 * Corner case handling:
+ 	 * 1. When a new swap-cache page is read into, it is added to the LRU
+@@ -814,7 +830,9 @@ skip_unmap:
+ 		put_anon_vma(anon_vma);
+ 
+ uncharge:
+-	mem_cgroup_end_migration(mem, page, newpage, rc == MIGRATEPAGE_SUCCESS);
++	mem_cgroup_end_migration(mem, page, newpage,
++				 (rc == MIGRATEPAGE_SUCCESS ||
++				  rc == MIGRATEPAGE_BALLOON_SUCCESS));
+ unlock:
+ 	unlock_page(page);
+ out:
+@@ -846,6 +864,20 @@ static int unmap_and_move(new_page_t get_new_page, unsigned long private,
+ 			goto out;
+ 
+ 	rc = __unmap_and_move(page, newpage, force, offlining, mode);
++
++	if (unlikely(rc == MIGRATEPAGE_BALLOON_SUCCESS)) {
++		/*
++		 * A ballooned page has been migrated already.
++		 * Now, it's the time to remove the old page from the isolated
++		 * pageset list and handle it back to Buddy, wrap-up counters
++		 * and return.
++		 */
++		dec_zone_page_state(page, NR_ISOLATED_ANON +
++				    page_is_file_cache(page));
++		put_page(page);
++		__free_page(page);
++		return 0;
++	}
+ out:
+ 	if (rc != -EAGAIN) {
+ 		/*
 -- 
 1.7.11.7
