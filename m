@@ -1,15 +1,15 @@
 From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v11 5/7] virtio_balloon: introduce migration primitives
-	to balloon pages
-Date: Wed, 7 Nov 2012 11:58:10 -0800
-Message-ID: <20121107115810.1ae286ac.akpm@linux-foundation.org>
+Subject: Re: [PATCH v11 3/7] mm: introduce a common interface for balloon
+	pages mobility
+Date: Wed, 7 Nov 2012 13:02:07 -0800
+Message-ID: <20121107130207.214f16ea.akpm@linux-foundation.org>
 References: <cover.1352256081.git.aquini@redhat.com>
-	<265aaff9a79f503672f0cdcdff204114b5b5ba5b.1352256088.git.aquini@redhat.com>
+	<4ea10ef1eb1544e12524c8ca7df20cf621395463.1352256087.git.aquini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <265aaff9a79f503672f0cdcdff204114b5b5ba5b.1352256088.git.aquini@redhat.com>
+In-Reply-To: <4ea10ef1eb1544e12524c8ca7df20cf621395463.1352256087.git.aquini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,7 +23,7 @@ To: Rafael Aquini <aquini@redhat.com>
 Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed,  7 Nov 2012 01:05:52 -0200
+On Wed,  7 Nov 2012 01:05:50 -0200
 Rafael Aquini <aquini@redhat.com> wrote:
 
 > Memory fragmentation introduced by ballooning might reduce significantly
@@ -31,45 +31,35 @@ Rafael Aquini <aquini@redhat.com> wrote:
 > thus imposing performance penalties associated with the reduced number of
 > transparent huge pages that could be used by the guest workload.
 > 
-> Besides making balloon pages movable at allocation time and introducing
-> the necessary primitives to perform balloon page migration/compaction,
-> this patch also introduces the following locking scheme, in order to
-> enhance the syncronization methods for accessing elements of struct
-> virtio_balloon, thus providing protection against concurrent access
-> introduced by parallel memory migration threads.
-> 
-> ...
->
-> @@ -122,18 +128,25 @@ static void set_page_pfns(u32 pfns[], struct page *page)
->  
->  static void fill_balloon(struct virtio_balloon *vb, size_t num)
->  {
-> +	struct balloon_dev_info *vb_dev_info = vb->vb_dev_info;
-> +
-> +	static DEFINE_RATELIMIT_STATE(fill_balloon_rs,
-> +				      DEFAULT_RATELIMIT_INTERVAL,
-> +				      DEFAULT_RATELIMIT_BURST);
-> +
->  	/* We can only do one array worth at a time. */
->  	num = min(num, ARRAY_SIZE(vb->pfns));
->  
-> +	mutex_lock(&vb->balloon_lock);
->  	for (vb->num_pfns = 0; vb->num_pfns < num;
->  	     vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
-> -		struct page *page = alloc_page(GFP_HIGHUSER | __GFP_NORETRY |
-> -					__GFP_NOMEMALLOC | __GFP_NOWARN);
-> +		struct page *page = balloon_page_enqueue(vb_dev_info);
-> +
->  		if (!page) {
-> -			if (printk_ratelimit())
-> +			if (__ratelimit(&fill_balloon_rs))
->  				dev_printk(KERN_INFO, &vb->vdev->dev,
->  					   "Out of puff! Can't get %zu pages\n",
-> -					   num);
-> +					   VIRTIO_BALLOON_PAGES_PER_PAGE);
->  			/* Sleep for at least 1/5 of a second before retry. */
->  			msleep(200);
->  			break;
+> This patch introduces a common interface to help a balloon driver on
+> making its page set movable to compaction, and thus allowing the system
+> to better leverage the compation efforts on memory defragmentation.
 
-linux-next's fill_balloon() has already been converted to
-dev_info_ratelimited().  I fixed everything up.  Please check the result.
+
+mm/migrate.c: In function 'unmap_and_move':
+mm/migrate.c:899: error: 'COMPACTBALLOONRELEASED' undeclared (first use in this function)
+mm/migrate.c:899: error: (Each undeclared identifier is reported only once
+mm/migrate.c:899: error: for each function it appears in.)
+
+You've been bad - you didn't test with your feature disabled. 
+Please do that.  And not just compilation testing.
+
+
+We can fix this one with a sucky macro.  I think that's better than
+unconditionally defining the enums.
+
+--- a/include/linux/balloon_compaction.h~mm-introduce-a-common-interface-for-balloon-pages-mobility-fix
++++ a/include/linux/balloon_compaction.h
+@@ -207,10 +207,8 @@ static inline gfp_t balloon_mapping_gfp_
+ 	return GFP_HIGHUSER;
+ }
+ 
+-static inline void balloon_event_count(enum vm_event_item item)
+-{
+-	return;
+-}
++/* A macro, to avoid generating references to the undefined COMPACTBALLOON* */
++#define balloon_event_count(item) do { } while (0)
+ 
+ static inline bool balloon_compaction_check(void)
+ {
