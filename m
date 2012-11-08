@@ -1,14 +1,11 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH] virtio-mmio: Fix irq parsing in command line parameter
-Date: Thu, 8 Nov 2012 10:48:46 +0100
-Message-ID: <CAF2Aj3gLLTw5ng0iZ6ecEkjGnJ-XGi3_RBrjCroW-=v=pfcFAw@mail.gmail.com>
-References: <1352120454.10947.5.camel@hornet>
-	<1352120572-16256-1-git-send-email-pawel.moll@arm.com>
-	<20121105134413.GC5220@gmail.com> <87bof93vf2.fsf@rustcorp.com.au>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH] virtio: Don't access index after unregister.
+Date: Thu,  8 Nov 2012 11:43:47 +0100
+Message-ID: <1352371427-32363-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2007849714859659490=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87bof93vf2.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,71 +15,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============2007849714859659490==
-Content-Type: multipart/alternative; boundary=20cf307f364cc67a1204cdf8bd47
+Virtio wants to release used indices after the corresponding
+virtio device has been unregistered. However, virtio does not
+hold an extra reference, giving up its last reference with
+device_unregister(), making accessing dev->index afterwards
+invalid.
 
---20cf307f364cc67a1204cdf8bd47
-Content-Type: text/plain; charset=ISO-8859-1
+I actually saw problems when testing my (not-yet-merged)
+virtio-ccw code:
 
-> > Resorted to poaching now have we Pawel?
+- device_add virtio-net,id=xxx
+-> creates device virtio<n> with n>0
 
-> I hope you were joking!
+- device_del xxx
+-> deletes virtio<n>, but calls ida_simple_remove with an
+   index of 0
 
-Yes, of course. I thought that was clearly indicated by the jovial winking
-smiley. :)
+- device_add virtio-net,id=xxx
+-> tries to add virtio0, which is still in use...
 
-I realise it wasn't obvious soley by this exchange, but Pawel and I are
-actually ol' friends.
+So let's save the index we want to release before calling
+device_unregister().
 
-> Doing your work for you isn't poaching.
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ drivers/virtio/virtio.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-This isn't related to my work, as I have no professional interest in
-virtio. In this particular instance I was trying to help out by fixing bugs
-uncovered by the use of randconfig, which I'm doing in my own time, as a
-hobby. I guess the use my work address clouds this fact, so I apologise for
-that.
-
-Sorry for any confusion or offence caused though Rusty. :)
-
-Kind regards,
-Lee
-
---20cf307f364cc67a1204cdf8bd47
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<p><br>
-&gt; &gt; Resorted to poaching now have we Pawel?</p>
-<p>&gt; I hope you were joking! =A0</p>
-<p>Yes, of course. I thought that was clearly indicated by the jovial winki=
-ng smiley. :)</p>
-<p>I realise it wasn&#39;t obvious soley by this exchange, but Pawel and I =
-are actually ol&#39; friends.</p>
-<p>&gt; Doing your work for you isn&#39;t poaching.</p>
-<p>This isn&#39;t related to my work, as I have no professional interest in=
- virtio. In this particular instance I was trying to help out by fixing bug=
-s uncovered by the use of randconfig, which I&#39;m doing in my own time, a=
-s a hobby. I guess the use my work address clouds this fact, so I apologise=
- for that.</p>
-
-<p>Sorry for any confusion or offence caused though Rusty. :)</p>
-<p>Kind regards,<br>
-Lee</p>
-
---20cf307f364cc67a1204cdf8bd47--
-
---===============2007849714859659490==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2007849714859659490==--
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 1e8659c..809b0de 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -225,8 +225,10 @@ EXPORT_SYMBOL_GPL(register_virtio_device);
+ 
+ void unregister_virtio_device(struct virtio_device *dev)
+ {
++	int index = dev->index; /* save for after device release */
++
+ 	device_unregister(&dev->dev);
+-	ida_simple_remove(&virtio_index_ida, dev->index);
++	ida_simple_remove(&virtio_index_ida, index);
+ }
+ EXPORT_SYMBOL_GPL(unregister_virtio_device);
+ 
+-- 
+1.7.12.4
