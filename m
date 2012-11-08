@@ -1,14 +1,12 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCHv8 0/3]virtio_console: Add rproc_serial driver
-Date: Thu, 8 Nov 2012 10:06:24 +0100
-Message-ID: <20121108090624.GB31962@amit.redhat.com>
-References: <1351587113-2566-1-git-send-email-sjur@brendeland.net>
+Subject: [[PATCH v9 3/3] 1/1] virtio_console: Remove buffers from out_vq at
+	port removal
+Date: Thu,  8 Nov 2012 10:17:03 +0100
+Message-ID: <029d7029bc1186fbd2ec74123dc88922b9600660.1352366215.git.amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1351587113-2566-1-git-send-email-sjur@brendeland.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +16,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjur@brendeland.net>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjur.brandeland@stericsson.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, sjur@brendeland.net, linus.walleij@linaro.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, masami.hiramatsu.pt@hitachi.com, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 30 Oct 2012 [09:51:50], Sjur Br=E6ndeland wrote:
-> From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-> =
-
-> This patch-set introduces a new virtio type "rproc_serial" for communicat=
-ing
-> with remote processors over shared memory. The driver depends on the
-> the remoteproc framework. As preparation for introducing "rproc_serial"
-> I've done a refactoring of the transmit buffer handling.
-
-Thanks, Sjur.
-
-Please pick the virtio spec from
-
-https://github.com/rustyrussell/virtio-spec
-
-and update the spec with info for remote-proc.
-
-Thanks,
-		Amit
+RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
+UmVtb3ZlIGJ1ZmZlcnMgZnJvbSB0aGUgb3V0LXF1ZXVlIHdoZW4gYSBwb3J0IGlzIHJlbW92ZWQu
+IFJwcm9jX3NlcmlhbApjb21tdW5pY2F0ZXMgd2l0aCByZW1vdGUgcHJvY2Vzc29ycyB0aGF0IG1h
+eSBjcmFzaCBhbmQgbGVhdmUgYnVmZmVycyBpbgp0aGUgb3V0LXF1ZXVlLiBUaGUgdmlydGlvIHNl
+cmlhbCBwb3J0cyBtYXkgaGF2ZSBidWZmZXJzIGluIHRoZSBvdXQtcXVldWUKYXMgd2VsbCwgZS5n
+LiBmb3Igbm9uLWJsb2NraW5nIHBvcnRzIGFuZCB0aGUgaG9zdCBkaWRuJ3QgY29uc3VtZSB0aGVt
+CnlldC4KCltBbWl0OiBSZW1vdmUgV0FSTl9PTiBmb3IgZ2VuZXJpYyBwb3J0cyBjYXNlLl0KClNp
+Z25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29u
+LmNvbT4KU2lnbmVkLW9mZi1ieTogQW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4KLS0t
+CiBkcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYyB8ICAgIDQgKysrKwogMSBmaWxlcyBjaGFu
+Z2VkLCA0IGluc2VydGlvbnMoKyksIDAgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy9jaGFyL3ZpcnRpb19jb25zb2xlLmMgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwpp
+bmRleCA5ZWJhZGNiLi41ZmYzYjNlIDEwMDY0NAotLS0gYS9kcml2ZXJzL2NoYXIvdmlydGlvX2Nv
+bnNvbGUuYworKysgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwpAQCAtMTUyMSw2ICsx
+NTIxLDEwIEBAIHN0YXRpYyB2b2lkIHJlbW92ZV9wb3J0X2RhdGEoc3RydWN0IHBvcnQgKnBvcnQp
+CiAJLyogUmVtb3ZlIGJ1ZmZlcnMgd2UgcXVldWVkIHVwIGZvciB0aGUgSG9zdCB0byBzZW5kIHVz
+IGRhdGEgaW4uICovCiAJd2hpbGUgKChidWYgPSB2aXJ0cXVldWVfZGV0YWNoX3VudXNlZF9idWYo
+cG9ydC0+aW5fdnEpKSkKIAkJZnJlZV9idWYoYnVmLCB0cnVlKTsKKworCS8qIFJlbW92ZSBidWZm
+ZXJzIHdlIHF1ZXVlZCB1cCBmb3IgdGhlIEhvc3QgdG8gY29uc3VtZSAqLworCXdoaWxlICgoYnVm
+ID0gdmlydHF1ZXVlX2RldGFjaF91bnVzZWRfYnVmKHBvcnQtPm91dF92cSkpKQorCQlmcmVlX2J1
+ZihidWYsIHRydWUpOwogfQogCiAvKgotLSAKMS43LjcuNgoKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
