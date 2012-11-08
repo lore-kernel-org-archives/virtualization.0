@@ -1,13 +1,15 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: [PATCH v3] virtio-mmio: Fix irq parsing in command line parameter
-Date: Thu,  8 Nov 2012 19:05:44 +0000
-Message-ID: <1352401544-8218-1-git-send-email-pawel.moll@arm.com>
-References: <878vad3u9r.fsf@rustcorp.com.au>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Subject: Re: [rfc net-next v6 3/3] virtio-net: change the number of queues
+	through ethtool
+Date: Thu, 8 Nov 2012 21:13:31 +0000
+Message-ID: <1352409211.2771.22.camel@bwh-desktop.uk.solarflarecom.com>
+References: <1351591403-23065-1-git-send-email-jasowang@redhat.com>
+	<1351591403-23065-4-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <878vad3u9r.fsf@rustcorp.com.au>
+In-Reply-To: <1351591403-23065-4-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,70 +19,92 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-When the resource_size_t is 64-bit long, the sscanf() on
-the virtio device command line paramter string may return
-wrong value because its format was defined as "%u". Fixed
-by using an intermediate local value of a known length.
+On Tue, 2012-10-30 at 18:03 +0800, Jason Wang wrote:
+> This patch implement the {set|get}_channels method of ethool to allow user to
+> change the number of queues dymaically when the device is running. This would
+> let the user to tune the device for specific applications.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/net/virtio_net.c |   43 +++++++++++++++++++++++++++++++++++++++++++
+>  1 files changed, 43 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 8cc43e5..66fc129 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1616,10 +1616,53 @@ static struct virtio_driver virtio_net_driver = {
+>  #endif
+>  };
+>  
+> +/* TODO: Eliminate OOO packets during switching */
+> +static int virtnet_set_channels(struct net_device *dev,
+> +				struct ethtool_channels *channels)
+> +{
+> +	struct virtnet_info *vi = netdev_priv(dev);
+> +	u16 queue_pairs = channels->combined_count;
+> +
+> +	/* Only two modes were support currently */
+> +	if (queue_pairs == 0)
+> +		return -EINVAL;
+> +	if (queue_pairs != vi->total_queue_pairs - 1 && queue_pairs != 1)
+> +		return -EINVAL;
 
-Also added cleaned up the resource creation and added extra
-comments to make the parameters parsing easier to follow.
+You should also check that all of the other counts are == 0.
 
-Reported-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Pawel Moll <pawel.moll@arm.com>
----
- drivers/virtio/virtio_mmio.c |   26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+> +	vi->num_queue_pairs = queue_pairs > 1 ? queue_pairs + 1 : 1;
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 6b1b7e1..9df4578 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -521,25 +521,33 @@ static int vm_cmdline_set(const char *device,
- 	int err;
- 	struct resource resources[2] = {};
- 	char *str;
--	long long int base;
-+	long long int base, size;
-+	unsigned int irq;
- 	int processed, consumed = 0;
- 	struct platform_device *pdev;
- 
--	resources[0].flags = IORESOURCE_MEM;
--	resources[1].flags = IORESOURCE_IRQ;
--
--	resources[0].end = memparse(device, &str) - 1;
-+	/* Consume "size" part of the command line parameter */
-+	size = memparse(device, &str);
- 
-+	/* Get "@<base>:<irq>[:<id>]" chunks */
- 	processed = sscanf(str, "@%lli:%u%n:%d%n",
--			&base, &resources[1].start, &consumed,
-+			&base, &irq, &consumed,
- 			&vm_cmdline_id, &consumed);
- 
--	if (processed < 2 || processed > 3 || str[consumed])
-+	/*
-+	 * sscanf() must processes at least 2 chunks; also there
-+	 * must be no extra characters after the last chunk, so
-+	 * str[consumed] must be '\0'
-+	 */
-+	if (processed < 2 || str[consumed])
- 		return -EINVAL;
- 
-+	resources[0].flags = IORESOURCE_MEM;
- 	resources[0].start = base;
--	resources[0].end += base;
--	resources[1].end = resources[1].start;
-+	resources[0].end = base + size - 1;
-+
-+	resources[1].flags = IORESOURCE_IRQ;
-+	resources[1].start = resources[1].end = irq;
- 
- 	if (!vm_cmdline_parent_registered) {
- 		err = device_register(&vm_cmdline_parent);
+This doesn't make sense.  You're setting vi->num_queue_pairs to be
+combined_count + 1...
+
+> +	BUG_ON(virtnet_set_queues(vi));
+> +
+> +	netif_set_real_num_tx_queues(dev, vi->num_queue_pairs);
+> +	netif_set_real_num_rx_queues(dev, vi->num_queue_pairs);
+> +
+> +	return 0;
+> +}
+> +
+> +static void virtnet_get_channels(struct net_device *dev,
+> +				 struct ethtool_channels *channels)
+> +{
+> +	struct virtnet_info *vi = netdev_priv(dev);
+> +
+> +	if (vi->total_queue_pairs != 1) {
+> +		channels->combined_count = vi->num_queue_pairs;
+
+but here you report combined_count as being vi->num_queue_pairs.  Do you
+need to subtract 1 here?
+
+Ben.
+
+> +		channels->max_combined = vi->total_queue_pairs - 1;
+> +	} else {
+> +		channels->combined_count = 1;
+> +		channels->max_combined = 1;
+> +	}
+> +
+> +	channels->max_other = 0;
+> +	channels->rx_count = 0;
+> +	channels->tx_count = 0;
+> +	channels->other_count = 0;
+> +}
+> +
+>  static const struct ethtool_ops virtnet_ethtool_ops = {
+>  	.get_drvinfo = virtnet_get_drvinfo,
+>  	.get_link = ethtool_op_get_link,
+>  	.get_ringparam = virtnet_get_ringparam,
+> +	.set_channels = virtnet_set_channels,
+> +	.get_channels = virtnet_get_channels,
+>  };
+>  
+>  static int __init init(void)
+
 -- 
-1.7.10.4
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
