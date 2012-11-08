@@ -1,11 +1,13 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: [PATCH] virtio: Don't access index after unregister.
-Date: Thu,  8 Nov 2012 11:43:47 +0100
-Message-ID: <1352371427-32363-1-git-send-email-cornelia.huck@de.ibm.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Subject: Re: [PATCH] virtio: Don't access index after unregister.
+Date: Thu, 8 Nov 2012 12:50:09 +0100
+Message-ID: <CAJK669bgpLoypjBWn4qs4pAizcnzR7g7zsszjTyCQ4QtOAPdjg@mail.gmail.com>
+References: <1352371427-32363-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1352371427-32363-1-git-send-email-cornelia.huck@de.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,52 +17,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Virtio wants to release used indices after the corresponding
-virtio device has been unregistered. However, virtio does not
-hold an extra reference, giving up its last reference with
-device_unregister(), making accessing dev->index afterwards
-invalid.
-
-I actually saw problems when testing my (not-yet-merged)
-virtio-ccw code:
-
-- device_add virtio-net,id=xxx
--> creates device virtio<n> with n>0
-
-- device_del xxx
--> deletes virtio<n>, but calls ida_simple_remove with an
-   index of 0
-
-- device_add virtio-net,id=xxx
--> tries to add virtio0, which is still in use...
-
-So let's save the index we want to release before calling
-device_unregister().
-
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
----
- drivers/virtio/virtio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 1e8659c..809b0de 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -225,8 +225,10 @@ EXPORT_SYMBOL_GPL(register_virtio_device);
- 
- void unregister_virtio_device(struct virtio_device *dev)
- {
-+	int index = dev->index; /* save for after device release */
-+
- 	device_unregister(&dev->dev);
--	ida_simple_remove(&virtio_index_ida, dev->index);
-+	ida_simple_remove(&virtio_index_ida, index);
- }
- EXPORT_SYMBOL_GPL(unregister_virtio_device);
- 
--- 
-1.7.12.4
+T24gVGh1LCBOb3YgOCwgMjAxMiBhdCAxMTo0MyBBTSwgQ29ybmVsaWEgSHVjayA8Y29ybmVsaWEu
+aHVja0BkZS5pYm0uY29tPiB3cm90ZToKPiBWaXJ0aW8gd2FudHMgdG8gcmVsZWFzZSB1c2VkIGlu
+ZGljZXMgYWZ0ZXIgdGhlIGNvcnJlc3BvbmRpbmcKPiB2aXJ0aW8gZGV2aWNlIGhhcyBiZWVuIHVu
+cmVnaXN0ZXJlZC4gSG93ZXZlciwgdmlydGlvIGRvZXMgbm90Cj4gaG9sZCBhbiBleHRyYSByZWZl
+cmVuY2UsIGdpdmluZyB1cCBpdHMgbGFzdCByZWZlcmVuY2Ugd2l0aAo+IGRldmljZV91bnJlZ2lz
+dGVyKCksIG1ha2luZyBhY2Nlc3NpbmcgZGV2LT5pbmRleCBhZnRlcndhcmRzCj4gaW52YWxpZC4K
+Pgo+IEkgYWN0dWFsbHkgc2F3IHByb2JsZW1zIHdoZW4gdGVzdGluZyBteSAobm90LXlldC1tZXJn
+ZWQpCj4gdmlydGlvLWNjdyBjb2RlOgo+Cj4gLSBkZXZpY2VfYWRkIHZpcnRpby1uZXQsaWQ9eHh4
+Cj4gLT4gY3JlYXRlcyBkZXZpY2UgdmlydGlvPG4+IHdpdGggbj4wCj4KPiAtIGRldmljZV9kZWwg
+eHh4Cj4gLT4gZGVsZXRlcyB2aXJ0aW88bj4sIGJ1dCBjYWxscyBpZGFfc2ltcGxlX3JlbW92ZSB3
+aXRoIGFuCj4gICAgaW5kZXggb2YgMAo+Cj4gLSBkZXZpY2VfYWRkIHZpcnRpby1uZXQsaWQ9eHh4
+Cj4gLT4gdHJpZXMgdG8gYWRkIHZpcnRpbzAsIHdoaWNoIGlzIHN0aWxsIGluIHVzZS4uLgo+Cj4g
+U28gbGV0J3Mgc2F2ZSB0aGUgaW5kZXggd2Ugd2FudCB0byByZWxlYXNlIGJlZm9yZSBjYWxsaW5n
+Cj4gZGV2aWNlX3VucmVnaXN0ZXIoKS4KPgo+IFNpZ25lZC1vZmYtYnk6IENvcm5lbGlhIEh1Y2sg
+PGNvcm5lbGlhLmh1Y2tAZGUuaWJtLmNvbT4KPiAtLS0KPiAgZHJpdmVycy92aXJ0aW8vdmlydGlv
+LmMgfCA0ICsrKy0KPiAgMSBmaWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlv
+bigtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpby5jIGIvZHJpdmVycy92
+aXJ0aW8vdmlydGlvLmMKPiBpbmRleCAxZTg2NTljLi44MDliMGRlIDEwMDY0NAo+IC0tLSBhL2Ry
+aXZlcnMvdmlydGlvL3ZpcnRpby5jCj4gKysrIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvLmMKPiBA
+QCAtMjI1LDggKzIyNSwxMCBAQCBFWFBPUlRfU1lNQk9MX0dQTChyZWdpc3Rlcl92aXJ0aW9fZGV2
+aWNlKTsKPgo+ICB2b2lkIHVucmVnaXN0ZXJfdmlydGlvX2RldmljZShzdHJ1Y3QgdmlydGlvX2Rl
+dmljZSAqZGV2KQo+ICB7Cj4gKyAgICAgICBpbnQgaW5kZXggPSBkZXYtPmluZGV4OyAvKiBzYXZl
+IGZvciBhZnRlciBkZXZpY2UgcmVsZWFzZSAqLwo+ICsKPiAgICAgICAgIGRldmljZV91bnJlZ2lz
+dGVyKCZkZXYtPmRldik7Cj4gLSAgICAgICBpZGFfc2ltcGxlX3JlbW92ZSgmdmlydGlvX2luZGV4
+X2lkYSwgZGV2LT5pbmRleCk7Cj4gKyAgICAgICBpZGFfc2ltcGxlX3JlbW92ZSgmdmlydGlvX2lu
+ZGV4X2lkYSwgaW5kZXgpOwo+ICB9Cj4gIEVYUE9SVF9TWU1CT0xfR1BMKHVucmVnaXN0ZXJfdmly
+dGlvX2RldmljZSk7CgpBY2tlZC1ieTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5k
+QHN0ZXJpY3Nzb24uY29tPgoKR3JlYXQgbWluZHMgdGhpbmsgYWxpa2UhIEkgZGlzY292ZXJlZCBp
+c3N1ZXMgd2l0aCB0aGlzIGltcGxlbWVudGF0aW9uCmEgd2hpbGUgYmFjayBhbmQgTWljaGFlbCBz
+dWdnZXN0ZWQgYW4gaWRlbnRpY2FsIHBhdGNoOgpodHRwczovL2xrbWwub3JnL2xrbWwvMjAxMi85
+LzQvMTczCmh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDEyLzkvNy8xMDUKClRoZSBpc3N1ZSBJIHJh
+biBpbnRvIHdhcyB0aGF0IHdoZW4gdmlydGlvIGRldmljZXMgYXJlIGNyZWF0ZWQgYnkgcmVtb3Rl
+cHJvYwp0aGUgZGV2aWNlIG1lbW9yeSBtaWdodCBiZSBmcmVlZCB3aGVuIGNhbGxpbmcgIGRldmlj
+ZV91bnJlZ2lzdGVyKCksIGFuZAp0aGUgdmFsdWUgb2YgZGV2LT5pbmRleCBpcyB0aGVuIHVuZGVm
+aW5lZC4gU28gdGhpcyBidWcgYml0ZXMgd2hlbgp1bnJlZ2lzdGVyaW5nIGEgVmlydGlvIGRldmlj
+ZXMgZnJvbSByZW1vdGVwcm9jIHdpdGggQ09ORklHX0RFQlVHX1NMQUIKZW5hYmxlZC4gSG93ZXZl
+ciB0aGlzIGJ1ZyBpcyBub3QgdHJpZ2dlcmVkIGJ5IHZpcnRpb19wY2kgYXMgaXQgaW1wbGVtZW50
+cyBhCm5vbi1zdGFuZGFyZCBkZXZpY2UgcmVsZWFzZS1mdW5jdGlvbiB0aGF0IGRvZXMgbm90IGZy
+ZWUgdGhlIGRldmljZSBtZW1vcnkuCgpUaGFua3MsClNqdXIKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
