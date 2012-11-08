@@ -1,12 +1,24 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [[PATCH v9 3/3] 1/1] virtio_console: Remove buffers from out_vq at
-	port removal
-Date: Thu,  8 Nov 2012 10:17:03 +0100
-Message-ID: <029d7029bc1186fbd2ec74123dc88922b9600660.1352366215.git.amit.shah@redhat.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Subject: Re: [PATCH resend] virtio_console: Free buffers from out-queue upon
+	close
+Date: Thu, 8 Nov 2012 10:25:43 +0100
+Message-ID: <CAJK669bHafJMJ-eoiwoOiHG9bB1hjSp_8cRX4+26n9dMj50tTA@mail.gmail.com>
+References: <1350287856-5284-1-git-send-email-sjur.brandeland@stericsson.com>
+	<1350287856-5284-5-git-send-email-sjur.brandeland@stericsson.com>
+	<878vayhsca.fsf@rustcorp.com.au>
+	<20121101073951.GA17012@amit.redhat.com>
+	<87r4oc52ov.fsf@rustcorp.com.au>
+	<20121102102047.GE10483@amit.redhat.com>
+	<81C3A93C17462B4BBD7E272753C1057923BE98E5C6@EXDCVYMBSTM005.EQ1STM.local>
+	<1352298171-21869-1-git-send-email-sjur.brandeland@stericsson.com>
+	<1352295822-22906-1-git-send-email-sjur.brandeland@stericsson.com>
+	<87sj8l2cea.fsf@rustcorp.com.au>
+	<20121108085913.GA31962@amit.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20121108085913.GA31962@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,31 +28,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, sjur@brendeland.net, linus.walleij@linaro.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, masami.hiramatsu.pt@hitachi.com, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
-UmVtb3ZlIGJ1ZmZlcnMgZnJvbSB0aGUgb3V0LXF1ZXVlIHdoZW4gYSBwb3J0IGlzIHJlbW92ZWQu
-IFJwcm9jX3NlcmlhbApjb21tdW5pY2F0ZXMgd2l0aCByZW1vdGUgcHJvY2Vzc29ycyB0aGF0IG1h
-eSBjcmFzaCBhbmQgbGVhdmUgYnVmZmVycyBpbgp0aGUgb3V0LXF1ZXVlLiBUaGUgdmlydGlvIHNl
-cmlhbCBwb3J0cyBtYXkgaGF2ZSBidWZmZXJzIGluIHRoZSBvdXQtcXVldWUKYXMgd2VsbCwgZS5n
-LiBmb3Igbm9uLWJsb2NraW5nIHBvcnRzIGFuZCB0aGUgaG9zdCBkaWRuJ3QgY29uc3VtZSB0aGVt
-CnlldC4KCltBbWl0OiBSZW1vdmUgV0FSTl9PTiBmb3IgZ2VuZXJpYyBwb3J0cyBjYXNlLl0KClNp
-Z25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29u
-LmNvbT4KU2lnbmVkLW9mZi1ieTogQW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4KLS0t
-CiBkcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYyB8ICAgIDQgKysrKwogMSBmaWxlcyBjaGFu
-Z2VkLCA0IGluc2VydGlvbnMoKyksIDAgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy9jaGFyL3ZpcnRpb19jb25zb2xlLmMgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwpp
-bmRleCA5ZWJhZGNiLi41ZmYzYjNlIDEwMDY0NAotLS0gYS9kcml2ZXJzL2NoYXIvdmlydGlvX2Nv
-bnNvbGUuYworKysgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwpAQCAtMTUyMSw2ICsx
-NTIxLDEwIEBAIHN0YXRpYyB2b2lkIHJlbW92ZV9wb3J0X2RhdGEoc3RydWN0IHBvcnQgKnBvcnQp
-CiAJLyogUmVtb3ZlIGJ1ZmZlcnMgd2UgcXVldWVkIHVwIGZvciB0aGUgSG9zdCB0byBzZW5kIHVz
-IGRhdGEgaW4uICovCiAJd2hpbGUgKChidWYgPSB2aXJ0cXVldWVfZGV0YWNoX3VudXNlZF9idWYo
-cG9ydC0+aW5fdnEpKSkKIAkJZnJlZV9idWYoYnVmLCB0cnVlKTsKKworCS8qIFJlbW92ZSBidWZm
-ZXJzIHdlIHF1ZXVlZCB1cCBmb3IgdGhlIEhvc3QgdG8gY29uc3VtZSAqLworCXdoaWxlICgoYnVm
-ID0gdmlydHF1ZXVlX2RldGFjaF91bnVzZWRfYnVmKHBvcnQtPm91dF92cSkpKQorCQlmcmVlX2J1
-ZihidWYsIHRydWUpOwogfQogCiAvKgotLSAKMS43LjcuNgoKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+>> > Note: This patch is compile tested only. I have done the removal
+>> > of buffers from out-queue in handle_control_message()
+>> > when host has acked the close request. This seems less
+>> > racy than doing it in the release function.
+>>
+>> This confuses me... why are we doing this in case
+>> VIRTIO_CONSOLE_PORT_OPEN:?
+>>
+>> We can't pull unconsumed buffers out of the ring when the other side may
+>> still access it, and this seems to be doing that.
+>
+> Yes -- and it's my fault; I asked Sjur to do that in the close fops
+> function.
+
+Thanks Amit :-), but this was really my bad.
+
+> We should only do this in the port remove case (unplug or device
+> remove) -- so the original patch, with just the WARN_ON removed is the
+> right way.
+>
+> I'll send the revised 3/3 patch for you.
+
+Thank you.
+
+Regards,
+Sjur
