@@ -1,18 +1,17 @@
 From: Rafael Aquini <aquini@redhat.com>
 Subject: Re: [PATCH v11 5/7] virtio_balloon: introduce migration primitives
 	to balloon pages
-Date: Wed, 7 Nov 2012 22:32:01 -0200
-Message-ID: <20121108003159.GD10444__44982.5302036062$1352334765$gmane$org@optiplex.redhat.com>
+Date: Wed, 7 Nov 2012 22:34:04 -0200
+Message-ID: <20121108003403.GE10444__37528.4076705158$1352334881$gmane$org@optiplex.redhat.com>
 References: <cover.1352256081.git.aquini@redhat.com>
 	<265aaff9a79f503672f0cdcdff204114b5b5ba5b.1352256088.git.aquini@redhat.com>
 	<87625h3tl1.fsf@rustcorp.com.au>
-	<20121107161146.b99dc4a8.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20121107161146.b99dc4a8.akpm@linux-foundation.org>
+In-Reply-To: <87625h3tl1.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,81 +21,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Rik van Riel <riel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 07, 2012 at 04:11:46PM -0800, Andrew Morton wrote:
-> On Thu, 08 Nov 2012 09:32:18 +1030
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
+On Thu, Nov 08, 2012 at 09:32:18AM +1030, Rusty Russell wrote:
+> The first one can be delayed, the second one can be delayed if the host
+> didn't ask for VIRTIO_BALLOON_F_MUST_TELL_HOST (qemu doesn't).
 > 
-> > Rafael Aquini <aquini@redhat.com> writes:
-> > > + * virtballoon_migratepage - perform the balloon page migration on behalf of
-> > > + *			     a compation thread.     (called under page lock)
-> > 
-> > > +	if (!mutex_trylock(&vb->balloon_lock))
-> > > +		return -EAGAIN;
-> > 
-> > Erk, OK...
-> 
-> Not really.  As is almost always the case with a trylock, it needs a
-> comment explaining why we couldn't use the far superior mutex_lock(). 
-> Data: this reader doesn't know!
->
+> We could implement a proper request queue for these, and return -EAGAIN
+> if the queue fills.  Though in practice, it's not important (it might
+> help performance).
 
-
-That was just to alleviate balloon_lock contention if we're migrating pages
-concurrently with balloon_fill() or balloon_leak(), as it's easier to retry
-the page migration later (in the contended case).
-
- 
-> > > +	/* balloon's page migration 1st step  -- inflate "newpage" */
-> > > +	spin_lock_irqsave(&vb_dev_info->pages_lock, flags);
-> > > +	balloon_page_insert(newpage, mapping, &vb_dev_info->pages);
-> > > +	vb_dev_info->isolated_pages--;
-> > > +	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
-> > > +	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
-> > > +	set_page_pfns(vb->pfns, newpage);
-> > > +	tell_host(vb, vb->inflate_vq);
-> > 
-> > tell_host does wait_event(), so you can't call it under the page_lock.
-> > Right?
-> 
-> Sleeping inside lock_page() is OK.  More problematic is that GFP_KERNEL
-> allocation.  iirc it _should_ be OK.  Core VM uses trylock_page() and
-> the filesystems shouldn't be doing a synchronous lock_page() in the
-> pageout path.  But I suspect it isn't a well-tested area.
-
-
-The locked page under migration is not contended by any other FS / core VM path,
-as it is already isolated by compaction to a private migration page list.
-OTOH, there's a chance of another parallel compaction thread hitting this page
-while scanning page blocks for isolation, but that path can be considered safe
-as it uses trylock_page()
-
-
-
-> 
-> > You probably get away with it because current qemu will service you
-> > immediately.  You could spin here in this case for the moment.
-> > 
-> > There's a second call to tell_host():
-> > 
-> > > +	/*
-> > > +	 * balloon's page migration 2nd step -- deflate "page"
-> > > +	 *
-> > > +	 * It's safe to delete page->lru here because this page is at
-> > > +	 * an isolated migration list, and this step is expected to happen here
-> > > +	 */
-> > > +	balloon_page_delete(page);
-> > > +	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
-> > > +	set_page_pfns(vb->pfns, page);
-> > > +	tell_host(vb, vb->deflate_vq);
-> > 
-> > The first one can be delayed, the second one can be delayed if the host
-> > didn't ask for VIRTIO_BALLOON_F_MUST_TELL_HOST (qemu doesn't).
-> > 
-> > We could implement a proper request queue for these, and return -EAGAIN
-> > if the queue fills.  Though in practice, it's not important (it might
-> > help performance).
-> 
+I liked the idea. Give me the directions to accomplish it and I'll give it a try
+for sure.
