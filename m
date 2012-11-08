@@ -1,16 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-mmio: Fix irq parsing in command line parameter
-Date: Thu, 08 Nov 2012 22:53:40 +1030
-Message-ID: <87hap02shf.fsf@rustcorp.com.au>
-References: <1352120454.10947.5.camel@hornet>
-	<1352120572-16256-1-git-send-email-pawel.moll@arm.com>
-	<20121105134413.GC5220@gmail.com> <87bof93vf2.fsf@rustcorp.com.au>
-	<CAF2Aj3gLLTw5ng0iZ6ecEkjGnJ-XGi3_RBrjCroW-=v=pfcFAw@mail.gmail.com>
+From: Andy King <acking@vmware.com>
+Subject: Re: [Pv-drivers] [PATCH 0/6] VSOCK for Linux upstreaming
+Date: Thu, 8 Nov 2012 07:47:25 -0800 (PST)
+Message-ID: <800083268.16640150.1352389645222.JavaMail.root@vmware.com>
+References: <509A06AB.2020700@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAF2Aj3gLLTw5ng0iZ6ecEkjGnJ-XGi3_RBrjCroW-=v=pfcFAw@mail.gmail.com>
+In-Reply-To: <509A06AB.2020700@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,37 +17,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-kernel@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, David Miller <davem@davemloft.net>, georgezhang@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Lee Jones <lee.jones@linaro.org> writes:
+Hi Gerd,
 
->> > Resorted to poaching now have we Pawel?
->
->> I hope you were joking!
->
-> Yes, of course. I thought that was clearly indicated by the jovial winking
-> smiley. :)
->
-> I realise it wasn't obvious soley by this exchange, but Pawel and I are
-> actually ol' friends.
->
->> Doing your work for you isn't poaching.
->
-> This isn't related to my work, as I have no professional interest in
-> virtio. In this particular instance I was trying to help out by fixing bugs
-> uncovered by the use of randconfig, which I'm doing in my own time, as a
-> hobby. I guess the use my work address clouds this fact, so I apologise for
-> that.
->
-> Sorry for any confusion or offence caused though Rusty. :)
->
-> Kind regards,
-> Lee
+>> Also, there was some interest from RedHat into using vSockets as
+>> a unified interface, routed over a hypervisor-specific transport
+>> (virtio or otherwise, although for now VMCI is the only one
+>> implemented).
+> 
+> Can you outline how this can be done?  From a quick look over the
+> code it seems like vsock has a hard dependency on vmci, is that
+> correct?
 
-No offence for me.  I just don't want bystanders to believe that there
-is some etiquette other than "best patch wins".
+That's correct, VMCI is wired into vSockets and we don't currently
+provide any way to insert another transport.
 
-Thanks for the clarification!
-Rusty.
+> When making vsock a generic, reusable kernel service it should be
+> the other way around:  vsock should provide the core implementation
+> and an interface where hypervisor-specific transports (vmci,
+> virtio, xenbus, ...) can register themself.
+
+Sorry, that was a bad explanation on my part.  You're absolutely
+correct as to how it _should_ work.  But it's up to Red Hat or others
+to get the ball rolling and motivate the necessary work on vSockets
+to make this happen.  As Greg says, "everyone is lazy and just wants
+their code accepted" ;)
+
+Thanks!
+- Andy
