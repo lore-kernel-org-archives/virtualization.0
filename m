@@ -1,16 +1,17 @@
-From: Mel Gorman <mel@csn.ul.ie>
-Subject: Re: [PATCH v11 4/7] mm: introduce compaction and migration for
-	ballooned pages
-Date: Fri, 9 Nov 2012 12:16:02 +0000
-Message-ID: <20121109121602.GQ3886__39421.2762978443$1352463811$gmane$org@csn.ul.ie>
+From: Rafael Aquini <aquini@redhat.com>
+Subject: Re: [PATCH v11 3/7] mm: introduce a common interface for balloon
+	pages mobility
+Date: Fri, 9 Nov 2012 12:53:22 -0200
+Message-ID: <20121109145321.GB4308__46943.3355647654$1352472874$gmane$org@optiplex.redhat.com>
 References: <cover.1352256081.git.aquini@redhat.com>
-	<08be4346b620ae9344691cc6c2ad0bc51f492e01.1352256088.git.aquini@redhat.com>
+	<4ea10ef1eb1544e12524c8ca7df20cf621395463.1352256087.git.aquini@redhat.com>
+	<20121109121133.GP3886@csn.ul.ie>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <08be4346b620ae9344691cc6c2ad0bc51f492e01.1352256088.git.aquini@redhat.com>
+In-Reply-To: <20121109121133.GP3886@csn.ul.ie>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,161 +21,145 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rafael Aquini <aquini@redhat.com>
+To: Mel Gorman <mel@csn.ul.ie>
 Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 07, 2012 at 01:05:51AM -0200, Rafael Aquini wrote:
-> Memory fragmentation introduced by ballooning might reduce significantly
-> the number of 2MB contiguous memory blocks that can be used within a guest,
-> thus imposing performance penalties associated with the reduced number of
-> transparent huge pages that could be used by the guest workload.
+On Fri, Nov 09, 2012 at 12:11:33PM +0000, Mel Gorman wrote:
+> > +/*
+> > + * balloon_page_insert - insert a page into the balloon's page list and make
+> > + *		         the page->mapping assignment accordingly.
+> > + * @page    : page to be assigned as a 'balloon page'
+> > + * @mapping : allocated special 'balloon_mapping'
+> > + * @head    : balloon's device page list head
+> > + */
+> > +static inline void balloon_page_insert(struct page *page,
+> > +				       struct address_space *mapping,
+> > +				       struct list_head *head)
+> > +{
+> > +	list_add(&page->lru, head);
+> > +	/*
+> > +	 * Make sure the page is already inserted on balloon's page list
+> > +	 * before assigning its ->mapping.
+> > +	 */
+> > +	smp_wmb();
+> > +	page->mapping = mapping;
+> > +}
+> > +
 > 
-> This patch introduces the helper functions as well as the necessary changes
-> to teach compaction and migration bits how to cope with pages which are
-> part of a guest memory balloon, in order to make them movable by memory
-> compaction procedures.
+> Elsewhere we have;
 > 
-> Signed-off-by: Rafael Aquini <aquini@redhat.com>
-> ---
->  mm/compaction.c | 21 +++++++++++++++++++--
->  mm/migrate.c    | 36 ++++++++++++++++++++++++++++++++++--
->  2 files changed, 53 insertions(+), 4 deletions(-)
+> 	spin_lock_irqsave(&b_dev_info->pages_lock, flags);
+> 	balloon_page_insert(page, b_dev_info->mapping, &b_dev_info->pages);
+> 	spin_unlock_irqrestore(&b_dev_info->pages_lock, flags);
 > 
-> diff --git a/mm/compaction.c b/mm/compaction.c
-> index 9eef558..76abd84 100644
-> --- a/mm/compaction.c
-> +++ b/mm/compaction.c
-> @@ -14,6 +14,7 @@
->  #include <linux/backing-dev.h>
->  #include <linux/sysctl.h>
->  #include <linux/sysfs.h>
-> +#include <linux/balloon_compaction.h>
->  #include "internal.h"
->  
->  #if defined CONFIG_COMPACTION || defined CONFIG_CMA
-> @@ -565,9 +566,24 @@ isolate_migratepages_range(struct zone *zone, struct compact_control *cc,
->  			goto next_pageblock;
->  		}
->  
-> -		/* Check may be lockless but that's ok as we recheck later */
-> -		if (!PageLRU(page))
-> +		/*
-> +		 * Check may be lockless but that's ok as we recheck later.
-> +		 * It's possible to migrate LRU pages and balloon pages
-> +		 * Skip any other type of page
-> +		 */
-> +		if (!PageLRU(page)) {
-> +			if (unlikely(balloon_page_movable(page))) {
+> So this happens under an irq-safe lock. Why is a smp_wmb necessary?
+> 
+> > +
+> > +/*
+> > + * balloon_page_delete - clear the page->mapping and delete the page from
+> > + *			 balloon's page list accordingly.
+> > + * @page    : page to be released from balloon's page list
+> > + */
+> > +static inline void balloon_page_delete(struct page *page)
+> > +{
+> > +	page->mapping = NULL;
+> > +	/*
+> > +	 * Make sure page->mapping is cleared before we proceed with
+> > +	 * balloon's page list deletion.
+> > +	 */
+> > +	smp_wmb();
+> > +	list_del(&page->lru);
+> > +}
+> > +
+> 
+> Same thing on locking except this also appears to be under the page lock
+> making the barrier seem even more unnecessary.
+> 
+> > +/*
+> > + * __is_movable_balloon_page - helper to perform @page mapping->flags tests
+> > + */
+> > +static inline bool __is_movable_balloon_page(struct page *page)
+> > +{
+> > +	/*
+> > +	 * we might attempt to read ->mapping concurrently to other
+> > +	 * threads trying to write to it.
+> > +	 */
+> > +	struct address_space *mapping = ACCESS_ONCE(page->mapping);
+> > +	smp_read_barrier_depends();
+> > +	return mapping_balloon(mapping);
+> > +}
+> > +
+> 
+> What happens if this race occurs? I assume it's a racy check before you
+> isolate the balloon in which case the barrier may be overkill.
+>
 
-Because it's lockless, it really seems that the barrier stuck down there
-is unnecessary. At worst you get a temporarily incorrect answer that you
-recheck later under page lock in balloon_page_isolate.
+You're 100% right. If, by any chance, we stumble across a balloon page
+transitioning to non-balloon page (to be released by the driver), while scanning
+pages for isolation, the racy checks at balloon_isolate_page() will catch that up 
+and properly sort the situation out. 
 
-> +				if (locked && balloon_page_isolate(page)) {
-> +					/* Successfully isolated */
-> +					cc->finished_update_migrate = true;
-> +					list_add(&page->lru, migratelist);
-> +					cc->nr_migratepages++;
-> +					nr_isolated++;
-> +					goto check_compact_cluster;
-> +				}
-> +			}
->  			continue;
-> +		}
->  
->  		/*
->  		 * PageLRU is set. lru_lock normally excludes isolation
-> @@ -621,6 +637,7 @@ isolate_migratepages_range(struct zone *zone, struct compact_control *cc,
->  		cc->nr_migratepages++;
->  		nr_isolated++;
->  
-> +check_compact_cluster:
->  		/* Avoid isolating too much */
->  		if (cc->nr_migratepages == COMPACT_CLUSTER_MAX) {
->  			++low_pfn;
-> diff --git a/mm/migrate.c b/mm/migrate.c
-> index 98c7a89..87ffe54 100644
-> --- a/mm/migrate.c
-> +++ b/mm/migrate.c
-> @@ -35,6 +35,7 @@
->  #include <linux/hugetlb.h>
->  #include <linux/hugetlb_cgroup.h>
->  #include <linux/gfp.h>
-> +#include <linux/balloon_compaction.h>
->  
->  #include <asm/tlbflush.h>
->  
-> @@ -79,7 +80,10 @@ void putback_lru_pages(struct list_head *l)
->  		list_del(&page->lru);
->  		dec_zone_page_state(page, NR_ISOLATED_ANON +
->  				page_is_file_cache(page));
-> -		putback_lru_page(page);
-> +		if (unlikely(balloon_page_movable(page)))
-> +			balloon_page_putback(page);
-> +		else
-> +			putback_lru_page(page);
->  	}
->  }
->  
-> @@ -778,6 +782,18 @@ static int __unmap_and_move(struct page *page, struct page *newpage,
->  		}
->  	}
->  
-> +	if (unlikely(balloon_page_movable(page))) {
-> +		/*
-> +		 * A ballooned page does not need any special attention from
-> +		 * physical to virtual reverse mapping procedures.
-> +		 * Skip any attempt to unmap PTEs or to remap swap cache,
-> +		 * in order to avoid burning cycles at rmap level, and perform
-> +		 * the page migration right away (proteced by page lock).
-> +		 */
-> +		rc = balloon_page_migrate(newpage, page, mode);
-> +		goto uncharge;
-> +	}
-> +
->  	/*
->  	 * Corner case handling:
->  	 * 1. When a new swap-cache page is read into, it is added to the LRU
-> @@ -814,7 +830,9 @@ skip_unmap:
->  		put_anon_vma(anon_vma);
->  
->  uncharge:
-> -	mem_cgroup_end_migration(mem, page, newpage, rc == MIGRATEPAGE_SUCCESS);
-> +	mem_cgroup_end_migration(mem, page, newpage,
-> +				 (rc == MIGRATEPAGE_SUCCESS ||
-> +				  rc == MIGRATEPAGE_BALLOON_SUCCESS));
->  unlock:
->  	unlock_page(page);
->  out:
-> @@ -846,6 +864,20 @@ static int unmap_and_move(new_page_t get_new_page, unsigned long private,
->  			goto out;
->  
->  	rc = __unmap_and_move(page, newpage, force, offlining, mode);
-> +
-> +	if (unlikely(rc == MIGRATEPAGE_BALLOON_SUCCESS)) {
-> +		/*
-> +		 * A ballooned page has been migrated already.
-> +		 * Now, it's the time to remove the old page from the isolated
-> +		 * pageset list and handle it back to Buddy, wrap-up counters
-> +		 * and return.
-> +		 */
-> +		dec_zone_page_state(page, NR_ISOLATED_ANON +
-> +				    page_is_file_cache(page));
-> +		put_page(page);
-> +		__free_page(page);
-> +		return 0;
-> +	}
->  out:
->  	if (rc != -EAGAIN) {
->  		/*
+> > +/*
+> > + * balloon_page_movable - test page->mapping->flags to identify balloon pages
+> > + *                     that can be moved by compaction/migration.
+> > + *
+> > + * This function is used at core compaction's page isolation scheme, therefore
+> > + * most pages exposed to it are not enlisted as balloon pages and so, to avoid
+> > + * undesired side effects like racing against __free_pages(), we cannot afford
+> > + * holding the page locked while testing page->mapping->flags here.
+> > + *
+> > + * As we might return false positives in the case of a balloon page being just
+> > + * released under us, the page->mapping->flags need to be re-tested later,
+> > + * under the proper page lock, at the functions that will be coping with the
+> > + * balloon page case.
+> > + */
+> > +static inline bool balloon_page_movable(struct page *page)
+> > +{
 
-It may be necessary to make this more generic for migration-related
-callbacks but I see nothing incompatible in your patch with doing that.
-Doing the abstraction now would be overkill so
+ 
+> > +# support for memory balloon compaction
+> > +config BALLOON_COMPACTION
+> > +	bool "Allow for balloon memory compaction/migration"
+> > +	select COMPACTION
+> > +	depends on VIRTIO_BALLOON
+> > +	help
+> > +	  Memory fragmentation introduced by ballooning might reduce
+> > +	  significantly the number of 2MB contiguous memory blocks that can be
+> > +	  used within a guest, thus imposing performance penalties associated
+> > +	  with the reduced number of transparent huge pages that could be used
+> > +	  by the guest workload. Allowing the compaction & migration for memory
+> > +	  pages enlisted as being part of memory balloon devices avoids the
+> > +	  scenario aforementioned and helps improving memory defragmentation.
+> > +
+> 
+> Rather than select COMPACTION, should it depend on it? Similarly as THP
+> is the primary motivation, would it make more sense to depend on
+> TRANSPARENT_HUGEPAGE?
+> 
+> Should it default y? It seems useful, why would someone support
+> VIRTIO_BALLOON and *not* use this?
+>
+Good catch, will change it.
+ 
+> 
+> Ok, I did not spot any obvious problems in this. The barriers were the
+> big issue for me really - they seem overkill. I think we've discussed
+> this already but even though it was recent I cannot remember the
+> conclusion. In a sense, it doesn't matter because it should have been
+> described in the code anyway.
+> 
+> If you get the barrier issue sorted out then feel free to add
+> 
+> Acked-by: Mel Gorman <mel@csn.ul.ie>
+> 
 
-Acked-by: Mel Gorman <mel@csn.ul.ie>
+I believe we can drop the barriers stuff, as the locking scheme is now provinding
+enough protection against collisions between isolation page scanning and
+balloon_leak() page release (the major concern that has lead to the barriers
+originally)
 
--- 
-Mel Gorman
-SUSE Labs
+I'll refactor this patch with no barriers and ensure a better commentary on the
+aforementioned locking scheme and resubmit, if it's OK to everyone
+
+-- Rafael
