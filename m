@@ -1,17 +1,18 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [PATCH v11 7/7] mm: add vm event counters for balloon pages
-	compaction
-Date: Fri, 9 Nov 2012 12:58:29 -0200
-Message-ID: <20121109145829.GC4308__40659.9204907708$1352474788$gmane$org@optiplex.redhat.com>
+From: Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [PATCH v11 3/7] mm: introduce a common interface for balloon
+	pages mobility
+Date: Fri, 9 Nov 2012 16:23:27 +0000
+Message-ID: <20121109162327.GT3886__6204.01759301803$1352478231$gmane$org@csn.ul.ie>
 References: <cover.1352256081.git.aquini@redhat.com>
-	<8dde7996f3e36a5efbe569afe1aadfc84355e79e.1352256088.git.aquini@redhat.com>
-	<20121109122033.GR3886@csn.ul.ie>
+	<4ea10ef1eb1544e12524c8ca7df20cf621395463.1352256087.git.aquini@redhat.com>
+	<20121109121133.GP3886@csn.ul.ie>
+	<20121109145321.GB4308@optiplex.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20121109122033.GR3886@csn.ul.ie>
+In-Reply-To: <20121109145321.GB4308@optiplex.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,40 +22,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-mm@kvack.org
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Minchan Kim <minchan@kernel.org>, Andi Kleen <andi@firstfloor.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 09, 2012 at 12:20:33PM +0000, Mel Gorman wrote:
-> On Wed, Nov 07, 2012 at 01:05:54AM -0200, Rafael Aquini wrote:
-> > This patch introduces a new set of vm event counters to keep track of
-> > ballooned pages compaction activity.
+On Fri, Nov 09, 2012 at 12:53:22PM -0200, Rafael Aquini wrote:
+> > <SNIP>
+> > If you get the barrier issue sorted out then feel free to add
 > > 
-> > Signed-off-by: Rafael Aquini <aquini@redhat.com>
+> > Acked-by: Mel Gorman <mel@csn.ul.ie>
+> > 
 > 
-> Other than confirming the thing actually works can any meaningful
-> conclusions be drawn from this counters?
+> I believe we can drop the barriers stuff, as the locking scheme is now provinding
+> enough protection against collisions between isolation page scanning and
+> balloon_leak() page release (the major concern that has lead to the barriers
+> originally)
 > 
-> I know I have been inconsistent on this myself in the past but recently
-> I've been taking the attitude that the counters can be used to fit into
-> some other metric. I'm looking to change the compaction counters to be
-> able to build a basic cost model for example. The same idea could be
-> used for balloons of course but it's a less critical path than
-> compaction for THP for example.
-> 
-> Assuming it builds and all the defines are correct when the feature is
-> not configured (I didn't check) then there is nothing wrong with the
-> patch. However, if it was dropped would it make life very hard or would
-> you notice?
+> I'll refactor this patch with no barriers and ensure a better commentary on the
+> aforementioned locking scheme and resubmit, if it's OK to everyone
 > 
 
-Originally, I proposed this patch as droppable (and it's still droppable)
-because its major purpose was solely to show the thing working consistently
+Sounds good to me. When they are dropped again feel free to stick my ack
+on for the compaction and migration parts. The virtio aspects are up to
+someone else :)
 
-OTOH, it might make the life easier to spot breakages if it remains with the
-merged bits, and per a reviewer request I removed its 'DROP BEFORE MERGE'
-disclaimer.
-
-   https://lkml.org/lkml/2012/8/8/616
-
--- Rafael
+-- 
+Mel Gorman
+SUSE Labs
