@@ -1,13 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio: Don't access index after unregister.
-Date: Fri, 09 Nov 2012 14:54:50 +1030
-Message-ID: <877gpv2yjx.fsf@rustcorp.com.au>
-References: <1352371427-32363-1-git-send-email-cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH v3] virtio-mmio: Fix irq parsing in command line parameter
+Date: Fri, 09 Nov 2012 14:41:23 +1030
+Message-ID: <87bof72z6c.fsf@rustcorp.com.au>
+References: <878vad3u9r.fsf@rustcorp.com.au>
+	<1352401544-8218-1-git-send-email-pawel.moll@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1352371427-32363-1-git-send-email-cornelia.huck@de.ibm.com>
+In-Reply-To: <1352401544-8218-1-git-send-email-pawel.moll@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,34 +18,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cornelia Huck <cornelia.huck@de.ibm.com> writes:
-> Virtio wants to release used indices after the corresponding
-> virtio device has been unregistered. However, virtio does not
-> hold an extra reference, giving up its last reference with
-> device_unregister(), making accessing dev->index afterwards
-> invalid.
+Pawel Moll <pawel.moll@arm.com> writes:
+> When the resource_size_t is 64-bit long, the sscanf() on
+> the virtio device command line paramter string may return
+> wrong value because its format was defined as "%u". Fixed
+> by using an intermediate local value of a known length.
 >
-> I actually saw problems when testing my (not-yet-merged)
-> virtio-ccw code:
->
-> - device_add virtio-net,id=xxx
-> -> creates device virtio<n> with n>0
->
-> - device_del xxx
-> -> deletes virtio<n>, but calls ida_simple_remove with an
->    index of 0
->
-> - device_add virtio-net,id=xxx
-> -> tries to add virtio0, which is still in use...
->
-> So let's save the index we want to release before calling
-> device_unregister().
+> Also added cleaned up the resource creation and added extra
+> comments to make the parameters parsing easier to follow.
 
-Great catch!  I've add a CC:stable.
+Applied.
 
-Applied,
+Thanks,
 Rusty.
