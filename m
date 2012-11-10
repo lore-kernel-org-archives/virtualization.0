@@ -1,19 +1,18 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [PATCH v11 3/7] mm: introduce a common interface for balloon
-	pages mobility
-Date: Fri, 9 Nov 2012 15:58:44 -0200
-Message-ID: <20121109175844.GD4308__30193.3095943697$1352483989$gmane$org@optiplex.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v11 5/7] virtio_balloon: introduce migration primitives
+	to balloon pages
+Date: Sat, 10 Nov 2012 17:53:19 +0200
+Message-ID: <20121110155319.GA13846__23032.4614829899$1352562690$gmane$org@redhat.com>
 References: <cover.1352256081.git.aquini@redhat.com>
-	<4ea10ef1eb1544e12524c8ca7df20cf621395463.1352256087.git.aquini@redhat.com>
-	<20121109121133.GP3886@csn.ul.ie>
-	<20121109145321.GB4308@optiplex.redhat.com>
-	<20121109162327.GT3886@csn.ul.ie>
+	<265aaff9a79f503672f0cdcdff204114b5b5ba5b.1352256088.git.aquini@redhat.com>
+	<87625h3tl1.fsf@rustcorp.com.au>
+	<20121107161146.b99dc4a8.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20121109162327.GT3886@csn.ul.ie>
+In-Reply-To: <20121107161146.b99dc4a8.akpm@linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,36 +22,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 09, 2012 at 04:23:27PM +0000, Mel Gorman wrote:
-> On Fri, Nov 09, 2012 at 12:53:22PM -0200, Rafael Aquini wrote:
-> > > <SNIP>
-> > > If you get the barrier issue sorted out then feel free to add
-> > > 
-> > > Acked-by: Mel Gorman <mel@csn.ul.ie>
-> > > 
-> > 
-> > I believe we can drop the barriers stuff, as the locking scheme is now provinding
-> > enough protection against collisions between isolation page scanning and
-> > balloon_leak() page release (the major concern that has lead to the barriers
-> > originally)
-> > 
-> > I'll refactor this patch with no barriers and ensure a better commentary on the
-> > aforementioned locking scheme and resubmit, if it's OK to everyone
-> > 
+On Wed, Nov 07, 2012 at 04:11:46PM -0800, Andrew Morton wrote:
+> On Thu, 08 Nov 2012 09:32:18 +1030
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
 > 
-> Sounds good to me. When they are dropped again feel free to stick my ack
-> on for the compaction and migration parts. The virtio aspects are up to
-> someone else :)
+> > Rafael Aquini <aquini@redhat.com> writes:
+> > > + * virtballoon_migratepage - perform the balloon page migration on behalf of
+> > > + *			     a compation thread.     (called under page lock)
+> > 
+> > > +	if (!mutex_trylock(&vb->balloon_lock))
+> > > +		return -EAGAIN;
+> > 
+> > Erk, OK...
 > 
+> Not really.  As is almost always the case with a trylock, it needs a
+> comment explaining why we couldn't use the far superior mutex_lock(). 
+> Data: this reader doesn't know!
+> 
+> > > +	/* balloon's page migration 1st step  -- inflate "newpage" */
+> > > +	spin_lock_irqsave(&vb_dev_info->pages_lock, flags);
+> > > +	balloon_page_insert(newpage, mapping, &vb_dev_info->pages);
+> > > +	vb_dev_info->isolated_pages--;
+> > > +	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
+> > > +	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
+> > > +	set_page_pfns(vb->pfns, newpage);
+> > > +	tell_host(vb, vb->inflate_vq);
+> > 
+> > tell_host does wait_event(), so you can't call it under the page_lock.
+> > Right?
+> 
+> Sleeping inside lock_page() is OK.  More problematic is that GFP_KERNEL
+> allocation.
 
-Andrew,
+Do you mean this one:
+        if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
+ ?
 
-If we get no further objections raised on dropping those barriers, would you
-like me to resubmit the whole series rebased on the latest -next, 
-or just this (new) refactored patch?
+In practice it never triggers an allocation, we can pass in
+GFP_ATOMIC just as well.
 
--- Rafael
+-- 
+MST
