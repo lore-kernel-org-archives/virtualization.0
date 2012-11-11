@@ -1,17 +1,13 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [PATCH v11 7/7] mm: add vm event counters for balloon pages
-	compaction
-Date: Sun, 11 Nov 2012 17:22:07 -0200
-Message-ID: <20121111192206.GB4290__22477.855863008$1352661769$gmane$org@x61.redhat.com>
-References: <cover.1352256081.git.aquini@redhat.com>
-	<8dde7996f3e36a5efbe569afe1aadfc84355e79e.1352256088.git.aquini@redhat.com>
-	<20121110155538.GC13846@redhat.com>
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PATCH 0/6] VSOCK for Linux upstreaming
+Date: Sun, 11 Nov 2012 16:59:13 -0500
+Message-ID: <50A01FB1.1080502@gmail.com>
+References: <854640502.31217031.1352140335740.JavaMail.root@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20121110155538.GC13846@redhat.com>
+In-Reply-To: <854640502.31217031.1352140335740.JavaMail.root@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,22 +17,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Peter Zijlstra <peterz@infradead.org>, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: George Zhang <georgezhang@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Nov 10, 2012 at 05:55:38PM +0200, Michael S. Tsirkin wrote:
-> >  	mutex_unlock(&vb->balloon_lock);
-> > +	balloon_event_count(COMPACTBALLOONMIGRATED);
-> >  
-> >  	return MIGRATEPAGE_BALLOON_SUCCESS;
-> >  }
-> 
-> Looks like any ballon would need to do this.
-> Can this  chunk go into caller instead?
->
+On 11/05/2012 01:32 PM, George Zhang wrote:
+> Sasha,
+> There is a 'brief' implementation notes aboutVSOCK protocol family
+> in af_vsock.c. More about user space layer socket programming is from
+> VMCI Socket Programming Guide. (remove crosstalk@vmware.com for email bouncing).
+> thanks,
+> George
 
-Good catch. It's done, already (v12 just hit the wild).
+So all the documentation I see in the VMCI Socket Programming Guide is about
+userspace programming, and the documentation in af_vsock.c is all around
+implementation considerations.
 
-Thanks!
--- Rafael
+Is there anything that documents the actual protocol? Just for example, whats
+the deal with REQUEST/REQUEST2? it appears like something to deal with legacy
+code, but I'd really like to have it documented somewhere instead of trying
+to figure how everything works by looking at the code.
+
+
+Thanks,
+Sasha
