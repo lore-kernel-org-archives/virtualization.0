@@ -1,15 +1,14 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [PATCH -next] virtio: balloon: fix missing unlock on error in
-	fill_balloon()
-Date: Mon, 12 Nov 2012 12:16:54 -0200
-Message-ID: <20121112141653.GA7228@optiplex.redhat.com>
-References: <CAPgLHd80RvvGdTKN3aR7dQ_b1S3_pAkMwmGjewc7zgf=4jafcg@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-spec: serial: english tweak
+Date: Mon, 12 Nov 2012 18:56:54 +0200
+Message-ID: <20121112165654.GA18190@redhat.com>
+References: <20120909121116.GA2972@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAPgLHd80RvvGdTKN3aR7dQ_b1S3_pAkMwmGjewc7zgf=4jafcg@mail.gmail.com>
+In-Reply-To: <20120909121116.GA2972@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,49 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, yongjun_wei@trendmicro.com.cn, akpm@linux-foundation.org
+To: virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 12, 2012 at 09:50:40PM +0800, Wei Yongjun wrote:
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+On Sun, Sep 09, 2012 at 03:11:16PM +0300, Michael S. Tsirkin wrote:
+> "A number of virtqueues are created" seems clearer
+> than "the number of virtqueues": it's
+> virtqueues that are created not the number.
 > 
-> Add the missing unlock before return from function fill_balloon()
-> in the error handling case.
-> 
-> Introduced by 9864a8(virtio_balloon: introduce migration primitives
-> to balloon pages)
-> 
-> dpatch engine is used to auto generate this patch.
-> (https://github.com/weiyj/dpatch)
-> 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+ping
+
 > ---
->  drivers/virtio/virtio_balloon.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index f70151b..72e8dcb 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -152,8 +152,10 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
->  	}
->  
->  	/* Didn't get any?  Oh well. */
-> -	if (vb->num_pfns == 0)
-> +	if (vb->num_pfns == 0) {
-> +		mutex_unlock(&vb->balloon_lock);
->  		return;
-> +	}
->  
->  	tell_host(vb, vb->inflate_vq);
->  	mutex_unlock(&vb->balloon_lock);
->
-
-I missed that one when rewriting v10 to v11. :(
-
-Good catch, Wei! thanks!
-
-Andrew, we need this pick for the virtio_balloon v12 patch, as well.
-
--- Rafael
+> I'm not a native english speaker but the below
+> seems correct to me. Rusty?
+> 
+>  virtio-spec.lyx | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+> index d9626a9..a29315c 100644
+> --- a/virtio-spec.lyx
+> +++ b/virtio-spec.lyx
+> @@ -6406,7 +6406,7 @@ If the VIRTIO_CONSOLE_F_MULTIPORT feature is negotiated, the driver can
+>   spawn multiple ports, not all of which may be attached to a console.
+>   Some could be generic ports.
+>   In this case, the control virtqueues are enabled and according to the max_nr_po
+> -rts configuration-space value, the appropriate number of virtqueues are
+> +rts configuration-space value, an appropriate number of virtqueues are
+>   created.
+>   A control message indicating the driver is ready is sent to the host.
+>   The host can then send control messages for adding new ports to the device.
+> -- 
+> MST
