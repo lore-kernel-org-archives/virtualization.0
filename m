@@ -1,14 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-spec: serial: english tweak
-Date: Mon, 12 Nov 2012 18:56:54 +0200
-Message-ID: <20121112165654.GA18190@redhat.com>
-References: <20120909121116.GA2972@redhat.com>
+Subject: Re: [PATCH] virtio-spec: fix thinko in multiport documentation
+Date: Mon, 12 Nov 2012 18:59:47 +0200
+Message-ID: <20121112165947.GA18220@redhat.com>
+References: <20120909110837.GA2395@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20120909121116.GA2972@redhat.com>
+In-Reply-To: <20120909110837.GA2395@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +18,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Sep 09, 2012 at 03:11:16PM +0300, Michael S. Tsirkin wrote:
-> "A number of virtqueues are created" seems clearer
-> than "the number of virtqueues": it's
-> virtqueues that are created not the number.
+On Sun, Sep 09, 2012 at 02:08:37PM +0300, Michael S. Tsirkin wrote:
+> spec numbers ports port0, port 1 etc, then goes on to say
+> "ports 2 onwards only if MULTIPORT is set".
+> An obvious thinko, should be port 1 onwards.
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-ping
+Ping.
 
 > ---
-> 
-> I'm not a native english speaker but the below
-> seems correct to me. Rusty?
-> 
->  virtio-spec.lyx | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  virtio-spec.lyx | 8 +++++++-
+>  1 file changed, 7 insertions(+), 1 deletion(-)
 > 
 > diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-> index d9626a9..a29315c 100644
+> index a713807..d801aa6 100644
 > --- a/virtio-spec.lyx
 > +++ b/virtio-spec.lyx
-> @@ -6406,7 +6406,7 @@ If the VIRTIO_CONSOLE_F_MULTIPORT feature is negotiated, the driver can
->   spawn multiple ports, not all of which may be attached to a console.
->   Some could be generic ports.
->   In this case, the control virtqueues are enabled and according to the max_nr_po
-> -rts configuration-space value, the appropriate number of virtqueues are
-> +rts configuration-space value, an appropriate number of virtqueues are
->   created.
->   A control message indicating the driver is ready is sent to the host.
->   The host can then send control messages for adding new ports to the device.
+> @@ -6298,7 +6298,13 @@ Virtqueues 0:receiveq(port0).
+>  status open
+>  
+>  \begin_layout Plain Layout
+> -Ports 2 onwards only if VIRTIO_CONSOLE_F_MULTIPORT is set
+> +Ports 
+> +\change_inserted 1986246365 1347188327
+> +1
+> +\change_deleted 1986246365 1347188327
+> +2
+> +\change_unchanged
+> + onwards only if VIRTIO_CONSOLE_F_MULTIPORT is set
+>  \end_layout
+>  
+>  \end_inset
 > -- 
 > MST
