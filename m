@@ -1,16 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [rfc net-next v6 2/3] virtio_net: multiqueue support
-Date: Tue, 13 Nov 2012 08:40:26 +0200
-Message-ID: <20121113064026.GA27416@redhat.com>
-References: <1351591403-23065-1-git-send-email-jasowang@redhat.com>
-	<1351591403-23065-3-git-send-email-jasowang@redhat.com>
-	<87y5igyhyg.fsf@rustcorp.com.au>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [patch] virtio_balloon: unlock on error in fill_balloon()
+Date: Tue, 13 Nov 2012 10:43:03 +0300
+Message-ID: <20121113074303.GA13198@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87y5igyhyg.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,37 +16,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, davem@davemloft.net
+To: Rusty Russell <rusty@rustcorp.com.au>, Rafael Aquini <aquini@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, kernel-janitors@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 05, 2012 at 11:38:39AM +1030, Rusty Russell wrote:
-> > @@ -924,11 +1032,10 @@ static void virtnet_get_ringparam(struct net_device *dev,
-> >  {
-> >  	struct virtnet_info *vi = netdev_priv(dev);
-> >  
-> > -	ring->rx_max_pending = virtqueue_get_vring_size(vi->rvq);
-> > -	ring->tx_max_pending = virtqueue_get_vring_size(vi->svq);
-> > +	ring->rx_max_pending = virtqueue_get_vring_size(vi->rq[0].vq);
-> > +	ring->tx_max_pending = virtqueue_get_vring_size(vi->sq[0].vq);
-> >  	ring->rx_pending = ring->rx_max_pending;
-> >  	ring->tx_pending = ring->tx_max_pending;
-> > -
-> >  }
-> 
-> This assumes all vqs are the same size.  I think this should probably
-> check: for mq mode, use the first vq, otherewise use the 0th.
+We recently added locking in fill_balloon() but there was one error path
+which was missed.
 
-For rx_pending/tx_pending I think what is required here is the
-actual number of outstanding buffers.
-Dave, Eric - right?
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+---
+Only needed in linux-next.
 
-So this should be the total over all rings and to be useful,
-rx_max_pending/tx_max_pending should be the total too.
-
-> For bonus points, check this assertion at probe time.
-
-Looks like we can easily support different queues too.
-
--- 
-MST
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index f70151b..1c50e98 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -153,9 +153,10 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+ 
+ 	/* Didn't get any?  Oh well. */
+ 	if (vb->num_pfns == 0)
+-		return;
++		goto unlock;
+ 
+ 	tell_host(vb, vb->inflate_vq);
++unlock:
+ 	mutex_unlock(&vb->balloon_lock);
+ }
