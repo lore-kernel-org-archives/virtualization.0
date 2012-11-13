@@ -1,16 +1,14 @@
 From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [PATCH -next] virtio: balloon: fix missing unlock on error in
-	fill_balloon()
-Date: Tue, 13 Nov 2012 10:47:48 -0200
-Message-ID: <20121113124748.GA1636@optiplex.redhat.com>
-References: <CAPgLHd80RvvGdTKN3aR7dQ_b1S3_pAkMwmGjewc7zgf=4jafcg@mail.gmail.com>
-	<20121112153453.fa3edc3d.akpm@linux-foundation.org>
+Subject: Re: [patch] virtio_balloon: unlock on error in fill_balloon()
+Date: Tue, 13 Nov 2012 12:28:22 -0200
+Message-ID: <20121113142821.GB1636@optiplex.redhat.com>
+References: <20121113074303.GA13198@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20121112153453.fa3edc3d.akpm@linux-foundation.org>
+In-Reply-To: <20121113074303.GA13198@elgon.mountain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,79 +18,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Wei Yongjun <weiyj.lk@gmail.com>, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, yongjun_wei@trendmicro.com.cn
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 12, 2012 at 03:34:53PM -0800, Andrew Morton wrote:
-> On Mon, 12 Nov 2012 21:50:40 +0800
-> Wei Yongjun <weiyj.lk@gmail.com> wrote:
+On Tue, Nov 13, 2012 at 10:43:03AM +0300, Dan Carpenter wrote:
+> We recently added locking in fill_balloon() but there was one error path
+> which was missed.
 > 
-> > From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> > 
-> > Add the missing unlock before return from function fill_balloon()
-> > in the error handling case.
-> > 
-> > Introduced by 9864a8(virtio_balloon: introduce migration primitives
-> > to balloon pages)
-> > 
-> > dpatch engine is used to auto generate this patch.
-> > (https://github.com/weiyj/dpatch)
-> > 
-> > Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> > ---
-> >  drivers/virtio/virtio_balloon.c | 4 +++-
-> >  1 file changed, 3 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> > index f70151b..72e8dcb 100644
-> > --- a/drivers/virtio/virtio_balloon.c
-> > +++ b/drivers/virtio/virtio_balloon.c
-> > @@ -152,8 +152,10 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
-> >  	}
-> >  
-> >  	/* Didn't get any?  Oh well. */
-> > -	if (vb->num_pfns == 0)
-> > +	if (vb->num_pfns == 0) {
-> > +		mutex_unlock(&vb->balloon_lock);
-> >  		return;
-> > +	}
-> >  
-> >  	tell_host(vb, vb->inflate_vq);
-> >  	mutex_unlock(&vb->balloon_lock);
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> ---
+> Only needed in linux-next.
 > 
-> Well.  Why did this bug occur in the first place?  Because
-> fill_balloon() has multiple return points and one of those was
-> overlooked when adding new locking.
-> 
-> This (and the addition of memory leaks) is quite common.  It is part of
-> the reason why so much kernel code uses goto's to avoid multiple return
-> points.  A maintainability thing.
-> 
-> And we can fix this shortcoming in fill_balloon() without even needing a
-> goto:
-> 
-> --- a/drivers/virtio/virtio_balloon.c~virtio_balloon-introduce-migration-primitives-to-balloon-pages-fix-fix
-> +++ a/drivers/virtio/virtio_balloon.c
-> @@ -151,13 +151,9 @@ static void fill_balloon(struct virtio_b
->  		totalram_pages--;
->  	}
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index f70151b..1c50e98 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -153,9 +153,10 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
 >  
-> -	/* Didn't get any?  Oh well. */
-> -	if (vb->num_pfns == 0) {
-> -		mutex_unlock(&vb->balloon_lock);
+>  	/* Didn't get any?  Oh well. */
+>  	if (vb->num_pfns == 0)
 > -		return;
-> -	}
-> -
-> -	tell_host(vb, vb->inflate_vq);
-> +	/* Did we get any? */
-> +	if (vb->num_pfns != 0)
-> +		tell_host(vb, vb->inflate_vq);
+> +		goto unlock;
+>  
+>  	tell_host(vb, vb->inflate_vq);
+> +unlock:
 >  	mutex_unlock(&vb->balloon_lock);
 >  }
 >
+Thanks for the catch Dan. 
 
-Your fix is far better, as it simplifies the code without loosing that test --
-which only evaluates as true, if we fail to allocate a page right after getting
-into the loop -- /me thinks driver folks place it there to not bother
-tell_host() and the virt_queues if no pageframe is present at that pfns array.
+Andrew has already picked a slightly different (and simpler) fix for this one,
+though.
+
+---8<---
+a/drivers/virtio/virtio_balloon.c~virtio_balloon-introduce-migration-primitives-to-balloon-pages-fix-fix
++++ a/drivers/virtio/virtio_balloon.c
+@@ -151,13 +151,9 @@ static void fill_balloon(struct virtio_b
+                totalram_pages--;
+       	}
+
+-	/* Didn't get any?  Oh well. */
+-	if (vb->num_pfns == 0) {
+-               mutex_unlock(&vb->balloon_lock);
+-               return;
+-	}
+-
+-	tell_host(vb, vb->inflate_vq);
++	/* Did we get any? */
++	if (vb->num_pfns != 0)
++               tell_host(vb, vb->inflate_vq);
+        mutex_unlock(&vb->balloon_lock);
+ }
+---8<---
