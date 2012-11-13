@@ -1,14 +1,16 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH -next] virtio: balloon: fix missing unlock on error in
-	fill_balloon()
-Date: Mon, 12 Nov 2012 15:34:53 -0800
-Message-ID: <20121112153453.fa3edc3d.akpm@linux-foundation.org>
-References: <CAPgLHd80RvvGdTKN3aR7dQ_b1S3_pAkMwmGjewc7zgf=4jafcg@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [rfc net-next v6 2/3] virtio_net: multiqueue support
+Date: Tue, 13 Nov 2012 08:40:26 +0200
+Message-ID: <20121113064026.GA27416@redhat.com>
+References: <1351591403-23065-1-git-send-email-jasowang@redhat.com>
+	<1351591403-23065-3-git-send-email-jasowang@redhat.com>
+	<87y5igyhyg.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAPgLHd80RvvGdTKN3aR7dQ_b1S3_pAkMwmGjewc7zgf=4jafcg@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <87y5igyhyg.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,74 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: aquini@redhat.com, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, yongjun_wei@trendmicro.com.cn
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 12 Nov 2012 21:50:40 +0800
-Wei Yongjun <weiyj.lk@gmail.com> wrote:
-
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+On Mon, Nov 05, 2012 at 11:38:39AM +1030, Rusty Russell wrote:
+> > @@ -924,11 +1032,10 @@ static void virtnet_get_ringparam(struct net_device *dev,
+> >  {
+> >  	struct virtnet_info *vi = netdev_priv(dev);
+> >  
+> > -	ring->rx_max_pending = virtqueue_get_vring_size(vi->rvq);
+> > -	ring->tx_max_pending = virtqueue_get_vring_size(vi->svq);
+> > +	ring->rx_max_pending = virtqueue_get_vring_size(vi->rq[0].vq);
+> > +	ring->tx_max_pending = virtqueue_get_vring_size(vi->sq[0].vq);
+> >  	ring->rx_pending = ring->rx_max_pending;
+> >  	ring->tx_pending = ring->tx_max_pending;
+> > -
+> >  }
 > 
-> Add the missing unlock before return from function fill_balloon()
-> in the error handling case.
-> 
-> Introduced by 9864a8(virtio_balloon: introduce migration primitives
-> to balloon pages)
-> 
-> dpatch engine is used to auto generate this patch.
-> (https://github.com/weiyj/dpatch)
-> 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> ---
->  drivers/virtio/virtio_balloon.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index f70151b..72e8dcb 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -152,8 +152,10 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
->  	}
->  
->  	/* Didn't get any?  Oh well. */
-> -	if (vb->num_pfns == 0)
-> +	if (vb->num_pfns == 0) {
-> +		mutex_unlock(&vb->balloon_lock);
->  		return;
-> +	}
->  
->  	tell_host(vb, vb->inflate_vq);
->  	mutex_unlock(&vb->balloon_lock);
+> This assumes all vqs are the same size.  I think this should probably
+> check: for mq mode, use the first vq, otherewise use the 0th.
 
-Well.  Why did this bug occur in the first place?  Because
-fill_balloon() has multiple return points and one of those was
-overlooked when adding new locking.
+For rx_pending/tx_pending I think what is required here is the
+actual number of outstanding buffers.
+Dave, Eric - right?
 
-This (and the addition of memory leaks) is quite common.  It is part of
-the reason why so much kernel code uses goto's to avoid multiple return
-points.  A maintainability thing.
+So this should be the total over all rings and to be useful,
+rx_max_pending/tx_max_pending should be the total too.
 
-And we can fix this shortcoming in fill_balloon() without even needing a
-goto:
+> For bonus points, check this assertion at probe time.
 
---- a/drivers/virtio/virtio_balloon.c~virtio_balloon-introduce-migration-primitives-to-balloon-pages-fix-fix
-+++ a/drivers/virtio/virtio_balloon.c
-@@ -151,13 +151,9 @@ static void fill_balloon(struct virtio_b
- 		totalram_pages--;
- 	}
- 
--	/* Didn't get any?  Oh well. */
--	if (vb->num_pfns == 0) {
--		mutex_unlock(&vb->balloon_lock);
--		return;
--	}
--
--	tell_host(vb, vb->inflate_vq);
-+	/* Did we get any? */
-+	if (vb->num_pfns != 0)
-+		tell_host(vb, vb->inflate_vq);
- 	mutex_unlock(&vb->balloon_lock);
- }
- 
-_
+Looks like we can easily support different queues too.
+
+-- 
+MST
