@@ -1,14 +1,13 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [patch] virtio_balloon: unlock on error in fill_balloon()
-Date: Tue, 13 Nov 2012 12:28:22 -0200
-Message-ID: <20121113142821.GB1636@optiplex.redhat.com>
-References: <20121113074303.GA13198@elgon.mountain>
+From: Andy King <acking@vmware.com>
+Subject: Re: [Pv-drivers] [PATCH 0/6] VSOCK for Linux upstreaming
+Date: Wed, 14 Nov 2012 08:42:44 -0800 (PST)
+Message-ID: <1636188668.22560872.1352911364387.JavaMail.root@vmware.com>
+References: <50A01FB1.1080502@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20121113074303.GA13198@elgon.mountain>
+In-Reply-To: <50A01FB1.1080502@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,56 +17,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Sasha Levin <levinsasha928@gmail.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net, George Zhang <georgezhang@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 13, 2012 at 10:43:03AM +0300, Dan Carpenter wrote:
-> We recently added locking in fill_balloon() but there was one error path
-> which was missed.
-> 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> ---
-> Only needed in linux-next.
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index f70151b..1c50e98 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -153,9 +153,10 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
->  
->  	/* Didn't get any?  Oh well. */
->  	if (vb->num_pfns == 0)
-> -		return;
-> +		goto unlock;
->  
->  	tell_host(vb, vb->inflate_vq);
-> +unlock:
->  	mutex_unlock(&vb->balloon_lock);
->  }
->
-Thanks for the catch Dan. 
+Hi Sasha,
 
-Andrew has already picked a slightly different (and simpler) fix for this one,
-though.
+Thanks for taking a look.
 
----8<---
-a/drivers/virtio/virtio_balloon.c~virtio_balloon-introduce-migration-primitives-to-balloon-pages-fix-fix
-+++ a/drivers/virtio/virtio_balloon.c
-@@ -151,13 +151,9 @@ static void fill_balloon(struct virtio_b
-                totalram_pages--;
-       	}
+> So all the documentation I see in the VMCI Socket Programming Guide
+> is about userspace programming, and the documentation in af_vsock.c
+> is all around implementation considerations.
 
--	/* Didn't get any?  Oh well. */
--	if (vb->num_pfns == 0) {
--               mutex_unlock(&vb->balloon_lock);
--               return;
--	}
--
--	tell_host(vb, vb->inflate_vq);
-+	/* Did we get any? */
-+	if (vb->num_pfns != 0)
-+               tell_host(vb, vb->inflate_vq);
-        mutex_unlock(&vb->balloon_lock);
- }
----8<---
+Agreed, we're sorely lacking in proper documentation for the internal
+protocol.  We're in the process of writing such a specification and
+will post it to LKML next week at the latest.
+
+> example, whats the deal with REQUEST/REQUEST2? it appears like
+> something to deal with legacy code, but I'd really like to have it
+> documented somewhere instead of trying to figure how everything
+
+Correct, we have a legacy protocol and a v2, the latter now being
+the default.  This particular packet is sent by the client when
+initiating a STREAM connection.  The sequence is REQUEST(2)->
+NEGOTIATE(2)->OFFER->ACCEPT.  It will be properly documented in
+the specification we post next week.
+
+Thanks!
+- Andy
