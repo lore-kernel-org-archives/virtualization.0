@@ -1,14 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [[PATCH v9 3/3] 1/1] virtio_console: Remove buffers from out_vq
-	at port removal
-Date: Fri, 16 Nov 2012 11:22:09 +1030
-Message-ID: <87ip96id3a.fsf@rustcorp.com.au>
-References: <029d7029bc1186fbd2ec74123dc88922b9600660.1352366215.git.amit.shah@redhat.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH 09/14] xen: events: Remove redundant check on unsigned
+	variable
+Date: Fri, 16 Nov 2012 11:09:23 -0500
+Message-ID: <20121116160923.GP22320@phenom.dumpdata.com>
+References: <1353048646-10935-1-git-send-email-tushar.behera@linaro.org>
+	<1353048646-10935-10-git-send-email-tushar.behera@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <029d7029bc1186fbd2ec74123dc88922b9600660.1352366215.git.amit.shah@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1353048646-10935-10-git-send-email-tushar.behera@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,22 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, sjur@brendeland.net, linus.walleij@linaro.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, masami.hiramatsu.pt@hitachi.com, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: Tushar Behera <tushar.behera@linaro.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, patches@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-QW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4gd3JpdGVzOgo+IEZyb206IFNqdXIgQnLD
-pm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KPgo+IFJlbW92ZSBidWZm
-ZXJzIGZyb20gdGhlIG91dC1xdWV1ZSB3aGVuIGEgcG9ydCBpcyByZW1vdmVkLiBScHJvY19zZXJp
-YWwKPiBjb21tdW5pY2F0ZXMgd2l0aCByZW1vdGUgcHJvY2Vzc29ycyB0aGF0IG1heSBjcmFzaCBh
-bmQgbGVhdmUgYnVmZmVycyBpbgo+IHRoZSBvdXQtcXVldWUuIFRoZSB2aXJ0aW8gc2VyaWFsIHBv
-cnRzIG1heSBoYXZlIGJ1ZmZlcnMgaW4gdGhlIG91dC1xdWV1ZQo+IGFzIHdlbGwsIGUuZy4gZm9y
-IG5vbi1ibG9ja2luZyBwb3J0cyBhbmQgdGhlIGhvc3QgZGlkbid0IGNvbnN1bWUgdGhlbQo+IHll
-dC4KPgo+IFtBbWl0OiBSZW1vdmUgV0FSTl9PTiBmb3IgZ2VuZXJpYyBwb3J0cyBjYXNlLl0KPgo+
-IFNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNz
-c29uLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBBbWl0IFNoYWggPGFtaXQuc2hhaEByZWRoYXQuY29t
-PgoKSSBhbHJlYWR5IGhhdmUgdGhpcyBpbiBteSBwZW5kaW5nIHF1ZXVlOyBJJ3ZlIHByb21vdGVk
-IGl0IHRvIG15CnZpcnRpby1uZXh0IGJyYW5jaCBub3cuCgpUaGFua3MsClJ1c3R5LgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+On Fri, Nov 16, 2012 at 12:20:41PM +0530, Tushar Behera wrote:
+> No need to check whether unsigned variable is less than 0.
+> 
+> CC: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+
+Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+
+> CC: Jeremy Fitzhardinge <jeremy@goop.org>
+> CC: xen-devel@lists.xensource.com
+> CC: virtualization@lists.linux-foundation.org
+> Signed-off-by: Tushar Behera <tushar.behera@linaro.org>
+> ---
+>  drivers/xen/events.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/xen/events.c b/drivers/xen/events.c
+> index 4293c57..cadd7d1 100644
+> --- a/drivers/xen/events.c
+> +++ b/drivers/xen/events.c
+> @@ -216,7 +216,7 @@ static void xen_irq_info_pirq_init(unsigned irq,
+>   */
+>  static unsigned int evtchn_from_irq(unsigned irq)
+>  {
+> -	if (unlikely(WARN(irq < 0 || irq >= nr_irqs, "Invalid irq %d!\n", irq)))
+> +	if (unlikely(WARN(irq >= nr_irqs, "Invalid irq %d!\n", irq)))
+>  		return 0;
+>  
+>  	return info_for_irq(irq)->evtchn;
+> -- 
+> 1.7.4.1
