@@ -1,11 +1,13 @@
 From: Tushar Behera <tushar.behera@linaro.org>
-Subject: [PATCH 00/14] Modify signed comparisons of unsigned variables
-Date: Fri, 16 Nov 2012 12:20:32 +0530
-Message-ID: <1353048646-10935-1-git-send-email-tushar.behera__37910.6387416416$1353091981$gmane$org@linaro.org>
+Subject: [PATCH 09/14] xen: events: Remove redundant check on unsigned variable
+Date: Fri, 16 Nov 2012 12:20:41 +0530
+Message-ID: <1353048646-10935-10-git-send-email-tushar.behera__41715.8034084879$1353091984$gmane$org@linaro.org>
+References: <1353048646-10935-1-git-send-email-tushar.behera@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1353048646-10935-1-git-send-email-tushar.behera@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,68 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: Chas Williams <chas@cmf.nrl.navy.mil>, linux-input@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, Jack Steiner <steiner@sgi.com>, Ian Campbell <ian.campbell@citrix.com>, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jiri Kosina <jkosina@suse.cz>, Linus Walleij <linus.walleij@linaro.org>, patches@linaro.org, linux-wireless@vger.kernel.org, ivtv-devel@ivtvdriver.org, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-atm-general@lists.sourceforge.net, Luciano Coelho <coelho@ti.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com, linux-media@vger.kernel.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com, patches@linaro.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The occurrences were identified through the coccinelle script at
-following location.
+No need to check whether unsigned variable is less than 0.
 
-http://www.emn.fr/z-info/coccinelle/rules/find_unsigned.cocci
-
-Signed checks for unsigned variables are removed if it is also checked
-for upper error limit. For error checks, IS_ERR_VALUE() macros is used.
-
-Tushar Behera (14):
-  [media] ivtv: Remove redundant check on unsigned variable
-  [media] meye: Remove redundant check on unsigned variable
-  [media] saa7134: Remove redundant check on unsigned variable
-  [media] tlg2300: Remove redundant check on unsigned variable
-  [media] atmel-isi: Update error check for unsigned variables
-  pinctrl: samsung: Update error check for unsigned variables
-  pinctrl: SPEAr: Update error check for unsigned variables
-  xen: netback: Remove redundant check on unsigned variable
-  xen: events: Remove redundant check on unsigned variable
-  atm: Removed redundant check on unsigned variable
-  HID: hiddev: Remove redundant check on unsigned variable
-  gru: Remove redundant check on unsigned variable
-  misc: tsl2550: Remove redundant check on unsigned variable
-  wlcore: Remove redundant check on unsigned variable
-
- drivers/atm/fore200e.c                        |    2 +-
- drivers/hid/usbhid/hiddev.c                   |    2 +-
- drivers/media/pci/ivtv/ivtv-ioctl.c           |    2 +-
- drivers/media/pci/meye/meye.c                 |    2 +-
- drivers/media/pci/saa7134/saa7134-video.c     |    2 +-
- drivers/media/platform/soc_camera/atmel-isi.c |    2 +-
- drivers/media/usb/tlg2300/pd-video.c          |    2 +-
- drivers/misc/sgi-gru/grukdump.c               |    2 +-
- drivers/misc/tsl2550.c                        |    4 ++--
- drivers/net/wireless/ti/wlcore/debugfs.c      |    2 +-
- drivers/net/xen-netback/netback.c             |    4 ++--
- drivers/pinctrl/pinctrl-samsung.c             |    2 +-
- drivers/pinctrl/spear/pinctrl-plgpio.c        |    2 +-
- drivers/xen/events.c                          |    2 +-
- 14 files changed, 16 insertions(+), 16 deletions(-)
-
--- 
-1.7.4.1
-
-CC: Mauro Carvalho Chehab <mchehab@infradead.org>
-CC: Linus Walleij <linus.walleij@linaro.org>
-CC: Ian Campbell <ian.campbell@citrix.com>
 CC: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 CC: Jeremy Fitzhardinge <jeremy@goop.org>
-CC: Chas Williams <chas@cmf.nrl.navy.mil>
-CC: Jack Steiner <steiner@sgi.com>
-CC: Arnd Bergmann <arnd@arndb.de>
-CC: Luciano Coelho <coelho@ti.com>
-CC: Jiri Kosina <jkosina@suse.cz>
-CC: ivtv-devel@ivtvdriver.org
-CC: linux-media@vger.kernel.org
 CC: xen-devel@lists.xensource.com
-CC: netdev@vger.kernel.org
 CC: virtualization@lists.linux-foundation.org
-CC: linux-atm-general@lists.sourceforge.net
-CC: linux-usb@vger.kernel.org
-CC: linux-input@vger.kernel.org
-CC: linux-wireless@vger.kernel.org
+Signed-off-by: Tushar Behera <tushar.behera@linaro.org>
+---
+ drivers/xen/events.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/xen/events.c b/drivers/xen/events.c
+index 4293c57..cadd7d1 100644
+--- a/drivers/xen/events.c
++++ b/drivers/xen/events.c
+@@ -216,7 +216,7 @@ static void xen_irq_info_pirq_init(unsigned irq,
+  */
+ static unsigned int evtchn_from_irq(unsigned irq)
+ {
+-	if (unlikely(WARN(irq < 0 || irq >= nr_irqs, "Invalid irq %d!\n", irq)))
++	if (unlikely(WARN(irq >= nr_irqs, "Invalid irq %d!\n", irq)))
+ 		return 0;
+ 
+ 	return info_for_irq(irq)->evtchn;
+-- 
+1.7.4.1
