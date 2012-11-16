@@ -1,15 +1,14 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 11/12] VMCI: host side driver implementation.
-Date: Thu, 15 Nov 2012 16:03:31 -0800
-Message-ID: <20121116000331.GA13149@kroah.com>
-References: <20121107183624.9658.78903.stgit@promb-2n-dhcp175.eng.vmware.com>
-	<20121107184249.9658.53806.stgit@promb-2n-dhcp175.eng.vmware.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [[PATCH v9 3/3] 1/1] virtio_console: Remove buffers from out_vq
+	at port removal
+Date: Fri, 16 Nov 2012 11:22:09 +1030
+Message-ID: <87ip96id3a.fsf@rustcorp.com.au>
+References: <029d7029bc1186fbd2ec74123dc88922b9600660.1352366215.git.amit.shah@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20121107184249.9658.53806.stgit@promb-2n-dhcp175.eng.vmware.com>
+In-Reply-To: <029d7029bc1186fbd2ec74123dc88922b9600660.1352366215.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,34 +18,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: George Zhang <georgezhang@vmware.com>
-Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, sjur@brendeland.net, linus.walleij@linaro.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, masami.hiramatsu.pt@hitachi.com, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 07, 2012 at 10:42:53AM -0800, George Zhang wrote:
-> +/*
-> + * Sets up a given context for notify to work.  Calls drv_map_bool_ptr()
-> + * which maps the notify boolean in user VA in kernel space.
-> + */
-> +static int vmci_host_setup_notify(struct vmci_ctx *context,
-> +				  unsigned long uva)
-> +{
-> +	struct page *page;
-> +	int retval;
-> +
-> +	if (context->notify_page) {
-> +		pr_devel("%s: Notify mechanism is already set up.\n", __func__);
-> +		return VMCI_ERROR_DUPLICATE_ENTRY;
-> +	}
-> +
-> +	if (!access_ok(VERIFY_WRITE, (void __user *)uva, sizeof(bool)))
-> +		return VMCI_ERROR_GENERIC;
-
-This line causes sparse to complain.  The odds that userspace knows what
-gcc is using for "bool" is pretty low.
-
-Please fix.
-
-thanks,
-
-greg k-h
+QW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4gd3JpdGVzOgo+IEZyb206IFNqdXIgQnLD
+pm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KPgo+IFJlbW92ZSBidWZm
+ZXJzIGZyb20gdGhlIG91dC1xdWV1ZSB3aGVuIGEgcG9ydCBpcyByZW1vdmVkLiBScHJvY19zZXJp
+YWwKPiBjb21tdW5pY2F0ZXMgd2l0aCByZW1vdGUgcHJvY2Vzc29ycyB0aGF0IG1heSBjcmFzaCBh
+bmQgbGVhdmUgYnVmZmVycyBpbgo+IHRoZSBvdXQtcXVldWUuIFRoZSB2aXJ0aW8gc2VyaWFsIHBv
+cnRzIG1heSBoYXZlIGJ1ZmZlcnMgaW4gdGhlIG91dC1xdWV1ZQo+IGFzIHdlbGwsIGUuZy4gZm9y
+IG5vbi1ibG9ja2luZyBwb3J0cyBhbmQgdGhlIGhvc3QgZGlkbid0IGNvbnN1bWUgdGhlbQo+IHll
+dC4KPgo+IFtBbWl0OiBSZW1vdmUgV0FSTl9PTiBmb3IgZ2VuZXJpYyBwb3J0cyBjYXNlLl0KPgo+
+IFNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNz
+c29uLmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBBbWl0IFNoYWggPGFtaXQuc2hhaEByZWRoYXQuY29t
+PgoKSSBhbHJlYWR5IGhhdmUgdGhpcyBpbiBteSBwZW5kaW5nIHF1ZXVlOyBJJ3ZlIHByb21vdGVk
+IGl0IHRvIG15CnZpcnRpby1uZXh0IGJyYW5jaCBub3cuCgpUaGFua3MsClJ1c3R5LgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
