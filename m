@@ -1,19 +1,12 @@
-From: Tushar Behera <tushar.behera@linaro.org>
-Subject: Re: [Xen-devel] [PATCH 09/14] xen: events: Remove redundant check
-	on unsigned variable
-Date: Mon, 19 Nov 2012 16:30:16 +0530
-Message-ID: <50AA1140.70103@linaro.org>
-References: <1353048646-10935-1-git-send-email-tushar.behera@linaro.org>
-	<1353048646-10935-10-git-send-email-tushar.behera@linaro.org>
-	<20121116160923.GP22320@phenom.dumpdata.com>
-	<b0cd27cf-919f-46b0-afa1-4566f6ea0f61@email.android.com>
-	<50A9AD05.5080201@linaro.org>
-	<1353321075.18229.29.camel@zakaz.uk.xensource.com>
+From: Alexander Duyck <alexander.h.duyck@intel.com>
+Subject: [PATCH v4] x86/xen: Use __pa_symbol instead of __pa on C visible
+	symbols
+Date: Fri, 16 Nov 2012 13:45:25 -0800
+Message-ID: <20121116214217.8308.55518.stgit__45183.2351777286$1353350215$gmane$org@ahduyck-cp1.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1353321075.18229.29.camel@zakaz.uk.xensource.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,33 +16,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian Campbell <Ian.Campbell@citrix.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "patches@linaro.org" <patches@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: jeremy@goop.org, konrad.wilk@oracle.com
+Cc: linux-kernel@vger.kernel.org, x86@kernel.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/19/2012 04:01 PM, Ian Campbell wrote:
-> On Mon, 2012-11-19 at 03:52 +0000, Tushar Behera wrote:
->> On 11/16/2012 10:23 PM, Jeremy Fitzhardinge wrote:
->>> To be honest I'd nack this kind of patch. The test is only redundant in the most trivial sense that the compiler can easily optimise away. The point of the test is to make sure that the range is OK even if the type subsequently becomes signed (to hold a -ve error, for example).
->>>
->>> J
->>>
->>
->> The check is on the function argument which is unsigned, so checking '<
->> 0' doesn't make sense. We should force signed check only if the argument
->> is of signed type. In any case, even if irq has been assigned some error
->> value, that would be caught by the check irq >= nr_irqs.
-> 
-> Jeremy is (I think) arguing that this check is not redundant because
-> someone might change the type of the argument to be signed and until
-> then the compiler can trivially optimise the check away, so what's the
-> harm in it?
-> 
-> I'm somewhat inclined to agree with him.
-> 
-> Ian.
-> 
-Ok, I don't have much argument against this.
+This change updates a few of the functions to use __pa_symbol when
+translating C visible symbols instead of __pa.  By using __pa_symbol we are
+able to drop a few extra lines of code as don't have to test to see if the
+virtual pointer is a part of the kernel text or just standard virtual memory.
 
--- 
-Tushar Behera
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Alexander Duyck <alexander.h.duyck@intel.com>
+---
+
+v4:  I have spun this patch off as a separate patch for v4 due to the fact that
+     this patch doesn't apply cleanly to Linus's tree.  As such I am
+     submitting it based off of the linux-next tree to be accepted in the Xen
+     tree since this patch can actually exist on its own without the need
+     for the other patches in the original __phys_addr performance series.
+
+ arch/x86/xen/mmu.c |   21 +++++++++++----------
+ 1 files changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+index 4a05b39..a63e5f9 100644
+--- a/arch/x86/xen/mmu.c
++++ b/arch/x86/xen/mmu.c
+@@ -1486,7 +1486,8 @@ static int xen_pgd_alloc(struct mm_struct *mm)
+ 
+ 		if (user_pgd != NULL) {
+ 			user_pgd[pgd_index(VSYSCALL_START)] =
+-				__pgd(__pa(level3_user_vsyscall) | _PAGE_TABLE);
++				__pgd(__pa_symbol(level3_user_vsyscall) |
++				      _PAGE_TABLE);
+ 			ret = 0;
+ 		}
+ 
+@@ -1958,10 +1959,10 @@ void __init xen_setup_kernel_pagetable(pgd_t *pgd, unsigned long max_pfn)
+ 	 * pgd.
+ 	 */
+ 	if (xen_feature(XENFEAT_writable_page_tables)) {
+-		native_write_cr3(__pa(init_level4_pgt));
++		native_write_cr3(__pa_symbol(init_level4_pgt));
+ 	} else {
+ 		xen_mc_batch();
+-		__xen_write_cr3(true, __pa(init_level4_pgt));
++		__xen_write_cr3(true, __pa_symbol(init_level4_pgt));
+ 		xen_mc_issue(PARAVIRT_LAZY_CPU);
+ 	}
+ 	/* We can't that easily rip out L3 and L2, as the Xen pagetables are
+@@ -1984,10 +1985,10 @@ static RESERVE_BRK_ARRAY(pmd_t, swapper_kernel_pmd, PTRS_PER_PMD);
+ 
+ static void __init xen_write_cr3_init(unsigned long cr3)
+ {
+-	unsigned long pfn = PFN_DOWN(__pa(swapper_pg_dir));
++	unsigned long pfn = PFN_DOWN(__pa_symbol(swapper_pg_dir));
+ 
+-	BUG_ON(read_cr3() != __pa(initial_page_table));
+-	BUG_ON(cr3 != __pa(swapper_pg_dir));
++	BUG_ON(read_cr3() != __pa_symbol(initial_page_table));
++	BUG_ON(cr3 != __pa_symbol(swapper_pg_dir));
+ 
+ 	/*
+ 	 * We are switching to swapper_pg_dir for the first time (from
+@@ -2011,7 +2012,7 @@ static void __init xen_write_cr3_init(unsigned long cr3)
+ 	pin_pagetable_pfn(MMUEXT_PIN_L3_TABLE, pfn);
+ 
+ 	pin_pagetable_pfn(MMUEXT_UNPIN_TABLE,
+-			  PFN_DOWN(__pa(initial_page_table)));
++			  PFN_DOWN(__pa_symbol(initial_page_table)));
+ 	set_page_prot(initial_page_table, PAGE_KERNEL);
+ 	set_page_prot(initial_kernel_pmd, PAGE_KERNEL);
+ 
+@@ -2036,7 +2037,7 @@ void __init xen_setup_kernel_pagetable(pgd_t *pgd, unsigned long max_pfn)
+ 
+ 	copy_page(initial_page_table, pgd);
+ 	initial_page_table[KERNEL_PGD_BOUNDARY] =
+-		__pgd(__pa(initial_kernel_pmd) | _PAGE_PRESENT);
++		__pgd(__pa_symbol(initial_kernel_pmd) | _PAGE_PRESENT);
+ 
+ 	set_page_prot(initial_kernel_pmd, PAGE_KERNEL_RO);
+ 	set_page_prot(initial_page_table, PAGE_KERNEL_RO);
+@@ -2045,8 +2046,8 @@ void __init xen_setup_kernel_pagetable(pgd_t *pgd, unsigned long max_pfn)
+ 	pin_pagetable_pfn(MMUEXT_UNPIN_TABLE, PFN_DOWN(__pa(pgd)));
+ 
+ 	pin_pagetable_pfn(MMUEXT_PIN_L3_TABLE,
+-			  PFN_DOWN(__pa(initial_page_table)));
+-	xen_write_cr3(__pa(initial_page_table));
++			  PFN_DOWN(__pa_symbol(initial_page_table)));
++	xen_write_cr3(__pa_symbol(initial_page_table));
+ 
+ 	memblock_reserve(__pa(xen_start_info->pt_base),
+ 			 xen_start_info->nr_pt_frames * PAGE_SIZE);
