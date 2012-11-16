@@ -1,15 +1,11 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 09/14] xen: events: Remove redundant check on unsigned
-	variable
-Date: Fri, 16 Nov 2012 08:53:21 -0800
-Message-ID: <b0cd27cf-919f-46b0-afa1-4566f6ea0f61__42891.0846043893$1353085507$gmane$org@email.android.com>
-References: <1353048646-10935-1-git-send-email-tushar.behera@linaro.org>
-	<1353048646-10935-10-git-send-email-tushar.behera@linaro.org>
-	<20121116160923.GP22320@phenom.dumpdata.com>
+From: "WorldCIST" <marialemos72@gmail.com>
+Subject: Best papers published in JCR/ISI JOURNALS - Deadline: November 25
+Date: Fri, 16 Nov 2012 17:33:36 +0000
+Message-ID: <20121116173938.7486FAF8@mail.linuxfoundation.org>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8122767858365398159=="
+Content-Type: multipart/mixed; boundary="===============0612479907730778896=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121116160923.GP22320@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,106 +15,182 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Tushar Behera <tushar.behera@linaro.org>
-Cc: xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, patches@linaro.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============8122767858365398159==
-Content-Type: multipart/alternative; boundary="----I3LDVZ2VLUSA4GSWOKOQ023V3XCOJH"
-
-------I3LDVZ2VLUSA4GSWOKOQ023V3XCOJH
-Content-Type: text/plain;
- charset=UTF-8
+--===============0612479907730778896==
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-To be honest I'd nack this kind of patch. The test is only redundant in t=
-he most trivial sense that the compiler can easily optimise away. The poi=
-nt of the test is to make sure that the range is OK even if the type subs=
-equently becomes signed (to hold a -ve error, for example).
+Apologies if you are receiving this mail more than once...
 
-J
-
-Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
-
->On Fri, Nov 16, 2012 at 12:20:41PM +0530, Tushar Behera wrote:
->> No need to check whether unsigned variable is less than 0.
->>=20
->> CC: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
->
->Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
->
->> CC: Jeremy Fitzhardinge <jeremy@goop.org>
->> CC: xen-devel@lists.xensource.com
->> CC: virtualization@lists.linux-foundation.org
->> Signed-off-by: Tushar Behera <tushar.behera@linaro.org>
->> ---
->>  drivers/xen/events.c |    2 +-
->>  1 files changed, 1 insertions(+), 1 deletions(-)
->>=20
->> diff --git a/drivers/xen/events.c b/drivers/xen/events.c
->> index 4293c57..cadd7d1 100644
->> --- a/drivers/xen/events.c
->> +++ b/drivers/xen/events.c
->> @@ -216,7 +216,7 @@ static void xen_irq_info_pirq_init(unsigned irq,
->>   */
->>  static unsigned int evtchn_from_irq(unsigned irq)
->>  {
->> -	if (unlikely(WARN(irq < 0 || irq >=3D nr_irqs, "Invalid irq %d!\n",
->irq)))
->> +	if (unlikely(WARN(irq >=3D nr_irqs, "Invalid irq %d!\n", irq)))
->>  		return 0;
->> =20
->>  	return info_for_irq(irq)->evtchn;
->> --=20
->> 1.7.4.1
-
---=20
-Sent from my Android phone with K-9 Mail. Please excuse my brevity.
-------I3LDVZ2VLUSA4GSWOKOQ023V3XCOJH
-Content-Type: text/html;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-
-<html><head/><body><html><head></head><body>To be honest I&#39;d nack thi=
-s kind of patch. The test is only redundant in the most trivial sense tha=
-t the compiler can easily optimise away. The point of the test is to make=
- sure that the range is OK even if the type subsequently becomes signed (=
-to hold a -ve error, for example).<br>
-<br>
-J<br><br><div class=3D"gmail_quote">Konrad Rzeszutek Wilk &lt;konrad.wilk=
-@oracle.com&gt; wrote:<blockquote class=3D"gmail_quote" style=3D"margin: =
-0pt 0pt 0pt 0.8ex; border-left: 1px solid rgb(204, 204, 204); padding-lef=
-t: 1ex;">
-<pre style=3D"white-space: pre-wrap; word-wrap:break-word; font-family: s=
-ans-serif; margin-top: 0px">On Fri, Nov 16, 2012 at 12:20:41PM +0530, Tus=
-har Behera wrote:<br /><blockquote class=3D"gmail_quote" style=3D"margin:=
- 0pt 0pt 1ex 0.8ex; border-left: 1px solid #729fcf; padding-left: 1ex;">N=
-o need to check whether unsigned variable is less than 0.<br /><br />CC: =
-Konrad Rzeszutek Wilk &lt;konrad.wilk@oracle.com&gt;</blockquote><br />Ac=
-ked-by: Konrad Rzeszutek Wilk &lt;konrad.wilk@oracle.com&gt;<br /><br /><=
-blockquote class=3D"gmail_quote" style=3D"margin: 0pt 0pt 1ex 0.8ex; bord=
-er-left: 1px solid #729fcf; padding-left: 1ex;">CC: Jeremy Fitzhardinge &=
-lt;jeremy@goop.org&gt;<br />CC: xen-devel@lists.xensource.com<br />CC: vi=
-rtualization@lists.linux-foundation.org<br />Signed-off-by: Tushar Behera=
- &lt;tushar.behera@linaro.org&gt;<br />---<br />drivers/xen/events.c |   =
- 2 +-<br />1 files changed, 1 insertions(+), 1 deletions(-)<br /><br />di=
-ff --git a/drivers/xen/events.c b/drivers/xen/event
- s.c<br
-/>index 4293c57..cadd7d1 100644<br />--- a/drivers/xen/events.c<br />+++ =
-b/drivers/xen/events.c<br />@@ -216,7 +216,7 @@ static void xen_irq_info_=
-pirq_init(unsigned irq,<br />*/<br />static unsigned int evtchn_from_irq(=
-unsigned irq)<br />{<br />- if (unlikely(WARN(irq &lt; 0 || irq &gt;=3D n=
-r_irqs, "Invalid irq %d!\n", irq)))<br />+ if (unlikely(WARN(irq &gt;=3D =
-nr_irqs, "Invalid irq %d!\n", irq)))<br />  return 0;<br /><br /> return =
-info_for_irq(irq)-&gt;evtchn;<br />-- <br /><a href=3D"http://1.7.4.1">1.=
-7.4.1</a></blockquote><br /></pre></blockquote></div><br>
--- <br>
-Sent from my Android phone with K-9 Mail. Please excuse my brevity.</body=
-></html></body></html>
-------I3LDVZ2VLUSA4GSWOKOQ023V3XCOJH--
+Please disseminate by colleagues, researchers, students, etc. Thanks a=
+ lot!
 
 
---===============8122767858365398159==
+**********************************************************************=
+************
+                             WorldCIST'13
+The 2013 World Conference on Information Systems and Technologies
+                   March 27 - 30, Algarve, Portugal
+                   http://www.aisti.eu/worldcist13/
+**********************************************************************=
+************
+
+SCOPE
+
+The 2013 World Conference on Information Systems and Technologies (Wor=
+ldCIST'13: http://www.aisti.eu/worldcist13/) is a global forum for res=
+earchers and practitioners to present and discuss the most recent inno=
+vations, trends, results, experiences and concerns in the several pers=
+pectives of Information Systems and Technologies.
+
+We are pleased to invite you to submit your papers to WorldCISTI'13. A=
+ll submissions will be reviewed on the basis of relevance, originality=
+, importance and clarity.
+
+
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Intelligent and Decision Support Systems (IDSS);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+F) Human-Computer Interaction (HCI).
+
+
+TYPES OF SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one =
+of the Conference themes. These papers are assigned a 10-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, open to =
+discussion. These papers are assigned a 7-page limit.
+
+Poster paper: Initial work with relevant ideas, open to discussion. Th=
+ese papers are assigned to a 4-page limit.
+
+Company paper: Companies' papers that show practical experience, R & D=
+, tools, etc., focused on some topics of the conference. These papers =
+are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see http://www.aisti.eu/worldcist13/sp=
+ringerformat.doc) be written in English, must not have been published =
+before, not be under review for any other conference or publication an=
+d not include any information leading to the authors=92 identification=
+. Therefore, the authors=92 names, affiliations and bibliographic ref=
+erences should not be included in the version for evaluation by the Pr=
+ogram Committee. This information should only be included in the camer=
+a-ready version.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference includes Work Sessions where t=
+hese posters are presented and orally discussed, with a 5 minute limit=
+ per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+PUBLICATION AND INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 11th of January 2013, and the paper must comp=
+ly with the suggested layout and page-limit. Additionally, all recomme=
+nded changes must be addressed by the authors before they submit the c=
+amera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of two additional papers per registration.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ Advances in Intelligent Systems and Computing Series. Poster and comp=
+any papers will be published in Proceedings by AISTI.
+
+Published full and short papers will be indexed by ISI, EI-Compendex, =
+SCOPUS, DBLP and EBSCO, among others, and will be available in the Spr=
+ingerLink Digital Library. Published poster and company papers will be=
+ indexed in EI-Compendex and EBSCO.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in edited books and in international journals indexed=
+ by ISI/JCR, SCOPUS and/or DBLP, among others, such as:
+
+- ACM Transactions on Modeling and Computer Simulation (TOMACS)
+- Online Information Review (OIR)
+- Informatics for Health and Social Care (IHSC)
+- Computer Science and Information Systems (ComSIS)
+- Telecommunication Systems Journal (TSJ)
+- INFORMATION - An International Interdisciplinary Journal
+- Journal of Organizational and End User Computing (JOEUC)
+- Information Researh (IR)
+- International Journal of Internet Protocol Technology (IJIPT)
+- Studies in Computational Intelligence (SCI)
+- Journal of Advanced Computational Intelligence and Intelligent Infor=
+matics (JACIII)
+- Journal of Electrical and Computer Engineering (JECE): Special Issue=
+ in Advances in Radar Technology
+- WSEAS Transactions on Systems (TS)
+- Library Review (LR)
+- Education for Information (EI)
+- International Journal of IT/Business Alignment and Governance (IJITBAG)
+- International Journal of Systems and Service-Oriented Engineering (I=
+JSSOE)
+- International Journal of Interactive Multimedia and Artificial Intel=
+ligence (IJIMAI)
+
+
+IMPORTANT DATES
+
+Paper Submission: November 25, 2012
+
+Notification of Acceptance: December 30, 2012
+
+Camera-ready Submission: January 9, 2013
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 11, 2013.
+
+-
+
+Kind regards,
+
+Maria Lemos
+WorldCIST'13
+http://www.aisti.eu/worldcist13/
+
+
+
+--===============0612479907730778896==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -128,4 +200,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8122767858365398159==--
+--===============0612479907730778896==--
