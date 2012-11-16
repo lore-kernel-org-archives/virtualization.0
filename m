@@ -1,13 +1,12 @@
-From: Tushar Behera <tushar.behera@linaro.org>
-Subject: [PATCH 09/14] xen: events: Remove redundant check on unsigned variable
-Date: Fri, 16 Nov 2012 12:20:41 +0530
-Message-ID: <1353048646-10935-10-git-send-email-tushar.behera__41715.8034084879$1353091984$gmane$org@linaro.org>
-References: <1353048646-10935-1-git-send-email-tushar.behera@linaro.org>
+From: Chris Wright <chrisw@redhat.com>
+Subject: Virtualization DevRoom at FOSDEM 2013
+Date: Fri, 16 Nov 2012 11:46:36 -0800
+Message-ID: <20121116194636.GY14405@x200.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1353048646-10935-1-git-send-email-tushar.behera@linaro.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,33 +16,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com, patches@linaro.org
+To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-No need to check whether unsigned variable is less than 0.
+Following on the heels of a successful KVM Forum and oVirt Workshop,
+FOSDEM will be hosting a Virtualization DevRoom in February.  If you've
+been to FOSDEM before, you know this is about developers and code, not
+products.
 
-CC: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-CC: Jeremy Fitzhardinge <jeremy@goop.org>
-CC: xen-devel@lists.xensource.com
-CC: virtualization@lists.linux-foundation.org
-Signed-off-by: Tushar Behera <tushar.behera@linaro.org>
----
- drivers/xen/events.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Presentation proposals are due by December 16th 2012.
 
-diff --git a/drivers/xen/events.c b/drivers/xen/events.c
-index 4293c57..cadd7d1 100644
---- a/drivers/xen/events.c
-+++ b/drivers/xen/events.c
-@@ -216,7 +216,7 @@ static void xen_irq_info_pirq_init(unsigned irq,
-  */
- static unsigned int evtchn_from_irq(unsigned irq)
- {
--	if (unlikely(WARN(irq < 0 || irq >= nr_irqs, "Invalid irq %d!\n", irq)))
-+	if (unlikely(WARN(irq >= nr_irqs, "Invalid irq %d!\n", irq)))
- 		return 0;
- 
- 	return info_for_irq(irq)->evtchn;
--- 
-1.7.4.1
+The full details are here:
+
+ http://osvc.v2.cs.unibo.it/index.php/Main_Page
+
+With the relevant topics being:
+
+"Topics covered will include, but not limited to:
+ - machine virtualization (e.g. KVM, Xen, VirtualBox,...)
+ - network virtualization (e.g. openvstack, vale, vde, Open vSwitch,...)
+ - process level virtualization, flexible kernels (e.g. rump anykernel, view-os, ...)
+ - virt management (e.g. ganeti, libvirt, ovirt, XCP, ...)"
+
+thanks,
+-chris
