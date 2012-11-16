@@ -1,10 +1,10 @@
-From: "WorldCIST" <marialemos72@gmail.com>
-Subject: Best papers published in JCR/ISI JOURNALS - Deadline: November 25
-Date: Fri, 16 Nov 2012 17:33:36 +0000
-Message-ID: <20121116173938.7486FAF8@mail.linuxfoundation.org>
-Reply-To: worldcist@gmail.com
+From: Tushar Behera <tushar.behera@linaro.org>
+Subject: [PATCH 00/14] Modify signed comparisons of unsigned variables
+Date: Fri, 16 Nov 2012 12:20:32 +0530
+Message-ID: <1353048646-10935-1-git-send-email-tushar.behera__37910.6387416416$1353091981$gmane$org@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0612479907730778896=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,189 +15,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Chas Williams <chas@cmf.nrl.navy.mil>, linux-input@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, Jack Steiner <steiner@sgi.com>, Ian Campbell <ian.campbell@citrix.com>, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jiri Kosina <jkosina@suse.cz>, Linus Walleij <linus.walleij@linaro.org>, patches@linaro.org, linux-wireless@vger.kernel.org, ivtv-devel@ivtvdriver.org, Mauro Carvalho Chehab <mchehab@infradead.org>, linux-atm-general@lists.sourceforge.net, Luciano Coelho <coelho@ti.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com, linux-media@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0612479907730778896==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The occurrences were identified through the coccinelle script at
+following location.
 
-Apologies if you are receiving this mail more than once...
+http://www.emn.fr/z-info/coccinelle/rules/find_unsigned.cocci
 
-Please disseminate by colleagues, researchers, students, etc. Thanks a=
- lot!
+Signed checks for unsigned variables are removed if it is also checked
+for upper error limit. For error checks, IS_ERR_VALUE() macros is used.
 
+Tushar Behera (14):
+  [media] ivtv: Remove redundant check on unsigned variable
+  [media] meye: Remove redundant check on unsigned variable
+  [media] saa7134: Remove redundant check on unsigned variable
+  [media] tlg2300: Remove redundant check on unsigned variable
+  [media] atmel-isi: Update error check for unsigned variables
+  pinctrl: samsung: Update error check for unsigned variables
+  pinctrl: SPEAr: Update error check for unsigned variables
+  xen: netback: Remove redundant check on unsigned variable
+  xen: events: Remove redundant check on unsigned variable
+  atm: Removed redundant check on unsigned variable
+  HID: hiddev: Remove redundant check on unsigned variable
+  gru: Remove redundant check on unsigned variable
+  misc: tsl2550: Remove redundant check on unsigned variable
+  wlcore: Remove redundant check on unsigned variable
 
-**********************************************************************=
-************
-                             WorldCIST'13
-The 2013 World Conference on Information Systems and Technologies
-                   March 27 - 30, Algarve, Portugal
-                   http://www.aisti.eu/worldcist13/
-**********************************************************************=
-************
+ drivers/atm/fore200e.c                        |    2 +-
+ drivers/hid/usbhid/hiddev.c                   |    2 +-
+ drivers/media/pci/ivtv/ivtv-ioctl.c           |    2 +-
+ drivers/media/pci/meye/meye.c                 |    2 +-
+ drivers/media/pci/saa7134/saa7134-video.c     |    2 +-
+ drivers/media/platform/soc_camera/atmel-isi.c |    2 +-
+ drivers/media/usb/tlg2300/pd-video.c          |    2 +-
+ drivers/misc/sgi-gru/grukdump.c               |    2 +-
+ drivers/misc/tsl2550.c                        |    4 ++--
+ drivers/net/wireless/ti/wlcore/debugfs.c      |    2 +-
+ drivers/net/xen-netback/netback.c             |    4 ++--
+ drivers/pinctrl/pinctrl-samsung.c             |    2 +-
+ drivers/pinctrl/spear/pinctrl-plgpio.c        |    2 +-
+ drivers/xen/events.c                          |    2 +-
+ 14 files changed, 16 insertions(+), 16 deletions(-)
 
-SCOPE
+-- 
+1.7.4.1
 
-The 2013 World Conference on Information Systems and Technologies (Wor=
-ldCIST'13: http://www.aisti.eu/worldcist13/) is a global forum for res=
-earchers and practitioners to present and discuss the most recent inno=
-vations, trends, results, experiences and concerns in the several pers=
-pectives of Information Systems and Technologies.
-
-We are pleased to invite you to submit your papers to WorldCISTI'13. A=
-ll submissions will be reviewed on the basis of relevance, originality=
-, importance and clarity.
-
-
-THEMES
-
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Intelligent and Decision Support Systems (IDSS);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-F) Human-Computer Interaction (HCI).
-
-
-TYPES OF SUBMISSIONS AND DECISIONS
-
-Four types of papers can be submitted:
-
-Full paper: Finished or consolidated R&D works, to be included in one =
-of the Conference themes. These papers are assigned a 10-page limit.
-
-Short paper: Ongoing works with relevant preliminary results, open to =
-discussion. These papers are assigned a 7-page limit.
-
-Poster paper: Initial work with relevant ideas, open to discussion. Th=
-ese papers are assigned to a 4-page limit.
-
-Company paper: Companies' papers that show practical experience, R & D=
-, tools, etc., focused on some topics of the conference. These papers =
-are assigned to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligen=
-t Systems and Computing Series (see http://www.aisti.eu/worldcist13/sp=
-ringerformat.doc) be written in English, must not have been published =
-before, not be under review for any other conference or publication an=
-d not include any information leading to the authors=92 identification=
-. Therefore, the authors=92 names, affiliations and bibliographic ref=
-erences should not be included in the version for evaluation by the Pr=
-ogram Committee. This information should only be included in the camer=
-a-ready version.
-
-All papers will be subjected to a =93double-blind review=94 by at leas=
-t two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or acce=
-pted by the Conference Chairs. In the later case, it can be accepted a=
-s the type originally submitted or as another type. Thus, full papers =
-can be accepted as short papers or poster papers only. Similarly, shor=
-t papers can be accepted as poster papers only. In these cases, the au=
-thors will be allowed to maintain the original number of pages in the =
-camera-ready version.
-
-The authors of accepted poster papers must also build and print a post=
-er to be exhibited during the Conference. This poster must follow an A=
-1 or A2 vertical format. The Conference includes Work Sessions where t=
-hese posters are presented and orally discussed, with a 5 minute limit=
- per poster.
-
-The authors of accepted full papers will have 15 minutes to present th=
-eir work in a Conference Work Session; approximately 5 minutes of disc=
-ussion will follow each presentation. The authors of accepted short pa=
-pers and company papers will have 11 minutes to present their work in =
-a Conference Work Session; approximately 4 minutes of discussion will =
-follow each presentation.
-
-PUBLICATION AND INDEXING
-
-To ensure that a full paper, short paper, poster paper or company pape=
-r is published in the Proceedings, at least one of the authors must be=
- fully registered by the 11th of January 2013, and the paper must comp=
-ly with the suggested layout and page-limit. Additionally, all recomme=
-nded changes must be addressed by the authors before they submit the c=
-amera-ready version.
-
-No more than one paper per registration will be published in the Confe=
-rence Proceedings. An extra fee must be paid for publication of additi=
-onal papers, with a maximum of two additional papers per registration.
-
-Full and short papers will be published in Proceedings by Springer, in=
- Advances in Intelligent Systems and Computing Series. Poster and comp=
-any papers will be published in Proceedings by AISTI.
-
-Published full and short papers will be indexed by ISI, EI-Compendex, =
-SCOPUS, DBLP and EBSCO, among others, and will be available in the Spr=
-ingerLink Digital Library. Published poster and company papers will be=
- indexed in EI-Compendex and EBSCO.
-
-The authors of the best selected papers will be invited to extend them=
- for publication in edited books and in international journals indexed=
- by ISI/JCR, SCOPUS and/or DBLP, among others, such as:
-
-- ACM Transactions on Modeling and Computer Simulation (TOMACS)
-- Online Information Review (OIR)
-- Informatics for Health and Social Care (IHSC)
-- Computer Science and Information Systems (ComSIS)
-- Telecommunication Systems Journal (TSJ)
-- INFORMATION - An International Interdisciplinary Journal
-- Journal of Organizational and End User Computing (JOEUC)
-- Information Researh (IR)
-- International Journal of Internet Protocol Technology (IJIPT)
-- Studies in Computational Intelligence (SCI)
-- Journal of Advanced Computational Intelligence and Intelligent Infor=
-matics (JACIII)
-- Journal of Electrical and Computer Engineering (JECE): Special Issue=
- in Advances in Radar Technology
-- WSEAS Transactions on Systems (TS)
-- Library Review (LR)
-- Education for Information (EI)
-- International Journal of IT/Business Alignment and Governance (IJITBAG)
-- International Journal of Systems and Service-Oriented Engineering (I=
-JSSOE)
-- International Journal of Interactive Multimedia and Artificial Intel=
-ligence (IJIMAI)
-
-
-IMPORTANT DATES
-
-Paper Submission: November 25, 2012
-
-Notification of Acceptance: December 30, 2012
-
-Camera-ready Submission: January 9, 2013
-
-Payment of Registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: January 11, 2013.
-
--
-
-Kind regards,
-
-Maria Lemos
-WorldCIST'13
-http://www.aisti.eu/worldcist13/
-
-
-
---===============0612479907730778896==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0612479907730778896==--
+CC: Mauro Carvalho Chehab <mchehab@infradead.org>
+CC: Linus Walleij <linus.walleij@linaro.org>
+CC: Ian Campbell <ian.campbell@citrix.com>
+CC: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+CC: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: Chas Williams <chas@cmf.nrl.navy.mil>
+CC: Jack Steiner <steiner@sgi.com>
+CC: Arnd Bergmann <arnd@arndb.de>
+CC: Luciano Coelho <coelho@ti.com>
+CC: Jiri Kosina <jkosina@suse.cz>
+CC: ivtv-devel@ivtvdriver.org
+CC: linux-media@vger.kernel.org
+CC: xen-devel@lists.xensource.com
+CC: netdev@vger.kernel.org
+CC: virtualization@lists.linux-foundation.org
+CC: linux-atm-general@lists.sourceforge.net
+CC: linux-usb@vger.kernel.org
+CC: linux-input@vger.kernel.org
+CC: linux-wireless@vger.kernel.org
