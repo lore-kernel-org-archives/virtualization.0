@@ -1,15 +1,11 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCH v12 4/7] mm: introduce compaction and migration for
-	ballooned pages
-Date: Sat, 17 Nov 2012 13:01:30 -0500
-Message-ID: <50A7D0FA.2080709@gmail.com>
-References: <cover.1352656285.git.aquini@redhat.com>
-	<6602296b38c073a5c6faa13ddbc74ceb1eceb2dd.1352656285.git.aquini@redhat.com>
+From: Ming Zhao <zhaom@cis.fiu.edu>
+Subject: ICAC2013 CFP (10th International Conference on Autonomic Computing)
+Date: Sat, 17 Nov 2012 13:17:54 -0500
+Message-ID: <20121117182945.10D9C7D84E8@cheetah.cs.fiu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <6602296b38c073a5c6faa13ddbc74ceb1eceb2dd.1352656285.git.aquini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,83 +15,238 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rafael Aquini <aquini@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi guys,
+CAC 2013 Call for Papers
+-------------------------
+10th International Conference on Autonomic Computing
 
-On 11/11/2012 02:01 PM, Rafael Aquini wrote:
-> Memory fragmentation introduced by ballooning might reduce significantly
-> the number of 2MB contiguous memory blocks that can be used within a guest,
-> thus imposing performance penalties associated with the reduced number of
-> transparent huge pages that could be used by the guest workload.
-> 
-> This patch introduces the helper functions as well as the necessary changes
-> to teach compaction and migration bits how to cope with pages which are
-> part of a guest memory balloon, in order to make them movable by memory
-> compaction procedures.
-> 
-> Signed-off-by: Rafael Aquini <aquini@redhat.com>
-> Acked-by: Mel Gorman <mel@csn.ul.ie>
-> ---
-
-I'm getting the following while fuzzing using trinity inside a KVM tools guest,
-on latest -next:
-
-[ 1642.783728] BUG: unable to handle kernel NULL pointer dereference at 0000000000000194
-[ 1642.785083] IP: [<ffffffff8122b354>] isolate_migratepages_range+0x344/0x7b0
-[ 1642.786061] PGD 39e80067 PUD 39f6d067 PMD 0
-[ 1642.786766] Oops: 0000 [#3] PREEMPT SMP DEBUG_PAGEALLOC
-[ 1642.787587] CPU 0
-[ 1642.787884] Pid: 8522, comm: trinity-child5 Tainted: G      D W    3.7.0-rc5-next-20121115-sasha-00013-g37271d3 #154
-[ 1642.789483] RIP: 0010:[<ffffffff8122b354>]  [<ffffffff8122b354>] isolate_migratepages_range+0x344/0x7b0
-[ 1642.790016] RSP: 0018:ffff880039d998d8  EFLAGS: 00010202
-[ 1642.790016] RAX: 0000000000000054 RBX: ffffea0000fd5480 RCX: 00000000000001fa
-[ 1642.790016] RDX: 0000000080490049 RSI: 0000000000000004 RDI: ffff880039d99a20
-[ 1642.790016] RBP: ffff880039d99978 R08: 0000000000000001 R09: 0000000000000000
-[ 1642.790016] R10: ffff88003bfcefc0 R11: 0000000000000001 R12: 000000000003f552
-[ 1642.790016] R13: 0000000000000153 R14: 0000000000000000 R15: ffff88004ffd2000
-[ 1642.790016] FS:  00007ff799de5700(0000) GS:ffff880013600000(0000) knlGS:0000000000000000
-[ 1642.790016] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1642.790016] CR2: 0000000000000194 CR3: 00000000369ef000 CR4: 00000000000406f0
-[ 1642.790016] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ 1642.790016] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000400
-[ 1642.790016] Process trinity-child5 (pid: 8522, threadinfo ffff880039d98000, task ffff8800298e8000)
-[ 1642.790016] Stack:
-[ 1642.790016]  00000000000001fa ffff880039d99a78 ffff8800298e8000 ffff880039d99a30
-[ 1642.790016]  0000000000000000 0000000000000000 0000000000000000 ffff880039d99fd8
-[ 1642.790016]  ffff880039d99a20 ffffea0000fd0000 ffff880039d99a60 000000000003f600
-[ 1642.790016] Call Trace:
-[ 1642.790016]  [<ffffffff8122ae10>] ? isolate_freepages+0x1f0/0x1f0
-[ 1642.790016]  [<ffffffff8122bc3e>] compact_zone+0x3ce/0x490
-[ 1642.790016]  [<ffffffff81185afb>] ? __lock_acquired+0x3b/0x360
-[ 1642.790016]  [<ffffffff8122bfee>] compact_zone_order+0xde/0x120
-[ 1642.790016]  [<ffffffff819f4bb8>] ? do_raw_spin_unlock+0xc8/0xe0
-[ 1642.790016]  [<ffffffff8122c0ee>] try_to_compact_pages+0xbe/0x110
-[ 1642.790016]  [<ffffffff83b53b4d>] __alloc_pages_direct_compact+0xba/0x206
-[ 1642.790016]  [<ffffffff8118f059>] ? on_each_cpu_mask+0xd9/0x110
-[ 1642.790016]  [<ffffffff8120e3ef>] __alloc_pages_nodemask+0x92f/0xbc0
-[ 1642.790016]  [<ffffffff8125284c>] alloc_pages_vma+0xfc/0x150
-[ 1642.790016]  [<ffffffff812699c1>] do_huge_pmd_anonymous_page+0x191/0x2b0
-[ 1642.790016]  [<ffffffff81137394>] ? __rcu_read_unlock+0x44/0xb0
-[ 1642.790016]  [<ffffffff812339f9>] handle_mm_fault+0x1c9/0x350
-[ 1642.790016]  [<ffffffff81234068>] __get_user_pages+0x418/0x5f0
-[ 1642.790016]  [<ffffffff81235bdc>] ? do_mlock_pages+0x8c/0x160
-[ 1642.790016]  [<ffffffff81235b43>] __mlock_vma_pages_range+0xb3/0xc0
-[ 1642.790016]  [<ffffffff81235c39>] do_mlock_pages+0xe9/0x160
-[ 1642.790016]  [<ffffffff812366e0>] sys_mlockall+0x160/0x1a0
-[ 1642.790016]  [<ffffffff83c1abd8>] tracesys+0xe1/0xe6
-[ 1642.790016] Code: a9 00 00 01 00 0f 85 6c 02 00 00 48 8b 43 08 a8 01 0f 85 60 02 00 00 8b 53 18 85 d2 0f 89 55 02 00 00 48 85 c0
-0f 84 4c 02 00 00 <48> 8b 80 40 01 00 00 a9 00 00 00 20 0f 84 3a 02 00 00 45 84 f6
-[ 1642.790016] RIP  [<ffffffff8122b354>] isolate_migratepages_range+0x344/0x7b0
-[ 1642.790016]  RSP <ffff880039d998d8>
-[ 1642.790016] CR2: 0000000000000194
-[ 1643.398013] ---[ end trace 0ad6459aa62f5d72 ]---
-
-My guess is that we see those because of a race during the check in
-isolate_migratepages_range().
+June 26-28, 2013  San Jose, CA
+Sponsored by USENIX, the Advanced Computing Systems Association
+https://www.usenix.org/conference/icac13
 
 
-Thanks,
-Sasha
+* Important Dates
+
+  Paper registrations (title and abstract) due: February 25, 2013, 11:59 p.=
+m. PST
+  Paper submissions due: March 4, 2013, 11:59 p.m. PST
+  Notification to authors: April 8, 2013
+  Final paper files due: May 22, 2013
+
+
+* Overview
+
+  ICAC is the leading conference on autonomic computing techniques, foundat=
+ions, and applications. Large-scale systems of all types, such as data cent=
+ers, compute clouds, sensor networks, embedded or pervasive environments, a=
+nd the Internet of Things are becoming increasingly complex and burdensome =
+for people to manage. Autonomic computing systems reduce this burden by man=
+aging their own behavior in accordance with high-level goals. In autonomic =
+systems, resources and applications are managed to maximize performance and=
+ minimize cost, while maintaining predictable and reliable behavior in the =
+face of varying workloads, failures, and malicious threats. Achieving self-=
+management requires and motivates research that spans a wide variety of sci=
+entific and engineering disciplines, including distributed systems, artific=
+ial intelligence, machine learning, modeling, control theory, optimization,=
+ planning, decision theory, user interface design, data management, softwar=
+e engineering, =
+
+ emergent behavior, and bio-inspired computing. ICAC brings together resear=
+chers and practitioners from disparate disciplines, application domains, an=
+d perspectives, enabling them to discover and share underlying commonalitie=
+s in their approaches to making resources, applications, and systems more a=
+utonomic.
+
+
+* Topics
+
+  Papers are solicited from all areas of autonomic computing, including (bu=
+t not limited to):
+
+  ** Self-managing components, such as compute, storage, and networking dev=
+ices; embedded and real-time systems; and mobile devices such as smart phon=
+es
+  ** AI and mathematical techniques, such as machine learning, control theo=
+ry, operations research, probability and stochastic processes, queuing theo=
+ry, rule-based systems, and bio-inspired techniques, and their use in auton=
+omic computing
+  ** End-to-end design and implementations for management of resources, wor=
+kloads, availability, performance, reliability, power/cooling, security, an=
+d others
+  ** Monitoring systems that can scale to large environments
+  ** Hypervisors, operating systems, middleware, or application support for=
+ autonomic computing
+  ** Novel human interfaces for monitoring and controlling autonomic systems
+  ** Goal specification and policies, including specification and modeling =
+of service-level agreements, behavior enforcement, IT governance, and busin=
+ess-driven IT management
+  ** Frameworks, principles, architectures, and toolkits, from software eng=
+ineering practices and experimental methodologies to agent-based techniques
+  ** Automated management techniques for emerging applications, systems, an=
+d platforms, including social networks, Big Data systems, multi-core proces=
+sors, and Internet of Things
+  ** Fundamental science and theory of self-managing systems for understand=
+ing, controlling, or exploiting emergent system behaviors to enforce autono=
+mic properties
+  ** Applications of autonomic computing and experiences with prototyped or=
+ deployed systems solving real-world problems in science, engineering, busi=
+ness, or society
+  ** Papers will be judged on originality, significance, interest, correctn=
+ess, clarity and relevance to the broader community. Papers are strongly en=
+couraged to report on experiences, measurements, user studies, and provide =
+an appropriate quantitative evaluation if at all possible.  =
+
+
+
+* Paper Submissions
+
+  Full papers (a maximum of 10 pages) and short papers (4 pages) are invite=
+d on a wide variety of topics relating to autonomic computing. Both full an=
+d short papers should be typeset in two-column format in 10 point type on 1=
+2 point (single-spaced) leading, with the text block being no more than 6.5=
+" wide by 9" deep. Both kinds of papers should be submitted via the Web sub=
+mission form, which will be available here soon. Complete formatting and su=
+bmission instructions can be found here. Authors are also encouraged to sub=
+mit a poster or demo that summarizes or augments their paper (see below).
+
+  Simultaneous submission of the same work to multiple venues, submission o=
+f previously published work, or plagiarism constitutes dishonesty or fraud.=
+ USENIX, like other scientific and technical conferences and journals, proh=
+ibits these practices and may take action against authors who have committe=
+d them. See the USENIX Conference Submissions Policy for details. Papers ac=
+companied by nondisclosure agreement forms will not be considered. If you a=
+re uncertain whether your submission meets USENIX's guidelines, please cont=
+act the program co-chairs, icac13chairs@usenix.org, or the USENIX office, s=
+ubmissionspolicy@usenix.org.
+
+  At least one author of an accepted paper is expected to present the paper=
+ in person at the conference. The accepted papers will be available online =
+to registered attendees before the conference and will also appear in proce=
+edings distributed via USB drives at the conference. If your accepted paper=
+ should not be published prior to the event, please notify production@useni=
+x.org. The papers will be available online to everyone beginning on June 26=
+, 2013. Accepted submissions will be treated as confidential prior to publi=
+cation on the USENIX ICAC '13 Web site; rejected submissions will be perman=
+ently treated as confidential.
+
+
+* Special Tracks
+
+  To facilitate community collaboration and exchange of ideas in emergent t=
+echnological areas, ICAC=C2=A1=C2=AF13 will host two special tracks, each o=
+f which will be reviewed by its own subcommittee. Dr. Levent G=C2=A8=C2=B9r=
+gen will lead a special track on self-aware Internet of Things and Dr. Kars=
+ten Schwan will lead a special track on management of Big Data systems.
+
+
+* Posters, Demonstrations, and Exhibitions
+
+  ICAC '13 will also feature a poster, demonstration, and exhibition sessio=
+n consisting of research prototypes and technology artifacts that demonstra=
+te autonomic software or autonomic computing principles. Please check back =
+here for formatting and submission instructions, plus the Web submission fo=
+rm specific to this session, which will be available here soon.
+
+
+* PhD Thesis Digest Forum
+
+  Current PhD students who are working on topics relevant to autonomic comp=
+uting are invited to submit a short summary (up to 2 pages) of their theses=
+. Top selected submissions will be presented at a PhD forum during the ICAC=
+ '13 conference. Please check back here for submission instructions.
+
+
+* Conference Organizers: =
+
+
+  ** General Chair: Jeffrey Kephart, IBM Research
+
+  ** Program Co-Chairs: Calton Pu, Georgia Institute of Technology; Xiaoyun=
+ Zhu, VMware
+
+  ** Poster/Demo/Exhibit Chair: Samuel Kounev, Karlsruhe Institute of Techn=
+ology
+  =
+
+  ** PhD Forum Chair: Rean Griffith, VMware
+  =
+
+  ** Publicity Chairs: Martina Maggio, Lund University; Ming Zhao, Florida =
+International University
+  =
+
+  ** Program Committee:
+  =
+
+     Tarek Abdelzaher, University of Illinois at Urbana-Champaign
+     Artur Andrzejak, Heidelberg University
+     Sara Bouchenak, INRIA
+     Giuliano Casale, Imperial College London
+     Yuan Chen, HP Labs
+     Charles Consel, INRIA
+     Alva Couch, Tufts University
+     Peter Dinda, Northwestern University
+     Joao E. Ferreira, University of S?o Paulo
+     Jose Fortes, University of Florida
+     Dimitrios Georgakopoulos, CSIRO
+     Rean Griffith, VMware
+     Xiaohui Gu, North Carolina State University
+     Yuxiong He, Microsoft Research
+     Tom Holvoet, KU Leuven
+     Jiman Hong, Soongsil University
+     Geoff Jiang, NEC Labs
+     Nagarajan Kandasamy, Drexel University
+     Yasuhiko Kanemasa, Fujitsu Labs
+     Jeff Kephart, IBM Research
+     Samuel Kounev, Karlsruhe Institute of Technology
+     Mike Kozuch, Intel Labs
+     Marin Litoiu, York University
+     Xue Liu, McGill University
+     Arif Merchant, Google
+     Tridib Mukherjee, Xerox Research
+     Onur Mutlu, Carnegie Mellon University
+     Priya Narashimhan, Carnegie Mellon University
+     Omer Rana, Cardiff University
+     Anders Robertsson, Lund University
+     Kai Sachs, SAP AG
+     Hartmut Schmeck, KIT
+     Karsten Schwan, Georgia Institute of Technology
+     Onn Shehory, IBM Research Haifa
+     Yasushi Shinjo, Tsukuba University
+     Evgenia Smirni, College of William and Mary
+     Christopher Stewart, Ohio State University
+     Ya-Yunn Su, National Taiwan University
+     Vanish Talwar, HP Labs
+     Bhuvan Urgaonkar, Pennsylvania State University
+     Mustafa Uysal, VMware
+     Xiaorui Wang, Ohio State University
+     Jianwei Yin, Zhejiang University
+     Kenji Yoshihira, NEC Labs
+     Jianfeng Zhan, Chinese Academy of Sciences
+     Ming Zhao, Florida International University
+     Xiaobo Zhou, University of Colorado
+     =
+
+     =
+
+* More information:
+		=
+
+  ** Web: https://www.usenix.org/conference/icac13
+  ** Email: icac2013@cs.fiu.edu
+  ** LinkedIn: http://www.linkedin.com/groups/ICAC-Conference-4264583
+
+
+
+
+
+--
+Ming Zhao, Ph.D., Assistant Professor
+Director, VISA Research Lab
+School of Computing and Information Sciences
+Florida International University
+Tel: (305) 348-2034, Fax: (305) 348-3549
+Email: ming@cs.fiu.edu
+Web: http://visa.cs.fiu.edu/ming
