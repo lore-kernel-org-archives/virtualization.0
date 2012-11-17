@@ -1,15 +1,15 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH v4] x86/xen: Use __pa_symbol instead of __pa on C visible
-	symbols
-Date: Fri, 16 Nov 2012 19:22:48 -0500
-Message-ID: <20121117002248.GA7124@phenom.dumpdata.com>
-References: <20121116214217.8308.55518.stgit@ahduyck-cp1.jf.intel.com>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Subject: Re: [rfc net-next v6 2/3] virtio_net: multiqueue support
+Date: Sat, 17 Nov 2012 00:35:29 +0000
+Message-ID: <1353112529.2743.83.camel@bwh-desktop.uk.solarflarecom.com>
+References: <1351591403-23065-1-git-send-email-jasowang@redhat.com>
+	<1351591403-23065-3-git-send-email-jasowang@redhat.com>
+	<87y5igyhyg.fsf@rustcorp.com.au> <20121113064026.GA27416@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20121116214217.8308.55518.stgit@ahduyck-cp1.jf.intel.com>
+In-Reply-To: <20121113064026.GA27416@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,99 +19,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Duyck <alexander.h.duyck@intel.com>
-Cc: linux-kernel@vger.kernel.org, jeremy@goop.org, x86@kernel.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Nov 16, 2012 at 01:45:25PM -0800, Alexander Duyck wrote:
-> This change updates a few of the functions to use __pa_symbol when
-> translating C visible symbols instead of __pa.  By using __pa_symbol we are
-> able to drop a few extra lines of code as don't have to test to see if the
-> virtual pointer is a part of the kernel text or just standard virtual memory.
+On Tue, 2012-11-13 at 08:40 +0200, Michael S. Tsirkin wrote:
+> On Mon, Nov 05, 2012 at 11:38:39AM +1030, Rusty Russell wrote:
+> > > @@ -924,11 +1032,10 @@ static void virtnet_get_ringparam(struct net_device *dev,
+> > >  {
+> > >  	struct virtnet_info *vi = netdev_priv(dev);
+> > >  
+> > > -	ring->rx_max_pending = virtqueue_get_vring_size(vi->rvq);
+> > > -	ring->tx_max_pending = virtqueue_get_vring_size(vi->svq);
+> > > +	ring->rx_max_pending = virtqueue_get_vring_size(vi->rq[0].vq);
+> > > +	ring->tx_max_pending = virtqueue_get_vring_size(vi->sq[0].vq);
+> > >  	ring->rx_pending = ring->rx_max_pending;
+> > >  	ring->tx_pending = ring->tx_max_pending;
+> > > -
+> > >  }
+> > 
+> > This assumes all vqs are the same size.  I think this should probably
+> > check: for mq mode, use the first vq, otherewise use the 0th.
 > 
-> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> Signed-off-by: Alexander Duyck <alexander.h.duyck@intel.com>
-> ---
+> For rx_pending/tx_pending I think what is required here is the
+> actual number of outstanding buffers.
+> Dave, Eric - right?
 > 
-> v4:  I have spun this patch off as a separate patch for v4 due to the fact that
->      this patch doesn't apply cleanly to Linus's tree.  As such I am
->      submitting it based off of the linux-next tree to be accepted in the Xen
->      tree since this patch can actually exist on its own without the need
->      for the other patches in the original __phys_addr performance series.
+> So this should be the total over all rings and to be useful,
+> rx_max_pending/tx_max_pending should be the total too.
 
-OK, let me stick it in my tree then.
+So far as I know, all current implementations use the number of
+descriptors per ring here. virtio_net should be consistent with this.
 
+Ben.
+
+> > For bonus points, check this assertion at probe time.
 > 
->  arch/x86/xen/mmu.c |   21 +++++++++++----------
->  1 files changed, 11 insertions(+), 10 deletions(-)
+> Looks like we can easily support different queues too.
 > 
-> diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
-> index 4a05b39..a63e5f9 100644
-> --- a/arch/x86/xen/mmu.c
-> +++ b/arch/x86/xen/mmu.c
-> @@ -1486,7 +1486,8 @@ static int xen_pgd_alloc(struct mm_struct *mm)
->  
->  		if (user_pgd != NULL) {
->  			user_pgd[pgd_index(VSYSCALL_START)] =
-> -				__pgd(__pa(level3_user_vsyscall) | _PAGE_TABLE);
-> +				__pgd(__pa_symbol(level3_user_vsyscall) |
-> +				      _PAGE_TABLE);
->  			ret = 0;
->  		}
->  
-> @@ -1958,10 +1959,10 @@ void __init xen_setup_kernel_pagetable(pgd_t *pgd, unsigned long max_pfn)
->  	 * pgd.
->  	 */
->  	if (xen_feature(XENFEAT_writable_page_tables)) {
-> -		native_write_cr3(__pa(init_level4_pgt));
-> +		native_write_cr3(__pa_symbol(init_level4_pgt));
->  	} else {
->  		xen_mc_batch();
-> -		__xen_write_cr3(true, __pa(init_level4_pgt));
-> +		__xen_write_cr3(true, __pa_symbol(init_level4_pgt));
->  		xen_mc_issue(PARAVIRT_LAZY_CPU);
->  	}
->  	/* We can't that easily rip out L3 and L2, as the Xen pagetables are
-> @@ -1984,10 +1985,10 @@ static RESERVE_BRK_ARRAY(pmd_t, swapper_kernel_pmd, PTRS_PER_PMD);
->  
->  static void __init xen_write_cr3_init(unsigned long cr3)
->  {
-> -	unsigned long pfn = PFN_DOWN(__pa(swapper_pg_dir));
-> +	unsigned long pfn = PFN_DOWN(__pa_symbol(swapper_pg_dir));
->  
-> -	BUG_ON(read_cr3() != __pa(initial_page_table));
-> -	BUG_ON(cr3 != __pa(swapper_pg_dir));
-> +	BUG_ON(read_cr3() != __pa_symbol(initial_page_table));
-> +	BUG_ON(cr3 != __pa_symbol(swapper_pg_dir));
->  
->  	/*
->  	 * We are switching to swapper_pg_dir for the first time (from
-> @@ -2011,7 +2012,7 @@ static void __init xen_write_cr3_init(unsigned long cr3)
->  	pin_pagetable_pfn(MMUEXT_PIN_L3_TABLE, pfn);
->  
->  	pin_pagetable_pfn(MMUEXT_UNPIN_TABLE,
-> -			  PFN_DOWN(__pa(initial_page_table)));
-> +			  PFN_DOWN(__pa_symbol(initial_page_table)));
->  	set_page_prot(initial_page_table, PAGE_KERNEL);
->  	set_page_prot(initial_kernel_pmd, PAGE_KERNEL);
->  
-> @@ -2036,7 +2037,7 @@ void __init xen_setup_kernel_pagetable(pgd_t *pgd, unsigned long max_pfn)
->  
->  	copy_page(initial_page_table, pgd);
->  	initial_page_table[KERNEL_PGD_BOUNDARY] =
-> -		__pgd(__pa(initial_kernel_pmd) | _PAGE_PRESENT);
-> +		__pgd(__pa_symbol(initial_kernel_pmd) | _PAGE_PRESENT);
->  
->  	set_page_prot(initial_kernel_pmd, PAGE_KERNEL_RO);
->  	set_page_prot(initial_page_table, PAGE_KERNEL_RO);
-> @@ -2045,8 +2046,8 @@ void __init xen_setup_kernel_pagetable(pgd_t *pgd, unsigned long max_pfn)
->  	pin_pagetable_pfn(MMUEXT_UNPIN_TABLE, PFN_DOWN(__pa(pgd)));
->  
->  	pin_pagetable_pfn(MMUEXT_PIN_L3_TABLE,
-> -			  PFN_DOWN(__pa(initial_page_table)));
-> -	xen_write_cr3(__pa(initial_page_table));
-> +			  PFN_DOWN(__pa_symbol(initial_page_table)));
-> +	xen_write_cr3(__pa_symbol(initial_page_table));
->  
->  	memblock_reserve(__pa(xen_start_info->pt_base),
->  			 xen_start_info->nr_pt_frames * PAGE_SIZE);
+
+-- 
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
