@@ -1,7 +1,7 @@
 From: Bill Pemberton <wfp5p@virginia.edu>
-Subject: [PATCH 086/493] net: remove use of __devexit_p
-Date: Mon, 19 Nov 2012 13:20:35 -0500
-Message-ID: <1353349642-3677-86-git-send-email-wfp5p__27219.1341071904$1353350336$gmane$org@virginia.edu>
+Subject: [PATCH 222/493] char: remove use of __devinit
+Date: Mon, 19 Nov 2012 13:22:51 -0500
+Message-ID: <1353349642-3677-222-git-send-email-wfp5p__42514.075121335$1353350601$gmane$org@virginia.edu>
 References: <1353349642-3677-1-git-send-email-wfp5p@virginia.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,107 +18,260 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: gregkh@linuxfoundation.org
-Cc: xen-devel@lists.xensource.com, "Michael S. Tsirkin" <mst@redhat.com>, "VMware, Inc." <pv-drivers@vmware.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Francois Romieu <romieu@fr.zoreil.com>
+Cc: cbe-oss-dev@lists.ozlabs.org, Geoff Levand <geoff@infradead.org>, platform-driver-x86@vger.kernel.org, Mattia Dongili <malattia@linux.it>, Amit Shah <amit.shah@redhat.com>, openipmi-developer@lists.sourceforge.net, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-CONFIG_HOTPLUG is going away as an option so __devexit_p is no longer
+CONFIG_HOTPLUG is going away as an option so __devinit is no longer
 needed.
 
 Signed-off-by: Bill Pemberton <wfp5p@virginia.edu>
-Cc: Rusty Russell <rusty@rustcorp.com.au> 
-Cc: "Michael S. Tsirkin" <mst@redhat.com> 
-Cc: Shreyas Bhatewara <sbhatewara@vmware.com> 
-Cc: "VMware, Inc." <pv-drivers@vmware.com> 
-Cc: Francois Romieu <romieu@fr.zoreil.com> 
+Cc: Geoff Levand <geoff@infradead.org> 
+Cc: Mattia Dongili <malattia@linux.it> 
+Cc: Amit Shah <amit.shah@redhat.com> 
+Cc: openipmi-developer@lists.sourceforge.net 
+Cc: linuxppc-dev@lists.ozlabs.org 
+Cc: cbe-oss-dev@lists.ozlabs.org 
+Cc: platform-driver-x86@vger.kernel.org 
 Cc: virtualization@lists.linux-foundation.org 
-Cc: netdev@vger.kernel.org 
-Cc: xen-devel@lists.xensource.com 
 ---
- drivers/net/virtio_net.c          | 2 +-
- drivers/net/vmxnet3/vmxnet3_drv.c | 2 +-
- drivers/net/wan/dscc4.c           | 2 +-
- drivers/net/wan/farsync.c         | 2 +-
- drivers/net/wan/lmc/lmc_main.c    | 2 +-
- drivers/net/xen-netfront.c        | 2 +-
- 6 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/char/ipmi/ipmi_si_intf.c           | 24 ++++++++++++------------
+ drivers/char/ps3flash.c                    |  2 +-
+ drivers/char/sonypi.c                      | 10 +++++-----
+ drivers/char/tb0219.c                      |  2 +-
+ drivers/char/virtio_console.c              |  2 +-
+ drivers/char/xilinx_hwicap/xilinx_hwicap.c |  6 +++---
+ 6 files changed, 23 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 97f4ff8..b0c1630 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1285,7 +1285,7 @@ static struct virtio_driver virtio_net_driver = {
- 	.driver.owner =	THIS_MODULE,
- 	.id_table =	id_table,
- 	.probe =	virtnet_probe,
--	.remove =	__devexit_p(virtnet_remove),
-+	.remove =	virtnet_remove,
- 	.config_changed = virtnet_config_changed,
- #ifdef CONFIG_PM
- 	.freeze =	virtnet_freeze,
-diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
-index 7e9622f..aa1bde8 100644
---- a/drivers/net/vmxnet3/vmxnet3_drv.c
-+++ b/drivers/net/vmxnet3/vmxnet3_drv.c
-@@ -3302,7 +3302,7 @@ static struct pci_driver vmxnet3_driver = {
- 	.name		= vmxnet3_driver_name,
- 	.id_table	= vmxnet3_pciid_table,
- 	.probe		= vmxnet3_probe_device,
--	.remove		= __devexit_p(vmxnet3_remove_device),
-+	.remove		= vmxnet3_remove_device,
- #ifdef CONFIG_PM
- 	.driver.pm	= &vmxnet3_pm_ops,
+diff --git a/drivers/char/ipmi/ipmi_si_intf.c b/drivers/char/ipmi/ipmi_si_intf.c
+index b1e0356..29b6bad 100644
+--- a/drivers/char/ipmi/ipmi_si_intf.c
++++ b/drivers/char/ipmi/ipmi_si_intf.c
+@@ -1836,7 +1836,7 @@ static int hotmod_handler(const char *val, struct kernel_param *kp)
+ 	return rv;
+ }
+ 
+-static int __devinit hardcode_find_bmc(void)
++static int hardcode_find_bmc(void)
+ {
+ 	int ret = -ENODEV;
+ 	int             i;
+@@ -2023,7 +2023,7 @@ struct SPMITable {
+ 	s8      spmi_id[1]; /* A '\0' terminated array starts here. */
+ };
+ 
+-static int __devinit try_init_spmi(struct SPMITable *spmi)
++static int try_init_spmi(struct SPMITable *spmi)
+ {
+ 	struct smi_info  *info;
+ 
+@@ -2106,7 +2106,7 @@ static int __devinit try_init_spmi(struct SPMITable *spmi)
+ 	return 0;
+ }
+ 
+-static void __devinit spmi_find_bmc(void)
++static void spmi_find_bmc(void)
+ {
+ 	acpi_status      status;
+ 	struct SPMITable *spmi;
+@@ -2128,7 +2128,7 @@ static void __devinit spmi_find_bmc(void)
+ 	}
+ }
+ 
+-static int __devinit ipmi_pnp_probe(struct pnp_dev *dev,
++static int ipmi_pnp_probe(struct pnp_dev *dev,
+ 				    const struct pnp_device_id *dev_id)
+ {
+ 	struct acpi_device *acpi_dev;
+@@ -2258,7 +2258,7 @@ struct dmi_ipmi_data {
+ 	u8              slave_addr;
+ };
+ 
+-static int __devinit decode_dmi(const struct dmi_header *dm,
++static int decode_dmi(const struct dmi_header *dm,
+ 				struct dmi_ipmi_data *dmi)
+ {
+ 	const u8	*data = (const u8 *)dm;
+@@ -2320,7 +2320,7 @@ static int __devinit decode_dmi(const struct dmi_header *dm,
+ 	return 0;
+ }
+ 
+-static void __devinit try_init_dmi(struct dmi_ipmi_data *ipmi_data)
++static void try_init_dmi(struct dmi_ipmi_data *ipmi_data)
+ {
+ 	struct smi_info *info;
+ 
+@@ -2388,7 +2388,7 @@ static void __devinit try_init_dmi(struct dmi_ipmi_data *ipmi_data)
+ 		kfree(info);
+ }
+ 
+-static void __devinit dmi_find_bmc(void)
++static void dmi_find_bmc(void)
+ {
+ 	const struct dmi_device *dev = NULL;
+ 	struct dmi_ipmi_data data;
+@@ -2424,7 +2424,7 @@ static void ipmi_pci_cleanup(struct smi_info *info)
+ 	pci_disable_device(pdev);
+ }
+ 
+-static int __devinit ipmi_pci_probe_regspacing(struct smi_info *info)
++static int ipmi_pci_probe_regspacing(struct smi_info *info)
+ {
+ 	if (info->si_type == SI_KCS) {
+ 		unsigned char	status;
+@@ -2456,7 +2456,7 @@ static int __devinit ipmi_pci_probe_regspacing(struct smi_info *info)
+ 	return DEFAULT_REGSPACING;
+ }
+ 
+-static int __devinit ipmi_pci_probe(struct pci_dev *pdev,
++static int ipmi_pci_probe(struct pci_dev *pdev,
+ 				    const struct pci_device_id *ent)
+ {
+ 	int rv;
+@@ -2551,7 +2551,7 @@ static struct pci_driver ipmi_pci_driver = {
+ #endif /* CONFIG_PCI */
+ 
+ static struct of_device_id ipmi_match[];
+-static int __devinit ipmi_probe(struct platform_device *dev)
++static int ipmi_probe(struct platform_device *dev)
+ {
+ #ifdef CONFIG_OF
+ 	const struct of_device_id *match;
+@@ -3059,7 +3059,7 @@ static __devinitdata struct ipmi_default_vals
+ 	{ .port = 0 }
+ };
+ 
+-static void __devinit default_find_bmc(void)
++static void default_find_bmc(void)
+ {
+ 	struct smi_info *info;
+ 	int             i;
+@@ -3359,7 +3359,7 @@ static int try_smi_init(struct smi_info *new_smi)
+ 	return rv;
+ }
+ 
+-static int __devinit init_ipmi_si(void)
++static int init_ipmi_si(void)
+ {
+ 	int  i;
+ 	char *str;
+diff --git a/drivers/char/ps3flash.c b/drivers/char/ps3flash.c
+index 6abdde4..588063ac 100644
+--- a/drivers/char/ps3flash.c
++++ b/drivers/char/ps3flash.c
+@@ -363,7 +363,7 @@ static struct miscdevice ps3flash_misc = {
+ 	.fops	= &ps3flash_fops,
+ };
+ 
+-static int __devinit ps3flash_probe(struct ps3_system_bus_device *_dev)
++static int ps3flash_probe(struct ps3_system_bus_device *_dev)
+ {
+ 	struct ps3_storage_device *dev = to_ps3_storage_device(&_dev->core);
+ 	struct ps3flash_private *priv;
+diff --git a/drivers/char/sonypi.c b/drivers/char/sonypi.c
+index 34f0db3..861efa4 100644
+--- a/drivers/char/sonypi.c
++++ b/drivers/char/sonypi.c
+@@ -1164,7 +1164,7 @@ static struct acpi_driver sonypi_acpi_driver = {
+ };
  #endif
-diff --git a/drivers/net/wan/dscc4.c b/drivers/net/wan/dscc4.c
-index ef36caf..2eddbbf 100644
---- a/drivers/net/wan/dscc4.c
-+++ b/drivers/net/wan/dscc4.c
-@@ -2053,7 +2053,7 @@ static struct pci_driver dscc4_driver = {
- 	.name		= DRV_NAME,
- 	.id_table	= dscc4_pci_tbl,
- 	.probe		= dscc4_init_one,
--	.remove		= __devexit_p(dscc4_remove_one),
-+	.remove		= dscc4_remove_one,
+ 
+-static int __devinit sonypi_create_input_devices(struct platform_device *pdev)
++static int sonypi_create_input_devices(struct platform_device *pdev)
+ {
+ 	struct input_dev *jog_dev;
+ 	struct input_dev *key_dev;
+@@ -1225,7 +1225,7 @@ static int __devinit sonypi_create_input_devices(struct platform_device *pdev)
+ 	return error;
+ }
+ 
+-static int __devinit sonypi_setup_ioports(struct sonypi_device *dev,
++static int sonypi_setup_ioports(struct sonypi_device *dev,
+ 				const struct sonypi_ioport_list *ioport_list)
+ {
+ 	/* try to detect if sony-laptop is being used and thus
+@@ -1265,7 +1265,7 @@ static int __devinit sonypi_setup_ioports(struct sonypi_device *dev,
+ 	return -EBUSY;
+ }
+ 
+-static int __devinit sonypi_setup_irq(struct sonypi_device *dev,
++static int sonypi_setup_irq(struct sonypi_device *dev,
+ 				      const struct sonypi_irq_list *irq_list)
+ {
+ 	while (irq_list->irq) {
+@@ -1282,7 +1282,7 @@ static int __devinit sonypi_setup_irq(struct sonypi_device *dev,
+ 	return -EBUSY;
+ }
+ 
+-static void __devinit sonypi_display_info(void)
++static void sonypi_display_info(void)
+ {
+ 	printk(KERN_INFO "sonypi: detected type%d model, "
+ 	       "verbose = %d, fnkeyinit = %s, camera = %s, "
+@@ -1304,7 +1304,7 @@ static void __devinit sonypi_display_info(void)
+ 		       sonypi_misc_device.minor);
+ }
+ 
+-static int __devinit sonypi_probe(struct platform_device *dev)
++static int sonypi_probe(struct platform_device *dev)
+ {
+ 	const struct sonypi_ioport_list *ioport_list;
+ 	const struct sonypi_irq_list *irq_list;
+diff --git a/drivers/char/tb0219.c b/drivers/char/tb0219.c
+index 6bfe2af..76e3aea 100644
+--- a/drivers/char/tb0219.c
++++ b/drivers/char/tb0219.c
+@@ -284,7 +284,7 @@ static void tb0219_pci_irq_init(void)
+ 	vr41xx_set_irq_level(TB0219_PCI_SLOT3_PIN, IRQ_LEVEL_LOW);
+ }
+ 
+-static int __devinit tb0219_probe(struct platform_device *dev)
++static int tb0219_probe(struct platform_device *dev)
+ {
+ 	int retval;
+ 
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 4ad8aca..b9d390b 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1848,7 +1848,7 @@ static void remove_controlq_data(struct ports_device *portdev)
+  * config space to see how many ports the host has spawned.  We
+  * initialize each port found.
+  */
+-static int __devinit virtcons_probe(struct virtio_device *vdev)
++static int virtcons_probe(struct virtio_device *vdev)
+ {
+ 	struct ports_device *portdev;
+ 	int err;
+diff --git a/drivers/char/xilinx_hwicap/xilinx_hwicap.c b/drivers/char/xilinx_hwicap/xilinx_hwicap.c
+index 2c5d15b..547ed74 100644
+--- a/drivers/char/xilinx_hwicap/xilinx_hwicap.c
++++ b/drivers/char/xilinx_hwicap/xilinx_hwicap.c
+@@ -595,7 +595,7 @@ static const struct file_operations hwicap_fops = {
+ 	.llseek = noop_llseek,
  };
  
- module_pci_driver(dscc4_driver);
-diff --git a/drivers/net/wan/farsync.c b/drivers/net/wan/farsync.c
-index b627132..0397544 100644
---- a/drivers/net/wan/farsync.c
-+++ b/drivers/net/wan/farsync.c
-@@ -2652,7 +2652,7 @@ static struct pci_driver fst_driver = {
-         .name		= FST_NAME,
-         .id_table	= fst_pci_dev_id,
-         .probe		= fst_add_one,
--        .remove	= __devexit_p(fst_remove_one),
-+	.remove		= fst_remove_one,
-         .suspend	= NULL,
-         .resume	= NULL,
- };
-diff --git a/drivers/net/wan/lmc/lmc_main.c b/drivers/net/wan/lmc/lmc_main.c
-index f5d533a..358e25f 100644
---- a/drivers/net/wan/lmc/lmc_main.c
-+++ b/drivers/net/wan/lmc/lmc_main.c
-@@ -1733,7 +1733,7 @@ static struct pci_driver lmc_driver = {
- 	.name		= "lmc",
- 	.id_table	= lmc_pci_tbl,
- 	.probe		= lmc_init_one,
--	.remove		= __devexit_p(lmc_remove_one),
-+	.remove		= lmc_remove_one,
- };
+-static int __devinit hwicap_setup(struct device *dev, int id,
++static int hwicap_setup(struct device *dev, int id,
+ 		const struct resource *regs_res,
+ 		const struct hwicap_driver_config *config,
+ 		const struct config_registers *config_regs)
+@@ -740,7 +740,7 @@ static int __devexit hwicap_remove(struct device *dev)
+ }
  
- module_pci_driver(lmc_driver);
-diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
-index caa0110..3c3b93e 100644
---- a/drivers/net/xen-netfront.c
-+++ b/drivers/net/xen-netfront.c
-@@ -1934,7 +1934,7 @@ static int __devexit xennet_remove(struct xenbus_device *dev)
+ #ifdef CONFIG_OF
+-static int __devinit hwicap_of_probe(struct platform_device *op,
++static int hwicap_of_probe(struct platform_device *op,
+ 				     const struct hwicap_driver_config *config)
+ {
+ 	struct resource res;
+@@ -786,7 +786,7 @@ static inline int hwicap_of_probe(struct platform_device *op,
+ #endif /* CONFIG_OF */
  
- static DEFINE_XENBUS_DRIVER(netfront, ,
- 	.probe = netfront_probe,
--	.remove = __devexit_p(xennet_remove),
-+	.remove = xennet_remove,
- 	.resume = netfront_resume,
- 	.otherend_changed = netback_changed,
- );
+ static const struct of_device_id __devinitconst hwicap_of_match[];
+-static int __devinit hwicap_drv_probe(struct platform_device *pdev)
++static int hwicap_drv_probe(struct platform_device *pdev)
+ {
+ 	const struct of_device_id *match;
+ 	struct resource *res;
 -- 
 1.8.0
