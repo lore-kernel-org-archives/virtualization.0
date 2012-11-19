@@ -1,13 +1,17 @@
-From: Asias He <asias.hejun@gmail.com>
-Subject: Re: virtio_blk BUG on detach-disk/attach-disk of mounted vd
-Date: Mon, 19 Nov 2012 09:24:50 +0800
-Message-ID: <CAFO3S409epPBuh+CThcAFajuQ3Ow+yv0FZ2foESPNLBxfF+2ng@mail.gmail.com>
-References: <50A5534C.1080204@redhat.com>
+From: Tushar Behera <tushar.behera@linaro.org>
+Subject: Re: [PATCH 09/14] xen: events: Remove redundant check on unsigned
+	variable
+Date: Mon, 19 Nov 2012 09:22:37 +0530
+Message-ID: <50A9AD05.5080201@linaro.org>
+References: <1353048646-10935-1-git-send-email-tushar.behera@linaro.org>
+	<1353048646-10935-10-git-send-email-tushar.behera@linaro.org>
+	<20121116160923.GP22320@phenom.dumpdata.com>
+	<b0cd27cf-919f-46b0-afa1-4566f6ea0f61@email.android.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50A5534C.1080204@redhat.com>
+In-Reply-To: <b0cd27cf-919f-46b0-afa1-4566f6ea0f61@email.android.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,102 +21,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Brian Foster <bfoster@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xen-devel@lists.xensource.com, patches@linaro.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Brian,
+On 11/16/2012 10:23 PM, Jeremy Fitzhardinge wrote:
+> To be honest I'd nack this kind of patch. The test is only redundant in the most trivial sense that the compiler can easily optimise away. The point of the test is to make sure that the range is OK even if the type subsequently becomes signed (to hold a -ve error, for example).
+> 
+> J
+> 
 
-On Fri, Nov 16, 2012 at 4:40 AM, Brian Foster <bfoster@redhat.com> wrote:
-> Hi,
->
-> I know this isn't a valid use case or generally sane thing to do, but we
-> have a bug (link, with details, below) filed for a panic against a
-> detach-disk/attach-disk sequence of an ext4 mounted vd device on a rhel
-> kernel.
->
-> The same sequence leads to the following BUG on an upstream kernel
-> (3.7.0-rc5+ SMP x86_64 GNU/Linux):
->
-> [   75.114951] BUG: unable to handle kernel NULL pointer dereference at
-> 0000000000000090
-> [   75.114957] IP: [<ffffffff8136ae35>]
-> virtio_check_driver_offered_feature+0x5/0x50
-> [   75.114986] PGD 117b99067 PUD 114daa067 PMD 0
-> [   75.114992] Oops: 0000 [#1] SMP
-> [   75.115006] Modules linked in: be2iscsi iscsi_boot_sysfs bnx2i fcoe
-> libfcoe libfc cnic uio lockd cxgb4i cxgb4 scsi_transport_fc cxgb3i
-> scsi_tgt libcxgbi cxgb3 8021q garp stp llc mdio ib_iser rdma_cm ib_cm
-> iw_cm ib_sa ib_mad ib_core ib_addr iscsi_tcp libiscsi_tcp libiscsi
-> scsi_transport_iscsi snd_hda_intel snd_hda_codec snd_hwdep snd_seq
-> snd_seq_device snd_pcm joydev snd_timer snd microcode soundcore pcspkr
-> virtio_net virtio_balloon 9pnet_virtio 9pnet snd_page_alloc i2c_piix4
-> i2c_core uinput sunrpc floppy
-> [   75.115042] CPU 0
-> [   75.115047] Pid: 1264, comm: blkid Not tainted 3.7.0-rc5+ #149 Bochs
-> Bochs
-> [   75.115049] RIP: 0010:[<ffffffff8136ae35>]  [<ffffffff8136ae35>]
-> virtio_check_driver_offered_feature+0x5/0x50
-> [   75.115055] RSP: 0018:ffff880118c6bde0  EFLAGS: 00010286
-> [   75.115055] RAX: ffff880117838000 RBX: ffff88011ac28680 RCX:
-> 0000000000000000
-> [   75.115058] RDX: 0000000000005331 RSI: 0000000000000007 RDI:
-> 0000000000000000
-> [   75.115058] RBP: ffff880118c6be18 R08: 0000000000005331 R09:
-> 000000000000101d
-> [   75.115060] R10: 0000000000000000 R11: 0000000000000246 R12:
-> 000000000000101d
-> [   75.115060] R13: 0000000000005331 R14: 0000000000000000 R15:
-> 0000000000000000
-> [   75.115063] FS:  00007fb5ccf80740(0000) GS:ffff88011fc00000(0000)
-> knlGS:0000000000000000
-> [   75.115064] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [   75.115066] CR2: 0000000000000090 CR3: 000000011786b000 CR4:
-> 00000000000006f0
-> [   75.115073] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
-> 0000000000000000
-> [   75.115077] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7:
-> 0000000000000400
-> [   75.115079] Process blkid (pid: 1264, threadinfo ffff880118c6a000,
-> task ffff880115a3c530)
-> [   75.115080] Stack:
-> [   75.115081]  ffffffff813d0bfb ffff880118c6bf58 0000000000005331
-> 00000000ffffffe7
-> [   75.115084]  0000000000000000 ffff88011ac28680 ffff88011ab5d000
-> ffff880118c6be78
-> [   75.115087]  ffffffff812bd1be ffff880115a85180 ffff88011ac28680
-> ffff880118c6bee8
-> [   75.115090] Call Trace:
-> [   75.115101]  [<ffffffff813d0bfb>] ? virtblk_ioctl+0x4b/0x90
-> [   75.115118]  [<ffffffff812bd1be>] blkdev_ioctl+0xde/0x830
-> [   75.115130]  [<ffffffff8118b406>] ? cp_new_stat+0x116/0x130
-> [   75.115140]  [<ffffffff811bc940>] block_ioctl+0x40/0x50
-> [   75.115146]  [<ffffffff81197ac8>] do_vfs_ioctl+0x98/0x550
-> [   75.115149]  [<ffffffff81198011>] sys_ioctl+0x91/0xb0
-> [   75.115162]  [<ffffffff810db086>] ? __audit_syscall_exit+0x3d6/0x410
-> [   75.115175]  [<ffffffff81625519>] system_call_fastpath+0x16/0x1b
-> [   75.115176] Code: 4c 8b 60 18 ff 50 10 83 c8 80 48 89 df 0f b6 f0 41
-> ff d4 eb cb 90 0f 1f 44 00 00 55 48 89 e5 e8 d2 18 05 00 5d c3 0f 1f 44
-> 00 00 <48> 8b 87 90 00 00 00 55 48 89 e5 8b 88 80 00 00 00 85 c9 74 26
-> [   75.115203] RIP  [<ffffffff8136ae35>]
-> virtio_check_driver_offered_feature+0x5/0x50
-> [   75.115206]  RSP <ffff880118c6bde0>
-> [   75.115207] CR2: 0000000000000090
-> [   75.115247] ---[ end trace f2226e229a762cf5 ]---
->
-> I suppose it's not a critical issue, but I'm reporting in the event that
-> there are any thoughts on improved error handling in this scenario. Thanks.
->
-> (Please CC me on replies).
+The check is on the function argument which is unsigned, so checking '<
+0' doesn't make sense. We should force signed check only if the argument
+is of signed type. In any case, even if irq has been assigned some error
+value, that would be caught by the check irq >= nr_irqs.
 
-Thanks for reporting.  I have fixed similar hot-unplug issue a few months ago.
-I will look into this.
+> Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
+> 
+>> On Fri, Nov 16, 2012 at 12:20:41PM +0530, Tushar Behera wrote:
+>>> No need to check whether unsigned variable is less than 0.
+>>>
+>>> CC: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+>>
+>> Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+>>
+>>> CC: Jeremy Fitzhardinge <jeremy@goop.org>
+>>> CC: xen-devel@lists.xensource.com
+>>> CC: virtualization@lists.linux-foundation.org
+>>> Signed-off-by: Tushar Behera <tushar.behera@linaro.org>
+>>> ---
+>>>  drivers/xen/events.c |    2 +-
+>>>  1 files changed, 1 insertions(+), 1 deletions(-)
+>>>
+>>> diff --git a/drivers/xen/events.c b/drivers/xen/events.c
+>>> index 4293c57..cadd7d1 100644
+>>> --- a/drivers/xen/events.c
+>>> +++ b/drivers/xen/events.c
+>>> @@ -216,7 +216,7 @@ static void xen_irq_info_pirq_init(unsigned irq,
+>>>   */
+>>>  static unsigned int evtchn_from_irq(unsigned irq)
+>>>  {
+>>> -	if (unlikely(WARN(irq < 0 || irq >= nr_irqs, "Invalid irq %d!\n",
+>> irq)))
+>>> +	if (unlikely(WARN(irq >= nr_irqs, "Invalid irq %d!\n", irq)))
+>>>  		return 0;
+>>>  
+>>>  	return info_for_irq(irq)->evtchn;
+>>> -- 
+>>> 1.7.4.1
+> 
 
-2c95a32 virtio-blk: Use block layer provided spinlock
-483001c virtio-blk: Reset device after blk_cleanup_queue()
-02e2b12 virtio-blk: Call del_gendisk() before disable guest kick
-f65ca1d virtio_blk: Drop unused request tracking list
-b79d866 virtio-blk: Fix hot-unplug race in remove method
 
 -- 
-Asias He
+Tushar Behera
