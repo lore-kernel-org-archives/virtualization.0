@@ -1,8 +1,7 @@
 From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: [PATCH 1/1] xen/xenbus: Remove duplicate inclusion of
-	asm/xen/hypervisor.h
-Date: Mon, 19 Nov 2012 16:52:30 +0530
-Message-ID: <1353324150-21785-1-git-send-email-sachin.kamat__7064.67089844427$1353350218$gmane$org@linaro.org>
+Subject: [PATCH 1/1] vhost: Remove duplicate inclusion of linux/vhost.h
+Date: Mon, 19 Nov 2012 16:58:28 +0530
+Message-ID: <1353324508-22083-1-git-send-email-sachin.kamat__49973.384946543$1353350229$gmane$org@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,28 +15,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
-Cc: sachin.kamat@linaro.org, patches@linaro.org, konrad.wilk@oracle.com
+To: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: sachin.kamat@linaro.org, patches@linaro.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-asm/xen/hypervisor.h was included twice.
+linux/vhost.h was included twice.
 
 Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
 ---
- drivers/xen/xenbus/xenbus_xs.c |    1 -
+ drivers/vhost/tcm_vhost.c |    1 -
  1 files changed, 0 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
-index acedeab..88e677b 100644
---- a/drivers/xen/xenbus/xenbus_xs.c
-+++ b/drivers/xen/xenbus/xenbus_xs.c
-@@ -48,7 +48,6 @@
- #include <xen/xenbus.h>
- #include <xen/xen.h>
- #include "xenbus_comms.h"
--#include <asm/xen/hypervisor.h>
- 
- struct xs_stored_msg {
- 	struct list_head list;
+diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+index 73bbc46..798792b 100644
+--- a/drivers/vhost/tcm_vhost.c
++++ b/drivers/vhost/tcm_vhost.c
+@@ -34,7 +34,6 @@
+ #include <linux/ctype.h>
+ #include <linux/compat.h>
+ #include <linux/eventfd.h>
+-#include <linux/vhost.h>
+ #include <linux/fs.h>
+ #include <linux/miscdevice.h>
+ #include <asm/unaligned.h>
 -- 
 1.7.4.1
