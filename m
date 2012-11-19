@@ -1,17 +1,15 @@
-From: Tushar Behera <tushar.behera@linaro.org>
-Subject: Re: [PATCH 09/14] xen: events: Remove redundant check on unsigned
-	variable
-Date: Mon, 19 Nov 2012 09:22:37 +0530
-Message-ID: <50A9AD05.5080201@linaro.org>
-References: <1353048646-10935-1-git-send-email-tushar.behera@linaro.org>
-	<1353048646-10935-10-git-send-email-tushar.behera@linaro.org>
-	<20121116160923.GP22320@phenom.dumpdata.com>
-	<b0cd27cf-919f-46b0-afa1-4566f6ea0f61@email.android.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [rfc net-next v6 2/3] virtio_net: multiqueue support
+Date: Mon, 19 Nov 2012 14:18:24 +0800
+Message-ID: <50A9CF30.9090503@redhat.com>
+References: <1351591403-23065-1-git-send-email-jasowang@redhat.com>
+	<1351591403-23065-3-git-send-email-jasowang@redhat.com>
+	<874nl5yn4k.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <b0cd27cf-919f-46b0-afa1-4566f6ea0f61@email.android.com>
+In-Reply-To: <874nl5yn4k.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,56 +19,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel@lists.xensource.com, patches@linaro.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/16/2012 10:23 PM, Jeremy Fitzhardinge wrote:
-> To be honest I'd nack this kind of patch. The test is only redundant in the most trivial sense that the compiler can easily optimise away. The point of the test is to make sure that the range is OK even if the type subsequently becomes signed (to hold a -ve error, for example).
-> 
-> J
-> 
+On 11/05/2012 07:16 AM, Rusty Russell wrote:
+> Jason Wang <jasowang@redhat.com> writes:
+>> This addes multiqueue support to virtio_net driver. There's two mode supported:
+>> single queue pair mode and multiple queue pairs mode. An obvious
+>> difference compared with a physical mq card is that virtio-net reserve
+>> first two virtqueues when it is working in multiqueue mode, this is
+>> used for implementing adaptive mode switching in the future. The
+>> virtqueues that were in both mq and sq mode were initialized and only
+>> one queue pair (single queue mode) were used at default. User could
+>> use ethtool -L to switch to multiqueue mode withe the next patch.
+> Hi Jason,
+>
+>          This first patch looks good, but conflates three things
+> together:
+> (1) Separate per-queue structures from struct virtnet_info to allow
+>      multiple queues.  This is the mechanical part of the patch.
+> (2) An annotation bugfix, see below.
+> (3) Enabling mq using a new feature and negotiation.
 
-The check is on the function argument which is unsigned, so checking '<
-0' doesn't make sense. We should force signed check only if the argument
-is of signed type. In any case, even if irq has been assigned some error
-value, that would be caught by the check irq >= nr_irqs.
+Hi Rusty:
 
-> Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
-> 
->> On Fri, Nov 16, 2012 at 12:20:41PM +0530, Tushar Behera wrote:
->>> No need to check whether unsigned variable is less than 0.
->>>
->>> CC: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
->>
->> Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
->>
->>> CC: Jeremy Fitzhardinge <jeremy@goop.org>
->>> CC: xen-devel@lists.xensource.com
->>> CC: virtualization@lists.linux-foundation.org
->>> Signed-off-by: Tushar Behera <tushar.behera@linaro.org>
->>> ---
->>>  drivers/xen/events.c |    2 +-
->>>  1 files changed, 1 insertions(+), 1 deletions(-)
->>>
->>> diff --git a/drivers/xen/events.c b/drivers/xen/events.c
->>> index 4293c57..cadd7d1 100644
->>> --- a/drivers/xen/events.c
->>> +++ b/drivers/xen/events.c
->>> @@ -216,7 +216,7 @@ static void xen_irq_info_pirq_init(unsigned irq,
->>>   */
->>>  static unsigned int evtchn_from_irq(unsigned irq)
->>>  {
->>> -	if (unlikely(WARN(irq < 0 || irq >= nr_irqs, "Invalid irq %d!\n",
->> irq)))
->>> +	if (unlikely(WARN(irq >= nr_irqs, "Invalid irq %d!\n", irq)))
->>>  		return 0;
->>>  
->>>  	return info_for_irq(irq)->evtchn;
->>> -- 
->>> 1.7.4.1
-> 
+Sorry for the late response, just back from vacation.
 
+For 1 and 3, I will split the patch as you suggested.
+For 2, will fix it.
 
--- 
-Tushar Behera
+Thanks
+>
+>> @@ -700,7 +767,8 @@ static struct rtnl_link_stats64 *virtnet_stats(struct net_device *dev,
+>>   	unsigned int start;
+>>   
+>>   	for_each_possible_cpu(cpu) {
+>> -		struct virtnet_stats *stats = per_cpu_ptr(vi->stats, cpu);
+>> +		struct virtnet_stats __percpu *stats
+>> +			= per_cpu_ptr(vi->stats, cpu);
+>>   		u64 tpackets, tbytes, rpackets, rbytes;
+>>   
+>>   		do {
+> Cheers,
+> Rusty.
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
