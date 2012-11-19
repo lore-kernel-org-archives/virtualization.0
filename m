@@ -1,7 +1,7 @@
 From: Bill Pemberton <wfp5p@virginia.edu>
-Subject: [PATCH 156/493] virtio: remove use of __devinit
-Date: Mon, 19 Nov 2012 13:21:45 -0500
-Message-ID: <1353349642-3677-156-git-send-email-wfp5p@virginia.edu>
+Subject: [PATCH 153/493] xen: remove use of __devinit
+Date: Mon, 19 Nov 2012 13:21:42 -0500
+Message-ID: <1353349642-3677-153-git-send-email-wfp5p__27811.5125759088$1353350245$gmane$org@virginia.edu>
 References: <1353349642-3677-1-git-send-email-wfp5p@virginia.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,46 +18,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: gregkh@linuxfoundation.org
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 CONFIG_HOTPLUG is going away as an option so __devinit is no longer
 needed.
 
 Signed-off-by: Bill Pemberton <wfp5p@virginia.edu>
-Cc: Rusty Russell <rusty@rustcorp.com.au> 
-Cc: "Michael S. Tsirkin" <mst@redhat.com> 
+Cc: xen-devel@lists.xensource.com 
 Cc: virtualization@lists.linux-foundation.org 
 ---
- drivers/virtio/virtio_mmio.c | 2 +-
- drivers/virtio/virtio_pci.c  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/xen/grant-table.c          |  2 +-
+ drivers/xen/platform-pci.c         |  2 +-
+ drivers/xen/xen-pciback/pci_stub.c | 10 +++++-----
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 5584f48..6e0047b 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -440,7 +440,7 @@ static struct virtio_config_ops virtio_mmio_config_ops = {
+diff --git a/drivers/xen/grant-table.c b/drivers/xen/grant-table.c
+index 043bf07..a4982a3 100644
+--- a/drivers/xen/grant-table.c
++++ b/drivers/xen/grant-table.c
+@@ -1205,7 +1205,7 @@ int gnttab_init(void)
+ }
+ EXPORT_SYMBOL_GPL(gnttab_init);
  
- /* Platform device */
- 
--static int __devinit virtio_mmio_probe(struct platform_device *pdev)
-+static int virtio_mmio_probe(struct platform_device *pdev)
+-static int __devinit __gnttab_init(void)
++static int __gnttab_init(void)
  {
- 	struct virtio_mmio_device *vm_dev;
- 	struct resource *mem;
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 9bd7fb2..325e847 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -676,7 +676,7 @@ static void virtio_pci_release_dev(struct device *_d)
+ 	/* Delay grant-table initialization in the PV on HVM case */
+ 	if (xen_hvm_domain())
+diff --git a/drivers/xen/platform-pci.c b/drivers/xen/platform-pci.c
+index 97ca359..017f66d 100644
+--- a/drivers/xen/platform-pci.c
++++ b/drivers/xen/platform-pci.c
+@@ -101,7 +101,7 @@ static int platform_pci_resume(struct pci_dev *pdev)
+ 	return 0;
  }
  
- /* the PCI probing function */
--static int __devinit virtio_pci_probe(struct pci_dev *pci_dev,
-+static int virtio_pci_probe(struct pci_dev *pci_dev,
- 				      const struct pci_device_id *id)
+-static int __devinit platform_pci_init(struct pci_dev *pdev,
++static int platform_pci_init(struct pci_dev *pdev,
+ 				       const struct pci_device_id *ent)
  {
- 	struct virtio_pci_device *vp_dev;
+ 	int i, ret;
+diff --git a/drivers/xen/xen-pciback/pci_stub.c b/drivers/xen/xen-pciback/pci_stub.c
+index 961d664..4ac9da7 100644
+--- a/drivers/xen/xen-pciback/pci_stub.c
++++ b/drivers/xen/xen-pciback/pci_stub.c
+@@ -270,7 +270,7 @@ void pcistub_put_pci_dev(struct pci_dev *dev)
+ 	up_write(&pcistub_sem);
+ }
+ 
+-static int __devinit pcistub_match_one(struct pci_dev *dev,
++static int pcistub_match_one(struct pci_dev *dev,
+ 				       struct pcistub_device_id *pdev_id)
+ {
+ 	/* Match the specified device by domain, bus, slot, func and also if
+@@ -290,7 +290,7 @@ static int __devinit pcistub_match_one(struct pci_dev *dev,
+ 	return 0;
+ }
+ 
+-static int __devinit pcistub_match(struct pci_dev *dev)
++static int pcistub_match(struct pci_dev *dev)
+ {
+ 	struct pcistub_device_id *pdev_id;
+ 	unsigned long flags;
+@@ -308,7 +308,7 @@ static int __devinit pcistub_match(struct pci_dev *dev)
+ 	return found;
+ }
+ 
+-static int __devinit pcistub_init_device(struct pci_dev *dev)
++static int pcistub_init_device(struct pci_dev *dev)
+ {
+ 	struct xen_pcibk_dev_data *dev_data;
+ 	int err = 0;
+@@ -426,7 +426,7 @@ static int __init pcistub_init_devices_late(void)
+ 	return 0;
+ }
+ 
+-static int __devinit pcistub_seize(struct pci_dev *dev)
++static int pcistub_seize(struct pci_dev *dev)
+ {
+ 	struct pcistub_device *psdev;
+ 	unsigned long flags;
+@@ -461,7 +461,7 @@ static int __devinit pcistub_seize(struct pci_dev *dev)
+ 	return err;
+ }
+ 
+-static int __devinit pcistub_probe(struct pci_dev *dev,
++static int pcistub_probe(struct pci_dev *dev,
+ 				   const struct pci_device_id *id)
+ {
+ 	int err = 0;
 -- 
 1.8.0
