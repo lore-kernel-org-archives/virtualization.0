@@ -1,8 +1,8 @@
-From: Alexander Duyck <alexander.h.duyck@intel.com>
-Subject: [PATCH v4] x86/xen: Use __pa_symbol instead of __pa on C visible
-	symbols
-Date: Fri, 16 Nov 2012 13:45:25 -0800
-Message-ID: <20121116214217.8308.55518.stgit__45183.2351777286$1353350215$gmane$org@ahduyck-cp1.jf.intel.com>
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH 1/1] xen/xenbus: Remove duplicate inclusion of
+	asm/xen/hypervisor.h
+Date: Mon, 19 Nov 2012 16:52:30 +0530
+Message-ID: <1353324150-21785-1-git-send-email-sachin.kamat__7064.67089844427$1353350218$gmane$org@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,95 +16,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jeremy@goop.org, konrad.wilk@oracle.com
-Cc: linux-kernel@vger.kernel.org, x86@kernel.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+To: xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+Cc: sachin.kamat@linaro.org, patches@linaro.org, konrad.wilk@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This change updates a few of the functions to use __pa_symbol when
-translating C visible symbols instead of __pa.  By using __pa_symbol we are
-able to drop a few extra lines of code as don't have to test to see if the
-virtual pointer is a part of the kernel text or just standard virtual memory.
+asm/xen/hypervisor.h was included twice.
 
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Signed-off-by: Alexander Duyck <alexander.h.duyck@intel.com>
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
 ---
+ drivers/xen/xenbus/xenbus_xs.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-v4:  I have spun this patch off as a separate patch for v4 due to the fact that
-     this patch doesn't apply cleanly to Linus's tree.  As such I am
-     submitting it based off of the linux-next tree to be accepted in the Xen
-     tree since this patch can actually exist on its own without the need
-     for the other patches in the original __phys_addr performance series.
-
- arch/x86/xen/mmu.c |   21 +++++++++++----------
- 1 files changed, 11 insertions(+), 10 deletions(-)
-
-diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
-index 4a05b39..a63e5f9 100644
---- a/arch/x86/xen/mmu.c
-+++ b/arch/x86/xen/mmu.c
-@@ -1486,7 +1486,8 @@ static int xen_pgd_alloc(struct mm_struct *mm)
+diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
+index acedeab..88e677b 100644
+--- a/drivers/xen/xenbus/xenbus_xs.c
++++ b/drivers/xen/xenbus/xenbus_xs.c
+@@ -48,7 +48,6 @@
+ #include <xen/xenbus.h>
+ #include <xen/xen.h>
+ #include "xenbus_comms.h"
+-#include <asm/xen/hypervisor.h>
  
- 		if (user_pgd != NULL) {
- 			user_pgd[pgd_index(VSYSCALL_START)] =
--				__pgd(__pa(level3_user_vsyscall) | _PAGE_TABLE);
-+				__pgd(__pa_symbol(level3_user_vsyscall) |
-+				      _PAGE_TABLE);
- 			ret = 0;
- 		}
- 
-@@ -1958,10 +1959,10 @@ void __init xen_setup_kernel_pagetable(pgd_t *pgd, unsigned long max_pfn)
- 	 * pgd.
- 	 */
- 	if (xen_feature(XENFEAT_writable_page_tables)) {
--		native_write_cr3(__pa(init_level4_pgt));
-+		native_write_cr3(__pa_symbol(init_level4_pgt));
- 	} else {
- 		xen_mc_batch();
--		__xen_write_cr3(true, __pa(init_level4_pgt));
-+		__xen_write_cr3(true, __pa_symbol(init_level4_pgt));
- 		xen_mc_issue(PARAVIRT_LAZY_CPU);
- 	}
- 	/* We can't that easily rip out L3 and L2, as the Xen pagetables are
-@@ -1984,10 +1985,10 @@ static RESERVE_BRK_ARRAY(pmd_t, swapper_kernel_pmd, PTRS_PER_PMD);
- 
- static void __init xen_write_cr3_init(unsigned long cr3)
- {
--	unsigned long pfn = PFN_DOWN(__pa(swapper_pg_dir));
-+	unsigned long pfn = PFN_DOWN(__pa_symbol(swapper_pg_dir));
- 
--	BUG_ON(read_cr3() != __pa(initial_page_table));
--	BUG_ON(cr3 != __pa(swapper_pg_dir));
-+	BUG_ON(read_cr3() != __pa_symbol(initial_page_table));
-+	BUG_ON(cr3 != __pa_symbol(swapper_pg_dir));
- 
- 	/*
- 	 * We are switching to swapper_pg_dir for the first time (from
-@@ -2011,7 +2012,7 @@ static void __init xen_write_cr3_init(unsigned long cr3)
- 	pin_pagetable_pfn(MMUEXT_PIN_L3_TABLE, pfn);
- 
- 	pin_pagetable_pfn(MMUEXT_UNPIN_TABLE,
--			  PFN_DOWN(__pa(initial_page_table)));
-+			  PFN_DOWN(__pa_symbol(initial_page_table)));
- 	set_page_prot(initial_page_table, PAGE_KERNEL);
- 	set_page_prot(initial_kernel_pmd, PAGE_KERNEL);
- 
-@@ -2036,7 +2037,7 @@ void __init xen_setup_kernel_pagetable(pgd_t *pgd, unsigned long max_pfn)
- 
- 	copy_page(initial_page_table, pgd);
- 	initial_page_table[KERNEL_PGD_BOUNDARY] =
--		__pgd(__pa(initial_kernel_pmd) | _PAGE_PRESENT);
-+		__pgd(__pa_symbol(initial_kernel_pmd) | _PAGE_PRESENT);
- 
- 	set_page_prot(initial_kernel_pmd, PAGE_KERNEL_RO);
- 	set_page_prot(initial_page_table, PAGE_KERNEL_RO);
-@@ -2045,8 +2046,8 @@ void __init xen_setup_kernel_pagetable(pgd_t *pgd, unsigned long max_pfn)
- 	pin_pagetable_pfn(MMUEXT_UNPIN_TABLE, PFN_DOWN(__pa(pgd)));
- 
- 	pin_pagetable_pfn(MMUEXT_PIN_L3_TABLE,
--			  PFN_DOWN(__pa(initial_page_table)));
--	xen_write_cr3(__pa(initial_page_table));
-+			  PFN_DOWN(__pa_symbol(initial_page_table)));
-+	xen_write_cr3(__pa_symbol(initial_page_table));
- 
- 	memblock_reserve(__pa(xen_start_info->pt_base),
- 			 xen_start_info->nr_pt_frames * PAGE_SIZE);
+ struct xs_stored_msg {
+ 	struct list_head list;
+-- 
+1.7.4.1
