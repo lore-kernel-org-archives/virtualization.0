@@ -1,15 +1,17 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
-Date: Tue, 20 Nov 2012 08:40:39 -0800
-Message-ID: <87lidwtego.fsf@xmission.com>
-References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
-	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v11 7/7] mm: add vm event counters for balloon pages
+	compaction
+Date: Tue, 20 Nov 2012 15:29:46 -0800
+Message-ID: <20121120152946.823cd2d9.akpm@linux-foundation.org>
+References: <cover.1352256081.git.aquini@redhat.com>
+	<8dde7996f3e36a5efbe569afe1aadfc84355e79e.1352256088.git.aquini@redhat.com>
+	<20121109122033.GR3886@csn.ul.ie>
+	<20121109145829.GC4308@optiplex.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
-	(Daniel Kiper's message of "Tue, 20 Nov 2012 16:04:43 +0100")
+In-Reply-To: <20121109145829.GC4308@optiplex.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,88 +21,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Kiper <daniel.kiper@oracle.com>
-Cc: xen-devel@lists.xensource.com, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, jbeulich@suse.com, hpa@zytor.com, tglx@linutronix.de
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Daniel Kiper <daniel.kiper@oracle.com> writes:
+On Fri, 9 Nov 2012 12:58:29 -0200
+Rafael Aquini <aquini@redhat.com> wrote:
 
-> Some kexec/kdump implementations (e.g. Xen PVOPS) could not use default
-> functions or require some changes in behavior of kexec/kdump generic code.
-> To cope with that problem kexec_ops struct was introduced. It allows
-> a developer to replace all or some functions and control some
-> functionality of kexec/kdump generic code.
->
-> Default behavior of kexec/kdump generic code is not changed.
+> On Fri, Nov 09, 2012 at 12:20:33PM +0000, Mel Gorman wrote:
+> > On Wed, Nov 07, 2012 at 01:05:54AM -0200, Rafael Aquini wrote:
+> > > This patch introduces a new set of vm event counters to keep track of
+> > > ballooned pages compaction activity.
+> > > 
+> > > Signed-off-by: Rafael Aquini <aquini@redhat.com>
+> > 
+> > Other than confirming the thing actually works can any meaningful
+> > conclusions be drawn from this counters?
+> > 
+> > I know I have been inconsistent on this myself in the past but recently
+> > I've been taking the attitude that the counters can be used to fit into
+> > some other metric. I'm looking to change the compaction counters to be
+> > able to build a basic cost model for example. The same idea could be
+> > used for balloons of course but it's a less critical path than
+> > compaction for THP for example.
+> > 
+> > Assuming it builds and all the defines are correct when the feature is
+> > not configured (I didn't check) then there is nothing wrong with the
+> > patch. However, if it was dropped would it make life very hard or would
+> > you notice?
+> > 
+> 
+> Originally, I proposed this patch as droppable (and it's still droppable)
+> because its major purpose was solely to show the thing working consistently
+> 
+> OTOH, it might make the life easier to spot breakages if it remains with the
+> merged bits, and per a reviewer request I removed its 'DROP BEFORE MERGE'
+> disclaimer.
+> 
+>    https://lkml.org/lkml/2012/8/8/616
 
-Ick.
+There's a lot to be said for not merging things.
 
-> v2 - suggestions/fixes:
->    - add comment for kexec_ops.crash_alloc_temp_store member
->      (suggested by Konrad Rzeszutek Wilk),
->    - simplify kexec_ops usage
->      (suggested by Konrad Rzeszutek Wilk).
->
-> Signed-off-by: Daniel Kiper <daniel.kiper@oracle.com>
-> ---
->  include/linux/kexec.h |   26 ++++++++++
->  kernel/kexec.c        |  131 +++++++++++++++++++++++++++++++++++++------------
->  2 files changed, 125 insertions(+), 32 deletions(-)
->
-> diff --git a/include/linux/kexec.h b/include/linux/kexec.h
-> index d0b8458..c8d0b35 100644
-> --- a/include/linux/kexec.h
-> +++ b/include/linux/kexec.h
-> @@ -116,7 +116,33 @@ struct kimage {
->  #endif
->  };
->  
-> +struct kexec_ops {
-> +	/*
-> +	 * Some kdump implementations (e.g. Xen PVOPS dom0) could not access
-> +	 * directly crash kernel memory area. In this situation they must
-> +	 * allocate memory outside of it and later move contents from temporary
-> +	 * storage to final resting places (usualy done by relocate_kernel()).
-> +	 * Such behavior could be enforced by setting
-> +	 * crash_alloc_temp_store member to true.
-> +	 */
-
-Why in the world would Xen not be able to access crash kernel memory?
-As currently defined it is normal memory that the kernel chooses not to
-use.
-
-If relocate kernel can access that memory you definitely can access the
-memory so the comment does not make any sense.
-
-> +	bool crash_alloc_temp_store;
-> +	struct page *(*kimage_alloc_pages)(gfp_t gfp_mask,
-> +						unsigned int order,
-> +						unsigned long limit);
-> +	void (*kimage_free_pages)(struct page *page);
-> +	unsigned long (*page_to_pfn)(struct page *page);
-> +	struct page *(*pfn_to_page)(unsigned long pfn);
-> +	unsigned long (*virt_to_phys)(volatile void *address);
-> +	void *(*phys_to_virt)(unsigned long address);
-> +	int (*machine_kexec_prepare)(struct kimage *image);
-> +	int (*machine_kexec_load)(struct kimage *image);
-> +	void (*machine_kexec_cleanup)(struct kimage *image);
-> +	void (*machine_kexec_unload)(struct kimage *image);
-> +	void (*machine_kexec_shutdown)(void);
-> +	void (*machine_kexec)(struct kimage *image);
-> +};
-
-Ugh.  This is a nasty abstraction.
-
-You are mixing and matching a bunch of things together here.
-
-If you need to override machine_kexec_xxx please do that on a per
-architecture basis.
-
-Special case overrides of page_to_pfn, pfn_to_page, virt_to_phys,
-phys_to_virt, and friends seem completely inappropriate.
-
-There may be a point to all of these but you are mixing and matching
-things badly.
-
-
-Eric
+I think I'll maintain this as a mm-only patch.  That way it's
+available in linux-next and we can merge it later if a need arises.
