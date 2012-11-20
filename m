@@ -1,17 +1,15 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: Re: [PATCH v2 02/11] x86/kexec: Add extra pointers to
-	transition page table PGD, PUD, PMD and PTE
-Date: Tue, 20 Nov 2012 15:52:07 +0000
-Message-ID: <50ABB53702000078000AA11D__38472.9678080932$1353426699$gmane$org@nat28.tlf.novell.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
+Date: Tue, 20 Nov 2012 08:40:39 -0800
+Message-ID: <87lidwtego.fsf@xmission.com>
 References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
 	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
-	<1353423893-23125-3-git-send-email-daniel.kiper@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1353423893-23125-3-git-send-email-daniel.kiper@oracle.com>
-Content-Disposition: inline
+In-Reply-To: <1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
+	(Daniel Kiper's message of "Tue, 20 Nov 2012 16:04:43 +0100")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,99 +20,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Daniel Kiper <daniel.kiper@oracle.com>
-Cc: xen-devel@lists.xensource.com, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, ebiederm@xmission.com, hpa@zytor.com, tglx@linutronix.de
+Cc: xen-devel@lists.xensource.com, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, jbeulich@suse.com, hpa@zytor.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 20.11.12 at 16:04, Daniel Kiper <daniel.kiper@oracle.com> wrote:
-> Some implementations (e.g. Xen PVOPS) could not use part of identity page 
-> table
-> to construct transition page table. It means that they require separate 
-> PUDs,
-> PMDs and PTEs for virtual and physical (identity) mapping. To satisfy that
-> requirement add extra pointer to PGD, PUD, PMD and PTE and align existing 
-> code.
+Daniel Kiper <daniel.kiper@oracle.com> writes:
 
-As said for v1 already - this is not really a requirement of the
-interface, or else none of our Xen kernels since 2.6.30 would
-have worked. I don't think it is desirable to introduce overhead
-for everyone if it's not even needed for Xen.
+> Some kexec/kdump implementations (e.g. Xen PVOPS) could not use default
+> functions or require some changes in behavior of kexec/kdump generic code.
+> To cope with that problem kexec_ops struct was introduced. It allows
+> a developer to replace all or some functions and control some
+> functionality of kexec/kdump generic code.
+>
+> Default behavior of kexec/kdump generic code is not changed.
 
-Jan
+Ick.
 
+> v2 - suggestions/fixes:
+>    - add comment for kexec_ops.crash_alloc_temp_store member
+>      (suggested by Konrad Rzeszutek Wilk),
+>    - simplify kexec_ops usage
+>      (suggested by Konrad Rzeszutek Wilk).
+>
 > Signed-off-by: Daniel Kiper <daniel.kiper@oracle.com>
 > ---
->  arch/x86/include/asm/kexec.h       |   10 +++++++---
->  arch/x86/kernel/machine_kexec_64.c |   12 ++++++------
->  2 files changed, 13 insertions(+), 9 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/kexec.h b/arch/x86/include/asm/kexec.h
-> index 317ff17..3cf5600 100644
-> --- a/arch/x86/include/asm/kexec.h
-> +++ b/arch/x86/include/asm/kexec.h
-> @@ -157,9 +157,13 @@ struct kimage_arch {
->  };
->  #else
->  struct kimage_arch {
-> -	pud_t *pud;
-> -	pmd_t *pmd;
-> -	pte_t *pte;
-> +	pgd_t *pgd;
-> +	pud_t *pud0;
-> +	pud_t *pud1;
-> +	pmd_t *pmd0;
-> +	pmd_t *pmd1;
-> +	pte_t *pte0;
-> +	pte_t *pte1;
->  };
+>  include/linux/kexec.h |   26 ++++++++++
+>  kernel/kexec.c        |  131 +++++++++++++++++++++++++++++++++++++------------
+>  2 files changed, 125 insertions(+), 32 deletions(-)
+>
+> diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+> index d0b8458..c8d0b35 100644
+> --- a/include/linux/kexec.h
+> +++ b/include/linux/kexec.h
+> @@ -116,7 +116,33 @@ struct kimage {
 >  #endif
+>  };
 >  
-> diff --git a/arch/x86/kernel/machine_kexec_64.c 
-> b/arch/x86/kernel/machine_kexec_64.c
-> index b3ea9db..976e54b 100644
-> --- a/arch/x86/kernel/machine_kexec_64.c
-> +++ b/arch/x86/kernel/machine_kexec_64.c
-> @@ -137,9 +137,9 @@ out:
->  
->  static void free_transition_pgtable(struct kimage *image)
->  {
-> -	free_page((unsigned long)image->arch.pud);
-> -	free_page((unsigned long)image->arch.pmd);
-> -	free_page((unsigned long)image->arch.pte);
-> +	free_page((unsigned long)image->arch.pud0);
-> +	free_page((unsigned long)image->arch.pmd0);
-> +	free_page((unsigned long)image->arch.pte0);
->  }
->  
->  static int init_transition_pgtable(struct kimage *image, pgd_t *pgd)
-> @@ -157,7 +157,7 @@ static int init_transition_pgtable(struct kimage *image, 
-> pgd_t *pgd)
->  		pud = (pud_t *)get_zeroed_page(GFP_KERNEL);
->  		if (!pud)
->  			goto err;
-> -		image->arch.pud = pud;
-> +		image->arch.pud0 = pud;
->  		set_pgd(pgd, __pgd(__pa(pud) | _KERNPG_TABLE));
->  	}
->  	pud = pud_offset(pgd, vaddr);
-> @@ -165,7 +165,7 @@ static int init_transition_pgtable(struct kimage *image, 
-> pgd_t *pgd)
->  		pmd = (pmd_t *)get_zeroed_page(GFP_KERNEL);
->  		if (!pmd)
->  			goto err;
-> -		image->arch.pmd = pmd;
-> +		image->arch.pmd0 = pmd;
->  		set_pud(pud, __pud(__pa(pmd) | _KERNPG_TABLE));
->  	}
->  	pmd = pmd_offset(pud, vaddr);
-> @@ -173,7 +173,7 @@ static int init_transition_pgtable(struct kimage *image, 
-> pgd_t *pgd)
->  		pte = (pte_t *)get_zeroed_page(GFP_KERNEL);
->  		if (!pte)
->  			goto err;
-> -		image->arch.pte = pte;
-> +		image->arch.pte0 = pte;
->  		set_pmd(pmd, __pmd(__pa(pte) | _KERNPG_TABLE));
->  	}
->  	pte = pte_offset_kernel(pmd, vaddr);
-> -- 
-> 1.5.6.5
+> +struct kexec_ops {
+> +	/*
+> +	 * Some kdump implementations (e.g. Xen PVOPS dom0) could not access
+> +	 * directly crash kernel memory area. In this situation they must
+> +	 * allocate memory outside of it and later move contents from temporary
+> +	 * storage to final resting places (usualy done by relocate_kernel()).
+> +	 * Such behavior could be enforced by setting
+> +	 * crash_alloc_temp_store member to true.
+> +	 */
+
+Why in the world would Xen not be able to access crash kernel memory?
+As currently defined it is normal memory that the kernel chooses not to
+use.
+
+If relocate kernel can access that memory you definitely can access the
+memory so the comment does not make any sense.
+
+> +	bool crash_alloc_temp_store;
+> +	struct page *(*kimage_alloc_pages)(gfp_t gfp_mask,
+> +						unsigned int order,
+> +						unsigned long limit);
+> +	void (*kimage_free_pages)(struct page *page);
+> +	unsigned long (*page_to_pfn)(struct page *page);
+> +	struct page *(*pfn_to_page)(unsigned long pfn);
+> +	unsigned long (*virt_to_phys)(volatile void *address);
+> +	void *(*phys_to_virt)(unsigned long address);
+> +	int (*machine_kexec_prepare)(struct kimage *image);
+> +	int (*machine_kexec_load)(struct kimage *image);
+> +	void (*machine_kexec_cleanup)(struct kimage *image);
+> +	void (*machine_kexec_unload)(struct kimage *image);
+> +	void (*machine_kexec_shutdown)(void);
+> +	void (*machine_kexec)(struct kimage *image);
+> +};
+
+Ugh.  This is a nasty abstraction.
+
+You are mixing and matching a bunch of things together here.
+
+If you need to override machine_kexec_xxx please do that on a per
+architecture basis.
+
+Special case overrides of page_to_pfn, pfn_to_page, virt_to_phys,
+phys_to_virt, and friends seem completely inappropriate.
+
+There may be a point to all of these but you are mixing and matching
+things badly.
+
+
+Eric
