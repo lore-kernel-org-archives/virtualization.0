@@ -1,11 +1,10 @@
-From: "WorldCIST" <marialemos72@gmail.com>
-Subject: WorldCIST'13: Indexed by ISI, SCOPUS, DBLP and EI-Compendex -
-	Deadline: November 28
-Date: Wed, 21 Nov 2012 17:44:28 +0000
-Message-ID: <20121121174349.D04AE58E@mail.linuxfoundation.org>
-Reply-To: worldcist@gmail.com
+From: George Zhang <georgezhang@vmware.com>
+Subject: [PATCH 00/12] VMCI for Linux upstreaming
+Date: Wed, 21 Nov 2012 12:31:04 -0800
+Message-ID: <20121121202625.13252.86346.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0353754722513004524=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -16,189 +15,153 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, georgezhang@vmware.com, virtualization@lists.linux-foundation.org
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0353754722513004524==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-Apologies if you are receiving this mail more than once...
+* * *
+This series of VMCI linux upstreaming patches include latest udpate from
+VMware.
 
-Please disseminate by colleagues, researchers, students, etc. Thanks a=
- lot!
+Summary of changes:
 
-
-**********************************************************************=
-************
-                             WorldCIST'13
-The 2013 World Conference on Information Systems and Technologies
-                   March 27 - 30, Algarve, Portugal
-                   http://www.aisti.eu/worldcist13/
-**********************************************************************=
-************
-
-SCOPE
-
-The 2013 World Conference on Information Systems and Technologies (Wor=
-ldCIST'13: http://www.aisti.eu/worldcist13/) is a global forum for res=
-earchers and practitioners to present and discuss the most recent inno=
-vations, trends, results, experiences and concerns in the several pers=
-pectives of Information Systems and Technologies.
-
-We are pleased to invite you to submit your papers to WorldCISTI'13. A=
-ll submissions will be reviewed on the basis of relevance, originality=
-, importance and clarity.
+	- Sparse clean.
+	- Checkpatch clean with one exception, a "complex macro" in
+	  which we can't add parentheses.
+	- Remove all runtime assertions.
+	- Fix device name, so that existing user clients work.
+	- Fix VMCI handle lookup.
 
 
-THEMES
+* * *
 
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Intelligent and Decision Support Systems (IDSS);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-F) Human-Computer Interaction (HCI).
+In an effort to improve the out-of-the-box experience with Linux
+kernels for VMware users, VMware is working on readying the Virtual
+Machine Communication Interface (vmw_vmci) and VMCI Sockets
+(vmw_vsock) kernel modules for inclusion in the Linux kernel. The
+purpose of this post is to acquire feedback on the vmw_vmci kernel
+module. The vmw_vsock kernel module will be presented in a later post.
 
 
-TYPES OF SUBMISSIONS AND DECISIONS
+* * *
 
-Four types of papers can be submitted:
+VMCI allows virtual machines to communicate with host kernel modules
+and the VMware hypervisors. User level applications both in a virtual
+machine and on the host can use vmw_vmci through VMCI Sockets, a socket
+address family designed to be compatible with UDP and TCP at the
+interface level. Today, VMCI and VMCI Sockets are used by the VMware
+shared folders (HGFS) and various VMware Tools components inside the
+guest for zero-config, network-less access to VMware host services. In
+addition to this, VMware's users are using VMCI Sockets for various
+applications, where network access of the virtual machine is
+restricted or non-existent. Examples of this are VMs communicating
+with device proxies for proprietary hardware running as host
+applications and automated testing of applications running within
+virtual machines.
 
-Full paper: Finished or consolidated R&D works, to be included in one =
-of the Conference themes. These papers are assigned a 10-page limit.
+In a virtual machine, VMCI is exposed as a regular PCI device. The
+primary communication mechanisms supported are a point-to-point
+bidirectional transport based on a pair of memory-mapped queues, and
+asynchronous notifications in the form of datagrams and
+doorbells. These features are available to kernel level components
+such as HGFS and VMCI Sockets through the VMCI kernel API. In addition
+to this, the VMCI kernel API provides support for receiving events
+related to the state of the VMCI communication channels, and the
+virtual machine itself.
 
-Short paper: Ongoing works with relevant preliminary results, open to =
-discussion. These papers are assigned a 7-page limit.
+Outside the virtual machine, the host side support of the VMCI kernel
+module makes the same VMCI kernel API available to VMCI endpoints on
+the host. In addition to this, the host side manages each VMCI device
+in a virtual machine through a context object. This context object
+serves to identify the virtual machine for communication, and to track
+the resource consumption of the given VMCI device. Both operations
+related to communication between the virtual machine and the host
+kernel, and those related to the management of the VMCI device state
+in the host kernel, are invoked by the user level component of the
+hypervisor through a set of ioctls on the VMCI device node.  To
+provide seamless support for nested virtualization, where a virtual
+machine may use both a VMCI PCI device to talk to its hypervisor, and
+the VMCI host side support to run nested virtual machines, the VMCI
+host and virtual machine support are combined in a single kernel
+module.
 
-Poster paper: Initial work with relevant ideas, open to discussion. Th=
-ese papers are assigned to a 4-page limit.
-
-Company paper: Companies' papers that show practical experience, R & D=
-, tools, etc., focused on some topics of the conference. These papers =
-are assigned to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligen=
-t Systems and Computing Series (see http://www.aisti.eu/worldcist13/sp=
-ringerformat.doc) be written in English, must not have been published =
-before, not be under review for any other conference or publication an=
-d not include any information leading to the authors=92 identification=
-. Therefore, the authors=92 names, affiliations and bibliographic ref=
-erences should not be included in the version for evaluation by the Pr=
-ogram Committee. This information should only be included in the camer=
-a-ready version.
-
-All papers will be subjected to a =93double-blind review=94 by at leas=
-t two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or acce=
-pted by the Conference Chairs. In the later case, it can be accepted a=
-s the type originally submitted or as another type. Thus, full papers =
-can be accepted as short papers or poster papers only. Similarly, shor=
-t papers can be accepted as poster papers only. In these cases, the au=
-thors will be allowed to maintain the original number of pages in the =
-camera-ready version.
-
-The authors of accepted poster papers must also build and print a post=
-er to be exhibited during the Conference. This poster must follow an A=
-1 or A2 vertical format. The Conference includes Work Sessions where t=
-hese posters are presented and orally discussed, with a 5 minute limit=
- per poster.
-
-The authors of accepted full papers will have 15 minutes to present th=
-eir work in a Conference Work Session; approximately 5 minutes of disc=
-ussion will follow each presentation. The authors of accepted short pa=
-pers and company papers will have 11 minutes to present their work in =
-a Conference Work Session; approximately 4 minutes of discussion will =
-follow each presentation.
-
-PUBLICATION AND INDEXING
-
-To ensure that a full paper, short paper, poster paper or company pape=
-r is published in the Proceedings, at least one of the authors must be=
- fully registered by the 11th of January 2013, and the paper must comp=
-ly with the suggested layout and page-limit. Additionally, all recomme=
-nded changes must be addressed by the authors before they submit the c=
-amera-ready version.
-
-No more than one paper per registration will be published in the Confe=
-rence Proceedings. An extra fee must be paid for publication of additi=
-onal papers, with a maximum of two additional papers per registration.
-
-Full and short papers will be published in Proceedings by Springer, in=
- Advances in Intelligent Systems and Computing Series. Poster and comp=
-any papers will be published in Proceedings by AISTI.
-
-Published full and short papers will be indexed by ISI, EI-Compendex, =
-SCOPUS, DBLP and EBSCO, among others, and will be available in the Spr=
-ingerLink Digital Library. Published poster and company papers will be=
- indexed in EI-Compendex and EBSCO.
-
-The authors of the best selected papers will be invited to extend them=
- for publication in edited books and in international journals indexed=
- by ISI/JCR, SCOPUS and/or DBLP, among others, such as:
-
-- ACM Transactions on Modeling and Computer Simulation (TOMACS)
-- Online Information Review (OIR)
-- Informatics for Health and Social Care (IHSC)
-- Computer Science and Information Systems (ComSIS)
-- Telecommunication Systems Journal (TSJ)
-- INFORMATION - An International Interdisciplinary Journal
-- Journal of Organizational and End User Computing (JOEUC)
-- Information Researh (IR)
-- International Journal of Internet Protocol Technology (IJIPT)
-- Studies in Computational Intelligence (SCI)
-- Journal of Advanced Computational Intelligence and Intelligent Infor=
-matics (JACIII)
-- Journal of Electrical and Computer Engineering (JECE): Special Issue=
- in Advances in Radar Technology
-- WSEAS Transactions on Systems (TS)
-- Library Review (LR)
-- Education for Information (EI)
-- International Journal of IT/Business Alignment and Governance (IJITBAG)
-- International Journal of Systems and Service-Oriented Engineering (I=
-JSSOE)
-- International Journal of Interactive Multimedia and Artificial Intel=
-ligence (IJIMAI)
-
-
-IMPORTANT DATES
-
-Paper Submission: November 25, 2012
-
-Notification of Acceptance: December 30, 2012
-
-Camera-ready Submission: January 9, 2013
-
-Payment of Registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: January 11, 2013.
-
--
-
-Kind regards,
-
-Maria Lemos
-WorldCIST'13
-http://www.aisti.eu/worldcist13/
+For additional information about the use of VMCI and in particular
+VMCI Sockets, please refer to the VMCI Socket Programming Guide
+available at https://www.vmware.com/support/developer/vmci-sdk/.
 
 
 
---===============0353754722513004524==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+---
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0353754722513004524==--
+George Zhang (12):
+      VMCI: context implementation.
+      VMCI: datagram implementation.
+      VMCI: doorbell implementation.
+      VMCI: device driver implementaton.
+      VMCI: event handling implementation.
+      VMCI: handle array implementation.
+      VMCI: queue pairs implementation.
+      VMCI: resource object implementation.
+      VMCI: routing implementation.
+      VMCI: guest side driver implementation.
+      VMCI: host side driver implementation.
+      VMCI: Some header and config files.
+
+
+ drivers/misc/Kconfig                      |    1 
+ drivers/misc/Makefile                     |    2 
+ drivers/misc/vmw_vmci/Kconfig             |   16 
+ drivers/misc/vmw_vmci/Makefile            |    4 
+ drivers/misc/vmw_vmci/vmci_common_int.h   |   32 
+ drivers/misc/vmw_vmci/vmci_context.c      | 1223 ++++++++++
+ drivers/misc/vmw_vmci/vmci_context.h      |  183 ++
+ drivers/misc/vmw_vmci/vmci_datagram.c     |  501 ++++
+ drivers/misc/vmw_vmci/vmci_datagram.h     |   52 
+ drivers/misc/vmw_vmci/vmci_doorbell.c     |  605 +++++
+ drivers/misc/vmw_vmci/vmci_doorbell.h     |   51 
+ drivers/misc/vmw_vmci/vmci_driver.c       |  117 +
+ drivers/misc/vmw_vmci/vmci_driver.h       |   50 
+ drivers/misc/vmw_vmci/vmci_event.c        |  224 ++
+ drivers/misc/vmw_vmci/vmci_event.h        |   25 
+ drivers/misc/vmw_vmci/vmci_guest.c        |  757 ++++++
+ drivers/misc/vmw_vmci/vmci_handle_array.c |  142 +
+ drivers/misc/vmw_vmci/vmci_handle_array.h |   52 
+ drivers/misc/vmw_vmci/vmci_host.c         | 1036 +++++++++
+ drivers/misc/vmw_vmci/vmci_queue_pair.c   | 3439 +++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_queue_pair.h   |  191 ++
+ drivers/misc/vmw_vmci/vmci_resource.c     |  232 ++
+ drivers/misc/vmw_vmci/vmci_resource.h     |   59 
+ drivers/misc/vmw_vmci/vmci_route.c        |  227 ++
+ drivers/misc/vmw_vmci/vmci_route.h        |   30 
+ include/linux/vmw_vmci_api.h              |   82 +
+ include/linux/vmw_vmci_defs.h             |  973 ++++++++
+ 27 files changed, 10306 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/vmw_vmci/Kconfig
+ create mode 100644 drivers/misc/vmw_vmci/Makefile
+ create mode 100644 drivers/misc/vmw_vmci/vmci_common_int.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_context.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_context.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_driver.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_driver.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_guest.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_host.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_route.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_route.h
+ create mode 100644 include/linux/vmw_vmci_api.h
+ create mode 100644 include/linux/vmw_vmci_defs.h
+
+-- 
+Signature
