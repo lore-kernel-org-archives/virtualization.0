@@ -1,16 +1,19 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH v11 4/7] mm: introduce compaction and migration for
+From: Sasha Levin <levinsasha928@gmail.com>
+Subject: Re: [PATCH v12 4/7] mm: introduce compaction and migration for
 	ballooned pages
-Date: Tue, 20 Nov 2012 15:33:24 -0800
-Message-ID: <20121120153324.7119bd3b.akpm@linux-foundation.org>
-References: <cover.1352256081.git.aquini@redhat.com>
-	<08be4346b620ae9344691cc6c2ad0bc51f492e01.1352256088.git.aquini@redhat.com>
-	<20121109121602.GQ3886@csn.ul.ie>
+Date: Tue, 20 Nov 2012 20:18:04 -0500
+Message-ID: <50AC2BCC.6050507@gmail.com>
+References: <cover.1352656285.git.aquini@redhat.com>
+	<6602296b38c073a5c6faa13ddbc74ceb1eceb2dd.1352656285.git.aquini@redhat.com>
+	<50A7D0FA.2080709@gmail.com>
+	<20121117215434.GA23879@x61.redhat.com>
+	<CA+1xoqfbxL-mL3XRDXxnuv0R6b9w6qxU7t+8U3FwS2eK5Sf0OA@mail.gmail.com>
+	<20121120141438.GA21672@x61.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121109121602.GQ3886@csn.ul.ie>
+In-Reply-To: <20121120141438.GA21672@x61.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,55 +23,101 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mel Gorman <mel@csn.ul.ie>
-Cc: Rik van Riel <riel@redhat.com>, Rafael Aquini <aquini@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andi Kleen <andi@firstfloor.org>, Minchan Kim <minchan@kernel.org>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Rafael Aquini <aquini@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 9 Nov 2012 12:16:02 +0000
-Mel Gorman <mel@csn.ul.ie> wrote:
-
-> On Wed, Nov 07, 2012 at 01:05:51AM -0200, Rafael Aquini wrote:
-> > Memory fragmentation introduced by ballooning might reduce significantly
-> > the number of 2MB contiguous memory blocks that can be used within a guest,
-> > thus imposing performance penalties associated with the reduced number of
-> > transparent huge pages that could be used by the guest workload.
-> > 
-> > This patch introduces the helper functions as well as the necessary changes
-> > to teach compaction and migration bits how to cope with pages which are
-> > part of a guest memory balloon, in order to make them movable by memory
-> > compaction procedures.
-> > 
->
-> ...
->
-> > --- a/mm/compaction.c
-> > +++ b/mm/compaction.c
-> > @@ -14,6 +14,7 @@
-> >  #include <linux/backing-dev.h>
-> >  #include <linux/sysctl.h>
-> >  #include <linux/sysfs.h>
-> > +#include <linux/balloon_compaction.h>
-> >  #include "internal.h"
-> >  
-> >  #if defined CONFIG_COMPACTION || defined CONFIG_CMA
-> > @@ -565,9 +566,24 @@ isolate_migratepages_range(struct zone *zone, struct compact_control *cc,
-> >  			goto next_pageblock;
-> >  		}
-> >  
-> > -		/* Check may be lockless but that's ok as we recheck later */
-> > -		if (!PageLRU(page))
-> > +		/*
-> > +		 * Check may be lockless but that's ok as we recheck later.
-> > +		 * It's possible to migrate LRU pages and balloon pages
-> > +		 * Skip any other type of page
-> > +		 */
-> > +		if (!PageLRU(page)) {
-> > +			if (unlikely(balloon_page_movable(page))) {
+On 11/20/2012 09:14 AM, Rafael Aquini wrote:
+> On Sun, Nov 18, 2012 at 09:59:47AM -0500, Sasha Levin wrote:
+>> On Sat, Nov 17, 2012 at 4:54 PM, Rafael Aquini <aquini@redhat.com> wrote:
+>>> On Sat, Nov 17, 2012 at 01:01:30PM -0500, Sasha Levin wrote:
+>>>>
+>>>> I'm getting the following while fuzzing using trinity inside a KVM tools guest,
+>>>> on latest -next:
+>>>>
+>>>> [ 1642.783728] BUG: unable to handle kernel NULL pointer dereference at 0000000000000194
+>>>> [ 1642.785083] IP: [<ffffffff8122b354>] isolate_migratepages_range+0x344/0x7b0
+>>>>
+>>>> My guess is that we see those because of a race during the check in
+>>>> isolate_migratepages_range().
+>>>>
+>>>>
+>>>> Thanks,
+>>>> Sasha
+>>>
+>>> Sasha, could you share your .config and steps you did used with trinity? So I
+>>> can attempt to reproduce this issue you reported.
+>>
+>> Basically try running trinity (with ./trinity -m --quiet --dangerous
+>> -l off) inside a disposable guest as root.
+>>
+>> I manage to hit that every couple of hours.
+>>
+>> Config attached.
+>>
 > 
-> Because it's lockless, it really seems that the barrier stuck down there
-> is unnecessary. At worst you get a temporarily incorrect answer that you
-> recheck later under page lock in balloon_page_isolate.
+> Howdy Sasha,
+> 
+> After several hours since last Sunday running trinity tests on a traditional
+> KVM-QEMU guest as well as running it on a lkvm guest (both running
+> next-20121115) I couldn't hit a single time the crash you've reported,
+> (un)fortunately.
 
-What happened with this?
+Odd... I can see it happening here every couple of hours.
 
-Also: what barrier?
+> Also, the .config you gave me, applied on top of next-20121115, haven't produced
+> the same bin you've running and hitting the mentioned bug, apparently.
+> 
+> Here's the RIP for your crash:
+> [ 1642.783728] BUG: unable to handle kernel NULL pointer dereference at
+> 0000000000000194
+> [ 1642.785083] IP: [<ffffffff8122b354>] isolate_migratepages_range+0x344/0x7b0
+> 
+> 
+> And here's the symbol address for the next-20121115 with your .config I've been
+> running tests on:
+> [raquini@x61 linux]$ nm -n vmlinux | grep isolate_migratepages_range 
+> ffffffff8122d890 T isolate_migratepages_range
+> 
+> Also, it seems quite clear I'm missing something from your tree, as applying the
+> RIP displacement (0x344) to my local isolate_migratepages_range sym addr leads
+> me to the _middle_ of a instruction opcode that does not dereference any
+> pointers at all.
+
+Yup, I carry another small fix to mpol (which is unrelated to this one).
+
+> So, if you're consistently reproducing the same crash, consider to share with us
+> a disassembled dump from the isolate_migratepages_range() you're running along
+> with the crash stack-dump, please.
+
+Sure!
+
+The call chain is:
+
+	isolate_migratepages_range
+		balloon_page_movable
+			__is_movable_balloon_page
+				mapping_balloon
+
+mapping_balloon() fails because it checks for mapping to be non-null (and it is -
+it's usually a small value like 0x50), and then it dereferences that.
+
+The relevant assembly is:
+
+static inline int mapping_balloon(struct address_space *mapping)
+{
+        return mapping && test_bit(AS_BALLOON_MAP, &mapping->flags);
+    17ab:       48 85 c0                test   %rax,%rax
+    17ae:       0f 84 4c 02 00 00       je     1a00 <isolate_migratepages_range+0x590>
+    17b4:       48 8b 80 40 01 00 00    mov    0x140(%rax),%rax
+    17bb:       a9 00 00 00 20          test   $0x20000000,%eax
+    17c0:       0f 84 3a 02 00 00       je     1a00 <isolate_migratepages_range+0x590>
+
+It dies on 17b4.
+
+Let me know if you need anything else from me, I can also add debug code into the
+kernel if it would help you...
+
+
+Thanks,
+Sasha
