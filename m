@@ -1,16 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v5
-Date: Wed, 21 Nov 2012 13:57:34 +0200
-Message-ID: <20121121115734.GC31911@redhat.com>
-References: <1353315222-27685-1-git-send-email-asias@redhat.com>
-	<20121119202641.GB12283@redhat.com> <50AB25AC.2070606@redhat.com>
-	<20121120133714.GC3448@redhat.com> <50AC5797.1060604@redhat.com>
+From: "WorldCIST" <marialemos72@gmail.com>
+Subject: WorldCIST'13: Indexed by ISI, SCOPUS, DBLP and EI-Compendex -
+	Deadline: November 28
+Date: Wed, 21 Nov 2012 17:44:28 +0000
+Message-ID: <20121121174349.D04AE58E@mail.linuxfoundation.org>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0353754722513004524=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <50AC5797.1060604@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,257 +16,189 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: axboe@kernel.dk, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 21, 2012 at 12:24:55PM +0800, Asias He wrote:
-> On 11/20/2012 09:37 PM, Michael S. Tsirkin wrote:
-> > On Tue, Nov 20, 2012 at 02:39:40PM +0800, Asias He wrote:
-> >> On 11/20/2012 04:26 AM, Michael S. Tsirkin wrote:
-> >>> On Mon, Nov 19, 2012 at 04:53:42PM +0800, Asias He wrote:
-> >>>> vhost-blk is an in-kernel virito-blk device accelerator.
-> >>>>
-> >>>> Due to lack of proper in-kernel AIO interface, this version converts
-> >>>> guest's I/O request to bio and use submit_bio() to submit I/O directly.
-> >>>> So this version any supports raw block device as guest's disk image,
-> >>>> e.g. /dev/sda, /dev/ram0. We can add file based image support to
-> >>>> vhost-blk once we have in-kernel AIO interface. There are some work in
-> >>>> progress for in-kernel AIO interface from Dave Kleikamp and Zach Brown:
-> >>>>
-> >>>>    http://marc.info/?l=linux-fsdevel&m=133312234313122
-> >>>>
-> >>>> Performance evaluation:
-> >>>> -----------------------------
-> >>>> 1) LKVM
-> >>>> Fio with libaio ioengine on Fusion IO device using kvm tool
-> >>>> IOPS(k)    Before       After   Improvement
-> >>>> seq-read   107          121     +13.0%
-> >>>> seq-write  130          179     +37.6%
-> >>>> rnd-read   102          122     +19.6%
-> >>>> rnd-write  125          159     +27.0%
-> >>>>
-> >>>> 2) QEMU
-> >>>> Fio with libaio ioengine on Fusion IO device using QEMU
-> >>>> IOPS(k)    Before       After   Improvement
-> >>>> seq-read   76           123     +61.8%
-> >>>> seq-write  139          173     +24.4%
-> >>>> rnd-read   73           120     +64.3%
-> >>>> rnd-write  75           156     +108.0%
-> >>>
-> >>> Could you compare with dataplane qemu as well please?
-> >>
-> >>
-> >> Well, I will try to collect it.
-> >>
-> >>>
-> >>>>
-> >>>> Userspace bits:
-> >>>> -----------------------------
-> >>>> 1) LKVM
-> >>>> The latest vhost-blk userspace bits for kvm tool can be found here:
-> >>>> git@github.com:asias/linux-kvm.git blk.vhost-blk
-> >>>>
-> >>>> 2) QEMU
-> >>>> The latest vhost-blk userspace prototype for QEMU can be found here:
-> >>>> git@github.com:asias/qemu.git blk.vhost-blk
-> >>>>
-> >>>> Changes in v5:
-> >>>> - Do not assume the buffer layout
-> >>>> - Fix wakeup race
-> >>>>
-> >>>> Changes in v4:
-> >>>> - Mark req->status as userspace pointer
-> >>>> - Use __copy_to_user() instead of copy_to_user() in vhost_blk_set_status()
-> >>>> - Add if (need_resched()) schedule() in blk thread
-> >>>> - Kill vhost_blk_stop_vq() and move it into vhost_blk_stop()
-> >>>> - Use vq_err() instead of pr_warn()
-> >>>> - Fail un Unsupported request
-> >>>> - Add flush in vhost_blk_set_features()
-> >>>>
-> >>>> Changes in v3:
-> >>>> - Sending REQ_FLUSH bio instead of vfs_fsync, thanks Christoph!
-> >>>> - Check file passed by user is a raw block device file
-> >>>>
-> >>>> Signed-off-by: Asias He <asias@redhat.com>
-> >>>
-> >>> Since there are files shared by this and vhost net
-> >>> it's easiest for me to merge this all through the
-> >>> vhost tree.
-> >>>
-> >>> Jens, could you ack this and the bio usage in this driver
-> >>> please?
-> >>>
-> >>>> ---
-> >>>>  drivers/vhost/Kconfig     |   1 +
-> >>>>  drivers/vhost/Kconfig.blk |  10 +
-> >>>>  drivers/vhost/Makefile    |   2 +
-> >>>>  drivers/vhost/blk.c       | 697 ++++++++++++++++++++++++++++++++++++++++++++++
-> >>>>  drivers/vhost/blk.h       |   8 +
-> >>>>  5 files changed, 718 insertions(+)
-> >>>>  create mode 100644 drivers/vhost/Kconfig.blk
-> >>>>  create mode 100644 drivers/vhost/blk.c
-> >>>>  create mode 100644 drivers/vhost/blk.h
-> >>>>
-> >>>> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-> >>>> index 202bba6..acd8038 100644
-> >>>> --- a/drivers/vhost/Kconfig
-> >>>> +++ b/drivers/vhost/Kconfig
-> >>>> @@ -11,4 +11,5 @@ config VHOST_NET
-> >>>>  
-> >>>>  if STAGING
-> >>>>  source "drivers/vhost/Kconfig.tcm"
-> >>>> +source "drivers/vhost/Kconfig.blk"
-> >>>>  endif
-> >>>> diff --git a/drivers/vhost/Kconfig.blk b/drivers/vhost/Kconfig.blk
-> >>>> new file mode 100644
-> >>>> index 0000000..ff8ab76
-> >>>> --- /dev/null
-> >>>> +++ b/drivers/vhost/Kconfig.blk
-> >>>> @@ -0,0 +1,10 @@
-> >>>> +config VHOST_BLK
-> >>>> +	tristate "Host kernel accelerator for virtio blk (EXPERIMENTAL)"
-> >>>> +	depends on BLOCK &&  EXPERIMENTAL && m
-> >>>> +	---help---
-> >>>> +	  This kernel module can be loaded in host kernel to accelerate
-> >>>> +	  guest block with virtio_blk. Not to be confused with virtio_blk
-> >>>> +	  module itself which needs to be loaded in guest kernel.
-> >>>> +
-> >>>> +	  To compile this driver as a module, choose M here: the module will
-> >>>> +	  be called vhost_blk.
-> >>>> diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-> >>>> index a27b053..1a8a4a5 100644
-> >>>> --- a/drivers/vhost/Makefile
-> >>>> +++ b/drivers/vhost/Makefile
-> >>>> @@ -2,3 +2,5 @@ obj-$(CONFIG_VHOST_NET) += vhost_net.o
-> >>>>  vhost_net-y := vhost.o net.o
-> >>>>  
-> >>>>  obj-$(CONFIG_TCM_VHOST) += tcm_vhost.o
-> >>>> +obj-$(CONFIG_VHOST_BLK) += vhost_blk.o
-> >>>> +vhost_blk-y := blk.o
-> >>>> diff --git a/drivers/vhost/blk.c b/drivers/vhost/blk.c
-> >>>> new file mode 100644
-> >>>> index 0000000..f0f118a
-> >>>> --- /dev/null
-> >>>> +++ b/drivers/vhost/blk.c
-> >>>> @@ -0,0 +1,697 @@
-> >>>> +/*
-> >>>> + * Copyright (C) 2011 Taobao, Inc.
-> >>>> + * Author: Liu Yuan <tailai.ly@taobao.com>
-> >>>> + *
-> >>>> + * Copyright (C) 2012 Red Hat, Inc.
-> >>>> + * Author: Asias He <asias@redhat.com>
-> >>>> + *
-> >>>> + * This work is licensed under the terms of the GNU GPL, version 2.
-> >>>> + *
-> >>>> + * virtio-blk server in host kernel.
-> >>>> + */
-> >>>> +
-> >>>> +#include <linux/miscdevice.h>
-> >>>> +#include <linux/module.h>
-> >>>> +#include <linux/vhost.h>
-> >>>> +#include <linux/virtio_blk.h>
-> >>>> +#include <linux/mutex.h>
-> >>>> +#include <linux/file.h>
-> >>>> +#include <linux/kthread.h>
-> >>>> +#include <linux/blkdev.h>
-> >>>> +#include <linux/llist.h>
-> >>>> +
-> >>>> +#include "vhost.c"
-> >>>> +#include "vhost.h"
-> >>>> +#include "blk.h"
-> >>>> +
-> >>>> +static DEFINE_IDA(vhost_blk_index_ida);
-> >>>> +
-> >>>> +enum {
-> >>>> +	VHOST_BLK_VQ_REQ = 0,
-> >>>> +	VHOST_BLK_VQ_MAX = 1,
-> >>>> +};
-> >>>> +
-> >>>> +struct req_page_list {
-> >>>> +	struct page **pages;
-> >>>> +	int pages_nr;
-> >>>> +};
-> >>>> +
-> >>>> +struct vhost_blk_req {
-> >>>> +	struct llist_node llnode;
-> >>>> +	struct req_page_list *pl;
-> >>>> +	struct vhost_blk *blk;
-> >>>> +
-> >>>> +	struct iovec *iov;
-> >>>> +	int iov_nr;
-> >>>> +
-> >>>> +	struct bio **bio;
-> >>>> +	atomic_t bio_nr;
-> >>>> +
-> >>>> +	struct iovec status[1];
-> >>>> +
-> >>>> +	sector_t sector;
-> >>>> +	int write;
-> >>>> +	u16 head;
-> >>>> +	long len;
-> >>>> +};
-> >>>> +
-> >>>> +struct vhost_blk {
-> >>>> +	struct task_struct *host_kick;
-> >>>
-> >>> Could you please add a comment here explaining why
-> >>> is this better than using the builtin vhost thread?
-> >>
-> >> With separate thread model, the request submit and request completion
-> >> can be handled in parallel. I have measured significant performance
-> >> improvement with this model.
-> >> In the long term, It would be nice if the
-> >> vhost core can provide multiple thread support.
-> > 
-> > Strange, all completion does it write out the used ring.
-> > I am guessing you didn't complete requests
-> > in a timely manner which was what caused the issue.
-> 
-> Previously, there was two 'struct vhost_work' work which poll on the
-> guest kick eventfd and host aio eventfd. The vhost thread is handling
-> the works when there are data in eventfd, either guest kick or aio
-> completion.
+--===============0353754722513004524==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-See VHOST_NET_WEIGHT in how in -net we prevent starvation
-between tx and rx.
+Apologies if you are receiving this mail more than once...
 
-> > OTOH I'm not sure how increasing the number of threads
-> > scales with # of VMs. Increased scheduler pressure is
-> > also a concern.
-> 
-> Agree, this is also my concern. However, this is a trade-off. we have a
-> price to pay for the parallelism.
+Please disseminate by colleagues, researchers, students, etc. Thanks a=
+ lot!
 
-If the work offloaded is trivial in size then the gain is likely
-to be marginal.
 
-> Also, one thread per vhost device
-> might not scale with # of VMs too, compared to e.g. per cpu thread.
+**********************************************************************=
+************
+                             WorldCIST'13
+The 2013 World Conference on Information Systems and Technologies
+                   March 27 - 30, Algarve, Portugal
+                   http://www.aisti.eu/worldcist13/
+**********************************************************************=
+************
 
-I'e no idea how to do QoS with a per cpu thread otherwise
+SCOPE
 
-> > Did you try checking completion after each
-> > submitted request to address this?
-> 
-> Isn't this a sync operation? We can not only account on the checking the
-> completion in the submit path. Another polling on the completion is
-> needed anyway. Mixing the completion in submit path, 1) makes the submit
-> delay longer 2) does not help with the case where a single request takes
-> relatively long time to finish. IMHO, I do not think mixing the submit
-> and completion is a good idea.
+The 2013 World Conference on Information Systems and Technologies (Wor=
+ldCIST'13: http://www.aisti.eu/worldcist13/) is a global forum for res=
+earchers and practitioners to present and discuss the most recent inno=
+vations, trends, results, experiences and concerns in the several pers=
+pectives of Information Systems and Technologies.
 
-To clarify, you would
-1. do llist_del_all in handle_kick -
-   the delay this adds should be trivial
-2. for completion queue work on vhost thread -
-   this can be as simple as waking up the regular
-   kick handler
+We are pleased to invite you to submit your papers to WorldCISTI'13. A=
+ll submissions will be reviewed on the basis of relevance, originality=
+, importance and clarity.
 
-You can further reduce overhead by batching
-the wakeups in 2. See my patch
-vhost-net: reduce vq polling on tx zerocopy
-that does this for -net.
 
-> -- 
-> Asias
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Intelligent and Decision Support Systems (IDSS);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+F) Human-Computer Interaction (HCI).
+
+
+TYPES OF SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one =
+of the Conference themes. These papers are assigned a 10-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, open to =
+discussion. These papers are assigned a 7-page limit.
+
+Poster paper: Initial work with relevant ideas, open to discussion. Th=
+ese papers are assigned to a 4-page limit.
+
+Company paper: Companies' papers that show practical experience, R & D=
+, tools, etc., focused on some topics of the conference. These papers =
+are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see http://www.aisti.eu/worldcist13/sp=
+ringerformat.doc) be written in English, must not have been published =
+before, not be under review for any other conference or publication an=
+d not include any information leading to the authors=92 identification=
+. Therefore, the authors=92 names, affiliations and bibliographic ref=
+erences should not be included in the version for evaluation by the Pr=
+ogram Committee. This information should only be included in the camer=
+a-ready version.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference includes Work Sessions where t=
+hese posters are presented and orally discussed, with a 5 minute limit=
+ per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+PUBLICATION AND INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 11th of January 2013, and the paper must comp=
+ly with the suggested layout and page-limit. Additionally, all recomme=
+nded changes must be addressed by the authors before they submit the c=
+amera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of two additional papers per registration.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ Advances in Intelligent Systems and Computing Series. Poster and comp=
+any papers will be published in Proceedings by AISTI.
+
+Published full and short papers will be indexed by ISI, EI-Compendex, =
+SCOPUS, DBLP and EBSCO, among others, and will be available in the Spr=
+ingerLink Digital Library. Published poster and company papers will be=
+ indexed in EI-Compendex and EBSCO.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in edited books and in international journals indexed=
+ by ISI/JCR, SCOPUS and/or DBLP, among others, such as:
+
+- ACM Transactions on Modeling and Computer Simulation (TOMACS)
+- Online Information Review (OIR)
+- Informatics for Health and Social Care (IHSC)
+- Computer Science and Information Systems (ComSIS)
+- Telecommunication Systems Journal (TSJ)
+- INFORMATION - An International Interdisciplinary Journal
+- Journal of Organizational and End User Computing (JOEUC)
+- Information Researh (IR)
+- International Journal of Internet Protocol Technology (IJIPT)
+- Studies in Computational Intelligence (SCI)
+- Journal of Advanced Computational Intelligence and Intelligent Infor=
+matics (JACIII)
+- Journal of Electrical and Computer Engineering (JECE): Special Issue=
+ in Advances in Radar Technology
+- WSEAS Transactions on Systems (TS)
+- Library Review (LR)
+- Education for Information (EI)
+- International Journal of IT/Business Alignment and Governance (IJITBAG)
+- International Journal of Systems and Service-Oriented Engineering (I=
+JSSOE)
+- International Journal of Interactive Multimedia and Artificial Intel=
+ligence (IJIMAI)
+
+
+IMPORTANT DATES
+
+Paper Submission: November 25, 2012
+
+Notification of Acceptance: December 30, 2012
+
+Camera-ready Submission: January 9, 2013
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 11, 2013.
+
+-
+
+Kind regards,
+
+Maria Lemos
+WorldCIST'13
+http://www.aisti.eu/worldcist13/
+
+
+
+--===============0353754722513004524==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0353754722513004524==--
