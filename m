@@ -1,21 +1,12 @@
-From: Sasha Levin <levinsasha928@gmail.com>
-Subject: Re: [PATCH v12 4/7] mm: introduce compaction and migration for
-	ballooned pages
-Date: Thu, 22 Nov 2012 09:19:15 -0500
-Message-ID: <50AE3463.1040107__47202.2655806088$1353594005$gmane$org@gmail.com>
-References: <cover.1352656285.git.aquini@redhat.com>
-	<6602296b38c073a5c6faa13ddbc74ceb1eceb2dd.1352656285.git.aquini@redhat.com>
-	<50A7D0FA.2080709@gmail.com>
-	<20121117215434.GA23879@x61.redhat.com>
-	<CA+1xoqfbxL-mL3XRDXxnuv0R6b9w6qxU7t+8U3FwS2eK5Sf0OA@mail.gmail.com>
-	<20121120141438.GA21672@x61.redhat.com>
-	<50AC2BCC.6050507@gmail.com>
-	<20121122000114.GB1815@t510.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCHv4] virtio-spec: virtio network device RFS support
+Date: Thu, 22 Nov 2012 16:46:45 +0200
+Message-ID: <20121122144645.GA28284@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121122000114.GB1815@t510.redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,134 +16,430 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rafael Aquini <aquini@redhat.com>
-Cc: Rik van Riel <riel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/21/2012 07:01 PM, Rafael Aquini wrote:
-> On Tue, Nov 20, 2012 at 08:18:04PM -0500, Sasha Levin wrote:
->> On 11/20/2012 09:14 AM, Rafael Aquini wrote:
->>> On Sun, Nov 18, 2012 at 09:59:47AM -0500, Sasha Levin wrote:
->>>> On Sat, Nov 17, 2012 at 4:54 PM, Rafael Aquini <aquini@redhat.com> wrote:
->>>>> On Sat, Nov 17, 2012 at 01:01:30PM -0500, Sasha Levin wrote:
->>>>>>
->>>>>> I'm getting the following while fuzzing using trinity inside a KVM tools guest,
->>>>>> on latest -next:
->>>>>>
->>>>>> [ 1642.783728] BUG: unable to handle kernel NULL pointer dereference at 0000000000000194
->>>>>> [ 1642.785083] IP: [<ffffffff8122b354>] isolate_migratepages_range+0x344/0x7b0
->>>>>>
->>>>>> My guess is that we see those because of a race during the check in
->>>>>> isolate_migratepages_range().
->>>>>>
->>>>>>
->>>>>> Thanks,
->>>>>> Sasha
->>>>>
->>>>> Sasha, could you share your .config and steps you did used with trinity? So I
->>>>> can attempt to reproduce this issue you reported.
->>>>
->>>> Basically try running trinity (with ./trinity -m --quiet --dangerous
->>>> -l off) inside a disposable guest as root.
->>>>
->>>> I manage to hit that every couple of hours.
->>>>
->>>> Config attached.
->>>>
->>>
->>> Howdy Sasha,
->>>
->>> After several hours since last Sunday running trinity tests on a traditional
->>> KVM-QEMU guest as well as running it on a lkvm guest (both running
->>> next-20121115) I couldn't hit a single time the crash you've reported,
->>> (un)fortunately.
->>
->> Odd... I can see it happening here every couple of hours.
->>
->>> Also, the .config you gave me, applied on top of next-20121115, haven't produced
->>> the same bin you've running and hitting the mentioned bug, apparently.
->>>
->>> Here's the RIP for your crash:
->>> [ 1642.783728] BUG: unable to handle kernel NULL pointer dereference at
->>> 0000000000000194
->>> [ 1642.785083] IP: [<ffffffff8122b354>] isolate_migratepages_range+0x344/0x7b0
->>>
->>>
->>> And here's the symbol address for the next-20121115 with your .config I've been
->>> running tests on:
->>> [raquini@x61 linux]$ nm -n vmlinux | grep isolate_migratepages_range 
->>> ffffffff8122d890 T isolate_migratepages_range
->>>
->>> Also, it seems quite clear I'm missing something from your tree, as applying the
->>> RIP displacement (0x344) to my local isolate_migratepages_range sym addr leads
->>> me to the _middle_ of a instruction opcode that does not dereference any
->>> pointers at all.
->>
->> Yup, I carry another small fix to mpol (which is unrelated to this one).
->>
->>> So, if you're consistently reproducing the same crash, consider to share with us
->>> a disassembled dump from the isolate_migratepages_range() you're running along
->>> with the crash stack-dump, please.
->>
->> Sure!
->>
->> The call chain is:
->>
->> 	isolate_migratepages_range
->> 		balloon_page_movable
->> 			__is_movable_balloon_page
->> 				mapping_balloon
->>
->> mapping_balloon() fails because it checks for mapping to be non-null (and it is -
->> it's usually a small value like 0x50), and then it dereferences that.
->>
->> The relevant assembly is:
->>
->> static inline int mapping_balloon(struct address_space *mapping)
->> {
->>         return mapping && test_bit(AS_BALLOON_MAP, &mapping->flags);
->>     17ab:       48 85 c0                test   %rax,%rax
->>     17ae:       0f 84 4c 02 00 00       je     1a00 <isolate_migratepages_range+0x590>
->>     17b4:       48 8b 80 40 01 00 00    mov    0x140(%rax),%rax
->>     17bb:       a9 00 00 00 20          test   $0x20000000,%eax
->>     17c0:       0f 84 3a 02 00 00       je     1a00 <isolate_migratepages_range+0x590>
->>
->> It dies on 17b4.
->>
->> Let me know if you need anything else from me, I can also add debug code into the
->> kernel if it would help you...
->>
-> 
-> I still failing miserably on getting a reproducer, but I'm quite curious about
-> what kind of page is being left behind with this barbed wire at ->mapping.
-> 
-> This might be an overkill on messages, but could you run a test with the
-> following patch? This migth bring some light to this corner as well as it might
-> help me on figuring out a clever/cleaner way to perform that test.
-> 
-> Thanks a lot for your attention here.
+Add RFS support to virtio network device.
+Add a new feature flag VIRTIO_NET_F_RFS for this feature, a new
+configuration field max_virtqueue_pairs to detect supported number of
+virtqueues as well as a new command VIRTIO_NET_CTRL_RFS to program
+packet steering for unidirectional protocols.
 
-I've modified it a bit to decrease the noise:
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
-index e339dd9..7dfbce1 100644
---- a/include/linux/balloon_compaction.h
-+++ b/include/linux/balloon_compaction.h
-@@ -98,6 +98,8 @@ static inline bool __is_movable_balloon_page(struct page *page)
-         */
-        struct address_space *mapping = ACCESS_ONCE(page->mapping);
-        smp_read_barrier_depends();
-+       if (mapping && mapping < 0x1000)
-+               dump_page(page);
-        return mapping_balloon(mapping);
- }
+--
 
-And managed to reproduce it only once through last night, here is the dump I got
-before the oops:
+Changes from v3:
+- rename multiqueue -> rfs this is what we support
+- Be more explicit about what driver should do.
+- Simplify layout making VQs functionality depend on feature.
+- Remove unused commands, only leave in programming # of queues
 
-[ 2760.356820] page:ffffea0000d00e00 count:1 mapcount:-2147287036 mapping:00000000000004f4 index:0xd00e00000003
-[ 2760.362354] page flags: 0x350000000001800(private|private_2)
+Changes from v2:
+Address Jason's comments on v2:
+- Changed STEERING_HOST to STEERING_RX_FOLLOWS_TX:
+  this is both clearer and easier to support.
+  It does not look like we need a separate steering command
+  since host can just watch tx packets as they go.
+- Moved RX and TX steering sections near each other.
+- Add motivation for other changes in v2
 
+Changes from Jason's rfc:
+- reserved vq 3: this makes all rx vqs even and tx vqs odd, which
+  looks nicer to me.
+- documented packet steering, added a generalized steering programming
+  command. Current modes are single queue and host driven multiqueue,
+  but I envision support for guest driven multiqueue in the future.
+- make default vqs unused when in mq mode - this wastes some memory
+  but makes it more efficient to switch between modes as
+  we can avoid this causing packet reordering.
 
-Thanks,
-Sasha
+Rusty, could you please take a look and comment soon?
+If this looks OK to everyone, we can proceed with finalizing the
+implementation. Would be nice to try and put it in 3.8.
+
+---
+
+diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+index d2f0da9..c1fa3e4 100644
+--- a/virtio-spec.lyx
++++ b/virtio-spec.lyx
+@@ -59,6 +59,7 @@
+ \author -608949062 "Rusty Russell,,," 
+ \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
+ \author 1531152142 "Paolo Bonzini,,," 
++\author 1986246365 "Michael S. Tsirkin" 
+ \end_header
+ 
+ \begin_body
+@@ -4170,9 +4171,42 @@ ID 1
+ \end_layout
+ 
+ \begin_layout Description
+-Virtqueues 0:receiveq.
+- 1:transmitq.
+- 2:controlq
++Virtqueues 0:receiveq
++\change_inserted 1986246365 1352742829
++0
++\change_unchanged
++.
++ 1:transmitq
++\change_inserted 1986246365 1352742832
++0
++\change_deleted 1986246365 1352742947
++.
++ 
++\change_inserted 1986246365 1352742952
++.
++ ....
++ 2N
++\begin_inset Foot
++status open
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1352743187
++N=0 if VIRTIO_NET_F_RFS is not negotiated, otherwise N is indicated by max_
++\emph on
++virtqueue_pairs control
++\emph default
++ field.
++ 
++\end_layout
++
++\end_inset
++
++: receivqN.
++ 2N+1: transmitqN.
++ 2N+
++\change_unchanged
++2:controlq
+ \begin_inset Foot
+ status open
+ 
+@@ -4343,6 +4377,16 @@ VIRTIO_NET_F_CTRL_VLAN
+ 
+ \begin_layout Description
+ VIRTIO_NET_F_GUEST_ANNOUNCE(21) Guest can send gratuitous packets.
++\change_inserted 1986246365 1352742767
++
++\end_layout
++
++\begin_layout Description
++
++\change_inserted 1986246365 1352742808
++VIRTIO_NET_F_RFS(2) Device supports Receive Flow Steering.
++\change_unchanged
++
+ \end_layout
+ 
+ \end_deeper
+@@ -4355,11 +4399,44 @@ configuration
+ \begin_inset space ~
+ \end_inset
+ 
+-layout Two configuration fields are currently defined.
++layout 
++\change_deleted 1986246365 1352743300
++Two
++\change_inserted 1986246365 1352743301
++Four
++\change_unchanged
++ configuration fields are currently defined.
+  The mac address field always exists (though is only valid if VIRTIO_NET_F_MAC
+  is set), and the status field only exists if VIRTIO_NET_F_STATUS is set.
+  Two read-only bits are currently defined for the status field: VIRTIO_NET_S_LIN
+ K_UP and VIRTIO_NET_S_ANNOUNCE.
++
++\change_inserted 1986246365 1353595219
++ The following read-only field, 
++\emph on
++max_virtqueue_pairs
++\emph default
++ only exists if VIRTIO_NET_F_RFS is set.
++ This field specifies the maximum number of each of transmit and receive
++ virtqueues (receiveq0..receiveq
++\emph on
++N
++\emph default
++ and transmitq0..transmitq
++\emph on
++N
++\emph default
++ respectively; 
++\emph on
++N
++\emph default
++=
++\emph on
++max_virtqueue_pairs
++\emph default
++) that can be configured once VIRTIO_NET_F_RFS is negotiated.
++
++\change_unchanged
+  
+ \begin_inset listings
+ inline false
+@@ -4410,7 +4487,24 @@ Device Initialization
+ 
+ \begin_layout Enumerate
+ The initialization routine should identify the receive and transmission
+- virtqueues.
++ virtqueues
++\change_inserted 1986246365 1352744077
++, up to N+1 of each kind
++\change_unchanged
++.
++
++\change_inserted 1986246365 1352743942
++ If VIRTIO_NET_F_RFS feature bit is negotiated, 
++\emph on
++N=max_virtqueue_pairs
++\emph default
++, otherwise identify 
++\emph on
++N=0
++\emph default
++.
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Enumerate
+@@ -4455,7 +4549,11 @@ status
+ \end_layout
+ 
+ \begin_layout Enumerate
+-The receive virtqueue should be filled with receive buffers.
++The receive virtqueue
++\change_inserted 1986246365 1352743953
++s
++\change_unchanged
++ should be filled with receive buffers.
+  This is described in detail below in 
+ \begin_inset Quotes eld
+ \end_inset
+@@ -4550,8 +4648,15 @@ Device Operation
+ \end_layout
+ 
+ \begin_layout Standard
+-Packets are transmitted by placing them in the transmitq, and buffers for
+- incoming packets are placed in the receiveq.
++Packets are transmitted by placing them in the transmitq
++\change_inserted 1986246365 1353593685
++0..transmitqN
++\change_unchanged
++, and buffers for incoming packets are placed in the receiveq
++\change_inserted 1986246365 1353593692
++0..receiveqN
++\change_unchanged
++.
+  In each case, the packet itself is preceeded by a header:
+ \end_layout
+ 
+@@ -4861,6 +4966,17 @@ If VIRTIO_NET_F_MRG_RXBUF is negotiated, each buffer must be at least the
+ struct virtio_net_hdr
+ \family default
+ .
++\change_inserted 1986246365 1353594518
++
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1353594638
++If VIRTIO_NET_F_RFS is negotiated, each of the receiveq0...receiveqN that will
++ be used should be populated with receive buffers.
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Subsection*
+@@ -5293,8 +5409,125 @@ Sending VIRTIO_NET_CTRL_ANNOUNCE_ACK command through control vq.
+  
+ \end_layout
+ 
+-\begin_layout Enumerate
++\begin_layout Subsection*
++
++\change_inserted 1986246365 1353593879
++Packet Receive Flow Steering
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1353594403
++If the driver negotiates the VIRTIO_NET_F_RFS (depends on VIRTIO_NET_F_CTRL_VQ),
++ it can transmit outgoing packets on one of the multiple transmitq0..transmitqN
++ and ask the device to queue incoming packets into one the multiple receiveq0..rec
++eiveqN depending on the packet flow.
++\change_unchanged
++
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1353594292
++\begin_inset listings
++inline false
++status open
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1353594178
++
++struct virtio_net_ctrl_rfs {
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1353594212
++
++	u16 virtqueue_pairs;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1353594172
++
++};
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1353594172
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1353594263
++
++#define VIRTIO_NET_CTRL_RFC    1
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1353594273
++
++ #define VIRTIO_NET_CTRL_RFS_VQ_PAIRS_SET        0 
++\end_layout
++
++\end_inset
++
++
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1353594884
++RFS acceleration is disabled by default.
++ Driver enables RFS by executing the VIRTIO_NET_CTRL_RFS_VQ_PAIRS_SET command,
++ specifying the number of the last transmit and receive queue that is going
++ to be used; thus out of transmitq0..transmitqn and receiveq0..receiveqn where
++ 
++\emph on
++n=virtqueue
++\emph default
++_pairs will be used.
++ All these virtqueues must have been pre-configured in advance.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1353595328
++Programming of the receive flow classificator is implicit.
++ Transmitting a packet of a specific flow on transmitqX will cause incoming
++ packets for this flow to be steered to receiveqX.
++ For uni-directional protocols, or where no packets have been transmitted
++ yet, device will steer a packet to a random queue out of the specified
++ receiveq0..receiveqn.
++\change_unchanged
++
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1986246365 1353595040
++RFS acceleration is disabled by setting 
++\emph on
++virtqueue_pairs = 0
++\emph default
++ (this is the default).
++ Following this, driver should not transmit new packets on virtqueues other
++ than transmitq0 and device will not steer new packets on virtqueues other
++ than receiveq0.
++\change_unchanged
++
++\end_layout
++
++\begin_layout Standard
++
++\change_deleted 1986246365 1353593873
+ .
++
++\change_unchanged
+  
+ \end_layout
+ 
+@@ -6152,13 +6385,7 @@ Virtqueues 0:receiveq(port0).
+ status open
+ 
+ \begin_layout Plain Layout
+-Ports 
+-\change_inserted 1986246365 1347188327
+-1
+-\change_deleted 1986246365 1347188327
+-2
+-\change_unchanged
+- onwards only if VIRTIO_CONSOLE_F_MULTIPORT is set
++Ports 12 onwards only if VIRTIO_CONSOLE_F_MULTIPORT is set
+ \end_layout
+ 
+ \end_inset
+@@ -6185,13 +6412,8 @@ VIRTIO_CONSOLE_F_SIZE
+ 
+ \begin_layout Description
+ VIRTIO_CONSOLE_F_MULTIPORT(1) Device has support for multiple ports; configurati
+-on fields nr_ports and max_nr_ports are valid
+-\change_inserted 1986246365 1347188404
+-; if this bit is negotiated,
+-\change_deleted 1986246365 1347188406
+- and
+-\change_unchanged
+- control virtqueues will be used.
++on fields nr_ports and max_nr_ports are valid; if this bit is negotiated,
++ and control virtqueues will be used.
+ \end_layout
+ 
+ \end_deeper
+@@ -6260,8 +6482,7 @@ If the VIRTIO_CONSOLE_F_MULTIPORT feature is negotiated, the driver can
+  spawn multiple ports, not all of which may be attached to a console.
+  Some could be generic ports.
+  In this case, the control virtqueues are enabled and according to the max_nr_po
+-rts configuration-space value, an appropriate number of virtqueues are
+- created.
++rts configuration-space value, an appropriate number of virtqueues are created.
+  A control message indicating the driver is ready is sent to the host.
+  The host can then send control messages for adding new ports to the device.
+  After creating and initializing each port, a VIRTIO_CONSOLE_PORT_READY
+@@ -6699,14 +6920,9 @@ The driver constructs an array of addresses of memory pages it has previously
+ \end_layout
+ 
+ \begin_layout Enumerate
+-If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is 
+-\change_inserted 1986246365 1347188540
+-negotiated
+-\change_deleted 1986246365 1347188542
+-set
+-\change_unchanged
+-, the guest may not use these requested pages until that descriptor in the
+- deflateq has been used by the device.
++If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is negotiatedset, the guest
++ may not use these requested pages until that descriptor in the deflateq
++ has been used by the device.
+ \end_layout
+ 
+ \begin_layout Enumerate
