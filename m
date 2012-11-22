@@ -1,21 +1,16 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [PATCH v12 4/7] mm: introduce compaction and migration for
-	ballooned pages
-Date: Wed, 21 Nov 2012 22:01:15 -0200
-Message-ID: <20121122000114.GB1815__32940.872902009$1353542515$gmane$org@t510.redhat.com>
-References: <cover.1352656285.git.aquini@redhat.com>
-	<6602296b38c073a5c6faa13ddbc74ceb1eceb2dd.1352656285.git.aquini@redhat.com>
-	<50A7D0FA.2080709@gmail.com>
-	<20121117215434.GA23879@x61.redhat.com>
-	<CA+1xoqfbxL-mL3XRDXxnuv0R6b9w6qxU7t+8U3FwS2eK5Sf0OA@mail.gmail.com>
-	<20121120141438.GA21672@x61.redhat.com>
-	<50AC2BCC.6050507@gmail.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v5
+Date: Thu, 22 Nov 2012 15:23:59 +0800
+Message-ID: <50ADD30F.2060408@redhat.com>
+References: <1353315222-27685-1-git-send-email-asias@redhat.com>
+	<20121119202641.GB12283@redhat.com> <50AB25AC.2070606@redhat.com>
+	<20121120133714.GC3448@redhat.com> <50AC5797.1060604@redhat.com>
+	<20121121115734.GC31911@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <50AC2BCC.6050507@gmail.com>
+In-Reply-To: <20121121115734.GC31911@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,126 +20,265 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: Rik van Riel <riel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: axboe@kernel.dk, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 20, 2012 at 08:18:04PM -0500, Sasha Levin wrote:
-> On 11/20/2012 09:14 AM, Rafael Aquini wrote:
-> > On Sun, Nov 18, 2012 at 09:59:47AM -0500, Sasha Levin wrote:
-> >> On Sat, Nov 17, 2012 at 4:54 PM, Rafael Aquini <aquini@redhat.com> wrote:
-> >>> On Sat, Nov 17, 2012 at 01:01:30PM -0500, Sasha Levin wrote:
-> >>>>
-> >>>> I'm getting the following while fuzzing using trinity inside a KVM tools guest,
-> >>>> on latest -next:
-> >>>>
-> >>>> [ 1642.783728] BUG: unable to handle kernel NULL pointer dereference at 0000000000000194
-> >>>> [ 1642.785083] IP: [<ffffffff8122b354>] isolate_migratepages_range+0x344/0x7b0
-> >>>>
-> >>>> My guess is that we see those because of a race during the check in
-> >>>> isolate_migratepages_range().
-> >>>>
-> >>>>
-> >>>> Thanks,
-> >>>> Sasha
-> >>>
-> >>> Sasha, could you share your .config and steps you did used with trinity? So I
-> >>> can attempt to reproduce this issue you reported.
-> >>
-> >> Basically try running trinity (with ./trinity -m --quiet --dangerous
-> >> -l off) inside a disposable guest as root.
-> >>
-> >> I manage to hit that every couple of hours.
-> >>
-> >> Config attached.
-> >>
-> > 
-> > Howdy Sasha,
-> > 
-> > After several hours since last Sunday running trinity tests on a traditional
-> > KVM-QEMU guest as well as running it on a lkvm guest (both running
-> > next-20121115) I couldn't hit a single time the crash you've reported,
-> > (un)fortunately.
+On 11/21/2012 07:57 PM, Michael S. Tsirkin wrote:
+> On Wed, Nov 21, 2012 at 12:24:55PM +0800, Asias He wrote:
+>> On 11/20/2012 09:37 PM, Michael S. Tsirkin wrote:
+>>> On Tue, Nov 20, 2012 at 02:39:40PM +0800, Asias He wrote:
+>>>> On 11/20/2012 04:26 AM, Michael S. Tsirkin wrote:
+>>>>> On Mon, Nov 19, 2012 at 04:53:42PM +0800, Asias He wrote:
+>>>>>> vhost-blk is an in-kernel virito-blk device accelerator.
+>>>>>>
+>>>>>> Due to lack of proper in-kernel AIO interface, this version converts
+>>>>>> guest's I/O request to bio and use submit_bio() to submit I/O directly.
+>>>>>> So this version any supports raw block device as guest's disk image,
+>>>>>> e.g. /dev/sda, /dev/ram0. We can add file based image support to
+>>>>>> vhost-blk once we have in-kernel AIO interface. There are some work in
+>>>>>> progress for in-kernel AIO interface from Dave Kleikamp and Zach Brown:
+>>>>>>
+>>>>>>    http://marc.info/?l=linux-fsdevel&m=133312234313122
+>>>>>>
+>>>>>> Performance evaluation:
+>>>>>> -----------------------------
+>>>>>> 1) LKVM
+>>>>>> Fio with libaio ioengine on Fusion IO device using kvm tool
+>>>>>> IOPS(k)    Before       After   Improvement
+>>>>>> seq-read   107          121     +13.0%
+>>>>>> seq-write  130          179     +37.6%
+>>>>>> rnd-read   102          122     +19.6%
+>>>>>> rnd-write  125          159     +27.0%
+>>>>>>
+>>>>>> 2) QEMU
+>>>>>> Fio with libaio ioengine on Fusion IO device using QEMU
+>>>>>> IOPS(k)    Before       After   Improvement
+>>>>>> seq-read   76           123     +61.8%
+>>>>>> seq-write  139          173     +24.4%
+>>>>>> rnd-read   73           120     +64.3%
+>>>>>> rnd-write  75           156     +108.0%
+>>>>>
+>>>>> Could you compare with dataplane qemu as well please?
+>>>>
+>>>>
+>>>> Well, I will try to collect it.
+>>>>
+>>>>>
+>>>>>>
+>>>>>> Userspace bits:
+>>>>>> -----------------------------
+>>>>>> 1) LKVM
+>>>>>> The latest vhost-blk userspace bits for kvm tool can be found here:
+>>>>>> git@github.com:asias/linux-kvm.git blk.vhost-blk
+>>>>>>
+>>>>>> 2) QEMU
+>>>>>> The latest vhost-blk userspace prototype for QEMU can be found here:
+>>>>>> git@github.com:asias/qemu.git blk.vhost-blk
+>>>>>>
+>>>>>> Changes in v5:
+>>>>>> - Do not assume the buffer layout
+>>>>>> - Fix wakeup race
+>>>>>>
+>>>>>> Changes in v4:
+>>>>>> - Mark req->status as userspace pointer
+>>>>>> - Use __copy_to_user() instead of copy_to_user() in vhost_blk_set_status()
+>>>>>> - Add if (need_resched()) schedule() in blk thread
+>>>>>> - Kill vhost_blk_stop_vq() and move it into vhost_blk_stop()
+>>>>>> - Use vq_err() instead of pr_warn()
+>>>>>> - Fail un Unsupported request
+>>>>>> - Add flush in vhost_blk_set_features()
+>>>>>>
+>>>>>> Changes in v3:
+>>>>>> - Sending REQ_FLUSH bio instead of vfs_fsync, thanks Christoph!
+>>>>>> - Check file passed by user is a raw block device file
+>>>>>>
+>>>>>> Signed-off-by: Asias He <asias@redhat.com>
+>>>>>
+>>>>> Since there are files shared by this and vhost net
+>>>>> it's easiest for me to merge this all through the
+>>>>> vhost tree.
+>>>>>
+>>>>> Jens, could you ack this and the bio usage in this driver
+>>>>> please?
+>>>>>
+>>>>>> ---
+>>>>>>  drivers/vhost/Kconfig     |   1 +
+>>>>>>  drivers/vhost/Kconfig.blk |  10 +
+>>>>>>  drivers/vhost/Makefile    |   2 +
+>>>>>>  drivers/vhost/blk.c       | 697 ++++++++++++++++++++++++++++++++++++++++++++++
+>>>>>>  drivers/vhost/blk.h       |   8 +
+>>>>>>  5 files changed, 718 insertions(+)
+>>>>>>  create mode 100644 drivers/vhost/Kconfig.blk
+>>>>>>  create mode 100644 drivers/vhost/blk.c
+>>>>>>  create mode 100644 drivers/vhost/blk.h
+>>>>>>
+>>>>>> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+>>>>>> index 202bba6..acd8038 100644
+>>>>>> --- a/drivers/vhost/Kconfig
+>>>>>> +++ b/drivers/vhost/Kconfig
+>>>>>> @@ -11,4 +11,5 @@ config VHOST_NET
+>>>>>>  
+>>>>>>  if STAGING
+>>>>>>  source "drivers/vhost/Kconfig.tcm"
+>>>>>> +source "drivers/vhost/Kconfig.blk"
+>>>>>>  endif
+>>>>>> diff --git a/drivers/vhost/Kconfig.blk b/drivers/vhost/Kconfig.blk
+>>>>>> new file mode 100644
+>>>>>> index 0000000..ff8ab76
+>>>>>> --- /dev/null
+>>>>>> +++ b/drivers/vhost/Kconfig.blk
+>>>>>> @@ -0,0 +1,10 @@
+>>>>>> +config VHOST_BLK
+>>>>>> +	tristate "Host kernel accelerator for virtio blk (EXPERIMENTAL)"
+>>>>>> +	depends on BLOCK &&  EXPERIMENTAL && m
+>>>>>> +	---help---
+>>>>>> +	  This kernel module can be loaded in host kernel to accelerate
+>>>>>> +	  guest block with virtio_blk. Not to be confused with virtio_blk
+>>>>>> +	  module itself which needs to be loaded in guest kernel.
+>>>>>> +
+>>>>>> +	  To compile this driver as a module, choose M here: the module will
+>>>>>> +	  be called vhost_blk.
+>>>>>> diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
+>>>>>> index a27b053..1a8a4a5 100644
+>>>>>> --- a/drivers/vhost/Makefile
+>>>>>> +++ b/drivers/vhost/Makefile
+>>>>>> @@ -2,3 +2,5 @@ obj-$(CONFIG_VHOST_NET) += vhost_net.o
+>>>>>>  vhost_net-y := vhost.o net.o
+>>>>>>  
+>>>>>>  obj-$(CONFIG_TCM_VHOST) += tcm_vhost.o
+>>>>>> +obj-$(CONFIG_VHOST_BLK) += vhost_blk.o
+>>>>>> +vhost_blk-y := blk.o
+>>>>>> diff --git a/drivers/vhost/blk.c b/drivers/vhost/blk.c
+>>>>>> new file mode 100644
+>>>>>> index 0000000..f0f118a
+>>>>>> --- /dev/null
+>>>>>> +++ b/drivers/vhost/blk.c
+>>>>>> @@ -0,0 +1,697 @@
+>>>>>> +/*
+>>>>>> + * Copyright (C) 2011 Taobao, Inc.
+>>>>>> + * Author: Liu Yuan <tailai.ly@taobao.com>
+>>>>>> + *
+>>>>>> + * Copyright (C) 2012 Red Hat, Inc.
+>>>>>> + * Author: Asias He <asias@redhat.com>
+>>>>>> + *
+>>>>>> + * This work is licensed under the terms of the GNU GPL, version 2.
+>>>>>> + *
+>>>>>> + * virtio-blk server in host kernel.
+>>>>>> + */
+>>>>>> +
+>>>>>> +#include <linux/miscdevice.h>
+>>>>>> +#include <linux/module.h>
+>>>>>> +#include <linux/vhost.h>
+>>>>>> +#include <linux/virtio_blk.h>
+>>>>>> +#include <linux/mutex.h>
+>>>>>> +#include <linux/file.h>
+>>>>>> +#include <linux/kthread.h>
+>>>>>> +#include <linux/blkdev.h>
+>>>>>> +#include <linux/llist.h>
+>>>>>> +
+>>>>>> +#include "vhost.c"
+>>>>>> +#include "vhost.h"
+>>>>>> +#include "blk.h"
+>>>>>> +
+>>>>>> +static DEFINE_IDA(vhost_blk_index_ida);
+>>>>>> +
+>>>>>> +enum {
+>>>>>> +	VHOST_BLK_VQ_REQ = 0,
+>>>>>> +	VHOST_BLK_VQ_MAX = 1,
+>>>>>> +};
+>>>>>> +
+>>>>>> +struct req_page_list {
+>>>>>> +	struct page **pages;
+>>>>>> +	int pages_nr;
+>>>>>> +};
+>>>>>> +
+>>>>>> +struct vhost_blk_req {
+>>>>>> +	struct llist_node llnode;
+>>>>>> +	struct req_page_list *pl;
+>>>>>> +	struct vhost_blk *blk;
+>>>>>> +
+>>>>>> +	struct iovec *iov;
+>>>>>> +	int iov_nr;
+>>>>>> +
+>>>>>> +	struct bio **bio;
+>>>>>> +	atomic_t bio_nr;
+>>>>>> +
+>>>>>> +	struct iovec status[1];
+>>>>>> +
+>>>>>> +	sector_t sector;
+>>>>>> +	int write;
+>>>>>> +	u16 head;
+>>>>>> +	long len;
+>>>>>> +};
+>>>>>> +
+>>>>>> +struct vhost_blk {
+>>>>>> +	struct task_struct *host_kick;
+>>>>>
+>>>>> Could you please add a comment here explaining why
+>>>>> is this better than using the builtin vhost thread?
+>>>>
+>>>> With separate thread model, the request submit and request completion
+>>>> can be handled in parallel. I have measured significant performance
+>>>> improvement with this model.
+>>>> In the long term, It would be nice if the
+>>>> vhost core can provide multiple thread support.
+>>>
+>>> Strange, all completion does it write out the used ring.
+>>> I am guessing you didn't complete requests
+>>> in a timely manner which was what caused the issue.
+>>
+>> Previously, there was two 'struct vhost_work' work which poll on the
+>> guest kick eventfd and host aio eventfd. The vhost thread is handling
+>> the works when there are data in eventfd, either guest kick or aio
+>> completion.
 > 
-> Odd... I can see it happening here every couple of hours.
-> 
-> > Also, the .config you gave me, applied on top of next-20121115, haven't produced
-> > the same bin you've running and hitting the mentioned bug, apparently.
-> > 
-> > Here's the RIP for your crash:
-> > [ 1642.783728] BUG: unable to handle kernel NULL pointer dereference at
-> > 0000000000000194
-> > [ 1642.785083] IP: [<ffffffff8122b354>] isolate_migratepages_range+0x344/0x7b0
-> > 
-> > 
-> > And here's the symbol address for the next-20121115 with your .config I've been
-> > running tests on:
-> > [raquini@x61 linux]$ nm -n vmlinux | grep isolate_migratepages_range 
-> > ffffffff8122d890 T isolate_migratepages_range
-> > 
-> > Also, it seems quite clear I'm missing something from your tree, as applying the
-> > RIP displacement (0x344) to my local isolate_migratepages_range sym addr leads
-> > me to the _middle_ of a instruction opcode that does not dereference any
-> > pointers at all.
-> 
-> Yup, I carry another small fix to mpol (which is unrelated to this one).
-> 
-> > So, if you're consistently reproducing the same crash, consider to share with us
-> > a disassembled dump from the isolate_migratepages_range() you're running along
-> > with the crash stack-dump, please.
-> 
-> Sure!
-> 
-> The call chain is:
-> 
-> 	isolate_migratepages_range
-> 		balloon_page_movable
-> 			__is_movable_balloon_page
-> 				mapping_balloon
-> 
-> mapping_balloon() fails because it checks for mapping to be non-null (and it is -
-> it's usually a small value like 0x50), and then it dereferences that.
-> 
-> The relevant assembly is:
-> 
-> static inline int mapping_balloon(struct address_space *mapping)
-> {
->         return mapping && test_bit(AS_BALLOON_MAP, &mapping->flags);
->     17ab:       48 85 c0                test   %rax,%rax
->     17ae:       0f 84 4c 02 00 00       je     1a00 <isolate_migratepages_range+0x590>
->     17b4:       48 8b 80 40 01 00 00    mov    0x140(%rax),%rax
->     17bb:       a9 00 00 00 20          test   $0x20000000,%eax
->     17c0:       0f 84 3a 02 00 00       je     1a00 <isolate_migratepages_range+0x590>
-> 
-> It dies on 17b4.
-> 
-> Let me know if you need anything else from me, I can also add debug code into the
-> kernel if it would help you...
->
+> See VHOST_NET_WEIGHT in how in -net we prevent starvation
+> between tx and rx.
 
-I still failing miserably on getting a reproducer, but I'm quite curious about
-what kind of page is being left behind with this barbed wire at ->mapping.
+Looks interesting.
 
-This might be an overkill on messages, but could you run a test with the
-following patch? This migth bring some light to this corner as well as it might
-help me on figuring out a clever/cleaner way to perform that test.
+>>> OTOH I'm not sure how increasing the number of threads
+>>> scales with # of VMs. Increased scheduler pressure is
+>>> also a concern.
+>>
+>> Agree, this is also my concern. However, this is a trade-off. we have a
+>> price to pay for the parallelism.
+> 
+> If the work offloaded is trivial in size then the gain is likely
+> to be marginal.
+> 
+>> Also, one thread per vhost device
+>> might not scale with # of VMs too, compared to e.g. per cpu thread.
+> 
+> I'e no idea how to do QoS with a per cpu thread otherwise
+> 
+>>> Did you try checking completion after each
+>>> submitted request to address this?
+>>
+>> Isn't this a sync operation? We can not only account on the checking the
+>> completion in the submit path. Another polling on the completion is
+>> needed anyway. Mixing the completion in submit path, 1) makes the submit
+>> delay longer 2) does not help with the case where a single request takes
+>> relatively long time to finish. IMHO, I do not think mixing the submit
+>> and completion is a good idea.
+> 
+> To clarify, you would
+> 1. do llist_del_all in handle_kick -
+>    the delay this adds should be trivial
+> 2. for completion queue work on vhost thread -
+>    this can be as simple as waking up the regular
+>    kick handler
 
-Thanks a lot for your attention here.
+I am trying the one thread model. If it works fine, I will switch to it
+in v6.
 
----
-diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compacti
-index e339dd9..d47ac78 100644
---- a/include/linux/balloon_compaction.h
-+++ b/include/linux/balloon_compaction.h
-@@ -122,9 +122,10 @@ static inline bool balloon_page_movable(struct page *page)
-         * this is not a page that uses ->mapping in a different way
-         */
-        if (!PageSlab(page) && !PageSwapCache(page) && !PageAnon(page) &&
--           !page_mapped(page))
-+           !page_mapped(page)) {
-+               dump_page(page);
-                return __is_movable_balloon_page(page);
--
-+       }
-        return false;
- }
+> You can further reduce overhead by batching
+> the wakeups in 2. See my patch
+> vhost-net: reduce vq polling on tx zerocopy
+> that does this for -net.
+
+okay. thanks!
+
+-- 
+Asias
