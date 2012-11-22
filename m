@@ -1,17 +1,18 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
-Date: Thu, 22 Nov 2012 09:47:46 -0800
-Message-ID: <50AE6542.3020302__4741.32455788112$1353606515$gmane$org@zytor.com>
+Date: Thu, 22 Nov 2012 14:26:10 -0800
+Message-ID: <09b41677-c9e7-4cd4-84a0-a1cb483d551d__15826.2789169841$1353623243$gmane$org@email.android.com>
 References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
 	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
 	<87lidwtego.fsf@xmission.com>
 	<20121121105221.GA2925@host-192-168-1-59.local.net-space.pl>
-	<87txshx28b.fsf@xmission.com>
+	<87txshx28b.fsf@xmission.com> <50AE6542.3020302@zytor.com>
+	<50AE69EF.4060909@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87txshx28b.fsf@xmission.com>
+In-Reply-To: <50AE69EF.4060909@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,22 +22,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: xen-devel@lists.xensource.com, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, Daniel Kiper <daniel.kiper@oracle.com>, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, jbeulich@suse.com, tglx@linutronix.de
+To: Andrew Cooper <andrew.cooper3@citrix.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Daniel Kiper <daniel.kiper@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "tglx@linutronix.de" <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The other thing that should be considered here is how utterly 
-preposterous the notion of doing in-guest crash dumping is in a system 
-that contains a hypervisor.  The reason for kdump is that on bare metal 
-there are no other options, but in a hypervisor system the right thing 
-should be for the hypervisor to do the dump (possibly spawning a clean 
-I/O domain if the I/O domain is necessary to access the media.)
+Bullshit.  This should be a separate domain.
 
-There is absolutely no reason to have a crashkernel sitting around in 
-each guest, consuming memory, and possibly get corrupt.
+Andrew Cooper <andrew.cooper3@citrix.com> wrote:
 
-	-hpa
+>On 22/11/12 17:47, H. Peter Anvin wrote:
+>> The other thing that should be considered here is how utterly 
+>> preposterous the notion of doing in-guest crash dumping is in a
+>system 
+>> that contains a hypervisor.  The reason for kdump is that on bare
+>metal 
+>> there are no other options, but in a hypervisor system the right
+>thing 
+>> should be for the hypervisor to do the dump (possibly spawning a
+>clean 
+>> I/O domain if the I/O domain is necessary to access the media.)
+>>
+>> There is absolutely no reason to have a crashkernel sitting around in
+>
+>> each guest, consuming memory, and possibly get corrupt.
+>>
+>> 	-hpa
+>>
+>
+>I agree that regular guests should not be using the kexec/kdump. 
+>However, this patch series is required for allowing a pvops kernel to
+>be
+>a crash kernel for Xen, which is very important from dom0/Xen's point
+>of
+>view.
 
 -- 
-H. Peter Anvin, Intel Open Source Technology Center
-I work for Intel.  I don't speak on their behalf.
+Sent from my mobile phone. Please excuse brevity and lack of formatting.
