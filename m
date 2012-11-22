@@ -1,16 +1,17 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v5
-Date: Thu, 22 Nov 2012 15:23:59 +0800
-Message-ID: <50ADD30F.2060408@redhat.com>
-References: <1353315222-27685-1-git-send-email-asias@redhat.com>
-	<20121119202641.GB12283@redhat.com> <50AB25AC.2070606@redhat.com>
-	<20121120133714.GC3448@redhat.com> <50AC5797.1060604@redhat.com>
-	<20121121115734.GC31911@redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
+Date: Thu, 22 Nov 2012 04:15:48 -0800
+Message-ID: <87txshx28b.fsf@xmission.com>
+References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
+	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
+	<87lidwtego.fsf@xmission.com>
+	<20121121105221.GA2925@host-192-168-1-59.local.net-space.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121121115734.GC31911@redhat.com>
+In-Reply-To: <20121121105221.GA2925@host-192-168-1-59.local.net-space.pl>
+	(Daniel Kiper's message of "Wed, 21 Nov 2012 11:52:21 +0100")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,265 +21,158 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: axboe@kernel.dk, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>
+To: Daniel Kiper <daniel.kiper@oracle.com>
+Cc: xen-devel@lists.xensource.com, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, jbeulich@suse.com, hpa@zytor.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/21/2012 07:57 PM, Michael S. Tsirkin wrote:
-> On Wed, Nov 21, 2012 at 12:24:55PM +0800, Asias He wrote:
->> On 11/20/2012 09:37 PM, Michael S. Tsirkin wrote:
->>> On Tue, Nov 20, 2012 at 02:39:40PM +0800, Asias He wrote:
->>>> On 11/20/2012 04:26 AM, Michael S. Tsirkin wrote:
->>>>> On Mon, Nov 19, 2012 at 04:53:42PM +0800, Asias He wrote:
->>>>>> vhost-blk is an in-kernel virito-blk device accelerator.
->>>>>>
->>>>>> Due to lack of proper in-kernel AIO interface, this version converts
->>>>>> guest's I/O request to bio and use submit_bio() to submit I/O directly.
->>>>>> So this version any supports raw block device as guest's disk image,
->>>>>> e.g. /dev/sda, /dev/ram0. We can add file based image support to
->>>>>> vhost-blk once we have in-kernel AIO interface. There are some work in
->>>>>> progress for in-kernel AIO interface from Dave Kleikamp and Zach Brown:
->>>>>>
->>>>>>    http://marc.info/?l=linux-fsdevel&m=133312234313122
->>>>>>
->>>>>> Performance evaluation:
->>>>>> -----------------------------
->>>>>> 1) LKVM
->>>>>> Fio with libaio ioengine on Fusion IO device using kvm tool
->>>>>> IOPS(k)    Before       After   Improvement
->>>>>> seq-read   107          121     +13.0%
->>>>>> seq-write  130          179     +37.6%
->>>>>> rnd-read   102          122     +19.6%
->>>>>> rnd-write  125          159     +27.0%
->>>>>>
->>>>>> 2) QEMU
->>>>>> Fio with libaio ioengine on Fusion IO device using QEMU
->>>>>> IOPS(k)    Before       After   Improvement
->>>>>> seq-read   76           123     +61.8%
->>>>>> seq-write  139          173     +24.4%
->>>>>> rnd-read   73           120     +64.3%
->>>>>> rnd-write  75           156     +108.0%
->>>>>
->>>>> Could you compare with dataplane qemu as well please?
->>>>
->>>>
->>>> Well, I will try to collect it.
->>>>
->>>>>
->>>>>>
->>>>>> Userspace bits:
->>>>>> -----------------------------
->>>>>> 1) LKVM
->>>>>> The latest vhost-blk userspace bits for kvm tool can be found here:
->>>>>> git@github.com:asias/linux-kvm.git blk.vhost-blk
->>>>>>
->>>>>> 2) QEMU
->>>>>> The latest vhost-blk userspace prototype for QEMU can be found here:
->>>>>> git@github.com:asias/qemu.git blk.vhost-blk
->>>>>>
->>>>>> Changes in v5:
->>>>>> - Do not assume the buffer layout
->>>>>> - Fix wakeup race
->>>>>>
->>>>>> Changes in v4:
->>>>>> - Mark req->status as userspace pointer
->>>>>> - Use __copy_to_user() instead of copy_to_user() in vhost_blk_set_status()
->>>>>> - Add if (need_resched()) schedule() in blk thread
->>>>>> - Kill vhost_blk_stop_vq() and move it into vhost_blk_stop()
->>>>>> - Use vq_err() instead of pr_warn()
->>>>>> - Fail un Unsupported request
->>>>>> - Add flush in vhost_blk_set_features()
->>>>>>
->>>>>> Changes in v3:
->>>>>> - Sending REQ_FLUSH bio instead of vfs_fsync, thanks Christoph!
->>>>>> - Check file passed by user is a raw block device file
->>>>>>
->>>>>> Signed-off-by: Asias He <asias@redhat.com>
->>>>>
->>>>> Since there are files shared by this and vhost net
->>>>> it's easiest for me to merge this all through the
->>>>> vhost tree.
->>>>>
->>>>> Jens, could you ack this and the bio usage in this driver
->>>>> please?
->>>>>
->>>>>> ---
->>>>>>  drivers/vhost/Kconfig     |   1 +
->>>>>>  drivers/vhost/Kconfig.blk |  10 +
->>>>>>  drivers/vhost/Makefile    |   2 +
->>>>>>  drivers/vhost/blk.c       | 697 ++++++++++++++++++++++++++++++++++++++++++++++
->>>>>>  drivers/vhost/blk.h       |   8 +
->>>>>>  5 files changed, 718 insertions(+)
->>>>>>  create mode 100644 drivers/vhost/Kconfig.blk
->>>>>>  create mode 100644 drivers/vhost/blk.c
->>>>>>  create mode 100644 drivers/vhost/blk.h
->>>>>>
->>>>>> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
->>>>>> index 202bba6..acd8038 100644
->>>>>> --- a/drivers/vhost/Kconfig
->>>>>> +++ b/drivers/vhost/Kconfig
->>>>>> @@ -11,4 +11,5 @@ config VHOST_NET
->>>>>>  
->>>>>>  if STAGING
->>>>>>  source "drivers/vhost/Kconfig.tcm"
->>>>>> +source "drivers/vhost/Kconfig.blk"
->>>>>>  endif
->>>>>> diff --git a/drivers/vhost/Kconfig.blk b/drivers/vhost/Kconfig.blk
->>>>>> new file mode 100644
->>>>>> index 0000000..ff8ab76
->>>>>> --- /dev/null
->>>>>> +++ b/drivers/vhost/Kconfig.blk
->>>>>> @@ -0,0 +1,10 @@
->>>>>> +config VHOST_BLK
->>>>>> +	tristate "Host kernel accelerator for virtio blk (EXPERIMENTAL)"
->>>>>> +	depends on BLOCK &&  EXPERIMENTAL && m
->>>>>> +	---help---
->>>>>> +	  This kernel module can be loaded in host kernel to accelerate
->>>>>> +	  guest block with virtio_blk. Not to be confused with virtio_blk
->>>>>> +	  module itself which needs to be loaded in guest kernel.
->>>>>> +
->>>>>> +	  To compile this driver as a module, choose M here: the module will
->>>>>> +	  be called vhost_blk.
->>>>>> diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
->>>>>> index a27b053..1a8a4a5 100644
->>>>>> --- a/drivers/vhost/Makefile
->>>>>> +++ b/drivers/vhost/Makefile
->>>>>> @@ -2,3 +2,5 @@ obj-$(CONFIG_VHOST_NET) += vhost_net.o
->>>>>>  vhost_net-y := vhost.o net.o
->>>>>>  
->>>>>>  obj-$(CONFIG_TCM_VHOST) += tcm_vhost.o
->>>>>> +obj-$(CONFIG_VHOST_BLK) += vhost_blk.o
->>>>>> +vhost_blk-y := blk.o
->>>>>> diff --git a/drivers/vhost/blk.c b/drivers/vhost/blk.c
->>>>>> new file mode 100644
->>>>>> index 0000000..f0f118a
->>>>>> --- /dev/null
->>>>>> +++ b/drivers/vhost/blk.c
->>>>>> @@ -0,0 +1,697 @@
->>>>>> +/*
->>>>>> + * Copyright (C) 2011 Taobao, Inc.
->>>>>> + * Author: Liu Yuan <tailai.ly@taobao.com>
->>>>>> + *
->>>>>> + * Copyright (C) 2012 Red Hat, Inc.
->>>>>> + * Author: Asias He <asias@redhat.com>
->>>>>> + *
->>>>>> + * This work is licensed under the terms of the GNU GPL, version 2.
->>>>>> + *
->>>>>> + * virtio-blk server in host kernel.
->>>>>> + */
->>>>>> +
->>>>>> +#include <linux/miscdevice.h>
->>>>>> +#include <linux/module.h>
->>>>>> +#include <linux/vhost.h>
->>>>>> +#include <linux/virtio_blk.h>
->>>>>> +#include <linux/mutex.h>
->>>>>> +#include <linux/file.h>
->>>>>> +#include <linux/kthread.h>
->>>>>> +#include <linux/blkdev.h>
->>>>>> +#include <linux/llist.h>
->>>>>> +
->>>>>> +#include "vhost.c"
->>>>>> +#include "vhost.h"
->>>>>> +#include "blk.h"
->>>>>> +
->>>>>> +static DEFINE_IDA(vhost_blk_index_ida);
->>>>>> +
->>>>>> +enum {
->>>>>> +	VHOST_BLK_VQ_REQ = 0,
->>>>>> +	VHOST_BLK_VQ_MAX = 1,
->>>>>> +};
->>>>>> +
->>>>>> +struct req_page_list {
->>>>>> +	struct page **pages;
->>>>>> +	int pages_nr;
->>>>>> +};
->>>>>> +
->>>>>> +struct vhost_blk_req {
->>>>>> +	struct llist_node llnode;
->>>>>> +	struct req_page_list *pl;
->>>>>> +	struct vhost_blk *blk;
->>>>>> +
->>>>>> +	struct iovec *iov;
->>>>>> +	int iov_nr;
->>>>>> +
->>>>>> +	struct bio **bio;
->>>>>> +	atomic_t bio_nr;
->>>>>> +
->>>>>> +	struct iovec status[1];
->>>>>> +
->>>>>> +	sector_t sector;
->>>>>> +	int write;
->>>>>> +	u16 head;
->>>>>> +	long len;
->>>>>> +};
->>>>>> +
->>>>>> +struct vhost_blk {
->>>>>> +	struct task_struct *host_kick;
->>>>>
->>>>> Could you please add a comment here explaining why
->>>>> is this better than using the builtin vhost thread?
->>>>
->>>> With separate thread model, the request submit and request completion
->>>> can be handled in parallel. I have measured significant performance
->>>> improvement with this model.
->>>> In the long term, It would be nice if the
->>>> vhost core can provide multiple thread support.
->>>
->>> Strange, all completion does it write out the used ring.
->>> I am guessing you didn't complete requests
->>> in a timely manner which was what caused the issue.
+Daniel Kiper <daniel.kiper@oracle.com> writes:
+
+> On Tue, Nov 20, 2012 at 08:40:39AM -0800, ebiederm@xmission.com wrote:
+>> Daniel Kiper <daniel.kiper@oracle.com> writes:
 >>
->> Previously, there was two 'struct vhost_work' work which poll on the
->> guest kick eventfd and host aio eventfd. The vhost thread is handling
->> the works when there are data in eventfd, either guest kick or aio
->> completion.
-> 
-> See VHOST_NET_WEIGHT in how in -net we prevent starvation
-> between tx and rx.
-
-Looks interesting.
-
->>> OTOH I'm not sure how increasing the number of threads
->>> scales with # of VMs. Increased scheduler pressure is
->>> also a concern.
+>> > Some kexec/kdump implementations (e.g. Xen PVOPS) could not use default
+>> > functions or require some changes in behavior of kexec/kdump generic code.
+>> > To cope with that problem kexec_ops struct was introduced. It allows
+>> > a developer to replace all or some functions and control some
+>> > functionality of kexec/kdump generic code.
+>> >
+>> > Default behavior of kexec/kdump generic code is not changed.
 >>
->> Agree, this is also my concern. However, this is a trade-off. we have a
->> price to pay for the parallelism.
-> 
-> If the work offloaded is trivial in size then the gain is likely
-> to be marginal.
-> 
->> Also, one thread per vhost device
->> might not scale with # of VMs too, compared to e.g. per cpu thread.
-> 
-> I'e no idea how to do QoS with a per cpu thread otherwise
-> 
->>> Did you try checking completion after each
->>> submitted request to address this?
+>> Ick.
 >>
->> Isn't this a sync operation? We can not only account on the checking the
->> completion in the submit path. Another polling on the completion is
->> needed anyway. Mixing the completion in submit path, 1) makes the submit
->> delay longer 2) does not help with the case where a single request takes
->> relatively long time to finish. IMHO, I do not think mixing the submit
->> and completion is a good idea.
-> 
-> To clarify, you would
-> 1. do llist_del_all in handle_kick -
->    the delay this adds should be trivial
-> 2. for completion queue work on vhost thread -
->    this can be as simple as waking up the regular
->    kick handler
+>> > v2 - suggestions/fixes:
+>> >    - add comment for kexec_ops.crash_alloc_temp_store member
+>> >      (suggested by Konrad Rzeszutek Wilk),
+>> >    - simplify kexec_ops usage
+>> >      (suggested by Konrad Rzeszutek Wilk).
+>> >
+>> > Signed-off-by: Daniel Kiper <daniel.kiper@oracle.com>
+>> > ---
+>> >  include/linux/kexec.h |   26 ++++++++++
+>> >  kernel/kexec.c        |  131 +++++++++++++++++++++++++++++++++++++------------
+>> >  2 files changed, 125 insertions(+), 32 deletions(-)
+>> >
+>> > diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+>> > index d0b8458..c8d0b35 100644
+>> > --- a/include/linux/kexec.h
+>> > +++ b/include/linux/kexec.h
+>> > @@ -116,7 +116,33 @@ struct kimage {
+>> >  #endif
+>> >  };
+>> >
+>> > +struct kexec_ops {
+>> > +	/*
+>> > +	 * Some kdump implementations (e.g. Xen PVOPS dom0) could not access
+>> > +	 * directly crash kernel memory area. In this situation they must
+>> > +	 * allocate memory outside of it and later move contents from temporary
+>> > +	 * storage to final resting places (usualy done by relocate_kernel()).
+>> > +	 * Such behavior could be enforced by setting
+>> > +	 * crash_alloc_temp_store member to true.
+>> > +	 */
+>>
+>> Why in the world would Xen not be able to access crash kernel memory?
+>> As currently defined it is normal memory that the kernel chooses not to
+>> use.
+>>
+>> If relocate kernel can access that memory you definitely can access the
+>> memory so the comment does not make any sense.
+>
+> Crash kernel memory is reserved by Xen hypervisor and Xen hypervisor
+> only has access to it. dom0 does not have any mapping of this area.
+> However, relocate_kernel() has access to crash kernel memory
+> because it is executed by Xen hypervisor and whole machine
+> memory is identity mapped.
 
-I am trying the one thread model. If it works fine, I will switch to it
-in v6.
+This is all weird.  Doubly so since this code is multi-arch and you have
+a set of requirements no other arch has had.
 
-> You can further reduce overhead by batching
-> the wakeups in 2. See my patch
-> vhost-net: reduce vq polling on tx zerocopy
-> that does this for -net.
+I recall that Xen uses kexec in a unique manner.  What is the hypervisor
+interface and how is it used?
 
-okay. thanks!
+Is this for when the hypervisor crashes and we want a crash dump of
+that?
 
--- 
-Asias
+
+
+>> > +	bool crash_alloc_temp_store;
+>> > +	struct page *(*kimage_alloc_pages)(gfp_t gfp_mask,
+>> > +						unsigned int order,
+>> > +						unsigned long limit);
+>> > +	void (*kimage_free_pages)(struct page *page);
+>> > +	unsigned long (*page_to_pfn)(struct page *page);
+>> > +	struct page *(*pfn_to_page)(unsigned long pfn);
+>> > +	unsigned long (*virt_to_phys)(volatile void *address);
+>> > +	void *(*phys_to_virt)(unsigned long address);
+>> > +	int (*machine_kexec_prepare)(struct kimage *image);
+>> > +	int (*machine_kexec_load)(struct kimage *image);
+>> > +	void (*machine_kexec_cleanup)(struct kimage *image);
+>> > +	void (*machine_kexec_unload)(struct kimage *image);
+>> > +	void (*machine_kexec_shutdown)(void);
+>> > +	void (*machine_kexec)(struct kimage *image);
+>> > +};
+>>
+>> Ugh.  This is a nasty abstraction.
+>>
+>> You are mixing and matching a bunch of things together here.
+>>
+>> If you need to override machine_kexec_xxx please do that on a per
+>> architecture basis.
+>
+> Yes, it is possible but I think that it is worth to do it at that
+> level because it could be useful for other archs too (e.g. Xen ARM port
+> is under development). Then we do not need to duplicate that functionality
+> in arch code. Additionally, Xen requires machine_kexec_load and
+> machine_kexec_unload hooks which are not available in current generic
+> kexec/kdump code.
+
+
+Let me be clear.  kexec_ops as you have implemented it is absolutely
+unacceptable.
+
+Your kexec_ops is not an abstraction but a hack that enshrines in stone
+implementation details.
+
+>> Special case overrides of page_to_pfn, pfn_to_page, virt_to_phys,
+>> phys_to_virt, and friends seem completely inappropriate.
+>
+> They are required in Xen PVOPS case. If we do not do that in that way
+> then we at least need to duplicate almost all generic kexec/kdump existing
+> code in arch depended files. I do not mention that we need to capture
+> relevant syscall and other things. I think that this is wrong way.
+
+A different definition of phys_to_virt and page_to_pfn for one specific
+function is total nonsense.
+
+It may actually be better to have a completely different code path.
+This looks more like code abuse than code reuse.
+
+Successful code reuse depends upon not breaking the assumptions on which
+the code relies, or modifying the code so that the new modified
+assumptions are clear.  In this case you might as well define up as down
+for all of the sense kexec_ops makes.
+
+>> There may be a point to all of these but you are mixing and matching
+>> things badly.
+>
+> Do you whish to split this kexec_ops struct to something which
+> works with addresses and something which is reponsible for
+> loading, unloading and executing kexec/kdump? I am able to change
+> that but I would like to know a bit about your vision first.
+
+My vision is that we should have code that makes sense.
+
+My suspicion is that what you want is a cousin of the existing kexec
+system call.  Perhaps what is needed is a flag to say use the firmware
+kexec system call.
+
+I absolutely do not understand what Xen is trying to do.  kexec by
+design should not require any firmware specific hooks.  kexec at this
+level should only need to care about the processor architeture.  Clearly
+what you are doing with Xen requires special hooks separate even from
+the normal paravirt hooks.  So I do not understand you are trying to do.
+
+It needs to be clear from the code what is happening differently in the
+Xen case.  Otherwise the code is unmaintainable as no one will be able
+to understand it.
+
+Eric
