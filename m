@@ -1,23 +1,17 @@
-From: Rafael Aquini <aquini@redhat.com>
-Subject: Re: [PATCH v12 4/7] mm: introduce compaction and migration for
-	ballooned pages
-Date: Thu, 22 Nov 2012 13:10:29 -0200
-Message-ID: <20121122151028.GA1834@t510.redhat.com>
-References: <cover.1352656285.git.aquini@redhat.com>
-	<6602296b38c073a5c6faa13ddbc74ceb1eceb2dd.1352656285.git.aquini@redhat.com>
-	<50A7D0FA.2080709@gmail.com>
-	<20121117215434.GA23879@x61.redhat.com>
-	<CA+1xoqfbxL-mL3XRDXxnuv0R6b9w6qxU7t+8U3FwS2eK5Sf0OA@mail.gmail.com>
-	<20121120141438.GA21672@x61.redhat.com>
-	<50AC2BCC.6050507@gmail.com>
-	<20121122000114.GB1815@t510.redhat.com>
-	<50AE3463.1040107@gmail.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
+Date: Thu, 22 Nov 2012 09:37:45 -0800
+Message-ID: <50AE62E9.3000602@zytor.com>
+References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
+	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
+	<87lidwtego.fsf@xmission.com>
+	<20121121105221.GA2925@host-192-168-1-59.local.net-space.pl>
+	<87txshx28b.fsf@xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <50AE3463.1040107@gmail.com>
+In-Reply-To: <87txshx28b.fsf@xmission.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,71 +21,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sasha Levin <levinsasha928@gmail.com>
-Cc: Rik van Riel <riel@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Minchan Kim <minchan@kernel.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: xen-devel@lists.xensource.com, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, Daniel Kiper <daniel.kiper@oracle.com>, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, jbeulich@suse.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Nov 22, 2012 at 09:19:15AM -0500, Sasha Levin wrote:
-> And managed to reproduce it only once through last night, here is the dump I got
-> before the oops:
-> 
-> [ 2760.356820] page:ffffea0000d00e00 count:1 mapcount:-2147287036 mapping:00000000000004f4 index:0xd00e00000003
-> [ 2760.362354] page flags: 0x350000000001800(private|private_2)
-> 
+On 11/22/2012 04:15 AM, Eric W. Biederman wrote:
+>
+> Let me be clear.  kexec_ops as you have implemented it is absolutely
+> unacceptable.
+>
+> Your kexec_ops is not an abstraction but a hack that enshrines in stone
+> implementation details.
+>
 
-Thanks alot for following up this one Sasha.
+This is the kind of stuff that is absolutely endemic to the Xen 
+endeavour, and which is why Xen is such a disease.  The design principle 
+seems to have been "hey, let's go and replace random Linux kernel 
+internals with our own stuff, and make them ABIs, so that they can never 
+change.  Oh, and let's not bother documenting the constraints we're 
+imposing, that might make the code manageable."
+
+I actually talked to Ian Jackson at LCE, and mentioned among other 
+things the bogosity of requiring a PUD page for three-level paging in 
+Linux -- a bogosity which has spread from Xen into native.  It's a page 
+wasted for no good reason, since it only contains 32 bytes worth of 
+data, *inherently*.  Furthermore, contrary to popular belief, it is 
+*not* pa page table per se.
+
+Ian told me: "I didn't know we did that, and we shouldn't have to." 
+Here we have suffered this overhead for at least six years, because *XEN 
+FUCKED UP AND NOONE ELSE HAD ANY WAY OF KNOWING THAT*.
+
+Now we know that it can "maybe"(!!!) be fixed, if we are willing to 
+spend time working on a dying platform, whereas we have already suffered 
+the damage during the height of its importance.
+
+	-hpa
 
 
-We're stumbling across a private page -- seems something in your setup is doing
-this particular usage, and that's probably why I'm not seeing the same here.
-
-Regardless being a particular case or not, we shouldn't be poking at that
-private page, so I figured the tests I'm doing at balloon_page_movable() are
-incomplete and dumb.
-
-Perhaps, a better way to proceed here would be assuring the NR_PAGEFLAGS
-rightmost bits from page->flags are all cleared, as this is the state a page
-coming from buddy to the balloon list will be, and this is the state the balloon
-page flags will be kept as long as it lives as such (we don't play with any flag
-at balloon level).
-
-
-Here goes what I'll propose after you confirm it doesn't trigger your crash
-anymore, as it simplifies the code and reduces the testing battery @
-balloon_page_movable() -- ballooned pages have no flags set, 1 refcount and 0
-mapcount, always.
-
-
-Could you give this a try?
-
-Thank you!
-
----
-diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compacti
-index e339dd9..44ad50f 100644
---- a/include/linux/balloon_compaction.h
-+++ b/include/linux/balloon_compaction.h
-@@ -101,6 +101,12 @@ static inline bool __is_movable_balloon_page(struct page *p
-        return mapping_balloon(mapping);
- }
- 
-+#define PAGE_FLAGS_MASK       ((1UL << NR_PAGEFLAGS) - 1)
-+static inline bool __balloon_page_flags(struct page *page)
-+{
-+       return page->flags & PAGE_FLAGS_MASK ? false : true;
-+}
-+
- /*
-  * balloon_page_movable - test page->mapping->flags to identify balloon pages
-  *                       that can be moved by compaction/migration.
-@@ -121,8 +127,8 @@ static inline bool balloon_page_movable(struct page *page)
-         * Before dereferencing and testing mapping->flags, lets make sure
-         * this is not a page that uses ->mapping in a different way
-         */
--       if (!PageSlab(page) && !PageSwapCache(page) && !PageAnon(page) &&
--           !page_mapped(page))
-+       if (__balloon_page_flags(page) && !page_mapped(page) &&
-+           page_count(page) == 1)
-                return __is_movable_balloon_page(page);
- 
-        return false;
+-- 
+H. Peter Anvin, Intel Open Source Technology Center
+I work for Intel.  I don't speak on their behalf.
