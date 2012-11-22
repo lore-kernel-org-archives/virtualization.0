@@ -1,17 +1,17 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 12/12] VMCI: Some header and config files.
-Date: Mon, 26 Nov 2012 16:32:39 -0800
-Message-ID: <20121127003239.GA32298@kroah.com>
-References: <20121107183624.9658.78903.stgit@promb-2n-dhcp175.eng.vmware.com>
-	<20121107184258.9658.95698.stgit@promb-2n-dhcp175.eng.vmware.com>
-	<20121127000304.GA18680@kroah.com>
-	<20121127002357.GA27683@core.coreip.homeip.net>
+From: Andrew Cooper <andrew.cooper3@citrix.com>
+Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
+Date: Thu, 22 Nov 2012 18:07:43 +0000
+Message-ID: <50AE69EF.4060909__32061.9989223362$1353977125$gmane$org@citrix.com>
+References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
+	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
+	<87lidwtego.fsf@xmission.com>
+	<20121121105221.GA2925@host-192-168-1-59.local.net-space.pl>
+	<87txshx28b.fsf@xmission.com> <50AE6542.3020302@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20121127002357.GA27683@core.coreip.homeip.net>
+In-Reply-To: <50AE6542.3020302@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,38 +21,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: pv-drivers@vmware.com, acking@vmware.com, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Daniel Kiper <daniel.kiper@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "tglx@linutronix.de" <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 26, 2012 at 04:23:57PM -0800, Dmitry Torokhov wrote:
-> Hi Greg,
-> 
-> For some reason it still didn't go through to our corporate mail server
-> but I see it on LKML.
+On 22/11/12 17:47, H. Peter Anvin wrote:
+> The other thing that should be considered here is how utterly 
+> preposterous the notion of doing in-guest crash dumping is in a system 
+> that contains a hypervisor.  The reason for kdump is that on bare metal 
+> there are no other options, but in a hypervisor system the right thing 
+> should be for the hypervisor to do the dump (possibly spawning a clean 
+> I/O domain if the I/O domain is necessary to access the media.)
+>
+> There is absolutely no reason to have a crashkernel sitting around in 
+> each guest, consuming memory, and possibly get corrupt.
+>
+> 	-hpa
+>
 
-Good.
+I agree that regular guests should not be using the kexec/kdump. 
+However, this patch series is required for allowing a pvops kernel to be
+a crash kernel for Xen, which is very important from dom0/Xen's point of
+view.
 
-> On Mon, Nov 26, 2012 at 04:03:04PM -0800, Greg KH wrote:
-> > On Wed, Nov 07, 2012 at 10:43:03AM -0800, George Zhang wrote:
-> > 
-> > > +static inline struct vmci_handle VMCI_MAKE_HANDLE(vmci_id cid, vmci_id rid)
-> > > +{
-> > > +	struct vmci_handle h;
-> > > +	h.context = cid;
-> > > +	h.resource = rid;
-> > > +	return h;
-> > > +}
-> > 
-> > You return a structure on the stack that just went away?  Yeah, I know
-> > it's an inline, but come on, that's not ok.
-> 
-> This is certainly OK even if it is not inline, we return the _value_,
-> not the pointer to the stacki memory. And yes, the structure is 64 bit
-> value so it is returned in registers.
-
-Even on a 32bit processor?  Also, you already have another function that
-does this same thing, so having 2 functions in the same patch seems odd,
-right?
-
-greg k-h
+-- 
+Andrew Cooper - Dom0 Kernel Engineer, Citrix XenServer
+T: +44 (0)1223 225 900, http://www.citrix.com
