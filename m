@@ -1,18 +1,18 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
-Date: Thu, 22 Nov 2012 14:26:10 -0800
-Message-ID: <09b41677-c9e7-4cd4-84a0-a1cb483d551d__15826.2789169841$1353623243$gmane$org@email.android.com>
+Date: Thu, 22 Nov 2012 17:34:56 -0800
+Message-ID: <a1f75604-1f52-4af1-9dd7-b469ed4ea7b6@email.android.com>
 References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
 	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
 	<87lidwtego.fsf@xmission.com>
 	<20121121105221.GA2925@host-192-168-1-59.local.net-space.pl>
 	<87txshx28b.fsf@xmission.com> <50AE6542.3020302@zytor.com>
-	<50AE69EF.4060909@citrix.com>
+	<50AEBF86.50501@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50AE69EF.4060909@citrix.com>
+In-Reply-To: <50AEBF86.50501@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,11 +26,11 @@ To: Andrew Cooper <andrew.cooper3@citrix.com>
 Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Daniel Kiper <daniel.kiper@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "tglx@linutronix.de" <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Bullshit.  This should be a separate domain.
+Ok... that *sort of* makes sense, but also underscores how utterly different this is from a normal kexec.
 
 Andrew Cooper <andrew.cooper3@citrix.com> wrote:
 
->On 22/11/12 17:47, H. Peter Anvin wrote:
+>On 22/11/2012 17:47, H. Peter Anvin wrote:
 >> The other thing that should be considered here is how utterly 
 >> preposterous the notion of doing in-guest crash dumping is in a
 >system 
@@ -49,12 +49,20 @@ Andrew Cooper <andrew.cooper3@citrix.com> wrote:
 >> 	-hpa
 >>
 >
->I agree that regular guests should not be using the kexec/kdump. 
->However, this patch series is required for allowing a pvops kernel to
->be
->a crash kernel for Xen, which is very important from dom0/Xen's point
->of
->view.
+>(Your reply to my email which I can see on the xen devel archive
+>appears
+>to have gotten lost somewhere inside the citrix email system, so
+>apologies for replying out of order)
+>
+>The kdump kernel loaded by dom0 is for when Xen crashes, not for when
+>dom0 crashes (although a dom0 crash does admittedly lead to a Xen
+>crash)
+>
+>There is no possible way it could be a separate domain; Xen completely
+>ceases to function as soon as jumps to the entry point of the kdump
+>image.
+>
+>~Andrew
 
 -- 
 Sent from my mobile phone. Please excuse brevity and lack of formatting.
