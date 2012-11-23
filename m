@@ -1,7 +1,7 @@
 From: Andrew Cooper <andrew.cooper3@citrix.com>
 Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
-Date: Thu, 22 Nov 2012 18:07:43 +0000
-Message-ID: <50AE69EF.4060909__32061.9989223362$1353977125$gmane$org@citrix.com>
+Date: Fri, 23 Nov 2012 00:12:54 +0000
+Message-ID: <50AEBF86.50501__25880.2125732929$1353977130$gmane$org@citrix.com>
 References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
 	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
 	<87lidwtego.fsf@xmission.com>
@@ -25,7 +25,7 @@ To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Daniel Kiper <daniel.kiper@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "tglx@linutronix.de" <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 22/11/12 17:47, H. Peter Anvin wrote:
+On 22/11/2012 17:47, H. Peter Anvin wrote:
 > The other thing that should be considered here is how utterly 
 > preposterous the notion of doing in-guest crash dumping is in a system 
 > that contains a hypervisor.  The reason for kdump is that on bare metal 
@@ -39,11 +39,14 @@ On 22/11/12 17:47, H. Peter Anvin wrote:
 > 	-hpa
 >
 
-I agree that regular guests should not be using the kexec/kdump. 
-However, this patch series is required for allowing a pvops kernel to be
-a crash kernel for Xen, which is very important from dom0/Xen's point of
-view.
+(Your reply to my email which I can see on the xen devel archive appears
+to have gotten lost somewhere inside the citrix email system, so
+apologies for replying out of order)
 
--- 
-Andrew Cooper - Dom0 Kernel Engineer, Citrix XenServer
-T: +44 (0)1223 225 900, http://www.citrix.com
+The kdump kernel loaded by dom0 is for when Xen crashes, not for when
+dom0 crashes (although a dom0 crash does admittedly lead to a Xen crash)
+
+There is no possible way it could be a separate domain; Xen completely
+ceases to function as soon as jumps to the entry point of the kdump image.
+
+~Andrew
