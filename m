@@ -1,12 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv5] virtio-spec: virtio network device RFS support
-Date: Fri, 23 Nov 2012 14:05:10 +0200
-Message-ID: <20121123120509.GA8463__24406.8446838812$1353672167$gmane$org@redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
+Date: Fri, 23 Nov 2012 12:24:51 -0800
+Message-ID: <877gpct6cs.fsf@xmission.com>
+References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
+	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
+	<87lidwtego.fsf@xmission.com>
+	<20121121105221.GA2925@host-192-168-1-59.local.net-space.pl>
+	<87txshx28b.fsf@xmission.com>
+	<20121123094516.GA2921@host-192-168-1-59.local.net-space.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20121123094516.GA2921@host-192-168-1-59.local.net-space.pl>
+	(Daniel Kiper's message of "Fri, 23 Nov 2012 10:47:38 +0100")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,389 +23,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Daniel Kiper <daniel.kiper@oracle.com>
+Cc: xen-devel@lists.xensource.com, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, jbeulich@suse.com, hpa@zytor.com, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add RFS support to virtio network device.
-Add a new feature flag VIRTIO_NET_F_RFS for this feature, a new
-configuration field max_virtqueue_pairs to detect supported number of
-virtqueues as well as a new command VIRTIO_NET_CTRL_RFS to program
-packet steering for unidirectional protocols.
+Daniel Kiper <daniel.kiper@oracle.com> writes:
 
----
+> On Thu, Nov 22, 2012 at 04:15:48AM -0800, ebiederm@xmission.com wrote:
+>>
+>> Is this for when the hypervisor crashes and we want a crash dump of
+>> that?
+>
+> dom0 at boot gets some info about kexec/kdump configuration from Xen hypervisor
+> (e.g. placement of crash kernel area). Later if you call kexec syscall most
+> things are done in the same way as on baremetal. However, after placing image
+> in memory, HYPERVISOR_kexec_op() hypercall must be called to inform hypervisor
+> that image is loaded (new hook machine_kexec_load is used for this;
+> machine_kexec_unload is used for unload). Then Xen establishes fixmap for pages
+> found in page_list[] and returns control to dom0. If dom0 crashes or "kexec execute"
+> is used by user then dom0 calls HYPERVISOR_kexec_op() to instruct hypervisor that
+> kexec/kdump image should be executed immediately. Xen calls relocate_kernel()
+> and all things runs as usual.
 
-Changes from v4:
-- address Jason's comments
-- have configuration specify the number of VQ pairs and not pairs - 1
 
-Changes from v3:
-- rename multiqueue -> rfs this is what we support
-- Be more explicit about what driver should do.
-- Simplify layout making VQs functionality depend on feature.
-- Remove unused commands, only leave in programming # of queues
+Close
 
-Changes from v2:
-Address Jason's comments on v2:
-- Changed STEERING_HOST to STEERING_RX_FOLLOWS_TX:
-   this is both clearer and easier to support.
-   It does not look like we need a separate steering command
-   since host can just watch tx packets as they go.
-- Moved RX and TX steering sections near each other.
-- Add motivation for other changes in v2
+>> Successful code reuse depends upon not breaking the assumptions on which
+>> the code relies, or modifying the code so that the new modified
+>> assumptions are clear.  In this case you might as well define up as down
+>> for all of the sense kexec_ops makes.
+>
+> Hmmm... Well, problem with above mentioned functions is that they work
+> on physical addresses. In Xen PVOPS (currently dom0 is PVOPS) they
+> are useless in kexec/kdump case. It means that physical addresses
+> must be converted to/from machine addresses which has a real meaning
+> in Xen PVOPS case. That is why those funtions were introduced.
 
-Changes from Jason's rfc:
-- reserved vq 3: this makes all rx vqs even and tx vqs odd, which
-   looks nicer to me.
-- documented packet steering, added a generalized steering programming
-   command. Current modes are single queue and host driven multiqueue,
-   but I envision support for guest driven multiqueue in the future.
-- make default vqs unused when in mq mode - this wastes some memory
-   but makes it more efficient to switch between modes as
-   we can avoid this causing packet reordering.
+Agreed operating on addresses that are relevant to the operation at hand
+makes sense.
 
-Rusty, could you please take a look and comment soon?
-If this looks OK to everyone, we can proceed with finalizing the
-implementation. Would be nice to try and put it in 3.8.
+>> >> There may be a point to all of these but you are mixing and matching
+>> >> things badly.
+>> >
+>> > Do you whish to split this kexec_ops struct to something which
+>> > works with addresses and something which is reponsible for
+>> > loading, unloading and executing kexec/kdump? I am able to change
+>> > that but I would like to know a bit about your vision first.
+>>
+>> My vision is that we should have code that makes sense.
+>>
+>> My suspicion is that what you want is a cousin of the existing kexec
+>> system call.  Perhaps what is needed is a flag to say use the firmware
+>> kexec system call.
+>>
+>> I absolutely do not understand what Xen is trying to do.  kexec by
+>> design should not require any firmware specific hooks.  kexec at this
+>> level should only need to care about the processor architeture.  Clearly
+>> what you are doing with Xen requires special hooks separate even from
+>> the normal paravirt hooks.  So I do not understand you are trying to do.
+>>
+>> It needs to be clear from the code what is happening differently in the
+>> Xen case.  Otherwise the code is unmaintainable as no one will be able
+>> to understand it.
+>
+> I agree. I could remove all machine_* hooks from kexec_ops and call Xen
+> specific functions from arch files. However, I need to add two new
+> machine calls, machine_kexec_load and machine_kexec_unload, in the same
+> manner as existing machine_* calls. In general they could be used to inform
+> firmware (in this case Xen) that kexec/kdump image is loaded.
+>
+> kimage_alloc_pages, kimage_free_pages, page_to_pfn, pfn_to_page, virt_to_phys
+> and phys_to_virt are worse. If we could not find good solution how to replace
+> them then we end up with calling Xen specific version of kexec/kdump which
+> would contain nearly full copy of exisiting kexec/kdump code. Not good.
+>
+> We could add some code to kernel/kexec.c which depends on CONFIG_XEN.
+> It could contain above mentioned functions which later will be called
+> by existing kexec code. This is not nice to be honest. However, I hope
+> that we could find better solution for that problem.
 
-diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index d2f0da9..53ddeec 100644
---- a/virtio-spec.lyx
-+++ b/virtio-spec.lyx
-@@ -59,6 +59,7 @@
- \author -608949062 "Rusty Russell,,," 
- \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
- \author 1531152142 "Paolo Bonzini,,," 
-+\author 1986246365 "Michael S. Tsirkin"
- \end_header
- 
- \begin_body
-@@ -4170,9 +4171,42 @@ ID 1
- \end_layout
- 
- \begin_layout Description
--Virtqueues 0:receiveq.
-- 1:transmitq.
-- 2:controlq
-+Virtqueues 0:receiveq
-+\change_inserted 1986246365 1352742829
-+0
-+\change_unchanged
-+.
-+ 1:transmitq
-+\change_inserted 1986246365 1352742832
-+0
-+\change_deleted 1986246365 1352742947
-+.
-+
-+\change_inserted 1986246365 1352742952
-+.
-+ ....
-+ 2N
-+\begin_inset Foot
-+status open
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 1986246365 1352743187
-+N=0 if VIRTIO_NET_F_RFS is not negotiated, otherwise N is indicated by max_
-+\emph on
-+virtqueue_pairs control
-+\emph default
-+ field.
-+
-+\end_layout
-+
-+\end_inset
-+
-+: receivqN.
-+ 2N+1: transmitqN.
-+ 2N+
-+\change_unchanged
-+2:controlq
- \begin_inset Foot
- status open
- 
-@@ -4343,6 +4377,16 @@ VIRTIO_NET_F_CTRL_VLAN
- 
- \begin_layout Description
- VIRTIO_NET_F_GUEST_ANNOUNCE(21) Guest can send gratuitous packets.
-+\change_inserted 1986246365 1352742767
-+
-+\end_layout
-+
-+\begin_layout Description
-+
-+\change_inserted 1986246365 1352742808
-+VIRTIO_NET_F_RFS(22) Device supports Receive Flow Steering.
-+\change_unchanged
-+
- \end_layout
- 
- \end_deeper
-@@ -4355,11 +4399,45 @@ configuration
- \begin_inset space ~
- \end_inset
- 
--layout Two configuration fields are currently defined.
-+layout
-+\change_deleted 1986246365 1352743300
-+Two
-+\change_inserted 1986246365 1352743301
-+Four
-+\change_unchanged
-+ configuration fields are currently defined.
-  The mac address field always exists (though is only valid if VIRTIO_NET_F_MAC
-  is set), and the status field only exists if VIRTIO_NET_F_STATUS is set.
-  Two read-only bits are currently defined for the status field: VIRTIO_NET_S_LIN
- K_UP and VIRTIO_NET_S_ANNOUNCE.
-+
-+\change_inserted 1986246365 1353595219
-+ The following read-only field,
-+\emph on
-+max_virtqueue_pairs
-+\emph default
-+ only exists if VIRTIO_NET_F_RFS is set.
-+ This field specifies the maximum number of each of transmit and receive
-+ virtqueues (receiveq0..receiveq
-+\emph on
-+N
-+\emph default
-+ and transmitq0..transmitq
-+\emph on
-+N
-+\emph default
-+ respectively;
-+\emph on
-+N
-+\emph default
-+=
-+\emph on
-+max_virtqueue_pairs - 1
-+\emph default
-+) that can be configured once VIRTIO_NET_F_RFS is negotiated.
-+Legal values for this field are 1 to 8000h.
-+
-+\change_unchanged
-  
- \begin_inset listings
- inline false
-@@ -4410,7 +4488,24 @@ Device Initialization
- 
- \begin_layout Enumerate
- The initialization routine should identify the receive and transmission
-- virtqueues.
-+ virtqueues
-+\change_inserted 1986246365 1352744077
-+, up to N+1 of each kind
-+\change_unchanged
-+.
-+
-+\change_inserted 1986246365 1352743942
-+ If VIRTIO_NET_F_RFS feature bit is negotiated, 
-+\emph on
-+N=max_virtqueue_pairs-1
-+\emph default
-+, otherwise identify 
-+\emph on
-+N=0
-+\emph default
-+.
-+\change_unchanged
-+
- \end_layout
- 
- \begin_layout Enumerate
-@@ -4455,7 +4550,11 @@ status
- \end_layout
- 
- \begin_layout Enumerate
--The receive virtqueue should be filled with receive buffers.
-+The receive virtqueue
-+\change_inserted 1986246365 1352743953
-+s
-+\change_unchanged
-+ should be filled with receive buffers.
-  This is described in detail below in 
- \begin_inset Quotes eld
- \end_inset
-@@ -4550,8 +4649,15 @@ Device Operation
- \end_layout
- 
- \begin_layout Standard
--Packets are transmitted by placing them in the transmitq, and buffers for
-- incoming packets are placed in the receiveq.
-+Packets are transmitted by placing them in the transmitq
-+\change_inserted 1986246365 1353593685
-+0..transmitqN
-+\change_unchanged
-+, and buffers for incoming packets are placed in the receiveq
-+\change_inserted 1986246365 1353593692
-+0..receiveqN
-+\change_unchanged
-+.
-  In each case, the packet itself is preceeded by a header:
- \end_layout
- 
-@@ -4861,6 +4967,17 @@ If VIRTIO_NET_F_MRG_RXBUF is negotiated, each buffer must be at least the
- struct virtio_net_hdr
- \family default
- .
-+\change_inserted 1986246365 1353594518
-+
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 1986246365 1353594638
-+If VIRTIO_NET_F_RFS is negotiated, each of the receiveq0...receiveqN that will
-+ be used should be populated with receive buffers.
-+\change_unchanged
-+
- \end_layout
- 
- \begin_layout Subsection*
-@@ -5293,8 +5410,143 @@ Sending VIRTIO_NET_CTRL_ANNOUNCE_ACK command through control vq.
-  
- \end_layout
- 
--\begin_layout Enumerate
-+\begin_layout Subsection*
-+
-+\change_inserted 1986246365 1353593879
-+Packet Receive Flow Steering
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 1986246365 1353594403
-+If the driver negotiates the VIRTIO_NET_F_RFS (depends on VIRTIO_NET_F_CTRL_VQ),
-+ it can transmit outgoing packets on one of the multiple transmitq0..transmitqN
-+ and ask the device to queue incoming packets into one the multiple receiveq0..rec
-+eiveqN depending on the packet flow.
-+\change_unchanged
-+
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 1986246365 1353594292
-+\begin_inset listings
-+inline false
-+status open
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 1986246365 1353594178
-+
-+struct virtio_net_ctrl_rfs {
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 1986246365 1353594212
-+
-+	u16 virtqueue_pairs;
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 1986246365 1353594172
-+
-+};
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 1986246365 1353594172
-+
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 1986246365 1353594263
-+
-+#define VIRTIO_NET_CTRL_RFS    1
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 1986246365 1353594273
-+
-+ #define VIRTIO_NET_CTRL_RFS_VQ_PAIRS_SET        0 
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 1986246365 1353594273
-+
-+ #define VIRTIO_NET_CTRL_RFS_VQ_PAIRS_MIN        1 
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 1986246365 1353594273
-+
-+ #define VIRTIO_NET_CTRL_RFS_VQ_PAIRS_MAX        0x8000
-+\end_layout
-+\end_inset
-+
-+
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 1986246365 1353594884
-+RFS acceleration is disabled by default.
-+ Driver enables RFS by executing the VIRTIO_NET_CTRL_RFS_VQ_PAIRS_SET command,
-+ specifying the number of the transmit and receive queues that is going
-+ to be used; thus out of transmitq0..transmitqn and receiveq0..receiveqn where
-+ 
-+\emph on
-+n=virtqueue_pairs-1
-+\emph default
-+ will be used.
-+ All these virtqueues must have been pre-configured in advance.
-+ The range of legal values for the
-+\emph on
-+ virtqueue_pairs
-+\emph off
-+ field is between 1 and 8000h.
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 1986246365 1353595328
-+Programming of the receive flow classificator is implicit.
-+ Transmitting a packet of a specific flow on transmitqX will cause incoming
-+ packets for this flow to be steered to receiveqX.
-+ For uni-directional protocols, or where no packets have been transmitted
-+ yet, device will steer a packet to a random queue out of the specified
-+ receiveq0..receiveqn.
-+\change_unchanged
-+
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 1986246365 1353595040
-+RFS acceleration is disabled by setting 
-+\emph on
-+virtqueue_pairs = 1
-+\emph default
-+ (this is the default).
-+ Following this, driver should not transmit new packets on virtqueues other
-+ than transmitq0 and device will not steer new packets on virtqueues other
-+ than receiveq0.
-+\change_unchanged
-+
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_deleted 1986246365 1353593873
- .
-+
-+\change_unchanged
-  
- \end_layout
+Since in the Xen case you are not performing a normal kexec or kdump if
+you are going to continue to use the kexec system call then another flag
+(like the KEXEC_ON_CRASH flag) should be used.
+
+The userspace flag should be something like KEXEC_HYPERVISOR.  From
+there we can have a generic interface that feeds into whatever the Xen
+infrastructure is.  And if any other hypervisors implement kexec like
+functionality it could feed into them if we so choose.
+
+When the choice is clearly between a linux-only kexec and for a hypervisor
+level kexec using different functions to understand the target addresses
+makes sense.
+
+And of course /sbin/kexec can easity take an additional flag to say load
+the kexec image to the hypervisor.
+
+Eric
