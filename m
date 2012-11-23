@@ -1,17 +1,19 @@
 From: Andrew Cooper <andrew.cooper3@citrix.com>
 Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
-Date: Fri, 23 Nov 2012 00:12:54 +0000
-Message-ID: <50AEBF86.50501__25880.2125732929$1353977130$gmane$org@citrix.com>
+Date: Fri, 23 Nov 2012 01:56:08 +0000
+Message-ID: <50AED7B8.7040902__14089.5435623408$1353977137$gmane$org@citrix.com>
 References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
 	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
 	<87lidwtego.fsf@xmission.com>
 	<20121121105221.GA2925@host-192-168-1-59.local.net-space.pl>
 	<87txshx28b.fsf@xmission.com> <50AE6542.3020302@zytor.com>
+	<50AEBF86.50501@citrix.com>
+	<18e831d4-910d-4f58-8911-1398b96e3a47@email.android.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50AE6542.3020302@zytor.com>
+In-Reply-To: <18e831d4-910d-4f58-8911-1398b96e3a47@email.android.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,28 +27,27 @@ To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Daniel Kiper <daniel.kiper@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "tglx@linutronix.de" <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 22/11/2012 17:47, H. Peter Anvin wrote:
-> The other thing that should be considered here is how utterly 
-> preposterous the notion of doing in-guest crash dumping is in a system 
-> that contains a hypervisor.  The reason for kdump is that on bare metal 
-> there are no other options, but in a hypervisor system the right thing 
-> should be for the hypervisor to do the dump (possibly spawning a clean 
-> I/O domain if the I/O domain is necessary to access the media.)
->
-> There is absolutely no reason to have a crashkernel sitting around in 
-> each guest, consuming memory, and possibly get corrupt.
->
-> 	-hpa
+On 23/11/2012 01:38, H. Peter Anvin wrote:
+> I still don't really get why it can't be isolated from dom0, which would make more sense to me, even for a Xen crash.
 >
 
-(Your reply to my email which I can see on the xen devel archive appears
-to have gotten lost somewhere inside the citrix email system, so
-apologies for replying out of order)
+The crash region (as specified by crashkernel= on the Xen command line)
+is isolated from dom0.
 
-The kdump kernel loaded by dom0 is for when Xen crashes, not for when
-dom0 crashes (although a dom0 crash does admittedly lead to a Xen crash)
+dom0 (using the kexec utility etc) has the task of locating the Xen
+crash notes (using the kexec hypercall interface), constructing a binary
+blob containing kernel, initram and gubbins, and asking Xen to put this
+blob in the crash region (again, using the kexec hypercall interface).
 
-There is no possible way it could be a separate domain; Xen completely
-ceases to function as soon as jumps to the entry point of the kdump image.
+I do not see how this is very much different from the native case
+currently (although please correct me if I am misinformed).  Linux has
+extra work to do by populating /proc/iomem with the Xen crash regions
+boot (so the kexec utility can reference their physical addresses when
+constructing the blob), and should just act as a conduit between the
+kexec system call and the kexec hypercall to load the blob.
+
+For within-guest kexec/kdump functionality, I agree that it is barking
+mad.  However, we do see cloud operators interested in the idea so VM
+administrators can look after their crashes themselves.
 
 ~Andrew
