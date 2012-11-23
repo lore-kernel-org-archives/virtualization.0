@@ -1,7 +1,7 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
-Date: Thu, 22 Nov 2012 17:34:56 -0800
-Message-ID: <a1f75604-1f52-4af1-9dd7-b469ed4ea7b6@email.android.com>
+Date: Thu, 22 Nov 2012 17:38:33 -0800
+Message-ID: <18e831d4-910d-4f58-8911-1398b96e3a47@email.android.com>
 References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
 	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
 	<87lidwtego.fsf@xmission.com>
@@ -26,7 +26,7 @@ To: Andrew Cooper <andrew.cooper3@citrix.com>
 Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Daniel Kiper <daniel.kiper@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "tglx@linutronix.de" <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ok... that *sort of* makes sense, but also underscores how utterly different this is from a normal kexec.
+I still don't really get why it can't be isolated from dom0, which would make more sense to me, even for a Xen crash.
 
 Andrew Cooper <andrew.cooper3@citrix.com> wrote:
 
