@@ -1,14 +1,14 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 00/12] VMCI for Linux upstreaming
-Date: Mon, 26 Nov 2012 14:37:54 -0800
-Message-ID: <20121126223754.GA28681@kroah.com>
+From: Dmitry Torokhov <dtor@vmware.com>
+Subject: Re: [Pv-drivers] [PATCH 00/12] VMCI for Linux upstreaming
+Date: Mon, 26 Nov 2012 15:01:04 -0800
+Message-ID: <1975718.7UL0qBEfzR@dtor-d630.eng.vmware.com>
 References: <20121121202625.13252.86346.stgit@promb-2n-dhcp175.eng.vmware.com>
+	<20121126223754.GA28681@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20121121202625.13252.86346.stgit@promb-2n-dhcp175.eng.vmware.com>
+In-Reply-To: <20121126223754.GA28681@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +18,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: George Zhang <georgezhang@vmware.com>
-Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: pv-drivers@vmware.com
+Cc: Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 21, 2012 at 12:31:04PM -0800, George Zhang wrote:
+On Monday, November 26, 2012 02:37:54 PM Greg KH wrote:
+> On Wed, Nov 21, 2012 at 12:31:04PM -0800, George Zhang wrote:
+> > * * *
+> > This series of VMCI linux upstreaming patches include latest udpate from
+> > VMware.
+> > 
+> > Summary of changes:
+> > 	- Sparse clean.
+> > 	- Checkpatch clean with one exception, a "complex macro" in
+> > 	
+> > 	  which we can't add parentheses.
+> > 	
+> > 	- Remove all runtime assertions.
+> > 	- Fix device name, so that existing user clients work.
+> > 	- Fix VMCI handle lookup.
 > 
-> * * *
-> This series of VMCI linux upstreaming patches include latest udpate from
-> VMware.
+> Given that you failed to answer the questions I asked the last time you
+> posted this series, and you did not make any of the changes I asked for,
+> I can't accept this (nor should you expect me to.)
 > 
-> Summary of changes:
+> And people wonder why reviewers get so grumpy...
 > 
-> 	- Sparse clean.
-> 	- Checkpatch clean with one exception, a "complex macro" in
-> 	  which we can't add parentheses.
-> 	- Remove all runtime assertions.
-> 	- Fix device name, so that existing user clients work.
-> 	- Fix VMCI handle lookup.
+> My trees are now closed for the 3.8 merge window, so feel free to try
+> again after 3.8-rc1 is out, and you have answered, and addressed, the
+> questions and comments I made.
 
-Given that you failed to answer the questions I asked the last time you
-posted this series, and you did not make any of the changes I asked for,
-I can't accept this (nor should you expect me to.)
+Greg, there were 3 specific complaints from you:
 
-And people wonder why reviewers get so grumpy...
+1. "Given that this is a static function, there's no need for these
+"asserts", right?  Please send a follow-on patch removing all BUG_ON()
+calls from these files, it's not acceptable to crash a user's box from
+a driver that is handling parameters you are feeding it."
 
-My trees are now closed for the 3.8 merge window, so feel free to try
-again after 3.8-rc1 is out, and you have answered, and addressed, the
-questions and comments I made.
+2. "You obviously didn't run checkpatch on this file"
 
-greg k-h
+3. "This line causes sparse to complain.  The odds that userspace knows
+what gcc is using for "bool" is pretty low."
+
+Given the fact that the series addresses all 3 I fail to understand why
+you would be grumpy.
+
+Anyway, since there vsock has not been reviewed yet we are OK with
+postponing this patch series till 3.9.
+
+Thanks,
+Dmitry
