@@ -1,20 +1,17 @@
-From: Bouchard Louis <louis.bouchard@canonical.com>
-Subject: Re: [PATCH v2 01/11] kexec: introduce kexec_ops struct
-Date: Fri, 23 Nov 2012 09:01:06 +0100
-Message-ID: <50AF2D42.8000707__42533.2341263585$1353977147$gmane$org@canonical.com>
-References: <1353423893-23125-1-git-send-email-daniel.kiper@oracle.com>
-	<1353423893-23125-2-git-send-email-daniel.kiper@oracle.com>
-	<87lidwtego.fsf@xmission.com>
-	<20121121105221.GA2925@host-192-168-1-59.local.net-space.pl>
-	<87txshx28b.fsf@xmission.com> <50AE6542.3020302@zytor.com>
-	<50AEBF86.50501@citrix.com>
-	<18e831d4-910d-4f58-8911-1398b96e3a47@email.android.com>
-	<50AED7B8.7040902@citrix.com>
+From: Woody Suwalski <terraluna977@gmail.com>
+Subject: Re: [Pv-drivers] [PATCH 00/12] VMCI for Linux upstreaming
+Date: Mon, 26 Nov 2012 19:27:07 -0500
+Message-ID: <50B408DB.5090308__8963.7455567301$1353977151$gmane$org@gmail.com>
+References: <20121121202625.13252.86346.stgit@promb-2n-dhcp175.eng.vmware.com>
+	<4072068.8FbmJn8R3Z@dtor-d630.eng.vmware.com>
+	<20121126234426.GA12191@kroah.com>
+	<2961037.z4LULze8vO@dtor-d630.eng.vmware.com>
+	<20121127000330.GA16288@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50AED7B8.7040902@citrix.com>
+In-Reply-To: <20121127000330.GA16288@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,38 +21,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Cooper <andrew.cooper3@citrix.com>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Daniel Kiper <daniel.kiper@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, "tglx@linutronix.de" <tglx@linutronix.de>
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, Dmitry Torokhov <dtor@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+Greg KH wrote:
+> On Mon, Nov 26, 2012 at 03:52:31PM -0800, Dmitry Torokhov wrote:
+>> On Monday, November 26, 2012 03:44:26 PM Greg KH wrote:
+>>> On Mon, Nov 26, 2012 at 03:36:52PM -0800, Dmitry Torokhov wrote:
+>>>> On Monday, November 26, 2012 03:23:57 PM Greg KH wrote:
+>>>>> On Mon, Nov 26, 2012 at 03:01:04PM -0800, Dmitry Torokhov wrote:
+>>>>>> On Monday, November 26, 2012 02:37:54 PM Greg KH wrote:
+>>>>>>> On Wed, Nov 21, 2012 at 12:31:04PM -0800, George Zhang wrote:
+>>>>>>>> * * *
+>>>>>>>> This series of VMCI linux upstreaming patches include latest
+>>>>>>>> udpate
+>>>>>>>> from
+>>>>>>>> VMware.
+>>>>>>>>
+>>>>>>>> Summary of changes:
+>>>>>>>> 	- Sparse clean.
+>>>>>>>> 	- Checkpatch clean with one exception, a "complex macro" in
+>>>>>>>> 	
+>>>>>>>> 	  which we can't add parentheses.
+>>>>>>>> 	
+>>>>>>>> 	- Remove all runtime assertions.
+>>>>>>>> 	- Fix device name, so that existing user clients work.
+>>>>>>>> 	- Fix VMCI handle lookup.
+>>>>>>> Given that you failed to answer the questions I asked the last time
+>>>>>>> you
+>>>>>>> posted this series, and you did not make any of the changes I asked
+>>>>>>> for,
+>>>>>>> I can't accept this (nor should you expect me to.)
+>>>>>>>
+>>>>>>> And people wonder why reviewers get so grumpy...
+>>>>>>>
+>>>>>>> My trees are now closed for the 3.8 merge window, so feel free to
+>>>>>>> try
+>>>>>>> again after 3.8-rc1 is out, and you have answered, and addressed,
+>>>>>>> the
+>>>>>>> questions and comments I made.
+>>>>>> Greg, there were 3 specific complaints from you:
+>>>>>>
+>>>>>> 1. "Given that this is a static function, there's no need for these
+>>>>>> "asserts", right?  Please send a follow-on patch removing all BUG_ON()
+>>>>>> calls from these files, it's not acceptable to crash a user's box from
+>>>>>> a driver that is handling parameters you are feeding it."
+>>>>>>
+>>>>>> 2. "You obviously didn't run checkpatch on this file"
+>>>>>>
+>>>>>> 3. "This line causes sparse to complain.  The odds that userspace
+>>>>>> knows
+>>>>>> what gcc is using for "bool" is pretty low."
+>>>>>>
+>>>>>> Given the fact that the series addresses all 3 I fail to understand
+>>>>>> why
+>>>>>> you would be grumpy.
+>>>>> You are ignoring my response to patch 12/12 for some reason (which
+>>>>> repeated a bunch of the questions I had with that patch the last time it
+>>>>> was posted.)  That is what I am referring to here.  None of those
+>>>>> questions were addressed.
+>>>> That one was explicitly acknowledged in
+>>>> <20121030052234.GH32055@dtor-ws.eng.vmware.com> and fixed in series
+>>>> posted on 11/01. Since it was fixed in earlier posting we did not
+>>>> mention it again.
+>>> I questioned it on November 15, in:
+>>> 	Message-ID: <20121116000118.GA8693@kroah.com>
+>>>
+>>> Just ignoring that long response is acceptable?  Really?  I didn't ask
+>>> enough questions in that review?  I see obvious comments in there that
+>>> were _not_ addressed in the November 21st posting of that patch
+>>> (typedefs for u32?  No c99 initializers?)
+>> Hmm, neither I nor Google is aware of that msgid... So that would explain
+>> why we have not addressed the comments that were in it ;)
+>>
+>> Mind resending it, please?
+> Now resent.
+I see both versions of Greg's message - one from 15 Nov, one today's. On 
+my Gmail account...
+So Greg did post it...
 
-Le 23/11/2012 02:56, Andrew Cooper a =E9crit :
-> For within-guest kexec/kdump functionality, I agree that it is barking
-> mad.  However, we do see cloud operators interested in the idea so VM
-> administrators can look after their crashes themselves.
-
-It's not "barking mad" when your dayjob is to investigate and fix other
-people's kernel problems.  Right now, it's impossible to get a kernel
-image of a failing EC2 instance, so every time someone shows up with a
-"my kernel crashes in my instance", we're lest with mostly unusable
-backtraces and oops messages.
-
-When I'm able to reproduce someone's kernel panic, I'm quite happy to be
-able to use virtualization to run a kernel dump analysis on a locally
-reproduced context.
-
-It's also quite useful when packaging things like makedumpfile,
-kdump-tools to be able to avoid having to rely on bare metal to test new
-releases. So yes, in theory it may look barking mad, but real life is
-somewhat different.
-
-Kind regards,
-
-...Louis
--- =
-
-Louis Bouchard
-Backline Support Analyst
-Canonical Ltd
-Ubuntu support: http://landscape.canonical.com
+Cheers, Woody
