@@ -1,17 +1,15 @@
-From: Woody Suwalski <terraluna977@gmail.com>
-Subject: Re: [Pv-drivers] [PATCH 00/12] VMCI for Linux upstreaming
-Date: Mon, 26 Nov 2012 19:27:07 -0500
-Message-ID: <50B408DB.5090308__8963.7455567301$1353977151$gmane$org@gmail.com>
-References: <20121121202625.13252.86346.stgit@promb-2n-dhcp175.eng.vmware.com>
-	<4072068.8FbmJn8R3Z@dtor-d630.eng.vmware.com>
-	<20121126234426.GA12191@kroah.com>
-	<2961037.z4LULze8vO@dtor-d630.eng.vmware.com>
-	<20121127000330.GA16288@kroah.com>
+From: Dmitry Torokhov <dtor@vmware.com>
+Subject: Re: [Pv-drivers] [PATCH 12/12] VMCI: Some header and config files.
+Date: Mon, 26 Nov 2012 16:45:58 -0800
+Message-ID: <1733473.DLmiAWnRYk@dtor-d630.eng.vmware.com>
+References: <20121107183624.9658.78903.stgit@promb-2n-dhcp175.eng.vmware.com>
+	<20121127002357.GA27683@core.coreip.homeip.net>
+	<20121127003239.GA32298@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121127000330.GA16288@kroah.com>
+In-Reply-To: <20121127003239.GA32298@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,84 +19,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, Dmitry Torokhov <dtor@vmware.com>
+To: pv-drivers@vmware.com
+Cc: Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Greg KH wrote:
-> On Mon, Nov 26, 2012 at 03:52:31PM -0800, Dmitry Torokhov wrote:
->> On Monday, November 26, 2012 03:44:26 PM Greg KH wrote:
->>> On Mon, Nov 26, 2012 at 03:36:52PM -0800, Dmitry Torokhov wrote:
->>>> On Monday, November 26, 2012 03:23:57 PM Greg KH wrote:
->>>>> On Mon, Nov 26, 2012 at 03:01:04PM -0800, Dmitry Torokhov wrote:
->>>>>> On Monday, November 26, 2012 02:37:54 PM Greg KH wrote:
->>>>>>> On Wed, Nov 21, 2012 at 12:31:04PM -0800, George Zhang wrote:
->>>>>>>> * * *
->>>>>>>> This series of VMCI linux upstreaming patches include latest
->>>>>>>> udpate
->>>>>>>> from
->>>>>>>> VMware.
->>>>>>>>
->>>>>>>> Summary of changes:
->>>>>>>> 	- Sparse clean.
->>>>>>>> 	- Checkpatch clean with one exception, a "complex macro" in
->>>>>>>> 	
->>>>>>>> 	  which we can't add parentheses.
->>>>>>>> 	
->>>>>>>> 	- Remove all runtime assertions.
->>>>>>>> 	- Fix device name, so that existing user clients work.
->>>>>>>> 	- Fix VMCI handle lookup.
->>>>>>> Given that you failed to answer the questions I asked the last time
->>>>>>> you
->>>>>>> posted this series, and you did not make any of the changes I asked
->>>>>>> for,
->>>>>>> I can't accept this (nor should you expect me to.)
->>>>>>>
->>>>>>> And people wonder why reviewers get so grumpy...
->>>>>>>
->>>>>>> My trees are now closed for the 3.8 merge window, so feel free to
->>>>>>> try
->>>>>>> again after 3.8-rc1 is out, and you have answered, and addressed,
->>>>>>> the
->>>>>>> questions and comments I made.
->>>>>> Greg, there were 3 specific complaints from you:
->>>>>>
->>>>>> 1. "Given that this is a static function, there's no need for these
->>>>>> "asserts", right?  Please send a follow-on patch removing all BUG_ON()
->>>>>> calls from these files, it's not acceptable to crash a user's box from
->>>>>> a driver that is handling parameters you are feeding it."
->>>>>>
->>>>>> 2. "You obviously didn't run checkpatch on this file"
->>>>>>
->>>>>> 3. "This line causes sparse to complain.  The odds that userspace
->>>>>> knows
->>>>>> what gcc is using for "bool" is pretty low."
->>>>>>
->>>>>> Given the fact that the series addresses all 3 I fail to understand
->>>>>> why
->>>>>> you would be grumpy.
->>>>> You are ignoring my response to patch 12/12 for some reason (which
->>>>> repeated a bunch of the questions I had with that patch the last time it
->>>>> was posted.)  That is what I am referring to here.  None of those
->>>>> questions were addressed.
->>>> That one was explicitly acknowledged in
->>>> <20121030052234.GH32055@dtor-ws.eng.vmware.com> and fixed in series
->>>> posted on 11/01. Since it was fixed in earlier posting we did not
->>>> mention it again.
->>> I questioned it on November 15, in:
->>> 	Message-ID: <20121116000118.GA8693@kroah.com>
->>>
->>> Just ignoring that long response is acceptable?  Really?  I didn't ask
->>> enough questions in that review?  I see obvious comments in there that
->>> were _not_ addressed in the November 21st posting of that patch
->>> (typedefs for u32?  No c99 initializers?)
->> Hmm, neither I nor Google is aware of that msgid... So that would explain
->> why we have not addressed the comments that were in it ;)
->>
->> Mind resending it, please?
-> Now resent.
-I see both versions of Greg's message - one from 15 Nov, one today's. On 
-my Gmail account...
-So Greg did post it...
+On Monday, November 26, 2012 04:32:39 PM Greg KH wrote:
+> On Mon, Nov 26, 2012 at 04:23:57PM -0800, Dmitry Torokhov wrote:
+> > Hi Greg,
+> > 
+> > For some reason it still didn't go through to our corporate mail server
+> > but I see it on LKML.
+> 
+> Good.
+> 
+> > On Mon, Nov 26, 2012 at 04:03:04PM -0800, Greg KH wrote:
+> > > On Wed, Nov 07, 2012 at 10:43:03AM -0800, George Zhang wrote:
+> > > > +static inline struct vmci_handle VMCI_MAKE_HANDLE(vmci_id cid,
+> > > > vmci_id rid) +{
+> > > > +	struct vmci_handle h;
+> > > > +	h.context = cid;
+> > > > +	h.resource = rid;
+> > > > +	return h;
+> > > > +}
+> > > 
+> > > You return a structure on the stack that just went away?  Yeah, I know
+> > > it's an inline, but come on, that's not ok.
+> > 
+> > This is certainly OK even if it is not inline, we return the _value_,
+> > not the pointer to the stacki memory. And yes, the structure is 64 bit
+> > value so it is returned in registers.
+> 
+> Even on a 32bit processor? 
 
-Cheers, Woody
+I thought it would, but it looks like it won't. Maybe we'll just switch it
+to a macro with C99 style initializators to keep the same semantic but
+avoid the question.
+
+> Also, you already have another function that
+> does this same thing, so having 2 functions in the same patch seems odd,
+> right?
+
+Yes, you can say that it is probably a bit excessive.
+
+OK, now that we are on the same page we'll go and fix the issues.
+
+Thanks,
+Dmitry
