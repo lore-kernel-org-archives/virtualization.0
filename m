@@ -1,14 +1,15 @@
-From: Sachin Kamat <sachin.kamat@linaro.org>
-Subject: Re: [PATCH 1/1] xen/xenbus: Remove duplicate inclusion of
-	asm/xen/hypervisor.h
-Date: Tue, 27 Nov 2012 09:03:26 +0530
-Message-ID: <CAK9yfHwz3jUpT6tRR4hUC9kLfocEbC-pkmwjiOkgmAmkPrZ-6Q@mail.gmail.com>
-References: <1353324150-21785-1-git-send-email-sachin.kamat@linaro.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [net-next RFC] pktgen: don't wait for the device who doesn't
+	free skb immediately after sent
+Date: Tue, 27 Nov 2012 14:45:13 +0800
+Message-ID: <50B46179.4040809@redhat.com>
+References: <1353916612-6357-1-git-send-email-jasowang@redhat.com>
+	<20121126093728.0a10f97f@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1353324150-21785-1-git-send-email-sachin.kamat@linaro.org>
+In-Reply-To: <20121126093728.0a10f97f@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
-Cc: sachin.kamat@linaro.org, patches@linaro.org, konrad.wilk@oracle.com
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-ping
-
-On 19 November 2012 16:52, Sachin Kamat <sachin.kamat@linaro.org> wrote:
-> asm/xen/hypervisor.h was included twice.
+On 11/27/2012 01:37 AM, Stephen Hemminger wrote:
+> On Mon, 26 Nov 2012 15:56:52 +0800
+> Jason Wang <jasowang@redhat.com> wrote:
 >
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
-> ---
->  drivers/xen/xenbus/xenbus_xs.c |    1 -
->  1 files changed, 0 insertions(+), 1 deletions(-)
->
-> diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
-> index acedeab..88e677b 100644
-> --- a/drivers/xen/xenbus/xenbus_xs.c
-> +++ b/drivers/xen/xenbus/xenbus_xs.c
-> @@ -48,7 +48,6 @@
->  #include <xen/xenbus.h>
->  #include <xen/xen.h>
->  #include "xenbus_comms.h"
-> -#include <asm/xen/hypervisor.h>
->
->  struct xs_stored_msg {
->         struct list_head list;
+>> Some deivces do not free the old tx skbs immediately after it has been sent
+>> (usually in tx interrupt). One such example is virtio-net which optimizes for
+>> virt and only free the possible old tx skbs during the next packet sending. This
+>> would lead the pktgen to wait forever in the refcount of the skb if no other
+>> pakcet will be sent afterwards.
+>>
+>> Solving this issue by introducing a new flag IFF_TX_SKB_FREE_DELAY which could
+>> notify the pktgen that the device does not free skb immediately after it has
+>> been sent and let it not to wait for the refcount to be one.
+>>
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> Another alternative would be using skb_orphan() and skb->destructor.
+> There are other cases where skb's are not freed right away.
 > --
-> 1.7.4.1
->
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hi Stephen:
 
-
-
--- 
-With warm regards,
-Sachin
+Do you mean registering a skb->destructor for pktgen then set and check 
+bits in skb->tx_flag?
