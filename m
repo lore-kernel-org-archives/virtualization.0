@@ -1,18 +1,14 @@
-From: Dmitry Torokhov <dtor@vmware.com>
-Subject: Re: [Pv-drivers] [PATCH 00/12] VMCI for Linux upstreaming
-Date: Mon, 26 Nov 2012 16:47:18 -0800
-Message-ID: <20121127004717.GA18403@dtor-ws.eng.vmware.com>
-References: <20121121202625.13252.86346.stgit@promb-2n-dhcp175.eng.vmware.com>
-	<4072068.8FbmJn8R3Z@dtor-d630.eng.vmware.com>
-	<20121126234426.GA12191@kroah.com>
-	<2961037.z4LULze8vO@dtor-d630.eng.vmware.com>
-	<20121127000330.GA16288@kroah.com> <50B408DB.5090308@gmail.com>
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: Re: [PATCH 1/1] xen/xenbus: Remove duplicate inclusion of
+	asm/xen/hypervisor.h
+Date: Tue, 27 Nov 2012 09:03:26 +0530
+Message-ID: <CAK9yfHwz3jUpT6tRR4hUC9kLfocEbC-pkmwjiOkgmAmkPrZ-6Q@mail.gmail.com>
+References: <1353324150-21785-1-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <50B408DB.5090308@gmail.com>
+In-Reply-To: <1353324150-21785-1-git-send-email-sachin.kamat@linaro.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,23 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Woody Suwalski <terraluna977@gmail.com>
-Cc: pv-drivers@vmware.com, Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
+To: xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+Cc: sachin.kamat@linaro.org, patches@linaro.org, konrad.wilk@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Nov 26, 2012 at 07:27:07PM -0500, Woody Suwalski wrote:
-> Greg KH wrote:
-> >On Mon, Nov 26, 2012 at 03:52:31PM -0800, Dmitry Torokhov wrote:
-> >>
-> >>Mind resending it, please?
-> >Now resent.
-> I see both versions of Greg's message - one from 15 Nov, one
-> today's. On my Gmail account...
-> So Greg did post it...
-> 
+ping
 
-Right, I also see it now in my personal LKML archive but for some
-reason it didn't get delivered to my corporate mailbox. Weird.
+On 19 November 2012 16:52, Sachin Kamat <sachin.kamat@linaro.org> wrote:
+> asm/xen/hypervisor.h was included twice.
+>
+> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> ---
+>  drivers/xen/xenbus/xenbus_xs.c |    1 -
+>  1 files changed, 0 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
+> index acedeab..88e677b 100644
+> --- a/drivers/xen/xenbus/xenbus_xs.c
+> +++ b/drivers/xen/xenbus/xenbus_xs.c
+> @@ -48,7 +48,6 @@
+>  #include <xen/xenbus.h>
+>  #include <xen/xen.h>
+>  #include "xenbus_comms.h"
+> -#include <asm/xen/hypervisor.h>
+>
+>  struct xs_stored_msg {
+>         struct list_head list;
+> --
+> 1.7.4.1
+>
 
-Thanks,
-Dmitry
+
+
+-- 
+With warm regards,
+Sachin
