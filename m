@@ -1,15 +1,11 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [net-next RFC] pktgen: don't wait for the device who doesn't
-	free skb immediately after sent
-Date: Tue, 27 Nov 2012 14:45:13 +0800
-Message-ID: <50B46179.4040809@redhat.com>
-References: <1353916612-6357-1-git-send-email-jasowang@redhat.com>
-	<20121126093728.0a10f97f@nehalam.linuxnetplumber.net>
+Subject: [net-next rfc v7 0/3] Multiqueue virtio-net
+Date: Tue, 27 Nov 2012 18:15:57 +0800
+Message-ID: <1354011360-39479-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121126093728.0a10f97f@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +15,74 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: rusty@rustcorp.com.au, mst@redhat.com, krkumar2@in.ibm.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/27/2012 01:37 AM, Stephen Hemminger wrote:
-> On Mon, 26 Nov 2012 15:56:52 +0800
-> Jason Wang <jasowang@redhat.com> wrote:
->
->> Some deivces do not free the old tx skbs immediately after it has been sent
->> (usually in tx interrupt). One such example is virtio-net which optimizes for
->> virt and only free the possible old tx skbs during the next packet sending. This
->> would lead the pktgen to wait forever in the refcount of the skb if no other
->> pakcet will be sent afterwards.
->>
->> Solving this issue by introducing a new flag IFF_TX_SKB_FREE_DELAY which could
->> notify the pktgen that the device does not free skb immediately after it has
->> been sent and let it not to wait for the refcount to be one.
->>
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> Another alternative would be using skb_orphan() and skb->destructor.
-> There are other cases where skb's are not freed right away.
-> --
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Hi Stephen:
+Hi all:
 
-Do you mean registering a skb->destructor for pktgen then set and check 
-bits in skb->tx_flag?
+This series is an update version of multiqueue virtio-net driver based on
+Krishna Kumar's work to let virtio-net use multiple rx/tx queues to do the
+packets reception and transmission. Please review and comments.
+
+A protype implementation of qemu-kvm support could by found in
+git://github.com/jasowang/qemu-kvm-mq.git. To start a guest with two queues, you
+could specify the queues parameters to both tap and virtio-net like:
+
+./qemu-kvm -netdev tap,queues=2,... -device virtio-net-pci,queues=2,...
+
+then enable the multiqueue through ethtool by:
+
+ethtool -L eth0 combined 2
+
+Changes from V6:
+- Align the implementation with the RFC spec update v5
+- Addressing Rusty's comments:
+  * split the patches
+  * rename to max_queue_pairs and curr_queue_pairs
+  * remove the useless status
+  * fix the hibernation bug
+- Addressing Ben's comments:
+  * check other parameters in ethtool_set_queues
+
+Changes from v5:
+- Align the implementation with the RFC spec update v4
+- Switch the mode between single mode and multiqueue mode without reset
+- Remove the 256 limitation of queues
+- Use helpers to do the mapping between virtqueues and tx/rx queues
+- Use commbined channels instead of separated rx/tx queus when do the queue
+number configuartion
+- Other coding style comments from Michael
+
+Changes from V4:
+- Add ability to negotiate the number of queues through control virtqueue
+- Ethtool -{L|l} support and default the tx/rx queue number to 1
+- Expose the API to set irq affinity instead of irq itself
+
+Changes from V3:
+- Rebase to the net-next
+- Let queue 2 to be the control virtqueue to obey the spec
+- Prodives irq affinity
+- Choose txq based on processor id
+
+Reference:
+- Virtio spec RFC: http://patchwork.ozlabs.org/patch/201303/
+- V6: https://lkml.org/lkml/2012/10/30/127
+- V5: http://lwn.net/Articles/505388/
+- V4: https://lkml.org/lkml/2012/6/25/120
+- V2: http://lwn.net/Articles/467283/
+
+
+Perf Numbers:
+
+Will do some basic test and post as a reply to this mail.
+
+Jason Wang (3):
+  virtio-net: separate fields of sending/receiving queue from
+    virtnet_info
+  virtio_net: multiqueue support
+  virtio-net: change the number of queues through ethtool
+
+ drivers/net/virtio_net.c        |  716 ++++++++++++++++++++++++++++-----------
+ include/uapi/linux/virtio_net.h |   16 +
+ 2 files changed, 536 insertions(+), 196 deletions(-)
