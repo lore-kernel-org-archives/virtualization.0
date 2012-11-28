@@ -1,15 +1,18 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] vhost-blk: Add vhost-blk support v5
-Date: Wed, 28 Nov 2012 11:26:48 -0500 (EST)
-Message-ID: <20121128.112648.12434052000954493.davem__39630.4632923149$1354120034$gmane$org@davemloft.net>
-References: <1353315222-27685-1-git-send-email-asias@redhat.com>
-	<20121119202641.GB12283@redhat.com>
-	<20121126151416.GB21016@redhat.com>
+From: Stephen Hemminger <shemminger@vyatta.com>
+Subject: Re: [net-next RFC] pktgen: don't wait for the device who doesn't
+	free skb immediately after sent
+Date: Wed, 28 Nov 2012 08:53:05 -0800
+Message-ID: <20121128085305.2b0503ce@nehalam.linuxnetplumber.net>
+References: <1353916612-6357-1-git-send-email-jasowang@redhat.com>
+	<20121126093728.0a10f97f@nehalam.linuxnetplumber.net>
+	<50B46179.4040809@redhat.com>
+	<20121127084919.1587c647@nehalam.linuxnetplumber.net>
+	<50B5B3D4.1070106@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121126151416.GB21016@redhat.com>
+In-Reply-To: <50B5B3D4.1070106@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,50 +22,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: axboe@kernel.dk, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, hch@infradead.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Mon, 26 Nov 2012 17:14:16 +0200
+On Wed, 28 Nov 2012 14:48:52 +0800
+Jason Wang <jasowang@redhat.com> wrote:
 
-> On Mon, Nov 19, 2012 at 10:26:41PM +0200, Michael S. Tsirkin wrote:
->> > 
->> > Userspace bits:
->> > -----------------------------
->> > 1) LKVM
->> > The latest vhost-blk userspace bits for kvm tool can be found here:
->> > git@github.com:asias/linux-kvm.git blk.vhost-blk
->> > 
->> > 2) QEMU
->> > The latest vhost-blk userspace prototype for QEMU can be found here:
->> > git@github.com:asias/qemu.git blk.vhost-blk
->> > 
->> > Changes in v5:
->> > - Do not assume the buffer layout
->> > - Fix wakeup race
->> > 
->> > Changes in v4:
->> > - Mark req->status as userspace pointer
->> > - Use __copy_to_user() instead of copy_to_user() in vhost_blk_set_status()
->> > - Add if (need_resched()) schedule() in blk thread
->> > - Kill vhost_blk_stop_vq() and move it into vhost_blk_stop()
->> > - Use vq_err() instead of pr_warn()
->> > - Fail un Unsupported request
->> > - Add flush in vhost_blk_set_features()
->> > 
->> > Changes in v3:
->> > - Sending REQ_FLUSH bio instead of vfs_fsync, thanks Christoph!
->> > - Check file passed by user is a raw block device file
->> > 
->> > Signed-off-by: Asias He <asias@redhat.com>
->> 
->> Since there are files shared by this and vhost net
->> it's easiest for me to merge this all through the
->> vhost tree.
+> On 11/28/2012 12:49 AM, Stephen Hemminger wrote:
+> > On Tue, 27 Nov 2012 14:45:13 +0800
+> > Jason Wang <jasowang@redhat.com> wrote:
+> >
+> >> On 11/27/2012 01:37 AM, Stephen Hemminger wrote:
+> >>> On Mon, 26 Nov 2012 15:56:52 +0800
+> >>> Jason Wang <jasowang@redhat.com> wrote:
+> >>>
+> >>>> Some deivces do not free the old tx skbs immediately after it has been sent
+> >>>> (usually in tx interrupt). One such example is virtio-net which optimizes for
+> >>>> virt and only free the possible old tx skbs during the next packet sending. This
+> >>>> would lead the pktgen to wait forever in the refcount of the skb if no other
+> >>>> pakcet will be sent afterwards.
+> >>>>
+> >>>> Solving this issue by introducing a new flag IFF_TX_SKB_FREE_DELAY which could
+> >>>> notify the pktgen that the device does not free skb immediately after it has
+> >>>> been sent and let it not to wait for the refcount to be one.
+> >>>>
+> >>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> >>> Another alternative would be using skb_orphan() and skb->destructor.
+> >>> There are other cases where skb's are not freed right away.
+> >>> --
+> >>> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> >>> the body of a message to majordomo@vger.kernel.org
+> >>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >> Hi Stephen:
+> >>
+> >> Do you mean registering a skb->destructor for pktgen then set and check
+> >> bits in skb->tx_flag?
+> > Yes. Register a destructor that does something like update a counter (number of packets pending),
+> > then just spin while number of packets pending is over threshold.
+> > --
 > 
-> Hi Dave, are you ok with this proposal?
+> Not sure this is the best method, since pktgen was used to test the tx 
+> process of the device driver and NIC. If we use skb_orhpan(), we would 
+> miss the test of tx completion part.
 
-I have no problems with this, for networking parts:
+There are other places that delay freeing and your solution would mean finding
+and fixing all those. Code that does that already has to use skb_orphan() to
+work, and I was looking for a way that could use that. Introducing another flag
+value seems like a long term burden.
 
-Acked-by: David S. Miller <davem@davemloft.net>
+Alternatively, virtio could do cleanup more aggressively. Maybe in response to
+ring getting half full, or add a cleanup timer or something to avoid the problem.
