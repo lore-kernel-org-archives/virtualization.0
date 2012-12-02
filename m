@@ -1,11 +1,15 @@
-From: Asias He <asias@redhat.com>
-Subject: [PATCH] vhost-blk: Add vhost-blk support v6
-Date: Sun,  2 Dec 2012 09:33:53 +0800
-Message-ID: <1354412033-32372-1-git-send-email-asias@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [net-next rfc v7 2/3] virtio_net: multiqueue support
+Date: Sun, 2 Dec 2012 18:06:31 +0200
+Message-ID: <20121202160631.GA27761__38378.8930871107$1354464296$gmane$org@redhat.com>
+References: <1354011360-39479-1-git-send-email-jasowang@redhat.com>
+	<1354011360-39479-3-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1354011360-39479-3-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,873 +19,801 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, "David S. Miller" <davem@davemloft.net>
+To: Jason Wang <jasowang@redhat.com>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-vhost-blk is an in-kernel virito-blk device accelerator.
+On Tue, Nov 27, 2012 at 06:15:59PM +0800, Jason Wang wrote:
+> This addes multiqueue support to virtio_net driver. In multiple queue modes, the
+> driver expects the number of queue paris is equal to the number of vcpus. To
+> eliminate the contention bettwen vcpus and virtqueues, per-cpu virtqueue pairs
+> were implemented through:
+> 
+> - select the txq based on the smp processor id.
+> - smp affinity hint were set to the vcpu that owns the queue pairs.
+> 
+> Signed-off-by: Krishna Kumar <krkumar2@in.ibm.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/net/virtio_net.c        |  454 ++++++++++++++++++++++++++++++---------
+>  include/uapi/linux/virtio_net.h |   16 ++
+>  2 files changed, 371 insertions(+), 99 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 7975133..bcaa6e5 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -84,17 +84,25 @@ struct virtnet_info {
+>  	struct virtio_device *vdev;
+>  	struct virtqueue *cvq;
+>  	struct net_device *dev;
+> -	struct napi_struct napi;
+> -	struct send_queue sq;
+> -	struct receive_queue rq;
+> +	struct send_queue *sq;
+> +	struct receive_queue *rq;
+>  	unsigned int status;
+>  
+> +	/* Max # of queue pairs supported by the device */
+> +	u16 max_queue_pairs;
+> +
+> +	/* # of queue pairs currently used by the driver */
+> +	u16 curr_queue_pairs;
+> +
+>  	/* I like... big packets and I cannot lie! */
+>  	bool big_packets;
+>  
+>  	/* Host will merge rx buffers for big packets (shake it! shake it!) */
+>  	bool mergeable_rx_bufs;
+>  
+> +	/* Has control virtqueue */
+> +	bool has_cvq;
+> +
+>  	/* enable config space updates */
+>  	bool config_enable;
+>  
+> @@ -126,6 +134,34 @@ struct padded_vnet_hdr {
+>  	char padding[6];
+>  };
+>  
+> +static const struct ethtool_ops virtnet_ethtool_ops;
+> +
+> +/*
+> + * Converting between virtqueue no. and kernel tx/rx queue no.
+> + * 0:rx0 1:tx0 2:cvq 3:rx1 4:tx1 ... 2N+1:rxN 2N+2:txN
+> + */
 
-Due to lack of proper in-kernel AIO interface, this version converts
-guest's I/O request to bio and use submit_bio() to submit I/O directly.
-So this version any supports raw block device as guest's disk image,
-e.g. /dev/sda, /dev/ram0. We can add file based image support to
-vhost-blk once we have in-kernel AIO interface. There are some work in
-progress for in-kernel AIO interface from Dave Kleikamp and Zach Brown:
+Weird, this isn't what spec v5 says: it says
+0:rx0 1:tx0 2: rx1 3: tx1 .... vcq
+We can change the spec to match but keeping all rx/tx
+together seems a bit prettier?
 
-   http://marc.info/?l=linux-fsdevel&m=133312234313122
+> +static int vq2txq(struct virtqueue *vq)
+> +{
+> +	int index = virtqueue_get_queue_index(vq);
+> +	return index == 1 ? 0 : (index - 2) / 2;
+> +}
+> +
+> +static int txq2vq(int txq)
+> +{
+> +	return txq ? 2 * txq + 2 : 1;
+> +}
+> +
+> +static int vq2rxq(struct virtqueue *vq)
+> +{
+> +	int index = virtqueue_get_queue_index(vq);
+> +	return index ? (index - 1) / 2 : 0;
+> +}
+> +
+> +static int rxq2vq(int rxq)
+> +{
+> +	return rxq ? 2 * rxq + 1 : 0;
+> +}
+> +
+>  static inline struct skb_vnet_hdr *skb_vnet_hdr(struct sk_buff *skb)
+>  {
+>  	return (struct skb_vnet_hdr *)skb->cb;
+> @@ -166,7 +202,7 @@ static void skb_xmit_done(struct virtqueue *vq)
+>  	virtqueue_disable_cb(vq);
+>  
+>  	/* We were probably waiting for more output buffers. */
+> -	netif_wake_queue(vi->dev);
+> +	netif_wake_subqueue(vi->dev, vq2txq(vq));
+>  }
+>  
+>  static void set_skb_frag(struct sk_buff *skb, struct page *page,
+> @@ -503,7 +539,7 @@ static bool try_fill_recv(struct receive_queue *rq, gfp_t gfp)
+>  static void skb_recv_done(struct virtqueue *rvq)
+>  {
+>  	struct virtnet_info *vi = rvq->vdev->priv;
+> -	struct receive_queue *rq = &vi->rq;
+> +	struct receive_queue *rq = &vi->rq[vq2rxq(rvq)];
+>  
+>  	/* Schedule NAPI, Suppress further interrupts if successful. */
+>  	if (napi_schedule_prep(&rq->napi)) {
+> @@ -650,7 +686,8 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+>  static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> -	struct send_queue *sq = &vi->sq;
+> +	int qnum = skb_get_queue_mapping(skb);
+> +	struct send_queue *sq = &vi->sq[qnum];
+>  	int capacity;
+>  
+>  	/* Free up any pending old buffers before queueing new ones. */
+> @@ -664,13 +701,14 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  		if (likely(capacity == -ENOMEM)) {
+>  			if (net_ratelimit())
+>  				dev_warn(&dev->dev,
+> -					 "TX queue failure: out of memory\n");
+> +					 "TXQ (%d) failure: out of memory\n",
+> +					 qnum);
+>  		} else {
+>  			dev->stats.tx_fifo_errors++;
+>  			if (net_ratelimit())
+>  				dev_warn(&dev->dev,
+> -					 "Unexpected TX queue failure: %d\n",
+> -					 capacity);
+> +					 "Unexpected TXQ (%d) failure: %d\n",
+> +					 qnum, capacity);
+>  		}
+>  		dev->stats.tx_dropped++;
+>  		kfree_skb(skb);
+> @@ -685,12 +723,12 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  	/* Apparently nice girls don't return TX_BUSY; stop the queue
+>  	 * before it gets out of hand.  Naturally, this wastes entries. */
+>  	if (capacity < 2+MAX_SKB_FRAGS) {
+> -		netif_stop_queue(dev);
+> +		netif_stop_subqueue(dev, qnum);
+>  		if (unlikely(!virtqueue_enable_cb_delayed(sq->vq))) {
+>  			/* More just got used, free them then recheck. */
+>  			capacity += free_old_xmit_skbs(sq);
+>  			if (capacity >= 2+MAX_SKB_FRAGS) {
+> -				netif_start_queue(dev);
+> +				netif_start_subqueue(dev, qnum);
+>  				virtqueue_disable_cb(sq->vq);
+>  			}
+>  		}
+> @@ -758,23 +796,13 @@ static struct rtnl_link_stats64 *virtnet_stats(struct net_device *dev,
+>  static void virtnet_netpoll(struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> +	int i;
+>  
+> -	napi_schedule(&vi->rq.napi);
+> +	for (i = 0; i < vi->curr_queue_pairs; i++)
+> +		napi_schedule(&vi->rq[i].napi);
+>  }
+>  #endif
+>  
+> -static int virtnet_open(struct net_device *dev)
+> -{
+> -	struct virtnet_info *vi = netdev_priv(dev);
+> -
+> -	/* Make sure we have some buffers: if oom use wq. */
+> -	if (!try_fill_recv(&vi->rq, GFP_KERNEL))
+> -		schedule_delayed_work(&vi->rq.refill, 0);
+> -
+> -	virtnet_napi_enable(&vi->rq);
+> -	return 0;
+> -}
+> -
+>  /*
+>   * Send command via the control virtqueue and check status.  Commands
+>   * supported by the hypervisor, as indicated by feature bits, should
+> @@ -830,13 +858,53 @@ static void virtnet_ack_link_announce(struct virtnet_info *vi)
+>  	rtnl_unlock();
+>  }
+>  
+> +static int virtnet_set_queues(struct virtnet_info *vi)
+> +{
+> +	struct scatterlist sg;
+> +	struct virtio_net_ctrl_rfs s;
+> +	struct net_device *dev = vi->dev;
+> +
+> +	s.virtqueue_pairs = vi->curr_queue_pairs;
+> +	sg_init_one(&sg, &s, sizeof(s));
+> +
+> +	if (!vi->has_cvq)
+> +		return -EINVAL;
+> +
+> +	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RFS,
+> +				  VIRTIO_NET_CTRL_RFS_VQ_PAIRS_SET, &sg, 1, 0)){
+> +		dev_warn(&dev->dev, "Fail to set the number of queue pairs to"
+> +			 " %d\n", vi->curr_queue_pairs);
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int virtnet_open(struct net_device *dev)
+> +{
+> +	struct virtnet_info *vi = netdev_priv(dev);
+> +	int i;
+> +
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		/* Make sure we have some buffers: if oom use wq. */
+> +		if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
+> +			schedule_delayed_work(&vi->rq[i].refill, 0);
+> +		virtnet_napi_enable(&vi->rq[i]);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static int virtnet_close(struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> +	int i;
+>  
+>  	/* Make sure refill_work doesn't re-enable napi! */
+> -	cancel_delayed_work_sync(&vi->rq.refill);
+> -	napi_disable(&vi->rq.napi);
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		cancel_delayed_work_sync(&vi->rq[i].refill);
+> +		napi_disable(&vi->rq[i].napi);
+> +	}
+>  
+>  	return 0;
+>  }
+> @@ -948,8 +1016,8 @@ static void virtnet_get_ringparam(struct net_device *dev,
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+>  
+> -	ring->rx_max_pending = virtqueue_get_vring_size(vi->rq.vq);
+> -	ring->tx_max_pending = virtqueue_get_vring_size(vi->sq.vq);
+> +	ring->rx_max_pending = virtqueue_get_vring_size(vi->rq[0].vq);
+> +	ring->tx_max_pending = virtqueue_get_vring_size(vi->sq[0].vq);
+>  	ring->rx_pending = ring->rx_max_pending;
+>  	ring->tx_pending = ring->tx_max_pending;
+>  }
+> @@ -967,12 +1035,6 @@ static void virtnet_get_drvinfo(struct net_device *dev,
+>  
+>  }
+>  
+> -static const struct ethtool_ops virtnet_ethtool_ops = {
+> -	.get_drvinfo = virtnet_get_drvinfo,
+> -	.get_link = ethtool_op_get_link,
+> -	.get_ringparam = virtnet_get_ringparam,
+> -};
+> -
+>  #define MIN_MTU 68
+>  #define MAX_MTU 65535
+>  
+> @@ -984,6 +1046,20 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
+>  	return 0;
+>  }
+>  
+> +/* To avoid contending a lock hold by a vcpu who would exit to host, select the
+> + * txq based on the processor id.
+> + */
+> +static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
+> +{
+> +	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
+> +		  smp_processor_id();
+> +
+> +	while (unlikely(txq >= dev->real_num_tx_queues))
+> +		txq -= dev->real_num_tx_queues;
+> +
+> +	return txq;
+> +}
+> +
+>  static const struct net_device_ops virtnet_netdev = {
+>  	.ndo_open            = virtnet_open,
+>  	.ndo_stop   	     = virtnet_close,
+> @@ -995,6 +1071,7 @@ static const struct net_device_ops virtnet_netdev = {
+>  	.ndo_get_stats64     = virtnet_stats,
+>  	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
+>  	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
+> +	.ndo_select_queue     = virtnet_select_queue,
+>  #ifdef CONFIG_NET_POLL_CONTROLLER
+>  	.ndo_poll_controller = virtnet_netpoll,
+>  #endif
+> @@ -1030,10 +1107,10 @@ static void virtnet_config_changed_work(struct work_struct *work)
+>  
+>  	if (vi->status & VIRTIO_NET_S_LINK_UP) {
+>  		netif_carrier_on(vi->dev);
+> -		netif_wake_queue(vi->dev);
+> +		netif_tx_wake_all_queues(vi->dev);
+>  	} else {
+>  		netif_carrier_off(vi->dev);
+> -		netif_stop_queue(vi->dev);
+> +		netif_tx_stop_all_queues(vi->dev);
+>  	}
+>  done:
+>  	mutex_unlock(&vi->config_lock);
+> @@ -1046,41 +1123,212 @@ static void virtnet_config_changed(struct virtio_device *vdev)
+>  	schedule_work(&vi->config_work);
+>  }
+>  
+> -static int init_vqs(struct virtnet_info *vi)
+> +static void free_receive_bufs(struct virtnet_info *vi)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		while (vi->rq[i].pages)
+> +			__free_pages(get_a_page(&vi->rq[i], GFP_KERNEL), 0);
+> +	}
+> +}
+> +
+> +/* Free memory allocated for send and receive queues */
+> +static void virtnet_free_queues(struct virtnet_info *vi)
+>  {
+> -	struct virtqueue *vqs[3];
+> -	vq_callback_t *callbacks[] = { skb_recv_done, skb_xmit_done, NULL};
+> -	const char *names[] = { "input", "output", "control" };
+> -	int nvqs, err;
+> +	kfree(vi->rq);
+> +	vi->rq = NULL;
+> +	kfree(vi->sq);
+> +	vi->sq = NULL;
+> +}
+>  
+> -	/* We expect two virtqueues, receive then send,
+> -	 * and optionally control. */
+> -	nvqs = virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ? 3 : 2;
+> +static void free_unused_bufs(struct virtnet_info *vi)
+> +{
+> +	void *buf;
+> +	int i;
+>  
+> -	err = vi->vdev->config->find_vqs(vi->vdev, nvqs, vqs, callbacks, names);
+> -	if (err)
+> -		return err;
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		struct virtqueue *vq = vi->sq[i].vq;
+> +		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL)
+> +			dev_kfree_skb(buf);
+> +	}
+>  
+> -	vi->rq.vq = vqs[0];
+> -	vi->sq.vq = vqs[1];
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		struct virtqueue *vq = vi->rq[i].vq;
+>  
+> -	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ)) {
+> -		vi->cvq = vqs[2];
+> +		while ((buf = virtqueue_detach_unused_buf(vq)) != NULL) {
+> +			if (vi->mergeable_rx_bufs || vi->big_packets)
+> +				give_pages(&vi->rq[i], buf);
+> +			else
+> +				dev_kfree_skb(buf);
+> +			--vi->rq[i].num;
+> +		}
+> +		BUG_ON(vi->rq[i].num != 0);
+> +	}
+> +}
+>  
+> +static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		int cpu = set ? i : -1;
+> +		virtqueue_set_affinity(vi->rq[i].vq, cpu);
+> +		virtqueue_set_affinity(vi->sq[i].vq, cpu);
+> +	}
+> +}
+> +
+> +static void virtnet_del_vqs(struct virtnet_info *vi)
+> +{
+> +	struct virtio_device *vdev = vi->vdev;
+> +
+> +	virtnet_set_affinity(vi, false);
+> +
+> +	vdev->config->del_vqs(vdev);
+> +
+> +	virtnet_free_queues(vi);
+> +}
+> +
+> +static int virtnet_find_vqs(struct virtnet_info *vi)
+> +{
+> +	vq_callback_t **callbacks;
+> +	struct virtqueue **vqs;
+> +	int ret = -ENOMEM;
+> +	int i, total_vqs;
+> +	char **names;
+> +
+> +	/*
+> +	 * We expect 1 RX virtqueue followed by 1 TX virtqueue, followd by
+> +	 * possible control virtqueue, followed by RX/TX N-1 queue pairs used
+> +	 * in multiqueue mode.
+> +	 */
+> +	total_vqs = vi->max_queue_pairs * 2 +
+> +		    virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ);
+> +
+> +	/* Allocate space for find_vqs parameters */
+> +	vqs = kzalloc(total_vqs * sizeof(*vqs), GFP_KERNEL);
+> +	callbacks = kzalloc(total_vqs * sizeof(*callbacks), GFP_KERNEL);
+> +	if (!vqs || !callbacks)
+> +		goto err_mem;
+> +	names = kzalloc(total_vqs * sizeof(*names), GFP_KERNEL);
+> +	if (!names)
+> +		goto err_mem;
+> +
+> +	/* Parameters for control virtqueue, if any */
+> +	if (vi->has_cvq) {
+> +		callbacks[2] = NULL;
+> +		names[2] = kasprintf(GFP_KERNEL, "control");
+> +	}
+> +
+> +	/* Allocate/initialize parameters for send/receive virtqueues */
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		callbacks[rxq2vq(i)] = skb_recv_done;
+> +		callbacks[txq2vq(i)] = skb_xmit_done;
+> +		names[rxq2vq(i)] = kasprintf(GFP_KERNEL, "input.%d", i);
+> +		names[txq2vq(i)] = kasprintf(GFP_KERNEL, "output.%d", i);
+> +	}
+> +
+> +	ret = vi->vdev->config->find_vqs(vi->vdev, total_vqs, vqs, callbacks,
+> +					 (const char **)names);
+> +	if (ret)
+> +		goto err_names;
+> +
+> +	if (vi->has_cvq) {
+> +		vi->cvq = vqs[2];
+>  		if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VLAN))
+>  			vi->dev->features |= NETIF_F_HW_VLAN_FILTER;
+>  	}
+> +
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		vi->rq[i].vq = vqs[rxq2vq(i)];
+> +		vi->sq[i].vq = vqs[txq2vq(i)];
+> +	}
+> +
+> +	kfree(callbacks);
+> +	kfree(vqs);
+> +
+> +	return 0;
+> +
+> +err_names:
+> +	for (i = 0; i < total_vqs * 2; i ++)
+> +		kfree(names[i]);
+> +	kfree(names);
+> +
+> +err_mem:
+> +	kfree(callbacks);
+> +	kfree(vqs);
+> +
+> +	return ret;
+> +}
+> +
+> +static int virtnet_alloc_queues(struct virtnet_info *vi)
+> +{
+> +	int i;
+> +
+> +	vi->sq = kzalloc(sizeof(vi->sq[0]) * vi->max_queue_pairs, GFP_KERNEL);
+> +	vi->rq = kzalloc(sizeof(vi->rq[0]) * vi->max_queue_pairs, GFP_KERNEL);
+> +	if (!vi->rq || !vi->sq)
+> +		goto err;
+> +
+> +	/* setup initial receive and send queue parameters */
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		vi->rq[i].pages = NULL;
+> +		INIT_DELAYED_WORK(&vi->rq[i].refill, refill_work);
+> +		netif_napi_add(vi->dev, &vi->rq[i].napi, virtnet_poll,
+> +			       napi_weight);
+> +
+> +		sg_init_table(vi->rq[i].sg, ARRAY_SIZE(vi->rq[i].sg));
+> +		sg_init_table(vi->sq[i].sg, ARRAY_SIZE(vi->sq[i].sg));
+> +	}
+> +
+> +
+>  	return 0;
+> +
+> +err:
+> +	virtnet_free_queues(vi);
+> +	return -ENOMEM;
+> +}
+> +
+> +static int init_vqs(struct virtnet_info *vi)
+> +{
+> +	int ret;
+> +
+> +	/* Allocate send & receive queues */
+> +	ret = virtnet_alloc_queues(vi);
+> +	if (ret)
+> +		goto err;
+> +
+> +	ret = virtnet_find_vqs(vi);
+> +	if (ret)
+> +		goto err_free;
+> +
+> +	virtnet_set_affinity(vi, true);
+> +	return 0;
+> +
+> +err_free:
+> +	virtnet_free_queues(vi);
+> +err:
+> +	return ret;
+>  }
+>  
+>  static int virtnet_probe(struct virtio_device *vdev)
+>  {
+> -	int err;
+> +	int i, err;
+>  	struct net_device *dev;
+>  	struct virtnet_info *vi;
+> +	u16 curr_queue_pairs;
 
-Performance evaluation:
------------------------------
-LKVM: Fio with libaio ioengine on 1 Fusion IO device
-IOPS(k)    Before    After    Improvement
-seq-read   107       121      +13.0%
-seq-write  130       179      +37.6%
-rnd-read   102       122      +19.6%
-rnd-write  125       159      +27.0%
+Probably a good idea to rename this max_queue_pairs.
 
-QEMU: Fio with libaio ioengine on 1 Fusion IO device
-IOPS(k)    Before    After    Improvement
-seq-read   76        123      +61.8%
-seq-write  139       173      +24.4%
-rnd-read   73        120      +64.3%
-rnd-write  75        156      +108.0%
+> +
+> +	/* Find if host supports multiqueue virtio_net device */
+> +	err = virtio_config_val(vdev, VIRTIO_NET_F_RFS,
+> +				offsetof(struct virtio_net_config,
+> +				max_virtqueue_pairs), &curr_queue_pairs);
+> +
+> +	/* We need at least 2 queue's */
+> +	if (err)
+> +		curr_queue_pairs = 1;
 
-QEMU: Fio with libaio ioengine on 1 Ramdisk device
-IOPS(k)    Before    After    Improvement
-seq-read   138       437      +216%
-seq-write  191       436      +128%
-rnd-read   137       426      +210%
-rnd-write  140       415      +196%
+Let's also validate against VIRTIO_NET_CTRL_RFS_VQ_PAIRS_MIN
+and VIRTIO_NET_CTRL_RFS_VQ_PAIRS_MAX.
 
-QEMU: Fio with libaio ioengine on 8 Ramdisk device
-50% read + 50% write
-IOPS(k)    Before    After    Improvement
-randrw     64/64     189/189  +195%/+195%
+>  
+>  	/* Allocate ourselves a network device with room for our info */
+> -	dev = alloc_etherdev(sizeof(struct virtnet_info));
+> +	dev = alloc_etherdev_mq(sizeof(struct virtnet_info), curr_queue_pairs);
+>  	if (!dev)
+>  		return -ENOMEM;
+>  
+> @@ -1126,22 +1374,17 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  
+>  	/* Set up our device-specific information */
+>  	vi = netdev_priv(dev);
+> -	netif_napi_add(dev, &vi->rq.napi, virtnet_poll, napi_weight);
+>  	vi->dev = dev;
+>  	vi->vdev = vdev;
+>  	vdev->priv = vi;
+> -	vi->rq.pages = NULL;
+>  	vi->stats = alloc_percpu(struct virtnet_stats);
+>  	err = -ENOMEM;
+>  	if (vi->stats == NULL)
+>  		goto free;
+>  
+> -	INIT_DELAYED_WORK(&vi->rq.refill, refill_work);
+>  	mutex_init(&vi->config_lock);
+>  	vi->config_enable = true;
+>  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+> -	sg_init_table(vi->rq.sg, ARRAY_SIZE(vi->rq.sg));
+> -	sg_init_table(vi->sq.sg, ARRAY_SIZE(vi->sq.sg));
+>  
+>  	/* If we can receive ANY GSO packets, we must allocate large ones. */
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+> @@ -1152,10 +1395,21 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+>  		vi->mergeable_rx_bufs = true;
+>  
+> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
+> +		vi->has_cvq = true;
+> +
+> +	/* Use single tx/rx queue pair as default */
+> +	vi->curr_queue_pairs = 1;
+> +	vi->max_queue_pairs = curr_queue_pairs;
+> +
+> +	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
+>  	err = init_vqs(vi);
+>  	if (err)
+>  		goto free_stats;
+>  
+> +	netif_set_real_num_tx_queues(dev, 1);
+> +	netif_set_real_num_rx_queues(dev, 1);
+> +
+>  	err = register_netdev(dev);
+>  	if (err) {
+>  		pr_debug("virtio_net: registering device failed\n");
+> @@ -1163,12 +1417,15 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	}
+>  
+>  	/* Last of all, set up some receive buffers. */
+> -	try_fill_recv(&vi->rq, GFP_KERNEL);
+> -
+> -	/* If we didn't even get one input buffer, we're useless. */
+> -	if (vi->rq.num == 0) {
+> -		err = -ENOMEM;
+> -		goto unregister;
+> +	for (i = 0; i < vi->max_queue_pairs; i++) {
+> +		try_fill_recv(&vi->rq[i], GFP_KERNEL);
+> +
+> +		/* If we didn't even get one input buffer, we're useless. */
+> +		if (vi->rq[i].num == 0) {
+> +			free_unused_bufs(vi);
+> +			err = -ENOMEM;
+> +			goto free_recv_bufs;
+> +		}
+>  	}
+>  
+>  	/* Assume link up if device can't report link status,
+> @@ -1181,13 +1438,20 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		netif_carrier_on(dev);
+>  	}
+>  
+> -	pr_debug("virtnet: registered device %s\n", dev->name);
+> +	pr_debug("virtnet: registered device %s with %d RX and TX vq's\n",
+> +		 dev->name, curr_queue_pairs);
+> +
+>  	return 0;
+>  
+> -unregister:
+> +free_recv_bufs:
+> +	free_receive_bufs(vi);
+>  	unregister_netdev(dev);
+> +
+>  free_vqs:
+> -	vdev->config->del_vqs(vdev);
+> +	for (i = 0; i <curr_queue_pairs; i++)
+> +		cancel_delayed_work_sync(&vi->rq[i].refill);
+> +	virtnet_del_vqs(vi);
+> +
+>  free_stats:
+>  	free_percpu(vi->stats);
+>  free:
+> @@ -1195,28 +1459,6 @@ free:
+>  	return err;
+>  }
+>  
+> -static void free_unused_bufs(struct virtnet_info *vi)
+> -{
+> -	void *buf;
+> -	while (1) {
+> -		buf = virtqueue_detach_unused_buf(vi->sq.vq);
+> -		if (!buf)
+> -			break;
+> -		dev_kfree_skb(buf);
+> -	}
+> -	while (1) {
+> -		buf = virtqueue_detach_unused_buf(vi->rq.vq);
+> -		if (!buf)
+> -			break;
+> -		if (vi->mergeable_rx_bufs || vi->big_packets)
+> -			give_pages(&vi->rq, buf);
+> -		else
+> -			dev_kfree_skb(buf);
+> -		--vi->rq.num;
+> -	}
+> -	BUG_ON(vi->rq.num != 0);
+> -}
+> -
+>  static void remove_vq_common(struct virtnet_info *vi)
+>  {
+>  	vi->vdev->config->reset(vi->vdev);
+> @@ -1224,10 +1466,9 @@ static void remove_vq_common(struct virtnet_info *vi)
+>  	/* Free unused buffers in both send and recv, if any. */
+>  	free_unused_bufs(vi);
+>  
+> -	vi->vdev->config->del_vqs(vi->vdev);
+> +	free_receive_bufs(vi);
+>  
+> -	while (vi->rq.pages)
+> -		__free_pages(get_a_page(&vi->rq, GFP_KERNEL), 0);
+> +	virtnet_del_vqs(vi);
+>  }
+>  
+>  static void __devexit virtnet_remove(struct virtio_device *vdev)
+> @@ -1253,6 +1494,7 @@ static void __devexit virtnet_remove(struct virtio_device *vdev)
+>  static int virtnet_freeze(struct virtio_device *vdev)
+>  {
+>  	struct virtnet_info *vi = vdev->priv;
+> +	int i;
+>  
+>  	/* Prevent config work handler from accessing the device */
+>  	mutex_lock(&vi->config_lock);
+> @@ -1260,10 +1502,14 @@ static int virtnet_freeze(struct virtio_device *vdev)
+>  	mutex_unlock(&vi->config_lock);
+>  
+>  	netif_device_detach(vi->dev);
+> -	cancel_delayed_work_sync(&vi->rq.refill);
+> +	for (i = 0; i < vi->max_queue_pairs; i++)
+> +		cancel_delayed_work_sync(&vi->rq[i].refill);
+>  
+>  	if (netif_running(vi->dev))
+> -		napi_disable(&vi->rq.napi);
+> +		for (i = 0; i < vi->max_queue_pairs; i++) {
+> +			napi_disable(&vi->rq[i].napi);
+> +			netif_napi_del(&vi->rq[i].napi);
+> +		}
+>  
+>  	remove_vq_common(vi);
+>  
+> @@ -1275,24 +1521,28 @@ static int virtnet_freeze(struct virtio_device *vdev)
+>  static int virtnet_restore(struct virtio_device *vdev)
+>  {
+>  	struct virtnet_info *vi = vdev->priv;
+> -	int err;
+> +	int err, i;
+>  
+>  	err = init_vqs(vi);
+>  	if (err)
+>  		return err;
+>  
+>  	if (netif_running(vi->dev))
+> -		virtnet_napi_enable(&vi->rq);
+> +		for (i = 0; i < vi->max_queue_pairs; i++)
+> +			virtnet_napi_enable(&vi->rq[i]);
+>  
+>  	netif_device_attach(vi->dev);
+>  
+> -	if (!try_fill_recv(&vi->rq, GFP_KERNEL))
+> -		schedule_delayed_work(&vi->rq.refill, 0);
+> +	for (i = 0; i < vi->max_queue_pairs; i++)
+> +		if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
+> +			schedule_delayed_work(&vi->rq[i].refill, 0);
+>  
+>  	mutex_lock(&vi->config_lock);
+>  	vi->config_enable = true;
+>  	mutex_unlock(&vi->config_lock);
+>  
+> +	BUG_ON(virtnet_set_queues(vi));
+> +
 
-Userspace bits:
------------------------------
-1) LKVM
-The latest vhost-blk userspace bits for kvm tool can be found here:
-git@github.com:asias/linux-kvm.git blk.vhost-blk
+Won't this always fail when control vq is off?
 
-2) QEMU
-The latest vhost-blk userspace prototype for QEMU can be found here:
-git@github.com:asias/qemu.git blk.vhost-blk
-
-Changes in v6:
-- Use inline req_page_list to reduce kmalloc
-- Switch to single thread model, thanks mst!
-- Wait until requests fired before vhost_blk_flush to be finished
-
-Changes in v5:
-- Do not assume the buffer layout
-- Fix wakeup race
-
-Changes in v4:
-- Mark req->status as userspace pointer
-- Use __copy_to_user() instead of copy_to_user() in vhost_blk_set_status()
-- Add if (need_resched()) schedule() in blk thread
-- Kill vhost_blk_stop_vq() and move it into vhost_blk_stop()
-- Use vq_err() instead of pr_warn()
-- Fail un Unsupported request
-- Add flush in vhost_blk_set_features()
-
-Changes in v3:
-- Sending REQ_FLUSH bio instead of vfs_fsync, thanks Christoph!
-- Check file passed by user is a raw block device file
-
-Acked-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Asias He <asias@redhat.com>
----
- drivers/vhost/Kconfig     |   1 +
- drivers/vhost/Kconfig.blk |  10 +
- drivers/vhost/Makefile    |   2 +
- drivers/vhost/blk.c       | 724 ++++++++++++++++++++++++++++++++++++++++++++++
- drivers/vhost/blk.h       |   8 +
- 5 files changed, 745 insertions(+)
- create mode 100644 drivers/vhost/Kconfig.blk
- create mode 100644 drivers/vhost/blk.c
- create mode 100644 drivers/vhost/blk.h
-
-diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index 202bba6..acd8038 100644
---- a/drivers/vhost/Kconfig
-+++ b/drivers/vhost/Kconfig
-@@ -11,4 +11,5 @@ config VHOST_NET
- 
- if STAGING
- source "drivers/vhost/Kconfig.tcm"
-+source "drivers/vhost/Kconfig.blk"
- endif
-diff --git a/drivers/vhost/Kconfig.blk b/drivers/vhost/Kconfig.blk
-new file mode 100644
-index 0000000..ff8ab76
---- /dev/null
-+++ b/drivers/vhost/Kconfig.blk
-@@ -0,0 +1,10 @@
-+config VHOST_BLK
-+	tristate "Host kernel accelerator for virtio blk (EXPERIMENTAL)"
-+	depends on BLOCK &&  EXPERIMENTAL && m
-+	---help---
-+	  This kernel module can be loaded in host kernel to accelerate
-+	  guest block with virtio_blk. Not to be confused with virtio_blk
-+	  module itself which needs to be loaded in guest kernel.
-+
-+	  To compile this driver as a module, choose M here: the module will
-+	  be called vhost_blk.
-diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-index a27b053..1a8a4a5 100644
---- a/drivers/vhost/Makefile
-+++ b/drivers/vhost/Makefile
-@@ -2,3 +2,5 @@ obj-$(CONFIG_VHOST_NET) += vhost_net.o
- vhost_net-y := vhost.o net.o
- 
- obj-$(CONFIG_TCM_VHOST) += tcm_vhost.o
-+obj-$(CONFIG_VHOST_BLK) += vhost_blk.o
-+vhost_blk-y := blk.o
-diff --git a/drivers/vhost/blk.c b/drivers/vhost/blk.c
-new file mode 100644
-index 0000000..e4ca4b6
---- /dev/null
-+++ b/drivers/vhost/blk.c
-@@ -0,0 +1,724 @@
-+/*
-+ * Copyright (C) 2011 Taobao, Inc.
-+ * Author: Liu Yuan <tailai.ly@taobao.com>
-+ *
-+ * Copyright (C) 2012 Red Hat, Inc.
-+ * Author: Asias He <asias@redhat.com>
-+ *
-+ * This work is licensed under the terms of the GNU GPL, version 2.
-+ *
-+ * virtio-blk server in host kernel.
-+ */
-+
-+#include <linux/miscdevice.h>
-+#include <linux/module.h>
-+#include <linux/vhost.h>
-+#include <linux/virtio_blk.h>
-+#include <linux/mutex.h>
-+#include <linux/file.h>
-+#include <linux/kthread.h>
-+#include <linux/blkdev.h>
-+#include <linux/llist.h>
-+
-+#include "vhost.c"
-+#include "vhost.h"
-+#include "blk.h"
-+
-+static DEFINE_IDA(vhost_blk_index_ida);
-+
-+enum {
-+	VHOST_BLK_VQ_REQ = 0,
-+	VHOST_BLK_VQ_MAX = 1,
-+};
-+
-+struct req_page_list {
-+	struct page **pages;
-+	int pages_nr;
-+};
-+
-+#define NR_INLINE 16
-+
-+struct vhost_blk_req {
-+	struct req_page_list inline_pl[NR_INLINE];
-+	struct page *inline_page[NR_INLINE];
-+	struct bio *inline_bio[NR_INLINE];
-+	struct req_page_list *pl;
-+	int during_flush;
-+	bool use_inline;
-+
-+	struct llist_node llnode;
-+
-+	struct vhost_blk *blk;
-+
-+	struct iovec *iov;
-+	int iov_nr;
-+
-+	struct bio **bio;
-+	atomic_t bio_nr;
-+
-+	struct iovec status[1];
-+
-+	sector_t sector;
-+	int write;
-+	u16 head;
-+	long len;
-+};
-+
-+struct vhost_blk {
-+	wait_queue_head_t flush_wait;
-+	struct iovec iov[UIO_MAXIOV];
-+	struct vhost_blk_req *reqs;
-+	struct vhost_virtqueue vq;
-+	struct llist_head llhead;
-+	atomic_t req_inflight[2];
-+	struct vhost_work work;
-+	spinlock_t flush_lock;
-+	struct vhost_dev dev;
-+	int during_flush;
-+	u16 reqs_nr;
-+	int index;
-+};
-+
-+static int move_iovec(struct iovec *from, struct iovec *to,
-+		      size_t len, int iov_count)
-+{
-+	int seg = 0;
-+	size_t size;
-+
-+	while (len && seg < iov_count) {
-+		if (from->iov_len == 0) {
-+			++from;
-+			continue;
-+		}
-+		size = min(from->iov_len, len);
-+		to->iov_base = from->iov_base;
-+		to->iov_len = size;
-+		from->iov_len -= size;
-+		from->iov_base += size;
-+		len -= size;
-+		++from;
-+		++to;
-+		++seg;
-+	}
-+	return seg;
-+}
-+
-+static inline int iov_num_pages(struct iovec *iov)
-+{
-+	return (PAGE_ALIGN((unsigned long)iov->iov_base + iov->iov_len) -
-+	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
-+}
-+
-+static inline int vhost_blk_set_status(struct vhost_blk_req *req, u8 status)
-+{
-+	struct vhost_blk *blk = req->blk;
-+	int ret;
-+
-+	ret = memcpy_toiovecend(req->status, &status, 0, sizeof(status));
-+
-+	if (ret) {
-+		vq_err(&blk->vq, "Failed to write status\n");
-+		return -EFAULT;
-+	}
-+
-+	return 0;
-+}
-+
-+static void vhost_blk_req_done(struct bio *bio, int err)
-+{
-+	struct vhost_blk_req *req = bio->bi_private;
-+	struct vhost_blk *blk = req->blk;
-+
-+	if (err)
-+		req->len = err;
-+
-+	if (atomic_dec_and_test(&req->bio_nr)) {
-+		llist_add(&req->llnode, &blk->llhead);
-+		vhost_work_queue(&blk->dev, &blk->work);
-+	}
-+
-+	bio_put(bio);
-+}
-+
-+static void vhost_blk_req_umap(struct vhost_blk_req *req)
-+{
-+	struct req_page_list *pl;
-+	int i, j;
-+
-+	if (req->pl) {
-+		for (i = 0; i < req->iov_nr; i++) {
-+			pl = &req->pl[i];
-+			for (j = 0; j < pl->pages_nr; j++) {
-+				if (!req->write)
-+					set_page_dirty_lock(pl->pages[j]);
-+				page_cache_release(pl->pages[j]);
-+			}
-+		}
-+	}
-+
-+	if (!req->use_inline)
-+		kfree(req->pl);
-+}
-+
-+static int vhost_blk_bio_make(struct vhost_blk_req *req,
-+			      struct block_device *bdev)
-+{
-+	int pages_nr_total, i, j, ret;
-+	struct iovec *iov = req->iov;
-+	int iov_nr = req->iov_nr;
-+	struct page **pages, *page;
-+	struct bio *bio = NULL;
-+	int bio_nr = 0;
-+	void *buf;
-+
-+	pages_nr_total = 0;
-+	for (i = 0; i < iov_nr; i++)
-+		pages_nr_total += iov_num_pages(&iov[i]);
-+
-+	if (unlikely(req->write == WRITE_FLUSH)) {
-+		req->use_inline = true;
-+		req->pl = NULL;
-+		req->bio = req->inline_bio;
-+
-+		bio = bio_alloc(GFP_KERNEL, 1);
-+		if (!bio)
-+			return -ENOMEM;
-+
-+		bio->bi_sector  = req->sector;
-+		bio->bi_bdev    = bdev;
-+		bio->bi_private = req;
-+		bio->bi_end_io  = vhost_blk_req_done;
-+		req->bio[bio_nr++] = bio;
-+
-+		goto out;
-+	}
-+
-+	if (pages_nr_total > NR_INLINE) {
-+		int pl_len, page_len, bio_len;
-+
-+		req->use_inline = false;
-+		pl_len = iov_nr * sizeof(req->pl[0]);
-+		page_len = pages_nr_total * sizeof(struct page *);
-+		bio_len = pages_nr_total * sizeof(struct bio *);
-+
-+		buf = kmalloc(pl_len + page_len + bio_len, GFP_KERNEL);
-+		if (!buf)
-+			return -ENOMEM;
-+
-+		req->pl	= buf;
-+		pages = buf + pl_len;
-+		req->bio = buf + pl_len + page_len;
-+	} else {
-+		req->use_inline = true;
-+		req->pl = req->inline_pl;
-+		pages = req->inline_page;
-+		req->bio = req->inline_bio;
-+	}
-+
-+	req->iov_nr = 0;
-+	for (i = 0; i < iov_nr; i++) {
-+		int pages_nr = iov_num_pages(&iov[i]);
-+		unsigned long iov_base, iov_len;
-+		struct req_page_list *pl;
-+
-+		iov_base = (unsigned long)iov[i].iov_base;
-+		iov_len  = (unsigned long)iov[i].iov_len;
-+
-+		/* TODO: Limit the total number of pages pinned */
-+		ret = get_user_pages_fast(iov_base, pages_nr,
-+					  !req->write, pages);
-+		if (ret != pages_nr)
-+			goto fail;
-+
-+		req->iov_nr++;
-+		pl = &req->pl[i];
-+		pl->pages_nr = pages_nr;
-+		pl->pages = pages;
-+
-+		for (j = 0; j < pages_nr; j++) {
-+			unsigned int off, len;
-+			page = pages[j];
-+			off = iov_base & ~PAGE_MASK;
-+			len = PAGE_SIZE - off;
-+			if (len > iov_len)
-+				len = iov_len;
-+
-+			while (!bio || bio_add_page(bio, page, len, off) <= 0) {
-+				bio = bio_alloc(GFP_KERNEL, pages_nr_total);
-+				if (!bio)
-+					goto fail;
-+				bio->bi_sector  = req->sector;
-+				bio->bi_bdev    = bdev;
-+				bio->bi_private = req;
-+				bio->bi_end_io  = vhost_blk_req_done;
-+				req->bio[bio_nr++] = bio;
-+			}
-+			req->sector	+= len >> 9;
-+			iov_base	+= len;
-+			iov_len		-= len;
-+		}
-+
-+		pages += pages_nr;
-+	}
-+out:
-+	atomic_set(&req->bio_nr, bio_nr);
-+	return 0;
-+
-+fail:
-+	for (i = 0; i < bio_nr; i++)
-+		bio_put(req->bio[i]);
-+	vhost_blk_req_umap(req);
-+	return -ENOMEM;
-+}
-+
-+static inline void vhost_blk_bio_send(struct vhost_blk_req *req)
-+{
-+	struct blk_plug plug;
-+	int i, bio_nr;
-+
-+	bio_nr = atomic_read(&req->bio_nr);
-+	blk_start_plug(&plug);
-+	for (i = 0; i < bio_nr; i++)
-+		submit_bio(req->write, req->bio[i]);
-+	blk_finish_plug(&plug);
-+}
-+
-+static int vhost_blk_req_submit(struct vhost_blk_req *req, struct file *file)
-+{
-+
-+	struct inode *inode = file->f_mapping->host;
-+	struct block_device *bdev = inode->i_bdev;
-+	int ret;
-+
-+	ret = vhost_blk_bio_make(req, bdev);
-+	if (ret < 0)
-+		return ret;
-+
-+	vhost_blk_bio_send(req);
-+
-+	spin_lock(&req->blk->flush_lock);
-+	req->during_flush = req->blk->during_flush;
-+	atomic_inc(&req->blk->req_inflight[req->during_flush]);
-+	spin_unlock(&req->blk->flush_lock);
-+
-+	return ret;
-+}
-+
-+static int vhost_blk_req_handle(struct vhost_virtqueue *vq,
-+				struct virtio_blk_outhdr *hdr,
-+				u16 head, u16 out, u16 in,
-+				struct file *file)
-+{
-+	struct vhost_blk *blk = container_of(vq->dev, struct vhost_blk, dev);
-+	unsigned char id[VIRTIO_BLK_ID_BYTES];
-+	struct vhost_blk_req *req;
-+	int ret, len;
-+	u8 status;
-+
-+	req		= &blk->reqs[head];
-+	req->head	= head;
-+	req->blk	= blk;
-+	req->sector	= hdr->sector;
-+	req->iov	= blk->iov;
-+
-+	req->len	= iov_length(vq->iov, out + in) - sizeof(status);
-+	req->iov_nr	= move_iovec(vq->iov, req->iov, req->len, out + in);
-+
-+	move_iovec(vq->iov, req->status, sizeof(status), out + in);
-+
-+	switch (hdr->type) {
-+	case VIRTIO_BLK_T_OUT:
-+		req->write = WRITE;
-+		ret = vhost_blk_req_submit(req, file);
-+		break;
-+	case VIRTIO_BLK_T_IN:
-+		req->write = READ;
-+		ret = vhost_blk_req_submit(req, file);
-+		break;
-+	case VIRTIO_BLK_T_FLUSH:
-+		req->write = WRITE_FLUSH;
-+		ret = vhost_blk_req_submit(req, file);
-+		break;
-+	case VIRTIO_BLK_T_GET_ID:
-+		ret = snprintf(id, VIRTIO_BLK_ID_BYTES,
-+			       "vhost-blk%d", blk->index);
-+		if (ret < 0)
-+			break;
-+		len = ret;
-+		ret = memcpy_toiovecend(req->iov, id, 0, len);
-+		status = ret < 0 ? VIRTIO_BLK_S_IOERR : VIRTIO_BLK_S_OK;
-+		ret = vhost_blk_set_status(req, status);
-+		if (ret)
-+			break;
-+		vhost_add_used_and_signal(&blk->dev, vq, head, len);
-+		break;
-+	default:
-+		vq_err(vq, "Unsupported request type %d\n", hdr->type);
-+		status = VIRTIO_BLK_S_UNSUPP;
-+		ret = vhost_blk_set_status(req, status);
-+		if (ret)
-+			break;
-+		vhost_add_used_and_signal(&blk->dev, vq, head, 0);
-+	}
-+
-+	return ret;
-+}
-+
-+/* Guest kick us for I/O submit */
-+static void vhost_blk_handle_guest_kick(struct vhost_work *work)
-+{
-+	struct virtio_blk_outhdr hdr;
-+	struct vhost_virtqueue *vq;
-+	struct vhost_blk *blk;
-+	int in, out, ret;
-+	struct file *f;
-+	u16 head;
-+
-+	vq = container_of(work, struct vhost_virtqueue, poll.work);
-+	blk = container_of(vq->dev, struct vhost_blk, dev);
-+
-+	/* TODO: check that we are running from vhost_worker? */
-+	f = rcu_dereference_check(vq->private_data, 1);
-+	if (!f)
-+		return;
-+
-+	vhost_disable_notify(&blk->dev, vq);
-+	for (;;) {
-+		head = vhost_get_vq_desc(&blk->dev, vq, vq->iov,
-+					 ARRAY_SIZE(vq->iov),
-+					 &out, &in, NULL, NULL);
-+		if (unlikely(head < 0))
-+			break;
-+
-+		if (unlikely(head == vq->num)) {
-+			if (unlikely(vhost_enable_notify(&blk->dev, vq))) {
-+				vhost_disable_notify(&blk->dev, vq);
-+				continue;
-+			}
-+			break;
-+		}
-+		move_iovec(vq->iov, vq->hdr, sizeof(hdr), out);
-+		ret = memcpy_fromiovecend((unsigned char *)&hdr, vq->hdr, 0,
-+					   sizeof(hdr));
-+		if (ret < 0) {
-+			vq_err(vq, "Failed to get block header!\n");
-+			vhost_discard_vq_desc(vq, 1);
-+			break;
-+		}
-+
-+		if (vhost_blk_req_handle(vq, &hdr, head, out, in, f) < 0)
-+			break;
-+
-+		if (!llist_empty(&blk->llhead)) {
-+			vhost_poll_queue(&vq->poll);
-+			break;
-+		}
-+	}
-+}
-+
-+/* Host kick us for I/O completion */
-+static void vhost_blk_handle_host_kick(struct vhost_work *work)
-+{
-+
-+	struct vhost_virtqueue *vq;
-+	struct vhost_blk_req *req;
-+	struct llist_node *llnode;
-+	struct vhost_blk *blk;
-+	bool added, zero;
-+	u8 status;
-+	int ret;
-+
-+	blk = container_of(work, struct vhost_blk, work);
-+	vq = &blk->vq;
-+
-+	llnode = llist_del_all(&blk->llhead);
-+	added = false;
-+	while (llnode) {
-+		req = llist_entry(llnode, struct vhost_blk_req, llnode);
-+		llnode = llist_next(llnode);
-+
-+		vhost_blk_req_umap(req);
-+
-+		status = req->len > 0 ?  VIRTIO_BLK_S_OK : VIRTIO_BLK_S_IOERR;
-+		ret = vhost_blk_set_status(req, status);
-+		if (unlikely(ret))
-+			continue;
-+		vhost_add_used(&blk->vq, req->head, req->len);
-+		added = true;
-+
-+		spin_lock(&req->blk->flush_lock);
-+		zero = atomic_dec_and_test(
-+				&req->blk->req_inflight[req->during_flush]);
-+		if (zero && !req->during_flush)
-+			wake_up(&blk->flush_wait);
-+		spin_unlock(&req->blk->flush_lock);
-+
-+	}
-+	if (likely(added))
-+		vhost_signal(&blk->dev, &blk->vq);
-+}
-+
-+static void vhost_blk_flush(struct vhost_blk *blk)
-+{
-+	spin_lock(&blk->flush_lock);
-+	blk->during_flush = 1;
-+	spin_unlock(&blk->flush_lock);
-+
-+	vhost_poll_flush(&blk->vq.poll);
-+	vhost_work_flush(&blk->dev, &blk->work);
-+	/*
-+	 * Wait until requests fired before the flush to be finished
-+	 * req_inflight[0] is used to track the requests fired before the flush
-+	 * req_inflight[1] is used to track the requests fired during the flush
-+	 */
-+	wait_event(blk->flush_wait, !atomic_read(&blk->req_inflight[0]));
-+
-+	spin_lock(&blk->flush_lock);
-+	blk->during_flush = 0;
-+	spin_unlock(&blk->flush_lock);
-+}
-+
-+static inline void vhost_blk_stop(struct vhost_blk *blk, struct file **file)
-+{
-+	struct vhost_virtqueue *vq = &blk->vq;
-+	struct file *f;
-+
-+	mutex_lock(&vq->mutex);
-+	f = rcu_dereference_protected(vq->private_data,
-+				      lockdep_is_held(&vq->mutex));
-+	rcu_assign_pointer(vq->private_data, NULL);
-+	mutex_unlock(&vq->mutex);
-+
-+	*file = f;
-+}
-+
-+static int vhost_blk_open(struct inode *inode, struct file *file)
-+{
-+	struct vhost_blk *blk;
-+	int ret;
-+
-+	blk = kzalloc(sizeof(*blk), GFP_KERNEL);
-+	if (!blk) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	ret = ida_simple_get(&vhost_blk_index_ida, 0, 0, GFP_KERNEL);
-+	if (ret < 0)
-+		goto out_dev;
-+	blk->index = ret;
-+
-+	blk->vq.handle_kick = vhost_blk_handle_guest_kick;
-+	atomic_set(&blk->req_inflight[0], 0);
-+	atomic_set(&blk->req_inflight[1], 0);
-+	blk->during_flush = 0;
-+	spin_lock_init(&blk->flush_lock);
-+	init_waitqueue_head(&blk->flush_wait);
-+
-+	ret = vhost_dev_init(&blk->dev, &blk->vq, VHOST_BLK_VQ_MAX);
-+	if (ret < 0)
-+		goto out_dev;
-+	file->private_data = blk;
-+
-+	vhost_work_init(&blk->work, vhost_blk_handle_host_kick);
-+
-+	return ret;
-+out_dev:
-+	kfree(blk);
-+out:
-+	return ret;
-+}
-+
-+static int vhost_blk_release(struct inode *inode, struct file *f)
-+{
-+	struct vhost_blk *blk = f->private_data;
-+	struct file *file;
-+
-+	ida_simple_remove(&vhost_blk_index_ida, blk->index);
-+	vhost_blk_stop(blk, &file);
-+	vhost_blk_flush(blk);
-+	vhost_dev_cleanup(&blk->dev, false);
-+	if (file)
-+		fput(file);
-+	kfree(blk->reqs);
-+	kfree(blk);
-+
-+	return 0;
-+}
-+
-+static int vhost_blk_set_features(struct vhost_blk *blk, u64 features)
-+{
-+	mutex_lock(&blk->dev.mutex);
-+	blk->dev.acked_features = features;
-+	vhost_blk_flush(blk);
-+	mutex_unlock(&blk->dev.mutex);
-+
-+	return 0;
-+}
-+
-+static long vhost_blk_set_backend(struct vhost_blk *blk, unsigned index, int fd)
-+{
-+	struct vhost_virtqueue *vq = &blk->vq;
-+	struct file *file, *oldfile;
-+	struct inode *inode;
-+	int ret;
-+
-+	mutex_lock(&blk->dev.mutex);
-+	ret = vhost_dev_check_owner(&blk->dev);
-+	if (ret)
-+		goto out_dev;
-+
-+	if (index >= VHOST_BLK_VQ_MAX) {
-+		ret = -ENOBUFS;
-+		goto out_dev;
-+	}
-+
-+	mutex_lock(&vq->mutex);
-+
-+	if (!vhost_vq_access_ok(vq)) {
-+		ret = -EFAULT;
-+		goto out_vq;
-+	}
-+
-+	file = fget(fd);
-+	if (IS_ERR(file)) {
-+		ret = PTR_ERR(file);
-+		goto out_vq;
-+	}
-+
-+	/* Only raw block device is supported for now */
-+	inode = file->f_mapping->host;
-+	if (!S_ISBLK(inode->i_mode)) {
-+		ret = -EFAULT;
-+		goto out_file;
-+	}
-+
-+	oldfile = rcu_dereference_protected(vq->private_data,
-+			lockdep_is_held(&vq->mutex));
-+	if (file != oldfile) {
-+		rcu_assign_pointer(vq->private_data, file);
-+
-+		ret = vhost_init_used(vq);
-+		if (ret)
-+			goto out_file;
-+	}
-+
-+	mutex_unlock(&vq->mutex);
-+
-+	if (oldfile) {
-+		vhost_blk_flush(blk);
-+		fput(oldfile);
-+	}
-+
-+	mutex_unlock(&blk->dev.mutex);
-+	return 0;
-+
-+out_file:
-+	fput(file);
-+out_vq:
-+	mutex_unlock(&vq->mutex);
-+out_dev:
-+	mutex_unlock(&blk->dev.mutex);
-+	return ret;
-+}
-+
-+static long vhost_blk_reset_owner(struct vhost_blk *blk)
-+{
-+	struct file *file = NULL;
-+	int err;
-+
-+	mutex_lock(&blk->dev.mutex);
-+	err = vhost_dev_check_owner(&blk->dev);
-+	if (err)
-+		goto done;
-+	vhost_blk_stop(blk, &file);
-+	vhost_blk_flush(blk);
-+	err = vhost_dev_reset_owner(&blk->dev);
-+done:
-+	mutex_unlock(&blk->dev.mutex);
-+	if (file)
-+		fput(file);
-+	return err;
-+}
-+
-+static int vhost_blk_setup(struct vhost_blk *blk)
-+{
-+	blk->reqs_nr = blk->vq.num;
-+
-+	blk->reqs = kmalloc(sizeof(struct vhost_blk_req) * blk->reqs_nr,
-+			    GFP_KERNEL);
-+	if (!blk->reqs)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
-+static long vhost_blk_ioctl(struct file *f, unsigned int ioctl,
-+			    unsigned long arg)
-+{
-+	struct vhost_blk *blk = f->private_data;
-+	void __user *argp = (void __user *)arg;
-+	struct vhost_vring_file backend;
-+	u64 __user *featurep = argp;
-+	u64 features;
-+	int ret;
-+
-+	switch (ioctl) {
-+	case VHOST_BLK_SET_BACKEND:
-+		if (copy_from_user(&backend, argp, sizeof(backend)))
-+			return -EFAULT;
-+		return vhost_blk_set_backend(blk, backend.index, backend.fd);
-+	case VHOST_GET_FEATURES:
-+		features = VHOST_BLK_FEATURES;
-+		if (copy_to_user(featurep, &features, sizeof(features)))
-+			return -EFAULT;
-+		return 0;
-+	case VHOST_SET_FEATURES:
-+		if (copy_from_user(&features, featurep, sizeof(features)))
-+			return -EFAULT;
-+		if (features & ~VHOST_BLK_FEATURES)
-+			return -EOPNOTSUPP;
-+		return vhost_blk_set_features(blk, features);
-+	case VHOST_RESET_OWNER:
-+		return vhost_blk_reset_owner(blk);
-+	default:
-+		mutex_lock(&blk->dev.mutex);
-+		ret = vhost_dev_ioctl(&blk->dev, ioctl, arg);
-+		if (!ret && ioctl == VHOST_SET_VRING_NUM)
-+			ret = vhost_blk_setup(blk);
-+		vhost_blk_flush(blk);
-+		mutex_unlock(&blk->dev.mutex);
-+		return ret;
-+	}
-+}
-+
-+static const struct file_operations vhost_blk_fops = {
-+	.owner          = THIS_MODULE,
-+	.open           = vhost_blk_open,
-+	.release        = vhost_blk_release,
-+	.llseek		= noop_llseek,
-+	.unlocked_ioctl = vhost_blk_ioctl,
-+};
-+
-+static struct miscdevice vhost_blk_misc = {
-+	MISC_DYNAMIC_MINOR,
-+	"vhost-blk",
-+	&vhost_blk_fops,
-+};
-+
-+static int vhost_blk_init(void)
-+{
-+	return misc_register(&vhost_blk_misc);
-+}
-+
-+static void vhost_blk_exit(void)
-+{
-+	misc_deregister(&vhost_blk_misc);
-+}
-+
-+module_init(vhost_blk_init);
-+module_exit(vhost_blk_exit);
-+
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Asias He");
-+MODULE_DESCRIPTION("Host kernel accelerator for virtio_blk");
-diff --git a/drivers/vhost/blk.h b/drivers/vhost/blk.h
-new file mode 100644
-index 0000000..2f674f0
---- /dev/null
-+++ b/drivers/vhost/blk.h
-@@ -0,0 +1,8 @@
-+#include <linux/vhost.h>
-+
-+enum {
-+	VHOST_BLK_FEATURES = (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
-+			     (1ULL << VIRTIO_RING_F_EVENT_IDX),
-+};
-+/* VHOST_BLK specific defines */
-+#define VHOST_BLK_SET_BACKEND _IOW(VHOST_VIRTIO, 0x50, struct vhost_vring_file)
--- 
-1.7.11.7
+>  	return 0;
+>  }
+>  #endif
+> @@ -1310,7 +1560,7 @@ static unsigned int features[] = {
+>  	VIRTIO_NET_F_GUEST_ECN, VIRTIO_NET_F_GUEST_UFO,
+>  	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ,
+>  	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
+> -	VIRTIO_NET_F_GUEST_ANNOUNCE,
+> +	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_RFS,
+>  };
+>  
+>  static struct virtio_driver virtio_net_driver = {
+> @@ -1328,6 +1578,12 @@ static struct virtio_driver virtio_net_driver = {
+>  #endif
+>  };
+>  
+> +static const struct ethtool_ops virtnet_ethtool_ops = {
+> +	.get_drvinfo = virtnet_get_drvinfo,
+> +	.get_link = ethtool_op_get_link,
+> +	.get_ringparam = virtnet_get_ringparam,
+> +};
+> +
+>  static int __init init(void)
+>  {
+>  	return register_virtio_driver(&virtio_net_driver);
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index 2470f54..6056cec 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -51,6 +51,7 @@
+>  #define VIRTIO_NET_F_CTRL_RX_EXTRA 20	/* Extra RX mode control support */
+>  #define VIRTIO_NET_F_GUEST_ANNOUNCE 21	/* Guest can announce device on the
+>  					 * network */
+> +#define VIRTIO_NET_F_RFS	22	/* Device supports multiple TXQ/RXQ */
+>  
+>  #define VIRTIO_NET_S_LINK_UP	1	/* Link is up */
+>  #define VIRTIO_NET_S_ANNOUNCE	2	/* Announcement is needed */
+> @@ -60,6 +61,8 @@ struct virtio_net_config {
+>  	__u8 mac[6];
+>  	/* See VIRTIO_NET_F_STATUS and VIRTIO_NET_S_* above */
+>  	__u16 status;
+> +	/* Total number of RX/TX queues */
+> +	__u16 max_virtqueue_pairs;
+>  } __attribute__((packed));
+>  
+>  /* This is the first element of the scatter-gather list.  If you don't
+> @@ -166,4 +169,17 @@ struct virtio_net_ctrl_mac {
+>  #define VIRTIO_NET_CTRL_ANNOUNCE       3
+>   #define VIRTIO_NET_CTRL_ANNOUNCE_ACK         0
+>  
+> +/*
+> + * Control multiqueue
+> + *
+> + */
+> +struct virtio_net_ctrl_rfs {
+> +	u16 virtqueue_pairs;
+> +};
+> +
+> +#define VIRTIO_NET_CTRL_RFS   4
+> + #define VIRTIO_NET_CTRL_RFS_VQ_PAIRS_SET        0
+> + #define VIRTIO_NET_CTRL_RFS_VQ_PAIRS_MIN        1
+> + #define VIRTIO_NET_CTRL_RFS_VQ_PAIRS_MAX        0x8000
+> +
+>  #endif /* _LINUX_VIRTIO_NET_H */
+> -- 
+> 1.7.1
