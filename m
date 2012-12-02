@@ -1,16 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [net-next rfc v7 3/3] virtio-net: change the number of queues
-	through ethtool
-Date: Sun, 2 Dec 2012 18:09:06 +0200
-Message-ID: <20121202160906.GB27761@redhat.com>
-References: <1354011360-39479-1-git-send-email-jasowang@redhat.com>
-	<1354011360-39479-4-git-send-email-jasowang@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCHv4] virtio-spec: virtio network device RFS support
+Date: Mon, 03 Dec 2012 09:16:33 +1030
+Message-ID: <87ip8kjcmu.fsf@rustcorp.com.au>
+References: <20121122144645.GA28284@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1354011360-39479-4-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20121122144645.GA28284@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,79 +17,132 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 27, 2012 at 06:16:00PM +0800, Jason Wang wrote:
-> This patch implement the {set|get}_channels method of ethool to allow user to
-> change the number of queues dymaically when the device is running. This would
-> let the user to configure it on demand.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/net/virtio_net.c |   41 +++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 41 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index bcaa6e5..f08ec2a 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1578,10 +1578,51 @@ static struct virtio_driver virtio_net_driver = {
->  #endif
->  };
->  
-> +/* TODO: Eliminate OOO packets during switching */
-> +static int virtnet_set_channels(struct net_device *dev,
-> +				struct ethtool_channels *channels)
-> +{
-> +	struct virtnet_info *vi = netdev_priv(dev);
-> +	u16 queue_pairs = channels->combined_count;
-> +
-> +	/* We don't support separate rx/tx channels.
-> +	 * We don't allow setting 'other' channels.
-> +	 */
-> +	if (channels->rx_count || channels->tx_count || channels->other_count)
-> +		return -EINVAL;
-> +
-> +	/* Only two modes were support currently */
-> +	if (queue_pairs != vi->max_queue_pairs && queue_pairs != 1)
-> +		return -EINVAL;
-> +
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> Add RFS support to virtio network device.
+> Add a new feature flag VIRTIO_NET_F_RFS for this feature, a new
+> configuration field max_virtqueue_pairs to detect supported number of
+> virtqueues as well as a new command VIRTIO_NET_CTRL_RFS to program
+> packet steering for unidirectional protocols.
 
-Why the limitation?
-Also how does userspace discover what the legal values are?
+Hi Michael,
 
-> +	vi->curr_queue_pairs = queue_pairs;
-> +	BUG_ON(virtnet_set_queues(vi));
-> +
-> +	netif_set_real_num_tx_queues(dev, vi->curr_queue_pairs);
-> +	netif_set_real_num_rx_queues(dev, vi->curr_queue_pairs);
-> +
-> +	return 0;
-> +}
-> +
-> +static void virtnet_get_channels(struct net_device *dev,
-> +				 struct ethtool_channels *channels)
-> +{
-> +	struct virtnet_info *vi = netdev_priv(dev);
-> +
-> +	channels->combined_count = vi->curr_queue_pairs;
-> +	channels->max_combined = vi->max_queue_pairs;
-> +	channels->max_other = 0;
-> +	channels->rx_count = 0;
-> +	channels->tx_count = 0;
-> +	channels->other_count = 0;
-> +}
-> +
->  static const struct ethtool_ops virtnet_ethtool_ops = {
->  	.get_drvinfo = virtnet_get_drvinfo,
->  	.get_link = ethtool_op_get_link,
->  	.get_ringparam = virtnet_get_ringparam,
-> +	.set_channels = virtnet_set_channels,
-> +	.get_channels = virtnet_get_channels,
->  };
+        Sorry for the delay, I took last week off.
+
+> - rename multiqueue -> rfs this is what we support
+> - Be more explicit about what driver should do.
+> - Simplify layout making VQs functionality depend on feature.
+> - Remove unused commands, only leave in programming # of queues
+
+Thanks: this looks really nice now.  Comments are about the text, not
+the ideas.
+
+> + 2N+1: transmitqN.
+> + 2N+
+> +\change_unchanged
+> +2:controlq
+>  \begin_inset Foot
+>  status open
+
+Hmm, controlq after xmit queues... a nice improvement.
+
+> +VIRTIO_NET_F_RFS(2) Device supports Receive Flow Steering.
+
+I think readers would prefer numerical order to historical order here,
+so perhaps move this up in the list.
+
+> -layout Two configuration fields are currently defined.
+> +layout 
+> +\change_deleted 1986246365 1352743300
+> +Two
+> +\change_inserted 1986246365 1352743301
+> +Four
+> +\change_unchanged
+> + configuration fields are currently defined.
+
+two to four?  I only see three?  And you didn't update the structure to
+match...
+
+> + Following this, driver should not transmit new packets on virtqueues other
+> + than transmitq0 and device will not steer new packets on virtqueues other
+> + than receiveq0.
+
+"Following this" is vague.  After the buffer is consumed by the device.
+
+Should not is kind of meaningless.  Let's make it clear: the device will
+not steer new packets to RxqN, nor read from TxqN.
+
+You should probably put in a note about the RFS control in the Device
+Initialization section, too, ie. if you have negotiated and want to use
+more queues, you must initialize them then wait for the ack of the
+CTRL_RFS cmd.
+
+Note: the following hunks didn't apply, but I'm not sure why they're in
+this anyway...
+
+> @@ -6152,13 +6385,7 @@ Virtqueues 0:receiveq(port0).
+>  status open
 >  
->  static int __init init(void)
-> -- 
-> 1.7.1
+>  \begin_layout Plain Layout
+> -Ports 
+> -\change_inserted 1986246365 1347188327
+> -1
+> -\change_deleted 1986246365 1347188327
+> -2
+> -\change_unchanged
+> - onwards only if VIRTIO_CONSOLE_F_MULTIPORT is set
+> +Ports 12 onwards only if VIRTIO_CONSOLE_F_MULTIPORT is set
+>  \end_layout
+>  
+>  \end_inset
+> @@ -6185,13 +6412,8 @@ VIRTIO_CONSOLE_F_SIZE
+>  
+>  \begin_layout Description
+>  VIRTIO_CONSOLE_F_MULTIPORT(1) Device has support for multiple ports; configurati
+> -on fields nr_ports and max_nr_ports are valid
+> -\change_inserted 1986246365 1347188404
+> -; if this bit is negotiated,
+> -\change_deleted 1986246365 1347188406
+> - and
+> -\change_unchanged
+> - control virtqueues will be used.
+> +on fields nr_ports and max_nr_ports are valid; if this bit is negotiated,
+> + and control virtqueues will be used.
+>  \end_layout
+>  
+>  \end_deeper
+> @@ -6260,8 +6482,7 @@ If the VIRTIO_CONSOLE_F_MULTIPORT feature is negotiated, the driver can
+>   spawn multiple ports, not all of which may be attached to a console.
+>   Some could be generic ports.
+>   In this case, the control virtqueues are enabled and according to the max_nr_po
+> -rts configuration-space value, an appropriate number of virtqueues are
+> - created.
+> +rts configuration-space value, an appropriate number of virtqueues are created.
+>   A control message indicating the driver is ready is sent to the host.
+>   The host can then send control messages for adding new ports to the device.
+>   After creating and initializing each port, a VIRTIO_CONSOLE_PORT_READY
+> @@ -6699,14 +6920,9 @@ The driver constructs an array of addresses of memory pages it has previously
+>  \end_layout
+>  
+>  \begin_layout Enumerate
+> -If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is 
+> -\change_inserted 1986246365 1347188540
+> -negotiated
+> -\change_deleted 1986246365 1347188542
+> -set
+> -\change_unchanged
+> -, the guest may not use these requested pages until that descriptor in the
+> - deflateq has been used by the device.
+> +If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is negotiatedset, the guest
+> + may not use these requested pages until that descriptor in the deflateq
+> + has been used by the device.
+>  \end_layout
+>  
+>  \begin_layout Enumerate
+
+
+Cheers,
+Rusty.
