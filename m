@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [net-next rfc v7 2/3] virtio_net: multiqueue support
-Date: Mon, 3 Dec 2012 12:14:36 +0200
-Message-ID: <20121203101436.GB23009__15277.9107251719$1354529567$gmane$org@redhat.com>
+Date: Mon, 03 Dec 2012 18:30:49 +0800
+Message-ID: <50BC7F59.301@redhat.com>
 References: <1354011360-39479-1-git-send-email-jasowang@redhat.com>
 	<1354011360-39479-3-git-send-email-jasowang@redhat.com>
+	<20121203101436.GB23009@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1354011360-39479-3-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20121203101436.GB23009@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,27 +19,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Nov 27, 2012 at 06:15:59PM +0800, Jason Wang wrote:
-> -	if (!try_fill_recv(&vi->rq, GFP_KERNEL))
-> -		schedule_delayed_work(&vi->rq.refill, 0);
-> +	for (i = 0; i < vi->max_queue_pairs; i++)
-> +		if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
-> +			schedule_delayed_work(&vi->rq[i].refill, 0);
->  
->  	mutex_lock(&vi->config_lock);
->  	vi->config_enable = true;
->  	mutex_unlock(&vi->config_lock);
->  
-> +	BUG_ON(virtnet_set_queues(vi));
-> +
->  	return 0;
->  }
->  #endif
+On 12/03/2012 06:14 PM, Michael S. Tsirkin wrote:
+> On Tue, Nov 27, 2012 at 06:15:59PM +0800, Jason Wang wrote:
+>> > -	if (!try_fill_recv(&vi->rq, GFP_KERNEL))
+>> > -		schedule_delayed_work(&vi->rq.refill, 0);
+>> > +	for (i = 0; i < vi->max_queue_pairs; i++)
+>> > +		if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
+>> > +			schedule_delayed_work(&vi->rq[i].refill, 0);
+>> >  
+>> >  	mutex_lock(&vi->config_lock);
+>> >  	vi->config_enable = true;
+>> >  	mutex_unlock(&vi->config_lock);
+>> >  
+>> > +	BUG_ON(virtnet_set_queues(vi));
+>> > +
+>> >  	return 0;
+>> >  }
+>> >  #endif
+> Also crashing on device nack of command is also not nice.
+> In this case it seems we can just switch to
+> single-queue mode which should always be safe.
 
-Also crashing on device nack of command is also not nice.
-In this case it seems we can just switch to
-single-queue mode which should always be safe.
+Not sure it's safe. It depends on the reason why this call fails. If we
+left a state that the driver only use single queue but the device use
+multi queues, we may still lost the network.
