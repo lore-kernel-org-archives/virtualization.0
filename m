@@ -1,17 +1,12 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
-Subject: Re: [net-next RFC] pktgen: don't wait for the device who doesn't
-	free skb immediately after sent
-Date: Mon, 3 Dec 2012 08:01:11 -0800
-Message-ID: <20121203080111.74acf7d7@nehalam.linuxnetplumber.net>
-References: <1353916612-6357-1-git-send-email-jasowang@redhat.com>
-	<50B46179.4040809@redhat.com>
-	<20121127084919.1587c647@nehalam.linuxnetplumber.net>
-	<2663254.1vRFru9xhh@jason-thinkpad-t430s>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vhost-net: initialize zcopy packet counters
+Date: Mon, 3 Dec 2012 19:31:51 +0200
+Message-ID: <20121203173151.GA30949@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2663254.1vRFru9xhh@jason-thinkpad-t430s>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,58 +16,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 03 Dec 2012 14:45:46 +0800
-Jason Wang <jasowang@redhat.com> wrote:
+These packet counters are used to drive the zercopy
+selection heuristic so nothing too bad happens if they are off a bit -
+and they are also reset once in a while.
+But it's cleaner to clear them when backend is set so that
+we start in a known state.
 
-> On Tuesday, November 27, 2012 08:49:19 AM Stephen Hemminger wrote:
-> > On Tue, 27 Nov 2012 14:45:13 +0800
-> > 
-> > Jason Wang <jasowang@redhat.com> wrote:
-> > > On 11/27/2012 01:37 AM, Stephen Hemminger wrote:
-> > > > On Mon, 26 Nov 2012 15:56:52 +0800
-> > > > 
-> > > > Jason Wang <jasowang@redhat.com> wrote:
-> > > >> Some deivces do not free the old tx skbs immediately after it has been
-> > > >> sent
-> > > >> (usually in tx interrupt). One such example is virtio-net which
-> > > >> optimizes for virt and only free the possible old tx skbs during the
-> > > >> next packet sending. This would lead the pktgen to wait forever in the
-> > > >> refcount of the skb if no other pakcet will be sent afterwards.
-> > > >> 
-> > > >> Solving this issue by introducing a new flag IFF_TX_SKB_FREE_DELAY
-> > > >> which could notify the pktgen that the device does not free skb
-> > > >> immediately after it has been sent and let it not to wait for the
-> > > >> refcount to be one.
-> > > >> 
-> > > >> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > 
-> > > > Another alternative would be using skb_orphan() and skb->destructor.
-> > > > There are other cases where skb's are not freed right away.
-> > > > --
-> > > > To unsubscribe from this list: send the line "unsubscribe netdev" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > 
-> > > Hi Stephen:
-> > > 
-> > > Do you mean registering a skb->destructor for pktgen then set and check
-> > > bits in skb->tx_flag?
-> > 
-> > Yes. Register a destructor that does something like update a counter (number
-> > of packets pending), then just spin while number of packets pending is over
-> > threshold.
-> 
-> Have some experiments on this, looks like it does not work weel when clone_skb 
-> is used. For driver that call skb_orphan() in ndo_start_xmit, the destructor 
-> is only called when the first packet were sent, but what we need to know is 
-> when the last were sent. Any thoughts on this or we can just introduce another 
-> flag (anyway we have something like IFF_TX_SKB_SHARING) ?
-> 
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/vhost/net.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-The SKB_SHARING flag looks like the best solution then.
-Surprisingly, transmit buffer completion is a major bottleneck for 10G
-devices, and I suspect more changes will come.
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 67898fa..ff6c9199 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -823,6 +823,9 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+ 		r = vhost_init_used(vq);
+ 		if (r)
+ 			goto err_vq;
++
++		n->tx_packets = 0;
++		n->tx_zcopy_err = 0;
+ 	}
+ 
+ 	mutex_unlock(&vq->mutex);
+-- 
+MST
