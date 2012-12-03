@@ -1,7 +1,7 @@
 From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: re: xen/blkback: Persistent grant maps for xen blk drivers
-Date: Tue, 4 Dec 2012 00:06:17 +0300
-Message-ID: <20121203210617.GA1513@elgon.mountain>
+Subject: re: xen-blkback: move free persistent grants code
+Date: Tue, 4 Dec 2012 00:11:48 +0300
+Message-ID: <20121203211148.GA3335@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -22,23 +22,27 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Hello Roger Pau Monne,
 
-The patch 0a8704a51f38: "xen/blkback: Persistent grant maps for xen 
-blk drivers" from Oct 24, 2012, leads to the following warning:
-drivers/block/xen-blkfront.c:807 blkif_free()
+The patch 4d4f270f1880: "xen-blkback: move free persistent grants
+code" from Nov 16, 2012, leads to the following warning:
+drivers/block/xen-blkback/blkback.c:238 free_persistent_gnts()
 	 warn: 'persistent_gnt' was already freed.
 
-   807                  llist_for_each_entry(persistent_gnt, all_gnts, node) {
-   808                          gnttab_end_foreign_access(persistent_gnt->gref, 0, 0UL);
-   809                          __free_page(pfn_to_page(persistent_gnt->pfn));
-   810                          kfree(persistent_gnt);
-                                      ^^^^^^^^^^^^^^
-We dereference this to find the next element in the list.  It will work
-if you don't have poisoning enabled or if the memory is not used
-immediately by another process.  In other words, there will be rare
-bugs where this causes a hard to debug crash or if you have poisoning
-enabled it will have an easy to debug crash.
+drivers/block/xen-blkback/blkback.c
+   232                  pages[segs_to_unmap] = persistent_gnt->page;
+   233                  rb_erase(&persistent_gnt->node, root);
+   234                  kfree(persistent_gnt);
+                        ^^^^^^^^^^^^^^^^^^^^
+kfree();
 
-   811                  }
+   235                  num--;
+   236  
+   237                  if (++segs_to_unmap == BLKIF_MAX_SEGMENTS_PER_REQUEST ||
+   238                          !rb_next(&persistent_gnt->node)) {
+                                         ^^^^^^^^^^^^^^^^^^^^^
+Dereferenced inside the call to rb_next().
+
+   239                          ret = gnttab_unmap_refs(unmap, NULL, pages,
+   240                                  segs_to_unmap);
 
 regards,
 dan carpenter
