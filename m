@@ -1,16 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [net-next RFC] pktgen: don't wait for the device who doesn't free
-	skb immediately after sent
-Date: Mon, 03 Dec 2012 14:45:46 +0800
-Message-ID: <2663254.1vRFru9xhh__39014.1121148646$1354517202$gmane$org@jason-thinkpad-t430s>
-References: <1353916612-6357-1-git-send-email-jasowang@redhat.com>
-	<50B46179.4040809@redhat.com>
-	<20121127084919.1587c647@nehalam.linuxnetplumber.net>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [net-next rfc v7 2/3] virtio_net: multiqueue support
+Date: Mon, 3 Dec 2012 11:47:35 +0200
+Message-ID: <20121203094735.GA23009@redhat.com>
+References: <1354011360-39479-1-git-send-email-jasowang@redhat.com>
+	<1354011360-39479-3-git-send-email-jasowang@redhat.com>
+	<87vccjj3hj.fsf@rustcorp.com.au>
+	<20845723.CY8SZ4xV0F@jason-thinkpad-t430s>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121127084919.1587c647@nehalam.linuxnetplumber.net>
+Content-Disposition: inline
+In-Reply-To: <20845723.CY8SZ4xV0F@jason-thinkpad-t430s>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,57 +21,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <shemminger@vyatta.com>
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: Jason Wang <jasowang@redhat.com>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tuesday, November 27, 2012 08:49:19 AM Stephen Hemminger wrote:
-> On Tue, 27 Nov 2012 14:45:13 +0800
-> 
-> Jason Wang <jasowang@redhat.com> wrote:
-> > On 11/27/2012 01:37 AM, Stephen Hemminger wrote:
-> > > On Mon, 26 Nov 2012 15:56:52 +0800
-> > > 
-> > > Jason Wang <jasowang@redhat.com> wrote:
-> > >> Some deivces do not free the old tx skbs immediately after it has been
-> > >> sent
-> > >> (usually in tx interrupt). One such example is virtio-net which
-> > >> optimizes for virt and only free the possible old tx skbs during the
-> > >> next packet sending. This would lead the pktgen to wait forever in the
-> > >> refcount of the skb if no other pakcet will be sent afterwards.
-> > >> 
-> > >> Solving this issue by introducing a new flag IFF_TX_SKB_FREE_DELAY
-> > >> which could notify the pktgen that the device does not free skb
-> > >> immediately after it has been sent and let it not to wait for the
-> > >> refcount to be one.
-> > >> 
-> > >> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > 
-> > > Another alternative would be using skb_orphan() and skb->destructor.
-> > > There are other cases where skb's are not freed right away.
-> > > --
-> > > To unsubscribe from this list: send the line "unsubscribe netdev" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Mon, Dec 03, 2012 at 02:05:27PM +0800, Jason Wang wrote:
+> On Monday, December 03, 2012 12:34:08 PM Rusty Russell wrote:
+> > Jason Wang <jasowang@redhat.com> writes:
+> > > +static const struct ethtool_ops virtnet_ethtool_ops;
+> > > +
+> > > +/*
+> > > + * Converting between virtqueue no. and kernel tx/rx queue no.
+> > > + * 0:rx0 1:tx0 2:cvq 3:rx1 4:tx1 ... 2N+1:rxN 2N+2:txN
+> > > + */
+> > > +static int vq2txq(struct virtqueue *vq)
+> > > +{
+> > > +	int index = virtqueue_get_queue_index(vq);
+> > > +	return index == 1 ? 0 : (index - 2) / 2;
+> > > +}
+> > > +
+> > > +static int txq2vq(int txq)
+> > > +{
+> > > +	return txq ? 2 * txq + 2 : 1;
+> > > +}
+> > > +
+> > > +static int vq2rxq(struct virtqueue *vq)
+> > > +{
+> > > +	int index = virtqueue_get_queue_index(vq);
+> > > +	return index ? (index - 1) / 2 : 0;
+> > > +}
+> > > +
+> > > +static int rxq2vq(int rxq)
+> > > +{
+> > > +	return rxq ? 2 * rxq + 1 : 0;
+> > > +}
+> > > +
 > > 
-> > Hi Stephen:
-> > 
-> > Do you mean registering a skb->destructor for pktgen then set and check
-> > bits in skb->tx_flag?
+> > I thought MST changed the proposed spec to make the control queue always
+> > the last one, so this logic becomes trivial.
 > 
-> Yes. Register a destructor that does something like update a counter (number
-> of packets pending), then just spin while number of packets pending is over
-> threshold.
+> But it may break the support of legacy guest. If we boot a legacy single queue 
+> guest on a 2 queue virtio-net device. It may think vq 2 is cvq which is indeed 
+> rx1.
 
-Have some experiments on this, looks like it does not work weel when clone_skb 
-is used. For driver that call skb_orphan() in ndo_start_xmit, the destructor 
-is only called when the first packet were sent, but what we need to know is 
-when the last were sent. Any thoughts on this or we can just introduce another 
-flag (anyway we have something like IFF_TX_SKB_SHARING) ?
+Legacy guyest support should be handled by host using feature
+bits in the usual way: host should detect legacy guest
+by checking the VIRTIO_NET_F_RFS feature.
 
-Thanks
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+If VIRTIO_NET_F_RFS is acked, cvq is vq max_virtqueue_pairs * 2.
+If it's not acked, cvq is vq 2.
