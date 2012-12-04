@@ -1,13 +1,16 @@
-From: Amos Kong <akong@redhat.com>
-Subject: Re: [PATCH] virtio-spec: serial: english tweak
-Date: Tue, 4 Dec 2012 01:08:43 -0500 (EST)
-Message-ID: <1493537565.18025348.1354601323962.JavaMail.root@redhat.com>
-References: <20120909121116.GA2972@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [net-next rfc v7 2/3] virtio_net: multiqueue support
+Date: Tue, 4 Dec 2012 09:35:03 +0200
+Message-ID: <20121204073503.GB7499@redhat.com>
+References: <1354011360-39479-1-git-send-email-jasowang@redhat.com>
+	<1354011360-39479-3-git-send-email-jasowang@redhat.com>
+	<20121203101436.GB23009@redhat.com> <50BC7F59.301@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20120909121116.GA2972@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <50BC7F59.301@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,76 +20,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
------ Original Message -----
-> "A number of virtqueues are created" seems clearer
-> than "the number of virtqueues": it's
-> virtqueues that are created not the number.
+On Mon, Dec 03, 2012 at 06:30:49PM +0800, Jason Wang wrote:
+> On 12/03/2012 06:14 PM, Michael S. Tsirkin wrote:
+> > On Tue, Nov 27, 2012 at 06:15:59PM +0800, Jason Wang wrote:
+> >> > -	if (!try_fill_recv(&vi->rq, GFP_KERNEL))
+> >> > -		schedule_delayed_work(&vi->rq.refill, 0);
+> >> > +	for (i = 0; i < vi->max_queue_pairs; i++)
+> >> > +		if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
+> >> > +			schedule_delayed_work(&vi->rq[i].refill, 0);
+> >> >  
+> >> >  	mutex_lock(&vi->config_lock);
+> >> >  	vi->config_enable = true;
+> >> >  	mutex_unlock(&vi->config_lock);
+> >> >  
+> >> > +	BUG_ON(virtnet_set_queues(vi));
+> >> > +
+> >> >  	return 0;
+> >> >  }
+> >> >  #endif
+> > Also crashing on device nack of command is also not nice.
+> > In this case it seems we can just switch to
+> > single-queue mode which should always be safe.
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Not sure it's safe. It depends on the reason why this call fails. If we
+> left a state that the driver only use single queue but the device use
+> multi queues, we may still lost the network.
 
-Acked-by: Amos Kong <akong@redhat.com>
+Looks like we won't: napi will stay enabled on all queues
+so we will process incoming packets.
 
-
-Two opposite problem exists:
-
---- virtio-0.9.5.lyx.orig	2012-12-04 09:29:03.249676649 +0800
-+++ virtio-0.9.5.lyx	2012-12-04 09:28:26.272678220 +0800
-@@ -8685,7 +8685,7 @@ s on QueueNum, QueueAlign and QueuePFN a
- \begin_inset Newline newline
- \end_inset
- 
-- Queue size is a number of elements in the queue, therefore size of the
-+ Queue size is the number of elements in the queue, therefore size of the
-  descriptor table and both available and used rings.
- \begin_inset Newline newline
- \end_inset
-@@ -8850,7 +8850,7 @@ reference "sub:Device-Initialization-Seq
- \end_layout
- 
- \begin_layout Standard
--Virtual queue size is a number of elements in the queue, therefore size
-+Virtual queue size is the number of elements in the queue, therefore size
-  of the descriptor table and both available and used rings.
- \end_layout
- 
-
-
-> ---
-> 
-> I'm not a native english speaker but the below
-> seems correct to me. Rusty?
-> 
->  virtio-spec.lyx | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-> index d9626a9..a29315c 100644
-> --- a/virtio-spec.lyx
-> +++ b/virtio-spec.lyx
-> @@ -6406,7 +6406,7 @@ If the VIRTIO_CONSOLE_F_MULTIPORT feature is
-> negotiated, the driver can
->   spawn multiple ports, not all of which may be attached to a
->   console.
->   Some could be generic ports.
->   In this case, the control virtqueues are enabled and according to
->   the max_nr_po
-> -rts configuration-space value, the appropriate number of virtqueues
-> are
-> +rts configuration-space value, an appropriate number of virtqueues
-> are
->   created.
->   A control message indicating the driver is ready is sent to the
->   host.
->   The host can then send control messages for adding new ports to the
->   device.
-> --
-> MST
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> 
+-- 
+MST
