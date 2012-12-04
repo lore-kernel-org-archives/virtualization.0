@@ -1,14 +1,16 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 3/3] virtio-net: change the number of queues through
-	ethtool
-Date: Tue,  4 Dec 2012 19:07:58 +0800
-Message-ID: <1354619278-35702-4-git-send-email-jasowang@redhat.com>
-References: <1354619278-35702-1-git-send-email-jasowang@redhat.com>
+Subject: Re: [net-next RFC] pktgen: don't wait for the device who doesn't free
+	skb immediately after sent
+Date: Tue, 04 Dec 2012 20:55:41 +0800
+Message-ID: <8021685.WXSMsUXlMe@jason-thinkpad-t430s>
+References: <1353916612-6357-1-git-send-email-jasowang@redhat.com>
+	<2663254.1vRFru9xhh@jason-thinkpad-t430s>
+	<20121203080111.74acf7d7@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1354619278-35702-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20121203080111.74acf7d7@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,77 +20,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, davem@davemloft.net
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com
+To: Stephen Hemminger <shemminger@vyatta.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch implement the ethtool_{set|get}_channels method of ethool to allow
-user to change the number of queues dymaically when the device is running. This
-would let the user to configure it on demand.
+On Monday, December 03, 2012 08:01:11 AM Stephen Hemminger wrote:
+> On Mon, 03 Dec 2012 14:45:46 +0800
+> 
+> Jason Wang <jasowang@redhat.com> wrote:
+> > On Tuesday, November 27, 2012 08:49:19 AM Stephen Hemminger wrote:
+> > > On Tue, 27 Nov 2012 14:45:13 +0800
+> > > 
+> > > Jason Wang <jasowang@redhat.com> wrote:
+> > > > On 11/27/2012 01:37 AM, Stephen Hemminger wrote:
+> > > > > On Mon, 26 Nov 2012 15:56:52 +0800
+> > > > > 
+> > > > > Jason Wang <jasowang@redhat.com> wrote:
+> > > > >> Some deivces do not free the old tx skbs immediately after it has
+> > > > >> been
+> > > > >> sent
+> > > > >> (usually in tx interrupt). One such example is virtio-net which
+> > > > >> optimizes for virt and only free the possible old tx skbs during
+> > > > >> the
+> > > > >> next packet sending. This would lead the pktgen to wait forever in
+> > > > >> the
+> > > > >> refcount of the skb if no other pakcet will be sent afterwards.
+> > > > >> 
+> > > > >> Solving this issue by introducing a new flag IFF_TX_SKB_FREE_DELAY
+> > > > >> which could notify the pktgen that the device does not free skb
+> > > > >> immediately after it has been sent and let it not to wait for the
+> > > > >> refcount to be one.
+> > > > >> 
+> > > > >> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > > > 
+> > > > > Another alternative would be using skb_orphan() and skb->destructor.
+> > > > > There are other cases where skb's are not freed right away.
+> > > > > --
+> > > > > To unsubscribe from this list: send the line "unsubscribe netdev" in
+> > > > > the body of a message to majordomo@vger.kernel.org
+> > > > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > > > 
+> > > > Hi Stephen:
+> > > > 
+> > > > Do you mean registering a skb->destructor for pktgen then set and
+> > > > check
+> > > > bits in skb->tx_flag?
+> > > 
+> > > Yes. Register a destructor that does something like update a counter
+> > > (number of packets pending), then just spin while number of packets
+> > > pending is over threshold.
+> > 
+> > Have some experiments on this, looks like it does not work weel when
+> > clone_skb is used. For driver that call skb_orphan() in ndo_start_xmit,
+> > the destructor is only called when the first packet were sent, but what
+> > we need to know is when the last were sent. Any thoughts on this or we
+> > can just introduce another flag (anyway we have something like
+> > IFF_TX_SKB_SHARING) ?
+> 
+> The SKB_SHARING flag looks like the best solution then.
+> Surprisingly, transmit buffer completion is a major bottleneck for 10G
+> devices, and I suspect more changes will come.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c |   44 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 44 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 912f5b2..b9f9887 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1589,10 +1589,54 @@ static struct virtio_driver virtio_net_driver = {
- #endif
- };
- 
-+/* TODO: Eliminate OOO packets during switching */
-+static int virtnet_set_channels(struct net_device *dev,
-+				struct ethtool_channels *channels)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	u16 queue_pairs = channels->combined_count;
-+	u16 old_queue_pairs = vi->curr_queue_pairs;
-+
-+	/* We don't support separate rx/tx channels.
-+	 * We don't allow setting 'other' channels.
-+	 */
-+	if (channels->rx_count || channels->tx_count || channels->other_count)
-+		return -EINVAL;
-+
-+	if (queue_pairs > vi->max_queue_pairs)
-+		return -EINVAL;
-+
-+	vi->curr_queue_pairs = queue_pairs;
-+	if (virtnet_set_queues(vi) == 0) {
-+		netif_set_real_num_tx_queues(dev, vi->curr_queue_pairs);
-+		netif_set_real_num_rx_queues(dev, vi->curr_queue_pairs);
-+
-+		virtnet_set_affinity(vi, true);
-+	} else
-+		vi->curr_queue_pairs = old_queue_pairs;
-+
-+	return 0;
-+}
-+
-+static void virtnet_get_channels(struct net_device *dev,
-+				 struct ethtool_channels *channels)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+
-+	channels->combined_count = vi->curr_queue_pairs;
-+	channels->max_combined = vi->max_queue_pairs;
-+	channels->max_other = 0;
-+	channels->rx_count = 0;
-+	channels->tx_count = 0;
-+	channels->other_count = 0;
-+}
-+
- static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.get_drvinfo = virtnet_get_drvinfo,
- 	.get_link = ethtool_op_get_link,
- 	.get_ringparam = virtnet_get_ringparam,
-+	.set_channels = virtnet_set_channels,
-+	.get_channels = virtnet_get_channels,
- };
- 
- static int __init init(void)
--- 
-1.7.1
+It works, but we may lose some chances to use clone_skb and stress the device 
+and driver more. I'm thinking maybe we can turn back to my original RFC to 
+introduce another flag. This flag maybe also useful for BQL and zerocopy in the 
+future since both of them are sensitive to the transmit buffer completion. 
+> --
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
