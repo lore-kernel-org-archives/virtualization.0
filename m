@@ -1,16 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [net-next rfc v7 2/3] virtio_net: multiqueue support
-Date: Tue, 4 Dec 2012 09:35:03 +0200
-Message-ID: <20121204073503.GB7499@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [net-next rfc v7 1/3] virtio-net: separate fields of
+	sending/receiving queue from virtnet_info
+Date: Tue, 04 Dec 2012 17:22:46 +0800
+Message-ID: <33871315.gHWf0QtYzd@jason-thinkpad-t430s>
 References: <1354011360-39479-1-git-send-email-jasowang@redhat.com>
-	<1354011360-39479-3-git-send-email-jasowang@redhat.com>
-	<20121203101436.GB23009@redhat.com> <50BC7F59.301@redhat.com>
+	<3524590.ZWGua7A8ne@jason-thinkpad-t430s>
+	<20121203111848.GD26167@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <50BC7F59.301@redhat.com>
+In-Reply-To: <20121203111848.GD26167@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,38 +20,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 03, 2012 at 06:30:49PM +0800, Jason Wang wrote:
-> On 12/03/2012 06:14 PM, Michael S. Tsirkin wrote:
-> > On Tue, Nov 27, 2012 at 06:15:59PM +0800, Jason Wang wrote:
-> >> > -	if (!try_fill_recv(&vi->rq, GFP_KERNEL))
-> >> > -		schedule_delayed_work(&vi->rq.refill, 0);
-> >> > +	for (i = 0; i < vi->max_queue_pairs; i++)
-> >> > +		if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
-> >> > +			schedule_delayed_work(&vi->rq[i].refill, 0);
-> >> >  
-> >> >  	mutex_lock(&vi->config_lock);
-> >> >  	vi->config_enable = true;
-> >> >  	mutex_unlock(&vi->config_lock);
-> >> >  
-> >> > +	BUG_ON(virtnet_set_queues(vi));
-> >> > +
-> >> >  	return 0;
-> >> >  }
-> >> >  #endif
-> > Also crashing on device nack of command is also not nice.
-> > In this case it seems we can just switch to
-> > single-queue mode which should always be safe.
+On Monday, December 03, 2012 01:18:48 PM Michael S. Tsirkin wrote:
+> On Mon, Dec 03, 2012 at 01:15:01PM +0800, Jason Wang wrote:
+> > > > +
+> > > > 
+> > > > + /* Work struct for refilling if we run low on memory. */
+> > > > 
+> > > > + struct delayed_work refill;
+> > > 
+> > > I can't really see the justificaiton for a refill per queue. Just have
+> > > 
+> > > one work iterate all the queues if it happens, unless it happens often
+> > > 
+> > > (in which case, we need to look harder at this anyway).
+> > 
+> > But during this kind of iteration, we may need enable/disable the napi
+> > regardless of whether the receive queue has lots to be refilled. This may
+> > add extra latency.
 > 
-> Not sure it's safe. It depends on the reason why this call fails. If we
-> left a state that the driver only use single queue but the device use
-> multi queues, we may still lost the network.
+> We are running from the timer, so latency is not a concern I think.
 
-Looks like we won't: napi will stay enabled on all queues
-so we will process incoming packets.
-
--- 
-MST
+Maybe, anyway it's only called when avaiable memory is low, so it should not 
+be an issue.
