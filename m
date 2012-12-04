@@ -1,17 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [net-next rfc v7 1/3] virtio-net: separate fields of
-	sending/receiving queue from virtnet_info
-Date: Tue, 04 Dec 2012 14:13:11 +1030
-Message-ID: <87zk1uh48g.fsf@rustcorp.com.au>
-References: <1354011360-39479-1-git-send-email-jasowang@redhat.com>
-	<1354011360-39479-2-git-send-email-jasowang@redhat.com>
-	<87y5hfj3vl.fsf@rustcorp.com.au>
-	<3524590.ZWGua7A8ne@jason-thinkpad-t430s>
+From: Amos Kong <akong@redhat.com>
+Subject: Re: [PATCH] virtio-spec: serial: english tweak
+Date: Tue, 4 Dec 2012 01:08:43 -0500 (EST)
+Message-ID: <1493537565.18025348.1354601323962.JavaMail.root@redhat.com>
+References: <20120909121116.GA2972@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <3524590.ZWGua7A8ne@jason-thinkpad-t430s>
+In-Reply-To: <20120909121116.GA2972@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,27 +17,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Amit Shah <amit.shah@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jason Wang <jasowang@redhat.com> writes:
-> On Monday, December 03, 2012 12:25:42 PM Rusty Russell wrote:
->> > +
->> > +	/* Work struct for refilling if we run low on memory. */
->> > +	struct delayed_work refill;
->> 
->> I can't really see the justificaiton for a refill per queue.  Just have
->> one work iterate all the queues if it happens, unless it happens often
->> (in which case, we need to look harder at this anyway).
->
-> But during this kind of iteration, we may need enable/disable the napi 
-> regardless of whether the receive queue has lots to be refilled. This may add 
-> extra latency. 
+----- Original Message -----
+> "A number of virtqueues are created" seems clearer
+> than "the number of virtqueues": it's
+> virtqueues that are created not the number.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Sure, but does it actually happen?  We only use the work when we run out
-of memory.  If this happens in normal behaviour we need to change
-something else...
+Acked-by: Amos Kong <akong@redhat.com>
 
-Thanks,
-Rusty.
+
+Two opposite problem exists:
+
+--- virtio-0.9.5.lyx.orig	2012-12-04 09:29:03.249676649 +0800
++++ virtio-0.9.5.lyx	2012-12-04 09:28:26.272678220 +0800
+@@ -8685,7 +8685,7 @@ s on QueueNum, QueueAlign and QueuePFN a
+ \begin_inset Newline newline
+ \end_inset
+ 
+- Queue size is a number of elements in the queue, therefore size of the
++ Queue size is the number of elements in the queue, therefore size of the
+  descriptor table and both available and used rings.
+ \begin_inset Newline newline
+ \end_inset
+@@ -8850,7 +8850,7 @@ reference "sub:Device-Initialization-Seq
+ \end_layout
+ 
+ \begin_layout Standard
+-Virtual queue size is a number of elements in the queue, therefore size
++Virtual queue size is the number of elements in the queue, therefore size
+  of the descriptor table and both available and used rings.
+ \end_layout
+ 
+
+
+> ---
+> 
+> I'm not a native english speaker but the below
+> seems correct to me. Rusty?
+> 
+>  virtio-spec.lyx | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+> index d9626a9..a29315c 100644
+> --- a/virtio-spec.lyx
+> +++ b/virtio-spec.lyx
+> @@ -6406,7 +6406,7 @@ If the VIRTIO_CONSOLE_F_MULTIPORT feature is
+> negotiated, the driver can
+>   spawn multiple ports, not all of which may be attached to a
+>   console.
+>   Some could be generic ports.
+>   In this case, the control virtqueues are enabled and according to
+>   the max_nr_po
+> -rts configuration-space value, the appropriate number of virtqueues
+> are
+> +rts configuration-space value, an appropriate number of virtqueues
+> are
+>   created.
+>   A control message indicating the driver is ready is sent to the
+>   host.
+>   The host can then send control messages for adding new ports to the
+>   device.
+> --
+> MST
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> 
