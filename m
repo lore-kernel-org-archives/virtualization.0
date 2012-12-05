@@ -1,7 +1,7 @@
-From: Stephen Hemminger <shemminger@vyatta.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 1/3] virtio: change to_vp_device to an inlined definition
-Date: Wed, 5 Dec 2012 14:28:21 -0800
-Message-ID: <20121205142821.1fb08cf0@samsung-9>
+Date: Thu, 06 Dec 2012 09:51:49 +1030
+Message-ID: <87y5hcf5ki.fsf@rustcorp.com.au>
 References: <1354691009-25966-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,32 +18,14 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 5 Dec 2012 15:03:27 +0800
-Wanlong Gao <gaowanlong@cn.fujitsu.com> wrote:
+Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
 
 > to_vp_device is worth changing to inlined definition.
-> 
-> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-> ---
->  drivers/virtio/virtio_pci.c | 6 +-----
->  1 file changed, 1 insertion(+), 5 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index e3ecc94..7681fe3 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -98,11 +98,7 @@ static struct pci_device_id virtio_pci_id_table[] = {
->  
->  MODULE_DEVICE_TABLE(pci, virtio_pci_id_table);
->  
-> -/* Convert a generic virtio device to our structure */
-> -static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
-> -{
-> -	return container_of(vdev, struct virtio_pci_device, vdev);
-> -}
-> +#define to_vp_device(_vdev) container_of(_vdev, struct virtio_pci_device, vdev)
 
-Just mark the function as inline. A macro loses type checking.
+Why?
+
+Thanks,
+Rusty.
