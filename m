@@ -1,14 +1,16 @@
 From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: [PATCH V2 2/2] virtio: add drv_to_virtio to make code clearly
-Date: Wed, 5 Dec 2012 21:28:14 +0800
-Message-ID: <1354714094-6377-2-git-send-email-gaowanlong@cn.fujitsu.com>
-References: <20121205112500.GB12619@redhat.com>
-	<1354714094-6377-1-git-send-email-gaowanlong@cn.fujitsu.com>
+Subject: Re: [PATCH 2/3] virtio: use dev_to_virtio wrapper in virtio
+Date: Wed, 05 Dec 2012 20:59:44 +0800
+Message-ID: <50BF4540.4050601@cn.fujitsu.com>
+References: <1354691009-25966-1-git-send-email-gaowanlong@cn.fujitsu.com>
+	<1354691009-25966-2-git-send-email-gaowanlong@cn.fujitsu.com>
+	<20121205111606.GB10045@redhat.com>
+Reply-To: gaowanlong@cn.fujitsu.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1354714094-6377-1-git-send-email-gaowanlong@cn.fujitsu.com>
+In-Reply-To: <20121205111606.GB10045@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,70 +20,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, mst@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add drv_to_virtio wrapper to get virtio_driver from device_driver.
+On 12/05/2012 07:16 PM, Michael S. Tsirkin wrote:
+> On Wed, Dec 05, 2012 at 03:03:28PM +0800, Wanlong Gao wrote:
+>> Use dev_to_virtio wrapper in virtio to make code clearly.
+>>
+>> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+>> ---
+>> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+>> index 25fa1a6..30fc3c9 100644
+>> --- a/include/linux/virtio.h
+>> +++ b/include/linux/virtio.h
+>> @@ -79,7 +79,7 @@ struct virtio_device {
+>>  	void *priv;
+>>  };
+>>  
+>> -#define dev_to_virtio(dev) container_of(dev, struct virtio_device, dev)
+>> +#define dev_to_virtio(_dev) container_of(_dev, struct virtio_device, dev)
+>>  int register_virtio_device(struct virtio_device *dev);
+>>  void unregister_virtio_device(struct virtio_device *dev);
+> 
+> 
+> More importantly this would fix dev_to_virtio since ATM
+> 
+> dev_to_virtio(_d) resolves to
+>  container_of(_d, struct virtio_device, _d)
+> 
+> which is not what was intended.
 
-Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
----
- drivers/virtio/virtio.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+Yes, you are right, I not mentioned.
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index ba24e87..43c1fb2 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -11,6 +11,10 @@ static inline struct virtio_device *dev_to_virtio(struct device *_dev)
- {
- 	return container_of(_dev, struct virtio_device, dev);
- }
-+static inline struct virtio_driver *drv_to_virtio(struct device_driver *drv)
-+{
-+	return container_of(drv, struct virtio_driver, driver);
-+}
- 
- static ssize_t device_show(struct device *_d,
- 			   struct device_attribute *attr, char *buf)
-@@ -78,7 +82,7 @@ static int virtio_dev_match(struct device *_dv, struct device_driver *_dr)
- 	struct virtio_device *dev = dev_to_virtio(_dv);
- 	const struct virtio_device_id *ids;
- 
--	ids = container_of(_dr, struct virtio_driver, driver)->id_table;
-+	ids = drv_to_virtio(_dr)->id_table;
- 	for (i = 0; ids[i].device; i++)
- 		if (virtio_id_match(dev, &ids[i]))
- 			return 1;
-@@ -102,8 +106,7 @@ void virtio_check_driver_offered_feature(const struct virtio_device *vdev,
- 					 unsigned int fbit)
- {
- 	unsigned int i;
--	struct virtio_driver *drv = container_of(vdev->dev.driver,
--						 struct virtio_driver, driver);
-+	struct virtio_driver *drv = drv_to_virtio(vdev->dev.driver);
- 
- 	for (i = 0; i < drv->feature_table_size; i++)
- 		if (drv->feature_table[i] == fbit)
-@@ -116,8 +119,7 @@ static int virtio_dev_probe(struct device *_d)
- {
- 	int err, i;
- 	struct virtio_device *dev = dev_to_virtio(_d);
--	struct virtio_driver *drv = container_of(dev->dev.driver,
--						 struct virtio_driver, driver);
-+	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
- 	u32 device_features;
- 
- 	/* We have a driver! */
-@@ -157,8 +159,7 @@ static int virtio_dev_probe(struct device *_d)
- static int virtio_dev_remove(struct device *_d)
- {
- 	struct virtio_device *dev = dev_to_virtio(_d);
--	struct virtio_driver *drv = container_of(dev->dev.driver,
--						 struct virtio_driver, driver);
-+	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
- 
- 	drv->remove(dev);
- 
--- 
-1.8.0
+> 
+> However, I think this shows that using a macro here
+> is a mistake. Could you code this up with a static inline
+> function instead please?
+
+Sure.
+
+Thanks,
+Wanlong Gao
+
+> 
+>>  
+>> -- 
+>> 1.8.0
+> 
