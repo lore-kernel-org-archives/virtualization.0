@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/3] virtio: change to_vp_device to an inlined definition
-Date: Wed, 5 Dec 2012 13:25:00 +0200
-Message-ID: <20121205112500.GB12619@redhat.com>
-References: <1354691009-25966-1-git-send-email-gaowanlong@cn.fujitsu.com>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: [PATCH V2 2/2] virtio: add drv_to_virtio to make code clearly
+Date: Wed, 5 Dec 2012 21:28:14 +0800
+Message-ID: <1354714094-6377-2-git-send-email-gaowanlong@cn.fujitsu.com>
+References: <20121205112500.GB12619@redhat.com>
+	<1354714094-6377-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1354691009-25966-1-git-send-email-gaowanlong@cn.fujitsu.com>
+In-Reply-To: <1354714094-6377-1-git-send-email-gaowanlong@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,42 +18,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+To: rusty@rustcorp.com.au, mst@redhat.com
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 05, 2012 at 03:03:27PM +0800, Wanlong Gao wrote:
-> to_vp_device is worth changing to inlined definition.
-> 
-> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Add drv_to_virtio wrapper to get virtio_driver from device_driver.
 
-I don't think it's worth it.
-The oldest gcc I happened to have around is 4.3.3
-which is already smart enough to generate
-identical code before and after the patch.
+Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+---
+ drivers/virtio/virtio.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-And a function is cleaner.
-
-> ---
->  drivers/virtio/virtio_pci.c | 6 +-----
->  1 file changed, 1 insertion(+), 5 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index e3ecc94..7681fe3 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -98,11 +98,7 @@ static struct pci_device_id virtio_pci_id_table[] = {
->  
->  MODULE_DEVICE_TABLE(pci, virtio_pci_id_table);
->  
-> -/* Convert a generic virtio device to our structure */
-> -static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
-> -{
-> -	return container_of(vdev, struct virtio_pci_device, vdev);
-> -}
-> +#define to_vp_device(_vdev) container_of(_vdev, struct virtio_pci_device, vdev)
->  
->  /* virtio config->get_features() implementation */
->  static u32 vp_get_features(struct virtio_device *vdev)
-> -- 
-> 1.8.0
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index ba24e87..43c1fb2 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -11,6 +11,10 @@ static inline struct virtio_device *dev_to_virtio(struct device *_dev)
+ {
+ 	return container_of(_dev, struct virtio_device, dev);
+ }
++static inline struct virtio_driver *drv_to_virtio(struct device_driver *drv)
++{
++	return container_of(drv, struct virtio_driver, driver);
++}
+ 
+ static ssize_t device_show(struct device *_d,
+ 			   struct device_attribute *attr, char *buf)
+@@ -78,7 +82,7 @@ static int virtio_dev_match(struct device *_dv, struct device_driver *_dr)
+ 	struct virtio_device *dev = dev_to_virtio(_dv);
+ 	const struct virtio_device_id *ids;
+ 
+-	ids = container_of(_dr, struct virtio_driver, driver)->id_table;
++	ids = drv_to_virtio(_dr)->id_table;
+ 	for (i = 0; ids[i].device; i++)
+ 		if (virtio_id_match(dev, &ids[i]))
+ 			return 1;
+@@ -102,8 +106,7 @@ void virtio_check_driver_offered_feature(const struct virtio_device *vdev,
+ 					 unsigned int fbit)
+ {
+ 	unsigned int i;
+-	struct virtio_driver *drv = container_of(vdev->dev.driver,
+-						 struct virtio_driver, driver);
++	struct virtio_driver *drv = drv_to_virtio(vdev->dev.driver);
+ 
+ 	for (i = 0; i < drv->feature_table_size; i++)
+ 		if (drv->feature_table[i] == fbit)
+@@ -116,8 +119,7 @@ static int virtio_dev_probe(struct device *_d)
+ {
+ 	int err, i;
+ 	struct virtio_device *dev = dev_to_virtio(_d);
+-	struct virtio_driver *drv = container_of(dev->dev.driver,
+-						 struct virtio_driver, driver);
++	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+ 	u32 device_features;
+ 
+ 	/* We have a driver! */
+@@ -157,8 +159,7 @@ static int virtio_dev_probe(struct device *_d)
+ static int virtio_dev_remove(struct device *_d)
+ {
+ 	struct virtio_device *dev = dev_to_virtio(_d);
+-	struct virtio_driver *drv = container_of(dev->dev.driver,
+-						 struct virtio_driver, driver);
++	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+ 
+ 	drv->remove(dev);
+ 
+-- 
+1.8.0
