@@ -1,13 +1,13 @@
-From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: [PATCH V2 1/2] virtio: use dev_to_virtio wrapper in virtio
-Date: Wed, 5 Dec 2012 21:28:13 +0800
-Message-ID: <1354714094-6377-1-git-send-email-gaowanlong@cn.fujitsu.com>
-References: <20121205112500.GB12619@redhat.com>
+From: =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur@brendeland.net>
+Subject: [RFCv2 00/12] Introduce host-side virtio queue and CAIF Virtio.
+Date: Wed,  5 Dec 2012 15:36:58 +0100
+Message-ID: <1354718230-4486-1-git-send-email-sjur@brendeland.net>
+References: <871ug75vp1.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121205112500.GB12619@redhat.com>
+In-Reply-To: <871ug75vp1.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,117 +17,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, mst@redhat.com
-Cc: virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, virtualization@lists.linux-foundation.org, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use dev_to_virtio wrapper in virtio to make code clearly.
-Move dev_to_virtio from virtio.h to virtio.c.
-
-Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
----
- drivers/virtio/virtio.c | 24 ++++++++++++++----------
- include/linux/virtio.h  |  1 -
- 2 files changed, 14 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 1e8659c..ba24e87 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -7,36 +7,40 @@
- /* Unique numbering for virtio devices. */
- static DEFINE_IDA(virtio_index_ida);
- 
-+static inline struct virtio_device *dev_to_virtio(struct device *_dev)
-+{
-+	return container_of(_dev, struct virtio_device, dev);
-+}
-+
- static ssize_t device_show(struct device *_d,
- 			   struct device_attribute *attr, char *buf)
- {
--	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
-+	struct virtio_device *dev = dev_to_virtio(_d);
- 	return sprintf(buf, "0x%04x\n", dev->id.device);
- }
- static ssize_t vendor_show(struct device *_d,
- 			   struct device_attribute *attr, char *buf)
- {
--	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
-+	struct virtio_device *dev = dev_to_virtio(_d);
- 	return sprintf(buf, "0x%04x\n", dev->id.vendor);
- }
- static ssize_t status_show(struct device *_d,
- 			   struct device_attribute *attr, char *buf)
- {
--	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
-+	struct virtio_device *dev = dev_to_virtio(_d);
- 	return sprintf(buf, "0x%08x\n", dev->config->get_status(dev));
- }
- static ssize_t modalias_show(struct device *_d,
- 			     struct device_attribute *attr, char *buf)
- {
--	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
--
-+	struct virtio_device *dev = dev_to_virtio(_d);
- 	return sprintf(buf, "virtio:d%08Xv%08X\n",
- 		       dev->id.device, dev->id.vendor);
- }
- static ssize_t features_show(struct device *_d,
- 			     struct device_attribute *attr, char *buf)
- {
--	struct virtio_device *dev = container_of(_d, struct virtio_device, dev);
-+	struct virtio_device *dev = dev_to_virtio(_d);
- 	unsigned int i;
- 	ssize_t len = 0;
- 
-@@ -71,7 +75,7 @@ static inline int virtio_id_match(const struct virtio_device *dev,
- static int virtio_dev_match(struct device *_dv, struct device_driver *_dr)
- {
- 	unsigned int i;
--	struct virtio_device *dev = container_of(_dv,struct virtio_device,dev);
-+	struct virtio_device *dev = dev_to_virtio(_dv);
- 	const struct virtio_device_id *ids;
- 
- 	ids = container_of(_dr, struct virtio_driver, driver)->id_table;
-@@ -83,7 +87,7 @@ static int virtio_dev_match(struct device *_dv, struct device_driver *_dr)
- 
- static int virtio_uevent(struct device *_dv, struct kobj_uevent_env *env)
- {
--	struct virtio_device *dev = container_of(_dv,struct virtio_device,dev);
-+	struct virtio_device *dev = dev_to_virtio(_dv);
- 
- 	return add_uevent_var(env, "MODALIAS=virtio:d%08Xv%08X",
- 			      dev->id.device, dev->id.vendor);
-@@ -111,7 +115,7 @@ EXPORT_SYMBOL_GPL(virtio_check_driver_offered_feature);
- static int virtio_dev_probe(struct device *_d)
- {
- 	int err, i;
--	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
-+	struct virtio_device *dev = dev_to_virtio(_d);
- 	struct virtio_driver *drv = container_of(dev->dev.driver,
- 						 struct virtio_driver, driver);
- 	u32 device_features;
-@@ -152,7 +156,7 @@ static int virtio_dev_probe(struct device *_d)
- 
- static int virtio_dev_remove(struct device *_d)
- {
--	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
-+	struct virtio_device *dev = dev_to_virtio(_d);
- 	struct virtio_driver *drv = container_of(dev->dev.driver,
- 						 struct virtio_driver, driver);
- 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 25fa1a6..4a8768f 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -79,7 +79,6 @@ struct virtio_device {
- 	void *priv;
- };
- 
--#define dev_to_virtio(dev) container_of(dev, struct virtio_device, dev)
- int register_virtio_device(struct virtio_device *dev);
- void unregister_virtio_device(struct virtio_device *dev);
- 
--- 
-1.8.0
+RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
+VGhpcyBwYXRjaC1zZXQgaW50cm9kdWNlcyBhIGhvc3Qtc2lkZSB2aXJ0cXVldWUgaW1wbGVtZW50
+YXRpb24gYW5kCnRoZSBDQUlGIFZpcnRpbyBMaW5rIGxheWVyLiBTZWUgaHR0cDovL2x3bi5uZXQv
+QXJ0aWNsZXMvNTIyMjk2LyBmb3IKYmFja2dyb3VuZCBpbmZvIG9uIENBSUYgb3ZlciBWaXJ0aW8u
+CgpBZnRlciBmZWVkYmFjayBmcm9tIFJ1c3R5LCBJIGhhdmUgcmUtZmFjdG9yZWQgdmhvc3QuYyBh
+bmQKcHVsbGVkIG91dCBjb21tb24gZnVuY3Rpb25hbGl0eSBhbmQgZGF0YSBkZWZpbml0aW9ucyBm
+cm9tCmRyaXZlcnMvdmhvc3QgaW50byBkcml2ZXJzL3ZpcnRpby4KClBhcnQgb2YgdGhlIGNoYWxs
+ZW5nZSBvZiBkb2luZyB0aGlzIGlzIHRoYXQgdmhvc3QuYyBpcyBhY2Nlc3NpbmcgdGhlCnZpcnRp
+byByaW5ncyBmcm9tIHVzZXItc3BhY2UsIHdoaWxlIENBSUYgdXNlcyBrZXJuZWwgbWVtb3J5LgpJ
+biBvcmRlciB0byBzb2x2ZSB0aGlzIGlzc3VlLCBpbmxpbmUgbWVtb3J5IGFjY2VzcyBmdW5jdGlv
+bnMgYXJlIHBhc3NlZAp0byBzb21lIG9mIHRoZSB2cmluZyBmdW5jdGlvbnMgKGFzIHN1Z2dlc3Rl
+ZCBieSBSdXN0eSkuCgpJIGhhdmUgYWRkZWQgb25lIGFyZ3VtZW50IHRvIHRoZSBmdW5jdGlvbiBm
+aW5kX3ZxcygpLCBpbiBvcmRlciB0byAKcmVxdWVzdCBob3N0LXNpZGUgdmlydGlvLXF1ZXVlLiAo
+VGhpcyBuZWVkcyBzb21lIG1vcmUgd29yay4uLikKCkZlZWRiYWNrIG9uIHRoaXMgcGF0Y2gtc2V0
+IGlzIGFwcHJlY2lhdGVkLCBwYXJ0aWN1bGFybHkgb24gc3RydWN0dXJlCmFuZCBjb2RlLXJldXNl
+IGJldHdlZW4gdmhvc3QuYyBhbmQgdGhlIGhvc3Qtc2lkZSB2aXJ0aW8tcXVldWUuCkknZCBhbHNv
+IGxpa2Ugc29tZSBzdWdnZXN0aW9ucyBvbiBob3cgdG8gaGFuZGxlIHRoZSBidWlsZCBjb25maWd1
+cmF0aW9uCmJldHRlciAtIGN1cnJlbnRseSB0aGVyZSBhcmUgc29tZSB1bm5lY2Vzc2FyeSBidWls
+ZCBkZXBlbmRlbmNpZXMuCgpUaGUgcGF0Y2hlcyBhcmUgYmFzZWQgb24gdjMuNywgYW5kIGNvbXBp
+bGUgdGVzdGVkIG9ubHkuCgpSdXN0eSwgaWYgeW91IHdhbnQgdG8gcmV2aWV3IHRoaXMgbGF0ZXIs
+IGFmdGVyIHRoZSBtZXJnZSB3aW5kb3cgY2xvc2VzLApsZXQgbWUga25vdyBhbmQgSSdsbCByZXNl
+bmQgdGhlc2UgcGF0Y2hlcyBsYXRlci4KClRoYW5rcywKU2p1cgoKU2p1ciBCcsOmbmRlbGFuZCAo
+MTEpOgogIHZob3N0OiBVc2Ugc3RydWN0IHZyaW5nIGluIHZob3N0X3ZpcnRxdWV1ZQogIHZob3N0
+OiBJc29sYXRlIHJldXNhYmxlIHZyaW5nIHJlbGF0ZWQgZnVuY3Rpb25zCiAgdmlydGlvLXJpbmc6
+IEludHJvZHVjZSBmaWxlIHZpcnRpb19yaW5nX2hvc3QKICB2aXJ0aW8tcmluZzogUmVmYWN0b3Ig
+b3V0IHRoZSBmdW5jdGlvbnMgYWNjZXNzaW5nIHVzZXIgbWVtb3J5CiAgdmlydGlvLXJpbmc6IFJl
+ZmFjdG9yIG1vdmUgYXR0cmlidXRlcyB0byBzdHJ1Y3QgdmlydHF1ZXVlCiAgdmlydGlvX3Jpbmc6
+IE1vdmUgU01QIG1hY3JvcyB0byB2aXJ0aW9fcmluZy5oCiAgdmlydGlvLXJpbmc6IEFkZCBIb3N0
+IHNpZGUgdmlydGlvLXJpbmcgaW1wbGVtZW50YXRpb24KICB2aXJ0aW86IFVwZGF0ZSB2cmluZ19p
+bnRlcnJ1cHQgZm9yIGhvc3Qtc2lkZSB2aXJ0aW8gcXVldWVzCiAgdmlydGlvLXJpbmc6IEFkZCBC
+VUdfT04gY2hlY2tpbmcgb24gaG9zdC9ndWVzdCByaW5nIHR5cGUKICB2aXJ0aW86IEFkZCBhcmd1
+bWVudCByZXZlcnNlZCB0byBmdW5jdGlvbiBmaW5kX3ZxcygpCiAgcmVtb3RlcHJvYzogQWRkIHN1
+cHBvcnQgZm9yIGhvc3QtdmlydHF1ZXVlcwoKVmlrcmFtIEFSViAoMSk6CiAgY2FpZl92aXJ0aW86
+IEludHJvZHVjZSBjYWlmIG92ZXIgdmlydGlvCgogZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xl
+LmMgICAgICAgICAgfCAgICAzICstCiBkcml2ZXJzL2xndWVzdC9sZ3Vlc3RfZGV2aWNlLmMgICAg
+ICAgICB8ICAgIDUgKy0KIGRyaXZlcnMvbmV0L2NhaWYvS2NvbmZpZyAgICAgICAgICAgICAgIHwg
+ICAgOCArCiBkcml2ZXJzL25ldC9jYWlmL01ha2VmaWxlICAgICAgICAgICAgICB8ICAgIDMgKwog
+ZHJpdmVycy9uZXQvY2FpZi9jYWlmX3ZpcnRpby5jICAgICAgICAgfCAgNDgyICsrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrCiBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgICAgICAgICAg
+ICAgICB8ICAgIDMgKy0KIGRyaXZlcnMvcmVtb3RlcHJvYy9yZW1vdGVwcm9jX3ZpcnRpby5jIHwg
+ICAxOCArLQogZHJpdmVycy9ycG1zZy92aXJ0aW9fcnBtc2dfYnVzLmMgICAgICAgfCAgICAyICst
+CiBkcml2ZXJzL3MzOTAva3ZtL2t2bV92aXJ0aW8uYyAgICAgICAgICB8ICAgIDUgKy0KIGRyaXZl
+cnMvc2NzaS92aXJ0aW9fc2NzaS5jICAgICAgICAgICAgIHwgICAgMiArLQogZHJpdmVycy92aG9z
+dC9LY29uZmlnICAgICAgICAgICAgICAgICAgfCAgICAyICsKIGRyaXZlcnMvdmhvc3QvbmV0LmMg
+ICAgICAgICAgICAgICAgICAgIHwgICAgNCArLQogZHJpdmVycy92aG9zdC92aG9zdC5jICAgICAg
+ICAgICAgICAgICAgfCAgMjcyICsrKysrKystLS0tLS0tLS0tLQogZHJpdmVycy92aG9zdC92aG9z
+dC5oICAgICAgICAgICAgICAgICAgfCAgIDE0ICstCiBkcml2ZXJzL3ZpcnRpby9LY29uZmlnICAg
+ICAgICAgICAgICAgICB8ICAgIDMgKwogZHJpdmVycy92aXJ0aW8vTWFrZWZpbGUgICAgICAgICAg
+ICAgICAgfCAgICAxICsKIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgICAgICAgIHwg
+ICAgMyArLQogZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYyAgICAgICAgICAgfCAgICA1ICst
+CiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLmMgICAgICAgICAgICB8ICAgIDMgKy0KIGRyaXZl
+cnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgICAgICAgICAgIHwgICA1MCArKy0tLQogZHJpdmVycy92
+aXJ0aW8vdmlydGlvX3JpbmdfaG9zdC5jICAgICAgfCAgMzQ1ICsrKysrKysrKysrKysrKysrKysr
+KysrCiBpbmNsdWRlL2xpbnV4L3ZpcnRpby5oICAgICAgICAgICAgICAgICB8ICAgIDYgKwogaW5j
+bHVkZS9saW51eC92aXJ0aW9fY2FpZi5oICAgICAgICAgICAgfCAgIDI1ICsrCiBpbmNsdWRlL2xp
+bnV4L3ZpcnRpb19jb25maWcuaCAgICAgICAgICB8ICAgIDcgKy0KIGluY2x1ZGUvbGludXgvdmly
+dGlvX3JpbmcuaCAgICAgICAgICAgIHwgICA3NyArKysrKy0KIGluY2x1ZGUvdWFwaS9saW51eC92
+aXJ0aW9faWRzLmggICAgICAgIHwgICAgMSArCiAyNiBmaWxlcyBjaGFuZ2VkLCAxMTIwIGluc2Vy
+dGlvbnMoKyksIDIyOSBkZWxldGlvbnMoLSkKIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL25l
+dC9jYWlmL2NhaWZfdmlydGlvLmMKIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3ZpcnRpby92
+aXJ0aW9fcmluZ19ob3N0LmMKIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2xpbnV4L3ZpcnRp
+b19jYWlmLmgKCi0tIAoxLjcuNS40CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
