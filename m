@@ -1,14 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next v2 3/3] virtio-net: support changing the number of
-	queue pairs through ethtool
-Date: Wed,  5 Dec 2012 18:37:52 +0800
-Message-ID: <1354703872-25677-4-git-send-email-jasowang@redhat.com>
-References: <1354703872-25677-1-git-send-email-jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 2/3] virtio: use dev_to_virtio wrapper in virtio
+Date: Wed, 5 Dec 2012 13:16:06 +0200
+Message-ID: <20121205111606.GB10045@redhat.com>
+References: <1354691009-25966-1-git-send-email-gaowanlong@cn.fujitsu.com>
+	<1354691009-25966-2-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1354703872-25677-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1354691009-25966-2-git-send-email-gaowanlong@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,75 +19,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, rusty@rustcorp.com.au, davem@davemloft.net, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, krkumar2@in.ibm.com
-Cc: bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com, kvm@vger.kernel.org
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch implements the ethtool_{set|get}_channels method of virtio-net to
-allow user to change the number of queues when the device is running on demand.
+On Wed, Dec 05, 2012 at 03:03:28PM +0800, Wanlong Gao wrote:
+> Use dev_to_virtio wrapper in virtio to make code clearly.
+> 
+> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+> ---
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 25fa1a6..30fc3c9 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -79,7 +79,7 @@ struct virtio_device {
+>  	void *priv;
+>  };
+>  
+> -#define dev_to_virtio(dev) container_of(dev, struct virtio_device, dev)
+> +#define dev_to_virtio(_dev) container_of(_dev, struct virtio_device, dev)
+>  int register_virtio_device(struct virtio_device *dev);
+>  void unregister_virtio_device(struct virtio_device *dev);
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c |   43 +++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 43 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index def11ce..51c9b75 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1075,10 +1075,53 @@ static void virtnet_get_drvinfo(struct net_device *dev,
- 
- }
- 
-+/* TODO: Eliminate OOO packets during switching */
-+static int virtnet_set_channels(struct net_device *dev,
-+				struct ethtool_channels *channels)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+	u16 queue_pairs = channels->combined_count;
-+	int err;
-+
-+	/* We don't support separate rx/tx channels.
-+	 * We don't allow setting 'other' channels.
-+	 */
-+	if (channels->rx_count || channels->tx_count || channels->other_count)
-+		return -EINVAL;
-+
-+	if (queue_pairs > vi->max_queue_pairs)
-+		return -EINVAL;
-+
-+	err = virtnet_set_queues(vi, queue_pairs);
-+	if (!err) {
-+		netif_set_real_num_tx_queues(dev, queue_pairs);
-+		netif_set_real_num_rx_queues(dev, queue_pairs);
-+
-+		virtnet_set_affinity(vi, true);
-+	}
-+
-+	return err;
-+}
-+
-+static void virtnet_get_channels(struct net_device *dev,
-+				 struct ethtool_channels *channels)
-+{
-+	struct virtnet_info *vi = netdev_priv(dev);
-+
-+	channels->combined_count = vi->curr_queue_pairs;
-+	channels->max_combined = vi->max_queue_pairs;
-+	channels->max_other = 0;
-+	channels->rx_count = 0;
-+	channels->tx_count = 0;
-+	channels->other_count = 0;
-+}
-+
- static const struct ethtool_ops virtnet_ethtool_ops = {
- 	.get_drvinfo = virtnet_get_drvinfo,
- 	.get_link = ethtool_op_get_link,
- 	.get_ringparam = virtnet_get_ringparam,
-+	.set_channels = virtnet_set_channels,
-+	.get_channels = virtnet_get_channels,
- };
- 
- #define MIN_MTU 68
--- 
-1.7.1
+More importantly this would fix dev_to_virtio since ATM
+
+dev_to_virtio(_d) resolves to
+ container_of(_d, struct virtio_device, _d)
+
+which is not what was intended.
+
+However, I think this shows that using a macro here
+is a mistake. Could you code this up with a static inline
+function instead please?
+
+>  
+> -- 
+> 1.8.0
