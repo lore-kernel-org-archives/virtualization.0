@@ -1,62 +1,44 @@
-From: Dave Jones <davej@redhat.com>
-Subject: Re: [PATCHv2] x86info: dump kvm cpuid's
-Date: Thu, 6 Dec 2012 09:48:30 -0500
-Message-ID: <20121206144830.GA2450__13798.6383088448$1354805342$gmane$org@redhat.com>
-References: <20120430143835.GA10190@redhat.com>
-	<20120905173335.GA15141@redhat.com>
-	<20121206114112.GA13963@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL net-next] vhost: changes for 3.8
+Date: Thu, 6 Dec 2012 17:18:00 +0200
+Message-ID: <20121206151800.GA3889@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20121206114112.GA13963@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: xen-devel@lists.xensource.com, kvm@vger.kernel.org, pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, devel@linuxdriverproject.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, dinggnu@gmail.com, mst@redhat.com, yongjun_wei@trendmicro.com.cn
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 06, 2012 at 01:41:12PM +0200, Michael S. Tsirkin wrote:
- > On Wed, Sep 05, 2012 at 08:33:35PM +0300, Michael S. Tsirkin wrote:
- > > On Mon, Apr 30, 2012 at 05:38:35PM +0300, Michael S. Tsirkin wrote:
- > > > The following makes 'x86info -r' dump hypervisor leaf cpu ids
- > > > (for kvm this is signature+features) when running in a vm.
- > > > 
- > > > On the guest we see the signature and the features:
- > > > eax in: 0x40000000, eax = 00000000 ebx = 4b4d564b ecx = 564b4d56 edx = 0000004d
- > > > eax in: 0x40000001, eax = 0100007b ebx = 00000000 ecx = 00000000 edx = 00000000
- > > > 
- > > > Hypervisor flag is checked to avoid output changes when not
- > > > running on a VM.
- > > > 
- > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
- > > > 
- > > > Changes from v1:
- > > > 	Make work on non KVM hypervisors (only KVM was tested).
- > > > 	Avi Kivity said kvm will in the future report
- > > > 	max HV leaf in eax. For now it reports eax = 0
- > > >         so add a work around for that.
- > > 
- > > Ping.
- > > Davej, any comments?
- > > Would be nice to have this in.
- > 
- > Is this the right address?
- > Davej do you maintain x86info?
- > Thanks,
- > MST
+The following changes since commit b93196dc5af7729ff7cc50d3d322ab1a364aa14f:
 
-It's effectively abandonware at this point, largely due to my own
-lack of time. hwloc and similar tools seem to have taken it's place.
-If anyone is interested in taking over x86info, I'm happy to hand
-over the reins to someone capable.
+  net: fix some compiler warning in net/core/neighbour.c (2012-12-05 21:50:37 -0500)
 
-	Dave
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
+
+for you to fetch changes up to 405d55c99da7a3045275fdb1a30614293a53c6e7:
+
+  tcm_vhost: remove unused variable in vhost_scsi_allocate_cmd() (2012-12-06 17:09:19 +0200)
+
+----------------------------------------------------------------
+Cong Ding (1):
+      tools:virtio: fix compilation warning
+
+Michael S. Tsirkin (4):
+      vhost: avoid backend flush on vring ops
+      vhost-net: flush outstanding DMAs on memory change
+      vhost-net: skip head management if no outstanding
+      vhost-net: enable zerocopy tx by default
+
+Wei Yongjun (1):
+      tcm_vhost: remove unused variable in vhost_scsi_allocate_cmd()
+
+ drivers/vhost/net.c        | 51 ++++++++++++++++++++++++++++++----------------
+ drivers/vhost/tcm_vhost.c  |  7 ++++---
+ drivers/vhost/vhost.c      |  7 +++----
+ drivers/vhost/vhost.h      |  3 ++-
+ tools/virtio/virtio_test.c |  2 +-
+ 5 files changed, 44 insertions(+), 26 deletions(-)
