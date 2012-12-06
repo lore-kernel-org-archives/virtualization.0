@@ -1,17 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFCv2 04/12] virtio-ring: Refactor out the functions accessing
-	user memory
-Date: Thu, 6 Dec 2012 11:52:37 +0200
-Message-ID: <20121206095237.GE10837@redhat.com>
+Subject: Re: [RFCv2 00/12] Introduce host-side virtio queue and CAIF Virtio.
+Date: Thu, 6 Dec 2012 12:27:50 +0200
+Message-ID: <20121206102750.GF10837@redhat.com>
 References: <871ug75vp1.fsf@rustcorp.com.au>
 	<1354718230-4486-1-git-send-email-sjur@brendeland.net>
-	<1354718230-4486-5-git-send-email-sjur@brendeland.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1354718230-4486-5-git-send-email-sjur@brendeland.net>
+In-Reply-To: <1354718230-4486-1-git-send-email-sjur@brendeland.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,162 +23,83 @@ To: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjur@brendeland.net>
 Cc: Linus Walleij <linus.walleij@linaro.org>, virtualization@lists.linux-foundation.org, Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 05, 2012 at 03:37:02PM +0100, Sjur Br=E6ndeland wrote:
-> Isolate the access to user-memory in separate inline
-> functions. This open up for reuse from host-side virtioqueue
-> implementation accessing virtio-ring in kernel space.
-> =
+On Wed, Dec 05, 2012 at 03:36:58PM +0100, Sjur Br=E6ndeland wrote:
+> Feedback on this patch-set is appreciated, particularly on structure
+> and code-reuse between vhost.c and the host-side virtio-queue.
+> I'd also like some suggestions on how to handle the build configuration
+> better - currently there are some unnecessary build dependencies.
 
-> Signed-off-by: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-> ---
->  drivers/virtio/virtio_ring_host.c |   81 ++++++++++++++++++++++++++-----=
-------
->  1 files changed, 57 insertions(+), 24 deletions(-)
-> =
+Rusty seems to disagree but one of the concerns people have about vhost
+is security; so I value getting as much static checking as we can.  This
+discards __user annotations so this doesn't work for me.
 
-> diff --git a/drivers/virtio/virtio_ring_host.c b/drivers/virtio/virtio_ri=
-ng_host.c
-> index 192b838..0750099 100644
-> --- a/drivers/virtio/virtio_ring_host.c
-> +++ b/drivers/virtio/virtio_ring_host.c
-> @@ -18,44 +18,45 @@
->  #include <linux/virtio_ring.h>
->  #include <linux/module.h>
->  #include <linux/uaccess.h>
-> +#include <linux/kconfig.h>
->  =
+I also have concerns about how much overhead an indirect function
+call on each 2 byte access would have.
 
->  MODULE_LICENSE("GPL");
->  =
+After thinking about this I think there's no way without using a
+preprocessor. But using a preprocessor it's not very bad: we'll have to
+make everything inline in header but that's not terrible as the
+functions are pretty short: it's less about code size and more about
+avoiding code duplication.
 
-> -struct vring_used_elem *vring_add_used_user(struct vring_host *vh,
-> -				     unsigned int head, int len)
-> +
-> +static inline struct vring_used_elem *_vring_add_used(struct vring_host =
-*vh,
-> +						      u32 head, u32 len,
-> +						      bool (*cpy)(void *dst,
-> +								  void *src,
-> +								  size_t s),
-> +						      void (*wbarrier)(void))
->  {
->  	struct vring_used_elem  *used;
-> +	u16 last_used;
->  =
+Basically like this:
 
->  	/* The virtqueue contains a ring of used buffers.  Get a pointer to the
->  	 * next entry in that used ring. */
-> -	used =3D &vh->vr.used->ring[vh->last_used_idx % vh->vr.num];
-> -	if (__put_user(head, &used->id)) {
-> -		pr_debug("Failed to write used id");
-> +	used =3D &vh->vr.used->ring[vh->last_used_idx & (vh->vr.num - 1)];
-> +	if (!cpy(&used->id, &head, sizeof(used->id)) ||
-> +	    !cpy(&used->len, &len, sizeof(used->len)))
->  		return NULL;
-> -	}
-> -	if (__put_user(len, &used->len)) {
-> -		pr_debug("Failed to write used len");
-> +	wbarrier();
-> +	last_used =3D vh->last_used_idx + 1;
-> +	if (!cpy(&vh->vr.used->idx, &last_used, sizeof(vh->vr.used->idx)))
->  		return NULL;
+/* Legal values for VIRTIO_HOST_MODE */
+#define VIRTIO_HOST_KERNEL 0
+#define VIRTIO_HOST_USER 1
 
-I think this is broken: we need a 16 bit access, this is
-doing a memcpy which is byte by byte.
+#if defined(VIRTIO_HOST_H) && VIRTIO_HOST_H !=3D VIRTIO_HOST_MODE
+#error "Header included twice with VIRTIO_HOST_MODE redefined"
+#endif
 
-> -	}
-> -	/* Make sure buffer is written before we update index. */
-> -	smp_wmb();
-> -	if (__put_user(vh->last_used_idx + 1, &vh->vr.used->idx)) {
-> -		pr_debug("Failed to increment used idx");
-> -		return NULL;
-> -	}
-> -	vh->last_used_idx++;
-> +	vh->last_used_idx =3D last_used;
->  	return used;
->  }
-> -EXPORT_SYMBOL(vring_add_used_user);
->  =
+#ifndef VIRTIO_HOST_H
+/* Besides serving as a double inclusion guard, this
+ * verifies that multiple inclusions define VIRTIO_HOST_MODE
+ * consistently.
+ */
+#define VIRTIO_HOST_H VIRTIO_HOST_MODE
 
-> -int vring_avail_desc_user(struct vring_host *vh)
-> +static inline int _vring_avail_desc(struct vring_host *vh,
-> +				    bool (*get)(u16 *dst, u16 *src),
-> +				    void (*read_barrier)(void))
->  {
-> -	int head;
-> +	u16 head;
->  	u16 last_avail_idx;
->  =
+#ifndef VIRTIO_HOST_MODE
+#error "Must define VIRTIO_HOST_MODE to VIRTIO_HOST_KERNEL or VIRTIO_HOST_U=
+SER"
+#endif
 
->  	/* Check it isn't doing very strange things with descriptor numbers. */
->  	last_avail_idx =3D vh->last_avail_idx;
-> -	if (unlikely(__get_user(vh->avail_idx, &vh->vr.avail->idx))) {
-> +	if (unlikely(!get(&vh->avail_idx, &vh->vr.avail->idx))) {
->  		pr_debug("Failed to access avail idx at %p\n",
->  		       &vh->vr.avail->idx);
->  		return -EFAULT;
-> @@ -69,13 +70,12 @@ int vring_avail_desc_user(struct vring_host *vh)
->  		return vh->vr.num;
->  =
+#if VIRTIO_HOST_MODE =3D=3D VIRTIO_HOST_KERNEL
+#define __virtio_host_user
+#define __virtio_host_put_user(x, ptr) ({*(ptr) =3D (__typeof__(*(ptr)))(x)=
+; 0;})
+#else
+#define __virtio_host_user __user
+#define __virtio_host_put_user(x, ptr) __put_user(x, ptr)
+#endif
 
->  	/* Only get avail ring entries after they have been exposed by guest. */
-> -	smp_rmb();
-> +	read_barrier();
->  =
+static inline
+int vhost_add_used(struct virtio_host_vq *vq, unsigned int head, int len)
+{
+        struct vring_used_elem __virtio_host_user *used;
 
->  	/* Grab the next descriptor number they're advertising, and increment
->  	 * the index we've seen. */
-> -	if (unlikely(__get_user(head,
-> -				&vh->vr.avail->ring[last_avail_idx %
-> -							vh->vr.num]))) {
-> +	if (unlikely(!get(&head, &vh->vr.avail->ring[last_avail_idx &
-> +						     (vh->vr.num - 1)]))) {
->  		pr_debug("Failed to read head: idx %d address %p\n",
->  			 last_avail_idx,
->  		       &vh->vr.avail->ring[last_avail_idx %
-> @@ -92,6 +92,39 @@ int vring_avail_desc_user(struct vring_host *vh)
->  =
+        /* The virtqueue contains a ring of used buffers.  Get a pointer to=
+ the
+         * next entry in that used ring. */
+        used =3D &vq->used->ring[vq->last_used_idx % vq->num];
+        if (__virtio_host_put_user(head, &used->id)) {
 
->  	return head;
->  }
-> +
-> +static inline void smp_write_barrier(void)
-> +{
-> +	smp_wmb();
-> +}
-> +
-> +static inline void smp_read_barrier(void)
-> +{
-> +	smp_rmb();
-> +}
-> +
-> +static inline bool userspace_cpy_to(void  *dst, void *src, size_t s)
-> +{
-> +	return __copy_to_user(dst, src, s) =3D=3D 0;
-> +}
-> +
-> +static inline bool userspace_get(u16 *dst, u16 *src)
-> +{
-> +	return __get_user(*dst, src);
-> +}
-> +
-> +struct vring_used_elem *vring_add_used_user(struct vring_host *vh,
-> +					    unsigned int head, int len)
-> +{
-> +	return _vring_add_used(vh, head, len, userspace_cpy_to,
-> +			       smp_write_barrier);
-> +}
-> +EXPORT_SYMBOL(vring_add_used_user);
-> +
-> +int vring_avail_desc_user(struct vring_host *vh)
-> +{
-> +	return _vring_avail_desc(vh, userspace_get, smp_read_barrier);
-> +}
->  EXPORT_SYMBOL(vring_avail_desc_user);
->  =
 
->  /* Each buffer in the virtqueues is actually a chain of descriptors.  Th=
-is
-> -- =
+...
 
-> 1.7.5.4
+
+#endif
+
+Users will have to
+
+#define VIRTIO_HOST_MODE VIRTIO_HOST_USER
+#include "linux/virtio_host.h"
+
+or
+
+#define VIRTIO_HOST_MODE VIRTIO_HOST_KERNEL
+#include "linux/virtio_host.h"
+
+-- =
+
+MST
