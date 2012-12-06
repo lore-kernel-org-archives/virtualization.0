@@ -1,44 +1,57 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL net-next] vhost: changes for 3.8
-Date: Thu, 6 Dec 2012 17:18:00 +0200
-Message-ID: <20121206151800.GA3889@redhat.com>
+From: Andy King <acking@vmware.com>
+Subject: Re: [Pv-drivers] [PATCH 0/6] VSOCK for Linux upstreaming
+Date: Thu, 6 Dec 2012 07:28:13 -0800 (PST)
+Message-ID: <882468393.42962386.1354807693049.JavaMail.root@vmware.com>
+References: <50A55F57.7080804@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, dinggnu@gmail.com, mst@redhat.com, yongjun_wei@trendmicro.com.cn
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <50A55F57.7080804@us.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, David Miller <davem@davemloft.net>, georgezhang@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit b93196dc5af7729ff7cc50d3d322ab1a364aa14f:
+Hi Anthony,
 
-  net: fix some compiler warning in net/core/neighbour.c (2012-12-05 21:50:37 -0500)
+> This was already done in a hypervisor neutral way using virtio:
+> 
+> http://lists.openwall.net/netdev/2008/12/14/8
+> 
+> The concept was Nacked and that led to the abomination of
+> virtio-serial.  If an address family for virtualization is on the
+> table, we should reconsider AF_VMCHANNEL.
 
-are available in the git repository at:
+I finally had a look at your patch.  Please correct me if I'm wrong,
+but it seems that the peer of an AF_VMCHANNEL connection is a virtio
+channel inside the hypervisor, i.e., the other end is _not_ sockets,
+right?
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
+That's quite a bit different from vSockets, where both sides use the
+socket interface, even within the VMX process in our hypervisor.  We
+also intend for arbitrary host processes -- those outside the
+hypervisor -- to use it via the sockets interface.  We have shipping
+applications that do just that, where communication is between a guest
+process and a host service, with both sides using the standard socket
+API but with the vSockets address family.  We also encourage people to
+write such VM-to-host applications, and we've been shipping the
+vSockets header in our host-side products to allow people to do just
+that.
 
-for you to fetch changes up to 405d55c99da7a3045275fdb1a30614293a53c6e7:
+So I think in that sense vSockets is somewhat more general, and we'd
+obviously prefer to go with our socket family and address structure
+if LKML is open to something like this.
 
-  tcm_vhost: remove unused variable in vhost_scsi_allocate_cmd() (2012-12-06 17:09:19 +0200)
+Thanks!
+- Andy
 
-----------------------------------------------------------------
-Cong Ding (1):
-      tools:virtio: fix compilation warning
-
-Michael S. Tsirkin (4):
-      vhost: avoid backend flush on vring ops
-      vhost-net: flush outstanding DMAs on memory change
-      vhost-net: skip head management if no outstanding
-      vhost-net: enable zerocopy tx by default
-
-Wei Yongjun (1):
-      tcm_vhost: remove unused variable in vhost_scsi_allocate_cmd()
-
- drivers/vhost/net.c        | 51 ++++++++++++++++++++++++++++++----------------
- drivers/vhost/tcm_vhost.c  |  7 ++++---
- drivers/vhost/vhost.c      |  7 +++----
- drivers/vhost/vhost.h      |  3 ++-
- tools/virtio/virtio_test.c |  2 +-
- 5 files changed, 44 insertions(+), 26 deletions(-)
+PS I realize we still owe LKML a spec for the vSockets protocol.
