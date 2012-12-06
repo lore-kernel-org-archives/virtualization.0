@@ -1,15 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFCv2 00/12] Introduce host-side virtio queue and CAIF Virtio.
-Date: Thu, 6 Dec 2012 12:27:50 +0200
-Message-ID: <20121206102750.GF10837@redhat.com>
+From: Sjur BRENDELAND <sjur.brandeland@stericsson.com>
+Subject: RE: [RFCv2 04/12] virtio-ring: Refactor out the functions accessing
+	user memory
+Date: Thu, 6 Dec 2012 12:03:43 +0100
+Message-ID: <81C3A93C17462B4BBD7E272753C105792457512701@EXDCVYMBSTM005.EQ1STM.local>
 References: <871ug75vp1.fsf@rustcorp.com.au>
 	<1354718230-4486-1-git-send-email-sjur@brendeland.net>
+	<1354718230-4486-5-git-send-email-sjur@brendeland.net>
+	<20121206095237.GE10837@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1354718230-4486-1-git-send-email-sjur@brendeland.net>
+In-Reply-To: <20121206095237.GE10837@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,87 +22,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjur@brendeland.net>
-Cc: Linus Walleij <linus.walleij@linaro.org>, virtualization@lists.linux-foundation.org, Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjur.brandeland@stericsson.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, =?iso-8859-1?Q?Sjur_Br=E6ndeland?= <sjur@brendeland.net>
+Cc: Linus Walleij <linus.walleij@linaro.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 05, 2012 at 03:36:58PM +0100, Sjur Br=E6ndeland wrote:
-> Feedback on this patch-set is appreciated, particularly on structure
-> and code-reuse between vhost.c and the host-side virtio-queue.
-> I'd also like some suggestions on how to handle the build configuration
-> better - currently there are some unnecessary build dependencies.
+Hi Michael,
 
-Rusty seems to disagree but one of the concerns people have about vhost
-is security; so I value getting as much static checking as we can.  This
-discards __user annotations so this doesn't work for me.
+> > -struct vring_used_elem *vring_add_used_user(struct vring_host *vh,
+> > -				     unsigned int head, int len)
+> > +
+> > +static inline struct vring_used_elem *_vring_add_used(struct vring_host
+> *vh,
+> > +						      u32 head, u32 len,
+> > +						      bool (*cpy)(void *dst,
+> > +								  void *src,
+> > +								  size_t s),
+> > +						      void (*wbarrier)(void))
+> >  {
+> >  	struct vring_used_elem  *used;
+> > +	u16 last_used;
+> >
+> >  	/* The virtqueue contains a ring of used buffers.  Get a pointer to the
+> >  	 * next entry in that used ring. */
+> > -	used = &vh->vr.used->ring[vh->last_used_idx % vh->vr.num];
+> > -	if (__put_user(head, &used->id)) {
+> > -		pr_debug("Failed to write used id");
+> > +	used = &vh->vr.used->ring[vh->last_used_idx & (vh->vr.num - 1)];
+> > +	if (!cpy(&used->id, &head, sizeof(used->id)) ||
+> > +	    !cpy(&used->len, &len, sizeof(used->len)))
+> >  		return NULL;
+> > -	}
+> > -	if (__put_user(len, &used->len)) {
+> > -		pr_debug("Failed to write used len");
+> > +	wbarrier();
+> > +	last_used = vh->last_used_idx + 1;
+> > +	if (!cpy(&vh->vr.used->idx, &last_used, sizeof(vh->vr.used->idx)))
+> >  		return NULL;
+> 
+> I think this is broken: we need a 16 bit access, this is
+> doing a memcpy which is byte by byte.
 
-I also have concerns about how much overhead an indirect function
-call on each 2 byte access would have.
+I have played around with gcc and -O2 option, and it seems to me
+that GCC is smart enough to optimize the use of sizeof and memcpy
+into MOV operations. But my assembly knowledge is very rusty,
+so a second opinion on this would be good.
 
-After thinking about this I think there's no way without using a
-preprocessor. But using a preprocessor it's not very bad: we'll have to
-make everything inline in header but that's not terrible as the
-functions are pretty short: it's less about code size and more about
-avoiding code duplication.
+> > -	}
+> > -	/* Make sure buffer is written before we update index. */
+> > -	smp_wmb();
+> > -	if (__put_user(vh->last_used_idx + 1, &vh->vr.used->idx)) {
+> > -		pr_debug("Failed to increment used idx");
+> > -		return NULL;
+> > -	}
+> > -	vh->last_used_idx++;
+> > +	vh->last_used_idx = last_used;
+> >  	return used;
+> >  }
+> > -EXPORT_SYMBOL(vring_add_used_user);
 
-Basically like this:
-
-/* Legal values for VIRTIO_HOST_MODE */
-#define VIRTIO_HOST_KERNEL 0
-#define VIRTIO_HOST_USER 1
-
-#if defined(VIRTIO_HOST_H) && VIRTIO_HOST_H !=3D VIRTIO_HOST_MODE
-#error "Header included twice with VIRTIO_HOST_MODE redefined"
-#endif
-
-#ifndef VIRTIO_HOST_H
-/* Besides serving as a double inclusion guard, this
- * verifies that multiple inclusions define VIRTIO_HOST_MODE
- * consistently.
- */
-#define VIRTIO_HOST_H VIRTIO_HOST_MODE
-
-#ifndef VIRTIO_HOST_MODE
-#error "Must define VIRTIO_HOST_MODE to VIRTIO_HOST_KERNEL or VIRTIO_HOST_U=
-SER"
-#endif
-
-#if VIRTIO_HOST_MODE =3D=3D VIRTIO_HOST_KERNEL
-#define __virtio_host_user
-#define __virtio_host_put_user(x, ptr) ({*(ptr) =3D (__typeof__(*(ptr)))(x)=
-; 0;})
-#else
-#define __virtio_host_user __user
-#define __virtio_host_put_user(x, ptr) __put_user(x, ptr)
-#endif
-
-static inline
-int vhost_add_used(struct virtio_host_vq *vq, unsigned int head, int len)
-{
-        struct vring_used_elem __virtio_host_user *used;
-
-        /* The virtqueue contains a ring of used buffers.  Get a pointer to=
- the
-         * next entry in that used ring. */
-        used =3D &vq->used->ring[vq->last_used_idx % vq->num];
-        if (__virtio_host_put_user(head, &used->id)) {
-
-
-...
-
-
-#endif
-
-Users will have to
-
-#define VIRTIO_HOST_MODE VIRTIO_HOST_USER
-#include "linux/virtio_host.h"
-
-or
-
-#define VIRTIO_HOST_MODE VIRTIO_HOST_KERNEL
-#include "linux/virtio_host.h"
-
--- =
-
-MST
+Thanks,
+Sjur
