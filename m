@@ -1,15 +1,15 @@
-From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: Re: [PATCH 1/3] virtio: change to_vp_device to an inlined definition
-Date: Thu, 06 Dec 2012 14:10:17 +0800
-Message-ID: <50C036C9.4030003@cn.fujitsu.com>
-References: <1354691009-25966-1-git-send-email-gaowanlong@cn.fujitsu.com>
-	<87y5hcf5ki.fsf@rustcorp.com.au>
-Reply-To: gaowanlong@cn.fujitsu.com
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv5] virtio-spec: virtio network device RFS support
+Date: Thu, 6 Dec 2012 10:13:20 +0200
+Message-ID: <20121206081320.GD10837@redhat.com>
+References: <20121203105843.GA26194@redhat.com>
+	<1354739966.2655.25.camel@bwh-desktop.uk.solarflarecom.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87y5hcf5ki.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <1354739966.2655.25.camel@bwh-desktop.uk.solarflarecom.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,23 +19,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, mst@redhat.com
+To: Ben Hutchings <bhutchings@solarflare.com>
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/06/2012 07:21 AM, Rusty Russell wrote:
-> Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
+On Wed, Dec 05, 2012 at 08:39:26PM +0000, Ben Hutchings wrote:
+> On Mon, 2012-12-03 at 12:58 +0200, Michael S. Tsirkin wrote:
+> > Add RFS support to virtio network device.
+> > Add a new feature flag VIRTIO_NET_F_RFS for this feature, a new
+> > configuration field max_virtqueue_pairs to detect supported number of
+> > virtqueues as well as a new command VIRTIO_NET_CTRL_RFS to program
+> > packet steering for unidirectional protocols.
+> [...]
+> > +Programming of the receive flow classificator is implicit.
+> > + Transmitting a packet of a specific flow on transmitqX will cause incoming
+> > + packets for this flow to be steered to receiveqX.
+> > + For uni-directional protocols, or where no packets have been transmitted
+> > + yet, device will steer a packet to a random queue out of the specified
+> > + receiveq0..receiveqn.
+> [...]
 > 
->> to_vp_device is worth changing to inlined definition.
-> 
-> Why?
+> It doesn't seem like this is usable to implement accelerated RFS in the
+> guest, though perhaps that doesn't matter.
 
-OK, I saw your comments, and I dropped this patch already.
+What is the issue? Could you be more explicit please?
 
-Thanks,
-Wanlong Gao
+It seems to work pretty well: if we have
+# of queues >= # of cpus, incoming TCP_STREAM into
+guest scales very nicely without manual tweaks in guest.
 
+The way it works is, when guest sends a packet driver
+select the rx queue that we want to use for incoming
+packets for this slow, and transmit on the matching tx queue.
+This is exactly what text above suggests no?
+
+>  On the host side, presumably
+> you'll want vhost_net to do the equivalent of sock_rps_record_flow() -
+> only without a socket?  But in any case, that requires an rxhash, so I
+> don't see how this is supposed to work.
 > 
-> Thanks,
-> Rusty.
-> 
+> Ben.
+
+Host should just do what guest tells it to.
+On the host side we build up the steering table as we get packets
+to transmit. See the code in drivers/net/tun.c in recent
+kernels.
+
+Again this actually works fine - what are the problems that you see?
+Could you give an example please?
+
+> -- 
+> Ben Hutchings, Staff Engineer, Solarflare
+> Not speaking for my employer; that's the marketing department's job.
+> They asked us to note that Solarflare product names are trademarked.
