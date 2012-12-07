@@ -1,32 +1,53 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PULL net-next] vhost: changes for 3.8
-Date: Fri, 07 Dec 2012 12:58:31 -0500 (EST)
-Message-ID: <20121207.125831.50188152862417279.davem@davemloft.net>
-References: <20121206151800.GA3889@redhat.com>
+Subject: Re: [PATCH net-next v3 0/3] Multiqueue support in virtio-net
+Date: Fri, 07 Dec 2012 15:35:56 -0500 (EST)
+Message-ID: <20121207.153556.989159003987459765.davem@davemloft.net>
+References: <1354899897-10423-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121206151800.GA3889@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, dinggnu@gmail.com, yongjun_wei@trendmicro.com.cn
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1354899897-10423-1-git-send-email-jasowang@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: jasowang@redhat.com
+Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Thu, 6 Dec 2012 17:18:00 +0200
+From: Jason Wang <jasowang@redhat.com>
+Date: Sat,  8 Dec 2012 01:04:54 +0800
 
-> The following changes since commit b93196dc5af7729ff7cc50d3d322ab1a364aa14f:
+> This series is an update version (hope the final version) of multiqueue
+> (VIRTIO_NET_F_MQ) support in virtio-net driver. All previous comments were
+> addressed, the work were based on Krishna Kumar's work to let virtio-net use
+> multiple rx/tx queues to do the packets reception and transmission. Performance
+> test show the aggregate latency were increased greately but may get some
+> regression in small packet transmission. Due to this, multiqueue were disabled
+> by default. If user want to benefit form the multiqueue, ethtool -L could be
+> used to enable the feature.
 > 
->   net: fix some compiler warning in net/core/neighbour.c (2012-12-05 21:50:37 -0500)
+> Please review and comments.
 > 
-> are available in the git repository at:
+> A protype implementation of qemu-kvm support could by found in
+> git://github.com/jasowang/qemu-kvm-mq.git. To start a guest with two queues, you
+> could specify the queues parameters to both tap and virtio-net like:
 > 
->   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
+> ./qemu-kvm -netdev tap,queues=2,... -device virtio-net-pci,queues=2,...
+> 
+> then enable the multiqueue through ethtool by:
+> 
+> ethtool -L eth0 combined 2
 
-Pulled, thanks Michael.
+It seems like most, if not all, of the feedback given for this series
+has been addressed by Jason.
 
-In the future, please give me some descriptive text to add to the
-merge commit message.
+Can I get some ACKs?
 
 Thanks.
