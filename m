@@ -1,11 +1,16 @@
-From: Alexander Graf <agraf@suse.de>
-Subject: [PATCH] virtio-blk: Don't free ida when disk is in use
-Date: Wed, 19 Dec 2012 20:40:15 +0100
-Message-ID: <1355946015-25879-1-git-send-email-agraf@suse.de>
+From: Konrad Rzeszutek Wilk <konrad@kernel.org>
+Subject: Re: [Xen-devel] [PATCH 1/1] xen/xenbus: Remove duplicate inclusion
+	of asm/xen/hypervisor.h
+Date: Fri, 7 Dec 2012 16:16:48 -0500
+Message-ID: <20121207211648.GC9664__27153.4090898514$1355939768$gmane$org@phenom.dumpdata.com>
+References: <1353324150-21785-1-git-send-email-sachin.kamat@linaro.org>
+	<CAK9yfHwz3jUpT6tRR4hUC9kLfocEbC-pkmwjiOkgmAmkPrZ-6Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <CAK9yfHwz3jUpT6tRR4hUC9kLfocEbC-pkmwjiOkgmAmkPrZ-6Q@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,57 +20,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org, mst@redhat.com
+To: Sachin Kamat <sachin.kamat@linaro.org>
+Cc: konrad.wilk@oracle.com, xen-devel@lists.xensource.com, patches@linaro.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When a file system is mounted on a virtio-blk disk, we then remove it
-and then reattach it, the reattached disk gets the same disk name and
-ids as the hot removed one.
+On Tue, Nov 27, 2012 at 09:03:26AM +0530, Sachin Kamat wrote:
+> ping
 
-This leads to very nasty effects - mostly rendering the newly attached
-device completely unusable.
-
-Trying what happens when I do the same thing with a USB device, I saw
-that the sd node simply doesn't get free'd when a device gets forcefully
-removed.
-
-Imitate the same behavior for vd devices. This way broken vd devices
-simply are never free'd and newly attached ones keep working just fine.
-
-Signed-off-by: Alexander Graf <agraf@suse.de>
----
- drivers/block/virtio_blk.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 0bdde8f..07a18e2 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -889,6 +889,7 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
- 	int index = vblk->index;
-+	int refc;
- 
- 	/* Prevent config work handler from accessing the device. */
- 	mutex_lock(&vblk->config_lock);
-@@ -903,11 +904,15 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
- 
- 	flush_work(&vblk->config_work);
- 
-+	refc = atomic_read(&disk_to_dev(vblk->disk)->kobj.kref.refcount);
- 	put_disk(vblk->disk);
- 	mempool_destroy(vblk->pool);
- 	vdev->config->del_vqs(vdev);
- 	kfree(vblk);
--	ida_simple_remove(&vd_index_ida, index);
-+
-+	/* Only free device id if we don't have any users */
-+	if (refc == 1)
-+		ida_simple_remove(&vd_index_ida, index);
- }
- 
- #ifdef CONFIG_PM
--- 
-1.7.12.4
+I think I have this in my tree.
+> 
+> On 19 November 2012 16:52, Sachin Kamat <sachin.kamat@linaro.org> wrote:
+> > asm/xen/hypervisor.h was included twice.
+> >
+> > Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> > ---
+> >  drivers/xen/xenbus/xenbus_xs.c |    1 -
+> >  1 files changed, 0 insertions(+), 1 deletions(-)
+> >
+> > diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
+> > index acedeab..88e677b 100644
+> > --- a/drivers/xen/xenbus/xenbus_xs.c
+> > +++ b/drivers/xen/xenbus/xenbus_xs.c
+> > @@ -48,7 +48,6 @@
+> >  #include <xen/xenbus.h>
+> >  #include <xen/xen.h>
+> >  #include "xenbus_comms.h"
+> > -#include <asm/xen/hypervisor.h>
+> >
+> >  struct xs_stored_msg {
+> >         struct list_head list;
+> > --
+> > 1.7.4.1
+> >
+> 
+> 
+> 
+> -- 
+> With warm regards,
+> Sachin
+> 
+> _______________________________________________
+> Xen-devel mailing list
+> Xen-devel@lists.xen.org
+> http://lists.xen.org/xen-devel
+> 
