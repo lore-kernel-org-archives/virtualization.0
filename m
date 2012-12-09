@@ -1,13 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next v3 0/3] Multiqueue support in virtio-net
-Date: Sun, 09 Dec 2012 00:32:19 -0500 (EST)
-Message-ID: <20121209.003219.740497965401517120.davem@davemloft.net>
-References: <1354899897-10423-1-git-send-email-jasowang@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCHv6] virtio-spec: virtio network device multiqueue support
+Date: Mon, 10 Dec 2012 10:18:32 +1030
+Message-ID: <87ip8aeqi7.fsf@rustcorp.com.au>
+References: <20121207141856.GA17901@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1354899897-10423-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20121207141856.GA17901@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,20 +17,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: krkumar2@in.ibm.com, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bhutchings@solarflare.com, jwhan@filewood.snu.ac.kr, shiyer@redhat.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: bhutchings@solarflare.com, netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Sat,  8 Dec 2012 01:04:54 +0800
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> Add multiqueue support to virtio network device.
+> Add a new feature flag VIRTIO_NET_F_MQ for this feature, a new
+> configuration field max_virtqueue_pairs to detect supported number of
+> virtqueues as well as a new command VIRTIO_NET_CTRL_MQ to program
+> packet steering for unidirectional protocols.
 
-> This series is an update version (hope the final version) of multiqueue
-> (VIRTIO_NET_F_MQ) support in virtio-net driver. All previous comments were
-> addressed, the work were based on Krishna Kumar's work to let virtio-net use
-> multiple rx/tx queues to do the packets reception and transmission. Performance
-> test show the aggregate latency were increased greately but may get some
-> regression in small packet transmission. Due to this, multiqueue were disabled
-> by default. If user want to benefit form the multiqueue, ethtool -L could be
-> used to enable the feature.
+One trivial change: alter "8000h" to "0x8000" for consistency in the
+text.
 
-These changes look fine to me, applied, thanks.
+Could I have a Signed-off-by so I can apply it please?
+
+Thanks,
+Rusty.
