@@ -1,11 +1,13 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: CISTI'2013 Doctoral Symposium - CFP, Lisbon, June 19 - 23, 2013
-Date: Mon, 10 Dec 2012 09:57:48 +0000
-Message-ID: <20121210095659.C766382A@mail.linuxfoundation.org>
-Reply-To: aistic@gmail.com
+From: =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+Subject: [PATCH] Introduce rproc serial device specification.
+Date: Mon, 10 Dec 2012 11:08:09 +0100
+Message-ID: <1355134089-3284-1-git-send-email-sjur.brandeland@stericsson.com>
+References: <20121210055443.GB17187@amit.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6379388691220995942=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20121210055443.GB17187@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,116 +17,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============6379388691220995942==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-
-**********************************************************************=
-*****************************
-CISTI'2013 DOCTORAL SYMPOSIUM
-8th Iberian Conference on Information Systems and Technologies
-Lisbn, Portugal, June 19 - 23, 2013
-http://www.aisti.eu/cisti2013/index.php?option=3Dcom_content&view=3Dar=
-ticle&id=3D64&Itemid=3D68&lang=3Den
-**********************************************************************=
-*****************************
-
-INTRODUCTION
-
-The purpose of CISTI'2013=92s Doctoral Symposium (http://www.aisti.eu/=
-cisti2013/index.php?option=3Dcom_content&view=3Darticle&id=3D64&Itemid=
-=3D68&lang=3Den) is to provide graduate students a setting where they =
-can, informally, expose and discuss their work, collecting valuable ex=
-pert opinions and sharing new ideas, methods and applications. The Doc=
-toral Symposium is an excellent opportunity for PhD students to presen=
-t and discuss their work in a Workshop format. Each presentation will =
-be evaluated by a panel composed by at least three Information Systems=
- and Technologies experts.=20
-
-CONTRIBUTIONS SUBMISSION
-
-The Doctoral Symposium is opened to PhD students whose research area i=
-ncludes the themes proposed for this Conference. Submissions must incl=
-ude an extended abstract (maximum 4 pages), following the Conference s=
-tyle guide. All selected contributions will be handed out along with t=
-he Conference Proceedings, in CD with an ISBN. These contributions wil=
-l be send for indexation by EBSCO, and EI-Compendex.
-
-Submissions must include the field, the PhD institution and the number=
- of months devoted to the development of the work. Additionally, they =
-should include in a clear and succinct manner:
-
-    =95    The problem approached and its significance or relevance
-    =95    The research objectives and related investigation topics
-    =95    A brief display of what is already known
-    =95    A proposed solution methodology for the problem
-    =95    Expected results
-
-IMPORTANT DATES
-
-=95    Data limite para submiss=E3o de propostas: 15 de Fevereiro de 2013
-=95    Notifica=E7=E3o de aceita=E7=E3o: 29 de Mar=E7o de 2013
-=95    Data limite para apresenta=E7=E3o das vers=F5es finais: 12 de A=
-bril de 2013
-=95    Pagamento da inscri=E7=E3o, para garantir a inclus=E3o da contr=
-ibui=E7=E3o aceite nas actas da confer=EAncia: 12 de Abril de 2013
-
-SCIENTIFIC AND ORGANIZING COMMITTEE
-
-Manuel P=E9rez Cota, Universidad de Vigo (Chair)
-Adolfo Lozano Tello, Universidad de Extremadura
-Alberto J. Bugar=EDn Diz, Universidad de Santiago de Compostela
-=C1lvaro Rocha, Universidade Fernando Pessoa
-Ana Maria Ramalho Correia, Universidade Nova de Lisboa, ISEGI
-Ant=F3nio Palma dos Reis, Universidade T=E9cnica de Lisboa, ISEG
-Arturo Mendez Pen=EDn, Universidade de Vigo
-Carlos Ferr=E1s Sexto, Universidad de Santiago de Compostela
-David Fonseca, Universidad Ram=F3n Llul
-Ernesto Redondo, Universidad Polit=E9cnica de Catalu=F1a
-Feliz Gouveia, Universidade Fernando Pessoa
-Francisco Restivo, Universidade Cat=F3lica Portuguesa - Braga
-Guilhermina Miranda, Universidade de Lisboa
-Gonzalo Cuevas Agust=EDn, Universidad Polit=E9cnica de Madrid
-H=E9ctor Jorge Garc=EDa Neder, Universidad Tecnol=F3gica NacioNal
-Jo=E3o =C1lvaro Carvalho, Universidade do Minho
-Jo=E3o Barroso, Universidade de Tr=E1s-os-Montes e Alto Douro
-J=F6rg Thomaschewski, University of Applied Sciences of Emden-Leer
-Jos=E9 Antonio Calvo-Manzano Villal=F3n, Universidad Polit=E9cnica de =
-Madrid
-Jos=E9 Bulas Cruz, Universidade de Tr=E1s-os-Montes e Alto Douro
-Jos=E9 Tribolet, Universidade T=E9cnica de Lisboa, IST
-Leandro Rodr=EDguez Li=F1ares, Universidade de Vigo
-Lu=EDs Paulo Reis, Universidade do Minho
-Mar=EDa Jos=E9 Lado Touri=F1o, Universidade de Vigo
-Maria Manuela Cruz Cunha, Instituto Polit=E9cnico do C=E1vado e do Ave
-Marco Painho, Universidade Nova de Lisboa, ISEGI
-Mario Alberto Groppo, Universidad Tecnol=F3gica Nacional
-Nuno Ribeiro, Universidade Fernando Pessoa
-Pilar Mareca, Universidade Polit=E9cnica de Madrid
-Ramiro Gon=E7alves, Universidade de Tr=E1s-os-Montes e Alto Douro
-Tomas San Feliu Gilabert, Universidad Polit=E9cnica de Madrid
-Vicente Alcober, Universidad Polit=E9cnica de Madrid
-
--
-CISTI'2013 Team
-http://www.aisti.eu/cisti2013
-aistic@gmail.com
-
--------------------
-
-
---===============6379388691220995942==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6379388691220995942==--
+U2lnbmVkLW9mZi1ieTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nz
+b24uY29tPgotLS0KCj4+IFBsZWFzZSBwaWNrIHRoZSB2aXJ0aW8gc3BlYyBmcm9tCj4+IAo+PiBo
+dHRwczovL2dpdGh1Yi5jb20vcnVzdHlydXNzZWxsL3ZpcnRpby1zcGVjCj4+IAo+PiBhbmQgdXBk
+YXRlIHRoZSBzcGVjIHdpdGggaW5mbyBmb3IgcmVtb3RlLXByb2MuCj4KPkhpIFNqdXIsCj4KPkkg
+ZGlkbid0IGhlYXIgYmFjayBmcm9tIHlvdSBvbiB0aGlzLi4KPgoKSGkgQW1pdApTb3JyeSBmb3Ig
+dGhlIGRlbGF5LiBJJ3ZlIGhhZCB0aGlzIHJlYWR5IGZvciBhIHdoaWxlIHdhaXRpbmcgZm9yCmdv
+LWFoZWFkIGZyb20gb3VyIGxlZ2FsIGRlcHQsIGFuZCB0aGVuIGl0IGdvdCBzdHVjayBpbiBteSBi
+YWNrbG9nLgoKQW55d2F5LCBoZXJlIGlzIGEgc3RhYiBhdCBkZXNjcmliaW5nIHRoZSBycHJvYyBz
+ZXJpYWwgZGV2aWNlLgpGZWVkYmFjayBpcyB3ZWxjb21lZC4KClRoYW5rcywKU2p1cgoKCiB2aXJ0
+aW8tc3BlYy5seXggfCAgIDU4ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysKIDEgZmlsZSBjaGFuZ2VkLCA1OCBpbnNlcnRpb25zKCspCgpkaWZm
+IC0tZ2l0IGEvdmlydGlvLXNwZWMubHl4IGIvdmlydGlvLXNwZWMubHl4CmluZGV4IDgzZjI3NzEu
+LmJiYjVjNzUgMTAwNjQ0Ci0tLSBhL3ZpcnRpby1zcGVjLmx5eAorKysgYi92aXJ0aW8tc3BlYy5s
+eXgKQEAgLTkwNzksNiArOTA3OSw2NCBAQCBGb3IgTU1DIGRldmljZXMgKGlucXVpcnkgdHlwZSA1
+KSB0aGVyZSB3b3VsZCBiZSBzb21lIG92ZXJsYXAgYmV0d2VlbiB0aGlzCiAKIFxlbmRfZGVlcGVy
+CiBcYmVnaW5fbGF5b3V0IENoYXB0ZXIqCitBcHBlbmRpeCBKOiBScHJvYyBTZXJpYWwgRGV2aWNl
+CitcZW5kX2xheW91dAorCitcYmVnaW5fbGF5b3V0IFN0YW5kYXJkCitUaGUgUmVtb3RlcHJvYyBT
+ZXJpYWwgRGV2aWNlIGRldmljZSBpcyB1c2VkIHdoZW4gY29tbXVuaWNhdGluZyB3aXRoIGEgcmVt
+b3RlCisgcHJvY2Vzc29yLgorIFRoZSByZW1vdGUgcHJvY2Vzc29yIG1heSBiZSBhIG1vZGVtIGNv
+bW11bmljYXRpbmcgb3ZlciBhIHNoYXJlZCBtZW1vcnkKKyBpbnRlcmZhY2UsIG9yIGEgQ1BVIGlu
+IGFuIGFzeW1tZXRyaWMgbXVsdGktcHJvY2Vzc2luZyAoQU1QKSBjb25maWd1cmF0aW9uLgorIFRo
+ZSBSZW1vdGVwcm9jIFNlcmlhbCBEZXZpY2UgcHJvdmlkZXMgYSBzaW1wbGUgZGV2aWNlIGZvciBk
+YXRhIElPLgorIEEgZGV2aWNlIGhhcyBvbmUgcG9ydCBhbmQgYSBzaW5nbGUgcGFpciBvZiB2aXJ0
+cXVldWVzIGZvciBpbnB1dCBhbmQgb3V0cHV0LgorIEVtcHR5IGJ1ZmZlcnMgYXJlIHBsYWNlZCBp
+biBvbmUgdmlydHF1ZXVlIGZvciByZWNlaXZpbmcgcGFja2V0cywgYW5kIG91dGdvaW5nCisgcGFj
+a2V0cyBhcmUgZW5xdWV1ZWQgaW50byBhbm90aGVyIGZvciB0cmFuc21pc3Npb24uCitcZW5kX2xh
+eW91dAorCitcYmVnaW5fbGF5b3V0IFNlY3Rpb24qCitDb25maWd1cmF0aW9uCitcZW5kX2xheW91
+dAorCitcYmVnaW5fbGF5b3V0IERlc2NyaXB0aW9uCitTdWJzeXN0ZW0KK1xiZWdpbl9pbnNldCBz
+cGFjZSB+CitcZW5kX2luc2V0CisKK0RldmljZQorXGJlZ2luX2luc2V0IHNwYWNlIH4KK1xlbmRf
+aW5zZXQKKworSUQgMTEKK1xlbmRfbGF5b3V0CisKK1xiZWdpbl9kZWVwZXIKK1xiZWdpbl9sYXlv
+dXQgRGVzY3JpcHRpb24KK1ZpcnRxdWV1ZXMgMDpyZWNlaXZlcShwb3J0MCkuCisgMTp0cmFuc21p
+dHEocG9ydDApLAorXGVuZF9sYXlvdXQKKworXGJlZ2luX2xheW91dCBTZWN0aW9uKgorRGV2aWNl
+IEluaXRpYWxpemF0aW9uCitcZW5kX2xheW91dAorCitcYmVnaW5fbGF5b3V0IEVudW1lcmF0ZQor
+VGhlIHJlY2VpdmVxIGZvciBlYWNoIHBvcnQgaXMgcG9wdWxhdGVkIHdpdGggb25lIG9yIG1vcmUg
+cmVjZWl2ZSBidWZmZXJzLgorXGVuZF9sYXlvdXQKKworXGJlZ2luX2xheW91dCBTZWN0aW9uKgor
+RGV2aWNlIE9wZXJhdGlvbgorXGVuZF9sYXlvdXQKKworXGJlZ2luX2xheW91dCBFbnVtZXJhdGUK
+K0ZvciBvdXRwdXQsIGEgYnVmZmVyIGNvbnRhaW5pbmcgdGhlIGNoYXJhY3RlcnMgaXMgcGxhY2Vk
+IGluIHRoZSBwb3J0J3MgdHJhbnNtaXRxLgorXGVuZF9sYXlvdXQKKworXGJlZ2luX2xheW91dCBF
+bnVtZXJhdGUKK0luYm91bmQgbWVzc2FnZXMgYXJlIHBsYWNlZCBpbiB0aGUgcmVjZWl2ZXEgYW5k
+IHNpZ25hbGxlZCBieSBhbiBpbnRlcnJ1cHQuCitcZW5kX2xheW91dAorCitcZW5kX2RlZXBlcgor
+XGJlZ2luX2xheW91dCBDaGFwdGVyKgogQXBwZW5kaXggWDogdmlydGlvLW1taW8KIFxlbmRfbGF5
+b3V0CiAKLS0gCjEuNy45LjUKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
+bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
