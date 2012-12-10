@@ -1,13 +1,15 @@
-From: =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
-Subject: [PATCH] Introduce rproc serial device specification.
-Date: Mon, 10 Dec 2012 11:08:09 +0100
-Message-ID: <1355134089-3284-1-git-send-email-sjur.brandeland@stericsson.com>
-References: <20121210055443.GB17187@amit.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCHv6] virtio-spec: virtio network device multiqueue support
+Date: Mon, 10 Dec 2012 12:36:07 +0200
+Message-ID: <20121210103606.GA26168__23193.5739437633$1355135604$gmane$org@redhat.com>
+References: <20121207141856.GA17901@redhat.com>
+	<87ip8aeqi7.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121210055443.GB17187@amit.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <87ip8aeqi7.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,52 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: bhutchings@solarflare.com, netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2lnbmVkLW9mZi1ieTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nz
-b24uY29tPgotLS0KCj4+IFBsZWFzZSBwaWNrIHRoZSB2aXJ0aW8gc3BlYyBmcm9tCj4+IAo+PiBo
-dHRwczovL2dpdGh1Yi5jb20vcnVzdHlydXNzZWxsL3ZpcnRpby1zcGVjCj4+IAo+PiBhbmQgdXBk
-YXRlIHRoZSBzcGVjIHdpdGggaW5mbyBmb3IgcmVtb3RlLXByb2MuCj4KPkhpIFNqdXIsCj4KPkkg
-ZGlkbid0IGhlYXIgYmFjayBmcm9tIHlvdSBvbiB0aGlzLi4KPgoKSGkgQW1pdApTb3JyeSBmb3Ig
-dGhlIGRlbGF5LiBJJ3ZlIGhhZCB0aGlzIHJlYWR5IGZvciBhIHdoaWxlIHdhaXRpbmcgZm9yCmdv
-LWFoZWFkIGZyb20gb3VyIGxlZ2FsIGRlcHQsIGFuZCB0aGVuIGl0IGdvdCBzdHVjayBpbiBteSBi
-YWNrbG9nLgoKQW55d2F5LCBoZXJlIGlzIGEgc3RhYiBhdCBkZXNjcmliaW5nIHRoZSBycHJvYyBz
-ZXJpYWwgZGV2aWNlLgpGZWVkYmFjayBpcyB3ZWxjb21lZC4KClRoYW5rcywKU2p1cgoKCiB2aXJ0
-aW8tc3BlYy5seXggfCAgIDU4ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysKIDEgZmlsZSBjaGFuZ2VkLCA1OCBpbnNlcnRpb25zKCspCgpkaWZm
-IC0tZ2l0IGEvdmlydGlvLXNwZWMubHl4IGIvdmlydGlvLXNwZWMubHl4CmluZGV4IDgzZjI3NzEu
-LmJiYjVjNzUgMTAwNjQ0Ci0tLSBhL3ZpcnRpby1zcGVjLmx5eAorKysgYi92aXJ0aW8tc3BlYy5s
-eXgKQEAgLTkwNzksNiArOTA3OSw2NCBAQCBGb3IgTU1DIGRldmljZXMgKGlucXVpcnkgdHlwZSA1
-KSB0aGVyZSB3b3VsZCBiZSBzb21lIG92ZXJsYXAgYmV0d2VlbiB0aGlzCiAKIFxlbmRfZGVlcGVy
-CiBcYmVnaW5fbGF5b3V0IENoYXB0ZXIqCitBcHBlbmRpeCBKOiBScHJvYyBTZXJpYWwgRGV2aWNl
-CitcZW5kX2xheW91dAorCitcYmVnaW5fbGF5b3V0IFN0YW5kYXJkCitUaGUgUmVtb3RlcHJvYyBT
-ZXJpYWwgRGV2aWNlIGRldmljZSBpcyB1c2VkIHdoZW4gY29tbXVuaWNhdGluZyB3aXRoIGEgcmVt
-b3RlCisgcHJvY2Vzc29yLgorIFRoZSByZW1vdGUgcHJvY2Vzc29yIG1heSBiZSBhIG1vZGVtIGNv
-bW11bmljYXRpbmcgb3ZlciBhIHNoYXJlZCBtZW1vcnkKKyBpbnRlcmZhY2UsIG9yIGEgQ1BVIGlu
-IGFuIGFzeW1tZXRyaWMgbXVsdGktcHJvY2Vzc2luZyAoQU1QKSBjb25maWd1cmF0aW9uLgorIFRo
-ZSBSZW1vdGVwcm9jIFNlcmlhbCBEZXZpY2UgcHJvdmlkZXMgYSBzaW1wbGUgZGV2aWNlIGZvciBk
-YXRhIElPLgorIEEgZGV2aWNlIGhhcyBvbmUgcG9ydCBhbmQgYSBzaW5nbGUgcGFpciBvZiB2aXJ0
-cXVldWVzIGZvciBpbnB1dCBhbmQgb3V0cHV0LgorIEVtcHR5IGJ1ZmZlcnMgYXJlIHBsYWNlZCBp
-biBvbmUgdmlydHF1ZXVlIGZvciByZWNlaXZpbmcgcGFja2V0cywgYW5kIG91dGdvaW5nCisgcGFj
-a2V0cyBhcmUgZW5xdWV1ZWQgaW50byBhbm90aGVyIGZvciB0cmFuc21pc3Npb24uCitcZW5kX2xh
-eW91dAorCitcYmVnaW5fbGF5b3V0IFNlY3Rpb24qCitDb25maWd1cmF0aW9uCitcZW5kX2xheW91
-dAorCitcYmVnaW5fbGF5b3V0IERlc2NyaXB0aW9uCitTdWJzeXN0ZW0KK1xiZWdpbl9pbnNldCBz
-cGFjZSB+CitcZW5kX2luc2V0CisKK0RldmljZQorXGJlZ2luX2luc2V0IHNwYWNlIH4KK1xlbmRf
-aW5zZXQKKworSUQgMTEKK1xlbmRfbGF5b3V0CisKK1xiZWdpbl9kZWVwZXIKK1xiZWdpbl9sYXlv
-dXQgRGVzY3JpcHRpb24KK1ZpcnRxdWV1ZXMgMDpyZWNlaXZlcShwb3J0MCkuCisgMTp0cmFuc21p
-dHEocG9ydDApLAorXGVuZF9sYXlvdXQKKworXGJlZ2luX2xheW91dCBTZWN0aW9uKgorRGV2aWNl
-IEluaXRpYWxpemF0aW9uCitcZW5kX2xheW91dAorCitcYmVnaW5fbGF5b3V0IEVudW1lcmF0ZQor
-VGhlIHJlY2VpdmVxIGZvciBlYWNoIHBvcnQgaXMgcG9wdWxhdGVkIHdpdGggb25lIG9yIG1vcmUg
-cmVjZWl2ZSBidWZmZXJzLgorXGVuZF9sYXlvdXQKKworXGJlZ2luX2xheW91dCBTZWN0aW9uKgor
-RGV2aWNlIE9wZXJhdGlvbgorXGVuZF9sYXlvdXQKKworXGJlZ2luX2xheW91dCBFbnVtZXJhdGUK
-K0ZvciBvdXRwdXQsIGEgYnVmZmVyIGNvbnRhaW5pbmcgdGhlIGNoYXJhY3RlcnMgaXMgcGxhY2Vk
-IGluIHRoZSBwb3J0J3MgdHJhbnNtaXRxLgorXGVuZF9sYXlvdXQKKworXGJlZ2luX2xheW91dCBF
-bnVtZXJhdGUKK0luYm91bmQgbWVzc2FnZXMgYXJlIHBsYWNlZCBpbiB0aGUgcmVjZWl2ZXEgYW5k
-IHNpZ25hbGxlZCBieSBhbiBpbnRlcnJ1cHQuCitcZW5kX2xheW91dAorCitcZW5kX2RlZXBlcgor
-XGJlZ2luX2xheW91dCBDaGFwdGVyKgogQXBwZW5kaXggWDogdmlydGlvLW1taW8KIFxlbmRfbGF5
-b3V0CiAKLS0gCjEuNy45LjUKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Mon, Dec 10, 2012 at 10:18:32AM +1030, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > Add multiqueue support to virtio network device.
+> > Add a new feature flag VIRTIO_NET_F_MQ for this feature, a new
+> > configuration field max_virtqueue_pairs to detect supported number of
+> > virtqueues as well as a new command VIRTIO_NET_CTRL_MQ to program
+> > packet steering for unidirectional protocols.
+> 
+> One trivial change: alter "8000h" to "0x8000" for consistency in the
+> text.
+> 
+> Could I have a Signed-off-by so I can apply it please?
+> 
+> Thanks,
+> Rusty.
+
+Right away.
+
+-- 
+MST
