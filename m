@@ -1,14 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/1] virtio: console: regression in virtqueue_add_buf()
-	change
-Date: Mon, 10 Dec 2012 10:06:12 +1030
-Message-ID: <87lid6er2r.fsf@rustcorp.com.au>
-References: <cover.1354859479.git.amit.shah@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [[PATCH v9 3/3] 1/1] virtio_console: Remove buffers from out_vq
+	at port removal
+Date: Mon, 10 Dec 2012 11:24:01 +0530
+Message-ID: <20121210055401.GA17187@amit.redhat.com>
+References: <029d7029bc1186fbd2ec74123dc88922b9600660.1352366215.git.amit.shah@redhat.com>
+	<87ip96id3a.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1354859479.git.amit.shah@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <87ip96id3a.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,47 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, sjur@brendeland.net, linus.walleij@linaro.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, masami.hiramatsu.pt@hitachi.com, Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit Shah <amit.shah@redhat.com> writes:
+On (Fri) 16 Nov 2012 [11:22:09], Rusty Russell wrote:
+> Amit Shah <amit.shah@redhat.com> writes:
+> > From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> >
+> > Remove buffers from the out-queue when a port is removed. Rproc_serial
+> > communicates with remote processors that may crash and leave buffers in
+> > the out-queue. The virtio serial ports may have buffers in the out-queue
+> > as well, e.g. for non-blocking ports and the host didn't consume them
+> > yet.
+> >
+> > [Amit: Remove WARN_ON for generic ports case.]
+> >
+> > Signed-off-by: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> =
 
-> Hi Rusty,
->
-> The linux-next kernel was failing my virtio-console test suite for a
-> while.  I looked into it today, and it's due to the
-> virtqueue_add_buf() change that doesn't return > 0 values anymore.  I
-> found your commit that adjusts virtio_console.c, but you missed one
-> instance where the return value mattered, and as a result not enough
-> buffers were queued for the host to send in data.
->
-> This resulted in the port's name to be not populated in sysfs, which
-> meant udev didn't create any symlinks in /dev/virtio-ports/.
->
-> I've just updated your commit with the small diff (attached below).
-> Please put this commit after 
->
-> commit e794093a52cdfef09b3fdb6294b75ab8cacb30a8
-> Author: Rusty Russell <rusty@rustcorp.com.au>
-> Date:   Tue Oct 16 23:56:14 2012 +1030
->
->     virtio_net: don't rely on virtqueue_add_buf() returning capacity.
->     
-> and before
->
-> commit 08d088e8357b3c031db7de006247f613c7f136ab
-> Author: Rusty Russell <rusty@rustcorp.com.au>
-> Date:   Tue Oct 16 23:56:15 2012 +1030
->
->     virtio: make virtqueue_add_buf() returning 0 on success, not capacity.
->     
-> in the pull request you send so that there's no regression in
-> virtio_console on bisection.
->
-> (commit ids from linux-next/master).
+> I already have this in my pending queue; I've promoted it to my
+> virtio-next branch now.
 
-I will append it for now, then fold it before pushing to Linus.  I try
-not to rebase linux-next until just before the push.
+Rusty, I still see this series in your pending queue, not in
+virtio-next.  Did anything change in the meantime?
 
-Thanks,
-Rusty.
+		Amit
