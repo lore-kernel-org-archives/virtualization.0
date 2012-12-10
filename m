@@ -1,10 +1,10 @@
-From: "WorldCIST - CFP" <marialemos72@gmail.com>
+From: "Maria Lemos" <marialemos72@gmail.com>
 Subject: CISTI'2013 Doctoral Symposium - CFP, Lisbon, June 19 - 23, 2013
-Date: Mon, 10 Dec 2012 09:53:32 +0000
-Message-ID: <20121210095246.2ABA182A@mail.linuxfoundation.org>
-Reply-To: worldcist@gmail.com
+Date: Mon, 10 Dec 2012 09:57:48 +0000
+Message-ID: <20121210095659.C766382A@mail.linuxfoundation.org>
+Reply-To: aistic@gmail.com
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0698746657027431545=="
+Content-Type: multipart/mixed; boundary="===============6379388691220995942=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,7 +18,7 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0698746657027431545==
+--===============6379388691220995942==
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
@@ -117,7 +117,7 @@ aistic@gmail.com
 -------------------
 
 
---===============0698746657027431545==
+--===============6379388691220995942==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -127,4 +127,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0698746657027431545==--
+--===============6379388691220995942==--
