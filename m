@@ -1,15 +1,11 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCHv8 0/3]virtio_console: Add rproc_serial driver
-Date: Mon, 10 Dec 2012 11:24:43 +0530
-Message-ID: <20121210055443.GB17187@amit.redhat.com>
-References: <1351587113-2566-1-git-send-email-sjur@brendeland.net>
-	<20121108090624.GB31962@amit.redhat.com>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: [PATCH V3 1/2] virtio: use dev_to_virtio wrapper in virtio
+Date: Mon, 10 Dec 2012 16:38:32 +0800
+Message-ID: <1355128713-8924-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20121108090624.GB31962@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,35 +15,115 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjur@brendeland.net>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjur.brandeland@stericsson.com>
+To: virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Thu) 08 Nov 2012 [10:06:24], Amit Shah wrote:
-> On (Tue) 30 Oct 2012 [09:51:50], Sjur Br=E6ndeland wrote:
-> > From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-> > =
+Use dev_to_virtio wrapper in virtio to make code clearly.
 
-> > This patch-set introduces a new virtio type "rproc_serial" for communic=
-ating
-> > with remote processors over shared memory. The driver depends on the
-> > the remoteproc framework. As preparation for introducing "rproc_serial"
-> > I've done a refactoring of the transmit buffer handling.
-> =
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+---
+ drivers/virtio/virtio.c | 19 +++++++++----------
+ include/linux/virtio.h  |  6 +++++-
+ 2 files changed, 14 insertions(+), 11 deletions(-)
 
-> Thanks, Sjur.
-> =
-
-> Please pick the virtio spec from
-> =
-
-> https://github.com/rustyrussell/virtio-spec
-> =
-
-> and update the spec with info for remote-proc.
-
-Hi Sjur,
-
-I didn't hear back from you on this..
-
-		Amit
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 1e8659c..1346ae8 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -10,33 +10,32 @@ static DEFINE_IDA(virtio_index_ida);
+ static ssize_t device_show(struct device *_d,
+ 			   struct device_attribute *attr, char *buf)
+ {
+-	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
++	struct virtio_device *dev = dev_to_virtio(_d);
+ 	return sprintf(buf, "0x%04x\n", dev->id.device);
+ }
+ static ssize_t vendor_show(struct device *_d,
+ 			   struct device_attribute *attr, char *buf)
+ {
+-	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
++	struct virtio_device *dev = dev_to_virtio(_d);
+ 	return sprintf(buf, "0x%04x\n", dev->id.vendor);
+ }
+ static ssize_t status_show(struct device *_d,
+ 			   struct device_attribute *attr, char *buf)
+ {
+-	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
++	struct virtio_device *dev = dev_to_virtio(_d);
+ 	return sprintf(buf, "0x%08x\n", dev->config->get_status(dev));
+ }
+ static ssize_t modalias_show(struct device *_d,
+ 			     struct device_attribute *attr, char *buf)
+ {
+-	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
+-
++	struct virtio_device *dev = dev_to_virtio(_d);
+ 	return sprintf(buf, "virtio:d%08Xv%08X\n",
+ 		       dev->id.device, dev->id.vendor);
+ }
+ static ssize_t features_show(struct device *_d,
+ 			     struct device_attribute *attr, char *buf)
+ {
+-	struct virtio_device *dev = container_of(_d, struct virtio_device, dev);
++	struct virtio_device *dev = dev_to_virtio(_d);
+ 	unsigned int i;
+ 	ssize_t len = 0;
+ 
+@@ -71,7 +70,7 @@ static inline int virtio_id_match(const struct virtio_device *dev,
+ static int virtio_dev_match(struct device *_dv, struct device_driver *_dr)
+ {
+ 	unsigned int i;
+-	struct virtio_device *dev = container_of(_dv,struct virtio_device,dev);
++	struct virtio_device *dev = dev_to_virtio(_dv);
+ 	const struct virtio_device_id *ids;
+ 
+ 	ids = container_of(_dr, struct virtio_driver, driver)->id_table;
+@@ -83,7 +82,7 @@ static int virtio_dev_match(struct device *_dv, struct device_driver *_dr)
+ 
+ static int virtio_uevent(struct device *_dv, struct kobj_uevent_env *env)
+ {
+-	struct virtio_device *dev = container_of(_dv,struct virtio_device,dev);
++	struct virtio_device *dev = dev_to_virtio(_dv);
+ 
+ 	return add_uevent_var(env, "MODALIAS=virtio:d%08Xv%08X",
+ 			      dev->id.device, dev->id.vendor);
+@@ -111,7 +110,7 @@ EXPORT_SYMBOL_GPL(virtio_check_driver_offered_feature);
+ static int virtio_dev_probe(struct device *_d)
+ {
+ 	int err, i;
+-	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
++	struct virtio_device *dev = dev_to_virtio(_d);
+ 	struct virtio_driver *drv = container_of(dev->dev.driver,
+ 						 struct virtio_driver, driver);
+ 	u32 device_features;
+@@ -152,7 +151,7 @@ static int virtio_dev_probe(struct device *_d)
+ 
+ static int virtio_dev_remove(struct device *_d)
+ {
+-	struct virtio_device *dev = container_of(_d,struct virtio_device,dev);
++	struct virtio_device *dev = dev_to_virtio(_d);
+ 	struct virtio_driver *drv = container_of(dev->dev.driver,
+ 						 struct virtio_driver, driver);
+ 
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 25fa1a6..95b4463 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -79,7 +79,11 @@ struct virtio_device {
+ 	void *priv;
+ };
+ 
+-#define dev_to_virtio(dev) container_of(dev, struct virtio_device, dev)
++static inline struct virtio_device *dev_to_virtio(struct device *_dev)
++{
++	return container_of(_dev, struct virtio_device, dev);
++}
++
+ int register_virtio_device(struct virtio_device *dev);
+ void unregister_virtio_device(struct virtio_device *dev);
+ 
+-- 
+1.8.0
