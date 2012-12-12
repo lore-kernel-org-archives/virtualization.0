@@ -1,21 +1,11 @@
-From: Sjur BRENDELAND <sjur.brandeland@stericsson.com>
-Subject: RE: [[PATCH v9 3/3] 1/1] virtio_console: Remove buffers from out_vq
-	at port removal
-Date: Wed, 12 Dec 2012 13:31:46 +0100
-Message-ID: <81C3A93C17462B4BBD7E272753C10579245758FC94@EXDCVYMBSTM005.EQ1STM.local>
-References: <029d7029bc1186fbd2ec74123dc88922b9600660.1352366215.git.amit.shah@redhat.com>
-	<87ip96id3a.fsf@rustcorp.com.au>
-	<20121210055401.GA17187@amit.redhat.com>
-	<871uexec7e.fsf@rustcorp.com.au>
-	<20121211041012.GA16297@amit.redhat.com>
-	<87wqwo3zr3.fsf@rustcorp.com.au>
-	<20121212121228.GA22521@amit.redhat.com>
+From: =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+Subject: [PATCHv9 0/2] virtio_console: Add rproc_serial driver
+Date: Wed, 12 Dec 2012 13:38:19 +0100
+Message-ID: <1355315901-3085-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121212121228.GA22521@amit.redhat.com>
-Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,65 +15,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "sjur@brendeland.net" <sjur@brendeland.net>, "linus.walleij@linaro.org" <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "masami.hiramatsu.pt@hitachi.com" <masami.hiramatsu.pt@hitachi.com>
+To: Rusty Russell <rusty@rustcorp.com.au>, Amit Shah <amit.shah@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, masami.hiramatsu.pt@hitachi.com, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Amit Shah [mailto:amit.shah@redhat.com] writes:
-> On (Wed) 12 Dec 2012 [10:31:04], Rusty Russell wrote:
-> > Amit Shah <amit.shah@redhat.com> writes:
-> > > On (Tue) 11 Dec 2012 [09:39:41], Rusty Russell wrote:
-> > >> Amit Shah <amit.shah@redhat.com> writes:
-> > >> > On (Fri) 16 Nov 2012 [11:22:09], Rusty Russell wrote:
-> > >> >> Amit Shah <amit.shah@redhat.com> writes:
-> > >> >> > From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-> > >> >> >
-> > >> >> > Remove buffers from the out-queue when a port is removed.
-> Rproc_serial
-> > >> >> > communicates with remote processors that may crash and leave
-> buffers in
-> > >> >> > the out-queue. The virtio serial ports may have buffers in the =
-out-
-> queue
-> > >> >> > as well, e.g. for non-blocking ports and the host didn't consume
-> them
-> > >> >> > yet.
-> > >> >> >
-> > >> >> > [Amit: Remove WARN_ON for generic ports case.]
-> > >> >> >
-> > >> >> > Signed-off-by: Sjur Br=E6ndeland
-> <sjur.brandeland@stericsson.com>
-> > >> >> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> > >> >>
-> > >> >> I already have this in my pending queue; I've promoted it to my
-> > >> >> virtio-next branch now.
-> > >> >
-> > >> > Rusty, I still see this series in your pending queue, not in
-> > >> > virtio-next.  Did anything change in the meantime?
-> > >>
-> > >> Hmm:
-> > >>
-> > >> 40e625ac50f40d87ddba93280d0a503425aa68e9?
-> > >
-> > > I'm sorry, I meant the remoteproc code, not this patch.
-> >
-> > Still waiting for v9, AFIACT?
-> =
-
-> Instead of sending all patches marked v9, just this patch was
-> re-spun.  I think you can just pick up patches 1 and 2 from v8 (they
-> have my acked-by), and patch 3 was an earlier version of this one,
-
-Yes, that's right. V8 contained three patches, Amit did a respin of 3/3 tha=
-t was applied.
-(And I mistakenly thought 1/3 and 2/3 was applied as well). =
-
-
-Anyway I'm resending a new patch-set with the two missing patches.
-The patches are identical to the V8, but are rebased to the virtio-next bra=
-nch.
-
-Sorry for the confusion here.
-
-Regards,
-Sjur
+VGhpcyBwYXRjaC1zZXQgaW50cm9kdWNlcyBhIG5ldyB2aXJ0aW8gdHlwZSAicnByb2Nfc2VyaWFs
+IiBmb3IgY29tbXVuaWNhdGluZwp3aXRoIHJlbW90ZSBwcm9jZXNzb3JzIG92ZXIgc2hhcmVkIG1l
+bW9yeS4gVGhlIGRyaXZlciBkZXBlbmRzIG9uIHRoZQp0aGUgcmVtb3RlcHJvYyBmcmFtZXdvcmsu
+IEFzIHByZXBhcmF0aW9uIGZvciBpbnRyb2R1Y2luZyAicnByb2Nfc2VyaWFsIgpJJ3ZlIGRvbmUg
+YSByZWZhY3RvcmluZyBvZiB0aGUgdHJhbnNtaXQgYnVmZmVyIGhhbmRsaW5nLgoKTk9URTogVGhl
+c2UgdHdvIHBhdGNoZXMgYXJlIGlkZW50aWNhbCB0byBmaXJzdCB0d28gcGF0Y2hlcyBvZiB0aGUg
+VjggcGF0Y2gtc2V0LApidXQgYXJlIHJlYmFzZWQgdG8gdmlydGlvLW5leHQuCgpSZWdhcmRzLApT
+anVyCgpTanVyIEJyw6ZuZGVsYW5kICgyKToKICB2aXJ0aW9fY29uc29sZTogTWVyZ2Ugc3RydWN0
+IGJ1ZmZlcl90b2tlbiBpbnRvIHN0cnVjdCBwb3J0X2J1ZmZlcgogIHZpcnRpb19jb25zb2xlOiBB
+ZGQgc3VwcG9ydCBmb3IgcmVtb3RlcHJvYyBzZXJpYWwKCiBkcml2ZXJzL2NoYXIvdmlydGlvX2Nv
+bnNvbGUuYyAgIHwgIDMxNyArKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tLS0tLS0K
+IGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9faWRzLmggfCAgICAxICsKIDIgZmlsZXMgY2hhbmdl
+ZCwgMjIxIGluc2VydGlvbnMoKyksIDk3IGRlbGV0aW9ucygtKQoKLS0gCjEuNy41LjQKCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
