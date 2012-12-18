@@ -1,18 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [PATCH v6 12/12] virtio-blk: add
-	x-data-plane=on|off performance feature
-Date: Tue, 18 Dec 2012 17:22:40 +0200
-Message-ID: <20121218152239.GE27400@redhat.com>
-References: <1355144985-12897-1-git-send-email-stefanha@redhat.com>
-	<1355144985-12897-13-git-send-email-stefanha@redhat.com>
-	<20121216160853.GC15790@redhat.com>
-	<20121218145717.GA11063@stefanha-thinkpad.redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v2 5/5] virtio-scsi: introduce multiqueue support
+Date: Tue, 18 Dec 2012 16:51:28 +0100
+Message-ID: <50D09100.3060505@redhat.com>
+References: <1355833972-20319-1-git-send-email-pbonzini@redhat.com>
+	<1355833972-20319-6-git-send-email-pbonzini@redhat.com>
+	<20121218135736.GF26110@redhat.com> <50D078C8.208@redhat.com>
+	<20121218150327.GB27400@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20121218145717.GA11063@stefanha-thinkpad.redhat.com>
+In-Reply-To: <20121218150327.GB27400@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,51 +20,127 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: Anthony Liguori <aliguori@us.ibm.com>, yvugenfi@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, khoa@us.ibm.com, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, hutao@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 18, 2012 at 03:57:17PM +0100, Stefan Hajnoczi wrote:
-> > > @@ -407,6 +409,14 @@ static void virtio_blk_handle_output(VirtIODevice *vdev, VirtQueue *vq)
-> > >          .num_writes = 0,
-> > >      };
-> > >  
-> > > +    /* Some guests kick before setting VIRTIO_CONFIG_S_DRIVER_OK so start
-> > > +     * dataplane here instead of waiting for .set_status().
-> > > +     */
-> > 
-> > By the way which guests are these?
+Il 18/12/2012 16:03, Michael S. Tsirkin ha scritto:
+> On Tue, Dec 18, 2012 at 03:08:08PM +0100, Paolo Bonzini wrote:
+>> Il 18/12/2012 14:57, Michael S. Tsirkin ha scritto:
+>>>> -static int virtscsi_queuecommand(struct Scsi_Host *sh, struct scsi_cmnd *sc)
+>>>> +static int virtscsi_queuecommand(struct virtio_scsi *vscsi,
+>>>> +				 struct virtio_scsi_target_state *tgt,
+>>>> +				 struct scsi_cmnd *sc)
+>>>>  {
+>>>> -	struct virtio_scsi *vscsi = shost_priv(sh);
+>>>> -	struct virtio_scsi_target_state *tgt = &vscsi->tgt[sc->device->id];
+>>>>  	struct virtio_scsi_cmd *cmd;
+>>>> +	struct virtio_scsi_vq *req_vq;
+>>>>  	int ret;
+>>>>  
+>>>>  	struct Scsi_Host *shost = virtio_scsi_host(vscsi->vdev);
+>>>> @@ -461,7 +533,8 @@ static int virtscsi_queuecommand(struct Scsi_Host *sh, struct scsi_cmnd *sc)
+>>>>  	BUG_ON(sc->cmd_len > VIRTIO_SCSI_CDB_SIZE);
+>>>>  	memcpy(cmd->req.cmd.cdb, sc->cmnd, sc->cmd_len);
+>>>>  
+>>>> -	if (virtscsi_kick_cmd(tgt, &vscsi->req_vq, cmd,
+>>>> +	req_vq = ACCESS_ONCE(tgt->req_vq);
+>>>
+>>> This ACCESS_ONCE without a barrier looks strange to me.
+>>> Can req_vq change? Needs a comment.
+>>
+>> Barriers are needed to order two things.  Here I don't have the second thing
+>> to order against, hence no barrier.
+>>
+>> Accessing req_vq lockless is safe, and there's a comment about it, but you
+>> still want ACCESS_ONCE to ensure the compiler doesn't play tricks.
 > 
-> I ran a Windows 8 guest today with build 48 virtio-win drivers.  It
-> notifies before the device gets its .set_status() callback invoked.
-> But I could swear I've seen Linux guests do this too.
+> That's just it.
+> Why don't you want compiler to play tricks?
 
+Because I want the lockless access to occur exactly when I write it.
+Otherwise I have one more thing to think about, i.e. what a crazy
+compiler writer could do with my code.  And having been on the other
+side of the trench, compiler writers can have *really* crazy ideas.
 
-That's very broken. But looking at linux drivers it also
-seems linux guests do this even today.
-We have:
+Anyhow, I'll reorganize the code to move the ACCESS_ONCE closer to the
+write and make it clearer.
 
-       err = drv->probe(dev);
-        if (err)
-                add_status(dev, VIRTIO_CONFIG_S_FAILED);
-        else {
-                add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
-                if (drv->scan)
-                        drv->scan(dev);
-        }
+>>>> +	if (virtscsi_kick_cmd(tgt, req_vq, cmd,
+>>>>  			      sizeof cmd->req.cmd, sizeof cmd->resp.cmd,
+>>>>  			      GFP_ATOMIC) == 0)
+>>>>  		ret = 0;
+>>>> @@ -472,6 +545,48 @@ out:
+>>>>  	return ret;
+>>>>  }
+>>>>  
+>>>> +static int virtscsi_queuecommand_single(struct Scsi_Host *sh,
+>>>> +					struct scsi_cmnd *sc)
+>>>> +{
+>>>> +	struct virtio_scsi *vscsi = shost_priv(sh);
+>>>> +	struct virtio_scsi_target_state *tgt = &vscsi->tgt[sc->device->id];
+>>>> +
+>>>> +	atomic_inc(&tgt->reqs);
+>>>
+>>> And here we don't have barrier after atomic? Why? Needs a comment.
+>>
+>> Because we don't write req_vq, so there's no two writes to order.  Barrier
+>> against what?
+> 
+> Between atomic update and command. Once you queue command it
+> can complete and decrement reqs, if this happens before
+> increment reqs can become negative even.
 
-this means that unless drivers implement scan() they
-will make device active before DRIVER_OK is written
-as the result linux can access it and kick.
-And almost no drivers implement scan.
-Nasty.
+This is not a problem.  Please read Documentation/memory-barrier.txt:
 
-Rusty, what do you think? Worth fixing?
+   The following also do _not_ imply memory barriers, and so may
+   require explicit memory barriers under some circumstances
+   (smp_mb__before_atomic_dec() for instance):
 
-It does mean that for now we are stuck
-with a work around, but I think we need it
-in virtio core in qemu, it's not dataplane
-specific.
+        atomic_add();
+        atomic_sub();
+        atomic_inc();
+        atomic_dec();
 
--- 
-MST
+   If they're used for statistics generation, then they probably don't
+   need memory barriers, unless there's a coupling between statistical
+   data.
+
+This is the single-queue case, so it falls under this case.
+
+>>>>  	/* Discover virtqueues and write information to configuration.  */
+>>>> -	err = vdev->config->find_vqs(vdev, 3, vqs, callbacks, names);
+>>>> +	err = vdev->config->find_vqs(vdev, num_vqs, vqs, callbacks, names);
+>>>>  	if (err)
+>>>>  		return err;
+>>>>  
+>>>> -	virtscsi_init_vq(&vscsi->ctrl_vq, vqs[0]);
+>>>> -	virtscsi_init_vq(&vscsi->event_vq, vqs[1]);
+>>>> -	virtscsi_init_vq(&vscsi->req_vq, vqs[2]);
+>>>> +	virtscsi_init_vq(&vscsi->ctrl_vq, vqs[0], false);
+>>>> +	virtscsi_init_vq(&vscsi->event_vq, vqs[1], false);
+>>>> +	for (i = VIRTIO_SCSI_VQ_BASE; i < num_vqs; i++)
+>>>> +		virtscsi_init_vq(&vscsi->req_vqs[i - VIRTIO_SCSI_VQ_BASE],
+>>>> +				 vqs[i], vscsi->num_queues > 1);
+>>>
+>>> So affinity is true if >1 vq? I am guessing this is not
+>>> going to do the right thing unless you have at least
+>>> as many vqs as CPUs.
+>>
+>> Yes, and then you're not setting up the thing correctly.
+> 
+> Why not just check instead of doing the wrong thing?
+
+The right thing could be to set the affinity with a stride, e.g. CPUs
+0-4 for virtqueue 0 and so on until CPUs 3-7 for virtqueue 3.
+
+Paolo
+
+>> Isn't the same thing true for virtio-net mq?
+>>
+>> Paolo
+> 
+> Last I looked it checked vi->max_queue_pairs == num_online_cpus().
+> This is even too aggressive I think, max_queue_pairs >=
+> num_online_cpus() should be enough.
+> 
