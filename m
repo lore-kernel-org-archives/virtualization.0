@@ -1,18 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 1/5] virtio: add functions for piecewise addition of
-	buffers
-Date: Tue, 18 Dec 2012 17:06:26 +0200
-Message-ID: <20121218150626.GC27400@redhat.com>
-References: <1355833972-20319-1-git-send-email-pbonzini@redhat.com>
-	<1355833972-20319-2-git-send-email-pbonzini@redhat.com>
-	<20121218133606.GC26110@redhat.com> <50D07317.8050902@redhat.com>
-	<20121218135938.GG26110@redhat.com> <50D07E6F.6040701@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v6 12/12] virtio-blk: add
+	x-data-plane=on|off performance feature
+Date: Tue, 18 Dec 2012 17:22:40 +0200
+Message-ID: <20121218152239.GE27400@redhat.com>
+References: <1355144985-12897-1-git-send-email-stefanha@redhat.com>
+	<1355144985-12897-13-git-send-email-stefanha@redhat.com>
+	<20121216160853.GC15790@redhat.com>
+	<20121218145717.GA11063@stefanha-thinkpad.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <50D07E6F.6040701@redhat.com>
+In-Reply-To: <20121218145717.GA11063@stefanha-thinkpad.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,53 +22,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, hutao@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: Anthony Liguori <aliguori@us.ibm.com>, yvugenfi@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Blue Swirl <blauwirbel@gmail.com>, khoa@us.ibm.com, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 18, 2012 at 03:32:15PM +0100, Paolo Bonzini wrote:
-> Il 18/12/2012 14:59, Michael S. Tsirkin ha scritto:
-> >>> Can't we track state internally to the virtqueue? Exposing it
-> >>> seems to buy us nothing since you can't call add_buf between
-> >>> start and end anyway.
-> >> 
-> >> I wanted to keep the state for these functions separate from the
-> >> rest. I don't think it makes much sense to move it to struct
-> >> virtqueue unless virtqueue_add_buf is converted to use the new API
-> >> (doesn't make much sense, could even be a tad slower).
+On Tue, Dec 18, 2012 at 03:57:17PM +0100, Stefan Hajnoczi wrote:
+> > > @@ -407,6 +409,14 @@ static void virtio_blk_handle_output(VirtIODevice *vdev, VirtQueue *vq)
+> > >          .num_writes = 0,
+> > >      };
+> > >  
+> > > +    /* Some guests kick before setting VIRTIO_CONFIG_S_DRIVER_OK so start
+> > > +     * dataplane here instead of waiting for .set_status().
+> > > +     */
 > > 
-> > Why would it be slower?
+> > By the way which guests are these?
 > 
-> virtqueue_add_buf could be slower if it used the new API.  That's
-> because of the overhead of writing and reading from struct
-> virtqueue_buf, instead of using variables in registers.
+> I ran a Windows 8 guest today with build 48 virtio-win drivers.  It
+> notifies before the device gets its .set_status() callback invoked.
+> But I could swear I've seen Linux guests do this too.
 
-Yes but we'll get rid of virtqueue_buf.
 
-> >> On the other hand moving it there would eliminate the dependency
-> >> on virtio_ring.h.  Rusty, what do you think?
-> >> 
-> >>> And idea: in practice virtio scsi seems to always call
-> >>> sg_init_one, no? So how about we pass in void* or something and
-> >>> avoid using sg and count? This would make it useful for -net
-> >>> BTW.
-> >> 
-> >> It also passes the scatterlist from the LLD.  It calls sg_init_one
-> >> for the request/response headers.
-> > 
-> > Try adding a _single variant. You might see unrolling a loop gives
-> > more of a benefit than this whole optimization.
-> 
-> Makes sense, I'll try.  However, note that I *do* need the
-> infrastructure in this patch because virtio-scsi could never use a
-> hypothetical virtqueue_add_buf_single; requests always have at least 2
-> buffers for the headers.
-> 
-> However I could add virtqueue_add_sg_single and use it for those
-> headers.
+That's very broken. But looking at linux drivers it also
+seems linux guests do this even today.
+We have:
 
-Right.
+       err = drv->probe(dev);
+        if (err)
+                add_status(dev, VIRTIO_CONFIG_S_FAILED);
+        else {
+                add_status(dev, VIRTIO_CONFIG_S_DRIVER_OK);
+                if (drv->scan)
+                        drv->scan(dev);
+        }
 
->  The I/O buffer can keep using virtqueue_add_sg.
-> 
-> Paolo
+this means that unless drivers implement scan() they
+will make device active before DRIVER_OK is written
+as the result linux can access it and kick.
+And almost no drivers implement scan.
+Nasty.
+
+Rusty, what do you think? Worth fixing?
+
+It does mean that for now we are stuck
+with a work around, but I think we need it
+in virtio core in qemu, it's not dataplane
+specific.
+
+-- 
+MST
