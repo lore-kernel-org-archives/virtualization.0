@@ -1,18 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 1/5] virtio: add functions for piecewise addition of
-	buffers
-Date: Wed, 19 Dec 2012 18:52:51 +0200
-Message-ID: <20121219165251.GA13705@redhat.com>
-References: <1355833972-20319-1-git-send-email-pbonzini@redhat.com>
-	<1355833972-20319-2-git-send-email-pbonzini@redhat.com>
-	<20121219104722.GA5832@stefanha-thinkpad.redhat.com>
-	<50D1AD38.7070606@redhat.com> <20121219165130.GA13684@redhat.com>
+From: Alexander Graf <agraf@suse.de>
+Subject: [PATCH] virtio-blk: Don't free ida when disk is in use
+Date: Wed, 19 Dec 2012 20:40:15 +0100
+Message-ID: <1355946015-25879-1-git-send-email-agraf@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20121219165130.GA13684@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,47 +15,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, hutao@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 19, 2012 at 06:51:30PM +0200, Michael S. Tsirkin wrote:
-> On Wed, Dec 19, 2012 at 01:04:08PM +0100, Paolo Bonzini wrote:
-> > Il 19/12/2012 11:47, Stefan Hajnoczi ha scritto:
-> > > On Tue, Dec 18, 2012 at 01:32:48PM +0100, Paolo Bonzini wrote:
-> > >> +/**
-> > >> + * virtqueue_start_buf - start building buffer for the other end
-> > >> + * @vq: the struct virtqueue we're talking about.
-> > >> + * @buf: a struct keeping the state of the buffer
-> > >> + * @data: the token identifying the buffer.
-> > >> + * @count: the number of buffers that will be added
-> > > 
-> > > Perhaps count should be named count_bufs or num_bufs.
-> > 
-> > Ok.
-> > 
-> > >> + * @count_sg: the number of sg lists that will be added
-> > > 
-> > > What is the purpose of count_sg?
-> > 
-> > It is needed to decide whether to use an indirect or a direct buffer.
-> > The idea is to avoid a memory allocation if the driver is providing us
-> > with separate sg elements (under the assumption that they will be few).
-> > 
-> > Originally I wanted to use a mix of direct and indirect buffer (direct
-> > if add_buf received a one-element scatterlist, otherwise indirect).  It
-> > would have had the same effect, without having to specify count_sg in
-> > advance.  The spec is not clear if that is allowed or not, but in the
-> > end they do not work with either QEMU or vhost, so I chose this
-> > alternative instead.
-> > 
-> > Paolo
-> 
-> Hmm it should work with vhost.
+When a file system is mounted on a virtio-blk disk, we then remove it
+and then reattach it, the reattached disk gets the same disk name and
+ids as the hot removed one.
 
-BTW passing in num_in + num_out would be nicer than explicit direction:
-closer to the current add_buf.
+This leads to very nasty effects - mostly rendering the newly attached
+device completely unusable.
 
-> > 
-> > > Stefan
-> > > 
+Trying what happens when I do the same thing with a USB device, I saw
+that the sd node simply doesn't get free'd when a device gets forcefully
+removed.
+
+Imitate the same behavior for vd devices. This way broken vd devices
+simply are never free'd and newly attached ones keep working just fine.
+
+Signed-off-by: Alexander Graf <agraf@suse.de>
+---
+ drivers/block/virtio_blk.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 0bdde8f..07a18e2 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -889,6 +889,7 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_blk *vblk = vdev->priv;
+ 	int index = vblk->index;
++	int refc;
+ 
+ 	/* Prevent config work handler from accessing the device. */
+ 	mutex_lock(&vblk->config_lock);
+@@ -903,11 +904,15 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+ 
+ 	flush_work(&vblk->config_work);
+ 
++	refc = atomic_read(&disk_to_dev(vblk->disk)->kobj.kref.refcount);
+ 	put_disk(vblk->disk);
+ 	mempool_destroy(vblk->pool);
+ 	vdev->config->del_vqs(vdev);
+ 	kfree(vblk);
+-	ida_simple_remove(&vd_index_ida, index);
++
++	/* Only free device id if we don't have any users */
++	if (refc == 1)
++		ida_simple_remove(&vd_index_ida, index);
+ }
+ 
+ #ifdef CONFIG_PM
+-- 
+1.7.12.4
