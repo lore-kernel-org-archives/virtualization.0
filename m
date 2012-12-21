@@ -1,15 +1,14 @@
 From: Asias He <asias@redhat.com>
 Subject: Re: [PATCH] virtio-blk: Don't free ida when disk is in use
-Date: Fri, 21 Dec 2012 09:48:31 +0800
-Message-ID: <50D3BFEF.5080803@redhat.com>
+Date: Fri, 21 Dec 2012 09:57:18 +0800
+Message-ID: <50D3C1FE.7000508@redhat.com>
 References: <1355946015-25879-1-git-send-email-agraf@suse.de>
-	<878v8t1hri.fsf@rustcorp.com.au> <50D2D078.2070408@redhat.com>
-	<F122515D-83AE-4161-A014-61BA6EEBA9A6@suse.de>
+	<20121220105417.GA3789@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <F122515D-83AE-4161-A014-61BA6EEBA9A6@suse.de>
+In-Reply-To: <20121220105417.GA3789@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,126 +18,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Graf <agraf@suse.de>
-Cc: "mst@redhat.com" <mst@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/20/2012 05:41 PM, Alexander Graf wrote:
-> 
-> 
-> On 20.12.2012, at 09:46, Asias He <asias@redhat.com> wrote:
-> 
->> On 12/20/2012 12:15 PM, Rusty Russell wrote:
->>> Alexander Graf <agraf@suse.de> writes:
->>>
->>>> When a file system is mounted on a virtio-blk disk, we then remove it
->>>> and then reattach it, the reattached disk gets the same disk name and
->>>> ids as the hot removed one.
->>>>
->>>> This leads to very nasty effects - mostly rendering the newly attached
->>>> device completely unusable.
->>>>
->>>> Trying what happens when I do the same thing with a USB device, I saw
->>>> that the sd node simply doesn't get free'd when a device gets forcefully
->>>> removed.
->>>>
->>>> Imitate the same behavior for vd devices. This way broken vd devices
->>>> simply are never free'd and newly attached ones keep working just fine.
->>>>
->>>> Signed-off-by: Alexander Graf <agraf@suse.de>
->>>
->>> I think deserves a CC:stable, no?
-> 
-> I wanted to make sure people can comment on it first. But yes, it should go into stable when accepted.
-> 
->>>
->>> I've put it in my pending queue for *next* merge window for now...
+On 12/20/2012 06:54 PM, Michael S. Tsirkin wrote:
+> On Wed, Dec 19, 2012 at 08:40:15PM +0100, Alexander Graf wrote:
+>> When a file system is mounted on a virtio-blk disk, we then remove it
+>> and then reattach it, the reattached disk gets the same disk name and
+>> ids as the hot removed one.
 >>
->> Thanks for looking into this, Alexander!
+>> This leads to very nasty effects - mostly rendering the newly attached
+>> device completely unusable.
 >>
->> I also noticed this problem. The problem is that, if you hot-unplug a
->> mounted or opened disk, the disk is in opened state. Next time, when you
->> hotplug the same disk. The kernel thought it was opened already. The
->> driver will use the wrong gendisk data structure in bdev.
-> 
-> Exactly :)
-> 
+>> Trying what happens when I do the same thing with a USB device, I saw
+>> that the sd node simply doesn't get free'd when a device gets forcefully
+>> removed.
 >>
->> blkdev_open
->>   blkdev_get
->>      __blkdev_get
->>         if (!bdev->bd_openers) {    <-- Here, bd_disk not got updated
->>                                         still points to old one
->>           bdev->bd_disk = disk;
->>           bdev->bd_queue = disk->queue;
->>           ...
+>> Imitate the same behavior for vd devices. This way broken vd devices
+>> simply are never free'd and newly attached ones keep working just fine.
 >>
->> I tried something like this:
+>> Signed-off-by: Alexander Graf <agraf@suse.de>
+>> ---
+>>  drivers/block/virtio_blk.c | 7 ++++++-
+>>  1 file changed, 6 insertions(+), 1 deletion(-)
 >>
->> @@ -854,6 +862,19 @@ static int __devinit virtblk_probe(struct
->> virtio_device *vdev)
->>                blk_queue_io_opt(q, blk_size * opt_io_size);
->>
->>        add_disk(vblk->disk);
+>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+>> index 0bdde8f..07a18e2 100644
+>> --- a/drivers/block/virtio_blk.c
+>> +++ b/drivers/block/virtio_blk.c
+>> @@ -889,6 +889,7 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+>>  {
+>>  	struct virtio_blk *vblk = vdev->priv;
+>>  	int index = vblk->index;
+>> +	int refc;
+>>  
+>>  	/* Prevent config work handler from accessing the device. */
+>>  	mutex_lock(&vblk->config_lock);
+>> @@ -903,11 +904,15 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+>>  
+>>  	flush_work(&vblk->config_work);
+>>  
+>> +	refc = atomic_read(&disk_to_dev(vblk->disk)->kobj.kref.refcount);
+>>  	put_disk(vblk->disk);
+>>  	mempool_destroy(vblk->pool);
+>>  	vdev->config->del_vqs(vdev);
+>>  	kfree(vblk);
+>> -	ida_simple_remove(&vd_index_ida, index);
 >> +
->> +       for (i = 0; i < 1 << PART_BITS; i++) {
->> +               bdev = bdget_disk(vblk->disk, i);
->> +               if (bdev) {
->> +                       bdev->bd_disk = vblk->disk;
->> +                       bdev->bd_queue = q;
->> +                       bdput(bdev);
+>> +	/* Only free device id if we don't have any users */
+>> +	if (refc == 1)
+>> +		ida_simple_remove(&vd_index_ida, index);
+>>  }
+>>  
+>>  #ifdef CONFIG_PM
 > 
-> Does this stack? What if the device was mounted twice? Or mounted and dd'ed at the same time? Then your refcount here is wrong.
+> Network devices take the approach of retrying every second.
+> Donnu if it makes sense here.
 
-This is in the probe path. And there is no extra refcount here.
-bdev->bd_openers stays what it was before the remove.
 
-> Also this means that you're free'ing a bdev even though there's still a reference held to it. That means whoever holds it could later use that pointer and access bogus memory.
+virtnet_remove()? I am not seeing the code there.
 
-The bdev is not freed.
+We are too late in the remove path in virtblk_remove(). No easy way to
+come back to the state before the remove. So, giving user warning (tell
+him to close the device) and retrying might be a choice.
 
-> Alex
-> 
->> +               }
->> +       }
->>
->>
->> 1) Before:
->> ---> hot-plug
->> [   35.730183] virtio_blk: virtblk_probe: vblk=ffff880078b0e000,
->> disk=ffff880078d54c00, q=ffff88007f88b3d8
->> [   35.735352] virtio_blk:    virtblk_ioctl: vblk=ffff880078b0e000,
->> disk=ffff880078d54c00, bdev=ffff88007c45cc00, q=ffff88007f88b3d8
->> ---> hot-unplug
->>
->> ---> hot-plug
->> [   83.570480] virtio_blk: virtblk_probe: vblk=ffff880078b0e000,
->> disk=ffff880078d55800, q=ffff88007f88bb40
->> [   83.575614] virtio_blk:   virtblk_ioctl: vblk=ffff880078b0e000,
->> disk=ffff880078d54c00, bdev=ffff88007c45cc00, q=ffff88007f88b3d8
->>
->> The disk points to old one ffff880078d54c00. The queue also points to
->> old one ffff88007f88b3d8.
->>
->> 2) After:
->> ---> hot-plug
->> [   68.035063] virtio_blk: virtblk_probe: vblk=ffff880079b20000,
->> disk=ffff88007f9ebc00, q=ffff8800784d8ed0
->> [   68.041140] virtio_blk:    virtblk_ioctl: vblk=ffff880079b20000,
->> disk=ffff88007f9ebc00, bdev=ffff88007ab2c000, q=ffff8800784d8ed0
->> ---> hot-unplug
->>
->> ---> hot-plug
->> [   86.317706] virtio_blk: virtblk_probe: vblk=ffff880079b20000,
->> disk=ffff88007f9eb000, q=ffff8800784d9638
->> [   86.322535] virtio_blk:   virtblk_ioctl: vblk=ffff880079b20000,
->> disk=ffff88007f9eb000, bdev=ffff88007ab2c000, q=ffff8800784d9638
->>
->> The disk and queue are updated correctly. The attached disk works and
->> still uses the old name.
->>
+
 >> -- 
->> Asias
+>> 1.7.12.4
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> 
 
 
 -- 
