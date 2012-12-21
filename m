@@ -1,15 +1,17 @@
 From: Asias He <asias@redhat.com>
 Subject: Re: [PATCH] virtio-blk: Don't free ida when disk is in use
-Date: Fri, 21 Dec 2012 09:58:43 +0800
-Message-ID: <50D3C253.70607@redhat.com>
+Date: Fri, 21 Dec 2012 10:02:08 +0800
+Message-ID: <50D3C320.8050903@redhat.com>
 References: <1355946015-25879-1-git-send-email-agraf@suse.de>
 	<20121220105417.GA3789@redhat.com>
 	<62D6A704-CB88-4A8C-A5F3-6BD3C267895F@suse.de>
+	<20121220113853.GA3909@redhat.com>
+	<4E59BAF1-3D80-4B3E-ADBF-B381541D11C0@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <62D6A704-CB88-4A8C-A5F3-6BD3C267895F@suse.de>
+In-Reply-To: <4E59BAF1-3D80-4B3E-ADBF-B381541D11C0@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,68 +25,97 @@ To: Alexander Graf <agraf@suse.de>
 Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/20/2012 07:27 PM, Alexander Graf wrote:
+On 12/20/2012 07:47 PM, Alexander Graf wrote:
 > 
-> On 20.12.2012, at 11:54, Michael S. Tsirkin wrote:
+> On 20.12.2012, at 12:38, Michael S. Tsirkin wrote:
 > 
->> On Wed, Dec 19, 2012 at 08:40:15PM +0100, Alexander Graf wrote:
->>> When a file system is mounted on a virtio-blk disk, we then remove it
->>> and then reattach it, the reattached disk gets the same disk name and
->>> ids as the hot removed one.
+>> On Thu, Dec 20, 2012 at 12:27:53PM +0100, Alexander Graf wrote:
 >>>
->>> This leads to very nasty effects - mostly rendering the newly attached
->>> device completely unusable.
+>>> On 20.12.2012, at 11:54, Michael S. Tsirkin wrote:
 >>>
->>> Trying what happens when I do the same thing with a USB device, I saw
->>> that the sd node simply doesn't get free'd when a device gets forcefully
->>> removed.
+>>>> On Wed, Dec 19, 2012 at 08:40:15PM +0100, Alexander Graf wrote:
+>>>>> When a file system is mounted on a virtio-blk disk, we then remove it
+>>>>> and then reattach it, the reattached disk gets the same disk name and
+>>>>> ids as the hot removed one.
+>>>>>
+>>>>> This leads to very nasty effects - mostly rendering the newly attached
+>>>>> device completely unusable.
+>>>>>
+>>>>> Trying what happens when I do the same thing with a USB device, I saw
+>>>>> that the sd node simply doesn't get free'd when a device gets forcefully
+>>>>> removed.
+>>>>>
+>>>>> Imitate the same behavior for vd devices. This way broken vd devices
+>>>>> simply are never free'd and newly attached ones keep working just fine.
+>>>>>
+>>>>> Signed-off-by: Alexander Graf <agraf@suse.de>
+>>>>> ---
+>>>>> drivers/block/virtio_blk.c | 7 ++++++-
+>>>>> 1 file changed, 6 insertions(+), 1 deletion(-)
+>>>>>
+>>>>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+>>>>> index 0bdde8f..07a18e2 100644
+>>>>> --- a/drivers/block/virtio_blk.c
+>>>>> +++ b/drivers/block/virtio_blk.c
+>>>>> @@ -889,6 +889,7 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+>>>>> {
+>>>>> 	struct virtio_blk *vblk = vdev->priv;
+>>>>> 	int index = vblk->index;
+>>>>> +	int refc;
+>>>>>
+>>>>> 	/* Prevent config work handler from accessing the device. */
+>>>>> 	mutex_lock(&vblk->config_lock);
+>>>>> @@ -903,11 +904,15 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
+>>>>>
+>>>>> 	flush_work(&vblk->config_work);
+>>>>>
+>>>>> +	refc = atomic_read(&disk_to_dev(vblk->disk)->kobj.kref.refcount);
+>>>>> 	put_disk(vblk->disk);
+>>>>> 	mempool_destroy(vblk->pool);
+>>>>> 	vdev->config->del_vqs(vdev);
+>>>>> 	kfree(vblk);
+>>>>> -	ida_simple_remove(&vd_index_ida, index);
+>>>>> +
+>>>>> +	/* Only free device id if we don't have any users */
+>>>>> +	if (refc == 1)
+>>>>> +		ida_simple_remove(&vd_index_ida, index);
+>>>>> }
+>>>>>
+>>>>> #ifdef CONFIG_PM
+>>>>
+>>>> Network devices take the approach of retrying every second.
+>>>> Donnu if it makes sense here.
 >>>
->>> Imitate the same behavior for vd devices. This way broken vd devices
->>> simply are never free'd and newly attached ones keep working just fine.
+>>> I would rather think the 100% right approach would be a recursive unrolling of all users bottom to top. Force unmount. Force close all fd's.
+>>> I'm not sure why that doesn't happen today, but it doesn't :).
 >>>
->>> Signed-off-by: Alexander Graf <agraf@suse.de>
->>> ---
->>> drivers/block/virtio_blk.c | 7 ++++++-
->>> 1 file changed, 6 insertions(+), 1 deletion(-)
 >>>
->>> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->>> index 0bdde8f..07a18e2 100644
->>> --- a/drivers/block/virtio_blk.c
->>> +++ b/drivers/block/virtio_blk.c
->>> @@ -889,6 +889,7 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
->>> {
->>> 	struct virtio_blk *vblk = vdev->priv;
->>> 	int index = vblk->index;
->>> +	int refc;
->>>
->>> 	/* Prevent config work handler from accessing the device. */
->>> 	mutex_lock(&vblk->config_lock);
->>> @@ -903,11 +904,15 @@ static void __devexit virtblk_remove(struct virtio_device *vdev)
->>>
->>> 	flush_work(&vblk->config_work);
->>>
->>> +	refc = atomic_read(&disk_to_dev(vblk->disk)->kobj.kref.refcount);
->>> 	put_disk(vblk->disk);
->>> 	mempool_destroy(vblk->pool);
->>> 	vdev->config->del_vqs(vdev);
->>> 	kfree(vblk);
->>> -	ida_simple_remove(&vd_index_ida, index);
->>> +
->>> +	/* Only free device id if we don't have any users */
->>> +	if (refc == 1)
->>> +		ida_simple_remove(&vd_index_ida, index);
->>> }
->>>
->>> #ifdef CONFIG_PM
+>>> Alex
 >>
->> Network devices take the approach of retrying every second.
->> Donnu if it makes sense here.
+>> Especially force close fd's won't be easy. A simpler alternative
+>> would be preventing unplug by taking some reference count.
 > 
-> I would rather think the 100% right approach would be a recursive unrolling of all users bottom to top. Force unmount. Force close all fd's. I'm not sure why that doesn't happen today, but it doesn't :).
+> That's what happens when you do
+> 
+> <add>
+> mount /mnt
+> ls /mnt
+> <remove>
+> 
+> -- here remove failed for me --
 
-Yes ;-)
+What kernel version are you using? Any debug messages available.
 
 > 
+> But when you do
+> 
+> <add>
+> mount /mnt
+> <remove>
+> 
+> then remove works and we get the above problem.
+> 
+> I have to admit that I'm really not a big fan of preventing unplug though. In some cases, preventing simply doesn't work, for example when you unplug a USB stick or when your iscsi remote just vanishes.
 > Alex
 > 
 > _______________________________________________
