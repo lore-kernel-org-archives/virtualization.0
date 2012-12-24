@@ -1,17 +1,16 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: Re: [PATCH v3 02/11] x86/kexec: Add extra pointers to
-	transition page table PGD, PUD, PMD and PTE
-Date: Thu, 03 Jan 2013 09:34:55 +0000
-Message-ID: <50E55ECF02000078000B2A13@nat28.tlf.novell.com>
-References: <1356574740-6806-1-git-send-email-daniel.kiper@oracle.com>
-	<1356574740-6806-2-git-send-email-daniel.kiper@oracle.com>
-	<1356574740-6806-3-git-send-email-daniel.kiper@oracle.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] virtio_console: correct error message on failure of
+	debugfs_create_dir
+Date: Mon, 24 Dec 2012 11:55:46 +0000
+Message-ID: <201212241155.46866.arnd__43455.2934872501$1357235995$gmane$org@arndb.de>
+References: <1356030701-16284-1-git-send-email-sasha.levin@oracle.com>
+	<1356030701-16284-13-git-send-email-sasha.levin@oracle.com>
+	<20121221075909.GA15739@amit.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1356574740-6806-3-git-send-email-daniel.kiper@oracle.com>
-Content-Disposition: inline
+In-Reply-To: <20121221075909.GA15739@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,21 +20,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Kiper <daniel.kiper@oracle.com>
-Cc: hpa@zytor.com, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, xen-devel <xen-devel@lists.xen.org>, mingo@redhat.com, ebiederm@xmission.com, maxim.uvarov@oracle.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, vgoyal@redhat.com
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Sasha Levin <sasha.levin@oracle.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 27.12.12 at 03:18, Daniel Kiper <daniel.kiper@oracle.com> wrote:
-> Some implementations (e.g. Xen PVOPS) could not use part of identity page 
-> table
-> to construct transition page table. It means that they require separate 
-> PUDs,
-> PMDs and PTEs for virtual and physical (identity) mapping. To satisfy that
-> requirement add extra pointer to PGD, PUD, PMD and PTE and align existing 
-> code.
+On Friday 21 December 2012, Amit Shah wrote:
+> On (Thu) 20 Dec 2012 [14:11:21], Sasha Levin wrote:
+> > debugfs_create_dir() returns NULL if it fails, there's little point in
+> > calling PTR_ERR on it.
+>
+> debugfs_create_dir() does return an error value if debugfs is not
+> enabled.
+> 
+> This check for !pdrvdata.debugfs_dir should infact use
+> IS_ERR_OR_NULL().  Care to submit a patch for that?
 
-So you keep posting this despite it having got pointed out on each
-earlier submission that this is unnecessary, proven by the fact that
-the non-pvops Xen kernels can get away without it. Why?
+How about we fix the stub instead to return NULL when debugfs is disabled?
 
-Jan
+	Arnd
