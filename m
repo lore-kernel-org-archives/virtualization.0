@@ -1,16 +1,14 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] virtio_console: correct error message on failure of
-	debugfs_create_dir
-Date: Mon, 24 Dec 2012 11:55:46 +0000
-Message-ID: <201212241155.46866.arnd__43455.2934872501$1357235995$gmane$org@arndb.de>
-References: <1356030701-16284-1-git-send-email-sasha.levin@oracle.com>
-	<1356030701-16284-13-git-send-email-sasha.levin@oracle.com>
-	<20121221075909.GA15739@amit.redhat.com>
+From: Eric Dumazet <erdnetdev@gmail.com>
+Subject: Re: [RFC PATCH] virtio-net: reset virtqueue affinity when doing
+	cpu hotplug
+Date: Wed, 26 Dec 2012 07:51:12 -0800
+Message-ID: <1356537072.20133.20400.camel__6213.81303431026$1357235998$gmane$org@edumazet-glaptop>
+References: <1356505614-16683-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20121221075909.GA15739@amit.redhat.com>
+In-Reply-To: <1356505614-16683-1-git-send-email-gaowanlong@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,21 +18,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Sasha Levin <sasha.levin@oracle.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Friday 21 December 2012, Amit Shah wrote:
-> On (Thu) 20 Dec 2012 [14:11:21], Sasha Levin wrote:
-> > debugfs_create_dir() returns NULL if it fails, there's little point in
-> > calling PTR_ERR on it.
->
-> debugfs_create_dir() does return an error value if debugfs is not
-> enabled.
+On Wed, 2012-12-26 at 15:06 +0800, Wanlong Gao wrote:
+> Add a cpu notifier to virtio-net, so that we can reset the
+> virtqueue affinity if the cpu hotplug happens. It improve
+> the performance through enabling or disabling the virtqueue
+> affinity after doing cpu hotplug.
 > 
-> This check for !pdrvdata.debugfs_dir should infact use
-> IS_ERR_OR_NULL().  Care to submit a patch for that?
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: netdev@vger.kernel.org
+> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+> ---
+>  drivers/net/virtio_net.c | 39 ++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 38 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index a6fcf15..9710cf4 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -26,6 +26,7 @@
+>  #include <linux/scatterlist.h>
+>  #include <linux/if_vlan.h>
+>  #include <linux/slab.h>
+> +#include <linux/cpu.h>
+>  
+>  static int napi_weight = 128;
+>  module_param(napi_weight, int, 0444);
+> @@ -34,6 +35,8 @@ static bool csum = true, gso = true;
+>  module_param(csum, bool, 0444);
+>  module_param(gso, bool, 0444);
+>  
+> +static bool cpu_hotplug = false;
+> +
+>  /* FIXME: MTU in config. */
+>  #define MAX_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
+>  #define GOOD_COPY_LEN	128
+> @@ -1041,6 +1044,26 @@ static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
+>  		vi->affinity_hint_set = false;
+>  }
+>  
+> +static int virtnet_cpu_callback(struct notifier_block *nfb,
+> +			       unsigned long action, void *hcpu)
+> +{
+> +	switch(action) {
+> +	case CPU_ONLINE:
+> +	case CPU_ONLINE_FROZEN:
+> +	case CPU_DEAD:
+> +	case CPU_DEAD_FROZEN:
+> +		cpu_hotplug = true;
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +	return NOTIFY_OK;
+> +}
+> +
+> +static struct notifier_block virtnet_cpu_notifier = {
+> +	.notifier_call = virtnet_cpu_callback,
+> +};
+> +
+>  static void virtnet_get_ringparam(struct net_device *dev,
+>  				struct ethtool_ringparam *ring)
+>  {
+> @@ -1131,7 +1154,14 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
+>   */
+>  static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
+>  {
+> -	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
+> +	int txq;
+> +
+> +	if (unlikely(cpu_hotplug == true)) {
+> +		virtnet_set_affinity(netdev_priv(dev), true);
+> +		cpu_hotplug = false;
+> +	}
+> +
+> +	txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
+>  		  smp_processor_id();
+>  
+>  	while (unlikely(txq >= dev->real_num_tx_queues))
+> @@ -1248,6 +1278,8 @@ static void virtnet_del_vqs(struct virtnet_info *vi)
+>  {
+>  	struct virtio_device *vdev = vi->vdev;
+>  
+> +	unregister_hotcpu_notifier(&virtnet_cpu_notifier);
+> +
+>  	virtnet_set_affinity(vi, false);
+>  
+>  	vdev->config->del_vqs(vdev);
+> @@ -1372,6 +1404,11 @@ static int init_vqs(struct virtnet_info *vi)
+>  		goto err_free;
+>  
+>  	virtnet_set_affinity(vi, true);
+> +
+> +	ret = register_hotcpu_notifier(&virtnet_cpu_notifier);
+> +	if (ret)
+> +		goto err_free;
+> +
+>  	return 0;
+>  
+>  err_free:
 
-How about we fix the stub instead to return NULL when debugfs is disabled?
+It looks like this patch assumes virtio_net supports a single instance.
 
-	Arnd
+Try your patch with two instances, I am pretty sure it wont do very
+well.
+
+It seems to me you need something else than a single boolean.
+
+A sequence number for example should be better...
