@@ -1,15 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC PATCH] virtio-net: reset virtqueue affinity when doing cpu
-	hotplug
-Date: Wed, 26 Dec 2012 12:46:38 +0200
-Message-ID: <20121226104638.GA18850@redhat.com>
-References: <1356505614-16683-1-git-send-email-gaowanlong@cn.fujitsu.com>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: CISTI'2013 Doctoral Symposium - CFP, Lisbon, June 19 - 23, 2013
+Date: Wed, 26 Dec 2012 20:08:03 +0000
+Message-ID: <20121226200710.C01194C6@mail.linuxfoundation.org>
+Reply-To: aistic@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6659610523074101782=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1356505614-16683-1-git-send-email-gaowanlong@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,131 +15,116 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Dec 26, 2012 at 03:06:54PM +0800, Wanlong Gao wrote:
-> Add a cpu notifier to virtio-net, so that we can reset the
-> virtqueue affinity if the cpu hotplug happens. It improve
-> the performance through enabling or disabling the virtqueue
-> affinity after doing cpu hotplug.
-> 
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: netdev@vger.kernel.org
-> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-
-Thanks for looking into this.
-Some comments:
-
-1. Looks like the logic in
-virtnet_set_affinity (and in virtnet_select_queue)
-will not work very well when CPU IDs are not
-consequitive. This can happen with hot unplug.
-
-Maybe we should add a VQ allocator, and defining
-a per-cpu variable specifying the VQ instead
-of using CPU ID.
+--===============6659610523074101782==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
 
-2. The below code seems racy e.g. when CPU is added
-	during device init.
+**********************************************************************=
+*****************************
+CISTI'2013 DOCTORAL SYMPOSIUM
+8th Iberian Conference on Information Systems and Technologies
+Lisbon, Portugal, June 19 - 23, 2013
+http://www.aisti.eu/cisti2013/index.php?option=3Dcom_content&view=3Dar=
+ticle&id=3D64&Itemid=3D68&lang=3Den
+**********************************************************************=
+*****************************
 
-3. using a global cpu_hotplug seems inelegant.
-In any case we should document what is the
-meaning of this variable.
+INTRODUCTION
 
-> ---
->  drivers/net/virtio_net.c | 39 ++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 38 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index a6fcf15..9710cf4 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -26,6 +26,7 @@
->  #include <linux/scatterlist.h>
->  #include <linux/if_vlan.h>
->  #include <linux/slab.h>
-> +#include <linux/cpu.h>
->  
->  static int napi_weight = 128;
->  module_param(napi_weight, int, 0444);
-> @@ -34,6 +35,8 @@ static bool csum = true, gso = true;
->  module_param(csum, bool, 0444);
->  module_param(gso, bool, 0444);
->  
-> +static bool cpu_hotplug = false;
-> +
->  /* FIXME: MTU in config. */
->  #define MAX_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
->  #define GOOD_COPY_LEN	128
-> @@ -1041,6 +1044,26 @@ static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
->  		vi->affinity_hint_set = false;
->  }
->  
-> +static int virtnet_cpu_callback(struct notifier_block *nfb,
-> +			       unsigned long action, void *hcpu)
-> +{
-> +	switch(action) {
-> +	case CPU_ONLINE:
-> +	case CPU_ONLINE_FROZEN:
-> +	case CPU_DEAD:
-> +	case CPU_DEAD_FROZEN:
-> +		cpu_hotplug = true;
-> +		break;
-> +	default:
-> +		break;
-> +	}
-> +	return NOTIFY_OK;
-> +}
-> +
-> +static struct notifier_block virtnet_cpu_notifier = {
-> +	.notifier_call = virtnet_cpu_callback,
-> +};
-> +
->  static void virtnet_get_ringparam(struct net_device *dev,
->  				struct ethtool_ringparam *ring)
->  {
-> @@ -1131,7 +1154,14 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
->   */
->  static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
->  {
-> -	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
-> +	int txq;
-> +
-> +	if (unlikely(cpu_hotplug == true)) {
-> +		virtnet_set_affinity(netdev_priv(dev), true);
-> +		cpu_hotplug = false;
-> +	}
-> +
-> +	txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
->  		  smp_processor_id();
->  
->  	while (unlikely(txq >= dev->real_num_tx_queues))
-> @@ -1248,6 +1278,8 @@ static void virtnet_del_vqs(struct virtnet_info *vi)
->  {
->  	struct virtio_device *vdev = vi->vdev;
->  
-> +	unregister_hotcpu_notifier(&virtnet_cpu_notifier);
-> +
->  	virtnet_set_affinity(vi, false);
->  
->  	vdev->config->del_vqs(vdev);
-> @@ -1372,6 +1404,11 @@ static int init_vqs(struct virtnet_info *vi)
->  		goto err_free;
->  
->  	virtnet_set_affinity(vi, true);
-> +
-> +	ret = register_hotcpu_notifier(&virtnet_cpu_notifier);
-> +	if (ret)
-> +		goto err_free;
-> +
->  	return 0;
->  
->  err_free:
-> -- 
-> 1.8.0
+The purpose of CISTI'2013=92s Doctoral Symposium (http://www.aisti.eu/=
+cisti2013/index.php?option=3Dcom_content&view=3Darticle&id=3D64&Itemid=
+=3D68&lang=3Den) is to provide graduate students a setting where they =
+can, informally, expose and discuss their work, collecting valuable ex=
+pert opinions and sharing new ideas, methods and applications. The Doc=
+toral Symposium is an excellent opportunity for PhD students to presen=
+t and discuss their work in a Workshop format. Each presentation will =
+be evaluated by a panel composed by at least three Information Systems=
+ and Technologies experts.=20
+
+CONTRIBUTIONS SUBMISSION
+
+The Doctoral Symposium is opened to PhD students whose research area i=
+ncludes the themes proposed for this Conference. Submissions must incl=
+ude an extended abstract (maximum 4 pages), following the Conference s=
+tyle guide. All selected contributions will be handed out along with t=
+he Conference Proceedings, in CD with an ISBN. These contributions wil=
+l be send for indexation by EBSCO, and EI-Compendex.
+
+Submissions must include the field, the PhD institution and the number=
+ of months devoted to the development of the work. Additionally, they =
+should include in a clear and succinct manner:
+
+    =95    The problem approached and its significance or relevance
+    =95    The research objectives and related investigation topics
+    =95    A brief display of what is already known
+    =95    A proposed solution methodology for the problem
+    =95    Expected results
+
+IMPORTANT DATES
+
+=95    Data limite para submiss=E3o de propostas: 15 de Fevereiro de 2013
+=95    Notifica=E7=E3o de aceita=E7=E3o: 29 de Mar=E7o de 2013
+=95    Data limite para apresenta=E7=E3o das vers=F5es finais: 12 de A=
+bril de 2013
+=95    Pagamento da inscri=E7=E3o, para garantir a inclus=E3o da contr=
+ibui=E7=E3o aceite nas actas da confer=EAncia: 12 de Abril de 2013
+
+SCIENTIFIC AND ORGANIZING COMMITTEE
+
+Manuel P=E9rez Cota, Universidad de Vigo (Chair)
+Adolfo Lozano Tello, Universidad de Extremadura
+Alberto J. Bugar=EDn Diz, Universidad de Santiago de Compostela
+=C1lvaro Rocha, Universidade Fernando Pessoa
+Ana Maria Ramalho Correia, Universidade Nova de Lisboa, ISEGI
+Ant=F3nio Palma dos Reis, Universidade T=E9cnica de Lisboa, ISEG
+Arturo Mendez Pen=EDn, Universidade de Vigo
+Carlos Ferr=E1s Sexto, Universidad de Santiago de Compostela
+David Fonseca, Universidad Ram=F3n Llul
+Ernesto Redondo, Universidad Polit=E9cnica de Catalu=F1a
+Feliz Gouveia, Universidade Fernando Pessoa
+Francisco Restivo, Universidade Cat=F3lica Portuguesa - Braga
+Guilhermina Miranda, Universidade de Lisboa
+Gonzalo Cuevas Agust=EDn, Universidad Polit=E9cnica de Madrid
+H=E9ctor Jorge Garc=EDa Neder, Universidad Tecnol=F3gica NacioNal
+Jo=E3o =C1lvaro Carvalho, Universidade do Minho
+Jo=E3o Barroso, Universidade de Tr=E1s-os-Montes e Alto Douro
+J=F6rg Thomaschewski, University of Applied Sciences of Emden-Leer
+Jos=E9 Antonio Calvo-Manzano Villal=F3n, Universidad Polit=E9cnica de =
+Madrid
+Jos=E9 Bulas Cruz, Universidade de Tr=E1s-os-Montes e Alto Douro
+Jos=E9 Tribolet, Universidade T=E9cnica de Lisboa, IST
+Leandro Rodr=EDguez Li=F1ares, Universidade de Vigo
+Lu=EDs Paulo Reis, Universidade do Minho
+Mar=EDa Jos=E9 Lado Touri=F1o, Universidade de Vigo
+Maria Manuela Cruz Cunha, Instituto Polit=E9cnico do C=E1vado e do Ave
+Marco Painho, Universidade Nova de Lisboa, ISEGI
+Mario Alberto Groppo, Universidad Tecnol=F3gica Nacional
+Nuno Ribeiro, Universidade Fernando Pessoa
+Pilar Mareca, Universidade Polit=E9cnica de Madrid
+Ramiro Gon=E7alves, Universidade de Tr=E1s-os-Montes e Alto Douro
+Tomas San Feliu Gilabert, Universidad Polit=E9cnica de Madrid
+Vicente Alcober, Universidad Polit=E9cnica de Madrid
+
+-
+CISTI'2013 Team
+http://www.aisti.eu/cisti2013
+aistic@gmail.com
+
+-------------------
+
+
+--===============6659610523074101782==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6659610523074101782==--
