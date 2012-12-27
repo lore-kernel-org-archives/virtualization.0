@@ -1,10 +1,10 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: CISTI'2013 Doctoral Symposium - CFP, Lisbon, June 19 - 23, 2013
-Date: Wed, 26 Dec 2012 20:08:03 +0000
-Message-ID: <20121226200710.C01194C6@mail.linuxfoundation.org>
-Reply-To: aistic@gmail.com
+From: Daniel Kiper <daniel.kiper@oracle.com>
+Subject: [PATCH v3 00/11] xen: Initial kexec/kdump implementation
+Date: Thu, 27 Dec 2012 03:18:49 +0100
+Message-ID: <1356574740-6806-1-git-send-email-daniel.kiper__10038.3143908859$1356574880$gmane$org@oracle.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6659610523074101782=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,116 +15,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: andrew.cooper3@citrix.com, ebiederm@xmission.com, hpa@zytor.com, jbeulich@suse.com, konrad.wilk@oracle.com, maxim.uvarov@oracle.com, mingo@redhat.com, tglx@linutronix.de, vgoyal@redhat.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============6659610523074101782==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
+Hi,
 
-**********************************************************************=
-*****************************
-CISTI'2013 DOCTORAL SYMPOSIUM
-8th Iberian Conference on Information Systems and Technologies
-Lisbon, Portugal, June 19 - 23, 2013
-http://www.aisti.eu/cisti2013/index.php?option=3Dcom_content&view=3Dar=
-ticle&id=3D64&Itemid=3D68&lang=3Den
-**********************************************************************=
-*****************************
+This set of patches contains initial kexec/kdump implementation for Xen v3.
+Currently only dom0 is supported, however, almost all infrustructure
+required for domU support is ready.
 
-INTRODUCTION
+Jan Beulich suggested to merge Xen x86 assembler code with baremetal x86 code.
+This could simplify and reduce a bit size of kernel code. However, this solution
+requires some changes in baremetal x86 code. First of all code which establishes
+transition page table should be moved back from machine_kexec_$(BITS).c to
+relocate_kernel_$(BITS).S. Another important thing which should be changed in that
+case is format of page_list array. Xen kexec hypercall requires to alternate physical
+addresses with virtual ones. These and other required stuff have not been done in that
+version because I am not sure that solution will be accepted by kexec/kdump maintainers.
+I hope that this email spark discussion about that topic.
 
-The purpose of CISTI'2013=92s Doctoral Symposium (http://www.aisti.eu/=
-cisti2013/index.php?option=3Dcom_content&view=3Darticle&id=3D64&Itemid=
-=3D68&lang=3Den) is to provide graduate students a setting where they =
-can, informally, expose and discuss their work, collecting valuable ex=
-pert opinions and sharing new ideas, methods and applications. The Doc=
-toral Symposium is an excellent opportunity for PhD students to presen=
-t and discuss their work in a Workshop format. Each presentation will =
-be evaluated by a panel composed by at least three Information Systems=
- and Technologies experts.=20
+Daniel
 
-CONTRIBUTIONS SUBMISSION
+ arch/x86/Kconfig                     |    3 +
+ arch/x86/include/asm/kexec.h         |   10 +-
+ arch/x86/include/asm/xen/hypercall.h |    6 +
+ arch/x86/include/asm/xen/kexec.h     |   79 ++++
+ arch/x86/kernel/machine_kexec_64.c   |   12 +-
+ arch/x86/kernel/vmlinux.lds.S        |    7 +-
+ arch/x86/xen/Kconfig                 |    1 +
+ arch/x86/xen/Makefile                |    3 +
+ arch/x86/xen/enlighten.c             |   11 +
+ arch/x86/xen/kexec.c                 |  150 +++++++
+ arch/x86/xen/machine_kexec_32.c      |  226 +++++++++++
+ arch/x86/xen/machine_kexec_64.c      |  318 +++++++++++++++
+ arch/x86/xen/relocate_kernel_32.S    |  323 +++++++++++++++
+ arch/x86/xen/relocate_kernel_64.S    |  309 ++++++++++++++
+ drivers/xen/sys-hypervisor.c         |   42 ++-
+ include/linux/kexec.h                |   26 ++-
+ include/xen/interface/xen.h          |   33 ++
+ kernel/Makefile                      |    1 +
+ kernel/kexec-firmware.c              |  743 ++++++++++++++++++++++++++++++++++
+ kernel/kexec.c                       |   46 ++-
+ 20 files changed, 2331 insertions(+), 18 deletions(-)
 
-The Doctoral Symposium is opened to PhD students whose research area i=
-ncludes the themes proposed for this Conference. Submissions must incl=
-ude an extended abstract (maximum 4 pages), following the Conference s=
-tyle guide. All selected contributions will be handed out along with t=
-he Conference Proceedings, in CD with an ISBN. These contributions wil=
-l be send for indexation by EBSCO, and EI-Compendex.
-
-Submissions must include the field, the PhD institution and the number=
- of months devoted to the development of the work. Additionally, they =
-should include in a clear and succinct manner:
-
-    =95    The problem approached and its significance or relevance
-    =95    The research objectives and related investigation topics
-    =95    A brief display of what is already known
-    =95    A proposed solution methodology for the problem
-    =95    Expected results
-
-IMPORTANT DATES
-
-=95    Data limite para submiss=E3o de propostas: 15 de Fevereiro de 2013
-=95    Notifica=E7=E3o de aceita=E7=E3o: 29 de Mar=E7o de 2013
-=95    Data limite para apresenta=E7=E3o das vers=F5es finais: 12 de A=
-bril de 2013
-=95    Pagamento da inscri=E7=E3o, para garantir a inclus=E3o da contr=
-ibui=E7=E3o aceite nas actas da confer=EAncia: 12 de Abril de 2013
-
-SCIENTIFIC AND ORGANIZING COMMITTEE
-
-Manuel P=E9rez Cota, Universidad de Vigo (Chair)
-Adolfo Lozano Tello, Universidad de Extremadura
-Alberto J. Bugar=EDn Diz, Universidad de Santiago de Compostela
-=C1lvaro Rocha, Universidade Fernando Pessoa
-Ana Maria Ramalho Correia, Universidade Nova de Lisboa, ISEGI
-Ant=F3nio Palma dos Reis, Universidade T=E9cnica de Lisboa, ISEG
-Arturo Mendez Pen=EDn, Universidade de Vigo
-Carlos Ferr=E1s Sexto, Universidad de Santiago de Compostela
-David Fonseca, Universidad Ram=F3n Llul
-Ernesto Redondo, Universidad Polit=E9cnica de Catalu=F1a
-Feliz Gouveia, Universidade Fernando Pessoa
-Francisco Restivo, Universidade Cat=F3lica Portuguesa - Braga
-Guilhermina Miranda, Universidade de Lisboa
-Gonzalo Cuevas Agust=EDn, Universidad Polit=E9cnica de Madrid
-H=E9ctor Jorge Garc=EDa Neder, Universidad Tecnol=F3gica NacioNal
-Jo=E3o =C1lvaro Carvalho, Universidade do Minho
-Jo=E3o Barroso, Universidade de Tr=E1s-os-Montes e Alto Douro
-J=F6rg Thomaschewski, University of Applied Sciences of Emden-Leer
-Jos=E9 Antonio Calvo-Manzano Villal=F3n, Universidad Polit=E9cnica de =
-Madrid
-Jos=E9 Bulas Cruz, Universidade de Tr=E1s-os-Montes e Alto Douro
-Jos=E9 Tribolet, Universidade T=E9cnica de Lisboa, IST
-Leandro Rodr=EDguez Li=F1ares, Universidade de Vigo
-Lu=EDs Paulo Reis, Universidade do Minho
-Mar=EDa Jos=E9 Lado Touri=F1o, Universidade de Vigo
-Maria Manuela Cruz Cunha, Instituto Polit=E9cnico do C=E1vado e do Ave
-Marco Painho, Universidade Nova de Lisboa, ISEGI
-Mario Alberto Groppo, Universidad Tecnol=F3gica Nacional
-Nuno Ribeiro, Universidade Fernando Pessoa
-Pilar Mareca, Universidade Polit=E9cnica de Madrid
-Ramiro Gon=E7alves, Universidade de Tr=E1s-os-Montes e Alto Douro
-Tomas San Feliu Gilabert, Universidad Polit=E9cnica de Madrid
-Vicente Alcober, Universidad Polit=E9cnica de Madrid
-
--
-CISTI'2013 Team
-http://www.aisti.eu/cisti2013
-aistic@gmail.com
-
--------------------
-
-
---===============6659610523074101782==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6659610523074101782==--
+Daniel Kiper (11):
+      kexec: introduce kexec firmware support
+      x86/kexec: Add extra pointers to transition page table PGD, PUD, PMD and PTE
+      xen: Introduce architecture independent data for kexec/kdump
+      x86/xen: Introduce architecture dependent data for kexec/kdump
+      x86/xen: Register resources required by kexec-tools
+      x86/xen: Add i386 kexec/kdump implementation
+      x86/xen: Add x86_64 kexec/kdump implementation
+      x86/xen: Add kexec/kdump Kconfig and makefile rules
+      x86/xen/enlighten: Add init and crash kexec/kdump hooks
+      drivers/xen: Export vmcoreinfo through sysfs
+      x86: Add Xen kexec control code size check to linker script
