@@ -1,16 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/2] vhost_net: correct error hanlding in
-	vhost_net_set_backend()
-Date: Thu, 27 Dec 2012 15:14:42 +0200
-Message-ID: <20121227131442.GF20595__3946.76109212941$1356613919$gmane$org@redhat.com>
-References: <1356590360-32770-2-git-send-email-jasowang@redhat.com>
+From: Andrew Cooper <andrew.cooper3@citrix.com>
+Subject: Re: [PATCH v3 00/11] xen: Initial kexec/kdump implementation
+Date: Thu, 27 Dec 2012 14:18:44 +0000
+Message-ID: <50DC58C4.3000307@citrix.com>
+References: <1356574740-6806-1-git-send-email-daniel.kiper@oracle.com>
+	<50DBC856.6030208@zytor.com>
+	<791b4922-078f-4adc-b3f3-0651f2266147@email.android.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1356590360-32770-2-git-send-email-jasowang@redhat.com>
-	<1356590360-32770-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <791b4922-078f-4adc-b3f3-0651f2266147@email.android.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,70 +19,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "x86@kernel.org" <x86@kernel.org>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Daniel Kiper <daniel.kiper@oracle.com>, "H. Peter Anvin" <hpa@zytor.com>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "maxim.uvarov@oracle.com" <maxim.uvarov@oracle.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "vgoyal@redhat.com" <vgoyal@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 27, 2012 at 02:39:19PM +0800, Jason Wang wrote:
-> Fix the leaking of oldubufs and fd refcnt when fail to initialized used ring.
-> 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/net.c |   14 +++++++++++---
->  1 files changed, 11 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index ebd08b2..629d6b5 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -834,8 +834,10 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  		vhost_net_enable_vq(n, vq);
->  
->  		r = vhost_init_used(vq);
-> -		if (r)
-> -			goto err_vq;
-> +		if (r) {
-> +			sock = NULL;
-> +			goto err_used;
-> +		}
->  
->  		n->tx_packets = 0;
->  		n->tx_zcopy_err = 0;
-> @@ -859,8 +861,14 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  	mutex_unlock(&n->dev.mutex);
->  	return 0;
->  
-> +err_used:
-> +	if (oldubufs)
-> +		vhost_ubuf_put_and_wait(oldubufs);
-> +	if (oldsock)
-> +		fput(oldsock->file);
->  err_ubufs:
-> -	fput(sock->file);
-> +	if (sock)
-> +		fput(sock->file);
->  err_vq:
->  	mutex_unlock(&vq->mutex);
->  err:
+On 27/12/2012 07:53, Eric W. Biederman wrote:
+> The syscall ABI still has the wrong semantics.
+>
+> Aka totally unmaintainable and umergeable.
+>
+> The concept of domU support is also strange.  What does domU support even mean, when the dom0 support is loading a kernel to pick up Xen when Xen falls over.
 
-I think it's a real bug, but I don't see how the fix
-makes sense.
-We are returning an error, so we ideally
-revert to the state before the faulty
-operation. So this should put sock and ubufs,
-not oldsock/oldubufs.
+There are two requirements pulling at this patch series, but I agree
+that we need to clarify them.
 
+When dom0 loads a crash kernel, it is loading one for Xen to use.  As a
+dom0 crash causes a Xen crash, having dom0 set up a kdump kernel for
+itself is completely useless.  This ability is present in "classic Xen
+dom0" kernels, but the feature is currently missing in PVOPS.
 
-The best way is probably to change
-vhost_init_used so that it gets private data
-pointer as a parameter.
+Many cloud customers and service providers want the ability for a VM
+administrator to be able to load a kdump/kexec kernel within a
+domain[1].  This allows the VM administrator to take more proactive
+steps to isolate the cause of a crash, the state of which is most likely
+discarded while tearing down the domain.  The result being that as far
+as Xen is concerned, the domain is still alive, while the kdump
+kernel/environment can work its usual magic.  I am not aware of any
+feature like this existing in the past.
 
-We can then call it before ubuf alloc.
-You can then add err_used right after err_ubufs
-with no extra logic.
+~Andrew
 
+[1] http://lists.xen.org/archives/html/xen-devel/2012-11/msg01274.html
 
-
-
--- 
-MST
+>
+> I expect a lot of decisions about what code can be shared and what code can't is going to be driven by the simple question what does the syscall mean.
+>
+> Sharing machine_kexec.c and relocate_kernel.S does not make much sense to me when what you are doing is effectively passing your arguments through to the Xen version of kexec.
+>
+> Either Xen has it's own version of those routines or I expect the Xen version of kexec is buggy.   I can't imagine what sharing that code would mean.  By the same token I can't any need to duplicate the code either.
+>
+> Furthermore since this is just passing data from one version of the syscall to another I expect you can share the majority of the code across all architectures that implement Xen.  The only part I can see being arch specific is the Xen syscall stub.
+>
+> With respect to the proposed semantics of silently giving the kexec system call different meaning when running under Xen,
+> /sbin/kexec has to act somewhat differently when loading code into the Xen hypervisor so there is no point not making that explicit in the ABI.
+>
+> Eric
+>
