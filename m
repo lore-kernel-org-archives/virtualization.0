@@ -1,8 +1,7 @@
 From: Daniel Kiper <daniel.kiper@oracle.com>
-Subject: Re: [PATCH v3 02/11] x86/kexec: Add extra pointers to transition page
-	table PGD, PUD, PMD and PTE
-Date: Thu, 27 Dec 2012 15:19:24 -0800 (PST)
-Message-ID: <71b94237-c365-47ba-8d75-5ee1d8caee73@default>
+Subject: Re: [PATCH v3 06/11] x86/xen: Add i386 kexec/kdump implementation
+Date: Thu, 27 Dec 2012 15:23:02 -0800 (PST)
+Message-ID: <5698071f-c96c-4891-81d6-a77c4e3b77c2@default>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -21,13 +20,16 @@ To: hpa@zytor.com
 Cc: xen-devel@lists.xensource.com, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, ebiederm@xmission.com, jbeulich@suse.com, maxim.uvarov@oracle.com, tglx@linutronix.de, vgoyal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Hmm... this code is being redone at the moment... this might conflict.
+> On 12/26/2012 06:18 PM, Daniel Kiper wrote:
+> > Add i386 kexec/kdump implementation.
+> >
+> > v2 - suggestions/fixes:
+> >     - allocate transition page table pages below 4 GiB
+> >       (suggested by Jan Beulich).
+>
+> Why?
 
-Is this available somewhere? May I have a look at it?
+Sadly all addresses are passed via unsigned long
+variable to kexec hypercall.
 
 Daniel
-
-PS I am on holiday until 02/01/2013 and I could not
-   have access to my email box. Please be patient.
-   At worst case I will send reply when I will be
-   back at office.
