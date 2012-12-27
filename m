@@ -1,17 +1,15 @@
-From: Daniel Kiper <daniel.kiper@oracle.com>
-Subject: [PATCH v3 04/11] x86/xen: Introduce architecture dependent data for
-	kexec/kdump
-Date: Thu, 27 Dec 2012 03:18:53 +0100
-Message-ID: <1356574740-6806-5-git-send-email-daniel.kiper__42349.6622861878$1356574980$gmane$org@oracle.com>
-References: <1356574740-6806-1-git-send-email-daniel.kiper@oracle.com>
-	<1356574740-6806-2-git-send-email-daniel.kiper@oracle.com>
-	<1356574740-6806-3-git-send-email-daniel.kiper@oracle.com>
-	<1356574740-6806-4-git-send-email-daniel.kiper@oracle.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH] virtio-net: reset virtqueue affinity when doing cpu
+	hotplug
+Date: Thu, 27 Dec 2012 11:28:59 +0800
+Message-ID: <50DBC07B.7060303@redhat.com>
+References: <1356505614-16683-1-git-send-email-gaowanlong@cn.fujitsu.com>
+	<50DACC26.7050409@redhat.com> <50DACF22.5090707@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1356574740-6806-4-git-send-email-daniel.kiper@oracle.com>
+In-Reply-To: <50DACF22.5090707@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,121 +19,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: andrew.cooper3@citrix.com, ebiederm@xmission.com, hpa@zytor.com, jbeulich@suse.com, konrad.wilk@oracle.com, maxim.uvarov@oracle.com, mingo@redhat.com, tglx@linutronix.de, vgoyal@redhat.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
-Cc: Daniel Kiper <daniel.kiper@oracle.com>
+To: gaowanlong@cn.fujitsu.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce architecture dependent constants, structures and
-functions required by Xen kexec/kdump implementation.
+On 12/26/2012 06:19 PM, Wanlong Gao wrote:
+> On 12/26/2012 06:06 PM, Jason Wang wrote:
+>> On 12/26/2012 03:06 PM, Wanlong Gao wrote:
+>>> Add a cpu notifier to virtio-net, so that we can reset the
+>>> virtqueue affinity if the cpu hotplug happens. It improve
+>>> the performance through enabling or disabling the virtqueue
+>>> affinity after doing cpu hotplug.
+>> Hi Wanlong:
+>>
+>> Thanks for looking at this.
+>>> Cc: Rusty Russell <rusty@rustcorp.com.au>
+>>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+>>> Cc: Jason Wang <jasowang@redhat.com>
+>>> Cc: virtualization@lists.linux-foundation.org
+>>> Cc: netdev@vger.kernel.org
+>>> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+>>> ---
+>>>  drivers/net/virtio_net.c | 39 ++++++++++++++++++++++++++++++++++++++-
+>>>  1 file changed, 38 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>>> index a6fcf15..9710cf4 100644
+>>> --- a/drivers/net/virtio_net.c
+>>> +++ b/drivers/net/virtio_net.c
+>>> @@ -26,6 +26,7 @@
+>>>  #include <linux/scatterlist.h>
+>>>  #include <linux/if_vlan.h>
+>>>  #include <linux/slab.h>
+>>> +#include <linux/cpu.h>
+>>>  
+>>>  static int napi_weight = 128;
+>>>  module_param(napi_weight, int, 0444);
+>>> @@ -34,6 +35,8 @@ static bool csum = true, gso = true;
+>>>  module_param(csum, bool, 0444);
+>>>  module_param(gso, bool, 0444);
+>>>  
+>>> +static bool cpu_hotplug = false;
+>>> +
+>>>  /* FIXME: MTU in config. */
+>>>  #define MAX_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
+>>>  #define GOOD_COPY_LEN	128
+>>> @@ -1041,6 +1044,26 @@ static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
+>>>  		vi->affinity_hint_set = false;
+>>>  }
+>>>  
+>>> +static int virtnet_cpu_callback(struct notifier_block *nfb,
+>>> +			       unsigned long action, void *hcpu)
+>>> +{
+>>> +	switch(action) {
+>>> +	case CPU_ONLINE:
+>>> +	case CPU_ONLINE_FROZEN:
+>>> +	case CPU_DEAD:
+>>> +	case CPU_DEAD_FROZEN:
+>>> +		cpu_hotplug = true;
+>>> +		break;
+>>> +	default:
+>>> +		break;
+>>> +	}
+>>> +	return NOTIFY_OK;
+>>> +}
+>>> +
+>>> +static struct notifier_block virtnet_cpu_notifier = {
+>>> +	.notifier_call = virtnet_cpu_callback,
+>>> +};
+>>> +
+>>>  static void virtnet_get_ringparam(struct net_device *dev,
+>>>  				struct ethtool_ringparam *ring)
+>>>  {
+>>> @@ -1131,7 +1154,14 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
+>>>   */
+>>>  static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
+>>>  {
+>>> -	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
+>>> +	int txq;
+>>> +
+>>> +	if (unlikely(cpu_hotplug == true)) {
+>>> +		virtnet_set_affinity(netdev_priv(dev), true);
+>>> +		cpu_hotplug = false;
+>>> +	}
+>>> +
+>> Why don't you just do this in callback?
+> Callback can just give us a "hcpu", can't get the virtnet_info from callback. Am I missing something?
 
-Signed-off-by: Daniel Kiper <daniel.kiper@oracle.com>
----
- arch/x86/include/asm/xen/hypercall.h |    6 +++
- arch/x86/include/asm/xen/kexec.h     |   79 ++++++++++++++++++++++++++++++++++
- 2 files changed, 85 insertions(+), 0 deletions(-)
- create mode 100644 arch/x86/include/asm/xen/kexec.h
+Well, I think you can just embed the notifier block into virtnet_info,
+then use something like container_of in the callback to make the
+notifier per device. This also solve the concern of Eric.
+>> btw. Does qemu/kvm support cpu-hotplug now?
+> From http://www.linux-kvm.org/page/CPUHotPlug, I saw that qemu-kvm can support hotplug
+> but failed to merge to qemu.git, right?
 
-diff --git a/arch/x86/include/asm/xen/hypercall.h b/arch/x86/include/asm/xen/hypercall.h
-index c20d1ce..e76a1b8 100644
---- a/arch/x86/include/asm/xen/hypercall.h
-+++ b/arch/x86/include/asm/xen/hypercall.h
-@@ -459,6 +459,12 @@ HYPERVISOR_hvm_op(int op, void *arg)
- }
- 
- static inline int
-+HYPERVISOR_kexec_op(unsigned long op, void *args)
-+{
-+	return _hypercall2(int, kexec_op, op, args);
-+}
-+
-+static inline int
- HYPERVISOR_tmem_op(
- 	struct tmem_op *op)
- {
-diff --git a/arch/x86/include/asm/xen/kexec.h b/arch/x86/include/asm/xen/kexec.h
-new file mode 100644
-index 0000000..d09b52f
---- /dev/null
-+++ b/arch/x86/include/asm/xen/kexec.h
-@@ -0,0 +1,79 @@
-+/*
-+ * Copyright (c) 2011 Daniel Kiper
-+ * Copyright (c) 2012 Daniel Kiper, Oracle Corporation
-+ *
-+ * kexec/kdump implementation for Xen was written by Daniel Kiper.
-+ * Initial work on it was sponsored by Google under Google Summer
-+ * of Code 2011 program and Citrix. Konrad Rzeszutek Wilk from Oracle
-+ * was the mentor for this project.
-+ *
-+ * Some ideas are taken from:
-+ *   - native kexec/kdump implementation,
-+ *   - kexec/kdump implementation for Xen Linux Kernel Ver. 2.6.18,
-+ *   - PV-GRUB.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along
-+ * with this program.  If not, see <http://www.gnu.org/licenses/>.
-+ */
-+
-+#ifndef _ASM_X86_XEN_KEXEC_H
-+#define _ASM_X86_XEN_KEXEC_H
-+
-+#define KEXEC_XEN_NO_PAGES	17
-+
-+#define XK_MA_CONTROL_PAGE	0
-+#define XK_VA_CONTROL_PAGE	1
-+#define XK_MA_PGD_PAGE		2
-+#define XK_VA_PGD_PAGE		3
-+#define XK_MA_PUD0_PAGE		4
-+#define XK_VA_PUD0_PAGE		5
-+#define XK_MA_PUD1_PAGE		6
-+#define XK_VA_PUD1_PAGE		7
-+#define XK_MA_PMD0_PAGE		8
-+#define XK_VA_PMD0_PAGE		9
-+#define XK_MA_PMD1_PAGE		10
-+#define XK_VA_PMD1_PAGE		11
-+#define XK_MA_PTE0_PAGE		12
-+#define XK_VA_PTE0_PAGE		13
-+#define XK_MA_PTE1_PAGE		14
-+#define XK_VA_PTE1_PAGE		15
-+#define XK_MA_TABLE_PAGE	16
-+
-+#ifndef __ASSEMBLY__
-+struct xen_kexec_image {
-+	unsigned long page_list[KEXEC_XEN_NO_PAGES];
-+	unsigned long indirection_page;
-+	unsigned long start_address;
-+};
-+
-+struct xen_kexec_load {
-+	int type;
-+	struct xen_kexec_image image;
-+};
-+
-+extern unsigned int xen_kexec_control_code_size;
-+
-+#ifdef CONFIG_X86_32
-+extern void xen_relocate_kernel(unsigned long indirection_page,
-+				unsigned long *page_list,
-+				unsigned long start_address,
-+				unsigned int has_pae,
-+				unsigned int preserve_context);
-+#else
-+extern void xen_relocate_kernel(unsigned long indirection_page,
-+				unsigned long *page_list,
-+				unsigned long start_address,
-+				unsigned int preserve_context);
-+#endif
-+#endif
-+#endif /* _ASM_X86_XEN_KEXEC_H */
--- 
-1.5.6.5
+Not sure, I just try latest qemu, it even does not have a cpu_set command.
+
+Thanks
+>
+> Thanks,
+> Wanlong Gao
+>
