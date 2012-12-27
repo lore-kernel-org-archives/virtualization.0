@@ -1,17 +1,18 @@
 From: Daniel Kiper <daniel.kiper@oracle.com>
-Subject: [PATCH v3 05/11] x86/xen: Register resources required by kexec-tools
-Date: Thu, 27 Dec 2012 03:18:54 +0100
-Message-ID: <1356574740-6806-6-git-send-email-daniel.kiper__22617.1314986006$1356574962$gmane$org@oracle.com>
+Subject: [PATCH v3 06/11] x86/xen: Add i386 kexec/kdump implementation
+Date: Thu, 27 Dec 2012 03:18:55 +0100
+Message-ID: <1356574740-6806-7-git-send-email-daniel.kiper__35003.132481552$1356574970$gmane$org@oracle.com>
 References: <1356574740-6806-1-git-send-email-daniel.kiper@oracle.com>
 	<1356574740-6806-2-git-send-email-daniel.kiper@oracle.com>
 	<1356574740-6806-3-git-send-email-daniel.kiper@oracle.com>
 	<1356574740-6806-4-git-send-email-daniel.kiper@oracle.com>
 	<1356574740-6806-5-git-send-email-daniel.kiper@oracle.com>
+	<1356574740-6806-6-git-send-email-daniel.kiper@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1356574740-6806-5-git-send-email-daniel.kiper@oracle.com>
+In-Reply-To: <1356574740-6806-6-git-send-email-daniel.kiper@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,24 +26,26 @@ To: andrew.cooper3@citrix.com, ebiederm@xmission.com, hpa@zytor.com, jbeulich@su
 Cc: Daniel Kiper <daniel.kiper@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Register resources required by kexec-tools.
+Add i386 kexec/kdump implementation.
 
 v2 - suggestions/fixes:
-   - change logging level
-     (suggested by Konrad Rzeszutek Wilk).
+   - allocate transition page table pages below 4 GiB
+     (suggested by Jan Beulich).
 
 Signed-off-by: Daniel Kiper <daniel.kiper@oracle.com>
 ---
- arch/x86/xen/kexec.c |  150 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 150 insertions(+), 0 deletions(-)
- create mode 100644 arch/x86/xen/kexec.c
+ arch/x86/xen/machine_kexec_32.c   |  226 ++++++++++++++++++++++++++
+ arch/x86/xen/relocate_kernel_32.S |  323 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 549 insertions(+), 0 deletions(-)
+ create mode 100644 arch/x86/xen/machine_kexec_32.c
+ create mode 100644 arch/x86/xen/relocate_kernel_32.S
 
-diff --git a/arch/x86/xen/kexec.c b/arch/x86/xen/kexec.c
+diff --git a/arch/x86/xen/machine_kexec_32.c b/arch/x86/xen/machine_kexec_32.c
 new file mode 100644
-index 0000000..7ec4c45
+index 0000000..011a5e8
 --- /dev/null
-+++ b/arch/x86/xen/kexec.c
-@@ -0,0 +1,150 @@
++++ b/arch/x86/xen/machine_kexec_32.c
+@@ -0,0 +1,226 @@
 +/*
 + * Copyright (c) 2011 Daniel Kiper
 + * Copyright (c) 2012 Daniel Kiper, Oracle Corporation
@@ -72,126 +75,531 @@ index 0000000..7ec4c45
 + */
 +
 +#include <linux/errno.h>
-+#include <linux/init.h>
-+#include <linux/ioport.h>
 +#include <linux/kernel.h>
 +#include <linux/kexec.h>
-+#include <linux/slab.h>
++#include <linux/mm.h>
 +#include <linux/string.h>
 +
-+#include <xen/interface/platform.h>
-+#include <xen/interface/xen.h>
 +#include <xen/xen.h>
++#include <xen/xen-ops.h>
 +
 +#include <asm/xen/hypercall.h>
++#include <asm/xen/kexec.h>
++#include <asm/xen/page.h>
 +
-+unsigned long xen_vmcoreinfo_maddr = 0;
-+unsigned long xen_vmcoreinfo_max_size = 0;
++#define __ma(vaddr)	(virt_to_machine(vaddr).maddr)
 +
-+static int __init xen_init_kexec_resources(void)
++static void *alloc_pgtable_page(struct kimage *image)
 +{
-+	int rc;
-+	static struct resource xen_hypervisor_res = {
-+		.name = "Hypervisor code and data",
-+		.flags = IORESOURCE_BUSY | IORESOURCE_MEM
-+	};
-+	struct resource *cpu_res;
-+	struct xen_kexec_range xkr;
-+	struct xen_platform_op cpuinfo_op;
-+	uint32_t cpus, i;
++	struct page *page;
 +
-+	if (!xen_initial_domain())
-+		return 0;
++	page = firmware_kimage_alloc_control_pages(image, 0);
 +
-+	if (strstr(boot_command_line, "crashkernel="))
-+		pr_warn("kexec: Ignoring crashkernel option. "
-+			"It should be passed to Xen hypervisor.\n");
++	if (!page || !page_address(page))
++		return NULL;
 +
-+	/* Register Crash kernel resource. */
-+	xkr.range = KEXEC_RANGE_MA_CRASH;
-+	rc = HYPERVISOR_kexec_op(KEXEC_CMD_kexec_get_range, &xkr);
++	memset(page_address(page), 0, PAGE_SIZE);
 +
-+	if (rc) {
-+		pr_warn("kexec: %s: HYPERVISOR_kexec_op(KEXEC_RANGE_MA_CRASH)"
-+			": %i\n", __func__, rc);
-+		return rc;
-+	}
++	return page_address(page);
++}
 +
-+	if (!xkr.size)
-+		return 0;
++static int alloc_transition_pgtable(struct kimage *image)
++{
++	image->arch.pgd = alloc_pgtable_page(image);
 +
-+	crashk_res.start = xkr.start;
-+	crashk_res.end = xkr.start + xkr.size - 1;
-+	insert_resource(&iomem_resource, &crashk_res);
-+
-+	/* Register Hypervisor code and data resource. */
-+	xkr.range = KEXEC_RANGE_MA_XEN;
-+	rc = HYPERVISOR_kexec_op(KEXEC_CMD_kexec_get_range, &xkr);
-+
-+	if (rc) {
-+		pr_warn("kexec: %s: HYPERVISOR_kexec_op(KEXEC_RANGE_MA_XEN)"
-+			": %i\n", __func__, rc);
-+		return rc;
-+	}
-+
-+	xen_hypervisor_res.start = xkr.start;
-+	xen_hypervisor_res.end = xkr.start + xkr.size - 1;
-+	insert_resource(&iomem_resource, &xen_hypervisor_res);
-+
-+	/* Determine maximum number of physical CPUs. */
-+	cpuinfo_op.cmd = XENPF_get_cpuinfo;
-+	cpuinfo_op.u.pcpu_info.xen_cpuid = 0;
-+	rc = HYPERVISOR_dom0_op(&cpuinfo_op);
-+
-+	if (rc) {
-+		pr_warn("kexec: %s: HYPERVISOR_dom0_op(): %i\n", __func__, rc);
-+		return rc;
-+	}
-+
-+	cpus = cpuinfo_op.u.pcpu_info.max_present + 1;
-+
-+	/* Register CPUs Crash note resources. */
-+	cpu_res = kcalloc(cpus, sizeof(struct resource), GFP_KERNEL);
-+
-+	if (!cpu_res) {
-+		pr_warn("kexec: %s: kcalloc(): %i\n", __func__, -ENOMEM);
++	if (!image->arch.pgd)
 +		return -ENOMEM;
-+	}
 +
-+	for (i = 0; i < cpus; ++i) {
-+		xkr.range = KEXEC_RANGE_MA_CPU;
-+		xkr.nr = i;
-+		rc = HYPERVISOR_kexec_op(KEXEC_CMD_kexec_get_range, &xkr);
++	image->arch.pmd0 = alloc_pgtable_page(image);
 +
-+		if (rc) {
-+			pr_warn("kexec: %s: cpu: %u: HYPERVISOR_kexec_op"
-+				"(KEXEC_RANGE_MA_XEN): %i\n", __func__, i, rc);
-+			continue;
-+		}
++	if (!image->arch.pmd0)
++		return -ENOMEM;
 +
-+		cpu_res->name = "Crash note";
-+		cpu_res->start = xkr.start;
-+		cpu_res->end = xkr.start + xkr.size - 1;
-+		cpu_res->flags = IORESOURCE_BUSY | IORESOURCE_MEM;
-+		insert_resource(&iomem_resource, cpu_res++);
-+	}
++	image->arch.pmd1 = alloc_pgtable_page(image);
 +
-+	/* Get vmcoreinfo address and maximum allowed size. */
-+	xkr.range = KEXEC_RANGE_MA_VMCOREINFO;
-+	rc = HYPERVISOR_kexec_op(KEXEC_CMD_kexec_get_range, &xkr);
++	if (!image->arch.pmd1)
++		return -ENOMEM;
 +
-+	if (rc) {
-+		pr_warn("kexec: %s: HYPERVISOR_kexec_op(KEXEC_RANGE_MA_VMCOREINFO)"
-+			": %i\n", __func__, rc);
-+		return rc;
-+	}
++	image->arch.pte0 = alloc_pgtable_page(image);
 +
-+	xen_vmcoreinfo_maddr = xkr.start;
-+	xen_vmcoreinfo_max_size = xkr.size;
++	if (!image->arch.pte0)
++		return -ENOMEM;
++
++	image->arch.pte1 = alloc_pgtable_page(image);
++
++	if (!image->arch.pte1)
++		return -ENOMEM;
 +
 +	return 0;
 +}
 +
-+core_initcall(xen_init_kexec_resources);
++struct page *mf_kexec_kimage_alloc_pages(gfp_t gfp_mask,
++						unsigned int order,
++						unsigned long limit)
++{
++	struct page *pages;
++	unsigned int address_bits, i;
++
++	pages = alloc_pages(gfp_mask, order);
++
++	if (!pages)
++		return NULL;
++
++	address_bits = (limit == ULONG_MAX) ? BITS_PER_LONG : ilog2(limit);
++
++	/* Relocate set of pages below given limit. */
++	if (xen_create_contiguous_region((unsigned long)page_address(pages),
++							order, address_bits)) {
++		__free_pages(pages, order);
++		return NULL;
++	}
++
++	BUG_ON(PagePrivate(pages));
++
++	pages->mapping = NULL;
++	set_page_private(pages, order);
++
++	for (i = 0; i < (1 << order); ++i)
++		SetPageReserved(pages + i);
++
++	return pages;
++}
++
++void mf_kexec_kimage_free_pages(struct page *page)
++{
++	unsigned int i, order;
++
++	order = page_private(page);
++
++	for (i = 0; i < (1 << order); ++i)
++		ClearPageReserved(page + i);
++
++	xen_destroy_contiguous_region((unsigned long)page_address(page), order);
++	__free_pages(page, order);
++}
++
++unsigned long mf_kexec_page_to_pfn(struct page *page)
++{
++	return pfn_to_mfn(page_to_pfn(page));
++}
++
++struct page *mf_kexec_pfn_to_page(unsigned long mfn)
++{
++	return pfn_to_page(mfn_to_pfn(mfn));
++}
++
++unsigned long mf_kexec_virt_to_phys(volatile void *address)
++{
++	return virt_to_machine(address).maddr;
++}
++
++void *mf_kexec_phys_to_virt(unsigned long address)
++{
++	return phys_to_virt(machine_to_phys(XMADDR(address)).paddr);
++}
++
++int mf_kexec_prepare(struct kimage *image)
++{
++#ifdef CONFIG_KEXEC_JUMP
++	if (image->preserve_context) {
++		pr_info_once("kexec: Context preservation is not "
++				"supported in Xen domains.\n");
++		return -ENOSYS;
++	}
++#endif
++
++	return alloc_transition_pgtable(image);
++}
++
++int mf_kexec_load(struct kimage *image)
++{
++	void *control_page;
++	struct xen_kexec_load xkl = {};
++
++	/* Image is unloaded, nothing to do. */
++	if (!image)
++		return 0;
++
++	control_page = page_address(image->control_code_page);
++	memcpy(control_page, xen_relocate_kernel, xen_kexec_control_code_size);
++
++	xkl.type = image->type;
++	xkl.image.page_list[XK_MA_CONTROL_PAGE] = __ma(control_page);
++	xkl.image.page_list[XK_MA_TABLE_PAGE] = 0; /* Unused. */
++	xkl.image.page_list[XK_MA_PGD_PAGE] = __ma(image->arch.pgd);
++	xkl.image.page_list[XK_MA_PUD0_PAGE] = 0; /* Unused. */
++	xkl.image.page_list[XK_MA_PUD1_PAGE] = 0; /* Unused. */
++	xkl.image.page_list[XK_MA_PMD0_PAGE] = __ma(image->arch.pmd0);
++	xkl.image.page_list[XK_MA_PMD1_PAGE] = __ma(image->arch.pmd1);
++	xkl.image.page_list[XK_MA_PTE0_PAGE] = __ma(image->arch.pte0);
++	xkl.image.page_list[XK_MA_PTE1_PAGE] = __ma(image->arch.pte1);
++	xkl.image.indirection_page = image->head;
++	xkl.image.start_address = image->start;
++
++	return HYPERVISOR_kexec_op(KEXEC_CMD_kexec_load, &xkl);
++}
++
++void mf_kexec_cleanup(struct kimage *image)
++{
++}
++
++void mf_kexec_unload(struct kimage *image)
++{
++	int rc;
++	struct xen_kexec_load xkl = {};
++
++	if (!image)
++		return;
++
++	xkl.type = image->type;
++	rc = HYPERVISOR_kexec_op(KEXEC_CMD_kexec_unload, &xkl);
++
++	WARN(rc, "kexec: %s: HYPERVISOR_kexec_op(): %i\n", __func__, rc);
++}
++
++void mf_kexec_shutdown(void)
++{
++}
++
++void mf_kexec(struct kimage *image)
++{
++	int rc;
++	struct xen_kexec_exec xke = {};
++
++	xke.type = image->type;
++	rc = HYPERVISOR_kexec_op(KEXEC_CMD_kexec, &xke);
++
++	pr_emerg("kexec: %s: HYPERVISOR_kexec_op(): %i\n", __func__, rc);
++	BUG();
++}
+diff --git a/arch/x86/xen/relocate_kernel_32.S b/arch/x86/xen/relocate_kernel_32.S
+new file mode 100644
+index 0000000..0e81830
+--- /dev/null
++++ b/arch/x86/xen/relocate_kernel_32.S
+@@ -0,0 +1,323 @@
++/*
++ * Copyright (c) 2002-2005 Eric Biederman <ebiederm@xmission.com>
++ * Copyright (c) 2011 Daniel Kiper
++ * Copyright (c) 2012 Daniel Kiper, Oracle Corporation
++ *
++ * kexec/kdump implementation for Xen was written by Daniel Kiper.
++ * Initial work on it was sponsored by Google under Google Summer
++ * of Code 2011 program and Citrix. Konrad Rzeszutek Wilk from Oracle
++ * was the mentor for this project.
++ *
++ * Some ideas are taken from:
++ *   - native kexec/kdump implementation,
++ *   - kexec/kdump implementation for Xen Linux Kernel Ver. 2.6.18,
++ *   - PV-GRUB.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either veesion 2 of the License, or
++ * (at your option) any later veesion.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License along
++ * with this program.  If not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include <asm/cache.h>
++#include <asm/page_types.h>
++#include <asm/pgtable_types.h>
++#include <asm/processor-flags.h>
++
++#include <asm/xen/kexec.h>
++
++#define ARG_INDIRECTION_PAGE	0x4
++#define ARG_PAGE_LIST		0x8
++#define ARG_START_ADDRESS	0xc
++
++#define PTR(x)	(x << 2)
++
++	.text
++	.align	PAGE_SIZE
++	.globl	xen_kexec_control_code_size, xen_relocate_kernel
++
++xen_relocate_kernel:
++	/*
++	 * Must be relocatable PIC code callable as a C function.
++	 *
++	 * This function is called by Xen but here hypervisor is dead.
++	 * We are playing on bare metal.
++	 *
++	 * Every machine address passed to this function through
++	 * page_list (e.g. XK_MA_CONTROL_PAGE) is established
++	 * by dom0 during kexec load phase.
++	 *
++	 * Every virtual address passed to this function through page_list
++	 * (e.g. XK_VA_CONTROL_PAGE) is established by hypervisor during
++	 * HYPERVISOR_kexec_op(KEXEC_CMD_kexec_load) hypercall.
++	 *
++	 * 0x4(%esp) - indirection_page,
++	 * 0x8(%esp) - page_list,
++	 * 0xc(%esp) - start_address,
++	 * 0x10(%esp) - cpu_has_pae (ignored),
++	 * 0x14(%esp) - preserve_context (ignored).
++	 */
++
++	/* Zero out flags, and disable interrupts. */
++	pushl	$0
++	popfl
++
++	/* Get page_list address. */
++	movl	ARG_PAGE_LIST(%esp), %esi
++
++	/*
++	 * Map the control page at its virtual address
++	 * in transition page table.
++	 */
++	movl	PTR(XK_VA_CONTROL_PAGE)(%esi), %eax
++
++	/* Get PGD address and PGD entry index. */
++	movl	PTR(XK_VA_PGD_PAGE)(%esi), %ebx
++	movl	%eax, %ecx
++	shrl	$PGDIR_SHIFT, %ecx
++	andl	$(PTRS_PER_PGD - 1), %ecx
++
++	/* Fill PGD entry with PMD0 reference. */
++	movl	PTR(XK_MA_PMD0_PAGE)(%esi), %edx
++	orl	$_PAGE_PRESENT, %edx
++	movl	%edx, (%ebx, %ecx, 8)
++
++	/* Get PMD0 address and PMD0 entry index. */
++	movl	PTR(XK_VA_PMD0_PAGE)(%esi), %ebx
++	movl	%eax, %ecx
++	shrl	$PMD_SHIFT, %ecx
++	andl	$(PTRS_PER_PMD - 1), %ecx
++
++	/* Fill PMD0 entry with PTE0 reference. */
++	movl	PTR(XK_MA_PTE0_PAGE)(%esi), %edx
++	orl	$_KERNPG_TABLE, %edx
++	movl	%edx, (%ebx, %ecx, 8)
++
++	/* Get PTE0 address and PTE0 entry index. */
++	movl	PTR(XK_VA_PTE0_PAGE)(%esi), %ebx
++	movl	%eax, %ecx
++	shrl	$PAGE_SHIFT, %ecx
++	andl	$(PTRS_PER_PTE - 1), %ecx
++
++	/* Fill PTE0 entry with control page reference. */
++	movl	PTR(XK_MA_CONTROL_PAGE)(%esi), %edx
++	orl	$__PAGE_KERNEL_EXEC, %edx
++	movl	%edx, (%ebx, %ecx, 8)
++
++	/*
++	 * Identity map the control page at its machine address
++	 * in transition page table.
++	 */
++	movl	PTR(XK_MA_CONTROL_PAGE)(%esi), %eax
++
++	/* Get PGD address and PGD entry index. */
++	movl	PTR(XK_VA_PGD_PAGE)(%esi), %ebx
++	movl	%eax, %ecx
++	shrl	$PGDIR_SHIFT, %ecx
++	andl	$(PTRS_PER_PGD - 1), %ecx
++
++	/* Fill PGD entry with PMD1 reference. */
++	movl	PTR(XK_MA_PMD1_PAGE)(%esi), %edx
++	orl	$_PAGE_PRESENT, %edx
++	movl	%edx, (%ebx, %ecx, 8)
++
++	/* Get PMD1 address and PMD1 entry index. */
++	movl	PTR(XK_VA_PMD1_PAGE)(%esi), %ebx
++	movl	%eax, %ecx
++	shrl	$PMD_SHIFT, %ecx
++	andl	$(PTRS_PER_PMD - 1), %ecx
++
++	/* Fill PMD1 entry with PTE1 reference. */
++	movl	PTR(XK_MA_PTE1_PAGE)(%esi), %edx
++	orl	$_KERNPG_TABLE, %edx
++	movl	%edx, (%ebx, %ecx, 8)
++
++	/* Get PTE1 address and PTE1 entry index. */
++	movl	PTR(XK_VA_PTE1_PAGE)(%esi), %ebx
++	movl	%eax, %ecx
++	shrl	$PAGE_SHIFT, %ecx
++	andl	$(PTRS_PER_PTE - 1), %ecx
++
++	/* Fill PTE1 entry with control page reference. */
++	movl	PTR(XK_MA_CONTROL_PAGE)(%esi), %edx
++	orl	$__PAGE_KERNEL_EXEC, %edx
++	movl	%edx, (%ebx, %ecx, 8)
++
++	/*
++	 * Get machine address of control page now.
++	 * This is impossible after page table switch.
++	 */
++	movl	PTR(XK_MA_CONTROL_PAGE)(%esi), %ebx
++
++	/* Get machine address of transition page table now too. */
++	movl	PTR(XK_MA_PGD_PAGE)(%esi), %ecx
++
++	/* Get start_address too. */
++	movl	ARG_START_ADDRESS(%esp), %edx
++
++	/* Get indirection_page address too. */
++	movl	ARG_INDIRECTION_PAGE(%esp), %edi
++
++	/* Switch to transition page table. */
++	movl	%ecx, %cr3
++
++	/* Load IDT. */
++	lidtl	(idt_48 - xen_relocate_kernel)(%ebx)
++
++	/* Load GDT. */
++	leal	(gdt - xen_relocate_kernel)(%ebx), %eax
++	movl	%eax, (gdt_48 - xen_relocate_kernel + 2)(%ebx)
++	lgdtl	(gdt_48 - xen_relocate_kernel)(%ebx)
++
++	/* Load data segment registers. */
++	movl	$(gdt_ds - gdt), %eax
++	movl	%eax, %ds
++	movl	%eax, %es
++	movl	%eax, %fs
++	movl	%eax, %gs
++	movl	%eax, %ss
++
++	/* Setup a new stack at the end of machine address of control page. */
++	leal	PAGE_SIZE(%ebx), %esp
++
++	/* Store start_address on the stack. */
++	pushl   %edx
++
++	/* Jump to identity mapped page. */
++	pushl	$0
++	pushl	$(gdt_cs - gdt)
++	addl	$(identity_mapped - xen_relocate_kernel), %ebx
++	pushl	%ebx
++	iretl
++
++identity_mapped:
++	/*
++	 * Set %cr0 to a known state:
++	 *   - disable alignment check,
++	 *   - disable floating point emulation,
++	 *   - disable paging,
++	 *   - no task switch,
++	 *   - disable write protect,
++	 *   - enable protected mode.
++	 */
++	movl	%cr0, %eax
++	andl	$~(X86_CR0_AM | X86_CR0_EM | X86_CR0_PG | X86_CR0_TS | X86_CR0_WP), %eax
++	orl	$(X86_CR0_PE), %eax
++	movl	%eax, %cr0
++
++	/* Set %cr4 to a known state. */
++	xorl	%eax, %eax
++	movl	%eax, %cr4
++
++	jmp	1f
++
++1:
++	/* Flush the TLB (needed?). */
++	movl	%eax, %cr3
++
++	/* Do the copies. */
++	movl	%edi, %ecx	/* Put the indirection_page in %ecx. */
++	xorl	%edi, %edi
++	xorl	%esi, %esi
++	jmp	1f
++
++0:
++	/*
++	 * Top, read another doubleword from the indirection page.
++	 * Indirection page is an array which contains source
++	 * and destination address pairs. If all pairs could
++	 * not fit in one page then at the end of given
++	 * indirection page is pointer to next one.
++	 * Copy is stopped when done indicator
++	 * is found in indirection page.
++	 */
++	movl	(%ebx), %ecx
++	addl	$4, %ebx
++
++1:
++	testl	$0x1, %ecx	/* Is it a destination page? */
++	jz	2f
++
++	movl	%ecx, %edi
++	andl	$PAGE_MASK, %edi
++	jmp	0b
++
++2:
++	testl	$0x2, %ecx	/* Is it an indirection page? */
++	jz	2f
++
++	movl	%ecx, %ebx
++	andl	$PAGE_MASK, %ebx
++	jmp	0b
++
++2:
++	testl	$0x4, %ecx	/* Is it the done indicator? */
++	jz	2f
++	jmp	3f
++
++2:
++	testl	$0x8, %ecx	/* Is it the source indicator? */
++	jz	0b		/* Ignore it otherwise. */
++
++	movl	%ecx, %esi
++	andl	$PAGE_MASK, %esi
++	movl	$1024, %ecx
++
++	/* Copy page. */
++	rep	movsl
++	jmp	0b
++
++3:
++	/*
++	 * To be certain of avoiding problems with self-modifying code
++	 * I need to execute a serializing instruction here.
++	 * So I flush the TLB by reloading %cr3 here, it's handy,
++	 * and not processor dependent.
++	 */
++	xorl	%eax, %eax
++	movl	%eax, %cr3
++
++	/*
++	 * Set all of the registers to known values.
++	 * Leave %esp alone.
++	 */
++	xorl	%ebx, %ebx
++	xorl    %ecx, %ecx
++	xorl    %edx, %edx
++	xorl    %esi, %esi
++	xorl    %edi, %edi
++	xorl    %ebp, %ebp
++
++	/* Jump to start_address. */
++	retl
++
++	.align	L1_CACHE_BYTES
++
++gdt:
++	.quad	0x0000000000000000	/* NULL descriptor. */
++
++gdt_cs:
++	.quad	0x00cf9a000000ffff	/* 4 GiB code segment at 0x00000000. */
++
++gdt_ds:
++	.quad	0x00cf92000000ffff	/* 4 GiB data segment at 0x00000000. */
++gdt_end:
++
++gdt_48:
++	.word	gdt_end - gdt - 1	/* GDT limit. */
++	.long	0			/* GDT base - filled in by code above. */
++
++idt_48:
++	.word	0			/* IDT limit. */
++	.long	0			/* IDT base. */
++
++xen_kexec_control_code_size:
++	.long	. - xen_relocate_kernel
 -- 
 1.5.6.5
