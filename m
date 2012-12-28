@@ -1,7 +1,7 @@
 From: Daniel Kiper <daniel.kiper@oracle.com>
-Subject: Re: [PATCH v3 00/11] xen: Initial kexec/kdump implementation
-Date: Thu, 27 Dec 2012 15:40:50 -0800 (PST)
-Message-ID: <bd591d7e-5e78-4df1-af68-5c0e596a80f6__28001.9831065603$1356651693$gmane$org@default>
+Subject: Re: [PATCH v3 01/11] kexec: introduce kexec firmware support
+Date: Thu, 27 Dec 2012 16:18:56 -0800 (PST)
+Message-ID: <2f3acfe3-c608-43d8-b76a-6ba69a872692@default>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -16,35 +16,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: hpa@zytor.com
-Cc: xen-devel@lists.xensource.com, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, ebiederm@xmission.com, jbeulich@suse.com, maxim.uvarov@oracle.com, tglx@linutronix.de, vgoyal@redhat.com
+To: ebiederm@xmission.com
+Cc: xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, hpa@zytor.com, kexec@lists.infradead.org, x86@kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, jbeulich@suse.com, maxim.uvarov@oracle.com, tglx@linutronix.de, vgoyal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On 12/26/2012 06:18 PM, Daniel Kiper wrote:
-> > Hi,
-> >
-> > This set of patches contains initial kexec/kdump implementation for Xen v3.
-> > Currently only dom0 is supported, however, almost all infrustructure
-> > required for domU support is ready.
-> >
-> > Jan Beulich suggested to merge Xen x86 assembler code with baremetal x86 code.
-> > This could simplify and reduce a bit size of kernel code. However, this solution
-> > requires some changes in baremetal x86 code. First of all code which establishes
-> > transition page table should be moved back from machine_kexec_$(BITS).c to
-> > relocate_kernel_$(BITS).S. Another important thing which should be changed in that
-> > case is format of page_list array. Xen kexec hypercall requires to alternate physical
-> > addresses with virtual ones. These and other required stuff have not been done in that
-> > version because I am not sure that solution will be accepted by kexec/kdump maintainers.
-> > I hope that this email spark discussion about that topic.
+> Daniel Kiper <daniel.kiper@oracle.com> writes:
 >
-> I want a detailed list of the constraints that this assumes and 
-> therefore imposes on the native implementation as a result of this.  We 
-> have had way too many patches where Xen PV hacks effectively nailgun 
-> arbitrary, and sometimes poor, design decisions in place and now we 
-> can't fix them.
+> > Some kexec/kdump implementations (e.g. Xen PVOPS) could not use default
+> > Linux infrastructure and require some support from firmware and/or hypervisor.
+> > To cope with that problem kexec firmware infrastructure was introduced.
+> > It allows a developer to use all kexec/kdump features of given firmware
+> > or hypervisor.
+>
+> As this stands this patch is wrong.
+>
+> You need to pass an additional flag from userspace through /sbin/kexec
+> that says load the kexec image in the firmware.  A global variable here
+> is not ok.
+>
+> As I understand it you are loading a kexec on xen panic image.  Which
+> is semantically different from a kexec on linux panic image.  It is not
+> ok to do have a silly global variable kexec_use_firmware.
 
-OK but now I think that we should leave this discussion
-until all details regarding kexec/kdump generic code
-will be agreed. Sorry for that.
+Earlier we agreed that /sbin/kexec should call kexec syscall with
+special flag. However, during work on Xen kexec/kdump v3 patch
+I stated that this is insufficient because e.g. crash_kexec()
+should execute different code in case of use of firmware support too.
+Sadly syscall does not save this flag anywhere. Additionally, I stated
+that kernel itself has the best knowledge which code path should be
+used (firmware or plain Linux). If this decision will be left to userspace
+then simple kexec syscall could crash system at worst case (e.g. when
+plain Linux kexec will be used in case when firmware kaxec should be used).
+However, if you wish I could add this flag to syscall. Additionally, I could
+add function which enables firmware support and then kexec_use_firmware
+variable will be global only in kexec.c module.
+
+> Furthermore it is not ok to have a conditional
+> code outside of header files.
+
+I agree but how to dispatch execution e.g. in crash_kexec()
+if we would like (I suppose) compile kexec firmware
+support conditionally?
 
 Daniel
