@@ -1,21 +1,21 @@
 From: Daniel Kiper <daniel.kiper@oracle.com>
 Subject: Re: [Xen-devel] [PATCH v3 00/11] xen: Initial kexec/kdump
 	implementation
-Date: Fri, 4 Jan 2013 18:01:20 +0100
-Message-ID: <20130104170120.GA3472@host-192-168-1-59.local.net-space.pl>
+Date: Fri, 4 Jan 2013 18:07:51 +0100
+Message-ID: <20130104170751.GB3472__19975.6230846562$1357319341$gmane$org@host-192-168-1-59.local.net-space.pl>
 References: <1356574740-6806-1-git-send-email-daniel.kiper@oracle.com>
 	<50DBC856.6030208@zytor.com>
 	<791b4922-078f-4adc-b3f3-0651f2266147@email.android.com>
 	<50DC58C4.3000307@citrix.com> <874nj7qsor.fsf@xmission.com>
 	<50E41973.9050705@citrix.com>
 	<20130104142257.GC3346@host-192-168-1-59.local.net-space.pl>
-	<50E6E974.5090805@citrix.com>
+	<50E6F81D02000078000B3245@nat28.tlf.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <50E6E974.5090805@citrix.com>
+In-Reply-To: <50E6F81D02000078000B3245@nat28.tlf.novell.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,30 +25,13 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Vrabel <david.vrabel@citrix.com>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "H. Peter Anvin" <hpa@zytor.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Andrew Cooper <andrew.cooper3@citrix.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "maxim.uvarov@oracle.com" <maxim.uvarov@oracle.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "vgoyal@redhat.com" <vgoyal@redhat.com>
+To: Jan Beulich <JBeulich@suse.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "H. Peter Anvin" <hpa@zytor.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Andrew Cooper <andrew.cooper3@citrix.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "maxim.uvarov@oracle.com" <maxim.uvarov@oracle.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "vgoyal@redhat.com" <vgoyal@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 04, 2013 at 02:38:44PM +0000, David Vrabel wrote:
-> On 04/01/13 14:22, Daniel Kiper wrote:
+On Fri, Jan 04, 2013 at 02:41:17PM +0000, Jan Beulich wrote:
+> >>> On 04.01.13 at 15:22, Daniel Kiper <daniel.kiper@oracle.com> wrote:
 > > On Wed, Jan 02, 2013 at 11:26:43AM +0000, Andrew Cooper wrote:
-> >> On 27/12/12 18:02, Eric W. Biederman wrote:
-> >>> Andrew Cooper<andrew.cooper3@citrix.com>  writes:
-> >>>
-> >>>> On 27/12/2012 07:53, Eric W. Biederman wrote:
-> >>>>> The syscall ABI still has the wrong semantics.
-> >>>>>
-> >>>>> Aka totally unmaintainable and umergeable.
-> >>>>>
-> >>>>> The concept of domU support is also strange.  What does domU support even mean, when the dom0 support is loading a kernel to pick up Xen when Xen falls over.
-> >>>> There are two requirements pulling at this patch series, but I agree
-> >>>> that we need to clarify them.
-> >>> It probably make sense to split them apart a little even.
-> >>>
-> >>>
-> >>
-> >> Thinking about this split, there might be a way to simply it even more.
-> >>
 > >> /sbin/kexec can load the "Xen" crash kernel itself by issuing
 > >> hypercalls using /dev/xen/privcmd.  This would remove the need for
 > >> the dom0 kernel to distinguish between loading a crash kernel for
@@ -57,33 +40,11 @@ On Fri, Jan 04, 2013 at 02:38:44PM +0000, David Vrabel wrote:
 > >> Or is this just a silly idea complicating the matter?
 > >
 > > This is impossible with current Xen kexec/kdump interface.
-> > It should be changed to do that. However, I suppose that
-> > Xen community would not be interested in such changes.
 >
-> I don't see why the hypercall ABI cannot be extended with new sub-ops
-> that do the right thing -- the existing ABI is a bit weird.
->
-> I plan to start prototyping something shortly (hopefully next week) for
-> the Xen kexec case.
+> Why?
 
-Wow... As I can this time Xen community is interested in...
-That is great. I agree that current kexec interface is not ideal.
-
-David, I am happy to help in that process. However, if you wish I could
-carry it myself. Anyway, it looks that I should hold on with my
-Linux kexec/kdump patches.
-
-My .5 cents:
-  - We should focus on KEXEC_CMD_kexec_load and KEXEC_CMD_kexec_unload;
-    probably we should introduce KEXEC_CMD_kexec_load2 and KEXEC_CMD_kexec_unload2;
-    load should __LOAD__ kernel image and other things into hypervisor memory;
-    I suppose that allmost all things could be copied from linux/kernel/kexec.c,
-    linux/arch/x86/kernel/{machine_kexec_$(BITS).c,relocate_kernel_$(BITS).c};
-    I think that KEXEC_CMD_kexec should stay as is,
-  - Hmmm... Now I think that we should still use kexec syscall to load image
-    into Xen memory (with new KEXEC_CMD_kexec_load2) because it establishes
-    all things which are needed to call kdump if dom0 crashes; however,
-    I could be wrong...
-  - last but not least, we should think about support for PV guests too.
+Because current KEXEC_CMD_kexec_load does not load kernel
+image and other things into Xen memory. It means that it
+should live somewhere in dom0 Linux kernel memory.
 
 Daniel
