@@ -1,20 +1,22 @@
-From: Daniel Kiper <daniel.kiper@oracle.com>
-Subject: Re: [PATCH v3 02/11] x86/kexec: Add extra pointers to transition
-	page table PGD, PUD, PMD and PTE
-Date: Fri, 4 Jan 2013 18:25:38 +0100
-Message-ID: <20130104172538.GC3472@host-192-168-1-59.local.net-space.pl>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [Xen-devel] [PATCH v3 00/11] xen: Initial kexec/kdump
+	implementation
+Date: Fri, 4 Jan 2013 14:11:46 -0500
+Message-ID: <20130104191146.GC6721@phenom.dumpdata.com>
 References: <1356574740-6806-1-git-send-email-daniel.kiper@oracle.com>
-	<1356574740-6806-2-git-send-email-daniel.kiper@oracle.com>
-	<1356574740-6806-3-git-send-email-daniel.kiper@oracle.com>
-	<50E55ECF02000078000B2A13@nat28.tlf.novell.com>
-	<20130104151542.GD3346@host-192-168-1-59.local.net-space.pl>
-	<50E70D8002000078000B336D@nat28.tlf.novell.com>
+	<50DBC856.6030208@zytor.com>
+	<791b4922-078f-4adc-b3f3-0651f2266147@email.android.com>
+	<50DC58C4.3000307@citrix.com> <874nj7qsor.fsf@xmission.com>
+	<50E41973.9050705@citrix.com>
+	<20130104142257.GC3346@host-192-168-1-59.local.net-space.pl>
+	<50E6F81D02000078000B3245@nat28.tlf.novell.com>
+	<20130104170751.GB3472@host-192-168-1-59.local.net-space.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <50E70D8002000078000B336D@nat28.tlf.novell.com>
+In-Reply-To: <20130104170751.GB3472@host-192-168-1-59.local.net-space.pl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,45 +26,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Beulich <JBeulich@suse.com>
-Cc: hpa@zytor.com, konrad.wilk@oracle.com, andrew.cooper3@citrix.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, xen-devel <xen-devel@lists.xen.org>, mingo@redhat.com, ebiederm@xmission.com, maxim.uvarov@oracle.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, vgoyal@redhat.com
+To: Daniel Kiper <daniel.kiper@oracle.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "H. Peter Anvin" <hpa@zytor.com>, Andrew Cooper <andrew.cooper3@citrix.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Jan Beulich <JBeulich@suse.com>, "maxim.uvarov@oracle.com" <maxim.uvarov@oracle.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "vgoyal@redhat.com" <vgoyal@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 04, 2013 at 04:12:32PM +0000, Jan Beulich wrote:
-> >>> On 04.01.13 at 16:15, Daniel Kiper <daniel.kiper@oracle.com> wrote:
-> > On Thu, Jan 03, 2013 at 09:34:55AM +0000, Jan Beulich wrote:
-> >> >>> On 27.12.12 at 03:18, Daniel Kiper <daniel.kiper@oracle.com> wrote:
-> >> > Some implementations (e.g. Xen PVOPS) could not use part of identity page table
-> >> > to construct transition page table. It means that they require separate PUDs,
-> >> > PMDs and PTEs for virtual and physical (identity) mapping. To satisfy that
-> >> > requirement add extra pointer to PGD, PUD, PMD and PTE and align existing
-> >> > code.
-> >>
-> >> So you keep posting this despite it having got pointed out on each
-> >> earlier submission that this is unnecessary, proven by the fact that
-> >> the non-pvops Xen kernels can get away without it. Why?
+On Fri, Jan 04, 2013 at 06:07:51PM +0100, Daniel Kiper wrote:
+> On Fri, Jan 04, 2013 at 02:41:17PM +0000, Jan Beulich wrote:
+> > >>> On 04.01.13 at 15:22, Daniel Kiper <daniel.kiper@oracle.com> wrote:
+> > > On Wed, Jan 02, 2013 at 11:26:43AM +0000, Andrew Cooper wrote:
+> > >> /sbin/kexec can load the "Xen" crash kernel itself by issuing
+> > >> hypercalls using /dev/xen/privcmd.  This would remove the need for
+> > >> the dom0 kernel to distinguish between loading a crash kernel for
+> > >> itself and loading a kernel for Xen.
+> > >>
+> > >> Or is this just a silly idea complicating the matter?
+> > >
+> > > This is impossible with current Xen kexec/kdump interface.
 > >
-> > Sorry but I forgot to reply for your email last time.
-> >
-> > I am still not convinced. I have tested SUSE kernel itself and it does not work.
-> > Maybe I missed something but... Please check
-> > arch/x86/kernel/machine_kexec_64.c:init_transition_pgtable()
-> >
-> > I can see:
-> >
-> > vaddr = (unsigned long)relocate_kernel;
-> >
-> > and later:
-> >
-> > pgd += pgd_index(vaddr);
-> > ...
->
-> I think that mapping is simply irrelevant, as the code at
-> relocate_kernel gets copied to the control page and
-> invoked there (other than in the native case, where
-> relocate_kernel() gets invoked directly).
+> > Why?
+> 
+> Because current KEXEC_CMD_kexec_load does not load kernel
+> image and other things into Xen memory. It means that it
+> should live somewhere in dom0 Linux kernel memory.
 
-Right, so where is virtual mapping of control page established?
-I could not find relevant code in SLES kernel which does that.
+We could have a very simple hypercall which would have:
 
-Daniel
+struct fancy_new_hypercall {
+	xen_pfn_t payload; // IN
+	ssize_t len; // IN
+#define DATA (1<<1)
+#define DATA_EOF (1<<2)
+#define DATA_KERNEL (1<<3)
+#define DATA_RAMDISK (1<<4)
+	unsigned int flags; // IN
+	unsigned int status; // OUT
+};
+
+which would in a loop just iterate over the payloads and
+let the hypervisor stick it in the crashkernel space.
+
+This is all hand-waving of course. There probably would be a need
+to figure out how much space you have in the reserved Xen's
+'crashkernel' memory region too.
+
+> 
+> Daniel
