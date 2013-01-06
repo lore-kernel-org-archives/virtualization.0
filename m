@@ -1,11 +1,16 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: ACM HPDC 2013 -- Abstracts due January 14th
-Date: Sun, 06 Jan 2013 07:54:17 -0600
-Message-ID: <50E98209.70708@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v2 1/5] virtio: add functions for piecewise addition of
+	buffers
+Date: Mon, 07 Jan 2013 10:02:57 +1030
+Message-ID: <87sj6d51li.fsf__37272.7409158417$1357515791$gmane$org@rustcorp.com.au>
+References: <1355833972-20319-1-git-send-email-pbonzini@redhat.com>
+	<1355833972-20319-2-git-send-email-pbonzini@redhat.com>
+	<87r4m45g88.fsf@rustcorp.com.au> <50E5481E.20801@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0509773974524644221=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <50E5481E.20801@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,225 +20,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, sigplan-l@acm.uiuc.edu, infodir_SIGARCH@acm.org, infodir_sigcomm@acm.org, performance@merlot.usc.edu
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, hutao@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0509773974524644221==
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
+> On 01/02/2013 01:03 PM, Rusty Russell wrote:
+>> Paolo Bonzini <pbonzini@redhat.com> writes:
+>>> The virtqueue_add_buf function has two limitations:
+>>>
+>>> 1) it requires the caller to provide all the buffers in a single call;
+>>>
+>>> 2) it does not support chained scatterlists: the buffers must be
+>>> provided as an array of struct scatterlist;
+>> 
+>> Chained scatterlists are a horrible interface, but that doesn't mean we
+>> shouldn't support them if there's a need.
+>> 
+>> I think I once even had a patch which passed two chained sgs, rather
+>> than a combo sg and two length numbers.  It's very old, but I've pasted
+>> it below.
+>> 
+>> Duplicating the implementation by having another interface is pretty
+>> nasty; I think I'd prefer the chained scatterlists, if that's optimal
+>> for you.
+>
+> I rebased against virtio-next and use it in virtio-scsi, and tested it with 4 targets
+> virtio-scsi devices and host cpu idle=poll. Saw a little performance regression here.
 
-                       **** CALL FOR PAPERS ****
+Sure, but now you should be able to eliminate virtscsi_map_sgl(), right?
+You should be able to use scsi_out(sc) and scsi_in(sc) directly, which
+is what Paulo wanted to do...
 
-                 The 22nd International ACM Symposium on
-          High-Performance Parallel and Distributed Computing
-                             (HPDC'13)
+Right Paulo?
 
-               New York City, USA - June 17-21, 2013
-
-                     http://www.hpdc.org/2013
-
-
-The ACM International Symposium on High-Performance Parallel and Distribu=
-ted Computing (HPDC)
-is the premier annual conference for presenting the latest research on th=
-e design,
-implementation, evaluation, and the use of parallel and distributed syste=
-ms for high-end computing.
-
-In 2013, the 22nd HPDC and affiliated workshops will take place in the he=
-art of iconic New York
-City from June 17-21.
-
-**** IMPORTANT DATES ****
-Abstracts:                    14 January 2013
-Papers:                       21 January 2013 (no extensions)
-Reviews released to authors:  6 March 2013
-Author rebuttals due:         10 March 2013
-Author notifications:         17 March 2013
-  =20
-**** HPDC'13 GENERAL CO-CHAIRS ****
-Manish Parashar, Rutgers University
-Jon Weissman, University of Minnesota
-
-**** HPDC'13 PROGRAM CO-CHAIRS ****
-Dick Epema, Delft University of Technology
-Renato Figueiredo, University of Florida
-
-**** HPDC'13 WORKSHOPS CHAIR ****
-Abhishek Chandra, University of Minnesota
-
-**** HPDC'13 LOCAL ARRANGEMENTS CHAIR ****
-Daniele Scarpazza, DEShaw Research
-
-**** HPDC'13 SPONSORSHIP CHAIR ****
-Dean Hildebrand, IBM Almaden
-
-**** HPDC'13 PUBLICITY CO-CHAIRS ****
-Alexandru Iosup, Delft University of Technology, the Netherlands
-Ioan Raicu, Illinois Institute of Technology, USA
-Kenjiro Taura, University of Tokyo, Japan
-Bruno Schulze, National Laboratory for Scientific Computing, Brazil
-
-
-**** SCOPE AND TOPICS ****
-Submissions are welcomed on high-performance parallel and distributed com=
-puting topics including but not limited to:
-clusters, clouds, grids, data-intensive computing, massively multicore, a=
-nd global-scale computing systems.
-New scholarly research showing empirical and reproducible results in arch=
-itectures, systems, and networks is strongly encouraged,
-as are experience reports of operational deployments that can provide ins=
-ights for future research on HPDC applications and systems.
-All papers will be evaluated for their originality, technical depth and c=
-orrectness, potential impact,
-relevance to the conference, and quality of presentation. Research papers=
- must clearly demonstrate research contributions and novelty,
-while experience reports must clearly describe lessons learned and demons=
-trate impact.
-
-In the context of high-performance parallel and distributed computing, th=
-e topics of interest include, but are not limited to:
-
-   * Systems, networks, and architectures for high-end computing
-   * Massively multicore systems
-   * Resource virtualization
-   * Programming languages and environments
-   * I/O, storage systems, and data management
-   * Resource management and scheduling, including energy-=C2=AD=E2=80=90=
-aware techniques
-   * Performance modeling and analysis
-   * Fault tolerance, reliability, and availability
-   * Data-intensive computing
-   * Applications of parallel and distributed computing
-
-**** PAPER SUBMISSION GUIDELINES ****
-Authors are invited to submit technical papers of at most 12 pages in PDF=
- format, including figures and references.
-Papers should be formatted in the ACM Proceedings Style and submitted via=
- the conference web site.
-No changes to the margins, spacing, or font sizes as specified by the sty=
-le file are allowed.
-Accepted papers will appear in the conference proceedings, and will be in=
-corporated into the ACM Digital Library.
-A limited number of papers will be accepted as posters.
-
-Papers must be self-contained and provide the technical substance require=
-d for the program committee to evaluate their contributions.
-Papers should thoughtfully address all related work, particularly work pr=
-esented at previous HPDC events.
-Submitted papers must be original work that has not appeared in and is no=
-t under consideration for another conference or a journal.
-See the ACM Prior Publication Policy for more details.
-
-**** IMPORTANT DATES ****
-Abstracts Due:      14 January 2013
-Papers Due:         21 January 2013 (no extensions)
-
-**** Program Committee ****
-David Abramson, Monash University, Australia
-Kento Aida, National Institute of Informatics, Japan
-Gabriel Antoniu	INRIA, France
-Henri Bal, Vrije Universiteit, the Netherlands
-Adam Barker, University of St Andrews, UK
-Michela Becchi, University of Missouri - Columbia, USA
-John Bent, EMC, USA
-Ali Butt, Virginia Tech, USA
-Kirk Cameron, Virginia Tech, USA
-Franck Cappello, INRIA, France and University of Illinois at Urbana-Champ=
-aign, USA
-Henri Casanova, University of Hawaii, USA
-Abhishek Chandra, University of Minnesota, USA
-Andrew Chien, University of Chicago and Argonne National Laboratory, USA
-Paolo Costa, Imperial College London, UK
-Peter Dinda, Northwestern University, USA
-Gilles Fedak, INRIA, France
-Ian Foster, University of Chicago and Argonne National Laboratory, USA
-Clemens Grelck, University of Amsterdam, the Netherlands
-Dean Hildebrand, IBM Research, USA
-Fabrice Huet, INRIA-University of Nice, France
-Adriana Iamnitchi, University of South Florida, USA
-Alexandru Iosup, Delft University of Technology, the Netherlands
-Kate Keahey, Argonne National Laboratory, USA
-Thilo Kielmann, Vrije Universiteit, the Netherlands
-Charles Kilian, Purdue University, USA
-Zhiling Lan, Illinois Institute of Technology, USA
-John Lange, University of Pittsburgh, USA
-Barney Maccabe, Oak Ridge National Laboratory, USA
-Carlos Maltzahn, University of California, Santa Cruz, USA
-Naoya Maruyama, RIKEN Advanced Institute for Computational Science, Japan
-Satoshi Matsuoka, Tokyo Institute of Technology, Japan
-Manish Parashar, Rutgers University, USA
-Judy Qiu, Indiana University, USA
-Ioan Raicu, Illinois Institute of Technology, USA
-Philip Rhodes, University of Mississippi, USA
-Matei Ripeanu, University of British Columbia, Canada
-Prasenjit Sarkar, IBM Research, USA
-Daniele Scarpazza, D.E. Shaw Research, USA
-Karsten Schwan, Georgia Institute of Technology, USA
-Martin Swany, Indiana University, USA
-Michela Taufer, University of Delaware, USA
-Kenjiro Taura, University of Tokyo, Japan
-Douglas Thain, University of Notre Dame, USA
-Cristian Ungureanu, NEC Research, USA
-Ana Varbanescu, Delft University of Technology, the Netherlands
-Chuliang Weng, Shanghai Jiao Tong University, China
-Jon Weissman, University of Minnesota, USA
-Yongwei Wu, Tsinghua University, China
-Dongyan Xu, Purdue University, USA
-Ming Zhao, Florida International University, USA
-
-**** Steering Committee ****
-Henri Bal, Vrije Universiteit, the Netherlands
-Andrew A. Chien, University of Chicago and Argonne National Laboratory, U=
-SA
-Peter Dinda, Northwestern University, USA
-Dick Epema, Delft University of Technology, the Netherlands
-Ian Foster, University of Chicago and Argonne National Laboratory, USA
-Salim Hariri, University of Arizona, USA
-Thilo Kielmann, Vrije Universiteit, the Netherlands
-Arthur "Barney" Maccabe, Oak Ridge National Laboratory, USA
-Manish Parashar, Rutgers University, USA
-Matei Ripeanu, University of British Columbia, Canada
-Karsten Schwan, Georgia Tech, USA
-Doug Thain, University of Notre Dame, USA
-Jon Weissman, University of Minnesota (Chair), USA
-
---=20
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Cel:    1-847-722-0876
-Office: 1-312-567-5704
-Email:  iraicu@cs.iit.edu
-Web:    http://www.cs.iit.edu/~iraicu/
-Web:    http://datasys.cs.iit.edu/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-
---===============0509773974524644221==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0509773974524644221==--
+Thanks,
+Rusty.
