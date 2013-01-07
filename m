@@ -1,23 +1,17 @@
-From: Ian Campbell <Ian.Campbell@citrix.com>
-Subject: Re: [Xen-devel] [PATCH v3 00/11] xen: Initial kexec/kdump
-	implementation
-Date: Mon, 7 Jan 2013 13:49:44 +0000
-Message-ID: <1357566584.7989.73.camel__34996.8228060336$1357566619$gmane$org@zakaz.uk.xensource.com>
-References: <1356574740-6806-1-git-send-email-daniel.kiper@oracle.com>
-	<50DBC856.6030208@zytor.com>
-	<791b4922-078f-4adc-b3f3-0651f2266147@email.android.com>
-	<50DC58C4.3000307@citrix.com> <874nj7qsor.fsf@xmission.com>
-	<50E41973.9050705@citrix.com>
-	<20130104142257.GC3346@host-192-168-1-59.local.net-space.pl>
-	<50E6F81D02000078000B3245@nat28.tlf.novell.com>
-	<20130104170751.GB3472@host-192-168-1-59.local.net-space.pl>
-	<20130104191146.GC6721@phenom.dumpdata.com>
-	<20130107123404.GA2927@host-192-168-1-59.local.net-space.pl>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v2 1/5] virtio: add functions for piecewise addition of
+	buffers
+Date: Mon, 07 Jan 2013 15:27:46 +0100
+Message-ID: <50EADB62.1010704@redhat.com>
+References: <1355833972-20319-1-git-send-email-pbonzini@redhat.com>
+	<1355833972-20319-2-git-send-email-pbonzini@redhat.com>
+	<87r4m45g88.fsf@rustcorp.com.au> <50E54DC0.4040609@redhat.com>
+	<87pq1h508k.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130107123404.GA2927@host-192-168-1-59.local.net-space.pl>
+In-Reply-To: <87pq1h508k.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,22 +21,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Kiper <daniel.kiper@oracle.com>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andrew Cooper <Andrew.Cooper3@citrix.com>, "maxim.uvarov@oracle.com" <maxim.uvarov@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter
-	Anvin" <hpa@zytor.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "vgoyal@redhat.com" <vgoyal@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, hutao@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, Jens Axboe <jens.axboe@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2013-01-07 at 12:34 +0000, Daniel Kiper wrote:
-> I think that new kexec hypercall function should mimics kexec syscall.
+Il 07/01/2013 01:02, Rusty Russell ha scritto:
+> Paolo Bonzini <pbonzini@redhat.com> writes:
+>> Il 02/01/2013 06:03, Rusty Russell ha scritto:
+>>> Paolo Bonzini <pbonzini@redhat.com> writes:
+>>>> The virtqueue_add_buf function has two limitations:
+>>>>
+>>>> 1) it requires the caller to provide all the buffers in a single call;
+>>>>
+>>>> 2) it does not support chained scatterlists: the buffers must be
+>>>> provided as an array of struct scatterlist;
+>>>
+>>> Chained scatterlists are a horrible interface, but that doesn't mean we
+>>> shouldn't support them if there's a need.
+>>>
+>>> I think I once even had a patch which passed two chained sgs, rather
+>>> than a combo sg and two length numbers.  It's very old, but I've pasted
+>>> it below.
+>>>
+>>> Duplicating the implementation by having another interface is pretty
+>>> nasty; I think I'd prefer the chained scatterlists, if that's optimal
+>>> for you.
+>>
+>> Unfortunately, that cannot work because not all architectures support
+>> chained scatterlists.
+> 
+> WHAT?  I can't figure out what an arch needs to do to support this?
 
-We want to have an interface can be used by non-Linux domains (both dom0
-and domU) as well though, so please bear this in mind.
+It needs to use the iterator functions in its DMA driver.
 
-Historically we've not always been good at this when the hypercall
-interface is strongly tied to a particular guest implementation (in some
-sense this is the problem with the current kexec hypercall).
+> All archs we care about support them, though, so I think we can ignore
+> this issue for now.
 
-Also what makes for a good syscall interface does not necessarily make
-for a good hypercall interface.
+Kind of... In principle all QEMU-supported arches can use virtio, and
+the speedup can be quite useful.  And there is no Kconfig symbol for SG
+chains that I can use to disable virtio-scsi on unsupported arches. :/
 
-Ian.
+Paolo
+
+>> (Also, as you mention chained scatterlists are horrible.  They'd happen
+>> to work for virtio-scsi, but not for virtio-blk where the response
+>> status is part of the footer, not the header).
+> 
+> We lost that debate 5 years ago, so we hack around it as needed.  We can
+> add helpers to append if we need.
