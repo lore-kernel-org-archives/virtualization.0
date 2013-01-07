@@ -1,16 +1,23 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: Re: [PATCH] drivers/xen: avoid out-of-range write in
- xen_add_device
-Date: Mon, 07 Jan 2013 16:20:01 +0000
-Message-ID: <50EB03C102000078000B37E7@nat28.tlf.novell.com>
-References: <1357413526-42430-1-git-send-email-nickolai@csail.mit.edu>
-	<20130107150816.GC3219@phenom.dumpdata.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [Xen-devel] [PATCH v3 00/11] xen: Initial kexec/kdump
+	implementation
+Date: Mon, 7 Jan 2013 11:20:18 -0500
+Message-ID: <20130107162018.GJ3219@phenom.dumpdata.com>
+References: <50DBC856.6030208@zytor.com>
+	<791b4922-078f-4adc-b3f3-0651f2266147@email.android.com>
+	<50DC58C4.3000307@citrix.com> <874nj7qsor.fsf@xmission.com>
+	<50E41973.9050705@citrix.com>
+	<20130104142257.GC3346@host-192-168-1-59.local.net-space.pl>
+	<50E6F81D02000078000B3245@nat28.tlf.novell.com>
+	<20130104170751.GB3472@host-192-168-1-59.local.net-space.pl>
+	<20130104191146.GC6721@phenom.dumpdata.com>
+	<20130107123404.GA2927@host-192-168-1-59.local.net-space.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130107150816.GC3219@phenom.dumpdata.com>
 Content-Disposition: inline
+In-Reply-To: <20130107123404.GA2927@host-192-168-1-59.local.net-space.pl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,57 +27,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nickolai Zeldovich <nickolai@csail.mit.edu>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Daniel Kiper <daniel.kiper@oracle.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "H. Peter Anvin" <hpa@zytor.com>, Andrew Cooper <andrew.cooper3@citrix.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Jan Beulich <JBeulich@suse.com>, "maxim.uvarov@oracle.com" <maxim.uvarov@oracle.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "vgoyal@redhat.com" <vgoyal@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 07.01.13 at 16:08, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
-> On Sat, Jan 05, 2013 at 02:18:46PM -0500, Nickolai Zeldovich wrote:
->> xen_add_device() in drivers/xen/pci.c allocates a struct
->> physdev_pci_device_add on the stack and then writes to optarr[0].
->> The previous declaration of struct physdev_pci_device_add contained
->> a zero-length optarr[] array, presumably assuming it will be allocated
->> with kmalloc with a suitable number of trailing elements, but the code in
->> xen_add_device() as a result wrote past the end of the (stack-allocated)
->> data structure.
->> 
->> Since xen_add_device() is the only use of struct physdev_pci_device_add
->> in the kernel, turn optarr[] into a single-element array instead.
->> 
+On Mon, Jan 07, 2013 at 01:34:04PM +0100, Daniel Kiper wrote:
+> On Fri, Jan 04, 2013 at 02:11:46PM -0500, Konrad Rzeszutek Wilk wrote:
+> > On Fri, Jan 04, 2013 at 06:07:51PM +0100, Daniel Kiper wrote:
+> > > On Fri, Jan 04, 2013 at 02:41:17PM +0000, Jan Beulich wrote:
+> > > > >>> On 04.01.13 at 15:22, Daniel Kiper <daniel.kiper@oracle.com> wrote:
+> > > > > On Wed, Jan 02, 2013 at 11:26:43AM +0000, Andrew Cooper wrote:
+> > > > >> /sbin/kexec can load the "Xen" crash kernel itself by issuing
+> > > > >> hypercalls using /dev/xen/privcmd.  This would remove the need for
+> > > > >> the dom0 kernel to distinguish between loading a crash kernel for
+> > > > >> itself and loading a kernel for Xen.
+> > > > >>
+> > > > >> Or is this just a silly idea complicating the matter?
+> > > > >
+> > > > > This is impossible with current Xen kexec/kdump interface.
+> > > >
+> > > > Why?
+> > >
+> > > Because current KEXEC_CMD_kexec_load does not load kernel
+> > > image and other things into Xen memory. It means that it
+> > > should live somewhere in dom0 Linux kernel memory.
+> >
+> > We could have a very simple hypercall which would have:
+> >
+> > struct fancy_new_hypercall {
+> > 	xen_pfn_t payload; // IN
+> > 	ssize_t len; // IN
+> > #define DATA (1<<1)
+> > #define DATA_EOF (1<<2)
+> > #define DATA_KERNEL (1<<3)
+> > #define DATA_RAMDISK (1<<4)
+> > 	unsigned int flags; // IN
+> > 	unsigned int status; // OUT
+> > };
+> >
+> > which would in a loop just iterate over the payloads and
+> > let the hypervisor stick it in the crashkernel space.
+> >
+> > This is all hand-waving of course. There probably would be a need
+> > to figure out how much space you have in the reserved Xen's
+> > 'crashkernel' memory region too.
 > 
-> Lets include Jan and Xen-devel on this email - as this is also changing
-> the official header that is used in Xen.
+> I think that new kexec hypercall function should mimics kexec syscall.
+> It means that all arguments passed to hypercall should have same types
+> if it is possible or if it is not possible then conversion should be done
+> in very easy way. Additionally, I think that one call of new hypercall
+> load function should load all needed thinks in right place and
+> return relevant status. Last but not least, new functionality should
 
-Correct - for that reason it is not the header that needs changing
-here, but the consumer of the header. I have to admit that I find
-it odd that the compiler allows automatic variables of variable size
-types without warning - otherwise this wouldn't have gone
-unnoticed.
+We are not restricted to just _one_ hypercall. And this loading
+thing could be similar to the micrcode hypercall - which just points
+to a virtual address along with the length - and says 'load me'.
 
-Jan
+> be available through /dev/xen/privcmd or directly from kernel without
+> bigger effort.
 
->> Signed-off-by: Nickolai Zeldovich <nickolai@csail.mit.edu>
->> ---
->>  include/xen/interface/physdev.h |    6 +-----
->>  1 file changed, 1 insertion(+), 5 deletions(-)
->> 
->> diff --git a/include/xen/interface/physdev.h b/include/xen/interface/physdev.h
->> index 1844d31..24fd218 100644
->> --- a/include/xen/interface/physdev.h
->> +++ b/include/xen/interface/physdev.h
->> @@ -242,11 +242,7 @@ struct physdev_pci_device_add {
->>          uint8_t bus;
->>          uint8_t devfn;
->>      } physfn;
->> -#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
->> -    uint32_t optarr[];
->> -#elif defined(__GNUC__)
->> -    uint32_t optarr[0];
->> -#endif
->> +    uint32_t optarr[1];
->>  };
->>  
->>  #define PHYSDEVOP_pci_device_remove     26
->> -- 
->> 1.7.10.4
->> 
+Perhaps we should have a email thread on xen-devel where we hash out
+some ideas. Eric, would you be OK included on this - it would make
+sense for this mechanism to be as future-proof as possible - and I am not
+sure what your plans for kexec are in the future?
+> 
+> Daniel
