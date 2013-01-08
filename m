@@ -1,16 +1,17 @@
-From: David Vrabel <david.vrabel@citrix.com>
-Subject: Re: [Xen-devel] [PATCH v3 00/11] xen: Initial kexec/kdump
-	implementation
-Date: Fri, 4 Jan 2013 14:38:44 +0000
-Message-ID: <50E6E974.5090805__22111.8101188496$1357581643$gmane$org@citrix.com>
-References: <1356574740-6806-1-git-send-email-daniel.kiper@oracle.com>	<50DBC856.6030208@zytor.com>	<791b4922-078f-4adc-b3f3-0651f2266147@email.android.com>	<50DC58C4.3000307@citrix.com>
-	<874nj7qsor.fsf@xmission.com>	<50E41973.9050705@citrix.com>
-	<20130104142257.GC3346@host-192-168-1-59.local.net-space.pl>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v2 1/5] virtio: add functions for piecewise addition of
+	buffers
+Date: Tue, 08 Jan 2013 10:42:13 +1030
+Message-ID: <87wqvo3542.fsf@rustcorp.com.au>
+References: <1355833972-20319-1-git-send-email-pbonzini@redhat.com>
+	<1355833972-20319-2-git-send-email-pbonzini@redhat.com>
+	<87r4m45g88.fsf@rustcorp.com.au> <50E54DC0.4040609@redhat.com>
+	<87pq1h508k.fsf@rustcorp.com.au> <50EADB62.1010704@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130104142257.GC3346@host-192-168-1-59.local.net-space.pl>
+In-Reply-To: <50EADB62.1010704@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,44 +21,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Kiper <daniel.kiper@oracle.com>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "H. Peter Anvin" <hpa@zytor.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Andrew Cooper <andrew.cooper3@citrix.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "maxim.uvarov@oracle.com" <maxim.uvarov@oracle.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "vgoyal@redhat.com" <vgoyal@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, hutao@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/01/13 14:22, Daniel Kiper wrote:
-> On Wed, Jan 02, 2013 at 11:26:43AM +0000, Andrew Cooper wrote:
->> On 27/12/12 18:02, Eric W. Biederman wrote:
->>> Andrew Cooper<andrew.cooper3@citrix.com>  writes:
->>>
->>>> On 27/12/2012 07:53, Eric W. Biederman wrote:
->>>>> The syscall ABI still has the wrong semantics.
+Paolo Bonzini <pbonzini@redhat.com> writes:
+> Il 07/01/2013 01:02, Rusty Russell ha scritto:
+>> Paolo Bonzini <pbonzini@redhat.com> writes:
+>>> Il 02/01/2013 06:03, Rusty Russell ha scritto:
+>>>> Paolo Bonzini <pbonzini@redhat.com> writes:
+>>>>> The virtqueue_add_buf function has two limitations:
 >>>>>
->>>>> Aka totally unmaintainable and umergeable.
+>>>>> 1) it requires the caller to provide all the buffers in a single call;
 >>>>>
->>>>> The concept of domU support is also strange.  What does domU support even mean, when the dom0 support is loading a kernel to pick up Xen when Xen falls over.
->>>> There are two requirements pulling at this patch series, but I agree
->>>> that we need to clarify them.
->>> It probably make sense to split them apart a little even.
+>>>>> 2) it does not support chained scatterlists: the buffers must be
+>>>>> provided as an array of struct scatterlist;
+>>>>
+>>>> Chained scatterlists are a horrible interface, but that doesn't mean we
+>>>> shouldn't support them if there's a need.
+>>>>
+>>>> I think I once even had a patch which passed two chained sgs, rather
+>>>> than a combo sg and two length numbers.  It's very old, but I've pasted
+>>>> it below.
+>>>>
+>>>> Duplicating the implementation by having another interface is pretty
+>>>> nasty; I think I'd prefer the chained scatterlists, if that's optimal
+>>>> for you.
 >>>
->>>
->>
->> Thinking about this split, there might be a way to simply it even more.
->>
->> /sbin/kexec can load the "Xen" crash kernel itself by issuing
->> hypercalls using /dev/xen/privcmd.  This would remove the need for
->> the dom0 kernel to distinguish between loading a crash kernel for
->> itself and loading a kernel for Xen.
->>
->> Or is this just a silly idea complicating the matter?
-> 
-> This is impossible with current Xen kexec/kdump interface.
-> It should be changed to do that. However, I suppose that
-> Xen community would not be interested in such changes.
+>>> Unfortunately, that cannot work because not all architectures support
+>>> chained scatterlists.
+>> 
+>> WHAT?  I can't figure out what an arch needs to do to support this?
+>
+> It needs to use the iterator functions in its DMA driver.
 
-I don't see why the hypercall ABI cannot be extended with new sub-ops
-that do the right thing -- the existing ABI is a bit weird.
+But we don't care for virtio.
 
-I plan to start prototyping something shortly (hopefully next week) for
-the Xen kexec case.
+>> All archs we care about support them, though, so I think we can ignore
+>> this issue for now.
+>
+> Kind of... In principle all QEMU-supported arches can use virtio, and
+> the speedup can be quite useful.  And there is no Kconfig symbol for SG
+> chains that I can use to disable virtio-scsi on unsupported arches. :/
 
-David
+Well, we #error if it's not supported.  Then the lazy architectures can
+fix it.
+
+Cheers,
+Rusty.
