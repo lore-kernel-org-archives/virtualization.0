@@ -1,14 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: (unknown)
-Date: Tue, 8 Jan 2013 08:52:54 +0200
-Message-ID: <20130108065254.GG11305@redhat.com>
-References: <1357454173-5973-1-git-send-email-asias@redhat.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Subject: Re: [RFCv2 00/12] Introduce host-side virtio queue and CAIF Virtio.
+Date: Tue, 8 Jan 2013 09:04:10 +0100
+Message-ID: <CAJK669bP41oBhJ=MB64NS21Ag7XO5WswuTiVKCFTb96nvmyBiw@mail.gmail.com>
+References: <871ug75vp1.fsf@rustcorp.com.au>
+	<1354718230-4486-1-git-send-email-sjur@brendeland.net>
+	<20121206102750.GF10837@redhat.com>
+	<877goc0wac.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1357454173-5973-1-git-send-email-asias@redhat.com>
+In-Reply-To: <877goc0wac.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,137 +20,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jan 06, 2013 at 02:36:13PM +0800, Asias He wrote:
-> This drops the cmd completion list spin lock and makes the cmd
-> completion queue lock-less.
-> 
-> Signed-off-by: Asias He <asias@redhat.com>
-
-
-Nicholas, any feedback?
-
-> ---
->  drivers/vhost/tcm_vhost.c | 46 +++++++++++++---------------------------------
->  drivers/vhost/tcm_vhost.h |  2 +-
->  2 files changed, 14 insertions(+), 34 deletions(-)
-> 
-> diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> index b20df5c..3720604 100644
-> --- a/drivers/vhost/tcm_vhost.c
-> +++ b/drivers/vhost/tcm_vhost.c
-> @@ -47,6 +47,7 @@
->  #include <linux/vhost.h>
->  #include <linux/virtio_net.h> /* TODO vhost.h currently depends on this */
->  #include <linux/virtio_scsi.h>
-> +#include <linux/llist.h>
->  
->  #include "vhost.c"
->  #include "vhost.h"
-> @@ -64,8 +65,7 @@ struct vhost_scsi {
->  	struct vhost_virtqueue vqs[3];
->  
->  	struct vhost_work vs_completion_work; /* cmd completion work item */
-> -	struct list_head vs_completion_list;  /* cmd completion queue */
-> -	spinlock_t vs_completion_lock;        /* protects s_completion_list */
-> +	struct llist_head vs_completion_list; /* cmd completion queue */
->  };
->  
->  /* Local pointer to allocated TCM configfs fabric module */
-> @@ -301,9 +301,7 @@ static void vhost_scsi_complete_cmd(struct tcm_vhost_cmd *tv_cmd)
->  {
->  	struct vhost_scsi *vs = tv_cmd->tvc_vhost;
->  
-> -	spin_lock_bh(&vs->vs_completion_lock);
-> -	list_add_tail(&tv_cmd->tvc_completion_list, &vs->vs_completion_list);
-> -	spin_unlock_bh(&vs->vs_completion_lock);
-> +	llist_add(&tv_cmd->tvc_completion_list, &vs->vs_completion_list);
->  
->  	vhost_work_queue(&vs->dev, &vs->vs_completion_work);
->  }
-> @@ -347,27 +345,6 @@ static void vhost_scsi_free_cmd(struct tcm_vhost_cmd *tv_cmd)
->  	kfree(tv_cmd);
->  }
->  
-> -/* Dequeue a command from the completion list */
-> -static struct tcm_vhost_cmd *vhost_scsi_get_cmd_from_completion(
-> -	struct vhost_scsi *vs)
-> -{
-> -	struct tcm_vhost_cmd *tv_cmd = NULL;
-> -
-> -	spin_lock_bh(&vs->vs_completion_lock);
-> -	if (list_empty(&vs->vs_completion_list)) {
-> -		spin_unlock_bh(&vs->vs_completion_lock);
-> -		return NULL;
-> -	}
-> -
-> -	list_for_each_entry(tv_cmd, &vs->vs_completion_list,
-> -			    tvc_completion_list) {
-> -		list_del(&tv_cmd->tvc_completion_list);
-> -		break;
-> -	}
-> -	spin_unlock_bh(&vs->vs_completion_lock);
-> -	return tv_cmd;
-> -}
-> -
->  /* Fill in status and signal that we are done processing this command
->   *
->   * This is scheduled in the vhost work queue so we are called with the owner
-> @@ -377,12 +354,18 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
->  {
->  	struct vhost_scsi *vs = container_of(work, struct vhost_scsi,
->  					vs_completion_work);
-> +	struct virtio_scsi_cmd_resp v_rsp;
->  	struct tcm_vhost_cmd *tv_cmd;
-> +	struct llist_node *llnode;
-> +	struct se_cmd *se_cmd;
-> +	int ret;
->  
-> -	while ((tv_cmd = vhost_scsi_get_cmd_from_completion(vs))) {
-> -		struct virtio_scsi_cmd_resp v_rsp;
-> -		struct se_cmd *se_cmd = &tv_cmd->tvc_se_cmd;
-> -		int ret;
-> +	llnode = llist_del_all(&vs->vs_completion_list);
-> +	while (llnode) {
-> +		tv_cmd = llist_entry(llnode, struct tcm_vhost_cmd,
-> +				     tvc_completion_list);
-> +		llnode = llist_next(llnode);
-> +		se_cmd = &tv_cmd->tvc_se_cmd;
->  
->  		pr_debug("%s tv_cmd %p resid %u status %#02x\n", __func__,
->  			tv_cmd, se_cmd->residual_count, se_cmd->scsi_status);
-> @@ -426,7 +409,6 @@ static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
->  		pr_err("Unable to allocate struct tcm_vhost_cmd\n");
->  		return ERR_PTR(-ENOMEM);
->  	}
-> -	INIT_LIST_HEAD(&tv_cmd->tvc_completion_list);
->  	tv_cmd->tvc_tag = v_req->tag;
->  	tv_cmd->tvc_task_attr = v_req->task_attr;
->  	tv_cmd->tvc_exp_data_len = exp_data_len;
-> @@ -859,8 +841,6 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
->  		return -ENOMEM;
->  
->  	vhost_work_init(&s->vs_completion_work, vhost_scsi_complete_cmd_work);
-> -	INIT_LIST_HEAD(&s->vs_completion_list);
-> -	spin_lock_init(&s->vs_completion_lock);
->  
->  	s->vqs[VHOST_SCSI_VQ_CTL].handle_kick = vhost_scsi_ctl_handle_kick;
->  	s->vqs[VHOST_SCSI_VQ_EVT].handle_kick = vhost_scsi_evt_handle_kick;
-> diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
-> index 7e87c63..47ee80b 100644
-> --- a/drivers/vhost/tcm_vhost.h
-> +++ b/drivers/vhost/tcm_vhost.h
-> @@ -34,7 +34,7 @@ struct tcm_vhost_cmd {
->  	/* Sense buffer that will be mapped into outgoing status */
->  	unsigned char tvc_sense_buf[TRANSPORT_SENSE_BUFFER];
->  	/* Completed commands list, serviced from vhost worker thread */
-> -	struct list_head tvc_completion_list;
-> +	struct llist_node tvc_completion_list;
->  };
->  
->  struct tcm_vhost_nexus {
-> -- 
-> 1.7.11.7
+T24gRnJpLCBEZWMgMjEsIDIwMTIgYXQgNzoxMSBBTSwgUnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVz
+dGNvcnAuY29tLmF1PiB3cm90ZToKPiAiTWljaGFlbCBTLiBUc2lya2luIiA8bXN0QHJlZGhhdC5j
+b20+IHdyaXRlczoKPgo+PiBPbiBXZWQsIERlYyAwNSwgMjAxMiBhdCAwMzozNjo1OFBNICswMTAw
+LCBTanVyIEJyw6ZuZGVsYW5kIHdyb3RlOgo+Pj4gRmVlZGJhY2sgb24gdGhpcyBwYXRjaC1zZXQg
+aXMgYXBwcmVjaWF0ZWQsIHBhcnRpY3VsYXJseSBvbiBzdHJ1Y3R1cmUKPj4+IGFuZCBjb2RlLXJl
+dXNlIGJldHdlZW4gdmhvc3QuYyBhbmQgdGhlIGhvc3Qtc2lkZSB2aXJ0aW8tcXVldWUuCj4+PiBJ
+J2QgYWxzbyBsaWtlIHNvbWUgc3VnZ2VzdGlvbnMgb24gaG93IHRvIGhhbmRsZSB0aGUgYnVpbGQg
+Y29uZmlndXJhdGlvbgo+Pj4gYmV0dGVyIC0gY3VycmVudGx5IHRoZXJlIGFyZSBzb21lIHVubmVj
+ZXNzYXJ5IGJ1aWxkIGRlcGVuZGVuY2llcy4KPj4KPj4gUnVzdHkgc2VlbXMgdG8gZGlzYWdyZWUg
+YnV0IG9uZSBvZiB0aGUgY29uY2VybnMgcGVvcGxlIGhhdmUgYWJvdXQgdmhvc3QKPj4gaXMgc2Vj
+dXJpdHk7IHNvIEkgdmFsdWUgZ2V0dGluZyBhcyBtdWNoIHN0YXRpYyBjaGVja2luZyBhcyB3ZSBj
+YW4uICBUaGlzCj4+IGRpc2NhcmRzIF9fdXNlciBhbm5vdGF0aW9ucyBzbyB0aGlzIGRvZXNuJ3Qg
+d29yayBmb3IgbWUuCj4KPiBTb21ldGltZXMsIHdoZW4gd2UgZ2VuZXJhbGl6ZSBjb2RlLCB3ZSBs
+b3NlIHNvbWUgdHlwZSBzYWZldHkuICBDYWxsYmFja3MKPiB0YWtlIHZvaWQgKiwgZm9yIGV4YW1w
+bGUuICBBbmQgaXQgaGFwcGVucyAqYWxsIHRoZSB0aW1lKiB3aXRoIGNvbnN0LiAgV2UKPiBkb24n
+dCBjcmVhdGUgYSBzZXQgb2YgcGFyYWxsZWwgY29uc3Qtc2FmZSByb3V0aW5lcy4KPgo+IEV4dHJh
+Y3RpbmcgY29tbW9uIGNvZGUgd2hlcmUgaXQgY2FuIGJlIHNoYXJlZCBwcm92aWRlcyBiZXR0ZXIs
+IG5vdCB3b3JzZQo+IHNlY3VyaXR5LCBiZWNhdXNlIG1vcmUgcGVvcGxlIHdpbGwgcmVhZCBpdC4g
+IEkndmUgbmV2ZXIgYXVkaXRlZCB0aGUKPiB2aG9zdCBjb2RlLCBmb3IgZXhhbXBsZS4KPgo+IFdl
+IGFscmVhZHkgaGF2ZSBhICdzdHJ1Y3QgdnJpbmcnLCB3ZSBzaG91bGQganVzdCB1c2UgdGhhdC4K
+Pgo+IEkgbWVhbnQgdG8gZG8gbW9yZSB3b3JrIG9uIHRoaXMsIGJ1dCBJJ3ZlIHJ1biBvdXQgb2Yg
+dGltZSA6KCBJIHdhcwo+IHRoaW5raW5nIG9mIGEgZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jpbmcu
+YywgYW5kIGluIHRoYXQgd2UnZCBwdXQgdGhlCj4gd3JhcHBlcnMgZm9yIHZob3N0X25ldC9ibGss
+IGFuZCBmb3IgQ0FJRiwgZXRjLiAgV2UgY291bGQgYXQgbGVhc3QgaGF2ZSBhCj4gdmFyaWFudCB3
+aGljaCBkaWQgdGhlIF9fdXNlciBldGMgdGhpbmcsIGV2ZW4gaWYgeW91IGhhdmUgdG8gcGFzcyBp
+bgo+IGdldGRlc2MoKS4KPgo+IGdldHUxNjogZ2V0X3VzZXIgb3IgYXNzaWdubWVudC4KPiBnZXRk
+ZXNjOiBjb3B5IChhbmQgY2hlY2ssIHRyYW5zbGF0ZSkgdGhlIGRlc2NyaXB0b3IuCj4gZ2V0bWVt
+L3B1dG1lbTogbWVtY3B5IG9yIGNvcHlfdG8vZnJvbV91c2VyLgo+Cj4gKENvbXBsZXRlbHkgdW50
+ZXN0ZWQsIG9mIGNvdXJzZS4uLikKPgo+IFRob3VnaHRzPwoKQW55IHRob3VnaHRzIG9uIHRoaXMg
+TWljaGFlbD8KClJlZ2FyZHMsClNqdXIKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
