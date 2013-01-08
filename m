@@ -1,7 +1,7 @@
 From: George Zhang <georgezhang@vmware.com>
-Subject: [PATCH 06/12] VMCI: handle array implementation.
-Date: Tue, 08 Jan 2013 15:54:39 -0800
-Message-ID: <20130108235428.2698.84009.stgit@promb-2n-dhcp175.eng.vmware.com>
+Subject: [PATCH 08/12] VMCI: resource object implementation.
+Date: Tue, 08 Jan 2013 15:55:07 -0800
+Message-ID: <20130108235459.2698.24050.stgit@promb-2n-dhcp175.eng.vmware.com>
 References: <20130108234751.2698.66606.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,24 +21,24 @@ To: linux-kernel@vger.kernel.org, georgezhang@vmware.com, virtualization@lists.l
 Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-VMCI handle code adds support for dynamic arrays that will grow if they need to.
+VMCI resource tracks all used resources within the vmci code.
 
 Signed-off-by: George Zhang <georgezhang@vmware.com>
 Acked-by: Andy king <acking@vmware.com>
 Acked-by: Dmitry Torokhov <dtor@vmware.com>
 ---
- drivers/misc/vmw_vmci/vmci_handle_array.c |  142 +++++++++++++++++++++++++++++
- drivers/misc/vmw_vmci/vmci_handle_array.h |   52 +++++++++++
- 2 files changed, 194 insertions(+), 0 deletions(-)
- create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.c
- create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.h
+ drivers/misc/vmw_vmci/vmci_resource.c |  229 +++++++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_resource.h |   59 +++++++++
+ 2 files changed, 288 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.h
 
-diff --git a/drivers/misc/vmw_vmci/vmci_handle_array.c b/drivers/misc/vmw_vmci/vmci_handle_array.c
+diff --git a/drivers/misc/vmw_vmci/vmci_resource.c b/drivers/misc/vmw_vmci/vmci_resource.c
 new file mode 100644
-index 0000000..344973a
+index 0000000..a196f84
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_handle_array.c
-@@ -0,0 +1,142 @@
++++ b/drivers/misc/vmw_vmci/vmci_resource.c
+@@ -0,0 +1,229 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -54,139 +54,226 @@ index 0000000..344973a
 + * for more details.
 + */
 +
-+#include <linux/slab.h>
-+#include "vmci_handle_array.h"
++#include <linux/vmw_vmci_defs.h>
++#include <linux/hash.h>
++#include <linux/types.h>
++#include <linux/rculist.h>
 +
-+static size_t handle_arr_calc_size(size_t capacity)
++#include "vmci_resource.h"
++#include "vmci_driver.h"
++
++
++#define VMCI_RESOURCE_HASH_BITS         7
++#define VMCI_RESOURCE_HASH_BUCKETS      (1 << VMCI_RESOURCE_HASH_BITS)
++
++struct vmci_hash_table {
++	spinlock_t lock;
++	struct hlist_head entries[VMCI_RESOURCE_HASH_BUCKETS];
++};
++
++static struct vmci_hash_table vmci_resource_table = {
++	.lock = __SPIN_LOCK_UNLOCKED(vmci_resource_table.lock),
++};
++
++static unsigned int vmci_resource_hash(struct vmci_handle handle)
 +{
-+	return sizeof(struct vmci_handle_arr) +
-+	    capacity * sizeof(struct vmci_handle);
-+}
-+
-+struct vmci_handle_arr *vmci_handle_arr_create(size_t capacity)
-+{
-+	struct vmci_handle_arr *array;
-+
-+	if (capacity == 0)
-+		capacity = VMCI_HANDLE_ARRAY_DEFAULT_SIZE;
-+
-+	array = kmalloc(handle_arr_calc_size(capacity), GFP_ATOMIC);
-+	if (!array)
-+		return NULL;
-+
-+	array->capacity = capacity;
-+	array->size = 0;
-+
-+	return array;
-+}
-+
-+void vmci_handle_arr_destroy(struct vmci_handle_arr *array)
-+{
-+	kfree(array);
-+}
-+
-+void vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
-+				  struct vmci_handle handle)
-+{
-+	struct vmci_handle_arr *array = *array_ptr;
-+
-+	if (unlikely(array->size >= array->capacity)) {
-+		/* reallocate. */
-+		struct vmci_handle_arr *new_array;
-+		size_t new_capacity = array->capacity * VMCI_ARR_CAP_MULT;
-+		size_t new_size = handle_arr_calc_size(new_capacity);
-+
-+		new_array = krealloc(array, new_size, GFP_ATOMIC);
-+		if (!new_array)
-+			return;
-+
-+		new_array->capacity = new_capacity;
-+		*array_ptr = array = new_array;
-+	}
-+
-+	array->entries[array->size] = handle;
-+	array->size++;
++	return hash_32(handle.resource, VMCI_RESOURCE_HASH_BITS);
 +}
 +
 +/*
-+ * Handle that was removed, VMCI_INVALID_HANDLE if entry not found.
++ * Gets a resource (if one exists) matching given handle from the hash table.
 + */
-+struct vmci_handle vmci_handle_arr_remove_entry(struct vmci_handle_arr *array,
-+						struct vmci_handle entry_handle)
++static struct vmci_resource *vmci_resource_lookup(struct vmci_handle handle,
++						  enum vmci_resource_type type)
 +{
-+	struct vmci_handle handle = VMCI_INVALID_HANDLE;
-+	size_t i;
++	struct vmci_resource *r, *resource = NULL;
++	struct hlist_node *node;
++	unsigned int idx = vmci_resource_hash(handle);
 +
-+	for (i = 0; i < array->size; i++) {
-+		if (vmci_handle_is_equal(array->entries[i], entry_handle)) {
-+			handle = array->entries[i];
-+			array->size--;
-+			array->entries[i] = array->entries[array->size];
-+			array->entries[array->size] = VMCI_INVALID_HANDLE;
++	rcu_read_lock();
++	hlist_for_each_entry_rcu(r, node,
++				 &vmci_resource_table.entries[idx], node) {
++		u32 cid = r->handle.context;
++		u32 rid = r->handle.resource;
++
++		if (r->type == type &&
++		    rid == handle.resource &&
++		    (cid == handle.context || cid == VMCI_INVALID_ID)) {
++			resource = r;
++			break;
++		}
++	}
++	rcu_read_unlock();
++
++	return resource;
++}
++
++/*
++ * Find an unused resource ID and return it. The first
++ * VMCI_RESERVED_RESOURCE_ID_MAX are reserved so we start from
++ * its value + 1.
++ * Returns VMCI resource id on success, VMCI_INVALID_ID on failure.
++ */
++static u32 vmci_resource_find_id(u32 context_id,
++				 enum vmci_resource_type resource_type)
++{
++	static u32 resource_id = VMCI_RESERVED_RESOURCE_ID_MAX + 1;
++	u32 old_rid = resource_id;
++	u32 current_rid;
++
++	/*
++	 * Generate a unique resource ID.  Keep on trying until we wrap around
++	 * in the RID space.
++	 */
++	do {
++		struct vmci_handle handle;
++
++		current_rid = resource_id;
++		resource_id++;
++		if (unlikely(resource_id == VMCI_INVALID_ID)) {
++			/* Skip the reserved rids. */
++			resource_id = VMCI_RESERVED_RESOURCE_ID_MAX + 1;
++		}
++
++		handle = vmci_make_handle(context_id, current_rid);
++		if (!vmci_resource_lookup(handle, resource_type))
++			return current_rid;
++	} while (resource_id != old_rid);
++
++	return VMCI_INVALID_ID;
++}
++
++
++int vmci_resource_add(struct vmci_resource *resource,
++		      enum vmci_resource_type resource_type,
++		      struct vmci_handle handle)
++
++{
++	unsigned int idx;
++	int result;
++
++	spin_lock(&vmci_resource_table.lock);
++
++	if (handle.resource == VMCI_INVALID_ID) {
++		handle.resource = vmci_resource_find_id(handle.context,
++			resource_type);
++		if (handle.resource == VMCI_INVALID_ID) {
++			result = VMCI_ERROR_NO_HANDLE;
++			goto out;
++		}
++	} else if (vmci_resource_lookup(handle, resource_type)) {
++		result = VMCI_ERROR_ALREADY_EXISTS;
++		goto out;
++	}
++
++	resource->handle = handle;
++	resource->type = resource_type;
++	INIT_HLIST_NODE(&resource->node);
++	kref_init(&resource->kref);
++	init_completion(&resource->done);
++
++	idx = vmci_resource_hash(resource->handle);
++	hlist_add_head_rcu(&resource->node, &vmci_resource_table.entries[idx]);
++
++	result = VMCI_SUCCESS;
++
++out:
++	spin_unlock(&vmci_resource_table.lock);
++	return result;
++}
++
++void vmci_resource_remove(struct vmci_resource *resource)
++{
++	struct vmci_handle handle = resource->handle;
++	unsigned int idx = vmci_resource_hash(handle);
++	struct vmci_resource *r;
++	struct hlist_node *node;
++
++	/* Remove resource from hash table. */
++	spin_lock(&vmci_resource_table.lock);
++
++	hlist_for_each_entry(r, node, &vmci_resource_table.entries[idx], node) {
++		if (vmci_handle_is_equal(r->handle, resource->handle)) {
++			hlist_del_init_rcu(&r->node);
 +			break;
 +		}
 +	}
 +
-+	return handle;
++	spin_unlock(&vmci_resource_table.lock);
++	synchronize_rcu();
++
++	vmci_resource_put(resource);
++	wait_for_completion(&resource->done);
 +}
 +
-+/*
-+ * Handle that was removed, VMCI_INVALID_HANDLE if array was empty.
-+ */
-+struct vmci_handle vmci_handle_arr_remove_tail(struct vmci_handle_arr *array)
++struct vmci_resource *
++vmci_resource_by_handle(struct vmci_handle resource_handle,
++			enum vmci_resource_type resource_type)
 +{
-+	struct vmci_handle handle = VMCI_INVALID_HANDLE;
++	struct vmci_resource *r, *resource = NULL;
 +
-+	if (array->size) {
-+		array->size--;
-+		handle = array->entries[array->size];
-+		array->entries[array->size] = VMCI_INVALID_HANDLE;
++	rcu_read_lock();
++
++	r = vmci_resource_lookup(resource_handle, resource_type);
++	if (r &&
++	    (resource_type == r->type ||
++	     resource_type == VMCI_RESOURCE_TYPE_ANY)) {
++		resource = vmci_resource_get(r);
 +	}
 +
-+	return handle;
++	rcu_read_unlock();
++
++	return resource;
 +}
 +
 +/*
-+ * Handle at given index, VMCI_INVALID_HANDLE if invalid index.
++ * Get a reference to given resource.
 + */
-+struct vmci_handle
-+vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, size_t index)
++struct vmci_resource *vmci_resource_get(struct vmci_resource *resource)
 +{
-+	if (unlikely(index >= array->size))
-+		return VMCI_INVALID_HANDLE;
++	kref_get(&resource->kref);
 +
-+	return array->entries[index];
++	return resource;
 +}
 +
-+bool vmci_handle_arr_has_entry(const struct vmci_handle_arr *array,
-+			       struct vmci_handle entry_handle)
++static void vmci_release_resource(struct kref *kref)
 +{
-+	size_t i;
++	struct vmci_resource *resource =
++		container_of(kref, struct vmci_resource, kref);
 +
-+	for (i = 0; i < array->size; i++)
-+		if (vmci_handle_is_equal(array->entries[i], entry_handle))
-+			return true;
++	/* Verify the resource has been unlinked from hash table */
++	WARN_ON(!hlist_unhashed(&resource->node));
 +
-+	return false;
++	/* Signal that container of this resource can now be destroyed */
++	complete(&resource->done);
 +}
 +
 +/*
-+ * NULL if the array is empty. Otherwise, a pointer to the array
-+ * of VMCI handles in the handle array.
++ * Resource's release function will get called if last reference.
++ * If it is the last reference, then we are sure that nobody else
++ * can increment the count again (it's gone from the resource hash
++ * table), so there's no need for locking here.
 + */
-+struct vmci_handle *vmci_handle_arr_get_handles(struct vmci_handle_arr *array)
++int vmci_resource_put(struct vmci_resource *resource)
 +{
-+	if (array->size)
-+		return array->entries;
-+
-+	return NULL;
++	/*
++	 * We propagate the information back to caller in case it wants to know
++	 * whether entry was freed.
++	 */
++	return kref_put(&resource->kref, vmci_release_resource) ?
++		VMCI_SUCCESS_ENTRY_DEAD : VMCI_SUCCESS;
 +}
-diff --git a/drivers/misc/vmw_vmci/vmci_handle_array.h b/drivers/misc/vmw_vmci/vmci_handle_array.h
++
++struct vmci_handle vmci_resource_handle(struct vmci_resource *resource)
++{
++	return resource->handle;
++}
+diff --git a/drivers/misc/vmw_vmci/vmci_resource.h b/drivers/misc/vmw_vmci/vmci_resource.h
 new file mode 100644
-index 0000000..b5f3a7f
+index 0000000..9190cd2
 --- /dev/null
-+++ b/drivers/misc/vmw_vmci/vmci_handle_array.h
-@@ -0,0 +1,52 @@
++++ b/drivers/misc/vmw_vmci/vmci_resource.h
+@@ -0,0 +1,59 @@
 +/*
 + * VMware VMCI Driver
 + *
@@ -202,40 +289,47 @@ index 0000000..b5f3a7f
 + * for more details.
 + */
 +
-+#ifndef _VMCI_HANDLE_ARRAY_H_
-+#define _VMCI_HANDLE_ARRAY_H_
++#ifndef _VMCI_RESOURCE_H_
++#define _VMCI_RESOURCE_H_
 +
 +#include <linux/vmw_vmci_defs.h>
 +#include <linux/types.h>
 +
-+#define VMCI_HANDLE_ARRAY_DEFAULT_SIZE 4
-+#define VMCI_ARR_CAP_MULT 2	/* Array capacity multiplier */
++#include "vmci_context.h"
 +
-+struct vmci_handle_arr {
-+	size_t capacity;
-+	size_t size;
-+	struct vmci_handle entries[];
++
++enum vmci_resource_type {
++	VMCI_RESOURCE_TYPE_ANY,
++	VMCI_RESOURCE_TYPE_API,
++	VMCI_RESOURCE_TYPE_GROUP,
++	VMCI_RESOURCE_TYPE_DATAGRAM,
++	VMCI_RESOURCE_TYPE_DOORBELL,
++	VMCI_RESOURCE_TYPE_QPAIR_GUEST,
++	VMCI_RESOURCE_TYPE_QPAIR_HOST
 +};
 +
-+struct vmci_handle_arr *vmci_handle_arr_create(size_t capacity);
-+void vmci_handle_arr_destroy(struct vmci_handle_arr *array);
-+void vmci_handle_arr_append_entry(struct vmci_handle_arr **array_ptr,
-+				  struct vmci_handle handle);
-+struct vmci_handle vmci_handle_arr_remove_entry(struct vmci_handle_arr *array,
-+						struct vmci_handle
-+						entry_handle);
-+struct vmci_handle vmci_handle_arr_remove_tail(struct vmci_handle_arr *array);
-+struct vmci_handle
-+vmci_handle_arr_get_entry(const struct vmci_handle_arr *array, size_t index);
-+bool vmci_handle_arr_has_entry(const struct vmci_handle_arr *array,
-+			       struct vmci_handle entry_handle);
-+struct vmci_handle *vmci_handle_arr_get_handles(struct vmci_handle_arr *array);
-+
-+static inline size_t vmci_handle_arr_get_size(
-+	const struct vmci_handle_arr *array)
-+{
-+	return array->size;
-+}
++struct vmci_resource {
++	struct vmci_handle handle;
++	enum vmci_resource_type type;
++	struct hlist_node node;
++	struct kref kref;
++	struct completion done;
++};
 +
 +
-+#endif /* _VMCI_HANDLE_ARRAY_H_ */
++int vmci_resource_add(struct vmci_resource *resource,
++		      enum vmci_resource_type resource_type,
++		      struct vmci_handle handle);
++
++void vmci_resource_remove(struct vmci_resource *resource);
++
++struct vmci_resource *
++vmci_resource_by_handle(struct vmci_handle resource_handle,
++			enum vmci_resource_type resource_type);
++
++struct vmci_resource *vmci_resource_get(struct vmci_resource *resource);
++int vmci_resource_put(struct vmci_resource *resource);
++
++struct vmci_handle vmci_resource_handle(struct vmci_resource *resource);
++
++#endif /* _VMCI_RESOURCE_H_ */
