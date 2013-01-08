@@ -1,17 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFCv2 00/12] Introduce host-side virtio queue and CAIF Virtio.
-Date: Wed, 09 Jan 2013 09:47:55 +1030
-Message-ID: <87pq1f2rj0.fsf@rustcorp.com.au>
-References: <871ug75vp1.fsf@rustcorp.com.au>
-	<1354718230-4486-1-git-send-email-sjur@brendeland.net>
-	<20121206102750.GF10837@redhat.com>
-	<877goc0wac.fsf@rustcorp.com.au>
-	<CAJK669bP41oBhJ=MB64NS21Ag7XO5WswuTiVKCFTb96nvmyBiw@mail.gmail.com>
+From: George Zhang <georgezhang@vmware.com>
+Subject: [PATCH 00/12] VMCI for Linux upstreaming
+Date: Tue, 08 Jan 2013 15:52:33 -0800
+Message-ID: <20130108234751.2698.66606.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJK669bP41oBhJ=MB64NS21Ag7XO5WswuTiVKCFTb96nvmyBiw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,49 +15,182 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>, "Michael S.
-	Tsirkin" <mst@redhat.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, georgezhang@vmware.com, virtualization@lists.linux-foundation.org
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cj4gT24gRnJpLCBE
-ZWMgMjEsIDIwMTIgYXQgNzoxMSBBTSwgUnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNvcnAuY29t
-LmF1PiB3cm90ZToKPj4gIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cml0
-ZXM6Cj4+Cj4+PiBPbiBXZWQsIERlYyAwNSwgMjAxMiBhdCAwMzozNjo1OFBNICswMTAwLCBTanVy
-IEJyw6ZuZGVsYW5kIHdyb3RlOgo+Pj4+IEZlZWRiYWNrIG9uIHRoaXMgcGF0Y2gtc2V0IGlzIGFw
-cHJlY2lhdGVkLCBwYXJ0aWN1bGFybHkgb24gc3RydWN0dXJlCj4+Pj4gYW5kIGNvZGUtcmV1c2Ug
-YmV0d2VlbiB2aG9zdC5jIGFuZCB0aGUgaG9zdC1zaWRlIHZpcnRpby1xdWV1ZS4KPj4+PiBJJ2Qg
-YWxzbyBsaWtlIHNvbWUgc3VnZ2VzdGlvbnMgb24gaG93IHRvIGhhbmRsZSB0aGUgYnVpbGQgY29u
-ZmlndXJhdGlvbgo+Pj4+IGJldHRlciAtIGN1cnJlbnRseSB0aGVyZSBhcmUgc29tZSB1bm5lY2Vz
-c2FyeSBidWlsZCBkZXBlbmRlbmNpZXMuCj4+Pgo+Pj4gUnVzdHkgc2VlbXMgdG8gZGlzYWdyZWUg
-YnV0IG9uZSBvZiB0aGUgY29uY2VybnMgcGVvcGxlIGhhdmUgYWJvdXQgdmhvc3QKPj4+IGlzIHNl
-Y3VyaXR5OyBzbyBJIHZhbHVlIGdldHRpbmcgYXMgbXVjaCBzdGF0aWMgY2hlY2tpbmcgYXMgd2Ug
-Y2FuLiAgVGhpcwo+Pj4gZGlzY2FyZHMgX191c2VyIGFubm90YXRpb25zIHNvIHRoaXMgZG9lc24n
-dCB3b3JrIGZvciBtZS4KPj4KPj4gU29tZXRpbWVzLCB3aGVuIHdlIGdlbmVyYWxpemUgY29kZSwg
-d2UgbG9zZSBzb21lIHR5cGUgc2FmZXR5LiAgQ2FsbGJhY2tzCj4+IHRha2Ugdm9pZCAqLCBmb3Ig
-ZXhhbXBsZS4gIEFuZCBpdCBoYXBwZW5zICphbGwgdGhlIHRpbWUqIHdpdGggY29uc3QuICBXZQo+
-PiBkb24ndCBjcmVhdGUgYSBzZXQgb2YgcGFyYWxsZWwgY29uc3Qtc2FmZSByb3V0aW5lcy4KPj4K
-Pj4gRXh0cmFjdGluZyBjb21tb24gY29kZSB3aGVyZSBpdCBjYW4gYmUgc2hhcmVkIHByb3ZpZGVz
-IGJldHRlciwgbm90IHdvcnNlCj4+IHNlY3VyaXR5LCBiZWNhdXNlIG1vcmUgcGVvcGxlIHdpbGwg
-cmVhZCBpdC4gIEkndmUgbmV2ZXIgYXVkaXRlZCB0aGUKPj4gdmhvc3QgY29kZSwgZm9yIGV4YW1w
-bGUuCj4+Cj4+IFdlIGFscmVhZHkgaGF2ZSBhICdzdHJ1Y3QgdnJpbmcnLCB3ZSBzaG91bGQganVz
-dCB1c2UgdGhhdC4KPj4KPj4gSSBtZWFudCB0byBkbyBtb3JlIHdvcmsgb24gdGhpcywgYnV0IEkn
-dmUgcnVuIG91dCBvZiB0aW1lIDooIEkgd2FzCj4+IHRoaW5raW5nIG9mIGEgZHJpdmVycy92aXJ0
-aW8vdmlydGlvX3JpbmcuYywgYW5kIGluIHRoYXQgd2UnZCBwdXQgdGhlCj4+IHdyYXBwZXJzIGZv
-ciB2aG9zdF9uZXQvYmxrLCBhbmQgZm9yIENBSUYsIGV0Yy4gIFdlIGNvdWxkIGF0IGxlYXN0IGhh
-dmUgYQo+PiB2YXJpYW50IHdoaWNoIGRpZCB0aGUgX191c2VyIGV0YyB0aGluZywgZXZlbiBpZiB5
-b3UgaGF2ZSB0byBwYXNzIGluCj4+IGdldGRlc2MoKS4KPj4KPj4gZ2V0dTE2OiBnZXRfdXNlciBv
-ciBhc3NpZ25tZW50Lgo+PiBnZXRkZXNjOiBjb3B5IChhbmQgY2hlY2ssIHRyYW5zbGF0ZSkgdGhl
-IGRlc2NyaXB0b3IuCj4+IGdldG1lbS9wdXRtZW06IG1lbWNweSBvciBjb3B5X3RvL2Zyb21fdXNl
-ci4KPj4KPj4gKENvbXBsZXRlbHkgdW50ZXN0ZWQsIG9mIGNvdXJzZS4uLikKPj4KPj4gVGhvdWdo
-dHM/Cj4KPiBBbnkgdGhvdWdodHMgb24gdGhpcyBNaWNoYWVsPwoKSSdtIGFjdHVhbGx5IHRlc3Rp
-bmcgY29kZSB0aGlzIHRpbWUsIGFuZCBpdCdzIG11dGF0ZWQgYSBsaXR0bGUuCgpJdCBiYXNpY2Fs
-bHkgaW52b2x2ZXMgbW92aW5nIG11Y2ggb2YgdnJpbmcuYyBpbnRvIGEgdmlydGlvX2hvc3QuYzog
-dGhlCnBhcnRzIHdoaWNoIGFjdHVhbGx5IHRvdWNoIHRoZSByaW5nLiAgVGhlbiBpdCBwcm92aWRl
-cyBhY2Nlc3NvcnMgZm9yCnZyaW5nLmMgdG8gdXNlIHdoaWNoIGFyZSBfX3VzZXItc2FmZSAoYWxs
-IGNhc3RzIGFyZSBpbnNpZGUKdmlydGlvX2hvc3QuYykuCgpJIHNob3VsZCBoYXZlIHNvbWV0aGlu
-ZyB0byBwb3N0IGJ5IGVuZCBvZiB0b2RheSwgbXkgdGltZS4uLgoKVGhhbmtzLApSdXN0eS4KCgoK
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
-YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
-b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
-cnR1YWxpemF0aW9u
+* * *
+This series of VMCI linux upstreaming patches include latest udpate from
+VMware to address Greg's and all other's code review comments.
+
+Summary of changes:
+        - Rebase our linux kernel tree from v3.5 to v3.7.
+        - Fix all checkpatch warnings and errors. Fix some checkpatch with -strict
+          errors.
+
+              This addresses Greg's comment: On 15 Nov 2012 15:47:14 -0800
+              Re: [PATCH 07/12] VMCI: queue pairs implementation.
+              chckpatch sanity checking.
+        - Fix vmci_get_contextid naming error.
+        - Fix host side queue pair creation bug.
+        - Fix resource hash table lookup issue.
+        - Remove __devinit and __devexit device driver annotations.
+        - Remove ASSERT/BUG_ON for vmci and vsock source codes.
+
+              This addresses Greg's comment on On 15 Nov 2012 15:47:14 -0800
+              Re: [PATCH 02/12] VMCI: datagram implementation.
+              Remove all BUG_ON(), asserts.
+        - use standard Linux kernel ioctl interface.
+
+              This addresses Greg's comment on On Thu, 15 Nov 2012 16:01:18 -0800
+              Re: [PATCH 12/12] VMCI: Some header and config files.
+              use linux in-kernel IO macros for VMCI.
+        - Add vmci ioctl code entry in ioctl-number.txt.
+        - Remove printk from header file. Align properly for macro PCI_VENDOR_ID_VMWARE.
+          Remove #define for VMCI_DRIVER_VERSION_STRING.
+          Remove #define for MODULE_NAME.
+          Remove #define for pr_fmt and #define ASSERT(x).
+          Remove inline function VMCI_MAKE_HANDLE and vmci_make_handle which return a
+              structure on stack. use macro instead and use C99 initialization.
+          Remove #define for VMCI_HANDLE_TO_CONTEXT_ID and VMCI_HANDLE_TO_RESOURCE_ID
+          Change macro to inline function for VMCI_HANDLE_EQUAL.
+          Remove u32 typedefs for vmci_id, vmci_event, vmci_privilege_flags.
+          Use C99 style initialization for struct VMCI_INVALID_HANDLE.
+          Use inline function instead of macro for VMCI_HANDLE_INVALID.
+          No change for vmw_vmci_api.h location (under include/linux/ directory).
+          No change for macros VMCI_CONTEXT_IS_VM, VMCI_HOST_CONTEXT_ID,
+              VMCI_RESERVED_CID_LIMIT, VMCI_HYPERVISOR_CONTEXT_ID and
+              VMCI_WELL_KNOWN_CONTEXT_ID. Still in header file include/linux/vmw_vmci_defs.h
+
+              This addresses Greg's several comments on Thu, 15 Nov 2012 16:01:18 -0800
+              Re: [PATCH 12/12] VMCI: Some header and config files.
+
+* * *
+
+In an effort to improve the out-of-the-box experience with Linux
+kernels for VMware users, VMware is working on readying the Virtual
+Machine Communication Interface (vmw_vmci) and VMCI Sockets
+(vmw_vsock) kernel modules for inclusion in the Linux kernel. The
+purpose of this post is to acquire feedback on the vmw_vmci kernel
+module. The vmw_vsock kernel module will be presented in a later post.
+
+
+* * *
+
+VMCI allows virtual machines to communicate with host kernel modules
+and the VMware hypervisors. User level applications both in a virtual
+machine and on the host can use vmw_vmci through VMCI Sockets, a socket
+address family designed to be compatible with UDP and TCP at the
+interface level. Today, VMCI and VMCI Sockets are used by the VMware
+shared folders (HGFS) and various VMware Tools components inside the
+guest for zero-config, network-less access to VMware host services. In
+addition to this, VMware's users are using VMCI Sockets for various
+applications, where network access of the virtual machine is
+restricted or non-existent. Examples of this are VMs communicating
+with device proxies for proprietary hardware running as host
+applications and automated testing of applications running within
+virtual machines.
+
+In a virtual machine, VMCI is exposed as a regular PCI device. The
+primary communication mechanisms supported are a point-to-point
+bidirectional transport based on a pair of memory-mapped queues, and
+asynchronous notifications in the form of datagrams and
+doorbells. These features are available to kernel level components
+such as HGFS and VMCI Sockets through the VMCI kernel API. In addition
+to this, the VMCI kernel API provides support for receiving events
+related to the state of the VMCI communication channels, and the
+virtual machine itself.
+
+Outside the virtual machine, the host side support of the VMCI kernel
+module makes the same VMCI kernel API available to VMCI endpoints on
+the host. In addition to this, the host side manages each VMCI device
+in a virtual machine through a context object. This context object
+serves to identify the virtual machine for communication, and to track
+the resource consumption of the given VMCI device. Both operations
+related to communication between the virtual machine and the host
+kernel, and those related to the management of the VMCI device state
+in the host kernel, are invoked by the user level component of the
+hypervisor through a set of ioctls on the VMCI device node.  To
+provide seamless support for nested virtualization, where a virtual
+machine may use both a VMCI PCI device to talk to its hypervisor, and
+the VMCI host side support to run nested virtual machines, the VMCI
+host and virtual machine support are combined in a single kernel
+module.
+
+For additional information about the use of VMCI and in particular
+VMCI Sockets, please refer to the VMCI Socket Programming Guide
+available at https://www.vmware.com/support/developer/vmci-sdk/.
+
+
+
+---
+
+George Zhang (12):
+      VMCI: context implementation.
+      VMCI: datagram implementation.
+      VMCI: doorbell implementation. VMCI doorbell code allows for notifcations between
+      VMCI: device driver implementaton.
+      VMCI: event handling implementation.
+      VMCI: handle array implementation.
+      VMCI: queue pairs implementation.
+      VMCI: resource object implementation.
+      VMCI: routing implementation.
+      VMCI: guest side driver implementation.
+      VMCI: host side driver implementation.
+      VMCI: Some header and config files.
+
+
+ drivers/misc/Kconfig                      |    1 
+ drivers/misc/Makefile                     |    2 
+ drivers/misc/vmw_vmci/Kconfig             |   16 
+ drivers/misc/vmw_vmci/Makefile            |    4 
+ drivers/misc/vmw_vmci/vmci_context.c      | 1214 ++++++++++
+ drivers/misc/vmw_vmci/vmci_context.h      |  182 ++
+ drivers/misc/vmw_vmci/vmci_datagram.c     |  500 ++++
+ drivers/misc/vmw_vmci/vmci_datagram.h     |   52 
+ drivers/misc/vmw_vmci/vmci_doorbell.c     |  604 +++++
+ drivers/misc/vmw_vmci/vmci_doorbell.h     |   51 
+ drivers/misc/vmw_vmci/vmci_driver.c       |  117 +
+ drivers/misc/vmw_vmci/vmci_driver.h       |   50 
+ drivers/misc/vmw_vmci/vmci_event.c        |  224 ++
+ drivers/misc/vmw_vmci/vmci_event.h        |   25 
+ drivers/misc/vmw_vmci/vmci_guest.c        |  759 ++++++
+ drivers/misc/vmw_vmci/vmci_handle_array.c |  142 +
+ drivers/misc/vmw_vmci/vmci_handle_array.h |   52 
+ drivers/misc/vmw_vmci/vmci_host.c         | 1042 +++++++++
+ drivers/misc/vmw_vmci/vmci_queue_pair.c   | 3420 +++++++++++++++++++++++++++++
+ drivers/misc/vmw_vmci/vmci_queue_pair.h   |  191 ++
+ drivers/misc/vmw_vmci/vmci_resource.c     |  229 ++
+ drivers/misc/vmw_vmci/vmci_resource.h     |   59 +
+ drivers/misc/vmw_vmci/vmci_route.c        |  226 ++
+ drivers/misc/vmw_vmci/vmci_route.h        |   30 
+ include/linux/vmw_vmci_api.h              |   82 +
+ include/linux/vmw_vmci_defs.h             |  880 +++++++
+ 26 files changed, 10154 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/misc/vmw_vmci/Kconfig
+ create mode 100644 drivers/misc/vmw_vmci/Makefile
+ create mode 100644 drivers/misc/vmw_vmci/vmci_context.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_context.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_datagram.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_doorbell.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_driver.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_driver.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_event.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_guest.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_handle_array.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_host.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_queue_pair.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_resource.h
+ create mode 100644 drivers/misc/vmw_vmci/vmci_route.c
+ create mode 100644 drivers/misc/vmw_vmci/vmci_route.h
+ create mode 100644 include/linux/vmw_vmci_api.h
+ create mode 100644 include/linux/vmw_vmci_defs.h
+
+-- 
+Signature
