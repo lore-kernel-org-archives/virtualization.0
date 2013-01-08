@@ -1,14 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH V3 1/2] virtio-net: fix the set affinity bug when CPU IDs
-	are not consecutive
-Date: Wed, 09 Jan 2013 10:01:32 +1030
-Message-ID: <87k3rn2qwb.fsf@rustcorp.com.au>
-References: <1357639660-6660-1-git-send-email-gaowanlong@cn.fujitsu.com>
+Subject: Re: [RFCv2 00/12] Introduce host-side virtio queue and CAIF Virtio.
+Date: Wed, 09 Jan 2013 09:47:55 +1030
+Message-ID: <87pq1f2rj0.fsf@rustcorp.com.au>
+References: <871ug75vp1.fsf@rustcorp.com.au>
+	<1354718230-4486-1-git-send-email-sjur@brendeland.net>
+	<20121206102750.GF10837@redhat.com>
+	<877goc0wac.fsf@rustcorp.com.au>
+	<CAJK669bP41oBhJ=MB64NS21Ag7XO5WswuTiVKCFTb96nvmyBiw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1357639660-6660-1-git-send-email-gaowanlong@cn.fujitsu.com>
+In-Reply-To: <CAJK669bP41oBhJ=MB64NS21Ag7XO5WswuTiVKCFTb96nvmyBiw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,47 +21,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanlong Gao <gaowanlong@cn.fujitsu.com>, linux-kernel@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <erdnetdev@gmail.com>
+To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>, "Michael S.
+	Tsirkin" <mst@redhat.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
->   */
->  static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
->  {
-> -	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
-> -		  smp_processor_id();
-> +	int txq = 0;
-> +
-> +	if (skb_rx_queue_recorded(skb))
-> +		txq = skb_get_rx_queue(skb);
-> +	else if ((txq = per_cpu(vq_index, smp_processor_id())) == -1)
-> +		txq = 0;
-
-You should use __get_cpu_var() instead of smp_processor_id() here, ie:
-
-        else if ((txq = __get_cpu_var(vq_index)) == -1)
-
-And AFAICT, no reason to initialize txq to 0 to start with.
-
-So:
-
-        int txq;
-
-        if (skb_rx_queue_recorded(skb))
-		txq = skb_get_rx_queue(skb);
-        else {
-                txq = __get_cpu_var(vq_index);
-                if (txq == -1)
-                        txq = 0;
-        }
-
-Now, just to confirm, I assume this can happen even if we use vq_index,
-right, because of races with virtnet_set_channels?
-
-  	while (unlikely(txq >= dev->real_num_tx_queues))
-  		txq -= dev->real_num_tx_queues;
-
-
-Thanks,
-Rusty.
+U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cj4gT24gRnJpLCBE
+ZWMgMjEsIDIwMTIgYXQgNzoxMSBBTSwgUnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNvcnAuY29t
+LmF1PiB3cm90ZToKPj4gIk1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cml0
+ZXM6Cj4+Cj4+PiBPbiBXZWQsIERlYyAwNSwgMjAxMiBhdCAwMzozNjo1OFBNICswMTAwLCBTanVy
+IEJyw6ZuZGVsYW5kIHdyb3RlOgo+Pj4+IEZlZWRiYWNrIG9uIHRoaXMgcGF0Y2gtc2V0IGlzIGFw
+cHJlY2lhdGVkLCBwYXJ0aWN1bGFybHkgb24gc3RydWN0dXJlCj4+Pj4gYW5kIGNvZGUtcmV1c2Ug
+YmV0d2VlbiB2aG9zdC5jIGFuZCB0aGUgaG9zdC1zaWRlIHZpcnRpby1xdWV1ZS4KPj4+PiBJJ2Qg
+YWxzbyBsaWtlIHNvbWUgc3VnZ2VzdGlvbnMgb24gaG93IHRvIGhhbmRsZSB0aGUgYnVpbGQgY29u
+ZmlndXJhdGlvbgo+Pj4+IGJldHRlciAtIGN1cnJlbnRseSB0aGVyZSBhcmUgc29tZSB1bm5lY2Vz
+c2FyeSBidWlsZCBkZXBlbmRlbmNpZXMuCj4+Pgo+Pj4gUnVzdHkgc2VlbXMgdG8gZGlzYWdyZWUg
+YnV0IG9uZSBvZiB0aGUgY29uY2VybnMgcGVvcGxlIGhhdmUgYWJvdXQgdmhvc3QKPj4+IGlzIHNl
+Y3VyaXR5OyBzbyBJIHZhbHVlIGdldHRpbmcgYXMgbXVjaCBzdGF0aWMgY2hlY2tpbmcgYXMgd2Ug
+Y2FuLiAgVGhpcwo+Pj4gZGlzY2FyZHMgX191c2VyIGFubm90YXRpb25zIHNvIHRoaXMgZG9lc24n
+dCB3b3JrIGZvciBtZS4KPj4KPj4gU29tZXRpbWVzLCB3aGVuIHdlIGdlbmVyYWxpemUgY29kZSwg
+d2UgbG9zZSBzb21lIHR5cGUgc2FmZXR5LiAgQ2FsbGJhY2tzCj4+IHRha2Ugdm9pZCAqLCBmb3Ig
+ZXhhbXBsZS4gIEFuZCBpdCBoYXBwZW5zICphbGwgdGhlIHRpbWUqIHdpdGggY29uc3QuICBXZQo+
+PiBkb24ndCBjcmVhdGUgYSBzZXQgb2YgcGFyYWxsZWwgY29uc3Qtc2FmZSByb3V0aW5lcy4KPj4K
+Pj4gRXh0cmFjdGluZyBjb21tb24gY29kZSB3aGVyZSBpdCBjYW4gYmUgc2hhcmVkIHByb3ZpZGVz
+IGJldHRlciwgbm90IHdvcnNlCj4+IHNlY3VyaXR5LCBiZWNhdXNlIG1vcmUgcGVvcGxlIHdpbGwg
+cmVhZCBpdC4gIEkndmUgbmV2ZXIgYXVkaXRlZCB0aGUKPj4gdmhvc3QgY29kZSwgZm9yIGV4YW1w
+bGUuCj4+Cj4+IFdlIGFscmVhZHkgaGF2ZSBhICdzdHJ1Y3QgdnJpbmcnLCB3ZSBzaG91bGQganVz
+dCB1c2UgdGhhdC4KPj4KPj4gSSBtZWFudCB0byBkbyBtb3JlIHdvcmsgb24gdGhpcywgYnV0IEkn
+dmUgcnVuIG91dCBvZiB0aW1lIDooIEkgd2FzCj4+IHRoaW5raW5nIG9mIGEgZHJpdmVycy92aXJ0
+aW8vdmlydGlvX3JpbmcuYywgYW5kIGluIHRoYXQgd2UnZCBwdXQgdGhlCj4+IHdyYXBwZXJzIGZv
+ciB2aG9zdF9uZXQvYmxrLCBhbmQgZm9yIENBSUYsIGV0Yy4gIFdlIGNvdWxkIGF0IGxlYXN0IGhh
+dmUgYQo+PiB2YXJpYW50IHdoaWNoIGRpZCB0aGUgX191c2VyIGV0YyB0aGluZywgZXZlbiBpZiB5
+b3UgaGF2ZSB0byBwYXNzIGluCj4+IGdldGRlc2MoKS4KPj4KPj4gZ2V0dTE2OiBnZXRfdXNlciBv
+ciBhc3NpZ25tZW50Lgo+PiBnZXRkZXNjOiBjb3B5IChhbmQgY2hlY2ssIHRyYW5zbGF0ZSkgdGhl
+IGRlc2NyaXB0b3IuCj4+IGdldG1lbS9wdXRtZW06IG1lbWNweSBvciBjb3B5X3RvL2Zyb21fdXNl
+ci4KPj4KPj4gKENvbXBsZXRlbHkgdW50ZXN0ZWQsIG9mIGNvdXJzZS4uLikKPj4KPj4gVGhvdWdo
+dHM/Cj4KPiBBbnkgdGhvdWdodHMgb24gdGhpcyBNaWNoYWVsPwoKSSdtIGFjdHVhbGx5IHRlc3Rp
+bmcgY29kZSB0aGlzIHRpbWUsIGFuZCBpdCdzIG11dGF0ZWQgYSBsaXR0bGUuCgpJdCBiYXNpY2Fs
+bHkgaW52b2x2ZXMgbW92aW5nIG11Y2ggb2YgdnJpbmcuYyBpbnRvIGEgdmlydGlvX2hvc3QuYzog
+dGhlCnBhcnRzIHdoaWNoIGFjdHVhbGx5IHRvdWNoIHRoZSByaW5nLiAgVGhlbiBpdCBwcm92aWRl
+cyBhY2Nlc3NvcnMgZm9yCnZyaW5nLmMgdG8gdXNlIHdoaWNoIGFyZSBfX3VzZXItc2FmZSAoYWxs
+IGNhc3RzIGFyZSBpbnNpZGUKdmlydGlvX2hvc3QuYykuCgpJIHNob3VsZCBoYXZlIHNvbWV0aGlu
+ZyB0byBwb3N0IGJ5IGVuZCBvZiB0b2RheSwgbXkgdGltZS4uLgoKVGhhbmtzLApSdXN0eS4KCgoK
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
+YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
+cnR1YWxpemF0aW9u
