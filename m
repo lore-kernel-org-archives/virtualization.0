@@ -1,8 +1,8 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3 1/2] virtio-net: fix the set affinity bug when CPU
-	IDs are not consecutive
-Date: Tue, 08 Jan 2013 18:26:20 +0800
-Message-ID: <50EBF44C.9040401@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH V3 1/2] virtio-net: fix the set affinity bug when CPU IDs
+	are not consecutive
+Date: Wed, 09 Jan 2013 10:01:32 +1030
+Message-ID: <87k3rn2qwb.fsf@rustcorp.com.au>
 References: <1357639660-6660-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,97 +18,11 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <erdnetdev@gmail.com>
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>, linux-kernel@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <erdnetdev@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/08/2013 06:07 PM, Wanlong Gao wrote:
-> As Michael mentioned, set affinity and select queue will not work very
-> well when CPU IDs are not consecutive, this can happen with hot unplug.
-> Fix this bug by traversal the online CPUs, and create a per cpu variable
-> to find the mapping from CPU to the preferable virtual-queue.
->
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Eric Dumazet <erdnetdev@gmail.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: netdev@vger.kernel.org
-> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-> ---
->  drivers/net/virtio_net.c | 39 +++++++++++++++++++++++++++++----------
->  1 file changed, 29 insertions(+), 10 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index a6fcf15..a77f86c 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -41,6 +41,8 @@ module_param(gso, bool, 0444);
->  #define VIRTNET_SEND_COMMAND_SG_MAX    2
->  #define VIRTNET_DRIVER_VERSION "1.0.0"
->  
-> +DEFINE_PER_CPU(int, vq_index) = -1;
-> +
-
-I think this should not be a global one, consider we may have more than
-one virtio-net cards with different max queues.
->  struct virtnet_stats {
->  	struct u64_stats_sync tx_syncp;
->  	struct u64_stats_sync rx_syncp;
-> @@ -1016,6 +1018,7 @@ static int virtnet_vlan_rx_kill_vid(struct net_device *dev, u16 vid)
->  static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
->  {
->  	int i;
-> +	int cpu;
->  
->  	/* In multiqueue mode, when the number of cpu is equal to the number of
->  	 * queue pairs, we let the queue pairs to be private to one cpu by
-> @@ -1029,16 +1032,29 @@ static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
->  			return;
->  	}
->  
-> -	for (i = 0; i < vi->max_queue_pairs; i++) {
-> -		int cpu = set ? i : -1;
-> -		virtqueue_set_affinity(vi->rq[i].vq, cpu);
-> -		virtqueue_set_affinity(vi->sq[i].vq, cpu);
-> -	}
-> +	if (set) {
-> +		i = 0;
-> +		for_each_online_cpu(cpu) {
-> +			virtqueue_set_affinity(vi->rq[i].vq, cpu);
-> +			virtqueue_set_affinity(vi->sq[i].vq, cpu);
-> +			per_cpu(vq_index, cpu) = i;
-> +			i++;
-> +			if (i >= vi->max_queue_pairs)
-> +				break;
-
-Can this happen? we check only set when the number are equal.
-> +		}
->  
-> -	if (set)
->  		vi->affinity_hint_set = true;
-> -	else
-> +	} else {
-> +		for(i = 0; i < vi->max_queue_pairs; i++) {
-> +			virtqueue_set_affinity(vi->rq[i].vq, -1);
-> +			virtqueue_set_affinity(vi->sq[i].vq, -1);
-> +		}
-> +
-> +		for_each_online_cpu(cpu)
-> +			per_cpu(vq_index, cpu) = -1;
-> +
-
-This looks suboptimal since it may leads only txq zero is used.
->  		vi->affinity_hint_set = false;
-> +	}
->  }
->  
->  static void virtnet_get_ringparam(struct net_device *dev,
-> @@ -1127,12 +1143,15 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
->  
->  /* To avoid contending a lock hold by a vcpu who would exit to host, select the
->   * txq based on the processor id.
-> - * TODO: handle cpu hotplug.
+Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
 >   */
 >  static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
 >  {
@@ -120,6 +34,31 @@ This looks suboptimal since it may leads only txq zero is used.
 > +		txq = skb_get_rx_queue(skb);
 > +	else if ((txq = per_cpu(vq_index, smp_processor_id())) == -1)
 > +		txq = 0;
->  
->  	while (unlikely(txq >= dev->real_num_tx_queues))
->  		txq -= dev->real_num_tx_queues;
+
+You should use __get_cpu_var() instead of smp_processor_id() here, ie:
+
+        else if ((txq = __get_cpu_var(vq_index)) == -1)
+
+And AFAICT, no reason to initialize txq to 0 to start with.
+
+So:
+
+        int txq;
+
+        if (skb_rx_queue_recorded(skb))
+		txq = skb_get_rx_queue(skb);
+        else {
+                txq = __get_cpu_var(vq_index);
+                if (txq == -1)
+                        txq = 0;
+        }
+
+Now, just to confirm, I assume this can happen even if we use vq_index,
+right, because of races with virtnet_set_channels?
+
+  	while (unlikely(txq >= dev->real_num_tx_queues))
+  		txq -= dev->real_num_tx_queues;
+
+
+Thanks,
+Rusty.
