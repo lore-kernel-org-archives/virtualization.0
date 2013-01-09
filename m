@@ -1,15 +1,14 @@
 From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 07/12] VMCI: queue pairs implementation.
-Date: Tue, 8 Jan 2013 16:15:39 -0800
-Message-ID: <20130109001539.GA24989@kroah.com>
+Subject: Re: [PATCH 00/12] VMCI for Linux upstreaming
+Date: Tue, 8 Jan 2013 16:20:20 -0800
+Message-ID: <20130109002020.GA5296@kroah.com>
 References: <20130108234751.2698.66606.stgit@promb-2n-dhcp175.eng.vmware.com>
-	<20130108235444.2698.24076.stgit@promb-2n-dhcp175.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130108235444.2698.24076.stgit@promb-2n-dhcp175.eng.vmware.com>
+In-Reply-To: <20130108234751.2698.66606.stgit@promb-2n-dhcp175.eng.vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,25 +22,15 @@ To: George Zhang <georgezhang@vmware.com>
 Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 08, 2013 at 03:54:54PM -0800, George Zhang wrote:
-> VMCI queue pairs allow for bi-directional ordered communication between host and guests.
+On Tue, Jan 08, 2013 at 03:52:33PM -0800, George Zhang wrote:
+> * * *
+> This series of VMCI linux upstreaming patches include latest udpate from
+> VMware to address Greg's and all other's code review comments.
 
-You should wrap your commit lines at 72 characters, like git asks you to :)
-
-> +/* Guest device port I/O. */
-> +struct PPNSet {
-> +	u64 num_produce_pages;
-> +	u64 num_consume_pages;
-> +	u32 *produce_ppns;
-> +	u32 *consume_ppns;
-> +	bool initialized;
-> +};
-
-I know this is a private structure to the driver, so it's not that big
-of a deal at all, but the naming for this is a bit odd (mixed case.)
-
-Not a show stopper at all, but if you had run checkpatch.pl on it, it
-would have warned you about this.
+Nice work, thanks for the changes you've made over time, and for your
+persistence.  I can't see anything else to complain about, so I've
+applied this to my tree and it will show up in linux-next tomorrow or
+so.
 
 thanks,
 
