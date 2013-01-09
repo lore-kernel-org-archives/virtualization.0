@@ -1,14 +1,15 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 0/6] VSOCK for Linux upstreaming
-Date: Tue, 8 Jan 2013 16:21:10 -0800
-Message-ID: <20130109002110.GB5296@kroah.com>
-References: <20130108235633.3719.6085.stgit@promb-2n-dhcp175.eng.vmware.com>
+From: Dmitry Torokhov <dtor@vmware.com>
+Subject: Re: [Pv-drivers] [PATCH 07/12] VMCI: queue pairs implementation.
+Date: Tue, 08 Jan 2013 16:28:51 -0800
+Message-ID: <2526541.2xuuOB7vZK@dtor-d630.eng.vmware.com>
+References: <20130108234751.2698.66606.stgit@promb-2n-dhcp175.eng.vmware.com>
+	<20130108235444.2698.24076.stgit@promb-2n-dhcp175.eng.vmware.com>
+	<20130109001539.GA24989@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130108235633.3719.6085.stgit@promb-2n-dhcp175.eng.vmware.com>
+In-Reply-To: <20130109001539.GA24989@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,21 +19,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: George Zhang <georgezhang@vmware.com>
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: pv-drivers@vmware.com
+Cc: Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, George Zhang <georgezhang@vmware.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 08, 2013 at 03:59:08PM -0800, George Zhang wrote:
+Hi Greg,
+
+On Tuesday, January 08, 2013 04:15:39 PM Greg KH wrote:
+> On Tue, Jan 08, 2013 at 03:54:54PM -0800, George Zhang wrote:
 > 
-> * * *
+> > +/* Guest device port I/O. */
+> > +struct PPNSet {
+> > +	u64 num_produce_pages;
+> > +	u64 num_consume_pages;
+> > +	u32 *produce_ppns;
+> > +	u32 *consume_ppns;
+> > +	bool initialized;
+> > +};
 > 
-> This series of VSOCK linux upstreaming patches include latest udpate from
-> VMware to address Greg's and all other's code review comments.
+> I know this is a private structure to the driver, so it's not that big
+> of a deal at all, but the naming for this is a bit odd (mixed case.)
+> 
+> Not a show stopper at all, but if you had run checkpatch.pl on it, it
+> would have warned you about this.
 
-Dave, you acked these patches a while ago, and now that I've taken the
-VMCI patches that these depend on through my char-misc tree, can I take
-these as well?
+Surprisingly it does not:
 
-thanks,
+[dtor@dtor-ws vmci]$ ./scripts/checkpatch.pl -f  
+drivers/misc/vmw_vmci/vmci_queue_pair.h 
+total: 0 errors, 0 warnings, 191 lines checked
 
-greg k-h
+drivers/misc/vmw_vmci/vmci_queue_pair.h has no obvious style problems and is 
+ready for submission.
+
+Also silent on the patch itself...
+
+We'll send a followup patch anyway.
+
+Thanks,
+Dmitry
