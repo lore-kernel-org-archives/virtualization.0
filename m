@@ -1,11 +1,17 @@
-From: akong@redhat.com
-Subject: [PATCH] virtio-spec: fix two typos
-Date: Wed,  9 Jan 2013 15:55:23 +0800
-Message-ID: <1357718123-9274-1-git-send-email-akong@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [Pv-drivers] [PATCH 0/6] VSOCK for Linux upstreaming
+Date: Wed, 09 Jan 2013 09:10:15 +0100
+Message-ID: <50ED25E7.9010609@redhat.com>
+References: <20130109002110.GB5296@kroah.com>
+	<20130108.173056.1029788106028104571.davem@davemloft.net>
+	<1683801.VNKd61ZM1Q@dtor-d630.eng.vmware.com>
+	<20130108.174601.1788895671912734725.davem@davemloft.net>
+	<20130109022204.GA22875@dtor-ws.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20130109022204.GA22875@dtor-ws.eng.vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,41 +21,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org
+To: Dmitry Torokhov <dtor@vmware.com>
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Amos Kong <akong@redhat.com>
+On 01/09/13 03:22, Dmitry Torokhov wrote:
+> On Tue, Jan 08, 2013 at 05:46:01PM -0800, David Miller wrote:
+>> I'd much rather see a hypervisor neutral solution than a hypervisor
+>> specific one which this certainly is.
+> 
+> Objectively speaking neither solution is hypervisor neutral as there are
+> hypervisors that implement either VMCI or virtio or something else
+> entirely.
 
-VIRTIO_NET_F_VTRL_VQ -> VIRTIO_NET_F_CTRL_VQ
-VIRTIO_NET_CTRL_MQ is defined to 4 in kernel code
+Indeed.  vmchannel is tied to virtio like vsock is tied to vmci.
 
-Signed-off-by: Amos Kong <akong@redhat.com>
----
- virtio-spec.lyx | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> Our position is that VSOCK feature set is more complete and that it
+> should be possible to use transports other than VMCI for VSOCK traffic,
+> should interested parties implement them,
 
-diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index 78ec5d0..1ba9992 100644
---- a/virtio-spec.lyx
-+++ b/virtio-spec.lyx
-@@ -5156,7 +5156,7 @@ Control Virtqueue
- \end_layout
- 
- \begin_layout Standard
--The driver uses the control virtqueue (if VIRTIO_NET_F_VTRL_VQ is negotiated)
-+The driver uses the control virtqueue (if VIRTIO_NET_F_CTRL_VQ is negotiated)
-  to send commands to manipulate various features of the device which would
-  not easily map into the configuration space.
- \end_layout
-@@ -5501,7 +5501,7 @@ struct virtio_net_ctrl_mq {
- 
- \change_inserted 1986246365 1353594263
- 
--#define VIRTIO_NET_CTRL_MQ    1
-+#define VIRTIO_NET_CTRL_MQ    4
- \end_layout
- 
- \begin_layout Plain Layout
--- 
-1.7.11.7
+Implementing other transports requires restructing vsock (and vmci)
+first as the current vsock code is not a hypervisor neutral service.
+
+cheers,
+  Gerd
