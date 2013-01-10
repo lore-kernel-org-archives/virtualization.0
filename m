@@ -1,14 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-spec: fix two typos
-Date: Thu, 10 Jan 2013 11:21:59 +1030
-Message-ID: <877gnl3ln4.fsf@rustcorp.com.au>
-References: <1357718123-9274-1-git-send-email-akong@redhat.com>
-	<20130109090335.GB31050@stefanha-thinkpad.redhat.com>
+Subject: Re: [PATCH V3 1/2] virtio-net: fix the set affinity bug when CPU IDs
+	are not consecutive
+Date: Thu, 10 Jan 2013 11:19:09 +1030
+Message-ID: <87a9sh3lru.fsf@rustcorp.com.au>
+References: <1357639660-6660-1-git-send-email-gaowanlong@cn.fujitsu.com>
+	<87k3rn2qwb.fsf@rustcorp.com.au> <50ECCDF3.9050403@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130109090335.GB31050@stefanha-thinkpad.redhat.com>
+In-Reply-To: <50ECCDF3.9050403@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,26 +19,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>, akong@redhat.com
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <erdnetdev@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Stefan Hajnoczi <stefanha@gmail.com> writes:
-
-> On Wed, Jan 09, 2013 at 03:55:23PM +0800, akong@redhat.com wrote:
->> From: Amos Kong <akong@redhat.com>
+Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
+> On 01/09/2013 07:31 AM, Rusty Russell wrote:
+>> Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
+>>>   */
+>>>  static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
+>>>  {
+>>> -	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
+>>> -		  smp_processor_id();
+>>> +	int txq = 0;
+>>> +
+>>> +	if (skb_rx_queue_recorded(skb))
+>>> +		txq = skb_get_rx_queue(skb);
+>>> +	else if ((txq = per_cpu(vq_index, smp_processor_id())) == -1)
+>>> +		txq = 0;
 >> 
->> VIRTIO_NET_F_VTRL_VQ -> VIRTIO_NET_F_CTRL_VQ
->> VIRTIO_NET_CTRL_MQ is defined to 4 in kernel code
+>> You should use __get_cpu_var() instead of smp_processor_id() here, ie:
 >> 
->> Signed-off-by: Amos Kong <akong@redhat.com>
->> ---
->>  virtio-spec.lyx | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>         else if ((txq = __get_cpu_var(vq_index)) == -1)
+>> 
+>> And AFAICT, no reason to initialize txq to 0 to start with.
+>> 
+>> So:
+>> 
+>>         int txq;
+>> 
+>>         if (skb_rx_queue_recorded(skb))
+>> 		txq = skb_get_rx_queue(skb);
+>>         else {
+>>                 txq = __get_cpu_var(vq_index);
+>>                 if (txq == -1)
+>>                         txq = 0;
+>>         }
 >
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> Got it, thank you.
+>
+>> 
+>> Now, just to confirm, I assume this can happen even if we use vq_index,
+>> right, because of races with virtnet_set_channels?
+>
+> I still can't understand this race, could you explain more? thank you.
 
-Thanks, applied.
+I assume that someone can call virtnet_set_channels() while we are
+inside virtnet_select_queue(), so they reduce dev->real_num_tx_queues,
+causing virtnet_set_channels to do:
 
-Cheers,
+	while (unlikely(txq >= dev->real_num_tx_queues))
+		txq -= dev->real_num_tx_queues;
+
+Otherwise, when is this loop called?
+
+Thanks,
 Rusty.
