@@ -1,13 +1,15 @@
-From: akong@redhat.com
-Subject: [RFC PATCH] virtio-net: introduce a new macaddr control
-Date: Thu, 10 Jan 2013 22:51:57 +0800
-Message-ID: <1357829517-25656-1-git-send-email-akong@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH 1/2] move virtnet_send_command() above
+	virtnet_set_mac_address()
+Date: Thu, 10 Jan 2013 22:51:52 +0800
+Message-ID: <50EED588.9080706@redhat.com>
 References: <1357829141-25455-1-git-send-email-akong@redhat.com>
+	<1357829141-25455-2-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1357829141-25455-1-git-send-email-akong@redhat.com>
+In-Reply-To: <1357829141-25455-2-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,99 +19,127 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: qemu-devel@nongnu.org
-Cc: mst@redhat.com, stefanha@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: akong@redhat.com
+Cc: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Amos Kong <akong@redhat.com>
+On 01/10/2013 10:45 PM, akong@redhat.com wrote:
+> From: Amos Kong <akong@redhat.com>
+>
+> We will send vq command to set mac address in virtnet_set_mac_address()
+> a little fix of coding style
 
-In virtio-net guest driver, currently we write MAC address to
-pci config space byte by byte, this means that we have an
-intermediate step where mac is wrong. This patch introduced
-a new control command to set MAC address in one time.
-
-VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
-
-Signed-off-by: Amos Kong <akong@redhat.com>
----
- hw/virtio-net.c | 9 +++++++++
- hw/virtio-net.h | 9 ++++++++-
- 2 files changed, 17 insertions(+), 1 deletion(-)
-
-diff --git a/hw/virtio-net.c b/hw/virtio-net.c
-index dc7c6d6..fc11106 100644
---- a/hw/virtio-net.c
-+++ b/hw/virtio-net.c
-@@ -247,6 +247,7 @@ static uint32_t virtio_net_get_features(VirtIODevice *vdev, uint32_t features)
-     VirtIONet *n = to_virtio_net(vdev);
- 
-     features |= (1 << VIRTIO_NET_F_MAC);
-+    features |= (1 << VIRTIO_NET_F_CTRL_MAC_ADDR);
- 
-     if (!peer_has_vnet_hdr(n)) {
-         features &= ~(0x1 << VIRTIO_NET_F_CSUM);
-@@ -282,6 +283,7 @@ static uint32_t virtio_net_bad_features(VirtIODevice *vdev)
-     /* Linux kernel 2.6.25.  It understood MAC (as everyone must),
-      * but also these: */
-     features |= (1 << VIRTIO_NET_F_MAC);
-+    features |= (1 << VIRTIO_NET_F_CTRL_MAC_ADDR);
-     features |= (1 << VIRTIO_NET_F_CSUM);
-     features |= (1 << VIRTIO_NET_F_HOST_TSO4);
-     features |= (1 << VIRTIO_NET_F_HOST_TSO6);
-@@ -349,6 +351,13 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
- {
-     struct virtio_net_ctrl_mac mac_data;
- 
-+    if (cmd == VIRTIO_NET_CTRL_MAC_ADDR_SET && elem->out_num == 2) {
-+        /* Set MAC address */
-+        memcpy(n->mac, elem->out_sg[1].iov_base, elem->out_sg[1].iov_len);
-+        qemu_format_nic_info_str(&n->nic->nc, n->mac);
-+        return VIRTIO_NET_OK;
-+    }
-+
-     if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET || elem->out_num != 3 ||
-         elem->out_sg[1].iov_len < sizeof(mac_data) ||
-         elem->out_sg[2].iov_len < sizeof(mac_data))
-diff --git a/hw/virtio-net.h b/hw/virtio-net.h
-index d46fb98..9394cc0 100644
---- a/hw/virtio-net.h
-+++ b/hw/virtio-net.h
-@@ -44,6 +44,8 @@
- #define VIRTIO_NET_F_CTRL_VLAN  19      /* Control channel VLAN filtering */
- #define VIRTIO_NET_F_CTRL_RX_EXTRA 20   /* Extra RX mode control support */
- 
-+#define VIRTIO_NET_F_CTRL_MAC_ADDR   23 /* Set MAC address */
-+
- #define VIRTIO_NET_S_LINK_UP    1       /* Link is up */
- 
- #define TX_TIMER_INTERVAL 150000 /* 150 us */
-@@ -106,7 +108,7 @@ typedef uint8_t virtio_net_ctrl_ack;
-  #define VIRTIO_NET_CTRL_RX_MODE_NOBCAST      5
- 
- /*
-- * Control the MAC filter table.
-+ * Control the MAC
-  *
-  * The MAC filter table is managed by the hypervisor, the guest should
-  * assume the size is infinite.  Filtering should be considered
-@@ -119,6 +121,10 @@ typedef uint8_t virtio_net_ctrl_ack;
-  * first sg list contains unicast addresses, the second is for multicast.
-  * This functionality is present if the VIRTIO_NET_F_CTRL_RX feature
-  * is available.
-+ *
-+ * The ADDR_SET command requests one out scatterlist, it contains a
-+ * 6 bytes MAC address. This functionality is present if the
-+ * VIRTIO_NET_F_CTRL_MAC_ADDR feature is available.
-  */
- struct virtio_net_ctrl_mac {
-     uint32_t entries;
-@@ -126,6 +132,7 @@ struct virtio_net_ctrl_mac {
- };
- #define VIRTIO_NET_CTRL_MAC    1
-  #define VIRTIO_NET_CTRL_MAC_TABLE_SET        0
-+ #define VIRTIO_NET_CTRL_MAC_ADDR_SET         1
- 
- /*
-  * Control VLAN filtering
--- 
-1.7.11.7
+Maybe what you need is just a forward declaration.
+>
+> Signed-off-by: Amos Kong <akong@redhat.com>
+> ---
+>  drivers/net/virtio_net.c | 89 ++++++++++++++++++++++++------------------------
+>  1 file changed, 44 insertions(+), 45 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index a6fcf15..395ab4f 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -753,6 +753,50 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  	return NETDEV_TX_OK;
+>  }
+>  
+> +/*
+> + * Send command via the control virtqueue and check status.  Commands
+> + * supported by the hypervisor, as indicated by feature bits, should
+> + * never fail unless improperly formated.
+> + */
+> +static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+> +				 struct scatterlist *data, int out, int in)
+> +{
+> +	struct scatterlist *s, sg[VIRTNET_SEND_COMMAND_SG_MAX + 2];
+> +	struct virtio_net_ctrl_hdr ctrl;
+> +	virtio_net_ctrl_ack status = ~0;
+> +	unsigned int tmp;
+> +	int i;
+> +
+> +	/* Caller should know better */
+> +	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ||
+> +		(out + in > VIRTNET_SEND_COMMAND_SG_MAX));
+> +
+> +	out++; /* Add header */
+> +	in++; /* Add return status */
+> +
+> +	ctrl.class = class;
+> +	ctrl.cmd = cmd;
+> +
+> +	sg_init_table(sg, out + in);
+> +
+> +	sg_set_buf(&sg[0], &ctrl, sizeof(ctrl));
+> +	for_each_sg(data, s, out + in - 2, i)
+> +		sg_set_buf(&sg[i + 1], sg_virt(s), s->length);
+> +	sg_set_buf(&sg[out + in - 1], &status, sizeof(status));
+> +
+> +	BUG_ON(virtqueue_add_buf(vi->cvq, sg, out, in, vi, GFP_ATOMIC) < 0);
+> +
+> +	virtqueue_kick(vi->cvq);
+> +
+> +	/* Spin for a response, the kick causes an ioport write, trapping
+> +	 * into the hypervisor, so the request should be handled immediately.
+> +	 */
+> +	while (!virtqueue_get_buf(vi->cvq, &tmp))
+> +		cpu_relax();
+> +
+> +	return status == VIRTIO_NET_OK;
+> +}
+> +
+>  static int virtnet_set_mac_address(struct net_device *dev, void *p)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> @@ -819,51 +863,6 @@ static void virtnet_netpoll(struct net_device *dev)
+>  }
+>  #endif
+>  
+> -/*
+> - * Send command via the control virtqueue and check status.  Commands
+> - * supported by the hypervisor, as indicated by feature bits, should
+> - * never fail unless improperly formated.
+> - */
+> -static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+> -				 struct scatterlist *data, int out, int in)
+> -{
+> -	struct scatterlist *s, sg[VIRTNET_SEND_COMMAND_SG_MAX + 2];
+> -	struct virtio_net_ctrl_hdr ctrl;
+> -	virtio_net_ctrl_ack status = ~0;
+> -	unsigned int tmp;
+> -	int i;
+> -
+> -	/* Caller should know better */
+> -	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ||
+> -		(out + in > VIRTNET_SEND_COMMAND_SG_MAX));
+> -
+> -	out++; /* Add header */
+> -	in++; /* Add return status */
+> -
+> -	ctrl.class = class;
+> -	ctrl.cmd = cmd;
+> -
+> -	sg_init_table(sg, out + in);
+> -
+> -	sg_set_buf(&sg[0], &ctrl, sizeof(ctrl));
+> -	for_each_sg(data, s, out + in - 2, i)
+> -		sg_set_buf(&sg[i + 1], sg_virt(s), s->length);
+> -	sg_set_buf(&sg[out + in - 1], &status, sizeof(status));
+> -
+> -	BUG_ON(virtqueue_add_buf(vi->cvq, sg, out, in, vi, GFP_ATOMIC) < 0);
+> -
+> -	virtqueue_kick(vi->cvq);
+> -
+> -	/*
+> -	 * Spin for a response, the kick causes an ioport write, trapping
+> -	 * into the hypervisor, so the request should be handled immediately.
+> -	 */
+> -	while (!virtqueue_get_buf(vi->cvq, &tmp))
+> -		cpu_relax();
+> -
+> -	return status == VIRTIO_NET_OK;
+> -}
+> -
+>  static void virtnet_ack_link_announce(struct virtnet_info *vi)
+>  {
+>  	rtnl_lock();
