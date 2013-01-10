@@ -1,18 +1,17 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH v2 1/5] virtio: add functions for piecewise addition of
-	buffers
-Date: Thu, 10 Jan 2013 09:44:56 +0100
-Message-ID: <50EE7F88.1010100@redhat.com>
-References: <1355833972-20319-1-git-send-email-pbonzini@redhat.com>
-	<1355833972-20319-2-git-send-email-pbonzini@redhat.com>
-	<87r4m45g88.fsf@rustcorp.com.au> <50E54DC0.4040609@redhat.com>
-	<87pq1h508k.fsf@rustcorp.com.au> <50EADB62.1010704@redhat.com>
-	<87wqvo3542.fsf@rustcorp.com.au>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: Re: [PATCH V3 1/2] virtio-net: fix the set affinity bug when CPU
+	IDs are not consecutive
+Date: Thu, 10 Jan 2013 17:26:22 +0800
+Message-ID: <50EE893E.8020107@cn.fujitsu.com>
+References: <1357639660-6660-1-git-send-email-gaowanlong@cn.fujitsu.com>
+	<87k3rn2qwb.fsf@rustcorp.com.au> <50ECCDF3.9050403@cn.fujitsu.com>
+	<87a9sh3lru.fsf@rustcorp.com.au>
+Reply-To: gaowanlong@cn.fujitsu.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87wqvo3542.fsf@rustcorp.com.au>
+In-Reply-To: <87a9sh3lru.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,36 +21,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, hutao@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
+To: Rusty Russell <rusty@rustcorp.com.au>, Eric Dumazet <erdnetdev@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 08/01/2013 01:12, Rusty Russell ha scritto:
->>>> >>> Unfortunately, that cannot work because not all architectures support
->>>> >>> chained scatterlists.
->>> >> 
->>> >> WHAT?  I can't figure out what an arch needs to do to support this?
->> >
->> > It needs to use the iterator functions in its DMA driver.
-> But we don't care for virtio.
+On 01/10/2013 08:49 AM, Rusty Russell wrote:
+> Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
+>> On 01/09/2013 07:31 AM, Rusty Russell wrote:
+>>> Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
+>>>>   */
+>>>>  static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
+>>>>  {
+>>>> -	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
+>>>> -		  smp_processor_id();
+>>>> +	int txq = 0;
+>>>> +
+>>>> +	if (skb_rx_queue_recorded(skb))
+>>>> +		txq = skb_get_rx_queue(skb);
+>>>> +	else if ((txq = per_cpu(vq_index, smp_processor_id())) == -1)
+>>>> +		txq = 0;
+>>>
+>>> You should use __get_cpu_var() instead of smp_processor_id() here, ie:
+>>>
+>>>         else if ((txq = __get_cpu_var(vq_index)) == -1)
+>>>
+>>> And AFAICT, no reason to initialize txq to 0 to start with.
+>>>
+>>> So:
+>>>
+>>>         int txq;
+>>>
+>>>         if (skb_rx_queue_recorded(skb))
+>>> 		txq = skb_get_rx_queue(skb);
+>>>         else {
+>>>                 txq = __get_cpu_var(vq_index);
+>>>                 if (txq == -1)
+>>>                         txq = 0;
+>>>         }
+>>
+>> Got it, thank you.
+>>
+>>>
+>>> Now, just to confirm, I assume this can happen even if we use vq_index,
+>>> right, because of races with virtnet_set_channels?
+>>
+>> I still can't understand this race, could you explain more? thank you.
+> 
+> I assume that someone can call virtnet_set_channels() while we are
+> inside virtnet_select_queue(), so they reduce dev->real_num_tx_queues,
+> causing virtnet_set_channels to do:
+> 
+> 	while (unlikely(txq >= dev->real_num_tx_queues))
+> 		txq -= dev->real_num_tx_queues;
+> 
+> Otherwise, when is this loop called?
 
-True.
+How about just remove this loop? 
 
->>> >> All archs we care about support them, though, so I think we can ignore
->>> >> this issue for now.
->> >
->> > Kind of... In principle all QEMU-supported arches can use virtio, and
->> > the speedup can be quite useful.  And there is no Kconfig symbol for SG
->> > chains that I can use to disable virtio-scsi on unsupported arches. :/
-> Well, we #error if it's not supported.  Then the lazy architectures can
-> fix it.
+Eric, can you give a help here?
 
-Yeah, that would be one approach.
+Thanks,
+Wanlong Gao
 
-But frankly, your patch is really disgusting. :)  Not your fault, of
-course, but I still prefer a limited amount of duplication.
-
-Perhaps we can get the best of both worlds, I'll take a look when I have
-some time.
-
-Paolo
+> 
+> Thanks,
+> Rusty.
+> 
