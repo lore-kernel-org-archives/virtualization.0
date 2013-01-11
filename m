@@ -1,20 +1,23 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Subject: Re: [RFCv2 00/12] Introduce host-side virtio queue and CAIF Virtio.
-Date: Fri, 11 Jan 2013 16:02:22 +0100
-Message-ID: <CAJK669Zw1kZkJCS_Bs=emWtofj69m4XFDaNRhqY9DMdbi4MwZA@mail.gmail.com>
-References: <871ug75vp1.fsf@rustcorp.com.au>
-	<1354718230-4486-1-git-send-email-sjur@brendeland.net>
-	<20121206102750.GF10837@redhat.com>
-	<877goc0wac.fsf@rustcorp.com.au>
-	<CAJK669bP41oBhJ=MB64NS21Ag7XO5WswuTiVKCFTb96nvmyBiw@mail.gmail.com>
-	<87pq1f2rj0.fsf@rustcorp.com.au> <87wqvl1g9s.fsf@rustcorp.com.au>
-	<CAJK669Z-bGTeQe8qJpTJP7simbSvQ8cgFZefs5QRMkmxtFYY4g@mail.gmail.com>
-	<87pq1c1uj4.fsf@rustcorp.com.au> <877gnk1ayv.fsf@rustcorp.com.au>
+From: David Vrabel <david.vrabel@citrix.com>
+Subject: Re: [Xen-devel] [PATCH v3 00/11] xen: Initial kexec/kdump
+	implementation
+Date: Fri, 11 Jan 2013 15:22:35 +0000
+Message-ID: <50F02E3B.3090506@citrix.com>
+References: <1356574740-6806-1-git-send-email-daniel.kiper@oracle.com>
+	<50DBC856.6030208@zytor.com>
+	<791b4922-078f-4adc-b3f3-0651f2266147@email.android.com>
+	<50DC58C4.3000307@citrix.com> <874nj7qsor.fsf@xmission.com>
+	<50E41973.9050705@citrix.com>
+	<20130104142257.GC3346@host-192-168-1-59.local.net-space.pl>
+	<50E6E974.5090805@citrix.com>
+	<20130104170120.GA3472@host-192-168-1-59.local.net-space.pl>
+	<50EECE0B.2080604@citrix.com>
+	<20130111132212.GB5150@host-192-168-1-59.local.net-space.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <877gnk1ayv.fsf@rustcorp.com.au>
+In-Reply-To: <20130111132212.GB5150@host-192-168-1-59.local.net-space.pl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,40 +27,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Walleij <linus.walleij@linaro.org>, virtualization@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Daniel Kiper <daniel.kiper@oracle.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Andrew Cooper <Andrew.Cooper3@citrix.com>, "maxim.uvarov@oracle.com" <maxim.uvarov@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "H.
+	Peter Anvin" <hpa@zytor.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "vgoyal@redhat.com" <vgoyal@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 11, 2013 at 7:37 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
->virtio_host: host-side implementation of virtio rings (untested!)
->
->Getting use of virtio rings correct is tricky, and a recent patch saw
->an implementation of in-kernel rings (as separate from userspace).
+On 11/01/13 13:22, Daniel Kiper wrote:
+> On Thu, Jan 10, 2013 at 02:19:55PM +0000, David Vrabel wrote:
+>> On 04/01/13 17:01, Daniel Kiper wrote:
+>>> My .5 cents:
+>>>   - We should focus on KEXEC_CMD_kexec_load and KEXEC_CMD_kexec_unload;
+>>>     probably we should introduce KEXEC_CMD_kexec_load2 and KEXEC_CMD_kexec_unload2;
+>>>     load should __LOAD__ kernel image and other things into hypervisor memory;
+>>
+>> Yes, but I don't see how we can easily support both ABIs easily.  I'd be
+>> in favour of replacing the existing hypercalls and requiring updated
+>> kexec tools in dom0 (this isn't that different to requiring the correct
+>> libxc in dom0).
+> 
+> Why? Just define new strutures for new functions of kexec hypercall.
+> That should suffice.
 
-How do you see the in-kernel API for this? I would like to see
-something similar to my previous patches, where we extend
-the virtqueue API. E.g. something like this:
+The current hypervisor ABI depends on an internal kernel ABI (i.e., the
+ABI provided by relocate_kernel).  We do not want hypervisor internals
+to be constrained by having to be compatible with kernel internals.
 
-struct virtqueue *vring_new_virtqueueh(unsigned int index,
-				       unsigned int num,
-				       unsigned int vring_align,
-				       struct virtio_device *vdev,
-				       bool weak_barriers,
-				       void *pages,
-				       void (*notify)(struct virtqueue *),
-				       void (*callback)(struct virtqueue *),
-				       const char *name);
+>>>   - Hmmm... Now I think that we should still use kexec syscall to load image
+>>>     into Xen memory (with new KEXEC_CMD_kexec_load2) because it establishes
+>>>     all things which are needed to call kdump if dom0 crashes; however,
+>>>     I could be wrong...
+>>
+>> I don't think we need the kexec syscall.  The kernel can unconditionally
+>> do the crash hypercall, which will return if the kdump kernel isn't
+>> loaded and the kernel can fall back to the regular non-kexec panic.
+> 
+> No, please do not do that. When you call HYPERVISOR_kexec_op(KEXEC_CMD_kexec)
+> system is completly shutdown. Return form HYPERVISOR_kexec_op(KEXEC_CMD_kexec)
+> would require to restore some kernel functionalities. It maybe impossible
+> in some cases. Additionally, it means that some changes should be made
+> in generic kexec code path. As I know kexec maintainers are very reluctant
+> to make such things.
 
-int virtqueueh_get_iov(struct virtqueue *vqh,
-		       struct vringh_iov *riov,
-		       struct vringh_iov *wiov,
-		       gfp_t gfp);
+Huh?  There only needs to be a call to a new hypervisor_crash_kexec()
+function (which would then call the Xen specific crash hypercall) at the
+very beginning of crash_kexec().  If this returns the normal
+crash/shutdown path is done (which could even include a guest kexec!).
 
-int virtqueueh_add_iov(struct virtqueue *vqh,
-		       struct vringh_iov *riov,
-		       struct vringh_iov *wiov);
-
-I guess implementation of the host-virtqueue should stay in drivers/virtio?
-
-Regards,
-Sjur
+David
