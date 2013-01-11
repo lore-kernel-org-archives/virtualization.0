@@ -1,16 +1,20 @@
-From: Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH] virtio: suppress kmemleak false positive
-Date: Fri, 11 Jan 2013 14:47:19 +0000
-Message-ID: <20130111144719.GE31281@arm.com>
-References: <1357912303-17026-1-git-send-email-alex.mihai.c@gmail.com>
-	<20130111140231.GA31281@arm.com>
-	<CAEnQRZCvNZ_1OF7Jc43Oo10ADQEMVgqdTJZG7KG7m9yNoQDBfg@mail.gmail.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Subject: Re: [RFCv2 00/12] Introduce host-side virtio queue and CAIF Virtio.
+Date: Fri, 11 Jan 2013 15:52:34 +0100
+Message-ID: <CAJK669b9D_NNhtg=nE+beM9xaqQbrbD3wJqqhCCG62WavdqpSg@mail.gmail.com>
+References: <871ug75vp1.fsf@rustcorp.com.au>
+	<1354718230-4486-1-git-send-email-sjur@brendeland.net>
+	<20121206102750.GF10837@redhat.com>
+	<877goc0wac.fsf@rustcorp.com.au>
+	<CAJK669bP41oBhJ=MB64NS21Ag7XO5WswuTiVKCFTb96nvmyBiw@mail.gmail.com>
+	<87pq1f2rj0.fsf@rustcorp.com.au> <87wqvl1g9s.fsf@rustcorp.com.au>
+	<CAJK669Z-bGTeQe8qJpTJP7simbSvQ8cgFZefs5QRMkmxtFYY4g@mail.gmail.com>
+	<87pq1c1uj4.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAEnQRZCvNZ_1OF7Jc43Oo10ADQEMVgqdTJZG7KG7m9yNoQDBfg@mail.gmail.com>
+In-Reply-To: <87pq1c1uj4.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,54 +24,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Baluta <daniel.baluta@gmail.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Walleij <linus.walleij@linaro.org>, virtualization@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 11, 2013 at 02:32:12PM +0000, Daniel Baluta wrote:
-> On Fri, Jan 11, 2013 at 4:02 PM, Catalin Marinas <catalin.marinas@arm.com>
-> wrote:
-> > On Fri, Jan 11, 2013 at 01:51:43PM +0000, Alexandru Copot wrote:
-> > > --- a/drivers/virtio/virtio_ring.c
-> > > +++ b/drivers/virtio/virtio_ring.c
-> > > @@ -23,6 +23,7 @@
-> > > =A0#include <linux/slab.h>
-> > > =A0#include <linux/module.h>
-> > > =A0#include <linux/hrtimer.h>
-> > > +#include <linux/kmemleak.h>
-> > >
-> > > =A0/* virtio guest is communicating with a virtual "device" that actu=
-ally runs on
-> > > =A0 * a host processor. =A0Memory barriers are used to control SMP ef=
-fects. */
-> > > @@ -140,6 +141,7 @@ static int vring_add_indirect(struct vring_virtqu=
-eue *vq,
-> > > =A0 =A0 =A0 desc =3D kmalloc((out + in) * sizeof(struct vring_desc), =
-gfp);
-> > > =A0 =A0 =A0 if (!desc)
-> > > =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
-> > > + =A0 =A0 kmemleak_not_leak(desc);
-> >
-> > Please add a comment above this call in case people later wonder why
-> > this annotation is needed.
-> =
+On Fri, Jan 11, 2013 at 12:35 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> Hi Sjur!
+>
+>         OK, the Internet was no help here, how do you pronounce Sjur?
+> I'm guessing "shoor" rhyming with tour until I know better.
 
-> So, kememleak cannot handle this kind of pointer aliases?
+Thank you for asking! This is pretty close yes.
+I usually tell people to pronounce it like "sure" for simplicity.
+But Google translate has a perfect Norwegian voice pronouncing my name:
+http://translate.google.com/#auto/no/sjur (Press the speaker button)
 
-No. Basically it stores the allocated object start/end in an rb-tree and
-cannot cope with overlapping blocks. If we allow aliases, we could have
-some overlapping.
+While at the subject: Norwegian names can be a laugh: I have people
+named "Odd" and "Even" in my family, and I once had a friend named
+"Aashold".
 
-I think there was a patch in the past to add a separate rb-tree for
-aliases but I didn't particularly like it because it affected the
-performance.
+...
 
-> Also, I wonder if phys_to_virt(virt_to_phys(x)) =3D=3D x holds true all t=
-he time.
+>> I would prefer not to split into pages at this point, but rather provide an
+>> iterator or the original list found in the descriptor to the client.
+...
+> In other words, boundaries matter?
+>
+> While the sg-in-place hack is close to optimal for TCM_VHOST, neither
+> net not you can use it directly.  I'll switch to an iovec (with a
+> similar use-caller-supplied-if-it-fits trick); they're smaller anyway.
 
-It should as long as x is a valid kernel virtual address in the logical
-(linear) mapping.
+Great, I think iovec will be a good fit for my CAIF driver.
 
--- =
-
-Catalin
+Thanks,
+Sjur
