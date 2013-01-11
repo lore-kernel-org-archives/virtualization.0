@@ -1,23 +1,20 @@
 From: Daniel Kiper <daniel.kiper@oracle.com>
-Subject: Re: [Xen-devel] [PATCH v3 00/11] xen: Initial kexec/kdump
-	implementation
-Date: Fri, 11 Jan 2013 14:22:12 +0100
-Message-ID: <20130111132212.GB5150@host-192-168-1-59.local.net-space.pl>
+Subject: Re: [Xen-devel] [PATCH v3 02/11] x86/kexec: Add extra pointers to
+	transition page table PGD, PUD, PMD and PTE
+Date: Fri, 11 Jan 2013 14:36:51 +0100
+Message-ID: <20130111133651.GC5150@host-192-168-1-59.local.net-space.pl>
 References: <1356574740-6806-1-git-send-email-daniel.kiper@oracle.com>
-	<50DBC856.6030208@zytor.com>
-	<791b4922-078f-4adc-b3f3-0651f2266147@email.android.com>
-	<50DC58C4.3000307@citrix.com> <874nj7qsor.fsf@xmission.com>
-	<50E41973.9050705@citrix.com>
-	<20130104142257.GC3346@host-192-168-1-59.local.net-space.pl>
-	<50E6E974.5090805@citrix.com>
-	<20130104170120.GA3472@host-192-168-1-59.local.net-space.pl>
-	<50EECE0B.2080604@citrix.com>
+	<1356574740-6806-2-git-send-email-daniel.kiper@oracle.com>
+	<1356574740-6806-3-git-send-email-daniel.kiper@oracle.com>
+	<50E55ECF02000078000B2A13@nat28.tlf.novell.com>
+	<20130104151542.GD3346@host-192-168-1-59.local.net-space.pl>
+	<50EECB23.4090603@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <50EECE0B.2080604@citrix.com>
+In-Reply-To: <50EECB23.4090603@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,131 +25,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: David Vrabel <david.vrabel@citrix.com>
-Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, Andrew Cooper <andrew.cooper3@citrix.com>, "maxim.uvarov@oracle.com" <maxim.uvarov@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, "jbeulich@suse.com" <jbeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "vgoyal@redhat.com" <vgoyal@redhat.com>
+Cc: konrad.wilk@oracle.com, andrew.cooper3@citrix.com, maxim.uvarov@oracle.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, xen-devel <xen-devel@lists.xen.org>, mingo@redhat.com, ebiederm@xmission.com, Jan Beulich <JBeulich@suse.com>, hpa@zytor.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, vgoyal@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 10, 2013 at 02:19:55PM +0000, David Vrabel wrote:
-> On 04/01/13 17:01, Daniel Kiper wrote:
-> > On Fri, Jan 04, 2013 at 02:38:44PM +0000, David Vrabel wrote:
-> >> On 04/01/13 14:22, Daniel Kiper wrote:
-> >>> On Wed, Jan 02, 2013 at 11:26:43AM +0000, Andrew Cooper wrote:
-> >>>> On 27/12/12 18:02, Eric W. Biederman wrote:
-> >>>>> Andrew Cooper<andrew.cooper3@citrix.com>  writes:
-> >>>>>
-> >>>>>> On 27/12/2012 07:53, Eric W. Biederman wrote:
-> >>>>>>> The syscall ABI still has the wrong semantics.
-> >>>>>>>
-> >>>>>>> Aka totally unmaintainable and umergeable.
-> >>>>>>>
-> >>>>>>> The concept of domU support is also strange.  What does domU support even mean, when the dom0 support is loading a kernel to pick up Xen when Xen falls over.
-> >>>>>> There are two requirements pulling at this patch series, but I agree
-> >>>>>> that we need to clarify them.
-> >>>>> It probably make sense to split them apart a little even.
-> >>>>>
-> >>>>>
-> >>>>
-> >>>> Thinking about this split, there might be a way to simply it even more.
-> >>>>
-> >>>> /sbin/kexec can load the "Xen" crash kernel itself by issuing
-> >>>> hypercalls using /dev/xen/privcmd.  This would remove the need for
-> >>>> the dom0 kernel to distinguish between loading a crash kernel for
-> >>>> itself and loading a kernel for Xen.
-> >>>>
-> >>>> Or is this just a silly idea complicating the matter?
-> >>>
-> >>> This is impossible with current Xen kexec/kdump interface.
-> >>> It should be changed to do that. However, I suppose that
-> >>> Xen community would not be interested in such changes.
+On Thu, Jan 10, 2013 at 02:07:31PM +0000, David Vrabel wrote:
+> On 04/01/13 15:15, Daniel Kiper wrote:
+> > On Thu, Jan 03, 2013 at 09:34:55AM +0000, Jan Beulich wrote:
+> >>>>> On 27.12.12 at 03:18, Daniel Kiper <daniel.kiper@oracle.com> wrote:
+> >>> Some implementations (e.g. Xen PVOPS) could not use part of identity page table
+> >>> to construct transition page table. It means that they require separate PUDs,
+> >>> PMDs and PTEs for virtual and physical (identity) mapping. To satisfy that
+> >>> requirement add extra pointer to PGD, PUD, PMD and PTE and align existing
+> >>> code.
 > >>
-> >> I don't see why the hypercall ABI cannot be extended with new sub-ops
-> >> that do the right thing -- the existing ABI is a bit weird.
-> >>
-> >> I plan to start prototyping something shortly (hopefully next week) for
-> >> the Xen kexec case.
+> >> So you keep posting this despite it having got pointed out on each
+> >> earlier submission that this is unnecessary, proven by the fact that
+> >> the non-pvops Xen kernels can get away without it. Why?
 > >
-> > Wow... As I can this time Xen community is interested in...
-> > That is great. I agree that current kexec interface is not ideal.
+> > Sorry but I forgot to reply for your email last time.
+> >
+> > I am still not convinced. I have tested SUSE kernel itself and it does not work.
+> > Maybe I missed something but... Please check arch/x86/kernel/machine_kexec_64.c:init_transition_pgtable()
+> >
+> > I can see:
+> >
+> > vaddr = (unsigned long)relocate_kernel;
+> >
+> > and later:
+> >
+> > pgd += pgd_index(vaddr);
+> > ...
+> >
+> > It is wrong. relocate_kernel() virtual address in Xen is different
+> > than its virtual address in Linux Kernel. That is why transition
+> > page table could not be established in Linux Kernel and so on...
+> > How does this work in SUSE? I do not have an idea.
 >
-> I spent some more time looking at the existing interface and
-> implementation and it really is broken.
+> The real problem here is attempting to transition from the Xen page
+> tables to an identity mapping set of page tables by using some
+> trampoline code and page tables provided by the dom0 kernel.
 >
-> > David, I am happy to help in that process. However, if you wish I could
-> > carry it myself. Anyway, it looks that I should hold on with my
-> > Linux kexec/kdump patches.
+> This works[*] with PV because the page tables from the PV dom0 have
+> machine addresses and get mapped into the fixmap on kexec load, but it's
+> completely broken for a PVH dom0.
 >
-> I should be able to post some prototype patches for Xen in a few weeks.
->  No guarantees though.
+> I shall be ditching this (bizarre) method and putting the trampoline and
+> transition/identity map page tables into Xen.
 
-That is great. If you need any help drop me a line.
+Great... Maybe I am boring but please look into
+linux/arch/x86/kernel/{machine_kexec_$(BITS).c,relocate_kernel_$(BITS).c}
+You could find there a lot of things which could be useful.
 
-> > My .5 cents:
-> >   - We should focus on KEXEC_CMD_kexec_load and KEXEC_CMD_kexec_unload;
-> >     probably we should introduce KEXEC_CMD_kexec_load2 and KEXEC_CMD_kexec_unload2;
-> >     load should __LOAD__ kernel image and other things into hypervisor memory;
+> David
 >
-> Yes, but I don't see how we can easily support both ABIs easily.  I'd be
-> in favour of replacing the existing hypercalls and requiring updated
-> kexec tools in dom0 (this isn't that different to requiring the correct
-> libxc in dom0).
+> [*] Works for us in our old classic kernels, YMMV.
 
-Why? Just define new strutures for new functions of kexec hypercall.
-That should suffice.
-
-> >     I suppose that allmost all things could be copied from linux/kernel/kexec.c,
-> >     linux/arch/x86/kernel/{machine_kexec_$(BITS).c,relocate_kernel_$(BITS).c};
-> >     I think that KEXEC_CMD_kexec should stay as is,
->
-> I don't think we want all the junk from Linux inside Xen -- we only want
-> to support the kdump case and do not have to handle returning from the
-> kexec image.
-
-I do not want to implement kexec jump or stuff like. However, I think that
-it is worth use code which could be used. As I know there are lot of stuff
-which was taken with smaller or bigger changes from Linux Kernel.
-Why we would like to reinvent the wheel this time?
-
-Additionally, we should not drop kexec support. It is main part of kdump.
-In case of kdump new kernel (and other stuff) is placed in prealocated
-space in contrary to kexec. That's all. kexec is useful if you would like
-to quickly (skipping BIOS) switch from Xen to baremetal Linux. If you drop
-kexec support from Xen then you need alter kexec-tools package in bunch
-of distros to take into account new Xen behavior.
-I think that it is not we want to do.
-
-> >   - Hmmm... Now I think that we should still use kexec syscall to load image
-> >     into Xen memory (with new KEXEC_CMD_kexec_load2) because it establishes
-> >     all things which are needed to call kdump if dom0 crashes; however,
-> >     I could be wrong...
->
-> I don't think we need the kexec syscall.  The kernel can unconditionally
-> do the crash hypercall, which will return if the kdump kernel isn't
-> loaded and the kernel can fall back to the regular non-kexec panic.
-
-No, please do not do that. When you call HYPERVISOR_kexec_op(KEXEC_CMD_kexec)
-system is completly shutdown. Return form HYPERVISOR_kexec_op(KEXEC_CMD_kexec)
-would require to restore some kernel functionalities. It maybe impossible
-in some cases. Additionally, it means that some changes should be made
-in generic kexec code path. As I know kexec maintainers are very reluctant
-to make such things.
-
-> This will allow the kexec syscall to be used only for the domU kexec case.
->
-> >   - last but not least, we should think about support for PV guests
-> >     too.
->
-> I won't be looking at this.
-
-OK.
-
-> To avoid confusion about the two largely orthogonal sorts of kexec how
-> about defining some terms.  I suggest:
->
-> Xen kexec: Xen executes the image in response to a Xen crash or a
-> hypercall from a privileged domain.
->
-> Guest kexec: The guest kernel executes the images within the domain in
-> response to a guest kernel crash or a system call.
-
-OK.
+Ha... It works because virtual mapping of control page in transtition page table
+is established in relocate_kernel() which sits during kexec/kdump execution
+in control page. If you did not change something...
 
 Daniel
