@@ -1,20 +1,23 @@
 From: Daniel Kiper <daniel.kiper@oracle.com>
-Subject: Re: [Xen-devel] [PATCH v3 02/11] x86/kexec: Add extra pointers to
-	transition page table PGD, PUD, PMD and PTE
-Date: Fri, 11 Jan 2013 14:36:51 +0100
-Message-ID: <20130111133651.GC5150@host-192-168-1-59.local.net-space.pl>
-References: <1356574740-6806-1-git-send-email-daniel.kiper@oracle.com>
-	<1356574740-6806-2-git-send-email-daniel.kiper@oracle.com>
-	<1356574740-6806-3-git-send-email-daniel.kiper@oracle.com>
-	<50E55ECF02000078000B2A13@nat28.tlf.novell.com>
-	<20130104151542.GD3346@host-192-168-1-59.local.net-space.pl>
-	<50EECB23.4090603@citrix.com>
+Subject: Re: [Xen-devel] [PATCH v3 00/11] xen: Initial kexec/kdump
+	implementation
+Date: Fri, 11 Jan 2013 14:47:12 +0100
+Message-ID: <20130111134712.GD5150@host-192-168-1-59.local.net-space.pl>
+References: <791b4922-078f-4adc-b3f3-0651f2266147@email.android.com>
+	<50DC58C4.3000307@citrix.com> <874nj7qsor.fsf@xmission.com>
+	<50E41973.9050705@citrix.com>
+	<20130104142257.GC3346@host-192-168-1-59.local.net-space.pl>
+	<50E6F81D02000078000B3245@nat28.tlf.novell.com>
+	<20130104170751.GB3472@host-192-168-1-59.local.net-space.pl>
+	<20130104191146.GC6721@phenom.dumpdata.com>
+	<20130107123404.GA2927@host-192-168-1-59.local.net-space.pl>
+	<1357566584.7989.73.camel@zakaz.uk.xensource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <50EECB23.4090603@citrix.com>
+In-Reply-To: <1357566584.7989.73.camel@zakaz.uk.xensource.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,64 +27,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Vrabel <david.vrabel@citrix.com>
-Cc: konrad.wilk@oracle.com, andrew.cooper3@citrix.com, maxim.uvarov@oracle.com, x86@kernel.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, xen-devel <xen-devel@lists.xen.org>, mingo@redhat.com, ebiederm@xmission.com, Jan Beulich <JBeulich@suse.com>, hpa@zytor.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, vgoyal@redhat.com
+To: Ian Campbell <Ian.Campbell@citrix.com>
+Cc: "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Andrew Cooper <Andrew.Cooper3@citrix.com>, "maxim.uvarov@oracle.com" <maxim.uvarov@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "kexec@lists.infradead.org" <kexec@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "mingo@redhat.com" <mingo@redhat.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, "tglx@linutronix.de" <tglx@linutronix.de>, "vgoyal@redhat.com" <vgoyal@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 10, 2013 at 02:07:31PM +0000, David Vrabel wrote:
-> On 04/01/13 15:15, Daniel Kiper wrote:
-> > On Thu, Jan 03, 2013 at 09:34:55AM +0000, Jan Beulich wrote:
-> >>>>> On 27.12.12 at 03:18, Daniel Kiper <daniel.kiper@oracle.com> wrote:
-> >>> Some implementations (e.g. Xen PVOPS) could not use part of identity page table
-> >>> to construct transition page table. It means that they require separate PUDs,
-> >>> PMDs and PTEs for virtual and physical (identity) mapping. To satisfy that
-> >>> requirement add extra pointer to PGD, PUD, PMD and PTE and align existing
-> >>> code.
-> >>
-> >> So you keep posting this despite it having got pointed out on each
-> >> earlier submission that this is unnecessary, proven by the fact that
-> >> the non-pvops Xen kernels can get away without it. Why?
-> >
-> > Sorry but I forgot to reply for your email last time.
-> >
-> > I am still not convinced. I have tested SUSE kernel itself and it does not work.
-> > Maybe I missed something but... Please check arch/x86/kernel/machine_kexec_64.c:init_transition_pgtable()
-> >
-> > I can see:
-> >
-> > vaddr = (unsigned long)relocate_kernel;
-> >
-> > and later:
-> >
-> > pgd += pgd_index(vaddr);
-> > ...
-> >
-> > It is wrong. relocate_kernel() virtual address in Xen is different
-> > than its virtual address in Linux Kernel. That is why transition
-> > page table could not be established in Linux Kernel and so on...
-> > How does this work in SUSE? I do not have an idea.
->
-> The real problem here is attempting to transition from the Xen page
-> tables to an identity mapping set of page tables by using some
-> trampoline code and page tables provided by the dom0 kernel.
->
-> This works[*] with PV because the page tables from the PV dom0 have
-> machine addresses and get mapped into the fixmap on kexec load, but it's
-> completely broken for a PVH dom0.
->
-> I shall be ditching this (bizarre) method and putting the trampoline and
-> transition/identity map page tables into Xen.
+On Mon, Jan 07, 2013 at 01:49:44PM +0000, Ian Campbell wrote:
+> On Mon, 2013-01-07 at 12:34 +0000, Daniel Kiper wrote:
+> > I think that new kexec hypercall function should mimics kexec syscall.
+> 
+> We want to have an interface can be used by non-Linux domains (both dom0
+> and domU) as well though, so please bear this in mind.
 
-Great... Maybe I am boring but please look into
-linux/arch/x86/kernel/{machine_kexec_$(BITS).c,relocate_kernel_$(BITS).c}
-You could find there a lot of things which could be useful.
-
-> David
->
-> [*] Works for us in our old classic kernels, YMMV.
-
-Ha... It works because virtual mapping of control page in transtition page table
-is established in relocate_kernel() which sits during kexec/kdump execution
-in control page. If you did not change something...
+I agree, but all arguments passed to kexec syscall are quiet generic and they
+do not impose any limitations. Just look into include/linux/kexec.h.
+That is why I think that a lot of things could be taken from
+Linux kexec implementation.
 
 Daniel
