@@ -1,19 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFCv2 00/12] Introduce host-side virtio queue and CAIF Virtio.
-Date: Fri, 11 Jan 2013 10:05:11 +1030
-Message-ID: <87pq1c1uj4.fsf@rustcorp.com.au>
-References: <871ug75vp1.fsf@rustcorp.com.au>
-	<1354718230-4486-1-git-send-email-sjur@brendeland.net>
-	<20121206102750.GF10837@redhat.com>
-	<877goc0wac.fsf@rustcorp.com.au>
-	<CAJK669bP41oBhJ=MB64NS21Ag7XO5WswuTiVKCFTb96nvmyBiw@mail.gmail.com>
-	<87pq1f2rj0.fsf@rustcorp.com.au> <87wqvl1g9s.fsf@rustcorp.com.au>
-	<CAJK669Z-bGTeQe8qJpTJP7simbSvQ8cgFZefs5QRMkmxtFYY4g@mail.gmail.com>
+Subject: Re: [RFC PATCH 2/2] virtio-net: introduce a new control to set macaddr
+Date: Fri, 11 Jan 2013 11:13:04 +1030
+Message-ID: <87ip741rdz.fsf__33755.7649742395$1357876570$gmane$org@rustcorp.com.au>
+References: <1357829141-25455-1-git-send-email-akong@redhat.com>
+	<1357829141-25455-3-git-send-email-akong@redhat.com>
+	<20130110152649.GF30731@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJK669Z-bGTeQe8qJpTJP7simbSvQ8cgFZefs5QRMkmxtFYY4g@mail.gmail.com>
+In-Reply-To: <20130110152649.GF30731@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,60 +19,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, akong@redhat.com
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cj4gSGkgUnVzdHks
-Cj4KPiBPbiBUaHUsIEphbiAxMCwgMjAxMyBhdCAxMTozMCBBTSwgUnVzdHkgUnVzc2VsbCA8cnVz
-dHlAcnVzdGNvcnAuY29tLmF1PiB3cm90ZToKPiAuLi4KPj5JIG5vdyBoYXZlIHNvbWUgbGlnaHRs
-eS10ZXN0ZWQgY29kZSAodmlhIGEgdXNlcnNwYWNlIGhhcm5lc3MpLgo+Cj4gR3JlYXQgLSB0aGFu
-ayB5b3UgZm9yIGxvb2tpbmcgaW50byB0aGlzLiBJIHdpbGwgc3RhcnQgaW50ZWdyYXRpbmcgdGhp
-cwo+IHdpdGggbXkgcGF0Y2hlcwo+IHdoZW4geW91IHNlbmQgb3V0IGEgcHJvcGVyIHBhdGNoLgoK
-SGkgU2p1ciEKCiAgICAgICAgT0ssIHRoZSBJbnRlcm5ldCB3YXMgbm8gaGVscCBoZXJlLCBob3cg
-ZG8geW91IHByb25vdW5jZSBTanVyPwpJJ20gZ3Vlc3NpbmcgInNob29yIiByaHltaW5nIHdpdGgg
-dG91ciB1bnRpbCBJIGtub3cgYmV0dGVyLgoKPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlv
-L0tjb25maWcgYi9kcml2ZXJzL3ZpcnRpby9LY29uZmlnCj4+IGluZGV4IDhkNWJkZGIuLmZkOTVk
-M2UgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvdmlydGlvL0tjb25maWcKPj4gKysrIGIvZHJpdmVy
-cy92aXJ0aW8vS2NvbmZpZwo+PiBAQCAtNSw2ICs1LDEyIEBAIGNvbmZpZyBWSVJUSU8KPj4gICAg
-ICAgICAgIGJ1cywgc3VjaCBhcyBDT05GSUdfVklSVElPX1BDSSwgQ09ORklHX1ZJUlRJT19NTUlP
-LCBDT05GSUdfTEdVRVNULAo+PiAgICAgICAgICAgQ09ORklHX1JQTVNHIG9yIENPTkZJR19TMzkw
-X0dVRVNULgo+Pgo+PiArY29uZmlnIFZIT1NUCj4+ICsgICAgICAgdHJpc3RhdGUKPgo+IEluY2x1
-c2lvbiBvZiBkcml2ZXJzL3ZpcnRpbyBmcm9tIGRyaXZlcnMvTWFrZWZpbGUgZGVwZW5kcyBvbiBW
-SVJUSU8uCj4gU28gSSBndWVzcyBWSE9TVCBzaG91bGQgc2VsZWN0IFZJUlRJTyB0byBlbnN1cmUg
-dGhhdAo+IGRyaXZlcnMvdmlydGlvL3ZpcnRpb19ob3N0LmMKPiBpcyBwYXJ0IG9mIHRoZSBidWls
-ZC4KCk1heWJlIEkgc2hvdWxkIG1vdmUgZHJpdmVycy92aXJ0aW8vdmlydGlvX2hvc3QuYyB0bwpk
-cml2ZXJzL3Zob3N0L3ZyaW5naC5jOyBJJ2xsIGxvb2sgYXQgaXQuCgpJdCBtYWtlcyBzZW5zZSBm
-b3Igdmhvc3QvIHRvIGNvbnRhaW4gdGhlIGhvc3Qtc2lkZSBzdHVmZiwgc2luY2UgaXQKYWxyZWFk
-eSBleGlzdHMuCgo+PiArICAgICAgIGlmICgqbGFzdF9hdmFpbF9pZHggPT0gYXZhaWxfaWR4KQo+
-PiArICAgICAgICAgICAgICAgcmV0dXJuIHZyaC0+dnJpbmcubnVtOwo+PiArCj4+ICsgICAgICAg
-LyogT25seSBnZXQgYXZhaWwgcmluZyBlbnRyaWVzIGFmdGVyIHRoZXkgaGF2ZSBiZWVuIGV4cG9z
-ZWQgYnkgZ3Vlc3QuICovCj4+ICsgICAgICAgc21wX3JtYigpOwo+Cj4gV2UgYXJlIGFjY2Vzc2lu
-ZyBtZW1vcnkgc2hhcmVkIHdpdGggYSByZW1vdGUgZGV2aWNlIChtb2RlbSksIHNvIHdlIHByb2Jh
-Ymx5Cj4gbmVlZCBtYW5kYXRvcnkgYmFycmllcnMgaGVyZSwgZS5nLiBzb21ldGhpbmcgbGlrZSB0
-aGUgdmlydGlvX3JtYgo+IGRlZmluZWQgaW4gdmlydGlvX3JpbmcuYy4KCkZhaXIgZW5vdWdoLCB3
-ZSBjYW4gcHV0IHRob3NlIGluIGEgaGVhZGVyLgoKPj4gKyAgICAgICAgICAgICAgIC8qIEFwcGVu
-ZCB0aGUgcGFnZXMgaW50byB0aGUgc2cuICovCj4+ICsgICAgICAgICAgICAgICBlcnIgPSBhZGRf
-dG9fc2coJnZzZywgKHZvaWQgKikobG9uZylhY2MtPmRlc2MuYWRkciwKPj4gKyAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICBhY2MtPmRlc2MubGVuLCBnZnApOwo+Cj4gSSB3b3VsZCBwcmVm
-ZXIgbm90IHRvIHNwbGl0IGludG8gcGFnZXMgYXQgdGhpcyBwb2ludCwgYnV0IHJhdGhlciBwcm92
-aWRlIGFuCj4gaXRlcmF0b3Igb3IgdGhlIG9yaWdpbmFsIGxpc3QgZm91bmQgaW4gdGhlIGRlc2Ny
-aXB0b3IgdG8gdGhlIGNsaWVudC4KPgo+IEluIG91ciBjYXNlIHdlIHVzZSB2aXJ0aW8gcmluZ3Mg
-dG8gdGFsayB0byBhIExURS1tb2RlbSBvdmVyIHNoYXJlZCBtZW1vcnkuCj4gVGhlIElQIHRyYWZm
-aWMgaXMgcmVjZWl2ZWQgb3ZlciB0aGUgYWlyLCBpbnRlcmxlYXZlZCBhbmQgYXJyaXZlcyBpbgo+
-IHRoZSB2aXJ0aW8gZHJpdmVyIGluCj4gbGFyZ2UgYnVyc3RzLiBTbyB2aXJ0aW8gZHJpdmVyIG9u
-IHRoZSBtb2RlbSByZWNlaXZlcyBtdWx0aXBsZSBkYXRhZ3JhbXMKPiBoZWxkIGluIGxhcmdlIGNv
-bnRpZ3VvdXMgYnVmZmVycy4gT3VyIGN1cnJlbnQgYXBwcm9hY2ggaXMgdG8gaGFuZGxlIGVhY2gK
-PiBidWZmZXIgYXMgYSBjaGFpbmVkIGRlc2NyaXB0b3IgbGlzdCwgd2hlcmUgZWFjaCBkYXRhZ3Jh
-bSBpcyBrZXB0IGluCj4gc2VwYXJhdGUgY2hhaW5lZCBkZXNjcmlwdG9ycy4gV2hlbiB0aGUgYnVm
-ZmVycyBhcmUgY29uc3VtZWQgb24gdGhlIGxpbnV4Cj4gaG9zdCwgdGhlIG1vZGVtIHdpbGwgcmVh
-ZCB0aGUgY2hhaW5lZCBkZXNjcmlwdG9ycyBmcm9tIHRoZSB1c2VkLXJpbmcgYW5kCj4gZnJlZSB0
-aGUgZW50aXJlIGNvbnRpZ3VvdXMgYnVmZmVyIGluIG9uZSBvcGVyYXRpb24uCgpJbiBvdGhlciB3
-b3JkcywgYm91bmRhcmllcyBtYXR0ZXI/CgpXaGlsZSB0aGUgc2ctaW4tcGxhY2UgaGFjayBpcyBj
-bG9zZSB0byBvcHRpbWFsIGZvciBUQ01fVkhPU1QsIG5laXRoZXIKbmV0IG5vdCB5b3UgY2FuIHVz
-ZSBpdCBkaXJlY3RseS4gIEknbGwgc3dpdGNoIHRvIGFuIGlvdmVjICh3aXRoIGEKc2ltaWxhciB1
-c2UtY2FsbGVyLXN1cHBsaWVkLWlmLWl0LWZpdHMgdHJpY2spOyB0aGV5J3JlIHNtYWxsZXIgYW55
-d2F5LgoKTW9yZSBjb2RlIGNvbWluZy4uLgoKVGhhbmtzLApSdXN0eS4KX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+>> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
+>> +		/* Set MAC address by writing config space */
+>>  		vdev->config->set(vdev, offsetof(struct virtio_net_config, mac),
+>>  		                  dev->dev_addr, dev->addr_len);
+>> +	}
+>>  
+>
+> By the way, why don't we fail the command if VIRTIO_NET_F_MAC is off?
+> Rusty?
+
+Looked back through the history for this one.  I think the theory is that
+if the guest doesn't set VIRTIO_NET_F_MAC, it means it doesn't care:
+it's up to the guest.
+
+Cheers,
+Rusty.
