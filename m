@@ -1,14 +1,15 @@
-From: Daniel Baluta <daniel.baluta@gmail.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
 Subject: Re: [PATCH] virtio: suppress kmemleak false positive
-Date: Fri, 11 Jan 2013 16:43:04 +0200
-Message-ID: <CAEnQRZAdKOGyo7s72KmS6+wswJ3JFNeLOyeoTWt4sMvOAims9Q@mail.gmail.com>
+Date: Fri, 11 Jan 2013 14:47:19 +0000
+Message-ID: <20130111144719.GE31281@arm.com>
 References: <1357912303-17026-1-git-send-email-alex.mihai.c@gmail.com>
 	<20130111140231.GA31281@arm.com>
 	<CAEnQRZCvNZ_1OF7Jc43Oo10ADQEMVgqdTJZG7KG7m9yNoQDBfg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <CAEnQRZCvNZ_1OF7Jc43Oo10ADQEMVgqdTJZG7KG7m9yNoQDBfg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,67 +20,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Catalin Marinas <catalin.marinas@arm.com>
+To: Daniel Baluta <daniel.baluta@gmail.com>
 Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCBKYW4gMTEsIDIwMTMgYXQgNDozMiBQTSwgRGFuaWVsIEJhbHV0YSA8ZGFuaWVsLmJh
-bHV0YUBnbWFpbC5jb20+IHdyb3RlOgo+Cj4KPiBPbiBGcmksIEphbiAxMSwgMjAxMyBhdCA0OjAy
-IFBNLCBDYXRhbGluIE1hcmluYXMgPGNhdGFsaW4ubWFyaW5hc0Bhcm0uY29tPgo+IHdyb3RlOgo+
-Pgo+PiBPbiBGcmksIEphbiAxMSwgMjAxMyBhdCAwMTo1MTo0M1BNICswMDAwLCBBbGV4YW5kcnUg
-Q29wb3Qgd3JvdGU6Cj4+ID4gV2hpbGUgZG9pbmcgc2ltcGxlIElQdjYgdGVzdHMgaW4gS1ZNIHZp
-cnR1YWwgbWFjaGluZXMsCj4+ID4gKGFkZCBhbiBJUHY2IGFkZHJlc3MgdG8gZXRoMCkga21lbWxl
-YWsgY29tcGxhaW5zIGFib3V0Cj4+ID4gYW4gdW5yZWZlcmVuY2VkIG9iamVjdDoKPj4gPgo+PiA+
-IHVucmVmZXJlbmNlZCBvYmplY3QgMHhmZmZmODgwMDFlODA0MTIwIChzaXplIDMyKToKPj4gPiAg
-IGNvbW0gInNvZnRpcnEiLCBwaWQgMCwgamlmZmllcyA0Mjk0OTAwOTI4IChhZ2UgNjMxLjU0NHMp
-Cj4+ID4gICBoZXggZHVtcCAoZmlyc3QgMzIgYnl0ZXMpOgo+PiA+ICAgICAyOCBjYiBmZCAxZCAw
-MCAwMCAwMCAwMCAwYyAwMCAwMCAwMCAwMSAwMCAwMSAwMCAgKC4uLi4uLi4uLi4uLi4uLgo+PiA+
-ICAgICAwMiBkMCA4MyAxZCAwMCAwMCAwMCAwMCA2ZSAwMCAwMCAwMCAwMCAwMCAwMCAwMCAgLi4u
-Li4uLi5uLi4uLi4uLgo+PiA+ICAgYmFja3RyYWNlOgo+PiA+ICAgICBbPGZmZmZmZmZmODE1ZWQ3
-MjE+XSBrbWVtbGVha19hbGxvYysweDIxLzB4NTAKPj4gPiAgICAgWzxmZmZmZmZmZjgxMTFkMGIw
-Pl0gX19rbWFsbG9jKzB4ZTAvMHgxNjAKPj4gPiAgICAgWzxmZmZmZmZmZjgxMzYyYjdjPl0gdmly
-dHF1ZXVlX2FkZF9idWYrMHgxZmMvMHgzZDAKPj4gPiAgICAgWzxmZmZmZmZmZjgxNDBjYmQzPl0g
-c3RhcnRfeG1pdCsweDE1My8weDNhMAo+PiA+ICAgICBbPGZmZmZmZmZmODE1MDg4N2U+XSBkZXZf
-aGFyZF9zdGFydF94bWl0KzB4MjFlLzB4NDcwCj4+ID4gICAgIFs8ZmZmZmZmZmY4MTUyNDdjZT5d
-IHNjaF9kaXJlY3RfeG1pdCsweGZlLzB4MjgwCj4+ID4gICAgIFs8ZmZmZmZmZmY4MTUwOTAxND5d
-IGRldl9xdWV1ZV94bWl0KzB4MWY0LzB4NWQwCj4+ID4gICAgIFs8ZmZmZmZmZmY4MTU5MmU5MT5d
-IGlwNl9maW5pc2hfb3V0cHV0MisweDEwMS8weDQ1MAo+PiA+ICAgICBbPGZmZmZmZmZmODE1OTVh
-ZTg+XSBpcDZfZmluaXNoX291dHB1dCsweDk4LzB4MjAwCj4+ID4gICAgIFs8ZmZmZmZmZmY4MTU5
-NWNhMT5dIGlwNl9vdXRwdXQrMHg1MS8weDFiMAo+PiA+ICAgICBbPGZmZmZmZmZmODE1YjUxYWY+
-XSBtbGRfc2VuZHBhY2srMHgxOWYvMHgzNjAKPj4gPiAgICAgWzxmZmZmZmZmZjgxNWI1OWI0Pl0g
-bWxkX2lmY190aW1lcl9leHBpcmUrMHgxOTQvMHgyOTAKPj4gPiAgICAgWzxmZmZmZmZmZjgxMDRi
-Nzk0Pl0gY2FsbF90aW1lcl9mbisweDc0LzB4ZjAKPj4gPiAgICAgWzxmZmZmZmZmZjgxMDRiYjFi
-Pl0gcnVuX3RpbWVyX3NvZnRpcnErMHgxOGIvMHgyMjAKPj4gPiAgICAgWzxmZmZmZmZmZjgxMDQ1
-ZjgxPl0gX19kb19zb2Z0aXJxKzB4ZTEvMHgxYzAKPj4gPiAgICAgWzxmZmZmZmZmZjgxNjBhNGZj
-Pl0gY2FsbF9zb2Z0aXJxKzB4MWMvMHgzMAo+PiA+Cj4+ID4gU2VlbXMgdGhlIGZ1bmN0aW9uIHZy
-aW5nX2FkZF9pbmRpcmVjdCBzdG9yZXMgYW4gYXJyYXkgb2YKPj4gPiBzdHJ1Y3QgdnJpbmdfZGVz
-YyBieSB1c2luZyB2aXJ0X3RvX3BoeXMgYW5kIGttZW1sZWFrCj4+ID4gZG9lc24ndCB0cmFjayB0
-aGUgcG9pbnRlci4KPj4gPgo+PiA+IFRoZSBmb2xsb3dpbmcgcGF0Y2ggY2FuIGZpeCB0aGlzLgo+
-PiA+Cj4+ID4gU2lnbmVkLW9mZi1ieTogQWxleGFuZHJ1IENvcG90IDxhbGV4Lm1paGFpLmNAZ21h
-aWwuY29tPgo+PiA+IENDOiBEYW5pZWwgQmFsdXRhIDxkYmFsdXRhQGl4aWFjb20uY29tPgo+PiA+
-IC0tLQo+PiA+ICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgMiArKwo+PiA+ICAxIGZp
-bGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspCj4+ID4KPj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+PiA+IGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jpbmcu
-Ywo+PiA+IGluZGV4IGZmZDdlN2QuLmUwYjU5MWIgMTAwNjQ0Cj4+ID4gLS0tIGEvZHJpdmVycy92
-aXJ0aW8vdmlydGlvX3JpbmcuYwo+PiA+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5n
-LmMKPj4gPiBAQCAtMjMsNiArMjMsNyBAQAo+PiA+ICAjaW5jbHVkZSA8bGludXgvc2xhYi5oPgo+
-PiA+ICAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+Cj4+ID4gICNpbmNsdWRlIDxsaW51eC9ocnRp
-bWVyLmg+Cj4+ID4gKyNpbmNsdWRlIDxsaW51eC9rbWVtbGVhay5oPgo+PiA+Cj4+ID4gIC8qIHZp
-cnRpbyBndWVzdCBpcyBjb21tdW5pY2F0aW5nIHdpdGggYSB2aXJ0dWFsICJkZXZpY2UiIHRoYXQg
-YWN0dWFsbHkKPj4gPiBydW5zIG9uCj4+ID4gICAqIGEgaG9zdCBwcm9jZXNzb3IuICBNZW1vcnkg
-YmFycmllcnMgYXJlIHVzZWQgdG8gY29udHJvbCBTTVAgZWZmZWN0cy4KPj4gPiAqLwo+PiA+IEBA
-IC0xNDAsNiArMTQxLDcgQEAgc3RhdGljIGludCB2cmluZ19hZGRfaW5kaXJlY3Qoc3RydWN0Cj4+
-ID4gdnJpbmdfdmlydHF1ZXVlCj4+ID4gKnZxLAo+PiA+ICAgICAgIGRlc2MgPSBrbWFsbG9jKChv
-dXQgKyBpbikgKiBzaXplb2Yoc3RydWN0IHZyaW5nX2Rlc2MpLCBnZnApOwo+PiA+ICAgICAgIGlm
-ICghZGVzYykKPj4gPiAgICAgICAgICAgICAgIHJldHVybiAtRU5PTUVNOwo+PiA+ICsgICAgIGtt
-ZW1sZWFrX25vdF9sZWFrKGRlc2MpOwo+Pgo+PiBQbGVhc2UgYWRkIGEgY29tbWVudCBhYm92ZSB0
-aGlzIGNhbGwgaW4gY2FzZSBwZW9wbGUgbGF0ZXIgd29uZGVyIHdoeQo+PiB0aGlzIGFubm90YXRp
-b24gaXMgbmVlZGVkLgo+Pgo+Cj4gVGhhbmtzIEPEg3TEg2xpbi4KPgo+IFNvLCBrZW1lbWxlYWsg
-Y2Fubm90IGhhbmRsZSB0aGlzIGtpbmQgb2YgcG9pbnRlciBhbGlhc2VzPwo+IEFsc28sIEkgd29u
-ZGVyIGlmIHBoeXNfdG9fdmlydCh2aXJ0X3RvX3BoeXMoeCkpID09IHggaG9sZHMgdHJ1ZSBhbGwg
-dGhlCj4gdGltZS4KClNlbmRpbmcgdGhpcyBhZ2FpbiBhcyBpdCBzZWVtcyB0aGF0IGxpbnV4LWtl
-cm5lbCByZWplY3RlZCBpdCBiZWNhdXNlCm9mIEhUTUwgZm9ybWF0LgoKU29ycnkgZm9yIHRoZSBu
-b2lzZS4KCnRoYW5rcywKRGFuaWVsLgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Jan 11, 2013 at 02:32:12PM +0000, Daniel Baluta wrote:
+> On Fri, Jan 11, 2013 at 4:02 PM, Catalin Marinas <catalin.marinas@arm.com>
+> wrote:
+> > On Fri, Jan 11, 2013 at 01:51:43PM +0000, Alexandru Copot wrote:
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -23,6 +23,7 @@
+> > > =A0#include <linux/slab.h>
+> > > =A0#include <linux/module.h>
+> > > =A0#include <linux/hrtimer.h>
+> > > +#include <linux/kmemleak.h>
+> > >
+> > > =A0/* virtio guest is communicating with a virtual "device" that actu=
+ally runs on
+> > > =A0 * a host processor. =A0Memory barriers are used to control SMP ef=
+fects. */
+> > > @@ -140,6 +141,7 @@ static int vring_add_indirect(struct vring_virtqu=
+eue *vq,
+> > > =A0 =A0 =A0 desc =3D kmalloc((out + in) * sizeof(struct vring_desc), =
+gfp);
+> > > =A0 =A0 =A0 if (!desc)
+> > > =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
+> > > + =A0 =A0 kmemleak_not_leak(desc);
+> >
+> > Please add a comment above this call in case people later wonder why
+> > this annotation is needed.
+> =
+
+> So, kememleak cannot handle this kind of pointer aliases?
+
+No. Basically it stores the allocated object start/end in an rb-tree and
+cannot cope with overlapping blocks. If we allow aliases, we could have
+some overlapping.
+
+I think there was a patch in the past to add a separate rb-tree for
+aliases but I didn't particularly like it because it affected the
+performance.
+
+> Also, I wonder if phys_to_virt(virt_to_phys(x)) =3D=3D x holds true all t=
+he time.
+
+It should as long as x is a valid kernel virtual address in the logical
+(linear) mapping.
+
+-- =
+
+Catalin
