@@ -1,13 +1,14 @@
-From: akong@redhat.com
-Subject: [QEMU PATCH v2] virtio-net: introduce a new macaddr control
-Date: Wed, 16 Jan 2013 14:16:47 +0800
-Message-ID: <1358317007-29972-1-git-send-email-akong__7771.89581790498$1358317029$gmane$org@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v2 2/2] virtio-net: introduce a new control to set macaddr
+Date: Wed, 16 Jan 2013 14:20:39 +0800
+Message-ID: <8243136.frWZnRkUJV@jason-thinkpad-t430s>
 References: <1358315821-29519-1-git-send-email-akong@redhat.com>
+	<1358315821-29519-3-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1358315821-29519-1-git-send-email-akong@redhat.com>
+In-Reply-To: <1358315821-29519-3-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,102 +18,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, stefanha@redhat.com, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, qemu-devel@nongnu.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Amos Kong <akong@redhat.com>
+On Wednesday, January 16, 2013 01:57:01 PM akong@redhat.com wrote:
+> From: Amos Kong <akong@redhat.com>
+> 
+> Currently we write MAC address to pci config space byte by byte,
+> this means that we have an intermediate step where mac is wrong.
+> This patch introduced a new control command to set MAC address
+> in one time.
+> 
+> VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
+> 
+> Signed-off-by: Amos Kong <akong@redhat.com>
+> ---
+>  drivers/net/virtio_net.c        | 24 +++++++++++++++++-------
+>  include/uapi/linux/virtio_net.h |  8 +++++++-
+>  2 files changed, 24 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 395ab4f..c8901b6 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -802,16 +802,25 @@ static int virtnet_set_mac_address(struct net_device
+> *dev, void *p) struct virtnet_info *vi = netdev_priv(dev);
+>  	struct virtio_device *vdev = vi->vdev;
+>  	int ret;
+> +	struct sockaddr *addr = p;
+> +	struct scatterlist sg;
+> 
+> -	ret = eth_mac_addr(dev, p);
+> -	if (ret)
+> -		return ret;
+> -
+> -	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
+> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
+> +		sg_init_one(&sg, addr->sa_data, dev->addr_len);
+> +		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
+> +					  VIRTIO_NET_CTRL_MAC_ADDR_SET,
+> +					  &sg, 1, 0)) {
+> +			dev_warn(&vdev->dev,
+> +				 "Failed to set mac address by vq command.\n");
+> +			return -EINVAL;
+> +		}
+> +	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
+>  		vdev->config->set(vdev, offsetof(struct virtio_net_config, mac),
+> -		                  dev->dev_addr, dev->addr_len);
+> +				  addr->sa_data, dev->addr_len);
+> +	}
+> +	ret = eth_mac_addr(dev, p);
+> 
 
-In virtio-net guest driver, currently we write MAC address to
-pci config space byte by byte, this means that we have an
-intermediate step where mac is wrong. This patch introduced
-a new control command to set MAC address in one time.
+The you will the validity check in eth_mac_addr which may result a wrong mac 
+address to be set in the hardware (or is there any check in qemu) and a 
+inconsistency bettween what kernel assumes and qemu has.
 
-VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
+You can take a look at netvsc driver that calls eth_mac_addr() first and 
+restore the software mac address when fail to enforce it to hardware.
 
-Signed-off-by: Amos Kong <akong@redhat.com>
----
-V2: check guest's iov_len before memcpy
----
- hw/virtio-net.c | 10 ++++++++++
- hw/virtio-net.h |  9 ++++++++-
- 2 files changed, 18 insertions(+), 1 deletion(-)
-
-diff --git a/hw/virtio-net.c b/hw/virtio-net.c
-index dc7c6d6..d05f98f 100644
---- a/hw/virtio-net.c
-+++ b/hw/virtio-net.c
-@@ -247,6 +247,7 @@ static uint32_t virtio_net_get_features(VirtIODevice *vdev, uint32_t features)
-     VirtIONet *n = to_virtio_net(vdev);
- 
-     features |= (1 << VIRTIO_NET_F_MAC);
-+    features |= (1 << VIRTIO_NET_F_CTRL_MAC_ADDR);
- 
-     if (!peer_has_vnet_hdr(n)) {
-         features &= ~(0x1 << VIRTIO_NET_F_CSUM);
-@@ -282,6 +283,7 @@ static uint32_t virtio_net_bad_features(VirtIODevice *vdev)
-     /* Linux kernel 2.6.25.  It understood MAC (as everyone must),
-      * but also these: */
-     features |= (1 << VIRTIO_NET_F_MAC);
-+    features |= (1 << VIRTIO_NET_F_CTRL_MAC_ADDR);
-     features |= (1 << VIRTIO_NET_F_CSUM);
-     features |= (1 << VIRTIO_NET_F_HOST_TSO4);
-     features |= (1 << VIRTIO_NET_F_HOST_TSO6);
-@@ -349,6 +351,14 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
- {
-     struct virtio_net_ctrl_mac mac_data;
- 
-+    if (cmd == VIRTIO_NET_CTRL_MAC_ADDR_SET && elem->out_num == 2 &&
-+        elem->out_sg[1].iov_len == ETH_ALEN) {
-+        /* Set MAC address */
-+        memcpy(n->mac, elem->out_sg[1].iov_base, elem->out_sg[1].iov_len);
-+        qemu_format_nic_info_str(&n->nic->nc, n->mac);
-+        return VIRTIO_NET_OK;
-+    }
-+
-     if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET || elem->out_num != 3 ||
-         elem->out_sg[1].iov_len < sizeof(mac_data) ||
-         elem->out_sg[2].iov_len < sizeof(mac_data))
-diff --git a/hw/virtio-net.h b/hw/virtio-net.h
-index d46fb98..9394cc0 100644
---- a/hw/virtio-net.h
-+++ b/hw/virtio-net.h
-@@ -44,6 +44,8 @@
- #define VIRTIO_NET_F_CTRL_VLAN  19      /* Control channel VLAN filtering */
- #define VIRTIO_NET_F_CTRL_RX_EXTRA 20   /* Extra RX mode control support */
- 
-+#define VIRTIO_NET_F_CTRL_MAC_ADDR   23 /* Set MAC address */
-+
- #define VIRTIO_NET_S_LINK_UP    1       /* Link is up */
- 
- #define TX_TIMER_INTERVAL 150000 /* 150 us */
-@@ -106,7 +108,7 @@ typedef uint8_t virtio_net_ctrl_ack;
-  #define VIRTIO_NET_CTRL_RX_MODE_NOBCAST      5
- 
- /*
-- * Control the MAC filter table.
-+ * Control the MAC
-  *
-  * The MAC filter table is managed by the hypervisor, the guest should
-  * assume the size is infinite.  Filtering should be considered
-@@ -119,6 +121,10 @@ typedef uint8_t virtio_net_ctrl_ack;
-  * first sg list contains unicast addresses, the second is for multicast.
-  * This functionality is present if the VIRTIO_NET_F_CTRL_RX feature
-  * is available.
-+ *
-+ * The ADDR_SET command requests one out scatterlist, it contains a
-+ * 6 bytes MAC address. This functionality is present if the
-+ * VIRTIO_NET_F_CTRL_MAC_ADDR feature is available.
-  */
- struct virtio_net_ctrl_mac {
-     uint32_t entries;
-@@ -126,6 +132,7 @@ struct virtio_net_ctrl_mac {
- };
- #define VIRTIO_NET_CTRL_MAC    1
-  #define VIRTIO_NET_CTRL_MAC_TABLE_SET        0
-+ #define VIRTIO_NET_CTRL_MAC_ADDR_SET         1
- 
- /*
-  * Control VLAN filtering
--- 
-1.7.11.7
+Thanks
+> -	return 0;
+> +	return ret;
+>  }
+> 
+>  static struct rtnl_link_stats64 *virtnet_stats(struct net_device *dev,
+> @@ -1627,6 +1636,7 @@ static unsigned int features[] = {
+>  	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ,
+>  	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
+>  	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
+> +	VIRTIO_NET_F_CTRL_MAC_ADDR,
+>  };
+> 
+>  static struct virtio_driver virtio_net_driver = {
+> diff --git a/include/uapi/linux/virtio_net.h
+> b/include/uapi/linux/virtio_net.h index 848e358..a5a8c88 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -53,6 +53,7 @@
+>  					 * network */
+>  #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
+>  					 * Steering */
+> +#define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+> 
+>  #define VIRTIO_NET_S_LINK_UP	1	/* Link is up */
+>  #define VIRTIO_NET_S_ANNOUNCE	2	/* Announcement is needed */
+> @@ -127,7 +128,7 @@ typedef __u8 virtio_net_ctrl_ack;
+>   #define VIRTIO_NET_CTRL_RX_NOBCAST      5
+> 
+>  /*
+> - * Control the MAC filter table.
+> + * Control the MAC
+>   *
+>   * The MAC filter table is managed by the hypervisor, the guest should
+>   * assume the size is infinite.  Filtering should be considered
+> @@ -140,6 +141,10 @@ typedef __u8 virtio_net_ctrl_ack;
+>   * first sg list contains unicast addresses, the second is for multicast.
+>   * This functionality is present if the VIRTIO_NET_F_CTRL_RX feature
+>   * is available.
+> + *
+> + * The ADDR_SET command requests one out scatterlist, it contains a
+> + * 6 bytes MAC address. This functionality is present if the
+> + * VIRTIO_NET_F_CTRL_MAC_ADDR feature is available.
+>   */
+>  struct virtio_net_ctrl_mac {
+>  	__u32 entries;
+> @@ -148,6 +153,7 @@ struct virtio_net_ctrl_mac {
+> 
+>  #define VIRTIO_NET_CTRL_MAC    1
+>   #define VIRTIO_NET_CTRL_MAC_TABLE_SET        0
+> + #define VIRTIO_NET_CTRL_MAC_ADDR_SET         1
+> 
+>  /*
+>   * Control VLAN filtering
