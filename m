@@ -1,18 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] [RFC PATCH 2/2] virtio-net: introduce a new control
-	to set macaddr
-Date: Wed, 16 Jan 2013 11:17:09 +0200
-Message-ID: <20130116091709.GB12723@redhat.com>
-References: <1357829141-25455-1-git-send-email-akong@redhat.com>
-	<1357829141-25455-3-git-send-email-akong@redhat.com>
-	<50EED6C1.1040608@redhat.com>
-	<20130116052326.GA4279@t430s.nay.redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH] virtio-spec: set mac address by a new vq command
+Date: Wed, 16 Jan 2013 10:13:28 +0100
+Message-ID: <20130116091328.GA6931@stefanha-thinkpad.redhat.com>
+References: <1358321604-11712-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130116052326.GA4279@t430s.nay.redhat.com>
+In-Reply-To: <1358321604-11712-1-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,65 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amos Kong <akong@redhat.com>
-Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: akong@redhat.com
+Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 16, 2013 at 01:23:26PM +0800, Amos Kong wrote:
-> On Thu, Jan 10, 2013 at 10:57:05PM +0800, Jason Wang wrote:
-> > On 01/10/2013 10:45 PM, akong@redhat.com wrote:
-> > > From: Amos Kong <akong@redhat.com>
-> > >
-> > > Currently we write MAC address to pci config space byte by byte,
-> > > this means that we have an intermediate step where mac is wrong.
-> > > This patch introduced a new control command to set MAC address
-> > > in one time.
-> > >
-> > > VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
-> > >
-> > > Signed-off-by: Amos Kong <akong@redhat.com>
-> > > ---
-> > >  drivers/net/virtio_net.c        | 16 +++++++++++++++-
-> > >  include/uapi/linux/virtio_net.h |  8 +++++++-
-> > >  2 files changed, 22 insertions(+), 2 deletions(-)
-> > >
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index 395ab4f..ff22bcd 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -803,13 +803,26 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
-> > >  	struct virtio_device *vdev = vi->vdev;
-> > >  	int ret;
-> > >  
-> > > +	struct scatterlist sg;
-> > > +
-> > >  	ret = eth_mac_addr(dev, p);
-> > >  	if (ret)
-> > >  		return ret;
-> > >  
-> > > -	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
-> > > +	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
-> > > +		/* Set MAC address by sending vq command */
-> > > +		sg_init_one(&sg, dev->dev_addr, dev->addr_len);
-> > > +		virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
-> > > +				     VIRTIO_NET_CTRL_MAC_ADDR_SET,
-> > > +				     &sg, 1, 0);
-> > > +		return 0;
-> > > +	}
-> > > +
-> > 
-> > Better to check the return of virtnet_send_command() and give a warn
-> > like other command. Btw, need we fail back to try the old way then?
-> 
-> Yes, it's necessary to check the return value of
-> virtnet_send_command().
-> 
-> In fail case, I like to return -EINVAL to userspace, because we don't
-> only want to set mac successfully, we also want to resolve the
-> addr inconsistent issue by this feature (vq cmd).
+On Wed, Jan 16, 2013 at 03:33:24PM +0800, akong@redhat.com wrote:
+> +\change_inserted -1930653948 1358320004
+> +The command VIRTIO_NET_CTRL_MAC_ADDR_SET is used to set 
+> +\begin_inset Quotes eld
+> +\end_inset
+> +
+> +physical
+> +\begin_inset Quotes erd
+> +\end_inset
+> +
+> + address of the network card.
 
-It's really a device error but I guess we can.
-We probably should print a warning too.
+The "physical" address of the network card?  That term is not defined
+anywhere in the specification.
 
--- 
-MST
+Perhaps it's best to explain that the config space "mac" field and
+VIRTIO_NET_CTRL_MAC_ADDR_SET both set the default MAC address which rx
+filtering accepts.  (The MAC table is an additional set of MAC addresses
+which rx filtering accepts.)
+
+It would also be worth explaining that VIRTIO_NET_CTRL_MAC_ADDR_SET is
+atomic whereas the config space "mac" field is not.  Therefore,
+VIRTIO_NET_CTRL_MAC_ADDR_SET is preferred, especially while the NIC is
+up.
+
+Stefan
