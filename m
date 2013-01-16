@@ -1,21 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFCv2 00/12] Introduce host-side virtio queue and CAIF Virtio.
-Date: Wed, 16 Jan 2013 10:16:06 +0200
-Message-ID: <20130116081606.GB11465@redhat.com>
-References: <20121206102750.GF10837@redhat.com>
-	<877goc0wac.fsf@rustcorp.com.au>
-	<CAJK669bP41oBhJ=MB64NS21Ag7XO5WswuTiVKCFTb96nvmyBiw@mail.gmail.com>
-	<87pq1f2rj0.fsf@rustcorp.com.au> <87wqvl1g9s.fsf@rustcorp.com.au>
-	<CAJK669Z-bGTeQe8qJpTJP7simbSvQ8cgFZefs5QRMkmxtFYY4g@mail.gmail.com>
-	<87pq1c1uj4.fsf@rustcorp.com.au> <877gnk1ayv.fsf@rustcorp.com.au>
-	<20130114173914.GB19207@redhat.com>
-	<874nihzuoz.fsf@rustcorp.com.au>
+Subject: Re: [QEMU PATCH v2] virtio-net: introduce a new macaddr control
+Date: Wed, 16 Jan 2013 10:19:00 +0200
+Message-ID: <20130116081900.GD11465@redhat.com>
+References: <1358315821-29519-1-git-send-email-akong@redhat.com>
+	<1358317007-29972-1-git-send-email-akong@redhat.com>
+	<1793480.zqgr4LeT19@jason-thinkpad-t430s>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <874nihzuoz.fsf@rustcorp.com.au>
+In-Reply-To: <1793480.zqgr4LeT19@jason-thinkpad-t430s>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,107 +20,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Walleij <linus.walleij@linaro.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjur.brandeland@stericsson.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: stefanha@redhat.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 16, 2013 at 01:43:32PM +1030, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> >> +static int resize_iovec(struct vringh_iov *iov, gfp_t gfp)
-> >> +{
-> >> +	struct iovec *new;
-> >> +	unsigned int new_num = iov->max * 2;
-> >
-> > We must limit this I think, this is coming
-> > from userspace. How about UIO_MAXIOV?
+On Wed, Jan 16, 2013 at 02:37:34PM +0800, Jason Wang wrote:
+> On Wednesday, January 16, 2013 02:16:47 PM akong@redhat.com wrote:
+> > From: Amos Kong <akong@redhat.com>
+> > 
+> > In virtio-net guest driver, currently we write MAC address to
+> > pci config space byte by byte, this means that we have an
+> > intermediate step where mac is wrong. This patch introduced
+> > a new control command to set MAC address in one time.
+> > 
+> > VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
+> > 
+> > Signed-off-by: Amos Kong <akong@redhat.com>
+> > ---
+> > V2: check guest's iov_len before memcpy
+> > ---
+> >  hw/virtio-net.c | 10 ++++++++++
+> >  hw/virtio-net.h |  9 ++++++++-
+> >  2 files changed, 18 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/hw/virtio-net.c b/hw/virtio-net.c
+> > index dc7c6d6..d05f98f 100644
+> > --- a/hw/virtio-net.c
+> > +++ b/hw/virtio-net.c
+> > @@ -247,6 +247,7 @@ static uint32_t virtio_net_get_features(VirtIODevice
+> > *vdev, uint32_t features) VirtIONet *n = to_virtio_net(vdev);
+> > 
+> >      features |= (1 << VIRTIO_NET_F_MAC);
+> > +    features |= (1 << VIRTIO_NET_F_CTRL_MAC_ADDR);
+> > 
+> >      if (!peer_has_vnet_hdr(n)) {
+> >          features &= ~(0x1 << VIRTIO_NET_F_CSUM);
+> > @@ -282,6 +283,7 @@ static uint32_t virtio_net_bad_features(VirtIODevice
+> > *vdev) /* Linux kernel 2.6.25.  It understood MAC (as everyone must), * but
+> > also these: */
+> >      features |= (1 << VIRTIO_NET_F_MAC);
+> > +    features |= (1 << VIRTIO_NET_F_CTRL_MAC_ADDR);
+> >      features |= (1 << VIRTIO_NET_F_CSUM);
+> >      features |= (1 << VIRTIO_NET_F_HOST_TSO4);
+> >      features |= (1 << VIRTIO_NET_F_HOST_TSO6);
+> > @@ -349,6 +351,14 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t
+> > cmd, {
+> >      struct virtio_net_ctrl_mac mac_data;
+> > 
+> > +    if (cmd == VIRTIO_NET_CTRL_MAC_ADDR_SET && elem->out_num == 2 &&
+> > +        elem->out_sg[1].iov_len == ETH_ALEN) {
+> > +        /* Set MAC address */
+> > +        memcpy(n->mac, elem->out_sg[1].iov_base, elem->out_sg[1].iov_len);
+> > +        qemu_format_nic_info_str(&n->nic->nc, n->mac);
+> > +        return VIRTIO_NET_OK;
+> > +    }
+> > +
+> >      if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET || elem->out_num != 3 ||
+> >          elem->out_sg[1].iov_len < sizeof(mac_data) ||
+> >          elem->out_sg[2].iov_len < sizeof(mac_data))
+> > diff --git a/hw/virtio-net.h b/hw/virtio-net.h
+> > index d46fb98..9394cc0 100644
+> > --- a/hw/virtio-net.h
+> > +++ b/hw/virtio-net.h
+> > @@ -44,6 +44,8 @@
+> >  #define VIRTIO_NET_F_CTRL_VLAN  19      /* Control channel VLAN filtering
+> > */ #define VIRTIO_NET_F_CTRL_RX_EXTRA 20   /* Extra RX mode control support
+> > */
+> > 
+> > +#define VIRTIO_NET_F_CTRL_MAC_ADDR   23 /* Set MAC address */
+> > +
 > 
-> We limit it to the ring size already;
+> I wonder whether we need a DEFINE_PROP_BIT to disable and compat this feature. 
+> Consider we may migrate from a new version to an old version.
 
-1. do we limit it in case there's a loop in the descriptor ring?
-2. do we limit it in case there are indirect descriptors?
-I guess I missed where we do this could you point this out to me?
+Yes I think we do.
 
-> UIO_MAXIOV is a weird choice here.
-
-It's kind of forced by the need to pass the iov on to the linux kernel,
-so we know that any guest using more is broken on existing hypervisors.
-
-Ring size is somewhat arbitrary too, isn't it?  A huge ring where we
-post lots of short descriptors (e.g. RX buffers) seems like a valid thing to do.
-
-> >> +static u16 __cold return_from_indirect(const struct vringh *vrh, int *up_next,
-> >> +				       struct vring_desc **descs, int *desc_max)
-> >
-> > Not sure it should be cold like that - virtio net uses indirect on data
-> > path.
-> 
-> This is only when we have a chained, indirect descriptor (ie. we have to
-> go back up to the next entry in the main descriptor table).  That's
-> allowed in the spec, but noone does it.
-> >> +		/* Make sure it's OK, and get offset. */
-> >> +		if (!check_range(desc.addr, desc.len, &range, getrange)) {
-> >> +			err = -EINVAL;
-> >> +			goto fail;
-> >> +		}
-> >
-> > Hmm this looks like it will translate and
-> > validate immediate descriptors same way as indirect ones.
-> > vhost-net has different translation for regular descriptors
-> > and indirect ones, both for speed and to allow ring aliasing,
-> > so it has to know which is which.
-> 
-> I see translate_desc() in both cases, what's different?
-> >> +		addr = (void *)(long)desc.addr + range.offset;
-> >
-> > I really dislike raw pointers that we must never dereference.
-> > Since we are forcing everything to __user anyway, why don't we
-> > tag all addresses as __user? The kernel users of this API
-> > can cast that away, this will keep the casts to minimum.
-> >
-> > Failing that, we can add our own class
-> > # define __virtio         __attribute__((noderef, address_space(2)))
-> 
-> In this case, perhaps we should leave addr as a u64?
-
-Point being? All users will cast to a pointer.
-It seems at first passing in raw pointers is cleaner,
-but it turns out in the API we are passing iovs around,
-and they are __user anyway.
-So using raw pointers here does not buy us anything,
-so let's use __user and gain extra static checks at no cost.
-
-
-> >> +		iov->iov[iov->i].iov_base = (__force __user void *)addr;
-> >> +		iov->iov[iov->i].iov_len = desc.len;
-> >> +		iov->i++;
-> >
-> >
-> > This looks like it won't do the right thing if desc.len spans multiple
-> > ranges. I don't know if this happens in practice but this is something
-> > vhost supports ATM.
-> 
-> Well, kind of.  I assumed that the bool (*getrange)(u64, struct
-> vringh_range *)) callback would meld any adjacent ranges if it needs to.
-
-Confused. If addresses 0 to 0x1000 map to virtual addresses 0 to 0x1000
-and 0x1000 to 0x2000 map to virtual addresses 0x2000 to 0x3000, then
-a single descriptor covering 0 to 0x2000 in guest needs two
-iov entries. What can getrange do about it?
-
-
-> >> +/* All the information about an iovec. */
-> >> +struct vringh_iov {
-> >> +	struct iovec *iov;
-> >> +	unsigned i, max;
-> >> +	bool allocated;
-> >
-> > MAybe set iov = NULL when not allocated?
-> 
-> The idea was that iov points to the initial (on-stack?) iov, for the
-> fast path.
-> 
-> I'm writing a more complete test at the moment, then I will look at how
-> this fits with vhost.c as it stands...
-> 
-> Cheers,
-> Rusty.
+> >  #define VIRTIO_NET_S_LINK_UP    1       /* Link is up */
+> > 
+> >  #define TX_TIMER_INTERVAL 150000 /* 150 us */
+> > @@ -106,7 +108,7 @@ typedef uint8_t virtio_net_ctrl_ack;
+> >   #define VIRTIO_NET_CTRL_RX_MODE_NOBCAST      5
+> > 
+> >  /*
+> > - * Control the MAC filter table.
+> > + * Control the MAC
+> >   *
+> >   * The MAC filter table is managed by the hypervisor, the guest should
+> >   * assume the size is infinite.  Filtering should be considered
+> > @@ -119,6 +121,10 @@ typedef uint8_t virtio_net_ctrl_ack;
+> >   * first sg list contains unicast addresses, the second is for multicast.
+> >   * This functionality is present if the VIRTIO_NET_F_CTRL_RX feature
+> >   * is available.
+> > + *
+> > + * The ADDR_SET command requests one out scatterlist, it contains a
+> > + * 6 bytes MAC address. This functionality is present if the
+> > + * VIRTIO_NET_F_CTRL_MAC_ADDR feature is available.
+> >   */
+> >  struct virtio_net_ctrl_mac {
+> >      uint32_t entries;
+> > @@ -126,6 +132,7 @@ struct virtio_net_ctrl_mac {
+> >  };
+> >  #define VIRTIO_NET_CTRL_MAC    1
+> >   #define VIRTIO_NET_CTRL_MAC_TABLE_SET        0
+> > + #define VIRTIO_NET_CTRL_MAC_ADDR_SET         1
+> > 
+> >  /*
+> >   * Control VLAN filtering
