@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 2/2] virtio-net: introduce a new control to set macaddr
-Date: Wed, 16 Jan 2013 10:36:58 +0200
-Message-ID: <20130116083658.GE11465@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [QEMU PATCH v2] virtio-net: introduce a new macaddr control
+Date: Wed, 16 Jan 2013 09:59:14 +0100
+Message-ID: <20130116085914.GC6693@stefanha-thinkpad.hitronhub.home>
 References: <1358315821-29519-1-git-send-email-akong@redhat.com>
-	<1358315821-29519-3-git-send-email-akong@redhat.com>
-	<8243136.frWZnRkUJV@jason-thinkpad-t430s>
-	<20130116082447.GA31074@t430s.nay.redhat.com>
+	<1358317007-29972-1-git-send-email-akong@redhat.com>
+	<1793480.zqgr4LeT19@jason-thinkpad-t430s>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130116082447.GA31074@t430s.nay.redhat.com>
+In-Reply-To: <1793480.zqgr4LeT19@jason-thinkpad-t430s>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,77 +20,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amos Kong <akong@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 16, 2013 at 04:24:47PM +0800, Amos Kong wrote:
-> On Wed, Jan 16, 2013 at 02:20:39PM +0800, Jason Wang wrote:
-> > On Wednesday, January 16, 2013 01:57:01 PM akong@redhat.com wrote:
-> > > From: Amos Kong <akong@redhat.com>
-> > > 
-> > > Currently we write MAC address to pci config space byte by byte,
-> > > this means that we have an intermediate step where mac is wrong.
-> > > This patch introduced a new control command to set MAC address
-> > > in one time.
-> > > 
-> > > VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
-> > > 
-> > > Signed-off-by: Amos Kong <akong@redhat.com>
-> > > ---
-> > >  drivers/net/virtio_net.c        | 24 +++++++++++++++++-------
-> > >  include/uapi/linux/virtio_net.h |  8 +++++++-
-> > >  2 files changed, 24 insertions(+), 8 deletions(-)
-> > > 
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index 395ab4f..c8901b6 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -802,16 +802,25 @@ static int virtnet_set_mac_address(struct net_device
-> > > *dev, void *p) struct virtnet_info *vi = netdev_priv(dev);
-> > >  	struct virtio_device *vdev = vi->vdev;
-> > >  	int ret;
-> > > +	struct sockaddr *addr = p;
-> > > +	struct scatterlist sg;
-> > > 
-> > > -	ret = eth_mac_addr(dev, p);
-> > > -	if (ret)
-> > > -		return ret;
-> > > -
-> > > -	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
-> > > +	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
-> > > +		sg_init_one(&sg, addr->sa_data, dev->addr_len);
-> > > +		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
-> > > +					  VIRTIO_NET_CTRL_MAC_ADDR_SET,
-> > > +					  &sg, 1, 0)) {
-> > > +			dev_warn(&vdev->dev,
-> > > +				 "Failed to set mac address by vq command.\n");
-> > > +			return -EINVAL;
-> > > +		}
-> > > +	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
-> > >  		vdev->config->set(vdev, offsetof(struct virtio_net_config, mac),
-> > > -		                  dev->dev_addr, dev->addr_len);
-> > > +				  addr->sa_data, dev->addr_len);
-> > > +	}
-> > > +	ret = eth_mac_addr(dev, p);
-> > > 
+On Wed, Jan 16, 2013 at 02:37:34PM +0800, Jason Wang wrote:
+> On Wednesday, January 16, 2013 02:16:47 PM akong@redhat.com wrote:
+> > From: Amos Kong <akong@redhat.com>
 > > 
-> > The you will the validity check in eth_mac_addr which may result a wrong mac 
-> > address to be set in the hardware (or is there any check in qemu) and a 
-> > inconsistency bettween what kernel assumes and qemu has.
+> > In virtio-net guest driver, currently we write MAC address to
+> > pci config space byte by byte, this means that we have an
+> > intermediate step where mac is wrong. This patch introduced
+> > a new control command to set MAC address in one time.
 > > 
-> > You can take a look at netvsc driver that calls eth_mac_addr() first and 
-> > restore the software mac address when fail to enforce it to hardware.
+> > VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
+> > 
+> > Signed-off-by: Amos Kong <akong@redhat.com>
+> > ---
+> > V2: check guest's iov_len before memcpy
+> > ---
+> >  hw/virtio-net.c | 10 ++++++++++
+> >  hw/virtio-net.h |  9 ++++++++-
+> >  2 files changed, 18 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/hw/virtio-net.c b/hw/virtio-net.c
+> > index dc7c6d6..d05f98f 100644
+> > --- a/hw/virtio-net.c
+> > +++ b/hw/virtio-net.c
+> > @@ -247,6 +247,7 @@ static uint32_t virtio_net_get_features(VirtIODevice
+> > *vdev, uint32_t features) VirtIONet *n = to_virtio_net(vdev);
+> > 
+> >      features |= (1 << VIRTIO_NET_F_MAC);
+> > +    features |= (1 << VIRTIO_NET_F_CTRL_MAC_ADDR);
+> > 
+> >      if (!peer_has_vnet_hdr(n)) {
+> >          features &= ~(0x1 << VIRTIO_NET_F_CSUM);
+> > @@ -282,6 +283,7 @@ static uint32_t virtio_net_bad_features(VirtIODevice
+> > *vdev) /* Linux kernel 2.6.25.  It understood MAC (as everyone must), * but
+> > also these: */
+> >      features |= (1 << VIRTIO_NET_F_MAC);
+> > +    features |= (1 << VIRTIO_NET_F_CTRL_MAC_ADDR);
+> >      features |= (1 << VIRTIO_NET_F_CSUM);
+> >      features |= (1 << VIRTIO_NET_F_HOST_TSO4);
+> >      features |= (1 << VIRTIO_NET_F_HOST_TSO6);
+> > @@ -349,6 +351,14 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t
+> > cmd, {
+> >      struct virtio_net_ctrl_mac mac_data;
+> > 
+> > +    if (cmd == VIRTIO_NET_CTRL_MAC_ADDR_SET && elem->out_num == 2 &&
+> > +        elem->out_sg[1].iov_len == ETH_ALEN) {
+> > +        /* Set MAC address */
+> > +        memcpy(n->mac, elem->out_sg[1].iov_base, elem->out_sg[1].iov_len);
+> > +        qemu_format_nic_info_str(&n->nic->nc, n->mac);
+> > +        return VIRTIO_NET_OK;
+> > +    }
+> > +
+> >      if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET || elem->out_num != 3 ||
+> >          elem->out_sg[1].iov_len < sizeof(mac_data) ||
+> >          elem->out_sg[2].iov_len < sizeof(mac_data))
+> > diff --git a/hw/virtio-net.h b/hw/virtio-net.h
+> > index d46fb98..9394cc0 100644
+> > --- a/hw/virtio-net.h
+> > +++ b/hw/virtio-net.h
+> > @@ -44,6 +44,8 @@
+> >  #define VIRTIO_NET_F_CTRL_VLAN  19      /* Control channel VLAN filtering
+> > */ #define VIRTIO_NET_F_CTRL_RX_EXTRA 20   /* Extra RX mode control support
+> > */
+> > 
+> > +#define VIRTIO_NET_F_CTRL_MAC_ADDR   23 /* Set MAC address */
+> > +
 > 
-> Thanks for the catching, I will move eth_mac_addr() back to above,
-> just restore addr if fail to send command.
-> 
-> I will also use DEFINE_PROP_BIT to fix migration issue, thanks.
+> I wonder whether we need a DEFINE_PROP_BIT to disable and compat this feature. 
+> Consider we may migrate from a new version to an old version.
 
-And clear it if running with a compat machine type.
+I agree, migration needs to be handled.  The bit should never change
+while the device is initialized and running.  We should also never start
+rejecting or ignoring the command if it was available before.
 
-> > Thanks
-> > > -	return 0;
-> > > +	return ret;
-> > >  }
-> 
+Stefan
