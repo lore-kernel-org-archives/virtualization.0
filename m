@@ -1,14 +1,14 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [QEMU PATCH v3] virtio-net: introduce a new macaddr control
-Date: Thu, 17 Jan 2013 13:40:18 +0100
-Message-ID: <20130117124018.GA6830__13512.5516834252$1358426497$gmane$org@stefanha-thinkpad.redhat.com>
-References: <1358418646-29626-1-git-send-email-akong@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 0/5] vhost-scsi: Add support for host virtualized target
+Date: Thu, 17 Jan 2013 18:43:14 +0200
+Message-ID: <20130117164314.GA19458__42993.4656633579$1358440813$gmane$org@redhat.com>
+References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1358418646-29626-1-git-send-email-akong@redhat.com>
+In-Reply-To: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,32 +18,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: akong@redhat.com
-Cc: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, mst@redhat.com
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 17, 2013 at 06:30:46PM +0800, akong@redhat.com wrote:
-> From: Amos Kong <akong@redhat.com>
+On Fri, Sep 07, 2012 at 06:48:14AM +0000, Nicholas A. Bellinger wrote:
+> From: Nicholas Bellinger <nab@linux-iscsi.org>
 > 
-> In virtio-net guest driver, currently we write MAC address to
-> pci config space byte by byte, this means that we have an
-> intermediate step where mac is wrong. This patch introduced
-> a new control command to set MAC address, it's atomic.
+> Hello Anthony & Co,
 > 
-> VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
+> This is the fourth installment to add host virtualized target support for
+> the mainline tcm_vhost fabric driver using Linux v3.6-rc into QEMU 1.3.0-rc.
 > 
-> "mac" field will be set to read-only when VIRTIO_NET_F_CTRL_MAC_ADDR
-> is acked.
+> The series is available directly from the following git branch:
 > 
-> Signed-off-by: Amos Kong <akong@redhat.com>
-> ---
-> V2: check guest's iov_len
-> V3: fix of migration compatibility
->     make mac field in config space read-only when new feature is acked
-> ---
->  hw/pc_piix.c    |  4 ++++
->  hw/virtio-net.c | 10 +++++++++-
->  hw/virtio-net.h | 12 ++++++++++--
->  3 files changed, 23 insertions(+), 3 deletions(-)
+>    git://git.kernel.org/pub/scm/virt/kvm/nab/qemu-kvm.git vhost-scsi-for-1.3
+> 
+> Note the code is cut against yesterday's QEMU head, and dispite the name
+> of the tree is based upon mainline qemu.org git code + has thus far been
+> running overnight with > 100K IOPs small block 4k workloads using v3.6-rc2+
+> based target code with RAMDISK_DR backstores.
+> 
+> Other than some minor fuzz between jumping from QEMU 1.2.0 -> 1.2.50, this
+> series is functionally identical to what's been posted for vhost-scsi RFC-v3
+> to qemu-devel.
+> 
+> Please consider applying these patches for an initial vhost-scsi merge into
+> QEMU 1.3.0-rc code, or let us know what else you'd like to see addressed for
+> this series to in order to merge.
+> 
+> Thank you!
+> 
+> --nab
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+OK what's the status here?
+We missed 1.3 but let's try not to miss 1.4?
+
+> Nicholas Bellinger (2):
+>   monitor: Rename+move net_handle_fd_param -> monitor_handle_fd_param
+>   virtio-scsi: Set max_target=0 during vhost-scsi operation
+> 
+> Stefan Hajnoczi (3):
+>   vhost: Pass device path to vhost_dev_init()
+>   vhost-scsi: add -vhost-scsi host device for use with tcm-vhost
+>   virtio-scsi: Add start/stop functionality for vhost-scsi
+> 
+>  configure            |   10 +++
+>  hw/Makefile.objs     |    1 +
+>  hw/qdev-properties.c |   41 +++++++++++
+>  hw/vhost-scsi.c      |  190 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>  hw/vhost-scsi.h      |   62 ++++++++++++++++
+>  hw/vhost.c           |    5 +-
+>  hw/vhost.h           |    3 +-
+>  hw/vhost_net.c       |    2 +-
+>  hw/virtio-pci.c      |    2 +
+>  hw/virtio-scsi.c     |   55 ++++++++++++++-
+>  hw/virtio-scsi.h     |    1 +
+>  monitor.c            |   18 +++++
+>  monitor.h            |    1 +
+>  net.c                |   18 -----
+>  net.h                |    2 -
+>  net/socket.c         |    2 +-
+>  net/tap.c            |    4 +-
+>  qemu-common.h        |    1 +
+>  qemu-config.c        |   19 +++++
+>  qemu-options.hx      |    4 +
+>  vl.c                 |   18 +++++
+>  21 files changed, 431 insertions(+), 28 deletions(-)
+>  create mode 100644 hw/vhost-scsi.c
+>  create mode 100644 hw/vhost-scsi.h
+> 
+> -- 
+> 1.7.2.5
+> 
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
