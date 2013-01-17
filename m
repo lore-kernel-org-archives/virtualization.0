@@ -1,7 +1,7 @@
 From: akong@redhat.com
-Subject: [PATCH v2] virtio-spec: set mac address by a new vq command
-Date: Thu, 17 Jan 2013 18:25:47 +0800
-Message-ID: <1358418347-29496-1-git-send-email-akong@redhat.com>
+Subject: [QEMU PATCH v3] virtio-net: introduce a new macaddr control
+Date: Thu, 17 Jan 2013 18:30:46 +0800
+Message-ID: <1358418646-29626-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,121 +15,124 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, rusty@rustcorp.com.au
-Cc: kvm@vger.kernel.org, mst@redhat.com
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, stefanha@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Amos Kong <akong@redhat.com>
 
-Virtio-net driver currently programs MAC address byte by byte,
-this means that we have an intermediate step where mac is wrong.
-This patch introduced a new control command to set MAC address
-in one time, and added a new feature flag VIRTIO_NET_F_MAC_ADDR
-for this feature.
+In virtio-net guest driver, currently we write MAC address to
+pci config space byte by byte, this means that we have an
+intermediate step where mac is wrong. This patch introduced
+a new control command to set MAC address, it's atomic.
+
+VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
+
+"mac" field will be set to read-only when VIRTIO_NET_F_CTRL_MAC_ADDR
+is acked.
 
 Signed-off-by: Amos Kong <akong@redhat.com>
 ---
-v2: add more detail about new command (Stefan)
+V2: check guest's iov_len
+V3: fix of migration compatibility
+    make mac field in config space read-only when new feature is acked
 ---
- virtio-spec.lyx | 58 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 57 insertions(+), 1 deletion(-)
+ hw/pc_piix.c    |  4 ++++
+ hw/virtio-net.c | 10 +++++++++-
+ hw/virtio-net.h | 12 ++++++++++--
+ 3 files changed, 23 insertions(+), 3 deletions(-)
 
-diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index 1ba9992..1ec0cd4 100644
---- a/virtio-spec.lyx
-+++ b/virtio-spec.lyx
-@@ -56,6 +56,7 @@
- \html_math_output 0
- \html_css_as_file 0
- \html_be_strict false
-+\author -1930653948 "Amos Kong" 
- \author -608949062 "Rusty Russell,,," 
- \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
- \author 1112500848 "Rusty Russell" rusty@rustcorp.com.au
-@@ -4391,6 +4392,14 @@ VIRTIO_NET_F_GUEST_ANNOUNCE(21) Guest can send gratuitous packets.
+diff --git a/hw/pc_piix.c b/hw/pc_piix.c
+index 7268dcd..66606b9 100644
+--- a/hw/pc_piix.c
++++ b/hw/pc_piix.c
+@@ -295,6 +295,10 @@ static QEMUMachine pc_machine_v1_4 = {
+             .driver   = "usb-tablet",\
+             .property = "usb_version",\
+             .value    = stringify(1),\
++        },{\
++            .driver   = "virtio-net-pci",\
++            .property = "ctrl_mac_addr",\
++            .value    = "off",      \
+         }
  
- \change_inserted 1986246365 1352742808
- VIRTIO_NET_F_MQ(22) Device supports multiqueue with automatic receive steering.
-+\change_inserted -1930653948 1358319033
-+
-+\end_layout
-+
-+\begin_layout Description
-+
-+\change_inserted -1930653948 1358319080
-+VIRTIO_NET_F_CTRL_MAC_ADDR(23) Set MAC address.
- \change_unchanged
+ static QEMUMachine pc_machine_v1_3 = {
+diff --git a/hw/virtio-net.c b/hw/virtio-net.c
+index dc7c6d6..941d782 100644
+--- a/hw/virtio-net.c
++++ b/hw/virtio-net.c
+@@ -93,7 +93,8 @@ static void virtio_net_set_config(VirtIODevice *vdev, const uint8_t *config)
  
- \end_layout
-@@ -5284,7 +5293,11 @@ The class VIRTIO_NET_CTRL_RX has two commands: VIRTIO_NET_CTRL_RX_PROMISC
- \end_layout
+     memcpy(&netcfg, config, sizeof(netcfg));
  
- \begin_layout Subsubsection*
--Setting MAC Address Filtering
-+Setting MAC Address
-+\change_deleted -1930653948 1358318470
-+ Filtering
-+\change_unchanged
-+
- \end_layout
+-    if (memcmp(netcfg.mac, n->mac, ETH_ALEN)) {
++    if (!(n->vdev.guest_features >> VIRTIO_NET_F_CTRL_MAC_ADDR & 1) &&
++        memcmp(netcfg.mac, n->mac, ETH_ALEN)) {
+         memcpy(n->mac, netcfg.mac, ETH_ALEN);
+         qemu_format_nic_info_str(&n->nic->nc, n->mac);
+     }
+@@ -349,6 +350,13 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
+ {
+     struct virtio_net_ctrl_mac mac_data;
  
- \begin_layout Standard
-@@ -5324,6 +5337,17 @@ struct virtio_net_ctrl_mac {
- \begin_layout Plain Layout
++    if (cmd == VIRTIO_NET_CTRL_MAC_ADDR_SET && elem->out_num == 2 &&
++        elem->out_sg[1].iov_len == ETH_ALEN) {
++        memcpy(n->mac, elem->out_sg[1].iov_base, elem->out_sg[1].iov_len);
++        qemu_format_nic_info_str(&n->nic->nc, n->mac);
++        return VIRTIO_NET_OK;
++    }
++
+     if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET || elem->out_num != 3 ||
+         elem->out_sg[1].iov_len < sizeof(mac_data) ||
+         elem->out_sg[2].iov_len < sizeof(mac_data))
+diff --git a/hw/virtio-net.h b/hw/virtio-net.h
+index d46fb98..1ec632f 100644
+--- a/hw/virtio-net.h
++++ b/hw/virtio-net.h
+@@ -44,6 +44,8 @@
+ #define VIRTIO_NET_F_CTRL_VLAN  19      /* Control channel VLAN filtering */
+ #define VIRTIO_NET_F_CTRL_RX_EXTRA 20   /* Extra RX mode control support */
  
-  #define VIRTIO_NET_CTRL_MAC_TABLE_SET        0 
-+\change_inserted -1930653948 1358318313
++#define VIRTIO_NET_F_CTRL_MAC_ADDR   23 /* Set MAC address */
 +
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1930653948 1358318331
-+
+ #define VIRTIO_NET_S_LINK_UP    1       /* Link is up */
+ 
+ #define TX_TIMER_INTERVAL 150000 /* 150 us */
+@@ -106,7 +108,7 @@ typedef uint8_t virtio_net_ctrl_ack;
+  #define VIRTIO_NET_CTRL_RX_MODE_NOBCAST      5
+ 
+ /*
+- * Control the MAC filter table.
++ * Control the MAC
+  *
+  * The MAC filter table is managed by the hypervisor, the guest should
+  * assume the size is infinite.  Filtering should be considered
+@@ -119,6 +121,10 @@ typedef uint8_t virtio_net_ctrl_ack;
+  * first sg list contains unicast addresses, the second is for multicast.
+  * This functionality is present if the VIRTIO_NET_F_CTRL_RX feature
+  * is available.
++ *
++ * The ADDR_SET command requests one out scatterlist, it contains a
++ * 6 bytes MAC address. This functionality is present if the
++ * VIRTIO_NET_F_CTRL_MAC_ADDR feature is available.
+  */
+ struct virtio_net_ctrl_mac {
+     uint32_t entries;
+@@ -126,6 +132,7 @@ struct virtio_net_ctrl_mac {
+ };
+ #define VIRTIO_NET_CTRL_MAC    1
+  #define VIRTIO_NET_CTRL_MAC_TABLE_SET        0
 + #define VIRTIO_NET_CTRL_MAC_ADDR_SET         1
-+\change_unchanged
-+
- \end_layout
  
- \end_inset
-@@ -5349,6 +5373,38 @@ T_CTRL_MAC_TABLE_SET.
-  The command-specific-data is two variable length tables of 6-byte MAC addresses.
-  The first table contains unicast addresses, and the second contains multicast
-  addresses.
-+\change_inserted -1930653948 1358318545
-+
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted -1930653948 1358418243
-+The config space 
-+\begin_inset Quotes eld
-+\end_inset
-+
-+mac
-+\begin_inset Quotes erd
-+\end_inset
-+
-+ field and the command VIRTIO_NET_CTRL_MAC_ADDR_SET both set the default
-+ MAC address which rx filtering accepts.
-+ The command VIRTIO_NET_CTRL_MAC_ADDR_SET is atomic whereas the config space
-+ 
-+\begin_inset Quotes eld
-+\end_inset
-+
-+mac
-+\begin_inset Quotes erd
-+\end_inset
-+
-+ field is not.
-+ Therefore, VIRTIO_NET_CTRL_MAC_ADDR_SET is preferred, especially while
-+ the NIC is up.
-+ The command-specific-data is a 6-byte MAC address.
-+\change_unchanged
-+
- \end_layout
- 
- \begin_layout Subsection*
+ /*
+  * Control VLAN filtering
+@@ -158,5 +165,6 @@ struct virtio_net_ctrl_mac {
+         DEFINE_PROP_BIT("ctrl_vq", _state, _field, VIRTIO_NET_F_CTRL_VQ, true), \
+         DEFINE_PROP_BIT("ctrl_rx", _state, _field, VIRTIO_NET_F_CTRL_RX, true), \
+         DEFINE_PROP_BIT("ctrl_vlan", _state, _field, VIRTIO_NET_F_CTRL_VLAN, true), \
+-        DEFINE_PROP_BIT("ctrl_rx_extra", _state, _field, VIRTIO_NET_F_CTRL_RX_EXTRA, true)
++        DEFINE_PROP_BIT("ctrl_rx_extra", _state, _field, VIRTIO_NET_F_CTRL_RX_EXTRA, true), \
++        DEFINE_PROP_BIT("ctrl_mac_addr", _state, _field, VIRTIO_NET_F_CTRL_MAC_ADDR, true)
+ #endif
 -- 
 1.7.11.7
