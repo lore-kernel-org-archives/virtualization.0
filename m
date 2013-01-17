@@ -1,11 +1,14 @@
-From: sjur.brandeland@stericsson.com
-Subject: [RFC] virtio_console: Add DRIVER and INTERFACE to uevent.
-Date: Thu, 17 Jan 2013 13:23:58 +0100
-Message-ID: <1358425438-4633-1-git-send-email-sjur.brandeland@stericsson.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [QEMU PATCH v3] virtio-net: introduce a new macaddr control
+Date: Thu, 17 Jan 2013 13:40:18 +0100
+Message-ID: <20130117124018.GA6830__13512.5516834252$1358426497$gmane$org@stefanha-thinkpad.redhat.com>
+References: <1358418646-29626-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1358418646-29626-1-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,42 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: akong@redhat.com
+Cc: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
-QWRkIGluZm9ybWF0aW9uIHNvIHJwcm9jLXNlcmlhbCBjYW4gYmUgZWFzaWx5IHJlY29nbmljZWQK
-ZnJvbSB1c2VyIHNwYWNlLiBBZGQgdGhlIGZvbGxvd2luZyBpbmZvcm1hdGlvbiB0byB1ZXZlbnQ6
-CkRSSVZFUj12aXJ0aW9fY29uc29sZXx2aXJ0aW9fcnByb2Nfc2VyaWFsCklOVEVSRkFDRT1ncmFu
-ZC1wYXJlbnQvcGFyZW50L25hbWUKClNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNq
-dXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KLS0tCkhpLAoKSSBuZWVkIHNvbWUgd2F5IHRv
-IGlkZW50aWZ5IHRoZSBtYWpvci9taW5vciBudW1iZXIgZm9yCnRoZSBycHJvYy1zZXJpYWwgZGV2
-aWNlLCBnaXZlbiB0aGUgdWRldiBldmVudC4gClJldmlldyBjb21tZW50cyBhcmUgd2VsY29tZWQu
-CgpUaGFua3MsClNqdXIKCiBkcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYyB8ICAgMjIgKysr
-KysrKysrKysrKysrKysrKysrKwogMSBmaWxlcyBjaGFuZ2VkLCAyMiBpbnNlcnRpb25zKCspLCAw
-IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5j
-IGIvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKaW5kZXggMDMxYmUwYi4uOTZjNWVkOSAx
-MDA2NDQKLS0tIGEvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKKysrIGIvZHJpdmVycy9j
-aGFyL3ZpcnRpb19jb25zb2xlLmMKQEAgLTIxOTAsNiArMjE5MCwyNyBAQCBzdGF0aWMgc3RydWN0
-IHZpcnRpb19kcml2ZXIgdmlydGlvX3Jwcm9jX3NlcmlhbCA9IHsKIAkucmVtb3ZlID0JdmlydGNv
-bnNfcmVtb3ZlLAogfTsKIAoraW50IGNsYXNzX3ZpcnRpb19wb3J0c191ZXZlbnQoc3RydWN0IGRl
-dmljZSAqX2Rldiwgc3RydWN0IGtvYmpfdWV2ZW50X2VudiAqZW52KQoreworCXN0cnVjdCBwb3J0
-ICpwb3J0ID0gZGV2X2dldF9kcnZkYXRhKF9kZXYpOworCXN0cnVjdCBkZXZpY2UgKmRldjsKKwlp
-bnQgZXJyOworCisJaWYgKCFwb3J0IHx8ICFwb3J0LT5wb3J0ZGV2IHx8ICFwb3J0LT5wb3J0ZGV2
-LT52ZGV2KQorCQlyZXR1cm4gMDsKKworCWRldiA9ICZwb3J0LT5wb3J0ZGV2LT52ZGV2LT5kZXY7
-CisJZXJyID0gYWRkX3VldmVudF92YXIoZW52LCAiRFJJVkVSPSVzIiwgZGV2LT5kcml2ZXItPm5h
-bWUpOworCWlmIChlcnIpCisJCXJldHVybiBlcnI7CisKKwlyZXR1cm4gYWRkX3VldmVudF92YXIo
-ZW52LCAiSU5URVJGQUNFPSVzLyVzLyVzIiwKKwkJCSAgICAgIGRldi0+cGFyZW50LT5wYXJlbnQg
-PworCQkJCQlkZXZfbmFtZShkZXYtPnBhcmVudC0+cGFyZW50KSA6ICIiLAorCQkJICAgICAgZGV2
-LT5wYXJlbnQgPyBkZXZfbmFtZShkZXYtPnBhcmVudCkgOiAiIiwKKwkJCSAgICAgIGRldl9uYW1l
-KGRldikpOworfQorCiBzdGF0aWMgaW50IF9faW5pdCBpbml0KHZvaWQpCiB7CiAJaW50IGVycjsK
-QEAgLTIyMDEsNiArMjIyMiw3IEBAIHN0YXRpYyBpbnQgX19pbml0IGluaXQodm9pZCkKIAkJcmV0
-dXJuIGVycjsKIAl9CiAKKwlwZHJ2ZGF0YS5jbGFzcy0+ZGV2X3VldmVudCA9IGNsYXNzX3ZpcnRp
-b19wb3J0c191ZXZlbnQ7CiAJcGRydmRhdGEuZGVidWdmc19kaXIgPSBkZWJ1Z2ZzX2NyZWF0ZV9k
-aXIoInZpcnRpby1wb3J0cyIsIE5VTEwpOwogCWlmICghcGRydmRhdGEuZGVidWdmc19kaXIpIHsK
-IAkJcHJfd2FybmluZygiRXJyb3IgJWxkIGNyZWF0aW5nIGRlYnVnZnMgZGlyIGZvciB2aXJ0aW8t
-cG9ydHNcbiIsCi0tIAoxLjcuNS40CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Jan 17, 2013 at 06:30:46PM +0800, akong@redhat.com wrote:
+> From: Amos Kong <akong@redhat.com>
+> 
+> In virtio-net guest driver, currently we write MAC address to
+> pci config space byte by byte, this means that we have an
+> intermediate step where mac is wrong. This patch introduced
+> a new control command to set MAC address, it's atomic.
+> 
+> VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
+> 
+> "mac" field will be set to read-only when VIRTIO_NET_F_CTRL_MAC_ADDR
+> is acked.
+> 
+> Signed-off-by: Amos Kong <akong@redhat.com>
+> ---
+> V2: check guest's iov_len
+> V3: fix of migration compatibility
+>     make mac field in config space read-only when new feature is acked
+> ---
+>  hw/pc_piix.c    |  4 ++++
+>  hw/virtio-net.c | 10 +++++++++-
+>  hw/virtio-net.h | 12 ++++++++++--
+>  3 files changed, 23 insertions(+), 3 deletions(-)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
