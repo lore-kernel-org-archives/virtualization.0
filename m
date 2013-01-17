@@ -1,8 +1,8 @@
-From: Amos Kong <akong@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
 Subject: Re: [Qemu-devel] [QEMU PATCH v2] virtio-net: introduce a new macaddr
 	control
-Date: Thu, 17 Jan 2013 16:37:22 +0800
-Message-ID: <20130117083722.GC12468@t430s.redhat.com>
+Date: Thu, 17 Jan 2013 09:39:54 +0100
+Message-ID: <20130117083954.GA19648@stefanha-thinkpad.redhat.com>
 References: <1358315821-29519-1-git-send-email-akong@redhat.com>
 	<1358317007-29972-1-git-send-email-akong@redhat.com>
 	<87mww8y5bb.fsf@rustcorp.com.au>
@@ -22,8 +22,8 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, stefanha@redhat.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, mst@redhat.com
+To: Amos Kong <akong@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Thu, Jan 17, 2013 at 01:45:11PM +0800, Amos Kong wrote:
@@ -45,18 +45,15 @@ On Thu, Jan 17, 2013 at 01:45:11PM +0800, Amos Kong wrote:
 > 
 > No, only info string of net client relies on n->mac
 
-I misunderstood. There is no clear limitation of how much descriptor are
-used for each vq command, but many commands rely on the layout of
-descriptiors. eg:
+I think the question is whether the hw/virtio-net.c code makes
+assumptions about virtqueue descriptor layout (e.g. sg[0] is the header,
+sg[1] is the data buffer).
 
-virtio-net:
-   VIRTIO_NET_CTRL_RX_PROMISC
-   VIRTIO_NET_CTRL_RX_ALLMULTI
-   VIRTIO_NET_CTRL_MAC_TABLE_SET
-   etc
- 
-> > If so, OK, we'll fix them all together.  If not, this introduces a new
-> > one.
-> > 
-> > Cheers,
-> > Rusty.
+The answer is yes, the control virtqueue function directly accesses
+iov[n].
+
+Additional patches would be required to convert the existing
+hw/virtio-net.c code to make no assumptions about virtqueue descriptor
+layout.  It's outside the scope of this series.
+
+Stefan
