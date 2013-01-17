@@ -1,11 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 1/6] virtio_host: host-side implementation of virtio rings.
-Date: Thu, 17 Jan 2013 20:59:38 +1030
-Message-ID: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 4/6] tools/virtio: add vring_test.
+Date: Thu, 17 Jan 2013 20:59:41 +1030
+Message-ID: <1358418584-26345-4-git-send-email-rusty@rustcorp.com.au>
+References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,1183 +21,654 @@ To: virtualization@lists.linux-foundation.org
 Cc: "Michael S . Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Getting use of virtio rings correct is tricky, and a recent patch saw
-an implementation of in-kernel rings (as separate from userspace).
+This is mainly to test the drivers/vhost/vringh.c code, but it also
+uses the drivers/virtio/virtio_ring.c code for the guest side.
 
-This patch attempts to abstract the business of dealing with the
-virtio ring layout from the access (userspace or direct); to do this,
-we use function pointers, which gcc inlines correctly.
+Usage for testing the basic implementation:
+
+	./vringh_test
+	# Test with indirect descriptors
+	./vringh_test --indirect
+	# Test with indirect descriptors and event indexex
+	./vringh_test --indirect --eventidx
+
+You can run a parallel stress test by adding --parallel to any of the
+above options.
+
+eg ./vringh_test --parallel:
+	Using CPUS 0 and 3
+	Guest: notified 10107974, pinged 107970
+	Host: notified 108158, pinged 3172148
+	Time: R=17.659 U=6.640 S=6.640
+
+./vringh_test --eventidx --parallel:
+	Using CPUS 0 and 3
+	Guest: notified 156357, pinged 156251
+	Host: notified 156251, pinged 78179
+	Time: R=4.518 U=3.536 S=3.536
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/Makefile             |    2 +-
- drivers/vhost/Kconfig        |    8 +
- drivers/vhost/Kconfig.tcm    |    1 +
- drivers/vhost/Makefile       |    2 +
- drivers/vhost/vringh.c       |  818 ++++++++++++++++++++++++++++++++++++++++++
- drivers/virtio/virtio_ring.c |   33 +-
- include/linux/virtio_ring.h  |   57 +++
- include/linux/vringh.h       |  115 ++++++
- 8 files changed, 1008 insertions(+), 28 deletions(-)
- create mode 100644 drivers/vhost/vringh.c
- create mode 100644 include/linux/vringh.h
+ tools/virtio/Makefile      |    4 +-
+ tools/virtio/vringh_test.c |  591 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 593 insertions(+), 2 deletions(-)
+ create mode 100644 tools/virtio/vringh_test.c
 
-diff --git a/drivers/Makefile b/drivers/Makefile
-index 7863b9f..351a34f 100644
---- a/drivers/Makefile
-+++ b/drivers/Makefile
-@@ -123,7 +123,7 @@ obj-$(CONFIG_PPC_PS3)		+= ps3/
- obj-$(CONFIG_OF)		+= of/
- obj-$(CONFIG_SSB)		+= ssb/
- obj-$(CONFIG_BCMA)		+= bcma/
--obj-$(CONFIG_VHOST_NET)		+= vhost/
-+obj-$(CONFIG_VHOST_RING)	+= vhost/
- obj-$(CONFIG_VLYNQ)		+= vlynq/
- obj-$(CONFIG_STAGING)		+= staging/
- obj-y				+= platform/
-diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index 202bba6..613b074 100644
---- a/drivers/vhost/Kconfig
-+++ b/drivers/vhost/Kconfig
-@@ -1,6 +1,7 @@
- config VHOST_NET
- 	tristate "Host kernel accelerator for virtio net (EXPERIMENTAL)"
- 	depends on NET && EVENTFD && (TUN || !TUN) && (MACVTAP || !MACVTAP) && EXPERIMENTAL
-+	select VHOST_RING
- 	---help---
- 	  This kernel module can be loaded in host kernel to accelerate
- 	  guest networking with virtio_net. Not to be confused with virtio_net
-@@ -12,3 +13,10 @@ config VHOST_NET
- if STAGING
- source "drivers/vhost/Kconfig.tcm"
- endif
-+
-+config VHOST_RING
-+	tristate
-+	---help---
-+	  This option is selected by any driver which needs to access
-+	  the host side of a virtio ring.
-+
-diff --git a/drivers/vhost/Kconfig.tcm b/drivers/vhost/Kconfig.tcm
-index a9c6f76..0218f77 100644
---- a/drivers/vhost/Kconfig.tcm
-+++ b/drivers/vhost/Kconfig.tcm
-@@ -1,6 +1,7 @@
- config TCM_VHOST
- 	tristate "TCM_VHOST fabric module (EXPERIMENTAL)"
- 	depends on TARGET_CORE && EVENTFD && EXPERIMENTAL && m
-+	select VHOST_RING
- 	default n
- 	---help---
- 	Say M here to enable the TCM_VHOST fabric module for use with virtio-scsi guests
-diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-index a27b053..1d37f5e 100644
---- a/drivers/vhost/Makefile
-+++ b/drivers/vhost/Makefile
-@@ -2,3 +2,5 @@ obj-$(CONFIG_VHOST_NET) += vhost_net.o
- vhost_net-y := vhost.o net.o
- 
- obj-$(CONFIG_TCM_VHOST) += tcm_vhost.o
-+
-+obj-$(CONFIG_VHOST_RING) += vringh.o
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
+index d1d442e..b928c3e 100644
+--- a/tools/virtio/Makefile
++++ b/tools/virtio/Makefile
+@@ -1,5 +1,5 @@
+ all: test mod
+-test: virtio_test
++test: virtio_test vringh_test
+ virtio_test: virtio_ring.o virtio_test.o
+ CFLAGS += -g -O2 -Wall -I. -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow  -MMD
+ vpath %.c ../../drivers/virtio
+@@ -7,6 +7,6 @@ mod:
+ 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test
+ .PHONY: all test mod clean
+ clean:
+-	${RM} *.o vhost_test/*.o vhost_test/.*.cmd \
++	${RM} *.o vringh_test virtio_test vhost_test/*.o vhost_test/.*.cmd \
+               vhost_test/Module.symvers vhost_test/modules.order *.d
+ -include *.d
+diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
 new file mode 100644
-index 0000000..b28670f
+index 0000000..f3868f4
 --- /dev/null
-+++ b/drivers/vhost/vringh.c
-@@ -0,0 +1,818 @@
-+/*
-+ * Helpers for the host side of a virtio ring.
-+ *
-+ * Since these may be in userspace, we use (inline) accessors.
-+ */
-+#include <linux/vringh.h>
-+#include <linux/virtio_ring.h>
++++ b/tools/virtio/vringh_test.c
+@@ -0,0 +1,591 @@
++/* Simple test of virtio code, entirely in userpsace. */
++#define _GNU_SOURCE
++#include <sched.h>
++#include <err.h>
 +#include <linux/kernel.h>
-+#include <linux/ratelimit.h>
-+#include <linux/uaccess.h>
-+#include <linux/slab.h>
++#include <linux/err.h>
++#include <../../drivers/vhost/vringh.c>
++#include <../../drivers/virtio/virtio_ring.c>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/mman.h>
++#include <sys/wait.h>
++#include <fcntl.h>
 +
-+static __printf(1,2) __cold void vringh_bad(const char *fmt, ...)
++#define USER_MEM (1024*1024)
++void *__user_addr_min, *__user_addr_max;
++void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
++static u64 user_addr_offset;
++
++#define RINGSIZE 256
++#define ALIGN 4096
++
++static void never_notify_host(struct virtqueue *vq)
 +{
-+	static DEFINE_RATELIMIT_STATE(vringh_rs,
-+				      DEFAULT_RATELIMIT_INTERVAL,
-+				      DEFAULT_RATELIMIT_BURST);
-+	if (__ratelimit(&vringh_rs)) {
-+		va_list ap;
-+		va_start(ap, fmt);
-+		printk(KERN_NOTICE "vringh:");
-+		vprintk(fmt, ap);
-+		va_end(ap);
-+	}
++	abort();
 +}
 +
-+/* Returns vring->num if empty, -ve on error. */
-+static inline int __vringh_get_head(const struct vringh *vrh,
-+				    int (*getu16)(u16 *val, const u16 *p),
-+				    u16 *last_avail_idx)
++static void never_callback_guest(struct virtqueue *vq)
 +{
-+	u16 avail_idx, i, head;
-+	int err;
-+
-+	err = getu16(&avail_idx, &vrh->vring.avail->idx);
-+	if (err) {
-+		vringh_bad("Failed to access avail idx at %p",
-+			   &vrh->vring.avail->idx);
-+		return err;
-+	}
-+
-+	if (*last_avail_idx == avail_idx)
-+		return vrh->vring.num;
-+
-+	/* Only get avail ring entries after they have been exposed by guest. */
-+	virtio_rmb(vrh->weak_barriers);
-+
-+	i = *last_avail_idx & (vrh->vring.num - 1);
-+
-+	err = getu16(&head, &vrh->vring.avail->ring[i]);
-+	if (err) {
-+		vringh_bad("Failed to read head: idx %d address %p",
-+			   *last_avail_idx, &vrh->vring.avail->ring[i]);
-+		return err;
-+	}
-+
-+	if (head >= vrh->vring.num) {
-+		vringh_bad("Guest says index %u > %u is available",
-+			   head, vrh->vring.num);
-+		return -EINVAL;
-+	}
-+
-+	(*last_avail_idx)++;
-+	return head;
++	abort();
 +}
 +
-+/* Copy some bytes to/from the iovec.  Returns num copied. */
-+static inline ssize_t vringh_iov_xfer(struct vringh_iov *iov,
-+				      void *ptr, size_t len,
-+				      int (*xfer)(void __user *addr, void *ptr,
-+						  size_t len))
++static inline bool getrange_iov(u64 addr, struct vringh_range *r)
 +{
-+	int err, done = 0;
-+
-+	while (len && iov->i < iov->max) {
-+		size_t partlen;
-+
-+		partlen = min(iov->iov[iov->i].iov_len, len);
-+		err = xfer(iov->iov[iov->i].iov_base, ptr, partlen);
-+		if (err)
-+			return err;
-+		done += partlen;
-+		len -= partlen;
-+		ptr += partlen;
-+		iov->iov[iov->i].iov_base += partlen;
-+		iov->iov[iov->i].iov_len -= partlen;
-+
-+		if (iov->iov[iov->i].iov_len == 0)
-+			iov->i++;
-+	}
-+	return done;
-+}
-+
-+static inline bool check_range(u64 addr, u32 len,
-+			       struct vringh_range *range,
-+			       bool (*getrange)(u64, struct vringh_range *))
-+{
-+	if (addr < range->start || addr > range->end_incl) {
-+		if (!getrange(addr, range))
-+			goto bad;
-+	}
-+	BUG_ON(addr < range->start || addr > range->end_incl);
-+
-+	/* To end of memory? */
-+	if (unlikely(addr + len == 0)) {
-+		if (range->end_incl == -1ULL)
-+			return true;
-+		goto bad;
-+	}
-+
-+	/* Otherwise, don't wrap. */
-+	if (unlikely(addr + len < addr))
-+		goto bad;
-+	if (unlikely(addr + len - 1 > range->end_incl))
-+		goto bad;
++	r->start = (u64)(unsigned long)__user_addr_min - user_addr_offset;
++	r->end_incl = (u64)(unsigned long)__user_addr_max - 1 - user_addr_offset;
++	r->offset = user_addr_offset;
 +	return true;
-+
-+bad:
-+	vringh_bad("Malformed descriptor address %u@0x%llx", len, addr);
-+	return false;
 +}
 +
-+/* No reason for this code to be inline. */
-+static int move_to_indirect(int *up_next, u16 *i, void *addr,
-+			    const struct vring_desc *desc,
-+			    struct vring_desc **descs, int *desc_max)
++struct guest_virtio_device {
++	struct virtio_device vdev;
++	int to_host_fd;
++	unsigned long notifies;
++};
++
++static void parallel_notify_host(struct virtqueue *vq)
 +{
-+	/* Indirect tables can't have indirect. */
-+	if (*up_next != -1) {
-+		vringh_bad("Multilevel indirect %u->%u", *up_next, *i);
-+		return -EINVAL;
-+	}
++	struct guest_virtio_device *gvdev;
 +
-+	if (unlikely(desc->len % sizeof(struct vring_desc))) {
-+		vringh_bad("Strange indirect len %u", desc->len);
-+		return -EINVAL;
-+	}
-+
-+	/* We will check this when we follow it! */
-+	if (desc->flags & VRING_DESC_F_NEXT)
-+		*up_next = desc->next;
-+	else
-+		*up_next = -2;
-+	*descs = addr;
-+	*desc_max = desc->len / sizeof(struct vring_desc);
-+
-+	/* Now, start at the first indirect. */
-+	*i = 0;
-+	return 0;
++	gvdev = container_of(vq->vdev, struct guest_virtio_device, vdev);
++	write(gvdev->to_host_fd, "", 1);
++	gvdev->notifies++;
 +}
 +
-+static int resize_iovec(struct vringh_iov *iov, gfp_t gfp)
++#define NUM_XFERS (10000000)
++
++/* We aim for two "distant" cpus. */
++static void find_cpus(unsigned int *first, unsigned int *last)
 +{
-+	struct iovec *new;
-+	unsigned int new_num = iov->max * 2;
++	unsigned int i;
 +
-+	if (new_num < 8)
-+		new_num = 8;
-+
-+	if (iov->allocated)
-+		new = krealloc(iov->iov, new_num * sizeof(struct iovec), gfp);
-+	else {
-+		new = kmalloc(new_num * sizeof(struct iovec), gfp);
-+		if (new) {
-+			memcpy(new, iov->iov, iov->i * sizeof(struct iovec));
-+			iov->allocated = true;
++	*first = -1U;
++	*last = 0;
++	for (i = 0; i < 4096; i++) {
++		cpu_set_t set;
++		CPU_ZERO(&set);
++		CPU_SET(i, &set);
++		if (sched_setaffinity(getpid(), sizeof(set), &set) == 0) {
++			if (i < *first)
++				*first = i;
++			if (i > *last)
++				*last = i;
 +		}
 +	}
-+	if (!new)
-+		return -ENOMEM;
-+	iov->iov = new;
-+	iov->max = new_num;
-+	return 0;
 +}
 +
-+static u16 __cold return_from_indirect(const struct vringh *vrh, int *up_next,
-+				       struct vring_desc **descs, int *desc_max)
++static int parallel_test(unsigned long features)
 +{
-+	u16 i = *up_next;
++	void *host_map, *guest_map;
++	int fd, mapsize, to_guest[2], to_host[2];
++	unsigned long xfers = 0, notifies = 0, receives = 0;
++	unsigned int first_cpu, last_cpu;
++	cpu_set_t cpu_set;
 +
-+	*up_next = -1;
-+	*descs = vrh->vring.desc;
-+	*desc_max = vrh->vring.num;
-+	return i;
-+}
++	/* Create real file to mmap. */
++	fd = open("/tmp/vringh_test-file", O_RDWR|O_CREAT|O_TRUNC, 0600);
++	if (fd < 0)
++		err(1, "Opening /tmp/vringh_test-file");
 +
-+static inline int
-+__vringh_iov(struct vringh *vrh, u16 i,
-+	     struct vringh_iov *riov,
-+	     struct vringh_iov *wiov,
-+	     bool (*getrange)(u64 addr, struct vringh_range *r),
-+	     gfp_t gfp,
-+	     int (*getdesc)(struct vring_desc *dst, const struct vring_desc *s))
-+{
-+	int err, count = 0, up_next, desc_max;
-+	struct vring_desc desc, *descs;
-+	struct vringh_range range = { -1ULL, 0 };
++	/* Extra room at the end for some data, and indirects */
++	mapsize = vring_size(RINGSIZE, ALIGN)
++		+ RINGSIZE * 2 * sizeof(int)
++		+ RINGSIZE * 6 * sizeof(struct vring_desc);
++	mapsize = (mapsize + getpagesize() - 1) & ~(getpagesize() - 1);
++	ftruncate(fd, mapsize);
 +
-+	/* We start traversing vring's descriptor table. */
-+	descs = vrh->vring.desc;
-+	desc_max = vrh->vring.num;
-+	up_next = -1;
++	/* Parent and child use separate addresses, to check our mapping logic! */
++	host_map = mmap(NULL, mapsize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
++	guest_map = mmap(NULL, mapsize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
 +
-+	riov->i = wiov->i = 0;
-+	for (;;) {
-+		void *addr;
-+		struct vringh_iov *iov;
++	pipe(to_guest);
++	pipe(to_host);
 +
-+		err = getdesc(&desc, &descs[i]);
-+		if (unlikely(err))
-+			goto fail;
++	CPU_ZERO(&cpu_set);
++	find_cpus(&first_cpu, &last_cpu);
++	printf("Using CPUS %u and %u\n", first_cpu, last_cpu);
++	fflush(stdout);
 +
-+		/* Make sure it's OK, and get offset. */
-+		if (!check_range(desc.addr, desc.len, &range, getrange)) {
-+			err = -EINVAL;
-+			goto fail;
-+		}
-+		addr = (void *)(long)desc.addr + range.offset;
++	if (fork() != 0) {
++		struct vringh vrh;
++		bool notify = false;
++		int status;
 +
-+		if (unlikely(desc.flags & VRING_DESC_F_INDIRECT)) {
-+			err = move_to_indirect(&up_next, &i, addr, &desc,
-+					       &descs, &desc_max);
-+			if (err)
-+				goto fail;
-+			continue;
-+		}
++		/* We are the host: never access guest addresses! */
++		munmap(guest_map, mapsize);
 +
-+		if (count++ == vrh->vring.num) {
-+			vringh_bad("Descriptor loop in %p", descs);
-+			err = -ELOOP;
-+			goto fail;
-+		}
++		__user_addr_min = host_map;
++		__user_addr_max = __user_addr_min + mapsize;
++		user_addr_offset = host_map - guest_map;
++		assert(user_addr_offset);
 +
-+		if (desc.flags & VRING_DESC_F_WRITE)
-+			iov = wiov;
-+		else {
-+			iov = riov;
-+			if (unlikely(wiov->i)) {
-+				vringh_bad("Readable desc %p after writable",
-+					   &descs[i]);
-+				err = -EINVAL;
-+				goto fail;
++		close(to_guest[0]);
++		close(to_host[1]);
++
++		vring_init(&vrh.vring, RINGSIZE, host_map, ALIGN);
++		vringh_init_user(&vrh, features, RINGSIZE, true,
++				 vrh.vring.desc, vrh.vring.avail, vrh.vring.used);
++		CPU_SET(first_cpu, &cpu_set);
++		if (sched_setaffinity(getpid(), sizeof(cpu_set), &cpu_set))
++			err(1, "Could not set affinity to cpu %u", first_cpu);
++
++		while (xfers < NUM_XFERS) {
++			struct iovec host_riov[2], host_wiov[2];
++			struct vringh_iov riov, wiov;
++			char buf[5];
++			u16 head;
++			int rlen, err;
++
++			riov.iov = host_riov;
++			riov.max = ARRAY_SIZE(host_riov);
++			riov.allocated = false;
++
++			wiov.iov = host_wiov;
++			wiov.max = ARRAY_SIZE(host_wiov);
++			wiov.allocated = false;
++
++			err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange_iov,
++						  &head, GFP_KERNEL);
++			if (err == 0) {
++				char buf[128];
++
++				if (notify) {
++					write(to_guest[1], "", 1);
++					notifies++;
++					notify = false;
++				}
++
++				if (vringh_notify_enable_user(&vrh))
++					continue;
++
++				/* Swallow all notifies at once. */
++				if (read(to_host[0], buf, sizeof(buf)) < 1)
++					break;
++
++				vringh_notify_disable_user(&vrh);
++				receives++;
++				continue;
 +			}
++			if (err != 1)
++				errx(1, "vringh_getdesc_user: %i", err);
++
++			/* We simply copy bytes. */
++			rlen = vringh_iov_pull_user(&riov, buf, sizeof(buf));
++			if (rlen < 0)
++				errx(1, "vringh_iov_pull_user: %i", rlen);
++			err = vringh_iov_push_user(&wiov, buf, rlen);
++			if (err != rlen)
++				errx(1, "vringh_iov_push_user: %i", err);
++			xfers++;
++			assert(wiov.i == wiov.max);
++
++			err = vringh_complete_user(&vrh, head, rlen, &notify);
++			if (err != 0)
++				errx(1, "vringh_complete_user: %i", err);
 +		}
 +
-+		if (unlikely(iov->i == iov->max)) {
-+			err = resize_iovec(iov, gfp);
-+			if (err)
-+				goto fail;
++		if (notify) {
++			write(to_guest[1], "", 1);
++			notifies++;
++			notify = false;
 +		}
-+
-+		iov->iov[iov->i].iov_base = (__force __user void *)addr;
-+		iov->iov[iov->i].iov_len = desc.len;
-+		iov->i++;
-+
-+		if (desc.flags & VRING_DESC_F_NEXT) {
-+			i = desc.next;
-+		} else {
-+			/* Just in case we need to finish traversing above. */
-+			if (unlikely(up_next > 0))
-+				i = return_from_indirect(vrh, &up_next,
-+							 &descs, &desc_max);
-+			else
-+				break;
-+		}
-+
-+		if (i >= desc_max) {
-+			vringh_bad("Chained index %u > %u", i, desc_max);
-+			err = -EINVAL;
-+			goto fail;
-+		}
-+	}
-+
-+	/* Reset for fresh iteration. */
-+	riov->max = riov->i;
-+	wiov->max = wiov->i;
-+	riov->i = wiov->i = 0;
-+	return 0;
-+
-+fail:
-+	if (riov->allocated)
-+		kfree(riov->iov);
-+	if (wiov->allocated)
-+		kfree(wiov->iov);
-+	return err;
-+}
-+
-+static inline int __vringh_complete(struct vringh *vrh, u16 idx, u32 len,
-+				    int (*getu16)(u16 *val, const u16 *p),
-+				    int (*putu16)(u16 *p, u16 val),
-+				    int (*putused)(struct vring_used_elem *dst,
-+						   const struct vring_used_elem
-+						   *s),
-+				    bool *notify)
-+{
-+	struct vring_used_elem used;
-+	struct vring_used *used_ring;
-+	int err;
-+	u16 used_idx, old, used_event;
-+
-+	used.id = idx;
-+	used.len = len;
-+
-+	err = getu16(&used_idx, &vring_used_event(&vrh->vring));
-+	if (err) {
-+		vringh_bad("Failed to access used event %p",
-+			   &vring_used_event(&vrh->vring));
-+		return err;
-+	}
-+
-+	used_ring = vrh->vring.used;
-+	used_idx = vrh->last_used_idx;
-+
-+	err = putused(&used_ring->ring[used_idx % vrh->vring.num],
-+		      &used);
-+	if (err) {
-+		vringh_bad("Failed to write used entry %u at %p",
-+			   used_idx % vrh->vring.num,
-+			   &used_ring->ring[used_idx % vrh->vring.num]);
-+		return err;
-+	}
-+
-+	/* Make sure buffer is written before we update index. */
-+	virtio_wmb(vrh->weak_barriers);
-+
-+	old = vrh->last_used_idx;
-+	vrh->last_used_idx++;
-+
-+	err = putu16(&vrh->vring.used->idx, vrh->last_used_idx);
-+	if (err) {
-+		vringh_bad("Failed to update used index at %p",
-+			   &vrh->vring.used->idx);
-+		return err;
-+	}
-+
-+	/* If we already know we need to notify, skip re-checking */
-+	if (*notify)
++		wait(&status);
++		if (!WIFEXITED(status))
++			errx(1, "Child died with signal %i?", WTERMSIG(status));
++		if (WEXITSTATUS(status) != 0)
++			errx(1, "Child exited %i?", WEXITSTATUS(status));
++		printf("Host: notified %lu, pinged %lu\n", notifies, receives);
 +		return 0;
-+
-+	/* Flush out used index update. This is paired with the
-+	 * barrier that the Guest executes when enabling
-+	 * interrupts. */
-+	virtio_mb(vrh->weak_barriers);
-+
-+	/* Old-style, without event indices. */
-+	if (!vrh->event_indices) {
-+		u16 flags;
-+		err = getu16(&flags, &vrh->vring.avail->flags);
-+		if (err) {
-+			vringh_bad("Failed to get flags at %p",
-+				   &vrh->vring.avail->flags);
-+			return err;
-+		}
-+		if (!(flags & VRING_AVAIL_F_NO_INTERRUPT))
-+			*notify = true;
-+		return 0;
-+	}
-+
-+	/* Modern: we know where other side is up to. */
-+	err = getu16(&used_event, &vring_used_event(&vrh->vring));
-+	if (err) {
-+		vringh_bad("Failed to get used event idx at %p",
-+			   &vring_used_event(&vrh->vring));
-+		return err;
-+	}
-+	if (vring_need_event(used_event, vrh->last_used_idx, old))
-+		*notify = true;
-+	return 0;
-+}
-+
-+static inline bool __vringh_notify_enable(struct vringh *vrh,
-+					  int (*getu16)(u16 *val, const u16 *p),
-+					  int (*putu16)(u16 *p, u16 val))
-+{
-+	u16 avail;
-+
-+	/* Already enabled? */
-+	if (vrh->listening)
-+		return false;
-+
-+	vrh->listening = true;
-+
-+	if (!vrh->event_indices) {
-+		/* Old-school; update flags. */
-+		if (putu16(&vrh->vring.used->flags, 0) != 0) {
-+			vringh_bad("Clearing used flags %p",
-+				   &vrh->vring.used->flags);
-+			return false;
-+		}
 +	} else {
-+		if (putu16(&vring_avail_event(&vrh->vring),
-+			   vrh->last_avail_idx) != 0) {
-+			vringh_bad("Updating avail event index %p",
-+				   &vring_avail_event(&vrh->vring));
-+			return false;
++		struct guest_virtio_device gvdev;
++		struct virtqueue *vq;
++		unsigned int *data;
++		struct vring_desc *indirects;
++		unsigned int finished = 0;
++
++		/* We pass sg[]s pointing into here, but we need RINGSIZE+1 */
++		data = guest_map + vring_size(RINGSIZE, ALIGN);
++		indirects = (void *)data + (RINGSIZE + 1) * 2 * sizeof(int);
++
++		/* We are the guest. */
++		munmap(host_map, mapsize);
++
++		close(to_guest[1]);
++		close(to_host[0]);
++
++		gvdev.vdev.features[0] = features;
++		gvdev.to_host_fd = to_host[1];
++
++		CPU_SET(first_cpu, &cpu_set);
++		if (sched_setaffinity(getpid(), sizeof(cpu_set), &cpu_set))
++			err(1, "Could not set affinity to cpu %u", first_cpu);
++
++		vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &gvdev.vdev, true,
++					 guest_map, parallel_notify_host,
++					 never_callback_guest, "guest vq");
++
++		/* Don't kfree indirects. */
++		__kfree_ignore_start = indirects;
++		__kfree_ignore_end = indirects + RINGSIZE * 6;
++
++		while (xfers < NUM_XFERS) {
++			struct scatterlist sg[6];
++			unsigned int num_sg, len;
++			int *din, *dout, err;
++
++			/* Consume bufs. */
++			while ((din = virtqueue_get_buf(vq, &len)) != NULL) {
++				dout = din + 1;
++				assert(*dout == *din);
++				assert(len == 4);
++				finished++;
++			}
++
++			/* Produce a buffer. */
++			din = data + (xfers % (RINGSIZE + 1)) * 2;
++			dout = din + 1;
++
++			*din = xfers;
++			switch ((xfers / sizeof(*din)) % 3) {
++			case 0:
++				/* Nasty three-element sg list. */
++				sg_init_table(sg, num_sg = 3);
++				sg_set_buf(&sg[0], (void *)din, 1);
++				sg_set_buf(&sg[1], (void *)din + 1, 2);
++				sg_set_buf(&sg[2], (void *)din + 3, 1);
++				sg_init_table(sg + num_sg, num_sg);
++				sg_set_buf(&sg[num_sg+0], (void *)dout, 1);
++				sg_set_buf(&sg[num_sg+1], (void *)dout + 1, 2);
++				sg_set_buf(&sg[num_sg+2], (void *)dout + 3, 1);
++				break;
++			case 1:
++				sg_init_table(sg, num_sg = 2);
++				sg_set_buf(&sg[0], (void *)din, 1);
++				sg_set_buf(&sg[1], (void *)din + 1, 3);
++				sg_init_table(sg + num_sg, num_sg);
++				sg_set_buf(&sg[num_sg+0], (void *)dout, 1);
++				sg_set_buf(&sg[num_sg+1], (void *)dout + 1, 3);
++				break;
++			case 2:
++				sg_init_table(sg, num_sg = 1);
++				sg_set_buf(&sg[0], (void *)din, 4);
++				sg_init_table(sg + num_sg, num_sg);
++				sg_set_buf(&sg[num_sg+0], (void *)dout, 4);
++				break;
++			}
++
++			/* May allocate an indirect, so force it to allocate
++			 * user addr */
++			__kmalloc_fake = indirects + (xfers % RINGSIZE) * 6;
++			err = virtqueue_add_buf(vq, sg, num_sg, num_sg, din,
++						GFP_KERNEL);
++			if (err == -ENOSPC) {
++				char buf[128];
++
++				if (!virtqueue_enable_cb_delayed(vq))
++					continue;
++				/* Swallow all notifies at once. */
++				if (read(to_guest[0], buf, sizeof(buf)) < 1)
++					break;
++				
++				receives++;
++				virtqueue_disable_cb(vq);
++				continue;
++			}
++
++			if (err)
++				errx(1, "virtqueue_add_buf: %i", err);
++
++			xfers++;
++			virtqueue_kick(vq);
 +		}
-+	}
 +
-+	/* They could have slipped one in as we were doing that: make
-+	 * sure it's written, then check again. */
-+	virtio_mb(vrh->weak_barriers);
++		/* Any extra? */
++		while (finished != xfers) {
++			char buf[128];
++			int *din, *dout;
++			unsigned int len;
 +
-+	if (getu16(&avail, &vrh->vring.avail->idx) != 0) {
-+		vringh_bad("Failed to check avail idx at %p",
-+			   &vrh->vring.avail->idx);
-+		return false;
-+	}
++			/* Consume bufs. */
++			din = virtqueue_get_buf(vq, &len);
++			if (din) {
++				dout = din + 1;
++				assert(*dout == *din);
++				assert(len == 4);
++				finished++;
++				continue;
++			}
 +
-+	/* This is so unlikely, we just leave notifications enabled. */
-+	return avail != vrh->last_avail_idx;
-+}
-+
-+static inline void __vringh_notify_disable(struct vringh *vrh,
-+					   int (*putu16)(u16 *p, u16 val))
-+{
-+	/* Already disabled? */
-+	if (!vrh->listening)
-+		return;
-+
-+	vrh->listening = false;
-+	if (!vrh->event_indices) {
-+		/* Old-school; update flags. */
-+		if (putu16(&vrh->vring.used->flags, VRING_USED_F_NO_NOTIFY)) {
-+			vringh_bad("Setting used flags %p",
-+				   &vrh->vring.used->flags);
++			if (!virtqueue_enable_cb_delayed(vq))
++				continue;
++			if (read(to_guest[0], buf, sizeof(buf)) < 1)
++				break;
++				
++			receives++;
++			virtqueue_disable_cb(vq);
 +		}
-+	}
-+}
 +
-+/* Userspace access helpers. */
-+static inline int getu16_user(u16 *val, const u16 *p)
-+{
-+	return get_user(*val, (__force u16 __user *)p);
-+}
-+
-+static inline int putu16_user(u16 *p, u16 val)
-+{
-+	return put_user(val, (__force u16 __user *)p);
-+}
-+
-+static inline int getdesc_user(struct vring_desc *dst,
-+			       const struct vring_desc *src)
-+{
-+	return copy_from_user(dst, (__force void *)src, sizeof(*dst)) == 0 ? 0 :
-+		-EFAULT;
-+}
-+
-+static inline int putused_user(struct vring_used_elem *dst,
-+			       const struct vring_used_elem *s)
-+{
-+	return copy_to_user((__force void __user *)dst, s, sizeof(*dst)) == 0
-+		? 0 : -EFAULT;
-+}
-+
-+static inline int xfer_from_user(void *src, void *dst, size_t len)
-+{
-+	return copy_from_user(dst, (__force void *)src, len) == 0 ? 0 :
-+		-EFAULT;
-+}
-+
-+static inline int xfer_to_user(void *dst, void *src, size_t len)
-+{
-+	return copy_to_user((__force void *)dst, src, len) == 0 ? 0 :
-+		-EFAULT;
-+}
-+
-+/**
-+ * vringh_init_user - initialize a vringh for a userspace vring.
-+ * @vrh: the vringh to initialize.
-+ * @features: the feature bits for this ring.
-+ * @num: the number of elements.
-+ * @weak_barriers: true if we only need memory barriers, not I/O.
-+ * @desc: the userpace descriptor pointer.
-+ * @avail: the userpace avail pointer.
-+ * @used: the userpace used pointer.
-+ *
-+ * Returns an error if num is invalid: you should check pointers
-+ * yourself!
-+ */
-+int vringh_init_user(struct vringh *vrh, u32 features,
-+		     unsigned int num, bool weak_barriers,
-+		     struct vring_desc __user *desc,
-+		     struct vring_avail __user *avail,
-+		     struct vring_used __user *used)
-+{
-+	/* Sane power of 2 please! */
-+	if (!num || num > 0xffff || (num & (num - 1))) {
-+		vringh_bad("Bad ring size %zu", num);
-+		return -EINVAL;
-+	}
-+
-+	vrh->event_indices = (features & (1 << VIRTIO_RING_F_EVENT_IDX));
-+	vrh->weak_barriers = weak_barriers;
-+	vrh->listening = false;
-+	vrh->last_avail_idx = 0;
-+	vrh->last_used_idx = 0;
-+	vrh->vring.num = num;
-+	vrh->vring.desc = (__force struct vring_desc *)desc;
-+	vrh->vring.avail = (__force struct vring_avail *)avail;
-+	vrh->vring.used = (__force struct vring_used *)used;
-+	return 0;
-+}
-+
-+/**
-+ * vringh_getdesc_user - get next available descriptor from userspace ring.
-+ * @vrh: the userspace vring.
-+ * @riov: where to put the readable descriptors.
-+ * @wiov: where to put the writable descriptors.
-+ * @getrange: function to call to check ranges.
-+ * @head: head index we received, for passing to vringh_complete_user().
-+ * @gfp: flags for allocating larger riov/wiov.
-+ *
-+ * Returns 0 if there was no descriptor, 1 if there was, or -errno.
-+ *
-+ * If it returns 1, riov->allocated and wiov->allocated indicate if you
-+ * have to kfree riov->iov and wiov->iov respectively.
-+ */
-+int vringh_getdesc_user(struct vringh *vrh,
-+			struct vringh_iov *riov,
-+			struct vringh_iov *wiov,
-+			bool (*getrange)(u64 addr, struct vringh_range *r),
-+			u16 *head,
-+			gfp_t gfp)
-+{
-+	int err;
-+
-+	err = __vringh_get_head(vrh, getu16_user, &vrh->last_avail_idx);
-+	if (err < 0)
-+		return err;
-+
-+	/* Empty... */
-+	if (err == vrh->vring.num)
++		printf("Guest: notified %lu, pinged %lu\n",
++		       gvdev.notifies, receives);
 +		return 0;
-+
-+	*head = err;
-+	err = __vringh_iov(vrh, *head, riov, wiov, getrange, gfp, getdesc_user);
-+	if (err)
-+		return err;
-+
-+	return 1;
++	}
 +}
 +
-+/**
-+ * vringh_iov_pull_user - copy bytes from vring_iov.
-+ * @riov: the riov as passed to vringh_getdesc_user() (updated as we consume)
-+ * @dst: the place to copy.
-+ * @len: the maximum length to copy.
-+ *
-+ * Returns the bytes copied <= len or a negative errno.
-+ */
-+ssize_t vringh_iov_pull_user(struct vringh_iov *riov, void *dst, size_t len)
++int main(int argc, char *argv[])
 +{
-+	return vringh_iov_xfer(riov, dst, len, xfer_from_user);
-+}
++	struct virtio_device vdev;
++	struct virtqueue *vq;
++	struct vringh vrh;
++	struct scatterlist guest_sg[RINGSIZE];
++	struct iovec host_riov[2], host_wiov[2];
++	struct vringh_iov riov, wiov;
++	char buf[28];
++	u16 head;
++	int err;
++	unsigned i;
++	bool notify = false;
++	void *ret;
 +
-+/**
-+ * vringh_iov_push_user - copy bytes into vring_iov.
-+ * @wiov: the wiov as passed to vringh_getdesc_user() (updated as we consume)
-+ * @dst: the place to copy.
-+ * @len: the maximum length to copy.
-+ *
-+ * Returns the bytes copied <= len or a negative errno.
-+ */
-+ssize_t vringh_iov_push_user(struct vringh_iov *wiov,
-+			     const void *src, size_t len)
-+{
-+	return vringh_iov_xfer(wiov, (void *)src, len, xfer_to_user);
-+}
++	vdev.features[0] = 0;
 +
-+/**
-+ * vringh_abandon_user - we've decided not to handle the descriptor(s).
-+ * @vrh: the vring.
-+ * @num: the number of descriptors to put back (ie. num
-+ *	 vringh_get_user() to undo).
-+ *
-+ * The next vringh_get_user() will return the old descriptor(s) again.
-+ */
-+void vringh_abandon_user(struct vringh *vrh, unsigned int num)
-+{
-+	/* We only update vring_avail_event(vr) when we want to be notified,
-+	 * so we haven't changed that yet. */
-+	vrh->last_avail_idx -= num;
-+}
-+
-+/**
-+ * vringh_complete_user - we've finished with descriptor, publish it.
-+ * @vrh: the vring.
-+ * @head: the head as filled in by vringh_getdesc_user.
-+ * @len: the length of data we have written.
-+ * @notify: set if we should notify the other side, otherwise left alone.
-+ */
-+int vringh_complete_user(struct vringh *vrh, u16 head, u32 len,
-+			 bool *notify)
-+{
-+	return __vringh_complete(vrh, head, len,
-+				 getu16_user, putu16_user, putused_user,
-+				 notify);
-+}
-+
-+/**
-+ * vringh_notify_enable_user - we want to know if something changes.
-+ * @vrh: the vring.
-+ *
-+ * This always enables notifications, but returns true if there are
-+ * now more buffers available in the vring.
-+ */
-+bool vringh_notify_enable_user(struct vringh *vrh)
-+{
-+	return __vringh_notify_enable(vrh, getu16_user, putu16_user);
-+}
-+
-+/**
-+ * vringh_notify_disable_user - don't tell us if something changes.
-+ * @vrh: the vring.
-+ *
-+ * This is our normal running state: we disable and then only enable when
-+ * we're going to sleep.
-+ */
-+void vringh_notify_disable_user(struct vringh *vrh)
-+{
-+	__vringh_notify_disable(vrh, putu16_user);
-+}
-+
-+/* Kernelspace access helpers. */
-+static inline int getu16_kern(u16 *val, const u16 *p)
-+{
-+	*val = *p;
-+	return 0;
-+}
-+
-+static inline int putu16_kern(u16 *p, u16 val)
-+{
-+	*p = val;
-+	return 0;
-+}
-+
-+static inline int getdesc_kern(struct vring_desc *dst,
-+			       const struct vring_desc *src)
-+{
-+	*dst = *src;
-+	return 0;
-+}
-+
-+static inline int putused_kern(struct vring_used_elem *dst,
-+			       const struct vring_used_elem *s)
-+{
-+	*dst = *s;
-+	return 0;
-+}
-+
-+static inline int xfer_kern(void *src, void *dst, size_t len)
-+{
-+	memcpy(dst, src, len);
-+	return 0;
-+}
-+
-+static inline bool noop_getrange(u64 addr, struct vringh_range *r)
-+{
-+	r->start = 0;
-+	r->end_incl = -1ULL;
-+	r->offset = 0;
-+	return true;
-+}
-+
-+/**
-+ * vringh_init_kern - initialize a vringh for a kernelspace vring.
-+ * @vrh: the vringh to initialize.
-+ * @features: the feature bits for this ring.
-+ * @num: the number of elements.
-+ * @weak_barriers: true if we only need memory barriers, not I/O.
-+ * @desc: the userpace descriptor pointer.
-+ * @avail: the userpace avail pointer.
-+ * @used: the userpace used pointer.
-+ *
-+ * Returns an error if num is invalid.
-+ */
-+int vringh_init_kern(struct vringh *vrh, u32 features,
-+		     unsigned int num, bool weak_barriers,
-+		     struct vring_desc *desc,
-+		     struct vring_avail *avail,
-+		     struct vring_used *used)
-+{
-+	/* Sane power of 2 please! */
-+	if (!num || num > 0xffff || (num & (num - 1))) {
-+		vringh_bad("Bad ring size %zu", num);
-+		return -EINVAL;
++	if (argv[1] && strcmp(argv[1], "--indirect") == 0) {
++		vdev.features[0] |= (1 << VIRTIO_RING_F_INDIRECT_DESC);
++		argv++;
 +	}
 +
-+	vrh->event_indices = (features & (1 << VIRTIO_RING_F_EVENT_IDX));
-+	vrh->weak_barriers = weak_barriers;
-+	vrh->listening = false;
-+	vrh->last_avail_idx = 0;
-+	vrh->last_used_idx = 0;
-+	vrh->vring.num = num;
-+	vrh->vring.desc = desc;
-+	vrh->vring.avail = avail;
-+	vrh->vring.used = used;
++	if (argv[1] && strcmp(argv[1], "--eventidx") == 0) {
++		vdev.features[0] |= (1 << VIRTIO_RING_F_EVENT_IDX);
++		argv++;
++	}
++
++	if (argv[1] && strcmp(argv[1], "--parallel") == 0)
++		return parallel_test(vdev.features[0]);
++
++	if (posix_memalign(&__user_addr_min, PAGE_SIZE, USER_MEM) != 0)
++		abort();
++	__user_addr_max = __user_addr_min + USER_MEM;
++	memset(__user_addr_min, 0, vring_size(RINGSIZE, ALIGN));
++
++	/* Set up guest side. */
++	vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &vdev, true,
++				 __user_addr_min,
++				 never_notify_host, never_callback_guest,
++				 "guest vq");
++
++	/* Set up host side. */
++	vring_init(&vrh.vring, RINGSIZE, __user_addr_min, ALIGN);
++	vringh_init_user(&vrh, vdev.features[0], RINGSIZE, true,
++			 vrh.vring.desc, vrh.vring.avail, vrh.vring.used);
++
++	/* No descriptor to get yet... */
++	err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange_iov,
++				  &head, GFP_KERNEL);
++	if (err != 0)
++		errx(1, "vringh_getdesc_user: %i", err);
++
++	/* Guest puts in a descriptor. */
++	memcpy(__user_addr_max - 1, "a", 1);
++	sg_init_table(guest_sg, 1);
++	sg_set_buf(&guest_sg[0], __user_addr_max - 1, 1);
++	sg_init_table(guest_sg+1, 1);
++	sg_set_buf(&guest_sg[1], __user_addr_max - 3, 2);
++
++	/* May allocate an indirect, so force it to allocate user addr */
++	__kmalloc_fake = __user_addr_min + vring_size(RINGSIZE, ALIGN);
++	err = virtqueue_add_buf(vq, guest_sg, 1, 1, &err, GFP_KERNEL);
++	if (err)
++		errx(1, "virtqueue_add_buf: %i", err);
++	__kmalloc_fake = NULL;
++
++	/* Host retreives it. */
++	riov.iov = host_riov;
++	riov.max = ARRAY_SIZE(host_riov);
++	riov.allocated = false;
++
++	wiov.iov = host_wiov;
++	wiov.max = ARRAY_SIZE(host_wiov);
++	wiov.allocated = false;
++
++	err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange_iov,
++				  &head, GFP_KERNEL);
++	if (err != 1)
++		errx(1, "vringh_getdesc_user: %i", err);
++
++	assert(riov.max == 1);
++	assert(riov.iov[0].iov_base == __user_addr_max - 1);
++	assert(riov.iov[0].iov_len == 1);
++	assert(wiov.max == 1);
++	assert(wiov.iov[0].iov_base == __user_addr_max - 3);
++	assert(wiov.iov[0].iov_len == 2);
++
++	err = vringh_iov_pull_user(&riov, buf, 5);
++	if (err != 1)
++		errx(1, "vringh_iov_pull_kern: %i", err);
++	assert(buf[0] == 'a');
++	assert(riov.i == 1);
++	assert(vringh_iov_pull_kern(&riov, buf, 5) == 0);
++
++	memcpy(buf, "bcdef", 5);
++	err = vringh_iov_push_user(&wiov, buf, 5);
++	if (err != 2)
++		errx(1, "vringh_iov_push_user: %i", err);
++	assert(memcmp(__user_addr_max - 3, "bc", 2) == 0);
++	assert(wiov.i == 1);
++	assert(vringh_iov_push_kern(&wiov, buf, 5) == 0);
++
++	/* Host is done. */
++	err = vringh_complete_user(&vrh, head, err, &notify);
++	if (err != 0)
++		errx(1, "vringh_complete_user: %i", err);
++
++	/* Guest should see used token now. */
++	__kfree_ignore_start = __user_addr_min + vring_size(RINGSIZE, ALIGN);
++	__kfree_ignore_end = __kfree_ignore_start + 1;
++	ret = virtqueue_get_buf(vq, &i);
++	if (ret != &err)
++		errx(1, "virtqueue_get_buf: %p", ret);
++	assert(i == 2);
++
++	/* Guest puts in a huge descriptor. */
++	sg_init_table(guest_sg, RINGSIZE);
++	for (i = 0; i < RINGSIZE; i++) {
++		sg_set_buf(&guest_sg[i],
++			   __user_addr_max - USER_MEM/4, USER_MEM/4);
++	}
++
++	/* Fill contents with recognisable garbage. */
++	for (i = 0; i < USER_MEM/4; i++)
++		((char *)__user_addr_max - USER_MEM/4)[i] = i;
++
++	/* This will allocate an indirect, so force it to allocate user addr */
++	__kmalloc_fake = __user_addr_min + vring_size(RINGSIZE, ALIGN);
++	err = virtqueue_add_buf(vq, guest_sg, RINGSIZE, 0, &err, GFP_KERNEL);
++	if (err)
++		errx(1, "virtqueue_add_buf (large): %i", err);
++	__kmalloc_fake = NULL;
++
++	/* Host picks it up (allocates new iov). */
++	riov.iov = host_riov;
++	riov.max = ARRAY_SIZE(host_riov);
++	riov.allocated = false;
++
++	wiov.iov = host_wiov;
++	wiov.max = ARRAY_SIZE(host_wiov);
++	wiov.allocated = false;
++
++	err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange_iov,
++				  &head, GFP_KERNEL);
++	if (err != 1)
++		errx(1, "vringh_getdesc_user: %i", err);
++
++	assert(riov.allocated);
++	assert(riov.iov != host_riov);
++	assert(riov.max == RINGSIZE);
++
++	assert(!wiov.allocated);
++	assert(wiov.max == 0);
++
++	/* Pull data back out (in odd chunks), should be as expected. */
++	for (i = 0; i < RINGSIZE * USER_MEM/4; i += 3) {
++		err = vringh_iov_pull_user(&riov, buf, 3);
++		if (err != 3 && i + err != RINGSIZE * USER_MEM/4)
++			errx(1, "vringh_iov_pull_user large: %i", err);
++		assert(buf[0] == (char)i);
++		assert(err < 2 || buf[1] == (char)(i + 1));
++		assert(err < 3 || buf[2] == (char)(i + 2));
++	}
++	assert(wiov.i == wiov.max);
++
++	kfree(riov.iov);
++
++	/* Test weird (but legal!) indirect. */
++	if (vdev.features[0] & (1 << VIRTIO_RING_F_INDIRECT_DESC)) {
++		struct vring_virtqueue *vvq = to_vvq(vq);
++		char *data = __user_addr_max - USER_MEM/4;
++		struct vring_desc *d = __user_addr_max - USER_MEM/2;
++		unsigned int n = vvq->free_head;
++
++		/* Force creation of direct, which we modify. */
++		vvq->indirect = false;
++		
++		sg_init_table(guest_sg, 4);
++		sg_set_buf(&guest_sg[0], d, sizeof(*d)*2);
++		sg_set_buf(&guest_sg[1], d + 2, sizeof(*d)*1);
++		sg_set_buf(&guest_sg[2], data + 6, 4);
++		sg_set_buf(&guest_sg[3], d + 3, sizeof(*d)*3);
++
++		err = virtqueue_add_buf(vq, guest_sg, 4, 0, &err, GFP_KERNEL);
++		if (err)
++			errx(1, "virtqueue_add_buf (indirect): %i", err);
++
++		/* They're used in order, but double-check... */
++		assert(vvq->vring.desc[n].addr == (unsigned long)d);
++		assert(vvq->vring.desc[n+1].addr == (unsigned long)(d+2));
++		assert(vvq->vring.desc[n+2].addr == (unsigned long)data + 6);
++		assert(vvq->vring.desc[n+3].addr == (unsigned long)(d+3));
++		vvq->vring.desc[n].flags |= VRING_DESC_F_INDIRECT;
++		vvq->vring.desc[n+1].flags |= VRING_DESC_F_INDIRECT;
++		vvq->vring.desc[n+3].flags |= VRING_DESC_F_INDIRECT;
++
++		/* First indirect */
++		d[0].addr = (unsigned long)data;
++		d[0].len = 1;
++		d[0].flags = VRING_DESC_F_NEXT;
++		d[0].next = 1;
++		d[1].addr = (unsigned long)data + 1;
++		d[1].len = 2;
++		d[1].flags = 0;
++
++		/* Second indirect */
++		d[2].addr = (unsigned long)data + 3;
++		d[2].len = 3;
++		d[2].flags = 0;
++
++		/* Third indirect */
++		d[3].addr = (unsigned long)data + 10;
++		d[3].len = 5;
++		d[3].flags = VRING_DESC_F_NEXT;
++		d[3].next = 1;
++		d[4].addr = (unsigned long)data + 15;
++		d[4].len = 6;
++		d[4].flags = VRING_DESC_F_NEXT;
++		d[4].next = 2;
++		d[5].addr = (unsigned long)data + 21;
++		d[5].len = 7;
++		d[5].flags = 0;
++
++		/* Host picks it up (allocates new iov). */
++		riov.iov = host_riov;
++		riov.max = ARRAY_SIZE(host_riov);
++		riov.allocated = false;
++
++		wiov.iov = host_wiov;
++		wiov.max = ARRAY_SIZE(host_wiov);
++		wiov.allocated = false;
++
++		err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange_iov,
++					  &head, GFP_KERNEL);
++		if (err != 1)
++			errx(1, "vringh_getdesc_user: %i", err);
++
++		if (head != n)
++			errx(1, "vringh_getdesc_user: head %i not %i", head, n);
++
++		assert(riov.max == 7);
++		assert(riov.allocated);
++		err = vringh_iov_pull_user(&riov, buf, 29);
++		assert(err == 28);
++
++		/* Data should be linear. */
++		for (i = 0; i < err; i++)
++			assert(buf[i] == i);
++		kfree(riov.iov);
++	}
++
++	/* Don't leak memory... */
++	vring_del_virtqueue(vq);
++	free(__user_addr_min);
++
 +	return 0;
 +}
-+
-+/**
-+ * vringh_getdesc_kern - get next available descriptor from kernelspace ring.
-+ * @vrh: the kernelspace vring.
-+ * @riov: where to put the readable descriptors.
-+ * @wiov: where to put the writable descriptors.
-+ * @head: head index we received, for passing to vringh_complete_kern().
-+ * @gfp: flags for allocating larger riov/wiov.
-+ *
-+ * Returns 0 if there was no descriptor, 1 if there was, or -errno.
-+ *
-+ * If it returns 1, riov->allocated and wiov->allocated indicate if you
-+ * have to kfree riov->iov and wiov->iov respectively.
-+ */
-+int vringh_getdesc_kern(struct vringh *vrh,
-+			struct vringh_iov *riov,
-+			struct vringh_iov *wiov,
-+			u16 *head,
-+			gfp_t gfp)
-+{
-+	int err;
-+
-+	err = __vringh_get_head(vrh, getu16_kern, &vrh->last_avail_idx);
-+	if (err < 0)
-+		return err;
-+
-+	/* Empty... */
-+	if (err == vrh->vring.num)
-+		return 0;
-+
-+	*head = err;
-+	err = __vringh_iov(vrh, *head, riov, wiov, noop_getrange,
-+			   gfp, getdesc_kern);
-+	if (err)
-+		return err;
-+
-+	return 1;
-+}
-+
-+/**
-+ * vringh_iov_pull_kern - copy bytes from vring_iov.
-+ * @riov: the riov as passed to vringh_getdesc_kern() (updated as we consume)
-+ * @dst: the place to copy.
-+ * @len: the maximum length to copy.
-+ *
-+ * Returns the bytes copied <= len or a negative errno.
-+ */
-+ssize_t vringh_iov_pull_kern(struct vringh_iov *riov, void *dst, size_t len)
-+{
-+	return vringh_iov_xfer(riov, dst, len, xfer_kern);
-+}
-+
-+/**
-+ * vringh_iov_push_kern - copy bytes into vring_iov.
-+ * @wiov: the wiov as passed to vringh_getdesc_kern() (updated as we consume)
-+ * @dst: the place to copy.
-+ * @len: the maximum length to copy.
-+ *
-+ * Returns the bytes copied <= len or a negative errno.
-+ */
-+ssize_t vringh_iov_push_kern(struct vringh_iov *wiov,
-+			     const void *src, size_t len)
-+{
-+	return vringh_iov_xfer(wiov, (void *)src, len, xfer_kern);
-+}
-+
-+/**
-+ * vringh_abandon_kern - we've decided not to handle the descriptor(s).
-+ * @vrh: the vring.
-+ * @num: the number of descriptors to put back (ie. num
-+ *	 vringh_get_kern() to undo).
-+ *
-+ * The next vringh_get_kern() will return the old descriptor(s) again.
-+ */
-+void vringh_abandon_kern(struct vringh *vrh, unsigned int num)
-+{
-+	/* We only update vring_avail_event(vr) when we want to be notified,
-+	 * so we haven't changed that yet. */
-+	vrh->last_avail_idx -= num;
-+}
-+
-+/**
-+ * vringh_complete_kern - we've finished with descriptor, publish it.
-+ * @vrh: the vring.
-+ * @head: the head as filled in by vringh_getdesc_kern.
-+ * @len: the length of data we have written.
-+ * @notify: set if we should notify the other side, otherwise left alone.
-+ */
-+int vringh_complete_kern(struct vringh *vrh, u16 head, u32 len,
-+			 bool *notify)
-+{
-+	return __vringh_complete(vrh, head, len,
-+				 getu16_kern, putu16_kern, putused_kern,
-+				 notify);
-+}
-+
-+/**
-+ * vringh_notify_enable_kern - we want to know if something changes.
-+ * @vrh: the vring.
-+ *
-+ * This always enables notifications, but returns true if there are
-+ * now more buffers available in the vring.
-+ */
-+bool vringh_notify_enable_kern(struct vringh *vrh)
-+{
-+	return __vringh_notify_enable(vrh, getu16_kern, putu16_kern);
-+}
-+
-+/**
-+ * vringh_notify_disable_kern - don't tell us if something changes.
-+ * @vrh: the vring.
-+ *
-+ * This is our normal running state: we disable and then only enable when
-+ * we're going to sleep.
-+ */
-+void vringh_notify_disable_kern(struct vringh *vrh)
-+{
-+	__vringh_notify_disable(vrh, putu16_kern);
-+}
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index ffd7e7d..245177c 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -24,27 +24,6 @@
- #include <linux/module.h>
- #include <linux/hrtimer.h>
- 
--/* virtio guest is communicating with a virtual "device" that actually runs on
-- * a host processor.  Memory barriers are used to control SMP effects. */
--#ifdef CONFIG_SMP
--/* Where possible, use SMP barriers which are more lightweight than mandatory
-- * barriers, because mandatory barriers control MMIO effects on accesses
-- * through relaxed memory I/O windows (which virtio-pci does not use). */
--#define virtio_mb(vq) \
--	do { if ((vq)->weak_barriers) smp_mb(); else mb(); } while(0)
--#define virtio_rmb(vq) \
--	do { if ((vq)->weak_barriers) smp_rmb(); else rmb(); } while(0)
--#define virtio_wmb(vq) \
--	do { if ((vq)->weak_barriers) smp_wmb(); else wmb(); } while(0)
--#else
--/* We must force memory ordering even if guest is UP since host could be
-- * running on another CPU, but SMP barriers are defined to barrier() in that
-- * configuration. So fall back to mandatory barriers instead. */
--#define virtio_mb(vq) mb()
--#define virtio_rmb(vq) rmb()
--#define virtio_wmb(vq) wmb()
--#endif
--
- #ifdef DEBUG
- /* For development, we want to crash whenever the ring is screwed. */
- #define BAD_RING(_vq, fmt, args...)				\
-@@ -276,7 +255,7 @@ add_head:
- 
- 	/* Descriptors and available array need to be set before we expose the
- 	 * new available array entries. */
--	virtio_wmb(vq);
-+	virtio_wmb(vq->weak_barriers);
- 	vq->vring.avail->idx++;
- 	vq->num_added++;
- 
-@@ -312,7 +291,7 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
- 	START_USE(vq);
- 	/* We need to expose available array entries before checking avail
- 	 * event. */
--	virtio_mb(vq);
-+	virtio_mb(vq->weak_barriers);
- 
- 	old = vq->vring.avail->idx - vq->num_added;
- 	new = vq->vring.avail->idx;
-@@ -436,7 +415,7 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- 	}
- 
- 	/* Only get used array entries after they have been exposed by host. */
--	virtio_rmb(vq);
-+	virtio_rmb(vq->weak_barriers);
- 
- 	last_used = (vq->last_used_idx & (vq->vring.num - 1));
- 	i = vq->vring.used->ring[last_used].id;
-@@ -460,7 +439,7 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- 	 * the read in the next get_buf call. */
- 	if (!(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
- 		vring_used_event(&vq->vring) = vq->last_used_idx;
--		virtio_mb(vq);
-+		virtio_mb(vq->weak_barriers);
- 	}
- 
- #ifdef DEBUG
-@@ -513,7 +492,7 @@ bool virtqueue_enable_cb(struct virtqueue *_vq)
- 	 * entry. Always do both to keep code simple. */
- 	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
- 	vring_used_event(&vq->vring) = vq->last_used_idx;
--	virtio_mb(vq);
-+	virtio_mb(vq->weak_barriers);
- 	if (unlikely(more_used(vq))) {
- 		END_USE(vq);
- 		return false;
-@@ -553,7 +532,7 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
- 	/* TODO: tune this threshold */
- 	bufs = (u16)(vq->vring.avail->idx - vq->last_used_idx) * 3 / 4;
- 	vring_used_event(&vq->vring) = vq->last_used_idx + bufs;
--	virtio_mb(vq);
-+	virtio_mb(vq->weak_barriers);
- 	if (unlikely((u16)(vq->vring.used->idx - vq->last_used_idx) > bufs)) {
- 		END_USE(vq);
- 		return false;
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 63c6ea1..ca3ad41 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -4,6 +4,63 @@
- #include <linux/irqreturn.h>
- #include <uapi/linux/virtio_ring.h>
- 
-+/*
-+ * Barriers in virtio are tricky.  Non-SMP virtio guests can't assume
-+ * they're not on an SMP host system, so they need to assume real
-+ * barriers.  Non-SMP virtio hosts could skip the barriers, but does
-+ * anyone care?
-+ *
-+ * For virtio_pci on SMP, we don't need to order with respect to MMIO
-+ * accesses through relaxed memory I/O windows, so smp_mb() et al are
-+ * sufficient.
-+ *
-+ * For using virtio to talk to real devices (eg. other heterogeneous
-+ * CPUs) we do need real barriers.  In theory, we could be using both
-+ * kinds of virtio, so it's a runtime decision, and the branch is
-+ * actually quite cheap.
-+ */
-+
-+#ifdef CONFIG_SMP
-+static inline void virtio_mb(bool weak_barriers)
-+{
-+	if (weak_barriers)
-+		smp_mb();
-+	else
-+		mb();
-+}
-+
-+static inline void virtio_rmb(bool weak_barriers)
-+{
-+	if (weak_barriers)
-+		smp_rmb();
-+	else
-+		rmb();
-+}
-+
-+static inline void virtio_wmb(bool weak_barriers)
-+{
-+	if (weak_barriers)
-+		smp_wmb();
-+	else
-+		wmb();
-+}
-+#else
-+static inline void virtio_mb(bool weak_barriers)
-+{
-+	mb();
-+}
-+
-+static inline void virtio_rmb(bool weak_barriers)
-+{
-+	rmb();
-+}
-+
-+static inline void virtio_wmb(bool weak_barriers)
-+{
-+	wmb();
-+}
-+#endif
-+
- struct virtio_device;
- struct virtqueue;
- 
-diff --git a/include/linux/vringh.h b/include/linux/vringh.h
-new file mode 100644
-index 0000000..508b5e5
---- /dev/null
-+++ b/include/linux/vringh.h
-@@ -0,0 +1,115 @@
-+/*
-+ * Linux host-side vring helpers; for when the kernel needs to access
-+ * someone else's vring.
-+ *
-+ * Copyright IBM Corporation, 2013.
-+ * Parts taken from drivers/vhost/vhost.c Copyright 2009 Red Hat, Inc.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Written by: Rusty Russell <rusty@rustcorp.com.au>
-+ */
-+#ifndef _LINUX_VRINGH_H
-+#define _LINUX_VRINGH_H
-+#include <uapi/linux/virtio_ring.h>
-+#include <uapi/linux/uio.h>
-+#include <asm/barrier.h>
-+
-+/* virtio_ring with information needed for host access. */
-+struct vringh {
-+	/* Guest publishes used event idx (note: we always do). */
-+	bool event_indices;
-+
-+	/* Have we told the other end we want to be notified? */
-+	bool listening;
-+
-+	/* Can we get away with weak barriers? */
-+	bool weak_barriers;
-+
-+	/* Last available index we saw (ie. where we're up to). */
-+	u16 last_avail_idx;
-+
-+	/* Last index we used. */
-+	u16 last_used_idx;
-+
-+	/* The vring (note: it may contain user pointers!) */
-+	struct vring vring;
-+};
-+
-+/* The memory the vring can access, and what offset to apply. */
-+struct vringh_range {
-+	u64 start, end_incl;
-+	u64 offset;
-+};
-+
-+/* All the information about an iovec. */
-+struct vringh_iov {
-+	struct iovec *iov;
-+	unsigned i, max;
-+	bool allocated;
-+};
-+
-+/* Helpers for userspace vrings. */
-+int vringh_init_user(struct vringh *vrh, u32 features,
-+		     unsigned int num, bool weak_barriers,
-+		     struct vring_desc __user *desc,
-+		     struct vring_avail __user *avail,
-+		     struct vring_used __user *used);
-+
-+/* Convert a descriptor into iovecs. */
-+int vringh_getdesc_user(struct vringh *vrh,
-+			struct vringh_iov *riov,
-+			struct vringh_iov *wiov,
-+			bool (*getrange)(u64 addr, struct vringh_range *r),
-+			u16 *head,
-+			gfp_t gfp);
-+
-+/* Copy bytes from readable vsg, consuming it (and incrementing wiov->i). */
-+ssize_t vringh_iov_pull_user(struct vringh_iov *riov, void *dst, size_t len);
-+
-+/* Copy bytes into writable vsg, consuming it (and incrementing wiov->i). */
-+ssize_t vringh_iov_push_user(struct vringh_iov *wiov,
-+			     const void *src, size_t len);
-+
-+/* Mark a descriptor as used.  Sets notify if you should fire eventfd. */
-+int vringh_complete_user(struct vringh *vrh, u16 head, u32 len,
-+			 bool *notify);
-+
-+/* Pretend we've never seen descriptor (for easy error handling). */
-+void vringh_abandon_user(struct vringh *vrh, unsigned int num);
-+
-+/* Helpers for kernelspace vrings. */
-+int vringh_init_kern(struct vringh *vrh, u32 features,
-+		     unsigned int num, bool weak_barriers,
-+		     struct vring_desc *desc,
-+		     struct vring_avail *avail,
-+		     struct vring_used *used);
-+
-+int vringh_getdesc_kern(struct vringh *vrh,
-+			struct vringh_iov *riov,
-+			struct vringh_iov *wiov,
-+			u16 *head,
-+			gfp_t gfp);
-+
-+ssize_t vringh_iov_pull_kern(struct vringh_iov *riov, void *dst, size_t len);
-+ssize_t vringh_iov_push_user(struct vringh_iov *wiov,
-+			     const void *src, size_t len);
-+void vringh_abandon_kern(struct vringh *vrh, unsigned int num);
-+int vringh_complete_kern(struct vringh *vrh, u16 head, u32 len, bool *notify);
-+
-+bool vringh_notify_enable_kern(struct vringh *vrh);
-+void vringh_notify_disable_kern(struct vringh *vrh);
-+
-+#endif /* _LINUX_VRINGH_H */
 -- 
 1.7.10.4
