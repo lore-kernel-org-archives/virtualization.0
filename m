@@ -1,16 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [QEMU PATCH v2] virtio-net: introduce a new macaddr control
-Date: Thu, 17 Jan 2013 14:13:08 +0200
-Message-ID: <20130117121308.GA16345@redhat.com>
-References: <1358315821-29519-1-git-send-email-akong@redhat.com>
-	<1358317007-29972-1-git-send-email-akong@redhat.com>
-	<87mww8y5bb.fsf@rustcorp.com.au>
+From: sjur.brandeland@stericsson.com
+Subject: [PATCH] virtio_console: Don't access uninitialized data.
+Date: Thu, 17 Jan 2013 13:21:32 +0100
+Message-ID: <1358425292-4449-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87mww8y5bb.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,244 +15,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, stefanha@redhat.com, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 17, 2013 at 11:49:20AM +1030, Rusty Russell wrote:
-> akong@redhat.com writes:
-> > @@ -349,6 +351,14 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
-> >  {
-> >      struct virtio_net_ctrl_mac mac_data;
-> >  
-> > +    if (cmd == VIRTIO_NET_CTRL_MAC_ADDR_SET && elem->out_num == 2 &&
-> > +        elem->out_sg[1].iov_len == ETH_ALEN) {
-> > +        /* Set MAC address */
-> > +        memcpy(n->mac, elem->out_sg[1].iov_base, elem->out_sg[1].iov_len);
-> > +        qemu_format_nic_info_str(&n->nic->nc, n->mac);
-> > +        return VIRTIO_NET_OK;
-> > +    }
-> 
-> Does the rest of the net device still rely on the layout of descriptors?
-> If so, OK, we'll fix them all together.  If not, this introduces a new
-> one.
-> 
-> Cheers,
-> Rusty.
-
-The following fixes all existing users.
-Got to deal with some urgent stuff so did not test yet -
-Amos, would you like to include this in your patchset
-and build on it, test it all together?
-If not I'll get to it next week.
-
---->
-
-virtio-net: remove layout assumptions for ctrl vq
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
----
-
-diff --git a/hw/virtio-net.c b/hw/virtio-net.c
-index 4d80a25..5d1e084 100644
---- a/hw/virtio-net.c
-+++ b/hw/virtio-net.c
-@@ -316,44 +316,44 @@ static void virtio_net_set_features(VirtIODevice *vdev, uint32_t features)
- }
- 
- static int virtio_net_handle_rx_mode(VirtIONet *n, uint8_t cmd,
--                                     VirtQueueElement *elem)
-+                                     struct iovec *iov, unsigned int iov_cnt)
- {
-     uint8_t on;
-+    size_t s;
- 
--    if (elem->out_num != 2 || elem->out_sg[1].iov_len != sizeof(on)) {
--        error_report("virtio-net ctrl invalid rx mode command");
--        exit(1);
-+    s = iov_to_buf(iov, iov_cnt, 0, &on, sizeof on);
-+    if (s != sizeof on) {
-+        return VIRTIO_NET_ERR;
-     }
- 
--    on = ldub_p(elem->out_sg[1].iov_base);
--
--    if (cmd == VIRTIO_NET_CTRL_RX_MODE_PROMISC)
-+    if (cmd == VIRTIO_NET_CTRL_RX_MODE_PROMISC) {
-         n->promisc = on;
--    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLMULTI)
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLMULTI) {
-         n->allmulti = on;
--    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLUNI)
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLUNI) {
-         n->alluni = on;
--    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOMULTI)
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOMULTI) {
-         n->nomulti = on;
--    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOUNI)
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOUNI) {
-         n->nouni = on;
--    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOBCAST)
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOBCAST) {
-         n->nobcast = on;
--    else
-+    } else {
-         return VIRTIO_NET_ERR;
-+    }
- 
-     return VIRTIO_NET_OK;
- }
- 
- static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
--                                 VirtQueueElement *elem)
-+                                 struct iovec *iov, unsigned int iov_cnt)
- {
-     struct virtio_net_ctrl_mac mac_data;
-+    size_t s;
- 
--    if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET || elem->out_num != 3 ||
--        elem->out_sg[1].iov_len < sizeof(mac_data) ||
--        elem->out_sg[2].iov_len < sizeof(mac_data))
-+    if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET) {
-         return VIRTIO_NET_ERR;
-+    }
- 
-     n->mac_table.in_use = 0;
-     n->mac_table.first_multi = 0;
-@@ -361,54 +361,64 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
-     n->mac_table.multi_overflow = 0;
-     memset(n->mac_table.macs, 0, MAC_TABLE_ENTRIES * ETH_ALEN);
- 
--    mac_data.entries = ldl_p(elem->out_sg[1].iov_base);
-+    s = iov_to_buf(iov, iov_cnt, 0, &mac_data.entries, sizeof mac_data.entries);
-+    if (s != sizeof mac_data.entries) {
-+        return VIRTIO_NET_ERR;
-+    }
-+
-+    iov_discard_front(&iov, &iov_cnt, s);
-+    assert(s == sizeof mac_data.entries);
- 
--    if (sizeof(mac_data.entries) +
--        (mac_data.entries * ETH_ALEN) > elem->out_sg[1].iov_len)
-+    if (mac_data.entries * ETH_ALEN > iov_size(iov, iov_cnt)) {
-         return VIRTIO_NET_ERR;
-+    }
- 
-     if (mac_data.entries <= MAC_TABLE_ENTRIES) {
--        memcpy(n->mac_table.macs, elem->out_sg[1].iov_base + sizeof(mac_data),
--               mac_data.entries * ETH_ALEN);
-+        s = iov_to_buf(iov, iov_cnt, 0, n->mac_table.macs,
-+                       mac_data.entries * ETH_ALEN);
-         n->mac_table.in_use += mac_data.entries;
-     } else {
-         n->mac_table.uni_overflow = 1;
-     }
- 
-+    iov_discard_front(&iov, &iov_cnt, mac_data.entries * ETH_ALEN);
-+
-     n->mac_table.first_multi = n->mac_table.in_use;
- 
--    mac_data.entries = ldl_p(elem->out_sg[2].iov_base);
-+    s = iov_to_buf(iov, iov_cnt, 0, &mac_data.entries, sizeof mac_data.entries);
-+    if (s != sizeof mac_data.entries) {
-+        return VIRTIO_NET_ERR;
-+    }
-+
-+    iov_discard_front(&iov, &iov_cnt, s);
-+    assert(s == sizeof mac_data.entries);
- 
--    if (sizeof(mac_data.entries) +
--        (mac_data.entries * ETH_ALEN) > elem->out_sg[2].iov_len)
-+    if (mac_data.entries * ETH_ALEN > iov_size(iov, iov_cnt)) {
-         return VIRTIO_NET_ERR;
-+    }
- 
--    if (mac_data.entries) {
--        if (n->mac_table.in_use + mac_data.entries <= MAC_TABLE_ENTRIES) {
--            memcpy(n->mac_table.macs + (n->mac_table.in_use * ETH_ALEN),
--                   elem->out_sg[2].iov_base + sizeof(mac_data),
--                   mac_data.entries * ETH_ALEN);
--            n->mac_table.in_use += mac_data.entries;
--        } else {
--            n->mac_table.multi_overflow = 1;
--        }
-+    if (n->mac_table.in_use + mac_data.entries <= MAC_TABLE_ENTRIES) {
-+        s = iov_to_buf(iov, iov_cnt, 0, n->mac_table.macs,
-+                       mac_data.entries * ETH_ALEN);
-+        n->mac_table.in_use += mac_data.entries;
-+    } else {
-+        n->mac_table.multi_overflow = 1;
-     }
- 
-     return VIRTIO_NET_OK;
- }
- 
- static int virtio_net_handle_vlan_table(VirtIONet *n, uint8_t cmd,
--                                        VirtQueueElement *elem)
-+                                        struct iovec *iov, unsigned int iov_cnt)
- {
-     uint16_t vid;
-+    size_t s;
- 
--    if (elem->out_num != 2 || elem->out_sg[1].iov_len != sizeof(vid)) {
--        error_report("virtio-net ctrl invalid vlan command");
-+    s = iov_to_buf(iov, iov_cnt, 0, &vid, sizeof vid);
-+    if (s != sizeof vid) {
-         return VIRTIO_NET_ERR;
-     }
- 
--    vid = lduw_p(elem->out_sg[1].iov_base);
--
-     if (vid >= MAX_VLAN)
-         return VIRTIO_NET_ERR;
- 
-@@ -428,30 +438,32 @@ static void virtio_net_handle_ctrl(VirtIODevice *vdev, VirtQueue *vq)
-     struct virtio_net_ctrl_hdr ctrl;
-     virtio_net_ctrl_ack status = VIRTIO_NET_ERR;
-     VirtQueueElement elem;
-+    size_t s;
-+    struct iovec *iov;
-+    unsigned int iov_cnt;
- 
-     while (virtqueue_pop(vq, &elem)) {
--        if ((elem.in_num < 1) || (elem.out_num < 1)) {
-+        if (iov_size(elem.in_sg, elem.in_num) < 1) {
-             error_report("virtio-net ctrl missing headers");
-             exit(1);
-         }
- 
--        if (elem.out_sg[0].iov_len < sizeof(ctrl) ||
--            elem.in_sg[elem.in_num - 1].iov_len < sizeof(status)) {
--            error_report("virtio-net ctrl header not in correct element");
--            exit(1);
-+        iov = elem.out_sg;
-+        iov_cnt = elem.out_num;
-+        s = iov_to_buf(iov, iov_cnt, 0, &ctrl, sizeof ctrl);
-+        iov_discard_front(&iov, &iov_cnt, sizeof ctrl);
-+        if (s != sizeof ctrl) {
-+            status = VIRTIO_NET_ERR;
-+        } else if (ctrl.class == VIRTIO_NET_CTRL_RX_MODE) {
-+            status = virtio_net_handle_rx_mode(n, ctrl.cmd, iov, iov_cnt);
-+        } else if (ctrl.class == VIRTIO_NET_CTRL_MAC) {
-+            status = virtio_net_handle_mac(n, ctrl.cmd, iov, iov_cnt);
-+        } else if (ctrl.class == VIRTIO_NET_CTRL_VLAN) {
-+            status = virtio_net_handle_vlan_table(n, ctrl.cmd, iov, iov_cnt);
-         }
- 
--        ctrl.class = ldub_p(elem.out_sg[0].iov_base);
--        ctrl.cmd = ldub_p(elem.out_sg[0].iov_base + sizeof(ctrl.class));
--
--        if (ctrl.class == VIRTIO_NET_CTRL_RX_MODE)
--            status = virtio_net_handle_rx_mode(n, ctrl.cmd, &elem);
--        else if (ctrl.class == VIRTIO_NET_CTRL_MAC)
--            status = virtio_net_handle_mac(n, ctrl.cmd, &elem);
--        else if (ctrl.class == VIRTIO_NET_CTRL_VLAN)
--            status = virtio_net_handle_vlan_table(n, ctrl.cmd, &elem);
--
--        stb_p(elem.in_sg[elem.in_num - 1].iov_base, status);
-+        s = iov_from_buf(elem.in_sg, elem.in_num, 0, &status, sizeof status);
-+        assert(s == sizeof status);
- 
-         virtqueue_push(vq, &elem, sizeof(status));
-         virtio_notify(vdev, vq);
+RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
+RG9uJ3QgYWNjZXNzIHVuaW5pdGlhbGl6ZWQgd29yay1xdWV1ZSB3aGVuIHJlbW92aW5nIGRldmlj
+ZS4KVGhlIHdvcmsgcXVldWUgaXMgaW5pdGlhbGl6ZWQgb25seSBpZiB0aGUgZGV2aWNlIG11bHRp
+LXF1ZXVlLgpTbyBkb24ndCBjYWxsIGNhbmNlbF93b3JrIHVubGVzcyB0aGlzIGlzIGEgbXVsdGkt
+cXVldWUgZGV2aWNlLgoKVGhpcyBmaXhlcyB0aGUgZm9sbG93aW5nIHBhbmljOgoKS2VybmVsIHBh
+bmljIC0gbm90IHN5bmNpbmc6IEJVRyEKQ2FsbCBUcmFjZToKNjIwMzFiMjg6ICBbPDYwMjYwODVk
+Pl0gcGFuaWMrMHgxNmIvMHgyZDMKNjIwMzFiMzA6ICBbPDYwMDRlZjVlPl0gZmx1c2hfd29yaysw
+eDAvMHgxZDcKNjIwMzFiNjA6ICBbPDYwMjYwNmYyPl0gcGFuaWMrMHgwLzB4MmQzCjYyMDMxYjY4
+OiAgWzw2MDAzMzNiMD5dIG1lbWNweSsweDAvMHgxNDAKNjIwMzFiODA6ICBbPDYwMDJkNThhPl0g
+dW5ibG9ja19zaWduYWxzKzB4MC8weDg0CjYyMDMxYmEwOiAgWzw2MDI2MDljNT5dIHByaW50aysw
+eDAvMHhhMAo2MjAzMWJkODogIFs8NjAyNjRlNTE+XSBfX211dGV4X3VubG9ja19zbG93cGF0aCsw
+eDEzZC8weDE0OAo2MjAzMWMxMDogIFs8NjAwNGVmNWU+XSBmbHVzaF93b3JrKzB4MC8weDFkNwo2
+MjAzMWMxODogIFs8NjAwNTAyMzQ+XSB0cnlfdG9fZ3JhYl9wZW5kaW5nKzB4MC8weDE3ZQo2MjAz
+MWMzODogIFs8NjAwNGU5ODQ+XSBnZXRfd29ya19nY3dxKzB4NzEvMHg4Zgo2MjAzMWM0ODogIFs8
+NjAwNTA1Mzk+XSBfX2NhbmNlbF93b3JrX3RpbWVyKzB4NWIvMHgxMTUKNjIwMzFjNzg6ICBbPDYy
+OGFjYzg1Pl0gdW5wbHVnX3BvcnQrMHgwLzB4MTkxIFt2aXJ0aW9fY29uc29sZV0KNjIwMzFjOTg6
+ICBbPDYwMDUwNjFjPl0gY2FuY2VsX3dvcmtfc3luYysweDEyLzB4MTQKNjIwMzFjYTg6ICBbPDYy
+OGFjZTk2Pl0gdmlydGNvbnNfcmVtb3ZlKzB4ODAvMHgxNWMgW3ZpcnRpb19jb25zb2xlXQo2MjAz
+MWNlODogIFs8NjI4MTkxZGU+XSB2aXJ0aW9fZGV2X3JlbW92ZSsweDFlLzB4N2UgW3ZpcnRpb10K
+NjIwMzFkMDg6ICBbPDYwMWNmMjQyPl0gX19kZXZpY2VfcmVsZWFzZV9kcml2ZXIrMHg3NS8weGU0
+CjYyMDMxZDI4OiAgWzw2MDFjZjJkZD5dIGRldmljZV9yZWxlYXNlX2RyaXZlcisweDJjLzB4NDAK
+NjIwMzFkNDg6ICBbPDYwMWNlMGRkPl0gZHJpdmVyX3VuYmluZCsweDdkLzB4YzYKNjIwMzFkODg6
+ICBbPDYwMWNkNWQ5Pl0gZHJ2X2F0dHJfc3RvcmUrMHgyNy8weDI5CjYyMDMxZDk4OiAgWzw2MDEx
+NWY2MT5dIHN5c2ZzX3dyaXRlX2ZpbGUrMHgxMDAvMHgxNGQKNjIwMzFkZjg6ICBbPDYwMGI3Mzdk
+Pl0gdmZzX3dyaXRlKzB4Y2IvMHgxODQKNjIwMzFlMDg6ICBbPDYwMGI1OGI4Pl0gZmlscF9jbG9z
+ZSsweDg4LzB4OTQKNjIwMzFlMzg6ICBbPDYwMGI3Njg2Pl0gc3lzX3dyaXRlKzB4NTkvMHg4OAo2
+MjAzMWU4ODogIFs8NjAwMWNlZDE+XSBoYW5kbGVfc3lzY2FsbCsweDVkLzB4ODAKNjIwMzFlYTg6
+ICBbPDYwMDMwYTc0Pl0gdXNlcnNwYWNlKzB4NDA1LzB4NTMxCjYyMDMxZjA4OiAgWzw2MDBkMzJj
+Yz5dIHN5c19kdXArMHgwLzB4NWUKNjIwMzFmMjg6ICBbPDYwMWIxMWQ2Pl0gc3RyY3B5KzB4MC8w
+eDE4CjYyMDMxZjM4OiAgWzw2MDBiZTQ2Yz5dIGRvX2V4ZWN2ZSsweDEwLzB4MTIKNjIwMzFmNDg6
+ICBbPDYwMDE4NGM3Pl0gcnVuX2luaXRfcHJvY2VzcysweDQzLzB4NDUKNjIwMzFmZDg6ICBbPDYw
+MDE5YTkxPl0gbmV3X3RocmVhZF9oYW5kbGVyKzB4YmEvMHhiYwoKU2lnbmVkLW9mZi1ieTogU2p1
+ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgotLS0KClRoaXMg
+Zml4IGlzIGludGVuZGVkIG9mIHYzLjguCgpUaGFua3MsClNqdXIKCiBkcml2ZXJzL2NoYXIvdmly
+dGlvX2NvbnNvbGUuYyB8ICAgIDMgKystCiAxIGZpbGVzIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygr
+KSwgMSBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNv
+bGUuYyBiL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCmluZGV4IDY4NGIwZDUuLmVlNGRi
+ZWEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCisrKyBiL2RyaXZl
+cnMvY2hhci92aXJ0aW9fY29uc29sZS5jCkBAIC0yMDYyLDcgKzIwNjIsOCBAQCBzdGF0aWMgdm9p
+ZCB2aXJ0Y29uc19yZW1vdmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCiAJLyogRGlzYWJs
+ZSBpbnRlcnJ1cHRzIGZvciB2cXMgKi8KIAl2ZGV2LT5jb25maWctPnJlc2V0KHZkZXYpOwogCS8q
+IEZpbmlzaCB1cCB3b3JrIHRoYXQncyBsaW5lZCB1cCAqLwotCWNhbmNlbF93b3JrX3N5bmMoJnBv
+cnRkZXYtPmNvbnRyb2xfd29yayk7CisJaWYgKHVzZV9tdWx0aXBvcnQocG9ydGRldikpCisJCWNh
+bmNlbF93b3JrX3N5bmMoJnBvcnRkZXYtPmNvbnRyb2xfd29yayk7CiAKIAlsaXN0X2Zvcl9lYWNo
+X2VudHJ5X3NhZmUocG9ydCwgcG9ydDIsICZwb3J0ZGV2LT5wb3J0cywgbGlzdCkKIAkJdW5wbHVn
+X3BvcnQocG9ydCk7Ci0tIAoxLjcuNS40CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
