@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/5] vhost-scsi: Add support for host virtualized target
-Date: Thu, 17 Jan 2013 18:43:14 +0200
-Message-ID: <20130117164314.GA19458__42993.4656633579$1358440813$gmane$org@redhat.com>
-References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [PATCH] tcm_vhost: Use llist for cmd completion list
+Date: Thu, 17 Jan 2013 12:35:53 -0800
+Message-ID: <1358454953.18551.9.camel__16810.9294529588$1358455434$gmane$org@haakon2.linux-iscsi.org>
+References: <1357454173-5973-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
+In-Reply-To: <1357454173-5973-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,80 +17,151 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: Asias He <asias@redhat.com>
+Cc: target-devel <target-devel@vger.kernel.org>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Sep 07, 2012 at 06:48:14AM +0000, Nicholas A. Bellinger wrote:
-> From: Nicholas Bellinger <nab@linux-iscsi.org>
-> 
-> Hello Anthony & Co,
-> 
-> This is the fourth installment to add host virtualized target support for
-> the mainline tcm_vhost fabric driver using Linux v3.6-rc into QEMU 1.3.0-rc.
-> 
-> The series is available directly from the following git branch:
-> 
->    git://git.kernel.org/pub/scm/virt/kvm/nab/qemu-kvm.git vhost-scsi-for-1.3
-> 
-> Note the code is cut against yesterday's QEMU head, and dispite the name
-> of the tree is based upon mainline qemu.org git code + has thus far been
-> running overnight with > 100K IOPs small block 4k workloads using v3.6-rc2+
-> based target code with RAMDISK_DR backstores.
-> 
-> Other than some minor fuzz between jumping from QEMU 1.2.0 -> 1.2.50, this
-> series is functionally identical to what's been posted for vhost-scsi RFC-v3
-> to qemu-devel.
-> 
-> Please consider applying these patches for an initial vhost-scsi merge into
-> QEMU 1.3.0-rc code, or let us know what else you'd like to see addressed for
-> this series to in order to merge.
-> 
-> Thank you!
-> 
-> --nab
+Hi Asias!
 
-OK what's the status here?
-We missed 1.3 but let's try not to miss 1.4?
+On Sun, 2013-01-06 at 14:36 +0800, Asias He wrote:
+> This drops the cmd completion list spin lock and makes the cmd
+> completion queue lock-less.
+> 
+> Signed-off-by: Asias He <asias@redhat.com>
+> ---
 
-> Nicholas Bellinger (2):
->   monitor: Rename+move net_handle_fd_param -> monitor_handle_fd_param
->   virtio-scsi: Set max_target=0 during vhost-scsi operation
+Apologies for the long delay to get back to this patch.
+
+After some initial testing, I'm seeing about about a ~5K IOPs
+performance increase to single RAMDISK_MCP (~110K to ~115K) on the heavy
+mixed 75/25 4k randrw fio workload.
+
+That said, I think it's fine to as a for-3.9 item.
+
+Acked-by: Nicholas Bellinger <nab@linux-iscsi.org>
+
+MST, do you want to take this via your vhost tree, or shall I merge via
+target-pending/for-next..?
+
+Thanks,
+
+--nab
+
+>  drivers/vhost/tcm_vhost.c | 46 +++++++++++++---------------------------------
+>  drivers/vhost/tcm_vhost.h |  2 +-
+>  2 files changed, 14 insertions(+), 34 deletions(-)
 > 
-> Stefan Hajnoczi (3):
->   vhost: Pass device path to vhost_dev_init()
->   vhost-scsi: add -vhost-scsi host device for use with tcm-vhost
->   virtio-scsi: Add start/stop functionality for vhost-scsi
-> 
->  configure            |   10 +++
->  hw/Makefile.objs     |    1 +
->  hw/qdev-properties.c |   41 +++++++++++
->  hw/vhost-scsi.c      |  190 ++++++++++++++++++++++++++++++++++++++++++++++++++
->  hw/vhost-scsi.h      |   62 ++++++++++++++++
->  hw/vhost.c           |    5 +-
->  hw/vhost.h           |    3 +-
->  hw/vhost_net.c       |    2 +-
->  hw/virtio-pci.c      |    2 +
->  hw/virtio-scsi.c     |   55 ++++++++++++++-
->  hw/virtio-scsi.h     |    1 +
->  monitor.c            |   18 +++++
->  monitor.h            |    1 +
->  net.c                |   18 -----
->  net.h                |    2 -
->  net/socket.c         |    2 +-
->  net/tap.c            |    4 +-
->  qemu-common.h        |    1 +
->  qemu-config.c        |   19 +++++
->  qemu-options.hx      |    4 +
->  vl.c                 |   18 +++++
->  21 files changed, 431 insertions(+), 28 deletions(-)
->  create mode 100644 hw/vhost-scsi.c
->  create mode 100644 hw/vhost-scsi.h
-> 
-> -- 
-> 1.7.2.5
-> 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+> index b20df5c..3720604 100644
+> --- a/drivers/vhost/tcm_vhost.c
+> +++ b/drivers/vhost/tcm_vhost.c
+> @@ -47,6 +47,7 @@
+>  #include <linux/vhost.h>
+>  #include <linux/virtio_net.h> /* TODO vhost.h currently depends on this */
+>  #include <linux/virtio_scsi.h>
+> +#include <linux/llist.h>
+>  
+>  #include "vhost.c"
+>  #include "vhost.h"
+> @@ -64,8 +65,7 @@ struct vhost_scsi {
+>  	struct vhost_virtqueue vqs[3];
+>  
+>  	struct vhost_work vs_completion_work; /* cmd completion work item */
+> -	struct list_head vs_completion_list;  /* cmd completion queue */
+> -	spinlock_t vs_completion_lock;        /* protects s_completion_list */
+> +	struct llist_head vs_completion_list; /* cmd completion queue */
+>  };
+>  
+>  /* Local pointer to allocated TCM configfs fabric module */
+> @@ -301,9 +301,7 @@ static void vhost_scsi_complete_cmd(struct tcm_vhost_cmd *tv_cmd)
+>  {
+>  	struct vhost_scsi *vs = tv_cmd->tvc_vhost;
+>  
+> -	spin_lock_bh(&vs->vs_completion_lock);
+> -	list_add_tail(&tv_cmd->tvc_completion_list, &vs->vs_completion_list);
+> -	spin_unlock_bh(&vs->vs_completion_lock);
+> +	llist_add(&tv_cmd->tvc_completion_list, &vs->vs_completion_list);
+>  
+>  	vhost_work_queue(&vs->dev, &vs->vs_completion_work);
+>  }
+> @@ -347,27 +345,6 @@ static void vhost_scsi_free_cmd(struct tcm_vhost_cmd *tv_cmd)
+>  	kfree(tv_cmd);
+>  }
+>  
+> -/* Dequeue a command from the completion list */
+> -static struct tcm_vhost_cmd *vhost_scsi_get_cmd_from_completion(
+> -	struct vhost_scsi *vs)
+> -{
+> -	struct tcm_vhost_cmd *tv_cmd = NULL;
+> -
+> -	spin_lock_bh(&vs->vs_completion_lock);
+> -	if (list_empty(&vs->vs_completion_list)) {
+> -		spin_unlock_bh(&vs->vs_completion_lock);
+> -		return NULL;
+> -	}
+> -
+> -	list_for_each_entry(tv_cmd, &vs->vs_completion_list,
+> -			    tvc_completion_list) {
+> -		list_del(&tv_cmd->tvc_completion_list);
+> -		break;
+> -	}
+> -	spin_unlock_bh(&vs->vs_completion_lock);
+> -	return tv_cmd;
+> -}
+> -
+>  /* Fill in status and signal that we are done processing this command
+>   *
+>   * This is scheduled in the vhost work queue so we are called with the owner
+> @@ -377,12 +354,18 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
+>  {
+>  	struct vhost_scsi *vs = container_of(work, struct vhost_scsi,
+>  					vs_completion_work);
+> +	struct virtio_scsi_cmd_resp v_rsp;
+>  	struct tcm_vhost_cmd *tv_cmd;
+> +	struct llist_node *llnode;
+> +	struct se_cmd *se_cmd;
+> +	int ret;
+>  
+> -	while ((tv_cmd = vhost_scsi_get_cmd_from_completion(vs))) {
+> -		struct virtio_scsi_cmd_resp v_rsp;
+> -		struct se_cmd *se_cmd = &tv_cmd->tvc_se_cmd;
+> -		int ret;
+> +	llnode = llist_del_all(&vs->vs_completion_list);
+> +	while (llnode) {
+> +		tv_cmd = llist_entry(llnode, struct tcm_vhost_cmd,
+> +				     tvc_completion_list);
+> +		llnode = llist_next(llnode);
+> +		se_cmd = &tv_cmd->tvc_se_cmd;
+>  
+>  		pr_debug("%s tv_cmd %p resid %u status %#02x\n", __func__,
+>  			tv_cmd, se_cmd->residual_count, se_cmd->scsi_status);
+> @@ -426,7 +409,6 @@ static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
+>  		pr_err("Unable to allocate struct tcm_vhost_cmd\n");
+>  		return ERR_PTR(-ENOMEM);
+>  	}
+> -	INIT_LIST_HEAD(&tv_cmd->tvc_completion_list);
+>  	tv_cmd->tvc_tag = v_req->tag;
+>  	tv_cmd->tvc_task_attr = v_req->task_attr;
+>  	tv_cmd->tvc_exp_data_len = exp_data_len;
+> @@ -859,8 +841,6 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
+>  		return -ENOMEM;
+>  
+>  	vhost_work_init(&s->vs_completion_work, vhost_scsi_complete_cmd_work);
+> -	INIT_LIST_HEAD(&s->vs_completion_list);
+> -	spin_lock_init(&s->vs_completion_lock);
+>  
+>  	s->vqs[VHOST_SCSI_VQ_CTL].handle_kick = vhost_scsi_ctl_handle_kick;
+>  	s->vqs[VHOST_SCSI_VQ_EVT].handle_kick = vhost_scsi_evt_handle_kick;
+> diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
+> index 7e87c63..47ee80b 100644
+> --- a/drivers/vhost/tcm_vhost.h
+> +++ b/drivers/vhost/tcm_vhost.h
+> @@ -34,7 +34,7 @@ struct tcm_vhost_cmd {
+>  	/* Sense buffer that will be mapped into outgoing status */
+>  	unsigned char tvc_sense_buf[TRANSPORT_SENSE_BUFFER];
+>  	/* Completed commands list, serviced from vhost worker thread */
+> -	struct list_head tvc_completion_list;
+> +	struct llist_node tvc_completion_list;
+>  };
+>  
+>  struct tcm_vhost_nexus {
