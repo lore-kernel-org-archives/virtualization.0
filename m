@@ -1,13 +1,11 @@
-From: akong@redhat.com
-Subject: [PATCH v3] virtio-spec: set mac address by a new vq command
-Date: Fri, 18 Jan 2013 19:05:41 +0800
-Message-ID: <1358507141-27585-1-git-send-email-akong@redhat.com>
-References: <20130118104351.GA22481@stefanha-thinkpad.redhat.com>
+From: Alexandru Copot <alex.mihai.c@gmail.com>
+Subject: [PATCH] virtio: suppress kmemleak false positive
+Date: Fri, 18 Jan 2013 13:54:21 +0200
+Message-ID: <1358510061-12164-1-git-send-email-alex.mihai.c@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130118104351.GA22481@stefanha-thinkpad.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,135 +15,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, rusty@rustcorp.com.au
-Cc: kvm@vger.kernel.org, mst@redhat.com
+To: rusty@rustcorp.com.au
+Cc: Daniel Baluta <dbaluta@ixiacom.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Amos Kong <akong@redhat.com>
+While doing simple IPv6 tests in KVM virtual machines,
+(add an IPv6 address to eth0) kmemleak complains about
+an unreferenced object:
 
-Virtio-net driver currently programs MAC address byte by byte,
-this means that we have an intermediate step where mac is wrong.
-This patch introduced a new control command to set MAC address
-in one time, and added a new feature flag VIRTIO_NET_F_MAC_ADDR
-for this feature.
+unreferenced object 0xffff88001e804120 (size 32):
+  comm "softirq", pid 0, jiffies 4294900928 (age 631.544s)
+  hex dump (first 32 bytes):
+    28 cb fd 1d 00 00 00 00 0c 00 00 00 01 00 01 00  (...............
+    02 d0 83 1d 00 00 00 00 6e 00 00 00 00 00 00 00  ........n.......
+  backtrace:
+    [<ffffffff815ed721>] kmemleak_alloc+0x21/0x50
+    [<ffffffff8111d0b0>] __kmalloc+0xe0/0x160
+    [<ffffffff81362b7c>] virtqueue_add_buf+0x1fc/0x3d0
+    [<ffffffff8140cbd3>] start_xmit+0x153/0x3a0
+    [<ffffffff8150887e>] dev_hard_start_xmit+0x21e/0x470
+    [<ffffffff815247ce>] sch_direct_xmit+0xfe/0x280
+    [<ffffffff81509014>] dev_queue_xmit+0x1f4/0x5d0
+    [<ffffffff81592e91>] ip6_finish_output2+0x101/0x450
+    [<ffffffff81595ae8>] ip6_finish_output+0x98/0x200
+    [<ffffffff81595ca1>] ip6_output+0x51/0x1b0
+    [<ffffffff815b51af>] mld_sendpack+0x19f/0x360
+    [<ffffffff815b59b4>] mld_ifc_timer_expire+0x194/0x290
+    [<ffffffff8104b794>] call_timer_fn+0x74/0xf0
+    [<ffffffff8104bb1b>] run_timer_softirq+0x18b/0x220
+    [<ffffffff81045f81>] __do_softirq+0xe1/0x1c0
+    [<ffffffff8160a4fc>] call_softirq+0x1c/0x30
 
-"mac" field will be set to read-only when VIRTIO_NET_F_CTRL_MAC_ADDR
- is acked.
+Seems the function vring_add_indirect stores an array of
+struct vring_desc by using virt_to_phys and kmemleak
+doesn't track the pointer.
 
-Signed-off-by: Amos Kong <akong@redhat.com>
+The following patch can fix this.
+
+Signed-off-by: Alexandru Copot <alex.mihai.c@gmail.com>
+CC: Daniel Baluta <dbaluta@ixiacom.com>
 ---
-v2: add more detail about new command (Stefan)
-v3: update of making 'mac' field to read-only
----
- virtio-spec.lyx | 68 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 67 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_ring.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index 1ba9992..ba30ae6 100644
---- a/virtio-spec.lyx
-+++ b/virtio-spec.lyx
-@@ -56,6 +56,7 @@
- \html_math_output 0
- \html_css_as_file 0
- \html_be_strict false
-+\author -1930653948 "Amos Kong" 
- \author -608949062 "Rusty Russell,,," 
- \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
- \author 1112500848 "Rusty Russell" rusty@rustcorp.com.au
-@@ -4391,6 +4392,14 @@ VIRTIO_NET_F_GUEST_ANNOUNCE(21) Guest can send gratuitous packets.
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index ffd7e7d..730baa4 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -23,6 +23,7 @@
+ #include <linux/slab.h>
+ #include <linux/module.h>
+ #include <linux/hrtimer.h>
++#include <linux/kmemleak.h>
  
- \change_inserted 1986246365 1352742808
- VIRTIO_NET_F_MQ(22) Device supports multiqueue with automatic receive steering.
-+\change_inserted -1930653948 1358319033
-+
-+\end_layout
-+
-+\begin_layout Description
-+
-+\change_inserted -1930653948 1358319080
-+VIRTIO_NET_F_CTRL_MAC_ADDR(23) Set MAC address.
- \change_unchanged
+ /* virtio guest is communicating with a virtual "device" that actually runs on
+  * a host processor.  Memory barriers are used to control SMP effects. */
+@@ -141,6 +142,11 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+ 	if (!desc)
+ 		return -ENOMEM;
  
- \end_layout
-@@ -5284,7 +5293,11 @@ The class VIRTIO_NET_CTRL_RX has two commands: VIRTIO_NET_CTRL_RX_PROMISC
- \end_layout
- 
- \begin_layout Subsubsection*
--Setting MAC Address Filtering
-+Setting MAC Address
-+\change_deleted -1930653948 1358318470
-+ Filtering
-+\change_unchanged
++	/* This pointer is passed below by its physical address so
++	 * kmemleak would show a false positive without it.
++	 */
++	kmemleak_not_leak(desc);
 +
- \end_layout
- 
- \begin_layout Standard
-@@ -5324,6 +5337,17 @@ struct virtio_net_ctrl_mac {
- \begin_layout Plain Layout
- 
-  #define VIRTIO_NET_CTRL_MAC_TABLE_SET        0 
-+\change_inserted -1930653948 1358318313
-+
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted -1930653948 1358318331
-+
-+ #define VIRTIO_NET_CTRL_MAC_ADDR_SET         1
-+\change_unchanged
-+
- \end_layout
- 
- \end_inset
-@@ -5349,6 +5373,48 @@ T_CTRL_MAC_TABLE_SET.
-  The command-specific-data is two variable length tables of 6-byte MAC addresses.
-  The first table contains unicast addresses, and the second contains multicast
-  addresses.
-+\change_inserted -1930653948 1358318545
-+
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted -1930653948 1358506710
-+The config space 
-+\begin_inset Quotes eld
-+\end_inset
-+
-+mac
-+\begin_inset Quotes erd
-+\end_inset
-+
-+ field and the VIRTIO_NET_CTRL_MAC_ADDR_SET command both set the default
-+ MAC address which rx filtering accepts.
-+ The VIRTIO_NET_CTRL_MAC_ADDR_SET command is atomic whereas the config space
-+ 
-+\begin_inset Quotes eld
-+\end_inset
-+
-+mac
-+\begin_inset Quotes erd
-+\end_inset
-+
-+ field is not.
-+ 
-+\begin_inset Quotes eld
-+\end_inset
-+
-+mac
-+\begin_inset Quotes erd
-+\end_inset
-+
-+ field will be set to read-only when the VIRTIO_NET_CTRL_MAC_ADDR_SET command
-+ is supported.
-+ Therefore, VIRTIO_NET_CTRL_MAC_ADDR_SET is preferred, especially while
-+ the NIC is up.
-+ The command-specific-data is a 6-byte MAC address.
-+\change_unchanged
-+
- \end_layout
- 
- \begin_layout Subsection*
+ 	/* Transfer entries from the sg list into the indirect page */
+ 	for (i = 0; i < out; i++) {
+ 		desc[i].flags = VRING_DESC_F_NEXT;
 -- 
-1.7.11.7
+1.8.1
