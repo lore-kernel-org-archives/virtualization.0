@@ -1,15 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V5 1/2] virtio-net: fix the set affinity bug when CPU
-	IDs are not consecutive
-Date: Fri, 18 Jan 2013 14:40:00 +0800
-Message-ID: <50F8EE40.6010002@redhat.com>
-References: <1358487121-7956-1-git-send-email-gaowanlong@cn.fujitsu.com>
-	<50F8E93B.4090004@redhat.com> <50F8EAD2.3040606@cn.fujitsu.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH v2] virtio-spec: set mac address by a new vq command
+Date: Fri, 18 Jan 2013 11:43:51 +0100
+Message-ID: <20130118104351.GA22481__48204.4593817138$1358505865$gmane$org@stefanha-thinkpad.redhat.com>
+References: <1358418347-29496-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50F8EAD2.3040606@cn.fujitsu.com>
+Content-Disposition: inline
+In-Reply-To: <1358418347-29496-1-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,210 +18,123 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: gaowanlong@cn.fujitsu.com
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <erdnetdev@gmail.com>
+To: akong@redhat.com
+Cc: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/18/2013 02:25 PM, Wanlong Gao wrote:
-> On 01/18/2013 02:18 PM, Jason Wang wrote:
->> On 01/18/2013 01:32 PM, Wanlong Gao wrote:
->>> As Michael mentioned, set affinity and select queue will not work very
->>> well when CPU IDs are not consecutive, this can happen with hot unplug.
->>> Fix this bug by traversal the online CPUs, and create a per cpu variable
->>> to find the mapping from CPU to the preferable virtual-queue.
->>>
->>> Cc: Rusty Russell <rusty@rustcorp.com.au>
->>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
->>> Cc: Jason Wang <jasowang@redhat.com>
->>> Cc: Eric Dumazet <erdnetdev@gmail.com>
->>> Cc: virtualization@lists.linux-foundation.org
->>> Cc: netdev@vger.kernel.org
->>> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
->>> ---
->>> V4->V5:
->>> 	Add get/put_online_cpus to avoid CPUs go up and down during operations (Rusty)
->>>
->>> V3->V4:
->>> 	move vq_index into virtnet_info	(Jason)
->>> 	change the mapping value when not setting affinity (Jason)
->>> 	address the comments about select_queue (Rusty)
->>>
->>>  drivers/net/virtio_net.c | 60 +++++++++++++++++++++++++++++++++++++++---------
->>>  1 file changed, 49 insertions(+), 11 deletions(-)
->>>
->>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->>> index a6fcf15..440b0eb 100644
->>> --- a/drivers/net/virtio_net.c
->>> +++ b/drivers/net/virtio_net.c
->>> @@ -123,6 +123,9 @@ struct virtnet_info {
->>>  
->>>  	/* Does the affinity hint is set for virtqueues? */
->>>  	bool affinity_hint_set;
->>> +
->>> +	/* Per-cpu variable to show the mapping from CPU to virtqueue */
->>> +	int __percpu *vq_index;
->>>  };
->>>  
->>>  struct skb_vnet_hdr {
->>> @@ -1016,6 +1019,7 @@ static int virtnet_vlan_rx_kill_vid(struct net_device *dev, u16 vid)
->>>  static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
->>>  {
->>>  	int i;
->>> +	int cpu;
->>>  
->>>  	/* In multiqueue mode, when the number of cpu is equal to the number of
->>>  	 * queue pairs, we let the queue pairs to be private to one cpu by
->>> @@ -1029,16 +1033,29 @@ static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
->>>  			return;
->>>  	}
->>>  
->>> -	for (i = 0; i < vi->max_queue_pairs; i++) {
->>> -		int cpu = set ? i : -1;
->>> -		virtqueue_set_affinity(vi->rq[i].vq, cpu);
->>> -		virtqueue_set_affinity(vi->sq[i].vq, cpu);
->>> -	}
->>> +	if (set) {
->>> +		i = 0;
->>> +		for_each_online_cpu(cpu) {
->>> +			virtqueue_set_affinity(vi->rq[i].vq, cpu);
->>> +			virtqueue_set_affinity(vi->sq[i].vq, cpu);
->>> +			*per_cpu_ptr(vi->vq_index, cpu) = i;
->>> +			i++;
->>> +		}
->>>  
->>> -	if (set)
->>>  		vi->affinity_hint_set = true;
->>> -	else
->>> +	} else {
->>> +		for(i = 0; i < vi->max_queue_pairs; i++) {
->>> +			virtqueue_set_affinity(vi->rq[i].vq, -1);
->>> +			virtqueue_set_affinity(vi->sq[i].vq, -1);
->>> +		}
->>> +
->>> +		i = 0;
->>> +		for_each_online_cpu(cpu)
->>> +			*per_cpu_ptr(vi->vq_index, cpu) =
->>> +				++i % vi->curr_queue_pairs;
->>> +
->>>  		vi->affinity_hint_set = false;
->>> +	}
->>>  }
->>>  
->>>  static void virtnet_get_ringparam(struct net_device *dev,
->>> @@ -1087,7 +1104,9 @@ static int virtnet_set_channels(struct net_device *dev,
->>>  		netif_set_real_num_tx_queues(dev, queue_pairs);
->>>  		netif_set_real_num_rx_queues(dev, queue_pairs);
->>>  
->>> +		get_online_cpus();
->>>  		virtnet_set_affinity(vi, true);
->>> +		put_online_cpus();
->>>  	}
->>>  
->>>  	return err;
->>> @@ -1127,12 +1146,19 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
->>>  
->>>  /* To avoid contending a lock hold by a vcpu who would exit to host, select the
->>>   * txq based on the processor id.
->>> - * TODO: handle cpu hotplug.
->>>   */
->>>  static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
->>>  {
->>> -	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
->>> -		  smp_processor_id();
->>> +	int txq;
->>> +	struct virtnet_info *vi = netdev_priv(dev);
->>> +
->>> +	if (skb_rx_queue_recorded(skb)) {
->>> +		txq = skb_get_rx_queue(skb);
->>> +	} else {
->>> +		txq = *__this_cpu_ptr(vi->vq_index);
->>> +		if (txq == -1)
->>> +			txq = 0;
->>> +	}
->>>  
->>>  	while (unlikely(txq >= dev->real_num_tx_queues))
->>>  		txq -= dev->real_num_tx_queues;
->>> @@ -1248,7 +1274,9 @@ static void virtnet_del_vqs(struct virtnet_info *vi)
->>>  {
->>>  	struct virtio_device *vdev = vi->vdev;
->>>  
->>> +	get_online_cpus();
->>>  	virtnet_set_affinity(vi, false);
->>> +	put_online_cpus();
->> I think the {get|put}_online_cpus() is not necessary here when we are
->> cleaning.
-> When cleaning, we also set the per-cpu variable, is avoiding hot plug
-> or unplug unnecessary?
+On Thu, Jan 17, 2013 at 06:25:47PM +0800, akong@redhat.com wrote:
+> From: Amos Kong <akong@redhat.com>
+> 
+> Virtio-net driver currently programs MAC address byte by byte,
+> this means that we have an intermediate step where mac is wrong.
+> This patch introduced a new control command to set MAC address
+> in one time, and added a new feature flag VIRTIO_NET_F_MAC_ADDR
+> for this feature.
+> 
+> Signed-off-by: Amos Kong <akong@redhat.com>
+> ---
+> v2: add more detail about new command (Stefan)
+> ---
+>  virtio-spec.lyx | 58 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 57 insertions(+), 1 deletion(-)
+> 
+> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+> index 1ba9992..1ec0cd4 100644
+> --- a/virtio-spec.lyx
+> +++ b/virtio-spec.lyx
+> @@ -56,6 +56,7 @@
+>  \html_math_output 0
+>  \html_css_as_file 0
+>  \html_be_strict false
+> +\author -1930653948 "Amos Kong" 
+>  \author -608949062 "Rusty Russell,,," 
+>  \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
+>  \author 1112500848 "Rusty Russell" rusty@rustcorp.com.au
+> @@ -4391,6 +4392,14 @@ VIRTIO_NET_F_GUEST_ANNOUNCE(21) Guest can send gratuitous packets.
+>  
+>  \change_inserted 1986246365 1352742808
+>  VIRTIO_NET_F_MQ(22) Device supports multiqueue with automatic receive steering.
+> +\change_inserted -1930653948 1358319033
+> +
+> +\end_layout
+> +
+> +\begin_layout Description
+> +
+> +\change_inserted -1930653948 1358319080
+> +VIRTIO_NET_F_CTRL_MAC_ADDR(23) Set MAC address.
+>  \change_unchanged
+>  
+>  \end_layout
+> @@ -5284,7 +5293,11 @@ The class VIRTIO_NET_CTRL_RX has two commands: VIRTIO_NET_CTRL_RX_PROMISC
+>  \end_layout
+>  
+>  \begin_layout Subsubsection*
+> -Setting MAC Address Filtering
+> +Setting MAC Address
+> +\change_deleted -1930653948 1358318470
+> + Filtering
+> +\change_unchanged
+> +
+>  \end_layout
+>  
+>  \begin_layout Standard
+> @@ -5324,6 +5337,17 @@ struct virtio_net_ctrl_mac {
+>  \begin_layout Plain Layout
+>  
+>   #define VIRTIO_NET_CTRL_MAC_TABLE_SET        0 
+> +\change_inserted -1930653948 1358318313
+> +
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted -1930653948 1358318331
+> +
+> + #define VIRTIO_NET_CTRL_MAC_ADDR_SET         1
+> +\change_unchanged
+> +
+>  \end_layout
+>  
+>  \end_inset
+> @@ -5349,6 +5373,38 @@ T_CTRL_MAC_TABLE_SET.
+>   The command-specific-data is two variable length tables of 6-byte MAC addresses.
+>   The first table contains unicast addresses, and the second contains multicast
+>   addresses.
+> +\change_inserted -1930653948 1358318545
+> +
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted -1930653948 1358418243
+> +The config space 
+> +\begin_inset Quotes eld
+> +\end_inset
+> +
+> +mac
+> +\begin_inset Quotes erd
+> +\end_inset
+> +
+> + field and the command VIRTIO_NET_CTRL_MAC_ADDR_SET both set the default
+> + MAC address which rx filtering accepts.
+> + The command VIRTIO_NET_CTRL_MAC_ADDR_SET is atomic whereas the config space
+> + 
+> +\begin_inset Quotes eld
+> +\end_inset
+> +
+> +mac
+> +\begin_inset Quotes erd
+> +\end_inset
+> +
+> + field is not.
+> + Therefore, VIRTIO_NET_CTRL_MAC_ADDR_SET is preferred, especially while
+> + the NIC is up.
+> + The command-specific-data is a 6-byte MAC address.
+> +\change_unchanged
 
-We del vqs when:
+The specification must also say that the "mac" field is read-only when
+the VIRTIO_NET_CTRL_MAC_ADDR_SET command is supported.
 
-1) fail to probe the device
-2) device removal
-3) freeze before suspend
+(I think you added this behavior to your patch.)
 
-In both cases, the device has been stopped. And in 1 and 2 we are about
-to free the device, the per-cpu won't be used any more. For 3, we will
-re-initialize the virtqueues during restoring which will call
-virtnet_set_affinity() which has been protected by
-{get|put}_online_cpus() below.
-
-So looks we could safely remove this.
-
-Thanks
-
->
-> Thanks,
-> Wanlong Gao
->
->>>  
->>>  	vdev->config->del_vqs(vdev);
->>>  
->>> @@ -1371,7 +1399,10 @@ static int init_vqs(struct virtnet_info *vi)
->>>  	if (ret)
->>>  		goto err_free;
->>>  
->>> +	get_online_cpus();
->>>  	virtnet_set_affinity(vi, true);
->>> +	put_online_cpus();
->>> +
->>>  	return 0;
->>>  
->>>  err_free:
->>> @@ -1453,6 +1484,10 @@ static int virtnet_probe(struct virtio_device *vdev)
->>>  	if (vi->stats == NULL)
->>>  		goto free;
->>>  
->>> +	vi->vq_index = alloc_percpu(int);
->>> +	if (vi->vq_index == NULL)
->>> +		goto free_stats;
->>> +
->>>  	mutex_init(&vi->config_lock);
->>>  	vi->config_enable = true;
->>>  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
->>> @@ -1476,7 +1511,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->>>  	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
->>>  	err = init_vqs(vi);
->>>  	if (err)
->>> -		goto free_stats;
->>> +		goto free_index;
->>>  
->>>  	netif_set_real_num_tx_queues(dev, 1);
->>>  	netif_set_real_num_rx_queues(dev, 1);
->>> @@ -1520,6 +1555,8 @@ free_recv_bufs:
->>>  free_vqs:
->>>  	cancel_delayed_work_sync(&vi->refill);
->>>  	virtnet_del_vqs(vi);
->>> +free_index:
->>> +	free_percpu(vi->vq_index);
->>>  free_stats:
->>>  	free_percpu(vi->stats);
->>>  free:
->>> @@ -1554,6 +1591,7 @@ static void virtnet_remove(struct virtio_device *vdev)
->>>  
->>>  	flush_work(&vi->config_work);
->>>  
->>> +	free_percpu(vi->vq_index);
->>>  	free_percpu(vi->stats);
->>>  	free_netdev(vi->dev);
->>>  }
->>
+Stefan
