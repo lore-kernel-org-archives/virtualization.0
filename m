@@ -1,7 +1,7 @@
 From: akong@redhat.com
-Subject: [QEMU PATCH v4 1/3] virtio-net: remove layout assumptions for ctrl vq
-Date: Sat, 19 Jan 2013 09:54:26 +0800
-Message-ID: <1358560468-10865-2-git-send-email-akong@redhat.com>
+Subject: [QEMU PATCH v4 2/3] virtio-net: introduce a new macaddr control
+Date: Sat, 19 Jan 2013 09:54:27 +0800
+Message-ID: <1358560468-10865-3-git-send-email-akong__6280.51893222636$1358560500$gmane$org@redhat.com>
 References: <1358560468-10865-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,227 +21,121 @@ To: mst@redhat.com
 Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, stefanha@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Amos Kong <akong@redhat.com>
 
-Virtio-net code makes assumption about virtqueue descriptor layout
-(e.g. sg[0] is the header, sg[1] is the data buffer).
+In virtio-net guest driver, currently we write MAC address to
+pci config space byte by byte, this means that we have an
+intermediate step where mac is wrong. This patch introduced
+a new control command to set MAC address, it's atomic.
 
-This patch makes code not rely on the layout of descriptors.
+VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+"mac" field will be set to read-only when VIRTIO_NET_F_CTRL_MAC_ADDR
+is acked.
+
 Signed-off-by: Amos Kong <akong@redhat.com>
 ---
- hw/virtio-net.c | 128 ++++++++++++++++++++++++++++++++------------------------
- 1 file changed, 74 insertions(+), 54 deletions(-)
+ hw/pc_piix.c    |  4 ++++
+ hw/virtio-net.c | 15 ++++++++++++++-
+ hw/virtio-net.h | 12 ++++++++++--
+ 3 files changed, 28 insertions(+), 3 deletions(-)
 
+diff --git a/hw/pc_piix.c b/hw/pc_piix.c
+index 0a6923d..6218350 100644
+--- a/hw/pc_piix.c
++++ b/hw/pc_piix.c
+@@ -297,6 +297,10 @@ static QEMUMachine pc_i440fx_machine_v1_4 = {
+             .driver   = "usb-tablet",\
+             .property = "usb_version",\
+             .value    = stringify(1),\
++        },{\
++            .driver   = "virtio-net-pci",\
++            .property = "ctrl_mac_addr",\
++            .value    = "off",      \
+         }
+ 
+ static QEMUMachine pc_machine_v1_3 = {
 diff --git a/hw/virtio-net.c b/hw/virtio-net.c
-index 3bb01b1..113e194 100644
+index 113e194..cf40ff2 100644
 --- a/hw/virtio-net.c
 +++ b/hw/virtio-net.c
-@@ -315,44 +315,44 @@ static void virtio_net_set_features(VirtIODevice *vdev, uint32_t features)
- }
+@@ -93,7 +93,8 @@ static void virtio_net_set_config(VirtIODevice *vdev, const uint8_t *config)
  
- static int virtio_net_handle_rx_mode(VirtIONet *n, uint8_t cmd,
--                                     VirtQueueElement *elem)
-+                                     struct iovec *iov, unsigned int iov_cnt)
- {
-     uint8_t on;
-+    size_t s;
+     memcpy(&netcfg, config, sizeof(netcfg));
  
--    if (elem->out_num != 2 || elem->out_sg[1].iov_len != sizeof(on)) {
--        error_report("virtio-net ctrl invalid rx mode command");
--        exit(1);
-+    s = iov_to_buf(iov, iov_cnt, 0, &on, sizeof(on));
-+    if (s != sizeof(on)) {
-+        return VIRTIO_NET_ERR;
+-    if (memcmp(netcfg.mac, n->mac, ETH_ALEN)) {
++    if (!(n->vdev.guest_features >> VIRTIO_NET_F_CTRL_MAC_ADDR & 1) &&
++        memcmp(netcfg.mac, n->mac, ETH_ALEN)) {
+         memcpy(n->mac, netcfg.mac, ETH_ALEN);
+         qemu_format_nic_info_str(&n->nic->nc, n->mac);
      }
- 
--    on = ldub_p(elem->out_sg[1].iov_base);
--
--    if (cmd == VIRTIO_NET_CTRL_RX_MODE_PROMISC)
-+    if (cmd == VIRTIO_NET_CTRL_RX_MODE_PROMISC) {
-         n->promisc = on;
--    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLMULTI)
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLMULTI) {
-         n->allmulti = on;
--    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLUNI)
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLUNI) {
-         n->alluni = on;
--    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOMULTI)
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOMULTI) {
-         n->nomulti = on;
--    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOUNI)
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOUNI) {
-         n->nouni = on;
--    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOBCAST)
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOBCAST) {
-         n->nobcast = on;
--    else
-+    } else {
-         return VIRTIO_NET_ERR;
-+    }
- 
-     return VIRTIO_NET_OK;
- }
- 
- static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
--                                 VirtQueueElement *elem)
-+                                 struct iovec *iov, unsigned int iov_cnt)
- {
+@@ -350,6 +351,18 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
      struct virtio_net_ctrl_mac mac_data;
-+    size_t s;
+     size_t s;
  
--    if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET || elem->out_num != 3 ||
--        elem->out_sg[1].iov_len < sizeof(mac_data) ||
--        elem->out_sg[2].iov_len < sizeof(mac_data))
-+    if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET) {
-         return VIRTIO_NET_ERR;
-+    }
- 
-     n->mac_table.in_use = 0;
-     n->mac_table.first_multi = 0;
-@@ -360,54 +360,71 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
-     n->mac_table.multi_overflow = 0;
-     memset(n->mac_table.macs, 0, MAC_TABLE_ENTRIES * ETH_ALEN);
- 
--    mac_data.entries = ldl_p(elem->out_sg[1].iov_base);
-+    s = iov_to_buf(iov, iov_cnt, 0, &mac_data.entries,
-+                   sizeof(mac_data.entries));
- 
--    if (sizeof(mac_data.entries) +
--        (mac_data.entries * ETH_ALEN) > elem->out_sg[1].iov_len)
-+    if (s != sizeof(mac_data.entries)) {
-         return VIRTIO_NET_ERR;
-+    }
-+    iov_discard_front(&iov, &iov_cnt, s);
-+
-+    if (mac_data.entries * ETH_ALEN > iov_size(iov, iov_cnt)) {
-+        return VIRTIO_NET_ERR;
-+    }
- 
-     if (mac_data.entries <= MAC_TABLE_ENTRIES) {
--        memcpy(n->mac_table.macs, elem->out_sg[1].iov_base + sizeof(mac_data),
--               mac_data.entries * ETH_ALEN);
-+        s = iov_to_buf(iov, iov_cnt, 0, n->mac_table.macs,
-+                       mac_data.entries * ETH_ALEN);
-+        if (s != mac_data.entries * ETH_ALEN) {
-+            return VIRTIO_NET_OK;
++    if (cmd == VIRTIO_NET_CTRL_MAC_ADDR_SET) {
++        if (iov_size(iov, iov_cnt) != ETH_ALEN) {
++            return VIRTIO_NET_ERR;
 +        }
-         n->mac_table.in_use += mac_data.entries;
-     } else {
-         n->mac_table.uni_overflow = 1;
-     }
- 
-+    iov_discard_front(&iov, &iov_cnt, mac_data.entries * ETH_ALEN);
-+
-     n->mac_table.first_multi = n->mac_table.in_use;
- 
--    mac_data.entries = ldl_p(elem->out_sg[2].iov_base);
-+    s = iov_to_buf(iov, iov_cnt, 0, &mac_data.entries,
-+                   sizeof(mac_data.entries));
- 
--    if (sizeof(mac_data.entries) +
--        (mac_data.entries * ETH_ALEN) > elem->out_sg[2].iov_len)
-+    if (s != sizeof(mac_data.entries)) {
-         return VIRTIO_NET_ERR;
-+    }
- 
--    if (mac_data.entries) {
--        if (n->mac_table.in_use + mac_data.entries <= MAC_TABLE_ENTRIES) {
--            memcpy(n->mac_table.macs + (n->mac_table.in_use * ETH_ALEN),
--                   elem->out_sg[2].iov_base + sizeof(mac_data),
--                   mac_data.entries * ETH_ALEN);
--            n->mac_table.in_use += mac_data.entries;
--        } else {
--            n->mac_table.multi_overflow = 1;
-+    iov_discard_front(&iov, &iov_cnt, s);
-+
-+    if (mac_data.entries * ETH_ALEN != iov_size(iov, iov_cnt)) {
-+        return VIRTIO_NET_ERR;
++        s = iov_to_buf(iov, iov_cnt, 0, &n->mac, sizeof(n->mac));
++        if (s != sizeof(n->mac)) {
++            return VIRTIO_NET_ERR;
++        }
++        qemu_format_nic_info_str(&n->nic->nc, n->mac);
++        return VIRTIO_NET_OK;
 +    }
 +
-+    if (n->mac_table.in_use + mac_data.entries <= MAC_TABLE_ENTRIES) {
-+        s = iov_to_buf(iov, iov_cnt, 0, n->mac_table.macs,
-+                       mac_data.entries * ETH_ALEN);
-+        if (s != mac_data.entries * ETH_ALEN) {
-+            return VIRTIO_NET_OK;
-         }
-+        n->mac_table.in_use += mac_data.entries;
-+    } else {
-+        n->mac_table.multi_overflow = 1;
-     }
- 
-     return VIRTIO_NET_OK;
- }
- 
- static int virtio_net_handle_vlan_table(VirtIONet *n, uint8_t cmd,
--                                        VirtQueueElement *elem)
-+                                        struct iovec *iov, unsigned int iov_cnt)
- {
-     uint16_t vid;
-+    size_t s;
- 
--    if (elem->out_num != 2 || elem->out_sg[1].iov_len != sizeof(vid)) {
--        error_report("virtio-net ctrl invalid vlan command");
-+    s = iov_to_buf(iov, iov_cnt, 0, &vid, sizeof(vid));
-+    if (s != sizeof(vid)) {
+     if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET) {
          return VIRTIO_NET_ERR;
      }
+diff --git a/hw/virtio-net.h b/hw/virtio-net.h
+index d46fb98..1ec632f 100644
+--- a/hw/virtio-net.h
++++ b/hw/virtio-net.h
+@@ -44,6 +44,8 @@
+ #define VIRTIO_NET_F_CTRL_VLAN  19      /* Control channel VLAN filtering */
+ #define VIRTIO_NET_F_CTRL_RX_EXTRA 20   /* Extra RX mode control support */
  
--    vid = lduw_p(elem->out_sg[1].iov_base);
--
-     if (vid >= MAX_VLAN)
-         return VIRTIO_NET_ERR;
++#define VIRTIO_NET_F_CTRL_MAC_ADDR   23 /* Set MAC address */
++
+ #define VIRTIO_NET_S_LINK_UP    1       /* Link is up */
  
-@@ -427,30 +444,33 @@ static void virtio_net_handle_ctrl(VirtIODevice *vdev, VirtQueue *vq)
-     struct virtio_net_ctrl_hdr ctrl;
-     virtio_net_ctrl_ack status = VIRTIO_NET_ERR;
-     VirtQueueElement elem;
-+    size_t s;
-+    struct iovec *iov;
-+    unsigned int iov_cnt;
+ #define TX_TIMER_INTERVAL 150000 /* 150 us */
+@@ -106,7 +108,7 @@ typedef uint8_t virtio_net_ctrl_ack;
+  #define VIRTIO_NET_CTRL_RX_MODE_NOBCAST      5
  
-     while (virtqueue_pop(vq, &elem)) {
--        if ((elem.in_num < 1) || (elem.out_num < 1)) {
-+        if (iov_size(elem.in_sg, elem.in_num) < sizeof(status) ||
-+            iov_size(elem.out_sg, elem.out_num) < sizeof(ctrl)) {
-             error_report("virtio-net ctrl missing headers");
-             exit(1);
-         }
+ /*
+- * Control the MAC filter table.
++ * Control the MAC
+  *
+  * The MAC filter table is managed by the hypervisor, the guest should
+  * assume the size is infinite.  Filtering should be considered
+@@ -119,6 +121,10 @@ typedef uint8_t virtio_net_ctrl_ack;
+  * first sg list contains unicast addresses, the second is for multicast.
+  * This functionality is present if the VIRTIO_NET_F_CTRL_RX feature
+  * is available.
++ *
++ * The ADDR_SET command requests one out scatterlist, it contains a
++ * 6 bytes MAC address. This functionality is present if the
++ * VIRTIO_NET_F_CTRL_MAC_ADDR feature is available.
+  */
+ struct virtio_net_ctrl_mac {
+     uint32_t entries;
+@@ -126,6 +132,7 @@ struct virtio_net_ctrl_mac {
+ };
+ #define VIRTIO_NET_CTRL_MAC    1
+  #define VIRTIO_NET_CTRL_MAC_TABLE_SET        0
++ #define VIRTIO_NET_CTRL_MAC_ADDR_SET         1
  
--        if (elem.out_sg[0].iov_len < sizeof(ctrl) ||
--            elem.in_sg[elem.in_num - 1].iov_len < sizeof(status)) {
--            error_report("virtio-net ctrl header not in correct element");
--            exit(1);
-+        iov = elem.out_sg;
-+        iov_cnt = elem.out_num;
-+        s = iov_to_buf(iov, iov_cnt, 0, &ctrl, sizeof(ctrl));
-+        iov_discard_front(&iov, &iov_cnt, sizeof(ctrl));
-+        if (s != sizeof(ctrl)) {
-+            status = VIRTIO_NET_ERR;
-+        } else if (ctrl.class == VIRTIO_NET_CTRL_RX_MODE) {
-+            status = virtio_net_handle_rx_mode(n, ctrl.cmd, iov, iov_cnt);
-+        } else if (ctrl.class == VIRTIO_NET_CTRL_MAC) {
-+            status = virtio_net_handle_mac(n, ctrl.cmd, iov, iov_cnt);
-+        } else if (ctrl.class == VIRTIO_NET_CTRL_VLAN) {
-+            status = virtio_net_handle_vlan_table(n, ctrl.cmd, iov, iov_cnt);
-         }
- 
--        ctrl.class = ldub_p(elem.out_sg[0].iov_base);
--        ctrl.cmd = ldub_p(elem.out_sg[0].iov_base + sizeof(ctrl.class));
--
--        if (ctrl.class == VIRTIO_NET_CTRL_RX_MODE)
--            status = virtio_net_handle_rx_mode(n, ctrl.cmd, &elem);
--        else if (ctrl.class == VIRTIO_NET_CTRL_MAC)
--            status = virtio_net_handle_mac(n, ctrl.cmd, &elem);
--        else if (ctrl.class == VIRTIO_NET_CTRL_VLAN)
--            status = virtio_net_handle_vlan_table(n, ctrl.cmd, &elem);
--
--        stb_p(elem.in_sg[elem.in_num - 1].iov_base, status);
-+        s = iov_from_buf(elem.in_sg, elem.in_num, 0, &status, sizeof(status));
-+        assert(s == sizeof(status));
- 
-         virtqueue_push(vq, &elem, sizeof(status));
-         virtio_notify(vdev, vq);
+ /*
+  * Control VLAN filtering
+@@ -158,5 +165,6 @@ struct virtio_net_ctrl_mac {
+         DEFINE_PROP_BIT("ctrl_vq", _state, _field, VIRTIO_NET_F_CTRL_VQ, true), \
+         DEFINE_PROP_BIT("ctrl_rx", _state, _field, VIRTIO_NET_F_CTRL_RX, true), \
+         DEFINE_PROP_BIT("ctrl_vlan", _state, _field, VIRTIO_NET_F_CTRL_VLAN, true), \
+-        DEFINE_PROP_BIT("ctrl_rx_extra", _state, _field, VIRTIO_NET_F_CTRL_RX_EXTRA, true)
++        DEFINE_PROP_BIT("ctrl_rx_extra", _state, _field, VIRTIO_NET_F_CTRL_RX_EXTRA, true), \
++        DEFINE_PROP_BIT("ctrl_mac_addr", _state, _field, VIRTIO_NET_F_CTRL_MAC_ADDR, true)
+ #endif
 -- 
 1.7.11.7
