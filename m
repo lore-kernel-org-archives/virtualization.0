@@ -1,13 +1,16 @@
-From: akong@redhat.com
-Subject: [QEMU PATCH v4 3/3] virtio-net: rename ctrl rx commands
-Date: Sat, 19 Jan 2013 09:54:28 +0800
-Message-ID: <1358560468-10865-4-git-send-email-akong__21870.7304950387$1358560510$gmane$org@redhat.com>
+From: Amos Kong <akong@redhat.com>
+Subject: Re: [Qemu-devel] [QEMU PATCH v4 1/3] virtio-net: remove layout
+	assumptions for ctrl vq
+Date: Sat, 19 Jan 2013 10:08:54 +0800
+Message-ID: <20130119020854.GA11286@t430s.redhat.com>
 References: <1358560468-10865-1-git-send-email-akong@redhat.com>
+	<1358560468-10865-2-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1358560468-10865-1-git-send-email-akong@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1358560468-10865-2-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,80 +21,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mst@redhat.com
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, stefanha@redhat.com, virtualization@lists.linux-foundation.org
+Cc: stefanha@redhat.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Amos Kong <akong@redhat.com>
+On Sat, Jan 19, 2013 at 09:54:26AM +0800, akong@redhat.com wrote:
+> From: "Michael S. Tsirkin" <mst@redhat.com>
+> 
+> Virtio-net code makes assumption about virtqueue descriptor layout
+> (e.g. sg[0] is the header, sg[1] is the data buffer).
+> 
+> This patch makes code not rely on the layout of descriptors.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Amos Kong <akong@redhat.com>
+> ---
+>  hw/virtio-net.c | 128 ++++++++++++++++++++++++++++++++------------------------
+>  1 file changed, 74 insertions(+), 54 deletions(-)
 
-This patch makes rx commands consistent with specification.
+Had tested this patch with following scenarios:
 
-Signed-off-by: Amos Kong <akong@redhat.com>
----
- hw/virtio-net.c | 14 +++++++-------
- hw/virtio-net.h | 14 +++++++-------
- 2 files changed, 14 insertions(+), 14 deletions(-)
+VIRTIO_NET_CTRL_RX_MODE
+1) ip link eth0 promisc on/off
+2) ip link set eth0 allmulticast on/off
+3) ip link set eth0 multicast on/off
 
-diff --git a/hw/virtio-net.c b/hw/virtio-net.c
-index cf40ff2..5700e22 100644
---- a/hw/virtio-net.c
-+++ b/hw/virtio-net.c
-@@ -326,17 +326,17 @@ static int virtio_net_handle_rx_mode(VirtIONet *n, uint8_t cmd,
-         return VIRTIO_NET_ERR;
-     }
- 
--    if (cmd == VIRTIO_NET_CTRL_RX_MODE_PROMISC) {
-+    if (cmd == VIRTIO_NET_CTRL_RX_PROMISC) {
-         n->promisc = on;
--    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLMULTI) {
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_ALLMULTI) {
-         n->allmulti = on;
--    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLUNI) {
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_ALLUNI) {
-         n->alluni = on;
--    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOMULTI) {
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_NOMULTI) {
-         n->nomulti = on;
--    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOUNI) {
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_NOUNI) {
-         n->nouni = on;
--    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOBCAST) {
-+    } else if (cmd == VIRTIO_NET_CTRL_RX_NOBCAST) {
-         n->nobcast = on;
-     } else {
-         return VIRTIO_NET_ERR;
-@@ -474,7 +474,7 @@ static void virtio_net_handle_ctrl(VirtIODevice *vdev, VirtQueue *vq)
-         iov_discard_front(&iov, &iov_cnt, sizeof(ctrl));
-         if (s != sizeof(ctrl)) {
-             status = VIRTIO_NET_ERR;
--        } else if (ctrl.class == VIRTIO_NET_CTRL_RX_MODE) {
-+        } else if (ctrl.class == VIRTIO_NET_CTRL_RX) {
-             status = virtio_net_handle_rx_mode(n, ctrl.cmd, iov, iov_cnt);
-         } else if (ctrl.class == VIRTIO_NET_CTRL_MAC) {
-             status = virtio_net_handle_mac(n, ctrl.cmd, iov, iov_cnt);
-diff --git a/hw/virtio-net.h b/hw/virtio-net.h
-index 1ec632f..c0bb284 100644
---- a/hw/virtio-net.h
-+++ b/hw/virtio-net.h
-@@ -99,13 +99,13 @@ typedef uint8_t virtio_net_ctrl_ack;
-  * 0 and 1 are supported with the VIRTIO_NET_F_CTRL_RX feature.
-  * Commands 2-5 are added with VIRTIO_NET_F_CTRL_RX_EXTRA.
-  */
--#define VIRTIO_NET_CTRL_RX_MODE    0
-- #define VIRTIO_NET_CTRL_RX_MODE_PROMISC      0
-- #define VIRTIO_NET_CTRL_RX_MODE_ALLMULTI     1
-- #define VIRTIO_NET_CTRL_RX_MODE_ALLUNI       2
-- #define VIRTIO_NET_CTRL_RX_MODE_NOMULTI      3
-- #define VIRTIO_NET_CTRL_RX_MODE_NOUNI        4
-- #define VIRTIO_NET_CTRL_RX_MODE_NOBCAST      5
-+#define VIRTIO_NET_CTRL_RX    0
-+ #define VIRTIO_NET_CTRL_RX_PROMISC      0
-+ #define VIRTIO_NET_CTRL_RX_ALLMULTI     1
-+ #define VIRTIO_NET_CTRL_RX_ALLUNI       2
-+ #define VIRTIO_NET_CTRL_RX_NOMULTI      3
-+ #define VIRTIO_NET_CTRL_RX_NOUNI        4
-+ #define VIRTIO_NET_CTRL_RX_NOBCAST      5
- 
- /*
-  * Control the MAC
--- 
-1.7.11.7
+VIRTIO_NET_CTRL_MAC
+4) ifconfig eth0 hw ether 52:54:00:12:34:57
+5) ping guest after joined guest into multicast
+   group (225.0.0.1 ~ 225.0.0.10)
+
+VIRTIO_NET_CTRL_VLAN
+6) vconfig add eth0 2; vconfig rem eth0.2
