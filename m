@@ -1,13 +1,16 @@
-From: akong@redhat.com
-Subject: [PATCH v4 3/3] virtio-net: introduce a new control to set macaddr
-Date: Sun, 20 Jan 2013 10:43:09 +0800
-Message-ID: <1358649789-2338-4-git-send-email-akong__7400.18401197648$1358649831$gmane$org@redhat.com>
-References: <1358649789-2338-1-git-send-email-akong@redhat.com>
+From: Amos Kong <akong@redhat.com>
+Subject: Re: [PATCH v3 2/2] virtio-net: introduce a new control to set macaddr
+Date: Sun, 20 Jan 2013 10:20:27 +0800
+Message-ID: <20130120022027.GA2184__46747.2490774982$1358651775$gmane$org@t430s.redhat.com>
+References: <1358419212-32356-1-git-send-email-akong@redhat.com>
+	<1358419212-32356-3-git-send-email-akong@redhat.com>
+	<20130118110042.GB22481@stefanha-thinkpad.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1358649789-2338-1-git-send-email-akong@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20130118110042.GB22481@stefanha-thinkpad.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,108 +20,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Amos Kong <akong@redhat.com>
+On Fri, Jan 18, 2013 at 12:00:42PM +0100, Stefan Hajnoczi wrote:
+> On Thu, Jan 17, 2013 at 06:40:12PM +0800, akong@redhat.com wrote:
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 395ab4f..837c978 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -802,14 +802,32 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
+> >  	struct virtnet_info *vi = netdev_priv(dev);
+> >  	struct virtio_device *vdev = vi->vdev;
+> >  	int ret;
+> > +	struct scatterlist sg;
+> > +	char save_addr[ETH_ALEN];
+> > +	unsigned char save_aatype;
+> > +
+> > +	memcpy(save_addr, dev->dev_addr, ETH_ALEN);
+> > +	save_aatype = dev->addr_assign_type;
+> >  
+> >  	ret = eth_mac_addr(dev, p);
+> >  	if (ret)
+> >  		return ret;
+> >  
+> > -	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
+> > +	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
+> > +		sg_init_one(&sg, dev->dev_addr, dev->addr_len);
+> > +		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
+> > +					  VIRTIO_NET_CTRL_MAC_ADDR_SET,
+> > +					  &sg, 1, 0)) {
+> > +			dev_warn(&vdev->dev,
+> > +				 "Failed to set mac address by vq command.\n");
+> > +			memcpy(dev->dev_addr, save_addr, ETH_ALEN);
+> > +			dev->addr_assign_type = save_aatype;
+> > +			return -EINVAL;
+> > +		}
+> 
+> eth_mac_addr() doesn't allow callers to implement error handling nicely.
+> Although you didn't duplicate it's code directly, this patch still leaks
+> internals of eth_mac_addr().
+> 
+> How about splitting eth_mac_addr() in a separate patch:
 
-Currently we write MAC address to pci config space byte by byte,
-this means that we have an intermediate step where mac is wrong.
-This patch introduced a new control command to set MAC address,
-it's atomic.
+Agree, then we can have nice error handling.
+I will send a V4 and include this patch.
+Thanks.
+ 
+> int eth_prepare_mac_addr_change(struct net_device *dev, void *p)
+> {
+>         struct sockaddr *addr = p;
+>         if (!(dev->priv_flags & IFF_LIVE_ADDR_CHANGE) && netif_running(dev))
+>                 return -EBUSY;
+>         if (!is_valid_ether_addr(addr->sa_data))
+>                 return -EADDRNOTAVAIL;
+> 	return 0;
+> }
 
-VIRTIO_NET_F_CTRL_MAC_ADDR is a new feature bit for compatibility.
+...
 
-Signed-off-by: Amos Kong <akong@redhat.com>
----
- drivers/net/virtio_net.c        | 21 ++++++++++++++++++---
- include/uapi/linux/virtio_net.h |  8 +++++++-
- 2 files changed, 25 insertions(+), 4 deletions(-)
+> Now virtio_net.c does:
+> 
+> ret = eth_prepare_mac_addr_change(dev, p);
+> if (ret < 0)
+> 	return ret;
+> 
+> if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
+> 	sg_init_one(&sg, dev->dev_addr, dev->addr_len);
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 395ab4f..701408a 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -802,14 +802,28 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
- 	struct virtnet_info *vi = netdev_priv(dev);
- 	struct virtio_device *vdev = vi->vdev;
- 	int ret;
-+	struct sockaddr *addr = p;
-+	struct scatterlist sg;
- 
--	ret = eth_mac_addr(dev, p);
-+	ret = eth_prepare_mac_addr_change(dev, p);
- 	if (ret)
- 		return ret;
- 
--	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
-+		sg_init_one(&sg, addr->sa_data, dev->addr_len);
-+		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
-+					  VIRTIO_NET_CTRL_MAC_ADDR_SET,
-+					  &sg, 1, 0)) {
-+			dev_warn(&vdev->dev,
-+				 "Failed to set mac address by vq command.\n");
-+			return -EINVAL;
-+		}
-+	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
- 		vdev->config->set(vdev, offsetof(struct virtio_net_config, mac),
--		                  dev->dev_addr, dev->addr_len);
-+				  addr->sa_data, dev->addr_len);
-+	}
-+
-+	eth_commit_mac_addr_change(dev, p);
- 
- 	return 0;
- }
-@@ -1627,6 +1641,7 @@ static unsigned int features[] = {
- 	VIRTIO_NET_F_MRG_RXBUF, VIRTIO_NET_F_STATUS, VIRTIO_NET_F_CTRL_VQ,
- 	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
- 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
-+	VIRTIO_NET_F_CTRL_MAC_ADDR,
- };
- 
- static struct virtio_driver virtio_net_driver = {
-diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-index 848e358..a5a8c88 100644
---- a/include/uapi/linux/virtio_net.h
-+++ b/include/uapi/linux/virtio_net.h
-@@ -53,6 +53,7 @@
- 					 * network */
- #define VIRTIO_NET_F_MQ	22	/* Device supports Receive Flow
- 					 * Steering */
-+#define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
- 
- #define VIRTIO_NET_S_LINK_UP	1	/* Link is up */
- #define VIRTIO_NET_S_ANNOUNCE	2	/* Announcement is needed */
-@@ -127,7 +128,7 @@ typedef __u8 virtio_net_ctrl_ack;
-  #define VIRTIO_NET_CTRL_RX_NOBCAST      5
- 
- /*
-- * Control the MAC filter table.
-+ * Control the MAC
-  *
-  * The MAC filter table is managed by the hypervisor, the guest should
-  * assume the size is infinite.  Filtering should be considered
-@@ -140,6 +141,10 @@ typedef __u8 virtio_net_ctrl_ack;
-  * first sg list contains unicast addresses, the second is for multicast.
-  * This functionality is present if the VIRTIO_NET_F_CTRL_RX feature
-  * is available.
-+ *
-+ * The ADDR_SET command requests one out scatterlist, it contains a
-+ * 6 bytes MAC address. This functionality is present if the
-+ * VIRTIO_NET_F_CTRL_MAC_ADDR feature is available.
-  */
- struct virtio_net_ctrl_mac {
- 	__u32 entries;
-@@ -148,6 +153,7 @@ struct virtio_net_ctrl_mac {
- 
- #define VIRTIO_NET_CTRL_MAC    1
-  #define VIRTIO_NET_CTRL_MAC_TABLE_SET        0
-+ #define VIRTIO_NET_CTRL_MAC_ADDR_SET         1
- 
- /*
-  * Control VLAN filtering
--- 
-1.7.11.7
+         trivial issue, %s/dev->dev_addr/addr->sa_data
+
+> 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
+> 				  VIRTIO_NET_CTRL_MAC_ADDR_SET,
+> 				  &sg, 1, 0)) {
+> 		dev_warn(&vdev->dev,
+> 			 "Failed to set mac address by vq command.\n");
+> 		return -EINVAL;
+> 	}
+> } ...
+> 
+> eth_commit_mac_addr_change(dev, p);
+> return 0;
+> 
+> Stefan
