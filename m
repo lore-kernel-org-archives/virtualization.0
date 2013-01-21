@@ -1,15 +1,13 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH v4 2/3] net: split eth_mac_addr for better error handling
-Date: Mon, 21 Jan 2013 17:13:28 +0100
-Message-ID: <20130121161328.GE24473__33710.2595869966$1358784837$gmane$org@stefanha-thinkpad.redhat.com>
-References: <1358649789-2338-1-git-send-email-akong@redhat.com>
-	<1358649789-2338-3-git-send-email-akong@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v5 0/3] make mac programming for virtio net more robust
+Date: Mon, 21 Jan 2013 14:09:20 -0500 (EST)
+Message-ID: <20130121.140920.2221386686285571275.davem__13742.5241446637$1358795390$gmane$org@davemloft.net>
+References: <1358767043-24548-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1358649789-2338-3-git-send-email-akong@redhat.com>
+In-Reply-To: <1358767043-24548-1-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +18,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: akong@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jan 20, 2013 at 10:43:08AM +0800, akong@redhat.com wrote:
-> From: Stefan Hajnoczi <stefanha@gmail.com>
-> 
-> When we set mac address, software mac address in system and hardware mac
-> address all need to be updated. Current eth_mac_addr() doesn't allow
-> callers to implement error handling nicely.
-> 
-> This patch split eth_mac_addr() to prepare part and real commit part,
-> then we can prepare first, and try to change hardware address, then do
-> the real commit if hardware address is set successfully.
-> 
-> Signed-off-by: Stefan Hajnoczi <stefanha@gmail.com>
-> Signed-off-by: Amos Kong <akong@redhat.com>
-> ---
->  include/linux/etherdevice.h |  2 ++
->  net/ethernet/eth.c          | 43 ++++++++++++++++++++++++++++++++++++-------
->  2 files changed, 38 insertions(+), 7 deletions(-)
+From: Amos Kong <akong@redhat.com>
+Date: Mon, 21 Jan 2013 19:17:20 +0800
 
-Feel free to make yourself author and put me just as Suggested-by:.  I
-posted pseudo-code but didn't write the patch or test it, so it's fair
-to say that credit goes to you. :)
+> Currenly mac is programmed byte by byte. This means that we
+> have an intermediate step where mac is wrong. 
+> 
+> Third patch introduced a new vq control command to set mac
+> address, it's atomic.
+> 
+> V2: check return of sending command, delay eth_mac_addr()
+> V3: restore software address when fail to set hardware address
+> V4: split eth_mac_addr, fix error handle
+> V5: rebase patches to net-next tree
 
-Stefan
+I'll apply this series, thanks.
