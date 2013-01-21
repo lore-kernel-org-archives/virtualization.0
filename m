@@ -1,13 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC] virtio_console: Add DRIVER and INTERFACE to uevent.
-Date: Tue, 22 Jan 2013 09:55:20 +1030
-Message-ID: <87pq0yw23j.fsf@rustcorp.com.au>
-References: <1358425438-4633-1-git-send-email-sjur.brandeland@stericsson.com>
+Subject: Re: [PATCH 1/6] virtio_host: host-side implementation of virtio rings.
+Date: Tue, 22 Jan 2013 09:27:15 +1030
+Message-ID: <87k3r6uotw.fsf@rustcorp.com.au>
+References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
+	<20130117112314.GA15504@redhat.com>
+	<877gn7w9fc.fsf@rustcorp.com.au> <87r4levjmk.fsf@rustcorp.com.au>
+	<20130121122431.GB3969@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1358425438-4633-1-git-send-email-sjur.brandeland@stericsson.com>
+In-Reply-To: <20130121122431.GB3969@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,46 +20,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, virtualization@lists.linux-foundation.org, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyaXRlczoKCj4gRnJvbTogU2p1ciBCcsOm
-bmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+Cj4gQWRkIGluZm9ybWF0
-aW9uIHNvIHJwcm9jLXNlcmlhbCBjYW4gYmUgZWFzaWx5IHJlY29nbmljZWQKPiBmcm9tIHVzZXIg
-c3BhY2UuIEFkZCB0aGUgZm9sbG93aW5nIGluZm9ybWF0aW9uIHRvIHVldmVudDoKPiBEUklWRVI9
-dmlydGlvX2NvbnNvbGV8dmlydGlvX3Jwcm9jX3NlcmlhbAo+IElOVEVSRkFDRT1ncmFuZC1wYXJl
-bnQvcGFyZW50L25hbWUKPgo+IFNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIu
-YnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KPiAtLS0KPiBIaSwKPgo+IEkgbmVlZCBzb21lIHdh
-eSB0byBpZGVudGlmeSB0aGUgbWFqb3IvbWlub3IgbnVtYmVyIGZvcgo+IHRoZSBycHJvYy1zZXJp
-YWwgZGV2aWNlLCBnaXZlbiB0aGUgdWRldiBldmVudC4gCj4gUmV2aWV3IGNvbW1lbnRzIGFyZSB3
-ZWxjb21lZC4KPgo+IFRoYW5rcywKPiBTanVyCgpIbW0sIEkgc2VuZCBhbGwgdWV2ZW50IHF1ZXN0
-aW9ucyB0byBHcmVnIEtIIChDQydkKS4KClRoYW5rcywKUnVzdHkuCgo+ICBkcml2ZXJzL2NoYXIv
-dmlydGlvX2NvbnNvbGUuYyB8ICAgMjIgKysrKysrKysrKysrKysrKysrKysrKwo+ICAxIGZpbGVz
-IGNoYW5nZWQsIDIyIGluc2VydGlvbnMoKyksIDAgZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0
-IGEvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2Nv
-bnNvbGUuYwo+IGluZGV4IDAzMWJlMGIuLjk2YzVlZDkgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9j
-aGFyL3ZpcnRpb19jb25zb2xlLmMKPiArKysgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUu
-Ywo+IEBAIC0yMTkwLDYgKzIxOTAsMjcgQEAgc3RhdGljIHN0cnVjdCB2aXJ0aW9fZHJpdmVyIHZp
-cnRpb19ycHJvY19zZXJpYWwgPSB7Cj4gIAkucmVtb3ZlID0JdmlydGNvbnNfcmVtb3ZlLAo+ICB9
-Owo+ICAKPiAraW50IGNsYXNzX3ZpcnRpb19wb3J0c191ZXZlbnQoc3RydWN0IGRldmljZSAqX2Rl
-diwgc3RydWN0IGtvYmpfdWV2ZW50X2VudiAqZW52KQo+ICt7Cj4gKwlzdHJ1Y3QgcG9ydCAqcG9y
-dCA9IGRldl9nZXRfZHJ2ZGF0YShfZGV2KTsKPiArCXN0cnVjdCBkZXZpY2UgKmRldjsKPiArCWlu
-dCBlcnI7Cj4gKwo+ICsJaWYgKCFwb3J0IHx8ICFwb3J0LT5wb3J0ZGV2IHx8ICFwb3J0LT5wb3J0
-ZGV2LT52ZGV2KQo+ICsJCXJldHVybiAwOwo+ICsKPiArCWRldiA9ICZwb3J0LT5wb3J0ZGV2LT52
-ZGV2LT5kZXY7Cj4gKwllcnIgPSBhZGRfdWV2ZW50X3ZhcihlbnYsICJEUklWRVI9JXMiLCBkZXYt
-PmRyaXZlci0+bmFtZSk7Cj4gKwlpZiAoZXJyKQo+ICsJCXJldHVybiBlcnI7Cj4gKwo+ICsJcmV0
-dXJuIGFkZF91ZXZlbnRfdmFyKGVudiwgIklOVEVSRkFDRT0lcy8lcy8lcyIsCj4gKwkJCSAgICAg
-IGRldi0+cGFyZW50LT5wYXJlbnQgPwo+ICsJCQkJCWRldl9uYW1lKGRldi0+cGFyZW50LT5wYXJl
-bnQpIDogIiIsCj4gKwkJCSAgICAgIGRldi0+cGFyZW50ID8gZGV2X25hbWUoZGV2LT5wYXJlbnQp
-IDogIiIsCj4gKwkJCSAgICAgIGRldl9uYW1lKGRldikpOwo+ICt9Cj4gKwo+ICBzdGF0aWMgaW50
-IF9faW5pdCBpbml0KHZvaWQpCj4gIHsKPiAgCWludCBlcnI7Cj4gQEAgLTIyMDEsNiArMjIyMiw3
-IEBAIHN0YXRpYyBpbnQgX19pbml0IGluaXQodm9pZCkKPiAgCQlyZXR1cm4gZXJyOwo+ICAJfQo+
-ICAKPiArCXBkcnZkYXRhLmNsYXNzLT5kZXZfdWV2ZW50ID0gY2xhc3NfdmlydGlvX3BvcnRzX3Vl
-dmVudDsKPiAgCXBkcnZkYXRhLmRlYnVnZnNfZGlyID0gZGVidWdmc19jcmVhdGVfZGlyKCJ2aXJ0
-aW8tcG9ydHMiLCBOVUxMKTsKPiAgCWlmICghcGRydmRhdGEuZGVidWdmc19kaXIpIHsKPiAgCQlw
-cl93YXJuaW5nKCJFcnJvciAlbGQgY3JlYXRpbmcgZGVidWdmcyBkaXIgZm9yIHZpcnRpby1wb3J0
-c1xuIiwKPiAtLSAKPiAxLjcuNS40Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Mon, Jan 21, 2013 at 10:22:03PM +1030, Rusty Russell wrote:
+>> Rusty Russell <rusty@rustcorp.com.au> writes:
+>> > "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> >>> +		iov->iov[iov->i].iov_base = (__force __user void *)addr;
+>> >>> +		iov->iov[iov->i].iov_len = desc.len;
+>> >>
+>> >> The following comment from the previous version still applies:
+>> >> 	> This looks like it won't do the right thing if desc.len spans multiple
+>> >> 	> ranges. I don't know if this happens in practice but this is something
+>> >> 	> vhost supports ATM.
+>> >> in otgher words, we might need to split a single desc to multiple
+>> >> iov entries.
+>> >
+>> > Ah, separate offsets for consecutive ranges, right.  I'd prefer to say
+>> > "don't do that", but qemu is rarely sane.  I'll fix it.
+>> 
+>> Actually, you make the same assumption for vhost, with your use of
+>> getuser and putuser for accessing the ring.
+>
+> There's no requirement that ring is mapped directly into guest
+> memory. If a ring is not contigious qemu can allocate
+> it's own virtuall contigious rings and copy data back and forth.
+
+True, but it's the guest which allocates the ring.  If QEMU sets up a
+guest with a offset-discontiguous mapping, vhost would be unreliable
+today.
+
+>> The complexity and cost of handling this is significant,
+>
+> Why is it? Just add a while loop, increment desc.addr
+> and decrement desc.len.
+
+Indirect handling now needs to re-check the boundaries for every
+descriptor it fetches, and handle the case where a single descriptor
+overlaps the boundary.
+
+The ability to verify the indirect descriptor table all at once makes
+the code fast and neat.
+
+From your other mail:
+
+> It seems it could happen if e.g. one region is ROM and another one is
+> RAM.  This means it won't be used for the ring (which is R/W) but could
+> be for the data.
+
+That case wouldn't be so bad, I think, since it's a simple loop.
+
+I'll create some patches and see if it's too ugly to live...
+
+Thanks,
+Rusty.
