@@ -1,14 +1,15 @@
-From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: [PATCH V6 3/3] virtio-net: reset virtqueue affinity when doing cpu
-	hotplug
-Date: Mon, 21 Jan 2013 19:25:24 +0800
-Message-ID: <1358767524-17934-3-git-send-email-gaowanlong__22405.4109924056$1358767618$gmane$org@cn.fujitsu.com>
-References: <1358767524-17934-1-git-send-email-gaowanlong@cn.fujitsu.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/6] virtio_host: host-side implementation of virtio rings.
+Date: Mon, 21 Jan 2013 22:22:03 +1030
+Message-ID: <87r4levjmk.fsf@rustcorp.com.au>
+References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
+	<20130117112314.GA15504@redhat.com>
+	<877gn7w9fc.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1358767524-17934-1-git-send-email-gaowanlong@cn.fujitsu.com>
+In-Reply-To: <877gn7w9fc.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,102 +19,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <erdnetdev@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a cpu notifier to virtio-net, so that we can reset the
-virtqueue affinity if the cpu hotplug happens. It improve
-the performance through enabling or disabling the virtqueue
-affinity after doing cpu hotplug.
+Rusty Russell <rusty@rustcorp.com.au> writes:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>>> +		iov->iov[iov->i].iov_base = (__force __user void *)addr;
+>>> +		iov->iov[iov->i].iov_len = desc.len;
+>>
+>> The following comment from the previous version still applies:
+>> 	> This looks like it won't do the right thing if desc.len spans multiple
+>> 	> ranges. I don't know if this happens in practice but this is something
+>> 	> vhost supports ATM.
+>> in otgher words, we might need to split a single desc to multiple
+>> iov entries.
+>
+> Ah, separate offsets for consecutive ranges, right.  I'd prefer to say
+> "don't do that", but qemu is rarely sane.  I'll fix it.
 
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Eric Dumazet <erdnetdev@gmail.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
----
-V5->V6:
-	deal with CPU_DOWN_PREPARE separately by just cleaning affinity
-V4->V5:
-	New method to deal with the cpu hotplug actions (Rusty)
+Actually, you make the same assumption for vhost, with your use of
+getuser and putuser for accessing the ring.
 
- drivers/net/virtio_net.c | 33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+The complexity and cost of handling this is significant, and the error
+if it ever did happen is distinctive.  Does qemu ever create such
+things?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 1a35a8c..1d93999 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -26,6 +26,7 @@
- #include <linux/scatterlist.h>
- #include <linux/if_vlan.h>
- #include <linux/slab.h>
-+#include <linux/cpu.h>
- 
- static int napi_weight = 128;
- module_param(napi_weight, int, 0444);
-@@ -126,6 +127,9 @@ struct virtnet_info {
- 
- 	/* Per-cpu variable to show the mapping from CPU to virtqueue */
- 	int __percpu *vq_index;
-+
-+	/* CPU hot plug notifier */
-+	struct notifier_block nb;
- };
- 
- struct skb_vnet_hdr {
-@@ -1067,6 +1071,26 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
- 	vi->affinity_hint_set = true;
- }
- 
-+static int virtnet_cpu_callback(struct notifier_block *nfb,
-+			        unsigned long action, void *hcpu)
-+{
-+	struct virtnet_info *vi = container_of(nfb, struct virtnet_info, nb);
-+
-+	switch(action & ~CPU_TASKS_FROZEN) {
-+	case CPU_ONLINE:
-+	case CPU_DOWN_FAILED:
-+	case CPU_DEAD:
-+		virtnet_set_affinity(vi);
-+		break;
-+	case CPU_DOWN_PREPARE:
-+		virtnet_clean_affinity(vi, (long)hcpu);
-+		break;
-+	default:
-+		break;
-+	}
-+	return NOTIFY_OK;
-+}
-+
- static void virtnet_get_ringparam(struct net_device *dev,
- 				struct ethtool_ringparam *ring)
- {
-@@ -1541,6 +1565,13 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		}
- 	}
- 
-+	vi->nb.notifier_call = &virtnet_cpu_callback;
-+	err = register_hotcpu_notifier(&vi->nb);
-+	if (err) {
-+		pr_debug("virtio_net: registering cpu notifier failed\n");
-+		goto free_recv_bufs;
-+	}
-+
- 	/* Assume link up if device can't report link status,
- 	   otherwise get link status from config. */
- 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
-@@ -1587,6 +1618,8 @@ static void virtnet_remove(struct virtio_device *vdev)
- {
- 	struct virtnet_info *vi = vdev->priv;
- 
-+	unregister_hotcpu_notifier(&vi->nb);
-+
- 	/* Prevent config work handler from accessing the device. */
- 	mutex_lock(&vi->config_lock);
- 	vi->config_enable = false;
--- 
-1.8.1
+Thanks,
+Rusty.
