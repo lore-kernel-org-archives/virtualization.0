@@ -1,14 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v4 2/3] net: split eth_mac_addr for better error handling
-Date: Sun, 20 Jan 2013 23:14:32 -0500 (EST)
-Message-ID: <20130120.231432.1625470984232658368.davem__13599.0144372501$1358741700$gmane$org@davemloft.net>
-References: <1358649789-2338-1-git-send-email-akong@redhat.com>
-	<1358649789-2338-3-git-send-email-akong@redhat.com>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH 1/3] tcm_vhost: Introduce iov_num_pages
+Date: Mon, 21 Jan 2013 16:05:26 +0800
+Message-ID: <1358755528-31421-2-git-send-email-asias@redhat.com>
+References: <1358755528-31421-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1358649789-2338-3-git-send-email-akong@redhat.com>
+In-Reply-To: <1358755528-31421-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +17,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: akong@redhat.com
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Nicholas Bellinger <nab@linux-iscsi.org>
+Cc: target-devel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: akong@redhat.com
-Date: Sun, 20 Jan 2013 10:43:08 +0800
+Add a helper to calculate the number of pages needed for a iov entry.
 
-> From: Stefan Hajnoczi <stefanha@gmail.com>
-> 
-> When we set mac address, software mac address in system and hardware mac
-> address all need to be updated. Current eth_mac_addr() doesn't allow
-> callers to implement error handling nicely.
-> 
-> This patch split eth_mac_addr() to prepare part and real commit part,
-> then we can prepare first, and try to change hardware address, then do
-> the real commit if hardware address is set successfully.
-> 
-> Signed-off-by: Stefan Hajnoczi <stefanha@gmail.com>
-> Signed-off-by: Amos Kong <akong@redhat.com>
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/tcm_vhost.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-This patch doesn't apply to net-next.
+diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+index 3720604..ca35c16 100644
+--- a/drivers/vhost/tcm_vhost.c
++++ b/drivers/vhost/tcm_vhost.c
+@@ -77,6 +77,12 @@ static struct workqueue_struct *tcm_vhost_workqueue;
+ static DEFINE_MUTEX(tcm_vhost_mutex);
+ static LIST_HEAD(tcm_vhost_list);
+ 
++static inline int iov_num_pages(struct iovec *iov)
++{
++	return (PAGE_ALIGN((unsigned long)iov->iov_base + iov->iov_len) -
++	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
++}
++
+ static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
+ {
+ 	return 1;
+-- 
+1.8.1
