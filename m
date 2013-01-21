@@ -1,16 +1,15 @@
-From: Amos Kong <akong@redhat.com>
-Subject: Re: [PATCH v3 2/2] virtio-net: introduce a new control to set macaddr
-Date: Sun, 20 Jan 2013 10:20:27 +0800
-Message-ID: <20130120022027.GA2184__46747.2490774982$1358651775$gmane$org@t430s.redhat.com>
-References: <1358419212-32356-1-git-send-email-akong@redhat.com>
-	<1358419212-32356-3-git-send-email-akong@redhat.com>
-	<20130118110042.GB22481@stefanha-thinkpad.redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/6] virtio_host: host-side implementation of virtio rings.
+Date: Mon, 21 Jan 2013 13:06:22 +1030
+Message-ID: <874nibw9cp.fsf@rustcorp.com.au>
+References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
+	<20130117112314.GA15504@redhat.com>
+	<CAJK669ZtShu89xMmryLM7dX0Cy7AoOdyPf7cSdV4v+81E-XF5g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130118110042.GB22481@stefanha-thinkpad.redhat.com>
+In-Reply-To: <CAJK669ZtShu89xMmryLM7dX0Cy7AoOdyPf7cSdV4v+81E-XF5g@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,87 +19,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, davem@davemloft.net
+To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 18, 2013 at 12:00:42PM +0100, Stefan Hajnoczi wrote:
-> On Thu, Jan 17, 2013 at 06:40:12PM +0800, akong@redhat.com wrote:
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 395ab4f..837c978 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -802,14 +802,32 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
-> >  	struct virtnet_info *vi = netdev_priv(dev);
-> >  	struct virtio_device *vdev = vi->vdev;
-> >  	int ret;
-> > +	struct scatterlist sg;
-> > +	char save_addr[ETH_ALEN];
-> > +	unsigned char save_aatype;
-> > +
-> > +	memcpy(save_addr, dev->dev_addr, ETH_ALEN);
-> > +	save_aatype = dev->addr_assign_type;
-> >  
-> >  	ret = eth_mac_addr(dev, p);
-> >  	if (ret)
-> >  		return ret;
-> >  
-> > -	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
-> > +	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
-> > +		sg_init_one(&sg, dev->dev_addr, dev->addr_len);
-> > +		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
-> > +					  VIRTIO_NET_CTRL_MAC_ADDR_SET,
-> > +					  &sg, 1, 0)) {
-> > +			dev_warn(&vdev->dev,
-> > +				 "Failed to set mac address by vq command.\n");
-> > +			memcpy(dev->dev_addr, save_addr, ETH_ALEN);
-> > +			dev->addr_assign_type = save_aatype;
-> > +			return -EINVAL;
-> > +		}
-> 
-> eth_mac_addr() doesn't allow callers to implement error handling nicely.
-> Although you didn't duplicate it's code directly, this patch still leaks
-> internals of eth_mac_addr().
-> 
-> How about splitting eth_mac_addr() in a separate patch:
-
-Agree, then we can have nice error handling.
-I will send a V4 and include this patch.
-Thanks.
- 
-> int eth_prepare_mac_addr_change(struct net_device *dev, void *p)
-> {
->         struct sockaddr *addr = p;
->         if (!(dev->priv_flags & IFF_LIVE_ADDR_CHANGE) && netif_running(dev))
->                 return -EBUSY;
->         if (!is_valid_ether_addr(addr->sa_data))
->                 return -EADDRNOTAVAIL;
-> 	return 0;
-> }
-
-...
-
-> Now virtio_net.c does:
-> 
-> ret = eth_prepare_mac_addr_change(dev, p);
-> if (ret < 0)
-> 	return ret;
-> 
-> if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
-> 	sg_init_one(&sg, dev->dev_addr, dev->addr_len);
-
-         trivial issue, %s/dev->dev_addr/addr->sa_data
-
-> 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
-> 				  VIRTIO_NET_CTRL_MAC_ADDR_SET,
-> 				  &sg, 1, 0)) {
-> 		dev_warn(&vdev->dev,
-> 			 "Failed to set mac address by vq command.\n");
-> 		return -EINVAL;
-> 	}
-> } ...
-> 
-> eth_commit_mac_addr_change(dev, p);
-> return 0;
-> 
-> Stefan
+U2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPiB3cml0ZXM6
+Cj4gT24gVGh1LCBKYW4gMTcsIDIwMTMgYXQgMTI6MjMgUE0sIE1pY2hhZWwgUy4gVHNpcmtpbiA8
+bXN0QHJlZGhhdC5jb20+IHdyb3RlOgo+PiBpbiBvdGdoZXIgd29yZHMsIHdlIG1pZ2h0IG5lZWQg
+dG8gc3BsaXQgYSBzaW5nbGUgZGVzYyB0byBtdWx0aXBsZQo+PiBpb3YgZW50cmllcy4KPgo+IFNw
+bGl0dGluZyBkZXNjcmlwdG9ycyBkb2Vzbid0IHdvcmsgZm9yIG1lLiBBcyBkZXNjcmliZWQgZWFy
+bGllciwgSQo+IHJlY2VpdmUgb25lIElQLWZyYW1lIGZvciBlYWNoIGRlc2NyaXB0b3IuIFNvIEkg
+bmVlZCB0byBrZWVwCj4gdGhlIG9yaWdpbmFsIGJvdW5kYXJpZXMuCgpZZXMsIGJ1dCB0aGUgX2tl
+cm4gaGVscGVycyBkb24ndCBkbyByYW5nZSBjaGVja2luZyBvciBvZmZzZXR0aW5nIGF0IHRoZQpt
+b21lbnQsIHNvIHRoZXknbGwgYmUgcHJlc2VydmVkLgoKSWYgeW91IHdhbnQgdG8gZG8gcmFuZ2Ug
+Y2hlY2tpbmcsIEkgY2FuIGFkZCB0aGF0Li4uCgpDaGVlcnMsClJ1c3R5LgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
+IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
