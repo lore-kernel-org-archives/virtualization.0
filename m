@@ -1,13 +1,16 @@
-From: Asias He <asias@redhat.com>
-Subject: [PATCH 3/3] tcm_vhost: Use iov_num_pages to calculate sgl_count
-Date: Mon, 21 Jan 2013 16:05:28 +0800
-Message-ID: <1358755528-31421-4-git-send-email-asias@redhat.com>
-References: <1358755528-31421-1-git-send-email-asias@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 0/5] vhost-scsi: Add support for host virtualized target
+Date: Mon, 21 Jan 2013 10:50:34 +0200
+Message-ID: <20130121085034.GA31047@redhat.com>
+References: <1347000499-28701-1-git-send-email-nab@linux-iscsi.org>
+	<20130117164314.GA19458@redhat.com>
+	<1358456841.18551.48.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1358755528-31421-1-git-send-email-asias@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1358456841.18551.48.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,33 +20,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nicholas Bellinger <nab@linux-iscsi.org>
-Cc: target-devel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Asias He <asias@redhat.com>
----
- drivers/vhost/tcm_vhost.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+On Thu, Jan 17, 2013 at 01:07:21PM -0800, Nicholas A. Bellinger wrote:
+> Hi MST & Co,
+> 
+> On Thu, 2013-01-17 at 18:43 +0200, Michael S. Tsirkin wrote:
+> > On Fri, Sep 07, 2012 at 06:48:14AM +0000, Nicholas A. Bellinger wrote:
+> > > From: Nicholas Bellinger <nab@linux-iscsi.org>
+> > > 
+> > > Hello Anthony & Co,
+> > > 
+> > > This is the fourth installment to add host virtualized target support for
+> > > the mainline tcm_vhost fabric driver using Linux v3.6-rc into QEMU 1.3.0-rc.
+> > > 
+> > > The series is available directly from the following git branch:
+> > > 
+> > >    git://git.kernel.org/pub/scm/virt/kvm/nab/qemu-kvm.git vhost-scsi-for-1.3
+> > > 
+> > > Note the code is cut against yesterday's QEMU head, and dispite the name
+> > > of the tree is based upon mainline qemu.org git code + has thus far been
+> > > running overnight with > 100K IOPs small block 4k workloads using v3.6-rc2+
+> > > based target code with RAMDISK_DR backstores.
+> > > 
+> > > Other than some minor fuzz between jumping from QEMU 1.2.0 -> 1.2.50, this
+> > > series is functionally identical to what's been posted for vhost-scsi RFC-v3
+> > > to qemu-devel.
+> > > 
+> > > Please consider applying these patches for an initial vhost-scsi merge into
+> > > QEMU 1.3.0-rc code, or let us know what else you'd like to see addressed for
+> > > this series to in order to merge.
+> > > 
+> > > Thank you!
+> > > 
+> > > --nab
+> > 
+> > OK what's the status here?
+> > We missed 1.3 but let's try not to miss 1.4?
+> > 
+> 
+> Unfortunately, I've not been able to get back to the conversion
+> requested by Paolo for a standalone vhost-scsi PCI device.
 
-diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 59be442..5b77469 100644
---- a/drivers/vhost/tcm_vhost.c
-+++ b/drivers/vhost/tcm_vhost.c
-@@ -487,11 +487,9 @@ static int vhost_scsi_map_iov_to_sgl(struct tcm_vhost_cmd *tv_cmd,
- 	 * Find out how long sglist needs to be
- 	 */
- 	sgl_count = 0;
--	for (i = 0; i < niov; i++) {
--		sgl_count += (((uintptr_t)iov[i].iov_base + iov[i].iov_len +
--				PAGE_SIZE - 1) >> PAGE_SHIFT) -
--				((uintptr_t)iov[i].iov_base >> PAGE_SHIFT);
--	}
-+	for (i = 0; i < niov; i++)
-+		sgl_count += iov_num_pages(&iov[i]);
-+
- 	/* TODO overflow checking */
- 
- 	sg = kmalloc(sizeof(tv_cmd->tvc_sgl[0]) * sgl_count, GFP_ATOMIC);
--- 
-1.8.1
+It doesn't have to be a standalone device. A vhost=on frontend
+option is also OK I think. Paolo, any objections?
+
+> At this point my hands are still full with iSER-target for-3.9 kernel
+> code over the next weeks.  
+> 
+> What's the v1.4 feature cut-off looking like at this point..?
+> 
+> --nab
+
+Not sure but soon.
