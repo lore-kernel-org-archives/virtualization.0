@@ -1,15 +1,13 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 2/3] tcm_vhost: Optimize gup in vhost_scsi_map_to_sgl
-Date: Tue, 22 Jan 2013 09:33:07 +0800
-Message-ID: <50FDEC53.2060506@redhat.com>
-References: <1358755528-31421-1-git-send-email-asias@redhat.com>
-	<1358755528-31421-3-git-send-email-asias@redhat.com>
-	<20130121185713.GA28429@amt.cnet>
+Subject: [PATCH v2 1/3] tcm_vhost: Introduce iov_num_pages
+Date: Tue, 22 Jan 2013 11:20:25 +0800
+Message-ID: <1358824827-16169-2-git-send-email-asias@redhat.com>
+References: <1358824827-16169-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130121185713.GA28429@amt.cnet>
+In-Reply-To: <1358824827-16169-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,58 +17,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marcelo Tosatti <mtosatti@redhat.com>
+To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/22/2013 02:57 AM, Marcelo Tosatti wrote:
-> On Mon, Jan 21, 2013 at 04:05:27PM +0800, Asias He wrote:
->> We can get all the pages in one time instead of calling
->> gup N times.
->>
->> Signed-off-by: Asias He <asias@redhat.com>
->> ---
->>  drivers/vhost/tcm_vhost.c | 33 ++++++++++++++++++++-------------
->>  1 file changed, 20 insertions(+), 13 deletions(-)
->>
->> diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
->> index ca35c16..59be442 100644
->> --- a/drivers/vhost/tcm_vhost.c
->> +++ b/drivers/vhost/tcm_vhost.c
->> @@ -430,37 +430,45 @@ static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
->>   * Returns the number of scatterlist entries used or -errno on error.
->>   */
->>  static int vhost_scsi_map_to_sgl(struct scatterlist *sgl,
->> -	unsigned int sgl_count, void __user *ptr, size_t len, int write)
->> +	unsigned int sgl_count, struct iovec *iov, int write)
->>  {
->>  	struct scatterlist *sg = sgl;
->>  	unsigned int npages = 0;
->> +	void __user *ptr = iov->iov_base;
->> +	size_t len = iov->iov_len;
->>  	int ret;
->> +	unsigned int pages_nr, offset, nbytes;
->> +	struct page **pages;
->> +
->> +	pages_nr = iov_num_pages(iov);
->> +	pages = kmalloc(pages_nr * sizeof(struct page *), GFP_ATOMIC);
->> +	if (!pages)
->> +		return -ENOMEM;
->> +
->> +	ret = get_user_pages_fast((unsigned long)ptr, pages_nr, write, pages);
->> +	if (ret != pages_nr)
->> +		goto err;
-> 
-> 1. Why GFP_ATOMIC? get_user_pages_fast can sleep, so this path must not
-> be atomic (if it is, should use __get_user_pages_fast).
-> 
-> GFP_ATOMIC should be avoided.
-> 
-> 2. Should drop reference to pages whose refcount has been increased,
-> if ret > 0 && ret != pages_nr (see last phrase of get_user_pages_fast
-> commentary).
+Add a helper to calculate the number of pages needed for a iov entry.
 
-Thanks Marcelo. V2 is on the way.
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/tcm_vhost.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
+diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+index 3720604..ca35c16 100644
+--- a/drivers/vhost/tcm_vhost.c
++++ b/drivers/vhost/tcm_vhost.c
+@@ -77,6 +77,12 @@ static struct workqueue_struct *tcm_vhost_workqueue;
+ static DEFINE_MUTEX(tcm_vhost_mutex);
+ static LIST_HEAD(tcm_vhost_list);
+ 
++static inline int iov_num_pages(struct iovec *iov)
++{
++	return (PAGE_ALIGN((unsigned long)iov->iov_base + iov->iov_len) -
++	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
++}
++
+ static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
+ {
+ 	return 1;
 -- 
-Asias
+1.8.1
