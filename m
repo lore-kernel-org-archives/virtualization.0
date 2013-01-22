@@ -1,13 +1,16 @@
-From: Asias He <asias@redhat.com>
-Subject: [PATCH v2 3/3] tcm_vhost: Optimize gup in vhost_scsi_map_to_sgl
-Date: Tue, 22 Jan 2013 11:20:27 +0800
-Message-ID: <1358824827-16169-4-git-send-email-asias__600.289883050387$1358824766$gmane$org@redhat.com>
-References: <1358824827-16169-1-git-send-email-asias@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/6] virtio_host: host-side implementation of virtio rings.
+Date: Tue, 22 Jan 2013 17:27:10 +1030
+Message-ID: <877gn5hfi1.fsf@rustcorp.com.au>
+References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
+	<20130117112314.GA15504@redhat.com>
+	<877gn7w9fc.fsf@rustcorp.com.au> <87r4levjmk.fsf@rustcorp.com.au>
+	<20130121122431.GB3969@redhat.com> <87k3r6uotw.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1358824827-16169-1-git-send-email-asias@redhat.com>
+In-Reply-To: <87k3r6uotw.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,101 +20,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nicholas Bellinger <nab@linux-iscsi.org>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We can get all the pages in one time instead of calling
-gup N times.
+Rusty Russell <rusty@rustcorp.com.au> writes:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> On Mon, Jan 21, 2013 at 10:22:03PM +1030, Rusty Russell wrote:
+>>> Rusty Russell <rusty@rustcorp.com.au> writes:
+>>> > "Michael S. Tsirkin" <mst@redhat.com> writes:
+>>> >>> +		iov->iov[iov->i].iov_base = (__force __user void *)addr;
+>>> >>> +		iov->iov[iov->i].iov_len = desc.len;
+>>> >>
+>>> >> The following comment from the previous version still applies:
+>>> >> 	> This looks like it won't do the right thing if desc.len spans multiple
+>>> >> 	> ranges. I don't know if this happens in practice but this is something
+>>> >> 	> vhost supports ATM.
+>>> >> in otgher words, we might need to split a single desc to multiple
+>>> >> iov entries.
+>>> >
+>>> > Ah, separate offsets for consecutive ranges, right.  I'd prefer to say
+>>> > "don't do that", but qemu is rarely sane.  I'll fix it.
+>>> 
+>>> Actually, you make the same assumption for vhost, with your use of
+>>> getuser and putuser for accessing the ring.
+>>
+>> There's no requirement that ring is mapped directly into guest
+>> memory. If a ring is not contigious qemu can allocate
+>> it's own virtuall contigious rings and copy data back and forth.
+>
+> True, but it's the guest which allocates the ring.  If QEMU sets up a
+> guest with a offset-discontiguous mapping, vhost would be unreliable
+> today.
 
-Signed-off-by: Asias He <asias@redhat.com>
----
- drivers/vhost/tcm_vhost.c | 54 ++++++++++++++++++++++++++---------------------
- 1 file changed, 30 insertions(+), 24 deletions(-)
+My mistake: the ring addresses handed through the ioctl already
+translated, so you can't specify such a thing.
 
-diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 796a6b0..c994f00 100644
---- a/drivers/vhost/tcm_vhost.c
-+++ b/drivers/vhost/tcm_vhost.c
-@@ -430,40 +430,47 @@ static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
-  * Returns the number of scatterlist entries used or -errno on error.
-  */
- static int vhost_scsi_map_to_sgl(struct scatterlist *sgl,
--	unsigned int sgl_count, void __user *ptr, size_t len, int write)
-+	unsigned int sgl_count, struct iovec *iov, int write)
- {
-+	unsigned int npages = 0, pages_nr, offset, nbytes;
- 	struct scatterlist *sg = sgl;
--	unsigned int npages = 0;
--	int ret;
-+	void __user *ptr = iov->iov_base;
-+	size_t len = iov->iov_len;
-+	struct page **pages;
-+	int ret, i;
- 
--	while (len > 0) {
--		struct page *page;
--		unsigned int offset = (uintptr_t)ptr & ~PAGE_MASK;
--		unsigned int nbytes = min_t(unsigned int,
--				PAGE_SIZE - offset, len);
-+	pages_nr = iov_num_pages(iov);
-+	if (pages_nr > sgl_count)
-+		return -ENOBUFS;
- 
--		if (npages == sgl_count) {
--			ret = -ENOBUFS;
--			goto err;
--		}
-+	pages = kmalloc(pages_nr * sizeof(struct page *), GFP_KERNEL);
-+	if (!pages)
-+		return -ENOMEM;
- 
--		ret = get_user_pages_fast((unsigned long)ptr, 1, write, &page);
--		BUG_ON(ret == 0); /* we should either get our page or fail */
--		if (ret < 0)
--			goto err;
-+	ret = get_user_pages_fast((unsigned long)ptr, pages_nr, write, pages);
-+	/* No pages were pinned */
-+	if (ret < 0)
-+		goto out;
-+	/* Less pages pinned than wanted */
-+	if (ret != pages_nr) {
-+		for (i = 0; i < ret; i++)
-+			put_page(pages[i]);
-+		ret = -EFAULT;
-+		goto out;
-+	}
- 
--		sg_set_page(sg, page, nbytes, offset);
-+	while (len > 0) {
-+		offset = (uintptr_t)ptr & ~PAGE_MASK;
-+		nbytes = min_t(unsigned int, PAGE_SIZE - offset, len);
-+		sg_set_page(sg, pages[npages], nbytes, offset);
- 		ptr += nbytes;
- 		len -= nbytes;
- 		sg++;
- 		npages++;
- 	}
--	return npages;
- 
--err:
--	/* Put pages that we hold */
--	for (sg = sgl; sg != &sgl[npages]; sg++)
--		put_page(sg_page(sg));
-+out:
-+	kfree(pages);
- 	return ret;
- }
- 
-@@ -496,8 +503,7 @@ static int vhost_scsi_map_iov_to_sgl(struct tcm_vhost_cmd *tv_cmd,
- 
- 	pr_debug("Mapping %u iovecs for %u pages\n", niov, sgl_count);
- 	for (i = 0; i < niov; i++) {
--		ret = vhost_scsi_map_to_sgl(sg, sgl_count, iov[i].iov_base,
--					iov[i].iov_len, write);
-+		ret = vhost_scsi_map_to_sgl(sg, sgl_count, &iov[i], write);
- 		if (ret < 0) {
- 			for (i = 0; i < tv_cmd->tvc_sgl_count; i++)
- 				put_page(sg_page(&tv_cmd->tvc_sgl[i]));
--- 
-1.8.1
+I struck this when I tried to clean it up: this is an asymmetry between
+the toplevel descriptor table and any indirect ones.
+
+Cheers,
+Rusty.
