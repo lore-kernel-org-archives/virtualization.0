@@ -1,15 +1,11 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [RFC] virtio_console: Add DRIVER and INTERFACE to uevent.
-Date: Tue, 22 Jan 2013 08:16:47 -0800
-Message-ID: <20130122161647.GA10600@kroah.com>
-References: <1358425438-4633-1-git-send-email-sjur.brandeland@stericsson.com>
-	<87pq0yw23j.fsf@rustcorp.com.au>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: Workshops in the CISTI'2013 - 8th Iberian Conference on IST
+Date: Tue, 22 Jan 2013 19:22:17 +0000
+Message-ID: <20130122192117.0209F682@mail.linuxfoundation.org>
+Reply-To: cistimail@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="===============6805561639493581185=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87pq0yw23j.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,43 +15,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, sjur.brandeland@stericsson.com
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 22, 2013 at 09:55:20AM +1030, Rusty Russell wrote:
-> sjur.brandeland@stericsson.com writes:
-> =
+--===============6805561639493581185==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-> >
-> > Add information so rproc-serial can be easily recogniced
-> > from user space. Add the following information to uevent:
-> > DRIVER=3Dvirtio_console|virtio_rproc_serial
-> > INTERFACE=3Dgrand-parent/parent/name
-> >
-> > Signed-off-by: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-> > ---
-> > Hi,
-> >
-> > I need some way to identify the major/minor number for
-> > the rproc-serial device, given the udev event. =
+**********************************************************************=
+*****************************
+Workshop in the CISTI'2013
+8th Iberian Conference on Information Systems and Technologies
+Lisbon, Portugal, June 19 - 23, 2013
+http://www.aisti.eu/cisti2013/index.php?option=3Dcom_content&view=3Dar=
+ticle&id=3D82&Itemid=3D67&lang=3Den
+**********************************************************************=
+*****************************
 
-> > Review comments are welcomed.
-> >
-> > Thanks,
-> > Sjur
-> =
+Complete list of workshops accepted in the CISTI'2013 - 8th Iberian Co=
+nference on Information Systems and Technologies:
 
-> Hmm, I send all uevent questions to Greg KH (CC'd).
+> IAwDQ 2013 - Fourth Ibero-American Workshop on Data Quality
 
-The "INTERFACE" uevent variable is only for USB devices, so for anything
-else to be sending userspace that variable, would confuse things
-greatly.
+> SGaMePlay 2013 - Third Iberian Workshop on Serious Games and Meaning=
+ful Play=20
 
-Sjur, what exactly are you trying to do here?  What do you want
-userspace to know, and what should it do with that information?
+> TICAMES 2013 - First Workshop on Information and Communication Techn=
+ology in Higher Education: Learning Mathematics
 
-thanks,
+> WIA 2013 - Primero Workshop en Innovaci=F3n Abierta
 
-greg k-h
+> WISA 2013 - Fifth Workshop on Intelligent Systems and Applications
+
+> WISIS 2013 - Third Workshop on Information Systems for Interactive S=
+paces
+
+> WSEQP 2013 - First Workshop in Software Engineering and Quality Proc=
+ess=20
+
+Best regards,
+
+Maria Lemos
+AISTI / CISTI'2013
+http://www.aisti.eu/cisti2013
+
+
+--===============6805561639493581185==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6805561639493581185==--
