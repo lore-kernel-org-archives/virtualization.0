@@ -1,11 +1,13 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH v2 0/3] tcm_vhost: Optimize gup in vhost_scsi_map_to_sgl
-Date: Tue, 22 Jan 2013 11:20:24 +0800
-Message-ID: <1358824827-16169-1-git-send-email-asias@redhat.com>
+Subject: [PATCH v2 2/3] tcm_vhost: Use iov_num_pages to calculate sgl_count
+Date: Tue, 22 Jan 2013 11:20:26 +0800
+Message-ID: <1358824827-16169-3-git-send-email-asias__9926.78105035356$1358824765$gmane$org@redhat.com>
+References: <1358824827-16169-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1358824827-16169-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,17 +21,29 @@ To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Changes in v2:
-- Use GFP_KERNEL instead of GFP_ATOMIC
-- Handle pages pinned less than wanted
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/tcm_vhost.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-Asias He (3):
-  tcm_vhost: Introduce iov_num_pages
-  tcm_vhost: Use iov_num_pages to calculate sgl_count
-  tcm_vhost: Optimize gup in vhost_scsi_map_to_sgl
-
- drivers/vhost/tcm_vhost.c | 68 +++++++++++++++++++++++++++--------------------
- 1 file changed, 39 insertions(+), 29 deletions(-)
-
+diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+index ca35c16..796a6b0 100644
+--- a/drivers/vhost/tcm_vhost.c
++++ b/drivers/vhost/tcm_vhost.c
+@@ -479,11 +479,9 @@ static int vhost_scsi_map_iov_to_sgl(struct tcm_vhost_cmd *tv_cmd,
+ 	 * Find out how long sglist needs to be
+ 	 */
+ 	sgl_count = 0;
+-	for (i = 0; i < niov; i++) {
+-		sgl_count += (((uintptr_t)iov[i].iov_base + iov[i].iov_len +
+-				PAGE_SIZE - 1) >> PAGE_SHIFT) -
+-				((uintptr_t)iov[i].iov_base >> PAGE_SHIFT);
+-	}
++	for (i = 0; i < niov; i++)
++		sgl_count += iov_num_pages(&iov[i]);
++
+ 	/* TODO overflow checking */
+ 
+ 	sg = kmalloc(sizeof(tv_cmd->tvc_sgl[0]) * sgl_count, GFP_ATOMIC);
 -- 
 1.8.1
