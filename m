@@ -1,14 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/6] virtio_host: host-side implementation of virtio rings.
-Date: Wed, 23 Jan 2013 12:26:41 +1030
-Message-ID: <87y5fk3bmu.fsf@rustcorp.com.au>
-References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
-	<50FE49E2.8080703@redhat.com>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [QEMU PATCH v5 0/3] virtio-net: fix of ctrl commands
+Date: Wed, 23 Jan 2013 08:42:03 +0100
+Message-ID: <20130123074203.GA4121__33863.9318281368$1358928428$gmane$org@stefanha-thinkpad>
+References: <1358869486-22777-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50FE49E2.8080703@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1358869486-22777-1-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: Amos Kong <akong@redhat.com>
+Cc: aliguori@us.ibm.com, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Asias He <asias@redhat.com> writes:
+On Tue, Jan 22, 2013 at 11:44:43PM +0800, Amos Kong wrote:
+> Currently virtio-net code relys on the layout of descriptor,
+> this patchset removed the assumptions and introduced a control
+> command to set mac address. Last patch is a trivial renaming.
+> 
+> V2: check guest's iov_len
+> V3: fix of migration compatibility
+>     make mac field in config space read-only when new feature is acked
+> V4: add fix of descriptor layout assumptions, trivial rename
+> V5: fix endianness after iov_to_buf copy
+> 
+> Amos Kong (2):
+>   virtio-net: introduce a new macaddr control
+>   virtio-net: rename ctrl rx commands
+> 
+> Michael S. Tsirkin (1):
+>   virtio-net: remove layout assumptions for ctrl vq
+> 
+>  hw/pc_piix.c    |    4 ++
+>  hw/virtio-net.c |  142 +++++++++++++++++++++++++++++++++---------------------
+>  hw/virtio-net.h |   26 +++++++----
+>  3 files changed, 108 insertions(+), 64 deletions(-)
+> 
 
-> On 01/17/2013 06:29 PM, Rusty Russell wrote:
->> Getting use of virtio rings correct is tricky, and a recent patch saw
->> an implementation of in-kernel rings (as separate from userspace).
->> 
->> This patch attempts to abstract the business of dealing with the
->> virtio ring layout from the access (userspace or direct); to do this,
->> we use function pointers, which gcc inlines correctly.
->> 
->> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
->> ---
->>  drivers/Makefile             |    2 +-
->>  drivers/vhost/Kconfig        |    8 +
->>  drivers/vhost/Kconfig.tcm    |    1 +
->>  drivers/vhost/Makefile       |    2 +
->>  drivers/vhost/vringh.c       |  818 ++++++++++++++++++++++++++++++++++++++++++
->>  drivers/virtio/virtio_ring.c |   33 +-
->>  include/linux/virtio_ring.h  |   57 +++
->
->
-> Why vringh_notify_enable_user() and vringh_notify_disable_user() are not
-> declared in include/linux/virtio_ring.h? Missed that?
-
-Yes, I did... I've fixed it in my vringh branch, where I'm doing
-development from now on.
-
-Thanks!
-Rusty.
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
