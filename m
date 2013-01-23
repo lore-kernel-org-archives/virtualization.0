@@ -1,15 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Asias He <asias@redhat.com>
 Subject: Re: [PATCH 4/6] tools/virtio: add vring_test.
-Date: Wed, 23 Jan 2013 09:33:44 +1030
-Message-ID: <87k3r44y7j.fsf@rustcorp.com.au>
+Date: Wed, 23 Jan 2013 09:40:25 +0800
+Message-ID: <50FF3F89.50405@redhat.com>
 References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
 	<1358418584-26345-4-git-send-email-rusty@rustcorp.com.au>
-	<50FE4CDD.9040005@redhat.com>
+	<50FE4CDD.9040005@redhat.com> <87k3r44y7j.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <50FE4CDD.9040005@redhat.com>
+In-Reply-To: <87k3r44y7j.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +19,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Asias He <asias@redhat.com> writes:
-
-> On 01/17/2013 06:29 PM, Rusty Russell wrote:
->> This is mainly to test the drivers/vhost/vringh.c code, but it also
->> uses the drivers/virtio/virtio_ring.c code for the guest side.
->
-> vringh_test.c does not compile here:
-> (This series on top of 9a9284153d965a57edc7162a8e57c14c97f3a935)
->
-> $ cd tools/virtio
-> $ make
-> cc -g -O2 -Wall -I. -I ../../usr/include/ -Wno-pointer-sign
-> -fno-strict-overflow  -MMD    vringh_test.c   -o vringh_test
-> In file included from ./linux/vringh.h:1:0,
->                  from ./../../drivers/vhost/vringh.c:6,
->                  from vringh_test.c:7:
-> ./linux/../../../include/linux/vringh.h:27:28: fatal error:
-> uapi/linux/uio.h: No such file or directory
-
-Oops, I forgot to add the file... it's a one-liner:
-
-tools/virtio/uapi/linux/uio.h:
-#include <sys/uio.h>
-
-I'll make a new branch for this, called vringh.  It'll probably rebase
-as I neaten things up, but I'll try not to go crazy...
-
-Thanks,
-Rusty.
+T24gMDEvMjMvMjAxMyAwNzowMyBBTSwgUnVzdHkgUnVzc2VsbCB3cm90ZToKPiBBc2lhcyBIZSA8
+YXNpYXNAcmVkaGF0LmNvbT4gd3JpdGVzOgo+IAo+PiBPbiAwMS8xNy8yMDEzIDA2OjI5IFBNLCBS
+dXN0eSBSdXNzZWxsIHdyb3RlOgo+Pj4gVGhpcyBpcyBtYWlubHkgdG8gdGVzdCB0aGUgZHJpdmVy
+cy92aG9zdC92cmluZ2guYyBjb2RlLCBidXQgaXQgYWxzbwo+Pj4gdXNlcyB0aGUgZHJpdmVycy92
+aXJ0aW8vdmlydGlvX3JpbmcuYyBjb2RlIGZvciB0aGUgZ3Vlc3Qgc2lkZS4KPj4KPj4gdnJpbmdo
+X3Rlc3QuYyBkb2VzIG5vdCBjb21waWxlIGhlcmU6Cj4+IChUaGlzIHNlcmllcyBvbiB0b3Agb2Yg
+OWE5Mjg0MTUzZDk2NWE1N2VkYzcxNjJhOGU1N2MxNGM5N2YzYTkzNSkKPj4KPj4gJCBjZCB0b29s
+cy92aXJ0aW8KPj4gJCBtYWtlCj4+IGNjIC1nIC1PMiAtV2FsbCAtSS4gLUkgLi4vLi4vdXNyL2lu
+Y2x1ZGUvIC1Xbm8tcG9pbnRlci1zaWduCj4+IC1mbm8tc3RyaWN0LW92ZXJmbG93ICAtTU1EICAg
+IHZyaW5naF90ZXN0LmMgICAtbyB2cmluZ2hfdGVzdAo+PiBJbiBmaWxlIGluY2x1ZGVkIGZyb20g
+Li9saW51eC92cmluZ2guaDoxOjAsCj4+ICAgICAgICAgICAgICAgICAgZnJvbSAuLy4uLy4uL2Ry
+aXZlcnMvdmhvc3QvdnJpbmdoLmM6NiwKPj4gICAgICAgICAgICAgICAgICBmcm9tIHZyaW5naF90
+ZXN0LmM6NzoKPj4gLi9saW51eC8uLi8uLi8uLi9pbmNsdWRlL2xpbnV4L3ZyaW5naC5oOjI3OjI4
+OiBmYXRhbCBlcnJvcjoKPj4gdWFwaS9saW51eC91aW8uaDogTm8gc3VjaCBmaWxlIG9yIGRpcmVj
+dG9yeQo+IAo+IE9vcHMsIEkgZm9yZ290IHRvIGFkZCB0aGUgZmlsZS4uLiBpdCdzIGEgb25lLWxp
+bmVyOgo+IAo+IHRvb2xzL3ZpcnRpby91YXBpL2xpbnV4L3Vpby5oOgo+ICNpbmNsdWRlIDxzeXMv
+dWlvLmg+Cj4gCj4gSSdsbCBtYWtlIGEgbmV3IGJyYW5jaCBmb3IgdGhpcywgY2FsbGVkIHZyaW5n
+aC4gIEl0J2xsIHByb2JhYmx5IHJlYmFzZQo+IGFzIEkgbmVhdGVuIHRoaW5ncyB1cCwgYnV0IEkn
+bGwgdHJ5IG5vdCB0byBnbyBjcmF6eS4uLgoKSXQgY29tcGlsZXMgbm93LgoKRllJLCBJIGdvdCBz
+b21lIHdhcm5pbmdzOgoKLi4vLi4vZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYzogSW4gZnVu
+Y3Rpb24g4oCYdmlydHF1ZXVlX2tpY2tfcHJlcGFyZeKAmToKLi4vLi4vZHJpdmVycy92aXJ0aW8v
+dmlydGlvX3JpbmcuYzozMDk6Mzogd2FybmluZzogZGVyZWZlcmVuY2luZwp0eXBlLXB1bm5lZCBw
+b2ludGVyIHdpbGwgYnJlYWsgc3RyaWN0LWFsaWFzaW5nIHJ1bGVzIFstV3N0cmljdC1hbGlhc2lu
+CmddCmNjICAgdmlydGlvX3Rlc3QubyB2aXJ0aW9fcmluZy5vICAgLW8gdmlydGlvX3Rlc3QKY2Mg
+LWcgLU8yIC1XYWxsIC1JLiAtSSAuLi8uLi91c3IvaW5jbHVkZS8gLVduby1wb2ludGVyLXNpZ24K
+LWZuby1zdHJpY3Qtb3ZlcmZsb3cgIC1NTUQgICAgdnJpbmdoX3Rlc3QuYyAgIC1vIHZyaW5naF90
+ZXN0CkluIGZpbGUgaW5jbHVkZWQgZnJvbSB2cmluZ2hfdGVzdC5jOjc6MDoKLi8uLi8uLi9kcml2
+ZXJzL3Zob3N0L3ZyaW5naC5jOiBJbiBmdW5jdGlvbiDigJhjaGVja19yYW5nZeKAmToKLi8uLi8u
+Li9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jOjExOToyOiB3YXJuaW5nOiBmb3JtYXQg4oCYJWxseOKA
+mSBleHBlY3RzCmFyZ3VtZW50IG9mIHR5cGUg4oCYbG9uZyBsb25nIHVuc2lnbmVkIGludOKAmSwg
+YnV0IGFyZ3VtZW50IDMgaGFzIHR5cGUKIOKAmHU2NOKAmSBbLVdmb3JtYXRdCi4vLi4vLi4vZHJp
+dmVycy92aG9zdC92cmluZ2guYzogSW4gZnVuY3Rpb24g4oCYX192cmluZ2hfbm90aWZ5X2VuYWJs
+ZeKAmToKLi8uLi8uLi9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jOjQwMjozOiB3YXJuaW5nOiBkZXJl
+ZmVyZW5jaW5nIHR5cGUtcHVubmVkCnBvaW50ZXIgd2lsbCBicmVhayBzdHJpY3QtYWxpYXNpbmcg
+cnVsZXMgWy1Xc3RyaWN0LWFsaWFzaW5nXQouLy4uLy4uL2RyaXZlcnMvdmhvc3QvdnJpbmdoLmM6
+NDA1Ojg6IHdhcm5pbmc6IGRlcmVmZXJlbmNpbmcgdHlwZS1wdW5uZWQKcG9pbnRlciB3aWxsIGJy
+ZWFrIHN0cmljdC1hbGlhc2luZyBydWxlcyBbLVdzdHJpY3QtYWxpYXNpbmddCi4vLi4vLi4vZHJp
+dmVycy92aG9zdC92cmluZ2guYzogSW4gZnVuY3Rpb24g4oCYdnJpbmdoX2luaXRfdXNlcuKAmToK
+Li8uLi8uLi9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jOjQ5OTozOiB3YXJuaW5nOiBmb3JtYXQg4oCY
+JXp14oCZIGV4cGVjdHMKYXJndW1lbnQgb2YgdHlwZSDigJhzaXplX3TigJksIGJ1dCBhcmd1bWVu
+dCAyIGhhcyB0eXBlIOKAmHVuc2lnbmVkIGludOKAmSBbCi1XZm9ybWF0XQouLy4uLy4uL2RyaXZl
+cnMvdmhvc3QvdnJpbmdoLmM6IEluIGZ1bmN0aW9uIOKAmHZyaW5naF9pbml0X2tlcm7igJk6Ci4v
+Li4vLi4vZHJpdmVycy92aG9zdC92cmluZ2guYzo3MDc6Mzogd2FybmluZzogZm9ybWF0IOKAmCV6
+deKAmSBleHBlY3RzCmFyZ3VtZW50IG9mIHR5cGUg4oCYc2l6ZV904oCZLCBidXQgYXJndW1lbnQg
+MiBoYXMgdHlwZSDigJh1bnNpZ25lZCBpbnTigJkgWwotV2Zvcm1hdF0KSW4gZmlsZSBpbmNsdWRl
+ZCBmcm9tIHZyaW5naF90ZXN0LmM6ODowOgouLy4uLy4uL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19y
+aW5nLmM6IEluIGZ1bmN0aW9uIOKAmHZpcnRxdWV1ZV9raWNrX3ByZXBhcmXigJk6Ci4vLi4vLi4v
+ZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYzozMDk6Mzogd2FybmluZzogZGVyZWZlcmVuY2lu
+Zwp0eXBlLXB1bm5lZCBwb2ludGVyIHdpbGwgYnJlYWsgc3RyaWN0LWFsaWFzaW5nIHJ1bGVzIFst
+V3N0cmljdC1hbGlhcwppbmddCgouLi4KCgotLSAKQXNpYXMKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
