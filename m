@@ -1,14 +1,16 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [QEMU PATCH v5 0/3] virtio-net: fix of ctrl commands
-Date: Wed, 23 Jan 2013 08:42:03 +0100
-Message-ID: <20130123074203.GA4121__33863.9318281368$1358928428$gmane$org@stefanha-thinkpad>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [QEMU PATCH v5 1/3] virtio-net: remove layout assumptions for
+	ctrl vq
+Date: Wed, 23 Jan 2013 17:38:50 +0200
+Message-ID: <20130123153850.GA4188@redhat.com>
 References: <1358869486-22777-1-git-send-email-akong@redhat.com>
+	<1358869486-22777-2-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1358869486-22777-1-git-send-email-akong@redhat.com>
+In-Reply-To: <1358869486-22777-2-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +21,235 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Amos Kong <akong@redhat.com>
-Cc: aliguori@us.ibm.com, virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, mst@redhat.com
+Cc: aliguori@us.ibm.com, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jan 22, 2013 at 11:44:43PM +0800, Amos Kong wrote:
-> Currently virtio-net code relys on the layout of descriptor,
-> this patchset removed the assumptions and introduced a control
-> command to set mac address. Last patch is a trivial renaming.
+On Tue, Jan 22, 2013 at 11:44:44PM +0800, Amos Kong wrote:
+> From: Michael S. Tsirkin <mst@redhat.com>
 > 
-> V2: check guest's iov_len
-> V3: fix of migration compatibility
->     make mac field in config space read-only when new feature is acked
-> V4: add fix of descriptor layout assumptions, trivial rename
-> V5: fix endianness after iov_to_buf copy
+> Virtio-net code makes assumption about virtqueue descriptor layout
+> (e.g. sg[0] is the header, sg[1] is the data buffer).
 > 
-> Amos Kong (2):
->   virtio-net: introduce a new macaddr control
->   virtio-net: rename ctrl rx commands
+> This patch makes code not rely on the layout of descriptors.
 > 
-> Michael S. Tsirkin (1):
->   virtio-net: remove layout assumptions for ctrl vq
-> 
->  hw/pc_piix.c    |    4 ++
->  hw/virtio-net.c |  142 +++++++++++++++++++++++++++++++++---------------------
->  hw/virtio-net.h |   26 +++++++----
->  3 files changed, 108 insertions(+), 64 deletions(-)
-> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Amos Kong <akong@redhat.com>
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Applied all three, thanks.
+
+> ---
+>  hw/virtio-net.c |  129 ++++++++++++++++++++++++++++++++-----------------------
+>  1 files changed, 75 insertions(+), 54 deletions(-)
+> 
+> diff --git a/hw/virtio-net.c b/hw/virtio-net.c
+> index 3bb01b1..af1f3a1 100644
+> --- a/hw/virtio-net.c
+> +++ b/hw/virtio-net.c
+> @@ -315,44 +315,44 @@ static void virtio_net_set_features(VirtIODevice *vdev, uint32_t features)
+>  }
+>  
+>  static int virtio_net_handle_rx_mode(VirtIONet *n, uint8_t cmd,
+> -                                     VirtQueueElement *elem)
+> +                                     struct iovec *iov, unsigned int iov_cnt)
+>  {
+>      uint8_t on;
+> +    size_t s;
+>  
+> -    if (elem->out_num != 2 || elem->out_sg[1].iov_len != sizeof(on)) {
+> -        error_report("virtio-net ctrl invalid rx mode command");
+> -        exit(1);
+> +    s = iov_to_buf(iov, iov_cnt, 0, &on, sizeof(on));
+> +    if (s != sizeof(on)) {
+> +        return VIRTIO_NET_ERR;
+>      }
+>  
+> -    on = ldub_p(elem->out_sg[1].iov_base);
+> -
+> -    if (cmd == VIRTIO_NET_CTRL_RX_MODE_PROMISC)
+> +    if (cmd == VIRTIO_NET_CTRL_RX_MODE_PROMISC) {
+>          n->promisc = on;
+> -    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLMULTI)
+> +    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLMULTI) {
+>          n->allmulti = on;
+> -    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLUNI)
+> +    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_ALLUNI) {
+>          n->alluni = on;
+> -    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOMULTI)
+> +    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOMULTI) {
+>          n->nomulti = on;
+> -    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOUNI)
+> +    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOUNI) {
+>          n->nouni = on;
+> -    else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOBCAST)
+> +    } else if (cmd == VIRTIO_NET_CTRL_RX_MODE_NOBCAST) {
+>          n->nobcast = on;
+> -    else
+> +    } else {
+>          return VIRTIO_NET_ERR;
+> +    }
+>  
+>      return VIRTIO_NET_OK;
+>  }
+>  
+>  static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
+> -                                 VirtQueueElement *elem)
+> +                                 struct iovec *iov, unsigned int iov_cnt)
+>  {
+>      struct virtio_net_ctrl_mac mac_data;
+> +    size_t s;
+>  
+> -    if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET || elem->out_num != 3 ||
+> -        elem->out_sg[1].iov_len < sizeof(mac_data) ||
+> -        elem->out_sg[2].iov_len < sizeof(mac_data))
+> +    if (cmd != VIRTIO_NET_CTRL_MAC_TABLE_SET) {
+>          return VIRTIO_NET_ERR;
+> +    }
+>  
+>      n->mac_table.in_use = 0;
+>      n->mac_table.first_multi = 0;
+> @@ -360,54 +360,72 @@ static int virtio_net_handle_mac(VirtIONet *n, uint8_t cmd,
+>      n->mac_table.multi_overflow = 0;
+>      memset(n->mac_table.macs, 0, MAC_TABLE_ENTRIES * ETH_ALEN);
+>  
+> -    mac_data.entries = ldl_p(elem->out_sg[1].iov_base);
+> +    s = iov_to_buf(iov, iov_cnt, 0, &mac_data.entries,
+> +                   sizeof(mac_data.entries));
+> +    mac_data.entries = ldl_p(&mac_data.entries);
+> +    if (s != sizeof(mac_data.entries)) {
+> +        return VIRTIO_NET_ERR;
+> +    }
+> +    iov_discard_front(&iov, &iov_cnt, s);
+>  
+> -    if (sizeof(mac_data.entries) +
+> -        (mac_data.entries * ETH_ALEN) > elem->out_sg[1].iov_len)
+> +    if (mac_data.entries * ETH_ALEN > iov_size(iov, iov_cnt)) {
+>          return VIRTIO_NET_ERR;
+> +    }
+>  
+>      if (mac_data.entries <= MAC_TABLE_ENTRIES) {
+> -        memcpy(n->mac_table.macs, elem->out_sg[1].iov_base + sizeof(mac_data),
+> -               mac_data.entries * ETH_ALEN);
+> +        s = iov_to_buf(iov, iov_cnt, 0, n->mac_table.macs,
+> +                       mac_data.entries * ETH_ALEN);
+> +        if (s != mac_data.entries * ETH_ALEN) {
+> +            return VIRTIO_NET_ERR;
+> +        }
+>          n->mac_table.in_use += mac_data.entries;
+>      } else {
+>          n->mac_table.uni_overflow = 1;
+>      }
+>  
+> +    iov_discard_front(&iov, &iov_cnt, mac_data.entries * ETH_ALEN);
+> +
+>      n->mac_table.first_multi = n->mac_table.in_use;
+>  
+> -    mac_data.entries = ldl_p(elem->out_sg[2].iov_base);
+> +    s = iov_to_buf(iov, iov_cnt, 0, &mac_data.entries,
+> +                   sizeof(mac_data.entries));
+> +    mac_data.entries = ldl_p(&mac_data.entries);
+> +    if (s != sizeof(mac_data.entries)) {
+> +        return VIRTIO_NET_ERR;
+> +    }
+> +
+> +    iov_discard_front(&iov, &iov_cnt, s);
+>  
+> -    if (sizeof(mac_data.entries) +
+> -        (mac_data.entries * ETH_ALEN) > elem->out_sg[2].iov_len)
+> +    if (mac_data.entries * ETH_ALEN != iov_size(iov, iov_cnt)) {
+>          return VIRTIO_NET_ERR;
+> +    }
+>  
+> -    if (mac_data.entries) {
+> -        if (n->mac_table.in_use + mac_data.entries <= MAC_TABLE_ENTRIES) {
+> -            memcpy(n->mac_table.macs + (n->mac_table.in_use * ETH_ALEN),
+> -                   elem->out_sg[2].iov_base + sizeof(mac_data),
+> -                   mac_data.entries * ETH_ALEN);
+> -            n->mac_table.in_use += mac_data.entries;
+> -        } else {
+> -            n->mac_table.multi_overflow = 1;
+> +    if (n->mac_table.in_use + mac_data.entries <= MAC_TABLE_ENTRIES) {
+> +        s = iov_to_buf(iov, iov_cnt, 0, n->mac_table.macs,
+> +                       mac_data.entries * ETH_ALEN);
+> +        if (s != mac_data.entries * ETH_ALEN) {
+> +            return VIRTIO_NET_ERR;
+>          }
+> +        n->mac_table.in_use += mac_data.entries;
+> +    } else {
+> +        n->mac_table.multi_overflow = 1;
+>      }
+>  
+>      return VIRTIO_NET_OK;
+>  }
+>  
+>  static int virtio_net_handle_vlan_table(VirtIONet *n, uint8_t cmd,
+> -                                        VirtQueueElement *elem)
+> +                                        struct iovec *iov, unsigned int iov_cnt)
+>  {
+>      uint16_t vid;
+> +    size_t s;
+>  
+> -    if (elem->out_num != 2 || elem->out_sg[1].iov_len != sizeof(vid)) {
+> -        error_report("virtio-net ctrl invalid vlan command");
+> +    s = iov_to_buf(iov, iov_cnt, 0, &vid, sizeof(vid));
+> +    vid = lduw_p(&vid);
+> +    if (s != sizeof(vid)) {
+>          return VIRTIO_NET_ERR;
+>      }
+>  
+> -    vid = lduw_p(elem->out_sg[1].iov_base);
+> -
+>      if (vid >= MAX_VLAN)
+>          return VIRTIO_NET_ERR;
+>  
+> @@ -427,30 +445,33 @@ static void virtio_net_handle_ctrl(VirtIODevice *vdev, VirtQueue *vq)
+>      struct virtio_net_ctrl_hdr ctrl;
+>      virtio_net_ctrl_ack status = VIRTIO_NET_ERR;
+>      VirtQueueElement elem;
+> +    size_t s;
+> +    struct iovec *iov;
+> +    unsigned int iov_cnt;
+>  
+>      while (virtqueue_pop(vq, &elem)) {
+> -        if ((elem.in_num < 1) || (elem.out_num < 1)) {
+> +        if (iov_size(elem.in_sg, elem.in_num) < sizeof(status) ||
+> +            iov_size(elem.out_sg, elem.out_num) < sizeof(ctrl)) {
+>              error_report("virtio-net ctrl missing headers");
+>              exit(1);
+>          }
+>  
+> -        if (elem.out_sg[0].iov_len < sizeof(ctrl) ||
+> -            elem.in_sg[elem.in_num - 1].iov_len < sizeof(status)) {
+> -            error_report("virtio-net ctrl header not in correct element");
+> -            exit(1);
+> +        iov = elem.out_sg;
+> +        iov_cnt = elem.out_num;
+> +        s = iov_to_buf(iov, iov_cnt, 0, &ctrl, sizeof(ctrl));
+> +        iov_discard_front(&iov, &iov_cnt, sizeof(ctrl));
+> +        if (s != sizeof(ctrl)) {
+> +            status = VIRTIO_NET_ERR;
+> +        } else if (ctrl.class == VIRTIO_NET_CTRL_RX_MODE) {
+> +            status = virtio_net_handle_rx_mode(n, ctrl.cmd, iov, iov_cnt);
+> +        } else if (ctrl.class == VIRTIO_NET_CTRL_MAC) {
+> +            status = virtio_net_handle_mac(n, ctrl.cmd, iov, iov_cnt);
+> +        } else if (ctrl.class == VIRTIO_NET_CTRL_VLAN) {
+> +            status = virtio_net_handle_vlan_table(n, ctrl.cmd, iov, iov_cnt);
+>          }
+>  
+> -        ctrl.class = ldub_p(elem.out_sg[0].iov_base);
+> -        ctrl.cmd = ldub_p(elem.out_sg[0].iov_base + sizeof(ctrl.class));
+> -
+> -        if (ctrl.class == VIRTIO_NET_CTRL_RX_MODE)
+> -            status = virtio_net_handle_rx_mode(n, ctrl.cmd, &elem);
+> -        else if (ctrl.class == VIRTIO_NET_CTRL_MAC)
+> -            status = virtio_net_handle_mac(n, ctrl.cmd, &elem);
+> -        else if (ctrl.class == VIRTIO_NET_CTRL_VLAN)
+> -            status = virtio_net_handle_vlan_table(n, ctrl.cmd, &elem);
+> -
+> -        stb_p(elem.in_sg[elem.in_num - 1].iov_base, status);
+> +        s = iov_from_buf(elem.in_sg, elem.in_num, 0, &status, sizeof(status));
+> +        assert(s == sizeof(status));
+>  
+>          virtqueue_push(vq, &elem, sizeof(status));
+>          virtio_notify(vdev, vq);
+> -- 
+> 1.7.1
