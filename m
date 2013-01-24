@@ -1,16 +1,16 @@
-From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: Re: [PATCH V6 1/3] virtio-net: fix the set affinity bug when CPU
-	IDs are not consecutive
-Date: Thu, 24 Jan 2013 10:28:55 +0800
-Message-ID: <51009C67.3090809__24111.7226462395$1358994915$gmane$org@cn.fujitsu.com>
-References: <1358767524-17934-1-git-send-email-gaowanlong@cn.fujitsu.com>
-	<87hamavx4n.fsf@rustcorp.com.au>
-Reply-To: gaowanlong@cn.fujitsu.com
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 4/6] tools/virtio: add vring_test.
+Date: Thu, 24 Jan 2013 12:52:14 +1030
+Message-ID: <87fw1rb9rd.fsf@rustcorp.com.au>
+References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
+	<1358418584-26345-4-git-send-email-rusty@rustcorp.com.au>
+	<50FE4CDD.9040005@redhat.com> <87k3r44y7j.fsf@rustcorp.com.au>
+	<50FF3F89.50405@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87hamavx4n.fsf@rustcorp.com.au>
+In-Reply-To: <50FF3F89.50405@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +20,66 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <erdnetdev@gmail.com>
+To: Asias He <asias@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/22/2013 09:12 AM, Rusty Russell wrote:
-> Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
-> 
->> As Michael mentioned, set affinity and select queue will not work very
->> well when CPU IDs are not consecutive, this can happen with hot unplug.
->> Fix this bug by traversal the online CPUs, and create a per cpu variable
->> to find the mapping from CPU to the preferable virtual-queue.
-> 
-> This series looks fairly sane at a glance, to me, but MST is the Ack you
-> need.
-
-Hi Michael,
-
-Any comments?
-
-Thanks,
-Wanlong Gao
-
-> 
-> Thanks,
-> Rusty.
-> 
+QXNpYXMgSGUgPGFzaWFzQHJlZGhhdC5jb20+IHdyaXRlczoKPiBPbiAwMS8yMy8yMDEzIDA3OjAz
+IEFNLCBSdXN0eSBSdXNzZWxsIHdyb3RlOgo+PiBBc2lhcyBIZSA8YXNpYXNAcmVkaGF0LmNvbT4g
+d3JpdGVzOgo+PiAKPj4+IE9uIDAxLzE3LzIwMTMgMDY6MjkgUE0sIFJ1c3R5IFJ1c3NlbGwgd3Jv
+dGU6Cj4+Pj4gVGhpcyBpcyBtYWlubHkgdG8gdGVzdCB0aGUgZHJpdmVycy92aG9zdC92cmluZ2gu
+YyBjb2RlLCBidXQgaXQgYWxzbwo+Pj4+IHVzZXMgdGhlIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19y
+aW5nLmMgY29kZSBmb3IgdGhlIGd1ZXN0IHNpZGUuCj4+Pgo+Pj4gdnJpbmdoX3Rlc3QuYyBkb2Vz
+IG5vdCBjb21waWxlIGhlcmU6Cj4+PiAoVGhpcyBzZXJpZXMgb24gdG9wIG9mIDlhOTI4NDE1M2Q5
+NjVhNTdlZGM3MTYyYThlNTdjMTRjOTdmM2E5MzUpCj4+Pgo+Pj4gJCBjZCB0b29scy92aXJ0aW8K
+Pj4+ICQgbWFrZQo+Pj4gY2MgLWcgLU8yIC1XYWxsIC1JLiAtSSAuLi8uLi91c3IvaW5jbHVkZS8g
+LVduby1wb2ludGVyLXNpZ24KPj4+IC1mbm8tc3RyaWN0LW92ZXJmbG93ICAtTU1EICAgIHZyaW5n
+aF90ZXN0LmMgICAtbyB2cmluZ2hfdGVzdAo+Pj4gSW4gZmlsZSBpbmNsdWRlZCBmcm9tIC4vbGlu
+dXgvdnJpbmdoLmg6MTowLAo+Pj4gICAgICAgICAgICAgICAgICBmcm9tIC4vLi4vLi4vZHJpdmVy
+cy92aG9zdC92cmluZ2guYzo2LAo+Pj4gICAgICAgICAgICAgICAgICBmcm9tIHZyaW5naF90ZXN0
+LmM6NzoKPj4+IC4vbGludXgvLi4vLi4vLi4vaW5jbHVkZS9saW51eC92cmluZ2guaDoyNzoyODog
+ZmF0YWwgZXJyb3I6Cj4+PiB1YXBpL2xpbnV4L3Vpby5oOiBObyBzdWNoIGZpbGUgb3IgZGlyZWN0
+b3J5Cj4+IAo+PiBPb3BzLCBJIGZvcmdvdCB0byBhZGQgdGhlIGZpbGUuLi4gaXQncyBhIG9uZS1s
+aW5lcjoKPj4gCj4+IHRvb2xzL3ZpcnRpby91YXBpL2xpbnV4L3Vpby5oOgo+PiAjaW5jbHVkZSA8
+c3lzL3Vpby5oPgo+PiAKPj4gSSdsbCBtYWtlIGEgbmV3IGJyYW5jaCBmb3IgdGhpcywgY2FsbGVk
+IHZyaW5naC4gIEl0J2xsIHByb2JhYmx5IHJlYmFzZQo+PiBhcyBJIG5lYXRlbiB0aGluZ3MgdXAs
+IGJ1dCBJJ2xsIHRyeSBub3QgdG8gZ28gY3JhenkuLi4KPgo+IEl0IGNvbXBpbGVzIG5vdy4KPgo+
+IEZZSSwgSSBnb3Qgc29tZSB3YXJuaW5nczoKPgo+IC4uLy4uL2RyaXZlcnMvdmlydGlvL3ZpcnRp
+b19yaW5nLmM6IEluIGZ1bmN0aW9uIOKAmHZpcnRxdWV1ZV9raWNrX3ByZXBhcmXigJk6Cj4gLi4v
+Li4vZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYzozMDk6Mzogd2FybmluZzogZGVyZWZlcmVu
+Y2luZwo+IHR5cGUtcHVubmVkIHBvaW50ZXIgd2lsbCBicmVhayBzdHJpY3QtYWxpYXNpbmcgcnVs
+ZXMgWy1Xc3RyaWN0LWFsaWFzaW4KPiBnXQoKWWVzLCB3ZSBzaG91bGQgY29tcGlsZSB0aGUgdGVz
+dHMgd2l0aCAtZm5vLXN0cmljdC1hbGlhc2luZyBsaWtlIHRoZQprZXJuZWwgZG9lcywgYW5kIEkg
+c2hvdWxkIGZpeCB0aGUgcHJpbnRrIGZvcm1hdHRpbmcgZm9yIDY0LWJpdAp0YXJnZXRzLi4uCgp2
+cmluZ2g6IGZpeCB3YXJuaW5ncy4KClNpZ25lZC1vZmYtYnk6IFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5
+QHJ1c3Rjb3JwLmNvbS5hdT4KCmRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jIGIv
+ZHJpdmVycy92aG9zdC92cmluZ2guYwppbmRleCAzYmJkZWZlLi43MzRiYThjIDEwMDY0NAotLS0g
+YS9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jCisrKyBiL2RyaXZlcnMvdmhvc3QvdnJpbmdoLmMKQEAg
+LTExMSw3ICsxMTEsOCBAQCBzdGF0aWMgaW5saW5lIGJvb2wgcmFuZ2VfY2hlY2sodTY0IGFkZHIs
+IHUzMiAqbGVuLAogCiAJLyogT3RoZXJ3aXNlLCBkb24ndCB3cmFwLiAqLwogCWlmIChhZGRyICsg
+KmxlbiA8IGFkZHIpIHsKLQkJdnJpbmdoX2JhZCgiV3JhcHBpbmcgZGVzY3JpcHRvciAldUAweCVs
+bHgiLCAqbGVuLCBhZGRyKTsKKwkJdnJpbmdoX2JhZCgiV3JhcHBpbmcgZGVzY3JpcHRvciAldUAw
+eCVsbHgiLAorCQkJICAgKmxlbiwgKHVuc2lnbmVkIGxvbmcgbG9uZylhZGRyKTsKIAkJcmV0dXJu
+IGZhbHNlOwogCX0KIApAQCAtNTcwLDcgKzU3MSw3IEBAIGludCB2cmluZ2hfaW5pdF91c2VyKHN0
+cnVjdCB2cmluZ2ggKnZyaCwgdTMyIGZlYXR1cmVzLAogewogCS8qIFNhbmUgcG93ZXIgb2YgMiBw
+bGVhc2UhICovCiAJaWYgKCFudW0gfHwgbnVtID4gMHhmZmZmIHx8IChudW0gJiAobnVtIC0gMSkp
+KSB7Ci0JCXZyaW5naF9iYWQoIkJhZCByaW5nIHNpemUgJXp1IiwgbnVtKTsKKwkJdnJpbmdoX2Jh
+ZCgiQmFkIHJpbmcgc2l6ZSAldSIsIG51bSk7CiAJCXJldHVybiAtRUlOVkFMOwogCX0KIApAQCAt
+ODAwLDcgKzgwMSw3IEBAIGludCB2cmluZ2hfaW5pdF9rZXJuKHN0cnVjdCB2cmluZ2ggKnZyaCwg
+dTMyIGZlYXR1cmVzLAogewogCS8qIFNhbmUgcG93ZXIgb2YgMiBwbGVhc2UhICovCiAJaWYgKCFu
+dW0gfHwgbnVtID4gMHhmZmZmIHx8IChudW0gJiAobnVtIC0gMSkpKSB7Ci0JCXZyaW5naF9iYWQo
+IkJhZCByaW5nIHNpemUgJXp1IiwgbnVtKTsKKwkJdnJpbmdoX2JhZCgiQmFkIHJpbmcgc2l6ZSAl
+dSIsIG51bSk7CiAJCXJldHVybiAtRUlOVkFMOwogCX0KIApkaWZmIC0tZ2l0IGEvdG9vbHMvdmly
+dGlvL01ha2VmaWxlIGIvdG9vbHMvdmlydGlvL01ha2VmaWxlCmluZGV4IGI5MjhjM2UuLmU5NjE1
+NDUgMTAwNjQ0Ci0tLSBhL3Rvb2xzL3ZpcnRpby9NYWtlZmlsZQorKysgYi90b29scy92aXJ0aW8v
+TWFrZWZpbGUKQEAgLTEsNyArMSw3IEBACiBhbGw6IHRlc3QgbW9kCiB0ZXN0OiB2aXJ0aW9fdGVz
+dCB2cmluZ2hfdGVzdAogdmlydGlvX3Rlc3Q6IHZpcnRpb19yaW5nLm8gdmlydGlvX3Rlc3Qubwot
+Q0ZMQUdTICs9IC1nIC1PMiAtV2FsbCAtSS4gLUkgLi4vLi4vdXNyL2luY2x1ZGUvIC1Xbm8tcG9p
+bnRlci1zaWduIC1mbm8tc3RyaWN0LW92ZXJmbG93ICAtTU1ECitDRkxBR1MgKz0gLWcgLU8yIC1X
+YWxsIC1JLiAtSSAuLi8uLi91c3IvaW5jbHVkZS8gLVduby1wb2ludGVyLXNpZ24gLWZuby1zdHJp
+Y3Qtb3ZlcmZsb3cgLWZuby1zdHJpY3QtYWxpYXNpbmcgLVduby11bnVzZWQtcmVzdWx0IC1NTUQK
+IHZwYXRoICUuYyAuLi8uLi9kcml2ZXJzL3ZpcnRpbwogbW9kOgogCSR7TUFLRX0gLUMgYHB3ZGAv
+Li4vLi4gTT1gcHdkYC92aG9zdF90ZXN0Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
