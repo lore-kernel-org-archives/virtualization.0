@@ -1,14 +1,16 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
+From: Greg KH <gregkh@linuxfoundation.org>
 Subject: Re: [RFC] virtio_console: Add DRIVER and INTERFACE to uevent.
-Date: Thu, 24 Jan 2013 14:30:59 +0100
-Message-ID: <CAJK669Z6Mbs_igwV_KjLj8O-fOpD30J8uGbxN6OMk5qqxjVMpQ@mail.gmail.com>
+Date: Thu, 24 Jan 2013 08:51:39 -0800
+Message-ID: <20130124165139.GE15208@kroah.com>
 References: <1358425438-4633-1-git-send-email-sjur.brandeland@stericsson.com>
 	<87pq0yw23j.fsf@rustcorp.com.au> <20130122161647.GA10600@kroah.com>
+	<CAJK669Z6Mbs_igwV_KjLj8O-fOpD30J8uGbxN6OMk5qqxjVMpQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130122161647.GA10600@kroah.com>
+Content-Disposition: inline
+In-Reply-To: <CAJK669Z6Mbs_igwV_KjLj8O-fOpD30J8uGbxN6OMk5qqxjVMpQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,50 +20,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>
+To: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>
 Cc: Amit Shah <amit.shah@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgR3JlZywKCk9uIFR1ZSwgSmFuIDIyLCAyMDEzIGF0IDU6MTYgUE0sIEdyZWcgS0ggPGdyZWdr
-aEBsaW51eGZvdW5kYXRpb24ub3JnPiB3cm90ZToKPiBPbiBUdWUsIEphbiAyMiwgMjAxMyBhdCAw
-OTo1NToyMEFNICsxMDMwLCBSdXN0eSBSdXNzZWxsIHdyb3RlOgo+PiBzanVyLmJyYW5kZWxhbmRA
-c3Rlcmljc3Nvbi5jb20gd3JpdGVzOgo+Pgo+PiA+IEZyb206IFNqdXIgQnLDpm5kZWxhbmQgPHNq
-dXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KPj4gPgo+PiA+IEFkZCBpbmZvcm1hdGlvbiBz
-byBycHJvYy1zZXJpYWwgY2FuIGJlIGVhc2lseSByZWNvZ25pY2VkCj4+ID4gZnJvbSB1c2VyIHNw
-YWNlLiBBZGQgdGhlIGZvbGxvd2luZyBpbmZvcm1hdGlvbiB0byB1ZXZlbnQ6Cj4+ID4gRFJJVkVS
-PXZpcnRpb19jb25zb2xlfHZpcnRpb19ycHJvY19zZXJpYWwKPj4gPiBJTlRFUkZBQ0U9Z3JhbmQt
-cGFyZW50L3BhcmVudC9uYW1lCj4+ID4KPj4gPiBTaWduZWQtb2ZmLWJ5OiBTanVyIEJyw6ZuZGVs
-YW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Cj4+ID4gLS0tCj4+ID4gSGksCj4+
-ID4KPj4gPiBJIG5lZWQgc29tZSB3YXkgdG8gaWRlbnRpZnkgdGhlIG1ham9yL21pbm9yIG51bWJl
-ciBmb3IKPj4gPiB0aGUgcnByb2Mtc2VyaWFsIGRldmljZSwgZ2l2ZW4gdGhlIHVkZXYgZXZlbnQu
-Cj4+ID4gUmV2aWV3IGNvbW1lbnRzIGFyZSB3ZWxjb21lZC4KPj4gPgo+PiA+IFRoYW5rcywKPj4g
-PiBTanVyCj4+Cj4+IEhtbSwgSSBzZW5kIGFsbCB1ZXZlbnQgcXVlc3Rpb25zIHRvIEdyZWcgS0gg
-KENDJ2QpLgo+Cj4gVGhlICJJTlRFUkZBQ0UiIHVldmVudCB2YXJpYWJsZSBpcyBvbmx5IGZvciBV
-U0IgZGV2aWNlcywgc28gZm9yIGFueXRoaW5nCj4gZWxzZSB0byBiZSBzZW5kaW5nIHVzZXJzcGFj
-ZSB0aGF0IHZhcmlhYmxlLCB3b3VsZCBjb25mdXNlIHRoaW5ncwo+IGdyZWF0bHkuCj4KPiBTanVy
-LCB3aGF0IGV4YWN0bHkgYXJlIHlvdSB0cnlpbmcgdG8gZG8gaGVyZT8gIFdoYXQgZG8geW91IHdh
-bnQKPiB1c2Vyc3BhY2UgdG8ga25vdywgYW5kIHdoYXQgc2hvdWxkIGl0IGRvIHdpdGggdGhhdCBp
-bmZvcm1hdGlvbj8KCkknbSB0cnlpbmcgdG8gaGVscCB1c2VyLXNwYWNlIG1ha2Ugc2Vuc2Ugb2Yg
-dGhlIHBvcnQtbmFtZSBnZW5lcmF0ZWQKYnkgdmlydGlvX2NvbnNvbGUuIEknbSB1c2luZyByZW1v
-dGVwcm9jIGFuZCB2aXJ0aW9fY29uc29sZSBmb3IgdGFsa2luZwp0byBhIHJlbW90ZSBkZXZpY2Ug
-KG1vZGVtKS4gQXQgc3RhcnR1cCB0aGUgcG9ydC1kZXZpY2Ugd2lsbCBiZSBuYW1lZAp2cG9ydDxY
-PnAwLiBJZiB3ZSBnZXQgYSByZWJvb3Qgb2YgdGhlIHJlbW90ZSBkZXZpY2UsIHRoZSBkZXZpY2Ug
-bmFtZQp3aWxsIGNoYW5nZSB0byB2cG9ydDxZPnAwLiBJdCBpcyBkaWZmaWN1bHQgZm9yIGFwcGxp
-Y2F0aW9ucyB0byBndWVzcwp0aGUgWCBvciBZIHZhbHVlcyBpbiBvcmRlciB0byBnZXQgaG9sZCBv
-ZiB0aGUgcmlnaHQgZmlsZSBhZnRlciBhCnJlYm9vdC4KCklmIHdlIGF0IHNvbWUgcG9pbnQgZ2V0
-IG1vcmUgdGhhbiBvbmUgcmVtb3RlIHByb2Nlc3NvciB1c2luZwp2aXJ0aW9fY29uc29sZSB0aGUg
-cG9ydCBuYW1lIG1heSBub3QgZXZlbiBiZSBkZXRlcm1pbmlzdGljLgooWCBpcyBjdXJyZW50bHkg
-anVzdCBhIG1vbm90b25pYyBjb3VudGVyKS4KClRoZSBjdXJyZW50IGRldmljZSBwYXRoIGlzOgov
-c3lzL2RldmljZXMvcGxhdGZvcm0vc3RlLW1vZGVtL3JlbW90ZXByb2MwL3ZpcnRpbzAvdmlydGlv
-LXBvcnRzL3Zwb3J0MHAwCgokY2F0IHVldmVudApNQUpPUj0yNTQKTUlOT1I9MApERVZOQU1FPXZw
-b3J0MHAwCgpTbyB3aGF0IEknbSB0cnlpbmcgdG8gZG8gaXMgdG8gYWRkIGluZm9ybWF0aW9uIHRv
-IHVkZXYgZXZlbnRzIGluIG9yZGVyCnRvIGJlIGFibGUgY3JlYXRlIGdvb2QgZGV2aWNlIG5hbWVz
-IGFuZCBiZSBhYmxlIGlkZW50aWZ5IHRoZSByZW1vdGVwcm9jCmRldmljZS4gSSBzaG91bGQgcHJv
-YmFibHkgYWxzbyBtZW50aW9uIHRoYXQgd2UncmUgY3VycmVudGx5IHJ1bm5pbmcgdGhpcyBvbgpB
-bmRyb2lkLgoKVGhlIGluaXRpYWwgc3RhYiBhdCB0aGlzIHdhcyB0byBhZGQgaW5mb3JtYXRpb24g
-dG8gdGhlIHVkZXYgZXZlbnQuCgpBbm90aGVyIGFwcHJvYWNoIGNvdWxkIHBlcmhhcHMgYmUgdG8g
-Y2hhbmdlIHRoZSB3YXkgcG9ydC1uYW1lcyBhcmUKZ2VuZXJhdGVkIGJ5IHZpcnRpb19jb25zb2xl
-Li4uCgoKVGhhbmtzLApTanVyCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Jan 24, 2013 at 02:30:59PM +0100, Sjur Br=E6ndeland wrote:
+> Hi Greg,
+> =
+
+> On Tue, Jan 22, 2013 at 5:16 PM, Greg KH <gregkh@linuxfoundation.org> wro=
+te:
+> > On Tue, Jan 22, 2013 at 09:55:20AM +1030, Rusty Russell wrote:
+> >> sjur.brandeland@stericsson.com writes:
+> >>
+> >> > From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> >> >
+> >> > Add information so rproc-serial can be easily recogniced
+> >> > from user space. Add the following information to uevent:
+> >> > DRIVER=3Dvirtio_console|virtio_rproc_serial
+> >> > INTERFACE=3Dgrand-parent/parent/name
+> >> >
+> >> > Signed-off-by: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> >> > ---
+> >> > Hi,
+> >> >
+> >> > I need some way to identify the major/minor number for
+> >> > the rproc-serial device, given the udev event.
+> >> > Review comments are welcomed.
+> >> >
+> >> > Thanks,
+> >> > Sjur
+> >>
+> >> Hmm, I send all uevent questions to Greg KH (CC'd).
+> >
+> > The "INTERFACE" uevent variable is only for USB devices, so for anything
+> > else to be sending userspace that variable, would confuse things
+> > greatly.
+> >
+> > Sjur, what exactly are you trying to do here?  What do you want
+> > userspace to know, and what should it do with that information?
+> =
+
+> I'm trying to help user-space make sense of the port-name generated
+> by virtio_console. I'm using remoteproc and virtio_console for talking
+> to a remote device (modem). At startup the port-device will be named
+> vport<X>p0. If we get a reboot of the remote device, the device name
+> will change to vport<Y>p0. It is difficult for applications to guess
+> the X or Y values in order to get hold of the right file after a
+> reboot.
+> =
+
+> If we at some point get more than one remote processor using
+> virtio_console the port name may not even be deterministic.
+> (X is currently just a monotonic counter).
+> =
+
+> The current device path is:
+> /sys/devices/platform/ste-modem/remoteproc0/virtio0/virtio-ports/vport0p0
+> =
+
+> $cat uevent
+> MAJOR=3D254
+> MINOR=3D0
+> DEVNAME=3Dvport0p0
+> =
+
+> So what I'm trying to do is to add information to udev events in order
+> to be able create good device names and be able identify the remoteproc
+> device. I should probably also mention that we're currently running this =
+on
+> Android.
+
+Ok, but why would you use the "INTERFACE" uevent field for something
+like this?  All that looked to do was to export the path to your device,
+which userspace already gets, right?
+
+What were you thinking that you could send to userspace through a uevent
+that would allow it to uniquely identify your device, that it already
+doesn't have by just looking in the sysfs files for your device?
+
+> The initial stab at this was to add information to the udev event.
+
+Android doesn't use udev :)
+
+> Another approach could perhaps be to change the way port-names are
+> generated by virtio_console...
+
+How would that help here?
+
+The way to solve this is to provide userspace with some "unique"
+identifier of your device.  Traditionally that is done with a number of
+different methods:
+	- serial numbers and other unique strings in sysfs files
+	- device paths (plugged into the 3rd port on the 4th USB device)
+	- a "label" in the device (think about filesystems)
+
+All of these are either determined by sysfs files owned by the device
+(and hence, no uevent changes are needed), or userspace can query the
+device (filesystem labels).
+
+Do you have anything that can help uniquely identify this device?  If
+not, can you make something?
+
+Hope this helps,
+
+greg k-h
