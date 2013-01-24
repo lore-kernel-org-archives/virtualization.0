@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V6 1/3] virtio-net: fix the set affinity bug when CPU IDs
-	are not consecutive
-Date: Thu, 24 Jan 2013 19:19:04 +0200
-Message-ID: <20130124171904.GA11664@redhat.com>
-References: <1358767524-17934-1-git-send-email-gaowanlong@cn.fujitsu.com>
+From: Yinghai Lu <yinghai@kernel.org>
+Subject: [PATCH 35/35] x86: Don't panic if can not alloc buffer for swiotlb
+Date: Thu, 24 Jan 2013 12:20:16 -0800
+Message-ID: <1359058816-7615-36-git-send-email-yinghai__41446.2739987814$1359064123$gmane$org@kernel.org>
+References: <1359058816-7615-1-git-send-email-yinghai@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1358767524-17934-1-git-send-email-gaowanlong@cn.fujitsu.com>
+In-Reply-To: <1359058816-7615-1-git-send-email-yinghai@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,182 +17,197 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <erdnetdev@gmail.com>
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-mips@linux-mips.org, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Shuah Khan <shuahkhan@gmail.com>, Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, virtualization@lists.linux-foundation.org, Kyungmin Park <kyungmin.park@samsung.com>, Borislav Petkov <bp@alien8.de>, "Eric W. Biederman" <ebiederm@xmission.com>, Jason Wessel <jason.wessel@windriver.com>, Andrzej Pietrasiewicz <andrzej.p@samsung.com>, Jan Kiszka <jan.kiszka@web.de>, Andrew Morton <akpm@linux-foundation.org>, Yinghai Lu <yinghai@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jan 21, 2013 at 07:25:22PM +0800, Wanlong Gao wrote:
-> As Michael mentioned, set affinity and select queue will not work very
-> well when CPU IDs are not consecutive, this can happen with hot unplug.
-> Fix this bug by traversal the online CPUs, and create a per cpu variable
-> to find the mapping from CPU to the preferable virtual-queue.
-> 
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Eric Dumazet <erdnetdev@gmail.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: netdev@vger.kernel.org
-> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Normal boot path on system with iommu support:
+swiotlb buffer will be allocated early at first and then try to initialize
+iommu, if iommu for intel or AMD could setup properly, swiotlb buffer
+will be freed.
 
+The early allocating is with bootmem, and could panic when we try to use
+kdump with buffer above 4G only, or with memmap to limit mem under 4G.
+for example: memmap=4095M$1M to remove memory under 4G.
 
-For the series:
+According to Eric, add _nopanic version and no_iotlb_memory to fail
+map single later if swiotlb is still needed.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+-v2: don't pass nopanic, and use -ENOMEM return value according to Eric.
+     panic early instead of using swiotlb_full to panic...according to Eric/Konrad.
+-v3: make swiotlb_init to be notpanic, but will affect:
+     arm64, ia64, powerpc, tile, unicore32, x86.
+-v4: cleanup swiotlb_init by removing swiotlb_init_with_default_size.
 
-> ---
-> V5->V6:
-> 	remove {get|put}_online_cpus from virtnet_del_vqs (Jason)
-> V4->V5:
-> 	Add get/put_online_cpus to avoid CPUs go up and down during operations (Rusty)
-> 
-> V3->V4:
-> 	move vq_index into virtnet_info	(Jason)
-> 	change the mapping value when not setting affinity (Jason)
-> 	address the comments about select_queue (Rusty)
-> 
->  drivers/net/virtio_net.c | 58 +++++++++++++++++++++++++++++++++++++++---------
->  1 file changed, 47 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index a6fcf15..70cd957 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -123,6 +123,9 @@ struct virtnet_info {
->  
->  	/* Does the affinity hint is set for virtqueues? */
->  	bool affinity_hint_set;
-> +
-> +	/* Per-cpu variable to show the mapping from CPU to virtqueue */
-> +	int __percpu *vq_index;
->  };
->  
->  struct skb_vnet_hdr {
-> @@ -1016,6 +1019,7 @@ static int virtnet_vlan_rx_kill_vid(struct net_device *dev, u16 vid)
->  static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
->  {
->  	int i;
-> +	int cpu;
->  
->  	/* In multiqueue mode, when the number of cpu is equal to the number of
->  	 * queue pairs, we let the queue pairs to be private to one cpu by
-> @@ -1029,16 +1033,29 @@ static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
->  			return;
->  	}
->  
-> -	for (i = 0; i < vi->max_queue_pairs; i++) {
-> -		int cpu = set ? i : -1;
-> -		virtqueue_set_affinity(vi->rq[i].vq, cpu);
-> -		virtqueue_set_affinity(vi->sq[i].vq, cpu);
-> -	}
-> +	if (set) {
-> +		i = 0;
-> +		for_each_online_cpu(cpu) {
-> +			virtqueue_set_affinity(vi->rq[i].vq, cpu);
-> +			virtqueue_set_affinity(vi->sq[i].vq, cpu);
-> +			*per_cpu_ptr(vi->vq_index, cpu) = i;
-> +			i++;
-> +		}
->  
-> -	if (set)
->  		vi->affinity_hint_set = true;
-> -	else
-> +	} else {
-> +		for(i = 0; i < vi->max_queue_pairs; i++) {
-> +			virtqueue_set_affinity(vi->rq[i].vq, -1);
-> +			virtqueue_set_affinity(vi->sq[i].vq, -1);
-> +		}
-> +
-> +		i = 0;
-> +		for_each_online_cpu(cpu)
-> +			*per_cpu_ptr(vi->vq_index, cpu) =
-> +				++i % vi->curr_queue_pairs;
-> +
->  		vi->affinity_hint_set = false;
-> +	}
->  }
->  
->  static void virtnet_get_ringparam(struct net_device *dev,
-> @@ -1087,7 +1104,9 @@ static int virtnet_set_channels(struct net_device *dev,
->  		netif_set_real_num_tx_queues(dev, queue_pairs);
->  		netif_set_real_num_rx_queues(dev, queue_pairs);
->  
-> +		get_online_cpus();
->  		virtnet_set_affinity(vi, true);
-> +		put_online_cpus();
->  	}
->  
->  	return err;
-> @@ -1127,12 +1146,19 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
->  
->  /* To avoid contending a lock hold by a vcpu who would exit to host, select the
->   * txq based on the processor id.
-> - * TODO: handle cpu hotplug.
->   */
->  static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
->  {
-> -	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
-> -		  smp_processor_id();
-> +	int txq;
-> +	struct virtnet_info *vi = netdev_priv(dev);
-> +
-> +	if (skb_rx_queue_recorded(skb)) {
-> +		txq = skb_get_rx_queue(skb);
-> +	} else {
-> +		txq = *__this_cpu_ptr(vi->vq_index);
-> +		if (txq == -1)
-> +			txq = 0;
-> +	}
->  
->  	while (unlikely(txq >= dev->real_num_tx_queues))
->  		txq -= dev->real_num_tx_queues;
-> @@ -1371,7 +1397,10 @@ static int init_vqs(struct virtnet_info *vi)
->  	if (ret)
->  		goto err_free;
->  
-> +	get_online_cpus();
->  	virtnet_set_affinity(vi, true);
-> +	put_online_cpus();
-> +
->  	return 0;
->  
->  err_free:
-> @@ -1453,6 +1482,10 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	if (vi->stats == NULL)
->  		goto free;
->  
-> +	vi->vq_index = alloc_percpu(int);
-> +	if (vi->vq_index == NULL)
-> +		goto free_stats;
-> +
->  	mutex_init(&vi->config_lock);
->  	vi->config_enable = true;
->  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
-> @@ -1476,7 +1509,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
->  	err = init_vqs(vi);
->  	if (err)
-> -		goto free_stats;
-> +		goto free_index;
->  
->  	netif_set_real_num_tx_queues(dev, 1);
->  	netif_set_real_num_rx_queues(dev, 1);
-> @@ -1520,6 +1553,8 @@ free_recv_bufs:
->  free_vqs:
->  	cancel_delayed_work_sync(&vi->refill);
->  	virtnet_del_vqs(vi);
-> +free_index:
-> +	free_percpu(vi->vq_index);
->  free_stats:
->  	free_percpu(vi->stats);
->  free:
-> @@ -1554,6 +1589,7 @@ static void virtnet_remove(struct virtio_device *vdev)
->  
->  	flush_work(&vi->config_work);
->  
-> +	free_percpu(vi->vq_index);
->  	free_percpu(vi->stats);
->  	free_netdev(vi->dev);
->  }
-> -- 
-> 1.8.1
+Suggested-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Yinghai Lu <yinghai@kernel.org>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Andrzej Pietrasiewicz <andrzej.p@samsung.com>
+Cc: linux-mips@linux-mips.org
+Cc: xen-devel@lists.xensource.com
+Cc: virtualization@lists.linux-foundation.org
+Cc: Shuah Khan <shuahkhan@gmail.com>
+---
+ arch/mips/cavium-octeon/dma-octeon.c |    3 ++-
+ drivers/xen/swiotlb-xen.c            |    4 ++-
+ include/linux/swiotlb.h              |    2 +-
+ lib/swiotlb.c                        |   47 +++++++++++++++++++++-------------
+ 4 files changed, 35 insertions(+), 21 deletions(-)
+
+diff --git a/arch/mips/cavium-octeon/dma-octeon.c b/arch/mips/cavium-octeon/dma-octeon.c
+index 41dd0088..02f2444 100644
+--- a/arch/mips/cavium-octeon/dma-octeon.c
++++ b/arch/mips/cavium-octeon/dma-octeon.c
+@@ -317,7 +317,8 @@ void __init plat_swiotlb_setup(void)
+ 
+ 	octeon_swiotlb = alloc_bootmem_low_pages(swiotlbsize);
+ 
+-	swiotlb_init_with_tbl(octeon_swiotlb, swiotlb_nslabs, 1);
++	if (swiotlb_init_with_tbl(octeon_swiotlb, swiotlb_nslabs, 1) == -ENOMEM)
++		panic("Cannot allocate SWIOTLB buffer");
+ 
+ 	mips_dma_map_ops = &octeon_linear_dma_map_ops.dma_map_ops;
+ }
+diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
+index af47e75..1d94316 100644
+--- a/drivers/xen/swiotlb-xen.c
++++ b/drivers/xen/swiotlb-xen.c
+@@ -231,7 +231,9 @@ retry:
+ 	}
+ 	start_dma_addr = xen_virt_to_bus(xen_io_tlb_start);
+ 	if (early) {
+-		swiotlb_init_with_tbl(xen_io_tlb_start, xen_io_tlb_nslabs, verbose);
++		if (swiotlb_init_with_tbl(xen_io_tlb_start, xen_io_tlb_nslabs,
++			 verbose))
++			panic("Cannot allocate SWIOTLB buffer");
+ 		rc = 0;
+ 	} else
+ 		rc = swiotlb_late_init_with_tbl(xen_io_tlb_start, xen_io_tlb_nslabs);
+diff --git a/include/linux/swiotlb.h b/include/linux/swiotlb.h
+index 071d62c..2de42f9 100644
+--- a/include/linux/swiotlb.h
++++ b/include/linux/swiotlb.h
+@@ -23,7 +23,7 @@ extern int swiotlb_force;
+ #define IO_TLB_SHIFT 11
+ 
+ extern void swiotlb_init(int verbose);
+-extern void swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose);
++int swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose);
+ extern unsigned long swiotlb_nr_tbl(void);
+ extern int swiotlb_late_init_with_tbl(char *tlb, unsigned long nslabs);
+ 
+diff --git a/lib/swiotlb.c b/lib/swiotlb.c
+index 196b069..bfe02b8 100644
+--- a/lib/swiotlb.c
++++ b/lib/swiotlb.c
+@@ -122,11 +122,18 @@ static dma_addr_t swiotlb_virt_to_bus(struct device *hwdev,
+ 	return phys_to_dma(hwdev, virt_to_phys(address));
+ }
+ 
++static bool no_iotlb_memory;
++
+ void swiotlb_print_info(void)
+ {
+ 	unsigned long bytes = io_tlb_nslabs << IO_TLB_SHIFT;
+ 	unsigned char *vstart, *vend;
+ 
++	if (no_iotlb_memory) {
++		pr_warn("software IO TLB: No low mem\n");
++		return;
++	}
++
+ 	vstart = phys_to_virt(io_tlb_start);
+ 	vend = phys_to_virt(io_tlb_end);
+ 
+@@ -136,7 +143,7 @@ void swiotlb_print_info(void)
+ 	       bytes >> 20, vstart, vend - 1);
+ }
+ 
+-void __init swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose)
++int __init swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose)
+ {
+ 	void *v_overflow_buffer;
+ 	unsigned long i, bytes;
+@@ -150,9 +157,10 @@ void __init swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose)
+ 	/*
+ 	 * Get the overflow emergency buffer
+ 	 */
+-	v_overflow_buffer = alloc_bootmem_low_pages(PAGE_ALIGN(io_tlb_overflow));
++	v_overflow_buffer = alloc_bootmem_low_pages_nopanic(
++						PAGE_ALIGN(io_tlb_overflow));
+ 	if (!v_overflow_buffer)
+-		panic("Cannot allocate SWIOTLB overflow buffer!\n");
++		return -ENOMEM;
+ 
+ 	io_tlb_overflow_buffer = __pa(v_overflow_buffer);
+ 
+@@ -169,15 +177,19 @@ void __init swiotlb_init_with_tbl(char *tlb, unsigned long nslabs, int verbose)
+ 
+ 	if (verbose)
+ 		swiotlb_print_info();
++
++	return 0;
+ }
+ 
+ /*
+  * Statically reserve bounce buffer space and initialize bounce buffer data
+  * structures for the software IO TLB used to implement the DMA API.
+  */
+-static void __init
+-swiotlb_init_with_default_size(size_t default_size, int verbose)
++void  __init
++swiotlb_init(int verbose)
+ {
++	/* default to 64MB */
++	size_t default_size = 64UL<<20;
+ 	unsigned char *vstart;
+ 	unsigned long bytes;
+ 
+@@ -188,20 +200,16 @@ swiotlb_init_with_default_size(size_t default_size, int verbose)
+ 
+ 	bytes = io_tlb_nslabs << IO_TLB_SHIFT;
+ 
+-	/*
+-	 * Get IO TLB memory from the low pages
+-	 */
+-	vstart = alloc_bootmem_low_pages(PAGE_ALIGN(bytes));
+-	if (!vstart)
+-		panic("Cannot allocate SWIOTLB buffer");
+-
+-	swiotlb_init_with_tbl(vstart, io_tlb_nslabs, verbose);
+-}
++	/* Get IO TLB memory from the low pages */
++	vstart = alloc_bootmem_low_pages_nopanic(PAGE_ALIGN(bytes));
++	if (vstart && !swiotlb_init_with_tbl(vstart, io_tlb_nslabs, verbose))
++		return;
+ 
+-void __init
+-swiotlb_init(int verbose)
+-{
+-	swiotlb_init_with_default_size(64 * (1<<20), verbose);	/* default to 64MB */
++	if (io_tlb_start)
++		free_bootmem(io_tlb_start,
++				 PAGE_ALIGN(io_tlb_nslabs << IO_TLB_SHIFT));
++	pr_warn("Cannot allocate SWIOTLB buffer");
++	no_iotlb_memory = true;
+ }
+ 
+ /*
+@@ -405,6 +413,9 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev,
+ 	unsigned long offset_slots;
+ 	unsigned long max_slots;
+ 
++	if (no_iotlb_memory)
++		panic("Can not allocate SWIOTLB buffer earlier and can't now provide you with the DMA bounce buffer");
++
+ 	mask = dma_get_seg_boundary(hwdev);
+ 
+ 	tbl_dma_addr &= mask;
+-- 
+1.7.10.4
