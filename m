@@ -1,8 +1,8 @@
-From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: [PATCH V7 3/3] virtio-net: reset virtqueue affinity when doing cpu
-	hotplug
-Date: Fri, 25 Jan 2013 16:36:21 +0800
-Message-ID: <1359102981-3401-3-git-send-email-gaowanlong@cn.fujitsu.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V7 1/3] virtio-net: fix the set affinity bug when CPU
+	IDs are not consecutive
+Date: Fri, 25 Jan 2013 17:00:54 +0800
+Message-ID: <510249C6.2000105@redhat.com>
 References: <1359102981-3401-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,105 +18,188 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <erdnetdev@gmail.com>, "David S. Miller" <davem@davemloft.net>
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <erdnetdev@gmail.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a cpu notifier to virtio-net, so that we can reset the
-virtqueue affinity if the cpu hotplug happens. It improve
-the performance through enabling or disabling the virtqueue
-affinity after doing cpu hotplug.
+On 01/25/2013 04:36 PM, Wanlong Gao wrote:
+> As Michael mentioned, set affinity and select queue will not work very
+> well when CPU IDs are not consecutive, this can happen with hot unplug.
+> Fix this bug by traversal the online CPUs, and create a per cpu variable
+> to find the mapping from CPU to the preferable virtual-queue.
+>
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Eric Dumazet <erdnetdev@gmail.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: netdev@vger.kernel.org
+> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> V6->V7:
+> 	serialize virtnet_set_queues to avoid a race with cpu hotplug (Jason)
+> V5->V6:
+> 	remove {get|put}_online_cpus from virtnet_del_vqs (Jason)
+> V4->V5:
+> 	Add get/put_online_cpus to avoid CPUs go up and down during operations (Rusty)
+>
+> V3->V4:
+> 	move vq_index into virtnet_info	(Jason)
+> 	change the mapping value when not setting affinity (Jason)
+> 	address the comments about select_queue (Rusty)
+>
+>  drivers/net/virtio_net.c | 58 +++++++++++++++++++++++++++++++++++++++---------
+>  1 file changed, 47 insertions(+), 11 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index a6fcf15..0f3afa8 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -123,6 +123,9 @@ struct virtnet_info {
+>  
+>  	/* Does the affinity hint is set for virtqueues? */
+>  	bool affinity_hint_set;
+> +
+> +	/* Per-cpu variable to show the mapping from CPU to virtqueue */
+> +	int __percpu *vq_index;
+>  };
+>  
+>  struct skb_vnet_hdr {
+> @@ -1016,6 +1019,7 @@ static int virtnet_vlan_rx_kill_vid(struct net_device *dev, u16 vid)
+>  static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
+>  {
+>  	int i;
+> +	int cpu;
+>  
+>  	/* In multiqueue mode, when the number of cpu is equal to the number of
+>  	 * queue pairs, we let the queue pairs to be private to one cpu by
+> @@ -1029,16 +1033,29 @@ static void virtnet_set_affinity(struct virtnet_info *vi, bool set)
+>  			return;
+>  	}
+>  
+> -	for (i = 0; i < vi->max_queue_pairs; i++) {
+> -		int cpu = set ? i : -1;
+> -		virtqueue_set_affinity(vi->rq[i].vq, cpu);
+> -		virtqueue_set_affinity(vi->sq[i].vq, cpu);
+> -	}
+> +	if (set) {
+> +		i = 0;
+> +		for_each_online_cpu(cpu) {
+> +			virtqueue_set_affinity(vi->rq[i].vq, cpu);
+> +			virtqueue_set_affinity(vi->sq[i].vq, cpu);
+> +			*per_cpu_ptr(vi->vq_index, cpu) = i;
+> +			i++;
+> +		}
+>  
+> -	if (set)
+>  		vi->affinity_hint_set = true;
+> -	else
+> +	} else {
+> +		for(i = 0; i < vi->max_queue_pairs; i++) {
+> +			virtqueue_set_affinity(vi->rq[i].vq, -1);
+> +			virtqueue_set_affinity(vi->sq[i].vq, -1);
+> +		}
+> +
+> +		i = 0;
+> +		for_each_online_cpu(cpu)
+> +			*per_cpu_ptr(vi->vq_index, cpu) =
+> +				++i % vi->curr_queue_pairs;
+> +
+>  		vi->affinity_hint_set = false;
+> +	}
+>  }
 
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Eric Dumazet <erdnetdev@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org
-Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
----
-V6->V7: no change
-V5->V6:
-	deal with CPU_DOWN_PREPARE separately by just cleaning affinity
-V4->V5:
-	New method to deal with the cpu hotplug actions (Rusty)
-
- drivers/net/virtio_net.c | 33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 2f6fe9b..35c00c5 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -26,6 +26,7 @@
- #include <linux/scatterlist.h>
- #include <linux/if_vlan.h>
- #include <linux/slab.h>
-+#include <linux/cpu.h>
- 
- static int napi_weight = 128;
- module_param(napi_weight, int, 0444);
-@@ -126,6 +127,9 @@ struct virtnet_info {
- 
- 	/* Per-cpu variable to show the mapping from CPU to virtqueue */
- 	int __percpu *vq_index;
-+
-+	/* CPU hot plug notifier */
-+	struct notifier_block nb;
- };
- 
- struct skb_vnet_hdr {
-@@ -1067,6 +1071,26 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
- 	vi->affinity_hint_set = true;
- }
- 
-+static int virtnet_cpu_callback(struct notifier_block *nfb,
-+			        unsigned long action, void *hcpu)
-+{
-+	struct virtnet_info *vi = container_of(nfb, struct virtnet_info, nb);
-+
-+	switch(action & ~CPU_TASKS_FROZEN) {
-+	case CPU_ONLINE:
-+	case CPU_DOWN_FAILED:
-+	case CPU_DEAD:
-+		virtnet_set_affinity(vi);
-+		break;
-+	case CPU_DOWN_PREPARE:
-+		virtnet_clean_affinity(vi, (long)hcpu);
-+		break;
-+	default:
-+		break;
-+	}
-+	return NOTIFY_OK;
-+}
-+
- static void virtnet_get_ringparam(struct net_device *dev,
- 				struct ethtool_ringparam *ring)
- {
-@@ -1541,6 +1565,13 @@ static int virtnet_probe(struct virtio_device *vdev)
- 		}
- 	}
- 
-+	vi->nb.notifier_call = &virtnet_cpu_callback;
-+	err = register_hotcpu_notifier(&vi->nb);
-+	if (err) {
-+		pr_debug("virtio_net: registering cpu notifier failed\n");
-+		goto free_recv_bufs;
-+	}
-+
- 	/* Assume link up if device can't report link status,
- 	   otherwise get link status from config. */
- 	if (virtio_has_feature(vi->vdev, VIRTIO_NET_F_STATUS)) {
-@@ -1587,6 +1618,8 @@ static void virtnet_remove(struct virtio_device *vdev)
- {
- 	struct virtnet_info *vi = vdev->priv;
- 
-+	unregister_hotcpu_notifier(&vi->nb);
-+
- 	/* Prevent config work handler from accessing the device. */
- 	mutex_lock(&vi->config_lock);
- 	vi->config_enable = false;
--- 
-1.8.1
+Sorry, looks like the issue of v6 still exists, we need set per-cpu
+index unconditionally here (and also in 2/3), the cpus != queues check
+may bypass this setting.
+>  
+>  static void virtnet_get_ringparam(struct net_device *dev,
+> @@ -1082,6 +1099,7 @@ static int virtnet_set_channels(struct net_device *dev,
+>  	if (queue_pairs > vi->max_queue_pairs)
+>  		return -EINVAL;
+>  
+> +	get_online_cpus();
+>  	err = virtnet_set_queues(vi, queue_pairs);
+>  	if (!err) {
+>  		netif_set_real_num_tx_queues(dev, queue_pairs);
+> @@ -1089,6 +1107,7 @@ static int virtnet_set_channels(struct net_device *dev,
+>  
+>  		virtnet_set_affinity(vi, true);
+>  	}
+> +	put_online_cpus();
+>  
+>  	return err;
+>  }
+> @@ -1127,12 +1146,19 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
+>  
+>  /* To avoid contending a lock hold by a vcpu who would exit to host, select the
+>   * txq based on the processor id.
+> - * TODO: handle cpu hotplug.
+>   */
+>  static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
+>  {
+> -	int txq = skb_rx_queue_recorded(skb) ? skb_get_rx_queue(skb) :
+> -		  smp_processor_id();
+> +	int txq;
+> +	struct virtnet_info *vi = netdev_priv(dev);
+> +
+> +	if (skb_rx_queue_recorded(skb)) {
+> +		txq = skb_get_rx_queue(skb);
+> +	} else {
+> +		txq = *__this_cpu_ptr(vi->vq_index);
+> +		if (txq == -1)
+> +			txq = 0;
+> +	}
+>  
+>  	while (unlikely(txq >= dev->real_num_tx_queues))
+>  		txq -= dev->real_num_tx_queues;
+> @@ -1371,7 +1397,10 @@ static int init_vqs(struct virtnet_info *vi)
+>  	if (ret)
+>  		goto err_free;
+>  
+> +	get_online_cpus();
+>  	virtnet_set_affinity(vi, true);
+> +	put_online_cpus();
+> +
+>  	return 0;
+>  
+>  err_free:
+> @@ -1453,6 +1482,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	if (vi->stats == NULL)
+>  		goto free;
+>  
+> +	vi->vq_index = alloc_percpu(int);
+> +	if (vi->vq_index == NULL)
+> +		goto free_stats;
+> +
+>  	mutex_init(&vi->config_lock);
+>  	vi->config_enable = true;
+>  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
+> @@ -1476,7 +1509,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
+>  	err = init_vqs(vi);
+>  	if (err)
+> -		goto free_stats;
+> +		goto free_index;
+>  
+>  	netif_set_real_num_tx_queues(dev, 1);
+>  	netif_set_real_num_rx_queues(dev, 1);
+> @@ -1520,6 +1553,8 @@ free_recv_bufs:
+>  free_vqs:
+>  	cancel_delayed_work_sync(&vi->refill);
+>  	virtnet_del_vqs(vi);
+> +free_index:
+> +	free_percpu(vi->vq_index);
+>  free_stats:
+>  	free_percpu(vi->stats);
+>  free:
+> @@ -1554,6 +1589,7 @@ static void virtnet_remove(struct virtio_device *vdev)
+>  
+>  	flush_work(&vi->config_work);
+>  
+> +	free_percpu(vi->vq_index);
+>  	free_percpu(vi->stats);
+>  	free_netdev(vi->dev);
+>  }
