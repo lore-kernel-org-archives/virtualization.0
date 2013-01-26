@@ -1,13 +1,15 @@
-From: Andy King <acking@vmware.com>
-Subject: Re: [Pv-drivers] [PATCH 0/6] VSOCK for Linux upstreaming
-Date: Fri, 25 Jan 2013 13:33:34 -0800 (PST)
-Message-ID: <362258122.36962636.1359149614436.JavaMail.root__9938.85356369919$1359149649$gmane$org@vmware.com>
-References: <1426158581.24554896.1357785777229.JavaMail.root@vmware.com>
+From: Dmitry Torokhov <dtor@vmware.com>
+Subject: Re: [Pv-drivers] [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Fri, 25 Jan 2013 16:15:19 -0800
+Message-ID: <2312112.Fz0qTjDOJB__1012.84677298299$1359159351$gmane$org@dtor-d630.eng.vmware.com>
+References: <1359135470-30677-1-git-send-email-acking@vmware.com>
+	<1359135470-30677-2-git-send-email-acking@vmware.com>
+	<20130125235953.GA4833@hmsreliant.think-freely.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1426158581.24554896.1357785777229.JavaMail.root@vmware.com>
+In-Reply-To: <20130125235953.GA4833@hmsreliant.think-freely.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,33 +19,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, David Miller <davem@davemloft.net>
+To: pv-drivers@vmware.com
+Cc: acking@vmware.com, Neil Horman <nhorman@tuxdriver.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > > Our position is that VSOCK feature set is more complete and that
-> > > it
-> > > should be possible to use transports other than VMCI for VSOCK
-> > > traffic, should interested parties implement them,
-> > 
-> > Implementing other transports requires restructing vsock (and vmci)
-> > first as the current vsock code is not a hypervisor neutral
-> > service.
+Hi Neil,
+
+On Friday, January 25, 2013 06:59:53 PM Neil Horman wrote:
+> On Fri, Jan 25, 2013 at 09:37:50AM -0800, acking@vmware.com wrote:
+> > +
+> > +config VMWARE_VSOCK
+> > +	tristate "Virtual Socket protocol"
+> > +	depends on VMWARE_VMCI
 > 
-> I'm going to bite the bullet and spend the next couple of days doing
-> just that: factoring out the VMCI bits and hiding them behind a
-> transport layer.  It'll be a bit rough, but it'll be a start.  We'll
-> submit another patch series next week with that.  I'm hoping that'll
-> get us over this hump, since it should by hypervisor agnostic at
-> that point.  It'll be up to you guys to add virtio, though :)
+> What is CONFIG_VMWARE_VMCI?  I don't find that in any Kconfig in the tree?
+> 
+> I''m still looking over the rest, but I get build issues if I just remove
+> the dependency.
 
-I sent out a patch series this morning that splits out our code into a
-core part, containing the socket family/operations, and a VMCI-specific
-part.  The core makes callbacks via a new transport layer into VMCI.
-It's not perfect -- there's still some cruft in the core socket
-structure -- but it lays the foundation of a hypervisor-neutral channel,
-and hopefully we can build on this with your help.  It'd be great if
-you could take a look.
+VMCI is in linux-next at the moment.
 
-Thanks!
-- Andy
+Thanks,
+Dmitry
