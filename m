@@ -1,11 +1,17 @@
-From: Ryota Ozaki <ozaki.ryota@gmail.com>
-Subject: [PATCH][trivial] virtio-mmio: fix wrong comment about register offset
-Date: Sat, 26 Jan 2013 17:54:06 +0900
-Message-ID: <1359190446-13677-1-git-send-email-ozaki.ryota@gmail.com>
+From: Neil Horman <nhorman@tuxdriver.com>
+Subject: Re: [Pv-drivers] [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Sat, 26 Jan 2013 13:41:58 -0500
+Message-ID: <20130126184158.GA1388@neilslaptop.think-freely.org>
+References: <1359135470-30677-1-git-send-email-acking@vmware.com>
+	<1359135470-30677-2-git-send-email-acking@vmware.com>
+	<20130125235953.GA4833@hmsreliant.think-freely.org>
+	<2312112.Fz0qTjDOJB@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <2312112.Fz0qTjDOJB@dtor-d630.eng.vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,33 +21,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: Jiri Kosina <trivial@kernel.org>, Pawel Moll <pawel.moll@arm.com>
+To: Dmitry Torokhov <dtor@vmware.com>
+Cc: acking@vmware.com, pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-The register offset of InterruptACK is 0x064, not 0x060.
-Fix it.
+On Fri, Jan 25, 2013 at 04:15:19PM -0800, Dmitry Torokhov wrote:
+> Hi Neil,
+> 
+> On Friday, January 25, 2013 06:59:53 PM Neil Horman wrote:
+> > On Fri, Jan 25, 2013 at 09:37:50AM -0800, acking@vmware.com wrote:
+> > > +
+> > > +config VMWARE_VSOCK
+> > > +	tristate "Virtual Socket protocol"
+> > > +	depends on VMWARE_VMCI
+> > 
+> > What is CONFIG_VMWARE_VMCI?  I don't find that in any Kconfig in the tree?
+> > 
+> > I''m still looking over the rest, but I get build issues if I just remove
+> > the dependency.
+> 
+> VMCI is in linux-next at the moment.
+> 
+> Thanks,
+> Dmitry
+> 
 
-Signed-off-by: Ryota Ozaki <ozaki.ryota@gmail.com>
-CC: Pawel Moll <pawel.moll@arm.com>
-CC: Rusty Russell <rusty@rustcorp.com.au>
-CC: Jiri Kosina <trivial@kernel.org>
----
- drivers/virtio/virtio_mmio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 31f966f..833e6db 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -75,7 +75,7 @@
-  *
-  * 0x050  W  QueueNotify      Queue notifier
-  * 0x060  R  InterruptStatus  Interrupt status register
-- * 0x060  W  InterruptACK     Interrupt acknowledge register
-+ * 0x064  W  InterruptACK     Interrupt acknowledge register
-  * 0x070  RW Status           Device status register
-  *
-  * 0x100+ RW                  Device-specific configuration space
--- 
-1.7.12
+Thanks, I'll pull that in.
+Neil
