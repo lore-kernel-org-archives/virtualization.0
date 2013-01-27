@@ -1,17 +1,14 @@
-From: Neil Horman <nhorman@tuxdriver.com>
-Subject: Re: [Pv-drivers] [PATCH 1/1] VSOCK: Introduce VM Sockets
-Date: Sat, 26 Jan 2013 13:41:58 -0500
-Message-ID: <20130126184158.GA1388@neilslaptop.think-freely.org>
-References: <1359135470-30677-1-git-send-email-acking@vmware.com>
-	<1359135470-30677-2-git-send-email-acking@vmware.com>
-	<20130125235953.GA4833@hmsreliant.think-freely.org>
-	<2312112.Fz0qTjDOJB@dtor-d630.eng.vmware.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH V8 1/3] virtio-net: fix the set affinity bug when CPU
+	IDs are not consecutive
+Date: Sun, 27 Jan 2013 01:23:56 -0500 (EST)
+Message-ID: <20130127.012356.186129078703210985.davem@davemloft.net>
+References: <1359107491-6749-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <2312112.Fz0qTjDOJB@dtor-d630.eng.vmware.com>
+In-Reply-To: <1359107491-6749-1-git-send-email-gaowanlong@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,31 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dmitry Torokhov <dtor@vmware.com>
-Cc: acking@vmware.com, pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
+To: gaowanlong@cn.fujitsu.com
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, erdnetdev@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 25, 2013 at 04:15:19PM -0800, Dmitry Torokhov wrote:
-> Hi Neil,
-> 
-> On Friday, January 25, 2013 06:59:53 PM Neil Horman wrote:
-> > On Fri, Jan 25, 2013 at 09:37:50AM -0800, acking@vmware.com wrote:
-> > > +
-> > > +config VMWARE_VSOCK
-> > > +	tristate "Virtual Socket protocol"
-> > > +	depends on VMWARE_VMCI
-> > 
-> > What is CONFIG_VMWARE_VMCI?  I don't find that in any Kconfig in the tree?
-> > 
-> > I''m still looking over the rest, but I get build issues if I just remove
-> > the dependency.
-> 
-> VMCI is in linux-next at the moment.
-> 
-> Thanks,
-> Dmitry
-> 
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Date: Fri, 25 Jan 2013 17:51:29 +0800
 
+> As Michael mentioned, set affinity and select queue will not work very
+> well when CPU IDs are not consecutive, this can happen with hot unplug.
+> Fix this bug by traversal the online CPUs, and create a per cpu variable
+> to find the mapping from CPU to the preferable virtual-queue.
+> 
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Eric Dumazet <erdnetdev@gmail.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: netdev@vger.kernel.org
+> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-Thanks, I'll pull that in.
-Neil
+Applied.
