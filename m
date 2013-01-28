@@ -1,10 +1,9 @@
-From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+From: Pawel Moll <pawel.moll@arm.com>
 Subject: Re: [PATCH][trivial] virtio-mmio: fix wrong comment about register
 	offset
-Date: Mon, 28 Jan 2013 12:03:27 +0800
-Message-ID: <5105F88F.4030604@cn.fujitsu.com>
+Date: Mon, 28 Jan 2013 10:05:21 +0000
+Message-ID: <1359367521.8090.10.camel@hornet>
 References: <1359190446-13677-1-git-send-email-ozaki.ryota@gmail.com>
-Reply-To: gaowanlong@cn.fujitsu.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,10 +19,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Ryota Ozaki <ozaki.ryota@gmail.com>
-Cc: Jiri Kosina <trivial@kernel.org>, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+Cc: Jiri Kosina <trivial@kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/26/2013 04:54 PM, Ryota Ozaki wrote:
+On Sat, 2013-01-26 at 08:54 +0000, Ryota Ozaki wrote:
 > The register offset of InterruptACK is 0x064, not 0x060.
 > Fix it.
 > 
@@ -31,9 +30,6 @@ On 01/26/2013 04:54 PM, Ryota Ozaki wrote:
 > CC: Pawel Moll <pawel.moll@arm.com>
 > CC: Rusty Russell <rusty@rustcorp.com.au>
 > CC: Jiri Kosina <trivial@kernel.org>
-
-Reviewed-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-
 > ---
 >  drivers/virtio/virtio_mmio.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -51,4 +47,9 @@ Reviewed-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
 >   * 0x070  RW Status           Device status register
 >   *
 >   * 0x100+ RW                  Device-specific configuration space
-> 
+
+Acked-by: Pawel Moll <pawel.moll@arm.com>
+
+Thanks!
+
+Pawel
