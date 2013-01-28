@@ -1,14 +1,14 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH][trivial] virtio-mmio: fix wrong comment about register
-	offset
-Date: Mon, 28 Jan 2013 10:05:21 +0000
-Message-ID: <1359367521.8090.10.camel@hornet>
-References: <1359190446-13677-1-git-send-email-ozaki.ryota@gmail.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Mon, 28 Jan 2013 13:25:22 +0100
+Message-ID: <51066E32.2000209__16746.4958657094$1359375954$gmane$org@redhat.com>
+References: <1359135470-30677-1-git-send-email-acking@vmware.com>
+	<1359135470-30677-2-git-send-email-acking@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1359190446-13677-1-git-send-email-ozaki.ryota@gmail.com>
+In-Reply-To: <1359135470-30677-2-git-send-email-acking@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +18,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ryota Ozaki <ozaki.ryota@gmail.com>
-Cc: Jiri Kosina <trivial@kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: acking@vmware.com
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, 2013-01-26 at 08:54 +0000, Ryota Ozaki wrote:
-> The register offset of InterruptACK is 0x064, not 0x060.
-> Fix it.
-> 
-> Signed-off-by: Ryota Ozaki <ozaki.ryota@gmail.com>
-> CC: Pawel Moll <pawel.moll@arm.com>
-> CC: Rusty Russell <rusty@rustcorp.com.au>
-> CC: Jiri Kosina <trivial@kernel.org>
-> ---
->  drivers/virtio/virtio_mmio.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 31f966f..833e6db 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -75,7 +75,7 @@
->   *
->   * 0x050  W  QueueNotify      Queue notifier
->   * 0x060  R  InterruptStatus  Interrupt status register
-> - * 0x060  W  InterruptACK     Interrupt acknowledge register
-> + * 0x064  W  InterruptACK     Interrupt acknowledge register
->   * 0x070  RW Status           Device status register
->   *
->   * 0x100+ RW                  Device-specific configuration space
+  Hi,
 
-Acked-by: Pawel Moll <pawel.moll@arm.com>
+> diff --git a/net/vmw_vsock/Kconfig b/net/vmw_vsock/Kconfig
+> new file mode 100644
+> index 0000000..95e2568
+> --- /dev/null
+> +++ b/net/vmw_vsock/Kconfig
+> @@ -0,0 +1,14 @@
+> +#
+> +# Vsock protocol
+> +#
+> +
+> +config VMWARE_VSOCK
+> +	tristate "Virtual Socket protocol"
+> +	depends on VMWARE_VMCI
 
-Thanks!
+I guess this is temporary?  Cover letter says *mostly* separated ...
 
-Pawel
+> +vmw_vsock-y += af_vsock.o vmci_transport.o vmci_transport_notify.o \
+> +	vmci_transport_notify_qstate.o vsock_addr.o
+
+Likewise, I expect with the final version vmci_transport is a separate
+module (or moves into the vmci driver), correct?
+
+> +static long vsock_dev_do_ioctl(struct file *filp,
+> +			       unsigned int cmd, void __user *ptr)
+> +{
+> +	static const u16 parts[4] = VSOCK_DRIVER_VERSION_PARTS;
+> +	u32 __user *p = ptr;
+> +	int retval = 0;
+> +	u32 version;
+> +
+> +	switch (cmd) {
+> +	case IOCTL_VMCI_SOCKETS_VERSION:
+> +		version = VMCI_SOCKETS_MAKE_VERSION(parts);
+> +		if (put_user(version, p) != 0)
+> +			retval = -EFAULT;
+> +		break;
+
+Still needed?
+
+> +	case IOCTL_VMCI_SOCKETS_GET_AF_VALUE:
+> +		if (put_user(AF_VSOCK, p) != 0)
+> +			retval = -EFAULT;
+> +
+> +		break;
+
+That can go away, with the upstream merge vsock will get a fixed AF_VSOCK.
+
+> +	case IOCTL_VMCI_SOCKETS_GET_LOCAL_CID:
+> +		if (put_user(vmci_get_context_id(), p) != 0)
+> +			retval = -EFAULT;
+
+What is this?
+
+> +static int __init vsock_init(void)
+> +{
+> +	int err;
+> +
+> +	vsock_init_tables();
+> +
+> +	err = misc_register(&vsock_device);
+> +	if (err) {
+> +		pr_err("Failed to register misc device\n");
+> +		return -ENOENT;
+> +	}
+> +
+> +	err = vmci_transport_register(&transport);
+> +	if (err) {
+> +		pr_err("Cannot register with VMCI device\n");
+> +		goto err_misc_deregister;
+> +	}
+
+Hmm?  There should be a vsock_(un)register_transport which the vmci
+transport code can call (and likewise virtio transport some day).
+
+> +struct vsock_sock {
+> +	/* sk must be the first member. */
+> +	struct sock sk;
+> +	struct sockaddr_vm local_addr;
+> +	struct sockaddr_vm remote_addr;
+
+> +	/* The rest is transport-specific: this is the stuff we need to pull
+> +	 * out to make it work with something other than VMCI.
+> +	 */
+> +	struct {
+> +		/* For DGRAMs. */
+> +		struct vmci_handle dg_handle;
+
+Yep, should be a pointer where transports can hook in their private data.
+
+> +/**** TRANSPORT ****/
+> +
+> +struct vsock_transport {
+> +	void (*init)(struct vsock_sock *, struct vsock_sock *);
+> +	void (*destruct)(struct vsock_sock *);
+> +	void (*release)(struct vsock_sock *);
+> +	int (*connect)(struct vsock_sock *);
+> +	int (*bind_dgram)(struct vsock_sock *, struct sockaddr_vm *);
+> +	int (*send_dgram)(struct vsock_sock *, struct sockaddr_vm *,
+> +			  struct iovec *, size_t len);
+> +	ssize_t (*recv_stream)(struct vsock_sock *, struct iovec *,
+> +			       size_t len, int flags);
+> +	ssize_t (*send_stream)(struct vsock_sock *, struct iovec *,
+> +			       size_t len);
+> +	s64 (*stream_has_data)(struct vsock_sock *);
+> +	s64 (*stream_has_space)(struct vsock_sock *);
+> +	int (*send_shutdown)(struct sock *sk, int mode);
+> +	void (*unregister)(void);
+> +};
+
+So that is the interface transports have to implement.  Looks reasonable
+to me.  Some documentation would be nice, although most of it is
+self-explaining.
+
+Where is recv_dgram?
+
+Also why bind_dgram?  I guess binding stream sockets doesn't make sense
+for the vsock family?
+
+I'd make the naming a bit more consistent, some stream callbacks are
+prefixed and some postfixed with "stream".
+
+I'd also name send_shutdown just shutdown (same name the system call has).
+
+What does unregister?
+
+cheers,
+  Gerd
