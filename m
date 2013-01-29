@@ -1,16 +1,13 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH v2 3/3] tcm_vhost: Optimize gup in vhost_scsi_map_to_sgl
-Date: Tue, 29 Jan 2013 11:21:07 -0800
-Message-ID: <1359487267.23290.1437.camel__41708.8682101623$1359487291$gmane$org@haakon2.linux-iscsi.org>
-References: <1358824827-16169-1-git-send-email-asias@redhat.com>
-	<1358824827-16169-4-git-send-email-asias@redhat.com>
-	<1359485613.23290.1389.camel@haakon2.linux-iscsi.org>
-	<20130129191659.GA29615@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 0/5] vhost-scsi: Add support for host virtualized target
+Date: Tue, 29 Jan 2013 16:03:41 -0500 (EST)
+Message-ID: <283294038.12408771.1359493421588.JavaMail.root__45349.3367102512$1359493463$gmane$org@redhat.com>
+References: <1359487188.23290.1434.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130129191659.GA29615@redhat.com>
+In-Reply-To: <1359487188.23290.1434.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +17,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2013-01-29 at 21:16 +0200, Michael S. Tsirkin wrote:
-> On Tue, Jan 29, 2013 at 10:53:33AM -0800, Nicholas A. Bellinger wrote:
-> > On Tue, 2013-01-22 at 11:20 +0800, Asias He wrote:
-> > > We can get all the pages in one time instead of calling
-> > > gup N times.
-> > > 
-> > > Signed-off-by: Asias He <asias@redhat.com>
-> > > ---
-> > 
-> > Everything looks fine after initial testing, so also applied to
-> > target-pending/for-next.
-> > 
-> > Nice optimization.  :)
-> > 
-> > --nab
-> 
-> Maybe best if you put the llist optimization on that branch too then?
-> 
+> Also, I'm not exactly sure what's involved with a vhost=on/off
+> frontend
+> option discussed above, so if you or Paolo could handle this bit it
+> would be very helpful.
 
-<nod>, already applied that one ahead of this series.
+I can do the forward port, if you take care of testing we have
+enough time to make it into 1.4.
 
---nab
+Paolo
