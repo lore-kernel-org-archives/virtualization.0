@@ -1,14 +1,13 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH] tcm_vhost: Multi-target support
-Date: Thu, 31 Jan 2013 12:59:36 -0800
-Message-ID: <1359665976.6300.43.camel__39974.650348495$1359666004$gmane$org@haakon2.linux-iscsi.org>
-References: <1359617636-20339-1-git-send-email-asias@redhat.com>
-	<510A3935.2030604@redhat.com>
+From: Andy King <acking@vmware.com>
+Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Thu, 31 Jan 2013 14:06:30 -0800 (PST)
+Message-ID: <140410652.5634760.1359669990735.JavaMail.root@vmware.com>
+References: <51066E32.2000209@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <510A3935.2030604@redhat.com>
+In-Reply-To: <51066E32.2000209@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,178 +17,146 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2013-01-31 at 17:28 +0800, Asias He wrote:
-> Hello Nicholas,
-> 
-> On 01/31/2013 03:33 PM, Asias He wrote:
-> > In order to take advantages of Paolo's multi-queue virito-scsi, we need
-> > multi-target support in tcm_vhost first. Otherwise all the requests go
-> > to one queue and other queues are idle.
-> > 
-> > This patch makes:
-> > 
-> > 1. All the targets under the wwpn is seen and can be used by guest.
-> > 2. No need to pass the tpgt number in struct vhost_scsi_target to
-> >    tcm_vhost.ko. Only wwpn is needed.
-> > 3. We can always pass max_target = 255 to guest now, since we abort the
-> >    request who's target id does not exist.
-> > 
-> > Signed-off-by: Asias He <asias@redhat.com>
-> > ---
-> >  drivers/vhost/tcm_vhost.c | 115 ++++++++++++++++++++++++++++------------------
-> >  drivers/vhost/tcm_vhost.h |   4 +-
-> >  2 files changed, 74 insertions(+), 45 deletions(-)
-> > 
-> > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> > index 218deb6..d50cb95 100644
-> > --- a/drivers/vhost/tcm_vhost.c
-> > +++ b/drivers/vhost/tcm_vhost.c
-> > @@ -59,13 +59,18 @@ enum {
-> >  	VHOST_SCSI_VQ_IO = 2,
-> >  };
-> >  
-> > +#define VHOST_SCSI_MAX_TARGET 256
-> > +
-> >  struct vhost_scsi {
-> > -	struct tcm_vhost_tpg *vs_tpg;	/* Protected by vhost_scsi->dev.mutex */
-> > +	/* Protected by vhost_scsi->dev.mutex */
-> > +	struct tcm_vhost_tpg *vs_tpg[VHOST_SCSI_MAX_TARGET];
-> >  	struct vhost_dev dev;
-> >  	struct vhost_virtqueue vqs[3];
-> >  
-> >  	struct vhost_work vs_completion_work; /* cmd completion work item */
-> >  	struct llist_head vs_completion_list; /* cmd completion queue */
-> > +	char vs_vhost_wwpn[TRANSPORT_IQN_LEN];
-> > +	int vs_num_target;
-> >  };
-> >  
-> >  /* Local pointer to allocated TCM configfs fabric module */
-> > @@ -564,13 +569,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs)
-> >  	u32 exp_data_len, data_first, data_num, data_direction;
-> >  	unsigned out, in, i;
-> >  	int head, ret;
-> > -
-> > -	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
-> > -	tv_tpg = vs->vs_tpg;
-> > -	if (unlikely(!tv_tpg)) {
-> > -		pr_err("%s endpoint not set\n", __func__);
-> > -		return;
-> > -	}
-> > +	u8 target;
-> >  
-> >  	mutex_lock(&vq->mutex);
-> >  	vhost_disable_notify(&vs->dev, vq);
-> > @@ -637,6 +636,35 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs)
-> >  			break;
-> >  		}
-> >  
-> > +		/* Extract the tpgt */
-> > +		target = v_req.lun[1];
-> > +
-> > +		/* Target does not exit, fail the request */
-> > +		if (unlikely(target >= vs->vs_num_target)) {
-> > +			struct virtio_scsi_cmd_resp __user *resp;
-> > +			struct virtio_scsi_cmd_resp rsp;
-> > +
-> > +			memset(&rsp, 0, sizeof(rsp));
-> > +			rsp.response = VIRTIO_SCSI_S_BAD_TARGET;
-> > +			resp = vq->iov[out].iov_base;
-> > +			ret = copy_to_user(resp, &rsp, sizeof(rsp));
-> > +			if (!ret)
-> > +				vhost_add_used_and_signal(&vs->dev,
-> > +						&vs->vqs[2], head, 0);
-> > +			else
-> > +				pr_err("Faulted on virtio_scsi_cmd_resp\n");
-> > +
-> > +			continue;
-> > +		}
-> > +
-> > +		tv_tpg = vs->vs_tpg[target];
-> > +		if (unlikely(!tv_tpg)) {
-> > +			/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
-> > +			pr_err("endpoint not set, target = %d\n", target);
-> > +			vhost_discard_vq_desc(vq, 1);
-> > +			break;
-> > +		}
-> > +
-> >  		exp_data_len = 0;
-> >  		for (i = 0; i < data_num; i++)
-> >  			exp_data_len += vq->iov[data_first + i].iov_len;
-> > @@ -771,14 +799,11 @@ static int vhost_scsi_set_endpoint(
-> >  		}
-> >  		tv_tport = tv_tpg->tport;
-> >  
-> > -		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn) &&
-> > -		    (tv_tpg->tport_tpgt == t->vhost_tpgt)) {
-> > +		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
-> >  			tv_tpg->tv_tpg_vhost_count++;
-> > -			mutex_unlock(&tv_tpg->tv_tpg_mutex);
-> > -			mutex_unlock(&tcm_vhost_mutex);
-> >  
-> >  			mutex_lock(&vs->dev.mutex);
-> > -			if (vs->vs_tpg) {
-> > +			if (vs->vs_tpg[tv_tpg->tport_tpgt - 1]) {
-> >  				mutex_unlock(&vs->dev.mutex);
-> >  				mutex_lock(&tv_tpg->tv_tpg_mutex);
-> >  				tv_tpg->tv_tpg_vhost_count--;
-> > @@ -786,15 +811,17 @@ static int vhost_scsi_set_endpoint(
-> >  				return -EEXIST;
-> >  			}
-> >  
-> > -			vs->vs_tpg = tv_tpg;
-> > +			vs->vs_tpg[tv_tpg->tport_tpgt - 1] = tv_tpg;
-> 
-> 
-> tv_tpg->tport_tpgt starts from 0, right? I thought it starts from 1,
-> because I always got it starts from 1 in targetcli.
-> 
-> o- vhost
->    o- naa.6001405bd4e8476d
->       o- tpg1
->          o- luns
->             o- lun0
->       o- tpg2
->          o- luns
->             o- lun0
->       o- tpg3
->          o- luns
->             o- lun0
->       o- tpg4
->          o- luns
->             o- lun0
-> 
+Hi Gerd,
 
-So at least with iscsi-target, we start from tpgt=1 to avoid some legacy
-initiators that have issues handling tgpt=0.
+Thanks so much for taking a look and apologies for the delay!
 
-Given that rtslib/targetcli currently expect this with the "tpgs"
-feature is enabled, starting from tpgt=1 with tcm_vhost probably makes
-the most sense.
+> > +config VMWARE_VSOCK
+> > +	tristate "Virtual Socket protocol"
+> > +	depends on VMWARE_VMCI
+> 
+> I guess this is temporary?  Cover letter says *mostly* separated ...
 
-> If it is true. I will cook v2 of this patch.
-> 
-> Also, the tv_tpg->tport_tpgt can be none-continuous. e.g.
-> 
-> o- vhost
->    o- naa.6001405bd4e8476d
->       o- tpg1
->          o- luns
->             o- lun0
->       o- tpg2
->          o- luns
->             o- lun0
->       o- tpg4
->          o- luns
->             o- lun0
-> 
-> I will handle this in v2.
-> 
+Yes, right now everything is still munged into one driver.
 
-Correct, tpgt values may be optionally non-contiguous up to unsigned
-short.
+> > +vmw_vsock-y += af_vsock.o vmci_transport.o vmci_transport_notify.o
+> > \
+> > +	vmci_transport_notify_qstate.o vsock_addr.o
+> 
+> Likewise, I expect with the final version vmci_transport is a
+> separate module (or moves into the vmci driver), correct?
 
---nab
+When you say final, do you mean something that we have to do before
+acceptance into mainline or something we can refine over time?  I'm
+rather hoping for the latter: it'd be nice to come to an agreement
+about whether VM Sockets is the right way to go, and actually get
+this in, before we go to the trouble of splitting this out, only to
+find that nobody actually implements their own transport ;)
+
+> > +	switch (cmd) {
+> > +	case IOCTL_VMCI_SOCKETS_VERSION:
+> > +		version = VMCI_SOCKETS_MAKE_VERSION(parts);
+> > +		if (put_user(version, p) != 0)
+> > +			retval = -EFAULT;
+> > +		break;
+> 
+> Still needed?
+
+Cut.
+
+> > +	case IOCTL_VMCI_SOCKETS_GET_AF_VALUE:
+> > +		if (put_user(AF_VSOCK, p) != 0)
+> > +			retval = -EFAULT;
+> > +
+> > +		break;
+> 
+> That can go away, with the upstream merge vsock will get a fixed
+> AF_VSOCK.
+
+Cut.
+
+> > +	case IOCTL_VMCI_SOCKETS_GET_LOCAL_CID:
+> > +		if (put_user(vmci_get_context_id(), p) != 0)
+> > +			retval = -EFAULT;
+> 
+> What is this?
+
+A CID, or "context ID" is how we identify a VM.  It's also in
+the address structure (svm_cid).  If you look at vm_sockets.h,
+you'll see that we have definitions for various endpoints (the
+host, anonymous and so forth).  It's sometimes useful for VMs
+to be able to query their own ID, for example, to be able to
+pass it out-of-band via INET to a peer.  So we'd like to keep
+this, although I guess it should be transport-defined, i.e.,
+we should ask the transport for this value.
+
+> > +	err = vmci_transport_register(&transport);
+> > +	if (err) {
+> > +		pr_err("Cannot register with VMCI device\n");
+> > +		goto err_misc_deregister;
+> > +	}
+> 
+> Hmm?  There should be a vsock_(un)register_transport which the vmci
+> transport code can call (and likewise virtio transport some day).
+
+Yes, it's still totally topsy-turvy.  But see comment about coming
+to an agreement :)
+
+> > +	struct {
+> > +		/* For DGRAMs. */
+> > +		struct vmci_handle dg_handle;
+> 
+> Yep, should be a pointer where transports can hook in their private
+> data.
+
+I'm fixing this.
+
+> > +struct vsock_transport {
+> > +	void (*init)(struct vsock_sock *, struct vsock_sock *);
+> > +	void (*destruct)(struct vsock_sock *);
+> > +	void (*release)(struct vsock_sock *);
+> > +	int (*connect)(struct vsock_sock *);
+> > +	int (*bind_dgram)(struct vsock_sock *, struct sockaddr_vm *);
+> > +	int (*send_dgram)(struct vsock_sock *, struct sockaddr_vm *,
+> > +			  struct iovec *, size_t len);
+> > +	ssize_t (*recv_stream)(struct vsock_sock *, struct iovec *,
+> > +			       size_t len, int flags);
+> > +	ssize_t (*send_stream)(struct vsock_sock *, struct iovec *,
+> > +			       size_t len);
+> > +	s64 (*stream_has_data)(struct vsock_sock *);
+> > +	s64 (*stream_has_space)(struct vsock_sock *);
+> > +	int (*send_shutdown)(struct sock *sk, int mode);
+> > +	void (*unregister)(void);
+> > +};
+> 
+> So that is the interface transports have to implement.  Looks
+> reasonable to me.  Some documentation would be nice, although
+> most of it is self-explaining.
+>
+> Where is recv_dgram?
+
+The transport just enqueues sk_buffs in the socket's buffer, so the
+core socket code can just pull them off.  So there's no explicit
+recv_dgram.
+
+> Also why bind_dgram?  I guess binding stream sockets doesn't make
+> sense for the vsock family?
+
+Ah, for our transport, there's nothing special involved in binding a
+STREAM, everything is handled by the core socket code.  So I didn't
+add a transport callback.  This is something we can add when it
+becomes necessary, if that's okay?
+
+> I'd make the naming a bit more consistent, some stream callbacks are
+> prefixed and some postfixed with "stream".
+
+Fixed.
+
+> I'd also name send_shutdown just shutdown (same name the system call
+> has).
+
+Fixed.
+
+> What does unregister?
+
+That's topsy-turvy unregistration, it drops the transport.  It will go
+away eventually.
+
+I'll send out a patch soon addressing the (easy) issues above.
+
+Thanks!
+- Andy
