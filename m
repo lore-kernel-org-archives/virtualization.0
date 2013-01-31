@@ -1,13 +1,11 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH 0/5] vhost-scsi: Add support for host virtualized target
-Date: Tue, 29 Jan 2013 14:38:58 -0800
-Message-ID: <1359499138.23290.1711.camel__29955.5352343761$1359499172$gmane$org@haakon2.linux-iscsi.org>
-References: <283294038.12408771.1359493421588.JavaMail.root@redhat.com>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH] tcm_vhost: Multi-target support
+Date: Thu, 31 Jan 2013 15:33:56 +0800
+Message-ID: <1359617636-20339-1-git-send-email-asias__2206.71833162687$1359617698$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <283294038.12408771.1359493421588.JavaMail.root@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,23 +15,238 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@linux.vnet.ibm.com>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jan Kiszka <jan.kiszka@siemens.com>, qemu-devel <qemu-devel@nongnu.org>, Zhi Yong Wu <wuzhy@cn.ibm.com>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@lst.de>
+To: Nicholas Bellinger <nab@linux-iscsi.org>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2013-01-29 at 16:03 -0500, Paolo Bonzini wrote:
-> > Also, I'm not exactly sure what's involved with a vhost=on/off
-> > frontend
-> > option discussed above, so if you or Paolo could handle this bit it
-> > would be very helpful.
-> 
-> I can do the forward port, if you take care of testing we have
-> enough time to make it into 1.4.
-> 
+In order to take advantages of Paolo's multi-queue virito-scsi, we need
+multi-target support in tcm_vhost first. Otherwise all the requests go
+to one queue and other queues are idle.
 
-Perfect, thanks for the extra help here.  ;)
+This patch makes:
 
-I'll look for your forward-port of vhost-scsi, and test as soon as it's
-available.
+1. All the targets under the wwpn is seen and can be used by guest.
+2. No need to pass the tpgt number in struct vhost_scsi_target to
+   tcm_vhost.ko. Only wwpn is needed.
+3. We can always pass max_target = 255 to guest now, since we abort the
+   request who's target id does not exist.
 
---nab
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/tcm_vhost.c | 115 ++++++++++++++++++++++++++++------------------
+ drivers/vhost/tcm_vhost.h |   4 +-
+ 2 files changed, 74 insertions(+), 45 deletions(-)
+
+diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+index 218deb6..d50cb95 100644
+--- a/drivers/vhost/tcm_vhost.c
++++ b/drivers/vhost/tcm_vhost.c
+@@ -59,13 +59,18 @@ enum {
+ 	VHOST_SCSI_VQ_IO = 2,
+ };
+ 
++#define VHOST_SCSI_MAX_TARGET 256
++
+ struct vhost_scsi {
+-	struct tcm_vhost_tpg *vs_tpg;	/* Protected by vhost_scsi->dev.mutex */
++	/* Protected by vhost_scsi->dev.mutex */
++	struct tcm_vhost_tpg *vs_tpg[VHOST_SCSI_MAX_TARGET];
+ 	struct vhost_dev dev;
+ 	struct vhost_virtqueue vqs[3];
+ 
+ 	struct vhost_work vs_completion_work; /* cmd completion work item */
+ 	struct llist_head vs_completion_list; /* cmd completion queue */
++	char vs_vhost_wwpn[TRANSPORT_IQN_LEN];
++	int vs_num_target;
+ };
+ 
+ /* Local pointer to allocated TCM configfs fabric module */
+@@ -564,13 +569,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs)
+ 	u32 exp_data_len, data_first, data_num, data_direction;
+ 	unsigned out, in, i;
+ 	int head, ret;
+-
+-	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
+-	tv_tpg = vs->vs_tpg;
+-	if (unlikely(!tv_tpg)) {
+-		pr_err("%s endpoint not set\n", __func__);
+-		return;
+-	}
++	u8 target;
+ 
+ 	mutex_lock(&vq->mutex);
+ 	vhost_disable_notify(&vs->dev, vq);
+@@ -637,6 +636,35 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs)
+ 			break;
+ 		}
+ 
++		/* Extract the tpgt */
++		target = v_req.lun[1];
++
++		/* Target does not exit, fail the request */
++		if (unlikely(target >= vs->vs_num_target)) {
++			struct virtio_scsi_cmd_resp __user *resp;
++			struct virtio_scsi_cmd_resp rsp;
++
++			memset(&rsp, 0, sizeof(rsp));
++			rsp.response = VIRTIO_SCSI_S_BAD_TARGET;
++			resp = vq->iov[out].iov_base;
++			ret = copy_to_user(resp, &rsp, sizeof(rsp));
++			if (!ret)
++				vhost_add_used_and_signal(&vs->dev,
++						&vs->vqs[2], head, 0);
++			else
++				pr_err("Faulted on virtio_scsi_cmd_resp\n");
++
++			continue;
++		}
++
++		tv_tpg = vs->vs_tpg[target];
++		if (unlikely(!tv_tpg)) {
++			/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
++			pr_err("endpoint not set, target = %d\n", target);
++			vhost_discard_vq_desc(vq, 1);
++			break;
++		}
++
+ 		exp_data_len = 0;
+ 		for (i = 0; i < data_num; i++)
+ 			exp_data_len += vq->iov[data_first + i].iov_len;
+@@ -771,14 +799,11 @@ static int vhost_scsi_set_endpoint(
+ 		}
+ 		tv_tport = tv_tpg->tport;
+ 
+-		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn) &&
+-		    (tv_tpg->tport_tpgt == t->vhost_tpgt)) {
++		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
+ 			tv_tpg->tv_tpg_vhost_count++;
+-			mutex_unlock(&tv_tpg->tv_tpg_mutex);
+-			mutex_unlock(&tcm_vhost_mutex);
+ 
+ 			mutex_lock(&vs->dev.mutex);
+-			if (vs->vs_tpg) {
++			if (vs->vs_tpg[tv_tpg->tport_tpgt - 1]) {
+ 				mutex_unlock(&vs->dev.mutex);
+ 				mutex_lock(&tv_tpg->tv_tpg_mutex);
+ 				tv_tpg->tv_tpg_vhost_count--;
+@@ -786,15 +811,17 @@ static int vhost_scsi_set_endpoint(
+ 				return -EEXIST;
+ 			}
+ 
+-			vs->vs_tpg = tv_tpg;
++			vs->vs_tpg[tv_tpg->tport_tpgt - 1] = tv_tpg;
+ 			smp_mb__after_atomic_inc();
++			if (!vs->vs_num_target++)
++				memcpy(vs->vs_vhost_wwpn, t->vhost_wwpn,
++				       sizeof(vs->vs_vhost_wwpn));
+ 			mutex_unlock(&vs->dev.mutex);
+-			return 0;
+ 		}
+ 		mutex_unlock(&tv_tpg->tv_tpg_mutex);
+ 	}
+ 	mutex_unlock(&tcm_vhost_mutex);
+-	return -EINVAL;
++	return 0;
+ }
+ 
+ static int vhost_scsi_clear_endpoint(
+@@ -803,7 +830,8 @@ static int vhost_scsi_clear_endpoint(
+ {
+ 	struct tcm_vhost_tport *tv_tport;
+ 	struct tcm_vhost_tpg *tv_tpg;
+-	int index, ret;
++	int index, ret, i;
++	u8 target;
+ 
+ 	mutex_lock(&vs->dev.mutex);
+ 	/* Verify that ring has been setup correctly. */
+@@ -813,27 +841,32 @@ static int vhost_scsi_clear_endpoint(
+ 			goto err;
+ 		}
+ 	}
++	for (i = 0; i < vs->vs_num_target; i++) {
++		target = i;
+ 
+-	if (!vs->vs_tpg) {
+-		ret = -ENODEV;
+-		goto err;
+-	}
+-	tv_tpg = vs->vs_tpg;
+-	tv_tport = tv_tpg->tport;
+-
+-	if (strcmp(tv_tport->tport_name, t->vhost_wwpn) ||
+-	    (tv_tpg->tport_tpgt != t->vhost_tpgt)) {
+-		pr_warn("tv_tport->tport_name: %s, tv_tpg->tport_tpgt: %hu"
+-			" does not match t->vhost_wwpn: %s, t->vhost_tpgt: %hu\n",
+-			tv_tport->tport_name, tv_tpg->tport_tpgt,
+-			t->vhost_wwpn, t->vhost_tpgt);
+-		ret = -EINVAL;
+-		goto err;
++		tv_tpg = vs->vs_tpg[target];
++		if (!tv_tpg) {
++			ret = -ENODEV;
++			goto err;
++		}
++		tv_tport = tv_tpg->tport;
++		if (!tv_tport) {
++			ret = -ENODEV;
++			goto err;
++		}
++
++		if (strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
++			pr_warn("tv_tport->tport_name: %s, tv_tpg->tport_tpgt: %hu"
++				" does not match t->vhost_wwpn: %s, t->vhost_tpgt: %hu\n",
++				tv_tport->tport_name, tv_tpg->tport_tpgt,
++				t->vhost_wwpn, t->vhost_tpgt);
++			ret = -EINVAL;
++			goto err;
++		}
++		tv_tpg->tv_tpg_vhost_count--;
++		vs->vs_tpg[target] = NULL;
+ 	}
+-	tv_tpg->tv_tpg_vhost_count--;
+-	vs->vs_tpg = NULL;
+ 	mutex_unlock(&vs->dev.mutex);
+-
+ 	return 0;
+ 
+ err:
+@@ -868,16 +901,10 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
+ static int vhost_scsi_release(struct inode *inode, struct file *f)
+ {
+ 	struct vhost_scsi *s = f->private_data;
++	struct vhost_scsi_target t;
+ 
+-	if (s->vs_tpg && s->vs_tpg->tport) {
+-		struct vhost_scsi_target backend;
+-
+-		memcpy(backend.vhost_wwpn, s->vs_tpg->tport->tport_name,
+-				sizeof(backend.vhost_wwpn));
+-		backend.vhost_tpgt = s->vs_tpg->tport_tpgt;
+-		vhost_scsi_clear_endpoint(s, &backend);
+-	}
+-
++	memcpy(t.vhost_wwpn, s->vs_vhost_wwpn, sizeof(t.vhost_wwpn));
++	vhost_scsi_clear_endpoint(s, &t);
+ 	vhost_dev_stop(&s->dev);
+ 	vhost_dev_cleanup(&s->dev, false);
+ 	kfree(s);
+diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
+index 47ee80b..519a550 100644
+--- a/drivers/vhost/tcm_vhost.h
++++ b/drivers/vhost/tcm_vhost.h
+@@ -93,9 +93,11 @@ struct tcm_vhost_tport {
+  *
+  * ABI Rev 0: July 2012 version starting point for v3.6-rc merge candidate +
+  *            RFC-v2 vhost-scsi userspace.  Add GET_ABI_VERSION ioctl usage
++ * ABI Rev 1: January 2013. Ignore vhost_tpgt filed in struct vhost_scsi_target.
++ *            All the targets under vhost_wwpn can be seen and used by guset.
+  */
+ 
+-#define VHOST_SCSI_ABI_VERSION	0
++#define VHOST_SCSI_ABI_VERSION	1
+ 
+ struct vhost_scsi_target {
+ 	int abi_version;
+-- 
+1.8.1
