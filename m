@@ -1,16 +1,13 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH] tcm_vhost: Multi-target support
-Date: Thu, 31 Jan 2013 23:38:27 -0800
-Message-ID: <1359704307.6300.84.camel__31708.7505282418$1359704344$gmane$org@haakon2.linux-iscsi.org>
-References: <1359617636-20339-1-git-send-email-asias@redhat.com>
-	<510A3935.2030604@redhat.com>
-	<1359665976.6300.43.camel@haakon2.linux-iscsi.org>
-	<510B3E91.6080006@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Fri, 01 Feb 2013 09:12:22 +0100
+Message-ID: <510B78E6.3000602@redhat.com>
+References: <140410652.5634760.1359669990735.JavaMail.root@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <510B3E91.6080006@redhat.com>
+In-Reply-To: <140410652.5634760.1359669990735.JavaMail.root@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,134 +17,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Andy King <acking@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2013-02-01 at 12:03 +0800, Asias He wrote:
-> On 02/01/2013 04:59 AM, Nicholas A. Bellinger wrote:
-> > On Thu, 2013-01-31 at 17:28 +0800, Asias He wrote:
-> >> Hello Nicholas,
-> >>
-> >> On 01/31/2013 03:33 PM, Asias He wrote:
-> >>> In order to take advantages of Paolo's multi-queue virito-scsi, we need
-> >>> multi-target support in tcm_vhost first. Otherwise all the requests go
-> >>> to one queue and other queues are idle.
-> >>>
+  Hi,
 
-<SNIP>
+>> Likewise, I expect with the final version vmci_transport is a
+>> separate module (or moves into the vmci driver), correct?
+> 
+> When you say final, do you mean something that we have to do before
+> acceptance into mainline or something we can refine over time?
 
-> >>> @@ -771,14 +799,11 @@ static int vhost_scsi_set_endpoint(
-> >>>  		}
-> >>>  		tv_tport = tv_tpg->tport;
-> >>>  
-> >>> -		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn) &&
-> >>> -		    (tv_tpg->tport_tpgt == t->vhost_tpgt)) {
-> >>> +		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
-> >>>  			tv_tpg->tv_tpg_vhost_count++;
-> >>> -			mutex_unlock(&tv_tpg->tv_tpg_mutex);
-> >>> -			mutex_unlock(&tcm_vhost_mutex);
-> >>>  
-> >>>  			mutex_lock(&vs->dev.mutex);
-> >>> -			if (vs->vs_tpg) {
-> >>> +			if (vs->vs_tpg[tv_tpg->tport_tpgt - 1]) {
-> >>>  				mutex_unlock(&vs->dev.mutex);
-> >>>  				mutex_lock(&tv_tpg->tv_tpg_mutex);
-> >>>  				tv_tpg->tv_tpg_vhost_count--;
-> >>> @@ -786,15 +811,17 @@ static int vhost_scsi_set_endpoint(
-> >>>  				return -EEXIST;
-> >>>  			}
-> >>>  
-> >>> -			vs->vs_tpg = tv_tpg;
-> >>> +			vs->vs_tpg[tv_tpg->tport_tpgt - 1] = tv_tpg;
-> >>
-> >>
-> >> tv_tpg->tport_tpgt starts from 0, right? I thought it starts from 1,
-> >> because I always got it starts from 1 in targetcli.
-> >>
-> >> o- vhost
-> >>    o- naa.6001405bd4e8476d
-> >>       o- tpg1
-> >>          o- luns
-> >>             o- lun0
-> >>       o- tpg2
-> >>          o- luns
-> >>             o- lun0
-> >>       o- tpg3
-> >>          o- luns
-> >>             o- lun0
-> >>       o- tpg4
-> >>          o- luns
-> >>             o- lun0
-> >>
-> > 
-> > So at least with iscsi-target, we start from tpgt=1 to avoid some legacy
-> > initiators that have issues handling tgpt=0.
-> > 
-> > Given that rtslib/targetcli currently expect this with the "tpgs"
-> > feature is enabled, starting from tpgt=1 with tcm_vhost probably makes
-> > the most sense.
-> 
-> Okay. But tgpt can be 0, right?
-> 
+IMHO refining in-tree is fine.
+This is the purpose of staging after all.
 
-Most certainly, in the end it's totally up to the fabric.  ;)
- 
-> I saw this setup:
-> 
->   cd /sys/kernel/config/target
->   mkdir -p core/fileio_0/fileio
->   echo 'fd_dev_name=/home/pbonzini/test.img,fd_dev_size=5905580032' >
-> core/fileio_0/fileio/control
->   echo 1 > core/fileio_0/fileio/enable
->   mkdir -p vhost/naa.600140554cf3a18e/tpgt_0/lun/lun_0
->   cd vhost/naa.600140554cf3a18e/tpgt_0
->   ln -sf ../../../../../core/fileio_0/fileio/ lun/lun_0/virtual_scsi_port
->   echo naa.60014053226f0388 > nexus
-> 
-> And this:
-> 
->        ** Setup wwpn and tpgt
->        $ wwpn="naa.0"
->        $ tpgt=/sys/kernel/config/target/vhost/$wwpn/tpgt_0
->        $ nexus=$tpgt/nexus
->        $ mkdir -p $tpgt
->        $ echo -n $wwpn > $nexus
-> 
-> 
+From my side the minimum requirement is to have
+vsock_(un)register_transport calls available, so it is possible to write
+a virtio transport module without having to patch vsock code to hook it
+up.  Having the vsock bits in staging would actually make it a bit
+easier to add virtio.
 
-OK, I think you'll want to avoid the extra vs->vs_tpg[tpgt - 1] offset
-above to properly support this.
+In the end it is Greg's / Dave's call though as those have to ack &
+merge the bits.
 
---nab
+>>> +	case IOCTL_VMCI_SOCKETS_GET_LOCAL_CID:
+>>> +		if (put_user(vmci_get_context_id(), p) != 0)
+>>> +			retval = -EFAULT;
+>>
+>> What is this?
+> 
+> A CID, or "context ID" is how we identify a VM.  It's also in
+> the address structure (svm_cid).  If you look at vm_sockets.h,
+> you'll see that we have definitions for various endpoints (the
+> host, anonymous and so forth).  It's sometimes useful for VMs
+> to be able to query their own ID, for example, to be able to
+> pass it out-of-band via INET to a peer.  So we'd like to keep
+> this, although I guess it should be transport-defined, i.e.,
+> we should ask the transport for this value.
 
+Yes, should be transport specific (and optional).  virtio will (at least
+initially) support guest <=> host only, so we don't need a context id.
+
+>>> +	struct {
+>>> +		/* For DGRAMs. */
+>>> +		struct vmci_handle dg_handle;
+>>
+>> Yep, should be a pointer where transports can hook in their private
+>> data.
 > 
-> >> If it is true. I will cook v2 of this patch.
-> >>
-> >> Also, the tv_tpg->tport_tpgt can be none-continuous. e.g.
-> >>
-> >> o- vhost
-> >>    o- naa.6001405bd4e8476d
-> >>       o- tpg1
-> >>          o- luns
-> >>             o- lun0
-> >>       o- tpg2
-> >>          o- luns
-> >>             o- lun0
-> >>       o- tpg4
-> >>          o- luns
-> >>             o- lun0
-> >>
-> >> I will handle this in v2.
-> >>
-> > 
-> > Correct, tpgt values may be optionally non-contiguous up to unsigned
-> > short.
+> I'm fixing this.
+
+Yes, please, that is needed too to get started with virtio support.
+
+>> Where is recv_dgram?
 > 
-> ok.
+> The transport just enqueues sk_buffs in the socket's buffer, so the
+> core socket code can just pull them off.  So there's no explicit
+> recv_dgram.
+
+Ok.
+
+>> Also why bind_dgram?  I guess binding stream sockets doesn't make
+>> sense for the vsock family?
 > 
-> > --nab
-> > 
-> > 
-> 
-> 
+> Ah, for our transport, there's nothing special involved in binding a
+> STREAM, everything is handled by the core socket code.  So I didn't
+> add a transport callback.  This is something we can add when it
+> becomes necessary, if that's okay?
+
+Sure.  Was just wondering.  TCP can bind stream sockets to interfaces to
+listen -- for example -- on loopback only.  I can't see something
+simliar which makes sense for vsock.
+
+cheers,
+  Gerd
