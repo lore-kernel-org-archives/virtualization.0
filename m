@@ -1,17 +1,11 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH] tcm_vhost: Multi-target support
-Date: Fri, 01 Feb 2013 16:26:19 +0800
-Message-ID: <510B7C2B.90005@redhat.com>
-References: <1359617636-20339-1-git-send-email-asias@redhat.com>
-	<510A3935.2030604@redhat.com>
-	<1359665976.6300.43.camel@haakon2.linux-iscsi.org>
-	<510B3E91.6080006@redhat.com>
-	<1359704307.6300.84.camel@haakon2.linux-iscsi.org>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: CISTI'2013 Doctoral Symposium - CFP, Lisbon; Deadline: February 15
+Date: Sun, 3 Feb 2013 13:21:18 +0000
+Message-ID: <20130203132014.227856EF@mail.linuxfoundation.org>
+Reply-To: cistimail@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6931051233550714044=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1359704307.6300.84.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,146 +15,114 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/01/2013 03:38 PM, Nicholas A. Bellinger wrote:
-> On Fri, 2013-02-01 at 12:03 +0800, Asias He wrote:
->> On 02/01/2013 04:59 AM, Nicholas A. Bellinger wrote:
->>> On Thu, 2013-01-31 at 17:28 +0800, Asias He wrote:
->>>> Hello Nicholas,
->>>>
->>>> On 01/31/2013 03:33 PM, Asias He wrote:
->>>>> In order to take advantages of Paolo's multi-queue virito-scsi, we need
->>>>> multi-target support in tcm_vhost first. Otherwise all the requests go
->>>>> to one queue and other queues are idle.
->>>>>
-> 
-> <SNIP>
-> 
->>>>> @@ -771,14 +799,11 @@ static int vhost_scsi_set_endpoint(
->>>>>  		}
->>>>>  		tv_tport = tv_tpg->tport;
->>>>>  
->>>>> -		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn) &&
->>>>> -		    (tv_tpg->tport_tpgt == t->vhost_tpgt)) {
->>>>> +		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
->>>>>  			tv_tpg->tv_tpg_vhost_count++;
->>>>> -			mutex_unlock(&tv_tpg->tv_tpg_mutex);
->>>>> -			mutex_unlock(&tcm_vhost_mutex);
->>>>>  
->>>>>  			mutex_lock(&vs->dev.mutex);
->>>>> -			if (vs->vs_tpg) {
->>>>> +			if (vs->vs_tpg[tv_tpg->tport_tpgt - 1]) {
->>>>>  				mutex_unlock(&vs->dev.mutex);
->>>>>  				mutex_lock(&tv_tpg->tv_tpg_mutex);
->>>>>  				tv_tpg->tv_tpg_vhost_count--;
->>>>> @@ -786,15 +811,17 @@ static int vhost_scsi_set_endpoint(
->>>>>  				return -EEXIST;
->>>>>  			}
->>>>>  
->>>>> -			vs->vs_tpg = tv_tpg;
->>>>> +			vs->vs_tpg[tv_tpg->tport_tpgt - 1] = tv_tpg;
->>>>
->>>>
->>>> tv_tpg->tport_tpgt starts from 0, right? I thought it starts from 1,
->>>> because I always got it starts from 1 in targetcli.
->>>>
->>>> o- vhost
->>>>    o- naa.6001405bd4e8476d
->>>>       o- tpg1
->>>>          o- luns
->>>>             o- lun0
->>>>       o- tpg2
->>>>          o- luns
->>>>             o- lun0
->>>>       o- tpg3
->>>>          o- luns
->>>>             o- lun0
->>>>       o- tpg4
->>>>          o- luns
->>>>             o- lun0
->>>>
->>>
->>> So at least with iscsi-target, we start from tpgt=1 to avoid some legacy
->>> initiators that have issues handling tgpt=0.
->>>
->>> Given that rtslib/targetcli currently expect this with the "tpgs"
->>> feature is enabled, starting from tpgt=1 with tcm_vhost probably makes
->>> the most sense.
->>
->> Okay. But tgpt can be 0, right?
->>
-> 
-> Most certainly, in the end it's totally up to the fabric.  ;)
+--===============6931051233550714044==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-okay.
+**********************************************************************=
+*****************************
+CISTI'2013 DOCTORAL SYMPOSIUM
+8th Iberian Conference on Information Systems and Technologies
+Lisbon, Portugal, June 19 - 23, 2013
+http://www.aisti.eu/cisti2013/index.php?option=3Dcom_content&view=3Dar=
+ticle&id=3D64&Itemid=3D68&lang=3Den
+**********************************************************************=
+*****************************
 
->  
->> I saw this setup:
->>
->>   cd /sys/kernel/config/target
->>   mkdir -p core/fileio_0/fileio
->>   echo 'fd_dev_name=/home/pbonzini/test.img,fd_dev_size=5905580032' >
->> core/fileio_0/fileio/control
->>   echo 1 > core/fileio_0/fileio/enable
->>   mkdir -p vhost/naa.600140554cf3a18e/tpgt_0/lun/lun_0
->>   cd vhost/naa.600140554cf3a18e/tpgt_0
->>   ln -sf ../../../../../core/fileio_0/fileio/ lun/lun_0/virtual_scsi_port
->>   echo naa.60014053226f0388 > nexus
->>
->> And this:
->>
->>        ** Setup wwpn and tpgt
->>        $ wwpn="naa.0"
->>        $ tpgt=/sys/kernel/config/target/vhost/$wwpn/tpgt_0
->>        $ nexus=$tpgt/nexus
->>        $ mkdir -p $tpgt
->>        $ echo -n $wwpn > $nexus
->>
->>
-> 
-> OK, I think you'll want to avoid the extra vs->vs_tpg[tpgt - 1] offset
-> above to properly support this.
+INTRODUCTION
 
-Yes. Already did that.
+The purpose of CISTI'2013=92s Doctoral Symposium (http://www.aisti.eu/=
+cisti2013/index.php?option=3Dcom_content&view=3Darticle&id=3D64&Itemid=
+=3D68&lang=3Den) is to provide graduate students a setting where they =
+can, informally, expose and discuss their work, collecting valuable ex=
+pert opinions and sharing new ideas, methods and applications. The Doc=
+toral Symposium is an excellent opportunity for PhD students to presen=
+t and discuss their work in a Workshop format. Each presentation will =
+be evaluated by a panel composed by at least three Information Systems=
+ and Technologies experts.=20
 
-> --nab
-> 
->>
->>>> If it is true. I will cook v2 of this patch.
->>>>
->>>> Also, the tv_tpg->tport_tpgt can be none-continuous. e.g.
->>>>
->>>> o- vhost
->>>>    o- naa.6001405bd4e8476d
->>>>       o- tpg1
->>>>          o- luns
->>>>             o- lun0
->>>>       o- tpg2
->>>>          o- luns
->>>>             o- lun0
->>>>       o- tpg4
->>>>          o- luns
->>>>             o- lun0
->>>>
->>>> I will handle this in v2.
->>>>
->>>
->>> Correct, tpgt values may be optionally non-contiguous up to unsigned
->>> short.
->>
->> ok.
->>
->>> --nab
->>>
->>>
->>
->>
-> 
-> 
+CONTRIBUTIONS SUBMISSION
+
+The Doctoral Symposium is opened to PhD students whose research area i=
+ncludes the themes proposed for this Conference. Submissions must incl=
+ude an extended abstract (maximum 4 pages), following the Conference s=
+tyle guide. All selected contributions will be handed out along with t=
+he Conference Proceedings, in CD with an ISBN. These contributions wil=
+l be send for indexation by EBSCO, and EI-Compendex.
+
+Submissions must include the field, the PhD institution and the number=
+ of months devoted to the development of the work. Additionally, they =
+should include in a clear and succinct manner:
+
+    =95    The problem approached and its significance or relevance
+    =95    The research objectives and related investigation topics
+    =95    A brief display of what is already known
+    =95    A proposed solution methodology for the problem
+    =95    Expected results
+
+IMPORTANT DATES
+
+=95    Proposal submission deadline: 15th of February 2013
+=95    Acceptance notification: 29th of March 2013
+=95    Final submission deadline: 12th of April 2013
+=95    Registration payment, to ensure the inclusion of the accepted c=
+ontribution in the Conference Proceedings: 12th of April 2013
+
+SCIENTIFIC AND ORGANIZING COMMITTEE
+
+Manuel P=E9rez Cota, Universidad de Vigo (Chair)
+Adolfo Lozano Tello, Universidad de Extremadura
+Alberto J. Bugar=EDn Diz, Universidad de Santiago de Compostela
+=C1lvaro Rocha, Universidade do Porto, LIACC
+Ana Maria Ramalho Correia, Universidade Nova de Lisboa, ISEGI
+Ant=F3nio Palma dos Reis, Universidade T=E9cnica de Lisboa, ISEG
+Ant=F3nio Pereira, Instituto Polit=E9cnico de Leiria
+Arturo Mendez Pen=EDn, Universidade de Vigo
+Carlos Ferr=E1s Sexto, Universidad de Santiago de Compostela
+David Fonseca, Universidad Ram=F3n Llul
+Ernesto Redondo, Universidad Polit=E9cnica de Catalu=F1a
+Feliz Gouveia, Universidade Fernando Pessoa
+Francisco Restivo, Universidade Cat=F3lica Portuguesa - Braga
+Guilhermina Miranda, Universidade de Lisboa
+Gonzalo Cuevas Agust=EDn, Universidad Polit=E9cnica de Madrid
+H=E9ctor Jorge Garc=EDa Neder, Universidad Tecnol=F3gica NacioNal
+Jo=E3o =C1lvaro Carvalho, Universidade do Minho
+Jo=E3o Barroso, Universidade de Tr=E1s-os-Montes e Alto Douro
+J=F6rg Thomaschewski, University of Applied Sciences of Emden-Leer
+Jos=E9 Antonio Calvo-Manzano Villal=F3n, Universidad Polit=E9cnica de =
+Madrid
+Jos=E9 Bulas Cruz, Universidade de Tr=E1s-os-Montes e Alto Douro
+Jos=E9 Tribolet, Universidade T=E9cnica de Lisboa, IST
+Leandro Rodr=EDguez Li=F1ares, Universidade de Vigo
+Lu=EDs Paulo Reis, Universidade do Minho
+Mar=EDa Jos=E9 Lado Touri=F1o, Universidade de Vigo
+Maria Manuela Cruz Cunha, Instituto Polit=E9cnico do C=E1vado e do Ave
+Marco Painho, Universidade Nova de Lisboa, ISEGI
+Mario Alberto Groppo, Universidad Tecnol=F3gica Nacional
+Nuno Ribeiro, Universidade Fernando Pessoa
+Pilar Mareca, Universidade Polit=E9cnica de Madrid
+Ramiro Gon=E7alves, Universidade de Tr=E1s-os-Montes e Alto Douro
+Tomas San Feliu Gilabert, Universidad Polit=E9cnica de Madrid
+Vicente Alcober, Universidad Polit=E9cnica de Madrid
+
+-
+CISTI'2013 Team
+http://www.aisti.eu/cisti2013
+cistimail@gmail.com
+-------------------
 
 
--- 
-Asias
+--===============6931051233550714044==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6931051233550714044==--
