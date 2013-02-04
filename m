@@ -1,14 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_console: Don't access uninitialized data.
-Date: Mon, 04 Feb 2013 10:09:05 +1030
-Message-ID: <87vca9klwm.fsf@rustcorp.com.au>
-References: <1358425292-4449-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20130125090801.GA30483@amit.redhat.com>
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH 0/8] drivers/net: Remove unnecessary alloc/OOM messages
+Date: Sun,  3 Feb 2013 19:28:07 -0800
+Message-ID: <cover.1359939012.git.joe@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130125090801.GA30483@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,25 +15,109 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>, sjur.brandeland@stericsson.com
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: netdev@vger.kernel.org
+Cc: wimax@linuxwimax.org, libertas-dev@lists.infradead.org, e1000-devel@lists.sourceforge.net, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ath9k-devel@lists.ath9k.org, linux-hams@vger.kernel.org, linux-can@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-QW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4gd3JpdGVzOgo+IE9uIChUaHUpIDE3IEph
-biAyMDEzIFsxMzoyMTozMl0sIHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbSB3cm90ZToK
-Pj4gRnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29t
-Pgo+PiAKPj4gRG9uJ3QgYWNjZXNzIHVuaW5pdGlhbGl6ZWQgd29yay1xdWV1ZSB3aGVuIHJlbW92
-aW5nIGRldmljZS4KPj4gVGhlIHdvcmsgcXVldWUgaXMgaW5pdGlhbGl6ZWQgb25seSBpZiB0aGUg
-ZGV2aWNlIG11bHRpLXF1ZXVlLgo+PiBTbyBkb24ndCBjYWxsIGNhbmNlbF93b3JrIHVubGVzcyB0
-aGlzIGlzIGEgbXVsdGktcXVldWUgZGV2aWNlLgo+PiAKPj4gVGhpcyBmaXhlcyB0aGUgZm9sbG93
-aW5nIHBhbmljOgo+Cj4gW3NuaXBdCj4KPj4gU2lnbmVkLW9mZi1ieTogU2p1ciBCcsOmbmRlbGFu
-ZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+Cj4gQWNrZWQtYnk6IEFtaXQgU2hh
-aCA8YW1pdC5zaGFoQHJlZGhhdC5jb20+Cj4KPj4gVGhpcyBmaXggaXMgaW50ZW5kZWQgb2YgdjMu
-OC4KPgo+IFNob3VsZCBhbHNvIGJlIENDJ2VkIHRvIHN0YWJsZUAKClNvcnJ5LCBJIHdhcyBhdCBs
-aW51eC5jb25mLmF1IGFsbCBsYXN0IHdlZWsuCgpJJ3ZlIGFscmVhZHkgc2VudCBpdCB0byBMaW51
-cy4gIFNqdXIgc2FpZDogIlRoaXMgZml4IGlzIGludGVuZGVkIG9mCnYzLjguIi4gIElmIGl0IG5l
-ZWRzIHRvIGJlIGluIC1zdGFibGUsIHBsZWFzZSB0ZWxsIG1lIGFuZCBJJ2xsIGZ3ZCBpdAptYW51
-YWxseS4KClRoYW5rcywKUnVzdHkuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Remove all the OOM messages that follow kernel alloc
+failures as there is already a generic equivalent to
+these messages in the mm subsystem.
+
+Joe Perches (8):
+  caif: Remove unnecessary alloc/OOM messages
+  can: Remove unnecessary alloc/OOM messages
+  ethernet: Remove unnecessary alloc/OOM messages, alloc cleanups
+  drivers: net: usb: Remove unnecessary alloc/OOM messages
+  wan: Remove unnecessary alloc/OOM messages
+  wimax: Remove unnecessary alloc/OOM messages, alloc cleanups
+  wireless: Remove unnecessary alloc/OOM messages, alloc cleanups
+  drivers:net:misc: Remove unnecessary alloc/OOM messages
+
+ drivers/net/caif/caif_shmcore.c                    |  6 -----
+ drivers/net/can/sja1000/ems_pci.c                  |  1 -
+ drivers/net/can/sja1000/peak_pci.c                 |  5 +---
+ drivers/net/can/sja1000/peak_pcmcia.c              |  1 -
+ drivers/net/can/sja1000/plx_pci.c                  |  1 -
+ drivers/net/can/usb/ems_usb.c                      |  4 +---
+ drivers/net/can/usb/kvaser_usb.c                   |  2 --
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c       |  5 ----
+ drivers/net/can/usb/usb_8dev.c                     |  4 +---
+ drivers/net/ethernet/atheros/atl1c/atl1c_main.c    |  6 ++---
+ drivers/net/ethernet/atheros/atl1e/atl1e_main.c    |  2 --
+ drivers/net/ethernet/broadcom/b44.c                |  4 +---
+ drivers/net/ethernet/broadcom/bcm63xx_enet.c       |  6 ++---
+ drivers/net/ethernet/broadcom/cnic.c               |  6 ++---
+ drivers/net/ethernet/broadcom/tg3.c                |  4 +---
+ drivers/net/ethernet/freescale/gianfar_ethtool.c   |  9 ++++----
+ drivers/net/ethernet/ibm/ehea/ehea_main.c          |  4 +---
+ drivers/net/ethernet/ibm/ehea/ehea_qmr.c           | 19 +++++----------
+ drivers/net/ethernet/ibm/emac/mal.c                |  7 ++----
+ drivers/net/ethernet/ibm/ibmveth.c                 |  1 -
+ drivers/net/ethernet/intel/igb/igb_main.c          |  5 ++--
+ drivers/net/ethernet/intel/igbvf/netdev.c          |  8 +++----
+ drivers/net/ethernet/marvell/mv643xx_eth.c         |  8 +++----
+ drivers/net/ethernet/marvell/mvmdio.c              |  1 -
+ drivers/net/ethernet/marvell/skge.c                |  5 ++--
+ drivers/net/ethernet/marvell/sky2.c                |  4 +---
+ drivers/net/ethernet/mellanox/mlx4/en_main.c       |  4 +---
+ drivers/net/ethernet/mellanox/mlx4/main.c          |  4 +---
+ drivers/net/ethernet/myricom/myri10ge/myri10ge.c   |  5 ++--
+ .../net/ethernet/qlogic/netxen/netxen_nic_ctx.c    |  5 +---
+ drivers/net/ethernet/qlogic/netxen/netxen_nic_hw.c | 18 ++++-----------
+ .../net/ethernet/qlogic/netxen/netxen_nic_init.c   | 27 ++++++++--------------
+ .../net/ethernet/qlogic/netxen/netxen_nic_main.c   |  5 +---
+ drivers/net/ethernet/qlogic/qla3xxx.c              | 10 ++++----
+ .../net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c  | 14 ++++-------
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_hw.c     |  6 ++---
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c   | 26 +++++++--------------
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c   | 19 +++++----------
+ .../net/ethernet/qlogic/qlcnic/qlcnic_minidump.c   |  7 ++----
+ drivers/net/ethernet/qlogic/qlge/qlge_main.c       |  1 -
+ drivers/net/ethernet/rdc/r6040.c                   |  3 +--
+ drivers/net/ethernet/renesas/sh_eth.c              | 10 ++++----
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  | 11 +++++----
+ drivers/net/ethernet/sun/niu.c                     |  2 +-
+ drivers/net/ethernet/ti/cpsw.c                     |  8 +++----
+ drivers/net/ethernet/ti/davinci_mdio.c             |  4 +---
+ drivers/net/ethernet/xilinx/ll_temac_main.c        |  6 ++---
+ drivers/net/hamradio/dmascc.c                      |  7 +-----
+ drivers/net/phy/spi_ks8995.c                       |  4 +---
+ drivers/net/usb/ax88172a.c                         |  6 ++---
+ drivers/net/usb/hso.c                              | 25 ++++++--------------
+ drivers/net/usb/sierra_net.c                       | 10 +++-----
+ drivers/net/usb/smsc75xx.c                         |  6 ++---
+ drivers/net/usb/smsc95xx.c                         |  6 ++---
+ drivers/net/usb/usbnet.c                           |  5 +---
+ drivers/net/virtio_net.c                           |  4 +---
+ drivers/net/wan/cosa.c                             |  9 ++++----
+ drivers/net/wan/farsync.c                          |  6 ++---
+ drivers/net/wan/hdlc.c                             |  9 ++++----
+ drivers/net/wan/x25_asy.c                          |  1 -
+ drivers/net/wimax/i2400m/rx.c                      | 16 ++++---------
+ drivers/net/wimax/i2400m/usb-notif.c               |  1 -
+ drivers/net/wireless/airo_cs.c                     |  5 ++--
+ drivers/net/wireless/at76c50x-usb.c                |  4 +---
+ .../net/wireless/ath/ath9k/dfs_pattern_detector.c  |  6 ++---
+ drivers/net/wireless/atmel_cs.c                    |  5 ++--
+ drivers/net/wireless/ipw2x00/ipw2100.c             |  9 +++-----
+ drivers/net/wireless/libertas/cfg.c                |  4 +---
+ drivers/net/wireless/mwifiex/11n.c                 |  5 +---
+ drivers/net/wireless/mwifiex/11n_rxreorder.c       |  5 +---
+ drivers/net/wireless/mwifiex/cfg80211.c            |  4 +---
+ drivers/net/wireless/mwifiex/cmdevt.c              | 11 +++------
+ drivers/net/wireless/mwifiex/init.c                |  5 +---
+ drivers/net/wireless/mwifiex/scan.c                | 27 +++++++---------------
+ drivers/net/wireless/mwifiex/sdio.c                | 11 ++-------
+ drivers/net/wireless/mwifiex/sta_ioctl.c           | 11 +++------
+ drivers/net/wireless/mwifiex/wmm.c                 |  7 ++----
+ drivers/net/wireless/orinoco/main.c                | 16 ++++---------
+ drivers/net/wireless/p54/p54usb.c                  | 10 ++------
+ drivers/net/wireless/prism54/islpci_mgt.c          | 14 ++++-------
+ drivers/net/wireless/rndis_wlan.c                  |  5 +---
+ drivers/net/wireless/ti/wlcore/sdio.c              |  4 +---
+ drivers/net/wireless/ti/wlcore/spi.c               | 14 +++--------
+ drivers/net/wireless/zd1211rw/zd_usb.c             |  1 -
+ 84 files changed, 185 insertions(+), 436 deletions(-)
+
+-- 
+1.8.0.dirty
