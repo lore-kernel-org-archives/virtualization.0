@@ -1,11 +1,13 @@
 From: Joe Perches <joe@perches.com>
-Subject: [PATCH 0/8] drivers/net: Remove unnecessary alloc/OOM messages
-Date: Sun,  3 Feb 2013 19:28:07 -0800
-Message-ID: <cover.1359939012.git.joe@perches.com>
+Subject: [PATCH 8/8] drivers:net:misc: Remove unnecessary alloc/OOM messages
+Date: Sun,  3 Feb 2013 19:28:15 -0800
+Message-ID: <a729555c8acf2cc3ef4c80531757b37a948c4e55.1359939013.git.joe@perches.com>
+References: <cover.1359939012.git.joe@perches.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1359939012.git.joe@perches.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,108 +18,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: netdev@vger.kernel.org
-Cc: wimax@linuxwimax.org, libertas-dev@lists.infradead.org, e1000-devel@lists.sourceforge.net, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ath9k-devel@lists.ath9k.org, linux-hams@vger.kernel.org, linux-can@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-hams@vger.kernel.org, Joerg Reuter <jreuter@yaina.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Remove all the OOM messages that follow kernel alloc
-failures as there is already a generic equivalent to
-these messages in the mm subsystem.
+alloc failures already get standardized OOM
+messages and a dump_stack.
 
-Joe Perches (8):
-  caif: Remove unnecessary alloc/OOM messages
-  can: Remove unnecessary alloc/OOM messages
-  ethernet: Remove unnecessary alloc/OOM messages, alloc cleanups
-  drivers: net: usb: Remove unnecessary alloc/OOM messages
-  wan: Remove unnecessary alloc/OOM messages
-  wimax: Remove unnecessary alloc/OOM messages, alloc cleanups
-  wireless: Remove unnecessary alloc/OOM messages, alloc cleanups
-  drivers:net:misc: Remove unnecessary alloc/OOM messages
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ drivers/net/hamradio/dmascc.c | 7 +------
+ drivers/net/phy/spi_ks8995.c  | 4 +---
+ drivers/net/virtio_net.c      | 4 +---
+ 3 files changed, 3 insertions(+), 12 deletions(-)
 
- drivers/net/caif/caif_shmcore.c                    |  6 -----
- drivers/net/can/sja1000/ems_pci.c                  |  1 -
- drivers/net/can/sja1000/peak_pci.c                 |  5 +---
- drivers/net/can/sja1000/peak_pcmcia.c              |  1 -
- drivers/net/can/sja1000/plx_pci.c                  |  1 -
- drivers/net/can/usb/ems_usb.c                      |  4 +---
- drivers/net/can/usb/kvaser_usb.c                   |  2 --
- drivers/net/can/usb/peak_usb/pcan_usb_core.c       |  5 ----
- drivers/net/can/usb/usb_8dev.c                     |  4 +---
- drivers/net/ethernet/atheros/atl1c/atl1c_main.c    |  6 ++---
- drivers/net/ethernet/atheros/atl1e/atl1e_main.c    |  2 --
- drivers/net/ethernet/broadcom/b44.c                |  4 +---
- drivers/net/ethernet/broadcom/bcm63xx_enet.c       |  6 ++---
- drivers/net/ethernet/broadcom/cnic.c               |  6 ++---
- drivers/net/ethernet/broadcom/tg3.c                |  4 +---
- drivers/net/ethernet/freescale/gianfar_ethtool.c   |  9 ++++----
- drivers/net/ethernet/ibm/ehea/ehea_main.c          |  4 +---
- drivers/net/ethernet/ibm/ehea/ehea_qmr.c           | 19 +++++----------
- drivers/net/ethernet/ibm/emac/mal.c                |  7 ++----
- drivers/net/ethernet/ibm/ibmveth.c                 |  1 -
- drivers/net/ethernet/intel/igb/igb_main.c          |  5 ++--
- drivers/net/ethernet/intel/igbvf/netdev.c          |  8 +++----
- drivers/net/ethernet/marvell/mv643xx_eth.c         |  8 +++----
- drivers/net/ethernet/marvell/mvmdio.c              |  1 -
- drivers/net/ethernet/marvell/skge.c                |  5 ++--
- drivers/net/ethernet/marvell/sky2.c                |  4 +---
- drivers/net/ethernet/mellanox/mlx4/en_main.c       |  4 +---
- drivers/net/ethernet/mellanox/mlx4/main.c          |  4 +---
- drivers/net/ethernet/myricom/myri10ge/myri10ge.c   |  5 ++--
- .../net/ethernet/qlogic/netxen/netxen_nic_ctx.c    |  5 +---
- drivers/net/ethernet/qlogic/netxen/netxen_nic_hw.c | 18 ++++-----------
- .../net/ethernet/qlogic/netxen/netxen_nic_init.c   | 27 ++++++++--------------
- .../net/ethernet/qlogic/netxen/netxen_nic_main.c   |  5 +---
- drivers/net/ethernet/qlogic/qla3xxx.c              | 10 ++++----
- .../net/ethernet/qlogic/qlcnic/qlcnic_83xx_init.c  | 14 ++++-------
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_hw.c     |  6 ++---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_init.c   | 26 +++++++--------------
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_main.c   | 19 +++++----------
- .../net/ethernet/qlogic/qlcnic/qlcnic_minidump.c   |  7 ++----
- drivers/net/ethernet/qlogic/qlge/qlge_main.c       |  1 -
- drivers/net/ethernet/rdc/r6040.c                   |  3 +--
- drivers/net/ethernet/renesas/sh_eth.c              | 10 ++++----
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  | 11 +++++----
- drivers/net/ethernet/sun/niu.c                     |  2 +-
- drivers/net/ethernet/ti/cpsw.c                     |  8 +++----
- drivers/net/ethernet/ti/davinci_mdio.c             |  4 +---
- drivers/net/ethernet/xilinx/ll_temac_main.c        |  6 ++---
- drivers/net/hamradio/dmascc.c                      |  7 +-----
- drivers/net/phy/spi_ks8995.c                       |  4 +---
- drivers/net/usb/ax88172a.c                         |  6 ++---
- drivers/net/usb/hso.c                              | 25 ++++++--------------
- drivers/net/usb/sierra_net.c                       | 10 +++-----
- drivers/net/usb/smsc75xx.c                         |  6 ++---
- drivers/net/usb/smsc95xx.c                         |  6 ++---
- drivers/net/usb/usbnet.c                           |  5 +---
- drivers/net/virtio_net.c                           |  4 +---
- drivers/net/wan/cosa.c                             |  9 ++++----
- drivers/net/wan/farsync.c                          |  6 ++---
- drivers/net/wan/hdlc.c                             |  9 ++++----
- drivers/net/wan/x25_asy.c                          |  1 -
- drivers/net/wimax/i2400m/rx.c                      | 16 ++++---------
- drivers/net/wimax/i2400m/usb-notif.c               |  1 -
- drivers/net/wireless/airo_cs.c                     |  5 ++--
- drivers/net/wireless/at76c50x-usb.c                |  4 +---
- .../net/wireless/ath/ath9k/dfs_pattern_detector.c  |  6 ++---
- drivers/net/wireless/atmel_cs.c                    |  5 ++--
- drivers/net/wireless/ipw2x00/ipw2100.c             |  9 +++-----
- drivers/net/wireless/libertas/cfg.c                |  4 +---
- drivers/net/wireless/mwifiex/11n.c                 |  5 +---
- drivers/net/wireless/mwifiex/11n_rxreorder.c       |  5 +---
- drivers/net/wireless/mwifiex/cfg80211.c            |  4 +---
- drivers/net/wireless/mwifiex/cmdevt.c              | 11 +++------
- drivers/net/wireless/mwifiex/init.c                |  5 +---
- drivers/net/wireless/mwifiex/scan.c                | 27 +++++++---------------
- drivers/net/wireless/mwifiex/sdio.c                | 11 ++-------
- drivers/net/wireless/mwifiex/sta_ioctl.c           | 11 +++------
- drivers/net/wireless/mwifiex/wmm.c                 |  7 ++----
- drivers/net/wireless/orinoco/main.c                | 16 ++++---------
- drivers/net/wireless/p54/p54usb.c                  | 10 ++------
- drivers/net/wireless/prism54/islpci_mgt.c          | 14 ++++-------
- drivers/net/wireless/rndis_wlan.c                  |  5 +---
- drivers/net/wireless/ti/wlcore/sdio.c              |  4 +---
- drivers/net/wireless/ti/wlcore/spi.c               | 14 +++--------
- drivers/net/wireless/zd1211rw/zd_usb.c             |  1 -
- 84 files changed, 185 insertions(+), 436 deletions(-)
-
+diff --git a/drivers/net/hamradio/dmascc.c b/drivers/net/hamradio/dmascc.c
+index ce555d9..6636022 100644
+--- a/drivers/net/hamradio/dmascc.c
++++ b/drivers/net/hamradio/dmascc.c
+@@ -463,13 +463,8 @@ static int __init setup_adapter(int card_base, int type, int n)
+ 
+ 	/* Initialize what is necessary for write_scc and write_scc_data */
+ 	info = kzalloc(sizeof(struct scc_info), GFP_KERNEL | GFP_DMA);
+-	if (!info) {
+-		printk(KERN_ERR "dmascc: "
+-		       "could not allocate memory for %s at %#3x\n",
+-		       hw[type].name, card_base);
++	if (!info)
+ 		goto out;
+-	}
+-
+ 
+ 	info->dev[0] = alloc_netdev(0, "", dev_setup);
+ 	if (!info->dev[0]) {
+diff --git a/drivers/net/phy/spi_ks8995.c b/drivers/net/phy/spi_ks8995.c
+index 41eb8ff..5c87eef 100644
+--- a/drivers/net/phy/spi_ks8995.c
++++ b/drivers/net/phy/spi_ks8995.c
+@@ -275,10 +275,8 @@ static int ks8995_probe(struct spi_device *spi)
+ 	pdata = spi->dev.platform_data;
+ 
+ 	ks = kzalloc(sizeof(*ks), GFP_KERNEL);
+-	if (!ks) {
+-		dev_err(&spi->dev, "no memory for private data\n");
++	if (!ks)
+ 		return -ENOMEM;
+-	}
+ 
+ 	mutex_init(&ks->lock);
+ 	ks->pdata = pdata;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index eda2042..381a2d8 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -976,10 +976,8 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+ 	buf = kzalloc(((uc_count + mc_count) * ETH_ALEN) +
+ 		      (2 * sizeof(mac_data->entries)), GFP_ATOMIC);
+ 	mac_data = buf;
+-	if (!buf) {
+-		dev_warn(&dev->dev, "No memory for MAC address buffer\n");
++	if (!buf)
+ 		return;
+-	}
+ 
+ 	sg_init_table(sg, 2);
+ 
 -- 
 1.8.0.dirty
