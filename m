@@ -1,14 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/6] virtio_host: host-side implementation of virtio rings.
-Date: Tue, 05 Feb 2013 08:14:08 +1030
-Message-ID: <878v73lpp3.fsf@rustcorp.com.au>
-References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
-	<CAJK669aVu_h-ZJnNF0yWBvzfvfj2NSNxDkuHSmJxdUGLNtjOcQ@mail.gmail.com>
+From: Andy King <acking@vmware.com>
+Subject: [PATCH 0/1] VM Sockets for Linux upstreaming
+Date: Mon,  4 Feb 2013 15:26:01 -0800
+Message-ID: <1360020362-25561-1-git-send-email-acking__41760.1304747679$1360020618$gmane$org@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJK669aVu_h-ZJnNF0yWBvzfvfj2NSNxDkuHSmJxdUGLNtjOcQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +15,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, Andy King <acking@vmware.com>, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cgo+IEhpIFJ1c3R5
-LAo+Cj4gT24gVGh1LCBKYW4gMTcsIDIwMTMgYXQgMTE6MjkgQU0sIFJ1c3R5IFJ1c3NlbGwgPHJ1
-c3R5QHJ1c3Rjb3JwLmNvbS5hdT53cm90ZToKPgo+PiBHZXR0aW5nIHVzZSBvZiB2aXJ0aW8gcmlu
-Z3MgY29ycmVjdCBpcyB0cmlja3ksIGFuZCBhIHJlY2VudCBwYXRjaCBzYXcKPj4gYW4gaW1wbGVt
-ZW50YXRpb24gb2YgaW4ta2VybmVsIHJpbmdzIChhcyBzZXBhcmF0ZSBmcm9tIHVzZXJzcGFjZSku
-Cj4+Cj4+IFRoaXMgcGF0Y2ggYXR0ZW1wdHMgdG8gYWJzdHJhY3QgdGhlIGJ1c2luZXNzIG9mIGRl
-YWxpbmcgd2l0aCB0aGUKPj4gdmlydGlvIHJpbmcgbGF5b3V0IGZyb20gdGhlIGFjY2VzcyAodXNl
-cnNwYWNlIG9yIGRpcmVjdCk7IHRvIGRvIHRoaXMsCj4+IHdlIHVzZSBmdW5jdGlvbiBwb2ludGVy
-cywgd2hpY2ggZ2NjIGlubGluZXMgY29ycmVjdGx5Lgo+Cj4KPiBJIGhhdmUgYmVlbiB1c2luZyB5
-b3VyIHBhdGNoZXMgZm9yIGEgd2hpbGUgaW4gbXkgdGVzdCBzZXR1cCB3aXRob3V0IGFueQo+IGlz
-c3VlcyB3aXRoIHZyaW5naC4gVGhlIG9ubHkgdGhpbmcgSSdtIG1pc3NpbmcgaXMgZXhwb3J0IG9m
-IHN5bWJvbHMuCj4gTXkgY3VycmVudCBjYWlmX3ZpcnRpbyBkcml2ZXIgZXhwZWN0cyB2cmluZ2gg
-dG8gYmUgYSBtb2R1bGUgZXhwb3J0aW5nCj4gc3ltYm9scy4gSXMgdGhpcyBzb21ldGhpbmcgeW91
-IGFyZSBwbGFubmluZyB0byBhZGQ/CgpZZXMsIHN1cmUuICBUaGVyZSBtYXkgYmUgc29tZSBtb3Jl
-IG1pbm9yIGNoYW5nZXMsIGJ1dCBub3RoaW5nIHJhZGljYWwuCgo+IEkgZ3Vlc3MgbXkgdnJpbmdo
-IHJlbGF0ZWQgc3R1ZmYgc2hvdWxkIGdvIGludG8geW91ciB0cmVlIHRvZ2V0aGVyIHdpdGggeW91
-cgo+IHZyaW5naCBwYXRjaGVzLi4uCj4gV291bGQgeW91IGJlIHdpbGxpbmcgdG8gdGFrZSB0aGlz
-IHZpYSB5b3VyIHRyZWUsIHByb3ZpZGVkIHRoYXQgSSBnZXQgYWNrcwo+IGZyb20gdGhlIHJpZ2h0
-IHBlb3BsZT8KClllcyBwbGVhc2UuICBOb3cgSSBoYXZlIHNldCB1cCBhIHRlc3QgcmlnIGZvciB2
-aG9zdCAodW5mb3J0dW5hdGVseSBub3QKd2l0aCAxMEdlKSBJIGNhbiBtYWtlIHByb2dyZXNzIG9u
-IHZob3N0IGFkYXB0aW9uLgoKVGhhbmtzLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+In an effort to improve the out-of-the-box experience with Linux kernels for
+VMware users, VMware is working on readying the VM Sockets (VSOCK, formerly
+VMCI Sockets) (vsock) kernel module for inclusion in the Linux kernel. The
+purpose of this post is to acquire feedback on the vsock kernel module.
+
+Unlike previous submissions, where the new socket family was entirely reliant
+on VMware's VMCI PCI device (and thus VMware's hypervisor), VM Sockets is now
+*completely* separated out into two parts, each in its own module:
+
+o Core socket code, which is transport-neutral and invokes transport
+  callbacks to communicate with the hypervisor.  This is vsock.ko.
+o A VMCI transport, which communicates over VMCI with the VMware hypervisor.
+  This is vmw_vsock_vmci_transport.ko, and it registers with the core module
+  as a transport.
+
+This should provide a path to introducing additional transports, for example
+virtio, with the ultimate goal being to make this new socket family
+hypervisor-neutral.
+
+Andy King (1):
+  VSOCK: Introduce VM Sockets
+
+ include/linux/socket.h                       |    4 +-
+ include/uapi/linux/vm_sockets.h              |  169 +++
+ net/Kconfig                                  |    1 +
+ net/Makefile                                 |    1 +
+ net/vmw_vsock/Kconfig                        |   28 +
+ net/vmw_vsock/Makefile                       |    7 +
+ net/vmw_vsock/af_vsock.c                     | 2085 ++++++++++++++++++++++++++
+ net/vmw_vsock/af_vsock.h                     |  170 +++
+ net/vmw_vsock/vmci_transport.c               | 2050 +++++++++++++++++++++++++
+ net/vmw_vsock/vmci_transport.h               |  139 ++
+ net/vmw_vsock/vmci_transport_notify.c        |  680 +++++++++
+ net/vmw_vsock/vmci_transport_notify.h        |   83 +
+ net/vmw_vsock/vmci_transport_notify_qstate.c |  438 ++++++
+ net/vmw_vsock/vsock_addr.c                   |  128 ++
+ net/vmw_vsock/vsock_addr.h                   |   36 +
+ net/vmw_vsock/vsock_version.h                |   22 +
+ 16 files changed, 6040 insertions(+), 1 deletions(-)
+ create mode 100644 include/uapi/linux/vm_sockets.h
+ create mode 100644 net/vmw_vsock/Kconfig
+ create mode 100644 net/vmw_vsock/Makefile
+ create mode 100644 net/vmw_vsock/af_vsock.c
+ create mode 100644 net/vmw_vsock/af_vsock.h
+ create mode 100644 net/vmw_vsock/vmci_transport.c
+ create mode 100644 net/vmw_vsock/vmci_transport.h
+ create mode 100644 net/vmw_vsock/vmci_transport_notify.c
+ create mode 100644 net/vmw_vsock/vmci_transport_notify.h
+ create mode 100644 net/vmw_vsock/vmci_transport_notify_qstate.c
+ create mode 100644 net/vmw_vsock/vsock_addr.c
+ create mode 100644 net/vmw_vsock/vsock_addr.h
+ create mode 100644 net/vmw_vsock/vsock_version.h
+
+-- 
+1.7.4.1
