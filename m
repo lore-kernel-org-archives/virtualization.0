@@ -1,13 +1,13 @@
-From: Andy King <acking@vmware.com>
-Subject: Re: [Pv-drivers] [PATCH 0/6] VSOCK for Linux upstreaming
-Date: Mon, 4 Feb 2013 20:42:21 -0800 (PST)
-Message-ID: <1979127675.2501555.1360039341169.JavaMail.root@vmware.com>
-References: <20130108.174601.1788895671912734725.davem@davemloft.net>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 0/1] VM Sockets for Linux upstreaming
+Date: Tue, 05 Feb 2013 17:41:27 +0100
+Message-ID: <51113637.7070209@redhat.com>
+References: <1360020362-25561-1-git-send-email-acking@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130108.174601.1788895671912734725.davem@davemloft.net>
+In-Reply-To: <1360020362-25561-1-git-send-email-acking@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,30 +17,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: dtor@vmware.com, pv-drivers@vmware.com, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+To: Andy King <acking@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Dave,
+  Hi,
 
-> >> Instead, what I remember doing was deferring to the feedback these
-> >> folks received, stating that ideas that the virtio people had
-> >> mentioned should be considered instead.
-> >> 
-> >> http://marc.info/?l=linux-netdev&m=135301515818462&w=2
-> > 
-> > I believe Andy replied to Anthony's AF_VMCHANNEL post and the
-> > differences between the proposed solutions.
-> 
-> I'd much rather see a hypervisor neutral solution than a hypervisor
-> specific one which this certainly is.
+> Unlike previous submissions, where the new socket family was entirely reliant
+> on VMware's VMCI PCI device (and thus VMware's hypervisor), VM Sockets is now
+> *completely* separated out into two parts, each in its own module:
 
-We've addressed this with the latest patch series, which I sent earlier
-today.  vSockets now has support for pluggable transports, of which VMCI
-happens to be the first; all transport code is separated out into its
-own module.  So the core is now hypervisor neutral.  Given that, would
-you be willing to re-consider it, please?  If at all possible, we'd like
-to make the current merge window.
+Some separation still needs to be done:
 
-Thanks so much!
-- Andy
+  CC [M]  net/vmw_vsock/af_vsock.o
+In file included from
+/home/kraxel/projects/linux/net/vmw_vsock/af_vsock.c:102:0:
+/home/kraxel/projects/linux/net/vmw_vsock/af_vsock.h:21:33: fatal error:
+linux/vmw_vmci_defs.h: No such file or directory
+compilation terminated.
+make[4]: *** [net/vmw_vsock/af_vsock.o] Error 1
+
+[ with  vmci series from jan 9th applied on top it builds ]
+
+Module deps are a bit bogous too:
+
+vmw_vsock_vmci_transport    26162  0
+vsock                  34481  1 vmw_vsock_vmci_transport
+vmw_vmci               61602  2 vsock,vmw_vsock_vmci_transport
+
+Only vmw_vsock_vmci_transport should have a vmw_vmci dependency, not
+vsock ...
+
+Nevertheless this should be good enough to start hacking up a virtio
+prototype.
+
+cheers,
+  Gerd
