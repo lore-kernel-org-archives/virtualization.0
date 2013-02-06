@@ -1,11 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PULL] virtio fix
-Date: Thu, 07 Feb 2013 11:43:53 +1030
-Message-ID: <87zjzhhqni.fsf@rustcorp.com.au>
+Subject: Re: [PATCH] virtio: make config_ops const
+Date: Thu, 07 Feb 2013 10:18:33 +1030
+Message-ID: <87fw19j966.fsf@rustcorp.com.au>
+References: <20130205094244.2993245a@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20130205094244.2993245a@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,25 +17,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: torvalds@linux-foundation.org
-Cc: virtualization@lists.linux-foundation.org, LKML <linux-kernel@vger.kernel.org>, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: Stephen Hemminger <stephen@networkplumber.org>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCA5YTkyODQxNTNkOTY1YTU3ZWRjNzE2
-MmE4ZTU3YzE0Yzk3ZjNhOTM1OgoKICBNZXJnZSBicmFuY2ggJ2RybS1maXhlcycgb2YgZ2l0Oi8v
-cGVvcGxlLmZyZWVkZXNrdG9wLm9yZy9+YWlybGllZC9saW51eCAoMjAxMy0wMS0yMCAyMDo1NTo0
-OSAtMDgwMCkKCmFyZSBhdmFpbGFibGUgaW4gdGhlIGdpdCByZXBvc2l0b3J5IGF0OgoKCiAgZ2l0
-Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L3J1c3R5L2xpbnV4Lmdp
-dCB0YWdzL2ZpeGVzLWZvci1saW51cwoKZm9yIHlvdSB0byBmZXRjaCBjaGFuZ2VzIHVwIHRvIGFk
-ZWQwMjRhMTJiMzJmYzFlZDlhODA2Mzk2ODFkYWFlMmQwN2VjMjU6CgogIHZpcnRpb19jb25zb2xl
-OiBEb24ndCBhY2Nlc3MgdW5pbml0aWFsaXplZCBkYXRhLiAoMjAxMy0wMi0wNyAxMTozNzozNyAr
-MTAzMCkKCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0KT2J2aW91c2x5IEkgZm9yZ290IHRvIHB1c2ggdGhpcyBiZWZvcmUgbGlu
-dXguY29uZi5hdS4uLgoKVGhhbmtzLApSdXN0eS4KCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KU2p1ciBCcsOmbmRlbGFuZCAo
-MSk6CiAgICAgIHZpcnRpb19jb25zb2xlOiBEb24ndCBhY2Nlc3MgdW5pbml0aWFsaXplZCBkYXRh
-LgoKIGRyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jIHwgICAgMyArKy0KIDEgZmlsZSBjaGFu
-Z2VkLCAyIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Stephen Hemminger <stephen@networkplumber.org> writes:
+
+> It is just a table of function pointers, make it const for cleanliness and security
+> reasons.
+>
+> Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+
+Applied.
+
+Cheers,
+Rusty.
