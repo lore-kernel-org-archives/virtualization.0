@@ -1,16 +1,18 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: Greg KH <gregkh@linuxfoundation.org>
 Subject: Re: [PATCH] virtio_console: Don't access uninitialized data.
-Date: Wed, 06 Feb 2013 10:38:36 +1030
-Message-ID: <871ucul2wr.fsf__37183.3196528771$1360109499$gmane$org@rustcorp.com.au>
+Date: Tue, 5 Feb 2013 17:40:15 -0800
+Message-ID: <20130206014015.GB816@kroah.com>
 References: <1358425292-4449-1-git-send-email-sjur.brandeland@stericsson.com>
 	<20130125090801.GA30483@amit.redhat.com>
 	<87vca9klwm.fsf@rustcorp.com.au>
 	<20130204063251.GB32509@amit.redhat.com>
+	<871ucul2wr.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130204063251.GB32509@amit.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <871ucul2wr.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,34 +22,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, stable@vger.kernel.org, sjur.brandeland@stericsson.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, stable@vger.kernel.org, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-QW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4gd3JpdGVzOgo+IE9uIChNb24pIDA0IEZl
-YiAyMDEzIFsxMDowOTowNV0sIFJ1c3R5IFJ1c3NlbGwgd3JvdGU6Cj4+IEFtaXQgU2hhaCA8YW1p
-dC5zaGFoQHJlZGhhdC5jb20+IHdyaXRlczoKPj4gPiBPbiAoVGh1KSAxNyBKYW4gMjAxMyBbMTM6
-MjE6MzJdLCBzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20gd3JvdGU6Cj4+ID4+IEZyb206
-IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KPj4gPj4g
-Cj4+ID4+IERvbid0IGFjY2VzcyB1bmluaXRpYWxpemVkIHdvcmstcXVldWUgd2hlbiByZW1vdmlu
-ZyBkZXZpY2UuCj4+ID4+IFRoZSB3b3JrIHF1ZXVlIGlzIGluaXRpYWxpemVkIG9ubHkgaWYgdGhl
-IGRldmljZSBtdWx0aS1xdWV1ZS4KPj4gPj4gU28gZG9uJ3QgY2FsbCBjYW5jZWxfd29yayB1bmxl
-c3MgdGhpcyBpcyBhIG11bHRpLXF1ZXVlIGRldmljZS4KPj4gPj4gCj4+ID4+IFRoaXMgZml4ZXMg
-dGhlIGZvbGxvd2luZyBwYW5pYzoKPj4gPgo+PiA+IFtzbmlwXQo+PiA+Cj4+ID4+IFNpZ25lZC1v
-ZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4K
-Pj4gPgo+PiA+IEFja2VkLWJ5OiBBbWl0IFNoYWggPGFtaXQuc2hhaEByZWRoYXQuY29tPgo+PiA+
-Cj4+ID4+IFRoaXMgZml4IGlzIGludGVuZGVkIG9mIHYzLjguCj4+ID4KPj4gPiBTaG91bGQgYWxz
-byBiZSBDQydlZCB0byBzdGFibGVACi4uLgo+PiBJJ3ZlIGFscmVhZHkgc2VudCBpdCB0byBMaW51
-cy4gIFNqdXIgc2FpZDogIlRoaXMgZml4IGlzIGludGVuZGVkIG9mCj4+IHYzLjguIi4gIElmIGl0
-IG5lZWRzIHRvIGJlIGluIC1zdGFibGUsIHBsZWFzZSB0ZWxsIG1lIGFuZCBJJ2xsIGZ3ZCBpdAo+
-PiBtYW51YWxseS4KPgo+IFRoaXMgY2FuIHJlc3VsdCBpbiBhIHBhbmljIHdoZW4gcmVtb3Zpbmcg
-dGhlIGRldmljZSBvciBtb2R1bGUgKHdoZW4KPiBub3QgdXNpbmcgbXVsdGlwb3J0KS4gIEknZCB2
-b3RlIGZvciBzdWJtaXR0aW5nIHRvIHN0YWJsZS4KPgo+IAkJQW1pdAoKT0sgc3RhYmxlLCBwbGVh
-c2UgY2hlcnJ5LXBpY2sgZnJvbSBMaW51cycgdHJlZToKCmNvbW1pdCBiMjZhZGE5YWJlMjYyOTBi
-MWRjZDA2MDc1OTM1Yjk3NzU0OGM1MGRiCkF1dGhvcjogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5i
-cmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgpEYXRlOiAgIFR1ZSBKYW4gMjIgMDk6NTA6MjYgMjAx
-MyArMTAzMAoKICAgIHZpcnRpb19jb25zb2xlOiBEb24ndCBhY2Nlc3MgdW5pbml0aWFsaXplZCBk
-YXRhLgoKVGhhbmtzLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Feb 06, 2013 at 10:38:36AM +1030, Rusty Russell wrote:
+> Amit Shah <amit.shah@redhat.com> writes:
+> > On (Mon) 04 Feb 2013 [10:09:05], Rusty Russell wrote:
+> >> Amit Shah <amit.shah@redhat.com> writes:
+> >> > On (Thu) 17 Jan 2013 [13:21:32], sjur.brandeland@stericsson.com wrot=
+e:
+> >> >> From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> >> >> =
+
+> >> >> Don't access uninitialized work-queue when removing device.
+> >> >> The work queue is initialized only if the device multi-queue.
+> >> >> So don't call cancel_work unless this is a multi-queue device.
+> >> >> =
+
+> >> >> This fixes the following panic:
+> >> >
+> >> > [snip]
+> >> >
+> >> >> Signed-off-by: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> >> >
+> >> > Acked-by: Amit Shah <amit.shah@redhat.com>
+> >> >
+> >> >> This fix is intended of v3.8.
+> >> >
+> >> > Should also be CC'ed to stable@
+> ...
+> >> I've already sent it to Linus.  Sjur said: "This fix is intended of
+> >> v3.8.".  If it needs to be in -stable, please tell me and I'll fwd it
+> >> manually.
+> >
+> > This can result in a panic when removing the device or module (when
+> > not using multiport).  I'd vote for submitting to stable.
+> >
+> > 		Amit
+> =
+
+> OK stable, please cherry-pick from Linus' tree:
+> =
+
+> commit b26ada9abe26290b1dcd06075935b977548c50db
+> Author: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
+> Date:   Tue Jan 22 09:50:26 2013 +1030
+> =
+
+>     virtio_console: Don't access uninitialized data.
+
+ $ git show b26ada9abe26290b1dcd06075935b977548c50db
+ fatal: bad object b26ada9abe26290b1dcd06075935b977548c50db
+
+What am I missing here?
+
+greg k-h
