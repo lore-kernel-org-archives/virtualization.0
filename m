@@ -1,13 +1,16 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] tcm_vhost: Multi-queue support
-Date: Wed, 6 Feb 2013 06:59:42 -0500 (EST)
-Message-ID: <2066806628.37341089.1360151982783.JavaMail.root__3552.92430981553$1360152017$gmane$org@redhat.com>
-References: <511227A6.4000107@redhat.com>
+Subject: Re: [PATCH 2/2] virtio-scsi: reset virtqueue affinity when doing
+	cpu hotplug
+Date: Wed, 06 Feb 2013 18:27:30 +0100
+Message-ID: <51129282.7040100@redhat.com>
+References: <1355833972-20319-1-git-send-email-pbonzini@redhat.com>
+	<50F525E3.1000100@cn.fujitsu.com> <50F52677.80100@cn.fujitsu.com>
+	<871udlztui.fsf@rustcorp.com.au> <50F624BA.20208@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <511227A6.4000107@redhat.com>
+In-Reply-To: <50F624BA.20208@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,32 +20,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: gaowanlong@cn.fujitsu.com
+Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, hutao@cn.fujitsu.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgotLS0tLSBNZXNzYWdnaW8gb3JpZ2luYWxlIC0tLS0tCj4gRGE6ICJBc2lhcyBIZSIgPGFzaWFz
-QHJlZGhhdC5jb20+Cj4gQTogIk5pY2hvbGFzIEEuIEJlbGxpbmdlciIgPG5hYkBsaW51eC1pc2Nz
-aS5vcmc+Cj4gQ2M6ICJQYW9sbyBCb256aW5pIiA8cGJvbnppbmlAcmVkaGF0LmNvbT4sICJTdGVm
-YW4gSGFqbm9jemkiIDxzdGVmYW5oYUByZWRoYXQuY29tPiwgIk1pY2hhZWwgUy4gVHNpcmtpbiIK
-PiA8bXN0QHJlZGhhdC5jb20+LCAiUnVzdHkgUnVzc2VsbCIgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5h
-dT4sIGt2bUB2Z2VyLmtlcm5lbC5vcmcsCj4gdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcsIHRhcmdldC1kZXZlbEB2Z2VyLmtlcm5lbC5vcmcKPiBJbnZpYXRvOiBNZXJj
-b2xlZMOsLCA2IGZlYmJyYWlvIDIwMTMgMTA6NTE6MzQKPiBPZ2dldHRvOiBSZTogW1BBVENIXSB0
-Y21fdmhvc3Q6IE11bHRpLXF1ZXVlIHN1cHBvcnQKPiAKPiBPbiAwMi8wNi8yMDEzIDA0OjM5IFBN
-LCBOaWNob2xhcyBBLiBCZWxsaW5nZXIgd3JvdGU6Cj4gPiBPbiBXZWQsIDIwMTMtMDItMDYgYXQg
-MTU6MDkgKzA4MDAsIEFzaWFzIEhlIHdyb3RlOgo+ID4+IE9uIDAyLzA2LzIwMTMgMDI6NDUgUE0s
-IE5pY2hvbGFzIEEuIEJlbGxpbmdlciB3cm90ZToKPiA+Pj4gT24gV2VkLCAyMDEzLTAyLTA2IGF0
-IDEzOjIwICswODAwLCBBc2lhcyBIZSB3cm90ZToKPiA+Pj4+IFRoaXMgYWRkcyB2aXJ0aW8tc2Nz
-aSBtdWx0aS1xdWV1ZSBzdXBwb3J0IHRvIHRjbV92aG9zdC4KPiA+Pj4+Cj4gPj4+PiBHdWVzdCBz
-aWRlIHZpcnRpby1zY3NpIG11bHRpLXF1ZXVlIHN1cHBvcnQgY2FuIGJlIGZvdW5kIGhlcmU6Cj4g
-Pj4+Pgo+ID4+Pj4gICAgaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTIvMTIvMTgvMTY2Cj4gPj4+
-Pgo+ID4+Pj4gU29tZSBpbml0aWFsIHBlcmYgbnVtYmVyczoKPiA+Pj4+IDEgcXVldWUsICA0IHRh
-cmdldHMsIDEgbHVuIHBlciB0YXJnZXQKPiA+Pj4+IDRLIHJlcXVlc3Qgc2l6ZSwgNTAlIHJhbmRy
-ZWFkICsgNTAlIHJhbmR3cml0ZTogMTI3Sy8xMjdrIElPUFMKPiA+Pj4+Cj4gPj4+PiA0IHF1ZXVl
-cywgNCB0YXJnZXRzLCAxIGx1biBwZXIgdGFyZ2V0Cj4gPj4+PiA0SyByZXF1ZXN0IHNpemUsIDUw
-JSByYW5kcmVhZCArIDUwJSByYW5kd3JpdGU6IDE4MUsvMTgxayBJT1BTCgo0IFZDUFVzIEkgc3Vw
-cG9zZT8KClBhb2xvCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Il 16/01/2013 04:55, Wanlong Gao ha scritto:
+>>> >> Add hot cpu notifier to reset the request virtqueue affinity
+>>> >> when doing cpu hotplug.
+>> > 
+>> > You need to be careful to get_online_cpus() and put_online_cpus() here,
+>> > so CPUs can't go up and down in the middle of operations.
+>> > 
+>> > In particular, get_online_cpus()/put_online_cpus() around calls to
+>> > virtscsi_set_affinity() (except within notifiers).
+> Yes, I'll take care of this, thank you.
+> 
+
+I squashed patch 1 (plus changes to get/put_online_cpus) in my
+multiqueue series, and applied this one as a separate patch.
+
+Paolo
