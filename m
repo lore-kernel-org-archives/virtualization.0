@@ -1,11 +1,16 @@
-From: Stephen Hemminger <stephen@networkplumber.org>
-Subject: [PATCH] virtio: make config_ops const
-Date: Tue, 5 Feb 2013 09:42:44 -0800
-Message-ID: <20130205094244.2993245a@nehalam.linuxnetplumber.net>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio_console: Don't access uninitialized data.
+Date: Wed, 06 Feb 2013 10:38:36 +1030
+Message-ID: <871ucul2wr.fsf__37183.3196528771$1360109499$gmane$org@rustcorp.com.au>
+References: <1358425292-4449-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20130125090801.GA30483@amit.redhat.com>
+	<87vca9klwm.fsf@rustcorp.com.au>
+	<20130204063251.GB32509@amit.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20130204063251.GB32509@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,78 +20,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, stable@vger.kernel.org, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-It is just a table of function pointers, make it const for cleanliness and security
-reasons.
-
-Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
-
---- a/drivers/lguest/lguest_device.c	2013-02-02 20:03:23.285506053 +1100
-+++ b/drivers/lguest/lguest_device.c	2013-02-02 20:06:15.253510658 +1100
-@@ -396,7 +396,7 @@ static const char *lg_bus_name(struct vi
- }
- 
- /* The ops structure which hooks everything together. */
--static struct virtio_config_ops lguest_config_ops = {
-+static const struct virtio_config_ops lguest_config_ops = {
- 	.get_features = lg_get_features,
- 	.finalize_features = lg_finalize_features,
- 	.get = lg_get,
---- a/drivers/remoteproc/remoteproc_virtio.c	2013-02-02 20:03:23.289506053 +1100
-+++ b/drivers/remoteproc/remoteproc_virtio.c	2013-02-02 20:06:10.097510520 +1100
-@@ -222,7 +222,7 @@ static void rproc_virtio_finalize_featur
- 	rvdev->gfeatures = vdev->features[0];
- }
- 
--static struct virtio_config_ops rproc_virtio_config_ops = {
-+static const struct virtio_config_ops rproc_virtio_config_ops = {
- 	.get_features	= rproc_virtio_get_features,
- 	.finalize_features = rproc_virtio_finalize_features,
- 	.find_vqs	= rproc_virtio_find_vqs,
---- a/drivers/s390/kvm/kvm_virtio.c	2013-01-17 16:06:04.691116116 +1100
-+++ b/drivers/s390/kvm/kvm_virtio.c	2013-02-02 20:06:04.121510360 +1100
-@@ -275,7 +275,7 @@ static const char *kvm_bus_name(struct v
- /*
-  * The config ops structure as defined by virtio config
-  */
--static struct virtio_config_ops kvm_vq_configspace_ops = {
-+static const struct virtio_config_ops kvm_vq_configspace_ops = {
- 	.get_features = kvm_get_features,
- 	.finalize_features = kvm_finalize_features,
- 	.get = kvm_get,
---- a/drivers/virtio/virtio_mmio.c	2013-01-09 04:04:12.010765226 +1100
-+++ b/drivers/virtio/virtio_mmio.c	2013-02-02 20:05:50.937510007 +1100
-@@ -423,7 +423,7 @@ static const char *vm_bus_name(struct vi
- 	return vm_dev->pdev->name;
- }
- 
--static struct virtio_config_ops virtio_mmio_config_ops = {
-+static const struct virtio_config_ops virtio_mmio_config_ops = {
- 	.get		= vm_get,
- 	.set		= vm_set,
- 	.get_status	= vm_get_status,
---- a/drivers/virtio/virtio_pci.c	2013-01-09 04:04:12.010765226 +1100
-+++ b/drivers/virtio/virtio_pci.c	2013-02-02 20:05:40.009509714 +1100
-@@ -652,7 +652,7 @@ static int vp_set_vq_affinity(struct vir
- 	return 0;
- }
- 
--static struct virtio_config_ops virtio_pci_config_ops = {
-+static const struct virtio_config_ops virtio_pci_config_ops = {
- 	.get		= vp_get,
- 	.set		= vp_set,
- 	.get_status	= vp_get_status,
---- a/include/linux/virtio.h	2013-01-09 04:04:12.122765257 +1100
-+++ b/include/linux/virtio.h	2013-02-02 20:05:31.433509485 +1100
-@@ -78,7 +78,7 @@ struct virtio_device {
- 	int index;
- 	struct device dev;
- 	struct virtio_device_id id;
--	struct virtio_config_ops *config;
-+	const struct virtio_config_ops *config;
- 	struct list_head vqs;
- 	/* Note that this is a Linux set_bit-style bitmap. */
- 	unsigned long features[1];
+QW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4gd3JpdGVzOgo+IE9uIChNb24pIDA0IEZl
+YiAyMDEzIFsxMDowOTowNV0sIFJ1c3R5IFJ1c3NlbGwgd3JvdGU6Cj4+IEFtaXQgU2hhaCA8YW1p
+dC5zaGFoQHJlZGhhdC5jb20+IHdyaXRlczoKPj4gPiBPbiAoVGh1KSAxNyBKYW4gMjAxMyBbMTM6
+MjE6MzJdLCBzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20gd3JvdGU6Cj4+ID4+IEZyb206
+IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KPj4gPj4g
+Cj4+ID4+IERvbid0IGFjY2VzcyB1bmluaXRpYWxpemVkIHdvcmstcXVldWUgd2hlbiByZW1vdmlu
+ZyBkZXZpY2UuCj4+ID4+IFRoZSB3b3JrIHF1ZXVlIGlzIGluaXRpYWxpemVkIG9ubHkgaWYgdGhl
+IGRldmljZSBtdWx0aS1xdWV1ZS4KPj4gPj4gU28gZG9uJ3QgY2FsbCBjYW5jZWxfd29yayB1bmxl
+c3MgdGhpcyBpcyBhIG11bHRpLXF1ZXVlIGRldmljZS4KPj4gPj4gCj4+ID4+IFRoaXMgZml4ZXMg
+dGhlIGZvbGxvd2luZyBwYW5pYzoKPj4gPgo+PiA+IFtzbmlwXQo+PiA+Cj4+ID4+IFNpZ25lZC1v
+ZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4K
+Pj4gPgo+PiA+IEFja2VkLWJ5OiBBbWl0IFNoYWggPGFtaXQuc2hhaEByZWRoYXQuY29tPgo+PiA+
+Cj4+ID4+IFRoaXMgZml4IGlzIGludGVuZGVkIG9mIHYzLjguCj4+ID4KPj4gPiBTaG91bGQgYWxz
+byBiZSBDQydlZCB0byBzdGFibGVACi4uLgo+PiBJJ3ZlIGFscmVhZHkgc2VudCBpdCB0byBMaW51
+cy4gIFNqdXIgc2FpZDogIlRoaXMgZml4IGlzIGludGVuZGVkIG9mCj4+IHYzLjguIi4gIElmIGl0
+IG5lZWRzIHRvIGJlIGluIC1zdGFibGUsIHBsZWFzZSB0ZWxsIG1lIGFuZCBJJ2xsIGZ3ZCBpdAo+
+PiBtYW51YWxseS4KPgo+IFRoaXMgY2FuIHJlc3VsdCBpbiBhIHBhbmljIHdoZW4gcmVtb3Zpbmcg
+dGhlIGRldmljZSBvciBtb2R1bGUgKHdoZW4KPiBub3QgdXNpbmcgbXVsdGlwb3J0KS4gIEknZCB2
+b3RlIGZvciBzdWJtaXR0aW5nIHRvIHN0YWJsZS4KPgo+IAkJQW1pdAoKT0sgc3RhYmxlLCBwbGVh
+c2UgY2hlcnJ5LXBpY2sgZnJvbSBMaW51cycgdHJlZToKCmNvbW1pdCBiMjZhZGE5YWJlMjYyOTBi
+MWRjZDA2MDc1OTM1Yjk3NzU0OGM1MGRiCkF1dGhvcjogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5i
+cmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgpEYXRlOiAgIFR1ZSBKYW4gMjIgMDk6NTA6MjYgMjAx
+MyArMTAzMAoKICAgIHZpcnRpb19jb25zb2xlOiBEb24ndCBhY2Nlc3MgdW5pbml0aWFsaXplZCBk
+YXRhLgoKVGhhbmtzLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
