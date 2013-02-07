@@ -1,13 +1,13 @@
-From: Andy King <acking@vmware.com>
-Subject: Re: [Pv-drivers] [PATCH 0/1] VM Sockets for Linux upstreaming
-Date: Wed, 6 Feb 2013 16:32:30 -0800 (PST)
-Message-ID: <1231523602.1815949.1360197150398.JavaMail.root@vmware.com>
-References: <1315741351.2964541.1360083749055.JavaMail.root@vmware.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH] tcm_vhost: Multi-queue support
+Date: Thu, 07 Feb 2013 08:49:19 +0800
+Message-ID: <5112FA0F.6030200@redhat.com>
+References: <2066806628.37341089.1360151982783.JavaMail.root@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1315741351.2964541.1360083749055.JavaMail.root@vmware.com>
+In-Reply-To: <2066806628.37341089.1360151982783.JavaMail.root@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,36 +17,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Gerd,
-
-> > linux/vmw_vmci_defs.h: No such file or directory
-> > compilation terminated.
-> > make[4]: *** [net/vmw_vsock/af_vsock.o] Error 1
-> 
-> Oops, you're right, it really shouldn't need that header.  Sorry
-> about that, let me rip that out.
-
-Fixed.  The VMCI headers are now gone from the core in af_vsock.*
-and vsock_addr.*
-
-> > Only vmw_vsock_vmci_transport should have a vmw_vmci dependency,
-> > not vsock ...
-> 
-> Agreed, that's not right, I'll fix that too.
-
-Fixed, lsmod now shows that only the transport has a dependency.
-
-Also, it turns out that we do need a dgram_recv(), since our
-transport currently enqueues skbs with VMCI DGRAMs in them, which
-need to be converted before copying into the user's buffer.  I've
-added that too.
-
-Please see latest patchset (sent a few minutes ago), hope it works
-for you this time.
-
-Thanks!
-- Andy
+T24gMDIvMDYvMjAxMyAwNzo1OSBQTSwgUGFvbG8gQm9uemluaSB3cm90ZToKPiAKPiAKPiAtLS0t
+LSBNZXNzYWdnaW8gb3JpZ2luYWxlIC0tLS0tCj4+IERhOiAiQXNpYXMgSGUiIDxhc2lhc0ByZWRo
+YXQuY29tPgo+PiBBOiAiTmljaG9sYXMgQS4gQmVsbGluZ2VyIiA8bmFiQGxpbnV4LWlzY3NpLm9y
+Zz4KPj4gQ2M6ICJQYW9sbyBCb256aW5pIiA8cGJvbnppbmlAcmVkaGF0LmNvbT4sICJTdGVmYW4g
+SGFqbm9jemkiIDxzdGVmYW5oYUByZWRoYXQuY29tPiwgIk1pY2hhZWwgUy4gVHNpcmtpbiIKPj4g
+PG1zdEByZWRoYXQuY29tPiwgIlJ1c3R5IFJ1c3NlbGwiIDxydXN0eUBydXN0Y29ycC5jb20uYXU+
+LCBrdm1Admdlci5rZXJuZWwub3JnLAo+PiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZywgdGFyZ2V0LWRldmVsQHZnZXIua2VybmVsLm9yZwo+PiBJbnZpYXRvOiBNZXJj
+b2xlZMOsLCA2IGZlYmJyYWlvIDIwMTMgMTA6NTE6MzQKPj4gT2dnZXR0bzogUmU6IFtQQVRDSF0g
+dGNtX3Zob3N0OiBNdWx0aS1xdWV1ZSBzdXBwb3J0Cj4+Cj4+IE9uIDAyLzA2LzIwMTMgMDQ6Mzkg
+UE0sIE5pY2hvbGFzIEEuIEJlbGxpbmdlciB3cm90ZToKPj4+IE9uIFdlZCwgMjAxMy0wMi0wNiBh
+dCAxNTowOSArMDgwMCwgQXNpYXMgSGUgd3JvdGU6Cj4+Pj4gT24gMDIvMDYvMjAxMyAwMjo0NSBQ
+TSwgTmljaG9sYXMgQS4gQmVsbGluZ2VyIHdyb3RlOgo+Pj4+PiBPbiBXZWQsIDIwMTMtMDItMDYg
+YXQgMTM6MjAgKzA4MDAsIEFzaWFzIEhlIHdyb3RlOgo+Pj4+Pj4gVGhpcyBhZGRzIHZpcnRpby1z
+Y3NpIG11bHRpLXF1ZXVlIHN1cHBvcnQgdG8gdGNtX3Zob3N0Lgo+Pj4+Pj4KPj4+Pj4+IEd1ZXN0
+IHNpZGUgdmlydGlvLXNjc2kgbXVsdGktcXVldWUgc3VwcG9ydCBjYW4gYmUgZm91bmQgaGVyZToK
+Pj4+Pj4+Cj4+Pj4+PiAgICBodHRwczovL2xrbWwub3JnL2xrbWwvMjAxMi8xMi8xOC8xNjYKPj4+
+Pj4+Cj4+Pj4+PiBTb21lIGluaXRpYWwgcGVyZiBudW1iZXJzOgo+Pj4+Pj4gMSBxdWV1ZSwgIDQg
+dGFyZ2V0cywgMSBsdW4gcGVyIHRhcmdldAo+Pj4+Pj4gNEsgcmVxdWVzdCBzaXplLCA1MCUgcmFu
+ZHJlYWQgKyA1MCUgcmFuZHdyaXRlOiAxMjdLLzEyN2sgSU9QUwo+Pj4+Pj4KPj4+Pj4+IDQgcXVl
+dWVzLCA0IHRhcmdldHMsIDEgbHVuIHBlciB0YXJnZXQKPj4+Pj4+IDRLIHJlcXVlc3Qgc2l6ZSwg
+NTAlIHJhbmRyZWFkICsgNTAlIHJhbmR3cml0ZTogMTgxSy8xODFrIElPUFMKPiAKPiA0IFZDUFVz
+IEkgc3VwcG9zZT8KClllcy4KCi0tIApBc2lhcwpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
