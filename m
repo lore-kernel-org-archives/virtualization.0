@@ -1,7 +1,7 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: [RFC PATCH 2/8] virtio-blk: reorganize virtblk_add_req
-Date: Thu,  7 Feb 2013 13:22:26 +0100
-Message-ID: <1360239752-2470-3-git-send-email-pbonzini@redhat.com>
+Subject: [RFC PATCH 3/8] virtio-blk: use virtqueue_start_buf on bio path
+Date: Thu,  7 Feb 2013 13:22:27 +0100
+Message-ID: <1360239752-2470-4-git-send-email-pbonzini@redhat.com>
 References: <1360239752-2470-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,109 +21,146 @@ To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Right now, both virtblk_add_req and virtblk_add_req_wait call
-virtqueue_add_buf.  To prepare for the next patches, abstract the call
-to virtqueue_add_buf into a new function __virtblk_add_req, and include
-the waiting logic directly in virtblk_add_req.
+Move the creation of the request header and response footer to
+__virtblk_add_req.  vbr->sg only contains the data scatterlist,
+the header/footer are added separately using the new piecewise
+API for building virtqueue buffers.
+
+With this change, virtio-blk is not relying anymore on the virtio
+functions ignoring the end markers in a scatterlist.
 
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- drivers/block/virtio_blk.c |   55 ++++++++++++++++----------------------------
- 1 files changed, 20 insertions(+), 35 deletions(-)
+ drivers/block/virtio_blk.c |   75 +++++++++++++++++++++++++++-----------------
+ 1 files changed, 46 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 8ad21a2..fd8a689 100644
+index fd8a689..538cc40 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -100,50 +100,39 @@ static inline struct virtblk_req *virtblk_alloc_req(struct virtio_blk *vblk,
+@@ -62,6 +62,7 @@ struct virtblk_req
+ 	struct virtio_blk *vblk;
+ 	int flags;
+ 	u8 status;
++	int sg_count;
+ 	struct scatterlist sg[];
+ };
+ 
+@@ -100,24 +101,53 @@ static inline struct virtblk_req *virtblk_alloc_req(struct virtio_blk *vblk,
  	return vbr;
  }
  
--static void virtblk_add_buf_wait(struct virtio_blk *vblk,
--				 struct virtblk_req *vbr,
--				 unsigned long out,
--				 unsigned long in)
-+static inline int __virtblk_add_req(struct virtqueue *vq,
-+			     struct virtblk_req *vbr,
-+			     unsigned long out,
-+			     unsigned long in)
+-static inline int __virtblk_add_req(struct virtqueue *vq,
+-			     struct virtblk_req *vbr,
+-			     unsigned long out,
+-			     unsigned long in)
++static int __virtblk_add_req(struct virtqueue *vq,
++			     struct virtblk_req *vbr)
  {
-+	return virtqueue_add_buf(vq, vbr->sg, out, in, vbr, GFP_ATOMIC);
-+}
-+
-+static void virtblk_add_req(struct virtblk_req *vbr,
-+			    unsigned int out, unsigned int in)
-+{
-+	struct virtio_blk *vblk = vbr->vblk;
- 	DEFINE_WAIT(wait);
+-	return virtqueue_add_buf(vq, vbr->sg, out, in, vbr, GFP_ATOMIC);
++	struct virtqueue_buf buf;
++	struct scatterlist sg;
++	enum dma_data_direction dir;
 +	int ret;
++
++	unsigned int count = 2;
++	unsigned int count_sg = 2;
++
++	if (vbr->sg_count) {
++		count_sg++;
++		count += vbr->sg_count;
++	}
++
++	ret = virtqueue_start_buf(vq, &buf, vbr, count, count_sg, GFP_ATOMIC);
++	if (ret < 0)
++		return ret;
++
++	dir = DMA_TO_DEVICE;
++	sg_init_one(&sg, &vbr->out_hdr, sizeof(vbr->out_hdr));
++	virtqueue_add_sg_single(&buf, &sg, dir);
++
++	if (vbr->sg_count) {
++		if ((vbr->out_hdr.type & VIRTIO_BLK_T_OUT) == 0)
++			dir = DMA_FROM_DEVICE;
++
++		virtqueue_add_sg(&buf, vbr->sg, vbr->sg_count, dir);
++	}
++
++	dir = DMA_FROM_DEVICE;
++	sg_init_one(&sg, &vbr->status, sizeof(vbr->status));
++	virtqueue_add_sg_single(&buf, &sg, dir);
++
++	virtqueue_end_buf(&buf);
++	return 0;
+ }
  
--	for (;;) {
-+	spin_lock_irq(vblk->disk->queue->queue_lock);
-+	while (unlikely((ret = __virtblk_add_req(vblk->vq, vbr,
-+						 out, in)) < 0)) {
+-static void virtblk_add_req(struct virtblk_req *vbr,
+-			    unsigned int out, unsigned int in)
++static void virtblk_add_req(struct virtblk_req *vbr)
+ {
+ 	struct virtio_blk *vblk = vbr->vblk;
+ 	DEFINE_WAIT(wait);
+ 	int ret;
+ 
+ 	spin_lock_irq(vblk->disk->queue->queue_lock);
+-	while (unlikely((ret = __virtblk_add_req(vblk->vq, vbr,
+-						 out, in)) < 0)) {
++	while (unlikely((ret = __virtblk_add_req(vblk->vq, vbr)) < 0)) {
  		prepare_to_wait_exclusive(&vblk->queue_wait, &wait,
  					  TASK_UNINTERRUPTIBLE);
  
-+		spin_unlock_irq(vblk->disk->queue->queue_lock);
-+		io_schedule();
- 		spin_lock_irq(vblk->disk->queue->queue_lock);
--		if (virtqueue_add_buf(vblk->vq, vbr->sg, out, in, vbr,
--				      GFP_ATOMIC) < 0) {
--			spin_unlock_irq(vblk->disk->queue->queue_lock);
--			io_schedule();
--		} else {
--			virtqueue_kick(vblk->vq);
--			spin_unlock_irq(vblk->disk->queue->queue_lock);
--			break;
--		}
+@@ -134,22 +164,18 @@ static void virtblk_add_req(struct virtblk_req *vbr,
  
-+		finish_wait(&vblk->queue_wait, &wait);
- 	}
- 
--	finish_wait(&vblk->queue_wait, &wait);
--}
--
--static inline void virtblk_add_req(struct virtblk_req *vbr,
--				   unsigned int out, unsigned int in)
--{
--	struct virtio_blk *vblk = vbr->vblk;
--
--	spin_lock_irq(vblk->disk->queue->queue_lock);
--	if (unlikely(virtqueue_add_buf(vblk->vq, vbr->sg, out, in, vbr,
--					GFP_ATOMIC) < 0)) {
--		spin_unlock_irq(vblk->disk->queue->queue_lock);
--		virtblk_add_buf_wait(vblk, vbr, out, in);
--		return;
--	}
- 	virtqueue_kick(vblk->vq);
- 	spin_unlock_irq(vblk->disk->queue->queue_lock);
- }
- 
--static int virtblk_bio_send_flush(struct virtblk_req *vbr)
-+static void virtblk_bio_send_flush(struct virtblk_req *vbr)
+ static void virtblk_bio_send_flush(struct virtblk_req *vbr)
  {
- 	unsigned int out = 0, in = 0;
- 
-@@ -155,11 +144,9 @@ static int virtblk_bio_send_flush(struct virtblk_req *vbr)
- 	sg_set_buf(&vbr->sg[out + in++], &vbr->status, sizeof(vbr->status));
- 
- 	virtblk_add_req(vbr, out, in);
+-	unsigned int out = 0, in = 0;
 -
--	return 0;
+ 	vbr->flags |= VBLK_IS_FLUSH;
+ 	vbr->out_hdr.type = VIRTIO_BLK_T_FLUSH;
+ 	vbr->out_hdr.sector = 0;
+ 	vbr->out_hdr.ioprio = 0;
+-	sg_set_buf(&vbr->sg[out++], &vbr->out_hdr, sizeof(vbr->out_hdr));
+-	sg_set_buf(&vbr->sg[out + in++], &vbr->status, sizeof(vbr->status));
++	vbr->sg_count = 0;
+ 
+-	virtblk_add_req(vbr, out, in);
++	virtblk_add_req(vbr);
  }
  
--static int virtblk_bio_send_data(struct virtblk_req *vbr)
-+static void virtblk_bio_send_data(struct virtblk_req *vbr)
+ static void virtblk_bio_send_data(struct virtblk_req *vbr)
  {
  	struct virtio_blk *vblk = vbr->vblk;
- 	unsigned int num, out = 0, in = 0;
-@@ -188,8 +175,6 @@ static int virtblk_bio_send_data(struct virtblk_req *vbr)
+-	unsigned int num, out = 0, in = 0;
+ 	struct bio *bio = vbr->bio;
+ 
+ 	vbr->flags &= ~VBLK_IS_FLUSH;
+@@ -157,24 +183,15 @@ static void virtblk_bio_send_data(struct virtblk_req *vbr)
+ 	vbr->out_hdr.sector = bio->bi_sector;
+ 	vbr->out_hdr.ioprio = bio_prio(bio);
+ 
+-	sg_set_buf(&vbr->sg[out++], &vbr->out_hdr, sizeof(vbr->out_hdr));
+-
+-	num = blk_bio_map_sg(vblk->disk->queue, bio, vbr->sg + out);
+-
+-	sg_set_buf(&vbr->sg[num + out + in++], &vbr->status,
+-		   sizeof(vbr->status));
+-
+-	if (num) {
+-		if (bio->bi_rw & REQ_WRITE) {
++	vbr->sg_count = blk_bio_map_sg(vblk->disk->queue, bio, vbr->sg);
++	if (vbr->sg_count) {
++		if (bio->bi_rw & REQ_WRITE)
+ 			vbr->out_hdr.type |= VIRTIO_BLK_T_OUT;
+-			out += num;
+-		} else {
++		else
+ 			vbr->out_hdr.type |= VIRTIO_BLK_T_IN;
+-			in += num;
+-		}
  	}
  
- 	virtblk_add_req(vbr, out, in);
--
--	return 0;
+-	virtblk_add_req(vbr, out, in);
++	virtblk_add_req(vbr);
  }
  
  static void virtblk_bio_send_data_work(struct work_struct *work)
