@@ -1,24 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [Qemu-devel] Headsup: windows virtio networking does not work on
-	current git
-Date: Thu, 7 Feb 2013 15:10:19 +0200
-Message-ID: <20130207131019.GB20875@redhat.com>
-References: <5110F0E2.1030705@msgid.tls.msk.ru>
-	<20130205115816.GD6420@redhat.com>
-	<1360144040.1968.119.camel@localhost>
-	<877gmlj5pz.fsf@rustcorp.com.au>
-	<1360229050.1968.149.camel@localhost>
-	<20130207101813.GA3837@redhat.com>
-	<1360234419.1968.162.camel@localhost>
-	<20130207113356.GA5708@redhat.com>
-	<1360237574.1968.165.camel@localhost>
-	<2B839E9C-B493-4FDC-9246-12D719B22FCF@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [RFC PATCH 0/8] virtio: new API for addition of buffers,
+	scatterlist changes
+Date: Thu, 07 Feb 2013 14:14:24 +0100
+Message-ID: <5113A8B0.5080104@redhat.com>
+References: <1360239752-2470-1-git-send-email-pbonzini@redhat.com>
+	<20130207130912.GA20875@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <2B839E9C-B493-4FDC-9246-12D719B22FCF@redhat.com>
+In-Reply-To: <20130207130912.GA20875@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,97 +19,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yan Vugenfirer <yvugenfi@redhat.com>
-Cc: Michael Tokarev <mjt@tls.msk.ru>, qemu-devel <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org, Anthony Liguori <anthony@codemonkey.ws>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 07, 2013 at 03:02:45PM +0200, Yan Vugenfirer wrote:
+Il 07/02/2013 14:09, Michael S. Tsirkin ha scritto:
+>> One major difference between virtqueue_add_buf and virtqueue_add_sg
+>> is that the latter uses scatterlist iterators, which follow chained
+>> scatterlist structs and stop at ending markers.  In order to avoid code
+>> duplication, and use the new API from virtqueue_add_buf (patch 8), we need
+>> to change all existing callers of virtqueue_add_buf to provide well-formed
+>> scatterlists.  This is what patches 2-7 do.  For virtio-blk it is easiest
+>> to just switch to the new API, just like for virtio-scsi.  For virtio-net
+>> the ending marker must be reset after calling virtqueue_add_buf, in
+>> preparation for the next usage of the scatterlist.  Other drivers are
+>> safe already.
 > 
-> On Feb 7, 2013, at 1:46 PM, Vadim Rozenfeld wrote:
-> 
-> > On Thu, 2013-02-07 at 13:33 +0200, Michael S. Tsirkin wrote:
-> >> On Thu, Feb 07, 2013 at 09:53:39PM +1100, Vadim Rozenfeld wrote:
-> >>> On Thu, 2013-02-07 at 12:18 +0200, Michael S. Tsirkin wrote:
-> >>>> On Thu, Feb 07, 2013 at 08:24:10PM +1100, Vadim Rozenfeld wrote:
-> >>>>> On Thu, 2013-02-07 at 11:33 +1030, Rusty Russell wrote:
-> >>>>>> Vadim Rozenfeld <vrozenfe@redhat.com> writes:
-> >>>>>>> On Tue, 2013-02-05 at 13:58 +0200, Michael S. Tsirkin wrote:
-> >>>>>>>> On Tue, Feb 05, 2013 at 03:45:38PM +0400, Michael Tokarev wrote:
-> >>>>>>>> Is it really
-> >>>>>>>>> that bad that the config space size changed?  Why it has this effect?
-> >>>>>>> Because in this case it's hard to distinguish between resource's
-> >>>>>>> corruption and HW update.
-> >>>>>> 
-> >>>>>> But it's also true that if we'd incremented revid you'd have the same
-> >>>>>> failure in this case, right?
-> >>>>> 
-> >>>>> It depends. If we have explicitly specified revision id in inf file and
-> >>>>> this id doesn't mach the new revision id, Windows will not try to load
-> >>>>> the "incompatible" driver, and finish up with "device driver not found"
-> >>>>> dialog.
-> >>>>> 
-> >>>>> Best regards,
-> >>>>> Vadim.
-> >>>>> 
-> >>>>>> 
-> >>>>>> Cheers,
-> >>>>>> Rusty.
-> >>>> 
-> >>>> Well that's all in theory, in practice it does not look like revision ID
-> >>>> is specified in the NetKVM inf so this won't work?
-> >>>> 
-> >>>> From what I see this inf specifies:
-> >>>> 
-> >>>> NetKVM/wlh/netkvm.inf:%kvmnet6.DeviceDesc%    = kvmnet6.ndi, PCI\VEN_1AF4&DEV_1000&SUBSYS_00011AF4
-> >>>> NetKVM/wxp/netkvm.inf:%kvmnet5.DeviceDesc%    = kvmnet5.ndi, PCI\VEN_1AF4&DEV_1000&SUBSYS_00011AF4
-> >>>> NetKVM/wxp/netkvm2k.inf:%kvmnet5.DeviceDesc%    = kvmnet5.ndi, PCI\VEN_1AF4&DEV_1000&SUBSYS_00011AF4
-> >>>> 
-> >>>> So we can tweak any of vendor device and subsystem id.
-> >>>> 
-> >>> Unfortunately, it won't. Only balloon has revision id, specified as a
-> >>> part of device HW descriptor. But it's only because virtio doesn't use 
-> >>> revision ids. Otherwise it differential will be there. 
-> >> 
-> >> So your driver will load and attempt to work on rev=2 devices?
-> > 
-> > All virtio-win drivers (net, serial, block, and scsi), except for
-> > balloon will.
-> > 
-> >> If yes it's a bug.  virtio spec specifies revision id as an ABI version.
-> >> Linux driver does:
-> >> 
-> >>        if (pci_dev->revision != VIRTIO_PCI_ABI_VERSION) {
-> >>                printk(KERN_ERR "virtio_pci: expected ABI version %d, got %d\n",
-> >>                       VIRTIO_PCI_ABI_VERSION, pci_dev->revision);
-> >>                return -ENODEV;
-> >>        }
-> >> 
-> 
-> We can add it from next release. Provided that everyone understand the consequences especially for boot devices (virtio-block and virtio-scsi).
-> 
+> What are the changes as compared to the previous version?
+> How about some comments made on the previous version?
+> See e.g.
+> https://patchwork.kernel.org/patch/1891541/
 
-Same as Linux - guest won't boot.
+Two changes: 1) added virtqueue_add_sg_single; 2) reimplemented
+virtqueue_add_buf in terms of the new API, which requires virtio-blk and
+virtio-net changes.
 
-> >> 
-> >>>> 
-> >>>> Changing subsystem vendor ID actually will be completely
-> >>>> transparent to linux which for some reason looks at the
-> >>>> subsystem device ID (why? no idea) but not the subsystem vendor ID.
-> >>>> Of course this requires a valid vendor ID, getting this
-> >>>> costs $3000 I think.
-> >>>> We could tweak device ID too but that might break some other guests
-> >>>> which don't copy the crazy 'replace device id with subsystem device id'
-> >>>> logic from Linux.
-> >>>> 
-> >>> 
-> >> 
-> >> Apropos, would you guys like to start to copy your patches to
-> >> virtualization@lists.linux-foundation.org?
-> >> If you do, you might get some review and feedback, allowing
-> >> us to catch such forward compatibility issues earlier.
-> >> 
-> >> Of course it's your project so entirely up to you.
-> >> 
-> >> 
-> > 
-> > 
+The virtio-blk and virtio-net changes are based on some ideas in the
+patch Rusty posted, but virtio-net is a bit simpler and virtio-blk was
+redone from scratch.
+
+> Generally we have code for direct and indirect which is already
+> painful. We do not want 4 more variants of this code.
+
+Yes, indeed, the other main difference is that I'm now reimplementing
+virtqueue_add_buf using the new functions.  So:
+
+- we previously had 2 variants (direct/indirect)
+
+- v1 had 4 variants (direct/indirect x add_buf/add_sg)
+
+- v2 has 4 variants (direct/indirect x add_sg/add_sg_single)
+
+>> This is an RFC for two reasons.  First, because I haven't done enough
+>> testing yet (especially with all the variations on receiving that
+>> virtio-net has).  Second, because I still have two struct vring_desc *
+>> fields in virtqueue API, which is a layering violation.  I'm not really
+>> sure how important that is and how to fix that---except by making the
+>> fields void*.
+> 
+> Hide the whole structure as part of vring struct, the problem will go
+> away.
+
+Yes, that's the other possibility.  Will do for the next submission.
+
+Paolo
+
+>> Paolo
+>> Paolo Bonzini (8):
+>>   virtio: add functions for piecewise addition of buffers
+>>   virtio-blk: reorganize virtblk_add_req
+>>   virtio-blk: use virtqueue_start_buf on bio path
+>>   virtio-blk: use virtqueue_start_buf on req path
+>>   scatterlist: introduce sg_unmark_end
+>>   virtio-net: unmark scatterlist ending after virtqueue_add_buf
+>>   virtio-scsi: use virtqueue_start_buf
+>>   virtio: reimplement virtqueue_add_buf using new functions
+>>
+>>  block/blk-integrity.c        |    2 +-
+>>  block/blk-merge.c            |    2 +-
+>>  drivers/block/virtio_blk.c   |  165 +++++++++--------
+>>  drivers/net/virtio_net.c     |   21 ++-
+>>  drivers/scsi/virtio_scsi.c   |  103 +++++------
+>>  drivers/virtio/virtio_ring.c |  417 +++++++++++++++++++++++++++---------------
+>>  include/linux/scatterlist.h  |   16 ++
+>>  include/linux/virtio.h       |   25 +++
+>>  8 files changed, 460 insertions(+), 291 deletions(-)
