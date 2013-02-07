@@ -1,13 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio: make config_ops const
-Date: Thu, 07 Feb 2013 10:18:33 +1030
-Message-ID: <87fw19j966.fsf@rustcorp.com.au>
-References: <20130205094244.2993245a@nehalam.linuxnetplumber.net>
+Subject: Re: [PATCH] virtio_console: Don't access uninitialized data.
+Date: Thu, 07 Feb 2013 11:37:26 +1030
+Message-ID: <874nhpj5ip.fsf@rustcorp.com.au>
+References: <1358425292-4449-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20130125090801.GA30483@amit.redhat.com>
+	<87vca9klwm.fsf@rustcorp.com.au>
+	<20130204063251.GB32509@amit.redhat.com>
+	<871ucul2wr.fsf@rustcorp.com.au> <20130206014015.GB816@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130205094244.2993245a@nehalam.linuxnetplumber.net>
+In-Reply-To: <20130206014015.GB816@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,18 +21,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: Amit Shah <amit.shah@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, stable@vger.kernel.org, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Stephen Hemminger <stephen@networkplumber.org> writes:
-
-> It is just a table of function pointers, make it const for cleanliness and security
-> reasons.
->
-> Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
-
-Applied.
-
-Cheers,
-Rusty.
+R3JlZyBLSCA8Z3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+IHdyaXRlczoKPiBPbiBXZWQsIEZl
+YiAwNiwgMjAxMyBhdCAxMDozODozNkFNICsxMDMwLCBSdXN0eSBSdXNzZWxsIHdyb3RlOgo+PiBB
+bWl0IFNoYWggPGFtaXQuc2hhaEByZWRoYXQuY29tPiB3cml0ZXM6Cj4+ID4gT24gKE1vbikgMDQg
+RmViIDIwMTMgWzEwOjA5OjA1XSwgUnVzdHkgUnVzc2VsbCB3cm90ZToKPj4gPj4gQW1pdCBTaGFo
+IDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4gd3JpdGVzOgo+PiA+PiA+IE9uIChUaHUpIDE3IEphbiAy
+MDEzIFsxMzoyMTozMl0sIHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbSB3cm90ZToKPj4g
+Pj4gPj4gRnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24u
+Y29tPgo+PiA+PiA+PiAKPj4gPj4gPj4gRG9uJ3QgYWNjZXNzIHVuaW5pdGlhbGl6ZWQgd29yay1x
+dWV1ZSB3aGVuIHJlbW92aW5nIGRldmljZS4KPj4gPj4gPj4gVGhlIHdvcmsgcXVldWUgaXMgaW5p
+dGlhbGl6ZWQgb25seSBpZiB0aGUgZGV2aWNlIG11bHRpLXF1ZXVlLgo+PiA+PiA+PiBTbyBkb24n
+dCBjYWxsIGNhbmNlbF93b3JrIHVubGVzcyB0aGlzIGlzIGEgbXVsdGktcXVldWUgZGV2aWNlLgo+
+PiA+PiA+PiAKPj4gPj4gPj4gVGhpcyBmaXhlcyB0aGUgZm9sbG93aW5nIHBhbmljOgo+PiA+PiA+
+Cj4+ID4+ID4gW3NuaXBdCj4+ID4+ID4KPj4gPj4gPj4gU2lnbmVkLW9mZi1ieTogU2p1ciBCcsOm
+bmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+PiA+PiA+Cj4+ID4+ID4g
+QWNrZWQtYnk6IEFtaXQgU2hhaCA8YW1pdC5zaGFoQHJlZGhhdC5jb20+Cj4+ID4+ID4KPj4gPj4g
+Pj4gVGhpcyBmaXggaXMgaW50ZW5kZWQgb2YgdjMuOC4KPj4gPj4gPgo+PiA+PiA+IFNob3VsZCBh
+bHNvIGJlIENDJ2VkIHRvIHN0YWJsZUAKPj4gLi4uCj4+ID4+IEkndmUgYWxyZWFkeSBzZW50IGl0
+IHRvIExpbnVzLiAgU2p1ciBzYWlkOiAiVGhpcyBmaXggaXMgaW50ZW5kZWQgb2YKPj4gPj4gdjMu
+OC4iLiAgSWYgaXQgbmVlZHMgdG8gYmUgaW4gLXN0YWJsZSwgcGxlYXNlIHRlbGwgbWUgYW5kIEkn
+bGwgZndkIGl0Cj4+ID4+IG1hbnVhbGx5Lgo+PiA+Cj4+ID4gVGhpcyBjYW4gcmVzdWx0IGluIGEg
+cGFuaWMgd2hlbiByZW1vdmluZyB0aGUgZGV2aWNlIG9yIG1vZHVsZSAod2hlbgo+PiA+IG5vdCB1
+c2luZyBtdWx0aXBvcnQpLiAgSSdkIHZvdGUgZm9yIHN1Ym1pdHRpbmcgdG8gc3RhYmxlLgo+PiA+
+Cj4+ID4gCQlBbWl0Cj4+IAo+PiBPSyBzdGFibGUsIHBsZWFzZSBjaGVycnktcGljayBmcm9tIExp
+bnVzJyB0cmVlOgo+PiAKPj4gY29tbWl0IGIyNmFkYTlhYmUyNjI5MGIxZGNkMDYwNzU5MzViOTc3
+NTQ4YzUwZGIKPj4gQXV0aG9yOiBTanVyIEJyw6ZuZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rl
+cmljc3Nvbi5jb20+Cj4+IERhdGU6ICAgVHVlIEphbiAyMiAwOTo1MDoyNiAyMDEzICsxMDMwCj4+
+IAo+PiAgICAgdmlydGlvX2NvbnNvbGU6IERvbid0IGFjY2VzcyB1bmluaXRpYWxpemVkIGRhdGEu
+Cj4KPiAgJCBnaXQgc2hvdyBiMjZhZGE5YWJlMjYyOTBiMWRjZDA2MDc1OTM1Yjk3NzU0OGM1MGRi
+Cj4gIGZhdGFsOiBiYWQgb2JqZWN0IGIyNmFkYTlhYmUyNjI5MGIxZGNkMDYwNzU5MzViOTc3NTQ4
+YzUwZGIKPgo+IFdoYXQgYW0gSSBtaXNzaW5nIGhlcmU/CgpNeSBtaXN0YWtlLCBMaW51cyBoYXMg
+bm90IHB1bGxlZCB0aGlzLgoKSSBoYXZlIGFkZGVkIENDOnN0YWJsZSwgYW5kIHdpbGwgcmVxdWVz
+dCBub3cuCgpTb3JyeSBmb3IgdGhlIG5vaXNlLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
