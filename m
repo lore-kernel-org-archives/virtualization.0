@@ -1,14 +1,12 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: CFP: Workshops in CISTI'2013 - 8th Iberian Conference on IST, Lisbon,
-	June 19-22
-Date: Mon, 11 Feb 2013 16:30:09 +0000
-Message-ID: <51191c46.8665b40a.3765.4e7b@mx.google.com>
-Reply-To: cistimail@gmail.com
+From: Tim Gardner <tim.gardner@canonical.com>
+Subject: [PATCH linux-next] xen/multicall: xen_mc_callback(): avoid buffer
+	overflow
+Date: Fri,  8 Feb 2013 13:34:37 -0700
+Message-ID: <1360355677-52442-1-git-send-email-tim.gardner__1204.11945176802$1360626690$gmane$org@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,32 +16,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, x86@kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Tim Gardner <tim.gardner@canonical.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqCldPUktTSE9QUyBpbiBD
-SVNUSScyMDEzCjh0aCBJYmVyaWFuIENvbmZlcmVuY2Ugb24gSW5mb3JtYXRpb24gU3lzdGVtcyBh
-bmQgVGVjaG5vbG9naWVzCkxpc2JvbiwgUG9ydHVnYWwsIEp1bmUgMTkgLSAyMiwgMjAxMwpodHRw
-Oi8vd3d3LmFpc3RpLmV1L2Npc3RpMjAxMy9pbmRleC5waHA/b3B0aW9uPWNvbV9jb250ZW50JnZp
-ZXc9YXJ0aWNsZSZpZD04MiZJdGVtaWQ9NjcmbGFuZz1lbgoqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioKCldvcmtzaG9wcyBpbiBDSVNUSScyMDEzICg4dGggSWJlcmlh
-biBDb25mZXJlbmNlIG9uIEluZm9ybWF0aW9uIFN5c3RlbXMgYW5kIFRlY2hub2xvZ2llcykgd2l0
-aCBDRlAgb3BlbjoKCj4gSUF3RFEgMjAxMyAtIEZvdXJ0aCBJYmVyby1BbWVyaWNhbiBXb3Jrc2hv
-cCBvbiBEYXRhIFF1YWxpdHkKCj4gU0dhTWVQbGF5IDIwMTMgLSBUaGlyZCBJYmVyaWFuIFdvcmtz
-aG9wIG9uIFNlcmlvdXMgR2FtZXMgYW5kIE1lYW5pbmdmdWwgUGxheQoKPiBUSUNBTUVTIDIwMTMg
-LSBGaXJzdCBXb3Jrc2hvcCBvbiBJbmZvcm1hdGlvbiBhbmQgQ29tbXVuaWNhdGlvbiBUZWNobm9s
-b2d5IGluIEhpZ2hlciBFZHVjYXRpb246IExlYXJuaW5nIE1hdGhlbWF0aWNzCgo+IFdJQSAyMDEz
-IC0gUHJpbWVybyBXb3Jrc2hvcCBlbiBJbm5vdmFjacOzbiBBYmllcnRhCgo+IFdJU0EgMjAxMyAt
-IEZpZnRoIFdvcmtzaG9wIG9uIEludGVsbGlnZW50IFN5c3RlbXMgYW5kIEFwcGxpY2F0aW9ucwoK
-PiBXSVNJUyAyMDEzIC0gVGhpcmQgV29ya3Nob3Agb24gSW5mb3JtYXRpb24gU3lzdGVtcyBmb3Ig
-SW50ZXJhY3RpdmUgU3BhY2VzCgo+IFdTRVFQIDIwMTMgLSBGaXJzdCBXb3Jrc2hvcCBpbiBTb2Z0
-d2FyZSBFbmdpbmVlcmluZyBhbmQgUXVhbGl0eSBQcm9jZXNzCgoKVVJMOiBodHRwOi8vd3d3LmFp
-c3RpLmV1L2Npc3RpMjAxMy9pbmRleC5waHA/b3B0aW9uPWNvbV9jb250ZW50JnZpZXc9YXJ0aWNs
-ZSZpZD04MiZJdGVtaWQ9NjcmbGFuZz1lbgoKCkJlc3QgcmVnYXJkcywKCk1hcmlhIExlbW9zCkFJ
-U1RJIC8gQ0lTVEknMjAxMwpodHRwOi8vd3d3LmFpc3RpLmV1L2Npc3RpMjAxMwoKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+This buffer overflow was introduced with 91e0c5f3dad47838cb2ecc1865ce789a0b7182b1
+(2.6.24).
+
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: xen-devel@lists.xensource.com
+Cc: virtualization@lists.linux-foundation.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+---
+
+This patch applies cleanly to 3.1.10 and newer. Requires a backport
+for 2.6.24-3.2.y
+
+ arch/x86/xen/multicalls.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/xen/multicalls.c b/arch/x86/xen/multicalls.c
+index 0d82003..5270407 100644
+--- a/arch/x86/xen/multicalls.c
++++ b/arch/x86/xen/multicalls.c
+@@ -195,9 +195,10 @@ void xen_mc_callback(void (*fn)(void *), void *data)
+ 	struct mc_buffer *b = &__get_cpu_var(mc_buffer);
+ 	struct callback *cb;
+ 
+-	if (b->cbidx == MC_BATCH) {
++	if (b->cbidx >= MC_BATCH) {
+ 		trace_xen_mc_flush_reason(XEN_MC_FL_CALLBACK);
+ 		xen_mc_flush();
++		return;
+ 	}
+ 
+ 	trace_xen_mc_callback(fn, data);
+-- 
+1.7.9.5
