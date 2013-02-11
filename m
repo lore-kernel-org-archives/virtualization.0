@@ -1,14 +1,11 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Subject: Re: [PATCH] virtio_console: Use virtio device index to generate port
-	name
-Date: Mon, 11 Feb 2013 14:12:52 +0100
-Message-ID: <CAJK669aD7S4kxm3fo401v2ni1LubNAB=96aB1uWsd9NmBKjzQw@mail.gmail.com>
-References: <1358425397-4584-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20130125092008.GC30483@amit.redhat.com>
+From: sjur.brandeland@stericsson.com
+Subject: [PATCH] virtio: Add module driver macro for virtio drivers.
+Date: Mon, 11 Feb 2013 15:35:26 +0100
+Message-ID: <1360593326-4064-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0988808696419781816=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130125092008.GC30483@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,84 +15,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: sjur@brendeland.net, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0988808696419781816==
-Content-Type: multipart/alternative; boundary=047d7b2e3f069c0d4204d572aafc
-
---047d7b2e3f069c0d4204d572aafc
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Jan 25, 2013 at 10:20 AM, Amit Shah <amit.shah@redhat.com> wrote:
-
-> On (Thu) 17 Jan 2013 [13:23:17], sjur.brandeland@stericsson.com wrote:
-> > From: Sjur Br=C3=A6ndeland <sjur.brandeland@stericsson.com>
-> >
-> > Use virtio device index for creating unique device port names.
-> > Current index allocation in virtio is based on a monotonically
-> > increasing variable "index". A better handling of this is to
-> > use device index which is allocated by ida.
->
-> This should be fine.  I'm wondering, though, if there's something else
-> you need from the naming scheme (esp. considering the next patch)?
->
-
-This current patch solves the most critical issue - that the device name
-changes for every modem reboot. This is a show-stopper for me. So it would
-be
-great if this patch could go upstream. The other problem that device name
-is non-deterministic is currently only a theoretical problem as we have
-only one
-remoteproc device.
-
-Regards,
-Sjur
-
---047d7b2e3f069c0d4204d572aafc
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div class=3D"gmail_quote">On Fri, Jan 25, 2013 at 10:20 AM, Amit Shah <spa=
-n dir=3D"ltr">&lt;<a href=3D"mailto:amit.shah@redhat.com" target=3D"_blank"=
->amit.shah@redhat.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_q=
-uote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1e=
-x">
-<div class=3D"im">On (Thu) 17 Jan 2013 [13:23:17], <a href=3D"mailto:sjur.b=
-randeland@stericsson.com">sjur.brandeland@stericsson.com</a> wrote:<br>
-&gt; From: Sjur Br=C3=A6ndeland &lt;<a href=3D"mailto:sjur.brandeland@steri=
-csson.com">sjur.brandeland@stericsson.com</a>&gt;<br>
-&gt;<br>
-&gt; Use virtio device index for creating unique device port names.<br>
-&gt; Current index allocation in virtio is based on a monotonically<br>
-&gt; increasing variable &quot;index&quot;. A better handling of this is to=
-<br>
-&gt; use device index which is allocated by ida.<br>
-<br>
-</div>This should be fine. =C2=A0I&#39;m wondering, though, if there&#39;s =
-something else<br>
-you need from the naming scheme (esp. considering the next patch)?<br></blo=
-ckquote><div><br></div><div>This current patch solves the most critical iss=
-ue - that the device name</div><div>changes for every modem reboot. This is=
- a show-stopper for me. So it would be</div>
-<div>great if this patch could go upstream.=C2=A0The other problem that dev=
-ice name</div><div>is non-deterministic is=C2=A0currently only a=C2=A0theor=
-etical problem as we have only one</div><div>remoteproc device.</div><div><=
-br></div><div>
-Regards,</div><div>Sjur</div></div>
-
---047d7b2e3f069c0d4204d572aafc--
-
---===============0988808696419781816==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0988808696419781816==--
+RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
+QWRkIGhlbHBlciBtYWNybyBmb3IgZHJpdmVycyB0aGF0IGRvbid0IGRvIGFueXRoaW5nCnNwZWNp
+YWwgaW4gbW9kdWxlIGluaXQvZXhpdC4KClNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQg
+PHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KLS0tCkhpIFJ1c3R5LAoKSGVyZSBpcyB0
+aGUgcGF0Y2ggZm9yIG1vZHVsZSBkcml2ZXIgbWFjcm8uCkkgd2lsbCB1cGRhdGUgY2FpZl92aXJ0
+aW8gYWNjb3JkaW5nbHkKaW4gbXkgbmV4dCBwYXRjaC1zZXQuCgpUaGFua3MsClNqdXIKCiBpbmNs
+dWRlL2xpbnV4L3ZpcnRpby5oIHwgICAgOSArKysrKysrKysKIDEgZmlsZXMgY2hhbmdlZCwgOSBp
+bnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgv
+dmlydGlvLmggYi9pbmNsdWRlL2xpbnV4L3ZpcnRpby5oCmluZGV4IGNmOGFkYjEuLjAwY2NjNDAg
+MTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvLmgKKysrIGIvaW5jbHVkZS9saW51eC92
+aXJ0aW8uaApAQCAtMTI2LDQgKzEyNiwxMyBAQCBzdGF0aWMgaW5saW5lIHN0cnVjdCB2aXJ0aW9f
+ZHJpdmVyICpkcnZfdG9fdmlydGlvKHN0cnVjdCBkZXZpY2VfZHJpdmVyICpkcnYpCiAKIGludCBy
+ZWdpc3Rlcl92aXJ0aW9fZHJpdmVyKHN0cnVjdCB2aXJ0aW9fZHJpdmVyICpkcnYpOwogdm9pZCB1
+bnJlZ2lzdGVyX3ZpcnRpb19kcml2ZXIoc3RydWN0IHZpcnRpb19kcml2ZXIgKmRydik7CisKKy8q
+IG1vZHVsZV92aXJ0aW9fZHJpdmVyKCkgLSBIZWxwZXIgbWFjcm8gZm9yIGRyaXZlcnMgdGhhdCBk
+b24ndCBkbworICogYW55dGhpbmcgc3BlY2lhbCBpbiBtb2R1bGUgaW5pdC9leGl0LiAgVGhpcyBl
+bGltaW5hdGVzIGEgbG90IG9mCisgKiBib2lsZXJwbGF0ZS4gIEVhY2ggbW9kdWxlIG1heSBvbmx5
+IHVzZSB0aGlzIG1hY3JvIG9uY2UsIGFuZAorICogY2FsbGluZyBpdCByZXBsYWNlcyBtb2R1bGVf
+aW5pdCgpIGFuZCBtb2R1bGVfZXhpdCgpCisgKi8KKyNkZWZpbmUgbW9kdWxlX3ZpcnRpb19kcml2
+ZXIoX192aXJ0aW9fZHJpdmVyKSBcCisJbW9kdWxlX2RyaXZlcihfX3ZpcnRpb19kcml2ZXIsIHJl
+Z2lzdGVyX3ZpcnRpb19kcml2ZXIsIFwKKwkJCXVucmVnaXN0ZXJfdmlydGlvX2RyaXZlcikKICNl
+bmRpZiAvKiBfTElOVVhfVklSVElPX0ggKi8KLS0gCjEuNy41LjQKCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
+dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
+LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
