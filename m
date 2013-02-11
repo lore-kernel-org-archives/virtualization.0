@@ -1,15 +1,14 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH] virtio_console: Use virtio device index to generate port
-	name
-Date: Mon, 11 Feb 2013 21:25:41 +0530
-Message-ID: <20130211155541.GC8319@amit.redhat.com>
-References: <1358425397-4584-1-git-send-email-sjur.brandeland@stericsson.com>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: CFP: Workshops in CISTI'2013 - 8th Iberian Conference on IST, Lisbon,
+	June 19-22
+Date: Mon, 11 Feb 2013 16:30:09 +0000
+Message-ID: <51191c46.8665b40a.3765.4e7b@mx.google.com>
+Reply-To: cistimail@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1358425397-4584-1-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,26 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: sjur.brandeland@stericsson.com
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Thu) 17 Jan 2013 [13:23:17], sjur.brandeland@stericsson.com wrote:
-> From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-> =
-
-> Use virtio device index for creating unique device port names.
-> Current index allocation in virtio is based on a monotonically
-> increasing variable "index". A better handling of this is to
-> use device index which is allocated by ida.
-> =
-
-> Signed-off-by: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
-
-Acked-by: Amit Shah <amit.shah@redhat.com>
-
-Rusty, please pick this one up.
-
-Thanks,
-
-		Amit
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqCldPUktTSE9QUyBpbiBD
+SVNUSScyMDEzCjh0aCBJYmVyaWFuIENvbmZlcmVuY2Ugb24gSW5mb3JtYXRpb24gU3lzdGVtcyBh
+bmQgVGVjaG5vbG9naWVzCkxpc2JvbiwgUG9ydHVnYWwsIEp1bmUgMTkgLSAyMiwgMjAxMwpodHRw
+Oi8vd3d3LmFpc3RpLmV1L2Npc3RpMjAxMy9pbmRleC5waHA/b3B0aW9uPWNvbV9jb250ZW50JnZp
+ZXc9YXJ0aWNsZSZpZD04MiZJdGVtaWQ9NjcmbGFuZz1lbgoqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioKCldvcmtzaG9wcyBpbiBDSVNUSScyMDEzICg4dGggSWJlcmlh
+biBDb25mZXJlbmNlIG9uIEluZm9ybWF0aW9uIFN5c3RlbXMgYW5kIFRlY2hub2xvZ2llcykgd2l0
+aCBDRlAgb3BlbjoKCj4gSUF3RFEgMjAxMyAtIEZvdXJ0aCBJYmVyby1BbWVyaWNhbiBXb3Jrc2hv
+cCBvbiBEYXRhIFF1YWxpdHkKCj4gU0dhTWVQbGF5IDIwMTMgLSBUaGlyZCBJYmVyaWFuIFdvcmtz
+aG9wIG9uIFNlcmlvdXMgR2FtZXMgYW5kIE1lYW5pbmdmdWwgUGxheQoKPiBUSUNBTUVTIDIwMTMg
+LSBGaXJzdCBXb3Jrc2hvcCBvbiBJbmZvcm1hdGlvbiBhbmQgQ29tbXVuaWNhdGlvbiBUZWNobm9s
+b2d5IGluIEhpZ2hlciBFZHVjYXRpb246IExlYXJuaW5nIE1hdGhlbWF0aWNzCgo+IFdJQSAyMDEz
+IC0gUHJpbWVybyBXb3Jrc2hvcCBlbiBJbm5vdmFjacOzbiBBYmllcnRhCgo+IFdJU0EgMjAxMyAt
+IEZpZnRoIFdvcmtzaG9wIG9uIEludGVsbGlnZW50IFN5c3RlbXMgYW5kIEFwcGxpY2F0aW9ucwoK
+PiBXSVNJUyAyMDEzIC0gVGhpcmQgV29ya3Nob3Agb24gSW5mb3JtYXRpb24gU3lzdGVtcyBmb3Ig
+SW50ZXJhY3RpdmUgU3BhY2VzCgo+IFdTRVFQIDIwMTMgLSBGaXJzdCBXb3Jrc2hvcCBpbiBTb2Z0
+d2FyZSBFbmdpbmVlcmluZyBhbmQgUXVhbGl0eSBQcm9jZXNzCgoKVVJMOiBodHRwOi8vd3d3LmFp
+c3RpLmV1L2Npc3RpMjAxMy9pbmRleC5waHA/b3B0aW9uPWNvbV9jb250ZW50JnZpZXc9YXJ0aWNs
+ZSZpZD04MiZJdGVtaWQ9NjcmbGFuZz1lbgoKCkJlc3QgcmVnYXJkcywKCk1hcmlhIExlbW9zCkFJ
+U1RJIC8gQ0lTVEknMjAxMwpodHRwOi8vd3d3LmFpc3RpLmV1L2Npc3RpMjAxMwoKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
