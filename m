@@ -1,16 +1,14 @@
-From: Sjur BRENDELAND <sjur.brandeland@stericsson.com>
-Subject: RE: [PATCH vringh 2/2] caif_virtio: Introduce caif over virtio
-Date: Mon, 11 Feb 2013 09:15:55 +0100
-Message-ID: <81C3A93C17462B4BBD7E272753C105792458EDD161@EXDCVYMBSTM005.EQ1STM.local>
-References: <1360494273-27889-1-git-send-email-sjur.brandeland@stericsson.com>
-	<1360494273-27889-3-git-send-email-sjur.brandeland@stericsson.com>
-	<87vc9zfic8.fsf@rustcorp.com.au>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Subject: Re: [PATCH] virtio_console: Use virtio device index to generate port
+	name
+Date: Mon, 11 Feb 2013 14:12:52 +0100
+Message-ID: <CAJK669aD7S4kxm3fo401v2ni1LubNAB=96aB1uWsd9NmBKjzQw@mail.gmail.com>
+References: <1358425397-4584-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20130125092008.GC30483@amit.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0988808696419781816=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87vc9zfic8.fsf@rustcorp.com.au>
-Content-Language: en-US
+In-Reply-To: <20130125092008.GC30483@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,117 +18,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "David S. Miller" <davem@davemloft.net>, Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Vikram ARV <vikram.arv@stericsson.com>, Dmitry TARNYAGIN <dmitry.tarnyagin@stericsson.com>, "sjur@brendeland.net" <sjur@brendeland.net>, Linus Walleij <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Erwan YVIN <erwan.yvin@stericsson.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Ido Yariv <ido@wizery.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Rusty,
+--===============0988808696419781816==
+Content-Type: multipart/alternative; boundary=047d7b2e3f069c0d4204d572aafc
 
-> From: Rusty Russell [mailto:rusty@rustcorp.com.au]
-> sjur.brandeland@stericsson.com writes:
-> > From: Vikram ARV <vikram.arv@stericsson.com>
+--047d7b2e3f069c0d4204d572aafc
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Jan 25, 2013 at 10:20 AM, Amit Shah <amit.shah@redhat.com> wrote:
+
+> On (Thu) 17 Jan 2013 [13:23:17], sjur.brandeland@stericsson.com wrote:
+> > From: Sjur Br=C3=A6ndeland <sjur.brandeland@stericsson.com>
 > >
-> > Add the the Virtio shared memory driver for STE Modems.
-> > caif_virtio is implemented utilizing the virtio framework
-> > for data transport and is managed with the remoteproc frameworks.
-> >
-> > The Virtio queue is used for transmitting data to the modem, and
-> > the new vringh implementation is receiving data over the vring.
-> 
-> OK, let's refine vringh now we can see another user:
-> 
-> > + * @head: Last descriptor ID we received from vringh_getdesc_kern.
-> > + *	  We use this to put descriptor back on the used ring. USHRT_MAX is
-> > + *	  used to indicate invalid head-id.
-> 
-> > + */
-> > +struct cfv_napi_context {
-> > +	struct vringh_kiov riov;
-> > +	unsigned short head;
-> > +};
-> 
-> Usually we use an int, and -1.  I imagine it'll take no more space,
-> due to padding.
+> > Use virtio device index for creating unique device port names.
+> > Current index allocation in virtio is based on a monotonically
+> > increasing variable "index". A better handling of this is to
+> > use device index which is allocated by ida.
+>
+> This should be fine.  I'm wondering, though, if there's something else
+> you need from the naming scheme (esp. considering the next patch)?
+>
 
-I'm passing a pointer to "head" to vringh_getdesc_kern() directly, are you
-suggesting to change the head argument in  vringh_getdesc_kern()
-to a int pointer as well then?
-
-> > +static inline void ctx_prep_iov(struct cfv_napi_context *ctx)
-> > +{
-> > +	if (ctx->riov.allocated) {
-> > +		kfree(ctx->riov.iov);
-> > +		ctx->riov.iov = NULL;
-> > +		ctx->riov.allocated = false;
-> > +	}
-> > +	ctx->riov.iov = NULL;
-> > +	ctx->riov.i = 0;
-> > +	ctx->riov.max = 0;
-> > +}
-> 
-> Hmm, we should probably make sure you don't have to do this: that if
-> allocated once, you can simply reuse it by setting i = 0.
-
-Yes, I had problems getting the alloc/free of iov right. This is
-perhaps the least intuitively part of the API. I maybe it's just me, but
-I think some more helper functions and support from vringh in this
-area would be great.
-
-> 
-> (This requires some care in the error handling paths, so we don't
-> free it from under you)...
-> 
-> And you probably want to free this up in cfv_remove() instead?
-
-OK, I'll look into this when you have a some more code ready...
-
-> 
-> I'll create and test a patch now.
-> 
-> > +		if (riov->i == riov->max) {
-> > +			if (cfv->ctx.head != USHRT_MAX) {
-> > +				vringh_complete_kern(cfv->vr_rx,
-> > +						     cfv->ctx.head,
-> > +						     0);
-> > +				cfv->ctx.head = USHRT_MAX;
-> > +			}
-> > +
-> > +			ctx_prep_iov(&cfv->ctx);
-> > +			err = vringh_getdesc_kern(
-> > +				cfv->vr_rx,
-> > +				riov,
-> > +				&wiov,
-> > +				&cfv->ctx.head,
-> > +				GFP_ATOMIC);
-> > +
-> > +			if (err <= 0)
-> > +				goto out;
-> > +
-> > +			if (wiov.max != 0) {
-> > +				/* CAIF does not use write descriptors */
-> > +				err = -EPROTO;
-> > +				goto out;
-> > +			}
-> 
-> This is probably a common case, so we should generate this error inside
-> vringh_getdesc (if wiov is NULL).
-> 
-> I'll do that too...
-> 
-> > +module_driver(caif_virtio_driver, register_virtio_driver,
-> > +	      unregister_virtio_driver);
-> > +MODULE_DEVICE_TABLE(virtio, id_table);
-> 
-> The comment on module_driver says:
-> 
->  * Use this macro to construct bus specific macros for registering
->  * drivers, and do not use it on its own.
-> 
-> Want to send me a patch to define module_virtio_driver?
-
-Sure, I can do that.
-
-Thanks a lot Rusty.
+This current patch solves the most critical issue - that the device name
+changes for every modem reboot. This is a show-stopper for me. So it would
+be
+great if this patch could go upstream. The other problem that device name
+is non-deterministic is currently only a theoretical problem as we have
+only one
+remoteproc device.
 
 Regards,
 Sjur
+
+--047d7b2e3f069c0d4204d572aafc
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div class=3D"gmail_quote">On Fri, Jan 25, 2013 at 10:20 AM, Amit Shah <spa=
+n dir=3D"ltr">&lt;<a href=3D"mailto:amit.shah@redhat.com" target=3D"_blank"=
+>amit.shah@redhat.com</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_q=
+uote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1e=
+x">
+<div class=3D"im">On (Thu) 17 Jan 2013 [13:23:17], <a href=3D"mailto:sjur.b=
+randeland@stericsson.com">sjur.brandeland@stericsson.com</a> wrote:<br>
+&gt; From: Sjur Br=C3=A6ndeland &lt;<a href=3D"mailto:sjur.brandeland@steri=
+csson.com">sjur.brandeland@stericsson.com</a>&gt;<br>
+&gt;<br>
+&gt; Use virtio device index for creating unique device port names.<br>
+&gt; Current index allocation in virtio is based on a monotonically<br>
+&gt; increasing variable &quot;index&quot;. A better handling of this is to=
+<br>
+&gt; use device index which is allocated by ida.<br>
+<br>
+</div>This should be fine. =C2=A0I&#39;m wondering, though, if there&#39;s =
+something else<br>
+you need from the naming scheme (esp. considering the next patch)?<br></blo=
+ckquote><div><br></div><div>This current patch solves the most critical iss=
+ue - that the device name</div><div>changes for every modem reboot. This is=
+ a show-stopper for me. So it would be</div>
+<div>great if this patch could go upstream.=C2=A0The other problem that dev=
+ice name</div><div>is non-deterministic is=C2=A0currently only a=C2=A0theor=
+etical problem as we have only one</div><div>remoteproc device.</div><div><=
+br></div><div>
+Regards,</div><div>Sjur</div></div>
+
+--047d7b2e3f069c0d4204d572aafc--
+
+--===============0988808696419781816==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0988808696419781816==--
