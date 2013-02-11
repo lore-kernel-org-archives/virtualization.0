@@ -1,11 +1,14 @@
-From: sjur.brandeland@stericsson.com
-Subject: [PATCH] virtio: Add module driver macro for virtio drivers.
-Date: Mon, 11 Feb 2013 15:35:26 +0100
-Message-ID: <1360593326-4064-1-git-send-email-sjur.brandeland@stericsson.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Mon, 11 Feb 2013 15:22:33 +0100
+Message-ID: <5118FEA9.2080201@redhat.com>
+References: <1360196636-9357-1-git-send-email-acking@vmware.com>
+	<1360196636-9357-2-git-send-email-acking@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1360196636-9357-2-git-send-email-acking@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,32 +18,103 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: sjur@brendeland.net, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, virtualization@lists.linux-foundation.org
+To: Andy King <acking@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
-QWRkIGhlbHBlciBtYWNybyBmb3IgZHJpdmVycyB0aGF0IGRvbid0IGRvIGFueXRoaW5nCnNwZWNp
-YWwgaW4gbW9kdWxlIGluaXQvZXhpdC4KClNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQg
-PHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KLS0tCkhpIFJ1c3R5LAoKSGVyZSBpcyB0
-aGUgcGF0Y2ggZm9yIG1vZHVsZSBkcml2ZXIgbWFjcm8uCkkgd2lsbCB1cGRhdGUgY2FpZl92aXJ0
-aW8gYWNjb3JkaW5nbHkKaW4gbXkgbmV4dCBwYXRjaC1zZXQuCgpUaGFua3MsClNqdXIKCiBpbmNs
-dWRlL2xpbnV4L3ZpcnRpby5oIHwgICAgOSArKysrKysrKysKIDEgZmlsZXMgY2hhbmdlZCwgOSBp
-bnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgv
-dmlydGlvLmggYi9pbmNsdWRlL2xpbnV4L3ZpcnRpby5oCmluZGV4IGNmOGFkYjEuLjAwY2NjNDAg
-MTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvLmgKKysrIGIvaW5jbHVkZS9saW51eC92
-aXJ0aW8uaApAQCAtMTI2LDQgKzEyNiwxMyBAQCBzdGF0aWMgaW5saW5lIHN0cnVjdCB2aXJ0aW9f
-ZHJpdmVyICpkcnZfdG9fdmlydGlvKHN0cnVjdCBkZXZpY2VfZHJpdmVyICpkcnYpCiAKIGludCBy
-ZWdpc3Rlcl92aXJ0aW9fZHJpdmVyKHN0cnVjdCB2aXJ0aW9fZHJpdmVyICpkcnYpOwogdm9pZCB1
-bnJlZ2lzdGVyX3ZpcnRpb19kcml2ZXIoc3RydWN0IHZpcnRpb19kcml2ZXIgKmRydik7CisKKy8q
-IG1vZHVsZV92aXJ0aW9fZHJpdmVyKCkgLSBIZWxwZXIgbWFjcm8gZm9yIGRyaXZlcnMgdGhhdCBk
-b24ndCBkbworICogYW55dGhpbmcgc3BlY2lhbCBpbiBtb2R1bGUgaW5pdC9leGl0LiAgVGhpcyBl
-bGltaW5hdGVzIGEgbG90IG9mCisgKiBib2lsZXJwbGF0ZS4gIEVhY2ggbW9kdWxlIG1heSBvbmx5
-IHVzZSB0aGlzIG1hY3JvIG9uY2UsIGFuZAorICogY2FsbGluZyBpdCByZXBsYWNlcyBtb2R1bGVf
-aW5pdCgpIGFuZCBtb2R1bGVfZXhpdCgpCisgKi8KKyNkZWZpbmUgbW9kdWxlX3ZpcnRpb19kcml2
-ZXIoX192aXJ0aW9fZHJpdmVyKSBcCisJbW9kdWxlX2RyaXZlcihfX3ZpcnRpb19kcml2ZXIsIHJl
-Z2lzdGVyX3ZpcnRpb19kcml2ZXIsIFwKKwkJCXVucmVnaXN0ZXJfdmlydGlvX2RyaXZlcikKICNl
-bmRpZiAvKiBfTElOVVhfVklSVElPX0ggKi8KLS0gCjEuNy41LjQKCl9fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
-dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
-LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 02/07/13 01:23, Andy King wrote:
+> +struct vsock_transport_recv_notify_data {
+> +	u64 data1; /* Transport-defined. */
+> +	u64 data2; /* Transport-defined. */
+> +	bool notify_on_block;
+> +};
+> +
+> +struct vsock_transport_send_notify_data {
+> +	u64 data1; /* Transport-defined. */
+> +	u64 data2; /* Transport-defined. */
+> +};
+> +
+> +struct vsock_transport {
+> +	/* Initialize/tear-down socket. */
+> +	int (*init)(struct vsock_sock *, struct vsock_sock *);
+> +	void (*destruct)(struct vsock_sock *);
+> +	void (*release)(struct vsock_sock *);
+> +
+> +	/* Connections. */
+> +	int (*connect)(struct vsock_sock *);
+> +
+> +	/* DGRAM. */
+> +	int (*dgram_bind)(struct vsock_sock *, struct sockaddr_vm *);
+> +	int (*dgram_dequeue)(struct kiocb *kiocb, struct vsock_sock *vsk,
+> +			     struct msghdr *msg, size_t len, int flags);
+> +	int (*dgram_enqueue)(struct vsock_sock *, struct sockaddr_vm *,
+> +			     struct iovec *, size_t len);
+> +	bool (*dgram_allow)(u32 cid, u32 port);
+> +
+> +	/* STREAM. */
+> +	/* TODO: stream_bind() */
+> +	ssize_t (*stream_dequeue)(struct vsock_sock *, struct iovec *,
+> +				  size_t len, int flags);
+> +	ssize_t (*stream_enqueue)(struct vsock_sock *, struct iovec *,
+> +				  size_t len);
+> +	s64 (*stream_has_data)(struct vsock_sock *);
+> +	s64 (*stream_has_space)(struct vsock_sock *);
+> +	u64 (*stream_rcvhiwat)(struct vsock_sock *);
+> +	bool (*stream_is_active)(struct vsock_sock *);
+> +	bool (*stream_allow)(u32 cid, u32 port);
+> +
+> +	/* Notification. */
+> +	int (*notify_poll_in)(struct vsock_sock *, size_t, bool *);
+> +	int (*notify_poll_out)(struct vsock_sock *, size_t, bool *);
+> +	int (*notify_recv_init)(struct vsock_sock *, size_t,
+> +		struct vsock_transport_recv_notify_data *);
+> +	int (*notify_recv_pre_block)(struct vsock_sock *, size_t,
+> +		struct vsock_transport_recv_notify_data *);
+> +	int (*notify_recv_pre_dequeue)(struct vsock_sock *, size_t,
+> +		struct vsock_transport_recv_notify_data *);
+> +	int (*notify_recv_post_dequeue)(struct vsock_sock *, size_t,
+> +		ssize_t, bool, struct vsock_transport_recv_notify_data *);
+> +	int (*notify_send_init)(struct vsock_sock *,
+> +		struct vsock_transport_send_notify_data *);
+> +	int (*notify_send_pre_block)(struct vsock_sock *,
+> +		struct vsock_transport_send_notify_data *);
+> +	int (*notify_send_pre_enqueue)(struct vsock_sock *,
+> +		struct vsock_transport_send_notify_data *);
+> +	int (*notify_send_post_enqueue)(struct vsock_sock *, ssize_t,
+> +		struct vsock_transport_send_notify_data *);
+> +
+> +	/* Shutdown. */
+> +	int (*shutdown)(struct vsock_sock *, int);
+> +
+> +	/* Buffer sizes. */
+> +	void (*set_buffer_size)(struct vsock_sock *, u64);
+> +	void (*set_min_buffer_size)(struct vsock_sock *, u64);
+> +	void (*set_max_buffer_size)(struct vsock_sock *, u64);
+> +	u64 (*get_buffer_size)(struct vsock_sock *);
+> +	u64 (*get_min_buffer_size)(struct vsock_sock *);
+> +	u64 (*get_max_buffer_size)(struct vsock_sock *);
+> +
+> +	/* Addressing. */
+> +	u32 (*get_local_cid)(void);
+> +};
+> +
+
+Whoa.  This has grown *alot*.  Care to explain this please?  Patch
+creating a Documentation/virtual/vsock.txt would be cool.
+
+*_enqueue + *_dequeue is sending/receiving data, ok.
+
+stream_has_data + stream_has_space + stream_rcvhiwat look like they are
+needed for buffer management.  Details please (especially for
+stream_rcvhiwat).
+
+What is stream_is_active?
+What is *_allow?
+
+What are all those notify_* calls?
+
+Why do you need vsock_transport_{send,recv}_notify_data structs?
+Can't this live in vsock_sock->trans?
+
+thanks,
+  Gerd
