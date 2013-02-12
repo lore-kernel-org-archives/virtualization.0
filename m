@@ -1,12 +1,13 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 0/9] virtio: new API for addition of buffers,
-	scatterlist changes
-Date: Tue, 12 Feb 2013 13:23:26 +0100
-Message-ID: <1360671815-2135-1-git-send-email-pbonzini@redhat.com>
+Subject: [PATCH 1/9] virtio: add functions for piecewise addition of buffers
+Date: Tue, 12 Feb 2013 13:23:27 +0100
+Message-ID: <1360671815-2135-2-git-send-email-pbonzini@redhat.com>
+References: <1360671815-2135-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1360671815-2135-1-git-send-email-pbonzini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,81 +21,296 @@ To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Most device drivers do not need to perform any postprocessing on the
-scatterlists they receive from higher-level drivers (e.g. the block
-or SCSI layer), because they translate the request metadata directly
-from the various C structs into the data that is required by the device.
-
-virtio devices however do this translation in two steps: a device-specific
-step in the device driver, and generic preparation of virtio direct or
-indirect buffers in virtqueue_add_buf.  Now, virtqueue_add_buf also
-accepts the outcome of the first step as a struct scatterlist, hence
-the drivers may need to put additional items at the front or back of
-the data scatterlists.
+virtio device drivers translate requests from higher layer in two steps:
+a device-specific step in the device driver, and generic preparation
+of virtio direct or indirect buffers in virtqueue_add_buf.  Because
+virtqueue_add_buf also accepts the outcome of the first step as a single
+struct scatterlist, drivers may need to put additional items at the
+front or back of the data scatterlists before handing it to virtqueue_add_buf.
+Because of this, virtio-scsi has to copy each request into a scatterlist
+internal to the driver.  It cannot just use the one that was prepared
+by the upper SCSI layers. 
 
 On top of this, virtqueue_add_buf also has the limitation of not
 supporting chained scatterlists: the buffers must be provided as an
-array of struct scatterlist.  Chained scatterlist would at least help
-in the case where you have to add additional items at the front.
+array of struct scatterlist.  Chained scatterlist, though not supported
+on all architectures, would help for virtio-scsi where all additional
+items are placed at the front.
 
-Because of this, virtio-scsi has to copy each request into a scatterlist
-internal to the driver.  It cannot just use the one that was prepared
-by the upper SCSI layers.  (virtio-blk has a little more flexibility in
-that it handles itself the preparation of the scatterlist).
+This patch adds a different set of APIs for adding a buffer to a virtqueue.
+The new API lets you pass the buffers piecewise, wrapping multiple calls
+to virtqueue_add_sg between virtqueue_start_buf and virtqueue_end_buf.
+virtio-scsi can then call virtqueue_add_sg 3/4 times: for the request
+header, for the write buffer (if present), for the response header, and
+finally for the read buffer (again if present).  It saves the copying
+and the related locking.
 
-This series adds a different set of APIs for adding a buffer to a
-virtqueue.  The new API lets you pass the buffers piecewise, wrapping
-multiple calls to virtqueue_add_sg between virtqueue_start_buf and
-virtqueue_end_buf.  Letting drivers call virtqueue_add_sg multiple times
-if they already have a scatterlist provided by someone else simplifies the
-code and, for virtio-scsi, it saves the copying and related locking.
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ drivers/virtio/virtio_ring.c |  211 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/virtio.h       |   14 +++
+ 2 files changed, 225 insertions(+), 0 deletions(-)
 
-One major difference between virtqueue_add_buf and virtqueue_add_sg
-is that the latter uses scatterlist iterators, which follow chained
-scatterlist structs and stop at ending markers.  In order to avoid code
-duplication, and use the new API from virtqueue_add_buf (patch 8), we need
-to change all existing callers of virtqueue_add_buf to provide well-formed
-scatterlists.  This is what patches 2-7 do.  For virtio-blk it is easiest
-to just switch to the new API, just like for virtio-scsi.  For virtio-net
-the ending marker must be reset after calling virtqueue_add_buf, in
-preparation for the next usage of the scatterlist.  Other drivers are
-safe already, but many can be converted to the "fast-path" function
-virtqueue_add_buf_single suggested by mst; this is done in patch 8.
-
-Compared to the RFC, I have moved the state of virtqueue_add_sg into
-struct vring_desc, and I replaced virtqueue_add_sg_single with
-virtqueue_add_buf_single.  I renamed the "count" and "count_sg"
-to "nents" and "nsg" following a suggestion of Stefan Hajnoczi.
-And of course the patch is now well tested (including virtio-serial,
-all three virtio-net receive paths, and virtio-blk SG_IO which I hadn't
-checked for the RFC); anyway this did not bring in new code changes.
-
-Ok for 3.9?
-
-Paolo
-
-Paolo Bonzini (9):
-  virtio: add functions for piecewise addition of buffers
-  virtio-blk: reorganize virtblk_add_req
-  virtio-blk: use virtqueue_start_buf on bio path
-  virtio-blk: use virtqueue_start_buf on req path
-  scatterlist: introduce sg_unmark_end
-  virtio-net: unmark scatterlist ending after virtqueue_add_buf
-  virtio-scsi: use virtqueue_start_buf
-  virtio: introduce and use virtqueue_add_buf_single
-  virtio: reimplement virtqueue_add_buf using new functions
-
- block/blk-integrity.c               |    2 +-
- block/blk-merge.c                   |    2 +-
- drivers/block/virtio_blk.c          |  165 ++++++++-------
- drivers/char/hw_random/virtio-rng.c |    2 +-
- drivers/char/virtio_console.c       |    4 +-
- drivers/net/virtio_net.c            |   21 ++-
- drivers/rpmsg/virtio_rpmsg_bus.c    |    8 +-
- drivers/scsi/virtio_scsi.c          |  106 ++++------
- drivers/virtio/virtio_balloon.c     |    6 +-
- drivers/virtio/virtio_ring.c        |  396 ++++++++++++++++++++++-------------
- include/linux/scatterlist.h         |   16 ++
- include/linux/virtio.h              |   19 ++
- tools/virtio/virtio_test.c          |    6 +-
- 13 files changed, 450 insertions(+), 303 deletions(-)
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index ffd7e7d..64184e5 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -101,6 +101,10 @@ struct vring_virtqueue
+ 	/* Last used index we've seen. */
+ 	u16 last_used_idx;
+ 
++	/* State between virtqueue_start_buf and virtqueue_end_buf.  */
++	int head;
++	struct vring_desc *indirect_base, *tail;
++
+ 	/* How to notify other side. FIXME: commonalize hcalls! */
+ 	void (*notify)(struct virtqueue *vq);
+ 
+@@ -394,6 +398,213 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+ 	vq->vq.num_free++;
+ }
+ 
++/**
++ * virtqueue_start_buf - start building buffer for the other end
++ * @vq: the struct virtqueue we're talking about.
++ * @data: the token identifying the buffer.
++ * @nents: the number of buffers that will be added
++ * @nsg: the number of sg lists that will be added
++ * @gfp: how to do memory allocations (if necessary).
++ *
++ * Caller must ensure we don't call this with other virtqueue operations
++ * at the same time (except where noted), and that a successful call is
++ * followed by one or more calls to virtqueue_add_sg, and finally a call
++ * to virtqueue_end_buf.
++ *
++ * Returns zero or a negative error (ie. ENOSPC).
++ */
++int virtqueue_start_buf(struct virtqueue *_vq,
++			void *data,
++			unsigned int nents,
++			unsigned int nsg,
++			gfp_t gfp)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	struct vring_desc *desc = NULL;
++	int head;
++	int ret = -ENOMEM;
++
++	START_USE(vq);
++
++	BUG_ON(data == NULL);
++
++#ifdef DEBUG
++	{
++		ktime_t now = ktime_get();
++
++		/* No kick or get, with .1 second between?  Warn. */
++		if (vq->last_add_time_valid)
++			WARN_ON(ktime_to_ms(ktime_sub(now, vq->last_add_time))
++					    > 100);
++		vq->last_add_time = now;
++		vq->last_add_time_valid = true;
++	}
++#endif
++
++	BUG_ON(nents < nsg);
++	BUG_ON(nsg == 0);
++
++	/*
++	 * If the host supports indirect descriptor tables, and there is
++	 * no space for direct buffers or there are multi-item scatterlists,
++	 * go indirect.
++	 */
++	head = vq->free_head;
++	if (vq->indirect && (nents > nsg || vq->vq.num_free < nents)) {
++		if (vq->vq.num_free == 0)
++			goto no_space;
++
++		desc = kmalloc(nents * sizeof(struct vring_desc), gfp);
++		if (!desc)
++			goto error;
++
++		/* We're about to use a buffer */
++		vq->vq.num_free--;
++
++		/* Use a single buffer which doesn't continue */
++		vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
++		vq->vring.desc[head].addr = virt_to_phys(desc);
++		vq->vring.desc[head].len = nents * sizeof(struct vring_desc);
++
++		/* Update free pointer */
++		vq->free_head = vq->vring.desc[head].next;
++	}
++
++	/* Set token. */
++	vq->data[head] = data;
++
++	pr_debug("Started buffer head %i for %p\n", head, vq);
++
++	vq->indirect_base = desc;
++	vq->tail = NULL;
++	vq->head = head;
++	return 0;
++
++no_space:
++	ret = -ENOSPC;
++error:
++	pr_debug("Can't add buf (%d) - nents = %i, avail = %i\n",
++		 ret, nents, vq->vq.num_free);
++	END_USE(vq);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(virtqueue_start_buf);
++
++/**
++ * virtqueue_add_sg - add sglist to buffer being built
++ * @_vq: the virtqueue for which the buffer is being built
++ * @sgl: the description of the buffer(s).
++ * @nents: the number of items to process in sgl
++ * @dir: whether the sgl is read or written (DMA_TO_DEVICE/DMA_FROM_DEVICE only)
++ *
++ * Note that, unlike virtqueue_add_buf, this function follows chained
++ * scatterlists, and stops before the @nents-th item if a scatterlist item
++ * has a marker.
++ *
++ * Caller must ensure we don't call this with other virtqueue operations
++ * at the same time (except where noted).
++ */
++void virtqueue_add_sg(struct virtqueue *_vq,
++		      struct scatterlist sgl[],
++		      unsigned int nents,
++		      enum dma_data_direction dir)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	unsigned int i, n;
++	struct scatterlist *sg;
++	struct vring_desc *tail;
++	u32 flags;
++
++#ifdef DEBUG
++	BUG_ON(!vq->in_use);
++#endif
++
++	BUG_ON(dir != DMA_FROM_DEVICE && dir != DMA_TO_DEVICE);
++	BUG_ON(nents == 0);
++
++	flags = dir == DMA_FROM_DEVICE ? VRING_DESC_F_WRITE : 0;
++	flags |= VRING_DESC_F_NEXT;
++
++	/*
++	 * If using indirect descriptor tables, fill in the buffers
++	 * at vq->indirect_base.
++	 */
++	if (vq->indirect_base) {
++		i = 0;
++		if (likely(vq->tail))
++			i = vq->tail - vq->indirect_base + 1;
++
++		for_each_sg(sgl, sg, nents, n) {
++			tail = &vq->indirect_base[i];
++			tail->flags = flags;
++			tail->addr = sg_phys(sg);
++			tail->len = sg->length;
++			tail->next = ++i;
++		}
++	} else {
++		BUG_ON(vq->vq.num_free < nents);
++
++		i = vq->free_head;
++		for_each_sg(sgl, sg, nents, n) {
++			tail = &vq->vring.desc[i];
++			tail->flags = flags;
++			tail->addr = sg_phys(sg);
++			tail->len = sg->length;
++			i = tail->next;
++			vq->vq.num_free--;
++		}
++
++		vq->free_head = i;
++	}
++	vq->tail = tail;
++}
++EXPORT_SYMBOL_GPL(virtqueue_add_sg);
++
++/**
++ * virtqueue_end_buf - expose buffer to other end
++ * @_vq: the virtqueue for which the buffer was built
++ *
++ * Caller must ensure we don't call this with other virtqueue operations
++ * at the same time (except where noted).
++ */
++void virtqueue_end_buf(struct virtqueue *_vq)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	unsigned int avail;
++	int head = vq->head;
++	struct vring_desc *tail = vq->tail;
++
++#ifdef DEBUG
++	BUG_ON(!vq->in_use);
++#endif
++	BUG_ON(tail == NULL);
++
++	/* The last one does not have the next flag set.  */
++	tail->flags &= ~VRING_DESC_F_NEXT;
++
++	/*
++	 * Put entry in available array.  Descriptors and available array
++	 * need to be set before we expose the new available array entries.
++	 */
++	avail = vq->vring.avail->idx & (vq->vring.num-1);
++	vq->vring.avail->ring[avail] = head;
++	virtio_wmb(vq);
++
++	vq->vring.avail->idx++;
++	vq->num_added++;
++
++	/*
++	 * This is very unlikely, but theoretically possible.  Kick
++	 * just in case.
++	 */
++	if (unlikely(vq->num_added == (1 << 16) - 1))
++		virtqueue_kick(&vq->vq);
++
++	pr_debug("Added buffer head %i to %p\n", head, vq);
++	END_USE(vq);
++}
++EXPORT_SYMBOL_GPL(virtqueue_end_buf);
++
+ static inline bool more_used(const struct vring_virtqueue *vq)
+ {
+ 	return vq->last_used_idx != vq->vring.used->idx;
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index cf8adb1..43d6bc3 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -7,6 +7,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/device.h>
+ #include <linux/mod_devicetable.h>
++#include <linux/dma-direction.h>
+ #include <linux/gfp.h>
+ 
+ /**
+@@ -40,6 +41,19 @@ int virtqueue_add_buf(struct virtqueue *vq,
+ 		      void *data,
+ 		      gfp_t gfp);
+ 
++int virtqueue_start_buf(struct virtqueue *_vq,
++			void *data,
++			unsigned int nents,
++			unsigned int nsg,
++			gfp_t gfp);
++
++void virtqueue_add_sg(struct virtqueue *_vq,
++		      struct scatterlist sgl[],
++		      unsigned int nents,
++		      enum dma_data_direction dir);
++
++void virtqueue_end_buf(struct virtqueue *_vq);
++
+ void virtqueue_kick(struct virtqueue *vq);
+ 
+ bool virtqueue_kick_prepare(struct virtqueue *vq);
+-- 
+1.7.1
