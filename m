@@ -1,15 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_console: Use virtio device index to generate port
-	name
-Date: Tue, 12 Feb 2013 16:26:03 +1030
-Message-ID: <87halif53g.fsf@rustcorp.com.au>
-References: <1358425397-4584-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20130211155541.GC8319@amit.redhat.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Subject: Re: [PATCH] virtio_console: Let unconnected rproc device receive data.
+Date: Tue, 12 Feb 2013 10:14:59 +0100
+Message-ID: <CAJK669a7yr2Fo2Asrthtq5osLynurkuM_k_yO1GTsOTNaho+Dg@mail.gmail.com>
+References: <1358425362-4517-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20130125091024.GB30483@amit.redhat.com>
+	<81C3A93C17462B4BBD7E272753C105792458D7DEEF@EXDCVYMBSTM005.EQ1STM.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130211155541.GC8319@amit.redhat.com>
+In-Reply-To: <81C3A93C17462B4BBD7E272753C105792458D7DEEF@EXDCVYMBSTM005.EQ1STM.local>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,22 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>, sjur.brandeland@stericsson.com
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Erwan.Yvin@stericsson.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-QW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4gd3JpdGVzOgoKPiBPbiAoVGh1KSAxNyBK
-YW4gMjAxMyBbMTM6MjM6MTddLCBzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20gd3JvdGU6
-Cj4+IEZyb206IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNv
-bT4KPj4gCj4+IFVzZSB2aXJ0aW8gZGV2aWNlIGluZGV4IGZvciBjcmVhdGluZyB1bmlxdWUgZGV2
-aWNlIHBvcnQgbmFtZXMuCj4+IEN1cnJlbnQgaW5kZXggYWxsb2NhdGlvbiBpbiB2aXJ0aW8gaXMg
-YmFzZWQgb24gYSBtb25vdG9uaWNhbGx5Cj4+IGluY3JlYXNpbmcgdmFyaWFibGUgImluZGV4Ii4g
-QSBiZXR0ZXIgaGFuZGxpbmcgb2YgdGhpcyBpcyB0bwo+PiB1c2UgZGV2aWNlIGluZGV4IHdoaWNo
-IGlzIGFsbG9jYXRlZCBieSBpZGEuCj4+IAo+PiBTaWduZWQtb2ZmLWJ5OiBTanVyIEJyw6ZuZGVs
-YW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Cj4KPiBBY2tlZC1ieTogQW1pdCBT
-aGFoIDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4KPgo+IFJ1c3R5LCBwbGVhc2UgcGljayB0aGlzIG9u
-ZSB1cC4KCkluIG15IHZpcnRpby1uZXh0IHF1ZXVlIG5vdy4uLgoKVGhhbmtzLApSdXN0eS4KX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+Hi Amit,
+
+> > @@ -1763,8 +1763,11 @@ static void in_intr(struct virtqueue *vq)
+>
+> > >      * tty is spawned) and the host sends out data to console
+> > >      * ports.  For generic serial ports, the host won't
+> > >      * (shouldn't) send data till the guest is connected.
+> > > +    * However a remote device might send data before the port is
+> > > +    * connected. So don't remove data from a rproc_serial device.
+> > >      */
+> > > -   if (!port->guest_connected)
+> > > +
+> > > +   if (!port->guest_connected && !is_rproc_serial(port->portdev-
+> > >vdev))
+> > >             discard_port_data(port);
+> >
+> > How about setting port->guest_connected = true in the init routines
+> > instead?  Keeps this code path cleaner.
+>
+> Agree, I'll respin this patch.
+
+Hm, Rusty has already picked this up. Do you still want me to do a respin,
+or should I leave it as is?
+
+Regards,
+Sjur
