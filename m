@@ -1,19 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_console: Let unconnected rproc device receive data.
-Date: Tue, 12 Feb 2013 12:09:30 +0200
-Message-ID: <20130212100930.GA23359@redhat.com>
-References: <1358425362-4517-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20130125091024.GB30483@amit.redhat.com>
-	<81C3A93C17462B4BBD7E272753C105792458D7DEEF@EXDCVYMBSTM005.EQ1STM.local>
-	<CAJK669a7yr2Fo2Asrthtq5osLynurkuM_k_yO1GTsOTNaho+Dg@mail.gmail.com>
-	<20130212094242.GC22567@redhat.com>
-	<CAJK669Y2=FRDLH9RbyzfVLQaF+wUNoziBzWZA=7mfG7VMmZWBw@mail.gmail.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Tue, 12 Feb 2013 11:58:11 +0100
+Message-ID: <511A2043.6040805@redhat.com>
+References: <1360196636-9357-1-git-send-email-acking@vmware.com>
+	<1360196636-9357-2-git-send-email-acking@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAJK669Y2=FRDLH9RbyzfVLQaF+wUNoziBzWZA=7mfG7VMmZWBw@mail.gmail.com>
+In-Reply-To: <1360196636-9357-2-git-send-email-acking@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,41 +18,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>
-Cc: Amit Shah <amit.shah@redhat.com>, Erwan.Yvin@stericsson.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Andy King <acking@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 12, 2013 at 11:01:10AM +0100, Sjur Br=E6ndeland wrote:
-> On Tue, Feb 12, 2013 at 10:42 AM, Michael S. Tsirkin <mst@redhat.com> wro=
-te:
-> ...
-> > > > > How about setting port->guest_connected =3D true in the init rout=
-ines
-> > > > > instead?  Keeps this code path cleaner.
-> > > >
-> > > > Agree, I'll respin this patch.
-> > >
-> > > Hm, Rusty has already picked this up.
-> >
-> > I don't see it in virtio-next. Do you?
-> =
+On 02/07/13 01:23, Andy King wrote:
 
-> =
+  Hi,
 
-> Yes I do, see:
-> =
+> +/* Option name for socket's service label.  Use as the option name in
+> + * setsockopt(3) or getsockopt(3) to set or get the service label for a socket.
+> + * The service label is a C-style NUL-terminated string.  Only available for
+> + * hypervisor endpoints.
+> + */
+> +
+> +#define SO_VM_SOCKETS_SERVICE_LABEL 4
+> +
 
-> http://git.kernel.org/?p=3Dlinux/kernel/git/rusty/linux.git;a=3Dcommitdif=
-f;h=3D1f8051876a194d7f7fe7834d9853f240d6b4b9ab;hp=3D226364766f936d249e408de=
-03821468c1bf11dda
-> =
+What is this and how does it work?
 
-> Regards,
-> Sjur
-
-Right, missed this. In this case better to send an incremental patch I
-think, we don't want rebases unless absolutely required.
-
--- =
-
-MST
+cheers,
+  Gerd
