@@ -1,14 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
-Date: Tue, 12 Feb 2013 11:58:11 +0100
-Message-ID: <511A2043.6040805@redhat.com>
-References: <1360196636-9357-1-git-send-email-acking@vmware.com>
-	<1360196636-9357-2-git-send-email-acking@vmware.com>
+From: sjur.brandeland@stericsson.com
+Subject: [PATCHv2 vringh 0/3] Introduce CAIF Virtio driver
+Date: Tue, 12 Feb 2013 12:49:50 +0100
+Message-ID: <1360669793-6921-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360196636-9357-2-git-send-email-acking@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +15,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy King <acking@vmware.com>
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
+To: Rusty Russell <rusty@rustcorp.com.au>, "David S. Miller" <davem@davemloft.net>, Ohad Ben-Cohen <ohad@wizery.com>
+Cc: Dmitry Tarnyagin <dmitry.tarnyagin@stericsson.com>, sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/07/13 01:23, Andy King wrote:
-
-  Hi,
-
-> +/* Option name for socket's service label.  Use as the option name in
-> + * setsockopt(3) or getsockopt(3) to set or get the service label for a socket.
-> + * The service label is a C-style NUL-terminated string.  Only available for
-> + * hypervisor endpoints.
-> + */
-> +
-> +#define SO_VM_SOCKETS_SERVICE_LABEL 4
-> +
-
-What is this and how does it work?
-
-cheers,
-  Gerd
+RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
+VGhpcyBkcml2ZXIgZGVwZW5kcyBvbiBSdXN0eSdzIG5ldyBob3N0IHZpcnRpbyByaW5nIGltcGxl
+bWVudGF0aW9uLApzbyB0aGlzIHBhdGNoLXNldCBpcyBiYXNlZCBvbiB0aGUgdnJpbmdoIGJyYW5j
+aCBpbiBSdXN0eSdzIGdpdC4KCkNoYW5nZXMgc2luY2UgVjE6Ci0gVXNlIHRoZSBuZXcgaW92IGhl
+bHBlciBmdW5jdGlvbnMsIGFuZCBzaW1wbGlmeSBpb3YgaGFuZGxpbmcuCiAgSG93ZXZlciB0aGlz
+IHRyaWdnZXJzIGNvbXBpbGUgd2FybmluZ3MsIGFzIGl0IHRha2VzIHN0cnVjdCBpb3YKICB3aGls
+ZSBrZXJuZWwgYXBpIHVzZXMgc3RydWN0IGtpb3YKLSBJbnRyb2R1Y2VkIHRoZSBtb2R1bGVfdmly
+dGlvX2RyaXZlciBtYWNybwotIFBhc3MgTlVMTCBhcyB3aW92IHRvIHZyaW5naF9nZXRkZXNjX2tl
+cm4oKSAKClJlZ2FyZHMsClNqdXIKClNqdXIgQnLDpm5kZWxhbmQgKDIpOgogIHJlbW90ZXByb2M6
+IEFkZCBzdXBwb3J0IGZvciB2cmluZ2ggKEhvc3QgdnJpbmdzKQogIHZpcnRpbzogQWRkIG1vZHVs
+ZSBkcml2ZXIgbWFjcm8gZm9yIHZpcnRpbyBkcml2ZXJzLgoKVmlrcmFtIEFSViAoMSk6CiAgY2Fp
+Zl92aXJ0aW86IEludHJvZHVjZSBjYWlmIG92ZXIgdmlydGlvCgogZHJpdmVycy9uZXQvY2FpZi9L
+Y29uZmlnICAgICAgICAgICAgICAgfCAgICA4ICsKIGRyaXZlcnMvbmV0L2NhaWYvTWFrZWZpbGUg
+ICAgICAgICAgICAgIHwgICAgMyArCiBkcml2ZXJzL25ldC9jYWlmL2NhaWZfdmlydGlvLmMgICAg
+ICAgICB8ICA1NDcgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKIGRyaXZlcnMvcmVt
+b3RlcHJvYy9LY29uZmlnICAgICAgICAgICAgIHwgICAgMyArCiBkcml2ZXJzL3JlbW90ZXByb2Mv
+cmVtb3RlcHJvY192aXJ0aW8uYyB8ICAxMjcgKysrKysrKy0KIGluY2x1ZGUvbGludXgvcmVtb3Rl
+cHJvYy5oICAgICAgICAgICAgIHwgICAxNCArCiBpbmNsdWRlL2xpbnV4L3ZpcnRpby5oICAgICAg
+ICAgICAgICAgICB8ICAgIDkgKwogaW5jbHVkZS9saW51eC92aXJ0aW9fY2FpZi5oICAgICAgICAg
+ICAgfCAgIDI0ICsrCiBpbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX2lkcy5oICAgICAgICB8ICAg
+IDEgKwogOSBmaWxlcyBjaGFuZ2VkLCA3MjkgaW5zZXJ0aW9ucygrKSwgNyBkZWxldGlvbnMoLSkK
+IGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL25ldC9jYWlmL2NhaWZfdmlydGlvLmMKIGNyZWF0
+ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2xpbnV4L3ZpcnRpb19jYWlmLmgKCi0tIAoxLjcuNS40Cgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
