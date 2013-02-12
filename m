@@ -1,7 +1,7 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 7/9] virtio-scsi: use virtqueue_start_buf
-Date: Tue, 12 Feb 2013 13:23:33 +0100
-Message-ID: <1360671815-2135-8-git-send-email-pbonzini@redhat.com>
+Subject: [PATCH 8/9] virtio: introduce and use virtqueue_add_buf_single
+Date: Tue, 12 Feb 2013 13:23:34 +0100
+Message-ID: <1360671815-2135-9-git-send-email-pbonzini__24037.4284134761$1360671912$gmane$org@redhat.com>
 References: <1360671815-2135-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,205 +21,234 @@ To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, mst@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Using the new virtio_scsi_add_sg function lets us simplify the queueing
-path.  In particular, all data protected by the tgt_lock is just gone
-(multiqueue will find a new use for the lock).
+Adding a single direct buffer is a very common case.  Introduce
+an optimized function for that.
 
-The speedup is relatively small (2-4%) but it is worthwhile because of
-the code simplification it enables.  And it will be particularly useful
-when adding multiqueue supoprt, because it keeps the tgt_lock critical
-sections very slim while avoiding a proliferation of locks.
-
-Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- drivers/scsi/virtio_scsi.c |  102 +++++++++++++++++++-------------------------
- 1 files changed, 44 insertions(+), 58 deletions(-)
+ drivers/char/hw_random/virtio-rng.c |    2 +-
+ drivers/char/virtio_console.c       |    4 +-
+ drivers/net/virtio_net.c            |    2 +-
+ drivers/rpmsg/virtio_rpmsg_bus.c    |    8 +++---
+ drivers/scsi/virtio_scsi.c          |    4 +-
+ drivers/virtio/virtio_balloon.c     |    6 ++--
+ drivers/virtio/virtio_ring.c        |   40 +++++++++++++++++++++++++++++++++++
+ include/linux/virtio.h              |    5 ++++
+ tools/virtio/virtio_test.c          |    6 ++--
+ 9 files changed, 61 insertions(+), 16 deletions(-)
 
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+index b65c103..8b851ed 100644
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -47,7 +47,7 @@ static void register_buffer(u8 *buf, size_t size)
+ 	sg_init_one(&sg, buf, size);
+ 
+ 	/* There should always be room for one buffer. */
+-	if (virtqueue_add_buf(vq, &sg, 0, 1, buf, GFP_KERNEL) < 0)
++	if (virtqueue_add_buf_single(vq, &sg, DMA_FROM_DEVICE, buf) < 0)
+ 		BUG();
+ 
+ 	virtqueue_kick(vq);
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 684b0d5..62bd945 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -508,7 +508,7 @@ static int add_inbuf(struct virtqueue *vq, struct port_buffer *buf)
+ 
+ 	sg_init_one(sg, buf->buf, buf->size);
+ 
+-	ret = virtqueue_add_buf(vq, sg, 0, 1, buf, GFP_ATOMIC);
++	ret = virtqueue_add_buf_single(vq, sg, DMA_FROM_DEVICE, buf);
+ 	virtqueue_kick(vq);
+ 	if (!ret)
+ 		ret = vq->num_free;
+@@ -575,7 +575,7 @@ static ssize_t __send_control_msg(struct ports_device *portdev, u32 port_id,
+ 	vq = portdev->c_ovq;
+ 
+ 	sg_init_one(sg, &cpkt, sizeof(cpkt));
+-	if (virtqueue_add_buf(vq, sg, 1, 0, &cpkt, GFP_ATOMIC) == 0) {
++	if (virtqueue_add_buf_single(vq, sg, DMA_TO_DEVICE, &cpkt) == 0) {
+ 		virtqueue_kick(vq);
+ 		while (!virtqueue_get_buf(vq, &len))
+ 			cpu_relax();
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 78b6f51..1a5186d 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -509,7 +509,7 @@ static int add_recvbuf_mergeable(struct receive_queue *rq, gfp_t gfp)
+ 		return -ENOMEM;
+ 
+ 	sg_set_page(rq->sg, page, PAGE_SIZE, 0);
+-	err = virtqueue_add_buf(rq->vq, rq->sg, 0, 1, page, gfp);
++	err = virtqueue_add_buf_single(rq->vq, rq->sg, DMA_FROM_DEVICE, page);
+ 	if (err < 0)
+ 		give_pages(rq, page);
+ 
+diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+index f1e3239..3008987 100644
+--- a/drivers/rpmsg/virtio_rpmsg_bus.c
++++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+@@ -763,7 +763,7 @@ int rpmsg_send_offchannel_raw(struct rpmsg_channel *rpdev, u32 src, u32 dst,
+ 	mutex_lock(&vrp->tx_lock);
+ 
+ 	/* add message to the remote processor's virtqueue */
+-	err = virtqueue_add_buf(vrp->svq, &sg, 1, 0, msg, GFP_KERNEL);
++	err = virtqueue_add_buf_single(vrp->svq, &sg, DMA_TO_DEVICE, msg);
+ 	if (err) {
+ 		/*
+ 		 * need to reclaim the buffer here, otherwise it's lost
+@@ -845,7 +845,7 @@ static void rpmsg_recv_done(struct virtqueue *rvq)
+ 	sg_init_one(&sg, msg, RPMSG_BUF_SIZE);
+ 
+ 	/* add the buffer back to the remote processor's virtqueue */
+-	err = virtqueue_add_buf(vrp->rvq, &sg, 0, 1, msg, GFP_KERNEL);
++	err = virtqueue_add_buf_single(vrp->rvq, &sg, DMA_FROM_DEVICE, msg);
+ 	if (err < 0) {
+ 		dev_err(dev, "failed to add a virtqueue buffer: %d\n", err);
+ 		return;
+@@ -976,8 +976,8 @@ static int rpmsg_probe(struct virtio_device *vdev)
+ 
+ 		sg_init_one(&sg, cpu_addr, RPMSG_BUF_SIZE);
+ 
+-		err = virtqueue_add_buf(vrp->rvq, &sg, 0, 1, cpu_addr,
+-								GFP_KERNEL);
++		err = virtqueue_add_buf_single(vrp->rvq, &sg, DMA_FROM_DEVICE,
++					       cpu_addr);
+ 		WARN_ON(err); /* sanity check; this can't really happen */
+ 	}
+ 
 diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index 3449a1f..6b752f7 100644
+index 6b752f7..887902e 100644
 --- a/drivers/scsi/virtio_scsi.c
 +++ b/drivers/scsi/virtio_scsi.c
-@@ -59,11 +59,8 @@ struct virtio_scsi_vq {
+@@ -220,8 +220,8 @@ static int virtscsi_kick_event(struct virtio_scsi *vscsi,
  
- /* Per-target queue state */
- struct virtio_scsi_target_state {
--	/* Protects sg.  Lock hierarchy is tgt_lock -> vq_lock.  */
-+	/* Never held at the same time as vq_lock.  */
- 	spinlock_t tgt_lock;
--
--	/* For sglist construction when adding commands to the virtqueue.  */
--	struct scatterlist sg[];
- };
+ 	spin_lock_irqsave(&vscsi->event_vq.vq_lock, flags);
  
- /* Driver instance state */
-@@ -351,89 +348,82 @@ static void virtscsi_event_done(struct virtqueue *vq)
- 	spin_unlock_irqrestore(&vscsi->event_vq.vq_lock, flags);
- };
+-	err = virtqueue_add_buf(vscsi->event_vq.vq, &sg, 0, 1, event_node,
+-				GFP_ATOMIC);
++	err = virtqueue_add_buf_single(vscsi->event_vq.vq, &sg,
++				       DMA_FROM_DEVICE, event_node);
+ 	if (!err)
+ 		virtqueue_kick(vscsi->event_vq.vq);
  
--static void virtscsi_map_sgl(struct scatterlist *sg, unsigned int *p_idx,
--			     struct scsi_data_buffer *sdb)
--{
--	struct sg_table *table = &sdb->table;
--	struct scatterlist *sg_elem;
--	unsigned int idx = *p_idx;
--	int i;
--
--	for_each_sg(table->sgl, sg_elem, table->nents, i)
--		sg[idx++] = *sg_elem;
--
--	*p_idx = idx;
--}
--
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 797e1c7..c280948 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -108,7 +108,7 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+ 	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
+ 
+ 	/* We should always be able to add one buffer to an empty queue. */
+-	if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
++	if (virtqueue_add_buf_single(vq, &sg, DMA_TO_DEVICE, vb) < 0)
+ 		BUG();
+ 	virtqueue_kick(vq);
+ 
+@@ -256,7 +256,7 @@ static void stats_handle_request(struct virtio_balloon *vb)
+ 	if (!virtqueue_get_buf(vq, &len))
+ 		return;
+ 	sg_init_one(&sg, vb->stats, sizeof(vb->stats));
+-	if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
++	if (virtqueue_add_buf_single(vq, &sg, DMA_TO_DEVICE, vb) < 0)
+ 		BUG();
+ 	virtqueue_kick(vq);
+ }
+@@ -341,7 +341,7 @@ static int init_vqs(struct virtio_balloon *vb)
+ 		 * use it to signal us later.
+ 		 */
+ 		sg_init_one(&sg, vb->stats, sizeof vb->stats);
+-		if (virtqueue_add_buf(vb->stats_vq, &sg, 1, 0, vb, GFP_KERNEL)
++		if (virtqueue_add_buf_single(vb->stats_vq, &sg, DMA_TO_DEVICE, vb)
+ 		    < 0)
+ 			BUG();
+ 		virtqueue_kick(vb->stats_vq);
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 64184e5..b803cf7 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -181,6 +181,48 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+ }
+ 
  /**
-- * virtscsi_map_cmd - map a scsi_cmd to a virtqueue scatterlist
-+ * virtscsi_add_cmd - add a virtio_scsi_cmd to a virtqueue
-  * @vscsi	: virtio_scsi state
-  * @cmd		: command structure
-- * @out_num	: number of read-only elements
-- * @in_num	: number of write-only elements
-  * @req_size	: size of the request buffer
-  * @resp_size	: size of the response buffer
-- *
-- * Called with tgt_lock held.
-+ * @gfp	: flags to use for memory allocations
-  */
--static void virtscsi_map_cmd(struct virtio_scsi_target_state *tgt,
--			     struct virtio_scsi_cmd *cmd,
--			     unsigned *out_num, unsigned *in_num,
--			     size_t req_size, size_t resp_size)
-+static int virtscsi_add_cmd(struct virtqueue *vq,
-+			    struct virtio_scsi_cmd *cmd,
-+			    size_t req_size, size_t resp_size, gfp_t gfp)
- {
- 	struct scsi_cmnd *sc = cmd->sc;
--	struct scatterlist *sg = tgt->sg;
--	unsigned int idx = 0;
-+	struct scatterlist sg;
-+	unsigned int nents, nsg;
-+	struct sg_table *out, *in;
++ * virtqueue_add_buf_single - expose a single scatterlist entry to other end
++ * @vq: the struct virtqueue we're talking about.
++ * @sg: the description of the buffer.
++ * @dir: whether the buffer will be written or read by the device
++ * @data: the token identifying the buffer.
++ *
++ * Caller must ensure we don't call this with other virtqueue operations
++ * at the same time (except where noted).  No allocations are performed.
++ *
++ * Returns zero or a negative error (ENOSPC).
++ */
++int virtqueue_add_buf_single(struct virtqueue *_vq,
++			     struct scatterlist *sg,
++			     enum dma_data_direction dir,
++			     void *data)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	struct vring_desc *tail;
 +	int ret;
 +
-+	out = in = NULL;
-+
-+	if (sc && sc->sc_data_direction != DMA_NONE) {
-+		if (sc->sc_data_direction != DMA_FROM_DEVICE)
-+			out = &scsi_out(sc)->table;
-+		if (sc->sc_data_direction != DMA_TO_DEVICE)
-+			in = &scsi_in(sc)->table;
-+	}
-+
-+	nsg   = 2 + (out ? 1 : 0)          + (in ? 1 : 0);
-+	nents = 2 + (out ? out->nents : 0) + (in ? in->nents : 0);
-+	ret = virtqueue_start_buf(vq, cmd, nents, nsg, gfp);
++	/* Always direct, the gfp argument is not used.  */
++	ret = virtqueue_start_buf(_vq, data, 1, 1, GFP_ATOMIC);
 +	if (ret < 0)
 +		return ret;
- 
- 	/* Request header.  */
--	sg_set_buf(&sg[idx++], &cmd->req, req_size);
-+	sg_init_one(&sg, &cmd->req, req_size);
-+	virtqueue_add_sg(vq, &sg, 1, DMA_TO_DEVICE);
- 
- 	/* Data-out buffer.  */
--	if (sc && sc->sc_data_direction != DMA_FROM_DEVICE)
--		virtscsi_map_sgl(sg, &idx, scsi_out(sc));
--
--	*out_num = idx;
-+	if (out)
-+		virtqueue_add_sg(vq, out->sgl, out->nents, DMA_TO_DEVICE);
- 
- 	/* Response header.  */
--	sg_set_buf(&sg[idx++], &cmd->resp, resp_size);
-+	sg_init_one(&sg, &cmd->resp, resp_size);
-+	virtqueue_add_sg(vq, &sg, 1, DMA_FROM_DEVICE);
- 
- 	/* Data-in buffer */
--	if (sc && sc->sc_data_direction != DMA_TO_DEVICE)
--		virtscsi_map_sgl(sg, &idx, scsi_in(sc));
-+	if (in)
-+		virtqueue_add_sg(vq, in->sgl, in->nents, DMA_FROM_DEVICE);
- 
--	*in_num = idx - *out_num;
-+	virtqueue_end_buf(vq);
++
++	BUG_ON(vq->indirect_base);
++	BUG_ON(dir != DMA_FROM_DEVICE && dir != DMA_TO_DEVICE);
++
++	/* The direct case of virtqueue_add_sg, inlined.  */
++	tail = vq->tail = &vq->vring.desc[vq->free_head];
++	tail->flags = dir == DMA_FROM_DEVICE ? VRING_DESC_F_WRITE : 0;
++	tail->addr = sg_phys(sg);
++	tail->len = sg->length;
++	vq->free_head = tail->next;
++	vq->vq.num_free--;
++
++	virtqueue_end_buf(_vq);
 +	return 0;
- }
++}
++EXPORT_SYMBOL_GPL(virtqueue_add_buf_single);
++
++/**
+  * virtqueue_add_buf - expose buffer to other end
+  * @vq: the struct virtqueue we're talking about.
+  * @sg: the description of the buffer(s).
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 43d6bc3..4245bec 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -41,6 +41,11 @@ int virtqueue_add_buf(struct virtqueue *vq,
+ 		      void *data,
+ 		      gfp_t gfp);
  
--static int virtscsi_kick_cmd(struct virtio_scsi_target_state *tgt,
--			     struct virtio_scsi_vq *vq,
-+static int virtscsi_kick_cmd(struct virtio_scsi_vq *vq,
- 			     struct virtio_scsi_cmd *cmd,
- 			     size_t req_size, size_t resp_size, gfp_t gfp)
- {
--	unsigned int out_num, in_num;
- 	unsigned long flags;
--	int err;
-+	int ret;
- 	bool needs_kick = false;
- 
--	spin_lock_irqsave(&tgt->tgt_lock, flags);
--	virtscsi_map_cmd(tgt, cmd, &out_num, &in_num, req_size, resp_size);
--
--	spin_lock(&vq->vq_lock);
--	err = virtqueue_add_buf(vq->vq, tgt->sg, out_num, in_num, cmd, gfp);
--	spin_unlock(&tgt->tgt_lock);
--	if (!err)
-+	spin_lock_irqsave(&vq->vq_lock, flags);
-+	ret = virtscsi_add_cmd(vq->vq, cmd, req_size, resp_size, gfp);
-+	if (!ret)
- 		needs_kick = virtqueue_kick_prepare(vq->vq);
- 
- 	spin_unlock_irqrestore(&vq->vq_lock, flags);
- 
- 	if (needs_kick)
- 		virtqueue_notify(vq->vq);
--	return err;
-+	return ret;
- }
- 
- static int virtscsi_queuecommand(struct Scsi_Host *sh, struct scsi_cmnd *sc)
- {
- 	struct virtio_scsi *vscsi = shost_priv(sh);
--	struct virtio_scsi_target_state *tgt = vscsi->tgt[sc->device->id];
- 	struct virtio_scsi_cmd *cmd;
- 	int ret;
- 
-@@ -467,7 +457,7 @@ static int virtscsi_queuecommand(struct Scsi_Host *sh, struct scsi_cmnd *sc)
- 	BUG_ON(sc->cmd_len > VIRTIO_SCSI_CDB_SIZE);
- 	memcpy(cmd->req.cmd.cdb, sc->cmnd, sc->cmd_len);
- 
--	if (virtscsi_kick_cmd(tgt, &vscsi->req_vq, cmd,
-+	if (virtscsi_kick_cmd(&vscsi->req_vq, cmd,
- 			      sizeof cmd->req.cmd, sizeof cmd->resp.cmd,
- 			      GFP_ATOMIC) == 0)
- 		ret = 0;
-@@ -481,11 +471,10 @@ out:
- static int virtscsi_tmf(struct virtio_scsi *vscsi, struct virtio_scsi_cmd *cmd)
- {
- 	DECLARE_COMPLETION_ONSTACK(comp);
--	struct virtio_scsi_target_state *tgt = vscsi->tgt[cmd->sc->device->id];
- 	int ret = FAILED;
- 
- 	cmd->comp = &comp;
--	if (virtscsi_kick_cmd(tgt, &vscsi->ctrl_vq, cmd,
-+	if (virtscsi_kick_cmd(&vscsi->ctrl_vq, cmd,
- 			      sizeof cmd->req.tmf, sizeof cmd->resp.tmf,
- 			      GFP_NOIO) < 0)
- 		goto out;
-@@ -592,14 +581,11 @@ static struct virtio_scsi_target_state *virtscsi_alloc_tgt(
- 	gfp_t gfp_mask = GFP_KERNEL;
- 
- 	/* We need extra sg elements at head and tail.  */
--	tgt = kmalloc(sizeof(*tgt) + sizeof(tgt->sg[0]) * (sg_elems + 2),
--		      gfp_mask);
--
-+	tgt = kmalloc(sizeof(*tgt), gfp_mask);
- 	if (!tgt)
- 		return NULL;
- 
- 	spin_lock_init(&tgt->tgt_lock);
--	sg_init_table(tgt->sg, sg_elems + 2);
- 	return tgt;
- }
- 
++int virtqueue_add_buf_single(struct virtqueue *vq,
++			     struct scatterlist *sg,
++			     enum dma_data_direction dir,
++			     void *data);
++
+ int virtqueue_start_buf(struct virtqueue *_vq,
+ 			void *data,
+ 			unsigned int nents,
+diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+index fcc9aa2..727b6a1 100644
+--- a/tools/virtio/virtio_test.c
++++ b/tools/virtio/virtio_test.c
+@@ -161,9 +161,9 @@ static void run_test(struct vdev_info *dev, struct vq_info *vq,
+ 		do {
+ 			if (started < bufs) {
+ 				sg_init_one(&sl, dev->buf, dev->buf_size);
+-				r = virtqueue_add_buf(vq->vq, &sl, 1, 0,
+-						      dev->buf + started,
+-						      GFP_ATOMIC);
++				r = virtqueue_add_buf_single(vq->vq, &sl,
++						      DMA_TO_DEVICE,
++						      dev->buf + started);
+ 				if (likely(r == 0)) {
+ 					++started;
+ 					virtqueue_kick(vq->vq);
 -- 
 1.7.1
