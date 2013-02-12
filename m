@@ -1,7 +1,7 @@
-From: Amit Shah <amit.shah@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio_console: Let unconnected rproc device receive data.
-Date: Tue, 12 Feb 2013 14:56:59 +0530
-Message-ID: <20130212092659.GF8319@amit.redhat.com>
+Date: Tue, 12 Feb 2013 11:42:42 +0200
+Message-ID: <20130212094242.GC22567@redhat.com>
 References: <1358425362-4517-1-git-send-email-sjur.brandeland@stericsson.com>
 	<20130125091024.GB30483@amit.redhat.com>
 	<81C3A93C17462B4BBD7E272753C105792458D7DEEF@EXDCVYMBSTM005.EQ1STM.local>
@@ -22,10 +22,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Sjur =?iso-8859-1?Q?Br=E6ndeland?= <sjurbren@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Erwan.Yvin@stericsson.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: Amit Shah <amit.shah@redhat.com>, Erwan.Yvin@stericsson.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Tue) 12 Feb 2013 [10:14:59], Sjur Br=E6ndeland wrote:
+On Tue, Feb 12, 2013 at 10:14:59AM +0100, Sjur Br=E6ndeland wrote:
 > Hi Amit,
 > =
 
@@ -49,9 +49,13 @@ On (Tue) 12 Feb 2013 [10:14:59], Sjur Br=E6ndeland wrote:
 > > Agree, I'll respin this patch.
 > =
 
-> Hm, Rusty has already picked this up. Do you still want me to do a respin,
+> Hm, Rusty has already picked this up.
+
+I don't see it in virtio-next. Do you?
+
+> Do you still want me to do a respin,
 > or should I leave it as is?
+> =
 
-Please respin.
-
-		Amit
+> Regards,
+> Sjur
