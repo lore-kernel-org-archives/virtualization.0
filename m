@@ -1,13 +1,12 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH v3 3/5] virtio-scsi: push vq lock/unlock into virtscsi_vq_done
-Date: Tue, 12 Feb 2013 14:06:29 +0100
-Message-ID: <1360674391-2661-4-git-send-email-pbonzini@redhat.com>
-References: <1360674391-2661-1-git-send-email-pbonzini@redhat.com>
+From: sjur.brandeland@stericsson.com
+Subject: [PATCH] virtio_console: Initialize guest_connected=true for
+	rproc_serial
+Date: Tue, 12 Feb 2013 15:34:07 +0100
+Message-ID: <1360679647-13136-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360674391-2661-1-git-send-email-pbonzini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,83 +16,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com, JBottomley@parallels.com, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: amit.shah@redhat.com, sjur@brendeland.net, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Avoid duplicated code in all of the callers.
-
-Cc: linux-scsi@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- drivers/scsi/virtio_scsi.c |   22 +++++++++-------------
- 1 files changed, 9 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index 3dd4ec5..3d77210 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -165,28 +165,30 @@ static void virtscsi_complete_cmd(struct virtio_scsi *vscsi, void *buf)
- 	sc->scsi_done(sc);
- }
- 
--static void virtscsi_vq_done(struct virtio_scsi *vscsi, struct virtqueue *vq,
-+static void virtscsi_vq_done(struct virtio_scsi *vscsi,
-+			     struct virtio_scsi_vq *virtscsi_vq,
- 			     void (*fn)(struct virtio_scsi *vscsi, void *buf))
- {
- 	void *buf;
- 	unsigned int len;
-+	unsigned long flags;
-+	struct virtqueue *vq = virtscsi_vq->vq;
- 
-+	spin_lock_irqsave(&virtscsi_vq->vq_lock, flags);
- 	do {
- 		virtqueue_disable_cb(vq);
- 		while ((buf = virtqueue_get_buf(vq, &len)) != NULL)
- 			fn(vscsi, buf);
- 	} while (!virtqueue_enable_cb(vq));
-+	spin_unlock_irqrestore(&virtscsi_vq->vq_lock, flags);
- }
- 
- static void virtscsi_req_done(struct virtqueue *vq)
- {
- 	struct Scsi_Host *sh = virtio_scsi_host(vq->vdev);
- 	struct virtio_scsi *vscsi = shost_priv(sh);
--	unsigned long flags;
- 
--	spin_lock_irqsave(&vscsi->req_vq.vq_lock, flags);
--	virtscsi_vq_done(vscsi, vq, virtscsi_complete_cmd);
--	spin_unlock_irqrestore(&vscsi->req_vq.vq_lock, flags);
-+	virtscsi_vq_done(vscsi, &vscsi->req_vq, virtscsi_complete_cmd);
- };
- 
- static void virtscsi_complete_free(struct virtio_scsi *vscsi, void *buf)
-@@ -203,11 +205,8 @@ static void virtscsi_ctrl_done(struct virtqueue *vq)
- {
- 	struct Scsi_Host *sh = virtio_scsi_host(vq->vdev);
- 	struct virtio_scsi *vscsi = shost_priv(sh);
--	unsigned long flags;
- 
--	spin_lock_irqsave(&vscsi->ctrl_vq.vq_lock, flags);
--	virtscsi_vq_done(vscsi, vq, virtscsi_complete_free);
--	spin_unlock_irqrestore(&vscsi->ctrl_vq.vq_lock, flags);
-+	virtscsi_vq_done(vscsi, &vscsi->ctrl_vq, virtscsi_complete_free);
- };
- 
- static int virtscsi_kick_event(struct virtio_scsi *vscsi,
-@@ -342,11 +341,8 @@ static void virtscsi_event_done(struct virtqueue *vq)
- {
- 	struct Scsi_Host *sh = virtio_scsi_host(vq->vdev);
- 	struct virtio_scsi *vscsi = shost_priv(sh);
--	unsigned long flags;
- 
--	spin_lock_irqsave(&vscsi->event_vq.vq_lock, flags);
--	virtscsi_vq_done(vscsi, vq, virtscsi_complete_event);
--	spin_unlock_irqrestore(&vscsi->event_vq.vq_lock, flags);
-+	virtscsi_vq_done(vscsi, &vscsi->event_vq, virtscsi_complete_event);
- };
- 
- /**
--- 
-1.7.1
+RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
+V2hlbiBycHJvY19zZXJpYWwgaXMgaW5pdGlhbGl6ZWQsIGd1ZXN0X2Nvbm5lY3RlZCBzaG91bGQg
+YmUgc2V0CnRvIHRydWUuIFdlIGNhbiB0aGVuIHJldmVydCB0aGUgZXh0cmEgY2hlY2tzIGludHJv
+ZHVjZWQgaW4KY29tbWl0OiAidmlydGlvX2NvbnNvbGU6IExldCB1bmNvbm5lY3RlZCBycHJvYyBk
+ZXZpY2UgcmVjZWl2ZSBkYXRhLiIKClNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNq
+dXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KLS0tCiBkcml2ZXJzL2NoYXIvdmlydGlvX2Nv
+bnNvbGUuYyB8ICAgIDcgKystLS0tLQogMSBmaWxlcyBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyks
+IDUgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xl
+LmMgYi9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwppbmRleCAyY2ZkNWEwLi41YWZjOGY2
+IDEwMDY0NAotLS0gYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYworKysgYi9kcml2ZXJz
+L2NoYXIvdmlydGlvX2NvbnNvbGUuYwpAQCAtMTQzNiw3ICsxNDM2LDcgQEAgc3RhdGljIGludCBh
+ZGRfcG9ydChzdHJ1Y3QgcG9ydHNfZGV2aWNlICpwb3J0ZGV2LCB1MzIgaWQpCiAJCSAqIHJwcm9j
+X3NlcmlhbCBkb2VzIG5vdCB3YW50IHRoZSBjb25zb2xlIHBvcnQsIG9ubHkKIAkJICogdGhlIGdl
+bmVyaWMgcG9ydCBpbXBsZW1lbnRhdGlvbi4KIAkJICovCi0JCXBvcnQtPmhvc3RfY29ubmVjdGVk
+ID0gdHJ1ZTsKKwkJcG9ydC0+aG9zdF9jb25uZWN0ZWQgPSBwb3J0LT5ndWVzdF9jb25uZWN0ZWQg
+PSB0cnVlOwogCWVsc2UgaWYgKCF1c2VfbXVsdGlwb3J0KHBvcnQtPnBvcnRkZXYpKSB7CiAJCS8q
+CiAJCSAqIElmIHdlJ3JlIG5vdCB1c2luZyBtdWx0aXBvcnQgc3VwcG9ydCwKQEAgLTE3NTcsMTEg
+KzE3NTcsOCBAQCBzdGF0aWMgdm9pZCBpbl9pbnRyKHN0cnVjdCB2aXJ0cXVldWUgKnZxKQogCSAq
+IHR0eSBpcyBzcGF3bmVkKSBhbmQgdGhlIGhvc3Qgc2VuZHMgb3V0IGRhdGEgdG8gY29uc29sZQog
+CSAqIHBvcnRzLiAgRm9yIGdlbmVyaWMgc2VyaWFsIHBvcnRzLCB0aGUgaG9zdCB3b24ndAogCSAq
+IChzaG91bGRuJ3QpIHNlbmQgZGF0YSB0aWxsIHRoZSBndWVzdCBpcyBjb25uZWN0ZWQuCi0JICog
+SG93ZXZlciBhIHJlbW90ZSBkZXZpY2UgbWlnaHQgc2VuZCBkYXRhIGJlZm9yZSB0aGUgcG9ydCBp
+cwotCSAqIGNvbm5lY3RlZC4gU28gZG9uJ3QgcmVtb3ZlIGRhdGEgZnJvbSBhIHJwcm9jX3Nlcmlh
+bCBkZXZpY2UuCiAJICovCi0KLQlpZiAoIXBvcnQtPmd1ZXN0X2Nvbm5lY3RlZCAmJiAhaXNfcnBy
+b2Nfc2VyaWFsKHBvcnQtPnBvcnRkZXYtPnZkZXYpKQorCWlmICghcG9ydC0+Z3Vlc3RfY29ubmVj
+dGVkKQogCQlkaXNjYXJkX3BvcnRfZGF0YShwb3J0KTsKIAogCXNwaW5fdW5sb2NrX2lycXJlc3Rv
+cmUoJnBvcnQtPmluYnVmX2xvY2ssIGZsYWdzKTsKLS0gCjEuNy41LjQKCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
