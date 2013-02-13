@@ -1,14 +1,16 @@
-From: Cyril Roelandt <tipecaml@gmail.com>
-Subject: [PATCH 5/5] xen: remove redundant NULL check before
-	unregister_and_remove_pcpu().
-Date: Tue, 12 Feb 2013 05:01:53 +0100
-Message-ID: <1360641713-24895-6-git-send-email-tipecaml__11577.8191634037$1360702263$gmane$org@gmail.com>
-References: <1360641713-24895-1-git-send-email-tipecaml@gmail.com>
+From: Andy King <acking@vmware.com>
+Subject: Re: [Pv-drivers] [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Tue, 12 Feb 2013 19:21:23 -0800 (PST)
+Message-ID: <391933308.1119093.1360725683160.JavaMail.root@vmware.com>
+References: <1360196636-9357-1-git-send-email-acking@vmware.com>
+	<1360196636-9357-2-git-send-email-acking@vmware.com>
+	<5118FEA9.2080201@redhat.com>
+	<1675407061.963254.1360682467627.JavaMail.root@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360641713-24895-1-git-send-email-tipecaml@gmail.com>
+In-Reply-To: <1675407061.963254.1360682467627.JavaMail.root@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +20,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org, Cyril Roelandt <tipecaml@gmail.com>, konrad.wilk@oracle.com
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-unregister_and_remove_pcpu on a NULL pointer is a no-op, so the NULL check in
-sync_pcpu can be removed.
+> stream_has_data: Returns amount of data available (in bytes) in the
+> socket's receive buffer, or -1 if empty.
+> 
+> stream_has_space: Returns amount of space available (in bytes) in the
+> socket's send buffer, or -1 if full.
 
-Signed-off-by: Cyril Roelandt <tipecaml@gmail.com>
----
- drivers/xen/pcpu.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Actually, I think it's for empty/full, and -1 for an error (say, the
+transport closed or whatever).
 
-diff --git a/drivers/xen/pcpu.c b/drivers/xen/pcpu.c
-index 067fcfa..5a27a45 100644
---- a/drivers/xen/pcpu.c
-+++ b/drivers/xen/pcpu.c
-@@ -278,8 +278,7 @@ static int sync_pcpu(uint32_t cpu, uint32_t *max_cpu)
- 	 * Only those at cpu present map has its sys interface.
- 	 */
- 	if (info->flags & XEN_PCPU_FLAGS_INVALID) {
--		if (pcpu)
--			unregister_and_remove_pcpu(pcpu);
-+		unregister_and_remove_pcpu(pcpu);
- 		return 0;
- 	}
- 
--- 
-1.7.10.4
+Thanks!
+- Andy
