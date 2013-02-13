@@ -1,16 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/6] virtio_host: host-side implementation of virtio rings.
-Date: Wed, 13 Feb 2013 20:55:56 +1030
-Message-ID: <8738x0ldcb.fsf@rustcorp.com.au>
-References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
-	<CAJK669aVu_h-ZJnNF0yWBvzfvfj2NSNxDkuHSmJxdUGLNtjOcQ@mail.gmail.com>
-	<878v73lpp3.fsf@rustcorp.com.au>
-	<CAJK669ZTsRpc4qyVsDHgGZUVFMU+qtPARZ-6pkkXXkds_+tEwA@mail.gmail.com>
+Subject: Re: [PATCH] virtio_console: Initialize guest_connected=true for
+	rproc_serial
+Date: Wed, 13 Feb 2013 20:58:28 +1030
+Message-ID: <87zjz8jynn.fsf@rustcorp.com.au>
+References: <1360679647-13136-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJK669ZTsRpc4qyVsDHgGZUVFMU+qtPARZ-6pkkXXkds_+tEwA@mail.gmail.com>
+In-Reply-To: <1360679647-13136-1-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,26 +18,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, "Michael S . Tsirkin" <mst@redhat.com>, Erwan.Yvin@stericsson.com, virtualization@lists.linux-foundation.org
+Cc: amit.shah@redhat.com, sjur@brendeland.net, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cj4gSGkgUnVzdHks
-Cj4KPiBPbiBNb24sIEZlYiA0LCAyMDEzIGF0IDEwOjQ0IFBNLCBSdXN0eSBSdXNzZWxsIDxydXN0
-eUBydXN0Y29ycC5jb20uYXU+IHdyb3RlOgo+PiBTanVyIEJyw6ZuZGVsYW5kIDxzanVyYnJlbkBn
-bWFpbC5jb20+IHdyaXRlczoKPiAuLi4KPj4+IEkgZ3Vlc3MgbXkgdnJpbmdoIHJlbGF0ZWQgc3R1
-ZmYgc2hvdWxkIGdvIGludG8geW91ciB0cmVlIHRvZ2V0aGVyIHdpdGggeW91cgo+Pj4gdnJpbmdo
-IHBhdGNoZXMuLi4KPj4+IFdvdWxkIHlvdSBiZSB3aWxsaW5nIHRvIHRha2UgdGhpcyB2aWEgeW91
-ciB0cmVlLCBwcm92aWRlZCB0aGF0IEkgZ2V0IGFja3MKPj4+IGZyb20gdGhlIHJpZ2h0IHBlb3Bs
-ZT8KPj4KPj4gWWVzIHBsZWFzZS4gIE5vdyBJIGhhdmUgc2V0IHVwIGEgdGVzdCByaWcgZm9yIHZo
-b3N0ICh1bmZvcnR1bmF0ZWx5IG5vdAo+PiB3aXRoIDEwR2UpIEkgY2FuIG1ha2UgcHJvZ3Jlc3Mg
-b24gdmhvc3QgYWRhcHRpb24uCj4+Cj4KPiBJIGhhdmUgb25lIHF1ZXN0aW9uLCBhcmUgeW91IHBs
-YW5uaW5nIHRvIGluY2x1ZGUgdnJpbmdoIGluIHlvdXIKPiB2aXJ0aW8tbmV4dCBicmFuY2gKPiBm
-b3IgdGhlIDMuOSBtZXJnZSB3aW5kb3cgb3Igc29tZSB0aW1lIGxhdGVyPwoKSWYgeW91J3JlIGVh
-Z2VyIHdpdGggdGhlIENBSUYgc3R1ZmYsIEknbGwgbWVyZ2UgaXQgZm9yIHRoaXMgbWVyZ2Ugd2lu
-ZG93Cih3ZSBtYXkgc3RpbGwgcmV3b3JrIHN0dWZmLCBidXQgSSBkb24ndCB3YW50IHRvIGJsb2Nr
-IHlvdSkuCgpPdGhlcndpc2UsIGl0J2xsIHByb2JhYmx5IHdhaXQuCgpDaGVlcnMsClJ1c3R5Lgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyaXRlczoKPiBGcm9tOiBTanVyIEJyw6Zu
+ZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Cj4KPiBXaGVuIHJwcm9jX3Nl
+cmlhbCBpcyBpbml0aWFsaXplZCwgZ3Vlc3RfY29ubmVjdGVkIHNob3VsZCBiZSBzZXQKPiB0byB0
+cnVlLiBXZSBjYW4gdGhlbiByZXZlcnQgdGhlIGV4dHJhIGNoZWNrcyBpbnRyb2R1Y2VkIGluCj4g
+Y29tbWl0OiAidmlydGlvX2NvbnNvbGU6IExldCB1bmNvbm5lY3RlZCBycHJvYyBkZXZpY2UgcmVj
+ZWl2ZSBkYXRhLiIKPgo+IFNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJh
+bmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KClRoYW5rcywgYXBwbGllZC4KCkNoZWVycywKUnVzdHku
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
+emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
+Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
+aXJ0dWFsaXphdGlvbg==
