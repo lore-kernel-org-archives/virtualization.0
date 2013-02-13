@@ -1,16 +1,11 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
-Date: Wed, 13 Feb 2013 12:06:04 +0100
-Message-ID: <511B739C.8000204@redhat.com>
-References: <1360196636-9357-1-git-send-email-acking@vmware.com>
-	<1360196636-9357-2-git-send-email-acking@vmware.com>
-	<5118FEA9.2080201@redhat.com>
-	<1675407061.963254.1360682467627.JavaMail.root@vmware.com>
+From: "CalendarSites" <calendarsites@insticc.org>
+Subject: CFP Workshop ICT4Mobility-ICT4Mobility 2013
+Date: Wed, 13 Feb 2013 11:31:53 -0000
+Message-ID: <023101ce09dd$ba184c20$2e48e460$@insticc.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3348840199083867815=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1675407061.963254.1360682467627.JavaMail.root@vmware.com>
+Content-language: pt
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,106 +15,463 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy King <acking@vmware.com>
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/12/13 16:21, Andy King wrote:
-> Hi Gerd,
-> 
->>> +struct vsock_transport {
-> ...
->> Whoa.  This has grown *alot*.  Care to explain this please?  Patch
->> creating a Documentation/virtual/vsock.txt would be cool.
-> 
-> Yes, it grew because of the notification stuff, which I'd forgotten
-> about until I removed the vmci header from the core code.  You are
-> free to use empty functions for these if they don't make any sense
-> for virtio.
+This is a multipart message in MIME format.
 
-I've seen you have a notify_ops in the vmci bits.  Do you have different
-notify ops depending on socket type or something?  Does it make sense to
-move the notify ops ptr into "struct vsock_sock" maybe?
+--===============3348840199083867815==
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0232_01CE09DD.BA184C20"
+Content-language: pt
 
-And can we make it optional please (i.e. allow the function pointers to
-be NULL)?
+This is a multipart message in MIME format.
 
-> The alternative is for us to move the entire body of
-> vsock_stream_recv/send into the transport, where we can hide the
-> notification stuff, but it seems like folks will just end up
-> duplicating a lot of code then.
+------=_NextPart_000_0232_01CE09DD.BA184C20
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Sounds not so good.  However, it is still not very clear what this
-notification stuff is all about.  And it's not just notification, the
-calls can return errors too.
+CALL FOR PAPERS
 
-Which problem you are trying to tackle with the notifications?
+=20
 
->> stream_has_data + stream_has_space + stream_rcvhiwat look like they
->> are needed for buffer management.  Details please (especially for
->> stream_rcvhiwat).
-> 
-> stream_has_data: Returns amount of data available (in bytes) in the
-> socket's receive buffer, or -1 if empty.
-> 
-> stream_has_space: Returns amount of space available (in bytes) in the
-> socket's send buffer, or -1 if full.
+ <http://www.smartgreens.org/workshops.aspx#ICT4Mobility> Workshop
+ICT4Mobility- ICT4Mobility 2013
 
-As one would expect from the names, good.
+=20
 
-> stream_rcvhiwat: The upper bound on the socket's receive buffer.
-> Which technically is the same as the value returned by
-> get_buffer_size(), so perhaps we could substitute that here and
-> drop this one.
+In conjunction with the 2nd International Conference on Smart Grids and
+Green IT Systems- SMARTGREENS 2013
 
-Yes, please.
+=20
 
->> What is stream_is_active?
-> 
-> For the VMCI transport, it indicates if the underlying queuepair is
-> still around (i.e., make sure we haven't torn it down while sleeping
-> in a blocking send or receive).  Perhaps it's not the best name?
+Website: http://www.smartgreens.org
 
-How you'd hit that?  Peer closing the socket while sleeping?  Other
-thread closing the socket wile sleeping?  Both?
+=20
 
-I think a state field in struct vsock_sock would be a better solution here.
+May 9 - 10, 2013
 
->> What is *_allow?
-> 
-> It's very basic filtering.  We have specific addresses that we don't
-> allow, and we look for them in the allow() functions.  You can just
-> return true if you like.
+Aachen, Germany
 
-Can we make those calls optional too please?
+=20
 
->> What are all those notify_* calls?
-> 
-> They're to do with signaling and flow-control.  Again, they might
-> not make any sense at all, but it's hard to know without having
-> written another transport :)
+Co-organized by: RWTH
 
-I don't see a immediate need for them in the virto transport, but it's
-hard to say without knowing what exactly they are doing.
+Sponsored by: INSTICC
 
->> Why do you need vsock_transport_{send,recv}_notify_data structs?
->> Can't this live in vsock_sock->trans?
-> 
-> Those have to be setup on a per-call basis (per-thread), so it's
-> just easier to have them on the stack of the send/recv calls.  If
-> you think there's a better name, or a better way to allocate them,
-> I'm all ears.
+INSTICC is Member of: WfMC and OMG
 
-Hmm.  The struct content seems to be vmci-specific and it is in generic
-code, which isn't that nice.
+=20
 
-The notify_*_init could return a opaque pointer instead.  But then
-you'll need a notify_*_free too.  And you can't place it on the stack
-and thus have a allocation in the hot path, which I guess you are trying
-to avoid in the first place.
+IMPORTANT DATES:
 
-No good idea offhand, but maybe that changes if the purpose of all those
-notify_* calls is more clear.
+Paper Submission: February 28, 2013=20
+Authors Notification: March 15, 2013=20
+Camera Ready and Registration: April 1, 2013
 
-cheers,
-  Gerd
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+=20
+
+We would like to draw your attention to the
+<http://www.smartgreens.org/workshops.aspx#ICT4Mobility> Workshop
+ICT4Mobility- ICT4Mobility 2013 (held in conjunction with the 2nd
+International Conference on Smart Grids and Green IT Systems- =
+SMARTGREENS
+2013), whose submission deadline is scheduled for February 28, 2013. We =
+hope
+you can participate in this session by submitting a paper reflecting =
+your
+current research in any of the following areas:
+
+=20
+
+=95 Renewable Mobility Concepts
+
+=95 Travel Navigation, Assistance and Notification
+
+=95 Energy-optimized Routing
+
+=95 Intermodal Routing and Planning
+
+=95 Fleet Management and Operation Systems
+
+=95 Car and Bike Sharing Management Systems
+
+=95 Trip Planning, Operation, and Information
+
+=95 Reservation, Authorization, Billing, and Ticketing
+
+=95 Parking and Charging Infrastructure Management
+
+=95 Ridesharing Systems
+
+=95 Travel Information Systems
+
+=20
+
+The conference will be sponsored by the Institute for Systems and
+Technologies of Information, Control and Communication (INSTICC),
+co-organized with the Aachen University (RWTH). INSTICC is Member of the
+Workflow Management Coalition
+
+(WfMC) and Object Management Group (OMG).
+
+=20
+
+The purpose of the 2nd International Conference on Smart Grids and Green =
+IT
+Systems (SMARTGREENS) is to bring together researchers, designers,
+developers and practitioners interested in the advances and applications =
+in
+the field of Smart Grids, Green Information and Communication =
+Technologies,
+Sustainability, Energy Aware Systems and Technologies.
+
+Submitted papers will be subject to a double-blind review process.=20
+
+=20
+
+All accepted papers (full, short and posters) will be published on the
+workshop proceedings book, under an ISBN reference, and on CD-ROM =
+support.=20
+
+All papers presented at the conference venue will be available at the
+SCITEPRESS Digital Library ( <http://www.scitepress.org/DigitalLibrary/>
+http://www.scitepress.org/DigitalLibrary/). SCITEPRESS is member of =
+CrossRef
+( <http://www.crossref.org/> http://www.crossref.org/).
+
+The proceedings are submitted for indexation by Thomson Reuters =
+Conference
+Proceedings Citation Index (ISI), INSPECC, DBLP and EI (Elsevier Index).
+
+=20
+
+SMARTGREENS 2013 will be held in conjunction with CLOSER 2013 =
+(International
+Conference on Cloud Computing and Services Science -
+<http://closer.scitevents.org/> http://closer.scitevents.org/), CSEDU =
+2013
+(International Conference on Computer Supported Education -
+<http://www.csedu.org/> http://www.csedu.org/) and WEBIST 2013
+(International Conference on Web Information Systems and Technologies -
+http://www.webist.org/) in Aachen, Germany.=20
+
+Registration to SMARTGREENS will enable free attendance to any sessions =
+of
+CLOSER, CSEDU and WEBIST conferences as a non-speaker.
+
+=20
+
+Please check further details at the workshop website
+
+(http://www.smartgreens.org/ICT4Mobility.aspx) and the main conference
+website (http://www.smartgreens.org/).
+
+=20
+
+WORKSHOP CO-CHAIRS
+
+Christoph Terwelp=20
+RWTH Aachen University=20
+Germany
+
+=20
+
+Karl-Heinz Krempels=20
+RWTH Aachen University=20
+Germany
+
+=20
+
+Thomas Mager=20
+K=F6lner Stadt- und Verkehrsverlag=20
+Germany
+
+=20
+
+Michael Ditze=20
+TWT GmbH=20
+Germany
+
+=20
+
+In case of questions, please feel free to contact us:
+<mailto:%20smartgreens.secretariat@insticc.org>
+smartgreens.secretariat@insticc.org
+
+=20
+
+PROGRAM COMMITTEE:
+
+Please check the workshop=B4s program committee members at
+http://www.smartgreens.org/ICT4Mobility.aspx
+
+
+------=_NextPart_000_0232_01CE09DD.BA184C20
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
+xmlns=3D"http://www.w3.org/TR/REC-html40"><head><meta =
+http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1"><meta name=3DGenerator content=3D"Microsoft Word =
+14 (filtered medium)"><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:10.0pt;
+	margin-left:0cm;
+	line-height:115%;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-fareast-language:EN-US;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{mso-style-priority:99;
+	mso-style-link:"Plain Text Char";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";
+	mso-fareast-language:EN-US;}
+span.PlainTextChar
+	{mso-style-name:"Plain Text Char";
+	mso-style-priority:99;
+	mso-style-link:"Plain Text";
+	font-family:"Calibri","sans-serif";}
+span.scope
+	{mso-style-name:scope;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri","sans-serif";
+	mso-fareast-language:EN-US;}
+.MsoPapDefault
+	{mso-style-type:export-only;
+	margin-bottom:10.0pt;
+	line-height:115%;}
+@page WordSection1
+	{size:595.3pt 841.9pt;
+	margin:70.85pt 3.0cm 70.85pt 3.0cm;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]--></head><body lang=3DPT link=3Dblue =
+vlink=3Dpurple><div class=3DWordSection1><p class=3DMsoPlainText =
+align=3Dcenter style=3D'text-align:center'><b><span lang=3DEN-US>CALL =
+FOR PAPERS<o:p></o:p></span></b></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
+align=3Dcenter style=3D'text-align:center'><a =
+href=3D"http://www.smartgreens.org/workshops.aspx#ICT4Mobility"><span =
+lang=3DEN-US style=3D'color:windowtext;text-decoration:none'>Workshop =
+ICT4Mobility</span></a><span lang=3DEN-US>- ICT4Mobility =
+2013<o:p></o:p></span></p><p class=3DMsoPlainText align=3Dcenter =
+style=3D'text-align:center'><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
+align=3Dcenter style=3D'text-align:center'><span lang=3DEN-US>In =
+conjunction with the 2nd International Conference on Smart Grids and =
+Green IT Systems- SMARTGREENS 2013<o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
+align=3Dcenter style=3D'text-align:center'><span lang=3DEN-US>Website: =
+http://www.smartgreens.org<o:p></o:p></span></p><p class=3DMsoPlainText =
+align=3Dcenter style=3D'text-align:center'><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
+align=3Dcenter style=3D'text-align:center'><span lang=3DEN-US>May 9 - =
+10, 2013<o:p></o:p></span></p><p class=3DMsoPlainText align=3Dcenter =
+style=3D'text-align:center'><span lang=3DEN-US>Aachen, =
+Germany<o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoPlainText><b><span lang=3DEN-US>Co-organized by: =
+</span></b><span lang=3DEN-US>RWTH<b><o:p></o:p></b></span></p><p =
+class=3DMsoPlainText><b><span lang=3DEN-US>Sponsored by: =
+</span></b><span lang=3DEN-US>INSTICC<b><o:p></o:p></b></span></p><p =
+class=3DMsoPlainText><b><span lang=3DEN-US>INSTICC is Member =
+of:</span></b><span lang=3DEN-US> WfMC and OMG<o:p></o:p></span></p><p =
+class=3DMsoPlainText><span lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoPlainText><b><span lang=3DEN-US>IMPORTANT =
+DATES:<o:p></o:p></span></b></p><p class=3DMsoPlainText><span =
+lang=3DEN-US>Paper Submission: <b><span style=3D'color:black'>February =
+28, 2013</span></b> <br>Authors Notification: <b><span =
+style=3D'color:black'>March 15, 2013</span></b> <br>Camera Ready and =
+Registration: <b><span style=3D'color:black'>April 1, =
+2013</span></b><o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - =
+- - -<o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span lang=3DEN-US>We would like to draw =
+your attention to the </span><a =
+href=3D"http://www.smartgreens.org/workshops.aspx#ICT4Mobility"><span =
+lang=3DEN-US style=3D'color:windowtext;text-decoration:none'>Workshop =
+ICT4Mobility</span></a><span lang=3DEN-US>- ICT4Mobility 2013 (held in =
+conjunction with the 2nd International Conference on Smart Grids and =
+Green IT Systems- SMARTGREENS 2013), whose submission deadline is =
+scheduled for February 28, 2013. We hope you can participate in this =
+session by submitting a paper reflecting your current research in any of =
+the following areas:<o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span class=3Dscope><span =
+lang=3DEN-US>&#8226; Renewable Mobility Concepts</span></span><span =
+lang=3DEN-US><o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span class=3Dscope><span =
+lang=3DEN-US>&#8226; Travel Navigation, Assistance and =
+Notification</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Energy-optimized =
+Routing</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Intermodal Routing and =
+Planning</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Fleet Management and Operation =
+Systems</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Car and Bike Sharing Management =
+Systems</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Trip Planning, Operation, and =
+Information</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Reservation, Authorization, =
+Billing, and Ticketing</span></span><span =
+lang=3DEN-US><o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span class=3Dscope><span =
+lang=3DEN-US>&#8226; Parking and Charging Infrastructure =
+Management</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Ridesharing =
+Systems</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Travel Information =
+Systems<o:p></o:p></span></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span lang=3DEN-US>The conference will be =
+sponsored by the Institute for Systems and Technologies of Information, =
+Control and Communication (INSTICC), co-organized with the Aachen =
+University (RWTH). INSTICC is Member of the Workflow Management =
+Coalition<o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span lang=3DEN-US>(WfMC) and Object =
+Management Group (OMG).<o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span lang=3DEN-US>The purpose of the 2nd =
+International Conference on Smart Grids and Green IT Systems =
+(SMARTGREENS) is to bring together researchers, designers, developers =
+and practitioners interested in the advances and applications in the =
+field of Smart Grids, Green Information and Communication Technologies, =
+Sustainability, Energy Aware Systems and =
+Technologies.<o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span lang=3DEN-US>Submitted papers will be =
+subject to a double-blind review process. <o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span lang=3DEN-US>All accepted papers =
+(full, short and posters) will be published on the workshop proceedings =
+book, under an ISBN reference, and on CD-ROM support. =
+<o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span lang=3DEN-US>All papers presented at =
+the conference venue will be available at the SCITEPRESS Digital Library =
+(</span><a href=3D"http://www.scitepress.org/DigitalLibrary/" =
+target=3D"_blank"><span =
+lang=3DEN-US>http://www.scitepress.org/DigitalLibrary/</span></a><span =
+lang=3DEN-US>). SCITEPRESS is member of CrossRef (</span><a =
+href=3D"http://www.crossref.org/" target=3D"_blank"><span =
+lang=3DEN-US>http://www.crossref.org/</span></a><span =
+lang=3DEN-US>).<o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span lang=3DEN-US>The proceedings are =
+submitted for indexation by Thomson Reuters Conference Proceedings =
+Citation Index (ISI), INSPECC, DBLP and EI (Elsevier =
+Index).<o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span lang=3DEN-US>SMARTGREENS 2013 will be =
+held in conjunction with CLOSER 2013 (International Conference on Cloud =
+Computing and Services Science - </span><a =
+href=3D"http://closer.scitevents.org/"><span =
+lang=3DEN-US>http://closer.scitevents.org/</span></a><span =
+lang=3DEN-US>), CSEDU 2013 (International Conference on Computer =
+Supported Education - </span><a href=3D"http://www.csedu.org/"><span =
+lang=3DEN-US>http://www.csedu.org/</span></a><span lang=3DEN-US>) and =
+WEBIST 2013 (International Conference on Web Information Systems and =
+Technologies - <span class=3DMsoHyperlink>http://www.webist.org/)</span> =
+in Aachen, Germany. <o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span lang=3DEN-US>Registration to =
+SMARTGREENS will enable free attendance to any sessions of CLOSER, CSEDU =
+and WEBIST conferences as a non-speaker.<o:p></o:p></span></p><p =
+class=3DMsoPlainText><span lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoPlainText><span lang=3DEN-US>Please check further details at =
+the workshop website<o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US>(http://www.smartgreens.org/ICT4Mobility.aspx) and the main =
+conference website =
+(http://www.smartgreens.org/).<o:p></o:p></span></p><p =
+class=3DMsoPlainText><span lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoPlainText><b><span lang=3DEN-US>WORKSHOP =
+CO-CHAIRS<o:p></o:p></span></b></p><p class=3DMsoPlainText><strong><span =
+lang=3DEN-US style=3D'font-family:"Calibri","sans-serif"'>Christoph =
+Terwelp</span></strong><span lang=3DEN-US> <br>RWTH Aachen University =
+<br>Germany<o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoPlainText><strong><span lang=3DEN-US =
+style=3D'font-family:"Calibri","sans-serif"'>Karl-Heinz =
+Krempels</span></strong><span lang=3DEN-US> <br>RWTH Aachen University =
+<br>Germany<o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoPlainText><strong><span lang=3DEN-US =
+style=3D'font-family:"Calibri","sans-serif"'>Thomas =
+Mager</span></strong><span lang=3DEN-US> <br>K=F6lner Stadt- und =
+Verkehrsverlag <br>Germany<o:p></o:p></span></p><p =
+class=3DMsoPlainText><span lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoPlainText><strong><span lang=3DEN-US =
+style=3D'font-family:"Calibri","sans-serif"'>Michael =
+Ditze</span></strong><span lang=3DEN-US> <br>TWT GmbH =
+<br>Germany<o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US>In case of questions, please feel free to contact us: =
+</span><a href=3D"mailto:%20smartgreens.secretariat@insticc.org"><span =
+lang=3DEN-US>smartgreens.secretariat@insticc.org</span></a><span =
+lang=3DEN-US><o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoPlainText><b><span lang=3DEN-US>PROGRAM =
+COMMITTEE:<o:p></o:p></span></b></p><p class=3DMsoPlainText><span =
+lang=3DEN-US>Please check the workshop=B4s program committee members at =
+http://www.smartgreens.org/ICT4Mobility.aspx<o:p></o:p></span></p></div><=
+/body></html>
+------=_NextPart_000_0232_01CE09DD.BA184C20--
+
+
+
+
+--===============3348840199083867815==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3348840199083867815==--
