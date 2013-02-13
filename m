@@ -1,9 +1,9 @@
 From: "CalendarSites" <calendarsites@insticc.org>
-Subject: CFP Special Session CloudSecGov
-Date: Wed, 13 Feb 2013 11:34:42 -0000
-Message-ID: <037101ce09de$1f0257c0$5d070740$@insticc.org>
+Subject: CFP Cloud Service Analytics Workshop-CSAW 2013
+Date: Wed, 13 Feb 2013 11:39:21 -0000
+Message-ID: <042a01ce09de$c4f9ad90$4eed08b0$@insticc.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8565369361519930283=="
+Content-Type: multipart/mixed; boundary="===============7367932766701962381=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-language: pt
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -20,14 +20,14 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 This is a multipart message in MIME format.
 
---===============8565369361519930283==
+--===============7367932766701962381==
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0372_01CE09DE.1F04C8C0"
+	boundary="----=_NextPart_000_042B_01CE09DE.C4FC1E90"
 Content-language: pt
 
 This is a multipart message in MIME format.
 
-------=_NextPart_000_0372_01CE09DE.1F04C8C0
+------=_NextPart_000_042B_01CE09DE.C4FC1E90
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -36,8 +36,9 @@ CALL FOR PAPERS
 
 =20
 
-Special Session on Security Governance and SLAs in Cloud Computing -
-CloudSecGov 2013
+ <http://closer.scitevents.org/workshops.aspx#CSAW> Cloud Service =
+Analytics
+Workshop - CSAW 2013
 
 In conjunction with the 3rd International Conference on Cloud Computing =
 and
@@ -45,7 +46,7 @@ Services Science - CLOSER 2013
 
 =20
 
-Website: http:// http://closer.scitevents.org/CloudSecGov.aspx
+Website: http://closer.scitevents.org/CSAW.aspx
 
 =20
 
@@ -67,66 +68,66 @@ IMPORTANT DATES:
 
 =20
 
-Paper Submission: March 1, 2013=20
-Authors Notification: March 19, 2013=20
-Camera Ready and Registration: March 28, 2013=20
+Paper Submission: March 5, 2013 (extended)=20
+Authors Notification: March 18, 2013=20
+Camera Ready and Registration: March 27, 2013=20
+
+=20
 
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 =20
 
-We would like to draw your attention to the Security Governance and SLAs =
-in
-Cloud Computing - CloudSecGov 2013 (held in conjunction with the 3rd
-International Conference on Cloud Computing and Services Science- CLOSER
-2013), whose submission deadline is scheduled for March 1, 2013.=20
+We would like to draw your attention to the
+<http://closer.scitevents.org/workshops.aspx#CSAW> Cloud Service =
+Analytics
+Workshop - CSAW 2013 (held in conjunction with the 3rd International
+Conference on Cloud Computing and Services Science- CLOSER 2013), whose
+submission deadline is scheduled for February 11, 2013.=20
 
-Cloud computing is slowly turning towards an open ecosystem of services =
-that
-can be mixed and matched according to the customers' individual
-requirements. In federated Clouds (or "clouds-of-clouds"), services will =
-be
-picked not only from functionality, but also based on non-functional
-properties such as availability, performance, security and cost. The =
-obvious
-downside is the lack of control; customers need to make sure that the
-composite services behave as expected and that the individual components
-from different providers can be trusted.=20
+Cloud computing presents new economic and flexible business and
+technological models. The explosive uptake of Cloud solutions has =
+fuelled
+the growth of Cloud services. However, to support Cloud providers and =
+users,
+it is critical that sourcing decisions are informed through some system =
+of
+Cloud service analytics. The 1st Cloud Service Analytics Workshop (CSAW)
+will provide an interactive and focused platform for presenting and
+discussing new and emerging ideas on Cloud service analytics. This =
+workshop
+focuses on linking some of the latest research in business and I.T to
+explore how we can examine the value of Cloud service environments. This
+workshop provides a platform to exchange state-of-the-art research and
+practice in Cloud service analytics and explore emerging or overarching
+trends within the field of Cloud computing.=20
 
-To mitigate the security risks associated with federated Clouds, and to
-increase the trust in the individual providers, existing security =
-mechanisms
-and their effectiveness should be formalized in contracts. Service Level
-Agreements (SLAs) is a common way to explicitly state the obligations of =
-the
-provider and to serve as a binding agreement between the service =
-customer
-and the service provider. The SLA will help ensure that the service =
-keeps
-the right level of quality and that customers are credited accordingly =
-in
-terms of contract violations. This session will include presentations of
-peer-reviewed papers related to Cloud computing SLAs, with special focus =
-on
-security. The topics of interests include (but are not limited to)
+Topics:
+=95 Cloud Computing Analytics
 
+=95 Service Key Performance Indicators
 
-=95 Security mechanisms for Cloud computing
+=95 Cloud Performance Modelling and Management
 
-=95 Negotiation of security terms
+=95 IT Service Management and Cloud
 
-=95 Machine-readable SLAs
+=95 Service and Technology Capabilities
 
-=95 Monitoring and enforcement of security terms=20
+=95 Service Quality Metrics
 
-=95 Security in hybrid/federated Clouds
+=95 Cloud Service Performance
 
-=95 Cloud security governance
+=95 Value Analysis of Cloud Environments
 
-This is the second edition of the CloudSecGov. The first edition,
-CloudSecGov 2012, took place during CLOSER 2012 and attracted a large =
-number
-of high-quality speakers.
+=95 Matching, compliance and alignment issues
+
+=95 Service Capability Maturity Models=20
+
+=95 Monitoring and Reporting Business Value across Service Networks
+
+=95 Cloud Service Quality Frameworks
+
+=95 Service and Technology Standards for the Cloud
 
 The conference will be sponsored by the Institute for Systems and
 Technologies of Information, Control and Communication (INSTICC),
@@ -156,23 +157,14 @@ Cloud Computing.
 
 Submitted papers will be subject to a double-blind review process.=20
 
-All papers accepted to the Special Session will be published in a =
-special
-section of the conference proceedings book, under an ISBN reference, on
-paper and on CD-ROM.
+All accepted papers will be published in the workshop proceedings book,
+under an ISBN reference and on CD-ROM support.
 
-=20
-
-The proceedings will be submitted for indexation by Thomson Reuters
-Conference Proceedings Citation Index (ISI), INSPEC, DBLP and EI =
-(Elsevier
-Index). All papers presented at the conference venue will be available =
-at
-the SCITEPRESS Digital Library ( =
-<http://www.scitepress.org/DigitalLibrary/>
-http://www.scitepress.org/DigitalLibrary/). SCITEPRESS is member of =
-CrossRef
-( <http://www.crossref.org/> http://www.crossref.org/).
+All papers presented at the conference venue will be available at the
+SCITEPRESS Digital Library ( <http://www.scitepress.org/DigitalLibrary/>
+http://www.scitepress.org/DigitalLibrary/).=20
+SCITEPRESS is member of CrossRef ( <http://www.crossref.org/>
+http://www.crossref.org/).
 
 =20
 
@@ -191,10 +183,10 @@ WEBIST, SMARTGREENS and CSEDU conferences as a non-speaker.
 
 =20
 
-Please check further details at the Special Session website
+Please check further details at the workshop website
 
-(http://closer.scitevents.org/CloudSecGov.aspx) and the main conference
-website (http://closer.scitevents.org).
+(http://closer.scitevents.org/CSAW.aspx) and the main conference website
+(http://closer.scitevents.org).
 
 =20
 
@@ -202,33 +194,37 @@ CO-CHAIRS
 
 =20
 
-Karin Bernsmed=20
-SINTEF ICT=20
-NO-7465 Trondheim
+Markus Helfert=20
+Dublin City University=20
+Ireland
 
 =20
 
-Martin Gilje Jaatun=20
-SINTEF ICT=20
-NO-7465 Trondheim
+Noel Carroll=20
+Dublin City University=20
+Ireland
+
+=20
+
+Armin Shams=20
+University College Cork=20
+Ireland
 
 =20
 
 In case of questions, please feel free to contact us:
-<mailto:karin.bernsmed@sintef.no> karin.bernsmed@sintef.no;
-Martin.G.Jaatun@sintef.no
+<mailto:%20closer.secretariat@scitevents.org>
+closer.secretariat@scitevents.org
 
 =20
 
 PROGRAM COMMITTEE:
 
-Please check the special session=B4s program committee members at
-http://closer.scitevents.org/CloudSecGov.aspx
-
-=20
+Please check the workshop=B4s program committee members at
+http://closer.scitevents.org/CSAW.aspx
 
 
-------=_NextPart_000_0372_01CE09DE.1F04C8C0
+------=_NextPart_000_042B_01CE09DE.C4FC1E90
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -303,9 +299,11 @@ FOR PAPERS<o:p></o:p></span></b></p><p class=3DMsoPlainText><span =
 lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal =
 align=3Dcenter =
 style=3D'margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-h=
-eight:normal'><span lang=3DEN-US>Special Session on Security Governance =
-and SLAs in Cloud Computing&nbsp;- <b>CloudSecGov =
-2013</b><o:p></o:p></span></p><p class=3DMsoNormal align=3Dcenter =
+eight:normal'><a =
+href=3D"http://closer.scitevents.org/workshops.aspx#CSAW"><span =
+lang=3DEN-US style=3D'color:windowtext;text-decoration:none'>Cloud =
+Service Analytics Workshop - CSAW</span></a><span lang=3DEN-US> =
+2013<o:p></o:p></span></p><p class=3DMsoNormal align=3Dcenter =
 style=3D'margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-h=
 eight:normal'><span lang=3DEN-US>In conjunction with the 3rd =
 International Conference on Cloud Computing and Services Science - =
@@ -313,8 +311,7 @@ CLOSER 2013</span><span lang=3DEN-US><o:p></o:p></span></p><p =
 class=3DMsoPlainText style=3D'text-align:justify'><span =
 lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
 align=3Dcenter style=3D'text-align:center'><span lang=3DEN-US>Website: =
-http:// =
-http://closer.scitevents.org/CloudSecGov.aspx<o:p></o:p></span></p><p =
+http://closer.scitevents.org/CSAW.aspx<o:p></o:p></span></p><p =
 class=3DMsoPlainText align=3Dcenter style=3D'text-align:center'><span =
 lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
 align=3Dcenter style=3D'text-align:center'><span lang=3DEN-US>May 8 - =
@@ -335,72 +332,91 @@ class=3DMsoPlainText><b><span lang=3DEN-US>IMPORTANT =
 DATES:<o:p></o:p></span></b></p><p class=3DMsoPlainText><b><span =
 lang=3DEN-US><o:p>&nbsp;</o:p></span></b></p><p =
 class=3DMsoPlainText><span lang=3DEN-US>Paper Submission: <b><span =
-style=3D'color:black'>March 1, 2013</span></b> <br>Authors Notification: =
-<b><span style=3D'color:black'>March 19, 2013</span></b> <br>Camera =
-Ready and Registration: <b><span style=3D'color:black'>March 28, =
+style=3D'color:black'>March 5, 2013</span></b> <span =
+style=3D'color:maroon'>(extended)</span> <br>Authors Notification: =
+<b><span style=3D'color:black'>March 18, 2013</span></b> <br>Camera =
+Ready and Registration: <b><span style=3D'color:black'>March 27, =
 2013</span></b> <o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText><span =
 lang=3DEN-US>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - =
 - - -<o:p></o:p></span></p><p class=3DMsoPlainText><span =
 lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal =
 style=3D'text-align:justify'><span lang=3DEN-US>We would like to draw =
-your attention to the Security Governance and SLAs in Cloud =
-Computing&nbsp;- CloudSecGov 2013 (held in conjunction with the <span =
-class=3Dscope>3rd International Conference on Cloud Computing and =
-Services Science</span>- CLOSER 2013), whose submission deadline is =
-scheduled for <b><span style=3D'color:black'>March 1, 2013</span></b>. =
-</span><span lang=3DEN-US =
+your attention to the </span><a =
+href=3D"http://closer.scitevents.org/workshops.aspx#CSAW"><span =
+lang=3DEN-US style=3D'color:windowtext;text-decoration:none'>Cloud =
+Service Analytics Workshop - CSAW</span></a><span lang=3DEN-US> =
+2013</span><span lang=3DEN-US =
+style=3D'font-size:12.0pt;line-height:115%;font-family:"Times New =
+Roman","serif";mso-fareast-language:PT'> </span><span lang=3DEN-US>(held =
+in conjunction with the <span class=3Dscope>3rd International Conference =
+on Cloud Computing and Services Science</span>- CLOSER 2013), whose =
+submission deadline is scheduled for February 11, 2013. </span><span =
+lang=3DEN-US =
 style=3D'font-size:12.0pt;line-height:115%;font-family:"Times New =
 Roman","serif";mso-fareast-language:PT'><o:p></o:p></span></p><p =
 class=3DMsoPlainText style=3D'text-align:justify'><span =
-class=3Dscope><span lang=3DEN-US>Cloud computing is slowly turning =
-towards an open ecosystem of services that can be mixed and matched =
-according to the customers' individual requirements. In federated Clouds =
-(or &quot;clouds-of-clouds&quot;), services will be picked not only from =
-functionality, but also based on non-functional properties such as =
-availability, performance, security and cost. The obvious downside is =
-the lack of control; customers need to make sure that the composite =
-services behave as expected and that the individual components from =
-different providers can be trusted. </span></span><span =
-lang=3DEN-US><br><br><span class=3Dscope>To mitigate the security risks =
-associated with federated Clouds, and to increase the trust in the =
-individual providers, existing security mechanisms and their =
-effectiveness should be formalized in contracts. Service Level =
-Agreements (SLAs) is a common way to explicitly state the obligations of =
-the provider and to serve as a binding agreement between the service =
-customer and the service provider. The SLA will help ensure that the =
-service keeps the right level of quality and that customers are credited =
-accordingly in terms of contract violations. This session will include =
-presentations of peer-reviewed papers related to Cloud computing SLAs, =
-with special focus on security. The topics of interests include (but are =
-not limited to)<o:p></o:p></span></span></p><p class=3DMsoPlainText =
-style=3D'text-align:justify'><span lang=3DEN-US><br><span =
-class=3Dscope>&#8226; Security mechanisms for Cloud =
-computing</span><o:p></o:p></span></p><p class=3DMsoPlainText =
+class=3Dscope><span lang=3DEN-US>Cloud computing presents new economic =
+and flexible business and technological models. The explosive uptake of =
+Cloud solutions has fuelled the growth of Cloud services. However, to =
+support Cloud providers and users, it is critical that sourcing =
+decisions are informed through some system of Cloud service analytics. =
+The 1st Cloud Service Analytics Workshop (CSAW) will provide an =
+interactive and focused platform for presenting and discussing new and =
+emerging ideas on Cloud service analytics. This workshop focuses on =
+linking some of the latest research in business and I.T to explore how =
+we can examine the value of Cloud service environments. This workshop =
+provides a platform to exchange state-of-the-art research and practice =
+in Cloud service analytics and explore emerging or overarching trends =
+within the field of Cloud computing. </span></span><span =
+lang=3DEN-US><br><br><span class=3Dscope><b>Topics:</b></span><br><span =
+class=3Dscope>&#8226; Cloud Computing =
+Analytics</span><o:p></o:p></span></p><p class=3DMsoPlainText =
 style=3D'text-align:justify'><span class=3Dscope><span =
-lang=3DEN-US>&#8226; Negotiation of security terms</span></span><span =
+lang=3DEN-US>&#8226; Service Key Performance =
+Indicators</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Cloud Performance Modelling and =
+Management</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; IT Service Management and =
+Cloud</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Service and Technology =
+Capabilities</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Service Quality =
+Metrics</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Cloud Service =
+Performance</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Value Analysis of Cloud =
+Environments</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span =
+class=3Dscope><span lang=3DEN-US>&#8226; Matching, compliance and =
+alignment issues</span></span><span =
 lang=3DEN-US><o:p></o:p></span></p><p class=3DMsoPlainText =
 style=3D'text-align:justify'><span class=3Dscope><span =
-lang=3DEN-US>&#8226; Machine-readable SLAs</span></span><span =
-lang=3DEN-US><o:p></o:p></span></p><p class=3DMsoPlainText =
-style=3D'text-align:justify'><span class=3Dscope><span =
-lang=3DEN-US>&#8226; Monitoring and enforcement of security terms =
+lang=3DEN-US>&#8226; Service Capability Maturity Models =
 </span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
 class=3DMsoPlainText style=3D'text-align:justify'><span =
-class=3Dscope><span lang=3DEN-US>&#8226; Security in hybrid/federated =
-Clouds</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
-class=3DMsoPlainText style=3D'text-align:justify'><span =
-class=3Dscope><span lang=3DEN-US>&#8226; Cloud security =
-governance</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
-class=3DMsoPlainText style=3D'text-align:justify'><span =
-class=3Dscope><span lang=3DEN-US>This is the second edition of the =
-CloudSecGov. The first edition, CloudSecGov 2012, took place during =
-CLOSER 2012 and attracted a large number of high-quality =
-speakers.</span></span><span lang=3DEN-US><br><br>The conference will be =
-sponsored by the Institute for Systems and Technologies of Information, =
-Control and Communication (INSTICC), co-organized with the Aachen =
-University (RWTH) and technically sponsored by the SINTEF and IFIP. =
-INSTICC is Member of the Workflow Management Coalition (WfMC) and Object =
-Management Group (OMG).<o:p></o:p></span></p><p class=3DMsoPlainText =
+class=3Dscope><span lang=3DEN-US>&#8226; Monitoring and Reporting =
+Business Value across Service Networks</span></span><span =
+lang=3DEN-US><o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span class=3Dscope><span =
+lang=3DEN-US>&#8226; Cloud Service Quality Frameworks</span></span><span =
+lang=3DEN-US><o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span class=3Dscope><span =
+lang=3DEN-US>&#8226; Service and Technology Standards for the =
+Cloud</span></span><span lang=3DEN-US><o:p></o:p></span></p><p =
+class=3DMsoPlainText style=3D'text-align:justify'><span lang=3DEN-US>The =
+conference will be sponsored by the Institute for Systems and =
+Technologies of Information, Control and Communication (INSTICC), =
+co-organized with the Aachen University (RWTH) and technically sponsored =
+by the SINTEF and IFIP. INSTICC is Member of the Workflow Management =
+Coalition (WfMC) and Object Management Group =
+(OMG).<o:p></o:p></span></p><p class=3DMsoPlainText =
 style=3D'text-align:justify'><span =
 lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
 style=3D'text-align:justify'><span lang=3DEN-US>The purpose of the<span =
@@ -418,20 +434,16 @@ various aspects of Cloud Computing.</span><o:p></o:p></span></p><p =
 class=3DMsoPlainText style=3D'text-align:justify'><span =
 lang=3DEN-US>Submitted papers will be subject to a double-blind review =
 process. <o:p></o:p></span></p><p class=3DMsoPlainText =
-style=3D'text-align:justify'><span lang=3DEN-US>All papers accepted to =
-the Special Session will be published in a special section of the =
-conference proceedings book, under an ISBN reference, on paper and on =
-CD-ROM.<o:p></o:p></span></p><p class=3DMsoPlainText><span =
-lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
-style=3D'text-align:justify'><span lang=3DEN-US>The proceedings will be =
-submitted for indexation by Thomson Reuters Conference Proceedings =
-Citation Index (ISI), INSPEC, DBLP and EI (Elsevier Index). All papers =
-presented at the conference venue will be available at the SCITEPRESS =
-Digital Library (</span><a =
-href=3D"http://www.scitepress.org/DigitalLibrary/"><span =
+style=3D'text-align:justify'><span lang=3DEN-US>All accepted papers will =
+be published in the workshop proceedings book, under an ISBN reference =
+and on CD-ROM support.<o:p></o:p></span></p><p class=3DMsoPlainText =
+style=3D'text-align:justify'><span lang=3DEN-US>All papers presented at =
+the conference venue will be available at the SCITEPRESS Digital Library =
+(</span><a href=3D"http://www.scitepress.org/DigitalLibrary/" =
+target=3D"_blank"><span =
 lang=3DEN-US>http://www.scitepress.org/DigitalLibrary/</span></a><span =
-lang=3DEN-US>). SCITEPRESS is member of CrossRef (</span><a =
-href=3D"http://www.crossref.org/"><span =
+lang=3DEN-US>). <br>SCITEPRESS is member of CrossRef (</span><a =
+href=3D"http://www.crossref.org/" target=3D"_blank"><span =
 lang=3DEN-US>http://www.crossref.org/</span></a><span =
 lang=3DEN-US>).<o:p></o:p></span></p><p class=3DMsoPlainText><span =
 lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
@@ -450,10 +462,10 @@ will enable free attendance to any sessions of WEBIST, SMARTGREENS and =
 CSEDU conferences as a non-speaker.<o:p></o:p></span></p><p =
 class=3DMsoPlainText><span lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
 class=3DMsoPlainText><span lang=3DEN-US>Please check further details at =
-the Special Session website<o:p></o:p></span></p><p class=3DMsoPlainText =
+the workshop website<o:p></o:p></span></p><p class=3DMsoPlainText =
 style=3D'text-align:justify'><span =
-lang=3DEN-US>(http://closer.scitevents.org/CloudSecGov.aspx) and the =
-main conference website =
+lang=3DEN-US>(http://closer.scitevents.org/CSAW.aspx) and the main =
+conference website =
 (http://closer.scitevents.org).<o:p></o:p></span></p><p =
 class=3DMsoPlainText><span lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
 class=3DMsoNormal =
@@ -464,37 +476,36 @@ style=3D'margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal'><b><=
 span lang=3DEN-US style=3D'font-size:12.0pt;font-family:"Times New =
 Roman","serif";mso-fareast-language:PT'><o:p>&nbsp;</o:p></span></b></p><=
 p class=3DMsoPlainText><strong><span lang=3DEN-US =
-style=3D'font-family:"Calibri","sans-serif"'>Karin =
-Bernsmed</span></strong><span lang=3DEN-US> <br>SINTEF ICT <br>NO-7465 =
-Trondheim<o:p></o:p></span></p><p class=3DMsoPlainText><span =
-lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoNormal =
-style=3D'margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal'><str=
-ong><span lang=3DEN-US =
-style=3D'font-family:"Calibri","sans-serif"'>Martin Gilje =
-Jaatun</span></strong><span lang=3DEN-US> <br>SINTEF ICT <br>NO-7465 =
-Trondheim<o:p></o:p></span></p><p class=3DMsoPlainText><span =
-lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText =
-style=3D'text-align:justify'><span lang=3DEN-US>In case of questions, =
-please feel free to contact us: </span><a =
-href=3D"mailto:karin.bernsmed@sintef.no"><span =
-lang=3DEN-US>karin.bernsmed@sintef.no</span></a><span lang=3DEN-US>; =
-<span =
-class=3DMsoHyperlink>Martin.G.Jaatun@sintef.no</span><o:p></o:p></span></=
-p><p class=3DMsoPlainText><span =
+style=3D'font-family:"Calibri","sans-serif"'>Markus Helfert =
+</span></strong><span lang=3DEN-US><br>Dublin City University =
+<br>Ireland<o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoPlainText><strong><span lang=3DEN-US =
+style=3D'font-family:"Calibri","sans-serif"'>Noel Carroll =
+</span></strong><span lang=3DEN-US><br>Dublin City University =
+<br>Ireland<o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
+class=3DMsoPlainText><strong><span lang=3DEN-US =
+style=3D'font-family:"Calibri","sans-serif"'>Armin Shams =
+</span></strong><span lang=3DEN-US><br>University College Cork =
+<br>Ireland<o:p></o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p class=3DMsoPlainText><span =
+lang=3DEN-US>In case of questions, please feel free to contact us: =
+</span><a href=3D"mailto:%20closer.secretariat@scitevents.org"><span =
+lang=3DEN-US>closer.secretariat@scitevents.org</span></a><span =
+lang=3DEN-US><o:p></o:p></span></p><p class=3DMsoPlainText><span =
 lang=3DEN-US><o:p>&nbsp;</o:p></span></p><p =
 class=3DMsoPlainText><b><span lang=3DEN-US>PROGRAM =
 COMMITTEE:<o:p></o:p></span></b></p><p class=3DMsoPlainText><span =
-lang=3DEN-US>Please check the special session=B4s program committee =
-members at =
-http://closer.scitevents.org/CloudSecGov.aspx<o:p></o:p></span></p><p =
-class=3DMsoNormal><span =
-lang=3DEN-US><o:p>&nbsp;</o:p></span></p></div></body></html>
-------=_NextPart_000_0372_01CE09DE.1F04C8C0--
+lang=3DEN-US>Please check the workshop=B4s program committee members at =
+http://closer.scitevents.org/CSAW.aspx<o:p></o:p></span></p></div></body>=
+</html>
+------=_NextPart_000_042B_01CE09DE.C4FC1E90--
 
 
 
 
---===============8565369361519930283==
+--===============7367932766701962381==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -504,4 +515,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8565369361519930283==--
+--===============7367932766701962381==--
