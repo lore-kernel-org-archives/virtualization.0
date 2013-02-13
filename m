@@ -1,14 +1,14 @@
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: Pawel Moll <pawel.moll@arm.com>
 Subject: Re: [RFC PATCH] virt_mmio: fix signature checking for BE guests
-Date: Wed, 13 Feb 2013 15:28:52 +0000
-Message-ID: <511BB134.30003@arm.com>
+Date: Wed, 13 Feb 2013 15:46:19 +0000
+Message-ID: <1360770379.4045.115.camel@hornet>
 References: <1360765538-18097-1-git-send-email-marc.zyngier@arm.com>
-	<1360768102.4045.107.camel@hornet>
+	<1360768102.4045.107.camel@hornet> <511BB134.30003@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360768102.4045.107.camel@hornet>
+In-Reply-To: <511BB134.30003@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,51 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <Pawel.Moll@arm.com>
+To: Marc Zyngier <Marc.Zyngier@arm.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 13/02/13 15:08, Pawel Moll wrote:
-> On Wed, 2013-02-13 at 14:25 +0000, Marc Zyngier wrote:
->> Using readl() to read the magic value and then memcmp() to check it
->> fails on BE, as bytes will be the other way around (by virtue of
->> the registers to follow the endianess of the guest).
-> 
-> Hm. Interesting. I missed the fact that readl() as a "PCI operation"
-> will always assume LE values...
-> 
->> Fix it by encoding the magic as an integer instead of a string.
->> So I'm not completely sure this is the right fix, 
-> 
-> It seems right, however...
-> 
->> - Using __raw_readl() instead. Is that a generic enough API?
->>
-> ... this implies that either the spec is wrong (as it should say: the
-> device registers are always LE, in the PCI spirit) or all readl()s & co.
-> should be replaced with __raw equivalents.
-
-Well, the spec clearly says that the registers reflect the endianess of
-the guest, and it makes sense: when performing the MMIO access, KVM
-needs to convert between host and guest endianess.
-
-> Having said that, does the change make everything else work with a BE
-> guest? (I assume we're talking about the guest being BE, right? ;-) If
-> so it means that the host is not following the current spec and it
-> treats all the registers as LE.
-
-Yes, I only care about a BE guest. And no, not much is actually working
-(kvmtool is not happy about the guest addresses it finds in the
-virtio-ring). Need to dive into it and understand what needs to be fixed...
-
->> - Reading the MAGIC register byte by byte. Is that allowed? The spec
->>   only says it is 32bit wide.
-> 
-> And the spirit of the spec was: _exactly 32bit wide_. It's just simpler
-> to implement one access width on the host side.
-
-I guessed as much...
-
-	M.
--- 
-Jazz is not dead. It just smells funny...
+T24gV2VkLCAyMDEzLTAyLTEzIGF0IDE1OjI4ICswMDAwLCBNYXJjIFp5bmdpZXIgd3JvdGU6Cj4g
+Pj4gRml4IGl0IGJ5IGVuY29kaW5nIHRoZSBtYWdpYyBhcyBhbiBpbnRlZ2VyIGluc3RlYWQgb2Yg
+YSBzdHJpbmcuCj4gPj4gU28gSSdtIG5vdCBjb21wbGV0ZWx5IHN1cmUgdGhpcyBpcyB0aGUgcmln
+aHQgZml4LCAKPiA+IAo+ID4gSXQgc2VlbXMgcmlnaHQsIGhvd2V2ZXIuLi4KPiA+IAo+ID4+IC0g
+VXNpbmcgX19yYXdfcmVhZGwoKSBpbnN0ZWFkLiBJcyB0aGF0IGEgZ2VuZXJpYyBlbm91Z2ggQVBJ
+Pwo+ID4+Cj4gPiAuLi4gdGhpcyBpbXBsaWVzIHRoYXQgZWl0aGVyIHRoZSBzcGVjIGlzIHdyb25n
+IChhcyBpdCBzaG91bGQgc2F5OiB0aGUKPiA+IGRldmljZSByZWdpc3RlcnMgYXJlIGFsd2F5cyBM
+RSwgaW4gdGhlIFBDSSBzcGlyaXQpIG9yIGFsbCByZWFkbCgpcyAmIGNvLgo+ID4gc2hvdWxkIGJl
+IHJlcGxhY2VkIHdpdGggX19yYXcgZXF1aXZhbGVudHMuCj4gCj4gV2VsbCwgdGhlIHNwZWMgY2xl
+YXJseSBzYXlzIHRoYXQgdGhlIHJlZ2lzdGVycyByZWZsZWN0IHRoZSBlbmRpYW5lc3Mgb2YKPiB0
+aGUgZ3Vlc3QsIGFuZCBpdCBtYWtlcyBzZW5zZTogd2hlbiBwZXJmb3JtaW5nIHRoZSBNTUlPIGFj
+Y2VzcywgS1ZNCj4gbmVlZHMgdG8gY29udmVydCBiZXR3ZWVuIGhvc3QgYW5kIGd1ZXN0IGVuZGlh
+bmVzcy4KClRoZSB2aXJ0aW8tbW1pbyBzcGVjIHNheXMgc28gYmVjYXVzZSBpdCBzZWVtZWQgbGlr
+ZSBhIGdvb2QgaWRlYSBhdCB0aGUKdGltZSA7LSkgYWZ0ZXIgcmVhZGluZyB0aGUgUENJIGRldmlj
+ZSBzcGVjLiBCdXQgLSBhcyBJIHNhaWQgLSBJIG1pc3NlZAp0aGUgZmFjdCB0aGF0IHRoZSByZWFk
+bCgpLWxpa2UgYWNjZXNzb3JzIHdpbGwgYWx3YXlzIGRvIGxlMzJfdG9fY3B1KCkuCkFwcGFyZW50
+bHkgaW9yZWFkMzIoKSBkb2VzIHRoZSBzYW1lICh0aGVyZSdzIGEgc2VwYXJhdGUgaW9yZWFkMzJi
+ZSgpKS4KU28gSSdtIG5vdCBzdXJlIHRoYXQgdGhlIHNwZWMgaXMgY29ycmVjdCBpbiB0aGlzIGFz
+cGVjdCBhbnkgbW9yZS4gTWF5YmUKaXQgc2hvdWxkIHNwZWNpZnkgdGhlIHJlZ2lzdGVycyBhcyBM
+RSBhbHdheXMsIHNpbWlsYXJseSB0byBQQ0k/IFRoaXMKcHJvYmxlbSBpcyBhbHJlYWR5IGNvdmVy
+ZWQgYnkgIjIuMy4xIEEgTm90ZSBvbiBWaXJ0cXVldWUgRW5kaWFubmVzcyIgaW4KdGhlIHNwZWMu
+Li4KCj4gPiBIYXZpbmcgc2FpZCB0aGF0LCBkb2VzIHRoZSBjaGFuZ2UgbWFrZSBldmVyeXRoaW5n
+IGVsc2Ugd29yayB3aXRoIGEgQkUKPiA+IGd1ZXN0PyAoSSBhc3N1bWUgd2UncmUgdGFsa2luZyBh
+Ym91dCB0aGUgZ3Vlc3QgYmVpbmcgQkUsIHJpZ2h0PyA7LSkgSWYKPiA+IHNvIGl0IG1lYW5zIHRo
+YXQgdGhlIGhvc3QgaXMgbm90IGZvbGxvd2luZyB0aGUgY3VycmVudCBzcGVjIGFuZCBpdAo+ID4g
+dHJlYXRzIGFsbCB0aGUgcmVnaXN0ZXJzIGFzIExFLgo+IAo+IFllcywgSSBvbmx5IGNhcmUgYWJv
+dXQgYSBCRSBndWVzdC4gQW5kIG5vLCBub3QgbXVjaCBpcyBhY3R1YWxseSB3b3JraW5nCj4gKGt2
+bXRvb2wgaXMgbm90IGhhcHB5IGFib3V0IHRoZSBndWVzdCBhZGRyZXNzZXMgaXQgZmluZHMgaW4g
+dGhlCj4gdmlydGlvLXJpbmcpLiBOZWVkIHRvIGRpdmUgaW50byBpdCBhbmQgdW5kZXJzdGFuZCB3
+aGF0IG5lZWRzIHRvIGJlIGZpeGVkLi4uCgpEbyB0aGUgb3RoZXIgcmVnaXN0ZXJzIGxpa2UgcXVl
+dWVudW0gbWFrZSBzZW5zZT8gQ291bGQgaXQgYmUgdGhhdCB0aGUKcGFnZSBudW1iZXIgb2YgdGhl
+IHJpbmcgeW91J3JlIGdldHRpbmcgaGFzIHdyb25nIGVuZGlhbm5lc3M/CgpQYXdlxYIKCgpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
