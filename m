@@ -1,19 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/9] virtio: add functions for piecewise addition of
-	buffers
-Date: Wed, 13 Feb 2013 12:33:37 +0200
-Message-ID: <20130213103337.GC14452@redhat.com>
-References: <20130212161326.GB4373@redhat.com> <511A6B2B.50700@redhat.com>
-	<20130212163524.GB4555@redhat.com> <511A7493.50901@redhat.com>
-	<20130212173454.GA5028@redhat.com> <511A842B.1030101@redhat.com>
-	<20130212182355.GA5642@redhat.com> <511AA13B.30809@redhat.com>
-	<20130212204920.GB6972@redhat.com> <511B4983.7010103@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Wed, 13 Feb 2013 12:06:04 +0100
+Message-ID: <511B739C.8000204@redhat.com>
+References: <1360196636-9357-1-git-send-email-acking@vmware.com>
+	<1360196636-9357-2-git-send-email-acking@vmware.com>
+	<5118FEA9.2080201@redhat.com>
+	<1675407061.963254.1360682467627.JavaMail.root@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <511B4983.7010103@redhat.com>
+In-Reply-To: <1675407061.963254.1360682467627.JavaMail.root@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,108 +20,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andy King <acking@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 13, 2013 at 09:06:27AM +0100, Paolo Bonzini wrote:
-> Il 12/02/2013 21:49, Michael S. Tsirkin ha scritto:
-> > On Tue, Feb 12, 2013 at 09:08:27PM +0100, Paolo Bonzini wrote:
-> >> Il 12/02/2013 19:23, Michael S. Tsirkin ha scritto:
-> >>> On Tue, Feb 12, 2013 at 07:04:27PM +0100, Paolo Bonzini wrote:
-> >>>>>> Perhaps, but 3 or 4 arguments (in/out/nsg or in/out/nsg_in/nsg_out) just
-> >>>>>> for this are definitely too many and make the API harder to use.
-> >>>>>>
-> >>>>>> You have to find a balance.  Having actually used the API, the
-> >>>>>> possibility of mixing in/out buffers by mistake never even occurred to
-> >>>>>> me, much less happened in practice, so I didn't consider it a problem.
-> >>>>>> Mixing in/out buffers in a single call wasn't a necessity, either.
-> >>>>>
-> >>>>> It is useful for virtqueue_add_buf implementation.
-> >>>>
-> >>>>         ret = virtqueue_start_buf(vq, data, out + in, !!out + !!in,
-> >>>> 				  gfp);
-> >>>>         if (ret < 0)
-> >>>>                 return ret;
-> >>>>
-> >>>>         if (out)
-> >>>>                 virtqueue_add_sg(vq, sg, out, DMA_TO_DEVICE);
-> >>>>         if (in)
-> >>>>                 virtqueue_add_sg(vq, sg + out, in, DMA_FROM_DEVICE);
-> >>>>
-> >>>>         virtqueue_end_buf(vq);
-> >>>> 	return 0;
-> >>>>
-> >>>> How can it be simpler and easier to understand than that?
-> >>>
-> >>> Like this:
-> >>>
-> >>>          ret = virtqueue_start_buf(vq, data, in, out, gfp);
-> >>>          if (ret < 0)
-> >>>                  return ret;
-> >>>  
-> >>>          virtqueue_add_sg(vq, sg, in, out);
-> >>>  
-> >>>          virtqueue_end_buf(vq);
-> >>
-> >> It's out/in, not in/out... I know you wrote it in a hurry, but it kind
-> >> of shows that the new API is easier to use.  Check out patch 8, it's  a
-> >> real improvement in readability.
-> > 
-> > That's virtqueue_add_buf_single, that's a separate matter.
-> > Another option for _single is just two wrappers:
-> > virtqueue_add_buf_in
-> > virtqueue_add_buf_out
+On 02/12/13 16:21, Andy King wrote:
+> Hi Gerd,
 > 
-> I like it less, but yes this one would be ok (no driver uses a variable
-> for the enum parameter).
+>>> +struct vsock_transport {
+> ...
+>> Whoa.  This has grown *alot*.  Care to explain this please?  Patch
+>> creating a Documentation/virtual/vsock.txt would be cool.
+> 
+> Yes, it grew because of the notification stuff, which I'd forgotten
+> about until I removed the vmci header from the core code.  You are
+> free to use empty functions for these if they don't make any sense
+> for virtio.
 
-OK, this has the advantage of being even shorter.
+I've seen you have a notify_ops in the vmci bits.  Do you have different
+notify ops depending on socket type or something?  Does it make sense to
+move the notify ops ptr into "struct vsock_sock" maybe?
 
-> >> Plus you haven't solved the problem of alternating to/from-device
-> >> elements (which is also harder to spot with in/out than with the enum).
-> > 
-> > Yes it does, if add_sg does not have in/out at all there's no way to
-> > request the impossible to/from mix.
-> 
-> In your example above it does have it.  I assume you meant
-> 
->          ret = virtqueue_start_buf(vq, data, out, in, gfp);
->          if (ret < 0)
->                  return ret;
-> 
->           virtqueue_add_sg(vq, sg, out + in);
->           virtqueue_end_buf(vq);
-> 
-> >>>> virtqueue_add_buf and virtqueue_add_sg are very different, despite the
-> >>>> similar name.
-> >>>
-> >>> True. The similarity is between _start and _add_buf.
-> >>> And this is confusing too. Maybe this means
-> >>> _start and _add_sg should be renamed.
-> >>
-> >> Maybe.  If you have any suggestions it's fine.
-> >>
-> >> BTW I tried using out/in for start_buf, and the code in virtio-blk gets
-> >> messier, it has to do all the math twice.
-> > 
-> > I'm pretty sure we can do this without duplication, if we want to.
-> 
-> Indeed, if you remove the out/in arguments from _sg there is no
-> duplication in virtio-blk.  That's because it places data-out at the end
-> and data-in at the beginning (so data is always after the request header
-> and before the response footer).
+And can we make it optional please (i.e. allow the function pointers to
+be NULL)?
 
-Yes, it's not a virtio-blk thing, virtio spec and interface require that
-we have in after out.
-So yes, to me it seems cleaner to drop out/in arguments from _sg.
+> The alternative is for us to move the entire body of
+> vsock_stream_recv/send into the transport, where we can hide the
+> notification stuff, but it seems like folks will just end up
+> duplicating a lot of code then.
 
-> >> acknowledge that the API is different and thus the optimal choice of
-> >> arguments is different.  C doesn't have keyword arguments, there not
-> >> much that we can do.
-> > 
-> > Yea, maybe. I'm not the API guru here anyway, it's Rusty's street.
+Sounds not so good.  However, it is still not very clear what this
+notification stuff is all about.  And it's not just notification, the
+calls can return errors too.
+
+Which problem you are trying to tackle with the notifications?
+
+>> stream_has_data + stream_has_space + stream_rcvhiwat look like they
+>> are needed for buffer management.  Details please (especially for
+>> stream_rcvhiwat).
 > 
-> Let's wait for him.
+> stream_has_data: Returns amount of data available (in bytes) in the
+> socket's receive buffer, or -1 if empty.
 > 
-> Paolo
+> stream_has_space: Returns amount of space available (in bytes) in the
+> socket's send buffer, or -1 if full.
+
+As one would expect from the names, good.
+
+> stream_rcvhiwat: The upper bound on the socket's receive buffer.
+> Which technically is the same as the value returned by
+> get_buffer_size(), so perhaps we could substitute that here and
+> drop this one.
+
+Yes, please.
+
+>> What is stream_is_active?
+> 
+> For the VMCI transport, it indicates if the underlying queuepair is
+> still around (i.e., make sure we haven't torn it down while sleeping
+> in a blocking send or receive).  Perhaps it's not the best name?
+
+How you'd hit that?  Peer closing the socket while sleeping?  Other
+thread closing the socket wile sleeping?  Both?
+
+I think a state field in struct vsock_sock would be a better solution here.
+
+>> What is *_allow?
+> 
+> It's very basic filtering.  We have specific addresses that we don't
+> allow, and we look for them in the allow() functions.  You can just
+> return true if you like.
+
+Can we make those calls optional too please?
+
+>> What are all those notify_* calls?
+> 
+> They're to do with signaling and flow-control.  Again, they might
+> not make any sense at all, but it's hard to know without having
+> written another transport :)
+
+I don't see a immediate need for them in the virto transport, but it's
+hard to say without knowing what exactly they are doing.
+
+>> Why do you need vsock_transport_{send,recv}_notify_data structs?
+>> Can't this live in vsock_sock->trans?
+> 
+> Those have to be setup on a per-call basis (per-thread), so it's
+> just easier to have them on the stack of the send/recv calls.  If
+> you think there's a better name, or a better way to allocate them,
+> I'm all ears.
+
+Hmm.  The struct content seems to be vmci-specific and it is in generic
+code, which isn't that nice.
+
+The notify_*_init could return a opaque pointer instead.  But then
+you'll need a notify_*_free too.  And you can't place it on the stack
+and thus have a allocation in the hot path, which I guess you are trying
+to avoid in the first place.
+
+No good idea offhand, but maybe that changes if the purpose of all those
+notify_* calls is more clear.
+
+cheers,
+  Gerd
