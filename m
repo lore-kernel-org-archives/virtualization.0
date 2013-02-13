@@ -1,19 +1,15 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 1/9] virtio: add functions for piecewise addition of
-	buffers
-Date: Wed, 13 Feb 2013 09:06:27 +0100
-Message-ID: <511B4983.7010103@redhat.com>
-References: <20130212154338.GA4083@redhat.com> <511A6457.80609@redhat.com>
-	<20130212161326.GB4373@redhat.com> <511A6B2B.50700@redhat.com>
-	<20130212163524.GB4555@redhat.com> <511A7493.50901@redhat.com>
-	<20130212173454.GA5028@redhat.com> <511A842B.1030101@redhat.com>
-	<20130212182355.GA5642@redhat.com> <511AA13B.30809@redhat.com>
-	<20130212204920.GB6972@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC PATCH 0/8] virtio: new API for addition of buffers,
+	scatterlist changes
+Date: Wed, 13 Feb 2013 20:16:42 +1030
+Message-ID: <87halglf5p.fsf@rustcorp.com.au>
+References: <1360239752-2470-1-git-send-email-pbonzini@redhat.com>
+	<8738x7ih5o.fsf@rustcorp.com.au> <20130208115240.GN15092@kernel.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130212204920.GB6972@redhat.com>
+In-Reply-To: <20130208115240.GN15092@kernel.dk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,102 +19,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 12/02/2013 21:49, Michael S. Tsirkin ha scritto:
-> On Tue, Feb 12, 2013 at 09:08:27PM +0100, Paolo Bonzini wrote:
->> Il 12/02/2013 19:23, Michael S. Tsirkin ha scritto:
->>> On Tue, Feb 12, 2013 at 07:04:27PM +0100, Paolo Bonzini wrote:
->>>>>> Perhaps, but 3 or 4 arguments (in/out/nsg or in/out/nsg_in/nsg_out) just
->>>>>> for this are definitely too many and make the API harder to use.
->>>>>>
->>>>>> You have to find a balance.  Having actually used the API, the
->>>>>> possibility of mixing in/out buffers by mistake never even occurred to
->>>>>> me, much less happened in practice, so I didn't consider it a problem.
->>>>>> Mixing in/out buffers in a single call wasn't a necessity, either.
->>>>>
->>>>> It is useful for virtqueue_add_buf implementation.
->>>>
->>>>         ret = virtqueue_start_buf(vq, data, out + in, !!out + !!in,
->>>> 				  gfp);
->>>>         if (ret < 0)
->>>>                 return ret;
->>>>
->>>>         if (out)
->>>>                 virtqueue_add_sg(vq, sg, out, DMA_TO_DEVICE);
->>>>         if (in)
->>>>                 virtqueue_add_sg(vq, sg + out, in, DMA_FROM_DEVICE);
->>>>
->>>>         virtqueue_end_buf(vq);
->>>> 	return 0;
->>>>
->>>> How can it be simpler and easier to understand than that?
->>>
->>> Like this:
->>>
->>>          ret = virtqueue_start_buf(vq, data, in, out, gfp);
->>>          if (ret < 0)
->>>                  return ret;
->>>  
->>>          virtqueue_add_sg(vq, sg, in, out);
->>>  
->>>          virtqueue_end_buf(vq);
->>
->> It's out/in, not in/out... I know you wrote it in a hurry, but it kind
->> of shows that the new API is easier to use.  Check out patch 8, it's  a
->> real improvement in readability.
-> 
-> That's virtqueue_add_buf_single, that's a separate matter.
-> Another option for _single is just two wrappers:
-> virtqueue_add_buf_in
-> virtqueue_add_buf_out
+Jens Axboe <axboe@kernel.dk> writes:
+> On Fri, Feb 08 2013, Rusty Russell wrote:
+>> Paolo Bonzini <pbonzini@redhat.com> writes:
+>> > The virtqueue_add_buf function has two limitations:
+>> >
+>> > 1) it requires the caller to provide all the buffers in a single call;
+>> >
+>> > 2) it does not support chained scatterlists: the buffers must be
+>> > provided as an array of struct scatterlist.
+>> >
+>> > Because of these limitations, virtio-scsi has to copy each request into
+>> > a scatterlist internal to the driver.  It cannot just use the one that
+>> > was prepared by the upper SCSI layers.
+>> 
+>> Hi Paulo,
+>> 
+>>         Note that you've defined your problem in terms of your solution
+>> here.  For clarity:
+>> 
+>> The problem: we want to prepend and append to a scatterlist.  We can't
+>>         append, because the chained scatterlist implementation requires
+>>         an element to be appended to join two scatterlists together.
+>> 
+>> The solution: fix scatterlists by introducing struct sg_ring:
+>>         struct sg_ring {
+>>                 struct list_head ring;
+>>         	unsigned int nents;
+>>         	unsigned int orig_nents; /* do we want to replace sg_table? */
+>>                 struct scatterlist *sg;
+>>         };
+>
+> This would definitely be more flexible than the current chaining.
+> However:
+>
+>> The workaround: make virtio accept multiple scatterlists for a single
+>>         buffer.
+>> 
+>> There's nothing wrong with your workaround, but if other subsystems have
+>> the same problem we do, perhaps we should consider a broader solution?
+>
+> Do other use cases actually exist? I don't think I've come across this
+> requirement before, since it was introduced (6 years ago, from a cursory
+> look at the git logs!).
 
-I like it less, but yes this one would be ok (no driver uses a variable
-for the enum parameter).
+Thanks Jens.
 
->> Plus you haven't solved the problem of alternating to/from-device
->> elements (which is also harder to spot with in/out than with the enum).
-> 
-> Yes it does, if add_sg does not have in/out at all there's no way to
-> request the impossible to/from mix.
+OK, let's not over-solve the problem then, we'll make a virtio-specific
+solution.
 
-In your example above it does have it.  I assume you meant
+Paulo, I'll take your patches once you repost.
 
-         ret = virtqueue_start_buf(vq, data, out, in, gfp);
-         if (ret < 0)
-                 return ret;
-
-          virtqueue_add_sg(vq, sg, out + in);
-          virtqueue_end_buf(vq);
-
->>>> virtqueue_add_buf and virtqueue_add_sg are very different, despite the
->>>> similar name.
->>>
->>> True. The similarity is between _start and _add_buf.
->>> And this is confusing too. Maybe this means
->>> _start and _add_sg should be renamed.
->>
->> Maybe.  If you have any suggestions it's fine.
->>
->> BTW I tried using out/in for start_buf, and the code in virtio-blk gets
->> messier, it has to do all the math twice.
-> 
-> I'm pretty sure we can do this without duplication, if we want to.
-
-Indeed, if you remove the out/in arguments from _sg there is no
-duplication in virtio-blk.  That's because it places data-out at the end
-and data-in at the beginning (so data is always after the request header
-and before the response footer).
-
->> Perhaps we just need to
->> acknowledge that the API is different and thus the optimal choice of
->> arguments is different.  C doesn't have keyword arguments, there not
->> much that we can do.
-> 
-> Yea, maybe. I'm not the API guru here anyway, it's Rusty's street.
-
-Let's wait for him.
-
-Paolo
+Thanks,
+Rusty.
