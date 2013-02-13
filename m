@@ -1,13 +1,14 @@
-From: Pawel Moll <pawel.moll@arm.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
 Subject: Re: [RFC PATCH] virt_mmio: fix signature checking for BE guests
-Date: Wed, 13 Feb 2013 15:08:22 +0000
-Message-ID: <1360768102.4045.107.camel@hornet>
+Date: Wed, 13 Feb 2013 15:28:52 +0000
+Message-ID: <511BB134.30003@arm.com>
 References: <1360765538-18097-1-git-send-email-marc.zyngier@arm.com>
+	<1360768102.4045.107.camel@hornet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360765538-18097-1-git-send-email-marc.zyngier@arm.com>
+In-Reply-To: <1360768102.4045.107.camel@hornet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,32 +18,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marc Zyngier <Marc.Zyngier@arm.com>
+To: Pawel Moll <Pawel.Moll@arm.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCAyMDEzLTAyLTEzIGF0IDE0OjI1ICswMDAwLCBNYXJjIFp5bmdpZXIgd3JvdGU6Cj4g
-VXNpbmcgcmVhZGwoKSB0byByZWFkIHRoZSBtYWdpYyB2YWx1ZSBhbmQgdGhlbiBtZW1jbXAoKSB0
-byBjaGVjayBpdAo+IGZhaWxzIG9uIEJFLCBhcyBieXRlcyB3aWxsIGJlIHRoZSBvdGhlciB3YXkg
-YXJvdW5kIChieSB2aXJ0dWUgb2YKPiB0aGUgcmVnaXN0ZXJzIHRvIGZvbGxvdyB0aGUgZW5kaWFu
-ZXNzIG9mIHRoZSBndWVzdCkuCgpIbS4gSW50ZXJlc3RpbmcuIEkgbWlzc2VkIHRoZSBmYWN0IHRo
-YXQgcmVhZGwoKSBhcyBhICJQQ0kgb3BlcmF0aW9uIgp3aWxsIGFsd2F5cyBhc3N1bWUgTEUgdmFs
-dWVzLi4uCgo+IEZpeCBpdCBieSBlbmNvZGluZyB0aGUgbWFnaWMgYXMgYW4gaW50ZWdlciBpbnN0
-ZWFkIG9mIGEgc3RyaW5nLgo+IFNvIEknbSBub3QgY29tcGxldGVseSBzdXJlIHRoaXMgaXMgdGhl
-IHJpZ2h0IGZpeCwgCgpJdCBzZWVtcyByaWdodCwgaG93ZXZlci4uLgoKPiAtIFVzaW5nIF9fcmF3
-X3JlYWRsKCkgaW5zdGVhZC4gSXMgdGhhdCBhIGdlbmVyaWMgZW5vdWdoIEFQST8KPiAKLi4uIHRo
-aXMgaW1wbGllcyB0aGF0IGVpdGhlciB0aGUgc3BlYyBpcyB3cm9uZyAoYXMgaXQgc2hvdWxkIHNh
-eTogdGhlCmRldmljZSByZWdpc3RlcnMgYXJlIGFsd2F5cyBMRSwgaW4gdGhlIFBDSSBzcGlyaXQp
-IG9yIGFsbCByZWFkbCgpcyAmIGNvLgpzaG91bGQgYmUgcmVwbGFjZWQgd2l0aCBfX3JhdyBlcXVp
-dmFsZW50cy4KCkhhdmluZyBzYWlkIHRoYXQsIGRvZXMgdGhlIGNoYW5nZSBtYWtlIGV2ZXJ5dGhp
-bmcgZWxzZSB3b3JrIHdpdGggYSBCRQpndWVzdD8gKEkgYXNzdW1lIHdlJ3JlIHRhbGtpbmcgYWJv
-dXQgdGhlIGd1ZXN0IGJlaW5nIEJFLCByaWdodD8gOy0pIElmCnNvIGl0IG1lYW5zIHRoYXQgdGhl
-IGhvc3QgaXMgbm90IGZvbGxvd2luZyB0aGUgY3VycmVudCBzcGVjIGFuZCBpdAp0cmVhdHMgYWxs
-IHRoZSByZWdpc3RlcnMgYXMgTEUuCgo+IC0gUmVhZGluZyB0aGUgTUFHSUMgcmVnaXN0ZXIgYnl0
-ZSBieSBieXRlLiBJcyB0aGF0IGFsbG93ZWQ/IFRoZSBzcGVjCj4gICBvbmx5IHNheXMgaXQgaXMg
-MzJiaXQgd2lkZS4KCkFuZCB0aGUgc3Bpcml0IG9mIHRoZSBzcGVjIHdhczogX2V4YWN0bHkgMzJi
-aXQgd2lkZV8uIEl0J3MganVzdCBzaW1wbGVyCnRvIGltcGxlbWVudCBvbmUgYWNjZXNzIHdpZHRo
-IG9uIHRoZSBob3N0IHNpZGUuCgpQYXdlxYIKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
-YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
-YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On 13/02/13 15:08, Pawel Moll wrote:
+> On Wed, 2013-02-13 at 14:25 +0000, Marc Zyngier wrote:
+>> Using readl() to read the magic value and then memcmp() to check it
+>> fails on BE, as bytes will be the other way around (by virtue of
+>> the registers to follow the endianess of the guest).
+> 
+> Hm. Interesting. I missed the fact that readl() as a "PCI operation"
+> will always assume LE values...
+> 
+>> Fix it by encoding the magic as an integer instead of a string.
+>> So I'm not completely sure this is the right fix, 
+> 
+> It seems right, however...
+> 
+>> - Using __raw_readl() instead. Is that a generic enough API?
+>>
+> ... this implies that either the spec is wrong (as it should say: the
+> device registers are always LE, in the PCI spirit) or all readl()s & co.
+> should be replaced with __raw equivalents.
+
+Well, the spec clearly says that the registers reflect the endianess of
+the guest, and it makes sense: when performing the MMIO access, KVM
+needs to convert between host and guest endianess.
+
+> Having said that, does the change make everything else work with a BE
+> guest? (I assume we're talking about the guest being BE, right? ;-) If
+> so it means that the host is not following the current spec and it
+> treats all the registers as LE.
+
+Yes, I only care about a BE guest. And no, not much is actually working
+(kvmtool is not happy about the guest addresses it finds in the
+virtio-ring). Need to dive into it and understand what needs to be fixed...
+
+>> - Reading the MAGIC register byte by byte. Is that allowed? The spec
+>>   only says it is 32bit wide.
+> 
+> And the spirit of the spec was: _exactly 32bit wide_. It's just simpler
+> to implement one access width on the host side.
+
+I guessed as much...
+
+	M.
+-- 
+Jazz is not dead. It just smells funny...
