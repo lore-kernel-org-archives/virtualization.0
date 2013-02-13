@@ -1,16 +1,19 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: RE: [PATCH vringh 2/2] caif_virtio: Introduce caif over virtio
-Date: Wed, 13 Feb 2013 20:46:22 +1030
-Message-ID: <87ehgklds9.fsf@rustcorp.com.au>
-References: <1360494273-27889-1-git-send-email-sjur.brandeland@stericsson.com>
-	<1360494273-27889-3-git-send-email-sjur.brandeland@stericsson.com>
-	<87vc9zfic8.fsf@rustcorp.com.au>
-	<81C3A93C17462B4BBD7E272753C105792458EDD161@EXDCVYMBSTM005.EQ1STM.local>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 1/9] virtio: add functions for piecewise addition of
+	buffers
+Date: Wed, 13 Feb 2013 12:33:37 +0200
+Message-ID: <20130213103337.GC14452@redhat.com>
+References: <20130212161326.GB4373@redhat.com> <511A6B2B.50700@redhat.com>
+	<20130212163524.GB4555@redhat.com> <511A7493.50901@redhat.com>
+	<20130212173454.GA5028@redhat.com> <511A842B.1030101@redhat.com>
+	<20130212182355.GA5642@redhat.com> <511AA13B.30809@redhat.com>
+	<20130212204920.GB6972@redhat.com> <511B4983.7010103@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <81C3A93C17462B4BBD7E272753C105792458EDD161@EXDCVYMBSTM005.EQ1STM.local>
+Content-Disposition: inline
+In-Reply-To: <511B4983.7010103@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,394 +23,108 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur BRENDELAND <sjur.brandeland@stericsson.com>, "David S. Miller" <davem@davemloft.net>, Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Vikram ARV <vikram.arv@stericsson.com>, Dmitry TARNYAGIN <dmitry.tarnyagin@stericsson.com>, "sjur@brendeland.net" <sjur@brendeland.net>, Linus Walleij <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Erwan YVIN <erwan.yvin@stericsson.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Ido Yariv <ido@wizery.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sjur BRENDELAND <sjur.brandeland@stericsson.com> writes:
-> Hi Rusty,
->
->> From: Rusty Russell [mailto:rusty@rustcorp.com.au]
->> sjur.brandeland@stericsson.com writes:
->> > +struct cfv_napi_context {
->> > +	struct vringh_kiov riov;
->> > +	unsigned short head;
->> > +};
->> 
->> Usually we use an int, and -1.  I imagine it'll take no more space,
->> due to padding.
->
-> I'm passing a pointer to "head" to vringh_getdesc_kern() directly, are you
-> suggesting to change the head argument in  vringh_getdesc_kern()
-> to a int pointer as well then?
+On Wed, Feb 13, 2013 at 09:06:27AM +0100, Paolo Bonzini wrote:
+> Il 12/02/2013 21:49, Michael S. Tsirkin ha scritto:
+> > On Tue, Feb 12, 2013 at 09:08:27PM +0100, Paolo Bonzini wrote:
+> >> Il 12/02/2013 19:23, Michael S. Tsirkin ha scritto:
+> >>> On Tue, Feb 12, 2013 at 07:04:27PM +0100, Paolo Bonzini wrote:
+> >>>>>> Perhaps, but 3 or 4 arguments (in/out/nsg or in/out/nsg_in/nsg_out) just
+> >>>>>> for this are definitely too many and make the API harder to use.
+> >>>>>>
+> >>>>>> You have to find a balance.  Having actually used the API, the
+> >>>>>> possibility of mixing in/out buffers by mistake never even occurred to
+> >>>>>> me, much less happened in practice, so I didn't consider it a problem.
+> >>>>>> Mixing in/out buffers in a single call wasn't a necessity, either.
+> >>>>>
+> >>>>> It is useful for virtqueue_add_buf implementation.
+> >>>>
+> >>>>         ret = virtqueue_start_buf(vq, data, out + in, !!out + !!in,
+> >>>> 				  gfp);
+> >>>>         if (ret < 0)
+> >>>>                 return ret;
+> >>>>
+> >>>>         if (out)
+> >>>>                 virtqueue_add_sg(vq, sg, out, DMA_TO_DEVICE);
+> >>>>         if (in)
+> >>>>                 virtqueue_add_sg(vq, sg + out, in, DMA_FROM_DEVICE);
+> >>>>
+> >>>>         virtqueue_end_buf(vq);
+> >>>> 	return 0;
+> >>>>
+> >>>> How can it be simpler and easier to understand than that?
+> >>>
+> >>> Like this:
+> >>>
+> >>>          ret = virtqueue_start_buf(vq, data, in, out, gfp);
+> >>>          if (ret < 0)
+> >>>                  return ret;
+> >>>  
+> >>>          virtqueue_add_sg(vq, sg, in, out);
+> >>>  
+> >>>          virtqueue_end_buf(vq);
+> >>
+> >> It's out/in, not in/out... I know you wrote it in a hurry, but it kind
+> >> of shows that the new API is easier to use.  Check out patch 8, it's  a
+> >> real improvement in readability.
+> > 
+> > That's virtqueue_add_buf_single, that's a separate matter.
+> > Another option for _single is just two wrappers:
+> > virtqueue_add_buf_in
+> > virtqueue_add_buf_out
+> 
+> I like it less, but yes this one would be ok (no driver uses a variable
+> for the enum parameter).
 
-No, that's OK in that case.
+OK, this has the advantage of being even shorter.
 
->> > +static inline void ctx_prep_iov(struct cfv_napi_context *ctx)
->> > +{
->> > +	if (ctx->riov.allocated) {
->> > +		kfree(ctx->riov.iov);
->> > +		ctx->riov.iov = NULL;
->> > +		ctx->riov.allocated = false;
->> > +	}
->> > +	ctx->riov.iov = NULL;
->> > +	ctx->riov.i = 0;
->> > +	ctx->riov.max = 0;
->> > +}
->> 
->> Hmm, we should probably make sure you don't have to do this: that if
->> allocated once, you can simply reuse it by setting i = 0.
->
-> Yes, I had problems getting the alloc/free of iov right. This is
-> perhaps the least intuitively part of the API. I maybe it's just me, but
-> I think some more helper functions and support from vringh in this
-> area would be great.
+> >> Plus you haven't solved the problem of alternating to/from-device
+> >> elements (which is also harder to spot with in/out than with the enum).
+> > 
+> > Yes it does, if add_sg does not have in/out at all there's no way to
+> > request the impossible to/from mix.
+> 
+> In your example above it does have it.  I assume you meant
+> 
+>          ret = virtqueue_start_buf(vq, data, out, in, gfp);
+>          if (ret < 0)
+>                  return ret;
+> 
+>           virtqueue_add_sg(vq, sg, out + in);
+>           virtqueue_end_buf(vq);
+> 
+> >>>> virtqueue_add_buf and virtqueue_add_sg are very different, despite the
+> >>>> similar name.
+> >>>
+> >>> True. The similarity is between _start and _add_buf.
+> >>> And this is confusing too. Maybe this means
+> >>> _start and _add_sg should be renamed.
+> >>
+> >> Maybe.  If you have any suggestions it's fine.
+> >>
+> >> BTW I tried using out/in for start_buf, and the code in virtio-blk gets
+> >> messier, it has to do all the math twice.
+> > 
+> > I'm pretty sure we can do this without duplication, if we want to.
+> 
+> Indeed, if you remove the out/in arguments from _sg there is no
+> duplication in virtio-blk.  That's because it places data-out at the end
+> and data-in at the beginning (so data is always after the request header
+> and before the response footer).
 
-Yes, I've neatened my git tree, an in particular added a commit which
-covers this explicitly, and one for the -EPROTO when we get unexpected
-r/w bufs.  I've appended them below.
+Yes, it's not a virtio-blk thing, virtio spec and interface require that
+we have in after out.
+So yes, to me it seems cleaner to drop out/in arguments from _sg.
 
->> (This requires some care in the error handling paths, so we don't
->> free it from under you)...
->> 
->> And you probably want to free this up in cfv_remove() instead?
->
-> OK, I'll look into this when you have a some more code ready...
-
-Pushed (rebase!) to my git tree now.  You can also see what I've done to
-vhost, though there's more to come on that front.
-
-vringh: Allow reuse of vringh_iov/vringh_kiov.
-
-We allocate a larger iov if we need to, but it's better if the caller
-can simply hand it back for reuse, rather than freeing it every time.
-
-We also want to interate without mangling the iov (useful for vhost).
-
-Hence we track the number allocated and the number used separately, as
-well as the offset within the current iov element, and add helpers to
-init/cleanup and reuse.
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 55f3805..eb19948 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -73,21 +73,22 @@ static inline ssize_t vringh_iov_xfer(struct vringh_kiov *iov,
- {
- 	int err, done = 0;
- 
--	while (len && iov->i < iov->max) {
-+	while (len && iov->i < iov->used) {
- 		size_t partlen;
- 
--		partlen = min(iov->iov[iov->i].iov_len, len);
--		err = xfer(iov->iov[iov->i].iov_base, ptr, partlen);
-+		partlen = min(iov->iov[iov->i].iov_len - iov->off, len);
-+		err = xfer(iov->iov[iov->i].iov_base + iov->off, ptr, partlen);
- 		if (err)
- 			return err;
- 		done += partlen;
- 		len -= partlen;
- 		ptr += partlen;
--		iov->iov[iov->i].iov_base += partlen;
--		iov->iov[iov->i].iov_len -= partlen;
-+		iov->off += partlen;
- 
--		if (iov->iov[iov->i].iov_len == 0)
-+		if (iov->off == iov->iov[iov->i].iov_len) {
-+			iov->off = 0;
- 			iov->i++;
-+		}
- 	}
- 	return done;
- }
-@@ -167,24 +168,25 @@ static int move_to_indirect(int *up_next, u16 *i, void *addr,
- static int resize_iovec(struct vringh_kiov *iov, gfp_t gfp)
- {
- 	struct kvec *new;
--	unsigned int new_num = iov->max * 2;
-+	unsigned int flag, new_num = (iov->max_num & ~VRINGH_IOV_ALLOCATED) * 2;
- 
- 	if (new_num < 8)
- 		new_num = 8;
- 
--	if (iov->allocated)
-+	flag = (iov->max_num & VRINGH_IOV_ALLOCATED);
-+	if (flag)
- 		new = krealloc(iov->iov, new_num * sizeof(struct iovec), gfp);
- 	else {
- 		new = kmalloc(new_num * sizeof(struct iovec), gfp);
- 		if (new) {
- 			memcpy(new, iov->iov, iov->i * sizeof(struct iovec));
--			iov->allocated = true;
-+			flag = VRINGH_IOV_ALLOCATED;
- 		}
- 	}
- 	if (!new)
- 		return -ENOMEM;
- 	iov->iov = new;
--	iov->max = new_num;
-+	iov->max_num = (new_num | flag);
- 	return 0;
- }
- 
-@@ -257,6 +259,8 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 	up_next = -1;
- 
- 	riov->i = wiov->i = 0;
-+	riov->used = wiov->used = 0;
-+
- 	for (;;) {
- 		void *addr;
- 		struct vringh_kiov *iov;
-@@ -319,15 +323,15 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 		}
- 		addr = (void *)(unsigned long)(desc.addr + range.offset);
- 
--		if (unlikely(iov->i == iov->max)) {
-+		if (unlikely(iov->used == (iov->max_num & ~VRINGH_IOV_ALLOCATED))) {
- 			err = resize_iovec(iov, gfp);
- 			if (err)
- 				goto fail;
- 		}
- 
--		iov->iov[iov->i].iov_base = addr;
--		iov->iov[iov->i].iov_len = len;
--		iov->i++;
-+		iov->iov[iov->used].iov_base = addr;
-+		iov->iov[iov->used].iov_len = len;
-+		iov->used++;
- 
- 		if (unlikely(len != desc.len)) {
- 			desc.len -= len;
-@@ -354,17 +358,9 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 		}
- 	}
- 
--	/* Reset for fresh iteration. */
--	riov->max = riov->i;
--	wiov->max = wiov->i;
--	riov->i = wiov->i = 0;
- 	return 0;
- 
- fail:
--	if (riov->allocated)
--		kfree(riov->iov);
--	if (wiov->allocated)
--		kfree(wiov->iov);
- 	return err;
- }
- 
-@@ -612,8 +608,7 @@ EXPORT_SYMBOL(vringh_init_user);
-  * *head will be vrh->vring.num.  You may be able to ignore an invalid
-  * descriptor, but there's not much you can do with an invalid ring.
-  *
-- * If it returns 1, riov->allocated and wiov->allocated indicate if you
-- * have to kfree riov->iov and wiov->iov respectively.
-+ * Note that you may need to clean up riov and wiov, even on error!
-  */
- int vringh_getdesc_user(struct vringh *vrh,
- 			struct vringh_iov *riov,
-@@ -639,10 +634,10 @@ int vringh_getdesc_user(struct vringh *vrh,
- 		     offsetof(struct vringh_iov, iov));
- 	BUILD_BUG_ON(offsetof(struct vringh_kiov, i) !=
- 		     offsetof(struct vringh_iov, i));
--	BUILD_BUG_ON(offsetof(struct vringh_kiov, max) !=
--		     offsetof(struct vringh_iov, max));
--	BUILD_BUG_ON(offsetof(struct vringh_kiov, allocated) !=
--		     offsetof(struct vringh_iov, allocated));
-+	BUILD_BUG_ON(offsetof(struct vringh_kiov, used) !=
-+		     offsetof(struct vringh_iov, used));
-+	BUILD_BUG_ON(offsetof(struct vringh_kiov, max_num) !=
-+		     offsetof(struct vringh_iov, max_num));
- 	BUILD_BUG_ON(sizeof(struct iovec) != sizeof(struct kvec));
- 	BUILD_BUG_ON(offsetof(struct iovec, iov_base) !=
- 		     offsetof(struct kvec, iov_base));
-@@ -867,8 +862,12 @@ EXPORT_SYMBOL(vringh_init_kern);
-  *
-  * Returns 0 if there was no descriptor, 1 if there was, or -errno.
-  *
-- * If it returns 1, riov->allocated and wiov->allocated indicate if you
-- * have to kfree riov->iov and wiov->iov respectively.
-+ * Note that on error return, you can tell the difference between an
-+ * invalid ring and a single invalid descriptor: in the former case,
-+ * *head will be vrh->vring.num.  You may be able to ignore an invalid
-+ * descriptor, but there's not much you can do with an invalid ring.
-+ *
-+ * Note that you may need to clean up riov and wiov, even on error!
-  */
- int vringh_getdesc_kern(struct vringh *vrh,
- 			struct vringh_kiov *riov,
-diff --git a/include/linux/vringh.h b/include/linux/vringh.h
-index d78e89e..ab41185 100644
---- a/include/linux/vringh.h
-+++ b/include/linux/vringh.h
-@@ -25,6 +25,7 @@
- #define _LINUX_VRINGH_H
- #include <uapi/linux/virtio_ring.h>
- #include <linux/uio.h>
-+#include <linux/slab.h>
- #include <asm/barrier.h>
- 
- /* virtio_ring with information needed for host access. */
-@@ -60,17 +61,20 @@ struct vringh_range {
- /* All the information about an iovec. */
- struct vringh_iov {
- 	struct iovec *iov;
--	unsigned i, max;
--	bool allocated;
-+	size_t off; /* Within iov[i] */
-+	unsigned i, used, max_num;
- };
- 
- /* All the information about a kvec. */
- struct vringh_kiov {
- 	struct kvec *iov;
--	unsigned i, max;
--	bool allocated;
-+	size_t off; /* Within iov[i] */
-+	unsigned i, used, max_num;
- };
- 
-+/* Flag on max_num to indicate we're kmalloced. */
-+#define VRINGH_IOV_ALLOCATED 0x8000000
-+
- /* Helpers for userspace vrings. */
- int vringh_init_user(struct vringh *vrh, u32 features,
- 		     unsigned int num, bool weak_barriers,
-@@ -78,6 +82,29 @@ int vringh_init_user(struct vringh *vrh, u32 features,
- 		     struct vring_avail __user *avail,
- 		     struct vring_used __user *used);
- 
-+static inline void vringh_iov_init(struct vringh_iov *iov,
-+				   struct iovec *iovec, unsigned num)
-+{
-+	iov->used = iov->i = 0;
-+	iov->off = 0;
-+	iov->max_num = num;
-+	iov->iov = iovec;
-+}
-+
-+static inline void vringh_iov_reset(struct vringh_iov *iov)
-+{
-+	iov->off = 0;
-+	iov->i = 0;
-+}
-+
-+static inline void vringh_iov_cleanup(struct vringh_iov *iov)
-+{
-+	if (iov->max_num & VRINGH_IOV_ALLOCATED)
-+		kfree(iov->iov);
-+	iov->max_num = iov->used = iov->i = iov->off = 0;
-+	iov->iov = NULL;
-+}
-+
- /* Convert a descriptor into iovecs. */
- int vringh_getdesc_user(struct vringh *vrh,
- 			struct vringh_iov *riov,
-@@ -115,6 +142,29 @@ int vringh_init_kern(struct vringh *vrh, u32 features,
- 		     struct vring_avail *avail,
- 		     struct vring_used *used);
- 
-+static inline void vringh_kiov_init(struct vringh_kiov *kiov,
-+				    struct kvec *kvec, unsigned num)
-+{
-+	kiov->used = kiov->i = 0;
-+	kiov->off = 0;
-+	kiov->max_num = num;
-+	kiov->iov = kvec;
-+}
-+
-+static inline void vringh_kiov_reset(struct vringh_kiov *kiov)
-+{
-+	kiov->off = 0;
-+	kiov->i = 0;
-+}
-+
-+static inline void vringh_kiov_cleanup(struct vringh_kiov *kiov)
-+{
-+	if (kiov->max_num & VRINGH_IOV_ALLOCATED)
-+		kfree(kiov->iov);
-+	kiov->max_num = kiov->used = kiov->i = kiov->off = 0;
-+	kiov->iov = NULL;
-+}
-+
- int vringh_getdesc_kern(struct vringh *vrh,
- 			struct vringh_kiov *riov,
- 			struct vringh_kiov *wiov,
-
-vringh: allow NULL riov and wiov to vringh_getdesc_user()
-
-There are numerous cases where we don't expect any writable (or
-readable) descriptors, so handle that in common code rather than
-making the caller check.
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index ec50cd9..6b37974 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -257,8 +257,13 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 	desc_max = vrh->vring.num;
- 	up_next = -1;
- 
--	riov->i = wiov->i = 0;
--	riov->used = wiov->used = 0;
-+	if (riov)
-+		riov->i = riov->used = 0;
-+	else if (wiov)
-+		wiov->i = wiov->used = 0;
-+	else
-+		/* You must want something! */
-+		BUG();
- 
- 	for (;;) {
- 		void *addr;
-@@ -305,7 +310,7 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 			iov = wiov;
- 		else {
- 			iov = riov;
--			if (unlikely(wiov->i)) {
-+			if (unlikely(wiov && wiov->i)) {
- 				vringh_bad("Readable desc %p after writable",
- 					   &descs[i]);
- 				err = -EINVAL;
-@@ -313,6 +318,13 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 			}
- 		}
- 
-+		if (!iov) {
-+			vringh_bad("Unexpected %s desc",
-+				   !wiov ? "writable" : "readable");
-+			err = -EPROTO;
-+			goto fail;
-+		}
-+
- 	again:
- 		/* Make sure it's OK, and get offset. */
- 		len = desc.len;
-@@ -595,8 +607,8 @@ EXPORT_SYMBOL(vringh_init_user);
- /**
-  * vringh_getdesc_user - get next available descriptor from userspace ring.
-  * @vrh: the userspace vring.
-- * @riov: where to put the readable descriptors.
-- * @wiov: where to put the writable descriptors.
-+ * @riov: where to put the readable descriptors (or NULL)
-+ * @wiov: where to put the writable descriptors (or NULL)
-  * @getrange: function to call to check ranges.
-  * @head: head index we received, for passing to vringh_complete_user().
-  *
-@@ -854,8 +866,8 @@ EXPORT_SYMBOL(vringh_init_kern);
- /**
-  * vringh_getdesc_kern - get next available descriptor from kernelspace ring.
-  * @vrh: the kernelspace vring.
-- * @riov: where to put the readable descriptors.
-- * @wiov: where to put the writable descriptors.
-+ * @riov: where to put the readable descriptors (or NULL)
-+ * @wiov: where to put the writable descriptors (or NULL)
-  * @head: head index we received, for passing to vringh_complete_kern().
-  * @gfp: flags for allocating larger riov/wiov.
-  *
+> >> acknowledge that the API is different and thus the optimal choice of
+> >> arguments is different.  C doesn't have keyword arguments, there not
+> >> much that we can do.
+> > 
+> > Yea, maybe. I'm not the API guru here anyway, it's Rusty's street.
+> 
+> Let's wait for him.
+> 
+> Paolo
