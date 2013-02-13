@@ -1,15 +1,13 @@
-From: Andy King <acking@vmware.com>
-Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
-Date: Tue, 12 Feb 2013 19:23:02 -0800 (PST)
-Message-ID: <89189590.1119233.1360725782323.JavaMail.root@vmware.com>
-References: <1360196636-9357-1-git-send-email-acking@vmware.com>
-	<1360196636-9357-2-git-send-email-acking@vmware.com>
-	<511A2043.6040805@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio: Add module driver macro for virtio drivers.
+Date: Wed, 13 Feb 2013 15:52:49 +1030
+Message-ID: <87k3qclrdi.fsf@rustcorp.com.au>
+References: <1360593326-4064-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <511A2043.6040805@redhat.com>
+In-Reply-To: <1360593326-4064-1-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +17,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
+Cc: sjur@brendeland.net, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Gerd,
-
-> > +/* Option name for socket's service label.  Use as the option name in
-> > + * setsockopt(3) or getsockopt(3) to set or get the service label for a
-> > socket.
-> > + * The service label is a C-style NUL-terminated string.  Only available
-> > for
-> > + * hypervisor endpoints.
-> > + */
-> > +
-> > +#define SO_VM_SOCKETS_SERVICE_LABEL 4
-> > +
-> 
-> What is this and how does it work?
-
-Oops, that's specific to ESX.  Thankfully it's only in the header and not
-in anything under net/vmw_vsock, so removing it is easy.  I'll send out a
-patch in the morning.
-
-Thanks!
-- Andy
+c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyaXRlczoKCj4gRnJvbTogU2p1ciBCcsOm
+bmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+Cj4gQWRkIGhlbHBlciBt
+YWNybyBmb3IgZHJpdmVycyB0aGF0IGRvbid0IGRvIGFueXRoaW5nCj4gc3BlY2lhbCBpbiBtb2R1
+bGUgaW5pdC9leGl0Lgo+Cj4gU2lnbmVkLW9mZi1ieTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5i
+cmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoKQXBwbGllZCEKClRoYW5rcywKUnVzdHkuCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
