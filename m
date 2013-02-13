@@ -1,11 +1,13 @@
-From: Marc Zyngier <marc.zyngier@arm.com>
-Subject: [RFC PATCH] virt_mmio: fix signature checking for BE guests
-Date: Wed, 13 Feb 2013 14:25:38 +0000
-Message-ID: <1360765538-18097-1-git-send-email-marc.zyngier@arm.com>
+From: Pawel Moll <pawel.moll@arm.com>
+Subject: Re: [RFC PATCH] virt_mmio: fix signature checking for BE guests
+Date: Wed, 13 Feb 2013 15:08:22 +0000
+Message-ID: <1360768102.4045.107.camel@hornet>
+References: <1360765538-18097-1-git-send-email-marc.zyngier@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1360765538-18097-1-git-send-email-marc.zyngier@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,42 +17,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Marc Zyngier <Marc.Zyngier@arm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Using readl() to read the magic value and then memcmp() to check it
-fails on BE, as bytes will be the other way around (by virtue of
-the registers to follow the endianess of the guest).
-
-Fix it by encoding the magic as an integer instead of a string.
-
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Pawel Moll <pawel.moll@arm.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
----
-So I'm not completely sure this is the right fix, and I can imagine
-other ways to cure the problem:
-- Reading the MAGIC register byte by byte. Is that allowed? The spec
-  only says it is 32bit wide.
-- Using __raw_readl() instead. Is that a generic enough API?
-
- drivers/virtio/virtio_mmio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 31f966f..3811e94 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -470,7 +470,7 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 
- 	/* Check magic value */
- 	magic = readl(vm_dev->base + VIRTIO_MMIO_MAGIC_VALUE);
--	if (memcmp(&magic, "virt", 4) != 0) {
-+	if (magic != ('v' | 'i' << 8 | 'r' << 16 | 't' << 24)) {
- 		dev_warn(&pdev->dev, "Wrong magic value 0x%08lx!\n", magic);
- 		return -ENODEV;
- 	}
--- 
-1.8.1.2
+T24gV2VkLCAyMDEzLTAyLTEzIGF0IDE0OjI1ICswMDAwLCBNYXJjIFp5bmdpZXIgd3JvdGU6Cj4g
+VXNpbmcgcmVhZGwoKSB0byByZWFkIHRoZSBtYWdpYyB2YWx1ZSBhbmQgdGhlbiBtZW1jbXAoKSB0
+byBjaGVjayBpdAo+IGZhaWxzIG9uIEJFLCBhcyBieXRlcyB3aWxsIGJlIHRoZSBvdGhlciB3YXkg
+YXJvdW5kIChieSB2aXJ0dWUgb2YKPiB0aGUgcmVnaXN0ZXJzIHRvIGZvbGxvdyB0aGUgZW5kaWFu
+ZXNzIG9mIHRoZSBndWVzdCkuCgpIbS4gSW50ZXJlc3RpbmcuIEkgbWlzc2VkIHRoZSBmYWN0IHRo
+YXQgcmVhZGwoKSBhcyBhICJQQ0kgb3BlcmF0aW9uIgp3aWxsIGFsd2F5cyBhc3N1bWUgTEUgdmFs
+dWVzLi4uCgo+IEZpeCBpdCBieSBlbmNvZGluZyB0aGUgbWFnaWMgYXMgYW4gaW50ZWdlciBpbnN0
+ZWFkIG9mIGEgc3RyaW5nLgo+IFNvIEknbSBub3QgY29tcGxldGVseSBzdXJlIHRoaXMgaXMgdGhl
+IHJpZ2h0IGZpeCwgCgpJdCBzZWVtcyByaWdodCwgaG93ZXZlci4uLgoKPiAtIFVzaW5nIF9fcmF3
+X3JlYWRsKCkgaW5zdGVhZC4gSXMgdGhhdCBhIGdlbmVyaWMgZW5vdWdoIEFQST8KPiAKLi4uIHRo
+aXMgaW1wbGllcyB0aGF0IGVpdGhlciB0aGUgc3BlYyBpcyB3cm9uZyAoYXMgaXQgc2hvdWxkIHNh
+eTogdGhlCmRldmljZSByZWdpc3RlcnMgYXJlIGFsd2F5cyBMRSwgaW4gdGhlIFBDSSBzcGlyaXQp
+IG9yIGFsbCByZWFkbCgpcyAmIGNvLgpzaG91bGQgYmUgcmVwbGFjZWQgd2l0aCBfX3JhdyBlcXVp
+dmFsZW50cy4KCkhhdmluZyBzYWlkIHRoYXQsIGRvZXMgdGhlIGNoYW5nZSBtYWtlIGV2ZXJ5dGhp
+bmcgZWxzZSB3b3JrIHdpdGggYSBCRQpndWVzdD8gKEkgYXNzdW1lIHdlJ3JlIHRhbGtpbmcgYWJv
+dXQgdGhlIGd1ZXN0IGJlaW5nIEJFLCByaWdodD8gOy0pIElmCnNvIGl0IG1lYW5zIHRoYXQgdGhl
+IGhvc3QgaXMgbm90IGZvbGxvd2luZyB0aGUgY3VycmVudCBzcGVjIGFuZCBpdAp0cmVhdHMgYWxs
+IHRoZSByZWdpc3RlcnMgYXMgTEUuCgo+IC0gUmVhZGluZyB0aGUgTUFHSUMgcmVnaXN0ZXIgYnl0
+ZSBieSBieXRlLiBJcyB0aGF0IGFsbG93ZWQ/IFRoZSBzcGVjCj4gICBvbmx5IHNheXMgaXQgaXMg
+MzJiaXQgd2lkZS4KCkFuZCB0aGUgc3Bpcml0IG9mIHRoZSBzcGVjIHdhczogX2V4YWN0bHkgMzJi
+aXQgd2lkZV8uIEl0J3MganVzdCBzaW1wbGVyCnRvIGltcGxlbWVudCBvbmUgYWNjZXNzIHdpZHRo
+IG9uIHRoZSBob3N0IHNpZGUuCgpQYXdlxYIKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
