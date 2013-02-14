@@ -1,14 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio_console: Initialize guest_connected=true for
-	rproc_serial
-Date: Wed, 13 Feb 2013 20:58:28 +1030
-Message-ID: <87zjz8jynn.fsf@rustcorp.com.au>
-References: <1360679647-13136-1-git-send-email-sjur.brandeland@stericsson.com>
+From: Andy King <acking@vmware.com>
+Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Wed, 13 Feb 2013 19:07:18 -0800 (PST)
+Message-ID: <1221598093.1412783.1360811238629.JavaMail.root@vmware.com>
+References: <1360196636-9357-1-git-send-email-acking@vmware.com>
+	<1360196636-9357-2-git-send-email-acking@vmware.com>
+	<511B8AAF.2060202@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360679647-13136-1-git-send-email-sjur.brandeland@stericsson.com>
+In-Reply-To: <511B8AAF.2060202@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,17 +19,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: amit.shah@redhat.com, sjur@brendeland.net, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, virtualization@lists.linux-foundation.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyaXRlczoKPiBGcm9tOiBTanVyIEJyw6Zu
-ZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Cj4KPiBXaGVuIHJwcm9jX3Nl
-cmlhbCBpcyBpbml0aWFsaXplZCwgZ3Vlc3RfY29ubmVjdGVkIHNob3VsZCBiZSBzZXQKPiB0byB0
-cnVlLiBXZSBjYW4gdGhlbiByZXZlcnQgdGhlIGV4dHJhIGNoZWNrcyBpbnRyb2R1Y2VkIGluCj4g
-Y29tbWl0OiAidmlydGlvX2NvbnNvbGU6IExldCB1bmNvbm5lY3RlZCBycHJvYyBkZXZpY2UgcmVj
-ZWl2ZSBkYXRhLiIKPgo+IFNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJh
-bmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KClRoYW5rcywgYXBwbGllZC4KCkNoZWVycywKUnVzdHku
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+> > +	if (protocol)
+> > +		return -EPROTONOSUPPORT;
+> > +
+> 
+> IMO protocol == PF_VSOCK should not get rejected here.
+
+Agreed, let me fix that too.
+
+Thanks!
+- Andy
