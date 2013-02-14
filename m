@@ -1,13 +1,14 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: [PATCH] virtio-spec: Define virtio-mmio registers as LE
-Date: Thu, 14 Feb 2013 10:54:06 +0000
-Message-ID: <1360839247-9131-1-git-send-email-pawel.moll@arm.com>
-References: <87wqubkalj.fsf@rustcorp.com.au>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Thu, 14 Feb 2013 12:05:53 +0100
+Message-ID: <511CC511.7080902@redhat.com>
+References: <1360196636-9357-1-git-send-email-acking@vmware.com>
+	<1360196636-9357-2-git-send-email-acking@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87wqubkalj.fsf@rustcorp.com.au>
+In-Reply-To: <1360196636-9357-2-git-send-email-acking@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,77 +18,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Andy King <acking@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-To solve the never-ending confusions between hosts and guests
-of different endianess, define all virtio-mmio registers as LE.
+On 02/07/13 01:23, Andy King wrote:
+> +		written = transport->stream_enqueue(
+> +				vsk, msg->msg_iov,
+> +				len - total_written);
 
-This change should be safe at this stage, because no known
-working mixed-endian system exists so there is virtually no
-risk of breaking compatibility.
+Hmm, shouldn't we pass total_written to stream_enqueue here?
 
-Signed-off-by: Pawel Moll <pawel.moll@arm.com>
----
- virtio-spec.lyx |   30 +++++++++++++++++++++++++++++-
- 1 file changed, 29 insertions(+), 1 deletion(-)
+In case a blocking send(big-buffer) call gets splitted into multiple
+stream_enqueue calls the second (and further) stream_enqueue calls need
+to know at which msg offset they should continue sending the data, no?
 
-diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index 1ba9992..a00b675 100644
---- a/virtio-spec.lyx
-+++ b/virtio-spec.lyx
-@@ -56,6 +56,7 @@
- \html_math_output 0
- \html_css_as_file 0
- \html_be_strict false
-+\author -875410574 "Pawel Moll" 
- \author -608949062 "Rusty Russell,,," 
- \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
- \author 1112500848 "Rusty Russell" rusty@rustcorp.com.au
-@@ -1850,6 +1851,17 @@ struct vring {
- 
- \begin_layout Subsection
- A Note on Virtqueue Endianness
-+\change_inserted -875410574 1360838374
-+
-+\begin_inset CommandInset label
-+LatexCommand label
-+name "sub:Virtqueue-Endianness"
-+
-+\end_inset
-+
-+
-+\change_unchanged
-+
- \end_layout
- 
- \begin_layout Standard
-@@ -9850,8 +9862,24 @@ a
- \end_layout
- 
- \begin_layout Standard
-+
-+\change_deleted -875410574 1360838214
- The endianness of the registers follows the native endianness of the Guest.
-- Writing to registers described as 
-+\change_inserted -875410574 1360838930
-+All register values are organized as Little Endian, similarly to the PCI
-+ variant, see also 
-+\begin_inset CommandInset ref
-+LatexCommand ref
-+reference "sub:Virtqueue-Endianness"
-+
-+\end_inset
-+
-+.
-+ 
-+\change_deleted -875410574 1360838262
-+ 
-+\change_unchanged
-+Writing to registers described as 
- \begin_inset Quotes eld
- \end_inset
- 
--- 
-1.7.10.4
+cheers,
+  Gerd
