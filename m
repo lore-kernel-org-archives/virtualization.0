@@ -1,17 +1,15 @@
-From: Andy King <acking@vmware.com>
-Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
-Date: Wed, 13 Feb 2013 19:20:23 -0800 (PST)
-Message-ID: <1218897172.1425846.1360812023655.JavaMail.root@vmware.com>
-References: <1360196636-9357-1-git-send-email-acking@vmware.com>
-	<1360196636-9357-2-git-send-email-acking@vmware.com>
-	<5118FEA9.2080201@redhat.com>
-	<1675407061.963254.1360682467627.JavaMail.root@vmware.com>
-	<511B739C.8000204@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC PATCH] virt_mmio: fix signature checking for BE guests
+Date: Thu, 14 Feb 2013 10:52:48 +1030
+Message-ID: <87wqubkalj.fsf@rustcorp.com.au>
+References: <1360765538-18097-1-git-send-email-marc.zyngier@arm.com>
+	<1360768102.4045.107.camel@hornet> <511BB134.30003@arm.com>
+	<20130213165356.GA23193@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <511B739C.8000204@redhat.com>
+In-Reply-To: <20130213165356.GA23193@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,73 +19,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
+To: "Michael S. Tsirkin" <mst@redhat.com>, Marc Zyngier <marc.zyngier@arm.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Pawel Moll <Pawel.Moll@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> I've seen you have a notify_ops in the vmci bits.  Do you have different
-> notify ops depending on socket type or something?  Does it make sense to
-> move the notify ops ptr into "struct vsock_sock" maybe?
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Wed, Feb 13, 2013 at 03:28:52PM +0000, Marc Zyngier wrote:
+>> On 13/02/13 15:08, Pawel Moll wrote:
+>> > On Wed, 2013-02-13 at 14:25 +0000, Marc Zyngier wrote:
+>> >> Using readl() to read the magic value and then memcmp() to check it
+>> >> fails on BE, as bytes will be the other way around (by virtue of
+>> >> the registers to follow the endianess of the guest).
+>> > 
+>> > Hm. Interesting. I missed the fact that readl() as a "PCI operation"
+>> > will always assume LE values...
+>> > 
+>> >> Fix it by encoding the magic as an integer instead of a string.
+>> >> So I'm not completely sure this is the right fix, 
+>> > 
+>> > It seems right, however...
+>> > 
+>> >> - Using __raw_readl() instead. Is that a generic enough API?
+>> >>
+>> > ... this implies that either the spec is wrong (as it should say: the
+>> > device registers are always LE, in the PCI spirit) or all readl()s & co.
+>> > should be replaced with __raw equivalents.
+>> 
+>> Well, the spec clearly says that the registers reflect the endianess of
+>> the guest, and it makes sense: when performing the MMIO access, KVM
+>> needs to convert between host and guest endianess.
+>> 
+>> > Having said that, does the change make everything else work with a BE
+>> > guest? (I assume we're talking about the guest being BE, right? ;-) If
+>> > so it means that the host is not following the current spec and it
+>> > treats all the registers as LE.
+>> 
+>> Yes, I only care about a BE guest. And no, not much is actually working
+>> (kvmtool is not happy about the guest addresses it finds in the
+>> virtio-ring). Need to dive into it and understand what needs to be fixed...
+>
+> Does it work for qemu? I know people were using virtio on BE there.
 
-The notify stuff only applies to STREAMs.  However, we have two different
-notify impls, one for legacy ESX and one for newer, and we figure out at
-runtime which protocol we're using with the hypervisor and set the
-callbacks appropriately.  The difference between the two is that the
-newer one is much smarter and knows not to signal (the peer) quite so much,
-i.e., it has some basic but sensible flow-control, which improves
-performance quite a bit.  Again, that might not make any sense at all
-for virtio.  Do you need to signal when you enqueue to a ring?  And is
-there coalescing?  Dunno...
+It's had no end of problems: the powerpc folk are quite upset with me.
 
-> And can we make it optional please (i.e. allow the function pointers to
-> be NULL)?
+If I were doing virtio again, I'd use LE everywhere: device authors
+*expect* to worry about endian, and it's confusing for them when they
+don't.
 
-They were originally allowed to be NULL, but I changed it in the last
-round of patches while moving them into the transport, since I disliked
-the NULL checks so much.  I can put them back, but that's a bigger
-change, and I'm not sure we want to push large patches to Dave right
-now :)
+It's tempting to use LE for the PCI config space for the new layout, for
+example.
 
-> Which problem you are trying to tackle with the notifications?
+If you want to specify virtio-mmio as LE, feel free.
 
-It's to do with signaling the peer, or more appropriately, trying to
-avoid signaling the peer when possible.  The naive impl. is to signal
-every time we enqueue or dequeue data (into our VMCI queuepairs).
-But signaling is slow, since it involves a world exit, so we prefer
-not to.  Which means we need to keep track of rate of flow and figure
-out when we should and should not, and that's what all the notification
-stuff does.  It's...ugly...
-
-> > For the VMCI transport, it indicates if the underlying queuepair is
-> > still around (i.e., make sure we haven't torn it down while sleeping
-> > in a blocking send or receive).  Perhaps it's not the best name?
-> 
-> How you'd hit that?  Peer closing the socket while sleeping?  Other
-> thread closing the socket wile sleeping?  Both?
-> 
-> I think a state field in struct vsock_sock would be a better solution here.
-
-Hrm, lemme think about this one.
-
-> 
-> >> What is *_allow?
-> > 
-> > It's very basic filtering.  We have specific addresses that we don't
-> > allow, and we look for them in the allow() functions.  You can just
-> > return true if you like.
-> 
-> Can we make those calls optional too please?
-
-Sure.
-
-> The notify_*_init could return a opaque pointer instead.  But then
-> you'll need a notify_*_free too.  And you can't place it on the stack
-> and thus have a allocation in the hot path, which I guess you are trying
-> to avoid in the first place.
-
-Avoiding allocation is good, but at the same time, I wonder if it's not
-a big deal compared with the time spent copying out of the buffers, in
-which case it won't matter.  So maybe we can do this.
-
-Thanks!
-- Andy
+Cheers,
+Rusty.
