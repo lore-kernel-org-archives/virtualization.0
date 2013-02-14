@@ -1,14 +1,17 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
-Date: Thu, 14 Feb 2013 12:05:53 +0100
-Message-ID: <511CC511.7080902@redhat.com>
-References: <1360196636-9357-1-git-send-email-acking@vmware.com>
-	<1360196636-9357-2-git-send-email-acking@vmware.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Subject: Re: [PATCH 1/6] virtio_host: host-side implementation of virtio rings.
+Date: Thu, 14 Feb 2013 15:54:48 +0100
+Message-ID: <CAJK669Y-RNVqERSeUUe67Ey92Xr7bvXHhwr4w8Hw0_LHCUOXtw@mail.gmail.com>
+References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
+	<CAJK669aVu_h-ZJnNF0yWBvzfvfj2NSNxDkuHSmJxdUGLNtjOcQ@mail.gmail.com>
+	<878v73lpp3.fsf@rustcorp.com.au>
+	<CAJK669ZTsRpc4qyVsDHgGZUVFMU+qtPARZ-6pkkXXkds_+tEwA@mail.gmail.com>
+	<8738x0ldcb.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360196636-9357-2-git-send-email-acking@vmware.com>
+In-Reply-To: <8738x0ldcb.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,20 +21,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy King <acking@vmware.com>
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Erwan.Yvin@stericsson.com, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/07/13 01:23, Andy King wrote:
-> +		written = transport->stream_enqueue(
-> +				vsk, msg->msg_iov,
-> +				len - total_written);
-
-Hmm, shouldn't we pass total_written to stream_enqueue here?
-
-In case a blocking send(big-buffer) call gets splitted into multiple
-stream_enqueue calls the second (and further) stream_enqueue calls need
-to know at which msg offset they should continue sending the data, no?
-
-cheers,
-  Gerd
+SGkgUnVzdHksCgpPbiBXZWQsIEZlYiAxMywgMjAxMyBhdCAxMToyNSBBTSwgUnVzdHkgUnVzc2Vs
+bCA8cnVzdHlAcnVzdGNvcnAuY29tLmF1PiB3cm90ZToKPiBTanVyIEJyw6ZuZGVsYW5kIDxzanVy
+YnJlbkBnbWFpbC5jb20+IHdyaXRlczoKPj4gT24gTW9uLCBGZWIgNCwgMjAxMyBhdCAxMDo0NCBQ
+TSwgUnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNvcnAuY29tLmF1PiB3cm90ZToKPj4+IFNqdXIg
+QnLDpm5kZWxhbmQgPHNqdXJicmVuQGdtYWlsLmNvbT4gd3JpdGVzOgo+PiAuLi4KPj4+PiBJIGd1
+ZXNzIG15IHZyaW5naCByZWxhdGVkIHN0dWZmIHNob3VsZCBnbyBpbnRvIHlvdXIgdHJlZSB0b2dl
+dGhlciB3aXRoIHlvdXIKPj4+PiB2cmluZ2ggcGF0Y2hlcy4uLgo+Pj4+IFdvdWxkIHlvdSBiZSB3
+aWxsaW5nIHRvIHRha2UgdGhpcyB2aWEgeW91ciB0cmVlLCBwcm92aWRlZCB0aGF0IEkgZ2V0IGFj
+a3MKPj4+PiBmcm9tIHRoZSByaWdodCBwZW9wbGU/Cj4+Pgo+Pj4gWWVzIHBsZWFzZS4gIE5vdyBJ
+IGhhdmUgc2V0IHVwIGEgdGVzdCByaWcgZm9yIHZob3N0ICh1bmZvcnR1bmF0ZWx5IG5vdAo+Pj4g
+d2l0aCAxMEdlKSBJIGNhbiBtYWtlIHByb2dyZXNzIG9uIHZob3N0IGFkYXB0aW9uLgo+Pj4KPj4K
+Pj4gSSBoYXZlIG9uZSBxdWVzdGlvbiwgYXJlIHlvdSBwbGFubmluZyB0byBpbmNsdWRlIHZyaW5n
+aCBpbiB5b3VyCj4+IHZpcnRpby1uZXh0IGJyYW5jaAo+PiBmb3IgdGhlIDMuOSBtZXJnZSB3aW5k
+b3cgb3Igc29tZSB0aW1lIGxhdGVyPwo+Cj4gSWYgeW91J3JlIGVhZ2VyIHdpdGggdGhlIENBSUYg
+c3R1ZmYsIEknbGwgbWVyZ2UgaXQgZm9yIHRoaXMgbWVyZ2Ugd2luZG93Cj4gKHdlIG1heSBzdGls
+bCByZXdvcmsgc3R1ZmYsIGJ1dCBJIGRvbid0IHdhbnQgdG8gYmxvY2sgeW91KS4KPgo+IE90aGVy
+d2lzZSwgaXQnbGwgcHJvYmFibHkgd2FpdC4KClllcywgSSB3b3VsZCBwcmVmZXIgdG8gZ2V0IENB
+SUYtdmlydGlvIG1lcmdlZCBub3cgdW5sZXNzIGl0IGNyZWF0ZXMgYQphIGxvdCBvZiB0cm91Ymxl
+IGZvciB5b3UuIEJ1dCBJJ20gbm90IHN1cmUgSSdsbCBtYW5hZ2UgdG8gZ2V0IGFjayBmcm9tIE9o
+YWQKaW4gdGltZSB0aG91Z2guIEhlIHNhaWQgaGUgd291bGQgYmUgYnVzeSBmb3IgdGhlIG5leHQg
+d2Vlay4gSSBuZWVkCmFuIGFjayBmcm9tIERhdmlkIE1pbGxlciBhcyB3ZWxsLCBJJ2xsIHJlc2Vu
+ZCB0aGUgcGF0Y2ggdG8gaGltIGlmIHlvdQpkZWNpZGUgdG8gZ28gYWhlYWQgYW5kIG1lcmdlIHRo
+aXMuCgpUaGFua3MsClNqdXIKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
+YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
