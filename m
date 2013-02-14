@@ -1,17 +1,14 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Subject: Re: [PATCH 1/6] virtio_host: host-side implementation of virtio rings.
-Date: Thu, 14 Feb 2013 15:54:48 +0100
-Message-ID: <CAJK669Y-RNVqERSeUUe67Ey92Xr7bvXHhwr4w8Hw0_LHCUOXtw@mail.gmail.com>
-References: <1358418584-26345-1-git-send-email-rusty@rustcorp.com.au>
-	<CAJK669aVu_h-ZJnNF0yWBvzfvfj2NSNxDkuHSmJxdUGLNtjOcQ@mail.gmail.com>
-	<878v73lpp3.fsf@rustcorp.com.au>
-	<CAJK669ZTsRpc4qyVsDHgGZUVFMU+qtPARZ-6pkkXXkds_+tEwA@mail.gmail.com>
-	<8738x0ldcb.fsf@rustcorp.com.au>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: linux-next: Tree for Feb 13 (virtio_console)
+Date: Thu, 14 Feb 2013 10:45:08 -0800
+Message-ID: <511D30B4.5020201__47289.2337282703$1360867499$gmane$org@infradead.org>
+References: <20130213193532.162080d7c0557a307ab451ac@canb.auug.org.au>
+	<511BEC55.5090801@infradead.org> <87sj4zk3ai.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8738x0ldcb.fsf@rustcorp.com.au>
+In-Reply-To: <87sj4zk3ai.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,32 +19,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Erwan.Yvin@stericsson.com, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+Cc: Amit Shah <amit.shah@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgUnVzdHksCgpPbiBXZWQsIEZlYiAxMywgMjAxMyBhdCAxMToyNSBBTSwgUnVzdHkgUnVzc2Vs
-bCA8cnVzdHlAcnVzdGNvcnAuY29tLmF1PiB3cm90ZToKPiBTanVyIEJyw6ZuZGVsYW5kIDxzanVy
-YnJlbkBnbWFpbC5jb20+IHdyaXRlczoKPj4gT24gTW9uLCBGZWIgNCwgMjAxMyBhdCAxMDo0NCBQ
-TSwgUnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNvcnAuY29tLmF1PiB3cm90ZToKPj4+IFNqdXIg
-QnLDpm5kZWxhbmQgPHNqdXJicmVuQGdtYWlsLmNvbT4gd3JpdGVzOgo+PiAuLi4KPj4+PiBJIGd1
-ZXNzIG15IHZyaW5naCByZWxhdGVkIHN0dWZmIHNob3VsZCBnbyBpbnRvIHlvdXIgdHJlZSB0b2dl
-dGhlciB3aXRoIHlvdXIKPj4+PiB2cmluZ2ggcGF0Y2hlcy4uLgo+Pj4+IFdvdWxkIHlvdSBiZSB3
-aWxsaW5nIHRvIHRha2UgdGhpcyB2aWEgeW91ciB0cmVlLCBwcm92aWRlZCB0aGF0IEkgZ2V0IGFj
-a3MKPj4+PiBmcm9tIHRoZSByaWdodCBwZW9wbGU/Cj4+Pgo+Pj4gWWVzIHBsZWFzZS4gIE5vdyBJ
-IGhhdmUgc2V0IHVwIGEgdGVzdCByaWcgZm9yIHZob3N0ICh1bmZvcnR1bmF0ZWx5IG5vdAo+Pj4g
-d2l0aCAxMEdlKSBJIGNhbiBtYWtlIHByb2dyZXNzIG9uIHZob3N0IGFkYXB0aW9uLgo+Pj4KPj4K
-Pj4gSSBoYXZlIG9uZSBxdWVzdGlvbiwgYXJlIHlvdSBwbGFubmluZyB0byBpbmNsdWRlIHZyaW5n
-aCBpbiB5b3VyCj4+IHZpcnRpby1uZXh0IGJyYW5jaAo+PiBmb3IgdGhlIDMuOSBtZXJnZSB3aW5k
-b3cgb3Igc29tZSB0aW1lIGxhdGVyPwo+Cj4gSWYgeW91J3JlIGVhZ2VyIHdpdGggdGhlIENBSUYg
-c3R1ZmYsIEknbGwgbWVyZ2UgaXQgZm9yIHRoaXMgbWVyZ2Ugd2luZG93Cj4gKHdlIG1heSBzdGls
-bCByZXdvcmsgc3R1ZmYsIGJ1dCBJIGRvbid0IHdhbnQgdG8gYmxvY2sgeW91KS4KPgo+IE90aGVy
-d2lzZSwgaXQnbGwgcHJvYmFibHkgd2FpdC4KClllcywgSSB3b3VsZCBwcmVmZXIgdG8gZ2V0IENB
-SUYtdmlydGlvIG1lcmdlZCBub3cgdW5sZXNzIGl0IGNyZWF0ZXMgYQphIGxvdCBvZiB0cm91Ymxl
-IGZvciB5b3UuIEJ1dCBJJ20gbm90IHN1cmUgSSdsbCBtYW5hZ2UgdG8gZ2V0IGFjayBmcm9tIE9o
-YWQKaW4gdGltZSB0aG91Z2guIEhlIHNhaWQgaGUgd291bGQgYmUgYnVzeSBmb3IgdGhlIG5leHQg
-d2Vlay4gSSBuZWVkCmFuIGFjayBmcm9tIERhdmlkIE1pbGxlciBhcyB3ZWxsLCBJJ2xsIHJlc2Vu
-ZCB0aGUgcGF0Y2ggdG8gaGltIGlmIHlvdQpkZWNpZGUgdG8gZ28gYWhlYWQgYW5kIG1lcmdlIHRo
-aXMuCgpUaGFua3MsClNqdXIKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
-LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
-YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 02/13/13 19:00, Rusty Russell wrote:
+> Randy Dunlap <rdunlap@infradead.org> writes:
+> 
+>> On 02/13/13 00:35, Stephen Rothwell wrote:
+>>> Hi all,
+>>>
+>>> Changes since 20130212:
+>>
+>> on i386:
+>>
+>> drivers/built-in.o: In function `in_intr':
+>> virtio_console.c:(.text+0x2dd31): undefined reference to `hvc_poll'
+>> virtio_console.c:(.text+0x2dd41): undefined reference to `hvc_kick'
+>> drivers/built-in.o: In function `resize_console':
+>> virtio_console.c:(.text+0x2e26f): undefined reference to `__hvc_resize'
+>> drivers/built-in.o: In function `unplug_port':
+>> virtio_console.c:(.text+0x2e572): undefined reference to `hvc_remove'
+>> drivers/built-in.o: In function `init_port_console':
+>> (.text+0x2fe59): undefined reference to `hvc_alloc'
+>> drivers/built-in.o: In function `virtio_cons_early_init':
+>> (.init.text+0x16d1): undefined reference to `hvc_instantiate'
+>>
+>>
+>> Full randconfig file is attached.
+> 
+> This looks like an impossible config.  CONFIG_VIRTIO_CONSOLE=y, but
+> CONFIG_HVC_DRIVER isn't set.
+> 
+> From drivers/char/Kconfig:
+> 
+>         config VIRTIO_CONSOLE
+>         	tristate "Virtio console"
+>         	depends on VIRTIO
+>         	select HVC_DRIVER
+> 
+> ???
+
+OK.  It's probably yet another stinking problem with kvmtool and randconfig.
+Running *config reports:
+
+warning: (KVMTOOL_TEST_ENABLE && LGUEST_GUEST) selects VIRTIO_CONSOLE which has unmet direct dependencies (VIRTIO && TTY)
+
+
+I'll look a bit more...
+
+thanks,
+-- 
+~Randy
