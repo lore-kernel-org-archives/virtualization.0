@@ -1,12 +1,15 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: re: xen/acpi: ACPI memory hotplug
-Date: Fri, 15 Feb 2013 17:17:28 +0300
-Message-ID: <20130215141728.GA27966@elgon.mountain>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 0/9] virtio: new API for addition of buffers, scatterlist
+	changes
+Date: Fri, 15 Feb 2013 19:04:19 +0100
+Message-ID: <511E78A3.9070607@redhat.com>
+References: <1360671815-2135-1-git-send-email-pbonzini@redhat.com>
+	<87r4kjjuyn.fsf@rustcorp.com.au> <511CAD19.2010902@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <511CAD19.2010902@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,67 +19,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jinsong.liu@intel.com
-Cc: kbuild@01.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello Liu Jinsong,
+Il 14/02/2013 10:23, Paolo Bonzini ha scritto:
+>> > How about this as a first step?
+>> > 
+>> > virtio_ring: virtqueue_add_sgs, to add multiple sgs.
+>> > 
+>> > virtio_scsi and virtio_blk can really use these, to avoid their current
+>> > hack of copying the whole sg array.
+>> > 
+>> > Signed-off-by: Ruty Russell <rusty@rustcorp.com.au> 
+> It's much better than the other prototype you had posted, but I still
+> dislike this...  You pay for additional counting of scatterlists when
+> the caller knows the number of buffers; and the nested loops aren't
+> free, either.
 
-This is a semi-automatic email about new static checker warnings.
+Another problem is that you cannot pass "truncated" scatterlists.  You
+must ensure there is an end marker on the last item.  I'm not sure if
+the kernel ensures that, given that for_each_sg takes explicitly the
+number of scatterlist elements; and it is not as trivial as
+"sg_mark_end(foo + nsg - 1);" if the upper layers hand you a chained
+scatterlist.
 
-The patch 259f201cb7ea: "xen/acpi: ACPI memory hotplug" from Jan 24, 
-2013, leads to the following Smatch complaint:
-
-drivers/xen/xen-acpi-memhotplug.c:198 acpi_memory_get_device()
-	 error: we previously assumed 'device' could be null (see line 171)
-
-drivers/xen/xen-acpi-memhotplug.c
-   170	
-   171		if (!acpi_bus_get_device(handle, &device) && device)
-                                                             ^^^^^^
-New check.
-
-Btw, checking device is unnecessary.
-
-		if (acpi_bus_get_device(handle, &device) == 0)
-			goto end;
-
-A successful "Get Device" means that "device" is non-NULL; that's built
-into the name.  Anyway, if acpi_bus_get_device() fails either something
-else will fail or we will Oops in the call to acpi_driver_data().
-
-   172			goto end;
-   173	
-   174		status = acpi_get_parent(handle, &phandle);
-   175		if (ACPI_FAILURE(status)) {
-   176			pr_warn(PREFIX "Cannot find acpi parent\n");
-   177			return -EINVAL;
-   178		}
-   179	
-   180		/* Get the parent device */
-   181		result = acpi_bus_get_device(phandle, &pdevice);
-   182		if (result) {
-   183			pr_warn(PREFIX "Cannot get acpi bus device\n");
-   184			return -EINVAL;
-   185		}
-   186	
-   187		/*
-   188		 * Now add the notified device.  This creates the acpi_device
-   189		 * and invokes .add function
-   190		 */
-   191		result = acpi_bus_scan(handle);
-   192		if (result) {
-   193			pr_warn(PREFIX "Cannot add acpi bus\n");
-   194			return -EINVAL;
-   195		}
-   196	
-   197	end:
-   198		*mem_device = acpi_driver_data(device);
-                                               ^^^^^^
-Dereference.
-
-   199		if (!(*mem_device)) {
-   200			pr_err(PREFIX "Driver data not found\n");
-
-regards,
-dan carpenter
+Paolo
