@@ -1,14 +1,12 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
-Date: Fri, 15 Feb 2013 11:32:36 +0100
-Message-ID: <511E0EC4.9030405@redhat.com>
-References: <1360196636-9357-1-git-send-email-acking@vmware.com>
-	<1360196636-9357-2-git-send-email-acking@vmware.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: re: xen/acpi: ACPI memory hotplug
+Date: Fri, 15 Feb 2013 17:17:28 +0300
+Message-ID: <20130215141728.GA27966@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360196636-9357-2-git-send-email-acking@vmware.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +16,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andy King <acking@vmware.com>
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
+To: jinsong.liu@intel.com
+Cc: kbuild@01.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/07/13 01:23, Andy King wrote:
-> +/* Use this as the destination CID in an address when referring to the
-> + * hypervisor.  VMCI relies on it being 0, but this would be useful for other
-> + * transports too.
-> + */
-> +
-> +#define VMADDR_CID_HYPERVISOR 0
-> +
-> +/* This CID is specific to VMCI and can be considered reserved (even VMCI
-> + * doesn't use it anymore, it's a legacy value from an older release).
-> + */
-> +
-> +#define VMADDR_CID_RESERVED 1
-> +
-> +/* Use this as the destination CID in an address when referring to the host
-> + * (any process other than the hypervisor).  VMCI relies on it being 2, but
-> + * this would be useful for other transports too.
-> + */
-> +
-> +#define VMADDR_CID_HOST 2
+Hello Liu Jinsong,
 
-CIDs larger than 2 will address other VMs on the same host, with the
-hypervisor forwarding the data from one guest to the other and back?
+This is a semi-automatic email about new static checker warnings.
 
-How does VMADDR_CID_HOST work?  Given the age of the vsock transport
-layer I don't think you have a vsock_transport_host.ko module ...
+The patch 259f201cb7ea: "xen/acpi: ACPI memory hotplug" from Jan 24, 
+2013, leads to the following Smatch complaint:
 
-Is there some registry for the port numbers?
+drivers/xen/xen-acpi-memhotplug.c:198 acpi_memory_get_device()
+	 error: we previously assumed 'device' could be null (see line 171)
 
-cheers,
-  Gerd
+drivers/xen/xen-acpi-memhotplug.c
+   170	
+   171		if (!acpi_bus_get_device(handle, &device) && device)
+                                                             ^^^^^^
+New check.
+
+Btw, checking device is unnecessary.
+
+		if (acpi_bus_get_device(handle, &device) == 0)
+			goto end;
+
+A successful "Get Device" means that "device" is non-NULL; that's built
+into the name.  Anyway, if acpi_bus_get_device() fails either something
+else will fail or we will Oops in the call to acpi_driver_data().
+
+   172			goto end;
+   173	
+   174		status = acpi_get_parent(handle, &phandle);
+   175		if (ACPI_FAILURE(status)) {
+   176			pr_warn(PREFIX "Cannot find acpi parent\n");
+   177			return -EINVAL;
+   178		}
+   179	
+   180		/* Get the parent device */
+   181		result = acpi_bus_get_device(phandle, &pdevice);
+   182		if (result) {
+   183			pr_warn(PREFIX "Cannot get acpi bus device\n");
+   184			return -EINVAL;
+   185		}
+   186	
+   187		/*
+   188		 * Now add the notified device.  This creates the acpi_device
+   189		 * and invokes .add function
+   190		 */
+   191		result = acpi_bus_scan(handle);
+   192		if (result) {
+   193			pr_warn(PREFIX "Cannot add acpi bus\n");
+   194			return -EINVAL;
+   195		}
+   196	
+   197	end:
+   198		*mem_device = acpi_driver_data(device);
+                                               ^^^^^^
+Dereference.
+
+   199		if (!(*mem_device)) {
+   200			pr_err(PREFIX "Driver data not found\n");
+
+regards,
+dan carpenter
