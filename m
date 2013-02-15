@@ -1,14 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-spec: Define virtio-mmio registers as LE
-Date: Fri, 15 Feb 2013 14:27:47 +1030
-Message-ID: <87ehgijkjo.fsf@rustcorp.com.au>
-References: <87wqubkalj.fsf@rustcorp.com.au>
-	<1360839247-9131-1-git-send-email-pawel.moll@arm.com>
+From: "Jan Beulich" <JBeulich@suse.com>
+Subject: Re: [PATCH] x86/xen: don't assume %ds is usable in xen_iret
+	for 32-bit PVOPS.
+Date: Fri, 15 Feb 2013 07:56:10 +0000
+Message-ID: <511DF82A02000078000BE932__40681.9487493069$1360914941$gmane$org@nat28.tlf.novell.com>
+References: <20130214215216.GA18740@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360839247-9131-1-git-send-email-pawel.moll@arm.com>
+In-Reply-To: <20130214215216.GA18740@kroah.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,23 +19,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Pawel Moll <pawel.moll@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Greg KH <gregkh@linuxfoundation.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Petr Matousek <pmatouse@redhat.com>, Andrew Cooper <andrew.cooper3@citrix.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Pawel Moll <pawel.moll@arm.com> writes:
-> To solve the never-ending confusions between hosts and guests
-> of different endianess, define all virtio-mmio registers as LE.
->
-> This change should be safe at this stage, because no known
-> working mixed-endian system exists so there is virtually no
-> risk of breaking compatibility.
->
-> Signed-off-by: Pawel Moll <pawel.moll@arm.com>
+>>> On 14.02.13 at 22:52, Greg KH <gregkh@linuxfoundation.org> wrote:
+> Jan, any reason why this patch isn't in Linus's tree already,
 
-Applied.  We could also move device configuration space to LE, if we
-wanted.  It's a bigger change to the Linux implementation, since we now
-need accessors for each width, but it might be a good idea.  OTOH,
-getting such a change into qemu might be harder...
+I see Konrad answered that already, and with the embargo on the
+CVE having expired only on Tuesday, I think it's not unreasonable
+to not see this there yet.
 
-Cheers,
-Rusty.
+> and why it
+> wasn't marked for inclusion in a -stable kernel release?
+
+Forgot to put the tag on when putting the patch together, and
+then none of the reviewers noticed either. I'm sorry for that.
+
+Jan
