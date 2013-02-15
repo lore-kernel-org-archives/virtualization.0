@@ -1,18 +1,18 @@
-From: Joe Millenbach <jmillenbach@gmail.com>
-Subject: Re: linux-next: Tree for Feb 13 (virtio_console)
-Date: Thu, 14 Feb 2013 16:51:17 -0800
-Message-ID: <CADwDc1AvrGP-YPd_h6jvfiUObvS3RWrt20ujTi3_cE_TrnHv9g__48076.7292473049$1360959137$gmane$org@mail.gmail.com>
-References: <20130213193532.162080d7c0557a307ab451ac@canb.auug.org.au>
-	<511BEC55.5090801@infradead.org> <87sj4zk3ai.fsf@rustcorp.com.au>
-	<511D30B4.5020201@infradead.org> <511D330A.2050407@infradead.org>
-	<20130215105519.1d8de65d4f9195eeb9306c13@canb.auug.org.au>
-	<20130215000229.GA5164@kroah.com>
-	<20130215112313.f0952009747b754447fc45c7@canb.auug.org.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH vringh 2/2] caif_virtio: Introduce caif over virtio
+Date: Fri, 15 Feb 2013 15:05:42 +1030
+Message-ID: <87bobmjish.fsf@rustcorp.com.au>
+References: <1360494273-27889-1-git-send-email-sjur.brandeland@stericsson.com>
+	<1360494273-27889-3-git-send-email-sjur.brandeland@stericsson.com>
+	<87vc9zfic8.fsf@rustcorp.com.au>
+	<81C3A93C17462B4BBD7E272753C105792458EDD161@EXDCVYMBSTM005.EQ1STM.local>
+	<87ehgklds9.fsf@rustcorp.com.au>
+	<CAJK669YQ+x5zXSZA1FQHkRrcCt+SgZP-M_ea-Ey8ziGLhq9cqQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130215112313.f0952009747b754447fc45c7@canb.auug.org.au>
+In-Reply-To: <CAJK669YQ+x5zXSZA1FQHkRrcCt+SgZP-M_ea-Ey8ziGLhq9cqQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,30 +22,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Randy Dunlap <rdunlap@infradead.org>, Josh Triplett <josh@joshtriplett.org>, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-next@vger.kernel.org, Jamey Sharp <jamey@minilop.net>, Amit Shah <amit.shah@redhat.com>
+To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Cc: Vikram ARV <vikram.arv@stericsson.com>, Dmitry TARNYAGIN <dmitry.tarnyagin@stericsson.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Ido Yariv <ido@wizery.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Erwan YVIN <erwan.yvin@stericsson.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 14, 2013 at 4:23 PM, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> Hi Greg,
->
-> On Thu, 14 Feb 2013 16:02:29 -0800 Greg KH <greg@kroah.com> wrote:
->> On Fri, Feb 15, 2013 at 10:55:19AM +1100, Stephen Rothwell wrote:
->> >
->> > Also, has someone checked to see if any of the CONFIG_ symbols that had a
->> > dependency on TTY added are selected anywhere else?
->>
->> Joe did all of that I think.  Joe?
->
-> OK, good.
->
-
-I tried to find all of them, but I can't guarantee they're all fixed :
-).  I tried to search out the features that used the tty driver (using
-two initialization functions), and tried enabling all features while
-disabling TTY on my x86 64 bit machine.  In addition to stubbing out
-functions that the kernel's initialization required.
-
-Any other suggestions for finding problems proactively are appreciated.
-
-- Joe
+U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cj4gSG93IGFib3V0
+IHN1cHBvcnRpbmcgc3RydWN0IHZyaW5naF9raW92IGFuZCBzdHJ1Y3Qga3ZlYyBhcyB3ZWxsPwo+
+IEkgY3VycmVudGx5IGdldCB0aGUgZm9sbG93aW5nIGNvbXBsYWludHMgd2l0aCBteSBWMiBwYXRj
+aC1zZXQ6Cj4KPiBkcml2ZXJzL25ldC9jYWlmL2NhaWZfdmlydGlvLmM6NDg2OjI6IHdhcm5pbmc6
+IHBhc3NpbmcgYXJndW1lbnQgMSBvZgo+IOKAmHZyaW5naF9pb3ZfaW5pdOKAmSBmcm9tIGluY29t
+cGF0aWJsZSBwb2ludGVyIHR5cGUgW2VuYWJsZWQgYnkgZGVmYXVsdF0KCnZyaW5naF9raW92X2lu
+aXQoKT8gIERpZCBJIG1pc3Mgc29tZXRoaW5nIGVsc2U/CgpDaGVlcnMsClJ1c3R5LgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
