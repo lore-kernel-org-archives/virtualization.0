@@ -1,15 +1,18 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 0/9] virtio: new API for addition of buffers, scatterlist
-	changes
-Date: Fri, 15 Feb 2013 19:04:19 +0100
-Message-ID: <511E78A3.9070607@redhat.com>
-References: <1360671815-2135-1-git-send-email-pbonzini@redhat.com>
-	<87r4kjjuyn.fsf@rustcorp.com.au> <511CAD19.2010902@redhat.com>
+From: Joe Millenbach <jmillenbach@gmail.com>
+Subject: Re: linux-next: Tree for Feb 13 (virtio_console)
+Date: Thu, 14 Feb 2013 16:51:17 -0800
+Message-ID: <CADwDc1AvrGP-YPd_h6jvfiUObvS3RWrt20ujTi3_cE_TrnHv9g__48076.7292473049$1360959137$gmane$org@mail.gmail.com>
+References: <20130213193532.162080d7c0557a307ab451ac@canb.auug.org.au>
+	<511BEC55.5090801@infradead.org> <87sj4zk3ai.fsf@rustcorp.com.au>
+	<511D30B4.5020201@infradead.org> <511D330A.2050407@infradead.org>
+	<20130215105519.1d8de65d4f9195eeb9306c13@canb.auug.org.au>
+	<20130215000229.GA5164@kroah.com>
+	<20130215112313.f0952009747b754447fc45c7@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <511CAD19.2010902@redhat.com>
+In-Reply-To: <20130215112313.f0952009747b754447fc45c7@canb.auug.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +22,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Randy Dunlap <rdunlap@infradead.org>, Josh Triplett <josh@joshtriplett.org>, Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-next@vger.kernel.org, Jamey Sharp <jamey@minilop.net>, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 14/02/2013 10:23, Paolo Bonzini ha scritto:
->> > How about this as a first step?
->> > 
->> > virtio_ring: virtqueue_add_sgs, to add multiple sgs.
->> > 
->> > virtio_scsi and virtio_blk can really use these, to avoid their current
->> > hack of copying the whole sg array.
->> > 
->> > Signed-off-by: Ruty Russell <rusty@rustcorp.com.au> 
-> It's much better than the other prototype you had posted, but I still
-> dislike this...  You pay for additional counting of scatterlists when
-> the caller knows the number of buffers; and the nested loops aren't
-> free, either.
+On Thu, Feb 14, 2013 at 4:23 PM, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+> Hi Greg,
+>
+> On Thu, 14 Feb 2013 16:02:29 -0800 Greg KH <greg@kroah.com> wrote:
+>> On Fri, Feb 15, 2013 at 10:55:19AM +1100, Stephen Rothwell wrote:
+>> >
+>> > Also, has someone checked to see if any of the CONFIG_ symbols that had a
+>> > dependency on TTY added are selected anywhere else?
+>>
+>> Joe did all of that I think.  Joe?
+>
+> OK, good.
+>
 
-Another problem is that you cannot pass "truncated" scatterlists.  You
-must ensure there is an end marker on the last item.  I'm not sure if
-the kernel ensures that, given that for_each_sg takes explicitly the
-number of scatterlist elements; and it is not as trivial as
-"sg_mark_end(foo + nsg - 1);" if the upper layers hand you a chained
-scatterlist.
+I tried to find all of them, but I can't guarantee they're all fixed :
+).  I tried to search out the features that used the tty driver (using
+two initialization functions), and tried enabling all features while
+disabling TTY on my x86 64 bit machine.  In addition to stubbing out
+functions that the kernel's initialization required.
 
-Paolo
+Any other suggestions for finding problems proactively are appreciated.
+
+- Joe
