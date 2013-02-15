@@ -1,15 +1,14 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: Re: [PATCH] x86/xen: don't assume %ds is usable in xen_iret
-	for 32-bit PVOPS.
-Date: Fri, 15 Feb 2013 07:56:10 +0000
-Message-ID: <511DF82A02000078000BE932__40681.9487493069$1360914941$gmane$org@nat28.tlf.novell.com>
-References: <20130214215216.GA18740@kroah.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Fri, 15 Feb 2013 11:32:36 +0100
+Message-ID: <511E0EC4.9030405@redhat.com>
+References: <1360196636-9357-1-git-send-email-acking@vmware.com>
+	<1360196636-9357-2-git-send-email-acking@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130214215216.GA18740@kroah.com>
-Content-Disposition: inline
+In-Reply-To: <1360196636-9357-2-git-send-email-acking@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,21 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Petr Matousek <pmatouse@redhat.com>, Andrew Cooper <andrew.cooper3@citrix.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andy King <acking@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 14.02.13 at 22:52, Greg KH <gregkh@linuxfoundation.org> wrote:
-> Jan, any reason why this patch isn't in Linus's tree already,
+On 02/07/13 01:23, Andy King wrote:
+> +/* Use this as the destination CID in an address when referring to the
+> + * hypervisor.  VMCI relies on it being 0, but this would be useful for other
+> + * transports too.
+> + */
+> +
+> +#define VMADDR_CID_HYPERVISOR 0
+> +
+> +/* This CID is specific to VMCI and can be considered reserved (even VMCI
+> + * doesn't use it anymore, it's a legacy value from an older release).
+> + */
+> +
+> +#define VMADDR_CID_RESERVED 1
+> +
+> +/* Use this as the destination CID in an address when referring to the host
+> + * (any process other than the hypervisor).  VMCI relies on it being 2, but
+> + * this would be useful for other transports too.
+> + */
+> +
+> +#define VMADDR_CID_HOST 2
 
-I see Konrad answered that already, and with the embargo on the
-CVE having expired only on Tuesday, I think it's not unreasonable
-to not see this there yet.
+CIDs larger than 2 will address other VMs on the same host, with the
+hypervisor forwarding the data from one guest to the other and back?
 
-> and why it
-> wasn't marked for inclusion in a -stable kernel release?
+How does VMADDR_CID_HOST work?  Given the age of the vsock transport
+layer I don't think you have a vsock_transport_host.ko module ...
 
-Forgot to put the tag on when putting the patch together, and
-then none of the reviewers noticed either. I'm sorry for that.
+Is there some registry for the port numbers?
 
-Jan
+cheers,
+  Gerd
