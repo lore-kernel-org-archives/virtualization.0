@@ -1,18 +1,19 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
 Subject: Re: [PATCH vringh 2/2] caif_virtio: Introduce caif over virtio
-Date: Fri, 15 Feb 2013 15:05:42 +1030
-Message-ID: <87bobmjish.fsf@rustcorp.com.au>
+Date: Sat, 16 Feb 2013 09:48:48 +0100
+Message-ID: <CAJK669ZATh8FojTGdFH_x7ovMvA2L7XFUratiptJmPFZPhv31g@mail.gmail.com>
 References: <1360494273-27889-1-git-send-email-sjur.brandeland@stericsson.com>
 	<1360494273-27889-3-git-send-email-sjur.brandeland@stericsson.com>
 	<87vc9zfic8.fsf@rustcorp.com.au>
 	<81C3A93C17462B4BBD7E272753C105792458EDD161@EXDCVYMBSTM005.EQ1STM.local>
 	<87ehgklds9.fsf@rustcorp.com.au>
 	<CAJK669YQ+x5zXSZA1FQHkRrcCt+SgZP-M_ea-Ey8ziGLhq9cqQ@mail.gmail.com>
+	<87bobmjish.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJK669YQ+x5zXSZA1FQHkRrcCt+SgZP-M_ea-Ey8ziGLhq9cqQ@mail.gmail.com>
+In-Reply-To: <87bobmjish.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,18 +23,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Vikram ARV <vikram.arv@stericsson.com>, Dmitry TARNYAGIN <dmitry.tarnyagin@stericsson.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Ido Yariv <ido@wizery.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Erwan YVIN <erwan.yvin@stericsson.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cj4gSG93IGFib3V0
-IHN1cHBvcnRpbmcgc3RydWN0IHZyaW5naF9raW92IGFuZCBzdHJ1Y3Qga3ZlYyBhcyB3ZWxsPwo+
-IEkgY3VycmVudGx5IGdldCB0aGUgZm9sbG93aW5nIGNvbXBsYWludHMgd2l0aCBteSBWMiBwYXRj
-aC1zZXQ6Cj4KPiBkcml2ZXJzL25ldC9jYWlmL2NhaWZfdmlydGlvLmM6NDg2OjI6IHdhcm5pbmc6
-IHBhc3NpbmcgYXJndW1lbnQgMSBvZgo+IOKAmHZyaW5naF9pb3ZfaW5pdOKAmSBmcm9tIGluY29t
-cGF0aWJsZSBwb2ludGVyIHR5cGUgW2VuYWJsZWQgYnkgZGVmYXVsdF0KCnZyaW5naF9raW92X2lu
-aXQoKT8gIERpZCBJIG1pc3Mgc29tZXRoaW5nIGVsc2U/CgpDaGVlcnMsClJ1c3R5LgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+PiBTanVyIEJyw6ZuZGVsYW5kIDxzanVyYnJlbkBnbWFpbC5jb20+IHdyaXRlczoKPj4gSG93IGFi
+b3V0IHN1cHBvcnRpbmcgc3RydWN0IHZyaW5naF9raW92IGFuZCBzdHJ1Y3Qga3ZlYyBhcyB3ZWxs
+Pwo+PiBJIGN1cnJlbnRseSBnZXQgdGhlIGZvbGxvd2luZyBjb21wbGFpbnRzIHdpdGggbXkgVjIg
+cGF0Y2gtc2V0Ogo+Pgo+PiBkcml2ZXJzL25ldC9jYWlmL2NhaWZfdmlydGlvLmM6NDg2OjI6IHdh
+cm5pbmc6IHBhc3NpbmcgYXJndW1lbnQgMSBvZgo+PiDigJh2cmluZ2hfaW92X2luaXTigJkgZnJv
+bSBpbmNvbXBhdGlibGUgcG9pbnRlciB0eXBlIFtlbmFibGVkIGJ5IGRlZmF1bHRdCj4KPiB2cmlu
+Z2hfa2lvdl9pbml0KCk/ICBEaWQgSSBtaXNzIHNvbWV0aGluZyBlbHNlPwoKSSBnZXQgYSB3YXJu
+aW5nIGZvciBteSB1c2VvZiB2cmluZ2hfaW92X2NsZWFudXAoKSBpbgphZGRpdGlvbiB0byB0aGUg
+b25lIGFib3ZlLgoKSG93IGFib3V0IGFkZGluZyBraW92IHZhcmlhbnRzIG9mICB2cmluZ2hfaW92
+X2NsZWFudXAoKQphbmQgdnJpbmdoX2lvdl9yZXNldCgpIGFzIHdlbGw/CgpUaGFua3MsClNqdXIK
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
+YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
+cnR1YWxpemF0aW9u
