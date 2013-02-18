@@ -1,15 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/9] virtio: new API for addition of buffers,
-	scatterlist changes
-Date: Tue, 19 Feb 2013 18:19:11 +1030
-Message-ID: <87ehgciw08.fsf@rustcorp.com.au>
-References: <1360671815-2135-1-git-send-email-pbonzini@redhat.com>
-	<87r4kjjuyn.fsf@rustcorp.com.au> <511CAD19.2010902@redhat.com>
+Subject: [PATCH 3/5] tools/virtio: fix compile.
+Date: Tue, 19 Feb 2013 08:59:30 +1030
+Message-ID: <1361226573-12481-4-git-send-email-rusty@rustcorp.com.au>
+References: <1361226573-12481-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <511CAD19.2010902@redhat.com>
+In-Reply-To: <1361226573-12481-1-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,78 +17,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
->> virtio_ring: virtqueue_add_sgs, to add multiple sgs.
->> 
->> virtio_scsi and virtio_blk can really use these, to avoid their current
->> hack of copying the whole sg array.
->> 
->> Signed-off-by: Ruty Russell <rusty@rustcorp.com.au> 
->
-> It's much better than the other prototype you had posted, but I still
-> dislike this...  You pay for additional counting of scatterlists when
-> the caller knows the number of buffers
+Didn't test that it actually works, mind you!
 
-Yes, but I like the API simplicity.  We could use an array of sg_table,
-which is what you have in virtio_scsi anyway, but I doubt it's
-measurable on benchmarks.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ tools/virtio/linux/virtio.h |    9 ++++++++-
+ tools/virtio/virtio_test.c  |    6 +++---
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
-> and the nested loops aren't free, either.
-
-I think they'll win over multiple function calls :)
-
-But modulo devastating benchmarks, this wins.  Because the three-part
-API is really, really ugly.  It *looks* like a generic "start - work
-... work - end" API, but it's not.  Because you need to declare exactly
-what you're doing in virtqueue_start_buf!
-
-And that's OK, because noone wants a generic API like that.
-
-> > +	sg_unmark_end(sg + out + in);
-> > +	if (out && in)
-> > +		sg_unmark_end(sg + out);
->
-> What's this second sg_unmark_end block for?  Doesn't it access after the
-> end of sg?  If you wanted it to be sg_mark_end, that must be:
-> 
->   if (out)
-> 	  sg_mark_end(sg + out - 1);
->   if (in)
-> 	  sg_mark_end(sg + out + in - 1);
-> 
->   with a corresponding unmark afterwards.
-
-Thanks, I fixed that after I actually tested it :)
-
-But as we clean them every time, we don't need to unmark:
-
-	/* Workaround until callers pass well-formed sgs. */
-	for (i = 0; i < out + in; i++)
-		sg_unmark_end(sg + i);
-
-	sg_mark_end(sg + out + in - 1);
-	if (out && in)
-		sg_mark_end(sg + out - 1);
-
-	return virtqueue_add_sgs(_vq, sgs, out ? 1 : 0, in ? 1 : 0, data, gfp);
-
-This is a workaround until all callers fixed / replaced, of course.
-
-> Another problem is that you cannot pass "truncated" scatterlists.  You
-> must ensure there is an end marker on the last item.  I'm not sure if
-> the kernel ensures that, given that for_each_sg takes explicitly the
-> number of scatterlist elements; and it is not as trivial as
-> "sg_mark_end(foo + nsg - 1);" if the upper layers hand you a chained
-> scatterlist.
-
-Makes you wonder why they have end markers at all.  But yes, the block
-layer does the right thing with end markers in blk_bio_map_sg(), which
-seems to carry through.
-
-Cheers,
-Rusty.
-PS.  Patchbomb coming, lightly tested.
+diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
+index 81847dd..ccfc901 100644
+--- a/tools/virtio/linux/virtio.h
++++ b/tools/virtio/linux/virtio.h
+@@ -86,6 +86,10 @@ typedef enum {
+ 	GFP_KERNEL,
+ 	GFP_ATOMIC,
+ } gfp_t;
++
++#define __GFP_HIGHMEM 0
++#define __GFP_HIGH 0
++
+ typedef enum {
+ 	IRQ_NONE,
+ 	IRQ_HANDLED
+@@ -163,6 +167,8 @@ struct virtqueue {
+ 	void (*callback)(struct virtqueue *vq);
+ 	const char *name;
+ 	struct virtio_device *vdev;
++	unsigned int index;
++	unsigned int num_free;
+ 	void *priv;
+ };
+ 
+@@ -206,7 +212,8 @@ bool virtqueue_enable_cb(struct virtqueue *vq);
+ bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
+ 
+ void *virtqueue_detach_unused_buf(struct virtqueue *vq);
+-struct virtqueue *vring_new_virtqueue(unsigned int num,
++struct virtqueue *vring_new_virtqueue(unsigned int index,
++				      unsigned int num,
+ 				      unsigned int vring_align,
+ 				      struct virtio_device *vdev,
+ 				      bool weak_barriers,
+diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+index fcc9aa2..a07142c 100644
+--- a/tools/virtio/virtio_test.c
++++ b/tools/virtio/virtio_test.c
+@@ -81,7 +81,7 @@ void vhost_vq_setup(struct vdev_info *dev, struct vq_info *info)
+ 	assert(r >= 0);
+ }
+ 
+-static void vq_info_add(struct vdev_info *dev, int num)
++static void vq_info_add(struct vdev_info *dev, int idx, int num)
+ {
+ 	struct vq_info *info = &dev->vqs[dev->nvqs];
+ 	int r;
+@@ -92,7 +92,7 @@ static void vq_info_add(struct vdev_info *dev, int num)
+ 	assert(r >= 0);
+ 	memset(info->ring, 0, vring_size(num, 4096));
+ 	vring_init(&info->vring, num, info->ring, 4096);
+-	info->vq = vring_new_virtqueue(info->vring.num, 4096, &dev->vdev,
++	info->vq = vring_new_virtqueue(idx, info->vring.num, 4096, &dev->vdev,
+ 				       true, info->ring,
+ 				       vq_notify, vq_callback, "test");
+ 	assert(info->vq);
+@@ -277,7 +277,7 @@ int main(int argc, char **argv)
+ 
+ done:
+ 	vdev_info_init(&dev, features);
+-	vq_info_add(&dev, 256);
++	vq_info_add(&dev, 0, 256);
+ 	run_test(&dev, &dev.vqs[0], delayed, 0x100000);
+ 	return 0;
+ }
+-- 
+1.7.10.4
