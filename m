@@ -1,15 +1,15 @@
 From: Andy King <acking@vmware.com>
 Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
-Date: Mon, 18 Feb 2013 08:56:28 -0800 (PST)
-Message-ID: <640503542.2078181.1361206588302.JavaMail.root@vmware.com>
+Date: Mon, 18 Feb 2013 09:07:31 -0800 (PST)
+Message-ID: <1398469748.2079082.1361207251021.JavaMail.root@vmware.com>
 References: <1360196636-9357-1-git-send-email-acking@vmware.com>
 	<1360196636-9357-2-git-send-email-acking@vmware.com>
-	<511B8AAF.2060202@redhat.com>
+	<511CC511.7080902@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <511B8AAF.2060202@redhat.com>
+In-Reply-To: <511CC511.7080902@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,13 +23,21 @@ To: Gerd Hoffmann <kraxel@redhat.com>
 Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-> > +	if (protocol)
-> > +		return -EPROTONOSUPPORT;
-> > +
-> 
-> IMO protocol == PF_VSOCK should not get rejected here.
+Hi Gerd,
 
-Good catch, I've sent out a patch for this.
+> > +		written = transport->stream_enqueue(
+> > +				vsk, msg->msg_iov,
+> > +				len - total_written);
+> 
+> Hmm, shouldn't we pass total_written to stream_enqueue here?
+> 
+> In case a blocking send(big-buffer) call gets splitted into multiple
+> stream_enqueue calls the second (and further) stream_enqueue calls need
+> to know at which msg offset they should continue sending the data, no?
+
+On the client side, the iov tracks it internally; see memcpy_fromiovec().
+On the socket side, VMCI uses a ring buffer, so it also knows its
+position internally.  Or did I misunderstand the question?
 
 Thanks!
 - Andy
