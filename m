@@ -1,13 +1,11 @@
 From: Andy King <acking@vmware.com>
-Subject: [PATCH 1/4] VSOCK: get rid of EXPORT_SYMTAB
-Date: Mon, 18 Feb 2013 08:04:10 -0800
-Message-ID: <1361203453-1347-2-git-send-email-acking@vmware.com>
-References: <1361203453-1347-1-git-send-email-acking@vmware.com>
+Subject: [PATCH 0/4] Minor vSockets fixes
+Date: Mon, 18 Feb 2013 08:04:09 -0800
+Message-ID: <1361203453-1347-1-git-send-email-acking__11199.394070036$1361203743$gmane$org@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1361203453-1347-1-git-send-email-acking@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,45 +16,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: pv-drivers@vmware.com, Dmitry Torokhov <dtor@vmware.com>, davem@davemloft.net
+Cc: pv-drivers@vmware.com, Andy King <acking@vmware.com>, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Dmitry Torokhov <dtor@vmware.com>
+Minor vSockets fixes, two of which were reported on LKML.
 
-This is the default behavior for a looooooong time.
+Andy King (2):
+  VSOCK: Remove hypervisor-only socket option
+  VSOCK: Don't reject PF_VSOCK protocol
 
-Acked-by: Andy King <acking@vmware.com>
-Signed-off-by: Dmitry Torokhov <dtor@vmware.com>
----
- net/vmw_vsock/af_vsock.c       |    2 --
- net/vmw_vsock/vmci_transport.c |    2 --
- 2 files changed, 0 insertions(+), 4 deletions(-)
+Dmitry Torokhov (2):
+  VSOCK: get rid of EXPORT_SYMTAB
+  VSOCK: get rid of vsock_version.h
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 54bb7bd..a8efe5a 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -76,8 +76,6 @@
-  */
- 
- #include <linux/types.h>
--
--#define EXPORT_SYMTAB
- #include <linux/bitops.h>
- #include <linux/cred.h>
- #include <linux/init.h>
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index e8a87cf..a70ace8 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -14,8 +14,6 @@
-  */
- 
- #include <linux/types.h>
--
--#define EXPORT_SYMTAB
- #include <linux/bitops.h>
- #include <linux/cred.h>
- #include <linux/init.h>
+ include/uapi/linux/vm_sockets.h |    8 --------
+ net/vmw_vsock/af_vsock.c        |    7 ++-----
+ net/vmw_vsock/vmci_transport.c  |    2 --
+ net/vmw_vsock/vsock_version.h   |   22 ----------------------
+ 4 files changed, 2 insertions(+), 37 deletions(-)
+ delete mode 100644 net/vmw_vsock/vsock_version.h
+
 -- 
 1.7.4.1
