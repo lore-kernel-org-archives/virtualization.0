@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 5/5] tools/virtio: add vring_test.
-Date: Tue, 19 Feb 2013 08:59:32 +1030
-Message-ID: <1361226573-12481-6-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 4/5] tools/virtio: separate headers more.
+Date: Tue, 19 Feb 2013 08:59:31 +1030
+Message-ID: <1361226573-12481-5-git-send-email-rusty@rustcorp.com.au>
 References: <1361226573-12481-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,723 +21,801 @@ To: virtualization@lists.linux-foundation.org
 Cc: mst@redhat.com, linux-kernel@vger.kernel.org, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is mainly to test the drivers/vhost/vringh.c code, but it also
-uses the drivers/virtio/virtio_ring.c code for the guest side.
-
-Usage for testing the basic implementation:
-
-	./vringh_test
-	# Test with indirect descriptors
-	./vringh_test --indirect
-	# Test with indirect descriptors and event indexex
-	./vringh_test --indirect --eventidx
-
-You can run a parallel stress test by adding --parallel to any of the
-above options.
-
-eg ./vringh_test --parallel:
-	Using CPUS 0 and 3
-	Guest: notified 10107974, pinged 107970
-	Host: notified 108158, pinged 3172148
-	Time: R=17.659 U=6.640 S=6.640
-
-./vringh_test --eventidx --parallel:
-	Using CPUS 0 and 3
-	Guest: notified 156357, pinged 156251
-	Host: notified 156251, pinged 78179
-	Time: R=4.518 U=3.536 S=3.536
+This makes them a bit more like the kernel headers, so we can include more
+real kernel headers in our tests.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- tools/virtio/Makefile      |    6 +-
- tools/virtio/vringh_test.c |  659 ++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 662 insertions(+), 3 deletions(-)
- create mode 100644 tools/virtio/vringh_test.c
+ tools/virtio/asm/barrier.h              |   14 +++
+ tools/virtio/linux/bug.h                |   10 ++
+ tools/virtio/linux/err.h                |   26 +++++
+ tools/virtio/linux/export.h             |    5 +
+ tools/virtio/linux/irqreturn.h          |    1 +
+ tools/virtio/linux/kernel.h             |  113 ++++++++++++++++++++
+ tools/virtio/linux/module.h             |    1 +
+ tools/virtio/linux/printk.h             |    4 +
+ tools/virtio/linux/ratelimit.h          |    4 +
+ tools/virtio/linux/scatterlist.h        |  173 +++++++++++++++++++++++++++++++
+ tools/virtio/linux/types.h              |   28 +++++
+ tools/virtio/linux/uaccess.h            |   37 +++++++
+ tools/virtio/linux/uio.h                |    1 +
+ tools/virtio/linux/virtio.h             |  152 +--------------------------
+ tools/virtio/linux/virtio_config.h      |    6 ++
+ tools/virtio/linux/virtio_ring.h        |    1 +
+ tools/virtio/linux/vringh.h             |    1 +
+ tools/virtio/uapi/linux/uio.h           |    1 +
+ tools/virtio/uapi/linux/virtio_config.h |    1 +
+ tools/virtio/uapi/linux/virtio_ring.h   |    4 +
+ tools/virtio/virtio_test.c              |    4 +
+ 21 files changed, 438 insertions(+), 149 deletions(-)
+ create mode 100644 tools/virtio/asm/barrier.h
+ create mode 100644 tools/virtio/linux/bug.h
+ create mode 100644 tools/virtio/linux/err.h
+ create mode 100644 tools/virtio/linux/export.h
+ create mode 100644 tools/virtio/linux/irqreturn.h
+ create mode 100644 tools/virtio/linux/kernel.h
+ create mode 100644 tools/virtio/linux/printk.h
+ create mode 100644 tools/virtio/linux/ratelimit.h
+ create mode 100644 tools/virtio/linux/scatterlist.h
+ create mode 100644 tools/virtio/linux/types.h
+ create mode 100644 tools/virtio/linux/uaccess.h
+ create mode 100644 tools/virtio/linux/uio.h
+ create mode 100644 tools/virtio/linux/virtio_config.h
+ create mode 100644 tools/virtio/linux/virtio_ring.h
+ create mode 100644 tools/virtio/linux/vringh.h
+ create mode 100644 tools/virtio/uapi/linux/uio.h
+ create mode 100644 tools/virtio/uapi/linux/virtio_config.h
+ create mode 100644 tools/virtio/uapi/linux/virtio_ring.h
 
-diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-index d1d442e..e961545 100644
---- a/tools/virtio/Makefile
-+++ b/tools/virtio/Makefile
-@@ -1,12 +1,12 @@
- all: test mod
--test: virtio_test
-+test: virtio_test vringh_test
- virtio_test: virtio_ring.o virtio_test.o
--CFLAGS += -g -O2 -Wall -I. -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow  -MMD
-+CFLAGS += -g -O2 -Wall -I. -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -Wno-unused-result -MMD
- vpath %.c ../../drivers/virtio
- mod:
- 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test
- .PHONY: all test mod clean
- clean:
--	${RM} *.o vhost_test/*.o vhost_test/.*.cmd \
-+	${RM} *.o vringh_test virtio_test vhost_test/*.o vhost_test/.*.cmd \
-               vhost_test/Module.symvers vhost_test/modules.order *.d
- -include *.d
-diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
+diff --git a/tools/virtio/asm/barrier.h b/tools/virtio/asm/barrier.h
 new file mode 100644
-index 0000000..1536b8e
+index 0000000..aff61e1
 --- /dev/null
-+++ b/tools/virtio/vringh_test.c
-@@ -0,0 +1,659 @@
-+/* Simple test of virtio code, entirely in userpsace. */
-+#define _GNU_SOURCE
-+#include <sched.h>
-+#include <err.h>
-+#include <linux/kernel.h>
-+#include <linux/err.h>
-+#include <../../drivers/vhost/vringh.c>
-+#include <../../drivers/virtio/virtio_ring.c>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <sys/mman.h>
-+#include <sys/wait.h>
-+#include <fcntl.h>
++++ b/tools/virtio/asm/barrier.h
+@@ -0,0 +1,14 @@
++#if defined(__i386__) || defined(__x86_64__)
++#define barrier() asm volatile("" ::: "memory")
++#define mb() __sync_synchronize()
 +
-+#define USER_MEM (1024*1024)
-+void *__user_addr_min, *__user_addr_max;
-+void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
-+static u64 user_addr_offset;
++#define smp_mb()	mb()
++# define smp_rmb()	barrier()
++# define smp_wmb()	barrier()
++/* Weak barriers should be used. If not - it's a bug */
++# define rmb()	abort()
++# define wmb()	abort()
++#else
++#error Please fill in barrier macros
++#endif
 +
-+#define RINGSIZE 256
-+#define ALIGN 4096
+diff --git a/tools/virtio/linux/bug.h b/tools/virtio/linux/bug.h
+new file mode 100644
+index 0000000..fb94f07
+--- /dev/null
++++ b/tools/virtio/linux/bug.h
+@@ -0,0 +1,10 @@
++#ifndef BUG_H
++#define BUG_H
 +
-+static void never_notify_host(struct virtqueue *vq)
++#define BUG_ON(__BUG_ON_cond) assert(!(__BUG_ON_cond))
++
++#define BUILD_BUG_ON(x)
++
++#define BUG() abort()
++
++#endif /* BUG_H */
+diff --git a/tools/virtio/linux/err.h b/tools/virtio/linux/err.h
+new file mode 100644
+index 0000000..e32eff8
+--- /dev/null
++++ b/tools/virtio/linux/err.h
+@@ -0,0 +1,26 @@
++#ifndef ERR_H
++#define ERR_H
++#define MAX_ERRNO	4095
++
++#define IS_ERR_VALUE(x) unlikely((x) >= (unsigned long)-MAX_ERRNO)
++
++static inline void * __must_check ERR_PTR(long error)
 +{
-+	abort();
++	return (void *) error;
 +}
 +
-+static void never_callback_guest(struct virtqueue *vq)
++static inline long __must_check PTR_ERR(const void *ptr)
 +{
-+	abort();
++	return (long) ptr;
 +}
 +
-+static bool getrange_iov(struct vringh *vrh, u64 addr, struct vringh_range *r)
++static inline long __must_check IS_ERR(const void *ptr)
 +{
-+	if (addr < (u64)(unsigned long)__user_addr_min - user_addr_offset)
-+		return false;
-+	if (addr >= (u64)(unsigned long)__user_addr_max - user_addr_offset)
-+		return false;
-+
-+	r->start = (u64)(unsigned long)__user_addr_min - user_addr_offset;
-+	r->end_incl = (u64)(unsigned long)__user_addr_max - 1 - user_addr_offset;
-+	r->offset = user_addr_offset;
-+	return true;
++	return IS_ERR_VALUE((unsigned long)ptr);
 +}
 +
-+/* We return single byte ranges. */
-+static bool getrange_slow(struct vringh *vrh, u64 addr, struct vringh_range *r)
++static inline long __must_check IS_ERR_OR_NULL(const void *ptr)
 +{
-+	if (addr < (u64)(unsigned long)__user_addr_min - user_addr_offset)
-+		return false;
-+	if (addr >= (u64)(unsigned long)__user_addr_max - user_addr_offset)
-+		return false;
-+
-+	r->start = addr;
-+	r->end_incl = r->start;
-+	r->offset = user_addr_offset;
-+	return true;
++	return !ptr || IS_ERR_VALUE((unsigned long)ptr);
 +}
++#endif /* ERR_H */
+diff --git a/tools/virtio/linux/export.h b/tools/virtio/linux/export.h
+new file mode 100644
+index 0000000..7311d32
+--- /dev/null
++++ b/tools/virtio/linux/export.h
+@@ -0,0 +1,5 @@
++#define EXPORT_SYMBOL(sym)
++#define EXPORT_SYMBOL_GPL(sym)
++#define EXPORT_SYMBOL_GPL_FUTURE(sym)
++#define EXPORT_UNUSED_SYMBOL(sym)
++#define EXPORT_UNUSED_SYMBOL_GPL(sym)
+diff --git a/tools/virtio/linux/irqreturn.h b/tools/virtio/linux/irqreturn.h
+new file mode 100644
+index 0000000..a3c4e7b
+--- /dev/null
++++ b/tools/virtio/linux/irqreturn.h
+@@ -0,0 +1 @@
++#include "../../../include/linux/irqreturn.h"
+diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+new file mode 100644
+index 0000000..bc5f1c8
+--- /dev/null
++++ b/tools/virtio/linux/kernel.h
+@@ -0,0 +1,113 @@
++#ifndef KERNEL_H
++#define KERNEL_H
++#include <stdbool.h>
++#include <stdlib.h>
++#include <stddef.h>
++#include <stdio.h>
++#include <string.h>
++#include <assert.h>
++#include <stdarg.h>
 +
-+struct guest_virtio_device {
-+	struct virtio_device vdev;
-+	int to_host_fd;
-+	unsigned long notifies;
++#include <linux/types.h>
++#include <linux/printk.h>
++#include <linux/bug.h>
++#include <errno.h>
++#include <unistd.h>
++#include <asm/barrier.h>
++
++#define CONFIG_SMP
++
++#define PAGE_SIZE getpagesize()
++#define PAGE_MASK (~(PAGE_SIZE-1))
++
++typedef unsigned long long dma_addr_t;
++typedef size_t __kernel_size_t;
++
++struct page {
++	unsigned long long dummy;
 +};
 +
-+static void parallel_notify_host(struct virtqueue *vq)
-+{
-+	struct guest_virtio_device *gvdev;
++/* Physical == Virtual */
++#define virt_to_phys(p) ((unsigned long)p)
++#define phys_to_virt(a) ((void *)(unsigned long)(a))
++/* Page address: Virtual / 4K */
++#define page_to_phys(p) ((dma_addr_t)(unsigned long)(p))
++#define virt_to_page(p) ((struct page *)((unsigned long)p & PAGE_MASK))
 +
-+	gvdev = container_of(vq->vdev, struct guest_virtio_device, vdev);
-+	write(gvdev->to_host_fd, "", 1);
-+	gvdev->notifies++;
++#define offset_in_page(p) (((unsigned long)p) % PAGE_SIZE)
++
++#define __printf(a,b) __attribute__((format(printf,a,b)))
++
++typedef enum {
++	GFP_KERNEL,
++	GFP_ATOMIC,
++} gfp_t;
++
++#define __GFP_HIGHMEM 0
++#define __GFP_HIGH 0
++
++#define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
++
++extern void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
++static inline void *kmalloc(size_t s, gfp_t gfp)
++{
++	if (__kmalloc_fake)
++		return __kmalloc_fake;
++	return malloc(s);
 +}
 +
-+#define NUM_XFERS (10000000)
-+
-+/* We aim for two "distant" cpus. */
-+static void find_cpus(unsigned int *first, unsigned int *last)
++static inline void kfree(void *p)
 +{
-+	unsigned int i;
-+
-+	*first = -1U;
-+	*last = 0;
-+	for (i = 0; i < 4096; i++) {
-+		cpu_set_t set;
-+		CPU_ZERO(&set);
-+		CPU_SET(i, &set);
-+		if (sched_setaffinity(getpid(), sizeof(set), &set) == 0) {
-+			if (i < *first)
-+				*first = i;
-+			if (i > *last)
-+				*last = i;
-+		}
-+	}
++	if (p >= __kfree_ignore_start && p < __kfree_ignore_end)
++		return;
++	free(p);
 +}
 +
-+static int parallel_test(unsigned long features,
-+			 bool (*getrange)(struct vringh *vrh,
-+					  u64 addr, struct vringh_range *r))
++static inline void *krealloc(void *p, size_t s, gfp_t gfp)
 +{
-+	void *host_map, *guest_map;
-+	int fd, mapsize, to_guest[2], to_host[2];
-+	unsigned long xfers = 0, notifies = 0, receives = 0;
-+	unsigned int first_cpu, last_cpu;
-+	cpu_set_t cpu_set;
-+
-+	/* Create real file to mmap. */
-+	fd = open("/tmp/vringh_test-file", O_RDWR|O_CREAT|O_TRUNC, 0600);
-+	if (fd < 0)
-+		err(1, "Opening /tmp/vringh_test-file");
-+
-+	/* Extra room at the end for some data, and indirects */
-+	mapsize = vring_size(RINGSIZE, ALIGN)
-+		+ RINGSIZE * 2 * sizeof(int)
-+		+ RINGSIZE * 6 * sizeof(struct vring_desc);
-+	mapsize = (mapsize + getpagesize() - 1) & ~(getpagesize() - 1);
-+	ftruncate(fd, mapsize);
-+
-+	/* Parent and child use separate addresses, to check our mapping logic! */
-+	host_map = mmap(NULL, mapsize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-+	guest_map = mmap(NULL, mapsize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-+
-+	pipe(to_guest);
-+	pipe(to_host);
-+
-+	CPU_ZERO(&cpu_set);
-+	find_cpus(&first_cpu, &last_cpu);
-+	printf("Using CPUS %u and %u\n", first_cpu, last_cpu);
-+	fflush(stdout);
-+
-+	if (fork() != 0) {
-+		struct vringh vrh;
-+		int status, err;
-+
-+		/* We are the host: never access guest addresses! */
-+		munmap(guest_map, mapsize);
-+
-+		__user_addr_min = host_map;
-+		__user_addr_max = __user_addr_min + mapsize;
-+		user_addr_offset = host_map - guest_map;
-+		assert(user_addr_offset);
-+
-+		close(to_guest[0]);
-+		close(to_host[1]);
-+
-+		vring_init(&vrh.vring, RINGSIZE, host_map, ALIGN);
-+		vringh_init_user(&vrh, features, RINGSIZE, true,
-+				 vrh.vring.desc, vrh.vring.avail, vrh.vring.used);
-+		CPU_SET(first_cpu, &cpu_set);
-+		if (sched_setaffinity(getpid(), sizeof(cpu_set), &cpu_set))
-+			errx(1, "Could not set affinity to cpu %u", first_cpu);
-+
-+		while (xfers < NUM_XFERS) {
-+			struct iovec host_riov[2], host_wiov[2];
-+			struct vringh_iov riov, wiov;
-+			char buf[5];
-+			u16 head;
-+			int rlen, err;
-+
-+			vringh_iov_init(&riov,
-+					host_riov, ARRAY_SIZE(host_riov));
-+			vringh_iov_init(&wiov,
-+					host_wiov, ARRAY_SIZE(host_wiov));
-+
-+			err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange,
-+						  &head);
-+			if (err == 0) {
-+				char buf[128];
-+
-+				err = vringh_need_notify_user(&vrh);
-+				if (err < 0)
-+					errx(1, "vringh_need_notify_user: %i",
-+					     err);
-+				if (err) {
-+					write(to_guest[1], "", 1);
-+					notifies++;
-+				}
-+
-+				if (vringh_notify_enable_user(&vrh))
-+					continue;
-+
-+				/* Swallow all notifies at once. */
-+				if (read(to_host[0], buf, sizeof(buf)) < 1)
-+					break;
-+
-+				vringh_notify_disable_user(&vrh);
-+				receives++;
-+				continue;
-+			}
-+			if (err != 1)
-+				errx(1, "vringh_getdesc_user: %i", err);
-+
-+			/* We simply copy bytes. */
-+			rlen = vringh_iov_pull_user(&riov, buf, sizeof(buf));
-+			if (rlen < 0)
-+				errx(1, "vringh_iov_pull_user: %i", rlen);
-+			err = vringh_iov_push_user(&wiov, buf, rlen);
-+			if (err != rlen)
-+				errx(1, "vringh_iov_push_user: %i", err);
-+			xfers++;
-+			assert(wiov.i == wiov.used);
-+
-+			err = vringh_complete_user(&vrh, head, rlen);
-+			if (err != 0)
-+				errx(1, "vringh_complete_user: %i", err);
-+		}
-+
-+		err = vringh_need_notify_user(&vrh);
-+		if (err < 0)
-+			errx(1, "vringh_need_notify_user: %i", err);
-+		if (err) {
-+			write(to_guest[1], "", 1);
-+			notifies++;
-+		}
-+		wait(&status);
-+		if (!WIFEXITED(status))
-+			errx(1, "Child died with signal %i?", WTERMSIG(status));
-+		if (WEXITSTATUS(status) != 0)
-+			errx(1, "Child exited %i?", WEXITSTATUS(status));
-+		printf("Host: notified %lu, pinged %lu\n", notifies, receives);
-+		return 0;
-+	} else {
-+		struct guest_virtio_device gvdev;
-+		struct virtqueue *vq;
-+		unsigned int *data;
-+		struct vring_desc *indirects;
-+		unsigned int finished = 0;
-+
-+		/* We pass sg[]s pointing into here, but we need RINGSIZE+1 */
-+		data = guest_map + vring_size(RINGSIZE, ALIGN);
-+		indirects = (void *)data + (RINGSIZE + 1) * 2 * sizeof(int);
-+
-+		/* We are the guest. */
-+		munmap(host_map, mapsize);
-+
-+		close(to_guest[1]);
-+		close(to_host[0]);
-+
-+		gvdev.vdev.features[0] = features;
-+		gvdev.to_host_fd = to_host[1];
-+
-+		CPU_SET(first_cpu, &cpu_set);
-+		if (sched_setaffinity(getpid(), sizeof(cpu_set), &cpu_set))
-+			err(1, "Could not set affinity to cpu %u", first_cpu);
-+
-+		vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &gvdev.vdev, true,
-+					 guest_map, parallel_notify_host,
-+					 never_callback_guest, "guest vq");
-+
-+		/* Don't kfree indirects. */
-+		__kfree_ignore_start = indirects;
-+		__kfree_ignore_end = indirects + RINGSIZE * 6;
-+
-+		while (xfers < NUM_XFERS) {
-+			struct scatterlist sg[6];
-+			unsigned int num_sg, len;
-+			int *din, *dout, err;
-+
-+			/* Consume bufs. */
-+			while ((din = virtqueue_get_buf(vq, &len)) != NULL) {
-+				dout = din + 1;
-+				assert(*dout == *din);
-+				assert(len == 4);
-+				finished++;
-+			}
-+
-+			/* Produce a buffer. */
-+			din = data + (xfers % (RINGSIZE + 1)) * 2;
-+			dout = din + 1;
-+
-+			*din = xfers;
-+			switch ((xfers / sizeof(*din)) % 3) {
-+			case 0:
-+				/* Nasty three-element sg list. */
-+				sg_init_table(sg, num_sg = 3);
-+				sg_set_buf(&sg[0], (void *)din, 1);
-+				sg_set_buf(&sg[1], (void *)din + 1, 2);
-+				sg_set_buf(&sg[2], (void *)din + 3, 1);
-+				sg_init_table(sg + num_sg, num_sg);
-+				sg_set_buf(&sg[num_sg+0], (void *)dout, 1);
-+				sg_set_buf(&sg[num_sg+1], (void *)dout + 1, 2);
-+				sg_set_buf(&sg[num_sg+2], (void *)dout + 3, 1);
-+				break;
-+			case 1:
-+				sg_init_table(sg, num_sg = 2);
-+				sg_set_buf(&sg[0], (void *)din, 1);
-+				sg_set_buf(&sg[1], (void *)din + 1, 3);
-+				sg_init_table(sg + num_sg, num_sg);
-+				sg_set_buf(&sg[num_sg+0], (void *)dout, 1);
-+				sg_set_buf(&sg[num_sg+1], (void *)dout + 1, 3);
-+				break;
-+			case 2:
-+				sg_init_table(sg, num_sg = 1);
-+				sg_set_buf(&sg[0], (void *)din, 4);
-+				sg_init_table(sg + num_sg, num_sg);
-+				sg_set_buf(&sg[num_sg+0], (void *)dout, 4);
-+				break;
-+			}
-+
-+			/* May allocate an indirect, so force it to allocate
-+			 * user addr */
-+			__kmalloc_fake = indirects + (xfers % RINGSIZE) * 6;
-+			err = virtqueue_add_buf(vq, sg, num_sg, num_sg, din,
-+						GFP_KERNEL);
-+			if (err == -ENOSPC) {
-+				char buf[128];
-+
-+				if (!virtqueue_enable_cb_delayed(vq))
-+					continue;
-+				/* Swallow all notifies at once. */
-+				if (read(to_guest[0], buf, sizeof(buf)) < 1)
-+					break;
-+				
-+				receives++;
-+				virtqueue_disable_cb(vq);
-+				continue;
-+			}
-+
-+			if (err)
-+				errx(1, "virtqueue_add_buf: %i", err);
-+
-+			xfers++;
-+			virtqueue_kick(vq);
-+		}
-+
-+		/* Any extra? */
-+		while (finished != xfers) {
-+			char buf[128];
-+			int *din, *dout;
-+			unsigned int len;
-+
-+			/* Consume bufs. */
-+			din = virtqueue_get_buf(vq, &len);
-+			if (din) {
-+				dout = din + 1;
-+				assert(*dout == *din);
-+				assert(len == 4);
-+				finished++;
-+				continue;
-+			}
-+
-+			if (!virtqueue_enable_cb_delayed(vq))
-+				continue;
-+			if (read(to_guest[0], buf, sizeof(buf)) < 1)
-+				break;
-+				
-+			receives++;
-+			virtqueue_disable_cb(vq);
-+		}
-+
-+		printf("Guest: notified %lu, pinged %lu\n",
-+		       gvdev.notifies, receives);
-+		return 0;
-+	}
++	return realloc(p, s);
 +}
 +
-+int main(int argc, char *argv[])
++
++static inline unsigned long __get_free_page(gfp_t gfp)
 +{
-+	struct virtio_device vdev;
-+	struct virtqueue *vq;
-+	struct vringh vrh;
-+	struct scatterlist guest_sg[RINGSIZE];
-+	struct iovec host_riov[2], host_wiov[2];
-+	struct vringh_iov riov, wiov;
-+	struct vring_used_elem used[RINGSIZE];
-+	char buf[28];
-+	u16 head;
-+	int err;
-+	unsigned i;
-+	void *ret;
-+	bool (*getrange)(struct vringh *vrh, u64 addr, struct vringh_range *r);
++	void *p;
 +
-+	getrange = getrange_iov;
-+	vdev.features[0] = 0;
++	posix_memalign(&p, PAGE_SIZE, PAGE_SIZE);
++	return (unsigned long)p;
++}
 +
-+	if (argv[1] && strcmp(argv[1], "--indirect") == 0) {
-+		vdev.features[0] |= (1 << VIRTIO_RING_F_INDIRECT_DESC);
-+		argv++;
++static inline void free_page(unsigned long addr)
++{
++	free((void *)addr);
++}
++
++#define container_of(ptr, type, member) ({			\
++	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
++	(type *)( (char *)__mptr - offsetof(type,member) );})
++
++#define uninitialized_var(x) x = x
++
++# ifndef likely
++#  define likely(x)	(__builtin_expect(!!(x), 1))
++# endif
++# ifndef unlikely
++#  define unlikely(x)	(__builtin_expect(!!(x), 0))
++# endif
++
++#define pr_err(format, ...) fprintf (stderr, format, ## __VA_ARGS__)
++#ifdef DEBUG
++#define pr_debug(format, ...) fprintf (stderr, format, ## __VA_ARGS__)
++#else
++#define pr_debug(format, ...) do {} while (0)
++#endif
++#define dev_err(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
++#define dev_warn(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
++
++#define min(x, y) ({				\
++	typeof(x) _min1 = (x);			\
++	typeof(y) _min2 = (y);			\
++	(void) (&_min1 == &_min2);		\
++	_min1 < _min2 ? _min1 : _min2; })
++
++#endif /* KERNEL_H */
+diff --git a/tools/virtio/linux/module.h b/tools/virtio/linux/module.h
+index e69de29..3039a7e 100644
+--- a/tools/virtio/linux/module.h
++++ b/tools/virtio/linux/module.h
+@@ -0,0 +1 @@
++#include <linux/export.h>
+diff --git a/tools/virtio/linux/printk.h b/tools/virtio/linux/printk.h
+new file mode 100644
+index 0000000..9f2423b
+--- /dev/null
++++ b/tools/virtio/linux/printk.h
+@@ -0,0 +1,4 @@
++#include "../../../include/linux/kern_levels.h"
++
++#define printk printf
++#define vprintk vprintf
+diff --git a/tools/virtio/linux/ratelimit.h b/tools/virtio/linux/ratelimit.h
+new file mode 100644
+index 0000000..dcce172
+--- /dev/null
++++ b/tools/virtio/linux/ratelimit.h
+@@ -0,0 +1,4 @@
++#define DEFINE_RATELIMIT_STATE(name, interval_init, burst_init)	int name = 0
++
++#define __ratelimit(x) (*(x))
++
+diff --git a/tools/virtio/linux/scatterlist.h b/tools/virtio/linux/scatterlist.h
+new file mode 100644
+index 0000000..b2cf7d0
+--- /dev/null
++++ b/tools/virtio/linux/scatterlist.h
+@@ -0,0 +1,173 @@
++#ifndef SCATTERLIST_H
++#define SCATTERLIST_H
++#include <linux/kernel.h>
++
++struct scatterlist {
++	unsigned long	page_link;
++	unsigned int	offset;
++	unsigned int	length;
++	dma_addr_t	dma_address;
++};
++
++/* Scatterlist helpers, stolen from linux/scatterlist.h */
++#define sg_is_chain(sg)		((sg)->page_link & 0x01)
++#define sg_is_last(sg)		((sg)->page_link & 0x02)
++#define sg_chain_ptr(sg)	\
++	((struct scatterlist *) ((sg)->page_link & ~0x03))
++
++/**
++ * sg_assign_page - Assign a given page to an SG entry
++ * @sg:		    SG entry
++ * @page:	    The page
++ *
++ * Description:
++ *   Assign page to sg entry. Also see sg_set_page(), the most commonly used
++ *   variant.
++ *
++ **/
++static inline void sg_assign_page(struct scatterlist *sg, struct page *page)
++{
++	unsigned long page_link = sg->page_link & 0x3;
++
++	/*
++	 * In order for the low bit stealing approach to work, pages
++	 * must be aligned at a 32-bit boundary as a minimum.
++	 */
++	BUG_ON((unsigned long) page & 0x03);
++#ifdef CONFIG_DEBUG_SG
++	BUG_ON(sg->sg_magic != SG_MAGIC);
++	BUG_ON(sg_is_chain(sg));
++#endif
++	sg->page_link = page_link | (unsigned long) page;
++}
++
++/**
++ * sg_set_page - Set sg entry to point at given page
++ * @sg:		 SG entry
++ * @page:	 The page
++ * @len:	 Length of data
++ * @offset:	 Offset into page
++ *
++ * Description:
++ *   Use this function to set an sg entry pointing at a page, never assign
++ *   the page directly. We encode sg table information in the lower bits
++ *   of the page pointer. See sg_page() for looking up the page belonging
++ *   to an sg entry.
++ *
++ **/
++static inline void sg_set_page(struct scatterlist *sg, struct page *page,
++			       unsigned int len, unsigned int offset)
++{
++	sg_assign_page(sg, page);
++	sg->offset = offset;
++	sg->length = len;
++}
++
++static inline struct page *sg_page(struct scatterlist *sg)
++{
++#ifdef CONFIG_DEBUG_SG
++	BUG_ON(sg->sg_magic != SG_MAGIC);
++	BUG_ON(sg_is_chain(sg));
++#endif
++	return (struct page *)((sg)->page_link & ~0x3);
++}
++
++/*
++ * Loop over each sg element, following the pointer to a new list if necessary
++ */
++#define for_each_sg(sglist, sg, nr, __i)	\
++	for (__i = 0, sg = (sglist); __i < (nr); __i++, sg = sg_next(sg))
++
++/**
++ * sg_chain - Chain two sglists together
++ * @prv:	First scatterlist
++ * @prv_nents:	Number of entries in prv
++ * @sgl:	Second scatterlist
++ *
++ * Description:
++ *   Links @prv@ and @sgl@ together, to form a longer scatterlist.
++ *
++ **/
++static inline void sg_chain(struct scatterlist *prv, unsigned int prv_nents,
++			    struct scatterlist *sgl)
++{
++	/*
++	 * offset and length are unused for chain entry.  Clear them.
++	 */
++	prv[prv_nents - 1].offset = 0;
++	prv[prv_nents - 1].length = 0;
++
++	/*
++	 * Set lowest bit to indicate a link pointer, and make sure to clear
++	 * the termination bit if it happens to be set.
++	 */
++	prv[prv_nents - 1].page_link = ((unsigned long) sgl | 0x01) & ~0x02;
++}
++
++/**
++ * sg_mark_end - Mark the end of the scatterlist
++ * @sg:		 SG entryScatterlist
++ *
++ * Description:
++ *   Marks the passed in sg entry as the termination point for the sg
++ *   table. A call to sg_next() on this entry will return NULL.
++ *
++ **/
++static inline void sg_mark_end(struct scatterlist *sg)
++{
++#ifdef CONFIG_DEBUG_SG
++	BUG_ON(sg->sg_magic != SG_MAGIC);
++#endif
++	/*
++	 * Set termination bit, clear potential chain bit
++	 */
++	sg->page_link |= 0x02;
++	sg->page_link &= ~0x01;
++}
++
++static inline struct scatterlist *sg_next(struct scatterlist *sg)
++{
++#ifdef CONFIG_DEBUG_SG
++	BUG_ON(sg->sg_magic != SG_MAGIC);
++#endif
++	if (sg_is_last(sg))
++		return NULL;
++
++	sg++;
++	if (unlikely(sg_is_chain(sg)))
++		sg = sg_chain_ptr(sg);
++
++	return sg;
++}
++
++static inline void sg_init_table(struct scatterlist *sgl, unsigned int nents)
++{
++	memset(sgl, 0, sizeof(*sgl) * nents);
++#ifdef CONFIG_DEBUG_SG
++	{
++		unsigned int i;
++		for (i = 0; i < nents; i++)
++			sgl[i].sg_magic = SG_MAGIC;
 +	}
++#endif
++	sg_mark_end(&sgl[nents - 1]);
++}
 +
-+	if (argv[1] && strcmp(argv[1], "--eventidx") == 0) {
-+		vdev.features[0] |= (1 << VIRTIO_RING_F_EVENT_IDX);
-+		argv++;
-+	}
++static inline dma_addr_t sg_phys(struct scatterlist *sg)
++{
++	return page_to_phys(sg_page(sg)) + sg->offset;
++}
 +
-+	if (argv[1] && strcmp(argv[1], "--slow") == 0) {
-+		getrange = getrange_slow;
-+		argv++;
-+	}
++static inline void sg_set_buf(struct scatterlist *sg, const void *buf,
++			      unsigned int buflen)
++{
++	sg_set_page(sg, virt_to_page(buf), buflen, offset_in_page(buf));
++}
 +
-+	if (argv[1] && strcmp(argv[1], "--parallel") == 0)
-+		return parallel_test(vdev.features[0], getrange);
++static inline void sg_init_one(struct scatterlist *sg,
++			       const void *buf, unsigned int buflen)
++{
++	sg_init_table(sg, 1);
++	sg_set_buf(sg, buf, buflen);
++}
++#endif /* SCATTERLIST_H */
+diff --git a/tools/virtio/linux/types.h b/tools/virtio/linux/types.h
+new file mode 100644
+index 0000000..f8ebb9a
+--- /dev/null
++++ b/tools/virtio/linux/types.h
+@@ -0,0 +1,28 @@
++#ifndef TYPES_H
++#define TYPES_H
++#include <stdint.h>
 +
-+	if (posix_memalign(&__user_addr_min, PAGE_SIZE, USER_MEM) != 0)
-+		abort();
-+	__user_addr_max = __user_addr_min + USER_MEM;
-+	memset(__user_addr_min, 0, vring_size(RINGSIZE, ALIGN));
++#define __force
++#define __user
++#define __must_check
++#define __cold
 +
-+	/* Set up guest side. */
-+	vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &vdev, true,
-+				 __user_addr_min,
-+				 never_notify_host, never_callback_guest,
-+				 "guest vq");
++typedef uint64_t u64;
++typedef int64_t s64;
++typedef uint32_t u32;
++typedef int32_t s32;
++typedef uint16_t u16;
++typedef int16_t s16;
++typedef uint8_t u8;
++typedef int8_t s8;
 +
-+	/* Set up host side. */
-+	vring_init(&vrh.vring, RINGSIZE, __user_addr_min, ALIGN);
-+	vringh_init_user(&vrh, vdev.features[0], RINGSIZE, true,
-+			 vrh.vring.desc, vrh.vring.avail, vrh.vring.used);
++typedef uint64_t __u64;
++typedef int64_t __s64;
++typedef uint32_t __u32;
++typedef int32_t __s32;
++typedef uint16_t __u16;
++typedef int16_t __s16;
++typedef uint8_t __u8;
++typedef int8_t __s8;
 +
-+	/* No descriptor to get yet... */
-+	err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
-+	if (err != 0)
-+		errx(1, "vringh_getdesc_user: %i", err);
++#endif /* TYPES_H */
+diff --git a/tools/virtio/linux/uaccess.h b/tools/virtio/linux/uaccess.h
+new file mode 100644
+index 0000000..5874786
+--- /dev/null
++++ b/tools/virtio/linux/uaccess.h
+@@ -0,0 +1,37 @@
++#ifndef UACCESS_H
++#define UACCESS_H
++extern void *__user_addr_min, *__user_addr_max;
 +
-+	/* Guest puts in a descriptor. */
-+	memcpy(__user_addr_max - 1, "a", 1);
-+	sg_init_table(guest_sg, 1);
-+	sg_set_buf(&guest_sg[0], __user_addr_max - 1, 1);
-+	sg_init_table(guest_sg+1, 1);
-+	sg_set_buf(&guest_sg[1], __user_addr_max - 3, 2);
++#define get_user(dst, uptr) get_user_func(&(dst), (uptr), sizeof(*uptr))
++#define put_user(val, uptr) put_user_func(&(val), (uptr), sizeof(*uptr))
 +
-+	/* May allocate an indirect, so force it to allocate user addr */
-+	__kmalloc_fake = __user_addr_min + vring_size(RINGSIZE, ALIGN);
-+	err = virtqueue_add_buf(vq, guest_sg, 1, 1, &err, GFP_KERNEL);
-+	if (err)
-+		errx(1, "virtqueue_add_buf: %i", err);
-+	__kmalloc_fake = NULL;
-+
-+	/* Host retreives it. */
-+	vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
-+	vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
-+
-+	err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
-+	if (err != 1)
-+		errx(1, "vringh_getdesc_user: %i", err);
-+
-+	assert(riov.used == 1);
-+	assert(riov.iov[0].iov_base == __user_addr_max - 1);
-+	assert(riov.iov[0].iov_len == 1);
-+	if (getrange != getrange_slow) {
-+		assert(wiov.used == 1);
-+		assert(wiov.iov[0].iov_base == __user_addr_max - 3);
-+		assert(wiov.iov[0].iov_len == 2);
-+	} else {
-+		assert(wiov.used == 2);
-+		assert(wiov.iov[0].iov_base == __user_addr_max - 3);
-+		assert(wiov.iov[0].iov_len == 1);
-+		assert(wiov.iov[1].iov_base == __user_addr_max - 2);
-+		assert(wiov.iov[1].iov_len == 1);
-+	}
-+
-+	err = vringh_iov_pull_user(&riov, buf, 5);
-+	if (err != 1)
-+		errx(1, "vringh_iov_pull_user: %i", err);
-+	assert(buf[0] == 'a');
-+	assert(riov.i == 1);
-+	assert(vringh_iov_pull_user(&riov, buf, 5) == 0);
-+
-+	memcpy(buf, "bcdef", 5);
-+	err = vringh_iov_push_user(&wiov, buf, 5);
-+	if (err != 2)
-+		errx(1, "vringh_iov_push_user: %i", err);
-+	assert(memcmp(__user_addr_max - 3, "bc", 2) == 0);
-+	assert(wiov.i == wiov.used);
-+	assert(vringh_iov_push_user(&wiov, buf, 5) == 0);
-+
-+	/* Host is done. */
-+	err = vringh_complete_user(&vrh, head, err);
-+	if (err != 0)
-+		errx(1, "vringh_complete_user: %i", err);
-+
-+	/* Guest should see used token now. */
-+	__kfree_ignore_start = __user_addr_min + vring_size(RINGSIZE, ALIGN);
-+	__kfree_ignore_end = __kfree_ignore_start + 1;
-+	ret = virtqueue_get_buf(vq, &i);
-+	if (ret != &err)
-+		errx(1, "virtqueue_get_buf: %p", ret);
-+	assert(i == 2);
-+
-+	/* Guest puts in a huge descriptor. */
-+	sg_init_table(guest_sg, RINGSIZE);
-+	for (i = 0; i < RINGSIZE; i++) {
-+		sg_set_buf(&guest_sg[i],
-+			   __user_addr_max - USER_MEM/4, USER_MEM/4);
-+	}
-+
-+	/* Fill contents with recognisable garbage. */
-+	for (i = 0; i < USER_MEM/4; i++)
-+		((char *)__user_addr_max - USER_MEM/4)[i] = i;
-+
-+	/* This will allocate an indirect, so force it to allocate user addr */
-+	__kmalloc_fake = __user_addr_min + vring_size(RINGSIZE, ALIGN);
-+	err = virtqueue_add_buf(vq, guest_sg, RINGSIZE, 0, &err, GFP_KERNEL);
-+	if (err)
-+		errx(1, "virtqueue_add_buf (large): %i", err);
-+	__kmalloc_fake = NULL;
-+
-+	/* Host picks it up (allocates new iov). */
-+	vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
-+	vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
-+
-+	err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
-+	if (err != 1)
-+		errx(1, "vringh_getdesc_user: %i", err);
-+
-+	assert(riov.max_num & VRINGH_IOV_ALLOCATED);
-+	assert(riov.iov != host_riov);
-+	if (getrange != getrange_slow)
-+		assert(riov.used == RINGSIZE);
-+	else
-+		assert(riov.used == RINGSIZE * USER_MEM/4);
-+
-+	assert(!(wiov.max_num & VRINGH_IOV_ALLOCATED));
-+	assert(wiov.used == 0);
-+
-+	/* Pull data back out (in odd chunks), should be as expected. */
-+	for (i = 0; i < RINGSIZE * USER_MEM/4; i += 3) {
-+		err = vringh_iov_pull_user(&riov, buf, 3);
-+		if (err != 3 && i + err != RINGSIZE * USER_MEM/4)
-+			errx(1, "vringh_iov_pull_user large: %i", err);
-+		assert(buf[0] == (char)i);
-+		assert(err < 2 || buf[1] == (char)(i + 1));
-+		assert(err < 3 || buf[2] == (char)(i + 2));
-+	}
-+	assert(riov.i == riov.used);
-+	vringh_iov_cleanup(&riov);
-+	vringh_iov_cleanup(&wiov);
-+
-+	/* Complete using multi interface, just because we can. */
-+	used[0].id = head;
-+	used[0].len = 0;
-+	err = vringh_complete_multi_user(&vrh, used, 1);
-+	if (err)
-+		errx(1, "vringh_complete_multi_user(1): %i", err);
-+
-+	/* Free up those descriptors. */
-+	ret = virtqueue_get_buf(vq, &i);
-+	if (ret != &err)
-+		errx(1, "virtqueue_get_buf: %p", ret);
-+
-+	/* Add lots of descriptors. */
-+	sg_init_table(guest_sg, 1);
-+	sg_set_buf(&guest_sg[0], __user_addr_max - 1, 1);
-+	for (i = 0; i < RINGSIZE; i++) {
-+		err = virtqueue_add_buf(vq, guest_sg, 1, 0, &err, GFP_KERNEL);
-+		if (err)
-+			errx(1, "virtqueue_add_buf (multiple): %i", err);
-+	}
-+
-+	/* Now get many, and consume them all at once. */
-+	vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
-+	vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
-+
-+	for (i = 0; i < RINGSIZE; i++) {
-+		err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
-+		if (err != 1)
-+			errx(1, "vringh_getdesc_user: %i", err);
-+		used[i].id = head;
-+		used[i].len = 0;
-+	}
-+	/* Make sure it wraps around ring, to test! */
-+	assert(vrh.vring.used->idx % RINGSIZE != 0);
-+	err = vringh_complete_multi_user(&vrh, used, RINGSIZE);
-+	if (err)
-+		errx(1, "vringh_complete_multi_user: %i", err);
-+
-+	/* Free those buffers. */
-+	for (i = 0; i < RINGSIZE; i++) {
-+		unsigned len;
-+		assert(virtqueue_get_buf(vq, &len) != NULL);
-+	}
-+
-+	/* Test weird (but legal!) indirect. */
-+	if (vdev.features[0] & (1 << VIRTIO_RING_F_INDIRECT_DESC)) {
-+		struct vring_virtqueue *vvq = to_vvq(vq);
-+		char *data = __user_addr_max - USER_MEM/4;
-+		struct vring_desc *d = __user_addr_max - USER_MEM/2;
-+		unsigned int n = vvq->free_head;
-+
-+		/* Force creation of direct, which we modify. */
-+		vvq->indirect = false;
-+		
-+		sg_init_table(guest_sg, 4);
-+		sg_set_buf(&guest_sg[0], d, sizeof(*d)*2);
-+		sg_set_buf(&guest_sg[1], d + 2, sizeof(*d)*1);
-+		sg_set_buf(&guest_sg[2], data + 6, 4);
-+		sg_set_buf(&guest_sg[3], d + 3, sizeof(*d)*3);
-+
-+		err = virtqueue_add_buf(vq, guest_sg, 4, 0, &err, GFP_KERNEL);
-+		if (err)
-+			errx(1, "virtqueue_add_buf (indirect): %i", err);
-+
-+		/* They're used in order, but double-check... */
-+		assert(vvq->vring.desc[n].addr == (unsigned long)d);
-+		assert(vvq->vring.desc[n-1].addr == (unsigned long)(d+2));
-+		assert(vvq->vring.desc[n-2].addr == (unsigned long)data + 6);
-+		assert(vvq->vring.desc[n-3].addr == (unsigned long)(d+3));
-+		vvq->vring.desc[n].flags |= VRING_DESC_F_INDIRECT;
-+		vvq->vring.desc[n-1].flags |= VRING_DESC_F_INDIRECT;
-+		vvq->vring.desc[n-3].flags |= VRING_DESC_F_INDIRECT;
-+
-+		/* First indirect */
-+		d[0].addr = (unsigned long)data;
-+		d[0].len = 1;
-+		d[0].flags = VRING_DESC_F_NEXT;
-+		d[0].next = 1;
-+		d[1].addr = (unsigned long)data + 1;
-+		d[1].len = 2;
-+		d[1].flags = 0;
-+
-+		/* Second indirect */
-+		d[2].addr = (unsigned long)data + 3;
-+		d[2].len = 3;
-+		d[2].flags = 0;
-+
-+		/* Third indirect */
-+		d[3].addr = (unsigned long)data + 10;
-+		d[3].len = 5;
-+		d[3].flags = VRING_DESC_F_NEXT;
-+		d[3].next = 1;
-+		d[4].addr = (unsigned long)data + 15;
-+		d[4].len = 6;
-+		d[4].flags = VRING_DESC_F_NEXT;
-+		d[4].next = 2;
-+		d[5].addr = (unsigned long)data + 21;
-+		d[5].len = 7;
-+		d[5].flags = 0;
-+
-+		/* Host picks it up (allocates new iov). */
-+		vringh_iov_init(&riov, host_riov, ARRAY_SIZE(host_riov));
-+		vringh_iov_init(&wiov, host_wiov, ARRAY_SIZE(host_wiov));
-+
-+		err = vringh_getdesc_user(&vrh, &riov, &wiov, getrange, &head);
-+		if (err != 1)
-+			errx(1, "vringh_getdesc_user: %i", err);
-+
-+		if (head != n)
-+			errx(1, "vringh_getdesc_user: head %i not %i", head, n);
-+
-+		assert(riov.max_num & VRINGH_IOV_ALLOCATED);
-+		if (getrange != getrange_slow)
-+			assert(riov.used == 7);
-+		else
-+			assert(riov.used == 28);
-+		err = vringh_iov_pull_user(&riov, buf, 29);
-+		assert(err == 28);
-+
-+		/* Data should be linear. */
-+		for (i = 0; i < err; i++)
-+			assert(buf[i] == i);
-+		vringh_iov_cleanup(&riov);
-+	}
-+
-+	/* Don't leak memory... */
-+	vring_del_virtqueue(vq);
-+	free(__user_addr_min);
-+
++static inline int get_user_func(void *dst, void *src, size_t size)
++{
++	assert(src >= __user_addr_min && src + size <= __user_addr_max);
++	memcpy(dst, src, size);
 +	return 0;
 +}
++
++static inline int put_user_func(void *val, void *dst, size_t size)
++{
++	assert(dst >= __user_addr_min && dst + size <= __user_addr_max);
++	memcpy(dst, val, size);
++	return 0;
++}
++
++static inline int copy_from_user(void *to, const void __user *from,
++				 unsigned long n)
++{
++	assert(from >= __user_addr_min && from + n <= __user_addr_max);
++	memcpy(to, from, n);
++	return 0;
++}
++
++static inline int copy_to_user(void __user *to, const void *from,
++			       unsigned long n)
++{
++	assert(to >= __user_addr_min && to + n <= __user_addr_max);
++	memcpy(to, from, n);
++	return 0;
++}
++#endif /* UACCESS_H */
+diff --git a/tools/virtio/linux/uio.h b/tools/virtio/linux/uio.h
+new file mode 100644
+index 0000000..ecbdf92
+--- /dev/null
++++ b/tools/virtio/linux/uio.h
+@@ -0,0 +1 @@
++#include "../../../include/linux/uio.h"
+diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
+index ccfc901..61f313b 100644
+--- a/tools/virtio/linux/virtio.h
++++ b/tools/virtio/linux/virtio.h
+@@ -1,131 +1,7 @@
+ #ifndef LINUX_VIRTIO_H
+ #define LINUX_VIRTIO_H
+-
+-#include <stdbool.h>
+-#include <stdlib.h>
+-#include <stddef.h>
+-#include <stdio.h>
+-#include <string.h>
+-#include <assert.h>
+-
+-#include <linux/types.h>
+-#include <errno.h>
+-
+-typedef unsigned long long dma_addr_t;
+-
+-struct scatterlist {
+-	unsigned long	page_link;
+-	unsigned int	offset;
+-	unsigned int	length;
+-	dma_addr_t	dma_address;
+-};
+-
+-struct page {
+-	unsigned long long dummy;
+-};
+-
+-#define BUG_ON(__BUG_ON_cond) assert(!(__BUG_ON_cond))
+-
+-/* Physical == Virtual */
+-#define virt_to_phys(p) ((unsigned long)p)
+-#define phys_to_virt(a) ((void *)(unsigned long)(a))
+-/* Page address: Virtual / 4K */
+-#define virt_to_page(p) ((struct page*)((virt_to_phys(p) / 4096) * \
+-					sizeof(struct page)))
+-#define offset_in_page(p) (((unsigned long)p) % 4096)
+-#define sg_phys(sg) ((sg->page_link & ~0x3) / sizeof(struct page) * 4096 + \
+-		     sg->offset)
+-static inline void sg_mark_end(struct scatterlist *sg)
+-{
+-	/*
+-	 * Set termination bit, clear potential chain bit
+-	 */
+-	sg->page_link |= 0x02;
+-	sg->page_link &= ~0x01;
+-}
+-static inline void sg_init_table(struct scatterlist *sgl, unsigned int nents)
+-{
+-	memset(sgl, 0, sizeof(*sgl) * nents);
+-	sg_mark_end(&sgl[nents - 1]);
+-}
+-static inline void sg_assign_page(struct scatterlist *sg, struct page *page)
+-{
+-	unsigned long page_link = sg->page_link & 0x3;
+-
+-	/*
+-	 * In order for the low bit stealing approach to work, pages
+-	 * must be aligned at a 32-bit boundary as a minimum.
+-	 */
+-	BUG_ON((unsigned long) page & 0x03);
+-	sg->page_link = page_link | (unsigned long) page;
+-}
+-
+-static inline void sg_set_page(struct scatterlist *sg, struct page *page,
+-			       unsigned int len, unsigned int offset)
+-{
+-	sg_assign_page(sg, page);
+-	sg->offset = offset;
+-	sg->length = len;
+-}
+-
+-static inline void sg_set_buf(struct scatterlist *sg, const void *buf,
+-			      unsigned int buflen)
+-{
+-	sg_set_page(sg, virt_to_page(buf), buflen, offset_in_page(buf));
+-}
+-
+-static inline void sg_init_one(struct scatterlist *sg, const void *buf, unsigned int buflen)
+-{
+-	sg_init_table(sg, 1);
+-	sg_set_buf(sg, buf, buflen);
+-}
+-
+-typedef __u16 u16;
+-
+-typedef enum {
+-	GFP_KERNEL,
+-	GFP_ATOMIC,
+-} gfp_t;
+-
+-#define __GFP_HIGHMEM 0
+-#define __GFP_HIGH 0
+-
+-typedef enum {
+-	IRQ_NONE,
+-	IRQ_HANDLED
+-} irqreturn_t;
+-
+-static inline void *kmalloc(size_t s, gfp_t gfp)
+-{
+-	return malloc(s);
+-}
+-
+-static inline void kfree(void *p)
+-{
+-	free(p);
+-}
+-
+-#define container_of(ptr, type, member) ({			\
+-	const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
+-	(type *)( (char *)__mptr - offsetof(type,member) );})
+-
+-#define uninitialized_var(x) x = x
+-
+-# ifndef likely
+-#  define likely(x)	(__builtin_expect(!!(x), 1))
+-# endif
+-# ifndef unlikely
+-#  define unlikely(x)	(__builtin_expect(!!(x), 0))
+-# endif
+-
+-#define pr_err(format, ...) fprintf (stderr, format, ## __VA_ARGS__)
+-#ifdef DEBUG
+-#define pr_debug(format, ...) fprintf (stderr, format, ## __VA_ARGS__)
+-#else
+-#define pr_debug(format, ...) do {} while (0)
+-#endif
+-#define dev_err(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
+-#define dev_warn(dev, format, ...) fprintf (stderr, format, ## __VA_ARGS__)
++#include <linux/scatterlist.h>
++#include <linux/kernel.h>
+ 
+ /* TODO: empty stubs for now. Broken but enough for virtio_ring.c */
+ #define list_add_tail(a, b) do {} while (0)
+@@ -135,6 +11,7 @@ static inline void kfree(void *p)
+ #define BITS_PER_BYTE		8
+ #define BITS_PER_LONG (sizeof(long) * BITS_PER_BYTE)
+ #define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
++
+ /* TODO: Not atomic as it should be:
+  * we don't use this for anything important. */
+ static inline void clear_bit(int nr, volatile unsigned long *addr)
+@@ -149,10 +26,6 @@ static inline int test_bit(int nr, const volatile unsigned long *addr)
+ {
+         return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
+ }
+-
+-/* The only feature we care to support */
+-#define virtio_has_feature(dev, feature) \
+-	test_bit((feature), (dev)->features)
+ /* end of stubs */
+ 
+ struct virtio_device {
+@@ -172,28 +45,9 @@ struct virtqueue {
+ 	void *priv;
+ };
+ 
+-#define EXPORT_SYMBOL_GPL(__EXPORT_SYMBOL_GPL_name) \
+-	void __EXPORT_SYMBOL_GPL##__EXPORT_SYMBOL_GPL_name() { \
+-}
+ #define MODULE_LICENSE(__MODULE_LICENSE_value) \
+ 	const char *__MODULE_LICENSE_name = __MODULE_LICENSE_value
+ 
+-#define CONFIG_SMP
+-
+-#if defined(__i386__) || defined(__x86_64__)
+-#define barrier() asm volatile("" ::: "memory")
+-#define mb() __sync_synchronize()
+-
+-#define smp_mb()	mb()
+-# define smp_rmb()	barrier()
+-# define smp_wmb()	barrier()
+-/* Weak barriers should be used. If not - it's a bug */
+-# define rmb()	abort()
+-# define wmb()	abort()
+-#else
+-#error Please fill in barrier macros
+-#endif
+-
+ /* Interfaces exported by virtio_ring. */
+ int virtqueue_add_buf(struct virtqueue *vq,
+ 		      struct scatterlist sg[],
+diff --git a/tools/virtio/linux/virtio_config.h b/tools/virtio/linux/virtio_config.h
+new file mode 100644
+index 0000000..5049967
+--- /dev/null
++++ b/tools/virtio/linux/virtio_config.h
+@@ -0,0 +1,6 @@
++#define VIRTIO_TRANSPORT_F_START	28
++#define VIRTIO_TRANSPORT_F_END		32
++
++#define virtio_has_feature(dev, feature) \
++	test_bit((feature), (dev)->features)
++
+diff --git a/tools/virtio/linux/virtio_ring.h b/tools/virtio/linux/virtio_ring.h
+new file mode 100644
+index 0000000..8949c4e
+--- /dev/null
++++ b/tools/virtio/linux/virtio_ring.h
+@@ -0,0 +1 @@
++#include "../../../include/linux/virtio_ring.h"
+diff --git a/tools/virtio/linux/vringh.h b/tools/virtio/linux/vringh.h
+new file mode 100644
+index 0000000..9348957
+--- /dev/null
++++ b/tools/virtio/linux/vringh.h
+@@ -0,0 +1 @@
++#include "../../../include/linux/vringh.h"
+diff --git a/tools/virtio/uapi/linux/uio.h b/tools/virtio/uapi/linux/uio.h
+new file mode 100644
+index 0000000..7230e90
+--- /dev/null
++++ b/tools/virtio/uapi/linux/uio.h
+@@ -0,0 +1 @@
++#include <sys/uio.h>
+diff --git a/tools/virtio/uapi/linux/virtio_config.h b/tools/virtio/uapi/linux/virtio_config.h
+new file mode 100644
+index 0000000..4c86675
+--- /dev/null
++++ b/tools/virtio/uapi/linux/virtio_config.h
+@@ -0,0 +1 @@
++#include "../../../../include/uapi/linux/virtio_config.h"
+diff --git a/tools/virtio/uapi/linux/virtio_ring.h b/tools/virtio/uapi/linux/virtio_ring.h
+new file mode 100644
+index 0000000..4d99c78
+--- /dev/null
++++ b/tools/virtio/uapi/linux/virtio_ring.h
+@@ -0,0 +1,4 @@
++#ifndef VIRTIO_RING_H
++#define VIRTIO_RING_H
++#include "../../../../include/uapi/linux/virtio_ring.h"
++#endif /* VIRTIO_RING_H */
+diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+index a07142c..c613f25 100644
+--- a/tools/virtio/virtio_test.c
++++ b/tools/virtio/virtio_test.c
+@@ -10,11 +10,15 @@
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ #include <fcntl.h>
++#include <stdbool.h>
+ #include <linux/vhost.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_ring.h>
+ #include "../../drivers/vhost/test.h"
+ 
++/* Unused */
++void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
++
+ struct vq_info {
+ 	int kick;
+ 	int call;
 -- 
 1.7.10.4
