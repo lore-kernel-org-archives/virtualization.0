@@ -1,15 +1,14 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 4/9] virtio-blk: use virtqueue_start_buf on req path
-Date: Mon, 18 Feb 2013 10:05:26 +0100
-Message-ID: <5121EED6.7000307@redhat.com>
-References: <1360671815-2135-1-git-send-email-pbonzini@redhat.com>
-	<1360671815-2135-5-git-send-email-pbonzini@redhat.com>
-	<51207AA1.4090408@redhat.com>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: Re: [PATCH v3 0/5] virtio-scsi multiqueue
+Date: Mon, 18 Feb 2013 17:32:17 +0800
+Message-ID: <5121F521.6080300@cn.fujitsu.com>
+References: <1360674391-2661-1-git-send-email-pbonzini@redhat.com>
+Reply-To: gaowanlong@cn.fujitsu.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51207AA1.4090408@redhat.com>
+In-Reply-To: <1360674391-2661-1-git-send-email-pbonzini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,31 +18,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, JBottomley@parallels.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 17/02/2013 07:37, Asias He ha scritto:
->> >  static int __virtblk_add_req(struct virtqueue *vq,
->> > -			     struct virtblk_req *vbr)
->> > +			     struct virtblk_req *vbr,
->> > +			     struct scatterlist *data_sg,
->> > +			     unsigned data_nents)
->> >  {
->> >  	struct scatterlist sg;
->> >  	enum dma_data_direction dir;
->> >  	int ret;
->> >  
->> > +	int type = vbr->out_hdr.type & ~VIRTIO_BLK_T_OUT;
->> >  	unsigned int nents = 2;
->> >  	unsigned int nsg = 2;
->> >  
->> > -	if (vbr->nents) {
->> > +	if (type == VIRTIO_BLK_T_SCSI_CMD) {
->> > +		BUG_ON(use_bio);
-> Do we really need the BUG_ON?  Even if with use_bio=1,
-> VIRTIO_BLK_T_SCSI_CMD cmd can be fired. See this:
+On 02/12/2013 09:06 PM, Paolo Bonzini wrote:
+> This series implements virtio-scsi queue steering, which gives
+> performance improvements of up to 50% (measured both with QEMU and
+> tcm_vhost backends).  The patches build on top of the new virtio APIs
+> at http://permalink.gmane.org/gmane.linux.kernel.virtualization/18431;
+> the new API simplifies the locking of the virtio-scsi driver nicely,
+> thus it makes sense to require them as a prerequisite.
+> 
+> Changes from the previous post, which can be found at
+> http://permalink.gmane.org/gmane.linux.kernel.virtualization/17869:
+> 
+> - patches 1 and 2 ("virtio: add functions for piecewise addition of
+>   buffers", "virtio-scsi: use functions for piecewise composition of
+>   buffers") split into their own series
+> 
+> - new cleanup patch "virtio-scsi: push vq lock/unlock into virtscsi_vq_done"
+> 
+> - reorganized code to move ACCESS_ONCE in a clearer place
+> 
+> - included Wanlong Gao's CPU hotplug patches
+> 
+> Ok for 3.9?  It would probably be easier to get it in via Rusty's tree
+> because of the prerequisites.  James, can I get your Acked-by?
 
-I stand corrected... will send the patch with this removed.
+I can't apply this series on top of Rusty's virtio-next, I missed something
+or needed rebase them ?
 
-Paolo
+Thanks,
+Wanlong Gao
+
+> 
+> Paolo
+> 
+> Paolo Bonzini (4):
+>   virtio-scsi: redo allocation of target data
+>   virtio-scsi: pass struct virtio_scsi to virtqueue completion function
+>   virtio-scsi: push vq lock/unlock into virtscsi_vq_done
+>   virtio-scsi: introduce multiqueue support
+> 
+> Wanlong Gao (1):
+>   virtio-scsi: reset virtqueue affinity when doing cpu hotplug
+> 
+>  drivers/scsi/virtio_scsi.c |  360 +++++++++++++++++++++++++++++++++++---------
+>  1 files changed, 292 insertions(+), 68 deletions(-)
+> 
+> 
