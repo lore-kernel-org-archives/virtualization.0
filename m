@@ -1,7 +1,7 @@
 From: Andy King <acking@vmware.com>
-Subject: [PATCH 4/4] VSOCK: Don't reject PF_VSOCK protocol
-Date: Mon, 18 Feb 2013 08:04:13 -0800
-Message-ID: <1361203453-1347-5-git-send-email-acking@vmware.com>
+Subject: [PATCH 3/4] VSOCK: Remove hypervisor-only socket option
+Date: Mon, 18 Feb 2013 08:04:12 -0800
+Message-ID: <1361203453-1347-4-git-send-email-acking@vmware.com>
 References: <1361203453-1347-1-git-send-email-acking@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,26 +21,33 @@ To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.l
 Cc: pv-drivers@vmware.com, Andy King <acking@vmware.com>, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-Allow our own family as the protocol value for socket creation.
+Remove hypervisor-only socket option.
 
 Reported-by: Gerd Hoffmann <kraxel@redhat.com>
+Acked-by: Dmitry Torokhov <dtor@vmware.com>
 Signed-off-by: Andy King <acking@vmware.com>
 ---
- net/vmw_vsock/af_vsock.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ include/uapi/linux/vm_sockets.h |    8 --------
+ 1 files changed, 0 insertions(+), 8 deletions(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index c1b9e55..ca511c4 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1860,7 +1860,7 @@ static int vsock_create(struct net *net, struct socket *sock,
- 	if (!sock)
- 		return -EINVAL;
+diff --git a/include/uapi/linux/vm_sockets.h b/include/uapi/linux/vm_sockets.h
+index f7f2e99..df91301 100644
+--- a/include/uapi/linux/vm_sockets.h
++++ b/include/uapi/linux/vm_sockets.h
+@@ -52,14 +52,6 @@
  
--	if (protocol)
-+	if (protocol && protocol != PF_VSOCK)
- 		return -EPROTONOSUPPORT;
+ #define SO_VM_SOCKETS_PEER_HOST_VM_ID 3
  
- 	switch (sock->type) {
+-/* Option name for socket's service label.  Use as the option name in
+- * setsockopt(3) or getsockopt(3) to set or get the service label for a socket.
+- * The service label is a C-style NUL-terminated string.  Only available for
+- * hypervisor endpoints.
+- */
+-
+-#define SO_VM_SOCKETS_SERVICE_LABEL 4
+-
+ /* Option name for determining if a socket is trusted.  Use as the option name
+  * in getsockopt(3) to determine if a socket is trusted.  The value is a
+  * signed integer.
 -- 
 1.7.4.1
