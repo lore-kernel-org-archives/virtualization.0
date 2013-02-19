@@ -1,14 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/5] vringh
-Date: Tue, 19 Feb 2013 10:11:13 +0200
-Message-ID: <20130219081113.GA4095@redhat.com>
-References: <1361226573-12481-1-git-send-email-rusty@rustcorp.com.au>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/1] VSOCK: Introduce VM Sockets
+Date: Tue, 19 Feb 2013 09:45:38 +0100
+Message-ID: <51233BB2.3080401@redhat.com>
+References: <1360196636-9357-1-git-send-email-acking@vmware.com>
+	<1360196636-9357-2-git-send-email-acking@vmware.com>
+	<511CC511.7080902@redhat.com>
+	<1398469748.2079082.1361207251021.JavaMail.root@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1361226573-12481-1-git-send-email-rusty@rustcorp.com.au>
+In-Reply-To: <1398469748.2079082.1361207251021.JavaMail.root@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,26 +20,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: sjur.brandeland@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andy King <acking@vmware.com>
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, gregkh@linuxfoundation.org, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 19, 2013 at 08:59:27AM +1030, Rusty Russell wrote:
-> This introduces vringh, which are generic accessors for virtio rings (host side).
-> There's a host-side implementation in vhost, but it assumes that the rings are
-> in userspace, and is tied to the vhost implementation.  I have patches to adapt
-> it to use vringh, but I'm pushing this in the next merge window for Sjur, who has
-> CAIF patches which need it.
+On 02/18/13 18:07, Andy King wrote:
+> Hi Gerd,
 > 
-> This also includes a test program in tools/virtio.  There's a fixup patch for
-> the current tools, since they didn't compile for me.  MST?
+>>> +		written = transport->stream_enqueue(
+>>> +				vsk, msg->msg_iov,
+>>> +				len - total_written);
+>>
+>> Hmm, shouldn't we pass total_written to stream_enqueue here?
+>>
+>> In case a blocking send(big-buffer) call gets splitted into multiple
+>> stream_enqueue calls the second (and further) stream_enqueue calls need
+>> to know at which msg offset they should continue sending the data, no?
 > 
-> Review and comments welcome!
-> Rusty.
+> On the client side, the iov tracks it internally; see memcpy_fromiovec().
 
-Will review, thanks.
-Okay so the plan is to merge this changeset for 3.9 and rework vhost
-for 3.10?
+Ah, memcpy_fromiovec patches the iovec to keep track of the offset.
+Wasn't aware it does this.  Yes, we don't need to pass the offset then.
 
--- 
-MST
+cheers,
+  Gerd
