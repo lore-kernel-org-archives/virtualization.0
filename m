@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 08/16] virtio_ring: virtqueue_add_outbuf / virtqueue_add_inbuf.
-Date: Tue, 19 Feb 2013 18:26:26 +1030
-Message-ID: <1361260594-601-9-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 14/16] virtio_rpmsg_bus: use simplified virtqueue accessors.
+Date: Tue, 19 Feb 2013 18:26:32 +1030
+Message-ID: <1361260594-601-15-git-send-email-rusty__1312.46049791134$1361261195$gmane$org@rustcorp.com.au>
 References: <1361260594-601-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,112 +21,51 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-These are specialized versions of virtqueue_add_buf(), which cover
-over 50% of cases and are far clearer.
-
-In particular, the scatterlists passed to these functions don't have
-to be clean (ie. we ignore end markers).
-
-FIXME: I'm not sure about the unclean sglist bit.  I had a more
-ambitious one which conditionally ignored end markers in the iterator,
-but it was ugly and I suspect this is just as fast.  Maybe we should
-just fix all the drivers?
+We never add buffers with input and output parts, so use the new accessors.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/virtio/virtio_ring.c |   58 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/virtio.h       |   10 ++++++++
- 2 files changed, 68 insertions(+)
+ drivers/rpmsg/virtio_rpmsg_bus.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index c537385..fb282b5 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -345,6 +345,64 @@ int virtqueue_add_sgs(struct virtqueue *_vq,
- EXPORT_SYMBOL_GPL(virtqueue_add_sgs);
+diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+index f1e3239..d9897d1 100644
+--- a/drivers/rpmsg/virtio_rpmsg_bus.c
++++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+@@ -763,14 +763,14 @@ int rpmsg_send_offchannel_raw(struct rpmsg_channel *rpdev, u32 src, u32 dst,
+ 	mutex_lock(&vrp->tx_lock);
  
- /**
-+ * virtqueue_add_outbuf - expose output buffers to other end
-+ * @vq: the struct virtqueue we're talking about.
-+ * @sgs: array of scatterlists (need not be terminated!)
-+ * @num: the number of scatterlists readable by other side
-+ * @data: the token identifying the buffer.
-+ * @gfp: how to do memory allocations (if necessary).
-+ *
-+ * Caller must ensure we don't call this with other virtqueue operations
-+ * at the same time (except where noted).
-+ *
-+ * Returns zero or a negative error (ie. ENOSPC, ENOMEM).
-+ */
-+int virtqueue_add_outbuf(struct virtqueue *vq,
-+			 struct scatterlist sg[], unsigned int num,
-+			 void *data,
-+			 gfp_t gfp)
-+{
-+	unsigned int i;
-+
-+	/* We're about to iterate, so this is pretty cheap. */
-+	for (i = 0; i < num - 1; i++)
-+		sg_unmark_end(sg + i);
-+	sg_mark_end(sg + i);
-+
-+	return virtqueue_add(vq, &sg, num, 1, 0, data, gfp);
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
-+
-+/**
-+ * virtqueue_add_inbuf - expose input buffers to other end
-+ * @vq: the struct virtqueue we're talking about.
-+ * @sgs: array of scatterlists (need not be terminated!)
-+ * @num: the number of scatterlists writable by other side
-+ * @data: the token identifying the buffer.
-+ * @gfp: how to do memory allocations (if necessary).
-+ *
-+ * Caller must ensure we don't call this with other virtqueue operations
-+ * at the same time (except where noted).
-+ *
-+ * Returns zero or a negative error (ie. ENOSPC, ENOMEM).
-+ */
-+int virtqueue_add_inbuf(struct virtqueue *vq,
-+			struct scatterlist sg[], unsigned int num,
-+			void *data,
-+			gfp_t gfp)
-+{
-+	unsigned int i;
-+
-+	/* We're about to iterate, so this is pretty cheap. */
-+	for (i = 0; i < num - 1; i++)
-+		sg_unmark_end(sg + i);
-+	sg_mark_end(sg + i);
-+
-+	return virtqueue_add(vq, &sg, num, 0, 1, data, gfp);
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_add_inbuf);
-+
-+/**
-  * virtqueue_kick_prepare - first half of split virtqueue_kick call.
-  * @vq: the struct virtqueue
-  *
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 6eff15b..b442500 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -40,6 +40,16 @@ int virtqueue_add_buf(struct virtqueue *vq,
- 		      void *data,
- 		      gfp_t gfp);
+ 	/* add message to the remote processor's virtqueue */
+-	err = virtqueue_add_buf(vrp->svq, &sg, 1, 0, msg, GFP_KERNEL);
++	err = virtqueue_add_outbuf(vrp->svq, &sg, 1, msg, GFP_KERNEL);
+ 	if (err) {
+ 		/*
+ 		 * need to reclaim the buffer here, otherwise it's lost
+ 		 * (memory won't leak, but rpmsg won't use it again for TX).
+ 		 * this will wait for a buffer management overhaul.
+ 		 */
+-		dev_err(dev, "virtqueue_add_buf failed: %d\n", err);
++		dev_err(dev, "virtqueue_add_outbuf failed: %d\n", err);
+ 		goto out;
+ 	}
  
-+int virtqueue_add_outbuf(struct virtqueue *vq,
-+			 struct scatterlist sg[], unsigned int num,
-+			 void *data,
-+			 gfp_t gfp);
-+
-+int virtqueue_add_inbuf(struct virtqueue *vq,
-+			struct scatterlist sg[], unsigned int num,
-+			void *data,
-+			gfp_t gfp);
-+
- int virtqueue_add_sgs(struct virtqueue *vq,
- 		      struct scatterlist *sgs[],
- 		      unsigned int out_sgs,
+@@ -845,7 +845,7 @@ static void rpmsg_recv_done(struct virtqueue *rvq)
+ 	sg_init_one(&sg, msg, RPMSG_BUF_SIZE);
+ 
+ 	/* add the buffer back to the remote processor's virtqueue */
+-	err = virtqueue_add_buf(vrp->rvq, &sg, 0, 1, msg, GFP_KERNEL);
++	err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, msg, GFP_KERNEL);
+ 	if (err < 0) {
+ 		dev_err(dev, "failed to add a virtqueue buffer: %d\n", err);
+ 		return;
+@@ -976,7 +976,7 @@ static int rpmsg_probe(struct virtio_device *vdev)
+ 
+ 		sg_init_one(&sg, cpu_addr, RPMSG_BUF_SIZE);
+ 
+-		err = virtqueue_add_buf(vrp->rvq, &sg, 0, 1, cpu_addr,
++		err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, cpu_addr,
+ 								GFP_KERNEL);
+ 		WARN_ON(err); /* sanity check; this can't really happen */
+ 	}
 -- 
 1.7.10.4
