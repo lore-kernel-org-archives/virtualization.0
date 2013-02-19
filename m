@@ -1,20 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH vringh 2/2] caif_virtio: Introduce caif over virtio
-Date: Tue, 19 Feb 2013 09:00:13 +1030
-Message-ID: <87ppzxi7be.fsf__38995.6794483171$1361261014$gmane$org@rustcorp.com.au>
-References: <1360494273-27889-1-git-send-email-sjur.brandeland@stericsson.com>
-	<1360494273-27889-3-git-send-email-sjur.brandeland@stericsson.com>
-	<87vc9zfic8.fsf@rustcorp.com.au>
-	<81C3A93C17462B4BBD7E272753C105792458EDD161@EXDCVYMBSTM005.EQ1STM.local>
-	<87ehgklds9.fsf@rustcorp.com.au>
-	<CAJK669YQ+x5zXSZA1FQHkRrcCt+SgZP-M_ea-Ey8ziGLhq9cqQ@mail.gmail.com>
-	<87bobmjish.fsf@rustcorp.com.au>
-	<CAJK669ZATh8FojTGdFH_x7ovMvA2L7XFUratiptJmPFZPhv31g@mail.gmail.com>
+Subject: Re: [PATCH 0/9] virtio: new API for addition of buffers,
+	scatterlist changes
+Date: Tue, 19 Feb 2013 18:19:11 +1030
+Message-ID: <87ehgciw08.fsf@rustcorp.com.au>
+References: <1360671815-2135-1-git-send-email-pbonzini@redhat.com>
+	<87r4kjjuyn.fsf@rustcorp.com.au> <511CAD19.2010902@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJK669ZATh8FojTGdFH_x7ovMvA2L7XFUratiptJmPFZPhv31g@mail.gmail.com>
+In-Reply-To: <511CAD19.2010902@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,31 +19,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Cc: Vikram ARV <vikram.arv@stericsson.com>, Dmitry TARNYAGIN <dmitry.tarnyagin@stericsson.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>, mst@redhat.com, Ido Yariv <ido@wizery.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Erwan YVIN <erwan.yvin@stericsson.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cgo+PiBTanVyIEJy
-w6ZuZGVsYW5kIDxzanVyYnJlbkBnbWFpbC5jb20+IHdyaXRlczoKPj4+IEhvdyBhYm91dCBzdXBw
-b3J0aW5nIHN0cnVjdCB2cmluZ2hfa2lvdiBhbmQgc3RydWN0IGt2ZWMgYXMgd2VsbD8KPj4+IEkg
-Y3VycmVudGx5IGdldCB0aGUgZm9sbG93aW5nIGNvbXBsYWludHMgd2l0aCBteSBWMiBwYXRjaC1z
-ZXQ6Cj4+Pgo+Pj4gZHJpdmVycy9uZXQvY2FpZi9jYWlmX3ZpcnRpby5jOjQ4NjoyOiB3YXJuaW5n
-OiBwYXNzaW5nIGFyZ3VtZW50IDEgb2YKPj4+IOKAmHZyaW5naF9pb3ZfaW5pdOKAmSBmcm9tIGlu
-Y29tcGF0aWJsZSBwb2ludGVyIHR5cGUgW2VuYWJsZWQgYnkgZGVmYXVsdF0KPj4KPj4gdnJpbmdo
-X2tpb3ZfaW5pdCgpPyAgRGlkIEkgbWlzcyBzb21ldGhpbmcgZWxzZT8KPgo+IEkgZ2V0IGEgd2Fy
-bmluZyBmb3IgbXkgdXNlb2YgdnJpbmdoX2lvdl9jbGVhbnVwKCkgaW4KPiBhZGRpdGlvbiB0byB0
-aGUgb25lIGFib3ZlLgo+Cj4gSG93IGFib3V0IGFkZGluZyBraW92IHZhcmlhbnRzIG9mICB2cmlu
-Z2hfaW92X2NsZWFudXAoKQo+IGFuZCB2cmluZ2hfaW92X3Jlc2V0KCkgYXMgd2VsbD8KCkhtbSwg
-SSBoYXZlIHRob3NlIGhlcmUgdG9vIChpbiB0aGUgaGVhZGVyKToKCitzdGF0aWMgaW5saW5lIHZv
-aWQgdnJpbmdoX2tpb3ZfcmVzZXQoc3RydWN0IHZyaW5naF9raW92ICpraW92KQoreworCWtpb3Yt
-Pm9mZiA9IDA7CisJa2lvdi0+aSA9IDA7Cit9CisKK3N0YXRpYyBpbmxpbmUgdm9pZCB2cmluZ2hf
-a2lvdl9jbGVhbnVwKHN0cnVjdCB2cmluZ2hfa2lvdiAqa2lvdikKK3sKKwlpZiAoa2lvdi0+bWF4
-X251bSAmIFZSSU5HSF9JT1ZfQUxMT0NBVEVEKQorCQlrZnJlZShraW92LT5pb3YpOworCWtpb3Yt
-Pm1heF9udW0gPSBraW92LT51c2VkID0ga2lvdi0+aSA9IGtpb3YtPm9mZiA9IDA7CisJa2lvdi0+
-aW92ID0gTlVMTDsKK30KCkkndmUgZm9sZGVkIHRoZSBwYXRjaGVzIGFuZCBwdXQgdGhlbSBpbnRv
-IG15IHBlbmRpbmctcmViYXNlcyBicmFuY2gsCnJlYWR5IGZvciB2aXJ0aW8tbmV4dC4KCkknZCBy
-ZWFsbHkgbGlrZSBNU1QncyBhY2sgb24gdGhpcywgdG9vLCBzbyBJJ2xsIHJlcG9zdCB0aGUgc2Vy
-aWVzLgoKQ2hlZXJzLApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Paolo Bonzini <pbonzini@redhat.com> writes:
+>> virtio_ring: virtqueue_add_sgs, to add multiple sgs.
+>> 
+>> virtio_scsi and virtio_blk can really use these, to avoid their current
+>> hack of copying the whole sg array.
+>> 
+>> Signed-off-by: Ruty Russell <rusty@rustcorp.com.au> 
+>
+> It's much better than the other prototype you had posted, but I still
+> dislike this...  You pay for additional counting of scatterlists when
+> the caller knows the number of buffers
+
+Yes, but I like the API simplicity.  We could use an array of sg_table,
+which is what you have in virtio_scsi anyway, but I doubt it's
+measurable on benchmarks.
+
+> and the nested loops aren't free, either.
+
+I think they'll win over multiple function calls :)
+
+But modulo devastating benchmarks, this wins.  Because the three-part
+API is really, really ugly.  It *looks* like a generic "start - work
+... work - end" API, but it's not.  Because you need to declare exactly
+what you're doing in virtqueue_start_buf!
+
+And that's OK, because noone wants a generic API like that.
+
+> > +	sg_unmark_end(sg + out + in);
+> > +	if (out && in)
+> > +		sg_unmark_end(sg + out);
+>
+> What's this second sg_unmark_end block for?  Doesn't it access after the
+> end of sg?  If you wanted it to be sg_mark_end, that must be:
+> 
+>   if (out)
+> 	  sg_mark_end(sg + out - 1);
+>   if (in)
+> 	  sg_mark_end(sg + out + in - 1);
+> 
+>   with a corresponding unmark afterwards.
+
+Thanks, I fixed that after I actually tested it :)
+
+But as we clean them every time, we don't need to unmark:
+
+	/* Workaround until callers pass well-formed sgs. */
+	for (i = 0; i < out + in; i++)
+		sg_unmark_end(sg + i);
+
+	sg_mark_end(sg + out + in - 1);
+	if (out && in)
+		sg_mark_end(sg + out - 1);
+
+	return virtqueue_add_sgs(_vq, sgs, out ? 1 : 0, in ? 1 : 0, data, gfp);
+
+This is a workaround until all callers fixed / replaced, of course.
+
+> Another problem is that you cannot pass "truncated" scatterlists.  You
+> must ensure there is an end marker on the last item.  I'm not sure if
+> the kernel ensures that, given that for_each_sg takes explicitly the
+> number of scatterlist elements; and it is not as trivial as
+> "sg_mark_end(foo + nsg - 1);" if the upper layers hand you a chained
+> scatterlist.
+
+Makes you wonder why they have end markers at all.  But yes, the block
+layer does the right thing with end markers in blk_bio_map_sg(), which
+seems to carry through.
+
+Cheers,
+Rusty.
+PS.  Patchbomb coming, lightly tested.
