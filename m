@@ -1,14 +1,11 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv2 vringh 3/3] caif_virtio: Introduce caif over virtio
-Date: Tue, 19 Feb 2013 10:07:18 +1030
-Message-ID: <87k3q5i47l.fsf__12560.5003130206$1361261036$gmane$org@rustcorp.com.au>
-References: <1360669793-6921-1-git-send-email-sjur.brandeland@stericsson.com>
-	<1360669793-6921-4-git-send-email-sjur.brandeland@stericsson.com>
+Subject: [PATCH 00/16] virtio ring rework.
+Date: Tue, 19 Feb 2013 18:26:18 +1030
+Message-ID: <1361260594-601-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360669793-6921-4-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +15,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "David S. Miller" <davem@davemloft.net>, Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Vikram ARV <vikram.arv@stericsson.com>, Dmitry Tarnyagin <dmitry.tarnyagin@stericsson.com>, sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, linux-kernel@vger.kernel.org, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Ido Yariv <ido@wizery.com>, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyaXRlczoKPiBGcm9tOiBWaWtyYW0gQVJW
-IDx2aWtyYW0uYXJ2QHN0ZXJpY3Nzb24uY29tPgo+Cj4gQWRkIHRoZSB0aGUgVmlydGlvIHNoYXJl
-ZCBtZW1vcnkgZHJpdmVyIGZvciBTVEUgTW9kZW1zLgo+IGNhaWZfdmlydGlvIGlzIGltcGxlbWVu
-dGVkIHV0aWxpemluZyB0aGUgdmlydGlvIGZyYW1ld29yawo+IGZvciBkYXRhIHRyYW5zcG9ydCBh
-bmQgaXMgbWFuYWdlZCB3aXRoIHRoZSByZW1vdGVwcm9jIGZyYW1ld29ya3MuCj4KPiBUaGUgVmly
-dGlvIHF1ZXVlIGlzIHVzZWQgZm9yIHRyYW5zbWl0dGluZyBkYXRhIHRvIHRoZSBtb2RlbSwgYW5k
-Cj4gdGhlIG5ldyB2cmluZ2ggaW1wbGVtZW50YXRpb24gaXMgcmVjZWl2aW5nIGRhdGEgb3ZlciB0
-aGUgdnJpbmcuCj4KPiBTaWduZWQtb2ZmLWJ5OiBWaWtyYW0gQVJWIDx2aWtyYW0uYXJ2QHN0ZXJp
-Y3Nzb24uY29tPgo+IFNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRl
-bGFuZEBzdGVyaWNzc29uLmNvbT4KCkkgaGF2ZSBhcHBsaWVkIDEgYW5kIDMgKDIgaXMgYWxyZWFk
-eSBpbiB2aXJ0aW8tbmV4dCk7IHRoZXkncmUgaW4gbXkKcGVuZGluZy1yZWJhc2VzIGJyYW5jaCBi
-ZWhpbmQgdGhlIHZyaW5naCBwYXRjaGVzIHdoaWNoIGFyZSBwZW5kaW5nCmEgZmluYWwgcmV2aWV3
-LgoKSGVyZSdzIHRoZSB3YXJuaW5nIGZpeCBwYXRjaCBJIGFwcGxpZWQ6CgpkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy9uZXQvY2FpZi9jYWlmX3ZpcnRpby5jIGIvZHJpdmVycy9uZXQvY2FpZi9jYWlmX3Zp
-cnRpby5jCmluZGV4IGQ0ZjMzOWMuLmRmODMyZTcgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvbmV0L2Nh
-aWYvY2FpZl92aXJ0aW8uYworKysgYi9kcml2ZXJzL25ldC9jYWlmL2NhaWZfdmlydGlvLmMKQEAg
-LTQ4Myw3ICs0ODMsNyBAQCBzdGF0aWMgaW50IGNmdl9wcm9iZShzdHJ1Y3QgdmlydGlvX2Rldmlj
-ZSAqdmRldikKIAogCXZkZXYtPnByaXYgPSBjZnY7CiAKLQl2cmluZ2hfaW92X2luaXQoJmNmdi0+
-Y3R4LnJpb3YsIE5VTEwsIDApOworCXZyaW5naF9raW92X2luaXQoJmNmdi0+Y3R4LnJpb3YsIE5V
-TEwsIDApOwogCWNmdi0+Y3R4LmhlYWQgPSBVU0hSVF9NQVg7CiAKIAluZXRpZl9uYXBpX2FkZChu
-ZXRkZXYsICZjZnYtPm5hcGksIGNmdl9yeF9wb2xsLCBDRlZfREVGQVVMVF9RVU9UQSk7CkBAIC01
-MTcsNyArNTE3LDcgQEAgc3RhdGljIHZvaWQgY2Z2X3JlbW92ZShzdHJ1Y3QgdmlydGlvX2Rldmlj
-ZSAqdmRldikKIAlzdHJ1Y3QgY2Z2X2luZm8gKmNmdiA9IHZkZXYtPnByaXY7CiAKIAl0YXNrbGV0
-X2tpbGwoJmNmdi0+dHhfcmVsZWFzZV90YXNrbGV0KTsKLQl2cmluZ2hfaW92X2NsZWFudXAoJmNm
-di0+Y3R4LnJpb3YpOworCXZyaW5naF9raW92X2NsZWFudXAoJmNmdi0+Y3R4LnJpb3YpOwogCXZk
-ZXYtPmNvbmZpZy0+cmVzZXQodmRldik7CiAJcnByb2NfdmlydGlvX2RlbF92cmluZ2godmRldiwg
-UlhfUklOR19JTkRFWCk7CiAJY2Z2LT52cl9yeCA9IE5VTEw7CgpDaGVlcnMsClJ1c3R5LgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+OK, this is (ab)uses some of Paolo's patches.  The first 7 are
+candidates for this merge window (maybe), the rest I'm not so sure
+about.
+
+Thanks,
+Rusty.
+
+Paolo Bonzini (3):
+  scatterlist: introduce sg_unmark_end
+  virtio-blk: reorganize virtblk_add_req
+  virtio-blk: use virtqueue_add_sgs on req path
+
+Rusty Russell (13):
+  virtio_ring: virtqueue_add_sgs, to add multiple sgs.
+  virtio-blk: use virtqueue_start_buf on bio path
+  virtio_blk: remove nents member.
+  virtio_ring: don't count elements twice for add_buf path.
+  virtio_ring: virtqueue_add_outbuf / virtqueue_add_inbuf.
+  virtio_net: use simplified virtqueue accessors.
+  virtio_net: use virtqueue_add_sgs[] for command buffers.
+  virtio_rng: use simplified virtqueue accessors.
+  virtio_console: use simplified virtqueue accessors.
+  caif_virtio: use simplified virtqueue accessors.
+  virtio_rpmsg_bus: use simplified virtqueue accessors.
+  virtio_balloon: use simplified virtqueue accessors.
+  9p/trans_virtio.c: use virtio_add_sgs[]
+
+ block/blk-integrity.c               |    2 +-
+ block/blk-merge.c                   |    2 +-
+ drivers/block/virtio_blk.c          |  146 +++++++++-----------
+ drivers/char/hw_random/virtio-rng.c |    2 +-
+ drivers/char/virtio_console.c       |    6 +-
+ drivers/net/caif/caif_virtio.c      |    3 +-
+ drivers/net/virtio_net.c            |   61 ++++-----
+ drivers/rpmsg/virtio_rpmsg_bus.c    |    8 +-
+ drivers/virtio/virtio_balloon.c     |    6 +-
+ drivers/virtio/virtio_ring.c        |  253 ++++++++++++++++++++++++++---------
+ include/linux/scatterlist.h         |   16 +++
+ include/linux/virtio.h              |   17 +++
+ net/9p/trans_virtio.c               |   48 +++++--
+ 13 files changed, 371 insertions(+), 199 deletions(-)
+
+-- 
+1.7.10.4
