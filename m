@@ -1,16 +1,13 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 0/9] virtio: new API for addition of buffers, scatterlist
-	changes
-Date: Tue, 19 Feb 2013 10:11:14 +0100
-Message-ID: <512341B2.6030209@redhat.com>
-References: <1360671815-2135-1-git-send-email-pbonzini@redhat.com>
-	<87r4kjjuyn.fsf@rustcorp.com.au> <511CAD19.2010902@redhat.com>
-	<87ehgciw08.fsf@rustcorp.com.au>
+Subject: Re: [PATCH 00/16] virtio ring rework.
+Date: Tue, 19 Feb 2013 10:15:36 +0100
+Message-ID: <512342B8.7060203@redhat.com>
+References: <1361260594-601-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87ehgciw08.fsf@rustcorp.com.au>
+In-Reply-To: <1361260594-601-1-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,16 +18,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 19/02/2013 08:49, Rusty Russell ha scritto:
-> 
-> But modulo devastating benchmarks, this wins.  Because the three-part
-> API is really, really ugly.  It *looks* like a generic "start - work
-> ... work - end" API, but it's not.  Because you need to declare exactly
-> what you're doing in virtqueue_start_buf!
+Il 19/02/2013 08:56, Rusty Russell ha scritto:
+> OK, this is (ab)uses some of Paolo's patches.  The first 7 are
+> candidates for this merge window (maybe), the rest I'm not so sure
+> about.
 
-Fair enough, and since you did the work for me I cannot really complain. :)
+Cool, thanks.
+
+> Thanks,
+> Rusty.
+> 
+> Paolo Bonzini (3):
+>   scatterlist: introduce sg_unmark_end
+>   virtio-blk: reorganize virtblk_add_req
+>   virtio-blk: use virtqueue_add_sgs on req path
+> 
+> Rusty Russell (13):
+>   virtio_ring: virtqueue_add_sgs, to add multiple sgs.
+>   virtio-blk: use virtqueue_start_buf on bio path
+
+Something wrong with author and commit message in this patch.
+
+I'll send two follow-ups for virtio-scsi, one to be added before patch
+7, one after.
 
 Paolo
