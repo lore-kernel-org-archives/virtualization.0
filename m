@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 14/16] virtio_rpmsg_bus: use simplified virtqueue accessors.
-Date: Tue, 19 Feb 2013 18:26:32 +1030
-Message-ID: <1361260594-601-15-git-send-email-rusty__1312.46049791134$1361261195$gmane$org@rustcorp.com.au>
+Subject: [PATCH 15/16] virtio_balloon: use simplified virtqueue accessors.
+Date: Tue, 19 Feb 2013 18:26:33 +1030
+Message-ID: <1361260594-601-16-git-send-email-rusty__19810.3898358115$1361261209$gmane$org@rustcorp.com.au>
 References: <1361260594-601-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -25,47 +25,39 @@ We never add buffers with input and output parts, so use the new accessors.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/rpmsg/virtio_rpmsg_bus.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/virtio/virtio_balloon.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-index f1e3239..d9897d1 100644
---- a/drivers/rpmsg/virtio_rpmsg_bus.c
-+++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-@@ -763,14 +763,14 @@ int rpmsg_send_offchannel_raw(struct rpmsg_channel *rpdev, u32 src, u32 dst,
- 	mutex_lock(&vrp->tx_lock);
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 8dab163..bd3ae32 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -108,7 +108,7 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+ 	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
  
- 	/* add message to the remote processor's virtqueue */
--	err = virtqueue_add_buf(vrp->svq, &sg, 1, 0, msg, GFP_KERNEL);
-+	err = virtqueue_add_outbuf(vrp->svq, &sg, 1, msg, GFP_KERNEL);
- 	if (err) {
- 		/*
- 		 * need to reclaim the buffer here, otherwise it's lost
- 		 * (memory won't leak, but rpmsg won't use it again for TX).
- 		 * this will wait for a buffer management overhaul.
- 		 */
--		dev_err(dev, "virtqueue_add_buf failed: %d\n", err);
-+		dev_err(dev, "virtqueue_add_outbuf failed: %d\n", err);
- 		goto out;
- 	}
+ 	/* We should always be able to add one buffer to an empty queue. */
+-	if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
++	if (virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL) < 0)
+ 		BUG();
+ 	virtqueue_kick(vq);
  
-@@ -845,7 +845,7 @@ static void rpmsg_recv_done(struct virtqueue *rvq)
- 	sg_init_one(&sg, msg, RPMSG_BUF_SIZE);
- 
- 	/* add the buffer back to the remote processor's virtqueue */
--	err = virtqueue_add_buf(vrp->rvq, &sg, 0, 1, msg, GFP_KERNEL);
-+	err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, msg, GFP_KERNEL);
- 	if (err < 0) {
- 		dev_err(dev, "failed to add a virtqueue buffer: %d\n", err);
+@@ -256,7 +256,7 @@ static void stats_handle_request(struct virtio_balloon *vb)
+ 	if (!virtqueue_get_buf(vq, &len))
  		return;
-@@ -976,7 +976,7 @@ static int rpmsg_probe(struct virtio_device *vdev)
- 
- 		sg_init_one(&sg, cpu_addr, RPMSG_BUF_SIZE);
- 
--		err = virtqueue_add_buf(vrp->rvq, &sg, 0, 1, cpu_addr,
-+		err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, cpu_addr,
- 								GFP_KERNEL);
- 		WARN_ON(err); /* sanity check; this can't really happen */
- 	}
+ 	sg_init_one(&sg, vb->stats, sizeof(vb->stats));
+-	if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
++	if (virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL) < 0)
+ 		BUG();
+ 	virtqueue_kick(vq);
+ }
+@@ -341,7 +341,7 @@ static int init_vqs(struct virtio_balloon *vb)
+ 		 * use it to signal us later.
+ 		 */
+ 		sg_init_one(&sg, vb->stats, sizeof vb->stats);
+-		if (virtqueue_add_buf(vb->stats_vq, &sg, 1, 0, vb, GFP_KERNEL)
++		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
+ 		    < 0)
+ 			BUG();
+ 		virtqueue_kick(vb->stats_vq);
 -- 
 1.7.10.4
