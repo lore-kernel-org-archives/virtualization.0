@@ -1,15 +1,16 @@
-From: Ohad Ben-Cohen <ohad@wizery.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 Subject: Re: [PATCHv2 vringh 1/3] remoteproc: Add support for vringh (Host
 	vrings)
-Date: Wed, 20 Feb 2013 18:05:56 +0200
-Message-ID: <CAK=Wgbb0EeiCh504jsoX+izzi+ZogfEDttz2cHRd4pVXvQunQw@mail.gmail.com>
+Date: Thu, 21 Feb 2013 00:01:56 +0100
+Message-ID: <CAJK669bDu3SphxmEtA+h+v=btsN91t0S9Mn6ik-OKr=8gtducw@mail.gmail.com>
 References: <1360669793-6921-1-git-send-email-sjur.brandeland@stericsson.com>
 	<1360669793-6921-2-git-send-email-sjur.brandeland@stericsson.com>
+	<CAK=Wgbb0EeiCh504jsoX+izzi+ZogfEDttz2cHRd4pVXvQunQw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360669793-6921-2-git-send-email-sjur.brandeland@stericsson.com>
+In-Reply-To: <CAK=Wgbb0EeiCh504jsoX+izzi+ZogfEDttz2cHRd4pVXvQunQw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,56 +20,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?ISO-8859-1?Q?Sjur_Br=E6ndeland?= <sjur.brandeland@stericsson.com>
-Cc: Dmitry Tarnyagin <dmitry.tarnyagin@stericsson.com>, =?ISO-8859-1?Q?Sjur_Br=E6ndeland?= <sjur@brendeland.net>, Linus Walleij <linus.walleij@linaro.org>, Ido Yariv <ido@wizery.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+To: Ohad Ben-Cohen <ohad@wizery.com>
+Cc: Dmitry Tarnyagin <dmitry.tarnyagin@stericsson.com>, netdev@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Ido Yariv <ido@wizery.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Sjur,
-
-On Tue, Feb 12, 2013 at 1:49 PM,  <sjur.brandeland@stericsson.com> wrote:
-> From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
->
-> Add functions for creating, deleting and kicking host-side virtio rings.
->
-> The host ring is not integrated with virtiqueues and cannot be managed
-> through virtio-config.
-
-Is that an inherent design/issue of vringh or just a description of
-the current vringh code ?
-
-> Remoteproc must export functions for handling the host-side virtio rings.
-
-Have you considered exporting this via virtio instead ?
-
-> The functions rproc_virtio_get_vringh(), rproc_virtio_del_vringh(),
-> rproc_virtio_kick_vringh() are added to remoteproc_virtio.c.
-
-I wonder if this is the way we want things to work.
-
-Following this design, virtio drivers that use these rproc_* functions
-will be coupled with the remoteproc framework.
-
-One issue with this is what happens if, e.g., a VIRTIO_ID_CAIF vdev is
-added by other than remoteproc (e.g. by virtio_pci or virtio_mmio).
-Not sure how probable this really is, and whether there's anything
-that prevents this, but things will go awry if this happens.
-
-But maybe the important aspect to consider is whether we really want
-to couple virtio drivers (such as the upcoming caif one) with the
-remoteproc framework.
-
-If you'll take a look at the rpmsg virtio driver, there's nothing
-there which couples it with remoteproc. It's just a standard virtio
-driver, that can be easily used with traditional virtio hosts as well.
-
-This is possible of course thanks to the abstraction provided by
-virtio: remoteproc only implements a set of callbacks which virtio
-invokes when needed.
-
-Do we not want to follow a similar design scheme with vringh ?
-
-I have some other questions as well but maybe it's better to discuss
-first the bigger picture.
-
-Thanks!
-Ohad.
+T24gV2VkLCBGZWIgMjAsIDIwMTMgYXQgNTowNSBQTSwgT2hhZCBCZW4tQ29oZW4gPG9oYWRAd2l6
+ZXJ5LmNvbT4gd3JvdGU6Cj4gSGkgU2p1ciwKPgo+IE9uIFR1ZSwgRmViIDEyLCAyMDEzIGF0IDE6
+NDkgUE0sICA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPiB3cm90ZToKPj4gRnJvbTog
+U2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+Pgo+PiBB
+ZGQgZnVuY3Rpb25zIGZvciBjcmVhdGluZywgZGVsZXRpbmcgYW5kIGtpY2tpbmcgaG9zdC1zaWRl
+IHZpcnRpbyByaW5ncy4KPj4KPj4gVGhlIGhvc3QgcmluZyBpcyBub3QgaW50ZWdyYXRlZCB3aXRo
+IHZpcnRpcXVldWVzIGFuZCBjYW5ub3QgYmUgbWFuYWdlZAo+PiB0aHJvdWdoIHZpcnRpby1jb25m
+aWcuCj4KPiBJcyB0aGF0IGFuIGluaGVyZW50IGRlc2lnbi9pc3N1ZSBvZiB2cmluZ2ggb3IganVz
+dCBhIGRlc2NyaXB0aW9uIG9mCj4gdGhlIGN1cnJlbnQgdnJpbmdoIGNvZGUgPwo+Cj4+IFJlbW90
+ZXByb2MgbXVzdCBleHBvcnQgZnVuY3Rpb25zIGZvciBoYW5kbGluZyB0aGUgaG9zdC1zaWRlIHZp
+cnRpbyByaW5ncy4KPgo+IEhhdmUgeW91IGNvbnNpZGVyZWQgZXhwb3J0aW5nIHRoaXMgdmlhIHZp
+cnRpbyBpbnN0ZWFkID8KClJ1c3R5IHNob3VsZCBjb21tZW50IG9uIHRoaXMuLi4KSSBhc2tlZCBS
+dXN0eSB0aGUgc2FtZSBxdWVzdGlvbiBhIHdoaWxlIGEgZ28sIHNlZQpodHRwOi8vbGttbC5vcmcv
+bGttbC8yMDEzLzEvMTEvNTU5CkFGQUlLLCB1c2luZyB0aGUgdnJpbmdoIEFQSSBkaXJlY3RseSBp
+cyBhIGRlbGliZXJhdGUgZGVzaWduIGNob2ljZS4KCltTanVyOl0KPj4gSG93IGRvIHlvdSBzZWUg
+dGhlIGluLWtlcm5lbCBBUEkgZm9yIHRoaXM/IEkgd291bGQgbGlrZSB0byBzZWUKPj4gc29tZXRo
+aW5nIHNpbWlsYXIgdG8gbXkgcHJldmlvdXMgcGF0Y2hlcywgd2hlcmUgd2UgZXh0ZW5kCj4+IHRo
+ZSB2aXJ0cXVldWUgQVBJLiBFLmcuIHNvbWV0aGluZyBsaWtlIHRoaXM6Cj4+IHN0cnVjdCB2aXJ0
+cXVldWUgKnZyaW5nX25ld192aXJ0cXVldWVoKC4uLikuLi4KCltSdXN0eTpdCj5JIHdhcyBqdXN0
+IGdvaW5nIHRvIGNyZWF0ZSBfa2VybmVsIHZhcmlhbnRzIG9mIGFsbCB0aGUgX3VzZXIgaGVscGVy
+cywKPmFuZCBsZXQgeW91IGRyaXZlIGl0IGRpcmVjdGx5IGxpa2UgdGhhdC4KPgo+SWYgd2UgZ2V0
+IGEgc2Vjb25kIGluLWtlcm5lbCB1c2VyLCB3ZSBjcmVhdGUgd3JhcHBlcnMgKEknZCBwcmVmZXIg
+bm90IHRvCj5vdmVybG9hZCBzdHJ1Y3QgdmlydHF1ZXVlIHRob3VnaCkuCgoKPj4gVGhlIGZ1bmN0
+aW9ucyBycHJvY192aXJ0aW9fZ2V0X3ZyaW5naCgpLCBycHJvY192aXJ0aW9fZGVsX3ZyaW5naCgp
+LAo+PiBycHJvY192aXJ0aW9fa2lja192cmluZ2goKSBhcmUgYWRkZWQgdG8gcmVtb3RlcHJvY192
+aXJ0aW8uYy4KPgo+IEkgd29uZGVyIGlmIHRoaXMgaXMgdGhlIHdheSB3ZSB3YW50IHRoaW5ncyB0
+byB3b3JrLgo+Cj4gRm9sbG93aW5nIHRoaXMgZGVzaWduLCB2aXJ0aW8gZHJpdmVycyB0aGF0IHVz
+ZSB0aGVzZSBycHJvY18qIGZ1bmN0aW9ucwo+IHdpbGwgYmUgY291cGxlZCB3aXRoIHRoZSByZW1v
+dGVwcm9jIGZyYW1ld29yay4KPgo+IE9uZSBpc3N1ZSB3aXRoIHRoaXMgaXMgd2hhdCBoYXBwZW5z
+IGlmLCBlLmcuLCBhIFZJUlRJT19JRF9DQUlGIHZkZXYgaXMKPiBhZGRlZCBieSBvdGhlciB0aGFu
+IHJlbW90ZXByb2MgKGUuZy4gYnkgdmlydGlvX3BjaSBvciB2aXJ0aW9fbW1pbykuCj4gTm90IHN1
+cmUgaG93IHByb2JhYmxlIHRoaXMgcmVhbGx5IGlzLCBhbmQgd2hldGhlciB0aGVyZSdzIGFueXRo
+aW5nCj4gdGhhdCBwcmV2ZW50cyB0aGlzLCBidXQgdGhpbmdzIHdpbGwgZ28gYXdyeSBpZiB0aGlz
+IGhhcHBlbnMuCgpZZXMsIGlmIHlvdSBpbnNlcnQgYSAibWFsaWNpb3VzIGRldmljZSIgbGlrZSB0
+aGF0IHlvdSBjYW4gbWFrZSBpdCBjcmFzaCwKYnV0IHdvdWxkbid0IG1vc3QgZHJpdmVycyBkbyBp
+ZiB5b3UgdHJ5IHRvIHJlZ2lzdGVyIGEgbWFsaWNpb3VzIGRldmljZS4uLj8KCklmIHdlIHJlYWxs
+eSB3YW50IHRvIHByb3RlY3QgZnJvbSB0aGlzLCB3ZSBjb3VsZCBwZXJoYXBzIHZhbGlkYXRlIHRo
+ZSB2ZGV2CnBvaW50ZXIgaW4gZnVuY3Rpb24gcnByb2NfdmlydGlvX25ld192cmluZ2goKSBieSBs
+b29raW5nIHRocm91Z2ggdGhlIHZkZXZzCm9mIHRoZSByZWdpc3RlcmVkIHJwcm9jcy4KCj4gQnV0
+IG1heWJlIHRoZSBpbXBvcnRhbnQgYXNwZWN0IHRvIGNvbnNpZGVyIGlzIHdoZXRoZXIgd2UgcmVh
+bGx5IHdhbnQKPiB0byBjb3VwbGUgdmlydGlvIGRyaXZlcnMgKHN1Y2ggYXMgdGhlIHVwY29taW5n
+IGNhaWYgb25lKSB3aXRoIHRoZQo+IHJlbW90ZXByb2MgZnJhbWV3b3JrLgoKSSdtIG5vdCBzdXJl
+IHRoaXMgaXMgYW4gaXNzdWUgZm9yIHRoZSBDQUlGIGRyaXZlci4gSXQgd291bGQgYmUgdmVyeSBu
+aWNlCmlmIHNvbWVvbmUgZWxzZSBjb3VsZCBtYWtlIHVzZSBvZiBpdCwgYnV0IHJpZ2h0IG5vdyBj
+YW5ub3Qgc2VlIHRoZSBDQUlGCmRyaXZlciBiZWluZyB1c2VkIG91dHNpZGUgdGhlIHJlbW90ZXBy
+b2MgZnJhbWV3b3JrLiBUaGlzIGRyaXZlciBpcwpkZXNpZ25lZCBzcGVjaWZpY2FsbHkgdG8gd29y
+ayB3aXRoIHRoZSBTVEUtbW9kZW0gdXNpbmcgdGhlIENBSUYKcHJvdG9jb2wgb3ZlciBhIHNoYXJl
+ZCBtZW1vcnkgaW50ZXJmYWNlLgoKPiBJZiB5b3UnbGwgdGFrZSBhIGxvb2sgYXQgdGhlIHJwbXNn
+IHZpcnRpbyBkcml2ZXIsIHRoZXJlJ3Mgbm90aGluZwo+IHRoZXJlIHdoaWNoIGNvdXBsZXMgaXQg
+d2l0aCByZW1vdGVwcm9jLiBJdCdzIGp1c3QgYSBzdGFuZGFyZCB2aXJ0aW8KPiBkcml2ZXIsIHRo
+YXQgY2FuIGJlIGVhc2lseSB1c2VkIHdpdGggdHJhZGl0aW9uYWwgdmlydGlvIGhvc3RzIGFzIHdl
+bGwuCj4KPiBUaGlzIGlzIHBvc3NpYmxlIG9mIGNvdXJzZSB0aGFua3MgdG8gdGhlIGFic3RyYWN0
+aW9uIHByb3ZpZGVkIGJ5Cj4gdmlydGlvOiByZW1vdGVwcm9jIG9ubHkgaW1wbGVtZW50cyBhIHNl
+dCBvZiBjYWxsYmFja3Mgd2hpY2ggdmlydGlvCj4gaW52b2tlcyB3aGVuIG5lZWRlZC4KClllcywg
+YW5kIGdlbmVyYWxpemluZyB0aGUgdXNlIG9mIHZpcnRpbyBkZXZpY2VzIGluIHJlbW90ZXByb2MK
+aGFzIGJlZW4gdXNlZnVsLiBJdCBoYXMgZW5hYmxlZCBtZSB0byBsZXQgcmVtb3RlcHJvYyBtYW5h
+Z2UgYm90aAp2aXJ0aW9fc2VyaWFsIGFuZCB2aXJ0aW9fY2FpZiBkZXZpY2VzIDotKQoKPgo+IERv
+IHdlIG5vdCB3YW50IHRvIGZvbGxvdyBhIHNpbWlsYXIgZGVzaWduIHNjaGVtZSB3aXRoIHZyaW5n
+aCA/CgpJIGtub3cgc29tZSBvZiBteSBjb2xsZWFndWVzIGhhcyBiZWVuIHdvcmtpbmcgb24gc3lt
+bWV0cmljIHZyaW5nCmZvciBycG1zZy4gTGFzdCBJIGhlYXJkIGZyb20gdGhlbSB0aGV5IHdlcmUg
+Z29pbmcgdG8gdXNlIHRoZSBzYW1lCmFwcHJvYWNoIEkndmUgZG9uZSBmb3IgQ0FJRiwgYnkgInJl
+dmVyc2luZyIgdGhlIGRpcmVjdGlvbiBvZiB0aGUgcmluZ3MuCkFGQUlLIHRoaXMgbWVhbnMgdGhh
+dCB0aGUgY3VycmVudCBBUEkgSSBoYXZlIHByb3Bvc2VkIHdpbGwgd29yayBmb3IKdGhlbSBhcyB3
+ZWxsLgoKSWYgc29tZSBvdGhlciBkcml2ZXIgaXMgc2hvd2luZyB1cCB1c2luZyB0aGUgdnJpbmdo
+IGtlcm5lbCBBUEkgd2hlcmUKdGhlIGN1cnJlbnQgQVBJIGRvbid0IGZpdCwgSSBndWVzcyBpdCdz
+IHRpbWUgdG8gY3JlYXRlIHNvbWUgYWJzdHJhY3Rpb25zCmFuZCB3cmFwcGVycy4uLiBCdXQgSSBo
+b3BlIHRoZSBjdXJyZW50IGFwcHJvYWNoIHdpbGwgZG8gZm9yIG5vdz8KCj4gSSBoYXZlIHNvbWUg
+b3RoZXIgcXVlc3Rpb25zIGFzIHdlbGwgYnV0IG1heWJlIGl0J3MgYmV0dGVyIHRvIGRpc2N1c3MK
+PiBmaXJzdCB0aGUgYmlnZ2VyIHBpY3R1cmUuCgpPSywgYnV0IHBsZWFzZSBkb24ndCBoZXNpdGF0
+ZSB0byBhZGRyZXNzIHRoaXMuIEknbSBzdGlsbCBhaW1pbmcgZm9yIHRoaXMKdG8gZ28gaW50byAz
+LjkuCgpSZWdhcmRzLApTanVyCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
+bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
