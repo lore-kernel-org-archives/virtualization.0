@@ -1,15 +1,16 @@
 From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Subject: Re: [PATCH 12/16] virtio_console: use simplified virtqueue accessors.
-Date: Wed, 20 Feb 2013 18:12:40 +0800
-Message-ID: <5124A198.8020102@cn.fujitsu.com>
+Subject: Re: [PATCH 14/16] virtio_rpmsg_bus: use simplified virtqueue
+	accessors.
+Date: Wed, 20 Feb 2013 18:14:52 +0800
+Message-ID: <5124A21C.2080906__27250.4176632085$1361358749$gmane$org@cn.fujitsu.com>
 References: <1361260594-601-1-git-send-email-rusty@rustcorp.com.au>
-	<1361260594-601-13-git-send-email-rusty@rustcorp.com.au>
+	<1361260594-601-15-git-send-email-rusty@rustcorp.com.au>
 Reply-To: gaowanlong@cn.fujitsu.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1361260594-601-13-git-send-email-rusty@rustcorp.com.au>
+In-Reply-To: <1361260594-601-15-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -31,38 +32,46 @@ On 02/19/2013 03:56 PM, Rusty Russell wrote:
 Reviewed-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
 
 > ---
->  drivers/char/virtio_console.c |    6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+>  drivers/rpmsg/virtio_rpmsg_bus.c |    8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index e905d5f..6d59f16 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -502,7 +502,7 @@ static int add_inbuf(struct virtqueue *vq, struct port_buffer *buf)
+> diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+> index f1e3239..d9897d1 100644
+> --- a/drivers/rpmsg/virtio_rpmsg_bus.c
+> +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+> @@ -763,14 +763,14 @@ int rpmsg_send_offchannel_raw(struct rpmsg_channel *rpdev, u32 src, u32 dst,
+>  	mutex_lock(&vrp->tx_lock);
 >  
->  	sg_init_one(sg, buf->buf, buf->size);
+>  	/* add message to the remote processor's virtqueue */
+> -	err = virtqueue_add_buf(vrp->svq, &sg, 1, 0, msg, GFP_KERNEL);
+> +	err = virtqueue_add_outbuf(vrp->svq, &sg, 1, msg, GFP_KERNEL);
+>  	if (err) {
+>  		/*
+>  		 * need to reclaim the buffer here, otherwise it's lost
+>  		 * (memory won't leak, but rpmsg won't use it again for TX).
+>  		 * this will wait for a buffer management overhaul.
+>  		 */
+> -		dev_err(dev, "virtqueue_add_buf failed: %d\n", err);
+> +		dev_err(dev, "virtqueue_add_outbuf failed: %d\n", err);
+>  		goto out;
+>  	}
 >  
-> -	ret = virtqueue_add_buf(vq, sg, 0, 1, buf, GFP_ATOMIC);
-> +	ret = virtqueue_add_inbuf(vq, sg, 1, buf, GFP_ATOMIC);
->  	virtqueue_kick(vq);
->  	if (!ret)
->  		ret = vq->num_free;
-> @@ -569,7 +569,7 @@ static ssize_t __send_control_msg(struct ports_device *portdev, u32 port_id,
->  	vq = portdev->c_ovq;
+> @@ -845,7 +845,7 @@ static void rpmsg_recv_done(struct virtqueue *rvq)
+>  	sg_init_one(&sg, msg, RPMSG_BUF_SIZE);
 >  
->  	sg_init_one(sg, &cpkt, sizeof(cpkt));
-> -	if (virtqueue_add_buf(vq, sg, 1, 0, &cpkt, GFP_ATOMIC) == 0) {
-> +	if (virtqueue_add_outbuf(vq, sg, 1, &cpkt, GFP_ATOMIC) == 0) {
->  		virtqueue_kick(vq);
->  		while (!virtqueue_get_buf(vq, &len))
->  			cpu_relax();
-> @@ -618,7 +618,7 @@ static ssize_t __send_to_port(struct port *port, struct scatterlist *sg,
+>  	/* add the buffer back to the remote processor's virtqueue */
+> -	err = virtqueue_add_buf(vrp->rvq, &sg, 0, 1, msg, GFP_KERNEL);
+> +	err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, msg, GFP_KERNEL);
+>  	if (err < 0) {
+>  		dev_err(dev, "failed to add a virtqueue buffer: %d\n", err);
+>  		return;
+> @@ -976,7 +976,7 @@ static int rpmsg_probe(struct virtio_device *vdev)
 >  
->  	reclaim_consumed_buffers(port);
+>  		sg_init_one(&sg, cpu_addr, RPMSG_BUF_SIZE);
 >  
-> -	err = virtqueue_add_buf(out_vq, sg, nents, 0, data, GFP_ATOMIC);
-> +	err = virtqueue_add_outbuf(out_vq, sg, nents, data, GFP_ATOMIC);
->  
->  	/* Tell Host to go! */
->  	virtqueue_kick(out_vq);
+> -		err = virtqueue_add_buf(vrp->rvq, &sg, 0, 1, cpu_addr,
+> +		err = virtqueue_add_inbuf(vrp->rvq, &sg, 1, cpu_addr,
+>  								GFP_KERNEL);
+>  		WARN_ON(err); /* sanity check; this can't really happen */
+>  	}
 > 
