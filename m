@@ -1,16 +1,14 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
-Subject: Re: [PATCHv2 vringh 1/3] remoteproc: Add support for vringh (Host
-	vrings)
-Date: Thu, 21 Feb 2013 00:01:56 +0100
-Message-ID: <CAJK669bDu3SphxmEtA+h+v=btsN91t0S9Mn6ik-OKr=8gtducw@mail.gmail.com>
-References: <1360669793-6921-1-git-send-email-sjur.brandeland@stericsson.com>
-	<1360669793-6921-2-git-send-email-sjur.brandeland@stericsson.com>
-	<CAK=Wgbb0EeiCh504jsoX+izzi+ZogfEDttz2cHRd4pVXvQunQw@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 00/16] virtio ring rework.
+Date: Thu, 21 Feb 2013 17:00:04 +1030
+Message-ID: <877gm2gowj.fsf@rustcorp.com.au>
+References: <1361260594-601-1-git-send-email-rusty@rustcorp.com.au>
+	<512342B8.7060203@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAK=Wgbb0EeiCh504jsoX+izzi+ZogfEDttz2cHRd4pVXvQunQw@mail.gmail.com>
+In-Reply-To: <512342B8.7060203@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,81 +18,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Dmitry Tarnyagin <dmitry.tarnyagin@stericsson.com>, netdev@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Ido Yariv <ido@wizery.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBGZWIgMjAsIDIwMTMgYXQgNTowNSBQTSwgT2hhZCBCZW4tQ29oZW4gPG9oYWRAd2l6
-ZXJ5LmNvbT4gd3JvdGU6Cj4gSGkgU2p1ciwKPgo+IE9uIFR1ZSwgRmViIDEyLCAyMDEzIGF0IDE6
-NDkgUE0sICA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPiB3cm90ZToKPj4gRnJvbTog
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+Pgo+PiBB
-ZGQgZnVuY3Rpb25zIGZvciBjcmVhdGluZywgZGVsZXRpbmcgYW5kIGtpY2tpbmcgaG9zdC1zaWRl
-IHZpcnRpbyByaW5ncy4KPj4KPj4gVGhlIGhvc3QgcmluZyBpcyBub3QgaW50ZWdyYXRlZCB3aXRo
-IHZpcnRpcXVldWVzIGFuZCBjYW5ub3QgYmUgbWFuYWdlZAo+PiB0aHJvdWdoIHZpcnRpby1jb25m
-aWcuCj4KPiBJcyB0aGF0IGFuIGluaGVyZW50IGRlc2lnbi9pc3N1ZSBvZiB2cmluZ2ggb3IganVz
-dCBhIGRlc2NyaXB0aW9uIG9mCj4gdGhlIGN1cnJlbnQgdnJpbmdoIGNvZGUgPwo+Cj4+IFJlbW90
-ZXByb2MgbXVzdCBleHBvcnQgZnVuY3Rpb25zIGZvciBoYW5kbGluZyB0aGUgaG9zdC1zaWRlIHZp
-cnRpbyByaW5ncy4KPgo+IEhhdmUgeW91IGNvbnNpZGVyZWQgZXhwb3J0aW5nIHRoaXMgdmlhIHZp
-cnRpbyBpbnN0ZWFkID8KClJ1c3R5IHNob3VsZCBjb21tZW50IG9uIHRoaXMuLi4KSSBhc2tlZCBS
-dXN0eSB0aGUgc2FtZSBxdWVzdGlvbiBhIHdoaWxlIGEgZ28sIHNlZQpodHRwOi8vbGttbC5vcmcv
-bGttbC8yMDEzLzEvMTEvNTU5CkFGQUlLLCB1c2luZyB0aGUgdnJpbmdoIEFQSSBkaXJlY3RseSBp
-cyBhIGRlbGliZXJhdGUgZGVzaWduIGNob2ljZS4KCltTanVyOl0KPj4gSG93IGRvIHlvdSBzZWUg
-dGhlIGluLWtlcm5lbCBBUEkgZm9yIHRoaXM/IEkgd291bGQgbGlrZSB0byBzZWUKPj4gc29tZXRo
-aW5nIHNpbWlsYXIgdG8gbXkgcHJldmlvdXMgcGF0Y2hlcywgd2hlcmUgd2UgZXh0ZW5kCj4+IHRo
-ZSB2aXJ0cXVldWUgQVBJLiBFLmcuIHNvbWV0aGluZyBsaWtlIHRoaXM6Cj4+IHN0cnVjdCB2aXJ0
-cXVldWUgKnZyaW5nX25ld192aXJ0cXVldWVoKC4uLikuLi4KCltSdXN0eTpdCj5JIHdhcyBqdXN0
-IGdvaW5nIHRvIGNyZWF0ZSBfa2VybmVsIHZhcmlhbnRzIG9mIGFsbCB0aGUgX3VzZXIgaGVscGVy
-cywKPmFuZCBsZXQgeW91IGRyaXZlIGl0IGRpcmVjdGx5IGxpa2UgdGhhdC4KPgo+SWYgd2UgZ2V0
-IGEgc2Vjb25kIGluLWtlcm5lbCB1c2VyLCB3ZSBjcmVhdGUgd3JhcHBlcnMgKEknZCBwcmVmZXIg
-bm90IHRvCj5vdmVybG9hZCBzdHJ1Y3QgdmlydHF1ZXVlIHRob3VnaCkuCgoKPj4gVGhlIGZ1bmN0
-aW9ucyBycHJvY192aXJ0aW9fZ2V0X3ZyaW5naCgpLCBycHJvY192aXJ0aW9fZGVsX3ZyaW5naCgp
-LAo+PiBycHJvY192aXJ0aW9fa2lja192cmluZ2goKSBhcmUgYWRkZWQgdG8gcmVtb3RlcHJvY192
-aXJ0aW8uYy4KPgo+IEkgd29uZGVyIGlmIHRoaXMgaXMgdGhlIHdheSB3ZSB3YW50IHRoaW5ncyB0
-byB3b3JrLgo+Cj4gRm9sbG93aW5nIHRoaXMgZGVzaWduLCB2aXJ0aW8gZHJpdmVycyB0aGF0IHVz
-ZSB0aGVzZSBycHJvY18qIGZ1bmN0aW9ucwo+IHdpbGwgYmUgY291cGxlZCB3aXRoIHRoZSByZW1v
-dGVwcm9jIGZyYW1ld29yay4KPgo+IE9uZSBpc3N1ZSB3aXRoIHRoaXMgaXMgd2hhdCBoYXBwZW5z
-IGlmLCBlLmcuLCBhIFZJUlRJT19JRF9DQUlGIHZkZXYgaXMKPiBhZGRlZCBieSBvdGhlciB0aGFu
-IHJlbW90ZXByb2MgKGUuZy4gYnkgdmlydGlvX3BjaSBvciB2aXJ0aW9fbW1pbykuCj4gTm90IHN1
-cmUgaG93IHByb2JhYmxlIHRoaXMgcmVhbGx5IGlzLCBhbmQgd2hldGhlciB0aGVyZSdzIGFueXRo
-aW5nCj4gdGhhdCBwcmV2ZW50cyB0aGlzLCBidXQgdGhpbmdzIHdpbGwgZ28gYXdyeSBpZiB0aGlz
-IGhhcHBlbnMuCgpZZXMsIGlmIHlvdSBpbnNlcnQgYSAibWFsaWNpb3VzIGRldmljZSIgbGlrZSB0
-aGF0IHlvdSBjYW4gbWFrZSBpdCBjcmFzaCwKYnV0IHdvdWxkbid0IG1vc3QgZHJpdmVycyBkbyBp
-ZiB5b3UgdHJ5IHRvIHJlZ2lzdGVyIGEgbWFsaWNpb3VzIGRldmljZS4uLj8KCklmIHdlIHJlYWxs
-eSB3YW50IHRvIHByb3RlY3QgZnJvbSB0aGlzLCB3ZSBjb3VsZCBwZXJoYXBzIHZhbGlkYXRlIHRo
-ZSB2ZGV2CnBvaW50ZXIgaW4gZnVuY3Rpb24gcnByb2NfdmlydGlvX25ld192cmluZ2goKSBieSBs
-b29raW5nIHRocm91Z2ggdGhlIHZkZXZzCm9mIHRoZSByZWdpc3RlcmVkIHJwcm9jcy4KCj4gQnV0
-IG1heWJlIHRoZSBpbXBvcnRhbnQgYXNwZWN0IHRvIGNvbnNpZGVyIGlzIHdoZXRoZXIgd2UgcmVh
-bGx5IHdhbnQKPiB0byBjb3VwbGUgdmlydGlvIGRyaXZlcnMgKHN1Y2ggYXMgdGhlIHVwY29taW5n
-IGNhaWYgb25lKSB3aXRoIHRoZQo+IHJlbW90ZXByb2MgZnJhbWV3b3JrLgoKSSdtIG5vdCBzdXJl
-IHRoaXMgaXMgYW4gaXNzdWUgZm9yIHRoZSBDQUlGIGRyaXZlci4gSXQgd291bGQgYmUgdmVyeSBu
-aWNlCmlmIHNvbWVvbmUgZWxzZSBjb3VsZCBtYWtlIHVzZSBvZiBpdCwgYnV0IHJpZ2h0IG5vdyBj
-YW5ub3Qgc2VlIHRoZSBDQUlGCmRyaXZlciBiZWluZyB1c2VkIG91dHNpZGUgdGhlIHJlbW90ZXBy
-b2MgZnJhbWV3b3JrLiBUaGlzIGRyaXZlciBpcwpkZXNpZ25lZCBzcGVjaWZpY2FsbHkgdG8gd29y
-ayB3aXRoIHRoZSBTVEUtbW9kZW0gdXNpbmcgdGhlIENBSUYKcHJvdG9jb2wgb3ZlciBhIHNoYXJl
-ZCBtZW1vcnkgaW50ZXJmYWNlLgoKPiBJZiB5b3UnbGwgdGFrZSBhIGxvb2sgYXQgdGhlIHJwbXNn
-IHZpcnRpbyBkcml2ZXIsIHRoZXJlJ3Mgbm90aGluZwo+IHRoZXJlIHdoaWNoIGNvdXBsZXMgaXQg
-d2l0aCByZW1vdGVwcm9jLiBJdCdzIGp1c3QgYSBzdGFuZGFyZCB2aXJ0aW8KPiBkcml2ZXIsIHRo
-YXQgY2FuIGJlIGVhc2lseSB1c2VkIHdpdGggdHJhZGl0aW9uYWwgdmlydGlvIGhvc3RzIGFzIHdl
-bGwuCj4KPiBUaGlzIGlzIHBvc3NpYmxlIG9mIGNvdXJzZSB0aGFua3MgdG8gdGhlIGFic3RyYWN0
-aW9uIHByb3ZpZGVkIGJ5Cj4gdmlydGlvOiByZW1vdGVwcm9jIG9ubHkgaW1wbGVtZW50cyBhIHNl
-dCBvZiBjYWxsYmFja3Mgd2hpY2ggdmlydGlvCj4gaW52b2tlcyB3aGVuIG5lZWRlZC4KClllcywg
-YW5kIGdlbmVyYWxpemluZyB0aGUgdXNlIG9mIHZpcnRpbyBkZXZpY2VzIGluIHJlbW90ZXByb2MK
-aGFzIGJlZW4gdXNlZnVsLiBJdCBoYXMgZW5hYmxlZCBtZSB0byBsZXQgcmVtb3RlcHJvYyBtYW5h
-Z2UgYm90aAp2aXJ0aW9fc2VyaWFsIGFuZCB2aXJ0aW9fY2FpZiBkZXZpY2VzIDotKQoKPgo+IERv
-IHdlIG5vdCB3YW50IHRvIGZvbGxvdyBhIHNpbWlsYXIgZGVzaWduIHNjaGVtZSB3aXRoIHZyaW5n
-aCA/CgpJIGtub3cgc29tZSBvZiBteSBjb2xsZWFndWVzIGhhcyBiZWVuIHdvcmtpbmcgb24gc3lt
-bWV0cmljIHZyaW5nCmZvciBycG1zZy4gTGFzdCBJIGhlYXJkIGZyb20gdGhlbSB0aGV5IHdlcmUg
-Z29pbmcgdG8gdXNlIHRoZSBzYW1lCmFwcHJvYWNoIEkndmUgZG9uZSBmb3IgQ0FJRiwgYnkgInJl
-dmVyc2luZyIgdGhlIGRpcmVjdGlvbiBvZiB0aGUgcmluZ3MuCkFGQUlLIHRoaXMgbWVhbnMgdGhh
-dCB0aGUgY3VycmVudCBBUEkgSSBoYXZlIHByb3Bvc2VkIHdpbGwgd29yayBmb3IKdGhlbSBhcyB3
-ZWxsLgoKSWYgc29tZSBvdGhlciBkcml2ZXIgaXMgc2hvd2luZyB1cCB1c2luZyB0aGUgdnJpbmdo
-IGtlcm5lbCBBUEkgd2hlcmUKdGhlIGN1cnJlbnQgQVBJIGRvbid0IGZpdCwgSSBndWVzcyBpdCdz
-IHRpbWUgdG8gY3JlYXRlIHNvbWUgYWJzdHJhY3Rpb25zCmFuZCB3cmFwcGVycy4uLiBCdXQgSSBo
-b3BlIHRoZSBjdXJyZW50IGFwcHJvYWNoIHdpbGwgZG8gZm9yIG5vdz8KCj4gSSBoYXZlIHNvbWUg
-b3RoZXIgcXVlc3Rpb25zIGFzIHdlbGwgYnV0IG1heWJlIGl0J3MgYmV0dGVyIHRvIGRpc2N1c3MK
-PiBmaXJzdCB0aGUgYmlnZ2VyIHBpY3R1cmUuCgpPSywgYnV0IHBsZWFzZSBkb24ndCBoZXNpdGF0
-ZSB0byBhZGRyZXNzIHRoaXMuIEknbSBzdGlsbCBhaW1pbmcgZm9yIHRoaXMKdG8gZ28gaW50byAz
-LjkuCgpSZWdhcmRzLApTanVyCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Paolo Bonzini <pbonzini@redhat.com> writes:
+> Il 19/02/2013 08:56, Rusty Russell ha scritto:
+>> OK, this is (ab)uses some of Paolo's patches.  The first 7 are
+>> candidates for this merge window (maybe), the rest I'm not so sure
+>> about.
+>
+> Cool, thanks.
+>
+>> Thanks,
+>> Rusty.
+>> 
+>> Paolo Bonzini (3):
+>>   scatterlist: introduce sg_unmark_end
+>>   virtio-blk: reorganize virtblk_add_req
+>>   virtio-blk: use virtqueue_add_sgs on req path
+>> 
+>> Rusty Russell (13):
+>>   virtio_ring: virtqueue_add_sgs, to add multiple sgs.
+>>   virtio-blk: use virtqueue_start_buf on bio path
+>
+> Something wrong with author and commit message in this patch.
+
+Re: author.  I mangled your patch pretty badly in that case, so I wasn't
+sure you wanted the blame.
+
+I have restore your authorship.
+
+Thanks,
+Rusty.
