@@ -1,21 +1,11 @@
-From: Ohad Ben-Cohen <ohad@wizery.com>
-Subject: Re: [PATCHv2 vringh 1/3] remoteproc: Add support for vringh (Host
-	vrings)
-Date: Sat, 23 Feb 2013 11:49:49 +0200
-Message-ID: <CAK=Wgba5JamLr4ocFfkBPf5WTh-kAFEuxhgkoj=5rc9mten9eA@mail.gmail.com>
-References: <1360669793-6921-1-git-send-email-sjur.brandeland@stericsson.com>
-	<1360669793-6921-2-git-send-email-sjur.brandeland@stericsson.com>
-	<CAK=Wgbb0EeiCh504jsoX+izzi+ZogfEDttz2cHRd4pVXvQunQw@mail.gmail.com>
-	<CAJK669bDu3SphxmEtA+h+v=btsN91t0S9Mn6ik-OKr=8gtducw@mail.gmail.com>
-	<CAK=Wgba5XkK3c7qh1tYHMGEe7-Qima96uYO4E+uAPcaB8K6bmQ@mail.gmail.com>
-	<CAJK669YHwR=nf2zSQR6buaA-x1JSowJfU16hkz1+N_WLL0qA+A@mail.gmail.com>
-	<CAK=Wgbam=Y5GJQxg2DSt2yR6CdcDxjZ5k_Av_0H8+6m+scN+Yw@mail.gmail.com>
-	<CAJK669Yr=rkmBhUNZGSQAQzC46c3v2KVewnAaEJhKT1a0Ci8Pw@mail.gmail.com>
+From: Milos Vyletel <milos.vyletel@sde.cz>
+Subject: [PATCH] virtio-blk: emit udev event when device is resized
+Date: Thu, 21 Feb 2013 14:02:28 -0500
+Message-ID: <1361473348-7660-1-git-send-email-milos.vyletel__25586.8849614219$1361644743$gmane$org@sde.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJK669Yr=rkmBhUNZGSQAQzC46c3v2KVewnAaEJhKT1a0Ci8Pw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,51 +15,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?ISO-8859-1?Q?Sjur_Br=E6ndeland?= <sjurbren@gmail.com>
-Cc: Dmitry Tarnyagin <dmitry.tarnyagin@stericsson.com>, netdev@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Ido Yariv <ido@wizery.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>, "David S. Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Cc: mst@redhat.com, Milos Vyletel <milos.vyletel@sde.cz>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 21, 2013 at 9:36 PM, Sjur Br=E6ndeland <sjurbren@gmail.com> wro=
-te:
-> OK, We did carefully consider using the normal vrings, but concluded it w=
-as
-> not doable. I'll try to give you some of the background that I can
-> recall from top of my head.
-> (I can dig out more if you're still not convinced :)
->
-> The modem we're integrating with is a complex beast (multi mode modem
-> LTE, HSPA+, etc).
-> When a packet is received deep down in the radio stack, it allocates pack=
-et
-> buffers using the internal slab allocator.The packet may contain
-> anything from control, voice,
-> or IP packets. If the packet contains IP-payload it will travel to a
-> different asymmetric CPU that
-> handles the IPC towards the modem. If the packet is not a IP-packet it wi=
-ll be
-> processed internally and eventually freed.
->
-> What we have done to integrate virtio is to inject the carveout into the
-> the modem internal slab-allocator.
->
-> Using the reversed ring allows us to introduce zero-copy for virtio
-> with virtually no
-> impact on the radio-stack, only a small change on the modem slab allocato=
-r.
-> It supports dynamic size buffer allocation, and modem internal
-> messaging using data
-> allocated from the shared region. It also allows modem to manage it's
-> own memory,
-> without any dependency on host side allocators.
+When virtio-blk device is resized from host (using block_resize from QEMU) emit
+KOBJ_CHANGE uevent to notify guest about such change. This allows user to have
+custom udev rules which would take whatever action if such event occurs. As a
+proof of concept I've created simple udev rule that automatically resize
+filesystem on virtio-blk device.
 
-Thanks for the description, Sjur.
+ACTION=="change", KERNEL=="vd*", \
+        ENV{RESIZE}=="1", \
+        ENV{ID_FS_TYPE}=="ext[3-4]", \
+        RUN+="/sbin/resize2fs /dev/%k"
+ACTION=="change", KERNEL=="vd*", \
+        ENV{RESIZE}=="1", \
+        ENV{ID_FS_TYPE}=="LVM2_member", \
+        RUN+="/sbin/pvresize /dev/%k"
 
-It sounds like this mostly simplifies your modem-side code, especially
-if it talks to other cores as well. My impression is that persistently
-sticking to guest vrings is also possible, but it makes things
-cumbersome.
+Signed-off-by: Milos Vyletel <milos.vyletel@sde.cz>
+---
+ drivers/block/virtio_blk.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-We will most probably adopt vringh in rpmsg too when a real multicore
-use case shows up.
-
-Ohad.
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 8ad21a2..5990382 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -539,6 +539,8 @@ static void virtblk_config_changed_work(struct work_struct *work)
+ 	struct virtio_device *vdev = vblk->vdev;
+ 	struct request_queue *q = vblk->disk->queue;
+ 	char cap_str_2[10], cap_str_10[10];
++	char event[] = "RESIZE=1";
++	char *envp[] = { event, NULL };
+ 	u64 capacity, size;
+ 
+ 	mutex_lock(&vblk->config_lock);
+@@ -568,6 +570,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
+ 
+ 	set_capacity(vblk->disk, capacity);
+ 	revalidate_disk(vblk->disk);
++	kobject_uevent_env(&disk_to_dev(vblk->disk)->kobj, KOBJ_CHANGE, envp);
+ done:
+ 	mutex_unlock(&vblk->config_lock);
+ }
+-- 
+1.7.1
