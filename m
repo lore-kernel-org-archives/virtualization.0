@@ -1,15 +1,16 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Subject: Re: [GIT PULL] x86/mm changes for v3.9-rc1
-Date: Fri, 22 Feb 2013 09:33:34 -0800
-Message-ID: <5127ABEE.8080303@zytor.com>
+Date: Fri, 22 Feb 2013 12:38:05 -0500
+Message-ID: <20130222173805.GC7768@phenom.dumpdata.com>
 References: <201302220034.r1M0Y6O8008311@terminus.zytor.com>
 	<20130222165531.GA29308@phenom.dumpdata.com>
-	<5127AB34.8090406@linux.vnet.ibm.com>
+	<5127A719.3060702@zytor.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5127AB34.8090406@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <5127A719.3060702@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +20,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Hansen <dave@linux.vnet.ibm.com>
-Cc: linux-mips@linux-mips.org, Jeremy Fitzhardinge <jeremy@goop.org>, Fenghua Yu <fenghua.yu@intel.com>, Frederic Weisbecker <fweisbec@gmail.com>, Joe Millenbach <jmillenbach@gmail.com>, virtualization@lists.linux-foundation.org, Gokul Caushik <caushik1@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, Pavel Machek <pavel@ucw.cz>, sparclinux@vger.kernel.org, Christoph Lameter <cl@linux.com>, Ingo Molnar <mingo@kernel.org>, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Andrea Arcangeli <aarcange@redhat.com>, Lee Schermerhorn <Lee.Schermerhorn@hp.com>, xen-devel@lists.xensource.com, Russell King <linux@arm.linux.org.uk>, Len Brown <len.brown@intel.com>, Joerg Roedel <joro@8bytes.org>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Hugh Dickins <hughd@google.com>, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fu>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-mips@linux-mips.org, Jeremy Fitzhardinge <jeremy@goop.org>, "H. J. Lu" <hjl.tools@gmail.com>, Frederic Weisbecker <fweisbec@gmail.com>, Joe Millenbach <jmillenbach@gmail.com>, virtualization@lists.linux-foundation.org, Gokul Caushik <caushik1@gmail.com>, Ralf Baechle <ralf@linux-mips.org>, Pavel Machek <pavel@ucw.cz>, sparclinux@vger.kernel.org, Christoph Lameter <cl@linux.com>, Ingo Molnar <mingo@kernel.org>, Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Andrea Arcangeli <aarcange@redhat.com>, Lee Schermerhorn <Lee.Schermerhorn@hp.com>, xen-devel@lists.xensource.com, Russell King <linux@arm.linux.org.uk>, Len Brown <len.brown@intel.com>, Joerg Roedel <joro@8bytes.org>, linux-pm@vger.kernel.org, Hugh Dickins <hughd@google.com>, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>Ingo Molnar <ming>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/22/2013 09:30 AM, Dave Hansen wrote:
->
-> Do you have CONFIG_DEBUG_VIRTUAL on?
->
-> You're probably hitting the new BUG_ON() in __phys_addr().  It's
-> intended to detect places where someone is doing a __pa()/__phys_addr()
-> on an address that's outside the kernel's identity mapping.
->
-> There are a lot of __pa() calls around there, but from the looks of it,
-> it's this code:
->
-> static pgd_t *xen_get_user_pgd(pgd_t *pgd)
-> {
-> ...
->          if (offset < pgd_index(USER_LIMIT)) {
->                  struct page *page = virt_to_page(pgd_page);
->
-> I'm a bit fuzzy on exactly what the code is trying to do here.  It could
-> mean either that the identity mapping isn't set up enough yet, or that
-> __pa() is getting called on a bogus address.
->
-> I'm especially fuzzy on why we'd be calling anything that's looking at
-> userspace pagetables (xen_get_user_pgd() ??) this early in boot.
->
+On Fri, Feb 22, 2013 at 09:12:57AM -0800, H. Peter Anvin wrote:
+> On 02/22/2013 08:55 AM, Konrad Rzeszutek Wilk wrote:
+> >
+> >What is bizzare is that I do recall testing this (and Stefano also did it).
+> >So I am not sure what has altered.
+> >
+> 
+> Yes, there was a very specific reason why I wanted you guys to test it...
 
-Ah yes, of course.
+Exactly. And I re-ran the same test, but with a new kernel. This is what
+git reflog tells me:
 
-This is unrelated to the early page table setups, which is why it didn't 
-trip in Konrad's earlier testing.
+473cd24 HEAD@{75}: checkout: moving from 08f321ed97353cf3b3fafa6b1c1971d6a8970830 to linux-next
+08f321e HEAD@{76}: checkout: moving from linux-next to yinghai/for-x86-mm
+eb827a7 HEAD@{77}: checkout: moving from 1b66ccf15ff4bd0200567e8d70446a8763f96ee7 to linux-next
+[konrad@build linux]$ git show 08f321e
+commit 08f321ed97353cf3b3fafa6b1c1971d6a8970830
+Author: Yinghai Lu <yinghai@kernel.org>
+Date:   Thu Nov 8 00:00:19 2012 -0800
 
-This debugging bits has already found real bugs in the kernel, and this 
-might be another.
+    mm: Kill NO_BOOTMEM version free_all_bootmem_node()
 
-	-hpa
-
--- 
-H. Peter Anvin, Intel Open Source Technology Center
-I work for Intel.  I don't speak on their behalf.
+And I recall Stefano later on testing (I was in a conference and did not have
+the opportunity to test it). Not sure what he ran with.
