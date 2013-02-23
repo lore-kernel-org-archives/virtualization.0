@@ -1,11 +1,12 @@
-From: Milos Vyletel <milos.vyletel@sde.cz>
-Subject: [PATCH] virtio-blk: emit udev event when device is resized
-Date: Thu, 21 Feb 2013 14:02:28 -0500
-Message-ID: <1361473348-7660-1-git-send-email-milos.vyletel__25586.8849614219$1361644743$gmane$org@sde.cz>
+From: Kees Cook <keescook@chromium.org>
+Subject: [PATCH] drivers/vhost: remove depends on CONFIG_EXPERIMENTAL
+Date: Fri, 22 Feb 2013 23:33:43 -0800
+Message-ID: <20130223073343.GA5021__1636.271357029$1361644763$gmane$org@www.outflux.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,49 +17,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: mst@redhat.com, Milos Vyletel <milos.vyletel@sde.cz>, virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When virtio-blk device is resized from host (using block_resize from QEMU) emit
-KOBJ_CHANGE uevent to notify guest about such change. This allows user to have
-custom udev rules which would take whatever action if such event occurs. As a
-proof of concept I've created simple udev rule that automatically resize
-filesystem on virtio-blk device.
+The CONFIG_EXPERIMENTAL config item has not carried much meaning for a
+while now and is almost always enabled by default. As agreed during the
+Linux kernel summit, remove it from any "depends on" lines in Kconfigs.
 
-ACTION=="change", KERNEL=="vd*", \
-        ENV{RESIZE}=="1", \
-        ENV{ID_FS_TYPE}=="ext[3-4]", \
-        RUN+="/sbin/resize2fs /dev/%k"
-ACTION=="change", KERNEL=="vd*", \
-        ENV{RESIZE}=="1", \
-        ENV{ID_FS_TYPE}=="LVM2_member", \
-        RUN+="/sbin/pvresize /dev/%k"
-
-Signed-off-by: Milos Vyletel <milos.vyletel@sde.cz>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Asias He <asias@redhat.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/block/virtio_blk.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ drivers/vhost/Kconfig.blk |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 8ad21a2..5990382 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -539,6 +539,8 @@ static void virtblk_config_changed_work(struct work_struct *work)
- 	struct virtio_device *vdev = vblk->vdev;
- 	struct request_queue *q = vblk->disk->queue;
- 	char cap_str_2[10], cap_str_10[10];
-+	char event[] = "RESIZE=1";
-+	char *envp[] = { event, NULL };
- 	u64 capacity, size;
- 
- 	mutex_lock(&vblk->config_lock);
-@@ -568,6 +570,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
- 
- 	set_capacity(vblk->disk, capacity);
- 	revalidate_disk(vblk->disk);
-+	kobject_uevent_env(&disk_to_dev(vblk->disk)->kobj, KOBJ_CHANGE, envp);
- done:
- 	mutex_unlock(&vblk->config_lock);
- }
+diff --git a/drivers/vhost/Kconfig.blk b/drivers/vhost/Kconfig.blk
+index 831a121..eeffc8b 100644
+--- a/drivers/vhost/Kconfig.blk
++++ b/drivers/vhost/Kconfig.blk
+@@ -1,6 +1,6 @@
+ config VHOST_BLK
+-	tristate "Host kernel accelerator for virtio blk (EXPERIMENTAL)"
+-	depends on BLOCK &&  EXPERIMENTAL && EVENTFD && m
++	tristate "Host kernel accelerator for virtio blk"
++	depends on BLOCK && EVENTFD && m
+ 	---help---
+ 	  This kernel module can be loaded in host kernel to accelerate
+ 	  guest block with virtio_blk. Not to be confused with virtio_blk
 -- 
-1.7.1
+1.7.9.5
+
+
+-- 
+Kees Cook
+Chrome OS Security
