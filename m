@@ -1,19 +1,14 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] arch/x86/xen: remove depends on CONFIG_EXPERIMENTAL
-Date: Mon, 25 Feb 2013 06:37:30 -0800
-Message-ID: <20130225143730.GC14007__32493.2218682536$1361803041$gmane$org@kroah.com>
-References: <20130223072959.GA4894@www.outflux.net>
-	<CAE8XmWoX_TyHMTnGCMn6j_qiK0hptCgyrnVYpDJkfTAQfUNQPA@mail.gmail.com>
-	<CAGXu5jKkaTStWRDQLOb6HxM7sGyj+1ekxxkGK8hw6rWkHRrVsQ@mail.gmail.com>
-	<CAE8XmWq+dA5Pvhyoxm2Nqbt0psLpPxUdR7i5MKFhxVxubY0QtQ@mail.gmail.com>
-	<20130224144017.GB1111@kroah.com>
-	<alpine.DEB.2.02.1302251157210.5360@kaball.uk.xensource.com>
+From: Milos Vyletel <milos.vyletel@sde.cz>
+Subject: Re: [PATCH] virtio-blk: emit udev event when device is resized
+Date: Mon, 25 Feb 2013 15:54:56 +0100 (CET)
+Message-ID: <2042715078.26369.1361804096841.JavaMail.root@sde.cz>
+References: <1361473348-7660-1-git-send-email-milos.vyletel@sde.cz>
+	<512B1637.5060107@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.02.1302251157210.5360@kaball.uk.xensource.com>
+In-Reply-To: <512B1637.5060107@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,52 +18,119 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Dongsheng Song <dongsheng.song@gmail.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "x86@kernel.org" <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Mukesh Rathor <mukesh.rathor@oracle.com>, Kees Cook <keescook@chromium.org>
+To: Asias He <asias@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 25, 2013 at 12:39:27PM +0000, Stefano Stabellini wrote:
-> On Sun, 24 Feb 2013, Greg Kroah-Hartman wrote:
+----- Original Message -----
+> On 02/22/2013 03:02 AM, Milos Vyletel wrote:
+> > When virtio-blk device is resized from host (using block_resize from QEMU)
+> > emit
+> > KOBJ_CHANGE uevent to notify guest about such change. This allows user to
+> > have
+> > custom udev rules which would take whatever action if such event occurs. As
+> > a
+> > proof of concept I've created simple udev rule that automatically resize
+> > filesystem on virtio-blk device.
 > > 
-> > You should not have unstable options in the kernel in the first place,
-> > sorry.
->  
-> With the premise that the removal of CONFIG_EXPERIMENTAL is not an issue
-> for me personally or my work, I am going to give you my 2 cents on the
-> matter, but feel free to ignore them :)
+> > ACTION=="change", KERNEL=="vd*", \
+> >         ENV{RESIZE}=="1", \
+> >         ENV{ID_FS_TYPE}=="ext[3-4]", \
+> >         RUN+="/sbin/resize2fs /dev/%k"
+> > ACTION=="change", KERNEL=="vd*", \
+> >         ENV{RESIZE}=="1", \
+> >         ENV{ID_FS_TYPE}=="LVM2_member", \
+> >         RUN+="/sbin/pvresize /dev/%k"
+> > 
+> > Signed-off-by: Milos Vyletel <milos.vyletel@sde.cz>
+> > ---
+> >  drivers/block/virtio_blk.c |    3 +++
+> >  1 files changed, 3 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > index 8ad21a2..5990382 100644
+> > --- a/drivers/block/virtio_blk.c
+> > +++ b/drivers/block/virtio_blk.c
+> > @@ -539,6 +539,8 @@ static void virtblk_config_changed_work(struct
+> > work_struct *work)
+> >  	struct virtio_device *vdev = vblk->vdev;
+> >  	struct request_queue *q = vblk->disk->queue;
+> >  	char cap_str_2[10], cap_str_10[10];
+> > +	char event[] = "RESIZE=1";
+> > +	char *envp[] = { event, NULL };
 > 
-> While I understand that CONFIG_EXPERIMENTAL has been abused, I feel that
-> rejecting everything that is not fully stable and with external
-> interfaces set in stones, might hinder the development of new features.
+> event is not used again. Why not just
+> 
+> char *envp[] = { "RESIZE=1", NULL };
+> 
 
-It's been this way for _years_ this isn't something new (the "you have
-to get it right really quickly" problem).  See Documentation/ABI/ for
-some words about how you can try to do this.
+You're right. This works too. I was looking at other modules in kernel
+how they do it and this was commonly used. Take a look at block/genhd.c
+media_change_notify_thread() function which does similar thing.
 
-> After all, given how fast the kernel is moving nowadays,
+> 
+> >  	u64 capacity, size;
+> >  
+> >  	mutex_lock(&vblk->config_lock);
+> > @@ -568,6 +570,7 @@ static void virtblk_config_changed_work(struct
+> > work_struct *work)
+> >  
+> >  	set_capacity(vblk->disk, capacity);
+> >  	revalidate_disk(vblk->disk);
+> > +	kobject_uevent_env(&disk_to_dev(vblk->disk)->kobj, KOBJ_CHANGE, envp);
+> >  done:
+> >  	mutex_unlock(&vblk->config_lock);
+> >  }
+> > 
+> 
+> I tried the following with your automatically resize udev rules.
+> 
+> (qemu) block_resize vd0 500
+> Check the fs size in guest, it is 500Mb
+> 
+> (qemu) block_resize vd0 1200
+> Check the fs size in guest, it is still 500Mb
+> 
+> Can you try resizing multiple times? Does it work?
 
-No faster than it has in the past.
+Yep, works for me. After each block_resize call I get udev event. I
+was running udevadm monitor at that time. I've also tried running
+udevd in debug mode and even if I try to bump size twice in a row
+I get two separate udev events and resize2fs is triggered. 
 
-> maintaining a project out-of-tree until is completely ready for
-> production can be very expensive. Merging the project earlier and
-> completing the development upstream can bring better results.
+[root@host ~]# lvresize -f -L +100M /dev/vgguests/evd2 && \
+virsh blockresize resize vdb 1 && \
+lvresize -f -L +100M /dev/vgguests/evd2 && \
+virsh blockresize resize vdb 1
+  Rounding size to boundary between physical extents: 128.00 MiB
+  Extending logical volume evd2 to 31.38 GiB
+  Logical volume evd2 successfully resized
+Block device 'vdb' is resized
+  Rounding size to boundary between physical extents: 128.00 MiB
+  Extending logical volume evd2 to 31.50 GiB
+  Logical volume evd2 successfully resized
+Block device 'vdb' is resized
 
-Yes, but don't go changing user-visable apis when you do so.  That's
-been a hard rule for a LONG time.
+On guest I get this (from udevd --debug)
+...
+1361804003.724025 [4438] util_run_program: '/sbin/resize2fs /dev/vdb' started
+1361804003.725215 [4438] util_run_program: '/sbin/resize2fs' (stderr) 'resize2fs 1.41.12 (17-May-2010)'
+1361804004.129329 [4437] event_queue_insert: seq 2073 queued, 'change' 'block'
+1361804006.577235 [4438] util_run_program: '/sbin/resize2fs' (stdout) 'Filesystem at /dev/vdb is mounted on /mnt/backup; on-line resizing required'
+1361804006.577251 [4438] util_run_program: '/sbin/resize2fs' (stdout) 'old desc_blocks = 2, new_desc_blocks = 2'
+1361804006.577254 [4438] util_run_program: '/sbin/resize2fs' (stdout) 'Performing an on-line resize of /dev/vdb to 8224768 (4k) blocks.'
+1361804006.577257 [4438] util_run_program: '/sbin/resize2fs' (stdout) 'The filesystem on /dev/vdb is now 8224768 blocks long.'
+1361804006.577260 [4438] util_run_program: '/sbin/resize2fs' (stdout) ''
+1361804006.577544 [4438] util_run_program: '/sbin/resize2fs /dev/vdb' returned with exitcode 0
+...
+1361804006.702659 [4438] util_run_program: '/sbin/resize2fs /dev/vdb' started
+1361804006.703841 [4438] util_run_program: '/sbin/resize2fs' (stderr) 'resize2fs 1.41.12 (17-May-2010)'
+1361804009.343332 [4438] util_run_program: '/sbin/resize2fs' (stdout) 'Filesystem at /dev/vdb is mounted on /mnt/backup; on-line resizing required'
+1361804009.343351 [4438] util_run_program: '/sbin/resize2fs' (stdout) 'old desc_blocks = 2, new_desc_blocks = 2'
+1361804009.343356 [4438] util_run_program: '/sbin/resize2fs' (stdout) 'Performing an on-line resize of /dev/vdb to 8257536 (4k) blocks.'
+1361804009.343362 [4438] util_run_program: '/sbin/resize2fs' (stdout) 'The filesystem on /dev/vdb is now 8257536 blocks long.'
+1361804009.343367 [4438] util_run_program: '/sbin/resize2fs' (stdout) ''
+1361804009.343727 [4438] util_run_program: '/sbin/resize2fs /dev/vdb' returned with exitcode 0
+1361804009.343740 [4438] udev_watch_begin: adding watch on '/dev/vdb'
 
-> But in these cases one wouldn't want to "market" the feature as stable
-> yet, because it just isn't. If CONFIG_EXPERIMENTAL is going away, is
-> there anything in the kernel that can be used to tag a feature as "I
-> wouldn't use it in production if I were you"? Maybe just a comment in
-> the kconfig description?
-
-I know this is hard, I've had my own problems with it in the past.  You
-don't know if you get an api right until you have a lot of users.  See
-our previous "discussions" about this topic on lkml if you are curious
-as to the eventual outcome of threads like this:
-
-	Yes, it's hard, but that's kernel programming.
-
-Sorry,
-
-greg k-h
+Milos
