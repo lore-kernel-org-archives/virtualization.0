@@ -1,14 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/5] vringh
-Date: Mon, 25 Feb 2013 00:30:40 +0200
-Message-ID: <20130224223039.GA5461@redhat.com>
-References: <1361226573-12481-1-git-send-email-rusty@rustcorp.com.au>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH] virtio-blk: emit udev event when device is resized
+Date: Mon, 25 Feb 2013 15:43:51 +0800
+Message-ID: <512B1637.5060107@redhat.com>
+References: <1361473348-7660-1-git-send-email-milos.vyletel@sde.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1361226573-12481-1-git-send-email-rusty@rustcorp.com.au>
+In-Reply-To: <1361473348-7660-1-git-send-email-milos.vyletel@sde.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,21 +17,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: sjur.brandeland@stericsson.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Milos Vyletel <milos.vyletel@sde.cz>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 19, 2013 at 08:59:27AM +1030, Rusty Russell wrote:
-> This introduces vringh, which are generic accessors for virtio rings (host side).
-> There's a host-side implementation in vhost, but it assumes that the rings are
-> in userspace, and is tied to the vhost implementation.  I have patches to adapt
-> it to use vringh, but I'm pushing this in the next merge window for Sjur, who has
-> CAIF patches which need it.
+On 02/22/2013 03:02 AM, Milos Vyletel wrote:
+> When virtio-blk device is resized from host (using block_resize from QEMU) emit
+> KOBJ_CHANGE uevent to notify guest about such change. This allows user to have
+> custom udev rules which would take whatever action if such event occurs. As a
+> proof of concept I've created simple udev rule that automatically resize
+> filesystem on virtio-blk device.
 > 
-> This also includes a test program in tools/virtio.  There's a fixup patch for
-> the current tools, since they didn't compile for me.  MST?
+> ACTION=="change", KERNEL=="vd*", \
+>         ENV{RESIZE}=="1", \
+>         ENV{ID_FS_TYPE}=="ext[3-4]", \
+>         RUN+="/sbin/resize2fs /dev/%k"
+> ACTION=="change", KERNEL=="vd*", \
+>         ENV{RESIZE}=="1", \
+>         ENV{ID_FS_TYPE}=="LVM2_member", \
+>         RUN+="/sbin/pvresize /dev/%k"
 > 
-> Review and comments welcome!
-> Rusty.
+> Signed-off-by: Milos Vyletel <milos.vyletel@sde.cz>
+> ---
+>  drivers/block/virtio_blk.c |    3 +++
+>  1 files changed, 3 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 8ad21a2..5990382 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -539,6 +539,8 @@ static void virtblk_config_changed_work(struct work_struct *work)
+>  	struct virtio_device *vdev = vblk->vdev;
+>  	struct request_queue *q = vblk->disk->queue;
+>  	char cap_str_2[10], cap_str_10[10];
+> +	char event[] = "RESIZE=1";
+> +	char *envp[] = { event, NULL };
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+event is not used again. Why not just
+
+char *envp[] = { "RESIZE=1", NULL };
+
+
+>  	u64 capacity, size;
+>  
+>  	mutex_lock(&vblk->config_lock);
+> @@ -568,6 +570,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
+>  
+>  	set_capacity(vblk->disk, capacity);
+>  	revalidate_disk(vblk->disk);
+> +	kobject_uevent_env(&disk_to_dev(vblk->disk)->kobj, KOBJ_CHANGE, envp);
+>  done:
+>  	mutex_unlock(&vblk->config_lock);
+>  }
+> 
+
+I tried the following with your automatically resize udev rules.
+
+(qemu) block_resize vd0 500
+Check the fs size in guest, it is 500Mb
+
+(qemu) block_resize vd0 1200
+Check the fs size in guest, it is still 500Mb
+
+Can you try resizing multiple times? Does it work?
+
+-- 
+Asias
