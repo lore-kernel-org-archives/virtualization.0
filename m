@@ -1,14 +1,16 @@
 From: Kay Sievers <kay@vrfy.org>
 Subject: Re: [PATCH] virtio-blk: emit udev event when device is resized
-Date: Mon, 25 Feb 2013 23:39:52 +0100
-Message-ID: <CAPXgP13M_krpPMFoBroYkXc4dUQHsZJDua-jSGby8cQ1Afy-HQ__19936.9275630035$1361835798$gmane$org@mail.gmail.com>
+Date: Tue, 26 Feb 2013 00:04:15 +0100
+Message-ID: <CAPXgP100NjPw4JVe39gL829MwKL2YLFSKN2fvaB7skbCub-Ehg__34709.3598488302$1361835802$gmane$org@mail.gmail.com>
 References: <1361473348-7660-1-git-send-email-milos.vyletel@sde.cz>
 	<87y5ehfczy.fsf@rustcorp.com.au> <20130225221238.GA10575@kroah.com>
+	<CAPXgP13M_krpPMFoBroYkXc4dUQHsZJDua-jSGby8cQ1Afy-HQ@mail.gmail.com>
+	<20130225224339.GA19153@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130225221238.GA10575@kroah.com>
+In-Reply-To: <20130225224339.GA19153@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,27 +24,44 @@ To: Greg KH <greg@kroah.com>
 Cc: mst@redhat.com, linux-hotplug@vger.kernel.org, linux-kernel@vger.kernel.org, Milos Vyletel <milos.vyletel@sde.cz>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 25, 2013 at 11:12 PM, Greg KH <greg@kroah.com> wrote:
-
-> Hm, I thought we were frowning apon running binaries from udev rules
-> these days, especially ones that might have big consequences (like
-> resizing a disk image) like this.
+On Mon, Feb 25, 2013 at 11:43 PM, Greg KH <greg@kroah.com> wrote:
+> On Mon, Feb 25, 2013 at 11:39:52PM +0100, Kay Sievers wrote:
+>> On Mon, Feb 25, 2013 at 11:12 PM, Greg KH <greg@kroah.com> wrote:
+>>
+>> > Hm, I thought we were frowning apon running binaries from udev rules
+>> > these days, especially ones that might have big consequences (like
+>> > resizing a disk image) like this.
+>> >
+>> > Kay, am I right?
+>>
+>> We removed most of them from the default setups, yes. But there is
+>> nothing wrong if people want to ship that in some package or as custom
+>> rules.
+>>
+>> It looks fine to me, we would just not add such things to the default
+>> set of of rules these days.
+>>
+>> > We already emit KOBJECT_CHANGE events when block devices change, from
+>> > within the block core code.  Why is the patch below needed instead of
+>> > using these events that are already generated?  How are virtio block
+>> > devices special?
+>>
+>> I think we only do that for dm and md and a couple of special cases
+>> like loop and read-only settings.
 >
-> Kay, am I right?
+> What about when we repartition a block device?  I've seen the events
+> happen then.
 
-We removed most of them from the default setups, yes. But there is
-nothing wrong if people want to ship that in some package or as custom
-rules.
+Right, from the common block code we send events for removable media
+changes like cdroms, sd cards, when a device is switched to read-only,
+and when we re-scan a partition table like on re-partitioning. Most of
+the other events are block subsystem-specific like this one. For
+things like device-mapper they are used pretty heavily.
 
-It looks fine to me, we would just not add such things to the default
-set of of rules these days.
+> Anyway, if you are ok with this, no objection from my side then Rusty.
 
-> We already emit KOBJECT_CHANGE events when block devices change, from
-> within the block core code.  Why is the patch below needed instead of
-> using these events that are already generated?  How are virtio block
-> devices special?
-
-I think we only do that for dm and md and a couple of special cases
-like loop and read-only settings.
+Looks fine to me, it should not do any harm if there are not heavy
+programs hooked up -- which is nothing the kernel could fix if people
+do that. :)
 
 Kay
