@@ -1,15 +1,16 @@
 From: Greg KH <greg@kroah.com>
 Subject: Re: [PATCH] virtio-blk: emit udev event when device is resized
-Date: Mon, 25 Feb 2013 14:12:38 -0800
-Message-ID: <20130225221238.GA10575@kroah.com>
+Date: Mon, 25 Feb 2013 14:43:39 -0800
+Message-ID: <20130225224339.GA19153__21768.7307078906$1361832249$gmane$org@kroah.com>
 References: <1361473348-7660-1-git-send-email-milos.vyletel@sde.cz>
-	<87y5ehfczy.fsf@rustcorp.com.au>
+	<87y5ehfczy.fsf@rustcorp.com.au> <20130225221238.GA10575@kroah.com>
+	<CAPXgP13M_krpPMFoBroYkXc4dUQHsZJDua-jSGby8cQ1Afy-HQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87y5ehfczy.fsf@rustcorp.com.au>
+In-Reply-To: <CAPXgP13M_krpPMFoBroYkXc4dUQHsZJDua-jSGby8cQ1Afy-HQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,78 +20,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, Kay Sievers <kay@vrfy.org>
+To: Kay Sievers <kay@vrfy.org>
 Cc: mst@redhat.com, linux-hotplug@vger.kernel.org, linux-kernel@vger.kernel.org, Milos Vyletel <milos.vyletel@sde.cz>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 22, 2013 at 10:14:49AM +1030, Rusty Russell wrote:
-> Milos Vyletel <milos.vyletel@sde.cz> writes:
+On Mon, Feb 25, 2013 at 11:39:52PM +0100, Kay Sievers wrote:
+> On Mon, Feb 25, 2013 at 11:12 PM, Greg KH <greg@kroah.com> wrote:
 > 
-> > When virtio-blk device is resized from host (using block_resize from QEMU) emit
-> > KOBJ_CHANGE uevent to notify guest about such change. This allows user to have
-> > custom udev rules which would take whatever action if such event occurs. As a
-> > proof of concept I've created simple udev rule that automatically resize
-> > filesystem on virtio-blk device.
+> > Hm, I thought we were frowning apon running binaries from udev rules
+> > these days, especially ones that might have big consequences (like
+> > resizing a disk image) like this.
 > >
-> > ACTION=="change", KERNEL=="vd*", \
-> >         ENV{RESIZE}=="1", \
-> >         ENV{ID_FS_TYPE}=="ext[3-4]", \
-> >         RUN+="/sbin/resize2fs /dev/%k"
-> > ACTION=="change", KERNEL=="vd*", \
-> >         ENV{RESIZE}=="1", \
-> >         ENV{ID_FS_TYPE}=="LVM2_member", \
-> >         RUN+="/sbin/pvresize /dev/%k"
+> > Kay, am I right?
 > 
-> This looks fine to me, but I like to check with Greg before adding udev
-> callouts.... Greg?
+> We removed most of them from the default setups, yes. But there is
+> nothing wrong if people want to ship that in some package or as custom
+> rules.
+> 
+> It looks fine to me, we would just not add such things to the default
+> set of of rules these days.
+> 
+> > We already emit KOBJECT_CHANGE events when block devices change, from
+> > within the block core code.  Why is the patch below needed instead of
+> > using these events that are already generated?  How are virtio block
+> > devices special?
+> 
+> I think we only do that for dm and md and a couple of special cases
+> like loop and read-only settings.
 
-Hm, I thought we were frowning apon running binaries from udev rules
-these days, especially ones that might have big consequences (like
-resizing a disk image) like this.
+What about when we repartition a block device?  I've seen the events
+happen then.
 
-Kay, am I right?
-
-We already emit KOBJECT_CHANGE events when block devices change, from
-within the block core code.  Why is the patch below needed instead of
-using these events that are already generated?  How are virtio block
-devices special?
-
-> BTW, if this is good, it's good for stable IMHO.
-
-What bug does it fix?
+Anyway, if you are ok with this, no objection from my side then Rusty.
 
 thanks,
 
 greg k-h
-
-> Cheers,
-> Rusty.
-> 
-> > Signed-off-by: Milos Vyletel <milos.vyletel@sde.cz>
-> > ---
-> >  drivers/block/virtio_blk.c |    3 +++
-> >  1 files changed, 3 insertions(+), 0 deletions(-)
-> >
-> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > index 8ad21a2..5990382 100644
-> > --- a/drivers/block/virtio_blk.c
-> > +++ b/drivers/block/virtio_blk.c
-> > @@ -539,6 +539,8 @@ static void virtblk_config_changed_work(struct work_struct *work)
-> >  	struct virtio_device *vdev = vblk->vdev;
-> >  	struct request_queue *q = vblk->disk->queue;
-> >  	char cap_str_2[10], cap_str_10[10];
-> > +	char event[] = "RESIZE=1";
-> > +	char *envp[] = { event, NULL };
-> >  	u64 capacity, size;
-> >  
-> >  	mutex_lock(&vblk->config_lock);
-> > @@ -568,6 +570,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
-> >  
-> >  	set_capacity(vblk->disk, capacity);
-> >  	revalidate_disk(vblk->disk);
-> > +	kobject_uevent_env(&disk_to_dev(vblk->disk)->kobj, KOBJ_CHANGE, envp);
-> >  done:
-> >  	mutex_unlock(&vblk->config_lock);
-> >  }
-> > -- 
-> > 1.7.1
