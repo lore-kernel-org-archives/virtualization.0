@@ -1,7 +1,7 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 Subject: Re: [PATCH v3 0/5] kvm: Make ioeventfd usable on s390.
-Date: Tue, 26 Feb 2013 12:54:00 +0100
-Message-ID: <512CA258.7070101@de.ibm.com>
+Date: Tue, 26 Feb 2013 13:13:39 +0100
+Message-ID: <512CA6F3.7080203@de.ibm.com>
 References: <1361806070-62465-1-git-send-email-cornelia.huck@de.ibm.com>
 	<20130226110421.GB10915@redhat.com>
 	<20130226111812.GA11111@redhat.com>
@@ -24,45 +24,80 @@ Cc: Carsten Otte <cotte@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linu
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 26/02/13 12:18, Michael S. Tsirkin wrote:
-> On Tue, Feb 26, 2013 at 01:04:21PM +0200, Michael S. Tsirkin wrote:
->> On Mon, Feb 25, 2013 at 04:27:45PM +0100, Cornelia Huck wrote:
->>> Here's the latest version of my patch series enabling ioeventfds
->>> on s390, again against kvm-next.
->>>
->>> Patches 1 and 2 (cleaning up initialization and exporting the virtio-ccw
->>> api) would make sense even independent of the ioeventfd enhancements.
->>>
->>> Patches 3-5 are concerned with adding a new type of ioeventfds for
->>> virtio-ccw notifications on s390. The naming is now hopefully clearer.
->>> We won't add ioeventfd support for the legacy s390-virtio transport.
->>>
->>> Please consider applying.
->>
->> I just had a thought: this makes us lookup the device on the bus
->> for each notification. It would be better to simply get the
->> device index from guest instead.
->>
->> We could validate that it matches the correct device,
->> if not - fallback to the current linear scan.
->>
->> We could return the index to guest for the next call.
->>
->> I know this needs guest changes but it's still not too late to
->> fix this for 3.9 guests so that we won't need to worry
->> about compatibility going forward.
->>
->> Hmm?
+> virtio_ccw: pass a cookie value to kvm hypercall
 > 
-> And just to clarify, here's what I mean (BTW, why doesn't
-> this code use the interfaces from kvm_para.h?)
-> I think it's a good idea to merge this before 3.9 so we don't
-> need to worry about legacy going forward.
+> Lookups by channel/vq pair on host during virtio notifications might be
+> expensive.  Interpret hypercall return value as a cookie which host can
+> use to do device lookups for the next notification more efficiently.
 > 
-> Completely untested, just to give you the idea.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> ---
+> 
+> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> index 2029b6c..1054f3a 100644
+> --- a/drivers/s390/kvm/virtio_ccw.c
+> +++ b/drivers/s390/kvm/virtio_ccw.c
+> @@ -77,6 +77,7 @@ struct virtio_ccw_vq_info {
+>  	void *queue;
+>  	struct vq_info_block *info_block;
+>  	struct list_head node;
+> +	long cookie;
+>  };
+> 
+>  #define KVM_VIRTIO_CCW_RING_ALIGN 4096
+> @@ -145,15 +146,18 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
+>  }
+> 
+>  static inline long do_kvm_notify(struct subchannel_id schid,
+> -				 unsigned long queue_index)
+> +				 unsigned long queue_index,
+> +				 long cookie)
+>  {
+>  	register unsigned long __nr asm("1") = KVM_S390_VIRTIO_CCW_NOTIFY;
+>  	register struct subchannel_id __schid asm("2") = schid;
+>  	register unsigned long __index asm("3") = queue_index;
+>  	register long __rc asm("2");
+> +	register long __cookie asm("4") = cookie;
+> 
+>  	asm volatile ("diag 2,4,0x500\n"
+> -		      : "=d" (__rc) : "d" (__nr), "d" (__schid), "d" (__index)
+> +		      : "=d" (__rc) : "d" (__nr), "d" (__schid), "d" (__index),
+> +		      "d"(__cookie)
+>  		      : "memory", "cc");
+>  	return __rc;
+>  }
+> @@ -166,7 +170,7 @@ static void virtio_ccw_kvm_notify(struct virtqueue *vq)
+> 
+>  	vcdev = to_vc_device(info->vq->vdev);
+>  	ccw_device_get_schid(vcdev->cdev, &schid);
+> -	do_kvm_notify(schid, virtqueue_get_queue_index(vq));
+> +	info->cookie = do_kvm_notify(schid, virtqueue_get_queue_index(vq), info->cookie);
+>  }
+> 
+>  static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
 
-Thinking more about it: Isnt the index on the kvm bus just an implementation
-detail? In other words, what happens if we want to re-arrange the kvm io bus 
-to a tree like structure. Then the index becomes pretty much useless. Do we 
-really want to put such an internal thing into an interface?
 
-CHristian
+Hmmm, forget my last mail. This actually could be even forward and backward compatible.
+In the virtio spec we will not define the cookie format (just 64bit int). That will allow
+qemu or future kernels to use that for other things (as long as a validity check is 
+possible) if we dont have a kvm bus.
+
+Now:
+
+old guest, old host: 
+works.
+
+old guest, new host: 
+the cookie from the guest contains junk, the host needs to detect that the cookie is 
+junk and ignores it. It will return the new cookie anyway. 
+
+new guest, old host:
+The guest will get a junk cookie and pass it back to the host. But the host will ignore
+it anyway.
+
+new guest, new host:
+works.
+
+So...
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
