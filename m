@@ -1,19 +1,17 @@
-From: "Ira W. Snyder" <iws@ovro.caltech.edu>
-Subject: Re: [RFC]vhost/vhost-net backend for PCI cards
-Date: Wed, 27 Feb 2013 14:31:24 -0800
-Message-ID: <20130227223121.GC29239@ovro.caltech.edu>
-References: <1361964866.62280.69.camel@jmataraz-mobl.amr.corp.intel.com>
-	<1361965854.62280.71.camel@jmataraz-mobl.amr.corp.intel.com>
-	<20130227191705.GB29239@ovro.caltech.edu>
-	<1361969900.62280.97.camel@jmataraz-mobl.amr.corp.intel.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 02/16] virtio_ring: virtqueue_add_sgs, to add multiple sgs.
+Date: Wed, 27 Feb 2013 21:51:09 +1030
+Message-ID: <87fw0idmu2.fsf__2300.71427436105$1362009595$gmane$org@rustcorp.com.au>
+References: <1361260594-601-1-git-send-email-rusty@rustcorp.com.au>
+	<1361260594-601-3-git-send-email-rusty@rustcorp.com.au>
+	<20130224221255.GA5300@redhat.com>
+	<512C5E0E.5040305@redhat.com> <87obf6dxlm.fsf@rustcorp.com.au>
+	<20130227074920.GA11775@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Resent-Message-ID: <20130227224949.GD29239@ovro.caltech.edu>
-Resent-To: virtualization@lists.linux-foundation.org
-Content-Disposition: inline
-In-Reply-To: <1361969900.62280.97.camel@jmataraz-mobl.amr.corp.intel.com>
+In-Reply-To: <20130227074920.GA11775@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,97 +21,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nikhil Rao <nikhil.rao@intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 27, 2013 at 04:58:20AM -0800, Nikhil Rao wrote:
-> On Wed, 2013-02-27 at 11:17 -0800, Ira W. Snyder wrote:
-> 
-> > Hi Nikhil,
-> > 
-> > I don't have any code to offer, but may be able to provide some
-> > suggestions. I work on a system which has a single (x86) host computer,
-> > and many PowerPC data processing boards, which are connected via PCI.
-> > This sounds similar to your hardware.
-> > 
-> > Our system was developed before vhost existed. I built a (fairly dumb)
-> > network driver that just transfers packets over PCI using the PowerPC
-> > DMA controller. It works, however I think a more generic virtio solution
-> > will work better. A virtio solution will also allow other types of
-> > devices besides a network interface.
-> > 
-> > I have done some studying of rproc/rpmsg/vhost/vringh, and may have some
-> > suggestions about those pieces of kernel functionality.
-> > 
-> > A HW DMA engine is absolutely needed to get good performance over the
-> > PCI bus. I don't have experience with PCIe.
-> > 
-> > You may want to investigate rproc/rpmsg to help do virtio device
-> > discovery.
-> 
-> > When dealing with virtio, it may be helpful to think of your PCIe card
-> > as the "host". 
-> 
-> We wanted to support a host-based disk, using virtio-blk on the card
-> seemed to be a good way to do this, given that the card runs Linux.
-> 
-> also from a performance perspective, which would be better ? [virtio-net
-> on the card/backend on the host cpu] v/s [virtio-net on the
-> hostcpu/backend on the card] ?  given that the host cpu is more powerful
-> than the card cpu.
-> 
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Wed, Feb 27, 2013 at 05:58:37PM +1030, Rusty Russell wrote:
+>> Paolo Bonzini <pbonzini@redhat.com> writes:
+>> > Il 24/02/2013 23:12, Michael S. Tsirkin ha scritto:
+>> >> On Tue, Feb 19, 2013 at 06:26:20PM +1030, Rusty Russell wrote:
+>> >>> virtio_scsi can really use this, to avoid the current hack of copying
+>> >>> the whole sg array.  Some other things get slightly neater, too.
+>> >>>
+>> >>> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+>> >> 
+>> >> Hmm, this makes add_buf a bit slower. virtio_test results
+>> >> (I'll send a patch to update the test shortly):
+>> >> 
+>> >> Before:
+>> >> 0.09user 0.01system 0:00.12elapsed 91%CPU (0avgtext+0avgdata 480maxresident)k
+>> >> 0inputs+0outputs (0major+145minor)pagefaults 0swaps
+>> >> 
+>> >> After:
+>> >> 0.11user 0.01system 0:00.13elapsed 90%CPU (0avgtext+0avgdata 480maxresident)k
+>> >> 0inputs+0outputs (0major+145minor)pagefaults 0swaps
+>> >
+>> > Not unexpected at all... :(
+>> >
+>> > Some of it can be recovered, but if it's 20% I doubt all of it.  So my
+>> > patches were not premature optimization; you really can take just two
+>> > among speed, flexibility, and having a nice API.
+>> 
+>> The error bars on this are far too large to say "20%".
+>> 
+>> Here are my numbers, using 50 runs of:
+>> time tools/virtio/vringh_test --indirect --eventidx --parallel and
+>> stats --trim-outliers:
+>> 
+>> Baseline (before add_sgs):
+>>         2.840000-3.040000(2.927292)user
+>> 
+>> After add_sgs:
+>>         2.970000-3.150000(3.053750)user
+>> 
+>> After simplifying add_buf a little:
+>>         2.950000-3.210000(3.081458)user
+>> 
+>> After inlining virtqueue_add/vring_add_indirect:
+>>         2.920000-3.150000(3.026875)user
+>> 
+>> After passing in iteration functions (chained vs unchained):
+>>         2.760000-2.970000(2.883542)user
 
-I never considered using virtio-blk, so I don't have any input about it.
+Oops.  This result (and the next) is bogus.  I was playing with -O3, and
+accidentally left that in :(
 
-I don't know much about virtio performance either. The experts on this
-list will have to send their input.
+The final result was 3.005208, ie. 3% slowdown.  Which almost makes it
+worth duplicating the whole set of code :(
 
-> > In virtio nomenclature, the "host" is in charge of copying data. 
-> > Your HW DMA engine needs to be controlled by the "host".
-> 
-> In our case, the host driver controls the HW DMA engine (a subset of the
-> card DMA engine channels are under host control). But you may be
-> referring to the case where the host doesn't have access to the card's
-> DMA engine.
-> 
+>> After removing the now-unnecessary chain-cleaning in add_buf:
+>>         2.660000-2.830000(2.753542)user
+>> 
+>> Any questions?
+>> Rusty.
+>
+> Sorry, so which patches are included in the last stage?
+> Something I didn't make clear: I tested 2/16 (the patch I replied to).
 
-That's right. On our PowerPC cards, the DMA hardware can be controlled
-by either the PowerPC processor, or the PCI host system, but not both.
-We need the DMA for various operations on the PowerPC card itself, so
-the PCI host system cannot be used to control the DMA hardware.
+I wanted to tidy them up, add commentry, and integrate your tool cleanup
+patches first.  That's when I noticed my screwup.
 
-This is also true for other vendors who contacted me privately.
+I'll push them now, but I want to revisit to see if there's something
+cleverer I can do...
 
-Your PCIe card seems to have better features than any similar systems
-I've worked with.
-
-I skimmed the code being used with rpmsg/rproc/virtio on the ARM DSPs on
-the OMAP platform. They use the DSP as the "virtio host" (it copies
-memory, performing the same function as vhost) and the OMAP as the
-"virtio guest" (it runs virtio-net/etc.).
-
-Among all virtio "guest" drivers (virtio-net/virtio-console/etc.), I
-think virtio-blk behaves differently from the rest. All of the others
-work better with DMA hardware when the PCI card is the "virtio host."
-
-You might want to contact Ohad Ben-Cohen for his advice. He did a lot of
-work on drivers/rpmsg and drivers/remoteproc. He works with the OMAP
-hardware.
-
-Ira
-
-> > 
-> > Your main computer (the computer the PCIe card plugs into) will be a
-> > virtio "guest" and will run the virtio-net/virtio-console/etc. drivers.
-> > 
-> > Several vendors have contacted me privately to ask for the code for my
-> > (dumb) network-over-PCI driver. A generic solution to this problem will
-> > definitely find a userbase.
-> > 
-> > I look forward to porting the code to run on my PowerPC PCI boards when
-> > it becomes available. I am able to help review code as well.
-> > 
-> > Good luck!
-> > Ira
-> 
-> 
+Cheers,
+Rusty.
