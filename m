@@ -1,13 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-blk: emit udev event when device is resized
-Date: Wed, 27 Feb 2013 11:07:20 +1030
-Message-ID: <87vc9eegn3.fsf@rustcorp.com.au>
-References: <1361473348-7660-1-git-send-email-milos.vyletel@sde.cz>
+Subject: Re: [PATCH 02/16] virtio_ring: virtqueue_add_sgs, to add multiple sgs.
+Date: Wed, 27 Feb 2013 17:58:37 +1030
+Message-ID: <87obf6dxlm.fsf@rustcorp.com.au>
+References: <1361260594-601-1-git-send-email-rusty@rustcorp.com.au>
+	<1361260594-601-3-git-send-email-rusty@rustcorp.com.au>
+	<20130224221255.GA5300@redhat.com> <512C5E0E.5040305@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1361473348-7660-1-git-send-email-milos.vyletel@sde.cz>
+In-Reply-To: <512C5E0E.5040305@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,73 +19,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Milos Vyletel <milos.vyletel@sde.cz>, linux-kernel@vger.kernel.org
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Milos Vyletel <milos.vyletel@sde.cz> writes:
-
-> When virtio-blk device is resized from host (using block_resize from QEMU) emit
-> KOBJ_CHANGE uevent to notify guest about such change. This allows user to have
-> custom udev rules which would take whatever action if such event occurs. As a
-> proof of concept I've created simple udev rule that automatically resize
-> filesystem on virtio-blk device.
+Paolo Bonzini <pbonzini@redhat.com> writes:
+> Il 24/02/2013 23:12, Michael S. Tsirkin ha scritto:
+>> On Tue, Feb 19, 2013 at 06:26:20PM +1030, Rusty Russell wrote:
+>>> virtio_scsi can really use this, to avoid the current hack of copying
+>>> the whole sg array.  Some other things get slightly neater, too.
+>>>
+>>> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+>> 
+>> Hmm, this makes add_buf a bit slower. virtio_test results
+>> (I'll send a patch to update the test shortly):
+>> 
+>> Before:
+>> 0.09user 0.01system 0:00.12elapsed 91%CPU (0avgtext+0avgdata 480maxresident)k
+>> 0inputs+0outputs (0major+145minor)pagefaults 0swaps
+>> 
+>> After:
+>> 0.11user 0.01system 0:00.13elapsed 90%CPU (0avgtext+0avgdata 480maxresident)k
+>> 0inputs+0outputs (0major+145minor)pagefaults 0swaps
 >
-> ACTION=="change", KERNEL=="vd*", \
->         ENV{RESIZE}=="1", \
->         ENV{ID_FS_TYPE}=="ext[3-4]", \
->         RUN+="/sbin/resize2fs /dev/%k"
-> ACTION=="change", KERNEL=="vd*", \
->         ENV{RESIZE}=="1", \
->         ENV{ID_FS_TYPE}=="LVM2_member", \
->         RUN+="/sbin/pvresize /dev/%k"
+> Not unexpected at all... :(
 >
-> Signed-off-by: Milos Vyletel <milos.vyletel@sde.cz>
+> Some of it can be recovered, but if it's 20% I doubt all of it.  So my
+> patches were not premature optimization; you really can take just two
+> among speed, flexibility, and having a nice API.
 
-OK, I collapsed the event[] line as suggested by Asias, and applied this.
+The error bars on this are far too large to say "20%".
 
-Thanks,
+Here are my numbers, using 50 runs of:
+time tools/virtio/vringh_test --indirect --eventidx --parallel and
+stats --trim-outliers:
+
+Baseline (before add_sgs):
+        2.840000-3.040000(2.927292)user
+
+After add_sgs:
+        2.970000-3.150000(3.053750)user
+
+After simplifying add_buf a little:
+        2.950000-3.210000(3.081458)user
+
+After inlining virtqueue_add/vring_add_indirect:
+        2.920000-3.150000(3.026875)user
+
+After passing in iteration functions (chained vs unchained):
+        2.760000-2.970000(2.883542)user
+
+After removing the now-unnecessary chain-cleaning in add_buf:
+        2.660000-2.830000(2.753542)user
+
+Any questions?
 Rusty.
-
-From: Milos Vyletel <milos.vyletel@sde.cz>
-Subject: virtio-blk: emit udev event when device is resized
-
-When virtio-blk device is resized from host (using block_resize from QEMU) emit
-KOBJ_CHANGE uevent to notify guest about such change. This allows user to have
-custom udev rules which would take whatever action if such event occurs. As a
-proof of concept I've created simple udev rule that automatically resize
-filesystem on virtio-blk device.
-
-ACTION=="change", KERNEL=="vd*", \
-        ENV{RESIZE}=="1", \
-        ENV{ID_FS_TYPE}=="ext[3-4]", \
-        RUN+="/sbin/resize2fs /dev/%k"
-ACTION=="change", KERNEL=="vd*", \
-        ENV{RESIZE}=="1", \
-        ENV{ID_FS_TYPE}=="LVM2_member", \
-        RUN+="/sbin/pvresize /dev/%k"
-
-Signed-off-by: Milos Vyletel <milos.vyletel@sde.cz>
-Tested-by: Asias He <asias@redhat.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> (minor simplification)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 8ad21a2..922bcb9 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -539,6 +539,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
- 	struct virtio_device *vdev = vblk->vdev;
- 	struct request_queue *q = vblk->disk->queue;
- 	char cap_str_2[10], cap_str_10[10];
-+	char *envp[] = { "RESIZE=1", NULL };
- 	u64 capacity, size;
- 
- 	mutex_lock(&vblk->config_lock);
-@@ -568,6 +569,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
- 
- 	set_capacity(vblk->disk, capacity);
- 	revalidate_disk(vblk->disk);
-+	kobject_uevent_env(&disk_to_dev(vblk->disk)->kobj, KOBJ_CHANGE, envp);
- done:
- 	mutex_unlock(&vblk->config_lock);
- }
