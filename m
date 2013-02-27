@@ -1,15 +1,16 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v3 0/5] kvm: Make ioeventfd usable on s390.
-Date: Wed, 27 Feb 2013 20:49:57 +0100
-Message-ID: <512E6365.3010406@de.ibm.com>
-References: <1361806070-62465-1-git-send-email-cornelia.huck@de.ibm.com>
-	<20130226110421.GB10915@redhat.com>
-	<20130226111812.GA11111@redhat.com>
+From: Nikhil Rao <nikhil.rao@intel.com>
+Subject: Re: [RFC]vhost/vhost-net backend for PCI cards
+Date: Wed, 27 Feb 2013 07:15:10 -0800
+Message-ID: <1361978110.62280.104.camel@jmataraz-mobl.amr.corp.intel.com>
+References: <1361964866.62280.69.camel@jmataraz-mobl.amr.corp.intel.com>
+	<1361965854.62280.71.camel@jmataraz-mobl.amr.corp.intel.com>
+	<20130227191705.GB29239@ovro.caltech.edu>
+	<1361969900.62280.97.camel@jmataraz-mobl.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130226111812.GA11111@redhat.com>
+In-Reply-To: <1361969900.62280.97.camel@jmataraz-mobl.amr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,67 +20,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org
+To: "Ira W. Snyder" <iws@ovro.caltech.edu>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 26/02/13 12:18, Michael S. Tsirkin wrote:
 
-> virtio_ccw: pass a cookie value to kvm hypercall
+> On Wed, 2013-02-27 at 11:17 -0800, Ira W. Snyder wrote:
+> Hi Nikhil,
 > 
-> Lookups by channel/vq pair on host during virtio notifications might be
-> expensive.  Interpret hypercall return value as a cookie which host can
-> use to do device lookups for the next notification more efficiently.
+> I don't have any code to offer, but may be able to provide some
+> suggestions. I work on a system which has a single (x86) host computer,
+> and many PowerPC data processing boards, which are connected via PCI.
+> This sounds similar to your hardware.
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Our system was developed before vhost existed. I built a (fairly dumb)
+> network driver that just transfers packets over PCI using the PowerPC
+> DMA controller. It works, however I think a more generic virtio solution
+> will work better. A virtio solution will also allow other types of
+> devices besides a network interface.
+> 
+> I have done some studying of rproc/rpmsg/vhost/vringh, and may have some
+> suggestions about those pieces of kernel functionality.
+> 
+> A HW DMA engine is absolutely needed to get good performance over the
+> PCI bus. I don't have experience with PCIe.
+> 
+> You may want to investigate rproc/rpmsg to help do virtio device
+> discovery.
 
-Seems to work fine. (as expected).
-Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> When dealing with virtio, it may be helpful to think of your PCIe card
+> as the "host". 
+
+We wanted to support a host-based disk, using virtio-blk on the card
+seemed to be a good way to do this, given that the card runs Linux.
+
+also from a performance perspective, which would be better ? [virtio-net
+on the card/backend on the host cpu] v/s [virtio-net on the
+hostcpu/backend on the card] ?  given that the host cpu is more powerful
+than the card cpu.
+
+> In virtio nomenclature, the "host" is in charge of copying data. 
+> Your HW DMA engine needs to be controlled by the "host".
+
+In our case, the host driver controls the HW DMA engine (a subset of the
+card DMA engine channels are under host control). But you may be 
+referring to the case where the host doesn't have access to the card's
+DMA engine.
 
 > 
-> ---
+> Your main computer (the computer the PCIe card plugs into) will be a
+> virtio "guest" and will run the virtio-net/virtio-console/etc. drivers.
 > 
-> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-> index 2029b6c..1054f3a 100644
-> --- a/drivers/s390/kvm/virtio_ccw.c
-> +++ b/drivers/s390/kvm/virtio_ccw.c
-> @@ -77,6 +77,7 @@ struct virtio_ccw_vq_info {
->  	void *queue;
->  	struct vq_info_block *info_block;
->  	struct list_head node;
-> +	long cookie;
->  };
+> Several vendors have contacted me privately to ask for the code for my
+> (dumb) network-over-PCI driver. A generic solution to this problem will
+> definitely find a userbase.
 > 
->  #define KVM_VIRTIO_CCW_RING_ALIGN 4096
-> @@ -145,15 +146,18 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
->  }
+> I look forward to porting the code to run on my PowerPC PCI boards when
+> it becomes available. I am able to help review code as well.
 > 
->  static inline long do_kvm_notify(struct subchannel_id schid,
-> -				 unsigned long queue_index)
-> +				 unsigned long queue_index,
-> +				 long cookie)
->  {
->  	register unsigned long __nr asm("1") = KVM_S390_VIRTIO_CCW_NOTIFY;
->  	register struct subchannel_id __schid asm("2") = schid;
->  	register unsigned long __index asm("3") = queue_index;
->  	register long __rc asm("2");
-> +	register long __cookie asm("4") = cookie;
-> 
->  	asm volatile ("diag 2,4,0x500\n"
-> -		      : "=d" (__rc) : "d" (__nr), "d" (__schid), "d" (__index)
-> +		      : "=d" (__rc) : "d" (__nr), "d" (__schid), "d" (__index),
-> +		      "d"(__cookie)
->  		      : "memory", "cc");
->  	return __rc;
->  }
-> @@ -166,7 +170,7 @@ static void virtio_ccw_kvm_notify(struct virtqueue *vq)
-> 
->  	vcdev = to_vc_device(info->vq->vdev);
->  	ccw_device_get_schid(vcdev->cdev, &schid);
-> -	do_kvm_notify(schid, virtqueue_get_queue_index(vq));
-> +	info->cookie = do_kvm_notify(schid, virtqueue_get_queue_index(vq), info->cookie);
->  }
-> 
->  static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
-> 
+> Good luck!
+> Ira
