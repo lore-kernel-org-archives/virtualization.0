@@ -1,16 +1,13 @@
-From: Milos Vyletel <milos.vyletel@sde.cz>
-Subject: Re: [PATCH] virtio-blk: emit udev event when device is resized
-Date: Wed, 27 Feb 2013 14:09:48 +0100 (CET)
-Message-ID: <1972692083.62396.1361970588620.JavaMail.root__3874.88203491575$1361970644$gmane$org@sde.cz>
-References: <1361473348-7660-1-git-send-email-milos.vyletel@sde.cz>
-	<87y5ehfczy.fsf@rustcorp.com.au> <20130225221238.GA10575@kroah.com>
-	<16100EF6-6C55-47ED-9BBB-2C3CAC8FA37A@sde.cz>
-	<87wqtuegs9.fsf@rustcorp.com.au>
+From: Nikhil Rao <nikhil.rao@intel.com>
+Subject: [RFC]vhost/vhost-net backend for PCI cards
+Date: Wed, 27 Feb 2013 03:50:54 -0800
+Message-ID: <1361965854.62280.71.camel@jmataraz-mobl.amr.corp.intel.com>
+References: <1361964866.62280.69.camel@jmataraz-mobl.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87wqtuegs9.fsf@rustcorp.com.au>
+In-Reply-To: <1361964866.62280.69.camel@jmataraz-mobl.amr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,66 +17,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: mst@redhat.com, Greg KH <greg@kroah.com>, linux-hotplug@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Kay Sievers <kay@vrfy.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
------ Original Message -----
-> Milos Vyletel <milos.vyletel@sde.cz> writes:
-> > On Feb 25, 2013, at 5:12 PM, Greg KH <greg@kroah.com> wrote:
-> >
-> >> On Fri, Feb 22, 2013 at 10:14:49AM +1030, Rusty Russell wrote:
-> >>> Milos Vyletel <milos.vyletel@sde.cz> writes:
-> >>> 
-> >>>> When virtio-blk device is resized from host (using block_resize from
-> >>>> QEMU) emit
-> >>>> KOBJ_CHANGE uevent to notify guest about such change. This allows user
-> >>>> to have
-> >>>> custom udev rules which would take whatever action if such event occurs.
-> >>>> As a
-> >>>> proof of concept I've created simple udev rule that automatically resize
-> >>>> filesystem on virtio-blk device.
-> >>>> 
-> >>>> ACTION=="change", KERNEL=="vd*", \
-> >>>>        ENV{RESIZE}=="1", \
-> >>>>        ENV{ID_FS_TYPE}=="ext[3-4]", \
-> >>>>        RUN+="/sbin/resize2fs /dev/%k"
-> >>>> ACTION=="change", KERNEL=="vd*", \
-> >>>>        ENV{RESIZE}=="1", \
-> >>>>        ENV{ID_FS_TYPE}=="LVM2_member", \
-> >>>>        RUN+="/sbin/pvresize /dev/%k"
-> >>> 
-> >>> This looks fine to me, but I like to check with Greg before adding udev
-> >>> callouts.... Greg?
-> >> 
-> >> Hm, I thought we were frowning apon running binaries from udev rules
-> >> these days, especially ones that might have big consequences (like
-> >> resizing a disk image) like this.
-> >> 
-> >> Kay, am I right?
-> >> 
-> >> We already emit KOBJECT_CHANGE events when block devices change, from
-> >> within the block core code.  Why is the patch below needed instead of
-> >> using these events that are already generated?  How are virtio block
-> >> devices special?
-> >> 
-> >>> BTW, if this is good, it's good for stable IMHO.
-> >> 
-> >> What bug does it fix?
-> >> 
-> >
-> > It is not really a bug but it definitely is useful enhancement to have in
-> > stable too. I
-> > can imagine lots of people can benefit from this.
-> 
-> But that applies to almost any enhancement :)
-> 
 
-Good point :) 
+We are implementing a driver for a PCIe card that runs Linux. This card
+needs "virtual" network/disk/console devices, so we have reused the
+virtio devices on on the card and provided a host backend that interacts
+with the virtio devices through the card's driver. 
 
-> It will go in *next* merge window, not this one.
-> 
+this approach is very much like what was proposed on this thread
+http://permalink.gmane.org/gmane.linux.ports.sh.devel/10379
 
-Cool, thanks.
+We will posting the driver soon, so perhaps I am jumping the gun with my
+question below about replacing our backend with vhost.
 
-Milos
+It is possible for vhost (along with vhost-net in the case of
+virtio-net) to serve as the backend. The copy between virtio buffers and
+skbs happens in the tun/tap driver which means tun/tap may need to use a
+HW DMA engine (the card has one) for copy across the bus to get close to
+the full PCIe bandwidth.
+
+tun/tap was probably never designed for this use case, but reusing vhost
+does simplify our backend since it is now only involved in setup and
+potentially has a performance/memory footprint advantage due to avoiding
+context switches/intermediate buffer copy and this idea can be
+generalized to other cards as well.
+
+Comments/suggestions ?
+
+Thanks,
+Nikhil
