@@ -1,15 +1,15 @@
-From: "Ira W. Snyder" <iws@ovro.caltech.edu>
-Subject: Re: [RFC]vhost/vhost-net backend for PCI cards
-Date: Wed, 27 Feb 2013 11:17:05 -0800
-Message-ID: <20130227191705.GB29239@ovro.caltech.edu>
-References: <1361964866.62280.69.camel@jmataraz-mobl.amr.corp.intel.com>
-	<1361965854.62280.71.camel@jmataraz-mobl.amr.corp.intel.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH v3 0/5] kvm: Make ioeventfd usable on s390.
+Date: Wed, 27 Feb 2013 20:49:57 +0100
+Message-ID: <512E6365.3010406@de.ibm.com>
+References: <1361806070-62465-1-git-send-email-cornelia.huck@de.ibm.com>
+	<20130226110421.GB10915@redhat.com>
+	<20130226111812.GA11111@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1361965854.62280.71.camel@jmataraz-mobl.amr.corp.intel.com>
+In-Reply-To: <20130226111812.GA11111@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,80 +19,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nikhil Rao <nikhil.rao@intel.com>
-Cc: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 27, 2013 at 03:50:54AM -0800, Nikhil Rao wrote:
+On 26/02/13 12:18, Michael S. Tsirkin wrote:
+
+> virtio_ccw: pass a cookie value to kvm hypercall
 > 
-> We are implementing a driver for a PCIe card that runs Linux. This card
-> needs "virtual" network/disk/console devices, so we have reused the
-> virtio devices on on the card and provided a host backend that interacts
-> with the virtio devices through the card's driver. 
+> Lookups by channel/vq pair on host during virtio notifications might be
+> expensive.  Interpret hypercall return value as a cookie which host can
+> use to do device lookups for the next notification more efficiently.
 > 
-> this approach is very much like what was proposed on this thread
-> http://permalink.gmane.org/gmane.linux.ports.sh.devel/10379
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Seems to work fine. (as expected).
+Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
 > 
-> We will posting the driver soon, so perhaps I am jumping the gun with my
-> question below about replacing our backend with vhost.
+> ---
 > 
-> It is possible for vhost (along with vhost-net in the case of
-> virtio-net) to serve as the backend. The copy between virtio buffers and
-> skbs happens in the tun/tap driver which means tun/tap may need to use a
-> HW DMA engine (the card has one) for copy across the bus to get close to
-> the full PCIe bandwidth.
+> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+> index 2029b6c..1054f3a 100644
+> --- a/drivers/s390/kvm/virtio_ccw.c
+> +++ b/drivers/s390/kvm/virtio_ccw.c
+> @@ -77,6 +77,7 @@ struct virtio_ccw_vq_info {
+>  	void *queue;
+>  	struct vq_info_block *info_block;
+>  	struct list_head node;
+> +	long cookie;
+>  };
 > 
-> tun/tap was probably never designed for this use case, but reusing vhost
-> does simplify our backend since it is now only involved in setup and
-> potentially has a performance/memory footprint advantage due to avoiding
-> context switches/intermediate buffer copy and this idea can be
-> generalized to other cards as well.
+>  #define KVM_VIRTIO_CCW_RING_ALIGN 4096
+> @@ -145,15 +146,18 @@ static int ccw_io_helper(struct virtio_ccw_device *vcdev,
+>  }
 > 
-> Comments/suggestions ?
+>  static inline long do_kvm_notify(struct subchannel_id schid,
+> -				 unsigned long queue_index)
+> +				 unsigned long queue_index,
+> +				 long cookie)
+>  {
+>  	register unsigned long __nr asm("1") = KVM_S390_VIRTIO_CCW_NOTIFY;
+>  	register struct subchannel_id __schid asm("2") = schid;
+>  	register unsigned long __index asm("3") = queue_index;
+>  	register long __rc asm("2");
+> +	register long __cookie asm("4") = cookie;
 > 
-> Thanks,
-> Nikhil
+>  	asm volatile ("diag 2,4,0x500\n"
+> -		      : "=d" (__rc) : "d" (__nr), "d" (__schid), "d" (__index)
+> +		      : "=d" (__rc) : "d" (__nr), "d" (__schid), "d" (__index),
+> +		      "d"(__cookie)
+>  		      : "memory", "cc");
+>  	return __rc;
+>  }
+> @@ -166,7 +170,7 @@ static void virtio_ccw_kvm_notify(struct virtqueue *vq)
 > 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-
-Hi Nikhil,
-
-I don't have any code to offer, but may be able to provide some
-suggestions. I work on a system which has a single (x86) host computer,
-and many PowerPC data processing boards, which are connected via PCI.
-This sounds similar to your hardware.
-
-Our system was developed before vhost existed. I built a (fairly dumb)
-network driver that just transfers packets over PCI using the PowerPC
-DMA controller. It works, however I think a more generic virtio solution
-will work better. A virtio solution will also allow other types of
-devices besides a network interface.
-
-I have done some studying of rproc/rpmsg/vhost/vringh, and may have some
-suggestions about those pieces of kernel functionality.
-
-A HW DMA engine is absolutely needed to get good performance over the
-PCI bus. I don't have experience with PCIe.
-
-You may want to investigate rproc/rpmsg to help do virtio device
-discovery.
-
-When dealing with virtio, it may be helpful to think of your PCIe card
-as the "host". In virtio nomenclature, the "host" is in charge of
-copying data. Your HW DMA engine needs to be controlled by the "host".
-
-Your main computer (the computer the PCIe card plugs into) will be a
-virtio "guest" and will run the virtio-net/virtio-console/etc. drivers.
-
-Several vendors have contacted me privately to ask for the code for my
-(dumb) network-over-PCI driver. A generic solution to this problem will
-definitely find a userbase.
-
-I look forward to porting the code to run on my PowerPC PCI boards when
-it becomes available. I am able to help review code as well.
-
-Good luck!
-Ira
+>  	vcdev = to_vc_device(info->vq->vdev);
+>  	ccw_device_get_schid(vcdev->cdev, &schid);
+> -	do_kvm_notify(schid, virtqueue_get_queue_index(vq));
+> +	info->cookie = do_kvm_notify(schid, virtqueue_get_queue_index(vq), info->cookie);
+>  }
+> 
+>  static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
+> 
