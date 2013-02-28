@@ -1,14 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Wrappers for vringh (was Re: [PATCHv2 vringh 1/3] remoteproc: Add
-	support for vringh (Host vrings))
-Date: Thu, 28 Feb 2013 13:49:58 +1030
-Message-ID: <87txoxceg1.fsf@rustcorp.com.au>
-References: <CAJK669Zdw+F8F8EUc__6rHscFdP4tCa8dDB+6LZ_abx2efyMHA@mail.gmail.com>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: Re: [PATCH] tools/virtio: add sg_unmark_end to scatterlist.h
+Date: Thu, 28 Feb 2013 11:39:03 +0800
+Message-ID: <512ED157.5040800@cn.fujitsu.com>
+References: <1361226573-12481-1-git-send-email-rusty@rustcorp.com.au>
+	<1361959333-8164-1-git-send-email-gaowanlong@cn.fujitsu.com>
+	<878v69du1s.fsf@rustcorp.com.au>
+Reply-To: gaowanlong@cn.fujitsu.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJK669Zdw+F8F8EUc__6rHscFdP4tCa8dDB+6LZ_abx2efyMHA@mail.gmail.com>
+In-Reply-To: <878v69du1s.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,62 +20,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>, Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, virtualization <virtualization@lists.linux-foundation.org>, Ido Yariv <ido@wizery.com>, Erwan Yvin <erwan.yvin@stericsson.com>, Dmitry Tarnyagin <dmitry.tarnyagin@stericsson.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cj4gT24gRnJpLCBG
-ZWIgMjIsIDIwMTMgYXQgMTo0MiBBTSwgUnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNvcnAuY29t
-LmF1PiB3cm90ZToKPj4gT2hhZCBCZW4tQ29oZW4gPG9oYWRAd2l6ZXJ5LmNvbT4gd3JpdGVzOgo+
-Pj4gT24gVGh1LCBGZWIgMjEsIDIwMTMgYXQgODozNyBBTSwgUnVzdHkgUnVzc2VsbCA8cnVzdHlA
-cnVzdGNvcnAuY29tLmF1PiB3cm90ZToKPj4+IFdoYXQgZG8geW91IHRoaW5rIGFib3V0IGNyZWF0
-aW5nIHNvbWUgdmlydGlvLWxldmVsIHdyYXBwZXJzIGZvciB0aGUKPj4+IHZyaW5naCBoYW5kbGVy
-cz8KPj4+Cj4+PiBJIGRvbid0IHRoaW5rIHdlJ3JlIGdvaW5nIHRvIHN0b3Agd2l0aCBjYWlmIGFz
-IHRoZSBvbmx5IHZyaW5naCB1c2VyLAo+Pj4gYW5kIGl0IGNvdWxkIGJlIG5pY2UgaWYgd2UgZm9s
-bG93IHRoZSB2aXJ0aW8gc3Bpcml0IG9mIGRlY291cGxpbmcgdGhlCj4+PiBkcml2ZXJzIGZyb20g
-dGhlIGxvdyBsZXZlbCBpbXBsZW1lbnRhdGlvbi4gSXQgc3VyZSBkaWQgcHJvdmUgaXRzZWxmCj4+
-PiB3aGVuIHRoZSByZW1vdGVwcm9jIHVzZSBjYXNlcyBzdGFydGVkIHNob3dpbmcgdXAsIGFuZCBp
-dCdzIG5lYXQuCj4+Cj4+IFRoZSBwcm9ibGVtIHNwYWNlIGlzIGEgYml0IGRpZmZlcmVudC4gIE15
-IGltbWVkaWF0ZSBjb25jZXJuIGlzIGdldHRpbmcKPj4gdmhvc3QgKGFuZCB0aHVzIHZob3N0X25l
-dC9ibGspIHRvIHVzZSB2cmluZ2g6IEkgd2FudGVkIHRvIHVuaWZ5IHRoZQo+PiBpbi11c2Vyc3Bh
-Y2UgYW5kIGluLWtlcm5lbHNwYWNlIHJpbmcgaW1wbGVtZW50YXRpb25zLiAgV2UgZG9uJ3QgaGF2
-ZQo+PiB0aGF0IGlzc3VlIGluIHZpcnRxdWV1ZS5jLgo+Pgo+PiB2aG9zdCBpcyAod2lsbCBiZSkg
-dGhlIGhpZ2hlciBhYnN0cmFjdGlvbiBmb3IgaW4tdXNlcnNwYWNlIHJpbmdzLAo+PiBwZXJoYXBz
-IHdlIHdhbnQgYW4gZXF1aXZhbGVudCBmb3IgaW4ta2VybmVsc3BhY2UgcmluZ3MuICBJJ20gaGFw
-cHkgdG8KPj4gbG9vayBhdCBwYXRjaGVzLCBidXQgSSBkb24ndCBpbW1lZGlhdGVseSBzZWUgd2hh
-dCBpdCB3b3VsZCBsb29rIGxpa2UuLi4KPgo+IEknbSBub3Qgc3VyZSBpZiB0aGUgdGlnaHQgYmlu
-ZGluZyBiZXR3ZWVuIHZyaW5naCBhbmQgcmVtb3RlcHJvYyBpcwo+IGEgYmlnIHByb2JsZW0uIEkg
-dGhpbmsgdGhlIG1vc3Qgb2J2aW91cyB1c2UtY2FzZSBmb3Iga2VybmVsIHZyaW5naCBpcwo+IHdo
-ZW4gdGhleSBhcmUgaW5zdGFudGlhdGVkIGZyb20gcmVtb3RlcHJvYy4KPgo+IEJ1dCBpZiB3ZSB3
-aGVyZSB0byBtYWtlIHdyYXBwZXJzLCBob3cgYWJvdXQgc29tZXRoaW5nIGxpa2UgdGhpcz8KCkJU
-VywgSSdtIGxlYXZpbmcgT2hhZCBhbmQgeW91IHRvIGJhdHRsZSBpdCBvdXQuICBUaGVyZSdzIG5v
-IGh1Z2UgaHVycnksCnNvIG1ha2Ugc3VyZSB5b3UncmUgYm90aCBoYXBweS4KCj4gZGlmZiAtLWdp
-dCBhL2luY2x1ZGUvbGludXgvdmlydGlvX2NvbmZpZy5oIGIvaW5jbHVkZS9saW51eC92aXJ0aW9f
-Y29uZmlnLmgKPiBpbmRleCAyOWI5MTA0Li5jYTI1N2Q4IDEwMDY0NAo+IC0tLSBhL2luY2x1ZGUv
-bGludXgvdmlydGlvX2NvbmZpZy5oCj4gKysrIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fY29uZmln
-LmgKPiBAQCAtNTMsMCArNTQsOCBAQAo+ICsgKiBAZmluZF92cmg6IGZpbmQgdGhlIGhvc3QgdnJp
-bmdzIGFuZCBpbnN0YW50aWF0ZSB0aGVtCj4gKyAqICAgICB2ZGV2OiB0aGUgdmlydGlvX2Rldmlj
-ZQo+ICsgKiAgICAgbmh2cnM6IHRoZSBudW1iZXIgb2YgaG9zdCB2cmluZ3MgdG8gZmluZAo+ICsg
-KiAgICAgaHZyczogb24gc3VjY2VzcywgaW5jbHVkZXMgbmV3IGhvc3QgdnJpbmdzCj4gKyAqICAg
-ICBjYWxsYmFja3M6IGFycmF5IG9mIGRyaXZlciBjYWxsYmFja3MsIGZvciBlYWNoIGhvc3QgdnJp
-bmcKPiArICogICAgICAgICAgICAgaW5jbHVkZSBhIE5VTEwgZW50cnkgZm9yIHZxcyB0aGF0IGRv
-IG5vdCBuZWVkIGEgY2FsbGJhY2sKPiArICogICAgIFJldHVybnMgMCBvbiBzdWNjZXNzIG9yIGVy
-cm9yIHN0YXR1cwo+ICsgKiBAZGVsX3ZyaDogZnJlZSB0aGUgaG9zdCB2cmluZ3MgZm91bmQgYnkg
-ZmluZF92cmgoKS4KPiBAQCAtNTUsMCArNjQgQEAgdHlwZWRlZiB2b2lkIHZxX2NhbGxiYWNrX3Qo
-c3RydWN0IHZpcnRxdWV1ZSAqKTsKPiArdHlwZWRlZiB2b2lkIHZyaF9jYWxsYmFja190KHN0cnVj
-dCB2aXJ0aW9fZGV2aWNlICosIHN0cnVjdCB2cmluZ2ggKik7Cj4gQEAgLTcyLDAgKzgyLDQgQEAg
-c3RydWN0IHZpcnRpb19jb25maWdfb3BzIHsKPiArICAgICAgIGludCAoKmZpbmRfdnJoKSAoc3Ry
-dWN0IHZpcnRpb19kZXZpY2UgKiwgdW5zaWduZWQgbmh2cnMsCj4gKyAgICAgICAgICAgICAgICAg
-ICAgICAgIHN0cnVjdCB2cmluZ2ggKnZyaHNbXSwKPiArICAgICAgICAgICAgICAgICAgICAgICAg
-dnJoX2NhbGxiYWNrX3QgKmNhbGxiYWNrc1tdKTsKPiArICAgICAgIGludCAoKmRlbF92cmhzKShz
-dHJ1Y3QgdmlydGlvX2RldmljZSAqKTsKPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92cmlu
-Z2guaCBiL2luY2x1ZGUvbGludXgvdnJpbmdoLmgKPiBpbmRleCA0YzRjOTE4Li43OGFlY2M5IDEw
-MDY0NAo+IC0tLSBhL2luY2x1ZGUvbGludXgvdnJpbmdoLmgKPiArKysgYi9pbmNsdWRlL2xpbnV4
-L3ZyaW5naC5oCj4gQEAgLTUyLDAgKzUzLDMgQEAgc3RydWN0IHZyaW5naCB7Cj4gKwo+ICsgICAg
-ICAgLyogVGhlIGZ1bmN0aW9uIHRvIGNhbGwgd2hlbiBidWZmZXJzIGFyZSBhdmFpbGFibGUgKi8K
-PiArICAgICAgIHZvaWQgKCpub3RpZnkpKHN0cnVjdCB2cmluZ2ggKik7CgpUaGlzIHdpbGwgd29y
-ayBmb3Igdmhvc3QsIHRvbywgc28gbm8gcHJvYmxlbXMgaGVyZS4KCkNoZWVycywKUnVzdHkuCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On 02/28/2013 10:57 AM, Rusty Russell wrote:
+> Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
+>> Add sg_unmark_end to scatterlist.h to fix compile.
+>>
+>> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+> 
+> Thanks, I have the same patch in my series, which is in flux, but
+> can be found in my pending-rebases branch:
+> 
+> https://git.kernel.org/?p=linux/kernel/git/rusty/linux.git;a=shortlog;h=refs/heads/pending-rebases
+
+Nop, this patch is based on your pending-rebase actually, I didn't find it in this branch.
+Missing something?
+
+
+Thanks,
+Wanlong Gao
+
+> 
+> Cheers,
+> Rusty.
+> 
