@@ -1,20 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 08/16] virtio_ring: virtqueue_add_outbuf /
-	virtqueue_add_inbuf.
-Date: Thu, 28 Feb 2013 09:01:24 +0200
-Message-ID: <20130228070124.GD4743@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 02/16] virtio_ring: virtqueue_add_sgs, to add multiple sgs.
+Date: Thu, 28 Feb 2013 10:24:11 +0100
+Message-ID: <512F223B.4080801@redhat.com>
 References: <1361260594-601-1-git-send-email-rusty@rustcorp.com.au>
-	<1361260594-601-9-git-send-email-rusty@rustcorp.com.au>
-	<20130221170902.GA27097@redhat.com>
-	<87sj4pfc61.fsf@rustcorp.com.au>
-	<20130225213504.GC18167@redhat.com>
-	<87lia9c9er.fsf@rustcorp.com.au>
+	<1361260594-601-3-git-send-email-rusty@rustcorp.com.au>
+	<20130224221255.GA5300@redhat.com>
+	<512C5E0E.5040305@redhat.com> <87obf6dxlm.fsf@rustcorp.com.au>
+	<20130227074920.GA11775@redhat.com>
+	<87fw0idmu2.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87lia9c9er.fsf@rustcorp.com.au>
+In-Reply-To: <87fw0idmu2.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,72 +23,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 28, 2013 at 03:38:44PM +1030, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > On Fri, Feb 22, 2013 at 10:32:46AM +1030, Rusty Russell wrote:
-> >> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> >> > On Tue, Feb 19, 2013 at 06:26:26PM +1030, Rusty Russell wrote:
-> >> >> These are specialized versions of virtqueue_add_buf(), which cover
-> >> >> over 50% of cases and are far clearer.
-> >> >> 
-> >> >> In particular, the scatterlists passed to these functions don't have
-> >> >> to be clean (ie. we ignore end markers).
-> >> >> 
-> >> >> FIXME: I'm not sure about the unclean sglist bit.  I had a more
-> >> >> ambitious one which conditionally ignored end markers in the iterator,
-> >> >> but it was ugly and I suspect this is just as fast.  Maybe we should
-> >> >> just fix all the drivers?
-> >> >> 
-> >> >> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-> >> >
-> >> > Looking at code, it seems that most users really have a single sg, in
-> >> > low memory. So how about simply passing void * instead of sg? Whoever
-> >> > has multiple sgs can use the rich interface.
-> >> 
-> >> Good point, let's do that:
-> >> 1) Make virtqueue_add_outbuf()/inbuf() take a void * and len.
-> >> 2) Transfer users across to use that.
-> >> 3) Make everyone else use clean scatterlists with virtqueue_add_sgs[].
-> >> 4) Remove virtqueue_add_bufs().
-> >> 
-> >> > Long term we might optimize this unrolling some loops, I think
-> >> > I saw this giving a small performance gain for -net.
-> >> 
-> >> I *think* we could make virtqueue_add() an inline and implement an
-> >> virtqueue_add_outsg() wrapper and gcc will eliminate the loops for us.
-> >> But not sure it's worth the text bloat...
-> >> 
-> >> Cheers,
-> >> Rusty.
-> >
-> > inline is mostly useless nowdays...  We can make it a static function and
-> > let gcc decide.
-> 
-> I know I've said before that inline is the register keyword of the '90s.
-> But not at -O2 with i686-linux-gnu-gcc-4.7 (Ubuntu/Linaro
-> 4.7.2-2ubuntu1) 4.7.2.
-> 
-> Without the inline keywords, it doesn't inline virtqueue_add, and thus
-> sg_next_chained and sg_next_add aren't inlined:
-> 
-> $ for i in `seq 50`; do /usr/bin/time --format=%U ./vringh_test --indirect --eventidx --parallel; done 2>&1 | stats --trim-outliers
-> Using CPUS 0 and 3
-> Guest: notified 39102-39145(39105), pinged 39060-39063(39063)
-> Host: notified 39060-39063(39063), pinged 19551-19581(19553)
-> 3.050000-3.220000(3.136875)
-> 
-> With inline:
-> 
-> $ for i in `seq 50`; do /usr/bin/time --format=%U ./vringh_test --indirect --eventidx --parallel; done 2>&1 | stats --trim-outliers
-> Using CPUS 0 and 3
-> Guest: notified 39084-39148(39099), pinged 39062-39063(39062)
-> Host: notified 39062-39063(39062), pinged 19542-19574(19550)
-> 2.940000-3.140000(3.014583)
-> 
-> Cheers,
-> Rusty.
+Il 27/02/2013 12:21, Rusty Russell ha scritto:
+>>> >> Baseline (before add_sgs):
+>>> >>         2.840000-3.040000(2.927292)user
+>>> >> 
+>>> >> After add_sgs:
+>>> >>         2.970000-3.150000(3.053750)user
+>>> >> 
+>>> >> After simplifying add_buf a little:
+>>> >>         2.950000-3.210000(3.081458)user
+>>> >> 
+>>> >> After inlining virtqueue_add/vring_add_indirect:
+>>> >>         2.920000-3.150000(3.026875)user
+>>> >> 
+>>> >> After passing in iteration functions (chained vs unchained):
+>>> >>         2.760000-2.970000(2.883542)user
+> Oops.  This result (and the next) is bogus.  I was playing with -O3, and
+> accidentally left that in :(
 
-Cool and did it actually unroll all loops?
+Did you check what actually happened that improved speed so much?  Can
+we do it ourselves, or use a GCC attribute to turn it on?  Looking at
+the GCC manual and source, there's just a bunch of optimizations enabled
+by -O3:
+
+    { OPT_LEVELS_3_PLUS, OPT_ftree_loop_distribute_patterns, NULL, 1 },
+
+`-ftree-loop-distribute-patterns'
+     This pass distributes the initialization loops and generates a
+     call to memset zero.  For example, the loop
+
+Doesn't matter.
+
+    { OPT_LEVELS_3_PLUS, OPT_fpredictive_commoning, NULL, 1 },
+
+Also doesn't matter.
+
+    { OPT_LEVELS_3_PLUS, OPT_funswitch_loops, NULL, 1 },
+
+Can be done by us at the source level.
+
+    { OPT_LEVELS_3_PLUS, OPT_ftree_vectorize, NULL, 1 },
+
+Probably doesn't matter.
+
+    { OPT_LEVELS_3_PLUS, OPT_fipa_cp_clone, NULL, 1 },
+
+`-fipa-cp-clone'
+     Perform function cloning to make interprocedural constant
+     propagation stronger.  When enabled, interprocedural constant
+     propagation will perform function cloning when externally visible
+     function can be called with constant arguments.
+
+Can be done by adding new external APIs or marking functions as
+always_inline.
+
+    { OPT_LEVELS_3_PLUS, OPT_fgcse_after_reload, NULL, 1 },
+
+`-fgcse-after-reload'
+     When `-fgcse-after-reload' is enabled, a redundant load elimination
+     pass is performed after reload.  The purpose of this pass is to
+     cleanup redundant spilling.
+
+Never saw it have any substantial effect.
+
+    { OPT_LEVELS_3_PLUS_AND_SIZE, OPT_finline_functions, NULL, 1 },
+
+Can be done by us simply by adding more "inline" keywords.
+
+Plus, -O3 will make *full* loop unrolling a bit more aggressive.  But
+full loop unrolling requires compile-time-known loop bounds, so I doubt
+this is the case.
+
+Paolo
