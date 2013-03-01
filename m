@@ -1,15 +1,16 @@
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: Pawel Moll <pawel.moll@arm.com>
 Subject: Re: [PATCH] virtio-spec: Define virtio-mmio registers as LE
-Date: Fri, 01 Mar 2013 11:21:06 +0000
-Message-ID: <51308F22.7040303@arm.com>
+Date: Fri, 01 Mar 2013 12:37:12 +0000
+Message-ID: <1362141432.3052.28.camel@hornet>
 References: <87wqubkalj.fsf@rustcorp.com.au>
 	<1360839247-9131-1-git-send-email-pawel.moll@arm.com>
 	<513085EA.8070007@arm.com> <1362135005.3052.26.camel@hornet>
+	<51308F22.7040303@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1362135005.3052.26.camel@hornet>
+In-Reply-To: <51308F22.7040303@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,42 +20,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <Pawel.Moll@arm.com>
+To: Marc Zyngier <Marc.Zyngier@arm.com>
 Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/03/13 10:50, Pawel Moll wrote:
-> On Fri, 2013-03-01 at 10:41 +0000, Marc Zyngier wrote:
->> On 14/02/13 10:54, Pawel Moll wrote:
->>> To solve the never-ending confusions between hosts and guests
->>> of different endianess, define all virtio-mmio registers as LE.
->>>
->>> This change should be safe at this stage, because no known
->>> working mixed-endian system exists so there is virtually no
->>> risk of breaking compatibility.
->>>
->>> Signed-off-by: Pawel Moll <pawel.moll@arm.com>
->>
->> Shouldn't we exclude the config space? PCI defines it as guest-endian,
->> and the above tends to indicate that it should be LE with MMIO.
+On Fri, 2013-03-01 at 11:21 +0000, Marc Zyngier wrote:
+> > Having said that, Rusty was contemplating enforcing LE config space in
+> > the new PCI layout...
 > 
-> The spec says: "Device-specific configuration space starts at an offset
-> 0x100 and is accessed with byte alignment. Its meaning and size depends
-> on the device and the driver."
-> 
-> I would hope that "accessed with byte alignment" is enough of a clue in
-> this subject, but if you think otherwise I can add a sentence stating
-> this explicitly.
+> I wouldn't complain about that, and would like to see a similar thing on
+> MMIO.
 
-Well, it was unclear enough for me to get confused... ;-) It would make
-sense to have a wording similar to the one in the PCI section.
+Wherever PCI goes, MMIO follows :-)
 
-> Having said that, Rusty was contemplating enforcing LE config space in
-> the new PCI layout...
+> Well, it was unclear enough for me to get confused... ;-) It would make
+> sense to have a wording similar to the one in the PCI section.
 
-I wouldn't complain about that, and would like to see a similar thing on
-MMIO.
+How about this?
 
-	M.
+8<---------
+From a80f01f15397395a8fc49ef424a2d47c8be0937a Mon Sep 17 00:00:00 2001
+From: Pawel Moll <pawel.moll@arm.com>
+Date: Fri, 1 Mar 2013 12:35:06 +0000
+Subject: [PATCH] virtio-spec: Clarify virtio-mmio configuration space organisation
+
+To clarify potential confusion regarding the configuration
+space organisation (endianness in particular) the spec
+should clearly state that it follows the PCI device behaviour.
+
+Signed-off-by: Pawel Moll <pawel.moll@arm.com>
+---
+ virtio-spec.lyx |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+index a00b675..2fba0b0 100644
+--- a/virtio-spec.lyx
++++ b/virtio-spec.lyx
+@@ -696,6 +696,17 @@ rproc serial
+ 
+ \begin_layout Section
+ Device Configuration
++\change_inserted -875410574 1362141102
++
++\begin_inset CommandInset label
++LatexCommand label
++name "sec:Device-Configuration"
++
++\end_inset
++
++
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Standard
+@@ -9865,7 +9876,7 @@ a
+ 
+ \change_deleted -875410574 1360838214
+ The endianness of the registers follows the native endianness of the Guest.
+-\change_inserted -875410574 1360838930
++\change_inserted -875410574 1362141146
+ All register values are organized as Little Endian, similarly to the PCI
+  variant, see also 
+ \begin_inset CommandInset ref
+@@ -9875,6 +9886,15 @@ reference "sub:Virtqueue-Endianness"
+ \end_inset
+ 
+ .
++ The device-specific configuration space organisation follows the PCI device
++ specification, see
++\begin_inset CommandInset ref
++LatexCommand ref
++reference "sec:Device-Configuration"
++
++\end_inset
++
++.
+  
+ \change_deleted -875410574 1360838262
+  
 -- 
-Jazz is not dead. It just smells funny...
+1.7.10.4
