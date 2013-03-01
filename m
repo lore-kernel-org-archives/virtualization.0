@@ -1,14 +1,15 @@
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: Pawel Moll <pawel.moll@arm.com>
 Subject: Re: [PATCH] virtio-spec: Define virtio-mmio registers as LE
-Date: Fri, 01 Mar 2013 10:41:46 +0000
-Message-ID: <513085EA.8070007@arm.com>
+Date: Fri, 01 Mar 2013 10:50:05 +0000
+Message-ID: <1362135005.3052.26.camel@hornet>
 References: <87wqubkalj.fsf@rustcorp.com.au>
 	<1360839247-9131-1-git-send-email-pawel.moll@arm.com>
+	<513085EA.8070007@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1360839247-9131-1-git-send-email-pawel.moll@arm.com>
+In-Reply-To: <513085EA.8070007@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,71 +19,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <Pawel.Moll@arm.com>
+To: Marc Zyngier <Marc.Zyngier@arm.com>
 Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 14/02/13 10:54, Pawel Moll wrote:
-> To solve the never-ending confusions between hosts and guests
-> of different endianess, define all virtio-mmio registers as LE.
-> 
-> This change should be safe at this stage, because no known
-> working mixed-endian system exists so there is virtually no
-> risk of breaking compatibility.
-> 
-> Signed-off-by: Pawel Moll <pawel.moll@arm.com>
-> ---
->  virtio-spec.lyx |   30 +++++++++++++++++++++++++++++-
->  1 file changed, 29 insertions(+), 1 deletion(-)
-> 
-> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-> index 1ba9992..a00b675 100644
-> --- a/virtio-spec.lyx
-> +++ b/virtio-spec.lyx
-> @@ -56,6 +56,7 @@
->  \html_math_output 0
->  \html_css_as_file 0
->  \html_be_strict false
-> +\author -875410574 "Pawel Moll" 
->  \author -608949062 "Rusty Russell,,," 
->  \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
->  \author 1112500848 "Rusty Russell" rusty@rustcorp.com.au
-> @@ -1850,6 +1851,17 @@ struct vring {
->  
->  \begin_layout Subsection
->  A Note on Virtqueue Endianness
-> +\change_inserted -875410574 1360838374
-> +
-> +\begin_inset CommandInset label
-> +LatexCommand label
-> +name "sub:Virtqueue-Endianness"
-> +
-> +\end_inset
-> +
-> +
-> +\change_unchanged
-> +
->  \end_layout
->  
->  \begin_layout Standard
-> @@ -9850,8 +9862,24 @@ a
->  \end_layout
->  
->  \begin_layout Standard
-> +
-> +\change_deleted -875410574 1360838214
->  The endianness of the registers follows the native endianness of the Guest.
-> - Writing to registers described as 
-> +\change_inserted -875410574 1360838930
-> +All register values are organized as Little Endian, similarly to the PCI
-> + variant, see also 
-> +\begin_inset CommandInset ref
-> +LatexCommand ref
-> +reference "sub:Virtqueue-Endianness"
-
-Shouldn't we exclude the config space? PCI defines it as guest-endian,
-and the above tends to indicate that it should be LE with MMIO.
-
-	M.
--- 
-Jazz is not dead. It just smells funny...
+T24gRnJpLCAyMDEzLTAzLTAxIGF0IDEwOjQxICswMDAwLCBNYXJjIFp5bmdpZXIgd3JvdGU6Cj4g
+T24gMTQvMDIvMTMgMTA6NTQsIFBhd2VsIE1vbGwgd3JvdGU6Cj4gPiBUbyBzb2x2ZSB0aGUgbmV2
+ZXItZW5kaW5nIGNvbmZ1c2lvbnMgYmV0d2VlbiBob3N0cyBhbmQgZ3Vlc3RzCj4gPiBvZiBkaWZm
+ZXJlbnQgZW5kaWFuZXNzLCBkZWZpbmUgYWxsIHZpcnRpby1tbWlvIHJlZ2lzdGVycyBhcyBMRS4K
+PiA+IAo+ID4gVGhpcyBjaGFuZ2Ugc2hvdWxkIGJlIHNhZmUgYXQgdGhpcyBzdGFnZSwgYmVjYXVz
+ZSBubyBrbm93bgo+ID4gd29ya2luZyBtaXhlZC1lbmRpYW4gc3lzdGVtIGV4aXN0cyBzbyB0aGVy
+ZSBpcyB2aXJ0dWFsbHkgbm8KPiA+IHJpc2sgb2YgYnJlYWtpbmcgY29tcGF0aWJpbGl0eS4KPiA+
+IAo+ID4gU2lnbmVkLW9mZi1ieTogUGF3ZWwgTW9sbCA8cGF3ZWwubW9sbEBhcm0uY29tPgo+Cj4g
+U2hvdWxkbid0IHdlIGV4Y2x1ZGUgdGhlIGNvbmZpZyBzcGFjZT8gUENJIGRlZmluZXMgaXQgYXMg
+Z3Vlc3QtZW5kaWFuLAo+IGFuZCB0aGUgYWJvdmUgdGVuZHMgdG8gaW5kaWNhdGUgdGhhdCBpdCBz
+aG91bGQgYmUgTEUgd2l0aCBNTUlPLgoKVGhlIHNwZWMgc2F5czogIkRldmljZS1zcGVjaWZpYyBj
+b25maWd1cmF0aW9uIHNwYWNlIHN0YXJ0cyBhdCBhbiBvZmZzZXQKMHgxMDAgYW5kIGlzIGFjY2Vz
+c2VkIHdpdGggYnl0ZSBhbGlnbm1lbnQuIEl0cyBtZWFuaW5nIGFuZCBzaXplIGRlcGVuZHMKb24g
+dGhlIGRldmljZSBhbmQgdGhlIGRyaXZlci4iCgpJIHdvdWxkIGhvcGUgdGhhdCAiYWNjZXNzZWQg
+d2l0aCBieXRlIGFsaWdubWVudCIgaXMgZW5vdWdoIG9mIGEgY2x1ZSBpbgp0aGlzIHN1YmplY3Qs
+IGJ1dCBpZiB5b3UgdGhpbmsgb3RoZXJ3aXNlIEkgY2FuIGFkZCBhIHNlbnRlbmNlIHN0YXRpbmcK
+dGhpcyBleHBsaWNpdGx5LgoKSGF2aW5nIHNhaWQgdGhhdCwgUnVzdHkgd2FzIGNvbnRlbXBsYXRp
+bmcgZW5mb3JjaW5nIExFIGNvbmZpZyBzcGFjZSBpbgp0aGUgbmV3IFBDSSBsYXlvdXQuLi4KClBh
+d2XFggoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
