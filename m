@@ -1,16 +1,17 @@
-From: Marc Zyngier <marc.zyngier@arm.com>
-Subject: Re: [PATCH] virtio-spec: Define virtio-mmio registers as LE
-Date: Fri, 01 Mar 2013 13:16:52 +0000
-Message-ID: <5130AA44.7030902@arm.com>
-References: <87wqubkalj.fsf@rustcorp.com.au>
-	<1360839247-9131-1-git-send-email-pawel.moll@arm.com>
-	<513085EA.8070007@arm.com> <1362135005.3052.26.camel@hornet>
-	<51308F22.7040303@arm.com> <1362141432.3052.28.camel@hornet>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH v2] arch/x86/xen: remove depends on CONFIG_EXPERIMENTAL
+Date: Fri, 1 Mar 2013 08:45:28 -0500
+Message-ID: <20130301134528.GA3690@phenom.dumpdata.com>
+References: <20130228215640.GA3136@www.outflux.net>
+	<alpine.DEB.2.02.1302282251200.5210@kaball.uk.xensource.com>
+	<CAGXu5jKHR+bnx7jc0vC15sJL1rradGt0g230MVOaDLj5NqCBhQ@mail.gmail.com>
+	<alpine.DEB.2.02.1302282309510.5210@kaball.uk.xensource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1362141432.3052.28.camel@hornet>
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.02.1302282309510.5210@kaball.uk.xensource.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +21,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <Pawel.Moll@arm.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Kees Cook <keescook@chromium.org>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Mukesh Rathor <mukesh.rathor@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 01/03/13 12:37, Pawel Moll wrote:
-> On Fri, 2013-03-01 at 11:21 +0000, Marc Zyngier wrote:
->>> Having said that, Rusty was contemplating enforcing LE config space in
->>> the new PCI layout...
->>
->> I wouldn't complain about that, and would like to see a similar thing on
->> MMIO.
+On Thu, Feb 28, 2013 at 11:10:55PM +0000, Stefano Stabellini wrote:
+> On Thu, 28 Feb 2013, Kees Cook wrote:
+> > On Thu, Feb 28, 2013 at 2:53 PM, Stefano Stabellini
+> > <stefano.stabellini@eu.citrix.com> wrote:
+> > > On Thu, 28 Feb 2013, Kees Cook wrote:
+> > >> The CONFIG_EXPERIMENTAL config item has not carried much meaning for a
+> > >> while now and is almost always enabled by default. As agreed during the
+> > >> Linux kernel summit, remove it from any "depends on" lines in Kconfigs.
+> > >>
+> > >> Signed-off-by: Kees Cook <keescook@chromium.org>
+> > >> Cc: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+> > >> Cc: Mukesh Rathor <mukesh.rathor@oracle.com>
+> > >> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> > >> ---
+> > >>
+> > >> v2:
+> > >>  - drop EXPERIMENTAL from bool and help text too.
+> > >>
+> > >> ---
+> > >>  arch/x86/xen/Kconfig |    8 +++-----
+> > >>  1 file changed, 3 insertions(+), 5 deletions(-)
+> > >>
+> > >> diff --git a/arch/x86/xen/Kconfig b/arch/x86/xen/Kconfig
+> > >> index 93ff4e1..6c5802f 100644
+> > >> --- a/arch/x86/xen/Kconfig
+> > >> +++ b/arch/x86/xen/Kconfig
+> > >> @@ -52,12 +52,10 @@ config XEN_DEBUG_FS
+> > >>         Enabling this option may incur a significant performance overhead.
+> > >>
+> > >>  config XEN_X86_PVH
+> > >> -     bool "Support for running as a PVH guest (EXPERIMENTAL)"
+> > >> -     depends on X86_64 && XEN && EXPERIMENTAL
+> > >> +     bool "Support for running as a PVH guest"
+> > >> +     depends on X86_64 && XEN
+> > >>       default n
+> > >>       help
+> > >>          This option enables support for running as a PVH guest (PV guest
+> > >>          using hardware extensions) under a suitably capable hypervisor.
+> > >> -        This option is EXPERIMENTAL because the hypervisor interfaces
+> > >> -        which it uses is not yet considered stable therefore backwards and
+> > >> -        forwards compatibility is not yet guaranteed.  If unsure, say N.
+> > >> +        If unsure, say N.
+> > >
+> > > Please do not change the text this way.
+> > > The fact that CONFIG_EXPERIMENTAL is going away it doesn't change the
+> > > fact that this feature is experimental.
+> > > Maybe you want to replace EXPERIMENTAL with experimental, or if
+> > > experimental has become as taboo word, I am sure you can find a suitable
+> > > synonym.
+> > 
+> > Ah, sorry, I misunderstood what was being recommended from the other
+> > thread (quoting below...)
+> > 
+> > On Sat, 23 Feb 2013, Konrad Rzeszutek Wilk wrote:
+> > > It certainly is unstable right now (which is why it was unstaged from
+> > > the v3.9 train). I hope that by v3.10 it won't be - at which
+> > > point this patch (and the EXPERIMENTAL) makes sense.
+> > 
+> > Only "depends on EXPERIMENTAL" must go away. Did you want either the
+> > bool or help text to go away too? If neither, my original patch should
+> > work. If you only want the bool text gone, I can send that version
+> > instead.
 > 
-> Wherever PCI goes, MMIO follows :-)
+> I think your original patch is good, but I'll let Konrad decide.
 
-Sweet. Makes my life easier ;-).
-
->> Well, it was unclear enough for me to get confused... ;-) It would make
->> sense to have a wording similar to the one in the PCI section.
-> 
-> How about this?
-> 
-> 8<---------
-> From a80f01f15397395a8fc49ef424a2d47c8be0937a Mon Sep 17 00:00:00 2001
-> From: Pawel Moll <pawel.moll@arm.com>
-> Date: Fri, 1 Mar 2013 12:35:06 +0000
-> Subject: [PATCH] virtio-spec: Clarify virtio-mmio configuration space organisation
-> 
-> To clarify potential confusion regarding the configuration
-> space organisation (endianness in particular) the spec
-> should clearly state that it follows the PCI device behaviour.
-> 
-> Signed-off-by: Pawel Moll <pawel.moll@arm.com>
-
-Looks good to me!
-
-	M.
--- 
-Jazz is not dead. It just smells funny...
+By the time PVH is going to Linus it better be stable. So the revised
+patch is OK with me (fyi, this patch is going in my stable/pvh.v7 which
+is part of #linux-next).
