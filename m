@@ -1,15 +1,15 @@
-From: Pawel Moll <pawel.moll@arm.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
 Subject: Re: [PATCH] virtio-spec: Define virtio-mmio registers as LE
-Date: Fri, 01 Mar 2013 10:50:05 +0000
-Message-ID: <1362135005.3052.26.camel@hornet>
+Date: Fri, 01 Mar 2013 11:21:06 +0000
+Message-ID: <51308F22.7040303@arm.com>
 References: <87wqubkalj.fsf@rustcorp.com.au>
 	<1360839247-9131-1-git-send-email-pawel.moll@arm.com>
-	<513085EA.8070007@arm.com>
+	<513085EA.8070007@arm.com> <1362135005.3052.26.camel@hornet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <513085EA.8070007@arm.com>
+In-Reply-To: <1362135005.3052.26.camel@hornet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +19,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Marc Zyngier <Marc.Zyngier@arm.com>
+To: Pawel Moll <Pawel.Moll@arm.com>
 Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAyMDEzLTAzLTAxIGF0IDEwOjQxICswMDAwLCBNYXJjIFp5bmdpZXIgd3JvdGU6Cj4g
-T24gMTQvMDIvMTMgMTA6NTQsIFBhd2VsIE1vbGwgd3JvdGU6Cj4gPiBUbyBzb2x2ZSB0aGUgbmV2
-ZXItZW5kaW5nIGNvbmZ1c2lvbnMgYmV0d2VlbiBob3N0cyBhbmQgZ3Vlc3RzCj4gPiBvZiBkaWZm
-ZXJlbnQgZW5kaWFuZXNzLCBkZWZpbmUgYWxsIHZpcnRpby1tbWlvIHJlZ2lzdGVycyBhcyBMRS4K
-PiA+IAo+ID4gVGhpcyBjaGFuZ2Ugc2hvdWxkIGJlIHNhZmUgYXQgdGhpcyBzdGFnZSwgYmVjYXVz
-ZSBubyBrbm93bgo+ID4gd29ya2luZyBtaXhlZC1lbmRpYW4gc3lzdGVtIGV4aXN0cyBzbyB0aGVy
-ZSBpcyB2aXJ0dWFsbHkgbm8KPiA+IHJpc2sgb2YgYnJlYWtpbmcgY29tcGF0aWJpbGl0eS4KPiA+
-IAo+ID4gU2lnbmVkLW9mZi1ieTogUGF3ZWwgTW9sbCA8cGF3ZWwubW9sbEBhcm0uY29tPgo+Cj4g
-U2hvdWxkbid0IHdlIGV4Y2x1ZGUgdGhlIGNvbmZpZyBzcGFjZT8gUENJIGRlZmluZXMgaXQgYXMg
-Z3Vlc3QtZW5kaWFuLAo+IGFuZCB0aGUgYWJvdmUgdGVuZHMgdG8gaW5kaWNhdGUgdGhhdCBpdCBz
-aG91bGQgYmUgTEUgd2l0aCBNTUlPLgoKVGhlIHNwZWMgc2F5czogIkRldmljZS1zcGVjaWZpYyBj
-b25maWd1cmF0aW9uIHNwYWNlIHN0YXJ0cyBhdCBhbiBvZmZzZXQKMHgxMDAgYW5kIGlzIGFjY2Vz
-c2VkIHdpdGggYnl0ZSBhbGlnbm1lbnQuIEl0cyBtZWFuaW5nIGFuZCBzaXplIGRlcGVuZHMKb24g
-dGhlIGRldmljZSBhbmQgdGhlIGRyaXZlci4iCgpJIHdvdWxkIGhvcGUgdGhhdCAiYWNjZXNzZWQg
-d2l0aCBieXRlIGFsaWdubWVudCIgaXMgZW5vdWdoIG9mIGEgY2x1ZSBpbgp0aGlzIHN1YmplY3Qs
-IGJ1dCBpZiB5b3UgdGhpbmsgb3RoZXJ3aXNlIEkgY2FuIGFkZCBhIHNlbnRlbmNlIHN0YXRpbmcK
-dGhpcyBleHBsaWNpdGx5LgoKSGF2aW5nIHNhaWQgdGhhdCwgUnVzdHkgd2FzIGNvbnRlbXBsYXRp
-bmcgZW5mb3JjaW5nIExFIGNvbmZpZyBzcGFjZSBpbgp0aGUgbmV3IFBDSSBsYXlvdXQuLi4KClBh
-d2XFggoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+On 01/03/13 10:50, Pawel Moll wrote:
+> On Fri, 2013-03-01 at 10:41 +0000, Marc Zyngier wrote:
+>> On 14/02/13 10:54, Pawel Moll wrote:
+>>> To solve the never-ending confusions between hosts and guests
+>>> of different endianess, define all virtio-mmio registers as LE.
+>>>
+>>> This change should be safe at this stage, because no known
+>>> working mixed-endian system exists so there is virtually no
+>>> risk of breaking compatibility.
+>>>
+>>> Signed-off-by: Pawel Moll <pawel.moll@arm.com>
+>>
+>> Shouldn't we exclude the config space? PCI defines it as guest-endian,
+>> and the above tends to indicate that it should be LE with MMIO.
+> 
+> The spec says: "Device-specific configuration space starts at an offset
+> 0x100 and is accessed with byte alignment. Its meaning and size depends
+> on the device and the driver."
+> 
+> I would hope that "accessed with byte alignment" is enough of a clue in
+> this subject, but if you think otherwise I can add a sentence stating
+> this explicitly.
+
+Well, it was unclear enough for me to get confused... ;-) It would make
+sense to have a wording similar to the one in the PCI section.
+
+> Having said that, Rusty was contemplating enforcing LE config space in
+> the new PCI layout...
+
+I wouldn't complain about that, and would like to see a similar thing on
+MMIO.
+
+	M.
+-- 
+Jazz is not dead. It just smells funny...
