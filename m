@@ -1,15 +1,14 @@
-From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-Subject: Re: [PATCH v2] arch/x86/xen: remove depends on CONFIG_EXPERIMENTAL
-Date: Thu, 28 Feb 2013 23:10:55 +0000
-Message-ID: <alpine.DEB.2.02.1302282309510.5210@kaball.uk.xensource.com>
-References: <20130228215640.GA3136@www.outflux.net>
-	<alpine.DEB.2.02.1302282251200.5210@kaball.uk.xensource.com>
-	<CAGXu5jKHR+bnx7jc0vC15sJL1rradGt0g230MVOaDLj5NqCBhQ@mail.gmail.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
+Subject: Re: [PATCH] virtio-spec: Define virtio-mmio registers as LE
+Date: Fri, 01 Mar 2013 10:41:46 +0000
+Message-ID: <513085EA.8070007@arm.com>
+References: <87wqubkalj.fsf@rustcorp.com.au>
+	<1360839247-9131-1-git-send-email-pawel.moll@arm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAGXu5jKHR+bnx7jc0vC15sJL1rradGt0g230MVOaDLj5NqCBhQ@mail.gmail.com>
+In-Reply-To: <1360839247-9131-1-git-send-email-pawel.moll@arm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,70 +18,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Kees Cook <keescook@chromium.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "x86@kernel.org" <x86@kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Stefano Stabellini <Stefano.Stabellini@eu.citrix.com>, Mukesh Rathor <mukesh.rathor@oracle.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>
+To: Pawel Moll <Pawel.Moll@arm.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 28 Feb 2013, Kees Cook wrote:
-> On Thu, Feb 28, 2013 at 2:53 PM, Stefano Stabellini
-> <stefano.stabellini@eu.citrix.com> wrote:
-> > On Thu, 28 Feb 2013, Kees Cook wrote:
-> >> The CONFIG_EXPERIMENTAL config item has not carried much meaning for a
-> >> while now and is almost always enabled by default. As agreed during the
-> >> Linux kernel summit, remove it from any "depends on" lines in Kconfigs.
-> >>
-> >> Signed-off-by: Kees Cook <keescook@chromium.org>
-> >> Cc: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
-> >> Cc: Mukesh Rathor <mukesh.rathor@oracle.com>
-> >> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> >> ---
-> >>
-> >> v2:
-> >>  - drop EXPERIMENTAL from bool and help text too.
-> >>
-> >> ---
-> >>  arch/x86/xen/Kconfig |    8 +++-----
-> >>  1 file changed, 3 insertions(+), 5 deletions(-)
-> >>
-> >> diff --git a/arch/x86/xen/Kconfig b/arch/x86/xen/Kconfig
-> >> index 93ff4e1..6c5802f 100644
-> >> --- a/arch/x86/xen/Kconfig
-> >> +++ b/arch/x86/xen/Kconfig
-> >> @@ -52,12 +52,10 @@ config XEN_DEBUG_FS
-> >>         Enabling this option may incur a significant performance overhead.
-> >>
-> >>  config XEN_X86_PVH
-> >> -     bool "Support for running as a PVH guest (EXPERIMENTAL)"
-> >> -     depends on X86_64 && XEN && EXPERIMENTAL
-> >> +     bool "Support for running as a PVH guest"
-> >> +     depends on X86_64 && XEN
-> >>       default n
-> >>       help
-> >>          This option enables support for running as a PVH guest (PV guest
-> >>          using hardware extensions) under a suitably capable hypervisor.
-> >> -        This option is EXPERIMENTAL because the hypervisor interfaces
-> >> -        which it uses is not yet considered stable therefore backwards and
-> >> -        forwards compatibility is not yet guaranteed.  If unsure, say N.
-> >> +        If unsure, say N.
-> >
-> > Please do not change the text this way.
-> > The fact that CONFIG_EXPERIMENTAL is going away it doesn't change the
-> > fact that this feature is experimental.
-> > Maybe you want to replace EXPERIMENTAL with experimental, or if
-> > experimental has become as taboo word, I am sure you can find a suitable
-> > synonym.
+On 14/02/13 10:54, Pawel Moll wrote:
+> To solve the never-ending confusions between hosts and guests
+> of different endianess, define all virtio-mmio registers as LE.
 > 
-> Ah, sorry, I misunderstood what was being recommended from the other
-> thread (quoting below...)
+> This change should be safe at this stage, because no known
+> working mixed-endian system exists so there is virtually no
+> risk of breaking compatibility.
 > 
-> On Sat, 23 Feb 2013, Konrad Rzeszutek Wilk wrote:
-> > It certainly is unstable right now (which is why it was unstaged from
-> > the v3.9 train). I hope that by v3.10 it won't be - at which
-> > point this patch (and the EXPERIMENTAL) makes sense.
+> Signed-off-by: Pawel Moll <pawel.moll@arm.com>
+> ---
+>  virtio-spec.lyx |   30 +++++++++++++++++++++++++++++-
+>  1 file changed, 29 insertions(+), 1 deletion(-)
 > 
-> Only "depends on EXPERIMENTAL" must go away. Did you want either the
-> bool or help text to go away too? If neither, my original patch should
-> work. If you only want the bool text gone, I can send that version
-> instead.
+> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+> index 1ba9992..a00b675 100644
+> --- a/virtio-spec.lyx
+> +++ b/virtio-spec.lyx
+> @@ -56,6 +56,7 @@
+>  \html_math_output 0
+>  \html_css_as_file 0
+>  \html_be_strict false
+> +\author -875410574 "Pawel Moll" 
+>  \author -608949062 "Rusty Russell,,," 
+>  \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
+>  \author 1112500848 "Rusty Russell" rusty@rustcorp.com.au
+> @@ -1850,6 +1851,17 @@ struct vring {
+>  
+>  \begin_layout Subsection
+>  A Note on Virtqueue Endianness
+> +\change_inserted -875410574 1360838374
+> +
+> +\begin_inset CommandInset label
+> +LatexCommand label
+> +name "sub:Virtqueue-Endianness"
+> +
+> +\end_inset
+> +
+> +
+> +\change_unchanged
+> +
+>  \end_layout
+>  
+>  \begin_layout Standard
+> @@ -9850,8 +9862,24 @@ a
+>  \end_layout
+>  
+>  \begin_layout Standard
+> +
+> +\change_deleted -875410574 1360838214
+>  The endianness of the registers follows the native endianness of the Guest.
+> - Writing to registers described as 
+> +\change_inserted -875410574 1360838930
+> +All register values are organized as Little Endian, similarly to the PCI
+> + variant, see also 
+> +\begin_inset CommandInset ref
+> +LatexCommand ref
+> +reference "sub:Virtqueue-Endianness"
 
-I think your original patch is good, but I'll let Konrad decide.
+Shouldn't we exclude the config space? PCI defines it as guest-endian,
+and the above tends to indicate that it should be LE with MMIO.
+
+	M.
+-- 
+Jazz is not dead. It just smells funny...
