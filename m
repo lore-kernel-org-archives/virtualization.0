@@ -1,18 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 02/16] virtio_ring: virtqueue_add_sgs, to add multiple sgs.
-Date: Fri, 01 Mar 2013 11:31:40 +1030
-Message-ID: <877glsc4qz.fsf__31091.9092422866$1362348963$gmane$org@rustcorp.com.au>
-References: <1361260594-601-1-git-send-email-rusty@rustcorp.com.au>
-	<1361260594-601-3-git-send-email-rusty@rustcorp.com.au>
-	<20130224221255.GA5300@redhat.com>
-	<512C5E0E.5040305@redhat.com> <87obf6dxlm.fsf@rustcorp.com.au>
-	<20130227074920.GA11775@redhat.com>
-	<87fw0idmu2.fsf@rustcorp.com.au> <512F223B.4080801@redhat.com>
+From: Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: virtio PCI on KVM without IO BARs
+Date: Mon, 4 Mar 2013 19:01:36 -0300
+Message-ID: <20130304220136.GA22673@amt.cnet>
+References: <20130228152433.GA13832@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <512F223B.4080801@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20130228152433.GA13832@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,39 +18,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
+On Thu, Feb 28, 2013 at 05:24:33PM +0200, Michael S. Tsirkin wrote:
+> OK we talked about this a while ago, here's
+> a summary and some proposals:
+> At the moment, virtio PCI uses IO BARs for all accesses.
+> 
+> The reason for IO use is the cost of different VM exit types
+> of transactions and their emulation on KVM on x86
+> (it would be trivial to use memory BARs on non x86 platforms
+>  if they don't have PIO).
+> Example benchmark (cycles per transaction):
+> 	(io access) outw 1737
+> 	(memory access) movw 4341
+> for comparison:
+> 	(hypercall access): vmcall 1566
+> 	(pv memory access) movw_fast 1817 (*explanation what this is below)
+> 
+> This creates a problem if we want to make virtio devices
+> proper PCI express devices with native hotplug support.
+> This is because each hotpluggable PCI express device always has
+> a PCI express port (port per device),
+> where each port is represented by a PCI to PCI bridge.
+> In turn, a PCI to PCI bridge claims a 4Kbyte aligned
+> range of IO addresses. This means that we can have at
+> most 15 such devices, this is a nasty limitation.
+> 
+> Another problem with PIO is support for physical virtio devices,
+> and nested virt: KVM currently programs all PIO accesses
+> to cause vm exit, so using this device in a VM will be slow.
+> 
+> So we really want to stop using IO BARs completely if at all possible,
+> but looking at the table above, switching to memory BAR and movw for
+> notifications will not work well.
+> 
+> Possible solutions:
+> 1. hypercall instead of PIO
+> 	basically add a hypercall that gets an MMIO address/data
+> 	and does an MMIO write for us.
+> 	We'll want some capability in the device to let guest know
+> 		this is what it should do.
+> 	Pros: even faster than PIO
+> 	Cons: this won't help nested or assigned devices (won't hurt
+> 	      them either as it will be conditional on the capability above).
+> 	Cons: need host kernel support, which then has to be maintained
+> 	      forever, even if intel speeds up MMIO exits.
+> 
+> 2. pv memory access
+> 	There are two reasons that memory access is slower:
+> 		- one is that it's handled as an EPT misconfiguration error
+> 		so handled by cpu slow path
+> 		- one is that we need to decode the x86 instruction in
+> 		software, to calculate address/data for the access.
+> 
+> 	We could agree that guests would use a specific instruction
+> 	for virtio accesses, and fast-path it specifically.
+> 	This is the pv memory access option above.
+> 	Pros: helps assigned devices and nested virt
+> 	Pros: easy to drop if hardware support is there
+> 	Cons: a bit slower than IO
+> 	Cons: need host kernel support
+> 
+> 3. hypervisor assigned IO address
+> 	qemu can reserve IO addresses and assign to virtio devices.
+> 	2 bytes per device (for notification and ISR access) will be
+> 	enough. So we can reserve 4K and this gets us 2000 devices.
+>         From KVM perspective, nothing changes.
+> 	We'll want some capability in the device to let guest know
+> 	this is what it should do, and pass the io address.
+> 	One way to reserve the addresses is by using the bridge.
+> 	Pros: no need for host kernel support
+> 	Pros: regular PIO so fast
+> 	Cons: does not help assigned devices, breaks nested virt
+> 
+> Simply counting pros/cons, option 3 seems best. It's also the
+> easiest to implement.
 
-> Il 27/02/2013 12:21, Rusty Russell ha scritto:
->>>> >> Baseline (before add_sgs):
->>>> >>         2.840000-3.040000(2.927292)user
->>>> >> 
->>>> >> After add_sgs:
->>>> >>         2.970000-3.150000(3.053750)user
->>>> >> 
->>>> >> After simplifying add_buf a little:
->>>> >>         2.950000-3.210000(3.081458)user
->>>> >> 
->>>> >> After inlining virtqueue_add/vring_add_indirect:
->>>> >>         2.920000-3.150000(3.026875)user
->>>> >> 
->>>> >> After passing in iteration functions (chained vs unchained):
->>>> >>         2.760000-2.970000(2.883542)user
->> Oops.  This result (and the next) is bogus.  I was playing with -O3, and
->> accidentally left that in :(
->
-> Did you check what actually happened that improved speed so much?
-
-No, it was a random aside, I didn't dig into it.  Perhaps we should
-revisit using -O3 on the entire kernel, or perhaps grab gcc 3.8 and see
-how that performs.
-
-But I'm implementing specialized virtqueue_add_outbuf() and
-virtqueue_add_inbuf() which seem to get more improvement anyway (except
-occasionally I get hangs in my tests, which I'm debugging now...)
-
-Cheers,
-Rusty.
+Agree.
