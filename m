@@ -1,7 +1,8 @@
 From: Jiang Liu <liuj97@gmail.com>
-Subject: [RFC PATCH v1 32/33] mm: correctly update zone->mamaged_pages
-Date: Tue,  5 Mar 2013 22:55:15 +0800
-Message-ID: <1362495317-32682-33-git-send-email-jiang.liu__36740.2476295412$1362502354$gmane$org@huawei.com>
+Subject: [RFC PATCH v1 01/33] mm: introduce common help functions to deal with
+	reserved/managed pages
+Date: Tue,  5 Mar 2013 22:54:44 +0800
+Message-ID: <1362495317-32682-2-git-send-email-jiang.liu__35014.9527927444$1362502359$gmane$org@huawei.com>
 References: <1362495317-32682-1-git-send-email-jiang.liu@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,226 +19,99 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Andrew Morton <akpm@linux-foundation.org>, David Rientjes <rientjes@google.com>
-Cc: Michal Hocko <mhocko@suse.cz>, Jeremy Fitzhardinge <jeremy@goop.org>, Jiang Liu <jiang.liu@huawei.com>, Wen Congyang <wency@cn.fujitsu.com>, linux-mm@kvack.org, Chris Clayton <chris2553@googlemail.com>, linux-kernel@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Rafael J . Wysocki" <rjw@sisk.pl>, Minchan Kim <minchan@kernel.org>, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, xen-devel@lists.xensource.com, "Michael S. Tsirkin" <mst@redhat.com>, Jianguo Wu <wujianguo@huawei.com>, Tang Chen <tangchen@cn.fujitsu.com>, virtualization@lists.linux-foundation.org, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Maciej Rutecki <maciej.rutecki@gmail.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Aurelien Jacquiot <a-jacquiot@ti.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Tang Chen <tangchen@cn.fujitsu.com>, Michal Hocko <mhocko@suse.cz>, Chen Liqin <liqin.chen@sunplusct.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Sam Ravnborg <sam@ravnborg.org>, Lennox Wu <lennox.wu@gmail.com>, Maciej Rutecki <maciej.rutecki@gmail.com>, Jonas Bonn <jonas@southpole.se>, Mark Salter <msalter@redhat.com>, Michel Lespinasse <walken@google.com>, Mikael Starvik <starvik@axis.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Helge Deller <deller@gmx.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, Ingo
 List-Id: virtualization@lists.linuxfoundation.org
 
-Enhance adjust_managed_page_count() to adjust totalhigh_pages for
-highmem pages. And change code which directly adjusts totalram_pages
-to use adjust_managed_page_count() because it adjusts totalram_pages,
-totalhigh_pages and zone->managed_pages altogether in a safe way.
-
-Remove inc_totalhigh_pages() and dec_totalhigh_pages() from xen/balloon
-driver bacause adjust_managed_page_count() has already adjusted
-totalhigh_pages. This patch also enhances virtio_balloon driver to
-adjust totalhigh_pages when reserve/unreserve pages.
+Code to deal with reserved/managed pages are duplicated by many
+architectures, so introduce common help functions to reduce duplicated
+code. These common help functions will also be used to concentrate code
+to modify totalram_pages and zone->managed_pages, which makes the code
+much more clear.
 
 Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
-Cc: Chris Metcalf <cmetcalf@tilera.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Wen Congyang <wency@cn.fujitsu.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tang Chen <tangchen@cn.fujitsu.com>
-Cc: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: xen-devel@lists.xensource.com
-Cc: linux-mm@kvack.org
 ---
- arch/tile/mm/init.c             |    4 ++--
- drivers/virtio/virtio_balloon.c |    8 +++++---
- drivers/xen/balloon.c           |   19 ++++---------------
- mm/hugetlb.c                    |    2 +-
- mm/memory_hotplug.c             |   15 +++------------
- mm/page_alloc.c                 |    6 ++++++
- 6 files changed, 21 insertions(+), 33 deletions(-)
+ include/linux/mm.h |   37 +++++++++++++++++++++++++++++++++++++
+ mm/page_alloc.c    |   20 ++++++++++++++++++++
+ 2 files changed, 57 insertions(+)
 
-diff --git a/arch/tile/mm/init.c b/arch/tile/mm/init.c
-index 2749515..5886aef 100644
---- a/arch/tile/mm/init.c
-+++ b/arch/tile/mm/init.c
-@@ -720,7 +720,7 @@ static void __init init_free_pfn_range(unsigned long start, unsigned long end)
- 		}
- 		init_page_count(page);
- 		__free_pages(page, order);
--		totalram_pages += count;
-+		adjust_managed_page_count(page, count);
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 7acc9dc..881461c 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1295,6 +1295,43 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
+ 		unsigned long zone_start_pfn, unsigned long *zholes_size);
+ extern void free_initmem(void);
  
- 		page += count;
- 		pfn += count;
-@@ -1033,7 +1033,7 @@ static void free_init_pages(char *what, unsigned long begin, unsigned long end)
- 				   pfn_pte(pfn, PAGE_KERNEL));
- 		memset((void *)addr, POISON_FREE_INITMEM, PAGE_SIZE);
- 		free_page(addr);
--		totalram_pages++;
-+		adjust_managed_page_count(page, 1);
- 	}
- 	pr_info("Freeing %s: %ldk freed\n", what, (end - begin) >> 10);
- }
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 8dab163..4c6ec53 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -148,7 +148,7 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
- 		}
- 		set_page_pfns(vb->pfns + vb->num_pfns, page);
- 		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
--		totalram_pages--;
-+		adjust_managed_page_count(page, -1);
- 	}
- 
- 	/* Did we get any? */
-@@ -160,11 +160,13 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
- static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
- {
- 	unsigned int i;
-+	struct page *page;
- 
- 	/* Find pfns pointing at start of each page, get pages and free them. */
- 	for (i = 0; i < num; i += VIRTIO_BALLOON_PAGES_PER_PAGE) {
--		balloon_page_free(balloon_pfn_to_page(pfns[i]));
--		totalram_pages++;
-+		page = balloon_pfn_to_page(pfns[i]);
-+		balloon_page_free(page);
-+		adjust_managed_page_count(page, 1);
- 	}
- }
- 
-diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
-index a56776d..a5fdbcc 100644
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -89,14 +89,6 @@ EXPORT_SYMBOL_GPL(balloon_stats);
- /* We increase/decrease in batches which fit in a page */
- static xen_pfn_t frame_list[PAGE_SIZE / sizeof(unsigned long)];
- 
--#ifdef CONFIG_HIGHMEM
--#define inc_totalhigh_pages() (totalhigh_pages++)
--#define dec_totalhigh_pages() (totalhigh_pages--)
--#else
--#define inc_totalhigh_pages() do {} while (0)
--#define dec_totalhigh_pages() do {} while (0)
--#endif
--
- /* List of ballooned pages, threaded through the mem_map array. */
- static LIST_HEAD(ballooned_pages);
- 
-@@ -132,9 +124,7 @@ static void __balloon_append(struct page *page)
- static void balloon_append(struct page *page)
- {
- 	__balloon_append(page);
--	if (PageHighMem(page))
--		dec_totalhigh_pages();
--	totalram_pages--;
-+	adjust_managed_page_count(page, -1);
- }
- 
- /* balloon_retrieve: rescue a page from the balloon, if it is not empty. */
-@@ -151,13 +141,12 @@ static struct page *balloon_retrieve(bool prefer_highmem)
- 		page = list_entry(ballooned_pages.next, struct page, lru);
- 	list_del(&page->lru);
- 
--	if (PageHighMem(page)) {
-+	if (PageHighMem(page))
- 		balloon_stats.balloon_high--;
--		inc_totalhigh_pages();
--	} else
-+	else
- 		balloon_stats.balloon_low--;
- 
--	totalram_pages++;
-+	adjust_managed_page_count(page, 1);
- 
- 	return page;
- }
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 0a0be33..a381818 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1246,7 +1246,7 @@ static void __init gather_bootmem_prealloc(void)
- 		 * side-effects, like CommitLimit going negative.
- 		 */
- 		if (h->order > (MAX_ORDER - 1))
--			totalram_pages += 1 << h->order;
-+			adjust_managed_page_count(page, 1 << h->order);
- 	}
- }
- 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index af9e87f..f9ce564 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -760,20 +760,13 @@ EXPORT_SYMBOL_GPL(__online_page_set_limits);
- 
- void __online_page_increment_counters(struct page *page)
- {
--	totalram_pages++;
--
--#ifdef CONFIG_HIGHMEM
--	if (PageHighMem(page))
--		totalhigh_pages++;
--#endif
-+	adjust_managed_page_count(page, 1);
- }
- EXPORT_SYMBOL_GPL(__online_page_increment_counters);
- 
- void __online_page_free(struct page *page)
- {
--	ClearPageReserved(page);
--	init_page_count(page);
--	__free_page(page);
++/* Help functions to deal with reserved/managed pages. */
++extern unsigned long free_reserved_area(unsigned long start, unsigned long end,
++					int poison, char *s);
++
++static inline void adjust_managed_page_count(struct page *page, long count)
++{
++	totalram_pages += count;
++}
++
++static inline void __free_reserved_page(struct page *page)
++{
++	ClearPageReserved(page);
++	init_page_count(page);
++	__free_page(page);
++}
++
++static inline void free_reserved_page(struct page *page)
++{
 +	__free_reserved_page(page);
- }
- EXPORT_SYMBOL_GPL(__online_page_free);
- 
-@@ -970,7 +963,6 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages, int online_typ
- 		return ret;
- 	}
- 
--	zone->managed_pages += onlined_pages;
- 	zone->present_pages += onlined_pages;
- 	zone->zone_pgdat->node_present_pages += onlined_pages;
- 	if (onlined_pages) {
-@@ -1554,10 +1546,9 @@ repeat:
- 	/* reset pagetype flags and makes migrate type to be MOVABLE */
- 	undo_isolate_page_range(start_pfn, end_pfn, MIGRATE_MOVABLE);
- 	/* removal success */
--	zone->managed_pages -= offlined_pages;
-+	adjust_managed_page_count(pfn_to_page(start_pfn), -offlined_pages);
- 	zone->present_pages -= offlined_pages;
- 	zone->zone_pgdat->node_present_pages -= offlined_pages;
--	totalram_pages -= offlined_pages;
- 
- 	init_per_zone_wmark_min();
- 
++	adjust_managed_page_count(page, 1);
++}
++
++static inline void mark_page_reserved(struct page *page)
++{
++	SetPageReserved(page);
++	adjust_managed_page_count(page, -1);
++}
++
++static inline void free_initmem_default(int poison)
++{
++	extern char __init_begin[], __init_end[];
++
++	free_reserved_area(PAGE_ALIGN((unsigned long)&__init_begin) ,
++			   ((unsigned long)&__init_end) & PAGE_MASK,
++			   poison, "unused kernel");
++}
++
+ #ifdef CONFIG_HAVE_MEMBLOCK_NODE_MAP
+ /*
+  * With CONFIG_HAVE_MEMBLOCK_NODE_MAP set, an architecture may initialise its
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index d252443..041eb92 100644
+index 8fcced7..0fadb09 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -780,7 +780,9 @@ void __init init_cma_reserved_pageblock(struct page *page)
- #ifdef CONFIG_HIGHMEM
- 	if (PageHighMem(page))
- 		totalhigh_pages += pageblock_nr_pages;
-+	else
- #endif
-+		page_zone(page)->managed_pages += pageblock_nr_pages;
- }
- #endif
+@@ -5113,6 +5113,26 @@ early_param("movablecore", cmdline_parse_movablecore);
  
-@@ -5119,6 +5121,10 @@ void adjust_managed_page_count(struct page *page, long count)
+ #endif /* CONFIG_HAVE_MEMBLOCK_NODE_MAP */
  
- 	page_zone(page)->managed_pages += count;
- 	totalram_pages += count;
-+#ifdef	CONFIG_HIGHMEM
-+	if (PageHighMem(page))
-+		totalhigh_pages += count;
-+#endif
- 
- 	if (lock)
- 		spin_unlock(&managed_page_count_lock);
++unsigned long free_reserved_area(unsigned long start, unsigned long end,
++				 int poison, char *s)
++{
++	unsigned long pages, pos;
++
++	pos = start = PAGE_ALIGN(start);
++	end &= PAGE_MASK;
++	for (pages = 0; pos < end; pos += PAGE_SIZE, pages++) {
++		if (poison)
++			memset((void *)pos, poison, PAGE_SIZE);
++		free_reserved_page(virt_to_page(pos));
++	}
++
++	if (pages && s)
++		pr_info("Freeing %s memory: %ldK (%lx - %lx)\n",
++			s, pages << (PAGE_SHIFT - 10), start, end);
++
++	return pages;
++}
++
+ /**
+  * set_dma_reserve - set the specified number of pages reserved in the first zone
+  * @new_dma_reserve: The number of pages to mark reserved
 -- 
 1.7.9.5
