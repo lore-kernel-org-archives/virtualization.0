@@ -1,11 +1,15 @@
-From: sjur.brandeland@stericsson.com
-Subject: [PATCH vringh] virtio: Introduce vringh wrappers in virtio_config
-Date: Tue,  5 Mar 2013 14:51:08 +0100
-Message-ID: <1362491468-16681-1-git-send-email-sjur.brandeland@stericsson.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] tcm_vhost: Add hotplug/hotunplug support
+Date: Tue, 5 Mar 2013 16:34:17 +0200
+Message-ID: <20130305143416.GG2256@redhat.com>
+References: <1362475027-12018-1-git-send-email-asias@redhat.com>
+	<20130305121125.GA823@redhat.com> <5135F150.1060206@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <5135F150.1060206@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,64 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
-QWRkIHdyYXBwZXJzIGZvciB0aGUgaG9zdCB2cmluZ3MgdG8gc3VwcG9ydCBsb29zZQpjb3VwbGlu
-ZyBiZXR3ZWVuIHRoZSB2aXJ0aW8gZGV2aWNlIGFuZCBkcml2ZXIuCgpUaGUgZnVuY3Rpb25zIGZp
-bmRfdnJocygpIGFuZCBkZWxfdnJocygpIGFyZSBhZGRlZCB0bwpzdHJ1Y3QgdmlydGlvX2NvbmZp
-Z19vcHMgdG8gbWFuYWdlIHRoZSBob3N0IHZyaW5ncy4KVGhlIGZ1bmN0aW9uIHZyaW5naF9ub3Rp
-ZnkoKSBpcyBhZGRlZCBzbyB0aGUgZ3Vlc3QKY2FuIGJlIGtpY2tlZCB3aGVuIGJ1ZmZlcnMgYXJl
-IGFkZGVkIHRvIHRoZSB1c2VkLXJpbmcuCgpUaGlzIGVuYWJsZXMgdGhlIHZpcnRpbyBkcml2ZXJz
-IHRvIG1hbmFnZSB0aGUgdmlydGlvIHJpbmdzCndpdGhvdXQga25vd2xlZGdlIG9mIGhvdyB0aGUg
-aG9zdCB2cmluZ3MgYXJlIG1hbmFnZWQuCgpDYzogT2hhZCBCZW4tQ29oZW4gPG9oYWRAd2l6ZXJ5
-LmNvbT4KU2lnbmVkLW9mZi1ieTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0
-ZXJpY3Nzb24uY29tPgotLS0KIGluY2x1ZGUvbGludXgvdmlydGlvX2NvbmZpZy5oIHwgICAxMyAr
-KysrKysrKysrKysrCiBpbmNsdWRlL2xpbnV4L3ZyaW5naC5oICAgICAgICB8ICAgMTMgKysrKysr
-KysrKysrKwogMiBmaWxlcyBjaGFuZ2VkLCAyNiBpbnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygt
-KQoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvdmlydGlvX2NvbmZpZy5oIGIvaW5jbHVkZS9s
-aW51eC92aXJ0aW9fY29uZmlnLmgKaW5kZXggMjliOTEwNC4uODhkZDVhZSAxMDA2NDQKLS0tIGEv
-aW5jbHVkZS9saW51eC92aXJ0aW9fY29uZmlnLmgKKysrIGIvaW5jbHVkZS9saW51eC92aXJ0aW9f
-Y29uZmlnLmgKQEAgLTUxLDcgKzUxLDE3IEBACiAgKiAgICAgIFRoaXMgcmV0dXJucyBhIHBvaW50
-ZXIgdG8gdGhlIGJ1cyBuYW1lIGEgbGEgcGNpX25hbWUgZnJvbSB3aGljaAogICogICAgICB0aGUg
-Y2FsbGVyIGNhbiB0aGVuIGNvcHkuCiAgKiBAc2V0X3ZxX2FmZmluaXR5OiBzZXQgdGhlIGFmZmlu
-aXR5IGZvciBhIHZpcnRxdWV1ZS4KKyAqIEBmaW5kX3ZyaHM6IGZpbmQgdGhlIGhvc3QgdnJpbmdz
-IGFuZCBpbnN0YW50aWF0ZSB0aGVtCisgKgl2ZGV2OiB0aGUgdmlydGlvX2RldmljZQorICoJbmh2
-cnM6IHRoZSBudW1iZXIgb2YgaG9zdCB2cmluZ3MgdG8gZmluZAorICoJaHZyczogb24gc3VjY2Vz
-cywgaW5jbHVkZXMgbmV3IGhvc3QgdnJpbmdzCisgKgljYWxsYmFja3M6IGFycmF5IG9mIGRyaXZl
-ciBjYWxsYmFja3MsIGZvciBlYWNoIGhvc3QgdnJpbmcKKyAqCQlpbmNsdWRlIGEgTlVMTCBlbnRy
-eSBmb3IgdnFzIHRoYXQgZG8gbm90IG5lZWQgYSBjYWxsYmFjaworICoJUmV0dXJucyAwIG9uIHN1
-Y2Nlc3Mgb3IgZXJyb3Igc3RhdHVzCisgKiBAZGVsX3ZyaHM6IGZyZWUgdGhlIGhvc3QgdnJpbmdz
-IGZvdW5kIGJ5IGZpbmRfdnJocygpLgogICovCitzdHJ1Y3QgdnJpbmdoOwordHlwZWRlZiB2b2lk
-IHZyaF9jYWxsYmFja190KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICosIHN0cnVjdCB2cmluZ2ggKik7
-CiB0eXBlZGVmIHZvaWQgdnFfY2FsbGJhY2tfdChzdHJ1Y3QgdmlydHF1ZXVlICopOwogc3RydWN0
-IHZpcnRpb19jb25maWdfb3BzIHsKIAl2b2lkICgqZ2V0KShzdHJ1Y3QgdmlydGlvX2RldmljZSAq
-dmRldiwgdW5zaWduZWQgb2Zmc2V0LApAQCAtNzAsNiArODAsOSBAQCBzdHJ1Y3QgdmlydGlvX2Nv
-bmZpZ19vcHMgewogCXZvaWQgKCpmaW5hbGl6ZV9mZWF0dXJlcykoc3RydWN0IHZpcnRpb19kZXZp
-Y2UgKnZkZXYpOwogCWNvbnN0IGNoYXIgKigqYnVzX25hbWUpKHN0cnVjdCB2aXJ0aW9fZGV2aWNl
-ICp2ZGV2KTsKIAlpbnQgKCpzZXRfdnFfYWZmaW5pdHkpKHN0cnVjdCB2aXJ0cXVldWUgKnZxLCBp
-bnQgY3B1KTsKKwlpbnQgKCpmaW5kX3ZyaHMpKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2LCB1
-bnNpZ25lZCBuaHZycywKKwkJCSBzdHJ1Y3QgdnJpbmdoICp2cmhzW10sIHZyaF9jYWxsYmFja190
-ICpjYWxsYmFja3NbXSk7CisJdm9pZCAoKmRlbF92cmhzKShzdHJ1Y3QgdmlydGlvX2RldmljZSAq
-dmRldik7CiB9OwogCiAvKiBJZiBkcml2ZXIgZGlkbid0IGFkdmVydGlzZSB0aGUgZmVhdHVyZSwg
-aXQgd2lsbCBuZXZlciBhcHBlYXIuICovCmRpZmYgLS1naXQgYS9pbmNsdWRlL2xpbnV4L3ZyaW5n
-aC5oIGIvaW5jbHVkZS9saW51eC92cmluZ2guaAppbmRleCBhYjQxMTg1Li44MTU2ZjUxIDEwMDY0
-NAotLS0gYS9pbmNsdWRlL2xpbnV4L3ZyaW5naC5oCisrKyBiL2luY2x1ZGUvbGludXgvdnJpbmdo
-LmgKQEAgLTUwLDYgKzUwLDEyIEBAIHN0cnVjdCB2cmluZ2ggewogCiAJLyogVGhlIHZyaW5nIChu
-b3RlOiBpdCBtYXkgY29udGFpbiB1c2VyIHBvaW50ZXJzISkgKi8KIAlzdHJ1Y3QgdnJpbmcgdnJp
-bmc7CisKKwkvKiBUaGUgZnVuY3Rpb24gdG8gY2FsbCB3aGVuIGJ1ZmZlcnMgYXJlIGF2YWlsYWJs
-ZSAqLworCXZvaWQgKCpub3RpZnkpKHN0cnVjdCB2cmluZ2ggKik7CisKKwkvKiBBIHBvaW50ZXIg
-Zm9yIHRoZSB2cmluZ2ggY2xpZW50cyB0byB1c2UuICovCisJdm9pZCAqcHJpdjsKIH07CiAKIC8q
-IFRoZSBtZW1vcnkgdGhlIHZyaW5nIGNhbiBhY2Nlc3MsIGFuZCB3aGF0IG9mZnNldCB0byBhcHBs
-eS4gKi8KQEAgLTE4Miw0ICsxODgsMTEgQEAgdm9pZCB2cmluZ2hfbm90aWZ5X2Rpc2FibGVfa2Vy
-bihzdHJ1Y3QgdnJpbmdoICp2cmgpOwogCiBpbnQgdnJpbmdoX25lZWRfbm90aWZ5X2tlcm4oc3Ry
-dWN0IHZyaW5naCAqdnJoKTsKIAorLyogTm90aWZ5IHRoZSBndWVzdCBhYm91dCBidWZmZXJzIGFk
-ZGVkIHRvIHRoZSB1c2VkIHJpbmcgKi8KK3N0YXRpYyBpbmxpbmUgdm9pZCB2cmluZ2hfbm90aWZ5
-KHN0cnVjdCB2cmluZ2ggKnZyaCkKK3sKKwlpZiAodnJoLT5ub3RpZnkpCisJCXZyaC0+bm90aWZ5
-KHZyaCk7Cit9CisKICNlbmRpZiAvKiBfTElOVVhfVlJJTkdIX0ggKi8KLS0gCjEuNy41LjQKCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On Tue, Mar 05, 2013 at 02:21:20PM +0100, Paolo Bonzini wrote:
+> Il 05/03/2013 13:11, Michael S. Tsirkin ha scritto:
+> >> > +
+> >> > +	struct vhost_work vs_event_work; /* evt injection work item */
+> >> > +	struct llist_head vs_event_list; /* evt injection queue */
+> >> > +
+> >> > +	bool vs_events_dropped;
+> > Documentation pls.
+> > Also - how is this handled during migration?
+> 
+> Migration is not supported by vhost-scsi but yes, we would need to
+> retrieve this bit.
+> 
+> Paolo
+
+Well at the moment nothing is supported as there's no userspace
+upstream :(
+
+> > Don't we need a way for userspace to retrieve this bit?
+> > 
