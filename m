@@ -1,14 +1,16 @@
-From: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: virtio PCI on KVM without IO BARs
-Date: Mon, 4 Mar 2013 19:01:36 -0300
-Message-ID: <20130304220136.GA22673@amt.cnet>
-References: <20130228152433.GA13832@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-spec: Define virtio-mmio registers as LE
+Date: Tue, 05 Mar 2013 11:11:48 +1100
+Message-ID: <87fw0ad7sr.fsf@rustcorp.com.au>
+References: <87wqubkalj.fsf@rustcorp.com.au>
+	<1360839247-9131-1-git-send-email-pawel.moll@arm.com>
+	<513085EA.8070007@arm.com> <1362135005.3052.26.camel@hornet>
+	<51308F22.7040303@arm.com> <1362141432.3052.28.camel@hornet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130228152433.GA13832@redhat.com>
+In-Reply-To: <1362141432.3052.28.camel@hornet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,83 +20,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Pawel Moll <pawel.moll@arm.com>, Marc Zyngier <Marc.Zyngier@arm.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 28, 2013 at 05:24:33PM +0200, Michael S. Tsirkin wrote:
-> OK we talked about this a while ago, here's
-> a summary and some proposals:
-> At the moment, virtio PCI uses IO BARs for all accesses.
-> 
-> The reason for IO use is the cost of different VM exit types
-> of transactions and their emulation on KVM on x86
-> (it would be trivial to use memory BARs on non x86 platforms
->  if they don't have PIO).
-> Example benchmark (cycles per transaction):
-> 	(io access) outw 1737
-> 	(memory access) movw 4341
-> for comparison:
-> 	(hypercall access): vmcall 1566
-> 	(pv memory access) movw_fast 1817 (*explanation what this is below)
-> 
-> This creates a problem if we want to make virtio devices
-> proper PCI express devices with native hotplug support.
-> This is because each hotpluggable PCI express device always has
-> a PCI express port (port per device),
-> where each port is represented by a PCI to PCI bridge.
-> In turn, a PCI to PCI bridge claims a 4Kbyte aligned
-> range of IO addresses. This means that we can have at
-> most 15 such devices, this is a nasty limitation.
-> 
-> Another problem with PIO is support for physical virtio devices,
-> and nested virt: KVM currently programs all PIO accesses
-> to cause vm exit, so using this device in a VM will be slow.
-> 
-> So we really want to stop using IO BARs completely if at all possible,
-> but looking at the table above, switching to memory BAR and movw for
-> notifications will not work well.
-> 
-> Possible solutions:
-> 1. hypercall instead of PIO
-> 	basically add a hypercall that gets an MMIO address/data
-> 	and does an MMIO write for us.
-> 	We'll want some capability in the device to let guest know
-> 		this is what it should do.
-> 	Pros: even faster than PIO
-> 	Cons: this won't help nested or assigned devices (won't hurt
-> 	      them either as it will be conditional on the capability above).
-> 	Cons: need host kernel support, which then has to be maintained
-> 	      forever, even if intel speeds up MMIO exits.
-> 
-> 2. pv memory access
-> 	There are two reasons that memory access is slower:
-> 		- one is that it's handled as an EPT misconfiguration error
-> 		so handled by cpu slow path
-> 		- one is that we need to decode the x86 instruction in
-> 		software, to calculate address/data for the access.
-> 
-> 	We could agree that guests would use a specific instruction
-> 	for virtio accesses, and fast-path it specifically.
-> 	This is the pv memory access option above.
-> 	Pros: helps assigned devices and nested virt
-> 	Pros: easy to drop if hardware support is there
-> 	Cons: a bit slower than IO
-> 	Cons: need host kernel support
-> 
-> 3. hypervisor assigned IO address
-> 	qemu can reserve IO addresses and assign to virtio devices.
-> 	2 bytes per device (for notification and ISR access) will be
-> 	enough. So we can reserve 4K and this gets us 2000 devices.
->         From KVM perspective, nothing changes.
-> 	We'll want some capability in the device to let guest know
-> 	this is what it should do, and pass the io address.
-> 	One way to reserve the addresses is by using the bridge.
-> 	Pros: no need for host kernel support
-> 	Pros: regular PIO so fast
-> 	Cons: does not help assigned devices, breaks nested virt
-> 
-> Simply counting pros/cons, option 3 seems best. It's also the
-> easiest to implement.
+Pawel Moll <pawel.moll@arm.com> writes:
+> On Fri, 2013-03-01 at 11:21 +0000, Marc Zyngier wrote:
+>> > Having said that, Rusty was contemplating enforcing LE config space in
+>> > the new PCI layout...
+>> 
+>> I wouldn't complain about that, and would like to see a similar thing on
+>> MMIO.
+>
+> Wherever PCI goes, MMIO follows :-)
 
-Agree.
+Yes, but if you switch from 'guest-endian' to 'little-endian' how will
+you tell?  For PCI, we'd detect it by using the new layout.
+
+I'd rather you specify MMIO as little endian, and we fix the kernel
+config accessors to be endian aware (ie. 8, 16, 32, 64-bit accessors).
+Since noone BE is using MMIO right now, it's safe...
+
+Thanks,
+Rusty.
