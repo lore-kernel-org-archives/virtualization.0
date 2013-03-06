@@ -1,11 +1,15 @@
-From: Andy King <acking@vmware.com>
-Subject: [PATCH] VMCI: Fix process-to-process DRGAMs.
-Date: Thu,  7 Mar 2013 07:29:08 -0800
-Message-ID: <1362670148-27238-1-git-send-email-acking@vmware.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjur@brendeland.net>
+Subject: Re: [PATCH vringh] virtio: Introduce vringh wrappers in virtio_config
+Date: Wed, 6 Mar 2013 11:50:45 +0100
+Message-ID: <CANHm3Pg6tDMb9fM60sFdA2sQ856vUGe4S1TpK3_tUoyBd-882A@mail.gmail.com>
+References: <1362491468-16681-1-git-send-email-sjur.brandeland@stericsson.com>
+	<876215cf5f.fsf@rustcorp.com.au>
+Reply-To: sjur@brendeland.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <876215cf5f.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,37 +19,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, Andy King <acking@vmware.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-When sending between processes, we always schedule a work item.  Our work info
-struct has the message embedded in the middle, which means that we end up
-overwriting subsequent fields when we copy the (variable-length) message into
-it.  Move it to the end of the struct.
+On Wed, Mar 6, 2013 at 5:42 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+...
+>> @@ -70,6 +80,9 @@ struct virtio_config_ops {
+>>       void (*finalize_features)(struct virtio_device *vdev);
+>>       const char *(*bus_name)(struct virtio_device *vdev);
+>>       int (*set_vq_affinity)(struct virtqueue *vq, int cpu);
+>> +     int (*find_vrhs)(struct virtio_device *vdev, unsigned nhvrs,
+>> +                      struct vringh *vrhs[], vrh_callback_t *callbacks[]);
+>> +     void (*del_vrhs)(struct virtio_device *vdev);
+>>  };
+>>
+>>  /* If driver didn't advertise the feature, it will never appear. */
+>
+> It's weird that you conflate the host and guest ring sides in rpmsg, but
+> that might make sense if they're really bound together.
 
-Acked-by: Dmitry Torokhov <dtor@vmware.com>
-Signed-off-by: Andy King <acking@vmware.com>
----
- drivers/misc/vmw_vmci/vmci_datagram.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+The caif_virtio driver is using both host and guest ring sides, host side
+rings in RX direction and guest side rings in TX direction. The reason
+behind this is to enable zero-copy on the producer sides.
+(For details see recent discussion with Ohad "Wrappers for vringh"
+or the  initial blurb when first introducing caif virtio:
+https://lkml.org/lkml/2012/10/31/677)
 
-diff --git a/drivers/misc/vmw_vmci/vmci_datagram.c b/drivers/misc/vmw_vmci/vmci_datagram.c
-index ed5c433..f3cdd90 100644
---- a/drivers/misc/vmw_vmci/vmci_datagram.c
-+++ b/drivers/misc/vmw_vmci/vmci_datagram.c
-@@ -42,9 +42,11 @@ struct datagram_entry {
- 
- struct delayed_datagram_info {
- 	struct datagram_entry *entry;
--	struct vmci_datagram msg;
- 	struct work_struct work;
- 	bool in_dg_host_queue;
-+	/* msg and msg_payload must be together. */
-+	struct vmci_datagram msg;
-+	u8 msg_payload[];
- };
- 
- /* Number of in-flight host->host datagrams */
--- 
-1.7.4.1
+> ...  However, in
+> general they are not: it's normal to be a guest or host, not both.
+>
+> This implies that you need a struct vringh_config, to put this in.
+
+OK, should we move the definition of struct vringh_config into vringh.h
+then, and add a vringh_config field in struct virtio_device?
+
+>> diff --git a/include/linux/vringh.h b/include/linux/vringh.h
+>> index ab41185..8156f51 100644
+>> --- a/include/linux/vringh.h
+>> +++ b/include/linux/vringh.h
+>> @@ -50,6 +50,12 @@ struct vringh {
+>>
+>>       /* The vring (note: it may contain user pointers!) */
+>>       struct vring vring;
+>> +
+>> +     /* The function to call when buffers are available */
+>> +     void (*notify)(struct vringh *);
+>> +
+>> +     /* A pointer for the vringh clients to use. */
+>> +     void *priv;
+>>  };
+>
+> Since the caller allocates the vringh, can it not use container_of()
+> instead of a priv pointer?
+
+Sure, no problem. I just need to add a new struct in remoteproc containing
+both the vringh and a pointer to the internal ring data.
+
+Regards,
+Sjur
