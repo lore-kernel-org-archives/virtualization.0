@@ -1,14 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/6] virtio_add_buf replacement.
-Date: Thu, 07 Mar 2013 11:35:16 +1100
-Message-ID: <878v609hdn.fsf@rustcorp.com.au>
-References: <87k3plaz3d.fsf@rustcorp.com.au>
-	<20130306080940.GA4034@hj.localdomain>
+Subject: Re: [PATCH 3/6] virtio_ring: inline internal vring functions more
+	aggressively.
+Date: Thu, 07 Mar 2013 10:02:17 +1100
+Message-ID: <87ehfs9lom.fsf@rustcorp.com.au>
+References: <87k3plaz3d.fsf@rustcorp.com.au> <87a9qhayri.fsf@rustcorp.com.au>
+	<20130306102412.GC16921@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130306080940.GA4034@hj.localdomain>
+In-Reply-To: <20130306102412.GC16921@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,32 +19,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, sjur.brandeland@stericsson.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Asias He <asias@redhat.com> writes:
-> On Wed, Mar 06, 2013 at 04:15:02PM +1100, Rusty Russell wrote:
->> OK, so I've spent a few days benchmarking.  Turns out 80% of
->> virtio_add_buf cases are uni-directional (including the
->> always-performance-sensitive networking code), and that gets no
->> performance penalty (though tests with real networking would be
->> appreciated!).
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+
+> On Wed, Mar 06, 2013 at 04:22:09PM +1100, Rusty Russell wrote:
+>> We use inline and get gcc to do the right thing inlining the
+>> "indirect" traversal functions.  This also means we don't need to
+>> clean the sgs.
 >> 
->> I'm not reposting all the "convert driver to virtio_add_outbuf()"
->> patches: just the scsi one which I didn't have before.  I won't actually
->> remove virtio_add_buf() until the *following* merge window, just to be
->> sure.
+>> for i in `seq 50`; do /usr/bin/time -f 'Wall time:%e' ./vringh_test --indirect --eventidx --parallel --fast-vringh; done 2>&1 | stats --trim-outliers:
+>> 
+>> Before:
+>> 	Using CPUS 0 and 3
+>> 	Guest: notified 0, pinged 39014-39063(39062)
+>> 	Host: notified 39014-39063(39062), pinged 0
+>> 	Wall time:1.900000-2.350000(1.921875)
+>> 
+>> After:
+>> 	Using CPUS 0 and 3
+>> 	Guest: notified 0, pinged 39062-39063(39063)
+>> 	Host: notified 39062-39063(39063), pinged 0
+>> 	Wall time:1.760000-2.220000(1.789167)
+>> 
+>> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> 
 >
-> Why not send out all the patches in this series? It would be much easier
-> for people to read in one thread.
+> It's pretty cool that gcc is able to optimize it like this.
+> Which gcc version did you use here?
 
-I could re-spam people, but the patches are unchanged and uninteresting:
-the scsi one I wanted an Ack for, however.
+Gcc has done this for quite a while now... I reported a bug about it in
+2008: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=35728
 
-I really want people to review the core patches, and if they're fine,
-I'll post the whole thing one last time before putting them in my
-virtio-next branch (where they can't change).
+This was i686-linux-gnu-gcc-4.7 (Ubuntu/Linaro 4.7.2-2ubuntu1) 4.7.2.
 
 Cheers,
 Rusty.
