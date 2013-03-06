@@ -1,16 +1,17 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] tcm_vhost: Add hotplug/hotunplug support
-Date: Wed, 06 Mar 2013 15:28:00 +0100
-Message-ID: <51375270.7060703@redhat.com>
-References: <1362475027-12018-1-git-send-email-asias@redhat.com>
-	<20130305121125.GA823@redhat.com> <5135F150.1060206@redhat.com>
-	<20130305143416.GG2256@redhat.com>
-	<1362523912.7905.208.camel@haakon2.linux-iscsi.org>
+From: Pawel Moll <pawel.moll@arm.com>
+Subject: Re: [PATCH] virtio-spec: Define virtio-mmio registers as LE
+Date: Wed, 06 Mar 2013 15:10:15 +0000
+Message-ID: <1362582615.3105.45.camel@hornet>
+References: <87wqubkalj.fsf@rustcorp.com.au>
+	<1360839247-9131-1-git-send-email-pawel.moll@arm.com>
+	<513085EA.8070007@arm.com> <1362135005.3052.26.camel@hornet>
+	<51308F22.7040303@arm.com> <1362141432.3052.28.camel@hornet>
+	<87fw0ad7sr.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1362523912.7905.208.camel@haakon2.linux-iscsi.org>
+In-Reply-To: <87fw0ad7sr.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,25 +21,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 05/03/2013 23:51, Nicholas A. Bellinger ha scritto:
-> For making progress with Paolo's vhost-scsi branch on my side, this was
-> still being blocked by bios boot hangs:
-> 
-> http://www.spinics.net/lists/target-devel/msg03830.html
-> 
-> Paolo & Co, any ideas on the latter..?
-
-Nope.  Asias, do you have time to look at it?  Only patches 3 and 4 in
-that series are needed, they are at
-
-http://article.gmane.org/gmane.comp.emulators.qemu/192143
-http://article.gmane.org/gmane.comp.emulators.qemu/192147
-
-(vhost_scsi_set_endpoint and vhost_scsi_clear_endpoint need to be
-integrated in vhost_scsi_start and vhost_scsi_stop).
-
-Paolo
+T24gVHVlLCAyMDEzLTAzLTA1IGF0IDAwOjExICswMDAwLCBSdXN0eSBSdXNzZWxsIHdyb3RlOgo+
+IFBhd2VsIE1vbGwgPHBhd2VsLm1vbGxAYXJtLmNvbT4gd3JpdGVzOgo+ID4gT24gRnJpLCAyMDEz
+LTAzLTAxIGF0IDExOjIxICswMDAwLCBNYXJjIFp5bmdpZXIgd3JvdGU6Cj4gPj4gPiBIYXZpbmcg
+c2FpZCB0aGF0LCBSdXN0eSB3YXMgY29udGVtcGxhdGluZyBlbmZvcmNpbmcgTEUgY29uZmlnIHNw
+YWNlIGluCj4gPj4gPiB0aGUgbmV3IFBDSSBsYXlvdXQuLi4KPiA+PiAKPiA+PiBJIHdvdWxkbid0
+IGNvbXBsYWluIGFib3V0IHRoYXQsIGFuZCB3b3VsZCBsaWtlIHRvIHNlZSBhIHNpbWlsYXIgdGhp
+bmcgb24KPiA+PiBNTUlPLgo+ID4KPiA+IFdoZXJldmVyIFBDSSBnb2VzLCBNTUlPIGZvbGxvd3Mg
+Oi0pCj4gCj4gWWVzLCBidXQgaWYgeW91IHN3aXRjaCBmcm9tICdndWVzdC1lbmRpYW4nIHRvICds
+aXR0bGUtZW5kaWFuJyBob3cgd2lsbAo+IHlvdSB0ZWxsPyAgRm9yIFBDSSwgd2UnZCBkZXRlY3Qg
+aXQgYnkgdXNpbmcgdGhlIG5ldyBsYXlvdXQuCgpUaGUgdmVyc2lvbiByZWdpc3Rlci92YWx1ZS4g
+QXQgc29tZSBwb2ludCBvZiB0aW1lIHRoZXJlIHdpbGwgYmUgYQpuZXcoaXNoKSBNTUlPIGxheW91
+dCBhbnl3YXkgdG8gZGVhbCB3aXRoIDY0LWJpdCBhZGRyZXNzZXMsIHJlcGxhY2luZyB0aGUKcmlu
+ZyBwYWdlIG51bWJlciB3aXRoIHR3byAzMi1iaXQgaGkvbG8gcGh5c2ljYWwgYWRkcmVzcyByZWdp
+c3RlcnMuIFRoaXMKd2FzIGRpc2N1c3NlZCBub3QgbG9uZyBhZnRlciB0aGUgZHJpdmVyIGdvdCBt
+ZXJnZWQuLi4KCj4gSSdkIHJhdGhlciB5b3Ugc3BlY2lmeSBNTUlPIGFzIGxpdHRsZSBlbmRpYW4s
+IGFuZCB3ZSBmaXggdGhlIGtlcm5lbAo+IGNvbmZpZyBhY2Nlc3NvcnMgdG8gYmUgZW5kaWFuIGF3
+YXJlIChpZS4gOCwgMTYsIDMyLCA2NC1iaXQgYWNjZXNzb3JzKS4KPiBTaW5jZSBub29uZSBCRSBp
+cyB1c2luZyBNTUlPIHJpZ2h0IG5vdywgaXQncyBzYWZlLi4uCgpUaGF0J3MgYWJzb2x1dGVseSBm
+aW5lIHdpdGggbWUsIGhvd2V2ZXIgSSBkb24ndCBzZWUgYW55dGhpbmcgSSBjb3VsZCBkbwppbiB0
+aGUgdmlydGlvX21taW8gZHJpdmVyIGFuZCBzcGVjIC0gdGhlIHZpcnRpb19jb25maWdfb3BzIHNw
+ZWNpZmllcwpnZXQvc2V0IGFzIHZvaWQgKiBvcGVyYXRpb25zIGFuZCBJIHNpbXBseSBkbyBieXRl
+LWJ5LWJ5dGUgY29weS4gSGF2ZSBJCm1pc3NlZCBzb21lIGNvbmZpZy9lbmRpYW5lc3MvUENJIHJl
+bGF0ZWQgZGlzY3Vzc2lvbj8KClBhd2XFggoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
+dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
+dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
