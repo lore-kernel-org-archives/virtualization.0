@@ -1,15 +1,13 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH] tcm_vhost: Add hotplug/hotunplug support
-Date: Tue, 05 Mar 2013 14:51:52 -0800
-Message-ID: <1362523912.7905.208.camel__31926.419263664$1362523949$gmane$org@haakon2.linux-iscsi.org>
-References: <1362475027-12018-1-git-send-email-asias@redhat.com>
-	<20130305121125.GA823@redhat.com> <5135F150.1060206@redhat.com>
-	<20130305143416.GG2256@redhat.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: virtio PCI on KVM without IO BARs
+Date: Tue, 05 Mar 2013 16:05:00 -0800
+Message-ID: <5136882C.8040700@zytor.com>
+References: <20130228152433.GA13832@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130305143416.GG2256@redhat.com>
+In-Reply-To: <20130228152433.GA13832@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,42 +17,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: virtualization@lists.linux-foundation.org
+Cc: Jan Kiszka <jan.kiszka@siemens.com>, KVM list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2013-03-05 at 16:34 +0200, Michael S. Tsirkin wrote:
-> On Tue, Mar 05, 2013 at 02:21:20PM +0100, Paolo Bonzini wrote:
-> > Il 05/03/2013 13:11, Michael S. Tsirkin ha scritto:
-> > >> > +
-> > >> > +	struct vhost_work vs_event_work; /* evt injection work item */
-> > >> > +	struct llist_head vs_event_list; /* evt injection queue */
-> > >> > +
-> > >> > +	bool vs_events_dropped;
-> > > Documentation pls.
-> > > Also - how is this handled during migration?
-> > 
-> > Migration is not supported by vhost-scsi but yes, we would need to
-> > retrieve this bit.
-> > 
-> > Paolo
+On 02/28/2013 07:24 AM, Michael S. Tsirkin wrote:
 > 
-> Well at the moment nothing is supported as there's no userspace
-> upstream :(
+> 3. hypervisor assigned IO address
+> 	qemu can reserve IO addresses and assign to virtio devices.
+> 	2 bytes per device (for notification and ISR access) will be
+> 	enough. So we can reserve 4K and this gets us 2000 devices.
+>         From KVM perspective, nothing changes.
+> 	We'll want some capability in the device to let guest know
+> 	this is what it should do, and pass the io address.
+> 	One way to reserve the addresses is by using the bridge.
+> 	Pros: no need for host kernel support
+> 	Pros: regular PIO so fast
+> 	Cons: does not help assigned devices, breaks nested virt
 > 
-> > > Don't we need a way for userspace to retrieve this bit?
-> > > 
+> Simply counting pros/cons, option 3 seems best. It's also the
+> easiest to implement.
+> 
 
-Btw, the vhost-scsi userspace with ABIv1 bumped for Asias's v3.9
-tcm_vhost multi-target kernel changes are here:
+The problem here is the 4K I/O window for IO device BARs in bridges.
+Why not simply add a (possibly proprietary) capability to the PCI bridge
+to allow a much narrower window?  That fits much more nicely into the
+device resource assignment on the guest side, and could even be
+implemented on a real hardware device -- we can offer it to the PCI-SIG
+for standardization, even.
 
-http://git.kernel.org/cgit/virt/kvm/nab/qemu-kvm.git/log/?h=vhost-scsi-for-1.3-abi-v1
+	-hpa
 
-For making progress with Paolo's vhost-scsi branch on my side, this was
-still being blocked by bios boot hangs:
-
-http://www.spinics.net/lists/target-devel/msg03830.html
-
-Paolo & Co, any ideas on the latter..?
-
---nab
+-- 
+H. Peter Anvin, Intel Open Source Technology Center
+I work for Intel.  I don't speak on their behalf.
