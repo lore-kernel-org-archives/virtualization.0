@@ -1,13 +1,17 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] lguest: fix paths in comments
-Date: Thu, 07 Mar 2013 08:47:57 +1100
-Message-ID: <87lia09p4i.fsf@rustcorp.com.au>
-References: <1362555628-22852-1-git-send-email-gaowanlong@cn.fujitsu.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbr@gmail.com>
+Subject: Re: [PATCH vringh] virtio: Introduce vringh wrappers in virtio_config
+Date: Thu, 7 Mar 2013 00:28:42 +0100
+Message-ID: <CANHm3Pio7E6kQ5oQSXnomEziZODdgvdXdetunWncENH6Da1p1w@mail.gmail.com>
+References: <1362491468-16681-1-git-send-email-sjur.brandeland@stericsson.com>
+	<876215cf5f.fsf@rustcorp.com.au>
+	<CANHm3Pg6tDMb9fM60sFdA2sQ856vUGe4S1TpK3_tUoyBd-882A@mail.gmail.com>
+	<CAK=WgbZtst9G9xBkLXFhpJm6YQxYHVaxjLhZ53P-fmR_NxU+tA@mail.gmail.com>
+	<CANHm3PicEBY5AewpuYo+bFbakqdKdR-omfSAhhrYjTZTjo3www@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1362555628-22852-1-git-send-email-gaowanlong@cn.fujitsu.com>
+In-Reply-To: <CANHm3PicEBY5AewpuYo+bFbakqdKdR-omfSAhhrYjTZTjo3www@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,15 +21,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Ohad Ben-Cohen <ohad@wizery.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
-> After commit 07fe997, lguest tool has already moved from
-> Documentation/virtual/lguest/ to tools/lguest/.
-
-Thanks, applied!
-
-Cheers,
-Rusty.
+T24gV2VkLCBNYXIgNiwgMjAxMyBhdCAxOjM3IFBNLCBTanVyIEJyw6ZuZGVsYW5kIDxzanVyYnJA
+Z21haWwuY29tPiB3cm90ZToKPiBPbiBXZWQsIE1hciA2LCAyMDEzIGF0IDE6MTYgUE0sIE9oYWQg
+QmVuLUNvaGVuIDxvaGFkQHdpemVyeS5jb20+IHdyb3RlOgo+PiBPbiBXZWQsIE1hciA2LCAyMDEz
+IGF0IDEyOjUwIFBNLCBTanVyIEJyw6ZuZGVsYW5kIDxzanVyQGJyZW5kZWxhbmQubmV0PiB3cm90
+ZToKPj4+IFRoZSBjYWlmX3ZpcnRpbyBkcml2ZXIgaXMgdXNpbmcgYm90aCBob3N0IGFuZCBndWVz
+dCByaW5nIHNpZGVzLCBob3N0IHNpZGUKPj4+IHJpbmdzIGluIFJYIGRpcmVjdGlvbiBhbmQgZ3Vl
+c3Qgc2lkZSByaW5ncyBpbiBUWCBkaXJlY3Rpb24uIFRoZSByZWFzb24KPj4+IGJlaGluZCB0aGlz
+IGlzIHRvIGVuYWJsZSB6ZXJvLWNvcHkgb24gdGhlIHByb2R1Y2VyIHNpZGVzLgo+Pj4gKEZvciBk
+ZXRhaWxzIHNlZSByZWNlbnQgZGlzY3Vzc2lvbiB3aXRoIE9oYWQgIldyYXBwZXJzIGZvciB2cmlu
+Z2giCj4+Cj4+IEZXSVcsIEknbSBub3QgY29udmluY2VkIHRoYXQgaG9zdCBzaWRlIHJpbmdzIGFy
+ZSBuZWNlc3NhcnkgZm9yCj4+IHplcm8tY29weSAtIHlvdSBjb3VsZCBhbHdheXMganVzdCBwYXNz
+IHBvaW50ZXJzIHRvIHlvdXIgaHVnZSBkYXRhCj4+IGluc2lkZSBidWZmZXJzIHBvc3RlZCBieSBn
+dWVzdCBzaWRlIHJpbmdzLgoKV2hlbiBJIHJlYWQgdGhpcyBhZ2FpbiBJIHJlYWxpemVkIHRoYXQg
+SSBtaXNzZWQgeW91ciBwb2ludCByZWdhcmRpbmcKcGFzc2luZyBwb2ludGVycyBpbnNpZGUgYnVm
+ZmVycyBjb21wbGV0ZWx5LiBNeSByYW1ibGluZyBiZWxvdwphcmd1ZWQgYWdhaW5zdCB1c2luZyB0
+aGUgYnVmZmVycyBwcm92aWRlZCBpbiB0aGUgYXZhaWxhYmxlIHJpbmcgYXMgYQpyZXBsYWNlbWVu
+dCBvZiB0aGUgbW9kZW0gaW50ZXJuYWwgYWxsb2NhdG9yLiBTb3JyeSBmb3IgdGhlIGNvbmZ1c2lv
+bi4KCkkgaGF2ZW4ndCByZWFsbHkgc3BlbnQgdGltZSB0aGlua2luZyB0aHJvdWdoIHRoZSBpbXBs
+aWNhdGlvbiBvZiB0aGUgYWx0ZXJuYXRpdmUKb2YgcGFzc2luZyBidWZmZXIgcG9pbnRlcnMgaW5z
+aWRlIGJ1ZmZlcnMgcG9zdGVkIGJ5IGd1ZXN0IHNpZGUgcmluZ3MuCkJ1dCBpdCBzZWVtcyB0byBt
+ZSB0aGF0IHRoZXJlIHdvdWxkIGJlIHNvbWUgaXNzdWVzIHJlbGF0ZWQgdG8gcmV0dXJuaW5nCmNv
+bnN1bWVkIGJ1ZmZlcnMgYmFjayBpZiB5b3UgdXNlIHRoZSByaW5ncyBpbiB0aGlzIHdheS4KClRo
+YW5rcywKU2p1cgoKPiBXZWxsLCB0byBkbyB0aGF0IGZvciBDQUlGIHlvdSB3b3VsZCBoYXZlIHRv
+IGludGVncmF0ZSB2aXJ0aW8gYnVmZmVyIGhhbmRsaW5nCj4gZGVlcCBpbnRvIHRoZSBsb3dlciBs
+YXllciBvZiB0aGUgbW9kZW1zIDNHUFAgc3RhY2sgc28gdGhhdCB0aGUgM0dQUCBzdGFjawo+IGNv
+dWxkIHRha2UgYnVmZmVycyBmcm9tIHRoZSBhdmFpbGFibGUgcmluZy4KPgo+IEZyb20gdGhlIG91
+dHNpZGUgcG9pbnQgb2YgdmlldywgcGVyaGFwcyB0aGlzIHNvdW5kcyBkb2FibGUsIGJ1dCBpbiBy
+ZWFsaXR5IHlvdQo+IHdvdWxkbid0IGdldCBhbnkgTmV0d29yayBTaWduYWxsaW5nIGVuZ2luZWVy
+cyBpbXBsZW1lbnRpbmcgdGhlIDNHUFAgc3RhY2sKPiB0byBidXkgaW50byB0aGF0Lgo+Cj4gQW5v
+dGhlciBpc3N1ZSBpcyB0aGF0IG91ciBtb2RlbSBhbHNvIHN1cHBvcnQgb3RoZXIgaW50ZXJmYWNl
+IHRlY2hub2xvZ2llcwo+IHN1Y2ggYXMgVVNCIGFuZCBIU0kuIEl0IHNpbXBseSBkb2Vzbid0IG1h
+a2Ugc2Vuc2UgdG8gZW5mb3JjZSB2aXJ0aW8gcmluZ3MKPiBpbnRlcm5hbGx5IGlmIHZpcnRpbyBp
+c24ndCBvdGhlcndpc2UgdXNlZCBvbiB0aGUgbW9kZW0uCj4KPiBXaXRob3V0IGhvc3Qgc2lkZSBy
+aW5ncyB3ZSBzaW1wbHkgd291bGRuJ3QgYmUgYWJsZSB0byBpbXBsZW1lbnQgemVyby1jb3B5Cj4g
+aW4gdGhlIFJYIGRpcmVjdGlvbiBmb3IgdGhlIFNURS1tb2RlbS4KPgo+IFJlZ2FyZHMsCj4gU2p1
+cgo+Cj4+Cj4+IFRoYXQgc2FpZCwgSSBkbyBiZWxpZXZlIHRoYXQgbWl4aW5nIGd1ZXN0IHNpZGUg
+YW5kIGhvc3Qgc2lkZSByaW5ncyBtYXkKPj4gc2ltcGxpZnkgdGhlIG92ZXJhbGwgc29sdXRpb24g
+aW4gc29tZSBjYXNlcywgZXNwZWNpYWxseSBpbiBtb3JlCj4+IGNvbXBsZXggbXVsdGkgY29yZSBz
+Y2VuYXJpb3MgKHdoZXJlIHNldmVyYWwgY29yZXMgYWxsIGNvbW11bmljYXRlIHdpdGgKPj4gZWFj
+aCBvdGhlcikuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
