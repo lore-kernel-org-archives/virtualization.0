@@ -1,14 +1,12 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 0/6] virtio_add_buf replacement.
-Date: Wed, 6 Mar 2013 16:09:41 +0800
-Message-ID: <20130306080940.GA4034@hj.localdomain>
-References: <87k3plaz3d.fsf@rustcorp.com.au>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 1/1] virtio: rng: disallow multiple device registrations,
+	fixes crashes
+Date: Wed,  6 Mar 2013 13:43:45 +0530
+Message-ID: <58c84c464bca72f80fec188f0ae0269058c6cf03.1362557573.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87k3plaz3d.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +16,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, sjur.brandeland@stericsson.com
+To: Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 06, 2013 at 04:15:02PM +1100, Rusty Russell wrote:
-> OK, so I've spent a few days benchmarking.  Turns out 80% of
-> virtio_add_buf cases are uni-directional (including the
-> always-performance-sensitive networking code), and that gets no
-> performance penalty (though tests with real networking would be
-> appreciated!).
-> 
-> I'm not reposting all the "convert driver to virtio_add_outbuf()"
-> patches: just the scsi one which I didn't have before.  I won't actually
-> remove virtio_add_buf() until the *following* merge window, just to be
-> sure.
+The code currently only supports one virtio-rng device at a time.
+Invoking guests with multiple devices causes the guest to blow up.
 
-Why not send out all the patches in this series? It would be much easier
-for people to read in one thread.
+Check if we've already registered and initialised the driver.  Also
+cleanup in case of registration errors or hot-unplug so that a new
+device can be used.
 
-> One annoying thing about benchmarking is that in some cases, speeding up
-> one side can make the whole thing slower, due to more wakeups.
-> Device-side polling techniques might be required in future to get more
-> performance.
-> 
-> Cheers,
-> Rusty.
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Reported-by: Peter Krempa <pkrempa@redhat.com>
+Reported-by: <yunzheng@redhat.com>
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
 
+Also valid for stable?
+
+ drivers/char/hw_random/virtio-rng.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+index 10fd71c..6bf4d47 100644
+--- a/drivers/char/hw_random/virtio-rng.c
++++ b/drivers/char/hw_random/virtio-rng.c
+@@ -92,14 +92,22 @@ static int probe_common(struct virtio_device *vdev)
+ {
+ 	int err;
+ 
++	if (vq) {
++		/* We only support one device for now */
++		return -EBUSY;
++	}
+ 	/* We expect a single virtqueue. */
+ 	vq = virtio_find_single_vq(vdev, random_recv_done, "input");
+-	if (IS_ERR(vq))
+-		return PTR_ERR(vq);
++	if (IS_ERR(vq)) {
++		err = PTR_ERR(vq);
++		vq = NULL;
++		return err;
++	}
+ 
+ 	err = hwrng_register(&virtio_hwrng);
+ 	if (err) {
+ 		vdev->config->del_vqs(vdev);
++		vq = NULL;
+ 		return err;
+ 	}
+ 
+@@ -112,6 +120,7 @@ static void remove_common(struct virtio_device *vdev)
+ 	busy = false;
+ 	hwrng_unregister(&virtio_hwrng);
+ 	vdev->config->del_vqs(vdev);
++	vq = NULL;
+ }
+ 
+ static int virtrng_probe(struct virtio_device *vdev)
 -- 
-Asias
+1.8.1.2
