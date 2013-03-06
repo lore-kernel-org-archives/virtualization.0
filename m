@@ -1,7 +1,7 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH 2/5] tcm_vhost: Introduce tcm_vhost_check_feature()
-Date: Wed,  6 Mar 2013 14:16:27 +0800
-Message-ID: <1362550590-3534-3-git-send-email-asias@redhat.com>
+Subject: [PATCH 3/5] tcm_vhost: Introduce tcm_vhost_check_endpoint()
+Date: Wed,  6 Mar 2013 14:16:28 +0800
+Message-ID: <1362550590-3534-4-git-send-email-asias@redhat.com>
 References: <1362550590-3534-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,29 +21,28 @@ To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This helper is useful to check if a feature is supported.
+This helper is useful to check if vs->vs_endpoint is setup by
+vhost_scsi_set_endpoint().
 
 Signed-off-by: Asias He <asias@redhat.com>
 ---
- drivers/vhost/tcm_vhost.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/vhost/tcm_vhost.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
 diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index b3e50d7..fdbf986 100644
+index fdbf986..ff56b1d 100644
 --- a/drivers/vhost/tcm_vhost.c
 +++ b/drivers/vhost/tcm_vhost.c
-@@ -91,6 +91,20 @@ static int iov_num_pages(struct iovec *iov)
- 	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
+@@ -105,6 +105,18 @@ static bool tcm_vhost_check_feature(struct vhost_scsi *vs, u64 feature)
+ 	return ret;
  }
  
-+static bool tcm_vhost_check_feature(struct vhost_scsi *vs, u64 feature)
++static bool tcm_vhost_check_endpoint(struct vhost_scsi *vs)
 +{
-+	u64 acked_features;
 +	bool ret = false;
 +
 +	mutex_lock(&vs->dev.mutex);
-+	acked_features = vs->dev.acked_features;
-+	if (acked_features & 1ULL << feature)
++	if (vs->vs_endpoint)
 +		ret = true;
 +	mutex_unlock(&vs->dev.mutex);
 +
