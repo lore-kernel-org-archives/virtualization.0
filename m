@@ -1,16 +1,16 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbr@gmail.com>
-Subject: Re: [PATCH vringh] virtio: Introduce vringh wrappers in virtio_config
-Date: Wed, 6 Mar 2013 13:37:23 +0100
-Message-ID: <CANHm3PicEBY5AewpuYo+bFbakqdKdR-omfSAhhrYjTZTjo3www@mail.gmail.com>
-References: <1362491468-16681-1-git-send-email-sjur.brandeland@stericsson.com>
-	<876215cf5f.fsf@rustcorp.com.au>
-	<CANHm3Pg6tDMb9fM60sFdA2sQ856vUGe4S1TpK3_tUoyBd-882A@mail.gmail.com>
-	<CAK=WgbZtst9G9xBkLXFhpJm6YQxYHVaxjLhZ53P-fmR_NxU+tA@mail.gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] tcm_vhost: Add hotplug/hotunplug support
+Date: Wed, 06 Mar 2013 15:28:00 +0100
+Message-ID: <51375270.7060703@redhat.com>
+References: <1362475027-12018-1-git-send-email-asias@redhat.com>
+	<20130305121125.GA823@redhat.com> <5135F150.1060206@redhat.com>
+	<20130305143416.GG2256@redhat.com>
+	<1362523912.7905.208.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAK=WgbZtst9G9xBkLXFhpJm6YQxYHVaxjLhZ53P-fmR_NxU+tA@mail.gmail.com>
+In-Reply-To: <1362523912.7905.208.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,38 +20,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBNYXIgNiwgMjAxMyBhdCAxOjE2IFBNLCBPaGFkIEJlbi1Db2hlbiA8b2hhZEB3aXpl
-cnkuY29tPiB3cm90ZToKPiBPbiBXZWQsIE1hciA2LCAyMDEzIGF0IDEyOjUwIFBNLCBTanVyIEJy
-w6ZuZGVsYW5kIDxzanVyQGJyZW5kZWxhbmQubmV0PiB3cm90ZToKPj4gVGhlIGNhaWZfdmlydGlv
-IGRyaXZlciBpcyB1c2luZyBib3RoIGhvc3QgYW5kIGd1ZXN0IHJpbmcgc2lkZXMsIGhvc3Qgc2lk
-ZQo+PiByaW5ncyBpbiBSWCBkaXJlY3Rpb24gYW5kIGd1ZXN0IHNpZGUgcmluZ3MgaW4gVFggZGly
-ZWN0aW9uLiBUaGUgcmVhc29uCj4+IGJlaGluZCB0aGlzIGlzIHRvIGVuYWJsZSB6ZXJvLWNvcHkg
-b24gdGhlIHByb2R1Y2VyIHNpZGVzLgo+PiAoRm9yIGRldGFpbHMgc2VlIHJlY2VudCBkaXNjdXNz
-aW9uIHdpdGggT2hhZCAiV3JhcHBlcnMgZm9yIHZyaW5naCIKPgo+IEZXSVcsIEknbSBub3QgY29u
-dmluY2VkIHRoYXQgaG9zdCBzaWRlIHJpbmdzIGFyZSBuZWNlc3NhcnkgZm9yCj4gemVyby1jb3B5
-IC0geW91IGNvdWxkIGFsd2F5cyBqdXN0IHBhc3MgcG9pbnRlcnMgdG8geW91ciBodWdlIGRhdGEK
-PiBpbnNpZGUgYnVmZmVycyBwb3N0ZWQgYnkgZ3Vlc3Qgc2lkZSByaW5ncy4KCldlbGwsIHRvIGRv
-IHRoYXQgZm9yIENBSUYgeW91IHdvdWxkIGhhdmUgdG8gaW50ZWdyYXRlIHZpcnRpbyBidWZmZXIg
-aGFuZGxpbmcKZGVlcCBpbnRvIHRoZSBsb3dlciBsYXllciBvZiB0aGUgbW9kZW1zIDNHUFAgc3Rh
-Y2sgc28gdGhhdCB0aGUgM0dQUCBzdGFjawpjb3VsZCB0YWtlIGJ1ZmZlcnMgZnJvbSB0aGUgYXZh
-aWxhYmxlIHJpbmcuCgpGcm9tIHRoZSBvdXRzaWRlIHBvaW50IG9mIHZpZXcsIHBlcmhhcHMgdGhp
-cyBzb3VuZHMgZG9hYmxlLCBidXQgaW4gcmVhbGl0eSB5b3UKd291bGRuJ3QgZ2V0IGFueSBOZXR3
-b3JrIFNpZ25hbGxpbmcgZW5naW5lZXJzIGltcGxlbWVudGluZyB0aGUgM0dQUCBzdGFjawp0byBi
-dXkgaW50byB0aGF0LgoKQW5vdGhlciBpc3N1ZSBpcyB0aGF0IG91ciBtb2RlbSBhbHNvIHN1cHBv
-cnQgb3RoZXIgaW50ZXJmYWNlIHRlY2hub2xvZ2llcwpzdWNoIGFzIFVTQiBhbmQgSFNJLiBJdCBz
-aW1wbHkgZG9lc24ndCBtYWtlIHNlbnNlIHRvIGVuZm9yY2UgdmlydGlvIHJpbmdzCmludGVybmFs
-bHkgaWYgdmlydGlvIGlzbid0IG90aGVyd2lzZSB1c2VkIG9uIHRoZSBtb2RlbS4KCldpdGhvdXQg
-aG9zdCBzaWRlIHJpbmdzIHdlIHNpbXBseSB3b3VsZG4ndCBiZSBhYmxlIHRvIGltcGxlbWVudCB6
-ZXJvLWNvcHkKaW4gdGhlIFJYIGRpcmVjdGlvbiBmb3IgdGhlIFNURS1tb2RlbS4KClJlZ2FyZHMs
-ClNqdXIKCj4KPiBUaGF0IHNhaWQsIEkgZG8gYmVsaWV2ZSB0aGF0IG1peGluZyBndWVzdCBzaWRl
-IGFuZCBob3N0IHNpZGUgcmluZ3MgbWF5Cj4gc2ltcGxpZnkgdGhlIG92ZXJhbGwgc29sdXRpb24g
-aW4gc29tZSBjYXNlcywgZXNwZWNpYWxseSBpbiBtb3JlCj4gY29tcGxleCBtdWx0aSBjb3JlIHNj
-ZW5hcmlvcyAod2hlcmUgc2V2ZXJhbCBjb3JlcyBhbGwgY29tbXVuaWNhdGUgd2l0aAo+IGVhY2gg
-b3RoZXIpLgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+Il 05/03/2013 23:51, Nicholas A. Bellinger ha scritto:
+> For making progress with Paolo's vhost-scsi branch on my side, this was
+> still being blocked by bios boot hangs:
+> 
+> http://www.spinics.net/lists/target-devel/msg03830.html
+> 
+> Paolo & Co, any ideas on the latter..?
+
+Nope.  Asias, do you have time to look at it?  Only patches 3 and 4 in
+that series are needed, they are at
+
+http://article.gmane.org/gmane.comp.emulators.qemu/192143
+http://article.gmane.org/gmane.comp.emulators.qemu/192147
+
+(vhost_scsi_set_endpoint and vhost_scsi_clear_endpoint need to be
+integrated in vhost_scsi_start and vhost_scsi_stop).
+
+Paolo
