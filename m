@@ -1,17 +1,17 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH] virtio-spec: Define virtio-mmio registers as LE
-Date: Wed, 06 Mar 2013 15:10:15 +0000
-Message-ID: <1362582615.3105.45.camel@hornet>
-References: <87wqubkalj.fsf@rustcorp.com.au>
-	<1360839247-9131-1-git-send-email-pawel.moll@arm.com>
-	<513085EA.8070007@arm.com> <1362135005.3052.26.camel@hornet>
-	<51308F22.7040303@arm.com> <1362141432.3052.28.camel@hornet>
-	<87fw0ad7sr.fsf@rustcorp.com.au>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [RFC PATCH v1 01/33] mm: introduce common help functions to
+	deal with reserved/managed pages
+Date: Wed, 6 Mar 2013 17:21:41 +0000
+Message-ID: <20130306172140.GS17833__39340.0937355638$1362591373$gmane$org@n2100.arm.linux.org.uk>
+References: <1362495317-32682-1-git-send-email-jiang.liu@huawei.com>
+	<1362495317-32682-2-git-send-email-jiang.liu@huawei.com>
+	<20130305194722.GA12225@merkur.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87fw0ad7sr.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <20130305194722.GA12225@merkur.ravnborg.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,33 +21,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Aurelien Jacquiot <a-jacquiot@ti.com>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Tang Chen <tangchen@cn.fujitsu.com>, David Howells <dhowells@redhat.com>, Chen Liqin <liqin.chen@sunplusct.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Lennox Wu <lennox.wu@gmail.com>, Maciej Rutecki <maciej.rutecki@gmail.com>, Jonas Bonn <jonas@southpole.se>, Mark Salter <msalter@redhat.com>, Michel Lespinasse <walken@google.com>, Mikael Starvik <starvik@axis.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Helge Deller <deller@gmx.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCAyMDEzLTAzLTA1IGF0IDAwOjExICswMDAwLCBSdXN0eSBSdXNzZWxsIHdyb3RlOgo+
-IFBhd2VsIE1vbGwgPHBhd2VsLm1vbGxAYXJtLmNvbT4gd3JpdGVzOgo+ID4gT24gRnJpLCAyMDEz
-LTAzLTAxIGF0IDExOjIxICswMDAwLCBNYXJjIFp5bmdpZXIgd3JvdGU6Cj4gPj4gPiBIYXZpbmcg
-c2FpZCB0aGF0LCBSdXN0eSB3YXMgY29udGVtcGxhdGluZyBlbmZvcmNpbmcgTEUgY29uZmlnIHNw
-YWNlIGluCj4gPj4gPiB0aGUgbmV3IFBDSSBsYXlvdXQuLi4KPiA+PiAKPiA+PiBJIHdvdWxkbid0
-IGNvbXBsYWluIGFib3V0IHRoYXQsIGFuZCB3b3VsZCBsaWtlIHRvIHNlZSBhIHNpbWlsYXIgdGhp
-bmcgb24KPiA+PiBNTUlPLgo+ID4KPiA+IFdoZXJldmVyIFBDSSBnb2VzLCBNTUlPIGZvbGxvd3Mg
-Oi0pCj4gCj4gWWVzLCBidXQgaWYgeW91IHN3aXRjaCBmcm9tICdndWVzdC1lbmRpYW4nIHRvICds
-aXR0bGUtZW5kaWFuJyBob3cgd2lsbAo+IHlvdSB0ZWxsPyAgRm9yIFBDSSwgd2UnZCBkZXRlY3Qg
-aXQgYnkgdXNpbmcgdGhlIG5ldyBsYXlvdXQuCgpUaGUgdmVyc2lvbiByZWdpc3Rlci92YWx1ZS4g
-QXQgc29tZSBwb2ludCBvZiB0aW1lIHRoZXJlIHdpbGwgYmUgYQpuZXcoaXNoKSBNTUlPIGxheW91
-dCBhbnl3YXkgdG8gZGVhbCB3aXRoIDY0LWJpdCBhZGRyZXNzZXMsIHJlcGxhY2luZyB0aGUKcmlu
-ZyBwYWdlIG51bWJlciB3aXRoIHR3byAzMi1iaXQgaGkvbG8gcGh5c2ljYWwgYWRkcmVzcyByZWdp
-c3RlcnMuIFRoaXMKd2FzIGRpc2N1c3NlZCBub3QgbG9uZyBhZnRlciB0aGUgZHJpdmVyIGdvdCBt
-ZXJnZWQuLi4KCj4gSSdkIHJhdGhlciB5b3Ugc3BlY2lmeSBNTUlPIGFzIGxpdHRsZSBlbmRpYW4s
-IGFuZCB3ZSBmaXggdGhlIGtlcm5lbAo+IGNvbmZpZyBhY2Nlc3NvcnMgdG8gYmUgZW5kaWFuIGF3
-YXJlIChpZS4gOCwgMTYsIDMyLCA2NC1iaXQgYWNjZXNzb3JzKS4KPiBTaW5jZSBub29uZSBCRSBp
-cyB1c2luZyBNTUlPIHJpZ2h0IG5vdywgaXQncyBzYWZlLi4uCgpUaGF0J3MgYWJzb2x1dGVseSBm
-aW5lIHdpdGggbWUsIGhvd2V2ZXIgSSBkb24ndCBzZWUgYW55dGhpbmcgSSBjb3VsZCBkbwppbiB0
-aGUgdmlydGlvX21taW8gZHJpdmVyIGFuZCBzcGVjIC0gdGhlIHZpcnRpb19jb25maWdfb3BzIHNw
-ZWNpZmllcwpnZXQvc2V0IGFzIHZvaWQgKiBvcGVyYXRpb25zIGFuZCBJIHNpbXBseSBkbyBieXRl
-LWJ5LWJ5dGUgY29weS4gSGF2ZSBJCm1pc3NlZCBzb21lIGNvbmZpZy9lbmRpYW5lc3MvUENJIHJl
-bGF0ZWQgZGlzY3Vzc2lvbj8KClBhd2XFggoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Tue, Mar 05, 2013 at 08:47:22PM +0100, Sam Ravnborg wrote:
+> On Tue, Mar 05, 2013 at 10:54:44PM +0800, Jiang Liu wrote:
+> > +static inline void free_initmem_default(int poison)
+> > +{
+> 
+> Why request user to supply the poison argumet. If this is the default
+> implmentation then use the default poison value too (POISON_FREE_INITMEM)
+
+That poison value is inappropriate on some architectures like ARM - it's
+executable.  The default poison value leads to:
+
+   0:	cccccccc 	stclgt	12, cr12, [ip], {204}	; 0xcc
+
+or
+
+   4:	cccc      	ldmia	r4!, {r2, r3, r6, r7}
+
+And we might as well forget using any kind of poison in that case.
+
+The value which use is an undefined instruction on ARM and Thumb.
+
+Notice the calls to poison_init_mem() in arch/arm/mm/init.c, which are
+left by these patches, allowing us to continue using an appropriate
+architecture specific value which will help to ensure that people
+calling discarded init functions get appropriately bitten.
