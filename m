@@ -1,16 +1,12 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH] tcm_vhost: Add hotplug/hotunplug support
-Date: Wed, 6 Mar 2013 09:40:15 +0800
-Message-ID: <20130306014015.GA21914@hj.localdomain>
-References: <1362475027-12018-1-git-send-email-asias@redhat.com>
-	<20130305121125.GA823@redhat.com> <5135F150.1060206@redhat.com>
-	<20130305143416.GG2256@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [FYI] vringh fixes.
+Date: Wed, 06 Mar 2013 15:46:32 +1100
+Message-ID: <871ubtcezb.fsf@rustcorp.com.au>
+References: <1362491468-16681-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130305143416.GG2256@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,34 +16,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: sjur.brandeland@stericsson.com, Ohad Ben-Cohen <ohad@wizery.com>, mst@redhat.com
+Cc: sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 05, 2013 at 04:34:17PM +0200, Michael S. Tsirkin wrote:
-> On Tue, Mar 05, 2013 at 02:21:20PM +0100, Paolo Bonzini wrote:
-> > Il 05/03/2013 13:11, Michael S. Tsirkin ha scritto:
-> > >> > +
-> > >> > +	struct vhost_work vs_event_work; /* evt injection work item */
-> > >> > +	struct llist_head vs_event_list; /* evt injection queue */
-> > >> > +
-> > >> > +	bool vs_events_dropped;
-> > > Documentation pls.
-> > > Also - how is this handled during migration?
-> > 
-> > Migration is not supported by vhost-scsi but yes, we would need to
-> > retrieve this bit.
-> > 
-> > Paolo
-> 
-> Well at the moment nothing is supported as there's no userspace
-> upstream :
+Hi all,
 
-This was true if you think only qemu is supposed to support it and
-nothing else will use it. kvm tool is using it since last Aug.
+More benchmarking using vringh_test, and I finally figured out that my
+changes to virtio_ring had no effect because we were actually
+bottlenecked on the vringh side...
 
-> > > Don't we need a way for userspace to retrieve this bit?
-> > > 
+Here are the changes I've ended up with, for your reading pleasure.
+They are all in my pending-rebases git tree, and I'll fold them together
+before putting them into virtio-next (I'm waiting for Sjur's notify
+changes).
 
--- 
-Asias
+Cheers,
+Rusty.
