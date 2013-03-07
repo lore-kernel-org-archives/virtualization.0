@@ -1,17 +1,17 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-spec: Define virtio-mmio registers as LE
-Date: Thu, 07 Mar 2013 17:36:13 +1100
-Message-ID: <871ubryaw2.fsf@rustcorp.com.au>
-References: <87wqubkalj.fsf@rustcorp.com.au>
-	<1360839247-9131-1-git-send-email-pawel.moll@arm.com>
-	<513085EA.8070007@arm.com> <1362135005.3052.26.camel@hornet>
-	<51308F22.7040303@arm.com> <1362141432.3052.28.camel@hornet>
-	<87fw0ad7sr.fsf@rustcorp.com.au> <1362582615.3105.45.camel@hornet>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH 4/6] virtio_ring: virtqueue_add_outbuf /
+	virtqueue_add_inbuf.
+Date: Thu, 7 Mar 2013 16:15:34 +0800
+Message-ID: <20130307081534.GA19603@hj.localdomain>
+References: <87k3plaz3d.fsf@rustcorp.com.au> <877gllaypf.fsf@rustcorp.com.au>
+	<20130306083730.GB5281@hj.localdomain>
+	<87boaw9hgw.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1362582615.3105.45.camel@hornet>
+Content-Disposition: inline
+In-Reply-To: <87boaw9hgw.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,45 +21,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Pawel Moll <pawel.moll@arm.com> writes:
-> On Tue, 2013-03-05 at 00:11 +0000, Rusty Russell wrote:
->> Pawel Moll <pawel.moll@arm.com> writes:
->> > On Fri, 2013-03-01 at 11:21 +0000, Marc Zyngier wrote:
->> >> > Having said that, Rusty was contemplating enforcing LE config space in
->> >> > the new PCI layout...
->> >> 
->> >> I wouldn't complain about that, and would like to see a similar thing on
->> >> MMIO.
->> >
->> > Wherever PCI goes, MMIO follows :-)
->> 
->> Yes, but if you switch from 'guest-endian' to 'little-endian' how will
->> you tell?  For PCI, we'd detect it by using the new layout.
->
-> The version register/value. At some point of time there will be a
-> new(ish) MMIO layout anyway to deal with 64-bit addresses, replacing the
-> ring page number with two 32-bit hi/lo physical address registers. This
-> was discussed not long after the driver got merged...
+On Thu, Mar 07, 2013 at 11:33:19AM +1100, Rusty Russell wrote:
+> Asias He <asias@redhat.com> writes:
+> > On Wed, Mar 06, 2013 at 04:23:24PM +1100, Rusty Russell wrote:
+> >> These are specialized versions of virtqueue_add_buf(), which cover
+> >> over 80% of cases and are far clearer.
+> >> 
+> >> In particular, the scatterlists passed to these functions don't have
+> >> to be clean (ie. we ignore end markers).
+> >> 
+> >> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> 
+> >
+> > So, what is the plan for the following ideas discussed in the other
+> > thread?
+> >
+> >    '''
+> >    > Looking at code, it seems that most users really have a single sg, in
+> >    > low memory. So how about simply passing void * instead of sg? Whoever
+> >    > has multiple sgs can use the rich interface.
+> >    
+> >    Good point, let's do that:
+> >    1) Make virtqueue_add_outbuf()/inbuf() take a void * and len.
+> >    2) Transfer users across to use that.
+> >    3) Make everyone else use clean scatterlists with virtqueue_add_sgs[].
+> >    4) Remove virtqueue_add_bufs().
+> 
+> Networking performance: there is still a performance penalty in using
+> virtqueue_add_sgs(), and it can't use a simple void * and len.
+> 
+> So I changed my mind.  Again...
 
-As long as you have a plan for older guests...
+Ah, OK.
 
->> I'd rather you specify MMIO as little endian, and we fix the kernel
->> config accessors to be endian aware (ie. 8, 16, 32, 64-bit accessors).
->> Since noone BE is using MMIO right now, it's safe...
->
-> That's absolutely fine with me, however I don't see anything I could do
-> in the virtio_mmio driver and spec - the virtio_config_ops specifies
-> get/set as void * operations and I simply do byte-by-byte copy. Have I
-> missed some config/endianess/PCI related discussion?
+> Cheers,
+> Rusty.
 
-Yes, that's exactly what I mean, they'd have to be split into
-8/16/32/64 accessors.  Which would do byte-by-byte for PCI.
-
-The spec can simply be updated.
-
-Cheers,
-Rusty.
+-- 
+Asias
