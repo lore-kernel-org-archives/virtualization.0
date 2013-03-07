@@ -1,17 +1,16 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 4/6] virtio_ring: virtqueue_add_outbuf /
-	virtqueue_add_inbuf.
-Date: Thu, 7 Mar 2013 16:15:34 +0800
-Message-ID: <20130307081534.GA19603@hj.localdomain>
-References: <87k3plaz3d.fsf@rustcorp.com.au> <877gllaypf.fsf@rustcorp.com.au>
-	<20130306083730.GB5281@hj.localdomain>
-	<87boaw9hgw.fsf@rustcorp.com.au>
+Subject: Re: [PATCH 0/6] virtio_add_buf replacement.
+Date: Thu, 7 Mar 2013 16:22:43 +0800
+Message-ID: <20130307082243.GB19603@hj.localdomain>
+References: <87k3plaz3d.fsf@rustcorp.com.au>
+	<20130306080940.GA4034@hj.localdomain>
+	<878v609hdn.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87boaw9hgw.fsf@rustcorp.com.au>
+In-Reply-To: <878v609hdn.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,37 +24,35 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 07, 2013 at 11:33:19AM +1100, Rusty Russell wrote:
+On Thu, Mar 07, 2013 at 11:35:16AM +1100, Rusty Russell wrote:
 > Asias He <asias@redhat.com> writes:
-> > On Wed, Mar 06, 2013 at 04:23:24PM +1100, Rusty Russell wrote:
-> >> These are specialized versions of virtqueue_add_buf(), which cover
-> >> over 80% of cases and are far clearer.
+> > On Wed, Mar 06, 2013 at 04:15:02PM +1100, Rusty Russell wrote:
+> >> OK, so I've spent a few days benchmarking.  Turns out 80% of
+> >> virtio_add_buf cases are uni-directional (including the
+> >> always-performance-sensitive networking code), and that gets no
+> >> performance penalty (though tests with real networking would be
+> >> appreciated!).
 > >> 
-> >> In particular, the scatterlists passed to these functions don't have
-> >> to be clean (ie. we ignore end markers).
-> >> 
-> >> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> 
+> >> I'm not reposting all the "convert driver to virtio_add_outbuf()"
+> >> patches: just the scsi one which I didn't have before.  I won't actually
+> >> remove virtio_add_buf() until the *following* merge window, just to be
+> >> sure.
 > >
-> > So, what is the plan for the following ideas discussed in the other
-> > thread?
-> >
-> >    '''
-> >    > Looking at code, it seems that most users really have a single sg, in
-> >    > low memory. So how about simply passing void * instead of sg? Whoever
-> >    > has multiple sgs can use the rich interface.
-> >    
-> >    Good point, let's do that:
-> >    1) Make virtqueue_add_outbuf()/inbuf() take a void * and len.
-> >    2) Transfer users across to use that.
-> >    3) Make everyone else use clean scatterlists with virtqueue_add_sgs[].
-> >    4) Remove virtqueue_add_bufs().
+> > Why not send out all the patches in this series? It would be much easier
+> > for people to read in one thread.
 > 
-> Networking performance: there is still a performance penalty in using
-> virtqueue_add_sgs(), and it can't use a simple void * and len.
+> I could re-spam people, but the patches are unchanged and uninteresting:
+> the scsi one I wanted an Ack for, however.
 > 
-> So I changed my mind.  Again...
+> I really want people to review the core patches, and if they're fine,
 
-Ah, OK.
+People can skip the uninteresting patches easlily in one thread. Having
+all the patches in one thread makes people see the whole picture. 
+
+> I'll post the whole thing one last time before putting them in my
+> virtio-next branch (where they can't change).
+
+Okay, sounds good.
 
 > Cheers,
 > Rusty.
