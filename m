@@ -1,17 +1,18 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH 5/5] tcm_vhost: Add hotplug/hotunplug support
-Date: Thu, 7 Mar 2013 09:58:04 +0100
-Message-ID: <20130307085804.GA13214@stefanha-thinkpad.redhat.com>
-References: <1362550590-3534-1-git-send-email-asias@redhat.com>
-	<1362550590-3534-6-git-send-email-asias@redhat.com>
-	<20130306092109.GB32480@stefanha-thinkpad.muc.redhat.com>
-	<20130307002620.GA8785@hj.localdomain>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 2/2] tools/virtio: make barriers stronger.
+Date: Thu, 7 Mar 2013 11:29:08 +0200
+Message-ID: <20130307092908.GA4129@redhat.com>
+References: <1362491468-16681-1-git-send-email-sjur.brandeland@stericsson.com>
+	<871ubtcezb.fsf@rustcorp.com.au> <87y5e1b03l.fsf@rustcorp.com.au>
+	<87vc95b019.fsf@rustcorp.com.au>
+	<20130306102017.GB16921@redhat.com>
+	<87a9qfyinr.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130307002620.GA8785@hj.localdomain>
+In-Reply-To: <87a9qfyinr.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,90 +22,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 07, 2013 at 08:26:20AM +0800, Asias He wrote:
-> On Wed, Mar 06, 2013 at 10:21:09AM +0100, Stefan Hajnoczi wrote:
-> > On Wed, Mar 06, 2013 at 02:16:30PM +0800, Asias He wrote:
-> > > +static struct tcm_vhost_evt *tcm_vhost_allocate_evt(struct vhost_scsi *vs,
-> > > +	u32 event, u32 reason)
-> > > +{
-> > > +	struct tcm_vhost_evt *evt;
-> > > +
-> > > +	if (atomic_read(&vs->vs_events_nr) > VHOST_SCSI_MAX_EVENT)
-> > > +		return NULL;
-> > > +
-> > > +	evt = kzalloc(sizeof(*evt), GFP_KERNEL);
-> > > +
-> > > +	if (evt) {
-> > > +		atomic_inc(&vs->vs_events_nr);
-> > 
-> > This looks suspicious: checking vs_events_nr > VHOST_SCSI_MAX_EVENT
-> > first and then incrementing later isn't atomic!
+On Thu, Mar 07, 2013 at 02:48:24PM +1100, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > On Wed, Mar 06, 2013 at 03:54:42PM +1100, Rusty Russell wrote:
+> >> In the coming vringh_test, we share an mmap with another userspace process
+> >> for testing.  This requires real barriers.
+> >> 
+> >> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> >> 
+> >> diff --git a/tools/virtio/asm/barrier.h b/tools/virtio/asm/barrier.h
+> >> index aff61e1..7a63693 100644
+> >> --- a/tools/virtio/asm/barrier.h
+> >> +++ b/tools/virtio/asm/barrier.h
+> >> @@ -3,8 +3,8 @@
+> >>  #define mb() __sync_synchronize()
+> >>  
+> >>  #define smp_mb()	mb()
+> >> -# define smp_rmb()	barrier()
+> >> -# define smp_wmb()	barrier()
+> >> +# define smp_rmb()	mb()
+> >> +# define smp_wmb()	mb()
+> >>  /* Weak barriers should be used. If not - it's a bug */
+> >>  # define rmb()	abort()
+> >>  # define wmb()	abort()
+> >
+> > Hmm this seems wrong on x86 which has strong order in hardware.
+> > It should not matter whether the other side is a userspace
+> > process or a kernel thread.
 > 
-> This does not matter. (1) and (2) are okay. In case (3), the other side
-> can only decrease the number of event, the limit will not be exceeded.
+> Actually, this code is completely generic now, though overkill for x86 smp_wmb():
 > 
-> (1) 
->    		   atomic_dec()
->    atomic_read() 
->    atomic_inc()
-> (2)
->    atomic_read() 
->    atomic_inc()
->    		   atomic_dec()
-> 
-> (3)
->    atomic_read() 
->    		   atomic_dec()
->    atomic_inc()
+> Interestingly, when I try defining them, 32-bit x86 slows down (it seems
+> that gcc is using "lock orl $0x0,(%esp)" for __sync_synchronize()).:
 
-The cases you listed are fine but I'm actually concerned about
-tcm_vhost_allocate_evt() racing with itself.  There are 3 callers and
-I'm not sure which lock prevents them from executing at the same time.
+Well this depends on which arch you are building for.
+We saw this in qemu too, see e.g. include/qemu/atomic.h in qemu.
 
-> > > +static int tcm_vhost_hotunplug(struct tcm_vhost_tpg *tpg, struct se_lun *lun)
-> > > +{
-> > > +	struct vhost_scsi *vs = tpg->vhost_scsi;
-> > > +
-> > > +	mutex_lock(&tpg->tv_tpg_mutex);
-> > > +	vs = tpg->vhost_scsi;
-> > > +	mutex_unlock(&tpg->tv_tpg_mutex);
-> > > +	if (!vs)
-> > > +		return -EOPNOTSUPP;
-> > > +
-> > > +	if (!tcm_vhost_check_feature(vs, VIRTIO_SCSI_F_HOTPLUG))
-> > > +		return -EOPNOTSUPP;
-> > > +
-> > > +	return tcm_vhost_send_evt(vs, tpg, lun,
-> > > +			VIRTIO_SCSI_T_TRANSPORT_RESET,
-> > > +			VIRTIO_SCSI_EVT_RESET_REMOVED);
-> > > +}
-> > 
-> > tcm_vhost_hotplug() and tcm_vhost_hotunplug() are the same function
-> > except for VIRTIO_SCSI_EVT_RESET_RESCAN vs
-> > VIRTIO_SCSI_EVT_RESET_REMOVED.  That can be passed in as an argument and
-> > the code duplication can be eliminated.
+> On my 32-bit laptop: Intel(R) Core(TM) i5 CPU       M 560  @ 2.67GHz
 > 
-> I thought about this also. We can have a tcm_vhost_do_hotplug() helper.
+> Before:
+> 	Wall time:1.660000-1.790000(1.682500)
+> After:
+> 	Wall time:1.930000-3.620000(1.960625)
 > 
->    tcm_vhost_do_hotplug(tpg, lun, plug)
->    
->    tcm_vhost_hotplug() {
->    	tcm_vhost_do_hotplug(tpg, lun, true)
->    }
->    
->    tcm_vhost_hotunplug() {
->    	tcm_vhost_do_hotplug(tpg, lun, false)
->    }
+> 64 bit it's a win:
+> On 2.6.32-358.el6.x86_64, gcc (GCC) 4.4.7 20120313 (Red Hat 4.4.7-3), Intel(R) Xeon(R) CPU           E5620  @ 2.40GHz:
 > 
-> The reason I did not do that is I do not like the true/false argument
-> but anyway this could remove duplication. I will do it.
+> Before:
+> 	real	0m2.937000-8.339000(3.123979)s
+> 	user	0m2.811000-8.233000(2.954813)s
+> 	sys	0m0.052000-0.154000(0.089396)s
+> After:
+> 	real	0m2.559000-2.936000(2.726729)s
+> 	user	0m2.397000-2.651000(2.506396)s
+> 	sys	0m0.055000-0.152000(0.090667)s
+> 
+> Raw performance doesn't really matter, of course, but it's tempting to
+> use these asm barriers for __x86_64__, and use __sync_synchronize()
+> everywhere for everyone else.
+> 
+> Thoughts?
+> Rusty.
 
-true/false makes the calling code hard to read, I suggest passing in
-VIRTIO_SCSI_EVT_RESET_RESCAN or VIRTIO_SCSI_EVT_RESET_REMOVED as the
-argument.
+For smp_mb, I agree.
 
-Stefan
+> diff --git a/tools/virtio/asm/barrier.h b/tools/virtio/asm/barrier.h
+> index 7a63693..8de720a 100644
+> --- a/tools/virtio/asm/barrier.h
+> +++ b/tools/virtio/asm/barrier.h
+> @@ -1,11 +1,12 @@
+>  #if defined(__i386__) || defined(__x86_64__)
+>  #define barrier() asm volatile("" ::: "memory")
+> -#define mb() __sync_synchronize()
+>  
+> -#define smp_mb()	mb()
+> -# define smp_rmb()	mb()
+> -# define smp_wmb()	mb()
+> +#define smp_mb() 	asm volatile("mfence":::"memory")
+> +#define smp_rmb()	asm volatile("lfence":::"memory")
+> +#define smp_wmb()	asm volatile("sfence" ::: "memory")
+> +
+
+Confused. On x86_64, as long as you are not synchronizing with a device
+these are not necessary, a compiler barrier will do, unless
+there are non-temporal loads/stores, which we don't use.
+
+>  /* Weak barriers should be used. If not - it's a bug */
+> +# define mb()	abort()
+>  # define rmb()	abort()
+>  # define wmb()	abort()
+>  #else
