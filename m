@@ -1,17 +1,16 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbr@gmail.com>
-Subject: Re: [PATCH vringh] virtio: Introduce vringh wrappers in virtio_config
-Date: Thu, 7 Mar 2013 00:28:42 +0100
-Message-ID: <CANHm3Pio7E6kQ5oQSXnomEziZODdgvdXdetunWncENH6Da1p1w@mail.gmail.com>
-References: <1362491468-16681-1-git-send-email-sjur.brandeland@stericsson.com>
-	<876215cf5f.fsf@rustcorp.com.au>
-	<CANHm3Pg6tDMb9fM60sFdA2sQ856vUGe4S1TpK3_tUoyBd-882A@mail.gmail.com>
-	<CAK=WgbZtst9G9xBkLXFhpJm6YQxYHVaxjLhZ53P-fmR_NxU+tA@mail.gmail.com>
-	<CANHm3PicEBY5AewpuYo+bFbakqdKdR-omfSAhhrYjTZTjo3www@mail.gmail.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH 5/5] tcm_vhost: Add hotplug/hotunplug support
+Date: Thu, 7 Mar 2013 08:26:20 +0800
+Message-ID: <20130307002620.GA8785@hj.localdomain>
+References: <1362550590-3534-1-git-send-email-asias@redhat.com>
+	<1362550590-3534-6-git-send-email-asias@redhat.com>
+	<20130306092109.GB32480@stefanha-thinkpad.muc.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CANHm3PicEBY5AewpuYo+bFbakqdKdR-omfSAhhrYjTZTjo3www@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20130306092109.GB32480@stefanha-thinkpad.muc.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,50 +20,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBNYXIgNiwgMjAxMyBhdCAxOjM3IFBNLCBTanVyIEJyw6ZuZGVsYW5kIDxzanVyYnJA
-Z21haWwuY29tPiB3cm90ZToKPiBPbiBXZWQsIE1hciA2LCAyMDEzIGF0IDE6MTYgUE0sIE9oYWQg
-QmVuLUNvaGVuIDxvaGFkQHdpemVyeS5jb20+IHdyb3RlOgo+PiBPbiBXZWQsIE1hciA2LCAyMDEz
-IGF0IDEyOjUwIFBNLCBTanVyIEJyw6ZuZGVsYW5kIDxzanVyQGJyZW5kZWxhbmQubmV0PiB3cm90
-ZToKPj4+IFRoZSBjYWlmX3ZpcnRpbyBkcml2ZXIgaXMgdXNpbmcgYm90aCBob3N0IGFuZCBndWVz
-dCByaW5nIHNpZGVzLCBob3N0IHNpZGUKPj4+IHJpbmdzIGluIFJYIGRpcmVjdGlvbiBhbmQgZ3Vl
-c3Qgc2lkZSByaW5ncyBpbiBUWCBkaXJlY3Rpb24uIFRoZSByZWFzb24KPj4+IGJlaGluZCB0aGlz
-IGlzIHRvIGVuYWJsZSB6ZXJvLWNvcHkgb24gdGhlIHByb2R1Y2VyIHNpZGVzLgo+Pj4gKEZvciBk
-ZXRhaWxzIHNlZSByZWNlbnQgZGlzY3Vzc2lvbiB3aXRoIE9oYWQgIldyYXBwZXJzIGZvciB2cmlu
-Z2giCj4+Cj4+IEZXSVcsIEknbSBub3QgY29udmluY2VkIHRoYXQgaG9zdCBzaWRlIHJpbmdzIGFy
-ZSBuZWNlc3NhcnkgZm9yCj4+IHplcm8tY29weSAtIHlvdSBjb3VsZCBhbHdheXMganVzdCBwYXNz
-IHBvaW50ZXJzIHRvIHlvdXIgaHVnZSBkYXRhCj4+IGluc2lkZSBidWZmZXJzIHBvc3RlZCBieSBn
-dWVzdCBzaWRlIHJpbmdzLgoKV2hlbiBJIHJlYWQgdGhpcyBhZ2FpbiBJIHJlYWxpemVkIHRoYXQg
-SSBtaXNzZWQgeW91ciBwb2ludCByZWdhcmRpbmcKcGFzc2luZyBwb2ludGVycyBpbnNpZGUgYnVm
-ZmVycyBjb21wbGV0ZWx5LiBNeSByYW1ibGluZyBiZWxvdwphcmd1ZWQgYWdhaW5zdCB1c2luZyB0
-aGUgYnVmZmVycyBwcm92aWRlZCBpbiB0aGUgYXZhaWxhYmxlIHJpbmcgYXMgYQpyZXBsYWNlbWVu
-dCBvZiB0aGUgbW9kZW0gaW50ZXJuYWwgYWxsb2NhdG9yLiBTb3JyeSBmb3IgdGhlIGNvbmZ1c2lv
-bi4KCkkgaGF2ZW4ndCByZWFsbHkgc3BlbnQgdGltZSB0aGlua2luZyB0aHJvdWdoIHRoZSBpbXBs
-aWNhdGlvbiBvZiB0aGUgYWx0ZXJuYXRpdmUKb2YgcGFzc2luZyBidWZmZXIgcG9pbnRlcnMgaW5z
-aWRlIGJ1ZmZlcnMgcG9zdGVkIGJ5IGd1ZXN0IHNpZGUgcmluZ3MuCkJ1dCBpdCBzZWVtcyB0byBt
-ZSB0aGF0IHRoZXJlIHdvdWxkIGJlIHNvbWUgaXNzdWVzIHJlbGF0ZWQgdG8gcmV0dXJuaW5nCmNv
-bnN1bWVkIGJ1ZmZlcnMgYmFjayBpZiB5b3UgdXNlIHRoZSByaW5ncyBpbiB0aGlzIHdheS4KClRo
-YW5rcywKU2p1cgoKPiBXZWxsLCB0byBkbyB0aGF0IGZvciBDQUlGIHlvdSB3b3VsZCBoYXZlIHRv
-IGludGVncmF0ZSB2aXJ0aW8gYnVmZmVyIGhhbmRsaW5nCj4gZGVlcCBpbnRvIHRoZSBsb3dlciBs
-YXllciBvZiB0aGUgbW9kZW1zIDNHUFAgc3RhY2sgc28gdGhhdCB0aGUgM0dQUCBzdGFjawo+IGNv
-dWxkIHRha2UgYnVmZmVycyBmcm9tIHRoZSBhdmFpbGFibGUgcmluZy4KPgo+IEZyb20gdGhlIG91
-dHNpZGUgcG9pbnQgb2YgdmlldywgcGVyaGFwcyB0aGlzIHNvdW5kcyBkb2FibGUsIGJ1dCBpbiBy
-ZWFsaXR5IHlvdQo+IHdvdWxkbid0IGdldCBhbnkgTmV0d29yayBTaWduYWxsaW5nIGVuZ2luZWVy
-cyBpbXBsZW1lbnRpbmcgdGhlIDNHUFAgc3RhY2sKPiB0byBidXkgaW50byB0aGF0Lgo+Cj4gQW5v
-dGhlciBpc3N1ZSBpcyB0aGF0IG91ciBtb2RlbSBhbHNvIHN1cHBvcnQgb3RoZXIgaW50ZXJmYWNl
-IHRlY2hub2xvZ2llcwo+IHN1Y2ggYXMgVVNCIGFuZCBIU0kuIEl0IHNpbXBseSBkb2Vzbid0IG1h
-a2Ugc2Vuc2UgdG8gZW5mb3JjZSB2aXJ0aW8gcmluZ3MKPiBpbnRlcm5hbGx5IGlmIHZpcnRpbyBp
-c24ndCBvdGhlcndpc2UgdXNlZCBvbiB0aGUgbW9kZW0uCj4KPiBXaXRob3V0IGhvc3Qgc2lkZSBy
-aW5ncyB3ZSBzaW1wbHkgd291bGRuJ3QgYmUgYWJsZSB0byBpbXBsZW1lbnQgemVyby1jb3B5Cj4g
-aW4gdGhlIFJYIGRpcmVjdGlvbiBmb3IgdGhlIFNURS1tb2RlbS4KPgo+IFJlZ2FyZHMsCj4gU2p1
-cgo+Cj4+Cj4+IFRoYXQgc2FpZCwgSSBkbyBiZWxpZXZlIHRoYXQgbWl4aW5nIGd1ZXN0IHNpZGUg
-YW5kIGhvc3Qgc2lkZSByaW5ncyBtYXkKPj4gc2ltcGxpZnkgdGhlIG92ZXJhbGwgc29sdXRpb24g
-aW4gc29tZSBjYXNlcywgZXNwZWNpYWxseSBpbiBtb3JlCj4+IGNvbXBsZXggbXVsdGkgY29yZSBz
-Y2VuYXJpb3MgKHdoZXJlIHNldmVyYWwgY29yZXMgYWxsIGNvbW11bmljYXRlIHdpdGgKPj4gZWFj
-aCBvdGhlcikuCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, Mar 06, 2013 at 10:21:09AM +0100, Stefan Hajnoczi wrote:
+> On Wed, Mar 06, 2013 at 02:16:30PM +0800, Asias He wrote:
+> > +static struct tcm_vhost_evt *tcm_vhost_allocate_evt(struct vhost_scsi *vs,
+> > +	u32 event, u32 reason)
+> > +{
+> > +	struct tcm_vhost_evt *evt;
+> > +
+> > +	if (atomic_read(&vs->vs_events_nr) > VHOST_SCSI_MAX_EVENT)
+> > +		return NULL;
+> > +
+> > +	evt = kzalloc(sizeof(*evt), GFP_KERNEL);
+> > +
+> > +	if (evt) {
+> > +		atomic_inc(&vs->vs_events_nr);
+> 
+> This looks suspicious: checking vs_events_nr > VHOST_SCSI_MAX_EVENT
+> first and then incrementing later isn't atomic!
+
+This does not matter. (1) and (2) are okay. In case (3), the other side
+can only decrease the number of event, the limit will not be exceeded.
+
+(1) 
+   		   atomic_dec()
+   atomic_read() 
+   atomic_inc()
+(2)
+   atomic_read() 
+   atomic_inc()
+   		   atomic_dec()
+
+(3)
+   atomic_read() 
+   		   atomic_dec()
+   atomic_inc()
+
+          
+> > +static int tcm_vhost_hotunplug(struct tcm_vhost_tpg *tpg, struct se_lun *lun)
+> > +{
+> > +	struct vhost_scsi *vs = tpg->vhost_scsi;
+> > +
+> > +	mutex_lock(&tpg->tv_tpg_mutex);
+> > +	vs = tpg->vhost_scsi;
+> > +	mutex_unlock(&tpg->tv_tpg_mutex);
+> > +	if (!vs)
+> > +		return -EOPNOTSUPP;
+> > +
+> > +	if (!tcm_vhost_check_feature(vs, VIRTIO_SCSI_F_HOTPLUG))
+> > +		return -EOPNOTSUPP;
+> > +
+> > +	return tcm_vhost_send_evt(vs, tpg, lun,
+> > +			VIRTIO_SCSI_T_TRANSPORT_RESET,
+> > +			VIRTIO_SCSI_EVT_RESET_REMOVED);
+> > +}
+> 
+> tcm_vhost_hotplug() and tcm_vhost_hotunplug() are the same function
+> except for VIRTIO_SCSI_EVT_RESET_RESCAN vs
+> VIRTIO_SCSI_EVT_RESET_REMOVED.  That can be passed in as an argument and
+> the code duplication can be eliminated.
+
+I thought about this also. We can have a tcm_vhost_do_hotplug() helper.
+
+   tcm_vhost_do_hotplug(tpg, lun, plug)
+   
+   tcm_vhost_hotplug() {
+   	tcm_vhost_do_hotplug(tpg, lun, true)
+   }
+   
+   tcm_vhost_hotunplug() {
+   	tcm_vhost_do_hotplug(tpg, lun, false)
+   }
+
+The reason I did not do that is I do not like the true/false argument
+but anyway this could remove duplication. I will do it.
+
+-- 
+Asias
