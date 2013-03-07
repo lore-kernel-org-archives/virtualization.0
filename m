@@ -1,16 +1,17 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 2/5] tcm_vhost: Introduce tcm_vhost_check_feature()
-Date: Thu, 7 Mar 2013 08:35:32 +0800
-Message-ID: <20130307003532.GB8785@hj.localdomain>
-References: <1362550590-3534-1-git-send-email-asias@redhat.com>
-	<1362550590-3534-3-git-send-email-asias@redhat.com>
-	<20130306090620.GA32480@stefanha-thinkpad.muc.redhat.com>
+Subject: Re: [PATCH] tcm_vhost: Add hotplug/hotunplug support
+Date: Thu, 7 Mar 2013 08:36:10 +0800
+Message-ID: <20130307003609.GC8785@hj.localdomain>
+References: <1362475027-12018-1-git-send-email-asias@redhat.com>
+	<20130305121125.GA823@redhat.com>
+	<20130306012811.GA20372@hj.localdomain>
+	<51377FDB.1080605@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130306090620.GA32480@stefanha-thinkpad.muc.redhat.com>
+In-Reply-To: <51377FDB.1080605@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,51 +21,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 06, 2013 at 10:06:20AM +0100, Stefan Hajnoczi wrote:
-> On Wed, Mar 06, 2013 at 02:16:27PM +0800, Asias He wrote:
-> > This helper is useful to check if a feature is supported.
+On Wed, Mar 06, 2013 at 06:41:47PM +0100, Paolo Bonzini wrote:
+> Il 06/03/2013 02:28, Asias He ha scritto:
+> >> > This can queue up quite a bit of memory if the handler thread
+> >> > is delayed, no? Can we limit the # of outstanding events?
+> >> > Will guest recover from a missed event?
+> > Hmm, good point. Will limit the number. The size of 'struct
+> > tcm_vhost_evt' is around 20 bytes. So if we limit it to 128, it is ~2.5K
+> > of memory.
 > > 
-> > Signed-off-by: Asias He <asias@redhat.com>
-> > ---
-> >  drivers/vhost/tcm_vhost.c | 14 ++++++++++++++
-> >  1 file changed, 14 insertions(+)
-> > 
-> > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> > index b3e50d7..fdbf986 100644
-> > --- a/drivers/vhost/tcm_vhost.c
-> > +++ b/drivers/vhost/tcm_vhost.c
-> > @@ -91,6 +91,20 @@ static int iov_num_pages(struct iovec *iov)
-> >  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
-> >  }
-> >  
-> > +static bool tcm_vhost_check_feature(struct vhost_scsi *vs, u64 feature)
-> > +{
-> > +	u64 acked_features;
-> > +	bool ret = false;
-> > +
-> > +	mutex_lock(&vs->dev.mutex);
-> > +	acked_features = vs->dev.acked_features;
-> > +	if (acked_features & 1ULL << feature)
-> > +		ret = true;
-> > +	mutex_unlock(&vs->dev.mutex);
-> > +
-> > +	return ret;
-> > +}
+> > Paolo, if we limit the number of outstanding events and set
+> > vs->vs_events_dropped, the guest will recover from a missed event, right?
 > 
-> This is like vhost_has_feature() except it acquires dev.mutex?
+> Yes.  At least it should (it doesn't yet).
+
+Ok, thanks.
+
+> Paolo
 > 
-> In any case it isn't tcm_vhost-specific and could be in vhost.c.
 
-tcm_vhost_check_feature() is called outside the vhost worker thread. So
-the dev.mutex is needed. 
-
-Mst, what's your preference here? Add vhost_has_feature_locked() in
-vhost.c or I use vhost_has_feature() in tcm_vhost_check_feature().
-
-Thanks.
 -- 
 Asias
