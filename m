@@ -1,18 +1,15 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH] tcm_vhost: Add hotplug/hotunplug support
-Date: Thu, 7 Mar 2013 08:55:55 +0800
-Message-ID: <20130307005555.GD8785@hj.localdomain>
-References: <1362475027-12018-1-git-send-email-asias@redhat.com>
-	<20130305121125.GA823@redhat.com> <5135F150.1060206@redhat.com>
-	<20130305143416.GG2256@redhat.com>
-	<1362523912.7905.208.camel@haakon2.linux-iscsi.org>
-	<51375270.7060703@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 4/6] virtio_ring: virtqueue_add_outbuf /
+	virtqueue_add_inbuf.
+Date: Thu, 07 Mar 2013 11:33:19 +1100
+Message-ID: <87boaw9hgw.fsf@rustcorp.com.au>
+References: <87k3plaz3d.fsf@rustcorp.com.au> <877gllaypf.fsf@rustcorp.com.au>
+	<20130306083730.GB5281@hj.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <51375270.7060703@redhat.com>
+In-Reply-To: <20130306083730.GB5281@hj.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,34 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Dominik Dingel <dingel@linux.vnet.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>
+To: Asias He <asias@redhat.com>
+Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Asias He <asias@redhat.com> writes:
+> On Wed, Mar 06, 2013 at 04:23:24PM +1100, Rusty Russell wrote:
+>> These are specialized versions of virtqueue_add_buf(), which cover
+>> over 80% of cases and are far clearer.
+>> 
+>> In particular, the scatterlists passed to these functions don't have
+>> to be clean (ie. we ignore end markers).
+>> 
+>> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au> 
+>
+> So, what is the plan for the following ideas discussed in the other
+> thread?
+>
+>    '''
+>    > Looking at code, it seems that most users really have a single sg, in
+>    > low memory. So how about simply passing void * instead of sg? Whoever
+>    > has multiple sgs can use the rich interface.
+>    
+>    Good point, let's do that:
+>    1) Make virtqueue_add_outbuf()/inbuf() take a void * and len.
+>    2) Transfer users across to use that.
+>    3) Make everyone else use clean scatterlists with virtqueue_add_sgs[].
+>    4) Remove virtqueue_add_bufs().
 
-On Wed, Mar 06, 2013 at 03:28:00PM +0100, Paolo Bonzini wrote:
-> Il 05/03/2013 23:51, Nicholas A. Bellinger ha scritto:
-> > For making progress with Paolo's vhost-scsi branch on my side, this was
-> > still being blocked by bios boot hangs:
-> > 
-> > http://www.spinics.net/lists/target-devel/msg03830.html
-> > 
-> > Paolo & Co, any ideas on the latter..?
-> 
-> Nope.  Asias, do you have time to look at it?  Only patches 3 and 4 in
-> that series are needed, they are at
-> 
-> http://article.gmane.org/gmane.comp.emulators.qemu/192143
-> http://article.gmane.org/gmane.comp.emulators.qemu/192147
-> 
-> (vhost_scsi_set_endpoint and vhost_scsi_clear_endpoint need to be
-> integrated in vhost_scsi_start and vhost_scsi_stop).
+Networking performance: there is still a performance penalty in using
+virtqueue_add_sgs(), and it can't use a simple void * and len.
 
-Okay. I will take a look. I am CC'ing Dominik Dingel, he might be
-interested in.
+So I changed my mind.  Again...
 
-Nicholas, could you share the code where you left (on top of Paolo's),
-so I can start from.
-
--- 
-Asias
+Cheers,
+Rusty.
