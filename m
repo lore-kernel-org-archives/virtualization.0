@@ -1,16 +1,16 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 5/5] tcm_vhost: Add hotplug/hotunplug support
-Date: Thu, 7 Mar 2013 08:26:20 +0800
-Message-ID: <20130307002620.GA8785@hj.localdomain>
+Subject: Re: [PATCH 2/5] tcm_vhost: Introduce tcm_vhost_check_feature()
+Date: Thu, 7 Mar 2013 08:35:32 +0800
+Message-ID: <20130307003532.GB8785@hj.localdomain>
 References: <1362550590-3534-1-git-send-email-asias@redhat.com>
-	<1362550590-3534-6-git-send-email-asias@redhat.com>
-	<20130306092109.GB32480@stefanha-thinkpad.muc.redhat.com>
+	<1362550590-3534-3-git-send-email-asias@redhat.com>
+	<20130306090620.GA32480@stefanha-thinkpad.muc.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130306092109.GB32480@stefanha-thinkpad.muc.redhat.com>
+In-Reply-To: <20130306090620.GA32480@stefanha-thinkpad.muc.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,79 +24,47 @@ To: Stefan Hajnoczi <stefanha@redhat.com>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 06, 2013 at 10:21:09AM +0100, Stefan Hajnoczi wrote:
-> On Wed, Mar 06, 2013 at 02:16:30PM +0800, Asias He wrote:
-> > +static struct tcm_vhost_evt *tcm_vhost_allocate_evt(struct vhost_scsi *vs,
-> > +	u32 event, u32 reason)
+On Wed, Mar 06, 2013 at 10:06:20AM +0100, Stefan Hajnoczi wrote:
+> On Wed, Mar 06, 2013 at 02:16:27PM +0800, Asias He wrote:
+> > This helper is useful to check if a feature is supported.
+> > 
+> > Signed-off-by: Asias He <asias@redhat.com>
+> > ---
+> >  drivers/vhost/tcm_vhost.c | 14 ++++++++++++++
+> >  1 file changed, 14 insertions(+)
+> > 
+> > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+> > index b3e50d7..fdbf986 100644
+> > --- a/drivers/vhost/tcm_vhost.c
+> > +++ b/drivers/vhost/tcm_vhost.c
+> > @@ -91,6 +91,20 @@ static int iov_num_pages(struct iovec *iov)
+> >  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
+> >  }
+> >  
+> > +static bool tcm_vhost_check_feature(struct vhost_scsi *vs, u64 feature)
 > > +{
-> > +	struct tcm_vhost_evt *evt;
+> > +	u64 acked_features;
+> > +	bool ret = false;
 > > +
-> > +	if (atomic_read(&vs->vs_events_nr) > VHOST_SCSI_MAX_EVENT)
-> > +		return NULL;
+> > +	mutex_lock(&vs->dev.mutex);
+> > +	acked_features = vs->dev.acked_features;
+> > +	if (acked_features & 1ULL << feature)
+> > +		ret = true;
+> > +	mutex_unlock(&vs->dev.mutex);
 > > +
-> > +	evt = kzalloc(sizeof(*evt), GFP_KERNEL);
-> > +
-> > +	if (evt) {
-> > +		atomic_inc(&vs->vs_events_nr);
-> 
-> This looks suspicious: checking vs_events_nr > VHOST_SCSI_MAX_EVENT
-> first and then incrementing later isn't atomic!
-
-This does not matter. (1) and (2) are okay. In case (3), the other side
-can only decrease the number of event, the limit will not be exceeded.
-
-(1) 
-   		   atomic_dec()
-   atomic_read() 
-   atomic_inc()
-(2)
-   atomic_read() 
-   atomic_inc()
-   		   atomic_dec()
-
-(3)
-   atomic_read() 
-   		   atomic_dec()
-   atomic_inc()
-
-          
-> > +static int tcm_vhost_hotunplug(struct tcm_vhost_tpg *tpg, struct se_lun *lun)
-> > +{
-> > +	struct vhost_scsi *vs = tpg->vhost_scsi;
-> > +
-> > +	mutex_lock(&tpg->tv_tpg_mutex);
-> > +	vs = tpg->vhost_scsi;
-> > +	mutex_unlock(&tpg->tv_tpg_mutex);
-> > +	if (!vs)
-> > +		return -EOPNOTSUPP;
-> > +
-> > +	if (!tcm_vhost_check_feature(vs, VIRTIO_SCSI_F_HOTPLUG))
-> > +		return -EOPNOTSUPP;
-> > +
-> > +	return tcm_vhost_send_evt(vs, tpg, lun,
-> > +			VIRTIO_SCSI_T_TRANSPORT_RESET,
-> > +			VIRTIO_SCSI_EVT_RESET_REMOVED);
+> > +	return ret;
 > > +}
 > 
-> tcm_vhost_hotplug() and tcm_vhost_hotunplug() are the same function
-> except for VIRTIO_SCSI_EVT_RESET_RESCAN vs
-> VIRTIO_SCSI_EVT_RESET_REMOVED.  That can be passed in as an argument and
-> the code duplication can be eliminated.
+> This is like vhost_has_feature() except it acquires dev.mutex?
+> 
+> In any case it isn't tcm_vhost-specific and could be in vhost.c.
 
-I thought about this also. We can have a tcm_vhost_do_hotplug() helper.
+tcm_vhost_check_feature() is called outside the vhost worker thread. So
+the dev.mutex is needed. 
 
-   tcm_vhost_do_hotplug(tpg, lun, plug)
-   
-   tcm_vhost_hotplug() {
-   	tcm_vhost_do_hotplug(tpg, lun, true)
-   }
-   
-   tcm_vhost_hotunplug() {
-   	tcm_vhost_do_hotplug(tpg, lun, false)
-   }
+Mst, what's your preference here? Add vhost_has_feature_locked() in
+vhost.c or I use vhost_has_feature() in tcm_vhost_check_feature().
 
-The reason I did not do that is I do not like the true/false argument
-but anyway this could remove duplication. I will do it.
-
+Thanks.
 -- 
 Asias
