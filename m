@@ -1,14 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] virtio-scsi: reorder the goto label in init()
-Date: Fri, 08 Mar 2013 11:06:51 +1100
-Message-ID: <87mwuewy90.fsf@rustcorp.com.au>
-References: <1362626968-16871-1-git-send-email-gaowanlong@cn.fujitsu.com>
-	<1362626968-16871-2-git-send-email-gaowanlong@cn.fujitsu.com>
+Subject: Re: [PATCH 2/2] tools/virtio: make barriers stronger.
+Date: Fri, 08 Mar 2013 10:56:05 +1100
+Message-ID: <87y5dywyqy.fsf@rustcorp.com.au>
+References: <1362491468-16681-1-git-send-email-sjur.brandeland@stericsson.com>
+	<871ubtcezb.fsf@rustcorp.com.au> <87y5e1b03l.fsf@rustcorp.com.au>
+	<87vc95b019.fsf@rustcorp.com.au>
+	<20130306102017.GB16921@redhat.com>
+	<87a9qfyinr.fsf@rustcorp.com.au> <20130307092908.GA4129@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1362626968-16871-2-git-send-email-gaowanlong@cn.fujitsu.com>
+In-Reply-To: <20130307092908.GA4129@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,76 +21,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Cc: pbonzini@redhat.com, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Wanlong Gao <gaowanlong@cn.fujitsu.com> writes:
-> Reorder the goto label in init() to make it more clearly, and remove
-> the useless NULL pointer reassignment.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Thu, Mar 07, 2013 at 02:48:24PM +1100, Rusty Russell wrote:
+>> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> > On Wed, Mar 06, 2013 at 03:54:42PM +1100, Rusty Russell wrote:
+>> >> In the coming vringh_test, we share an mmap with another userspace process
+>> >> for testing.  This requires real barriers.
+>> >> 
+>> >> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+>> >> 
+>> >> diff --git a/tools/virtio/asm/barrier.h b/tools/virtio/asm/barrier.h
+>> >> index aff61e1..7a63693 100644
+>> >> --- a/tools/virtio/asm/barrier.h
+>> >> +++ b/tools/virtio/asm/barrier.h
+>> >> @@ -3,8 +3,8 @@
+>> >>  #define mb() __sync_synchronize()
+>> >>  
+>> >>  #define smp_mb()	mb()
+>> >> -# define smp_rmb()	barrier()
+>> >> -# define smp_wmb()	barrier()
+>> >> +# define smp_rmb()	mb()
+>> >> +# define smp_wmb()	mb()
+>> >>  /* Weak barriers should be used. If not - it's a bug */
+>> >>  # define rmb()	abort()
+>> >>  # define wmb()	abort()
+>> >
+>> > Hmm this seems wrong on x86 which has strong order in hardware.
+>> > It should not matter whether the other side is a userspace
+>> > process or a kernel thread.
+>> 
+>> Actually, this code is completely generic now, though overkill for x86 smp_wmb():
+>> 
+>> Interestingly, when I try defining them, 32-bit x86 slows down (it seems
+>> that gcc is using "lock orl $0x0,(%esp)" for __sync_synchronize()).:
 >
-> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+> Well this depends on which arch you are building for.
+> We saw this in qemu too, see e.g. include/qemu/atomic.h in qemu.
 
-These both require Paulo's Ack...
+Hmm, I thought x86 had load reordering, but it seems that was only some
+older chips, which we can consider obsolete.
 
-> ---
->  drivers/scsi/virtio_scsi.c | 27 +++++++++++----------------
->  1 file changed, 11 insertions(+), 16 deletions(-)
->
-> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> index f679b8c..55dfb06 100644
-> --- a/drivers/scsi/virtio_scsi.c
-> +++ b/drivers/scsi/virtio_scsi.c
-> @@ -774,32 +774,27 @@ static int __init init(void)
->  	virtscsi_cmd_cache = KMEM_CACHE(virtio_scsi_cmd, 0);
->  	if (!virtscsi_cmd_cache) {
->  		pr_err("kmem_cache_create() for virtscsi_cmd_cache failed\n");
-> -		goto error;
-> +		return ret;
+I learned something... I've dropped the patch.
 
-I mildly prefer the former (or perhaps renamed to "goto out" to match
-the other labels.
-
->  	}
->  
-> -
-> -	virtscsi_cmd_pool =
-> -		mempool_create_slab_pool(VIRTIO_SCSI_MEMPOOL_SZ,
-> -					 virtscsi_cmd_cache);
-> +	virtscsi_cmd_pool = mempool_create_slab_pool(VIRTIO_SCSI_MEMPOOL_SZ,
-> +						     virtscsi_cmd_cache);
->  	if (!virtscsi_cmd_pool) {
->  		pr_err("mempool_create() for virtscsi_cmd_pool failed\n");
-> -		goto error;
-> +		goto out_destroy_cache;
->  	}
-> +
->  	ret = register_virtio_driver(&virtio_scsi_driver);
->  	if (ret < 0)
-> -		goto error;
-> +		goto out_destroy_pool;
->  
->  	return 0;
->  
-> -error:
-> -	if (virtscsi_cmd_pool) {
-> -		mempool_destroy(virtscsi_cmd_pool);
-> -		virtscsi_cmd_pool = NULL;
-> -	}
-> -	if (virtscsi_cmd_cache) {
-> -		kmem_cache_destroy(virtscsi_cmd_cache);
-> -		virtscsi_cmd_cache = NULL;
-> -	}
-> +out_destroy_pool:
-> +	mempool_destroy(virtscsi_cmd_pool);
-> +out_destroy_cache:
-> +	kmem_cache_destroy(virtscsi_cmd_cache);
-> +
->  	return ret;
->  }
->  
-> -- 
-> 1.8.2.rc2
-
-Cheers,
+Thanks,
 Rusty.
