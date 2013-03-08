@@ -1,15 +1,13 @@
-From: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH] VSOCK: Split vm_sockets.h into kernel/uapi
-Date: Fri, 08 Mar 2013 01:09:18 +0000
-Message-ID: <29364.1362704958@warthog.procyon.org.uk>
-References: <20130307232453.GD10304@kroah.com>
-	<1362669973-26984-1-git-send-email-acking@vmware.com>
-	<26621.1362675490@warthog.procyon.org.uk>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: [PATCH V2 2/2] virtio-scsi: reorder the goto label in init()
+Date: Fri, 8 Mar 2013 09:11:13 +0800
+Message-ID: <1362705073-13566-1-git-send-email-gaowanlong@cn.fujitsu.com>
+References: <87mwuewy90.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130307232453.GD10304@kroah.com>
+In-Reply-To: <87mwuewy90.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,15 +17,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: Andy King <acking@vmware.com>, pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dhowells@redhat.com, davem@davemloft.net
+To: rusty@rustcorp.com.au
+Cc: pbonzini@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Greg KH <gregkh@linuxfoundation.org> wrote:
+Reorder the goto label in init() to make it more clearly, and remove
+the useless NULL pointer reassignment.
 
-> David, is there any rush to get stuff like this into 3.9 for any
-> uapi-type changes, or can it just wait for 3.10?
+Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+---
+ drivers/scsi/virtio_scsi.c | 27 +++++++++++----------------
+ 1 file changed, 11 insertions(+), 16 deletions(-)
 
-Not especially.  It won't appear in userspace due to the __KERNEL__ guards.
-
-David
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index f679b8c..6307099 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -774,32 +774,27 @@ static int __init init(void)
+ 	virtscsi_cmd_cache = KMEM_CACHE(virtio_scsi_cmd, 0);
+ 	if (!virtscsi_cmd_cache) {
+ 		pr_err("kmem_cache_create() for virtscsi_cmd_cache failed\n");
+-		goto error;
++		goto out;
+ 	}
+ 
+-
+-	virtscsi_cmd_pool =
+-		mempool_create_slab_pool(VIRTIO_SCSI_MEMPOOL_SZ,
+-					 virtscsi_cmd_cache);
++	virtscsi_cmd_pool = mempool_create_slab_pool(VIRTIO_SCSI_MEMPOOL_SZ,
++						     virtscsi_cmd_cache);
+ 	if (!virtscsi_cmd_pool) {
+ 		pr_err("mempool_create() for virtscsi_cmd_pool failed\n");
+-		goto error;
++		goto out_destroy_cache;
+ 	}
++
+ 	ret = register_virtio_driver(&virtio_scsi_driver);
+ 	if (ret < 0)
+-		goto error;
++		goto out_destroy_pool;
+ 
+ 	return 0;
+ 
+-error:
+-	if (virtscsi_cmd_pool) {
+-		mempool_destroy(virtscsi_cmd_pool);
+-		virtscsi_cmd_pool = NULL;
+-	}
+-	if (virtscsi_cmd_cache) {
+-		kmem_cache_destroy(virtscsi_cmd_cache);
+-		virtscsi_cmd_cache = NULL;
+-	}
++out_destroy_pool:
++	mempool_destroy(virtscsi_cmd_pool);
++out_destroy_cache:
++	kmem_cache_destroy(virtscsi_cmd_cache);
++out:
+ 	return ret;
+ }
+ 
+-- 
+1.8.2.rc2
