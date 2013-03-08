@@ -1,7 +1,8 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH V2 3/6] tcm_vhost: Introduce tcm_vhost_check_endpoint()
-Date: Fri,  8 Mar 2013 10:21:44 +0800
-Message-ID: <1362709307-12554-4-git-send-email-asias__32656.1453556225$1362709374$gmane$org@redhat.com>
+Subject: [PATCH V2 4/6] tcm_vhost: Fix vs->vs_endpoint checking in
+	vhost_scsi_handle_vq()
+Date: Fri,  8 Mar 2013 10:21:45 +0800
+Message-ID: <1362709307-12554-5-git-send-email-asias__4675.58863242647$1362709383$gmane$org@redhat.com>
 References: <1362709307-12554-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,36 +22,27 @@ To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This helper is useful to check if vs->vs_endpoint is setup by
-vhost_scsi_set_endpoint()
+vs->vs_endpoint is protected by the vs->dev.mutex. Use
+tcm_vhost_check_endpoint() to do check. The helper does the needed
+locking for us.
 
 Signed-off-by: Asias He <asias@redhat.com>
 ---
- drivers/vhost/tcm_vhost.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/vhost/tcm_vhost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 39654f4..b71e946 100644
+index b71e946..6739d67 100644
 --- a/drivers/vhost/tcm_vhost.c
 +++ b/drivers/vhost/tcm_vhost.c
-@@ -103,6 +103,18 @@ static bool tcm_vhost_check_feature(struct vhost_scsi *vs, int feature)
- 	return ret;
- }
+@@ -606,7 +606,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
+ 	u8 target;
  
-+static bool tcm_vhost_check_endpoint(struct vhost_scsi *vs)
-+{
-+	bool ret = false;
-+
-+	mutex_lock(&vs->dev.mutex);
-+	if (vs->vs_endpoint)
-+		ret = true;
-+	mutex_unlock(&vs->dev.mutex);
-+
-+	return ret;
-+}
-+
- static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
- {
- 	return 1;
+ 	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
+-	if (unlikely(!vs->vs_endpoint))
++	if (!tcm_vhost_check_endpoint(vs))
+ 		return;
+ 
+ 	mutex_lock(&vq->mutex);
 -- 
 1.8.1.4
