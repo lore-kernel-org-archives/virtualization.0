@@ -1,12 +1,14 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH V2 0/6] tcm_vhost hotplug/hotunplug support and
-	locking/flushing fix
-Date: Fri,  8 Mar 2013 10:21:41 +0800
-Message-ID: <1362709307-12554-1-git-send-email-asias@redhat.com>
+Subject: [PATCH V2 1/6] tcm_vhost: Add missed lock in
+	vhost_scsi_clear_endpoint()
+Date: Fri,  8 Mar 2013 10:21:42 +0800
+Message-ID: <1362709307-12554-2-git-send-email-asias@redhat.com>
+References: <1362709307-12554-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1362709307-12554-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,22 +22,42 @@ To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Changes in v2:
-- Remove code duplication in tcm_vhost_{hotplug,hotunplug}
-- Fix racing of vs_events_nr
-- Add flush fix patch to this series
+tv_tpg->tv_tpg_vhost_count should be protected by tv_tpg->tv_tpg_mutex.
 
-Asias He (6):
-  tcm_vhost: Add missed lock in vhost_scsi_clear_endpoint()
-  tcm_vhost: Introduce tcm_vhost_check_feature()
-  tcm_vhost: Introduce tcm_vhost_check_endpoint()
-  tcm_vhost: Fix vs->vs_endpoint checking in vhost_scsi_handle_vq()
-  tcm_vhost: Add hotplug/hotunplug support
-  tcm_vhost: Flush vhost_work in vhost_scsi_flush()
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/tcm_vhost.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
- drivers/vhost/tcm_vhost.c | 243 ++++++++++++++++++++++++++++++++++++++++++++--
- drivers/vhost/tcm_vhost.h |  10 ++
- 2 files changed, 247 insertions(+), 6 deletions(-)
-
+diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+index 9951297..b3e50d7 100644
+--- a/drivers/vhost/tcm_vhost.c
++++ b/drivers/vhost/tcm_vhost.c
+@@ -860,9 +860,11 @@ static int vhost_scsi_clear_endpoint(
+ 		if (!tv_tpg)
+ 			continue;
+ 
++		mutex_lock(&tv_tpg->tv_tpg_mutex);
+ 		tv_tport = tv_tpg->tport;
+ 		if (!tv_tport) {
+ 			ret = -ENODEV;
++			mutex_unlock(&tv_tpg->tv_tpg_mutex);
+ 			goto err;
+ 		}
+ 
+@@ -872,11 +874,13 @@ static int vhost_scsi_clear_endpoint(
+ 				tv_tport->tport_name, tv_tpg->tport_tpgt,
+ 				t->vhost_wwpn, t->vhost_tpgt);
+ 			ret = -EINVAL;
++			mutex_unlock(&tv_tpg->tv_tpg_mutex);
+ 			goto err;
+ 		}
+ 		tv_tpg->tv_tpg_vhost_count--;
+ 		vs->vs_tpg[target] = NULL;
+ 		vs->vs_endpoint = false;
++		mutex_unlock(&tv_tpg->tv_tpg_mutex);
+ 	}
+ 	mutex_unlock(&vs->dev.mutex);
+ 	return 0;
 -- 
 1.8.1.4
