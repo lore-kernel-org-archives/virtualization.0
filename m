@@ -1,13 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH dontapply 0/2] tools/virtio updates for API testing
-Date: Fri, 08 Mar 2013 11:29:50 +1100
-Message-ID: <87k3piwx6p.fsf@rustcorp.com.au>
-References: <cover.1361743821.git.mst@redhat.com>
+From: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH] VSOCK: Split vm_sockets.h into kernel/uapi
+Date: Fri, 08 Mar 2013 01:09:18 +0000
+Message-ID: <29364.1362704958@warthog.procyon.org.uk>
+References: <20130307232453.GD10304@kroah.com>
+	<1362669973-26984-1-git-send-email-acking@vmware.com>
+	<26621.1362675490@warthog.procyon.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1361743821.git.mst@redhat.com>
+In-Reply-To: <20130307232453.GD10304@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,23 +19,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: Andy King <acking@vmware.com>, pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, dhowells@redhat.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> Here's a patchset to update tools/virtio with
-> changes in 3.8, as well as the proposed API extension.
->
-> Useful to see whether the extra level of indirection
-> adds measureable overhead.
->
-> I will upstream at least patch 1 soon.
+Greg KH <gregkh@linuxfoundation.org> wrote:
 
-What happened to this, BTW?
+> David, is there any rush to get stuff like this into 3.9 for any
+> uapi-type changes, or can it just wait for 3.10?
 
-> Michael S. Tsirkin (2):
->   tools/virtio: fix build for 3.8
+Not especially.  It won't appear in userspace due to the __KERNEL__ guards.
 
-Thanks,
-Rusty.
+David
