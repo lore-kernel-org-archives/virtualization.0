@@ -1,15 +1,13 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH V2 0/6] tcm_vhost hotplug/hotunplug support and
-	locking/flushing fix
-Date: Fri, 8 Mar 2013 09:24:48 +0100
-Message-ID: <20130308082448.GA8592@stefanha-thinkpad.redhat.com>
-References: <1362709307-12554-1-git-send-email-asias@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 1/2] virtio-scsi: use pr_err() instead of printk()
+Date: Fri, 08 Mar 2013 10:48:50 +0100
+Message-ID: <5139B402.2030106@redhat.com>
+References: <1362626968-16871-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1362709307-12554-1-git-send-email-asias@redhat.com>
+In-Reply-To: <1362626968-16871-1-git-send-email-gaowanlong@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,30 +17,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 08, 2013 at 10:21:41AM +0800, Asias He wrote:
-> Changes in v2:
-> - Remove code duplication in tcm_vhost_{hotplug,hotunplug}
-> - Fix racing of vs_events_nr
-> - Add flush fix patch to this series
+Il 07/03/2013 04:29, Wanlong Gao ha scritto:
+> Convert the virtio-scsi driver to use pr_err() instead of printk().
 > 
-> Asias He (6):
->   tcm_vhost: Add missed lock in vhost_scsi_clear_endpoint()
->   tcm_vhost: Introduce tcm_vhost_check_feature()
->   tcm_vhost: Introduce tcm_vhost_check_endpoint()
->   tcm_vhost: Fix vs->vs_endpoint checking in vhost_scsi_handle_vq()
->   tcm_vhost: Add hotplug/hotunplug support
->   tcm_vhost: Flush vhost_work in vhost_scsi_flush()
-> 
->  drivers/vhost/tcm_vhost.c | 243 ++++++++++++++++++++++++++++++++++++++++++++--
->  drivers/vhost/tcm_vhost.h |  10 ++
->  2 files changed, 247 insertions(+), 6 deletions(-)
-> 
-> -- 
-> 1.8.1.4
-> 
+> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+
+to this patch only.  For the other it's a matter of taste, and since
+this is not a fast path it's easier to have a single label to bail out
+out.  If you want to change it to "out", that's fine.
+
+Paolo
+
+> ---
+>  drivers/scsi/virtio_scsi.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> index 612e320..f679b8c 100644
+> --- a/drivers/scsi/virtio_scsi.c
+> +++ b/drivers/scsi/virtio_scsi.c
+> @@ -13,6 +13,8 @@
+>   *
+>   */
+>  
+> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+> +
+>  #include <linux/module.h>
+>  #include <linux/slab.h>
+>  #include <linux/mempool.h>
+> @@ -771,8 +773,7 @@ static int __init init(void)
+>  
+>  	virtscsi_cmd_cache = KMEM_CACHE(virtio_scsi_cmd, 0);
+>  	if (!virtscsi_cmd_cache) {
+> -		printk(KERN_ERR "kmem_cache_create() for "
+> -				"virtscsi_cmd_cache failed\n");
+> +		pr_err("kmem_cache_create() for virtscsi_cmd_cache failed\n");
+>  		goto error;
+>  	}
+>  
+> @@ -781,8 +782,7 @@ static int __init init(void)
+>  		mempool_create_slab_pool(VIRTIO_SCSI_MEMPOOL_SZ,
+>  					 virtscsi_cmd_cache);
+>  	if (!virtscsi_cmd_pool) {
+> -		printk(KERN_ERR "mempool_create() for"
+> -				"virtscsi_cmd_pool failed\n");
+> +		pr_err("mempool_create() for virtscsi_cmd_pool failed\n");
+>  		goto error;
+>  	}
+>  	ret = register_virtio_driver(&virtio_scsi_driver);
+> 
