@@ -1,13 +1,11 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 1/2] virtio-scsi: use pr_err() instead of printk()
-Date: Fri, 08 Mar 2013 10:48:50 +0100
-Message-ID: <5139B402.2030106@redhat.com>
-References: <1362626968-16871-1-git-send-email-gaowanlong@cn.fujitsu.com>
+From: sjur.brandeland@stericsson.com
+Subject: [PATCHv2] virtio: Introduce vringh wrappers in virtio_config
+Date: Fri,  8 Mar 2013 11:08:34 +0100
+Message-ID: <1362737315-2894-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1362626968-16871-1-git-send-email-gaowanlong@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,58 +15,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Ohad Ben-Cohen <ohad@wizery.com>, Rusty Russell <rusty@rustcorp.com.au>
+Cc: sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 07/03/2013 04:29, Wanlong Gao ha scritto:
-> Convert the virtio-scsi driver to use pr_err() instead of printk().
-> 
-> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-
-to this patch only.  For the other it's a matter of taste, and since
-this is not a fast path it's easier to have a single label to bail out
-out.  If you want to change it to "out", that's fine.
-
-Paolo
-
-> ---
->  drivers/scsi/virtio_scsi.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> index 612e320..f679b8c 100644
-> --- a/drivers/scsi/virtio_scsi.c
-> +++ b/drivers/scsi/virtio_scsi.c
-> @@ -13,6 +13,8 @@
->   *
->   */
->  
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
->  #include <linux/module.h>
->  #include <linux/slab.h>
->  #include <linux/mempool.h>
-> @@ -771,8 +773,7 @@ static int __init init(void)
->  
->  	virtscsi_cmd_cache = KMEM_CACHE(virtio_scsi_cmd, 0);
->  	if (!virtscsi_cmd_cache) {
-> -		printk(KERN_ERR "kmem_cache_create() for "
-> -				"virtscsi_cmd_cache failed\n");
-> +		pr_err("kmem_cache_create() for virtscsi_cmd_cache failed\n");
->  		goto error;
->  	}
->  
-> @@ -781,8 +782,7 @@ static int __init init(void)
->  		mempool_create_slab_pool(VIRTIO_SCSI_MEMPOOL_SZ,
->  					 virtscsi_cmd_cache);
->  	if (!virtscsi_cmd_pool) {
-> -		printk(KERN_ERR "mempool_create() for"
-> -				"virtscsi_cmd_pool failed\n");
-> +		pr_err("mempool_create() for virtscsi_cmd_pool failed\n");
->  		goto error;
->  	}
->  	ret = register_virtio_driver(&virtio_scsi_driver);
-> 
+RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
+QWRkIHdyYXBwZXJzIGZvciB0aGUgaG9zdCB2cmluZ3MgdG8gc3VwcG9ydCBsb29zZQpjb3VwbGlu
+ZyBiZXR3ZWVuIHRoZSB2aXJ0aW8gZGV2aWNlIGFuZCBkcml2ZXIuCgpBIG5ldyBzdHJ1Y3QgdnJp
+bmdoX2NvbmZpZ19vcHMgd2l0aCB0aGUgZnVuY3Rpb25zCmZpbmRfdnJocygpIGFuZCBkZWxfdnJo
+cygpIGlzIGFkZGVkIHRvIHRoZSB2aXJ0aW9fZGV2aWNlCnN0cnVjdC4gVGhpcyBlbmFibGVzIHZp
+cnRpbyBkcml2ZXJzIHRvIG1hbmFnZSB2aXJ0aW8KaG9zdCByaW5ncyB3aXRob3V0IGRldGFpbGVk
+IGtub3dsZWRnZSBvZiBob3cgdGhlCnZyaW5ncyBhcmUgY3JlYXRlZCBhbmQgZGVsZXRlZC4KClRo
+ZSBmdW5jdGlvbiB2cmluZ2hfbm90aWZ5KCkgaXMgYWRkZWQgc28gdnJpbmdoIGNsaWVudHMKY2Fu
+IG5vdGlmeSB0aGUgb3RoZXIgc2lkZSB0aGF0IGJ1ZmZlcnMgYXJlIGFkZGVkIHRvIHRoZQp1c2Vk
+LXJpbmcuCgpDYzogT2hhZCBCZW4tQ29oZW4gPG9oYWRAd2l6ZXJ5LmNvbT4KQ2M6IFJ1c3R5IFJ1
+c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4KU2lnbmVkLW9mZi1ieTogU2p1ciBCcsOmbmRl
+bGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgotLS0KSGkgUnVzdHksCgo+SXQn
+cyB3ZWlyZCB0aGF0IHlvdSBjb25mbGF0ZSB0aGUgaG9zdCBhbmQgZ3Vlc3QgcmluZyBzaWRlcyBp
+biBycG1zZywgYnV0Cj50aGF0IG1pZ2h0IG1ha2Ugc2Vuc2UgaWYgdGhleSdyZSByZWFsbHkgYm91
+bmQgdG9nZXRoZXIuCgpXZWlyZCBvciBub3QsIENBSUYtdmlydGlvIGlzIGRlc2lnbiB0byB1c2Ug
+Z3Vlc3QgcmluZ3MgZm9yIFRYIHRyYWZmaWMsCmFuZCBob3N0IHJpbmdzIGZvciBSWCB0cmFmZmlj
+LiBUaGUgbW90aXZhdGlvbiBmb3IgdGhpcyBkZXNpZ24gaXMgdG8gYWxsb3cKemVyby1jb3B5IGlu
+IHRoZSBkYXRhLXBhdGggb24gdGhlIHJlbW90ZS1kZXZpY2UvbW9kZW0uCgpDaGFuZ2VzIHNpbmNl
+IHYxOgotIE1vdmVkIGZpbmRfdnJocygpIGFuZCBkZWxfdnJocygpIHRvIGEgc2VwYXJhdGUgc3Ry
+dWN0IHZyaW5naF9jb25maWdfb3BzLgotIE1vdmVkIGRlZmluaXRpb24gb2Ygc3RydWN0IHZyaW5n
+aF9jb25maWdfb3BzIGludG8gdnJpbmdoLmgKLSBBZGRlZCB2cmluZ2hfY29uZmlnIGZpZWxkIHRv
+IHN0cnVjdCB2aXJ0aW9fZGV2aWNlCi0gUmVtb3ZlZCBwcml2IHBvaW50ZXIgZmllbGQgZnJvbSBz
+dHJ1Y3QgdnJpbmdoCgpUaGVyZSBhcmUgYSBudW1iZXIgb2YgZGlmZmVyZW50IHdheXMgdG8gZG8g
+dGhpcywgbGV0IG1lIGtub3cgaWYgeW91CndhbnQgdGhpcyBjaGFuZ2VkIGluIGFueSB3YXkuCgpU
+aGFua3MsClNqdXIKCgogaW5jbHVkZS9saW51eC92aXJ0aW8uaCB8ICAgIDMgKysrCiBpbmNsdWRl
+L2xpbnV4L3ZyaW5naC5oIHwgICAyOSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKwogMiBm
+aWxlcyBjaGFuZ2VkLCAzMiBpbnNlcnRpb25zKCspLCAwIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdp
+dCBhL2luY2x1ZGUvbGludXgvdmlydGlvLmggYi9pbmNsdWRlL2xpbnV4L3ZpcnRpby5oCmluZGV4
+IDAwY2NjNDAuLjViNzFmYzEgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvdmlydGlvLmgKKysr
+IGIvaW5jbHVkZS9saW51eC92aXJ0aW8uaApAQCAtOCw2ICs4LDcgQEAKICNpbmNsdWRlIDxsaW51
+eC9kZXZpY2UuaD4KICNpbmNsdWRlIDxsaW51eC9tb2RfZGV2aWNldGFibGUuaD4KICNpbmNsdWRl
+IDxsaW51eC9nZnAuaD4KKyNpbmNsdWRlIDxsaW51eC92cmluZ2guaD4KIAogLyoqCiAgKiB2aXJ0
+cXVldWUgLSBhIHF1ZXVlIHRvIHJlZ2lzdGVyIGJ1ZmZlcnMgZm9yIHNlbmRpbmcgb3IgcmVjZWl2
+aW5nLgpAQCAtNzAsNiArNzEsNyBAQCBzdGF0aWMgaW5saW5lIHVuc2lnbmVkIGludCB2aXJ0cXVl
+dWVfZ2V0X3F1ZXVlX2luZGV4KHN0cnVjdCB2aXJ0cXVldWUgKnZxKQogICogQGRldjogdW5kZXJs
+eWluZyBkZXZpY2UuCiAgKiBAaWQ6IHRoZSBkZXZpY2UgdHlwZSBpZGVudGlmaWNhdGlvbiAodXNl
+ZCB0byBtYXRjaCBpdCB3aXRoIGEgZHJpdmVyKS4KICAqIEBjb25maWc6IHRoZSBjb25maWd1cmF0
+aW9uIG9wcyBmb3IgdGhpcyBkZXZpY2UuCisgKiBAdnJpbmdoX2NvbmZpZzogY29uZmlndXJhdGlv
+biBvcHMgZm9yIGhvc3QgdnJpbmdzLgogICogQHZxczogdGhlIGxpc3Qgb2YgdmlydHF1ZXVlcyBm
+b3IgdGhpcyBkZXZpY2UuCiAgKiBAZmVhdHVyZXM6IHRoZSBmZWF0dXJlcyBzdXBwb3J0ZWQgYnkg
+Ym90aCBkcml2ZXIgYW5kIGRldmljZS4KICAqIEBwcml2OiBwcml2YXRlIHBvaW50ZXIgZm9yIHRo
+ZSBkcml2ZXIncyB1c2UuCkBAIC03OSw2ICs4MSw3IEBAIHN0cnVjdCB2aXJ0aW9fZGV2aWNlIHsK
+IAlzdHJ1Y3QgZGV2aWNlIGRldjsKIAlzdHJ1Y3QgdmlydGlvX2RldmljZV9pZCBpZDsKIAlzdHJ1
+Y3QgdmlydGlvX2NvbmZpZ19vcHMgKmNvbmZpZzsKKwlzdHJ1Y3QgdnJpbmdoX2NvbmZpZ19vcHMg
+KnZyaW5naF9jb25maWc7CiAJc3RydWN0IGxpc3RfaGVhZCB2cXM7CiAJLyogTm90ZSB0aGF0IHRo
+aXMgaXMgYSBMaW51eCBzZXRfYml0LXN0eWxlIGJpdG1hcC4gKi8KIAl1bnNpZ25lZCBsb25nIGZl
+YXR1cmVzWzFdOwpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92cmluZ2guaCBiL2luY2x1ZGUv
+bGludXgvdnJpbmdoLmgKaW5kZXggYWI0MTE4NS4uYzdkOTI4OSAxMDA2NDQKLS0tIGEvaW5jbHVk
+ZS9saW51eC92cmluZ2guaAorKysgYi9pbmNsdWRlL2xpbnV4L3ZyaW5naC5oCkBAIC01MCw2ICs1
+MCwyOCBAQCBzdHJ1Y3QgdnJpbmdoIHsKIAogCS8qIFRoZSB2cmluZyAobm90ZTogaXQgbWF5IGNv
+bnRhaW4gdXNlciBwb2ludGVycyEpICovCiAJc3RydWN0IHZyaW5nIHZyaW5nOworCisJLyogVGhl
+IGZ1bmN0aW9uIHRvIGNhbGwgdG8gbm90aWZ5IHRoZSBndWVzdCBhYm91dCBhZGRlZCBidWZmZXJz
+ICovCisJdm9pZCAoKm5vdGlmeSkoc3RydWN0IHZyaW5naCAqKTsKK307CisKKy8qKgorICogc3Ry
+dWN0IHZyaW5naF9jb25maWdfb3BzIC0gb3BzIGZvciBjcmVhdGluZyBhIGhvc3QgdnJpbmcgZnJv
+bSBhIHZpcnRpbyBkcml2ZXIKKyAqIEBmaW5kX3ZyaHM6IGZpbmQgdGhlIGhvc3QgdnJpbmdzIGFu
+ZCBpbnN0YW50aWF0ZSB0aGVtCisgKgl2ZGV2OiB0aGUgdmlydGlvX2RldmljZQorICoJbmh2cnM6
+IHRoZSBudW1iZXIgb2YgaG9zdCB2cmluZ3MgdG8gZmluZAorICoJaHZyczogb24gc3VjY2Vzcywg
+aW5jbHVkZXMgbmV3IGhvc3QgdnJpbmdzCisgKgljYWxsYmFja3M6IGFycmF5IG9mIGRyaXZlciBj
+YWxsYmFja3MsIGZvciBlYWNoIGhvc3QgdnJpbmcKKyAqCQlpbmNsdWRlIGEgTlVMTCBlbnRyeSBm
+b3IgdnFzIHRoYXQgZG8gbm90IG5lZWQgYSBjYWxsYmFjaworICoJUmV0dXJucyAwIG9uIHN1Y2Nl
+c3Mgb3IgZXJyb3Igc3RhdHVzCisgKiBAZGVsX3ZyaHM6IGZyZWUgdGhlIGhvc3QgdnJpbmdzIGZv
+dW5kIGJ5IGZpbmRfdnJocygpLgorICovCitzdHJ1Y3QgdmlydGlvX2RldmljZTsKK3R5cGVkZWYg
+dm9pZCB2cmhfY2FsbGJhY2tfdChzdHJ1Y3QgdmlydGlvX2RldmljZSAqLCBzdHJ1Y3QgdnJpbmdo
+ICopOworc3RydWN0IHZyaW5naF9jb25maWdfb3BzIHsKKwlpbnQgKCpmaW5kX3ZyaHMpKHN0cnVj
+dCB2aXJ0aW9fZGV2aWNlICp2ZGV2LCB1bnNpZ25lZCBuaHZycywKKwkJCSBzdHJ1Y3QgdnJpbmdo
+ICp2cmhzW10sIHZyaF9jYWxsYmFja190ICpjYWxsYmFja3NbXSk7CisJdm9pZCAoKmRlbF92cmhz
+KShzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldik7CiB9OwogCiAvKiBUaGUgbWVtb3J5IHRoZSB2
+cmluZyBjYW4gYWNjZXNzLCBhbmQgd2hhdCBvZmZzZXQgdG8gYXBwbHkuICovCkBAIC0xODIsNCAr
+MjA0LDExIEBAIHZvaWQgdnJpbmdoX25vdGlmeV9kaXNhYmxlX2tlcm4oc3RydWN0IHZyaW5naCAq
+dnJoKTsKIAogaW50IHZyaW5naF9uZWVkX25vdGlmeV9rZXJuKHN0cnVjdCB2cmluZ2ggKnZyaCk7
+CiAKKy8qIE5vdGlmeSB0aGUgZ3Vlc3QgYWJvdXQgYnVmZmVycyBhZGRlZCB0byB0aGUgdXNlZCBy
+aW5nICovCitzdGF0aWMgaW5saW5lIHZvaWQgdnJpbmdoX25vdGlmeShzdHJ1Y3QgdnJpbmdoICp2
+cmgpCit7CisJaWYgKHZyaC0+bm90aWZ5KQorCQl2cmgtPm5vdGlmeSh2cmgpOworfQorCiAjZW5k
+aWYgLyogX0xJTlVYX1ZSSU5HSF9IICovCi0tIAoxLjcuNS40CgpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
+VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
+aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
