@@ -1,15 +1,14 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v2, part1 01/29] mm: introduce common help functions to
-	deal with reserved/managed pages
-Date: Sun, 10 Mar 2013 10:20:42 +0100
-Message-ID: <CAMuHMdXLEkKVfhPu-MfBE37SuHDoVtrEG92PZq2-nD3xw6GNQw__1046.99334265224$1362907295$gmane$org@mail.gmail.com>
-References: <1362896833-21104-1-git-send-email-jiang.liu@huawei.com>
-	<1362896833-21104-2-git-send-email-jiang.liu@huawei.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost_net: remove tx polling state
+Date: Sun, 10 Mar 2013 18:50:30 +0200
+Message-ID: <20130310165030.GA13687@redhat.com>
+References: <1362630716-57674-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1362896833-21104-2-git-send-email-jiang.liu@huawei.com>
+Content-Disposition: inline
+In-Reply-To: <1362630716-57674-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,93 +18,200 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiang Liu <liuj97@gmail.com>
-Cc: xen-devel@lists.xensource.com, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Aurelien Jacquiot <a-jacquiot@ti.com>, Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, linux-snps-arc@vger.kernel.org, Tang Chen <tangchen@cn.fujitsu.com>, David Howells <dhowells@redhat.com>, Chen Liqin <liqin.chen@sunplusct.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Sam Ravnborg <sam@ravnborg.org>, Lennox Wu <lennox.wu@gmail.com>, Maciej Rutecki <maciej.rutecki@gmail.com>, Jonas Bonn <jonas@southpole.se>, Mark Salter <msalter@redhat.com>, Michel Lespinasse <walken@google.com>, Mikael Starvik <starvik@axis.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Helge Deller <deller@gmx.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "James E.J. Bottomley" <jejb@parisc-linux.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Mar 10, 2013 at 7:26 AM, Jiang Liu <liuj97@gmail.com> wrote:
-> Code to deal with reserved/managed pages are duplicated by many
-> architectures, so introduce common help functions to reduce duplicated
-> code. These common help functions will also be used to concentrate code
-> to modify totalram_pages and zone->managed_pages, which makes the code
-> much more clear.
->
-> Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+On Thu, Mar 07, 2013 at 12:31:56PM +0800, Jason Wang wrote:
+> After commit 2b8b328b61c799957a456a5a8dab8cc7dea68575 (vhost_net: handle polling
+> errors when setting backend), we in fact track the polling state through
+> poll->wqh, so there's no need to duplicate the work with an extra
+> vhost_net_polling_state. So this patch removes this and make the code simpler.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-I have a few minor comments (see below), but apart from that:
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
+I'd prefer a more radical approach, since I think it can be even
+simpler: tap and macvtap backends both only send events when tx queue
+overruns which should almost never happen.
+
+So let's just start polling when VQ is enabled
+drop all poll_start/stop calls on data path.
+
+The optimization was written for packet socket backend but I know of no
+one caring about performance of that one that much.
+Needs a bit of perf testing to make sure I didn't miss anything though
+but it's not 3.9 material anyway so there's no rush.
 
 > ---
->  include/linux/mm.h |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
->  mm/page_alloc.c    |   20 ++++++++++++++++++++
->  2 files changed, 68 insertions(+)
->
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index 7acc9dc..d75c14b 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -1295,6 +1295,54 @@ extern void free_area_init_node(int nid, unsigned long * zones_size,
->                 unsigned long zone_start_pfn, unsigned long *zholes_size);
->  extern void free_initmem(void);
->
-> +/*
-> + * Free reserved pages within range [PAGE_ALIGN(start), end & PAGE_MASK)
-> + * into the buddy system. The freed pages will be poisoned with pattern
-> + * "poison" if it's non-zero.
-
-What if you want to poison with zero?
-As poison is a full int, but memset only uses the least-significant
-byte, you can
-change it to poison if it's positive (i.e. >= 0)?
-
-> +/*
-> + * Default method to free all the __init memory into the buddy system.
-> + * The freed pages will be poisoned with pattern "poison" if it is
-> + * non-zero. Return pages freed into the buddy system.
-> + */
-> +static inline unsigned long free_initmem_default(int poison)
-> +{
-> +       extern char __init_begin[], __init_end[];
+>  drivers/vhost/net.c   |   60 ++++++++----------------------------------------
+>  drivers/vhost/vhost.c |    3 ++
+>  2 files changed, 13 insertions(+), 50 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 959b1cd..d1a03dd 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -64,20 +64,10 @@ enum {
+>  	VHOST_NET_VQ_MAX = 2,
+>  };
+>  
+> -enum vhost_net_poll_state {
+> -	VHOST_NET_POLL_DISABLED = 0,
+> -	VHOST_NET_POLL_STARTED = 1,
+> -	VHOST_NET_POLL_STOPPED = 2,
+> -};
+> -
+>  struct vhost_net {
+>  	struct vhost_dev dev;
+>  	struct vhost_virtqueue vqs[VHOST_NET_VQ_MAX];
+>  	struct vhost_poll poll[VHOST_NET_VQ_MAX];
+> -	/* Tells us whether we are polling a socket for TX.
+> -	 * We only do this when socket buffer fills up.
+> -	 * Protected by tx vq lock. */
+> -	enum vhost_net_poll_state tx_poll_state;
+>  	/* Number of TX recently submitted.
+>  	 * Protected by tx vq lock. */
+>  	unsigned tx_packets;
+> @@ -155,28 +145,6 @@ static void copy_iovec_hdr(const struct iovec *from, struct iovec *to,
+>  	}
+>  }
+>  
+> -/* Caller must have TX VQ lock */
+> -static void tx_poll_stop(struct vhost_net *net)
+> -{
+> -	if (likely(net->tx_poll_state != VHOST_NET_POLL_STARTED))
+> -		return;
+> -	vhost_poll_stop(net->poll + VHOST_NET_VQ_TX);
+> -	net->tx_poll_state = VHOST_NET_POLL_STOPPED;
+> -}
+> -
+> -/* Caller must have TX VQ lock */
+> -static int tx_poll_start(struct vhost_net *net, struct socket *sock)
+> -{
+> -	int ret;
+> -
+> -	if (unlikely(net->tx_poll_state != VHOST_NET_POLL_STOPPED))
+> -		return 0;
+> -	ret = vhost_poll_start(net->poll + VHOST_NET_VQ_TX, sock->file);
+> -	if (!ret)
+> -		net->tx_poll_state = VHOST_NET_POLL_STARTED;
+> -	return ret;
+> -}
+> -
+>  /* In case of DMA done not in order in lower device driver for some reason.
+>   * upend_idx is used to track end of used idx, done_idx is used to track head
+>   * of used idx. Once lower device DMA done contiguously, we will signal KVM
+> @@ -231,6 +199,7 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+>  static void handle_tx(struct vhost_net *net)
+>  {
+>  	struct vhost_virtqueue *vq = &net->dev.vqs[VHOST_NET_VQ_TX];
+> +	struct vhost_poll *poll = net->poll + VHOST_NET_VQ_TX;
+>  	unsigned out, in, s;
+>  	int head;
+>  	struct msghdr msg = {
+> @@ -256,7 +225,7 @@ static void handle_tx(struct vhost_net *net)
+>  	wmem = atomic_read(&sock->sk->sk_wmem_alloc);
+>  	if (wmem >= sock->sk->sk_sndbuf) {
+>  		mutex_lock(&vq->mutex);
+> -		tx_poll_start(net, sock);
+> +		vhost_poll_start(poll, sock->file);
+>  		mutex_unlock(&vq->mutex);
+>  		return;
+>  	}
+> @@ -265,7 +234,7 @@ static void handle_tx(struct vhost_net *net)
+>  	vhost_disable_notify(&net->dev, vq);
+>  
+>  	if (wmem < sock->sk->sk_sndbuf / 2)
+> -		tx_poll_stop(net);
+> +		vhost_poll_stop(poll);
+>  	hdr_size = vq->vhost_hlen;
+>  	zcopy = vq->ubufs;
+>  
+> @@ -287,7 +256,7 @@ static void handle_tx(struct vhost_net *net)
+>  
+>  			wmem = atomic_read(&sock->sk->sk_wmem_alloc);
+>  			if (wmem >= sock->sk->sk_sndbuf * 3 / 4) {
+> -				tx_poll_start(net, sock);
+> +				vhost_poll_start(poll, sock->file);
+>  				set_bit(SOCK_ASYNC_NOSPACE, &sock->flags);
+>  				break;
+>  			}
+> @@ -298,7 +267,7 @@ static void handle_tx(struct vhost_net *net)
+>  				    (vq->upend_idx - vq->done_idx) :
+>  				    (vq->upend_idx + UIO_MAXIOV - vq->done_idx);
+>  			if (unlikely(num_pends > VHOST_MAX_PEND)) {
+> -				tx_poll_start(net, sock);
+> +				vhost_poll_start(poll, sock->file);
+>  				set_bit(SOCK_ASYNC_NOSPACE, &sock->flags);
+>  				break;
+>  			}
+> @@ -364,7 +333,7 @@ static void handle_tx(struct vhost_net *net)
+>  			}
+>  			vhost_discard_vq_desc(vq, 1);
+>  			if (err == -EAGAIN || err == -ENOBUFS)
+> -				tx_poll_start(net, sock);
+> +				vhost_poll_start(poll, sock->file);
+>  			break;
+>  		}
+>  		if (err != len)
+> @@ -627,7 +596,6 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+>  
+>  	vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, POLLOUT, dev);
+>  	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, POLLIN, dev);
+> -	n->tx_poll_state = VHOST_NET_POLL_DISABLED;
+>  
+>  	f->private_data = n;
+>  
+> @@ -637,32 +605,24 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+>  static void vhost_net_disable_vq(struct vhost_net *n,
+>  				 struct vhost_virtqueue *vq)
+>  {
+> +	struct vhost_poll *poll = n->poll + (vq - n->vqs);
+>  	if (!vq->private_data)
+>  		return;
+> -	if (vq == n->vqs + VHOST_NET_VQ_TX) {
+> -		tx_poll_stop(n);
+> -		n->tx_poll_state = VHOST_NET_POLL_DISABLED;
+> -	} else
+> -		vhost_poll_stop(n->poll + VHOST_NET_VQ_RX);
+> +	vhost_poll_stop(poll);
+>  }
+>  
+>  static int vhost_net_enable_vq(struct vhost_net *n,
+>  				struct vhost_virtqueue *vq)
+>  {
+> +	struct vhost_poll *poll = n->poll + (vq - n->vqs);
+>  	struct socket *sock;
+> -	int ret;
+>  
+>  	sock = rcu_dereference_protected(vq->private_data,
+>  					 lockdep_is_held(&vq->mutex));
+>  	if (!sock)
+>  		return 0;
+> -	if (vq == n->vqs + VHOST_NET_VQ_TX) {
+> -		n->tx_poll_state = VHOST_NET_POLL_STOPPED;
+> -		ret = tx_poll_start(n, sock);
+> -	} else
+> -		ret = vhost_poll_start(n->poll + VHOST_NET_VQ_RX, sock->file);
+>  
+> -	return ret;
+> +	return vhost_poll_start(poll, sock->file);
+>  }
+>  
+>  static struct socket *vhost_net_stop_vq(struct vhost_net *n,
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 9759249..4eecdb8 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -89,6 +89,9 @@ int vhost_poll_start(struct vhost_poll *poll, struct file *file)
+>  	unsigned long mask;
+>  	int ret = 0;
+>  
+> +	if (poll->wqh)
+> +		return 0;
 > +
-> +       return free_reserved_area(PAGE_ALIGN((unsigned long)&__init_begin) ,
-> +                                 ((unsigned long)&__init_end) & PAGE_MASK,
-
-The "PAGE_ALIGN(...)" and "& PAGE_MASK" are superfluous, as
-free_reserved_area() already does that.
-
-> +                                 poison, "unused kernel");
-> +}
-> +
-
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 8fcced7..0fadb09 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -5113,6 +5113,26 @@ early_param("movablecore", cmdline_parse_movablecore);
->
->  #endif /* CONFIG_HAVE_MEMBLOCK_NODE_MAP */
->
-> +unsigned long free_reserved_area(unsigned long start, unsigned long end,
-> +                                int poison, char *s)
-> +{
-
-> +       if (pages && s)
-> +               pr_info("Freeing %s memory: %ldK (%lx - %lx)\n",
-
-"%luKiB (0x%lx - 0x%lx)"?
-
-> +                       s, pages << (PAGE_SHIFT - 10), start, end);
-> +
-> +       return pages;
-> +}
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+>  	mask = file->f_op->poll(file, &poll->table);
+>  	if (mask)
+>  		vhost_poll_wakeup(&poll->wait, 0, 0, (void *)mask);
+> -- 
+> 1.7.1
