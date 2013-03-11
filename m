@@ -1,14 +1,15 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH V4 1/5] virtio-scsi: redo allocation of target data
-Date: Mon, 11 Mar 2013 12:31:19 +0100
-Message-ID: <513DC087.6000508@redhat.com>
-References: <1362969842-9145-1-git-send-email-gaowanlong@cn.fujitsu.com>
-	<1362969842-9145-2-git-send-email-gaowanlong@cn.fujitsu.com>
+Subject: Re: [PATCH 1/2] tcm_vhost: Wait for pending requests in
+	vhost_scsi_flush()
+Date: Mon, 11 Mar 2013 12:36:37 +0100
+Message-ID: <513DC1C5.4070106@redhat.com>
+References: <1362978579-13322-1-git-send-email-asias@redhat.com>
+	<1362978579-13322-2-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1362969842-9145-2-git-send-email-gaowanlong@cn.fujitsu.com>
+In-Reply-To: <1362978579-13322-2-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +19,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, JBottomley@parallels.com, virtualization@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 11/03/2013 03:43, Wanlong Gao ha scritto:
-> virtio_scsi_target_state is now empty, but we will find new uses
-> for it in the next few patches.  However, dropping the sglist lets
-> us turn the array-of-pointers into a simple array, which simplifies
-> the allocation.
-> 
-> However, we do not leave the virtio_scsi_target_state structs in the
-> flexible array member at the end of struct virtio_scsi, because
-> we will place the virtqueues there in the next patches.
+Il 11/03/2013 06:09, Asias He ha scritto:
+> This patch makes vhost_scsi_flush() wait for all the pending requests
+> issued before the flush operation to be finished.
 
-If you have to respin, consider improving the grammar:
+There is no protection against issuing concurrent flush operations.  If
+we later would like to make the flush a ioctl (for example for migration
+purposes), it would be confusing, and I'm not sure how you could extend
+the during_flush machinery.
 
-virtio_scsi_target_state is now empty.  We will find new uses for it in
-the next few patches, so this patch does not drop it completely.
-However, having dropped the sglist flexible array member, we can turn
-the tgt array-of-pointers into a simple array.  This simplifies the
-allocation.
+What about making vhost_scsi_flush() wait for all pending requests,
+including those issues during the flush operation?  Then you can easily
+support concurrent flushes; just add a waitqueue and wake_up_all at the
+end of the flush operation.
 
-Even simpler would be to place the virtio_scsi_target_state structs in a
-flexible array member at the end of struct virtio_scsi.  But we do not
-do that, because we will place the virtqueues there in the next patches.
+BTW, adding such a ioctl as part of this patch would probably be a good
+thing to do anyway.
 
 Paolo
-
-> Cc: linux-scsi@vger.kernel.org
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
