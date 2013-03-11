@@ -1,14 +1,12 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH] block: replace kmalloc and then memcpy with kmemdup
-Date: Mon, 11 Mar 2013 10:54:35 -0400
-Message-ID: <20130311145435.GB26394@phenom.dumpdata.com>
-References: <1363001016-8439-1-git-send-email-mihneadb@gmail.com>
+From: sjur.brandeland@stericsson.com
+Subject: [PATCH] Revert "virtio_console: Initialize guest_connected=true for
+	rproc_serial"
+Date: Mon, 11 Mar 2013 16:15:00 +0100
+Message-ID: <1363014900-6425-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1363001016-8439-1-git-send-email-mihneadb@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +16,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mihnea Dobrescu-Balaur <mihneadb@gmail.com>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org, amit.shah@redhat.com, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 11, 2013 at 01:23:36PM +0200, Mihnea Dobrescu-Balaur wrote:
-
-Are there performance improvements to doing it this way?
-
-> Signed-off-by: Mihnea Dobrescu-Balaur <mihneadb@gmail.com>
-> ---
->  drivers/block/xen-blkfront.c |    3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
-> index c3dae2e..9620644 100644
-> --- a/drivers/block/xen-blkfront.c
-> +++ b/drivers/block/xen-blkfront.c
-> @@ -1203,11 +1203,10 @@ static int blkif_recover(struct blkfront_info *info)
->  	int j;
->  
->  	/* Stage 1: Make a safe copy of the shadow state. */
-> -	copy = kmalloc(sizeof(info->shadow),
-> +	copy = kmemdup(info->shadow, sizeof(info->shadow),
->  		       GFP_NOIO | __GFP_REPEAT | __GFP_HIGH);
->  	if (!copy)
->  		return -ENOMEM;
-> -	memcpy(copy, info->shadow, sizeof(info->shadow));
->  
->  	/* Stage 2: Set up free list. */
->  	memset(&info->shadow, 0, sizeof(info->shadow));
-> -- 
-> 1.7.10.4
-> 
+RnJvbTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgoK
+VGhpcyByZXZlcnRzIGNvbW1pdCA4MDc4ZGI3ODlhOTJiMTBmZjZlMmQ3MTMyMzFiNTM2N2UwMTRj
+NTNiLgoKVGhlIHJldmVydGVkIHBhdGNoIGNhdXNlZCBvcGVuaW5nIG9mIHBvcnRzIHRvIGZhaWwg
+Zm9yIHJwcm9jX3NlcmlhbC4KSW4gcHJvYmUgZ3Vlc3RfY29ubmVjdGVkIHdhcyBzZXQgdG8gdHJ1
+ZSwgYnV0IHBvcnRfZm9wc19vcGVuKCkKZmFpbHMgd2l0aCAtRU1GSUxFIGlmIGd1ZXN0X2Nvbm5l
+Y3RlZCBhbHJlYWR5IGlzIHRydWUuCgpTaWduZWQtb2ZmLWJ5OiBTanVyIEJyw6ZuZGVsYW5kIDxz
+anVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Ci0tLQpIaSBSdXN0eSwKCkhlcmUgaXMgYSBm
+aXggaW50ZW5kZWQgZm9yIDMuOS4KU29ycnkgZm9yIHRoZSBjaHVybiBoZXJlIDotKAoKUmVnYXJk
+cywKU2p1cgoKIGRyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jIHwgICAgNyArKysrKy0tCiAx
+IGZpbGVzIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1n
+aXQgYS9kcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYyBiL2RyaXZlcnMvY2hhci92aXJ0aW9f
+Y29uc29sZS5jCmluZGV4IGU5MDVkNWYuLjAzMWJlMGIgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvY2hh
+ci92aXJ0aW9fY29uc29sZS5jCisrKyBiL2RyaXZlcnMvY2hhci92aXJ0aW9fY29uc29sZS5jCkBA
+IC0xNDM2LDcgKzE0MzYsNyBAQCBzdGF0aWMgaW50IGFkZF9wb3J0KHN0cnVjdCBwb3J0c19kZXZp
+Y2UgKnBvcnRkZXYsIHUzMiBpZCkKIAkJICogcnByb2Nfc2VyaWFsIGRvZXMgbm90IHdhbnQgdGhl
+IGNvbnNvbGUgcG9ydCwgb25seQogCQkgKiB0aGUgZ2VuZXJpYyBwb3J0IGltcGxlbWVudGF0aW9u
+LgogCQkgKi8KLQkJcG9ydC0+aG9zdF9jb25uZWN0ZWQgPSBwb3J0LT5ndWVzdF9jb25uZWN0ZWQg
+PSB0cnVlOworCQlwb3J0LT5ob3N0X2Nvbm5lY3RlZCA9IHRydWU7CiAJZWxzZSBpZiAoIXVzZV9t
+dWx0aXBvcnQocG9ydC0+cG9ydGRldikpIHsKIAkJLyoKIAkJICogSWYgd2UncmUgbm90IHVzaW5n
+IG11bHRpcG9ydCBzdXBwb3J0LApAQCAtMTc1Nyw4ICsxNzU3LDExIEBAIHN0YXRpYyB2b2lkIGlu
+X2ludHIoc3RydWN0IHZpcnRxdWV1ZSAqdnEpCiAJICogdHR5IGlzIHNwYXduZWQpIGFuZCB0aGUg
+aG9zdCBzZW5kcyBvdXQgZGF0YSB0byBjb25zb2xlCiAJICogcG9ydHMuICBGb3IgZ2VuZXJpYyBz
+ZXJpYWwgcG9ydHMsIHRoZSBob3N0IHdvbid0CiAJICogKHNob3VsZG4ndCkgc2VuZCBkYXRhIHRp
+bGwgdGhlIGd1ZXN0IGlzIGNvbm5lY3RlZC4KKwkgKiBIb3dldmVyIGEgcmVtb3RlIGRldmljZSBt
+aWdodCBzZW5kIGRhdGEgYmVmb3JlIHRoZSBwb3J0IGlzCisJICogY29ubmVjdGVkLiBTbyBkb24n
+dCByZW1vdmUgZGF0YSBmcm9tIGEgcnByb2Nfc2VyaWFsIGRldmljZS4KIAkgKi8KLQlpZiAoIXBv
+cnQtPmd1ZXN0X2Nvbm5lY3RlZCkKKworCWlmICghcG9ydC0+Z3Vlc3RfY29ubmVjdGVkICYmICFp
+c19ycHJvY19zZXJpYWwocG9ydC0+cG9ydGRldi0+dmRldikpCiAJCWRpc2NhcmRfcG9ydF9kYXRh
+KHBvcnQpOwogCiAJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmcG9ydC0+aW5idWZfbG9jaywgZmxh
+Z3MpOwotLSAKMS43LjUuNAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
+YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
