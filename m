@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH -next] vhost-blk: remove unused variable
-Date: Mon, 11 Mar 2013 16:44:55 +0200
-Message-ID: <20130311144455.GA27441__37044.3287575201$1363013107$gmane$org@redhat.com>
-References: <CAPgLHd-eRBB2xCP7-ZswjfEKXPY29G1Nv71DzGo_-=TVym8MNQ@mail.gmail.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH] block: replace kmalloc and then memcpy with kmemdup
+Date: Mon, 11 Mar 2013 10:54:35 -0400
+Message-ID: <20130311145435.GB26394@phenom.dumpdata.com>
+References: <1363001016-8439-1-git-send-email-mihneadb@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAPgLHd-eRBB2xCP7-ZswjfEKXPY29G1Nv71DzGo_-=TVym8MNQ@mail.gmail.com>
+In-Reply-To: <1363001016-8439-1-git-send-email-mihneadb@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,42 +18,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wei Yongjun <weiyj.lk@gmail.com>
-Cc: netdev@vger.kernel.org, yongjun_wei@trendmicro.com.cn, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Mihnea Dobrescu-Balaur <mihneadb@gmail.com>
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 11, 2013 at 10:39:27PM +0800, Wei Yongjun wrote:
-> From: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
-> 
-> The variable vq is initialized but never used
-> otherwise, so remove the unused variable.
-> 
-> Signed-off-by: Wei Yongjun <yongjun_wei@trendmicro.com.cn>
+On Mon, Mar 11, 2013 at 01:23:36PM +0200, Mihnea Dobrescu-Balaur wrote:
 
-Which branch does this target?
+Are there performance improvements to doing it this way?
 
+> Signed-off-by: Mihnea Dobrescu-Balaur <mihneadb@gmail.com>
 > ---
->  drivers/vhost/blk.c | 3 ---
->  1 file changed, 3 deletions(-)
+>  drivers/block/xen-blkfront.c |    3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> diff --git a/drivers/vhost/blk.c b/drivers/vhost/blk.c
-> index 658c5f9..d9b245b 100644
-> --- a/drivers/vhost/blk.c
-> +++ b/drivers/vhost/blk.c
-> @@ -419,8 +419,6 @@ static void vhost_blk_handle_guest_kick(struct vhost_work *work)
->  /* Host kick us for I/O completion */
->  static void vhost_blk_handle_host_kick(struct vhost_work *work)
->  {
-> -
-> -	struct vhost_virtqueue *vq;
->  	struct vhost_blk_req *req;
->  	struct llist_node *llnode;
->  	struct vhost_blk *blk;
-> @@ -429,7 +427,6 @@ static void vhost_blk_handle_host_kick(struct vhost_work *work)
->  	int ret;
+> diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+> index c3dae2e..9620644 100644
+> --- a/drivers/block/xen-blkfront.c
+> +++ b/drivers/block/xen-blkfront.c
+> @@ -1203,11 +1203,10 @@ static int blkif_recover(struct blkfront_info *info)
+>  	int j;
 >  
->  	blk = container_of(work, struct vhost_blk, work);
-> -	vq = &blk->vq;
+>  	/* Stage 1: Make a safe copy of the shadow state. */
+> -	copy = kmalloc(sizeof(info->shadow),
+> +	copy = kmemdup(info->shadow, sizeof(info->shadow),
+>  		       GFP_NOIO | __GFP_REPEAT | __GFP_HIGH);
+>  	if (!copy)
+>  		return -ENOMEM;
+> -	memcpy(copy, info->shadow, sizeof(info->shadow));
 >  
->  	llnode = llist_del_all(&blk->llhead);
->  	added = false;
+>  	/* Stage 2: Set up free list. */
+>  	memset(&info->shadow, 0, sizeof(info->shadow));
+> -- 
+> 1.7.10.4
+> 
