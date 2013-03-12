@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V2 0/6] tcm_vhost hotplug/hotunplug support and
-	locking/flushing fix
-Date: Tue, 12 Mar 2013 11:55:14 +0200
-Message-ID: <20130312095514.GC22633@redhat.com>
-References: <1362709307-12554-1-git-send-email-asias@redhat.com>
-	<20130311120327.GE23359@redhat.com>
-	<20130312023109.GF1480@hj.localdomain>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbr@gmail.com>
+Subject: Re: [PATCH] Revert "virtio_console: Initialize guest_connected=true
+	for rproc_serial"
+Date: Tue, 12 Mar 2013 12:05:03 +0100
+Message-ID: <CANHm3PgQuT=98dM2gU8mkN=RxzD9ruQ+cqa_NGKv2kZwS46c=Q@mail.gmail.com>
+References: <1363014900-6425-1-git-send-email-sjur.brandeland@stericsson.com>
+	<20130312073446.GB6786@amit.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130312023109.GF1480@hj.localdomain>
+In-Reply-To: <20130312073446.GB6786@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,71 +19,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 12, 2013 at 10:31:09AM +0800, Asias He wrote:
-> On Mon, Mar 11, 2013 at 02:03:27PM +0200, Michael S. Tsirkin wrote:
-> > On Fri, Mar 08, 2013 at 10:21:41AM +0800, Asias He wrote:
-> > > Changes in v2:
-> > > - Remove code duplication in tcm_vhost_{hotplug,hotunplug}
-> > > - Fix racing of vs_events_nr
-> > > - Add flush fix patch to this series
-> > > Asias He (6):
-> > >   tcm_vhost: Add missed lock in vhost_scsi_clear_endpoint()
-> > >   tcm_vhost: Introduce tcm_vhost_check_feature()
-> > >   tcm_vhost: Introduce tcm_vhost_check_endpoint()
-> > >   tcm_vhost: Fix vs->vs_endpoint checking in vhost_scsi_handle_vq()
-> > >   tcm_vhost: Add hotplug/hotunplug support
-> > >   tcm_vhost: Flush vhost_work in vhost_scsi_flush()
-> > > 
-> > 
-> > Are all these patches bugfixes?
-> 
-> Nope.
-> 
-> > Please don't add any more features in kernel until qemu starts using
-> > this driver. 
-> 
-> Why? Why should qemu prevent from improving the driver and the benefit
-> to the other user of the driver? Kvm tool is already using it since last
-> Aug. This adds the missing disk hotplug support to kvm tool.
-
-Basically we shouldn't add stuff to kernel for a single user.
-Before we commit to support features forever, let's take the time
-to see that the interfaces satisfy the requirements of multiple users.
-It doesn't have to be qemu but we need to see several users.
-
-> Plus, this
-> is not a pure "feature", it is designed in virtio-scsi spec. 
-
-The spec doesn't say it's a mandatory feature or did I miss something?
-
-> > We put it in kernel after at the KVM forum it looked like
-> > everyone agrees it's useful and qemu and kvmtool will use it, but it has
-> > been in kernel since July and qemu patches are still outstanding.
-> 
-> I am working on the qemu bits where Paolo and Nicholas left.
-
-Great.
-
-> > If only part of the patches are bugfixes could you please separate them
-> > out and submit for 3.9?
-> 
-> I will separate patch 2 and 5 for hotplug support and others for
-> bugfixes.
-
-Thanks.
-
-> > Thanks,
-> > 
-> > >  drivers/vhost/tcm_vhost.c | 243 ++++++++++++++++++++++++++++++++++++++++++++--
-> > >  drivers/vhost/tcm_vhost.h |  10 ++
-> > >  2 files changed, 247 insertions(+), 6 deletions(-)
-> > > 
-> > > -- 
-> > > 1.8.1.4
-> 
-> -- 
-> Asias
+T24gVHVlLCBNYXIgMTIsIDIwMTMgYXQgODozNCBBTSwgQW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVk
+aGF0LmNvbT4gd3JvdGU6Cj4gT24gKE1vbikgMTEgTWFyIDIwMTMgWzE2OjE1OjAwXSwgc2p1ci5i
+cmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyb3RlOgo+PiBGcm9tOiBTanVyIEJyxIduZGVsYW5k
+IDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Cj4+Cj4+IFRoaXMgcmV2ZXJ0cyBjb21t
+aXQgODA3OGRiNzg5YTkyYjEwZmY2ZTJkNzEzMjMxYjUzNjdlMDE0YzUzYi4KPj4KPj4gVGhlIHJl
+dmVydGVkIHBhdGNoIGNhdXNlZCBvcGVuaW5nIG9mIHBvcnRzIHRvIGZhaWwgZm9yIHJwcm9jX3Nl
+cmlhbC4KPj4gSW4gcHJvYmUgZ3Vlc3RfY29ubmVjdGVkIHdhcyBzZXQgdG8gdHJ1ZSwgYnV0IHBv
+cnRfZm9wc19vcGVuKCkKPj4gZmFpbHMgd2l0aCAtRU1GSUxFIGlmIGd1ZXN0X2Nvbm5lY3RlZCBh
+bHJlYWR5IGlzIHRydWUuCj4KPiBPSywgSSBtaXNzZWQgdGhhdC4gIENhbiB5b3UgYWRkIGEgY29t
+bWVudCBuZWFyIHRoZSAybmQgaHVuayBtZW50aW9uaW5nCj4gdGhpcz8KCk9rLCBJIGVuZGVkIHVw
+IHJld3JpdGluZyB0aGUgd2hvbGUgY29tbWVudCBoZXJlIGluIG15IGF0dGVtcHQKdG8gIm1lbnRp
+b24gdGhpcyIuIFBlcmhhcHMgaXQncyBhIGJpdCBvdmVyIHRoZSB0b3AgdG8gd3JpdGUgYSBzaG9y
+dCBlc3NheSB0bwpleHBsYWluIHR3byBjb2RlIGxpbmVzLCBidXQgYW55d2F5IGhlcmUgaXQgaXMu
+IExldCBtZSBrbm93IHdoYXQgeW91IHRoaW5rOgoKCS8qCgkgKiBOb3JtYWxseSB0aGUgcG9ydCBz
+aG91bGQgbm90IGFjY2VwdCBkYXRhIHdoZW4gdGhlIHBvcnQgaXMKCSAqIGNsb3NlZC4gRm9yIGdl
+bmVyaWMgc2VyaWFsIHBvcnRzLCB0aGUgaG9zdCB3b24ndCAoc2hvdWxkbid0KQoJICogc2VuZCBk
+YXRhIHRpbGwgdGhlIGd1ZXN0IGlzIGNvbm5lY3RlZC4gQnV0IHRoaXMgY29uZGl0aW9uCgkgKiBj
+YW4gYmUgcmVhY2hlZCB3aGVuIGEgY29uc29sZSBwb3J0IGlzIG5vdCB5ZXQgY29ubmVjdGVkIChu
+bwoJICogdHR5IGlzIHNwYXduZWQpIGFuZCB0aGUgb3RoZXIgc2lkZSBzZW5kcyBvdXQgZGF0YSBv
+dmVyIHRoZQoJICogdnJpbmcsIG9yIHdoZW4gYSByZW1vdGUgZGV2aWNlcyBzdGFydCBzZW5kaW5n
+IGRhdGEgYmVmb3JlCgkgKiB0aGUgcG9ydHMgYXJlIG9wZW5lZC4KCSAqCgkgKiBBIGdlbmVyaWMg
+c2VyaWFsIHBvcnQgd2lsbCBkaXNjYXJkIGRhdGEgaWYgbm90IGNvbm5lY3RlZCwKCSAqIHdoaWxl
+IGNvbnNvbGUgcG9ydHMgYW5kIHJwcm9jLXNlcmlhbCBwb3J0cyBhY2NlcHRzIGRhdGEgYXQKCSAq
+IGFueSB0aW1lLiBycHJvYy1zZXJpYWwgaXMgaW5pdGlhdGVkIHdpdGggZ3Vlc3RfY29ubmVjdCA9
+IGZhbHNlCgkgKiBiZWNhdXNlIHBvcnRfZm9wc19vcGVuIGV4cGVjdHMgdGhpcy4gQ29uc29sZSBw
+b3J0cyBhcmUKCSAqIGhvb2tlZCB1cCB3aXRoIGFuIEhWQyBjb25zb2xlIGFuZCBpcyBpbml0aWFs
+aXplZCB3aXRoCgkgKiBndWVzdF9jb25uZWN0ZWQgPSB0cnVlLgoJICovCgpSZWdhcmRzLApTanVy
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
+emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
+Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
+aXJ0dWFsaXphdGlvbg==
