@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Opposite return values in vringh_notify_enable_kern() and
-	virtqueue_enable_cb().
-Date: Tue, 12 Mar 2013 15:02:51 +1030
-Message-ID: <87sj41utjg.fsf@rustcorp.com.au>
-References: <CAJK669Zkn0HL0AQVO3=C=ChsFHy5xD0hDNKPSrKOFLivu3AODA@mail.gmail.com>
+Subject: Re: [PATCH] Revert "virtio_console: Initialize guest_connected=true
+	for rproc_serial"
+Date: Tue, 12 Mar 2013 15:24:57 +1030
+Message-ID: <87k3pdusim.fsf@rustcorp.com.au>
+References: <1363014900-6425-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJK669Zkn0HL0AQVO3=C=ChsFHy5xD0hDNKPSrKOFLivu3AODA@mail.gmail.com>
+In-Reply-To: <1363014900-6425-1-git-send-email-sjur.brandeland@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +18,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Cc: mst@redhat.com, Erwan YVIN <Erwan.Yvin@stericsson.com>, virtualization@lists.linux-foundation.org
+Cc: sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org, amit.shah@redhat.com, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cgo+IEhpIFJ1c3R5
-LAo+Cj4gVGhlIHR3byBzaW1pbGFyIGZ1bmN0aW9ucyBpbiB2cmluZ2ggYW5kIHZpcnRxdWV1ZSBm
-b3IgdHVybmluZyBvbgo+IGludGVycnVwdHMgaGFzIG9wcG9zaXRlIHJldHVybiB2YWx1ZXMgaWYg
-dGhlcmUgYXJlIGJ1ZmZlcnMgYXZhaWxhYmxlCj4gaW4gdGhlIHJpbmcuIEkgdGhpbmsgaXQgd291
-bGQgYmUgYmV0dGVyIGlmIHRoZXNlIHR3byBmdW5jdGlvbnMgYWxpZ25lZAo+IHRoZSB1c2Ugb2Yg
-cmV0dXJuIHZhbHVlcy4gTWF5YmUgaXQncyBqdXN0IG1lLCBidXQgSSBnb3QgdGhlIGxvZ2ljCj4g
-Zm9yIHJlLXNjaGVkdWxpbmcgTkFQSSB3cm9uZyBkdWUgdG8gdGhpcy4KCldvdy4gIEZpcnN0bHks
-IHRoZSBhdXRob3Igb2YgdGhlIG9yaWdpbmFsIHdhcyBhbiBpZGlvdCBmb3IgZ2V0dGluZyB0aGUK
-QVBJIHdyb25nLiAgU2Vjb25kbHksIHRoZSBhdXRob3Igb2YgdGhlIHNlY29uZCB3YXMgYW4gaWRp
-b3QgZm9yIG1ha2luZwppdCBkaWZmZXJlbnQuCgpTbyBJJ20gZG91Ymx5IGFuIGlkaW90LiAgSWYg
-SSdkIGhpdCB0aGF0IEkgd291bGQgaGF2ZSBiZWVuIGZhciBsZXNzCnBvbGl0ZSA6KQoKSG1tLCB3
-YWl0LCB2aG9zdCBoYXMgdGhlbSBpbnZlcnRlZCwgc28gbWF5YmUgSSBjYW4gYmxhbWUgTVNULi4u
-IGFueXdheSwKSSBmaXhlZCB0aGF0IHRvby4KClRoYW5rcyEKUnVzdHkuCgo+IC8qKgo+ICAqIHZy
-aW5naF9ub3RpZnlfZW5hYmxlX2tlcm4gLSB3ZSB3YW50IHRvIGtub3cgaWYgc29tZXRoaW5nIGNo
-YW5nZXMuCj4gICogQHZyaDogdGhlIHZyaW5nLgo+ICAqCj4gICogVGhpcyBhbHdheXMgZW5hYmxl
-cyBub3RpZmljYXRpb25zLCBidXQgcmV0dXJucyB0cnVlIGlmIHRoZXJlIGFyZQo+ICAqIG5vdyBt
-b3JlIGJ1ZmZlcnMgYXZhaWxhYmxlIGluIHRoZSB2cmluZy4KPiAgKi8KPiBib29sIHZyaW5naF9u
-b3RpZnlfZW5hYmxlX2tlcm4oc3RydWN0IHZyaW5naCAqdnJoKQo+Cj4gLyoqCj4gICogdmlydHF1
-ZXVlX2VuYWJsZV9jYiAtIHJlc3RhcnQgY2FsbGJhY2tzIGFmdGVyIGRpc2FibGVfY2IuCj4gICog
-QHZxOiB0aGUgc3RydWN0IHZpcnRxdWV1ZSB3ZSdyZSB0YWxraW5nIGFib3V0Lgo+ICAqCj4gICog
-VGhpcyByZS1lbmFibGVzIGNhbGxiYWNrczsgaXQgcmV0dXJucyAiZmFsc2UiIGlmIHRoZXJlIGFy
-ZSBwZW5kaW5nCj4gICogYnVmZmVycyBpbiB0aGUgcXVldWUsIC4uLi4KPiAgKi8KPiBib29sIHZp
-cnRxdWV1ZV9lbmFibGVfY2Ioc3RydWN0IHZpcnRxdWV1ZSAqX3ZxKQo+Cj4gUmVnYXJkcy4KPiBT
-anVyCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyaXRlczoKCj4gRnJvbTogU2p1ciBCcsOm
+bmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+Cj4gVGhpcyByZXZlcnRz
+IGNvbW1pdCA4MDc4ZGI3ODlhOTJiMTBmZjZlMmQ3MTMyMzFiNTM2N2UwMTRjNTNiLgo+Cj4gVGhl
+IHJldmVydGVkIHBhdGNoIGNhdXNlZCBvcGVuaW5nIG9mIHBvcnRzIHRvIGZhaWwgZm9yIHJwcm9j
+X3NlcmlhbC4KPiBJbiBwcm9iZSBndWVzdF9jb25uZWN0ZWQgd2FzIHNldCB0byB0cnVlLCBidXQg
+cG9ydF9mb3BzX29wZW4oKQo+IGZhaWxzIHdpdGggLUVNRklMRSBpZiBndWVzdF9jb25uZWN0ZWQg
+YWxyZWFkeSBpcyB0cnVlLgo+Cj4gU2lnbmVkLW9mZi1ieTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1
+ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+IC0tLQo+IEhpIFJ1c3R5LAo+Cj4gSGVyZSBp
+cyBhIGZpeCBpbnRlbmRlZCBmb3IgMy45Lgo+IFNvcnJ5IGZvciB0aGUgY2h1cm4gaGVyZSA6LSgK
+CkFwcGxpZWQsClJ1c3R5LgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
