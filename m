@@ -1,15 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/4] tcm_vhost lock and flush fix
-Date: Tue, 12 Mar 2013 13:12:02 +0200
-Message-ID: <20130312111202.GB6788@redhat.com>
-References: <1363056171-5854-1-git-send-email-asias@redhat.com>
-	<513EE6C2.1060003@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: virtio-s390: document GPR4/GPR2 cookie values
+Date: Tue, 12 Mar 2013 14:17:48 +1030
+Message-ID: <87y5dtuvmj.fsf@rustcorp.com.au>
+References: <1361806070-62465-1-git-send-email-cornelia.huck@de.ibm.com>
+	<20130226110421.GB10915@redhat.com>
+	<20130226111812.GA11111@redhat.com>
+	<20130307180221.GA30580@redhat.com>
+	<20130308085548.5bba025d@gondolin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <513EE6C2.1060003@redhat.com>
+In-Reply-To: <20130308085548.5bba025d@gondolin>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +21,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Carsten Otte <cotte@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 12, 2013 at 09:26:42AM +0100, Paolo Bonzini wrote:
-> Il 12/03/2013 03:42, Asias He ha scritto:
-> > Asias He (4):
-> >   tcm_vhost: Add missed lock in vhost_scsi_clear_endpoint()
-> >   tcm_vhost: Introduce tcm_vhost_check_endpoint()
-> >   tcm_vhost: Fix vs->vs_endpoint checking in vhost_scsi_handle_vq()
-> >   tcm_vhost: Flush vhost_work in vhost_scsi_flush()
-> > 
-> >  drivers/vhost/tcm_vhost.c | 19 ++++++++++++++++++-
-> >  1 file changed, 18 insertions(+), 1 deletion(-)
-> > 
-> 
-> Patch 1, 2, 4:
-> 
-> Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+Cornelia Huck <cornelia.huck@de.ibm.com> writes:
+> On Thu, 7 Mar 2013 20:02:21 +0200
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>
+>> virtio-s390 on kvm can use a cookie value passed to guest
+>
+> s/virtio-s390/virtio-ccw/ (to avoid confusion with s390-virtio, which
+> was never specced)
+>
+>> to optimize channel/VQ lookups.
+>> Document this.
+>> 
+>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Otherwise:
+> Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+>
+> Rusty, could you please apply?
 
-How is 2 useful without 3?
+Modified and committed.
+
+Thanks!
+Rusty.
