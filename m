@@ -1,15 +1,16 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbr@gmail.com>
-Subject: Re: [PATCH] Revert "virtio_console: Initialize guest_connected=true
-	for rproc_serial"
-Date: Tue, 12 Mar 2013 12:05:03 +0100
-Message-ID: <CANHm3PgQuT=98dM2gU8mkN=RxzD9ruQ+cqa_NGKv2kZwS46c=Q@mail.gmail.com>
-References: <1363014900-6425-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20130312073446.GB6786@amit.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 3/4] tcm_vhost: Fix vs->vs_endpoint checking in
+	vhost_scsi_handle_vq()
+Date: Tue, 12 Mar 2013 13:11:19 +0200
+Message-ID: <20130312111119.GA6788@redhat.com>
+References: <1363056171-5854-1-git-send-email-asias@redhat.com>
+	<1363056171-5854-4-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130312073446.GB6786@amit.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1363056171-5854-4-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +20,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBNYXIgMTIsIDIwMTMgYXQgODozNCBBTSwgQW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4gT24gKE1vbikgMTEgTWFyIDIwMTMgWzE2OjE1OjAwXSwgc2p1ci5i
-cmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyb3RlOgo+PiBGcm9tOiBTanVyIEJyxIduZGVsYW5k
-IDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Cj4+Cj4+IFRoaXMgcmV2ZXJ0cyBjb21t
-aXQgODA3OGRiNzg5YTkyYjEwZmY2ZTJkNzEzMjMxYjUzNjdlMDE0YzUzYi4KPj4KPj4gVGhlIHJl
-dmVydGVkIHBhdGNoIGNhdXNlZCBvcGVuaW5nIG9mIHBvcnRzIHRvIGZhaWwgZm9yIHJwcm9jX3Nl
-cmlhbC4KPj4gSW4gcHJvYmUgZ3Vlc3RfY29ubmVjdGVkIHdhcyBzZXQgdG8gdHJ1ZSwgYnV0IHBv
-cnRfZm9wc19vcGVuKCkKPj4gZmFpbHMgd2l0aCAtRU1GSUxFIGlmIGd1ZXN0X2Nvbm5lY3RlZCBh
-bHJlYWR5IGlzIHRydWUuCj4KPiBPSywgSSBtaXNzZWQgdGhhdC4gIENhbiB5b3UgYWRkIGEgY29t
-bWVudCBuZWFyIHRoZSAybmQgaHVuayBtZW50aW9uaW5nCj4gdGhpcz8KCk9rLCBJIGVuZGVkIHVw
-IHJld3JpdGluZyB0aGUgd2hvbGUgY29tbWVudCBoZXJlIGluIG15IGF0dGVtcHQKdG8gIm1lbnRp
-b24gdGhpcyIuIFBlcmhhcHMgaXQncyBhIGJpdCBvdmVyIHRoZSB0b3AgdG8gd3JpdGUgYSBzaG9y
-dCBlc3NheSB0bwpleHBsYWluIHR3byBjb2RlIGxpbmVzLCBidXQgYW55d2F5IGhlcmUgaXQgaXMu
-IExldCBtZSBrbm93IHdoYXQgeW91IHRoaW5rOgoKCS8qCgkgKiBOb3JtYWxseSB0aGUgcG9ydCBz
-aG91bGQgbm90IGFjY2VwdCBkYXRhIHdoZW4gdGhlIHBvcnQgaXMKCSAqIGNsb3NlZC4gRm9yIGdl
-bmVyaWMgc2VyaWFsIHBvcnRzLCB0aGUgaG9zdCB3b24ndCAoc2hvdWxkbid0KQoJICogc2VuZCBk
-YXRhIHRpbGwgdGhlIGd1ZXN0IGlzIGNvbm5lY3RlZC4gQnV0IHRoaXMgY29uZGl0aW9uCgkgKiBj
-YW4gYmUgcmVhY2hlZCB3aGVuIGEgY29uc29sZSBwb3J0IGlzIG5vdCB5ZXQgY29ubmVjdGVkIChu
-bwoJICogdHR5IGlzIHNwYXduZWQpIGFuZCB0aGUgb3RoZXIgc2lkZSBzZW5kcyBvdXQgZGF0YSBv
-dmVyIHRoZQoJICogdnJpbmcsIG9yIHdoZW4gYSByZW1vdGUgZGV2aWNlcyBzdGFydCBzZW5kaW5n
-IGRhdGEgYmVmb3JlCgkgKiB0aGUgcG9ydHMgYXJlIG9wZW5lZC4KCSAqCgkgKiBBIGdlbmVyaWMg
-c2VyaWFsIHBvcnQgd2lsbCBkaXNjYXJkIGRhdGEgaWYgbm90IGNvbm5lY3RlZCwKCSAqIHdoaWxl
-IGNvbnNvbGUgcG9ydHMgYW5kIHJwcm9jLXNlcmlhbCBwb3J0cyBhY2NlcHRzIGRhdGEgYXQKCSAq
-IGFueSB0aW1lLiBycHJvYy1zZXJpYWwgaXMgaW5pdGlhdGVkIHdpdGggZ3Vlc3RfY29ubmVjdCA9
-IGZhbHNlCgkgKiBiZWNhdXNlIHBvcnRfZm9wc19vcGVuIGV4cGVjdHMgdGhpcy4gQ29uc29sZSBw
-b3J0cyBhcmUKCSAqIGhvb2tlZCB1cCB3aXRoIGFuIEhWQyBjb25zb2xlIGFuZCBpcyBpbml0aWFs
-aXplZCB3aXRoCgkgKiBndWVzdF9jb25uZWN0ZWQgPSB0cnVlLgoJICovCgpSZWdhcmRzLApTanVy
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+On Tue, Mar 12, 2013 at 10:42:50AM +0800, Asias He wrote:
+> vs->vs_endpoint is protected by the vs->dev.mutex. Use
+> tcm_vhost_check_endpoint() to do check. The helper does the needed
+> locking for us.
+> 
+> Signed-off-by: Asias He <asias@redhat.com>
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+This takes dev mutex on data path which will introduce
+contention esp for multiqueue.
+How about storing the endpoint as part of vq
+private data and protecting with vq mutex?
+
+> ---
+>  drivers/vhost/tcm_vhost.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+> index 29612bc..61093d1 100644
+> --- a/drivers/vhost/tcm_vhost.c
+> +++ b/drivers/vhost/tcm_vhost.c
+> @@ -594,7 +594,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
+>  	u8 target;
+>  
+>  	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
+> -	if (unlikely(!vs->vs_endpoint))
+> +	if (!tcm_vhost_check_endpoint(vs))
+>  		return;
+>  
+>  	mutex_lock(&vq->mutex);
+> -- 
+> 1.8.1.4
