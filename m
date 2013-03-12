@@ -1,16 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 3/4] tcm_vhost: Fix vs->vs_endpoint checking in
-	vhost_scsi_handle_vq()
-Date: Tue, 12 Mar 2013 13:11:19 +0200
-Message-ID: <20130312111119.GA6788@redhat.com>
+Subject: Re: [PATCH 0/4] tcm_vhost lock and flush fix
+Date: Tue, 12 Mar 2013 13:12:02 +0200
+Message-ID: <20130312111202.GB6788@redhat.com>
 References: <1363056171-5854-1-git-send-email-asias@redhat.com>
-	<1363056171-5854-4-git-send-email-asias@redhat.com>
+	<513EE6C2.1060003@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1363056171-5854-4-git-send-email-asias@redhat.com>
+In-Reply-To: <513EE6C2.1060003@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,39 +19,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 12, 2013 at 10:42:50AM +0800, Asias He wrote:
-> vs->vs_endpoint is protected by the vs->dev.mutex. Use
-> tcm_vhost_check_endpoint() to do check. The helper does the needed
-> locking for us.
+On Tue, Mar 12, 2013 at 09:26:42AM +0100, Paolo Bonzini wrote:
+> Il 12/03/2013 03:42, Asias He ha scritto:
+> > Asias He (4):
+> >   tcm_vhost: Add missed lock in vhost_scsi_clear_endpoint()
+> >   tcm_vhost: Introduce tcm_vhost_check_endpoint()
+> >   tcm_vhost: Fix vs->vs_endpoint checking in vhost_scsi_handle_vq()
+> >   tcm_vhost: Flush vhost_work in vhost_scsi_flush()
+> > 
+> >  drivers/vhost/tcm_vhost.c | 19 ++++++++++++++++++-
+> >  1 file changed, 18 insertions(+), 1 deletion(-)
+> > 
 > 
-> Signed-off-by: Asias He <asias@redhat.com>
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
-This takes dev mutex on data path which will introduce
-contention esp for multiqueue.
-How about storing the endpoint as part of vq
-private data and protecting with vq mutex?
-
-> ---
->  drivers/vhost/tcm_vhost.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Patch 1, 2, 4:
 > 
-> diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> index 29612bc..61093d1 100644
-> --- a/drivers/vhost/tcm_vhost.c
-> +++ b/drivers/vhost/tcm_vhost.c
-> @@ -594,7 +594,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
->  	u8 target;
->  
->  	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
-> -	if (unlikely(!vs->vs_endpoint))
-> +	if (!tcm_vhost_check_endpoint(vs))
->  		return;
->  
->  	mutex_lock(&vq->mutex);
-> -- 
-> 1.8.1.4
+> Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+
+How is 2 useful without 3?
