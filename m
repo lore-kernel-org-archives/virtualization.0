@@ -1,17 +1,14 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 1/2] tcm_vhost: Wait for pending requests in
-	vhost_scsi_flush()
-Date: Tue, 12 Mar 2013 09:21:51 +0100
-Message-ID: <513EE59F.4020306@redhat.com>
-References: <1362978579-13322-1-git-send-email-asias@redhat.com>
-	<1362978579-13322-2-git-send-email-asias@redhat.com>
-	<513DC1C5.4070106@redhat.com>
-	<20130312013135.GB1480@hj.localdomain>
+Subject: Re: [PATCH 2/4] tcm_vhost: Introduce tcm_vhost_check_endpoint()
+Date: Tue, 12 Mar 2013 09:26:18 +0100
+Message-ID: <513EE6AA.3030306@redhat.com>
+References: <1363056171-5854-1-git-send-email-asias@redhat.com>
+	<1363056171-5854-3-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130312013135.GB1480@hj.localdomain>
+In-Reply-To: <1363056171-5854-3-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,46 +22,43 @@ To: Asias He <asias@redhat.com>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 12/03/2013 02:31, Asias He ha scritto:
-> On Mon, Mar 11, 2013 at 12:36:37PM +0100, Paolo Bonzini wrote:
->> Il 11/03/2013 06:09, Asias He ha scritto:
->>> This patch makes vhost_scsi_flush() wait for all the pending requests
->>> issued before the flush operation to be finished.
->>
->> There is no protection against issuing concurrent flush operations.  If
->> we later would like to make the flush a ioctl (for example for migration
->> purposes), it would be confusing, and I'm not sure how you could extend
->> the during_flush machinery.
+Il 12/03/2013 03:42, Asias He ha scritto:
+> This helper is useful to check if vs->vs_endpoint is setup by
+> vhost_scsi_set_endpoint()
 > 
-> vhost_scsi_flush() is called under the vs->dev.mutex lock.
-
-Ah, ok.
-
->> What about making vhost_scsi_flush() wait for all pending requests,
->> including those issues during the flush operation?
+> Signed-off-by: Asias He <asias@redhat.com>
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> ---
+>  drivers/vhost/tcm_vhost.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
 > 
-> This will take unbonded time if guest keep sending requests.
+> diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+> index b3e50d7..29612bc 100644
+> --- a/drivers/vhost/tcm_vhost.c
+> +++ b/drivers/vhost/tcm_vhost.c
+> @@ -91,6 +91,18 @@ static int iov_num_pages(struct iovec *iov)
+>  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
+>  }
+>  
+> +static bool tcm_vhost_check_endpoint(struct vhost_scsi *vs)
+> +{
+> +	bool ret = false;
+> +
+> +	mutex_lock(&vs->dev.mutex);
+> +	if (vs->vs_endpoint)
+> +		ret = true;
+> +	mutex_unlock(&vs->dev.mutex);
 
-Yes, that's correct, but flush doesn't really mean much if new requests
-can come in (unlike _cache_ flushes like SYNCHRONIZE CACHE).  In the end
-you'll have to stop the VM first and then issue the flush.  At this
-point, it does not change much if you wait for previous requests or all
-requests, and I suspect that waiting for all requests simplifies the
-code noticeably.
-
->> Then you can easily
->> support concurrent flushes; just add a waitqueue and wake_up_all at the
->> end of the flush operation.
-> 
-> I am not sure why we want concurrent flushes. The flush thing is
-> already getting complex.
-
-Yeah, it is too complex...
+The return value is invalid as soon as mutex_unlock is called, i.e.
+before tcm_vhost_check_endpoint returns.  Instead, check vs->vs_endpoint
+in the caller while the mutex is taken.
 
 Paolo
 
->> BTW, adding such a ioctl as part of this patch would probably be a good
->> thing to do anyway.
->>
->> Paolo
+> +	return ret;
+> +}
+> +
+>  static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
+>  {
+>  	return 1;
 > 
