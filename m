@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/4] tcm_vhost: Add missed lock in
-	vhost_scsi_clear_endpoint()
-Date: Tue, 12 Mar 2013 13:13:44 +0200
-Message-ID: <20130312111344.GC6788@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 0/4] tcm_vhost lock and flush fix
+Date: Tue, 12 Mar 2013 12:14:56 +0100
+Message-ID: <513F0E30.2030004@redhat.com>
 References: <1363056171-5854-1-git-send-email-asias@redhat.com>
-	<1363056171-5854-2-git-send-email-asias@redhat.com>
+	<513EE6C2.1060003@redhat.com> <20130312111202.GB6788@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1363056171-5854-2-git-send-email-asias@redhat.com>
+In-Reply-To: <20130312111202.GB6788@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,52 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 12, 2013 at 10:42:48AM +0800, Asias He wrote:
-> tv_tpg->tv_tpg_vhost_count should be protected by tv_tpg->tv_tpg_mutex.
+Il 12/03/2013 12:12, Michael S. Tsirkin ha scritto:
+> On Tue, Mar 12, 2013 at 09:26:42AM +0100, Paolo Bonzini wrote:
+>> Il 12/03/2013 03:42, Asias He ha scritto:
+>>> Asias He (4):
+>>>   tcm_vhost: Add missed lock in vhost_scsi_clear_endpoint()
+>>>   tcm_vhost: Introduce tcm_vhost_check_endpoint()
+>>>   tcm_vhost: Fix vs->vs_endpoint checking in vhost_scsi_handle_vq()
+>>>   tcm_vhost: Flush vhost_work in vhost_scsi_flush()
+>>>
+>>>  drivers/vhost/tcm_vhost.c | 19 ++++++++++++++++++-
+>>>  1 file changed, 18 insertions(+), 1 deletion(-)
+>>
+>> Patch 1, 2, 4:
+>>
+>> Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
 > 
-> Signed-off-by: Asias He <asias@redhat.com>
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> ---
->  drivers/vhost/tcm_vhost.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> index 9951297..b3e50d7 100644
-> --- a/drivers/vhost/tcm_vhost.c
-> +++ b/drivers/vhost/tcm_vhost.c
-> @@ -860,9 +860,11 @@ static int vhost_scsi_clear_endpoint(
->  		if (!tv_tpg)
->  			continue;
->  
-> +		mutex_lock(&tv_tpg->tv_tpg_mutex);
->  		tv_tport = tv_tpg->tport;
->  		if (!tv_tport) {
->  			ret = -ENODEV;
-> +			mutex_unlock(&tv_tpg->tv_tpg_mutex);
->  			goto err;
->  		}
->  
-> @@ -872,11 +874,13 @@ static int vhost_scsi_clear_endpoint(
->  				tv_tport->tport_name, tv_tpg->tport_tpgt,
->  				t->vhost_wwpn, t->vhost_tpgt);
->  			ret = -EINVAL;
-> +			mutex_unlock(&tv_tpg->tv_tpg_mutex);
->  			goto err;
->  		}
->  		tv_tpg->tv_tpg_vhost_count--;
->  		vs->vs_tpg[target] = NULL;
->  		vs->vs_endpoint = false;
-> +		mutex_unlock(&tv_tpg->tv_tpg_mutex);
->  	}
->  	mutex_unlock(&vs->dev.mutex);
->  	return 0;
+> How is 2 useful without 3?
 
-Does the error handling have to be so messy?
-How about another label which does unlock and goto there?
+I can still say I reviewed it and Asias can include the tag in the next
+respin.  But I screwed up, patch 2 is exactly the one that I said makes
+little sense and should be folded into patch 3.
 
-> -- 
-> 1.8.1.4
+Paolo
