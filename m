@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] Revert "virtio_console: Initialize guest_connected=true
-	for rproc_serial"
-Date: Tue, 12 Mar 2013 15:24:57 +1030
-Message-ID: <87k3pdusim.fsf@rustcorp.com.au>
-References: <1363014900-6425-1-git-send-email-sjur.brandeland@stericsson.com>
+Subject: Re: [PATCH 1/2] virtio-scsi: use pr_err() instead of printk()
+Date: Tue, 12 Mar 2013 14:13:26 +1030
+Message-ID: <871ublwae9.fsf@rustcorp.com.au>
+References: <1362626968-16871-1-git-send-email-gaowanlong@cn.fujitsu.com>
+	<5139B402.2030106@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1363014900-6425-1-git-send-email-sjur.brandeland@stericsson.com>
+In-Reply-To: <5139B402.2030106@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,19 +18,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org, amit.shah@redhat.com, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tIHdyaXRlczoKCj4gRnJvbTogU2p1ciBCcsOm
-bmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+Cj4gVGhpcyByZXZlcnRz
-IGNvbW1pdCA4MDc4ZGI3ODlhOTJiMTBmZjZlMmQ3MTMyMzFiNTM2N2UwMTRjNTNiLgo+Cj4gVGhl
-IHJldmVydGVkIHBhdGNoIGNhdXNlZCBvcGVuaW5nIG9mIHBvcnRzIHRvIGZhaWwgZm9yIHJwcm9j
-X3NlcmlhbC4KPiBJbiBwcm9iZSBndWVzdF9jb25uZWN0ZWQgd2FzIHNldCB0byB0cnVlLCBidXQg
-cG9ydF9mb3BzX29wZW4oKQo+IGZhaWxzIHdpdGggLUVNRklMRSBpZiBndWVzdF9jb25uZWN0ZWQg
-YWxyZWFkeSBpcyB0cnVlLgo+Cj4gU2lnbmVkLW9mZi1ieTogU2p1ciBCcsOmbmRlbGFuZCA8c2p1
-ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPgo+IC0tLQo+IEhpIFJ1c3R5LAo+Cj4gSGVyZSBp
-cyBhIGZpeCBpbnRlbmRlZCBmb3IgMy45Lgo+IFNvcnJ5IGZvciB0aGUgY2h1cm4gaGVyZSA6LSgK
-CkFwcGxpZWQsClJ1c3R5LgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Paolo Bonzini <pbonzini@redhat.com> writes:
+
+> Il 07/03/2013 04:29, Wanlong Gao ha scritto:
+>> Convert the virtio-scsi driver to use pr_err() instead of printk().
+>> 
+>> Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+>
+> Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+
+Thanks, applied.
+
+Cheers,
+Rusty.
