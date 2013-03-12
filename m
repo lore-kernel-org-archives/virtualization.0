@@ -1,17 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: virtio-s390: document GPR4/GPR2 cookie values
-Date: Tue, 12 Mar 2013 14:17:48 +1030
-Message-ID: <87y5dtuvmj.fsf@rustcorp.com.au>
-References: <1361806070-62465-1-git-send-email-cornelia.huck@de.ibm.com>
-	<20130226110421.GB10915@redhat.com>
-	<20130226111812.GA11111@redhat.com>
-	<20130307180221.GA30580@redhat.com>
-	<20130308085548.5bba025d@gondolin>
+Subject: Re: Opposite return values in vringh_notify_enable_kern() and
+	virtqueue_enable_cb().
+Date: Tue, 12 Mar 2013 15:02:51 +1030
+Message-ID: <87sj41utjg.fsf@rustcorp.com.au>
+References: <CAJK669Zkn0HL0AQVO3=C=ChsFHy5xD0hDNKPSrKOFLivu3AODA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130308085548.5bba025d@gondolin>
+In-Reply-To: <CAJK669Zkn0HL0AQVO3=C=ChsFHy5xD0hDNKPSrKOFLivu3AODA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,29 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Carsten Otte <cotte@de.ibm.com>, KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, qemu-devel <qemu-devel@nongnu.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, virtualization@lists.linux-foundation.org
+To: Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjurbren@gmail.com>
+Cc: mst@redhat.com, Erwan YVIN <Erwan.Yvin@stericsson.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cornelia Huck <cornelia.huck@de.ibm.com> writes:
-> On Thu, 7 Mar 2013 20:02:21 +0200
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
->
->> virtio-s390 on kvm can use a cookie value passed to guest
->
-> s/virtio-s390/virtio-ccw/ (to avoid confusion with s390-virtio, which
-> was never specced)
->
->> to optimize channel/VQ lookups.
->> Document this.
->> 
->> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Otherwise:
-> Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
->
-> Rusty, could you please apply?
-
-Modified and committed.
-
-Thanks!
-Rusty.
+U2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cgo+IEhpIFJ1c3R5
+LAo+Cj4gVGhlIHR3byBzaW1pbGFyIGZ1bmN0aW9ucyBpbiB2cmluZ2ggYW5kIHZpcnRxdWV1ZSBm
+b3IgdHVybmluZyBvbgo+IGludGVycnVwdHMgaGFzIG9wcG9zaXRlIHJldHVybiB2YWx1ZXMgaWYg
+dGhlcmUgYXJlIGJ1ZmZlcnMgYXZhaWxhYmxlCj4gaW4gdGhlIHJpbmcuIEkgdGhpbmsgaXQgd291
+bGQgYmUgYmV0dGVyIGlmIHRoZXNlIHR3byBmdW5jdGlvbnMgYWxpZ25lZAo+IHRoZSB1c2Ugb2Yg
+cmV0dXJuIHZhbHVlcy4gTWF5YmUgaXQncyBqdXN0IG1lLCBidXQgSSBnb3QgdGhlIGxvZ2ljCj4g
+Zm9yIHJlLXNjaGVkdWxpbmcgTkFQSSB3cm9uZyBkdWUgdG8gdGhpcy4KCldvdy4gIEZpcnN0bHks
+IHRoZSBhdXRob3Igb2YgdGhlIG9yaWdpbmFsIHdhcyBhbiBpZGlvdCBmb3IgZ2V0dGluZyB0aGUK
+QVBJIHdyb25nLiAgU2Vjb25kbHksIHRoZSBhdXRob3Igb2YgdGhlIHNlY29uZCB3YXMgYW4gaWRp
+b3QgZm9yIG1ha2luZwppdCBkaWZmZXJlbnQuCgpTbyBJJ20gZG91Ymx5IGFuIGlkaW90LiAgSWYg
+SSdkIGhpdCB0aGF0IEkgd291bGQgaGF2ZSBiZWVuIGZhciBsZXNzCnBvbGl0ZSA6KQoKSG1tLCB3
+YWl0LCB2aG9zdCBoYXMgdGhlbSBpbnZlcnRlZCwgc28gbWF5YmUgSSBjYW4gYmxhbWUgTVNULi4u
+IGFueXdheSwKSSBmaXhlZCB0aGF0IHRvby4KClRoYW5rcyEKUnVzdHkuCgo+IC8qKgo+ICAqIHZy
+aW5naF9ub3RpZnlfZW5hYmxlX2tlcm4gLSB3ZSB3YW50IHRvIGtub3cgaWYgc29tZXRoaW5nIGNo
+YW5nZXMuCj4gICogQHZyaDogdGhlIHZyaW5nLgo+ICAqCj4gICogVGhpcyBhbHdheXMgZW5hYmxl
+cyBub3RpZmljYXRpb25zLCBidXQgcmV0dXJucyB0cnVlIGlmIHRoZXJlIGFyZQo+ICAqIG5vdyBt
+b3JlIGJ1ZmZlcnMgYXZhaWxhYmxlIGluIHRoZSB2cmluZy4KPiAgKi8KPiBib29sIHZyaW5naF9u
+b3RpZnlfZW5hYmxlX2tlcm4oc3RydWN0IHZyaW5naCAqdnJoKQo+Cj4gLyoqCj4gICogdmlydHF1
+ZXVlX2VuYWJsZV9jYiAtIHJlc3RhcnQgY2FsbGJhY2tzIGFmdGVyIGRpc2FibGVfY2IuCj4gICog
+QHZxOiB0aGUgc3RydWN0IHZpcnRxdWV1ZSB3ZSdyZSB0YWxraW5nIGFib3V0Lgo+ICAqCj4gICog
+VGhpcyByZS1lbmFibGVzIGNhbGxiYWNrczsgaXQgcmV0dXJucyAiZmFsc2UiIGlmIHRoZXJlIGFy
+ZSBwZW5kaW5nCj4gICogYnVmZmVycyBpbiB0aGUgcXVldWUsIC4uLi4KPiAgKi8KPiBib29sIHZp
+cnRxdWV1ZV9lbmFibGVfY2Ioc3RydWN0IHZpcnRxdWV1ZSAqX3ZxKQo+Cj4gUmVnYXJkcy4KPiBT
+anVyCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
