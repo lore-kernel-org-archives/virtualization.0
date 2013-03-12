@@ -1,14 +1,13 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 2/4] tcm_vhost: Introduce tcm_vhost_check_endpoint()
-Date: Tue, 12 Mar 2013 09:26:18 +0100
-Message-ID: <513EE6AA.3030306@redhat.com>
+Subject: Re: [PATCH 0/4] tcm_vhost lock and flush fix
+Date: Tue, 12 Mar 2013 09:26:42 +0100
+Message-ID: <513EE6C2.1060003@redhat.com>
 References: <1363056171-5854-1-git-send-email-asias@redhat.com>
-	<1363056171-5854-3-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1363056171-5854-3-git-send-email-asias@redhat.com>
+In-Reply-To: <1363056171-5854-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,42 +22,16 @@ Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@l
 List-Id: virtualization@lists.linuxfoundation.org
 
 Il 12/03/2013 03:42, Asias He ha scritto:
-> This helper is useful to check if vs->vs_endpoint is setup by
-> vhost_scsi_set_endpoint()
+> Asias He (4):
+>   tcm_vhost: Add missed lock in vhost_scsi_clear_endpoint()
+>   tcm_vhost: Introduce tcm_vhost_check_endpoint()
+>   tcm_vhost: Fix vs->vs_endpoint checking in vhost_scsi_handle_vq()
+>   tcm_vhost: Flush vhost_work in vhost_scsi_flush()
 > 
-> Signed-off-by: Asias He <asias@redhat.com>
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> ---
->  drivers/vhost/tcm_vhost.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
+>  drivers/vhost/tcm_vhost.c | 19 ++++++++++++++++++-
+>  1 file changed, 18 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> index b3e50d7..29612bc 100644
-> --- a/drivers/vhost/tcm_vhost.c
-> +++ b/drivers/vhost/tcm_vhost.c
-> @@ -91,6 +91,18 @@ static int iov_num_pages(struct iovec *iov)
->  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
->  }
->  
-> +static bool tcm_vhost_check_endpoint(struct vhost_scsi *vs)
-> +{
-> +	bool ret = false;
-> +
-> +	mutex_lock(&vs->dev.mutex);
-> +	if (vs->vs_endpoint)
-> +		ret = true;
-> +	mutex_unlock(&vs->dev.mutex);
 
-The return value is invalid as soon as mutex_unlock is called, i.e.
-before tcm_vhost_check_endpoint returns.  Instead, check vs->vs_endpoint
-in the caller while the mutex is taken.
+Patch 1, 2, 4:
 
-Paolo
-
-> +	return ret;
-> +}
-> +
->  static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
->  {
->  	return 1;
-> 
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
