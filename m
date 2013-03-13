@@ -1,17 +1,17 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 3/4] tcm_vhost: Fix vs->vs_endpoint checking in
-	vhost_scsi_handle_vq()
-Date: Wed, 13 Mar 2013 09:02:38 +0100
-Message-ID: <5140329E.6090408@redhat.com>
-References: <1363056171-5854-1-git-send-email-asias@redhat.com>
-	<1363056171-5854-4-git-send-email-asias@redhat.com>
-	<20130312111119.GA6788@redhat.com>
-	<20130313031303.GD15369@hj.localdomain>
+Subject: Re: [PATCH V2 0/6] tcm_vhost hotplug/hotunplug support and
+	locking/flushing fix
+Date: Wed, 13 Mar 2013 09:11:32 +0100
+Message-ID: <514034B4.5060100@redhat.com>
+References: <1362709307-12554-1-git-send-email-asias@redhat.com>
+	<20130311120327.GE23359@redhat.com>
+	<20130312023109.GF1480@hj.localdomain>
+	<20130312095514.GC22633@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130313031303.GD15369@hj.localdomain>
+In-Reply-To: <20130312095514.GC22633@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,28 +21,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 13/03/2013 04:13, Asias He ha scritto:
->> > This takes dev mutex on data path which will introduce
->> > contention esp for multiqueue.
-> Yes, for now it is okay, but for concurrent execution of multiqueue it is
-> really bad.
+Il 12/03/2013 10:55, Michael S. Tsirkin ha scritto:
+> > Why? Why should qemu prevent from improving the driver and the benefit
+> > to the other user of the driver? Kvm tool is already using it since last
+> > Aug. This adds the missing disk hotplug support to kvm tool.
 > 
-> By the way, what is the overhead of taking and releasing the
-> vs->dev.mutex even if no one contents for it? Is this overhead gnorable.
+> Basically we shouldn't add stuff to kernel for a single user.
+> Before we commit to support features forever, let's take the time
+> to see that the interfaces satisfy the requirements of multiple users.
 
-There is a possibility of cacheline ping-pong, but apart from that it's
-ignorable.
+The userspace components of vhost-scsi do not need any new kernel API to
+get this new feature.  In fact, there is no new kernel API introduced by
+the hotplug/hotunplug patches.
 
->> > How about storing the endpoint as part of vq
->> > private data and protecting with vq mutex?
+> > Plus, this is not a pure "feature", it is designed in virtio-scsi spec. 
 > 
-> Hmm, this makes sense, let's see how well it works.
+> The spec doesn't say it's a mandatory feature or did I miss something?
 
-Then VHOST_SCSI_SET_ENDPOINT would have to go through all vqs, no?  A
-rwlock seems simpler.
+It's not mandatory to support hotplug.  However, it is mandatory for the
+device to provide an event virtqueue, even if it will never report an
+event and it will do nothing with the virtqueue.  For this reason, a
+compliant userspace must already have all the support for this.
 
 Paolo
