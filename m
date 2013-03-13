@@ -1,17 +1,17 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH V2 WIP 2/2] vhost-scsi: new device supporting the
-	tcm_vhost Linux kernel module
-Date: Wed, 13 Mar 2013 10:49:18 +0800
-Message-ID: <20130313024918.GA15369@hj.localdomain>
-References: <1363069782-10735-1-git-send-email-asias@redhat.com>
-	<1363069782-10735-3-git-send-email-asias@redhat.com>
-	<20130312082024.GA18112@stefanha-thinkpad.redhat.com>
+Subject: Re: [PATCH 1/4] tcm_vhost: Add missed lock in
+	vhost_scsi_clear_endpoint()
+Date: Wed, 13 Mar 2013 10:54:44 +0800
+Message-ID: <20130313025444.GB15369__45649.7253188447$1363143325$gmane$org@hj.localdomain>
+References: <1363056171-5854-1-git-send-email-asias@redhat.com>
+	<1363056171-5854-2-git-send-email-asias@redhat.com>
+	<20130312111344.GC6788@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130312082024.GA18112@stefanha-thinkpad.redhat.com>
+In-Reply-To: <20130312111344.GC6788@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,35 +21,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 12, 2013 at 09:20:24AM +0100, Stefan Hajnoczi wrote:
-> On Tue, Mar 12, 2013 at 02:29:42PM +0800, Asias He wrote:
-> > diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-> > index 39c1966..4a97ca1 100644
-> > --- a/hw/virtio-pci.c
-> > +++ b/hw/virtio-pci.c
+On Tue, Mar 12, 2013 at 01:13:44PM +0200, Michael S. Tsirkin wrote:
+> On Tue, Mar 12, 2013 at 10:42:48AM +0800, Asias He wrote:
+> > tv_tpg->tv_tpg_vhost_count should be protected by tv_tpg->tv_tpg_mutex.
+> > 
+> > Signed-off-by: Asias He <asias@redhat.com>
+> > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> > ---
+> >  drivers/vhost/tcm_vhost.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> > 
+> > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+> > index 9951297..b3e50d7 100644
+> > --- a/drivers/vhost/tcm_vhost.c
+> > +++ b/drivers/vhost/tcm_vhost.c
+> > @@ -860,9 +860,11 @@ static int vhost_scsi_clear_endpoint(
+> >  		if (!tv_tpg)
+> >  			continue;
+> >  
+> > +		mutex_lock(&tv_tpg->tv_tpg_mutex);
+> >  		tv_tport = tv_tpg->tport;
+> >  		if (!tv_tport) {
+> >  			ret = -ENODEV;
+> > +			mutex_unlock(&tv_tpg->tv_tpg_mutex);
+> >  			goto err;
+> >  		}
+> >  
+> > @@ -872,11 +874,13 @@ static int vhost_scsi_clear_endpoint(
+> >  				tv_tport->tport_name, tv_tpg->tport_tpgt,
+> >  				t->vhost_wwpn, t->vhost_tpgt);
+> >  			ret = -EINVAL;
+> > +			mutex_unlock(&tv_tpg->tv_tpg_mutex);
+> >  			goto err;
+> >  		}
+> >  		tv_tpg->tv_tpg_vhost_count--;
+> >  		vs->vs_tpg[target] = NULL;
+> >  		vs->vs_endpoint = false;
+> > +		mutex_unlock(&tv_tpg->tv_tpg_mutex);
+> >  	}
+> >  	mutex_unlock(&vs->dev.mutex);
+> >  	return 0;
 > 
-> These changes break the build for non-Linux hosts.  Please introduce a
-> CONFIG_VHOST_SCSI and #ifdef appropriate sections in hw/virtio-pci.c.
-> 
-> CONFIG_VIRTFS does the same thing.
+> Does the error handling have to be so messy?
+> How about another label which does unlock and goto there?
 
-okay.
+Well, I will do it.
 
-> > +static Property vhost_scsi_properties[] = {
-> > +    DEFINE_PROP_BIT("ioeventfd", VirtIOPCIProxy, flags, VIRTIO_PCI_FLAG_USE_IOEVENTFD_BIT, true),
-> 
-> This flag makes QEMU's virtqueue handling use ioeventfd.  Since the
-> vhost-scsi.c takes over the guest/host notifiers, we never do QEMU
-> virtqueue processing and the "ioeventfd" flag has no real meaning.  You
-> can drop it.
-
-okay.
-
-Thanks, Stefan!
+> > -- 
+> > 1.8.1.4
 
 -- 
 Asias
