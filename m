@@ -1,17 +1,14 @@
-From: sjur.brandeland@stericsson.com
-Subject: [PATCHv2] Revert "virtio_console: Initialize guest_connected=true for
-	rproc_serial"
-Date: Wed, 13 Mar 2013 12:10:48 +0100
-Message-ID: <1363173048-8247-1-git-send-email-sjur.brandeland@stericsson.com>
-References: <1363014900-6425-1-git-send-email-sjur.brandeland@stericsson.com>
-	<20130312073446.GB6786@amit.redhat.com>
-	<CANHm3PgQuT=98dM2gU8mkN=RxzD9ruQ+cqa_NGKv2kZwS46c=Q@mail.gmail.com>
-	<20130313100322.GB16740@amit.redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: vhost questions.
+Date: Wed, 13 Mar 2013 17:59:16 +0200
+Message-ID: <20130313155916.GC14892@redhat.com>
+References: <874ngfvlo0.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130313100322.GB16740@amit.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <874ngfvlo0.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,53 +18,154 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, amit.shah@redhat.com
-Cc: sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, =?UTF-8?q?Sjur=20Br=C3=83=C2=A6ndeland?= <sjur.brandeland@stericsson.com>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogU2p1ciBCcsODwqZuZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+
-CgoKVGhpcyByZXZlcnRzIGNvbW1pdCA4MDc4ZGI3ODlhOTJiMTBmZjZlMmQ3MTMyMzFiNTM2N2Uw
-MTRjNTNiLCBhbmQKYWRkcyBhIGxlbmd0aHkgY29tbWVudCBleHBsYWluaW5nIHRoZSBwcm9ibGVt
-IGFyZWEuCgpUaGUgcmV2ZXJ0ZWQgcGF0Y2ggY2F1c2VkIG9wZW5pbmcgb2YgcG9ydHMgdG8gZmFp
-bCBmb3IgcnByb2Nfc2VyaWFsLgpJbiBwcm9iZSBndWVzdF9jb25uZWN0ZWQgd2FzIHNldCB0byB0
-cnVlLCBidXQgcG9ydF9mb3BzX29wZW4oKQpmYWlscyB3aXRoIC1FTUZJTEUgaWYgZ3Vlc3RfY29u
-bmVjdGVkIGFscmVhZHkgaXMgdHJ1ZS4KClNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQg
-PHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KLS0tCiBkcml2ZXJzL2NoYXIvdmlydGlv
-X2NvbnNvbGUuYyB8ICAgMjIgKysrKysrKysrKysrKysrKy0tLS0tLQogMSBmaWxlcyBjaGFuZ2Vk
-LCAxNiBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-Y2hhci92aXJ0aW9fY29uc29sZS5jIGIvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKaW5k
-ZXggZTkwNWQ1Zi4uZTZiYTZiNyAxMDA2NDQKLS0tIGEvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25z
-b2xlLmMKKysrIGIvZHJpdmVycy9jaGFyL3ZpcnRpb19jb25zb2xlLmMKQEAgLTE0MzYsNyArMTQz
-Niw3IEBAIHN0YXRpYyBpbnQgYWRkX3BvcnQoc3RydWN0IHBvcnRzX2RldmljZSAqcG9ydGRldiwg
-dTMyIGlkKQogCQkgKiBycHJvY19zZXJpYWwgZG9lcyBub3Qgd2FudCB0aGUgY29uc29sZSBwb3J0
-LCBvbmx5CiAJCSAqIHRoZSBnZW5lcmljIHBvcnQgaW1wbGVtZW50YXRpb24uCiAJCSAqLwotCQlw
-b3J0LT5ob3N0X2Nvbm5lY3RlZCA9IHBvcnQtPmd1ZXN0X2Nvbm5lY3RlZCA9IHRydWU7CisJCXBv
-cnQtPmhvc3RfY29ubmVjdGVkID0gdHJ1ZTsKIAllbHNlIGlmICghdXNlX211bHRpcG9ydChwb3J0
-LT5wb3J0ZGV2KSkgewogCQkvKgogCQkgKiBJZiB3ZSdyZSBub3QgdXNpbmcgbXVsdGlwb3J0IHN1
-cHBvcnQsCkBAIC0xNzUyLDEzICsxNzUyLDIzIEBAIHN0YXRpYyB2b2lkIGluX2ludHIoc3RydWN0
-IHZpcnRxdWV1ZSAqdnEpCiAJcG9ydC0+aW5idWYgPSBnZXRfaW5idWYocG9ydCk7CiAKIAkvKgot
-CSAqIERvbid0IHF1ZXVlIHVwIGRhdGEgd2hlbiBwb3J0IGlzIGNsb3NlZC4gIFRoaXMgY29uZGl0
-aW9uCisJICogTm9ybWFsbHkgdGhlIHBvcnQgc2hvdWxkIG5vdCBhY2NlcHQgZGF0YSB3aGVuIHRo
-ZSBwb3J0IGlzCisJICogY2xvc2VkLiBGb3IgZ2VuZXJpYyBzZXJpYWwgcG9ydHMsIHRoZSBob3N0
-IHdvbid0IChzaG91bGRuJ3QpCisJICogc2VuZCBkYXRhIHRpbGwgdGhlIGd1ZXN0IGlzIGNvbm5l
-Y3RlZC4gQnV0IHRoaXMgY29uZGl0aW9uCiAJICogY2FuIGJlIHJlYWNoZWQgd2hlbiBhIGNvbnNv
-bGUgcG9ydCBpcyBub3QgeWV0IGNvbm5lY3RlZCAobm8KLQkgKiB0dHkgaXMgc3Bhd25lZCkgYW5k
-IHRoZSBob3N0IHNlbmRzIG91dCBkYXRhIHRvIGNvbnNvbGUKLQkgKiBwb3J0cy4gIEZvciBnZW5l
-cmljIHNlcmlhbCBwb3J0cywgdGhlIGhvc3Qgd29uJ3QKLQkgKiAoc2hvdWxkbid0KSBzZW5kIGRh
-dGEgdGlsbCB0aGUgZ3Vlc3QgaXMgY29ubmVjdGVkLgorCSAqIHR0eSBpcyBzcGF3bmVkKSBhbmQg
-dGhlIG90aGVyIHNpZGUgc2VuZHMgb3V0IGRhdGEgb3ZlciB0aGUKKwkgKiB2cmluZywgb3Igd2hl
-biBhIHJlbW90ZSBkZXZpY2VzIHN0YXJ0IHNlbmRpbmcgZGF0YSBiZWZvcmUKKwkgKiB0aGUgcG9y
-dHMgYXJlIG9wZW5lZC4KKwkgKgorCSAqIEEgZ2VuZXJpYyBzZXJpYWwgcG9ydCB3aWxsIGRpc2Nh
-cmQgZGF0YSBpZiBub3QgY29ubmVjdGVkLAorCSAqIHdoaWxlIGNvbnNvbGUgcG9ydHMgYW5kIHJw
-cm9jLXNlcmlhbCBwb3J0cyBhY2NlcHRzIGRhdGEgYXQKKwkgKiBhbnkgdGltZS4gcnByb2Mtc2Vy
-aWFsIGlzIGluaXRpYXRlZCB3aXRoIGd1ZXN0X2Nvbm5lY3RlZCB0bworCSAqIGZhbHNlIGJlY2F1
-c2UgcG9ydF9mb3BzX29wZW4gZXhwZWN0cyB0aGlzLiBDb25zb2xlIHBvcnRzIGFyZQorCSAqIGhv
-b2tlZCB1cCB3aXRoIGFuIEhWQyBjb25zb2xlIGFuZCBpcyBpbml0aWFsaXplZCB3aXRoCisJICog
-Z3Vlc3RfY29ubmVjdGVkIHRvIHRydWUuCiAJICovCi0JaWYgKCFwb3J0LT5ndWVzdF9jb25uZWN0
-ZWQpCisKKwlpZiAoIXBvcnQtPmd1ZXN0X2Nvbm5lY3RlZCAmJiAhaXNfcnByb2Nfc2VyaWFsKHBv
-cnQtPnBvcnRkZXYtPnZkZXYpKQogCQlkaXNjYXJkX3BvcnRfZGF0YShwb3J0KTsKIAogCXNwaW5f
-dW5sb2NrX2lycXJlc3RvcmUoJnBvcnQtPmluYnVmX2xvY2ssIGZsYWdzKTsKLS0gCjEuNy41LjQK
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
-emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
-Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
-aXJ0dWFsaXphdGlvbg==
+On Wed, Mar 13, 2013 at 05:19:51PM +1030, Rusty Russell wrote:
+> OK, I've been trying to read the vhost and vhost net code, and I'm
+> struggling with basic questions.
+> 
+> 1) Why do we allow userspace to change an already-set-up vhost device?
+>    Why not have:
+>         open()
+>         ioctl(VHOST_GET_FEATURES)
+>         ioctl(VHOST_SET_VRING) x n (sets num, addresses, kick/call/err fds)
+>         ioctl(VHOST_NET_SETUP)
+>         ...
+>         close()
+> 
+>    You're not allowed to call things twice: to reset, you close and
+>    reopen.  That would save a lot of code which I'm not sure is correct
+>    anyway.
+
+This won't work for the usecases we have in qemu.
+The way things are setup currently, qemu typically does not have
+the rights to open any char devices, instead it is passed an fd.
+
+
+> 2) Why do we implement write logging?  Shouldn't qemu just switch to
+>    emulation if it wants to track writes?
+
+We could do it this way.  Originally vhost didn't do logging,
+but Anthony felt it's cleaner this way.  We argued this way and that, in
+the end I agreed it's better to always process rings in vhost, leave
+userspace alone. For example this allows a simpler userspace that does
+not implement tx/rx ring processing at all.
+
+> 3) Why do we have our own workqueue implementation?
+
+We used to use a workqueue, but Tejun Heo required this switch.
+Basically we want everything run from one thread so we
+can apply cgroup limits to this thread. workqueue does not
+guarantee it - one thread is an implementation detail.
+
+> vhost/net.c questions:
+> 
+> 1) Why do we wake the net tx worker every time the reference count of
+>    the number of outstanding DMAs is a multiple of 16?
+
+Waking every time turns out to be wasteful. Waking only when nothing is
+outstanding turns out to be slow. The comment says it all really:
+
++        * We also trigger polling periodically after each 16 packets
++        * (the value 16 here is more or less arbitrary, it's tuned to trigger
++        * less than 10% of times).
+
+If you have any suggestions on how to improve this,
+
+> 
+> 3) Why don't we simply use a slab allocator to allocate a structure for
+>    outstanding xmit dmas?  Wouldn't that be far simpler?  Would it be
+>    slower?
+
+Which structure for outstanding xmit dmas? ubufs?  We could use a cache
+maybe, plan slab is usually pretty slow.
+
+I think what you are really worried about is the upend/done index thing?
+It's not really there because of the array really.
+It's because we try to order the completion of zero copy buffers
+in the same order they are submitted. This was because I was worried about
+triggering fragmentation of the descriptor ring (Avi kept raising this
+concern).
+
+
+> 4) Why are the following fields in struct vhost_virtqueue, not struct
+>    vhost_net?
+> 
+> 	/* hdr is used to store the virtio header.
+> 	 * Since each iovec has >= 1 byte length, we never need more than
+> 	 * header length entries to store the header. */
+> 	struct iovec hdr[sizeof(struct virtio_net_hdr_mrg_rxbuf)];
+> 	size_t vhost_hlen;
+> 	size_t sock_hlen;
+> 	struct vring_used_elem *heads;
+> 
+>         ...
+
+Because these are used for both tx and rx.  While we handle both from
+the same thread at the moment, so we could reuse same fields, there are
+some patches by Anthony that process tx and rx in separate threads and
+sometimes it's a win. So I don't want to close the door on that.
+
+> 
+> 	/* vhost zerocopy support fields below: */
+> 	/* last used idx for outstanding DMA zerocopy buffers */
+> 	int upend_idx;
+> 	/* first used idx for DMA done zerocopy buffers */
+> 	int done_idx;
+> 	/* an array of userspace buffers info */
+> 	struct ubuf_info *ubuf_info;
+> 	/* Reference counting for outstanding ubufs.
+> 	 * Protected by vq mutex. Writers must also take device mutex. */
+> 	struct vhost_ubuf_ref *ubufs;
+
+Only used from tx. I was trying to keep the option of multiple
+tx rings in one vhost, and the option of rx zero copy open, but it's not
+a must.
+
+> 5) Why does vhost_net use the sendmsg interface for tun (and macvlan?)?
+>    It's not usable from userspace (it looks like if you can sendmsg to a
+>    tun device you can make it call an arbitrary pointer though).
+
+Yes we could switch to some other interface, but only if we
+deprecate the packet socket backend and remove it at some point.
+
+>    It would be better for us to create the skb, and have a special
+>    interface to inject it directly.  This way we can handle the
+>    UIO_MAXIOV limit ourselves (eg. by not doing zero copy on such stupid
+>    cases).
+
+Basically because userspace already configures the backend with existing
+tun ioctls. This way we don't need to introduce new interfaces for this,
+just virtio stuff for vhost net.  It's also good that we share code with
+tun, often both vhost and virtio processing can gain from same
+optimizations and new features. Happened in the past already.
+
+Basically not many people care about virt. The less virt specific
+code we have the better.  I lost count of times I had this dialog when I
+needed some help
+- we see this problem XYZ in host net stack
+- oh it's vhost I don't know what it does, sorry
+- actually it only builds up iovecs all networking is done by tun that
+  everyone uses
+- ok then let me take a look
+
+> 6) By calling tun_get_socket() and macvtap_get_socket() we are forcing
+>    those modules to load.  We should use symbol_get() to avoid this.
+
+Good idea.
+
+> In short, this code is a mess.  Assuming we can't just break the API,
+> we've got a long process ahead of us to get it into shape :(
+> 
+> Thanks,
+> Rusty.
+
+Zerocopy path is the most messy I think.  We should really consider
+removing the ordering of zero copy buffers. The rest I don't consider
+so messy, and it should be easy to cleanup zerocopy without
+breaking the API.
+
+-- 
+MST
