@@ -1,7 +1,7 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: vhost questions.
-Date: Wed, 13 Mar 2013 17:19:51 +1030
-Message-ID: <874ngfvlo0.fsf@rustcorp.com.au>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH V2 0/3] tcm_vhost lock and flush fix
+Date: Wed, 13 Mar 2013 15:34:12 +0800
+Message-ID: <1363160055-24605-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,80 +15,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: virtualization@lists.linux-foundation.org
+To: Nicholas Bellinger <nab@linux-iscsi.org>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-OK, I've been trying to read the vhost and vhost net code, and I'm
-struggling with basic questions.
+Changes in v2
+- Use vq->private_data insteadof vs->vs_endpoint 
+- Add label in vhost_scsi_clear_endpoint to simply unlock code. 
 
-1) Why do we allow userspace to change an already-set-up vhost device?
-   Why not have:
-        open()
-        ioctl(VHOST_GET_FEATURES)
-        ioctl(VHOST_SET_VRING) x n (sets num, addresses, kick/call/err fds)
-        ioctl(VHOST_NET_SETUP)
-        ...
-        close()
+Asias He (3):
+  tcm_vhost: Add missed lock in vhost_scsi_clear_endpoint()
+  tcm_vhost: Flush vhost_work in vhost_scsi_flush()
+  tcm_vhost: Use vq->private_data to indicate if the endpoint is setup
 
-   You're not allowed to call things twice: to reset, you close and
-   reopen.  That would save a lot of code which I'm not sure is correct
-   anyway.
+ drivers/vhost/tcm_vhost.c | 56 ++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 46 insertions(+), 10 deletions(-)
 
-2) Why do we implement write logging?  Shouldn't qemu just switch to
-   emulation if it wants to track writes?
-
-3) Why do we have our own workqueue implementation?
-
-vhost/net.c questions:
-
-1) Why do we wake the net tx worker every time the reference count of
-   the number of outstanding DMAs is a multiple of 16?
-
-2) Why is vhost_ubuf_ref kmalloced, rather than a structure member?
-
-3) Why don't we simply use a slab allocator to allocate a structure for
-   outstanding xmit dmas?  Wouldn't that be far simpler?  Would it be
-   slower?
-
-4) Why are the following fields in struct vhost_virtqueue, not struct
-   vhost_net?
-
-	/* hdr is used to store the virtio header.
-	 * Since each iovec has >= 1 byte length, we never need more than
-	 * header length entries to store the header. */
-	struct iovec hdr[sizeof(struct virtio_net_hdr_mrg_rxbuf)];
-	size_t vhost_hlen;
-	size_t sock_hlen;
-	struct vring_used_elem *heads;
-
-        ...
-
-	/* vhost zerocopy support fields below: */
-	/* last used idx for outstanding DMA zerocopy buffers */
-	int upend_idx;
-	/* first used idx for DMA done zerocopy buffers */
-	int done_idx;
-	/* an array of userspace buffers info */
-	struct ubuf_info *ubuf_info;
-	/* Reference counting for outstanding ubufs.
-	 * Protected by vq mutex. Writers must also take device mutex. */
-	struct vhost_ubuf_ref *ubufs;
-
-5) Why does vhost_net use the sendmsg interface for tun (and macvlan?)?
-   It's not usable from userspace (it looks like if you can sendmsg to a
-   tun device you can make it call an arbitrary pointer though).
-
-   It would be better for us to create the skb, and have a special
-   interface to inject it directly.  This way we can handle the
-   UIO_MAXIOV limit ourselves (eg. by not doing zero copy on such stupid
-   cases).
-
-6) By calling tun_get_socket() and macvtap_get_socket() we are forcing
-   those modules to load.  We should use symbol_get() to avoid this.
-
-In short, this code is a mess.  Assuming we can't just break the API,
-we've got a long process ahead of us to get it into shape :(
-
-Thanks,
-Rusty.
+-- 
+1.8.1.4
