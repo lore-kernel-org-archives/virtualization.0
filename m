@@ -1,17 +1,19 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH V2 3/3] tcm_vhost: Use vq->private_data to indicate if
-	the endpoint is setup
-Date: Thu, 14 Mar 2013 10:07:33 +0800
-Message-ID: <20130314020733.GB25896@hj.localdomain>
-References: <1363160055-24605-1-git-send-email-asias@redhat.com>
-	<1363160055-24605-4-git-send-email-asias@redhat.com>
-	<51403F49.7090809@redhat.com>
+Subject: Re: [PATCH 3/4] tcm_vhost: Fix vs->vs_endpoint checking in
+	vhost_scsi_handle_vq()
+Date: Thu, 14 Mar 2013 10:12:40 +0800
+Message-ID: <20130314021239.GC25896@hj.localdomain>
+References: <1363056171-5854-1-git-send-email-asias@redhat.com>
+	<1363056171-5854-4-git-send-email-asias@redhat.com>
+	<20130312111119.GA6788@redhat.com>
+	<20130313031303.GD15369@hj.localdomain>
+	<5140329E.6090408@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <51403F49.7090809@redhat.com>
+In-Reply-To: <5140329E.6090408@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,164 +27,35 @@ To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 13, 2013 at 09:56:41AM +0100, Paolo Bonzini wrote:
-> Il 13/03/2013 08:34, Asias He ha scritto:
-> > Currently, vs->vs_endpoint is used indicate if the endpoint is setup or
-> > not. It is set or cleared in vhost_scsi_set_endpoint() or
-> > vhost_scsi_clear_endpoint() under the vs->dev.mutex lock. However, when
-> > we check it in vhost_scsi_handle_vq(), we ignored the lock, this is
-> > wrong.
+On Wed, Mar 13, 2013 at 09:02:38AM +0100, Paolo Bonzini wrote:
+> Il 13/03/2013 04:13, Asias He ha scritto:
+> >> > This takes dev mutex on data path which will introduce
+> >> > contention esp for multiqueue.
+> > Yes, for now it is okay, but for concurrent execution of multiqueue it is
+> > really bad.
 > > 
-> > Instead of using the vs->vs_endpoint and the vs->dev.mutex lock to
-> > indicate the status of the endpoint, we use per virtqueue
-> > vq->private_data to indicate it. In this way, we can only take the
-> > vq->mutex lock which is per queue and make the concurrent multiqueue
-> > process having less lock contention. Further, in the read side of
-> > vq->private_data, we can even do not take only lock if it is accessed in
-> > the vhost worker thread, because it is protected by "vhost rcu".
-> > 
-> > Signed-off-by: Asias He <asias@redhat.com>
-> > ---
-> >  drivers/vhost/tcm_vhost.c | 43 +++++++++++++++++++++++++++++++++++++------
-> >  1 file changed, 37 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> > index 43fb11e..094fb10 100644
-> > --- a/drivers/vhost/tcm_vhost.c
-> > +++ b/drivers/vhost/tcm_vhost.c
-> > @@ -67,7 +67,6 @@ struct vhost_scsi {
-> >  	/* Protected by vhost_scsi->dev.mutex */
-> >  	struct tcm_vhost_tpg *vs_tpg[VHOST_SCSI_MAX_TARGET];
-> >  	char vs_vhost_wwpn[TRANSPORT_IQN_LEN];
-> > -	bool vs_endpoint;
-> >  
-> >  	struct vhost_dev dev;
-> >  	struct vhost_virtqueue vqs[VHOST_SCSI_MAX_VQ];
-> > @@ -91,6 +90,22 @@ static int iov_num_pages(struct iovec *iov)
-> >  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
-> >  }
-> >  
-> > +static bool tcm_vhost_check_endpoint(struct vhost_virtqueue *vq)
-> > +{
-> > +	bool ret = false;
-> > +
-> > +	/*
-> > +	 * We can handle the vq only after the endpoint is setup by calling the
-> > +	 * VHOST_SCSI_SET_ENDPOINT ioctl.
-> > +	 *
-> > +	 * TODO: check that we are running from vhost_worker?
-> > +	 */
-> > +	if (rcu_dereference_check(vq->private_data, 1))
-> > +		ret = true;
-> > +
-> > +	return ret;
-> > +}
-> > +
-> >  static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
-> >  {
-> >  	return 1;
-> > @@ -581,8 +596,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
-> >  	int head, ret;
-> >  	u8 target;
-> >  
-> > -	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
-> > -	if (unlikely(!vs->vs_endpoint))
-> > +	if (!tcm_vhost_check_endpoint(vq))
-> >  		return;
+> > By the way, what is the overhead of taking and releasing the
+> > vs->dev.mutex even if no one contents for it? Is this overhead gnorable.
 > 
-> You would still need at least a rcu_read_lock/unlock (actually srcu,
-> since vhost_scsi_handle_vq can sleep)...
+> There is a possibility of cacheline ping-pong, but apart from that it's
+> ignorable.
 
-See handle_rx() and handle_rx() in drivers/vhost/net.c
+Ah, thanks!
 
-   /* Expects to be always run from workqueue - which acts as
-    * read-size critical section for our kind of RCU. */
-
-This is how vhost works, no? 
-
-But, personally, I would prefer to use explicit locking instead of this
-trick.
-
-> >  	mutex_lock(&vq->mutex);
-> > @@ -781,8 +795,9 @@ static int vhost_scsi_set_endpoint(
-> >  {
-> >  	struct tcm_vhost_tport *tv_tport;
-> >  	struct tcm_vhost_tpg *tv_tpg;
-> > +	struct vhost_virtqueue *vq;
-> >  	bool match = false;
-> > -	int index, ret;
-> > +	int index, ret, i;
-> >  
-> >  	mutex_lock(&vs->dev.mutex);
-> >  	/* Verify that ring has been setup correctly. */
-> > @@ -826,7 +841,13 @@ static int vhost_scsi_set_endpoint(
-> >  	if (match) {
-> >  		memcpy(vs->vs_vhost_wwpn, t->vhost_wwpn,
-> >  		       sizeof(vs->vs_vhost_wwpn));
-> > -		vs->vs_endpoint = true;
-> > +		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
-> > +			vq = &vs->vqs[i];
-> > +			mutex_lock(&vq->mutex);
-> > +			rcu_assign_pointer(vq->private_data, vs);
-> > +			vhost_init_used(vq);
-> > +			mutex_unlock(&vq->mutex);
+> >> > How about storing the endpoint as part of vq
+> >> > private data and protecting with vq mutex?
+> > 
+> > Hmm, this makes sense, let's see how well it works.
 > 
-> ... and a synchronize_srcu here.  But this is not correct use of RCU.
-> To use RCU correctly, you need to _copy_ (that's the "C" in RCU) the
-> whole vs structure on every set_endpoint or clear_endpoint operation,
-> and free it after synchronize_srcu returns.
+> Then VHOST_SCSI_SET_ENDPOINT would have to go through all vqs, no?  A
+> rwlock seems simpler.
 
-See the comments in struct vhost_virtqueue in drivers/vhost/vhost.h
+VHOST_SCSI_SET_ENDPOINT operation is not on the data path, it
+is fine to go through all vqs, it's just a loop.
 
-	/* We use a kind of RCU to access private pointer.
-	 * All readers access it from worker, which makes it possible to
-	 * flush the vhost_work instead of synchronize_rcu. Therefore readers do
-	 * not need to call rcu_read_lock/rcu_read_unlock: the beginning of
-	 * vhost_work execution acts instead of rcu_read_lock() and the end of
-	 * vhost_work execution acts instead of rcu_read_unlock().
-	 * Writers use virtqueue mutex. */
-	 void __rcu *private_data;
-
-> What you're trying to do is really an rwlock, just use that. :)
-
-Yes, but the downside is that it introduces another lock.
+For the rwlock thing, let's discuss it on the other thread.
 
 > Paolo
-> 
-> > +		}
-> >  		ret = 0;
-> >  	} else {
-> >  		ret = -EEXIST;
-> > @@ -842,6 +863,8 @@ static int vhost_scsi_clear_endpoint(
-> >  {
-> >  	struct tcm_vhost_tport *tv_tport;
-> >  	struct tcm_vhost_tpg *tv_tpg;
-> > +	struct vhost_virtqueue *vq;
-> > +	bool match = false;
-> >  	int index, ret, i;
-> >  	u8 target;
-> >  
-> > @@ -877,9 +900,17 @@ static int vhost_scsi_clear_endpoint(
-> >  		}
-> >  		tv_tpg->tv_tpg_vhost_count--;
-> >  		vs->vs_tpg[target] = NULL;
-> > -		vs->vs_endpoint = false;
-> > +		match = true;
-> >  		mutex_unlock(&tv_tpg->tv_tpg_mutex);
-> >  	}
-> > +	if (match) {
-> > +		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
-> > +			vq = &vs->vqs[i];
-> > +			mutex_lock(&vq->mutex);
-> > +			rcu_assign_pointer(vq->private_data, NULL);
-> > +			mutex_unlock(&vq->mutex);
-> > +		}
-> > +	}
-> >  	mutex_unlock(&vs->dev.mutex);
-> >  	return 0;
-> >  
-> > 
-> 
 
 -- 
 Asias
