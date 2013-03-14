@@ -1,18 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V2 WIP 0/2] vhost-scsi: new device supporting the
-	tcm_vhost Linux kernel module
-Date: Thu, 14 Mar 2013 12:21:19 +0200
-Message-ID: <20130314102119.GA16859@redhat.com>
-References: <1363069782-10735-1-git-send-email-asias@redhat.com>
-	<20130314042514.GA28504@hj.localdomain>
-	<20130314092542.GB7892@hj.localdomain>
-	<20130314094643.GD14977@redhat.com> <51419FB8.6010805@redhat.com>
+Subject: [PATCH] virtio-spec: add field for scsi command size
+Date: Thu, 14 Mar 2013 13:10:20 +0200
+Message-ID: <20130314111020.GA18050@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <51419FB8.6010805@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,74 +16,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 14, 2013 at 11:00:24AM +0100, Paolo Bonzini wrote:
-> 
-> >> --------------- 8 ---------------> seabios patch:
-> >> diff --git a/src/virtio-scsi.c b/src/virtio-scsi.c
-> >> index 879ddfb..4de1255 100644
-> >> --- a/src/virtio-scsi.c
-> >> +++ b/src/virtio-scsi.c
-> >> @@ -147,6 +147,9 @@ init_virtio_scsi(struct pci_device *pci)
-> >>          goto fail;
-> >>      }
-> >>  
-> >> +    vp_set_status(ioaddr, VIRTIO_CONFIG_S_ACKNOWLEDGE |
-> >> +                  VIRTIO_CONFIG_S_DRIVER | VIRTIO_CONFIG_S_DRIVER_OK);
-> >> +
-> >>      int i, tot;
-> >>      for (tot = 0, i = 0; i < 256; i++)
-> >>          tot += virtio_scsi_scan_target(pci, ioaddr, vq, i);
-> >> @@ -154,8 +157,6 @@ init_virtio_scsi(struct pci_device *pci)
-> >>      if (!tot)
-> >>          goto fail;
-> >>  
-> >> -    vp_set_status(ioaddr, VIRTIO_CONFIG_S_ACKNOWLEDGE |
-> >> -                  VIRTIO_CONFIG_S_DRIVER | VIRTIO_CONFIG_S_DRIVER_OK);
-> >>      return;
-> >>  
-> >>  fail:
-> 
-> ACK.
-> 
-> >> diff --git a/src/virtio-scsi.h b/src/virtio-scsi.h
-> >> index bbfbf30..96c3701 100644
-> >> --- a/src/virtio-scsi.h
-> >> +++ b/src/virtio-scsi.h
-> >> @@ -26,7 +26,7 @@ struct virtio_scsi_req_cmd {
-> >>      u8 prio;
-> >>      u8 crn;
-> >>      char cdb[VIRTIO_SCSI_CDB_SIZE];
-> >> -};
-> >> +} __attribute__((packed));
-> >>  
-> >>  /* This is the first element of the "in" scatter-gather list. */
-> >>  struct virtio_scsi_resp_cmd {
-> >> @@ -36,7 +36,7 @@ struct virtio_scsi_resp_cmd {
-> >>      u8 status;
-> >>      u8 response;
-> >>      u8 sense[VIRTIO_SCSI_SENSE_SIZE];
-> >> -};
-> >> +} __attribute__((packed));
-> >>  
-> >>  #define VIRTIO_SCSI_S_OK            0
-> > 
-> > I see, the padding creates the problem?
-> 
-> Looks like it does for req_cmd (which has length 51 and is padded to
-> 56).  QEMU incorrectly relies on the framing.
+Add field for guest to specify command size for virtio-blk.
 
-That's bad though. Let's fix this in qemu.
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ virtio-spec.lyx | 83 +++++++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 78 insertions(+), 5 deletions(-)
 
-> Both of these are SeaBIOS bugs, please do submit the patch.
-> 
-> Paolo
-
-Right but in parallel we can use the old BIOS to
-make sure qemu does not rely on framing.
-
+diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+index a8ce3f9..fea97ed 100644
+--- a/virtio-spec.lyx
++++ b/virtio-spec.lyx
+@@ -5826,6 +5826,16 @@ VIRTIO_BLK_F_TOPOLOGY (10) Device exports information on optimal I/O alignment.
+ \change_inserted 1531152142 1341302349
+ VIRTIO_BLK_F_CONFIG_WCE (11) Device can toggle its cache between writeback
+  and writethrough modes.
++\change_inserted 1986246365 1363257418
++
++\end_layout
++
++\begin_layout Description
++
++\change_inserted 1986246365 1363258629
++VIRTIO_BLK_F_CMD_SIZE (12) cmd_size field is valid.
++\change_inserted 1531152142 1341302349
++
+ \end_layout
+ 
+ \end_deeper
+@@ -5994,6 +6004,30 @@ struct virtio_blk_config {
+ \change_inserted 1531152142 1341301918
+ 
+     u8 writeback;
++\change_inserted 1986246365 1363257385
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1363258610
++
++    u8 reserved[3];
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1363259147
++
++    // buffer length for cmd field in requests.
++ reset value 0.
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1363257810
++
++    u32 cmd_size;
+ \change_unchanged
+ 
+ \end_layout
+@@ -6085,6 +6119,21 @@ Until version 1.1, QEMU remained in writeback mode even after a guest announced
+ \end_inset
+ 
+ .
++\change_inserted 1986246365 1363258989
++
++\end_layout
++
++\begin_layout Enumerate
++
++\change_inserted 1986246365 1363259237
++If VIRTIO_BLK_F_SCSI_CMD_SIZE is negotiated, Guest should set the desired
++ size for scsi commands to the 
++\emph on
++cmd_size 
++\emph default
++field.
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Section*
+@@ -6369,8 +6418,33 @@ cmd
+ \emph default
+  field is only present for scsi packet command requests, and indicates the
+  command to perform.
+- This field must reside in a single, separate read-only buffer; command
+- length can be derived from the length of this buffer.
++ 
++\change_inserted 1986246365 1363258881
++If VIRTIO_BLK_F_SCSI_CMD_SIZE feature bit is negotiated, Guest must set
++ the command length by writing it to the cmd_size field in configuration
++ space
++\begin_inset Foot
++status open
++
++\begin_layout Plain Layout
++
++\change_inserted 1986246365 1363258931
++Guest should always set cmd_size during initialization.
++\change_unchanged
++
++\end_layout
++
++\end_inset
++
++.
++ If VIRTIO_BLK_F_SCSI_CMD_SIZE is not negotiated, 
++\change_deleted 1986246365 1363258703
++T
++\change_inserted 1986246365 1363258703
++t
++\change_unchanged
++his field must reside in a single, separate read-only buffer; command length
++ can be derived from the length of this buffer.
+  
+ \end_layout
+ 
 -- 
 MST
