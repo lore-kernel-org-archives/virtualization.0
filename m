@@ -1,14 +1,17 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: vhost questions.
-Date: Thu, 14 Mar 2013 17:08:22 +1030
-Message-ID: <87wqtatrj5.fsf@rustcorp.com.au>
-References: <874ngfvlo0.fsf@rustcorp.com.au>
-	<20130313155916.GC14892@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH V2 3/3] tcm_vhost: Use vq->private_data to indicate if
+	the endpoint is setup
+Date: Thu, 14 Mar 2013 09:37:23 +0100
+Message-ID: <51418C43.50301@redhat.com>
+References: <1363160055-24605-1-git-send-email-asias@redhat.com>
+	<1363160055-24605-4-git-send-email-asias@redhat.com>
+	<51403F49.7090809@redhat.com>
+	<20130314020733.GB25896@hj.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130313155916.GC14892@redhat.com>
+In-Reply-To: <20130314020733.GB25896@hj.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,213 +21,174 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> On Wed, Mar 13, 2013 at 05:19:51PM +1030, Rusty Russell wrote:
->> OK, I've been trying to read the vhost and vhost net code, and I'm
->> struggling with basic questions.
->> 
->> 1) Why do we allow userspace to change an already-set-up vhost device?
->>    Why not have:
->>         open()
->>         ioctl(VHOST_GET_FEATURES)
->>         ioctl(VHOST_SET_VRING) x n (sets num, addresses, kick/call/err fds)
->>         ioctl(VHOST_NET_SETUP)
->>         ...
->>         close()
->> 
->>    You're not allowed to call things twice: to reset, you close and
->>    reopen.  That would save a lot of code which I'm not sure is correct
->>    anyway.
->
-> This won't work for the usecases we have in qemu.
-> The way things are setup currently, qemu typically does not have
-> the rights to open any char devices, instead it is passed an fd.
+Il 14/03/2013 03:07, Asias He ha scritto:
+> On Wed, Mar 13, 2013 at 09:56:41AM +0100, Paolo Bonzini wrote:
+>> Il 13/03/2013 08:34, Asias He ha scritto:
+>>> Currently, vs->vs_endpoint is used indicate if the endpoint is setup or
+>>> not. It is set or cleared in vhost_scsi_set_endpoint() or
+>>> vhost_scsi_clear_endpoint() under the vs->dev.mutex lock. However, when
+>>> we check it in vhost_scsi_handle_vq(), we ignored the lock, this is
+>>> wrong.
+>>>
+>>> Instead of using the vs->vs_endpoint and the vs->dev.mutex lock to
+>>> indicate the status of the endpoint, we use per virtqueue
+>>> vq->private_data to indicate it. In this way, we can only take the
+>>> vq->mutex lock which is per queue and make the concurrent multiqueue
+>>> process having less lock contention. Further, in the read side of
+>>> vq->private_data, we can even do not take only lock if it is accessed in
+>>> the vhost worker thread, because it is protected by "vhost rcu".
+>>>
+>>> Signed-off-by: Asias He <asias@redhat.com>
+>>> ---
+>>>  drivers/vhost/tcm_vhost.c | 43 +++++++++++++++++++++++++++++++++++++------
+>>>  1 file changed, 37 insertions(+), 6 deletions(-)
+>>>
+>>> diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+>>> index 43fb11e..094fb10 100644
+>>> --- a/drivers/vhost/tcm_vhost.c
+>>> +++ b/drivers/vhost/tcm_vhost.c
+>>> @@ -67,7 +67,6 @@ struct vhost_scsi {
+>>>  	/* Protected by vhost_scsi->dev.mutex */
+>>>  	struct tcm_vhost_tpg *vs_tpg[VHOST_SCSI_MAX_TARGET];
+>>>  	char vs_vhost_wwpn[TRANSPORT_IQN_LEN];
+>>> -	bool vs_endpoint;
+>>>  
+>>>  	struct vhost_dev dev;
+>>>  	struct vhost_virtqueue vqs[VHOST_SCSI_MAX_VQ];
+>>> @@ -91,6 +90,22 @@ static int iov_num_pages(struct iovec *iov)
+>>>  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
+>>>  }
+>>>  
+>>> +static bool tcm_vhost_check_endpoint(struct vhost_virtqueue *vq)
+>>> +{
+>>> +	bool ret = false;
+>>> +
+>>> +	/*
+>>> +	 * We can handle the vq only after the endpoint is setup by calling the
+>>> +	 * VHOST_SCSI_SET_ENDPOINT ioctl.
+>>> +	 *
+>>> +	 * TODO: check that we are running from vhost_worker?
+>>> +	 */
+>>> +	if (rcu_dereference_check(vq->private_data, 1))
+>>> +		ret = true;
+>>> +
+>>> +	return ret;
+>>> +}
+>>> +
+>>>  static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
+>>>  {
+>>>  	return 1;
+>>> @@ -581,8 +596,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
+>>>  	int head, ret;
+>>>  	u8 target;
+>>>  
+>>> -	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
+>>> -	if (unlikely(!vs->vs_endpoint))
+>>> +	if (!tcm_vhost_check_endpoint(vq))
+>>>  		return;
+>>
+>> You would still need at least a rcu_read_lock/unlock (actually srcu,
+>> since vhost_scsi_handle_vq can sleep)...
+> 
+> See handle_rx() and handle_rx() in drivers/vhost/net.c
+> 
+>    /* Expects to be always run from workqueue - which acts as
+>     * read-size critical section for our kind of RCU. */
+> 
+> This is how vhost works, no? 
+> 
+> But, personally, I would prefer to use explicit locking instead of this
+> trick.
+> 
+>>>  	mutex_lock(&vq->mutex);
+>>> @@ -781,8 +795,9 @@ static int vhost_scsi_set_endpoint(
+>>>  {
+>>>  	struct tcm_vhost_tport *tv_tport;
+>>>  	struct tcm_vhost_tpg *tv_tpg;
+>>> +	struct vhost_virtqueue *vq;
+>>>  	bool match = false;
+>>> -	int index, ret;
+>>> +	int index, ret, i;
+>>>  
+>>>  	mutex_lock(&vs->dev.mutex);
+>>>  	/* Verify that ring has been setup correctly. */
+>>> @@ -826,7 +841,13 @@ static int vhost_scsi_set_endpoint(
+>>>  	if (match) {
+>>>  		memcpy(vs->vs_vhost_wwpn, t->vhost_wwpn,
+>>>  		       sizeof(vs->vs_vhost_wwpn));
+>>> -		vs->vs_endpoint = true;
+>>> +		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
+>>> +			vq = &vs->vqs[i];
+>>> +			mutex_lock(&vq->mutex);
+>>> +			rcu_assign_pointer(vq->private_data, vs);
+>>> +			vhost_init_used(vq);
+>>> +			mutex_unlock(&vq->mutex);
+>>
+>> ... and a synchronize_srcu here.  But this is not correct use of RCU.
+>> To use RCU correctly, you need to _copy_ (that's the "C" in RCU) the
+>> whole vs structure on every set_endpoint or clear_endpoint operation,
+>> and free it after synchronize_srcu returns.
+> 
+> See the comments in struct vhost_virtqueue in drivers/vhost/vhost.h
+> 
+> 	/* We use a kind of RCU to access private pointer.
+> 	 * All readers access it from worker, which makes it possible to
+> 	 * flush the vhost_work instead of synchronize_rcu. Therefore readers do
+> 	 * not need to call rcu_read_lock/rcu_read_unlock: the beginning of
+> 	 * vhost_work execution acts instead of rcu_read_lock() and the end of
+> 	 * vhost_work execution acts instead of rcu_read_unlock().
+> 	 * Writers use virtqueue mutex. */
+> 	 void __rcu *private_data;
 
-Ah, because creating a vhost fd is privileged?  Why?  Because it creates
-a kernel thread?  Why?
+Aha, cool!  But please add a comment.
 
-Using a model where a userspace process/thread manages the ring (even if
-it spends 99.99% of its time in the kernel) would avoid this.  This is
-how KVM itself works, it's no longer privileged.
+>> What you're trying to do is really an rwlock, just use that. :)
+> 
+> Yes, but the downside is that it introduces another lock.
 
->> 2) Why do we implement write logging?  Shouldn't qemu just switch to
->>    emulation if it wants to track writes?
->
-> We could do it this way.  Originally vhost didn't do logging,
-> but Anthony felt it's cleaner this way.  We argued this way and that, in
-> the end I agreed it's better to always process rings in vhost, leave
-> userspace alone. For example this allows a simpler userspace that does
-> not implement tx/rx ring processing at all.
+Can't it can replace the existing mutex?
 
-We don't support things which don't exist.
+Paolo
 
-A simple implementation which supports live migration would have to have
-enough understanding to save and restore the net state.  With a tun
-device (which handles all the header stuff), supporting networking is
-*trivial*: see lguest (though it needs MRG_RXBUF support).  It's about
-100 lines.
-
-> We used to use a workqueue, but Tejun Heo required this switch.
-> Basically we want everything run from one thread so we
-> can apply cgroup limits to this thread. workqueue does not
-> guarantee it - one thread is an implementation detail.
-
-Right.
-
->> vhost/net.c questions:
->> 
->> 1) Why do we wake the net tx worker every time the reference count of
->>    the number of outstanding DMAs is a multiple of 16?
->
-> Waking every time turns out to be wasteful. Waking only when nothing is
-> outstanding turns out to be slow. The comment says it all really:
->
-> +        * We also trigger polling periodically after each 16 packets
-> +        * (the value 16 here is more or less arbitrary, it's tuned to trigger
-> +        * less than 10% of times).
->
-> If you have any suggestions on how to improve this,
-
-But this code does *not* wake every 16 packets.
-
-Anyway, what happens when we wake it?  I'm assuming it's the net tx
-worker, which will just return the used bufs to the guest?  Wouldn't it
-be better to do that directly?  Maybe wake the tx worker if it needs to
-wake the guest, if we can't do that here.
-
->> 3) Why don't we simply use a slab allocator to allocate a structure for
->>    outstanding xmit dmas?  Wouldn't that be far simpler?  Would it be
->>    slower?
->
-> Which structure for outstanding xmit dmas? ubufs?  We could use a cache
-> maybe, plan slab is usually pretty slow.
->
-> I think what you are really worried about is the upend/done index thing?
-> It's not really there because of the array really.
-> It's because we try to order the completion of zero copy buffers
-> in the same order they are submitted. This was because I was worried about
-> triggering fragmentation of the descriptor ring (Avi kept raising this
-> concern).
-
-I've never seen any evidence that caching is slowing us down.  Many
-theories, but mainly our slowdowns are crap in qemu.
-
-And for xmit rings, it's *REALLY DUMB* because there can be no
-fragmentation with indirect buffers!
-
-If fragmentation becomes a problem, it's easy to use a bitmap-based
-allocator and avoid fragmentation.
-
-But most importantly, it's *not* the host's problem to fix!  Just keep
-the damn latency low.
-
->> 4) Why are the following fields in struct vhost_virtqueue, not struct
->>    vhost_net?
->> 
->> 	/* hdr is used to store the virtio header.
->> 	 * Since each iovec has >= 1 byte length, we never need more than
->> 	 * header length entries to store the header. */
->> 	struct iovec hdr[sizeof(struct virtio_net_hdr_mrg_rxbuf)];
->> 	size_t vhost_hlen;
->> 	size_t sock_hlen;
->> 	struct vring_used_elem *heads;
->> 
->>         ...
->
-> Because these are used for both tx and rx.  While we handle both from
-> the same thread at the moment, so we could reuse same fields, there are
-> some patches by Anthony that process tx and rx in separate threads and
-> sometimes it's a win. So I don't want to close the door on that.
-
-But they're *net* specific: They don't belong in the vhost structure.
-
-And from my reading, hdr[] is written to on the xmit side, but it's not
-used.  sock_hlen is entirely unused on xmit. heads[] is abused, and
-should be its own structure.
-
->> 	/* vhost zerocopy support fields below: */
->> 	/* last used idx for outstanding DMA zerocopy buffers */
->> 	int upend_idx;
->> 	/* first used idx for DMA done zerocopy buffers */
->> 	int done_idx;
->> 	/* an array of userspace buffers info */
->> 	struct ubuf_info *ubuf_info;
->> 	/* Reference counting for outstanding ubufs.
->> 	 * Protected by vq mutex. Writers must also take device mutex. */
->> 	struct vhost_ubuf_ref *ubufs;
->
-> Only used from tx. I was trying to keep the option of multiple
-> tx rings in one vhost, and the option of rx zero copy open, but it's not
-> a must.
-
-Again, these are all very net specific.
-
->> 5) Why does vhost_net use the sendmsg interface for tun (and macvlan?)?
->>    It's not usable from userspace (it looks like if you can sendmsg to a
->>    tun device you can make it call an arbitrary pointer though).
->
-> Yes we could switch to some other interface, but only if we
-> deprecate the packet socket backend and remove it at some point.
->
->>    It would be better for us to create the skb, and have a special
->>    interface to inject it directly.  This way we can handle the
->>    UIO_MAXIOV limit ourselves (eg. by not doing zero copy on such stupid
->>    cases).
->
-> Basically because userspace already configures the backend with existing
-> tun ioctls. This way we don't need to introduce new interfaces for this,
-> just virtio stuff for vhost net.  It's also good that we share code with
-> tun, often both vhost and virtio processing can gain from same
-> optimizations and new features. Happened in the past already.
-
-Sorry, I wasn't clear here.  I mean instead of doing:
-
-	err = sock->ops->recvmsg(NULL, sock, &msg,
-				 sock_len, MSG_DONTWAIT | MSG_TRUNC);
-
-We do something like:
-
-        err = tun_inject_skb(sock, skb);
-
-Because the zerocopy_sg_from_iovec() in tun.c already has a comment
-about putting it in the network core... in fact, it's cut & pasted into
-macvtap :(
-
-The msg thing for the callback is a nasty hack, AFAICT...
-
-> Basically not many people care about virt. The less virt specific
-> code we have the better.  I lost count of times I had this dialog when I
-> needed some help
-> - we see this problem XYZ in host net stack
-> - oh it's vhost I don't know what it does, sorry
-> - actually it only builds up iovecs all networking is done by tun that
->   everyone uses
-> - ok then let me take a look
->
->> 6) By calling tun_get_socket() and macvtap_get_socket() we are forcing
->>    those modules to load.  We should use symbol_get() to avoid this.
->
-> Good idea.
-
-I can create this patch.
-
->> In short, this code is a mess.  Assuming we can't just break the API,
->> we've got a long process ahead of us to get it into shape :(
->> 
->> Thanks,
->> Rusty.
->
-> Zerocopy path is the most messy I think.  We should really consider
-> removing the ordering of zero copy buffers. The rest I don't consider
-> so messy, and it should be easy to cleanup zerocopy without
-> breaking the API.
-
-I've got some cleanup patches, but I'll keep going and send them to you
-for review...
-
-Thanks,
-Rusty
+> 
+>> Paolo
+>>
+>>> +		}
+>>>  		ret = 0;
+>>>  	} else {
+>>>  		ret = -EEXIST;
+>>> @@ -842,6 +863,8 @@ static int vhost_scsi_clear_endpoint(
+>>>  {
+>>>  	struct tcm_vhost_tport *tv_tport;
+>>>  	struct tcm_vhost_tpg *tv_tpg;
+>>> +	struct vhost_virtqueue *vq;
+>>> +	bool match = false;
+>>>  	int index, ret, i;
+>>>  	u8 target;
+>>>  
+>>> @@ -877,9 +900,17 @@ static int vhost_scsi_clear_endpoint(
+>>>  		}
+>>>  		tv_tpg->tv_tpg_vhost_count--;
+>>>  		vs->vs_tpg[target] = NULL;
+>>> -		vs->vs_endpoint = false;
+>>> +		match = true;
+>>>  		mutex_unlock(&tv_tpg->tv_tpg_mutex);
+>>>  	}
+>>> +	if (match) {
+>>> +		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
+>>> +			vq = &vs->vqs[i];
+>>> +			mutex_lock(&vq->mutex);
+>>> +			rcu_assign_pointer(vq->private_data, NULL);
+>>> +			mutex_unlock(&vq->mutex);
+>>> +		}
+>>> +	}
+>>>  	mutex_unlock(&vs->dev.mutex);
+>>>  	return 0;
+>>>  
+>>>
+>>
+> 
