@@ -1,8 +1,7 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH 1/2] virtio-scsi: Set _DRIVER_OK flag before scsi target
-	scanning
-Date: Fri, 15 Mar 2013 09:45:15 +0800
-Message-ID: <1363311916-23121-2-git-send-email-asias@redhat.com>
+Subject: [PATCH 2/2] virtio-scsi: Pack struct virtio_scsi_{req_cmd,resp_cmd}
+Date: Fri, 15 Mar 2013 09:45:16 +0800
+Message-ID: <1363311916-23121-3-git-send-email-asias@redhat.com>
 References: <1363311916-23121-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,39 +21,36 @@ To: seabios@seabios.org
 Cc: target-devel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Kevin O'Connor <kevin@koconnor.net>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Before we start scsi target scanning, we need to set the
-VIRTIO_CONFIG_S_DRIVER_OK flag so the device can do setup properly.
+Device needs the exact size of these data structure. Prevent padding.
 
-This fix a bug when booting tcm_vhost with seabios.
+This fixes guest hang when booting seabios + tcm_vhost.
 
 Signed-off-by: Asias He <asias@redhat.com>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 ---
- src/virtio-scsi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ src/virtio-scsi.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/src/virtio-scsi.c b/src/virtio-scsi.c
-index 879ddfb..4de1255 100644
---- a/src/virtio-scsi.c
-+++ b/src/virtio-scsi.c
-@@ -147,6 +147,9 @@ init_virtio_scsi(struct pci_device *pci)
-         goto fail;
-     }
+diff --git a/src/virtio-scsi.h b/src/virtio-scsi.h
+index bbfbf30..96c3701 100644
+--- a/src/virtio-scsi.h
++++ b/src/virtio-scsi.h
+@@ -26,7 +26,7 @@ struct virtio_scsi_req_cmd {
+     u8 prio;
+     u8 crn;
+     char cdb[VIRTIO_SCSI_CDB_SIZE];
+-};
++} __attribute__((packed));
  
-+    vp_set_status(ioaddr, VIRTIO_CONFIG_S_ACKNOWLEDGE |
-+                  VIRTIO_CONFIG_S_DRIVER | VIRTIO_CONFIG_S_DRIVER_OK);
-+
-     int i, tot;
-     for (tot = 0, i = 0; i < 256; i++)
-         tot += virtio_scsi_scan_target(pci, ioaddr, vq, i);
-@@ -154,8 +157,6 @@ init_virtio_scsi(struct pci_device *pci)
-     if (!tot)
-         goto fail;
+ /* This is the first element of the "in" scatter-gather list. */
+ struct virtio_scsi_resp_cmd {
+@@ -36,7 +36,7 @@ struct virtio_scsi_resp_cmd {
+     u8 status;
+     u8 response;
+     u8 sense[VIRTIO_SCSI_SENSE_SIZE];
+-};
++} __attribute__((packed));
  
--    vp_set_status(ioaddr, VIRTIO_CONFIG_S_ACKNOWLEDGE |
--                  VIRTIO_CONFIG_S_DRIVER | VIRTIO_CONFIG_S_DRIVER_OK);
-     return;
+ #define VIRTIO_SCSI_S_OK            0
  
- fail:
 -- 
 1.8.1.4
