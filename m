@@ -1,16 +1,13 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH v3 20/27] PCI, xen: Use for_each_pci_resource() with xen
-	pci
-Date: Fri, 15 Mar 2013 09:35:56 -0400
-Message-ID: <20130315133556.GK8582@phenom.dumpdata.com>
-References: <1363217302-14383-1-git-send-email-yinghai@kernel.org>
-	<1363217302-14383-21-git-send-email-yinghai@kernel.org>
+From: Jiang Liu <liuj97@gmail.com>
+Subject: [PATCH v2, part3 10/12] mm: correctly update zone->mamaged_pages
+Date: Sun, 17 Mar 2013 01:03:31 +0800
+Message-ID: <1363453413-8139-11-git-send-email-jiang.liu__41885.4253403426$1363453511$gmane$org@huawei.com>
+References: <1363453413-8139-1-git-send-email-jiang.liu@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1363217302-14383-21-git-send-email-yinghai@kernel.org>
+In-Reply-To: <1363453413-8139-1-git-send-email-jiang.liu@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,36 +17,226 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yinghai Lu <yinghai@kernel.org>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, Ram Pai <linuxram@us.ibm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Andrew Morton <akpm@linux-foundation.org>, David Rientjes <rientjes@google.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Jiang Liu <jiang.liu@huawei.com>, Wen Congyang <wency@cn.fujitsu.com>, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Michal Hocko <mhocko@suse.cz>, Minchan Kim <minchan@kernel.org>, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, "Michael S. Tsirkin" <mst@redhat.com>, Tang Chen <tangchen@cn.fujitsu.com>, virtualization@lists.linux-foundation.org, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, Jianguo Wu <wujianguo@huawei.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 13, 2013 at 04:28:15PM -0700, Yinghai Lu wrote:
-> Signed-off-by: Yinghai Lu <yinghai@kernel.org>
-> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Enhance adjust_managed_page_count() to adjust totalhigh_pages for
+highmem pages. And change code which directly adjusts totalram_pages
+to use adjust_managed_page_count() because it adjusts totalram_pages,
+totalhigh_pages and zone->managed_pages altogether in a safe way.
 
+Remove inc_totalhigh_pages() and dec_totalhigh_pages() from xen/balloon
+driver bacause adjust_managed_page_count() has already adjusted
+totalhigh_pages.
 
-Reviewed-by: Rzeszutek Wilk <konrad.wilk@oracle.com>
-> Cc: virtualization@lists.linux-foundation.org
-> ---
->  drivers/pci/xen-pcifront.c |    4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/drivers/pci/xen-pcifront.c b/drivers/pci/xen-pcifront.c
-> index 966abc6..c90835f 100644
-> --- a/drivers/pci/xen-pcifront.c
-> +++ b/drivers/pci/xen-pcifront.c
-> @@ -395,9 +395,7 @@ static int pcifront_claim_resource(struct pci_dev *dev, void *data)
->  	int i;
->  	struct resource *r;
->  
-> -	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
-> -		r = &dev->resource[i];
-> -
-> +	for_each_pci_resource(dev, r, i, PCI_ALL_RES) {
->  		if (!r->parent && r->start && r->flags) {
->  			dev_info(&pdev->xdev->dev, "claiming resource %s/%d\n",
->  				pci_name(dev), i);
-> -- 
-> 1.7.10.4
-> 
+This patch also fixes two bugs:
+1) enhances virtio_balloon driver to adjust totalhigh_pages when
+   reserve/unreserve pages.
+2) enhance memory_hotplug.c to adjust totalhigh_pages when hot-removing
+   memory.
+
+We still need to deal with modifications of totalram_pages in file
+arch/powerpc/platforms/pseries/cmm.c, but need help from PPC experts.
+
+Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+Cc: Chris Metcalf <cmetcalf@tilera.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Wen Congyang <wency@cn.fujitsu.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Tang Chen <tangchen@cn.fujitsu.com>
+Cc: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: xen-devel@lists.xensource.com
+Cc: linux-mm@kvack.org
+---
+ drivers/virtio/virtio_balloon.c |    8 +++++---
+ drivers/xen/balloon.c           |   23 +++++------------------
+ mm/hugetlb.c                    |    2 +-
+ mm/memory_hotplug.c             |   15 +++------------
+ mm/page_alloc.c                 |   10 +++++-----
+ 5 files changed, 19 insertions(+), 39 deletions(-)
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 797e1c7..4828c90 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -148,7 +148,7 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+ 		}
+ 		set_page_pfns(vb->pfns + vb->num_pfns, page);
+ 		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+-		totalram_pages--;
++		adjust_managed_page_count(page, -1);
+ 	}
+ 
+ 	/* Did we get any? */
+@@ -160,11 +160,13 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+ static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
+ {
+ 	unsigned int i;
++	struct page *page;
+ 
+ 	/* Find pfns pointing at start of each page, get pages and free them. */
+ 	for (i = 0; i < num; i += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+-		balloon_page_free(balloon_pfn_to_page(pfns[i]));
+-		totalram_pages++;
++		page = balloon_pfn_to_page(pfns[i]);
++		balloon_page_free(page);
++		adjust_managed_page_count(page, 1);
+ 	}
+ }
+ 
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index a56776d..eefba39 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -89,14 +89,6 @@ EXPORT_SYMBOL_GPL(balloon_stats);
+ /* We increase/decrease in batches which fit in a page */
+ static xen_pfn_t frame_list[PAGE_SIZE / sizeof(unsigned long)];
+ 
+-#ifdef CONFIG_HIGHMEM
+-#define inc_totalhigh_pages() (totalhigh_pages++)
+-#define dec_totalhigh_pages() (totalhigh_pages--)
+-#else
+-#define inc_totalhigh_pages() do {} while (0)
+-#define dec_totalhigh_pages() do {} while (0)
+-#endif
+-
+ /* List of ballooned pages, threaded through the mem_map array. */
+ static LIST_HEAD(ballooned_pages);
+ 
+@@ -132,9 +124,7 @@ static void __balloon_append(struct page *page)
+ static void balloon_append(struct page *page)
+ {
+ 	__balloon_append(page);
+-	if (PageHighMem(page))
+-		dec_totalhigh_pages();
+-	totalram_pages--;
++	adjust_managed_page_count(page, -1);
+ }
+ 
+ /* balloon_retrieve: rescue a page from the balloon, if it is not empty. */
+@@ -151,13 +141,12 @@ static struct page *balloon_retrieve(bool prefer_highmem)
+ 		page = list_entry(ballooned_pages.next, struct page, lru);
+ 	list_del(&page->lru);
+ 
+-	if (PageHighMem(page)) {
++	if (PageHighMem(page))
+ 		balloon_stats.balloon_high--;
+-		inc_totalhigh_pages();
+-	} else
++	else
+ 		balloon_stats.balloon_low--;
+ 
+-	totalram_pages++;
++	adjust_managed_page_count(page, 1);
+ 
+ 	return page;
+ }
+@@ -372,9 +361,7 @@ static enum bp_state increase_reservation(unsigned long nr_pages)
+ #endif
+ 
+ 		/* Relinquish the page back to the allocator. */
+-		ClearPageReserved(page);
+-		init_page_count(page);
+-		__free_page(page);
++		__free_reserved_page(page);
+ 	}
+ 
+ 	balloon_stats.current_pages += rc;
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 344e7fe..4fb9a04 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1246,7 +1246,7 @@ static void __init gather_bootmem_prealloc(void)
+ 		 * side-effects, like CommitLimit going negative.
+ 		 */
+ 		if (h->order > (MAX_ORDER - 1))
+-			totalram_pages += 1 << h->order;
++			adjust_managed_page_count(page, 1 << h->order);
+ 	}
+ }
+ 
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index a1debd0..97454b3 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -760,20 +760,13 @@ EXPORT_SYMBOL_GPL(__online_page_set_limits);
+ 
+ void __online_page_increment_counters(struct page *page)
+ {
+-	totalram_pages++;
+-
+-#ifdef CONFIG_HIGHMEM
+-	if (PageHighMem(page))
+-		totalhigh_pages++;
+-#endif
++	adjust_managed_page_count(page, 1);
+ }
+ EXPORT_SYMBOL_GPL(__online_page_increment_counters);
+ 
+ void __online_page_free(struct page *page)
+ {
+-	ClearPageReserved(page);
+-	init_page_count(page);
+-	__free_page(page);
++	__free_reserved_page(page);
+ }
+ EXPORT_SYMBOL_GPL(__online_page_free);
+ 
+@@ -970,7 +963,6 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages, int online_typ
+ 		return ret;
+ 	}
+ 
+-	zone->managed_pages += onlined_pages;
+ 	zone->present_pages += onlined_pages;
+ 	zone->zone_pgdat->node_present_pages += onlined_pages;
+ 	if (onlined_pages) {
+@@ -1554,10 +1546,9 @@ repeat:
+ 	/* reset pagetype flags and makes migrate type to be MOVABLE */
+ 	undo_isolate_page_range(start_pfn, end_pfn, MIGRATE_MOVABLE);
+ 	/* removal success */
+-	zone->managed_pages -= offlined_pages;
++	adjust_managed_page_count(pfn_to_page(start_pfn), -offlined_pages);
+ 	zone->present_pages -= offlined_pages;
+ 	zone->zone_pgdat->node_present_pages -= offlined_pages;
+-	totalram_pages -= offlined_pages;
+ 
+ 	init_per_zone_wmark_min();
+ 
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index b0ca2b7..6834104 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -775,11 +775,7 @@ void __init init_cma_reserved_pageblock(struct page *page)
+ 	set_page_refcounted(page);
+ 	set_pageblock_migratetype(page, MIGRATE_CMA);
+ 	__free_pages(page, pageblock_order);
+-	totalram_pages += pageblock_nr_pages;
+-#ifdef CONFIG_HIGHMEM
+-	if (PageHighMem(page))
+-		totalhigh_pages += pageblock_nr_pages;
+-#endif
++	adjust_managed_page_count(page, pageblock_nr_pages);
+ }
+ #endif
+ 
+@@ -5128,6 +5124,10 @@ void adjust_managed_page_count(struct page *page, long count)
+ 
+ 	page_zone(page)->managed_pages += count;
+ 	totalram_pages += count;
++#ifdef	CONFIG_HIGHMEM
++	if (PageHighMem(page))
++		totalhigh_pages += count;
++#endif
+ 
+ 	if (lock)
+ 		spin_unlock(&managed_page_count_lock);
+-- 
+1.7.9.5
