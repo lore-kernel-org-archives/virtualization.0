@@ -1,14 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V3 0/3] tcm_vhost lock and flush fix
-Date: Sun, 17 Mar 2013 13:03:44 +0200
-Message-ID: <20130317110344.GA31111@redhat.com>
-References: <1363310047-21652-1-git-send-email-asias@redhat.com>
+Subject: Re: vhost questions.
+Date: Sun, 17 Mar 2013 13:09:07 +0200
+Message-ID: <20130317110907.GB31111@redhat.com>
+References: <874ngfvlo0.fsf@rustcorp.com.au>
+	<20130313155916.GC14892@redhat.com>
+	<87wqtatrj5.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1363310047-21652-1-git-send-email-asias@redhat.com>
+In-Reply-To: <87wqtatrj5.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 15, 2013 at 09:14:04AM +0800, Asias He wrote:
-> Hello Nicholas & Michael,
-> 
-> Could any of you pick this series up?
-> 
-> Changes in v3
-> - Add more comments
-> 
-> Changes in v2
-> - Use vq->private_data insteadof vs->vs_endpoint 
-> - Add label in vhost_scsi_clear_endpoint to simply unlock code. 
-> 
-> Asias He (3):
->   tcm_vhost: Add missed lock in vhost_scsi_clear_endpoint()
->   tcm_vhost: Flush vhost_work in vhost_scsi_flush()
->   tcm_vhost: Use vq->private_data to indicate if the endpoint is setup
-> 
->  drivers/vhost/tcm_vhost.c | 59 +++++++++++++++++++++++++++++++++++++++--------
->  1 file changed, 49 insertions(+), 10 deletions(-)
+On Thu, Mar 14, 2013 at 05:08:22PM +1030, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > On Wed, Mar 13, 2013 at 05:19:51PM +1030, Rusty Russell wrote:
+> >> OK, I've been trying to read the vhost and vhost net code, and I'm
+> >> struggling with basic questions.
+> >> 
+> >> 1) Why do we allow userspace to change an already-set-up vhost device?
+> >>    Why not have:
+> >>         open()
+> >>         ioctl(VHOST_GET_FEATURES)
+> >>         ioctl(VHOST_SET_VRING) x n (sets num, addresses, kick/call/err fds)
+> >>         ioctl(VHOST_NET_SETUP)
+> >>         ...
+> >>         close()
+> >> 
+> >>    You're not allowed to call things twice: to reset, you close and
+> >>    reopen.  That would save a lot of code which I'm not sure is correct
+> >>    anyway.
+> >
+> > This won't work for the usecases we have in qemu.
+> > The way things are setup currently, qemu typically does not have
+> > the rights to open any char devices, instead it is passed an fd.
 
-Applied, thanks.
+By the way at least for the guest callback eventfd, we currently use the
+ability to switch it on the fly for when guest wants to mask the interrupt.
+At some level, this could be considered an argument that initialization
+order is a policy best let for userspace.
 
-> -- 
-> 1.8.1.4
+-- 
+MST
