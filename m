@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] vhost/net: fix heads usage of ubuf_info
-Date: Sun, 17 Mar 2013 20:50:22 +0200
-Message-ID: <20130317185022.GA22517@redhat.com>
-References: <20130317124609.GA25967@redhat.com>
-	<20130317.142955.1114572401286297685.davem@davemloft.net>
+From: Ohad Ben-Cohen <ohad@wizery.com>
+Subject: Re: [PATCHv3 vringh] caif_virtio: Introduce caif over virtio
+Date: Mon, 18 Mar 2013 00:52:19 +0200
+Message-ID: <CAK=WgbbV6mvYC+KeSKJR+jmrAy3Et5opzzno1_kaicMPdDxNXg__33049.3683614351$1363560793$gmane$org@mail.gmail.com>
+References: <1363340537-16011-1-git-send-email-erwan.yvin@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130317.142955.1114572401286297685.davem@davemloft.net>
+In-Reply-To: <1363340537-16011-1-git-send-email-erwan.yvin@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,22 +17,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, nab@risingtidesystems.com, virtualization@lists.linux-foundation.org, stable@kernel.org, basil.gor@gmail.com
+To: Erwan Yvin <erwan.yvin@stericsson.com>
+Cc: Linus Walleij <linus.walleij@stericsson.com>, netdev <netdev@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Rusty Russel <rusty@ruscorp.com.au>, "David S. Miller" <davem@davemloft.net>, Sjur Braendeland <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Mar 17, 2013 at 02:29:55PM -0400, David Miller wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> Date: Sun, 17 Mar 2013 14:46:09 +0200
-> 
-> > ubuf info allocator uses guest controlled head as an index,
-> > so a malicious guest could put the same head entry in the ring twice,
-> > and we will get two callbacks on the same value.
-> > To fix use upend_idx which is guaranteed to be unique.
-> > 
-> > Reported-by: Rusty Russell <rusty@rustcorp.com.au>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> Applied and queued up for -stable, thanks.
+Hi Erwan,
 
-OK I'll drop it from my tree then.
+On Fri, Mar 15, 2013 at 11:42 AM, Erwan Yvin <erwan.yvin@stericsson.com> wrote:
+> diff --git a/drivers/net/caif/caif_virtio.c b/drivers/net/caif/caif_virtio.c
+> new file mode 100644
+> index 0000000..6a745dd
+> --- /dev/null
+> +++ b/drivers/net/caif/caif_virtio.c
+> @@ -0,0 +1,786 @@
+> +/*
+> + * Copyright (C) ST-Ericsson AB 2013
+> + * Authors: Vicram Arv / vikram.arv@stericsson.com,
+> + *         Dmitry Tarnyagin / dmitry.tarnyagin@stericsson.com
+> + *         Sjur Brendeland / sjur.brandeland@stericsson.com
+> + * License terms: GNU General Public License (GPL) version 2
+> + */
+> +#include <linux/module.h>
+> +#include <linux/if_arp.h>
+> +#include <linux/virtio.h>
+> +#include <linux/vringh.h>
+> +#include <linux/debugfs.h>
+> +#include <linux/spinlock.h>
+> +#include <linux/genalloc.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/netdevice.h>
+> +#include <linux/rtnetlink.h>
+> +#include <linux/remoteproc.h>
+
+The driver looks nicely decoupled from remoteproc - do you still need
+remoteproc.h ?
+
+Thanks,
+Ohad.
