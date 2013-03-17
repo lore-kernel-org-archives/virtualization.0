@@ -1,13 +1,13 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCHv3 vringh] caif_virtio: Introduce caif over virtio
-Date: Sun, 17 Mar 2013 12:14:36 -0400 (EDT)
-Message-ID: <20130317.121436.461735238002154159.davem__29012.2558632449$1363536911$gmane$org@davemloft.net>
-References: <1363340537-16011-1-git-send-email-erwan.yvin@stericsson.com>
+Subject: Re: [PATCH net] vhost/net: fix heads usage of ubuf_info
+Date: Sun, 17 Mar 2013 14:29:55 -0400 (EDT)
+Message-ID: <20130317.142955.1114572401286297685.davem@davemloft.net>
+References: <20130317124609.GA25967@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1363340537-16011-1-git-send-email-erwan.yvin@stericsson.com>
+In-Reply-To: <20130317124609.GA25967@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,17 +17,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: erwan.yvin@stericsson.com
-Cc: linus.walleij@stericsson.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, rusty@ruscorp.com.au, sjur.brandeland@stericsson.com
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, nab@risingtidesystems.com, virtualization@lists.linux-foundation.org, stable@kernel.org, basil.gor@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Erwan Yvin <erwan.yvin@stericsson.com>
-Date: Fri, 15 Mar 2013 10:42:17 +0100
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Sun, 17 Mar 2013 14:46:09 +0200
 
-> caif-virtio is going to replace caif-shm.
-> This patch should be merged in rusty's tree. (vringh)
-> because there is a dependency with vringh wrapper.
+> ubuf info allocator uses guest controlled head as an index,
+> so a malicious guest could put the same head entry in the ring twice,
+> and we will get two callbacks on the same value.
+> To fix use upend_idx which is guaranteed to be unique.
+> 
+> Reported-by: Rusty Russell <rusty@rustcorp.com.au>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Feel free to add my:
+Applied and queued up for -stable, thanks.
 
-Acked-by: David S. Miller <davem@davemloft.net>
+And thankfully you got the stable URL wrong, please do not CC:
+networking patches to stable, just make sure I apply them and in
+your post-commit text explicitly ask me to queue it up to my
+-stable queue.
+
+Thanks.
