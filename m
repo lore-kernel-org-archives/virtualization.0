@@ -1,12 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH net] vhost/net: fix heads usage of ubuf_info
-Date: Sun, 17 Mar 2013 14:46:09 +0200
-Message-ID: <20130317124609.GA25967@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCHv3 vringh] caif_virtio: Introduce caif over virtio
+Date: Sun, 17 Mar 2013 12:14:36 -0400 (EDT)
+Message-ID: <20130317.121436.461735238002154159.davem__29012.2558632449$1363536911$gmane$org@davemloft.net>
+References: <1363340537-16011-1-git-send-email-erwan.yvin@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1363340537-16011-1-git-send-email-erwan.yvin@stericsson.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,41 +17,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "David S. Miller" <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Nicholas A. Bellinger" <nab@risingtidesystems.com>, virtualization@lists.linux-foundation.org, stable@kernel.org, Basil Gor <basil.gor@gmail.com>
+To: erwan.yvin@stericsson.com
+Cc: linus.walleij@stericsson.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, rusty@ruscorp.com.au, sjur.brandeland@stericsson.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-ubuf info allocator uses guest controlled head as an index,
-so a malicious guest could put the same head entry in the ring twice,
-and we will get two callbacks on the same value.
-To fix use upend_idx which is guaranteed to be unique.
+From: Erwan Yvin <erwan.yvin@stericsson.com>
+Date: Fri, 15 Mar 2013 10:42:17 +0100
 
-Reported-by: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Cc: stable@kernel.org
----
+> caif-virtio is going to replace caif-shm.
+> This patch should be merged in rusty's tree. (vringh)
+> because there is a dependency with vringh wrapper.
 
-Rusty's working on switching to allocating ubufs dynamically
-but that's not 3.9 material.
-This patch is against latest net master,
-needed for 3.9-rc2 and older kernels.
+Feel free to add my:
 
- drivers/vhost/net.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 959b1cd..ec6fb3f 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -339,7 +339,8 @@ static void handle_tx(struct vhost_net *net)
- 				msg.msg_controllen = 0;
- 				ubufs = NULL;
- 			} else {
--				struct ubuf_info *ubuf = &vq->ubuf_info[head];
-+				struct ubuf_info *ubuf;
-+				ubuf = vq->ubuf_info + vq->upend_idx;
- 
- 				vq->heads[vq->upend_idx].len =
- 					VHOST_DMA_IN_PROGRESS;
--- 
-MST
+Acked-by: David S. Miller <davem@davemloft.net>
