@@ -1,12 +1,14 @@
-From: Joseph Salisbury <joseph.salisbury@canonical.com>
-Subject: [PATCH][v3.2.y] xen-netfront: delay gARP until backend switches to
-	Connected
-Date: Fri, 15 Mar 2013 13:56:45 -0400
-Message-ID: <514360DD.8050406__47548.7080439509$1363647002$gmane$org@canonical.com>
+From: Kevin O'Connor <kevin@koconnor.net>
+Subject: Re: [PATCH 0/2] Fix booting tcm_vhost + seabios
+Date: Sun, 17 Mar 2013 10:28:52 -0400
+Message-ID: <20130317142852.GA18191__22664.5615454347$1363647008$gmane$org@morn.localdomain>
+References: <1363311916-23121-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1363311916-23121-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,24 +18,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <ben@decadent.org.uk>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, netdev@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, seabios@seabios.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+On Fri, Mar 15, 2013 at 09:45:14AM +0800, Asias He wrote:
+> Asias He (2):
+>   virtio-scsi: Set _DRIVER_OK flag before scsi target scanning
+>   virtio-scsi: Pack struct virtio_scsi_{req_cmd,resp_cmd}
 
-Please consider including upstream commit 
-08e34eb14fe4cfd934b5c169a7682a969457c4ea in the next v3.2.y release.
-It was included upstream as of v3.3-rc1.  It has been tested and 
-confirmed to resolve http://bugs.launchpad.net/bugs/1154608 .
+Thanks.  I pushed these patches.
 
-commit 08e34eb14fe4cfd934b5c169a7682a969457c4ea
-Author: Laszlo Ersek <lersek@redhat.com>
-Date:   Sun Dec 11 01:48:59 2011 +0000
-
-     xen-netfront: delay gARP until backend switches to Connected
-
-
-Sincerely,
-
-Joseph Salisbury
+-Kevin
