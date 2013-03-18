@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 07/22] virtio-blk: reorganize virtblk_add_req
-Date: Mon, 18 Mar 2013 20:04:38 +1030
-Message-ID: <1363599293-23065-8-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 06/22] tools/virtio: make vringh_test use inbuf/outbuf.
+Date: Mon, 18 Mar 2013 20:04:37 +1030
+Message-ID: <1363599293-23065-7-git-send-email-rusty@rustcorp.com.au>
 References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,118 +18,68 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+The simplified accessors are faster.
 
-Right now, both virtblk_add_req and virtblk_add_req_wait call
-virtqueue_add_buf.  To prepare for the next patches, abstract the call
-to virtqueue_add_buf into a new function __virtblk_add_req, and include
-the waiting logic directly in virtblk_add_req.
+Before:
+	Using CPUS 0 and 3
+	Guest: notified 0, pinged 39062-39063(39063)
+	Host: notified 39062-39063(39063), pinged 0
+	Wall time:1.760000-2.220000(1.789167)
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Asias He <asias@redhat.com>
+After:
+	Using CPUS 0 and 3
+	Guest: notified 0, pinged 39037-39063(39062)
+	Host: notified 39037-39063(39062), pinged 0
+	Wall time:1.640000-1.810000(1.676875)
+
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/block/virtio_blk.c |   55 ++++++++++++++++----------------------------
- 1 file changed, 20 insertions(+), 35 deletions(-)
+ tools/virtio/linux/virtio.h |   10 ++++++++++
+ tools/virtio/vringh_test.c  |    8 ++++----
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 922bcb9..b271650 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -100,50 +100,39 @@ static inline struct virtblk_req *virtblk_alloc_req(struct virtio_blk *vblk,
- 	return vbr;
- }
+diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
+index 5fa612a..6df181a 100644
+--- a/tools/virtio/linux/virtio.h
++++ b/tools/virtio/linux/virtio.h
+@@ -63,6 +63,16 @@ int virtqueue_add_sgs(struct virtqueue *vq,
+ 		      void *data,
+ 		      gfp_t gfp);
  
--static void virtblk_add_buf_wait(struct virtio_blk *vblk,
--				 struct virtblk_req *vbr,
--				 unsigned long out,
--				 unsigned long in)
-+static inline int __virtblk_add_req(struct virtqueue *vq,
-+			     struct virtblk_req *vbr,
-+			     unsigned long out,
-+			     unsigned long in)
- {
-+	return virtqueue_add_buf(vq, vbr->sg, out, in, vbr, GFP_ATOMIC);
-+}
++int virtqueue_add_outbuf(struct virtqueue *vq,
++			 struct scatterlist sg[], unsigned int num,
++			 void *data,
++			 gfp_t gfp);
 +
-+static void virtblk_add_req(struct virtblk_req *vbr,
-+			    unsigned int out, unsigned int in)
-+{
-+	struct virtio_blk *vblk = vbr->vblk;
- 	DEFINE_WAIT(wait);
-+	int ret;
++int virtqueue_add_inbuf(struct virtqueue *vq,
++			struct scatterlist sg[], unsigned int num,
++			void *data,
++			gfp_t gfp);
++
+ void virtqueue_kick(struct virtqueue *vq);
  
--	for (;;) {
-+	spin_lock_irq(vblk->disk->queue->queue_lock);
-+	while (unlikely((ret = __virtblk_add_req(vblk->vq, vbr,
-+						 out, in)) < 0)) {
- 		prepare_to_wait_exclusive(&vblk->queue_wait, &wait,
- 					  TASK_UNINTERRUPTIBLE);
+ void *virtqueue_get_buf(struct virtqueue *vq, unsigned int *len);
+diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
+index dd0b989..88fe02a 100644
+--- a/tools/virtio/vringh_test.c
++++ b/tools/virtio/vringh_test.c
+@@ -369,11 +369,11 @@ static int parallel_test(unsigned long features,
+ 			 * user addr */
+ 			__kmalloc_fake = indirects + (xfers % RINGSIZE) * 4;
+ 			if (output)
+-				err = virtqueue_add_buf(vq, sg, num_sg, 0, dbuf,
+-							GFP_KERNEL);
++				err = virtqueue_add_outbuf(vq, sg, num_sg, dbuf,
++							   GFP_KERNEL);
+ 			else
+-				err = virtqueue_add_buf(vq, sg, 0, num_sg, dbuf,
+-							GFP_KERNEL);
++				err = virtqueue_add_inbuf(vq, sg, num_sg,
++							  dbuf, GFP_KERNEL);
  
-+		spin_unlock_irq(vblk->disk->queue->queue_lock);
-+		io_schedule();
- 		spin_lock_irq(vblk->disk->queue->queue_lock);
--		if (virtqueue_add_buf(vblk->vq, vbr->sg, out, in, vbr,
--				      GFP_ATOMIC) < 0) {
--			spin_unlock_irq(vblk->disk->queue->queue_lock);
--			io_schedule();
--		} else {
--			virtqueue_kick(vblk->vq);
--			spin_unlock_irq(vblk->disk->queue->queue_lock);
--			break;
--		}
- 
-+		finish_wait(&vblk->queue_wait, &wait);
- 	}
- 
--	finish_wait(&vblk->queue_wait, &wait);
--}
--
--static inline void virtblk_add_req(struct virtblk_req *vbr,
--				   unsigned int out, unsigned int in)
--{
--	struct virtio_blk *vblk = vbr->vblk;
--
--	spin_lock_irq(vblk->disk->queue->queue_lock);
--	if (unlikely(virtqueue_add_buf(vblk->vq, vbr->sg, out, in, vbr,
--					GFP_ATOMIC) < 0)) {
--		spin_unlock_irq(vblk->disk->queue->queue_lock);
--		virtblk_add_buf_wait(vblk, vbr, out, in);
--		return;
--	}
- 	virtqueue_kick(vblk->vq);
- 	spin_unlock_irq(vblk->disk->queue->queue_lock);
- }
- 
--static int virtblk_bio_send_flush(struct virtblk_req *vbr)
-+static void virtblk_bio_send_flush(struct virtblk_req *vbr)
- {
- 	unsigned int out = 0, in = 0;
- 
-@@ -155,11 +144,9 @@ static int virtblk_bio_send_flush(struct virtblk_req *vbr)
- 	sg_set_buf(&vbr->sg[out + in++], &vbr->status, sizeof(vbr->status));
- 
- 	virtblk_add_req(vbr, out, in);
--
--	return 0;
- }
- 
--static int virtblk_bio_send_data(struct virtblk_req *vbr)
-+static void virtblk_bio_send_data(struct virtblk_req *vbr)
- {
- 	struct virtio_blk *vblk = vbr->vblk;
- 	unsigned int num, out = 0, in = 0;
-@@ -188,8 +175,6 @@ static int virtblk_bio_send_data(struct virtblk_req *vbr)
- 	}
- 
- 	virtblk_add_req(vbr, out, in);
--
--	return 0;
- }
- 
- static void virtblk_bio_send_data_work(struct work_struct *work)
+ 			if (err == -ENOSPC) {
+ 				if (!virtqueue_enable_cb_delayed(vq))
 -- 
 1.7.10.4
