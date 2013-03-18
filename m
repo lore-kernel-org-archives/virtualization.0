@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 13/22] virtio_net: use virtqueue_add_sgs[] for command buffers.
-Date: Mon, 18 Mar 2013 20:04:44 +1030
-Message-ID: <1363599293-23065-14-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 20/22] 9p/trans_virtio.c: use virtio_add_sgs[]
+Date: Mon, 18 Mar 2013 20:04:51 +1030
+Message-ID: <1363599293-23065-21-git-send-email-rusty@rustcorp.com.au>
 References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,151 +18,165 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Eric Van Hensbergen <ericvh@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-It's a bit cleaner to hand multiple sgs, rather than one big one.
+virtio_add_buf() is going away, replaced with virtio_add_sgs() which
+takes multiple terminated scatterlists.
 
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Eric Van Hensbergen <ericvh@gmail.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/net/virtio_net.c |   50 +++++++++++++++++++++++-----------------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+ net/9p/trans_virtio.c |   48 +++++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 39 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 57ac4b0..f19865a 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -39,7 +39,6 @@ module_param(gso, bool, 0444);
- #define MAX_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
- #define GOOD_COPY_LEN	128
- 
--#define VIRTNET_SEND_COMMAND_SG_MAX    2
- #define VIRTNET_DRIVER_VERSION "1.0.0"
- 
- struct virtnet_stats {
-@@ -767,32 +766,34 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-  * never fail unless improperly formated.
-  */
- static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
--				 struct scatterlist *data, int out, int in)
-+				 struct scatterlist *out,
-+				 struct scatterlist *in)
- {
--	struct scatterlist *s, sg[VIRTNET_SEND_COMMAND_SG_MAX + 2];
-+	struct scatterlist *sgs[4], hdr, stat;
- 	struct virtio_net_ctrl_hdr ctrl;
- 	virtio_net_ctrl_ack status = ~0;
--	unsigned int tmp;
--	int i;
-+	unsigned out_num = 0, in_num = 0, tmp;
- 
- 	/* Caller should know better */
--	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ) ||
--		(out + in > VIRTNET_SEND_COMMAND_SG_MAX));
+diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
+index de2e950..6cb9abe 100644
+--- a/net/9p/trans_virtio.c
++++ b/net/9p/trans_virtio.c
+@@ -194,11 +194,14 @@ static int pack_sg_list(struct scatterlist *sg, int start,
+ 		if (s > count)
+ 			s = count;
+ 		BUG_ON(index > limit);
++		/* Make sure we don't terminate early. */
++		sg_unmark_end(&sg[index]);
+ 		sg_set_buf(&sg[index++], data, s);
+ 		count -= s;
+ 		data += s;
+ 	}
 -
--	out++; /* Add header */
--	in++; /* Add return status */
-+	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
++	if (index-start)
++		sg_mark_end(&sg[index - 1]);
+ 	return index-start;
+ }
  
- 	ctrl.class = class;
- 	ctrl.cmd = cmd;
-+	/* Add header */
-+	sg_init_one(&hdr, &ctrl, sizeof(ctrl));
-+	sgs[out_num++] = &hdr;
+@@ -236,12 +239,17 @@ pack_sg_list_p(struct scatterlist *sg, int start, int limit,
+ 		s = rest_of_page(data);
+ 		if (s > count)
+ 			s = count;
++		/* Make sure we don't terminate early. */
++		sg_unmark_end(&sg[index]);
+ 		sg_set_page(&sg[index++], pdata[i++], s, data_off);
+ 		data_off = 0;
+ 		data += s;
+ 		count -= s;
+ 		nr_pages--;
+ 	}
++
++	if (index-start)
++		sg_mark_end(&sg[index - 1]);
+ 	return index - start;
+ }
  
--	sg_init_table(sg, out + in);
-+	if (out)
-+		sgs[out_num++] = out;
-+	if (in)
-+		sgs[out_num + in_num++] = in;
- 
--	sg_set_buf(&sg[0], &ctrl, sizeof(ctrl));
--	for_each_sg(data, s, out + in - 2, i)
--		sg_set_buf(&sg[i + 1], sg_virt(s), s->length);
--	sg_set_buf(&sg[out + in - 1], &status, sizeof(status));
-+	/* Add return status. */
-+	sg_init_one(&stat, &status, sizeof(status));
-+	sgs[out_num + in_num++] = &hdr;
- 
--	BUG_ON(virtqueue_add_buf(vi->cvq, sg, out, in, vi, GFP_ATOMIC) < 0);
-+	BUG_ON(virtqueue_add_sgs(vi->cvq, sgs, out_num, in_num, vi, GFP_ATOMIC)
-+	       < 0);
- 
- 	virtqueue_kick(vi->cvq);
- 
-@@ -821,7 +822,7 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
- 		sg_init_one(&sg, addr->sa_data, dev->addr_len);
- 		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
- 					  VIRTIO_NET_CTRL_MAC_ADDR_SET,
--					  &sg, 1, 0)) {
-+					  &sg, NULL)) {
- 			dev_warn(&vdev->dev,
- 				 "Failed to set mac address by vq command.\n");
- 			return -EINVAL;
-@@ -889,8 +890,7 @@ static void virtnet_ack_link_announce(struct virtnet_info *vi)
+@@ -256,9 +264,10 @@ static int
+ p9_virtio_request(struct p9_client *client, struct p9_req_t *req)
  {
- 	rtnl_lock();
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
--				  VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL,
--				  0, 0))
-+				  VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL, NULL))
- 		dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
- 	rtnl_unlock();
- }
-@@ -908,7 +908,7 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
- 	sg_init_one(&sg, &s, sizeof(s));
+ 	int err;
+-	int in, out;
++	int in, out, out_sgs, in_sgs;
+ 	unsigned long flags;
+ 	struct virtio_chan *chan = client->trans;
++	struct scatterlist *sgs[2];
  
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MQ,
--				  VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET, &sg, 1, 0)){
-+				  VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET, &sg, NULL)) {
- 		dev_warn(&dev->dev, "Fail to set num of queue pairs to %d\n",
- 			 queue_pairs);
- 		return -EINVAL;
-@@ -955,7 +955,7 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+ 	p9_debug(P9_DEBUG_TRANS, "9p debug: virtio request\n");
  
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
- 				  VIRTIO_NET_CTRL_RX_PROMISC,
--				  sg, 1, 0))
-+				  sg, NULL))
- 		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
- 			 promisc ? "en" : "dis");
+@@ -266,15 +275,21 @@ p9_virtio_request(struct p9_client *client, struct p9_req_t *req)
+ req_retry:
+ 	spin_lock_irqsave(&chan->lock, flags);
  
-@@ -963,7 +963,7 @@ static void virtnet_set_rx_mode(struct net_device *dev)
++	out_sgs = in_sgs = 0;
+ 	/* Handle out VirtIO ring buffers */
+ 	out = pack_sg_list(chan->sg, 0,
+ 			   VIRTQUEUE_NUM, req->tc->sdata, req->tc->size);
++	if (out)
++		sgs[out_sgs++] = chan->sg;
  
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
- 				  VIRTIO_NET_CTRL_RX_ALLMULTI,
--				  sg, 1, 0))
-+				  sg, NULL))
- 		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
- 			 allmulti ? "en" : "dis");
+ 	in = pack_sg_list(chan->sg, out,
+ 			  VIRTQUEUE_NUM, req->rc->sdata, req->rc->capacity);
++	if (in)
++		sgs[out_sgs + in_sgs++] = chan->sg + out;
  
-@@ -1000,7 +1000,7 @@ static void virtnet_set_rx_mode(struct net_device *dev)
+-	err = virtqueue_add_buf(chan->vq, chan->sg, out, in, req->tc,
++	err = virtqueue_add_sgs(chan->vq, sgs, out_sgs, in_sgs, req->tc,
+ 				GFP_ATOMIC);
++
+ 	if (err < 0) {
+ 		if (err == -ENOSPC) {
+ 			chan->ring_bufs_avail = 0;
+@@ -289,7 +304,7 @@ req_retry:
+ 		} else {
+ 			spin_unlock_irqrestore(&chan->lock, flags);
+ 			p9_debug(P9_DEBUG_TRANS,
+-				 "virtio rpc add_buf returned failure\n");
++				 "virtio rpc add_sgs returned failure\n");
+ 			return -EIO;
+ 		}
+ 	}
+@@ -351,11 +366,12 @@ p9_virtio_zc_request(struct p9_client *client, struct p9_req_t *req,
+ 		     char *uidata, char *uodata, int inlen,
+ 		     int outlen, int in_hdr_len, int kern_buf)
+ {
+-	int in, out, err;
++	int in, out, err, out_sgs, in_sgs;
+ 	unsigned long flags;
+ 	int in_nr_pages = 0, out_nr_pages = 0;
+ 	struct page **in_pages = NULL, **out_pages = NULL;
+ 	struct virtio_chan *chan = client->trans;
++	struct scatterlist *sgs[4];
  
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
- 				  VIRTIO_NET_CTRL_MAC_TABLE_SET,
--				  sg, 2, 0))
-+				  sg, NULL))
- 		dev_warn(&dev->dev, "Failed to set MAC fitler table.\n");
+ 	p9_debug(P9_DEBUG_TRANS, "virtio request\n");
  
- 	kfree(buf);
-@@ -1014,7 +1014,7 @@ static int virtnet_vlan_rx_add_vid(struct net_device *dev, u16 vid)
- 	sg_init_one(&sg, &vid, sizeof(vid));
+@@ -396,13 +412,22 @@ p9_virtio_zc_request(struct p9_client *client, struct p9_req_t *req,
+ 	req->status = REQ_STATUS_SENT;
+ req_retry_pinned:
+ 	spin_lock_irqsave(&chan->lock, flags);
++
++	out_sgs = in_sgs = 0;
++
+ 	/* out data */
+ 	out = pack_sg_list(chan->sg, 0,
+ 			   VIRTQUEUE_NUM, req->tc->sdata, req->tc->size);
  
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_VLAN,
--				  VIRTIO_NET_CTRL_VLAN_ADD, &sg, 1, 0))
-+				  VIRTIO_NET_CTRL_VLAN_ADD, &sg, NULL))
- 		dev_warn(&dev->dev, "Failed to add VLAN ID %d.\n", vid);
- 	return 0;
- }
-@@ -1027,7 +1027,7 @@ static int virtnet_vlan_rx_kill_vid(struct net_device *dev, u16 vid)
- 	sg_init_one(&sg, &vid, sizeof(vid));
+-	if (out_pages)
++	if (out)
++		sgs[out_sgs++] = chan->sg + out;
++
++	if (out_pages) {
+ 		out += pack_sg_list_p(chan->sg, out, VIRTQUEUE_NUM,
+ 				      out_pages, out_nr_pages, uodata, outlen);
++		sgs[out_sgs++] = chan->sg + out;
++	}
++		
+ 	/*
+ 	 * Take care of in data
+ 	 * For example TREAD have 11.
+@@ -412,11 +437,16 @@ req_retry_pinned:
+ 	 */
+ 	in = pack_sg_list(chan->sg, out,
+ 			  VIRTQUEUE_NUM, req->rc->sdata, in_hdr_len);
+-	if (in_pages)
++	if (in)
++		sgs[out_sgs + in_sgs++] = chan->sg + out + in;
++
++	if (in_pages) {
+ 		in += pack_sg_list_p(chan->sg, out + in, VIRTQUEUE_NUM,
+ 				     in_pages, in_nr_pages, uidata, inlen);
++		sgs[out_sgs + in_sgs++] = chan->sg + out + in;
++	}
  
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_VLAN,
--				  VIRTIO_NET_CTRL_VLAN_DEL, &sg, 1, 0))
-+				  VIRTIO_NET_CTRL_VLAN_DEL, &sg, NULL))
- 		dev_warn(&dev->dev, "Failed to kill VLAN ID %d.\n", vid);
- 	return 0;
- }
+-	err = virtqueue_add_buf(chan->vq, chan->sg, out, in, req->tc,
++	err = virtqueue_add_sgs(chan->vq, sgs, out_sgs, in_sgs, req->tc,
+ 				GFP_ATOMIC);
+ 	if (err < 0) {
+ 		if (err == -ENOSPC) {
+@@ -432,7 +462,7 @@ req_retry_pinned:
+ 		} else {
+ 			spin_unlock_irqrestore(&chan->lock, flags);
+ 			p9_debug(P9_DEBUG_TRANS,
+-				 "virtio rpc add_buf returned failure\n");
++				 "virtio rpc add_sgs returned failure\n");
+ 			err = -EIO;
+ 			goto err_out;
+ 		}
 -- 
 1.7.10.4
