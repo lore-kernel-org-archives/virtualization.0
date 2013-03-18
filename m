@@ -1,66 +1,46 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PULL] vhost: tcm_vhost fixes for 3.9
-Date: Mon, 18 Mar 2013 14:36:38 -0700
-Message-ID: <1363642598.3156.60.camel@haakon2.linux-iscsi.org>
-References: <20130318112003.GA7809@redhat.com>
-	 <20130318.130136.1629094222097780420.davem@davemloft.net>
-	 <20130318195443.GB19761@redhat.com>
-	 <1363641003.3156.43.camel@haakon2.linux-iscsi.org>
-	 <20130318211418.GA20406@redhat.com>
+Subject: Re: [PATCH V3 0/2] tcm_vhost hotplug/hotunplug support
+Date: Mon, 18 Mar 2013 14:46:12 -0700
+Message-ID: <1363643172.3156.62.camel@haakon2.linux-iscsi.org>
+References: <1363056339-6061-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20130318211418.GA20406@redhat.com>
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Miller <davem@davemloft.net>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, asias@redhat.com, target-devel@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1363056339-6061-1-git-send-email-asias@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2013-03-18 at 23:14 +0200, Michael S. Tsirkin wrote:
-> On Mon, Mar 18, 2013 at 02:10:03PM -0700, Nicholas A. Bellinger wrote:
-> > On Mon, 2013-03-18 at 21:54 +0200, Michael S. Tsirkin wrote:
-> > > On Mon, Mar 18, 2013 at 01:01:36PM -0400, David Miller wrote:
-> > > > From: "Michael S. Tsirkin" <mst@redhat.com>
-> > > > Date: Mon, 18 Mar 2013 13:20:03 +0200
-> > > > 
-> > > > > The following changes since commit 8c6216d7f118a128678270824b6a1286a63863ca:
-> > > > > 
-> > > > >   Revert "ip_gre: make ipgre_tunnel_xmit() not parse network header as IP unconditionally" (2013-03-16 23:00:41 -0400)
-> > > > > 
-> > > > > are available in the git repository at:
-> > > > > 
-> > > > >   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
-> > > > > 
-> > > > > for you to fetch changes up to deb7cb067dabd3be625eaf5495da8bdc97377fc1:
-> > > > > 
-> > > > >   tcm_vhost: Flush vhost_work in vhost_scsi_flush() (2013-03-17 13:04:14 +0200)
-> > > > 
-> > > > This is a scsi driver, I therefore don't think this pull request is for me.
-> > > > 
-> > > > Please avoid such confusion in the future, and don't use branch names
-> > > > like "vhost-net" for SCSI driver fixes.
-> > > > 
-> > > > Thanks.
-> > > 
-> > > We are sharing quite a bit of code, so it's a common tree.
-> > > There was a vhost-net patch there too but you picked it up
-> > > directly so I dropped that and what's left is vhost-scsi.
-> > > Typically vhost-net dominates so I'm just used to merging all vhost
-> > > things through you but if you think it's wrong I can send it directly to
-> > > Linus.
-> > > 
-> > 
-> > I'll be sending out a target-pending 3.9-rc-fixes pull request later in
-> > the week, and am happy to include this series if you'd like.
-> > 
-> > --nab
+On Tue, 2013-03-12 at 10:45 +0800, Asias He wrote:
+> Changes in v3:
+> - Separate the bug fix to another thread
 > 
-> Sure, go ahead. You can add
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> to the patches.
+> Changes in v2:
+> - Remove code duplication in tcm_vhost_{hotplug,hotunplug}
+> - Fix racing of vs_events_nr
+> - Add flush fix patch to this series
+> 
+> 
+> Asias He (2):
+>   tcm_vhost: Introduce tcm_vhost_check_feature()
+>   tcm_vhost: Add hotplug/hotunplug support
+> 
+>  drivers/vhost/tcm_vhost.c | 224 ++++++++++++++++++++++++++++++++++++++++++++--
+>  drivers/vhost/tcm_vhost.h |  10 +++
+>  2 files changed, 229 insertions(+), 5 deletions(-)
 > 
 
-Applied to target-pending/master.
+MST, are you OK with these two being applied to target-pending/for-next
+now..?
 
-Thanks MST & Asias!
+--nab
