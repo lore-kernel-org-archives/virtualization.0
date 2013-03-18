@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 21/22] tools/virtio: remove virtqueue_add_buf() from tests.
-Date: Mon, 18 Mar 2013 20:04:52 +1030
-Message-ID: <1363599293-23065-22-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 22/22] virtio: remove virtqueue_add_buf().
+Date: Mon, 18 Mar 2013 20:04:53 +1030
+Message-ID: <1363599293-23065-23-git-send-email-rusty@rustcorp.com.au>
 References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,21 +20,64 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+All users changed to virtqueue_add_sg() or virtqueue_add_outbuf/inbuf.
+
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- tools/virtio/linux/virtio.h |    7 -------
- tools/virtio/virtio_test.c  |    6 +++---
- tools/virtio/vringh_test.c  |   22 ++++++++++++----------
- 3 files changed, 15 insertions(+), 20 deletions(-)
+ drivers/virtio/virtio_ring.c |   31 -------------------------------
+ include/linux/virtio.h       |    7 -------
+ 2 files changed, 38 deletions(-)
 
-diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
-index 6df181a..cd80183 100644
---- a/tools/virtio/linux/virtio.h
-+++ b/tools/virtio/linux/virtio.h
-@@ -49,13 +49,6 @@ struct virtqueue {
- 	const char *__MODULE_LICENSE_name = __MODULE_LICENSE_value
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 5217baf..52b3658 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -296,37 +296,6 @@ add_head:
+ }
  
- /* Interfaces exported by virtio_ring. */
+ /**
+- * virtqueue_add_buf - expose buffer to other end
+- * @vq: the struct virtqueue we're talking about.
+- * @sg: the description of the buffer(s).
+- * @out_num: the number of sg readable by other side
+- * @in_num: the number of sg which are writable (after readable ones)
+- * @data: the token identifying the buffer.
+- * @gfp: how to do memory allocations (if necessary).
+- *
+- * Caller must ensure we don't call this with other virtqueue operations
+- * at the same time (except where noted).
+- *
+- * Returns zero or a negative error (ie. ENOSPC, ENOMEM).
+- */
+-int virtqueue_add_buf(struct virtqueue *_vq,
+-		      struct scatterlist sg[],
+-		      unsigned int out,
+-		      unsigned int in,
+-		      void *data,
+-		      gfp_t gfp)
+-{
+-	struct scatterlist *sgs[2];
+-
+-	sgs[0] = sg;
+-	sgs[1] = sg + out;
+-
+-	return virtqueue_add(_vq, sgs, sg_next_arr,
+-			     out, in, out ? 1 : 0, in ? 1 : 0, data, gfp);
+-}
+-EXPORT_SYMBOL_GPL(virtqueue_add_buf);
+-
+-/**
+  * virtqueue_add_sgs - expose buffers to other end
+  * @vq: the struct virtqueue we're talking about.
+  * @sgs: array of terminated scatterlists.
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 833f17b..879ca0f 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -34,13 +34,6 @@ struct virtqueue {
+ 	void *priv;
+ };
+ 
 -int virtqueue_add_buf(struct virtqueue *vq,
 -		      struct scatterlist sg[],
 -		      unsigned int out_num,
@@ -42,100 +85,8 @@ index 6df181a..cd80183 100644
 -		      void *data,
 -		      gfp_t gfp);
 -
- int virtqueue_add_sgs(struct virtqueue *vq,
- 		      struct scatterlist *sgs[],
- 		      unsigned int out_sgs,
-diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-index 814ae80..da7a195 100644
---- a/tools/virtio/virtio_test.c
-+++ b/tools/virtio/virtio_test.c
-@@ -166,9 +166,9 @@ static void run_test(struct vdev_info *dev, struct vq_info *vq,
- 		do {
- 			if (started < bufs) {
- 				sg_init_one(&sl, dev->buf, dev->buf_size);
--				r = virtqueue_add_buf(vq->vq, &sl, 1, 0,
--						      dev->buf + started,
--						      GFP_ATOMIC);
-+				r = virtqueue_add_outbuf(vq->vq, &sl, 1,
-+							 dev->buf + started,
-+							 GFP_ATOMIC);
- 				if (likely(r == 0)) {
- 					++started;
- 					virtqueue_kick(vq->vq);
-diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-index 88fe02a..760db1c 100644
---- a/tools/virtio/vringh_test.c
-+++ b/tools/virtio/vringh_test.c
-@@ -388,7 +388,7 @@ static int parallel_test(unsigned long features,
- 			}
- 
- 			if (err)
--				errx(1, "virtqueue_add_buf: %i", err);
-+				errx(1, "virtqueue_add_in/outbuf: %i", err);
- 
- 			xfers++;
- 			virtqueue_kick(vq);
-@@ -431,7 +431,7 @@ int main(int argc, char *argv[])
- 	struct virtio_device vdev;
- 	struct virtqueue *vq;
- 	struct vringh vrh;
--	struct scatterlist guest_sg[RINGSIZE];
-+	struct scatterlist guest_sg[RINGSIZE], *sgs[2];
- 	struct iovec host_riov[2], host_wiov[2];
- 	struct vringh_iov riov, wiov;
- 	struct vring_used_elem used[RINGSIZE];
-@@ -492,12 +492,14 @@ int main(int argc, char *argv[])
- 	sg_set_buf(&guest_sg[0], __user_addr_max - 1, 1);
- 	sg_init_table(guest_sg+1, 1);
- 	sg_set_buf(&guest_sg[1], __user_addr_max - 3, 2);
-+	sgs[0] = &guest_sg[0];
-+	sgs[1] = &guest_sg[1];
- 
- 	/* May allocate an indirect, so force it to allocate user addr */
- 	__kmalloc_fake = __user_addr_min + vring_size(RINGSIZE, ALIGN);
--	err = virtqueue_add_buf(vq, guest_sg, 1, 1, &err, GFP_KERNEL);
-+	err = virtqueue_add_sgs(vq, sgs, 1, 1, &err, GFP_KERNEL);
- 	if (err)
--		errx(1, "virtqueue_add_buf: %i", err);
-+		errx(1, "virtqueue_add_sgs: %i", err);
- 	__kmalloc_fake = NULL;
- 
- 	/* Host retreives it. */
-@@ -564,9 +566,9 @@ int main(int argc, char *argv[])
- 
- 	/* This will allocate an indirect, so force it to allocate user addr */
- 	__kmalloc_fake = __user_addr_min + vring_size(RINGSIZE, ALIGN);
--	err = virtqueue_add_buf(vq, guest_sg, RINGSIZE, 0, &err, GFP_KERNEL);
-+	err = virtqueue_add_outbuf(vq, guest_sg, RINGSIZE, &err, GFP_KERNEL);
- 	if (err)
--		errx(1, "virtqueue_add_buf (large): %i", err);
-+		errx(1, "virtqueue_add_outbuf (large): %i", err);
- 	__kmalloc_fake = NULL;
- 
- 	/* Host picks it up (allocates new iov). */
-@@ -616,9 +618,9 @@ int main(int argc, char *argv[])
- 	sg_init_table(guest_sg, 1);
- 	sg_set_buf(&guest_sg[0], __user_addr_max - 1, 1);
- 	for (i = 0; i < RINGSIZE; i++) {
--		err = virtqueue_add_buf(vq, guest_sg, 1, 0, &err, GFP_KERNEL);
-+		err = virtqueue_add_outbuf(vq, guest_sg, 1, &err, GFP_KERNEL);
- 		if (err)
--			errx(1, "virtqueue_add_buf (multiple): %i", err);
-+			errx(1, "virtqueue_add_outbuf (multiple): %i", err);
- 	}
- 
- 	/* Now get many, and consume them all at once. */
-@@ -665,9 +667,9 @@ int main(int argc, char *argv[])
- 		sg_set_buf(&guest_sg[2], data + 6, 4);
- 		sg_set_buf(&guest_sg[3], d + 3, sizeof(*d)*3);
- 
--		err = virtqueue_add_buf(vq, guest_sg, 4, 0, &err, GFP_KERNEL);
-+		err = virtqueue_add_outbuf(vq, guest_sg, 4, &err, GFP_KERNEL);
- 		if (err)
--			errx(1, "virtqueue_add_buf (indirect): %i", err);
-+			errx(1, "virtqueue_add_outbuf (indirect): %i", err);
- 
- 		vring_init(&vring, RINGSIZE, __user_addr_min, ALIGN);
- 
+ int virtqueue_add_outbuf(struct virtqueue *vq,
+ 			 struct scatterlist sg[], unsigned int num,
+ 			 void *data,
 -- 
 1.7.10.4
