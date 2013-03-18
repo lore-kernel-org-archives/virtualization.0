@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 19/22] virtio_balloon: use simplified virtqueue accessors.
-Date: Mon, 18 Mar 2013 20:04:50 +1030
-Message-ID: <1363599293-23065-20-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 17/22] caif_virtio: use simplified virtqueue accessors.
+Date: Mon, 18 Mar 2013 20:04:48 +1030
+Message-ID: <1363599293-23065-18-git-send-email-rusty@rustcorp.com.au>
 References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,45 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
+Cc: Sjur Brendeland <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 We never add buffers with input and output parts, so use the new accessors.
 
+Cc: Sjur Brendeland <sjur.brandeland@stericsson.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/virtio/virtio_balloon.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/caif/caif_virtio.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 8dab163..bd3ae32 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -108,7 +108,7 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
- 	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
+diff --git a/drivers/net/caif/caif_virtio.c b/drivers/net/caif/caif_virtio.c
+index 8308dee..36d9af5 100644
+--- a/drivers/net/caif/caif_virtio.c
++++ b/drivers/net/caif/caif_virtio.c
+@@ -573,8 +573,7 @@ static int cfv_netdev_tx(struct sk_buff *skb, struct net_device *netdev)
+ 		goto err;
+ 	}
  
- 	/* We should always be able to add one buffer to an empty queue. */
--	if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
-+	if (virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL) < 0)
- 		BUG();
- 	virtqueue_kick(vq);
- 
-@@ -256,7 +256,7 @@ static void stats_handle_request(struct virtio_balloon *vb)
- 	if (!virtqueue_get_buf(vq, &len))
- 		return;
- 	sg_init_one(&sg, vb->stats, sizeof(vb->stats));
--	if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
-+	if (virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL) < 0)
- 		BUG();
- 	virtqueue_kick(vq);
- }
-@@ -341,7 +341,7 @@ static int init_vqs(struct virtio_balloon *vb)
- 		 * use it to signal us later.
- 		 */
- 		sg_init_one(&sg, vb->stats, sizeof vb->stats);
--		if (virtqueue_add_buf(vb->stats_vq, &sg, 1, 0, vb, GFP_KERNEL)
-+		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
- 		    < 0)
- 			BUG();
- 		virtqueue_kick(vb->stats_vq);
+-	ret = virtqueue_add_buf(cfv->vq_tx, &sg, 1, 0,
+-				buf_info, GFP_ATOMIC);
++	ret = virtqueue_add_outbuf(cfv->vq_tx, &sg, 1, buf_info, GFP_ATOMIC);
+ 	if (unlikely((ret < 0))) {
+ 		/* If flow control works, this shouldn't happen */
+ 		netdev_warn(cfv->ndev, "Failed adding buffer to TX vring:%d\n",
 -- 
 1.7.10.4
