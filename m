@@ -1,14 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCHv3 vringh] caif_virtio: Introduce caif over virtio
-Date: Mon, 18 Mar 2013 14:08:58 +1030
-Message-ID: <87li9ls7fx.fsf__9888.87634962357$1363594725$gmane$org@rustcorp.com.au>
+Date: Mon, 18 Mar 2013 14:15:36 +1030
+Message-ID: <87ip4ps74v.fsf__38206.6148020842$1363594733$gmane$org@rustcorp.com.au>
 References: <1363340537-16011-1-git-send-email-erwan.yvin@stericsson.com>
-	<20130317.121436.461735238002154159.davem@davemloft.net>
+	<CAK=WgbbV6mvYC+KeSKJR+jmrAy3Et5opzzno1_kaicMPdDxNXg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130317.121436.461735238002154159.davem@davemloft.net>
+In-Reply-To: <CAK=WgbbV6mvYC+KeSKJR+jmrAy3Et5opzzno1_kaicMPdDxNXg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,25 +18,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>, erwan.yvin@stericsson.com
-Cc: linus.walleij@stericsson.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, rusty@ruscorp.com.au, sjur.brandeland@stericsson.com
+To: Ohad Ben-Cohen <ohad@wizery.com>, Erwan Yvin <erwan.yvin@stericsson.com>
+Cc: Linus Walleij <linus.walleij@stericsson.com>, netdev <netdev@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>, Rusty Russel <rusty@ruscorp.com.au>, "David S. Miller" <davem@davemloft.net>, Sjur Braendeland <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-David Miller <davem@davemloft.net> writes:
+Ohad Ben-Cohen <ohad@wizery.com> writes:
+> Hi Erwan,
+>
+> On Fri, Mar 15, 2013 at 11:42 AM, Erwan Yvin <erwan.yvin@stericsson.com> wrote:
+>> +++ b/drivers/net/caif/caif_virtio.c
+...
+>> +#include <linux/remoteproc.h>
+>
+> The driver looks nicely decoupled from remoteproc - do you still need
+> remoteproc.h ?
 
-> From: Erwan Yvin <erwan.yvin@stericsson.com>
-> Date: Fri, 15 Mar 2013 10:42:17 +0100
->
->> caif-virtio is going to replace caif-shm.
->> This patch should be merged in rusty's tree. (vringh)
->> because there is a dependency with vringh wrapper.
->
-> Feel free to add my:
->
-> Acked-by: David S. Miller <davem@davemloft.net>
-
-Thanks, applied to my vringh branch.  I'll repost it all, to give you
-and Sjur a chance to make sure I've integrated correctly.
+Seems not.
 
 Thanks,
 Rusty.
+
+caif_virtio: remove unneeded remoteproc.h
+
+Reported-by: Ohad Ben-Cohen <ohad@wizery.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff --git a/drivers/net/caif/caif_virtio.c b/drivers/net/caif/caif_virtio.c
+index 6a745dd..b1e1205 100644
+--- a/drivers/net/caif/caif_virtio.c
++++ b/drivers/net/caif/caif_virtio.c
+@@ -15,7 +15,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/netdevice.h>
+ #include <linux/rtnetlink.h>
+-#include <linux/remoteproc.h>
+ #include <linux/virtio_ids.h>
+ #include <linux/virtio_caif.h>
+ #include <linux/virtio_ring.h>
