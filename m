@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 16/22] virtio_console: use simplified virtqueue accessors.
-Date: Mon, 18 Mar 2013 20:04:47 +1030
-Message-ID: <1363599293-23065-17-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 19/22] virtio_balloon: use simplified virtqueue accessors.
+Date: Mon, 18 Mar 2013 20:04:50 +1030
+Message-ID: <1363599293-23065-20-git-send-email-rusty@rustcorp.com.au>
 References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,47 +18,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 We never add buffers with input and output parts, so use the new accessors.
 
-Cc: Amit Shah <amit.shah@redhat.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/char/virtio_console.c |    6 +++---
+ drivers/virtio/virtio_balloon.c |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index e6ba6b7..e9f35c5 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -502,7 +502,7 @@ static int add_inbuf(struct virtqueue *vq, struct port_buffer *buf)
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 8dab163..bd3ae32 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -108,7 +108,7 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
+ 	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
  
- 	sg_init_one(sg, buf->buf, buf->size);
- 
--	ret = virtqueue_add_buf(vq, sg, 0, 1, buf, GFP_ATOMIC);
-+	ret = virtqueue_add_inbuf(vq, sg, 1, buf, GFP_ATOMIC);
+ 	/* We should always be able to add one buffer to an empty queue. */
+-	if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
++	if (virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL) < 0)
+ 		BUG();
  	virtqueue_kick(vq);
- 	if (!ret)
- 		ret = vq->num_free;
-@@ -569,7 +569,7 @@ static ssize_t __send_control_msg(struct ports_device *portdev, u32 port_id,
- 	vq = portdev->c_ovq;
  
- 	sg_init_one(sg, &cpkt, sizeof(cpkt));
--	if (virtqueue_add_buf(vq, sg, 1, 0, &cpkt, GFP_ATOMIC) == 0) {
-+	if (virtqueue_add_outbuf(vq, sg, 1, &cpkt, GFP_ATOMIC) == 0) {
- 		virtqueue_kick(vq);
- 		while (!virtqueue_get_buf(vq, &len))
- 			cpu_relax();
-@@ -618,7 +618,7 @@ static ssize_t __send_to_port(struct port *port, struct scatterlist *sg,
- 
- 	reclaim_consumed_buffers(port);
- 
--	err = virtqueue_add_buf(out_vq, sg, nents, 0, data, GFP_ATOMIC);
-+	err = virtqueue_add_outbuf(out_vq, sg, nents, data, GFP_ATOMIC);
- 
- 	/* Tell Host to go! */
- 	virtqueue_kick(out_vq);
+@@ -256,7 +256,7 @@ static void stats_handle_request(struct virtio_balloon *vb)
+ 	if (!virtqueue_get_buf(vq, &len))
+ 		return;
+ 	sg_init_one(&sg, vb->stats, sizeof(vb->stats));
+-	if (virtqueue_add_buf(vq, &sg, 1, 0, vb, GFP_KERNEL) < 0)
++	if (virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL) < 0)
+ 		BUG();
+ 	virtqueue_kick(vq);
+ }
+@@ -341,7 +341,7 @@ static int init_vqs(struct virtio_balloon *vb)
+ 		 * use it to signal us later.
+ 		 */
+ 		sg_init_one(&sg, vb->stats, sizeof vb->stats);
+-		if (virtqueue_add_buf(vb->stats_vq, &sg, 1, 0, vb, GFP_KERNEL)
++		if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)
+ 		    < 0)
+ 			BUG();
+ 		virtqueue_kick(vb->stats_vq);
 -- 
 1.7.10.4
