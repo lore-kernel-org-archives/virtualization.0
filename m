@@ -1,16 +1,13 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjur@brendeland.net>
-Subject: Re: [PATCHv2] virtio: Introduce vringh wrappers in virtio_config
-Date: Mon, 18 Mar 2013 01:07:50 +0100
-Message-ID: <CAJK669a40vtD8LN4uhJdqsoP6cuMq-fBgeJYT8A27PFOPDFZMQ@mail.gmail.com>
-References: <1362737315-2894-1-git-send-email-sjur.brandeland@stericsson.com>
-	<CAJK669avxo=jx1pL_cvLPOdS+19Y1hGS-VvOXEiT_diXOtzOqg@mail.gmail.com>
-	<CAK=WgbbBJdFkJX8QoQwvaoFTLX5hn-sApg+WfLD+jx8yh1tBuQ@mail.gmail.com>
-Reply-To: sjur@brendeland.net
+From: Ben Hutchings <ben@decadent.org.uk>
+Subject: Re: [PATCH][v3.2.y] xen-netfront: delay gARP until backend switches
+	to Connected
+Date: Mon, 18 Mar 2013 02:19:40 +0000
+Message-ID: <1363573180.3937.302.camel@deadeye.wl.decadent.org.uk>
+References: <514360DD.8050406@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============2514430793949366686=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAK=WgbbBJdFkJX8QoQwvaoFTLX5hn-sApg+WfLD+jx8yh1tBuQ@mail.gmail.com>
+In-Reply-To: <514360DD.8050406@canonical.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,41 +17,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: Joseph Salisbury <joseph.salisbury@canonical.com>
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, netdev@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBNYXIgMTgsIDIwMTMgYXQgMTI6MjkgQU0sIE9oYWQgQmVuLUNvaGVuIDxvaGFkQHdp
-emVyeS5jb20+IHdyb3RlOgo+IEhpIFNqdXIsCj4KPiBTb3JyeSBmb3IgdGhlIGRlbGF5IC0ganVz
-dCBnb3QgYmFjayBmcm9tIHlvdSBrbm93IHdoZXJlIDopCj4KPiBPbiBXZWQsIE1hciAxMywgMjAx
-MyBhdCAxMjoxMiBQTSwgU2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cm90
-ZToKPj4+IEZyb206IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29u
-LmNvbT4KPj4+Cj4+PiBBZGQgd3JhcHBlcnMgZm9yIHRoZSBob3N0IHZyaW5ncyB0byBzdXBwb3J0
-IGxvb3NlCj4+PiBjb3VwbGluZyBiZXR3ZWVuIHRoZSB2aXJ0aW8gZGV2aWNlIGFuZCBkcml2ZXIu
-Cj4+Pgo+Pj4gQSBuZXcgc3RydWN0IHZyaW5naF9jb25maWdfb3BzIHdpdGggdGhlIGZ1bmN0aW9u
-cwo+Pj4gZmluZF92cmhzKCkgYW5kIGRlbF92cmhzKCkgaXMgYWRkZWQgdG8gdGhlIHZpcnRpb19k
-ZXZpY2UKPj4+IHN0cnVjdC4gVGhpcyBlbmFibGVzIHZpcnRpbyBkcml2ZXJzIHRvIG1hbmFnZSB2
-aXJ0aW8KPj4+IGhvc3QgcmluZ3Mgd2l0aG91dCBkZXRhaWxlZCBrbm93bGVkZ2Ugb2YgaG93IHRo
-ZQo+Pj4gdnJpbmdzIGFyZSBjcmVhdGVkIGFuZCBkZWxldGVkLgo+Pj4KPj4+IFRoZSBmdW5jdGlv
-biB2cmluZ2hfbm90aWZ5KCkgaXMgYWRkZWQgc28gdnJpbmdoIGNsaWVudHMKPj4+IGNhbiBub3Rp
-ZnkgdGhlIG90aGVyIHNpZGUgdGhhdCBidWZmZXJzIGFyZSBhZGRlZCB0byB0aGUKPj4+IHVzZWQt
-cmluZy4KPj4+Cj4+PiBDYzogT2hhZCBCZW4tQ29oZW4gPG9oYWRAd2l6ZXJ5LmNvbT4KPj4+IENj
-OiBSdXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+Cj4+PiBTaWduZWQtb2ZmLWJ5
-OiBTanVyIEJyw6ZuZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Cj4+Cj4+
-IEFzIHlvdSBoYXZlIGJlZW4gcHVzaGluZyBmb3IgdGhpcyB3cmFwcGVyLCBjb3VsZCB5b3UgcGxl
-YXNlCj4+IGFkZCB5b3VyIEFjayBvciBSZXZpZXdlZCB0YWcgaWYgeW91IGFyZSBoYXBweSB3aXRo
-IHRoaXMgcGF0Y2g/Cj4KPiBJIGFtIGhhcHB5IHdpdGggdGhpcyBwYXRjaDogdGhlIGNhaWYgdmly
-dGlvIGRyaXZlciBpcyBub3cgZGVjb3VwbGVkCj4gZnJvbSByZW1vdGVwcm9jIHdoaWNoIEkgdGhp
-bmsgaXMgZ3JlYXQuIFRoYW5rcyBmb3IgZG9pbmcgaXQhCj4KPiBUbyBwcm92aWRlIGEgUmV2aWV3
-ZWQtYnkgdGFnIHRob3VnaCBJIG5lZWQgdG8gcmV2aWV3IGl0IGZyb20gYSB2aXJ0aW8KPiBwb2lu
-dCBvZiB2aWV3LCB3aGljaCBJIGNhbiB0cnkgdG8gZG8gYWZ0ZXIgSSdsbCBmaW5pc2ggZ29pbmcg
-dGhyb3VnaAo+IG15IGJhY2tsb2cgb2YgcGVuZGluZyBwYXRjaGVzLiBMZXQgbWUgZmluaXNoIHRo
-YXQgcGlsZSBvZiBwYXRjaGVzIEkKPiBoYXZlLCBhbmQgaWYgeW91IG9yIFJ1c3R5IHdpbGwgc3Rp
-bGwgd2FudCBtZSB0byBwcm92aWRlIGEgUmV2aWV3ZWQtYnkKPiB0YWcgaGVyZSBJJ2xsIGRvIGl0
-LgoKSGkgUnVzdHksCgpEbyB5b3UgaGF2ZSB3aGF0IHlvdSBuZWVkIHRvIGFwcGx5IHRoaXMgcGF0
-Y2g/ClBsZWFzZSwgbGV0IG1lIGtub3cgaWYgYW55IGZ1cnRoZXIgY2hhbmdlcyBhcmUgbmVlZGVk
-LgpUaGUgaW5mb3JtYWwgYWNrIGFib3ZlIGZyb20gT2hhZCBpcyBnb29kIGVub3VnaCBmb3IgbWUg
-Oi0pCgpUaGFua3MsClNqdXIKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
-LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
-YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+--===============2514430793949366686==
+Content-Type: multipart/signed; micalg="pgp-sha512";
+	protocol="application/pgp-signature"; boundary="=-aOtK/I3oqy0L3172kZ2X"
+
+
+--=-aOtK/I3oqy0L3172kZ2X
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, 2013-03-15 at 13:56 -0400, Joseph Salisbury wrote:
+> Hello,
+>=20
+> Please consider including upstream commit=20
+> 08e34eb14fe4cfd934b5c169a7682a969457c4ea in the next v3.2.y release.
+> It was included upstream as of v3.3-rc1.  It has been tested and=20
+> confirmed to resolve http://bugs.launchpad.net/bugs/1154608 .
+>=20
+> commit 08e34eb14fe4cfd934b5c169a7682a969457c4ea
+> Author: Laszlo Ersek <lersek@redhat.com>
+> Date:   Sun Dec 11 01:48:59 2011 +0000
+>=20
+>      xen-netfront: delay gARP until backend switches to Connected
+
+Added to the queue, thanks.
+
+Ben.
+
+--=20
+Ben Hutchings
+Never attribute to conspiracy what can adequately be explained by stupidity=
+.
+
+--=-aOtK/I3oqy0L3172kZ2X
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIVAwUAUUZ5vOe/yOyVhhEJAQrw5Q//WtD/ICjdtXSZyb6+adAXGf20091dXQYO
+yWvuLEouKVwgyPtsmvKpBjzkTD8NyD+oZkULIpgbd7bSmoywJzNBpDBfTudLEQyw
+4FSeYvvOe03cLOu1f1YAOiFh3LGmCUeitjxmE9/CNpUS7rItSxz+8XsXswHtg0t0
+LyC+1rDLX6rGJ5zw6eZXz4wQ0E+wX6cD/D/8g08yoA/uDGnqxiJX2x3LSpuKI+tE
+PKUJA67XhaA6hThipJwHESjejQ6v8gJBs5QAC2Smc0/nK1LpYoF1zfDRjo/4aK6W
+u1ByISdbk7GejhnM1Gp3nSbxvfnxOnGaIUz4DgQ/mVBr9HE2CmF/2zYIM4LLW0u3
+gVs+c+NsE2MtC1u2rQYQtsBmUGld7pkxoohCbof9t81TqfiiMLaqHEtB2xmG819P
+OlexWtUgI0xQ9UmFClH1wWbRRYfe3QL1ogwBfIhREjYIyn6oViQ7+PakhEAKwz7u
+qgpyL5nzBt02Jq0SwrXpClnJdw5CxYWwPZr1m+3FCpzY/GqsHS7YmSAZbRHKNSxN
+Ugq5ActHsGM8ppG06Y5VPR2Z734p5kI4Ipc9K7wNq/7saaneiTHyqnURHk9biJcr
+unI3CPZS8HxU6XMvNocD5NJVMSuZzFs1s+P2H+WmFXZrlU16zS+f+2M4CetWm2/Q
+7vGOa+yp+AU=
+=0cSp
+-----END PGP SIGNATURE-----
+
+--=-aOtK/I3oqy0L3172kZ2X--
+
+--===============2514430793949366686==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2514430793949366686==--
