@@ -1,13 +1,14 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH V3 0/2] tcm_vhost hotplug/hotunplug support
-Date: Mon, 18 Mar 2013 14:46:12 -0700
-Message-ID: <1363643172.3156.62.camel@haakon2.linux-iscsi.org>
-References: <1363056339-6061-1-git-send-email-asias@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-spec: add field for scsi command size
+Date: Mon, 18 Mar 2013 23:47:02 +0200
+Message-ID: <20130318214702.GA21045@redhat.com>
+References: <20130314111020.GA18050@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1363056339-6061-1-git-send-email-asias@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20130314111020.GA18050@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,30 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2013-03-12 at 10:45 +0800, Asias He wrote:
-> Changes in v3:
-> - Separate the bug fix to another thread
+On Thu, Mar 14, 2013 at 01:10:20PM +0200, Michael S. Tsirkin wrote:
+> Add field for guest to specify command size for virtio-blk.
 > 
-> Changes in v2:
-> - Remove code duplication in tcm_vhost_{hotplug,hotunplug}
-> - Fix racing of vs_events_nr
-> - Add flush fix patch to this series
-> 
-> 
-> Asias He (2):
->   tcm_vhost: Introduce tcm_vhost_check_feature()
->   tcm_vhost: Add hotplug/hotunplug support
-> 
->  drivers/vhost/tcm_vhost.c | 224 ++++++++++++++++++++++++++++++++++++++++++++--
->  drivers/vhost/tcm_vhost.h |  10 +++
->  2 files changed, 229 insertions(+), 5 deletions(-)
-> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-MST, are you OK with these two being applied to target-pending/for-next
-now..?
+There's one concern here: are we going to add a
+feature flag for flexible layout? If yes this feature
+could thinkably just reuse it.
 
---nab
+It allows a nice optimization in virtio net that is very easy
+with latest qemu.
+
+Rusty, what is our plan wrt this?  Are you fine with a per-device
+feature bit?  Or do we need a transport feature bit (there's the small
+issue that we almost run out of them for virtio-pci, do we use the last
+one?).
+
+As an aside, the new virtio pci config proposal seems to be stuck too,
+are you looking into it or want me to?
+-- 
+MST
