@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 10/22] virtio_blk: remove nents member.
-Date: Mon, 18 Mar 2013 20:04:41 +1030
-Message-ID: <1363599293-23065-11-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 14/22] virtio_net: use simplified virtqueue accessors.
+Date: Mon, 18 Mar 2013 20:04:45 +1030
+Message-ID: <1363599293-23065-15-git-send-email-rusty@rustcorp.com.au>
 References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,103 +18,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-It's simply a flag as to whether we have data now, so make it an
-explicit function parameter rather than a member of struct
-virtblk_req.
+We never add buffers with input and output parts, so use the new accessors.
 
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Reviewed-by: Asias He <asias@redhat.com>
 ---
- drivers/block/virtio_blk.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/net/virtio_net.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index cc88b29..6472395 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -62,7 +62,6 @@ struct virtblk_req
- 	struct virtio_blk *vblk;
- 	int flags;
- 	u8 status;
--	int nents;
- 	struct scatterlist sg[];
- };
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index f19865a..38c01d9 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -443,7 +443,7 @@ static int add_recvbuf_small(struct receive_queue *rq, gfp_t gfp)
  
-@@ -104,7 +103,7 @@ static inline struct virtblk_req *virtblk_alloc_req(struct virtio_blk *vblk,
- static int __virtblk_add_req(struct virtqueue *vq,
- 			     struct virtblk_req *vbr,
- 			     struct scatterlist *data_sg,
--			     unsigned data_nents)
-+			     bool have_data)
- {
- 	struct scatterlist hdr, status, cmd, sense, inhdr, *sgs[6];
- 	unsigned int num_out = 0, num_in = 0;
-@@ -124,7 +123,7 @@ static int __virtblk_add_req(struct virtqueue *vq,
- 		sgs[num_out++] = &cmd;
- 	}
+ 	skb_to_sgvec(skb, rq->sg + 1, 0, skb->len);
  
--	if (data_nents) {
-+	if (have_data) {
- 		if (vbr->out_hdr.type & VIRTIO_BLK_T_OUT)
- 			sgs[num_out++] = data_sg;
- 		else
-@@ -144,7 +143,7 @@ static int __virtblk_add_req(struct virtqueue *vq,
- 	return virtqueue_add_sgs(vq, sgs, num_out, num_in, vbr, GFP_ATOMIC);
+-	err = virtqueue_add_buf(rq->vq, rq->sg, 0, 2, skb, gfp);
++	err = virtqueue_add_inbuf(rq->vq, rq->sg, 2, skb, gfp);
+ 	if (err < 0)
+ 		dev_kfree_skb(skb);
+ 
+@@ -488,8 +488,8 @@ static int add_recvbuf_big(struct receive_queue *rq, gfp_t gfp)
+ 
+ 	/* chain first in list head */
+ 	first->private = (unsigned long)list;
+-	err = virtqueue_add_buf(rq->vq, rq->sg, 0, MAX_SKB_FRAGS + 2,
+-				first, gfp);
++	err = virtqueue_add_inbuf(rq->vq, rq->sg, MAX_SKB_FRAGS + 2,
++				  first, gfp);
+ 	if (err < 0)
+ 		give_pages(rq, first);
+ 
+@@ -507,7 +507,7 @@ static int add_recvbuf_mergeable(struct receive_queue *rq, gfp_t gfp)
+ 
+ 	sg_init_one(rq->sg, page_address(page), PAGE_SIZE);
+ 
+-	err = virtqueue_add_buf(rq->vq, rq->sg, 0, 1, page, gfp);
++	err = virtqueue_add_inbuf(rq->vq, rq->sg, 1, page, gfp);
+ 	if (err < 0)
+ 		give_pages(rq, page);
+ 
+@@ -710,8 +710,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+ 		sg_set_buf(sq->sg, &hdr->hdr, sizeof hdr->hdr);
+ 
+ 	num_sg = skb_to_sgvec(skb, sq->sg + 1, 0, skb->len) + 1;
+-	return virtqueue_add_buf(sq->vq, sq->sg, num_sg,
+-				 0, skb, GFP_ATOMIC);
++	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
  }
  
--static void virtblk_add_req(struct virtblk_req *vbr)
-+static void virtblk_add_req(struct virtblk_req *vbr, bool have_data)
- {
- 	struct virtio_blk *vblk = vbr->vblk;
- 	DEFINE_WAIT(wait);
-@@ -152,7 +151,7 @@ static void virtblk_add_req(struct virtblk_req *vbr)
- 
- 	spin_lock_irq(vblk->disk->queue->queue_lock);
- 	while (unlikely((ret = __virtblk_add_req(vblk->vq, vbr, vbr->sg,
--						 vbr->nents)) < 0)) {
-+						 have_data)) < 0)) {
- 		prepare_to_wait_exclusive(&vblk->queue_wait, &wait,
- 					  TASK_UNINTERRUPTIBLE);
- 
-@@ -173,30 +172,31 @@ static void virtblk_bio_send_flush(struct virtblk_req *vbr)
- 	vbr->out_hdr.type = VIRTIO_BLK_T_FLUSH;
- 	vbr->out_hdr.sector = 0;
- 	vbr->out_hdr.ioprio = 0;
--	vbr->nents = 0;
- 
--	virtblk_add_req(vbr);
-+	virtblk_add_req(vbr, false);
- }
- 
- static void virtblk_bio_send_data(struct virtblk_req *vbr)
- {
- 	struct virtio_blk *vblk = vbr->vblk;
- 	struct bio *bio = vbr->bio;
-+	bool have_data;
- 
- 	vbr->flags &= ~VBLK_IS_FLUSH;
- 	vbr->out_hdr.type = 0;
- 	vbr->out_hdr.sector = bio->bi_sector;
- 	vbr->out_hdr.ioprio = bio_prio(bio);
- 
--	vbr->nents = blk_bio_map_sg(vblk->disk->queue, bio, vbr->sg);
--	if (vbr->nents) {
-+	if (blk_bio_map_sg(vblk->disk->queue, bio, vbr->sg)) {
-+		have_data = true;
- 		if (bio->bi_rw & REQ_WRITE)
- 			vbr->out_hdr.type |= VIRTIO_BLK_T_OUT;
- 		else
- 			vbr->out_hdr.type |= VIRTIO_BLK_T_IN;
--	}
-+	} else
-+		have_data = false;
- 
--	virtblk_add_req(vbr);
-+	virtblk_add_req(vbr, have_data);
- }
- 
- static void virtblk_bio_send_data_work(struct work_struct *work)
+ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
 -- 
 1.7.10.4
