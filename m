@@ -1,18 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V3 3/3] tcm_vhost: Use vq->private_data to indicate if
-	the endpoint is setup
-Date: Mon, 18 Mar 2013 11:30:57 +0200
-Message-ID: <20130318093057.GB5267@redhat.com>
-References: <1363310047-21652-1-git-send-email-asias@redhat.com>
-	<1363310047-21652-4-git-send-email-asias@redhat.com>
-	<20130318081900.GA4760@redhat.com>
-	<20130318091433.GA6668@hj.localdomain>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH 04/22] virtio_ring: inline internal vring functions more
+	aggressively.
+Date: Mon, 18 Mar 2013 20:04:35 +1030
+Message-ID: <1363599293-23065-5-git-send-email-rusty@rustcorp.com.au>
+References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130318091433.GA6668@hj.localdomain>
+In-Reply-To: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,166 +18,205 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 18, 2013 at 05:14:33PM +0800, Asias He wrote:
-> On Mon, Mar 18, 2013 at 10:19:00AM +0200, Michael S. Tsirkin wrote:
-> > On Fri, Mar 15, 2013 at 09:14:07AM +0800, Asias He wrote:
-> > > Currently, vs->vs_endpoint is used indicate if the endpoint is setup or
-> > > not. It is set or cleared in vhost_scsi_set_endpoint() or
-> > > vhost_scsi_clear_endpoint() under the vs->dev.mutex lock. However, when
-> > > we check it in vhost_scsi_handle_vq(), we ignored the lock, this is
-> > > wrong.
-> > 
-> > This one, I don't get. Why is it wrong? Could you please describe the
-> > race codition you are trying to prevent?
-> 
-> Why is it safe to access vs->vs_endpoint without any lock?
+We use inline and get gcc to do the right thing inlining the
+"indirect" traversal functions.  This also means we don't need to
+clean the sgs.
 
-For the same reason it's safe with the pointer: either readers
-see the old or the new value, and we flush before relying on
-the new value.
-RCU macros also include barriers that are irrelevant if you are not
-going to access any data through the pointer.
-Nowdays they also including lockdep-like checks, which you override.
+for i in `seq 50`; do /usr/bin/time -f 'Wall time:%e' ./vringh_test --indirect --eventidx --parallel --fast-vringh; done 2>&1 | stats --trim-outliers:
 
-> > > Instead of using the vs->vs_endpoint and the vs->dev.mutex lock to
-> > > indicate the status of the endpoint, we use per virtqueue
-> > > vq->private_data to indicate it. In this way, we can only take the
-> > > vq->mutex lock which is per queue and make the concurrent multiqueue
-> > > process having less lock contention. Further, in the read side of
-> > > vq->private_data, we can even do not take only lock if it is accessed in
-> > > the vhost worker thread, because it is protected by "vhost rcu".
-> > 
-> > But (unlike with -net) you never actually need the pointer. So why all
-> > the complexity?
-> 
-> It works as a flag, NULL or !NULL.
-> 
-> This is from your other mail:
-> 
-> '''
-> This takes dev mutex on data path which will introduce
-> contention esp for multiqueue.
-> How about storing the endpoint as part of vq
-> private data and protecting with vq mutex?
-> '''
+Before:
+	Using CPUS 0 and 3
+	Guest: notified 0, pinged 39014-39063(39062)
+	Host: notified 39014-39063(39062), pinged 0
+	Wall time:1.900000-2.350000(1.921875)
 
-Yes this is better than taking the mutex but I don't see
-a problem as is, either. For patch to go into 3.9 it needs
-to fix a bug, not just be a refactoring.
+After:
+	Using CPUS 0 and 3
+	Guest: notified 0, pinged 39062-39063(39063)
+	Host: notified 39062-39063(39063), pinged 0
+	Wall time:1.760000-2.220000(1.789167)
 
-> > > Signed-off-by: Asias He <asias@redhat.com>
-> > > ---
-> > >  drivers/vhost/tcm_vhost.c | 46 ++++++++++++++++++++++++++++++++++++++++------
-> > >  1 file changed, 40 insertions(+), 6 deletions(-)
-> > > 
-> > > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> > > index 43fb11e..099feef 100644
-> > > --- a/drivers/vhost/tcm_vhost.c
-> > > +++ b/drivers/vhost/tcm_vhost.c
-> > > @@ -67,7 +67,6 @@ struct vhost_scsi {
-> > >  	/* Protected by vhost_scsi->dev.mutex */
-> > >  	struct tcm_vhost_tpg *vs_tpg[VHOST_SCSI_MAX_TARGET];
-> > >  	char vs_vhost_wwpn[TRANSPORT_IQN_LEN];
-> > > -	bool vs_endpoint;
-> > >  
-> > >  	struct vhost_dev dev;
-> > >  	struct vhost_virtqueue vqs[VHOST_SCSI_MAX_VQ];
-> > > @@ -91,6 +90,24 @@ static int iov_num_pages(struct iovec *iov)
-> > >  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
-> > >  }
-> > >  
-> > > +static bool tcm_vhost_check_endpoint(struct vhost_virtqueue *vq)
-> > > +{
-> > > +	bool ret = false;
-> > > +
-> > > +	/*
-> > > +	 * We can handle the vq only after the endpoint is setup by calling the
-> > > +	 * VHOST_SCSI_SET_ENDPOINT ioctl.
-> > > +	 *
-> > > +	 * TODO: Check that we are running from vhost_worker which acts
-> > > +	 * as read-side critical section for vhost kind of RCU.
-> > > +	 * See the comments in struct vhost_virtqueue in drivers/vhost/vhost.h
-> > > +	 */
-> > > +	if (rcu_dereference_check(vq->private_data, 1))
-> > > +		ret = true;
-> > > +
-> > > +	return ret;
-> > > +}
-> > > +
-> > >  static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
-> > >  {
-> > >  	return 1;
-> > > @@ -581,8 +598,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
-> > >  	int head, ret;
-> > >  	u8 target;
-> > >  
-> > > -	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
-> > > -	if (unlikely(!vs->vs_endpoint))
-> > > +	if (!tcm_vhost_check_endpoint(vq))
-> > >  		return;
-> > >  
-> > >  	mutex_lock(&vq->mutex);
-> > > @@ -781,8 +797,9 @@ static int vhost_scsi_set_endpoint(
-> > >  {
-> > >  	struct tcm_vhost_tport *tv_tport;
-> > >  	struct tcm_vhost_tpg *tv_tpg;
-> > > +	struct vhost_virtqueue *vq;
-> > >  	bool match = false;
-> > > -	int index, ret;
-> > > +	int index, ret, i;
-> > >  
-> > >  	mutex_lock(&vs->dev.mutex);
-> > >  	/* Verify that ring has been setup correctly. */
-> > > @@ -826,7 +843,13 @@ static int vhost_scsi_set_endpoint(
-> > >  	if (match) {
-> > >  		memcpy(vs->vs_vhost_wwpn, t->vhost_wwpn,
-> > >  		       sizeof(vs->vs_vhost_wwpn));
-> > > -		vs->vs_endpoint = true;
-> > > +		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
-> > > +			vq = &vs->vqs[i];
-> > > +			/* Flushing the vhost_work acts as synchronize_rcu */
-> > > +			mutex_lock(&vq->mutex);
-> > > +			rcu_assign_pointer(vq->private_data, vs);
-> > > +			mutex_unlock(&vq->mutex);
-> > > +		}
-> > >  		ret = 0;
-> > >  	} else {
-> > >  		ret = -EEXIST;
-> > > @@ -842,6 +865,8 @@ static int vhost_scsi_clear_endpoint(
-> > >  {
-> > >  	struct tcm_vhost_tport *tv_tport;
-> > >  	struct tcm_vhost_tpg *tv_tpg;
-> > > +	struct vhost_virtqueue *vq;
-> > > +	bool match = false;
-> > >  	int index, ret, i;
-> > >  	u8 target;
-> > >  
-> > > @@ -877,9 +902,18 @@ static int vhost_scsi_clear_endpoint(
-> > >  		}
-> > >  		tv_tpg->tv_tpg_vhost_count--;
-> > >  		vs->vs_tpg[target] = NULL;
-> > > -		vs->vs_endpoint = false;
-> > > +		match = true;
-> > >  		mutex_unlock(&tv_tpg->tv_tpg_mutex);
-> > >  	}
-> > > +	if (match) {
-> > > +		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
-> > > +			vq = &vs->vqs[i];
-> > > +			/* Flushing the vhost_work acts as synchronize_rcu */
-> > > +			mutex_lock(&vq->mutex);
-> > > +			rcu_assign_pointer(vq->private_data, NULL);
-> > > +			mutex_unlock(&vq->mutex);
-> > > +		}
-> > > +	}
-> > >  	mutex_unlock(&vs->dev.mutex);
-> > >  	return 0;
-> > >  
-> > > -- 
-> > > 1.8.1.4
-> 
-> -- 
-> Asias
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ drivers/virtio/virtio_ring.c |   91 ++++++++++++++++++++++++++----------------
+ 1 file changed, 56 insertions(+), 35 deletions(-)
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index c537385..a78ad45 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -98,13 +98,31 @@ struct vring_virtqueue
+ 
+ #define to_vvq(_vq) container_of(_vq, struct vring_virtqueue, vq)
+ 
++static inline struct scatterlist *sg_next_chained(struct scatterlist *sg,
++						  unsigned int *count)
++{
++	return sg_next(sg);
++}
++
++static inline struct scatterlist *sg_next_arr(struct scatterlist *sg,
++					      unsigned int *count)
++{
++	if (--(*count) == 0)
++		return NULL;
++	return sg + 1;
++}
++
+ /* Set up an indirect table of descriptors and add it to the queue. */
+-static int vring_add_indirect(struct vring_virtqueue *vq,
+-			      struct scatterlist *sgs[],
+-			      unsigned int total_sg,
+-			      unsigned int out_sgs,
+-			      unsigned int in_sgs,
+-			      gfp_t gfp)
++static inline int vring_add_indirect(struct vring_virtqueue *vq,
++				     struct scatterlist *sgs[],
++				     struct scatterlist *(*next)
++				       (struct scatterlist *, unsigned int *),
++				     unsigned int total_sg,
++				     unsigned int total_out,
++				     unsigned int total_in,
++				     unsigned int out_sgs,
++				     unsigned int in_sgs,
++				     gfp_t gfp)
+ {
+ 	struct vring_desc *desc;
+ 	unsigned head;
+@@ -125,7 +143,7 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+ 	/* Transfer entries from the sg lists into the indirect page */
+ 	i = 0;
+ 	for (n = 0; n < out_sgs; n++) {
+-		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
++		for (sg = sgs[n]; sg; sg = next(sg, &total_out)) {
+ 			desc[i].flags = VRING_DESC_F_NEXT;
+ 			desc[i].addr = sg_phys(sg);
+ 			desc[i].len = sg->length;
+@@ -134,7 +152,7 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+ 		}
+ 	}
+ 	for (; n < (out_sgs + in_sgs); n++) {
+-		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
++		for (sg = sgs[n]; sg; sg = next(sg, &total_in)) {
+ 			desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
+ 			desc[i].addr = sg_phys(sg);
+ 			desc[i].len = sg->length;
+@@ -163,17 +181,20 @@ static int vring_add_indirect(struct vring_virtqueue *vq,
+ 	return head;
+ }
+ 
+-static int virtqueue_add(struct virtqueue *_vq,
+-			 struct scatterlist *sgs[],
+-			 unsigned int total_sg,
+-			 unsigned int out_sgs,
+-			 unsigned int in_sgs,
+-			 void *data,
+-			 gfp_t gfp)
++static inline int virtqueue_add(struct virtqueue *_vq,
++				struct scatterlist *sgs[],
++				struct scatterlist *(*next)
++				  (struct scatterlist *, unsigned int *),
++				unsigned int total_out,
++				unsigned int total_in,
++				unsigned int out_sgs,
++				unsigned int in_sgs,
++				void *data,
++				gfp_t gfp)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 	struct scatterlist *sg;
+-	unsigned int i, n, avail, uninitialized_var(prev);
++	unsigned int i, n, avail, uninitialized_var(prev), total_sg;
+ 	int head;
+ 
+ 	START_USE(vq);
+@@ -193,11 +214,14 @@ static int virtqueue_add(struct virtqueue *_vq,
+ 	}
+ #endif
+ 
++	total_sg = total_in + total_out;
++
+ 	/* If the host supports indirect descriptor tables, and we have multiple
+ 	 * buffers, then go indirect. FIXME: tune this threshold */
+ 	if (vq->indirect && total_sg > 1 && vq->vq.num_free) {
+-		head = vring_add_indirect(vq, sgs, total_sg, out_sgs, in_sgs,
+-					  gfp);
++		head = vring_add_indirect(vq, sgs, next, total_sg, total_out,
++					  total_in,
++					  out_sgs, in_sgs, gfp);
+ 		if (likely(head >= 0))
+ 			goto add_head;
+ 	}
+@@ -222,7 +246,7 @@ static int virtqueue_add(struct virtqueue *_vq,
+ 
+ 	head = i = vq->free_head;
+ 	for (n = 0; n < out_sgs; n++) {
+-		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
++		for (sg = sgs[n]; sg; sg = next(sg, &total_out)) {
+ 			vq->vring.desc[i].flags = VRING_DESC_F_NEXT;
+ 			vq->vring.desc[i].addr = sg_phys(sg);
+ 			vq->vring.desc[i].len = sg->length;
+@@ -231,7 +255,7 @@ static int virtqueue_add(struct virtqueue *_vq,
+ 		}
+ 	}
+ 	for (; n < (out_sgs + in_sgs); n++) {
+-		for (sg = sgs[n]; sg; sg = sg_next(sg)) {
++		for (sg = sgs[n]; sg; sg = next(sg, &total_in)) {
+ 			vq->vring.desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
+ 			vq->vring.desc[i].addr = sg_phys(sg);
+ 			vq->vring.desc[i].len = sg->length;
+@@ -293,21 +317,12 @@ int virtqueue_add_buf(struct virtqueue *_vq,
+ 		      gfp_t gfp)
+ {
+ 	struct scatterlist *sgs[2];
+-	unsigned int i;
+ 
+ 	sgs[0] = sg;
+ 	sgs[1] = sg + out;
+ 
+-	/* Workaround until callers pass well-formed sgs. */
+-	for (i = 0; i < out + in; i++)
+-		sg_unmark_end(sg + i);
+-
+-	sg_mark_end(sg + out + in - 1);
+-	if (out && in)
+-		sg_mark_end(sg + out - 1);
+-
+-	return virtqueue_add(_vq, sgs, out+in, out ? 1 : 0, in ? 1 : 0,
+-			     data, gfp);
++	return virtqueue_add(_vq, sgs, sg_next_arr,
++			     out, in, out ? 1 : 0, in ? 1 : 0, data, gfp);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_buf);
+ 
+@@ -332,15 +347,21 @@ int virtqueue_add_sgs(struct virtqueue *_vq,
+ 		      void *data,
+ 		      gfp_t gfp)
+ {
+-	unsigned int i, total_sg;
++	unsigned int i, total_out, total_in;
+ 
+ 	/* Count them first. */
+-	for (i = total_sg = 0; i < out_sgs + in_sgs; i++) {
++	for (i = total_out = total_in = 0; i < out_sgs; i++) {
++		struct scatterlist *sg;
++		for (sg = sgs[i]; sg; sg = sg_next(sg))
++			total_out++;
++	}
++	for (; i < out_sgs + in_sgs; i++) {
+ 		struct scatterlist *sg;
+ 		for (sg = sgs[i]; sg; sg = sg_next(sg))
+-			total_sg++;
++			total_in++;
+ 	}
+-	return virtqueue_add(_vq, sgs, total_sg, out_sgs, in_sgs, data, gfp);
++	return virtqueue_add(_vq, sgs, sg_next_chained,
++			     total_out, total_in, out_sgs, in_sgs, data, gfp);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_sgs);
+ 
+-- 
+1.7.10.4
