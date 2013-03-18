@@ -1,14 +1,16 @@
-From: Ohad Ben-Cohen <ohad@wizery.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjur@brendeland.net>
 Subject: Re: [PATCHv2] virtio: Introduce vringh wrappers in virtio_config
-Date: Mon, 18 Mar 2013 01:29:40 +0200
-Message-ID: <CAK=WgbbBJdFkJX8QoQwvaoFTLX5hn-sApg+WfLD+jx8yh1tBuQ@mail.gmail.com>
+Date: Mon, 18 Mar 2013 01:07:50 +0100
+Message-ID: <CAJK669a40vtD8LN4uhJdqsoP6cuMq-fBgeJYT8A27PFOPDFZMQ@mail.gmail.com>
 References: <1362737315-2894-1-git-send-email-sjur.brandeland@stericsson.com>
 	<CAJK669avxo=jx1pL_cvLPOdS+19Y1hGS-VvOXEiT_diXOtzOqg@mail.gmail.com>
+	<CAK=WgbbBJdFkJX8QoQwvaoFTLX5hn-sApg+WfLD+jx8yh1tBuQ@mail.gmail.com>
+Reply-To: sjur@brendeland.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJK669avxo=jx1pL_cvLPOdS+19Y1hGS-VvOXEiT_diXOtzOqg@mail.gmail.com>
+In-Reply-To: <CAK=WgbbBJdFkJX8QoQwvaoFTLX5hn-sApg+WfLD+jx8yh1tBuQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,46 +20,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: =?ISO-8859-1?Q?Sjur_Br=E6ndeland?= <sjurbren@gmail.com>
-Cc: =?ISO-8859-1?Q?Sjur_Br=E6ndeland?= <sjur@brendeland.net>, Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>, =?ISO-8859-1?Q?Sjur_Br=E6ndeland?= <sjur.brandeland@stericsson.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Sjur,
-
-Sorry for the delay - just got back from you know where :)
-
-On Wed, Mar 13, 2013 at 12:12 PM, Sjur Br=E6ndeland <sjurbren@gmail.com> wr=
-ote:
->> From: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
->>
->> Add wrappers for the host vrings to support loose
->> coupling between the virtio device and driver.
->>
->> A new struct vringh_config_ops with the functions
->> find_vrhs() and del_vrhs() is added to the virtio_device
->> struct. This enables virtio drivers to manage virtio
->> host rings without detailed knowledge of how the
->> vrings are created and deleted.
->>
->> The function vringh_notify() is added so vringh clients
->> can notify the other side that buffers are added to the
->> used-ring.
->>
->> Cc: Ohad Ben-Cohen <ohad@wizery.com>
->> Cc: Rusty Russell <rusty@rustcorp.com.au>
->> Signed-off-by: Sjur Br=E6ndeland <sjur.brandeland@stericsson.com>
->
-> As you have been pushing for this wrapper, could you please
-> add your Ack or Reviewed tag if you are happy with this patch?
-
-I am happy with this patch: the caif virtio driver is now decoupled
-from remoteproc which I think is great. Thanks for doing it!
-
-To provide a Reviewed-by tag though I need to review it from a virtio
-point of view, which I can try to do after I'll finish going through
-my backlog of pending patches. Let me finish that pile of patches I
-have, and if you or Rusty will still want me to provide a Reviewed-by
-tag here I'll do it.
-
-Thanks,
-Ohad.
+T24gTW9uLCBNYXIgMTgsIDIwMTMgYXQgMTI6MjkgQU0sIE9oYWQgQmVuLUNvaGVuIDxvaGFkQHdp
+emVyeS5jb20+IHdyb3RlOgo+IEhpIFNqdXIsCj4KPiBTb3JyeSBmb3IgdGhlIGRlbGF5IC0ganVz
+dCBnb3QgYmFjayBmcm9tIHlvdSBrbm93IHdoZXJlIDopCj4KPiBPbiBXZWQsIE1hciAxMywgMjAx
+MyBhdCAxMjoxMiBQTSwgU2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cm90
+ZToKPj4+IEZyb206IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29u
+LmNvbT4KPj4+Cj4+PiBBZGQgd3JhcHBlcnMgZm9yIHRoZSBob3N0IHZyaW5ncyB0byBzdXBwb3J0
+IGxvb3NlCj4+PiBjb3VwbGluZyBiZXR3ZWVuIHRoZSB2aXJ0aW8gZGV2aWNlIGFuZCBkcml2ZXIu
+Cj4+Pgo+Pj4gQSBuZXcgc3RydWN0IHZyaW5naF9jb25maWdfb3BzIHdpdGggdGhlIGZ1bmN0aW9u
+cwo+Pj4gZmluZF92cmhzKCkgYW5kIGRlbF92cmhzKCkgaXMgYWRkZWQgdG8gdGhlIHZpcnRpb19k
+ZXZpY2UKPj4+IHN0cnVjdC4gVGhpcyBlbmFibGVzIHZpcnRpbyBkcml2ZXJzIHRvIG1hbmFnZSB2
+aXJ0aW8KPj4+IGhvc3QgcmluZ3Mgd2l0aG91dCBkZXRhaWxlZCBrbm93bGVkZ2Ugb2YgaG93IHRo
+ZQo+Pj4gdnJpbmdzIGFyZSBjcmVhdGVkIGFuZCBkZWxldGVkLgo+Pj4KPj4+IFRoZSBmdW5jdGlv
+biB2cmluZ2hfbm90aWZ5KCkgaXMgYWRkZWQgc28gdnJpbmdoIGNsaWVudHMKPj4+IGNhbiBub3Rp
+ZnkgdGhlIG90aGVyIHNpZGUgdGhhdCBidWZmZXJzIGFyZSBhZGRlZCB0byB0aGUKPj4+IHVzZWQt
+cmluZy4KPj4+Cj4+PiBDYzogT2hhZCBCZW4tQ29oZW4gPG9oYWRAd2l6ZXJ5LmNvbT4KPj4+IENj
+OiBSdXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+Cj4+PiBTaWduZWQtb2ZmLWJ5
+OiBTanVyIEJyw6ZuZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5jb20+Cj4+Cj4+
+IEFzIHlvdSBoYXZlIGJlZW4gcHVzaGluZyBmb3IgdGhpcyB3cmFwcGVyLCBjb3VsZCB5b3UgcGxl
+YXNlCj4+IGFkZCB5b3VyIEFjayBvciBSZXZpZXdlZCB0YWcgaWYgeW91IGFyZSBoYXBweSB3aXRo
+IHRoaXMgcGF0Y2g/Cj4KPiBJIGFtIGhhcHB5IHdpdGggdGhpcyBwYXRjaDogdGhlIGNhaWYgdmly
+dGlvIGRyaXZlciBpcyBub3cgZGVjb3VwbGVkCj4gZnJvbSByZW1vdGVwcm9jIHdoaWNoIEkgdGhp
+bmsgaXMgZ3JlYXQuIFRoYW5rcyBmb3IgZG9pbmcgaXQhCj4KPiBUbyBwcm92aWRlIGEgUmV2aWV3
+ZWQtYnkgdGFnIHRob3VnaCBJIG5lZWQgdG8gcmV2aWV3IGl0IGZyb20gYSB2aXJ0aW8KPiBwb2lu
+dCBvZiB2aWV3LCB3aGljaCBJIGNhbiB0cnkgdG8gZG8gYWZ0ZXIgSSdsbCBmaW5pc2ggZ29pbmcg
+dGhyb3VnaAo+IG15IGJhY2tsb2cgb2YgcGVuZGluZyBwYXRjaGVzLiBMZXQgbWUgZmluaXNoIHRo
+YXQgcGlsZSBvZiBwYXRjaGVzIEkKPiBoYXZlLCBhbmQgaWYgeW91IG9yIFJ1c3R5IHdpbGwgc3Rp
+bGwgd2FudCBtZSB0byBwcm92aWRlIGEgUmV2aWV3ZWQtYnkKPiB0YWcgaGVyZSBJJ2xsIGRvIGl0
+LgoKSGkgUnVzdHksCgpEbyB5b3UgaGF2ZSB3aGF0IHlvdSBuZWVkIHRvIGFwcGx5IHRoaXMgcGF0
+Y2g/ClBsZWFzZSwgbGV0IG1lIGtub3cgaWYgYW55IGZ1cnRoZXIgY2hhbmdlcyBhcmUgbmVlZGVk
+LgpUaGUgaW5mb3JtYWwgYWNrIGFib3ZlIGZyb20gT2hhZCBpcyBnb29kIGVub3VnaCBmb3IgbWUg
+Oi0pCgpUaGFua3MsClNqdXIKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3Rz
+LmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9t
+YWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
