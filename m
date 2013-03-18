@@ -1,53 +1,50 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PULL] vhost: tcm_vhost fixes for 3.9
-Date: Mon, 18 Mar 2013 14:10:03 -0700
-Message-ID: <1363641003.3156.43.camel@haakon2.linux-iscsi.org>
-References: <20130318112003.GA7809@redhat.com>
-	 <20130318.130136.1629094222097780420.davem@davemloft.net>
-	 <20130318195443.GB19761@redhat.com>
+Subject: Re: [PATCH 0/2] Fix booting tcm_vhost + seabios
+Date: Mon, 18 Mar 2013 14:26:14 -0700
+Message-ID: <1363641974.3156.59.camel@haakon2.linux-iscsi.org>
+References: <1363311916-23121-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130318195443.GB19761@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Miller <davem@davemloft.net>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, asias@redhat.com, target-devel@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1363311916-23121-1-git-send-email-asias@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>
+Cc: target-devel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, seabios@seabios.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Kevin O'Connor <kevin@koconnor.net>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2013-03-18 at 21:54 +0200, Michael S. Tsirkin wrote:
-> On Mon, Mar 18, 2013 at 01:01:36PM -0400, David Miller wrote:
-> > From: "Michael S. Tsirkin" <mst@redhat.com>
-> > Date: Mon, 18 Mar 2013 13:20:03 +0200
-> > 
-> > > The following changes since commit 8c6216d7f118a128678270824b6a1286a63863ca:
-> > > 
-> > >   Revert "ip_gre: make ipgre_tunnel_xmit() not parse network header as IP unconditionally" (2013-03-16 23:00:41 -0400)
-> > > 
-> > > are available in the git repository at:
-> > > 
-> > >   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net
-> > > 
-> > > for you to fetch changes up to deb7cb067dabd3be625eaf5495da8bdc97377fc1:
-> > > 
-> > >   tcm_vhost: Flush vhost_work in vhost_scsi_flush() (2013-03-17 13:04:14 +0200)
-> > 
-> > This is a scsi driver, I therefore don't think this pull request is for me.
-> > 
-> > Please avoid such confusion in the future, and don't use branch names
-> > like "vhost-net" for SCSI driver fixes.
-> > 
-> > Thanks.
+On Fri, 2013-03-15 at 09:45 +0800, Asias He wrote:
+> Asias He (2):
+>   virtio-scsi: Set _DRIVER_OK flag before scsi target scanning
+>   virtio-scsi: Pack struct virtio_scsi_{req_cmd,resp_cmd}
 > 
-> We are sharing quite a bit of code, so it's a common tree.
-> There was a vhost-net patch there too but you picked it up
-> directly so I dropped that and what's left is vhost-scsi.
-> Typically vhost-net dominates so I'm just used to merging all vhost
-> things through you but if you think it's wrong I can send it directly to
-> Linus.
+>  src/virtio-scsi.c | 5 +++--
+>  src/virtio-scsi.h | 4 ++--
+>  2 files changed, 5 insertions(+), 4 deletions(-)
 > 
 
-I'll be sending out a target-pending 3.9-rc-fixes pull request later in
-the week, and am happy to include this series if you'd like.
+Hi Asias,
+
+Thanks for taking the initiative on this, and nice work tracking both of
+these stubborn bugs down.
+
+So with these out of the way, we're good to go for an RFC of Paolo's
+vhost-scsi-pci code for upstream QEMU, yes..?
+
+I'll have some extra bandwidth this week to spend time on the RFC if
+you'd like, otherwise I'm happy with you making the upstream QEMU push
+for Paolo's code. 
+
+Whatever works best for you.  :)
+
+Thank you,
 
 --nab
