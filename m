@@ -1,16 +1,17 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv2] virtio: Introduce vringh wrappers in virtio_config
-Date: Mon, 18 Mar 2013 19:22:37 +1030
-Message-ID: <877gl5rsx6.fsf@rustcorp.com.au>
-References: <1362737315-2894-1-git-send-email-sjur.brandeland@stericsson.com>
-	<CAJK669avxo=jx1pL_cvLPOdS+19Y1hGS-VvOXEiT_diXOtzOqg@mail.gmail.com>
-	<CAK=WgbbBJdFkJX8QoQwvaoFTLX5hn-sApg+WfLD+jx8yh1tBuQ@mail.gmail.com>
-	<CAJK669a40vtD8LN4uhJdqsoP6cuMq-fBgeJYT8A27PFOPDFZMQ@mail.gmail.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH V3 3/3] tcm_vhost: Use vq->private_data to indicate if
+	the endpoint is setup
+Date: Mon, 18 Mar 2013 17:14:33 +0800
+Message-ID: <20130318091433.GA6668@hj.localdomain>
+References: <1363310047-21652-1-git-send-email-asias@redhat.com>
+	<1363310047-21652-4-git-send-email-asias@redhat.com>
+	<20130318081900.GA4760@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJK669a40vtD8LN4uhJdqsoP6cuMq-fBgeJYT8A27PFOPDFZMQ@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20130318081900.GA4760@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,47 +21,154 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: sjur@brendeland.net
-Cc: Linus Walleij <linus.walleij@linaro.org>, mst@redhat.com, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1ckBicmVuZGVsYW5kLm5ldD4gd3JpdGVzOgo+IE9uIE1vbiwg
-TWFyIDE4LCAyMDEzIGF0IDEyOjI5IEFNLCBPaGFkIEJlbi1Db2hlbiA8b2hhZEB3aXplcnkuY29t
-PiB3cm90ZToKPj4gSGkgU2p1ciwKPj4KPj4gU29ycnkgZm9yIHRoZSBkZWxheSAtIGp1c3QgZ290
-IGJhY2sgZnJvbSB5b3Uga25vdyB3aGVyZSA6KQo+Pgo+PiBPbiBXZWQsIE1hciAxMywgMjAxMyBh
-dCAxMjoxMiBQTSwgU2p1ciBCcsOmbmRlbGFuZCA8c2p1cmJyZW5AZ21haWwuY29tPiB3cm90ZToK
-Pj4+PiBGcm9tOiBTanVyIEJyw6ZuZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmljc3Nvbi5j
-b20+Cj4+Pj4KPj4+PiBBZGQgd3JhcHBlcnMgZm9yIHRoZSBob3N0IHZyaW5ncyB0byBzdXBwb3J0
-IGxvb3NlCj4+Pj4gY291cGxpbmcgYmV0d2VlbiB0aGUgdmlydGlvIGRldmljZSBhbmQgZHJpdmVy
-Lgo+Pj4+Cj4+Pj4gQSBuZXcgc3RydWN0IHZyaW5naF9jb25maWdfb3BzIHdpdGggdGhlIGZ1bmN0
-aW9ucwo+Pj4+IGZpbmRfdnJocygpIGFuZCBkZWxfdnJocygpIGlzIGFkZGVkIHRvIHRoZSB2aXJ0
-aW9fZGV2aWNlCj4+Pj4gc3RydWN0LiBUaGlzIGVuYWJsZXMgdmlydGlvIGRyaXZlcnMgdG8gbWFu
-YWdlIHZpcnRpbwo+Pj4+IGhvc3QgcmluZ3Mgd2l0aG91dCBkZXRhaWxlZCBrbm93bGVkZ2Ugb2Yg
-aG93IHRoZQo+Pj4+IHZyaW5ncyBhcmUgY3JlYXRlZCBhbmQgZGVsZXRlZC4KPj4+Pgo+Pj4+IFRo
-ZSBmdW5jdGlvbiB2cmluZ2hfbm90aWZ5KCkgaXMgYWRkZWQgc28gdnJpbmdoIGNsaWVudHMKPj4+
-PiBjYW4gbm90aWZ5IHRoZSBvdGhlciBzaWRlIHRoYXQgYnVmZmVycyBhcmUgYWRkZWQgdG8gdGhl
-Cj4+Pj4gdXNlZC1yaW5nLgo+Pj4+Cj4+Pj4gQ2M6IE9oYWQgQmVuLUNvaGVuIDxvaGFkQHdpemVy
-eS5jb20+Cj4+Pj4gQ2M6IFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5hdT4KPj4+
-PiBTaWduZWQtb2ZmLWJ5OiBTanVyIEJyw6ZuZGVsYW5kIDxzanVyLmJyYW5kZWxhbmRAc3Rlcmlj
-c3Nvbi5jb20+Cj4+Pgo+Pj4gQXMgeW91IGhhdmUgYmVlbiBwdXNoaW5nIGZvciB0aGlzIHdyYXBw
-ZXIsIGNvdWxkIHlvdSBwbGVhc2UKPj4+IGFkZCB5b3VyIEFjayBvciBSZXZpZXdlZCB0YWcgaWYg
-eW91IGFyZSBoYXBweSB3aXRoIHRoaXMgcGF0Y2g/Cj4+Cj4+IEkgYW0gaGFwcHkgd2l0aCB0aGlz
-IHBhdGNoOiB0aGUgY2FpZiB2aXJ0aW8gZHJpdmVyIGlzIG5vdyBkZWNvdXBsZWQKPj4gZnJvbSBy
-ZW1vdGVwcm9jIHdoaWNoIEkgdGhpbmsgaXMgZ3JlYXQuIFRoYW5rcyBmb3IgZG9pbmcgaXQhCj4+
-Cj4+IFRvIHByb3ZpZGUgYSBSZXZpZXdlZC1ieSB0YWcgdGhvdWdoIEkgbmVlZCB0byByZXZpZXcg
-aXQgZnJvbSBhIHZpcnRpbwo+PiBwb2ludCBvZiB2aWV3LCB3aGljaCBJIGNhbiB0cnkgdG8gZG8g
-YWZ0ZXIgSSdsbCBmaW5pc2ggZ29pbmcgdGhyb3VnaAo+PiBteSBiYWNrbG9nIG9mIHBlbmRpbmcg
-cGF0Y2hlcy4gTGV0IG1lIGZpbmlzaCB0aGF0IHBpbGUgb2YgcGF0Y2hlcyBJCj4+IGhhdmUsIGFu
-ZCBpZiB5b3Ugb3IgUnVzdHkgd2lsbCBzdGlsbCB3YW50IG1lIHRvIHByb3ZpZGUgYSBSZXZpZXdl
-ZC1ieQo+PiB0YWcgaGVyZSBJJ2xsIGRvIGl0Lgo+Cj4gSGkgUnVzdHksCj4KPiBEbyB5b3UgaGF2
-ZSB3aGF0IHlvdSBuZWVkIHRvIGFwcGx5IHRoaXMgcGF0Y2g/Cj4gUGxlYXNlLCBsZXQgbWUga25v
-dyBpZiBhbnkgZnVydGhlciBjaGFuZ2VzIGFyZSBuZWVkZWQuCj4gVGhlIGluZm9ybWFsIGFjayBh
-Ym92ZSBmcm9tIE9oYWQgaXMgZ29vZCBlbm91Z2ggZm9yIG1lIDotKQoKSSdtIHByZXR0eSBoYXBw
-eSwgdGhhbmtzLgoKQmVjYXVzZSB0aGVyZSdzIHNvIG11Y2ggY2h1cm4sIEkndmUgcmVmcmVzaGVk
-IG15ICJ2cmluZ2giIGJyYW5jaCB3aXRoCnRoaXMgaW4gaXQuCgpTbyBjYW4geW91IHBsZWFzZSBj
-aGVjayB0aGF0IGJyYW5jaCB3b3JrcyBmb3IgeW91PwoKVGhhbmtzLApSdXN0eS4KUFMuIE1pY2hh
-ZWwsIHlvdSBjYW4gc2VlIHdoYXQgSSdtIGhhY2tpbmcgb24gd2l0aCB2aG9zdC9uZXQgdGhlcmUg
-dG9vLAogICAgdGhvdWdoIGl0J3MgdW5maW5pc2hlZC4uLgpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, Mar 18, 2013 at 10:19:00AM +0200, Michael S. Tsirkin wrote:
+> On Fri, Mar 15, 2013 at 09:14:07AM +0800, Asias He wrote:
+> > Currently, vs->vs_endpoint is used indicate if the endpoint is setup or
+> > not. It is set or cleared in vhost_scsi_set_endpoint() or
+> > vhost_scsi_clear_endpoint() under the vs->dev.mutex lock. However, when
+> > we check it in vhost_scsi_handle_vq(), we ignored the lock, this is
+> > wrong.
+> 
+> This one, I don't get. Why is it wrong? Could you please describe the
+> race codition you are trying to prevent?
+
+Why is it safe to access vs->vs_endpoint without any lock?
+
+> > Instead of using the vs->vs_endpoint and the vs->dev.mutex lock to
+> > indicate the status of the endpoint, we use per virtqueue
+> > vq->private_data to indicate it. In this way, we can only take the
+> > vq->mutex lock which is per queue and make the concurrent multiqueue
+> > process having less lock contention. Further, in the read side of
+> > vq->private_data, we can even do not take only lock if it is accessed in
+> > the vhost worker thread, because it is protected by "vhost rcu".
+> 
+> But (unlike with -net) you never actually need the pointer. So why all
+> the complexity?
+
+It works as a flag, NULL or !NULL.
+
+This is from your other mail:
+
+'''
+This takes dev mutex on data path which will introduce
+contention esp for multiqueue.
+How about storing the endpoint as part of vq
+private data and protecting with vq mutex?
+'''
+
+> > Signed-off-by: Asias He <asias@redhat.com>
+> > ---
+> >  drivers/vhost/tcm_vhost.c | 46 ++++++++++++++++++++++++++++++++++++++++------
+> >  1 file changed, 40 insertions(+), 6 deletions(-)
+> > 
+> > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+> > index 43fb11e..099feef 100644
+> > --- a/drivers/vhost/tcm_vhost.c
+> > +++ b/drivers/vhost/tcm_vhost.c
+> > @@ -67,7 +67,6 @@ struct vhost_scsi {
+> >  	/* Protected by vhost_scsi->dev.mutex */
+> >  	struct tcm_vhost_tpg *vs_tpg[VHOST_SCSI_MAX_TARGET];
+> >  	char vs_vhost_wwpn[TRANSPORT_IQN_LEN];
+> > -	bool vs_endpoint;
+> >  
+> >  	struct vhost_dev dev;
+> >  	struct vhost_virtqueue vqs[VHOST_SCSI_MAX_VQ];
+> > @@ -91,6 +90,24 @@ static int iov_num_pages(struct iovec *iov)
+> >  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
+> >  }
+> >  
+> > +static bool tcm_vhost_check_endpoint(struct vhost_virtqueue *vq)
+> > +{
+> > +	bool ret = false;
+> > +
+> > +	/*
+> > +	 * We can handle the vq only after the endpoint is setup by calling the
+> > +	 * VHOST_SCSI_SET_ENDPOINT ioctl.
+> > +	 *
+> > +	 * TODO: Check that we are running from vhost_worker which acts
+> > +	 * as read-side critical section for vhost kind of RCU.
+> > +	 * See the comments in struct vhost_virtqueue in drivers/vhost/vhost.h
+> > +	 */
+> > +	if (rcu_dereference_check(vq->private_data, 1))
+> > +		ret = true;
+> > +
+> > +	return ret;
+> > +}
+> > +
+> >  static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
+> >  {
+> >  	return 1;
+> > @@ -581,8 +598,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
+> >  	int head, ret;
+> >  	u8 target;
+> >  
+> > -	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
+> > -	if (unlikely(!vs->vs_endpoint))
+> > +	if (!tcm_vhost_check_endpoint(vq))
+> >  		return;
+> >  
+> >  	mutex_lock(&vq->mutex);
+> > @@ -781,8 +797,9 @@ static int vhost_scsi_set_endpoint(
+> >  {
+> >  	struct tcm_vhost_tport *tv_tport;
+> >  	struct tcm_vhost_tpg *tv_tpg;
+> > +	struct vhost_virtqueue *vq;
+> >  	bool match = false;
+> > -	int index, ret;
+> > +	int index, ret, i;
+> >  
+> >  	mutex_lock(&vs->dev.mutex);
+> >  	/* Verify that ring has been setup correctly. */
+> > @@ -826,7 +843,13 @@ static int vhost_scsi_set_endpoint(
+> >  	if (match) {
+> >  		memcpy(vs->vs_vhost_wwpn, t->vhost_wwpn,
+> >  		       sizeof(vs->vs_vhost_wwpn));
+> > -		vs->vs_endpoint = true;
+> > +		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
+> > +			vq = &vs->vqs[i];
+> > +			/* Flushing the vhost_work acts as synchronize_rcu */
+> > +			mutex_lock(&vq->mutex);
+> > +			rcu_assign_pointer(vq->private_data, vs);
+> > +			mutex_unlock(&vq->mutex);
+> > +		}
+> >  		ret = 0;
+> >  	} else {
+> >  		ret = -EEXIST;
+> > @@ -842,6 +865,8 @@ static int vhost_scsi_clear_endpoint(
+> >  {
+> >  	struct tcm_vhost_tport *tv_tport;
+> >  	struct tcm_vhost_tpg *tv_tpg;
+> > +	struct vhost_virtqueue *vq;
+> > +	bool match = false;
+> >  	int index, ret, i;
+> >  	u8 target;
+> >  
+> > @@ -877,9 +902,18 @@ static int vhost_scsi_clear_endpoint(
+> >  		}
+> >  		tv_tpg->tv_tpg_vhost_count--;
+> >  		vs->vs_tpg[target] = NULL;
+> > -		vs->vs_endpoint = false;
+> > +		match = true;
+> >  		mutex_unlock(&tv_tpg->tv_tpg_mutex);
+> >  	}
+> > +	if (match) {
+> > +		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
+> > +			vq = &vs->vqs[i];
+> > +			/* Flushing the vhost_work acts as synchronize_rcu */
+> > +			mutex_lock(&vq->mutex);
+> > +			rcu_assign_pointer(vq->private_data, NULL);
+> > +			mutex_unlock(&vq->mutex);
+> > +		}
+> > +	}
+> >  	mutex_unlock(&vs->dev.mutex);
+> >  	return 0;
+> >  
+> > -- 
+> > 1.8.1.4
+
+-- 
+Asias
