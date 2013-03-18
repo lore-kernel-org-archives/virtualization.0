@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 05/22] virtio_ring: virtqueue_add_outbuf / virtqueue_add_inbuf.
-Date: Mon, 18 Mar 2013 20:04:36 +1030
-Message-ID: <1363599293-23065-6-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 08/22] virtio-blk: use virtqueue_add_sgs on bio path
+Date: Mon, 18 Mar 2013 20:04:39 +1030
+Message-ID: <1363599293-23065-9-git-send-email-rusty@rustcorp.com.au>
 References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,95 +18,141 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-These are specialized versions of virtqueue_add_buf(), which cover
-over 80% of cases and are far clearer.
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-In particular, the scatterlists passed to these functions don't have
-to be clean (ie. we ignore end markers).
+(This is a respin of Paolo Bonzini's patch, but it calls
+virtqueue_add_sgs() instead of his multi-part API).
 
+Move the creation of the request header and response footer to
+__virtblk_add_req.  vbr->sg only contains the data scatterlist,
+the header/footer are added separately using virtqueue_add_sgs().
+
+With this change, virtio-blk (with use_bio) is not relying anymore on
+the virtio functions ignoring the end markers in a scatterlist.
+The next patch will do the same for the other path.
+
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Reviewed-by: Asias He <asias@redhat.com>
 ---
- drivers/virtio/virtio_ring.c |   44 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/virtio.h       |   10 ++++++++++
- 2 files changed, 54 insertions(+)
+ drivers/block/virtio_blk.c |   58 ++++++++++++++++++++++----------------------
+ 1 file changed, 29 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index a78ad45..5217baf 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -366,6 +366,50 @@ int virtqueue_add_sgs(struct virtqueue *_vq,
- EXPORT_SYMBOL_GPL(virtqueue_add_sgs);
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index b271650..cfbe39d 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -62,6 +62,7 @@ struct virtblk_req
+ 	struct virtio_blk *vblk;
+ 	int flags;
+ 	u8 status;
++	int nents;
+ 	struct scatterlist sg[];
+ };
  
- /**
-+ * virtqueue_add_outbuf - expose output buffers to other end
-+ * @vq: the struct virtqueue we're talking about.
-+ * @sgs: array of scatterlists (need not be terminated!)
-+ * @num: the number of scatterlists readable by other side
-+ * @data: the token identifying the buffer.
-+ * @gfp: how to do memory allocations (if necessary).
-+ *
-+ * Caller must ensure we don't call this with other virtqueue operations
-+ * at the same time (except where noted).
-+ *
-+ * Returns zero or a negative error (ie. ENOSPC, ENOMEM).
-+ */
-+int virtqueue_add_outbuf(struct virtqueue *vq,
-+			 struct scatterlist sg[], unsigned int num,
-+			 void *data,
-+			 gfp_t gfp)
-+{
-+	return virtqueue_add(vq, &sg, sg_next_arr, num, 0, 1, 0, data, gfp);
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
-+
-+/**
-+ * virtqueue_add_inbuf - expose input buffers to other end
-+ * @vq: the struct virtqueue we're talking about.
-+ * @sgs: array of scatterlists (need not be terminated!)
-+ * @num: the number of scatterlists writable by other side
-+ * @data: the token identifying the buffer.
-+ * @gfp: how to do memory allocations (if necessary).
-+ *
-+ * Caller must ensure we don't call this with other virtqueue operations
-+ * at the same time (except where noted).
-+ *
-+ * Returns zero or a negative error (ie. ENOSPC, ENOMEM).
-+ */
-+int virtqueue_add_inbuf(struct virtqueue *vq,
-+			struct scatterlist sg[], unsigned int num,
-+			void *data,
-+			gfp_t gfp)
-+{
-+	return virtqueue_add(vq, &sg, sg_next_arr, 0, num, 0, 1, data, gfp);
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_add_inbuf);
-+
-+/**
-  * virtqueue_kick_prepare - first half of split virtqueue_kick call.
-  * @vq: the struct virtqueue
-  *
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index ac80288..833f17b 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -41,6 +41,16 @@ int virtqueue_add_buf(struct virtqueue *vq,
- 		      void *data,
- 		      gfp_t gfp);
+@@ -100,24 +101,36 @@ static inline struct virtblk_req *virtblk_alloc_req(struct virtio_blk *vblk,
+ 	return vbr;
+ }
  
-+int virtqueue_add_outbuf(struct virtqueue *vq,
-+			 struct scatterlist sg[], unsigned int num,
-+			 void *data,
-+			 gfp_t gfp);
+-static inline int __virtblk_add_req(struct virtqueue *vq,
+-			     struct virtblk_req *vbr,
+-			     unsigned long out,
+-			     unsigned long in)
++static int __virtblk_add_req(struct virtqueue *vq,
++			     struct virtblk_req *vbr)
+ {
+-	return virtqueue_add_buf(vq, vbr->sg, out, in, vbr, GFP_ATOMIC);
++	struct scatterlist hdr, status, *sgs[3];
++	unsigned int num_out = 0, num_in = 0;
 +
-+int virtqueue_add_inbuf(struct virtqueue *vq,
-+			struct scatterlist sg[], unsigned int num,
-+			void *data,
-+			gfp_t gfp);
++	sg_init_one(&hdr, &vbr->out_hdr, sizeof(vbr->out_hdr));
++	sgs[num_out++] = &hdr;
 +
- int virtqueue_add_sgs(struct virtqueue *vq,
- 		      struct scatterlist *sgs[],
- 		      unsigned int out_sgs,
++	if (vbr->nents) {
++		if (vbr->out_hdr.type & VIRTIO_BLK_T_OUT)
++			sgs[num_out++] = vbr->sg;
++		else
++			sgs[num_out + num_in++] = vbr->sg;
++	}
++
++	sg_init_one(&status, &vbr->status, sizeof(vbr->status));
++	sgs[num_out + num_in++] = &status;
++
++	return virtqueue_add_sgs(vq, sgs, num_out, num_in, vbr, GFP_ATOMIC);
+ }
+ 
+-static void virtblk_add_req(struct virtblk_req *vbr,
+-			    unsigned int out, unsigned int in)
++static void virtblk_add_req(struct virtblk_req *vbr)
+ {
+ 	struct virtio_blk *vblk = vbr->vblk;
+ 	DEFINE_WAIT(wait);
+ 	int ret;
+ 
+ 	spin_lock_irq(vblk->disk->queue->queue_lock);
+-	while (unlikely((ret = __virtblk_add_req(vblk->vq, vbr,
+-						 out, in)) < 0)) {
++	while (unlikely((ret = __virtblk_add_req(vblk->vq, vbr)) < 0)) {
+ 		prepare_to_wait_exclusive(&vblk->queue_wait, &wait,
+ 					  TASK_UNINTERRUPTIBLE);
+ 
+@@ -134,22 +147,18 @@ static void virtblk_add_req(struct virtblk_req *vbr,
+ 
+ static void virtblk_bio_send_flush(struct virtblk_req *vbr)
+ {
+-	unsigned int out = 0, in = 0;
+-
+ 	vbr->flags |= VBLK_IS_FLUSH;
+ 	vbr->out_hdr.type = VIRTIO_BLK_T_FLUSH;
+ 	vbr->out_hdr.sector = 0;
+ 	vbr->out_hdr.ioprio = 0;
+-	sg_set_buf(&vbr->sg[out++], &vbr->out_hdr, sizeof(vbr->out_hdr));
+-	sg_set_buf(&vbr->sg[out + in++], &vbr->status, sizeof(vbr->status));
++	vbr->nents = 0;
+ 
+-	virtblk_add_req(vbr, out, in);
++	virtblk_add_req(vbr);
+ }
+ 
+ static void virtblk_bio_send_data(struct virtblk_req *vbr)
+ {
+ 	struct virtio_blk *vblk = vbr->vblk;
+-	unsigned int num, out = 0, in = 0;
+ 	struct bio *bio = vbr->bio;
+ 
+ 	vbr->flags &= ~VBLK_IS_FLUSH;
+@@ -157,24 +166,15 @@ static void virtblk_bio_send_data(struct virtblk_req *vbr)
+ 	vbr->out_hdr.sector = bio->bi_sector;
+ 	vbr->out_hdr.ioprio = bio_prio(bio);
+ 
+-	sg_set_buf(&vbr->sg[out++], &vbr->out_hdr, sizeof(vbr->out_hdr));
+-
+-	num = blk_bio_map_sg(vblk->disk->queue, bio, vbr->sg + out);
+-
+-	sg_set_buf(&vbr->sg[num + out + in++], &vbr->status,
+-		   sizeof(vbr->status));
+-
+-	if (num) {
+-		if (bio->bi_rw & REQ_WRITE) {
++	vbr->nents = blk_bio_map_sg(vblk->disk->queue, bio, vbr->sg);
++	if (vbr->nents) {
++		if (bio->bi_rw & REQ_WRITE)
+ 			vbr->out_hdr.type |= VIRTIO_BLK_T_OUT;
+-			out += num;
+-		} else {
++		else
+ 			vbr->out_hdr.type |= VIRTIO_BLK_T_IN;
+-			in += num;
+-		}
+ 	}
+ 
+-	virtblk_add_req(vbr, out, in);
++	virtblk_add_req(vbr);
+ }
+ 
+ static void virtblk_bio_send_data_work(struct work_struct *work)
 -- 
 1.7.10.4
