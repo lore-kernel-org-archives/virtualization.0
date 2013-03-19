@@ -1,13 +1,15 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH V3 WIP 3/3] disable vhost_verify_ring_mappings check
-Date: Tue, 19 Mar 2013 08:34:45 +0800
-Message-ID: <1363653285-23776-4-git-send-email-asias__31342.2355255627$1363653355$gmane$org@redhat.com>
-References: <1363653285-23776-1-git-send-email-asias@redhat.com>
+Subject: Re: [PATCH 0/2] Fix booting tcm_vhost + seabios
+Date: Tue, 19 Mar 2013 08:58:40 +0800
+Message-ID: <20130319005840.GC15879@hj.localdomain>
+References: <1363311916-23121-1-git-send-email-asias@redhat.com>
+	<1363641974.3156.59.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1363653285-23776-1-git-send-email-asias@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1363641974.3156.59.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,30 +19,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: qemu-devel@nongnu.org
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: target-devel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, seabios@seabios.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Kevin O'Connor <kevin@koconnor.net>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
----
- hw/vhost.c | 2 ++
- 1 file changed, 2 insertions(+)
+On Mon, Mar 18, 2013 at 02:26:14PM -0700, Nicholas A. Bellinger wrote:
+> On Fri, 2013-03-15 at 09:45 +0800, Asias He wrote:
+> > Asias He (2):
+> >   virtio-scsi: Set _DRIVER_OK flag before scsi target scanning
+> >   virtio-scsi: Pack struct virtio_scsi_{req_cmd,resp_cmd}
+> > 
+> >  src/virtio-scsi.c | 5 +++--
+> >  src/virtio-scsi.h | 4 ++--
+> >  2 files changed, 5 insertions(+), 4 deletions(-)
+> > 
+> 
+> Hi Asias,
+> 
+> Thanks for taking the initiative on this, and nice work tracking both of
+> these stubborn bugs down.
+> 
+> So with these out of the way, we're good to go for an RFC of Paolo's
+> vhost-scsi-pci code for upstream QEMU, yes..?
+> 
+> I'll have some extra bandwidth this week to spend time on the RFC if
+> you'd like, otherwise I'm happy with you making the upstream QEMU push
+> for Paolo's code. 
+> 
+> Whatever works best for you.  :)
 
-diff --git a/hw/vhost.c b/hw/vhost.c
-index 4d6aee3..0c52ec4 100644
---- a/hw/vhost.c
-+++ b/hw/vhost.c
-@@ -421,10 +421,12 @@ static void vhost_set_memory(MemoryListener *listener,
-         return;
-     }
- 
-+#if 0
-     if (dev->started) {
-         r = vhost_verify_ring_mappings(dev, start_addr, size);
-         assert(r >= 0);
-     }
-+#endif
- 
-     if (!dev->log_enabled) {
-         r = ioctl(dev->control, VHOST_SET_MEM_TABLE, dev->mem);
+Nice, Nicholas, go ahead. I have sent out the WIP V3 for you ;-)
+
+> Thank you,
+> 
+> --nab
+> 
+> 
+> 
+
 -- 
-1.8.1.4
+Asias
