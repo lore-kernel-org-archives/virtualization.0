@@ -1,15 +1,13 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH V3 0/2] tcm_vhost hotplug/hotunplug support
-Date: Tue, 19 Mar 2013 10:36:42 +0100
-Message-ID: <514831AA.4030500@redhat.com>
-References: <1363056339-6061-1-git-send-email-asias@redhat.com>
-	<1363643172.3156.62.camel@haakon2.linux-iscsi.org>
-	<20130318215350.GA21091@redhat.com>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: [PATCH V5 3/5] virtio-scsi: push vq lock/unlock into virtscsi_vq_done
+Date: Tue, 19 Mar 2013 17:57:35 +0800
+Message-ID: <1363687057-13580-4-git-send-email-gaowanlong@cn.fujitsu.com>
+References: <1363687057-13580-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130318215350.GA21091@redhat.com>
+In-Reply-To: <1363687057-13580-1-git-send-email-gaowanlong@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,21 +17,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, JBottomley@parallels.com, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 18/03/2013 22:53, Michael S. Tsirkin ha scritto:
-> Sorry, no, I'd prefer we get userspace support in qemu in first.
-> If there's only a single user for this driver (kvmtool),
-> then it was a mistake to merge it, the right thing would be to freeze it
-> and look at whether we can drop it completely.
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-I'm still not sure why this matters for this patch, since it does not
-change the userspace ABI.
+Avoid duplicated code in all of the callers.
 
-Paolo
+Cc: linux-scsi@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Reviewed-by: Asias He <asias@redhat.com>
+---
+ drivers/scsi/virtio_scsi.c | 22 +++++++++-------------
+ 1 file changed, 9 insertions(+), 13 deletions(-)
 
-> I really don't want this, I hope it will be merged and all will
-> be shiny, but I think it's wrong to rush in more code,
-> we have some time before the next merge window.
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index bcab9d7..94a64ad 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -167,28 +167,30 @@ static void virtscsi_complete_cmd(struct virtio_scsi *vscsi, void *buf)
+ 	sc->scsi_done(sc);
+ }
+ 
+-static void virtscsi_vq_done(struct virtio_scsi *vscsi, struct virtqueue *vq,
++static void virtscsi_vq_done(struct virtio_scsi *vscsi,
++			     struct virtio_scsi_vq *virtscsi_vq,
+ 			     void (*fn)(struct virtio_scsi *vscsi, void *buf))
+ {
+ 	void *buf;
+ 	unsigned int len;
++	unsigned long flags;
++	struct virtqueue *vq = virtscsi_vq->vq;
+ 
++	spin_lock_irqsave(&virtscsi_vq->vq_lock, flags);
+ 	do {
+ 		virtqueue_disable_cb(vq);
+ 		while ((buf = virtqueue_get_buf(vq, &len)) != NULL)
+ 			fn(vscsi, buf);
+ 	} while (!virtqueue_enable_cb(vq));
++	spin_unlock_irqrestore(&virtscsi_vq->vq_lock, flags);
+ }
+ 
+ static void virtscsi_req_done(struct virtqueue *vq)
+ {
+ 	struct Scsi_Host *sh = virtio_scsi_host(vq->vdev);
+ 	struct virtio_scsi *vscsi = shost_priv(sh);
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&vscsi->req_vq.vq_lock, flags);
+-	virtscsi_vq_done(vscsi, vq, virtscsi_complete_cmd);
+-	spin_unlock_irqrestore(&vscsi->req_vq.vq_lock, flags);
++	virtscsi_vq_done(vscsi, &vscsi->req_vq, virtscsi_complete_cmd);
+ };
+ 
+ static void virtscsi_complete_free(struct virtio_scsi *vscsi, void *buf)
+@@ -205,11 +207,8 @@ static void virtscsi_ctrl_done(struct virtqueue *vq)
+ {
+ 	struct Scsi_Host *sh = virtio_scsi_host(vq->vdev);
+ 	struct virtio_scsi *vscsi = shost_priv(sh);
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&vscsi->ctrl_vq.vq_lock, flags);
+-	virtscsi_vq_done(vscsi, vq, virtscsi_complete_free);
+-	spin_unlock_irqrestore(&vscsi->ctrl_vq.vq_lock, flags);
++	virtscsi_vq_done(vscsi, &vscsi->ctrl_vq, virtscsi_complete_free);
+ };
+ 
+ static int virtscsi_kick_event(struct virtio_scsi *vscsi,
+@@ -344,11 +343,8 @@ static void virtscsi_event_done(struct virtqueue *vq)
+ {
+ 	struct Scsi_Host *sh = virtio_scsi_host(vq->vdev);
+ 	struct virtio_scsi *vscsi = shost_priv(sh);
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&vscsi->event_vq.vq_lock, flags);
+-	virtscsi_vq_done(vscsi, vq, virtscsi_complete_event);
+-	spin_unlock_irqrestore(&vscsi->event_vq.vq_lock, flags);
++	virtscsi_vq_done(vscsi, &vscsi->event_vq, virtscsi_complete_event);
+ };
+ 
+ /**
+-- 
+1.8.2.rc2
