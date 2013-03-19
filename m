@@ -1,14 +1,16 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH V4 0/5] virtio-scsi multiqueue
-Date: Tue, 19 Mar 2013 14:59:07 +0800
-Message-ID: <20130319065907.GC31573@hj.localdomain>
-References: <1362969842-9145-1-git-send-email-gaowanlong@cn.fujitsu.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-spec: add field for scsi command size
+Date: Tue, 19 Mar 2013 09:58:21 +0200
+Message-ID: <20130319075821.GA11259@redhat.com>
+References: <20130314111020.GA18050@redhat.com>
+	<20130318214702.GA21045@redhat.com>
+	<87ip4oqj4w.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1362969842-9145-1-git-send-email-gaowanlong@cn.fujitsu.com>
+In-Reply-To: <87ip4oqj4w.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,46 +20,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
-Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, JBottomley@parallels.com, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 11, 2013 at 10:43:57AM +0800, Wanlong Gao wrote:
-> This series implements virtio-scsi queue steering, which gives
-> performance improvements of up to 50% (measured both with QEMU and
-> tcm_vhost backends).
+On Tue, Mar 19, 2013 at 11:51:35AM +1030, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > On Thu, Mar 14, 2013 at 01:10:20PM +0200, Michael S. Tsirkin wrote:
+> >> Add field for guest to specify command size for virtio-blk.
+> >> 
+> >> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> >
+> > There's one concern here: are we going to add a
+> > feature flag for flexible layout? If yes this feature
+> > could thinkably just reuse it.
+> >
+> > It allows a nice optimization in virtio net that is very easy
+> > with latest qemu.
+> >
+> > Rusty, what is our plan wrt this?  Are you fine with a per-device
+> > feature bit?  Or do we need a transport feature bit (there's the small
+> > issue that we almost run out of them for virtio-pci, do we use the last
+> > one?).
 > 
-> This version rebased on Rusty's virtio ring rework patches.
-> We hope this can go into virtio-next together with the virtio ring
-> rework pathes.
+> I'd really like to tie it to the virtio PCI config work, but I need
+> cycles to complete that....
 > 
+> > As an aside, the new virtio pci config proposal seems to be stuck too,
+> > are you looking into it or want me to?
 > 
-> V4: rebase on virtio ring rework patches (rusty's pending-rebases branch)
+> That would be good.  If I re-spin the kernel side, will you be able to
+> look at the QEMU parts?
 > 
-> V3 and be found http://marc.info/?l=linux-virtualization&m=136067440717154&w=2
+> I can weave this in between my vhost/vringh work and other commitments,
+> I hope.
 > 
-> 
-> It would probably be easier to get it in via Rusty's tree
-> because of the prerequisites.  James, can we get your Acked-by?
-> 
-> Paolo Bonzini (4):
->   virtio-scsi: redo allocation of target data
->   virtio-scsi: pass struct virtio_scsi to virtqueue completion function
->   virtio-scsi: push vq lock/unlock into virtscsi_vq_done
->   virtio-scsi: introduce multiqueue support
-> 
-> Wanlong Gao (1):
->   virtio-scsi: reset virtqueue affinity when doing cpu hotplug
-> 
->  drivers/scsi/virtio_scsi.c | 364 ++++++++++++++++++++++++++++++++++++---------
->  1 file changed, 291 insertions(+), 73 deletions(-)
-> 
-> -- 
-> 1.8.2.rc2
-> 
+> Thanks,
+> Rusty.
 
-Patch 2-5
-Reviewed-by: Asias He <asias@redhat.com>
+Let's start with the spec, OK?
+
+I think there's one other issue I'd like to solve and that's
+the need for IO BAR for kvm.  PCI folks are really trying to
+move away from IO BARs. Pls take a look at the mail titled
+	virtio PCI on KVM without IO BARs
+the agreement on that thread was that virtio pci
+devices will have a new capability which gives
+the address/data pair to use for notifications.
+For maximum flexibility, we can make it look kind of
+like the MSIX table, and put it in the memory BAR,
+with address/data pairs for each vq.
+
+ISR is legacy so maybe it's okay to have it in the
+memory BAR.
+
+Making sense? Should I send a more formal proposal?
 
 -- 
-Asias
+MST
