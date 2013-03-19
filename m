@@ -1,20 +1,19 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 1/2] tcm_vhost: Wait for pending requests in
-	vhost_scsi_flush()
-Date: Tue, 19 Mar 2013 10:03:39 +0800
-Message-ID: <20130319020339.GE15879@hj.localdomain>
-References: <1362978579-13322-1-git-send-email-asias@redhat.com>
-	<1362978579-13322-2-git-send-email-asias@redhat.com>
-	<513DC1C5.4070106@redhat.com>
-	<20130312013135.GB1480@hj.localdomain>
-	<513EE59F.4020306@redhat.com>
-	<20130313051659.GC19114@hj.localdomain>
+Subject: Re: [PATCH V3 3/3] tcm_vhost: Use vq->private_data to indicate if
+	the endpoint is setup
+Date: Tue, 19 Mar 2013 10:45:12 +0800
+Message-ID: <20130319024512.GF15879@hj.localdomain>
+References: <1363310047-21652-1-git-send-email-asias@redhat.com>
+	<1363310047-21652-4-git-send-email-asias@redhat.com>
+	<20130318081900.GA4760@redhat.com>
+	<20130318091433.GA6668@hj.localdomain>
+	<20130318093057.GB5267@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130313051659.GC19114@hj.localdomain>
+In-Reply-To: <20130318093057.GB5267@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,60 +27,180 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 13, 2013 at 01:16:59PM +0800, Asias He wrote:
-> On Tue, Mar 12, 2013 at 09:21:51AM +0100, Paolo Bonzini wrote:
-> > Il 12/03/2013 02:31, Asias He ha scritto:
-> > > On Mon, Mar 11, 2013 at 12:36:37PM +0100, Paolo Bonzini wrote:
-> > >> Il 11/03/2013 06:09, Asias He ha scritto:
-> > >>> This patch makes vhost_scsi_flush() wait for all the pending requests
-> > >>> issued before the flush operation to be finished.
-> > >>
-> > >> There is no protection against issuing concurrent flush operations.  If
-> > >> we later would like to make the flush a ioctl (for example for migration
-> > >> purposes), it would be confusing, and I'm not sure how you could extend
-> > >> the during_flush machinery.
+On Mon, Mar 18, 2013 at 11:30:57AM +0200, Michael S. Tsirkin wrote:
+> On Mon, Mar 18, 2013 at 05:14:33PM +0800, Asias He wrote:
+> > On Mon, Mar 18, 2013 at 10:19:00AM +0200, Michael S. Tsirkin wrote:
+> > > On Fri, Mar 15, 2013 at 09:14:07AM +0800, Asias He wrote:
+> > > > Currently, vs->vs_endpoint is used indicate if the endpoint is setup or
+> > > > not. It is set or cleared in vhost_scsi_set_endpoint() or
+> > > > vhost_scsi_clear_endpoint() under the vs->dev.mutex lock. However, when
+> > > > we check it in vhost_scsi_handle_vq(), we ignored the lock, this is
+> > > > wrong.
 > > > 
-> > > vhost_scsi_flush() is called under the vs->dev.mutex lock.
+> > > This one, I don't get. Why is it wrong? Could you please describe the
+> > > race codition you are trying to prevent?
 > > 
-> > Ah, ok.
-> > 
-> > >> What about making vhost_scsi_flush() wait for all pending requests,
-> > >> including those issues during the flush operation?
-> > > 
-> > > This will take unbonded time if guest keep sending requests.
-> > 
-> > Yes, that's correct, but flush doesn't really mean much if new requests
-> > can come in (unlike _cache_ flushes like SYNCHRONIZE CACHE).  In the end
-> > you'll have to stop the VM first and then issue the flush.  At this
-> > point, it does not change much if you wait for previous requests or all
-> > requests, and I suspect that waiting for all requests simplifies the
-> > code noticeably.
+> > Why is it safe to access vs->vs_endpoint without any lock?
 > 
-> Michael, any comments? You suggested flushing of previous requests other
-> than all the requests when I was doing vhost-blk.
+> For the same reason it's safe with the pointer: either readers
+> see the old or the new value, and we flush before relying on
+> the new value.
 
-Ping.
+vs_endpoint is a bool not a pointer. Here it is even more implicit to
+understand the whole story. Why not make it more consistent with the other
+user of vhost. Using vq->private_data for backend related data.
 
-> > >> Then you can easily
-> > >> support concurrent flushes; just add a waitqueue and wake_up_all at the
-> > >> end of the flush operation.
+We have enough special tricks (vhost rcu, vhost work queue).
+
+> RCU macros also include barriers that are irrelevant if you are not
+> going to access any data through the pointer.
+> Nowdays they also including lockdep-like checks, which you override.
+
+vhost-net is also overriding, no? And I am not seeing any effect to make
+the '1' gonna.
+
+  sock = rcu_dereference_check(vq->private_data, 1);
+
+> > > > Instead of using the vs->vs_endpoint and the vs->dev.mutex lock to
+> > > > indicate the status of the endpoint, we use per virtqueue
+> > > > vq->private_data to indicate it. In this way, we can only take the
+> > > > vq->mutex lock which is per queue and make the concurrent multiqueue
+> > > > process having less lock contention. Further, in the read side of
+> > > > vq->private_data, we can even do not take only lock if it is accessed in
+> > > > the vhost worker thread, because it is protected by "vhost rcu".
 > > > 
-> > > I am not sure why we want concurrent flushes. The flush thing is
-> > > already getting complex.
+> > > But (unlike with -net) you never actually need the pointer. So why all
+> > > the complexity?
 > > 
-> > Yeah, it is too complex...
+> > It works as a flag, NULL or !NULL.
 > > 
-> > Paolo
+> > This is from your other mail:
 > > 
-> > >> BTW, adding such a ioctl as part of this patch would probably be a good
-> > >> thing to do anyway.
-> > >>
-> > >> Paolo
-> > > 
-> > 
+> > '''
+> > This takes dev mutex on data path which will introduce
+> > contention esp for multiqueue.
+> > How about storing the endpoint as part of vq
+> > private data and protecting with vq mutex?
+> > '''
 > 
-> -- 
-> Asias
+> Yes this is better than taking the mutex but I don't see
+> a problem as is, either. For patch to go into 3.9 it needs
+> to fix a bug, not just be a refactoring.
+
+Well, if it is not fix a real bug. Let's skip it for 3.9. 
+
+> > > > Signed-off-by: Asias He <asias@redhat.com>
+> > > > ---
+> > > >  drivers/vhost/tcm_vhost.c | 46 ++++++++++++++++++++++++++++++++++++++++------
+> > > >  1 file changed, 40 insertions(+), 6 deletions(-)
+> > > > 
+> > > > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+> > > > index 43fb11e..099feef 100644
+> > > > --- a/drivers/vhost/tcm_vhost.c
+> > > > +++ b/drivers/vhost/tcm_vhost.c
+> > > > @@ -67,7 +67,6 @@ struct vhost_scsi {
+> > > >  	/* Protected by vhost_scsi->dev.mutex */
+> > > >  	struct tcm_vhost_tpg *vs_tpg[VHOST_SCSI_MAX_TARGET];
+> > > >  	char vs_vhost_wwpn[TRANSPORT_IQN_LEN];
+> > > > -	bool vs_endpoint;
+> > > >  
+> > > >  	struct vhost_dev dev;
+> > > >  	struct vhost_virtqueue vqs[VHOST_SCSI_MAX_VQ];
+> > > > @@ -91,6 +90,24 @@ static int iov_num_pages(struct iovec *iov)
+> > > >  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
+> > > >  }
+> > > >  
+> > > > +static bool tcm_vhost_check_endpoint(struct vhost_virtqueue *vq)
+> > > > +{
+> > > > +	bool ret = false;
+> > > > +
+> > > > +	/*
+> > > > +	 * We can handle the vq only after the endpoint is setup by calling the
+> > > > +	 * VHOST_SCSI_SET_ENDPOINT ioctl.
+> > > > +	 *
+> > > > +	 * TODO: Check that we are running from vhost_worker which acts
+> > > > +	 * as read-side critical section for vhost kind of RCU.
+> > > > +	 * See the comments in struct vhost_virtqueue in drivers/vhost/vhost.h
+> > > > +	 */
+> > > > +	if (rcu_dereference_check(vq->private_data, 1))
+> > > > +		ret = true;
+> > > > +
+> > > > +	return ret;
+> > > > +}
+> > > > +
+> > > >  static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
+> > > >  {
+> > > >  	return 1;
+> > > > @@ -581,8 +598,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
+> > > >  	int head, ret;
+> > > >  	u8 target;
+> > > >  
+> > > > -	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
+> > > > -	if (unlikely(!vs->vs_endpoint))
+> > > > +	if (!tcm_vhost_check_endpoint(vq))
+> > > >  		return;
+> > > >  
+> > > >  	mutex_lock(&vq->mutex);
+> > > > @@ -781,8 +797,9 @@ static int vhost_scsi_set_endpoint(
+> > > >  {
+> > > >  	struct tcm_vhost_tport *tv_tport;
+> > > >  	struct tcm_vhost_tpg *tv_tpg;
+> > > > +	struct vhost_virtqueue *vq;
+> > > >  	bool match = false;
+> > > > -	int index, ret;
+> > > > +	int index, ret, i;
+> > > >  
+> > > >  	mutex_lock(&vs->dev.mutex);
+> > > >  	/* Verify that ring has been setup correctly. */
+> > > > @@ -826,7 +843,13 @@ static int vhost_scsi_set_endpoint(
+> > > >  	if (match) {
+> > > >  		memcpy(vs->vs_vhost_wwpn, t->vhost_wwpn,
+> > > >  		       sizeof(vs->vs_vhost_wwpn));
+> > > > -		vs->vs_endpoint = true;
+> > > > +		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
+> > > > +			vq = &vs->vqs[i];
+> > > > +			/* Flushing the vhost_work acts as synchronize_rcu */
+> > > > +			mutex_lock(&vq->mutex);
+> > > > +			rcu_assign_pointer(vq->private_data, vs);
+> > > > +			mutex_unlock(&vq->mutex);
+> > > > +		}
+> > > >  		ret = 0;
+> > > >  	} else {
+> > > >  		ret = -EEXIST;
+> > > > @@ -842,6 +865,8 @@ static int vhost_scsi_clear_endpoint(
+> > > >  {
+> > > >  	struct tcm_vhost_tport *tv_tport;
+> > > >  	struct tcm_vhost_tpg *tv_tpg;
+> > > > +	struct vhost_virtqueue *vq;
+> > > > +	bool match = false;
+> > > >  	int index, ret, i;
+> > > >  	u8 target;
+> > > >  
+> > > > @@ -877,9 +902,18 @@ static int vhost_scsi_clear_endpoint(
+> > > >  		}
+> > > >  		tv_tpg->tv_tpg_vhost_count--;
+> > > >  		vs->vs_tpg[target] = NULL;
+> > > > -		vs->vs_endpoint = false;
+> > > > +		match = true;
+> > > >  		mutex_unlock(&tv_tpg->tv_tpg_mutex);
+> > > >  	}
+> > > > +	if (match) {
+> > > > +		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
+> > > > +			vq = &vs->vqs[i];
+> > > > +			/* Flushing the vhost_work acts as synchronize_rcu */
+> > > > +			mutex_lock(&vq->mutex);
+> > > > +			rcu_assign_pointer(vq->private_data, NULL);
+> > > > +			mutex_unlock(&vq->mutex);
+> > > > +		}
+> > > > +	}
+> > > >  	mutex_unlock(&vs->dev.mutex);
+> > > >  	return 0;
+> > > >  
+> > > > -- 
+> > > > 1.8.1.4
+> > 
+> > -- 
+> > Asias
 
 -- 
 Asias
