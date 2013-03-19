@@ -1,16 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Tue, 19 Mar 2013 09:58:21 +0200
-Message-ID: <20130319075821.GA11259@redhat.com>
-References: <20130314111020.GA18050@redhat.com>
-	<20130318214702.GA21045@redhat.com>
-	<87ip4oqj4w.fsf@rustcorp.com.au>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH V3 WIP 2/3] vhost-scsi: new device supporting the
+	tcm_vhost Linux kernel module
+Date: Tue, 19 Mar 2013 09:40:16 +0100
+Message-ID: <20130319084016.GA24393@stefanha-thinkpad.redhat.com>
+References: <1363653285-23776-1-git-send-email-asias@redhat.com>
+	<1363653285-23776-3-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87ip4oqj4w.fsf@rustcorp.com.au>
+In-Reply-To: <1363653285-23776-3-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,61 +20,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 19, 2013 at 11:51:35AM +1030, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > On Thu, Mar 14, 2013 at 01:10:20PM +0200, Michael S. Tsirkin wrote:
-> >> Add field for guest to specify command size for virtio-blk.
-> >> 
-> >> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> >
-> > There's one concern here: are we going to add a
-> > feature flag for flexible layout? If yes this feature
-> > could thinkably just reuse it.
-> >
-> > It allows a nice optimization in virtio net that is very easy
-> > with latest qemu.
-> >
-> > Rusty, what is our plan wrt this?  Are you fine with a per-device
-> > feature bit?  Or do we need a transport feature bit (there's the small
-> > issue that we almost run out of them for virtio-pci, do we use the last
-> > one?).
-> 
-> I'd really like to tie it to the virtio PCI config work, but I need
-> cycles to complete that....
-> 
-> > As an aside, the new virtio pci config proposal seems to be stuck too,
-> > are you looking into it or want me to?
-> 
-> That would be good.  If I re-spin the kernel side, will you be able to
-> look at the QEMU parts?
-> 
-> I can weave this in between my vhost/vringh work and other commitments,
-> I hope.
-> 
-> Thanks,
-> Rusty.
+On Tue, Mar 19, 2013 at 08:34:44AM +0800, Asias He wrote:
+> +static void vhost_scsi_stop(VHostSCSI *vs, VirtIODevice *vdev)
+> +{
+> +    int ret = 0;
+> +
+> +    if (!vdev->binding->set_guest_notifiers) {
+> +        ret = vdev->binding->set_guest_notifiers(vdev->binding_opaque,
+> +                                                 vs->dev.nvqs, false);
+> +        if (ret < 0) {
+> +                error_report("vhost guest notifier cleanup failed: %d\n", ret);
 
-Let's start with the spec, OK?
+Indentation.  scripts/checkpatch.pl should catch this.
 
-I think there's one other issue I'd like to solve and that's
-the need for IO BAR for kvm.  PCI folks are really trying to
-move away from IO BARs. Pls take a look at the mail titled
-	virtio PCI on KVM without IO BARs
-the agreement on that thread was that virtio pci
-devices will have a new capability which gives
-the address/data pair to use for notifications.
-For maximum flexibility, we can make it look kind of
-like the MSIX table, and put it in the memory BAR,
-with address/data pairs for each vq.
+> +        }
+> +    }
+> +    assert(ret >= 0);
+> +
+> +    vhost_scsi_clear_endpoint(vdev);
+> +    vhost_dev_stop(&vs->dev, vdev);
+> +    vhost_dev_disable_notifiers(&vs->dev, vdev);
+> +}
+> +
+> +static void vhost_scsi_set_config(VirtIODevice *vdev,
+> +                                  const uint8_t *config)
+> +{
+> +    VirtIOSCSIConfig *scsiconf = (VirtIOSCSIConfig *)config;
+> +    VHostSCSI *vs = (VHostSCSI *)vdev;
+> +
+> +    if ((uint32_t) ldl_raw(&scsiconf->sense_size) != vs->vs.sense_size ||
+> +        (uint32_t) ldl_raw(&scsiconf->cdb_size) != vs->vs.cdb_size) {
+> +        error_report("vhost-scsi does not support changing the sense data and CDB sizes");
+> +        exit(1);
 
-ISR is legacy so maybe it's okay to have it in the
-memory BAR.
+Guest-triggerable exits can be used as a denial of service - especially
+under nested virtualization where killing the L1 hypervisor would kill
+all L2 guests!
 
-Making sense? Should I send a more formal proposal?
+I would just log a warning here.
 
--- 
-MST
+> +    }
+> +}
+> +
+> +static void vhost_scsi_set_status(VirtIODevice *vdev, uint8_t val)
+> +{
+> +    VHostSCSI *vs = (VHostSCSI *)vdev;
+> +    bool start = (val & VIRTIO_CONFIG_S_DRIVER_OK);
+> +
+> +    if (vs->dev.started == start) {
+> +        return;
+> +    }
+> +
+> +    if (start) {
+> +        int ret;
+> +
+> +        ret = vhost_scsi_start(vs, vdev);
+> +        if (ret < 0) {
+> +            error_report("virtio-scsi: unable to start vhost: %s\n",
+> +                         strerror(-ret));
+> +
+> +            /* There is no userspace virtio-scsi fallback so exit */
+> +            exit(1);
+
+It's questionable whether to kill the guest or simply disable this
+virtio-scsi-pci adapter.  Fine for now but we may want to allow a policy
+here in the future.
+
+> diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+> index 39c1966..281a7e2 100644
+> --- a/hw/virtio-pci.c
+> +++ b/hw/virtio-pci.c
+> @@ -22,6 +22,7 @@
+>  #include "hw/virtio-net.h"
+>  #include "hw/virtio-serial.h"
+>  #include "hw/virtio-scsi.h"
+> +#include "hw/vhost-scsi.h"
+
+Can this header be included unconditionally?  It uses _IOW() which may
+not be available on all host platforms.
