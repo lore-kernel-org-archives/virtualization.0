@@ -1,16 +1,11 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 00/22] virtqueue_add_sgs, virtqueue_add_outbuf,
-	virtqueue_add_inbuf
-Date: Wed, 20 Mar 2013 14:01:44 +0800
-Message-ID: <20130320060144.GA28683@hj.localdomain>
-References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
-	<87mwtyprz2.fsf@rustcorp.com.au>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: [PATCH V6 0/5] virtio-scsi multiqueue
+Date: Wed, 20 Mar 2013 15:01:19 +0800
+Message-ID: <1363762884-11000-1-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87mwtyprz2.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,32 +15,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, JBottomley@parallels.com, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 20, 2013 at 03:50:33PM +1030, Rusty Russell wrote:
-> Rusty Russell <rusty@rustcorp.com.au> writes:
-> > Add virtqueue_add_sgs which is more general than virtqueue_add_buf,
-> > which makes virtio-scsi and virtio-blk nicer, then add virtqueue_add_inbuf
-> > and virtqueue_add_outbuf which handle the more general case, and finally
-> > delete virtqueue_add_buf().
-> >
-> > I'm hoping this will be the final post of the whole series, and it can
-> > move from my pending-rebases tree into virtio-next.
-> 
-> OK, thanks for the feedback, reviews and corrections everyone.
-> 
-> I folded the following patches into one commit:
-> 
->  Subject: [PATCH 02/22] virtio_ring: virtqueue_add_sgs, to add multiple sgs.
->  Subject: [PATCH 03/22] virtio_ring: don't count elements twice for add_buf path.
->  Subject: [PATCH 04/22] virtio_ring: inline internal vring functions more aggres
-> 
-> I've put it into virtio-next, so please send any further fixes as diffs
-> against that.
+This series implements virtio-scsi queue steering, which gives
+performance improvements of up to 50% (measured both with QEMU and
+tcm_vhost backends).
 
-Cheers!
+This version rebased on Rusty's virtio ring rework patches, which
+has already gone into virtio-next today.
+We hope this can go into virtio-next together with the virtio ring
+rework pathes.
+
+V6: rework "redo allocation of target data" (James)
+    fix comments (Venkatesh)
+    rebase to virtio-next
+
+V5: improving the grammar of 1/5 (Paolo)
+    move the dropping of sg_elems to 'virtio-scsi: use virtqueue_add_sgs for command buffers'. (Asias)
+
+V4: rebase on virtio ring rework patches (rusty's pending-rebases branch)
+
+V3 and be found http://marc.info/?l=linux-virtualization&m=136067440717154&w=2
+
+
+It would probably be easier to get it in via Rusty's tree
+because of the prerequisites.  James, can we get your Acked-by?
+
+
+Paolo Bonzini (3):
+  virtio-scsi: pass struct virtio_scsi to virtqueue completion function
+  virtio-scsi: push vq lock/unlock into virtscsi_vq_done
+  virtio-scsi: introduce multiqueue support
+
+Wanlong Gao (2):
+  virtio-scsi: redo allocation of target data
+  virtio-scsi: reset virtqueue affinity when doing cpu hotplug
+
+ drivers/scsi/virtio_scsi.c | 387 ++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 309 insertions(+), 78 deletions(-)
 
 -- 
-Asias
+1.8.2.rc2
