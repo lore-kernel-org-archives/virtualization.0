@@ -1,16 +1,15 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH V3 0/2] tcm_vhost hotplug/hotunplug support
-Date: Tue, 19 Mar 2013 14:47:26 +0100
-Message-ID: <51486C6E.9030401@redhat.com>
-References: <1363056339-6061-1-git-send-email-asias@redhat.com>
-	<1363643172.3156.62.camel@haakon2.linux-iscsi.org>
-	<20130318215350.GA21091@redhat.com> <514831AA.4030500@redhat.com>
-	<20130319134552.GB12913@redhat.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH 15/22] virtio_rng: use simplified virtqueue accessors.
+Date: Wed, 20 Mar 2013 09:18:46 +0800
+Message-ID: <20130320011846.GA13649@hj.localdomain>
+References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
+	<1363599293-23065-16-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130319134552.GB12913@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1363599293-23065-16-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,28 +19,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 19/03/2013 14:45, Michael S. Tsirkin ha scritto:
-> On Tue, Mar 19, 2013 at 10:36:42AM +0100, Paolo Bonzini wrote:
->> Il 18/03/2013 22:53, Michael S. Tsirkin ha scritto:
->>> Sorry, no, I'd prefer we get userspace support in qemu in first.
->>> If there's only a single user for this driver (kvmtool),
->>> then it was a mistake to merge it, the right thing would be to freeze it
->>> and look at whether we can drop it completely.
->>
->> I'm still not sure why this matters for this patch, since it does not
->> change the userspace ABI.
+On Mon, Mar 18, 2013 at 08:04:46PM +1030, Rusty Russell wrote:
+> We never add buffers with input and output parts, so use the new accessors.
 > 
-> It enables a new feature bit.
+> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-How does that matter if userspace is not supposed to do anything special
-with that bit?
+Reviewed-by: Asias He <asias@redhat.com>
 
-Paolo
+> ---
+>  drivers/char/hw_random/virtio-rng.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+> index 6bf4d47..ef46a9c 100644
+> --- a/drivers/char/hw_random/virtio-rng.c
+> +++ b/drivers/char/hw_random/virtio-rng.c
+> @@ -47,7 +47,7 @@ static void register_buffer(u8 *buf, size_t size)
+>  	sg_init_one(&sg, buf, size);
+>  
+>  	/* There should always be room for one buffer. */
+> -	if (virtqueue_add_buf(vq, &sg, 0, 1, buf, GFP_KERNEL) < 0)
+> +	if (virtqueue_add_inbuf(vq, &sg, 1, buf, GFP_KERNEL) < 0)
+>  		BUG();
+>  
+>  	virtqueue_kick(vq);
+> -- 
+> 1.7.10.4
+> 
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
 
->>> I really don't want this, I hope it will be merged and all will
->>> be shiny, but I think it's wrong to rush in more code,
->>> we have some time before the next merge window.
+-- 
+Asias
