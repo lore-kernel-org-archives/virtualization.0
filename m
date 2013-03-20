@@ -1,15 +1,15 @@
-From: Ohad Ben-Cohen <ohad@wizery.com>
-Subject: Re: [PATCH 18/22] virtio_rpmsg_bus: use simplified virtqueue
-	accessors.
-Date: Wed, 20 Mar 2013 12:08:27 +0200
-Message-ID: <CAK=WgbaLO9xmcyevfzfdv6Dx6REmX30PTW4JTaoRKo==BnOEAQ@mail.gmail.com>
-References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
-	<1363599293-23065-19-git-send-email-rusty@rustcorp.com.au>
+From: Venkatesh Srinivas <venkateshs@google.com>
+Subject: Re: [PATCH V6 4/5] virtio-scsi: introduce multiqueue support
+Date: Wed, 20 Mar 2013 14:22:48 -0700
+Message-ID: <20130320212247.GA18276__21812.5549763956$1363814603$gmane$org@google.com>
+References: <1363762884-11000-1-git-send-email-gaowanlong@cn.fujitsu.com>
+	<1363762884-11000-5-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1363599293-23065-19-git-send-email-rusty@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <1363762884-11000-5-git-send-email-gaowanlong@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,14 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization <virtualization@lists.linux-foundation.org>
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, JBottomley@parallels.com, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 18, 2013 at 11:34 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> We never add buffers with input and output parts, so use the new accessors.
+On Wed, Mar 20, 2013 at 03:01:23PM +0800, Wanlong Gao wrote:
+>From: Paolo Bonzini <pbonzini@redhat.com>
 >
-> Cc: Ohad Ben-Cohen <ohad@wizery.com>
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+>This patch adds queue steering to virtio-scsi.  When a target is sent
+>multiple requests, we always drive them to the same queue so that FIFO
+>processing order is kept.  However, if a target was idle, we can choose
+>a queue arbitrarily.  In this case the queue is chosen according to the
+>current VCPU, so the driver expects the number of request queues to be
+>equal to the number of VCPUs.  This makes it easy and fast to select
+>the queue, and also lets the driver optimize the IRQ affinity for the
+>virtqueues (each virtqueue's affinity is set to the CPU that "owns"
+>the queue).
+>
+>The speedup comes from improving cache locality and giving CPU affinity
+>to the virtqueues, which is why this scheme was selected.  Assuming that
+>the thread that is sending requests to the device is I/O-bound, it is
+>likely to be sleeping at the time the ISR is executed, and thus executing
+>the ISR on the same processor that sent the requests is cheap.
+>
+>However, the kernel will not execute the ISR on the "best" processor
+>unless you explicitly set the affinity.  This is because in practice
+>you will have many such I/O-bound processes and thus many otherwise
+>idle processors.  Then the kernel will execute the ISR on a random
+>processor, rather than the one that is sending requests to the device.
+>
+>The alternative to per-CPU virtqueues is per-target virtqueues.  To
+>achieve the same locality, we could dynamically choose the virtqueue's
+>affinity based on the CPU of the last task that sent a request.  This
+>is less appealing because we do not set the affinity directly---we only
+>provide a hint to the irqbalanced running in userspace.  Dynamically
+>changing the affinity only works if the userspace applies the hint
+>fast enough.
 
-Acked-by: Ohad Ben-Cohen <ohad@wizery.com>
+Looks good! Tested as V5.
+
+Tested-by: Venkatesh Srinivas <venkateshs@google.com>
+
+-- vs;
