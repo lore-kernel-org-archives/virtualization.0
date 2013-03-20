@@ -1,15 +1,16 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 15/22] virtio_rng: use simplified virtqueue accessors.
-Date: Wed, 20 Mar 2013 09:18:46 +0800
-Message-ID: <20130320011846.GA13649@hj.localdomain>
+Subject: Re: [PATCH 12/22] virtio_scsi: use virtqueue_add_inbuf() for
+	virtscsi_kick_event.
+Date: Wed, 20 Mar 2013 09:19:21 +0800
+Message-ID: <20130320011920.GB13649@hj.localdomain>
 References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
-	<1363599293-23065-16-git-send-email-rusty@rustcorp.com.au>
+	<1363599293-23065-13-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1363599293-23065-16-git-send-email-rusty@rustcorp.com.au>
+In-Reply-To: <1363599293-23065-13-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,30 +24,32 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 18, 2013 at 08:04:46PM +1030, Rusty Russell wrote:
-> We never add buffers with input and output parts, so use the new accessors.
+On Mon, Mar 18, 2013 at 08:04:43PM +1030, Rusty Russell wrote:
+> It's a bit clearer, and add_buf is going away.
 > 
 > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
 Reviewed-by: Asias He <asias@redhat.com>
 
 > ---
->  drivers/char/hw_random/virtio-rng.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/scsi/virtio_scsi.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-> index 6bf4d47..ef46a9c 100644
-> --- a/drivers/char/hw_random/virtio-rng.c
-> +++ b/drivers/char/hw_random/virtio-rng.c
-> @@ -47,7 +47,7 @@ static void register_buffer(u8 *buf, size_t size)
->  	sg_init_one(&sg, buf, size);
+> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> index bb67576..f679b8c 100644
+> --- a/drivers/scsi/virtio_scsi.c
+> +++ b/drivers/scsi/virtio_scsi.c
+> @@ -222,8 +222,8 @@ static int virtscsi_kick_event(struct virtio_scsi *vscsi,
 >  
->  	/* There should always be room for one buffer. */
-> -	if (virtqueue_add_buf(vq, &sg, 0, 1, buf, GFP_KERNEL) < 0)
-> +	if (virtqueue_add_inbuf(vq, &sg, 1, buf, GFP_KERNEL) < 0)
->  		BUG();
+>  	spin_lock_irqsave(&vscsi->event_vq.vq_lock, flags);
 >  
->  	virtqueue_kick(vq);
+> -	err = virtqueue_add_buf(vscsi->event_vq.vq, &sg, 0, 1, event_node,
+> -				GFP_ATOMIC);
+> +	err = virtqueue_add_inbuf(vscsi->event_vq.vq, &sg, 1, event_node,
+> +				  GFP_ATOMIC);
+>  	if (!err)
+>  		virtqueue_kick(vscsi->event_vq.vq);
+>  
 > -- 
 > 1.7.10.4
 > 
