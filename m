@@ -1,16 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 18/22] virtio_rpmsg_bus: use simplified virtqueue
-	accessors.
-Date: Thu, 21 Mar 2013 09:58:01 +1030
-Message-ID: <87ehf9ps72.fsf@rustcorp.com.au>
-References: <1363599293-23065-1-git-send-email-rusty@rustcorp.com.au>
-	<1363599293-23065-19-git-send-email-rusty@rustcorp.com.au>
-	<CAK=WgbaLO9xmcyevfzfdv6Dx6REmX30PTW4JTaoRKo==BnOEAQ@mail.gmail.com>
+From: Amos Kong <akong@redhat.com>
+Subject: [RFC virt-spec PATCH] only writing out the last byte of MAC makes it
+	have effect
+Date: Thu, 21 Mar 2013 11:02:36 +0800
+Message-ID: <1363834956-9409-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAK=WgbaLO9xmcyevfzfdv6Dx6REmX30PTW4JTaoRKo==BnOEAQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,20 +16,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>
-Cc: virtualization <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
+Cc: qemu-devel@nongnu.org, stefanha@redhat.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ohad Ben-Cohen <ohad@wizery.com> writes:
-> On Mon, Mar 18, 2013 at 11:34 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
->> We never add buffers with input and output parts, so use the new accessors.
->>
->> Cc: Ohad Ben-Cohen <ohad@wizery.com>
->> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
->
-> Acked-by: Ohad Ben-Cohen <ohad@wizery.com>
+The lengcy guests don't have mac programming command, we don't know when
+it's safe to use MAC. We can change QEMU to make MAC change effect when
+the last byte of MAC is written to config space.
 
-Thanks.  Unfortunately, a few hours after I pushed it into virtio-next.
+Signed-off-by: Amos Kong <akong@redhat.com>
+---
+ virtio-spec.lyx | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-Cheers,
-Rusty.
+diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+index dbc4ef0..bb289fb 100644
+--- a/virtio-spec.lyx
++++ b/virtio-spec.lyx
+@@ -5430,7 +5430,7 @@ T_CTRL_MAC_TABLE_SET.
+ 
+ \begin_layout Standard
+ 
+-\change_inserted -1930653948 1358506710
++\change_inserted -1930653948 1363832689
+ The config space 
+ \begin_inset Quotes eld
+ \end_inset
+@@ -5464,6 +5464,15 @@ mac
+  Therefore, VIRTIO_NET_CTRL_MAC_ADDR_SET is preferred, especially while
+  the NIC is up.
+  The command-specific-data is a 6-byte MAC address.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted -1930653948 1363833477
++The legacy guests don't support the new command, they still change MAC address
++ in original way, that's not atomic.
++ For more robust, QEMU only makes the MAC change effect when the last byte
++ of MAC address is written to config space.
+ \change_unchanged
+ 
+ \end_layout
+-- 
+1.8.1.4
