@@ -1,7 +1,8 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 18/22] virtio_pci: share structure between legacy and modern.
-Date: Thu, 21 Mar 2013 18:59:39 +1030
-Message-ID: <1363854584-25795-19-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 19/22] virtio_pci: share interrupt/notify handlers between
+	legacy and modern.
+Date: Thu, 21 Mar 2013 18:59:40 +1030
+Message-ID: <1363854584-25795-20-git-send-email-rusty@rustcorp.com.au>
 References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,482 +21,436 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-They're almost identical: we add a "legacy" ioregion (what was
-"ioaddr" in the legacy driver), and move it out to virtio_pci-common.h.
+If we make the legacy driver set up the ->isr pointer in
+the struct virtio_pci_device structure, we can use that in common code.
+(the positions have changed, but the semantics haven't).
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/virtio/virtio_pci-common.h |   76 +++++++++++++++++++++
- drivers/virtio/virtio_pci.c        |   68 +------------------
- drivers/virtio/virtio_pci_legacy.c |  128 +++++++++++-------------------------
- 3 files changed, 116 insertions(+), 156 deletions(-)
- create mode 100644 drivers/virtio/virtio_pci-common.h
+ drivers/virtio/Makefile            |    4 +-
+ drivers/virtio/virtio_pci-common.c |   80 +++++++++++++++++++++++++++++++++
+ drivers/virtio/virtio_pci-common.h |   34 ++++++++++++++
+ drivers/virtio/virtio_pci.c        |   84 +++-------------------------------
+ drivers/virtio/virtio_pci_legacy.c |   87 ++++--------------------------------
+ 5 files changed, 131 insertions(+), 158 deletions(-)
+ create mode 100644 drivers/virtio/virtio_pci-common.c
 
-diff --git a/drivers/virtio/virtio_pci-common.h b/drivers/virtio/virtio_pci-common.h
+diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+index eec0a42..0f23411 100644
+--- a/drivers/virtio/Makefile
++++ b/drivers/virtio/Makefile
+@@ -1,5 +1,5 @@
+ obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
+ obj-$(CONFIG_VIRTIO_MMIO) += virtio_mmio.o
+-obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
+-obj-$(CONFIG_VIRTIO_PCI_LEGACY) += virtio_pci_legacy.o
++obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o virtio_pci-common.o
++obj-$(CONFIG_VIRTIO_PCI_LEGACY) += virtio_pci_legacy.o virtio_pci-common.o
+ obj-$(CONFIG_VIRTIO_BALLOON) += virtio_balloon.o
+diff --git a/drivers/virtio/virtio_pci-common.c b/drivers/virtio/virtio_pci-common.c
 new file mode 100644
-index 0000000..8ff8c92
+index 0000000..f6588c2
 --- /dev/null
++++ b/drivers/virtio/virtio_pci-common.c
+@@ -0,0 +1,80 @@
++/*
++ * Virtio PCI driver - common code for legacy and non-legacy.
++ *
++ * Copyright 2011, Rusty Russell IBM Corporation, but based on the
++ * older virtio_pci_legacy.c, which was Copyright IBM Corp. 2007.  But
++ * most of the interrupt setup code was written by Michael S. Tsirkin.
++ *
++ * This work is licensed under the terms of the GNU GPL, version 2 or later.
++ * See the COPYING file in the top-level directory.
++ */
++#define VIRTIO_PCI_NO_LEGACY
++#include "virtio_pci-common.h"
++#include <linux/virtio_ring.h>
++
++/* the notify function used when creating a virt queue */
++void virtio_pci_notify(struct virtqueue *vq)
++{
++	struct virtio_pci_vq_info *info = vq->priv;
++
++	/* we write the queue's selector into the notification register to
++	 * signal the other end */
++	iowrite16(vq->index, info->notify);
++}
++
++/* Handle a configuration change: Tell driver if it wants to know. */
++irqreturn_t virtio_pci_config_changed(int irq, void *opaque)
++{
++	struct virtio_pci_device *vp_dev = opaque;
++	struct virtio_driver *drv;
++	drv = container_of(vp_dev->vdev.dev.driver,
++			   struct virtio_driver, driver);
++
++	if (drv->config_changed)
++		drv->config_changed(&vp_dev->vdev);
++	return IRQ_HANDLED;
++}
++
++/* Notify all virtqueues on an interrupt. */
++irqreturn_t virtio_pci_vring_interrupt(int irq, void *opaque)
++{
++	struct virtio_pci_device *vp_dev = opaque;
++	struct virtio_pci_vq_info *info;
++	irqreturn_t ret = IRQ_NONE;
++	unsigned long flags;
++
++	spin_lock_irqsave(&vp_dev->lock, flags);
++	list_for_each_entry(info, &vp_dev->virtqueues, node) {
++		if (vring_interrupt(irq, info->vq) == IRQ_HANDLED)
++			ret = IRQ_HANDLED;
++	}
++	spin_unlock_irqrestore(&vp_dev->lock, flags);
++
++	return ret;
++}
++
++/* A small wrapper to also acknowledge the interrupt when it's handled.
++ * I really need an EIO hook for the vring so I can ack the interrupt once we
++ * know that we'll be handling the IRQ but before we invoke the callback since
++ * the callback may notify the host which results in the host attempting to
++ * raise an interrupt that we would then mask once we acknowledged the
++ * interrupt. */
++irqreturn_t virtio_pci_interrupt(int irq, void *opaque)
++{
++	struct virtio_pci_device *vp_dev = opaque;
++	u8 isr;
++
++	/* reading the ISR has the effect of also clearing it so it's very
++	 * important to save off the value. */
++	isr = ioread8(vp_dev->isr);
++
++	/* It's definitely not us if the ISR was not high */
++	if (!isr)
++		return IRQ_NONE;
++
++	/* Configuration change?  Tell driver if it wants to know. */
++	if (isr & VIRTIO_PCI_ISR_CONFIG)
++		virtio_pci_config_changed(irq, opaque);
++
++	return virtio_pci_vring_interrupt(irq, opaque);
++}
+diff --git a/drivers/virtio/virtio_pci-common.h b/drivers/virtio/virtio_pci-common.h
+index 8ff8c92..7dbc244 100644
+--- a/drivers/virtio/virtio_pci-common.h
 +++ b/drivers/virtio/virtio_pci-common.h
-@@ -0,0 +1,76 @@
-+#include <linux/pci.h>
-+#include <linux/virtio_pci.h>
+@@ -50,6 +50,12 @@ struct virtio_pci_device {
+ #endif
+ };
+ 
++/* Convert a generic virtio device to our structure */
++static inline struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
++{
++	return container_of(vdev, struct virtio_pci_device, vdev);
++}
 +
-+/* Our device structure: shared by virtio_pci and virtio_pci_legacy. */
-+struct virtio_pci_device {
-+	struct virtio_device vdev;
-+	struct pci_dev *pci_dev;
+ /* Constants for MSI-X */
+ /* Use first vector for configuration changes, second and the rest for
+  * virtqueues Thus, we need at least 2 vectors for MSI. */
+@@ -74,3 +80,31 @@ struct virtio_pci_vq_info {
+ 	/* MSI-X vector (or none) */
+ 	unsigned msix_vector;
+ };
 +
-+	/* The IO mapping for the PCI config space (non-legacy mode) */
-+	struct virtio_pci_common_cfg __iomem *common;
-+	/* Device-specific data (non-legacy mode)  */
-+	void __iomem *device;
-+	/* Base of vq notifications (non-legacy mode). */
-+	void __iomem *notify_base;
++/* the notify function used when creating a virt queue */
++void virtio_pci_notify(struct virtqueue *vq);
++/* Handle a configuration change: Tell driver if it wants to know. */
++irqreturn_t virtio_pci_config_changed(int irq, void *opaque);
++/* Notify all virtqueues on an interrupt. */
++irqreturn_t virtio_pci_vring_interrupt(int irq, void *opaque);
++/* Acknowledge, check for config or vq interrupt. */
++irqreturn_t virtio_pci_interrupt(int irq, void *opaque);
 +
-+	/* In legacy mode, these two point to within ->legacy. */
-+	/* Where to read and clear interrupt */
-+	u8 __iomem *isr;
++/* Core of a config->find_vqs() implementation */
++int virtio_pci_find_vqs(struct virtio_pci_device *vp_dev,
++			__le16 __iomem *msix_config,
++			struct virtqueue *(setup_vq)(struct virtio_pci_device *,
++						     unsigned,
++						     void (*)(struct virtqueue*),
++						     const char *,
++						     u16 msix_vec),
++			void (*del_vq)(struct virtqueue *vq),
++			unsigned nvqs,
++			struct virtqueue *vqs[],
++			vq_callback_t *callbacks[],
++			const char *names[]);
 +
-+	/* So we can sanity-check accesses. */
-+	size_t notify_len;
-+	size_t device_len;
-+
-+	/* a list of queues so we can dispatch IRQs */
-+	spinlock_t lock;
-+	struct list_head virtqueues;
-+
-+	/* MSI-X support */
-+	int msix_enabled;
-+	int intx_enabled;
-+	struct msix_entry *msix_entries;
-+	cpumask_var_t *msix_affinity_masks;
-+	/* Name strings for interrupts. This size should be enough,
-+	 * and I'm too lazy to allocate each name separately. */
-+	char (*msix_names)[256];
-+	/* Number of available vectors */
-+	unsigned msix_vectors;
-+	/* Vectors allocated, excluding per-vq vectors if any */
-+	unsigned msix_used_vectors;
-+
-+	/* Status saved during hibernate/restore */
-+	u8 saved_status;
-+
-+	/* Whether we have vector per vq */
-+	bool per_vq_vectors;
-+
-+#ifdef CONFIG_VIRTIO_PCI_LEGACY
-+	/* Instead of common and device, legacy uses this: */
-+	void __iomem *legacy;
-+#endif
-+};
-+
-+/* Constants for MSI-X */
-+/* Use first vector for configuration changes, second and the rest for
-+ * virtqueues Thus, we need at least 2 vectors for MSI. */
-+enum {
-+	VP_MSIX_CONFIG_VECTOR = 0,
-+	VP_MSIX_VQ_VECTOR = 1,
-+};
-+
-+struct virtio_pci_vq_info {
-+	/* the actual virtqueue */
-+	struct virtqueue *vq;
-+
-+	/* the pages used for the queue. */
-+	void *queue;
-+
-+	/* the list node for the virtqueues list */
-+	struct list_head node;
-+
-+	/* Notify area for this vq. */
-+	u16 __iomem *notify;
-+
-+	/* MSI-X vector (or none) */
-+	unsigned msix_vector;
-+};
++/* the core of a config->del_vqs() implementation */
++void virtio_pci_del_vqs(struct virtio_pci_device *vp_dev,
++			__le16 __iomem *msix_config,
++			void (*del_vq)(struct virtqueue *vq));
 diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index d492361..340ab2e 100644
+index 340ab2e..f720421 100644
 --- a/drivers/virtio/virtio_pci.c
 +++ b/drivers/virtio/virtio_pci.c
-@@ -22,79 +22,13 @@
- #include <linux/virtio_pci.h>
- #include <linux/highmem.h>
- #include <linux/spinlock.h>
-+#include "virtio_pci-common.h"
+@@ -37,12 +37,6 @@ static DEFINE_PCI_DEVICE_TABLE(virtio_pci_id_table) = {
  
- MODULE_AUTHOR("Rusty Russell <rusty@rustcorp.com.au>");
- MODULE_DESCRIPTION("virtio-pci");
- MODULE_LICENSE("GPL");
- MODULE_VERSION("2");
+ MODULE_DEVICE_TABLE(pci, virtio_pci_id_table);
  
--/* Our device structure */
--struct virtio_pci_device {
--	struct virtio_device vdev;
--	struct pci_dev *pci_dev;
--
--	/* The IO mapping for the PCI config space */
--	struct virtio_pci_common_cfg __iomem *common;
--	/* Where to read and clear interrupt */
--	u8 __iomem *isr;
--	/* Write the vq index here to notify device of activity. */
--	void __iomem *notify_base;
--	/* Device-specific data. */
--	void __iomem *device;
--
--	/* So we can sanity-check accesses. */
--	size_t notify_len;
--	size_t device_len;
--
--	/* a list of queues so we can dispatch IRQs */
--	spinlock_t lock;
--	struct list_head virtqueues;
--
--	/* MSI-X support */
--	int msix_enabled;
--	int intx_enabled;
--	struct msix_entry *msix_entries;
--	cpumask_var_t *msix_affinity_masks;
--	/* Name strings for interrupts. This size should be enough,
--	 * and I'm too lazy to allocate each name separately. */
--	char (*msix_names)[256];
--	/* Number of available vectors */
--	unsigned msix_vectors;
--	/* Vectors allocated, excluding per-vq vectors if any */
--	unsigned msix_used_vectors;
--
--	/* Status saved during hibernate/restore */
--	u8 saved_status;
--
--	/* Whether we have vector per vq */
--	bool per_vq_vectors;
--};
--
--/* Constants for MSI-X */
--/* Use first vector for configuration changes, second and the rest for
-- * virtqueues Thus, we need at least 2 vectors for MSI. */
--enum {
--	VP_MSIX_CONFIG_VECTOR = 0,
--	VP_MSIX_VQ_VECTOR = 1,
--};
--
--struct virtio_pci_vq_info {
--	/* the actual virtqueue */
--	struct virtqueue *vq;
--
--	/* the pages used for the queue. */
--	void *queue;
--
--	/* the list node for the virtqueues list */
--	struct list_head node;
--
--	/* Notify area for this vq. */
--	u16 __iomem *notify;
--
--	/* MSI-X vector (or none) */
--	unsigned msix_vector;
--};
--
- /* Qumranet donated their vendor ID for devices 0x1000 thru 0x10FF. */
- static DEFINE_PCI_DEVICE_TABLE(virtio_pci_id_table) = {
- 	{ PCI_DEVICE(0x1af4, PCI_ANY_ID) },
-diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 429f593..4c51965 100644
---- a/drivers/virtio/virtio_pci_legacy.c
-+++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -25,6 +25,7 @@
- #include <linux/virtio_pci.h>
- #include <linux/highmem.h>
- #include <linux/spinlock.h>
-+#include "virtio_pci-common.h"
- 
- static bool force_nonlegacy;
- module_param(force_nonlegacy, bool, 0644);
-@@ -35,65 +36,6 @@ MODULE_DESCRIPTION("virtio-pci-legacy");
- MODULE_LICENSE("GPL");
- MODULE_VERSION("1");
- 
--/* Our device structure */
--struct virtio_pci_device
+-/* Convert a generic virtio device to our structure */
+-static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
 -{
--	struct virtio_device vdev;
--	struct pci_dev *pci_dev;
+-	return container_of(vdev, struct virtio_pci_device, vdev);
+-}
 -
--	/* the IO mapping for the PCI config space */
--	void __iomem *ioaddr;
--
--	/* a list of queues so we can dispatch IRQs */
--	spinlock_t lock;
--	struct list_head virtqueues;
--
--	/* MSI-X support */
--	int msix_enabled;
--	int intx_enabled;
--	struct msix_entry *msix_entries;
--	cpumask_var_t *msix_affinity_masks;
--	/* Name strings for interrupts. This size should be enough,
--	 * and I'm too lazy to allocate each name separately. */
--	char (*msix_names)[256];
--	/* Number of available vectors */
--	unsigned msix_vectors;
--	/* Vectors allocated, excluding per-vq vectors if any */
--	unsigned msix_used_vectors;
--
--	/* Status saved during hibernate/restore */
--	u8 saved_status;
--
--	/* Whether we have vector per vq */
--	bool per_vq_vectors;
--};
--
--/* Constants for MSI-X */
--/* Use first vector for configuration changes, second and the rest for
-- * virtqueues Thus, we need at least 2 vectors for MSI. */
--enum {
--	VP_MSIX_CONFIG_VECTOR = 0,
--	VP_MSIX_VQ_VECTOR = 1,
--};
--
--struct virtio_pci_vq_info
--{
--	/* the actual virtqueue */
--	struct virtqueue *vq;
--
--	/* the virtual address of the ring queue */
--	void *queue;
--
--	/* the list node for the virtqueues list */
--	struct list_head node;
--
--	/* Notify area for this vq. */
--	u16 __iomem *notify;
--
--	/* MSI-X vector (or none) */
--	unsigned msix_vector;
--};
--
- /* Qumranet donated their vendor ID for devices 0x1000 thru 0x10FF. */
- static DEFINE_PCI_DEVICE_TABLE(virtio_pci_id_table) = {
- 	{ PCI_DEVICE(0x1af4, PCI_ANY_ID) },
-@@ -114,7 +56,7 @@ static u64 vp_get_features(struct virtio_device *vdev)
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 
- 	/* We only support 32 feature bits. */
--	return ioread32(vp_dev->ioaddr + VIRTIO_PCI_LEGACY_HOST_FEATURES);
-+	return ioread32(vp_dev->legacy + VIRTIO_PCI_LEGACY_HOST_FEATURES);
- }
- 
- /* virtio config->finalize_features() implementation */
-@@ -127,7 +69,7 @@ static void vp_finalize_features(struct virtio_device *vdev)
- 
- 	/* We only support 32 feature bits. */
- 	iowrite32(vdev->features,
--		  vp_dev->ioaddr + VIRTIO_PCI_LEGACY_GUEST_FEATURES);
-+		  vp_dev->legacy + VIRTIO_PCI_LEGACY_GUEST_FEATURES);
- }
- 
- /* Device config access: we use guest endian, as per spec. */
-@@ -135,13 +77,13 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
- 		   void *buf, unsigned len)
+ /* There is no iowrite64.  We use two 32-bit ops. */
+ static void iowrite64(u64 val, const __le64 *addr)
  {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	void __iomem *ioaddr = vp_dev->ioaddr +
-+	void __iomem *legacy = vp_dev->legacy +
- 				VIRTIO_PCI_LEGACY_CONFIG(vp_dev) + offset;
- 	u8 *ptr = buf;
- 	int i;
- 
- 	for (i = 0; i < len; i++)
--		ptr[i] = ioread8(ioaddr + i);
-+		ptr[i] = ioread8(legacy + i);
- }
- 
- #define VP_GETx(bits)							\
-@@ -161,7 +103,7 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
- 		   const void *buf, unsigned len)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	void __iomem *ioaddr = vp_dev->ioaddr +
-+	void __iomem *ioaddr = vp_dev->legacy +
- 				VIRTIO_PCI_LEGACY_CONFIG(vp_dev) + offset;
- 	const u8 *ptr = buf;
- 	int i;
-@@ -186,7 +128,7 @@ VP_SETx(64)
- static u8 vp_get_status(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	return ioread8(vp_dev->ioaddr + VIRTIO_PCI_LEGACY_STATUS);
-+	return ioread8(vp_dev->legacy + VIRTIO_PCI_LEGACY_STATUS);
- }
- 
- static void vp_set_status(struct virtio_device *vdev, u8 status)
-@@ -194,7 +136,7 @@ static void vp_set_status(struct virtio_device *vdev, u8 status)
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	/* We should never be setting status to 0. */
- 	BUG_ON(status == 0);
--	iowrite8(status, vp_dev->ioaddr + VIRTIO_PCI_LEGACY_STATUS);
-+	iowrite8(status, vp_dev->legacy + VIRTIO_PCI_LEGACY_STATUS);
- }
- 
- /* wait for pending irq handlers */
-@@ -214,10 +156,10 @@ static void vp_reset(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	/* 0 status means a reset. */
--	iowrite8(0, vp_dev->ioaddr + VIRTIO_PCI_LEGACY_STATUS);
-+	iowrite8(0, vp_dev->legacy + VIRTIO_PCI_LEGACY_STATUS);
- 	/* Flush out the status write, and flush in device writes,
- 	 * including MSi-X interrupts, if any. */
--	ioread8(vp_dev->ioaddr + VIRTIO_PCI_LEGACY_STATUS);
-+	ioread8(vp_dev->legacy + VIRTIO_PCI_LEGACY_STATUS);
- 	/* Flush pending VQ/configuration callbacks. */
+@@ -178,73 +172,6 @@ static void vp_reset(struct virtio_device *vdev)
  	vp_synchronize_vectors(vdev);
  }
-@@ -276,7 +218,7 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
  
- 	/* reading the ISR has the effect of also clearing it so it's very
- 	 * important to save off the value. */
--	isr = ioread8(vp_dev->ioaddr + VIRTIO_PCI_LEGACY_ISR);
-+	isr = ioread8(vp_dev->legacy + VIRTIO_PCI_LEGACY_ISR);
- 
- 	/* It's definitely not us if the ISR was not high */
- 	if (!isr)
-@@ -309,9 +251,9 @@ static void vp_free_vectors(struct virtio_device *vdev)
- 	if (vp_dev->msix_enabled) {
- 		/* Disable the vector used for configuration */
- 		iowrite16(VIRTIO_MSI_NO_VECTOR,
--			  vp_dev->ioaddr + VIRTIO_MSI_LEGACY_CONFIG_VECTOR);
-+			  vp_dev->legacy + VIRTIO_MSI_LEGACY_CONFIG_VECTOR);
- 		/* Flush the write out to device */
--		ioread16(vp_dev->ioaddr + VIRTIO_MSI_LEGACY_CONFIG_VECTOR);
-+		ioread16(vp_dev->legacy + VIRTIO_MSI_LEGACY_CONFIG_VECTOR);
- 
- 		pci_disable_msix(vp_dev->pci_dev);
- 		vp_dev->msix_enabled = 0;
-@@ -376,9 +318,9 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+-/* the notify function used when creating a virt queue */
+-static void vp_notify(struct virtqueue *vq)
+-{
+-	struct virtio_pci_vq_info *info = vq->priv;
+-
+-	/* we write the queue selector into the notification register
+-	 * to signal the other end */
+-	iowrite16(vq->index, info->notify);
+-}
+-
+-/* Handle a configuration change: Tell driver if it wants to know. */
+-static irqreturn_t vp_config_changed(int irq, void *opaque)
+-{
+-	struct virtio_pci_device *vp_dev = opaque;
+-	struct virtio_driver *drv;
+-	drv = container_of(vp_dev->vdev.dev.driver,
+-			   struct virtio_driver, driver);
+-
+-	if (drv->config_changed)
+-		drv->config_changed(&vp_dev->vdev);
+-	return IRQ_HANDLED;
+-}
+-
+-/* Notify all virtqueues on an interrupt. */
+-static irqreturn_t vp_vring_interrupt(int irq, void *opaque)
+-{
+-	struct virtio_pci_device *vp_dev = opaque;
+-	struct virtio_pci_vq_info *info;
+-	irqreturn_t ret = IRQ_NONE;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&vp_dev->lock, flags);
+-	list_for_each_entry(info, &vp_dev->virtqueues, node) {
+-		if (vring_interrupt(irq, info->vq) == IRQ_HANDLED)
+-			ret = IRQ_HANDLED;
+-	}
+-	spin_unlock_irqrestore(&vp_dev->lock, flags);
+-
+-	return ret;
+-}
+-
+-/* A small wrapper to also acknowledge the interrupt when it's handled.
+- * I really need an EIO hook for the vring so I can ack the interrupt once we
+- * know that we'll be handling the IRQ but before we invoke the callback since
+- * the callback may notify the host which results in the host attempting to
+- * raise an interrupt that we would then mask once we acknowledged the
+- * interrupt. */
+-static irqreturn_t vp_interrupt(int irq, void *opaque)
+-{
+-	struct virtio_pci_device *vp_dev = opaque;
+-	u8 isr;
+-
+-	/* reading the ISR has the effect of also clearing it so it's very
+-	 * important to save off the value. */
+-	isr = ioread8(vp_dev->isr);
+-
+-	/* It's definitely not us if the ISR was not high */
+-	if (!isr)
+-		return IRQ_NONE;
+-
+-	/* Configuration change?  Tell driver if it wants to know. */
+-	if (isr & VIRTIO_PCI_ISR_CONFIG)
+-		vp_config_changed(irq, opaque);
+-
+-	return vp_vring_interrupt(irq, opaque);
+-}
+-
+ static void vp_free_vectors(struct virtio_device *vdev)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+@@ -325,7 +252,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 	snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
+ 		 "%s-config", name);
+ 	err = request_irq(vp_dev->msix_entries[v].vector,
+-			  vp_config_changed, 0, vp_dev->msix_names[v],
++			  virtio_pci_config_changed, 0, vp_dev->msix_names[v],
+ 			  vp_dev);
+ 	if (err)
  		goto error;
- 	++vp_dev->msix_used_vectors;
- 
--	iowrite16(v, vp_dev->ioaddr + VIRTIO_MSI_LEGACY_CONFIG_VECTOR);
-+	iowrite16(v, vp_dev->legacy + VIRTIO_MSI_LEGACY_CONFIG_VECTOR);
- 	/* Verify we had enough resources to assign the vector */
--	v = ioread16(vp_dev->ioaddr + VIRTIO_MSI_LEGACY_CONFIG_VECTOR);
-+	v = ioread16(vp_dev->legacy + VIRTIO_MSI_LEGACY_CONFIG_VECTOR);
- 	if (v == VIRTIO_MSI_NO_VECTOR) {
- 		err = -EBUSY;
- 		goto error;
-@@ -427,11 +369,11 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
+@@ -345,8 +272,8 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 		snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
+ 			 "%s-virtqueues", name);
+ 		err = request_irq(vp_dev->msix_entries[v].vector,
+-				  vp_vring_interrupt, 0, vp_dev->msix_names[v],
+-				  vp_dev);
++				  virtio_pci_vring_interrupt, 0,
++				  vp_dev->msix_names[v], vp_dev);
+ 		if (err)
+ 			goto error;
+ 		++vp_dev->msix_used_vectors;
+@@ -362,7 +289,7 @@ static int vp_request_intx(struct virtio_device *vdev)
  	int err;
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
  
- 	/* Select the queue we're interested in */
--	iowrite16(index, vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_SEL);
-+	iowrite16(index, vp_dev->legacy + VIRTIO_PCI_LEGACY_QUEUE_SEL);
- 
- 	/* Check if queue is either not available or already active. */
--	num = ioread16(vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_NUM);
--	if (!num || ioread32(vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_PFN))
-+	num = ioread16(vp_dev->legacy + VIRTIO_PCI_LEGACY_QUEUE_NUM);
-+	if (!num || ioread32(vp_dev->legacy + VIRTIO_PCI_LEGACY_QUEUE_PFN))
- 		return ERR_PTR(-ENOENT);
- 
- 	/* allocate and fill out our structure the represents an active
-@@ -451,7 +393,7 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
- 
- 	/* activate the queue */
- 	iowrite32(virt_to_phys(info->queue)>>VIRTIO_PCI_LEGACY_QUEUE_ADDR_SHIFT,
--		  vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_PFN);
-+		  vp_dev->legacy + VIRTIO_PCI_LEGACY_QUEUE_PFN);
+-	err = request_irq(vp_dev->pci_dev->irq, vp_interrupt,
++	err = request_irq(vp_dev->pci_dev->irq, virtio_pci_interrupt,
+ 			  IRQF_SHARED, dev_name(&vdev->dev), vp_dev);
+ 	if (!err)
+ 		vp_dev->intx_enabled = 1;
+@@ -452,7 +379,8 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
  
  	/* create the vring */
- 	vq = vring_new_virtqueue(index, num,
-@@ -464,12 +406,12 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
- 
- 	vq->priv = info;
- 	info->vq = vq;
--	info->notify = vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_NOTIFY;
-+	info->notify = vp_dev->legacy + VIRTIO_PCI_LEGACY_QUEUE_NOTIFY;
- 
- 	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
- 		iowrite16(msix_vec,
--			  vp_dev->ioaddr + VIRTIO_MSI_LEGACY_QUEUE_VECTOR);
--		msix_vec = ioread16(vp_dev->ioaddr
-+			  vp_dev->legacy + VIRTIO_MSI_LEGACY_QUEUE_VECTOR);
-+		msix_vec = ioread16(vp_dev->legacy
- 				    + VIRTIO_MSI_LEGACY_QUEUE_VECTOR);
- 		if (msix_vec == VIRTIO_MSI_NO_VECTOR) {
- 			err = -EBUSY;
-@@ -490,7 +432,7 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
- out_assign:
- 	vring_del_virtqueue(vq);
- out_activate_queue:
--	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_PFN);
-+	iowrite32(0, vp_dev->legacy + VIRTIO_PCI_LEGACY_QUEUE_PFN);
- 	free_pages_exact(info->queue, size);
- out_info:
- 	kfree(info);
-@@ -507,19 +449,19 @@ static void vp_del_vq(struct virtqueue *vq)
- 	list_del(&info->node);
- 	spin_unlock_irqrestore(&vp_dev->lock, flags);
- 
--	iowrite16(vq->index, vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_SEL);
-+	iowrite16(vq->index, vp_dev->legacy + VIRTIO_PCI_LEGACY_QUEUE_SEL);
- 
- 	if (vp_dev->msix_enabled) {
- 		iowrite16(VIRTIO_MSI_NO_VECTOR,
--			  vp_dev->ioaddr + VIRTIO_MSI_LEGACY_QUEUE_VECTOR);
-+			  vp_dev->legacy + VIRTIO_MSI_LEGACY_QUEUE_VECTOR);
- 		/* Flush the write out to device */
--		ioread8(vp_dev->ioaddr + VIRTIO_PCI_LEGACY_ISR);
-+		ioread8(vp_dev->legacy + VIRTIO_PCI_LEGACY_ISR);
- 	}
- 
- 	vring_del_virtqueue(vq);
- 
- 	/* Select and deactivate the queue */
--	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_PFN);
-+	iowrite32(0, vp_dev->legacy + VIRTIO_PCI_LEGACY_QUEUE_PFN);
- 
- 	size = PAGE_ALIGN(vring_size(vq->vring.num,
- 				     VIRTIO_PCI_LEGACY_VRING_ALIGN));
-@@ -767,12 +709,20 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 	if (err)
- 		goto out_enable_device;
- 
--	vp_dev->ioaddr = pci_iomap(pci_dev, 0, 0);
--	if (vp_dev->ioaddr == NULL) {
-+	vp_dev->legacy = pci_iomap(pci_dev, 0, 0);
-+	if (vp_dev->legacy == NULL) {
+ 	vq = vring_new_virtqueue(index, num, SMP_CACHE_BYTES, vdev,
+-				 true, info->queue, vp_notify, callback, name);
++				 true, info->queue, virtio_pci_notify,
++				 callback, name);
+ 	if (!vq) {
  		err = -ENOMEM;
- 		goto out_req_regions;
- 	}
+ 		goto out_alloc_pages;
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index 4c51965..0c604c7 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -44,12 +44,6 @@ static DEFINE_PCI_DEVICE_TABLE(virtio_pci_id_table) = {
  
-+	/* Not used for legacy virtio PCI */
-+	vp_dev->common = NULL;
-+	vp_dev->device = NULL;
-+	vp_dev->notify_base = NULL;
-+	vp_dev->notify_len = sizeof(u16);
-+	/* Device config len actually depends on MSI-X: may overestimate */
-+	vp_dev->device_len = pci_resource_len(pci_dev, 0) - 20;
+ MODULE_DEVICE_TABLE(pci, virtio_pci_id_table);
+ 
+-/* Convert a generic virtio device to our structure */
+-static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
+-{
+-	return container_of(vdev, struct virtio_pci_device, vdev);
+-}
+-
+ /* virtio config->get_features() implementation */
+ static u64 vp_get_features(struct virtio_device *vdev)
+ {
+@@ -164,73 +158,6 @@ static void vp_reset(struct virtio_device *vdev)
+ 	vp_synchronize_vectors(vdev);
+ }
+ 
+-/* the notify function used when creating a virt queue */
+-static void vp_notify(struct virtqueue *vq)
+-{
+-	struct virtio_pci_vq_info *info = vq->priv;
+-
+-	/* we write the queue selector into the notification register
+-	 * to signal the other end */
+-	iowrite16(vq->index, info->notify);
+-}
+-
+-/* Handle a configuration change: Tell driver if it wants to know. */
+-static irqreturn_t vp_config_changed(int irq, void *opaque)
+-{
+-	struct virtio_pci_device *vp_dev = opaque;
+-	struct virtio_driver *drv;
+-	drv = container_of(vp_dev->vdev.dev.driver,
+-			   struct virtio_driver, driver);
+-
+-	if (drv && drv->config_changed)
+-		drv->config_changed(&vp_dev->vdev);
+-	return IRQ_HANDLED;
+-}
+-
+-/* Notify all virtqueues on an interrupt. */
+-static irqreturn_t vp_vring_interrupt(int irq, void *opaque)
+-{
+-	struct virtio_pci_device *vp_dev = opaque;
+-	struct virtio_pci_vq_info *info;
+-	irqreturn_t ret = IRQ_NONE;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&vp_dev->lock, flags);
+-	list_for_each_entry(info, &vp_dev->virtqueues, node) {
+-		if (vring_interrupt(irq, info->vq) == IRQ_HANDLED)
+-			ret = IRQ_HANDLED;
+-	}
+-	spin_unlock_irqrestore(&vp_dev->lock, flags);
+-
+-	return ret;
+-}
+-
+-/* A small wrapper to also acknowledge the interrupt when it's handled.
+- * I really need an EIO hook for the vring so I can ack the interrupt once we
+- * know that we'll be handling the IRQ but before we invoke the callback since
+- * the callback may notify the host which results in the host attempting to
+- * raise an interrupt that we would then mask once we acknowledged the
+- * interrupt. */
+-static irqreturn_t vp_interrupt(int irq, void *opaque)
+-{
+-	struct virtio_pci_device *vp_dev = opaque;
+-	u8 isr;
+-
+-	/* reading the ISR has the effect of also clearing it so it's very
+-	 * important to save off the value. */
+-	isr = ioread8(vp_dev->legacy + VIRTIO_PCI_LEGACY_ISR);
+-
+-	/* It's definitely not us if the ISR was not high */
+-	if (!isr)
+-		return IRQ_NONE;
+-
+-	/* Configuration change?  Tell driver if it wants to know. */
+-	if (isr & VIRTIO_PCI_ISR_CONFIG)
+-		vp_config_changed(irq, opaque);
+-
+-	return vp_vring_interrupt(irq, opaque);
+-}
+-
+ static void vp_free_vectors(struct virtio_device *vdev)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+@@ -312,7 +239,7 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 	snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
+ 		 "%s-config", name);
+ 	err = request_irq(vp_dev->msix_entries[v].vector,
+-			  vp_config_changed, 0, vp_dev->msix_names[v],
++			  virtio_pci_config_changed, 0, vp_dev->msix_names[v],
+ 			  vp_dev);
+ 	if (err)
+ 		goto error;
+@@ -332,8 +259,8 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 		snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
+ 			 "%s-virtqueues", name);
+ 		err = request_irq(vp_dev->msix_entries[v].vector,
+-				  vp_vring_interrupt, 0, vp_dev->msix_names[v],
+-				  vp_dev);
++				  virtio_pci_vring_interrupt, 0,
++				  vp_dev->msix_names[v], vp_dev);
+ 		if (err)
+ 			goto error;
+ 		++vp_dev->msix_used_vectors;
+@@ -349,7 +276,7 @@ static int vp_request_intx(struct virtio_device *vdev)
+ 	int err;
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 
+-	err = request_irq(vp_dev->pci_dev->irq, vp_interrupt,
++	err = request_irq(vp_dev->pci_dev->irq, virtio_pci_interrupt,
+ 			  IRQF_SHARED, dev_name(&vdev->dev), vp_dev);
+ 	if (!err)
+ 		vp_dev->intx_enabled = 1;
+@@ -398,7 +325,8 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
+ 	/* create the vring */
+ 	vq = vring_new_virtqueue(index, num,
+ 				 VIRTIO_PCI_LEGACY_VRING_ALIGN, vdev,
+-				 true, info->queue, vp_notify, callback, name);
++				 true, info->queue, virtio_pci_notify,
++				 callback, name);
+ 	if (!vq) {
+ 		err = -ENOMEM;
+ 		goto out_activate_queue;
+@@ -723,6 +651,9 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 	/* Device config len actually depends on MSI-X: may overestimate */
+ 	vp_dev->device_len = pci_resource_len(pci_dev, 0) - 20;
+ 
++	/* Setting this lets us share interrupt handlers with virtio_pci */
++	vp_dev->isr = vp_dev->legacy + VIRTIO_PCI_LEGACY_ISR;
 +
  	pci_set_drvdata(pci_dev, vp_dev);
  	pci_set_master(pci_dev);
  
-@@ -792,7 +742,7 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 
- out_set_drvdata:
- 	pci_set_drvdata(pci_dev, NULL);
--	pci_iounmap(pci_dev, vp_dev->ioaddr);
-+	pci_iounmap(pci_dev, vp_dev->legacy);
- out_req_regions:
- 	pci_release_regions(pci_dev);
- out_enable_device:
-@@ -810,7 +760,7 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
- 
- 	vp_del_vqs(&vp_dev->vdev);
- 	pci_set_drvdata(pci_dev, NULL);
--	pci_iounmap(pci_dev, vp_dev->ioaddr);
-+	pci_iounmap(pci_dev, vp_dev->legacy);
- 	pci_release_regions(pci_dev);
- 	pci_disable_device(pci_dev);
- 	kfree(vp_dev);
 -- 
 1.7.10.4
