@@ -1,8 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 04/22] virtio: use u32,
-	not bitmap for struct virtio_device's features
-Date: Thu, 21 Mar 2013 18:59:25 +1030
-Message-ID: <1363854584-25795-5-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 03/22] virtio_config: make transports implement accessors.
+Date: Thu, 21 Mar 2013 18:59:24 +1030
+Message-ID: <1363854584-25795-4-git-send-email-rusty@rustcorp.com.au>
 References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,8 +21,7 @@ To: virtualization@lists.linux-foundation.org
 Cc: Pawel Moll <pawel.moll@arm.com>, Brian Swetland <swetland@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-It seemed like a good idea, but it's actually a pain when we get more
-than 32 feature bits.  Just change it to a u32 for now.
+All transports just pass through at the moment.
 
 Cc: Ohad Ben-Cohen <ohad@wizery.com>
 Cc: Brian Swetland <swetland@google.com>
@@ -32,323 +30,574 @@ Cc: Pawel Moll <pawel.moll@arm.com>
 Cc: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/char/virtio_console.c          |    2 +-
- drivers/lguest/lguest_device.c         |    2 +-
- drivers/remoteproc/remoteproc_virtio.c |    2 +-
- drivers/s390/kvm/kvm_virtio.c          |    2 +-
- drivers/virtio/virtio.c                |   10 +++++-----
- drivers/virtio/virtio_mmio.c           |    8 ++------
- drivers/virtio/virtio_pci.c            |    3 +--
- drivers/virtio/virtio_ring.c           |    2 +-
- include/linux/virtio.h                 |    3 +--
- include/linux/virtio_config.h          |    2 +-
- tools/virtio/linux/virtio.h            |   22 +---------------------
- tools/virtio/linux/virtio_config.h     |    2 +-
- tools/virtio/virtio_test.c             |    5 ++---
- tools/virtio/vringh_test.c             |   16 ++++++++--------
- 14 files changed, 27 insertions(+), 54 deletions(-)
+ drivers/lguest/lguest_device.c |   79 ++++++++++++++++++++++++++++++++++------
+ drivers/net/caif/caif_virtio.c |    2 +-
+ drivers/s390/kvm/kvm_virtio.c  |   78 +++++++++++++++++++++++++++++++++------
+ drivers/s390/kvm/virtio_ccw.c  |   39 +++++++++++++++++++-
+ drivers/virtio/virtio_mmio.c   |   35 +++++++++++++++++-
+ drivers/virtio/virtio_pci.c    |   39 +++++++++++++++++---
+ include/linux/virtio_config.h  |   70 +++++++++++++++++++++--------------
+ 7 files changed, 283 insertions(+), 59 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 1735c38..9d9f717 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -351,7 +351,7 @@ static inline bool use_multiport(struct ports_device *portdev)
- 	 */
- 	if (!portdev->vdev)
- 		return 0;
--	return portdev->vdev->features[0] & (1 << VIRTIO_CONSOLE_F_MULTIPORT);
-+	return portdev->vdev->features & (1 << VIRTIO_CONSOLE_F_MULTIPORT);
- }
- 
- static DEFINE_SPINLOCK(dma_bufs_lock);
 diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
-index 8554d41..48bd2ad 100644
+index b3256ff..8554d41 100644
 --- a/drivers/lguest/lguest_device.c
 +++ b/drivers/lguest/lguest_device.c
-@@ -144,7 +144,7 @@ static void lg_finalize_features(struct virtio_device *vdev)
- 	memset(out_features, 0, desc->feature_len);
- 	bits = min_t(unsigned, desc->feature_len, sizeof(vdev->features)) * 8;
- 	for (i = 0; i < bits; i++) {
--		if (test_bit(i, vdev->features))
-+		if (vdev->features & (1 << i))
- 			out_features[i / 8] |= (1 << (i % 8));
- 	}
- 
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index afed9b7..fb8faee 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -219,7 +219,7 @@ static void rproc_virtio_finalize_features(struct virtio_device *vdev)
- 	 * fixed as part of a small resource table overhaul and then an
- 	 * extension of the virtio resource entries.
- 	 */
--	rvdev->gfeatures = vdev->features[0];
-+	rvdev->gfeatures = vdev->features;
+@@ -153,25 +153,76 @@ static void lg_finalize_features(struct virtio_device *vdev)
  }
  
- static const struct virtio_config_ops rproc_virtio_config_ops = {
+ /* Once they've found a field, getting a copy of it is easy. */
+-static void lg_get(struct virtio_device *vdev, unsigned int offset,
+-		   void *buf, unsigned len)
++static u8 lg_get8(struct virtio_device *vdev, unsigned int offset)
+ {
+ 	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
+ 
+ 	/* Check they didn't ask for more than the length of the config! */
+-	BUG_ON(offset + len > desc->config_len);
+-	memcpy(buf, lg_config(desc) + offset, len);
++	BUG_ON(offset + sizeof(u8) > desc->config_len);
++	return *(u8 *)(lg_config(desc) + offset);
+ }
+ 
+-/* Setting the contents is also trivial. */
+-static void lg_set(struct virtio_device *vdev, unsigned int offset,
+-		   const void *buf, unsigned len)
++static void lg_set8(struct virtio_device *vdev, unsigned int offset, u8 val)
+ {
+ 	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
+ 
+ 	/* Check they didn't ask for more than the length of the config! */
+-	BUG_ON(offset + len > desc->config_len);
+-	memcpy(lg_config(desc) + offset, buf, len);
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u8 *)(lg_config(desc) + offset) = val;
++}
++
++static u16 lg_get16(struct virtio_device *vdev, unsigned int offset)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(u16) > desc->config_len);
++	return *(u16 *)(lg_config(desc) + offset);
++}
++
++static void lg_set16(struct virtio_device *vdev, unsigned int offset, u16 val)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u16 *)(lg_config(desc) + offset) = val;
++}
++
++static u32 lg_get32(struct virtio_device *vdev, unsigned int offset)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(u32) > desc->config_len);
++	return *(u32 *)(lg_config(desc) + offset);
++}
++
++static void lg_set32(struct virtio_device *vdev, unsigned int offset, u32 val)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u32 *)(lg_config(desc) + offset) = val;
++}
++
++static u64 lg_get64(struct virtio_device *vdev, unsigned int offset)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(u64) > desc->config_len);
++	return *(u64 *)(lg_config(desc) + offset);
++}
++
++static void lg_set64(struct virtio_device *vdev, unsigned int offset, u64 val)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u64 *)(lg_config(desc) + offset) = val;
+ }
+ 
+ /*
+@@ -399,8 +450,14 @@ static const char *lg_bus_name(struct virtio_device *vdev)
+ static const struct virtio_config_ops lguest_config_ops = {
+ 	.get_features = lg_get_features,
+ 	.finalize_features = lg_finalize_features,
+-	.get = lg_get,
+-	.set = lg_set,
++	.get8 = lg_get8,
++	.set8 = lg_set8,
++	.get16 = lg_get16,
++	.set16 = lg_set16,
++	.get32 = lg_get32,
++	.set32 = lg_set32,
++	.get64 = lg_get64,
++	.set64 = lg_set64,
+ 	.get_status = lg_get_status,
+ 	.set_status = lg_set_status,
+ 	.reset = lg_reset,
+diff --git a/drivers/net/caif/caif_virtio.c b/drivers/net/caif/caif_virtio.c
+index ef602e3..0f9bae0 100644
+--- a/drivers/net/caif/caif_virtio.c
++++ b/drivers/net/caif/caif_virtio.c
+@@ -682,7 +682,7 @@ static int cfv_probe(struct virtio_device *vdev)
+ 		goto err;
+ 
+ 	/* Get the CAIF configuration from virtio config space, if available */
+-	if (vdev->config->get) {
++	if (vdev->config->get8) {
+ 		virtio_cread(vdev, struct virtio_caif_transf_config, headroom,
+ 			     &cfv->tx_hr);
+ 		virtio_cread(vdev, struct virtio_caif_transf_config, headroom,
 diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
-index dcf35b1..2553319 100644
+index 6711e65..dcf35b1 100644
 --- a/drivers/s390/kvm/kvm_virtio.c
 +++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -106,7 +106,7 @@ static void kvm_finalize_features(struct virtio_device *vdev)
- 	memset(out_features, 0, desc->feature_len);
- 	bits = min_t(unsigned, desc->feature_len, sizeof(vdev->features)) * 8;
- 	for (i = 0; i < bits; i++) {
--		if (test_bit(i, vdev->features))
-+		if (vdev->features & (1 << i))
- 			out_features[i / 8] |= (1 << (i % 8));
- 	}
+@@ -112,26 +112,82 @@ static void kvm_finalize_features(struct virtio_device *vdev)
  }
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index ee59b74..dd33d84 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -41,9 +41,9 @@ static ssize_t features_show(struct device *_d,
  
- 	/* We actually represent this as a bitstring, as it could be
- 	 * arbitrary length in future. */
--	for (i = 0; i < ARRAY_SIZE(dev->features)*BITS_PER_LONG; i++)
-+	for (i = 0; i < sizeof(dev->features)*8; i++)
- 		len += sprintf(buf+len, "%c",
--			       test_bit(i, dev->features) ? '1' : '0');
-+			       dev->features & (1ULL << i) ? '1' : '0');
- 	len += sprintf(buf+len, "\n");
- 	return len;
+ /*
+- * Reading and writing elements in config space
++ * Reading and writing elements in config space.  Host and guest are always
++ * big-endian, so no conversion necessary.
+  */
+-static void kvm_get(struct virtio_device *vdev, unsigned int offset,
+-		   void *buf, unsigned len)
++static u8 kvm_get8(struct virtio_device *vdev, unsigned int offset)
+ {
+-	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
+ 
+-	BUG_ON(offset + len > desc->config_len);
+-	memcpy(buf, kvm_vq_configspace(desc) + offset, len);
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(u8) > desc->config_len);
++	return *(u8 *)(kvm_vq_configspace(desc) + offset);
  }
-@@ -120,18 +120,18 @@ static int virtio_dev_probe(struct device *_d)
- 	device_features = dev->config->get_features(dev);
  
- 	/* Features supported by both device and driver into dev->features. */
--	memset(dev->features, 0, sizeof(dev->features));
-+	dev->features = 0;
- 	for (i = 0; i < drv->feature_table_size; i++) {
- 		unsigned int f = drv->feature_table[i];
- 		BUG_ON(f >= 32);
- 		if (device_features & (1 << f))
--			set_bit(f, dev->features);
-+			dev->features |= (1 << f);
- 	}
+-static void kvm_set(struct virtio_device *vdev, unsigned int offset,
+-		   const void *buf, unsigned len)
++static void kvm_set8(struct virtio_device *vdev, unsigned int offset, u8 val)
+ {
+-	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u8 *)(kvm_vq_configspace(desc) + offset) = val;
++}
++
++static u16 kvm_get16(struct virtio_device *vdev, unsigned int offset)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(u16) > desc->config_len);
++	return *(u16 *)(kvm_vq_configspace(desc) + offset);
++}
++
++static void kvm_set16(struct virtio_device *vdev, unsigned int offset, u16 val)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u16 *)(kvm_vq_configspace(desc) + offset) = val;
++}
++
++static u32 kvm_get32(struct virtio_device *vdev, unsigned int offset)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
  
- 	/* Transport features always preserved to pass to finalize_features. */
- 	for (i = VIRTIO_TRANSPORT_F_START; i < VIRTIO_TRANSPORT_F_END; i++)
- 		if (device_features & (1 << i))
--			set_bit(i, dev->features);
-+			dev->features |= (1 << i);
+-	BUG_ON(offset + len > desc->config_len);
+-	memcpy(kvm_vq_configspace(desc) + offset, buf, len);
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(u32) > desc->config_len);
++	return *(u32 *)(kvm_vq_configspace(desc) + offset);
+ }
  
- 	dev->config->finalize_features(dev);
++static void kvm_set32(struct virtio_device *vdev, unsigned int offset, u32 val)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u32 *)(kvm_vq_configspace(desc) + offset) = val;
++}
++
++static u64 kvm_get64(struct virtio_device *vdev, unsigned int offset)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(u64) > desc->config_len);
++	return *(u64 *)(kvm_vq_configspace(desc) + offset);
++}
++
++static void kvm_set64(struct virtio_device *vdev, unsigned int offset, u64 val)
++{
++	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u64 *)(kvm_vq_configspace(desc) + offset) = val;
++}
++
++
+ /*
+  * The operations to get and set the status word just access
+  * the status field of the device descriptor. set_status will also
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 2029b6c..3652473 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -472,6 +472,7 @@ out_free:
+ 	kfree(ccw);
+ }
  
++/* We don't need to do endian conversion, as it's always big endian like us */
+ static void virtio_ccw_get_config(struct virtio_device *vdev,
+ 				  unsigned int offset, void *buf, unsigned len)
+ {
+@@ -505,6 +506,21 @@ out_free:
+ 	kfree(ccw);
+ }
+ 
++
++#define VIRTIO_CCW_GET_CONFIGx(bits)					\
++static u##bits virtio_ccw_get_config##bits(struct virtio_device *vdev,	\
++					   unsigned int offset)		\
++{									\
++	u##bits v;							\
++	virtio_ccw_get_config(vdev, offset, &v, sizeof(v));		\
++	return v;							\
++}
++
++VIRTIO_CCW_GET_CONFIGx(8)
++VIRTIO_CCW_GET_CONFIGx(16)
++VIRTIO_CCW_GET_CONFIGx(32)
++VIRTIO_CCW_GET_CONFIGx(64)
++
+ static void virtio_ccw_set_config(struct virtio_device *vdev,
+ 				  unsigned int offset, const void *buf,
+ 				  unsigned len)
+@@ -535,6 +551,19 @@ out_free:
+ 	kfree(ccw);
+ }
+ 
++#define VIRTIO_CCW_SET_CONFIGx(bits)					\
++static void virtio_ccw_set_config##bits(struct virtio_device *vdev,	\
++					unsigned int offset,		\
++					u##bits v)			\
++{									\
++	virtio_ccw_set_config(vdev, offset, &v, sizeof(v));		\
++}
++
++VIRTIO_CCW_SET_CONFIGx(8)
++VIRTIO_CCW_SET_CONFIGx(16)
++VIRTIO_CCW_SET_CONFIGx(32)
++VIRTIO_CCW_SET_CONFIGx(64)
++
+ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
+ {
+ 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
+@@ -564,8 +593,14 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
+ static struct virtio_config_ops virtio_ccw_config_ops = {
+ 	.get_features = virtio_ccw_get_features,
+ 	.finalize_features = virtio_ccw_finalize_features,
+-	.get = virtio_ccw_get_config,
+-	.set = virtio_ccw_set_config,
++	.get8 = virtio_ccw_get_config8,
++	.set8 = virtio_ccw_set_config8,
++	.get16 = virtio_ccw_get_config16,
++	.set16 = virtio_ccw_set_config16,
++	.get32 = virtio_ccw_get_config32,
++	.set32 = virtio_ccw_set_config32,
++	.get64 = virtio_ccw_get_config64,
++	.set64 = virtio_ccw_set_config64,
+ 	.get_status = virtio_ccw_get_status,
+ 	.set_status = virtio_ccw_set_status,
+ 	.reset = virtio_ccw_reset,
 diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index ad7f38f..d933150 100644
+index 1ba0d68..ad7f38f 100644
 --- a/drivers/virtio/virtio_mmio.c
 +++ b/drivers/virtio/virtio_mmio.c
-@@ -155,16 +155,12 @@ static u32 vm_get_features(struct virtio_device *vdev)
- static void vm_finalize_features(struct virtio_device *vdev)
+@@ -178,6 +178,19 @@ static void vm_get(struct virtio_device *vdev, unsigned offset,
+ 		ptr[i] = readb(vm_dev->base + VIRTIO_MMIO_CONFIG + offset + i);
+ }
+ 
++#define VM_GETx(bits)							\
++static u##bits vm_get##bits(struct virtio_device *vdev, unsigned int offset) \
++{									\
++	u##bits v;							\
++	vm_get(vdev, offset, &v, sizeof(v));				\
++	return v;							\
++}
++
++VM_GETx(8)
++VM_GETx(16)
++VM_GETx(32)
++VM_GETx(64)
++
+ static void vm_set(struct virtio_device *vdev, unsigned offset,
+ 		   const void *buf, unsigned len)
+ {
+@@ -189,6 +202,18 @@ static void vm_set(struct virtio_device *vdev, unsigned offset,
+ 		writeb(ptr[i], vm_dev->base + VIRTIO_MMIO_CONFIG + offset + i);
+ }
+ 
++#define VM_SETx(bits)							\
++static void vm_set##bits(struct virtio_device *vdev, unsigned int offset, \
++			 u##bits v)					\
++{									\
++	vm_set(vdev, offset, &v, sizeof(v));				\
++}
++
++VM_SETx(8)
++VM_SETx(16)
++VM_SETx(32)
++VM_SETx(64)
++
+ static u8 vm_get_status(struct virtio_device *vdev)
  {
  	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
--	int i;
- 
- 	/* Give virtio_ring a chance to accept features. */
- 	vring_transport_features(vdev);
- 
--	for (i = 0; i < ARRAY_SIZE(vdev->features); i++) {
--		writel(i, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
--		writel(vdev->features[i],
--				vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
--	}
-+	writel(0, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
-+	writel(vdev->features, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
+@@ -424,8 +449,14 @@ static const char *vm_bus_name(struct virtio_device *vdev)
  }
  
- static void vm_get(struct virtio_device *vdev, unsigned offset,
+ static const struct virtio_config_ops virtio_mmio_config_ops = {
+-	.get		= vm_get,
+-	.set		= vm_set,
++	.get8		= vm_get8,
++	.set8		= vm_set8,
++	.get16		= vm_get16,
++	.set16		= vm_set16,
++	.get32		= vm_get32,
++	.set32		= vm_set32,
++	.get64		= vm_get64,
++	.set64		= vm_set64,
+ 	.get_status	= vm_get_status,
+ 	.set_status	= vm_set_status,
+ 	.reset		= vm_reset,
 diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 96a988b..55bd65f 100644
+index a7ce730..96a988b 100644
 --- a/drivers/virtio/virtio_pci.c
 +++ b/drivers/virtio/virtio_pci.c
-@@ -123,8 +123,7 @@ static void vp_finalize_features(struct virtio_device *vdev)
- 	vring_transport_features(vdev);
- 
- 	/* We only support 32 feature bits. */
--	BUILD_BUG_ON(ARRAY_SIZE(vdev->features) != 1);
--	iowrite32(vdev->features[0], vp_dev->ioaddr+VIRTIO_PCI_GUEST_FEATURES);
-+	iowrite32(vdev->features, vp_dev->ioaddr+VIRTIO_PCI_GUEST_FEATURES);
+@@ -127,7 +127,7 @@ static void vp_finalize_features(struct virtio_device *vdev)
+ 	iowrite32(vdev->features[0], vp_dev->ioaddr+VIRTIO_PCI_GUEST_FEATURES);
  }
  
- /* Device config access: we use guest endian, as per spec. */
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 5217baf..82afdd8 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -814,7 +814,7 @@ void vring_transport_features(struct virtio_device *vdev)
- 			break;
- 		default:
- 			/* We don't understand this bit. */
--			clear_bit(i, vdev->features);
-+			vdev->features &= ~(1 << i);
- 		}
- 	}
+-/* virtio config->get() implementation */
++/* Device config access: we use guest endian, as per spec. */
+ static void vp_get(struct virtio_device *vdev, unsigned offset,
+ 		   void *buf, unsigned len)
+ {
+@@ -141,8 +141,19 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
+ 		ptr[i] = ioread8(ioaddr + i);
  }
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 833f17b..80f55a0 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -100,8 +100,7 @@ struct virtio_device {
- 	const struct virtio_config_ops *config;
- 	const struct vringh_config_ops *vringh_config;
- 	struct list_head vqs;
--	/* Note that this is a Linux set_bit-style bitmap. */
--	unsigned long features[1];
-+	u32 features;
- 	void *priv;
- };
  
+-/* the config->set() implementation.  it's symmetric to the config->get()
+- * implementation */
++#define VP_GETx(bits)							\
++static u##bits vp_get##bits(struct virtio_device *vdev, unsigned int offset) \
++{									\
++	u##bits v;							\
++	vp_get(vdev, offset, &v, sizeof(v));				\
++	return v;							\
++}
++
++VP_GETx(8)
++VP_GETx(16)
++VP_GETx(32)
++VP_GETx(64)
++
+ static void vp_set(struct virtio_device *vdev, unsigned offset,
+ 		   const void *buf, unsigned len)
+ {
+@@ -156,6 +167,18 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
+ 		iowrite8(ptr[i], ioaddr + i);
+ }
+ 
++#define VP_SETx(bits)							\
++static void vp_set##bits(struct virtio_device *vdev, unsigned int offset, \
++			 u##bits v)					\
++{									\
++	vp_set(vdev, offset, &v, sizeof(v));				\
++}
++
++VP_SETx(8)
++VP_SETx(16)
++VP_SETx(32)
++VP_SETx(64)
++
+ /* config->{get,set}_status() implementations */
+ static u8 vp_get_status(struct virtio_device *vdev)
+ {
+@@ -653,8 +676,14 @@ static int vp_set_vq_affinity(struct virtqueue *vq, int cpu)
+ }
+ 
+ static const struct virtio_config_ops virtio_pci_config_ops = {
+-	.get		= vp_get,
+-	.set		= vp_set,
++	.get8		= vp_get8,
++	.set8		= vp_set8,
++	.get16		= vp_get16,
++	.set16		= vp_set16,
++	.get32		= vp_get32,
++	.set32		= vp_set32,
++	.get64		= vp_get64,
++	.set64		= vp_set64,
+ 	.get_status	= vp_get_status,
+ 	.set_status	= vp_set_status,
+ 	.reset		= vp_reset,
 diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 73841ee..c250625 100644
+index e8f8f71..73841ee 100644
 --- a/include/linux/virtio_config.h
 +++ b/include/linux/virtio_config.h
-@@ -111,7 +111,7 @@ static inline bool virtio_has_feature(const struct virtio_device *vdev,
- 	if (fbit < VIRTIO_TRANSPORT_F_START)
- 		virtio_check_driver_offered_feature(vdev, fbit);
+@@ -8,16 +8,30 @@
  
--	return test_bit(fbit, vdev->features);
-+	return vdev->features & (1 << fbit);
+ /**
+  * virtio_config_ops - operations for configuring a virtio device
+- * @get: read the value of a configuration field
++ * @get8: read a byte from a configuration field
+  *	vdev: the virtio_device
+  *	offset: the offset of the configuration field
+- *	buf: the buffer to write the field value into.
+- *	len: the length of the buffer
+- * @set: write the value of a configuration field
++ * @set8: write a byte to a configuration field
++ *	vdev: the virtio_device
++ *	offset: the offset of the configuration field
++ * @get16: read a short from a configuration field
++ *	vdev: the virtio_device
++ *	offset: the offset of the configuration field
++ * @set16: write a short to a configuration field
++ *	vdev: the virtio_device
++ *	offset: the offset of the configuration field
++ * @get32: read a u32 from a configuration field
++ *	vdev: the virtio_device
++ *	offset: the offset of the configuration field
++ * @set32: write a u32 to a configuration field
++ *	vdev: the virtio_device
++ *	offset: the offset of the configuration field
++ * @get64: read a u64 from a configuration field
++ *	vdev: the virtio_device
++ *	offset: the offset of the configuration field
++ * @set64: write a u64 to a configuration field
+  *	vdev: the virtio_device
+  *	offset: the offset of the configuration field
+- *	buf: the buffer to read the field value from.
+- *	len: the length of the buffer
+  * @get_status: read the status byte
+  *	vdev: the virtio_device
+  *	Returns the status byte
+@@ -54,10 +68,14 @@
+  */
+ typedef void vq_callback_t(struct virtqueue *);
+ struct virtio_config_ops {
+-	void (*get)(struct virtio_device *vdev, unsigned offset,
+-		    void *buf, unsigned len);
+-	void (*set)(struct virtio_device *vdev, unsigned offset,
+-		    const void *buf, unsigned len);
++	u8 (*get8)(struct virtio_device *vdev, unsigned offset);
++	void (*set8)(struct virtio_device *vdev, unsigned offset, u8 val);
++	u16 (*get16)(struct virtio_device *vdev, unsigned offset);
++	void (*set16)(struct virtio_device *vdev, unsigned offset, u16 val);
++	u32 (*get32)(struct virtio_device *vdev, unsigned offset);
++	void (*set32)(struct virtio_device *vdev, unsigned offset, u32 val);
++	u64 (*get64)(struct virtio_device *vdev, unsigned offset);
++	void (*set64)(struct virtio_device *vdev, unsigned offset, u64 val);
+ 	u8 (*get_status)(struct virtio_device *vdev);
+ 	void (*set_status)(struct virtio_device *vdev, u8 status);
+ 	void (*reset)(struct virtio_device *vdev);
+@@ -199,64 +217,62 @@ int virtqueue_set_affinity(struct virtqueue *vq, int cpu)
+ 
+ static inline u8 virtio_cread8(struct virtio_device *vdev, unsigned int offset)
+ {
+-	u8 ret;
+-	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return vdev->config->get8(vdev, offset);
  }
  
- static inline
-diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
-index 6df181a..02a38e8 100644
---- a/tools/virtio/linux/virtio.h
-+++ b/tools/virtio/linux/virtio.h
-@@ -6,31 +6,11 @@
- /* TODO: empty stubs for now. Broken but enough for virtio_ring.c */
- #define list_add_tail(a, b) do {} while (0)
- #define list_del(a) do {} while (0)
--
--#define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
--#define BITS_PER_BYTE		8
--#define BITS_PER_LONG (sizeof(long) * BITS_PER_BYTE)
--#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
--
--/* TODO: Not atomic as it should be:
-- * we don't use this for anything important. */
--static inline void clear_bit(int nr, volatile unsigned long *addr)
--{
--	unsigned long mask = BIT_MASK(nr);
--	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
--
--	*p &= ~mask;
--}
--
--static inline int test_bit(int nr, const volatile unsigned long *addr)
--{
--        return 1UL & (addr[BIT_WORD(nr)] >> (nr & (BITS_PER_LONG-1)));
--}
- /* end of stubs */
- 
- struct virtio_device {
- 	void *dev;
--	unsigned long features[1];
-+	u32 features;
- };
- 
- struct virtqueue {
-diff --git a/tools/virtio/linux/virtio_config.h b/tools/virtio/linux/virtio_config.h
-index 5049967..1f1636b 100644
---- a/tools/virtio/linux/virtio_config.h
-+++ b/tools/virtio/linux/virtio_config.h
-@@ -2,5 +2,5 @@
- #define VIRTIO_TRANSPORT_F_END		32
- 
- #define virtio_has_feature(dev, feature) \
--	test_bit((feature), (dev)->features)
-+	((dev)->features & (1 << feature))
- 
-diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-index 814ae80..59f0706 100644
---- a/tools/virtio/virtio_test.c
-+++ b/tools/virtio/virtio_test.c
-@@ -59,7 +59,7 @@ void vhost_vq_setup(struct vdev_info *dev, struct vq_info *info)
+ static inline void virtio_cread_bytes(struct virtio_device *vdev,
+ 				      unsigned int offset,
+ 				      void *buf, size_t len)
  {
- 	struct vhost_vring_state state = { .index = info->idx };
- 	struct vhost_vring_file file = { .index = info->idx };
--	unsigned long long features = dev->vdev.features[0];
-+	unsigned long long features = dev->vdev.features;
- 	struct vhost_vring_addr addr = {
- 		.index = info->idx,
- 		.desc_user_addr = (uint64_t)(unsigned long)info->vring.desc,
-@@ -112,8 +112,7 @@ static void vdev_info_init(struct vdev_info* dev, unsigned long long features)
+-	vdev->config->get(vdev, offset, buf, len);
++	u8 *dst = buf;
++	while (len) {
++		*dst = vdev->config->get8(vdev, offset);
++		dst++;
++		offset++;
++		len--;
++	}
+ }
+ 
+ static inline void virtio_cwrite8(struct virtio_device *vdev,
+ 				  unsigned int offset, u8 val)
  {
- 	int r;
- 	memset(dev, 0, sizeof *dev);
--	dev->vdev.features[0] = features;
--	dev->vdev.features[1] = features >> 32;
-+	dev->vdev.features = features;
- 	dev->buf_size = 1024;
- 	dev->buf = malloc(dev->buf_size);
- 	assert(dev->buf);
-diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-index 88fe02a..d71fc05 100644
---- a/tools/virtio/vringh_test.c
-+++ b/tools/virtio/vringh_test.c
-@@ -299,7 +299,7 @@ static int parallel_test(unsigned long features,
- 		close(to_guest[1]);
- 		close(to_host[0]);
+-	vdev->config->set(vdev, offset, &val, sizeof(val));
++	vdev->config->set8(vdev, offset, val);
+ }
  
--		gvdev.vdev.features[0] = features;
-+		gvdev.vdev.features = features;
- 		gvdev.to_host_fd = to_host[1];
- 		gvdev.notifies = 0;
+ static inline u16 virtio_cread16(struct virtio_device *vdev,
+ 				 unsigned int offset)
+ {
+-	u16 ret;
+-	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return vdev->config->get16(vdev, offset);
+ }
  
-@@ -444,13 +444,13 @@ int main(int argc, char *argv[])
- 	bool fast_vringh = false, parallel = false;
+ static inline void virtio_cwrite16(struct virtio_device *vdev,
+ 				   unsigned int offset, u16 val)
+ {
+-	vdev->config->set(vdev, offset, &val, sizeof(val));
++	vdev->config->set16(vdev, offset, val);
+ }
  
- 	getrange = getrange_iov;
--	vdev.features[0] = 0;
-+	vdev.features = 0;
+ static inline u32 virtio_cread32(struct virtio_device *vdev,
+ 				 unsigned int offset)
+ {
+-	u32 ret;
+-	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return vdev->config->get32(vdev, offset);
+ }
  
- 	while (argv[1]) {
- 		if (strcmp(argv[1], "--indirect") == 0)
--			vdev.features[0] |= (1 << VIRTIO_RING_F_INDIRECT_DESC);
-+			vdev.features |= (1 << VIRTIO_RING_F_INDIRECT_DESC);
- 		else if (strcmp(argv[1], "--eventidx") == 0)
--			vdev.features[0] |= (1 << VIRTIO_RING_F_EVENT_IDX);
-+			vdev.features |= (1 << VIRTIO_RING_F_EVENT_IDX);
- 		else if (strcmp(argv[1], "--slow-range") == 0)
- 			getrange = getrange_slow;
- 		else if (strcmp(argv[1], "--fast-vringh") == 0)
-@@ -463,7 +463,7 @@ int main(int argc, char *argv[])
- 	}
+ static inline void virtio_cwrite32(struct virtio_device *vdev,
+ 				   unsigned int offset, u32 val)
+ {
+-	vdev->config->set(vdev, offset, &val, sizeof(val));
++	vdev->config->set32(vdev, offset, val);
+ }
  
- 	if (parallel)
--		return parallel_test(vdev.features[0], getrange, fast_vringh);
-+		return parallel_test(vdev.features, getrange, fast_vringh);
+ static inline u64 virtio_cread64(struct virtio_device *vdev,
+ 				 unsigned int offset)
+ {
+-	u64 ret;
+-	vdev->config->get(vdev, offset, &ret, sizeof(ret));
+-	return ret;
++	return vdev->config->get64(vdev, offset);
+ }
  
- 	if (posix_memalign(&__user_addr_min, PAGE_SIZE, USER_MEM) != 0)
- 		abort();
-@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
+ static inline void virtio_cwrite64(struct virtio_device *vdev,
+ 				   unsigned int offset, u64 val)
+ {
+-	vdev->config->set(vdev, offset, &val, sizeof(val));
++	vdev->config->set64(vdev, offset, val);
+ }
  
- 	/* Set up host side. */
- 	vring_init(&vrh.vring, RINGSIZE, __user_addr_min, ALIGN);
--	vringh_init_user(&vrh, vdev.features[0], RINGSIZE, true,
-+	vringh_init_user(&vrh, vdev.features, RINGSIZE, true,
- 			 vrh.vring.desc, vrh.vring.avail, vrh.vring.used);
- 
- 	/* No descriptor to get yet... */
-@@ -646,13 +646,13 @@ int main(int argc, char *argv[])
- 	}
- 
- 	/* Test weird (but legal!) indirect. */
--	if (vdev.features[0] & (1 << VIRTIO_RING_F_INDIRECT_DESC)) {
-+	if (vdev.features & (1 << VIRTIO_RING_F_INDIRECT_DESC)) {
- 		char *data = __user_addr_max - USER_MEM/4;
- 		struct vring_desc *d = __user_addr_max - USER_MEM/2;
- 		struct vring vring;
- 
- 		/* Force creation of direct, which we modify. */
--		vdev.features[0] &= ~(1 << VIRTIO_RING_F_INDIRECT_DESC);
-+		vdev.features &= ~(1 << VIRTIO_RING_F_INDIRECT_DESC);
- 		vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &vdev, true,
- 					 __user_addr_min,
- 					 never_notify_host,
+ /* Conditional config space accessors. */
 -- 
 1.7.10.4
