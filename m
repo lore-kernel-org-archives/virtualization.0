@@ -1,15 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] vhost/net: fix heads usage of ubuf_info
-Date: Thu, 21 Mar 2013 08:02:18 +0200
-Message-ID: <20130321060218.GB23908@redhat.com>
-References: <20130317124609.GA25967@redhat.com>
-	<20130317.142955.1114572401286297685.davem@davemloft.net>
+From: Amos Kong <akong@redhat.com>
+Subject: [RFC qemu PATCH] only writing out the last byte of MAC makes it have
+	effect
+Date: Thu, 21 Mar 2013 14:44:50 +0800
+Message-ID: <1363848290-30344-1-git-send-email-akong@redhat.com>
+References: <1363834956-9409-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130317.142955.1114572401286297685.davem@davemloft.net>
+In-Reply-To: <1363834956-9409-1-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +18,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, nab@risingtidesystems.com, virtualization@lists.linux-foundation.org, basil.gor@gmail.com
+To: qemu-devel@nongnu.org
+Cc: virtualization@lists.linux-foundation.org, stefanha@redhat.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Mar 17, 2013 at 02:29:55PM -0400, David Miller wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
-> Date: Sun, 17 Mar 2013 14:46:09 +0200
-> 
-> > ubuf info allocator uses guest controlled head as an index,
-> > so a malicious guest could put the same head entry in the ring twice,
-> > and we will get two callbacks on the same value.
-> > To fix use upend_idx which is guaranteed to be unique.
-> > 
-> > Reported-by: Rusty Russell <rusty@rustcorp.com.au>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> Applied and queued up for -stable, thanks.
-> 
-> And thankfully you got the stable URL wrong,
+The lengcy guests don't have mac programming command, we don't know when
+it's safe to use MAC. This patch changed qemu to makes MAC change effect
+when the last byte of MAC is written to config space.
 
-Yes I wrote stable@kernel.org that's what an old copy
-says here:
-https://www.kernel.org/doc/Documentation/stable_kernel_rules.txt
+MAC address takes first 6 bytes of config space of virtio-net, the addr
+is 5 when the last byte is written in virtio_config_writeb().
 
-I should have known better than look at it on the 'net.  The top
-'Everything you ever wanted to know about Linux 2.6 -stable releases.'
-is a big hint that it's stale.
-Any idea who maintains this? Better update it or remove it or redirect to git.
+MAC change will effect when n->mac is updated in virtio_net_set_config().
 
-> please do not CC:
-> networking patches to stable, just make sure I apply them and in
-> your post-commit text explicitly ask me to queue it up to my
-> -stable queue.
-> 
-> Thanks.
+Signed-off-by: Amos Kong <akong@redhat.com>
+---
+ hw/virtio.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/hw/virtio.c b/hw/virtio.c
+index 26fbc79..2e08302 100644
+--- a/hw/virtio.c
++++ b/hw/virtio.c
+@@ -605,8 +605,9 @@ void virtio_config_writeb(VirtIODevice *vdev, uint32_t addr, uint32_t data)
+ 
+     stb_p(vdev->config + addr, val);
+ 
+-    if (vdev->set_config)
++    if (vdev->set_config && (addr == 5 || strcmp(vdev->name, "virtio-net"))) {
+         vdev->set_config(vdev, vdev->config);
++    }
+ }
+ 
+ void virtio_config_writew(VirtIODevice *vdev, uint32_t addr, uint32_t data)
+-- 
+1.7.1
