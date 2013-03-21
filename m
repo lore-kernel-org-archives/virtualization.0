@@ -1,8 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 08/22] virtio-pci: define layout for virtio vendor-specific
-	capabilities.
-Date: Thu, 21 Mar 2013 18:59:29 +1030
-Message-ID: <1363854584-25795-9-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 07/22] pci: add pci_iomap_range
+Date: Thu, 21 Mar 2013 18:59:28 +1030
+Message-ID: <1363854584-25795-8-git-send-email-rusty@rustcorp.com.au>
 References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,66 +18,121 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
+Cc: Michael S Tsirkin <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Based on patch by Michael S. Tsirkin <mst@redhat.com>, but I found it
-hard to follow so changed to use structures which are more
-self-documenting.
+From: Michael S Tsirkin <mst@redhat.com>
 
+Virtio drivers should map the part of the range they need, not necessarily
+all of it. They also need non-cacheable mapping even for
+prefetchable BARs.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- include/uapi/linux/virtio_pci.h |   41 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 41 insertions(+)
+ include/asm-generic/pci_iomap.h |    5 +++++
+ lib/pci_iomap.c                 |   46 ++++++++++++++++++++++++++++++++++-----
+ 2 files changed, 45 insertions(+), 6 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index ea66f3f..b0e7c91 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -92,4 +92,45 @@
- /* The alignment to use between consumer and producer parts of vring.
-  * x86 pagesize again. */
- #define VIRTIO_PCI_VRING_ALIGN		4096
+diff --git a/include/asm-generic/pci_iomap.h b/include/asm-generic/pci_iomap.h
+index ce37349..8777331 100644
+--- a/include/asm-generic/pci_iomap.h
++++ b/include/asm-generic/pci_iomap.h
+@@ -15,6 +15,11 @@ struct pci_dev;
+ #ifdef CONFIG_PCI
+ /* Create a virtual mapping cookie for a PCI BAR (memory or IO) */
+ extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
++extern void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
++				     unsigned offset,
++				     unsigned long minlen,
++				     unsigned long maxlen,
++				     bool force_nocache);
+ /* Create a virtual mapping cookie for a port on a given PCI device.
+  * Do not call this directly, it exists to make it easier for architectures
+  * to override */
+diff --git a/lib/pci_iomap.c b/lib/pci_iomap.c
+index 0d83ea8..1ac4def 100644
+--- a/lib/pci_iomap.c
++++ b/lib/pci_iomap.c
+@@ -10,33 +10,47 @@
+ 
+ #ifdef CONFIG_PCI
+ /**
+- * pci_iomap - create a virtual mapping cookie for a PCI BAR
++ * pci_iomap_range - create a virtual mapping cookie for a PCI BAR
+  * @dev: PCI device that owns the BAR
+  * @bar: BAR number
+- * @maxlen: length of the memory to map
++ * @offset: map memory at the given offset in BAR
++ * @minlen: min length of the memory to map
++ * @maxlen: max length of the memory to map
+  *
+  * Using this function you will get a __iomem address to your device BAR.
+  * You can access it using ioread*() and iowrite*(). These functions hide
+  * the details if this is a MMIO or PIO address space and will just do what
+  * you expect from them in the correct way.
+  *
++ * @minlen specifies the minimum length to map. We check that BAR is
++ * large enough.
+  * @maxlen specifies the maximum length to map. If you want to get access to
+- * the complete BAR without checking for its length first, pass %0 here.
++ * the complete BAR from offset to the end, pass %0 here.
++ * @force_nocache makes the mapping noncacheable even if the BAR
++ * is prefetcheable. It has no effect otherwise.
+  * */
+-void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
++void __iomem *pci_iomap_range(struct pci_dev *dev, int bar,
++			      unsigned offset,
++			      unsigned long minlen,
++			      unsigned long maxlen,
++			      bool force_nocache)
+ {
+ 	resource_size_t start = pci_resource_start(dev, bar);
+ 	resource_size_t len = pci_resource_len(dev, bar);
+ 	unsigned long flags = pci_resource_flags(dev, bar);
+ 
+-	if (!len || !start)
++	if (len <= offset || !start)
++		return NULL;
++	len -= offset;
++	start += offset;
++	if (len < minlen)
+ 		return NULL;
+ 	if (maxlen && len > maxlen)
+ 		len = maxlen;
+ 	if (flags & IORESOURCE_IO)
+ 		return __pci_ioport_map(dev, start, len);
+ 	if (flags & IORESOURCE_MEM) {
+-		if (flags & IORESOURCE_CACHEABLE)
++		if (!force_nocache && (flags & IORESOURCE_CACHEABLE))
+ 			return ioremap(start, len);
+ 		return ioremap_nocache(start, len);
+ 	}
+@@ -44,5 +58,25 @@ void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
+ 	return NULL;
+ }
+ 
++/**
++ * pci_iomap - create a virtual mapping cookie for a PCI BAR
++ * @dev: PCI device that owns the BAR
++ * @bar: BAR number
++ * @maxlen: length of the memory to map
++ *
++ * Using this function you will get a __iomem address to your device BAR.
++ * You can access it using ioread*() and iowrite*(). These functions hide
++ * the details if this is a MMIO or PIO address space and will just do what
++ * you expect from them in the correct way.
++ *
++ * @maxlen specifies the maximum length to map. If you want to get access to
++ * the complete BAR without checking for its length first, pass %0 here.
++ * */
++void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long maxlen)
++{
++	return pci_iomap_range(dev, bar, 0, 0, maxlen, false);
++}
 +
-+/* IDs for different capabilities.  Must all exist. */
-+/* FIXME: Do we win from separating ISR, NOTIFY and COMMON? */
-+/* Common configuration */
-+#define VIRTIO_PCI_CAP_COMMON_CFG	1
-+/* Notifications */
-+#define VIRTIO_PCI_CAP_NOTIFY_CFG	2
-+/* ISR access */
-+#define VIRTIO_PCI_CAP_ISR_CFG		3
-+/* Device specific confiuration */
-+#define VIRTIO_PCI_CAP_DEVICE_CFG	4
-+
-+/* This is the PCI capability header: */
-+struct virtio_pci_cap {
-+	u8 cap_vndr;	/* Generic PCI field: PCI_CAP_ID_VNDR */
-+	u8 cap_next;	/* Generic PCI field: next ptr. */
-+	u8 cfg_type;	/* One of the VIRTIO_PCI_CAP_*_CFG. */
-+/* FIXME: Should we use a bir, instead of raw bar number? */
-+	u8 bar;		/* Where to find it. */
-+	__le32 offset;	/* Offset within bar. */
-+	__le32 length;	/* Length. */
-+};
-+
-+/* Fields in VIRTIO_PCI_CAP_COMMON_CFG: */
-+struct virtio_pci_common_cfg {
-+	/* About the whole device. */
-+	__le32 device_feature_select;	/* read-write */
-+	__le32 device_feature;		/* read-only */
-+	__le32 guest_feature_select;	/* read-write */
-+	__le32 guest_feature;		/* read-only */
-+	__le16 msix_config;		/* read-write */
-+	__u8 device_status;		/* read-write */
-+	__u8 unused;
-+
-+	/* About a specific virtqueue. */
-+	__le16 queue_select;	/* read-write */
-+	__le16 queue_align;	/* read-write, power of 2. */
-+	__le16 queue_size;	/* read-write, power of 2. */
-+	__le16 queue_msix_vector;/* read-write */
-+	__le64 queue_address;	/* read-write: 0xFFFFFFFFFFFFFFFF == DNE. */
-+};
- #endif
+ EXPORT_SYMBOL(pci_iomap);
++EXPORT_SYMBOL(pci_iomap_range);
+ #endif /* CONFIG_PCI */
 -- 
 1.7.10.4
