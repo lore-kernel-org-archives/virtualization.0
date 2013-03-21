@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 03/22] virtio_config: make transports implement accessors.
-Date: Thu, 21 Mar 2013 18:59:24 +1030
-Message-ID: <1363854584-25795-4-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 06/22] virtio: move vring structure into struct virtqueue.
+Date: Thu, 21 Mar 2013 18:59:27 +1030
+Message-ID: <1363854584-25795-7-git-send-email-rusty@rustcorp.com.au>
 References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,586 +18,343 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: Pawel Moll <pawel.moll@arm.com>, Brian Swetland <swetland@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-All transports just pass through at the moment.
+Back in 2010 (7c5e9ed0c84e7d70d887878574590638d5572659) MST removed
+the abstraction between virtio and the virtio ring, removing the various
+ops pointers, and we haven't really missed it.
 
-Cc: Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Brian Swetland <swetland@google.com>
-Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Pawel Moll <pawel.moll@arm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Now we hoist the struct vring out from the private struct
+vring_virtqueue into the struct virtqueue: we've already demonstrated
+that it's useful to be able to see the ring size, and the new virtio
+pci layout wants to know the location of each part of the ring.
+
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/lguest/lguest_device.c |   79 ++++++++++++++++++++++++++++++++++------
- drivers/net/caif/caif_virtio.c |    2 +-
- drivers/s390/kvm/kvm_virtio.c  |   78 +++++++++++++++++++++++++++++++++------
- drivers/s390/kvm/virtio_ccw.c  |   39 +++++++++++++++++++-
- drivers/virtio/virtio_mmio.c   |   35 +++++++++++++++++-
- drivers/virtio/virtio_pci.c    |   39 +++++++++++++++++---
- include/linux/virtio_config.h  |   70 +++++++++++++++++++++--------------
- 7 files changed, 283 insertions(+), 59 deletions(-)
+ drivers/virtio/virtio_ring.c |  114 +++++++++++++++++-------------------------
+ include/linux/virtio.h       |    8 ++-
+ 2 files changed, 54 insertions(+), 68 deletions(-)
 
-diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
-index b3256ff..8554d41 100644
---- a/drivers/lguest/lguest_device.c
-+++ b/drivers/lguest/lguest_device.c
-@@ -153,25 +153,76 @@ static void lg_finalize_features(struct virtio_device *vdev)
- }
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index ba58e29..7f9d4e9 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -53,13 +53,9 @@
+ #define END_USE(vq)
+ #endif
  
- /* Once they've found a field, getting a copy of it is easy. */
--static void lg_get(struct virtio_device *vdev, unsigned int offset,
--		   void *buf, unsigned len)
-+static u8 lg_get8(struct virtio_device *vdev, unsigned int offset)
+-struct vring_virtqueue
+-{
++struct vring_virtqueue {
+ 	struct virtqueue vq;
+ 
+-	/* Actual memory layout for this queue */
+-	struct vring vring;
+-
+ 	/* Can we use weak barriers? */
+ 	bool weak_barriers;
+ 
+@@ -171,12 +167,12 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
+ 
+ 	/* Use a single buffer which doesn't continue */
+ 	head = vq->free_head;
+-	vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
+-	vq->vring.desc[head].addr = virt_to_phys(desc);
+-	vq->vring.desc[head].len = i * sizeof(struct vring_desc);
++	vq->vq.vring.desc[head].flags = VRING_DESC_F_INDIRECT;
++	vq->vq.vring.desc[head].addr = virt_to_phys(desc);
++	vq->vq.vring.desc[head].len = i * sizeof(struct vring_desc);
+ 
+ 	/* Update free pointer */
+-	vq->free_head = vq->vring.desc[head].next;
++	vq->free_head = vq->vq.vring.desc[head].next;
+ 
+ 	return head;
+ }
+@@ -226,7 +222,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 			goto add_head;
+ 	}
+ 
+-	BUG_ON(total_sg > vq->vring.num);
++	BUG_ON(total_sg > vq->vq.vring.num);
+ 	BUG_ON(total_sg == 0);
+ 
+ 	if (vq->vq.num_free < total_sg) {
+@@ -247,24 +243,24 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 	head = i = vq->free_head;
+ 	for (n = 0; n < out_sgs; n++) {
+ 		for (sg = sgs[n]; sg; sg = next(sg, &total_out)) {
+-			vq->vring.desc[i].flags = VRING_DESC_F_NEXT;
+-			vq->vring.desc[i].addr = sg_phys(sg);
+-			vq->vring.desc[i].len = sg->length;
++			vq->vq.vring.desc[i].flags = VRING_DESC_F_NEXT;
++			vq->vq.vring.desc[i].addr = sg_phys(sg);
++			vq->vq.vring.desc[i].len = sg->length;
+ 			prev = i;
+-			i = vq->vring.desc[i].next;
++			i = vq->vq.vring.desc[i].next;
+ 		}
+ 	}
+ 	for (; n < (out_sgs + in_sgs); n++) {
+ 		for (sg = sgs[n]; sg; sg = next(sg, &total_in)) {
+-			vq->vring.desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
+-			vq->vring.desc[i].addr = sg_phys(sg);
+-			vq->vring.desc[i].len = sg->length;
++			vq->vq.vring.desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
++			vq->vq.vring.desc[i].addr = sg_phys(sg);
++			vq->vq.vring.desc[i].len = sg->length;
+ 			prev = i;
+-			i = vq->vring.desc[i].next;
++			i = vq->vq.vring.desc[i].next;
+ 		}
+ 	}
+ 	/* Last one doesn't continue. */
+-	vq->vring.desc[prev].flags &= ~VRING_DESC_F_NEXT;
++	vq->vq.vring.desc[prev].flags &= ~VRING_DESC_F_NEXT;
+ 
+ 	/* Update free pointer */
+ 	vq->free_head = i;
+@@ -275,13 +271,13 @@ add_head:
+ 
+ 	/* Put entry in available array (but don't update avail->idx until they
+ 	 * do sync). */
+-	avail = (vq->vring.avail->idx & (vq->vring.num-1));
+-	vq->vring.avail->ring[avail] = head;
++	avail = (vq->vq.vring.avail->idx & (vq->vq.vring.num-1));
++	vq->vq.vring.avail->ring[avail] = head;
+ 
+ 	/* Descriptors and available array need to be set before we expose the
+ 	 * new available array entries. */
+ 	virtio_wmb(vq->weak_barriers);
+-	vq->vring.avail->idx++;
++	vq->vq.vring.avail->idx++;
+ 	vq->num_added++;
+ 
+ 	/* This is very unlikely, but theoretically possible.  Kick
+@@ -431,8 +427,8 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
+ 	 * event. */
+ 	virtio_mb(vq->weak_barriers);
+ 
+-	old = vq->vring.avail->idx - vq->num_added;
+-	new = vq->vring.avail->idx;
++	old = vq->vq.vring.avail->idx - vq->num_added;
++	new = vq->vq.vring.avail->idx;
+ 	vq->num_added = 0;
+ 
+ #ifdef DEBUG
+@@ -444,10 +440,10 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
+ #endif
+ 
+ 	if (vq->event) {
+-		needs_kick = vring_need_event(vring_avail_event(&vq->vring),
++		needs_kick = vring_need_event(vring_avail_event(&vq->vq.vring),
+ 					      new, old);
+ 	} else {
+-		needs_kick = !(vq->vring.used->flags & VRING_USED_F_NO_NOTIFY);
++		needs_kick = !(vq->vq.vring.used->flags&VRING_USED_F_NO_NOTIFY);
+ 	}
+ 	END_USE(vq);
+ 	return needs_kick;
+@@ -497,15 +493,15 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+ 	i = head;
+ 
+ 	/* Free the indirect table */
+-	if (vq->vring.desc[i].flags & VRING_DESC_F_INDIRECT)
+-		kfree(phys_to_virt(vq->vring.desc[i].addr));
++	if (vq->vq.vring.desc[i].flags & VRING_DESC_F_INDIRECT)
++		kfree(phys_to_virt(vq->vq.vring.desc[i].addr));
+ 
+-	while (vq->vring.desc[i].flags & VRING_DESC_F_NEXT) {
+-		i = vq->vring.desc[i].next;
++	while (vq->vq.vring.desc[i].flags & VRING_DESC_F_NEXT) {
++		i = vq->vq.vring.desc[i].next;
+ 		vq->vq.num_free++;
+ 	}
+ 
+-	vq->vring.desc[i].next = vq->free_head;
++	vq->vq.vring.desc[i].next = vq->free_head;
+ 	vq->free_head = head;
+ 	/* Plus final descriptor */
+ 	vq->vq.num_free++;
+@@ -513,7 +509,7 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+ 
+ static inline bool more_used(const struct vring_virtqueue *vq)
  {
- 	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
- 
- 	/* Check they didn't ask for more than the length of the config! */
--	BUG_ON(offset + len > desc->config_len);
--	memcpy(buf, lg_config(desc) + offset, len);
-+	BUG_ON(offset + sizeof(u8) > desc->config_len);
-+	return *(u8 *)(lg_config(desc) + offset);
+-	return vq->last_used_idx != vq->vring.used->idx;
++	return vq->last_used_idx != vq->vq.vring.used->idx;
  }
- 
--/* Setting the contents is also trivial. */
--static void lg_set(struct virtio_device *vdev, unsigned int offset,
--		   const void *buf, unsigned len)
-+static void lg_set8(struct virtio_device *vdev, unsigned int offset, u8 val)
- {
- 	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
- 
- 	/* Check they didn't ask for more than the length of the config! */
--	BUG_ON(offset + len > desc->config_len);
--	memcpy(lg_config(desc) + offset, buf, len);
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u8 *)(lg_config(desc) + offset) = val;
-+}
-+
-+static u16 lg_get16(struct virtio_device *vdev, unsigned int offset)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(u16) > desc->config_len);
-+	return *(u16 *)(lg_config(desc) + offset);
-+}
-+
-+static void lg_set16(struct virtio_device *vdev, unsigned int offset, u16 val)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u16 *)(lg_config(desc) + offset) = val;
-+}
-+
-+static u32 lg_get32(struct virtio_device *vdev, unsigned int offset)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(u32) > desc->config_len);
-+	return *(u32 *)(lg_config(desc) + offset);
-+}
-+
-+static void lg_set32(struct virtio_device *vdev, unsigned int offset, u32 val)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u32 *)(lg_config(desc) + offset) = val;
-+}
-+
-+static u64 lg_get64(struct virtio_device *vdev, unsigned int offset)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(u64) > desc->config_len);
-+	return *(u64 *)(lg_config(desc) + offset);
-+}
-+
-+static void lg_set64(struct virtio_device *vdev, unsigned int offset, u64 val)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u64 *)(lg_config(desc) + offset) = val;
- }
- 
- /*
-@@ -399,8 +450,14 @@ static const char *lg_bus_name(struct virtio_device *vdev)
- static const struct virtio_config_ops lguest_config_ops = {
- 	.get_features = lg_get_features,
- 	.finalize_features = lg_finalize_features,
--	.get = lg_get,
--	.set = lg_set,
-+	.get8 = lg_get8,
-+	.set8 = lg_set8,
-+	.get16 = lg_get16,
-+	.set16 = lg_set16,
-+	.get32 = lg_get32,
-+	.set32 = lg_set32,
-+	.get64 = lg_get64,
-+	.set64 = lg_set64,
- 	.get_status = lg_get_status,
- 	.set_status = lg_set_status,
- 	.reset = lg_reset,
-diff --git a/drivers/net/caif/caif_virtio.c b/drivers/net/caif/caif_virtio.c
-index ef602e3..0f9bae0 100644
---- a/drivers/net/caif/caif_virtio.c
-+++ b/drivers/net/caif/caif_virtio.c
-@@ -682,7 +682,7 @@ static int cfv_probe(struct virtio_device *vdev)
- 		goto err;
- 
- 	/* Get the CAIF configuration from virtio config space, if available */
--	if (vdev->config->get) {
-+	if (vdev->config->get8) {
- 		virtio_cread(vdev, struct virtio_caif_transf_config, headroom,
- 			     &cfv->tx_hr);
- 		virtio_cread(vdev, struct virtio_caif_transf_config, headroom,
-diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
-index 6711e65..dcf35b1 100644
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -112,26 +112,82 @@ static void kvm_finalize_features(struct virtio_device *vdev)
- }
- 
- /*
-- * Reading and writing elements in config space
-+ * Reading and writing elements in config space.  Host and guest are always
-+ * big-endian, so no conversion necessary.
-  */
--static void kvm_get(struct virtio_device *vdev, unsigned int offset,
--		   void *buf, unsigned len)
-+static u8 kvm_get8(struct virtio_device *vdev, unsigned int offset)
- {
--	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
- 
--	BUG_ON(offset + len > desc->config_len);
--	memcpy(buf, kvm_vq_configspace(desc) + offset, len);
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(u8) > desc->config_len);
-+	return *(u8 *)(kvm_vq_configspace(desc) + offset);
- }
- 
--static void kvm_set(struct virtio_device *vdev, unsigned int offset,
--		   const void *buf, unsigned len)
-+static void kvm_set8(struct virtio_device *vdev, unsigned int offset, u8 val)
- {
--	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u8 *)(kvm_vq_configspace(desc) + offset) = val;
-+}
-+
-+static u16 kvm_get16(struct virtio_device *vdev, unsigned int offset)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(u16) > desc->config_len);
-+	return *(u16 *)(kvm_vq_configspace(desc) + offset);
-+}
-+
-+static void kvm_set16(struct virtio_device *vdev, unsigned int offset, u16 val)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u16 *)(kvm_vq_configspace(desc) + offset) = val;
-+}
-+
-+static u32 kvm_get32(struct virtio_device *vdev, unsigned int offset)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
- 
--	BUG_ON(offset + len > desc->config_len);
--	memcpy(kvm_vq_configspace(desc) + offset, buf, len);
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(u32) > desc->config_len);
-+	return *(u32 *)(kvm_vq_configspace(desc) + offset);
- }
- 
-+static void kvm_set32(struct virtio_device *vdev, unsigned int offset, u32 val)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u32 *)(kvm_vq_configspace(desc) + offset) = val;
-+}
-+
-+static u64 kvm_get64(struct virtio_device *vdev, unsigned int offset)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(u64) > desc->config_len);
-+	return *(u64 *)(kvm_vq_configspace(desc) + offset);
-+}
-+
-+static void kvm_set64(struct virtio_device *vdev, unsigned int offset, u64 val)
-+{
-+	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u64 *)(kvm_vq_configspace(desc) + offset) = val;
-+}
-+
-+
- /*
-  * The operations to get and set the status word just access
-  * the status field of the device descriptor. set_status will also
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 2029b6c..3652473 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -472,6 +472,7 @@ out_free:
- 	kfree(ccw);
- }
- 
-+/* We don't need to do endian conversion, as it's always big endian like us */
- static void virtio_ccw_get_config(struct virtio_device *vdev,
- 				  unsigned int offset, void *buf, unsigned len)
- {
-@@ -505,6 +506,21 @@ out_free:
- 	kfree(ccw);
- }
- 
-+
-+#define VIRTIO_CCW_GET_CONFIGx(bits)					\
-+static u##bits virtio_ccw_get_config##bits(struct virtio_device *vdev,	\
-+					   unsigned int offset)		\
-+{									\
-+	u##bits v;							\
-+	virtio_ccw_get_config(vdev, offset, &v, sizeof(v));		\
-+	return v;							\
-+}
-+
-+VIRTIO_CCW_GET_CONFIGx(8)
-+VIRTIO_CCW_GET_CONFIGx(16)
-+VIRTIO_CCW_GET_CONFIGx(32)
-+VIRTIO_CCW_GET_CONFIGx(64)
-+
- static void virtio_ccw_set_config(struct virtio_device *vdev,
- 				  unsigned int offset, const void *buf,
- 				  unsigned len)
-@@ -535,6 +551,19 @@ out_free:
- 	kfree(ccw);
- }
- 
-+#define VIRTIO_CCW_SET_CONFIGx(bits)					\
-+static void virtio_ccw_set_config##bits(struct virtio_device *vdev,	\
-+					unsigned int offset,		\
-+					u##bits v)			\
-+{									\
-+	virtio_ccw_set_config(vdev, offset, &v, sizeof(v));		\
-+}
-+
-+VIRTIO_CCW_SET_CONFIGx(8)
-+VIRTIO_CCW_SET_CONFIGx(16)
-+VIRTIO_CCW_SET_CONFIGx(32)
-+VIRTIO_CCW_SET_CONFIGx(64)
-+
- static u8 virtio_ccw_get_status(struct virtio_device *vdev)
- {
- 	struct virtio_ccw_device *vcdev = to_vc_device(vdev);
-@@ -564,8 +593,14 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
- static struct virtio_config_ops virtio_ccw_config_ops = {
- 	.get_features = virtio_ccw_get_features,
- 	.finalize_features = virtio_ccw_finalize_features,
--	.get = virtio_ccw_get_config,
--	.set = virtio_ccw_set_config,
-+	.get8 = virtio_ccw_get_config8,
-+	.set8 = virtio_ccw_set_config8,
-+	.get16 = virtio_ccw_get_config16,
-+	.set16 = virtio_ccw_set_config16,
-+	.get32 = virtio_ccw_get_config32,
-+	.set32 = virtio_ccw_set_config32,
-+	.get64 = virtio_ccw_get_config64,
-+	.set64 = virtio_ccw_set_config64,
- 	.get_status = virtio_ccw_get_status,
- 	.set_status = virtio_ccw_set_status,
- 	.reset = virtio_ccw_reset,
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 1ba0d68..ad7f38f 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -178,6 +178,19 @@ static void vm_get(struct virtio_device *vdev, unsigned offset,
- 		ptr[i] = readb(vm_dev->base + VIRTIO_MMIO_CONFIG + offset + i);
- }
- 
-+#define VM_GETx(bits)							\
-+static u##bits vm_get##bits(struct virtio_device *vdev, unsigned int offset) \
-+{									\
-+	u##bits v;							\
-+	vm_get(vdev, offset, &v, sizeof(v));				\
-+	return v;							\
-+}
-+
-+VM_GETx(8)
-+VM_GETx(16)
-+VM_GETx(32)
-+VM_GETx(64)
-+
- static void vm_set(struct virtio_device *vdev, unsigned offset,
- 		   const void *buf, unsigned len)
- {
-@@ -189,6 +202,18 @@ static void vm_set(struct virtio_device *vdev, unsigned offset,
- 		writeb(ptr[i], vm_dev->base + VIRTIO_MMIO_CONFIG + offset + i);
- }
- 
-+#define VM_SETx(bits)							\
-+static void vm_set##bits(struct virtio_device *vdev, unsigned int offset, \
-+			 u##bits v)					\
-+{									\
-+	vm_set(vdev, offset, &v, sizeof(v));				\
-+}
-+
-+VM_SETx(8)
-+VM_SETx(16)
-+VM_SETx(32)
-+VM_SETx(64)
-+
- static u8 vm_get_status(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-@@ -424,8 +449,14 @@ static const char *vm_bus_name(struct virtio_device *vdev)
- }
- 
- static const struct virtio_config_ops virtio_mmio_config_ops = {
--	.get		= vm_get,
--	.set		= vm_set,
-+	.get8		= vm_get8,
-+	.set8		= vm_set8,
-+	.get16		= vm_get16,
-+	.set16		= vm_set16,
-+	.get32		= vm_get32,
-+	.set32		= vm_set32,
-+	.get64		= vm_get64,
-+	.set64		= vm_set64,
- 	.get_status	= vm_get_status,
- 	.set_status	= vm_set_status,
- 	.reset		= vm_reset,
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index a7ce730..96a988b 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -127,7 +127,7 @@ static void vp_finalize_features(struct virtio_device *vdev)
- 	iowrite32(vdev->features[0], vp_dev->ioaddr+VIRTIO_PCI_GUEST_FEATURES);
- }
- 
--/* virtio config->get() implementation */
-+/* Device config access: we use guest endian, as per spec. */
- static void vp_get(struct virtio_device *vdev, unsigned offset,
- 		   void *buf, unsigned len)
- {
-@@ -141,8 +141,19 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
- 		ptr[i] = ioread8(ioaddr + i);
- }
- 
--/* the config->set() implementation.  it's symmetric to the config->get()
-- * implementation */
-+#define VP_GETx(bits)							\
-+static u##bits vp_get##bits(struct virtio_device *vdev, unsigned int offset) \
-+{									\
-+	u##bits v;							\
-+	vp_get(vdev, offset, &v, sizeof(v));				\
-+	return v;							\
-+}
-+
-+VP_GETx(8)
-+VP_GETx(16)
-+VP_GETx(32)
-+VP_GETx(64)
-+
- static void vp_set(struct virtio_device *vdev, unsigned offset,
- 		   const void *buf, unsigned len)
- {
-@@ -156,6 +167,18 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
- 		iowrite8(ptr[i], ioaddr + i);
- }
- 
-+#define VP_SETx(bits)							\
-+static void vp_set##bits(struct virtio_device *vdev, unsigned int offset, \
-+			 u##bits v)					\
-+{									\
-+	vp_set(vdev, offset, &v, sizeof(v));				\
-+}
-+
-+VP_SETx(8)
-+VP_SETx(16)
-+VP_SETx(32)
-+VP_SETx(64)
-+
- /* config->{get,set}_status() implementations */
- static u8 vp_get_status(struct virtio_device *vdev)
- {
-@@ -653,8 +676,14 @@ static int vp_set_vq_affinity(struct virtqueue *vq, int cpu)
- }
- 
- static const struct virtio_config_ops virtio_pci_config_ops = {
--	.get		= vp_get,
--	.set		= vp_set,
-+	.get8		= vp_get8,
-+	.set8		= vp_set8,
-+	.get16		= vp_get16,
-+	.set16		= vp_set16,
-+	.get32		= vp_get32,
-+	.set32		= vp_set32,
-+	.get64		= vp_get64,
-+	.set64		= vp_set64,
- 	.get_status	= vp_get_status,
- 	.set_status	= vp_set_status,
- 	.reset		= vp_reset,
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index e8f8f71..73841ee 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -8,16 +8,30 @@
  
  /**
-  * virtio_config_ops - operations for configuring a virtio device
-- * @get: read the value of a configuration field
-+ * @get8: read a byte from a configuration field
-  *	vdev: the virtio_device
-  *	offset: the offset of the configuration field
-- *	buf: the buffer to write the field value into.
-- *	len: the length of the buffer
-- * @set: write the value of a configuration field
-+ * @set8: write a byte to a configuration field
-+ *	vdev: the virtio_device
-+ *	offset: the offset of the configuration field
-+ * @get16: read a short from a configuration field
-+ *	vdev: the virtio_device
-+ *	offset: the offset of the configuration field
-+ * @set16: write a short to a configuration field
-+ *	vdev: the virtio_device
-+ *	offset: the offset of the configuration field
-+ * @get32: read a u32 from a configuration field
-+ *	vdev: the virtio_device
-+ *	offset: the offset of the configuration field
-+ * @set32: write a u32 to a configuration field
-+ *	vdev: the virtio_device
-+ *	offset: the offset of the configuration field
-+ * @get64: read a u64 from a configuration field
-+ *	vdev: the virtio_device
-+ *	offset: the offset of the configuration field
-+ * @set64: write a u64 to a configuration field
-  *	vdev: the virtio_device
-  *	offset: the offset of the configuration field
-- *	buf: the buffer to read the field value from.
-- *	len: the length of the buffer
-  * @get_status: read the status byte
-  *	vdev: the virtio_device
-  *	Returns the status byte
-@@ -54,10 +68,14 @@
-  */
- typedef void vq_callback_t(struct virtqueue *);
- struct virtio_config_ops {
--	void (*get)(struct virtio_device *vdev, unsigned offset,
--		    void *buf, unsigned len);
--	void (*set)(struct virtio_device *vdev, unsigned offset,
--		    const void *buf, unsigned len);
-+	u8 (*get8)(struct virtio_device *vdev, unsigned offset);
-+	void (*set8)(struct virtio_device *vdev, unsigned offset, u8 val);
-+	u16 (*get16)(struct virtio_device *vdev, unsigned offset);
-+	void (*set16)(struct virtio_device *vdev, unsigned offset, u16 val);
-+	u32 (*get32)(struct virtio_device *vdev, unsigned offset);
-+	void (*set32)(struct virtio_device *vdev, unsigned offset, u32 val);
-+	u64 (*get64)(struct virtio_device *vdev, unsigned offset);
-+	void (*set64)(struct virtio_device *vdev, unsigned offset, u64 val);
- 	u8 (*get_status)(struct virtio_device *vdev);
- 	void (*set_status)(struct virtio_device *vdev, u8 status);
- 	void (*reset)(struct virtio_device *vdev);
-@@ -199,64 +217,62 @@ int virtqueue_set_affinity(struct virtqueue *vq, int cpu)
+@@ -555,11 +551,11 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 	/* Only get used array entries after they have been exposed by host. */
+ 	virtio_rmb(vq->weak_barriers);
  
- static inline u8 virtio_cread8(struct virtio_device *vdev, unsigned int offset)
+-	last_used = (vq->last_used_idx & (vq->vring.num - 1));
+-	i = vq->vring.used->ring[last_used].id;
+-	*len = vq->vring.used->ring[last_used].len;
++	last_used = (vq->last_used_idx & (vq->vq.vring.num - 1));
++	i = vq->vq.vring.used->ring[last_used].id;
++	*len = vq->vq.vring.used->ring[last_used].len;
+ 
+-	if (unlikely(i >= vq->vring.num)) {
++	if (unlikely(i >= vq->vq.vring.num)) {
+ 		BAD_RING(vq, "id %u out of range\n", i);
+ 		return NULL;
+ 	}
+@@ -575,8 +571,8 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 	/* If we expect an interrupt for the next entry, tell host
+ 	 * by writing event index and flush out the write before
+ 	 * the read in the next get_buf call. */
+-	if (!(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
+-		vring_used_event(&vq->vring) = vq->last_used_idx;
++	if (!(vq->vq.vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
++		vring_used_event(&vq->vq.vring) = vq->last_used_idx;
+ 		virtio_mb(vq->weak_barriers);
+ 	}
+ 
+@@ -602,7 +598,7 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
  {
--	u8 ret;
--	vdev->config->get(vdev, offset, &ret, sizeof(ret));
--	return ret;
-+	return vdev->config->get8(vdev, offset);
- }
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
  
- static inline void virtio_cread_bytes(struct virtio_device *vdev,
- 				      unsigned int offset,
- 				      void *buf, size_t len)
- {
--	vdev->config->get(vdev, offset, buf, len);
-+	u8 *dst = buf;
-+	while (len) {
-+		*dst = vdev->config->get8(vdev, offset);
-+		dst++;
-+		offset++;
-+		len--;
-+	}
+-	vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
++	vq->vq.vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
  }
+ EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
  
- static inline void virtio_cwrite8(struct virtio_device *vdev,
- 				  unsigned int offset, u8 val)
- {
--	vdev->config->set(vdev, offset, &val, sizeof(val));
-+	vdev->config->set8(vdev, offset, val);
+@@ -628,8 +624,8 @@ bool virtqueue_enable_cb(struct virtqueue *_vq)
+ 	/* Depending on the VIRTIO_RING_F_EVENT_IDX feature, we need to
+ 	 * either clear the flags bit or point the event index at the next
+ 	 * entry. Always do both to keep code simple. */
+-	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
+-	vring_used_event(&vq->vring) = vq->last_used_idx;
++	vq->vq.vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
++	vring_used_event(&vq->vq.vring) = vq->last_used_idx;
+ 	virtio_mb(vq->weak_barriers);
+ 	if (unlikely(more_used(vq))) {
+ 		END_USE(vq);
+@@ -666,12 +662,12 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+ 	/* Depending on the VIRTIO_RING_F_USED_EVENT_IDX feature, we need to
+ 	 * either clear the flags bit or point the event index at the next
+ 	 * entry. Always do both to keep code simple. */
+-	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
++	vq->vq.vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
+ 	/* TODO: tune this threshold */
+-	bufs = (u16)(vq->vring.avail->idx - vq->last_used_idx) * 3 / 4;
+-	vring_used_event(&vq->vring) = vq->last_used_idx + bufs;
++	bufs = (u16)(vq->vq.vring.avail->idx - vq->last_used_idx) * 3 / 4;
++	vring_used_event(&vq->vq.vring) = vq->last_used_idx + bufs;
+ 	virtio_mb(vq->weak_barriers);
+-	if (unlikely((u16)(vq->vring.used->idx - vq->last_used_idx) > bufs)) {
++	if (unlikely((u16)(vq->vq.vring.used->idx-vq->last_used_idx) > bufs)) {
+ 		END_USE(vq);
+ 		return false;
+ 	}
+@@ -697,18 +693,18 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
+ 
+ 	START_USE(vq);
+ 
+-	for (i = 0; i < vq->vring.num; i++) {
++	for (i = 0; i < vq->vq.vring.num; i++) {
+ 		if (!vq->data[i])
+ 			continue;
+ 		/* detach_buf clears data, so grab it now. */
+ 		buf = vq->data[i];
+ 		detach_buf(vq, i);
+-		vq->vring.avail->idx--;
++		vq->vq.vring.avail->idx--;
+ 		END_USE(vq);
+ 		return buf;
+ 	}
+ 	/* That should have freed everything. */
+-	BUG_ON(vq->vq.num_free != vq->vring.num);
++	BUG_ON(vq->vq.num_free != vq->vq.vring.num);
+ 
+ 	END_USE(vq);
+ 	return NULL;
+@@ -758,7 +754,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 	if (!vq)
+ 		return NULL;
+ 
+-	vring_init(&vq->vring, num, pages, vring_align);
++	vring_init(&vq->vq.vring, num, pages, vring_align);
+ 	vq->vq.callback = callback;
+ 	vq->vq.vdev = vdev;
+ 	vq->vq.name = name;
+@@ -780,12 +776,12 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 
+ 	/* No callback?  Tell other side not to bother us. */
+ 	if (!callback)
+-		vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
++		vq->vq.vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
+ 
+ 	/* Put everything in free lists. */
+ 	vq->free_head = 0;
+ 	for (i = 0; i < num-1; i++) {
+-		vq->vring.desc[i].next = i+1;
++		vq->vq.vring.desc[i].next = i+1;
+ 		vq->data[i] = NULL;
+ 	}
+ 	vq->data[i] = NULL;
+@@ -820,20 +816,4 @@ void vring_transport_features(struct virtio_device *vdev)
  }
+ EXPORT_SYMBOL_GPL(vring_transport_features);
  
- static inline u16 virtio_cread16(struct virtio_device *vdev,
- 				 unsigned int offset)
- {
--	u16 ret;
--	vdev->config->get(vdev, offset, &ret, sizeof(ret));
--	return ret;
-+	return vdev->config->get16(vdev, offset);
- }
+-/**
+- * virtqueue_get_vring_size - return the size of the virtqueue's vring
+- * @vq: the struct virtqueue containing the vring of interest.
+- *
+- * Returns the size of the vring.  This is mainly used for boasting to
+- * userspace.  Unlike other operations, this need not be serialized.
+- */
+-unsigned int virtqueue_get_vring_size(struct virtqueue *_vq)
+-{
+-
+-	struct vring_virtqueue *vq = to_vvq(_vq);
+-
+-	return vq->vring.num;
+-}
+-EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
+-
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index a05f7c7..09883f5 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -9,6 +9,7 @@
+ #include <linux/mod_devicetable.h>
+ #include <linux/gfp.h>
+ #include <linux/vringh.h>
++#include <uapi/linux/virtio_ring.h>
  
- static inline void virtio_cwrite16(struct virtio_device *vdev,
- 				   unsigned int offset, u16 val)
- {
--	vdev->config->set(vdev, offset, &val, sizeof(val));
-+	vdev->config->set16(vdev, offset, val);
- }
+ /**
+  * virtqueue - a queue to register buffers for sending or receiving.
+@@ -19,6 +20,7 @@
+  * @priv: a pointer for the virtqueue implementation to use.
+  * @index: the zero-based ordinal number for this queue.
+  * @num_free: number of elements we expect to be able to fit.
++ * @vring: the layout of the virtio ring.
+  *
+  * A note on @num_free: with indirect buffers, each buffer needs one
+  * element in the queue, otherwise a buffer will need one element per
+@@ -31,6 +33,7 @@ struct virtqueue {
+ 	struct virtio_device *vdev;
+ 	unsigned int index;
+ 	unsigned int num_free;
++	struct vring vring;
+ 	void *priv;
+ };
  
- static inline u32 virtio_cread32(struct virtio_device *vdev,
- 				 unsigned int offset)
- {
--	u32 ret;
--	vdev->config->get(vdev, offset, &ret, sizeof(ret));
--	return ret;
-+	return vdev->config->get32(vdev, offset);
- }
+@@ -74,7 +77,10 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
  
- static inline void virtio_cwrite32(struct virtio_device *vdev,
- 				   unsigned int offset, u32 val)
- {
--	vdev->config->set(vdev, offset, &val, sizeof(val));
-+	vdev->config->set32(vdev, offset, val);
- }
+ void *virtqueue_detach_unused_buf(struct virtqueue *vq);
  
- static inline u64 virtio_cread64(struct virtio_device *vdev,
- 				 unsigned int offset)
- {
--	u64 ret;
--	vdev->config->get(vdev, offset, &ret, sizeof(ret));
--	return ret;
-+	return vdev->config->get64(vdev, offset);
- }
+-unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
++static inline unsigned int virtqueue_get_vring_size(struct virtqueue *vq)
++{
++	return vq->vring.num;
++}
  
- static inline void virtio_cwrite64(struct virtio_device *vdev,
- 				   unsigned int offset, u64 val)
- {
--	vdev->config->set(vdev, offset, &val, sizeof(val));
-+	vdev->config->set64(vdev, offset, val);
- }
- 
- /* Conditional config space accessors. */
+ /* FIXME: Obsolete accessor, but required for virtio_net merge. */
+ static inline unsigned int virtqueue_get_queue_index(struct virtqueue *vq)
 -- 
 1.7.10.4
