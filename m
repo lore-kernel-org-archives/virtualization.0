@@ -1,15 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 12/22] virtio_pci: allow duplicate capabilities.
-Date: Thu, 21 Mar 2013 12:28:14 +0200
-Message-ID: <20130321102814.GC30493@redhat.com>
+Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
+	each vq.
+Date: Thu, 21 Mar 2013 12:35:25 +0200
+Message-ID: <20130321103525.GA30847@redhat.com>
 References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-13-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
+	<20130321101300.GA30493@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1363854584-25795-13-git-send-email-rusty@rustcorp.com.au>
+In-Reply-To: <20130321101300.GA30493@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,87 +22,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 21, 2013 at 06:59:33PM +1030, Rusty Russell wrote:
-> Another HPA suggestion: that the device be allowed to offer duplicate
-> capabilities, particularly so it can offer a mem and an I/O bar and let
-> the guest decide (Linux guest probably doesn't care?).
+On Thu, Mar 21, 2013 at 12:13:00PM +0200, Michael S. Tsirkin wrote:
+> On Thu, Mar 21, 2013 at 06:59:37PM +1030, Rusty Russell wrote:
+> > (MST, is this what you were thinking?)
 > 
-> Cc: H. Peter Anvin <hpa@zytor.com>
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-I think guests is exactly the wrong place to decide,
-it really does not know whether it's running on a
-hypervisor with fast IO or fast memory.
-Also, as long as we have an IO BAR, we have problems allocating it.
-So I think we don't need this, see my suggestion
-about fixed IO addresses instead.
-
-
-> ---
->  drivers/virtio/virtio_pci_legacy.c |    3 ++-
->  include/linux/virtio_pci.h         |   20 ++++++++++++++++----
->  2 files changed, 18 insertions(+), 5 deletions(-)
+> Almost.
 > 
-> diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-> index 501fa79..c7aadcb 100644
-> --- a/drivers/virtio/virtio_pci_legacy.c
-> +++ b/drivers/virtio/virtio_pci_legacy.c
-> @@ -728,7 +728,8 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
->  	}
->  
->  	/* We leave modern virtio-pci for the modern driver. */
-> -	cap = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG);
-> +	cap = virtio_pci_find_capability(pci_dev, VIRTIO_PCI_CAP_COMMON_CFG,
-> +					 IORESOURCE_IO|IORESOURCE_MEM);
->  	if (cap) {
->  		if (force_nonlegacy)
->  			dev_info(&pci_dev->dev,
-> diff --git a/include/linux/virtio_pci.h b/include/linux/virtio_pci.h
-> index 2714160..6d2816b 100644
-> --- a/include/linux/virtio_pci.h
-> +++ b/include/linux/virtio_pci.h
-> @@ -4,18 +4,30 @@
->  #define VIRTIO_PCI_NO_LEGACY
->  #include <uapi/linux/virtio_pci.h>
->  
-> -/* Returns offset of the capability, or 0. */
-> -static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type)
-> +/**
-> + * virtio_pci_find_capability - walk capabilities to find device info.
-> + * @dev: the pci device
-> + * @cfg_type: the VIRTIO_PCI_CAP_* value we seek
-> + * @ioresource_types: IORESOURCE_MEM and/or IORESOURCE_IO.
-> + *
-> + * Returns offset of the capability, or 0.
-> + */
-> +static inline int virtio_pci_find_capability(struct pci_dev *dev, u8 cfg_type,
-> +					     u32 ioresource_types)
->  {
->  	int pos;
->  
->  	for (pos = pci_find_capability(dev, PCI_CAP_ID_VNDR);
->  	     pos > 0;
->  	     pos = pci_find_next_capability(dev, pos, PCI_CAP_ID_VNDR)) {
-> -		u8 type;
-> +		u8 type, bar;
->  		pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
->  							 cfg_type), &type);
-> -		if (type == cfg_type)
-> +		if (type != cfg_type)
-> +			continue;
-> +		pci_read_config_byte(dev, pos + offsetof(struct virtio_pci_cap,
-> +							 bar), &bar);
-> +		if (pci_resource_flags(dev, bar) & ioresource_types)
->  			return pos;
->  	}
->  	return 0;
-> -- 
-> 1.7.10.4
+> Three points:
 > 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> 1. this is still an offset in BAR so for KVM we are still forced to use
+> an IO BAR.  I would like an option for hypervisor to simply say "Do IO
+> to this fixed address for this VQ". Then virtio can avoid using IO BARs
+> completely.
+> 
+> 2.  for a real virtio device, offset is only 16 bit, using a 32 bit
+> offset in a memory BAR giving each VQ a separate 4K page would allow
+> priveledge separation where e.g. RXVQ/TXVQ are passed through to
+> hardware but CVQ is handled by the hypervisor.
+> 
+> 3. last thing - (1) applies to ISR reads as well.
+> 
+> So I had in mind a structure like:
+> 
+> 	struct vq_notify {
+> 		u32 offset;
+> 		u16 data;
+> 		u16 flags;
+> 	}
+> 
+> enum vq_notify_flags {
+> 	VQ_NOTIFY_BAR0,
+> 	VQ_NOTIFY_BAR1,
+> 	VQ_NOTIFY_BAR2,
+> 	VQ_NOTIFY_BAR3,
+> 	VQ_NOTIFY_BAR4,
+> 	VQ_NOTIFY_BAR5,
+> 	VQ_NOTIFY_FIXED_IOPORT,
+> }
+> 
+> And then to notify a vq we write a given data at given offset
+> or into a given port for VQ_NOTIFY_FIXED_IOPORT.
+> 
+> Only point 1 is really important for me though, I can be
+> flexible on the rest of it.
+
+So the minimal change on top of this patch, would be adding a FIXED
+option to BIR and reporting data and not just offset for queue_notify
+(so it can include device info if we share same address between
+devices).
+
+-- 
+MST
