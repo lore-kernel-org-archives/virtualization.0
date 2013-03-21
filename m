@@ -1,8 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 16/22] virtio_pci: use separate notification offsets for each
-	vq.
-Date: Thu, 21 Mar 2013 18:59:37 +1030
-Message-ID: <1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 17/22] virtio_pci_legacy: cleanup struct virtio_pci_vq_info
+Date: Thu, 21 Mar 2013 18:59:38 +1030
+Message-ID: <1363854584-25795-18-git-send-email-rusty@rustcorp.com.au>
 References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,48 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(MST, is this what you were thinking?)
+By removing the redundant num field and including a pointer to where we
+should notify, it exactly matches the virtio_pci one now.
 
-This uses the previously-unused field for "queue_notify".  This contains
-the offset from the notification area given by the VIRTIO_PCI_CAP_NOTIFY_CFG
-header.
-
-(A device can still make them all overlap if it wants, since the queue
-index is written: it can still distinguish different notifications).
-
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/virtio/virtio_pci.c     |   61 +++++++++++++++++++++++++++------------
- include/uapi/linux/virtio_pci.h |    2 +-
- 2 files changed, 44 insertions(+), 19 deletions(-)
+ drivers/virtio/virtio_pci_legacy.c |   21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index f252afe..d492361 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -37,11 +37,15 @@ struct virtio_pci_device {
- 	struct virtio_pci_common_cfg __iomem *common;
- 	/* Where to read and clear interrupt */
- 	u8 __iomem *isr;
--	/* Write the virtqueue index here to notify device of activity. */
--	__le16 __iomem *notify;
-+	/* Write the vq index here to notify device of activity. */
-+	void __iomem *notify_base;
- 	/* Device-specific data. */
- 	void __iomem *device;
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index c7aadcb..429f593 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -81,15 +81,15 @@ struct virtio_pci_vq_info
+ 	/* the actual virtqueue */
+ 	struct virtqueue *vq;
  
-+	/* So we can sanity-check accesses. */
-+	size_t notify_len;
-+	size_t device_len;
-+
- 	/* a list of queues so we can dispatch IRQs */
- 	spinlock_t lock;
- 	struct list_head virtqueues;
-@@ -84,6 +88,9 @@ struct virtio_pci_vq_info {
+-	/* the number of entries in the queue */
+-	int num;
+-
+ 	/* the virtual address of the ring queue */
+ 	void *queue;
+ 
  	/* the list node for the virtqueues list */
  	struct list_head node;
  
@@ -70,7 +51,7 @@ index f252afe..d492361 100644
  	/* MSI-X vector (or none) */
  	unsigned msix_vector;
  };
-@@ -240,11 +247,11 @@ static void vp_reset(struct virtio_device *vdev)
+@@ -225,11 +225,11 @@ static void vp_reset(struct virtio_device *vdev)
  /* the notify function used when creating a virt queue */
  static void vp_notify(struct virtqueue *vq)
  {
@@ -79,131 +60,47 @@ index f252afe..d492361 100644
  
 -	/* we write the queue's selector into the notification register to
 -	 * signal the other end */
--	iowrite16(vq->index, vp_dev->notify);
+-	iowrite16(vq->index, vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_NOTIFY);
 +	/* we write the queue selector into the notification register
 +	 * to signal the other end */
 +	iowrite16(vq->index, info->notify);
  }
  
  /* Handle a configuration change: Tell driver if it wants to know. */
-@@ -460,7 +467,7 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
- 	struct virtio_pci_vq_info *info;
- 	struct virtqueue *vq;
- 	u16 num;
--	int err;
-+	int err, off;
+@@ -440,7 +440,6 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
+ 	if (!info)
+ 		return ERR_PTR(-ENOMEM);
  
- 	if (index >= ioread16(&vp_dev->common->num_queues))
- 		return ERR_PTR(-ENOENT);
-@@ -492,6 +499,17 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
- 
+-	info->num = num;
  	info->msix_vector = msix_vec;
  
-+	/* get offset of notification byte for this virtqueue */
-+	off = ioread16(&vp_dev->common->queue_notify);
-+	if (off > vp_dev->notify_len) {
-+		dev_warn(&vp_dev->pci_dev->dev,
-+			 "bad notification offset %u for queue %u (> %u)",
-+			 off, index, vp_dev->notify_len);
-+		err = -EINVAL;
-+		goto out_info;
-+	}
-+	info->notify = vp_dev->notify_base + off;
-+
- 	info->queue = alloc_virtqueue_pages(&num);
- 	if (info->queue == NULL) {
- 		err = -ENOMEM;
-@@ -787,7 +805,8 @@ static void virtio_pci_release_dev(struct device *_d)
- 	 */
+ 	size = PAGE_ALIGN(vring_size(num, VIRTIO_PCI_LEGACY_VRING_ALIGN));
+@@ -455,7 +454,7 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
+ 		  vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_PFN);
+ 
+ 	/* create the vring */
+-	vq = vring_new_virtqueue(index, info->num,
++	vq = vring_new_virtqueue(index, num,
+ 				 VIRTIO_PCI_LEGACY_VRING_ALIGN, vdev,
+ 				 true, info->queue, vp_notify, callback, name);
+ 	if (!vq) {
+@@ -465,6 +464,7 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
+ 
+ 	vq->priv = info;
+ 	info->vq = vq;
++	info->notify = vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_NOTIFY;
+ 
+ 	if (msix_vec != VIRTIO_MSI_NO_VECTOR) {
+ 		iowrite16(msix_vec,
+@@ -521,7 +521,8 @@ static void vp_del_vq(struct virtqueue *vq)
+ 	/* Select and deactivate the queue */
+ 	iowrite32(0, vp_dev->ioaddr + VIRTIO_PCI_LEGACY_QUEUE_PFN);
+ 
+-	size = PAGE_ALIGN(vring_size(info->num, VIRTIO_PCI_LEGACY_VRING_ALIGN));
++	size = PAGE_ALIGN(vring_size(vq->vring.num,
++				     VIRTIO_PCI_LEGACY_VRING_ALIGN));
+ 	free_pages_exact(info->queue, size);
+ 	kfree(info);
  }
- 
--static void __iomem *map_capability(struct pci_dev *dev, int off, size_t expect)
-+static void __iomem *map_capability(struct pci_dev *dev, int off, size_t minlen,
-+				    size_t *len)
- {
- 	u8 bar;
- 	u32 offset, length;
-@@ -800,13 +819,16 @@ static void __iomem *map_capability(struct pci_dev *dev, int off, size_t expect)
- 	pci_read_config_dword(dev, off + offsetof(struct virtio_pci_cap, length),
- 			     &length);
- 
--	if (length < expect) {
-+	if (length < minlen) {
- 		dev_err(&dev->dev,
--			"virtio_pci: small capability len %u (%u expected)\n",
--			length, expect);
-+			"virtio_pci: small capability len %u (%zu expected)\n",
-+			length, minlen);
- 		return NULL;
- 	}
- 
-+	if (len)
-+		*len = length;
-+
- 	/* We want uncachable mapping, even if bar is cachable. */
- 	p = pci_iomap_range(dev, bar, offset, length, PAGE_SIZE, true);
- 	if (!p)
-@@ -883,16 +905,19 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 
- 	err = -EINVAL;
- 	vp_dev->common = map_capability(pci_dev, common,
--					sizeof(struct virtio_pci_common_cfg));
-+					sizeof(struct virtio_pci_common_cfg),
-+					NULL);
- 	if (!vp_dev->common)
- 		goto out_req_regions;
--	vp_dev->isr = map_capability(pci_dev, isr, sizeof(u8));
-+	vp_dev->isr = map_capability(pci_dev, isr, sizeof(u8), NULL);
- 	if (!vp_dev->isr)
- 		goto out_map_common;
--	vp_dev->notify = map_capability(pci_dev, notify, sizeof(u16));
--	if (!vp_dev->notify)
-+	vp_dev->notify_base = map_capability(pci_dev, notify, sizeof(u8),
-+					     &vp_dev->notify_len);
-+	if (!vp_dev->notify_len)
- 		goto out_map_isr;
--	vp_dev->device = map_capability(pci_dev, device, 0);
-+	vp_dev->device = map_capability(pci_dev, device, 0,
-+					&vp_dev->device_len);
- 	if (!vp_dev->device)
- 		goto out_map_notify;
- 
-@@ -917,7 +942,7 @@ out_set_drvdata:
- 	pci_set_drvdata(pci_dev, NULL);
- 	pci_iounmap(pci_dev, vp_dev->device);
- out_map_notify:
--	pci_iounmap(pci_dev, vp_dev->notify);
-+	pci_iounmap(pci_dev, vp_dev->notify_base);
- out_map_isr:
- 	pci_iounmap(pci_dev, vp_dev->isr);
- out_map_common:
-@@ -940,7 +965,7 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
- 	vp_del_vqs(&vp_dev->vdev);
- 	pci_set_drvdata(pci_dev, NULL);
- 	pci_iounmap(pci_dev, vp_dev->device);
--	pci_iounmap(pci_dev, vp_dev->notify);
-+	pci_iounmap(pci_dev, vp_dev->notify_base);
- 	pci_iounmap(pci_dev, vp_dev->isr);
- 	pci_iounmap(pci_dev, vp_dev->common);
- 	pci_release_regions(pci_dev);
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index b334cd9..23b90cb 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -144,13 +144,13 @@ struct virtio_pci_common_cfg {
- 	__le16 num_queues;		/* read-only */
- 	__u8 device_status;		/* read-write */
- 	__u8 unused1;
--	__le16 unused2;
- 
- 	/* About a specific virtqueue. */
- 	__le16 queue_select;	/* read-write */
- 	__le16 queue_size;	/* read-write, power of 2. */
- 	__le16 queue_msix_vector;/* read-write */
- 	__le16 queue_enable;	/* read-write */
-+	__le16 queue_notify;	/* read-only */
- 	__le64 queue_desc;	/* read-write */
- 	__le64 queue_avail;	/* read-write */
- 	__le64 queue_used;	/* read-write */
 -- 
 1.7.10.4
