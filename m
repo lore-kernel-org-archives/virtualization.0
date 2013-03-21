@@ -1,16 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC qemu PATCH] only writing out the last byte of MAC makes it
-	have effect
-Date: Thu, 21 Mar 2013 12:51:52 +0200
-Message-ID: <20130321105152.GB30874@redhat.com>
+Subject: Re: [RFC virt-spec PATCH] only writing out the last byte of MAC
+	makes it have effect
+Date: Thu, 21 Mar 2013 12:53:33 +0200
+Message-ID: <20130321105333.GC30874@redhat.com>
 References: <1363834956-9409-1-git-send-email-akong@redhat.com>
-	<1363848290-30344-1-git-send-email-akong@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1363848290-30344-1-git-send-email-akong@redhat.com>
+In-Reply-To: <1363834956-9409-1-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,38 +23,49 @@ To: Amos Kong <akong@redhat.com>
 Cc: qemu-devel@nongnu.org, stefanha@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 21, 2013 at 02:44:50PM +0800, Amos Kong wrote:
+On Thu, Mar 21, 2013 at 11:02:36AM +0800, Amos Kong wrote:
 > The lengcy guests don't have mac programming command, we don't know when
-> it's safe to use MAC. This patch changed qemu to makes MAC change effect
-> when the last byte of MAC is written to config space.
-> 
-> MAC address takes first 6 bytes of config space of virtio-net, the addr
-> is 5 when the last byte is written in virtio_config_writeb().
-> 
-> MAC change will effect when n->mac is updated in virtio_net_set_config().
+> it's safe to use MAC. We can change QEMU to make MAC change effect when
+> the last byte of MAC is written to config space.
 > 
 > Signed-off-by: Amos Kong <akong@redhat.com>
-
-Let's see what Rusty says about the spec change.
-
 > ---
->  hw/virtio.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
+>  virtio-spec.lyx | 11 ++++++++++-
+>  1 file changed, 10 insertions(+), 1 deletion(-)
 > 
-> diff --git a/hw/virtio.c b/hw/virtio.c
-> index 26fbc79..2e08302 100644
-> --- a/hw/virtio.c
-> +++ b/hw/virtio.c
-> @@ -605,8 +605,9 @@ void virtio_config_writeb(VirtIODevice *vdev, uint32_t addr, uint32_t data)
+> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+> index dbc4ef0..bb289fb 100644
+> --- a/virtio-spec.lyx
+> +++ b/virtio-spec.lyx
+> @@ -5430,7 +5430,7 @@ T_CTRL_MAC_TABLE_SET.
 >  
->      stb_p(vdev->config + addr, val);
+>  \begin_layout Standard
 >  
-> -    if (vdev->set_config)
-> +    if (vdev->set_config && (addr == 5 || strcmp(vdev->name, "virtio-net"))) {
->          vdev->set_config(vdev, vdev->config);
-> +    }
->  }
+> -\change_inserted -1930653948 1358506710
+> +\change_inserted -1930653948 1363832689
+>  The config space 
+>  \begin_inset Quotes eld
+>  \end_inset
+> @@ -5464,6 +5464,15 @@ mac
+>   Therefore, VIRTIO_NET_CTRL_MAC_ADDR_SET is preferred, especially while
+>   the NIC is up.
+>   The command-specific-data is a 6-byte MAC address.
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted -1930653948 1363833477
+> +The legacy guests don't support the new command, they still change MAC address
+> + in original way, that's not atomic.
+> + For more robust, QEMU only makes the MAC change effect when the last byte
+> + of MAC address is written to config space.
+>  \change_unchanged
 >  
->  void virtio_config_writew(VirtIODevice *vdev, uint32_t addr, uint32_t data)
+>  \end_layout
+
+The wording can be improved, but before that - Rusty, what
+do you think about such a hack? Worth supporting or
+let's just ask everyone to update drivers?
+
 > -- 
-> 1.7.1
+> 1.8.1.4
