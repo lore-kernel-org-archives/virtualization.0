@@ -1,18 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [PATCH 12/22] virtio_pci: allow duplicate capabilities.
-Date: Thu, 21 Mar 2013 19:49:12 +0200
-Message-ID: <20130321174912.GA4161@redhat.com>
+Date: Thu, 21 Mar 2013 10:54:31 -0700
+Message-ID: <514B4957.1070003@zytor.com>
 References: <514B26BC.6010700@zytor.com> <20130321155810.GA1925@redhat.com>
 	<514B2FA0.9000204@zytor.com> <20130321161143.GC1925@redhat.com>
 	<514B3213.8070002@zytor.com> <20130321162636.GF1925@redhat.com>
 	<514B3606.2090503@zytor.com> <20130321170706.GB2994@redhat.com>
 	<514B3EAE.8000707@zytor.com> <20130321171319.GD2994@redhat.com>
+	<20130321174912.GA4161@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130321171319.GD2994@redhat.com>
+In-Reply-To: <20130321174912.GA4161@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,35 +22,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 21, 2013 at 07:13:19PM +0200, Michael S. Tsirkin wrote:
-> On Thu, Mar 21, 2013 at 10:09:02AM -0700, H. Peter Anvin wrote:
-> > On 03/21/2013 10:07 AM, Michael S. Tsirkin wrote:
-> > > 
-> > > I just think it does not apply to BIOS so much.  A bigger issue for BIOS
-> > > virtio performance is that it normally does not implement batching at
-> > > all, to keep it simple and reduce memory usage it uses a small number
-> > > (often 1) of outstanding buffers per queue.
-> > > 
-> > 
-> > You asked for examples, so I gave one.  There is no doubt that BIOS can
-> > make use of this if available.
-> > 
-> > What you describe above is of course a typical problem with BIOS.
-> > 
-> > 	-hpa
+On 03/21/2013 10:49 AM, Michael S. Tsirkin wrote:
 > 
-> Right, thanks.
-> Also thanks for the spec quote, I really think we should add the config
-> cycle access as a guaranteed feature.  It's easy and I expect all BIOS
-> drivers to use it.
+> Just to clarify, I expect BIOS to use it *for config access*.
+> Notification will support IO anyway because it's
+> faster on KVM, so BIOS can use it directly.
+> 
 
-Just to clarify, I expect BIOS to use it *for config access*.
-Notification will support IO anyway because it's
-faster on KVM, so BIOS can use it directly.
+Ah, yes, of course.
 
-> -- 
-> MST
+Quite frankly, I don't see any reason to support *anything else* for
+configuration, does anyone else?
+
+I thought we were talking about the doorbell/notification/kicker
+register.  For I/O space especially it is highly desirable if that can
+be in a minimal BAR (4 bytes).
+
+	-hpa
