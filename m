@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 21/22] virtio_pci: simplify common helpers.
-Date: Thu, 21 Mar 2013 18:59:42 +1030
-Message-ID: <1363854584-25795-22-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 22/22] virtio_pci: fix finalize_features in modern driver.
+Date: Thu, 21 Mar 2013 18:59:43 +1030
+Message-ID: <1363854584-25795-23-git-send-email-rusty@rustcorp.com.au>
 References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,293 +20,232 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Our helpers can take a virtio_pci_device, rather than converting from
-a virtio_device all the time.  They couldn't do this when they were
-called from the common virtio code, but now we wrap them anyway, it
-simplifies things.
+Because we have potentially-infinite feature bits, it's hard for the device
+to know when features are finalized.
+
+This adds a new status bit, VIRTIO_CONFIG_S_FEATURES_DONE, which is only
+set by the modern virtio_pci driver at the moment.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/virtio/virtio_pci-common.c |   40 +++++++++++++++---------------------
- drivers/virtio/virtio_pci-common.h |    6 +++---
- drivers/virtio/virtio_pci.c        |   10 ++++-----
- drivers/virtio/virtio_pci_legacy.c |    9 ++++----
- 4 files changed, 29 insertions(+), 36 deletions(-)
+ drivers/virtio/virtio_pci-common.c |   28 --------------
+ drivers/virtio/virtio_pci-common.h |    1 -
+ drivers/virtio/virtio_pci.c        |   73 ++++++++++++++++++++++++++----------
+ drivers/virtio/virtio_pci_legacy.c |   27 +++++++++++++
+ include/uapi/linux/virtio_config.h |    2 +
+ 5 files changed, 83 insertions(+), 48 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci-common.c b/drivers/virtio/virtio_pci-common.c
-index 837d34b..d4e33ad 100644
+index d4e33ad..d2c78c8 100644
 --- a/drivers/virtio/virtio_pci-common.c
 +++ b/drivers/virtio/virtio_pci-common.c
-@@ -93,10 +93,9 @@ void virtio_pci_synchronize_vectors(struct virtio_device *vdev)
- 		synchronize_irq(vp_dev->msix_entries[i].vector);
+@@ -392,32 +392,4 @@ int virtio_pci_freeze(struct device *dev)
+ 		pci_disable_device(pci_dev);
+ 	return ret;
  }
- 
--static void vp_free_vectors(struct virtio_device *vdev,
-+static void vp_free_vectors(struct virtio_pci_device *vp_dev,
- 			    __le16 __iomem *msix_config)
- {
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	int i;
- 
- 	if (vp_dev->intx_enabled) {
-@@ -131,12 +130,11 @@ static void vp_free_vectors(struct virtio_device *vdev,
- 	vp_dev->msix_affinity_masks = NULL;
- }
- 
--static int vp_request_msix_vectors(struct virtio_device *vdev,
-+static int vp_request_msix_vectors(struct virtio_pci_device *vp_dev,
- 				   int nvectors,
- 				   __le16 __iomem *msix_config,
- 				   bool per_vq_vectors)
- {
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	const char *name = dev_name(&vp_dev->vdev.dev);
- 	unsigned i, v;
- 	int err = -ENOMEM;
-@@ -204,23 +202,22 @@ static int vp_request_msix_vectors(struct virtio_device *vdev,
- 	}
- 	return 0;
- error:
--	vp_free_vectors(vdev, msix_config);
-+	vp_free_vectors(vp_dev, msix_config);
- 	return err;
- }
- 
--static int vp_request_intx(struct virtio_device *vdev)
-+static int vp_request_intx(struct virtio_pci_device *vp_dev)
- {
- 	int err;
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 
- 	err = request_irq(vp_dev->pci_dev->irq, virtio_pci_interrupt,
--			  IRQF_SHARED, dev_name(&vdev->dev), vp_dev);
-+			  IRQF_SHARED, dev_name(&vp_dev->vdev.dev), vp_dev);
- 	if (!err)
- 		vp_dev->intx_enabled = 1;
- 	return err;
- }
- 
--static int vp_try_to_find_vqs(struct virtio_device *vdev,
-+static int vp_try_to_find_vqs(struct virtio_pci_device *vp_dev,
- 			      unsigned nvqs,
- 			      struct virtqueue *vqs[],
- 			      vq_callback_t *callbacks[],
-@@ -231,13 +228,12 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev,
- 			      virtio_pci_setup_vq_fn *setup_vq,
- 			      void (*del_vq)(struct virtqueue *vq))
- {
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	u16 msix_vec;
- 	int i, err, nvectors, allocated_vectors;
- 
- 	if (!use_msix) {
- 		/* Old style: one normal interrupt for change and all vqs. */
--		err = vp_request_intx(vdev);
-+		err = vp_request_intx(vp_dev);
- 		if (err)
- 			goto error_request;
- 	} else {
-@@ -252,7 +248,7 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev,
- 			nvectors = 2;
- 		}
- 
--		err = vp_request_msix_vectors(vdev, nvectors, 
-+		err = vp_request_msix_vectors(vp_dev, nvectors, 
- 					      msix_config, per_vq_vectors);
- 		if (err)
- 			goto error_request;
-@@ -270,8 +266,7 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev,
- 			msix_vec = allocated_vectors++;
- 		else
- 			msix_vec = VP_MSIX_VQ_VECTOR;
--		vqs[i] = setup_vq(vdev, i, callbacks[i], names[i],
--				  msix_vec);
-+		vqs[i] = setup_vq(vp_dev, i, callbacks[i], names[i], msix_vec);
- 		if (IS_ERR(vqs[i])) {
- 			err = PTR_ERR(vqs[i]);
- 			goto error_find;
-@@ -297,13 +292,13 @@ static int vp_try_to_find_vqs(struct virtio_device *vdev,
- 	return 0;
- 
- error_find:
--	virtio_pci_del_vqs(vdev, msix_config, del_vq);
-+	virtio_pci_del_vqs(vp_dev, msix_config, del_vq);
- 
- error_request:
- 	return err;
- }
- 
--int virtio_pci_find_vqs(struct virtio_device *vdev, unsigned nvqs,
-+int virtio_pci_find_vqs(struct virtio_pci_device *vp_dev, unsigned nvqs,
- 			struct virtqueue *vqs[],
- 			vq_callback_t *callbacks[],
- 			const char *names[],
-@@ -314,29 +309,28 @@ int virtio_pci_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- 	int err;
- 
- 	/* Try MSI-X with one vector per queue. */
--	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
-+	err = vp_try_to_find_vqs(vp_dev, nvqs, vqs, callbacks, names,
- 				 true, true, msix_config, setup_vq, del_vq);
- 	if (!err)
- 		return 0;
- 	/* Fallback: MSI-X with one vector for config, one shared for queues. */
--	err = vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
-+	err = vp_try_to_find_vqs(vp_dev, nvqs, vqs, callbacks, names,
- 				 true, false, msix_config, setup_vq, del_vq);
- 	if (!err)
- 		return 0;
- 	/* Finally fall back to regular interrupts. */
--	return vp_try_to_find_vqs(vdev, nvqs, vqs, callbacks, names,
-+	return vp_try_to_find_vqs(vp_dev, nvqs, vqs, callbacks, names,
- 				  false, false, msix_config, setup_vq, del_vq);
- }
- 
--void virtio_pci_del_vqs(struct virtio_device *vdev,
-+void virtio_pci_del_vqs(struct virtio_pci_device *vp_dev,
- 			__le16 __iomem *msix_config,
- 			void (*del_vq)(struct virtqueue *vq))
- {
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	struct virtqueue *vq, *n;
- 	struct virtio_pci_vq_info *info;
- 
--	list_for_each_entry_safe(vq, n, &vdev->vqs, list) {
-+	list_for_each_entry_safe(vq, n, &vp_dev->vdev.vqs, list) {
- 		info = vq->priv;
- 		if (vp_dev->per_vq_vectors &&
- 			info->msix_vector != VIRTIO_MSI_NO_VECTOR)
-@@ -346,7 +340,7 @@ void virtio_pci_del_vqs(struct virtio_device *vdev,
- 	}
- 	vp_dev->per_vq_vectors = false;
- 
--	vp_free_vectors(vdev, msix_config);
-+	vp_free_vectors(vp_dev, msix_config);
- }
- 
- /* Setup the affinity for a virtqueue:
+-
+-int virtio_pci_restore(struct device *dev)
+-{
+-	struct pci_dev *pci_dev = to_pci_dev(dev);
+-	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+-	struct virtio_driver *drv;
+-	int ret;
+-
+-	drv = container_of(vp_dev->vdev.dev.driver,
+-			   struct virtio_driver, driver);
+-
+-	ret = pci_enable_device(pci_dev);
+-	if (ret)
+-		return ret;
+-
+-	pci_set_master(pci_dev);
+-	vp_dev->vdev.config->finalize_features(&vp_dev->vdev);
+-
+-	if (drv && drv->restore)
+-		ret = drv->restore(&vp_dev->vdev);
+-
+-	/* Finally, tell the device we're all set */
+-	if (!ret)
+-		vp_dev->vdev.config->set_status(&vp_dev->vdev,
+-						vp_dev->saved_status);
+-
+-	return ret;
+-}
+ #endif
 diff --git a/drivers/virtio/virtio_pci-common.h b/drivers/virtio/virtio_pci-common.h
-index 2c4d890..146c3be 100644
+index 146c3be..dac434e 100644
 --- a/drivers/virtio/virtio_pci-common.h
 +++ b/drivers/virtio/virtio_pci-common.h
-@@ -90,7 +90,7 @@ irqreturn_t virtio_pci_vring_interrupt(int irq, void *opaque);
- /* Acknowledge, check for config or vq interrupt. */
- irqreturn_t virtio_pci_interrupt(int irq, void *opaque);
+@@ -118,5 +118,4 @@ int virtio_pci_set_vq_affinity(struct virtqueue *vq, int cpu);
  
--typedef struct virtqueue *virtio_pci_setup_vq_fn(struct virtio_device *,
-+typedef struct virtqueue *virtio_pci_setup_vq_fn(struct virtio_pci_device *,
- 						 unsigned index,
- 						 void (*callback)
- 							(struct virtqueue *),
-@@ -98,7 +98,7 @@ typedef struct virtqueue *virtio_pci_setup_vq_fn(struct virtio_device *,
- 						 u16 msix_vec);
- 
- /* Core of a config->find_vqs() implementation */
--int virtio_pci_find_vqs(struct virtio_device *vdev,
-+int virtio_pci_find_vqs(struct virtio_pci_device *vp_dev,
- 			unsigned nvqs,
- 			struct virtqueue *vqs[],
- 			vq_callback_t *callbacks[],
-@@ -108,7 +108,7 @@ int virtio_pci_find_vqs(struct virtio_device *vdev,
- 			void (*del_vq)(struct virtqueue *vq));
- 
- /* the core of a config->del_vqs() implementation */
--void virtio_pci_del_vqs(struct virtio_device *vdev,
-+void virtio_pci_del_vqs(struct virtio_pci_device *vp_dev,
- 			__le16 __iomem *msix_config,
- 			void (*del_vq)(struct virtqueue *vq));
- 
+ #ifdef CONFIG_PM
+ int virtio_pci_freeze(struct device *dev);
+-int virtio_pci_restore(struct device *dev);
+ #endif
 diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index 937fae7..97d9b54 100644
+index 97d9b54..4614a15 100644
 --- a/drivers/virtio/virtio_pci.c
 +++ b/drivers/virtio/virtio_pci.c
-@@ -182,12 +182,12 @@ static void *alloc_virtqueue_pages(u16 *num)
- 	return NULL;
+@@ -50,6 +50,21 @@ static u64 ioread64(__le64 *addr)
+ 	return ioread32(addr) | ((u64)ioread32((__le32 *)addr + 1) << 32);
  }
  
--static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
-+static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
-+				  unsigned index,
- 				  void (*callback)(struct virtqueue *vq),
- 				  const char *name,
- 				  u16 msix_vec)
++/* config->{get,set}_status() implementations */
++static u8 vp_get_status(struct virtio_device *vdev)
++{
++	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
++	return ioread8(&vp_dev->common->device_status);
++}
++
++static void vp_set_status(struct virtio_device *vdev, u8 status)
++{
++	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
++	/* We should never be setting status to 0. */
++	BUG_ON(status == 0);
++	iowrite8(status, &vp_dev->common->device_status);
++}
++
+ static u64 vp_get_features(struct virtio_device *vdev)
  {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+@@ -62,19 +77,27 @@ static u64 vp_get_features(struct virtio_device *vdev)
+ 	return features;
+ }
+ 
+-static void vp_finalize_features(struct virtio_device *vdev)
++static void write_features(struct virtio_device *vdev)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 
+-	/* Give virtio_ring a chance to accept features. */
+-	vring_transport_features(vdev);
+-
+ 	iowrite32(0, &vp_dev->common->guest_feature_select);
+ 	iowrite32((u32)vdev->features, &vp_dev->common->guest_feature);
+ 	iowrite32(1, &vp_dev->common->guest_feature_select);
+ 	iowrite32(vdev->features >> 32, &vp_dev->common->guest_feature);
+ }
+ 
++static void vp_finalize_features(struct virtio_device *vdev)
++{
++	/* Give virtio_ring a chance to accept features. */
++	vring_transport_features(vdev);
++
++	write_features(vdev);
++
++	/* Update status to lock it in. */
++	vp_set_status(vdev, vp_get_status(vdev)|VIRTIO_CONFIG_S_FEATURES_DONE);
++}
++
+ /* virtio config is little-endian for virtio_pci (vs guest-endian for legacy) */
+ static u8 vp_get8(struct virtio_device *vdev, unsigned offset)
+ {
+@@ -132,21 +155,6 @@ static void vp_set64(struct virtio_device *vdev, unsigned offset, u64 val)
+ 	iowrite64(val, vp_dev->device + offset);
+ }
+ 
+-/* config->{get,set}_status() implementations */
+-static u8 vp_get_status(struct virtio_device *vdev)
+-{
 -	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	struct virtio_pci_vq_info *info;
- 	struct virtqueue *vq;
- 	u16 num;
-@@ -241,7 +241,7 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
- 	}
- 
- 	/* create the vring */
--	vq = vring_new_virtqueue(index, num, SMP_CACHE_BYTES, vdev,
-+	vq = vring_new_virtqueue(index, num, SMP_CACHE_BYTES, &vp_dev->vdev,
- 				 true, info->queue, virtio_pci_notify,
- 				 callback, name);
- 	if (!vq) {
-@@ -350,7 +350,7 @@ static void del_vq(struct virtqueue *vq)
- static void vp_del_vqs(struct virtio_device *vdev)
+-	return ioread8(&vp_dev->common->device_status);
+-}
+-
+-static void vp_set_status(struct virtio_device *vdev, u8 status)
+-{
+-	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+-	/* We should never be setting status to 0. */
+-	BUG_ON(status == 0);
+-	iowrite8(status, &vp_dev->common->device_status);
+-}
+-
+ static void vp_reset(struct virtio_device *vdev)
  {
  	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	virtio_pci_del_vqs(vdev, &vp_dev->common->msix_config, del_vq);
-+	virtio_pci_del_vqs(vp_dev, &vp_dev->common->msix_config, del_vq);
+@@ -571,6 +579,33 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
  }
  
- /* the config->find_vqs() implementation */
-@@ -361,7 +361,7 @@ static int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 
--	return virtio_pci_find_vqs(vdev, nvqs, vqs, callbacks, names,
-+	return virtio_pci_find_vqs(vp_dev, nvqs, vqs, callbacks, names,
- 				   &vp_dev->common->msix_config,
- 				   setup_vq, del_vq);
- }
+ #ifdef CONFIG_PM
++static int virtio_pci_restore(struct device *dev)
++{
++	struct pci_dev *pci_dev = to_pci_dev(dev);
++	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
++	struct virtio_driver *drv;
++	int ret;
++
++	drv = container_of(vp_dev->vdev.dev.driver,
++			   struct virtio_driver, driver);
++
++	ret = pci_enable_device(pci_dev);
++	if (ret)
++		return ret;
++
++	pci_set_master(pci_dev);
++	write_features(&vp_dev->vdev);
++
++	if (drv && drv->restore)
++		ret = drv->restore(&vp_dev->vdev);
++
++	/* Finally, tell the device we're all set */
++	if (!ret)
++		vp_set_status(&vp_dev->vdev, vp_dev->saved_status);
++
++	return ret;
++}
++
+ static const struct dev_pm_ops virtio_pci_pm_ops = {
+ 	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
+ };
 diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-index 5ab05c3..f78a858 100644
+index f78a858..cfff009 100644
 --- a/drivers/virtio/virtio_pci_legacy.c
 +++ b/drivers/virtio/virtio_pci_legacy.c
-@@ -145,13 +145,12 @@ static void vp_reset(struct virtio_device *vdev)
- 	virtio_pci_synchronize_vectors(vdev);
+@@ -436,6 +436,33 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
  }
  
--static struct virtqueue *setup_legacy_vq(struct virtio_device *vdev,
-+static struct virtqueue *setup_legacy_vq(struct virtio_pci_device *vp_dev,
- 					 unsigned index,
- 					 void (*callback)(struct virtqueue *vq),
- 					 const char *name,
- 					 u16 msix_vec)
- {
--	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 	struct virtio_pci_vq_info *info;
- 	struct virtqueue *vq;
- 	unsigned long flags, size;
-@@ -187,7 +186,7 @@ static struct virtqueue *setup_legacy_vq(struct virtio_device *vdev,
- 
- 	/* create the vring */
- 	vq = vring_new_virtqueue(index, num,
--				 VIRTIO_PCI_LEGACY_VRING_ALIGN, vdev,
-+				 VIRTIO_PCI_LEGACY_VRING_ALIGN, &vp_dev->vdev,
- 				 true, info->queue, virtio_pci_notify,
- 				 callback, name);
- 	if (!vq) {
-@@ -265,7 +264,7 @@ static void vp_del_vqs(struct virtio_device *vdev)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 
--	virtio_pci_del_vqs(vdev, vp_dev->legacy +
-+	virtio_pci_del_vqs(vp_dev, vp_dev->legacy +
- 			   VIRTIO_MSI_LEGACY_CONFIG_VECTOR,
- 			   del_legacy_vq);
- }
-@@ -278,7 +277,7 @@ static int vp_find_vqs(struct virtio_device *vdev, unsigned nvqs,
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
- 
--	return virtio_pci_find_vqs(vdev, nvqs, vqs, callbacks, names,
-+	return virtio_pci_find_vqs(vp_dev, nvqs, vqs, callbacks, names,
- 				   vp_dev->legacy +
- 				   VIRTIO_MSI_LEGACY_CONFIG_VECTOR,
- 				   setup_legacy_vq, del_legacy_vq);
+ #ifdef CONFIG_PM
++static int virtio_pci_restore(struct device *dev)
++{
++	struct pci_dev *pci_dev = to_pci_dev(dev);
++	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
++	struct virtio_driver *drv;
++	int ret;
++
++	drv = container_of(vp_dev->vdev.dev.driver,
++			   struct virtio_driver, driver);
++
++	ret = pci_enable_device(pci_dev);
++	if (ret)
++		return ret;
++
++	pci_set_master(pci_dev);
++	vp_finalize_features(&vp_dev->vdev);
++
++	if (drv && drv->restore)
++		ret = drv->restore(&vp_dev->vdev);
++
++	/* Finally, tell the device we're all set */
++	if (!ret)
++		vp_set_status(&vp_dev->vdev, vp_dev->saved_status);
++
++	return ret;
++}
++
+ static const struct dev_pm_ops virtio_pci_pm_ops = {
+ 	SET_SYSTEM_SLEEP_PM_OPS(virtio_pci_freeze, virtio_pci_restore)
+ };
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index b7cda39..83848b7 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -36,6 +36,8 @@
+ #define VIRTIO_CONFIG_S_ACKNOWLEDGE	1
+ /* We have found a driver for the device. */
+ #define VIRTIO_CONFIG_S_DRIVER		2
++/* Features are finalized (only for new virtio_pci) */
++#define VIRTIO_CONFIG_S_FEATURES_DONE	8
+ /* Driver has used its parts of the config, and is happy */
+ #define VIRTIO_CONFIG_S_DRIVER_OK	4
+ /* We've given up on this device. */
 -- 
 1.7.10.4
