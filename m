@@ -1,17 +1,18 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
-Subject: Re: [PATCH net] vhost/net: fix heads usage of ubuf_info
-Date: Thu, 21 Mar 2013 16:33:48 +0000
-Message-ID: <1363883628.2736.8.camel@bwh-desktop.uk.solarflarecom.com>
-References: <20130317124609.GA25967@redhat.com>
-	<20130317.142955.1114572401286297685.davem@davemloft.net>
-	<20130321060218.GB23908@redhat.com>
-	<1363883028.2736.7.camel@bwh-desktop.uk.solarflarecom.com>
-	<20130321162813.GG1925@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 12/22] virtio_pci: allow duplicate capabilities.
+Date: Thu, 21 Mar 2013 19:07:06 +0200
+Message-ID: <20130321170706.GB2994@redhat.com>
+References: <20130321144330.GA1454@redhat.com> <514B1D25.9090206@zytor.com>
+	<20130321151937.GB1454@redhat.com> <514B26BC.6010700@zytor.com>
+	<20130321155810.GA1925@redhat.com> <514B2FA0.9000204@zytor.com>
+	<20130321161143.GC1925@redhat.com> <514B3213.8070002@zytor.com>
+	<20130321162636.GF1925@redhat.com> <514B3606.2090503@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130321162813.GG1925@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <514B3606.2090503@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,53 +22,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, nab@risingtidesystems.com, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, basil.gor@gmail.com
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2013-03-21 at 18:28 +0200, Michael S. Tsirkin wrote:
-> On Thu, Mar 21, 2013 at 04:23:48PM +0000, Ben Hutchings wrote:
-> > On Thu, 2013-03-21 at 08:02 +0200, Michael S. Tsirkin wrote:
-> > > On Sun, Mar 17, 2013 at 02:29:55PM -0400, David Miller wrote:
-> > > > From: "Michael S. Tsirkin" <mst@redhat.com>
-> > > > Date: Sun, 17 Mar 2013 14:46:09 +0200
-> > > > 
-> > > > > ubuf info allocator uses guest controlled head as an index,
-> > > > > so a malicious guest could put the same head entry in the ring twice,
-> > > > > and we will get two callbacks on the same value.
-> > > > > To fix use upend_idx which is guaranteed to be unique.
-> > > > > 
-> > > > > Reported-by: Rusty Russell <rusty@rustcorp.com.au>
-> > > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > > 
-> > > > Applied and queued up for -stable, thanks.
-> > > > 
-> > > > And thankfully you got the stable URL wrong,
-> > > 
-> > > Yes I wrote stable@kernel.org that's what an old copy
-> > > says here:
-> > > https://www.kernel.org/doc/Documentation/stable_kernel_rules.txt
-> > > 
-> > > I should have known better than look at it on the 'net.  The top
-> > > 'Everything you ever wanted to know about Linux 2.6 -stable releases.'
-> > > is a big hint that it's stale.
-> > > Any idea who maintains this? Better update it or remove it or redirect to git.
+On Thu, Mar 21, 2013 at 09:32:06AM -0700, H. Peter Anvin wrote:
+> On 03/21/2013 09:26 AM, Michael S. Tsirkin wrote:
+> >>>
+> >>> Thanks. Same place in latest 3.0:
+> >>> 	A PCI Express Endpoint must not depend on operating system allocation of
+> >>> 	I/O resources claimed through BAR(s).
+> >>> 	A PCI Express Endpoint must not generate I/O Requests.
+> >>> of course this only applies to express :)
+> >>>
+> >>
+> >> And it does... but it has implications for the OS resource manager that
+> >> if Linux violates, we need to fix it.  We should not fail a device in
+> >> generic code because an I/O BAR allocation fails.  The device driver may
+> >> opt to fail the allocation.
+> >>
+> >> (Note that having an I/O BAR is not *generating* an I/O request.)
 > > 
-> > Rob Landley maintains it, but he's been having trouble updating it since
-> > all the upload mechanisms were changed on kernel.org.
+> > Right. So if I read this literally, I should be able to boot
+> > from the device even if it does not have an I/O BAR,
+> > and BIOS really should not assume it has an I/O BAR option,
+> > and if as you suggest it can't use MMIO, what is left?
+> > config cycles.
 > > 
-> > (My stable maintenance scripts still match the old address, anyway.  Not
-> > sure about Greg's.)
+> > So coming back to the issue that started it all,
+> > BIOS will be able to boot without I/O BAR, no good
+> > reasons to have any capabilities pointing at I/O BARs,
+> > so no need for duplicate capabilities?
 > > 
-> > Ben.
 > 
-> I hope you mean it will match both the old and the new address?
+> First of all, you appear to be deliberately overinterpreting -- the BIOS
+> is the resource manager here, so it can obviously make sure the I/O
+> resource is available to the boot device.
 
-Yes, of course!
+Assuming there's one, but it's wrong: we might need serial for
+output, -net for downloading stuff, maybe more.
 
-Ben.
+> The performance argument, though, which is the more important one, still
+> remains, so your conclusion is invalid.
+> 
+> 	-hpa
+
+I just think it does not apply to BIOS so much.  A bigger issue for BIOS
+virtio performance is that it normally does not implement batching at
+all, to keep it simple and reduce memory usage it uses a small number
+(often 1) of outstanding buffers per queue.
+
+For example, here's BIOS driver for virtio-blk.
+
+
+    if (write)
+        vring_add_buf(vq, sg, 2, 1, 0, 0);
+    else
+        vring_add_buf(vq, sg, 1, 2, 0, 0);
+    vring_kick(GET_GLOBAL(vdrive_g->ioaddr), vq, 1);
+
+    /* Wait for reply */
+    while (!vring_more_used(vq))
+        usleep(5);
+
+    /* Reclaim virtqueue element */
+    vring_get_buf(vq, NULL);
+
+    /* Clear interrupt status register.  Avoid leaving interrupts stuck if
+     * VRING_AVAIL_F_NO_INTERRUPT was ignored and interrupts were
+     * raised.
+     */
+    vp_get_isr(GET_GLOBAL(vdrive_g->ioaddr));
+
+Does it look like we should spend time optimizing vring_kick?
 
 -- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
+MST
