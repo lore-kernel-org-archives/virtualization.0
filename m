@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC virt-spec PATCH] only writing out the last byte of MAC
-	makes it have effect
-Date: Thu, 21 Mar 2013 12:53:33 +0200
-Message-ID: <20130321105333.GC30874@redhat.com>
-References: <1363834956-9409-1-git-send-email-akong@redhat.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH 12/22] virtio_pci: allow duplicate capabilities.
+Date: Thu, 21 Mar 2013 07:26:18 -0700
+Message-ID: <514B188A.3030502@zytor.com>
+References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-13-git-send-email-rusty@rustcorp.com.au>
+	<20130321102814.GC30493@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1363834956-9409-1-git-send-email-akong@redhat.com>
+In-Reply-To: <20130321102814.GC30493@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,53 +19,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amos Kong <akong@redhat.com>
-Cc: qemu-devel@nongnu.org, stefanha@redhat.com, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 21, 2013 at 11:02:36AM +0800, Amos Kong wrote:
-> The lengcy guests don't have mac programming command, we don't know when
-> it's safe to use MAC. We can change QEMU to make MAC change effect when
-> the last byte of MAC is written to config space.
+On 03/21/2013 03:28 AM, Michael S. Tsirkin wrote:
+> On Thu, Mar 21, 2013 at 06:59:33PM +1030, Rusty Russell wrote:
+>> Another HPA suggestion: that the device be allowed to offer duplicate
+>> capabilities, particularly so it can offer a mem and an I/O bar and let
+>> the guest decide (Linux guest probably doesn't care?).
+>>
+>> Cc: H. Peter Anvin <hpa@zytor.com>
+>> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 > 
-> Signed-off-by: Amos Kong <akong@redhat.com>
-> ---
->  virtio-spec.lyx | 11 ++++++++++-
->  1 file changed, 10 insertions(+), 1 deletion(-)
+> I think guests is exactly the wrong place to decide,
+> it really does not know whether it's running on a
+> hypervisor with fast IO or fast memory.
+> Also, as long as we have an IO BAR, we have problems allocating it.
+> So I think we don't need this, see my suggestion
+> about fixed IO addresses instead.
 > 
-> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-> index dbc4ef0..bb289fb 100644
-> --- a/virtio-spec.lyx
-> +++ b/virtio-spec.lyx
-> @@ -5430,7 +5430,7 @@ T_CTRL_MAC_TABLE_SET.
->  
->  \begin_layout Standard
->  
-> -\change_inserted -1930653948 1358506710
-> +\change_inserted -1930653948 1363832689
->  The config space 
->  \begin_inset Quotes eld
->  \end_inset
-> @@ -5464,6 +5464,15 @@ mac
->   Therefore, VIRTIO_NET_CTRL_MAC_ADDR_SET is preferred, especially while
->   the NIC is up.
->   The command-specific-data is a 6-byte MAC address.
-> +\end_layout
-> +
-> +\begin_layout Standard
-> +
-> +\change_inserted -1930653948 1363833477
-> +The legacy guests don't support the new command, they still change MAC address
-> + in original way, that's not atomic.
-> + For more robust, QEMU only makes the MAC change effect when the last byte
-> + of MAC address is written to config space.
->  \change_unchanged
->  
->  \end_layout
 
-The wording can be improved, but before that - Rusty, what
-do you think about such a hack? Worth supporting or
-let's just ask everyone to update drivers?
+The reason to support this is that a guest written to only handle one or
+the other doesn't prevent the hypervisor from offering the other to
+guests.  We probably want to specify that if the guest doesn't care, it
+should use the first one offered by the host.
 
-> -- 
-> 1.8.1.4
+	-hpa
