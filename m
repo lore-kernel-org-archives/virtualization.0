@@ -1,11 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 00/22] New virtio PCI layout
-Date: Thu, 21 Mar 2013 18:59:21 +1030
-Message-ID: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 01/22] virtio_config: introduce size-based accessors.
+Date: Thu, 21 Mar 2013 18:59:22 +1030
+Message-ID: <1363854584-25795-2-git-send-email-rusty@rustcorp.com.au>
+References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,81 +20,191 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-I've renewed this again, with some comments from HPA.  I've tried to
-keep the new patches separate, so you can see the changes since we
-last discussed this (and so it's easy to back it out if we decide it's
-insane).
+This lets the transport do endian conversion if necessary, and insulates
+the drivers from that change.
 
-I haven't even looked at the QEMU side so this is completely untested.
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+---
+ include/linux/virtio_config.h |  161 ++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 134 insertions(+), 27 deletions(-)
 
-Comments gratefully received!
-Rusty.
-
-Michael S Tsirkin (1):
-  pci: add pci_iomap_range
-
-Rusty Russell (21):
-  virtio_config: introduce size-based accessors.
-  virtio_config: use size-based accessors.
-  virtio_config: make transports implement accessors.
-  virtio: use u32, not bitmap for struct virtio_device's features
-  virtio: add support for 64 bit features.
-  virtio: move vring structure into struct virtqueue.
-  virtio-pci: define layout for virtio vendor-specific capabilities.
-  virtio_pci: move old defines to legacy, introduce new structure.
-  virtio_pci: use _LEGACY_ defines in virtio_pci_legacy.c
-  virtio_pci: don't use the legacy driver if we find the new PCI
-    capabilities.
-  virtio_pci: allow duplicate capabilities.
-  virtio_pci: new, capability-aware driver.
-  virtio_pci: layout changes as per hpa's suggestions.
-  virtio_pci: use little endian for config space.
-  virtio_pci: use separate notification offsets for each vq.
-  virtio_pci_legacy: cleanup struct virtio_pci_vq_info
-  virtio_pci: share structure between legacy and modern.
-  virtio_pci: share interrupt/notify handlers between legacy and
-    modern.
-  virtio_pci: share virtqueue setup/teardown between modern and legacy
-    driver.
-  virtio_pci: simplify common helpers.
-  virtio_pci: fix finalize_features in modern driver.
-
- drivers/block/virtio_blk.c             |   77 ++--
- drivers/char/virtio_console.c          |   17 +-
- drivers/lguest/lguest_device.c         |   89 +++-
- drivers/net/caif/caif_virtio.c         |   25 +-
- drivers/net/virtio_net.c               |   28 +-
- drivers/remoteproc/remoteproc_virtio.c |    8 +-
- drivers/s390/kvm/kvm_virtio.c          |   88 +++-
- drivers/s390/kvm/virtio_ccw.c          |   39 +-
- drivers/scsi/virtio_scsi.c             |   12 +-
- drivers/virtio/Kconfig                 |   12 +
- drivers/virtio/Makefile                |    3 +-
- drivers/virtio/virtio.c                |   18 +-
- drivers/virtio/virtio_balloon.c        |   10 +-
- drivers/virtio/virtio_mmio.c           |   55 ++-
- drivers/virtio/virtio_pci-common.c     |  395 ++++++++++++++++
- drivers/virtio/virtio_pci-common.h     |  121 +++++
- drivers/virtio/virtio_pci.c            |  777 ++++++++++++--------------------
- drivers/virtio/virtio_pci_legacy.c     |  481 ++++++++++++++++++++
- drivers/virtio/virtio_ring.c           |  116 ++---
- include/asm-generic/pci_iomap.h        |    5 +
- include/linux/virtio.h                 |   11 +-
- include/linux/virtio_config.h          |  205 +++++++--
- include/linux/virtio_pci.h             |   35 ++
- include/uapi/linux/virtio_config.h     |    2 +
- include/uapi/linux/virtio_pci.h        |  111 ++++-
- lib/pci_iomap.c                        |   46 +-
- net/9p/trans_virtio.c                  |    9 +-
- tools/virtio/linux/virtio.h            |   22 +-
- tools/virtio/linux/virtio_config.h     |    2 +-
- tools/virtio/virtio_test.c             |    5 +-
- tools/virtio/vringh_test.c             |   16 +-
- 31 files changed, 2018 insertions(+), 822 deletions(-)
- create mode 100644 drivers/virtio/virtio_pci-common.c
- create mode 100644 drivers/virtio/virtio_pci-common.h
- create mode 100644 drivers/virtio/virtio_pci_legacy.c
- create mode 100644 include/linux/virtio_pci.h
-
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index 29b9104..e8f8f71 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -96,33 +96,6 @@ static inline bool virtio_has_feature(const struct virtio_device *vdev,
+ 	return test_bit(fbit, vdev->features);
+ }
+ 
+-/**
+- * virtio_config_val - look for a feature and get a virtio config entry.
+- * @vdev: the virtio device
+- * @fbit: the feature bit
+- * @offset: the type to search for.
+- * @v: a pointer to the value to fill in.
+- *
+- * The return value is -ENOENT if the feature doesn't exist.  Otherwise
+- * the config value is copied into whatever is pointed to by v. */
+-#define virtio_config_val(vdev, fbit, offset, v) \
+-	virtio_config_buf((vdev), (fbit), (offset), (v), sizeof(*v))
+-
+-#define virtio_config_val_len(vdev, fbit, offset, v, len) \
+-	virtio_config_buf((vdev), (fbit), (offset), (v), (len))
+-
+-static inline int virtio_config_buf(struct virtio_device *vdev,
+-				    unsigned int fbit,
+-				    unsigned int offset,
+-				    void *buf, unsigned len)
+-{
+-	if (!virtio_has_feature(vdev, fbit))
+-		return -ENOENT;
+-
+-	vdev->config->get(vdev, offset, buf, len);
+-	return 0;
+-}
+-
+ static inline
+ struct virtqueue *virtio_find_single_vq(struct virtio_device *vdev,
+ 					vq_callback_t *c, const char *n)
+@@ -162,5 +135,139 @@ int virtqueue_set_affinity(struct virtqueue *vq, int cpu)
+ 	return 0;
+ }
+ 
++/* Config space accessors. */
++#define virtio_cread(vdev, structname, member, ptr)			\
++	do {								\
++		/* Must match the member's type, and be integer */	\
++		if (!typecheck(typeof((((structname*)0)->member)), *(ptr))) \
++			(*ptr) = 1;					\
++									\
++		switch (sizeof(*ptr)) {					\
++		case 1:							\
++			*(ptr) = virtio_cread8(vdev,			\
++					       offsetof(structname, member)); \
++			break;						\
++		case 2:							\
++			*(ptr) = virtio_cread16(vdev,			\
++						offsetof(structname, member)); \
++			break;						\
++		case 4:							\
++			*(ptr) = virtio_cread32(vdev,			\
++						offsetof(structname, member)); \
++			break;						\
++		case 8:							\
++			*(ptr) = virtio_cread64(vdev,			\
++						offsetof(structname, member)); \
++			break;						\
++		default:						\
++			BUG();						\
++		}							\
++	} while(0)
++
++/* Config space accessors. */
++#define virtio_cwrite(vdev, structname, member, ptr)			\
++	do {								\
++		/* Must match the member's type, and be integer */	\
++		if (!typecheck(typeof((((structname*)0)->member)), *(ptr))) \
++			BUG_ON((*ptr) == 1);				\
++									\
++		switch (sizeof(*ptr)) {					\
++		case 1:							\
++			virtio_cwrite8(vdev,				\
++				       offsetof(structname, member),	\
++				       *(ptr));				\
++			break;						\
++		case 2:							\
++			virtio_cwrite16(vdev,				\
++					offsetof(structname, member),	\
++					*(ptr));			\
++			break;						\
++		case 4:							\
++			virtio_cwrite32(vdev,				\
++					offsetof(structname, member),	\
++					*(ptr));			\
++			break;						\
++		case 8:							\
++			virtio_cwrite64(vdev,				\
++					offsetof(structname, member),	\
++					*(ptr));			\
++			break;						\
++		default:						\
++			BUG();						\
++		}							\
++	} while(0)
++
++static inline u8 virtio_cread8(struct virtio_device *vdev, unsigned int offset)
++{
++	u8 ret;
++	vdev->config->get(vdev, offset, &ret, sizeof(ret));
++	return ret;
++}
++
++static inline void virtio_cread_bytes(struct virtio_device *vdev,
++				      unsigned int offset,
++				      void *buf, size_t len)
++{
++	vdev->config->get(vdev, offset, buf, len);
++}
++
++static inline void virtio_cwrite8(struct virtio_device *vdev,
++				  unsigned int offset, u8 val)
++{
++	vdev->config->set(vdev, offset, &val, sizeof(val));
++}
++
++static inline u16 virtio_cread16(struct virtio_device *vdev,
++				 unsigned int offset)
++{
++	u16 ret;
++	vdev->config->get(vdev, offset, &ret, sizeof(ret));
++	return ret;
++}
++
++static inline void virtio_cwrite16(struct virtio_device *vdev,
++				   unsigned int offset, u16 val)
++{
++	vdev->config->set(vdev, offset, &val, sizeof(val));
++}
++
++static inline u32 virtio_cread32(struct virtio_device *vdev,
++				 unsigned int offset)
++{
++	u32 ret;
++	vdev->config->get(vdev, offset, &ret, sizeof(ret));
++	return ret;
++}
++
++static inline void virtio_cwrite32(struct virtio_device *vdev,
++				   unsigned int offset, u32 val)
++{
++	vdev->config->set(vdev, offset, &val, sizeof(val));
++}
++
++static inline u64 virtio_cread64(struct virtio_device *vdev,
++				 unsigned int offset)
++{
++	u64 ret;
++	vdev->config->get(vdev, offset, &ret, sizeof(ret));
++	return ret;
++}
++
++static inline void virtio_cwrite64(struct virtio_device *vdev,
++				   unsigned int offset, u64 val)
++{
++	vdev->config->set(vdev, offset, &val, sizeof(val));
++}
++
++/* Conditional config space accessors. */
++#define virtio_cread_feature(vdev, fbit, structname, member, ptr)	\
++	({								\
++		int _r = 0;						\
++		if (!virtio_has_feature(vdev, fbit))			\
++			_r = -ENOENT;					\
++		else							\
++			virtio_cread((vdev), structname, member, ptr);	\
++		_r;							\
++	})
+ 
+ #endif /* _LINUX_VIRTIO_CONFIG_H */
 -- 
 1.7.10.4
