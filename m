@@ -1,11 +1,13 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH 0/2] tcm_vhost endpoint
-Date: Fri, 22 Mar 2013 10:52:26 +0800
-Message-ID: <1363920748-32139-1-git-send-email-asias__6173.34512430734$1363920807$gmane$org@redhat.com>
+Subject: [PATCH 2/2] tcm_vhost: Initialize vq->last_used_idx when set endpoint
+Date: Fri, 22 Mar 2013 10:52:28 +0800
+Message-ID: <1363920748-32139-3-git-send-email-asias__25582.6055109084$1363920819$gmane$org@redhat.com>
+References: <1363920748-32139-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1363920748-32139-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,12 +21,39 @@ To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Asias He (2):
-  tcm_vhost: Use vq->private_data to indicate if the endpoint is setup
-  tcm_vhost: Initialize vq->last_used_idx when set endpoint
+This patch fixes guest hang when booting seabios and guest.
 
- drivers/vhost/tcm_vhost.c | 47 +++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 41 insertions(+), 6 deletions(-)
+  [    0.576238] scsi0 : Virtio SCSI HBA
+  [    0.616754] virtio_scsi virtio1: request:id 0 is not a head!
 
+vq->last_used_idx is initialized only when /dev/vhost-scsi is
+opened or closed.
+
+   vhost_scsi_open -> vhost_dev_init() -> vhost_vq_reset()
+   vhost_scsi_release() -> vhost_dev_cleanup -> vhost_vq_reset()
+
+So, when guest talks to tcm_vhost after seabios does, vq->last_used_idx
+still contains the old valule for seabios. This confuses guest.
+
+Fix this by calling vhost_init_used() to init vq->last_used_idx when
+we set endpoint.
+
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/tcm_vhost.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+index 099feef..0524267 100644
+--- a/drivers/vhost/tcm_vhost.c
++++ b/drivers/vhost/tcm_vhost.c
+@@ -848,6 +848,7 @@ static int vhost_scsi_set_endpoint(
+ 			/* Flushing the vhost_work acts as synchronize_rcu */
+ 			mutex_lock(&vq->mutex);
+ 			rcu_assign_pointer(vq->private_data, vs);
++			vhost_init_used(vq);
+ 			mutex_unlock(&vq->mutex);
+ 		}
+ 		ret = 0;
 -- 
 1.8.1.4
