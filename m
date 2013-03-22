@@ -1,19 +1,11 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH 12/22] virtio_pci: allow duplicate capabilities.
-Date: Thu, 21 Mar 2013 20:17:19 -0700
-Message-ID: <96b16ce2-db0f-40d7-a0e3-4a4c23ec8289@email.android.com>
-References: <514B26BC.6010700@zytor.com> <20130321155810.GA1925@redhat.com>
-	<514B2FA0.9000204@zytor.com> <20130321161143.GC1925@redhat.com>
-	<514B3213.8070002@zytor.com> <20130321162636.GF1925@redhat.com>
-	<514B3606.2090503@zytor.com> <20130321170706.GB2994@redhat.com>
-	<514B3EAE.8000707@zytor.com> <20130321171319.GD2994@redhat.com>
-	<20130321174912.GA4161@redhat.com> <514B4957.1070003@zytor.com>
-	<8738vofdyg.fsf@rustcorp.com.au>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH V4 0/2] tcm_vhost hotplug
+Date: Fri, 22 Mar 2013 13:39:03 +0800
+Message-ID: <1363930745-7520-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8738vofdyg.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,42 +15,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Nicholas Bellinger <nab@linux-iscsi.org>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Can we just leave the configuration in config space, or is that undesirable?
+Asias He (2):
+  tcm_vhost: Introduce tcm_vhost_check_feature()
+  tcm_vhost: Add hotplug/hotunplug support
 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
-
->"H. Peter Anvin" <hpa@zytor.com> writes:
->> On 03/21/2013 10:49 AM, Michael S. Tsirkin wrote:
->>> 
->>> Just to clarify, I expect BIOS to use it *for config access*.
->>> Notification will support IO anyway because it's
->>> faster on KVM, so BIOS can use it directly.
->>> 
->>
->> Ah, yes, of course.
->>
->> Quite frankly, I don't see any reason to support *anything else* for
->> configuration, does anyone else?
->>
->> I thought we were talking about the doorbell/notification/kicker
->> register.  For I/O space especially it is highly desirable if that
->can
->> be in a minimal BAR (4 bytes).
->
->The takeaway from this seems to be that:
->1) For the notification, device can supply both.
->2) Since only device will know which is faster, driver should use the
->   first one it finds which it supports.
->
->My patch implied that the ISR, device config and notification could be
->either.  I think only the notification makes sense, as noted here.
->
->Have I got this right?
->Rusty.
+ drivers/vhost/tcm_vhost.c | 224 ++++++++++++++++++++++++++++++++++++++++++++--
+ drivers/vhost/tcm_vhost.h |  10 +++
+ 2 files changed, 229 insertions(+), 5 deletions(-)
 
 -- 
-Sent from my mobile phone. Please excuse brevity and lack of formatting.
+1.8.1.4
