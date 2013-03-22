@@ -1,18 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 12/22] virtio_pci: allow duplicate capabilities.
-Date: Fri, 22 Mar 2013 11:27:59 +1030
-Message-ID: <8738vofdyg.fsf@rustcorp.com.au>
-References: <514B26BC.6010700@zytor.com> <20130321155810.GA1925@redhat.com>
-	<514B2FA0.9000204@zytor.com> <20130321161143.GC1925@redhat.com>
-	<514B3213.8070002@zytor.com> <20130321162636.GF1925@redhat.com>
-	<514B3606.2090503@zytor.com> <20130321170706.GB2994@redhat.com>
-	<514B3EAE.8000707@zytor.com> <20130321171319.GD2994@redhat.com>
-	<20130321174912.GA4161@redhat.com> <514B4957.1070003@zytor.com>
+Subject: Re: [RFC qemu PATCH] only writing out the last byte of MAC makes it
+	have effect
+Date: Fri, 22 Mar 2013 10:45:09 +1030
+Message-ID: <87hak4ffxu.fsf@rustcorp.com.au>
+References: <1363834956-9409-1-git-send-email-akong@redhat.com>
+	<1363848290-30344-1-git-send-email-akong@redhat.com>
+	<20130321105152.GB30874@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <514B4957.1070003@zytor.com>
+In-Reply-To: <20130321105152.GB30874@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,34 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Amos Kong <akong@redhat.com>
+Cc: qemu-devel@nongnu.org, stefanha@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-> On 03/21/2013 10:49 AM, Michael S. Tsirkin wrote:
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Thu, Mar 21, 2013 at 02:44:50PM +0800, Amos Kong wrote:
+>> The lengcy guests don't have mac programming command, we don't know when
+>> it's safe to use MAC. This patch changed qemu to makes MAC change effect
+>> when the last byte of MAC is written to config space.
 >> 
->> Just to clarify, I expect BIOS to use it *for config access*.
->> Notification will support IO anyway because it's
->> faster on KVM, so BIOS can use it directly.
+>> MAC address takes first 6 bytes of config space of virtio-net, the addr
+>> is 5 when the last byte is written in virtio_config_writeb().
 >> 
+>> MAC change will effect when n->mac is updated in virtio_net_set_config().
+>> 
+>> Signed-off-by: Amos Kong <akong@redhat.com>
 >
-> Ah, yes, of course.
->
-> Quite frankly, I don't see any reason to support *anything else* for
-> configuration, does anyone else?
->
-> I thought we were talking about the doorbell/notification/kicker
-> register.  For I/O space especially it is highly desirable if that can
-> be in a minimal BAR (4 bytes).
+> Let's see what Rusty says about the spec change.
 
-The takeaway from this seems to be that:
-1) For the notification, device can supply both.
-2) Since only device will know which is faster, driver should use the
-   first one it finds which it supports.
+Implementation notes like this belong as a footnote, eg:
 
-My patch implied that the ISR, device config and notification could be
-either.  I think only the notification makes sense, as noted here.
+        For older systems, it is recommended and typical that the device
+        write byte 5 of the mac address last, so devices can use that as
+        a trigger to commit the mac address change.
 
-Have I got this right?
+Now, is this a real, or theoretical issue?  Have we seen this problem in
+practice, or should we continue to ignore it?
+
+Cheers,
 Rusty.
