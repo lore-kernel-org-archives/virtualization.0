@@ -1,13 +1,11 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH V2 3/3] tcm_vhost: Fix tv_cmd leak in vhost_scsi_handle_vq
-Date: Fri, 22 Mar 2013 14:55:29 +0800
-Message-ID: <1363935329-11796-4-git-send-email-asias__19483.5994196639$1363935396$gmane$org@redhat.com>
-References: <1363935329-11796-1-git-send-email-asias@redhat.com>
+Subject: [PATCH] tcm_vhost: Use vs for struct vhost_scsi
+Date: Fri, 22 Mar 2013 15:07:02 +0800
+Message-ID: <1363936022-13228-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1363935329-11796-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,56 +19,90 @@ To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If we fail to submit the allocated tv_vmd to tcm_vhost_submission_work,
-we will leak the tv_vmd. Free tv_vmd on fail path.
+Use vs for struct vhost_scsi, instead of s. vs is used everywhere, make
+the naming more consistent.
 
 Signed-off-by: Asias He <asias@redhat.com>
 ---
- drivers/vhost/tcm_vhost.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/vhost/tcm_vhost.c | 48 +++++++++++++++++++++++------------------------
+ 1 file changed, 24 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index f57e5ba..16022d3 100644
+index 16022d3..9365938 100644
 --- a/drivers/vhost/tcm_vhost.c
 +++ b/drivers/vhost/tcm_vhost.c
-@@ -900,7 +900,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
- 			vq_err(vq, "Expecting virtio_scsi_cmd_resp, got %zu"
- 				" bytes, out: %d, in: %d\n",
- 				vq->iov[out].iov_len, out, in);
--			break;
-+			goto err;
- 		}
+@@ -1194,48 +1194,48 @@ err_dev:
  
- 		tv_cmd->tvc_resp = vq->iov[out].iov_base;
-@@ -922,7 +922,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
- 				" exceeds SCSI_MAX_VARLEN_CDB_SIZE: %d\n",
- 				scsi_command_size(tv_cmd->tvc_cdb),
- 				TCM_VHOST_MAX_CDB_SIZE);
--			break; /* TODO */
-+			goto err;
- 		}
- 		tv_cmd->tvc_lun = ((v_req.lun[2] << 8) | v_req.lun[3]) & 0x3FFF;
+ static int vhost_scsi_open(struct inode *inode, struct file *f)
+ {
+-	struct vhost_scsi *s;
++	struct vhost_scsi *vs;
+ 	int r, i;
  
-@@ -935,7 +935,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
- 					data_direction == DMA_TO_DEVICE);
- 			if (unlikely(ret)) {
- 				vq_err(vq, "Failed to map iov to sgl\n");
--				break; /* TODO */
-+				goto err;
- 			}
- 		}
+-	s = kzalloc(sizeof(*s), GFP_KERNEL);
+-	if (!s)
++	vs = kzalloc(sizeof(*vs), GFP_KERNEL);
++	if (!vs)
+ 		return -ENOMEM;
  
-@@ -957,6 +957,11 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
+-	vhost_work_init(&s->vs_completion_work, vhost_scsi_complete_cmd_work);
+-	vhost_work_init(&s->vs_event_work, tcm_vhost_evt_work);
++	vhost_work_init(&vs->vs_completion_work, vhost_scsi_complete_cmd_work);
++	vhost_work_init(&vs->vs_event_work, tcm_vhost_evt_work);
+ 
+-	s->vs_events_nr = 0;
+-	s->vs_inflight[0] = 0;
+-	s->vs_inflight[1] = 0;
+-	spin_lock_init(&s->vs_flush_lock);
+-	init_waitqueue_head(&s->vs_flush_wait);
++	vs->vs_events_nr = 0;
++	vs->vs_inflight[0] = 0;
++	vs->vs_inflight[1] = 0;
++	spin_lock_init(&vs->vs_flush_lock);
++	init_waitqueue_head(&vs->vs_flush_wait);
+ 
+-	s->vqs[VHOST_SCSI_VQ_CTL].handle_kick = vhost_scsi_ctl_handle_kick;
+-	s->vqs[VHOST_SCSI_VQ_EVT].handle_kick = vhost_scsi_evt_handle_kick;
++	vs->vqs[VHOST_SCSI_VQ_CTL].handle_kick = vhost_scsi_ctl_handle_kick;
++	vs->vqs[VHOST_SCSI_VQ_EVT].handle_kick = vhost_scsi_evt_handle_kick;
+ 	for (i = VHOST_SCSI_VQ_IO; i < VHOST_SCSI_MAX_VQ; i++)
+-		s->vqs[i].handle_kick = vhost_scsi_handle_kick;
+-	r = vhost_dev_init(&s->dev, s->vqs, VHOST_SCSI_MAX_VQ);
++		vs->vqs[i].handle_kick = vhost_scsi_handle_kick;
++	r = vhost_dev_init(&vs->dev, vs->vqs, VHOST_SCSI_MAX_VQ);
+ 	if (r < 0) {
+-		kfree(s);
++		kfree(vs);
+ 		return r;
  	}
  
- 	mutex_unlock(&vq->mutex);
-+	return;
-+
-+err:
-+	vhost_scsi_free_cmd(tv_cmd);
-+	mutex_unlock(&vq->mutex);
+-	f->private_data = s;
++	f->private_data = vs;
+ 	return 0;
  }
  
- static void vhost_scsi_ctl_handle_kick(struct vhost_work *work)
+ static int vhost_scsi_release(struct inode *inode, struct file *f)
+ {
+-	struct vhost_scsi *s = f->private_data;
++	struct vhost_scsi *vs = f->private_data;
+ 	struct vhost_scsi_target t;
+ 
+-	mutex_lock(&s->dev.mutex);
+-	memcpy(t.vhost_wwpn, s->vs_vhost_wwpn, sizeof(t.vhost_wwpn));
+-	mutex_unlock(&s->dev.mutex);
+-	vhost_scsi_clear_endpoint(s, &t);
+-	vhost_dev_stop(&s->dev);
+-	vhost_dev_cleanup(&s->dev, false);
+-	kfree(s);
++	mutex_lock(&vs->dev.mutex);
++	memcpy(t.vhost_wwpn, vs->vs_vhost_wwpn, sizeof(t.vhost_wwpn));
++	mutex_unlock(&vs->dev.mutex);
++	vhost_scsi_clear_endpoint(vs, &t);
++	vhost_dev_stop(&vs->dev);
++	vhost_dev_cleanup(&vs->dev, false);
++	kfree(vs);
+ 	return 0;
+ }
+ 
 -- 
 1.8.1.4
