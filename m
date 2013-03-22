@@ -1,14 +1,16 @@
-From: =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
-Subject: [PATCH virtio-next 2/2] caif_virtio: Check that vringh_config is not
-	null
-Date: Fri, 22 Mar 2013 16:24:42 +0100
-Message-ID: <1363965883-23091-2-git-send-email-sjur.brandeland@stericsson.com>
-References: <1363965883-23091-1-git-send-email-sjur.brandeland@stericsson.com>
+From: Ohad Ben-Cohen <ohad@wizery.com>
+Subject: Re: [PATCH 05/22] virtio: add support for 64 bit features.
+Date: Fri, 22 Mar 2013 22:12:43 +0200
+Message-ID: <CAK=Wgbbdz0g=8Ps--=njY=6RYZU0yBfXscz9tP5tTHZ4QsstMg@mail.gmail.com>
+References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-6-git-send-email-rusty@rustcorp.com.au>
+	<20130321110614.24c6ed08@gondolin>
+	<CAJK669aeEAkPrtrjM5e1pwVgvqU8CGo6TFdm5hGUEJ1PpFZLAA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1363965883-23091-1-git-send-email-sjur.brandeland@stericsson.com>
+In-Reply-To: <CAJK669aeEAkPrtrjM5e1pwVgvqU8CGo6TFdm5hGUEJ1PpFZLAA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,25 +20,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, erwan.yvin@stericsson.com, virtualization@lists.linux-foundation.org, davem@davemloft.net, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: =?ISO-8859-1?Q?Sjur_Br=E6ndeland?= <sjurbren@gmail.com>
+Cc: Pawel Moll <pawel.moll@arm.com>, Brian Swetland <swetland@google.com>, Linus Walleij <linus.walleij@linaro.org>, Erwan YVIN <Erwan.Yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Q2hlY2sgdGhhdCB2cmluZ2hfY29uZmlnIGlzIG5vdCBOVUxMIGJlZm9yZSB1c2luZyBpdC4KClNp
-Z25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29u
-LmNvbT4KLS0tCgpIaSwKClRoaXMgcGF0Y2ggYXBwbGllcyB0byBSdXN0eSdzIHZpcnRpby1uZXh0
-IGJyYW5jaC4KClRoYW5rcywKU2p1cgoKIGRyaXZlcnMvbmV0L2NhaWYvY2FpZl92aXJ0aW8uYyB8
-ICAgIDQgKysrKwogMSBmaWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvbmV0L2NhaWYvY2FpZl92aXJ0aW8uYyBiL2RyaXZlcnMvbmV0L2NhaWYvY2FpZl92
-aXJ0aW8uYwppbmRleCBmYjgwNzY1Li4zMTZiMTg0IDEwMDY0NAotLS0gYS9kcml2ZXJzL25ldC9j
-YWlmL2NhaWZfdmlydGlvLmMKKysrIGIvZHJpdmVycy9uZXQvY2FpZi9jYWlmX3ZpcnRpby5jCkBA
-IC02NzAsNiArNjcwLDEwIEBAIHN0YXRpYyBpbnQgY2Z2X3Byb2JlKHN0cnVjdCB2aXJ0aW9fZGV2
-aWNlICp2ZGV2KQogCXNwaW5fbG9ja19pbml0KCZjZnYtPnR4X2xvY2spOwogCiAJLyogR2V0IHRo
-ZSBSWCB2aXJ0aW8gcmluZy4gVGhpcyBpcyBhICJob3N0IHNpZGUgdnJpbmciLiAqLworCWVyciA9
-IC1FTk9ERVY7CisJaWYgKCF2ZGV2LT52cmluZ2hfY29uZmlnIHx8ICF2ZGV2LT52cmluZ2hfY29u
-ZmlnLT5maW5kX3ZyaHMpCisJCWdvdG8gZXJyOworCiAJZXJyID0gdmRldi0+dnJpbmdoX2NvbmZp
-Zy0+ZmluZF92cmhzKHZkZXYsIDEsICZjZnYtPnZyX3J4LCAmdnJoX2Nicyk7CiAJaWYgKGVycikK
-IAkJZ290byBlcnI7Ci0tIAoxLjcuOS41CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Mar 22, 2013 at 4:50 PM, Sjur Br=E6ndeland <sjurbren@gmail.com> wro=
+te:
+> I guess you would need to update the feature bits in remoteproc as well?
+> e.g. something like:
+>
+> diff --git a/include/linux/remoteproc.h b/include/linux/remoteproc.h
+> index faf3332..148a503 100644
+> --- a/include/linux/remoteproc.h
+> +++ b/include/linux/remoteproc.h
+> @@ -296,8 +296,8 @@ struct fw_rsc_vdev_vring {
+>  struct fw_rsc_vdev {
+>         u32 id;
+>         u32 notifyid;
+> -       u32 dfeatures;
+> -       u32 gfeatures;
+> +       u64 dfeatures;
+> +       u64 gfeatures;
+>         u32 config_len;
+>         u8 status;
+>         u8 num_of_vrings;
+
+We will break existing firmware if we do that.
+
+Initially we thought it's a good idea to announce that remoteproc's
+binary interface isn't stable so we could keep changing it, but at
+this point changing the binary interface means pain for too many
+people.
+
+I'm thinking that at this stage any changes to the binary interface
+will have to bump up the binary version so we can still support older
+images, despite our "unstable" policy.
