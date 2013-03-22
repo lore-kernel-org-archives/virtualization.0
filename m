@@ -1,11 +1,15 @@
-From: Asias He <asias@redhat.com>
-Subject: [PATCH] tcm_vhost: Use vs for struct vhost_scsi
-Date: Fri, 22 Mar 2013 15:07:02 +0800
-Message-ID: <1363936022-13228-1-git-send-email-asias@redhat.com>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 03/22] virtio_config: make transports implement accessors.
+Date: Fri, 22 Mar 2013 10:13:38 +0100
+Message-ID: <20130322101338.18abab01@gondolin>
+References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-4-git-send-email-rusty@rustcorp.com.au>
+	<20130321100905.7d4ab9fb@gondolin> <87boacff6v.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <87boacff6v.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,94 +19,132 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nicholas Bellinger <nab@linux-iscsi.org>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Brian Swetland <swetland@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use vs for struct vhost_scsi, instead of s. vs is used everywhere, make
-the naming more consistent.
+On Fri, 22 Mar 2013 11:01:20 +1030
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-Signed-off-by: Asias He <asias@redhat.com>
----
- drivers/vhost/tcm_vhost.c | 48 +++++++++++++++++++++++------------------------
- 1 file changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 16022d3..9365938 100644
---- a/drivers/vhost/tcm_vhost.c
-+++ b/drivers/vhost/tcm_vhost.c
-@@ -1194,48 +1194,48 @@ err_dev:
- 
- static int vhost_scsi_open(struct inode *inode, struct file *f)
- {
--	struct vhost_scsi *s;
-+	struct vhost_scsi *vs;
- 	int r, i;
- 
--	s = kzalloc(sizeof(*s), GFP_KERNEL);
--	if (!s)
-+	vs = kzalloc(sizeof(*vs), GFP_KERNEL);
-+	if (!vs)
- 		return -ENOMEM;
- 
--	vhost_work_init(&s->vs_completion_work, vhost_scsi_complete_cmd_work);
--	vhost_work_init(&s->vs_event_work, tcm_vhost_evt_work);
-+	vhost_work_init(&vs->vs_completion_work, vhost_scsi_complete_cmd_work);
-+	vhost_work_init(&vs->vs_event_work, tcm_vhost_evt_work);
- 
--	s->vs_events_nr = 0;
--	s->vs_inflight[0] = 0;
--	s->vs_inflight[1] = 0;
--	spin_lock_init(&s->vs_flush_lock);
--	init_waitqueue_head(&s->vs_flush_wait);
-+	vs->vs_events_nr = 0;
-+	vs->vs_inflight[0] = 0;
-+	vs->vs_inflight[1] = 0;
-+	spin_lock_init(&vs->vs_flush_lock);
-+	init_waitqueue_head(&vs->vs_flush_wait);
- 
--	s->vqs[VHOST_SCSI_VQ_CTL].handle_kick = vhost_scsi_ctl_handle_kick;
--	s->vqs[VHOST_SCSI_VQ_EVT].handle_kick = vhost_scsi_evt_handle_kick;
-+	vs->vqs[VHOST_SCSI_VQ_CTL].handle_kick = vhost_scsi_ctl_handle_kick;
-+	vs->vqs[VHOST_SCSI_VQ_EVT].handle_kick = vhost_scsi_evt_handle_kick;
- 	for (i = VHOST_SCSI_VQ_IO; i < VHOST_SCSI_MAX_VQ; i++)
--		s->vqs[i].handle_kick = vhost_scsi_handle_kick;
--	r = vhost_dev_init(&s->dev, s->vqs, VHOST_SCSI_MAX_VQ);
-+		vs->vqs[i].handle_kick = vhost_scsi_handle_kick;
-+	r = vhost_dev_init(&vs->dev, vs->vqs, VHOST_SCSI_MAX_VQ);
- 	if (r < 0) {
--		kfree(s);
-+		kfree(vs);
- 		return r;
- 	}
- 
--	f->private_data = s;
-+	f->private_data = vs;
- 	return 0;
- }
- 
- static int vhost_scsi_release(struct inode *inode, struct file *f)
- {
--	struct vhost_scsi *s = f->private_data;
-+	struct vhost_scsi *vs = f->private_data;
- 	struct vhost_scsi_target t;
- 
--	mutex_lock(&s->dev.mutex);
--	memcpy(t.vhost_wwpn, s->vs_vhost_wwpn, sizeof(t.vhost_wwpn));
--	mutex_unlock(&s->dev.mutex);
--	vhost_scsi_clear_endpoint(s, &t);
--	vhost_dev_stop(&s->dev);
--	vhost_dev_cleanup(&s->dev, false);
--	kfree(s);
-+	mutex_lock(&vs->dev.mutex);
-+	memcpy(t.vhost_wwpn, vs->vs_vhost_wwpn, sizeof(t.vhost_wwpn));
-+	mutex_unlock(&vs->dev.mutex);
-+	vhost_scsi_clear_endpoint(vs, &t);
-+	vhost_dev_stop(&vs->dev);
-+	vhost_dev_cleanup(&vs->dev, false);
-+	kfree(vs);
- 	return 0;
- }
- 
--- 
-1.8.1.4
+> Nice understatement.  I guess you know where I cut & pasted from...
+> 
+> Here is the updated version.
+
+Looks sane to me.
+
+> 
+> Thanks,
+> Rusty.
+> 
+> diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+> index 6711e65..9b8c527 100644
+> --- a/drivers/s390/kvm/kvm_virtio.c
+> +++ b/drivers/s390/kvm/kvm_virtio.c
+> @@ -112,24 +112,79 @@ static void kvm_finalize_features(struct virtio_device *vdev)
+>  }
+> 
+>  /*
+> - * Reading and writing elements in config space
+> + * Reading and writing elements in config space.  Host and guest are always
+> + * big-endian, so no conversion necessary.
+>   */
+> -static void kvm_get(struct virtio_device *vdev, unsigned int offset,
+> -		   void *buf, unsigned len)
+> +static u8 kvm_get8(struct virtio_device *vdev, unsigned int offset)
+>  {
+>  	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+> 
+> -	BUG_ON(offset + len > desc->config_len);
+> -	memcpy(buf, kvm_vq_configspace(desc) + offset, len);
+> +	/* Check they didn't ask for more than the length of the config! */
+> +	BUG_ON(offset + sizeof(u8) > desc->config_len);
+> +	return *(u8 *)(kvm_vq_configspace(desc) + offset);
+>  }
+> 
+> -static void kvm_set(struct virtio_device *vdev, unsigned int offset,
+> -		   const void *buf, unsigned len)
+> +static void kvm_set8(struct virtio_device *vdev, unsigned int offset, u8 val)
+>  {
+>  	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+> 
+> -	BUG_ON(offset + len > desc->config_len);
+> -	memcpy(kvm_vq_configspace(desc) + offset, buf, len);
+> +	/* Check they didn't ask for more than the length of the config! */
+> +	BUG_ON(offset + sizeof(val) > desc->config_len);
+> +	*(u8 *)(kvm_vq_configspace(desc) + offset) = val;
+> +}
+> +
+> +static u16 kvm_get16(struct virtio_device *vdev, unsigned int offset)
+> +{
+> +	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+> +
+> +	/* Check they didn't ask for more than the length of the config! */
+> +	BUG_ON(offset + sizeof(u16) > desc->config_len);
+> +	return *(u16 *)(kvm_vq_configspace(desc) + offset);
+> +}
+> +
+> +static void kvm_set16(struct virtio_device *vdev, unsigned int offset, u16 val)
+> +{
+> +	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+> +
+> +	/* Check they didn't ask for more than the length of the config! */
+> +	BUG_ON(offset + sizeof(val) > desc->config_len);
+> +	*(u16 *)(kvm_vq_configspace(desc) + offset) = val;
+> +}
+> +
+> +static u32 kvm_get32(struct virtio_device *vdev, unsigned int offset)
+> +{
+> +	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+> +
+> +	/* Check they didn't ask for more than the length of the config! */
+> +	BUG_ON(offset + sizeof(u32) > desc->config_len);
+> +	return *(u32 *)(kvm_vq_configspace(desc) + offset);
+> +}
+> +
+> +static void kvm_set32(struct virtio_device *vdev, unsigned int offset, u32 val)
+> +{
+> +	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+> +
+> +	/* Check they didn't ask for more than the length of the config! */
+> +	BUG_ON(offset + sizeof(val) > desc->config_len);
+> +	*(u32 *)(kvm_vq_configspace(desc) + offset) = val;
+> +}
+> +
+> +static u64 kvm_get64(struct virtio_device *vdev, unsigned int offset)
+> +{
+> +	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+> +
+> +	/* Check they didn't ask for more than the length of the config! */
+> +	BUG_ON(offset + sizeof(u64) > desc->config_len);
+> +	return *(u64 *)(kvm_vq_configspace(desc) + offset);
+> +}
+> +
+> +static void kvm_set64(struct virtio_device *vdev, unsigned int offset, u64 val)
+> +{
+> +	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+> +
+> +	/* Check they didn't ask for more than the length of the config! */
+> +	BUG_ON(offset + sizeof(val) > desc->config_len);
+> +	*(u64 *)(kvm_vq_configspace(desc) + offset) = val;
+>  }
+> 
+>  /*
+> @@ -278,8 +333,14 @@ static const char *kvm_bus_name(struct virtio_device *vdev)
+>  static const struct virtio_config_ops kvm_vq_configspace_ops = {
+>  	.get_features = kvm_get_features,
+>  	.finalize_features = kvm_finalize_features,
+> -	.get = kvm_get,
+> -	.set = kvm_set,
+> +	.get8 = kvm_get8,
+> +	.set8 = kvm_set8,
+> +	.get16 = kvm_get16,
+> +	.set16 = kvm_set16,
+> +	.get32 = kvm_get32,
+> +	.set32 = kvm_set32,
+> +	.get64 = kvm_get64,
+> +	.set64 = kvm_set64,
+>  	.get_status = kvm_get_status,
+>  	.set_status = kvm_set_status,
+>  	.reset = kvm_reset,
+> 
