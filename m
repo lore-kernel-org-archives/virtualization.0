@@ -1,15 +1,19 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 03/22] virtio_config: make transports implement accessors.
-Date: Fri, 22 Mar 2013 11:01:20 +1030
-Message-ID: <87boacff6v.fsf@rustcorp.com.au>
-References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-4-git-send-email-rusty@rustcorp.com.au>
-	<20130321100905.7d4ab9fb@gondolin>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH 12/22] virtio_pci: allow duplicate capabilities.
+Date: Thu, 21 Mar 2013 20:17:19 -0700
+Message-ID: <96b16ce2-db0f-40d7-a0e3-4a4c23ec8289@email.android.com>
+References: <514B26BC.6010700@zytor.com> <20130321155810.GA1925@redhat.com>
+	<514B2FA0.9000204@zytor.com> <20130321161143.GC1925@redhat.com>
+	<514B3213.8070002@zytor.com> <20130321162636.GF1925@redhat.com>
+	<514B3606.2090503@zytor.com> <20130321170706.GB2994@redhat.com>
+	<514B3EAE.8000707@zytor.com> <20130321171319.GD2994@redhat.com>
+	<20130321174912.GA4161@redhat.com> <514B4957.1070003@zytor.com>
+	<8738vofdyg.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130321100905.7d4ab9fb@gondolin>
+In-Reply-To: <8738vofdyg.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,150 +23,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Cc: Brian Swetland <swetland@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cornelia Huck <cornelia.huck@de.ibm.com> writes:
-> On Thu, 21 Mar 2013 18:59:24 +1030
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-...
->> diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
->> index 6711e65..dcf35b1 100644
->> --- a/drivers/s390/kvm/kvm_virtio.c
->> +++ b/drivers/s390/kvm/kvm_virtio.c
->> @@ -112,26 +112,82 @@ static void kvm_finalize_features(struct virtio_device *vdev)
->>  }
->> 
->>  /*
->> - * Reading and writing elements in config space
->> + * Reading and writing elements in config space.  Host and guest are always
->> + * big-endian, so no conversion necessary.
->>   */
->> -static void kvm_get(struct virtio_device *vdev, unsigned int offset,
->> -		   void *buf, unsigned len)
->> +static u8 kvm_get8(struct virtio_device *vdev, unsigned int offset)
->>  {
->> -	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
->> +	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
->                ^^^^^^^^^^^^^^^^^^
->  
-> This looks weird?
+Can we just leave the configuration in config space, or is that undesirable?
 
-Nice understatement.  I guess you know where I cut & pasted from...
+Rusty Russell <rusty@rustcorp.com.au> wrote:
 
-Here is the updated version.
+>"H. Peter Anvin" <hpa@zytor.com> writes:
+>> On 03/21/2013 10:49 AM, Michael S. Tsirkin wrote:
+>>> 
+>>> Just to clarify, I expect BIOS to use it *for config access*.
+>>> Notification will support IO anyway because it's
+>>> faster on KVM, so BIOS can use it directly.
+>>> 
+>>
+>> Ah, yes, of course.
+>>
+>> Quite frankly, I don't see any reason to support *anything else* for
+>> configuration, does anyone else?
+>>
+>> I thought we were talking about the doorbell/notification/kicker
+>> register.  For I/O space especially it is highly desirable if that
+>can
+>> be in a minimal BAR (4 bytes).
+>
+>The takeaway from this seems to be that:
+>1) For the notification, device can supply both.
+>2) Since only device will know which is faster, driver should use the
+>   first one it finds which it supports.
+>
+>My patch implied that the ISR, device config and notification could be
+>either.  I think only the notification makes sense, as noted here.
+>
+>Have I got this right?
+>Rusty.
 
-Thanks,
-Rusty.
-
-diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
-index 6711e65..9b8c527 100644
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -112,24 +112,79 @@ static void kvm_finalize_features(struct virtio_device *vdev)
- }
- 
- /*
-- * Reading and writing elements in config space
-+ * Reading and writing elements in config space.  Host and guest are always
-+ * big-endian, so no conversion necessary.
-  */
--static void kvm_get(struct virtio_device *vdev, unsigned int offset,
--		   void *buf, unsigned len)
-+static u8 kvm_get8(struct virtio_device *vdev, unsigned int offset)
- {
- 	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
- 
--	BUG_ON(offset + len > desc->config_len);
--	memcpy(buf, kvm_vq_configspace(desc) + offset, len);
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(u8) > desc->config_len);
-+	return *(u8 *)(kvm_vq_configspace(desc) + offset);
- }
- 
--static void kvm_set(struct virtio_device *vdev, unsigned int offset,
--		   const void *buf, unsigned len)
-+static void kvm_set8(struct virtio_device *vdev, unsigned int offset, u8 val)
- {
- 	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
- 
--	BUG_ON(offset + len > desc->config_len);
--	memcpy(kvm_vq_configspace(desc) + offset, buf, len);
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u8 *)(kvm_vq_configspace(desc) + offset) = val;
-+}
-+
-+static u16 kvm_get16(struct virtio_device *vdev, unsigned int offset)
-+{
-+	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(u16) > desc->config_len);
-+	return *(u16 *)(kvm_vq_configspace(desc) + offset);
-+}
-+
-+static void kvm_set16(struct virtio_device *vdev, unsigned int offset, u16 val)
-+{
-+	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u16 *)(kvm_vq_configspace(desc) + offset) = val;
-+}
-+
-+static u32 kvm_get32(struct virtio_device *vdev, unsigned int offset)
-+{
-+	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(u32) > desc->config_len);
-+	return *(u32 *)(kvm_vq_configspace(desc) + offset);
-+}
-+
-+static void kvm_set32(struct virtio_device *vdev, unsigned int offset, u32 val)
-+{
-+	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u32 *)(kvm_vq_configspace(desc) + offset) = val;
-+}
-+
-+static u64 kvm_get64(struct virtio_device *vdev, unsigned int offset)
-+{
-+	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(u64) > desc->config_len);
-+	return *(u64 *)(kvm_vq_configspace(desc) + offset);
-+}
-+
-+static void kvm_set64(struct virtio_device *vdev, unsigned int offset, u64 val)
-+{
-+	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
-+
-+	/* Check they didn't ask for more than the length of the config! */
-+	BUG_ON(offset + sizeof(val) > desc->config_len);
-+	*(u64 *)(kvm_vq_configspace(desc) + offset) = val;
- }
- 
- /*
-@@ -278,8 +333,14 @@ static const char *kvm_bus_name(struct virtio_device *vdev)
- static const struct virtio_config_ops kvm_vq_configspace_ops = {
- 	.get_features = kvm_get_features,
- 	.finalize_features = kvm_finalize_features,
--	.get = kvm_get,
--	.set = kvm_set,
-+	.get8 = kvm_get8,
-+	.set8 = kvm_set8,
-+	.get16 = kvm_get16,
-+	.set16 = kvm_set16,
-+	.get32 = kvm_get32,
-+	.set32 = kvm_set32,
-+	.get64 = kvm_get64,
-+	.set64 = kvm_set64,
- 	.get_status = kvm_get_status,
- 	.set_status = kvm_set_status,
- 	.reset = kvm_reset,
+-- 
+Sent from my mobile phone. Please excuse brevity and lack of formatting.
