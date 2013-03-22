@@ -1,15 +1,12 @@
-From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjurbren@gmail.com>
-Subject: Re: [PATCH 05/22] virtio: add support for 64 bit features.
-Date: Fri, 22 Mar 2013 15:50:37 +0100
-Message-ID: <CAJK669aeEAkPrtrjM5e1pwVgvqU8CGo6TFdm5hGUEJ1PpFZLAA@mail.gmail.com>
-References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-6-git-send-email-rusty@rustcorp.com.au>
-	<20130321110614.24c6ed08@gondolin>
+From: =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+Subject: [PATCH virtio-next 1/2] caif_virtio: Use vringh_notify_enable
+	correctly
+Date: Fri, 22 Mar 2013 16:24:41 +0100
+Message-ID: <1363965883-23091-1-git-send-email-sjur.brandeland@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130321110614.24c6ed08@gondolin>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,65 +16,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Pawel Moll <pawel.moll@arm.com>, Brian Swetland <swetland@google.com>, Linus Walleij <linus.walleij@linaro.org>, Erwan YVIN <Erwan.Yvin@stericsson.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, erwan.yvin@stericsson.com, virtualization@lists.linux-foundation.org, davem@davemloft.net, =?UTF-8?q?Sjur=20Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 21, 2013 at 11:06 AM, Cornelia Huck
-<cornelia.huck@de.ibm.com> wrote:
-> On Thu, 21 Mar 2013 18:59:26 +1030
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
->
->> Change the u32 to a u64, and make sure to use 1ULL everywhere!
->>
->> Cc: Ohad Ben-Cohen <ohad@wizery.com>
->> Cc: Brian Swetland <swetland@google.com>
->> Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
->> Cc: Pawel Moll <pawel.moll@arm.com>
->> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
->> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
->> ---
->>  drivers/char/virtio_console.c          |    2 +-
->>  drivers/lguest/lguest_device.c         |   10 +++++-----
->>  drivers/remoteproc/remoteproc_virtio.c |    6 +++++-
->>  drivers/s390/kvm/kvm_virtio.c          |   10 +++++-----
->>  drivers/virtio/virtio.c                |   12 ++++++------
->>  drivers/virtio/virtio_mmio.c           |   14 +++++++++-----
->>  drivers/virtio/virtio_pci.c            |    5 ++---
->>  drivers/virtio/virtio_ring.c           |    2 +-
->>  include/linux/virtio.h                 |    2 +-
->>  include/linux/virtio_config.h          |    8 ++++----
->>  tools/virtio/linux/virtio.h            |    2 +-
->>  tools/virtio/linux/virtio_config.h     |    2 +-
->>  12 files changed, 41 insertions(+), 34 deletions(-)
-
-I guess you would need to update the feature bits in remoteproc as well?
-e.g. something like:
-
-diff --git a/include/linux/remoteproc.h b/include/linux/remoteproc.h
-index faf3332..148a503 100644
---- a/include/linux/remoteproc.h
-+++ b/include/linux/remoteproc.h
-@@ -296,8 +296,8 @@ struct fw_rsc_vdev_vring {
- struct fw_rsc_vdev {
-        u32 id;
-        u32 notifyid;
--       u32 dfeatures;
--       u32 gfeatures;
-+       u64 dfeatures;
-+       u64 gfeatures;
-        u32 config_len;
-        u8 status;
-        u8 num_of_vrings;
-@@ -470,8 +470,8 @@ struct rproc_vdev {
-        struct rproc *rproc;
-        struct virtio_device vdev;
-        struct rproc_vring vring[RVDEV_NUM_VRINGS];
--       unsigned long dfeatures;
--       unsigned long gfeatures;
-+       u64 dfeatures;
-+       u64 gfeatures;
- };
-
-Thanks,
-Sjur
+Q2hlY2sgb24gdGhlIGNvcnJlY3QgcmV0dXJuIHZhbHVlIGZyb20KdnJpbmdoX25vdGlmeV9lbmFi
+bGVfa2VybigpLiBJdCByZXR1cm5zIGZhbHNlIGlmCm1vcmUgcGFja2V0cyBhcmUgYXZhaWxhYmxl
+LCBub3QgdHJ1ZS4KClNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIuYnJhbmRl
+bGFuZEBzdGVyaWNzc29uLmNvbT4KLS0tCkhpLAoKVGhpcyBwYXRjaCBhcHBsaWVzIHRvIFJ1c3R5
+J3MgdmlydGlvLW5leHQgYnJhbmNoLgoKVGhhbmtzLApTanVyCiBkcml2ZXJzL25ldC9jYWlmL2Nh
+aWZfdmlydGlvLmMgfCAgICAyICstCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEg
+ZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC9jYWlmL2NhaWZfdmlydGlvLmMg
+Yi9kcml2ZXJzL25ldC9jYWlmL2NhaWZfdmlydGlvLmMKaW5kZXggZjZjYWExZS4uZmI4MDc2NSAx
+MDA2NDQKLS0tIGEvZHJpdmVycy9uZXQvY2FpZi9jYWlmX3ZpcnRpby5jCisrKyBiL2RyaXZlcnMv
+bmV0L2NhaWYvY2FpZl92aXJ0aW8uYwpAQCAtMzE4LDcgKzMxOCw3IEBAIGV4aXQ6CiAKIAkJLyog
+UmVhbGx5IG91dCBvZiBwYXRja2V0cz8gKHN0b2xlbiBmcm9tIHZpcnRpb19uZXQpKi8KIAkJbmFw
+aV9jb21wbGV0ZShuYXBpKTsKLQkJaWYgKHVubGlrZWx5KHZyaW5naF9ub3RpZnlfZW5hYmxlX2tl
+cm4oY2Z2LT52cl9yeCkpICYmCisJCWlmICh1bmxpa2VseSghdnJpbmdoX25vdGlmeV9lbmFibGVf
+a2VybihjZnYtPnZyX3J4KSkgJiYKIAkJICAgIG5hcGlfc2NoZWR1bGVfcHJlcChuYXBpKSkgewog
+CQkJdnJpbmdoX25vdGlmeV9kaXNhYmxlX2tlcm4oY2Z2LT52cl9yeCk7CiAJCQlfX25hcGlfc2No
+ZWR1bGUobmFwaSk7Ci0tIAoxLjcuOS41CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
