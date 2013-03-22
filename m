@@ -1,16 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
-	each vq.
-Date: Fri, 22 Mar 2013 13:22:57 +1030
-Message-ID: <87wqt0du2e.fsf@rustcorp.com.au>
+Subject: Re: [PATCH 03/22] virtio_config: make transports implement accessors.
+Date: Fri, 22 Mar 2013 11:01:20 +1030
+Message-ID: <87boacff6v.fsf@rustcorp.com.au>
 References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
-	<20130321101300.GA30493@redhat.com>
+	<1363854584-25795-4-git-send-email-rusty@rustcorp.com.au>
+	<20130321100905.7d4ab9fb@gondolin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130321101300.GA30493@redhat.com>
+In-Reply-To: <20130321100905.7d4ab9fb@gondolin>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,84 +19,150 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: hpa@zytor.com, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Brian Swetland <swetland@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> On Thu, Mar 21, 2013 at 06:59:37PM +1030, Rusty Russell wrote:
->> (MST, is this what you were thinking?)
->
-> Almost.
->
-> Three points:
->
-> 1. this is still an offset in BAR so for KVM we are still forced to use
-> an IO BAR. 
+Cornelia Huck <cornelia.huck@de.ibm.com> writes:
+> On Thu, 21 Mar 2013 18:59:24 +1030
+> Rusty Russell <rusty@rustcorp.com.au> wrote:
+...
+>> diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+>> index 6711e65..dcf35b1 100644
+>> --- a/drivers/s390/kvm/kvm_virtio.c
+>> +++ b/drivers/s390/kvm/kvm_virtio.c
+>> @@ -112,26 +112,82 @@ static void kvm_finalize_features(struct virtio_device *vdev)
+>>  }
+>> 
+>>  /*
+>> - * Reading and writing elements in config space
+>> + * Reading and writing elements in config space.  Host and guest are always
+>> + * big-endian, so no conversion necessary.
+>>   */
+>> -static void kvm_get(struct virtio_device *vdev, unsigned int offset,
+>> -		   void *buf, unsigned len)
+>> +static u8 kvm_get8(struct virtio_device *vdev, unsigned int offset)
+>>  {
+>> -	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+>> +	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
+>                ^^^^^^^^^^^^^^^^^^
+>  
+> This looks weird?
 
-Right, because memory bar accesses are slow as per your 'Subject: virtio
-PCI on KVM without IO BARs' post.
+Nice understatement.  I guess you know where I cut & pasted from...
 
-> I would like an option for hypervisor to simply say "Do IO
-> to this fixed address for this VQ". Then virtio can avoid using IO BARs
-> completely.
+Here is the updated version.
 
-It could be done.  AFAICT, this would be an x86-ism, though, which is a
-little nasty.
-
-> 2.  for a real virtio device, offset is only 16 bit, using a 32 bit
-> offset in a memory BAR giving each VQ a separate 4K page would allow
-> priveledge separation where e.g. RXVQ/TXVQ are passed through to
-> hardware but CVQ is handled by the hypervisor.
-
-Hmm, u16 fits nicely :)  Unless you need priv separation between different
-vqs, you could have control vq at 0, and start rx/tx from 4096.
-
-(Actually, since the notification base is already an offset into a bar,
-you could arrange that at 4094, so control is at 0, vqs start at 1).
-
-> 3. last thing - (1) applies to ISR reads as well.
-
-I've been assuming that optimizing ISR access was pointless with MSI-X,
-so keeping that simple.
-
-> So the minimal change on top of this patch, would be adding a FIXED
-> option to BIR and reporting data and not just offset for queue_notify
-> (so it can include device info if we share same address between
-> devices).
-
-The first is easy, since we have a 'u8 bar': 255 could mean FIXED.
-
-I wonder why you only want a u16 for data, when a u32 would be more
-flexible?  If we have to enlarge things anyway...
-
-How's this?
-
-Cheers,
+Thanks,
 Rusty.
 
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index 23b90cb..9a59138 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -123,6 +123,9 @@
- /* Device specific confiuration */
- #define VIRTIO_PCI_CAP_DEVICE_CFG	4
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index 6711e65..9b8c527 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -112,24 +112,79 @@ static void kvm_finalize_features(struct virtio_device *vdev)
+ }
  
-+/* Not really a bar: this means notification via outl */
-+#define VIRTIO_PCI_BAR_FIXED_IO		255
+ /*
+- * Reading and writing elements in config space
++ * Reading and writing elements in config space.  Host and guest are always
++ * big-endian, so no conversion necessary.
+  */
+-static void kvm_get(struct virtio_device *vdev, unsigned int offset,
+-		   void *buf, unsigned len)
++static u8 kvm_get8(struct virtio_device *vdev, unsigned int offset)
+ {
+ 	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+ 
+-	BUG_ON(offset + len > desc->config_len);
+-	memcpy(buf, kvm_vq_configspace(desc) + offset, len);
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(u8) > desc->config_len);
++	return *(u8 *)(kvm_vq_configspace(desc) + offset);
+ }
+ 
+-static void kvm_set(struct virtio_device *vdev, unsigned int offset,
+-		   const void *buf, unsigned len)
++static void kvm_set8(struct virtio_device *vdev, unsigned int offset, u8 val)
+ {
+ 	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+ 
+-	BUG_ON(offset + len > desc->config_len);
+-	memcpy(kvm_vq_configspace(desc) + offset, buf, len);
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u8 *)(kvm_vq_configspace(desc) + offset) = val;
++}
 +
- /* This is the PCI capability header: */
- struct virtio_pci_cap {
- 	u8 cap_vndr;	/* Generic PCI field: PCI_CAP_ID_VNDR */
-@@ -150,7 +153,9 @@ struct virtio_pci_common_cfg {
- 	__le16 queue_size;	/* read-write, power of 2. */
- 	__le16 queue_msix_vector;/* read-write */
- 	__le16 queue_enable;	/* read-write */
--	__le16 queue_notify;	/* read-only */
-+	__le16 unused2;
-+	__le32 queue_notify_val;/* read-only */
-+	__le32 queue_notify_off;/* read-only */
- 	__le64 queue_desc;	/* read-write */
- 	__le64 queue_avail;	/* read-write */
- 	__le64 queue_used;	/* read-write */
++static u16 kvm_get16(struct virtio_device *vdev, unsigned int offset)
++{
++	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(u16) > desc->config_len);
++	return *(u16 *)(kvm_vq_configspace(desc) + offset);
++}
++
++static void kvm_set16(struct virtio_device *vdev, unsigned int offset, u16 val)
++{
++	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u16 *)(kvm_vq_configspace(desc) + offset) = val;
++}
++
++static u32 kvm_get32(struct virtio_device *vdev, unsigned int offset)
++{
++	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(u32) > desc->config_len);
++	return *(u32 *)(kvm_vq_configspace(desc) + offset);
++}
++
++static void kvm_set32(struct virtio_device *vdev, unsigned int offset, u32 val)
++{
++	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u32 *)(kvm_vq_configspace(desc) + offset) = val;
++}
++
++static u64 kvm_get64(struct virtio_device *vdev, unsigned int offset)
++{
++	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(u64) > desc->config_len);
++	return *(u64 *)(kvm_vq_configspace(desc) + offset);
++}
++
++static void kvm_set64(struct virtio_device *vdev, unsigned int offset, u64 val)
++{
++	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
++
++	/* Check they didn't ask for more than the length of the config! */
++	BUG_ON(offset + sizeof(val) > desc->config_len);
++	*(u64 *)(kvm_vq_configspace(desc) + offset) = val;
+ }
+ 
+ /*
+@@ -278,8 +333,14 @@ static const char *kvm_bus_name(struct virtio_device *vdev)
+ static const struct virtio_config_ops kvm_vq_configspace_ops = {
+ 	.get_features = kvm_get_features,
+ 	.finalize_features = kvm_finalize_features,
+-	.get = kvm_get,
+-	.set = kvm_set,
++	.get8 = kvm_get8,
++	.set8 = kvm_set8,
++	.get16 = kvm_get16,
++	.set16 = kvm_set16,
++	.get32 = kvm_get32,
++	.set32 = kvm_set32,
++	.get64 = kvm_get64,
++	.set64 = kvm_set64,
+ 	.get_status = kvm_get_status,
+ 	.set_status = kvm_set_status,
+ 	.reset = kvm_reset,
