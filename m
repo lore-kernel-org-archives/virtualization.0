@@ -1,14 +1,11 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH 1/2] tcm_vhost: Use vq->private_data to indicate if the
-	endpoint is setup
-Date: Fri, 22 Mar 2013 10:52:27 +0800
-Message-ID: <1363920748-32139-2-git-send-email-asias@redhat.com>
-References: <1363920748-32139-1-git-send-email-asias@redhat.com>
+Subject: [PATCH 0/2] tcm_vhost endpoint
+Date: Fri, 22 Mar 2013 10:52:26 +0800
+Message-ID: <1363920748-32139-1-git-send-email-asias__6173.34512430734$1363920807$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1363920748-32139-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,125 +19,12 @@ To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently, vs->vs_endpoint is used indicate if the endpoint is setup or
-not. It is set or cleared in vhost_scsi_set_endpoint() or
-vhost_scsi_clear_endpoint() under the vs->dev.mutex lock. However, when
-we check it in vhost_scsi_handle_vq(), we ignored the lock.
+Asias He (2):
+  tcm_vhost: Use vq->private_data to indicate if the endpoint is setup
+  tcm_vhost: Initialize vq->last_used_idx when set endpoint
 
-Instead of using the vs->vs_endpoint and the vs->dev.mutex lock to
-indicate the status of the endpoint, we use per virtqueue
-vq->private_data to indicate it. In this way, we can only take the
-vq->mutex lock which is per queue and make the concurrent multiqueue
-process having less lock contention. Further, in the read side of
-vq->private_data, we can even do not take only lock if it is accessed in
-the vhost worker thread, because it is protected by "vhost rcu".
+ drivers/vhost/tcm_vhost.c | 47 +++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 41 insertions(+), 6 deletions(-)
 
-Signed-off-by: Asias He <asias@redhat.com>
----
- drivers/vhost/tcm_vhost.c | 46 ++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 40 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 43fb11e..099feef 100644
---- a/drivers/vhost/tcm_vhost.c
-+++ b/drivers/vhost/tcm_vhost.c
-@@ -67,7 +67,6 @@ struct vhost_scsi {
- 	/* Protected by vhost_scsi->dev.mutex */
- 	struct tcm_vhost_tpg *vs_tpg[VHOST_SCSI_MAX_TARGET];
- 	char vs_vhost_wwpn[TRANSPORT_IQN_LEN];
--	bool vs_endpoint;
- 
- 	struct vhost_dev dev;
- 	struct vhost_virtqueue vqs[VHOST_SCSI_MAX_VQ];
-@@ -91,6 +90,24 @@ static int iov_num_pages(struct iovec *iov)
- 	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
- }
- 
-+static bool tcm_vhost_check_endpoint(struct vhost_virtqueue *vq)
-+{
-+	bool ret = false;
-+
-+	/*
-+	 * We can handle the vq only after the endpoint is setup by calling the
-+	 * VHOST_SCSI_SET_ENDPOINT ioctl.
-+	 *
-+	 * TODO: Check that we are running from vhost_worker which acts
-+	 * as read-side critical section for vhost kind of RCU.
-+	 * See the comments in struct vhost_virtqueue in drivers/vhost/vhost.h
-+	 */
-+	if (rcu_dereference_check(vq->private_data, 1))
-+		ret = true;
-+
-+	return ret;
-+}
-+
- static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
- {
- 	return 1;
-@@ -581,8 +598,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
- 	int head, ret;
- 	u8 target;
- 
--	/* Must use ioctl VHOST_SCSI_SET_ENDPOINT */
--	if (unlikely(!vs->vs_endpoint))
-+	if (!tcm_vhost_check_endpoint(vq))
- 		return;
- 
- 	mutex_lock(&vq->mutex);
-@@ -781,8 +797,9 @@ static int vhost_scsi_set_endpoint(
- {
- 	struct tcm_vhost_tport *tv_tport;
- 	struct tcm_vhost_tpg *tv_tpg;
-+	struct vhost_virtqueue *vq;
- 	bool match = false;
--	int index, ret;
-+	int index, ret, i;
- 
- 	mutex_lock(&vs->dev.mutex);
- 	/* Verify that ring has been setup correctly. */
-@@ -826,7 +843,13 @@ static int vhost_scsi_set_endpoint(
- 	if (match) {
- 		memcpy(vs->vs_vhost_wwpn, t->vhost_wwpn,
- 		       sizeof(vs->vs_vhost_wwpn));
--		vs->vs_endpoint = true;
-+		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
-+			vq = &vs->vqs[i];
-+			/* Flushing the vhost_work acts as synchronize_rcu */
-+			mutex_lock(&vq->mutex);
-+			rcu_assign_pointer(vq->private_data, vs);
-+			mutex_unlock(&vq->mutex);
-+		}
- 		ret = 0;
- 	} else {
- 		ret = -EEXIST;
-@@ -842,6 +865,8 @@ static int vhost_scsi_clear_endpoint(
- {
- 	struct tcm_vhost_tport *tv_tport;
- 	struct tcm_vhost_tpg *tv_tpg;
-+	struct vhost_virtqueue *vq;
-+	bool match = false;
- 	int index, ret, i;
- 	u8 target;
- 
-@@ -877,9 +902,18 @@ static int vhost_scsi_clear_endpoint(
- 		}
- 		tv_tpg->tv_tpg_vhost_count--;
- 		vs->vs_tpg[target] = NULL;
--		vs->vs_endpoint = false;
-+		match = true;
- 		mutex_unlock(&tv_tpg->tv_tpg_mutex);
- 	}
-+	if (match) {
-+		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
-+			vq = &vs->vqs[i];
-+			/* Flushing the vhost_work acts as synchronize_rcu */
-+			mutex_lock(&vq->mutex);
-+			rcu_assign_pointer(vq->private_data, NULL);
-+			mutex_unlock(&vq->mutex);
-+		}
-+	}
- 	mutex_unlock(&vs->dev.mutex);
- 	return 0;
- 
 -- 
 1.8.1.4
