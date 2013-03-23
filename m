@@ -1,11 +1,17 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: xen: how does XEN_PRIVILEGED_GUEST work?
-Date: Fri, 22 Mar 2013 23:37:35 +0100
-Message-ID: <1363991855.1390.213.camel@x61.thuisdomein>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH V6 5/5] virtio-scsi: reset virtqueue affinity when doing
+	cpu hotplug
+Date: Sat, 23 Mar 2013 07:36:30 +0100
+Message-ID: <514D4D6E.4000303@redhat.com>
+References: <1363762884-11000-1-git-send-email-gaowanlong@cn.fujitsu.com>
+	<1363762884-11000-6-git-send-email-gaowanlong@cn.fujitsu.com>
+	<20130320072425.GA23182@hj.localdomain>
+	<51496BAF.2030202@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <51496BAF.2030202@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,26 +21,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Randy Dunlap <rdunlap@xenotime.net>, xen-devel@lists.xensource.com, Ingo Molnar <mingo@elte.hu>, virtualization@lists.linux-foundation.org
+To: gaowanlong@cn.fujitsu.com
+Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, JBottomley@parallels.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-0) The Kconfig symbol XEN_PRIVILEGED_GUEST got added to the mainline
-Linux repository in v2.6.37. It has never been used. It has always been
-a nop.
+Il 20/03/2013 08:56, Wanlong Gao ha scritto:
+>> This one does not apply on top of virtio-next + patch 1-4 in this series.
+> 
+> I'm very sorry.
+> 
+> This fault is because I modified the 4/5 from 
+> "/* if the affinity hint is set for virtqueues */"
+> to
+> "/* If the affinity hint is set for virtqueues */"
+> by hand.
+> 
+> You can also change "If" to "if" in 5/5 to apply this patch without 3-way merge.
 
-1) Its Kconfig entry is preceded with this comment:
-    # Dummy symbol since people have come to rely on the PRIVILEGED_GUEST
-    # name in tools.
+Can you respin?
 
-What does that mean?
+So we can ask James for his Acked-by and get this merged in the next window.
 
-2) On a related note: can anyone please explain commit
-7c1bfd685bcdc822ab1d7411ea05c82bd2a7b260 ("xen/pci: Fix compiler error
-when CONFIG_XEN_PRIVILEGED_GUEST is not set.") and commit
-c00c8aa2d976e9ed1d12a57b42d6e9b27efb7abe ("xen/trace: Fix compile error
-when CONFIG_XEN_PRIVILEGED_GUEST is not set"). Do they perhaps fix
-problems in code not mainlined?
-
-
-Paul Bolle
+Paolo
