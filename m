@@ -1,17 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 13/22] virtio_pci: new, capability-aware driver.
-Date: Sun, 24 Mar 2013 15:08:55 +0200
-Message-ID: <20130324130855.GC6601@redhat.com>
-References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-14-git-send-email-rusty@rustcorp.com.au>
-	<20130321102439.GB30493@redhat.com>
-	<87zjxwdz6e.fsf@rustcorp.com.au>
+Subject: Re: [PATCH 12/22] virtio_pci: allow duplicate capabilities.
+Date: Sun, 24 Mar 2013 15:14:08 +0200
+Message-ID: <20130324131408.GD6601@redhat.com>
+References: <20130321161143.GC1925@redhat.com> <514B3213.8070002@zytor.com>
+	<20130321162636.GF1925@redhat.com> <514B3606.2090503@zytor.com>
+	<20130321170706.GB2994@redhat.com> <514B3EAE.8000707@zytor.com>
+	<20130321171319.GD2994@redhat.com>
+	<20130321174912.GA4161@redhat.com> <514B4957.1070003@zytor.com>
+	<8738vofdyg.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87zjxwdz6e.fsf@rustcorp.com.au>
+In-Reply-To: <8738vofdyg.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,52 +24,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 22, 2013 at 11:32:33AM +1030, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > On Thu, Mar 21, 2013 at 06:59:34PM +1030, Rusty Russell wrote:
-> >> Differences:
-> >> 1) Uses 4 pci capabilities to demark common, irq, notify and dev-specific areas.
-> >> 2) Guest sets queue size, using host-provided maximum.
-> >> 3) Guest sets queue alignment, rather than ABI-defined 4096.
-> >> 4) More than 32 feature bits (a lot more!).
-> ...
-> >> +/* Constants for MSI-X */
-> >> +/* Use first vector for configuration changes, second and the rest for
-> >> + * virtqueues Thus, we need at least 2 vectors for MSI. */
-> >> +enum {
-> >> +	VP_MSIX_CONFIG_VECTOR = 0,
-> >> +	VP_MSIX_VQ_VECTOR = 1,
-> >> +};
+On Fri, Mar 22, 2013 at 11:27:59AM +1030, Rusty Russell wrote:
+> "H. Peter Anvin" <hpa@zytor.com> writes:
+> > On 03/21/2013 10:49 AM, Michael S. Tsirkin wrote:
+> >> 
+> >> Just to clarify, I expect BIOS to use it *for config access*.
+> >> Notification will support IO anyway because it's
+> >> faster on KVM, so BIOS can use it directly.
+> >> 
 > >
-> > In the future, I have a plan to allow one vector only.  To make this
-> > work without exits for data path VQ, we could make hypervisor set a bit
-> > in guest memory whenever it wants to signal a configuration change.
-> > Guest will execute a config write that will make the hypervisor clear
-> > this register.
+> > Ah, yes, of course.
 > >
-> > I guess this can wait, we are putting too stuff much into this
-> > new layout patchset already.
-> 
-> Yeah, trying not to boil the ocean... and I'm not sure that reinventing
-> MSI-X manually is a good idea anyway.
-
-I'm not sure this is reinventing MSI-X but I agree let's do things
-gradually.
-
-> >> +static void vp_reset(struct virtio_device *vdev)
-> >> +{
-> >> +	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> >> +	/* 0 status means a reset. */
-> >> +	iowrite8(0, &vp_dev->common->device_status);
-> >> +	/* Flush out the status write, and flush in device writes,
-> >> +	 * including MSi-X interrupts, if any. */
+> > Quite frankly, I don't see any reason to support *anything else* for
+> > configuration, does anyone else?
 > >
-> > MSI-X ?
+> > I thought we were talking about the doorbell/notification/kicker
+> > register.  For I/O space especially it is highly desirable if that can
+> > be in a minimal BAR (4 bytes).
 > 
-> Thanks, fixed.
+> The takeaway from this seems to be that:
+> 1) For the notification, device can supply both.
+> 2) Since only device will know which is faster, driver should use the
+>    first one it finds which it supports.
 > 
-> Cheers,
+> My patch implied that the ISR, device config and notification could be
+> either.  I think only the notification makes sense, as noted here.
+> 
+> Have I got this right?
 > Rusty.
+
+Peter is also saying we need a way to
+do configuration/ISR without memory accesses.
+
+-- 
+MST
