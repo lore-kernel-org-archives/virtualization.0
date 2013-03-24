@@ -1,16 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH V2 1/3] tcm_vhost: Wait for pending requests in
-	vhost_scsi_flush()
-Date: Sun, 24 Mar 2013 17:11:37 +0200
-Message-ID: <20130324151137.GA8657@redhat.com>
-References: <1363935329-11796-1-git-send-email-asias@redhat.com>
-	<1363935329-11796-2-git-send-email-asias@redhat.com>
+Subject: Re: [PATCH V4 2/2] tcm_vhost: Add hotplug/hotunplug support
+Date: Sun, 24 Mar 2013 17:20:09 +0200
+Message-ID: <20130324152009.GB8657__1786.90130492232$1364138406$gmane$org@redhat.com>
+References: <1363930745-7520-1-git-send-email-asias@redhat.com>
+	<1363930745-7520-3-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1363935329-11796-2-git-send-email-asias@redhat.com>
+In-Reply-To: <1363930745-7520-3-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,304 +23,405 @@ To: Asias He <asias@redhat.com>
 Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 22, 2013 at 02:55:27PM +0800, Asias He wrote:
-> This patch makes vhost_scsi_flush() wait for all the pending requests
-> issued before the flush operation to be finished.
+On Fri, Mar 22, 2013 at 01:39:05PM +0800, Asias He wrote:
+> In commit 365a7150094 ([SCSI] virtio-scsi: hotplug support for
+> virtio-scsi), hotplug support is added to virtio-scsi.
+> 
+> This patch adds hotplug and hotunplug support to tcm_vhost.
+> 
+> You can create or delete a LUN in targetcli to hotplug or hotunplug a
+> LUN in guest.
+> 
+> Changes in v4:
+> - Drop tcm_vhost_check_endpoint in tcm_vhost_send_evt
+> - Add tcm_vhost_check_endpoint in vhost_scsi_evt_handle_kick
+> 
+> Changes in v3:
+> - Separate the bug fix to another thread
+> 
+> Changes in v2:
+> - Remove code duplication in tcm_vhost_{hotplug,hotunplug}
+> - Fix racing of vs_events_nr
+> - Add flush fix patch to this series
 > 
 > Signed-off-by: Asias He <asias@redhat.com>
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 > ---
->  drivers/vhost/tcm_vhost.c | 117 ++++++++++++++++++++++++++++++++++++++--------
->  drivers/vhost/tcm_vhost.h |   4 ++
->  2 files changed, 101 insertions(+), 20 deletions(-)
+>  drivers/vhost/tcm_vhost.c | 212 ++++++++++++++++++++++++++++++++++++++++++++--
+>  drivers/vhost/tcm_vhost.h |  10 +++
+>  2 files changed, 217 insertions(+), 5 deletions(-)
 > 
 > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> index e734ead..dc0af52 100644
+> index d81e3a9..e734ead 100644
 > --- a/drivers/vhost/tcm_vhost.c
 > +++ b/drivers/vhost/tcm_vhost.c
-> @@ -82,6 +82,15 @@ struct vhost_scsi {
+> @@ -62,6 +62,9 @@ enum {
 >  
->  	bool vs_events_dropped; /* any missed events, protected by dev.mutex */
->  	u64 vs_events_nr; /* num of pending events, protected by dev.mutex */
+>  #define VHOST_SCSI_MAX_TARGET	256
+>  #define VHOST_SCSI_MAX_VQ	128
+> +#define VHOST_SCSI_MAX_EVENT	128
 > +
-> +	/*
-> +	 * vs_inflight[0]/[1] are used to track requests issued
-> +	 * before/during the flush operation
-> +	 */
-> +	u64 vs_inflight[2];
-> +	wait_queue_head_t vs_flush_wait; /* wait queue for flush operation */
-> +	spinlock_t vs_flush_lock; /* lock to protect vs_during_flush */
-> +	int vs_during_flush; /* flag to indicate if we are in flush operation */
+> +#define VHOST_SCSI_FEATURES (VHOST_FEATURES | (1ULL << VIRTIO_SCSI_F_HOTPLUG))
+>  
+>  struct vhost_scsi {
+>  	/* Protected by vhost_scsi->dev.mutex */
+> @@ -73,6 +76,12 @@ struct vhost_scsi {
+>  
+>  	struct vhost_work vs_completion_work; /* cmd completion work item */
+>  	struct llist_head vs_completion_list; /* cmd completion queue */
+> +
+> +	struct vhost_work vs_event_work; /* evt injection work item */
+> +	struct llist_head vs_event_list; /* evt injection queue */
+> +
+> +	bool vs_events_dropped; /* any missed events, protected by dev.mutex */
+> +	u64 vs_events_nr; /* num of pending events, protected by dev.mutex */
 
-So this adds a spinlock on data path and I'm not sure
-I understand why this is correct (see also comment below).
-And generally we should try to avoid reimplementing refcounting.  How
-about we use a kref pointer instead?  Access can use RCU (or maybe put
-it in vq->private and use the tricky vhost version of RCU).  Initialize
-it to 1.  To flush you replace the pointer, decrement then wait for
-refcount to reach 0.
-
-This still adds atomics on data path so maybe worth benchmarking to
-verify performance overhead is not measureable, but at least it's
-one atomic and not a full lock.
-Hmm?
-
+Woa u64. We allow up to 128 of these. int will do.
 
 >  };
 >  
 >  /* Local pointer to allocated TCM configfs fabric module */
-> @@ -99,6 +108,46 @@ static int iov_num_pages(struct iovec *iov)
->  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
+> @@ -120,6 +129,16 @@ static bool tcm_vhost_check_endpoint(struct vhost_virtqueue *vq)
+>  	return ret;
 >  }
 >  
-> +static int tcm_vhost_inc_inflight(struct vhost_scsi *vs)
+> +static bool tcm_vhost_check_events_dropped(struct vhost_scsi *vs)
 > +{
-> +	int during_flush;
+> +	bool ret;
 > +
-> +	spin_lock(&vs->vs_flush_lock);
-> +	during_flush = vs->vs_during_flush;
-> +	vs->vs_inflight[during_flush]++;
-> +	spin_unlock(&vs->vs_flush_lock);
-> +
-> +	return during_flush;
-> +}
-> +
-> +static void tcm_vhost_dec_inflight(struct vhost_scsi *vs, int during_flush)
-> +{
-> +	u64 inflight;
-> +
-> +	spin_lock(&vs->vs_flush_lock);
-> +	inflight = vs->vs_inflight[during_flush]--;
-> +	/*
-> +	 * Wakeup the waiter when all the requests issued before the flush
-> +	 * operation are finished and we are during the flush operation.
-> +	 */
-> +	if (!inflight && !during_flush && vs->vs_during_flush)
-> +		wake_up(&vs->vs_flush_wait);
-> +	spin_unlock(&vs->vs_flush_lock);
-> +}
-> +
-> +static bool tcm_vhost_done_inflight(struct vhost_scsi *vs)
-> +{
-> +	bool ret = false;
-> +
-> +	/* The requests issued before the flush operation are finished ? */
-> +	spin_lock(&vs->vs_flush_lock);
-> +	if (!vs->vs_inflight[0])
-> +		ret = true;
-> +	spin_unlock(&vs->vs_flush_lock);
+> +	mutex_lock(&vs->dev.mutex);
+> +	ret = vs->vs_events_dropped;
+> +	mutex_unlock(&vs->dev.mutex);
 > +
 > +	return ret;
 > +}
-> +
->  static bool tcm_vhost_check_feature(struct vhost_scsi *vs, int feature)
+>  static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
 >  {
->  	bool ret = false;
-> @@ -391,6 +440,8 @@ static int tcm_vhost_queue_tm_rsp(struct se_cmd *se_cmd)
->  
->  static void tcm_vhost_free_evt(struct vhost_scsi *vs, struct tcm_vhost_evt *evt)
->  {
-> +
-> +	tcm_vhost_dec_inflight(vs, evt->during_flush);
->  	mutex_lock(&vs->dev.mutex);
->  	vs->vs_events_nr--;
->  	kfree(evt);
-> @@ -412,6 +463,7 @@ static struct tcm_vhost_evt *tcm_vhost_allocate_evt(struct vhost_scsi *vs,
->  	if (evt) {
->  		evt->event.event = event;
->  		evt->event.reason = reason;
-> +		evt->during_flush = tcm_vhost_inc_inflight(vs);
->  		vs->vs_events_nr++;
->  	}
->  	mutex_unlock(&vs->dev.mutex);
-> @@ -422,6 +474,7 @@ static struct tcm_vhost_evt *tcm_vhost_allocate_evt(struct vhost_scsi *vs,
->  static void vhost_scsi_free_cmd(struct tcm_vhost_cmd *tv_cmd)
->  {
->  	struct se_cmd *se_cmd = &tv_cmd->tvc_se_cmd;
-> +	struct vhost_scsi *vs = tv_cmd->tvc_vhost;
->  
->  	/* TODO locking against target/backend threads? */
->  	transport_generic_free_cmd(se_cmd, 1);
-> @@ -434,13 +487,16 @@ static void vhost_scsi_free_cmd(struct tcm_vhost_cmd *tv_cmd)
->  		kfree(tv_cmd->tvc_sgl);
->  	}
->  
-> +	tcm_vhost_dec_inflight(vs, tv_cmd->during_flush);
-> +
->  	kfree(tv_cmd);
->  }
->  
->  static void tcm_vhost_do_evt_work(struct vhost_scsi *vs,
-> -	struct virtio_scsi_event *event)
-> +	struct tcm_vhost_evt *evt)
->  {
->  	struct vhost_virtqueue *vq = &vs->vqs[VHOST_SCSI_VQ_EVT];
-> +	struct virtio_scsi_event *event = &evt->event;
->  	struct virtio_scsi_event __user *eventp;
->  	unsigned out, in;
->  	int head, ret;
-> @@ -503,7 +559,7 @@ static void tcm_vhost_evt_work(struct vhost_work *work)
->  	while (llnode) {
->  		evt = llist_entry(llnode, struct tcm_vhost_evt, list);
->  		llnode = llist_next(llnode);
-> -		tcm_vhost_do_evt_work(vs, &evt->event);
-> +		tcm_vhost_do_evt_work(vs, evt);
->  		tcm_vhost_free_evt(vs, evt);
->  	}
->  }
-> @@ -521,8 +577,8 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
->  	struct virtio_scsi_cmd_resp v_rsp;
->  	struct tcm_vhost_cmd *tv_cmd;
->  	struct llist_node *llnode;
-> -	struct se_cmd *se_cmd;
->  	int ret, vq;
-> +	struct se_cmd *se_cmd;
->  
->  	bitmap_zero(signal, VHOST_SCSI_MAX_VQ);
->  	llnode = llist_del_all(&vs->vs_completion_list);
-> @@ -560,6 +616,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
->  }
->  
->  static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
-> +	struct vhost_scsi *vs,
->  	struct tcm_vhost_tpg *tv_tpg,
->  	struct virtio_scsi_cmd_req *v_req,
->  	u32 exp_data_len,
-> @@ -584,6 +641,8 @@ static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
->  	tv_cmd->tvc_exp_data_len = exp_data_len;
->  	tv_cmd->tvc_data_direction = data_direction;
->  	tv_cmd->tvc_nexus = tv_nexus;
-> +	tv_cmd->tvc_vhost = vs;
-> +	tv_cmd->during_flush = tcm_vhost_inc_inflight(vs);
->  
->  	return tv_cmd;
->  }
-> @@ -824,7 +883,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
->  		for (i = 0; i < data_num; i++)
->  			exp_data_len += vq->iov[data_first + i].iov_len;
->  
-> -		tv_cmd = vhost_scsi_allocate_cmd(tv_tpg, &v_req,
-> +		tv_cmd = vhost_scsi_allocate_cmd(vs, tv_tpg, &v_req,
->  					exp_data_len, data_direction);
->  		if (IS_ERR(tv_cmd)) {
->  			vq_err(vq, "vhost_scsi_allocate_cmd failed %ld\n",
-> @@ -834,7 +893,6 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
->  		pr_debug("Allocated tv_cmd: %p exp_data_len: %d, data_direction"
->  			": %d\n", tv_cmd, exp_data_len, data_direction);
->  
-> -		tv_cmd->tvc_vhost = vs;
->  		tv_cmd->tvc_vq = vq;
->  
->  		if (unlikely(vq->iov[out].iov_len !=
-> @@ -887,6 +945,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
->  		 * tcm_vhost_queue_data_in() and tcm_vhost_queue_status()
->  		 */
->  		tv_cmd->tvc_vq_desc = head;
-> +
->  		/*
->  		 * Dispatch tv_cmd descriptor for cmwq execution in process
->  		 * context provided by tcm_vhost_workqueue.  This also ensures
-> @@ -956,6 +1015,34 @@ static void vhost_scsi_handle_kick(struct vhost_work *work)
->  	vhost_scsi_handle_vq(vs, vq);
->  }
->  
-> +static void vhost_scsi_flush_vq(struct vhost_scsi *vs, int index)
-> +{
-> +	vhost_poll_flush(&vs->dev.vqs[index].poll);
-> +}
-> +
-> +static void vhost_scsi_flush(struct vhost_scsi *vs)
-> +{
-> +	int i;
-> +
-> +	/* Flush operation is started */
-> +	spin_lock(&vs->vs_flush_lock);
-> +	vs->vs_during_flush = 1;
-> +	spin_unlock(&vs->vs_flush_lock);
-> +
-> +	for (i = 0; i < VHOST_SCSI_MAX_VQ; i++)
-> +		vhost_scsi_flush_vq(vs, i);
-> +	vhost_work_flush(&vs->dev, &vs->vs_completion_work);
-> +	vhost_work_flush(&vs->dev, &vs->vs_event_work);
-> +
-> +	/* Wait until all requests issued before the flush to be finished */
-> +	wait_event(vs->vs_flush_wait, tcm_vhost_done_inflight(vs));
-> +
-> +	/* Flush operation is finished */
-> +	spin_lock(&vs->vs_flush_lock);
-> +	vs->vs_during_flush = 0;
-> +	spin_unlock(&vs->vs_flush_lock);
-> +}
-> +
-
-Weird.
-What about requests issued during flush operation?
-When next flush starts shouldn't we flush them?
-
->  /*
->   * Called from vhost_scsi_ioctl() context to walk the list of available
->   * tcm_vhost_tpg with an active struct tcm_vhost_nexus
-> @@ -1042,6 +1129,7 @@ static int vhost_scsi_clear_endpoint(
->  	u8 target;
->  
->  	mutex_lock(&vs->dev.mutex);
-> +
->  	/* Verify that ring has been setup correctly. */
->  	for (index = 0; index < vs->dev.nvqs; ++index) {
->  		if (!vhost_vq_access_ok(&vs->vqs[index])) {
-> @@ -1109,6 +1197,10 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
->  	vhost_work_init(&s->vs_event_work, tcm_vhost_evt_work);
->  
->  	s->vs_events_nr = 0;
-> +	s->vs_inflight[0] = 0;
-> +	s->vs_inflight[1] = 0;
-> +	spin_lock_init(&s->vs_flush_lock);
-> +	init_waitqueue_head(&s->vs_flush_wait);
->  
->  	s->vqs[VHOST_SCSI_VQ_CTL].handle_kick = vhost_scsi_ctl_handle_kick;
->  	s->vqs[VHOST_SCSI_VQ_EVT].handle_kick = vhost_scsi_evt_handle_kick;
-> @@ -1139,21 +1231,6 @@ static int vhost_scsi_release(struct inode *inode, struct file *f)
+>  	return 1;
+> @@ -370,6 +389,36 @@ static int tcm_vhost_queue_tm_rsp(struct se_cmd *se_cmd)
 >  	return 0;
 >  }
 >  
-> -static void vhost_scsi_flush_vq(struct vhost_scsi *vs, int index)
-> -{
-> -	vhost_poll_flush(&vs->dev.vqs[index].poll);
-> -}
-> -
-> -static void vhost_scsi_flush(struct vhost_scsi *vs)
-> -{
-> -	int i;
-> -
-> -	for (i = 0; i < VHOST_SCSI_MAX_VQ; i++)
-> -		vhost_scsi_flush_vq(vs, i);
-> -	vhost_work_flush(&vs->dev, &vs->vs_completion_work);
-> -	vhost_work_flush(&vs->dev, &vs->vs_event_work);
-> -}
-> -
+> +static void tcm_vhost_free_evt(struct vhost_scsi *vs, struct tcm_vhost_evt *evt)
+> +{
+> +	mutex_lock(&vs->dev.mutex);
+> +	vs->vs_events_nr--;
+> +	kfree(evt);
+> +	mutex_unlock(&vs->dev.mutex);
+> +}
+> +
+> +static struct tcm_vhost_evt *tcm_vhost_allocate_evt(struct vhost_scsi *vs,
+> +	u32 event, u32 reason)
+> +{
+> +	struct tcm_vhost_evt *evt;
+> +
+> +	mutex_lock(&vs->dev.mutex);
+> +	if (vs->vs_events_nr > VHOST_SCSI_MAX_EVENT) {
+
+
+Se eventfd dropped flag here and stop worrying about it in callers?
+
+> +		mutex_unlock(&vs->dev.mutex);
+> +		return NULL;
+> +	}
+> +
+> +	evt = kzalloc(sizeof(*evt), GFP_KERNEL);
+> +	if (evt) {
+> +		evt->event.event = event;
+> +		evt->event.reason = reason;
+> +		vs->vs_events_nr++;
+> +	}
+> +	mutex_unlock(&vs->dev.mutex);
+> +
+> +	return evt;
+> +}
+> +
+>  static void vhost_scsi_free_cmd(struct tcm_vhost_cmd *tv_cmd)
+>  {
+>  	struct se_cmd *se_cmd = &tv_cmd->tvc_se_cmd;
+> @@ -388,6 +437,77 @@ static void vhost_scsi_free_cmd(struct tcm_vhost_cmd *tv_cmd)
+>  	kfree(tv_cmd);
+>  }
+>  
+> +static void tcm_vhost_do_evt_work(struct vhost_scsi *vs,
+> +	struct virtio_scsi_event *event)
+> +{
+> +	struct vhost_virtqueue *vq = &vs->vqs[VHOST_SCSI_VQ_EVT];
+> +	struct virtio_scsi_event __user *eventp;
+> +	unsigned out, in;
+> +	int head, ret;
+> +
+> +	if (!tcm_vhost_check_endpoint(vq))
+> +		return;
+> +
+> +	mutex_lock(&vq->mutex);
+> +again:
+> +	vhost_disable_notify(&vs->dev, vq);
+> +	head = vhost_get_vq_desc(&vs->dev, vq, vq->iov,
+> +			ARRAY_SIZE(vq->iov), &out, &in,
+> +			NULL, NULL);
+> +	if (head < 0) {
+> +		mutex_lock(&vs->dev.mutex);
+
+This nests dev mutex within vq mutex, can cause deadlock.
+Should be the other way around.
+
+> +		vs->vs_events_dropped = true;
+> +		mutex_unlock(&vs->dev.mutex);
+> +		goto out;
+> +	}
+> +	if (head == vq->num) {
+> +		if (vhost_enable_notify(&vs->dev, vq))
+> +			goto again;
+> +		mutex_lock(&vs->dev.mutex);
+> +		vs->vs_events_dropped = true;
+> +		mutex_unlock(&vs->dev.mutex);
+> +		goto out;
+> +	}
+> +
+> +	if ((vq->iov[out].iov_len != sizeof(struct virtio_scsi_event))) {
+> +		vq_err(vq, "Expecting virtio_scsi_event, got %zu bytes\n",
+> +				vq->iov[out].iov_len);
+> +		goto out;
+> +	}
+> +
+> +	mutex_lock(&vs->dev.mutex);
+> +	if (vs->vs_events_dropped) {
+> +		event->event |= VIRTIO_SCSI_T_EVENTS_MISSED;
+> +		vs->vs_events_dropped = false;
+> +	}
+> +	mutex_unlock(&vs->dev.mutex);
+> +
+> +	eventp = vq->iov[out].iov_base;
+> +	ret = __copy_to_user(eventp, event, sizeof(*event));
+
+This assumes specific framing, please don't do this.
+
+> +	if (!ret)
+> +		vhost_add_used_and_signal(&vs->dev, vq, head, 0);
+> +	else
+> +		vq_err(vq, "Faulted on tcm_vhost_send_event\n");
+> +out:
+> +	mutex_unlock(&vq->mutex);
+> +}
+> +
+> +static void tcm_vhost_evt_work(struct vhost_work *work)
+> +{
+> +	struct vhost_scsi *vs = container_of(work, struct vhost_scsi,
+> +					vs_event_work);
+> +	struct tcm_vhost_evt *evt;
+> +	struct llist_node *llnode;
+> +
+> +	llnode = llist_del_all(&vs->vs_event_list);
+> +	while (llnode) {
+> +		evt = llist_entry(llnode, struct tcm_vhost_evt, list);
+> +		llnode = llist_next(llnode);
+> +		tcm_vhost_do_evt_work(vs, &evt->event);
+> +		tcm_vhost_free_evt(vs, evt);
+> +	}
+> +}
+> +
+>  /* Fill in status and signal that we are done processing this command
+>   *
+>   * This is scheduled in the vhost work queue so we are called with the owner
+> @@ -785,9 +905,46 @@ static void vhost_scsi_ctl_handle_kick(struct vhost_work *work)
+>  	pr_debug("%s: The handling func for control queue.\n", __func__);
+>  }
+>  
+> +static int tcm_vhost_send_evt(struct vhost_scsi *vs, struct tcm_vhost_tpg *tpg,
+> +	struct se_lun *lun, u32 event, u32 reason)
+> +{
+> +	struct tcm_vhost_evt *evt;
+> +
+> +	evt = tcm_vhost_allocate_evt(vs, event, reason);
+> +	if (!evt) {
+> +		mutex_lock(&vs->dev.mutex);
+> +		vs->vs_events_dropped = true;
+> +		mutex_unlock(&vs->dev.mutex);
+> +		return -ENOMEM;
+> +	}
+> +
+> +	if (tpg && lun) {
+> +		/* TODO: share lun setup code with virtio-scsi.ko */
+> +		evt->event.lun[0] = 0x01;
+> +		evt->event.lun[1] = tpg->tport_tpgt & 0xFF;
+> +		if (lun->unpacked_lun >= 256)
+> +			evt->event.lun[2] = lun->unpacked_lun >> 8 | 0x40 ;
+> +		evt->event.lun[3] = lun->unpacked_lun & 0xFF;
+> +	}
+> +
+> +	llist_add(&evt->list, &vs->vs_event_list);
+> +	vhost_work_queue(&vs->dev, &vs->vs_event_work);
+> +
+> +	return 0;
+> +}
+> +
+>  static void vhost_scsi_evt_handle_kick(struct vhost_work *work)
+>  {
+> -	pr_debug("%s: The handling func for event queue.\n", __func__);
+> +	struct vhost_virtqueue *vq = container_of(work, struct vhost_virtqueue,
+> +						poll.work);
+> +	struct vhost_scsi *vs = container_of(vq->dev, struct vhost_scsi, dev);
+> +
+> +	if (!tcm_vhost_check_endpoint(vq))
+> +		return;
+> +
+> +	if (tcm_vhost_check_events_dropped(vs))
+> +		tcm_vhost_send_evt(vs, NULL, NULL, VIRTIO_SCSI_T_NO_EVENT, 0);
+> +
+>  }
+>  
+>  static void vhost_scsi_handle_kick(struct vhost_work *work)
+> @@ -844,6 +1001,7 @@ static int vhost_scsi_set_endpoint(
+>  				return -EEXIST;
+>  			}
+>  			tv_tpg->tv_tpg_vhost_count++;
+> +			tv_tpg->vhost_scsi = vs;
+>  			vs->vs_tpg[tv_tpg->tport_tpgt] = tv_tpg;
+>  			smp_mb__after_atomic_inc();
+>  			match = true;
+> @@ -914,6 +1072,7 @@ static int vhost_scsi_clear_endpoint(
+>  			goto err_tpg;
+>  		}
+>  		tv_tpg->tv_tpg_vhost_count--;
+> +		tv_tpg->vhost_scsi = NULL;
+>  		vs->vs_tpg[target] = NULL;
+>  		match = true;
+>  		mutex_unlock(&tv_tpg->tv_tpg_mutex);
+> @@ -947,6 +1106,9 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
+>  		return -ENOMEM;
+>  
+>  	vhost_work_init(&s->vs_completion_work, vhost_scsi_complete_cmd_work);
+> +	vhost_work_init(&s->vs_event_work, tcm_vhost_evt_work);
+> +
+> +	s->vs_events_nr = 0;
+>  
+>  	s->vqs[VHOST_SCSI_VQ_CTL].handle_kick = vhost_scsi_ctl_handle_kick;
+>  	s->vqs[VHOST_SCSI_VQ_EVT].handle_kick = vhost_scsi_evt_handle_kick;
+> @@ -989,11 +1151,12 @@ static void vhost_scsi_flush(struct vhost_scsi *vs)
+>  	for (i = 0; i < VHOST_SCSI_MAX_VQ; i++)
+>  		vhost_scsi_flush_vq(vs, i);
+>  	vhost_work_flush(&vs->dev, &vs->vs_completion_work);
+> +	vhost_work_flush(&vs->dev, &vs->vs_event_work);
+>  }
+>  
 >  static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
 >  {
->  	if (features & ~VHOST_SCSI_FEATURES)
+> -	if (features & ~VHOST_FEATURES)
+> +	if (features & ~VHOST_SCSI_FEATURES)
+>  		return -EOPNOTSUPP;
+>  
+>  	mutex_lock(&vs->dev.mutex);
+> @@ -1039,7 +1202,7 @@ static long vhost_scsi_ioctl(struct file *f, unsigned int ioctl,
+>  			return -EFAULT;
+>  		return 0;
+>  	case VHOST_GET_FEATURES:
+> -		features = VHOST_FEATURES;
+> +		features = VHOST_SCSI_FEATURES;
+>  		if (copy_to_user(featurep, &features, sizeof features))
+>  			return -EFAULT;
+>  		return 0;
+> @@ -1109,6 +1272,42 @@ static char *tcm_vhost_dump_proto_id(struct tcm_vhost_tport *tport)
+>  	return "Unknown";
+>  }
+>  
+> +static int tcm_vhost_do_plug(struct tcm_vhost_tpg *tpg,
+> +	struct se_lun *lun, bool plug)
+> +{
+> +
+> +	struct vhost_scsi *vs = tpg->vhost_scsi;
+> +	u32 reason;
+> +
+> +	mutex_lock(&tpg->tv_tpg_mutex);
+> +	vs = tpg->vhost_scsi;
+> +	mutex_unlock(&tpg->tv_tpg_mutex);
+> +	if (!vs)
+> +		return -EOPNOTSUPP;
+> +
+> +	if (!tcm_vhost_check_feature(vs, VIRTIO_SCSI_F_HOTPLUG))
+> +		return -EOPNOTSUPP;
+> +
+> +	if (plug)
+> +		reason = VIRTIO_SCSI_EVT_RESET_RESCAN;
+> +	else
+> +		reason = VIRTIO_SCSI_EVT_RESET_REMOVED;
+> +
+> +	return tcm_vhost_send_evt(vs, tpg, lun,
+> +			VIRTIO_SCSI_T_TRANSPORT_RESET,
+> +			reason);
+> +}
+> +
+> +static int tcm_vhost_hotplug(struct tcm_vhost_tpg *tpg, struct se_lun *lun)
+> +{
+> +	return tcm_vhost_do_plug(tpg, lun, true);
+> +}
+> +
+> +static int tcm_vhost_hotunplug(struct tcm_vhost_tpg *tpg, struct se_lun *lun)
+> +{
+> +	return tcm_vhost_do_plug(tpg, lun, false);
+> +}
+> +
+>  static int tcm_vhost_port_link(struct se_portal_group *se_tpg,
+>  	struct se_lun *lun)
+>  {
+> @@ -1119,18 +1318,21 @@ static int tcm_vhost_port_link(struct se_portal_group *se_tpg,
+>  	tv_tpg->tv_tpg_port_count++;
+>  	mutex_unlock(&tv_tpg->tv_tpg_mutex);
+>  
+> +	tcm_vhost_hotplug(tv_tpg, lun);
+> +
+>  	return 0;
+>  }
+>  
+>  static void tcm_vhost_port_unlink(struct se_portal_group *se_tpg,
+> -	struct se_lun *se_lun)
+> +	struct se_lun *lun)
+>  {
+>  	struct tcm_vhost_tpg *tv_tpg = container_of(se_tpg,
+>  				struct tcm_vhost_tpg, se_tpg);
+> -
+>  	mutex_lock(&tv_tpg->tv_tpg_mutex);
+>  	tv_tpg->tv_tpg_port_count--;
+>  	mutex_unlock(&tv_tpg->tv_tpg_mutex);
+> +
+> +	tcm_vhost_hotunplug(tv_tpg, lun);
+>  }
+>  
+>  static struct se_node_acl *tcm_vhost_make_nodeacl(
 > diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
-> index 94e9ee53..dd84622 100644
+> index 1d2ae7a..94e9ee53 100644
 > --- a/drivers/vhost/tcm_vhost.h
 > +++ b/drivers/vhost/tcm_vhost.h
-> @@ -37,6 +37,8 @@ struct tcm_vhost_cmd {
->  	unsigned char tvc_sense_buf[TRANSPORT_SENSE_BUFFER];
->  	/* Completed commands list, serviced from vhost worker thread */
->  	struct llist_node tvc_completion_list;
-> +	/* Indicate this command is issued during the flush operaton */
-> +	int during_flush;
+> @@ -53,6 +53,7 @@ struct tcm_vhost_nacl {
+>  	struct se_node_acl se_node_acl;
 >  };
 >  
->  struct tcm_vhost_nexus {
-> @@ -91,6 +93,8 @@ struct tcm_vhost_evt {
->  	struct virtio_scsi_event event;
->  	/* virtio_scsi event list, serviced from vhost worker thread */
->  	struct llist_node list;
-> +	/* Indicate this event is issued during the flush operaton */
-> +	int during_flush;
+> +struct vhost_scsi;
+>  struct tcm_vhost_tpg {
+>  	/* Vhost port target portal group tag for TCM */
+>  	u16 tport_tpgt;
+> @@ -70,6 +71,8 @@ struct tcm_vhost_tpg {
+>  	struct tcm_vhost_tport *tport;
+>  	/* Returned by tcm_vhost_make_tpg() */
+>  	struct se_portal_group se_tpg;
+> +	/* Pointer back to struct vhost_scsi, protected by tv_tpg_mutex */
+> +	struct vhost_scsi *vhost_scsi;
 >  };
 >  
+>  struct tcm_vhost_tport {
+> @@ -83,6 +86,13 @@ struct tcm_vhost_tport {
+>  	struct se_wwn tport_wwn;
+>  };
+>  
+> +struct tcm_vhost_evt {
+> +	/* virtio_scsi event */
+> +	struct virtio_scsi_event event;
+> +	/* virtio_scsi event list, serviced from vhost worker thread */
+> +	struct llist_node list;
+> +};
+> +
 >  /*
+>   * As per request from MST, keep TCM_VHOST related ioctl defines out of
+>   * linux/vhost.h (user-space) for now..
 > -- 
 > 1.8.1.4
