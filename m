@@ -1,18 +1,18 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH 12/22] virtio_pci: allow duplicate capabilities.
-Date: Sun, 24 Mar 2013 16:23:57 -0700
-Message-ID: <514F8B0D.7000400@zytor.com>
-References: <20130321161143.GC1925@redhat.com> <514B3213.8070002@zytor.com>
-	<20130321162636.GF1925@redhat.com> <514B3606.2090503@zytor.com>
-	<20130321170706.GB2994@redhat.com> <514B3EAE.8000707@zytor.com>
-	<20130321171319.GD2994@redhat.com>
-	<20130321174912.GA4161@redhat.com> <514B4957.1070003@zytor.com>
-	<8738vofdyg.fsf@rustcorp.com.au> <20130324131408.GD6601@redhat.com>
+Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
+	each vq.
+Date: Sun, 24 Mar 2013 16:27:15 -0700
+Message-ID: <514F8BD3.8010306@zytor.com>
+References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
+	<20130321101300.GA30493@redhat.com>
+	<87wqt0du2e.fsf@rustcorp.com.au>
+	<20130324201910.GA31631@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130324131408.GD6601@redhat.com>
+In-Reply-To: <20130324201910.GA31631@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,16 +26,30 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/24/2013 06:14 AM, Michael S. Tsirkin wrote:
+On 03/24/2013 01:19 PM, Michael S. Tsirkin wrote:
+>>  struct virtio_pci_cap {
+>>  	u8 cap_vndr;	/* Generic PCI field: PCI_CAP_ID_VNDR */
+>> @@ -150,7 +153,9 @@ struct virtio_pci_common_cfg {
+>>  	__le16 queue_size;	/* read-write, power of 2. */
+>>  	__le16 queue_msix_vector;/* read-write */
+>>  	__le16 queue_enable;	/* read-write */
+>> -	__le16 queue_notify;	/* read-only */
+>> +	__le16 unused2;
+>> +	__le32 queue_notify_val;/* read-only */
+>> +	__le32 queue_notify_off;/* read-only */
+>>  	__le64 queue_desc;	/* read-write */
+>>  	__le64 queue_avail;	/* read-write */
+>>  	__le64 queue_used;	/* read-write */
 > 
-> Peter is also saying we need a way to
-> do configuration/ISR without memory accesses.
+> So how exactly do the offsets mesh with the dual capability?  For IO we
+> want to use the same address and get queue from the data, for memory we
+> want a per queue address ...
 > 
 
-I'm not 100% sure what you mean with ISR here (mostly because virtio
-only has a limited fraction of my attention right now.)
+How about having a readonly field which is "address increment per trigger"?
 
-For configuration, are we dealing with too much data to just put it in
-configuration space?
+The guest would be required to always write the queue number as the
+data, however, the host would not be required to interpret it if the
+address increment is nonzero?
 
 	-hpa
