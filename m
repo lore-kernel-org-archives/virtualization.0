@@ -1,15 +1,11 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH V7 4/5] virtio-scsi: introduce multiqueue support
-Date: Mon, 25 Mar 2013 15:27:30 +0100
-Message-ID: <51505ED2.70208@redhat.com>
-References: <1364038124-32479-1-git-send-email-gaowanlong@cn.fujitsu.com>
-	<1364038124-32479-5-git-send-email-gaowanlong@cn.fujitsu.com>
-	<514FFC06.9030703@acm.org>
+From: Alexandru Gheorghiu <gheorghiuandru@gmail.com>
+Subject: [PATCH] drivers: virtio: Use PTR_RET function
+Date: Mon, 25 Mar 2013 15:25:35 +0200
+Message-ID: <1364217936-6284-1-git-send-email-gheorghiuandru__19284.9745661535$1364238520$gmane$org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <514FFC06.9030703@acm.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +15,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bart Van Assche <bvanassche@acm.org>
-Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, JBottomley@parallels.com, virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Alexandru Gheorghiu <gheorghiuandru@gmail.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 25/03/2013 08:25, Bart Van Assche ha scritto:
->>
->> +        queue_num = smp_processor_id();
->> +        while (unlikely(queue_num >= vscsi->num_queues))
->> +            queue_num -= vscsi->num_queues;
->> +
->> +        tgt->req_vq = vq = &vscsi->req_vqs[queue_num];
->> +    }
->> +
->> +    spin_unlock_irqrestore(&tgt->tgt_lock, flags);
->> +    return vq;
->> +}
-> 
-> Is there any reason why the smp_processor_id() % vscsi->num_queues
-> computation in virtscsi_pick_vq() has been implemented as a loop instead
-> of as an arithmetic operation ? If so, I would appreciate it if that
-> could be explained in a comment.
+Used PTR_RET function instead of IS_ERR and PTR_ERR.
+Patch found using coccinelle.
 
-The expectation is that vscsi->num_queues is the same as the number of
-CPUs in the virtual machine; see patch 5 too.
+Signed-off-by: Alexandru Gheorghiu <gheorghiuandru@gmail.com>
+---
+ drivers/virtio/virtio_mmio.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-Paolo
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 1ba0d68..d1e664f 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -567,10 +567,7 @@ static int vm_cmdline_set(const char *device,
+ 	pdev = platform_device_register_resndata(&vm_cmdline_parent,
+ 			"virtio-mmio", vm_cmdline_id++,
+ 			resources, ARRAY_SIZE(resources), NULL, 0);
+-	if (IS_ERR(pdev))
+-		return PTR_ERR(pdev);
+-
+-	return 0;
++	return PTR_RET(pdev);
+ }
+ 
+ static int vm_cmdline_get_device(struct device *dev, void *data)
+-- 
+1.7.9.5
