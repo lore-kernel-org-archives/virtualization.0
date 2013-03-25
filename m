@@ -1,19 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
-	each vq.
-Date: Mon, 25 Mar 2013 09:05:16 +0200
-Message-ID: <20130325070516.GC32581@redhat.com>
-References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
-	<20130321101300.GA30493@redhat.com>
-	<87wqt0du2e.fsf@rustcorp.com.au>
-	<20130324201910.GA31631@redhat.com> <514F8BD3.8010306@zytor.com>
+From: Bart Van Assche <bvanassche@acm.org>
+Subject: Re: [PATCH V7 4/5] virtio-scsi: introduce multiqueue support
+Date: Mon, 25 Mar 2013 08:25:58 +0100
+Message-ID: <514FFC06.9030703@acm.org>
+References: <1364038124-32479-1-git-send-email-gaowanlong@cn.fujitsu.com>
+	<1364038124-32479-5-git-send-email-gaowanlong@cn.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <514F8BD3.8010306@zytor.com>
+In-Reply-To: <1364038124-32479-5-git-send-email-gaowanlong@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,44 +18,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, JBottomley@parallels.com, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Mar 24, 2013 at 04:27:15PM -0700, H. Peter Anvin wrote:
-> On 03/24/2013 01:19 PM, Michael S. Tsirkin wrote:
-> >>  struct virtio_pci_cap {
-> >>  	u8 cap_vndr;	/* Generic PCI field: PCI_CAP_ID_VNDR */
-> >> @@ -150,7 +153,9 @@ struct virtio_pci_common_cfg {
-> >>  	__le16 queue_size;	/* read-write, power of 2. */
-> >>  	__le16 queue_msix_vector;/* read-write */
-> >>  	__le16 queue_enable;	/* read-write */
-> >> -	__le16 queue_notify;	/* read-only */
-> >> +	__le16 unused2;
-> >> +	__le32 queue_notify_val;/* read-only */
-> >> +	__le32 queue_notify_off;/* read-only */
-> >>  	__le64 queue_desc;	/* read-write */
-> >>  	__le64 queue_avail;	/* read-write */
-> >>  	__le64 queue_used;	/* read-write */
-> > 
-> > So how exactly do the offsets mesh with the dual capability?  For IO we
-> > want to use the same address and get queue from the data, for memory we
-> > want a per queue address ...
-> > 
-> 
-> How about having a readonly field which is "address increment per trigger"?
-> 
-> The guest would be required to always write the queue number as the
-> data, however, the host would not be required to interpret it if the
-> address increment is nonzero?
-> 
-> 	-hpa
+On 03/23/13 12:28, Wanlong Gao wrote:
+> +static struct virtio_scsi_vq *virtscsi_pick_vq(struct virtio_scsi *vscsi,
+> +					       struct virtio_scsi_target_state *tgt)
+> +{
+> +	struct virtio_scsi_vq *vq;
+> +	unsigned long flags;
+> +	u32 queue_num;
+> +
+> +	spin_lock_irqsave(&tgt->tgt_lock, flags);
+> +
+> +	/*
+> +	 * The memory barrier after atomic_inc_return matches
+> +	 * the smp_read_barrier_depends() in virtscsi_req_done.
+> +	 */
+> +	if (atomic_inc_return(&tgt->reqs) > 1)
+> +		vq = ACCESS_ONCE(tgt->req_vq);
+> +	else {
+> +		queue_num = smp_processor_id();
+> +		while (unlikely(queue_num >= vscsi->num_queues))
+> +			queue_num -= vscsi->num_queues;
+> +
+> +		tgt->req_vq = vq = &vscsi->req_vqs[queue_num];
+> +	}
+> +
+> +	spin_unlock_irqrestore(&tgt->tgt_lock, flags);
+> +	return vq;
+> +}
 
-Not sure what increment means here. The interface that Rusty proposes
-reports queue offset for each queue. My question was that we probably
-can't affort offsets for IO since the address space is so restricted.
-Maybe rename memory_offset/memory_val and have it only apply to memory?
+Is there any reason why the smp_processor_id() % vscsi->num_queues 
+computation in virtscsi_pick_vq() has been implemented as a loop instead 
+of as an arithmetic operation ? If so, I would appreciate it if that 
+could be explained in a comment.
 
+Thanks,
 
--- 
-MST
+Bart.
