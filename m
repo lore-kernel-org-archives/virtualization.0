@@ -1,11 +1,18 @@
-From: Alexandru Gheorghiu <gheorghiuandru@gmail.com>
-Subject: [PATCH] drivers: virtio: Use PTR_RET function
-Date: Mon, 25 Mar 2013 15:25:35 +0200
-Message-ID: <1364217936-6284-1-git-send-email-gheorghiuandru__19284.9745661535$1364238520$gmane$org@gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
+	each vq.
+Date: Mon, 25 Mar 2013 20:30:28 +1030
+Message-ID: <8738vjer43.fsf@rustcorp.com.au>
+References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
+	<20130321101300.GA30493@redhat.com>
+	<87wqt0du2e.fsf@rustcorp.com.au>
+	<20130324201910.GA31631@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20130324201910.GA31631@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,33 +22,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Alexandru Gheorghiu <gheorghiuandru@gmail.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: hpa@zytor.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Used PTR_RET function instead of IS_ERR and PTR_ERR.
-Patch found using coccinelle.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Fri, Mar 22, 2013 at 01:22:57PM +1030, Rusty Russell wrote:
+>> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> > I would like an option for hypervisor to simply say "Do IO
+>> > to this fixed address for this VQ". Then virtio can avoid using IO BARs
+>> > completely.
+>> 
+>> It could be done.  AFAICT, this would be an x86-ism, though, which is a
+>> little nasty.
+>
+> Okay, talked to HPA and he suggests a useful extension of my
+> or rather Gleb's earlier idea
+> (which was accessing mmio from special asm code which puts the value in
+> a known predefined register):
+> if we make each queue use a different address, then we avoid
+> the need to emulate the instruction (because we get GPA in the VMCS),
+> and the value can just be ignored.
 
-Signed-off-by: Alexandru Gheorghiu <gheorghiuandru@gmail.com>
----
- drivers/virtio/virtio_mmio.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+I had the same thought, but obviously lost it when I re-parsed your
+message.
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 1ba0d68..d1e664f 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -567,10 +567,7 @@ static int vm_cmdline_set(const char *device,
- 	pdev = platform_device_register_resndata(&vm_cmdline_parent,
- 			"virtio-mmio", vm_cmdline_id++,
- 			resources, ARRAY_SIZE(resources), NULL, 0);
--	if (IS_ERR(pdev))
--		return PTR_ERR(pdev);
--
--	return 0;
-+	return PTR_RET(pdev);
- }
- 
- static int vm_cmdline_get_device(struct device *dev, void *data)
--- 
-1.7.9.5
+> There's still some overhead (CPU simply seems to take a bit more
+> time to handle an EPT violation than an IO access)
+> and we need to actually add such code in kvm in host kernel,
+> but it sure looks nice since unlike my idea it does not
+> need anything special in the guest, and it will just work
+> for a physical virtio device if such ever surfaces.
+
+I think a physical virtio device would be a bit weird, but it's a nice
+sanity check.
+
+But if we do this, let's drop back to the simpler layout suggested in
+the original patch (a u16 offset, and you write the vq index there).
+
+>> @@ -150,7 +153,9 @@ struct virtio_pci_common_cfg {
+>>  	__le16 queue_size;	/* read-write, power of 2. */
+>>  	__le16 queue_msix_vector;/* read-write */
+>>  	__le16 queue_enable;	/* read-write */
+>> -	__le16 queue_notify;	/* read-only */
+>> +	__le16 unused2;
+>> +	__le32 queue_notify_val;/* read-only */
+>> +	__le32 queue_notify_off;/* read-only */
+>>  	__le64 queue_desc;	/* read-write */
+>>  	__le64 queue_avail;	/* read-write */
+>>  	__le64 queue_used;	/* read-write */
+>
+> So how exactly do the offsets mesh with the dual capability?  For IO we
+> want to use the same address and get queue from the data, for memory we
+> want a per queue address ...
+
+Let's go back a level.  Do we still need I/O bars at all now?  Or can we
+say "if you want hundreds of vqs, use mem bars"?
+
+hpa wanted the option to have either, but do we still want that?
+
+Cheers,
+Rusty.
