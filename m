@@ -1,11 +1,16 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH] xen: fix fbdev frontend kconfig warning
-Date: Tue, 26 Mar 2013 13:45:07 -0700
-Message-ID: <515208D3.5000605__12638.5751915679$1364337098$gmane$org@infradead.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] drivers: virtio: Use PTR_RET function
+Date: Tue, 26 Mar 2013 20:53:27 +1030
+Message-ID: <87620ecvds.fsf@rustcorp.com.au>
+References: <1364217936-6284-1-git-send-email-gheorghiuandru@gmail.com>
+	<87fvzidenm.fsf@rustcorp.com.au>
+	<20130325220150.af9795a7.akpm@linux-foundation.org>
+	<CADca43+r4kPBv-=kqo5VZ4+E2-OD1Y6ipkPXzxmFwrt2x1Z7Vw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CADca43+r4kPBv-=kqo5VZ4+E2-OD1Y6ipkPXzxmFwrt2x1Z7Vw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,33 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: LKML <linux-kernel@vger.kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xensource.com
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, virtualization@lists.linux-foundation.org
+To: Andru Gheorghiu <gheorghiuandru@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+Andru Gheorghiu <gheorghiuandru@gmail.com> writes:
+> PTR_RET does return. It's perfectly equivalent to using IS_ERR and the
+> returning PTR_ERR. The implementation is here [1].
 
-Fix kconfig dependency warning for XEN_FBDEV_FRONTEND:
+Um, I read the implementation, thanks.
 
-warning: (XEN_FBDEV_FRONTEND) selects INPUT_XEN_KBDDEV_FRONTEND which has unmet direct dependencies (!UML && INPUT && INPUT_MISC && XEN)
+> The reason for using it is this: if you have a function that does
+> something why not call it instead of reproducing it's behavior by
+> explicitly writing what it does.
 
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc:	Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc:	Jeremy Fitzhardinge <jeremy@goop.org>
-Cc:	xen-devel@lists.xensource.com
-Cc:	virtualization@lists.linux-foundation.org
----
- drivers/video/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Because clarity matters, and this function makes callers less clear.
+It's the most breathtakingly bad name since BUILD_BUG_ON_ZERO().
 
---- lnx-39-rc4.orig/drivers/video/Kconfig
-+++ lnx-39-rc4/drivers/video/Kconfig
-@@ -2277,7 +2277,7 @@ config XEN_FBDEV_FRONTEND
- 	select FB_SYS_IMAGEBLIT
- 	select FB_SYS_FOPS
- 	select FB_DEFERRED_IO
--	select INPUT_XEN_KBDDEV_FRONTEND
-+	select INPUT_XEN_KBDDEV_FRONTEND if INPUT
- 	select XEN_XENBUS_FRONTEND
- 	default y
- 	help
+Why not change PTR_ERR to return 0 if !IS_ERR()?  Noone breaks, gcc
+probably produces the same code, and noone needs to learn your weird
+new kernel meme.
+
+In fact, as gcc will produce the same code for "if (PTR_ERR(p))" as it
+does for "if (IS_ERR(p))", you get to be one of the very, very few
+people who have ever *reduced* the complexity of a kernel interface.
+
+Cheers,
+Rusty.
