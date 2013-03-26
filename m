@@ -1,14 +1,20 @@
-From: Andru Gheorghiu <gheorghiuandru@gmail.com>
-Subject: Re: [PATCH] drivers: virtio: Use PTR_RET function
-Date: Tue, 26 Mar 2013 09:41:46 +0200
-Message-ID: <CADca43+r4kPBv-=kqo5VZ4+E2-OD1Y6ipkPXzxmFwrt2x1Z7Vw@mail.gmail.com>
-References: <1364217936-6284-1-git-send-email-gheorghiuandru@gmail.com>
-	<87fvzidenm.fsf@rustcorp.com.au>
-	<20130325220150.af9795a7.akpm@linux-foundation.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
+	each vq.
+Date: Tue, 26 Mar 2013 21:39:11 +0200
+Message-ID: <20130326193911.GA19251@redhat.com>
+References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
+	<20130321101300.GA30493@redhat.com>
+	<87wqt0du2e.fsf@rustcorp.com.au>
+	<20130324201910.GA31631@redhat.com>
+	<8738vjer43.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4270882312017725921=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130325220150.af9795a7.akpm@linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <8738vjer43.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,115 +24,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: =?ISO-8859-1?Q?Uwe_Kleine=2DK=F6nig?= <u.kleine-koenig@pengutronix.de>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: hpa@zytor.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============4270882312017725921==
-Content-Type: multipart/alternative; boundary=047d7b3a7f10b4f5be04d8cf0db5
-
---047d7b3a7f10b4f5be04d8cf0db5
-Content-Type: text/plain; charset=ISO-8859-1
-
-PTR_RET does return. It's perfectly equivalent to using IS_ERR and the
-returning PTR_ERR. The implementation is here [1]. The reason for using it
-is this: if you have a function that does something why not call it instead
-of reproducing it's behavior by explicitly writing what it does.
-
-[1] http://lxr.free-electrons.com/source/include/linux/err.h#L55
-
-Alexandru Gheorghiu
-
-
-On Tue, Mar 26, 2013 at 7:01 AM, Andrew Morton <akpm@linux-foundation.org>wrote:
-
-> On Tue, 26 Mar 2013 13:57:09 +1030 Rusty Russell <rusty@rustcorp.com.au>
-> wrote:
->
-> > Alexandru Gheorghiu <gheorghiuandru@gmail.com> writes:
+On Mon, Mar 25, 2013 at 08:30:28PM +1030, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > On Fri, Mar 22, 2013 at 01:22:57PM +1030, Rusty Russell wrote:
+> >> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> >> > I would like an option for hypervisor to simply say "Do IO
+> >> > to this fixed address for this VQ". Then virtio can avoid using IO BARs
+> >> > completely.
+> >> 
+> >> It could be done.  AFAICT, this would be an x86-ism, though, which is a
+> >> little nasty.
 > >
-> > > Used PTR_RET function instead of IS_ERR and PTR_ERR.
-> > > Patch found using coccinelle.
+> > Okay, talked to HPA and he suggests a useful extension of my
+> > or rather Gleb's earlier idea
+> > (which was accessing mmio from special asm code which puts the value in
+> > a known predefined register):
+> > if we make each queue use a different address, then we avoid
+> > the need to emulate the instruction (because we get GPA in the VMCS),
+> > and the value can just be ignored.
+> 
+> I had the same thought, but obviously lost it when I re-parsed your
+> message.
+
+I will try to implement this in KVM, and benchmark. Then we'll see.
+
+> > There's still some overhead (CPU simply seems to take a bit more
+> > time to handle an EPT violation than an IO access)
+> > and we need to actually add such code in kvm in host kernel,
+> > but it sure looks nice since unlike my idea it does not
+> > need anything special in the guest, and it will just work
+> > for a physical virtio device if such ever surfaces.
+> 
+> I think a physical virtio device would be a bit weird, but it's a nice
+> sanity check.
+> 
+> But if we do this, let's drop back to the simpler layout suggested in
+> the original patch (a u16 offset, and you write the vq index there).
+> >> @@ -150,7 +153,9 @@ struct virtio_pci_common_cfg {
+> >>  	__le16 queue_size;	/* read-write, power of 2. */
+> >>  	__le16 queue_msix_vector;/* read-write */
+> >>  	__le16 queue_enable;	/* read-write */
+> >> -	__le16 queue_notify;	/* read-only */
+> >> +	__le16 unused2;
+> >> +	__le32 queue_notify_val;/* read-only */
+> >> +	__le32 queue_notify_off;/* read-only */
+> >>  	__le64 queue_desc;	/* read-write */
+> >>  	__le64 queue_avail;	/* read-write */
+> >>  	__le64 queue_used;	/* read-write */
 > >
-> > WTF is PTR_RET?  PTR_RET doesn't return anything.  Why is it called
-> > that?  It doesn't even make sense.
-> >
-> > ZERO_OR_PTR_ERR() maybe.
-> >
-> > But what problem are we solving?  Insufficient churn in the tree?  Code
-> > being too readable?  This isn't some hard-to-get right corner case, or a
-> > missed optimization.
-> >
-> > Andrew, what am I missing here?
->
-> It seemed like a good idea at the time.  Merged it two years ago and
-> have since been keenly awaiting an opportunity to use it.
->
-> It seems that people _have_ been using it, but mainly netfilter people
-> and we know they're all crazy ;)
->
->
+> > So how exactly do the offsets mesh with the dual capability?  For IO we
+> > want to use the same address and get queue from the data, for memory we
+> > want a per queue address ...
+> 
+> Let's go back a level.  Do we still need I/O bars at all now?  Or can we
+> say "if you want hundreds of vqs, use mem bars"?
+> 
+> hpa wanted the option to have either, but do we still want that?
+> 
+> Cheers,
+> Rusty.
 
---047d7b3a7f10b4f5be04d8cf0db5
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+hpa says having both is required for BIOS, not just for speed with KVM.
 
-PTR_RET does return. It&#39;s perfectly equivalent to using IS_ERR and the =
-returning PTR_ERR. The implementation is here [1]. The reason for using it =
-is this: if you have a function that does something why not call it instead=
- of reproducing it&#39;s=A0behavior=A0by explicitly writing what it does.<d=
-iv>
-<br></div><div>[1]=A0<a href=3D"http://lxr.free-electrons.com/source/includ=
-e/linux/err.h#L55">http://lxr.free-electrons.com/source/include/linux/err.h=
-#L55</a></div><div><br></div><div>Alexandru Gheorghiu<div><br><br><div clas=
-s=3D"gmail_quote">
-On Tue, Mar 26, 2013 at 7:01 AM, Andrew Morton <span dir=3D"ltr">&lt;<a hre=
-f=3D"mailto:akpm@linux-foundation.org" target=3D"_blank">akpm@linux-foundat=
-ion.org</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D=
-"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-<div class=3D"im">On Tue, 26 Mar 2013 13:57:09 +1030 Rusty Russell &lt;<a h=
-ref=3D"mailto:rusty@rustcorp.com.au">rusty@rustcorp.com.au</a>&gt; wrote:<b=
-r>
-<br>
-&gt; Alexandru Gheorghiu &lt;<a href=3D"mailto:gheorghiuandru@gmail.com">gh=
-eorghiuandru@gmail.com</a>&gt; writes:<br>
-&gt;<br>
-&gt; &gt; Used PTR_RET function instead of IS_ERR and PTR_ERR.<br>
-&gt; &gt; Patch found using coccinelle.<br>
-&gt;<br>
-&gt; WTF is PTR_RET? =A0PTR_RET doesn&#39;t return anything. =A0Why is it c=
-alled<br>
-&gt; that? =A0It doesn&#39;t even make sense.<br>
-&gt;<br>
-&gt; ZERO_OR_PTR_ERR() maybe.<br>
-&gt;<br>
-&gt; But what problem are we solving? =A0Insufficient churn in the tree? =
-=A0Code<br>
-&gt; being too readable? =A0This isn&#39;t some hard-to-get right corner ca=
-se, or a<br>
-&gt; missed optimization.<br>
-&gt;<br>
-&gt; Andrew, what am I missing here?<br>
-<br>
-</div>It seemed like a good idea at the time. =A0Merged it two years ago an=
-d<br>
-have since been keenly awaiting an opportunity to use it.<br>
-<br>
-It seems that people _have_ been using it, but mainly netfilter people<br>
-and we know they&#39;re all crazy ;)<br>
-<br>
-</blockquote></div><br></div></div>
-
---047d7b3a7f10b4f5be04d8cf0db5--
-
---===============4270882312017725921==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4270882312017725921==--
+-- 
+MST
