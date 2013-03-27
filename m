@@ -1,17 +1,18 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH V3 WIP 3/3] disable vhost_verify_ring_mappings check
-Date: Wed, 27 Mar 2013 14:31:27 -0700
-Message-ID: <1364419887.17698.19.camel__12253.457416273$1364419924$gmane$org@haakon2.linux-iscsi.org>
-References: <1363653285-23776-1-git-send-email-asias@redhat.com>
-	<1363653285-23776-4-git-send-email-asias@redhat.com>
-	<20130319084057.GB24393@stefanha-thinkpad.redhat.com>
-	<1363744628.13070.28.camel@haakon2.linux-iscsi.org>
-	<20130320095140.GA16615@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 2/2] tcm_vhost: Initialize vq->last_used_idx when set
+	endpoint
+Date: Wed, 27 Mar 2013 23:45:59 +0200
+Message-ID: <20130327214559.GB10678@redhat.com>
+References: <1363920748-32139-1-git-send-email-asias@redhat.com>
+	<1363920748-32139-3-git-send-email-asias@redhat.com>
+	<20130325111611.GD9221@redhat.com>
+	<1364416155.17698.3.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130320095140.GA16615@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1364416155.17698.3.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,179 +22,73 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2013-03-20 at 11:51 +0200, Michael S. Tsirkin wrote:
-> On Tue, Mar 19, 2013 at 06:57:08PM -0700, Nicholas A. Bellinger wrote:
-> > On Tue, 2013-03-19 at 09:40 +0100, Stefan Hajnoczi wrote:
-> > > On Tue, Mar 19, 2013 at 08:34:45AM +0800, Asias He wrote:
-> > > > ---
-> > > >  hw/vhost.c | 2 ++
-> > > >  1 file changed, 2 insertions(+)
-> > > > 
-> > > > diff --git a/hw/vhost.c b/hw/vhost.c
-> > > > index 4d6aee3..0c52ec4 100644
-> > > > --- a/hw/vhost.c
-> > > > +++ b/hw/vhost.c
-> > > > @@ -421,10 +421,12 @@ static void vhost_set_memory(MemoryListener *listener,
-> > > >          return;
-> > > >      }
-> > > >  
-> > > > +#if 0
-> > > >      if (dev->started) {
-> > > >          r = vhost_verify_ring_mappings(dev, start_addr, size);
-> > > >          assert(r >= 0);
-> > > >      }
-> > > > +#endif
+On Wed, Mar 27, 2013 at 01:29:15PM -0700, Nicholas A. Bellinger wrote:
+> On Mon, 2013-03-25 at 13:16 +0200, Michael S. Tsirkin wrote:
+> > On Fri, Mar 22, 2013 at 10:52:28AM +0800, Asias He wrote:
+> > > This patch fixes guest hang when booting seabios and guest.
 > > > 
-> > > Please add a comment to explain why.
+> > >   [    0.576238] scsi0 : Virtio SCSI HBA
+> > >   [    0.616754] virtio_scsi virtio1: request:id 0 is not a head!
 > > > 
+> > > vq->last_used_idx is initialized only when /dev/vhost-scsi is
+> > > opened or closed.
+> > > 
+> > >    vhost_scsi_open -> vhost_dev_init() -> vhost_vq_reset()
+> > >    vhost_scsi_release() -> vhost_dev_cleanup -> vhost_vq_reset()
+> > > 
+> > > So, when guest talks to tcm_vhost after seabios does, vq->last_used_idx
+> > > still contains the old valule for seabios. This confuses guest.
+> > > 
+> > > Fix this by calling vhost_init_used() to init vq->last_used_idx when
+> > > we set endpoint.
+> > > 
+> > > Signed-off-by: Asias He <asias@redhat.com>
 > > 
-> > Btw, the output that Asias added in the failure case at the behest of
-> > MST is here:
+> > Good catch, thanks.
 > > 
-> > http://www.spinics.net/lists/target-devel/msg04077.html
+> > Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> > 
+> > Nicholas can you pick this one up for 3.9 please?
+> > 
 > 
-> Yes I suspected we could get l > ring_size, but this is
-> not the case here.
+> Just a heads up that this needs PATCH 1/2 as vhost_init_used() expects
+> vq->private_data to already have been set..
+> 
+> Can you take a another look at the first patch as a v3.9 item..?  Both
+> are required in order for Asias's seabios changes to work.
+> 
+> Thanks,
+> 
+> --nab
 > 
 
-Hi MST & Co,
+Both me and Asias agreed it's not 3.9 material.
+Asias, can you please rework 2/2 to avoid dependency on 1/2?
+Should be trivial enough ...
 
-A quick update here..
-
-So this issue appears to be related to performing the
-vhost_verify_ring_mappings() call after vhost_dev_unassign_memory() has
-been invoked with vhost_set_memory(..., add=false).
-
-AFAICT from the logs below, things appear to work as expected when
-vhost_verify_ring_mappings() is called only for the
-vhost_set_memory(..., add=true) case.
-
-Calling vhost_verify_ring_mappings() when dev->started == true +
-vhost_set_memory(..., add=false) appears to be a bug caused by fallout
-from:
-
-commit 24f4fe345c1b80bab1ee18573914123d8028a9e6
-Author: Michael S. Tsirkin <mst@redhat.com>
-Date:   Tue Dec 25 17:41:07 2012 +0200
-
-    vhost: set started flag while start is in progress
-
-I'm including the following patch in the forth-coming vhost-scsi series.
-Please let me know if you have any concerns.
-
-diff --git a/hw/vhost.c b/hw/vhost.c
-index 4d6aee3..687a689 100644
---- a/hw/vhost.c
-+++ b/hw/vhost.c
-@@ -421,7 +421,7 @@ static void vhost_set_memory(MemoryListener *listener,
-         return;
-     }
- 
--    if (dev->started) {
-+    if (dev->started && add) {
-         r = vhost_verify_ring_mappings(dev, start_addr, size);
-         assert(r >= 0);
-     }
-
-Thanks!
-
---nab
-
-vhost_set_memory: section: 0x7f2249986b60 section->size: 2146697216 add: 0
-Before vhost_verify_ring_mappings: start_addr: c0000 size: 2146697216
-Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-Checking vq: 2 ring_phys: ee000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-Calling l: 5124 for start_addr: c0000 for vq 2
-Unable to map ring buffer for ring 2
-l: 4096 ring_size: 5124
-vhost_set_memory: section: 0x7f2249986aa0 section->size: 32768 add: 1
-Before vhost_verify_ring_mappings: start_addr: c0000 size: 32768
-Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-Checking vq: 2 ring_phys: ee000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 2 ring_phys: ee000 ring_size: 5124
-vhost_set_memory: section: 0x7f2249986aa0 section->size: 2146664448 add: 1
-Before vhost_verify_ring_mappings: start_addr: c8000 size: 2146664448
-Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-Checking vq: 2 ring_phys: ee000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-Calling l: 5124 for start_addr: c8000 for vq 2
-vhost_set_memory: section: 0x7f2249986b60 section->size: 32768 add: 0
-Before vhost_verify_ring_mappings: start_addr: c0000 size: 32768
-Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-Checking vq: 2 ring_phys: ee000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 2 ring_phys: ee000 ring_size: 5124
-vhost_set_memory: section: 0x7f2249986b60 section->size: 2146664448 add: 0
-Before vhost_verify_ring_mappings: start_addr: c8000 size: 2146664448
-Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-Checking vq: 2 ring_phys: ee000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-Calling l: 5124 for start_addr: c8000 for vq 2
-Unable to map ring buffer for ring 2
-l: 0 ring_size: 5124
-vhost_set_memory: section: 0x7f2249986aa0 section->size: 36864 add: 1
-Before vhost_verify_ring_mappings: start_addr: c0000 size: 36864
-Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-Checking vq: 2 ring_phys: ee000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 2 ring_phys: ee000 ring_size: 5124
-vhost_set_memory: section: 0x7f2249986aa0 section->size: 2146660352 add: 1
-Before vhost_verify_ring_mappings: start_addr: c9000 size: 2146660352
-Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-Checking vq: 2 ring_phys: ee000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-Calling l: 5124 for start_addr: c9000 for vq 2
-vhost_set_memory: section: 0x7f2249986b60 section->size: 2146660352 add: 0
-Before vhost_verify_ring_mappings: start_addr: c9000 size: 2146660352
-Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-Checking vq: 2 ring_phys: ee000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-Calling l: 5124 for start_addr: c9000 for vq 2
-Unable to map ring buffer for ring 2
-l: 0 ring_size: 5124
-vhost_set_memory: section: 0x7f2249986aa0 section->size: 159744 add: 1
-Before vhost_verify_ring_mappings: start_addr: c9000 size: 159744
-Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-Checking vq: 2 ring_phys: ee000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-Calling l: 5124 for start_addr: c9000 for vq 2
-vhost_set_memory: section: 0x7f2249986aa0 section->size: 65536 add: 1
-Before vhost_verify_ring_mappings: start_addr: f0000 size: 65536
-Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-Checking vq: 2 ring_phys: ee000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 2 ring_phys: ee000 ring_size: 5124
-vhost_set_memory: section: 0x7f2249986aa0 section->size: 2146435072 add: 1
-Before vhost_verify_ring_mappings: start_addr: 100000 size: 2146435072
-Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-Checking vq: 2 ring_phys: ee000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-Got ranges_overlap for vq: 2 ring_phys: ee000 ring_size: 5124
+> > >  drivers/vhost/tcm_vhost.c | 1 +
+> > >  1 file changed, 1 insertion(+)
+> > > 
+> > > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+> > > index 099feef..0524267 100644
+> > > --- a/drivers/vhost/tcm_vhost.c
+> > > +++ b/drivers/vhost/tcm_vhost.c
+> > > @@ -848,6 +848,7 @@ static int vhost_scsi_set_endpoint(
+> > >  			/* Flushing the vhost_work acts as synchronize_rcu */
+> > >  			mutex_lock(&vq->mutex);
+> > >  			rcu_assign_pointer(vq->private_data, vs);
+> > > +			vhost_init_used(vq);
+> > >  			mutex_unlock(&vq->mutex);
+> > >  		}
+> > >  		ret = 0;
+> > > -- 
+> > > 1.8.1.4
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe target-devel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
