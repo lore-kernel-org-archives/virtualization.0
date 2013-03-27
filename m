@@ -1,23 +1,15 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
-	each vq.
-Date: Wed, 27 Mar 2013 07:21:42 -0700
-Message-ID: <3ceb5414-fb1a-4d3e-811d-ef66478b8adf@email.android.com>
-References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
-	<20130321101300.GA30493@redhat.com>
-	<87wqt0du2e.fsf@rustcorp.com.au>
-	<20130324201910.GA31631@redhat.com>
-	<8738vjer43.fsf@rustcorp.com.au>
-	<20130326193911.GA19251@redhat.com>
-	<87ip4d4sef.fsf@rustcorp.com.au>
-	<79aede60-5692-4d27-9cfa-7b5fbf96b987@email.android.com>
-	<51525A03.1010906@zytor.com> <20130327112643.GF24243@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 1/2] virtio-spec: dynamic network offloads configuration
+Date: Wed, 27 Mar 2013 17:20:57 +0200
+Message-ID: <20130327152057.GA29249@redhat.com>
+References: <1364391798-8058-1-git-send-email-dmitry@daynix.com>
+	<1364391798-8058-2-git-send-email-dmitry@daynix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130327112643.GF24243@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1364391798-8058-2-git-send-email-dmitry@daynix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,32 +19,197 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Dmitry Fleytman <dmitry@daynix.com>
+Cc: Yan Vugenfirer <yan@daynix.com>, Dmitry Fleytman <dfleytma@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We probably shouldn't given the requirement for PCIe devices to be able to operate without configured I/O BARs.
+On Wed, Mar 27, 2013 at 03:43:17PM +0200, Dmitry Fleytman wrote:
+> From: Dmitry Fleytman <dfleytma@redhat.com>
+> 
+> Virtio-net driver currently negotiates network offloads
+> on startup via features mechanism and have no ability to
+> change offloads state later.
+> This patch introduced a new control command that allows
+> to configure device network offloads state dynamically.
+> The patch also introduces a new feature flag
+> VIRTIO_NET_F_CTRL_OFFLD.
+> 
+> Signed-off-by: Dmitry Fleytman <dfleytma@redhat.com>
 
-On the other hand what about a host which can only virtualize I/O for some reason... not sure if that is a realistic scenario.
+Looks sane to me. We'll be able to use this in Linux too.
+Rusty?
 
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
->On Tue, Mar 26, 2013 at 07:31:31PM -0700, H. Peter Anvin wrote:
->> On 03/26/2013 05:22 PM, H. Peter Anvin wrote:
->> > I would say let it be undefined... in most cases the host will know
->what device(s) will matter; e.g. if the guest is ppc no point in
->providing an I/O BAR.
->> 
->> For pluggable physical devices, though, both should be provided.
->> 
->> 	-hpa
->
->Yes but what Rusty asked, is whether we should make the memory BAR
->optional.
->
->> -- 
->> H. Peter Anvin, Intel Open Source Technology Center
->> I work for Intel.  I don't speak on their behalf.
-
--- 
-Sent from my mobile phone. Please excuse brevity and lack of formatting.
+> ---
+>  virtio-spec.lyx | 143 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 143 insertions(+)
+> 
+> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+> index 3d2f485..9e5125e 100644
+> --- a/virtio-spec.lyx
+> +++ b/virtio-spec.lyx
+> @@ -60,6 +60,7 @@
+>  \author -1930653948 "Amos Kong" 
+>  \author -608949062 "Rusty Russell,,," 
+>  \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
+> +\author 460276516 "Dmitry Fleytman" dfleytma@redhat.com
+>  \author 1112500848 "Rusty Russell" rusty@rustcorp.com.au
+>  \author 1531152142 "Paolo Bonzini,,," 
+>  \author 1717892615 "Alexey Zaytsev,,," 
+> @@ -4261,6 +4262,20 @@ VIRTIO_NET_F_GUEST_CSUM
+>  \end_inset
+>  
+>  (1) Guest handles packets with partial checksum
+> +\change_inserted 460276516 1363712169
+> +
+> +\end_layout
+> +
+> +\begin_layout Description
+> +
+> +\change_inserted 460276516 1363712334
+> +VIRTIO_NET_F_CTRL_OFFLD
+> +\begin_inset space ~
+> +\end_inset
+> +
+> +(2) Control channel offloads reconfiguration support.
+> +\change_unchanged
+> +
+>  \end_layout
+>  
+>  \begin_layout Description
+> @@ -5675,6 +5690,134 @@ virtqueue_pairs = 1
+>   
+>  \end_layout
+>  
+> +\begin_layout Subsection*
+> +
+> +\change_inserted 460276516 1363765850
+> +Offloads State Configuration
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363765861
+> +If the VIRTIO_NET_F_CTRL_OFFLOADS feature is negotiated, the driver can
+> + send control commands for dynamic offloads state configuration.
+> +\end_layout
+> +
+> +\begin_layout Subsubsection*
+> +
+> +\change_inserted 460276516 1363765928
+> +Setting offloads state
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363713225
+> +\begin_inset listings
+> +inline false
+> +status open
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363765996
+> +
+> +u32 offloads;
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363765997
+> +
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766044
+> +
+> +#define VIRTIO_NET_OFFLOAD_GUEST_CSUM       1
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766051
+> +
+> +#define VIRTIO_NET_OFFLOAD_GUEST_TSO4       2
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766055
+> +
+> +#define VIRTIO_NET_OFFLOAD_GUEST_TSO6       4
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766064
+> +
+> +#define VIRTIO_NET_OFFLOAD_GUEST_ECN        8
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766035
+> +
+> +#define VIRTIO_NET_OFFLOAD_GUEST_UFO       16
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766031
+> +
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363765865
+> +
+> +#define VIRTIO_NET_CTRL_OFFLOADS       5
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363765867
+> +
+> + #define VIRTIO_NET_CTRL_OFFLOADS_SET          0
+> +\end_layout
+> +
+> +\end_inset
+> +
+> +
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363766082
+> +The class VIRTIO_NET_CTRL_OFFLOADS has one command: VIRTIO_NET_CTRL_OFFLOADS_SET
+> + applies the new offloads configuration.
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363766435
+> +u32 value passed as command data is a bitmask, bits set define offloads
+> + to be enabled, bits cleared - offloads to be disabled.
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363766757
+> +There is a corresponding device feature for each offload.
+> + Upon feature negotiation corresponding offload gets enabled to preserve
+> + backward compartibility.
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363766720
+> +Corresponding feature must be negotiated at startup in order to allow dynamic
+> + change of specific offload state.
+> +\end_layout
+> +
+>  \begin_layout Chapter*
+>  Appendix D: Block Device
+>  \end_layout
+> -- 
+> 1.8.1.4
