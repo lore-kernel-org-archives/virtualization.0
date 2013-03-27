@@ -1,24 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
-	each vq.
-Date: Wed, 27 Mar 2013 13:26:44 +0200
-Message-ID: <20130327112643.GF24243@redhat.com>
-References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
-	<20130321101300.GA30493@redhat.com>
-	<87wqt0du2e.fsf@rustcorp.com.au>
-	<20130324201910.GA31631@redhat.com>
-	<8738vjer43.fsf@rustcorp.com.au>
-	<20130326193911.GA19251@redhat.com>
-	<87ip4d4sef.fsf@rustcorp.com.au>
-	<79aede60-5692-4d27-9cfa-7b5fbf96b987@email.android.com>
-	<51525A03.1010906@zytor.com>
+From: Dmitry Fleytman <dmitry@daynix.com>
+Subject: [PATCH 0/2] virtio-spec: dynamic network offloads configuration
+Date: Wed, 27 Mar 2013 15:43:16 +0200
+Message-ID: <1364391798-8058-1-git-send-email-dmitry@daynix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <51525A03.1010906@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,21 +15,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Yan Vugenfirer <yan@daynix.com>, Dmitry Fleytman <dfleytma@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 26, 2013 at 07:31:31PM -0700, H. Peter Anvin wrote:
-> On 03/26/2013 05:22 PM, H. Peter Anvin wrote:
-> > I would say let it be undefined... in most cases the host will know what device(s) will matter; e.g. if the guest is ppc no point in providing an I/O BAR.
-> 
-> For pluggable physical devices, though, both should be provided.
-> 
-> 	-hpa
+From: Dmitry Fleytman <dfleytma@redhat.com>
 
-Yes but what Rusty asked, is whether we should make the memory BAR
-optional.
+One of recently introduced Windows features (RSC)
+requires network driver to be able to enable and disable
+HW LRO offload on the fly without device reinitialization.
 
-> -- 
-> H. Peter Anvin, Intel Open Source Technology Center
-> I work for Intel.  I don't speak on their behalf.
+Current Virtio specification doesn't support this requirement.
+The solution proposed by following spec patch is to add
+a new control command for this purpose.
+
+The same solution may be used in Linux driver for ethtool interface
+implementation.
+
+Patch for QEMU mainline that implements this specification change
+attached as well for reference.
+
+Dmitry Fleytman (1):
+  virtio-net: dynamic network offloads configuration
+
+ hw/virtio-net.c | 110 +++++++++++++++++++++++++++++++++++++++++++++++---------
+ hw/virtio-net.h |  19 ++++++++++
+ 2 files changed, 113 insertions(+), 16 deletions(-)
+
+-- 
+1.8.1.4
