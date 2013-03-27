@@ -1,16 +1,20 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] drivers: virtio: Use PTR_RET function
-Date: Tue, 26 Mar 2013 20:53:27 +1030
-Message-ID: <87620ecvds.fsf@rustcorp.com.au>
-References: <1364217936-6284-1-git-send-email-gheorghiuandru@gmail.com>
-	<87fvzidenm.fsf@rustcorp.com.au>
-	<20130325220150.af9795a7.akpm@linux-foundation.org>
-	<CADca43+r4kPBv-=kqo5VZ4+E2-OD1Y6ipkPXzxmFwrt2x1Z7Vw@mail.gmail.com>
+Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
+	each vq.
+Date: Wed, 27 Mar 2013 10:37:20 +1030
+Message-ID: <87ip4d4sef.fsf@rustcorp.com.au>
+References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
+	<20130321101300.GA30493@redhat.com>
+	<87wqt0du2e.fsf@rustcorp.com.au>
+	<20130324201910.GA31631@redhat.com>
+	<8738vjer43.fsf@rustcorp.com.au>
+	<20130326193911.GA19251@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CADca43+r4kPBv-=kqo5VZ4+E2-OD1Y6ipkPXzxmFwrt2x1Z7Vw@mail.gmail.com>
+In-Reply-To: <20130326193911.GA19251@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,30 +24,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andru Gheorghiu <gheorghiuandru@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: hpa@zytor.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Andru Gheorghiu <gheorghiuandru@gmail.com> writes:
-> PTR_RET does return. It's perfectly equivalent to using IS_ERR and the
-> returning PTR_ERR. The implementation is here [1].
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Mon, Mar 25, 2013 at 08:30:28PM +1030, Rusty Russell wrote:
+>> Let's go back a level.  Do we still need I/O bars at all now?  Or can we
+>> say "if you want hundreds of vqs, use mem bars"?
+>> 
+>> hpa wanted the option to have either, but do we still want that?
+>
+> hpa says having both is required for BIOS, not just for speed with KVM.
 
-Um, I read the implementation, thanks.
+OK so the offset must not be applied to the I/O bar as you suggested.
 
-> The reason for using it is this: if you have a function that does
-> something why not call it instead of reproducing it's behavior by
-> explicitly writing what it does.
+Since AFAICT I/O bars are deprecated, should we insist that there be a
+memory bar, and the I/O bar is optional?  Or just leave it entirely
+undefined, and say there can be either or both?
 
-Because clarity matters, and this function makes callers less clear.
-It's the most breathtakingly bad name since BUILD_BUG_ON_ZERO().
-
-Why not change PTR_ERR to return 0 if !IS_ERR()?  Noone breaks, gcc
-probably produces the same code, and noone needs to learn your weird
-new kernel meme.
-
-In fact, as gcc will produce the same code for "if (PTR_ERR(p))" as it
-does for "if (IS_ERR(p))", you get to be one of the very, very few
-people who have ever *reduced* the complexity of a kernel interface.
+I dislike the idea of BIOS code which assumed an I/O bar and thus won't
+work with a compliant device which doesn't provide one.  I'd prefer all
+compliant drivers to work with all compliant devices.
 
 Cheers,
 Rusty.
