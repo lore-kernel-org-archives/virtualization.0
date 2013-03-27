@@ -1,7 +1,8 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [PATCH 1/3] virtio-scsi: create VirtIOSCSICommon
-Date: Wed, 27 Mar 2013 21:59:44 +0000
-Message-ID: <1364421586-29857-2-git-send-email-nab@linux-iscsi.org>
+Subject: [PATCH 2/3] vhost-scsi: new device supporting the tcm_vhost Linux
+	kernel module
+Date: Wed, 27 Mar 2013 21:59:45 +0000
+Message-ID: <1364421586-29857-3-git-send-email-nab__42318.6377193362$1364422301$gmane$org@linux-iscsi.org>
 References: <1364421586-29857-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,527 +24,616 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Paolo Bonzini <pbonzini@redhat.com>
 
-This patch refactors existing virtio-scsi code into VirtIOSCSICommon
-in order to allow virtio_scsi_init_common() to be used by both internal
-virtio_scsi_init() and external vhost-scsi-pci code.
+The WWPN specified in configfs is passed to "-device vhost-scsi-pci".
+The tgpt field of the SET_ENDPOINT ioctl is obsolete now, so it is not
+available from the QEMU command-line.  Instead, I hardcode it to zero.
+
+Changes in V4:
+   - Set event_idx=off by default (nab, thanks asias)
+   - Disable hotplug feature bit for v3.9 tcm_vhost kernel code, need to
+     re-enable in v3.10 (nab)
+   - Update to latest qemu.git/master HEAD
+
+Changes in V3:
+   - Drop ioeventfd vhost_scsi_properties (asias, thanks stefanha)
+   - Add CONFIG_VHOST_SCSI (asias, thanks stefanha)
+   - Add hotplug feature bit
+
+Changes in V2:
+   - Add backend guest masking support (nab)
+   - Bump ABI_VERSION to 1 (nab)
+   - Set up set_guest_notifiers (asias)
+   - Set up vs->dev.vq_index (asias)
+   - Drop vs->vs.vdev.{set,clear}_vhost_endpoint (asias)
+   - Drop VIRTIO_CONFIG_S_DRIVER check in vhost_scsi_set_status (asias)
+
+Howto:
+   Use the latest seabios, at least commit b44a7be17b
+   git clone git://git.seabios.org/seabios.git
+   make
+   cp out/bios.bin /usr/share/qemu/bios.bin
+   qemu -device vhost-scsi-pci,wwpn=naa.6001405bd4e8476d,event_idx=off
+...
 
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Asias He <asias@redhat.com>
 Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Asias He <asias@redhat.com>
 Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 ---
- hw/virtio-scsi.c     |  190 +++++++++++++-------------------------------------
- hw/virtio-scsi.h     |  130 +++++++++++++++++++++++++++++++++--
- include/qemu/osdep.h |    4 +
- 3 files changed, 177 insertions(+), 147 deletions(-)
+ configure                  |   15 +++-
+ hw/Makefile.objs           |    5 +-
+ hw/s390x/s390-virtio-bus.c |   35 +++++++
+ hw/vhost-scsi.c            |  241 ++++++++++++++++++++++++++++++++++++++++++++
+ hw/vhost-scsi.h            |   66 ++++++++++++
+ hw/virtio-pci.c            |   62 +++++++++++
+ hw/virtio-scsi.h           |    2 +
+ 7 files changed, 424 insertions(+), 2 deletions(-)
+ create mode 100644 hw/vhost-scsi.c
+ create mode 100644 hw/vhost-scsi.h
 
-diff --git a/hw/virtio-scsi.c b/hw/virtio-scsi.c
-index 8620712..9dc7150 100644
---- a/hw/virtio-scsi.c
-+++ b/hw/virtio-scsi.c
-@@ -18,118 +18,6 @@
- #include <hw/scsi.h>
- #include <hw/scsi-defs.h>
+diff --git a/configure b/configure
+index f2af714..6b67e35 100755
+--- a/configure
++++ b/configure
+@@ -169,6 +169,7 @@ libattr=""
+ xfs=""
  
--#define VIRTIO_SCSI_VQ_SIZE     128
--#define VIRTIO_SCSI_CDB_SIZE    32
--#define VIRTIO_SCSI_SENSE_SIZE  96
--#define VIRTIO_SCSI_MAX_CHANNEL 0
--#define VIRTIO_SCSI_MAX_TARGET  255
--#define VIRTIO_SCSI_MAX_LUN     16383
--
--/* Response codes */
--#define VIRTIO_SCSI_S_OK                       0
--#define VIRTIO_SCSI_S_OVERRUN                  1
--#define VIRTIO_SCSI_S_ABORTED                  2
--#define VIRTIO_SCSI_S_BAD_TARGET               3
--#define VIRTIO_SCSI_S_RESET                    4
--#define VIRTIO_SCSI_S_BUSY                     5
--#define VIRTIO_SCSI_S_TRANSPORT_FAILURE        6
--#define VIRTIO_SCSI_S_TARGET_FAILURE           7
--#define VIRTIO_SCSI_S_NEXUS_FAILURE            8
--#define VIRTIO_SCSI_S_FAILURE                  9
--#define VIRTIO_SCSI_S_FUNCTION_SUCCEEDED       10
--#define VIRTIO_SCSI_S_FUNCTION_REJECTED        11
--#define VIRTIO_SCSI_S_INCORRECT_LUN            12
--
--/* Controlq type codes.  */
--#define VIRTIO_SCSI_T_TMF                      0
--#define VIRTIO_SCSI_T_AN_QUERY                 1
--#define VIRTIO_SCSI_T_AN_SUBSCRIBE             2
--
--/* Valid TMF subtypes.  */
--#define VIRTIO_SCSI_T_TMF_ABORT_TASK           0
--#define VIRTIO_SCSI_T_TMF_ABORT_TASK_SET       1
--#define VIRTIO_SCSI_T_TMF_CLEAR_ACA            2
--#define VIRTIO_SCSI_T_TMF_CLEAR_TASK_SET       3
--#define VIRTIO_SCSI_T_TMF_I_T_NEXUS_RESET      4
--#define VIRTIO_SCSI_T_TMF_LOGICAL_UNIT_RESET   5
--#define VIRTIO_SCSI_T_TMF_QUERY_TASK           6
--#define VIRTIO_SCSI_T_TMF_QUERY_TASK_SET       7
--
--/* Events.  */
--#define VIRTIO_SCSI_T_EVENTS_MISSED            0x80000000
--#define VIRTIO_SCSI_T_NO_EVENT                 0
--#define VIRTIO_SCSI_T_TRANSPORT_RESET          1
--#define VIRTIO_SCSI_T_ASYNC_NOTIFY             2
--#define VIRTIO_SCSI_T_PARAM_CHANGE             3
--
--/* Reasons for transport reset event */
--#define VIRTIO_SCSI_EVT_RESET_HARD             0
--#define VIRTIO_SCSI_EVT_RESET_RESCAN           1
--#define VIRTIO_SCSI_EVT_RESET_REMOVED          2
--
--/* SCSI command request, followed by data-out */
--typedef struct {
--    uint8_t lun[8];              /* Logical Unit Number */
--    uint64_t tag;                /* Command identifier */
--    uint8_t task_attr;           /* Task attribute */
--    uint8_t prio;
--    uint8_t crn;
--    uint8_t cdb[];
--} QEMU_PACKED VirtIOSCSICmdReq;
--
--/* Response, followed by sense data and data-in */
--typedef struct {
--    uint32_t sense_len;          /* Sense data length */
--    uint32_t resid;              /* Residual bytes in data buffer */
--    uint16_t status_qualifier;   /* Status qualifier */
--    uint8_t status;              /* Command completion status */
--    uint8_t response;            /* Response values */
--    uint8_t sense[];
--} QEMU_PACKED VirtIOSCSICmdResp;
--
--/* Task Management Request */
--typedef struct {
--    uint32_t type;
--    uint32_t subtype;
--    uint8_t lun[8];
--    uint64_t tag;
--} QEMU_PACKED VirtIOSCSICtrlTMFReq;
--
--typedef struct {
--    uint8_t response;
--} QEMU_PACKED VirtIOSCSICtrlTMFResp;
--
--/* Asynchronous notification query/subscription */
--typedef struct {
--    uint32_t type;
--    uint8_t lun[8];
--    uint32_t event_requested;
--} QEMU_PACKED VirtIOSCSICtrlANReq;
--
--typedef struct {
--    uint32_t event_actual;
--    uint8_t response;
--} QEMU_PACKED VirtIOSCSICtrlANResp;
--
--typedef struct {
--    uint32_t event;
--    uint8_t lun[8];
--    uint32_t reason;
--} QEMU_PACKED VirtIOSCSIEvent;
--
--typedef struct {
--    uint32_t num_queues;
--    uint32_t seg_max;
--    uint32_t max_sectors;
--    uint32_t cmd_per_lun;
--    uint32_t event_info_size;
--    uint32_t sense_size;
--    uint32_t cdb_size;
--    uint16_t max_channel;
--    uint16_t max_target;
--    uint32_t max_lun;
--} QEMU_PACKED VirtIOSCSIConfig;
--
- typedef struct VirtIOSCSIReq {
-     VirtIOSCSI *dev;
-     VirtQueue *vq;
-@@ -178,7 +66,7 @@ static void virtio_scsi_complete_req(VirtIOSCSIReq *req)
-         scsi_req_unref(req->sreq);
-     }
-     g_free(req);
--    virtio_notify(&s->vdev, vq);
-+    virtio_notify(&s->vs.vdev, vq);
+ vhost_net="no"
++vhost_scsi="no"
+ kvm="no"
+ gprof="no"
+ debug_tcg="no"
+@@ -532,6 +533,7 @@ Haiku)
+   usb="linux"
+   kvm="yes"
+   vhost_net="yes"
++  vhost_scsi="yes"
+   if [ "$cpu" = "i386" -o "$cpu" = "x86_64" ] ; then
+     audio_possible_drivers="$audio_possible_drivers fmod"
+   fi
+@@ -858,6 +860,10 @@ for opt do
+   ;;
+   --enable-vhost-net) vhost_net="yes"
+   ;;
++  --disable-vhost-scsi) vhost_scsi="no"
++  ;;
++  --enable-vhost-scsi) vhost_scsi="yes"
++  ;;
+   --disable-glx) glx="no"
+   ;;
+   --enable-glx) glx="yes"
+@@ -3078,7 +3084,7 @@ fi
+ # __sync_fetch_and_and requires at least -march=i486. Many toolchains
+ # use i686 as default anyway, but for those that don't, an explicit
+ # specification is necessary
+-if test "$vhost_net" = "yes" && test "$cpu" = "i386"; then
++if (test "$vhost_net" = "yes" -o "$vhost_scsi" = "yes") && test "$cpu" = "i386"; then
+   cat > $TMPC << EOF
+ static int sfaa(int *ptr)
+ {
+@@ -3424,6 +3430,7 @@ echo "sigev_thread_id   $sigev_thread_id"
+ echo "uuid support      $uuid"
+ echo "libcap-ng support $cap_ng"
+ echo "vhost-net support $vhost_net"
++echo "vhost-scsi support $vhost_scsi"
+ echo "Trace backend     $trace_backend"
+ echo "Trace output file $trace_file-<pid>"
+ echo "spice support     $spice ($spice_protocol_version/$spice_server_version)"
+@@ -3697,6 +3704,9 @@ fi
+ if test "$virtfs" = "yes" ; then
+   echo "CONFIG_VIRTFS=y" >> $config_host_mak
+ fi
++if test "$vhost_scsi" = "yes" ; then
++  echo "CONFIG_VHOST_SCSI=y" >> $config_host_mak
++fi
+ if test "$blobs" = "yes" ; then
+   echo "INSTALL_BLOBS=yes" >> $config_host_mak
+ fi
+@@ -4175,6 +4185,9 @@ case "$target_arch2" in
+       if test "$vhost_net" = "yes" ; then
+         echo "CONFIG_VHOST_NET=y" >> $config_target_mak
+       fi
++      if test "$vhost_scsi" = "yes" ; then
++        echo "CONFIG_VHOST_SCSI=y" >> $config_target_mak
++      fi
+     fi
+ esac
+ case "$target_arch2" in
+diff --git a/hw/Makefile.objs b/hw/Makefile.objs
+index d0b2ecb..0a38eb5 100644
+--- a/hw/Makefile.objs
++++ b/hw/Makefile.objs
+@@ -205,8 +205,11 @@ common-obj-$(CONFIG_XEN_BACKEND) += xen_console.o xenfb.o xen_disk.o xen_nic.o
+ obj-$(CONFIG_VIRTIO) += dataplane/
+ obj-$(CONFIG_VIRTIO) += virtio.o virtio-blk.o virtio-balloon.o virtio-net.o
+ obj-$(CONFIG_VIRTIO) += virtio-serial-bus.o virtio-scsi.o
++ifeq ($(CONFIG_VIRTIO), y)
++obj-$(CONFIG_LINUX) += vhost-scsi.o
++endif
+ obj-$(CONFIG_SOFTMMU) += vhost_net.o
+-obj-$(CONFIG_VHOST_NET) += vhost.o
++obj-$(CONFIG_LINUX) += vhost.o
+ obj-$(CONFIG_REALLY_VIRTFS) += 9pfs/
+ obj-$(CONFIG_VGA) += vga.o
+ 
+diff --git a/hw/s390x/s390-virtio-bus.c b/hw/s390x/s390-virtio-bus.c
+index c5d5456..73d93fd 100644
+--- a/hw/s390x/s390-virtio-bus.c
++++ b/hw/s390x/s390-virtio-bus.c
+@@ -28,6 +28,8 @@
+ #include "hw/virtio-rng.h"
+ #include "hw/virtio-serial.h"
+ #include "hw/virtio-net.h"
++#include "hw/virtio-scsi.h"
++#include "hw/vhost-scsi.h"
+ #include "hw/sysbus.h"
+ #include "sysemu/kvm.h"
+ 
+@@ -214,6 +216,18 @@ static int s390_virtio_scsi_init(VirtIOS390Device *dev)
+     return s390_virtio_device_init(dev, vdev);
  }
  
- static void virtio_scsi_bad_req(void)
-@@ -237,7 +125,7 @@ static void virtio_scsi_save_request(QEMUFile *f, SCSIRequest *sreq)
-     VirtIOSCSIReq *req = sreq->hba_private;
-     uint32_t n = virtio_queue_get_id(req->vq) - 2;
- 
--    assert(n < req->dev->conf->num_queues);
-+    assert(n < req->dev->vs.conf->num_queues);
-     qemu_put_be32s(f, &n);
-     qemu_put_buffer(f, (unsigned char *)&req->elem, sizeof(req->elem));
- }
-@@ -251,9 +139,9 @@ static void *virtio_scsi_load_request(QEMUFile *f, SCSIRequest *sreq)
- 
-     req = g_malloc(sizeof(*req));
-     qemu_get_be32s(f, &n);
--    assert(n < s->conf->num_queues);
-+    assert(n < s->vs.conf->num_queues);
-     qemu_get_buffer(f, (unsigned char *)&req->elem, sizeof(req->elem));
--    virtio_scsi_parse_req(s, s->cmd_vqs[n], req);
-+    virtio_scsi_parse_req(s, s->vs.cmd_vqs[n], req);
- 
-     scsi_req_ref(sreq);
-     req->sreq = sreq;
-@@ -468,8 +356,8 @@ static void virtio_scsi_handle_cmd(VirtIODevice *vdev, VirtQueue *vq)
- 
-         out_size = req->elem.out_sg[0].iov_len;
-         in_size = req->elem.in_sg[0].iov_len;
--        if (out_size < sizeof(VirtIOSCSICmdReq) + s->cdb_size ||
--            in_size < sizeof(VirtIOSCSICmdResp) + s->sense_size) {
-+        if (out_size < sizeof(VirtIOSCSICmdReq) + s->vs.cdb_size ||
-+            in_size < sizeof(VirtIOSCSICmdResp) + s->vs.sense_size) {
-             virtio_scsi_bad_req();
-         }
- 
-@@ -511,7 +399,7 @@ static void virtio_scsi_get_config(VirtIODevice *vdev,
-                                    uint8_t *config)
- {
-     VirtIOSCSIConfig *scsiconf = (VirtIOSCSIConfig *)config;
--    VirtIOSCSI *s = (VirtIOSCSI *)vdev;
-+    VirtIOSCSICommon *s = (VirtIOSCSICommon *)vdev;
- 
-     stl_raw(&scsiconf->num_queues, s->conf->num_queues);
-     stl_raw(&scsiconf->seg_max, 128 - 2);
-@@ -537,8 +425,8 @@ static void virtio_scsi_set_config(VirtIODevice *vdev,
-         exit(1);
-     }
- 
--    s->sense_size = ldl_raw(&scsiconf->sense_size);
--    s->cdb_size = ldl_raw(&scsiconf->cdb_size);
-+    s->vs.sense_size = ldl_raw(&scsiconf->sense_size);
-+    s->vs.cdb_size = ldl_raw(&scsiconf->cdb_size);
- }
- 
- static uint32_t virtio_scsi_get_features(VirtIODevice *vdev,
-@@ -555,8 +443,8 @@ static void virtio_scsi_reset(VirtIODevice *vdev)
-     qbus_reset_all(&s->bus.qbus);
-     s->resetting--;
- 
--    s->sense_size = VIRTIO_SCSI_SENSE_SIZE;
--    s->cdb_size = VIRTIO_SCSI_CDB_SIZE;
-+    s->vs.sense_size = VIRTIO_SCSI_SENSE_SIZE;
-+    s->vs.cdb_size = VIRTIO_SCSI_CDB_SIZE;
-     s->events_dropped = false;
- }
- 
-@@ -566,7 +454,7 @@ static void virtio_scsi_reset(VirtIODevice *vdev)
- static void virtio_scsi_save(QEMUFile *f, void *opaque)
- {
-     VirtIOSCSI *s = opaque;
--    virtio_save(&s->vdev, f);
-+    virtio_save(&s->vs.vdev, f);
- }
- 
- static int virtio_scsi_load(QEMUFile *f, void *opaque, int version_id)
-@@ -574,7 +462,7 @@ static int virtio_scsi_load(QEMUFile *f, void *opaque, int version_id)
-     VirtIOSCSI *s = opaque;
-     int ret;
- 
--    ret = virtio_load(&s->vdev, f);
-+    ret = virtio_load(&s->vs.vdev, f);
-     if (ret) {
-         return ret;
-     }
-@@ -584,11 +472,11 @@ static int virtio_scsi_load(QEMUFile *f, void *opaque, int version_id)
- static void virtio_scsi_push_event(VirtIOSCSI *s, SCSIDevice *dev,
-                                    uint32_t event, uint32_t reason)
- {
--    VirtIOSCSIReq *req = virtio_scsi_pop_req(s, s->event_vq);
-+    VirtIOSCSIReq *req = virtio_scsi_pop_req(s, s->vs.event_vq);
-     VirtIOSCSIEvent *evt;
-     int in_size;
- 
--    if (!(s->vdev.status & VIRTIO_CONFIG_S_DRIVER_OK)) {
-+    if (!(s->vs.vdev.status & VIRTIO_CONFIG_S_DRIVER_OK)) {
-         return;
-     }
- 
-@@ -643,7 +531,7 @@ static void virtio_scsi_change(SCSIBus *bus, SCSIDevice *dev, SCSISense sense)
- {
-     VirtIOSCSI *s = container_of(bus, VirtIOSCSI, bus);
- 
--    if (((s->vdev.guest_features >> VIRTIO_SCSI_F_CHANGE) & 1) &&
-+    if (((s->vs.vdev.guest_features >> VIRTIO_SCSI_F_CHANGE) & 1) &&
-         dev->type != TYPE_ROM) {
-         virtio_scsi_push_event(s, dev, VIRTIO_SCSI_T_PARAM_CHANGE,
-                                sense.asc | (sense.ascq << 8));
-@@ -654,7 +542,7 @@ static void virtio_scsi_hotplug(SCSIBus *bus, SCSIDevice *dev)
- {
-     VirtIOSCSI *s = container_of(bus, VirtIOSCSI, bus);
- 
--    if ((s->vdev.guest_features >> VIRTIO_SCSI_F_HOTPLUG) & 1) {
-+    if ((s->vs.vdev.guest_features >> VIRTIO_SCSI_F_HOTPLUG) & 1) {
-         virtio_scsi_push_event(s, dev, VIRTIO_SCSI_T_TRANSPORT_RESET,
-                                VIRTIO_SCSI_EVT_RESET_RESCAN);
-     }
-@@ -664,7 +552,7 @@ static void virtio_scsi_hot_unplug(SCSIBus *bus, SCSIDevice *dev)
- {
-     VirtIOSCSI *s = container_of(bus, VirtIOSCSI, bus);
- 
--    if ((s->vdev.guest_features >> VIRTIO_SCSI_F_HOTPLUG) & 1) {
-+    if ((s->vs.vdev.guest_features >> VIRTIO_SCSI_F_HOTPLUG) & 1) {
-         virtio_scsi_push_event(s, dev, VIRTIO_SCSI_T_TRANSPORT_RESET,
-                                VIRTIO_SCSI_EVT_RESET_REMOVED);
-     }
-@@ -686,35 +574,53 @@ static struct SCSIBusInfo virtio_scsi_scsi_info = {
-     .load_request = virtio_scsi_load_request,
- };
- 
--VirtIODevice *virtio_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf)
-+VirtIOSCSICommon *virtio_scsi_init_common(DeviceState *dev, VirtIOSCSIConf *proxyconf,
-+                                          size_t sz)
- {
--    VirtIOSCSI *s;
--    static int virtio_scsi_id;
--    size_t sz;
-+    VirtIOSCSICommon *s;
-     int i;
- 
--    sz = sizeof(VirtIOSCSI) + proxyconf->num_queues * sizeof(VirtQueue *);
--    s = (VirtIOSCSI *)virtio_common_init("virtio-scsi", VIRTIO_ID_SCSI,
--                                         sizeof(VirtIOSCSIConfig), sz);
-+    /* Place the cmd_vqs array at the end of the block that the caller
-+     * requested.  Align the array properly, just in case.
-+     */
-+    sz = ROUND_UP(sz, sizeof(void *));
-+    s = (VirtIOSCSICommon *)
-+            virtio_common_init("virtio-scsi", VIRTIO_ID_SCSI,
-+                               sizeof(VirtIOSCSIConfig),
-+                               sz + sizeof(VirtQueue *) * proxyconf->num_queues);
- 
-     s->qdev = dev;
-     s->conf = proxyconf;
-+    s->sense_size = VIRTIO_SCSI_SENSE_SIZE;
-+    s->cdb_size = VIRTIO_SCSI_CDB_SIZE;
- 
--    /* TODO set up vdev function pointers */
-     s->vdev.get_config = virtio_scsi_get_config;
--    s->vdev.set_config = virtio_scsi_set_config;
-     s->vdev.get_features = virtio_scsi_get_features;
--    s->vdev.reset = virtio_scsi_reset;
- 
-     s->ctrl_vq = virtio_add_queue(&s->vdev, VIRTIO_SCSI_VQ_SIZE,
-                                    virtio_scsi_handle_ctrl);
-     s->event_vq = virtio_add_queue(&s->vdev, VIRTIO_SCSI_VQ_SIZE,
-                                    virtio_scsi_handle_event);
++static int s390_vhost_scsi_init(VirtIOS390Device *dev)
++{
++    VirtIODevice *vdev;
 +
-+    s->cmd_vqs = (VirtQueue **) ((char *)s + sz);
-     for (i = 0; i < s->conf->num_queues; i++) {
-         s->cmd_vqs[i] = virtio_add_queue(&s->vdev, VIRTIO_SCSI_VQ_SIZE,
-                                          virtio_scsi_handle_cmd);
-     }
- 
-+    return s;
++    vdev = vhost_scsi_init((DeviceState *)dev, &dev->scsi);
++    if (!vdev) {
++        return -1;
++    }
++
++    return s390_virtio_device_init(dev, vdev);
 +}
 +
-+VirtIODevice *virtio_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf)
-+{
-+    VirtIOSCSI *s;
-+    static int virtio_scsi_id;
-+
-+    s = (VirtIOSCSI *)virtio_scsi_init_common(dev, proxyconf, sizeof(VirtIOSCSI));
-+
-+    s->vs.vdev.set_config = virtio_scsi_set_config;
-+    s->vs.vdev.reset = virtio_scsi_reset;
-+
-     scsi_bus_new(&s->bus, dev, &virtio_scsi_scsi_info);
-     if (!dev->hotplugged) {
-         scsi_bus_legacy_handle_cmdline(&s->bus);
-@@ -723,12 +629,12 @@ VirtIODevice *virtio_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf)
-     register_savevm(dev, "virtio-scsi", virtio_scsi_id++, 1,
-                     virtio_scsi_save, virtio_scsi_load, s);
- 
--    return &s->vdev;
-+    return &s->vs.vdev;
- }
- 
- void virtio_scsi_exit(VirtIODevice *vdev)
+ static int s390_virtio_rng_init(VirtIOS390Device *dev)
  {
-     VirtIOSCSI *s = (VirtIOSCSI *)vdev;
--    unregister_savevm(s->qdev, "virtio-scsi", s);
-+    unregister_savevm(s->vs.qdev, "virtio-scsi", s);
-     virtio_cleanup(vdev);
- }
+     VirtIODevice *vdev;
+@@ -537,6 +551,27 @@ static const TypeInfo virtio_s390_device_info = {
+     .abstract = true,
+ };
+ 
++static Property s390_vhost_scsi_properties[] = {
++    DEFINE_VIRTIO_SCSI_PROPERTIES(VirtIOS390Device, host_features, scsi),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
++static void s390_vhost_scsi_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    VirtIOS390DeviceClass *k = VIRTIO_S390_DEVICE_CLASS(klass);
++
++    k->init = s390_vhost_scsi_init;
++    dc->props = s390_vhost_scsi_properties;
++}
++
++static const TypeInfo s390_vhost_scsi = {
++    .name          = "vhost-scsi-s390",
++    .parent        = TYPE_VIRTIO_S390_DEVICE,
++    .instance_size = sizeof(VirtIOS390Device),
++    .class_init    = s390_vhost_scsi_class_init,
++};
++
+ static Property s390_virtio_scsi_properties[] = {
+     DEFINE_VIRTIO_SCSI_PROPERTIES(VirtIOS390Device, host_features, scsi),
+     DEFINE_PROP_END_OF_LIST(),
+diff --git a/hw/vhost-scsi.c b/hw/vhost-scsi.c
+new file mode 100644
+index 0000000..70e42fc
+--- /dev/null
++++ b/hw/vhost-scsi.c
+@@ -0,0 +1,241 @@
++/*
++ * vhost_scsi host device
++ *
++ * Copyright IBM, Corp. 2011
++ *
++ * Authors:
++ *  Stefan Hajnoczi   <stefanha@linux.vnet.ibm.com>
++ *
++ * Changes for QEMU mainline + tcm_vhost kernel upstream:
++ *  Nicholas Bellinger <nab@risingtidesystems.com>
++ *
++ * This work is licensed under the terms of the GNU LGPL, version 2 or later.
++ * See the COPYING.LIB file in the top-level directory.
++ *
++ */
++
++#include <sys/ioctl.h>
++#include "config.h"
++#include "qemu/queue.h"
++#include "monitor/monitor.h"
++#include "migration/migration.h"
++#include "vhost-scsi.h"
++#include "vhost.h"
++#include "virtio-scsi.h"
++
++typedef struct VHostSCSI {
++    VirtIOSCSICommon vs;
++
++    Error *migration_blocker;
++
++    struct vhost_dev dev;
++} VHostSCSI;
++
++static int vhost_scsi_set_endpoint(VirtIODevice *vdev)
++{
++    VHostSCSI *vs = (VHostSCSI *)vdev;
++    struct vhost_scsi_target backend;
++    int ret;
++
++    memset(&backend, 0, sizeof(backend));
++    pstrcpy(backend.vhost_wwpn, sizeof(backend.vhost_wwpn), vs->vs.conf->wwpn);
++    ret = ioctl(vs->dev.control, VHOST_SCSI_SET_ENDPOINT, &backend);
++    if (ret < 0) {
++        return -errno;
++    }
++    return 0;
++}
++
++static void vhost_scsi_clear_endpoint(VirtIODevice *vdev)
++{
++    VHostSCSI *vs = (VHostSCSI *)vdev;
++    struct vhost_scsi_target backend;
++
++    memset(&backend, 0, sizeof(backend));
++    pstrcpy(backend.vhost_wwpn, sizeof(backend.vhost_wwpn), vs->vs.conf->wwpn);
++    ioctl(vs->dev.control, VHOST_SCSI_CLEAR_ENDPOINT, &backend);
++}
++
++static int vhost_scsi_start(VHostSCSI *vs, VirtIODevice *vdev)
++{
++    int ret, abi_version;
++
++    if (!vdev->binding->set_guest_notifiers) {
++        error_report("binding does not support guest notifiers");
++        return -ENOSYS;
++    }
++
++    ret = ioctl(vs->dev.control, VHOST_SCSI_GET_ABI_VERSION, &abi_version);
++    if (ret < 0) {
++        return -errno;
++    }
++    if (abi_version > VHOST_SCSI_ABI_VERSION) {
++        error_report("vhost-scsi: The running tcm_vhost kernel abi_version:"
++                     " %d is greater than vhost_scsi userspace supports: %d, please"
++                     " upgrade your version of QEMU\n", abi_version,
++                     VHOST_SCSI_ABI_VERSION);
++        return -ENOSYS;
++    }
++
++    ret = vhost_dev_enable_notifiers(&vs->dev, vdev);
++    if (ret < 0) {
++        return ret;
++    }
++
++    ret = vhost_dev_start(&vs->dev, vdev);
++    if (ret < 0) {
++        error_report("Error start vhost dev");
++        goto err_notifiers;
++    }
++
++    ret = vhost_scsi_set_endpoint(vdev);
++    if (ret < 0) {
++        error_report("Error set vhost-scsi endpoint");
++        goto err_vhost_stop;
++    }
++
++    ret = vdev->binding->set_guest_notifiers(vdev->binding_opaque, vs->dev.nvqs, true);
++    if (ret < 0) {
++        error_report("Error binding guest notifier");
++        goto err_endpoint;
++    }
++    return ret;
++
++err_endpoint:
++    vhost_scsi_clear_endpoint(vdev);
++err_vhost_stop:
++    vhost_dev_stop(&vs->dev, vdev);
++err_notifiers:
++    vhost_dev_disable_notifiers(&vs->dev, vdev);
++    return ret;
++}
++
++static void vhost_scsi_stop(VHostSCSI *vs, VirtIODevice *vdev)
++{
++    int ret = 0;
++
++    if (!vdev->binding->set_guest_notifiers) {
++        ret = vdev->binding->set_guest_notifiers(vdev->binding_opaque,
++                                                 vs->dev.nvqs, false);
++        if (ret < 0) {
++                error_report("vhost guest notifier cleanup failed: %d\n", ret);
++        }
++    }
++    assert(ret >= 0);
++
++    vhost_scsi_clear_endpoint(vdev);
++    vhost_dev_stop(&vs->dev, vdev);
++    vhost_dev_disable_notifiers(&vs->dev, vdev);
++}
++
++static void vhost_scsi_set_config(VirtIODevice *vdev,
++                                  const uint8_t *config)
++{
++    VirtIOSCSIConfig *scsiconf = (VirtIOSCSIConfig *)config;
++    VHostSCSI *vs = (VHostSCSI *)vdev;
++
++    if ((uint32_t) ldl_raw(&scsiconf->sense_size) != vs->vs.sense_size ||
++        (uint32_t) ldl_raw(&scsiconf->cdb_size) != vs->vs.cdb_size) {
++        error_report("vhost-scsi does not support changing the sense data and CDB sizes");
++        exit(1);
++    }
++}
++
++static void vhost_scsi_set_status(VirtIODevice *vdev, uint8_t val)
++{
++    VHostSCSI *vs = (VHostSCSI *)vdev;
++    bool start = (val & VIRTIO_CONFIG_S_DRIVER_OK);
++
++    if (vs->dev.started == start) {
++        return;
++    }
++
++    if (start) {
++        int ret;
++
++        ret = vhost_scsi_start(vs, vdev);
++        if (ret < 0) {
++            error_report("virtio-scsi: unable to start vhost: %s\n",
++                         strerror(-ret));
++
++            /* There is no userspace virtio-scsi fallback so exit */
++            exit(1);
++        }
++    } else {
++        vhost_scsi_stop(vs, vdev);
++    }
++}
++
++static void vhost_scsi_guest_notifier_mask(VirtIODevice *vdev, int idx,
++                                           bool mask)
++{
++    VHostSCSI *vs = (VHostSCSI *)vdev;
++
++    vhost_virtqueue_mask(&vs->dev, vdev, idx, mask);
++}
++
++static bool vhost_scsi_guest_notifier_pending(VirtIODevice *vdev, int idx)
++{
++    VHostSCSI *vs = (VHostSCSI *)vdev;
++
++    return vhost_virtqueue_pending(&vs->dev, idx);
++}
++
++VirtIODevice *vhost_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf)
++{
++    VHostSCSI *vs;
++    int vhostfd = -1;
++    int ret;
++
++    if (!proxyconf->wwpn) {
++        error_report("vhost-scsi: missing wwpn\n");
++        return NULL;
++    }
++
++    if (proxyconf->vhostfd) {
++        vhostfd = monitor_handle_fd_param(cur_mon, proxyconf->vhostfd);
++        if (vhostfd == -1) {
++            error_report("vhost-scsi: unable to parse vhostfd\n");
++            return NULL;
++        }
++    }
++
++    vs = (VHostSCSI *)virtio_scsi_init_common(dev, proxyconf,
++                                              sizeof(VHostSCSI));
++
++    vs->vs.vdev.set_config = vhost_scsi_set_config;
++    vs->vs.vdev.set_status = vhost_scsi_set_status;
++    vs->vs.vdev.guest_notifier_mask = vhost_scsi_guest_notifier_mask;
++    vs->vs.vdev.guest_notifier_pending = vhost_scsi_guest_notifier_pending;
++
++    vs->dev.nvqs = VHOST_SCSI_VQ_NUM_FIXED + vs->vs.conf->num_queues;
++    vs->dev.vqs = g_new(struct vhost_virtqueue, vs->dev.nvqs);
++    vs->dev.vq_index = 0;
++
++    ret = vhost_dev_init(&vs->dev, vhostfd, "/dev/vhost-scsi", true);
++    if (ret < 0) {
++        error_report("vhost-scsi: vhost initialization failed: %s\n",
++                strerror(-ret));
++        return NULL;
++    }
++    vs->dev.backend_features = 0;
++    vs->dev.acked_features = 0;
++
++    error_setg(&vs->migration_blocker,
++            "vhost-scsi does not support migration");
++    migrate_add_blocker(vs->migration_blocker);
++
++    return &vs->vs.vdev;
++}
++
++void vhost_scsi_exit(VirtIODevice *vdev)
++{
++    VHostSCSI *vs = (VHostSCSI *)vdev;
++    migrate_del_blocker(vs->migration_blocker);
++    error_free(vs->migration_blocker);
++
++    /* This will stop vhost backend. */
++    vhost_scsi_set_status(vdev, 0);
++    g_free(vs->dev.vqs);
++    virtio_cleanup(vdev);
++}
+diff --git a/hw/vhost-scsi.h b/hw/vhost-scsi.h
+new file mode 100644
+index 0000000..b01f012
+--- /dev/null
++++ b/hw/vhost-scsi.h
+@@ -0,0 +1,66 @@
++/*
++ * vhost_scsi host device
++ *
++ * Copyright IBM, Corp. 2011
++ *
++ * Authors:
++ *  Stefan Hajnoczi   <stefanha@linux.vnet.ibm.com>
++ *
++ * This work is licensed under the terms of the GNU LGPL, version 2 or later.
++ * See the COPYING.LIB file in the top-level directory.
++ *
++ */
++
++#ifndef VHOST_SCSI_H
++#define VHOST_SCSI_H
++
++#include "qemu-common.h"
++#include "qdev.h"
++#include "virtio-scsi.h"
++
++/*
++ * Used by QEMU userspace to ensure a consistent vhost-scsi ABI.
++ *
++ * ABI Rev 0: July 2012 version starting point for v3.6-rc merge candidate +
++ *            RFC-v2 vhost-scsi userspace.  Add GET_ABI_VERSION ioctl usage
++ * ABI Rev 1: January 2013. Ignore vhost_tpgt filed in struct vhost_scsi_target.
++ * 	      All the targets under vhost_wwpn can be seen and used by guest.
++ */
++
++#define VHOST_SCSI_ABI_VERSION 1
++
++/* TODO #include <linux/vhost.h> properly */
++/* For VHOST_SCSI_SET_ENDPOINT/VHOST_SCSI_CLEAR_ENDPOINT ioctl */
++struct vhost_scsi_target {
++    int abi_version;
++    char vhost_wwpn[224];
++    unsigned short vhost_tpgt;
++    unsigned short reserved;
++};
++
++enum vhost_scsi_vq_list {
++    VHOST_SCSI_VQ_CONTROL = 0,
++    VHOST_SCSI_VQ_EVENT = 1,
++    VHOST_SCSI_VQ_NUM_FIXED = 2,
++};
++
++#define VHOST_VIRTIO 0xAF
++#define VHOST_SCSI_SET_ENDPOINT _IOW(VHOST_VIRTIO, 0x40, struct vhost_scsi_target)
++#define VHOST_SCSI_CLEAR_ENDPOINT _IOW(VHOST_VIRTIO, 0x41, struct vhost_scsi_target)
++#define VHOST_SCSI_GET_ABI_VERSION _IOW(VHOST_VIRTIO, 0x42, int)
++
++#define DEFINE_VHOST_SCSI_PROPERTIES(_state, _features_field, _conf_field) \
++    DEFINE_PROP_BIT("indirect_desc", _state, _features_field, VIRTIO_RING_F_INDIRECT_DESC, true), \
++    DEFINE_PROP_BIT("event_idx", _state, _features_field, VIRTIO_RING_F_EVENT_IDX, false), \
++    DEFINE_PROP_STRING("vhostfd", _state, _conf_field.vhostfd), \
++    DEFINE_PROP_STRING("wwpn", _state, _conf_field.wwpn), \
++    DEFINE_PROP_UINT32("num_queues", _state, _conf_field.num_queues, 1), \
++    DEFINE_PROP_UINT32("max_sectors", _state, _conf_field.max_sectors, 0xFFFF), \
++    DEFINE_PROP_UINT32("cmd_per_lun", _state, _conf_field.cmd_per_lun, 128), \
++    DEFINE_PROP_BIT("hotplug", _state, _features_field, VIRTIO_SCSI_F_HOTPLUG, true)
++
++VirtIODevice *vhost_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf);
++void vhost_scsi_exit(VirtIODevice *vdev);
++
++
++#endif
+diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
+index f3ece78..0d67b84 100644
+--- a/hw/virtio-pci.c
++++ b/hw/virtio-pci.c
+@@ -22,6 +22,7 @@
+ #include "hw/virtio-net.h"
+ #include "hw/virtio-serial.h"
+ #include "hw/virtio-scsi.h"
++#include "hw/vhost-scsi.h"
+ #include "hw/pci/pci.h"
+ #include "qemu/error-report.h"
+ #include "hw/pci/msi.h"
+@@ -1247,6 +1248,64 @@ static const TypeInfo virtio_scsi_info = {
+     .class_init    = virtio_scsi_class_init,
+ };
+ 
++#ifdef CONFIG_VHOST_SCSI
++static int vhost_scsi_init_pci(PCIDevice *pci_dev)
++{
++    VirtIOPCIProxy *proxy = DO_UPCAST(VirtIOPCIProxy, pci_dev, pci_dev);
++    VirtIODevice *vdev;
++
++    vdev = vhost_scsi_init(&pci_dev->qdev, &proxy->scsi);
++    if (!vdev) {
++        return -EINVAL;
++    }
++
++    vdev->nvectors = proxy->nvectors == DEV_NVECTORS_UNSPECIFIED
++                                        ? proxy->scsi.num_queues + 3
++                                        : proxy->nvectors;
++    virtio_init_pci(proxy, vdev);
++
++    /* make the actual value visible */
++    proxy->nvectors = vdev->nvectors;
++    return 0;
++}
++
++static void vhost_scsi_exit_pci(PCIDevice *pci_dev)
++{
++    VirtIOPCIProxy *proxy = DO_UPCAST(VirtIOPCIProxy, pci_dev, pci_dev);
++
++    vhost_scsi_exit(proxy->vdev);
++    virtio_exit_pci(pci_dev);
++}
++
++static Property vhost_scsi_properties[] = {
++    DEFINE_PROP_UINT32("vectors", VirtIOPCIProxy, nvectors, DEV_NVECTORS_UNSPECIFIED),
++    DEFINE_VHOST_SCSI_PROPERTIES(VirtIOPCIProxy, host_features, scsi),
++    DEFINE_PROP_END_OF_LIST(),
++};
++
++static void vhost_scsi_class_init(ObjectClass *klass, void *data)
++{
++    DeviceClass *dc = DEVICE_CLASS(klass);
++    PCIDeviceClass *k = PCI_DEVICE_CLASS(klass);
++
++    k->init = vhost_scsi_init_pci;
++    k->exit = vhost_scsi_exit_pci;
++    k->vendor_id = PCI_VENDOR_ID_REDHAT_QUMRANET;
++    k->device_id = PCI_DEVICE_ID_VIRTIO_SCSI;
++    k->revision = 0x00;
++    k->class_id = PCI_CLASS_STORAGE_SCSI;
++    dc->reset = virtio_pci_reset;
++    dc->props = vhost_scsi_properties;
++}
++
++static const TypeInfo vhost_scsi_info = {
++    .name          = "vhost-scsi-pci",
++    .parent        = TYPE_PCI_DEVICE,
++    .instance_size = sizeof(VirtIOPCIProxy),
++    .class_init    = vhost_scsi_class_init,
++};
++#endif
++
+ #ifdef CONFIG_VIRTFS
+ static int virtio_9p_init_pci(PCIDevice *pci_dev)
+ {
+@@ -1495,6 +1554,9 @@ static void virtio_pci_register_types(void)
+     type_register_static(&virtio_serial_info);
+     type_register_static(&virtio_balloon_info);
+     type_register_static(&virtio_scsi_info);
++#ifdef CONFIG_VHOST_SCSI
++    type_register_static(&vhost_scsi_info);
++#endif
+     type_register_static(&virtio_rng_info);
+     type_register_static(&virtio_pci_bus_info);
+     type_register_static(&virtio_pci_info);
 diff --git a/hw/virtio-scsi.h b/hw/virtio-scsi.h
-index ccf1e42..2bcf606 100644
+index 2bcf606..356bf38 100644
 --- a/hw/virtio-scsi.h
 +++ b/hw/virtio-scsi.h
-@@ -26,25 +26,142 @@
- #define VIRTIO_SCSI_F_HOTPLUG                  1
- #define VIRTIO_SCSI_F_CHANGE                   2
- 
-+#define VIRTIO_SCSI_VQ_SIZE     128
-+#define VIRTIO_SCSI_CDB_SIZE    32
-+#define VIRTIO_SCSI_SENSE_SIZE  96
-+#define VIRTIO_SCSI_MAX_CHANNEL 0
-+#define VIRTIO_SCSI_MAX_TARGET  255
-+#define VIRTIO_SCSI_MAX_LUN     16383
-+
-+/* Response codes */
-+#define VIRTIO_SCSI_S_OK                       0
-+#define VIRTIO_SCSI_S_OVERRUN                  1
-+#define VIRTIO_SCSI_S_ABORTED                  2
-+#define VIRTIO_SCSI_S_BAD_TARGET               3
-+#define VIRTIO_SCSI_S_RESET                    4
-+#define VIRTIO_SCSI_S_BUSY                     5
-+#define VIRTIO_SCSI_S_TRANSPORT_FAILURE        6
-+#define VIRTIO_SCSI_S_TARGET_FAILURE           7
-+#define VIRTIO_SCSI_S_NEXUS_FAILURE            8
-+#define VIRTIO_SCSI_S_FAILURE                  9
-+#define VIRTIO_SCSI_S_FUNCTION_SUCCEEDED       10
-+#define VIRTIO_SCSI_S_FUNCTION_REJECTED        11
-+#define VIRTIO_SCSI_S_INCORRECT_LUN            12
-+
-+/* Controlq type codes.  */
-+#define VIRTIO_SCSI_T_TMF                      0
-+#define VIRTIO_SCSI_T_AN_QUERY                 1
-+#define VIRTIO_SCSI_T_AN_SUBSCRIBE             2
-+
-+/* Valid TMF subtypes.  */
-+#define VIRTIO_SCSI_T_TMF_ABORT_TASK           0
-+#define VIRTIO_SCSI_T_TMF_ABORT_TASK_SET       1
-+#define VIRTIO_SCSI_T_TMF_CLEAR_ACA            2
-+#define VIRTIO_SCSI_T_TMF_CLEAR_TASK_SET       3
-+#define VIRTIO_SCSI_T_TMF_I_T_NEXUS_RESET      4
-+#define VIRTIO_SCSI_T_TMF_LOGICAL_UNIT_RESET   5
-+#define VIRTIO_SCSI_T_TMF_QUERY_TASK           6
-+#define VIRTIO_SCSI_T_TMF_QUERY_TASK_SET       7
-+
-+/* Events.  */
-+#define VIRTIO_SCSI_T_EVENTS_MISSED            0x80000000
-+#define VIRTIO_SCSI_T_NO_EVENT                 0
-+#define VIRTIO_SCSI_T_TRANSPORT_RESET          1
-+#define VIRTIO_SCSI_T_ASYNC_NOTIFY             2
-+#define VIRTIO_SCSI_T_PARAM_CHANGE             3
-+
-+/* Reasons for transport reset event */
-+#define VIRTIO_SCSI_EVT_RESET_HARD             0
-+#define VIRTIO_SCSI_EVT_RESET_RESCAN           1
-+#define VIRTIO_SCSI_EVT_RESET_REMOVED          2
-+
-+/* SCSI command request, followed by data-out */
-+typedef struct {
-+    uint8_t lun[8];              /* Logical Unit Number */
-+    uint64_t tag;                /* Command identifier */
-+    uint8_t task_attr;           /* Task attribute */
-+    uint8_t prio;
-+    uint8_t crn;
-+    uint8_t cdb[];
-+} QEMU_PACKED VirtIOSCSICmdReq;
-+
-+/* Response, followed by sense data and data-in */
-+typedef struct {
-+    uint32_t sense_len;          /* Sense data length */
-+    uint32_t resid;              /* Residual bytes in data buffer */
-+    uint16_t status_qualifier;   /* Status qualifier */
-+    uint8_t status;              /* Command completion status */
-+    uint8_t response;            /* Response values */
-+    uint8_t sense[];
-+} QEMU_PACKED VirtIOSCSICmdResp;
-+
-+/* Task Management Request */
-+typedef struct {
-+    uint32_t type;
-+    uint32_t subtype;
-+    uint8_t lun[8];
-+    uint64_t tag;
-+} QEMU_PACKED VirtIOSCSICtrlTMFReq;
-+
-+typedef struct {
-+    uint8_t response;
-+} QEMU_PACKED VirtIOSCSICtrlTMFResp;
-+
-+/* Asynchronous notification query/subscription */
-+typedef struct {
-+    uint32_t type;
-+    uint8_t lun[8];
-+    uint32_t event_requested;
-+} QEMU_PACKED VirtIOSCSICtrlANReq;
-+
-+typedef struct {
-+    uint32_t event_actual;
-+    uint8_t response;
-+} QEMU_PACKED VirtIOSCSICtrlANResp;
-+
-+typedef struct {
-+    uint32_t event;
-+    uint8_t lun[8];
-+    uint32_t reason;
-+} QEMU_PACKED VirtIOSCSIEvent;
-+
-+typedef struct {
-+    uint32_t num_queues;
-+    uint32_t seg_max;
-+    uint32_t max_sectors;
-+    uint32_t cmd_per_lun;
-+    uint32_t event_info_size;
-+    uint32_t sense_size;
-+    uint32_t cdb_size;
-+    uint16_t max_channel;
-+    uint16_t max_target;
-+    uint32_t max_lun;
-+} QEMU_PACKED VirtIOSCSIConfig;
-+
- struct VirtIOSCSIConf {
+@@ -142,6 +142,8 @@ struct VirtIOSCSIConf {
      uint32_t num_queues;
      uint32_t max_sectors;
      uint32_t cmd_per_lun;
++    char *vhostfd;
++    char *wwpn;
  };
  
--typedef struct VirtIOSCSI {
-+typedef struct VirtIOSCSICommon {
-     VirtIODevice vdev;
-     DeviceState *qdev;
-     VirtIOSCSIConf *conf;
- 
--    SCSIBus bus;
-     uint32_t sense_size;
-     uint32_t cdb_size;
--    int resetting;
--    bool events_dropped;
-     VirtQueue *ctrl_vq;
-     VirtQueue *event_vq;
--    VirtQueue *cmd_vqs[0];
-+    VirtQueue **cmd_vqs;
-+} VirtIOSCSICommon;
-+
-+typedef struct {
-+    VirtIOSCSICommon vs;
-+
-+    SCSIBus bus;
-+    int resetting;
-+    bool events_dropped;
- } VirtIOSCSI;
- 
- #define DEFINE_VIRTIO_SCSI_PROPERTIES(_state, _features_field, _conf_field) \
-@@ -55,4 +172,7 @@ typedef struct VirtIOSCSI {
-     DEFINE_PROP_BIT("hotplug", _state, _features_field, VIRTIO_SCSI_F_HOTPLUG, true), \
-     DEFINE_PROP_BIT("param_change", _state, _features_field, VIRTIO_SCSI_F_CHANGE, true)
- 
-+VirtIOSCSICommon *virtio_scsi_init_common(DeviceState *dev, VirtIOSCSIConf *proxyconf,
-+                                          size_t sz);
-+
- #endif /* _QEMU_VIRTIO_SCSI_H */
-diff --git a/include/qemu/osdep.h b/include/qemu/osdep.h
-index df24400..8b465fd 100644
---- a/include/qemu/osdep.h
-+++ b/include/qemu/osdep.h
-@@ -67,6 +67,10 @@ typedef signed int              int_fast16_t;
- #define MAX(a, b) (((a) > (b)) ? (a) : (b))
- #endif
- 
-+#ifndef ROUND_UP
-+#define ROUND_UP(n,d) (((n) + (d) - 1) & -(d))
-+#endif
-+
- #ifndef DIV_ROUND_UP
- #define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
- #endif
+ typedef struct VirtIOSCSICommon {
 -- 
 1.7.2.5
