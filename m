@@ -1,8 +1,8 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
 	each vq.
-Date: Wed, 27 Mar 2013 13:25:35 +0200
-Message-ID: <20130327112535.GE24243@redhat.com>
+Date: Wed, 27 Mar 2013 13:26:44 +0200
+Message-ID: <20130327112643.GF24243@redhat.com>
 References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
 	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
 	<20130321101300.GA30493@redhat.com>
@@ -11,12 +11,14 @@ References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
 	<8738vjer43.fsf@rustcorp.com.au>
 	<20130326193911.GA19251@redhat.com>
 	<87ip4d4sef.fsf@rustcorp.com.au>
+	<79aede60-5692-4d27-9cfa-7b5fbf96b987@email.android.com>
+	<51525A03.1010906@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87ip4d4sef.fsf@rustcorp.com.au>
+In-Reply-To: <51525A03.1010906@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,47 +28,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: hpa@zytor.com, virtualization@lists.linux-foundation.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 27, 2013 at 10:37:20AM +1030, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > On Mon, Mar 25, 2013 at 08:30:28PM +1030, Rusty Russell wrote:
-> >> Let's go back a level.  Do we still need I/O bars at all now?  Or can we
-> >> say "if you want hundreds of vqs, use mem bars"?
-> >> 
-> >> hpa wanted the option to have either, but do we still want that?
-> >
-> > hpa says having both is required for BIOS, not just for speed with KVM.
+On Tue, Mar 26, 2013 at 07:31:31PM -0700, H. Peter Anvin wrote:
+> On 03/26/2013 05:22 PM, H. Peter Anvin wrote:
+> > I would say let it be undefined... in most cases the host will know what device(s) will matter; e.g. if the guest is ppc no point in providing an I/O BAR.
 > 
-> OK so the offset must not be applied to the I/O bar as you suggested.
-
-Aha. Yes, good idea.  As for how large the offsets are,
-I am guessing we should either just say offset is vqn * X and data is
-vqn, or give hypervisors full flexibility with 32 bit offset and
-arbitrary data.
-16 bit offsets seem neither here nor there ...
-Not a strong preference.
-
-> Since AFAICT I/O bars are deprecated, should we insist that there be a
-> memory bar, and the I/O bar is optional?  Or just leave it entirely
-> undefined, and say there can be either or both?
-
-I would make the memory bar required and the I/O bar optional.
-Again not a strong preference.
-
-> I dislike the idea of BIOS code which assumed an I/O bar and thus won't
-> work with a compliant device which doesn't provide one.  I'd prefer all
-> compliant drivers to work with all compliant devices.
+> For pluggable physical devices, though, both should be provided.
 > 
-> Cheers,
-> Rusty.
+> 	-hpa
 
-In any case, the only thing we would want in the IO BAR is the
-notification.  So we should add a way to control device
-configuration through PCI configuration. An offset/data pair
-will do the trick.
+Yes but what Rusty asked, is whether we should make the memory BAR
+optional.
 
--- 
-MST
+> -- 
+> H. Peter Anvin, Intel Open Source Technology Center
+> I work for Intel.  I don't speak on their behalf.
