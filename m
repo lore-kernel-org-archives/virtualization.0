@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] tcm_vhost: Avoid VIRTIO_RING_F_EVENT_IDX feature bit
-Date: Thu, 28 Mar 2013 18:44:23 +0200
-Message-ID: <20130328164423.GE30183@redhat.com>
+Date: Thu, 28 Mar 2013 18:43:20 +0200
+Message-ID: <20130328164320.GD30183@redhat.com>
 References: <1364430430-968-1-git-send-email-nab@linux-iscsi.org>
 	<20130328060446.GA16579@redhat.com>
 	<1364451902.17698.86.camel@haakon2.linux-iscsi.org>
@@ -50,7 +50,9 @@ On Wed, Mar 27, 2013 at 11:25:02PM -0700, Nicholas A. Bellinger wrote:
 > I'm fine with dropping this patch and requiring the event_idx=off option
 > for now for an initial QEMU merge, but thought this made things a little
 > easier for CLI users to avoid confusion.
-> 
+
+Yea, we can't drink the ocean.
+
 > > > ---
 > > >  drivers/vhost/tcm_vhost.c |   10 ++++++++--
 > > >  1 files changed, 8 insertions(+), 2 deletions(-)
@@ -90,13 +92,7 @@ On Wed, Mar 27, 2013 at 11:25:02PM -0700, Nicholas A. Bellinger wrote:
 > Thanks,
 > 
 > --nab
-
-
-Still haven't seen it, anyway
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-
-
+> 
 > > >  #define VHOST_SCSI_MAX_TARGET	256
 > > >  #define VHOST_SCSI_MAX_VQ	128
 > > >  
