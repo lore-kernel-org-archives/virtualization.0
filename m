@@ -1,13 +1,11 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH V3 WIP 3/3] disable vhost_verify_ring_mappings check
-Date: Thu, 28 Mar 2013 06:13:31 -0400 (EDT)
-Message-ID: <8300718.16452772.1364465611936.JavaMail.root@redhat.com>
-References: <20130328090416.GA18482@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 0/2] virtio: console: add locking around control out-vq
+Date: Thu, 28 Mar 2013 16:58:31 +0530
+Message-ID: <cover.1364469955.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130328090416.GA18482@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,18 +15,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Kevin O'Connor <kevin@koconnor.net>, kvm@vger.kernel.org, seabios-devel <seabios@seabios.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> I think it's the right thing to do, but maybe not the right place
-> to do this, need to reset after all IO is done, before
-> ring memory is write protected.
+The in-vq operations were protected by a lock, but the out-vq
+operations were not.  This caused panics / errors as described in
+patch 2.  Fix that.
 
-Our emails are crossing each other unfortunately, but I want to
-reinforce this: ring memory is not write protected.  Remember that
-SeaBIOS can even provide virtio-scsi access to DOS, so you must
-not reset the device.  It must remain functional all the time,
-and the OS's own driver will reset it when it's started.
+The first patch renames the existing cvq_lock to c_ivq_lock to match
+c_ivq.  The second patch introduces the c_ovq_lock for the c_ovq.
 
-Paolo
+Please apply.  I also believe this is a candidate for stable.
+
+
+Amit Shah (2):
+  virtio: console: rename cvq_lock to c_ivq_lock
+  virtio: console: add locking around c_ovq operations
+
+ drivers/char/virtio_console.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
+
+-- 
+1.8.1.4
