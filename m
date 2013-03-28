@@ -1,19 +1,14 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 2/2] tcm_vhost: Initialize vq->last_used_idx when set
-	endpoint
-Date: Thu, 28 Mar 2013 10:19:27 +0800
-Message-ID: <20130328021927.GA17820__31195.151891052$1364437206$gmane$org@hj.localdomain>
-References: <1363920748-32139-1-git-send-email-asias@redhat.com>
-	<1363920748-32139-3-git-send-email-asias@redhat.com>
-	<20130325111611.GD9221@redhat.com>
-	<1364416155.17698.3.camel@haakon2.linux-iscsi.org>
-	<20130327214559.GB10678@redhat.com>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+Subject: Re: [PATCH V7 0/5] virtio-scsi multiqueue
+Date: Thu, 28 Mar 2013 10:22:11 +0800
+Message-ID: <5153A953.2000101@cn.fujitsu.com>
+References: <1364038124-32479-1-git-send-email-gaowanlong@cn.fujitsu.com>
+Reply-To: gaowanlong@cn.fujitsu.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130327214559.GB10678@redhat.com>
+In-Reply-To: <1364038124-32479-1-git-send-email-gaowanlong@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,80 +18,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: JBottomley@parallels.com
+Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 27, 2013 at 11:45:59PM +0200, Michael S. Tsirkin wrote:
-> On Wed, Mar 27, 2013 at 01:29:15PM -0700, Nicholas A. Bellinger wrote:
-> > On Mon, 2013-03-25 at 13:16 +0200, Michael S. Tsirkin wrote:
-> > > On Fri, Mar 22, 2013 at 10:52:28AM +0800, Asias He wrote:
-> > > > This patch fixes guest hang when booting seabios and guest.
-> > > > 
-> > > >   [    0.576238] scsi0 : Virtio SCSI HBA
-> > > >   [    0.616754] virtio_scsi virtio1: request:id 0 is not a head!
-> > > > 
-> > > > vq->last_used_idx is initialized only when /dev/vhost-scsi is
-> > > > opened or closed.
-> > > > 
-> > > >    vhost_scsi_open -> vhost_dev_init() -> vhost_vq_reset()
-> > > >    vhost_scsi_release() -> vhost_dev_cleanup -> vhost_vq_reset()
-> > > > 
-> > > > So, when guest talks to tcm_vhost after seabios does, vq->last_used_idx
-> > > > still contains the old valule for seabios. This confuses guest.
-> > > > 
-> > > > Fix this by calling vhost_init_used() to init vq->last_used_idx when
-> > > > we set endpoint.
-> > > > 
-> > > > Signed-off-by: Asias He <asias@redhat.com>
-> > > 
-> > > Good catch, thanks.
-> > > 
-> > > Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> > > 
-> > > Nicholas can you pick this one up for 3.9 please?
-> > > 
-> > 
-> > Just a heads up that this needs PATCH 1/2 as vhost_init_used() expects
-> > vq->private_data to already have been set..
-> > 
-> > Can you take a another look at the first patch as a v3.9 item..?  Both
-> > are required in order for Asias's seabios changes to work.
-> > 
-> > Thanks,
-> > 
-> > --nab
-> > 
+On 03/23/2013 07:28 PM, Wanlong Gao wrote:
+> This series implements virtio-scsi queue steering, which gives
+> performance improvements of up to 50% (measured both with QEMU and
+> tcm_vhost backends).
 > 
-> Both me and Asias agreed it's not 3.9 material.
-> Asias, can you please rework 2/2 to avoid dependency on 1/2?
-> Should be trivial enough ...
+> This version rebased on Rusty's virtio ring rework patches, which
+> has already gone into virtio-next today.
+> We hope this can go into virtio-next together with the virtio ring
+> rework pathes.
+> 
+> V7: respin to fix the patch apply error
+> 
+> V6: rework "redo allocation of target data" (James)
+>     fix comments (Venkatesh)
+>     rebase to virtio-next
+> 
+> V5: improving the grammar of 1/5 (Paolo)
+>     move the dropping of sg_elems to 'virtio-scsi: use virtqueue_add_sgs for command buffers'. (Asias)
+> 
+> V4: rebase on virtio ring rework patches (rusty's pending-rebases branch)
+> 
+> V3 and be found http://marc.info/?l=linux-virtualization&m=136067440717154&w=2
+> 
+> 
+> It would probably be easier to get it in via Rusty's tree
+> because of the prerequisites.  James, can we get your Acked-by?
 
-Nicholas, please take the one from '[PATCH V2 0/2] tcm_vhost endpoint' for
-3.9.
+James, any thoughts for this version?
 
-> > > >  drivers/vhost/tcm_vhost.c | 1 +
-> > > >  1 file changed, 1 insertion(+)
-> > > > 
-> > > > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> > > > index 099feef..0524267 100644
-> > > > --- a/drivers/vhost/tcm_vhost.c
-> > > > +++ b/drivers/vhost/tcm_vhost.c
-> > > > @@ -848,6 +848,7 @@ static int vhost_scsi_set_endpoint(
-> > > >  			/* Flushing the vhost_work acts as synchronize_rcu */
-> > > >  			mutex_lock(&vq->mutex);
-> > > >  			rcu_assign_pointer(vq->private_data, vs);
-> > > > +			vhost_init_used(vq);
-> > > >  			mutex_unlock(&vq->mutex);
-> > > >  		}
-> > > >  		ret = 0;
-> > > > -- 
-> > > > 1.8.1.4
-> > > --
-> > > To unsubscribe from this list: send the line "unsubscribe target-devel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > 
+Thanks,
+Wanlong Gao
 
--- 
-Asias
+> 
+> Paolo Bonzini (3):
+>   virtio-scsi: pass struct virtio_scsi to virtqueue completion function
+>   virtio-scsi: push vq lock/unlock into virtscsi_vq_done
+>   virtio-scsi: introduce multiqueue support
+> 
+> Wanlong Gao (2):
+>   virtio-scsi: redo allocation of target data
+>   virtio-scsi: reset virtqueue affinity when doing cpu hotplug
+> 
+>  drivers/scsi/virtio_scsi.c | 387 ++++++++++++++++++++++++++++++++++++---------
+>  1 file changed, 309 insertions(+), 78 deletions(-)
+> 
