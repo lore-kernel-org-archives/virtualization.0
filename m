@@ -1,7 +1,7 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [PATCH] tcm_vhost: Avoid VIRTIO_RING_F_EVENT_IDX feature bit
-Date: Thu, 28 Mar 2013 00:27:10 +0000
-Message-ID: <1364430430-968-1-git-send-email-nab@linux-iscsi.org>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH V2 0/2] tcm_vhost endpoint
+Date: Thu, 28 Mar 2013 10:17:26 +0800
+Message-ID: <1364437048-19932-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,61 +15,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: target-devel <target-devel@vger.kernel.org>
-Cc: kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Nicholas Bellinger <nab@linux-iscsi.org>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicholas Bellinger <nab@linux-iscsi.org>
+Reordered the patch, so patch 1 can go to v3.9.
 
-This patch adds a VHOST_TCM_FEATURES mask minus VIRTIO_RING_F_EVENT_IDX
-so that vhost-scsi-pci userspace will strip this feature bit once
-GET_FEATURES reports it as being unsupported on the host.
+Asias He (2):
+  tcm_vhost: Initialize vq->last_used_idx when set endpoint
+  tcm_vhost: Use vq->private_data to indicate if the endpoint is setup
 
-This is to avoid a bug where ->handle_kicks() are missed when EVENT_IDX
-is enabled by default in userspace code.
+ drivers/vhost/tcm_vhost.c | 47 +++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 41 insertions(+), 6 deletions(-)
 
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Asias He <asias@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
----
- drivers/vhost/tcm_vhost.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 0524267..b127edc 100644
---- a/drivers/vhost/tcm_vhost.c
-+++ b/drivers/vhost/tcm_vhost.c
-@@ -60,6 +60,12 @@ enum {
- 	VHOST_SCSI_VQ_IO = 2,
- };
- 
-+enum {
-+	VHOST_TCM_FEATURES = (1ULL << VIRTIO_F_NOTIFY_ON_EMPTY) |
-+			     (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
-+			     (1ULL << VHOST_F_LOG_ALL)
-+};
-+
- #define VHOST_SCSI_MAX_TARGET	256
- #define VHOST_SCSI_MAX_VQ	128
- 
-@@ -981,7 +987,7 @@ static void vhost_scsi_flush(struct vhost_scsi *vs)
- 
- static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
- {
--	if (features & ~VHOST_FEATURES)
-+	if (features & ~VHOST_TCM_FEATURES)
- 		return -EOPNOTSUPP;
- 
- 	mutex_lock(&vs->dev.mutex);
-@@ -1027,7 +1033,7 @@ static long vhost_scsi_ioctl(struct file *f, unsigned int ioctl,
- 			return -EFAULT;
- 		return 0;
- 	case VHOST_GET_FEATURES:
--		features = VHOST_FEATURES;
-+		features = VHOST_TCM_FEATURES;
- 		if (copy_to_user(featurep, &features, sizeof features))
- 			return -EFAULT;
- 		return 0;
 -- 
-1.7.2.5
+1.8.1.4
