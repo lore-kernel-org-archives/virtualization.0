@@ -1,15 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/2 V2] virtio-spec: dynamic network offloads configuration
-Date: Thu, 28 Mar 2013 18:40:43 +0200
-Message-ID: <20130328164043.GC30183@redhat.com>
-References: <1364464860-28961-1-git-send-email-dmitry@daynix.com>
-	<1364464860-28961-3-git-send-email-dmitry@daynix.com>
+Subject: Re: [PATCH] tcm_vhost: Avoid VIRTIO_RING_F_EVENT_IDX feature bit
+Date: Thu, 28 Mar 2013 18:44:23 +0200
+Message-ID: <20130328164423.GE30183@redhat.com>
+References: <1364430430-968-1-git-send-email-nab@linux-iscsi.org>
+	<20130328060446.GA16579@redhat.com>
+	<1364451902.17698.86.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1364464860-28961-3-git-send-email-dmitry@daynix.com>
+In-Reply-To: <1364451902.17698.86.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,199 +20,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dmitry Fleytman <dmitry@daynix.com>
-Cc: Yan Vugenfirer <yan@daynix.com>, Dmitry Fleytman <dfleytma@redhat.com>, virtualization@lists.linux-foundation.org
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: kvm-devel <kvm@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 28, 2013 at 12:01:00PM +0200, Dmitry Fleytman wrote:
-> From: Dmitry Fleytman <dfleytma@redhat.com>
+On Wed, Mar 27, 2013 at 11:25:02PM -0700, Nicholas A. Bellinger wrote:
+> On Thu, 2013-03-28 at 08:04 +0200, Michael S. Tsirkin wrote:
+> > On Thu, Mar 28, 2013 at 12:27:10AM +0000, Nicholas A. Bellinger wrote:
+> > > From: Nicholas Bellinger <nab@linux-iscsi.org>
+> > > 
+> > > This patch adds a VHOST_TCM_FEATURES mask minus VIRTIO_RING_F_EVENT_IDX
+> > > so that vhost-scsi-pci userspace will strip this feature bit once
+> > > GET_FEATURES reports it as being unsupported on the host.
+> > > 
+> > > This is to avoid a bug where ->handle_kicks() are missed when EVENT_IDX
+> > > is enabled by default in userspace code.
+> > > 
+> > > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > > Cc: Asias He <asias@redhat.com>
+> > > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> > 
+> > No chance we can debug this properly?
+> > 
 > 
-> Virtio-net driver currently negotiates network offloads
-> on startup via features mechanism and have no ability to
-> change offloads state later.
-> This patch introduced a new control command that allows
-> to configure device network offloads state dynamically.
-> The patch also introduces a new feature flag
-> VIRTIO_NET_F_CTRL_GUEST_OFFLD.
-
-Maybe rename it VIRTIO_NET_F_CTRL_GUEST_OFFLOADS to match
-the command name.
-
-Otherwise OK.
-
+> Well, I assumed this was a low priority item ahead of tracking down the
+> other blocking seabios related issue.
 > 
-> Signed-off-by: Dmitry Fleytman <dfleytma@redhat.com>
-> ---
->  virtio-spec.lyx | 143 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 143 insertions(+)
+> I'm fine with dropping this patch and requiring the event_idx=off option
+> for now for an initial QEMU merge, but thought this made things a little
+> easier for CLI users to avoid confusion.
 > 
-> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-> index 3d2f485..cdc4320 100644
-> --- a/virtio-spec.lyx
-> +++ b/virtio-spec.lyx
-> @@ -60,6 +60,7 @@
->  \author -1930653948 "Amos Kong" 
->  \author -608949062 "Rusty Russell,,," 
->  \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
-> +\author 460276516 "Dmitry Fleytman" dfleytma@redhat.com
->  \author 1112500848 "Rusty Russell" rusty@rustcorp.com.au
->  \author 1531152142 "Paolo Bonzini,,," 
->  \author 1717892615 "Alexey Zaytsev,,," 
-> @@ -4261,6 +4262,20 @@ VIRTIO_NET_F_GUEST_CSUM
->  \end_inset
->  
->  (1) Guest handles packets with partial checksum
-> +\change_inserted 460276516 1363712169
-> +
-> +\end_layout
-> +
-> +\begin_layout Description
-> +
-> +\change_inserted 460276516 1363712334
-> +VIRTIO_NET_F_CTRL_GUEST_OFFLD
-> +\begin_inset space ~
-> +\end_inset
-> +
-> +(2) Control channel offloads reconfiguration support.
-> +\change_unchanged
-> +
->  \end_layout
->  
->  \begin_layout Description
-> @@ -5675,6 +5690,134 @@ virtqueue_pairs = 1
->   
->  \end_layout
->  
-> +\begin_layout Subsection*
-> +
-> +\change_inserted 460276516 1363765850
-> +Offloads State Configuration
-> +\end_layout
-> +
-> +\begin_layout Standard
-> +
-> +\change_inserted 460276516 1363765861
-> +If the VIRTIO_NET_F_CTRL_GUEST_OFFLD feature is negotiated, the driver can
-> + send control commands for dynamic offloads state configuration.
-> +\end_layout
-> +
-> +\begin_layout Subsubsection*
-> +
-> +\change_inserted 460276516 1363765928
-> +Setting offloads state
-> +\end_layout
-> +
-> +\begin_layout Standard
-> +
-> +\change_inserted 460276516 1363713225
-> +\begin_inset listings
-> +inline false
-> +status open
-> +
-> +\begin_layout Plain Layout
-> +
-> +\change_inserted 460276516 1363765996
-> +
-> +u32 offloads;
-> +\end_layout
-> +
-> +\begin_layout Plain Layout
-> +
-> +\change_inserted 460276516 1363765997
-> +
-> +\end_layout
-> +
-> +\begin_layout Plain Layout
-> +
-> +\change_inserted 460276516 1363766044
-> +
-> +#define VIRTIO_NET_OFFLOAD_GUEST_CSUM       1
-> +\end_layout
-> +
-> +\begin_layout Plain Layout
-> +
-> +\change_inserted 460276516 1363766051
-> +
-> +#define VIRTIO_NET_OFFLOAD_GUEST_TSO4       2
-> +\end_layout
-> +
-> +\begin_layout Plain Layout
-> +
-> +\change_inserted 460276516 1363766055
-> +
-> +#define VIRTIO_NET_OFFLOAD_GUEST_TSO6       4
-> +\end_layout
-> +
-> +\begin_layout Plain Layout
-> +
-> +\change_inserted 460276516 1363766064
-> +
-> +#define VIRTIO_NET_OFFLOAD_GUEST_ECN        8
-> +\end_layout
-> +
-> +\begin_layout Plain Layout
-> +
-> +\change_inserted 460276516 1363766035
-> +
-> +#define VIRTIO_NET_OFFLOAD_GUEST_UFO       16
-> +\end_layout
-> +
-> +\begin_layout Plain Layout
-> +
-> +\change_inserted 460276516 1363766031
-> +
-> +\end_layout
-> +
-> +\begin_layout Plain Layout
-> +
-> +\change_inserted 460276516 1363765865
-> +
-> +#define VIRTIO_NET_CTRL_GUEST_OFFLOADS       5
-> +\end_layout
-> +
-> +\begin_layout Plain Layout
-> +
-> +\change_inserted 460276516 1363765867
-> +
-> + #define VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET          0
-> +\end_layout
-> +
-> +\end_inset
-> +
-> +
-> +\end_layout
-> +
-> +\begin_layout Standard
-> +
-> +\change_inserted 460276516 1363766082
-> +The class VIRTIO_NET_CTRL_GUEST_OFFLOADS has one command: VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET
-> + applies the new offloads configuration.
-> +\end_layout
-> +
-> +\begin_layout Standard
-> +
-> +\change_inserted 460276516 1363766435
-> +u32 value passed as command data is a bitmask, bits set define offloads
-> + to be enabled, bits cleared - offloads to be disabled.
-> +\end_layout
-> +
-> +\begin_layout Standard
-> +
-> +\change_inserted 460276516 1363766757
-> +There is a corresponding device feature for each offload.
-> + Upon feature negotiation corresponding offload gets enabled to preserve
-> + backward compartibility.
-> +\end_layout
-> +
-> +\begin_layout Standard
-> +
-> +\change_inserted 460276516 1363766720
-> +Corresponding feature must be negotiated at startup in order to allow dynamic
-> + change of specific offload state.
-> +\end_layout
-> +
->  \begin_layout Chapter*
->  Appendix D: Block Device
->  \end_layout
-> -- 
-> 1.8.1.4
+> > > ---
+> > >  drivers/vhost/tcm_vhost.c |   10 ++++++++--
+> > >  1 files changed, 8 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+> > > index 0524267..b127edc 100644
+> > > --- a/drivers/vhost/tcm_vhost.c
+> > > +++ b/drivers/vhost/tcm_vhost.c
+> > > @@ -60,6 +60,12 @@ enum {
+> > >  	VHOST_SCSI_VQ_IO = 2,
+> > >  };
+> > >  
+> > > +enum {
+> > > +	VHOST_TCM_FEATURES = (1ULL << VIRTIO_F_NOTIFY_ON_EMPTY) |
+> > > +			     (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
+> > > +			     (1ULL << VHOST_F_LOG_ALL)
+> > 
+> > All the rest of the code uses VHOST_SCSI so rename this too?
+> > 
+> > > +};
+> > > +
+> > 
+> > Please do something like
+> > 
+> > +/*
+> > +* VIRTIO_RING_F_EVENT_IDX seems broken. Not sure the bug is in
+> > +* kernel but disabling it helps.
+> > +* TODO: debug and remove the workaround.
+> > +*/
+> > +enum {
+> > +     VHOST_SCSI_FEATURES = VHOST_FEATURES & (~VIRTIO_RING_F_EVENT_IDX)
+> > +}
+> > 
+> 
+> Patch updated.
+> 
+> Thanks,
+> 
+> --nab
+
+
+Still haven't seen it, anyway
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+
+
+> > >  #define VHOST_SCSI_MAX_TARGET	256
+> > >  #define VHOST_SCSI_MAX_VQ	128
+> > >  
+> > > @@ -981,7 +987,7 @@ static void vhost_scsi_flush(struct vhost_scsi *vs)
+> > >  
+> > >  static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
+> > >  {
+> > > -	if (features & ~VHOST_FEATURES)
+> > > +	if (features & ~VHOST_TCM_FEATURES)
+> > >  		return -EOPNOTSUPP;
+> > >  
+> > >  	mutex_lock(&vs->dev.mutex);
+> > > @@ -1027,7 +1033,7 @@ static long vhost_scsi_ioctl(struct file *f, unsigned int ioctl,
+> > >  			return -EFAULT;
+> > >  		return 0;
+> > >  	case VHOST_GET_FEATURES:
+> > > -		features = VHOST_FEATURES;
+> > > +		features = VHOST_TCM_FEATURES;
+> > >  		if (copy_to_user(featurep, &features, sizeof features))
+> > >  			return -EFAULT;
+> > >  		return 0;
+> > > -- 
+> > > 1.7.2.5
+> 
