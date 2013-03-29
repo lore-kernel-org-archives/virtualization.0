@@ -1,15 +1,15 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 2/2] virtio: console: add locking around c_ovq operations
-Date: Fri, 29 Mar 2013 08:29:01 +0800
-Message-ID: <20130329002901.GA22450@hj.localdomain>
+Subject: Re: [PATCH 1/2] virtio: console: rename cvq_lock to c_ivq_lock
+Date: Fri, 29 Mar 2013 08:30:49 +0800
+Message-ID: <20130329003049.GB22450@hj.localdomain>
 References: <cover.1364469955.git.amit.shah@redhat.com>
-	<7020cea46a2e01d7205e6af0faffcebbed032003.1364469955.git.amit.shah@redhat.com>
+	<31670e919527c1594c2fbab64c7a398a5f673086.1364469955.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <7020cea46a2e01d7205e6af0faffcebbed032003.1364469955.git.amit.shah@redhat.com>
+In-Reply-To: <31670e919527c1594c2fbab64c7a398a5f673086.1364469955.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,74 +23,85 @@ To: Amit Shah <amit.shah@redhat.com>
 Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 28, 2013 at 04:58:33PM +0530, Amit Shah wrote:
-> When multiple ovq operations are being performed (lots of open/close
-> operations on virtio_console fds), the __send_control_msg() function can
-> get confused without locking.
+On Thu, Mar 28, 2013 at 04:58:32PM +0530, Amit Shah wrote:
+> The cvq_lock was taken for the c_ivq.  Rename the lock to make that
+> obvious.
 > 
-> A simple recipe to cause badness is:
-> * create a QEMU VM with two virtio-serial ports
-> * in the guest, do
->   while true;do echo abc >/dev/vport0p1;done
->   while true;do echo edf >/dev/vport0p2;done
+> We'll also add a lock around the c_ovq in the next commit, so there's no
+> ambiguity.
 > 
-> In one run, this caused a panic in __send_control_msg().  In another, I
-> got
-> 
->    virtio_console virtio0: control-o:id 0 is not a head!
-> 
-> This also results repeated messages similar to these on the host:
-> 
->   qemu-kvm: virtio-serial-bus: Unexpected port id 478762112 for device virtio-serial-bus.0
->   qemu-kvm: virtio-serial-bus: Unexpected port id 478762368 for device virtio-serial-bus.0
-> 
-> Reported-by: FuXiangChun <xfu@redhat.com>
 > Signed-off-by: Amit Shah <amit.shah@redhat.com>
 
-So, probably this will not apply on virtio-next because of the
-virtqueue_add_outbuf change.
-
-Anyway,  Reviewed-by: Asias He <asias@redhat.com>
+Reviewed-by: Asias He <asias@redhat.com>
 
 > ---
->  drivers/char/virtio_console.c | 5 +++++
->  1 file changed, 5 insertions(+)
+>  drivers/char/virtio_console.c | 17 +++++++++--------
+>  1 file changed, 9 insertions(+), 8 deletions(-)
 > 
 > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index 7e9bc1d..410866c 100644
+> index e905d5f..7e9bc1d 100644
 > --- a/drivers/char/virtio_console.c
 > +++ b/drivers/char/virtio_console.c
-> @@ -150,6 +150,7 @@ struct ports_device {
+> @@ -149,7 +149,7 @@ struct ports_device {
+>  	spinlock_t ports_lock;
 >  
 >  	/* To protect the vq operations for the control channel */
->  	spinlock_t c_ivq_lock;
-> +	spinlock_t c_ovq_lock;
+> -	spinlock_t cvq_lock;
+> +	spinlock_t c_ivq_lock;
 >  
 >  	/* The current config space is stored here */
 >  	struct virtio_console_config config;
-> @@ -569,11 +570,14 @@ static ssize_t __send_control_msg(struct ports_device *portdev, u32 port_id,
->  	vq = portdev->c_ovq;
+> @@ -1709,23 +1709,23 @@ static void control_work_handler(struct work_struct *work)
+>  	portdev = container_of(work, struct ports_device, control_work);
+>  	vq = portdev->c_ivq;
 >  
->  	sg_init_one(sg, &cpkt, sizeof(cpkt));
-> +
-> +	spin_lock_irq(&portdev->c_ovq_lock);
->  	if (virtqueue_add_buf(vq, sg, 1, 0, &cpkt, GFP_ATOMIC) == 0) {
->  		virtqueue_kick(vq);
->  		while (!virtqueue_get_buf(vq, &len))
->  			cpu_relax();
+> -	spin_lock(&portdev->cvq_lock);
+> +	spin_lock(&portdev->c_ivq_lock);
+>  	while ((buf = virtqueue_get_buf(vq, &len))) {
+> -		spin_unlock(&portdev->cvq_lock);
+> +		spin_unlock(&portdev->c_ivq_lock);
+>  
+>  		buf->len = len;
+>  		buf->offset = 0;
+>  
+>  		handle_control_message(portdev, buf);
+>  
+> -		spin_lock(&portdev->cvq_lock);
+> +		spin_lock(&portdev->c_ivq_lock);
+>  		if (add_inbuf(portdev->c_ivq, buf) < 0) {
+>  			dev_warn(&portdev->vdev->dev,
+>  				 "Error adding buffer to queue\n");
+>  			free_buf(buf, false);
+>  		}
 >  	}
-> +	spin_unlock_irq(&portdev->c_ovq_lock);
->  	return 0;
+> -	spin_unlock(&portdev->cvq_lock);
+> +	spin_unlock(&portdev->c_ivq_lock);
 >  }
 >  
-> @@ -1987,6 +1991,7 @@ static int virtcons_probe(struct virtio_device *vdev)
+>  static void out_intr(struct virtqueue *vq)
+> @@ -1986,10 +1986,11 @@ static int virtcons_probe(struct virtio_device *vdev)
+>  	if (multiport) {
 >  		unsigned int nr_added_bufs;
 >  
->  		spin_lock_init(&portdev->c_ivq_lock);
-> +		spin_lock_init(&portdev->c_ovq_lock);
+> -		spin_lock_init(&portdev->cvq_lock);
+> +		spin_lock_init(&portdev->c_ivq_lock);
 >  		INIT_WORK(&portdev->control_work, &control_work_handler);
 >  
->  		nr_added_bufs = fill_queue(portdev->c_ivq,
+> -		nr_added_bufs = fill_queue(portdev->c_ivq, &portdev->cvq_lock);
+> +		nr_added_bufs = fill_queue(portdev->c_ivq,
+> +					   &portdev->c_ivq_lock);
+>  		if (!nr_added_bufs) {
+>  			dev_err(&vdev->dev,
+>  				"Error allocating buffers for control queue\n");
+> @@ -2140,7 +2141,7 @@ static int virtcons_restore(struct virtio_device *vdev)
+>  		return ret;
+>  
+>  	if (use_multiport(portdev))
+> -		fill_queue(portdev->c_ivq, &portdev->cvq_lock);
+> +		fill_queue(portdev->c_ivq, &portdev->c_ivq_lock);
+>  
+>  	list_for_each_entry(port, &portdev->ports, list) {
+>  		port->in_vq = portdev->in_vqs[port->id];
 > -- 
 > 1.8.1.4
 > 
