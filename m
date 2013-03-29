@@ -1,23 +1,13 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
 Subject: Re: [PATCH V3 WIP 3/3] disable vhost_verify_ring_mappings check
-Date: Thu, 28 Mar 2013 19:47:19 -0700
-Message-ID: <1364525239.10253.64.camel__18018.7582657256$1364525768$gmane$org@haakon2.linux-iscsi.org>
-References: <1363653285-23776-1-git-send-email-asias@redhat.com>
-	<1363653285-23776-4-git-send-email-asias@redhat.com>
-	<20130319084057.GB24393@stefanha-thinkpad.redhat.com>
-	<1363744628.13070.28.camel@haakon2.linux-iscsi.org>
-	<20130320095140.GA16615@redhat.com>
-	<1364419887.17698.19.camel@haakon2.linux-iscsi.org>
-	<20130327215625.GC10678@redhat.com>
-	<1364423629.17698.25.camel@haakon2.linux-iscsi.org>
-	<1364453115.17698.106.camel@haakon2.linux-iscsi.org>
-	<1364456142.10253.6.camel@haakon2.linux-iscsi.org>
-	<20130328090416.GA18482@redhat.com>  <51541556.2040907@redhat.com>
+Date: Thu, 28 Mar 2013 19:53:26 -0700
+Message-ID: <1364525606.10253.69.camel__16345.5565729693$1364526042$gmane$org@haakon2.linux-iscsi.org>
+References: <8300718.16452772.1364465611936.JavaMail.root@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51541556.2040907@redhat.com>
+In-Reply-To: <8300718.16452772.1364465611936.JavaMail.root@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,135 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: target-devel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, seabios-devel <seabios@seabios.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Kevin O'Connor <kevin@koconnor.net>, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Kevin O'Connor <kevin@koconnor.net>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, seabios-devel <seabios@seabios.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2013-03-28 at 11:03 +0100, Paolo Bonzini wrote:
-> Il 28/03/2013 10:04, Michael S. Tsirkin ha scritto:
-> >>> > > Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
-> >>> > > Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
-> >>> > > Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
-> >>> > > Checking vq: 2 ring_phys: ed000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
-> >>> > > Calling l: 5124 for start_addr: c0000 for vq 2
-> >>> > > Unable to map ring buffer for ring 2
-> >>> > > l: 4096 ring_size: 5124
-> > okay so the ring address is within ROM.
-> > Unsurprisingly it fails.
-> > bios should stop device before write protect.
-> > 
+On Thu, 2013-03-28 at 06:13 -0400, Paolo Bonzini wrote:
+> > I think it's the right thing to do, but maybe not the right place
+> > to do this, need to reset after all IO is done, before
+> > ring memory is write protected.
 > 
-> The above log is very early, when everything is RAM:
-> 
->   vhost_set_memory: section: 0x7fe2801f2b60 section->size: 2146697216 add: 0
->   Before vhost_verify_ring_mappings: start_addr: c0000 size: 2146697216
-> 
-> The rings are not within ROM.  ROM is at 0xc0000-0xcc000 according to the
-> PAM registers.
-> 
-> The way I followed the debug output, "Got ranges_overlap" means 
-> actually "bailing out because ranges do not overlap".
+> Our emails are crossing each other unfortunately, but I want to
+> reinforce this: ring memory is not write protected.
 
-Yes, this is when !ranges_overlap() is hit in
-vhost_verify_ring_mappings(), so the offending cpu_physical_memory_map()
-is skipped..
+Understood.  However, AFAICT the act of write protecting these ranges
+for ROM generates the offending callbacks to vhost_set_memory().
 
-> In particular, 
-> here all three virtqueues fail the test, because this is the ROM area 
-> 0xc0000..0xc7fff:
-> 
->   vhost_set_memory: section: 0x7fe2801f2aa0 section->size: 32768 add: 1
->   Before vhost_verify_ring_mappings: start_addr: c0000 size: 32768
->   Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
->   Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
->   Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
->   Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
->   Checking vq: 2 ring_phys: ed000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
->   Got ranges_overlap for vq: 2 ring_phys: ed000 ring_size: 5124
-> 
-> Just below, vhost looks at the large RAM area starting at 0xc8000
-> (it's large because 0xf0000..0xfffff is still RAM):
-> 
->   vhost_set_memory: section: 0x7fe2801f2aa0 section->size: 2146664448 add: 1
->   Before vhost_verify_ring_mappings: start_addr: c8000 size: 2146664448
->   Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
->   Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
->   Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
->   Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
->   Checking vq: 2 ring_phys: ed000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
->   Calling l: 5124 for start_addr: c8000 for vq 2
-> 
-> Here vq 0 and 1 fail the test because they are in low RAM, vq 2 passes.
-> 
-> After 0xf0000..0xfffff is marked readonly,
+The part that I'm missing is if ring memory is not being write protected
+by make_bios_readonly_intel(), why are the vhost_set_memory() calls
+being invoked..?
 
-Btw, the first vhost_set_memory() and failing
-vhost_verify_ring_mappings() do not occur until the
-pci_config_writeb(..., 0x31) code is executed in
-src/shadow.c:make_bios_readonly_intel() below:
+> Remember that
+> SeaBIOS can even provide virtio-scsi access to DOS, so you must
+> not reset the device.  It must remain functional all the time,
+> and the OS's own driver will reset it when it's started.
+> 
 
-static void
-make_bios_readonly_intel(u16 bdf, u32 pam0)
-{
-    // Flush any pending writes before locking memory.
-    wbinvd();
+Mmmm, so a vp_reset() is out of the question then..
 
-    // Write protect roms from 0xc0000-0xf0000
-    u32 romend = rom_get_last(), romtop = rom_get_max();
-    int i;
-    for (i=0; i<6; i++) {
-        u32 mem = BUILD_ROM_START + i * 32*1024;
-        u32 pam = pam0 + 1 + i;
-        if (romend <= mem + 16*1024 || romtop <= mem + 32*1024) {
-            if (romend > mem && romtop > mem + 16*1024)
-                pci_config_writeb(bdf, pam, 0x31);
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-            break;
-        }
-        pci_config_writeb(bdf, pam, 0x11);
-    }
-
-    // Write protect 0xf0000-0x100000
-    pci_config_writeb(bdf, pam0, 0x10);
-}
-
-Up until this point, vhost_verify_ring_mappings() is not called by
-vhost_set_memory() as vhost_dev_start() has not been invoked to set
-vdev->started yet..
-
->  vhost looks at the RAM
-> between 0xc9000 and 0xf0000:
-> 
->   vhost_set_memory: section: 0x7fe2801f2aa0 section->size: 159744 add: 1
->   Before vhost_verify_ring_mappings: start_addr: c9000 size: 159744
->   Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
->   Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
->   Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
->   Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
->   Checking vq: 2 ring_phys: ed000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
->   Calling l: 5124 for start_addr: c9000 for vq 2
-> 
-> and the ROM between 0xf0000 and 0xfffff, which no ring overlaps with:
-> 
->   vhost_set_memory: section: 0x7fe2801f2aa0 section->size: 65536 add: 1
->   Before vhost_verify_ring_mappings: start_addr: f0000 size: 65536
->   Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
->   Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
->   Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
->   Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
->   Checking vq: 2 ring_phys: ed000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
->   Got ranges_overlap for vq: 2 ring_phys: ed000 ring_size: 5124
-> 
-> 
-> 
-> SeaBIOS is indeed not initializing vqs 0/1 (the control and event 
-> queues), so their ring_phys is 0.  But the one that is failing is vq 2, 
-> the first request queue.
-> 
-> Your patch seems good, but shouldn't fix this problem.
-> 
-> Paolo
-> --
-> To unsubscribe from this list: send the line "unsubscribe target-devel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--nab
