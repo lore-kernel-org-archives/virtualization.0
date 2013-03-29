@@ -1,16 +1,11 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH] tcm_vhost: Avoid VIRTIO_RING_F_EVENT_IDX feature bit
-Date: Thu, 28 Mar 2013 18:03:05 -0700
-Message-ID: <1364518985.10253.42.camel__4453.99795794419$1364519019$gmane$org@haakon2.linux-iscsi.org>
-References: <1364430430-968-1-git-send-email-nab@linux-iscsi.org>
-	<20130328060446.GA16579@redhat.com>
-	<1364451902.17698.86.camel@haakon2.linux-iscsi.org>
-	<20130328164423.GE30183@redhat.com>
+Subject: [PATCH-v2 0/2] Add support for vhost-scsi-pci
+Date: Fri, 29 Mar 2013 01:08:14 +0000
+Message-ID: <1364519296-31883-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130328164423.GE30183@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,87 +15,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm-devel <kvm@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: target-devel <target-devel@vger.kernel.org>
+Cc: kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2013-03-28 at 18:44 +0200, Michael S. Tsirkin wrote:
-> On Wed, Mar 27, 2013 at 11:25:02PM -0700, Nicholas A. Bellinger wrote:
-> > On Thu, 2013-03-28 at 08:04 +0200, Michael S. Tsirkin wrote:
-> > > On Thu, Mar 28, 2013 at 12:27:10AM +0000, Nicholas A. Bellinger wrote:
-> > > > From: Nicholas Bellinger <nab@linux-iscsi.org>
-> > > > 
-> > > > This patch adds a VHOST_TCM_FEATURES mask minus VIRTIO_RING_F_EVENT_IDX
-> > > > so that vhost-scsi-pci userspace will strip this feature bit once
-> > > > GET_FEATURES reports it as being unsupported on the host.
-> > > > 
-> > > > This is to avoid a bug where ->handle_kicks() are missed when EVENT_IDX
-> > > > is enabled by default in userspace code.
-> > > > 
-> > > > Cc: Michael S. Tsirkin <mst@redhat.com>
-> > > > Cc: Asias He <asias@redhat.com>
-> > > > Cc: Paolo Bonzini <pbonzini@redhat.com>
-> > > > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
-> > > 
-> > > No chance we can debug this properly?
-> > > 
-> > 
-> > Well, I assumed this was a low priority item ahead of tracking down the
-> > other blocking seabios related issue.
-> > 
-> > I'm fine with dropping this patch and requiring the event_idx=off option
-> > for now for an initial QEMU merge, but thought this made things a little
-> > easier for CLI users to avoid confusion.
-> > 
-> > > > ---
-> > > >  drivers/vhost/tcm_vhost.c |   10 ++++++++--
-> > > >  1 files changed, 8 insertions(+), 2 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> > > > index 0524267..b127edc 100644
-> > > > --- a/drivers/vhost/tcm_vhost.c
-> > > > +++ b/drivers/vhost/tcm_vhost.c
-> > > > @@ -60,6 +60,12 @@ enum {
-> > > >  	VHOST_SCSI_VQ_IO = 2,
-> > > >  };
-> > > >  
-> > > > +enum {
-> > > > +	VHOST_TCM_FEATURES = (1ULL << VIRTIO_F_NOTIFY_ON_EMPTY) |
-> > > > +			     (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
-> > > > +			     (1ULL << VHOST_F_LOG_ALL)
-> > > 
-> > > All the rest of the code uses VHOST_SCSI so rename this too?
-> > > 
-> > > > +};
-> > > > +
-> > > 
-> > > Please do something like
-> > > 
-> > > +/*
-> > > +* VIRTIO_RING_F_EVENT_IDX seems broken. Not sure the bug is in
-> > > +* kernel but disabling it helps.
-> > > +* TODO: debug and remove the workaround.
-> > > +*/
-> > > +enum {
-> > > +     VHOST_SCSI_FEATURES = VHOST_FEATURES & (~VIRTIO_RING_F_EVENT_IDX)
-> > > +}
-> > > 
-> > 
-> > Patch updated.
-> > 
-> > Thanks,
-> > 
-> > --nab
-> 
-> 
-> Still haven't seen it, anyway
+From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-Apologies, I had to attend to some other items this afternoon..
+Hi QEMU folks,
 
-Sent this updated patch out a moment ago.
+The following is the patch-v2 series to support vhost-scsi-pci within
+the upstream QEMU tree.
 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> 
+This includes the refactoring of existing virtio-scsi code from Paolo
+to allow a VirtIOSCSICommon structure that is shared amoungst existing
+virtio-scsi-pci device and new vhost-scsi-pci device code.
 
-Thanks, including this now.
+Currently this code requires Asias's seabios bugfixes (commit 5a7730db5
+and b44a7be17), and two other tcm_vhost patches to reset vq->last_used_idx
+after seabios handoff and disable EVENT_IDX from GET_FEATURES that's
+currently in flight for v3.9.0 kernel code.
+
+There is a seperate issue with seabios virtio-scsi that's causing a failure
+in vhost_verify_ring_mappings() is still being tracked down, but this series
+should now be getting close to a merge minus this last outstanding item.
+
+Changes in Patch-v2:
+   - Move ->get_features() assignment to virtio_scsi_init() instead of
+     virtio_scsi_init_common() (nab)
+   - Add vhost_scsi_get_features() in order to determine feature bits
+     supports by host kernel (mst + nab)
+   - Re-enable usage of DEFINE_VIRTIO_COMMON_FEATURES, and allow
+     EVENT_IDX to be disabled by host in vhost_scsi_get_features() (mst)
+   - Drop unused hotplug bit in DEFINE_VHOST_SCSI_PROPERTIES (mst)
+   - Drop vhost_verify_ring_mappings() enable-only hack (mst)
+
+A big thanks to Paolo, Asias, MST, and Stefan for all of their efforts
+on this series.
+
+Thank you,
+
+Paolo Bonzini (2):
+  virtio-scsi: create VirtIOSCSICommon
+  vhost-scsi: new device supporting the tcm_vhost Linux kernel module
+
+ configure                  |   15 +++-
+ hw/Makefile.objs           |    5 +-
+ hw/s390x/s390-virtio-bus.c |   35 ++++++
+ hw/vhost-scsi.c            |  264 ++++++++++++++++++++++++++++++++++++++++++++
+ hw/vhost-scsi.h            |   64 +++++++++++
+ hw/virtio-pci.c            |   62 ++++++++++
+ hw/virtio-scsi.c           |  192 ++++++++------------------------
+ hw/virtio-scsi.h           |  132 +++++++++++++++++++++-
+ include/qemu/osdep.h       |    4 +
+ 9 files changed, 623 insertions(+), 150 deletions(-)
+ create mode 100644 hw/vhost-scsi.c
+ create mode 100644 hw/vhost-scsi.h
+
+-- 
+1.7.2.5
