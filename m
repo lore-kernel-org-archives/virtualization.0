@@ -1,23 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/3] vhost-scsi: new device supporting the tcm_vhost
-	Linux kernel module
-Date: Thu, 28 Mar 2013 18:54:03 +0200
-Message-ID: <20130328165403.GD30508@redhat.com>
-References: <1364421586-29857-1-git-send-email-nab@linux-iscsi.org>
-	<1364421586-29857-3-git-send-email-nab@linux-iscsi.org>
-	<20130327222856.GC12518@redhat.com>
-	<1364424342.17698.31.camel@haakon2.linux-iscsi.org>
-	<20130327225021.GA12858@redhat.com>
-	<20130327225349.GA12927@redhat.com>
-	<1364426662.17698.41.camel@haakon2.linux-iscsi.org>
-	<20130328061919.GA16678@redhat.com>
-	<1364452136.17698.89.camel@haakon2.linux-iscsi.org>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH 2/2] virtio: console: add locking around c_ovq operations
+Date: Fri, 29 Mar 2013 08:29:01 +0800
+Message-ID: <20130329002901.GA22450@hj.localdomain>
+References: <cover.1364469955.git.amit.shah@redhat.com>
+	<7020cea46a2e01d7205e6af0faffcebbed032003.1364469955.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1364452136.17698.89.camel@haakon2.linux-iscsi.org>
+In-Reply-To: <7020cea46a2e01d7205e6af0faffcebbed032003.1364469955.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,59 +19,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: kvm-devel <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 27, 2013 at 11:28:56PM -0700, Nicholas A. Bellinger wrote:
-> On Thu, 2013-03-28 at 08:19 +0200, Michael S. Tsirkin wrote:
-> > On Wed, Mar 27, 2013 at 04:24:22PM -0700, Nicholas A. Bellinger wrote:
-> > > On Thu, 2013-03-28 at 00:53 +0200, Michael S. Tsirkin wrote:
-> > > > On Thu, Mar 28, 2013 at 12:50:21AM +0200, Michael S. Tsirkin wrote:
-> > > > > On Wed, Mar 27, 2013 at 03:45:42PM -0700, Nicholas A. Bellinger wrote:
-> > > > > > On Thu, 2013-03-28 at 00:28 +0200, Michael S. Tsirkin wrote:
-> > > > > > > On Wed, Mar 27, 2013 at 09:59:45PM +0000, Nicholas A. Bellinger wrote:
-> > > > > > > > From: Paolo Bonzini <pbonzini@redhat.com>
-> > > > > > > > 
-> > > > > > > > The WWPN specified in configfs is passed to "-device vhost-scsi-pci".
-> > > > > > > > The tgpt field of the SET_ENDPOINT ioctl is obsolete now, so it is not
-> > > > > > > > available from the QEMU command-line.  Instead, I hardcode it to zero.
-> > > > > > > > 
-> > > > > > > > Changes in V4:
-> > > > > > > >    - Set event_idx=off by default (nab, thanks asias)
-> > > > > > > 
-> > > > > > > Why? What's going on here?
-> > > > > > > 
-> > > > > > 
-> > > > > > Not disabling event_idx by default, or disabling from the command line
-> > > > > > ends up resulting in ->handle_kick() not getting called for subsequent
-> > > > > > commands..
-> > > > > > 
-> > > > > > I spent some time trying to track this down recently with no luck, and
-> > > > > > AFAICT it's always been required in order for vhost-scsi to function.
-> > > > > 
-> > > > > Hmm this is a bug in kernel then. A better work-around is
-> > > > > to disable EVENT_IDX in kernel. Let's do it for 3.9?
-> > > > 
-> > > > But before we do, can you check that SET_FEATURES is
-> > > > called with this bit set if you enable event_idx?
-> > > > If not that's your bug then ...
-> > > > 
-> > > 
-> > > Ok, SET_FEATURES is currently not setting any bits at all based upon
-> > > vhost_dev->features, so it looks like a vhost-scsi-pci bug..
-> > > 
-> > > 
-> > 
-> > If you call SET_FEATURES, does it start working even without
-> > disabling EVENT_IDX in kernel?
-> > 
+On Thu, Mar 28, 2013 at 04:58:33PM +0530, Amit Shah wrote:
+> When multiple ovq operations are being performed (lots of open/close
+> operations on virtio_console fds), the __send_control_msg() function can
+> get confused without locking.
 > 
-> Unfortunately, no.  The same strangeness persists unless event_idx=off
-> is passed, or EVENT_IDX is disabled in the kernel and stripped off with
-> the vhost_scsi_get_features() patch.
+> A simple recipe to cause badness is:
+> * create a QEMU VM with two virtio-serial ports
+> * in the guest, do
+>   while true;do echo abc >/dev/vport0p1;done
+>   while true;do echo edf >/dev/vport0p2;done
 > 
+> In one run, this caused a panic in __send_control_msg().  In another, I
+> got
+> 
+>    virtio_console virtio0: control-o:id 0 is not a head!
+> 
+> This also results repeated messages similar to these on the host:
+> 
+>   qemu-kvm: virtio-serial-bus: Unexpected port id 478762112 for device virtio-serial-bus.0
+>   qemu-kvm: virtio-serial-bus: Unexpected port id 478762368 for device virtio-serial-bus.0
+> 
+> Reported-by: FuXiangChun <xfu@redhat.com>
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
 
+So, probably this will not apply on virtio-next because of the
+virtqueue_add_outbuf change.
 
-I think it's important to fix it (usually exposes other bugs)
-but I agree, lets get it working without first.
+Anyway,  Reviewed-by: Asias He <asias@redhat.com>
+
+> ---
+>  drivers/char/virtio_console.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 7e9bc1d..410866c 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -150,6 +150,7 @@ struct ports_device {
+>  
+>  	/* To protect the vq operations for the control channel */
+>  	spinlock_t c_ivq_lock;
+> +	spinlock_t c_ovq_lock;
+>  
+>  	/* The current config space is stored here */
+>  	struct virtio_console_config config;
+> @@ -569,11 +570,14 @@ static ssize_t __send_control_msg(struct ports_device *portdev, u32 port_id,
+>  	vq = portdev->c_ovq;
+>  
+>  	sg_init_one(sg, &cpkt, sizeof(cpkt));
+> +
+> +	spin_lock_irq(&portdev->c_ovq_lock);
+>  	if (virtqueue_add_buf(vq, sg, 1, 0, &cpkt, GFP_ATOMIC) == 0) {
+>  		virtqueue_kick(vq);
+>  		while (!virtqueue_get_buf(vq, &len))
+>  			cpu_relax();
+>  	}
+> +	spin_unlock_irq(&portdev->c_ovq_lock);
+>  	return 0;
+>  }
+>  
+> @@ -1987,6 +1991,7 @@ static int virtcons_probe(struct virtio_device *vdev)
+>  		unsigned int nr_added_bufs;
+>  
+>  		spin_lock_init(&portdev->c_ivq_lock);
+> +		spin_lock_init(&portdev->c_ovq_lock);
+>  		INIT_WORK(&portdev->control_work, &control_work_handler);
+>  
+>  		nr_added_bufs = fill_queue(portdev->c_ivq,
+> -- 
+> 1.8.1.4
+> 
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+
+-- 
+Asias
