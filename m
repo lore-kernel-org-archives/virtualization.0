@@ -1,14 +1,23 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [PATCH-v2 2/2] vhost-scsi: new device supporting the tcm_vhost Linux
-	kernel module
-Date: Fri, 29 Mar 2013 01:08:16 +0000
-Message-ID: <1364519296-31883-3-git-send-email-nab__39737.390043638$1364520007$gmane$org@linux-iscsi.org>
-References: <1364519296-31883-1-git-send-email-nab@linux-iscsi.org>
+Subject: Re: [PATCH V3 WIP 3/3] disable vhost_verify_ring_mappings check
+Date: Thu, 28 Mar 2013 19:47:19 -0700
+Message-ID: <1364525239.10253.64.camel__18018.7582657256$1364525768$gmane$org@haakon2.linux-iscsi.org>
+References: <1363653285-23776-1-git-send-email-asias@redhat.com>
+	<1363653285-23776-4-git-send-email-asias@redhat.com>
+	<20130319084057.GB24393@stefanha-thinkpad.redhat.com>
+	<1363744628.13070.28.camel@haakon2.linux-iscsi.org>
+	<20130320095140.GA16615@redhat.com>
+	<1364419887.17698.19.camel@haakon2.linux-iscsi.org>
+	<20130327215625.GC10678@redhat.com>
+	<1364423629.17698.25.camel@haakon2.linux-iscsi.org>
+	<1364453115.17698.106.camel@haakon2.linux-iscsi.org>
+	<1364456142.10253.6.camel@haakon2.linux-iscsi.org>
+	<20130328090416.GA18482@redhat.com>  <51541556.2040907@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1364519296-31883-1-git-send-email-nab@linux-iscsi.org>
+In-Reply-To: <51541556.2040907@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,650 +27,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: target-devel <target-devel@vger.kernel.org>
-Cc: kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: target-devel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, seabios-devel <seabios@seabios.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Kevin O'Connor <kevin@koconnor.net>, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+On Thu, 2013-03-28 at 11:03 +0100, Paolo Bonzini wrote:
+> Il 28/03/2013 10:04, Michael S. Tsirkin ha scritto:
+> >>> > > Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
+> >>> > > Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
+> >>> > > Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
+> >>> > > Checking vq: 2 ring_phys: ed000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
+> >>> > > Calling l: 5124 for start_addr: c0000 for vq 2
+> >>> > > Unable to map ring buffer for ring 2
+> >>> > > l: 4096 ring_size: 5124
+> > okay so the ring address is within ROM.
+> > Unsurprisingly it fails.
+> > bios should stop device before write protect.
+> > 
+> 
+> The above log is very early, when everything is RAM:
+> 
+>   vhost_set_memory: section: 0x7fe2801f2b60 section->size: 2146697216 add: 0
+>   Before vhost_verify_ring_mappings: start_addr: c0000 size: 2146697216
+> 
+> The rings are not within ROM.  ROM is at 0xc0000-0xcc000 according to the
+> PAM registers.
+> 
+> The way I followed the debug output, "Got ranges_overlap" means 
+> actually "bailing out because ranges do not overlap".
 
-The WWPN specified in configfs is passed to "-device vhost-scsi-pci".
-The tgpt field of the SET_ENDPOINT ioctl is obsolete now, so it is not
-available from the QEMU command-line.  Instead, I hardcode it to zero.
+Yes, this is when !ranges_overlap() is hit in
+vhost_verify_ring_mappings(), so the offending cpu_physical_memory_map()
+is skipped..
 
-Changes in Patch-v2:
-   - Add vhost_scsi_get_features() in order to determine feature bits
-     supports by host kernel (mst + nab)
-   - Re-enable usage of DEFINE_VIRTIO_COMMON_FEATURES, and allow
-     EVENT_IDX to be disabled by host in vhost_scsi_get_features()
-   - Drop unused hotplug bit in DEFINE_VHOST_SCSI_PROPERTIES
+> In particular, 
+> here all three virtqueues fail the test, because this is the ROM area 
+> 0xc0000..0xc7fff:
+> 
+>   vhost_set_memory: section: 0x7fe2801f2aa0 section->size: 32768 add: 1
+>   Before vhost_verify_ring_mappings: start_addr: c0000 size: 32768
+>   Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
+>   Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
+>   Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
+>   Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
+>   Checking vq: 2 ring_phys: ed000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
+>   Got ranges_overlap for vq: 2 ring_phys: ed000 ring_size: 5124
+> 
+> Just below, vhost looks at the large RAM area starting at 0xc8000
+> (it's large because 0xf0000..0xfffff is still RAM):
+> 
+>   vhost_set_memory: section: 0x7fe2801f2aa0 section->size: 2146664448 add: 1
+>   Before vhost_verify_ring_mappings: start_addr: c8000 size: 2146664448
+>   Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
+>   Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
+>   Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
+>   Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
+>   Checking vq: 2 ring_phys: ed000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
+>   Calling l: 5124 for start_addr: c8000 for vq 2
+> 
+> Here vq 0 and 1 fail the test because they are in low RAM, vq 2 passes.
+> 
+> After 0xf0000..0xfffff is marked readonly,
 
-Changes in Patch-v1:
-   - Set event_idx=off by default (nab, thanks asias)
-   - Disable hotplug feature bit for v3.9 tcm_vhost kernel code, need to
-     re-enable in v3.10 (nab)
-   - Update to latest qemu.git/master HEAD
+Btw, the first vhost_set_memory() and failing
+vhost_verify_ring_mappings() do not occur until the
+pci_config_writeb(..., 0x31) code is executed in
+src/shadow.c:make_bios_readonly_intel() below:
 
-Changes in WIP-V3:
-   - Drop ioeventfd vhost_scsi_properties (asias, thanks stefanha)
-   - Add CONFIG_VHOST_SCSI (asias, thanks stefanha)
-   - Add hotplug feature bit
+static void
+make_bios_readonly_intel(u16 bdf, u32 pam0)
+{
+    // Flush any pending writes before locking memory.
+    wbinvd();
 
-Changes in WIP-V2:
-   - Add backend guest masking support (nab)
-   - Bump ABI_VERSION to 1 (nab)
-   - Set up set_guest_notifiers (asias)
-   - Set up vs->dev.vq_index (asias)
-   - Drop vs->vs.vdev.{set,clear}_vhost_endpoint (asias)
-   - Drop VIRTIO_CONFIG_S_DRIVER check in vhost_scsi_set_status (asias)
+    // Write protect roms from 0xc0000-0xf0000
+    u32 romend = rom_get_last(), romtop = rom_get_max();
+    int i;
+    for (i=0; i<6; i++) {
+        u32 mem = BUILD_ROM_START + i * 32*1024;
+        u32 pam = pam0 + 1 + i;
+        if (romend <= mem + 16*1024 || romtop <= mem + 32*1024) {
+            if (romend > mem && romtop > mem + 16*1024)
+                pci_config_writeb(bdf, pam, 0x31);
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Howto:
-   Use the latest seabios, at least commit b44a7be17b
-   git clone git://git.seabios.org/seabios.git
-   make
-   cp out/bios.bin /usr/share/qemu/bios.bin
-   qemu -device vhost-scsi-pci,wwpn=naa.6001405bd4e8476d,event_idx=off
-...
+            break;
+        }
+        pci_config_writeb(bdf, pam, 0x11);
+    }
 
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Asias He <asias@redhat.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
----
- configure                  |   15 +++-
- hw/Makefile.objs           |    5 +-
- hw/s390x/s390-virtio-bus.c |   35 ++++++
- hw/vhost-scsi.c            |  264 ++++++++++++++++++++++++++++++++++++++++++++
- hw/vhost-scsi.h            |   64 +++++++++++
- hw/virtio-pci.c            |   62 ++++++++++
- hw/virtio-scsi.h           |    2 +
- 7 files changed, 445 insertions(+), 2 deletions(-)
- create mode 100644 hw/vhost-scsi.c
- create mode 100644 hw/vhost-scsi.h
+    // Write protect 0xf0000-0x100000
+    pci_config_writeb(bdf, pam0, 0x10);
+}
 
-diff --git a/configure b/configure
-index f2af714..6b67e35 100755
---- a/configure
-+++ b/configure
-@@ -169,6 +169,7 @@ libattr=""
- xfs=""
- 
- vhost_net="no"
-+vhost_scsi="no"
- kvm="no"
- gprof="no"
- debug_tcg="no"
-@@ -532,6 +533,7 @@ Haiku)
-   usb="linux"
-   kvm="yes"
-   vhost_net="yes"
-+  vhost_scsi="yes"
-   if [ "$cpu" = "i386" -o "$cpu" = "x86_64" ] ; then
-     audio_possible_drivers="$audio_possible_drivers fmod"
-   fi
-@@ -858,6 +860,10 @@ for opt do
-   ;;
-   --enable-vhost-net) vhost_net="yes"
-   ;;
-+  --disable-vhost-scsi) vhost_scsi="no"
-+  ;;
-+  --enable-vhost-scsi) vhost_scsi="yes"
-+  ;;
-   --disable-glx) glx="no"
-   ;;
-   --enable-glx) glx="yes"
-@@ -3078,7 +3084,7 @@ fi
- # __sync_fetch_and_and requires at least -march=i486. Many toolchains
- # use i686 as default anyway, but for those that don't, an explicit
- # specification is necessary
--if test "$vhost_net" = "yes" && test "$cpu" = "i386"; then
-+if (test "$vhost_net" = "yes" -o "$vhost_scsi" = "yes") && test "$cpu" = "i386"; then
-   cat > $TMPC << EOF
- static int sfaa(int *ptr)
- {
-@@ -3424,6 +3430,7 @@ echo "sigev_thread_id   $sigev_thread_id"
- echo "uuid support      $uuid"
- echo "libcap-ng support $cap_ng"
- echo "vhost-net support $vhost_net"
-+echo "vhost-scsi support $vhost_scsi"
- echo "Trace backend     $trace_backend"
- echo "Trace output file $trace_file-<pid>"
- echo "spice support     $spice ($spice_protocol_version/$spice_server_version)"
-@@ -3697,6 +3704,9 @@ fi
- if test "$virtfs" = "yes" ; then
-   echo "CONFIG_VIRTFS=y" >> $config_host_mak
- fi
-+if test "$vhost_scsi" = "yes" ; then
-+  echo "CONFIG_VHOST_SCSI=y" >> $config_host_mak
-+fi
- if test "$blobs" = "yes" ; then
-   echo "INSTALL_BLOBS=yes" >> $config_host_mak
- fi
-@@ -4175,6 +4185,9 @@ case "$target_arch2" in
-       if test "$vhost_net" = "yes" ; then
-         echo "CONFIG_VHOST_NET=y" >> $config_target_mak
-       fi
-+      if test "$vhost_scsi" = "yes" ; then
-+        echo "CONFIG_VHOST_SCSI=y" >> $config_target_mak
-+      fi
-     fi
- esac
- case "$target_arch2" in
-diff --git a/hw/Makefile.objs b/hw/Makefile.objs
-index d0b2ecb..0a38eb5 100644
---- a/hw/Makefile.objs
-+++ b/hw/Makefile.objs
-@@ -205,8 +205,11 @@ common-obj-$(CONFIG_XEN_BACKEND) += xen_console.o xenfb.o xen_disk.o xen_nic.o
- obj-$(CONFIG_VIRTIO) += dataplane/
- obj-$(CONFIG_VIRTIO) += virtio.o virtio-blk.o virtio-balloon.o virtio-net.o
- obj-$(CONFIG_VIRTIO) += virtio-serial-bus.o virtio-scsi.o
-+ifeq ($(CONFIG_VIRTIO), y)
-+obj-$(CONFIG_LINUX) += vhost-scsi.o
-+endif
- obj-$(CONFIG_SOFTMMU) += vhost_net.o
--obj-$(CONFIG_VHOST_NET) += vhost.o
-+obj-$(CONFIG_LINUX) += vhost.o
- obj-$(CONFIG_REALLY_VIRTFS) += 9pfs/
- obj-$(CONFIG_VGA) += vga.o
- 
-diff --git a/hw/s390x/s390-virtio-bus.c b/hw/s390x/s390-virtio-bus.c
-index c5d5456..73d93fd 100644
---- a/hw/s390x/s390-virtio-bus.c
-+++ b/hw/s390x/s390-virtio-bus.c
-@@ -28,6 +28,8 @@
- #include "hw/virtio-rng.h"
- #include "hw/virtio-serial.h"
- #include "hw/virtio-net.h"
-+#include "hw/virtio-scsi.h"
-+#include "hw/vhost-scsi.h"
- #include "hw/sysbus.h"
- #include "sysemu/kvm.h"
- 
-@@ -214,6 +216,18 @@ static int s390_virtio_scsi_init(VirtIOS390Device *dev)
-     return s390_virtio_device_init(dev, vdev);
- }
- 
-+static int s390_vhost_scsi_init(VirtIOS390Device *dev)
-+{
-+    VirtIODevice *vdev;
-+
-+    vdev = vhost_scsi_init((DeviceState *)dev, &dev->scsi);
-+    if (!vdev) {
-+        return -1;
-+    }
-+
-+    return s390_virtio_device_init(dev, vdev);
-+}
-+
- static int s390_virtio_rng_init(VirtIOS390Device *dev)
- {
-     VirtIODevice *vdev;
-@@ -537,6 +551,27 @@ static const TypeInfo virtio_s390_device_info = {
-     .abstract = true,
- };
- 
-+static Property s390_vhost_scsi_properties[] = {
-+    DEFINE_VIRTIO_SCSI_PROPERTIES(VirtIOS390Device, host_features, scsi),
-+    DEFINE_PROP_END_OF_LIST(),
-+};
-+
-+static void s390_vhost_scsi_class_init(ObjectClass *klass, void *data)
-+{
-+    DeviceClass *dc = DEVICE_CLASS(klass);
-+    VirtIOS390DeviceClass *k = VIRTIO_S390_DEVICE_CLASS(klass);
-+
-+    k->init = s390_vhost_scsi_init;
-+    dc->props = s390_vhost_scsi_properties;
-+}
-+
-+static const TypeInfo s390_vhost_scsi = {
-+    .name          = "vhost-scsi-s390",
-+    .parent        = TYPE_VIRTIO_S390_DEVICE,
-+    .instance_size = sizeof(VirtIOS390Device),
-+    .class_init    = s390_vhost_scsi_class_init,
-+};
-+
- static Property s390_virtio_scsi_properties[] = {
-     DEFINE_VIRTIO_SCSI_PROPERTIES(VirtIOS390Device, host_features, scsi),
-     DEFINE_PROP_END_OF_LIST(),
-diff --git a/hw/vhost-scsi.c b/hw/vhost-scsi.c
-new file mode 100644
-index 0000000..adc929b
---- /dev/null
-+++ b/hw/vhost-scsi.c
-@@ -0,0 +1,264 @@
-+/*
-+ * vhost_scsi host device
-+ *
-+ * Copyright IBM, Corp. 2011
-+ *
-+ * Authors:
-+ *  Stefan Hajnoczi   <stefanha@linux.vnet.ibm.com>
-+ *
-+ * Changes for QEMU mainline + tcm_vhost kernel upstream:
-+ *  Nicholas Bellinger <nab@risingtidesystems.com>
-+ *
-+ * This work is licensed under the terms of the GNU LGPL, version 2 or later.
-+ * See the COPYING.LIB file in the top-level directory.
-+ *
-+ */
-+
-+#include <sys/ioctl.h>
-+#include "config.h"
-+#include "qemu/queue.h"
-+#include "monitor/monitor.h"
-+#include "migration/migration.h"
-+#include "vhost-scsi.h"
-+#include "vhost.h"
-+#include "virtio-scsi.h"
-+
-+typedef struct VHostSCSI {
-+    VirtIOSCSICommon vs;
-+
-+    Error *migration_blocker;
-+
-+    struct vhost_dev dev;
-+} VHostSCSI;
-+
-+static int vhost_scsi_set_endpoint(VirtIODevice *vdev)
-+{
-+    VHostSCSI *vs = (VHostSCSI *)vdev;
-+    struct vhost_scsi_target backend;
-+    int ret;
-+
-+    memset(&backend, 0, sizeof(backend));
-+    pstrcpy(backend.vhost_wwpn, sizeof(backend.vhost_wwpn), vs->vs.conf->wwpn);
-+    ret = ioctl(vs->dev.control, VHOST_SCSI_SET_ENDPOINT, &backend);
-+    if (ret < 0) {
-+        return -errno;
-+    }
-+    return 0;
-+}
-+
-+static void vhost_scsi_clear_endpoint(VirtIODevice *vdev)
-+{
-+    VHostSCSI *vs = (VHostSCSI *)vdev;
-+    struct vhost_scsi_target backend;
-+
-+    memset(&backend, 0, sizeof(backend));
-+    pstrcpy(backend.vhost_wwpn, sizeof(backend.vhost_wwpn), vs->vs.conf->wwpn);
-+    ioctl(vs->dev.control, VHOST_SCSI_CLEAR_ENDPOINT, &backend);
-+}
-+
-+static int vhost_scsi_start(VHostSCSI *vs, VirtIODevice *vdev)
-+{
-+    int ret, abi_version;
-+
-+    if (!vdev->binding->set_guest_notifiers) {
-+        error_report("binding does not support guest notifiers");
-+        return -ENOSYS;
-+    }
-+
-+    ret = ioctl(vs->dev.control, VHOST_SCSI_GET_ABI_VERSION, &abi_version);
-+    if (ret < 0) {
-+        return -errno;
-+    }
-+    if (abi_version > VHOST_SCSI_ABI_VERSION) {
-+        error_report("vhost-scsi: The running tcm_vhost kernel abi_version:"
-+                     " %d is greater than vhost_scsi userspace supports: %d, please"
-+                     " upgrade your version of QEMU\n", abi_version,
-+                     VHOST_SCSI_ABI_VERSION);
-+        return -ENOSYS;
-+    }
-+
-+    ret = vhost_dev_enable_notifiers(&vs->dev, vdev);
-+    if (ret < 0) {
-+        return ret;
-+    }
-+
-+    ret = vhost_dev_start(&vs->dev, vdev);
-+    if (ret < 0) {
-+        error_report("Error start vhost dev");
-+        goto err_notifiers;
-+    }
-+
-+    ret = vhost_scsi_set_endpoint(vdev);
-+    if (ret < 0) {
-+        error_report("Error set vhost-scsi endpoint");
-+        goto err_vhost_stop;
-+    }
-+
-+    ret = vdev->binding->set_guest_notifiers(vdev->binding_opaque, vs->dev.nvqs, true);
-+    if (ret < 0) {
-+        error_report("Error binding guest notifier");
-+        goto err_endpoint;
-+    }
-+    return ret;
-+
-+err_endpoint:
-+    vhost_scsi_clear_endpoint(vdev);
-+err_vhost_stop:
-+    vhost_dev_stop(&vs->dev, vdev);
-+err_notifiers:
-+    vhost_dev_disable_notifiers(&vs->dev, vdev);
-+    return ret;
-+}
-+
-+static void vhost_scsi_stop(VHostSCSI *vs, VirtIODevice *vdev)
-+{
-+    int ret = 0;
-+
-+    if (!vdev->binding->set_guest_notifiers) {
-+        ret = vdev->binding->set_guest_notifiers(vdev->binding_opaque,
-+                                                 vs->dev.nvqs, false);
-+        if (ret < 0) {
-+                error_report("vhost guest notifier cleanup failed: %d\n", ret);
-+        }
-+    }
-+    assert(ret >= 0);
-+
-+    vhost_scsi_clear_endpoint(vdev);
-+    vhost_dev_stop(&vs->dev, vdev);
-+    vhost_dev_disable_notifiers(&vs->dev, vdev);
-+}
-+
-+static uint32_t vhost_scsi_get_features(VirtIODevice *vdev,
-+                                        uint32_t features)
-+{
-+    VHostSCSI *vs = (VHostSCSI *)vdev;
-+
-+    /* Clear features not supported by host kernel. */
-+    if (!(vs->dev.features & (1 << VIRTIO_F_NOTIFY_ON_EMPTY))) {
-+        features &= ~(1 << VIRTIO_F_NOTIFY_ON_EMPTY);
-+    }
-+    if (!(vs->dev.features & (1 << VIRTIO_RING_F_INDIRECT_DESC))) {
-+        features &= ~(1 << VIRTIO_RING_F_INDIRECT_DESC);
-+    }
-+    if (!(vs->dev.features & (1 << VIRTIO_RING_F_EVENT_IDX))) {
-+        features &= ~(1 << VIRTIO_RING_F_EVENT_IDX);
-+    }
-+    if (!(vs->dev.features & (1 << VIRTIO_SCSI_F_HOTPLUG))) {
-+        features &= ~(1 << VIRTIO_SCSI_F_HOTPLUG);
-+    }
-+
-+    return features;
-+}
-+
-+static void vhost_scsi_set_config(VirtIODevice *vdev,
-+                                  const uint8_t *config)
-+{
-+    VirtIOSCSIConfig *scsiconf = (VirtIOSCSIConfig *)config;
-+    VHostSCSI *vs = (VHostSCSI *)vdev;
-+
-+    if ((uint32_t) ldl_raw(&scsiconf->sense_size) != vs->vs.sense_size ||
-+        (uint32_t) ldl_raw(&scsiconf->cdb_size) != vs->vs.cdb_size) {
-+        error_report("vhost-scsi does not support changing the sense data and CDB sizes");
-+        exit(1);
-+    }
-+}
-+
-+static void vhost_scsi_set_status(VirtIODevice *vdev, uint8_t val)
-+{
-+    VHostSCSI *vs = (VHostSCSI *)vdev;
-+    bool start = (val & VIRTIO_CONFIG_S_DRIVER_OK);
-+
-+    if (vs->dev.started == start) {
-+        return;
-+    }
-+
-+    if (start) {
-+        int ret;
-+
-+        ret = vhost_scsi_start(vs, vdev);
-+        if (ret < 0) {
-+            error_report("virtio-scsi: unable to start vhost: %s\n",
-+                         strerror(-ret));
-+
-+            /* There is no userspace virtio-scsi fallback so exit */
-+            exit(1);
-+        }
-+    } else {
-+        vhost_scsi_stop(vs, vdev);
-+    }
-+}
-+
-+static void vhost_scsi_guest_notifier_mask(VirtIODevice *vdev, int idx,
-+                                           bool mask)
-+{
-+    VHostSCSI *vs = (VHostSCSI *)vdev;
-+
-+    vhost_virtqueue_mask(&vs->dev, vdev, idx, mask);
-+}
-+
-+static bool vhost_scsi_guest_notifier_pending(VirtIODevice *vdev, int idx)
-+{
-+    VHostSCSI *vs = (VHostSCSI *)vdev;
-+
-+    return vhost_virtqueue_pending(&vs->dev, idx);
-+}
-+
-+VirtIODevice *vhost_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf)
-+{
-+    VHostSCSI *vs;
-+    int vhostfd = -1;
-+    int ret;
-+
-+    if (!proxyconf->wwpn) {
-+        error_report("vhost-scsi: missing wwpn\n");
-+        return NULL;
-+    }
-+
-+    if (proxyconf->vhostfd) {
-+        vhostfd = monitor_handle_fd_param(cur_mon, proxyconf->vhostfd);
-+        if (vhostfd == -1) {
-+            error_report("vhost-scsi: unable to parse vhostfd\n");
-+            return NULL;
-+        }
-+    }
-+
-+    vs = (VHostSCSI *)virtio_scsi_init_common(dev, proxyconf,
-+                                              sizeof(VHostSCSI));
-+
-+    vs->vs.vdev.get_features = vhost_scsi_get_features;
-+    vs->vs.vdev.set_config = vhost_scsi_set_config;
-+    vs->vs.vdev.set_status = vhost_scsi_set_status;
-+    vs->vs.vdev.guest_notifier_mask = vhost_scsi_guest_notifier_mask;
-+    vs->vs.vdev.guest_notifier_pending = vhost_scsi_guest_notifier_pending;
-+
-+    vs->dev.nvqs = VHOST_SCSI_VQ_NUM_FIXED + vs->vs.conf->num_queues;
-+    vs->dev.vqs = g_new(struct vhost_virtqueue, vs->dev.nvqs);
-+    vs->dev.vq_index = 0;
-+
-+    ret = vhost_dev_init(&vs->dev, vhostfd, "/dev/vhost-scsi", true);
-+    if (ret < 0) {
-+        error_report("vhost-scsi: vhost initialization failed: %s\n",
-+                strerror(-ret));
-+        return NULL;
-+    }
-+    vs->dev.backend_features = 0;
-+    vs->dev.acked_features = vs->dev.features;
-+
-+    error_setg(&vs->migration_blocker,
-+            "vhost-scsi does not support migration");
-+    migrate_add_blocker(vs->migration_blocker);
-+
-+    return &vs->vs.vdev;
-+}
-+
-+void vhost_scsi_exit(VirtIODevice *vdev)
-+{
-+    VHostSCSI *vs = (VHostSCSI *)vdev;
-+    migrate_del_blocker(vs->migration_blocker);
-+    error_free(vs->migration_blocker);
-+
-+    /* This will stop vhost backend. */
-+    vhost_scsi_set_status(vdev, 0);
-+    g_free(vs->dev.vqs);
-+    virtio_cleanup(vdev);
-+}
-diff --git a/hw/vhost-scsi.h b/hw/vhost-scsi.h
-new file mode 100644
-index 0000000..70f4a58
---- /dev/null
-+++ b/hw/vhost-scsi.h
-@@ -0,0 +1,64 @@
-+/*
-+ * vhost_scsi host device
-+ *
-+ * Copyright IBM, Corp. 2011
-+ *
-+ * Authors:
-+ *  Stefan Hajnoczi   <stefanha@linux.vnet.ibm.com>
-+ *
-+ * This work is licensed under the terms of the GNU LGPL, version 2 or later.
-+ * See the COPYING.LIB file in the top-level directory.
-+ *
-+ */
-+
-+#ifndef VHOST_SCSI_H
-+#define VHOST_SCSI_H
-+
-+#include "qemu-common.h"
-+#include "qdev.h"
-+#include "virtio-scsi.h"
-+
-+/*
-+ * Used by QEMU userspace to ensure a consistent vhost-scsi ABI.
-+ *
-+ * ABI Rev 0: July 2012 version starting point for v3.6-rc merge candidate +
-+ *            RFC-v2 vhost-scsi userspace.  Add GET_ABI_VERSION ioctl usage
-+ * ABI Rev 1: January 2013. Ignore vhost_tpgt filed in struct vhost_scsi_target.
-+ * 	      All the targets under vhost_wwpn can be seen and used by guest.
-+ */
-+
-+#define VHOST_SCSI_ABI_VERSION 1
-+
-+/* TODO #include <linux/vhost.h> properly */
-+/* For VHOST_SCSI_SET_ENDPOINT/VHOST_SCSI_CLEAR_ENDPOINT ioctl */
-+struct vhost_scsi_target {
-+    int abi_version;
-+    char vhost_wwpn[224];
-+    unsigned short vhost_tpgt;
-+    unsigned short reserved;
-+};
-+
-+enum vhost_scsi_vq_list {
-+    VHOST_SCSI_VQ_CONTROL = 0,
-+    VHOST_SCSI_VQ_EVENT = 1,
-+    VHOST_SCSI_VQ_NUM_FIXED = 2,
-+};
-+
-+#define VHOST_VIRTIO 0xAF
-+#define VHOST_SCSI_SET_ENDPOINT _IOW(VHOST_VIRTIO, 0x40, struct vhost_scsi_target)
-+#define VHOST_SCSI_CLEAR_ENDPOINT _IOW(VHOST_VIRTIO, 0x41, struct vhost_scsi_target)
-+#define VHOST_SCSI_GET_ABI_VERSION _IOW(VHOST_VIRTIO, 0x42, int)
-+
-+#define DEFINE_VHOST_SCSI_PROPERTIES(_state, _features_field, _conf_field) \
-+    DEFINE_VIRTIO_COMMON_FEATURES(_state, _features_field), \
-+    DEFINE_PROP_STRING("vhostfd", _state, _conf_field.vhostfd), \
-+    DEFINE_PROP_STRING("wwpn", _state, _conf_field.wwpn), \
-+    DEFINE_PROP_UINT32("num_queues", _state, _conf_field.num_queues, 1), \
-+    DEFINE_PROP_UINT32("max_sectors", _state, _conf_field.max_sectors, 0xFFFF), \
-+    DEFINE_PROP_UINT32("cmd_per_lun", _state, _conf_field.cmd_per_lun, 128)
-+
-+VirtIODevice *vhost_scsi_init(DeviceState *dev, VirtIOSCSIConf *proxyconf);
-+void vhost_scsi_exit(VirtIODevice *vdev);
-+
-+
-+#endif
-diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-index f3ece78..0d67b84 100644
---- a/hw/virtio-pci.c
-+++ b/hw/virtio-pci.c
-@@ -22,6 +22,7 @@
- #include "hw/virtio-net.h"
- #include "hw/virtio-serial.h"
- #include "hw/virtio-scsi.h"
-+#include "hw/vhost-scsi.h"
- #include "hw/pci/pci.h"
- #include "qemu/error-report.h"
- #include "hw/pci/msi.h"
-@@ -1247,6 +1248,64 @@ static const TypeInfo virtio_scsi_info = {
-     .class_init    = virtio_scsi_class_init,
- };
- 
-+#ifdef CONFIG_VHOST_SCSI
-+static int vhost_scsi_init_pci(PCIDevice *pci_dev)
-+{
-+    VirtIOPCIProxy *proxy = DO_UPCAST(VirtIOPCIProxy, pci_dev, pci_dev);
-+    VirtIODevice *vdev;
-+
-+    vdev = vhost_scsi_init(&pci_dev->qdev, &proxy->scsi);
-+    if (!vdev) {
-+        return -EINVAL;
-+    }
-+
-+    vdev->nvectors = proxy->nvectors == DEV_NVECTORS_UNSPECIFIED
-+                                        ? proxy->scsi.num_queues + 3
-+                                        : proxy->nvectors;
-+    virtio_init_pci(proxy, vdev);
-+
-+    /* make the actual value visible */
-+    proxy->nvectors = vdev->nvectors;
-+    return 0;
-+}
-+
-+static void vhost_scsi_exit_pci(PCIDevice *pci_dev)
-+{
-+    VirtIOPCIProxy *proxy = DO_UPCAST(VirtIOPCIProxy, pci_dev, pci_dev);
-+
-+    vhost_scsi_exit(proxy->vdev);
-+    virtio_exit_pci(pci_dev);
-+}
-+
-+static Property vhost_scsi_properties[] = {
-+    DEFINE_PROP_UINT32("vectors", VirtIOPCIProxy, nvectors, DEV_NVECTORS_UNSPECIFIED),
-+    DEFINE_VHOST_SCSI_PROPERTIES(VirtIOPCIProxy, host_features, scsi),
-+    DEFINE_PROP_END_OF_LIST(),
-+};
-+
-+static void vhost_scsi_class_init(ObjectClass *klass, void *data)
-+{
-+    DeviceClass *dc = DEVICE_CLASS(klass);
-+    PCIDeviceClass *k = PCI_DEVICE_CLASS(klass);
-+
-+    k->init = vhost_scsi_init_pci;
-+    k->exit = vhost_scsi_exit_pci;
-+    k->vendor_id = PCI_VENDOR_ID_REDHAT_QUMRANET;
-+    k->device_id = PCI_DEVICE_ID_VIRTIO_SCSI;
-+    k->revision = 0x00;
-+    k->class_id = PCI_CLASS_STORAGE_SCSI;
-+    dc->reset = virtio_pci_reset;
-+    dc->props = vhost_scsi_properties;
-+}
-+
-+static const TypeInfo vhost_scsi_info = {
-+    .name          = "vhost-scsi-pci",
-+    .parent        = TYPE_PCI_DEVICE,
-+    .instance_size = sizeof(VirtIOPCIProxy),
-+    .class_init    = vhost_scsi_class_init,
-+};
-+#endif
-+
- #ifdef CONFIG_VIRTFS
- static int virtio_9p_init_pci(PCIDevice *pci_dev)
- {
-@@ -1495,6 +1554,9 @@ static void virtio_pci_register_types(void)
-     type_register_static(&virtio_serial_info);
-     type_register_static(&virtio_balloon_info);
-     type_register_static(&virtio_scsi_info);
-+#ifdef CONFIG_VHOST_SCSI
-+    type_register_static(&vhost_scsi_info);
-+#endif
-     type_register_static(&virtio_rng_info);
-     type_register_static(&virtio_pci_bus_info);
-     type_register_static(&virtio_pci_info);
-diff --git a/hw/virtio-scsi.h b/hw/virtio-scsi.h
-index 2bcf606..356bf38 100644
---- a/hw/virtio-scsi.h
-+++ b/hw/virtio-scsi.h
-@@ -142,6 +142,8 @@ struct VirtIOSCSIConf {
-     uint32_t num_queues;
-     uint32_t max_sectors;
-     uint32_t cmd_per_lun;
-+    char *vhostfd;
-+    char *wwpn;
- };
- 
- typedef struct VirtIOSCSICommon {
--- 
-1.7.2.5
+Up until this point, vhost_verify_ring_mappings() is not called by
+vhost_set_memory() as vhost_dev_start() has not been invoked to set
+vdev->started yet..
+
+>  vhost looks at the RAM
+> between 0xc9000 and 0xf0000:
+> 
+>   vhost_set_memory: section: 0x7fe2801f2aa0 section->size: 159744 add: 1
+>   Before vhost_verify_ring_mappings: start_addr: c9000 size: 159744
+>   Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
+>   Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
+>   Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
+>   Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
+>   Checking vq: 2 ring_phys: ed000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
+>   Calling l: 5124 for start_addr: c9000 for vq 2
+> 
+> and the ROM between 0xf0000 and 0xfffff, which no ring overlaps with:
+> 
+>   vhost_set_memory: section: 0x7fe2801f2aa0 section->size: 65536 add: 1
+>   Before vhost_verify_ring_mappings: start_addr: f0000 size: 65536
+>   Checking vq: 0 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
+>   Got ranges_overlap for vq: 0 ring_phys: 0 ring_size: 1028
+>   Checking vq: 1 ring_phys: 0 ring_size: 1028 >>>>>>>>>>>>>>>>>>.
+>   Got ranges_overlap for vq: 1 ring_phys: 0 ring_size: 1028
+>   Checking vq: 2 ring_phys: ed000 ring_size: 5124 >>>>>>>>>>>>>>>>>>.
+>   Got ranges_overlap for vq: 2 ring_phys: ed000 ring_size: 5124
+> 
+> 
+> 
+> SeaBIOS is indeed not initializing vqs 0/1 (the control and event 
+> queues), so their ring_phys is 0.  But the one that is failing is vq 2, 
+> the first request queue.
+> 
+> Your patch seems good, but shouldn't fix this problem.
+> 
+> Paolo
+> --
+> To unsubscribe from this list: send the line "unsubscribe target-devel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
