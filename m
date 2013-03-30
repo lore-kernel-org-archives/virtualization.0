@@ -1,15 +1,22 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v2 2/2] virtio: console: add locking around c_ovq
-	operations
-Date: Sat, 30 Mar 2013 14:28:28 +1030
-Message-ID: <87vc8935ej.fsf@rustcorp.com.au>
-References: <cover.1364554596.git.amit.shah@redhat.com>
-	<06f1e0e5f31d65735dedef2377435259971b4fc9.1364554596.git.amit.shah@redhat.com>
+Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
+	each vq.
+Date: Sat, 30 Mar 2013 13:49:00 +1030
+Message-ID: <878v554lsr.fsf@rustcorp.com.au>
+References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
+	<20130321101300.GA30493@redhat.com>
+	<87wqt0du2e.fsf@rustcorp.com.au>
+	<20130324201910.GA31631@redhat.com>
+	<8738vjer43.fsf@rustcorp.com.au>
+	<20130326193911.GA19251@redhat.com>
+	<87ip4d4sef.fsf@rustcorp.com.au>
+	<20130327112535.GE24243@redhat.com> <5153CC2E.3090908@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <06f1e0e5f31d65735dedef2377435259971b4fc9.1364554596.git.amit.shah@redhat.com>
+In-Reply-To: <5153CC2E.3090908@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +26,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
+To: "H. Peter Anvin" <hpa@zytor.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit Shah <amit.shah@redhat.com> writes:
-> When multiple ovq operations are being performed (lots of open/close
-> operations on virtio_console fds), the __send_control_msg() function can
-> get confused without locking.
+"H. Peter Anvin" <hpa@zytor.com> writes:
+> On 03/27/2013 04:25 AM, Michael S. Tsirkin wrote:
+>> 
+>> Aha. Yes, good idea.  As for how large the offsets are,
+>> I am guessing we should either just say offset is vqn * X and data is
+>> vqn, or give hypervisors full flexibility with 32 bit offset and
+>> arbitrary data.
+>> 16 bit offsets seem neither here nor there ...
 >
-> A simple recipe to cause badness is:
-> * create a QEMU VM with two virtio-serial ports
-> * in the guest, do
->   while true;do echo abc >/dev/vport0p1;done
->   while true;do echo edf >/dev/vport0p2;done
->
-> In one run, this caused a panic in __send_control_msg().  In another, I
-> got
->
->    virtio_console virtio0: control-o:id 0 is not a head!
+> Shift count?
 
-Both applied to my fixes branch, with CC: stable added.
+You can only have 2^16 vqs per device.  Is it verboten to write 16-bit
+values to odd offsets?  If so, we've just dropped it to 2^15 before you
+have to do some decoding to do.  Hard to care...
 
-For future reference, I prefer you to put the CC: stable@kernel.org tag
-in if you think it's a stable candidate.
+I dislike saying "multiply offset by 2" because implementations will get
+it wrong.  That's because 0 will work either way, and that's going to be
+the common case.
 
-Thanks,
+Cheers,
 Rusty.
