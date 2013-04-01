@@ -1,16 +1,11 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 0/2] virtio: console: add locking around control out-vq
-Date: Mon, 1 Apr 2013 10:35:53 +0800
-Message-ID: <20130401023553.GC26991@hj.localdomain>
-References: <cover.1364469955.git.amit.shah@redhat.com>
-	<20130329003849.GA23404@hj.localdomain>
-	<20130329103500.GC14019@amit.redhat.com>
+From: Paul Bolle <pebolle@tiscali.nl>
+Subject: [PATCH 0/8] do not export kernel integer types to userspace
+Date: Mon, 01 Apr 2013 19:55:43 +0200
+Message-ID: <1364838943.21627.60.camel__21210.2906815291$1364838990$gmane$org@x61.thuisdomein>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130329103500.GC14019@amit.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,46 +15,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>, Krishna Kumar <krkumar2@in.ibm.com>, "David S. Miller" <davem@davemloft.net>, Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>, Chris Mason <chris.mason@fusionio.com>, Trond Myklebust <Trond.Myklebust@netapp.com>, Amit Shah <amit.shah@redhat.com>, Mikael Starvik <starvik@axis.com>, Jesper Nilsson <jesper.nilsson@axis.com>
+Cc: linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-cris-kernel@axis.com, linux-btrfs@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 29, 2013 at 04:05:00PM +0530, Amit Shah wrote:
-> On (Fri) 29 Mar 2013 [08:38:49], Asias He wrote:
-> > On Thu, Mar 28, 2013 at 04:58:31PM +0530, Amit Shah wrote:
-> > > The in-vq operations were protected by a lock, but the out-vq
-> > > operations were not.  This caused panics / errors as described in
-> > > patch 2.  Fix that.
-> > 
-> > BTW, this looks suspicious. Why no lock here?
-> > 
-> >    static void remove_controlq_data(struct ports_device *portdev)
-> >    {
-> >            struct port_buffer *buf;
-> >            unsigned int len;
-> >    
-> >            if (!use_multiport(portdev))
-> >                    return;
-> >    
-> >            while ((buf = virtqueue_get_buf(portdev->c_ivq, &len)))
-> >                    free_buf(buf, true);
-> >    
-> >            while ((buf = virtqueue_detach_unused_buf(portdev->c_ivq)))
-> >                    free_buf(buf, true);
-> >    }
-> 
-> Since this is c_ivq, you mean why can't the host be queueing up data
-> in the vq while we're removing the buffers from the vq.
-> 
-> This function is called from two places, virtcons_remove() and
-> virtcons_freeze(). In both the cases, everything is set up so the host
-> can't send anything: vdev->config->reset() ensures that.
-> 
-> Is there something else that can be happening?
+This short series was triggered by a compile error I ran into when trying to
+build the lguest tool (see PATCH 1/8). After fixing that error I decided to attempt to
+solve all related problems.
 
-OK, this makes sense to me now. Thanks.  
+Paul Bolle (8):
+  virtio_net: do not export "u16" to userspace
+  headers_check: add check for kernel integer types
+  virtio: do not export "u16" and "u64" to userspace
+  headers_check: check kernel types inside #define
+  btrfs: do not export "u64" to userspace
+  nfsd4: do not export "u64" to userspace
+  virtio: do not export "u32" to userspace
+  cris: do not export "u8" and friends to userspace
 
-> 		Amit
+ arch/cris/include/uapi/arch-v10/arch/sv_addr_ag.h | 20 ++++++++++----------
+ include/uapi/linux/btrfs.h                        |  2 +-
+ include/uapi/linux/nfs4.h                         |  2 +-
+ include/uapi/linux/virtio_balloon.h               |  4 ++--
+ include/uapi/linux/virtio_console.h               |  2 +-
+ include/uapi/linux/virtio_net.h                   |  2 +-
+ scripts/headers_check.pl                          | 21 +++++++++++++++++++++
+ 7 files changed, 37 insertions(+), 16 deletions(-)
 
 -- 
-Asias
+1.7.11.7
