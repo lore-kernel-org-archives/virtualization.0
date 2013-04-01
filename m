@@ -1,8 +1,8 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [PATCH-v2 2/3] virtio-pci: Add virtio_queue_valid checks ahead of
-	virtio_queue_get_num
-Date: Mon,  1 Apr 2013 23:58:23 +0000
-Message-ID: <1364860704-11896-3-git-send-email-nab@linux-iscsi.org>
+Subject: [PATCH-v2 3/3] vhost: Skip uninitialized VQs in
+	vhost_virtqueue_[start, stop]
+Date: Mon,  1 Apr 2013 23:58:24 +0000
+Message-ID: <1364860704-11896-4-git-send-email-nab__9399.90156698531$1364861429$gmane$org@linux-iscsi.org>
 References: <1364860704-11896-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,131 +24,59 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-This patch adds a number of virtio_queue_valid() checks to virtio-pci
-ahead of virtio_queue_get_num() usage in order to skip operation upon
-the detection of an uninitialized VQ.
+This patch adds virtio_queue_valid() checks in vhost_virtqueue_start()
+and vhost_virtqueue_stop() to avoid uninitialized VQs during vhost-scsi-pci
+seabios operation, where we currently expect only the request VQ to have
+been initialized before virtio-scsi LLD guest hand-off.
 
-There is one exception in virtio_ioport_read():VIRTIO_PCI_QUEUE_NUM,
-where virtio_queue_get_num() may still be called without a valid
-vdev->vq[n].vring.desc physical address.
-
-v2: Drop now unnecessary virtio_queue_get_num calls (mst)
+Also, go ahead and skip the same uninitialized VQs during sanity checks
+within vhost_verify_ring_mappings() by checking vq->ring_[phys,size]
+directly.
 
 Cc: Michael S. Tsirkin <mst@redhat.com>
 Cc: Asias He <asias@redhat.com>
 Cc: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 ---
- hw/virtio-pci.c |   34 +++++++++++++++-------------------
- 1 files changed, 15 insertions(+), 19 deletions(-)
+ hw/vhost.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
 
-diff --git a/hw/virtio-pci.c b/hw/virtio-pci.c
-index 0d67b84..1369d9a 100644
---- a/hw/virtio-pci.c
-+++ b/hw/virtio-pci.c
-@@ -211,10 +211,9 @@ static void virtio_pci_start_ioeventfd(VirtIOPCIProxy *proxy)
-     }
+diff --git a/hw/vhost.c b/hw/vhost.c
+index 4d6aee3..832cc89 100644
+--- a/hw/vhost.c
++++ b/hw/vhost.c
+@@ -314,6 +314,9 @@ static int vhost_verify_ring_mappings(struct vhost_dev *dev,
+         hwaddr l;
+         void *p;
  
-     for (n = 0; n < VIRTIO_PCI_QUEUE_MAX; n++) {
--        if (!virtio_queue_get_num(proxy->vdev, n)) {
-+        if (!virtio_queue_valid(proxy->vdev, n)) {
++        if (!vq->ring_phys || !vq->ring_size) {
++            continue;
++        }
+         if (!ranges_overlap(start_addr, size, vq->ring_phys, vq->ring_size)) {
              continue;
          }
--
-         r = virtio_pci_set_host_notifier_internal(proxy, n, true, true);
-         if (r < 0) {
-             goto assign_error;
-@@ -225,10 +224,9 @@ static void virtio_pci_start_ioeventfd(VirtIOPCIProxy *proxy)
+@@ -645,6 +648,10 @@ static int vhost_virtqueue_start(struct vhost_dev *dev,
  
- assign_error:
-     while (--n >= 0) {
--        if (!virtio_queue_get_num(proxy->vdev, n)) {
-+        if (!virtio_queue_valid(proxy->vdev, n)) {
-             continue;
-         }
--
-         r = virtio_pci_set_host_notifier_internal(proxy, n, false, false);
-         assert(r >= 0);
-     }
-@@ -246,10 +244,9 @@ static void virtio_pci_stop_ioeventfd(VirtIOPCIProxy *proxy)
-     }
+     assert(idx >= dev->vq_index && idx < dev->vq_index + dev->nvqs);
  
-     for (n = 0; n < VIRTIO_PCI_QUEUE_MAX; n++) {
--        if (!virtio_queue_get_num(proxy->vdev, n)) {
-+        if (!virtio_queue_valid(proxy->vdev, n)) {
-             continue;
-         }
--
-         r = virtio_pci_set_host_notifier_internal(proxy, n, false, false);
-         assert(r >= 0);
-     }
-@@ -546,8 +543,8 @@ static int kvm_virtio_pci_vector_use(VirtIOPCIProxy *proxy, int nvqs)
-     MSIMessage msg;
- 
-     for (queue_no = 0; queue_no < nvqs; queue_no++) {
--        if (!virtio_queue_get_num(vdev, queue_no)) {
--            break;
-+        if (!virtio_queue_valid(vdev, queue_no)) {
-+            continue;
-         }
-         vector = virtio_queue_vector(vdev, queue_no);
-         if (vector >= msix_nr_vectors_allocated(dev)) {
-@@ -593,8 +590,8 @@ static void kvm_virtio_pci_vector_release(VirtIOPCIProxy *proxy, int nvqs)
-     int queue_no;
- 
-     for (queue_no = 0; queue_no < nvqs; queue_no++) {
--        if (!virtio_queue_get_num(vdev, queue_no)) {
--            break;
-+        if (!virtio_queue_valid(vdev, queue_no)) {
-+            continue;
-         }
-         vector = virtio_queue_vector(vdev, queue_no);
-         if (vector >= msix_nr_vectors_allocated(dev)) {
-@@ -665,8 +662,8 @@ static int kvm_virtio_pci_vector_unmask(PCIDevice *dev, unsigned vector,
-     int ret, queue_no;
- 
-     for (queue_no = 0; queue_no < proxy->nvqs_with_notifiers; queue_no++) {
--        if (!virtio_queue_get_num(vdev, queue_no)) {
--            break;
-+        if (!virtio_queue_valid(vdev, queue_no)) {
-+            continue;
-         }
-         if (virtio_queue_vector(vdev, queue_no) != vector) {
-             continue;
-@@ -695,8 +692,8 @@ static void kvm_virtio_pci_vector_mask(PCIDevice *dev, unsigned vector)
-     int queue_no;
- 
-     for (queue_no = 0; queue_no < proxy->nvqs_with_notifiers; queue_no++) {
--        if (!virtio_queue_get_num(vdev, queue_no)) {
--            break;
-+        if (!virtio_queue_valid(vdev, queue_no)) {
-+            continue;
-         }
-         if (virtio_queue_vector(vdev, queue_no) != vector) {
-             continue;
-@@ -717,8 +714,8 @@ static void kvm_virtio_pci_vector_poll(PCIDevice *dev,
-     VirtQueue *vq;
- 
-     for (queue_no = 0; queue_no < proxy->nvqs_with_notifiers; queue_no++) {
--        if (!virtio_queue_get_num(vdev, queue_no)) {
--            break;
-+        if (!virtio_queue_valid(vdev, queue_no)) {
-+            continue;
-         }
-         vector = virtio_queue_vector(vdev, queue_no);
-         if (vector < vector_start || vector >= vector_end ||
-@@ -790,10 +787,9 @@ static int virtio_pci_set_guest_notifiers(DeviceState *d, int nvqs, bool assign)
-     }
- 
-     for (n = 0; n < nvqs; n++) {
--        if (!virtio_queue_get_num(vdev, n)) {
--            break;
-+        if (!virtio_queue_valid(vdev, n)) {
-+            continue;
-         }
--
-         r = virtio_pci_set_guest_notifier(d, n, assign,
-                                           kvm_msi_via_irqfd_enabled());
-         if (r < 0) {
++    if (!virtio_queue_valid(vdev, idx)) {
++        return 0;
++    }
++
+     vq->num = state.num = virtio_queue_get_num(vdev, idx);
+     r = ioctl(dev->control, VHOST_SET_VRING_NUM, &state);
+     if (r) {
+@@ -732,6 +739,11 @@ static void vhost_virtqueue_stop(struct vhost_dev *dev,
+     };
+     int r;
+     assert(idx >= dev->vq_index && idx < dev->vq_index + dev->nvqs);
++
++    if (!virtio_queue_valid(vdev, idx)) {
++        return;
++    }
++
+     r = ioctl(dev->control, VHOST_GET_VRING_BASE, &state);
+     if (r < 0) {
+         fprintf(stderr, "vhost VQ %d ring restore failed: %d\n", idx, r);
 -- 
 1.7.2.5
