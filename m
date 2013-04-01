@@ -1,22 +1,22 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
-	each vq.
-Date: Sat, 30 Mar 2013 13:49:00 +1030
-Message-ID: <878v554lsr.fsf@rustcorp.com.au>
-References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
-	<20130321101300.GA30493@redhat.com>
-	<87wqt0du2e.fsf@rustcorp.com.au>
-	<20130324201910.GA31631@redhat.com>
-	<8738vjer43.fsf@rustcorp.com.au>
-	<20130326193911.GA19251@redhat.com>
-	<87ip4d4sef.fsf@rustcorp.com.au>
-	<20130327112535.GE24243@redhat.com> <5153CC2E.3090908@zytor.com>
+Subject: Re: [PATCH V2 2/2] tcm_vhost: Use vq->private_data to indicate if the
+	endpoint is setup
+Date: Tue, 02 Apr 2013 09:27:57 +1030
+Message-ID: <874nfp7tai.fsf__32422.6390374408$1364857875$gmane$org@rustcorp.com.au>
+References: <1364437048-19932-1-git-send-email-asias@redhat.com>
+	<1364437048-19932-3-git-send-email-asias@redhat.com>
+	<20130328061659.GA16438@redhat.com>
+	<20130328081002.GA4915@hj.localdomain>
+	<20130328083330.GA17829@redhat.com>
+	<20130328084715.GA14853@hj.localdomain>
+	<20130328090615.GB18482@redhat.com>
+	<20130329062750.GB32106@hj.localdomain>
+	<20130331082312.GJ23484@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5153CC2E.3090908@zytor.com>
+In-Reply-To: <20130331082312.GJ23484@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,28 +26,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-> On 03/27/2013 04:25 AM, Michael S. Tsirkin wrote:
->> 
->> Aha. Yes, good idea.  As for how large the offsets are,
->> I am guessing we should either just say offset is vqn * X and data is
->> vqn, or give hypervisors full flexibility with 32 bit offset and
->> arbitrary data.
->> 16 bit offsets seem neither here nor there ...
->
-> Shift count?
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> Rusty's currently doing some reorgs of -net let's delay
+> cleanups there to avoid stepping on each other's toys.
+> Let's focus on scsi here.
+> E.g. any chance framing assumptions can be fixed in 3.10?
 
-You can only have 2^16 vqs per device.  Is it verboten to write 16-bit
-values to odd offsets?  If so, we've just dropped it to 2^15 before you
-have to do some decoding to do.  Hard to care...
-
-I dislike saying "multiply offset by 2" because implementations will get
-it wrong.  That's because 0 will work either way, and that's going to be
-the common case.
+I am waiting for your removal of the dma-compelete ordering stuff in
+vhost-net.
 
 Cheers,
 Rusty.
