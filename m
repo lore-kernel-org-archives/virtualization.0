@@ -1,13 +1,11 @@
 From: Dmitry Fleytman <dmitry@daynix.com>
-Subject: [PATCH 1/2 V3] virtio-spec: dynamic network offloads configuration
-Date: Tue,  2 Apr 2013 14:38:59 +0300
-Message-ID: <1364902740-24948-2-git-send-email-dmitry@daynix.com>
-References: <1364902740-24948-1-git-send-email-dmitry@daynix.com>
+Subject: [PATCH 0/2 V3] virtio-spec/net: dynamic network offloads configuration
+Date: Tue,  2 Apr 2013 14:38:58 +0300
+Message-ID: <1364902740-24948-1-git-send-email-dmitry@daynix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1364902740-24948-1-git-send-email-dmitry@daynix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,186 +21,29 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Dmitry Fleytman <dfleytma@redhat.com>
 
-Virtio-net driver currently negotiates network offloads
-on startup via features mechanism and have no ability to
-change offloads state later.
-This patch introduced a new control command that allows
-to configure device network offloads state dynamically.
-The patch also introduces a new feature flag
-VIRTIO_NET_F_CTRL_GUEST_OFFLOADS.
+V3 changes:
+  1. Compat macro added
+  2. Feature name beautification
 
-Signed-off-by: Dmitry Fleytman <dfleytma@redhat.com>
----
- virtio-spec.lyx | 143 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 143 insertions(+)
+V2 changes:
+  1. _GUEST_ added to command and feature names
+  2. Live migration logic fixed
 
-diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index 3d2f485..fdba814 100644
---- a/virtio-spec.lyx
-+++ b/virtio-spec.lyx
-@@ -60,6 +60,7 @@
- \author -1930653948 "Amos Kong" 
- \author -608949062 "Rusty Russell,,," 
- \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
-+\author 460276516 "Dmitry Fleytman" dfleytma@redhat.com
- \author 1112500848 "Rusty Russell" rusty@rustcorp.com.au
- \author 1531152142 "Paolo Bonzini,,," 
- \author 1717892615 "Alexey Zaytsev,,," 
-@@ -4261,6 +4262,20 @@ VIRTIO_NET_F_GUEST_CSUM
- \end_inset
- 
- (1) Guest handles packets with partial checksum
-+\change_inserted 460276516 1363712169
-+
-+\end_layout
-+
-+\begin_layout Description
-+
-+\change_inserted 460276516 1363712334
-+VIRTIO_NET_F_CTRL_GUEST_OFFLOADS
-+\begin_inset space ~
-+\end_inset
-+
-+(2) Control channel offloads reconfiguration support.
-+\change_unchanged
-+
- \end_layout
- 
- \begin_layout Description
-@@ -5675,6 +5690,134 @@ virtqueue_pairs = 1
-  
- \end_layout
- 
-+\begin_layout Subsection*
-+
-+\change_inserted 460276516 1363765850
-+Offloads State Configuration
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 460276516 1363765861
-+If the VIRTIO_NET_F_CTRL_GUEST_OFFLOADS feature is negotiated, the driver can
-+ send control commands for dynamic offloads state configuration.
-+\end_layout
-+
-+\begin_layout Subsubsection*
-+
-+\change_inserted 460276516 1363765928
-+Setting offloads state
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 460276516 1363713225
-+\begin_inset listings
-+inline false
-+status open
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 460276516 1363765996
-+
-+u32 offloads;
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 460276516 1363765997
-+
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 460276516 1363766044
-+
-+#define VIRTIO_NET_OFFLOAD_GUEST_CSUM       1
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 460276516 1363766051
-+
-+#define VIRTIO_NET_OFFLOAD_GUEST_TSO4       2
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 460276516 1363766055
-+
-+#define VIRTIO_NET_OFFLOAD_GUEST_TSO6       4
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 460276516 1363766064
-+
-+#define VIRTIO_NET_OFFLOAD_GUEST_ECN        8
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 460276516 1363766035
-+
-+#define VIRTIO_NET_OFFLOAD_GUEST_UFO       16
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 460276516 1363766031
-+
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 460276516 1363765865
-+
-+#define VIRTIO_NET_CTRL_GUEST_OFFLOADS       5
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-+\change_inserted 460276516 1363765867
-+
-+ #define VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET          0
-+\end_layout
-+
-+\end_inset
-+
-+
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 460276516 1363766082
-+The class VIRTIO_NET_CTRL_GUEST_OFFLOADS has one command: VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET
-+ applies the new offloads configuration.
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 460276516 1363766435
-+u32 value passed as command data is a bitmask, bits set define offloads
-+ to be enabled, bits cleared - offloads to be disabled.
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 460276516 1363766757
-+There is a corresponding device feature for each offload.
-+ Upon feature negotiation corresponding offload gets enabled to preserve
-+ backward compartibility.
-+\end_layout
-+
-+\begin_layout Standard
-+
-+\change_inserted 460276516 1363766720
-+Corresponding feature must be negotiated at startup in order to allow dynamic
-+ change of specific offload state.
-+\end_layout
-+
- \begin_layout Chapter*
- Appendix D: Block Device
- \end_layout
+Reported-by: Michael S. Tsirkin <mst@redhat.com>
+
+One of recently introduced Windows features (RSC)
+requires network driver to be able to enable and disable
+HW LRO offload on the fly without device reinitialization.
+
+Current Virtio specification doesn't support this requirement.
+The solution proposed by following spec patch is to add
+a new control command for this purpose.
+
+The same solution may be used in Linux driver for ethtool interface
+implementation.
+
+Patch for QEMU mainline that implements this specification change
+attached as well.
+
 -- 
 1.8.1.4
