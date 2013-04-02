@@ -1,14 +1,14 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH-v2 0/3] virtio/vhost: Add checks for uninitialized VQs
-Date: Tue, 02 Apr 2013 16:16:54 -0700
-Message-ID: <1364944614.3898.202.camel@haakon2.linux-iscsi.org>
-References: <1364860704-11896-1-git-send-email-nab@linux-iscsi.org>
-	<20130402120145.GB21545@redhat.com>
+Subject: Re: [PATCH] tcm_vhost: Use ACCESS_ONCE for vs->vs_tpg[target] access
+Date: Tue, 02 Apr 2013 16:42:10 -0700
+Message-ID: <1364946130.3898.226.camel@haakon2.linux-iscsi.org>
+References: <1364916697-13212-1-git-send-email-asias@redhat.com>
+	<20130402153933.GA27410@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130402120145.GB21545@redhat.com>
+In-Reply-To: <20130402153933.GA27410@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,62 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm-devel <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2013-04-02 at 15:01 +0300, Michael S. Tsirkin wrote:
-> On Mon, Apr 01, 2013 at 11:58:21PM +0000, Nicholas A. Bellinger wrote:
-> > From: Nicholas Bellinger <nab@linux-iscsi.org>
+On Tue, 2013-04-02 at 18:39 +0300, Michael S. Tsirkin wrote:
+> On Tue, Apr 02, 2013 at 11:31:37PM +0800, Asias He wrote:
+> > In vhost_scsi_handle_vq:
 > > 
-> > Hi folks,
+> >       tv_tpg = vs->vs_tpg[target];
+> >       if (!tv_tpg) {
+> >               ....
+> >               return
+> >       }
 > > 
-> > This series adds a virtio_queue_valid() for use by virtio-pci code in
-> > order to prevent opreations upon uninitialized VQs, which is currently
-> > expected to occur during seabios setup of virtio-scsi with in-flight
-> > vhost-scsi-pci device code.
+> >       tv_cmd = vhost_scsi_allocate_cmd(tv_tpg, &v_req,
 > > 
-> > On the vhost side, it also adds virtio_queue_valid() sanity checks in
-> > vhost_virtqueue_[start,stop]() and vhost_verify_ring_mappings() in order
-> > to skip the same uninitialized VQs.
+> > 1) vs->vs_tpg[target] might change after the NULL check and 2) the above
+> > line might access tv_tpg from vs->vs_tpg[target]. To prevent 2), use
+> > ACCESS_ONCE. Thanks mst for catching this up!
 > > 
-> > Changes from v1:
-> >   - Remove now unnecessary virtio_queue_get_num() calls in virtio-pci.c
-> >   - Add virtio_queue_valid() calls in vhost_virtqueue_[start,stop]()
-> > 
-> > Please review.
-> > 
-> > --nab
+> > Signed-off-by: Asias He <asias@redhat.com>
 > 
-> Looks reasonable.
+> OK this might be ok for 3.9.
+> 
 > Acked-by: Michael S. Tsirkin <mst@redhat.com>
 > 
+> Nicholas can you pick this up pls?
+> 
 
-Thanks MST!
+Applying to target-pending/master now.
 
-Anthony, do you want to pick these up now..?  Or shall I include in the
-next vhost-scsi-pci PATCH-v3 series..?
+> For 3.10 I still think it's best to get rid of it
+> and stick vs->vs_tpg in vq->private_data.
+> 
+
+Your call here.  Given that vhost-scsi-pci code + Seabios w/ virtio-scsi
+enabled will be broken without Asias's two extra vq->private_data and
+initialize vq->last_used_idx changes on the list, they will certainly
+need to hit 3.9.x code once your happy to ACK for v3.10.
+
+Asias, I assume you'll be updating this soon..?
 
 --nab
-
-> So - does this fix the issues you saw with vhost-scsi?
-> 
-> > Michael S. Tsirkin (1):
-> >   virtio: add API to check that ring is setup
-> > 
-> > Nicholas Bellinger (2):
-> >   virtio-pci: Add virtio_queue_valid checks ahead of
-> >     virtio_queue_get_num
-> >   vhost: Skip uninitialized VQs in vhost_virtqueue_[start,stop]
-> > 
-> >  hw/vhost.c      |   12 ++++++++++++
-> >  hw/virtio-pci.c |   34 +++++++++++++++-------------------
-> >  hw/virtio.c     |    5 +++++
-> >  hw/virtio.h     |    1 +
-> >  4 files changed, 33 insertions(+), 19 deletions(-)
-> > 
-> > -- 
-> > 1.7.2.5
-> --
-> To unsubscribe from this list: send the line "unsubscribe target-devel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
