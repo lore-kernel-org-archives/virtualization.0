@@ -1,14 +1,23 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH 03/22] virtio_config: make transports implement accessors.
-Date: Tue, 02 Apr 2013 18:16:30 +0100
-Message-ID: <1364922990.3019.48.camel@hornet>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
+	each vq.
+Date: Tue, 02 Apr 2013 15:51:56 -0700
+Message-ID: <515B610C.9000802@zytor.com>
 References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-4-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
+	<20130321101300.GA30493@redhat.com>
+	<87wqt0du2e.fsf@rustcorp.com.au>
+	<20130324201910.GA31631@redhat.com>
+	<8738vjer43.fsf@rustcorp.com.au>
+	<20130326193911.GA19251@redhat.com>
+	<87ip4d4sef.fsf@rustcorp.com.au>
+	<20130327112535.GE24243@redhat.com>
+	<5153CC2E.3090908@zytor.com> <878v554lsr.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1363854584-25795-4-git-send-email-rusty@rustcorp.com.au>
+In-Reply-To: <878v554lsr.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,58 +28,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Brian Swetland <swetland@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCAyMDEzLTAzLTIxIGF0IDA4OjI5ICswMDAwLCBSdXN0eSBSdXNzZWxsIHdyb3RlOgo+
-IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fbW1pby5jIGIvZHJpdmVycy92aXJ0
-aW8vdmlydGlvX21taW8uYwo+IGluZGV4IDFiYTBkNjguLmFkN2YzOGYgMTAwNjQ0Cj4gLS0tIGEv
-ZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRp
-b19tbWlvLmMKPiBAQCAtMTc4LDYgKzE3OCwxOSBAQCBzdGF0aWMgdm9pZCB2bV9nZXQoc3RydWN0
-IHZpcnRpb19kZXZpY2UgKnZkZXYsIHVuc2lnbmVkIG9mZnNldCwKPiAgICAgICAgICAgICAgICAg
-cHRyW2ldID0gcmVhZGIodm1fZGV2LT5iYXNlICsgVklSVElPX01NSU9fQ09ORklHICsgb2Zmc2V0
-ICsgaSk7Cj4gIH0KPiAKPiArI2RlZmluZSBWTV9HRVR4KGJpdHMpICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCj4gK3N0YXRpYyB1IyNiaXRzIHZtX2dl
-dCMjYml0cyhzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiwgdW5zaWduZWQgaW50IG9mZnNldCkg
-XAo+ICt7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIFwKPiArICAgICAgIHUjI2JpdHMgdjsgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCj4gKyAgICAgICB2bV9nZXQo
-dmRldiwgb2Zmc2V0LCAmdiwgc2l6ZW9mKHYpKTsgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-XAo+ICsgICAgICAgcmV0dXJuIHY7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgIFwKPiArfQo+ICsKPiArVk1fR0VUeCg4KQo+ICtWTV9HRVR4KDE2
-KQo+ICtWTV9HRVR4KDMyKQo+ICtWTV9HRVR4KDY0KQo+ICsKPiAgc3RhdGljIHZvaWQgdm1fc2V0
-KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2LCB1bnNpZ25lZCBvZmZzZXQsCj4gICAgICAgICAg
-ICAgICAgICAgIGNvbnN0IHZvaWQgKmJ1ZiwgdW5zaWduZWQgbGVuKQo+ICB7Cj4gQEAgLTE4OSw2
-ICsyMDIsMTggQEAgc3RhdGljIHZvaWQgdm1fc2V0KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2
-LCB1bnNpZ25lZCBvZmZzZXQsCj4gICAgICAgICAgICAgICAgIHdyaXRlYihwdHJbaV0sIHZtX2Rl
-di0+YmFzZSArIFZJUlRJT19NTUlPX0NPTkZJRyArIG9mZnNldCArIGkpOwo+ICB9Cj4gCj4gKyNk
-ZWZpbmUgVk1fU0VUeChiaXRzKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgXAo+ICtzdGF0aWMgdm9pZCB2bV9zZXQjI2JpdHMoc3RydWN0IHZpcnRpb19k
-ZXZpY2UgKnZkZXYsIHVuc2lnbmVkIGludCBvZmZzZXQsIFwKPiArICAgICAgICAgICAgICAgICAg
-ICAgICAgdSMjYml0cyB2KSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCj4g
-K3sgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgXAo+ICsgICAgICAgdm1fc2V0KHZkZXYsIG9mZnNldCwgJnYsIHNpemVv
-Zih2KSk7ICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwKPiArfQo+ICsKPiArVk1fU0VUeCg4
-KQo+ICtWTV9TRVR4KDE2KQo+ICtWTV9TRVR4KDMyKQo+ICtWTV9TRVR4KDY0KQo+ICsKPiAgc3Rh
-dGljIHU4IHZtX2dldF9zdGF0dXMoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gIHsKPiAg
-ICAgICAgIHN0cnVjdCB2aXJ0aW9fbW1pb19kZXZpY2UgKnZtX2RldiA9IHRvX3ZpcnRpb19tbWlv
-X2RldmljZSh2ZGV2KTsKPiBAQCAtNDI0LDggKzQ0OSwxNCBAQCBzdGF0aWMgY29uc3QgY2hhciAq
-dm1fYnVzX25hbWUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gIH0KPiAKPiAgc3RhdGlj
-IGNvbnN0IHN0cnVjdCB2aXJ0aW9fY29uZmlnX29wcyB2aXJ0aW9fbW1pb19jb25maWdfb3BzID0g
-ewo+IC0gICAgICAgLmdldCAgICAgICAgICAgID0gdm1fZ2V0LAo+IC0gICAgICAgLnNldCAgICAg
-ICAgICAgID0gdm1fc2V0LAo+ICsgICAgICAgLmdldDggICAgICAgICAgID0gdm1fZ2V0OCwKPiAr
-ICAgICAgIC5zZXQ4ICAgICAgICAgICA9IHZtX3NldDgsCj4gKyAgICAgICAuZ2V0MTYgICAgICAg
-ICAgPSB2bV9nZXQxNiwKPiArICAgICAgIC5zZXQxNiAgICAgICAgICA9IHZtX3NldDE2LAo+ICsg
-ICAgICAgLmdldDMyICAgICAgICAgID0gdm1fZ2V0MzIsCj4gKyAgICAgICAuc2V0MzIgICAgICAg
-ICAgPSB2bV9zZXQzMiwKPiArICAgICAgIC5nZXQ2NCAgICAgICAgICA9IHZtX2dldDY0LAo+ICsg
-ICAgICAgLnNldDY0ICAgICAgICAgID0gdm1fc2V0NjQsCj4gICAgICAgICAuZ2V0X3N0YXR1cyAg
-ICAgPSB2bV9nZXRfc3RhdHVzLAo+ICAgICAgICAgLnNldF9zdGF0dXMgICAgID0gdm1fc2V0X3N0
-YXR1cywKPiAgICAgICAgIC5yZXNldCAgICAgICAgICA9IHZtX3Jlc2V0LAoKVGhlIGlkZWEgaXMg
-YnkgYWxsIG1lYW5zIGZpbmUgd2l0aCBtZS4gSSB3b3VsZG4ndCB3cml0ZSBpdCBsaWtlIHRoaXMs
-CmJ1dCBJIHNlZSB5b3UncmUgYWxyZWFkeSB0b3lpbmcgd2l0aCBvdGhlciBhbHRlcm5hdGl2ZXMu
-IEFuZCBJJ2xsIGhhdmUKdG8gbWFrZSBpdCBMRSBvbmx5IGFueXdheSwgc28gSSBndWVzcyB0aGUg
-aW1wbGVtZW50YXRpb24gZGV0YWlscyBkb24ndApyZWFsbHkgbWF0dGVyIHJpZ2h0IG5vdy4KClBh
-d2XFggoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+On 03/29/2013 08:19 PM, Rusty Russell wrote:
+>>
+>> Shift count?
+> 
+> You can only have 2^16 vqs per device.  Is it verboten to write 16-bit
+> values to odd offsets?  If so, we've just dropped it to 2^15 before you
+> have to do some decoding to do.  Hard to care...
+> 
+> I dislike saying "multiply offset by 2" because implementations will get
+> it wrong.  That's because 0 will work either way, and that's going to be
+> the common case.
+> 
+
+The main reason to use a shift count is that it lets the guest driver
+assume that the spacing is a power of two, requiring only shift, as
+opposed to an arbitrary number, requiring a multiply.  It seems unlikely
+that there would be a legitimate reason for a non-power-of-two spacing
+between the VQ notifiers.
+
+The other reason is that if a particular host implementation needs
+separate pages for each notifier, that can be a pretty large number.
+
+	-hpa
