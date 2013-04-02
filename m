@@ -1,14 +1,14 @@
 From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: [PATCH 05/22] virtio: add support for 64 bit features.
-Date: Tue, 02 Apr 2013 18:09:18 +0100
-Message-ID: <1364922558.3019.45.camel@hornet>
+Subject: Re: [PATCH 03/22] virtio_config: make transports implement accessors.
+Date: Tue, 02 Apr 2013 18:16:30 +0100
+Message-ID: <1364922990.3019.48.camel@hornet>
 References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-6-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-4-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1363854584-25795-6-git-send-email-rusty@rustcorp.com.au>
+In-Reply-To: <1363854584-25795-4-git-send-email-rusty@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,31 +22,55 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Brian Swetland <swetland@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2013-03-21 at 08:29 +0000, Rusty Russell wrote:
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index d933150..84ef5fc 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-[...]
->  static void vm_finalize_features(struct virtio_device *vdev)
-> @@ -160,7 +162,9 @@ static void vm_finalize_features(struct virtio_device *vdev)
->  	vring_transport_features(vdev);
->  
->  	writel(0, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
-> -	writel(vdev->features, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
-> +	writel((u32)vdev->features, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
-> +	writel(1, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
-> +	writel(vdev->features >> 32, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
-
-Maybe (u32)(vdev->features >> 32), just to keep the lines consistent?
-
-I'm just being fussy... ;-)
-
->  }
-
-Otherwise perfectly fine with me (together with "04/22 virtio: use u32,
-not bitmap for struct virtio_device's features")
-
-Acked-by: Pawel Moll <pawel.moll@arm.com>
-
-Pawel
+T24gVGh1LCAyMDEzLTAzLTIxIGF0IDA4OjI5ICswMDAwLCBSdXN0eSBSdXNzZWxsIHdyb3RlOgo+
+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fbW1pby5jIGIvZHJpdmVycy92aXJ0
+aW8vdmlydGlvX21taW8uYwo+IGluZGV4IDFiYTBkNjguLmFkN2YzOGYgMTAwNjQ0Cj4gLS0tIGEv
+ZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRp
+b19tbWlvLmMKPiBAQCAtMTc4LDYgKzE3OCwxOSBAQCBzdGF0aWMgdm9pZCB2bV9nZXQoc3RydWN0
+IHZpcnRpb19kZXZpY2UgKnZkZXYsIHVuc2lnbmVkIG9mZnNldCwKPiAgICAgICAgICAgICAgICAg
+cHRyW2ldID0gcmVhZGIodm1fZGV2LT5iYXNlICsgVklSVElPX01NSU9fQ09ORklHICsgb2Zmc2V0
+ICsgaSk7Cj4gIH0KPiAKPiArI2RlZmluZSBWTV9HRVR4KGJpdHMpICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCj4gK3N0YXRpYyB1IyNiaXRzIHZtX2dl
+dCMjYml0cyhzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiwgdW5zaWduZWQgaW50IG9mZnNldCkg
+XAo+ICt7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIFwKPiArICAgICAgIHUjI2JpdHMgdjsgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCj4gKyAgICAgICB2bV9nZXQo
+dmRldiwgb2Zmc2V0LCAmdiwgc2l6ZW9mKHYpKTsgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+XAo+ICsgICAgICAgcmV0dXJuIHY7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIFwKPiArfQo+ICsKPiArVk1fR0VUeCg4KQo+ICtWTV9HRVR4KDE2
+KQo+ICtWTV9HRVR4KDMyKQo+ICtWTV9HRVR4KDY0KQo+ICsKPiAgc3RhdGljIHZvaWQgdm1fc2V0
+KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2LCB1bnNpZ25lZCBvZmZzZXQsCj4gICAgICAgICAg
+ICAgICAgICAgIGNvbnN0IHZvaWQgKmJ1ZiwgdW5zaWduZWQgbGVuKQo+ICB7Cj4gQEAgLTE4OSw2
+ICsyMDIsMTggQEAgc3RhdGljIHZvaWQgdm1fc2V0KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2
+LCB1bnNpZ25lZCBvZmZzZXQsCj4gICAgICAgICAgICAgICAgIHdyaXRlYihwdHJbaV0sIHZtX2Rl
+di0+YmFzZSArIFZJUlRJT19NTUlPX0NPTkZJRyArIG9mZnNldCArIGkpOwo+ICB9Cj4gCj4gKyNk
+ZWZpbmUgVk1fU0VUeChiaXRzKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgXAo+ICtzdGF0aWMgdm9pZCB2bV9zZXQjI2JpdHMoc3RydWN0IHZpcnRpb19k
+ZXZpY2UgKnZkZXYsIHVuc2lnbmVkIGludCBvZmZzZXQsIFwKPiArICAgICAgICAgICAgICAgICAg
+ICAgICAgdSMjYml0cyB2KSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCj4g
+K3sgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgXAo+ICsgICAgICAgdm1fc2V0KHZkZXYsIG9mZnNldCwgJnYsIHNpemVv
+Zih2KSk7ICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwKPiArfQo+ICsKPiArVk1fU0VUeCg4
+KQo+ICtWTV9TRVR4KDE2KQo+ICtWTV9TRVR4KDMyKQo+ICtWTV9TRVR4KDY0KQo+ICsKPiAgc3Rh
+dGljIHU4IHZtX2dldF9zdGF0dXMoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gIHsKPiAg
+ICAgICAgIHN0cnVjdCB2aXJ0aW9fbW1pb19kZXZpY2UgKnZtX2RldiA9IHRvX3ZpcnRpb19tbWlv
+X2RldmljZSh2ZGV2KTsKPiBAQCAtNDI0LDggKzQ0OSwxNCBAQCBzdGF0aWMgY29uc3QgY2hhciAq
+dm1fYnVzX25hbWUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gIH0KPiAKPiAgc3RhdGlj
+IGNvbnN0IHN0cnVjdCB2aXJ0aW9fY29uZmlnX29wcyB2aXJ0aW9fbW1pb19jb25maWdfb3BzID0g
+ewo+IC0gICAgICAgLmdldCAgICAgICAgICAgID0gdm1fZ2V0LAo+IC0gICAgICAgLnNldCAgICAg
+ICAgICAgID0gdm1fc2V0LAo+ICsgICAgICAgLmdldDggICAgICAgICAgID0gdm1fZ2V0OCwKPiAr
+ICAgICAgIC5zZXQ4ICAgICAgICAgICA9IHZtX3NldDgsCj4gKyAgICAgICAuZ2V0MTYgICAgICAg
+ICAgPSB2bV9nZXQxNiwKPiArICAgICAgIC5zZXQxNiAgICAgICAgICA9IHZtX3NldDE2LAo+ICsg
+ICAgICAgLmdldDMyICAgICAgICAgID0gdm1fZ2V0MzIsCj4gKyAgICAgICAuc2V0MzIgICAgICAg
+ICAgPSB2bV9zZXQzMiwKPiArICAgICAgIC5nZXQ2NCAgICAgICAgICA9IHZtX2dldDY0LAo+ICsg
+ICAgICAgLnNldDY0ICAgICAgICAgID0gdm1fc2V0NjQsCj4gICAgICAgICAuZ2V0X3N0YXR1cyAg
+ICAgPSB2bV9nZXRfc3RhdHVzLAo+ICAgICAgICAgLnNldF9zdGF0dXMgICAgID0gdm1fc2V0X3N0
+YXR1cywKPiAgICAgICAgIC5yZXNldCAgICAgICAgICA9IHZtX3Jlc2V0LAoKVGhlIGlkZWEgaXMg
+YnkgYWxsIG1lYW5zIGZpbmUgd2l0aCBtZS4gSSB3b3VsZG4ndCB3cml0ZSBpdCBsaWtlIHRoaXMs
+CmJ1dCBJIHNlZSB5b3UncmUgYWxyZWFkeSB0b3lpbmcgd2l0aCBvdGhlciBhbHRlcm5hdGl2ZXMu
+IEFuZCBJJ2xsIGhhdmUKdG8gbWFrZSBpdCBMRSBvbmx5IGFueXdheSwgc28gSSBndWVzcyB0aGUg
+aW1wbGVtZW50YXRpb24gZGV0YWlscyBkb24ndApyZWFsbHkgbWF0dGVyIHJpZ2h0IG5vdy4KClBh
+d2XFggoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
