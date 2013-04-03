@@ -1,22 +1,17 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
-	each vq.
-Date: Wed, 03 Apr 2013 07:35:31 -0700
-Message-ID: <fed0356e-3b76-4f79-b6b5-85f0d045be29@email.android.com>
-References: <8738vjer43.fsf@rustcorp.com.au>
-	<20130326193911.GA19251@redhat.com>
-	<87ip4d4sef.fsf@rustcorp.com.au>
-	<20130327112535.GE24243@redhat.com>
-	<5153CC2E.3090908@zytor.com> <878v554lsr.fsf@rustcorp.com.au>
-	<515B610C.9000802@zytor.com> <8738v85elm.fsf@rustcorp.com.au>
-	<20130403112216.GB19122@redhat.com>
-	<85a2f6ec-2b5d-4d4e-95c1-30a4e02336d6@email.android.com>
-	<20130403143533.GC23848@redhat.com>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjur@brendeland.net>
+Subject: Re: [PATCH 03/22] virtio_config: make transports implement accessors.
+Date: Wed, 3 Apr 2013 17:58:46 +0200
+Message-ID: <CAJK669YtyfxxUjMUFtVf0debvCP5E+ha72RvviRDfhCRLfZS5g@mail.gmail.com>
+References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
+	<1363854584-25795-4-git-send-email-rusty@rustcorp.com.au>
+	<CAJK669aihduWvc216GdvFth3QTzbnQCcfVouYU1yntVUrXNJOQ@mail.gmail.com>
+	<87ip4he86m.fsf@rustcorp.com.au>
+Reply-To: sjur@brendeland.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130403143533.GC23848@redhat.com>
+In-Reply-To: <87ip4he86m.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,93 +21,101 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Pawel Moll <pawel.moll@arm.com>, Brian Swetland <swetland@google.com>, Linus Walleij <linus.walleij@linaro.org>, Erwan YVIN <Erwan.Yvin@stericsson.com>, virtualization@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I mean no offset.
-
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
->> "Michael S. Tsirkin" <mst@redhat.com> wrote:
->> 
->> >On Wed, Apr 03, 2013 at 04:40:29PM +1030, Rusty Russell wrote:
->> >> "H. Peter Anvin" <hpa@zytor.com> writes:
->> >> > On 03/29/2013 08:19 PM, Rusty Russell wrote:
->> >> >>>
->> >> >>> Shift count?
->> >> >> 
->> >> >> You can only have 2^16 vqs per device.  Is it verboten to write
->> >16-bit
->> >> >> values to odd offsets?  If so, we've just dropped it to 2^15
->> >before you
->> >> >> have to do some decoding to do.  Hard to care...
->> >> >> 
->> >> >> I dislike saying "multiply offset by 2" because implementations
->> >will get
->> >> >> it wrong.  That's because 0 will work either way, and that's
->going
->> >to be
->> >> >> the common case.
->> >> >> 
->> >> >
->> >> > The main reason to use a shift count is that it lets the guest
->> >driver
->> >> > assume that the spacing is a power of two, requiring only shift,
->as
->> >> > opposed to an arbitrary number, requiring a multiply.  It seems
->> >unlikely
->> >> > that there would be a legitimate reason for a non-power-of-two
->> >spacing
->> >> > between the VQ notifiers.
->> >> >
->> >> > The other reason is that if a particular host implementation
->needs
->> >> > separate pages for each notifier, that can be a pretty large
->> >number.
->> >> 
->> >> Ah, sorry, we're talking across each other a bit.
->> >> 
->> >> Current proposal is a 16 bit 'offset' field in the queue data for
->> >each
->> >> queue, ie.
->> >>         addr = dev->notify_base + vq->notify_off;
->> >> 
->> >> You propose a per-device 'shift' field:
->> >>         addr = dev->notify_base + (vq->index <<
->dev->notify_shift);
->> >> 
->> >> Which allows greater offsets, but insists on a unique offset per
->> >queue.
->> >> Might be a fair trade-off...
->> >> 
->> >> Cheers,
->> >> Rusty.
->> >
->> >Or even
->> >       addr = dev->notify_base + (vq->notify_off <<
->dev->notify_shift);
->> >
->> >since notify_base is per capability, shift can be per capability
->too.
->> >And for IO we can allow it to be 32 to mean "always use base".
->> >
->> >This is a bit more elegant than just saying "no offsets for IO".
->> 
->
->On Wed, Apr 03, 2013 at 07:10:42AM -0700, H. Peter Anvin wrote:
->> 0 should probably mean no shift;
->
->Sure. Note no shift is not same as "no offset".
->
->> that way we explicitly prohibit odd offsets, which is a good thing,
->too.
->
->Odd offsets?
->
->> -- 
->> Sent from my mobile phone. Please excuse brevity and lack of
->formatting.
-
--- 
-Sent from my mobile phone. Please excuse brevity and lack of formatting.
+SGkgUnVzdHksCgpPbiBTdW4sIE1hciAyNCwgMjAxMyBhdCA1OjI0IEFNLCBSdXN0eSBSdXNzZWxs
+IDxydXN0eUBydXN0Y29ycC5jb20uYXU+IHdyb3RlOgo+Cj4gU2p1ciBCcsOmbmRlbGFuZCA8c2p1
+cmJyZW5AZ21haWwuY29tPiB3cml0ZXM6Cj4gPiBPbiBUaHUsIE1hciAyMSwgMjAxMyBhdCA5OjI5
+IEFNLCBSdXN0eSBSdXNzZWxsIDxydXN0eUBydXN0Y29ycC5jb20uYXU+IHdyb3RlOgo+ID4gV291
+bGQgaXQgYmUgcG9zc2libGUgdG8gbWFrZSB0aGlzIHNpbXBsZXIgYW5kIGxlc3MgdmVyYm9zZSBz
+b21laG93Pwo+ID4gQXQgbGVhc3QgdGhyZWUgdmlydGlvIGRldmljZXM6IHZpcnRpb19wY2lfbGVn
+YWN5LmMsIHZpcnRpb19tbWlvLmMgYW5kCj4gPiBzb29uIHJlbW90ZXByb2NfdmlydGlvLmMgd2ls
+bCBkdXBsaWNhdGUgdmFyaWFudHMgb2YgdGhlIGNvZGUgYWJvdmUuCj4gPgo+ID4gV2hhdCBpZiBz
+ZXQ4L2dldDggd2FzIG1hbmRhdG9yeSwgYW5kIHRoZSAxNiwzMiw2NCB2YXJpYW50cyB3aGVyZSBv
+cHRpb25hbCwKPiA+IGFuZCB0aGVuIHZpcnRpb19jcmVhZFgoKSB2aXJ0aW9fY3dyaXRlWCBkaWQg
+dGhlIG1hZ2ljIHRvIG1ha2UgdGhpbmdzIHdvcms/Cj4KPiBCdXQgdGhpcyBpcyBhIGNhc2Ugd2hl
+cmUgc2ltcGxlciBhbmQgbGVzcyB2ZXJib3NlIGFyZSBvcHBvc2l0ZXMuICBUaGVzZQo+IHBhdGNo
+ZXMgYXJlIHJlYWxseSBzdHJhaWdodGZvcndhcmQuICBOb29uZSBjYW4gZm9yZ2V0IHRvIHdyaXRl
+IG9yIGFzc2lnbgo+IGFuIGFjY2Vzc29yIGFuZCBoYXZlIHN0aWxsIHdvcmsgb24geDg2IGFuZCBm
+YWlsIGZvciBCRSBtYWNoaW5lcy4KPgo+IFNvIEkgbGlrZSBleHBsaWNpdCBhY2Nlc3NvcnMsIHNl
+dCBieSB0aGUgYmFja2VuZC4gIEJ1dCBpdCBkb2Vzbid0IGhhdmUKPiB0byBiZSBxdWl0ZSB0aGlz
+IHVnbHkuCj4KPiBIb3cncyB0aGlzIChjb21wbGV0ZWx5IHVudGVzdGVkISkKCkxvb2tzIHJlYWxs
+eSBnb29kIHRvIG1lLiBUaGlzIHdheSB3ZSBhdm9pZCBjb3B5aW5nIGNvZGUgYXJvdW5kIGJldHdl
+ZW4KdmlydGlvIGRldmljZXMuCgpCVFc6IElmIHlvdSBhcmUgcGxhbm5pbmcgdG8gbWVyZ2UgdGhp
+cyBpcyBmb3IgMy4xMCB3ZSB3aWxsIGdldCBzb21lCmNvbXBpbGUgaXNzdWVzIGluIGxpbnV4LW5l
+eHQgd2hlbiBtZXJnaW5nIHdpdGggbXkgbGF0ZXN0IHJlbW90ZXByb2MgcGF0Y2hlcy4KQnV0IHdp
+dGggdGhlIGNoYW5nZXMgYmVsb3cgaXQgc2hvdWxkIGJlIGVhc3kgZW5vdWdoIHRvIGZpeC4KClRo
+YW5rcywKU2p1cgoKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW8uYyBiL2Ry
+aXZlcnMvdmlydGlvL3ZpcnRpby5jCj4gaW5kZXggZTM0MjY5Mi4uNmZmYTU0MiAxMDA2NDQKPiAt
+LS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW8uYwo+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRp
+by5jCj4gQEAgLTIxOSw2ICsyMTksNzUgQEAgb3V0Ogo+ICB9Cj4gIEVYUE9SVF9TWU1CT0xfR1BM
+KHJlZ2lzdGVyX3ZpcnRpb19kZXZpY2UpOwo+Cj4gK3N0YXRpYyB2b2lkIG5vY29udl9nZXQoc3Ry
+dWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsIHVuc2lnbmVkIG9mZnNldCwKPiArICAgICAgICAgICAg
+ICAgICAgICAgIHNpemVfdCBsZW4sIHZvaWQgKnApCj4gK3sKPiArICAgICAgIHU4ICpidWYgPSBw
+Owo+ICsgICAgICAgd2hpbGUgKGxlbikgewo+ICsgICAgICAgICAgICAgICAqYnVmID0gdmRldi0+
+Y29uZmlnLT5nZXQ4KHZkZXYsIG9mZnNldCk7Cj4gKyAgICAgICAgICAgICAgIGJ1ZisrOwo+ICsg
+ICAgICAgICAgICAgICBvZmZzZXQrKzsKPiArICAgICAgICAgICAgICAgbGVuLS07Cj4gKyAgICAg
+ICB9Cj4gK30KPiArCj4gK3UxNiB2aXJ0aW9fY29uZmlnX2dldF9ub2NvbnYxNihzdHJ1Y3Qgdmly
+dGlvX2RldmljZSAqdmRldiwgdW5zaWduZWQgb2Zmc2V0KQo+ICt7Cj4gKyAgICAgICB1MTYgdjsK
+PiArICAgICAgIG5vY29udl9nZXQodmRldiwgb2Zmc2V0LCBzaXplb2YodiksICZ2KTsKPiArICAg
+ICAgIHJldHVybiB2Owo+ICt9Cj4gK0VYUE9SVF9TWU1CT0xfR1BMKHZpcnRpb19jb25maWdfZ2V0
+X25vY29udjE2KTsKPiArCj4gK3UzMiB2aXJ0aW9fY29uZmlnX2dldF9ub2NvbnYzMihzdHJ1Y3Qg
+dmlydGlvX2RldmljZSAqdmRldiwgdW5zaWduZWQgb2Zmc2V0KQo+ICt7Cj4gKyAgICAgICB1MzIg
+djsKPiArICAgICAgIG5vY29udl9nZXQodmRldiwgb2Zmc2V0LCBzaXplb2YodiksICZ2KTsKPiAr
+ICAgICAgIHJldHVybiB2Owo+ICt9Cj4gK0VYUE9SVF9TWU1CT0xfR1BMKHZpcnRpb19jb25maWdf
+Z2V0X25vY29udjMyKTsKPiArCj4gK3U2NCB2aXJ0aW9fY29uZmlnX2dldF9ub2NvbnY2NChzdHJ1
+Y3QgdmlydGlvX2RldmljZSAqdmRldiwgdW5zaWduZWQgb2Zmc2V0KQo+ICt7Cj4gKyAgICAgICB1
+NjQgdjsKPiArICAgICAgIG5vY29udl9nZXQodmRldiwgb2Zmc2V0LCBzaXplb2YodiksICZ2KTsK
+PiArICAgICAgIHJldHVybiB2Owo+ICt9Cj4gK0VYUE9SVF9TWU1CT0xfR1BMKHZpcnRpb19jb25m
+aWdfZ2V0X25vY29udjY0KTsKPiArCj4gK3N0YXRpYyB2b2lkIG5vY29udl9zZXQoc3RydWN0IHZp
+cnRpb19kZXZpY2UgKnZkZXYsIHVuc2lnbmVkIG9mZnNldCwKPiArICAgICAgICAgICAgICAgICAg
+ICAgIHNpemVfdCBsZW4sIGNvbnN0IHZvaWQgKnApCj4gK3sKPiArICAgICAgIGNvbnN0IHU4ICpi
+dWYgPSBwOwo+ICsgICAgICAgd2hpbGUgKGxlbikgewo+ICsgICAgICAgICAgICAgICB2ZGV2LT5j
+b25maWctPnNldDgodmRldiwgb2Zmc2V0LCAqYnVmKTsKPiArICAgICAgICAgICAgICAgYnVmKys7
+Cj4gKyAgICAgICAgICAgICAgIG9mZnNldCsrOwo+ICsgICAgICAgICAgICAgICBsZW4tLTsKPiAr
+ICAgICAgIH0KPiArfQo+ICsKPiArdm9pZCB2aXJ0aW9fY29uZmlnX3NldF9ub2NvbnYxNihzdHJ1
+Y3QgdmlydGlvX2RldmljZSAqdmRldiwKPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IHVuc2lnbmVkIG9mZnNldCwgdTE2IHYpCj4gK3sKPiArICAgICAgIG5vY29udl9zZXQodmRldiwg
+b2Zmc2V0LCBzaXplb2YodiksICZ2KTsKPiArfQo+ICtFWFBPUlRfU1lNQk9MX0dQTCh2aXJ0aW9f
+Y29uZmlnX3NldF9ub2NvbnYxNik7Cj4gKwo+ICt2b2lkIHZpcnRpb19jb25maWdfc2V0X25vY29u
+djMyKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2LAo+ICsgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgdW5zaWduZWQgb2Zmc2V0LCB1MzIgdikKPiArewo+ICsgICAgICAgbm9jb252X3Nl
+dCh2ZGV2LCBvZmZzZXQsIHNpemVvZih2KSwgJnYpOwo+ICt9Cj4gK0VYUE9SVF9TWU1CT0xfR1BM
+KHZpcnRpb19jb25maWdfc2V0X25vY29udjMyKTsKPiArCj4gK3ZvaWQgdmlydGlvX2NvbmZpZ19z
+ZXRfbm9jb252NjQoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsCj4gKyAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICB1bnNpZ25lZCBvZmZzZXQsIHU2NCB2KQo+ICt7Cj4gKyAgICAgICBu
+b2NvbnZfc2V0KHZkZXYsIG9mZnNldCwgc2l6ZW9mKHYpLCAmdik7Cj4gK30KPiArRVhQT1JUX1NZ
+TUJPTF9HUEwodmlydGlvX2NvbmZpZ19zZXRfbm9jb252NjQpOwo+ICsKPiAgdm9pZCB1bnJlZ2lz
+dGVyX3ZpcnRpb19kZXZpY2Uoc3RydWN0IHZpcnRpb19kZXZpY2UgKmRldikKPiAgewo+ICAgICAg
+ICAgaW50IGluZGV4ID0gZGV2LT5pbmRleDsgLyogc2F2ZSBmb3IgYWZ0ZXIgZGV2aWNlIHJlbGVh
+c2UgKi8KPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92aXJ0aW9fY29uZmlnLmggYi9pbmNs
+dWRlL2xpbnV4L3ZpcnRpb19jb25maWcuaAo+IGluZGV4IDlkZmUxMTYuLjlhOWFhYTAgMTAwNjQ0
+Cj4gLS0tIGEvaW5jbHVkZS9saW51eC92aXJ0aW9fY29uZmlnLmgKPiArKysgYi9pbmNsdWRlL2xp
+bnV4L3ZpcnRpb19jb25maWcuaAo+IEBAIC0yODYsNCArMjg2LDIzIEBAIHN0YXRpYyBpbmxpbmUg
+dm9pZCB2aXJ0aW9fY3dyaXRlNjQoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsCj4gICAgICAg
+ICAgICAgICAgIF9yOyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgXAo+ICAgICAgICAgfSkKPgo+ICsvKiBIZWxwZXJzIGZvciBub24tZW5kaWFuIGNv
+bnZlcnRpbmcgdHJhbnNwb3J0cy4gKi8KPiArdTE2IHZpcnRpb19jb25maWdfZ2V0X25vY29udjE2
+KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2LCB1bnNpZ25lZCBvZmZzZXQpOwo+ICt1MzIgdmly
+dGlvX2NvbmZpZ19nZXRfbm9jb252MzIoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYsIHVuc2ln
+bmVkIG9mZnNldCk7Cj4gK3U2NCB2aXJ0aW9fY29uZmlnX2dldF9ub2NvbnY2NChzdHJ1Y3Qgdmly
+dGlvX2RldmljZSAqdmRldiwgdW5zaWduZWQgb2Zmc2V0KTsKPiArdm9pZCB2aXJ0aW9fY29uZmln
+X3NldF9ub2NvbnYxNihzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiwKPiArICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIHVuc2lnbmVkIG9mZnNldCwgdTE2IHYpOwo+ICt2b2lkIHZpcnRp
+b19jb25maWdfc2V0X25vY29udjMyKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2LAo+ICsgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgdW5zaWduZWQgb2Zmc2V0LCB1MzIgdik7Cj4gK3Zv
+aWQgdmlydGlvX2NvbmZpZ19zZXRfbm9jb252NjQoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYs
+Cj4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB1bnNpZ25lZCBvZmZzZXQsIHU2NCB2
+KTsKPiArCj4gKyNkZWZpbmUgVklSVElPX0NPTkZJR19PUFNfTk9DT05WICAgICAgICAgICAgICAg
+XAo+ICsgICAgICAgLmdldDE2ID0gdmlydGlvX2NvbmZpZ19nZXRfbm9jb252MTYsICAgIFwKPiAr
+ICAgICAgIC5zZXQxNiA9IHZpcnRpb19jb25maWdfc2V0X25vY29udjE2LCAgICBcCj4gKyAgICAg
+ICAuZ2V0MzIgPSB2aXJ0aW9fY29uZmlnX2dldF9ub2NvbnYzMiwgICAgXAo+ICsgICAgICAgLnNl
+dDMyID0gdmlydGlvX2NvbmZpZ19zZXRfbm9jb252MzIsICAgIFwKPiArICAgICAgIC5nZXQ2NCA9
+IHZpcnRpb19jb25maWdfZ2V0X25vY29udjY0LCAgICBcCj4gKyAgICAgICAuc2V0NjQgPSB2aXJ0
+aW9fY29uZmlnX3NldF9ub2NvbnY2NAo+ICsKPiAgI2VuZGlmIC8qIF9MSU5VWF9WSVJUSU9fQ09O
+RklHX0ggKi8KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
