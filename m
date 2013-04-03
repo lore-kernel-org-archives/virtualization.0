@@ -1,24 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
-	each vq.
-Date: Wed, 03 Apr 2013 16:40:29 +1030
-Message-ID: <8738v85elm.fsf@rustcorp.com.au>
-References: <1363854584-25795-1-git-send-email-rusty@rustcorp.com.au>
-	<1363854584-25795-17-git-send-email-rusty@rustcorp.com.au>
-	<20130321101300.GA30493@redhat.com>
-	<87wqt0du2e.fsf@rustcorp.com.au>
-	<20130324201910.GA31631@redhat.com>
-	<8738vjer43.fsf@rustcorp.com.au>
-	<20130326193911.GA19251@redhat.com>
-	<87ip4d4sef.fsf@rustcorp.com.au>
-	<20130327112535.GE24243@redhat.com>
-	<5153CC2E.3090908@zytor.com> <878v554lsr.fsf@rustcorp.com.au>
-	<515B610C.9000802@zytor.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: [PATCH] vhost: Add vhost_commit callback for SeaBIOS ROM region
+	re-mapping
+Date: Wed,  3 Apr 2013 09:15:11 +0000
+Message-ID: <1364980511-25122-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <515B610C.9000802@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,44 +16,144 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: target-devel <target-devel@vger.kernel.org>
+Cc: kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-> On 03/29/2013 08:19 PM, Rusty Russell wrote:
->>>
->>> Shift count?
->> 
->> You can only have 2^16 vqs per device.  Is it verboten to write 16-bit
->> values to odd offsets?  If so, we've just dropped it to 2^15 before you
->> have to do some decoding to do.  Hard to care...
->> 
->> I dislike saying "multiply offset by 2" because implementations will get
->> it wrong.  That's because 0 will work either way, and that's going to be
->> the common case.
->> 
->
-> The main reason to use a shift count is that it lets the guest driver
-> assume that the spacing is a power of two, requiring only shift, as
-> opposed to an arbitrary number, requiring a multiply.  It seems unlikely
-> that there would be a legitimate reason for a non-power-of-two spacing
-> between the VQ notifiers.
->
-> The other reason is that if a particular host implementation needs
-> separate pages for each notifier, that can be a pretty large number.
+From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-Ah, sorry, we're talking across each other a bit.
+This patch follows MST's recommendation to move checks for
+vhost_verify_ring_mappings() -> cpu_physical_memory_map() operations
+from MemoryListener->region_[add,del]() -> vhost_set_memory() into
+final MemoryListener->commit() -> vhost_commit() callback.
 
-Current proposal is a 16 bit 'offset' field in the queue data for each
-queue, ie.
-        addr = dev->notify_base + vq->notify_off;
+It addresses the case where virtio-scsi vq ioport RAM re-mapping
+to read-only SeaBIOS ROM triggers a cpu_physical_memory_map()
+NIL MemoryRegionSection pointer failure.
 
-You propose a per-device 'shift' field:
-        addr = dev->notify_base + (vq->index << dev->notify_shift);
+Also save vhost_dev->mem_changed_[start,end]_addr values in
+vhost_set_memory() for final ranges_overlap checks.  (Thanks Paolo!)
 
-Which allows greater offsets, but insists on a unique offset per queue.
-Might be a fair trade-off...
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Asias He <asias@redhat.com>
+Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+---
+ hw/vhost.c |   53 ++++++++++++++++++++++++++++++++++++++---------------
+ hw/vhost.h |    3 +++
+ 2 files changed, 41 insertions(+), 15 deletions(-)
 
-Cheers,
-Rusty.
+diff --git a/hw/vhost.c b/hw/vhost.c
+index 832cc89..00345f2 100644
+--- a/hw/vhost.c
++++ b/hw/vhost.c
+@@ -385,8 +385,6 @@ static void vhost_set_memory(MemoryListener *listener,
+     bool log_dirty = memory_region_is_logging(section->mr);
+     int s = offsetof(struct vhost_memory, regions) +
+         (dev->mem->nregions + 1) * sizeof dev->mem->regions[0];
+-    uint64_t log_size;
+-    int r;
+     void *ram;
+ 
+     dev->mem = g_realloc(dev->mem, s);
+@@ -419,12 +417,47 @@ static void vhost_set_memory(MemoryListener *listener,
+         /* Remove old mapping for this memory, if any. */
+         vhost_dev_unassign_memory(dev, start_addr, size);
+     }
++    dev->mem_changed_start_addr = MIN(dev->mem_changed_start_addr, start_addr);
++    dev->mem_changed_end_addr = MAX(dev->mem_changed_end_addr, start_addr + size - 1);
++    dev->memory_changed = true;
++}
++
++static bool vhost_section(MemoryRegionSection *section)
++{
++    return memory_region_is_ram(section->mr);
++}
++
++static void vhost_begin(MemoryListener *listener)
++{
++    struct vhost_dev *dev = container_of(listener, struct vhost_dev,
++                                         memory_listener);
++    dev->mem_changed_end_addr = 0;
++    dev->mem_changed_start_addr = -1;
++}
+ 
++static void vhost_commit(MemoryListener *listener)
++{
++    struct vhost_dev *dev = container_of(listener, struct vhost_dev,
++                                         memory_listener);
++    hwaddr start_addr = 0;
++    ram_addr_t size = 0;
++    uint64_t log_size;
++    int r;
++
++    if (!dev->memory_changed) {
++        return;
++    }
+     if (!dev->started) {
+         return;
+     }
++    if (dev->mem_changed_start_addr > dev->mem_changed_end_addr) {
++        return;
++    }
+ 
+     if (dev->started) {
++        start_addr = dev->mem_changed_start_addr;
++        size = dev->mem_changed_end_addr - dev->mem_changed_start_addr + 1;
++
+         r = vhost_verify_ring_mappings(dev, start_addr, size);
+         assert(r >= 0);
+     }
+@@ -432,6 +465,7 @@ static void vhost_set_memory(MemoryListener *listener,
+     if (!dev->log_enabled) {
+         r = ioctl(dev->control, VHOST_SET_MEM_TABLE, dev->mem);
+         assert(r >= 0);
++        dev->memory_changed = false;
+         return;
+     }
+     log_size = vhost_get_log_size(dev);
+@@ -448,19 +482,7 @@ static void vhost_set_memory(MemoryListener *listener,
+     if (dev->log_size > log_size + VHOST_LOG_BUFFER) {
+         vhost_dev_log_resize(dev, log_size);
+     }
+-}
+-
+-static bool vhost_section(MemoryRegionSection *section)
+-{
+-    return memory_region_is_ram(section->mr);
+-}
+-
+-static void vhost_begin(MemoryListener *listener)
+-{
+-}
+-
+-static void vhost_commit(MemoryListener *listener)
+-{
++    dev->memory_changed = false;
+ }
+ 
+ static void vhost_region_add(MemoryListener *listener,
+@@ -854,6 +876,7 @@ int vhost_dev_init(struct vhost_dev *hdev, int devfd, const char *devpath,
+     hdev->log_size = 0;
+     hdev->log_enabled = false;
+     hdev->started = false;
++    hdev->memory_changed = false;
+     memory_listener_register(&hdev->memory_listener, &address_space_memory);
+     hdev->force = force;
+     return 0;
+diff --git a/hw/vhost.h b/hw/vhost.h
+index f062d48..adb40c3 100644
+--- a/hw/vhost.h
++++ b/hw/vhost.h
+@@ -45,6 +45,9 @@ struct vhost_dev {
+     vhost_log_chunk_t *log;
+     unsigned long long log_size;
+     bool force;
++    bool memory_changed;
++    hwaddr mem_changed_start_addr;
++    hwaddr mem_changed_end_addr;
+ };
+ 
+ int vhost_dev_init(struct vhost_dev *hdev, int devfd, const char *devpath,
+-- 
+1.7.2.5
