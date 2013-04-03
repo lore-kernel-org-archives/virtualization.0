@@ -1,22 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
-	each vq.
-Date: Wed, 3 Apr 2013 14:22:17 +0300
-Message-ID: <20130403112216.GB19122@redhat.com>
-References: <87wqt0du2e.fsf@rustcorp.com.au>
-	<20130324201910.GA31631@redhat.com>
-	<8738vjer43.fsf@rustcorp.com.au>
-	<20130326193911.GA19251@redhat.com>
-	<87ip4d4sef.fsf@rustcorp.com.au>
-	<20130327112535.GE24243@redhat.com> <5153CC2E.3090908@zytor.com>
-	<878v554lsr.fsf@rustcorp.com.au> <515B610C.9000802@zytor.com>
-	<8738v85elm.fsf@rustcorp.com.au>
+Subject: Re: [PATCH 1/2 V3] virtio-spec: dynamic network offloads configuration
+Date: Wed, 3 Apr 2013 14:25:15 +0300
+Message-ID: <20130403112515.GC19122@redhat.com>
+References: <1364902740-24948-1-git-send-email-dmitry@daynix.com>
+	<1364902740-24948-2-git-send-email-dmitry@daynix.com>
+	<87ehes5s18.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <8738v85elm.fsf@rustcorp.com.au>
+In-Reply-To: <87ehes5s18.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,55 +21,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Yan Vugenfirer <yan@daynix.com>, Ronen Hod <rhod@redhat.com>, Dmitry Fleytman <dfleytma@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 03, 2013 at 04:40:29PM +1030, Rusty Russell wrote:
-> "H. Peter Anvin" <hpa@zytor.com> writes:
-> > On 03/29/2013 08:19 PM, Rusty Russell wrote:
-> >>>
-> >>> Shift count?
-> >> 
-> >> You can only have 2^16 vqs per device.  Is it verboten to write 16-bit
-> >> values to odd offsets?  If so, we've just dropped it to 2^15 before you
-> >> have to do some decoding to do.  Hard to care...
-> >> 
-> >> I dislike saying "multiply offset by 2" because implementations will get
-> >> it wrong.  That's because 0 will work either way, and that's going to be
-> >> the common case.
-> >> 
+On Wed, Apr 03, 2013 at 11:50:19AM +1030, Rusty Russell wrote:
+> Dmitry Fleytman <dmitry@daynix.com> writes:
+> > From: Dmitry Fleytman <dfleytma@redhat.com>
 > >
-> > The main reason to use a shift count is that it lets the guest driver
-> > assume that the spacing is a power of two, requiring only shift, as
-> > opposed to an arbitrary number, requiring a multiply.  It seems unlikely
-> > that there would be a legitimate reason for a non-power-of-two spacing
-> > between the VQ notifiers.
+> > Virtio-net driver currently negotiates network offloads
+> > on startup via features mechanism and have no ability to
+> > change offloads state later.
+> > This patch introduced a new control command that allows
+> > to configure device network offloads state dynamically.
+> > The patch also introduces a new feature flag
+> > VIRTIO_NET_F_CTRL_GUEST_OFFLOADS.
 > >
-> > The other reason is that if a particular host implementation needs
-> > separate pages for each notifier, that can be a pretty large number.
+> > Signed-off-by: Dmitry Fleytman <dfleytma@redhat.com>
 > 
-> Ah, sorry, we're talking across each other a bit.
+> (BTW, I like to be CC'd on these things directly, so I don't miss them)
 > 
-> Current proposal is a 16 bit 'offset' field in the queue data for each
-> queue, ie.
->         addr = dev->notify_base + vq->notify_off;
+> The idea is fine.
 > 
-> You propose a per-device 'shift' field:
->         addr = dev->notify_base + (vq->index << dev->notify_shift);
+> But I dislike the duplication of constants: let's just use the feature
+> bits directly:
 > 
-> Which allows greater offsets, but insists on a unique offset per queue.
-> Might be a fair trade-off...
+> #define VIRTIO_NET_F_GUEST_CSUM	1	/* Guest handles pkts w/ partial csum */
+> #define VIRTIO_NET_F_GUEST_TSO4	7	/* Guest can handle TSOv4 in. */
+> #define VIRTIO_NET_F_GUEST_TSO6	8	/* Guest can handle TSOv6 in. */
+> #define VIRTIO_NET_F_GUEST_ECN	9	/* Guest can handle TSO[6] w/ ECN in. */
+> #define VIRTIO_NET_F_GUEST_UFO	10	/* Guest can handle UFO in. */
 > 
-> Cheers,
+> You want this, because you have to test against them anyway before
+> trying to re-enable them.
+> 
+> And secondly, it'll be much clearer if you don't say "change" but
+> "disable and re-enable", which is what's actually allowed.
+> 
+> Thanks,
 > Rusty.
 
-Or even
-         addr = dev->notify_base + (vq->notify_off << dev->notify_shift);
-
-since notify_base is per capability, shift can be per capability too.
-And for IO we can allow it to be 32 to mean "always use base".
-
-This is a bit more elegant than just saying "no offsets for IO".
-
--- 
-MST
+Okay and let's make command it bigger, say 64 bit then,
+in case we add lots of feature bits in the future?
