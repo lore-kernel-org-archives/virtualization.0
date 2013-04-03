@@ -1,14 +1,17 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH] tcm_vhost: Use ACCESS_ONCE for vs->vs_tpg[target] access
-Date: Tue, 02 Apr 2013 16:42:10 -0700
-Message-ID: <1364946130.3898.226.camel@haakon2.linux-iscsi.org>
-References: <1364916697-13212-1-git-send-email-asias@redhat.com>
-	<20130402153933.GA27410@redhat.com>
+Subject: Re: [PATCH V3 WIP 3/3] disable vhost_verify_ring_mappings check
+Date: Tue, 02 Apr 2013 21:04:10 -0700
+Message-ID: <1364961850.3898.261.camel__26974.7702092447$1364961886$gmane$org@haakon2.linux-iscsi.org>
+References: <8300718.16452772.1364465611936.JavaMail.root@redhat.com>
+	<1364525606.10253.69.camel@haakon2.linux-iscsi.org>
+	<51554D56.5080004@redhat.com>
+	<1364864747.3898.8.camel@haakon2.linux-iscsi.org>
+	<20130402132729.GK21545@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130402153933.GA27410@redhat.com>
+In-Reply-To: <20130402132729.GK21545@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,45 +22,286 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+Cc: Kevin O'Connor <kevin@koconnor.net>, kvm@vger.kernel.org, seabios-devel <seabios@seabios.org>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2013-04-02 at 18:39 +0300, Michael S. Tsirkin wrote:
-> On Tue, Apr 02, 2013 at 11:31:37PM +0800, Asias He wrote:
-> > In vhost_scsi_handle_vq:
+On Tue, 2013-04-02 at 16:27 +0300, Michael S. Tsirkin wrote:
+> On Mon, Apr 01, 2013 at 06:05:47PM -0700, Nicholas A. Bellinger wrote:
+> > On Fri, 2013-03-29 at 09:14 +0100, Paolo Bonzini wrote: 
+> > > Il 29/03/2013 03:53, Nicholas A. Bellinger ha scritto:
+> > > > On Thu, 2013-03-28 at 06:13 -0400, Paolo Bonzini wrote:
+> > > >>> I think it's the right thing to do, but maybe not the right place
+> > > >>> to do this, need to reset after all IO is done, before
+> > > >>> ring memory is write protected.
+> > > >>
+> > > >> Our emails are crossing each other unfortunately, but I want to
+> > > >> reinforce this: ring memory is not write protected.
+> > > > 
+> > > > Understood.  However, AFAICT the act of write protecting these ranges
+> > > > for ROM generates the offending callbacks to vhost_set_memory().
+> > > > 
+> > > > The part that I'm missing is if ring memory is not being write protected
+> > > > by make_bios_readonly_intel(), why are the vhost_set_memory() calls
+> > > > being invoked..?
+> > > 
+> > > Because mappings change for the region that contains the ring.  vhost
+> > > doesn't know yet that the changes do not affect ring memory,
+> > > vhost_set_memory() is called exactly to ascertain that.
+> > > 
 > > 
-> >       tv_tpg = vs->vs_tpg[target];
-> >       if (!tv_tpg) {
-> >               ....
-> >               return
-> >       }
+> > Hi Paolo & Co,
 > > 
-> >       tv_cmd = vhost_scsi_allocate_cmd(tv_tpg, &v_req,
+> > Here's a bit more information on what is going on with the same
+> > cpu_physical_memory_map() failure in vhost_verify_ring_mappings()..
 > > 
-> > 1) vs->vs_tpg[target] might change after the NULL check and 2) the above
-> > line might access tv_tpg from vs->vs_tpg[target]. To prevent 2), use
-> > ACCESS_ONCE. Thanks mst for catching this up!
+> > So as before, at the point that seabios is marking memory as readonly
+> > for ROM in src/shadow.c:make_bios_readonly_intel() with the following
+> > call:
 > > 
-> > Signed-off-by: Asias He <asias@redhat.com>
+> > Calling pci_config_writeb(0x31): bdf: 0x0000 pam: 0x0000005b
+> > 
+> > the memory API update hook triggers back into vhost_region_del() code,
+> > and following occurs:
+> > 
+> > Entering vhost_region_del section: 0x7fd30a213b60 offset_within_region: 0xc0000 size: 2146697216 readonly: 0
+> > vhost_region_del: is_rom: 0, rom_device: 0
+> > vhost_region_del: readable: 1
+> > vhost_region_del: ram_addr 0x0, addr: 0x0 size: 2147483648
+> > vhost_region_del: name: pc.ram
+> > Entering vhost_set_memory, section: 0x7fd30a213b60 add: 0, dev->started: 1
+> > Entering verify_ring_mappings: start_addr 0x00000000000c0000 size: 2146697216
+> > verify_ring_mappings: ring_phys 0x0 ring_size: 0
+> > verify_ring_mappings: ring_phys 0x0 ring_size: 0
+> > verify_ring_mappings: ring_phys 0xed000 ring_size: 5124
+> > verify_ring_mappings: calling cpu_physical_memory_map ring_phys: 0xed000 l: 5124
+> > address_space_map: addr: 0xed000, plen: 5124
+> > address_space_map: l: 4096, len: 5124
+> > phys_page_find got PHYS_MAP_NODE_NIL >>>>>>>>>>>>>>>>>>>>>>..
+> > address_space_map: section: 0x7fd30fabaed0 memory_region_is_ram: 0 readonly: 0
+> > address_space_map: section: 0x7fd30fabaed0 offset_within_region: 0x0 section size: 18446744073709551615
+> > Unable to map ring buffer for ring 2, l: 4096
+> > 
+> > So the interesting part is that phys_page_find() is not able to locate
+> > the corresponding page for vq->ring_phys: 0xed000 from the
+> > vhost_region_del() callback with section->offset_within_region:
+> > 0xc0000..
+> > 
+> > Is there any case where this would not be considered a bug..? 
+> > 
+> > register_multipage : d: 0x7fd30f7d0ed0 section: 0x7fd30a2139b0
+> > register_multipage : d: 0x7fd30f7d0ed0 section: 0x7fd30a2139b0
+> > register_multipage : d: 0x7fd30f7d0ed0 section: 0x7fd30a2139b0
+> > Entering vhost_region_add section: 0x7fd30a213aa0 offset_within_region: 0xc0000 size: 32768 readonly: 1
+> > vhost_region_add: is_rom: 0, rom_device: 0
+> > vhost_region_add: readable: 1
+> > vhost_region_add: ram_addr 0x0000000000000000, addr: 0x               0 size: 2147483648
+> > vhost_region_add: name: pc.ram
+> > Entering vhost_set_memory, section: 0x7fd30a213aa0 add: 1, dev->started: 1
+> > Entering verify_ring_mappings: start_addr 0x00000000000c0000 size: 32768
+> > verify_ring_mappings: ring_phys 0x0 ring_size: 0
+> > verify_ring_mappings: ring_phys 0x0 ring_size: 0
+> > verify_ring_mappings: ring_phys 0xed000 ring_size: 5124
+> > verify_ring_mappings: Got !ranges_overlap, skipping
+> > register_multipage : d: 0x7fd30f7d0ed0 section: 0x7fd30a2139b0
+> > Entering vhost_region_add section: 0x7fd30a213aa0 offset_within_region: 0xc8000 size: 2146664448 readonly: 0
+> > vhost_region_add: is_rom: 0, rom_device: 0
+> > vhost_region_add: readable: 1
+> > vhost_region_add: ram_addr 0x0000000000000000, addr: 0x               0 size: 2147483648
+> > vhost_region_add: name: pc.ram
+> > Entering vhost_set_memory, section: 0x7fd30a213aa0 add: 1, dev->started: 1
+> > Entering verify_ring_mappings: start_addr 0x00000000000c8000 size: 2146664448
+> > verify_ring_mappings: ring_phys 0x0 ring_size: 0
+> > verify_ring_mappings: ring_phys 0x0 ring_size: 0
+> > verify_ring_mappings: ring_phys 0xed000 ring_size: 5124
+> > verify_ring_mappings: calling cpu_physical_memory_map ring_phys: 0xed000 l: 5124
+> > address_space_map: addr: 0xed000, plen: 5124
+> > address_space_map: l: 4096, len: 5124
+> > address_space_map: section: 0x7fd30fabb020 memory_region_is_ram: 1 readonly: 0
+> > address_space_map: section: 0x7fd30fabb020 offset_within_region: 0xc8000 section size: 2146664448
+> > address_space_map: l: 4096, len: 1028
+> > address_space_map: section: 0x7fd30fabb020 memory_region_is_ram: 1 readonly: 0
+> > address_space_map: section: 0x7fd30fabb020 offset_within_region: 0xc8000 section size: 2146664448
+> > address_space_map: Calling qemu_ram_ptr_length: raddr: 0x           ed000 rlen: 5124
+> > address_space_map: After qemu_ram_ptr_length: raddr: 0x           ed000 rlen: 5124
+> > 
+> > So here the vhost_region_add() callback for
+> > section->offset_within_region: 0xc8000 for vq->ring_phys: 0xed000 is
+> > able to locate *section via phys_page_find() within address_space_map(),
+> > and cpu_physical_memory_map() completes as expected..
+> > 
+> > register_multipage : d: 0x7fd30f7d0ed0 section: 0x7fd30a2139b0
+> > register_multipage : d: 0x7fd30f7d0ed0 section: 0x7fd30a2139b0
+> > register_multipage : d: 0x7fd30f7d0ed0 section: 0x7fd30a2139b0
+> > register_multipage : d: 0x7fd30f7d0ed0 section: 0x7fd30a2139b0
+> > register_multipage : d: 0x7fd30f7d0ed0 section: 0x7fd30a2139b0
+> > register_multipage : d: 0x7fd30f7d0ed0 section: 0x7fd30a2139b0
+> > register_multipage : d: 0x7fd30f7d0ed0 section: 0x7fd30a2139b0
+> > phys_page_find got PHYS_MAP_NODE_NIL >>>>>>>>>>>>>>>>>>>>>>..
+> > 
+> > So while plodding my way through the memory API, the thing that would be
+> > useful to know is if the offending *section that is missing for the
+> > first phys_page_find() call is getting removed before the callback makes
+> > it's way into vhost_verify_ring_mappings() code, or that some other bug
+> > is occuring..?
+> > 
+> > Any idea on how this could be verified..?
+> > 
+> > Thanks,
+> > 
+> > --nab
 > 
-> OK this might be ok for 3.9.
+> Is it possible that what is going on here,
+> is that we had a region at address 0x0 size 0x80000000,
+> and now a chunk from it is being made readonly,
+> and to this end the whole old region is removed
+> then new ones are added?
+
+Yes, I believe this is exactly what is happening..
+
 > 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> Nicholas can you pick this up pls?
+> If yes maybe the problem is that we don't use the atomic
+> begin/commit ops in the memory API.
+> Maybe the following will help?
+> Completely untested, posting just to give you the idea:
 > 
 
-Applying to target-pending/master now.
+Mmmm, one question on how vhost_region_del() + vhost_region_add() +
+vhost_commit() should work..
 
-> For 3.10 I still think it's best to get rid of it
-> and stick vs->vs_tpg in vq->private_data.
-> 
+Considering the following when the same seabios code snippet:
 
-Your call here.  Given that vhost-scsi-pci code + Seabios w/ virtio-scsi
-enabled will be broken without Asias's two extra vq->private_data and
-initialize vq->last_used_idx changes on the list, they will certainly
-need to hit 3.9.x code once your happy to ACK for v3.10.
+   pci_config_writeb(0x31): bdf: 0x0000 pam: 0x0000005b
 
-Asias, I assume you'll be updating this soon..?
+is executed to mark an pc.ram area 0xc0000 as readonly:
+
+Entering vhost_begin >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+Entering vhost_region_del section: 0x7fd037a4bb60 offset_within_region: 0xc0000 size: 2146697216 readonly: 0
+vhost_region_del: is_rom: 0, rom_device: 0
+vhost_region_del: readable: 1
+vhost_region_del: ram_addr 0x0, addr: 0x0 size: 2147483648
+vhost_region_del: name: pc.ram
+Entering vhost_set_memory, section: 0x7fd037a4bb60 add: 0, dev->started: 1
+vhost_set_memory: Setting dev->memory_changed = true for start_addr: 0xc0000
+Entering vhost_region_add section: 0x7fd037a4baa0 offset_within_region: 0xc0000 size: 32768 readonly: 1
+vhost_region_add is readonly !!!!!!!!!!!!!!!!!!!
+vhost_region_add: is_rom: 0, rom_device: 0
+vhost_region_add: readable: 1
+vhost_region_add: ram_addr 0x0000000000000000, addr: 0x               0 size: 2147483648
+vhost_region_add: name: pc.ram
+Entering vhost_set_memory, section: 0x7fd037a4baa0 add: 1, dev->started: 1
+vhost_dev_assign_memory(); >>>>>>>>>>>>>>>>>>>>>>>>>>>> reg->guest_phys_addr: 0xc0000
+vhost_set_memory: Setting dev->memory_changed = true for start_addr: 0xc0000
+Entering vhost_region_add section: 0x7fd037a4baa0 offset_within_region: 0xc8000 size: 2146664448 readonly: 0
+vhost_region_add: is_rom: 0, rom_device: 0
+vhost_region_add: readable: 1
+vhost_region_add: ram_addr 0x0000000000000000, addr: 0x               0 size: 2147483648
+vhost_region_add: name: pc.ram
+Entering vhost_set_memory, section: 0x7fd037a4baa0 add: 1, dev->started: 1
+vhost_set_memory: Setting dev->memory_changed = true for start_addr: 0xc8000
+phys_page_find got PHYS_MAP_NODE_NIL >>>>>>>>>>>>>>>>>>>>>>..
+Entering vhost_commit >>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Note that originally we'd see the cpu_physical_memory_map() failure in
+vhost_verify_ring_mappings() after the first ->region_del() above.
+
+Adding a hardcoded cpu_physical_memory_map() testcase in vhost_commit()
+for phys_addr=0xed000, len=5124 (vq ring) does locate the correct
+*section from address_space_map(), which correct points to the section
+generated by the last vhost_region_add() above:
+
+Entering vhost_commit >>>>>>>>>>>>>>>>>>>>>>>>>>>
+address_space_map: addr: 0xed000, plen: 5124
+address_space_map: l: 4096, len: 5124
+address_space_map: section: 0x7f41b325f020 memory_region_is_ram: 1 readonly: 0
+address_space_map: section: 0x7f41b325f020 offset_within_region: 0xc8000 section size: 2146664448
+address_space_map: l: 4096, len: 1028
+address_space_map: section: 0x7f41b325f020 memory_region_is_ram: 1 readonly: 0
+address_space_map: section: 0x7f41b325f020 offset_within_region: 0xc8000 section size: 2146664448
+address_space_map: Calling qemu_ram_ptr_length: raddr: 0x           ed000 rlen: 5124
+address_space_map: After qemu_ram_ptr_length: raddr: 0x           ed000 rlen: 5124
+cpu_physical_memory_map(0xed000) got l: 5124
+
+So, does using a ->commit callback for MemoryListener  mean that
+vhost_verify_ring_mappings() is OK to be called only from the final
+->commit callback, and not from each ->region_del + ->region_add
+callback..?   Eg: I seem to recall something about
+vhost_verify_ring_mappings() being called during each ->region_del()
+when dev->started == true was important, no..?
+
+If this OK, then it seems a matter of keeping an updated bit for each of
+the regions in vhost_dev->mem_sections[] and performing the
+vhost_verify_ring_mappings() on all three above during the final
+->commit() call, right..?
+
+WDYT..?
 
 --nab
+
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> ---
+> 
+> diff --git a/hw/vhost.c b/hw/vhost.c
+> index 4d6aee3..716cfaa 100644
+> --- a/hw/vhost.c
+> +++ b/hw/vhost.c
+> @@ -416,6 +416,25 @@ static void vhost_set_memory(MemoryListener *listener,
+>          /* Remove old mapping for this memory, if any. */
+>          vhost_dev_unassign_memory(dev, start_addr, size);
+>      }
+> +    dev->memory_changed = true;
+> +}
+> +
+> +static bool vhost_section(MemoryRegionSection *section)
+> +{
+> +    return memory_region_is_ram(section->mr);
+> +}
+> +
+> +static void vhost_begin(MemoryListener *listener)
+> +{
+> +}
+> +
+> +static void vhost_commit(MemoryListener *listener)
+> +{
+> +    struct vhost_dev *dev = container_of(listener, struct vhost_dev,
+> +                                         memory_listener);
+> +    if (!dev->memory_changed) {
+> +        return;
+> +    }
+>  
+>      if (!dev->started) {
+>          return;
+> @@ -445,19 +464,7 @@ static void vhost_set_memory(MemoryListener *listener,
+>      if (dev->log_size > log_size + VHOST_LOG_BUFFER) {
+>          vhost_dev_log_resize(dev, log_size);
+>      }
+> -}
+> -
+> -static bool vhost_section(MemoryRegionSection *section)
+> -{
+> -    return memory_region_is_ram(section->mr);
+> -}
+> -
+> -static void vhost_begin(MemoryListener *listener)
+> -{
+> -}
+> -
+> -static void vhost_commit(MemoryListener *listener)
+> -{
+> +    dev->memory_changed = false;
+>  }
+>  
+>  static void vhost_region_add(MemoryListener *listener,
+> @@ -842,6 +849,7 @@ int vhost_dev_init(struct vhost_dev *hdev, int devfd, const char *devpath,
+>      hdev->log_size = 0;
+>      hdev->log_enabled = false;
+>      hdev->started = false;
+> +    hdev->memory_changed = false;
+>      memory_listener_register(&hdev->memory_listener, &address_space_memory);
+>      hdev->force = force;
+>      return 0;
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe target-devel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
