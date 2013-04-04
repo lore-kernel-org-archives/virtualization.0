@@ -1,17 +1,15 @@
 From: Alexander Graf <agraf@suse.de>
 Subject: Re: [PATCH RFC] kvm: add PV MMIO EVENTFD
-Date: Thu, 4 Apr 2013 14:22:39 +0200
-Message-ID: <C62D8110-A548-4A23-BBA4-54EB405D55C7@suse.de>
+Date: Thu, 4 Apr 2013 14:32:08 +0200
+Message-ID: <959E147D-EB7B-4F4B-9F84-4F1BBA98DEF8@suse.de>
 References: <20130404104846.GA6227@redhat.com>
 	<6D40C5F1-849E-4F32-B391-E1A1BFA8C59D@suse.de>
-	<20130404110442.GA6467@redhat.com>
-	<C5D3F576-7567-4FCD-8819-9DC235E3513B@suse.de>
-	<20130404121934.GE17919@redhat.com>
+	<20130404120825.GD17919@redhat.com>
 Mime-Version: 1.0 (Apple Message framework v1278)
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130404121934.GE17919@redhat.com>
+In-Reply-To: <20130404120825.GD17919@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,68 +24,57 @@ Cc: Andrew Morton <akpm@linux-foundation.org>, kvm@vger.kernel.org, "Michael S. 
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 04.04.2013, at 14:19, Gleb Natapov wrote:
+On 04.04.2013, at 14:08, Gleb Natapov wrote:
 
-> On Thu, Apr 04, 2013 at 02:09:53PM +0200, Alexander Graf wrote:
+> On Thu, Apr 04, 2013 at 01:57:34PM +0200, Alexander Graf wrote:
 >> 
->> On 04.04.2013, at 13:04, Michael S. Tsirkin wrote:
+>> On 04.04.2013, at 12:50, Michael S. Tsirkin wrote:
 >> 
->>> On Thu, Apr 04, 2013 at 01:57:34PM +0200, Alexander Graf wrote:
->>>> 
->>>> On 04.04.2013, at 12:50, Michael S. Tsirkin wrote:
->>>> 
->>>>> With KVM, MMIO is much slower than PIO, due to the need to
->>>>> do page walk and emulation. But with EPT, it does not have to be: we
->>>>> know the address from the VMCS so if the address is unique, we can look
->>>>> up the eventfd directly, bypassing emulation.
->>>>> 
->>>>> Add an interface for userspace to specify this per-address, we can
->>>>> use this e.g. for virtio.
->>>>> 
->>>>> The implementation adds a separate bus internally. This serves two
->>>>> purposes:
->>>>> - minimize overhead for old userspace that does not use PV MMIO
->>>>> - minimize disruption in other code (since we don't know the length,
->>>>> devices on the MMIO bus only get a valid address in write, this
->>>>> way we don't need to touch all devices to teach them handle
->>>>> an dinvalid length)
->>>>> 
->>>>> At the moment, this optimization is only supported for EPT on x86 and
->>>>> silently ignored for NPT and MMU, so everything works correctly but
->>>>> slowly.
->>>>> 
->>>>> TODO: NPT, MMU and non x86 architectures.
->>>>> 
->>>>> The idea was suggested by Peter Anvin.  Lots of thanks to Gleb for
->>>>> pre-review and suggestions.
->>>>> 
->>>>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->>>> 
->>>> This still uses page fault intercepts which are orders of magnitudes
->>>> slower than hypercalls.
+>>> With KVM, MMIO is much slower than PIO, due to the need to
+>>> do page walk and emulation. But with EPT, it does not have to be: we
+>>> know the address from the VMCS so if the address is unique, we can look
+>>> up the eventfd directly, bypassing emulation.
 >>> 
->>> Not really. Here's a test:
->>> compare vmcall to portio:
+>>> Add an interface for userspace to specify this per-address, we can
+>>> use this e.g. for virtio.
 >>> 
->>> vmcall 1519
->>> ...
->>> outl_to_kernel 1745
+>>> The implementation adds a separate bus internally. This serves two
+>>> purposes:
+>>> - minimize overhead for old userspace that does not use PV MMIO
+>>> - minimize disruption in other code (since we don't know the length,
+>>> devices on the MMIO bus only get a valid address in write, this
+>>> way we don't need to touch all devices to teach them handle
+>>> an dinvalid length)
 >>> 
->>> compare portio to mmio:
+>>> At the moment, this optimization is only supported for EPT on x86 and
+>>> silently ignored for NPT and MMU, so everything works correctly but
+>>> slowly.
 >>> 
->>> mmio-wildcard-eventfd:pci-mem 3529
->>> mmio-pv-eventfd:pci-mem 1878
->>> portio-wildcard-eventfd:pci-io 1846
+>>> TODO: NPT, MMU and non x86 architectures.
 >>> 
->>> So not orders of magnitude.
+>>> The idea was suggested by Peter Anvin.  Lots of thanks to Gleb for
+>>> pre-review and suggestions.
+>>> 
+>>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 >> 
->> https://dl.dropbox.com/u/8976842/KVM%20Forum%202012/MMIO%20Tuning.pdf
+>> This still uses page fault intercepts which are orders of magnitudes slower than hypercalls. Why don't you just create a PV MMIO hypercall that the guest can use to invoke MMIO accesses towards the host based on physical addresses with explicit length encodings?
 >> 
->> Check out page 41. Higher is better (number is number of loop cycles in a second). My test system was an AMD Istanbul based box.
+> It is slower, but not an order of magnitude slower. It become faster
+> with newer HW.
+> 
+>> That way you simplify and speed up all code paths, exceeding the speed of PIO exits even. It should also be quite easily portable, as all other platforms have hypercalls available as well.
 >> 
-> Have you bypassed instruction emulation in your testing?
+> We are trying to avoid PV as much as possible (well this is also PV,
+> but not guest visible
 
-PIO doesn't do instruction emulation.
+Also, how is this not guest visible? Who sets KVM_IOEVENTFD_FLAG_PV_MMIO? The comment above its definition indicates that the guest does so, so it is guest visible.
+
++/*
++ * PV_MMIO - Guest can promise us that all accesses touching this address
++ * are writes of specified length, starting at the specified address.
++ * If not - it's a Guest bug.
++ * Can not be used together with either PIO or DATAMATCH.
++ */
 
 
 Alex
