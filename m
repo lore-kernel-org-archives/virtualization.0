@@ -1,17 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH RFC] kvm: add PV MMIO EVENTFD
-Date: Thu, 4 Apr 2013 15:58:02 +0300
-Message-ID: <20130404125802.GC6467@redhat.com>
+Date: Thu, 4 Apr 2013 16:03:02 +0300
+Message-ID: <20130404130302.GD6467@redhat.com>
 References: <20130404104846.GA6227@redhat.com>
 	<6D40C5F1-849E-4F32-B391-E1A1BFA8C59D@suse.de>
 	<20130404120825.GD17919@redhat.com>
-	<194AE9A4-07C6-4597-B3AA-1EDF3DA97FA0@suse.de>
+	<959E147D-EB7B-4F4B-9F84-4F1BBA98DEF8@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <194AE9A4-07C6-4597-B3AA-1EDF3DA97FA0@suse.de>
+In-Reply-To: <959E147D-EB7B-4F4B-9F84-4F1BBA98DEF8@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,7 +25,7 @@ To: Alexander Graf <agraf@suse.de>
 Cc: Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Xiao Guangrong <xiaoguangrong@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, kvm@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Sasha Levin <sasha.levin@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Christoffer Dall <c.dall@virtualopensystems.com>, virtualization@lists.linux-foundation.org, Takuya Yoshikawa <yoshikawa_takuya_b1@lab.ntt.co.jp>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 04, 2013 at 02:22:09PM +0200, Alexander Graf wrote:
+On Thu, Apr 04, 2013 at 02:32:08PM +0200, Alexander Graf wrote:
 > 
 > On 04.04.2013, at 14:08, Gleb Natapov wrote:
 > 
@@ -68,29 +68,37 @@ On Thu, Apr 04, 2013 at 02:22:09PM +0200, Alexander Graf wrote:
 > >> That way you simplify and speed up all code paths, exceeding the speed of PIO exits even. It should also be quite easily portable, as all other platforms have hypercalls available as well.
 > >> 
 > > We are trying to avoid PV as much as possible (well this is also PV,
-> > but not guest visible). We haven't replaced PIO with hypercall for the
-> > same reason. My hope is that future HW will provide us with instruction
-> > decode for basic mov instruction at which point this optimisation can be
-> > dropped.
+> > but not guest visible
 > 
-> The same applies to an MMIO hypercall. Once the PV interface becomes obsolete, we can drop the capability we expose to the guest.
+> Also, how is this not guest visible?
 
-Yes but unlike a hypercall this optimization does not need special code
-in the guest. You can use standard OS interfaces for memory access.
+It's visible but it does not require special code in the guest.
+Only on qemu. Guest can use standard iowritel/w/b.
 
-> > And hypercall has its own set of problems with Windows guests.
-> > When KVM runs in Hyper-V emulation mode it expects to get Hyper-V
-> > hypercalls.  Mixing KVM hypercalls and Hyper-V requires some tricks. It
+> Who sets
+> KVM_IOEVENTFD_FLAG_PV_MMIO?
+
+It's an ioctl so qemu does this.
+
+> The comment above its definition indicates
+> that the guest does so, so it is guest visible.
 > 
-> Can't we simply register a hypercall ID range with Microsoft?
-> 
-> > may also affect WHQLing Windows drivers since driver will talk to HW
-> > bypassing Windows interfaces.
-> 
-> Then the WHQL'ed driver doesn't support the PV MMIO hcall?
+> +/*
+> + * PV_MMIO - Guest can promise us that all accesses touching this address
+> + * are writes of specified length, starting at the specified address.
+> + * If not - it's a Guest bug.
+> + * Can not be used together with either PIO or DATAMATCH.
+> + */
 > 
 > 
 > Alex
+
+The requirement is to only access a specific address by a single aligned
+instruction.  For example, only aligned signle-word accesses are
+allowed.
+
+This is a standard practice with many devices, in fact,
+virtio spec already requires this for notifications.
 
 
 -- 
