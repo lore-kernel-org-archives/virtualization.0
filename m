@@ -1,17 +1,17 @@
 From: Alexander Graf <agraf@suse.de>
 Subject: Re: [PATCH RFC] kvm: add PV MMIO EVENTFD
-Date: Thu, 4 Apr 2013 14:39:06 +0200
-Message-ID: <F6B8A4F8-56F4-41EA-9F3A-AD3814271419@suse.de>
+Date: Thu, 4 Apr 2013 14:39:51 +0200
+Message-ID: <EF153515-9835-4FB9-B6BC-73D0BDC86492@suse.de>
 References: <20130404104846.GA6227@redhat.com>
 	<6D40C5F1-849E-4F32-B391-E1A1BFA8C59D@suse.de>
 	<20130404120825.GD17919@redhat.com>
-	<194AE9A4-07C6-4597-B3AA-1EDF3DA97FA0@suse.de>
-	<20130404123438.GF17919@redhat.com>
+	<959E147D-EB7B-4F4B-9F84-4F1BBA98DEF8@suse.de>
+	<20130404123806.GG17919@redhat.com>
 Mime-Version: 1.0 (Apple Message framework v1278)
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130404123438.GF17919@redhat.com>
+In-Reply-To: <20130404123806.GG17919@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,9 +26,9 @@ Cc: Andrew Morton <akpm@linux-foundation.org>, kvm@vger.kernel.org, "Michael S. 
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 04.04.2013, at 14:34, Gleb Natapov wrote:
+On 04.04.2013, at 14:38, Gleb Natapov wrote:
 
-> On Thu, Apr 04, 2013 at 02:22:09PM +0200, Alexander Graf wrote:
+> On Thu, Apr 04, 2013 at 02:32:08PM +0200, Alexander Graf wrote:
 >> 
 >> On 04.04.2013, at 14:08, Gleb Natapov wrote:
 >> 
@@ -71,40 +71,26 @@ On 04.04.2013, at 14:34, Gleb Natapov wrote:
 >>>> That way you simplify and speed up all code paths, exceeding the speed of PIO exits even. It should also be quite easily portable, as all other platforms have hypercalls available as well.
 >>>> 
 >>> We are trying to avoid PV as much as possible (well this is also PV,
->>> but not guest visible). We haven't replaced PIO with hypercall for the
->>> same reason. My hope is that future HW will provide us with instruction
->>> decode for basic mov instruction at which point this optimisation can be
->>> dropped.
+>>> but not guest visible
 >> 
->> The same applies to an MMIO hypercall. Once the PV interface becomes obsolete, we can drop the capability we expose to the guest.
+>> Also, how is this not guest visible? Who sets KVM_IOEVENTFD_FLAG_PV_MMIO? The comment above its definition indicates that the guest does so, so it is guest visible.
 >> 
-> Disable it on newer HW is easy, but it is not that simple to get rid of the guest code.
+> QEMU sets it.
 
-You need to have guest code that runs with non-PV hcalls anyways, since you want to be able to run on older KVM versions. So what's the problem?
+How does QEMU know?
 
 > 
->>> And hypercall has its own set of problems with Windows guests.
->>> When KVM runs in Hyper-V emulation mode it expects to get Hyper-V
->>> hypercalls.  Mixing KVM hypercalls and Hyper-V requires some tricks. It
+>> +/*
+>> + * PV_MMIO - Guest can promise us that all accesses touching this address
+>> + * are writes of specified length, starting at the specified address.
+>> + * If not - it's a Guest bug.
+>> + * Can not be used together with either PIO or DATAMATCH.
+>> + */
 >> 
->> Can't we simply register a hypercall ID range with Microsoft?
-> Doubt it. This is not only about the rang though. The calling convention
-> is completely different.
+> Virtio spec will state that access to a kick register needs to be of
+> specific length. This is reasonable thing for HW to ask.
 
-There is no calling convention for KVM hypercalls anymore, or is there?
-Either way, we would of course just adhere to the MS calling convention. We're only talking about register values here...
-
-> 
->> 
->>> may also affect WHQLing Windows drivers since driver will talk to HW
->>> bypassing Windows interfaces.
->> 
->> Then the WHQL'ed driver doesn't support the PV MMIO hcall?
->> 
-> All Windows drivers have to be WHQL'ed, saying that is like saying that
-> we do not care about Windows guest virtio speed.
-
-I don't mind if a Linux guest is faster than a Windows guest, if that's what you're asking.
+This is a spec change. So the guest would have to indicate that it adheres to a newer spec. Thus it's a guest visible change.
 
 
 Alex
