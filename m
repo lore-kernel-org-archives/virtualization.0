@@ -1,7 +1,7 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Gleb Natapov <gleb@redhat.com>
 Subject: Re: [PATCH RFC] kvm: add PV MMIO EVENTFD
-Date: Thu, 4 Apr 2013 14:04:42 +0300
-Message-ID: <20130404110442.GA6467@redhat.com>
+Date: Thu, 4 Apr 2013 15:08:25 +0300
+Message-ID: <20130404120825.GD17919@redhat.com>
 References: <20130404104846.GA6227@redhat.com>
 	<6D40C5F1-849E-4F32-B391-E1A1BFA8C59D@suse.de>
 Mime-Version: 1.0
@@ -20,7 +20,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Alexander Graf <agraf@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Xiao Guangrong <xiaoguangrong@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, kvm@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Sasha Levin <sasha.levin@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Christoffer Dall <c.dall@virtualopensystems.com>, virtualization@lists.linux-foundation.org, Takuya Yoshikawa <yoshikawa_takuya_b1@lab.ntt.co.jp>
+Cc: Andrew Morton <akpm@linux-foundation.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, x86@kernel.org, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Xiao Guangrong <xiaoguangrong@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Sasha Levin <sasha.levin@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Christoffer Dall <c.dall@virtualopensystems.com>, virtualization@lists.linux-foundation.org, Takuya Yoshikawa <yoshikawa_takuya_b1@lab.ntt.co.jp>
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Thu, Apr 04, 2013 at 01:57:34PM +0200, Alexander Graf wrote:
@@ -54,37 +54,22 @@ On Thu, Apr 04, 2013 at 01:57:34PM +0200, Alexander Graf wrote:
 > > 
 > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > 
-> This still uses page fault intercepts which are orders of magnitudes
-> slower than hypercalls.
-
-Not really. Here's a test:
-compare vmcall to portio:
-
-vmcall 1519
-...
-outl_to_kernel 1745
-
-compare portio to mmio:
-
-mmio-wildcard-eventfd:pci-mem 3529
-mmio-pv-eventfd:pci-mem 1878
-portio-wildcard-eventfd:pci-io 1846
-
-So not orders of magnitude.
-
-> Why don't you just create a PV MMIO hypercall
-> that the guest can use to invoke MMIO accesses towards the host based
-> on physical addresses with explicit length encodings?
-> That way you simplify and speed up all code paths, exceeding the speed
-> of PIO exits even. It should also be quite easily portable, as all
-> other platforms have hypercalls available as well.
+> This still uses page fault intercepts which are orders of magnitudes slower than hypercalls. Why don't you just create a PV MMIO hypercall that the guest can use to invoke MMIO accesses towards the host based on physical addresses with explicit length encodings?
 > 
+It is slower, but not an order of magnitude slower. It become faster
+with newer HW.
+
+> That way you simplify and speed up all code paths, exceeding the speed of PIO exits even. It should also be quite easily portable, as all other platforms have hypercalls available as well.
 > 
-> Alex
+We are trying to avoid PV as much as possible (well this is also PV,
+but not guest visible). We haven't replaced PIO with hypercall for the
+same reason. My hope is that future HW will provide us with instruction
+decode for basic mov instruction at which point this optimisation can be
+dropped. And hypercall has its own set of problems with Windows guests.
+When KVM runs in Hyper-V emulation mode it expects to get Hyper-V
+hypercalls.  Mixing KVM hypercalls and Hyper-V requires some tricks. It
+may also affect WHQLing Windows drivers since driver will talk to HW
+bypassing Windows interfaces.
 
-I sent such a patch, but maintainers seem reluctant to add hypercalls.
-Gleb, could you comment please?
-
-A fast way to do MMIO is probably useful in any case ...
-
->  Alex
+--
+			Gleb.
