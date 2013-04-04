@@ -1,15 +1,22 @@
-From: Dmitry Fleytman <dmitry@daynix.com>
-Subject: Re: [PATCH 1/2 V3] virtio-spec: dynamic network offloads configuration
-Date: Thu, 4 Apr 2013 10:51:08 +0300
-Message-ID: <CAGHCxhd=xr2yfhxN7_8iF9jJ_yBQaemV+V1TU08A9jAVhPK6xw@mail.gmail.com>
-References: <1364902740-24948-1-git-send-email-dmitry@daynix.com>
-	<1364902740-24948-2-git-send-email-dmitry@daynix.com>
-	<87ehes5s18.fsf@rustcorp.com.au>
-	<20130403112515.GC19122@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 16/22] virtio_pci: use separate notification offsets for
+	each vq.
+Date: Thu, 04 Apr 2013 16:18:03 +1030
+Message-ID: <87obdu3kz0.fsf@rustcorp.com.au>
+References: <87wqt0du2e.fsf@rustcorp.com.au>
+	<20130324201910.GA31631@redhat.com>
+	<8738vjer43.fsf@rustcorp.com.au>
+	<20130326193911.GA19251@redhat.com>
+	<87ip4d4sef.fsf@rustcorp.com.au>
+	<20130327112535.GE24243@redhat.com>
+	<5153CC2E.3090908@zytor.com> <878v554lsr.fsf@rustcorp.com.au>
+	<515B610C.9000802@zytor.com> <8738v85elm.fsf@rustcorp.com.au>
+	<20130403112216.GB19122@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6817353327460536295=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130403112515.GC19122@redhat.com>
+In-Reply-To: <20130403112216.GB19122@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,142 +27,182 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: qemu-devel <qemu-devel@nongnu.org>, virtualization <virtualization@lists.linux-foundation.org>, Ronen Hod <rhod@redhat.com>, Yan Vugenfirer <yan@daynix.com>, Dmitry Fleytman <dfleytma@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============6817353327460536295==
-Content-Type: multipart/alternative; boundary=089e0122f7b0efe83104d9843cb1
-
---089e0122f7b0efe83104d9843cb1
-Content-Type: text/plain; charset=ISO-8859-1
-
-Ok, sending new patches...
-
-
-On Wed, Apr 3, 2013 at 2:25 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-
-> On Wed, Apr 03, 2013 at 11:50:19AM +1030, Rusty Russell wrote:
-> > Dmitry Fleytman <dmitry@daynix.com> writes:
-> > > From: Dmitry Fleytman <dfleytma@redhat.com>
-> > >
-> > > Virtio-net driver currently negotiates network offloads
-> > > on startup via features mechanism and have no ability to
-> > > change offloads state later.
-> > > This patch introduced a new control command that allows
-> > > to configure device network offloads state dynamically.
-> > > The patch also introduces a new feature flag
-> > > VIRTIO_NET_F_CTRL_GUEST_OFFLOADS.
-> > >
-> > > Signed-off-by: Dmitry Fleytman <dfleytma@redhat.com>
-> >
-> > (BTW, I like to be CC'd on these things directly, so I don't miss them)
-> >
-> > The idea is fine.
-> >
-> > But I dislike the duplication of constants: let's just use the feature
-> > bits directly:
-> >
-> > #define VIRTIO_NET_F_GUEST_CSUM       1       /* Guest handles pkts w/
-> partial csum */
-> > #define VIRTIO_NET_F_GUEST_TSO4       7       /* Guest can handle TSOv4
-> in. */
-> > #define VIRTIO_NET_F_GUEST_TSO6       8       /* Guest can handle TSOv6
-> in. */
-> > #define VIRTIO_NET_F_GUEST_ECN        9       /* Guest can handle TSO[6]
-> w/ ECN in. */
-> > #define VIRTIO_NET_F_GUEST_UFO        10      /* Guest can handle UFO
-> in. */
-> >
-> > You want this, because you have to test against them anyway before
-> > trying to re-enable them.
-> >
-> > And secondly, it'll be much clearer if you don't say "change" but
-> > "disable and re-enable", which is what's actually allowed.
-> >
-> > Thanks,
-> > Rusty.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Wed, Apr 03, 2013 at 04:40:29PM +1030, Rusty Russell wrote:
+>> Current proposal is a 16 bit 'offset' field in the queue data for each
+>> queue, ie.
+>>         addr = dev->notify_base + vq->notify_off;
+>> 
+>> You propose a per-device 'shift' field:
+>>         addr = dev->notify_base + (vq->index << dev->notify_shift);
+>> 
+>> Which allows greater offsets, but insists on a unique offset per queue.
+>> Might be a fair trade-off...
+>> 
+>> Cheers,
+>> Rusty.
 >
-> Okay and let's make command it bigger, say 64 bit then,
-> in case we add lots of feature bits in the future?
+> Or even
+>          addr = dev->notify_base + (vq->notify_off << dev->notify_shift);
 >
+> since notify_base is per capability, shift can be per capability too.
+> And for IO we can allow it to be 32 to mean "always use base".
 >
->
+> This is a bit more elegant than just saying "no offsets for IO".
 
---089e0122f7b0efe83104d9843cb1
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Yes, I shied away from this because it makes the capabilities different
+sizes, but per capability is elegant.  Except it really needs to be a
+multiplier, not a shift, since we want a "0".  And magic numbers are
+horrible.
 
-<div dir=3D"ltr">Ok, sending=A0new patches...</div><div class=3D"gmail_extr=
-a"><br><br><div class=3D"gmail_quote">On Wed, Apr 3, 2013 at 2:25 PM, Micha=
-el S. Tsirkin <span dir=3D"ltr">&lt;<a href=3D"mailto:mst@redhat.com" targe=
-t=3D"_blank">mst@redhat.com</a>&gt;</span> wrote:<br>
+Since the multiply can be done at device init time, I don't think it's a
+big issue.
 
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On W=
-ed, Apr 03, 2013 at 11:50:19AM +1030, Rusty Russell wrote:<br>
-&gt; Dmitry Fleytman &lt;<a href=3D"mailto:dmitry@daynix.com">dmitry@daynix=
-.com</a>&gt; writes:<br>
-&gt; &gt; From: Dmitry Fleytman &lt;<a href=3D"mailto:dfleytma@redhat.com">=
-dfleytma@redhat.com</a>&gt;<br>
-&gt; &gt;<br>
-&gt; &gt; Virtio-net driver currently negotiates network offloads<br>
-&gt; &gt; on startup via features mechanism and have no ability to<br>
-&gt; &gt; change offloads state later.<br>
-&gt; &gt; This patch introduced a new control command that allows<br>
-&gt; &gt; to configure device network offloads state dynamically.<br>
-&gt; &gt; The patch also introduces a new feature flag<br>
-&gt; &gt; VIRTIO_NET_F_CTRL_GUEST_OFFLOADS.<br>
-&gt; &gt;<br>
-&gt; &gt; Signed-off-by: Dmitry Fleytman &lt;<a href=3D"mailto:dfleytma@red=
-hat.com">dfleytma@redhat.com</a>&gt;<br>
-&gt;<br>
-&gt; (BTW, I like to be CC&#39;d on these things directly, so I don&#39;t m=
-iss them)<br>
-&gt;<br>
-&gt; The idea is fine.<br>
-&gt;<br>
-&gt; But I dislike the duplication of constants: let&#39;s just use the fea=
-ture<br>
-&gt; bits directly:<br>
-&gt;<br>
-&gt; #define VIRTIO_NET_F_GUEST_CSUM =A0 =A0 =A0 1 =A0 =A0 =A0 /* Guest han=
-dles pkts w/ partial csum */<br>
-&gt; #define VIRTIO_NET_F_GUEST_TSO4 =A0 =A0 =A0 7 =A0 =A0 =A0 /* Guest can=
- handle TSOv4 in. */<br>
-&gt; #define VIRTIO_NET_F_GUEST_TSO6 =A0 =A0 =A0 8 =A0 =A0 =A0 /* Guest can=
- handle TSOv6 in. */<br>
-&gt; #define VIRTIO_NET_F_GUEST_ECN =A0 =A0 =A0 =A09 =A0 =A0 =A0 /* Guest c=
-an handle TSO[6] w/ ECN in. */<br>
-&gt; #define VIRTIO_NET_F_GUEST_UFO =A0 =A0 =A0 =A010 =A0 =A0 =A0/* Guest c=
-an handle UFO in. */<br>
-&gt;<br>
-&gt; You want this, because you have to test against them anyway before<br>
-&gt; trying to re-enable them.<br>
-&gt;<br>
-&gt; And secondly, it&#39;ll be much clearer if you don&#39;t say &quot;cha=
-nge&quot; but<br>
-&gt; &quot;disable and re-enable&quot;, which is what&#39;s actually allowe=
-d.<br>
-&gt;<br>
-&gt; Thanks,<br>
-&gt; Rusty.<br>
-<br>
-</div></div>Okay and let&#39;s make command it bigger, say 64 bit then,<br>
-in case we add lots of feature bits in the future?<br>
-<br>
-<br>
-</blockquote></div><br></div>
+The results looks something like this...
 
---089e0122f7b0efe83104d9843cb1--
+Cheers,
+Rusty.
 
---===============6817353327460536295==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6817353327460536295==--
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index c917e3a..f2ce171 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -46,8 +46,8 @@ struct virtio_pci_device {
+ 	size_t notify_len;
+ 	size_t device_len;
+ 
+-	/* We use the queue_notify_moff only for MEM bars. */
+-	bool notify_use_offset;
++	/* We use the queue_notify_off only for MEM bars. */
++	u32 notify_offset_multiplier;
+ 
+ 	/* a list of queues so we can dispatch IRQs */
+ 	spinlock_t lock;
+@@ -469,7 +469,7 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 	struct virtio_pci_vq_info *info;
+ 	struct virtqueue *vq;
+-	u16 num;
++	u16 num, off;
+ 	int err;
+ 
+ 	if (index >= ioread16(&vp_dev->common->num_queues))
+@@ -502,19 +502,16 @@ static struct virtqueue *setup_vq(struct virtio_device *vdev, unsigned index,
+ 
+ 	info->msix_vector = msix_vec;
+ 
+-	if (vp_dev->notify_use_offset) {
+-		/* get offset of notification byte for this virtqueue */
+-		u16 off = ioread16(&vp_dev->common->queue_notify_moff);
+-		if (off > vp_dev->notify_len) {
+-			dev_warn(&vp_dev->pci_dev->dev,
+-				 "bad notification offset %u for queue %u (> %u)",
+-				 off, index, vp_dev->notify_len);
+-			err = -EINVAL;
+-			goto out_info;
+-		}
+-		info->notify = vp_dev->notify_base + off;
+-	} else
+-		info->notify = vp_dev->notify_base;
++	/* get offset of notification byte for this virtqueue */
++	off = ioread16(&vp_dev->common->queue_notify_off);
++	if (off * vp_dev->notify_offset_multiplier > vp_dev->notify_len) {
++		dev_warn(&vp_dev->pci_dev->dev,
++			 "bad notification offset %u for queue %u (> %u)",
++			 off, index, vp_dev->notify_len);
++		err = -EINVAL;
++		goto out_info;
++	}
++	info->notify = vp_dev->notify_base + off * vp_dev->notify_offset_multiplier;
+ 
+ 	info->queue = alloc_virtqueue_pages(&num);
+ 	if (info->queue == NULL) {
+@@ -812,7 +809,7 @@ static void virtio_pci_release_dev(struct device *_d)
+ }
+ 
+ static void __iomem *map_capability(struct pci_dev *dev, int off, size_t minlen,
+-				    size_t *len, bool *is_mem)
++				    size_t *len)
+ {
+ 	u8 bar;
+ 	u32 offset, length;
+@@ -834,8 +831,6 @@ static void __iomem *map_capability(struct pci_dev *dev, int off, size_t minlen,
+ 
+ 	if (len)
+ 		*len = length;
+-	if (is_mem)
+-		*is_mem = pci_resource_flags(dev, bar) & IORESOURCE_MEM;
+ 
+ 	/* We want uncachable mapping, even if bar is cachable. */
+ 	p = pci_iomap_range(dev, bar, offset, length, PAGE_SIZE, true);
+@@ -914,19 +909,23 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
+ 	err = -EINVAL;
+ 	vp_dev->common = map_capability(pci_dev, common,
+ 					sizeof(struct virtio_pci_common_cfg),
+-					NULL, NULL);
++					NULL);
+ 	if (!vp_dev->common)
+ 		goto out_req_regions;
+-	vp_dev->isr = map_capability(pci_dev, isr, sizeof(u8), NULL, NULL);
++	vp_dev->isr = map_capability(pci_dev, isr, sizeof(u8), NULL);
+ 	if (!vp_dev->isr)
+ 		goto out_map_common;
++
++	/* Read notify_off_multiplier from config space. */
++	pci_read_config_dword(pci_dev,
++			      notify + offsetof(struct virtio_pci_notify_cap,
++						notify_off_multiplier),
++			      &vp_dev->notify_offset_multiplier);
+ 	vp_dev->notify_base = map_capability(pci_dev, notify, sizeof(u8),
+-					     &vp_dev->notify_len,
+-					     &vp_dev->notify_use_offset);
++					     &vp_dev->notify_len);
+ 	if (!vp_dev->notify_len)
+ 		goto out_map_isr;
+-	vp_dev->device = map_capability(pci_dev, device, 0,
+-					&vp_dev->device_len, NULL);
++	vp_dev->device = map_capability(pci_dev, device, 0, &vp_dev->device_len);
+ 	if (!vp_dev->device)
+ 		goto out_map_notify;
+ 
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index 942135a..3e61d55 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -133,6 +133,11 @@ struct virtio_pci_cap {
+ 	__le32 length;	/* Length. */
+ };
+ 
++struct virtio_pci_notify_cap {
++	struct virtio_pci_cap cap;
++	__le32 notify_off_multiplier;	/* Multiplier for queue_notify_off. */
++};
++
+ /* Fields in VIRTIO_PCI_CAP_COMMON_CFG: */
+ struct virtio_pci_common_cfg {
+ 	/* About the whole device. */
+@@ -146,13 +151,13 @@ struct virtio_pci_common_cfg {
+ 	__u8 unused1;
+ 
+ 	/* About a specific virtqueue. */
+-	__le16 queue_select;	/* read-write */
+-	__le16 queue_size;	/* read-write, power of 2. */
+-	__le16 queue_msix_vector;/* read-write */
+-	__le16 queue_enable;	/* read-write */
+-	__le16 queue_notify_moff; /* read-only */
+-	__le64 queue_desc;	/* read-write */
+-	__le64 queue_avail;	/* read-write */
+-	__le64 queue_used;	/* read-write */
++	__le16 queue_select;		/* read-write */
++	__le16 queue_size;		/* read-write, power of 2. */
++	__le16 queue_msix_vector;	/* read-write */
++	__le16 queue_enable;		/* read-write */
++	__le16 queue_notify_off;	/* read-only */
++	__le64 queue_desc;		/* read-write */
++	__le64 queue_avail;		/* read-write */
++	__le64 queue_used;		/* read-write */
+ };
+ #endif /* _UAPI_LINUX_VIRTIO_PCI_H */
