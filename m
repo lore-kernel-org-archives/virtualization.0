@@ -1,7 +1,7 @@
-From: Gleb Natapov <gleb@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH RFC] kvm: add PV MMIO EVENTFD
-Date: Thu, 4 Apr 2013 15:19:34 +0300
-Message-ID: <20130404121934.GE17919@redhat.com>
+Date: Thu, 4 Apr 2013 14:21:57 +0300
+Message-ID: <20130404112157.GB6467@redhat.com>
 References: <20130404104846.GA6227@redhat.com>
 	<6D40C5F1-849E-4F32-B391-E1A1BFA8C59D@suse.de>
 	<20130404110442.GA6467@redhat.com>
@@ -22,7 +22,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Alexander Graf <agraf@suse.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, x86@kernel.org, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Xiao Guangrong <xiaoguangrong@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Sasha Levin <sasha.levin@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Christoffer Dall <c.dall@virtualopensystems.com>, virtualization@lists.linux-foundation.org, Takuya Yoshikawa <yoshikawa_takuya_b1@lab.ntt.co.jp>
+Cc: Andrew Morton <akpm@linux-foundation.org>, x86@kernel.org, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Xiao Guangrong <xiaoguangrong@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, kvm@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Sasha Levin <sasha.levin@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Christoffer Dall <c.dall@virtualopensystems.com>, virtualization@lists.linux-foundation.org, Takuya Yoshikawa <yoshikawa_takuya_b1@lab.ntt.co.jp>
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Thu, Apr 04, 2013 at 02:09:53PM +0200, Alexander Graf wrote:
@@ -81,8 +81,9 @@ On Thu, Apr 04, 2013 at 02:09:53PM +0200, Alexander Graf wrote:
 > https://dl.dropbox.com/u/8976842/KVM%20Forum%202012/MMIO%20Tuning.pdf
 > 
 > Check out page 41. Higher is better (number is number of loop cycles in a second). My test system was an AMD Istanbul based box.
-> 
-Have you bypassed instruction emulation in your testing?
+
+Wow 2x difference.  The difference seems to be much smaller now. Newer
+hardware? Newer software?
 
 > > 
 > >> Why don't you just create a PV MMIO hypercall
@@ -105,5 +106,8 @@ Have you bypassed instruction emulation in your testing?
 > 
 > Alex
 
---
-			Gleb.
+This was the implementation: 'kvm_para: add mmio word store hypercall'.
+Again, I don't mind.
+
+-- 
+MST
