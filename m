@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 2/7] virtio: use size-based config accessors.
-Date: Fri,  5 Apr 2013 14:07:00 +1030
-Message-ID: <1365133025-5397-3-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 7/7] virtio: move vring structure into struct virtqueue.
+Date: Fri,  5 Apr 2013 14:07:05 +1030
+Message-ID: <1365133025-5397-8-git-send-email-rusty@rustcorp.com.au>
 References: <1365133025-5397-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -20,393 +20,341 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This lets the transport do endian conversion if necessary, and insulates
-the drivers from the difference.
+Back in 2010 (7c5e9ed0c84e7d70d887878574590638d5572659) MST removed
+the abstraction between virtio and the virtio ring, removing the various
+ops pointers, and we haven't really missed it.
 
-Most drivers can use the simple helpers virtio_cread() and virtio_cwrite().
+Now we hoist the struct vring out from the private struct
+vring_virtqueue into the struct virtqueue: we've already demonstrated
+that it's useful to be able to see the ring size, and the new virtio
+pci layout wants to know the location of each part of the ring.
 
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 ---
- drivers/block/virtio_blk.c      |   77 +++++++++++++++++----------------------
- drivers/char/virtio_console.c   |   15 +++-----
- drivers/net/caif/caif_virtio.c  |   23 ++++++------
- drivers/net/virtio_net.c        |   28 ++++++++------
- drivers/scsi/virtio_scsi.c      |   12 ++----
- drivers/virtio/virtio_balloon.c |   10 ++---
- net/9p/trans_virtio.c           |    9 ++---
- 7 files changed, 79 insertions(+), 95 deletions(-)
+ drivers/virtio/virtio_ring.c |  114 +++++++++++++++++-------------------------
+ include/linux/virtio.h       |    8 ++-
+ 2 files changed, 54 insertions(+), 68 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 6472395..1b1bbd3 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -456,18 +456,15 @@ static int virtblk_ioctl(struct block_device *bdev, fmode_t mode,
- static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
- {
- 	struct virtio_blk *vblk = bd->bd_disk->private_data;
--	struct virtio_blk_geometry vgeo;
--	int err;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index ba58e29..7f9d4e9 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -53,13 +53,9 @@
+ #define END_USE(vq)
+ #endif
  
- 	/* see if the host passed in geometry config */
--	err = virtio_config_val(vblk->vdev, VIRTIO_BLK_F_GEOMETRY,
--				offsetof(struct virtio_blk_config, geometry),
--				&vgeo);
+-struct vring_virtqueue
+-{
++struct vring_virtqueue {
+ 	struct virtqueue vq;
+ 
+-	/* Actual memory layout for this queue */
+-	struct vring vring;
 -
--	if (!err) {
--		geo->heads = vgeo.heads;
--		geo->sectors = vgeo.sectors;
--		geo->cylinders = vgeo.cylinders;
-+	if (virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_GEOMETRY)) {
-+		virtio_cread(vblk->vdev, struct virtio_blk_config,
-+			     geometry.cylinders, &geo->cylinders);
-+		virtio_cread(vblk->vdev, struct virtio_blk_config,
-+			     geometry.heads, &geo->heads);
-+		virtio_cread(vblk->vdev, struct virtio_blk_config,
-+			     geometry.sectors, &geo->sectors);
- 	} else {
- 		/* some standard values, similar to sd */
- 		geo->heads = 1 << 6;
-@@ -529,8 +526,7 @@ static void virtblk_config_changed_work(struct work_struct *work)
- 		goto done;
+ 	/* Can we use weak barriers? */
+ 	bool weak_barriers;
  
- 	/* Host must always specify the capacity. */
--	vdev->config->get(vdev, offsetof(struct virtio_blk_config, capacity),
--			  &capacity, sizeof(capacity));
-+	virtio_cread(vdev, struct virtio_blk_config, capacity, &capacity);
+@@ -171,12 +167,12 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
  
- 	/* If capacity is too big, truncate with warning. */
- 	if ((sector_t)capacity != capacity) {
-@@ -608,9 +604,9 @@ static int virtblk_get_cache_mode(struct virtio_device *vdev)
- 	u8 writeback;
- 	int err;
+ 	/* Use a single buffer which doesn't continue */
+ 	head = vq->free_head;
+-	vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
+-	vq->vring.desc[head].addr = virt_to_phys(desc);
+-	vq->vring.desc[head].len = i * sizeof(struct vring_desc);
++	vq->vq.vring.desc[head].flags = VRING_DESC_F_INDIRECT;
++	vq->vq.vring.desc[head].addr = virt_to_phys(desc);
++	vq->vq.vring.desc[head].len = i * sizeof(struct vring_desc);
  
--	err = virtio_config_val(vdev, VIRTIO_BLK_F_CONFIG_WCE,
--				offsetof(struct virtio_blk_config, wce),
--				&writeback);
-+	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_CONFIG_WCE,
-+				   struct virtio_blk_config, wce,
-+				   &writeback);
- 	if (err)
- 		writeback = virtio_has_feature(vdev, VIRTIO_BLK_F_WCE);
+ 	/* Update free pointer */
+-	vq->free_head = vq->vring.desc[head].next;
++	vq->free_head = vq->vq.vring.desc[head].next;
  
-@@ -642,7 +638,6 @@ virtblk_cache_type_store(struct device *dev, struct device_attribute *attr,
- 	struct virtio_blk *vblk = disk->private_data;
- 	struct virtio_device *vdev = vblk->vdev;
- 	int i;
--	u8 writeback;
- 
- 	BUG_ON(!virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_CONFIG_WCE));
- 	for (i = ARRAY_SIZE(virtblk_cache_types); --i >= 0; )
-@@ -652,11 +647,7 @@ virtblk_cache_type_store(struct device *dev, struct device_attribute *attr,
- 	if (i < 0)
- 		return -EINVAL;
- 
--	writeback = i;
--	vdev->config->set(vdev,
--			  offsetof(struct virtio_blk_config, wce),
--			  &writeback, sizeof(writeback));
--
-+	virtio_cwrite8(vdev, offsetof(struct virtio_blk_config, wce), i);
- 	virtblk_update_cache_mode(vdev);
- 	return count;
+ 	return head;
  }
-@@ -699,9 +690,9 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	index = err;
- 
- 	/* We need to know how many segments before we allocate. */
--	err = virtio_config_val(vdev, VIRTIO_BLK_F_SEG_MAX,
--				offsetof(struct virtio_blk_config, seg_max),
--				&sg_elems);
-+	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SEG_MAX,
-+				   struct virtio_blk_config, seg_max,
-+				   &sg_elems);
- 
- 	/* We need at least one SG element, whatever they say. */
- 	if (err || !sg_elems)
-@@ -772,8 +763,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 		set_disk_ro(vblk->disk, 1);
- 
- 	/* Host must always specify the capacity. */
--	vdev->config->get(vdev, offsetof(struct virtio_blk_config, capacity),
--			  &cap, sizeof(cap));
-+	virtio_cread(vdev, struct virtio_blk_config, capacity, &cap);
- 
- 	/* If capacity is too big, truncate with warning. */
- 	if ((sector_t)cap != cap) {
-@@ -794,46 +784,45 @@ static int virtblk_probe(struct virtio_device *vdev)
- 
- 	/* Host can optionally specify maximum segment size and number of
- 	 * segments. */
--	err = virtio_config_val(vdev, VIRTIO_BLK_F_SIZE_MAX,
--				offsetof(struct virtio_blk_config, size_max),
--				&v);
-+	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_SIZE_MAX,
-+				   struct virtio_blk_config, size_max, &v);
- 	if (!err)
- 		blk_queue_max_segment_size(q, v);
- 	else
- 		blk_queue_max_segment_size(q, -1U);
- 
- 	/* Host can optionally specify the block size of the device */
--	err = virtio_config_val(vdev, VIRTIO_BLK_F_BLK_SIZE,
--				offsetof(struct virtio_blk_config, blk_size),
--				&blk_size);
-+	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
-+				   struct virtio_blk_config, blk_size,
-+				   &blk_size);
- 	if (!err)
- 		blk_queue_logical_block_size(q, blk_size);
- 	else
- 		blk_size = queue_logical_block_size(q);
- 
- 	/* Use topology information if available */
--	err = virtio_config_val(vdev, VIRTIO_BLK_F_TOPOLOGY,
--			offsetof(struct virtio_blk_config, physical_block_exp),
--			&physical_block_exp);
-+	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_TOPOLOGY,
-+				   struct virtio_blk_config, physical_block_exp,
-+				   &physical_block_exp);
- 	if (!err && physical_block_exp)
- 		blk_queue_physical_block_size(q,
- 				blk_size * (1 << physical_block_exp));
- 
--	err = virtio_config_val(vdev, VIRTIO_BLK_F_TOPOLOGY,
--			offsetof(struct virtio_blk_config, alignment_offset),
--			&alignment_offset);
-+	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_TOPOLOGY,
-+				   struct virtio_blk_config, alignment_offset,
-+				   &alignment_offset);
- 	if (!err && alignment_offset)
- 		blk_queue_alignment_offset(q, blk_size * alignment_offset);
- 
--	err = virtio_config_val(vdev, VIRTIO_BLK_F_TOPOLOGY,
--			offsetof(struct virtio_blk_config, min_io_size),
--			&min_io_size);
-+	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_TOPOLOGY,
-+				   struct virtio_blk_config, min_io_size,
-+				   &min_io_size);
- 	if (!err && min_io_size)
- 		blk_queue_io_min(q, blk_size * min_io_size);
- 
--	err = virtio_config_val(vdev, VIRTIO_BLK_F_TOPOLOGY,
--			offsetof(struct virtio_blk_config, opt_io_size),
--			&opt_io_size);
-+	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_TOPOLOGY,
-+				   struct virtio_blk_config, opt_io_size,
-+				   &opt_io_size);
- 	if (!err && opt_io_size)
- 		blk_queue_io_opt(q, blk_size * opt_io_size);
- 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index e6ba6b7..1735c38 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1800,12 +1800,8 @@ static void config_intr(struct virtio_device *vdev)
- 		struct port *port;
- 		u16 rows, cols;
- 
--		vdev->config->get(vdev,
--				  offsetof(struct virtio_console_config, cols),
--				  &cols, sizeof(u16));
--		vdev->config->get(vdev,
--				  offsetof(struct virtio_console_config, rows),
--				  &rows, sizeof(u16));
-+		virtio_cread(vdev, struct virtio_console_config, cols, &cols);
-+		virtio_cread(vdev, struct virtio_console_config, rows, &rows);
- 
- 		port = find_port_by_id(portdev, 0);
- 		set_console_size(port, rows, cols);
-@@ -1977,10 +1973,9 @@ static int virtcons_probe(struct virtio_device *vdev)
- 
- 	/* Don't test MULTIPORT at all if we're rproc: not a valid feature! */
- 	if (!is_rproc_serial(vdev) &&
--	    virtio_config_val(vdev, VIRTIO_CONSOLE_F_MULTIPORT,
--				  offsetof(struct virtio_console_config,
--					   max_nr_ports),
--				  &portdev->config.max_nr_ports) == 0) {
-+	    virtio_cread_feature(vdev, VIRTIO_CONSOLE_F_MULTIPORT,
-+				 struct virtio_console_config, max_nr_ports,
-+				 &portdev->config.max_nr_ports) == 0) {
- 		multiport = true;
+@@ -226,7 +222,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 			goto add_head;
  	}
  
-diff --git a/drivers/net/caif/caif_virtio.c b/drivers/net/caif/caif_virtio.c
-index 8308dee..ef602e3 100644
---- a/drivers/net/caif/caif_virtio.c
-+++ b/drivers/net/caif/caif_virtio.c
-@@ -682,18 +682,19 @@ static int cfv_probe(struct virtio_device *vdev)
- 		goto err;
+-	BUG_ON(total_sg > vq->vring.num);
++	BUG_ON(total_sg > vq->vq.vring.num);
+ 	BUG_ON(total_sg == 0);
  
- 	/* Get the CAIF configuration from virtio config space, if available */
--#define GET_VIRTIO_CONFIG_OPS(_v, _var, _f) \
--	((_v)->config->get(_v, offsetof(struct virtio_caif_transf_config, _f), \
--			   &_var, \
--			   FIELD_SIZEOF(struct virtio_caif_transf_config, _f)))
--
- 	if (vdev->config->get) {
--		GET_VIRTIO_CONFIG_OPS(vdev, cfv->tx_hr, headroom);
--		GET_VIRTIO_CONFIG_OPS(vdev, cfv->rx_hr, headroom);
--		GET_VIRTIO_CONFIG_OPS(vdev, cfv->tx_tr, tailroom);
--		GET_VIRTIO_CONFIG_OPS(vdev, cfv->rx_tr, tailroom);
--		GET_VIRTIO_CONFIG_OPS(vdev, cfv->mtu, mtu);
--		GET_VIRTIO_CONFIG_OPS(vdev, cfv->mru, mtu);
-+		virtio_cread(vdev, struct virtio_caif_transf_config, headroom,
-+			     &cfv->tx_hr);
-+		virtio_cread(vdev, struct virtio_caif_transf_config, headroom,
-+			     &cfv->rx_hr);
-+		virtio_cread(vdev, struct virtio_caif_transf_config, tailroom,
-+			     &cfv->tx_tr);
-+		virtio_cread(vdev, struct virtio_caif_transf_config, tailroom,
-+			     &cfv->rx_tr);
-+		virtio_cread(vdev, struct virtio_caif_transf_config, mtu,
-+			     &cfv->mtu);
-+		virtio_cread(vdev, struct virtio_caif_transf_config, mtu,
-+			     &cfv->mru);
- 	} else {
- 		cfv->tx_hr = CFV_DEF_HEADROOM;
- 		cfv->rx_hr = CFV_DEF_HEADROOM;
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index be70487..61c1592 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -829,8 +829,13 @@ static int virtnet_set_mac_address(struct net_device *dev, void *p)
- 			return -EINVAL;
+ 	if (vq->vq.num_free < total_sg) {
+@@ -247,24 +243,24 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 	head = i = vq->free_head;
+ 	for (n = 0; n < out_sgs; n++) {
+ 		for (sg = sgs[n]; sg; sg = next(sg, &total_out)) {
+-			vq->vring.desc[i].flags = VRING_DESC_F_NEXT;
+-			vq->vring.desc[i].addr = sg_phys(sg);
+-			vq->vring.desc[i].len = sg->length;
++			vq->vq.vring.desc[i].flags = VRING_DESC_F_NEXT;
++			vq->vq.vring.desc[i].addr = sg_phys(sg);
++			vq->vq.vring.desc[i].len = sg->length;
+ 			prev = i;
+-			i = vq->vring.desc[i].next;
++			i = vq->vq.vring.desc[i].next;
  		}
- 	} else if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
--		vdev->config->set(vdev, offsetof(struct virtio_net_config, mac),
--				  addr->sa_data, dev->addr_len);
-+		unsigned int i;
-+
-+		/* Naturally, this has an atomicity problem. */
-+		for (i = 0; i < dev->addr_len; i++)
-+			virtio_cwrite8(vdev,
-+				       offsetof(struct virtio_net_config, mac) +
-+				       i, addr->sa_data[i]);
  	}
- 
- 	eth_commit_mac_addr_change(dev, p);
-@@ -1239,9 +1244,8 @@ static void virtnet_config_changed_work(struct work_struct *work)
- 	if (!vi->config_enable)
- 		goto done;
- 
--	if (virtio_config_val(vi->vdev, VIRTIO_NET_F_STATUS,
--			      offsetof(struct virtio_net_config, status),
--			      &v) < 0)
-+	if (virtio_cread_feature(vi->vdev, VIRTIO_NET_F_STATUS,
-+				 struct virtio_net_config, status, &v) < 0)
- 		goto done;
- 
- 	if (v & VIRTIO_NET_S_ANNOUNCE) {
-@@ -1463,9 +1467,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	u16 max_queue_pairs;
- 
- 	/* Find if host supports multiqueue virtio_net device */
--	err = virtio_config_val(vdev, VIRTIO_NET_F_MQ,
--				offsetof(struct virtio_net_config,
--				max_virtqueue_pairs), &max_queue_pairs);
-+	err = virtio_cread_feature(vdev, VIRTIO_NET_F_MQ,
-+				   struct virtio_net_config,
-+				   max_virtqueue_pairs, &max_queue_pairs);
- 
- 	/* We need at least 2 queue's */
- 	if (err || max_queue_pairs < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
-@@ -1513,9 +1517,11 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	for (; n < (out_sgs + in_sgs); n++) {
+ 		for (sg = sgs[n]; sg; sg = next(sg, &total_in)) {
+-			vq->vring.desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
+-			vq->vring.desc[i].addr = sg_phys(sg);
+-			vq->vring.desc[i].len = sg->length;
++			vq->vq.vring.desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
++			vq->vq.vring.desc[i].addr = sg_phys(sg);
++			vq->vq.vring.desc[i].len = sg->length;
+ 			prev = i;
+-			i = vq->vring.desc[i].next;
++			i = vq->vq.vring.desc[i].next;
+ 		}
  	}
+ 	/* Last one doesn't continue. */
+-	vq->vring.desc[prev].flags &= ~VRING_DESC_F_NEXT;
++	vq->vq.vring.desc[prev].flags &= ~VRING_DESC_F_NEXT;
  
- 	/* Configuration may specify what MAC to use.  Otherwise random. */
--	if (virtio_config_val_len(vdev, VIRTIO_NET_F_MAC,
--				  offsetof(struct virtio_net_config, mac),
--				  dev->dev_addr, dev->addr_len) < 0)
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
-+		virtio_cread_bytes(vdev,
-+				   offsetof(struct virtio_net_config, mac),
-+				   dev->dev_addr, dev->addr_len);
-+	else
- 		eth_hw_addr_random(dev);
+ 	/* Update free pointer */
+ 	vq->free_head = i;
+@@ -275,13 +271,13 @@ add_head:
  
- 	/* Set up our device-specific information */
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index f679b8c..214d397 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -547,19 +547,15 @@ static struct scsi_host_template virtscsi_host_template = {
- #define virtscsi_config_get(vdev, fld) \
- 	({ \
- 		typeof(((struct virtio_scsi_config *)0)->fld) __val; \
--		vdev->config->get(vdev, \
--				  offsetof(struct virtio_scsi_config, fld), \
--				  &__val, sizeof(__val)); \
-+		virtio_cread(vdev, struct virtio_scsi_config, fld, &__val); \
- 		__val; \
- 	})
+ 	/* Put entry in available array (but don't update avail->idx until they
+ 	 * do sync). */
+-	avail = (vq->vring.avail->idx & (vq->vring.num-1));
+-	vq->vring.avail->ring[avail] = head;
++	avail = (vq->vq.vring.avail->idx & (vq->vq.vring.num-1));
++	vq->vq.vring.avail->ring[avail] = head;
  
- #define virtscsi_config_set(vdev, fld, val) \
--	(void)({ \
-+	do { \
- 		typeof(((struct virtio_scsi_config *)0)->fld) __val = (val); \
--		vdev->config->set(vdev, \
--				  offsetof(struct virtio_scsi_config, fld), \
--				  &__val, sizeof(__val)); \
--	})
-+		virtio_cwrite(vdev, struct virtio_scsi_config, fld, __val); \
-+	} while(0)
+ 	/* Descriptors and available array need to be set before we expose the
+ 	 * new available array entries. */
+ 	virtio_wmb(vq->weak_barriers);
+-	vq->vring.avail->idx++;
++	vq->vq.vring.avail->idx++;
+ 	vq->num_added++;
  
- static void virtscsi_init_vq(struct virtio_scsi_vq *virtscsi_vq,
- 			     struct virtqueue *vq)
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 8dab163..bbab952 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -273,9 +273,8 @@ static inline s64 towards_target(struct virtio_balloon *vb)
- 	__le32 v;
- 	s64 target;
+ 	/* This is very unlikely, but theoretically possible.  Kick
+@@ -431,8 +427,8 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
+ 	 * event. */
+ 	virtio_mb(vq->weak_barriers);
  
--	vb->vdev->config->get(vb->vdev,
--			      offsetof(struct virtio_balloon_config, num_pages),
--			      &v, sizeof(v));
-+	virtio_cread(vb->vdev, struct virtio_balloon_config, num_pages, &v);
-+
- 	target = le32_to_cpu(v);
- 	return target - vb->num_pages;
- }
-@@ -284,9 +283,8 @@ static void update_balloon_size(struct virtio_balloon *vb)
- {
- 	__le32 actual = cpu_to_le32(vb->num_pages);
+-	old = vq->vring.avail->idx - vq->num_added;
+-	new = vq->vring.avail->idx;
++	old = vq->vq.vring.avail->idx - vq->num_added;
++	new = vq->vq.vring.avail->idx;
+ 	vq->num_added = 0;
  
--	vb->vdev->config->set(vb->vdev,
--			      offsetof(struct virtio_balloon_config, actual),
--			      &actual, sizeof(actual));
-+	virtio_cwrite(vb->vdev, struct virtio_balloon_config, num_pages,
-+		      &actual);
- }
+ #ifdef DEBUG
+@@ -444,10 +440,10 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
+ #endif
  
- static int balloon(void *_vballoon)
-diff --git a/net/9p/trans_virtio.c b/net/9p/trans_virtio.c
-index de2e950..d843d5d 100644
---- a/net/9p/trans_virtio.c
-+++ b/net/9p/trans_virtio.c
-@@ -514,9 +514,7 @@ static int p9_virtio_probe(struct virtio_device *vdev)
- 
- 	chan->inuse = false;
- 	if (virtio_has_feature(vdev, VIRTIO_9P_MOUNT_TAG)) {
--		vdev->config->get(vdev,
--				offsetof(struct virtio_9p_config, tag_len),
--				&tag_len, sizeof(tag_len));
-+		virtio_cread(vdev, struct virtio_9p_config, tag_len, &tag_len);
+ 	if (vq->event) {
+-		needs_kick = vring_need_event(vring_avail_event(&vq->vring),
++		needs_kick = vring_need_event(vring_avail_event(&vq->vq.vring),
+ 					      new, old);
  	} else {
- 		err = -EINVAL;
- 		goto out_free_vq;
-@@ -526,8 +524,9 @@ static int p9_virtio_probe(struct virtio_device *vdev)
- 		err = -ENOMEM;
- 		goto out_free_vq;
+-		needs_kick = !(vq->vring.used->flags & VRING_USED_F_NO_NOTIFY);
++		needs_kick = !(vq->vq.vring.used->flags&VRING_USED_F_NO_NOTIFY);
  	}
--	vdev->config->get(vdev, offsetof(struct virtio_9p_config, tag),
--			tag, tag_len);
-+
-+	virtio_cread_bytes(vdev, offsetof(struct virtio_9p_config, tag),
-+			   tag, tag_len);
- 	chan->tag = tag;
- 	chan->tag_len = tag_len;
- 	err = sysfs_create_file(&(vdev->dev.kobj), &dev_attr_mount_tag.attr);
+ 	END_USE(vq);
+ 	return needs_kick;
+@@ -497,15 +493,15 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+ 	i = head;
+ 
+ 	/* Free the indirect table */
+-	if (vq->vring.desc[i].flags & VRING_DESC_F_INDIRECT)
+-		kfree(phys_to_virt(vq->vring.desc[i].addr));
++	if (vq->vq.vring.desc[i].flags & VRING_DESC_F_INDIRECT)
++		kfree(phys_to_virt(vq->vq.vring.desc[i].addr));
+ 
+-	while (vq->vring.desc[i].flags & VRING_DESC_F_NEXT) {
+-		i = vq->vring.desc[i].next;
++	while (vq->vq.vring.desc[i].flags & VRING_DESC_F_NEXT) {
++		i = vq->vq.vring.desc[i].next;
+ 		vq->vq.num_free++;
+ 	}
+ 
+-	vq->vring.desc[i].next = vq->free_head;
++	vq->vq.vring.desc[i].next = vq->free_head;
+ 	vq->free_head = head;
+ 	/* Plus final descriptor */
+ 	vq->vq.num_free++;
+@@ -513,7 +509,7 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
+ 
+ static inline bool more_used(const struct vring_virtqueue *vq)
+ {
+-	return vq->last_used_idx != vq->vring.used->idx;
++	return vq->last_used_idx != vq->vq.vring.used->idx;
+ }
+ 
+ /**
+@@ -555,11 +551,11 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 	/* Only get used array entries after they have been exposed by host. */
+ 	virtio_rmb(vq->weak_barriers);
+ 
+-	last_used = (vq->last_used_idx & (vq->vring.num - 1));
+-	i = vq->vring.used->ring[last_used].id;
+-	*len = vq->vring.used->ring[last_used].len;
++	last_used = (vq->last_used_idx & (vq->vq.vring.num - 1));
++	i = vq->vq.vring.used->ring[last_used].id;
++	*len = vq->vq.vring.used->ring[last_used].len;
+ 
+-	if (unlikely(i >= vq->vring.num)) {
++	if (unlikely(i >= vq->vq.vring.num)) {
+ 		BAD_RING(vq, "id %u out of range\n", i);
+ 		return NULL;
+ 	}
+@@ -575,8 +571,8 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 	/* If we expect an interrupt for the next entry, tell host
+ 	 * by writing event index and flush out the write before
+ 	 * the read in the next get_buf call. */
+-	if (!(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
+-		vring_used_event(&vq->vring) = vq->last_used_idx;
++	if (!(vq->vq.vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
++		vring_used_event(&vq->vq.vring) = vq->last_used_idx;
+ 		virtio_mb(vq->weak_barriers);
+ 	}
+ 
+@@ -602,7 +598,7 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+-	vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
++	vq->vq.vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
+ 
+@@ -628,8 +624,8 @@ bool virtqueue_enable_cb(struct virtqueue *_vq)
+ 	/* Depending on the VIRTIO_RING_F_EVENT_IDX feature, we need to
+ 	 * either clear the flags bit or point the event index at the next
+ 	 * entry. Always do both to keep code simple. */
+-	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
+-	vring_used_event(&vq->vring) = vq->last_used_idx;
++	vq->vq.vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
++	vring_used_event(&vq->vq.vring) = vq->last_used_idx;
+ 	virtio_mb(vq->weak_barriers);
+ 	if (unlikely(more_used(vq))) {
+ 		END_USE(vq);
+@@ -666,12 +662,12 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
+ 	/* Depending on the VIRTIO_RING_F_USED_EVENT_IDX feature, we need to
+ 	 * either clear the flags bit or point the event index at the next
+ 	 * entry. Always do both to keep code simple. */
+-	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
++	vq->vq.vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
+ 	/* TODO: tune this threshold */
+-	bufs = (u16)(vq->vring.avail->idx - vq->last_used_idx) * 3 / 4;
+-	vring_used_event(&vq->vring) = vq->last_used_idx + bufs;
++	bufs = (u16)(vq->vq.vring.avail->idx - vq->last_used_idx) * 3 / 4;
++	vring_used_event(&vq->vq.vring) = vq->last_used_idx + bufs;
+ 	virtio_mb(vq->weak_barriers);
+-	if (unlikely((u16)(vq->vring.used->idx - vq->last_used_idx) > bufs)) {
++	if (unlikely((u16)(vq->vq.vring.used->idx-vq->last_used_idx) > bufs)) {
+ 		END_USE(vq);
+ 		return false;
+ 	}
+@@ -697,18 +693,18 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
+ 
+ 	START_USE(vq);
+ 
+-	for (i = 0; i < vq->vring.num; i++) {
++	for (i = 0; i < vq->vq.vring.num; i++) {
+ 		if (!vq->data[i])
+ 			continue;
+ 		/* detach_buf clears data, so grab it now. */
+ 		buf = vq->data[i];
+ 		detach_buf(vq, i);
+-		vq->vring.avail->idx--;
++		vq->vq.vring.avail->idx--;
+ 		END_USE(vq);
+ 		return buf;
+ 	}
+ 	/* That should have freed everything. */
+-	BUG_ON(vq->vq.num_free != vq->vring.num);
++	BUG_ON(vq->vq.num_free != vq->vq.vring.num);
+ 
+ 	END_USE(vq);
+ 	return NULL;
+@@ -758,7 +754,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 	if (!vq)
+ 		return NULL;
+ 
+-	vring_init(&vq->vring, num, pages, vring_align);
++	vring_init(&vq->vq.vring, num, pages, vring_align);
+ 	vq->vq.callback = callback;
+ 	vq->vq.vdev = vdev;
+ 	vq->vq.name = name;
+@@ -780,12 +776,12 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 
+ 	/* No callback?  Tell other side not to bother us. */
+ 	if (!callback)
+-		vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
++		vq->vq.vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
+ 
+ 	/* Put everything in free lists. */
+ 	vq->free_head = 0;
+ 	for (i = 0; i < num-1; i++) {
+-		vq->vring.desc[i].next = i+1;
++		vq->vq.vring.desc[i].next = i+1;
+ 		vq->data[i] = NULL;
+ 	}
+ 	vq->data[i] = NULL;
+@@ -820,20 +816,4 @@ void vring_transport_features(struct virtio_device *vdev)
+ }
+ EXPORT_SYMBOL_GPL(vring_transport_features);
+ 
+-/**
+- * virtqueue_get_vring_size - return the size of the virtqueue's vring
+- * @vq: the struct virtqueue containing the vring of interest.
+- *
+- * Returns the size of the vring.  This is mainly used for boasting to
+- * userspace.  Unlike other operations, this need not be serialized.
+- */
+-unsigned int virtqueue_get_vring_size(struct virtqueue *_vq)
+-{
+-
+-	struct vring_virtqueue *vq = to_vvq(_vq);
+-
+-	return vq->vring.num;
+-}
+-EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
+-
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index a05f7c7..09883f5 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -9,6 +9,7 @@
+ #include <linux/mod_devicetable.h>
+ #include <linux/gfp.h>
+ #include <linux/vringh.h>
++#include <uapi/linux/virtio_ring.h>
+ 
+ /**
+  * virtqueue - a queue to register buffers for sending or receiving.
+@@ -19,6 +20,7 @@
+  * @priv: a pointer for the virtqueue implementation to use.
+  * @index: the zero-based ordinal number for this queue.
+  * @num_free: number of elements we expect to be able to fit.
++ * @vring: the layout of the virtio ring.
+  *
+  * A note on @num_free: with indirect buffers, each buffer needs one
+  * element in the queue, otherwise a buffer will need one element per
+@@ -31,6 +33,7 @@ struct virtqueue {
+ 	struct virtio_device *vdev;
+ 	unsigned int index;
+ 	unsigned int num_free;
++	struct vring vring;
+ 	void *priv;
+ };
+ 
+@@ -74,7 +77,10 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
+ 
+ void *virtqueue_detach_unused_buf(struct virtqueue *vq);
+ 
+-unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
++static inline unsigned int virtqueue_get_vring_size(struct virtqueue *vq)
++{
++	return vq->vring.num;
++}
+ 
+ /* FIXME: Obsolete accessor, but required for virtio_net merge. */
+ static inline unsigned int virtqueue_get_queue_index(struct virtqueue *vq)
 -- 
 1.7.10.4
