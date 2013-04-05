@@ -1,23 +1,11 @@
-From: Christoffer Dall <cdall@cs.columbia.edu>
-Subject: Re: [PATCH RFC] kvm: add PV MMIO EVENTFD
-Date: Thu, 4 Apr 2013 16:32:01 -0700
-Message-ID: <CAEDV+gKpCj1Sgn4TYw5ViYK-x4_c=-9nOpBwGfTBXRkJaN=gNg__38304.6311828823$1365119174$gmane$org@mail.gmail.com>
-References: <20130404120825.GD17919@redhat.com>
-	<959E147D-EB7B-4F4B-9F84-4F1BBA98DEF8@suse.de>
-	<20130404123806.GG17919@redhat.com>
-	<EF153515-9835-4FB9-B6BC-73D0BDC86492@suse.de>
-	<20130404124501.GH17919@redhat.com>
-	<1B68D701-103D-4B1A-8F5E-3916753699CB@suse.de>
-	<20130404125649.GI17919@redhat.com>
-	<8E65D34D-2DA7-4C2E-9C3E-BE3A7DBC3279@suse.de>
-	<20130404133318.GI6467@redhat.com>
-	<14B443D5-5785-487D-9EA3-0AD20141BC06@suse.de>
-	<20130404153629.GN6467@redhat.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Bug in SeaBIOS virtio-ring handling bug with vhost-scsi-pci
+Date: Thu, 04 Apr 2013 19:59:52 -0700
+Message-ID: <1365130792.8507.30.camel__6122.62018626115$1365130835$gmane$org@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130404153629.GN6467@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,44 +15,172 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: x86@kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Will Deacon <will.deacon@arm.com>, Xiao Guangrong <xiaoguangrong@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, kvm@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Sasha Levin <sasha.levin@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, Takuya Yoshikawa <yoshikawa_takuya_b1@lab.ntt.co.jp>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: target-devel <target-devel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, seabios-devel <seabios@seabios.org>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Kevin O'Connor <kevin@koconnor.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-[...]
+Hi Paolo & Co,
 
->> >> to give us some idea how much performance we would gain from each approach? Thoughput should be completely unaffected anyway, since virtio just coalesces kicks internally.
->> >
->> > Latency is dominated by the scheduling latency.
->> > This means virtio-net is not the best benchmark.
->>
->> So what is a good benchmark?
->
-> E.g. ping pong stress will do but need to look at CPU utilization,
-> that's what is affected, not latency.
->
->> Is there any difference in speed at all? I strongly doubt it. One of virtio's main points is to reduce the number of kicks.
->
-> For this stage of the project I think microbenchmarks are more appropriate.
-> Doubling the price of exit is likely to be measureable. 30 cycles likely
-> not ...
->
-I don't quite understand this point here. If we don't have anything
-real-world where we can measure a decent difference, then why are we
-doing this? I would agree with Alex that the three test scenarios
-proposed by him should be tried out before adding this complexity,
-measured in CPU utilization or latency as you wish.
+So I've been running into another bug with SeaBIOS w/ virtio-scsi +
+vhost-scsi-pci code..
 
-FWIW, ARM always uses MMIO and provides hardware decoding of all sane
-(not user register-writeback) instruction, but the hypercall vs. mmio
-looks like this:
+During the last weeks debugging on the QEMU vhost memory re-mapping bug,
+my seabios builds have been using a smaller target ID (16) for scanning
+than the default hard coded value of 256 in init_virtio_scsi().
 
-hvc:  4,917
-mmio_kernel: 6,248
+After bumping this value back to 256 recently, a bogus out_num value
+from vhost_get_vq_desc() start appearing on the tcm_vhost side:
 
-But I doubt that an hvc wrapper around mmio decoding would take care
-of all this difference, because the mmio operation needs to do other
-work not realated to emulating the instruction in software, which
-you'd have to do for an hvc anyway (populate kvm_mmio structure etc.)
+[17348.044031] Invalid buffer layout out: 0 in: 2
 
--Christoffer
+After adding more debug output to SeaBIOS, the vring->num value appears
+to be reset from the expected MAX_QUEUE_NUM=128, then incremented each
+time after vring_more_used() is called to poll for completion.. 
+
+init virtio-scsi
+found virtio-scsi at 0:4
+vring_init Setting vr->num: 128
+Calling virtio_scsi_scan_target for target: 0
+Searching bootorder for: /pci@i0cf8/*@4/*@0/*@0,0
+virtio_scsi_cmd, using vring_add_buf for out_num: 1 in_num: 2
+virtio_scsi_cmd, using vring_add_buf vr: 0x000ed404 vr->num: 128
+vring_add_buf, vr: 0x000ed404 vr->num: 128
+vring_add_buf, head: 0, index: 0
+vring_add_buf, setting desc[prev=2].flags
+vring_add_buf, setting free_head: 3
+vring_add_buf, setting q->vdata[head=0]
+vring_add_buf, setting q->ring[av=0]
+virtio_scsi_cmd, after vring_add_buf vr: 0x000ed404 vr->num: 128
+virtio_scsi_cmd, after vring_kick vr: 0x000ed404 vr->num: 128
+virtio_scsi_cmd, after vring_more_used #4 vr: 0x000ed404 vr->num: 1
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^   
+
+   Reset from 128 to 1 immediate after first vring_more_used()..?
+
+vring_get_buf last_used_idx: 0 vr: 0x000ed404 vr->num: 1
+vring_get_buf checking &used->ring[0]
+vring_get_buf, using new last_unsed: 0 >>>>>>>>>>>>>>>>>>
+vring_get_buf using id: 0 from elem->id: 0x000ed004
+vring_detach: vq->free_head: 3
+vring_detach: Setting new vq->free_head: 0
+virtio_scsi_cmd, after vring_get_buf #5 vr: 0x000ed404 vr->num: 1
+Calling virtio_scsi_scan_target for target: 1
+Searching bootorder for: /pci@i0cf8/*@4/*@0/*@1,0
+virtio_scsi_cmd, using vring_add_buf for out_num: 1 in_num: 2
+virtio_scsi_cmd, using vring_add_buf vr: 0x000ed404 vr->num: 1
+vring_add_buf, vr: 0x000ed404 vr->num: 1
+vring_add_buf, head: 0, index: 0
+vring_add_buf, setting desc[prev=2].flags
+vring_add_buf, setting free_head: 3
+vring_add_buf, setting q->vdata[head=0]
+vring_add_buf, setting q->ring[av=0]
+virtio_scsi_cmd, after vring_add_buf vr: 0x000ed404 vr->num: 1
+virtio_scsi_cmd, after vring_kick vr: 0x000ed404 vr->num: 1
+virtio_scsi_cmd, after vring_more_used #4 vr: 0x000ed404 vr->num: 2
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  Incremented from 1 to 2 after second vring_more_used()..?
+
+vring_get_buf last_used_idx: 1 vr: 0x000ed404 vr->num: 2
+vring_get_buf checking &used->ring[1]
+vring_get_buf, using new last_unsed: 1 >>>>>>>>>>>>>>>>>>
+vring_get_buf using id: 0 from elem->id: 0x000ed00c
+vring_detach: vq->free_head: 3
+vring_detach: Setting new vq->free_head: 0
+virtio_scsi_cmd, after vring_get_buf #5 vr: 0x000ed404 vr->num: 2
+virtio-scsi vendor='LIO-ORG' product='RAMDISK-MCP' rev='4.0' type=0 removable=0
+virtio_scsi_cmd, using vring_add_buf for out_num: 1 in_num: 1
+virtio_scsi_cmd, using vring_add_buf vr: 0x000ed404 vr->num: 2
+vring_add_buf, vr: 0x000ed404 vr->num: 2
+vring_add_buf, head: 0, index: 0
+vring_add_buf, setting desc[prev=1].flags
+vring_add_buf, setting free_head: 2
+vring_add_buf, setting q->vdata[head=0]
+vring_add_buf, setting q->ring[av=0]
+virtio_scsi_cmd, after vring_add_buf vr: 0x000ed404 vr->num: 2
+virtio_scsi_cmd, after vring_kick vr: 0x000ed404 vr->num: 2
+virtio_scsi_cmd, after vring_more_used #4 vr: 0x000ed404 vr->num: 3
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  Incremented from 2 to 3, and so on..
+
+and this keeps happening until vr->num begins to exceed
+MAX_QUEUE_NUM around scanning of target ID 127:
+
+virtio_scsi_cmd, after vring_add_buf vr: 0x000ed404 vr->num: 128
+virtio_scsi_cmd, after vring_kick vr: 0x000ed404 vr->num: 128
+virtio_scsi_cmd, after vring_more_used #4 vr: 0x000ed404 vr->num: 129
+vring_get_buf last_used_idx: 128 vr: 0x000ed404 vr->num: 129
+vring_get_buf checking &used->ring[128]
+vring_get_buf, using new last_unsed: 128 >>>>>>>>>>>>>>>>>>
+vring_get_buf using id: 129 from elem->id: 0x000ed404
+vring_detach: vq->free_head: 3
+vring_detach: Setting new vq->free_head: 129
+virtio_scsi_cmd, after vring_get_buf #5 vr: 0x000ed404 vr->num: 129
+Calling virtio_scsi_scan_target for target: 127
+Searching bootorder for: /pci@i0cf8/*@4/*@0/*@127,0
+virtio_scsi_cmd, using vring_add_buf for out_num: 1 in_num: 2
+virtio_scsi_cmd, using vring_add_buf vr: 0x000ed404 vr->num: 129
+vring_add_buf, vr: 0x000ed404 vr->num: 129
+vring_add_buf, head: 129, index: 0
+vring_add_buf, setting desc[prev=4].flags
+vring_add_buf, setting free_head: 5
+vring_add_buf, setting q->vdata[head=0]
+vring_add_buf, setting q->ring[av=129]
+virtio_scsi_cmd, after vring_add_buf vr: 0x000ed404 vr->num: 129
+virtio_scsi_cmd, after vring_kick vr: 0x000ed404 vr->num: 129
+virtio_scsi_cmd, after vring_more_used #4 vr: 0x000ed404 vr->num: 130
+vring_get_buf last_used_idx: 129 vr: 0x000ed404 vr->num: 130
+vring_get_buf checking &used->ring[129]
+vring_get_buf, using new last_unsed: 129 >>>>>>>>>>>>>>>>>>
+vring_get_buf using id: 968704 from elem->id: 0x000ed40c
+vring_detach: vq->free_head: 5
+vring_detach: Setting new vq->free_head: 968704
+virtio_scsi_cmd, after vring_get_buf #5 vr: 0x000ed404 vr->num: 130
+Calling virtio_scsi_scan_target for target: 128
+Searching bootorder for: /pci@i0cf8/*@4/*@0/*@128,0
+virtio_scsi_cmd, using vring_add_buf for out_num: 1 in_num: 2
+virtio_scsi_cmd, using vring_add_buf vr: 0x000ed404 vr->num: 130
+vring_add_buf, vr: 0x000ed404 vr->num: 130
+vring_add_buf, head: 51200, index: 0
+vring_add_buf, setting desc[prev=1].flags
+vring_add_buf, setting free_head: 2
+vring_add_buf, setting q->vdata[head=0]
+vring_add_buf, setting q->ring[av=51200]
+
+until '[17348.044031] Invalid buffer layout out: 0 in: 2' appears on the
+vhost.
+
+So it's clear this definitely is not supposed to be happening, but I've
+not yet been able to ascertain why it's suddenly being triggered now..?
+I don't recall Asias running into a similar issue during his earlier
+testing, but this bug is happening after every I/O in SeaBIOS with the
+most recent vhost-scsi-pci code.
+
+I'm using the following to work-around this issue for the moment, and
+would like some input from virtio / SeaBIOS folks..
+
+WDYT..?
+
+--nab
+
+diff --git a/src/virtio-ring.c b/src/virtio-ring.c
+index bddb090..e046141 100644
+--- a/src/virtio-ring.c
++++ b/src/virtio-ring.c
+@@ -35,10 +35,16 @@
+ 
+ int vring_more_used(struct vring_virtqueue *vq)
+ {
++    struct vring *vr = &vq->vring;
+     struct vring_used *used = GET_LOWFLAT(vq->vring.used);
+     int more = GET_LOWFLAT(vq->last_used_idx) != GET_LOWFLAT(used->idx);
+     /* Make sure ring reads are done after idx read above. */
+     smp_rmb();
++
++    /* Huh..?  vr->num is somehow changing from below us..? */
++    if (GET_LOWFLAT(vr->num) != MAX_QUEUE_NUM) {
++           SET_LOWFLAT(vr->num, MAX_QUEUE_NUM);
++    }
+     return more;
+ }
