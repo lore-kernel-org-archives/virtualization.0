@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH 7/7] virtio: move vring structure into struct virtqueue.
-Date: Fri,  5 Apr 2013 14:07:05 +1030
-Message-ID: <1365133025-5397-8-git-send-email-rusty@rustcorp.com.au>
+Subject: [PATCH 6/7] virtio: add support for 64 bit features.
+Date: Fri,  5 Apr 2013 14:07:04 +1030
+Message-ID: <1365133025-5397-7-git-send-email-rusty@rustcorp.com.au>
 References: <1365133025-5397-1-git-send-email-rusty@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -18,343 +18,339 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: virtualization@lists.linux-foundation.org
+Cc: Brian Swetland <swetland@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Back in 2010 (7c5e9ed0c84e7d70d887878574590638d5572659) MST removed
-the abstraction between virtio and the virtio ring, removing the various
-ops pointers, and we haven't really missed it.
+Change the u32 to a u64, and make sure to use 1ULL everywhere!
 
-Now we hoist the struct vring out from the private struct
-vring_virtqueue into the struct virtqueue: we've already demonstrated
-that it's useful to be able to see the ring size, and the new virtio
-pci layout wants to know the location of each part of the ring.
-
+Cc: Ohad Ben-Cohen <ohad@wizery.com>
+Cc: Brian Swetland <swetland@google.com>
+Cc: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Acked-by: Pawel Moll <pawel.moll@arm.com>
 ---
- drivers/virtio/virtio_ring.c |  114 +++++++++++++++++-------------------------
- include/linux/virtio.h       |    8 ++-
- 2 files changed, 54 insertions(+), 68 deletions(-)
+ drivers/char/virtio_console.c          |    2 +-
+ drivers/lguest/lguest_device.c         |   10 +++++-----
+ drivers/remoteproc/remoteproc_virtio.c |    6 +++++-
+ drivers/s390/kvm/kvm_virtio.c          |   10 +++++-----
+ drivers/s390/kvm/virtio_ccw.c          |   13 +++++++++++--
+ drivers/virtio/virtio.c                |   12 ++++++------
+ drivers/virtio/virtio_mmio.c           |   14 +++++++++-----
+ drivers/virtio/virtio_pci.c            |    5 ++---
+ drivers/virtio/virtio_ring.c           |    2 +-
+ include/linux/virtio.h                 |    2 +-
+ include/linux/virtio_config.h          |    8 ++++----
+ tools/virtio/linux/virtio.h            |    2 +-
+ tools/virtio/linux/virtio_config.h     |    2 +-
+ 13 files changed, 52 insertions(+), 36 deletions(-)
 
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 9d9f717..1a1e5da 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -351,7 +351,7 @@ static inline bool use_multiport(struct ports_device *portdev)
+ 	 */
+ 	if (!portdev->vdev)
+ 		return 0;
+-	return portdev->vdev->features & (1 << VIRTIO_CONSOLE_F_MULTIPORT);
++	return portdev->vdev->features & (1ULL << VIRTIO_CONSOLE_F_MULTIPORT);
+ }
+ 
+ static DEFINE_SPINLOCK(dma_bufs_lock);
+diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
+index 9528e64..61dd97c 100644
+--- a/drivers/lguest/lguest_device.c
++++ b/drivers/lguest/lguest_device.c
+@@ -94,17 +94,17 @@ static unsigned desc_size(const struct lguest_device_desc *desc)
+ }
+ 
+ /* This gets the device's feature bits. */
+-static u32 lg_get_features(struct virtio_device *vdev)
++static u64 lg_get_features(struct virtio_device *vdev)
+ {
+ 	unsigned int i;
+-	u32 features = 0;
++	u64 features = 0;
+ 	struct lguest_device_desc *desc = to_lgdev(vdev)->desc;
+ 	u8 *in_features = lg_features(desc);
+ 
+ 	/* We do this the slow but generic way. */
+-	for (i = 0; i < min(desc->feature_len * 8, 32); i++)
++	for (i = 0; i < min(desc->feature_len * 8, 64); i++)
+ 		if (in_features[i / 8] & (1 << (i % 8)))
+-			features |= (1 << i);
++			features |= (1ULL << i);
+ 
+ 	return features;
+ }
+@@ -144,7 +144,7 @@ static void lg_finalize_features(struct virtio_device *vdev)
+ 	memset(out_features, 0, desc->feature_len);
+ 	bits = min_t(unsigned, desc->feature_len, sizeof(vdev->features)) * 8;
+ 	for (i = 0; i < bits; i++) {
+-		if (vdev->features & (1 << i))
++		if (vdev->features & (1ULL << i))
+ 			out_features[i / 8] |= (1 << (i % 8));
+ 	}
+ 
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index fb8faee..aefbaae 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -196,7 +196,7 @@ static void rproc_virtio_reset(struct virtio_device *vdev)
+ }
+ 
+ /* provide the vdev features as retrieved from the firmware */
+-static u32 rproc_virtio_get_features(struct virtio_device *vdev)
++static u64 rproc_virtio_get_features(struct virtio_device *vdev)
+ {
+ 	struct rproc_vdev *rvdev = vdev_to_rvdev(vdev);
+ 
+@@ -210,6 +210,9 @@ static void rproc_virtio_finalize_features(struct virtio_device *vdev)
+ 	/* Give virtio_ring a chance to accept features */
+ 	vring_transport_features(vdev);
+ 
++	/* Make sure we don't have any features > 32 bits! */
++	BUG_ON((u32)vdev->features != vdev->features);
++
+ 	/*
+ 	 * Remember the finalized features of our vdev, and provide it
+ 	 * to the remote processor once it is powered on.
+@@ -220,6 +223,7 @@ static void rproc_virtio_finalize_features(struct virtio_device *vdev)
+ 	 * extension of the virtio resource entries.
+ 	 */
+ 	rvdev->gfeatures = vdev->features;
++
+ }
+ 
+ static const struct virtio_config_ops rproc_virtio_config_ops = {
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index 8779224..a023979 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -80,16 +80,16 @@ static unsigned desc_size(const struct kvm_device_desc *desc)
+ }
+ 
+ /* This gets the device's feature bits. */
+-static u32 kvm_get_features(struct virtio_device *vdev)
++static u64 kvm_get_features(struct virtio_device *vdev)
+ {
+ 	unsigned int i;
+-	u32 features = 0;
++	u64 features = 0;
+ 	struct kvm_device_desc *desc = to_kvmdev(vdev)->desc;
+ 	u8 *in_features = kvm_vq_features(desc);
+ 
+-	for (i = 0; i < min(desc->feature_len * 8, 32); i++)
++	for (i = 0; i < min(desc->feature_len * 8, 64); i++)
+ 		if (in_features[i / 8] & (1 << (i % 8)))
+-			features |= (1 << i);
++			features |= (1ULL << i);
+ 	return features;
+ }
+ 
+@@ -106,7 +106,7 @@ static void kvm_finalize_features(struct virtio_device *vdev)
+ 	memset(out_features, 0, desc->feature_len);
+ 	bits = min_t(unsigned, desc->feature_len, sizeof(vdev->features)) * 8;
+ 	for (i = 0; i < bits; i++) {
+-		if (vdev->features & (1 << i))
++		if (vdev->features & (1ULL << i))
+ 			out_features[i / 8] |= (1 << (i % 8));
+ 	}
+ }
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 8c564bf..bd67b26 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -454,8 +454,17 @@ static void virtio_ccw_finalize_features(struct virtio_device *vdev)
+ 	vring_transport_features(vdev);
+ 
+ 	features->index = 0;
+-	features->features = cpu_to_le32(vdev->features);
+-	/* Write the feature bits to the host. */
++	features->features = cpu_to_le32((u32)vdev->features);
++	/* Write the first half of the feature bits to the host. */
++	ccw->cmd_code = CCW_CMD_WRITE_FEAT;
++	ccw->flags = 0;
++	ccw->count = sizeof(*features);
++	ccw->cda = (__u32)(unsigned long)features;
++	ccw_io_helper(vcdev, ccw, VIRTIO_CCW_DOING_WRITE_FEAT);
++
++	features->index = 1;
++	features->features = cpu_to_le32(vdev->features >> 32);
++	/* Write the second half of the feature bits to the host. */
+ 	ccw->cmd_code = CCW_CMD_WRITE_FEAT;
+ 	ccw->flags = 0;
+ 	ccw->count = sizeof(*features);
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 8ebe913..6ffa542 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -111,7 +111,7 @@ static int virtio_dev_probe(struct device *_d)
+ 	int err, i;
+ 	struct virtio_device *dev = dev_to_virtio(_d);
+ 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
+-	u32 device_features;
++	u64 device_features;
+ 
+ 	/* We have a driver! */
+ 	add_status(dev, VIRTIO_CONFIG_S_DRIVER);
+@@ -123,15 +123,15 @@ static int virtio_dev_probe(struct device *_d)
+ 	dev->features = 0;
+ 	for (i = 0; i < drv->feature_table_size; i++) {
+ 		unsigned int f = drv->feature_table[i];
+-		BUG_ON(f >= 32);
+-		if (device_features & (1 << f))
+-			dev->features |= (1 << f);
++		BUG_ON(f >= 64);
++		if (device_features & (1ULL << f))
++			dev->features |= (1ULL << f);
+ 	}
+ 
+ 	/* Transport features always preserved to pass to finalize_features. */
+ 	for (i = VIRTIO_TRANSPORT_F_START; i < VIRTIO_TRANSPORT_F_END; i++)
+-		if (device_features & (1 << i))
+-			dev->features |= (1 << i);
++		if (device_features & (1ULL << i))
++			dev->features |= (1ULL << i);
+ 
+ 	dev->config->finalize_features(dev);
+ 
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 24d583a..0f1995c 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -142,14 +142,16 @@ struct virtio_mmio_vq_info {
+ 
+ /* Configuration interface */
+ 
+-static u32 vm_get_features(struct virtio_device *vdev)
++static u64 vm_get_features(struct virtio_device *vdev)
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
++	u64 features;
+ 
+-	/* TODO: Features > 32 bits */
+ 	writel(0, vm_dev->base + VIRTIO_MMIO_HOST_FEATURES_SEL);
+-
+-	return readl(vm_dev->base + VIRTIO_MMIO_HOST_FEATURES);
++	features = readl(vm_dev->base + VIRTIO_MMIO_HOST_FEATURES);
++	writel(1, vm_dev->base + VIRTIO_MMIO_HOST_FEATURES_SEL);
++	features |= ((u64)readl(vm_dev->base + VIRTIO_MMIO_HOST_FEATURES) << 32);
++	return features;
+ }
+ 
+ static void vm_finalize_features(struct virtio_device *vdev)
+@@ -160,7 +162,9 @@ static void vm_finalize_features(struct virtio_device *vdev)
+ 	vring_transport_features(vdev);
+ 
+ 	writel(0, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
+-	writel(vdev->features, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
++	writel((u32)vdev->features, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
++	writel(1, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES_SEL);
++	writel(vdev->features >> 32, vm_dev->base + VIRTIO_MMIO_GUEST_FEATURES);
+ }
+ 
+ static u8 vm_get8(struct virtio_device *vdev, unsigned offset)
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index aa85fdd..bfcce21 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -105,12 +105,11 @@ static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
+ }
+ 
+ /* virtio config->get_features() implementation */
+-static u32 vp_get_features(struct virtio_device *vdev)
++static u64 vp_get_features(struct virtio_device *vdev)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+ 
+-	/* When someone needs more than 32 feature bits, we'll need to
+-	 * steal a bit to indicate that the rest are somewhere else. */
++	/* We only support 32 feature bits. */
+ 	return ioread32(vp_dev->ioaddr + VIRTIO_PCI_HOST_FEATURES);
+ }
+ 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index ba58e29..7f9d4e9 100644
+index 82afdd8..ba58e29 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -53,13 +53,9 @@
- #define END_USE(vq)
- #endif
- 
--struct vring_virtqueue
--{
-+struct vring_virtqueue {
- 	struct virtqueue vq;
- 
--	/* Actual memory layout for this queue */
--	struct vring vring;
--
- 	/* Can we use weak barriers? */
- 	bool weak_barriers;
- 
-@@ -171,12 +167,12 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
- 
- 	/* Use a single buffer which doesn't continue */
- 	head = vq->free_head;
--	vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
--	vq->vring.desc[head].addr = virt_to_phys(desc);
--	vq->vring.desc[head].len = i * sizeof(struct vring_desc);
-+	vq->vq.vring.desc[head].flags = VRING_DESC_F_INDIRECT;
-+	vq->vq.vring.desc[head].addr = virt_to_phys(desc);
-+	vq->vq.vring.desc[head].len = i * sizeof(struct vring_desc);
- 
- 	/* Update free pointer */
--	vq->free_head = vq->vring.desc[head].next;
-+	vq->free_head = vq->vq.vring.desc[head].next;
- 
- 	return head;
- }
-@@ -226,7 +222,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 			goto add_head;
- 	}
- 
--	BUG_ON(total_sg > vq->vring.num);
-+	BUG_ON(total_sg > vq->vq.vring.num);
- 	BUG_ON(total_sg == 0);
- 
- 	if (vq->vq.num_free < total_sg) {
-@@ -247,24 +243,24 @@ static inline int virtqueue_add(struct virtqueue *_vq,
- 	head = i = vq->free_head;
- 	for (n = 0; n < out_sgs; n++) {
- 		for (sg = sgs[n]; sg; sg = next(sg, &total_out)) {
--			vq->vring.desc[i].flags = VRING_DESC_F_NEXT;
--			vq->vring.desc[i].addr = sg_phys(sg);
--			vq->vring.desc[i].len = sg->length;
-+			vq->vq.vring.desc[i].flags = VRING_DESC_F_NEXT;
-+			vq->vq.vring.desc[i].addr = sg_phys(sg);
-+			vq->vq.vring.desc[i].len = sg->length;
- 			prev = i;
--			i = vq->vring.desc[i].next;
-+			i = vq->vq.vring.desc[i].next;
+@@ -814,7 +814,7 @@ void vring_transport_features(struct virtio_device *vdev)
+ 			break;
+ 		default:
+ 			/* We don't understand this bit. */
+-			vdev->features &= ~(1 << i);
++			vdev->features &= ~(1ULL << i);
  		}
  	}
- 	for (; n < (out_sgs + in_sgs); n++) {
- 		for (sg = sgs[n]; sg; sg = next(sg, &total_in)) {
--			vq->vring.desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
--			vq->vring.desc[i].addr = sg_phys(sg);
--			vq->vring.desc[i].len = sg->length;
-+			vq->vq.vring.desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
-+			vq->vq.vring.desc[i].addr = sg_phys(sg);
-+			vq->vq.vring.desc[i].len = sg->length;
- 			prev = i;
--			i = vq->vring.desc[i].next;
-+			i = vq->vq.vring.desc[i].next;
- 		}
- 	}
- 	/* Last one doesn't continue. */
--	vq->vring.desc[prev].flags &= ~VRING_DESC_F_NEXT;
-+	vq->vq.vring.desc[prev].flags &= ~VRING_DESC_F_NEXT;
- 
- 	/* Update free pointer */
- 	vq->free_head = i;
-@@ -275,13 +271,13 @@ add_head:
- 
- 	/* Put entry in available array (but don't update avail->idx until they
- 	 * do sync). */
--	avail = (vq->vring.avail->idx & (vq->vring.num-1));
--	vq->vring.avail->ring[avail] = head;
-+	avail = (vq->vq.vring.avail->idx & (vq->vq.vring.num-1));
-+	vq->vq.vring.avail->ring[avail] = head;
- 
- 	/* Descriptors and available array need to be set before we expose the
- 	 * new available array entries. */
- 	virtio_wmb(vq->weak_barriers);
--	vq->vring.avail->idx++;
-+	vq->vq.vring.avail->idx++;
- 	vq->num_added++;
- 
- 	/* This is very unlikely, but theoretically possible.  Kick
-@@ -431,8 +427,8 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
- 	 * event. */
- 	virtio_mb(vq->weak_barriers);
- 
--	old = vq->vring.avail->idx - vq->num_added;
--	new = vq->vring.avail->idx;
-+	old = vq->vq.vring.avail->idx - vq->num_added;
-+	new = vq->vq.vring.avail->idx;
- 	vq->num_added = 0;
- 
- #ifdef DEBUG
-@@ -444,10 +440,10 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
- #endif
- 
- 	if (vq->event) {
--		needs_kick = vring_need_event(vring_avail_event(&vq->vring),
-+		needs_kick = vring_need_event(vring_avail_event(&vq->vq.vring),
- 					      new, old);
- 	} else {
--		needs_kick = !(vq->vring.used->flags & VRING_USED_F_NO_NOTIFY);
-+		needs_kick = !(vq->vq.vring.used->flags&VRING_USED_F_NO_NOTIFY);
- 	}
- 	END_USE(vq);
- 	return needs_kick;
-@@ -497,15 +493,15 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
- 	i = head;
- 
- 	/* Free the indirect table */
--	if (vq->vring.desc[i].flags & VRING_DESC_F_INDIRECT)
--		kfree(phys_to_virt(vq->vring.desc[i].addr));
-+	if (vq->vq.vring.desc[i].flags & VRING_DESC_F_INDIRECT)
-+		kfree(phys_to_virt(vq->vq.vring.desc[i].addr));
- 
--	while (vq->vring.desc[i].flags & VRING_DESC_F_NEXT) {
--		i = vq->vring.desc[i].next;
-+	while (vq->vq.vring.desc[i].flags & VRING_DESC_F_NEXT) {
-+		i = vq->vq.vring.desc[i].next;
- 		vq->vq.num_free++;
- 	}
- 
--	vq->vring.desc[i].next = vq->free_head;
-+	vq->vq.vring.desc[i].next = vq->free_head;
- 	vq->free_head = head;
- 	/* Plus final descriptor */
- 	vq->vq.num_free++;
-@@ -513,7 +509,7 @@ static void detach_buf(struct vring_virtqueue *vq, unsigned int head)
- 
- static inline bool more_used(const struct vring_virtqueue *vq)
- {
--	return vq->last_used_idx != vq->vring.used->idx;
-+	return vq->last_used_idx != vq->vq.vring.used->idx;
  }
- 
- /**
-@@ -555,11 +551,11 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- 	/* Only get used array entries after they have been exposed by host. */
- 	virtio_rmb(vq->weak_barriers);
- 
--	last_used = (vq->last_used_idx & (vq->vring.num - 1));
--	i = vq->vring.used->ring[last_used].id;
--	*len = vq->vring.used->ring[last_used].len;
-+	last_used = (vq->last_used_idx & (vq->vq.vring.num - 1));
-+	i = vq->vq.vring.used->ring[last_used].id;
-+	*len = vq->vq.vring.used->ring[last_used].len;
- 
--	if (unlikely(i >= vq->vring.num)) {
-+	if (unlikely(i >= vq->vq.vring.num)) {
- 		BAD_RING(vq, "id %u out of range\n", i);
- 		return NULL;
- 	}
-@@ -575,8 +571,8 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
- 	/* If we expect an interrupt for the next entry, tell host
- 	 * by writing event index and flush out the write before
- 	 * the read in the next get_buf call. */
--	if (!(vq->vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
--		vring_used_event(&vq->vring) = vq->last_used_idx;
-+	if (!(vq->vq.vring.avail->flags & VRING_AVAIL_F_NO_INTERRUPT)) {
-+		vring_used_event(&vq->vq.vring) = vq->last_used_idx;
- 		virtio_mb(vq->weak_barriers);
- 	}
- 
-@@ -602,7 +598,7 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
--	vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
-+	vq->vq.vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
- }
- EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
- 
-@@ -628,8 +624,8 @@ bool virtqueue_enable_cb(struct virtqueue *_vq)
- 	/* Depending on the VIRTIO_RING_F_EVENT_IDX feature, we need to
- 	 * either clear the flags bit or point the event index at the next
- 	 * entry. Always do both to keep code simple. */
--	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
--	vring_used_event(&vq->vring) = vq->last_used_idx;
-+	vq->vq.vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
-+	vring_used_event(&vq->vq.vring) = vq->last_used_idx;
- 	virtio_mb(vq->weak_barriers);
- 	if (unlikely(more_used(vq))) {
- 		END_USE(vq);
-@@ -666,12 +662,12 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
- 	/* Depending on the VIRTIO_RING_F_USED_EVENT_IDX feature, we need to
- 	 * either clear the flags bit or point the event index at the next
- 	 * entry. Always do both to keep code simple. */
--	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
-+	vq->vq.vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
- 	/* TODO: tune this threshold */
--	bufs = (u16)(vq->vring.avail->idx - vq->last_used_idx) * 3 / 4;
--	vring_used_event(&vq->vring) = vq->last_used_idx + bufs;
-+	bufs = (u16)(vq->vq.vring.avail->idx - vq->last_used_idx) * 3 / 4;
-+	vring_used_event(&vq->vq.vring) = vq->last_used_idx + bufs;
- 	virtio_mb(vq->weak_barriers);
--	if (unlikely((u16)(vq->vring.used->idx - vq->last_used_idx) > bufs)) {
-+	if (unlikely((u16)(vq->vq.vring.used->idx-vq->last_used_idx) > bufs)) {
- 		END_USE(vq);
- 		return false;
- 	}
-@@ -697,18 +693,18 @@ void *virtqueue_detach_unused_buf(struct virtqueue *_vq)
- 
- 	START_USE(vq);
- 
--	for (i = 0; i < vq->vring.num; i++) {
-+	for (i = 0; i < vq->vq.vring.num; i++) {
- 		if (!vq->data[i])
- 			continue;
- 		/* detach_buf clears data, so grab it now. */
- 		buf = vq->data[i];
- 		detach_buf(vq, i);
--		vq->vring.avail->idx--;
-+		vq->vq.vring.avail->idx--;
- 		END_USE(vq);
- 		return buf;
- 	}
- 	/* That should have freed everything. */
--	BUG_ON(vq->vq.num_free != vq->vring.num);
-+	BUG_ON(vq->vq.num_free != vq->vq.vring.num);
- 
- 	END_USE(vq);
- 	return NULL;
-@@ -758,7 +754,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 	if (!vq)
- 		return NULL;
- 
--	vring_init(&vq->vring, num, pages, vring_align);
-+	vring_init(&vq->vq.vring, num, pages, vring_align);
- 	vq->vq.callback = callback;
- 	vq->vq.vdev = vdev;
- 	vq->vq.name = name;
-@@ -780,12 +776,12 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 
- 	/* No callback?  Tell other side not to bother us. */
- 	if (!callback)
--		vq->vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
-+		vq->vq.vring.avail->flags |= VRING_AVAIL_F_NO_INTERRUPT;
- 
- 	/* Put everything in free lists. */
- 	vq->free_head = 0;
- 	for (i = 0; i < num-1; i++) {
--		vq->vring.desc[i].next = i+1;
-+		vq->vq.vring.desc[i].next = i+1;
- 		vq->data[i] = NULL;
- 	}
- 	vq->data[i] = NULL;
-@@ -820,20 +816,4 @@ void vring_transport_features(struct virtio_device *vdev)
- }
- EXPORT_SYMBOL_GPL(vring_transport_features);
- 
--/**
-- * virtqueue_get_vring_size - return the size of the virtqueue's vring
-- * @vq: the struct virtqueue containing the vring of interest.
-- *
-- * Returns the size of the vring.  This is mainly used for boasting to
-- * userspace.  Unlike other operations, this need not be serialized.
-- */
--unsigned int virtqueue_get_vring_size(struct virtqueue *_vq)
--{
--
--	struct vring_virtqueue *vq = to_vvq(_vq);
--
--	return vq->vring.num;
--}
--EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
--
- MODULE_LICENSE("GPL");
 diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index a05f7c7..09883f5 100644
+index 80f55a0..a05f7c7 100644
 --- a/include/linux/virtio.h
 +++ b/include/linux/virtio.h
-@@ -9,6 +9,7 @@
- #include <linux/mod_devicetable.h>
- #include <linux/gfp.h>
- #include <linux/vringh.h>
-+#include <uapi/linux/virtio_ring.h>
- 
- /**
-  * virtqueue - a queue to register buffers for sending or receiving.
-@@ -19,6 +20,7 @@
-  * @priv: a pointer for the virtqueue implementation to use.
-  * @index: the zero-based ordinal number for this queue.
-  * @num_free: number of elements we expect to be able to fit.
-+ * @vring: the layout of the virtio ring.
-  *
-  * A note on @num_free: with indirect buffers, each buffer needs one
-  * element in the queue, otherwise a buffer will need one element per
-@@ -31,6 +33,7 @@ struct virtqueue {
- 	struct virtio_device *vdev;
- 	unsigned int index;
- 	unsigned int num_free;
-+	struct vring vring;
+@@ -100,7 +100,7 @@ struct virtio_device {
+ 	const struct virtio_config_ops *config;
+ 	const struct vringh_config_ops *vringh_config;
+ 	struct list_head vqs;
+-	u32 features;
++	u64 features;
  	void *priv;
  };
  
-@@ -74,7 +77,10 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index 9a7f740..9a9aaa0 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -84,7 +84,7 @@ struct virtio_config_ops {
+ 			vq_callback_t *callbacks[],
+ 			const char *names[]);
+ 	void (*del_vqs)(struct virtio_device *);
+-	u32 (*get_features)(struct virtio_device *vdev);
++	u64 (*get_features)(struct virtio_device *vdev);
+ 	void (*finalize_features)(struct virtio_device *vdev);
+ 	const char *(*bus_name)(struct virtio_device *vdev);
+ 	int (*set_vq_affinity)(struct virtqueue *vq, int cpu);
+@@ -104,14 +104,14 @@ static inline bool virtio_has_feature(const struct virtio_device *vdev,
+ {
+ 	/* Did you forget to fix assumptions on max features? */
+ 	if (__builtin_constant_p(fbit))
+-		BUILD_BUG_ON(fbit >= 32);
++		BUILD_BUG_ON(fbit >= 64);
+ 	else
+-		BUG_ON(fbit >= 32);
++		BUG_ON(fbit >= 64);
  
- void *virtqueue_detach_unused_buf(struct virtqueue *vq);
+ 	if (fbit < VIRTIO_TRANSPORT_F_START)
+ 		virtio_check_driver_offered_feature(vdev, fbit);
  
--unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
-+static inline unsigned int virtqueue_get_vring_size(struct virtqueue *vq)
-+{
-+	return vq->vring.num;
-+}
+-	return vdev->features & (1 << fbit);
++	return vdev->features & (1ULL << fbit);
+ }
  
- /* FIXME: Obsolete accessor, but required for virtio_net merge. */
- static inline unsigned int virtqueue_get_queue_index(struct virtqueue *vq)
+ static inline
+diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
+index 02a38e8..358706d 100644
+--- a/tools/virtio/linux/virtio.h
++++ b/tools/virtio/linux/virtio.h
+@@ -10,7 +10,7 @@
+ 
+ struct virtio_device {
+ 	void *dev;
+-	u32 features;
++	u64 features;
+ };
+ 
+ struct virtqueue {
+diff --git a/tools/virtio/linux/virtio_config.h b/tools/virtio/linux/virtio_config.h
+index 1f1636b..a254c2b 100644
+--- a/tools/virtio/linux/virtio_config.h
++++ b/tools/virtio/linux/virtio_config.h
+@@ -2,5 +2,5 @@
+ #define VIRTIO_TRANSPORT_F_END		32
+ 
+ #define virtio_has_feature(dev, feature) \
+-	((dev)->features & (1 << feature))
++	((dev)->features & (1ULL << feature))
+ 
 -- 
 1.7.10.4
