@@ -1,16 +1,14 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH V7 0/5] virtio-scsi multiqueue
-Date: Sun, 7 Apr 2013 10:01:40 +0800
-Message-ID: <20130407020140.GA6409@hj.localdomain>
-References: <1364038124-32479-1-git-send-email-gaowanlong@cn.fujitsu.com>
-	<5153A953.2000101@cn.fujitsu.com> <515E918D.3090307@cn.fujitsu.com>
-	<1365237613.2787.1.camel@dabdike>
+Subject: Re: [PATCH V3 0/2] tcm_vhost endpoint
+Date: Sun, 7 Apr 2013 11:34:32 +0800
+Message-ID: <20130407033432.GB9001__31812.279232736$1365305687$gmane$org@hj.localdomain>
+References: <1364969858-9410-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1365237613.2787.1.camel@dabdike>
+In-Reply-To: <1364969858-9410-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,54 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au
-Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, James Bottomley <James.Bottomley@HansenPartnership.com>, pbonzini@redhat.com
+To: Nicholas Bellinger <nab@linux-iscsi.org>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Apr 06, 2013 at 09:40:13AM +0100, James Bottomley wrote:
-> On Fri, 2013-04-05 at 16:55 +0800, Wanlong Gao wrote:
-> > On 03/28/2013 10:22 AM, Wanlong Gao wrote:
-> > > On 03/23/2013 07:28 PM, Wanlong Gao wrote:
-> > >> This series implements virtio-scsi queue steering, which gives
-> > >> performance improvements of up to 50% (measured both with QEMU and
-> > >> tcm_vhost backends).
-> > >>
-> > >> This version rebased on Rusty's virtio ring rework patches, which
-> > >> has already gone into virtio-next today.
-> > >> We hope this can go into virtio-next together with the virtio ring
-> > >> rework pathes.
-> > >>
-> > >> V7: respin to fix the patch apply error
-> > >>
-> > >> V6: rework "redo allocation of target data" (James)
-> > >>     fix comments (Venkatesh)
-> > >>     rebase to virtio-next
-> > >>
-> > >> V5: improving the grammar of 1/5 (Paolo)
-> > >>     move the dropping of sg_elems to 'virtio-scsi: use virtqueue_add_sgs for command buffers'. (Asias)
-> > >>
-> > >> V4: rebase on virtio ring rework patches (rusty's pending-rebases branch)
-> > >>
-> > >> V3 and be found http://marc.info/?l=linux-virtualization&m=136067440717154&w=2
-> > >>
-> > >>
-> > >> It would probably be easier to get it in via Rusty's tree
-> > >> because of the prerequisites.  James, can we get your Acked-by?
-> > > 
-> > > James, any thoughts for this version?
-> > 
-> > Ping James....
+On Wed, Apr 03, 2013 at 02:17:36PM +0800, Asias He wrote:
+> Hello mst,
 > 
-> Well, I haven't had time to look at anything other than the patch I
-> commented on.  I'm happy with your fix, so you can add my acked by to
-> that one.  Since it's going through the virtio tree, don't wait for me,
-> put it in and I'll make you fix up anything I find later that I'm
-> unhappy with.
+> How about this one?
 
-So, Rusty, could you pick this up in your virtio-next tree?
+Ping.
 
-> James
+> Asias He (2):
+>   tcm_vhost: Use vq->private_data to indicate if the endpoint is setup
+>   tcm_vhost: Initialize vq->last_used_idx when set endpoint
 > 
+>  drivers/vhost/tcm_vhost.c | 145 ++++++++++++++++++++++++++++++++--------------
+>  1 file changed, 102 insertions(+), 43 deletions(-)
+> 
+> -- 
+> 1.8.1.4
 > 
 
 -- 
