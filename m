@@ -1,16 +1,16 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH V3 1/2] tcm_vhost: Use vq->private_data to indicate if
-	the endpoint is setup
-Date: Mon, 08 Apr 2013 14:09:24 -0700
-Message-ID: <1365455364.24346.89.camel__32035.8521458276$1365455381$gmane$org@haakon2.linux-iscsi.org>
+Subject: Re: [PATCH V3 2/2] tcm_vhost: Initialize vq->last_used_idx when
+	set endpoint
+Date: Mon, 08 Apr 2013 14:11:22 -0700
+Message-ID: <1365455482.24346.91.camel__49672.8754755624$1365455503$gmane$org@haakon2.linux-iscsi.org>
 References: <1364969858-9410-1-git-send-email-asias@redhat.com>
-	<1364969858-9410-2-git-send-email-asias@redhat.com>
-	<20130408071008.GB18339@redhat.com>
+	<1364969858-9410-3-git-send-email-asias@redhat.com>
+	<20130408071034.GC18339@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130408071008.GB18339@redhat.com>
+In-Reply-To: <20130408071034.GC18339@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,30 +25,57 @@ Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Mon, 2013-04-08 at 10:10 +0300, Michael S. Tsirkin wrote:
-> On Wed, Apr 03, 2013 at 02:17:37PM +0800, Asias He wrote:
-> > Currently, vs->vs_endpoint is used indicate if the endpoint is setup or
-> > not. It is set or cleared in vhost_scsi_set_endpoint() or
-> > vhost_scsi_clear_endpoint() under the vs->dev.mutex lock. However, when
-> > we check it in vhost_scsi_handle_vq(), we ignored the lock.
+> On Wed, Apr 03, 2013 at 02:17:38PM +0800, Asias He wrote:
+> > This patch fixes guest hang when booting seabios and guest.
 > > 
-> > Instead of using the vs->vs_endpoint and the vs->dev.mutex lock to
-> > indicate the status of the endpoint, we use per virtqueue
-> > vq->private_data to indicate it. In this way, we can only take the
-> > vq->mutex lock which is per queue and make the concurrent multiqueue
-> > process having less lock contention. Further, in the read side of
-> > vq->private_data, we can even do not take the lock if it is accessed in
-> > the vhost worker thread, because it is protected by "vhost rcu".
+> >   [    0.576238] scsi0 : Virtio SCSI HBA
+> >   [    0.616754] virtio_scsi virtio1: request:id 0 is not a head!
+> > 
+> > vq->last_used_idx is initialized only when /dev/vhost-scsi is
+> > opened or closed.
+> > 
+> >    vhost_scsi_open -> vhost_dev_init() -> vhost_vq_reset()
+> >    vhost_scsi_release() -> vhost_dev_cleanup -> vhost_vq_reset()
+> > 
+> > So, when guest talks to tcm_vhost after seabios does, vq->last_used_idx
+> > still contains the old valule for seabios. This confuses guest.
+> > 
+> > Fix this by calling vhost_init_used() to init vq->last_used_idx when
+> > we set endpoint.
 > > 
 > > Signed-off-by: Asias He <asias@redhat.com>
 > 
-> Not strictly 3.9 material itself but needed for the next one.
+> Please apply for 3.9.
 > 
 > Acked-by: Michael S. Tsirkin <mst@redhat.com>
 > 
 
-Applied to target-pending/master with a small change to
-s/VHOST_FEATURES/VHOST_SCSI_FEATURES
+Applied to target-pending/master, and will be including both in the
+v3.9-rc7 PULL request.
 
-Thanks Asias and MST!
+Thanks again!
 
 --nab
+
+> > ---
+> >  drivers/vhost/tcm_vhost.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+> > index 11121ea..a10efd3 100644
+> > --- a/drivers/vhost/tcm_vhost.c
+> > +++ b/drivers/vhost/tcm_vhost.c
+> > @@ -865,6 +865,7 @@ static int vhost_scsi_set_endpoint(
+> >  			/* Flushing the vhost_work acts as synchronize_rcu */
+> >  			mutex_lock(&vq->mutex);
+> >  			rcu_assign_pointer(vq->private_data, vs_tpg);
+> > +			vhost_init_used(vq);
+> >  			mutex_unlock(&vq->mutex);
+> >  		}
+> >  		ret = 0;
+> > -- 
+> > 1.8.1.4
+> --
+> To unsubscribe from this list: send the line "unsubscribe target-devel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
