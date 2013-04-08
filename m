@@ -1,7 +1,7 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [PATCH] x86: make IDT read-only
-Date: Mon, 08 Apr 2013 15:47:18 -0700
-Message-ID: <516348F6.1080902@zytor.com>
+Date: Mon, 08 Apr 2013 15:48:21 -0700
+Message-ID: <51634935.9010905@zytor.com>
 References: <20130408224328.GA17641@www.outflux.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -30,8 +30,6 @@ On 04/08/2013 03:43 PM, Kees Cook wrote:
 > Signed-off-by: Kees Cook <keescook@chromium.org>
 > Cc: Eric Northup <digitaleric@google.com>
 
-This isn't quite what this patch does, though, right?  There is still a
-writable IDT mapping at all times, which is different from a true
-readonly IDT, no?
+Also, tglx: does this interfere with your per-cpu IDT efforts?
 
 	-hpa
