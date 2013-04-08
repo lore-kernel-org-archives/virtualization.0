@@ -1,23 +1,20 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] kvm: add PV MMIO EVENTFD
-Date: Sun, 7 Apr 2013 11:43:01 +0300
-Message-ID: <20130407084301.GC10317@redhat.com>
-References: <20130404120825.GD17919@redhat.com>
-	<959E147D-EB7B-4F4B-9F84-4F1BBA98DEF8@suse.de>
-	<20130404123806.GG17919@redhat.com>
-	<EF153515-9835-4FB9-B6BC-73D0BDC86492@suse.de>
-	<20130404124501.GH17919@redhat.com>
-	<1B68D701-103D-4B1A-8F5E-3916753699CB@suse.de>
-	<20130404125649.GI17919@redhat.com>
-	<8E65D34D-2DA7-4C2E-9C3E-BE3A7DBC3279@suse.de>
-	<20130404131457.GJ17919@redhat.com>
-	<20130407093038.GL17919@redhat.com>
+From: Amos Kong <akong@redhat.com>
+Subject: Re: [Qemu-devel] [RFC qemu PATCH] only writing out the last byte of
+	MAC makes it have effect
+Date: Mon, 8 Apr 2013 15:05:44 +0800
+Message-ID: <20130408070544.GC7613@t430s.nay.redhat.com>
+References: <1363834956-9409-1-git-send-email-akong@redhat.com>
+	<1363848290-30344-1-git-send-email-akong@redhat.com>
+	<20130321105152.GB30874@redhat.com>
+	<87hak4ffxu.fsf@rustcorp.com.au>
+	<20130325022357.GA2899@t430s.nay.redhat.com>
+	<20130325065848.GB32581@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130407093038.GL17919@redhat.com>
+In-Reply-To: <20130325065848.GB32581@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,47 +24,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, Will Deacon <will.deacon@arm.com>, Xiao Guangrong <xiaoguangrong@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Sasha Levin <sasha.levin@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Christoffer Dall <c.dall@virtualopensystems.com>, virtualization@lists.linux-foundation.org, Takuya Yoshikawa <yoshikawa_takuya_b1@lab.ntt.co.jp>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: jpirko@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Apr 07, 2013 at 12:30:38PM +0300, Gleb Natapov wrote:
-> On Thu, Apr 04, 2013 at 04:14:57PM +0300, Gleb Natapov wrote:
-> > > > 
-> > > >>> is to move to MMIO only when PIO address space is exhausted. For PCI it
-> > > >>> will be never, for PCI-e it will be after ~16 devices.
+On Mon, Mar 25, 2013 at 08:58:49AM +0200, Michael S. Tsirkin wrote:
+> On Mon, Mar 25, 2013 at 10:23:57AM +0800, Amos Kong wrote:
+> > On Fri, Mar 22, 2013 at 10:45:09AM +1030, Rusty Russell wrote:
+> > > "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > > > On Thu, Mar 21, 2013 at 02:44:50PM +0800, Amos Kong wrote:
+> > > >> The lengcy guests don't have mac programming command, we don't know when
+> > > >> it's safe to use MAC. This patch changed qemu to makes MAC change effect
+> > > >> when the last byte of MAC is written to config space.
 > > > >> 
-> > > >> Ok, let's go back a step here. Are you actually able to measure any speed in performance with this patch applied and without when going through MMIO kicks?
+> > > >> MAC address takes first 6 bytes of config space of virtio-net, the addr
+> > > >> is 5 when the last byte is written in virtio_config_writeb().
 > > > >> 
+> > > >> MAC change will effect when n->mac is updated in virtio_net_set_config().
 > > > >> 
-> > > > That's the question for MST. I think he did only micro benchmarks till
-> > > > now and he already posted his result here:
-> > > > 
-> > > > mmio-wildcard-eventfd:pci-mem 3529
-> > > > mmio-pv-eventfd:pci-mem 1878
-> > > > portio-wildcard-eventfd:pci-io 1846
-> > > > 
-> > > > So the patch speedup mmio by almost 100% and it is almost the same as PIO.
+> > > >> Signed-off-by: Amos Kong <akong@redhat.com>
+> > > >
+> > > > Let's see what Rusty says about the spec change.
 > > > 
-> > > Those numbers don't align at all with what I measured.
-> > I am trying to run vmexit test on AMD now, but something does not work
-> > there. Next week I'll fix it and see how AMD differs, bit on Intel those are the
-> > numbers.
+> > > Implementation notes like this belong as a footnote, eg:
+> > > 
+> > >         For older systems, it is recommended and typical that the device
+> > >         write byte 5 of the mac address last, so devices can use that as
+> > >         a trigger to commit the mac address change.
+> > > 
+> > > Now, is this a real, or theoretical issue?  Have we seen this problem in
+> > > practice, or should we continue to ignore it?
 > > 
-> The numbers are:
-> vmcall 1921
-> inl_from_kernel 4227
-> outl_to_kernel 2345
+> > Hi Rusty, Michael
+> > 
+> > I didn't touch any problem. MST, and you?
+> > 
+> > In Linux guest, we should disable the interface before changing mac address.
+> >  ifconfig eth0 down
+> >  ifconfig eth0 hw ether 10:12:13:14:15:16
+> >  ifconfig eth0 up
+> >  
+> > In Windows 7 guest, after changing mac address in register table,
+> > re-enabling interface to make it effect.
+> >  reg add HKLM SYSTEM\CurrentControlSet\Control\Class\{4D36E972-E325-11CE-BFC1-08002BE10318}\0001] /v NetworkAddress /d 0123456789AB
+> >  netsh interface set interface "Local Area Connection" DISABLED
+> >  netsh interface set interface "Local Area Connection" ENABLED
+> > 
+> > 
+> > So when we change the mac address, guest os always disable interface
+> > to receive all packages. It seems the theoretical issue doesn't exist?
+> > 
+> > > Cheers,
+> > > Rusty.
+> > > 
+> > 
+> > -- 
+> > 			Amos.
 > 
-> outl is specifically optimized to not go through the emulator since it
-> is used for virtio kick. mmio-pv-eventfd is the same kind of
-> optimization but for mmio.
->  
-> --
-> 			Gleb.
+> Nope. Looks like no spec change is necessary. We already say it's
+> not atomic and it looks like guests expect exactly that
+> and disable link to prevent strange issues.
 
+I just found Jiri has a commit to allow changing mac when iface
+is running. It seems only the virt nics are allowned, right?
 
-Hmm so on AMD it's more like 20% overhead, like ARM.
+But the leagcy guests don't allow to change mac when interface is
+running, so no spec change is necessary.
+
+[upstream kernel]
+commit d4fc6918f4b3cc844185f59fc518351525950449
+Author: Jiri Pirko <jpirko@redhat.com>
+Date:   Wed Jun 27 05:27:46 2012 +0000
+
+    virtio_net: allow to change mac when iface is running
+    
+    Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+RH-BZ: https://bugzilla.redhat.com/show_bug.cgi?id=882868
 
 -- 
-MST
+			Amos.
