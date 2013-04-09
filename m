@@ -1,11 +1,15 @@
-From: Asias He <asias@redhat.com>
-Subject: [PATCH] tcm_vhost: Wait for pending requests in vhost_scsi_flush()
-Date: Tue,  9 Apr 2013 17:39:43 +0800
-Message-ID: <1365500383-10421-1-git-send-email-asias@redhat.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [PATCH] x86: make IDT read-only
+Date: Tue, 09 Apr 2013 02:45:46 -0700
+Message-ID: <877gkc596d.fsf@xmission.com>
+References: <20130408224328.GA17641@www.outflux.net>
+	<51634935.9010905@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <51634935.9010905@zytor.com> (H. Peter Anvin's message of "Mon,
+	08 Apr 2013 15:48:21 -0700")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,264 +19,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nicholas Bellinger <nab@linux-iscsi.org>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Alex Shi <alex.shi@intel.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Will Drewry <wad@chromium.org>, Kees Cook <keescook@chromium.org>, Julien Tinnes <jln@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Frederic Weisbecker <fweisbec@gmail.com>, Dan Rosenberg <drosenberg@vsecurity.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, Borislav Petkov <borislav.petkov@amd.com>, Ingo Molnar <mingo@redhat.com>, kernel-hardening@lists.openwall.com, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch makes vhost_scsi_flush() wait for all the pending requests
-issued before the flush operation to be finished.
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-Changes in v3:
-- Rebase
-- Drop 'tcm_vhost: Wait for pending requests in
-  vhost_scsi_clear_endpoint()' in this series, we already did that in
-  'tcm_vhost: Use vq->private_data to indicate if the endpoint is setup'
+> On 04/08/2013 03:43 PM, Kees Cook wrote:
+>> This makes the IDT unconditionally read-only. This primarily removes
+>> the IDT from being a target for arbitrary memory write attacks. It has
+>> an added benefit of also not leaking (via the "sidt" instruction) the
+>> kernel base offset, if it has been relocated.
+>> 
+>> Signed-off-by: Kees Cook <keescook@chromium.org>
+>> Cc: Eric Northup <digitaleric@google.com>
+>
+> Also, tglx: does this interfere with your per-cpu IDT efforts?
 
-Changes in v2:
-- Increase/Decrease inflight requests in
-  vhost_scsi_{allocate,free}_cmd and tcm_vhost_{allocate,free}_evt
+Given that we don't change any IDT entries why would anyone want a
+per-cpu IDT?  The cache lines should easily be shared accross all
+processors.
 
-Signed-off-by: Asias He <asias@redhat.com>
----
- drivers/vhost/tcm_vhost.c | 88 ++++++++++++++++++++++++++++++++++++++++++++---
- drivers/vhost/tcm_vhost.h |  4 +++
- 2 files changed, 87 insertions(+), 5 deletions(-)
+Or are there some giant NUMA machines that trigger cache misses when
+accessing the IDT and the penalty for pulling the cache line across
+the NUMA fabric is prohibitive?
 
-diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 1f9116c..719ce13 100644
---- a/drivers/vhost/tcm_vhost.c
-+++ b/drivers/vhost/tcm_vhost.c
-@@ -91,6 +91,15 @@ struct vhost_scsi {
- 	struct mutex vs_events_lock; /* protect vs_events_dropped,events_nr */
- 	bool vs_events_dropped; /* any missed events */
- 	int vs_events_nr; /* num of pending events */
-+
-+	/*
-+	 * vs_inflight[0]/[1] are used to track requests issued
-+	 * before/during the flush operation
-+	 */
-+	u64 vs_inflight[2];
-+	wait_queue_head_t vs_flush_wait; /* wait queue for flush operation */
-+	spinlock_t vs_flush_lock; /* lock to protect vs_during_flush */
-+	int vs_during_flush; /* flag to indicate if we are in flush operation */
- };
- 
- /* Local pointer to allocated TCM configfs fabric module */
-@@ -108,6 +117,46 @@ static int iov_num_pages(struct iovec *iov)
- 	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
- }
- 
-+static int tcm_vhost_inc_inflight(struct vhost_scsi *vs)
-+{
-+	int during_flush;
-+
-+	spin_lock(&vs->vs_flush_lock);
-+	during_flush = vs->vs_during_flush;
-+	vs->vs_inflight[during_flush]++;
-+	spin_unlock(&vs->vs_flush_lock);
-+
-+	return during_flush;
-+}
-+
-+static void tcm_vhost_dec_inflight(struct vhost_scsi *vs, int during_flush)
-+{
-+	u64 inflight;
-+
-+	spin_lock(&vs->vs_flush_lock);
-+	inflight = vs->vs_inflight[during_flush]--;
-+	/*
-+	 * Wakeup the waiter when all the requests issued before the flush
-+	 * operation are finished and we are during the flush operation.
-+	 */
-+	if (!inflight && !during_flush && vs->vs_during_flush)
-+		wake_up(&vs->vs_flush_wait);
-+	spin_unlock(&vs->vs_flush_lock);
-+}
-+
-+static bool tcm_vhost_done_inflight(struct vhost_scsi *vs)
-+{
-+	bool ret = false;
-+
-+	/* The requests issued before the flush operation are finished ? */
-+	spin_lock(&vs->vs_flush_lock);
-+	if (!vs->vs_inflight[0])
-+		ret = true;
-+	spin_unlock(&vs->vs_flush_lock);
-+
-+	return ret;
-+}
-+
- static bool tcm_vhost_check_feature(struct vhost_scsi *vs, int feature)
- {
- 	bool ret = false;
-@@ -402,6 +451,7 @@ static int tcm_vhost_queue_tm_rsp(struct se_cmd *se_cmd)
- static void tcm_vhost_free_evt(struct vhost_scsi *vs, struct tcm_vhost_evt *evt)
- {
- 	mutex_lock(&vs->vs_events_lock);
-+	tcm_vhost_dec_inflight(vs, evt->during_flush);
- 	vs->vs_events_nr--;
- 	kfree(evt);
- 	mutex_unlock(&vs->vs_events_lock);
-@@ -423,6 +473,7 @@ static struct tcm_vhost_evt *tcm_vhost_allocate_evt(struct vhost_scsi *vs,
- 	if (evt) {
- 		evt->event.event = event;
- 		evt->event.reason = reason;
-+		evt->during_flush = tcm_vhost_inc_inflight(vs);
- 		vs->vs_events_nr++;
- 	}
- 	mutex_unlock(&vs->vs_events_lock);
-@@ -433,6 +484,7 @@ static struct tcm_vhost_evt *tcm_vhost_allocate_evt(struct vhost_scsi *vs,
- static void vhost_scsi_free_cmd(struct tcm_vhost_cmd *tv_cmd)
- {
- 	struct se_cmd *se_cmd = &tv_cmd->tvc_se_cmd;
-+	struct vhost_scsi *vs = tv_cmd->tvc_vhost;
- 
- 	/* TODO locking against target/backend threads? */
- 	transport_generic_free_cmd(se_cmd, 1);
-@@ -445,13 +497,16 @@ static void vhost_scsi_free_cmd(struct tcm_vhost_cmd *tv_cmd)
- 		kfree(tv_cmd->tvc_sgl);
- 	}
- 
-+	tcm_vhost_dec_inflight(vs, tv_cmd->during_flush);
-+
- 	kfree(tv_cmd);
- }
- 
- static void tcm_vhost_do_evt_work(struct vhost_scsi *vs,
--	struct virtio_scsi_event *event)
-+	struct tcm_vhost_evt *evt)
- {
- 	struct vhost_virtqueue *vq = &vs->vqs[VHOST_SCSI_VQ_EVT];
-+	struct virtio_scsi_event *event = &evt->event;
- 	struct virtio_scsi_event __user *eventp;
- 	unsigned out, in;
- 	int head, ret;
-@@ -511,7 +566,7 @@ static void tcm_vhost_evt_work(struct vhost_work *work)
- 	while (llnode) {
- 		evt = llist_entry(llnode, struct tcm_vhost_evt, list);
- 		llnode = llist_next(llnode);
--		tcm_vhost_do_evt_work(vs, &evt->event);
-+		tcm_vhost_do_evt_work(vs, evt);
- 		tcm_vhost_free_evt(vs, evt);
- 	}
- }
-@@ -529,8 +584,8 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 	struct virtio_scsi_cmd_resp v_rsp;
- 	struct tcm_vhost_cmd *tv_cmd;
- 	struct llist_node *llnode;
--	struct se_cmd *se_cmd;
- 	int ret, vq;
-+	struct se_cmd *se_cmd;
- 
- 	bitmap_zero(signal, VHOST_SCSI_MAX_VQ);
- 	llnode = llist_del_all(&vs->vs_completion_list);
-@@ -568,6 +623,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- }
- 
- static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
-+	struct vhost_scsi *vs,
- 	struct tcm_vhost_tpg *tv_tpg,
- 	struct virtio_scsi_cmd_req *v_req,
- 	u32 exp_data_len,
-@@ -592,6 +648,8 @@ static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
- 	tv_cmd->tvc_exp_data_len = exp_data_len;
- 	tv_cmd->tvc_data_direction = data_direction;
- 	tv_cmd->tvc_nexus = tv_nexus;
-+	tv_cmd->tvc_vhost = vs;
-+	tv_cmd->during_flush = tcm_vhost_inc_inflight(vs);
- 
- 	return tv_cmd;
- }
-@@ -842,7 +900,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
- 		for (i = 0; i < data_num; i++)
- 			exp_data_len += vq->iov[data_first + i].iov_len;
- 
--		tv_cmd = vhost_scsi_allocate_cmd(tv_tpg, &v_req,
-+		tv_cmd = vhost_scsi_allocate_cmd(vs, tv_tpg, &v_req,
- 					exp_data_len, data_direction);
- 		if (IS_ERR(tv_cmd)) {
- 			vq_err(vq, "vhost_scsi_allocate_cmd failed %ld\n",
-@@ -852,7 +910,6 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
- 		pr_debug("Allocated tv_cmd: %p exp_data_len: %d, data_direction"
- 			": %d\n", tv_cmd, exp_data_len, data_direction);
- 
--		tv_cmd->tvc_vhost = vs;
- 		tv_cmd->tvc_vq = vq;
- 
- 		if (unlikely(vq->iov[out].iov_len !=
-@@ -905,6 +962,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
- 		 * tcm_vhost_queue_data_in() and tcm_vhost_queue_status()
- 		 */
- 		tv_cmd->tvc_vq_desc = head;
-+
- 		/*
- 		 * Dispatch tv_cmd descriptor for cmwq execution in process
- 		 * context provided by tcm_vhost_workqueue.  This also ensures
-@@ -984,9 +1042,23 @@ static void vhost_scsi_flush(struct vhost_scsi *vs)
- {
- 	int i;
- 
-+	/* Flush operation is started */
-+	spin_lock(&vs->vs_flush_lock);
-+	vs->vs_during_flush = 1;
-+	spin_unlock(&vs->vs_flush_lock);
-+
- 	for (i = 0; i < VHOST_SCSI_MAX_VQ; i++)
- 		vhost_scsi_flush_vq(vs, i);
- 	vhost_work_flush(&vs->dev, &vs->vs_completion_work);
-+	vhost_work_flush(&vs->dev, &vs->vs_event_work);
-+
-+	/* Wait until all requests issued before the flush to be finished */
-+	wait_event(vs->vs_flush_wait, tcm_vhost_done_inflight(vs));
-+
-+	/* Flush operation is finished */
-+	spin_lock(&vs->vs_flush_lock);
-+	vs->vs_during_flush = 0;
-+	spin_unlock(&vs->vs_flush_lock);
- }
- 
- /*
-@@ -1094,6 +1166,7 @@ static int vhost_scsi_clear_endpoint(
- 	u8 target;
- 
- 	mutex_lock(&vs->dev.mutex);
-+
- 	/* Verify that ring has been setup correctly. */
- 	for (index = 0; index < vs->dev.nvqs; ++index) {
- 		if (!vhost_vq_access_ok(&vs->vqs[index])) {
-@@ -1195,6 +1268,11 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
- 	s->vs_events_dropped = false;
- 	mutex_init(&s->vs_events_lock);
- 
-+	s->vs_inflight[0] = 0;
-+	s->vs_inflight[1] = 0;
-+	spin_lock_init(&s->vs_flush_lock);
-+	init_waitqueue_head(&s->vs_flush_wait);
-+
- 	s->vqs[VHOST_SCSI_VQ_CTL].handle_kick = vhost_scsi_ctl_handle_kick;
- 	s->vqs[VHOST_SCSI_VQ_EVT].handle_kick = vhost_scsi_evt_handle_kick;
- 	for (i = VHOST_SCSI_VQ_IO; i < VHOST_SCSI_MAX_VQ; i++)
-diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
-index 94e9ee53..dd84622 100644
---- a/drivers/vhost/tcm_vhost.h
-+++ b/drivers/vhost/tcm_vhost.h
-@@ -37,6 +37,8 @@ struct tcm_vhost_cmd {
- 	unsigned char tvc_sense_buf[TRANSPORT_SENSE_BUFFER];
- 	/* Completed commands list, serviced from vhost worker thread */
- 	struct llist_node tvc_completion_list;
-+	/* Indicate this command is issued during the flush operaton */
-+	int during_flush;
- };
- 
- struct tcm_vhost_nexus {
-@@ -91,6 +93,8 @@ struct tcm_vhost_evt {
- 	struct virtio_scsi_event event;
- 	/* virtio_scsi event list, serviced from vhost worker thread */
- 	struct llist_node list;
-+	/* Indicate this event is issued during the flush operaton */
-+	int during_flush;
- };
- 
- /*
--- 
-1.8.1.4
+Eric
