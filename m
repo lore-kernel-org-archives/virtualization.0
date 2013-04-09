@@ -1,15 +1,15 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH V4 0/2] tcm_vhost hotplug
-Date: Tue, 9 Apr 2013 08:57:56 +0800
-Message-ID: <20130409005756.GA26647@hj.localdomain>
-References: <1363930745-7520-1-git-send-email-asias@redhat.com>
-	<1365456687.24346.96.camel@haakon2.linux-iscsi.org>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [PATCH-v2 1/2] virtio-scsi: create VirtIOSCSICommon
+Date: Mon, 08 Apr 2013 21:08:11 -0700
+Message-ID: <1365480491.24346.131.camel__45965.9971799285$1365480501$gmane$org@haakon2.linux-iscsi.org>
+References: <1364519296-31883-1-git-send-email-nab@linux-iscsi.org>
+	<1364519296-31883-2-git-send-email-nab@linux-iscsi.org>
+	<87bo9oheex.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1365456687.24346.96.camel@haakon2.linux-iscsi.org>
+In-Reply-To: <87bo9oheex.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,33 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: kvm-devel <kvm@vger.kernel.org>, "Michael S.
+	Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>, lf-virt <virtualization@lists.linux-foundation.org>, Anthony Liguori <aliguori@linux.vnet.ibm.com>, target-devel <target-devel@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 08, 2013 at 02:31:27PM -0700, Nicholas A. Bellinger wrote:
-> On Fri, 2013-03-22 at 13:39 +0800, Asias He wrote:
-> > Asias He (2):
-> >   tcm_vhost: Introduce tcm_vhost_check_feature()
-> >   tcm_vhost: Add hotplug/hotunplug support
-> > 
-> >  drivers/vhost/tcm_vhost.c | 224 ++++++++++++++++++++++++++++++++++++++++++++--
-> >  drivers/vhost/tcm_vhost.h |  10 +++
-> >  2 files changed, 229 insertions(+), 5 deletions(-)
-> > 
+On Mon, 2013-04-08 at 16:59 -0500, Anthony Liguori wrote:
+> "Nicholas A. Bellinger" <nab@linux-iscsi.org> writes:
 > 
-> Hi MST,
+> > From: Paolo Bonzini <pbonzini@redhat.com>
+> >
+> > This patch refactors existing virtio-scsi code into VirtIOSCSICommon
+> > in order to allow virtio_scsi_init_common() to be used by both internal
+> > virtio_scsi_init() and external vhost-scsi-pci code.
+> >
+> > Changes in Patch-v2:
+> >    - Move ->get_features() assignment to virtio_scsi_init() instead of
+> >      virtio_scsi_init_common()
 > 
-> With vhost-scsi-pci now on the right track for upstream QEMU, will you
-> consider this code as a v3.10 item..?
 > 
-> Asias, I assume this will need to be rebased against your latest patches
-> in target-pending/master, yes..?
-
-I will rebase this one and the flush one shortly.
-
-> --nab
+> Any reason we're not doing this as a QOM base class?
+> 
+> Similiar to how the in-kernel PIT/PIC work using a common base class...
 > 
 
--- 
-Asias
+Mmm, not sure.  Paolo, what do you prefer here..?
+
+Also, has your qemu/scsi-next branch with this series been pushed to a
+public tree yet..?  ;)
+
+--nab
