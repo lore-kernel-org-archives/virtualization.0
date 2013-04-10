@@ -1,7 +1,7 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH v2 2/4] tcm_vhost: Fix tv_cmd leak in vhost_scsi_handle_vq
-Date: Wed, 10 Apr 2013 15:06:14 +0800
-Message-ID: <1365577576-26183-3-git-send-email-asias@redhat.com>
+Subject: [PATCH v2 3/4] tcm_vhost: Add vhost_scsi_send_bad_target() helper
+Date: Wed, 10 Apr 2013 15:06:15 +0800
+Message-ID: <1365577576-26183-4-git-send-email-asias@redhat.com>
 References: <1365577576-26183-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,47 +23,61 @@ To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If we fail to submit the allocated tv_vmd to tcm_vhost_submission_work,
-we will leak the tv_vmd. Free tv_vmd on fail path.
+Share the send bad target code with other use cases.
 
 Signed-off-by: Asias He <asias@redhat.com>
 ---
- drivers/vhost/tcm_vhost.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/vhost/tcm_vhost.c | 31 ++++++++++++++++++-------------
+ 1 file changed, 18 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 28c112f..210d59e 100644
+index 210d59e..1bb0fb4 100644
 --- a/drivers/vhost/tcm_vhost.c
 +++ b/drivers/vhost/tcm_vhost.c
-@@ -724,7 +724,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
- 				" exceeds SCSI_MAX_VARLEN_CDB_SIZE: %d\n",
- 				scsi_command_size(tv_cmd->tvc_cdb),
- 				TCM_VHOST_MAX_CDB_SIZE);
--			break; /* TODO */
-+			goto err;
- 		}
- 		tv_cmd->tvc_lun = ((v_req.lun[2] << 8) | v_req.lun[3]) & 0x3FFF;
- 
-@@ -737,7 +737,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
- 					data_direction == DMA_TO_DEVICE);
- 			if (unlikely(ret)) {
- 				vq_err(vq, "Failed to map iov to sgl\n");
--				break; /* TODO */
-+				goto err;
- 			}
- 		}
- 
-@@ -758,6 +758,11 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
+@@ -578,6 +578,23 @@ static void tcm_vhost_submission_work(struct work_struct *work)
  	}
- 
- 	mutex_unlock(&vq->mutex);
-+	return;
-+
-+err:
-+	vhost_scsi_free_cmd(tv_cmd);
-+	mutex_unlock(&vq->mutex);
  }
  
- static void vhost_scsi_ctl_handle_kick(struct vhost_work *work)
++static void vhost_scsi_send_bad_target(struct vhost_scsi *vs,
++	struct vhost_virtqueue *vq, int head, unsigned out)
++{
++	struct virtio_scsi_cmd_resp __user *resp;
++	struct virtio_scsi_cmd_resp rsp;
++	int ret;
++
++	memset(&rsp, 0, sizeof(rsp));
++	rsp.response = VIRTIO_SCSI_S_BAD_TARGET;
++	resp = vq->iov[out].iov_base;
++	ret = __copy_to_user(resp, &rsp, sizeof(rsp));
++	if (!ret)
++		vhost_add_used_and_signal(&vs->dev, vq, head, 0);
++	else
++		pr_err("Faulted on virtio_scsi_cmd_resp\n");
++}
++
+ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
+ 	struct vhost_virtqueue *vq)
+ {
+@@ -673,19 +690,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
+ 
+ 		/* Target does not exist, fail the request */
+ 		if (unlikely(!tv_tpg)) {
+-			struct virtio_scsi_cmd_resp __user *resp;
+-			struct virtio_scsi_cmd_resp rsp;
+-
+-			memset(&rsp, 0, sizeof(rsp));
+-			rsp.response = VIRTIO_SCSI_S_BAD_TARGET;
+-			resp = vq->iov[out].iov_base;
+-			ret = __copy_to_user(resp, &rsp, sizeof(rsp));
+-			if (!ret)
+-				vhost_add_used_and_signal(&vs->dev,
+-							  vq, head, 0);
+-			else
+-				pr_err("Faulted on virtio_scsi_cmd_resp\n");
+-
++			vhost_scsi_send_bad_target(vs, vq, head, out);
+ 			continue;
+ 		}
+ 
 -- 
 1.8.1.4
