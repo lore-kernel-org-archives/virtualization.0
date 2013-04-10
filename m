@@ -1,16 +1,23 @@
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] x86: make IDT read-only
-Date: Wed, 10 Apr 2013 09:48:27 -0700
-Message-ID: <516597DB.4020208@zytor.com>
+Subject: Re: [Xen-devel] Readonly GDT
+Date: Wed, 10 Apr 2013 11:28:00 -0700
+Message-ID: <5165AF30.909@zytor.com>
 References: <20130408224328.GA17641@www.outflux.net>
-	<51634935.9010905@zytor.com> <877gkc596d.fsf@xmission.com>
-	<20130410095716.GF24443@gmail.com> <87sj2yzn1a.fsf@xmission.com>
-	<CAG7+5M06h_UEy39OQqdT7Z6r-85q_R9zHHKGO6F2PX2pgT6U9g@mail.gmail.com>
+	<51634935.9010905@zytor.com>
+	<alpine.LFD.2.02.1304091122490.21884@ionos>
+	<CAGXu5jKo=11RrsvctcZjP6dusAj659O_GsaA2J2qFq-6mOeRwQ@mail.gmail.com>
+	<51645D6F.7070705@zytor.com>
+	<CAGXu5jKkHKw8efdPOmt-Zi99m+uMKVGKpc_DC72_ztwxnRbRRQ@mail.gmail.com>
+	<51646054.3090509@zytor.com>
+	<CAGXu5jJNG4o+_-kk=A2AfSRwyQE0pgaQh7YpSjnD_fB-s7U+wA@mail.gmail.com>
+	<CAG7+5M3==rndLLak9cZBKKdgQMmJMpSP_jpQd8HOVGp6LhUAgw@mail.gmail.com>
+	<5164B5BD.5050702@zytor.com>
+	<5165502902000078000CC022@nat28.tlf.novell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAG7+5M06h_UEy39OQqdT7Z6r-85q_R9zHHKGO6F2PX2pgT6U9g@mail.gmail.com>
+In-Reply-To: <5165502902000078000CC022@nat28.tlf.novell.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,27 +27,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Northup <digitaleric@google.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Frederic Weisbecker <fweisbec@gmail.com>, Dan Rosenberg <drosenberg@vsecurity.com>, lf-virt <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@kernel.org>, Alex Shi <alex.shi@intel.com>, the arch/x86 maintainers <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Alexander Duyck <alexander.h.duyck@intel.com>, Kees Cook <keescook@chromium.org>, Julien Tinnes <jln@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Borislav Petkov <borislav.petkov@amd.com>, Steven Rostedt <rostedt@goodmis.org>, Xen Devel <xen-devel@lists.xensource.com>, Thomas Gleixner <tglx@linutronix.de>, Will Drewry <wad@chromium.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Eric W. Biederman" <ebie>
+To: Jan Beulich <JBeulich@suse.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Alex Shi <alex.shi@intel.com>, Will Drewry <wad@chromium.org>, Kees Cook <keescook@chromium.org>, Julien Tinnes <jln@google.com>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Frederic Weisbecker <fweisbec@gmail.com>, Dan Rosenberg <drosenberg@vsecurity.com>, "x86@kernel.org" <x86@kernel.org>, Borislav Petkov <borislav.petkov@amd.com>, Steven Rostedt <rostedt@goodmis.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, LKML <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/10/2013 09:31 AM, Eric Northup wrote:
->>
->> If the effect is measurable I agree it is a legitimate optimization.  At
->> one point there was a suggestion to make the code in the IDT vectors
->> differ based on the which interrupt was registed.  While that can also
->> reduce cache misses that can get hairy very quickly, and of course that
->> would require read-write IDTs.
+On 04/10/2013 02:42 AM, Jan Beulich wrote:
 > 
-> read-write IDT or GDT are fine: map them twice, once read+write, once
-> read-only.  Point the GDTR and IDTR at the read-only alias.
+>> However, the packing solution has the advantage of reducing address
+>> space consumption which matters on 32 bits: even on i386 we can easily
+>> burn a megabyte of address space for 4096 processors, but burning 16
+>> megabytes starts to hurt.
+> 
+> Packing would have the additional benefit of Xen not needing to
+> become a special case in yet another area (because pages
+> containing live descriptor table entries need to be read-only for
+> PV guests, and need to consist of only descriptor table entries).
 > 
 
-Well, it is weaker, because if you can discover the pointer to the
-writable alias you win.
+OK, so on 64 bits this sounds like a win all around, whereas it is not
+feasible on 32 bits (which means we don't really need to worry about
+burning address space.)
 
-Now, as has been pointed out the GDT needs to be writable on 32 bits as
-a matter of hardware requirement.  However, doing it for 64 bits only is
-probably enough of a win.
+So, anyone interested in implementing this for 64 bits?
 
 	-hpa
