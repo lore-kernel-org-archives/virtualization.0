@@ -1,18 +1,15 @@
 From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [kernel-hardening] Re: [PATCH] x86: make IDT read-only
-Date: Wed, 10 Apr 2013 11:52:12 +0200
-Message-ID: <20130410095212.GE24443@gmail.com>
+Subject: Re: [PATCH] x86: make IDT read-only
+Date: Wed, 10 Apr 2013 11:57:16 +0200
+Message-ID: <20130410095716.GF24443@gmail.com>
 References: <20130408224328.GA17641@www.outflux.net>
-	<51634935.9010905@zytor.com>
-	<alpine.LFD.2.02.1304091122490.21884@ionos>
-	<CAGXu5jKo=11RrsvctcZjP6dusAj659O_GsaA2J2qFq-6mOeRwQ@mail.gmail.com>
-	<5164AC44.7030708@zytor.com>
+	<51634935.9010905@zytor.com> <877gkc596d.fsf@xmission.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5164AC44.7030708@zytor.com>
+In-Reply-To: <877gkc596d.fsf@xmission.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,27 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Alex Shi <alex.shi@intel.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Will Drewry <wad@chromium.org>, Kees Cook <keescook@chromium.org>, Julien Tinnes <jln@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Frederic Weisbecker <fweisbec@gmail.com>, Dan Rosenberg <drosenberg@vsecurity.com>, "x86@kernel.org" <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Borislav Petkov <borislav.petkov@amd.com>, Ingo Molnar <mingo@redhat.com>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, kernel-hardening@lists.openwall.com, Frederic Weisbecker <fweisbec@gmail.com>, Dan Rosenberg <drosenberg@vsecurity.com>, virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>, Alex Shi <alex.shi@intel.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Alexander Duyck <alexander.h.duyck@intel.com>, Kees Cook <keescook@chromium.org>, Julien Tinnes <jln@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Borislav Petkov <borislav.petkov@amd.com>, Steven Rostedt <rostedt@goodmis.org>, xen-devel@lists.xensource.com, Thomas Gleixner <tglx@linutronix.de>, Will Drewry <wad@chromium.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-* H. Peter Anvin <hpa@zytor.com> wrote:
+* Eric W. Biederman <ebiederm@xmission.com> wrote:
 
-> On 04/09/2013 11:22 AM, Kees Cook wrote:
-> > 
-> > Can we create a RO fixed per-cpu area?
-> > 
+> "H. Peter Anvin" <hpa@zytor.com> writes:
 > 
-> "Fixed" and "percpu" are mutually exclusive...
+> > On 04/08/2013 03:43 PM, Kees Cook wrote:
+> >> This makes the IDT unconditionally read-only. This primarily removes
+> >> the IDT from being a target for arbitrary memory write attacks. It has
+> >> an added benefit of also not leaking (via the "sidt" instruction) the
+> >> kernel base offset, if it has been relocated.
+> >> 
+> >> Signed-off-by: Kees Cook <keescook@chromium.org>
+> >> Cc: Eric Northup <digitaleric@google.com>
+> >
+> > Also, tglx: does this interfere with your per-cpu IDT efforts?
+> 
+> Given that we don't change any IDT entries why would anyone want a
+> per-cpu IDT?  The cache lines should easily be shared accross all
+> processors.
 
-There's a fixmap area that holds kmap_atomic() percpu mappings:
+That's true iif they are cached.
 
-        FIX_KMAP_BEGIN, /* reserved pte's for temporary kernel mappings */
-        FIX_KMAP_END = FIX_KMAP_BEGIN+(KM_TYPE_NR*NR_CPUS)-1,
+If not then it's a remote DRAM access cache miss for all CPUs except the node that 
+holds that memory.
 
-In a similar fashion we could use a per CPU high-mapped read-only alias as well 
-(assuming it fits, memory is pretty tight there).
+> Or are there some giant NUMA machines that trigger cache misses when accessing 
+> the IDT and the penalty for pulling the cache line across the NUMA fabric is 
+> prohibitive?
+
+IDT accesses for pure userspace execution are pretty rare. So we are not just 
+talking about huge NUMA machines here but about ordinary NUMA machines taking a 
+remote cache miss hit for the first IRQ or other IDT-accessing operation they do 
+after some cache-intense user-space processing.
+
+It's a small effect, but it exists and improving it would be legitimate.
 
 Thanks,
 
