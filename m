@@ -1,23 +1,18 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: Re: [Xen-devel] Readonly GDT
-Date: Wed, 10 Apr 2013 10:42:33 +0100
-Message-ID: <5165502902000078000CC022@nat28.tlf.novell.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [kernel-hardening] Re: [PATCH] x86: make IDT read-only
+Date: Wed, 10 Apr 2013 11:52:12 +0200
+Message-ID: <20130410095212.GE24443@gmail.com>
 References: <20130408224328.GA17641@www.outflux.net>
 	<51634935.9010905@zytor.com>
 	<alpine.LFD.2.02.1304091122490.21884@ionos>
 	<CAGXu5jKo=11RrsvctcZjP6dusAj659O_GsaA2J2qFq-6mOeRwQ@mail.gmail.com>
-	<51645D6F.7070705@zytor.com>
-	<CAGXu5jKkHKw8efdPOmt-Zi99m+uMKVGKpc_DC72_ztwxnRbRRQ@mail.gmail.com>
-	<51646054.3090509@zytor.com>
-	<CAGXu5jJNG4o+_-kk=A2AfSRwyQE0pgaQh7YpSjnD_fB-s7U+wA@mail.gmail.com>
-	<CAG7+5M3==rndLLak9cZBKKdgQMmJMpSP_jpQd8HOVGp6LhUAgw@mail.gmail.com>
-	<5164B5BD.5050702@zytor.com>
+	<5164AC44.7030708@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5164B5BD.5050702@zytor.com>
 Content-Disposition: inline
+In-Reply-To: <5164AC44.7030708@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,31 +23,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Alex Shi <alex.shi@intel.com>, Will Drewry <wad@chromium.org>, Kees Cook <keescook@chromium.org>, Julien Tinnes <jln@google.com>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Frederic Weisbecker <fweisbec@gmail.com>, Dan Rosenberg <drosenberg@vsecurity.com>, "x86@kernel.org" <x86@kernel.org>, Borislav Petkov <borislav.petkov@amd.com>, Steven Rostedt <rostedt@goodmis.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, LKML <linux-kernel@vger.kernel.org>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Alex Shi <alex.shi@intel.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Will Drewry <wad@chromium.org>, Kees Cook <keescook@chromium.org>, Julien Tinnes <jln@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Frederic Weisbecker <fweisbec@gmail.com>, Dan Rosenberg <drosenberg@vsecurity.com>, "x86@kernel.org" <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Borislav Petkov <borislav.petkov@amd.com>, Ingo Molnar <mingo@redhat.com>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 10.04.13 at 02:43, "H. Peter Anvin" <hpa@zytor.com> wrote:
-> OK, thinking about the GDT here.
+
+* H. Peter Anvin <hpa@zytor.com> wrote:
+
+> On 04/09/2013 11:22 AM, Kees Cook wrote:
+> > 
+> > Can we create a RO fixed per-cpu area?
+> > 
 > 
-> The GDT is quite small -- 256 bytes on i386, 128 bytes on x86-64.  As
-> such, we probably don't want to allocate a full page to it for only
-> that.  This means that in order to create a readonly mapping we have to
-> pack GDTs from different CPUs together in the same pages, *or* we
-> tolerate that other things on the same page gets reflected in the same
-> mapping.
+> "Fixed" and "percpu" are mutually exclusive...
 
-I think a read-only GDT is incompatible with exceptions delivered
-through task gates (i.e. double fault on 32-bit), so I would assume
-this needs to remain a 64-bit only thing.
+There's a fixmap area that holds kmap_atomic() percpu mappings:
 
-> However, the packing solution has the advantage of reducing address
-> space consumption which matters on 32 bits: even on i386 we can easily
-> burn a megabyte of address space for 4096 processors, but burning 16
-> megabytes starts to hurt.
+        FIX_KMAP_BEGIN, /* reserved pte's for temporary kernel mappings */
+        FIX_KMAP_END = FIX_KMAP_BEGIN+(KM_TYPE_NR*NR_CPUS)-1,
 
-Packing would have the additional benefit of Xen not needing to
-become a special case in yet another area (because pages
-containing live descriptor table entries need to be read-only for
-PV guests, and need to consist of only descriptor table entries).
+In a similar fashion we could use a per CPU high-mapped read-only alias as well 
+(assuming it fits, memory is pretty tight there).
 
-Jan
+Thanks,
+
+	Ingo
