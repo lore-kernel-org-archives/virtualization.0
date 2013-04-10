@@ -1,7 +1,7 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Readonly GDT
-Date: Tue, 09 Apr 2013 17:43:41 -0700
-Message-ID: <5164B5BD.5050702@zytor.com>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: Readonly GDT
+Date: Tue, 09 Apr 2013 20:53:54 -0400
+Message-ID: <1365555234.25498.91.camel@gandalf.local.home>
 References: <20130408224328.GA17641@www.outflux.net>
 	<51634935.9010905@zytor.com>
 	<alpine.LFD.2.02.1304091122490.21884@ionos>
@@ -11,11 +11,12 @@ References: <20130408224328.GA17641@www.outflux.net>
 	<51646054.3090509@zytor.com>
 	<CAGXu5jJNG4o+_-kk=A2AfSRwyQE0pgaQh7YpSjnD_fB-s7U+wA@mail.gmail.com>
 	<CAG7+5M3==rndLLak9cZBKKdgQMmJMpSP_jpQd8HOVGp6LhUAgw@mail.gmail.com>
+	<5164B5BD.5050702@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAG7+5M3==rndLLak9cZBKKdgQMmJMpSP_jpQd8HOVGp6LhUAgw@mail.gmail.com>
+In-Reply-To: <5164B5BD.5050702@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,29 +26,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Northup <digitaleric@google.com>
-Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Alex Shi <alex.shi@intel.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Will Drewry <wad@chromium.org>, Kees Cook <keescook@chromium.org>, Julien Tinnes <jln@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Frederic Weisbecker <fweisbec@gmail.com>, Dan Rosenberg <drosenberg@vsecurity.com>, "x86@kernel.org" <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Borislav Petkov <borislav.petkov@amd.com>, Ingo Molnar <mingo@redhat.com>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Alexander Duyck <alexander.h.duyck@intel.com>, Alex Shi <alex.shi@intel.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Will Drewry <wad@chromium.org>, Kees Cook <keescook@chromium.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "kernel-hardening@lists.openwall.com" <kernel-hardening@lists.openwall.com>, Frederic Weisbecker <fweisbec@gmail.com>, Dan Rosenberg <drosenberg@vsecurity.com>, "x86@kernel.org" <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Borislav Petkov <borislav.petkov@amd.com>, Ingo Molnar <mingo@redhat.com>, Julien Tinnes <jln@google.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-OK, thinking about the GDT here.
+On Tue, 2013-04-09 at 17:43 -0700, H. Peter Anvin wrote:
+> OK, thinking about the GDT here.
+> 
+> The GDT is quite small -- 256 bytes on i386, 128 bytes on x86-64.  As
+> such, we probably don't want to allocate a full page to it for only
+> that.  This means that in order to create a readonly mapping we have to
+> pack GDTs from different CPUs together in the same pages, *or* we
+> tolerate that other things on the same page gets reflected in the same
+> mapping.
 
-The GDT is quite small -- 256 bytes on i386, 128 bytes on x86-64.  As
-such, we probably don't want to allocate a full page to it for only
-that.  This means that in order to create a readonly mapping we have to
-pack GDTs from different CPUs together in the same pages, *or* we
-tolerate that other things on the same page gets reflected in the same
-mapping.
+What about grouping via nodes?
 
-However, the packing solution has the advantage of reducing address
-space consumption which matters on 32 bits: even on i386 we can easily
-burn a megabyte of address space for 4096 processors, but burning 16
-megabytes starts to hurt.
+> 
+> However, the packing solution has the advantage of reducing address
+> space consumption which matters on 32 bits: even on i386 we can easily
+> burn a megabyte of address space for 4096 processors, but burning 16
+> megabytes starts to hurt.
 
-It would be important to measure the performance impact on task switch,
-though.
+Having 4096 32 bit processors, you deserve what you get. ;-)
 
-	-hpa
+-- Steve
 
--- 
-H. Peter Anvin, Intel Open Source Technology Center
-I work for Intel.  I don't speak on their behalf.
+> 
+> It would be important to measure the performance impact on task switch,
+> though.
