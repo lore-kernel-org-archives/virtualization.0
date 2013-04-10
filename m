@@ -1,15 +1,15 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH] tcm_vhost: Fix tv_cmd leak in vhost_scsi_handle_vq
-Date: Wed, 10 Apr 2013 11:37:03 +0800
-Message-ID: <20130410033703.GA16756@hj.localdomain>
-References: <1365498993-9688-1-git-send-email-asias@redhat.com>
-	<1365522402.24346.146.camel@haakon2.linux-iscsi.org>
+Subject: Re: [PATCH 0/3] tcm_vhost fix cmd leak and bad target
+Date: Wed, 10 Apr 2013 14:19:32 +0800
+Message-ID: <20130410061932.GA24352@hj.localdomain>
+References: <1365522402.24346.146.camel@haakon2.linux-iscsi.org>
+	<1365564191-20928-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1365522402.24346.146.camel@haakon2.linux-iscsi.org>
+In-Reply-To: <1365564191-20928-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,82 +19,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 09, 2013 at 08:46:42AM -0700, Nicholas A. Bellinger wrote:
-> On Tue, 2013-04-09 at 17:16 +0800, Asias He wrote:
-> > If we fail to submit the allocated tv_vmd to tcm_vhost_submission_work,
-> > we will leak the tv_vmd. Free tv_vmd on fail path.
-> > 
-> > Signed-off-by: Asias He <asias@redhat.com>
-> > ---
-> >  drivers/vhost/tcm_vhost.c | 11 ++++++++---
-> >  1 file changed, 8 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> > index 3351ed3..1f9116c 100644
-> > --- a/drivers/vhost/tcm_vhost.c
-> > +++ b/drivers/vhost/tcm_vhost.c
-> > @@ -860,7 +860,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
-> >  			vq_err(vq, "Expecting virtio_scsi_cmd_resp, got %zu"
-> >  				" bytes, out: %d, in: %d\n",
-> >  				vq->iov[out].iov_len, out, in);
-> > -			break;
-> > +			goto err;
-> >  		}
-> >  
-> >  		tv_cmd->tvc_resp = vq->iov[out].iov_base;
-> > @@ -882,7 +882,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
-> >  				" exceeds SCSI_MAX_VARLEN_CDB_SIZE: %d\n",
-> >  				scsi_command_size(tv_cmd->tvc_cdb),
-> >  				TCM_VHOST_MAX_CDB_SIZE);
-> > -			break; /* TODO */
-> > +			goto err;
-> >  		}
-> >  		tv_cmd->tvc_lun = ((v_req.lun[2] << 8) | v_req.lun[3]) & 0x3FFF;
-> >  
-> > @@ -895,7 +895,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
-> >  					data_direction == DMA_TO_DEVICE);
-> >  			if (unlikely(ret)) {
-> >  				vq_err(vq, "Failed to map iov to sgl\n");
-> > -				break; /* TODO */
-> > +				goto err;
-> >  			}
-> >  		}
-> >  
+On Wed, Apr 10, 2013 at 11:23:08AM +0800, Asias He wrote:
+> Asias He (3):
+>   tcm_vhost: Fix tv_cmd leak in vhost_scsi_handle_vq
+>   tcm_vhost: Add vhost_scsi_send_bad_target() helper
+>   tcm_vhost: Send bad target to guest when cmd fails
 > 
-> Mmmm, I think these cases also require a VIRTIO_SCSI_S_BAD_TARGET +
-> __copy_to_user + vhost_add_used_and_signal similar to how !tv_tpg is
-> handled..  Otherwise virtio-scsi will end up in scsi timeout -> abort,
-> no..?
-> 
-> Ditto for the vhost_scsi_allocate_cmd failure case..
+>  drivers/vhost/tcm_vhost.c | 44 ++++++++++++++++++++++++++++----------------
+>  1 file changed, 28 insertions(+), 16 deletions(-)
 
-Sent out new patches.
+Forgot to send this out. This series is on top of this one. 
 
-> vhost-net uses vhost_discard_vq_desc for some failure cases,  is that
-> needed here for the failure cases before __copy_from_user is called..?
+From a0b5d53d057a34330c811f5cd4264182f392b374 Mon Sep 17 00:00:00 2001
+From: Asias He <asias@redhat.com>
+Date: Wed, 10 Apr 2013 10:39:43 +0800
+Subject: [PATCH] tcm_vhost: Remove double check of response
 
-I don't think it is useful. vhost_discard_vq_desc reverse the effect of
-vhost_get_vq_desc. If we put it back in the queue and next time we will
-still fail.
+We did the length of response check twice.
 
-> > @@ -916,6 +916,11 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
-> >  	}
-> >  
-> >  	mutex_unlock(&vq->mutex);
-> > +	return;
-> > +
-> > +err:
-> > +	vhost_scsi_free_cmd(tv_cmd);
-> > +	mutex_unlock(&vq->mutex);
-> >  }
-> >  
-> >  static void vhost_scsi_ctl_handle_kick(struct vhost_work *work)
-> 
-> 
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/tcm_vhost.c | 9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+index c127731..28c112f 100644
+--- a/drivers/vhost/tcm_vhost.c
++++ b/drivers/vhost/tcm_vhost.c
+@@ -705,15 +705,6 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
+ 
+ 		tv_cmd->tvc_vhost = vs;
+ 		tv_cmd->tvc_vq = vq;
+-
+-		if (unlikely(vq->iov[out].iov_len !=
+-				sizeof(struct virtio_scsi_cmd_resp))) {
+-			vq_err(vq, "Expecting virtio_scsi_cmd_resp, got %zu"
+-				" bytes, out: %d, in: %d\n",
+-				vq->iov[out].iov_len, out, in);
+-			break;
+-		}
+-
+ 		tv_cmd->tvc_resp = vq->iov[out].iov_base;
+ 
+ 		/*
+-- 
+1.8.1.4
+
 
 -- 
 Asias
