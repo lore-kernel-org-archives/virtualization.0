@@ -1,14 +1,12 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH v2 0/4] tcm_vhost fix cmd leak and send bad target
-Date: Wed, 10 Apr 2013 14:19:02 -0700
-Message-ID: <1365628742.3588.11.camel@haakon2.linux-iscsi.org>
-References: <1365564191-20928-1-git-send-email-asias@redhat.com>
-	<1365577576-26183-1-git-send-email-asias@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: [PATCH 1/1] virtio: console: replace EMFILE with EBUSY for
+	already-open port
+Date: Thu, 11 Apr 2013 11:38:14 +0530
+Message-ID: <2d57d36ef32e2d9073b0ca3e4e4b2dc32897932f.1365660074.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1365577576-26183-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,26 +16,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2013-04-10 at 15:06 +0800, Asias He wrote:
-> v2:
-> - Fix the order of out and head parameter.
-> 
-> Asias He (4):
->   tcm_vhost: Remove double check of response
->   tcm_vhost: Fix tv_cmd leak in vhost_scsi_handle_vq
->   tcm_vhost: Add vhost_scsi_send_bad_target() helper
->   tcm_vhost: Send bad target to guest when cmd fails
-> 
->  drivers/vhost/tcm_vhost.c | 53 +++++++++++++++++++++++++----------------------
->  1 file changed, 28 insertions(+), 25 deletions(-)
-> 
+Returning EMFILE (process has too many open files) is incorrect to
+indicate a port is already open by another process.  Use EBUSY for that.
 
-Looks good.  MST, care to ACK for 3.9..?
+This does change what we report to userspace, but I believe userspace
+can look at it this way: it gets EBUSY, a new error code, instead of
+EMFILE.  It's still an error, and that's not changing.
 
-Thanks Asias!
+Reported-by: Mateusz Guzik <mguzik@redhat.com>
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+Rusty, is this OK?  It's a change for the userspace, so is it considered
+breakage?  OTOH the current return value is obviously wrong, 
 
---nab
+'Broken' userspace code could be relying on the exact error type
+(current EMFILE) to detect if other processes are using the same file,
+that's the only thing I can think  of where this change can break
+existing userspace.  But is that a strong enough reason to not fix this?
+
+
+ drivers/char/virtio_console.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index ce5f3fc..b94be04 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1040,7 +1040,7 @@ static int port_fops_open(struct inode *inode, struct file *filp)
+ 	spin_lock_irq(&port->inbuf_lock);
+ 	if (port->guest_connected) {
+ 		spin_unlock_irq(&port->inbuf_lock);
+-		ret = -EMFILE;
++		ret = -EBUSY;
+ 		goto out;
+ 	}
+ 
+-- 
+1.8.1.4
