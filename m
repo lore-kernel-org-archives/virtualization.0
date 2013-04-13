@@ -1,13 +1,13 @@
-From: Yinghai Lu <yinghai@kernel.org>
-Subject: [PATCH v4 21/29] PCI, xen: Use for_each_pci_resource() with xen pci
-Date: Fri, 12 Apr 2013 15:44:35 -0700
-Message-ID: <1365806683-26717-22-git-send-email-yinghai__42193.4308288202$1365810929$gmane$org@kernel.org>
-References: <1365806683-26717-1-git-send-email-yinghai@kernel.org>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH v6 0/3] tcm_vhost hotplug
+Date: Sat, 13 Apr 2013 11:20:23 +0800
+Message-ID: <1365823226-27242-1-git-send-email-asias@redhat.com>
+References: <1365808250.26011.68.camel@haakon2.linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1365806683-26717-1-git-send-email-yinghai@kernel.org>
+In-Reply-To: <1365808250.26011.68.camel@haakon2.linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,32 +17,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Helgaas <bhelgaas@google.com>, Ram Pai <linuxram@us.ibm.com>
-Cc: linux-pci@vger.kernel.org, virtualization@lists.linux-foundation.org, Yinghai Lu <yinghai@kernel.org>, linux-kernel@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+To: Nicholas Bellinger <nab@linux-iscsi.org>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Yinghai Lu <yinghai@kernel.org>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: virtualization@lists.linux-foundation.org
-Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
----
- drivers/pci/xen-pcifront.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Rebase + small argument pass change
 
-diff --git a/drivers/pci/xen-pcifront.c b/drivers/pci/xen-pcifront.c
-index 966abc6..c90835f 100644
---- a/drivers/pci/xen-pcifront.c
-+++ b/drivers/pci/xen-pcifront.c
-@@ -395,9 +395,7 @@ static int pcifront_claim_resource(struct pci_dev *dev, void *data)
- 	int i;
- 	struct resource *r;
- 
--	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
--		r = &dev->resource[i];
--
-+	for_each_pci_resource(dev, r, i, PCI_ALL_RES) {
- 		if (!r->parent && r->start && r->flags) {
- 			dev_info(&pdev->xdev->dev, "claiming resource %s/%d\n",
- 				pci_name(dev), i);
+Asias He (3):
+  tcm_vhost: Introduce tcm_vhost_check_feature()
+  tcm_vhost: Add helper to check if endpoint is setup
+  tcm_vhost: Add hotplug/hotunplug support
+
+ drivers/vhost/tcm_vhost.c | 237 +++++++++++++++++++++++++++++++++++++++++++++-
+ drivers/vhost/tcm_vhost.h |  10 ++
+ 2 files changed, 243 insertions(+), 4 deletions(-)
+
 -- 
 1.8.1.4
