@@ -1,14 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/1] virtio: console: replace EMFILE with EBUSY for
-	already-open port
-Date: Mon, 15 Apr 2013 12:00:27 +0930
-Message-ID: <87sj2s8r0c.fsf@rustcorp.com.au>
-References: <2d57d36ef32e2d9073b0ca3e4e4b2dc32897932f.1365660074.git.amit.shah@redhat.com>
+From: Sasha Levin <sasha.levin@oracle.com>
+Subject: [PATCH] virtio-spec: document virtio-9p
+Date: Mon, 15 Apr 2013 01:13:48 -0400
+Message-ID: <1366002828-30037-1-git-send-email-sasha.levin@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2d57d36ef32e2d9073b0ca3e4e4b2dc32897932f.1365660074.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,51 +15,249 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
+To: rusty@rustcorp.com.au
+Cc: kvm@vger.kernel.org, mst@redhat.com, ericvh@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, v9fs-developer@lists.sourceforge.net, rminnich@sandia.gov, Sasha Levin <sasha.levin@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit Shah <amit.shah@redhat.com> writes:
-> Returning EMFILE (process has too many open files) is incorrect to
-> indicate a port is already open by another process.  Use EBUSY for that.
->
-> This does change what we report to userspace, but I believe userspace
-> can look at it this way: it gets EBUSY, a new error code, instead of
-> EMFILE.  It's still an error, and that's not changing.
->
-> Reported-by: Mateusz Guzik <mguzik@redhat.com>
-> Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> ---
-> Rusty, is this OK?  It's a change for the userspace, so is it considered
-> breakage?  OTOH the current return value is obviously wrong, 
+Add basic documentation for virtio-9p. I can expand more on device operation,
+but I don't think there's anything significant enough for the spec to be
+mentioned there. Please let me know if I'm wrong.
 
-Yes, I agree.  I don't know of anyone testing for EMFILE particularly,
-so this is OK.
+Signed-off-by: Sasha Levin <sasha.levin@oracle.com>
+---
+ virtio-spec.lyx | 206 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 206 insertions(+)
 
-Applied,
-Rusty.
-
->
-> 'Broken' userspace code could be relying on the exact error type
-> (current EMFILE) to detect if other processes are using the same file,
-> that's the only thing I can think  of where this change can break
-> existing userspace.  But is that a strong enough reason to not fix this?
->
->
->  drivers/char/virtio_console.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index ce5f3fc..b94be04 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -1040,7 +1040,7 @@ static int port_fops_open(struct inode *inode, struct file *filp)
->  	spin_lock_irq(&port->inbuf_lock);
->  	if (port->guest_connected) {
->  		spin_unlock_irq(&port->inbuf_lock);
-> -		ret = -EMFILE;
-> +		ret = -EBUSY;
->  		goto out;
->  	}
->  
-> -- 
-> 1.8.1.4
+diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+index c23a345..73a0567 100644
+--- a/virtio-spec.lyx
++++ b/virtio-spec.lyx
+@@ -57,6 +57,7 @@
+ \html_css_as_file 0
+ \html_be_strict false
+ \author -1930653948 "Amos Kong" 
++\author -1728740334 "Sasha Levin" sasha.levin@oracle.com
+ \author -875410574 "Pawel Moll" 
+ \author -608949062 "Rusty Russell,,," 
+ \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
+@@ -619,7 +620,13 @@ Appendix I
+ \begin_inset Text
+ 
+ \begin_layout Plain Layout
++
++\change_inserted -1728740334 1365526571
++Appendix J
++\change_deleted -1728740334 1365526568
+ -
++\change_unchanged
++
+ \end_layout
+ 
+ \end_inset
+@@ -9678,6 +9685,204 @@ For MMC devices (inquiry type 5) there would be some overlap between this
+ \end_layout
+ 
+ \end_deeper
++\end_deeper
++\begin_layout Chapter*
++
++\change_inserted -1728740334 1365526640
++Appendix J: 9p Transport
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted -1728740334 1365526873
++The virtio transport for 9p provides an interface to transfer 9p messages
++ between the device and the driver.
++\end_layout
++
++\begin_layout Section*
++
++\change_inserted -1728740334 1365526612
++Configuration
++\end_layout
++
++\begin_layout Description
++
++\change_inserted -1728740334 1365526876
++Subsystem
++\begin_inset space ~
++\end_inset
++
++Device
++\begin_inset space ~
++\end_inset
++
++ID 9
++\end_layout
++
++\begin_layout Description
++
++\change_inserted -1728740334 1365526891
++Virtqueues 0:requests.
++\end_layout
++
++\begin_layout Description
++
++\change_inserted -1728740334 1365527214
++Feature
++\begin_inset space ~
++\end_inset
++
++bits
++\end_layout
++
++\begin_deeper
++\begin_layout Description
++
++\change_inserted -1728740334 1365529363
++VIRTIO_9P_MOUNT_TAG(0) The mount point is specified in the device configuration.
++\end_layout
++
++\end_deeper
++\begin_layout Description
++
++\change_inserted -1728740334 1365527300
++Device
++\begin_inset space ~
++\end_inset
++
++configuration
++\begin_inset space ~
++\end_inset
++
++layout Both fields of this configuration are available only if VIRTIO_9P_MOUNT_T
++AG was negotiated:
++\begin_inset listings
++inline false
++status open
++
++\begin_layout Plain Layout
++
++\change_inserted -1728740334 1365527046
++
++struct virtio_9p_config {
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted -1728740334 1365527050
++
++	/* length of the tag name */
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted -1728740334 1365527055
++
++	__u16 tag_len;
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted -1728740334 1365527056
++
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted -1728740334 1365527065
++
++	/* non-NULL terminated tag name */
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted -1728740334 1365527072
++
++	__u8 tag[0];
++\end_layout
++
++\begin_layout Plain Layout
++
++\change_inserted -1728740334 1365527072
++
++} __attribute__((packed));
++\end_layout
++
++\end_inset
++
++
++\end_layout
++
++\begin_deeper
++\begin_layout Description
++
++\change_inserted -1728740334 1365527670
++tag_len is the length of the mount tag string.
++\end_layout
++
++\begin_layout Description
++
++\change_inserted -1728740334 1365527700
++tag is the name of the moung tag.
++ The tag should not be terminated by NULL.
++\end_layout
++
++\end_deeper
++\begin_layout Section*
++
++\change_inserted -1728740334 1365526612
++Device Initialization
++\end_layout
++
++\begin_layout Enumerate
++
++\change_inserted -1728740334 1365527786
++The requests virtqueue is initialized.
++\end_layout
++
++\begin_layout Enumerate
++
++\change_inserted -1728740334 1365527828
++If VIRTIO_9P_MOUNT_TAG was negotiated:
++\end_layout
++
++\begin_deeper
++\begin_layout Enumerate
++
++\change_inserted -1728740334 1365527872
++the tag_len field is read from the configuration to acertain the length
++ of the mount tag.
++\end_layout
++
++\begin_layout Enumerate
++
++\change_inserted -1728740334 1365527876
++tag_len bytes are read from the tag field and are used as the name of the
++ mount tag.
++\end_layout
++
++\end_deeper
++\begin_layout Enumerate
++
++\change_inserted -1728740334 1365527948
++The device is now ready to process requests.
++\end_layout
++
++\begin_layout Section*
++
++\change_inserted -1728740334 1365526612
++Device Operation
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted -1728740334 1365529176
++When the driver wantes to send a 9P request it places the descriptor of
++ the PDU in the queue.
++ It will be processed by the device according to the 9P protocol specifications
++ (available at http://ericvh.github.io/9p-rfc/) and returned to the driver.
++\end_layout
++
+ \begin_layout Chapter*
+ Appendix X: virtio-mmio
+ \end_layout
+-- 
+1.8.1.5
