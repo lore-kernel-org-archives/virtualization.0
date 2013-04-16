@@ -1,7 +1,7 @@
-From: Laszlo Ersek <lersek@redhat.com>
-Subject: suggesting wording fixes for virtio-spec 0.9.5
-Date: Mon, 22 Apr 2013 19:55:56 +0200
-Message-ID: <517579AC.2050400@redhat.com>
+From: Suman Anna <s-anna@ti.com>
+Subject: [PATCH 0/2] remoteproc/rpmsg: fix kconfig dependencies for VIRTIO
+Date: Tue, 16 Apr 2013 12:24:06 -0500
+Message-ID: <1366133046-5369-1-git-send-email-s-anna__49423.4322141439$1366654598$gmane$org@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,45 +15,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Ohad Ben-Cohen <ohad@wizery.com>
+Cc: Suman Anna <s-anna@ti.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Hi,
 
-(I'm not subscribed to either list,)
+This fixes the Kconfig dependency warnings for VIRTIO when remoteproc
+and/or rpmsg are enabled. I have intentionally split the change into
+two patches, based on testing by enabling STE-MODEM-RPROC and
+OMAP_REMOTEPROC separately. The former selects just REMOTEPROC, while
+the latter selects both REMOTEPROC & RPMSG. The split should also
+enable the patches to come through remoteproc & rpmsg trees respectively.
 
-using the word "descriptor" is misleading in the following sections:
+regards
+Suman
 
-  2.4.1.2 Updating The Available Ring
+Suman Anna (2):
+  remoteproc: fix kconfig dependencies for VIRTIO
+  rpmsg: fix kconfig dependencies for VIRTIO
 
-  [...] However, in general we can add many descriptors before we
-  update the idx field (at which point they become visible to the
-  device), so we keep a counter of how many we've added: [...]
+ drivers/remoteproc/Kconfig | 1 +
+ drivers/rpmsg/Kconfig      | 1 +
+ 2 files changed, 2 insertions(+)
 
-and
-
-  2.4.1.3 Updating The Index Field
-
-  Once the idx field of the virtqueue is updated, the device will be
-  able to access the descriptor entries we've created and the memory
-  they refer to. [...]
-
-(The word "descriptor" in the above language is the reason I
-mis-implemented the virtio-blk guest driver in OVMF.)
-
-In fact the available ring tracks *head* descriptors only. I suggest
-
-  s/many descriptors/many separate descriptor chains/
-  s/descriptor entries/separate descriptor chains/
-
-for the above.
-
-Similarly, 2.3.4 Available Ring should start with something like
-
-  The available ring describes what descriptor chains we are offering
-  the device: each entry of the available ring refers to the head
-  descriptor of a separate descriptor chain.
-
-Thanks
-Laszlo
+-- 
+1.8.2
