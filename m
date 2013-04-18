@@ -1,11 +1,15 @@
-From: Suman Anna <s-anna@ti.com>
-Subject: [PATCH 2/2] rpmsg: fix kconfig dependencies for VIRTIO
-Date: Tue, 16 Apr 2013 12:25:26 -0500
-Message-ID: <1366133126-5448-1-git-send-email-s-anna__33232.1211616092$1366654613$gmane$org@ti.com>
+From: "Anna, Suman" <s-anna@ti.com>
+Subject: RE: [PATCH 1/2] remoteproc: fix kconfig dependencies for VIRTIO
+Date: Thu, 18 Apr 2013 15:51:01 +0000
+Message-ID: <37C860A02101E749A747FA2D3C1E3C504A4F77__42362.2617767707$1366654625$gmane$org@DLEE11.ent.ti.com>
+References: <1366133111-5412-1-git-send-email-s-anna@ti.com>
+	<CAK=WgbbfT=Ft3GnN1W5A4fg8BDrypgvfeiM3zoRMbW=JS8m+6w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAK=WgbbfT=Ft3GnN1W5A4fg8BDrypgvfeiM3zoRMbW=JS8m+6w@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,34 +20,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Suman Anna <s-anna@ti.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-rpmsg configuration selects VIRTIO, but VIRTIO is now
-subordinate to VIRTUALIZATION. RPMSG is currently selected
-by OMAP_REMOTEPROC, and the dependency warning is not seen
-with the fix in remoteproc config, but the kconfig menu
-hierarchy dependency has to be honored nevertheless.
+> 
+> On Tue, Apr 16, 2013 at 8:25 PM, Suman Anna <s-anna@ti.com> wrote:
+> > remoteproc configuration selects VIRTIO, but VIRTIO is now subordinate
+> > to VIRTUALIZATION. VIRTUALIZATION has to be selected as well to honor
+> > the kconfig menu hierarchy and fix the dependency warnings.
+> 
+> Thanks Suman. Is this stable material as well or not relevant before 3.9?
 
-warning: (VIRTIO_PCI && VIRTIO_MMIO && REMOTEPROC && RPMSG) selects VIRTIO which has unmet direct dependencies (VIRTUALIZATION)
-warning: (VIRTIO_PCI && VIRTIO_MMIO && REMOTEPROC && RPMSG) selects VIRTIO which has unmet direct dependencies (VIRTUALIZATION)
+No, it is not applicable before 3.9.
 
-Signed-off-by: Suman Anna <s-anna@ti.com>
----
- drivers/rpmsg/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/rpmsg/Kconfig b/drivers/rpmsg/Kconfig
-index f6e0ea6..370645c 100644
---- a/drivers/rpmsg/Kconfig
-+++ b/drivers/rpmsg/Kconfig
-@@ -3,6 +3,7 @@ menu "Rpmsg drivers"
- # RPMSG always gets selected by whoever wants it
- config RPMSG
- 	tristate
-+	select VIRTUALIZATION
- 	select VIRTIO
- 
- endmenu
--- 
-1.8.2
+Regards
+Suman
