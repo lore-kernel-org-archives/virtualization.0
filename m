@@ -1,7 +1,7 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH v7 1/3] tcm_vhost: Introduce tcm_vhost_check_feature()
-Date: Thu, 18 Apr 2013 09:05:52 +0800
-Message-ID: <1366247154-3136-2-git-send-email-asias@redhat.com>
+Subject: [PATCH v7 2/3] tcm_vhost: Add helper to check if endpoint is setup
+Date: Thu, 18 Apr 2013 09:05:53 +0800
+Message-ID: <1366247154-3136-3-git-send-email-asias__16828.3027866439$1366247204$gmane$org@redhat.com>
 References: <1366247154-3136-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,30 +23,33 @@ To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This helper is useful to check if a feature is supported.
-
 Signed-off-by: Asias He <asias@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 ---
- drivers/vhost/tcm_vhost.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/vhost/tcm_vhost.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
 diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 957a0b9..88ebb79 100644
+index 88ebb79..8f05528 100644
 --- a/drivers/vhost/tcm_vhost.c
 +++ b/drivers/vhost/tcm_vhost.c
-@@ -99,6 +99,18 @@ static int iov_num_pages(struct iovec *iov)
- 	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
+@@ -111,6 +111,24 @@ static bool tcm_vhost_check_feature(struct vhost_scsi *vs, int feature)
+ 	return ret;
  }
  
-+static bool tcm_vhost_check_feature(struct vhost_scsi *vs, int feature)
++static bool tcm_vhost_check_endpoint(struct vhost_virtqueue *vq)
 +{
 +	bool ret = false;
 +
-+	mutex_lock(&vs->dev.mutex);
-+	if (vhost_has_feature(&vs->dev, feature))
++	/*
++	* We can handle the vq only after the endpoint is setup by calling the
++	* VHOST_SCSI_SET_ENDPOINT ioctl.
++	*
++	* TODO: Check that we are running from vhost_worker which acts
++	* as read-side critical section for vhost kind of RCU.
++	* See the comments in struct vhost_virtqueue in drivers/vhost/vhost.h
++	*/
++	if (rcu_dereference_check(vq->private_data, 1))
 +		ret = true;
-+	mutex_unlock(&vs->dev.mutex);
 +
 +	return ret;
 +}
