@@ -1,13 +1,15 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH v7 0/3] tcm_vhost hotplug
-Date: Thu, 18 Apr 2013 09:05:51 +0800
-Message-ID: <1366247154-3136-1-git-send-email-asias__31846.3831012652$1366247194$gmane$org@redhat.com>
-References: <20130417131726.GA26157@redhat.com>
+Subject: [PATCH v7 1/3] tcm_vhost: Introduce tcm_vhost_check_feature()
+Date: Thu, 18 Apr 2013 09:05:52 +0800
+Message-ID: <1366247154-3136-2-git-send-email-asias@redhat.com>
+References: <1366247154-3136-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1366247154-3136-1-git-send-email-asias@redhat.com>
 In-Reply-To: <20130417131726.GA26157@redhat.com>
+References: <20130417131726.GA26157@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,17 +23,36 @@ To: Nicholas Bellinger <nab@linux-iscsi.org>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Changes in v7:
-- Add vhost_work_flush for vs->vs_event_work to this series
+This helper is useful to check if a feature is supported.
 
-Asias He (3):
-  tcm_vhost: Introduce tcm_vhost_check_feature()
-  tcm_vhost: Add helper to check if endpoint is setup
-  tcm_vhost: Add hotplug/hotunplug support
+Signed-off-by: Asias He <asias@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+ drivers/vhost/tcm_vhost.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
- drivers/vhost/tcm_vhost.c | 238 +++++++++++++++++++++++++++++++++++++++++++++-
- drivers/vhost/tcm_vhost.h |  10 ++
- 2 files changed, 244 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+index 957a0b9..88ebb79 100644
+--- a/drivers/vhost/tcm_vhost.c
++++ b/drivers/vhost/tcm_vhost.c
+@@ -99,6 +99,18 @@ static int iov_num_pages(struct iovec *iov)
+ 	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
+ }
+ 
++static bool tcm_vhost_check_feature(struct vhost_scsi *vs, int feature)
++{
++	bool ret = false;
++
++	mutex_lock(&vs->dev.mutex);
++	if (vhost_has_feature(&vs->dev, feature))
++		ret = true;
++	mutex_unlock(&vs->dev.mutex);
++
++	return ret;
++}
++
+ static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
+ {
+ 	return 1;
 -- 
 1.8.1.4
