@@ -1,16 +1,16 @@
 From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH v7 1/3] tcm_vhost: Introduce tcm_vhost_check_feature()
-Date: Thu, 18 Apr 2013 16:25:21 +0800
-Message-ID: <20130418082521.GB13554@hj.localdomain>
+Subject: Re: [PATCH v7 2/3] tcm_vhost: Add helper to check if endpoint is setup
+Date: Thu, 18 Apr 2013 16:32:30 +0800
+Message-ID: <20130418083230.GC13554@hj.localdomain>
 References: <20130417131726.GA26157@redhat.com>
-	<1366247154-3136-2-git-send-email-asias@redhat.com>
-	<20130418070606.GC13787@redhat.com>
+	<1366247154-3136-3-git-send-email-asias@redhat.com>
+	<20130418070953.GD13787@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130418070606.GC13787@redhat.com>
+In-Reply-To: <20130418070953.GD13787@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,55 +24,56 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 18, 2013 at 10:06:06AM +0300, Michael S. Tsirkin wrote:
-> On Thu, Apr 18, 2013 at 09:05:52AM +0800, Asias He wrote:
-> > This helper is useful to check if a feature is supported.
-> > 
+On Thu, Apr 18, 2013 at 10:09:53AM +0300, Michael S. Tsirkin wrote:
+> On Thu, Apr 18, 2013 at 09:05:53AM +0800, Asias He wrote:
 > > Signed-off-by: Asias He <asias@redhat.com>
-> > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> 
-> Why do we need the locking here by the way?
-> It seems features don't change while vhost
-> is running.
-
-See:
-
-static inline int vhost_has_feature(struct vhost_dev *dev, int bit)
-{
-        unsigned acked_features;
-        
-        /* TODO: check that we are running from vhost_worker or dev mutex is
-         * held? */
-        acked_features = rcu_dereference_index_check(dev->acked_features, 1);
-        return acked_features & (1 << bit);
-}       
-
-We are accessing it outside the vhost_worker thread.
-
 > > ---
-> >  drivers/vhost/tcm_vhost.c | 12 ++++++++++++
-> >  1 file changed, 12 insertions(+)
+> >  drivers/vhost/tcm_vhost.c | 18 ++++++++++++++++++
+> >  1 file changed, 18 insertions(+)
 > > 
 > > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> > index 957a0b9..88ebb79 100644
+> > index 88ebb79..8f05528 100644
 > > --- a/drivers/vhost/tcm_vhost.c
 > > +++ b/drivers/vhost/tcm_vhost.c
-> > @@ -99,6 +99,18 @@ static int iov_num_pages(struct iovec *iov)
-> >  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
+> > @@ -111,6 +111,24 @@ static bool tcm_vhost_check_feature(struct vhost_scsi *vs, int feature)
+> >  	return ret;
 > >  }
 > >  
-> > +static bool tcm_vhost_check_feature(struct vhost_scsi *vs, int feature)
+> > +static bool tcm_vhost_check_endpoint(struct vhost_virtqueue *vq)
 > > +{
 > > +	bool ret = false;
 > > +
-> > +	mutex_lock(&vs->dev.mutex);
-> > +	if (vhost_has_feature(&vs->dev, feature))
+> > +	/*
+> > +	* We can handle the vq only after the endpoint is setup by calling the
+> > +	* VHOST_SCSI_SET_ENDPOINT ioctl.
+> > +	*
+> > +	* TODO: Check that we are running from vhost_worker which acts
+> > +	* as read-side critical section for vhost kind of RCU.
+> > +	* See the comments in struct vhost_virtqueue in drivers/vhost/vhost.h
+> > +	*/
+> > +	if (rcu_dereference_check(vq->private_data, 1))
 > > +		ret = true;
-> > +	mutex_unlock(&vs->dev.mutex);
 > > +
 > > +	return ret;
 > > +}
 > > +
+> 
+> You can't use RCU in this way. You need to actually
+> derefence. Instead, just move this within vq mutex
+> and do rcu_dereference_protected. document that this function
+> requires vq mutex.
+
+Any difference with: 
+
+   vs_tpg = rcu_dereference_check(vq->private_data, 1);
+   if (vs_tpg)
+	return ture
+   else
+        return false;
+
+Note, tcm_vhost_check_endpoint() is called in multiple places. Having a
+helper is more convenient.
+
 > >  static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
 > >  {
 > >  	return 1;
