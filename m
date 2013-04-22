@@ -1,12 +1,17 @@
-From: Myron Stowe <myron.stowe@gmail.com>
-Subject: 2013 Linux Plumbers ACPI/PM,
-	PCI Microconference proposal call for participaton
-Date: Thu, 18 Apr 2013 15:52:09 -0600
-Message-ID: <CAL-B5D3mP-Eo7yzZb=ZJ_+GK5YGzKZV2p0SD05s3fXDR2BGorA__33005.1403296695$1366654645$gmane$org@mail.gmail.com>
+From: "Anna, Suman" <s-anna@ti.com>
+Subject: RE: [PATCH 1/2] remoteproc: fix kconfig dependencies for VIRTIO
+Date: Mon, 22 Apr 2013 16:22:43 +0000
+Message-ID: <37C860A02101E749A747FA2D3C1E3C504A5E2C__48931.0390236371$1366654657$gmane$org@DLEE11.ent.ti.com>
+References: <1366133111-5412-1-git-send-email-s-anna@ti.com>
+	<CAK=WgbbfT=Ft3GnN1W5A4fg8BDrypgvfeiM3zoRMbW=JS8m+6w@mail.gmail.com>
+	<37C860A02101E749A747FA2D3C1E3C504A4F77@DLEE11.ent.ti.com>
+	<CAK=Wgbbqh3ugSj=Gc9bN6a1YgLy2M+EOgTOraC04uB3tT=3Rrg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAK=Wgbbqh3ugSj=Gc9bN6a1YgLy2M+EOgTOraC04uB3tT=3Rrg@mail.gmail.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,48 +21,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-pci <linux-pci@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Ohad Ben-Cohen <ohad@wizery.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-All:
+> On Thu, Apr 18, 2013 at 6:51 PM, Anna, Suman <s-anna@ti.com> wrote:
+> >>
+> >> On Tue, Apr 16, 2013 at 8:25 PM, Suman Anna <s-anna@ti.com> wrote:
+> >> > remoteproc configuration selects VIRTIO, but VIRTIO is now
+> >> > subordinate to VIRTUALIZATION. VIRTUALIZATION has to be selected as
+> >> > well to honor the kconfig menu hierarchy and fix the dependency warnings.
+> >>
+> >> Thanks Suman. Is this stable material as well or not relevant before 3.9?
+> >
+> > No, it is not applicable before 3.9.
+> 
+> Thanks. We're already at rc7 and it's not urgent, so I plan to push this when the
+> merge windows opens with cc stable
 
-We would like to hold a combined ACPI/PM, PCI focused microconference
-as part of this year's Linux Plumbers conference but first we need to
-show that there is enough interest and material that needs covered.
-
-There is a lot of activity in these subsystems so please respond by
-submitting presentation or discussion proposals that you would be
-willing to cover for consideration (respond to this mail on the
-linux-pci list for tracking purposes please).  You should also feel
-free to submit ideas as proposals that others could cover.  This is
-the "Plumbers" conference so topics concerning userspace interaction
-with the kernel and not just topics concerning pure kernel subsystem
-internals would be greatly welcomed.
-
-The initial call[1] only produced two responses.  We understand that
-everyone is busy but without proposals the program committee will not
-be able to select this topic for approval - so please step up.
-
-
-If approved by the program committee, we will give precedence to
-proposals that bring up current issues that need attention, help, or
-resolution.  We would like for the majority of the microconference to
-be "working session discussions" in which a current issues in/with the
-ACPI/PM and PCI subsystem space that needs solving are introduced and
-then opened up for live discussion by attendees - much like what took
-place last year during the Kernel Summit's PCI miniconf.
-
-As a possible aid towards promoting topics for submissions we have
-listed a few candidates that seem to meet the criteria in the
-microconference proposals wiki located at
-http://wiki.linuxplumbersconf.org/2013:pci_subsystem
-
-
-Please feel free to forward this invitation on to any others, or
-relevant lists, that seem appropriate.
-
-Thanks,
-  Len, Bjorn, Myron, Rafael
-
-
-[1] https://lkml.org/lkml/2013/3/7/315
+Thanks, I agree - it is not a critical fix. 
