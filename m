@@ -1,17 +1,13 @@
-From: "Anna, Suman" <s-anna@ti.com>
-Subject: RE: [PATCH 1/2] remoteproc: fix kconfig dependencies for VIRTIO
-Date: Mon, 22 Apr 2013 16:22:43 +0000
-Message-ID: <37C860A02101E749A747FA2D3C1E3C504A5E2C__48931.0390236371$1366654657$gmane$org@DLEE11.ent.ti.com>
-References: <1366133111-5412-1-git-send-email-s-anna@ti.com>
-	<CAK=WgbbfT=Ft3GnN1W5A4fg8BDrypgvfeiM3zoRMbW=JS8m+6w@mail.gmail.com>
-	<37C860A02101E749A747FA2D3C1E3C504A4F77@DLEE11.ent.ti.com>
-	<CAK=Wgbbqh3ugSj=Gc9bN6a1YgLy2M+EOgTOraC04uB3tT=3Rrg@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: suggesting wording fixes for virtio-spec 0.9.5
+Date: Tue, 23 Apr 2013 13:35:00 +0930
+Message-ID: <87r4i1gadv.fsf@rustcorp.com.au>
+References: <517579AC.2050400@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAK=Wgbbqh3ugSj=Gc9bN6a1YgLy2M+EOgTOraC04uB3tT=3Rrg@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <517579AC.2050400@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,22 +17,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization <virtualization@lists.linux-foundation.org>
+To: Laszlo Ersek <lersek@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> On Thu, Apr 18, 2013 at 6:51 PM, Anna, Suman <s-anna@ti.com> wrote:
-> >>
-> >> On Tue, Apr 16, 2013 at 8:25 PM, Suman Anna <s-anna@ti.com> wrote:
-> >> > remoteproc configuration selects VIRTIO, but VIRTIO is now
-> >> > subordinate to VIRTUALIZATION. VIRTUALIZATION has to be selected as
-> >> > well to honor the kconfig menu hierarchy and fix the dependency warnings.
-> >>
-> >> Thanks Suman. Is this stable material as well or not relevant before 3.9?
-> >
-> > No, it is not applicable before 3.9.
-> 
-> Thanks. We're already at rc7 and it's not urgent, so I plan to push this when the
-> merge windows opens with cc stable
-
-Thanks, I agree - it is not a critical fix. 
+TGFzemxvIEVyc2VrIDxsZXJzZWtAcmVkaGF0LmNvbT4gd3JpdGVzOgo+IEhpLAo+Cj4gKEknbSBu
+b3Qgc3Vic2NyaWJlZCB0byBlaXRoZXIgbGlzdCwpCj4KPiB1c2luZyB0aGUgd29yZCAiZGVzY3Jp
+cHRvciIgaXMgbWlzbGVhZGluZyBpbiB0aGUgZm9sbG93aW5nIHNlY3Rpb25zOgoKWWVzLCBJIGxp
+a2UgdGhlIHVzZSBvZiAnZGVzY3JpcHRvciBjaGFpbnMnLiAgVGhpcyBpcyBhIGRlZmluaXRlCmlt
+cHJvdmVtZW50LgoKSGVyZSdzIHRoZSBkaWZmIEkgZW5kZWQgdXAgd2l0aCAobWFzc2FnZWQgdG8g
+bWluaW1pemUgaXQpLgoKVGhhbmtzIQpSdXN0eS4KCi0tLSB2aXJ0aW8tc3BlYy50eHQtb2xkCTIw
+MTMtMDQtMjMgMTM6MjI6MjEuMzM5MTU4MjE0ICswOTMwCisrKyB2aXJ0aW8tc3BlYy50eHQJMjAx
+My0wNC0yMyAxMzozNDoxNC4wNTUxNzY0NjQgKzA5MzAKQEAgLTQ4MiwxMCArNDgyLDEwIEBACiAK
+IDIuMy40IEF2YWlsYWJsZSBSaW5nCiAKLVRoZSBhdmFpbGFibGUgcmluZyByZWZlcnMgdG8gd2hh
+dCBkZXNjcmlwdG9ycyB3ZSBhcmUgb2ZmZXJpbmcgdGhlIAotZGV2aWNlOiBpdCByZWZlcnMgdG8g
+dGhlIGhlYWQgb2YgYSBkZXNjcmlwdG9yIGNoYWluLiBUaGUg4oCcZmxhZ3PigJ0gCitUaGUgYXZh
+aWxhYmxlIHJpbmcgcmVmZXJzIHRvIHdoYXQgZGVzY3JpcHRvciBjaGFpbnMgd2UgYXJlIG9mZmVy
+aW5nIHRoZQorZGV2aWNlOiBlYWNoIGVudHJ5IHJlZmVycyB0byB0aGUgaGVhZCBvZiBhIGRlc2Ny
+aXB0b3IgY2hhaW4uIFRoZSDigJxmbGFnc+KAnQogZmllbGQgaXMgY3VycmVudGx5IDAgb3IgMTog
+MSBpbmRpY2F0aW5nIHRoYXQgd2UgZG8gbm90IG5lZWQgYW4gCi1pbnRlcnJ1cHQgd2hlbiB0aGUg
+ZGV2aWNlIGNvbnN1bWVzIGEgZGVzY3JpcHRvciBmcm9tIHRoZSAKK2ludGVycnVwdCB3aGVuIHRo
+ZSBkZXZpY2UgY29uc3VtZXMgYSBkZXNjcmlwdG9yIGNoYWluIGZyb20gdGhlCiBhdmFpbGFibGUg
+cmluZy4gQWx0ZXJuYXRpdmVseSwgdGhlIGd1ZXN0IGNhbiBhc2sgdGhlIGRldmljZSB0byAKIGRl
+bGF5IGludGVycnVwdHMgdW50aWwgYW4gZW50cnkgd2l0aCBhbiBpbmRleCBzcGVjaWZpZWQgYnkg
+dGhlIOKAnAogdXNlZF9ldmVudOKAnSBmaWVsZCBpcyB3cml0dGVuIGluIHRoZSB1c2VkIHJpbmcg
+KGVxdWl2YWxlbnRseSwgCkBAIC02NzEsMTYgKzY3MSwxNiBAQAogCiBhdmFpbC0+cmluZ1thdmFp
+bC0+aWR4ICUgcXN6XSA9IGhlYWQ7CiAKLUhvd2V2ZXIsIGluIGdlbmVyYWwgd2UgY2FuIGFkZCBt
+YW55IGRlc2NyaXB0b3JzIGJlZm9yZSB3ZSB1cGRhdGUgCi10aGUg4oCcaWR44oCdIGZpZWxkIChh
+dCB3aGljaCBwb2ludCB0aGV5IGJlY29tZSB2aXNpYmxlIHRvIHRoZSAKLWRldmljZSksIHNvIHdl
+IGtlZXAgYSBjb3VudGVyIG9mIGhvdyBtYW55IHdlJ3ZlIGFkZGVkOgorSG93ZXZlciwgaW4gZ2Vu
+ZXJhbCB3ZSBjYW4gYWRkIG1hbnkgc2VwYXJhdGUgZGVzY3JpcHRvciBjaGFpbnMgYmVmb3JlIHdl
+IHVwZGF0ZQordGhlIOKAnGlkeOKAnSBmaWVsZCAoYXQgd2hpY2ggcG9pbnQgdGhleSBiZWNvbWUg
+dmlzaWJsZSB0byB0aGUgZGV2aWNlKSwKK3NvIHdlIGtlZXAgYSBjb3VudGVyIG9mIGhvdyBtYW55
+IHdlJ3ZlIGFkZGVkOgogCiBhdmFpbC0+cmluZ1soYXZhaWwtPmlkeCArIGFkZGVkKyspICUgcXN6
+XSA9IGhlYWQ7CiAKIDIuNC4xLjMgVXBkYXRpbmcgVGhlIEluZGV4IEZpZWxkCiAKIE9uY2UgdGhl
+IGlkeCBmaWVsZCBvZiB0aGUgdmlydHF1ZXVlIGlzIHVwZGF0ZWQsIHRoZSBkZXZpY2Ugd2lsbCAK
+LWJlIGFibGUgdG8gYWNjZXNzIHRoZSBkZXNjcmlwdG9yIGVudHJpZXMgd2UndmUgY3JlYXRlZCBh
+bmQgdGhlIAorYmUgYWJsZSB0byBhY2Nlc3MgdGhlIGRlc2NyaXB0b3IgY2hhaW5zIHdlJ3ZlIGNy
+ZWF0ZWQgYW5kIHRoZSAKIG1lbW9yeSB0aGV5IHJlZmVyIHRvLiBUaGlzIGlzIHdoeSBhIG1lbW9y
+eSBiYXJyaWVyIGlzIGdlbmVyYWxseSAKIHVzZWQgYmVmb3JlIHRoZSBpZHggdXBkYXRlLCB0byBl
+bnN1cmUgaXQgc2VlcyB0aGUgbW9zdCB1cC10by1kYXRlIAogY29weS4KX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
