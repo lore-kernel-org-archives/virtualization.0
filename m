@@ -1,23 +1,16 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH v7 3/3] tcm_vhost: Add hotplug/hotunplug support
-Date: Tue, 23 Apr 2013 12:45:10 +0800
-Message-ID: <20130423044510.GA30397@hj.localdomain>
-References: <1366247154-3136-4-git-send-email-asias@redhat.com>
-	<20130418073429.GE13787@redhat.com>
-	<20130418085908.GD13554@hj.localdomain>
-	<20130418082154.GA16167@redhat.com>
-	<20130419023410.GA18829@hj.localdomain>
-	<20130420190131.GA853@redhat.com>
-	<20130422092024.GB21692@hj.localdomain>
-	<20130422131704.GA5777@redhat.com>
-	<20130422152226.GB23376@hj.localdomain>
-	<87li89g9qs.fsf@rustcorp.com.au>
+From: =?UTF-8?Q?Sjur_Br=C3=A6ndeland?= <sjur@brendeland.net>
+Subject: Re: [PATCHv2 virtio-next] remoteproc: Add support for host virtio
+	rings (vringh)
+Date: Tue, 23 Apr 2013 10:32:00 +0200
+Message-ID: <CANHm3Phh8fwJ981rbE94pHWPpu1cmGS+tKjUc2fgP7d1p6XPzQ@mail.gmail.com>
+References: <1365543588-5152-1-git-send-email-sjur.brandeland@stericsson.com>
+	<CAK=WgbZoqD5aoLt6nqGW3Y42=e_qK2kH0hf0FTLJr=WGW81Azg@mail.gmail.com>
+Reply-To: sjur@brendeland.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87li89g9qs.fsf@rustcorp.com.au>
+In-Reply-To: <CAK=WgbZoqD5aoLt6nqGW3Y42=e_qK2kH0hf0FTLJr=WGW81Azg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,101 +20,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Ohad Ben-Cohen <ohad@wizery.com>
+Cc: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>, Linus Walleij <linus.walleij@linaro.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 23, 2013 at 01:48:51PM +0930, Rusty Russell wrote:
-> Asias He <asias@redhat.com> writes:
-> > On Mon, Apr 22, 2013 at 04:17:04PM +0300, Michael S. Tsirkin wrote:
-> >> > > > > > > > +	evt = kzalloc(sizeof(*evt), GFP_KERNEL);
-> >> > > > > > > 
-> >> > > > > > > I think kzalloc not needed here, you init all fields.
-> >> > > > > > 
-> >> > > > > > Not really! evt->event.lun[4-7] is not initialized. It needs to be 0.
-> >> > > > > 
-> >> > > > > So that is 4 bytes just init them when you set rest of lun.
-> >> > > > 
-> >> > > > It is not in the fast path. You can do it this way but not a must.
-> >> > > 
-> >> > > I think that's a bit cleaner than relying on kzalloc to zero-initialize.
-> >> > 
-> >> > I think it is a bit shorter, 4 lines saved. 
-> >> 
-> >> OTOH you don't have to think "what about the rest of the bytes?" then
-> >> hunt through the code and go "ah, it's kzalloc".
-> >> Looks it's a style issue but I prefer explicit initialization.
-> >
-> > It is just make none sense to argue about this. If you really want you
-> > can make patches to remove all the lines where use kzalloc because it is
-> > cleaner.
-> 
-> I prefer explicit initialization too, FWIW.
-
-I do not really care. I am OK with either way.
-
-> >> > > > > > > > +static void tcm_vhost_do_evt_work(struct vhost_scsi *vs,
-> >> > > > > > > > +	struct tcm_vhost_evt *evt)
-> >> > > > > > > > +{
-> >> > > > > > > > +	struct vhost_virtqueue *vq = &vs->vqs[VHOST_SCSI_VQ_EVT];
-> >> > > > > > > > +	struct virtio_scsi_event *event = &evt->event;
-> >> > > > > > > > +	struct virtio_scsi_event __user *eventp;
-> >> > > > > > > > +	unsigned out, in;
-> >> > > > > > > > +	int head, ret;
-> >> > > > > > > > +
-> >> > > > > > > > +	if (!tcm_vhost_check_endpoint(vq))
-> >> > > > > > > > +		return;
-> >> > > > > > > > +
-> >> > > > > > > > +	mutex_lock(&vs->vs_events_lock);
-> >> > > > > > > > +	mutex_lock(&vq->mutex);
-> >> > > > > > > > +again:
-> >> > > > > > > > +	vhost_disable_notify(&vs->dev, vq);
-> >> > > > > > > > +	head = vhost_get_vq_desc(&vs->dev, vq, vq->iov,
-> >> > > > > > > > +			ARRAY_SIZE(vq->iov), &out, &in,
-> >> > > > > > > > +			NULL, NULL);
-> >> > > > > > > > +	if (head < 0) {
-> >> > > > > > > > +		vs->vs_events_dropped = true;
-> >> > > > > > > > +		goto out;
-> >> > > > > > > > +	}
-> >> > > > > > > > +	if (head == vq->num) {
-> >> > > > > > > > +		if (vhost_enable_notify(&vs->dev, vq))
-> >> > > > > > > > +			goto again;
-> >> > > > > > > 
-> >> > > > > > > Please write loops with while() or for().
-> >> > > > > > > Not with goto. goto is for error handling.
-> >> > > > > > 
-> >> > > > > > This makes extra indention which is more ugly.
-> >> > > > > 
-> >> > > > > I don't care. No loops with goto and that's a hard rule.
-> >> > > > 
-> >> > > > It is not a loop.
-> >> > > 
-> >> > > If same code repeats, it's a loop.
-> >> > 
-> >> > We really need here is to call vhost_get_vq_desc once. It's not a loop
-> >> > like other places to use while() or for() with vhost_get_vq_desc.
-> >> 
-> >> Exactly. Like a mutex for example? We only need to
-> >> lock it once. See __mutex_lock_common - uses a for loop,
-> >> doesn't it?
-> >
-> > So what?
-> >
-> >> So fix this please, use while or for or even until.
-> >
-> > I do not think it is necessary.
-> 
-> I tend to use again: in such corner cases, where I don't expect it to
-> be invoked very often.  A do loop looks too normal.
-> 
-> I do exactly the same thing in virtio-net.c, for the same case.
-> 
-> Would you like me to review the entire thing?
-
-Sure. Thanks Rusty!
-
-> Cheers,
-> Rusty.
-
--- 
-Asias
+SGkgT2hhZCwKCk9uIE1vbiwgQXByIDIyLCAyMDEzIGF0IDM6MDggUE0sIE9oYWQgQmVuLUNvaGVu
+IDxvaGFkQHdpemVyeS5jb20+IHdyb3RlOgo+IEhpIFNqdXIgYW5kIFJ1c3R5LAo+Cj4gT24gV2Vk
+LCBBcHIgMTAsIDIwMTMgYXQgMTI6MzkgQU0sIFNqdXIgQnLDpm5kZWxhbmQKPiA8c2p1ci5icmFu
+ZGVsYW5kQHN0ZXJpY3Nzb24uY29tPiB3cm90ZToKPj4gSW1wbGVtZW50IHRoZSB2cmluZ2ggY2Fs
+bGJhY2sgZnVuY3Rpb25zIGluIG9yZGVyCj4+IHRvIG1hbmFnZSBob3N0IHZpcml0byByaW5ncyBh
+bmQgaGFuZGxlIGtpY2tzLgo+PiBUaGlzIGFsbG93cyB2aXJ0aW8gZGV2aWNlIHRvIHJlcXVlc3Qg
+aG9zdC12aXJ0aW8tcmluZ3MuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQg
+PHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KPgo+IFRoYW5rcyBmb3IgcHVzaGluZyB0
+aGlzLgo+Cj4gSSBoYXZlIGEgZmV3IG9ic2VydmF0aW9ucyB3aGljaCBJJ2QgbGlrZSB0byBkaXNj
+dXNzIHdpdGggUnVzdHkgYW5kIHlvdS4KPgo+IFJ1c3R5IC0gd2lsbCB5b3UgYmUgd2lsbGluZyB0
+byBjb25zaWRlciBhIGZldyBwYXRjaGVzIHRvIHZpcnRpbyB3aGljaAo+IHdpbGwgY29uc2lkZXJh
+Ymx5IHNpbXBsaWZ5IGtlcm5lbCB1c2VycyBvZiB2cmluZ2ggKHN1Y2ggYXMgdGhpcyBvbmUpID8K
+Pgo+IFRoZSBtYWluIG1vdGl2YXRpb24gaXMgdG8gcmVkdWNlIGNvZGUgZHVwbGljYXRpb24gYW5k
+IGNvbXBsZXhpdHkuCj4gUmlnaHQgbm93IHRoZSBjb2RlIGhhbmRsaW5nIHZyaW5naCBpcyBhd2Z1
+bGx5IHNpbWlsYXIgdG8gdGhlIG9uZQo+IGhhbmRsaW5nIHJlZ3VsYXIgdnJpbmdzLCB3aXRoIGEg
+ZmV3IGFzeW1tZXRyaWVzOgo+IC0gV2UgbmVlZCB0byBjYWxsIGFuZCBtYWludGFpbiB0aGUgdnJo
+X2NhbGxiYWNrX3QgcG9pbnRlciBkaXJlY3RseSwKPiBpbnN0ZWFkIG9mIHJlbHlpbmcgb24gdnJp
+bmdfaW50ZXJydXB0KCkKPiAtIFdlIGhhdmUgc29tZSB2cmluZ2ggY3JlYXRpb24gYm9pbGVycGxh
+dGUgY29kZSBvZiBvdXIgb3duIHZlcnkKPiBzaW1pbGFyIHRvIHdoYXQgdnJpbmdfbmV3X3ZpcnRx
+dWV1ZSBpcyBkb2luZyBmb3IgcmVndWxhciB2cmluZ3MKPiAtIEl0IHNlZW1zIHRoYXQgYSBkcml2
+ZXIgd2hpY2ggaGFzIGJvdGggcmVndWxhciByaW5ncyBhbmQgaG9zdCByaW5ncwo+IChhcyBjYWlm
+IGRvZXMpIHdpbGwgaGF2ZSB0byAiZmluZF92cXMiIHRoZW0gdHdpY2UgLSBvbmNlIGZvciB0aGUK
+PiByZWd1bGFyIHJpbmdzIGFuZCBvbmUgZm9yIHRoZSBob3N0IHJpbmdzIC0gd2hlcmUgZWFjaCBv
+ZiB0aG9zZQo+IGludm9jYXRpb25zIHdpbGwgdXNlIGl0cyBvd24gc2V0IG9mIGluZGljZXMuIFRv
+IHNpbXBsaWZ5IGRyaXZlcnMgaXQKPiBtaWdodCBiZSBuaWNlIGlmIHdlIGhhZCBhIHNpbmdsZSBm
+aW5kX3JpbmdzIGZ1bmN0aW9uIHdoaWNoIHdvdWxkCj4gZW51bWVyYXRlIGJvdGggcmVndWxhciBh
+bmQgaG9zdCByaW5ncyB1c2luZyBhIHNpbmdsZSBpbmRpY2VzIGF4aXMuIEl0Cj4gbWF5IHByZXN1
+bWFibHkgdGFrZSB0d28gbnZxcyBwYXJhbXMsIG9uZSBmb3IgdGhlIHJlZ3VsYXIgcmluZ3MgYW5k
+IHRoZQo+IG90aGVyIGZvciB0aGUgaG9zdCByaW5ncywgYW5kIHdlIGNhbiBhcmJpdHJhcmlseSBk
+ZWNpZGUgaXQgYWx3YXlzCj4gY3JlYXRlcyB0aGUgcmVndWxhciByaW5ncyBmaXJzdC4KPgo+IFN0
+dWZmIHdoaWNoIHdpbGwgYmUgbmljZSB0byBjaGFuZ2UgYWxvbmcgdGhlc2UgbGluZXM6Cj4KPiAt
+IG1haW50YWluIHRoZSB2cmhfY2FsbGJhY2tfdCBwb2ludGVyIGluIHN0cnVjdCB2cmluZ2gsIHNp
+bWlsYXJseSB0bwo+IHdoYXQgc3RydWN0IHZpcnRxdWV1ZSBkb2VzIHRvZGF5IGZvciBjYWxsYmFj
+a3Mgb2YgcmVndWxhciByaW5ncwo+IC0gd2hlbiBraWNrZWQsIGp1c3QgY2FsbCB2cmluZ19pbnRl
+cnJ1cHQsIGFuZCBsZXQgaXQgZGVtdWx0aXBsZXggdGhlCj4gZXZlbnQgdG8gdGhlIGFwcHJvcHJp
+YXRlIHJpbmcgKHdoZXRoZXIgaXQgaXMgcmVndWxhciBvciBob3N0IHJpbmcpCj4gLSB0cnkgdG8g
+cHVzaCBjb2RlIGZyb20gcnByb2NfY3JlYXRlX25ld192cmluZ2ggaW50byB2aXJ0aW8sIGZvbGxv
+d2luZwo+IHRoZSBsaW5lcyBvZiB2cmluZ19uZXdfdmlydHF1ZXVlIGFuZCByZWd1bGFyIHJpbmdz
+Cj4gLSB0cnkgdG8gbWVyZ2UgdGhlIHJlZ3VsYXIgYW5kIGhvc3QgcmluZ3MgdmVyc2lvbnMgb2Yg
+dGhlCj4gZmluZF92cXMvZGVsX3ZxcyBib2lsZXJwbGF0ZSBjb2RlIHRvIGF2b2lkIGR1cGxpY2F0
+aW9uCj4KPiBJIGd1ZXNzIHRoaXMgYWxsIGRlcGVuZHMgb24gaG93IHN1Y2ggcGF0Y2hlcyB3aWxs
+IGxvb2sgbGlrZSBhbmQKPiB3aGV0aGVyIHdlIGNhbiByZWFjaCBhbiBlbGVnYW50IGltcGxlbWVu
+dGF0aW9uLiBJJ20gYWxzbyBhd2FyZSB0aGF0Cj4gaG9zdCByaW5ncyBhcmUgYmVpbmcgdXNlZCBi
+eSB1c2VyIHNwYWNlIHRvbywgYW5kIHdlIG11c3Qgbm90IGJyZWFrCj4gYW55dGhpbmcuCgpRdWl0
+ZSBmcmFua2x5IEkgd291bGQgKnJlYWxseSogbGlrZSB0byBzZWUgdnJpbmdoIHN1cHBvcnQgaW4g
+cmVtb3RlcHJvYwppbmNsdWRlZCBpbiAzLjEwLCBhbmQgSSBhbSBhZnJhaWQgeW91ciBzdWdnZXN0
+aW9uIHdpbGwgY2F1c2UgdXMgdG8gbWlzcwp0aGUgbWVyZ2Ugd2luZG93IG9uY2UgYWdhaW4uCgpI
+b3cgYWJvdXQgaW5jbHVkaW5nIG15IHNpbXBsZSwgYnV0IHZlcmJvc2UgcGF0Y2ggaW4gdmlydGlv
+LW5leHQgZm9yIDMuMTAuClRoZW4geW91IGNvdWxkIHBvc3QgcGF0Y2hlcyB0aGF0IHJlZmFjdG9y
+cyByZW1vdGVwcm9jIGFuZCB2cmluZ2gKbWFraW5nIHRoZSBjb2RlIG1vcmUgZWxlZ2FudCBhbmQg
+bGVzcyB2ZXJib3NlIG9uIHRvcCBvZiBteSBwYXRjaC4KCkRvaW5nIHRoaXMgaXRlcmF0aXZlbHkg
+d291bGQgYWxzbyBtYWtlIGl0IGVhc3kgdG8gdmVyaWZ5IHlvdXIgY2hhbmdlcywKYW5kIHNob3cg
+aG93IHlvdXIgcGF0Y2hlcyByZWR1Y2VzIG92ZXJhbGwgY29kZSBzaXplIGFuZCBwcm92aWRlcwph
+IG1vcmUgZWxlZ2FudCBzb2x1dGlvbi4KClRoYW5rcywKU2p1cgpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
+VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
+aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
