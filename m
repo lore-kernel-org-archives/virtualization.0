@@ -1,13 +1,22 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: suggesting wording fixes for virtio-spec 0.9.5
-Date: Tue, 23 Apr 2013 13:35:00 +0930
-Message-ID: <87r4i1gadv.fsf@rustcorp.com.au>
-References: <517579AC.2050400@redhat.com>
+Subject: Re: [PATCH v7 3/3] tcm_vhost: Add hotplug/hotunplug support
+Date: Tue, 23 Apr 2013 13:48:51 +0930
+Message-ID: <87li89g9qs.fsf@rustcorp.com.au>
+References: <20130417131726.GA26157@redhat.com>
+	<1366247154-3136-4-git-send-email-asias@redhat.com>
+	<20130418073429.GE13787@redhat.com>
+	<20130418085908.GD13554@hj.localdomain>
+	<20130418082154.GA16167@redhat.com>
+	<20130419023410.GA18829@hj.localdomain>
+	<20130420190131.GA853@redhat.com>
+	<20130422092024.GB21692@hj.localdomain>
+	<20130422131704.GA5777@redhat.com>
+	<20130422152226.GB23376@hj.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <517579AC.2050400@redhat.com>
+In-Reply-To: <20130422152226.GB23376@hj.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,46 +26,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Laszlo Ersek <lersek@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Asias He <asias@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-TGFzemxvIEVyc2VrIDxsZXJzZWtAcmVkaGF0LmNvbT4gd3JpdGVzOgo+IEhpLAo+Cj4gKEknbSBu
-b3Qgc3Vic2NyaWJlZCB0byBlaXRoZXIgbGlzdCwpCj4KPiB1c2luZyB0aGUgd29yZCAiZGVzY3Jp
-cHRvciIgaXMgbWlzbGVhZGluZyBpbiB0aGUgZm9sbG93aW5nIHNlY3Rpb25zOgoKWWVzLCBJIGxp
-a2UgdGhlIHVzZSBvZiAnZGVzY3JpcHRvciBjaGFpbnMnLiAgVGhpcyBpcyBhIGRlZmluaXRlCmlt
-cHJvdmVtZW50LgoKSGVyZSdzIHRoZSBkaWZmIEkgZW5kZWQgdXAgd2l0aCAobWFzc2FnZWQgdG8g
-bWluaW1pemUgaXQpLgoKVGhhbmtzIQpSdXN0eS4KCi0tLSB2aXJ0aW8tc3BlYy50eHQtb2xkCTIw
-MTMtMDQtMjMgMTM6MjI6MjEuMzM5MTU4MjE0ICswOTMwCisrKyB2aXJ0aW8tc3BlYy50eHQJMjAx
-My0wNC0yMyAxMzozNDoxNC4wNTUxNzY0NjQgKzA5MzAKQEAgLTQ4MiwxMCArNDgyLDEwIEBACiAK
-IDIuMy40IEF2YWlsYWJsZSBSaW5nCiAKLVRoZSBhdmFpbGFibGUgcmluZyByZWZlcnMgdG8gd2hh
-dCBkZXNjcmlwdG9ycyB3ZSBhcmUgb2ZmZXJpbmcgdGhlIAotZGV2aWNlOiBpdCByZWZlcnMgdG8g
-dGhlIGhlYWQgb2YgYSBkZXNjcmlwdG9yIGNoYWluLiBUaGUg4oCcZmxhZ3PigJ0gCitUaGUgYXZh
-aWxhYmxlIHJpbmcgcmVmZXJzIHRvIHdoYXQgZGVzY3JpcHRvciBjaGFpbnMgd2UgYXJlIG9mZmVy
-aW5nIHRoZQorZGV2aWNlOiBlYWNoIGVudHJ5IHJlZmVycyB0byB0aGUgaGVhZCBvZiBhIGRlc2Ny
-aXB0b3IgY2hhaW4uIFRoZSDigJxmbGFnc+KAnQogZmllbGQgaXMgY3VycmVudGx5IDAgb3IgMTog
-MSBpbmRpY2F0aW5nIHRoYXQgd2UgZG8gbm90IG5lZWQgYW4gCi1pbnRlcnJ1cHQgd2hlbiB0aGUg
-ZGV2aWNlIGNvbnN1bWVzIGEgZGVzY3JpcHRvciBmcm9tIHRoZSAKK2ludGVycnVwdCB3aGVuIHRo
-ZSBkZXZpY2UgY29uc3VtZXMgYSBkZXNjcmlwdG9yIGNoYWluIGZyb20gdGhlCiBhdmFpbGFibGUg
-cmluZy4gQWx0ZXJuYXRpdmVseSwgdGhlIGd1ZXN0IGNhbiBhc2sgdGhlIGRldmljZSB0byAKIGRl
-bGF5IGludGVycnVwdHMgdW50aWwgYW4gZW50cnkgd2l0aCBhbiBpbmRleCBzcGVjaWZpZWQgYnkg
-dGhlIOKAnAogdXNlZF9ldmVudOKAnSBmaWVsZCBpcyB3cml0dGVuIGluIHRoZSB1c2VkIHJpbmcg
-KGVxdWl2YWxlbnRseSwgCkBAIC02NzEsMTYgKzY3MSwxNiBAQAogCiBhdmFpbC0+cmluZ1thdmFp
-bC0+aWR4ICUgcXN6XSA9IGhlYWQ7CiAKLUhvd2V2ZXIsIGluIGdlbmVyYWwgd2UgY2FuIGFkZCBt
-YW55IGRlc2NyaXB0b3JzIGJlZm9yZSB3ZSB1cGRhdGUgCi10aGUg4oCcaWR44oCdIGZpZWxkIChh
-dCB3aGljaCBwb2ludCB0aGV5IGJlY29tZSB2aXNpYmxlIHRvIHRoZSAKLWRldmljZSksIHNvIHdl
-IGtlZXAgYSBjb3VudGVyIG9mIGhvdyBtYW55IHdlJ3ZlIGFkZGVkOgorSG93ZXZlciwgaW4gZ2Vu
-ZXJhbCB3ZSBjYW4gYWRkIG1hbnkgc2VwYXJhdGUgZGVzY3JpcHRvciBjaGFpbnMgYmVmb3JlIHdl
-IHVwZGF0ZQordGhlIOKAnGlkeOKAnSBmaWVsZCAoYXQgd2hpY2ggcG9pbnQgdGhleSBiZWNvbWUg
-dmlzaWJsZSB0byB0aGUgZGV2aWNlKSwKK3NvIHdlIGtlZXAgYSBjb3VudGVyIG9mIGhvdyBtYW55
-IHdlJ3ZlIGFkZGVkOgogCiBhdmFpbC0+cmluZ1soYXZhaWwtPmlkeCArIGFkZGVkKyspICUgcXN6
-XSA9IGhlYWQ7CiAKIDIuNC4xLjMgVXBkYXRpbmcgVGhlIEluZGV4IEZpZWxkCiAKIE9uY2UgdGhl
-IGlkeCBmaWVsZCBvZiB0aGUgdmlydHF1ZXVlIGlzIHVwZGF0ZWQsIHRoZSBkZXZpY2Ugd2lsbCAK
-LWJlIGFibGUgdG8gYWNjZXNzIHRoZSBkZXNjcmlwdG9yIGVudHJpZXMgd2UndmUgY3JlYXRlZCBh
-bmQgdGhlIAorYmUgYWJsZSB0byBhY2Nlc3MgdGhlIGRlc2NyaXB0b3IgY2hhaW5zIHdlJ3ZlIGNy
-ZWF0ZWQgYW5kIHRoZSAKIG1lbW9yeSB0aGV5IHJlZmVyIHRvLiBUaGlzIGlzIHdoeSBhIG1lbW9y
-eSBiYXJyaWVyIGlzIGdlbmVyYWxseSAKIHVzZWQgYmVmb3JlIHRoZSBpZHggdXBkYXRlLCB0byBl
-bnN1cmUgaXQgc2VlcyB0aGUgbW9zdCB1cC10by1kYXRlIAogY29weS4KX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Asias He <asias@redhat.com> writes:
+> On Mon, Apr 22, 2013 at 04:17:04PM +0300, Michael S. Tsirkin wrote:
+>> > > > > > > > +	evt = kzalloc(sizeof(*evt), GFP_KERNEL);
+>> > > > > > > 
+>> > > > > > > I think kzalloc not needed here, you init all fields.
+>> > > > > > 
+>> > > > > > Not really! evt->event.lun[4-7] is not initialized. It needs to be 0.
+>> > > > > 
+>> > > > > So that is 4 bytes just init them when you set rest of lun.
+>> > > > 
+>> > > > It is not in the fast path. You can do it this way but not a must.
+>> > > 
+>> > > I think that's a bit cleaner than relying on kzalloc to zero-initialize.
+>> > 
+>> > I think it is a bit shorter, 4 lines saved. 
+>> 
+>> OTOH you don't have to think "what about the rest of the bytes?" then
+>> hunt through the code and go "ah, it's kzalloc".
+>> Looks it's a style issue but I prefer explicit initialization.
+>
+> It is just make none sense to argue about this. If you really want you
+> can make patches to remove all the lines where use kzalloc because it is
+> cleaner.
+
+I prefer explicit initialization too, FWIW.
+
+>> > > > > > > > +static void tcm_vhost_do_evt_work(struct vhost_scsi *vs,
+>> > > > > > > > +	struct tcm_vhost_evt *evt)
+>> > > > > > > > +{
+>> > > > > > > > +	struct vhost_virtqueue *vq = &vs->vqs[VHOST_SCSI_VQ_EVT];
+>> > > > > > > > +	struct virtio_scsi_event *event = &evt->event;
+>> > > > > > > > +	struct virtio_scsi_event __user *eventp;
+>> > > > > > > > +	unsigned out, in;
+>> > > > > > > > +	int head, ret;
+>> > > > > > > > +
+>> > > > > > > > +	if (!tcm_vhost_check_endpoint(vq))
+>> > > > > > > > +		return;
+>> > > > > > > > +
+>> > > > > > > > +	mutex_lock(&vs->vs_events_lock);
+>> > > > > > > > +	mutex_lock(&vq->mutex);
+>> > > > > > > > +again:
+>> > > > > > > > +	vhost_disable_notify(&vs->dev, vq);
+>> > > > > > > > +	head = vhost_get_vq_desc(&vs->dev, vq, vq->iov,
+>> > > > > > > > +			ARRAY_SIZE(vq->iov), &out, &in,
+>> > > > > > > > +			NULL, NULL);
+>> > > > > > > > +	if (head < 0) {
+>> > > > > > > > +		vs->vs_events_dropped = true;
+>> > > > > > > > +		goto out;
+>> > > > > > > > +	}
+>> > > > > > > > +	if (head == vq->num) {
+>> > > > > > > > +		if (vhost_enable_notify(&vs->dev, vq))
+>> > > > > > > > +			goto again;
+>> > > > > > > 
+>> > > > > > > Please write loops with while() or for().
+>> > > > > > > Not with goto. goto is for error handling.
+>> > > > > > 
+>> > > > > > This makes extra indention which is more ugly.
+>> > > > > 
+>> > > > > I don't care. No loops with goto and that's a hard rule.
+>> > > > 
+>> > > > It is not a loop.
+>> > > 
+>> > > If same code repeats, it's a loop.
+>> > 
+>> > We really need here is to call vhost_get_vq_desc once. It's not a loop
+>> > like other places to use while() or for() with vhost_get_vq_desc.
+>> 
+>> Exactly. Like a mutex for example? We only need to
+>> lock it once. See __mutex_lock_common - uses a for loop,
+>> doesn't it?
+>
+> So what?
+>
+>> So fix this please, use while or for or even until.
+>
+> I do not think it is necessary.
+
+I tend to use again: in such corner cases, where I don't expect it to
+be invoked very often.  A do loop looks too normal.
+
+I do exactly the same thing in virtio-net.c, for the same case.
+
+Would you like me to review the entire thing?
+
+Cheers,
+Rusty.
