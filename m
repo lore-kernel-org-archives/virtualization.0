@@ -1,17 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v8 2/3] tcm_vhost: Add hotplug/hotunplug support
-Date: Wed, 24 Apr 2013 13:51:19 +0300
-Message-ID: <20130424105119.GA12865@redhat.com>
-References: <1366774344-11127-1-git-send-email-asias@redhat.com>
-	<1366774344-11127-3-git-send-email-asias@redhat.com>
-	<20130424091833.GB11245@redhat.com>
-	<20130424100625.GA19845@hj.localdomain>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH v9 0/3] tcm_vhost hotplug
+Date: Thu, 25 Apr 2013 11:10:03 +0800
+Message-ID: <1366859406-8963-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130424100625.GA19845@hj.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,29 +15,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Nicholas Bellinger <nab@linux-iscsi.org>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 24, 2013 at 06:06:25PM +0800, Asias He wrote:
-> > > +{
-> > > +
-> > > +	struct vhost_scsi *vs = tpg->vhost_scsi;
-> > > +	struct vhost_virtqueue *vq;
-> > > +	u32 reason;
-> > > +	int ret;
-> > > +
-> > > +	mutex_lock(&tpg->tv_tpg_mutex);
-> > > +	vs = tpg->vhost_scsi;
-> > > +	mutex_unlock(&tpg->tv_tpg_mutex);
-> > > +	if (!vs)
-> > > +		return -ENODEV;
-> > > +
-> > 
-> > What if clear_endpoint and close happen at this
-> > point? Can vhost_scsi go away so tcm_vhost_check_feature
-> > references freed memory?
-> 
-> There is no easy way to handle this.
+Asias He (3):
+  tcm_vhost: Refactor the lock nesting rule
+  tcm_vhost: Add hotplug/hotunplug support
+  tcm_vhost: Add ioctl to get and set events missed flag
 
-Take a reference somewhere so this can't happen?
+ drivers/vhost/tcm_vhost.c | 263 +++++++++++++++++++++++++++++++++++++++++++---
+ drivers/vhost/tcm_vhost.h |  13 +++
+ 2 files changed, 260 insertions(+), 16 deletions(-)
+
+-- 
+1.8.1.4
