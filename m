@@ -1,13 +1,15 @@
-From: Asias He <asias@redhat.com>
-Subject: [PATCH v9 3/3] tcm_vhost: Add ioctl to get and set events missed flag
-Date: Thu, 25 Apr 2013 11:10:06 +0800
-Message-ID: <1366859406-8963-4-git-send-email-asias__20622.0762142495$1366859460$gmane$org@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v9 1/3] tcm_vhost: Refactor the lock nesting rule
+Date: Thu, 25 Apr 2013 08:44:58 +0300
+Message-ID: <20130425054458.GA6710@redhat.com>
 References: <1366859406-8963-1-git-send-email-asias@redhat.com>
+	<1366859406-8963-2-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1366859406-8963-1-git-send-email-asias@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1366859406-8963-2-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,63 +19,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Nicholas Bellinger <nab@linux-iscsi.org>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Asias He <asias@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Signed-off-by: Asias He <asias@redhat.com>
----
- drivers/vhost/tcm_vhost.c | 17 +++++++++++++++++
- drivers/vhost/tcm_vhost.h |  3 +++
- 2 files changed, 20 insertions(+)
+On Thu, Apr 25, 2013 at 11:10:04AM +0800, Asias He wrote:
+> We want to use tcm_vhost_mutex to make sure hotplug/hotunplug will not
+> happen when set_endpoint/clear_endpoint is in process.
+> 
+> Signed-off-by: Asias He <asias@redhat.com>
 
-diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-index 137ae34..9c01d2a 100644
---- a/drivers/vhost/tcm_vhost.c
-+++ b/drivers/vhost/tcm_vhost.c
-@@ -1202,8 +1202,11 @@ static long vhost_scsi_ioctl(struct file *f, unsigned int ioctl,
- 	struct vhost_scsi_target backend;
- 	void __user *argp = (void __user *)arg;
- 	u64 __user *featurep = argp;
-+	u32 __user *eventsp = argp;
-+	u32 events_missed;
- 	u64 features;
- 	int r, abi_version = VHOST_SCSI_ABI_VERSION;
-+	struct vhost_virtqueue *vq = &vs->vqs[VHOST_SCSI_VQ_EVT];
- 
- 	switch (ioctl) {
- 	case VHOST_SCSI_SET_ENDPOINT:
-@@ -1224,6 +1227,20 @@ static long vhost_scsi_ioctl(struct file *f, unsigned int ioctl,
- 		if (copy_to_user(argp, &abi_version, sizeof abi_version))
- 			return -EFAULT;
- 		return 0;
-+	case VHOST_SCSI_SET_EVENTS_MISSED:
-+		if (get_user(events_missed, eventsp))
-+			return -EFAULT;
-+		mutex_lock(&vq->mutex);
-+		vs->vs_events_missed = events_missed;
-+		mutex_unlock(&vq->mutex);
-+		return 0;
-+	case VHOST_SCSI_GET_EVENTS_MISSED:
-+		mutex_lock(&vq->mutex);
-+		events_missed = vs->vs_events_missed;
-+		mutex_unlock(&vq->mutex);
-+		if (put_user(events_missed, eventsp))
-+			return -EFAULT;
-+		return 0;
- 	case VHOST_GET_FEATURES:
- 		features = VHOST_SCSI_FEATURES;
- 		if (copy_to_user(featurep, &features, sizeof features))
-diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
-index a545a5b..514b9fd 100644
---- a/drivers/vhost/tcm_vhost.h
-+++ b/drivers/vhost/tcm_vhost.h
-@@ -123,3 +123,6 @@ struct vhost_scsi_target {
- #define VHOST_SCSI_CLEAR_ENDPOINT _IOW(VHOST_VIRTIO, 0x41, struct vhost_scsi_target)
- /* Changing this breaks userspace. */
- #define VHOST_SCSI_GET_ABI_VERSION _IOW(VHOST_VIRTIO, 0x42, int)
-+/* Set and get the events missed flag */
-+#define VHOST_SCSI_SET_EVENTS_MISSED _IOW(VHOST_VIRTIO, 0x43, __u32)
-+#define VHOST_SCSI_GET_EVENTS_MISSED _IOW(VHOST_VIRTIO, 0x44, __u32)
--- 
-1.8.1.4
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+> ---
+>  drivers/vhost/tcm_vhost.c | 32 +++++++++++++++++++-------------
+>  1 file changed, 19 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
+> index 957a0b9..822cd1f 100644
+> --- a/drivers/vhost/tcm_vhost.c
+> +++ b/drivers/vhost/tcm_vhost.c
+> @@ -808,6 +808,9 @@ static void vhost_scsi_flush(struct vhost_scsi *vs)
+>  /*
+>   * Called from vhost_scsi_ioctl() context to walk the list of available
+>   * tcm_vhost_tpg with an active struct tcm_vhost_nexus
+> + *
+> + *  The lock nesting rule is:
+> + *    tcm_vhost_mutex -> vs->dev.mutex -> tpg->tv_tpg_mutex -> vq->mutex
+>   */
+>  static int vhost_scsi_set_endpoint(
+>  	struct vhost_scsi *vs,
+> @@ -820,26 +823,27 @@ static int vhost_scsi_set_endpoint(
+>  	int index, ret, i, len;
+>  	bool match = false;
+>  
+> +	mutex_lock(&tcm_vhost_mutex);
+>  	mutex_lock(&vs->dev.mutex);
+> +
+>  	/* Verify that ring has been setup correctly. */
+>  	for (index = 0; index < vs->dev.nvqs; ++index) {
+>  		/* Verify that ring has been setup correctly. */
+>  		if (!vhost_vq_access_ok(&vs->vqs[index])) {
+> -			mutex_unlock(&vs->dev.mutex);
+> -			return -EFAULT;
+> +			ret = -EFAULT;
+> +			goto out;
+>  		}
+>  	}
+>  
+>  	len = sizeof(vs_tpg[0]) * VHOST_SCSI_MAX_TARGET;
+>  	vs_tpg = kzalloc(len, GFP_KERNEL);
+>  	if (!vs_tpg) {
+> -		mutex_unlock(&vs->dev.mutex);
+> -		return -ENOMEM;
+> +		ret = -ENOMEM;
+> +		goto out;
+>  	}
+>  	if (vs->vs_tpg)
+>  		memcpy(vs_tpg, vs->vs_tpg, len);
+>  
+> -	mutex_lock(&tcm_vhost_mutex);
+>  	list_for_each_entry(tv_tpg, &tcm_vhost_list, tv_tpg_list) {
+>  		mutex_lock(&tv_tpg->tv_tpg_mutex);
+>  		if (!tv_tpg->tpg_nexus) {
+> @@ -854,11 +858,10 @@ static int vhost_scsi_set_endpoint(
+>  
+>  		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
+>  			if (vs->vs_tpg && vs->vs_tpg[tv_tpg->tport_tpgt]) {
+> -				mutex_unlock(&tv_tpg->tv_tpg_mutex);
+> -				mutex_unlock(&tcm_vhost_mutex);
+> -				mutex_unlock(&vs->dev.mutex);
+>  				kfree(vs_tpg);
+> -				return -EEXIST;
+> +				mutex_unlock(&tv_tpg->tv_tpg_mutex);
+> +				ret = -EEXIST;
+> +				goto out;
+>  			}
+>  			tv_tpg->tv_tpg_vhost_count++;
+>  			vs_tpg[tv_tpg->tport_tpgt] = tv_tpg;
+> @@ -867,7 +870,6 @@ static int vhost_scsi_set_endpoint(
+>  		}
+>  		mutex_unlock(&tv_tpg->tv_tpg_mutex);
+>  	}
+> -	mutex_unlock(&tcm_vhost_mutex);
+>  
+>  	if (match) {
+>  		memcpy(vs->vs_vhost_wwpn, t->vhost_wwpn,
+> @@ -893,7 +895,9 @@ static int vhost_scsi_set_endpoint(
+>  	kfree(vs->vs_tpg);
+>  	vs->vs_tpg = vs_tpg;
+>  
+> +out:
+>  	mutex_unlock(&vs->dev.mutex);
+> +	mutex_unlock(&tcm_vhost_mutex);
+>  	return ret;
+>  }
+>  
+> @@ -908,6 +912,7 @@ static int vhost_scsi_clear_endpoint(
+>  	int index, ret, i;
+>  	u8 target;
+>  
+> +	mutex_lock(&tcm_vhost_mutex);
+>  	mutex_lock(&vs->dev.mutex);
+>  	/* Verify that ring has been setup correctly. */
+>  	for (index = 0; index < vs->dev.nvqs; ++index) {
+> @@ -918,8 +923,8 @@ static int vhost_scsi_clear_endpoint(
+>  	}
+>  
+>  	if (!vs->vs_tpg) {
+> -		mutex_unlock(&vs->dev.mutex);
+> -		return 0;
+> +		ret = 0;
+> +		goto err_dev;
+>  	}
+>  
+>  	for (i = 0; i < VHOST_SCSI_MAX_TARGET; i++) {
+> @@ -965,13 +970,14 @@ static int vhost_scsi_clear_endpoint(
+>  	kfree(vs->vs_tpg);
+>  	vs->vs_tpg = NULL;
+>  	mutex_unlock(&vs->dev.mutex);
+> -
+> +	mutex_unlock(&tcm_vhost_mutex);
+>  	return 0;
+>  
+>  err_tpg:
+>  	mutex_unlock(&tv_tpg->tv_tpg_mutex);
+>  err_dev:
+>  	mutex_unlock(&vs->dev.mutex);
+> +	mutex_unlock(&tcm_vhost_mutex);
+>  	return ret;
+>  }
+>  
+> -- 
+> 1.8.1.4
