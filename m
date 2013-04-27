@@ -1,14 +1,13 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: BUG: virtio_mmio multi-queue competely  broken -- virtio
-	*registers* considered harmful
-Date: Thu, 02 May 2013 12:37:20 +0100
-Message-ID: <1367494640.25984.54.camel__31984.3467128978$1367494663$gmane$org@hornet>
-References: <5181E046.7000309@lyon-about.com>
+From: "tiejun.chen" <tiejun.chen@windriver.com>
+Subject: Re: KVM Forum 2013 Save the Date
+Date: Sat, 27 Apr 2013 14:27:34 +0800
+Message-ID: <517B6FD6.4030301__18516.5922892795$1367510630$gmane$org@windriver.com>
+References: <517B6F48.6000201@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5181E046.7000309@lyon-about.com>
+In-Reply-To: <517B6F48.6000201@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,35 +17,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tom Lyon <pugs@lyon-about.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>
+To: Will Huck <will.huckk@gmail.com>
+Cc: KVM <kvm@vger.kernel.org>, libvir-list@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, KVM-Forum-2013-PC@redhat.com, Linux Memory Management List <linux-mm@kvack.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgVG9tLAoKT24gVGh1LCAyMDEzLTA1LTAyIGF0IDA0OjQwICswMTAwLCBUb20gTHlvbiB3cm90
-ZToKPiBWaXJ0aWlvX21taW8gYXR0ZW1wdHMgdG8gbWltaWMgdGhlIGxheW91dCBvZiBzb21lIGNv
-bnRyb2wgcmVnaXN0ZXJzIGZyb20gCj4gdmlydGlvX3BjaS4gIFRoZXNlIHJlZ2lzdGVycywgaW4g
-cGFydGljdWxhciBWSVJUSU9fTU1JT19RVUVVRV9TRUwgYW5kIAo+IFZJUlRJT19QQ0lfUVVFVUVf
-U0VMLAo+IGFyZSBhY3RpdmUgaW4gbmF0dXJlLCBhbmQgbm90IGp1c3QgcGFzc2l2ZSBsaWtlIGEg
-bm9ybWFsIG1lbW9yeSAKPiBsb2NhdGlvbi4gIFRodXMsIHRoZSBob3N0IHNpZGUgbXVzdCByZWFj
-dCBpbW1lZGlhdGVseSB1cG9uIHdyaXRlIG9mIAo+IHRoZXNlIHJlZ2lzdGVycyB0byBtYXAgc29t
-ZSBvdGhlciByZWdpc3RlcnMgKHF1ZXVlIGFkZHJlc3MsIHNpemUsIGV0YykgCj4gdG8gcXVldWUt
-c3BlY2lmaWMgbG9jYXRpb25zLiAgVGhpcyBpcyBqdXN0IG5vdCBwb3NzaWJsZSBmb3IgbW1pbywg
-YW5kLCBJIAo+IHdvdWxkIGFyZ3VlLCBub3QgZGVzaXJhYmxlIGZvciBQQ0kgZWl0aGVyLgoKQ291
-bGQgeW91LCBwbGVhc2UsIGVsYWJvcmF0ZSBtb3JlIGFib3V0IHRoZSBlbnZpcm9ubWVudCB5b3Ug
-YXJlIHRhbGtpbmcKYWJvdXQgaGVyZT8KClRoZSBpbnRlbnRpb24gb2YgdGhlIE1NSU8gZGV2aWNl
-IGlzIHRvIGJlaGF2ZSBsaWtlIGEgbm9ybWFsIG1lbW9yeQptYXBwZWQgcGVyaXBoZXJhbCwgc2F5
-IHNlcmlhbCBwb3J0LiBJbiB0aGUgd29ybGQgb2YgYXJjaGl0ZWN0dXJlIHdpdGhvdXQKc2VwYXJh
-dGUgSS9PIGFkZHJlc3Mgc3BhY2UgKGxpa2UgQVJNLCBNSVBTLCBTSC00IHRvIG5hbWUgb25seSB0
-aG9zZSBJCmtub3cgYW55dGhpbmcgYWJvdXQpLCBzdWNoIHBlcmlwaGVyYWxzIGFyZSB1c3VhbGx5
-IG1hcHBlZCBpbnRvIHRoZQp2aXJ0dWFsIGFkZHJlc3Mgc3BhY2Ugd2l0aCBzcGVjaWFsIGF0dHJp
-YnV0ZXMsIGVnLiBndWFyYW50ZWVpbmcKdHJhbnNhY3Rpb25zIG9yZGVyLiBUaGF0J3Mgd2h5IHRo
-ZSBob3N0IGNhbiAicmVhY3QgaW1tZWRpYXRlbHkiIGFuZCB0bwpteSBrbm93bGVkZ2UgbXVsdGkt
-cXVldWUgdmlydGlvIGRldmljZXMgd29yayBqdXN0IGZpbmUuCgpJJ2QgbG92ZSBzZWUgY29tbWVu
-dHMgZnJvbSBzb21lb25lIHdpdGggeDg2IGV4cGVydGlzZSBpbiBzdWNoIGFyZWFzLgpNYXliZSB3
-ZSBhcmUgbWlzc2luZyBzb21lIG1lbW9yeSBiYXJyaWVycyBoZXJlPyBTbyB0aGUgaG9zdAppbXBs
-ZW1lbnRhdGlvbiB3b3VsZCBoYXZlIGEgY2hhbmNlIHRvIHJlYWN0IHRvIHRoZSBRVUVVRV9TRUwg
-YWNjZXNzCmJlZm9yZSBzZXJ2aWNpbmcgb3RoZXIgdHJhbnNhY3Rpb25zPwoKUmVnYXJkcwoKUGF3
-ZcWCCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+On 04/27/2013 02:25 PM, Will Huck wrote:
+> Hi,
+>
+> Where can get slides in 2012 KVM Forum?
+
+http://www.linux-kvm.org/page/KVM_Forum_2012
+
+Tiejun
