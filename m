@@ -1,12 +1,11 @@
-From: KVM-Forum-2013-PC@redhat.com
-Subject: KVM Forum 2013 Save the Date
-Date: Fri, 26 Apr 2013 09:56:49 -0700
-Message-ID: <20130426165649.GA28819__45957.6500034474$1366995566$gmane$org@x200.localdomain>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH v6 0/2] tcm_vhost flush
+Date: Sat, 27 Apr 2013 11:16:47 +0800
+Message-ID: <1367032609-30511-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,27 +15,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, libvir-list@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Nicholas Bellinger <nab@linux-iscsi.org>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-KVM is an industry leading open source hypervisor that provides an ideal
-platform for datacenter virtualization, virtual desktop infrastructure,
-and cloud computing.  Once again, it's time to bring together the
-community of developers and users that define the KVM ecosystem for
-our annual technical conference.  We will discuss the current state of
-affairs and plan for the future of KVM, its surrounding infrastructure,
-and management tools.  The oVirt Workshop will run in parallel with the
-KVM Forum again, bringing in a community focused on enterprise datacenter
-virtualization management built on KVM.  So mark your calendar and join
-us in advancing KVM.
+Changes in v6:
+- Allow device specific fields per vq
+- Track cmd per vq
+- Do not track evt
+- Switch to static array for inflight allocation, completely get rid of the
+  pain to handle inflight allocation failure.
 
-Once again we are colocated with The Linux Foundation's LinuxCon Europe,
-this year in Edinburgh.
+Asias He (2):
+  vhost: Allow device specific fields per vq
+  tcm_vhost: Wait for pending requests in vhost_scsi_flush()
 
-Date: October 21-23, 2013
-Location: Edinburgh International Conference Centre - Edinburgh, UK
+ drivers/vhost/net.c       |  60 +++++++++++--------
+ drivers/vhost/tcm_vhost.c | 145 ++++++++++++++++++++++++++++++++++++++++------
+ drivers/vhost/tcm_vhost.h |   3 +
+ drivers/vhost/vhost.c     |  88 ++++++++++++++--------------
+ drivers/vhost/vhost.h     |   4 +-
+ 5 files changed, 212 insertions(+), 88 deletions(-)
 
-Details regarding registration and proposal submission are forthcoming.
-
-thanks,
--KVM Forum 2013 Program Commitee
+-- 
+1.8.1.4
