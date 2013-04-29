@@ -1,13 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH virtio-next] caif_virtio: Remove bouncing email addresses
-Date: Mon, 29 Apr 2013 10:16:49 +0930
-Message-ID: <8761z6duyu.fsf@rustcorp.com.au>
-References: <1366711554-3420-1-git-send-email-sjur.brandeland@stericsson.com>
+Subject: Re: [PATCHv2 virtio-next] remoteproc: Add support for host virtio
+	rings (vringh)
+Date: Mon, 29 Apr 2013 10:03:04 +0930
+Message-ID: <87ehdudvlr.fsf@rustcorp.com.au>
+References: <1365543588-5152-1-git-send-email-sjur.brandeland@stericsson.com>
+	<CAK=WgbZoqD5aoLt6nqGW3Y42=e_qK2kH0hf0FTLJr=WGW81Azg@mail.gmail.com>
+	<87txmxgb96.fsf@rustcorp.com.au>
+	<CAK=WgbYYjJz-g+hCWkohgJGnvvtnq0b8RAG-YV3wug4NZ-DWPw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1366711554-3420-1-git-send-email-sjur.brandeland@stericsson.com>
+In-Reply-To: <CAK=WgbYYjJz-g+hCWkohgJGnvvtnq0b8RAG-YV3wug4NZ-DWPw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,42 +21,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: Dmitry Tarnyagin <dmitry.tarnyagin@lockless.no>, Vikram Arv <vikram.arv@stericsson.com>, Dmitry Tarnyagin <dmitry.tarnyagin@stericsson.com>, sjur@brendeland.net, Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization@lists.linux-foundation.org, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: Ohad Ben-Cohen <ohad@wizery.com>, Suman Anna <s-anna@ti.com>, Loic Pallardy <loic.pallardy@stericsson.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Sjur =?utf-8?Q?Br=C3=A6ndela?= =?utf-8?Q?nd?= <sjur@brendeland.net>, Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-U2p1ciBCcsOmbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0ZXJpY3Nzb24uY29tPiB3cml0ZXM6
-Cj4gUmVtb3ZlIG91ciAoc29vbiB0byBiZSkgYm91bmNpbmcgZW1haWwgYWRkcmVzc2VzLAo+IGFu
-ZCB1cGRhdGUgRG1pdHJpJ3MgYWRkcmVzcy4KPiBEbWl0cnkgd2lsbCB0YWtlIG92ZXIgYXMgbWFp
-bnRhaW5lciBmb3IgQ0FJRiBmcm9tIG5vdyBvbi4KPgo+IENjOiBWaWtyYW0gQXJ2IDx2aWtyYW0u
-YXJ2QHN0ZXJpY3Nzb24uY29tPgo+IENjOiBEbWl0cnkgVGFybnlhZ2luIDxkbWl0cnkudGFybnlh
-Z2luQHN0ZXJpY3Nzb24uY29tPgo+IENjOiBEbWl0cnkgVGFybnlhZ2luIDxkbWl0cnkudGFybnlh
-Z2luQGxvY2tsZXNzLm5vPgo+IFNpZ25lZC1vZmYtYnk6IFNqdXIgQnLDpm5kZWxhbmQgPHNqdXIu
-YnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbT4KCkRtaXRyeSwgYWNrIHBsZWFzZT8KCihOb3QgdGhh
-dCBJIHRoaW5rIFNqdXIgaXMgdHJ5aW5nIHRvIG1ha2UgeW91IGFuIHVud2lsbGluZyBtYWludGFp
-bmVyLApidXQgeW91IG5ldmVyIGtub3chIDopCgpUaGFua3MsClJ1c3R5LgoKPiAtLS0KPj5Gcm9t
-IGVuZCBvZiBBcHJpbCBJIHdpbGwgbm8gbG9uZ2VyIHdvcmsgZm9yIFNULUVyaWNzc29uLiAKPiBC
-dXQgSSBtaWdodCBzdGljayBhcm91bmQgYXMgYSBob2JieWlzdCBmb3IgYSBzaG9ydCB3aGlsZS4u
-Lgo+Cj4gVGhhbmtzLAo+IFNqdXIKPgo+ICBkcml2ZXJzL25ldC9jYWlmL2NhaWZfdmlydGlvLmMg
-fCAgIDEwICsrKysrLS0tLS0KPiAgMSBmaWxlcyBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKyksIDUg
-ZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvY2FpZi9jYWlmX3ZpcnRp
-by5jIGIvZHJpdmVycy9uZXQvY2FpZi9jYWlmX3ZpcnRpby5jCj4gaW5kZXggMGUzYmVkZS4uYjll
-ZDEyOCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL25ldC9jYWlmL2NhaWZfdmlydGlvLmMKPiArKysg
-Yi9kcml2ZXJzL25ldC9jYWlmL2NhaWZfdmlydGlvLmMKPiBAQCAtMSw4ICsxLDggQEAKPiAgLyoK
-PiAgICogQ29weXJpZ2h0IChDKSBTVC1Fcmljc3NvbiBBQiAyMDEzCj4gLSAqIEF1dGhvcnM6IFZp
-Y3JhbSBBcnYgLyB2aWtyYW0uYXJ2QHN0ZXJpY3Nzb24uY29tLAo+IC0gKgkgICAgRG1pdHJ5IFRh
-cm55YWdpbiAvIGRtaXRyeS50YXJueWFnaW5Ac3Rlcmljc3Nvbi5jb20KPiAtICoJICAgIFNqdXIg
-QnJlbmRlbGFuZCAvIHNqdXIuYnJhbmRlbGFuZEBzdGVyaWNzc29uLmNvbQo+ICsgKiBBdXRob3Jz
-OiBWaWNyYW0gQXJ2Cj4gKyAqCSAgICBEbWl0cnkgVGFybnlhZ2luIDxkbWl0cnkudGFybnlhZ2lu
-QGxvY2tsZXNzLm5vPgo+ICsgKgkgICAgU2p1ciBCcmVuZGVsYW5kCj4gICAqIExpY2Vuc2UgdGVy
-bXM6IEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIChHUEwpIHZlcnNpb24gMgo+ICAgKi8KPiAg
-I2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgo+IEBAIC0yMyw4ICsyMyw4IEBACj4gICNpbmNsdWRl
-IDxsaW51eC92aXJ0aW9fY29uZmlnLmg+Cj4gIAo+ICBNT0RVTEVfTElDRU5TRSgiR1BMIHYyIik7
-Cj4gLU1PRFVMRV9BVVRIT1IoIlZpY3JhbSBBcnYgPHZpa3JhbS5hcnZAc3Rlcmljc3Nvbi5jb20+
-Iik7Cj4gLU1PRFVMRV9BVVRIT1IoIlNqdXIgQnJlbmRlbGFuZCA8c2p1ci5icmFuZGVsYW5kQHN0
-ZXJpY3Nzb24uY29tPiIpOwo+ICtNT0RVTEVfQVVUSE9SKCJWaWNyYW0gQXJ2Iik7Cj4gK01PRFVM
-RV9BVVRIT1IoIlNqdXIgQnJlbmRlbGFuZCIpOwo+ICBNT0RVTEVfREVTQ1JJUFRJT04oIlZpcnRp
-byBDQUlGIERyaXZlciIpOwo+ICAKPiAgLyogTkFQSSBzY2hlZHVsZSBxdW90YSAqLwo+IC0tIAo+
-IDEuNy41LjQKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Ohad Ben-Cohen <ohad@wizery.com> writes:
+> On Tue, Apr 23, 2013 at 6:46 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+>> Oh, we can break everything :)
+>>
+>> I was concentrating purely on the mechanics of the virtqueue, mainly
+>> because vhost has special needs wrt tracking changes.  vhost doesn't use
+>> vringh yet because my patches are slightly suboptimal (I stick with the
+>> vhost API, just replace the guts with vringh).  Michael has a
+>> simplification of vhost-net pending, which will make altering this much
+>> easier.
+>>
+>> But CAIF isn't the right thing to optimize for, either.  It's weird to
+>> have both host and guest rings at the same time, and I don't see other
+>> users doing that (ie. vhost_net and tcm_vhost).  But if we can make it
+>> easier for you without overly uglifying vringh, that'd be great.
+>
+> Thanks.
+>
+> Today with one application processor talking to one or several remote
+> cores we live well with guest rings, but future SoCs seems to be
+> having an increasing number of on-chip cores which all talk to each
+> other. Managing this matrix of communications with guest rings is
+> somewhat cumbersome - it requires deciding, for every two cores, who
+> is "the guest" and who is "the host". As the number of edges in this
+> graph increases, this would be increasingly harder to develop, set up
+> and debug.
+>
+> In such environments it makes sense to have, for each pair of on-chip
+> cores, 1 guest and 1 host ring. This way each core will maintain its
+> own TX buffers and send a buffer across whenever it has a pending
+> outbound message. This also works well with systems where each core
+> has its own memory which only it can write to, and from which others
+> could only read.
+>
+> So I expect additional users for this paradigm CAIF has adopted -
+> probably rpmsg at the very least - which makes it even more appealing
+> to clean up nicely. Last year I discussed this at least with Loic
+> (STE) and Suman (TI) and both companies were actively developing this
+> for their future SoCs - I'm cc'ing both in case there are any updates.
+
+Perhaps we should add a new struct virtio_pair (?), with associated ops,
+which works on top of the existing stuff.  That may be too many levels
+of abstraction, but it feels right.
+
+I don't mind Sjur's current simple code; there's nothing magical about
+upstream APIs, and I'm happy to merge it now and add an abstraction
+later.  It's a pretty common practice, but it's your call.
+
+Cheers,
+Rusty.
