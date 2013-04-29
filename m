@@ -1,17 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCHv2 virtio-next] remoteproc: Add support for host virtio
-	rings (vringh)
-Date: Mon, 29 Apr 2013 10:03:04 +0930
-Message-ID: <87ehdudvlr.fsf@rustcorp.com.au>
-References: <1365543588-5152-1-git-send-email-sjur.brandeland@stericsson.com>
-	<CAK=WgbZoqD5aoLt6nqGW3Y42=e_qK2kH0hf0FTLJr=WGW81Azg@mail.gmail.com>
-	<87txmxgb96.fsf@rustcorp.com.au>
-	<CAK=WgbYYjJz-g+hCWkohgJGnvvtnq0b8RAG-YV3wug4NZ-DWPw@mail.gmail.com>
+From: Don Dutile <ddutile@redhat.com>
+Subject: Re: virtio PCI on KVM without IO BARs
+Date: Mon, 29 Apr 2013 10:48:28 -0400
+Message-ID: <517E883C.9010908@redhat.com>
+References: <20130228152433.GA13832@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAK=WgbYYjJz-g+hCWkohgJGnvvtnq0b8RAG-YV3wug4NZ-DWPw@mail.gmail.com>
+In-Reply-To: <20130228152433.GA13832@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,57 +17,116 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ohad Ben-Cohen <ohad@wizery.com>, Suman Anna <s-anna@ti.com>, Loic Pallardy <loic.pallardy@stericsson.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Sjur =?utf-8?Q?Br=C3=A6ndela?= =?utf-8?Q?nd?= <sjur@brendeland.net>, Linus Walleij <linus.walleij@linaro.org>, Erwan Yvin <erwan.yvin@stericsson.com>, virtualization <virtualization@lists.linux-foundation.org>, Sjur =?utf-8?Q?Br=C3=A6ndeland?= <sjur.brandeland@stericsson.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ohad Ben-Cohen <ohad@wizery.com> writes:
-> On Tue, Apr 23, 2013 at 6:46 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
->> Oh, we can break everything :)
->>
->> I was concentrating purely on the mechanics of the virtqueue, mainly
->> because vhost has special needs wrt tracking changes.  vhost doesn't use
->> vringh yet because my patches are slightly suboptimal (I stick with the
->> vhost API, just replace the guts with vringh).  Michael has a
->> simplification of vhost-net pending, which will make altering this much
->> easier.
->>
->> But CAIF isn't the right thing to optimize for, either.  It's weird to
->> have both host and guest rings at the same time, and I don't see other
->> users doing that (ie. vhost_net and tcm_vhost).  But if we can make it
->> easier for you without overly uglifying vringh, that'd be great.
+On 02/28/2013 10:24 AM, Michael S. Tsirkin wrote:
+> OK we talked about this a while ago, here's
+> a summary and some proposals:
+> At the moment, virtio PCI uses IO BARs for all accesses.
 >
-> Thanks.
+> The reason for IO use is the cost of different VM exit types
+> of transactions and their emulation on KVM on x86
+> (it would be trivial to use memory BARs on non x86 platforms
+>   if they don't have PIO).
+> Example benchmark (cycles per transaction):
+> 	(io access) outw 1737
+> 	(memory access) movw 4341
+> for comparison:
+> 	(hypercall access): vmcall 1566
+> 	(pv memory access) movw_fast 1817 (*explanation what this is below)
 >
-> Today with one application processor talking to one or several remote
-> cores we live well with guest rings, but future SoCs seems to be
-> having an increasing number of on-chip cores which all talk to each
-> other. Managing this matrix of communications with guest rings is
-> somewhat cumbersome - it requires deciding, for every two cores, who
-> is "the guest" and who is "the host". As the number of edges in this
-> graph increases, this would be increasingly harder to develop, set up
-> and debug.
+> This creates a problem if we want to make virtio devices
+> proper PCI express devices with native hotplug support.
+> This is because each hotpluggable PCI express device always has
+> a PCI express port (port per device),
+> where each port is represented by a PCI to PCI bridge.
+> In turn, a PCI to PCI bridge claims a 4Kbyte aligned
+> range of IO addresses. This means that we can have at
+> most 15 such devices, this is a nasty limitation.
 >
-> In such environments it makes sense to have, for each pair of on-chip
-> cores, 1 guest and 1 host ring. This way each core will maintain its
-> own TX buffers and send a buffer across whenever it has a pending
-> outbound message. This also works well with systems where each core
-> has its own memory which only it can write to, and from which others
-> could only read.
+> Another problem with PIO is support for physical virtio devices,
+> and nested virt: KVM currently programs all PIO accesses
+> to cause vm exit, so using this device in a VM will be slow.
 >
-> So I expect additional users for this paradigm CAIF has adopted -
-> probably rpmsg at the very least - which makes it even more appealing
-> to clean up nicely. Last year I discussed this at least with Loic
-> (STE) and Suman (TI) and both companies were actively developing this
-> for their future SoCs - I'm cc'ing both in case there are any updates.
+> So we really want to stop using IO BARs completely if at all possible,
+> but looking at the table above, switching to memory BAR and movw for
+> notifications will not work well.
+>
+> Possible solutions:
+> 1. hypercall instead of PIO
+> 	basically add a hypercall that gets an MMIO address/data
+> 	and does an MMIO write for us.
+> 	We'll want some capability in the device to let guest know
+> 		this is what it should do.
+> 	Pros: even faster than PIO
+> 	Cons: this won't help nested or assigned devices (won't hurt
+> 	      them either as it will be conditional on the capability above).
+> 	Cons: need host kernel support, which then has to be maintained
+> 	      forever, even if intel speeds up MMIO exits.
+>
+> 2. pv memory access
+> 	There are two reasons that memory access is slower:
+> 		- one is that it's handled as an EPT misconfiguration error
+> 		so handled by cpu slow path
+> 		- one is that we need to decode the x86 instruction in
+> 		software, to calculate address/data for the access.
+>
+> 	We could agree that guests would use a specific instruction
+> 	for virtio accesses, and fast-path it specifically.
+> 	This is the pv memory access option above.
+> 	Pros: helps assigned devices and nested virt
+> 	Pros: easy to drop if hardware support is there
+> 	Cons: a bit slower than IO
+> 	Cons: need host kernel support
+>
+> 3. hypervisor assigned IO address
+> 	qemu can reserve IO addresses and assign to virtio devices.
+> 	2 bytes per device (for notification and ISR access) will be
+> 	enough. So we can reserve 4K and this gets us 2000 devices.
+>          From KVM perspective, nothing changes.
+> 	We'll want some capability in the device to let guest know
+> 	this is what it should do, and pass the io address.
+> 	One way to reserve the addresses is by using the bridge.
+> 	Pros: no need for host kernel support
+> 	Pros: regular PIO so fast
+> 	Cons: does not help assigned devices, breaks nested virt
+>
+> Simply counting pros/cons, option 3 seems best. It's also the
+> easiest to implement.
+>
+> Comments?
+>
+apologies for late response...
 
-Perhaps we should add a new struct virtio_pair (?), with associated ops,
-which works on top of the existing stuff.  That may be too many levels
-of abstraction, but it feels right.
+It seems that solution 1 would be the best option for the following reasons:
 
-I don't mind Sjur's current simple code; there's nothing magical about
-upstream APIs, and I'm happy to merge it now and add an abstraction
-later.  It's a pretty common practice, but it's your call.
+a) (nearly?) every virt technology out there (xen, kvm, vmware, hyperv)
+    has pv drivers in the major OS's using virt (Windows, Linux),
+    so having a hypercall table searched, initialized and used for
+    fast virtio register access is trivially simple to do.
 
-Cheers,
-Rusty.
+b) the support can be added with whatever pvdriver set is provided
+    w/o impacting OS core support.
+
+c) it's architecture neutral, or can be made architecture neutral.
+    e.g., inb/outb & PCI ioport support is very different btwn x86 & non-x86.
+    A hypercall interface would not have that dependency/difference.
+  
+d) it doesn't require new OS support in std/core areas for
+    new standard(s), as another thread proposed; this kind of approach
+    has a long, time delay to get defined & implemented across OS's.
+    In contrast, a hypercall defined interface can be indep. of standards
+    bodies, and if built into a pvdriver core, can change &/or adapt rapidly,
+    and have additional i/f mechanisms for version-levels, which enables
+    cross-hypervisor(version) migration.
+
+e) the hypercall can be extended to do pv-specific hot add/remove,
+    eliminating dependencies on emulation support of ACPI-hp or PCIe-hp,
+    and simply(?) track core interfaces for hot-plug of (class) devices.
+
+f) For migration, hypercall interfaces could be extended for better/faster
+    migration as well (suspend/resume pv device).
+
+my (late) 5 cents (I'll admit it was more than 2 cents)... Don
