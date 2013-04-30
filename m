@@ -1,15 +1,10 @@
-From: Tom Lyon <pugs@lyon-about.com>
-Subject: Re: BUG: virtio_mmio multi-queue competely broken -- virtio
-	*registers* considered harmful
-Date: Thu, 02 May 2013 08:17:41 -0700
-Message-ID: <51828395.8040701__14488.4101384834$1367510665$gmane$org@lyon-about.com>
-References: <5181E046.7000309@lyon-about.com>
-	<1367494640.25984.54.camel@hornet>
+From: nitesh narayan lal <niteshnarayanlalleo@gmail.com>
+Subject: virtio Performance Analysis
+Date: Tue, 30 Apr 2013 17:06:19 +0530
+Message-ID: <CAAtA1-YwOgw6My-JgNU8UVun9tiCSDZjhr-GeviTE3oQYapeUQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============3319022061329921834=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1367494640.25984.54.camel@hornet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,55 +14,69 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pawel Moll <pawel.moll@arm.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDUvMDIvMjAxMyAwNDozNyBBTSwgUGF3ZWwgTW9sbCB3cm90ZToKPiBIaSBUb20sCj4KPiBP
-biBUaHUsIDIwMTMtMDUtMDIgYXQgMDQ6NDAgKzAxMDAsIFRvbSBMeW9uIHdyb3RlOgo+PiBWaXJ0
-aWlvX21taW8gYXR0ZW1wdHMgdG8gbWltaWMgdGhlIGxheW91dCBvZiBzb21lIGNvbnRyb2wgcmVn
-aXN0ZXJzIGZyb20KPj4gdmlydGlvX3BjaS4gIFRoZXNlIHJlZ2lzdGVycywgaW4gcGFydGljdWxh
-ciBWSVJUSU9fTU1JT19RVUVVRV9TRUwgYW5kCj4+IFZJUlRJT19QQ0lfUVVFVUVfU0VMLAo+PiBh
-cmUgYWN0aXZlIGluIG5hdHVyZSwgYW5kIG5vdCBqdXN0IHBhc3NpdmUgbGlrZSBhIG5vcm1hbCBt
-ZW1vcnkKPj4gbG9jYXRpb24uICBUaHVzLCB0aGUgaG9zdCBzaWRlIG11c3QgcmVhY3QgaW1tZWRp
-YXRlbHkgdXBvbiB3cml0ZSBvZgo+PiB0aGVzZSByZWdpc3RlcnMgdG8gbWFwIHNvbWUgb3RoZXIg
-cmVnaXN0ZXJzIChxdWV1ZSBhZGRyZXNzLCBzaXplLCBldGMpCj4+IHRvIHF1ZXVlLXNwZWNpZmlj
-IGxvY2F0aW9ucy4gIFRoaXMgaXMganVzdCBub3QgcG9zc2libGUgZm9yIG1taW8sIGFuZCwgSQo+
-PiB3b3VsZCBhcmd1ZSwgbm90IGRlc2lyYWJsZSBmb3IgUENJIGVpdGhlci4KPiBDb3VsZCB5b3Us
-IHBsZWFzZSwgZWxhYm9yYXRlIG1vcmUgYWJvdXQgdGhlIGVudmlyb25tZW50IHlvdSBhcmUgdGFs
-a2luZwo+IGFib3V0IGhlcmU/Cj4KPiBUaGUgaW50ZW50aW9uIG9mIHRoZSBNTUlPIGRldmljZSBp
-cyB0byBiZWhhdmUgbGlrZSBhIG5vcm1hbCBtZW1vcnkKPiBtYXBwZWQgcGVyaXBoZXJhbCwgc2F5
-IHNlcmlhbCBwb3J0LiBJbiB0aGUgd29ybGQgb2YgYXJjaGl0ZWN0dXJlIHdpdGhvdXQKPiBzZXBh
-cmF0ZSBJL08gYWRkcmVzcyBzcGFjZSAobGlrZSBBUk0sIE1JUFMsIFNILTQgdG8gbmFtZSBvbmx5
-IHRob3NlIEkKPiBrbm93IGFueXRoaW5nIGFib3V0KSwgc3VjaCBwZXJpcGhlcmFscyBhcmUgdXN1
-YWxseSBtYXBwZWQgaW50byB0aGUKPiB2aXJ0dWFsIGFkZHJlc3Mgc3BhY2Ugd2l0aCBzcGVjaWFs
-IGF0dHJpYnV0ZXMsIGVnLiBndWFyYW50ZWVpbmcKPiB0cmFuc2FjdGlvbnMgb3JkZXIuIFRoYXQn
-cyB3aHkgdGhlIGhvc3QgY2FuICJyZWFjdCBpbW1lZGlhdGVseSIgYW5kIHRvCj4gbXkga25vd2xl
-ZGdlIG11bHRpLXF1ZXVlIHZpcnRpbyBkZXZpY2VzIHdvcmsganVzdCBmaW5lLgo+Cj4gSSdkIGxv
-dmUgc2VlIGNvbW1lbnRzIGZyb20gc29tZW9uZSB3aXRoIHg4NiBleHBlcnRpc2UgaW4gc3VjaCBh
-cmVhcy4KPiBNYXliZSB3ZSBhcmUgbWlzc2luZyBzb21lIG1lbW9yeSBiYXJyaWVycyBoZXJlPyBT
-byB0aGUgaG9zdAo+IGltcGxlbWVudGF0aW9uIHdvdWxkIGhhdmUgYSBjaGFuY2UgdG8gcmVhY3Qg
-dG8gdGhlIFFVRVVFX1NFTCBhY2Nlc3MKPiBiZWZvcmUgc2VydmljaW5nIG90aGVyIHRyYW5zYWN0
-aW9ucz8KPgo+IFJlZ2FyZHMKPgo+IFBhd2XFggo+Cj4KQWgsIG15IG1pc3Rha2UuIEkgd2FzIGFz
-c3VtaW5nIHRoYXQgbW1pbyBqdXN0IHVzZWQgc2hhcmVkIG1lbW9yeSAKcmVnaW9ucywgbm90IHRo
-YXQgdGhlcmUgd2FzIGVtdWxhdGVkIElPIHJlZ2lzdGVycy4gIEkgd2FzIGRyaXZlbiB0byB0aGF0
-CmFzc3VtcHRpb24gYnkgbG9va2luZyBhdCB0aGUgcnBtc2cgdXNlIGNhc2UgaW4gd2hpY2ggYSBt
-YWluIHByb2Nlc3NvciAKdGFsa3MgdG8gc2F0ZWxsaXRlIHByb2Nlc3NvcnMgLSB0aGVyZSBzZWVt
-cyB0byBiZSBubwpoeXBlcnZpc29yIGFuZCB0aGVyZWZvcmUgbm8gZW11bGF0ZWQgSU8gaW4gdGhh
-dCBjYXNlLiAgSG93ZXZlciwgbG9va2luZyAKZGVlcGVyLCBpdCBzZWVtcyB0aGF0IHJwbXNnIGhh
-cyBpdHMgb3duIG5vdGlmeSBtZWNoYW5pc20gYW55d2F5cywgc28gaXQKaXMgbm90IHNvIGNsZWFu
-bHkgbGF5ZXJlZCBvbiB2aXJ0aW8uICBBbHNvLCBmb3IgbXkgbmVlZHMsIEkgd2FudCBycG1zZyAK
-YW5kIHZpcnRpb19uZXQuCgpJbiBteSBkZXNpcmUgdG8gdXNlIGEgUENJZSBjYXJkIHRvIGVtdWxh
-dGUgdmlydGlvIEkgYW0gYWxzbyB0YWxraW5nIAphYm91dCBhIG5vbi1oeXBlcnZpc29yIHVzZSBj
-YXNlIC0ganVzdCAgbGV2ZXJhZ2luZyB0aGUgdmlydGlvIGZyYW1ld29yayAKZm9yIGludGVyLXBy
-b2Nlc3Nvcgpjb21tdW5pY2F0aW9uLiAgVmlydGlvIGlzIHNvIGNsb3NlIHRvIGJlaW5nIHRoZSBh
-bnN3ZXIgaXQgd291ZCBiZSBhIApzaGFtZSBpZiBpdCB3YXNuJ3QuIFNvIEkgd291bGQgcHJvcG9z
-ZSB0aGF0IHZpcnRpbyBiZSByZXN0cnVjdHVyZWQgc3VjaCAKdGhhdCB0aGUgY29uZmlndXJhdGlv
-bgpsYXlvdXQgaXMgaWRlbnRpY2FsIGFtb25nIHZpcnRpbyB0cmFuc3BvcnRzIGFuZCBhY3RzIGxp
-a2UgbWVtb3J5LCB0aGUgCmNvbmZpZ3VyYXRpb24gbG9jYXRpb24gaXMgdHJhbnNwb3J0LXNwZWNp
-ZmljLCBhbmQgdGhlIG5vdGlmaWNhdGlvbiAKbWVjaGFuaXNtIGlzIHRyYW5zcG9ydCBzcGVjaWZp
-YyAtIGJ1dCBJCmNvdWxkIGxpdmUgd3JpdGluZyB0byBzb21lIHF1ZXVlIHNwZWNpZmljIG1lbW9y
-eS9pbyBsb2NhdGlvbiAoZm9yIGJvdGggCnBjaSBhbmQgbW1pbykuCgoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+--===============3319022061329921834==
+Content-Type: multipart/alternative; boundary=001a11c33e64fd0f4304db9268f8
+
+--001a11c33e64fd0f4304db9268f8
+Content-Type: text/plain; charset=ISO-8859-1
+
+Hi,
+I am currently working on the virtio performance analysis in PowerPC .
+I was looking at the virtio front-end code and had done tracing by adding
+WARN_ON condition in skb_recv_done(),xmit_skb_done() and virtqueue_kick().
+What I had seen is virtqueue_kick() internally it calls iowrite16() which
+will cause an exit to QEMU, now either I send a packets from Guest or
+receive a packets to guest sart_xmit() will be called and inside start_xmit
+there is a call to virtqueue_kick() causing Guest exit. Also for every
+packet or ack sent from Guest there is an exception received while sending
+or receiving the next packet/ack.
+Due to all of the above factors mentioned their will be an increase in
+signal, EXTINT and guest exits  and hence it will effect the CPU
+performance.
+This is what my analysis is so far, it would be great if I could get some
+help on this such that whether it seems appropriate or not ?
+
+Regards
+Nitesh Narayan Lal
+
+--001a11c33e64fd0f4304db9268f8
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>Hi,<br>I am currently working on the virtio performan=
+ce analysis in PowerPC .<br>I was looking at the virtio front-end code and =
+had done tracing by adding WARN_ON condition in skb_recv_done(),xmit_skb_do=
+ne() and virtqueue_kick().<br>
+
+What I had seen is virtqueue_kick() internally it calls iowrite16() which w=
+ill cause an exit to QEMU, now either I send a packets from Guest or receiv=
+e a packets to guest sart_xmit() will be called and inside start_xmit there=
+ is a call to virtqueue_kick() causing Guest exit. Also for every packet or=
+ ack sent from Guest there is an exception received while sending or receiv=
+ing the next packet/ack.<br>
+
+Due to all of the above factors mentioned their will be an increase in sign=
+al, EXTINT and guest exits=A0 and hence it will effect the CPU performance.=
+<br>This is what my analysis is so far, it would be great if I could get so=
+me help on this such that whether it seems appropriate or not ?<br>
+
+<br clear=3D"all"><div><div><div dir=3D"ltr"><div>Regards<br></div>Nitesh N=
+arayan Lal<br></div></div>
+</div></div></div>
+
+--001a11c33e64fd0f4304db9268f8--
+
+--===============3319022061329921834==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3319022061329921834==--
