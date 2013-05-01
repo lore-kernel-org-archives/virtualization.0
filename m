@@ -1,38 +1,51 @@
-From: nitesh narayan lal <niteshnarayanlalleo@gmail.com>
-Subject: virtio performance analysis
-Date: Wed, 1 May 2013 12:19:33 +0530
-Message-ID: <CAAtA1-bf94VcDNw6HkkbX3a3bqFg8oi=S73JEicbUVuONRMGug@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes for 3.10
+Date: Wed, 1 May 2013 18:01:31 +0300
+Message-ID: <20130501150130.GA21230@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: kvm-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, agrover@redhat.com, asias@redhat.com, brian@purestorage.com, hch@lst.de, joern@logfs.org, mark.d.rustad@intel.com, martin.petersen@oracle.com, mst@redhat.com, nab@linux-iscsi.org, ogerlitz@mellanox.com, yongjun_wei@trendmicro.com.cn
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
-I am currently working on the virtio performance analysis in PowerPC .
-I was looking at the virtio front-end code and had done tracing by
-adding WARN_ON condition in skb_recv_done(),xmit_skb_done(
-) and virtqueue_kick().
-What I had seen is virtqueue_kick() internally it calls iowrite16()
-which will cause an exit to QEMU, now either I send a packets from
-Guest or receive a packets to guest sart_xmit() will be called and
-inside start_xmit there is a call to virtqueue_kick() causing Guest
-exit. Also for every packet or ack sent from Guest there is an
-exception received while sending or receiving the next packet/ack.
-Due to all of the above factors mentioned their will be an increase in
-signal, EXTINT and guest exits  and hence it will effect the CPU
-performance.
-This is what my analysis is so far, it would be great if I could get
-some help on this such that whether it seems appropriate or not ?
-Regards
-Nitesh Narayan Lal
+Please pull the following vhost core updates for 3.10 -
+they affect both vhost-net and vhost-scsi devices.
+They also *depend* on both net-next and target-pending.  Since Linus
+merged target-pending but not net-next at this point, merging through
+the net tree seems to make sense.
+
+The following changes since commit bc7562355fda8075793bf66094cda573206ec693:
+
+  Merge branch 'for-next-merge' of git://git.kernel.org/pub/scm/linux/kernel/git/nab/target-pending into vhost-net-next (2013-05-01 09:16:50 +0300)
+
+are available in the git repository at:
+
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
+
+for you to fetch changes up to 150b9e51ae975ca1fe468c565870fbc4a96e0574:
+
+  vhost: fix error handling in RESET_OWNER ioctl (2013-05-01 10:02:54 +0300)
+
+----------------------------------------------------------------
+Asias He (3):
+      vhost: Allow device specific fields per vq
+      tcm_vhost: Wait for pending requests in vhost_scsi_flush()
+      vhost: move vhost-net zerocopy fields to net.c
+
+Michael S. Tsirkin (4):
+      tcm_vhost: document inflight ref-counting use
+      vhost: move per-vq net specific fields out to net
+      tcm_vhost: remove virtio-net.h dependency
+      vhost: fix error handling in RESET_OWNER ioctl
+
+ drivers/vhost/net.c       | 255 ++++++++++++++++++++++++++++++++++++----------
+ drivers/vhost/tcm_vhost.c | 154 ++++++++++++++++++++++++----
+ drivers/vhost/tcm_vhost.h |   3 +
+ drivers/vhost/test.c      |   9 +-
+ drivers/vhost/vhost.c     | 153 +++++++++-------------------
+ drivers/vhost/vhost.h     |  32 +-----
+ 6 files changed, 400 insertions(+), 206 deletions(-)
