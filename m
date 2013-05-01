@@ -1,63 +1,68 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH] tcm_vhost: Add vhost_scsi as an alias for tcm_vhost
-Date: Wed, 01 May 2013 09:07:56 -0700
-Message-ID: <1367424476.10977.4.camel__22892.7713739269$1367424342$gmane$org@haakon3.risingtidesystems.com>
-References: <1367034129-31214-1-git-send-email-asias@redhat.com>
-	<20130501064222.GA15084@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PULL] vhost: cleanups and fixes for 3.10
+Date: Wed, 1 May 2013 20:00:06 +0300
+Message-ID: <20130501170006.GA22236@redhat.com>
+References: <20130501150130.GA21230@redhat.com>
+ <1367424335.10977.2.camel@haakon3.risingtidesystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130501064222.GA15084@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1367424335.10977.2.camel@haakon3.risingtidesystems.com>
+Sender: netdev-owner@vger.kernel.org
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: David Miller <davem@davemloft.net>, kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, asias@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2013-05-01 at 09:42 +0300, Michael S. Tsirkin wrote:
-> On Sat, Apr 27, 2013 at 11:42:09AM +0800, Asias He wrote:
-> > Signed-off-by: Asias He <asias@redhat.com>
-> 
-> 
-> Nicholas, thoughts?
-> How about we move tcm_vhost.c to scsi.c
-> call module vhost_scsi and add tcm_vhost as an alias?
-> If not - want this alias in?
-> 
-
-No objection on my side..
-
-Shall I rebase a branch on top of your vhost-net-next + perform the
-rename, or do you want to send this via net-next..?
-
---nab
-
-> > ---
-> >  drivers/vhost/tcm_vhost.c | 1 +
-> >  1 file changed, 1 insertion(+)
+On Wed, May 01, 2013 at 09:05:35AM -0700, Nicholas A. Bellinger wrote:
+> On Wed, 2013-05-01 at 18:01 +0300, Michael S. Tsirkin wrote:
+> > Please pull the following vhost core updates for 3.10 -
+> > they affect both vhost-net and vhost-scsi devices.
+> > They also *depend* on both net-next and target-pending.  Since Linus
+> > merged target-pending but not net-next at this point, merging through
+> > the net tree seems to make sense.
 > > 
-> > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> > index 1677238..bddc39a 100644
-> > --- a/drivers/vhost/tcm_vhost.c
-> > +++ b/drivers/vhost/tcm_vhost.c
-> > @@ -1928,5 +1928,6 @@ static void tcm_vhost_exit(void)
-> >  
-> >  MODULE_DESCRIPTION("TCM_VHOST series fabric driver");
-> >  MODULE_LICENSE("GPL");
-> > +MODULE_ALIAS("vhost_scsi");
-> >  module_init(tcm_vhost_init);
-> >  module_exit(tcm_vhost_exit);
-> > -- 
-> > 1.8.1.4
-> --
-> To unsubscribe from this list: send the line "unsubscribe target-devel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> Perfectly fine by me..
+> 
+> Btw, I'll be sending another PULL request next week for some other minor
+> -rc1 items, so if DaveM prefers I'm happy to include this series in that
+> PULL instead.
+> 
+> --nab
+
+Yes but it depends on stuff in net-next. That would pull in a lot.
+
+> > The following changes since commit bc7562355fda8075793bf66094cda573206ec693:
+> > 
+> >   Merge branch 'for-next-merge' of git://git.kernel.org/pub/scm/linux/kernel/git/nab/target-pending into vhost-net-next (2013-05-01 09:16:50 +0300)
+> > 
+> > are available in the git repository at:
+> > 
+> > 
+> >   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost-net-next
+> > 
+> > for you to fetch changes up to 150b9e51ae975ca1fe468c565870fbc4a96e0574:
+> > 
+> >   vhost: fix error handling in RESET_OWNER ioctl (2013-05-01 10:02:54 +0300)
+> > 
+> > ----------------------------------------------------------------
+> > Asias He (3):
+> >       vhost: Allow device specific fields per vq
+> >       tcm_vhost: Wait for pending requests in vhost_scsi_flush()
+> >       vhost: move vhost-net zerocopy fields to net.c
+> > 
+> > Michael S. Tsirkin (4):
+> >       tcm_vhost: document inflight ref-counting use
+> >       vhost: move per-vq net specific fields out to net
+> >       tcm_vhost: remove virtio-net.h dependency
+> >       vhost: fix error handling in RESET_OWNER ioctl
+> > 
+> >  drivers/vhost/net.c       | 255 ++++++++++++++++++++++++++++++++++++----------
+> >  drivers/vhost/tcm_vhost.c | 154 ++++++++++++++++++++++++----
+> >  drivers/vhost/tcm_vhost.h |   3 +
+> >  drivers/vhost/test.c      |   9 +-
+> >  drivers/vhost/vhost.c     | 153 +++++++++-------------------
+> >  drivers/vhost/vhost.h     |  32 +-----
+> >  6 files changed, 400 insertions(+), 206 deletions(-)
+> 
