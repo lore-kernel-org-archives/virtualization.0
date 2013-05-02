@@ -1,62 +1,81 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PULL] vhost: cleanups and fixes
-Date: Thu, 2 May 2013 12:49:42 -0700
-Message-ID: <CA+55aFwwVMhmmJfWoepipWT+WQZHt4gRPKSucgBABe5Rq=kVkw@mail.gmail.com>
-References: <20130502105353.GA24655@redhat.com>
-	<1367520929.23900.114.camel@haakon3.risingtidesystems.com>
-	<20130502193309.GC16031@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULLv2] vhost: cleanups and fixes
+Date: Thu, 2 May 2013 23:11:06 +0300
+Message-ID: <20130502201106.GA17385@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <target-devel-owner@vger.kernel.org>
-In-Reply-To: <20130502193309.GC16031@redhat.com>
-Sender: target-devel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Nicholas A. Bellinger" <nab@linux-iscsi.org>, KVM list <kvm@vger.kernel.org>, virtualization@lists.osdl.org, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Asias He <asias@redhat.com>, target-devel <target-devel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: netdev-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, asias@redhat.com, mst@redhat.com, nab@linux-iscsi.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 2, 2013 at 12:33 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> I prefer not rebasing,
+Hi Linus,
+This is exactly same code as my previous pull sent earlier, the diffstat
+was wrong however, I did a merge with master which fixed that.  And I
+forgot to copy you so you likely
+did not see it at all :(
+Here comes.
 
-Good.
+The following changes since commit 5a148af66932c31814e263366094b5812210b501:
 
->                   will play with git to see why
-> does request-pull get me a wrong diffstat and how
-> to trick it into doing the right thing.
-> Maybe merging my branch into master will do this.
+  Merge branch 'next' of git://git.kernel.org/pub/scm/linux/kernel/git/benh/powerpc (2013-05-02 10:16:16 -0700)
 
-No, don't do an unnecessary merge just to get the diffstat right.
+are available in the git repository at:
 
-git pull-request ends up assuming that there are no back-merges, and
-that you have a uniquely defined single shared merge base. That allows
-pull-request to just generate the diff directly from that merge base,
-without actually trying to do the merge itself (which may have
-conflicts etc).
 
-But because git pull-request doesn't actually *do* the merge, it means
-that it will fail to give the correct diffstat if the tree is
-complicated and has multiple merge bases, and it can't really figure
-what the original shared state was before the development.
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus2
 
-This is just one reason I do *not* want to see back-merges. They make
-history harder to read not just for humans.
+for you to fetch changes up to ef1f2e2ae31069a3484f77f00ea6ef92031d611a:
 
-You can either ignore the problem (I'll see the real diffstat when I
-actually do the merge), or you can do a test-merge yourself (that you
-do *not* then push out in the development branch - keep it in a
-temporary branch for your own edification or just delete it after
-doing the merge, and don't do development on it!)
+  Merge branch 'vhost' into 'master' (2013-05-02 22:40:01 +0300)
 
-In this case, it's an indirect back-merge: you back-merged a commit
-from the target tree that I have now merged, so it has become a
-back-merge. I'm not sure why you did that - if you needed to start
-from that state, it would actually have been better to just start at
-that state instead of merging it. But whatever. You can get the
-diffstat by using your merge as the base, so
+----------------------------------------------------------------
 
-    git diff -M --stat --summary bc7562355fda..
+vhost: cleanups and fixes for 3.10
 
-in your branch should get the right result without any merges etc..
-But please do send me a proper pull request.
+Here are vhost cleanups and fixes by Asias He and myself.
+They affect both vhost-net and vhost-scsi devices.
+They also *depend* on both net-next and target-pending,
+where the net and target commits these changes depend on
+are already merged.
+So merging through the common vhost tree.
+Note2: I had to make a merge from vhost into master otherwise
+request-pull generates a wrong diffstat.
+It's harmless since git merge will figure it all out
+easily.
 
-              Linus
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Asias He (3):
+      vhost: Allow device specific fields per vq
+      tcm_vhost: Wait for pending requests in vhost_scsi_flush()
+      vhost: move vhost-net zerocopy fields to net.c
+
+Michael S. Tsirkin (9):
+      Merge branch 'for-next-merge' of git://git.kernel.org/.../nab/target-pending into vhost-net-next
+      tcm_vhost: document inflight ref-counting use
+      vhost: move per-vq net specific fields out to net
+      tcm_vhost: remove virtio-net.h dependency
+      vhost: fix error handling in RESET_OWNER ioctl
+      vhost: src file renames
+      tcm_vhost: header split up
+      vhost_scsi: module rename
+      Merge branch 'vhost' into 'master'
+
+ drivers/vhost/Kconfig                 |  10 +-
+ drivers/vhost/Kconfig.tcm             |   6 -
+ drivers/vhost/Makefile                |   3 +-
+ drivers/vhost/net.c                   | 255 +++++++++++++++++++++++++++-------
+ drivers/vhost/{tcm_vhost.c => scsi.c} | 255 +++++++++++++++++++++++++++++++---
+ drivers/vhost/tcm_vhost.h             | 128 -----------------
+ drivers/vhost/test.c                  |   9 +-
+ drivers/vhost/vhost.c                 | 153 +++++++-------------
+ drivers/vhost/vhost.h                 |  32 +----
+ include/uapi/linux/vhost.h            |  28 ++++
+ 10 files changed, 533 insertions(+), 346 deletions(-)
+ delete mode 100644 drivers/vhost/Kconfig.tcm
+ rename drivers/vhost/{tcm_vhost.c => scsi.c} (86%)
+ delete mode 100644 drivers/vhost/tcm_vhost.h
