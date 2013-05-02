@@ -1,81 +1,45 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULLv2] vhost: cleanups and fixes
-Date: Thu, 2 May 2013 23:11:06 +0300
-Message-ID: <20130502201106.GA17385@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PULLv2] vhost: cleanups and fixes
+Date: Thu, 2 May 2013 13:26:41 -0700
+Message-ID: <CA+55aFyzq+EBHiKYyEw3OXWKeeTbwt1sCYACfD4YsOWCBBZTVQ@mail.gmail.com>
+References: <20130502201106.GA17385@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20130502201106.GA17385@redhat.com>
 Sender: netdev-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, asias@redhat.com, mst@redhat.com, nab@linux-iscsi.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: KVM list <kvm@vger.kernel.org>, virtualization@lists.osdl.org, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Asias He <asias@redhat.com>, "Nicholas A. Bellinger" <nab@linux-iscsi.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Linus,
-This is exactly same code as my previous pull sent earlier, the diffstat
-was wrong however, I did a merge with master which fixed that.  And I
-forgot to copy you so you likely
-did not see it at all :(
-Here comes.
+On Thu, May 2, 2013 at 1:11 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> Hi Linus,
+> This is exactly same code as my previous pull sent earlier, the diffstat
+> was wrong however, I did a merge with master which fixed that.
 
-The following changes since commit 5a148af66932c31814e263366094b5812210b501:
+See my other email. THIS IS NOT A VALID REASON TO DO A BACK-MERGE!
 
-  Merge branch 'next' of git://git.kernel.org/pub/scm/linux/kernel/git/benh/powerpc (2013-05-02 10:16:16 -0700)
+Extraneous merge commits that have no actual reason for development
+are bad. They make it much harder to see what the actual development
+thread was, because they mix up different branches. In fact, the whole
+problem with the diffstat started with *another* extraneous merge, so
+the "fix" was a result of a previous merge. This is exactly the kind
+of reason why we want merges to be done by upstream developers, not
+"back-merges" by downstream.
 
-are available in the git repository at:
+Now that merge is in your development tree, and if/when you start
+doing development on top of that, the same kind of problem will
+continue. Together with making it much harder to see in the history
+what _your_ development stream was, because now it's no longer linear
+and mixes in random points of the merge window.
 
+Don't do this. Why do I have to write one of these "DON'T DO
+BACK-MERGES" every single merge window? I really wish people listened,
+instead of every single developer deciding that "it's ok if _I_ do it,
+I'm sure Linus is complaining about all those *other* morons out
+there".
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus2
+When I say "don't do back-merges", I mean *you*. Yes, you. Not
+somebody else. You.
 
-for you to fetch changes up to ef1f2e2ae31069a3484f77f00ea6ef92031d611a:
-
-  Merge branch 'vhost' into 'master' (2013-05-02 22:40:01 +0300)
-
-----------------------------------------------------------------
-
-vhost: cleanups and fixes for 3.10
-
-Here are vhost cleanups and fixes by Asias He and myself.
-They affect both vhost-net and vhost-scsi devices.
-They also *depend* on both net-next and target-pending,
-where the net and target commits these changes depend on
-are already merged.
-So merging through the common vhost tree.
-Note2: I had to make a merge from vhost into master otherwise
-request-pull generates a wrong diffstat.
-It's harmless since git merge will figure it all out
-easily.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Asias He (3):
-      vhost: Allow device specific fields per vq
-      tcm_vhost: Wait for pending requests in vhost_scsi_flush()
-      vhost: move vhost-net zerocopy fields to net.c
-
-Michael S. Tsirkin (9):
-      Merge branch 'for-next-merge' of git://git.kernel.org/.../nab/target-pending into vhost-net-next
-      tcm_vhost: document inflight ref-counting use
-      vhost: move per-vq net specific fields out to net
-      tcm_vhost: remove virtio-net.h dependency
-      vhost: fix error handling in RESET_OWNER ioctl
-      vhost: src file renames
-      tcm_vhost: header split up
-      vhost_scsi: module rename
-      Merge branch 'vhost' into 'master'
-
- drivers/vhost/Kconfig                 |  10 +-
- drivers/vhost/Kconfig.tcm             |   6 -
- drivers/vhost/Makefile                |   3 +-
- drivers/vhost/net.c                   | 255 +++++++++++++++++++++++++++-------
- drivers/vhost/{tcm_vhost.c => scsi.c} | 255 +++++++++++++++++++++++++++++++---
- drivers/vhost/tcm_vhost.h             | 128 -----------------
- drivers/vhost/test.c                  |   9 +-
- drivers/vhost/vhost.c                 | 153 +++++++-------------
- drivers/vhost/vhost.h                 |  32 +----
- include/uapi/linux/vhost.h            |  28 ++++
- 10 files changed, 533 insertions(+), 346 deletions(-)
- delete mode 100644 drivers/vhost/Kconfig.tcm
- rename drivers/vhost/{tcm_vhost.c => scsi.c} (86%)
- delete mode 100644 drivers/vhost/tcm_vhost.h
+                  Linus
