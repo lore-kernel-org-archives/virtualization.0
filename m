@@ -1,75 +1,111 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: BUG: virtio_mmio multi-queue competely  broken -- virtio
-	*registers* considered harmful
-Date: Thu, 2 May 2013 08:25:38 +0300
-Message-ID: <20130502052538.GA27500@redhat.com>
-References: <5181E046.7000309@lyon-about.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Thu, 2 May 2013 13:53:53 +0300
+Message-ID: <20130502105353.GA24655@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <5181E046.7000309@lyon-about.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Tom Lyon <pugs@lyon-about.com>
-Cc: kvm@vger.kernel.org, pawel.moll@arm.com, virtualization@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
+Cc: kvm@vger.kernel.org, virtualization@lists.osdl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, asias@redhat.com, mst@redhat.com, nab@linux-iscsi.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 01, 2013 at 08:40:54PM -0700, Tom Lyon wrote:
-> Virtiio_mmio attempts to mimic the layout of some control registers
-> from virtio_pci.  These registers, in particular
-> VIRTIO_MMIO_QUEUE_SEL and VIRTIO_PCI_QUEUE_SEL,
-> are active in nature, and not just passive like a normal memory
-> location.  Thus, the host side must react immediately upon write of
-> these registers to map some other registers (queue address, size,
-> etc) to queue-specific locations.  This is just not possible for
-> mmio, and, I would argue, not desirable for PCI either.
-> 
-> Because the queue selector register doesn't work in mmio, it is
-> clear that only single queue virtio devices can work.  This means no
-> virtio_net - I've seen a few messages
-> complaining that it doesn't work but nothing so far on why.
-> 
-> It seems from some messages back in March that there is a register
-> re-layout in the works for virtio_pci.  I think that virtio_pci
-> could become just one of the
-> various ways to configure a virtio_mmio device and there would no
-> need for any "registers", just memory locations acting like memory.
-> The one gotcha is in
-> figuring out the kick/notify mechanism for the guest to notify the
-> host when there is work on a queue.  For notify, using a hypervisor
-> call could unify the pci and mmio
-> cases, but comes with the cost of leaving the pure pci domain.
-> 
-> I got into this code because I am looking at the possibility of
-> using an off the shelf embedded processor sitting on a PCIe port to
-> emulate the virtio pci interface.  The
-> notion of active registers makes this a non-starter, whereas if
-> there was a purely memory based system like mmio (with mq fixes), a
-> real PCI device could easily emulate it.
-> Excepting, of course, whatever the notify mechanism is.  If it were
-> hypercall based, then the hypervisor could call a transport or
-> device specific way of notifying and a small
-> notify driver could poke the PCI device is some way.
+The following changes since commit c39904a0ac22cf05f5f44226457f6da0fe65457e:
+
+  Merge branch 'master' of git://git.kernel.org/pub/scm/linux/kernel/git/jkirsher/net-next (2013-04-26 23:33:41 -0400)
+
+are available in the git repository at:
 
 
-This was discussed on this thread:
-	'[PATCH 16/22] virtio_pci: use separate notification offsets for each vq'
-Please take a look there and confirm that this addresses your concern.
-I'm working on making memory io as fast as pio on x86,
-implemented on intel, once I do it on AMD too and assuming it's
-as fast as PIO, we'll do mmio everywhere.
-Then with a PCI card, you won't have exits for notification just normal
-passthrough.
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
+for you to fetch changes up to 181c04a357bb791587c55a99362c2fdde2c64f18:
 
--- 
-MST
+  vhost_scsi: module rename (2013-05-02 13:40:22 +0300)
+
+----------------------------------------------------------------
+vhost: cleanups and fixes for 3.10
+
+Here are vhost cleanups and fixes by Asias He and myself.
+They affect both vhost-net and vhost-scsi devices.
+They also *depend* on both net-next and target-pending,
+where the net and target commits these changes depend on
+are already merged.
+So merging through the common vhost tree.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Asias He (3):
+      vhost: Allow device specific fields per vq
+      tcm_vhost: Wait for pending requests in vhost_scsi_flush()
+      vhost: move vhost-net zerocopy fields to net.c
+
+Michael S. Tsirkin (8):
+      Merge branch 'for-next-merge' of git://git.kernel.org/.../nab/target-pending into vhost-net-next
+      tcm_vhost: document inflight ref-counting use
+      vhost: move per-vq net specific fields out to net
+      tcm_vhost: remove virtio-net.h dependency
+      vhost: fix error handling in RESET_OWNER ioctl
+      vhost: src file renames
+      tcm_vhost: header split up
+      vhost_scsi: module rename
+
+ drivers/infiniband/Kconfig                     |    1 +
+ drivers/infiniband/Makefile                    |    1 +
+ drivers/infiniband/ulp/isert/Kconfig           |    5 +
+ drivers/infiniband/ulp/isert/Makefile          |    2 +
+ drivers/infiniband/ulp/isert/ib_isert.c        | 2281 ++++++++++++++++++++++++
+ drivers/infiniband/ulp/isert/ib_isert.h        |  138 ++
+ drivers/infiniband/ulp/isert/isert_proto.h     |   47 +
+ drivers/scsi/qla2xxx/qla_target.c              |   19 -
+ drivers/scsi/qla2xxx/qla_target.h              |    1 -
+ drivers/target/iscsi/Makefile                  |    3 +-
+ drivers/target/iscsi/iscsi_target.c            | 1184 +++++++-----
+ drivers/target/iscsi/iscsi_target.h            |    3 +-
+ drivers/target/iscsi/iscsi_target_auth.c       |   28 +-
+ drivers/target/iscsi/iscsi_target_configfs.c   |   98 +-
+ drivers/target/iscsi/iscsi_target_core.h       |   26 +-
+ drivers/target/iscsi/iscsi_target_device.c     |    7 +-
+ drivers/target/iscsi/iscsi_target_erl1.c       |   13 +-
+ drivers/target/iscsi/iscsi_target_login.c      |  472 +++--
+ drivers/target/iscsi/iscsi_target_login.h      |    6 +
+ drivers/target/iscsi/iscsi_target_nego.c       |  194 +-
+ drivers/target/iscsi/iscsi_target_nego.h       |   11 +-
+ drivers/target/iscsi/iscsi_target_parameters.c |   87 +-
+ drivers/target/iscsi/iscsi_target_parameters.h |   16 +-
+ drivers/target/iscsi/iscsi_target_tmr.c        |    4 +-
+ drivers/target/iscsi/iscsi_target_tpg.c        |    6 +-
+ drivers/target/iscsi/iscsi_target_transport.c  |   55 +
+ drivers/target/iscsi/iscsi_target_util.c       |   53 +-
+ drivers/target/iscsi/iscsi_target_util.h       |    1 +
+ drivers/target/target_core_file.c              |  122 +-
+ drivers/target/target_core_iblock.c            |  108 +-
+ drivers/target/target_core_sbc.c               |   85 +
+ drivers/target/target_core_transport.c         |   13 +-
+ drivers/target/tcm_fc/tfc_io.c                 |    9 +-
+ drivers/target/tcm_fc/tfc_sess.c               |    9 +-
+ drivers/vhost/Kconfig                          |   10 +-
+ drivers/vhost/Kconfig.tcm                      |    6 -
+ drivers/vhost/Makefile                         |    3 +-
+ drivers/vhost/net.c                            |  255 ++-
+ drivers/vhost/{tcm_vhost.c => scsi.c}          |  507 +++++-
+ drivers/vhost/tcm_vhost.h                      |  115 --
+ drivers/vhost/test.c                           |    9 +-
+ drivers/vhost/vhost.c                          |  153 +-
+ drivers/vhost/vhost.h                          |   32 +-
+ include/target/iscsi/iscsi_transport.h         |   83 +
+ include/target/target_core_backend.h           |    4 +
+ include/target/target_core_fabric.h            |    2 +-
+ include/uapi/linux/vhost.h                     |   28 +
+ 47 files changed, 4985 insertions(+), 1330 deletions(-)
+ create mode 100644 drivers/infiniband/ulp/isert/Kconfig
+ create mode 100644 drivers/infiniband/ulp/isert/Makefile
+ create mode 100644 drivers/infiniband/ulp/isert/ib_isert.c
+ create mode 100644 drivers/infiniband/ulp/isert/ib_isert.h
+ create mode 100644 drivers/infiniband/ulp/isert/isert_proto.h
+ create mode 100644 drivers/target/iscsi/iscsi_target_transport.c
+ delete mode 100644 drivers/vhost/Kconfig.tcm
+ rename drivers/vhost/{tcm_vhost.c => scsi.c} (76%)
+ delete mode 100644 drivers/vhost/tcm_vhost.h
+ create mode 100644 include/target/iscsi/iscsi_transport.h
