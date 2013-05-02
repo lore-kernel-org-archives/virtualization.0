@@ -1,15 +1,15 @@
 From: Tom Lyon <pugs@lyon-about.com>
 Subject: Re: BUG: virtio_mmio multi-queue competely broken -- virtio
 	*registers* considered harmful
-Date: Thu, 02 May 2013 08:05:09 -0700
-Message-ID: <518280A5.8000804__46386.1016942703$1367510653$gmane$org@lyon-about.com>
+Date: Thu, 02 May 2013 08:17:41 -0700
+Message-ID: <51828395.8040701__14488.4101384834$1367510665$gmane$org@lyon-about.com>
 References: <5181E046.7000309@lyon-about.com>
-	<20130502052538.GA27500@redhat.com>
+	<1367494640.25984.54.camel@hornet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130502052538.GA27500@redhat.com>
+In-Reply-To: <1367494640.25984.54.camel@hornet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,58 +19,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, pawel.moll@arm.com, virtualization@lists.linux-foundation.org
+To: Pawel Moll <pawel.moll@arm.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/01/2013 10:25 PM, Michael S. Tsirkin wrote:
-> On Wed, May 01, 2013 at 08:40:54PM -0700, Tom Lyon wrote:
->> Virtiio_mmio attempts to mimic the layout of some control registers
->> from virtio_pci.  These registers, in particular
->> VIRTIO_MMIO_QUEUE_SEL and VIRTIO_PCI_QUEUE_SEL,
->> are active in nature, and not just passive like a normal memory
->> location.  Thus, the host side must react immediately upon write of
->> these registers to map some other registers (queue address, size,
->> etc) to queue-specific locations.  This is just not possible for
->> mmio, and, I would argue, not desirable for PCI either.
->>
->> Because the queue selector register doesn't work in mmio, it is
->> clear that only single queue virtio devices can work.  This means no
->> virtio_net - I've seen a few messages
->> complaining that it doesn't work but nothing so far on why.
->>
->> It seems from some messages back in March that there is a register
->> re-layout in the works for virtio_pci.  I think that virtio_pci
->> could become just one of the
->> various ways to configure a virtio_mmio device and there would no
->> need for any "registers", just memory locations acting like memory.
->> The one gotcha is in
->> figuring out the kick/notify mechanism for the guest to notify the
->> host when there is work on a queue.  For notify, using a hypervisor
->> call could unify the pci and mmio
->> cases, but comes with the cost of leaving the pure pci domain.
->>
->> I got into this code because I am looking at the possibility of
->> using an off the shelf embedded processor sitting on a PCIe port to
->> emulate the virtio pci interface.  The
->> notion of active registers makes this a non-starter, whereas if
->> there was a purely memory based system like mmio (with mq fixes), a
->> real PCI device could easily emulate it.
->> Excepting, of course, whatever the notify mechanism is.  If it were
->> hypercall based, then the hypervisor could call a transport or
->> device specific way of notifying and a small
->> notify driver could poke the PCI device is some way.
->
-> This was discussed on this thread:
-> 	'[PATCH 16/22] virtio_pci: use separate notification offsets for each vq'
-> Please take a look there and confirm that this addresses your concern.
-> I'm working on making memory io as fast as pio on x86,
-> implemented on intel, once I do it on AMD too and assuming it's
-> as fast as PIO, we'll do mmio everywhere.
-> Then with a PCI card, you won't have exits for notification just normal
-> passthrough.
->
->
-Yes, I had seen that thread. It addresses my concerns for pci, but not 
-mmio, although I slightly favor a hypercall notify mechanism over a pci 
-write.
+T24gMDUvMDIvMjAxMyAwNDozNyBBTSwgUGF3ZWwgTW9sbCB3cm90ZToKPiBIaSBUb20sCj4KPiBP
+biBUaHUsIDIwMTMtMDUtMDIgYXQgMDQ6NDAgKzAxMDAsIFRvbSBMeW9uIHdyb3RlOgo+PiBWaXJ0
+aWlvX21taW8gYXR0ZW1wdHMgdG8gbWltaWMgdGhlIGxheW91dCBvZiBzb21lIGNvbnRyb2wgcmVn
+aXN0ZXJzIGZyb20KPj4gdmlydGlvX3BjaS4gIFRoZXNlIHJlZ2lzdGVycywgaW4gcGFydGljdWxh
+ciBWSVJUSU9fTU1JT19RVUVVRV9TRUwgYW5kCj4+IFZJUlRJT19QQ0lfUVVFVUVfU0VMLAo+PiBh
+cmUgYWN0aXZlIGluIG5hdHVyZSwgYW5kIG5vdCBqdXN0IHBhc3NpdmUgbGlrZSBhIG5vcm1hbCBt
+ZW1vcnkKPj4gbG9jYXRpb24uICBUaHVzLCB0aGUgaG9zdCBzaWRlIG11c3QgcmVhY3QgaW1tZWRp
+YXRlbHkgdXBvbiB3cml0ZSBvZgo+PiB0aGVzZSByZWdpc3RlcnMgdG8gbWFwIHNvbWUgb3RoZXIg
+cmVnaXN0ZXJzIChxdWV1ZSBhZGRyZXNzLCBzaXplLCBldGMpCj4+IHRvIHF1ZXVlLXNwZWNpZmlj
+IGxvY2F0aW9ucy4gIFRoaXMgaXMganVzdCBub3QgcG9zc2libGUgZm9yIG1taW8sIGFuZCwgSQo+
+PiB3b3VsZCBhcmd1ZSwgbm90IGRlc2lyYWJsZSBmb3IgUENJIGVpdGhlci4KPiBDb3VsZCB5b3Us
+IHBsZWFzZSwgZWxhYm9yYXRlIG1vcmUgYWJvdXQgdGhlIGVudmlyb25tZW50IHlvdSBhcmUgdGFs
+a2luZwo+IGFib3V0IGhlcmU/Cj4KPiBUaGUgaW50ZW50aW9uIG9mIHRoZSBNTUlPIGRldmljZSBp
+cyB0byBiZWhhdmUgbGlrZSBhIG5vcm1hbCBtZW1vcnkKPiBtYXBwZWQgcGVyaXBoZXJhbCwgc2F5
+IHNlcmlhbCBwb3J0LiBJbiB0aGUgd29ybGQgb2YgYXJjaGl0ZWN0dXJlIHdpdGhvdXQKPiBzZXBh
+cmF0ZSBJL08gYWRkcmVzcyBzcGFjZSAobGlrZSBBUk0sIE1JUFMsIFNILTQgdG8gbmFtZSBvbmx5
+IHRob3NlIEkKPiBrbm93IGFueXRoaW5nIGFib3V0KSwgc3VjaCBwZXJpcGhlcmFscyBhcmUgdXN1
+YWxseSBtYXBwZWQgaW50byB0aGUKPiB2aXJ0dWFsIGFkZHJlc3Mgc3BhY2Ugd2l0aCBzcGVjaWFs
+IGF0dHJpYnV0ZXMsIGVnLiBndWFyYW50ZWVpbmcKPiB0cmFuc2FjdGlvbnMgb3JkZXIuIFRoYXQn
+cyB3aHkgdGhlIGhvc3QgY2FuICJyZWFjdCBpbW1lZGlhdGVseSIgYW5kIHRvCj4gbXkga25vd2xl
+ZGdlIG11bHRpLXF1ZXVlIHZpcnRpbyBkZXZpY2VzIHdvcmsganVzdCBmaW5lLgo+Cj4gSSdkIGxv
+dmUgc2VlIGNvbW1lbnRzIGZyb20gc29tZW9uZSB3aXRoIHg4NiBleHBlcnRpc2UgaW4gc3VjaCBh
+cmVhcy4KPiBNYXliZSB3ZSBhcmUgbWlzc2luZyBzb21lIG1lbW9yeSBiYXJyaWVycyBoZXJlPyBT
+byB0aGUgaG9zdAo+IGltcGxlbWVudGF0aW9uIHdvdWxkIGhhdmUgYSBjaGFuY2UgdG8gcmVhY3Qg
+dG8gdGhlIFFVRVVFX1NFTCBhY2Nlc3MKPiBiZWZvcmUgc2VydmljaW5nIG90aGVyIHRyYW5zYWN0
+aW9ucz8KPgo+IFJlZ2FyZHMKPgo+IFBhd2XFggo+Cj4KQWgsIG15IG1pc3Rha2UuIEkgd2FzIGFz
+c3VtaW5nIHRoYXQgbW1pbyBqdXN0IHVzZWQgc2hhcmVkIG1lbW9yeSAKcmVnaW9ucywgbm90IHRo
+YXQgdGhlcmUgd2FzIGVtdWxhdGVkIElPIHJlZ2lzdGVycy4gIEkgd2FzIGRyaXZlbiB0byB0aGF0
+CmFzc3VtcHRpb24gYnkgbG9va2luZyBhdCB0aGUgcnBtc2cgdXNlIGNhc2UgaW4gd2hpY2ggYSBt
+YWluIHByb2Nlc3NvciAKdGFsa3MgdG8gc2F0ZWxsaXRlIHByb2Nlc3NvcnMgLSB0aGVyZSBzZWVt
+cyB0byBiZSBubwpoeXBlcnZpc29yIGFuZCB0aGVyZWZvcmUgbm8gZW11bGF0ZWQgSU8gaW4gdGhh
+dCBjYXNlLiAgSG93ZXZlciwgbG9va2luZyAKZGVlcGVyLCBpdCBzZWVtcyB0aGF0IHJwbXNnIGhh
+cyBpdHMgb3duIG5vdGlmeSBtZWNoYW5pc20gYW55d2F5cywgc28gaXQKaXMgbm90IHNvIGNsZWFu
+bHkgbGF5ZXJlZCBvbiB2aXJ0aW8uICBBbHNvLCBmb3IgbXkgbmVlZHMsIEkgd2FudCBycG1zZyAK
+YW5kIHZpcnRpb19uZXQuCgpJbiBteSBkZXNpcmUgdG8gdXNlIGEgUENJZSBjYXJkIHRvIGVtdWxh
+dGUgdmlydGlvIEkgYW0gYWxzbyB0YWxraW5nIAphYm91dCBhIG5vbi1oeXBlcnZpc29yIHVzZSBj
+YXNlIC0ganVzdCAgbGV2ZXJhZ2luZyB0aGUgdmlydGlvIGZyYW1ld29yayAKZm9yIGludGVyLXBy
+b2Nlc3Nvcgpjb21tdW5pY2F0aW9uLiAgVmlydGlvIGlzIHNvIGNsb3NlIHRvIGJlaW5nIHRoZSBh
+bnN3ZXIgaXQgd291ZCBiZSBhIApzaGFtZSBpZiBpdCB3YXNuJ3QuIFNvIEkgd291bGQgcHJvcG9z
+ZSB0aGF0IHZpcnRpbyBiZSByZXN0cnVjdHVyZWQgc3VjaCAKdGhhdCB0aGUgY29uZmlndXJhdGlv
+bgpsYXlvdXQgaXMgaWRlbnRpY2FsIGFtb25nIHZpcnRpbyB0cmFuc3BvcnRzIGFuZCBhY3RzIGxp
+a2UgbWVtb3J5LCB0aGUgCmNvbmZpZ3VyYXRpb24gbG9jYXRpb24gaXMgdHJhbnNwb3J0LXNwZWNp
+ZmljLCBhbmQgdGhlIG5vdGlmaWNhdGlvbiAKbWVjaGFuaXNtIGlzIHRyYW5zcG9ydCBzcGVjaWZp
+YyAtIGJ1dCBJCmNvdWxkIGxpdmUgd3JpdGluZyB0byBzb21lIHF1ZXVlIHNwZWNpZmljIG1lbW9y
+eS9pbyBsb2NhdGlvbiAoZm9yIGJvdGggCnBjaSBhbmQgbW1pbykuCgoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
