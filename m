@@ -1,23 +1,15 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH v6 2/2] tcm_vhost: Wait for pending requests in
-	vhost_scsi_flush()
-Date: Thu, 2 May 2013 12:57:47 +0800
-Message-ID: <20130502045747.GA11961@hj.localdomain>
-References: <1367032609-30511-1-git-send-email-asias@redhat.com>
-	<1367032609-30511-3-git-send-email-asias@redhat.com>
-	<20130427194041.GC30188@redhat.com>
-	<20130428074822.GA5271@hj.localdomain>
-	<20130428082400.GA7106@redhat.com>
-	<20130428085208.GA7371@hj.localdomain>
-	<20130428092715.GA7702@redhat.com>
-	<20130428105520.GA9226@hj.localdomain>
-	<20130428121149.GA8619@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: BUG: virtio_mmio multi-queue competely  broken -- virtio
+	*registers* considered harmful
+Date: Thu, 2 May 2013 08:25:38 +0300
+Message-ID: <20130502052538.GA27500@redhat.com>
+References: <5181E046.7000309@lyon-about.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130428121149.GA8619@redhat.com>
+In-Reply-To: <5181E046.7000309@lyon-about.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,298 +19,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Tom Lyon <pugs@lyon-about.com>
+Cc: kvm@vger.kernel.org, pawel.moll@arm.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Apr 28, 2013 at 03:11:49PM +0300, Michael S. Tsirkin wrote:
-> On Sun, Apr 28, 2013 at 06:55:20PM +0800, Asias He wrote:
-> > On Sun, Apr 28, 2013 at 12:27:15PM +0300, Michael S. Tsirkin wrote:
-> > > On Sun, Apr 28, 2013 at 04:52:08PM +0800, Asias He wrote:
-> > > > On Sun, Apr 28, 2013 at 11:24:00AM +0300, Michael S. Tsirkin wrote:
-> > > > > On Sun, Apr 28, 2013 at 03:48:23PM +0800, Asias He wrote:
-> > > > > > On Sat, Apr 27, 2013 at 10:40:41PM +0300, Michael S. Tsirkin wrote:
-> > > > > > > On Sat, Apr 27, 2013 at 11:16:49AM +0800, Asias He wrote:
-> > > > > > > > Unlike tcm_vhost_evt requests, tcm_vhost_cmd requests are passed to the
-> > > > > > > > target core system, we can not make sure all the pending requests will
-> > > > > > > > be finished by flushing the virt queue.
-> > > > > > > > 
-> > > > > > > > In this patch, we do refcount for every tcm_vhost_cmd requests to make
-> > > > > > > > vhost_scsi_flush() wait for all the pending requests issued before the
-> > > > > > > > flush operation to be finished.
-> > > > > > > > 
-> > > > > > > > This is useful when we call vhost_scsi_clear_endpoint() to stop
-> > > > > > > > tcm_vhost. No new requests will be passed to target core system because
-> > > > > > > > we clear the endpoint by setting vs_tpg to NULL. And we wait for all the
-> > > > > > > > old requests. These guarantee no requests will be leaked and existing
-> > > > > > > > requests will be completed.
-> > > > > > > > 
-> > > > > > > > Signed-off-by: Asias He <asias@redhat.com>
-> > > > > > > > ---
-> > > > > > > >  drivers/vhost/tcm_vhost.c | 90 ++++++++++++++++++++++++++++++++++++++++++++++-
-> > > > > > > >  drivers/vhost/tcm_vhost.h |  3 ++
-> > > > > > > >  2 files changed, 92 insertions(+), 1 deletion(-)
-> > > > > > > > 
-> > > > > > > > diff --git a/drivers/vhost/tcm_vhost.c b/drivers/vhost/tcm_vhost.c
-> > > > > > > > index 99d3480..afb5308 100644
-> > > > > > > > --- a/drivers/vhost/tcm_vhost.c
-> > > > > > > > +++ b/drivers/vhost/tcm_vhost.c
-> > > > > > > > @@ -74,8 +74,19 @@ enum {
-> > > > > > > >  #define VHOST_SCSI_MAX_VQ	128
-> > > > > > > >  #define VHOST_SCSI_MAX_EVENT	128
-> > > > > > > >  
-> > > > > > > > +struct vhost_scsi_inflight {
-> > > > > > > > +	/* Wait for the flush operation to finish */
-> > > > > > > > +	struct completion comp;
-> > > > > > > > +	/* Refcount for the inflight reqs */
-> > > > > > > > +	struct kref kref;
-> > > > > > > > +};
-> > > > > > > > +
-> > > > > > > >  struct vhost_scsi_virtqueue {
-> > > > > > > >  	struct vhost_virtqueue vq;
-> > > > > > > > +	/* Track inflight reqs, protected by vq->mutex */
-> > > > > > > 
-> > > > > > > Actually, it's protected by dev mutex: you drop
-> > > > > > > vq mutex before flush.
-> > > > > > 
-> > > > > > It is protected by both dev mutex and vq mutex.
-> > > > > > 
-> > > > > > take vq mutex -> vhost_scsi_allocate_cmd -> tcm_vhost_get_inflight ->
-> > > > > > access inflights[] and inflight_idx.
-> > > > > > 
-> > > > > > The dev mutex guarantees only one flush operation is in progress.
-> > > > > 
-> > > > > That's what I am saying. but vq mutex does nothing for inflights,
-> > > > > it merely protects inflight_idx.
-> > > > 
-> > > > Well, what do you want to proceed here, drop the comment? 
-> > > 
-> > > Say something like
-> > > "dev mutex guarantees only one flush operation is in progress".
-> > > 
-> > > > > > > > +	struct vhost_scsi_inflight inflights[2];
-> > > > > > > > +	/* Indicate current inflight in use, protected by vq->mutex */
-> > > > > > > > +	int inflight_idx;
-> > > > > > > >  };
-> > > > > > > >  
-> > > > > > > 
-> > > > > > > I'd be happier with a dynamically allocated inflights,
-> > > > > > > and simply pass it in to vhost_scsi_flush.
-> > > > > > > I guess we can do this in a follow-up cleanup.
-> > > > > > 
-> > > > > > No way to 100% guarantee the allocation will success, even if using
-> > > > > > mempool. So we need to check allocation failure anyway.
-> > > > > > 
-> > > > > > With dynamic allocation, we can allocate inflight and check before we do
-> > > > > > anything in the vhost_scsi_flush calling chain. Now we have 4 places
-> > > > > > calling vhost_scsi_flush. We need to add error handing code everywhere.
-> > > > > > 
-> > > > > > 1) vhost_scsi_release
-> > > > > > 2) vhost_scsi_set_endpoint
-> > > > > > 3) vhost_scsi_clear_endpoint
-> > > > > > 4) vhost_scsi_set_features
-> > > > > > 
-> > > > > > IMO, The static one works better.
-> > > > > 
-> > > > > Error handling is a standard easily understandable thing.
-> > > > > A custom locking scheme - not at all. Even when we think it's right,
-> > > > > above we are still arguing how to properly document it.
-> > > > 
-> > > > Allocating it dynamically or not does not changing the locking scheme,
-> > > > no? 
-> > > 
-> > > It does, I think nothing else depends on vhost_scsi_flush being
-> > > done under dev mutex.
-> > 
-> > Why is concurrent vhost_scsi_flush useful?
+On Wed, May 01, 2013 at 08:40:54PM -0700, Tom Lyon wrote:
+> Virtiio_mmio attempts to mimic the layout of some control registers
+> from virtio_pci.  These registers, in particular
+> VIRTIO_MMIO_QUEUE_SEL and VIRTIO_PCI_QUEUE_SEL,
+> are active in nature, and not just passive like a normal memory
+> location.  Thus, the host side must react immediately upon write of
+> these registers to map some other registers (queue address, size,
+> etc) to queue-specific locations.  This is just not possible for
+> mmio, and, I would argue, not desirable for PCI either.
 > 
-> I'm not saying it's useful. Just that taking dev mutex is a requirement
-> on callers of this functiin, so it is better to have a comment
-> documenting it.
+> Because the queue selector register doesn't work in mmio, it is
+> clear that only single queue virtio devices can work.  This means no
+> virtio_net - I've seen a few messages
+> complaining that it doesn't work but nothing so far on why.
 > 
-> > Allocating it dynamically
-> > can make you call vhost_scsi_flush simultaneously? I do not think so.
-> > 
-> > How will dynamic allocation change the locking scheme?
+> It seems from some messages back in March that there is a register
+> re-layout in the works for virtio_pci.  I think that virtio_pci
+> could become just one of the
+> various ways to configure a virtio_mmio device and there would no
+> need for any "registers", just memory locations acting like memory.
+> The one gotcha is in
+> figuring out the kick/notify mechanism for the guest to notify the
+> host when there is work on a queue.  For notify, using a hypervisor
+> call could unify the pci and mmio
+> cases, but comes with the cost of leaving the pure pci domain.
 > 
-> We would simply have a pointer protected by vq mutex.
-> That's a bit simpler than protecting some parts with vq mutex
-> others with dev mutex.
-> It's no big deal, we can make this change later, for now just document
-> fully what we are doing.
+> I got into this code because I am looking at the possibility of
+> using an off the shelf embedded processor sitting on a PCIe port to
+> emulate the virtio pci interface.  The
+> notion of active registers makes this a non-starter, whereas if
+> there was a purely memory based system like mmio (with mq fixes), a
+> real PCI device could easily emulate it.
+> Excepting, of course, whatever the notify mechanism is.  If it were
+> hypercall based, then the hypervisor could call a transport or
+> device specific way of notifying and a small
+> notify driver could poke the PCI device is some way.
 
-Okay. Saw your patches to add more comments. Looks nice, Thanks.
 
-> > > Hmm we probably should add a comment saying "called under
-> > > dev mutex or on release path" near vhost_scsi_flush.
-> > 
-> > > > > > > >  struct vhost_scsi {
-> > > > > > > > @@ -111,6 +122,59 @@ static int iov_num_pages(struct iovec *iov)
-> > > > > > > >  	       ((unsigned long)iov->iov_base & PAGE_MASK)) >> PAGE_SHIFT;
-> > > > > > > >  }
-> > > > > > > >  
-> > > > > > > > +void tcm_vhost_done_inflight(struct kref *kref)
-> > > > > > > > +{
-> > > > > > > > +	struct vhost_scsi_inflight *inflight;
-> > > > > > > > +
-> > > > > > > > +	inflight = container_of(kref, struct vhost_scsi_inflight, kref);
-> > > > > > > > +	complete(&inflight->comp);
-> > > > > > > > +}
-> > > > > > > > +
-> > > > > > > > +static void tcm_vhost_init_inflight(struct vhost_scsi *vs,
-> > > > > > > > +				    struct vhost_scsi_inflight *old_inflight[])
-> > > > > > > > +{
-> > > > > > > > +	struct vhost_scsi_inflight *new_inflight;
-> > > > > > > > +	struct vhost_virtqueue *vq;
-> > > > > > > > +	int idx, i;
-> > > > > > > > +
-> > > > > > > > +	for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
-> > > > > > > > +		vq = &vs->vqs[i].vq;
-> > > > > > > > +
-> > > > > > > > +		mutex_lock(&vq->mutex);
-> > > > > > > > +
-> > > > > > > > +		/* store old infight */
-> > > > > > > > +		idx = vs->vqs[i].inflight_idx;
-> > > > > > > > +		if (old_inflight)
-> > > > > > > > +			old_inflight[i] = &vs->vqs[i].inflights[idx];
-> > > > > > > > +
-> > > > > > > > +		/* setup new infight */
-> > > > > > > > +		vs->vqs[i].inflight_idx = idx ^ 1;
-> > > > > > > > +		new_inflight = &vs->vqs[i].inflights[idx ^ 1];
-> > > > > > > > +		kref_init(&new_inflight->kref);
-> > > > > > > > +		init_completion(&new_inflight->comp);
-> > > > > > > > +
-> > > > > > > > +		mutex_unlock(&vq->mutex);
-> > > > > > > > +	}
-> > > > > > > > +}
-> > > > > > > > +
-> > > > > > > > +static struct vhost_scsi_inflight *
-> > > > > > > > +tcm_vhost_get_inflight(struct vhost_virtqueue *vq)
-> > > > > > > > +{
-> > > > > > > > +	struct vhost_scsi_inflight *inflight;
-> > > > > > > > +	struct vhost_scsi_virtqueue *svq;
-> > > > > > > > +
-> > > > > > > > +	svq = container_of(vq, struct vhost_scsi_virtqueue, vq);
-> > > > > > > > +	inflight = &svq->inflights[svq->inflight_idx];
-> > > > > > > > +	kref_get(&inflight->kref);
-> > > > > > > > +
-> > > > > > > > +	return inflight;
-> > > > > > > > +}
-> > > > > > > > +
-> > > > > > > > +static void tcm_vhost_put_inflight(struct vhost_scsi_inflight *inflight)
-> > > > > > > > +{
-> > > > > > > > +	kref_put(&inflight->kref, tcm_vhost_done_inflight);
-> > > > > > > > +}
-> > > > > > > > +
-> > > > > > > >  static int tcm_vhost_check_true(struct se_portal_group *se_tpg)
-> > > > > > > >  {
-> > > > > > > >  	return 1;
-> > > > > > > > @@ -407,6 +471,8 @@ static void vhost_scsi_free_cmd(struct tcm_vhost_cmd *tv_cmd)
-> > > > > > > >  		kfree(tv_cmd->tvc_sgl);
-> > > > > > > >  	}
-> > > > > > > >  
-> > > > > > > > +	tcm_vhost_put_inflight(tv_cmd->inflight);
-> > > > > > > > +
-> > > > > > > >  	kfree(tv_cmd);
-> > > > > > > >  }
-> > > > > > > >  
-> > > > > > > > @@ -533,6 +599,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
-> > > > > > > >  }
-> > > > > > > >  
-> > > > > > > >  static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
-> > > > > > > > +	struct vhost_virtqueue *vq,
-> > > > > > > >  	struct tcm_vhost_tpg *tv_tpg,
-> > > > > > > >  	struct virtio_scsi_cmd_req *v_req,
-> > > > > > > >  	u32 exp_data_len,
-> > > > > > > > @@ -557,6 +624,7 @@ static struct tcm_vhost_cmd *vhost_scsi_allocate_cmd(
-> > > > > > > >  	tv_cmd->tvc_exp_data_len = exp_data_len;
-> > > > > > > >  	tv_cmd->tvc_data_direction = data_direction;
-> > > > > > > >  	tv_cmd->tvc_nexus = tv_nexus;
-> > > > > > > > +	tv_cmd->inflight = tcm_vhost_get_inflight(vq);
-> > > > > > > >  
-> > > > > > > >  	return tv_cmd;
-> > > > > > > >  }
-> > > > > > > > @@ -812,7 +880,7 @@ static void vhost_scsi_handle_vq(struct vhost_scsi *vs,
-> > > > > > > >  		for (i = 0; i < data_num; i++)
-> > > > > > > >  			exp_data_len += vq->iov[data_first + i].iov_len;
-> > > > > > > >  
-> > > > > > > > -		tv_cmd = vhost_scsi_allocate_cmd(tv_tpg, &v_req,
-> > > > > > > > +		tv_cmd = vhost_scsi_allocate_cmd(vq, tv_tpg, &v_req,
-> > > > > > > >  					exp_data_len, data_direction);
-> > > > > > > >  		if (IS_ERR(tv_cmd)) {
-> > > > > > > >  			vq_err(vq, "vhost_scsi_allocate_cmd failed %ld\n",
-> > > > > > > > @@ -949,12 +1017,29 @@ static void vhost_scsi_flush_vq(struct vhost_scsi *vs, int index)
-> > > > > > > >  
-> > > > > > > >  static void vhost_scsi_flush(struct vhost_scsi *vs)
-> > > > > > > >  {
-> > > > > > > > +	struct vhost_scsi_inflight *old_inflight[VHOST_SCSI_MAX_VQ];
-> > > > > > > >  	int i;
-> > > > > > > >  
-> > > > > > > > +	/* Init new inflight and remember the old inflight */
-> > > > > > > > +	tcm_vhost_init_inflight(vs, old_inflight);
-> > > > > > > > +
-> > > > > > > > +	/*
-> > > > > > > > +	 * The inflight->kref was initialized to 1. We decrement it here to
-> > > > > > > > +	 * indicate the start of the flush operation so that it will reach 0
-> > > > > > > > +	 * when all the reqs are finished.
-> > > > > > > > +	 */
-> > > > > > > > +	for (i = 0; i < VHOST_SCSI_MAX_VQ; i++)
-> > > > > > > > +		kref_put(&old_inflight[i]->kref, tcm_vhost_done_inflight);
-> > > > > > > > +
-> > > > > > > > +	/* Flush both the vhost poll and vhost work */
-> > > > > > > >  	for (i = 0; i < VHOST_SCSI_MAX_VQ; i++)
-> > > > > > > >  		vhost_scsi_flush_vq(vs, i);
-> > > > > > > >  	vhost_work_flush(&vs->dev, &vs->vs_completion_work);
-> > > > > > > >  	vhost_work_flush(&vs->dev, &vs->vs_event_work);
-> > > > > > > > +
-> > > > > > > > +	/* Wait for all reqs issued before the flush to be finished */
-> > > > > > > > +	for (i = 0; i < VHOST_SCSI_MAX_VQ; i++)
-> > > > > > > > +		wait_for_completion(&old_inflight[i]->comp);
-> > > > > > > >  }
-> > > > > > > >  
-> > > > > > > >  /*
-> > > > > > > > @@ -1185,6 +1270,9 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
-> > > > > > > >  		s->vqs[i].vq.handle_kick = vhost_scsi_handle_kick;
-> > > > > > > >  	}
-> > > > > > > >  	r = vhost_dev_init(&s->dev, vqs, VHOST_SCSI_MAX_VQ);
-> > > > > > > > +
-> > > > > > > > +	tcm_vhost_init_inflight(s, NULL);
-> > > > > > > > +
-> > > > > > > >  	if (r < 0) {
-> > > > > > > >  		kfree(vqs);
-> > > > > > > >  		kfree(s);
-> > > > > > > > diff --git a/drivers/vhost/tcm_vhost.h b/drivers/vhost/tcm_vhost.h
-> > > > > > > > index 514b9fd..26a57c2 100644
-> > > > > > > > --- a/drivers/vhost/tcm_vhost.h
-> > > > > > > > +++ b/drivers/vhost/tcm_vhost.h
-> > > > > > > > @@ -2,6 +2,7 @@
-> > > > > > > >  #define TCM_VHOST_NAMELEN 256
-> > > > > > > >  #define TCM_VHOST_MAX_CDB_SIZE 32
-> > > > > > > >  
-> > > > > > > > +struct vhost_scsi_inflight;
-> > > > > > > >  struct tcm_vhost_cmd {
-> > > > > > > >  	/* Descriptor from vhost_get_vq_desc() for virt_queue segment */
-> > > > > > > >  	int tvc_vq_desc;
-> > > > > > > > @@ -37,6 +38,8 @@ struct tcm_vhost_cmd {
-> > > > > > > >  	unsigned char tvc_sense_buf[TRANSPORT_SENSE_BUFFER];
-> > > > > > > >  	/* Completed commands list, serviced from vhost worker thread */
-> > > > > > > >  	struct llist_node tvc_completion_list;
-> > > > > > > > +	/* Used to track inflight cmd */
-> > > > > > > > +	struct vhost_scsi_inflight *inflight;
-> > > > > > > >  };
-> > > > > > > >  
-> > > > > > > >  struct tcm_vhost_nexus {
-> > > > > > > > -- 
-> > > > > > > > 1.8.1.4
-> > > > > > 
-> > > > > > -- 
-> > > > > > Asias
-> > > > 
-> > > > -- 
-> > > > Asias
-> > 
-> > -- 
-> > Asias
+This was discussed on this thread:
+	'[PATCH 16/22] virtio_pci: use separate notification offsets for each vq'
+Please take a look there and confirm that this addresses your concern.
+I'm working on making memory io as fast as pio on x86,
+implemented on intel, once I do it on AMD too and assuming it's
+as fast as PIO, we'll do mmio everywhere.
+Then with a PCI card, you won't have exits for notification just normal
+passthrough.
+
 
 -- 
-Asias
+MST
