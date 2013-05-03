@@ -1,11 +1,13 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH 0/4] vhost and vhost-net cleanups
-Date: Fri,  3 May 2013 14:25:14 +0800
-Message-ID: <1367562318-11989-1-git-send-email-asias@redhat.com>
+Subject: [PATCH 1/4] vhost: Remove comments for hdr in vhost.h
+Date: Fri,  3 May 2013 14:25:15 +0800
+Message-ID: <1367562318-11989-2-git-send-email-asias@redhat.com>
+References: <1367562318-11989-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1367562318-11989-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,16 +21,26 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Asias He (4):
-  vhost: Remove comments for hdr in vhost.h
-  vhost: Simplify dev->vqs[i] access
-  vhost-net: Free ubuf when vhost_dev_ioctl fails
-  vhost-net: Cleanup vhost_ubuf adn vhost_zcopy
+It is supposed to be removed when hdr is moved into vhost_net_virtqueue.
 
- drivers/vhost/net.c   | 76 +++++++++++++++++++++++++++++++--------------------
- drivers/vhost/vhost.c | 35 ++++++++++++------------
- drivers/vhost/vhost.h |  3 --
- 3 files changed, 65 insertions(+), 49 deletions(-)
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/vhost.h | 3 ---
+ 1 file changed, 3 deletions(-)
 
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 6fefebf..f9045b4 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -101,9 +101,6 @@ struct vhost_virtqueue {
+ 	u64 log_addr;
+ 
+ 	struct iovec iov[UIO_MAXIOV];
+-	/* hdr is used to store the virtio header.
+-	 * Since each iovec has >= 1 byte length, we never need more than
+-	 * header length entries to store the header. */
+ 	struct iovec *indirect;
+ 	struct vring_used_elem *heads;
+ 	/* We use a kind of RCU to access private pointer.
 -- 
 1.8.1.4
