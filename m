@@ -1,7 +1,7 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH 1/4] vhost: Remove comments for hdr in vhost.h
-Date: Fri,  3 May 2013 14:25:15 +0800
-Message-ID: <1367562318-11989-2-git-send-email-asias@redhat.com>
+Subject: [PATCH 2/4] vhost: Simplify dev->vqs[i] access
+Date: Fri,  3 May 2013 14:25:16 +0800
+Message-ID: <1367562318-11989-3-git-send-email-asias@redhat.com>
 References: <1367562318-11989-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,26 +21,73 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-It is supposed to be removed when hdr is moved into vhost_net_virtqueue.
-
 Signed-off-by: Asias He <asias@redhat.com>
 ---
- drivers/vhost/vhost.h | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/vhost/vhost.c | 35 ++++++++++++++++++-----------------
+ 1 file changed, 18 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 6fefebf..f9045b4 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -101,9 +101,6 @@ struct vhost_virtqueue {
- 	u64 log_addr;
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 73100fe..0003bab 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -260,17 +260,16 @@ static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
+ /* Helper to allocate iovec buffers for all vqs. */
+ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
+ {
++	struct vhost_virtqueue *vq;
+ 	int i;
  
- 	struct iovec iov[UIO_MAXIOV];
--	/* hdr is used to store the virtio header.
--	 * Since each iovec has >= 1 byte length, we never need more than
--	 * header length entries to store the header. */
- 	struct iovec *indirect;
- 	struct vring_used_elem *heads;
- 	/* We use a kind of RCU to access private pointer.
+ 	for (i = 0; i < dev->nvqs; ++i) {
+-		dev->vqs[i]->indirect = kmalloc(sizeof *dev->vqs[i]->indirect *
+-					       UIO_MAXIOV, GFP_KERNEL);
+-		dev->vqs[i]->log = kmalloc(sizeof *dev->vqs[i]->log * UIO_MAXIOV,
+-					  GFP_KERNEL);
+-		dev->vqs[i]->heads = kmalloc(sizeof *dev->vqs[i]->heads *
+-					    UIO_MAXIOV, GFP_KERNEL);
+-		if (!dev->vqs[i]->indirect || !dev->vqs[i]->log ||
+-			!dev->vqs[i]->heads)
++		vq = dev->vqs[i];
++		vq->indirect = kmalloc(sizeof *vq->indirect * UIO_MAXIOV,
++				       GFP_KERNEL);
++		vq->log = kmalloc(sizeof *vq->log * UIO_MAXIOV, GFP_KERNEL);
++		vq->heads = kmalloc(sizeof *vq->heads * UIO_MAXIOV, GFP_KERNEL);
++		if (!vq->indirect || !vq->log || !vq->heads)
+ 			goto err_nomem;
+ 	}
+ 	return 0;
+@@ -292,6 +291,7 @@ static void vhost_dev_free_iovecs(struct vhost_dev *dev)
+ long vhost_dev_init(struct vhost_dev *dev,
+ 		    struct vhost_virtqueue **vqs, int nvqs)
+ {
++	struct vhost_virtqueue *vq;
+ 	int i;
+ 
+ 	dev->vqs = vqs;
+@@ -306,15 +306,16 @@ long vhost_dev_init(struct vhost_dev *dev,
+ 	dev->worker = NULL;
+ 
+ 	for (i = 0; i < dev->nvqs; ++i) {
+-		dev->vqs[i]->log = NULL;
+-		dev->vqs[i]->indirect = NULL;
+-		dev->vqs[i]->heads = NULL;
+-		dev->vqs[i]->dev = dev;
+-		mutex_init(&dev->vqs[i]->mutex);
+-		vhost_vq_reset(dev, dev->vqs[i]);
+-		if (dev->vqs[i]->handle_kick)
+-			vhost_poll_init(&dev->vqs[i]->poll,
+-					dev->vqs[i]->handle_kick, POLLIN, dev);
++		vq = dev->vqs[i];
++		vq->log = NULL;
++		vq->indirect = NULL;
++		vq->heads = NULL;
++		vq->dev = dev;
++		mutex_init(&vq->mutex);
++		vhost_vq_reset(dev, vq);
++		if (vq->handle_kick)
++			vhost_poll_init(&vq->poll, vq->handle_kick,
++					POLLIN, dev);
+ 	}
+ 
+ 	return 0;
 -- 
 1.8.1.4
