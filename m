@@ -1,7 +1,7 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH 2/4] vhost: Simplify dev->vqs[i] access
-Date: Fri,  3 May 2013 14:25:16 +0800
-Message-ID: <1367562318-11989-3-git-send-email-asias@redhat.com>
+Subject: [PATCH 3/4] vhost-net: Free ubuf when vhost_dev_ioctl fails
+Date: Fri,  3 May 2013 14:25:17 +0800
+Message-ID: <1367562318-11989-4-git-send-email-asias@redhat.com>
 References: <1367562318-11989-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,73 +21,52 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Free ubuf when vhost_dev_ioctl for VHOST_SET_OWNER fails.
+
 Signed-off-by: Asias He <asias@redhat.com>
 ---
- drivers/vhost/vhost.c | 35 ++++++++++++++++++-----------------
- 1 file changed, 18 insertions(+), 17 deletions(-)
+ drivers/vhost/net.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 73100fe..0003bab 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -260,17 +260,16 @@ static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
- /* Helper to allocate iovec buffers for all vqs. */
- static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index b2f6b41..eb73217 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -152,6 +152,19 @@ void vhost_ubuf_put_and_wait(struct vhost_ubuf_ref *ubufs)
+ 	kfree(ubufs);
+ }
+ 
++static void vhost_net_clear_ubuf_info(struct vhost_net *n)
++{
++
++	bool zcopy;
++	int i;
++
++	for (i = 0; i < n->dev.nvqs; ++i) {
++		zcopy = vhost_zcopy_mask & (0x1 << i);
++		if (zcopy)
++			kfree(n->vqs[i].ubuf_info);
++	}
++}
++
+ int vhost_net_set_ubuf_info(struct vhost_net *n)
  {
-+	struct vhost_virtqueue *vq;
- 	int i;
- 
- 	for (i = 0; i < dev->nvqs; ++i) {
--		dev->vqs[i]->indirect = kmalloc(sizeof *dev->vqs[i]->indirect *
--					       UIO_MAXIOV, GFP_KERNEL);
--		dev->vqs[i]->log = kmalloc(sizeof *dev->vqs[i]->log * UIO_MAXIOV,
--					  GFP_KERNEL);
--		dev->vqs[i]->heads = kmalloc(sizeof *dev->vqs[i]->heads *
--					    UIO_MAXIOV, GFP_KERNEL);
--		if (!dev->vqs[i]->indirect || !dev->vqs[i]->log ||
--			!dev->vqs[i]->heads)
-+		vq = dev->vqs[i];
-+		vq->indirect = kmalloc(sizeof *vq->indirect * UIO_MAXIOV,
-+				       GFP_KERNEL);
-+		vq->log = kmalloc(sizeof *vq->log * UIO_MAXIOV, GFP_KERNEL);
-+		vq->heads = kmalloc(sizeof *vq->heads * UIO_MAXIOV, GFP_KERNEL);
-+		if (!vq->indirect || !vq->log || !vq->heads)
- 			goto err_nomem;
- 	}
- 	return 0;
-@@ -292,6 +291,7 @@ static void vhost_dev_free_iovecs(struct vhost_dev *dev)
- long vhost_dev_init(struct vhost_dev *dev,
- 		    struct vhost_virtqueue **vqs, int nvqs)
- {
-+	struct vhost_virtqueue *vq;
- 	int i;
- 
- 	dev->vqs = vqs;
-@@ -306,15 +306,16 @@ long vhost_dev_init(struct vhost_dev *dev,
- 	dev->worker = NULL;
- 
- 	for (i = 0; i < dev->nvqs; ++i) {
--		dev->vqs[i]->log = NULL;
--		dev->vqs[i]->indirect = NULL;
--		dev->vqs[i]->heads = NULL;
--		dev->vqs[i]->dev = dev;
--		mutex_init(&dev->vqs[i]->mutex);
--		vhost_vq_reset(dev, dev->vqs[i]);
--		if (dev->vqs[i]->handle_kick)
--			vhost_poll_init(&dev->vqs[i]->poll,
--					dev->vqs[i]->handle_kick, POLLIN, dev);
-+		vq = dev->vqs[i];
-+		vq->log = NULL;
-+		vq->indirect = NULL;
-+		vq->heads = NULL;
-+		vq->dev = dev;
-+		mutex_init(&vq->mutex);
-+		vhost_vq_reset(dev, vq);
-+		if (vq->handle_kick)
-+			vhost_poll_init(&vq->poll, vq->handle_kick,
-+					POLLIN, dev);
- 	}
- 
- 	return 0;
+ 	bool zcopy;
+@@ -1069,10 +1082,13 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
+ 				goto out;
+ 		}
+ 		r = vhost_dev_ioctl(&n->dev, ioctl, argp);
+-		if (r == -ENOIOCTLCMD)
++		if (r == -ENOIOCTLCMD) {
+ 			r = vhost_vring_ioctl(&n->dev, ioctl, argp);
+-		else
++		} else {
++			if (r < 0 && ioctl == VHOST_SET_OWNER)
++				vhost_net_clear_ubuf_info(n);
+ 			vhost_net_flush(n);
++		}
+ out:
+ 		mutex_unlock(&n->dev.mutex);
+ 		return r;
 -- 
 1.8.1.4
