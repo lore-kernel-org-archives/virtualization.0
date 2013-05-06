@@ -1,14 +1,15 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 00/11] vhost cleanups
-Date: Mon, 6 May 2013 11:56:36 +0300
-Message-ID: <20130506085636.GB15909@redhat.com>
-References: <1367829509-5371-1-git-send-email-asias@redhat.com>
+Subject: Re: [PATCH 0/3] vhost cleanups and separate module
+Date: Mon, 6 May 2013 12:19:11 +0300
+Message-ID: <20130506091911.GB10601@redhat.com>
+References: <1367559269-8325-1-git-send-email-asias@redhat.com>
+	<87sj20prhj.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1367829509-5371-1-git-send-email-asias@redhat.com>
+In-Reply-To: <87sj20prhj.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,43 +19,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: target-devel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 06, 2013 at 04:38:18PM +0800, Asias He wrote:
-> MST, This is on top of [PATCH 0/2] vhost-net fix ubuf.
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-Once -rc1 is out I'll fork -next and apply them.
-Thanks a lot!
-
-Nicholas, recently attempts to push patches through both net and target
-trees resulted in a bit of a mess, so let's stick to the common tree
-(unless there's a dependency that makes us not to) until rate of changes
-in the common code calms down a bit.  OK?
-
-> Asias He (11):
->   vhost: Remove vhost_enable_zcopy in vhost.h
->   vhost: Move VHOST_NET_FEATURES to net.c
->   vhost: Make vhost a separate module
->   vhost: Remove comments for hdr in vhost.h
->   vhost: Simplify dev->vqs[i] access
->   vhost-net: Cleanup vhost_ubuf and vhost_zcopy
->   vhost-scsi: Remove unnecessary forward struct vhost_scsi declaration
->   vhost-scsi: Rename struct vhost_scsi *s to *vs
->   vhost-scsi: Make func indention more consistent
->   vhost-scsi: Rename struct tcm_vhost_tpg *tv_tpg to *tpg
->   vhost-scsi: Rename struct tcm_vhost_cmd *tv_cmd to *cmd
+On Mon, May 06, 2013 at 03:41:36PM +0930, Rusty Russell wrote:
+> Asias He <asias@redhat.com> writes:
+> > Asias He (3):
+> >   vhost: Remove vhost_enable_zcopy in vhost.h
+> >   vhost: Move VHOST_NET_FEATURES to net.c
+> >   vhost: Make vhost a separate module
 > 
->  drivers/vhost/Kconfig  |   8 +
->  drivers/vhost/Makefile |   3 +-
->  drivers/vhost/net.c    |  64 ++++---
->  drivers/vhost/scsi.c   | 470 ++++++++++++++++++++++++++-----------------------
->  drivers/vhost/vhost.c  |  86 +++++++--
->  drivers/vhost/vhost.h  |  11 +-
->  6 files changed, 361 insertions(+), 281 deletions(-)
-> 
-> -- 
-> 1.8.1.4
+> I like these cleanups, MST pleasee apply.
+
+Absolutely. Except it's 3.11 material and I can only
+usefully create a -next branch once -rc1 is out.
+
+> I have some other cleanups which are on hold for the moment pending
+> MST's vhost_net simplification.  MST, how's that going?
+
+Not too well. The array of status bytes which was designed to complete
+packets in order turns out to be a very efficient datastructure:
+
+It gives us a way to signal completions that is completely lockless for
+multiple completers, and using the producer/consumer model saves extra
+scans for the common case.
+
+Overall I can save some memory and clean up some code but can't get rid
+of the producer/consumer idices (currently named upend/done indices)
+which is what you asked me to do.
+Your cleanups basically don't work with zcopy because they
+ignore the upend/done indices?
+Would you like to post them, noting they only work with zcopy off, and
+we'll look for a way to apply them, together?
+
+> Thanks,
+> Rusty.
