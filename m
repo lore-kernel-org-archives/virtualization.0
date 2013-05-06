@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v2 03/11] vhost: Make vhost a separate module
-Date: Mon, 6 May 2013 12:53:07 +0300
-Message-ID: <20130506095307.GA16469@redhat.com>
+Date: Mon, 6 May 2013 13:03:42 +0300
+Message-ID: <20130506100342.GB16708@redhat.com>
 References: <1367829509-5371-1-git-send-email-asias@redhat.com>
 	<1367829509-5371-4-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
@@ -32,6 +32,10 @@ On Mon, May 06, 2013 at 04:38:21PM +0800, Asias He wrote:
 > other vhost devices.
 > 
 > Signed-off-by: Asias He <asias@redhat.com>
+
+Also this will break test.c, right? Let's fix it in the same
+commit too.
+
 > ---
 >  drivers/vhost/Kconfig  |  8 ++++++++
 >  drivers/vhost/Makefile |  3 ++-
@@ -358,9 +362,6 @@ On Mon, May 06, 2013 at 04:38:21PM +0800, Asias He wrote:
 > +static void __exit vhost_exit(void)
 > +{
 > +	return;
-
-No need for return here.
-
 > +}
 > +
 > +module_init(vhost_init);
