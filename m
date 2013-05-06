@@ -1,14 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 00/11] vhost cleanups
-Date: Mon, 6 May 2013 13:07:46 +0300
-Message-ID: <20130506100746.GA16938@redhat.com>
-References: <1367829509-5371-1-git-send-email-asias@redhat.com>
+Subject: Re: virtio performance analysis
+Date: Mon, 6 May 2013 13:19:36 +0300
+Message-ID: <20130506101936.GA16906@redhat.com>
+References: <CAAtA1-aB_EQruG8ta=xjt8LO-522_5=YbKCL_33exXG2n5vutw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1367829509-5371-1-git-send-email-asias@redhat.com>
+In-Reply-To: <CAAtA1-aB_EQruG8ta=xjt8LO-522_5=YbKCL_33exXG2n5vutw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,37 +18,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: target-devel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: nitesh narayan lal <niteshnarayanlalleo@gmail.com>, agraf@suse.de
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, May 06, 2013 at 04:38:18PM +0800, Asias He wrote:
-> MST, This is on top of [PATCH 0/2] vhost-net fix ubuf.
+On Thu, May 02, 2013 at 09:13:29AM +0530, nitesh narayan lal wrote:
+> Hi,
+> I am currently working on the virtio performance analysis in PowerPC .
 
-Okay, how about making EVENT_IDX work for virtio-scsi?
-I'm guessing it's some messup with feature negotiation,
-that's what all event-idx bugs came down to so far.
+That's nice.
 
-> Asias He (11):
->   vhost: Remove vhost_enable_zcopy in vhost.h
->   vhost: Move VHOST_NET_FEATURES to net.c
->   vhost: Make vhost a separate module
->   vhost: Remove comments for hdr in vhost.h
->   vhost: Simplify dev->vqs[i] access
->   vhost-net: Cleanup vhost_ubuf and vhost_zcopy
->   vhost-scsi: Remove unnecessary forward struct vhost_scsi declaration
->   vhost-scsi: Rename struct vhost_scsi *s to *vs
->   vhost-scsi: Make func indention more consistent
->   vhost-scsi: Rename struct tcm_vhost_tpg *tv_tpg to *tpg
->   vhost-scsi: Rename struct tcm_vhost_cmd *tv_cmd to *cmd
-> 
->  drivers/vhost/Kconfig  |   8 +
->  drivers/vhost/Makefile |   3 +-
->  drivers/vhost/net.c    |  64 ++++---
->  drivers/vhost/scsi.c   | 470 ++++++++++++++++++++++++++-----------------------
->  drivers/vhost/vhost.c  |  86 +++++++--
->  drivers/vhost/vhost.h  |  11 +-
->  6 files changed, 361 insertions(+), 281 deletions(-)
-> 
-> -- 
-> 1.8.1.4
+> I was looking at the virtio front-end code and had done tracing by
+> adding WARN_ON condition in skb_recv_done(),xmit_skb_done(
+> ) and virtqueue_kick().
+
+That's a bit heavy-handed. Why not just use ftrace?
+
+> What I had seen is virtqueue_kick() internally it calls iowrite16()
+> which will cause an exit to QEMU,
+
+You probably should be looking at vhost-net and not
+userspace virtio-net if you are interested in performance.
+
+> now either I send a packets from
+> Guest or receive a packets to guest sart_xmit() will be called and
+> inside start_xmit there is a call to virtqueue_kick() causing Guest
+> exit. Also for every packet or ack sent from Guest there is an
+> exception received while sending or receiving the next packet/ack.
+
+Not exactly, we can buffer many events in
+case guest and host are running in parallel.
+See vring_need_event and its uses.
+
+> Due to all of the above factors mentioned their will be an increase in
+> signal, EXTINT and guest exits
+
+Increase as compared to what?
+
+>  and hence it will effect the CPU
+> performance.
+> This is what my analysis is so far, it would be great if I could get
+> some help on this such that whether it seems appropriate or not ?
+> Regards
+> Nitesh Narayan Lal
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
