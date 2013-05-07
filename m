@@ -1,13 +1,12 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] vhost-scsi: Enable VIRTIO_RING_F_EVENT_IDX
-Date: Tue, 07 May 2013 10:03:14 +0200
-Message-ID: <5188B542.6050808@redhat.com>
-References: <1367909509-11494-1-git-send-email-asias@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: more fixes for 3.10
+Date: Tue, 7 May 2013 14:10:24 +0300
+Message-ID: <20130507111024.GA18992@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1367909509-11494-1-git-send-email-asias@redhat.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,44 +16,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 07/05/2013 08:51, Asias He ha scritto:
-> It is disabled as a workaround. Now userspace bits works fine with it.
-> So, let's enable it.
-> 
-> Signed-off-by: Asias He <asias@redhat.com>
-> ---
->  drivers/vhost/scsi.c | 8 +-------
->  1 file changed, 1 insertion(+), 7 deletions(-)
-> 
-> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> index d860b58..5531ebc 100644
-> --- a/drivers/vhost/scsi.c
-> +++ b/drivers/vhost/scsi.c
-> @@ -160,14 +160,8 @@ enum {
->  	VHOST_SCSI_VQ_IO = 2,
->  };
->  
-> -/*
-> - * VIRTIO_RING_F_EVENT_IDX seems broken. Not sure the bug is in
-> - * kernel but disabling it helps.
-> - * TODO: debug and remove the workaround.
-> - */
->  enum {
-> -	VHOST_SCSI_FEATURES = (VHOST_FEATURES & (~VIRTIO_RING_F_EVENT_IDX)) |
-> -			      (1ULL << VIRTIO_SCSI_F_HOTPLUG)
-> +	VHOST_SCSI_FEATURES = VHOST_FEATURES | (1ULL << VIRTIO_SCSI_F_HOTPLUG)
->  };
->  
->  #define VHOST_SCSI_MAX_TARGET	256
-> 
+I didn't do any back-merging tricks this time,
+as a result this is behind master by quite a lot.
+But I did a test merge and it came out correctly,
+so this shouldn't be an issue.
 
-The broken version was not ever committed to QEMU, I guess the same is
-true for nlkt.
+The following changes since commit 181c04a357bb791587c55a99362c2fdde2c64f18:
 
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+  vhost_scsi: module rename (2013-05-02 13:40:22 +0300)
 
-Paolo
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to a18cc421649dfdc21edb6c4c867dd05447d7df8c:
+
+  vhost-scsi: Enable VIRTIO_RING_F_EVENT_IDX (2013-05-07 11:11:08 +0300)
+
+----------------------------------------------------------------
+vhost: more fixes for 3.10
+
+This fixes some minor issues in the patches that have been merged.
+We also finally drop the workaround disabling event_idx
+for scsi: it was always questionable, and now we
+know it's not needed.
+There's also a memory leak fix.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Asias He (7):
+      vhost: Export vhost_dev_set_owner
+      vhost-net: Free ubuf when vhost_dev_set_owner fails
+      vhost: Move VHOST_NET_FEATURES to net.c
+      vhost: Remove comments for hdr in vhost.h
+      vhost: Remove vhost_enable_zcopy in vhost.h
+      vhost-net: Cleanup vhost_ubuf and vhost_zcopy
+      vhost-scsi: Enable VIRTIO_RING_F_EVENT_IDX
+
+Michael S. Tsirkin (1):
+      vhost: drop virtio_net.h dependency
+
+ drivers/vhost/net.c   | 100 +++++++++++++++++++++++++++++++++-----------------
+ drivers/vhost/scsi.c  |   8 +---
+ drivers/vhost/vhost.c |   4 +-
+ drivers/vhost/vhost.h |  10 +----
+ 4 files changed, 71 insertions(+), 51 deletions(-)
