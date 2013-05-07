@@ -1,7 +1,7 @@
 From: Asias He <asias@redhat.com>
-Subject: [PATCH 1/4] vhost-net: Always access vq->private_data under vq mutex
-Date: Tue,  7 May 2013 14:54:33 +0800
-Message-ID: <1367909676-11788-2-git-send-email-asias@redhat.com>
+Subject: [PATCH 2/4] vhost-test: Always access vq->private_data under vq mutex
+Date: Tue,  7 May 2013 14:54:34 +0800
+Message-ID: <1367909676-11788-3-git-send-email-asias@redhat.com>
 References: <1367909676-11788-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,59 +23,30 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Asias He <asias@redhat.com>
 ---
- drivers/vhost/net.c | 21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+ drivers/vhost/test.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 2b51e23..b616d9a 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -349,12 +349,11 @@ static void handle_tx(struct vhost_net *net)
- 	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
- 	bool zcopy, zcopy_used;
+diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+index dc526eb..435b911 100644
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -48,11 +48,12 @@ static void handle_vq(struct vhost_test *n)
+ 	size_t len, total_len = 0;
+ 	void *private;
  
--	/* TODO: check that we are running from vhost_worker? */
--	sock = rcu_dereference_check(vq->private_data, 1);
-+	mutex_lock(&vq->mutex);
-+	sock = vq->private_data;
- 	if (!sock)
+-	private = rcu_dereference_check(vq->private_data, 1);
+-	if (!private)
 -		return;
-+		goto out;
- 
--	mutex_lock(&vq->mutex);
- 	vhost_disable_notify(&net->dev, vq);
- 
- 	hdr_size = nvq->vhost_hlen;
-@@ -463,7 +462,7 @@ static void handle_tx(struct vhost_net *net)
- 			break;
- 		}
- 	}
--
-+out:
- 	mutex_unlock(&vq->mutex);
- }
- 
-@@ -572,14 +571,14 @@ static void handle_rx(struct vhost_net *net)
- 	s16 headcount;
- 	size_t vhost_hlen, sock_hlen;
- 	size_t vhost_len, sock_len;
--	/* TODO: check that we are running from vhost_worker? */
--	struct socket *sock = rcu_dereference_check(vq->private_data, 1);
--
--	if (!sock)
--		return;
-+	struct socket *sock;
  
  	mutex_lock(&vq->mutex);
-+	sock = vq->private_data;
-+	if (!sock)
++	private = vq->private_data;
++	if (!private)
 +		goto out;
- 	vhost_disable_notify(&net->dev, vq);
 +
- 	vhost_hlen = nvq->vhost_hlen;
- 	sock_hlen = nvq->sock_hlen;
+ 	vhost_disable_notify(&n->dev, vq);
  
-@@ -654,7 +653,7 @@ static void handle_rx(struct vhost_net *net)
+ 	for (;;) {
+@@ -89,7 +90,7 @@ static void handle_vq(struct vhost_test *n)
  			break;
  		}
  	}
