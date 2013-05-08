@@ -1,16 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2] vhost-test: Make vhost/test.c work
-Date: Wed, 8 May 2013 11:28:39 +0300
-Message-ID: <20130508082839.GA7517@redhat.com>
-References: <1367997873-16933-1-git-send-email-asias@redhat.com>
-	<20130508075619.GA4858@redhat.com>
-	<20130508081719.GB18706@hj.localdomain>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH] virtio-balloon spec: rework VIRTIO_BALLOON_F_MUST_TELL_HOST
+	feature, support silent deflation
+Date: Wed,  8 May 2013 12:10:13 +0200
+Message-ID: <1368007813-1264-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130508081719.GB18706@hj.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,120 +16,375 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: target-devel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 08, 2013 at 04:17:19PM +0800, Asias He wrote:
-> On Wed, May 08, 2013 at 10:56:19AM +0300, Michael S. Tsirkin wrote:
-> > On Wed, May 08, 2013 at 03:24:33PM +0800, Asias He wrote:
-> > > Fix it by switching to use the new device specific fields per vq
-> > > 
-> > > Signed-off-by: Asias He <asias@redhat.com>
-> > > ---
-> > > 
-> > > This is for 3.10.
-> > > 
-> > >  drivers/vhost/test.c | 35 ++++++++++++++++++++++++-----------
-> > >  1 file changed, 24 insertions(+), 11 deletions(-)
-> > > 
-> > > diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-> > > index 1ee45bc..7b49d10 100644
-> > > --- a/drivers/vhost/test.c
-> > > +++ b/drivers/vhost/test.c
-> > > @@ -29,16 +29,20 @@ enum {
-> > >  	VHOST_TEST_VQ_MAX = 1,
-> > >  };
-> > >  
-> > > +struct vhost_test_virtqueue {
-> > > +	struct vhost_virtqueue vq;
-> > > +};
-> > > +
-> > 
-> > Well there are no test specific fields here,
-> > so this structure is not needed. Here's what I queued:
-> 
-> Could you push the queue to your git repo ?
+The idea of the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is to let drivers
+skip usage of the deflate queue when leaking the balloon ("silent
+deflation").  Guests may benefit from silent deflate by aggressively
+inflating the balloon; they know that they will be able to use ballooned
+pages without issuing a (blocking) request to the device.
 
-done
-branch vhost
+The problem is that this feature is a "negative" feature: if
+set, the guest _may not_ use ballooned pages directly.  Negative features
+are not safe against migration; here is an explanation why this is so.
 
-> > --->
-> > 
-> > vhost-test: fix up test module after API change
-> > 
-> > Recent vhost API changes broke vhost test module.
-> > Update it to the new APIs.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > 
-> > ---
-> > 
-> > diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-> > index be65414..c2c3d91 100644
-> > --- a/drivers/vhost/test.c
-> > +++ b/drivers/vhost/test.c
-> > @@ -38,7 +38,7 @@ struct vhost_test {
-> >   * read-size critical section for our kind of RCU. */
-> >  static void handle_vq(struct vhost_test *n)
-> >  {
-> > -	struct vhost_virtqueue *vq = &n->dev.vqs[VHOST_TEST_VQ];
-> > +	struct vhost_virtqueue *vq = &n->vqs[VHOST_TEST_VQ];
-> >  	unsigned out, in;
-> >  	int head;
-> >  	size_t len, total_len = 0;
-> > @@ -102,6 +102,7 @@ static int vhost_test_open(struct inode *inode, struct file *f)
-> >  {
-> >  	struct vhost_test *n = kmalloc(sizeof *n, GFP_KERNEL);
-> >  	struct vhost_dev *dev;
-> > +	struct vhost_virtqueue *vqs[VHOST_TEST_VQ_MAX];
-> >  	int r;
-> >  
-> >  	if (!n)
-> > @@ -109,7 +110,8 @@ static int vhost_test_open(struct inode *inode, struct file *f)
-> >  
-> >  	dev = &n->dev;
-> >  	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
-> > -	r = vhost_dev_init(dev, n->vqs, VHOST_TEST_VQ_MAX);
-> > +	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
-> > +	r = vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX);
-> >  	if (r < 0) {
-> >  		kfree(n);
-> >  		return r;
-> > @@ -140,7 +142,7 @@ static void vhost_test_stop(struct vhost_test *n, void **privatep)
-> >  
-> >  static void vhost_test_flush_vq(struct vhost_test *n, int index)
-> >  {
-> > -	vhost_poll_flush(&n->dev.vqs[index].poll);
-> > +	vhost_poll_flush(&n->vqs[index].poll);
-> >  }
-> >  
-> >  static void vhost_test_flush(struct vhost_test *n)
-> > @@ -268,21 +270,21 @@ static long vhost_test_ioctl(struct file *f, unsigned int ioctl,
-> >  			return -EFAULT;
-> >  		return vhost_test_run(n, test);
-> >  	case VHOST_GET_FEATURES:
-> > -		features = VHOST_NET_FEATURES;
-> > +		features = VHOST_FEATURES;
-> >  		if (copy_to_user(featurep, &features, sizeof features))
-> >  			return -EFAULT;
-> >  		return 0;
-> >  	case VHOST_SET_FEATURES:
-> >  		if (copy_from_user(&features, featurep, sizeof features))
-> >  			return -EFAULT;
-> > -		if (features & ~VHOST_NET_FEATURES)
-> > +		if (features & ~VHOST_FEATURES)
-> >  			return -EOPNOTSUPP;
-> >  		return vhost_test_set_features(n, features);
-> >  	case VHOST_RESET_OWNER:
-> >  		return vhost_test_reset_owner(n);
-> >  	default:
-> >  		mutex_lock(&n->dev.mutex);
-> > -		r = vhost_dev_ioctl(&n->dev, ioctl, arg);
-> > +		r = vhost_dev_ioctl(&n->dev, ioctl, argp);
-> >  		vhost_test_flush(n);
-> >  		mutex_unlock(&n->dev.mutex);
-> >  		return r;
-> 
-> -- 
-> Asias
+For a "positive" feature, migration is possible if the destination
+supports it, or the source didn't set it:
+
+    dest support      source set          ok?
+          T                T              T
+          T                F              T
+          F                T              F
+          F                F              T
+
+For a "negative" feature, migration is possible if the destination
+supports it, or the source set it:
+
+    dest support      source set          ok?
+          T                T              T
+          T                F              F
+          F                T              T
+          F                F              T
+
+However, the F/T line violates the virtio specification because the
+negotiated features are supposed to be the AND of the device-
+and driver-supported features.
+
+Furthermore, this assumes that the destination host knows which features
+are "positive" and which are "negative", which obviously cannot be the
+case in general.  (The original spec assumed that every device supports
+VIRTIO_BALLOON_F_MUST_TELL_HOST, but this was not explicitly documented
+and in practice it turns out not to be the case).
+
+Not all is lost, however.  First, all known device implementations support
+silent deflation, hence they do not negotiate the feature.  We are thus
+somewhat free to redefine what the host should do about this feature.
+
+Second, by chance, coincidence or an evil plot, the only known driver
+that does not negotiate VIRTIO_BALLOON_F_MUST_TELL_HOST is also using
+pages before telling the host.  Thus, even though the feature used to be
+just for communication from the host, known drivers are really using it
+to communicate was in the other direction, as if the feature was named
+"VIRTIO_BALLOON_F_GUEST_TELLS_HOST".
+
+Adjust the spec to conform, and add a new feature bit for the host to
+tell the drivers if silent deflation is actually supported.  With this
+new feature bit, the host can distinguish all three cases: will never
+do silent deflation, will do silent deflation if available, will always
+do silent deflation (as in the above buggy driver).
+
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ virtio-spec.lyx | 264 ++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 258 insertions(+), 6 deletions(-)
+
+diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+index 73e22e7..033362f 100644
+--- a/virtio-spec.lyx
++++ b/virtio-spec.lyx
+@@ -63,7 +63,7 @@
+ \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
+ \author 460276516 "Dmitry Fleytman" dfleytma@redhat.com
+ \author 1112500848 "Rusty Russell" rusty@rustcorp.com.au
+-\author 1531152142 "Paolo Bonzini,,," 
++\author 1531152142 "Paolo Bonzini" pbonzini@redhat.com
+ \author 1717892615 "Alexey Zaytsev,,," 
+ \author 1986246365 "Michael S. Tsirkin" 
+ \end_header
+@@ -7179,11 +7179,49 @@ bits
+ 
+ \begin_deeper
+ \begin_layout Description
+-VIRTIO_BALLOON_F_MUST_TELL_HOST
++VIRTIO_BALLOON_F_
++\change_deleted 1531152142 1347020601
++MUST
++\change_inserted 1531152142 1347020602
++GUEST
++\change_unchanged
++_TELL
++\change_inserted 1531152142 1368004486
++S
++\change_unchanged
++_HOST
+ \begin_inset space ~
+ \end_inset
+ 
+-(0) Host must be told before pages from the balloon are used.
++(0) 
++\change_deleted 1531152142 1347020625
++Host must be told
++\change_inserted 1531152142 1347020617
++Guest will tell host
++\change_unchanged
++ before pages from the balloon are used.
++
++\change_inserted 1531152142 1368005603
++ The host should always propose this feature.
++\begin_inset Foot
++status open
++
++\begin_layout Plain Layout
++
++\change_inserted 1531152142 1347022389
++This feature used to be named VIRTIO_BALLOON_F_\SpecialChar \-
++MUST_TELL_HOST.
++ However, after a few years it was observed that drivers were not using
++ it as specified.
++ The virtio-balloon spec was then adjusted to what the drivers had been
++ doing.
++\end_layout
++
++\end_inset
++
++
++\change_unchanged
++
+ \end_layout
+ 
+ \begin_layout Description
+@@ -7192,6 +7230,20 @@ VIRTIO_BALLOON_F_STATS_VQ
+ \end_inset
+ 
+ (1) A virtqueue for reporting guest memory statistics is present.
++\change_inserted 1531152142 1347020627
++
++\end_layout
++
++\begin_layout Description
++
++\change_inserted 1531152142 1347020648
++VIRTIO_BALLOON_F_SILENT_DEFLATE
++\begin_inset space ~
++\end_inset
++
++(2) Guest does not need to tell host before pages from the balloon are used.
++\change_unchanged
++
+ \end_layout
+ 
+ \end_deeper
+@@ -7342,9 +7394,27 @@ The driver constructs an array of addresses of memory pages it has previously
+ \end_layout
+ 
+ \begin_layout Enumerate
+-If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is set, the guest may not
+- use these requested pages until that descriptor in the deflateq has been
+- used by the device.
++If 
++\change_inserted 1531152142 1347025663
++the VIRTIO_BALLOON_F_\SpecialChar \-
++GUEST_\SpecialChar \-
++TELLS_\SpecialChar \-
++HOST feature is set, and 
++\change_unchanged
++the VIRTIO_BALLOON_F_
++\change_deleted 1531152142 1347021706
++MUST_TELL_HOST
++\change_inserted 1531152142 1347022257
++\SpecialChar \-
++SILENT_\SpecialChar \-
++DEFLATE
++\change_unchanged
++ feature is 
++\change_inserted 1531152142 1347025674
++not 
++\change_unchanged
++set, the guest may not use these requested pages until that descriptor in
++ the deflateq has been used by the device.
+ \end_layout
+ 
+ \begin_layout Enumerate
+@@ -7535,6 +7605,188 @@ VIRTIO_BALLOON_S_MEMFREE The amount of memory not being used for any purpose
+ VIRTIO_BALLOON_S_MEMTOT The total amount of memory available (in bytes).
+ \end_layout
+ 
++\begin_layout Description
++
++\change_inserted 1531152142 1368005515
++Silent
++\begin_inset space ~
++\end_inset
++
++deflation
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1531152142 1368005515
++
++\series medium
++Some implementation of the balloon device may not require the guest to deflate
++ the balloon explicitly; instead, the guest may just take a page from its
++ reserve and start using it.
++ This is called 
++\begin_inset Quotes eld
++\end_inset
++
++silent deflate
++\begin_inset Quotes erd
++\end_inset
++
++
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1531152142 1368005515
++In order to use this feature effectively, both the guest and the host need
++ to know how the other part intends to use the balloon.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1531152142 1368005515
++
++\series medium
++Guests may benefit from silent deflate by aggressively inflating the balloon;
++ they know that they will be able to use ballooned pages without issuing
++ a (blocking) request to the device.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1531152142 1368005515
++Knowing that the guest will 
++\emph on
++not
++\emph default
++ deflate silently also benefits the host.
++ For example, if the host is pinning the guest's memory, it may unpin ballooned
++ pages and pin them again upon deflation.
++ This allows cooperative memory overcommit even if the guest's memory is
++ pinned.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1531152142 1368005515
++Thus, there are two possibilities for the host (either it does not support
++ silent deflate, or it does), and three for the guest (it doesn't need silent
++ deflate, it may choose to use it if available, it requires it).
++ Because there are three possibilities for the guest, support for silent
++ deflate is represented by two different feature bits.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1531152142 1368005515
++The feature bits are used as follows:
++\end_layout
++
++\begin_layout Itemize
++
++\change_inserted 1531152142 1368005671
++the host will always negotiate the VIRTIO_\SpecialChar \-
++BALLOON_F_\SpecialChar \-
++GUEST_\SpecialChar \-
++TELLS_\SpecialChar \-
++HOST feature.
++ If the guest does 
++\emph on
++not
++\emph default
++ negotiate it, the host should assume that the guest will use silent deflate.
++ If the host does not support silent deflate, it must not let the guest
++ discover any virtqueue, so that the driver will fail to start.
++\end_layout
++
++\begin_layout Itemize
++
++\change_inserted 1531152142 1368005515
++a guest that 
++\emph on
++must
++\emph default
++ use silent deflation does not need to negotiate any feature.
++\end_layout
++
++\begin_layout Itemize
++
++\change_inserted 1531152142 1368005676
++a guest that 
++\emph on
++will never
++\emph default
++ use silent deflation only has to propose VIRTIO_\SpecialChar \-
++BALLOON_F_\SpecialChar \-
++GUEST_\SpecialChar \-
++TELLS_\SpecialChar \-
++HOST.
++ It need not do anything if the host does not negotiate the feature.
++\end_layout
++
++\begin_layout Itemize
++
++\change_inserted 1531152142 1368005686
++a guest that 
++\emph on
++can optionally
++\emph default
++ use silent deflation should propose both VIRTIO_\SpecialChar \-
++BALLOON_F_\SpecialChar \-
++GUEST_\SpecialChar \-
++TELLS_\SpecialChar \-
++HOST
++ and VIRTIO_\SpecialChar \-
++BALLOON_F_\SpecialChar \-
++SILENT_\SpecialChar \-
++DEFLATE.
++ The guest driver can then use silent deflation if and only if the host
++ has negotiated VIRTIO_\SpecialChar \-
++BALLOON_F_\SpecialChar \-
++SILENT_\SpecialChar \-
++DEFLATE too.
++\end_layout
++
++\begin_layout Standard
++
++\change_inserted 1531152142 1368005690
++Old hosts may fail to propose the VIRTIO_\SpecialChar \-
++BALLOON_F_\SpecialChar \-
++GUEST_\SpecialChar \-
++TELLS_\SpecialChar \-
++HOST feature.
++ This is not a problem as long as these old hosts support silent deflation;
++ when running on such a host:
++\end_layout
++
++\begin_layout Itemize
++
++\change_inserted 1531152142 1368005515
++a guest that 
++\emph on
++must
++\emph default
++ use, or 
++\emph on
++will never
++\emph default
++ use silent deflation will just work.
++\end_layout
++
++\begin_layout Itemize
++
++\change_inserted 1531152142 1368005691
++a guest that 
++\emph on
++can optionally
++\emph default
++ use silent deflation will typically not use silent deflation, because these
++ old hosts do not know about VIRTIO_\SpecialChar \-
++BALLOON_F_\SpecialChar \-
++SILENT_\SpecialChar \-
++DEFLATE, but the guest
++ will otherwise work normally.
++\end_layout
++
+ \begin_layout Chapter*
+ Appendix H: Rpmsg: Remote Processor Messaging
+ \end_layout
+-- 
+1.8.2
