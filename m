@@ -1,14 +1,15 @@
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [PATCH v2] KVM: Fix kvm_irqfd_init initialization
-Date: Wed, 8 May 2013 08:49:04 +0200
-Message-ID: <20130508084904.69ffe433__39783.065513666$1367995767$gmane$org@gondolin>
-References: <20130507160107.GB23915@redhat.com>
-	<1367981849-32717-1-git-send-email-asias@redhat.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH] vhost-test: Make vhost/test.c work
+Date: Wed, 8 May 2013 15:14:58 +0800
+Message-ID: <20130508071458.GB9793@hj.localdomain>
+References: <1367909565-11607-1-git-send-email-asias@redhat.com>
+	<20130507112232.GB19121@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1367981849-32717-1-git-send-email-asias@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20130507112232.GB19121@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,113 +19,175 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S.
-	Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: target-devel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed,  8 May 2013 10:57:29 +0800
-Asias He <asias@redhat.com> wrote:
+On Tue, May 07, 2013 at 02:22:32PM +0300, Michael S. Tsirkin wrote:
+> On Tue, May 07, 2013 at 02:52:45PM +0800, Asias He wrote:
+> > Fix it by:
+> > 1) switching to use the new device specific fields per vq
+> > 2) not including vhost.c, instead make vhost-test.ko depend on vhost.ko.
+> 
+> Please split this up.
+> 1. make test work for 3.10
+> 2. make test work for 3.11
+> 
+> thanks!
 
-> In commit a0f155e96 'KVM: Initialize irqfd from kvm_init()', when
-> kvm_init() is called the second time (e.g kvm-amd.ko and kvm-intel.ko),
-> kvm_arch_init() will fail with -EEXIST, then kvm_irqfd_exit() will be
-> called on the error handling path. This way, the kvm_irqfd system will
-> not be ready.
-> 
-> This patch fix the following:
-> 
-> BUG: unable to handle kernel NULL pointer dereference at           (null)
-> IP: [<ffffffff81c0721e>] _raw_spin_lock+0xe/0x30
-> PGD 0
-> Oops: 0002 [#1] SMP
-> Modules linked in: vhost_net
-> CPU 6
-> Pid: 4257, comm: qemu-system-x86 Not tainted 3.9.0-rc3+ #757 Dell Inc. OptiPlex 790/0V5HMK
-> RIP: 0010:[<ffffffff81c0721e>]  [<ffffffff81c0721e>] _raw_spin_lock+0xe/0x30
-> RSP: 0018:ffff880221721cc8  EFLAGS: 00010046
-> RAX: 0000000000000100 RBX: ffff88022dcc003f RCX: ffff880221734950
-> RDX: ffff8802208f6ca8 RSI: 000000007fffffff RDI: 0000000000000000
-> RBP: ffff880221721cc8 R08: 0000000000000002 R09: 0000000000000002
-> R10: 00007f7fd01087e0 R11: 0000000000000246 R12: ffff8802208f6ca8
-> R13: 0000000000000080 R14: ffff880223e2a900 R15: 0000000000000000
-> FS:  00007f7fd38488e0(0000) GS:ffff88022dcc0000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 0000000000000000 CR3: 000000022309f000 CR4: 00000000000427e0
-> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000400
-> Process qemu-system-x86 (pid: 4257, threadinfo ffff880221720000, task ffff880222bd5640)
-> Stack:
->  ffff880221721d08 ffffffff810ac5c5 ffff88022431dc00 0000000000000086
->  0000000000000080 ffff880223e2a900 ffff8802208f6ca8 0000000000000000
->  ffff880221721d48 ffffffff810ac8fe 0000000000000000 ffff880221734000
-> Call Trace:
->  [<ffffffff810ac5c5>] __queue_work+0x45/0x2d0
->  [<ffffffff810ac8fe>] queue_work_on+0x8e/0xa0
->  [<ffffffff810ac949>] queue_work+0x19/0x20
->  [<ffffffff81009b6b>] irqfd_deactivate+0x4b/0x60
->  [<ffffffff8100a69d>] kvm_irqfd+0x39d/0x580
->  [<ffffffff81007a27>] kvm_vm_ioctl+0x207/0x5b0
->  [<ffffffff810c9545>] ? update_curr+0xf5/0x180
->  [<ffffffff811b66e8>] do_vfs_ioctl+0x98/0x550
->  [<ffffffff810c1f5e>] ? finish_task_switch+0x4e/0xe0
->  [<ffffffff81c054aa>] ? __schedule+0x2ea/0x710
->  [<ffffffff811b6bf7>] sys_ioctl+0x57/0x90
->  [<ffffffff8140ae9e>] ? trace_hardirqs_on_thunk+0x3a/0x3c
->  [<ffffffff81c0f602>] system_call_fastpath+0x16/0x1b
-> Code: c1 ea 08 38 c2 74 0f 66 0f 1f 44 00 00 f3 90 0f b6 03 38 c2 75 f7 48 83 c4 08 5b c9 c3 55 48 89 e5 66 66 66 66 90 b8 00 01 00 00 <f0> 66 0f c1 07 89 c2 66 c1 ea 08 38 c2 74 0c 0f 1f 00 f3 90 0f
-> RIP  [<ffffffff81c0721e>] _raw_spin_lock+0xe/0x30
-> RSP <ffff880221721cc8>
-> CR2: 0000000000000000
-> ---[ end trace 13fb1e4b6e5ab21f ]---
-> 
-> Signed-off-by: Asias He <asias@redhat.com>
+okay.
 
-Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+> > ---
+> >  drivers/vhost/test.c | 37 +++++++++++++++++++++++++------------
+> >  1 file changed, 25 insertions(+), 12 deletions(-)
+> > 
+> > diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+> > index 1ee45bc..dc526eb 100644
+> > --- a/drivers/vhost/test.c
+> > +++ b/drivers/vhost/test.c
+> > @@ -18,7 +18,7 @@
+> >  #include <linux/slab.h>
+> >  
+> >  #include "test.h"
+> > -#include "vhost.c"
+> > +#include "vhost.h"
+> >  
+> >  /* Max number of bytes transferred before requeueing the job.
+> >   * Using this limit prevents one virtqueue from starving others. */
+> > @@ -29,16 +29,20 @@ enum {
+> >  	VHOST_TEST_VQ_MAX = 1,
+> >  };
+> >  
+> > +struct vhost_test_virtqueue {
+> > +	struct vhost_virtqueue vq;
+> > +};
+> > +
+> 
+> This isn't needed or useful. Drop above change pls and patch
+> size will shrink.
 
-> ---
->  virt/kvm/kvm_main.c | 18 +++++++++++++-----
->  1 file changed, 13 insertions(+), 5 deletions(-)
-> 
-> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-> index 8fd325a..85b93d2 100644
-> --- a/virt/kvm/kvm_main.c
-> +++ b/virt/kvm/kvm_main.c
-> @@ -3078,13 +3078,21 @@ int kvm_init(void *opaque, unsigned vcpu_size, unsigned vcpu_align,
->  	int r;
->  	int cpu;
-> 
-> -	r = kvm_irqfd_init();
-> -	if (r)
-> -		goto out_irqfd;
->  	r = kvm_arch_init(opaque);
->  	if (r)
->  		goto out_fail;
-> 
-> +	/*
-> +	 * kvm_arch_init makes sure there's at most one caller
-> +	 * for architectures that support multiple implementations,
-> +	 * like intel and amd on x86.
-> +	 * kvm_arch_init must be called before kvm_irqfd_init to avoid creating
-> +	 * conflicts in case kvm is already setup for another implementation.
-> +	 */
-> +	r = kvm_irqfd_init();
-> +	if (r)
-> +		goto out_irqfd;
-> +
->  	if (!zalloc_cpumask_var(&cpus_hardware_enabled, GFP_KERNEL)) {
->  		r = -ENOMEM;
->  		goto out_free_0;
-> @@ -3159,10 +3167,10 @@ out_free_1:
->  out_free_0a:
->  	free_cpumask_var(cpus_hardware_enabled);
->  out_free_0:
-> -	kvm_arch_exit();
-> -out_fail:
->  	kvm_irqfd_exit();
->  out_irqfd:
-> +	kvm_arch_exit();
-> +out_fail:
->  	return r;
->  }
->  EXPORT_SYMBOL_GPL(kvm_init);
+The difference is:
+
+ drivers/vhost/test.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
+
+ drivers/vhost/test.c | 35 ++++++++++++++++++++++++-----------
+ 1 file changed, 24 insertions(+), 11 deletions(-)
+
+which is not significant.
+
+So, I think it is better to code the same way as we do in vhost-net and
+vhost-scsi which makes the device specific usage more consistent.
+
+> >  struct vhost_test {
+> >  	struct vhost_dev dev;
+> > -	struct vhost_virtqueue vqs[VHOST_TEST_VQ_MAX];
+> > +	struct vhost_test_virtqueue vqs[VHOST_TEST_VQ_MAX];
+> >  };
+> >  
+> >  /* Expects to be always run from workqueue - which acts as
+> >   * read-size critical section for our kind of RCU. */
+> >  static void handle_vq(struct vhost_test *n)
+> >  {
+> > -	struct vhost_virtqueue *vq = &n->dev.vqs[VHOST_TEST_VQ];
+> > +	struct vhost_virtqueue *vq = n->dev.vqs[VHOST_TEST_VQ];
+> >  	unsigned out, in;
+> >  	int head;
+> >  	size_t len, total_len = 0;
+> > @@ -101,15 +105,23 @@ static void handle_vq_kick(struct vhost_work *work)
+> >  static int vhost_test_open(struct inode *inode, struct file *f)
+> >  {
+> >  	struct vhost_test *n = kmalloc(sizeof *n, GFP_KERNEL);
+> > +	struct vhost_virtqueue **vqs;
+> >  	struct vhost_dev *dev;
+> >  	int r;
+> >  
+> >  	if (!n)
+> >  		return -ENOMEM;
+> >  
+> > +	vqs = kmalloc(VHOST_TEST_VQ_MAX * sizeof(*vqs), GFP_KERNEL);
+> > +	if (!vqs) {
+> > +		kfree(n);
+> > +		return -ENOMEM;
+> > +	}
+> > +
+> >  	dev = &n->dev;
+> > -	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
+> > -	r = vhost_dev_init(dev, n->vqs, VHOST_TEST_VQ_MAX);
+> > +	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ].vq;
+> > +	n->vqs[VHOST_TEST_VQ].vq.handle_kick = handle_vq_kick;
+> > +	r = vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX);
+> >  	if (r < 0) {
+> >  		kfree(n);
+> >  		return r;
+> > @@ -135,12 +147,12 @@ static void *vhost_test_stop_vq(struct vhost_test *n,
+> >  
+> >  static void vhost_test_stop(struct vhost_test *n, void **privatep)
+> >  {
+> > -	*privatep = vhost_test_stop_vq(n, n->vqs + VHOST_TEST_VQ);
+> > +	*privatep = vhost_test_stop_vq(n, &n->vqs[VHOST_TEST_VQ].vq);
+> >  }
+> >  
+> >  static void vhost_test_flush_vq(struct vhost_test *n, int index)
+> >  {
+> > -	vhost_poll_flush(&n->dev.vqs[index].poll);
+> > +	vhost_poll_flush(&n->vqs[index].vq.poll);
+> >  }
+> >  
+> >  static void vhost_test_flush(struct vhost_test *n)
+> > @@ -159,6 +171,7 @@ static int vhost_test_release(struct inode *inode, struct file *f)
+> >  	/* We do an extra flush before freeing memory,
+> >  	 * since jobs can re-queue themselves. */
+> >  	vhost_test_flush(n);
+> > +	kfree(n->dev.vqs);
+> >  	kfree(n);
+> >  	return 0;
+> >  }
+> > @@ -179,14 +192,14 @@ static long vhost_test_run(struct vhost_test *n, int test)
+> >  
+> >  	for (index = 0; index < n->dev.nvqs; ++index) {
+> >  		/* Verify that ring has been setup correctly. */
+> > -		if (!vhost_vq_access_ok(&n->vqs[index])) {
+> > +		if (!vhost_vq_access_ok(&n->vqs[index].vq)) {
+> >  			r = -EFAULT;
+> >  			goto err;
+> >  		}
+> >  	}
+> >  
+> >  	for (index = 0; index < n->dev.nvqs; ++index) {
+> > -		vq = n->vqs + index;
+> > +		vq = &n->vqs[index].vq;
+> >  		mutex_lock(&vq->mutex);
+> >  		priv = test ? n : NULL;
+> >  
+> > @@ -195,7 +208,7 @@ static long vhost_test_run(struct vhost_test *n, int test)
+> >  						    lockdep_is_held(&vq->mutex));
+> >  		rcu_assign_pointer(vq->private_data, priv);
+> >  
+> > -		r = vhost_init_used(&n->vqs[index]);
+> > +		r = vhost_init_used(&n->vqs[index].vq);
+> >  
+> >  		mutex_unlock(&vq->mutex);
+> >  
+> > @@ -268,14 +281,14 @@ static long vhost_test_ioctl(struct file *f, unsigned int ioctl,
+> >  			return -EFAULT;
+> >  		return vhost_test_run(n, test);
+> >  	case VHOST_GET_FEATURES:
+> > -		features = VHOST_NET_FEATURES;
+> > +		features = VHOST_FEATURES;
+> >  		if (copy_to_user(featurep, &features, sizeof features))
+> >  			return -EFAULT;
+> >  		return 0;
+> >  	case VHOST_SET_FEATURES:
+> >  		if (copy_from_user(&features, featurep, sizeof features))
+> >  			return -EFAULT;
+> > -		if (features & ~VHOST_NET_FEATURES)
+> > +		if (features & ~VHOST_FEATURES)
+> >  			return -EOPNOTSUPP;
+> >  		return vhost_test_set_features(n, features);
+> >  	case VHOST_RESET_OWNER:
+> > -- 
+> > 1.8.1.4
+
+-- 
+Asias
