@@ -1,15 +1,13 @@
-From: Yinghai Lu <yinghai@kernel.org>
-Subject: Re: [RFC PATCH v2, part 2 02/18] PCI, core: use hotplug-safe
-	iterators to walk PCI buses
-Date: Tue, 14 May 2013 11:55:16 -0700
-Message-ID: <CAE9FiQWoi3J=oZ6Y2DqAeorMgknBZ+LwbFXLz+hYo=GwavqU6w@mail.gmail.com>
-References: <1368550322-1045-1-git-send-email-jiang.liu@huawei.com>
-	<1368550322-1045-2-git-send-email-jiang.liu@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: linux-next: Tree for May 14 (vhost_scsi)
+Date: Tue, 14 May 2013 12:16:20 -0700
+Message-ID: <51928D84.2040305__136.038152459328$1368562572$gmane$org@infradead.org>
+References: <20130514141739.46eb9b42c95cb02947610379@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1368550322-1045-2-git-send-email-jiang.liu@huawei.com>
+In-Reply-To: <20130514141739.46eb9b42c95cb02947610379@canb.auug.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,17 +17,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiang Liu <liuj97@gmail.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Xen Devel <xen-devel@lists.xensource.com>, Toshi Kani <toshi.kani@hp.com>, Jiang Liu <jiang.liu@huawei.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Rafael J . Wysocki" <rjw@sisk.pl>, Gu Zheng <guz.fnst@cn.fujitsu.com>, Yijing Wang <wangyijing@huawei.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Myron Stowe <myron.stowe@redhat.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-next@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Nicholas A. Bellinger" <nab@risingtidesystems.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 14, 2013 at 9:51 AM, Jiang Liu <liuj97@gmail.com> wrote:
-> Enhance PCI core to use hotplug-safe iterators to walk PCI buses.
->
-> In other words, replace pci_find_bus(), pci_find_next_bus() and
-> pci_root_buses with pci_bus_exists(), pci_get_bus(), pci_get_next_bus()
-> and pci_get_next_root_bus() etc.
+On 05/13/13 21:17, Stephen Rothwell wrote:
+> Hi all,
+> 
+> Changes since 20130513:
+> 
+> <crickets :-)>
 
-good changes.
 
-Acked-by:  Yinghai Lu <yinghai@kernel.org>
+on x86_64:
+
+ERROR: "memcpy_fromiovec" [drivers/vhost/vhost_scsi.ko] undefined!
+
+
+It needs to depend on NET since net/core/ provides that function.
+
+
+-- 
+~Randy
