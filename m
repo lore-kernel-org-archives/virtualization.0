@@ -1,13 +1,13 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: linux-next: Tree for May 14 (vhost_scsi)
-Date: Wed, 15 May 2013 09:55:58 +1000
-Message-ID: <20130515095558.918f2b29ba318a477eb5dde2__45763.9253036634$1368576178$gmane$org@canb.auug.org.au>
-References: <20130514141739.46eb9b42c95cb02947610379@canb.auug.org.au>
-	<51928D84.2040305@infradead.org>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH] vhost-scsi: Depend on NET for memcpy_fromiovec
+Date: Wed, 15 May 2013 08:59:43 +0800
+Message-ID: <1368579583-13097-1-git-send-email-asias@redhat.com>
+References: <20130515095558.918f2b29ba318a477eb5dde2@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4906404883722691862=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51928D84.2040305@infradead.org>
+In-Reply-To: <20130515095558.918f2b29ba318a477eb5dde2@canb.auug.org.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,70 +17,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Randy Dunlap <rdunlap@infradead.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-next@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Nicholas A. Bellinger" <nab@risingtidesystems.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Randy Dunlap <rdunlap@infradead.org>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, linux-next@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============4906404883722691862==
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA256";
- boundary="Signature=_Wed__15_May_2013_09_55_58_+1000_ylBDgaB6c8OvGGEA"
+scsi.c includes vhost.c which uses memcpy_fromiovec.
 
---Signature=_Wed__15_May_2013_09_55_58_+1000_ylBDgaB6c8OvGGEA
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This patch fixes this build failure.
 
-[Adding Michael to cc]
+   From Randy Dunlap:
+   '''
+   on x86_64:
 
-On Tue, 14 May 2013 12:16:20 -0700 Randy Dunlap <rdunlap@infradead.org> wro=
-te:
->
-> on x86_64:
->=20
-> ERROR: "memcpy_fromiovec" [drivers/vhost/vhost_scsi.ko] undefined!
->=20
->=20
-> It needs to depend on NET since net/core/ provides that function.
->=20
-> --=20
-> ~Randy
+   ERROR: "memcpy_fromiovec" [drivers/vhost/vhost_scsi.ko] undefined!
 
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
+   It needs to depend on NET since net/core/ provides that function.
+   '''
 
---Signature=_Wed__15_May_2013_09_55_58_+1000_ylBDgaB6c8OvGGEA
-Content-Type: application/pgp-signature
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBCAAGBQJRks8OAAoJEECxmPOUX5FEmZYQAI8MJATooxMhrJVWJ8Qnzn0V
-TjJ9LftxyAXDCa1lfGZzI29I6y8fPNIt5YnwbBIWxfIqGKVzoCS7i83wdKjKm3/q
-8CXkMAuErner+EsisdzZ+0HcRVnkRi6cy0nIw5Sa6D1c+wnB6R4b0SBPe7YzA5pL
-qJdJtmJpa47fDEHdPmMTV+TddZdWz3W/AryxZlm8JwQJKiCYs2xB3Z2+goNJudgJ
-MbUOyiKO6s71Dk5VIEfOzPdHSolybHPerhK+l4uo4Rnua85tsgLp8BqGtzn5to8H
-QTsJ+ImVpRVOwxyRxhkP6OJiOZi7rDxRX9m5GT9x+TKITGO/D3wfDwBQ/0+EMjve
-f0BUZdsTio/XV9IM+/UlfP1GHVZKMnJ12pwZqj6fVAqVLNQrZgk0PsYeYUeYpXvW
-B9IBgbfNqzB2o93IpRRYTbY1z8tZDiJs05VfEzkZcf2UQ+m6njVSPGvxwIKgmy5F
-EIVGOBDhBXHIJe5fNinUekBcqhpwAhy2FUmTJ7DrU3pjwZ8bRTG9siN7nieMMWe1
-0rS11B6+5Ykvbag/WOVFrSUaiVE0LjL+tPZgskXfNH593xfp0XzVBzTjHsZXBFFb
-Qkg69o4tIfaMgY5G2e39O63MipbTyO89MYDP+MG+cr/Cdwf4nhlEd5Yi71KXXyoK
-96nhx+Fp87kXHI18F64R
-=qIRq
------END PGP SIGNATURE-----
-
---Signature=_Wed__15_May_2013_09_55_58_+1000_ylBDgaB6c8OvGGEA--
-
---===============4906404883722691862==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4906404883722691862==--
+diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+index 8b9226d..0403323 100644
+--- a/drivers/vhost/Kconfig
++++ b/drivers/vhost/Kconfig
+@@ -12,7 +12,7 @@ config VHOST_NET
+ 
+ config VHOST_SCSI
+ 	tristate "VHOST_SCSI TCM fabric driver"
+-	depends on TARGET_CORE && EVENTFD && m
++	depends on NET && TARGET_CORE && EVENTFD && m
+ 	select VHOST_RING
+ 	default n
+ 	---help---
+-- 
+1.8.1.4
