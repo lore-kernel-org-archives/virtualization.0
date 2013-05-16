@@ -1,15 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] vhost-scsi: Depend on NET for memcpy_fromiovec
-Date: Thu, 16 May 2013 02:10:20 -0700 (PDT)
-Message-ID: <20130516.021020.886926151198681453.davem@davemloft.net>
-References: <871u9724vp.fsf@rustcorp.com.au>
-	<20130515.201055.1401062016041347476.davem@davemloft.net>
-	<20130516064620.GB26995@redhat.com>
+From: Jiang Liu <liuj97@gmail.com>
+Subject: [RFC PATCH v2, part3 07/11] PCI,
+	xen-pcifront: use new PCI interfaces to simplify implementation
+Date: Thu, 16 May 2013 23:50:55 +0800
+Message-ID: <1368719459-24800-8-git-send-email-jiang.liu@huawei.com>
+References: <1368719459-24800-1-git-send-email-jiang.liu@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130516064620.GB26995@redhat.com>
+In-Reply-To: <1368719459-24800-1-git-send-email-jiang.liu@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +18,209 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: sfr@canb.auug.org.au, rdunlap@infradead.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, linux-next@vger.kernel.org
+To: Bjorn Helgaas <bhelgaas@google.com>, Yinghai Lu <yinghai@kernel.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Toshi Kani <toshi.kani@hp.com>, Jiang Liu <jiang.liu@huawei.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Rafael J . Wysocki" <rjw@sisk.pl>, Yijing Wang <wangyijing@huawei.com>, linux-pci@vger.kernel.org, Gu Zheng <guz.fnst@cn.fujitsu.com>, Myron Stowe <myron.stowe@redhat.com>, Jiang Liu <liuj97@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Thu, 16 May 2013 09:46:21 +0300
+Use new PCI interfaces to simplify xen-pcifront implementation:
+1) Use pci_create_root_bus() instead of pci_scan_bus_parented()
+   because pci_scan_bus_parented() is marked as __deprecated.This
+   also gets rid of a duplicated call of pci_bus_start_devices().
+2) Use pci_stop_root_bus() and pci_remove_root_bus() instead of
+   open-coded private implementation.
+3) Use pci_set_host_bridge_release() to release data structures
+   associated with PCI root buses.
+4) Use pci_bus_get()/pci_bus_put() to manage PCI root bus reference
+   count.
 
-> On Wed, May 15, 2013 at 08:10:55PM -0700, David Miller wrote:
->> From: Rusty Russell <rusty@rustcorp.com.au>
->> Date: Thu, 16 May 2013 09:05:38 +0930
->> 
->> > memcpy_fromiovec() has nothing to do with networking: that was just the
->> > first user.  Note that crypto/algif_skcipher.c also uses it.  The
->> > obvious answer is to move it into lib/.
->> 
->> +1
-> 
-> Rusty sent a patch that does this:
-> http://patchwork.ozlabs.org/patch/244207/
-> 
-> David, looks like you weren't CC'd.
-> If you agree could you please Ack that patch and then I can merge it
-> through the vhost tree?
-> Or if you prefer merge it directly and I'll sort out the dependencies...
+This is also a preparation for coming PCI bus lock enhancement.
 
-Acked-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xen-devel@lists.xensource.com
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-pci@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/pci/xen-pcifront.c | 81 ++++++++++++++++++++++------------------------
+ 1 file changed, 39 insertions(+), 42 deletions(-)
+
+diff --git a/drivers/pci/xen-pcifront.c b/drivers/pci/xen-pcifront.c
+index 816cf94..6aa2c0f 100644
+--- a/drivers/pci/xen-pcifront.c
++++ b/drivers/pci/xen-pcifront.c
+@@ -25,11 +25,6 @@
+ #define INVALID_GRANT_REF (0)
+ #define INVALID_EVTCHN    (-1)
+ 
+-struct pci_bus_entry {
+-	struct list_head list;
+-	struct pci_bus *bus;
+-};
+-
+ #define _PDEVB_op_active		(0)
+ #define PDEVB_op_active			(1 << (_PDEVB_op_active))
+ 
+@@ -47,12 +42,12 @@ struct pcifront_device {
+ 	struct xen_pci_sharedinfo *sh_info;
+ 	struct work_struct op_work;
+ 	unsigned long flags;
+-
+ };
+ 
+ struct pcifront_sd {
+ 	int domain;
+ 	struct pcifront_device *pdev;
++	struct resource busn_res;
+ };
+ 
+ static inline struct pcifront_device *
+@@ -67,6 +62,12 @@ static inline void pcifront_init_sd(struct pcifront_sd *sd,
+ {
+ 	sd->domain = domain;
+ 	sd->pdev = pdev;
++
++	/* Xen pci-backend doesn't export P2P bridges */
++	sd->busn_res.start = bus;
++	sd->busn_res.end = bus;
++	sd->busn_res.flags = IORESOURCE_BUS;
++	sd->busn_res.name = "PCI busn";
+ }
+ 
+ static DEFINE_SPINLOCK(pcifront_dev_lock);
+@@ -441,12 +442,19 @@ static int pcifront_scan_bus(struct pcifront_device *pdev,
+ 	return 0;
+ }
+ 
++static void pcifront_release_sd(struct pci_host_bridge *bridge)
++{
++	struct pcifront_sd *sd = bridge->release_data;
++
++	kfree(sd);
++}
++
+ static int pcifront_scan_root(struct pcifront_device *pdev,
+ 				 unsigned int domain, unsigned int bus)
+ {
+ 	struct pci_bus *b;
+ 	struct pcifront_sd *sd = NULL;
+-	struct pci_bus_entry *bus_entry = NULL;
++	LIST_HEAD(resources);
+ 	int err = 0;
+ 
+ #ifndef CONFIG_PCI_DOMAINS
+@@ -463,16 +471,18 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
+ 	dev_info(&pdev->xdev->dev, "Creating PCI Frontend Bus %04x:%02x\n",
+ 		 domain, bus);
+ 
+-	bus_entry = kmalloc(sizeof(*bus_entry), GFP_KERNEL);
+-	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
+-	if (!bus_entry || !sd) {
++	sd = kzalloc(sizeof(*sd), GFP_KERNEL);
++	if (!sd) {
+ 		err = -ENOMEM;
+ 		goto err_out;
+ 	}
+ 	pcifront_init_sd(sd, domain, bus, pdev);
+ 
+-	b = pci_scan_bus_parented(&pdev->xdev->dev, bus,
+-				  &pcifront_bus_ops, sd);
++	pci_add_resource(&resources, &ioport_resource);
++	pci_add_resource(&resources, &iomem_resource);
++	pci_add_resource(&resources, &sd->busn_res);
++	b = pci_create_root_bus(&pdev->xdev->dev, bus, &pcifront_bus_ops,
++				sd, &resources);
+ 	if (!b) {
+ 		dev_err(&pdev->xdev->dev,
+ 			"Error creating PCI Frontend Bus!\n");
+@@ -480,12 +490,14 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
+ 		goto err_out;
+ 	}
+ 
+-	bus_entry->bus = b;
++	pci_set_host_bridge_release(to_pci_host_bridge(b->bridge),
++				    pcifront_release_sd, sd);
+ 
+-	list_add(&bus_entry->list, &pdev->root_buses);
+-
+-	/* pci_scan_bus_parented skips devices which do not have a have
+-	* devfn==0. The pcifront_scan_bus enumerates all devfn. */
++	/*
++	 * Every PCI physical device should have function 0, but that's not
++	 * true for xen.
++	 * So use pcifront_scan_bus() instead of pci_scan_child_bus().
++	 */
+ 	err = pcifront_scan_bus(pdev, domain, bus, b);
+ 
+ 	/* Claim resources before going "live" with our devices */
+@@ -497,7 +509,6 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
+ 	return err;
+ 
+ err_out:
+-	kfree(bus_entry);
+ 	kfree(sd);
+ 
+ 	return err;
+@@ -539,35 +550,19 @@ static int pcifront_rescan_root(struct pcifront_device *pdev,
+ 	return err;
+ }
+ 
+-static void free_root_bus_devs(struct pci_bus *bus)
+-{
+-	struct pci_dev *dev;
+-
+-	while (!list_empty(&bus->devices)) {
+-		dev = container_of(bus->devices.next, struct pci_dev,
+-				   bus_list);
+-		dev_dbg(&dev->dev, "removing device\n");
+-		pci_stop_and_remove_bus_device(dev);
+-	}
+-}
+-
+ static void pcifront_free_roots(struct pcifront_device *pdev)
+ {
+-	struct pci_bus_entry *bus_entry, *t;
++	struct pcifront_sd *sd;
++	struct pci_bus *bus;
+ 
+ 	dev_dbg(&pdev->xdev->dev, "cleaning up root buses\n");
+ 
+-	list_for_each_entry_safe(bus_entry, t, &pdev->root_buses, list) {
+-		list_del(&bus_entry->list);
+-
+-		free_root_bus_devs(bus_entry->bus);
+-
+-		kfree(bus_entry->bus->sysdata);
+-
+-		device_unregister(bus_entry->bus->bridge);
+-		pci_remove_bus(bus_entry->bus);
+-
+-		kfree(bus_entry);
++	for_each_pci_root_bus(bus) {
++		sd = bus->sysdata;
++		if (sd->pdev == pdev) {
++			pci_stop_root_bus(bus);
++			pci_remove_root_bus(bus);
++		}
+ 	}
+ }
+ 
+@@ -670,6 +665,7 @@ static irqreturn_t pcifront_handler_aer(int irq, void *dev)
+ 	schedule_pcifront_aer_op(pdev);
+ 	return IRQ_HANDLED;
+ }
++
+ static int pcifront_connect_and_init_dma(struct pcifront_device *pdev)
+ {
+ 	int err = 0;
+@@ -705,6 +701,7 @@ static void pcifront_disconnect(struct pcifront_device *pdev)
+ 
+ 	spin_unlock(&pcifront_dev_lock);
+ }
++
+ static struct pcifront_device *alloc_pdev(struct xenbus_device *xdev)
+ {
+ 	struct pcifront_device *pdev;
+-- 
+1.8.1.2
