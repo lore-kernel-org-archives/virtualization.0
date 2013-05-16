@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio_console: fix uapi header
-Date: Thu, 16 May 2013 19:44:10 +0300
-Message-ID: <20130516164410.GA31985@redhat.com>
+Subject: [PATCH] virtio_pci: fix macro exported in uapi
+Date: Thu, 16 May 2013 19:44:46 +0300
+Message-ID: <20130516164446.GA32007@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,29 +17,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: kvm@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, Michael Kerrisk <mtk.manpages@gmail.com>, Amit Shah <amit.shah@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, Dave Jones <davej@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stephen Hemminger <shemminger@vyatta.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-uapi should use __u32 not u32.
-Fix a macro in virtio_console.h which uses u32.
+macro VIRTIO_PCI_CONFIG except in the unlikely event userspace
+actually has a structure with a field named msix_enabled.
+Get the msix_enabled by value instead, to make it useful
+for userspace.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/uapi/linux/virtio_console.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/virtio/virtio_pci.c     | 8 ++++----
+ include/uapi/linux/virtio_pci.h | 2 +-
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_console.h b/include/uapi/linux/virtio_console.h
-index ee13ab6..c312f16 100644
---- a/include/uapi/linux/virtio_console.h
-+++ b/include/uapi/linux/virtio_console.h
-@@ -39,7 +39,7 @@
- #define VIRTIO_CONSOLE_F_SIZE	0	/* Does host provide console size? */
- #define VIRTIO_CONSOLE_F_MULTIPORT 1	/* Does host provide multiple ports? */
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index a7ce730..1bb6ff3 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -132,8 +132,8 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
+ 		   void *buf, unsigned len)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+-	void __iomem *ioaddr = vp_dev->ioaddr +
+-				VIRTIO_PCI_CONFIG(vp_dev) + offset;
++	void __iomem *ioaddr = vp_dev->ioaddr + offset +
++				VIRTIO_PCI_CONFIG(vp_dev->msix_enabled);
+ 	u8 *ptr = buf;
+ 	int i;
  
--#define VIRTIO_CONSOLE_BAD_ID		(~(u32)0)
-+#define VIRTIO_CONSOLE_BAD_ID		(~(__u32)0)
+@@ -147,8 +147,8 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
+ 		   const void *buf, unsigned len)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+-	void __iomem *ioaddr = vp_dev->ioaddr +
+-				VIRTIO_PCI_CONFIG(vp_dev) + offset;
++	void __iomem *ioaddr = vp_dev->ioaddr + offset +
++				VIRTIO_PCI_CONFIG(vp_dev->msix_enabled);
+ 	const u8 *ptr = buf;
+ 	int i;
  
- struct virtio_console_config {
- 	/* colums of the screens */
+diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+index ea66f3f..610c6c6 100644
+--- a/include/uapi/linux/virtio_pci.h
++++ b/include/uapi/linux/virtio_pci.h
+@@ -80,7 +80,7 @@
+ 
+ /* The remaining space is defined by each driver as the per-driver
+  * configuration space */
+-#define VIRTIO_PCI_CONFIG(dev)		((dev)->msix_enabled ? 24 : 20)
++#define VIRTIO_PCI_CONFIG(msix_enabled)	((msix_enabled) ? 24 : 20)
+ 
+ /* Virtio ABI version, this must match exactly */
+ #define VIRTIO_PCI_ABI_VERSION		0
 -- 
 MST
