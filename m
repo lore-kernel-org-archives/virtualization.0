@@ -1,14 +1,12 @@
-From: Jiang Liu <liuj97@gmail.com>
-Subject: [RFC PATCH v2, part3 08/11] PCI,
-	xen-pcifront: use PCI bus lock to protect PCI device hotplug
-Date: Thu, 16 May 2013 23:50:56 +0800
-Message-ID: <1368719459-24800-9-git-send-email-jiang.liu@huawei.com>
-References: <1368719459-24800-1-git-send-email-jiang.liu@huawei.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio_console: fix uapi header
+Date: Thu, 16 May 2013 19:44:10 +0300
+Message-ID: <20130516164410.GA31985@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1368719459-24800-1-git-send-email-jiang.liu@huawei.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,78 +16,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Helgaas <bhelgaas@google.com>, Yinghai Lu <yinghai@kernel.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Toshi Kani <toshi.kani@hp.com>, Jiang Liu <jiang.liu@huawei.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Rafael J . Wysocki" <rjw@sisk.pl>, Yijing Wang <wangyijing@huawei.com>, linux-pci@vger.kernel.org, Gu Zheng <guz.fnst@cn.fujitsu.com>, Myron Stowe <myron.stowe@redhat.com>, Jiang Liu <liuj97@gmail.com>
+To: kvm@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, Michael Kerrisk <mtk.manpages@gmail.com>, Amit Shah <amit.shah@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use PCI bus lock to protect concurrent PCI device hotplug operations.
+uapi should use __u32 not u32.
+Fix a macro in virtio_console.h which uses u32.
 
-Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel@lists.xensource.com
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-pci@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/pci/xen-pcifront.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ include/uapi/linux/virtio_console.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/xen-pcifront.c b/drivers/pci/xen-pcifront.c
-index 6aa2c0f..2b213b3 100644
---- a/drivers/pci/xen-pcifront.c
-+++ b/drivers/pci/xen-pcifront.c
-@@ -505,6 +505,7 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
+diff --git a/include/uapi/linux/virtio_console.h b/include/uapi/linux/virtio_console.h
+index ee13ab6..c312f16 100644
+--- a/include/uapi/linux/virtio_console.h
++++ b/include/uapi/linux/virtio_console.h
+@@ -39,7 +39,7 @@
+ #define VIRTIO_CONSOLE_F_SIZE	0	/* Does host provide console size? */
+ #define VIRTIO_CONSOLE_F_MULTIPORT 1	/* Does host provide multiple ports? */
  
- 	/* Create SysFS and notify udev of the devices. Aka: "going live" */
- 	pci_bus_add_devices(b);
-+	pci_bus_unlock(b, true);
+-#define VIRTIO_CONSOLE_BAD_ID		(~(u32)0)
++#define VIRTIO_CONSOLE_BAD_ID		(~(__u32)0)
  
- 	return err;
- 
-@@ -538,6 +539,11 @@ static int pcifront_rescan_root(struct pcifront_device *pdev,
- 		/* If the bus is unknown, create it. */
- 		return pcifront_scan_root(pdev, domain, bus);
- 
-+	if (pci_bus_lock(b, PCI_BUS_STATE_STOPPING - 1, true) < 0) {
-+		err = -EBUSY;
-+		goto out;
-+	}
-+
- 	err = pcifront_scan_bus(pdev, domain, bus, b);
- 
- 	/* Claim resources before going "live" with our devices */
-@@ -545,6 +551,9 @@ static int pcifront_rescan_root(struct pcifront_device *pdev,
- 
- 	/* Create SysFS and notify udev of the devices. Aka: "going live" */
- 	pci_bus_add_devices(b);
-+	pci_bus_unlock(b, true);
-+
-+out:
- 	pci_bus_put(b);
- 
- 	return err;
-@@ -559,8 +568,11 @@ static void pcifront_free_roots(struct pcifront_device *pdev)
- 
- 	for_each_pci_root_bus(bus) {
- 		sd = bus->sysdata;
--		if (sd->pdev == pdev) {
-+		if (sd->pdev != pdev)
-+			continue;
-+		if (pci_bus_lock(bus, PCI_BUS_STATE_REMOVED - 1, true) == 0) {
- 			pci_stop_root_bus(bus);
-+			/* it also unlocks PCI buses */
- 			pci_remove_root_bus(bus);
- 		}
- 	}
-@@ -1042,7 +1054,7 @@ static int pcifront_detach_devices(struct pcifront_device *pdev)
- 				domain, bus, slot, func);
- 			continue;
- 		}
--		pci_stop_and_remove_bus_device(pci_dev);
-+		pci_stop_and_remove_device(pci_dev);
- 		pci_dev_put(pci_dev);
- 
- 		dev_dbg(&pdev->xdev->dev,
+ struct virtio_console_config {
+ 	/* colums of the screens */
 -- 
-1.8.1.2
+MST
