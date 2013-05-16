@@ -1,18 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] vhost-scsi: Depend on NET for memcpy_fromiovec
-Date: Thu, 16 May 2013 09:36:52 +0300
-Message-ID: <20130516063652.GA26928@redhat.com>
+Date: Thu, 16 May 2013 09:42:13 +0300
+Message-ID: <20130516064213.GA26995@redhat.com>
 References: <20130515095558.918f2b29ba318a477eb5dde2@canb.auug.org.au>
 	<1368579583-13097-1-git-send-email-asias@redhat.com>
 	<8761yk254u.fsf@rustcorp.com.au>
-	<20130516020848.GB23441@hj.localdomain>
-	<87d2sra97h.fsf@rustcorp.com.au>
+	<1368657450.6899.29.camel@haakon3.risingtidesystems.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87d2sra97h.fsf@rustcorp.com.au>
+In-Reply-To: <1368657450.6899.29.camel@haakon3.risingtidesystems.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,188 +21,120 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, kvm@vger.kernel.org, netdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, linux-next@vger.kernel.org
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Randy Dunlap <rdunlap@infradead.org>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org, linux-next@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 16, 2013 at 01:04:58PM +0930, Rusty Russell wrote:
-> Asias He <asias@redhat.com> writes:
-> > On Wed, May 15, 2013 at 02:47:53PM +0930, Rusty Russell wrote:
-> >> Asias He <asias@redhat.com> writes:
-> >> > scsi.c includes vhost.c which uses memcpy_fromiovec.
-> >> >
-> >> > This patch fixes this build failure.
-> >> >
-> >> >    From Randy Dunlap:
-> >> >    '''
-> >> >    on x86_64:
-> >> >
-> >> >    ERROR: "memcpy_fromiovec" [drivers/vhost/vhost_scsi.ko] undefined!
-> >> >
-> >> >    It needs to depend on NET since net/core/ provides that function.
-> >> >    '''
-> >> 
-> >> Proper fix please.
-> >
-> > --verbose please ;-)
-> >
-> > Making VHOST_SCSI depends on NET looks weird but this is because vhost
-> > core depends on it. A bunch of patches are cleaning this up. Since MST
-> > wanted do the vhost.ko split up in 3.11, plus your WIP vringh work, so I
-> > wanted the fix for 3.10 as minimum as possible.
+On Wed, May 15, 2013 at 03:37:30PM -0700, Nicholas A. Bellinger wrote:
+> On Wed, 2013-05-15 at 14:47 +0930, Rusty Russell wrote:
+> > Asias He <asias@redhat.com> writes:
+> > > scsi.c includes vhost.c which uses memcpy_fromiovec.
+> > >
+> > > This patch fixes this build failure.
+> > >
+> > >    From Randy Dunlap:
+> > >    '''
+> > >    on x86_64:
+> > >
+> > >    ERROR: "memcpy_fromiovec" [drivers/vhost/vhost_scsi.ko] undefined!
+> > >
+> > >    It needs to depend on NET since net/core/ provides that function.
+> > >    '''
+> > 
+> > Proper fix please.
+> > 
+> > Though I can't see why you thought this was a good idea.  Nonetheless, I
+> > shan't highlight why: I have far too much respect for your intellects
+> > and abilities.
+> > 
+> > No, don't thank me!
 > 
-> If this isn't the only symbol causing the problem, then this should be
-> mentioned in the changelog.  If it is, it should be fixed: we have
-> plenty of time for that.
+> Hi Rusty & Asias,
 > 
-> Either way, your commit message or the commit itself needs to justify
-> it!
+> I assume you mean something like the following patch to allow kbuild to
+> work when VHOST_NET + VHOST_SCSI are both enabled and sharing vhost.o,
+> yes..?
 > 
-> > Other users are using memcpy_fromiovec and friends outside net. It seems
-> > a good idea to put it in a util library. e.g.  crypto/algif_skcipher.c
-> > which also depends on NET for it.
-> >
-> >> Though I can't see why you thought this was a good idea.  Nonetheless, I
-> >> shan't highlight why: I have far too much respect for your intellects
-> >> and abilities.
-> >> 
-> >> No, don't thank me!
-> >
-> > Interesting.
+> Also included is dropping the now unnecessary vhost.c include, and
+> allowing vhost_work_flush() to be accessed externally as scsi.c
+> currently requires.
 > 
-> Heh... I originally wrote an explanation, then found it a bit insulting:
-> I knew I didn't need to tell you :)
+> MST, care to pick this up..?
 > 
-> How's this?
-> 
-> From: Rusty Russell <rusty@rustcorp.com.au>
-> Subject: Hoist memcpy_fromiovec into lib/
-> 
-> ERROR: "memcpy_fromiovec" [drivers/vhost/vhost_scsi.ko] undefined!
-> 
-> That function is only present with CONFIG_NET.  Turns out that
-> crypto/algif_skcipher.c also uses that outside net, but it actually
-> needs sockets anyway.
-> 
-> socket.h already include uio.h, so no callers need updating.
-> 
-> Reported-by: Randy Dunlap <rdunlap@infradead.org>
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> --nab
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+We'll do this for 3.11, 3.10 is bugfixes only now.
 
-Would you like me to merge this through the vhost tree?
-If I do I can drop #include "linux/socket.h" from vhost.c
-right now.
-
-> diff --git a/include/linux/socket.h b/include/linux/socket.h
-> index 428c37a..7266775 100644
-> --- a/include/linux/socket.h
-> +++ b/include/linux/socket.h
-> @@ -305,7 +305,6 @@ struct ucred {
+> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+> index 8b9226d..016387f 100644
+> --- a/drivers/vhost/Kconfig
+> +++ b/drivers/vhost/Kconfig
+> @@ -1,3 +1,6 @@
+> +config VHOST
+> +       tristate
+> +
+>  config VHOST_NET
+>         tristate "Host kernel accelerator for virtio net"
+>         depends on NET && EVENTFD && (TUN || !TUN) && (MACVTAP || !MACVTAP)
+> @@ -12,7 +15,7 @@ config VHOST_NET
 >  
->  extern void cred_to_ucred(struct pid *pid, const struct cred *cred, struct ucred *ucred);
+>  config VHOST_SCSI
+>         tristate "VHOST_SCSI TCM fabric driver"
+> -       depends on TARGET_CORE && EVENTFD && m
+> +       depends on NET && EVENTFD && TARGET_CORE
+>         select VHOST_RING
+>         default n
+>         ---help---
+> diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
+> index 654e9afb..e5b5f0b 100644
+> --- a/drivers/vhost/Makefile
+> +++ b/drivers/vhost/Makefile
+> @@ -1,7 +1,9 @@
+> +obj-$(CONFIG_VHOST) += vhost.o
+> +
+>  obj-$(CONFIG_VHOST_NET) += vhost_net.o
+> -vhost_net-y := vhost.o net.o
+> +vhost_net-objs := net.o
 >  
-> -extern int memcpy_fromiovec(unsigned char *kdata, struct iovec *iov, int len);
->  extern int memcpy_fromiovecend(unsigned char *kdata, const struct iovec *iov,
->  			       int offset, int len);
->  extern int csum_partial_copy_fromiovecend(unsigned char *kdata, 
-> diff --git a/include/linux/uio.h b/include/linux/uio.h
-> index 629aaf5..21628d3 100644
-> --- a/include/linux/uio.h
-> +++ b/include/linux/uio.h
-> @@ -35,4 +35,6 @@ static inline size_t iov_length(const struct iovec *iov, unsigned long nr_segs)
+>  obj-$(CONFIG_VHOST_SCSI) += vhost_scsi.o
+> -vhost_scsi-y := scsi.o
+> +vhost_scsi-objs := scsi.o
+>  
+>  obj-$(CONFIG_VHOST_RING) += vringh.o
+> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> index 7014202..b5836a2 100644
+> --- a/drivers/vhost/scsi.c
+> +++ b/drivers/vhost/scsi.c
+> @@ -49,7 +49,6 @@
+>  #include <linux/llist.h>
+>  #include <linux/bitmap.h>
+>  
+> -#include "vhost.c"
+>  #include "vhost.h"
+>  
+>  #define TCM_VHOST_VERSION  "v0.1"
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index beee7f5..8cd1562 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -123,7 +123,7 @@ static bool vhost_work_seq_done(struct vhost_dev *dev, struct vhost_work *work,
+>         return left <= 0;
 >  }
 >  
->  unsigned long iov_shorten(struct iovec *iov, unsigned long nr_segs, size_t to);
-> +
-> +int memcpy_fromiovec(unsigned char *kdata, struct iovec *iov, int len);
->  #endif
-> diff --git a/lib/Makefile b/lib/Makefile
-> index e9c52e1..2377211 100644
-> --- a/lib/Makefile
-> +++ b/lib/Makefile
-> @@ -9,7 +9,7 @@ endif
->  
->  lib-y := ctype.o string.o vsprintf.o cmdline.o \
->  	 rbtree.o radix-tree.o dump_stack.o timerqueue.o\
-> -	 idr.o int_sqrt.o extable.o \
-> +	 idr.o int_sqrt.o extable.o iovec.o \
->  	 sha1.o md5.o irq_regs.o reciprocal_div.o argv_split.o \
->  	 proportions.o flex_proportions.o prio_heap.o ratelimit.o show_mem.o \
->  	 is_single_threaded.o plist.o decompress.o kobject_uevent.o \
-> diff --git a/lib/iovec.c b/lib/iovec.c
-> new file mode 100644
-> index 0000000..632c5ea
-> --- /dev/null
-> +++ b/lib/iovec.c
-> @@ -0,0 +1,29 @@
-> +#include <linux/uaccess.h>
-> +#include <linux/export.h>
-> +#include <linux/uio.h>
-> +
-> +/*
-> + *	Copy iovec to kernel. Returns -EFAULT on error.
-> + *
-> + *	Note: this modifies the original iovec.
-> + */
-> +
-> +int memcpy_fromiovec(unsigned char *kdata, struct iovec *iov, int len)
-> +{
-> +	while (len > 0) {
-> +		if (iov->iov_len) {
-> +			int copy = min_t(unsigned int, len, iov->iov_len);
-> +			if (copy_from_user(kdata, iov->iov_base, copy))
-> +				return -EFAULT;
-> +			len -= copy;
-> +			kdata += copy;
-> +			iov->iov_base += copy;
-> +			iov->iov_len -= copy;
-> +		}
-> +		iov++;
-> +	}
-> +
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(memcpy_fromiovec);
-> +
-> diff --git a/net/core/iovec.c b/net/core/iovec.c
-> index 7e7aeb0..d81257f 100644
-> --- a/net/core/iovec.c
-> +++ b/net/core/iovec.c
-> @@ -125,31 +125,6 @@ int memcpy_toiovecend(const struct iovec *iov, unsigned char *kdata,
->  EXPORT_SYMBOL(memcpy_toiovecend);
->  
->  /*
-> - *	Copy iovec to kernel. Returns -EFAULT on error.
-> - *
-> - *	Note: this modifies the original iovec.
-> - */
-> -
-> -int memcpy_fromiovec(unsigned char *kdata, struct iovec *iov, int len)
-> -{
-> -	while (len > 0) {
-> -		if (iov->iov_len) {
-> -			int copy = min_t(unsigned int, len, iov->iov_len);
-> -			if (copy_from_user(kdata, iov->iov_base, copy))
-> -				return -EFAULT;
-> -			len -= copy;
-> -			kdata += copy;
-> -			iov->iov_base += copy;
-> -			iov->iov_len -= copy;
-> -		}
-> -		iov++;
-> -	}
-> -
-> -	return 0;
-> -}
-> -EXPORT_SYMBOL(memcpy_fromiovec);
-> -
-> -/*
->   *	Copy iovec from kernel. Returns -EFAULT on error.
->   */
->  
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> -static void vhost_work_flush(struct vhost_dev *dev, struct vhost_work *work)
+> +void vhost_work_flush(struct vhost_dev *dev, struct vhost_work *work)
+>  {
+>         unsigned seq;
+>         int flushing;
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index a7ad635..50ee396 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -44,6 +44,7 @@ void vhost_poll_init(struct vhost_poll *poll, vhost_work_fn_t fn,
+>                      unsigned long mask, struct vhost_dev *dev);
+>  int vhost_poll_start(struct vhost_poll *poll, struct file *file);
+>  void vhost_poll_stop(struct vhost_poll *poll);
+> +void vhost_work_flush(struct vhost_dev *dev, struct vhost_work *work);
+>  void vhost_poll_flush(struct vhost_poll *poll);
+>  void vhost_poll_queue(struct vhost_poll *poll);
+> 
