@@ -1,12 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio_pci: fix macro exported in uapi
-Date: Thu, 16 May 2013 19:44:46 +0300
-Message-ID: <20130516164446.GA32007@redhat.com>
+From: Alex Williamson <alex.williamson@redhat.com>
+Subject: 2013 Linux Plumbers Virtualization Microconference proposal call
+	for participation
+Date: Thu, 16 May 2013 14:32:30 -0600
+Message-ID: <1368736350.5520.250.camel@ul30vt.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,59 +16,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Howells <dhowells@redhat.com>, Dave Jones <davej@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stephen Hemminger <shemminger@vyatta.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
+To: kvm <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, "xen-devel@lists.xen.org" <xen-devel@lists.xen.org>, virtualization <virtualization@lists.linux-foundation.org>, Libvirt <libvir-list@redhat.com>, seabios <seabios@seabios.org>
+Cc: Amit Shah <amit.shah@redhat.com>, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-macro VIRTIO_PCI_CONFIG except in the unlikely event userspace
-actually has a structure with a field named msix_enabled.
-Get the msix_enabled by value instead, to make it useful
-for userspace.
+Hey folks,
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_pci.c     | 8 ++++----
- include/uapi/linux/virtio_pci.h | 2 +-
- 2 files changed, 5 insertions(+), 5 deletions(-)
+We'd like to hold another virtualization microconference as part of this
+year's Linux Plumbers Conference.  To do so, we need to show that
+there's enough interest, materials, and people willing to attend. 
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index a7ce730..1bb6ff3 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -132,8 +132,8 @@ static void vp_get(struct virtio_device *vdev, unsigned offset,
- 		   void *buf, unsigned len)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	void __iomem *ioaddr = vp_dev->ioaddr +
--				VIRTIO_PCI_CONFIG(vp_dev) + offset;
-+	void __iomem *ioaddr = vp_dev->ioaddr + offset +
-+				VIRTIO_PCI_CONFIG(vp_dev->msix_enabled);
- 	u8 *ptr = buf;
- 	int i;
- 
-@@ -147,8 +147,8 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
- 		   const void *buf, unsigned len)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
--	void __iomem *ioaddr = vp_dev->ioaddr +
--				VIRTIO_PCI_CONFIG(vp_dev) + offset;
-+	void __iomem *ioaddr = vp_dev->ioaddr + offset +
-+				VIRTIO_PCI_CONFIG(vp_dev->msix_enabled);
- 	const u8 *ptr = buf;
- 	int i;
- 
-diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
-index ea66f3f..610c6c6 100644
---- a/include/uapi/linux/virtio_pci.h
-+++ b/include/uapi/linux/virtio_pci.h
-@@ -80,7 +80,7 @@
- 
- /* The remaining space is defined by each driver as the per-driver
-  * configuration space */
--#define VIRTIO_PCI_CONFIG(dev)		((dev)->msix_enabled ? 24 : 20)
-+#define VIRTIO_PCI_CONFIG(msix_enabled)	((msix_enabled) ? 24 : 20)
- 
- /* Virtio ABI version, this must match exactly */
- #define VIRTIO_PCI_ABI_VERSION		0
--- 
-MST
+Anthony and Amit have already started a wiki page for the
+microconference:
+
+http://wiki.linuxplumbersconf.org/2013:virtualization
+
+Please help to fill it out and add topics you're interested in
+discussing or presenting, or relevant topics to current development that
+you'd like others to present.  We don't need full abstracts or proposals
+at this time, just enough to show that we have things to discuss and
+enough people interested in attending to allocate space in the program.
+
+If approved by the program committee we'll give precedence to proposals
+that address current issues needing attention, help, or resolution.
+This is also an excellent opportunity for cross-project discussions.
+
+We're not sure when the LPC program committee will make a decision, so
+please don't hesitate to add things to the wiki as soon as possible.
+There's no commitment at this point though we obviously hope that many
+of you will follow through with participation if this microconference is
+approved.  Please feel free to forward to anyone I've missed.  Thanks,
+
+Alex
