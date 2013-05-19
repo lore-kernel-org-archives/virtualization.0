@@ -1,17 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-net: Reporting traffic queue distribution
+From: "Narasimhan, Sriram" <sriram.narasimhan@hp.com>
+Subject: RE: [PATCH] virtio-net: Reporting traffic queue distribution
 	statistics through ethtool
-Date: Sun, 19 May 2013 23:03:21 +0300
-Message-ID: <20130519200320.GA27407@redhat.com>
+Date: Sun, 19 May 2013 22:56:16 +0000
+Message-ID: <228BD1969E90E94D8805535E22CE8EFF063CF195@G9W0717.americas.hpqcorp.net>
 References: <1368735869-31076-1-git-send-email-sriram.narasimhan@hp.com>
 	<20130519112800.GG19883@redhat.com>
 	<228BD1969E90E94D8805535E22CE8EFF063CF133@G9W0717.americas.hpqcorp.net>
+	<20130519200320.GA27407@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <228BD1969E90E94D8805535E22CE8EFF063CF133@G9W0717.americas.hpqcorp.net>
+In-Reply-To: <20130519200320.GA27407@redhat.com>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,9 +22,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Narasimhan, Sriram" <sriram.narasimhan@hp.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
+
+Hi Michael,
+
+Comments inline...
+
+-----Original Message-----
+From: Michael S. Tsirkin [mailto:mst@redhat.com] 
+Sent: Sunday, May 19, 2013 1:03 PM
+To: Narasimhan, Sriram
+Cc: rusty@rustcorp.com.au; virtualization@lists.linux-foundation.org; kvm@vger.kernel.org; netdev@vger.kernel.org; linux-kernel@vger.kernel.org; Jason Wang
+Subject: Re: [PATCH] virtio-net: Reporting traffic queue distribution statistics through ethtool
 
 On Sun, May 19, 2013 at 04:09:48PM +0000, Narasimhan, Sriram wrote:
 > Hi Michael,
@@ -37,11 +49,22 @@ On Sun, May 19, 2013 at 04:09:48PM +0000, Narasimhan, Sriram wrote:
 
 Interesting that qemu didn't fail.
 
+[Sriram] void tun_set_real_num_tx_queues() does not return 
+the EINVAL return from netif_set_real_num_tx_queues() for 
+txq > dev->num_tx_queues (which would be the case if the
+tap device were not created with IFF_MULTI_QUEUE).  I think
+it would be better to fix the code to disable the new 
+queue and fail tun_attach() in this scenario.  If you 
+agree, I can go ahead and create a separate patch for that.
+   
+
 > I am thinking about 
 > adding a -q option to tunctl to specify multi-queue flag on
 > the tap device.
 
 Absolutely.
+
+[Sriram] OK, let me do that.
 
 > Yes, number of exits will be most useful.  I will look into
 > adding the other statistics you mention.
@@ -54,6 +77,13 @@ whether there was an exit.
 
 Also, it's best to make this a separate patch from the one
 adding per-queue stats.
+
+[Sriram] OK, I will cover only the per-queue statistics in
+this patch. Also, I will address the indentation/data 
+structure name points that you mentioned in your earlier
+email and send a new revision for this patch.
+
+Sriram
 
 > -----Original Message-----
 > From: Michael S. Tsirkin [mailto:mst@redhat.com] 
