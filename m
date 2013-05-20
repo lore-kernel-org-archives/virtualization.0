@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio-spec: tweak wording for console control vq
-Date: Mon, 20 May 2013 15:20:52 +0300
-Message-ID: <20130520122051.GA11581@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 1/2 V4] virtio-spec: dynamic network offloads configuration
+Date: Mon, 20 May 2013 15:43:51 +0200
+Message-ID: <519A2897.9020207@redhat.com>
+References: <1365062118-907-1-git-send-email-dmitry@daynix.com>
+	<1365062118-907-3-git-send-email-dmitry@daynix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1365062118-907-3-git-send-email-dmitry@daynix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,37 +18,200 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, Yan Vugenfirer <yan@daynix.com>, Ronen Hod <rhod@redhat.com>, Dmitry Fleytman <dfleytma@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-control vq is only used if feature bit is
-negotiated - it's not enough that device supports
-it. Clarify this in the spec.
+Il 04/04/2013 09:55, Dmitry Fleytman ha scritto:
+> From: Dmitry Fleytman <dfleytma@redhat.com>
+> 
+> Virtio-net driver currently negotiates network offloads
+> on startup via features mechanism and have no ability to
+> disable and re-enable offloads later.
+> This patch introduced a new control command that allows
+> to configure device network offloads state dynamically.
+> The patch also introduces a new feature flag
+> VIRTIO_NET_F_CTRL_GUEST_OFFLOADS.
+> 
+> Signed-off-by: Dmitry Fleytman <dfleytma@redhat.com>
+> ---
+>  virtio-spec.lyx | 143 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 143 insertions(+)
+> 
+> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+> index 3d2f485..e9dbac4 100644
+> --- a/virtio-spec.lyx
+> +++ b/virtio-spec.lyx
+> @@ -60,6 +60,7 @@
+>  \author -1930653948 "Amos Kong" 
+>  \author -608949062 "Rusty Russell,,," 
+>  \author -385801441 "Cornelia Huck" cornelia.huck@de.ibm.com
+> +\author 460276516 "Dmitry Fleytman" dfleytma@redhat.com
+>  \author 1112500848 "Rusty Russell" rusty@rustcorp.com.au
+>  \author 1531152142 "Paolo Bonzini,,," 
+>  \author 1717892615 "Alexey Zaytsev,,," 
+> @@ -4261,6 +4262,20 @@ VIRTIO_NET_F_GUEST_CSUM
+>  \end_inset
+>  
+>  (1) Guest handles packets with partial checksum
+> +\change_inserted 460276516 1363712169
+> +
+> +\end_layout
+> +
+> +\begin_layout Description
+> +
+> +\change_inserted 460276516 1363712334
+> +VIRTIO_NET_F_CTRL_GUEST_OFFLOADS
+> +\begin_inset space ~
+> +\end_inset
+> +
+> +(2) Control channel offloads reconfiguration support.
+> +\change_unchanged
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- virtio-spec.lyx | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Rusty,
 
-diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index 921388b..3ef96a9 100644
---- a/virtio-spec.lyx
-+++ b/virtio-spec.lyx
-@@ -6833,8 +6833,13 @@ VIRTIO_CONSOLE_F_SIZE
- 
- \begin_layout Description
- VIRTIO_CONSOLE_F_MULTIPORT(1) Device has support for multiple ports; configurati
--on fields nr_ports and max_nr_ports are valid and control virtqueues will
-- be used.
-+on fields nr_ports and max_nr_ports are valid
-+\change_inserted 1986246365 1347188404
-+; if this bit is negotiated,
-+\change_deleted 1986246365 1347188406
-+ and
-+\change_unchanged
-+ control virtqueues will be used.
- \change_inserted 1112500848 1368412890
- 
- \end_layout
--- 
-MST
+you might have missed this patch because your address was misspelled.
+
+Is there a story behind skipping virtio-net feature bits 2..4?
+
+Paolo
+
+>  \end_layout
+>  
+>  \begin_layout Description
+> @@ -5675,6 +5690,134 @@ virtqueue_pairs = 1
+>   
+>  \end_layout
+>  
+> +\begin_layout Subsection*
+> +
+> +\change_inserted 460276516 1363765850
+> +Offloads State Configuration
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363765861
+> +If the VIRTIO_NET_F_CTRL_GUEST_OFFLOADS feature is negotiated, the driver can
+> + send control commands for dynamic offloads state configuration.
+> +\end_layout
+> +
+> +\begin_layout Subsubsection*
+> +
+> +\change_inserted 460276516 1363765928
+> +Setting offloads state
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363713225
+> +\begin_inset listings
+> +inline false
+> +status open
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363765996
+> +
+> +u64 offloads;
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363765997
+> +
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766044
+> +
+> +#define VIRTIO_NET_F_GUEST_CSUM       1
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766051
+> +
+> +#define VIRTIO_NET_F_GUEST_TSO4       7
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766055
+> +
+> +#define VIRTIO_NET_F_GUEST_TSO6       8
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766064
+> +
+> +#define VIRTIO_NET_F_GUEST_ECN        9
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766035
+> +
+> +#define VIRTIO_NET_F_GUEST_UFO        10
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363766031
+> +
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363765865
+> +
+> +#define VIRTIO_NET_CTRL_GUEST_OFFLOADS       5
+> +\end_layout
+> +
+> +\begin_layout Plain Layout
+> +
+> +\change_inserted 460276516 1363765867
+> +
+> + #define VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET          0
+> +\end_layout
+> +
+> +\end_inset
+> +
+> +
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363766082
+> +The class VIRTIO_NET_CTRL_GUEST_OFFLOADS has one command: VIRTIO_NET_CTRL_GUEST_OFFLOADS_SET
+> + applies the new offloads configuration.
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363766435
+> +u64 value passed as command data is a bitmask, bits set define offloads
+> + to be enabled, bits cleared - offloads to be disabled.
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363766757
+> +There is a corresponding device feature for each offload.
+> + Upon feature negotiation corresponding offload gets enabled to preserve
+> + backward compartibility.
+> +\end_layout
+> +
+> +\begin_layout Standard
+> +
+> +\change_inserted 460276516 1363766720
+> +Corresponding feature must be negotiated at startup in order to allow dynamic
+> + change of specific offload state.
+> +\end_layout
+> +
+>  \begin_layout Chapter*
+>  Appendix D: Block Device
+>  \end_layout
+> 
