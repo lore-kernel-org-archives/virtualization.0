@@ -1,13 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH V2] virtio_net: enable napi for all possible queues during
-	open
-Date: Thu, 23 May 2013 12:52:46 +0930
-Message-ID: <87obc2s7ll.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V2] virtio_net: enable napi for all possible queues
+	during open
+Date: Thu, 23 May 2013 08:59:57 +0300
+Message-ID: <20130523055957.GC13916@redhat.com>
 References: <1369202638-17660-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1369202638-17660-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,27 +19,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, Sasha Levin <sasha.levin@oracle.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Sasha Levin <sasha.levin@oracle.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jason Wang <jasowang@redhat.com> writes:
+On Wed, May 22, 2013 at 02:03:58PM +0800, Jason Wang wrote:
 > Commit 55257d72bd1c51f25106350f4983ec19f62ed1fa (virtio-net: fill only rx
 > queues which are being used) only does the napi enabling during open for
 > curr_queue_pairs. This will break multiqueue receiving since napi of new queues
 > were still disabled after changing the number of queues.
->
+> 
 > This patch fixes this by enabling napi for all possible queues during open.
->
+> 
 > Cc: Sasha Levin <sasha.levin@oracle.com>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-
-Dave, please send to Linus (fixes master).
-
-Cheers,
-Rusty.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
 > ---
 > Changes from V1:
@@ -47,7 +43,7 @@ Rusty.
 > ---
 >  drivers/net/virtio_net.c |    9 +++++----
 >  1 files changed, 5 insertions(+), 4 deletions(-)
->
+> 
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
 > index 2d6abac..241527d 100644
 > --- a/drivers/net/virtio_net.c
