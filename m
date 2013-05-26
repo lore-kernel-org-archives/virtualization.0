@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: updated: kvm networking todo wiki
-Date: Fri, 24 May 2013 17:00:24 +0300
-Message-ID: <20130524140024.GA12024@redhat.com>
-References: <20130523085034.GA16142@redhat.com> <519F35B7.6010408@redhat.com>
-	<20130524113542.GA7046@redhat.com> <8738tctrox.fsf@codemonkey.ws>
+From: Jiang Liu <liuj97@gmail.com>
+Subject: [PATCH v8, part3 12/14] mm: correctly update zone->mamaged_pages
+Date: Sun, 26 May 2013 21:38:40 +0800
+Message-ID: <1369575522-26405-13-git-send-email-jiang.liu@huawei.com>
+References: <1369575522-26405-1-git-send-email-jiang.liu@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <8738tctrox.fsf@codemonkey.ws>
+In-Reply-To: <1369575522-26405-1-git-send-email-jiang.liu@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,98 +17,231 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, lmr@redhat.com, "Xin,
-	Xiaohui" <xiaohui.xin@intel.com>, Shirley Ma <mashirle@us.ibm.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, David Stevens <dlstevens@us.ibm.com>, qemu-devel@nongnu.org, vyasevic@redhat.com, herbert@gondor.hengli.com.au, jdike@linux.intel.com, sri@linux.vnet.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "Michael S. Tsirkin" <mst@redhat.com>, Tang Chen <tangchen@cn.fujitsu.com>, James Bottomley <James.Bottomley@HansenPartnership.com>, linux-mm@kvack.org, Michal Hocko <mhocko@suse.cz>, linux-arch@vger.kernel.org, xen-devel@lists.xensource.com, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, Mark Salter <msalter@redhat.com>, Jiang Liu <jiang.liu@huawei.com>, Wen Congyang <wency@cn.fujitsu.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Chris Metcalf <cmetcalf@tilera.com>, Jianguo Wu <wujianguo@huawei.com>, virtualization@lists.linux-foundation.org, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, David Howells <dhowells@redhat.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, linux-kernel@vger.kernel.org, Minchan Kim <minchan@kernel.org>, David Rientjes <rientjes@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 24, 2013 at 08:47:58AM -0500, Anthony Liguori wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> 
-> > On Fri, May 24, 2013 at 05:41:11PM +0800, Jason Wang wrote:
-> >> On 05/23/2013 04:50 PM, Michael S. Tsirkin wrote:
-> >> > Hey guys,
-> >> > I've updated the kvm networking todo wiki with current projects.
-> >> > Will try to keep it up to date more often.
-> >> > Original announcement below.
-> >> 
-> >> Thanks a lot. I've added the tasks I'm currently working on to the wiki.
-> >> 
-> >> btw. I notice the virtio-net data plane were missed in the wiki. Is the
-> >> project still being considered?
-> >
-> > It might have been interesting several years ago, but now that linux has
-> > vhost-net in kernel, the only point seems to be to
-> > speed up networking on non-linux hosts.
-> 
-> Data plane just means having a dedicated thread for virtqueue processing
-> that doesn't hold qemu_mutex.
-> 
-> Of course we're going to do this in QEMU.  It's a no brainer.  But not
-> as a separate device, just as an improvement to the existing userspace
-> virtio-net.
-> 
-> > Since non-linux does not have kvm, I doubt virtio is a bottleneck.
-> 
-> FWIW, I think what's more interesting is using vhost-net as a networking
-> backend with virtio-net in QEMU being what's guest facing.
-> 
-> In theory, this gives you the best of both worlds: QEMU acts as a first
-> line of defense against a malicious guest while still getting the
-> performance advantages of vhost-net (zero-copy).
+Enhance adjust_managed_page_count() to adjust totalhigh_pages for
+highmem pages. And change code which directly adjusts totalram_pages
+to use adjust_managed_page_count() because it adjusts totalram_pages,
+totalhigh_pages and zone->managed_pages altogether in a safe way.
 
-Great idea, that sounds very intresting.
+Remove inc_totalhigh_pages() and dec_totalhigh_pages() from xen/balloon
+driver bacause adjust_managed_page_count() has already adjusted
+totalhigh_pages.
 
-I'll add it to the wiki.
+This patch also fixes two bugs:
+1) enhances virtio_balloon driver to adjust totalhigh_pages when
+   reserve/unreserve pages.
+2) enhance memory_hotplug.c to adjust totalhigh_pages when hot-removing
+   memory.
 
-In fact a bit of complexity in vhost was put there in the vague hope to
-support something like this: virtio rings are not translated through
-regular memory tables, instead, vhost gets a pointer to ring address.
+We still need to deal with modifications of totalram_pages in file
+arch/powerpc/platforms/pseries/cmm.c, but need help from PPC experts.
 
-This allows qemu acting as a man in the middle,
-verifying the descriptors but not touching the
+Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+Cc: Chris Metcalf <cmetcalf@tilera.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Wen Congyang <wency@cn.fujitsu.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Tang Chen <tangchen@cn.fujitsu.com>
+Cc: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: xen-devel@lists.xensource.com
+Cc: linux-mm@kvack.org
+---
+ drivers/virtio/virtio_balloon.c |  8 +++++---
+ drivers/xen/balloon.c           | 23 +++++------------------
+ mm/hugetlb.c                    |  2 +-
+ mm/memory_hotplug.c             | 16 +++-------------
+ mm/page_alloc.c                 | 10 +++++-----
+ 5 files changed, 19 insertions(+), 40 deletions(-)
 
-Anyone interested in working on such a project?
-
-> > IMO yet another networking backend is a distraction,
-> > and confusing to users.
-> > In any case, I'd like to see virtio-blk dataplane replace
-> > non dataplane first. We don't want two copies of
-> > virtio-net in qemu.
-> 
-> 100% agreed.
-> 
-> Regards,
-> 
-> Anthony Liguori
-> 
-> >
-> >> > ----
-> >> >
-> >> > I've put up a wiki page with a kvm networking todo list,
-> >> > mainly to avoid effort duplication, but also in the hope
-> >> > to draw attention to what I think we should try addressing
-> >> > in KVM:
-> >> >
-> >> > http://www.linux-kvm.org/page/NetworkingTodo
-> >> >
-> >> > This page could cover all networking related activity in KVM,
-> >> > currently most info is related to virtio-net.
-> >> >
-> >> > Note: if there's no developer listed for an item,
-> >> > this just means I don't know of anyone actively working
-> >> > on an issue at the moment, not that no one intends to.
-> >> >
-> >> > I would appreciate it if others working on one of the items on this list
-> >> > would add their names so we can communicate better.  If others like this
-> >> > wiki page, please go ahead and add stuff you are working on if any.
-> >> >
-> >> > It would be especially nice to add autotest projects:
-> >> > there is just a short test matrix and a catch-all
-> >> > 'Cover test matrix with autotest', currently.
-> >> >
-> >> > Currently there are some links to Red Hat bugzilla entries,
-> >> > feel free to add links to other bugzillas.
-> >> >
-> >> > Thanks!
-> >> >
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index bd3ae32..6649968 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -148,7 +148,7 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+ 		}
+ 		set_page_pfns(vb->pfns + vb->num_pfns, page);
+ 		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+-		totalram_pages--;
++		adjust_managed_page_count(page, -1);
+ 	}
+ 
+ 	/* Did we get any? */
+@@ -160,11 +160,13 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
+ static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
+ {
+ 	unsigned int i;
++	struct page *page;
+ 
+ 	/* Find pfns pointing at start of each page, get pages and free them. */
+ 	for (i = 0; i < num; i += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+-		balloon_page_free(balloon_pfn_to_page(pfns[i]));
+-		totalram_pages++;
++		page = balloon_pfn_to_page(pfns[i]);
++		balloon_page_free(page);
++		adjust_managed_page_count(page, 1);
+ 	}
+ }
+ 
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index 930fb68..c8aab4e 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -89,14 +89,6 @@ EXPORT_SYMBOL_GPL(balloon_stats);
+ /* We increase/decrease in batches which fit in a page */
+ static xen_pfn_t frame_list[PAGE_SIZE / sizeof(unsigned long)];
+ 
+-#ifdef CONFIG_HIGHMEM
+-#define inc_totalhigh_pages() (totalhigh_pages++)
+-#define dec_totalhigh_pages() (totalhigh_pages--)
+-#else
+-#define inc_totalhigh_pages() do {} while (0)
+-#define dec_totalhigh_pages() do {} while (0)
+-#endif
+-
+ /* List of ballooned pages, threaded through the mem_map array. */
+ static LIST_HEAD(ballooned_pages);
+ 
+@@ -132,9 +124,7 @@ static void __balloon_append(struct page *page)
+ static void balloon_append(struct page *page)
+ {
+ 	__balloon_append(page);
+-	if (PageHighMem(page))
+-		dec_totalhigh_pages();
+-	totalram_pages--;
++	adjust_managed_page_count(page, -1);
+ }
+ 
+ /* balloon_retrieve: rescue a page from the balloon, if it is not empty. */
+@@ -151,13 +141,12 @@ static struct page *balloon_retrieve(bool prefer_highmem)
+ 		page = list_entry(ballooned_pages.next, struct page, lru);
+ 	list_del(&page->lru);
+ 
+-	if (PageHighMem(page)) {
++	if (PageHighMem(page))
+ 		balloon_stats.balloon_high--;
+-		inc_totalhigh_pages();
+-	} else
++	else
+ 		balloon_stats.balloon_low--;
+ 
+-	totalram_pages++;
++	adjust_managed_page_count(page, 1);
+ 
+ 	return page;
+ }
+@@ -372,9 +361,7 @@ static enum bp_state increase_reservation(unsigned long nr_pages)
+ #endif
+ 
+ 		/* Relinquish the page back to the allocator. */
+-		ClearPageReserved(page);
+-		init_page_count(page);
+-		__free_page(page);
++		__free_reserved_page(page);
+ 	}
+ 
+ 	balloon_stats.current_pages += rc;
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index f8feeec..95c5a6b 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1246,7 +1246,7 @@ static void __init gather_bootmem_prealloc(void)
+ 		 * side-effects, like CommitLimit going negative.
+ 		 */
+ 		if (h->order > (MAX_ORDER - 1))
+-			totalram_pages += 1 << h->order;
++			adjust_managed_page_count(page, 1 << h->order);
+ 	}
+ }
+ 
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 1a16ea0..7244e67 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -772,20 +772,13 @@ EXPORT_SYMBOL_GPL(__online_page_set_limits);
+ 
+ void __online_page_increment_counters(struct page *page)
+ {
+-	totalram_pages++;
+-
+-#ifdef CONFIG_HIGHMEM
+-	if (PageHighMem(page))
+-		totalhigh_pages++;
+-#endif
++	adjust_managed_page_count(page, 1);
+ }
+ EXPORT_SYMBOL_GPL(__online_page_increment_counters);
+ 
+ void __online_page_free(struct page *page)
+ {
+-	ClearPageReserved(page);
+-	init_page_count(page);
+-	__free_page(page);
++	__free_reserved_page(page);
+ }
+ EXPORT_SYMBOL_GPL(__online_page_free);
+ 
+@@ -983,7 +976,6 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages, int online_typ
+ 		return ret;
+ 	}
+ 
+-	zone->managed_pages += onlined_pages;
+ 	zone->present_pages += onlined_pages;
+ 
+ 	pgdat_resize_lock(zone->zone_pgdat, &flags);
+@@ -1572,15 +1564,13 @@ repeat:
+ 	/* reset pagetype flags and makes migrate type to be MOVABLE */
+ 	undo_isolate_page_range(start_pfn, end_pfn, MIGRATE_MOVABLE);
+ 	/* removal success */
+-	zone->managed_pages -= offlined_pages;
++	adjust_managed_page_count(pfn_to_page(start_pfn), -offlined_pages);
+ 	zone->present_pages -= offlined_pages;
+ 
+ 	pgdat_resize_lock(zone->zone_pgdat, &flags);
+ 	zone->zone_pgdat->node_present_pages -= offlined_pages;
+ 	pgdat_resize_unlock(zone->zone_pgdat, &flags);
+ 
+-	totalram_pages -= offlined_pages;
+-
+ 	init_per_zone_wmark_min();
+ 
+ 	if (!populated_zone(zone)) {
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 403afa6..5b27db4 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -783,11 +783,7 @@ void __init init_cma_reserved_pageblock(struct page *page)
+ 	set_page_refcounted(page);
+ 	set_pageblock_migratetype(page, MIGRATE_CMA);
+ 	__free_pages(page, pageblock_order);
+-	totalram_pages += pageblock_nr_pages;
+-#ifdef CONFIG_HIGHMEM
+-	if (PageHighMem(page))
+-		totalhigh_pages += pageblock_nr_pages;
+-#endif
++	adjust_managed_page_count(page, pageblock_nr_pages);
+ }
+ #endif
+ 
+@@ -5232,6 +5228,10 @@ void adjust_managed_page_count(struct page *page, long count)
+ 	spin_lock(&managed_page_count_lock);
+ 	page_zone(page)->managed_pages += count;
+ 	totalram_pages += count;
++#ifdef	CONFIG_HIGHMEM
++	if (PageHighMem(page))
++		totalhigh_pages += count;
++#endif
+ 	spin_unlock(&managed_page_count_lock);
+ }
+ EXPORT_SYMBOL(adjust_managed_page_count);
+-- 
+1.8.1.2
