@@ -1,13 +1,14 @@
 From: Jiang Liu <liuj97@gmail.com>
-Subject: [PATCH v8, part3 12/14] mm: correctly update zone->mamaged_pages
-Date: Sun, 26 May 2013 21:38:40 +0800
-Message-ID: <1369575522-26405-13-git-send-email-jiang.liu@huawei.com>
-References: <1369575522-26405-1-git-send-email-jiang.liu@huawei.com>
+Subject: [PATCH v3, part2 02/20] PCI,
+	core: use hotplug-safe iterators to walk PCI buses
+Date: Sun, 26 May 2013 23:52:59 +0800
+Message-ID: <1369583597-3801-3-git-send-email-jiang.liu@huawei.com>
+References: <1369583597-3801-1-git-send-email-jiang.liu@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1369575522-26405-1-git-send-email-jiang.liu@huawei.com>
+In-Reply-To: <1369583597-3801-1-git-send-email-jiang.liu@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,231 +18,219 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "Michael S. Tsirkin" <mst@redhat.com>, Tang Chen <tangchen@cn.fujitsu.com>, James Bottomley <James.Bottomley@HansenPartnership.com>, linux-mm@kvack.org, Michal Hocko <mhocko@suse.cz>, linux-arch@vger.kernel.org, xen-devel@lists.xensource.com, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, Mark Salter <msalter@redhat.com>, Jiang Liu <jiang.liu@huawei.com>, Wen Congyang <wency@cn.fujitsu.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Chris Metcalf <cmetcalf@tilera.com>, Jianguo Wu <wujianguo@huawei.com>, virtualization@lists.linux-foundation.org, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, David Howells <dhowells@redhat.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, linux-kernel@vger.kernel.org, Minchan Kim <minchan@kernel.org>, David Rientjes <rientjes@google.com>
+To: Bjorn Helgaas <bhelgaas@google.com>, Yinghai Lu <yinghai@kernel.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Toshi Kani <toshi.kani@hp.com>, Jiang Liu <jiang.liu@huawei.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Rafael J . Wysocki" <rjw@sisk.pl>, Yijing Wang <wangyijing@huawei.com>, linux-pci@vger.kernel.org, Gu Zheng <guz.fnst@cn.fujitsu.com>, Myron Stowe <myron.stowe@redhat.com>, Jiang Liu <liuj97@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Enhance adjust_managed_page_count() to adjust totalhigh_pages for
-highmem pages. And change code which directly adjusts totalram_pages
-to use adjust_managed_page_count() because it adjusts totalram_pages,
-totalhigh_pages and zone->managed_pages altogether in a safe way.
+Enhance PCI core to use hotplug-safe iterators to walk PCI buses.
 
-Remove inc_totalhigh_pages() and dec_totalhigh_pages() from xen/balloon
-driver bacause adjust_managed_page_count() has already adjusted
-totalhigh_pages.
-
-This patch also fixes two bugs:
-1) enhances virtio_balloon driver to adjust totalhigh_pages when
-   reserve/unreserve pages.
-2) enhance memory_hotplug.c to adjust totalhigh_pages when hot-removing
-   memory.
-
-We still need to deal with modifications of totalram_pages in file
-arch/powerpc/platforms/pseries/cmm.c, but need help from PPC experts.
+In other words, replace pci_find_bus(), pci_find_next_bus() and
+pci_root_buses with pci_bus_exists(), pci_get_bus(), pci_get_next_bus()
+and pci_get_next_root_bus() etc.
 
 Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
-Cc: Chris Metcalf <cmetcalf@tilera.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Acked-by: Yinghai Lu <yinghai@kernel.org>
 Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Wen Congyang <wency@cn.fujitsu.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Tang Chen <tangchen@cn.fujitsu.com>
-Cc: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Minchan Kim <minchan@kernel.org>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc: linux-pci@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
 Cc: xen-devel@lists.xensource.com
-Cc: linux-mm@kvack.org
+Cc: virtualization@lists.linux-foundation.org
 ---
- drivers/virtio/virtio_balloon.c |  8 +++++---
- drivers/xen/balloon.c           | 23 +++++------------------
- mm/hugetlb.c                    |  2 +-
- mm/memory_hotplug.c             | 16 +++-------------
- mm/page_alloc.c                 | 10 +++++-----
- 5 files changed, 19 insertions(+), 40 deletions(-)
+ drivers/pci/pci-sysfs.c    |  2 +-
+ drivers/pci/pcie/pme.c     |  5 +++--
+ drivers/pci/probe.c        | 15 +++++++++------
+ drivers/pci/setup-bus.c    | 14 ++++++--------
+ drivers/pci/xen-pcifront.c |  3 ++-
+ 5 files changed, 21 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index bd3ae32..6649968 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -148,7 +148,7 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
- 		}
- 		set_page_pfns(vb->pfns + vb->num_pfns, page);
- 		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
--		totalram_pages--;
-+		adjust_managed_page_count(page, -1);
- 	}
+diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+index 403da60..e2da5f3 100644
+--- a/drivers/pci/pci-sysfs.c
++++ b/drivers/pci/pci-sysfs.c
+@@ -296,7 +296,7 @@ static ssize_t bus_rescan_store(struct bus_type *bus, const char *buf,
  
- 	/* Did we get any? */
-@@ -160,11 +160,13 @@ static void fill_balloon(struct virtio_balloon *vb, size_t num)
- static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
+ 	if (val) {
+ 		mutex_lock(&pci_remove_rescan_mutex);
+-		while ((b = pci_find_next_bus(b)) != NULL)
++		for_each_pci_root_bus(b)
+ 			pci_rescan_bus(b);
+ 		mutex_unlock(&pci_remove_rescan_mutex);
+ 	}
+diff --git a/drivers/pci/pcie/pme.c b/drivers/pci/pcie/pme.c
+index 795db1f..1ed38a3 100644
+--- a/drivers/pci/pcie/pme.c
++++ b/drivers/pci/pcie/pme.c
+@@ -132,7 +132,7 @@ static bool pcie_pme_from_pci_bridge(struct pci_bus *bus, u8 devfn)
+ static void pcie_pme_handle_request(struct pci_dev *port, u16 req_id)
  {
- 	unsigned int i;
-+	struct page *page;
+ 	u8 busnr = req_id >> 8, devfn = req_id & 0xff;
+-	struct pci_bus *bus;
++	struct pci_bus *bus = NULL;
+ 	struct pci_dev *dev;
+ 	bool found = false;
  
- 	/* Find pfns pointing at start of each page, get pages and free them. */
- 	for (i = 0; i < num; i += VIRTIO_BALLOON_PAGES_PER_PAGE) {
--		balloon_page_free(balloon_pfn_to_page(pfns[i]));
--		totalram_pages++;
-+		page = balloon_pfn_to_page(pfns[i]);
-+		balloon_page_free(page);
-+		adjust_managed_page_count(page, 1);
+@@ -161,7 +161,7 @@ static void pcie_pme_handle_request(struct pci_dev *port, u16 req_id)
  	}
+ 
+ 	/* Second, find the bus the source device is on. */
+-	bus = pci_find_bus(pci_domain_nr(port->bus), busnr);
++	bus = pci_get_bus(pci_domain_nr(port->bus), busnr);
+ 	if (!bus)
+ 		goto out;
+ 
+@@ -206,6 +206,7 @@ static void pcie_pme_handle_request(struct pci_dev *port, u16 req_id)
+ 	}
+ 
+  out:
++	pci_bus_put(bus);
+ 	if (!found)
+ 		dev_dbg(&port->dev, "Spurious native PME interrupt!\n");
  }
- 
-diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
-index 930fb68..c8aab4e 100644
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -89,14 +89,6 @@ EXPORT_SYMBOL_GPL(balloon_stats);
- /* We increase/decrease in batches which fit in a page */
- static xen_pfn_t frame_list[PAGE_SIZE / sizeof(unsigned long)];
- 
--#ifdef CONFIG_HIGHMEM
--#define inc_totalhigh_pages() (totalhigh_pages++)
--#define dec_totalhigh_pages() (totalhigh_pages--)
--#else
--#define inc_totalhigh_pages() do {} while (0)
--#define dec_totalhigh_pages() do {} while (0)
--#endif
--
- /* List of ballooned pages, threaded through the mem_map array. */
- static LIST_HEAD(ballooned_pages);
- 
-@@ -132,9 +124,7 @@ static void __balloon_append(struct page *page)
- static void balloon_append(struct page *page)
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index 1004a05..7c34362 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -752,7 +752,7 @@ static void pci_fixup_parent_subordinate_busnr(struct pci_bus *child, int max)
+  */
+ int pci_scan_bridge(struct pci_bus *bus, struct pci_dev *dev, int max, int pass)
  {
- 	__balloon_append(page);
--	if (PageHighMem(page))
--		dec_totalhigh_pages();
--	totalram_pages--;
-+	adjust_managed_page_count(page, -1);
- }
- 
- /* balloon_retrieve: rescue a page from the balloon, if it is not empty. */
-@@ -151,13 +141,12 @@ static struct page *balloon_retrieve(bool prefer_highmem)
- 		page = list_entry(ballooned_pages.next, struct page, lru);
- 	list_del(&page->lru);
- 
--	if (PageHighMem(page)) {
-+	if (PageHighMem(page))
- 		balloon_stats.balloon_high--;
--		inc_totalhigh_pages();
--	} else
-+	else
- 		balloon_stats.balloon_low--;
- 
--	totalram_pages++;
-+	adjust_managed_page_count(page, 1);
- 
- 	return page;
- }
-@@ -372,9 +361,7 @@ static enum bp_state increase_reservation(unsigned long nr_pages)
- #endif
- 
- 		/* Relinquish the page back to the allocator. */
--		ClearPageReserved(page);
--		init_page_count(page);
--		__free_page(page);
-+		__free_reserved_page(page);
- 	}
- 
- 	balloon_stats.current_pages += rc;
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index f8feeec..95c5a6b 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1246,7 +1246,7 @@ static void __init gather_bootmem_prealloc(void)
- 		 * side-effects, like CommitLimit going negative.
+-	struct pci_bus *child;
++	struct pci_bus *child = NULL;
+ 	int is_cardbus = (dev->hdr_type == PCI_HEADER_TYPE_CARDBUS);
+ 	u32 buses, i, j = 0;
+ 	u16 bctl;
+@@ -804,7 +804,7 @@ int pci_scan_bridge(struct pci_bus *bus, struct pci_dev *dev, int max, int pass)
+ 		 * However, we continue to descend down the hierarchy and
+ 		 * scan remaining child buses.
  		 */
- 		if (h->order > (MAX_ORDER - 1))
--			totalram_pages += 1 << h->order;
-+			adjust_managed_page_count(page, 1 << h->order);
+-		child = pci_find_bus(pci_domain_nr(bus), secondary);
++		child = pci_get_bus(pci_domain_nr(bus), secondary);
+ 		if (!child) {
+ 			child = pci_add_new_bus(bus, dev, secondary);
+ 			if (!child)
+@@ -812,6 +812,7 @@ int pci_scan_bridge(struct pci_bus *bus, struct pci_dev *dev, int max, int pass)
+ 			child->primary = primary;
+ 			pci_bus_insert_busn_res(child, secondary, subordinate);
+ 			child->bridge_ctl = bctl;
++			pci_bus_get(child);
+ 		}
+ 
+ 		cmax = pci_scan_child_bus(child);
+@@ -843,12 +844,13 @@ int pci_scan_bridge(struct pci_bus *bus, struct pci_dev *dev, int max, int pass)
+ 		/* Prevent assigning a bus number that already exists.
+ 		 * This can happen when a bridge is hot-plugged, so in
+ 		 * this case we only re-scan this bus. */
+-		child = pci_find_bus(pci_domain_nr(bus), max+1);
++		child = pci_get_bus(pci_domain_nr(bus), max+1);
+ 		if (!child) {
+ 			child = pci_add_new_bus(bus, dev, ++max);
+ 			if (!child)
+ 				goto out;
+ 			pci_bus_insert_busn_res(child, max, 0xff);
++			pci_bus_get(child);
+ 		}
+ 		buses = (buses & 0xff000000)
+ 		      | ((unsigned int)(child->primary)     <<  0)
+@@ -893,8 +895,7 @@ int pci_scan_bridge(struct pci_bus *bus, struct pci_dev *dev, int max, int pass)
+ 			 */
+ 			for (i=0; i<CARDBUS_RESERVE_BUSNR; i++) {
+ 				struct pci_bus *parent = bus;
+-				if (pci_find_bus(pci_domain_nr(bus),
+-							max+i+1))
++				if (pci_bus_exists(pci_domain_nr(bus), max+i+1))
+ 					break;
+ 				while (parent->parent) {
+ 					if ((!pcibios_assign_all_busses()) &&
+@@ -949,6 +950,7 @@ int pci_scan_bridge(struct pci_bus *bus, struct pci_dev *dev, int max, int pass)
+ 
+ out:
+ 	pci_write_config_word(dev, PCI_BRIDGE_CONTROL, bctl);
++	pci_bus_put(child);
+ 
+ 	return max;
+ }
+@@ -1710,10 +1712,11 @@ struct pci_bus *pci_create_root_bus(struct device *parent, int bus,
+ 	if (!b)
+ 		return NULL;
+ 
+-	b2 = pci_find_bus(pci_domain_nr(b), bus);
++	b2 = pci_get_bus(pci_domain_nr(b), bus);
+ 	if (b2) {
+ 		/* If we already got to this bus through a different bridge, ignore it */
+ 		dev_dbg(&b2->dev, "bus already known\n");
++		pci_bus_put(b2);
+ 		goto err_out;
  	}
+ 
+diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+index 16abaaa..9a3e3f7 100644
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -1317,12 +1317,10 @@ static int __init pci_bus_get_depth(struct pci_bus *bus)
  }
- 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 1a16ea0..7244e67 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -772,20 +772,13 @@ EXPORT_SYMBOL_GPL(__online_page_set_limits);
- 
- void __online_page_increment_counters(struct page *page)
+ static int __init pci_get_max_depth(void)
  {
--	totalram_pages++;
+-	int depth = 0;
++	int ret, depth = 0;
+ 	struct pci_bus *bus;
+ 
+-	list_for_each_entry(bus, &pci_root_buses, node) {
+-		int ret;
 -
--#ifdef CONFIG_HIGHMEM
--	if (PageHighMem(page))
--		totalhigh_pages++;
--#endif
-+	adjust_managed_page_count(page, 1);
++	for_each_pci_root_bus(bus) {
+ 		ret = pci_bus_get_depth(bus);
+ 		if (ret > depth)
+ 			depth = ret;
+@@ -1423,11 +1421,11 @@ again:
+ 		add_list = &realloc_head;
+ 	/* Depth first, calculate sizes and alignments of all
+ 	   subordinate buses. */
+-	list_for_each_entry(bus, &pci_root_buses, node)
++	for_each_pci_root_bus(bus)
+ 		__pci_bus_size_bridges(bus, add_list);
+ 
+ 	/* Depth last, allocate resources and update the hardware. */
+-	list_for_each_entry(bus, &pci_root_buses, node)
++	for_each_pci_root_bus(bus)
+ 		__pci_bus_assign_resources(bus, add_list, &fail_head);
+ 	if (add_list)
+ 		BUG_ON(!list_empty(add_list));
+@@ -1480,11 +1478,11 @@ again:
+ 
+ enable_and_dump:
+ 	/* Depth last, update the hardware. */
+-	list_for_each_entry(bus, &pci_root_buses, node)
++	for_each_pci_root_bus(bus)
+ 		pci_enable_bridges(bus);
+ 
+ 	/* dump the resource on buses */
+-	list_for_each_entry(bus, &pci_root_buses, node)
++	for_each_pci_root_bus(bus)
+ 		pci_bus_dump_resources(bus);
  }
- EXPORT_SYMBOL_GPL(__online_page_increment_counters);
  
- void __online_page_free(struct page *page)
- {
--	ClearPageReserved(page);
--	init_page_count(page);
--	__free_page(page);
-+	__free_reserved_page(page);
+diff --git a/drivers/pci/xen-pcifront.c b/drivers/pci/xen-pcifront.c
+index 966abc6..816cf94 100644
+--- a/drivers/pci/xen-pcifront.c
++++ b/drivers/pci/xen-pcifront.c
+@@ -522,7 +522,7 @@ static int pcifront_rescan_root(struct pcifront_device *pdev,
+ 	dev_info(&pdev->xdev->dev, "Rescanning PCI Frontend Bus %04x:%02x\n",
+ 		 domain, bus);
+ 
+-	b = pci_find_bus(domain, bus);
++	b = pci_get_bus(domain, bus);
+ 	if (!b)
+ 		/* If the bus is unknown, create it. */
+ 		return pcifront_scan_root(pdev, domain, bus);
+@@ -534,6 +534,7 @@ static int pcifront_rescan_root(struct pcifront_device *pdev,
+ 
+ 	/* Create SysFS and notify udev of the devices. Aka: "going live" */
+ 	pci_bus_add_devices(b);
++	pci_bus_put(b);
+ 
+ 	return err;
  }
- EXPORT_SYMBOL_GPL(__online_page_free);
- 
-@@ -983,7 +976,6 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages, int online_typ
- 		return ret;
- 	}
- 
--	zone->managed_pages += onlined_pages;
- 	zone->present_pages += onlined_pages;
- 
- 	pgdat_resize_lock(zone->zone_pgdat, &flags);
-@@ -1572,15 +1564,13 @@ repeat:
- 	/* reset pagetype flags and makes migrate type to be MOVABLE */
- 	undo_isolate_page_range(start_pfn, end_pfn, MIGRATE_MOVABLE);
- 	/* removal success */
--	zone->managed_pages -= offlined_pages;
-+	adjust_managed_page_count(pfn_to_page(start_pfn), -offlined_pages);
- 	zone->present_pages -= offlined_pages;
- 
- 	pgdat_resize_lock(zone->zone_pgdat, &flags);
- 	zone->zone_pgdat->node_present_pages -= offlined_pages;
- 	pgdat_resize_unlock(zone->zone_pgdat, &flags);
- 
--	totalram_pages -= offlined_pages;
--
- 	init_per_zone_wmark_min();
- 
- 	if (!populated_zone(zone)) {
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 403afa6..5b27db4 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -783,11 +783,7 @@ void __init init_cma_reserved_pageblock(struct page *page)
- 	set_page_refcounted(page);
- 	set_pageblock_migratetype(page, MIGRATE_CMA);
- 	__free_pages(page, pageblock_order);
--	totalram_pages += pageblock_nr_pages;
--#ifdef CONFIG_HIGHMEM
--	if (PageHighMem(page))
--		totalhigh_pages += pageblock_nr_pages;
--#endif
-+	adjust_managed_page_count(page, pageblock_nr_pages);
- }
- #endif
- 
-@@ -5232,6 +5228,10 @@ void adjust_managed_page_count(struct page *page, long count)
- 	spin_lock(&managed_page_count_lock);
- 	page_zone(page)->managed_pages += count;
- 	totalram_pages += count;
-+#ifdef	CONFIG_HIGHMEM
-+	if (PageHighMem(page))
-+		totalhigh_pages += count;
-+#endif
- 	spin_unlock(&managed_page_count_lock);
- }
- EXPORT_SYMBOL(adjust_managed_page_count);
 -- 
 1.8.1.2
