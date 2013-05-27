@@ -1,13 +1,14 @@
-From: Lucas Meneghel Rodrigues <lmr@redhat.com>
-Subject: Re: [Qemu-devel] updated: kvm networking todo wiki
-Date: Thu, 23 May 2013 11:12:52 -0300
-Message-ID: <519E23E4.7020506__36295.1664290906$1369958556$gmane$org@redhat.com>
-References: <20130523085034.GA16142@redhat.com>
+From: Dave Airlie <airlied@gmail.com>
+Subject: Re: BUG_ON in virtio-ring.c
+Date: Mon, 27 May 2013 13:29:50 +1000
+Message-ID: <CAPM=9tzw8jEv8yoLr7ktjO2DHCDzA+mURmJ-DXby_nsWUUNoyg__18244.2203550183$1369958569$gmane$org@mail.gmail.com>
+References: <CAPM=9tyLrJ8VAdGCw_1guRS-ogCPE1Qp7faE_nrx_dAm2gvHLQ@mail.gmail.com>
+	<87vc65p5a7.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130523085034.GA16142@redhat.com>
+In-Reply-To: <87vc65p5a7.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,45 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, vyasevic@redhat.com, "Xin,
-	Xiaohui" <xiaohui.xin@intel.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, Shirley Ma <mashirle@us.ibm.com>, virtualization@lists.linux-foundation.org, David Stevens <dlstevens@us.ibm.com>, qemu-devel@nongnu.org, herbert@gondor.hengli.com.au, Anthony Liguori <anthony@codemonkey.ws>, jdike@linux.intel.com, sri@linux.vnet.ibm.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 23/05/13 05:50 AM, Michael S. Tsirkin wrote:
-> Hey guys,
-> I've updated the kvm networking todo wiki with current projects.
-> Will try to keep it up to date more often.
-> Original announcement below.
+>> correct.
+>>
+>> If I have an indirect ring and I'm adding sgs to it and the host is
+>> delayed (say I've got a thread consuming things from the vring and its
+>> off doing something interesting),
+>> I'd really like to get ENOSPC back from virtqueue_add. However if the
+>> indirect addition fails due to free_sg being 0, we hit the BUG_ON
+>> before we ever get to the ENOSPC check.
 >
-> ----
+> It is correct for the moment: drivers can't assume indirect buffer
+> support in the transport.
 >
-> I've put up a wiki page with a kvm networking todo list,
-> mainly to avoid effort duplication, but also in the hope
-> to draw attention to what I think we should try addressing
-> in KVM:
->
-> http://www.linux-kvm.org/page/NetworkingTodo
->
-> This page could cover all networking related activity in KVM,
-> currently most info is related to virtio-net.
->
-> Note: if there's no developer listed for an item,
-> this just means I don't know of anyone actively working
-> on an issue at the moment, not that no one intends to.
->
-> I would appreciate it if others working on one of the items on this list
-> would add their names so we can communicate better.  If others like this
-> wiki page, please go ahead and add stuff you are working on if any.
->
-> It would be especially nice to add autotest projects:
-> there is just a short test matrix and a catch-all
-> 'Cover test matrix with autotest', currently.
+> BUT for a new device, we could say "this depends on indirect descriptor
+> support", put the appropriate check in the device init, and then remove
+> the BUG_ON().
 
-Ok, I'll take a look and fill in with currently available networking tests.
+But if the transport has indirect buffer support, can it change its
+mind at runtime?
 
-> Currently there are some links to Red Hat bugzilla entries,
-> feel free to add links to other bugzillas.
->
-> Thanks!
->
+In this case we have vq->indirect set, but the device has run out of
+free buffers,
+but it isn't a case that in+out would overflow it if it had free
+buffers since it would use
+an indirect and succeed.
+
+Getting -ENOSPC is definitely what should happen from what I can see,
+not a BUG_ON,
+I should get a BUG_ON only if the device reports no indirect support.
+
+Dave.
