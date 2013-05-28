@@ -1,19 +1,19 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio-balloon spec: rework
 	VIRTIO_BALLOON_F_MUST_TELL_HOST feature, support silent deflation
-Date: Tue, 28 May 2013 18:23:19 +0200
-Message-ID: <51A4D9F7.8090504@redhat.com>
-References: <20130527170259.GA18800@redhat.com> <51A46D0B.9080508@redhat.com>
-	<20130528104503.GD5467@redhat.com> <51A4913F.5050206@redhat.com>
+Date: Tue, 28 May 2013 19:50:05 +0300
+Message-ID: <20130528165004.GA30296@redhat.com>
+References: <20130528104503.GD5467@redhat.com> <51A4913F.5050206@redhat.com>
 	<20130528114402.GA21107@redhat.com> <51A49D33.8090008@redhat.com>
 	<20130528133256.GC4889@redhat.com> <51A4B9CA.50506@redhat.com>
 	<20130528142908.GA28422@redhat.com> <51A4C00C.6020707@redhat.com>
-	<20130528150956.GA28874@redhat.com>
+	<20130528150956.GA28874@redhat.com> <51A4D9F7.8090504@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130528150956.GA28874@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <51A4D9F7.8090504@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,172 +23,201 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 28/05/2013 17:09, Michael S. Tsirkin ha scritto:
-> On Tue, May 28, 2013 at 04:32:44PM +0200, Paolo Bonzini wrote:
->> Il 28/05/2013 16:29, Michael S. Tsirkin ha scritto:
->>> On Tue, May 28, 2013 at 04:06:02PM +0200, Paolo Bonzini wrote:
->>>> Il 28/05/2013 15:32, Michael S. Tsirkin ha scritto:
->>>>> At this point I am confused. I think there are two changes in your patch:
->>>>>
->>>>> 1. Handling of VIRTIO_F_GUEST_MUST_TELL_HOST
->>>>>  Is this functionally identical to what I proposed?
->>>>>  If yes, I am fine with either change being applied.
->>>>
->>>> Yes.
->>>>
->>>>> 2. New SILENT_DEFLATE feature
->>>>>  Since guest can get same functionality by not acking
->>>>>  TELL_HOST, I still don't see what good it does:
->>>>>  Historically a host with no features supports silent
->>>>>  deflate and guest with no features can do silent deflate.
->>>>>  I conclude silent deflate is the default behaviour for
->>>>>  both host and guest, and we can't change default without
->>>>>  breaking compatibility.
->>>>
->>>> You're right that for correctness the existing feature is enough:
->>>> if it is not negotiated by the guest, the host ensures correctness by
->>>> only giving the guest a fake balloon.
->>>>
->>>> However, the new feature is about optimization, not correctness.
->>>> In fact, VIRTIO_BALLOON_F_SILENT_DEFLATE is the optimization
->>>> feature that VIRTIO_BALLOON_F_MUST_TELL_HOST was meant to be.
->>>>
->>>> What I'm interested in, is drivers that can _optionally_ use silent 
->>>> deflation (as an optimization).  These should not get a fake balloon!
->>>>
->>>> With the new feature bit, these drivers should propose both
->>>> VIRTIO_BALLOON_F_GUEST_TELLS_HOST and VIRTIO_BALLOON_F_SILENT_DEFLATE.
->>>> The driver can then use silent  deflation if and only if the host
->>>> has negotiated  VIRTIO_BALLOON_F_SILENT_DEFLATE too.  Like this:
->>>>
->>>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
->>>> index bd3ae32..05fe948 100644
->>>> --- a/drivers/virtio/virtio_balloon.c
->>>> +++ b/drivers/virtio/virtio_balloon.c
->>>> @@ -186,12 +186,8 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
->>>>  		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
->>>>  	}
->>>>  
->>>> -	/*
->>>> -	 * Note that if
->>>> -	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
->>>> -	 * is true, we *have* to do it in this order
->>>> -	 */
->>>> -	tell_host(vb, vb->deflate_vq);
->>>> +	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_SILENT_DEFLATE)
->>>> +		tell_host(vb, vb->deflate_vq);
->>>>  	mutex_unlock(&vb->balloon_lock);
->>>>  	release_pages_by_pfn(vb->pfns, vb->num_pfns);
->>>>  }
->>>> @@ -543,6 +539,7 @@ static int virtballoon_restore(struct virtio_device *vdev)
->>>>  static unsigned int features[] = {
->>>>  	VIRTIO_BALLOON_F_MUST_TELL_HOST,
->>>>  	VIRTIO_BALLOON_F_STATS_VQ,
->>>> +	VIRTIO_BALLOON_F_SILENT_DEFLATE,
->>>>  };
->>>>  
->>>>  static struct virtio_driver virtio_balloon_driver = {
->>>>
->>>>
->>>> Of course with the current implementation of the balloon it does not
->>>> matter much.  But for example, with Luiz's work, releasing pages as soon
->>>> as the shrinker is called will increase effectiveness of the shrinker.
->>>> At the same time, not all is lost if the guest prefers not to allow
->>>> silent deflation (e.g. because there is an assigned device).
->>>>
->>>> On old hosts, a guest that can optionally use silent deflation will
->>>> not use it.  That's the same as for any other feature bit.
->>>>
->>>>> How about splitting the patches so we can discuss them separately?
->>>>
->>>> I can do that, but I hope the above clarifies it.
->>>
->>> Maybe I'm just dense.
->>> Let's see the split spec patchset?
->>
->> What's unclear exactly?  I'm not sure the spec patchset improves things
->> that much, I can split it in two or three (change old feature, add new
->> feature, add explanation) but it's not like changing logic in a program.
->>
->> Paolo
+On Tue, May 28, 2013 at 06:23:19PM +0200, Paolo Bonzini wrote:
+> Il 28/05/2013 17:09, Michael S. Tsirkin ha scritto:
+> > On Tue, May 28, 2013 at 04:32:44PM +0200, Paolo Bonzini wrote:
+> >> Il 28/05/2013 16:29, Michael S. Tsirkin ha scritto:
+> >>> On Tue, May 28, 2013 at 04:06:02PM +0200, Paolo Bonzini wrote:
+> >>>> Il 28/05/2013 15:32, Michael S. Tsirkin ha scritto:
+> >>>>> At this point I am confused. I think there are two changes in your patch:
+> >>>>>
+> >>>>> 1. Handling of VIRTIO_F_GUEST_MUST_TELL_HOST
+> >>>>>  Is this functionally identical to what I proposed?
+> >>>>>  If yes, I am fine with either change being applied.
+> >>>>
+> >>>> Yes.
+> >>>>
+> >>>>> 2. New SILENT_DEFLATE feature
+> >>>>>  Since guest can get same functionality by not acking
+> >>>>>  TELL_HOST, I still don't see what good it does:
+> >>>>>  Historically a host with no features supports silent
+> >>>>>  deflate and guest with no features can do silent deflate.
+> >>>>>  I conclude silent deflate is the default behaviour for
+> >>>>>  both host and guest, and we can't change default without
+> >>>>>  breaking compatibility.
+> >>>>
+> >>>> You're right that for correctness the existing feature is enough:
+> >>>> if it is not negotiated by the guest, the host ensures correctness by
+> >>>> only giving the guest a fake balloon.
+> >>>>
+> >>>> However, the new feature is about optimization, not correctness.
+> >>>> In fact, VIRTIO_BALLOON_F_SILENT_DEFLATE is the optimization
+> >>>> feature that VIRTIO_BALLOON_F_MUST_TELL_HOST was meant to be.
+> >>>>
+> >>>> What I'm interested in, is drivers that can _optionally_ use silent 
+> >>>> deflation (as an optimization).  These should not get a fake balloon!
+> >>>>
+> >>>> With the new feature bit, these drivers should propose both
+> >>>> VIRTIO_BALLOON_F_GUEST_TELLS_HOST and VIRTIO_BALLOON_F_SILENT_DEFLATE.
+> >>>> The driver can then use silent  deflation if and only if the host
+> >>>> has negotiated  VIRTIO_BALLOON_F_SILENT_DEFLATE too.  Like this:
+> >>>>
+> >>>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> >>>> index bd3ae32..05fe948 100644
+> >>>> --- a/drivers/virtio/virtio_balloon.c
+> >>>> +++ b/drivers/virtio/virtio_balloon.c
+> >>>> @@ -186,12 +186,8 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+> >>>>  		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
+> >>>>  	}
+> >>>>  
+> >>>> -	/*
+> >>>> -	 * Note that if
+> >>>> -	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+> >>>> -	 * is true, we *have* to do it in this order
+> >>>> -	 */
+> >>>> -	tell_host(vb, vb->deflate_vq);
+> >>>> +	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_SILENT_DEFLATE)
+> >>>> +		tell_host(vb, vb->deflate_vq);
+> >>>>  	mutex_unlock(&vb->balloon_lock);
+> >>>>  	release_pages_by_pfn(vb->pfns, vb->num_pfns);
+> >>>>  }
+> >>>> @@ -543,6 +539,7 @@ static int virtballoon_restore(struct virtio_device *vdev)
+> >>>>  static unsigned int features[] = {
+> >>>>  	VIRTIO_BALLOON_F_MUST_TELL_HOST,
+> >>>>  	VIRTIO_BALLOON_F_STATS_VQ,
+> >>>> +	VIRTIO_BALLOON_F_SILENT_DEFLATE,
+> >>>>  };
+> >>>>  
+> >>>>  static struct virtio_driver virtio_balloon_driver = {
+> >>>>
+> >>>>
+> >>>> Of course with the current implementation of the balloon it does not
+> >>>> matter much.  But for example, with Luiz's work, releasing pages as soon
+> >>>> as the shrinker is called will increase effectiveness of the shrinker.
+> >>>> At the same time, not all is lost if the guest prefers not to allow
+> >>>> silent deflation (e.g. because there is an assigned device).
+> >>>>
+> >>>> On old hosts, a guest that can optionally use silent deflation will
+> >>>> not use it.  That's the same as for any other feature bit.
+> >>>>
+> >>>>> How about splitting the patches so we can discuss them separately?
+> >>>>
+> >>>> I can do that, but I hope the above clarifies it.
+> >>>
+> >>> Maybe I'm just dense.
+> >>> Let's see the split spec patchset?
+> >>
+> >> What's unclear exactly?  I'm not sure the spec patchset improves things
+> >> that much, I can split it in two or three (change old feature, add new
+> >> feature, add explanation) but it's not like changing logic in a program.
+> >>
+> >> Paolo
+> > 
+> > Both your code and what you say here about the new bit seem to break
+> > compatibility with old hosts and guests.
 > 
-> Both your code and what you say here about the new bit seem to break
-> compatibility with old hosts and guests.
+> What is the exact scenario that you have in mind?
 
-What is the exact scenario that you have in mind?  Here are all the
-possibilities:
+Existing host follows spec, advertises MUST_TELL_HOST (only)
+guest acks that and still does not tell host.
 
-- host that requires tell-first for a real balloon (doesn't
-propose new bit), any guest (doesn't matter if they are old
-or new since the new bit is never negotiated).
+> Here are all the possibilities:
 
-Here, the old text suggested that the host need not do anything special,
-but it wouldn't have worked with Windows guests.  The host has to
-provide a fake balloon, or prevent the driver from working (e.g. hide
-the virtqueues).  So this is a change indeed, but the same change is
-present with your 1-word change too.  We have:
-
-negotiated old bit          host operation          guest operation
-      F                     fake balloon            need not tell host
-      T                     real balloon            tells host
-
-Note that the guest ignores the result of negotiating the old bit,
-only the host cares and only if it requires tell-first.
+Basically it looks like besides TELL_HOST you want another bit
+"DONT_TELL_HOST". This just seems weird, and interactions
+between the two become very complex. Look at the amount of
+text in this thread.
 
 
-The other cases have no such change:
+> 
+> - host that requires tell-first for a real balloon (doesn't
+> propose new bit), any guest (doesn't matter if they are old
+> or new since the new bit is never negotiated).
+> 
+> Here, the old text suggested that the host need not do anything special,
+> but it wouldn't have worked with Windows guests.  The host has to
+> provide a fake balloon, or prevent the driver from working (e.g. hide
+> the virtqueues).  So this is a change indeed, but the same change is
+> present with your 1-word change too.  We have:
+> 
+> negotiated old bit          host operation          guest operation
+>       F                     fake balloon            need not tell host
+>       T                     real balloon            tells host
+> 
+> Note that the guest ignores the result of negotiating the old bit,
+> only the host cares and only if it requires tell-first.
+> 
+> 
+> The other cases have no such change:
+> 
+> - old host, doesn't require tell-first (doesn't propose new bit):
+> 
+> negotiated old bit          host operation          guest operation
+>       F                     real balloon            need not tell host
+>       T                     real balloon            tells host
+> 
+> 
+> - new host, doesn't require tell-first (proposes new bit), old guest
+> (doesn't propose new bit, hence it is never negotiated):
+> 
+> negotiated old bit          host operation          guest operation
+>       F                     real balloon            need not tell host
+>       T                     real balloon            tells host
+> 
+> Same as the previous case, since in both cases the new bit is not
+> negotiated.
+> 
+> Note that the host ignores the result of negotiating the new bit,
+> only the guest cares.
+> 
+> 
+> - new host, doesn't require tell-first (proposes new bit), new guest
+> (proposes new bit, thus it is negotiated):
+> 
+> negotiated old bit   negotiated new bit      host operation          guest operation
+>       F                    T                 real balloon            need not tell host
+>       T                    T                 real balloon            need not tell host
+> 
+> 
+> - host that requires tell-first for a real balloon (doesn't matter
+> if old or new since it doesn't propose the new bit, hence it is
+> never negotiated), new guest:
+> 
+> negotiated old bit   negotiated new bit      host operation          guest operation
+>       T                    F                 real balloon            need not tell host
+> 
+> The very last case is the interesting one.  Without the new bit, the
+> guest has to promise it will tell the host first when deflating.
+> With the new bit, the guest is just telling that it *can* tell
+> the host first; the host can still say "don't worry about that".
+> So the guest sees the new bit and thinks "I told the host I *could*
+> tell it about deflated pages, but the host told me I need not, so
+> I won't do it".  This is the optimized case I was talking about.
 
-- old host, doesn't require tell-first (doesn't propose new bit):
-
-negotiated old bit          host operation          guest operation
-      F                     real balloon            need not tell host
-      T                     real balloon            tells host
+If host does not need to be told about reclaimed pages, why advertise
+MUST_TELL_HOST?
 
 
-- new host, doesn't require tell-first (proposes new bit), old guest
-(doesn't propose new bit, hence it is never negotiated):
+root of all evil and all that ...
 
-negotiated old bit          host operation          guest operation
-      F                     real balloon            need not tell host
-      T                     real balloon            tells host
+> > If it's in spec, I think it would be clearer what are we trying to
+> > achieve, and how.
+> 
+> Having one or three patches doesn't change the final text...
+> 
+> Paolo
 
-Same as the previous case, since in both cases the new bit is not
-negotiated.
+It changes the fact that we can stop arguing about
+the thing we agree on (making TELL_HOST optional
+for guests).
 
-Note that the host ignores the result of negotiating the new bit,
-only the guest cares.
-
-
-- new host, doesn't require tell-first (proposes new bit), new guest
-(proposes new bit, thus it is negotiated):
-
-negotiated old bit   negotiated new bit      host operation          guest operation
-      F                    T                 real balloon            need not tell host
-      T                    T                 real balloon            need not tell host
+We can separately argue about the one we don't seem
+to agree on (need for a new SILENT_DEFLATE).
 
 
-- host that requires tell-first for a real balloon (doesn't matter
-if old or new since it doesn't propose the new bit, hence it is
-never negotiated), new guest:
-
-negotiated old bit   negotiated new bit      host operation          guest operation
-      T                    F                 real balloon            need not tell host
-
-The very last case is the interesting one.  Without the new bit, the
-guest has to promise it will tell the host first when deflating.
-With the new bit, the guest is just telling that it *can* tell
-the host first; the host can still say "don't worry about that".
-So the guest sees the new bit and thinks "I told the host I *could*
-tell it about deflated pages, but the host told me I need not, so
-I won't do it".  This is the optimized case I was talking about.
-
-> If it's in spec, I think it would be clearer what are we trying to
-> achieve, and how.
-
-Having one or three patches doesn't change the final text...
-
-Paolo
+-- 
+MST
