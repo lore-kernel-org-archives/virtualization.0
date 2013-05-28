@@ -1,12 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Tue, 28 May 2013 19:03:59 +0300
-Message-ID: <20130528160342.GA29915@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH] virtio-balloon spec: rework
+	VIRTIO_BALLOON_F_MUST_TELL_HOST feature, support silent deflation
+Date: Tue, 28 May 2013 18:23:19 +0200
+Message-ID: <51A4D9F7.8090504@redhat.com>
+References: <20130527170259.GA18800@redhat.com> <51A46D0B.9080508@redhat.com>
+	<20130528104503.GD5467@redhat.com> <51A4913F.5050206@redhat.com>
+	<20130528114402.GA21107@redhat.com> <51A49D33.8090008@redhat.com>
+	<20130528133256.GC4889@redhat.com> <51A4B9CA.50506@redhat.com>
+	<20130528142908.GA28422@redhat.com> <51A4C00C.6020707@redhat.com>
+	<20130528150956.GA28874@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20130528150956.GA28874@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,624 +23,172 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, Rusty Russell <rusty@rustcorp.com.au>, kvm@vger.kernel.org
-Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This adds support for new config, and is designed to work with
-the new layout code in Rusty's new layout branch.
+Il 28/05/2013 17:09, Michael S. Tsirkin ha scritto:
+> On Tue, May 28, 2013 at 04:32:44PM +0200, Paolo Bonzini wrote:
+>> Il 28/05/2013 16:29, Michael S. Tsirkin ha scritto:
+>>> On Tue, May 28, 2013 at 04:06:02PM +0200, Paolo Bonzini wrote:
+>>>> Il 28/05/2013 15:32, Michael S. Tsirkin ha scritto:
+>>>>> At this point I am confused. I think there are two changes in your patch:
+>>>>>
+>>>>> 1. Handling of VIRTIO_F_GUEST_MUST_TELL_HOST
+>>>>>  Is this functionally identical to what I proposed?
+>>>>>  If yes, I am fine with either change being applied.
+>>>>
+>>>> Yes.
+>>>>
+>>>>> 2. New SILENT_DEFLATE feature
+>>>>>  Since guest can get same functionality by not acking
+>>>>>  TELL_HOST, I still don't see what good it does:
+>>>>>  Historically a host with no features supports silent
+>>>>>  deflate and guest with no features can do silent deflate.
+>>>>>  I conclude silent deflate is the default behaviour for
+>>>>>  both host and guest, and we can't change default without
+>>>>>  breaking compatibility.
+>>>>
+>>>> You're right that for correctness the existing feature is enough:
+>>>> if it is not negotiated by the guest, the host ensures correctness by
+>>>> only giving the guest a fake balloon.
+>>>>
+>>>> However, the new feature is about optimization, not correctness.
+>>>> In fact, VIRTIO_BALLOON_F_SILENT_DEFLATE is the optimization
+>>>> feature that VIRTIO_BALLOON_F_MUST_TELL_HOST was meant to be.
+>>>>
+>>>> What I'm interested in, is drivers that can _optionally_ use silent 
+>>>> deflation (as an optimization).  These should not get a fake balloon!
+>>>>
+>>>> With the new feature bit, these drivers should propose both
+>>>> VIRTIO_BALLOON_F_GUEST_TELLS_HOST and VIRTIO_BALLOON_F_SILENT_DEFLATE.
+>>>> The driver can then use silent  deflation if and only if the host
+>>>> has negotiated  VIRTIO_BALLOON_F_SILENT_DEFLATE too.  Like this:
+>>>>
+>>>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+>>>> index bd3ae32..05fe948 100644
+>>>> --- a/drivers/virtio/virtio_balloon.c
+>>>> +++ b/drivers/virtio/virtio_balloon.c
+>>>> @@ -186,12 +186,8 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
+>>>>  		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
+>>>>  	}
+>>>>  
+>>>> -	/*
+>>>> -	 * Note that if
+>>>> -	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
+>>>> -	 * is true, we *have* to do it in this order
+>>>> -	 */
+>>>> -	tell_host(vb, vb->deflate_vq);
+>>>> +	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_SILENT_DEFLATE)
+>>>> +		tell_host(vb, vb->deflate_vq);
+>>>>  	mutex_unlock(&vb->balloon_lock);
+>>>>  	release_pages_by_pfn(vb->pfns, vb->num_pfns);
+>>>>  }
+>>>> @@ -543,6 +539,7 @@ static int virtballoon_restore(struct virtio_device *vdev)
+>>>>  static unsigned int features[] = {
+>>>>  	VIRTIO_BALLOON_F_MUST_TELL_HOST,
+>>>>  	VIRTIO_BALLOON_F_STATS_VQ,
+>>>> +	VIRTIO_BALLOON_F_SILENT_DEFLATE,
+>>>>  };
+>>>>  
+>>>>  static struct virtio_driver virtio_balloon_driver = {
+>>>>
+>>>>
+>>>> Of course with the current implementation of the balloon it does not
+>>>> matter much.  But for example, with Luiz's work, releasing pages as soon
+>>>> as the shrinker is called will increase effectiveness of the shrinker.
+>>>> At the same time, not all is lost if the guest prefers not to allow
+>>>> silent deflation (e.g. because there is an assigned device).
+>>>>
+>>>> On old hosts, a guest that can optionally use silent deflation will
+>>>> not use it.  That's the same as for any other feature bit.
+>>>>
+>>>>> How about splitting the patches so we can discuss them separately?
+>>>>
+>>>> I can do that, but I hope the above clarifies it.
+>>>
+>>> Maybe I'm just dense.
+>>> Let's see the split spec patchset?
+>>
+>> What's unclear exactly?  I'm not sure the spec patchset improves things
+>> that much, I can split it in two or three (change old feature, add new
+>> feature, add explanation) but it's not like changing logic in a program.
+>>
+>> Paolo
+> 
+> Both your code and what you say here about the new bit seem to break
+> compatibility with old hosts and guests.
 
-At the moment all fields are in the same memory BAR (bar 2).
-This will be used to test performance and compare
-memory, io and hypercall latency.
+What is the exact scenario that you have in mind?  Here are all the
+possibilities:
 
-Compiles but does not work yet.
-Migration isn't handled yet.
+- host that requires tell-first for a real balloon (doesn't
+propose new bit), any guest (doesn't matter if they are old
+or new since the new bit is never negotiated).
 
-It's not clear what do queue_enable/queue_disable
-fields do, not yet implemented.
+Here, the old text suggested that the host need not do anything special,
+but it wouldn't have worked with Windows guests.  The host has to
+provide a fake balloon, or prevent the driver from working (e.g. hide
+the virtqueues).  So this is a change indeed, but the same change is
+present with your 1-word change too.  We have:
 
-Gateway for config access with config cycles
-not yet implemented.
+negotiated old bit          host operation          guest operation
+      F                     fake balloon            need not tell host
+      T                     real balloon            tells host
 
-Sending out for early review/flames.
+Note that the guest ignores the result of negotiating the old bit,
+only the host cares and only if it requires tell-first.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- hw/virtio/virtio-pci.c     | 393 +++++++++++++++++++++++++++++++++++++++++++--
- hw/virtio/virtio-pci.h     |  55 +++++++
- hw/virtio/virtio.c         |  20 +++
- include/hw/virtio/virtio.h |   4 +
- 4 files changed, 458 insertions(+), 14 deletions(-)
 
-diff --git a/hw/virtio/virtio-pci.c b/hw/virtio/virtio-pci.c
-index 752991a..f4db224 100644
---- a/hw/virtio/virtio-pci.c
-+++ b/hw/virtio/virtio-pci.c
-@@ -259,6 +259,26 @@ static void virtio_pci_stop_ioeventfd(VirtIOPCIProxy *proxy)
-     proxy->ioeventfd_started = false;
- }
- 
-+static void virtio_pci_set_status(VirtIOPCIProxy *proxy, uint8_t val)
-+{
-+    VirtIODevice *vdev = proxy->vdev;
-+
-+    if (!(val & VIRTIO_CONFIG_S_DRIVER_OK)) {
-+        virtio_pci_stop_ioeventfd(proxy);
-+    }
-+
-+    virtio_set_status(vdev, val & 0xFF);
-+
-+    if (val & VIRTIO_CONFIG_S_DRIVER_OK) {
-+        virtio_pci_start_ioeventfd(proxy);
-+    }
-+
-+    if (vdev->status == 0) {
-+        virtio_reset(proxy->vdev);
-+        msix_unuse_all_vectors(&proxy->pci_dev);
-+    }
-+}
-+
- static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
- {
-     VirtIOPCIProxy *proxy = opaque;
-@@ -293,20 +313,7 @@ static void virtio_ioport_write(void *opaque, uint32_t addr, uint32_t val)
-         }
-         break;
-     case VIRTIO_PCI_STATUS:
--        if (!(val & VIRTIO_CONFIG_S_DRIVER_OK)) {
--            virtio_pci_stop_ioeventfd(proxy);
--        }
--
--        virtio_set_status(vdev, val & 0xFF);
--
--        if (val & VIRTIO_CONFIG_S_DRIVER_OK) {
--            virtio_pci_start_ioeventfd(proxy);
--        }
--
--        if (vdev->status == 0) {
--            virtio_reset(proxy->vdev);
--            msix_unuse_all_vectors(&proxy->pci_dev);
--        }
-+        virtio_pci_set_status(proxy, val);
- 
-         /* Linux before 2.6.34 sets the device as OK without enabling
-            the PCI device bus master bit. In this case we need to disable
-@@ -455,6 +462,226 @@ static void virtio_pci_config_write(void *opaque, hwaddr addr,
-     }
- }
- 
-+static uint64_t virtio_pci_config_common_read(void *opaque, hwaddr addr,
-+                                              unsigned size)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    VirtIODevice *vdev = proxy->vdev;
-+
-+    uint64_t low = 0xffffffffull;
-+
-+    switch (addr) {
-+    case offsetof(struct virtio_pci_common_cfg, device_feature_select):
-+        return proxy->device_feature_select;
-+    case offsetof(struct virtio_pci_common_cfg, device_feature):
-+        /* TODO: 64-bit features */
-+	return proxy->device_feature_select ? 0 : proxy->host_features;
-+    case offsetof(struct virtio_pci_common_cfg, guest_feature_select):
-+        return proxy->guest_feature_select;
-+    case offsetof(struct virtio_pci_common_cfg, guest_feature):
-+        /* TODO: 64-bit features */
-+	return proxy->guest_feature_select ? 0 : vdev->guest_features;
-+    case offsetof(struct virtio_pci_common_cfg, msix_config):
-+	return vdev->config_vector;
-+    case offsetof(struct virtio_pci_common_cfg, num_queues):
-+        /* TODO: more exact limit? */
-+	return VIRTIO_PCI_QUEUE_MAX;
-+    case offsetof(struct virtio_pci_common_cfg, device_status):
-+        return vdev->status;
-+
-+	/* About a specific virtqueue. */
-+    case offsetof(struct virtio_pci_common_cfg, queue_select):
-+        return  vdev->queue_sel;
-+    case offsetof(struct virtio_pci_common_cfg, queue_size):
-+        return virtio_queue_get_num(vdev, vdev->queue_sel);
-+    case offsetof(struct virtio_pci_common_cfg, queue_msix_vector):
-+	return virtio_queue_vector(vdev, vdev->queue_sel);
-+    case offsetof(struct virtio_pci_common_cfg, queue_enable):
-+        /* TODO */
-+	return 0;
-+    case offsetof(struct virtio_pci_common_cfg, queue_notify_off):
-+        return vdev->queue_sel;
-+    case offsetof(struct virtio_pci_common_cfg, queue_desc):
-+        return virtio_queue_get_desc_addr(vdev, vdev->queue_sel) & low;
-+    case offsetof(struct virtio_pci_common_cfg, queue_desc) + 4:
-+        return virtio_queue_get_desc_addr(vdev, vdev->queue_sel) >> 32;
-+    case offsetof(struct virtio_pci_common_cfg, queue_avail):
-+        return virtio_queue_get_avail_addr(vdev, vdev->queue_sel) & low;
-+    case offsetof(struct virtio_pci_common_cfg, queue_avail) + 4:
-+        return virtio_queue_get_avail_addr(vdev, vdev->queue_sel) >> 32;
-+    case offsetof(struct virtio_pci_common_cfg, queue_used):
-+        return virtio_queue_get_used_addr(vdev, vdev->queue_sel) & low;
-+    case offsetof(struct virtio_pci_common_cfg, queue_used) + 4:
-+        return virtio_queue_get_used_addr(vdev, vdev->queue_sel) >> 32;
-+    default:
-+        return 0;
-+    }
-+}
-+
-+static void virtio_pci_config_common_write(void *opaque, hwaddr addr,
-+                                           uint64_t val, unsigned size)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    VirtIODevice *vdev = proxy->vdev;
-+
-+    uint64_t low = 0xffffffffull;
-+    uint64_t high = ~low;
-+
-+    switch (addr) {
-+    case offsetof(struct virtio_pci_common_cfg, device_feature_select):
-+        proxy->device_feature_select = val;
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, device_feature):
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, guest_feature_select):
-+        proxy->guest_feature_select = val;
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, guest_feature):
-+        /* TODO: 64-bit features */
-+	if (!proxy->guest_feature_select) {
-+            virtio_set_features(vdev, val);
-+        }
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, msix_config):
-+	vdev->config_vector = val;
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, num_queues):
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, device_status):
-+        virtio_pci_set_status(proxy, val);
-+        break;
-+	/* About a specific virtqueue. */
-+    case offsetof(struct virtio_pci_common_cfg, queue_select):
-+        assert(val < VIRTIO_PCI_QUEUE_MAX);
-+        vdev->queue_sel = val;
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, queue_size):
-+        assert(val && val < 0x8ffff && !(val & (val - 1)));
-+        virtio_queue_set_num(vdev, vdev->queue_sel, val);
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, queue_msix_vector):
-+	virtio_queue_set_vector(vdev, vdev->queue_sel, val);
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, queue_enable):
-+        /* TODO */
-+	break;
-+    case offsetof(struct virtio_pci_common_cfg, queue_notify_off):
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, queue_desc):
-+        val &= low;
-+        val |= virtio_queue_get_desc_addr(vdev, vdev->queue_sel) & high;
-+        virtio_queue_set_desc_addr(vdev, vdev->queue_sel, val);
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, queue_desc) + 4:
-+        val = val << 32;
-+        val |= virtio_queue_get_desc_addr(vdev, vdev->queue_sel) & low;
-+        virtio_queue_set_desc_addr(vdev, vdev->queue_sel, val);
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, queue_avail):
-+        val &= low;
-+        val |= virtio_queue_get_avail_addr(vdev, vdev->queue_sel) & high;
-+        virtio_queue_set_avail_addr(vdev, vdev->queue_sel, val);
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, queue_avail) + 4:
-+        val = val << 32;
-+        val |= virtio_queue_get_avail_addr(vdev, vdev->queue_sel) & low;
-+        virtio_queue_set_avail_addr(vdev, vdev->queue_sel, val);
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, queue_used):
-+        val &= low;
-+        val |= virtio_queue_get_used_addr(vdev, vdev->queue_sel) & high;
-+        virtio_queue_set_used_addr(vdev, vdev->queue_sel, val);
-+        break;
-+    case offsetof(struct virtio_pci_common_cfg, queue_used) + 4:
-+        val = val << 32;
-+        val |= virtio_queue_get_used_addr(vdev, vdev->queue_sel) & low;
-+        virtio_queue_set_used_addr(vdev, vdev->queue_sel, val);
-+        break;
-+    default:
-+        break;
-+    }
-+}
-+
-+static uint64_t virtio_pci_config_isr_read(void *opaque, hwaddr addr,
-+                                           unsigned size)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    VirtIODevice *vdev = proxy->vdev;
-+    uint8_t ret;
-+
-+    /* reading from the ISR also clears it. */
-+    ret = vdev->isr;
-+    vdev->isr = 0;
-+    qemu_set_irq(proxy->pci_dev.irq[0], 0);
-+    return ret;
-+}
-+
-+static void virtio_pci_config_isr_write(void *opaque, hwaddr addr,
-+                                           uint64_t val, unsigned size)
-+{
-+}
-+
-+static uint64_t virtio_pci_config_notify_read(void *opaque, hwaddr addr,
-+                                              unsigned size)
-+{
-+    return 0;
-+}
-+
-+static void virtio_pci_config_notify_write(void *opaque, hwaddr addr,
-+                                           uint64_t val, unsigned size)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    VirtIODevice *vdev = proxy->vdev;
-+    if (val < VIRTIO_PCI_QUEUE_MAX) {
-+        virtio_queue_notify(vdev, val);
-+    }
-+}
-+
-+static uint64_t virtio_pci_config_device_read(void *opaque, hwaddr addr,
-+                                              unsigned size)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    uint64_t val = 0;
-+    switch (size) {
-+    case 1:
-+        val = virtio_config_readb(proxy->vdev, addr);
-+        break;
-+    case 2:
-+        val = virtio_config_readw(proxy->vdev, addr);
-+        break;
-+    case 4:
-+        /* Most devices don't have 64 bit config fields.
-+         * Block is an exception: first 8 bytes include
-+         * a 64 bit capacity field.
-+         */
-+        if (VIRTIO_HOST_IS_BIG_ENDIAN &&
-+            proxy->vdev->device_id == VIRTIO_ID_BLOCK && addr < 8) {
-+            /* Swap first two words */
-+            addr ^= 0x4;
-+        }
-+        val = virtio_config_readl(proxy->vdev, addr);
-+        break;
-+    }
-+    return val;
-+}
-+
-+static void virtio_pci_config_device_write(void *opaque, hwaddr addr,
-+                                           uint64_t val, unsigned size)
-+{
-+    VirtIOPCIProxy *proxy = opaque;
-+    switch (size) {
-+    case 1:
-+        virtio_config_writeb(proxy->vdev, addr, val);
-+        break;
-+    case 2:
-+        virtio_config_writew(proxy->vdev, addr, val);
-+        break;
-+    case 4:
-+        virtio_config_writel(proxy->vdev, addr, val);
-+        break;
-+    }
-+}
-+
- static const MemoryRegionOps virtio_pci_config_ops = {
-     .read = virtio_pci_config_read,
-     .write = virtio_pci_config_write,
-@@ -465,6 +692,46 @@ static const MemoryRegionOps virtio_pci_config_ops = {
-     .endianness = DEVICE_LITTLE_ENDIAN,
- };
- 
-+static const MemoryRegionOps virtio_pci_config_common_ops = {
-+    .read = virtio_pci_config_common_read,
-+    .write = virtio_pci_config_common_write,
-+    .impl = {
-+        .min_access_size = 1,
-+        .max_access_size = 4,
-+    },
-+    .endianness = DEVICE_LITTLE_ENDIAN,
-+};
-+
-+static const MemoryRegionOps virtio_pci_config_isr_ops = {
-+    .read = virtio_pci_config_isr_read,
-+    .write = virtio_pci_config_isr_write,
-+    .impl = {
-+        .min_access_size = 1,
-+        .max_access_size = 1,
-+    },
-+    .endianness = DEVICE_LITTLE_ENDIAN,
-+};
-+
-+static const MemoryRegionOps virtio_pci_config_notify_ops = {
-+    .read = virtio_pci_config_notify_read,
-+    .write = virtio_pci_config_notify_write,
-+    .impl = {
-+        .min_access_size = 2,
-+        .max_access_size = 2,
-+    },
-+    .endianness = DEVICE_LITTLE_ENDIAN,
-+};
-+
-+static const MemoryRegionOps virtio_pci_config_device_ops = {
-+    .read = virtio_pci_config_device_read,
-+    .write = virtio_pci_config_device_write,
-+    .impl = {
-+        .min_access_size = 1,
-+        .max_access_size = 4,
-+    },
-+    .endianness = DEVICE_LITTLE_ENDIAN,
-+};
-+
- static void virtio_write_config(PCIDevice *pci_dev, uint32_t address,
-                                 uint32_t val, int len)
- {
-@@ -949,11 +1216,49 @@ static const TypeInfo virtio_9p_pci_info = {
-  * virtio-pci: This is the PCIDevice which has a virtio-pci-bus.
-  */
- 
-+#define VIRTIO_PCI_CONFIG_BAR_NUM 2
-+
-+static void *virtio_pci_cap_add(VirtIOPCIProxy *proxy,
-+                                const char *name,
-+                                MemoryRegion *reg,
-+                                const MemoryRegionOps *ops,
-+                                unsigned offset,
-+                                unsigned size,
-+                                unsigned cap_type,
-+                                unsigned cap_length)
-+{
-+    struct virtio_pci_cap *cap;
-+    int c;
-+    memory_region_init_io(reg, ops, proxy, name, size);
-+    memory_region_add_subregion(&proxy->config_bar, offset, reg);
-+
-+    if (!cap_length) {
-+        cap_length = sizeof *cap;
-+    }
-+    c = pci_add_capability(&proxy->pci_dev, PCI_CAP_ID_VNDR, 0, cap_length);
-+    assert(c > 0);
-+    cap = (void *)proxy->pci_dev.config + c;
-+    cap->cap_length = cap_length;
-+    cap->cfg_type = cap_type;
-+    cap->bar = VIRTIO_PCI_CONFIG_BAR_NUM;
-+    cap->offset = offset;
-+    cap->length = size;
-+
-+    return cap;
-+}
-+
-+static void virtio_pci_cap_del(VirtIOPCIProxy *proxy, MemoryRegion *reg)
-+{
-+    memory_region_del_subregion(&proxy->config_bar, reg);
-+    memory_region_destroy(reg);
-+}
-+
- /* This is called by virtio-bus just after the device is plugged. */
- static void virtio_pci_device_plugged(DeviceState *d)
- {
-     VirtIOPCIProxy *proxy = VIRTIO_PCI(d);
-     VirtioBusState *bus = &proxy->bus;
-+    struct virtio_pci_notify_cap *notify_cap;
-     uint8_t *config;
-     uint32_t size;
- 
-@@ -986,6 +1291,59 @@ static void virtio_pci_device_plugged(DeviceState *d)
-     pci_register_bar(&proxy->pci_dev, 0, PCI_BASE_ADDRESS_SPACE_IO,
-                      &proxy->bar);
- 
-+    /* New config layout */
-+    /* Four capabilities: common, notify, isr, device cfg */
-+#define VIRTIO_PCI_CONFIG_BAR_SIZE 0x1000
-+#define VIRTIO_PCI_CONFIG_COMMON 0x0
-+#define VIRTIO_PCI_CONFIG_NOTIFY 0x100
-+#define VIRTIO_PCI_CONFIG_ISR 0x200
-+#define VIRTIO_PCI_CONFIG_DEVICE 0x300
-+
-+    /* Make sure we left enough space for all vqs */
-+    assert(VIRTIO_PCI_CONFIG_ISR - VIRTIO_PCI_CONFIG_NOTIFY >=
-+           VIRTIO_PCI_QUEUE_MAX * 2);
-+    assert(VIRTIO_PCI_CONFIG_BAR_SIZE - VIRTIO_PCI_CONFIG_DEVICE >=
-+           proxy->vdev->config_len);
-+
-+    memory_region_init(&proxy->config_bar, "virtio-pci-config",
-+                       VIRTIO_PCI_CONFIG_BAR_SIZE);
-+
-+    virtio_pci_cap_add(proxy, "virtio-pci-common", 
-+                       &proxy->config_common,
-+                       &virtio_pci_config_common_ops,
-+                       VIRTIO_PCI_CONFIG_COMMON,
-+                       sizeof(struct virtio_pci_common_cfg),
-+                       VIRTIO_PCI_CAP_COMMON_CFG,
-+                       0);
-+    notify_cap = virtio_pci_cap_add(proxy, "virtio-pci-notify", 
-+                                    &proxy->config_notify,
-+                                    &virtio_pci_config_notify_ops,
-+                                    VIRTIO_PCI_CONFIG_NOTIFY,
-+                                    VIRTIO_PCI_QUEUE_MAX * 2,
-+                                    VIRTIO_PCI_CAP_NOTIFY_CFG,
-+                                    sizeof *notify_cap);
-+    notify_cap->notify_off_multiplier = 0x2;
-+    virtio_pci_cap_add(proxy, "virtio-pci-isr", 
-+                       &proxy->config_isr,
-+                       &virtio_pci_config_isr_ops,
-+                       VIRTIO_PCI_CONFIG_ISR,
-+                       0x1,
-+                       VIRTIO_PCI_CAP_ISR_CFG,
-+                       0);
-+    if (proxy->vdev->config_len) {
-+        virtio_pci_cap_add(proxy, "virtio-pci-device", 
-+                           &proxy->config_device,
-+                           &virtio_pci_config_device_ops,
-+                           VIRTIO_PCI_CONFIG_DEVICE,
-+                           proxy->vdev->config_len,
-+                           VIRTIO_PCI_CAP_DEVICE_CFG,
-+                           0);
-+    }
-+
-+    pci_register_bar(&proxy->pci_dev, VIRTIO_PCI_CONFIG_BAR_NUM,
-+                     PCI_BASE_ADDRESS_SPACE_MEMORY,
-+                     &proxy->config_bar);
-+
-     if (!kvm_has_many_ioeventfds()) {
-         proxy->flags &= ~VIRTIO_PCI_FLAG_USE_IOEVENTFD;
-     }
-@@ -1012,6 +1370,13 @@ static void virtio_pci_exit(PCIDevice *pci_dev)
-     VirtIOPCIProxy *proxy = VIRTIO_PCI(pci_dev);
-     virtio_pci_stop_ioeventfd(proxy);
-     memory_region_destroy(&proxy->bar);
-+    virtio_pci_cap_del(proxy, &proxy->config_common);
-+    virtio_pci_cap_del(proxy, &proxy->config_notify);
-+    virtio_pci_cap_del(proxy, &proxy->config_isr);
-+    if (&proxy->vdev->config_len) {
-+        virtio_pci_cap_del(proxy, &proxy->config_device);
-+    }
-+    memory_region_destroy(&proxy->config_bar);
-     msix_uninit_exclusive_bar(pci_dev);
- }
- 
-diff --git a/hw/virtio/virtio-pci.h b/hw/virtio/virtio-pci.h
-index 917bcc5..01005e7 100644
---- a/hw/virtio/virtio-pci.h
-+++ b/hw/virtio/virtio-pci.h
-@@ -84,6 +84,11 @@ struct VirtIOPCIProxy {
-     PCIDevice pci_dev;
-     VirtIODevice *vdev;
-     MemoryRegion bar;
-+    MemoryRegion config_bar;
-+    MemoryRegion config_common;
-+    MemoryRegion config_isr;
-+    MemoryRegion config_notify;
-+    MemoryRegion config_device;
-     uint32_t flags;
-     uint32_t class_code;
-     uint32_t nvectors;
-@@ -93,6 +98,8 @@ struct VirtIOPCIProxy {
-     VirtIOIRQFD *vector_irqfd;
-     int nvqs_with_notifiers;
-     VirtioBusState bus;
-+    unsigned device_feature_select;
-+    unsigned guest_feature_select;
- };
- 
- 
-@@ -203,4 +210,52 @@ struct VirtIORngPCI {
- /* Virtio ABI version, if we increment this, we break the guest driver. */
- #define VIRTIO_PCI_ABI_VERSION          0
- 
-+/* IDs for different capabilities.  Must all exist. */
-+/* Common configuration */
-+#define VIRTIO_PCI_CAP_COMMON_CFG	1
-+/* Notifications */
-+#define VIRTIO_PCI_CAP_NOTIFY_CFG	2
-+/* ISR access */
-+#define VIRTIO_PCI_CAP_ISR_CFG		3
-+/* Device specific confiuration */
-+#define VIRTIO_PCI_CAP_DEVICE_CFG	4
-+
-+/* This is the PCI capability header: */
-+struct virtio_pci_cap {
-+	uint8_t cap_vndr;	/* Generic PCI field: PCI_CAP_ID_VNDR */
-+	uint8_t cap_next;	/* Generic PCI field: next ptr. */
-+	uint8_t cap_length;	/* Generic PCI field: capability length. */
-+	uint8_t cfg_type;	/* One of the VIRTIO_PCI_CAP_*_CFG. */
-+	uint8_t bar;		/* Where to find it. */
-+	uint32_t offset;	/* Offset within bar. */
-+	uint32_t length;	/* Length. */
-+};
-+
-+struct virtio_pci_notify_cap {
-+	struct virtio_pci_cap cap;
-+	uint32_t notify_off_multiplier;	/* Multiplier for queue_notify_off. */
-+};
-+
-+/* Fields in VIRTIO_PCI_CAP_COMMON_CFG: */
-+struct virtio_pci_common_cfg {
-+	/* About the whole device. */
-+	uint32_t device_feature_select;	/* read-write */
-+	uint32_t device_feature;		/* read-only */
-+	uint32_t guest_feature_select;	/* read-write */
-+	uint32_t guest_feature;		/* read-only */
-+	uint16_t msix_config;		/* read-write */
-+	uint16_t num_queues;		/* read-only */
-+	uint8_t device_status;		/* read-write */
-+	uint8_t unused1;
-+
-+	/* About a specific virtqueue. */
-+	uint16_t queue_select;		/* read-write */
-+	uint16_t queue_size;		/* read-write, power of 2. */
-+	uint16_t queue_msix_vector;	/* read-write */
-+	uint16_t queue_enable;		/* read-write */
-+	uint16_t queue_notify_off;	/* read-only */
-+	uint64_t queue_desc;		/* read-write */
-+	uint64_t queue_avail;		/* read-write */
-+	uint64_t queue_used;		/* read-write */
-+};
- #endif
-diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
-index 8176c14..e54d692 100644
---- a/hw/virtio/virtio.c
-+++ b/hw/virtio/virtio.c
-@@ -672,6 +672,11 @@ int virtio_queue_get_num(VirtIODevice *vdev, int n)
-     return vdev->vq[n].vring.num;
- }
- 
-+void virtio_queue_set_num(VirtIODevice *vdev, int n, int num)
-+{
-+    vdev->vq[n].vring.num = num;
-+}
-+
- int virtio_queue_get_id(VirtQueue *vq)
- {
-     VirtIODevice *vdev = vq->vdev;
-@@ -987,6 +992,21 @@ hwaddr virtio_queue_get_used_addr(VirtIODevice *vdev, int n)
-     return vdev->vq[n].vring.used;
- }
- 
-+void virtio_queue_set_desc_addr(VirtIODevice *vdev, int n, hwaddr addr)
-+{
-+    vdev->vq[n].vring.desc = addr;
-+}
-+
-+void virtio_queue_set_avail_addr(VirtIODevice *vdev, int n, hwaddr addr)
-+{
-+    vdev->vq[n].vring.avail = addr;
-+}
-+
-+void virtio_queue_set_used_addr(VirtIODevice *vdev, int n, hwaddr addr)
-+{
-+    vdev->vq[n].vring.used = addr;
-+}
-+
- hwaddr virtio_queue_get_ring_addr(VirtIODevice *vdev, int n)
- {
-     return vdev->vq[n].vring.desc;
-diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
-index a6c5c53..d056d58 100644
---- a/include/hw/virtio/virtio.h
-+++ b/include/hw/virtio/virtio.h
-@@ -199,6 +199,7 @@ void virtio_config_writel(VirtIODevice *vdev, uint32_t addr, uint32_t data);
- void virtio_queue_set_addr(VirtIODevice *vdev, int n, hwaddr addr);
- hwaddr virtio_queue_get_addr(VirtIODevice *vdev, int n);
- int virtio_queue_get_num(VirtIODevice *vdev, int n);
-+void virtio_queue_set_num(VirtIODevice *vdev, int n, int num);
- void virtio_queue_notify(VirtIODevice *vdev, int n);
- uint16_t virtio_queue_vector(VirtIODevice *vdev, int n);
- void virtio_queue_set_vector(VirtIODevice *vdev, int n, uint16_t vector);
-@@ -226,6 +227,9 @@ typedef struct VirtIORNGConf VirtIORNGConf;
- hwaddr virtio_queue_get_desc_addr(VirtIODevice *vdev, int n);
- hwaddr virtio_queue_get_avail_addr(VirtIODevice *vdev, int n);
- hwaddr virtio_queue_get_used_addr(VirtIODevice *vdev, int n);
-+void virtio_queue_set_desc_addr(VirtIODevice *vdev, int n, hwaddr addr);
-+void virtio_queue_set_avail_addr(VirtIODevice *vdev, int n, hwaddr addr);
-+void virtio_queue_set_used_addr(VirtIODevice *vdev, int n, hwaddr addr);
- hwaddr virtio_queue_get_ring_addr(VirtIODevice *vdev, int n);
- hwaddr virtio_queue_get_desc_size(VirtIODevice *vdev, int n);
- hwaddr virtio_queue_get_avail_size(VirtIODevice *vdev, int n);
--- 
-MST
+The other cases have no such change:
+
+- old host, doesn't require tell-first (doesn't propose new bit):
+
+negotiated old bit          host operation          guest operation
+      F                     real balloon            need not tell host
+      T                     real balloon            tells host
+
+
+- new host, doesn't require tell-first (proposes new bit), old guest
+(doesn't propose new bit, hence it is never negotiated):
+
+negotiated old bit          host operation          guest operation
+      F                     real balloon            need not tell host
+      T                     real balloon            tells host
+
+Same as the previous case, since in both cases the new bit is not
+negotiated.
+
+Note that the host ignores the result of negotiating the new bit,
+only the guest cares.
+
+
+- new host, doesn't require tell-first (proposes new bit), new guest
+(proposes new bit, thus it is negotiated):
+
+negotiated old bit   negotiated new bit      host operation          guest operation
+      F                    T                 real balloon            need not tell host
+      T                    T                 real balloon            need not tell host
+
+
+- host that requires tell-first for a real balloon (doesn't matter
+if old or new since it doesn't propose the new bit, hence it is
+never negotiated), new guest:
+
+negotiated old bit   negotiated new bit      host operation          guest operation
+      T                    F                 real balloon            need not tell host
+
+The very last case is the interesting one.  Without the new bit, the
+guest has to promise it will tell the host first when deflating.
+With the new bit, the guest is just telling that it *can* tell
+the host first; the host can still say "don't worry about that".
+So the guest sees the new bit and thinks "I told the host I *could*
+tell it about deflated pages, but the host told me I need not, so
+I won't do it".  This is the optimized case I was talking about.
+
+> If it's in spec, I think it would be clearer what are we trying to
+> achieve, and how.
+
+Having one or three patches doesn't change the final text...
+
+Paolo
