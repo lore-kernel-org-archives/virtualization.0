@@ -1,16 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 1/2] virtio-balloon spec: rewrite description of
-	VIRTIO_BALLOON_F_MUST_TELL_HOST
-Date: Tue, 28 May 2013 21:15:10 +0300
-Message-ID: <20130528181510.GC30968@redhat.com>
-References: <1369762818-8787-1-git-send-email-pbonzini@redhat.com>
-	<1369762818-8787-2-git-send-email-pbonzini@redhat.com>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
+Date: Tue, 28 May 2013 13:53:35 -0500
+Message-ID: <878v2zvsuo.fsf@codemonkey.ws>
+References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
+	<20130528173257.GC30296@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1369762818-8787-2-git-send-email-pbonzini@redhat.com>
+In-Reply-To: <20130528173257.GC30296@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,195 +18,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 28, 2013 at 07:40:17PM +0200, Paolo Bonzini wrote:
-> The idea of the VIRTIO_BALLOON_F_MUST_TELL_HOST feature was to let drivers
-> skip usage of the deflate queue when leaking the balloon ("silent
-> deflation").  Guests may benefit from silent deflate by aggressively
-> inflating the balloon; they know that they will be able to use ballooned
-> pages without issuing a (blocking) request to the device.
-> 
-> The original spec assumed that every driver supports
-> VIRTIO_BALLOON_F_MUST_TELL_HOST, but this was not explicitly documented
-> and in practice it turns out not to be the case; the Windows balloon
-> driver does not tell the host correctly.
-> 
-> Since all known device implementations support silent deflation, they
-> do not negotiate the feature and we are thus free to redefine what
-> the host should do about this feature.
-> 
-> The Windows driver is also the only known driver that does not
-> negotiate VIRTIO_BALLOON_F_MUST_TELL_HOST.  Thus, even though the
-> used to be meant for communication from the host, known drivers are
-> really using it to communicate was in the other direction.
-> 
-> Adjust the spec to conform.  The original intent is reintroduced with
-> a new feature bit in the next patch, while also fixing a problem with
-> its definition.
-> 
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+"Michael S. Tsirkin" <mst@redhat.com> writes:
 
-What you write in spec below and what you write above seems to
-contradict.
+> On Tue, May 28, 2013 at 12:15:16PM -0500, Anthony Liguori wrote:
+>> > @@ -455,6 +462,226 @@ static void virtio_pci_config_write(void *opaque, hwaddr addr,
+>> >      }
+>> >  }
+>> >  
+>> > +static uint64_t virtio_pci_config_common_read(void *opaque, hwaddr addr,
+>> > +                                              unsigned size)
+>> > +{
+>> > +    VirtIOPCIProxy *proxy = opaque;
+>> > +    VirtIODevice *vdev = proxy->vdev;
+>> > +
+>> > +    uint64_t low = 0xffffffffull;
+>> > +
+>> > +    switch (addr) {
+>> > +    case offsetof(struct virtio_pci_common_cfg, device_feature_select):
+>> > +        return proxy->device_feature_select;
+>> 
+>> Oh dear no...  Please use defines like the rest of QEMU.
+>
+> Any good reason not to use offsetof?
+> I see about 138 examples in qemu.
 
-Look, how about the simpler patch that I sent:
-"[PATCH] virtio-spec: balloon: MUST_TELL_HOST is optional"
+There are exactly zero:
 
-does it functionally do everything you want in this patch?
+$ find . -name "*.c" -exec grep -l "case offset" {} \;
+$
 
-If yes maybe you could pick that up, and add
-a patch with renames and text clarifications on top?
+> Anyway, that's the way Rusty wrote it in the kernel header -
+> I started with defines.
+> If you convince Rusty to switch I can switch too,
 
-More comments below.
+We have 300+ devices in QEMU that use #defines.  We're not using this
+kind of thing just because you want to copy code from the kernel.
 
-> ---
->  virtio-spec.lyx | 62 ++++++++++++++++++++++++++++++++++++++++++++++++++++-----
->  1 file changed, 57 insertions(+), 5 deletions(-)
-> 
-> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-> index adec0a5..5c76a87 100644
-> --- a/virtio-spec.lyx
-> +++ b/virtio-spec.lyx
-> @@ -7219,11 +7219,46 @@ bits
->  
->  \begin_deeper
->  \begin_layout Description
-> -VIRTIO_BALLOON_F_MUST_TELL_HOST
-> +VIRTIO_BALLOON_F_
-> +\change_deleted 1531152142 1347020601
-> +MUST
-> +\change_inserted 1531152142 1347020602
-> +CAN
-> +\change_unchanged
-> +_TELL_HOST
->  \begin_inset space ~
->  \end_inset
->  
-> -(0) Host must be told before pages from the balloon are used.
-> +(0) 
-> +\change_deleted 1531152142 1347020625
-> +Host must be told
-> +\change_inserted 1531152142 1347020617
-> +Guest is able to tell host
-> +\change_unchanged
-> + before pages from the balloon are used.
-> +
+>> https://github.com/aliguori/qemu/commit/587c35c1a3fe90f6af0f97927047ef4d3182a659
+>> 
+>> And:
+>> 
+>> https://github.com/aliguori/qemu/commit/01ba80a23cf2eb1e15056f82b44b94ec381565cb
+>> 
+>> Which lets virtio-pci be subclassable and then remaps the config space to
+>> BAR2.
+>
+>
+> Interesting. Have the spec anywhere?
 
-This "can" and "is able" is IMO more confusing than clarifying.
-Let's be definite. If feature is negotiated, guest must tell host.
-If it's not, it does not.
+Not yet, but working on that.
 
-That's why it's MUST not CAN.
+> You are saying this is going to conflict because
+> of BAR2 usage, yes?
 
-And text should be
+No, this whole thing is flexible.  I had to use BAR2 because BAR0 has to
+be the vram mapping.  It also had to be an MMIO bar.
 
-"When negotiated, guest tells host
-before pages from the balloon are used.
-"
+The new layout might make it easier to implement a device like this.  I
+shared it mainly because I wanted to show the subclassing idea vs. just
+tacking an option onto the existing virtio-pci code in QEMU.
 
+Regards,
 
-> +\change_inserted 1531152142 1368005603
-> + The host must propose this feature
+Anthony Liguori
 
-We don't say "propose feature" anyway in the spec.
-You really mean "set this feature bit" ?
-
-> if it has to be told
-> + before pages from the balloon are used.
-
-Has to?  Not at all. It can't assume anything
-until guest has negotiated the feature.
-So it should be
-"if it wants to be told before pages from the balloon are used".
-
-
-> +\begin_inset Foot
-> +status open
-> +
-> +\begin_layout Plain Layout
-> +
-> +\change_inserted 1531152142 1347022389
-> +This feature used to be named VIRTIO_BALLOON_F_\SpecialChar \-
-> +MUST_TELL_HOST.
-> + However, after a few years it was observed that drivers were not using
-> + it as specified.
-> + The virtio-balloon spec was then adjusted to what the drivers had been
-> + doing.
-
-I'm not sure what good does this historical note do us.
-I would say:
-	Historically the spec required all drivers
-	to acknowledge this feature bit.
-	However, no known hypervisor relies on this
-	feature bit being acknowledged unconditionally.
-	Thus, it's safe for drivers to ignore the TELL_HOST
-	feature.
-
-
-> +\end_layout
-> +
-> +\end_inset
-> +
-> +
-> +\change_unchanged
-> +
->  \end_layout
->  
->  \begin_layout Description
-> @@ -7382,9 +7417,15 @@ The driver constructs an array of addresses of memory pages it has previously
->  \end_layout
->  
->  \begin_layout Enumerate
-> -If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is set, the guest may not
-> - use these requested pages until that descriptor in the deflateq has been
-> - used by the device.
-> +If the VIRTIO_BALLOON_F_
-> +\change_deleted 1531152142 1369761770
-> +MUST
-> +\change_inserted 1531152142 1369761770
-> +CAN
-> +\change_unchanged
-> +_TELL_HOST feature is set, the guest may not use these requested pages until
-> + that descriptor in the deflateq has been used by the device.
-
-Not if it is set. If it's *negotiated*.
-
-> +
->  \end_layout
->  
->  \begin_layout Enumerate
-> @@ -7396,10 +7437,21 @@ status open
->  
->  \begin_layout Plain Layout
->  In this case, deflation advice is merely a courtesy
-> +\change_inserted 1531152142 1369761798
-> +.
-> + The guest need not use the deflateq at all.
-> +\change_unchanged
-> +
->  \end_layout
->  
->  \end_inset
->  
-> +
-> +\change_inserted 1531152142 1369761801
-> + If the host does not support this, it should not do anything when the balloon
-> + is inflated or deflated, except put the descriptors on the used ring.
-
-Not true. It simply can't rely on balloon to tell it
-before pages are used. But, just as an example,
-we can make kvm exit to qemu when guest
-attempts to use such a page, and then we'll
-know it is used without an explicit notification.
-
-> +
-> +\change_unchanged
->   
->  \end_layout
->  
+> So let's only do this virtio-fb only for new layout, so we don't need
+> to maintain compatibility. In particular, we are working
+> on making memory BAR access fast for virtio devices
+> in a generic way. At the moment they are measureably slower
+> than PIO on x86.
+>
+>
+>> Haven't looked at the proposed new ring layout yet.
+>> 
+>> Regards,
+>
+> No new ring layout. It's new config layout.
+>
+>
 > -- 
-> 1.8.2.1
-> 
+> MST
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
