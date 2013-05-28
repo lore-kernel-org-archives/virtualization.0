@@ -1,16 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
-Date: Tue, 28 May 2013 10:56:13 +0300
-Message-ID: <20130528075613.GA23148@redhat.com>
-References: <87pqfzgy6p.fsf@rustcorp.com.au> <87zkf3fiu2.fsf@rustcorp.com.au>
-	<20111211094256.GB11504@redhat.com>
-	<87boreohhs.fsf@rustcorp.com.au> <20111212114912.GA7946@redhat.com>
+Subject: [PATCH] virtio_pci: fix capability format, comments
+Date: Tue, 28 May 2013 11:08:16 +0300
+Message-ID: <20130528080816.GA23399@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20111212114912.GA7946@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,37 +16,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Sasha Levin <levinsasha928@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Cc: David Howells <dhowells@redhat.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 12, 2011 at 01:49:13PM +0200, Michael S. Tsirkin wrote:
-> On Mon, Dec 12, 2011 at 09:15:03AM +1030, Rusty Russell wrote:
-> > On Sun, 11 Dec 2011 11:42:56 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > On Thu, Dec 08, 2011 at 09:09:33PM +1030, Rusty Russell wrote:
-> > > > +/* There is no iowrite64.  We use two 32-bit ops. */
-> > > > +static void iowrite64(u64 val, const __le64 *addr)
-> > > > +{
-> > > > +	iowrite32((u32)val, (__le32 *)addr);
-> > > > +	iowrite32(val >> 32, (__le32 *)addr + 1);
-> > > > +}
-> > > > +
-> > > 
-> > > Let's put addr_lo/addr_hi in the structure then,
-> > > to make the fact this field is not atomic explicit?
-> > 
-> > Good point, assuming I haven't missed something.
-> > 
-> > Are 64-bit accesses actually unknown in PCI-land?  Or is this a limited
-> > availability thing?
-> > 
-> > Thanks,
-> > Rusty.
-> 
-> I think PCI can optionally support atomic 64 bit accesses, but not all
-> architectures can generate them.
-
-Ping. Going to change this in the layout struct?
-
-> -- 
-> MST
+LSBxdWV1ZSBzaXplIGNhbiBhY3R1YWxseSBiZSAwIHdoaWNoIGlzIG5vdCBhIHBvd2VyIG9mIDIK
+LSBmaXggY2FwYWJpbGl0eSBmb3JtYXQuIFBDSSBzcGVjIHNheXM6CglUaGUgbGF5b3V0IG9mIHRo
+ZSBpbmZvcm1hdGlvbiBpcyB2ZW5kb3Igc3BlY2lmaWMsIGV4Y2VwdCB0aGF0IHRoZSBieXRlCglp
+bW1lZGlhdGVseSBmb2xsb3dpbmcgdGhlIOKAnE5leHTigJ0gcG9pbnRlciBpbiB0aGUgY2FwYWJp
+bGl0eSBzdHJ1Y3R1cmUgaXMKCWRlZmluZWQgdG8gYmUgYSBsZW5ndGggZmllbGQuCglUaGlzIGxl
+bmd0aCBmaWVsZCBwcm92aWRlcyB0aGUgbnVtYmVyIG9mIGJ5dGVzIGluIHRoZSBjYXBhYmlsaXR5
+CglzdHJ1Y3R1cmUgKGluY2x1ZGluZyB0aGUgSUQgYW5kIE5leHQgcG9pbnRlciBieXRlcykuCgpT
+aWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgotLS0KClRo
+aXMgcGF0Y2ggaXMgb24gdG9wIG9mIHRoZSBuZXcgbGF5b3V0IGJyYW5jaCwgdG9vCgogaW5jbHVk
+ZS91YXBpL2xpbnV4L3ZpcnRpb19wY2kuaCB8IDMgKystCiAxIGZpbGUgY2hhbmdlZCwgMiBpbnNl
+cnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4
+L3ZpcnRpb19wY2kuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fcGNpLmgKaW5kZXggY2Rh
+Njg4Zi4uYTVlZjhjZCAxMDA2NDQKLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3ZpcnRpb19wY2ku
+aAorKysgYi9pbmNsdWRlL3VhcGkvbGludXgvdmlydGlvX3BjaS5oCkBAIC0xMjksNiArMTI5LDcg
+QEAKIHN0cnVjdCB2aXJ0aW9fcGNpX2NhcCB7CiAJX191OCBjYXBfdm5kcjsJLyogR2VuZXJpYyBQ
+Q0kgZmllbGQ6IFBDSV9DQVBfSURfVk5EUiAqLwogCV9fdTggY2FwX25leHQ7CS8qIEdlbmVyaWMg
+UENJIGZpZWxkOiBuZXh0IHB0ci4gKi8KKwlfX3U4IGNhcF9sZW47CS8qIEdlbmVyaWMgUENJIGZp
+ZWxkOiBjYXBhYmlsaXR5IGxlbmd0aCAqLwogCV9fdTggY2ZnX3R5cGU7CS8qIE9uZSBvZiB0aGUg
+VklSVElPX1BDSV9DQVBfKl9DRkcuICovCiAJX191OCBiYXI7CQkvKiBXaGVyZSB0byBmaW5kIGl0
+LiAqLwogCV9fbGUzMiBvZmZzZXQ7CS8qIE9mZnNldCB3aXRoaW4gYmFyLiAqLwpAQCAtMTU0LDcg
+KzE1NSw3IEBAIHN0cnVjdCB2aXJ0aW9fcGNpX2NvbW1vbl9jZmcgewogCiAJLyogQWJvdXQgYSBz
+cGVjaWZpYyB2aXJ0cXVldWUuICovCiAJX19sZTE2IHF1ZXVlX3NlbGVjdDsJCS8qIHJlYWQtd3Jp
+dGUgKi8KLQlfX2xlMTYgcXVldWVfc2l6ZTsJCS8qIHJlYWQtd3JpdGUsIHBvd2VyIG9mIDIuICov
+CisJX19sZTE2IHF1ZXVlX3NpemU7CQkvKiByZWFkLXdyaXRlLCBwb3dlciBvZiAyLCBvciAwLiAq
+LwogCV9fbGUxNiBxdWV1ZV9tc2l4X3ZlY3RvcjsJLyogcmVhZC13cml0ZSAqLwogCV9fbGUxNiBx
+dWV1ZV9lbmFibGU7CQkvKiByZWFkLXdyaXRlICovCiAJX19sZTE2IHF1ZXVlX25vdGlmeV9vZmY7
+CS8qIHJlYWQtb25seSAqLwotLSAKTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
