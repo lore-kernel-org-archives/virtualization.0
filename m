@@ -1,22 +1,14 @@
-From: Anthony Liguori <anthony@codemonkey.ws>
-Subject: Re: [Qemu-devel] [PATCH v2 00/11] qemu: use virtio linux headers in
-	portable code
-Date: Mon, 27 May 2013 21:55:38 -0500
-Message-ID: <877gijak45.fsf@codemonkey.ws>
-References: <1369581694-1655-1-git-send-email-mst@redhat.com>
-	<CAFEAcA9stW6xv3mr0ouMVTcDfVE=4=_OcUuZscguJkzGFY9WKg@mail.gmail.com>
-	<20130526175110.GA3115@redhat.com>
-	<CAFEAcA9HW6=F7QKpuof02hGTaAnLsZmoZ_-Yo98wKzeELi_zvA@mail.gmail.com>
-	<20130526181017.GB3115@redhat.com> <51A253C6.7060303@redhat.com>
-	<20130526183747.GB3427@redhat.com> <51A25A2D.8030700@redhat.com>
-	<20130526200251.GA4305@redhat.com>
-	<51A26E95.5000207@redhat.com> <878v314gb2.fsf@codemonkey.ws>
-	<87ehcsptbg.fsf@rustcorp.com.au>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH rusty/virtio-pci-new-layout] virtio: new layout minor
+	header fixups
+Date: Tue, 28 May 2013 10:59:08 +0930
+Message-ID: <87txlnopsr.fsf@rustcorp.com.au>
+References: <20130527155943.GA18246@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87ehcsptbg.fsf@rustcorp.com.au>
+In-Reply-To: <20130527155943.GA18246@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,49 +18,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, qemu-devel@nongnu.org, Bryan Venteicher <mr.kodiak@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: David Howells <dhowells@redhat.com>, Dave Jones <davej@redhat.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty Russell <rusty@rustcorp.com.au> writes:
-
-> Anthony Liguori <anthony@codemonkey.ws> writes:
->> Paolo Bonzini <pbonzini@redhat.com> writes:
->>
->>> Il 26/05/2013 22:02, Michael S. Tsirkin ha scritto:
->>>> > My fault.  I should have looked at linux/types.h (actually asm-generic/).
->>>> 
->>>> Not really, __uX appear in the headers that were posted.
->>
->> Which is a problem because this is a reserved namespace in C99.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> Fix issues observed with the new layout code, seen
+> when implementing device in qemu:
+> 	- use of uXX in uapi header
+> 	- incorrect readonly tag on one field
+> 	- unconditional warning breaks builds with -Werr
 >
-> Personally, I find it hard to care.  What matters is not what the
-> standard has carved out, but whether we have clashes, reserved namespace
-> or no.  And that won't happen for these.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Hmm, this means if we ever *do* remove those defines, qemu will break.
+
+But perhaps that's OK, because we'll probably remove legacy support at
+the same time as we break the header.
+
+Applied, thanks!
+Rusty.
+
+> This patch is on top of rusty/virtio-pci-new-layout.
 >
-> If someone wants to convert all the kernel headers, I won't NAK it
-> though.
-
-virtio headers are special.  Linux headers are normally only consumed in
-the kernel or in a userspace application running on Linux.
-
-virtio headers may be used either in a userspace application running on
-!Linux (we need to support QEMU on Windows) or even in a foreign kernel.
-
-linux/types.h is unusable outside of Linux because it pulls in a bunch
-of other headers.  If you look at Michael's patch, he adds his own
-version of types.h.  It's unfortunate for every user of the headers to
-do this.
-
-Regards,
-
-Anthony Liguori
-
->> Perhaps it's even worth moving the headers from uapi/linux to
->> uapi/virtio.  Rusty, what do you think?
+>  include/uapi/linux/virtio_pci.h | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
 >
-> Hmm, #include <virtio/virtio_net.h> etc would be worthwhile if that also
-> worked on FreeBSD.  Bryan CC'd...
->
-> Cheers,
-> Rusty.
+> diff --git a/include/uapi/linux/virtio_pci.h b/include/uapi/linux/virtio_pci.h
+> index 3e61d55..cda688f 100644
+> --- a/include/uapi/linux/virtio_pci.h
+> +++ b/include/uapi/linux/virtio_pci.h
+> @@ -86,8 +86,10 @@
+>  #define VIRTIO_PCI_LEGACY_VRING_ALIGN		4096
+>  
+>  #ifndef VIRTIO_PCI_NO_LEGACY
+> +#ifndef VIRTIO_PCI_LEGACY_COMPAT_NAMES
+>  /* Don't break compile of old userspace code.  These will go away. */
+>  #warning "Please support virtio_pci non-legacy mode!"
+> +#endif
+>  #define VIRTIO_PCI_HOST_FEATURES VIRTIO_PCI_LEGACY_HOST_FEATURES
+>  #define VIRTIO_PCI_GUEST_FEATURES VIRTIO_PCI_LEGACY_GUEST_FEATURES
+>  #define VIRTIO_PCI_QUEUE_PFN VIRTIO_PCI_LEGACY_QUEUE_PFN
+> @@ -125,10 +127,10 @@
+>  
+>  /* This is the PCI capability header: */
+>  struct virtio_pci_cap {
+> -	u8 cap_vndr;	/* Generic PCI field: PCI_CAP_ID_VNDR */
+> -	u8 cap_next;	/* Generic PCI field: next ptr. */
+> -	u8 cfg_type;	/* One of the VIRTIO_PCI_CAP_*_CFG. */
+> -	u8 bar;		/* Where to find it. */
+> +	__u8 cap_vndr;	/* Generic PCI field: PCI_CAP_ID_VNDR */
+> +	__u8 cap_next;	/* Generic PCI field: next ptr. */
+> +	__u8 cfg_type;	/* One of the VIRTIO_PCI_CAP_*_CFG. */
+> +	__u8 bar;		/* Where to find it. */
+>  	__le32 offset;	/* Offset within bar. */
+>  	__le32 length;	/* Length. */
+>  };
+> @@ -144,7 +146,7 @@ struct virtio_pci_common_cfg {
+>  	__le32 device_feature_select;	/* read-write */
+>  	__le32 device_feature;		/* read-only */
+>  	__le32 guest_feature_select;	/* read-write */
+> -	__le32 guest_feature;		/* read-only */
+> +	__le32 guest_feature;		/* read-write */
+>  	__le16 msix_config;		/* read-write */
+>  	__le16 num_queues;		/* read-only */
+>  	__u8 device_status;		/* read-write */
+> -- 
+> MST
