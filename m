@@ -1,19 +1,15 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] virtio-balloon spec: rework
-	VIRTIO_BALLOON_F_MUST_TELL_HOST feature, support silent deflation
-Date: Tue, 28 May 2013 16:06:02 +0200
-Message-ID: <51A4B9CA.50506@redhat.com>
-References: <1368007813-1264-1-git-send-email-pbonzini@redhat.com>
-	<51A381D9.5010800@redhat.com> <20130527160437.GA18270@redhat.com>
-	<51A38552.9050808@redhat.com> <20130527170259.GA18800@redhat.com>
-	<51A46D0B.9080508@redhat.com> <20130528104503.GD5467@redhat.com>
-	<51A4913F.5050206@redhat.com> <20130528114402.GA21107@redhat.com>
-	<51A49D33.8090008@redhat.com> <20130528133256.GC4889@redhat.com>
+From: Liu Jiang <liuj97@gmail.com>
+Subject: Re: [PATCH v8, part3 12/14] mm: correctly update zone->mamaged_pages
+Date: Tue, 28 May 2013 22:20:40 +0800
+Message-ID: <51A4BD38.2040302@gmail.com>
+References: <1369575522-26405-1-git-send-email-jiang.liu@huawei.com>
+	<1369575522-26405-13-git-send-email-jiang.liu@huawei.com>
+	<51A36633.2030905@cogentembedded.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130528133256.GC4889@redhat.com>
+In-Reply-To: <51A36633.2030905@cogentembedded.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,84 +19,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, "Michael S. Tsirkin" <mst@redhat.com>, Tang Chen <tangchen@cn.fujitsu.com>, James Bottomley <James.Bottomley@HansenPartnership.com>, linux-mm@kvack.org, Michal Hocko <mhocko@suse.cz>, linux-arch@vger.kernel.org, xen-devel@lists.xensource.com, Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>, Mark Salter <msalter@redhat.com>, Jiang Liu <jiang.liu@huawei.com>, Wen Congyang <wency@cn.fujitsu.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Chris Metcalf <cmetcalf@tilera.com>, Jianguo Wu <wujianguo@huawei.com>, virtualization@lists.linux-foundation.org, KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, David Howells <dhowells@redhat.com>, linux-kernel@vger.kernel.org, Minchan Kim <minchan@kernel.org>, David Rientjes <rientjes@google.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 28/05/2013 15:32, Michael S. Tsirkin ha scritto:
-> At this point I am confused. I think there are two changes in your patch:
+Hi Sergei,
+	Thanks for review!
+
+On 05/27/2013 09:57 PM, Sergei Shtylyov wrote:
+> On 26-05-2013 17:38, Jiang Liu wrote:
 > 
-> 1. Handling of VIRTIO_F_GUEST_MUST_TELL_HOST
->  Is this functionally identical to what I proposed?
->  If yes, I am fine with either change being applied.
+>    Typo in the subject: s/mamaged_pages/managed_pages/.
+Will fix it in next version.
 
-Yes.
+> 
+>> Enhance adjust_managed_page_count() to adjust totalhigh_pages for
+>> highmem pages. And change code which directly adjusts totalram_pages
+>> to use adjust_managed_page_count() because it adjusts totalram_pages,
+>> totalhigh_pages and zone->managed_pages altogether in a safe way.
+> 
+>> Remove inc_totalhigh_pages() and dec_totalhigh_pages() from xen/balloon
+>> driver bacause adjust_managed_page_count() has already adjusted
+>> totalhigh_pages.
+> 
+>> This patch also fixes two bugs:
+>> 1) enhances virtio_balloon driver to adjust totalhigh_pages when
+>>     reserve/unreserve pages.
+>> 2) enhance memory_hotplug.c to adjust totalhigh_pages when hot-removing
+>>     memory.
+> 
+>> We still need to deal with modifications of totalram_pages in file
+>> arch/powerpc/platforms/pseries/cmm.c, but need help from PPC experts.
+> 
+>> Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+>> Cc: Chris Metcalf <cmetcalf@tilera.com>
+>> Cc: Rusty Russell <rusty@rustcorp.com.au>
+>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+>> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+>> Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+>> Cc: Wen Congyang <wency@cn.fujitsu.com>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: Tang Chen <tangchen@cn.fujitsu.com>
+>> Cc: Yasuaki Ishimatsu <isimatu.yasuaki@jp.fujitsu.com>
+>> Cc: Mel Gorman <mgorman@suse.de>
+>> Cc: Minchan Kim <minchan@kernel.org>
+>> Cc: linux-kernel@vger.kernel.org
+>> Cc: virtualization@lists.linux-foundation.org
+>> Cc: xen-devel@lists.xensource.com
+>> Cc: linux-mm@kvack.org
+>> ---
+>>   drivers/virtio/virtio_balloon.c |  8 +++++---
+>>   drivers/xen/balloon.c           | 23 +++++------------------
+>>   mm/hugetlb.c                    |  2 +-
+>>   mm/memory_hotplug.c             | 16 +++-------------
+>>   mm/page_alloc.c                 | 10 +++++-----
+>>   5 files changed, 19 insertions(+), 40 deletions(-)
+> 
+>> diff --git a/drivers/virtio/virtio_balloon.c
+>> b/drivers/virtio/virtio_balloon.c
+>> index bd3ae32..6649968 100644
+>> --- a/drivers/virtio/virtio_balloon.c
+>> +++ b/drivers/virtio/virtio_balloon.c
+> [...]
+>> @@ -160,11 +160,13 @@ static void fill_balloon(struct virtio_balloon
+>> *vb, size_t num)
+>>   static void release_pages_by_pfn(const u32 pfns[], unsigned int num)
+>>   {
+>>       unsigned int i;
+>> +    struct page *page;
+> 
+>    Why not declare it right in the *for* loop? You could use intializer
+> then...
+Good suggestion, will change it in next version.
 
-> 2. New SILENT_DEFLATE feature
->  Since guest can get same functionality by not acking
->  TELL_HOST, I still don't see what good it does:
->  Historically a host with no features supports silent
->  deflate and guest with no features can do silent deflate.
->  I conclude silent deflate is the default behaviour for
->  both host and guest, and we can't change default without
->  breaking compatibility.
-
-You're right that for correctness the existing feature is enough:
-if it is not negotiated by the guest, the host ensures correctness by
-only giving the guest a fake balloon.
-
-However, the new feature is about optimization, not correctness.
-In fact, VIRTIO_BALLOON_F_SILENT_DEFLATE is the optimization
-feature that VIRTIO_BALLOON_F_MUST_TELL_HOST was meant to be.
-
-What I'm interested in, is drivers that can _optionally_ use silent 
-deflation (as an optimization).  These should not get a fake balloon!
-
-With the new feature bit, these drivers should propose both
-VIRTIO_BALLOON_F_GUEST_TELLS_HOST and VIRTIO_BALLOON_F_SILENT_DEFLATE.
-The driver can then use silent  deflation if and only if the host
-has negotiated  VIRTIO_BALLOON_F_SILENT_DEFLATE too.  Like this:
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index bd3ae32..05fe948 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -186,12 +186,8 @@ static void leak_balloon(struct virtio_balloon *vb, size_t num)
- 		vb->num_pages -= VIRTIO_BALLOON_PAGES_PER_PAGE;
- 	}
- 
--	/*
--	 * Note that if
--	 * virtio_has_feature(vdev, VIRTIO_BALLOON_F_MUST_TELL_HOST);
--	 * is true, we *have* to do it in this order
--	 */
--	tell_host(vb, vb->deflate_vq);
-+	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_SILENT_DEFLATE)
-+		tell_host(vb, vb->deflate_vq);
- 	mutex_unlock(&vb->balloon_lock);
- 	release_pages_by_pfn(vb->pfns, vb->num_pfns);
- }
-@@ -543,6 +539,7 @@ static int virtballoon_restore(struct virtio_device *vdev)
- static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_MUST_TELL_HOST,
- 	VIRTIO_BALLOON_F_STATS_VQ,
-+	VIRTIO_BALLOON_F_SILENT_DEFLATE,
- };
- 
- static struct virtio_driver virtio_balloon_driver = {
-
-
-Of course with the current implementation of the balloon it does not
-matter much.  But for example, with Luiz's work, releasing pages as soon
-as the shrinker is called will increase effectiveness of the shrinker.
-At the same time, not all is lost if the guest prefers not to allow
-silent deflation (e.g. because there is an assigned device).
-
-On old hosts, a guest that can optionally use silent deflation will
-not use it.  That's the same as for any other feature bit.
-
-> How about splitting the patches so we can discuss them separately?
-
-I can do that, but I hope the above clarifies it.
-
-Paolo
+> 
+>>
+>>       /* Find pfns pointing at start of each page, get pages and free
+>> them. */
+>>       for (i = 0; i < num; i += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+>> -        balloon_page_free(balloon_pfn_to_page(pfns[i]));
+>> -        totalram_pages++;
+>> +        page = balloon_pfn_to_page(pfns[i]);
+>> +        balloon_page_free(page);
+>> +        adjust_managed_page_count(page, 1);
+>>       }
+>>   }
+>>
+> [...]
+> 
+> WBR, Sergei
+> 
