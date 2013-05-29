@@ -1,17 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: updated: kvm networking todo wiki
-Date: Wed, 29 May 2013 17:12:39 +0300
-Message-ID: <20130529141239.GB10347@redhat.com>
-References: <20130523085034.GA16142@redhat.com> <519F35B7.6010408@redhat.com>
-	<20130524113542.GA7046@redhat.com> <8738tctrox.fsf@codemonkey.ws>
-	<20130524140024.GA12024@redhat.com>
-	<87li6yodgq.fsf@rustcorp.com.au> <87k3miq6sw.fsf@codemonkey.ws>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
+Date: Wed, 29 May 2013 09:16:39 -0500
+Message-ID: <8761y1q3aw.fsf__33269.4180695855$1369837027$gmane$org@codemonkey.ws>
+References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
+	<87ppwammp5.fsf@rustcorp.com.au> <87mwreq76y.fsf@codemonkey.ws>
+	<20130529132430.GA9363@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87k3miq6sw.fsf@codemonkey.ws>
+In-Reply-To: <20130529132430.GA9363@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,90 +19,134 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>
-Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, lmr@redhat.com, "Xin,
-	Xiaohui" <xiaohui.xin@intel.com>, Shirley Ma <mashirle@us.ibm.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, David Stevens <dlstevens@us.ibm.com>, qemu-devel@nongnu.org, vyasevic@redhat.com, herbert@gondor.hengli.com.au, jdike@linux.intel.com, sri@linux.vnet.ibm.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 29, 2013 at 08:01:03AM -0500, Anthony Liguori wrote:
-> Rusty Russell <rusty@rustcorp.com.au> writes:
-> 
-> > "Michael S. Tsirkin" <mst@redhat.com> writes:
-> >> On Fri, May 24, 2013 at 08:47:58AM -0500, Anthony Liguori wrote:
-> >>> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> >>> 
-> >>> > On Fri, May 24, 2013 at 05:41:11PM +0800, Jason Wang wrote:
-> >>> >> On 05/23/2013 04:50 PM, Michael S. Tsirkin wrote:
-> >>> >> > Hey guys,
-> >>> >> > I've updated the kvm networking todo wiki with current projects.
-> >>> >> > Will try to keep it up to date more often.
-> >>> >> > Original announcement below.
-> >>> >> 
-> >>> >> Thanks a lot. I've added the tasks I'm currently working on to the wiki.
-> >>> >> 
-> >>> >> btw. I notice the virtio-net data plane were missed in the wiki. Is the
-> >>> >> project still being considered?
-> >>> >
-> >>> > It might have been interesting several years ago, but now that linux has
-> >>> > vhost-net in kernel, the only point seems to be to
-> >>> > speed up networking on non-linux hosts.
-> >>> 
-> >>> Data plane just means having a dedicated thread for virtqueue processing
-> >>> that doesn't hold qemu_mutex.
-> >>> 
-> >>> Of course we're going to do this in QEMU.  It's a no brainer.  But not
-> >>> as a separate device, just as an improvement to the existing userspace
-> >>> virtio-net.
-> >>> 
-> >>> > Since non-linux does not have kvm, I doubt virtio is a bottleneck.
-> >>> 
-> >>> FWIW, I think what's more interesting is using vhost-net as a networking
-> >>> backend with virtio-net in QEMU being what's guest facing.
-> >>> 
-> >>> In theory, this gives you the best of both worlds: QEMU acts as a first
-> >>> line of defense against a malicious guest while still getting the
-> >>> performance advantages of vhost-net (zero-copy).
-> >>
-> >> Great idea, that sounds very intresting.
-> >>
-> >> I'll add it to the wiki.
-> >>
-> >> In fact a bit of complexity in vhost was put there in the vague hope to
-> >> support something like this: virtio rings are not translated through
-> >> regular memory tables, instead, vhost gets a pointer to ring address.
-> >>
-> >> This allows qemu acting as a man in the middle,
-> >> verifying the descriptors but not touching the
-> >>
-> >> Anyone interested in working on such a project?
-> >
-> > It would be an interesting idea if we didn't already have the vhost
-> > model where we don't need the userspace bounce.
-> 
-> The model is very interesting for QEMU because then we can use vhost as
-> a backend for other types of network adapters (like vmxnet3 or even
-> e1000).
-> 
-> It also helps for things like fault tolerance where we need to be able
-> to control packet flow within QEMU.
-> 
-> Regards,
-> 
-> Anthony Liguori
+"Michael S. Tsirkin" <mst@redhat.com> writes:
 
-It was also floated as an alternative way to do live migration.
+> On Wed, May 29, 2013 at 07:52:37AM -0500, Anthony Liguori wrote:
+>> 1) C makes no guarantees about structure layout beyond the first
+>>    member.  Yes, if it's naturally aligned or has a packed attribute,
+>>    GCC does the right thing.  But this isn't kernel land anymore,
+>>    portability matters and there are more compilers than GCC.
+>
+> You expect a compiler to pad this structure:
+>
+> struct foo {
+> 	uint8_t a;
+> 	uint8_t b;
+> 	uint16_t c;
+> 	uint32_t d;
+> };
+>
+> I'm guessing any compiler that decides to waste memory in this way
+> will quickly get dropped by users and then we won't worry
+> about building QEMU with it.
 
-> > We already have two
-> > sets of host side ring code in the kernel (vhost and vringh, though
-> > they're being unified).
-> >
-> > All an accelerator can offer on the tx side is zero copy and direct
-> > update of the used ring.  On rx userspace could register the buffers and
-> > the accelerator could fill them and update the used ring.  It still
-> > needs to deal with merged buffers, for example.
-> >
-> > You avoid the address translation in the kernel, but I'm not convinced
-> > that's a key problem.
-> >
-> > Cheers,
-> > Rusty.
+There are other responses in the thread here and I don't really care to
+bikeshed on this issue.
+
+>> Well, given that virtio is widely deployed today, I would think the 1.0
+>> standard should strictly reflect what's deployed today, no?
+>> Any new config layout would be 2.0 material, right?
+>
+> Not as it's currently planned. Devices can choose
+> to support a legacy layout in addition to the new one,
+> and if you look at the patch you will see that that
+> is exactly what it does.
+
+Adding a new BAR most certainly requires bumping the revision ID or
+changing the device ID, no?
+
+Didn't we run into this problem with the virtio-win drivers with just
+the BAR size changing? 
+
+>> Re: the new config layout, I don't think we would want to use it for
+>> anything but new devices.  Forcing a guest driver change
+>
+> There's no forcing.
+> If you look at the patches closely, you will see that
+> we still support the old layout on BAR0.
+>
+>
+>> is a really big
+>> deal and I see no reason to do that unless there's a compelling reason
+>> to.
+>
+> There are many a compelling reasons, and they are well known
+> limitations of virtio PCI:
+>
+> - PCI spec compliance (madates device operation with IO memory
+> disabled).
+
+PCI express spec.  We are fully compliant with the PCI spec.  And what's
+the user visible advantage of pointing an emulated virtio device behind
+a PCI-e bus verses a legacy PCI bus?
+
+This is a very good example because if we have to disable BAR0, then
+it's an ABI breaker plan and simple.
+
+> - support 64 bit addressing
+
+We currently support 44-bit addressing for the ring.  While I agree we
+need to bump it, there's no immediate problem with 44-bit addressing.
+
+> - add more than 32 feature bits.
+> - individually disable queues.
+> - sanely support cross-endian systems.
+> - support very small (<1 PAGE) for virtio rings.
+> - support a separate page for each vq kick.
+> - make each device place config at flexible offset.
+
+None of these things are holding us back today.
+
+I'm not saying we shouldn't introduce a new device.  But adoption of
+that device will be slow and realistically will be limited to new
+devices only.
+
+We'll be supporting both devices for a very, very long time.
+
+Compatibility is the fundamental value that we provide.  We need to go
+out of our way to make sure that existing guests work and work as well
+as possible.
+
+Sticking virtio devices behind a PCI-e bus just for the hell of it isn't
+a compelling reason to break existing guests.
+
+Regards,
+
+Anthony Liguori
+
+
+> Addressing any one of these would cause us to add a substantially new
+> way to operate virtio devices.
+>
+> And since it's a guest change anyway, it seemed like a
+> good time to do the new layout and fix everything in one go.
+>
+> And they are needed like yesterday.
+>
+>
+>> So we're stuck with the 1.0 config layout for a very long time.
+>> 
+>> Regards,
+>> 
+>> Anthony Liguori
+>
+> Absolutely. This patch let us support both which will allow for
+> a gradual transition over the next 10 years or so.
+>
+>> > reason.  I suggest that's 2.0 material...
+>> >
+>> > Cheers,
+>> > Rusty.
+>> >
+>> > --
+>> > To unsubscribe from this list: send the line "unsubscribe kvm" in
+>> > the body of a message to majordomo@vger.kernel.org
+>> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
