@@ -1,15 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: updated: kvm networking todo wiki
-Date: Wed, 29 May 2013 09:37:49 +0930
-Message-ID: <87li6yodgq.fsf__20764.7494659343$1369804119$gmane$org@rustcorp.com.au>
-References: <20130523085034.GA16142@redhat.com> <519F35B7.6010408@redhat.com>
-	<20130524113542.GA7046@redhat.com> <8738tctrox.fsf@codemonkey.ws>
-	<20130524140024.GA12024@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v2 1/2] virtio-balloon spec: rewrite description of
+	VIRTIO_BALLOON_F_MUST_TELL_HOST
+Date: Wed, 29 May 2013 08:24:10 +0200
+Message-ID: <51A59F0A.80805__5387.99228747866$1369808679$gmane$org@redhat.com>
+References: <1369762818-8787-1-git-send-email-pbonzini@redhat.com>
+	<1369762818-8787-2-git-send-email-pbonzini@redhat.com>
+	<20130528181510.GC30968@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130524140024.GA12024@redhat.com>
+In-Reply-To: <20130528181510.GC30968@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,72 +20,228 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Anthony Liguori <anthony@codemonkey.ws>
-Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, lmr@redhat.com, "Xin,
-	Xiaohui" <xiaohui.xin@intel.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, Shirley Ma <mashirle@us.ibm.com>, virtualization@lists.linux-foundation.org, David Stevens <dlstevens@us.ibm.com>, qemu-devel@nongnu.org, vyasevic@redhat.com, herbert@gondor.hengli.com.au, jdike@linux.intel.com, sri@linux.vnet.ibm.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> On Fri, May 24, 2013 at 08:47:58AM -0500, Anthony Liguori wrote:
->> "Michael S. Tsirkin" <mst@redhat.com> writes:
->> 
->> > On Fri, May 24, 2013 at 05:41:11PM +0800, Jason Wang wrote:
->> >> On 05/23/2013 04:50 PM, Michael S. Tsirkin wrote:
->> >> > Hey guys,
->> >> > I've updated the kvm networking todo wiki with current projects.
->> >> > Will try to keep it up to date more often.
->> >> > Original announcement below.
->> >> 
->> >> Thanks a lot. I've added the tasks I'm currently working on to the wiki.
->> >> 
->> >> btw. I notice the virtio-net data plane were missed in the wiki. Is the
->> >> project still being considered?
->> >
->> > It might have been interesting several years ago, but now that linux has
->> > vhost-net in kernel, the only point seems to be to
->> > speed up networking on non-linux hosts.
->> 
->> Data plane just means having a dedicated thread for virtqueue processing
->> that doesn't hold qemu_mutex.
->> 
->> Of course we're going to do this in QEMU.  It's a no brainer.  But not
->> as a separate device, just as an improvement to the existing userspace
->> virtio-net.
->> 
->> > Since non-linux does not have kvm, I doubt virtio is a bottleneck.
->> 
->> FWIW, I think what's more interesting is using vhost-net as a networking
->> backend with virtio-net in QEMU being what's guest facing.
->> 
->> In theory, this gives you the best of both worlds: QEMU acts as a first
->> line of defense against a malicious guest while still getting the
->> performance advantages of vhost-net (zero-copy).
->
-> Great idea, that sounds very intresting.
->
-> I'll add it to the wiki.
->
-> In fact a bit of complexity in vhost was put there in the vague hope to
-> support something like this: virtio rings are not translated through
-> regular memory tables, instead, vhost gets a pointer to ring address.
->
-> This allows qemu acting as a man in the middle,
-> verifying the descriptors but not touching the
->
-> Anyone interested in working on such a project?
+Il 28/05/2013 20:15, Michael S. Tsirkin ha scritto:
+> What you write in spec below and what you write above seems to
+> contradict.
+> 
+> Look, how about the simpler patch that I sent:
+> "[PATCH] virtio-spec: balloon: MUST_TELL_HOST is optional"
+> 
+> does it functionally do everything you want in this patch?
 
-It would be an interesting idea if we didn't already have the vhost
-model where we don't need the userspace bounce.  We already have two
-sets of host side ring code in the kernel (vhost and vringh, though
-they're being unified).
+No, though it is a step forward.
 
-All an accelerator can offer on the tx side is zero copy and direct
-update of the used ring.  On rx userspace could register the buffers and
-the accelerator could fill them and update the used ring.  It still
-needs to deal with merged buffers, for example.
+But let's take a step back instead; here are the requirements:
 
-You avoid the address translation in the kernel, but I'm not convinced
-that's a key problem.
+1) old drivers work unmodified on new hosts
 
-Cheers,
-Rusty.
+2) new drivers work unmodified on old guests, though it is okay if they
+do not use silent deflation
+
+3) if both the balloon and the driver supports silent deflation, it
+should be used
+
+4) if the balloon has to enter a "degraded" mode of operation when
+guests do not "tell first", this has to happen only for old guests
+
+
+Once SILENT_DEFLATE is added, your patch prevents fulfilling
+requirements (3) and (4) together, at least in a Linux driver.
+
+Basically, you're saying that the driver should set MUST_TELL_HOST to
+!SILENT_DEFLATE.  However, in the Linux virtio implementation, features
+are independent, and the feature list is told beforehand by the driver
+to the virtio layer; with your proposal, the driver would have to
+"retract" support for MUST_TELL_HOST after it has negotiated it.
+
+This is why I'm making SILENT_DEFLATE=1 override MUST_TELL_HOST=1.
+
+> If yes maybe you could pick that up, and add
+> a patch with renames and text clarifications on top?
+> 
+> More comments below.
+> 
+>> ---
+>>  virtio-spec.lyx | 62 ++++++++++++++++++++++++++++++++++++++++++++++++++++-----
+>>  1 file changed, 57 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/virtio-spec.lyx b/virtio-spec.lyx
+>> index adec0a5..5c76a87 100644
+>> --- a/virtio-spec.lyx
+>> +++ b/virtio-spec.lyx
+>> @@ -7219,11 +7219,46 @@ bits
+>>  
+>>  \begin_deeper
+>>  \begin_layout Description
+>> -VIRTIO_BALLOON_F_MUST_TELL_HOST
+>> +VIRTIO_BALLOON_F_
+>> +\change_deleted 1531152142 1347020601
+>> +MUST
+>> +\change_inserted 1531152142 1347020602
+>> +CAN
+>> +\change_unchanged
+>> +_TELL_HOST
+>>  \begin_inset space ~
+>>  \end_inset
+>>  
+>> -(0) Host must be told before pages from the balloon are used.
+>> +(0) 
+>> +\change_deleted 1531152142 1347020625
+>> +Host must be told
+>> +\change_inserted 1531152142 1347020617
+>> +Guest is able to tell host
+>> +\change_unchanged
+>> + before pages from the balloon are used.
+>> +
+> 
+> This "can" and "is able" is IMO more confusing than clarifying.
+> Let's be definite. If feature is negotiated, guest must tell host.
+> If it's not, it does not.
+> 
+> That's why it's MUST not CAN.
+
+No, that won't fly.  First of all, it's not how other features work.  A
+guest that asks for offloading can still do all the segmentation and
+checksumming itself, a guest that knows about the virtio-net control
+queue can still not use it, etc.
+
+Second, this prevents fulfilling requirements (3) and (4) together as I
+wrote above.
+
+> And text should be
+> 
+> "When negotiated, guest tells host
+> before pages from the balloon are used.
+> "
+> 
+> 
+>> +\change_inserted 1531152142 1368005603
+>> + The host must propose this feature
+> 
+> We don't say "propose feature" anyway in the spec.
+> You really mean "set this feature bit" ?
+
+Yes.
+
+>> if it has to be told
+>> + before pages from the balloon are used.
+> 
+> Has to?  Not at all. It can't assume anything
+> until guest has negotiated the feature.
+> So it should be
+> "if it wants to be told before pages from the balloon are used".
+
+There can be implementations where the only choice is providing a fake
+balloon.  For example if the page is removed from the IOMMU page tables,
+you have to tell the host before a DMA access.
+
+In this case, saying "has to be told" is not entirely precise, but
+"wants to be told" does not say that the operation is degraded.  Any
+improvements on the wording are welcome.
+
+In the previous version I just said that all hosts should set this
+feature bit (and commented that old hosts can still be
+upwards-compatible).  I changed it because you didn't like it, but I
+think the change is for the worse.  I still really prefer the version I
+sent on May 8th.
+
+>> +\begin_inset Foot
+>> +status open
+>> +
+>> +\begin_layout Plain Layout
+>> +
+>> +\change_inserted 1531152142 1347022389
+>> +This feature used to be named VIRTIO_BALLOON_F_\SpecialChar \-
+>> +MUST_TELL_HOST.
+>> + However, after a few years it was observed that drivers were not using
+>> + it as specified.
+>> + The virtio-balloon spec was then adjusted to what the drivers had been
+>> + doing.
+> 
+> I'm not sure what good does this historical note do us.
+> I would say:
+> 	Historically the spec required all drivers
+> 	to acknowledge this feature bit.
+> 	However, no known hypervisor relies on this
+> 	feature bit being acknowledged unconditionally.
+> 	Thus, it's safe for drivers to ignore the TELL_HOST
+> 	feature.
+
+Ok.
+
+> 
+> 
+>> +\end_layout
+>> +
+>> +\end_inset
+>> +
+>> +
+>> +\change_unchanged
+>> +
+>>  \end_layout
+>>  
+>>  \begin_layout Description
+>> @@ -7382,9 +7417,15 @@ The driver constructs an array of addresses of memory pages it has previously
+>>  \end_layout
+>>  
+>>  \begin_layout Enumerate
+>> -If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is set, the guest may not
+>> - use these requested pages until that descriptor in the deflateq has been
+>> - used by the device.
+>> +If the VIRTIO_BALLOON_F_
+>> +\change_deleted 1531152142 1369761770
+>> +MUST
+>> +\change_inserted 1531152142 1369761770
+>> +CAN
+>> +\change_unchanged
+>> +_TELL_HOST feature is set, the guest may not use these requested pages until
+>> + that descriptor in the deflateq has been used by the device.
+> 
+> Not if it is set. If it's *negotiated*.
+
+Right.
+
+>> +
+>>  \end_layout
+>>  
+>>  \begin_layout Enumerate
+>> @@ -7396,10 +7437,21 @@ status open
+>>  
+>>  \begin_layout Plain Layout
+>>  In this case, deflation advice is merely a courtesy
+>> +\change_inserted 1531152142 1369761798
+>> +.
+>> + The guest need not use the deflateq at all.
+>> +\change_unchanged
+>> +
+>>  \end_layout
+>>  
+>>  \end_inset
+>>  
+>> +
+>> +\change_inserted 1531152142 1369761801
+>> + If the host does not support this, it should not do anything when the balloon
+>> + is inflated or deflated, except put the descriptors on the used ring.
+> 
+> Not true. It simply can't rely on balloon to tell it
+> before pages are used. But, just as an example,
+> we can make kvm exit to qemu when guest
+> attempts to use such a page, and then we'll
+> know it is used without an explicit notification.
+
+Nice, but this is not always possible (I gave an example above).
+
+Paolo
+
+>> +
+>> +\change_unchanged
+>>   
+>>  \end_layout
+>>  
+>> -- 
+>> 1.8.2.1
+>>
