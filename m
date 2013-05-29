@@ -1,14 +1,16 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Wed, 29 May 2013 07:52:37 -0500
-Message-ID: <87mwreq76y.fsf@codemonkey.ws>
-References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
-	<87ppwammp5.fsf@rustcorp.com.au>
+From: Anthony Liguori <anthony@codemonkey.ws>
+Subject: Re: updated: kvm networking todo wiki
+Date: Wed, 29 May 2013 08:01:03 -0500
+Message-ID: <87k3miq6sw.fsf@codemonkey.ws>
+References: <20130523085034.GA16142@redhat.com> <519F35B7.6010408@redhat.com>
+	<20130524113542.GA7046@redhat.com> <8738tctrox.fsf@codemonkey.ws>
+	<20130524140024.GA12024@redhat.com>
+	<87li6yodgq.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87ppwammp5.fsf@rustcorp.com.au>
+In-Reply-To: <87li6yodgq.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,93 +20,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-Cc: Peter Maydell <peter.maydell@linaro.org>, Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Krishna Kumar2 <krkumar2@in.ibm.com>, lmr@redhat.com, "Xin,
+	Xiaohui" <xiaohui.xin@intel.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, Shirley Ma <mashirle@us.ibm.com>, virtualization@lists.linux-foundation.org, David Stevens <dlstevens@us.ibm.com>, qemu-devel@nongnu.org, vyasevic@redhat.com, herbert@gondor.hengli.com.au, jdike@linux.intel.com, sri@linux.vnet.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 Rusty Russell <rusty@rustcorp.com.au> writes:
 
-> Anthony Liguori <aliguori@us.ibm.com> writes:
->> "Michael S. Tsirkin" <mst@redhat.com> writes:
->>> +    case offsetof(struct virtio_pci_common_cfg, device_feature_select):
->>> +        return proxy->device_feature_select;
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> On Fri, May 24, 2013 at 08:47:58AM -0500, Anthony Liguori wrote:
+>>> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>>> 
+>>> > On Fri, May 24, 2013 at 05:41:11PM +0800, Jason Wang wrote:
+>>> >> On 05/23/2013 04:50 PM, Michael S. Tsirkin wrote:
+>>> >> > Hey guys,
+>>> >> > I've updated the kvm networking todo wiki with current projects.
+>>> >> > Will try to keep it up to date more often.
+>>> >> > Original announcement below.
+>>> >> 
+>>> >> Thanks a lot. I've added the tasks I'm currently working on to the wiki.
+>>> >> 
+>>> >> btw. I notice the virtio-net data plane were missed in the wiki. Is the
+>>> >> project still being considered?
+>>> >
+>>> > It might have been interesting several years ago, but now that linux has
+>>> > vhost-net in kernel, the only point seems to be to
+>>> > speed up networking on non-linux hosts.
+>>> 
+>>> Data plane just means having a dedicated thread for virtqueue processing
+>>> that doesn't hold qemu_mutex.
+>>> 
+>>> Of course we're going to do this in QEMU.  It's a no brainer.  But not
+>>> as a separate device, just as an improvement to the existing userspace
+>>> virtio-net.
+>>> 
+>>> > Since non-linux does not have kvm, I doubt virtio is a bottleneck.
+>>> 
+>>> FWIW, I think what's more interesting is using vhost-net as a networking
+>>> backend with virtio-net in QEMU being what's guest facing.
+>>> 
+>>> In theory, this gives you the best of both worlds: QEMU acts as a first
+>>> line of defense against a malicious guest while still getting the
+>>> performance advantages of vhost-net (zero-copy).
 >>
->> Oh dear no...  Please use defines like the rest of QEMU.
+>> Great idea, that sounds very intresting.
+>>
+>> I'll add it to the wiki.
+>>
+>> In fact a bit of complexity in vhost was put there in the vague hope to
+>> support something like this: virtio rings are not translated through
+>> regular memory tables, instead, vhost gets a pointer to ring address.
+>>
+>> This allows qemu acting as a man in the middle,
+>> verifying the descriptors but not touching the
+>>
+>> Anyone interested in working on such a project?
 >
-> It is pretty ugly.
+> It would be an interesting idea if we didn't already have the vhost
+> model where we don't need the userspace bounce.
 
-I think beauty is in the eye of the beholder here...
+The model is very interesting for QEMU because then we can use vhost as
+a backend for other types of network adapters (like vmxnet3 or even
+e1000).
 
-Pretty much every device we have has a switch statement like this.
-Consistency wins when it comes to qualitative arguments like this.
-
-> Yet the structure definitions are descriptive, capturing layout, size
-> and endianness in natural a format readable by any C programmer.
-
-From an API design point of view, here are the problems I see:
-
-1) C makes no guarantees about structure layout beyond the first
-   member.  Yes, if it's naturally aligned or has a packed attribute,
-   GCC does the right thing.  But this isn't kernel land anymore,
-   portability matters and there are more compilers than GCC.
-
-2) If we every introduce anything like latching, this doesn't work out
-   so well anymore because it's hard to express in a single C structure
-   the register layout at that point.  Perhaps a union could be used but
-   padding may make it a bit challenging.
-
-3) It suspect it's harder to review because a subtle change could more
-   easily have broad impact.  If someone changed the type of a field
-   from u32 to u16, it changes the offset of every other field.  That's
-   not terribly obvious in the patch itself unless you understand how
-   the structure is used elsewhere.
-
-   This may not be a problem for virtio because we all understand that
-   the structures are part of an ABI, but if we used this pattern more
-   in QEMU, it would be a lot less obvious.
-
-> So AFAICT the question is, do we put the required
->
-> #define VIRTIO_PCI_CFG_FEATURE_SEL \
->          (offsetof(struct virtio_pci_common_cfg, device_feature_select))
->
-> etc. in the kernel headers or qemu?
-
-I'm pretty sure we would end up just having our own integer defines.  We
-carry our own virtio headers today because we can't easily import the
-kernel headers.
-
->> Haven't looked at the proposed new ring layout yet.
->
-> No change, but there's an open question on whether we should nail it to
-> little endian (or define the endian by the transport).
->
-> Of course, I can't rule out that the 1.0 standard *may* decide to frob
-> the ring layout somehow,
-
-Well, given that virtio is widely deployed today, I would think the 1.0
-standard should strictly reflect what's deployed today, no?
-
-Any new config layout would be 2.0 material, right?
-
-Re: the new config layout, I don't think we would want to use it for
-anything but new devices.  Forcing a guest driver change is a really big
-deal and I see no reason to do that unless there's a compelling reason
-to.
-
-So we're stuck with the 1.0 config layout for a very long time.
+It also helps for things like fault tolerance where we need to be able
+to control packet flow within QEMU.
 
 Regards,
 
 Anthony Liguori
 
-> but I'd think it would require a compelling
-> reason.  I suggest that's 2.0 material...
+> We already have two
+> sets of host side ring code in the kernel (vhost and vringh, though
+> they're being unified).
+>
+> All an accelerator can offer on the tx side is zero copy and direct
+> update of the used ring.  On rx userspace could register the buffers and
+> the accelerator could fill them and update the used ring.  It still
+> needs to deal with merged buffers, for example.
+>
+> You avoid the address translation in the kernel, but I'm not convinced
+> that's a key problem.
 >
 > Cheers,
 > Rusty.
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
