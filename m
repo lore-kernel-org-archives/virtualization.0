@@ -1,15 +1,14 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Wed, 29 May 2013 09:18:45 -0500
-Message-ID: <8738t5q37e.fsf__47644.4963053384$1369837169$gmane$org@codemonkey.ws>
-References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
-	<87ppwammp5.fsf@rustcorp.com.au> <87mwreq76y.fsf@codemonkey.ws>
-	<20130529132430.GA9363@redhat.com> <51A60575.1090407@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 0/2] virtio-balloon spec: silent deflation
+Date: Wed, 29 May 2013 17:21:28 +0300
+Message-ID: <20130529142128.GA10462@redhat.com>
+References: <1369762818-8787-1-git-send-email-pbonzini@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51A60575.1090407@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1369762818-8787-1-git-send-email-pbonzini@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,48 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
+On Tue, May 28, 2013 at 07:40:16PM +0200, Paolo Bonzini wrote:
+> Here is the series, split in two patches, with small edits and new
+> commit messages.
+> 
+> Paolo Bonzini (2):
+>   virtio-balloon spec: rewrite description of
+>     VIRTIO_BALLOON_F_MUST_TELL_HOST
+>   virtio-balloon spec: reintroduce "silent deflation" feature
+> 
+>  virtio-spec.lyx | 238 ++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 233 insertions(+), 5 deletions(-)
 
-> Il 29/05/2013 15:24, Michael S. Tsirkin ha scritto:
->> You expect a compiler to pad this structure:
->> 
->> struct foo {
->> 	uint8_t a;
->> 	uint8_t b;
->> 	uint16_t c;
->> 	uint32_t d;
->> };
->> 
->> I'm guessing any compiler that decides to waste memory in this way
->> will quickly get dropped by users and then we won't worry
->> about building QEMU with it.
->
-> You know the virtio-pci config structures are padded, but not all of
-> them are.  For example, virtio_balloon_stat is not padded and indeed has
-> an __attribute__((__packed__)) in the spec.
+Okay we talked off-line a bit, here's a summary:
 
-Not that these structures are actually used for something.
+- we both agree we want my patch making TELL_HOST optional,
+  just to make current practice with windows drivers, legal.
+  Will ask Rusty to re-consider it for inclusion.
 
-We store the config in these structures so they are actually used for
-something.
+- Paolo's patches need some experimentation, it's not 100%
+  clear what the benefit is, and maybe it's possible to
+  get same gains without spec/guest driver changes.
 
-The proposed structures only serve as a way to express offsets.  You
-would never actually have a variable of this type.
 
-Regards,
-
-Anthony Liguori
-
->
-> For this reason I prefer to have the attribute everywhere.  So people
-> don't have to wonder why it's here and not there.
->
-> Paolo
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> -- 
+> 1.8.2.1
