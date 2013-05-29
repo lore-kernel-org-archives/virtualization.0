@@ -1,16 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Wed, 29 May 2013 17:02:03 +0300
-Message-ID: <20130529140203.GB9363@redhat.com>
-References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
-	<87ppwammp5.fsf@rustcorp.com.au> <87mwreq76y.fsf@codemonkey.ws>
-	<20130529132430.GA9363@redhat.com> <51A60575.1090407@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v2 00/11] qemu: use virtio linux headers in
+	portable code
+Date: Wed, 29 May 2013 17:09:00 +0300
+Message-ID: <20130529140900.GA10347@redhat.com>
+References: <51A25A2D.8030700@redhat.com> <20130526200251.GA4305@redhat.com>
+	<51A26E95.5000207@redhat.com> <878v314gb2.fsf@codemonkey.ws>
+	<20130526214213.GB4828@redhat.com> <87txlp1bsy.fsf@codemonkey.ws>
+	<20130527150217.GA16852@redhat.com> <87bo7wflhk.fsf@codemonkey.ws>
+	<87ip22od5f.fsf@rustcorp.com.au> <87hahmq6li.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <51A60575.1090407@redhat.com>
+In-Reply-To: <87hahmq6li.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,38 +23,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: Anthony Liguori <anthony@codemonkey.ws>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization <virtualization@lists.linux-foundation.org>, qemu-devel@nongnu.org, Peter Maydell <peter.maydell@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 29, 2013 at 03:41:09PM +0200, Paolo Bonzini wrote:
-> Il 29/05/2013 15:24, Michael S. Tsirkin ha scritto:
-> > You expect a compiler to pad this structure:
-> > 
-> > struct foo {
-> > 	uint8_t a;
-> > 	uint8_t b;
-> > 	uint16_t c;
-> > 	uint32_t d;
-> > };
-> > 
-> > I'm guessing any compiler that decides to waste memory in this way
-> > will quickly get dropped by users and then we won't worry
-> > about building QEMU with it.
+On Wed, May 29, 2013 at 08:05:29AM -0500, Anthony Liguori wrote:
+> Rusty Russell <rusty@rustcorp.com.au> writes:
 > 
-> You know the virtio-pci config structures are padded, but not all of
-> them are.  For example, virtio_balloon_stat is not padded and indeed has
-> an __attribute__((__packed__)) in the spec.
+> > Anthony Liguori <anthony@codemonkey.ws> writes:
+> >> The headers say they are BSD licensed... but they include a GPLv2+
+> >> header.  Doesn't make a lot of sense, does it?
+> >
+> > It makes perfect sense: you're overthinking it.  It just means that
+> > copying the BSD headers outside Linux is encouraged.
 > 
-> For this reason I prefer to have the attribute everywhere.  So people
-> don't have to wonder why it's here and not there.
+> Copying by hand and modifying.  This patch series attempts to do it
+> automatically within QEMU.
 > 
-> Paolo
+> > And it's clearly nonsensical to claim the GPL on kernel headers means
+> > that userspace needs to be GPL.  So please ignore this licensing
+> > red-herring.
+> 
+> You're missing context, I suspect.  This series is trying to
+> automatically copy the headers from Linux.  We currently have a manually
+> copied version.
+> 
+> The headers are not currently well suited for automatic copying because
+> (1) they use kernel types (2) they pull in dependencies from throughout
+> the kernel.
+> 
+> This discussion comes down to whether we want to make it easier to
+> automatically copy the headers or do we maintain the status quo and
+> require manual munging to pull in the headers.
+> 
+> Regards,
+> 
+> Anthony Liguori
 
-FWIW I think it was a mistake to lay the balloon structure out like that.
-We should have padded it manually.
-__attribute__((__packed__)) is really easy to misuse.
-If you get into such a situation, just use offset enums ...
+Okay, what if I
 
--- 
-MST
+1. add a stub if_ether.h with a couple of macros we want
+2. replace the types during copying
+
+Would this address all concerns?
+
+> >
+> > And we'll bikeshed the headers in the standard when we have to :)  They
+> > certainly don't need to be cut&paste into the kernel sources.
+> >
+> > Cheers,
+> > Rusty.
