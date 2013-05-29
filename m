@@ -1,14 +1,22 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Wed, 29 May 2013 14:03:03 +0930
-Message-ID: <87mwremmm8.fsf__11985.3195538328$1369804080$gmane$org@rustcorp.com.au>
-References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
-	<20130528173257.GC30296@redhat.com> <51A4ECDE.1020207@redhat.com>
+Subject: Re: [Qemu-devel] [PATCH v2 00/11] qemu: use virtio linux headers in
+	portable code
+Date: Wed, 29 May 2013 09:47:15 +0930
+Message-ID: <87ehcqod10.fsf__688.021156429563$1369804090$gmane$org@rustcorp.com.au>
+References: <1369581694-1655-1-git-send-email-mst@redhat.com>
+	<CAFEAcA9stW6xv3mr0ouMVTcDfVE=4=_OcUuZscguJkzGFY9WKg@mail.gmail.com>
+	<20130526175110.GA3115@redhat.com>
+	<CAFEAcA9HW6=F7QKpuof02hGTaAnLsZmoZ_-Yo98wKzeELi_zvA@mail.gmail.com>
+	<20130526181017.GB3115@redhat.com> <51A253C6.7060303@redhat.com>
+	<20130526183747.GB3427@redhat.com> <51A25A2D.8030700@redhat.com>
+	<20130526200251.GA4305@redhat.com>
+	<51A26E95.5000207@redhat.com> <878v314gb2.fsf@codemonkey.ws>
+	<87ehcsptbg.fsf@rustcorp.com.au> <877gijak45.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51A4ECDE.1020207@redhat.com>
+In-Reply-To: <877gijak45.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +26,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Laszlo Ersek <lersek@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: Anthony Liguori <anthony@codemonkey.ws>, Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, qemu-devel@nongnu.org, Bryan Venteicher <mr.kodiak@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
-> Il 28/05/2013 19:32, Michael S. Tsirkin ha scritto:
->>>> > > +
->>>> > > +    switch (addr) {
->>>> > > +    case offsetof(struct virtio_pci_common_cfg, device_feature_select):
->>>> > > +        return proxy->device_feature_select;
->>> > 
->>> > Oh dear no...  Please use defines like the rest of QEMU.
->> Any good reason not to use offsetof?
+Anthony Liguori <anthony@codemonkey.ws> writes:
+> Rusty Russell <rusty@rustcorp.com.au> writes:
 >
-> I'm not sure it's portable to use it in case labels.  IIRC, the
-> definition ((int)&(((T *)0)->field)) is not a valid C integer constant
-> expression.  Laszlo?
+>> Anthony Liguori <anthony@codemonkey.ws> writes:
+>>> Paolo Bonzini <pbonzini@redhat.com> writes:
+>>>
+>>>> Il 26/05/2013 22:02, Michael S. Tsirkin ha scritto:
+>>>>> > My fault.  I should have looked at linux/types.h (actually asm-generic/).
+>>>>> 
+>>>>> Not really, __uX appear in the headers that were posted.
+>>>
+>>> Which is a problem because this is a reserved namespace in C99.
+>>
+>> Personally, I find it hard to care.  What matters is not what the
+>> standard has carved out, but whether we have clashes, reserved namespace
+>> or no.  And that won't happen for these.
+>>
+>> If someone wants to convert all the kernel headers, I won't NAK it
+>> though.
+>
+> virtio headers are special.  Linux headers are normally only consumed in
+> the kernel or in a userspace application running on Linux.
+>
+> virtio headers may be used either in a userspace application running on
+> !Linux (we need to support QEMU on Windows) or even in a foreign kernel.
 
-It's defined to yield an integer constant expression in the ISO standard
-(and I think ANSI too, though that's not at hand):
+No.
 
-    7.19, para 3:
-
-        ...offsetof(type, member-designator)
-        which expands to an integer constant expression that has type
-        size_t, ...
-
-The real question is whether compilers qemu cares about meet the
-standard (there's some evidence that older compilers fail this).  If
-not, we'll have to define them as raw offsets...
+s/virtio/SCSI/.  s/virtio/if_eth/.  s/virtio/TCPIP/.
 
 Cheers,
 Rusty.
