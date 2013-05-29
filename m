@@ -1,22 +1,16 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [Qemu-devel] [PATCH v2 00/11] qemu: use virtio linux headers in
-	portable code
-Date: Wed, 29 May 2013 09:47:15 +0930
-Message-ID: <87ehcqod10.fsf__688.021156429563$1369804090$gmane$org@rustcorp.com.au>
-References: <1369581694-1655-1-git-send-email-mst@redhat.com>
-	<CAFEAcA9stW6xv3mr0ouMVTcDfVE=4=_OcUuZscguJkzGFY9WKg@mail.gmail.com>
-	<20130526175110.GA3115@redhat.com>
-	<CAFEAcA9HW6=F7QKpuof02hGTaAnLsZmoZ_-Yo98wKzeELi_zvA@mail.gmail.com>
-	<20130526181017.GB3115@redhat.com> <51A253C6.7060303@redhat.com>
-	<20130526183747.GB3427@redhat.com> <51A25A2D.8030700@redhat.com>
-	<20130526200251.GA4305@redhat.com>
-	<51A26E95.5000207@redhat.com> <878v314gb2.fsf@codemonkey.ws>
-	<87ehcsptbg.fsf@rustcorp.com.au> <877gijak45.fsf@codemonkey.ws>
+Subject: Re: [RFC 7/11] virtio_pci: new, capability-aware driver.
+Date: Wed, 29 May 2013 10:47:52 +0930
+Message-ID: <874ndmoa7z.fsf@rustcorp.com.au>
+References: <87pqfzgy6p.fsf@rustcorp.com.au> <87zkf3fiu2.fsf@rustcorp.com.au>
+	<20111211094256.GB11504@redhat.com>
+	<87boreohhs.fsf@rustcorp.com.au> <20111212114912.GA7946@redhat.com>
+	<20130528075613.GA23148@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <877gijak45.fsf@codemonkey.ws>
+In-Reply-To: <20130528075613.GA23148@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,39 +20,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>, Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, qemu-devel@nongnu.org, Bryan Venteicher <mr.kodiak@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Sasha Levin <levinsasha928@gmail.com>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori <anthony@codemonkey.ws> writes:
-> Rusty Russell <rusty@rustcorp.com.au> writes:
->
->> Anthony Liguori <anthony@codemonkey.ws> writes:
->>> Paolo Bonzini <pbonzini@redhat.com> writes:
->>>
->>>> Il 26/05/2013 22:02, Michael S. Tsirkin ha scritto:
->>>>> > My fault.  I should have looked at linux/types.h (actually asm-generic/).
->>>>> 
->>>>> Not really, __uX appear in the headers that were posted.
->>>
->>> Which is a problem because this is a reserved namespace in C99.
->>
->> Personally, I find it hard to care.  What matters is not what the
->> standard has carved out, but whether we have clashes, reserved namespace
->> or no.  And that won't happen for these.
->>
->> If someone wants to convert all the kernel headers, I won't NAK it
->> though.
->
-> virtio headers are special.  Linux headers are normally only consumed in
-> the kernel or in a userspace application running on Linux.
->
-> virtio headers may be used either in a userspace application running on
-> !Linux (we need to support QEMU on Windows) or even in a foreign kernel.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
 
-No.
+> On Mon, Dec 12, 2011 at 01:49:13PM +0200, Michael S. Tsirkin wrote:
+>> On Mon, Dec 12, 2011 at 09:15:03AM +1030, Rusty Russell wrote:
+>> > On Sun, 11 Dec 2011 11:42:56 +0200, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>> > > On Thu, Dec 08, 2011 at 09:09:33PM +1030, Rusty Russell wrote:
+>> > > > +/* There is no iowrite64.  We use two 32-bit ops. */
+>> > > > +static void iowrite64(u64 val, const __le64 *addr)
+>> > > > +{
+>> > > > +	iowrite32((u32)val, (__le32 *)addr);
+>> > > > +	iowrite32(val >> 32, (__le32 *)addr + 1);
+>> > > > +}
+>> > > > +
+>> > > 
+>> > > Let's put addr_lo/addr_hi in the structure then,
+>> > > to make the fact this field is not atomic explicit?
+>> > 
+>> > Good point, assuming I haven't missed something.
+>> > 
+>> > Are 64-bit accesses actually unknown in PCI-land?  Or is this a limited
+>> > availability thing?
+>> > 
+>> > Thanks,
+>> > Rusty.
+>> 
+>> I think PCI can optionally support atomic 64 bit accesses, but not all
+>> architectures can generate them.
+>
+> Ping. Going to change this in the layout struct?
 
-s/virtio/SCSI/.  s/virtio/if_eth/.  s/virtio/TCPIP/.
+Not sure what you mean....  We use a queue_enable field, so it doesn't
+matter if the accesses aren't atomic for that.
 
 Cheers,
 Rusty.
