@@ -1,13 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Wed, 29 May 2013 14:01:18 +0930
-Message-ID: <87ppwammp5.fsf@rustcorp.com.au>
+Date: Wed, 29 May 2013 14:03:03 +0930
+Message-ID: <87mwremmm8.fsf__11985.3195538328$1369804080$gmane$org@rustcorp.com.au>
 References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
+	<20130528173257.GC30296@redhat.com> <51A4ECDE.1020207@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87bo7vvxej.fsf@codemonkey.ws>
+In-Reply-To: <51A4ECDE.1020207@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,37 +18,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-Cc: Peter Maydell <peter.maydell@linaro.org>, Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Laszlo Ersek <lersek@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori <aliguori@us.ibm.com> writes:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
->> +    case offsetof(struct virtio_pci_common_cfg, device_feature_select):
->> +        return proxy->device_feature_select;
+Paolo Bonzini <pbonzini@redhat.com> writes:
+> Il 28/05/2013 19:32, Michael S. Tsirkin ha scritto:
+>>>> > > +
+>>>> > > +    switch (addr) {
+>>>> > > +    case offsetof(struct virtio_pci_common_cfg, device_feature_select):
+>>>> > > +        return proxy->device_feature_select;
+>>> > 
+>>> > Oh dear no...  Please use defines like the rest of QEMU.
+>> Any good reason not to use offsetof?
 >
-> Oh dear no...  Please use defines like the rest of QEMU.
+> I'm not sure it's portable to use it in case labels.  IIRC, the
+> definition ((int)&(((T *)0)->field)) is not a valid C integer constant
+> expression.  Laszlo?
 
-It is pretty ugly.
+It's defined to yield an integer constant expression in the ISO standard
+(and I think ANSI too, though that's not at hand):
 
-Yet the structure definitions are descriptive, capturing layout, size
-and endianness in natural a format readable by any C programmer.
+    7.19, para 3:
 
-So AFAICT the question is, do we put the required
+        ...offsetof(type, member-designator)
+        which expands to an integer constant expression that has type
+        size_t, ...
 
-#define VIRTIO_PCI_CFG_FEATURE_SEL \
-         (offsetof(struct virtio_pci_common_cfg, device_feature_select))
-
-etc. in the kernel headers or qemu?
-
-> Haven't looked at the proposed new ring layout yet.
-
-No change, but there's an open question on whether we should nail it to
-little endian (or define the endian by the transport).
-
-Of course, I can't rule out that the 1.0 standard *may* decide to frob
-the ring layout somehow, but I'd think it would require a compelling
-reason.  I suggest that's 2.0 material...
+The real question is whether compilers qemu cares about meet the
+standard (there's some evidence that older compilers fail this).  If
+not, we'll have to define them as raw offsets...
 
 Cheers,
 Rusty.
