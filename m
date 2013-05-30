@@ -1,18 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: updated: kvm networking todo wiki
-Date: Thu, 30 May 2013 16:48:29 +0930
-Message-ID: <87fvx5kkai.fsf@rustcorp.com.au>
-References: <20130523085034.GA16142@redhat.com> <519F35B7.6010408@redhat.com>
-	<20130524113542.GA7046@redhat.com> <8738tctrox.fsf@codemonkey.ws>
-	<20130524140024.GA12024@redhat.com>
-	<87li6yodgq.fsf@rustcorp.com.au> <87k3miq6sw.fsf@codemonkey.ws>
-	<87r4gpkplc.fsf@rustcorp.com.au>
-	<CAJSP0QWY3z_oGaHNwR0=whYgnDCiGLBC+3Z5oM0x5nwN1RQVqg@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
+Date: Thu, 30 May 2013 10:55:24 +0300
+Message-ID: <20130530075524.GA27487@redhat.com>
+References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
+	<87ppwammp5.fsf@rustcorp.com.au> <87mwreq76y.fsf@codemonkey.ws>
+	<87wqqhktjx.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJSP0QWY3z_oGaHNwR0=whYgnDCiGLBC+3Z5oM0x5nwN1RQVqg@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <87wqqhktjx.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,20 +20,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, qemu-devel <qemu-devel@nongnu.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, herbert@gondor.hengli.com.au, Anthony Liguori <anthony@codemonkey.ws>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Stefan Hajnoczi <stefanha@gmail.com> writes:
-> On Thu, May 30, 2013 at 7:23 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
->> On the receive side, what can we do better than readv?  If we need to
->> return to userspace to tell the guest that we've got a new packet, we
->> don't win on latency.  We might reduce syscall overhead with a
->> multi-dimensional readv to read multiple packets at once?
->
-> Sounds like recvmmsg(2).
+On Thu, May 30, 2013 at 01:28:26PM +0930, Rusty Russell wrote:
+> >> Yet the structure definitions are descriptive, capturing layout, size
+> >> and endianness in natural a format readable by any C programmer.
+> >
+> >>From an API design point of view, here are the problems I see:
+> >
+> > 1) C makes no guarantees about structure layout beyond the first
+> >    member.  Yes, if it's naturally aligned or has a packed attribute,
+> >    GCC does the right thing.  But this isn't kernel land anymore,
+> >    portability matters and there are more compilers than GCC.
+> 
+> [ I argued in detail here, then deleted.  Damn bikeshedding... ]
+> 
+> I think the best thing is to add the decoded integer versions as macros,
+> and have a heap of BUILD_BUG_ON() in the kernel source to make sure they
+> match.
 
-Wow... the future is here, today!
+Hmm you want to have both in the header?
 
-Thanks,
-Rusty.
+That would confuse users for sure :)
+
+I guess we could put in a big comment explaning
+why do we have both, and which version should
+userspace use. I tried to write it:
+
+/*
+ * On all known C compilers, you can use the
+ * offsetof macro to find the correct offset of each field -
+ * if your compiler doesn't implement this correctly, use the
+ * integer versions below, instead.
+ * In that case please don't use the structures above, to avoid confusion.
+ */
+
+
+-- 
+MST
