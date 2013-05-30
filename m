@@ -1,17 +1,16 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: updated: kvm networking todo wiki
-Date: Thu, 30 May 2013 08:38:17 +0200
-Message-ID: <CAJSP0QWY3z_oGaHNwR0=whYgnDCiGLBC+3Z5oM0x5nwN1RQVqg__18268.6361521066$1369895912$gmane$org@mail.gmail.com>
-References: <20130523085034.GA16142@redhat.com> <519F35B7.6010408@redhat.com>
-	<20130524113542.GA7046@redhat.com> <8738tctrox.fsf@codemonkey.ws>
-	<20130524140024.GA12024@redhat.com>
-	<87li6yodgq.fsf@rustcorp.com.au> <87k3miq6sw.fsf@codemonkey.ws>
-	<87r4gpkplc.fsf@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
+Date: Thu, 30 May 2013 10:43:08 +0300
+Message-ID: <20130530074308.GA27703@redhat.com>
+References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
+	<87ppwammp5.fsf@rustcorp.com.au> <87mwreq76y.fsf@codemonkey.ws>
+	<20130529132430.GA9363@redhat.com> <51A60575.1090407@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87r4gpkplc.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <51A60575.1090407@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +20,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, qemu-devel <qemu-devel@nongnu.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, herbert@gondor.hengli.com.au, Anthony Liguori <anthony@codemonkey.ws>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 30, 2013 at 7:23 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> Anthony Liguori <anthony@codemonkey.ws> writes:
->> Rusty Russell <rusty@rustcorp.com.au> writes:
->>> On Fri, May 24, 2013 at 08:47:58AM -0500, Anthony Liguori wrote:
->>>> FWIW, I think what's more interesting is using vhost-net as a networking
->>>> backend with virtio-net in QEMU being what's guest facing.
->>>>
->>>> In theory, this gives you the best of both worlds: QEMU acts as a first
->>>> line of defense against a malicious guest while still getting the
->>>> performance advantages of vhost-net (zero-copy).
->>>>
->>> It would be an interesting idea if we didn't already have the vhost
->>> model where we don't need the userspace bounce.
->>
->> The model is very interesting for QEMU because then we can use vhost as
->> a backend for other types of network adapters (like vmxnet3 or even
->> e1000).
->>
->> It also helps for things like fault tolerance where we need to be able
->> to control packet flow within QEMU.
->
-> (CC's reduced, context added, Dmitry Fleytman added for vmxnet3 thoughts).
->
-> Then I'm really confused as to what this would look like.  A zero copy
-> sendmsg?  We should be able to implement that today.
->
-> On the receive side, what can we do better than readv?  If we need to
-> return to userspace to tell the guest that we've got a new packet, we
-> don't win on latency.  We might reduce syscall overhead with a
-> multi-dimensional readv to read multiple packets at once?
+On Wed, May 29, 2013 at 03:41:09PM +0200, Paolo Bonzini wrote:
+> Il 29/05/2013 15:24, Michael S. Tsirkin ha scritto:
+> > You expect a compiler to pad this structure:
+> > 
+> > struct foo {
+> > 	uint8_t a;
+> > 	uint8_t b;
+> > 	uint16_t c;
+> > 	uint32_t d;
+> > };
+> > 
+> > I'm guessing any compiler that decides to waste memory in this way
+> > will quickly get dropped by users and then we won't worry
+> > about building QEMU with it.
+> 
+> You know the virtio-pci config structures are padded, but not all of
+> them are.  For example, virtio_balloon_stat is not padded and indeed has
+> an __attribute__((__packed__)) in the spec.
+> 
+> For this reason I prefer to have the attribute everywhere.  So people
+> don't have to wonder why it's here and not there.
+> 
+> Paolo
 
-Sounds like recvmmsg(2).
+BTW we don't even do this consistently everywhere in QEMU.
 
-Stefan
+It would have been better to have a rule to avoid packed
+as much as possible, then we'd have found the misaligned field bug
+in balloon before it's too late.
+
+That would be a good rule to adopt I think:
+any pack if something is misaligned, and document
+the reason.
+
+-- 
+MST
