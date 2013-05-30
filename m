@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Wed, 29 May 2013 21:16:01 +0300
-Message-ID: <20130529181601.GD1771@redhat.com>
-References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
-	<87ppwammp5.fsf@rustcorp.com.au> <87mwreq76y.fsf@codemonkey.ws>
-	<20130529132430.GA9363@redhat.com> <8761y1q3aw.fsf@codemonkey.ws>
-	<20130529143053.GB10462@redhat.com> <87k3mhkf7o.fsf@codemonkey.ws>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: updated: kvm networking todo wiki
+Date: Thu, 30 May 2013 14:53:59 +0930
+Message-ID: <87r4gpkplc.fsf__13946.6406930753$1369892088$gmane$org@rustcorp.com.au>
+References: <20130523085034.GA16142@redhat.com> <519F35B7.6010408@redhat.com>
+	<20130524113542.GA7046@redhat.com> <8738tctrox.fsf@codemonkey.ws>
+	<20130524140024.GA12024@redhat.com>
+	<87li6yodgq.fsf@rustcorp.com.au> <87k3miq6sw.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87k3mhkf7o.fsf@codemonkey.ws>
+In-Reply-To: <87k3miq6sw.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,39 +20,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: Anthony Liguori <anthony@codemonkey.ws>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, herbert@gondor.hengli.com.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 29, 2013 at 09:55:55AM -0500, Anthony Liguori wrote:
-> > Not we. The BIOS can disable IO BAR: it can do this already
-> > but the device won't be functional.
-> 
-> But the only way to expose the device over PCI express is to disable the
-> IO BAR, right?
+Anthony Liguori <anthony@codemonkey.ws> writes:
+> Rusty Russell <rusty@rustcorp.com.au> writes:
+>> On Fri, May 24, 2013 at 08:47:58AM -0500, Anthony Liguori wrote:
+>>> FWIW, I think what's more interesting is using vhost-net as a networking
+>>> backend with virtio-net in QEMU being what's guest facing.
+>>> 
+>>> In theory, this gives you the best of both worlds: QEMU acts as a first
+>>> line of defense against a malicious guest while still getting the
+>>> performance advantages of vhost-net (zero-copy).
+>>>
+>> It would be an interesting idea if we didn't already have the vhost
+>> model where we don't need the userspace bounce.
+>
+> The model is very interesting for QEMU because then we can use vhost as
+> a backend for other types of network adapters (like vmxnet3 or even
+> e1000).
+>
+> It also helps for things like fault tolerance where we need to be able
+> to control packet flow within QEMU.
 
-I think this is the source of the misunderstanding:
+(CC's reduced, context added, Dmitry Fleytman added for vmxnet3 thoughts).
 
-	1.3.2.2.  PCI Express Endpoint Rules
+Then I'm really confused as to what this would look like.  A zero copy
+sendmsg?  We should be able to implement that today.
 
-	...
+On the receive side, what can we do better than readv?  If we need to
+return to userspace to tell the guest that we've got a new packet, we
+don't win on latency.  We might reduce syscall overhead with a
+multi-dimensional readv to read multiple packets at once?
 
-	PCI Express Endpoint must not depend on operating system
-	allocation of I/O resources claimed through BAR(s).
-
-The real meaning here is *not* that an Endpoint should not
-have an I/O BAR. An Endpoint can have an I/O BAR,
-and PCI Express spec supports I/O transactions.
-The meaning is that an Endpoint should work
-even if *the OS* decides to disable the I/O BAR.
-Note: it's up to the guest. We support I/O
-as a device with full compatibility for old guests,
-but must be prepared to handle a guest which does not
-enable I/O.
-
-This likely means that as time goes on,
-future OSes will start disabling I/O BARs,
-relying on this not hurting functionality.
-
--- 
-MST
+Confused,
+Rusty.
