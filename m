@@ -1,14 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Thu, 30 May 2013 13:28:26 +0930
-Message-ID: <87wqqhktjx.fsf@rustcorp.com.au>
-References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
-	<87ppwammp5.fsf@rustcorp.com.au> <87mwreq76y.fsf@codemonkey.ws>
+Subject: Re: [PATCH] virtio_pci: fix capability format, comments
+Date: Thu, 30 May 2013 11:03:38 +0930
+Message-ID: <8738t5metp.fsf@rustcorp.com.au>
+References: <20130528080816.GA23399@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87mwreq76y.fsf@codemonkey.ws>
+In-Reply-To: <20130528080816.GA23399@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,94 +17,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-Cc: Peter Maydell <peter.maydell@linaro.org>, Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Cc: David Howells <dhowells@redhat.com>, Dave Jones <davej@redhat.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori <aliguori@us.ibm.com> writes:
-> Rusty Russell <rusty@rustcorp.com.au> writes:
->
->> Anthony Liguori <aliguori@us.ibm.com> writes:
->>> "Michael S. Tsirkin" <mst@redhat.com> writes:
->>>> +    case offsetof(struct virtio_pci_common_cfg, device_feature_select):
->>>> +        return proxy->device_feature_select;
->>>
->>> Oh dear no...  Please use defines like the rest of QEMU.
->>
->> It is pretty ugly.
->
-> I think beauty is in the eye of the beholder here...
->
-> Pretty much every device we have has a switch statement like this.
-> Consistency wins when it comes to qualitative arguments like this.
-
-I was agreeing with you here, actually.
-
->> Yet the structure definitions are descriptive, capturing layout, size
->> and endianness in natural a format readable by any C programmer.
->
->>From an API design point of view, here are the problems I see:
->
-> 1) C makes no guarantees about structure layout beyond the first
->    member.  Yes, if it's naturally aligned or has a packed attribute,
->    GCC does the right thing.  But this isn't kernel land anymore,
->    portability matters and there are more compilers than GCC.
-
-[ I argued in detail here, then deleted.  Damn bikeshedding... ]
-
-I think the best thing is to add the decoded integer versions as macros,
-and have a heap of BUILD_BUG_ON() in the kernel source to make sure they
-match.
-
-> 3) It suspect it's harder to review because a subtle change could more
->    easily have broad impact.  If someone changed the type of a field
->    from u32 to u16, it changes the offset of every other field.  That's
->    not terribly obvious in the patch itself unless you understand how
->    the structure is used elsewhere.
-
-MST's patch just did this, so point taken.  (MST: I'm going to combine
-the cfg_type and bar bytes to fix this, patch coming).
-
->> No change, but there's an open question on whether we should nail it to
->> little endian (or define the endian by the transport).
->>
->> Of course, I can't rule out that the 1.0 standard *may* decide to frob
->> the ring layout somehow,
->
-> Well, given that virtio is widely deployed today, I would think the 1.0
-> standard should strictly reflect what's deployed today, no?
-
-That will be up to the committee.  I think we want to fix some obvious
-pain points, though qemu will not benefit from them in the next 5 years.
-
-> Any new config layout would be 2.0 material, right?
->
-> Re: the new config layout, I don't think we would want to use it for
-> anything but new devices.
-
-There are enough concrete reasons that I think we want it for existing
-devices:
-
-1) Negotiated ring size/alignment.  Coreboot wants smaller, others want
-   larger.
-2) Remove assertion that it has to be an I/O bar.  PowerPC wants this.
-3) Notification location flexibility.  MST wanted this for performance.
-4) More feature bits.
-
-> Forcing a guest driver change is a really big
-> deal and I see no reason to do that unless there's a compelling reason
-> to.
->
-> So we're stuck with the 1.0 config layout for a very long time.
-
-We definitely must not force a guest change.  The explicit aim of the
-standard is that "legacy" and 1.0 be backward compatible.  One
-deliverable is a document detailing how this is done (effectively a
-summary of changes between what we have and 1.0).
-
-It's a delicate balancing act.  My plan is to accompany any changes in
-the standard with a qemu implementation, so we can see how painful those
-changes are.  And if there are performance implications, measure them.
-
-Cheers,
-Rusty.
+Ik1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cml0ZXM6Cgo+IC0gcXVldWUg
+c2l6ZSBjYW4gYWN0dWFsbHkgYmUgMCB3aGljaCBpcyBub3QgYSBwb3dlciBvZiAyCgpBY3R1YWxs
+eSwgdGhhdCBwb2ludHMgdG8gYSBmbGF3IGluIHRoZSBjb2RlLiAgV2hlbiB3ZSBzaHV0IGRvd24g
+dGhlCnF1ZXVlLCB3ZSBzaG91bGQgaWRlYWxseSByZXNldCBpdCB0byB3aGF0IHRoZSBkZXZpY2Ug
+c3RhcnRlZCB3aXRoLApyYXRoZXIgdGhhbiAwLgoKU2VlIGJlbG93LgoKPiAtIGZpeCBjYXBhYmls
+aXR5IGZvcm1hdC4gUENJIHNwZWMgc2F5czoKPiAJVGhlIGxheW91dCBvZiB0aGUgaW5mb3JtYXRp
+b24gaXMgdmVuZG9yIHNwZWNpZmljLCBleGNlcHQgdGhhdCB0aGUgYnl0ZQo+IAlpbW1lZGlhdGVs
+eSBmb2xsb3dpbmcgdGhlIOKAnE5leHTigJ0gcG9pbnRlciBpbiB0aGUgY2FwYWJpbGl0eSBzdHJ1
+Y3R1cmUgaXMKPiAJZGVmaW5lZCB0byBiZSBhIGxlbmd0aCBmaWVsZC4KPiAJVGhpcyBsZW5ndGgg
+ZmllbGQgcHJvdmlkZXMgdGhlIG51bWJlciBvZiBieXRlcyBpbiB0aGUgY2FwYWJpbGl0eQo+IAlz
+dHJ1Y3R1cmUgKGluY2x1ZGluZyB0aGUgSUQgYW5kIE5leHQgcG9pbnRlciBieXRlcykuCgpUaGF0
+IHBhcnQncyBkZWZpbml0ZWx5IGNvcnJlY3Q6IGFwcGxpZWQuCgpUaGFua3MsClJ1c3R5LgoKU3Vi
+amV0OiB2aXJ0aW9fcGNpOiBzYXZlIHRoZSBkZXNpcmVkIHJpbmdzaXplLgoKTVNUIHBvaW50cyBv
+dXQgdGhhdCAwIGlzbid0IGEgcG93ZXIgb2YgMi4gIFRoaXMgbWVhbnMgd2UgY2FuJ3QgcmUtb3Bl
+bgphIHZpcnRpbyBkZXZpY2Ugb25jZSB3ZSB3cml0ZSAwIGludG8gdGhlIHF1ZXVlIGxlbmd0aC4K
+CldlIHNob3VsZCByZXN0b3JlIHRoZSBhbW91bnQgdGhlIGRldmljZSBvcmlnaW5hbGx5IGFza2Vk
+IGZvci4KClNpZ25lZC1vZmYtYnk6IFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5QHJ1c3Rjb3JwLmNvbS5h
+dT4KCmRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLWNvbW1vbi5oIGIvZHJp
+dmVycy92aXJ0aW8vdmlydGlvX3BjaS1jb21tb24uaAppbmRleCBiYTFiZjgxLi4wZTMxNDNiIDEw
+MDY0NAotLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLWNvbW1vbi5oCisrKyBiL2RyaXZl
+cnMvdmlydGlvL3ZpcnRpb19wY2ktY29tbW9uLmgKQEAgLTgyLDYgKzgyLDkgQEAgc3RydWN0IHZp
+cnRpb19wY2lfdnFfaW5mbyB7CiAKIAkvKiBNU0ktWCB2ZWN0b3IgKG9yIG5vbmUpICovCiAJdW5z
+aWduZWQgbXNpeF92ZWN0b3I7CisKKwkvKiBXaGF0IHNpemUgZGlkIHRoZSBkZXZpY2UgKndhbnQq
+IHRoaXMgdG8gYmU/ICovCisJdTE2IGRlc2lyZWRfbnVtOwogfTsKIAogLyogdGhlIG5vdGlmeSBm
+dW5jdGlvbiB1c2VkIHdoZW4gY3JlYXRpbmcgYSB2aXJ0IHF1ZXVlICovCmRpZmYgLS1naXQgYS9k
+cml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLmMK
+aW5kZXggMGYwZTNhNi4uOGIzNWMyZSAxMDA2NDQKLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlv
+X3BjaS5jCisrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2kuYwpAQCAtMjMwLDYgKzIzMCw3
+IEBAIHN0YXRpYyBzdHJ1Y3QgdmlydHF1ZXVlICpzZXR1cF92cShzdHJ1Y3QgdmlydGlvX3BjaV9k
+ZXZpY2UgKnZwX2RldiwKIAkJcmV0dXJuIEVSUl9QVFIoLUVOT01FTSk7CiAKIAlpbmZvLT5tc2l4
+X3ZlY3RvciA9IG1zaXhfdmVjOworCWluZm8tPmRlc2lyZWRfbnVtID0gbnVtOwogCiAJLyogZ2V0
+IG9mZnNldCBvZiBub3RpZmljYXRpb24gd29yZCBmb3IgdGhpcyB2cSAoc2hvdWxkbid0IHdyYXAp
+ICovCiAJb2ZmID0gaW9yZWFkMTYoJnZwX2Rldi0+Y29tbW9uLT5xdWV1ZV9ub3RpZnlfb2ZmKTsK
+QEAgLTM1MCw3ICszNTEsNyBAQCBzdGF0aWMgdm9pZCBkZWxfdnEoc3RydWN0IHZpcnRxdWV1ZSAq
+dnEpCiAJdnJpbmdfZGVsX3ZpcnRxdWV1ZSh2cSk7CiAKIAkvKiBUaGlzIGlzIGZvciBvdXIgb3du
+IGJlbmVmaXQsIG5vdCB0aGUgZGV2aWNlJ3MhICovCi0JaW93cml0ZTE2KDAsICZ2cF9kZXYtPmNv
+bW1vbi0+cXVldWVfc2l6ZSk7CisJaW93cml0ZTE2KGluZm8tPmRlc2lyZWRfbnVtLCAmdnBfZGV2
+LT5jb21tb24tPnF1ZXVlX3NpemUpOwogCWlvd3JpdGU2NF90d29wYXJ0KDAsICZ2cF9kZXYtPmNv
+bW1vbi0+cXVldWVfZGVzYyk7CiAJaW93cml0ZTY0X3R3b3BhcnQoMCwgJnZwX2Rldi0+Y29tbW9u
+LT5xdWV1ZV9hdmFpbCk7CiAJaW93cml0ZTY0X3R3b3BhcnQoMCwgJnZwX2Rldi0+Y29tbW9uLT5x
+dWV1ZV91c2VkKTsKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
