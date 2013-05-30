@@ -1,16 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Thu, 30 May 2013 08:55:38 +0300
-Message-ID: <20130530055538.GA9952@redhat.com>
-References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
-	<87ppwammp5.fsf@rustcorp.com.au> <87mwreq76y.fsf@codemonkey.ws>
-	<87wqqhktjx.fsf@rustcorp.com.au>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: updated: kvm networking todo wiki
+Date: Thu, 30 May 2013 08:38:17 +0200
+Message-ID: <CAJSP0QWY3z_oGaHNwR0=whYgnDCiGLBC+3Z5oM0x5nwN1RQVqg__18268.6361521066$1369895912$gmane$org@mail.gmail.com>
+References: <20130523085034.GA16142@redhat.com> <519F35B7.6010408@redhat.com>
+	<20130524113542.GA7046@redhat.com> <8738tctrox.fsf@codemonkey.ws>
+	<20130524140024.GA12024@redhat.com>
+	<87li6yodgq.fsf@rustcorp.com.au> <87k3miq6sw.fsf@codemonkey.ws>
+	<87r4gpkplc.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87wqqhktjx.fsf@rustcorp.com.au>
+In-Reply-To: <87r4gpkplc.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,55 +22,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, qemu-devel <qemu-devel@nongnu.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, herbert@gondor.hengli.com.au, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 30, 2013 at 01:28:26PM +0930, Rusty Russell wrote:
-> Anthony Liguori <aliguori@us.ibm.com> writes:
-> > Rusty Russell <rusty@rustcorp.com.au> writes:
-> >
-> >> Anthony Liguori <aliguori@us.ibm.com> writes:
-> >>> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> >>>> +    case offsetof(struct virtio_pci_common_cfg, device_feature_select):
-> >>>> +        return proxy->device_feature_select;
-> >>>
-> >>> Oh dear no...  Please use defines like the rest of QEMU.
-> >>
-> >> It is pretty ugly.
-> >
-> > I think beauty is in the eye of the beholder here...
-> >
-> > Pretty much every device we have has a switch statement like this.
-> > Consistency wins when it comes to qualitative arguments like this.
-> 
-> I was agreeing with you here, actually.
-> 
-> >> Yet the structure definitions are descriptive, capturing layout, size
-> >> and endianness in natural a format readable by any C programmer.
-> >
-> >>From an API design point of view, here are the problems I see:
-> >
-> > 1) C makes no guarantees about structure layout beyond the first
-> >    member.  Yes, if it's naturally aligned or has a packed attribute,
-> >    GCC does the right thing.  But this isn't kernel land anymore,
-> >    portability matters and there are more compilers than GCC.
-> 
-> [ I argued in detail here, then deleted.  Damn bikeshedding... ]
-> 
-> I think the best thing is to add the decoded integer versions as macros,
-> and have a heap of BUILD_BUG_ON() in the kernel source to make sure they
-> match.
+On Thu, May 30, 2013 at 7:23 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> Anthony Liguori <anthony@codemonkey.ws> writes:
+>> Rusty Russell <rusty@rustcorp.com.au> writes:
+>>> On Fri, May 24, 2013 at 08:47:58AM -0500, Anthony Liguori wrote:
+>>>> FWIW, I think what's more interesting is using vhost-net as a networking
+>>>> backend with virtio-net in QEMU being what's guest facing.
+>>>>
+>>>> In theory, this gives you the best of both worlds: QEMU acts as a first
+>>>> line of defense against a malicious guest while still getting the
+>>>> performance advantages of vhost-net (zero-copy).
+>>>>
+>>> It would be an interesting idea if we didn't already have the vhost
+>>> model where we don't need the userspace bounce.
+>>
+>> The model is very interesting for QEMU because then we can use vhost as
+>> a backend for other types of network adapters (like vmxnet3 or even
+>> e1000).
+>>
+>> It also helps for things like fault tolerance where we need to be able
+>> to control packet flow within QEMU.
+>
+> (CC's reduced, context added, Dmitry Fleytman added for vmxnet3 thoughts).
+>
+> Then I'm really confused as to what this would look like.  A zero copy
+> sendmsg?  We should be able to implement that today.
+>
+> On the receive side, what can we do better than readv?  If we need to
+> return to userspace to tell the guest that we've got a new packet, we
+> don't win on latency.  We might reduce syscall overhead with a
+> multi-dimensional readv to read multiple packets at once?
 
-On the qemu side, fine with me, all I want is ability to stay
-close to kernel headers.
-Let's have XXX_SIZE macros as well, so access size can be
-easily validated?
+Sounds like recvmmsg(2).
 
-On the kernel side, for 'struct virtio_pci_cap',
-since we only ever do offsetof on this struct,
-it might be easier to just use the numeric constants
-directly.
-
-
--- 
-MST
+Stefan
