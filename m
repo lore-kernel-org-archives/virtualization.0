@@ -1,8 +1,7 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V9 6/19] xen/pvticketlocks: Add xen_nopvspin parameter to
-	disable xen pv ticketlocks
-Date: Sun, 02 Jun 2013 00:53:28 +0530
-Message-ID: <20130601192327.5966.19201.sendpatchset__36001.7023551793$1370114972$gmane$org@codeblue>
+Subject: [PATCH RFC V9 9/19]  Split out rate limiting from jump_label.h
+Date: Sun, 02 Jun 2013 00:54:22 +0530
+Message-ID: <20130601192422.5966.44354.sendpatchset__25272.4773520187$1370115025$gmane$org@codeblue>
 References: <20130601192125.5966.35563.sendpatchset@codeblue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,50 +21,171 @@ To: gleb@redhat.com, mingo@redhat.com, jeremy@goop.org, x86@kernel.org, konrad.w
 Cc: gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-xen/pvticketlocks: Add xen_nopvspin parameter to disable xen pv ticketlocks
+Split jumplabel ratelimit
 
-From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+From: Andrew Jones <drjones@redhat.com>
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Commit b202952075f62603bea9bfb6ebc6b0420db11949 introduced rate limiting
+for jump label disabling. The changes were made in the jump label code
+in order to be more widely available and to keep things tidier. This is
+all fine, except now jump_label.h includes linux/workqueue.h, which
+makes it impossible to include jump_label.h from anything that
+workqueue.h needs. For example, it's now impossible to include
+jump_label.h from asm/spinlock.h, which is done in proposed
+pv-ticketlock patches. This patch splits out the rate limiting related
+changes from jump_label.h into a new file, jump_label_ratelimit.h, to
+resolve the issue.
+
+Signed-off-by: Andrew Jones <drjones@redhat.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
- arch/x86/xen/spinlock.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ include/linux/jump_label.h           |   26 +-------------------------
+ include/linux/jump_label_ratelimit.h |   34 ++++++++++++++++++++++++++++++++++
+ include/linux/perf_event.h           |    1 +
+ kernel/jump_label.c                  |    1 +
+ 4 files changed, 37 insertions(+), 25 deletions(-)
+ create mode 100644 include/linux/jump_label_ratelimit.h
 
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 860e190..3de6805 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -238,6 +238,8 @@ void xen_uninit_lock_cpu(int cpu)
- 	per_cpu(lock_kicker_irq, cpu) = -1;
- }
+diff --git a/include/linux/jump_label.h b/include/linux/jump_label.h
+index 0976fc4..53cdf89 100644
+--- a/include/linux/jump_label.h
++++ b/include/linux/jump_label.h
+@@ -48,7 +48,6 @@
  
-+static bool xen_pvspin __initdata = true;
-+
- void __init xen_init_spinlocks(void)
+ #include <linux/types.h>
+ #include <linux/compiler.h>
+-#include <linux/workqueue.h>
+ 
+ #if defined(CC_HAVE_ASM_GOTO) && defined(CONFIG_JUMP_LABEL)
+ 
+@@ -61,12 +60,6 @@ struct static_key {
+ #endif
+ };
+ 
+-struct static_key_deferred {
+-	struct static_key key;
+-	unsigned long timeout;
+-	struct delayed_work work;
+-};
+-
+ # include <asm/jump_label.h>
+ # define HAVE_JUMP_LABEL
+ #endif	/* CC_HAVE_ASM_GOTO && CONFIG_JUMP_LABEL */
+@@ -119,10 +112,7 @@ extern void arch_jump_label_transform_static(struct jump_entry *entry,
+ extern int jump_label_text_reserved(void *start, void *end);
+ extern void static_key_slow_inc(struct static_key *key);
+ extern void static_key_slow_dec(struct static_key *key);
+-extern void static_key_slow_dec_deferred(struct static_key_deferred *key);
+ extern void jump_label_apply_nops(struct module *mod);
+-extern void
+-jump_label_rate_limit(struct static_key_deferred *key, unsigned long rl);
+ 
+ #define STATIC_KEY_INIT_TRUE ((struct static_key) \
+ 	{ .enabled = ATOMIC_INIT(1), .entries = (void *)1 })
+@@ -141,10 +131,6 @@ static __always_inline void jump_label_init(void)
  {
- 	/*
-@@ -247,10 +249,22 @@ void __init xen_init_spinlocks(void)
- 	if (xen_hvm_domain())
- 		return;
- 
-+	if (!xen_pvspin) {
-+		printk(KERN_DEBUG "xen: PV spinlocks disabled\n");
-+		return;
-+	}
-+
- 	pv_lock_ops.lock_spinning = xen_lock_spinning;
- 	pv_lock_ops.unlock_kick = xen_unlock_kick;
  }
  
-+static __init int xen_parse_nopvspin(char *arg)
-+{
-+	xen_pvspin = false;
-+	return 0;
-+}
-+early_param("xen_nopvspin", xen_parse_nopvspin);
-+
- #ifdef CONFIG_XEN_DEBUG_FS
+-struct static_key_deferred {
+-	struct static_key  key;
+-};
+-
+ static __always_inline bool static_key_false(struct static_key *key)
+ {
+ 	if (unlikely(atomic_read(&key->enabled)) > 0)
+@@ -169,11 +155,6 @@ static inline void static_key_slow_dec(struct static_key *key)
+ 	atomic_dec(&key->enabled);
+ }
  
- static struct dentry *d_spin_debug;
+-static inline void static_key_slow_dec_deferred(struct static_key_deferred *key)
+-{
+-	static_key_slow_dec(&key->key);
+-}
+-
+ static inline int jump_label_text_reserved(void *start, void *end)
+ {
+ 	return 0;
+@@ -187,12 +168,6 @@ static inline int jump_label_apply_nops(struct module *mod)
+ 	return 0;
+ }
+ 
+-static inline void
+-jump_label_rate_limit(struct static_key_deferred *key,
+-		unsigned long rl)
+-{
+-}
+-
+ #define STATIC_KEY_INIT_TRUE ((struct static_key) \
+ 		{ .enabled = ATOMIC_INIT(1) })
+ #define STATIC_KEY_INIT_FALSE ((struct static_key) \
+@@ -203,6 +178,7 @@ jump_label_rate_limit(struct static_key_deferred *key,
+ #define STATIC_KEY_INIT STATIC_KEY_INIT_FALSE
+ #define jump_label_enabled static_key_enabled
+ 
++static inline int atomic_read(const atomic_t *v);
+ static inline bool static_key_enabled(struct static_key *key)
+ {
+ 	return (atomic_read(&key->enabled) > 0);
+diff --git a/include/linux/jump_label_ratelimit.h b/include/linux/jump_label_ratelimit.h
+new file mode 100644
+index 0000000..1137883
+--- /dev/null
++++ b/include/linux/jump_label_ratelimit.h
+@@ -0,0 +1,34 @@
++#ifndef _LINUX_JUMP_LABEL_RATELIMIT_H
++#define _LINUX_JUMP_LABEL_RATELIMIT_H
++
++#include <linux/jump_label.h>
++#include <linux/workqueue.h>
++
++#if defined(CC_HAVE_ASM_GOTO) && defined(CONFIG_JUMP_LABEL)
++struct static_key_deferred {
++	struct static_key key;
++	unsigned long timeout;
++	struct delayed_work work;
++};
++#endif
++
++#ifdef HAVE_JUMP_LABEL
++extern void static_key_slow_dec_deferred(struct static_key_deferred *key);
++extern void
++jump_label_rate_limit(struct static_key_deferred *key, unsigned long rl);
++
++#else	/* !HAVE_JUMP_LABEL */
++struct static_key_deferred {
++	struct static_key  key;
++};
++static inline void static_key_slow_dec_deferred(struct static_key_deferred *key)
++{
++	static_key_slow_dec(&key->key);
++}
++static inline void
++jump_label_rate_limit(struct static_key_deferred *key,
++		unsigned long rl)
++{
++}
++#endif	/* HAVE_JUMP_LABEL */
++#endif	/* _LINUX_JUMP_LABEL_RATELIMIT_H */
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index f463a46..a8eac60 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -48,6 +48,7 @@ struct perf_guest_info_callbacks {
+ #include <linux/cpu.h>
+ #include <linux/irq_work.h>
+ #include <linux/static_key.h>
++#include <linux/jump_label_ratelimit.h>
+ #include <linux/atomic.h>
+ #include <linux/sysfs.h>
+ #include <linux/perf_regs.h>
+diff --git a/kernel/jump_label.c b/kernel/jump_label.c
+index 60f48fa..297a924 100644
+--- a/kernel/jump_label.c
++++ b/kernel/jump_label.c
+@@ -13,6 +13,7 @@
+ #include <linux/sort.h>
+ #include <linux/err.h>
+ #include <linux/static_key.h>
++#include <linux/jump_label_ratelimit.h>
+ 
+ #ifdef HAVE_JUMP_LABEL
