@@ -1,7 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V9 12/19]  xen: Enable PV ticketlocks on HVM Xen
-Date: Sun, 02 Jun 2013 00:55:03 +0530
-Message-ID: <20130601192503.5966.70501.sendpatchset__45476.0202359923$1370115070$gmane$org@codeblue>
+Subject: [PATCH RFC V9 13/19] kvm hypervisor : Add a hypercall to KVM
+	hypervisor to support pv-ticketlocks
+Date: Sun, 02 Jun 2013 00:55:17 +0530
+Message-ID: <20130601192516.5966.25246.sendpatchset__2200.16211173988$1370115076$gmane$org@codeblue>
 References: <20130601192125.5966.35563.sendpatchset@codeblue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,24 +22,153 @@ To: gleb@redhat.com, mingo@redhat.com, jeremy@goop.org, x86@kernel.org, konrad.w
 Cc: gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-xen: Enable PV ticketlocks on HVM Xen
+kvm hypervisor : Add a hypercall to KVM hypervisor to support pv-ticketlocks
 
-From: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
+From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
 
-Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+kvm_hc_kick_cpu allows the calling vcpu to kick another vcpu out of halt state.
+the presence of these hypercalls is indicated to guest via
+kvm_feature_pv_unhalt.
+
+Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
+[Raghu: Apic related changes, folding pvunhalted into vcpu_runnable]
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
- arch/x86/xen/smp.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/include/asm/kvm_host.h      |    5 +++++
+ arch/x86/include/uapi/asm/kvm_para.h |    1 +
+ arch/x86/kvm/cpuid.c                 |    3 ++-
+ arch/x86/kvm/x86.c                   |   37 ++++++++++++++++++++++++++++++++++
+ include/uapi/linux/kvm_para.h        |    1 +
+ 5 files changed, 46 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/xen/smp.c b/arch/x86/xen/smp.c
-index dcdc91c..8d2abf7 100644
---- a/arch/x86/xen/smp.c
-+++ b/arch/x86/xen/smp.c
-@@ -682,4 +682,5 @@ void __init xen_hvm_smp_init(void)
- 	smp_ops.cpu_die = xen_hvm_cpu_die;
- 	smp_ops.send_call_func_ipi = xen_smp_send_call_function_ipi;
- 	smp_ops.send_call_func_single_ipi = xen_smp_send_call_function_single_ipi;
-+	xen_init_spinlocks();
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 3741c65..95702de 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -503,6 +503,11 @@ struct kvm_vcpu_arch {
+ 	 * instruction.
+ 	 */
+ 	bool write_fault_to_shadow_pgtable;
++
++	/* pv related host specific info */
++	struct {
++		bool pv_unhalted;
++	} pv;
+ };
+ 
+ struct kvm_lpage_info {
+diff --git a/arch/x86/include/uapi/asm/kvm_para.h b/arch/x86/include/uapi/asm/kvm_para.h
+index 06fdbd9..94dc8ca 100644
+--- a/arch/x86/include/uapi/asm/kvm_para.h
++++ b/arch/x86/include/uapi/asm/kvm_para.h
+@@ -23,6 +23,7 @@
+ #define KVM_FEATURE_ASYNC_PF		4
+ #define KVM_FEATURE_STEAL_TIME		5
+ #define KVM_FEATURE_PV_EOI		6
++#define KVM_FEATURE_PV_UNHALT		7
+ 
+ /* The last 8 bits are used to indicate how to interpret the flags field
+  * in pvclock structure. If no bits are set, all flags are ignored.
+diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+index a20ecb5..b110fe6 100644
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -413,7 +413,8 @@ static int do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
+ 			     (1 << KVM_FEATURE_CLOCKSOURCE2) |
+ 			     (1 << KVM_FEATURE_ASYNC_PF) |
+ 			     (1 << KVM_FEATURE_PV_EOI) |
+-			     (1 << KVM_FEATURE_CLOCKSOURCE_STABLE_BIT);
++			     (1 << KVM_FEATURE_CLOCKSOURCE_STABLE_BIT) |
++			     (1 << KVM_FEATURE_PV_UNHALT);
+ 
+ 		if (sched_info_on())
+ 			entry->eax |= (1 << KVM_FEATURE_STEAL_TIME);
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 094b5d9..f8bea30 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -5449,6 +5449,36 @@ int kvm_hv_hypercall(struct kvm_vcpu *vcpu)
+ 	return 1;
  }
+ 
++/*
++ * kvm_pv_kick_cpu_op:  Kick a vcpu.
++ *
++ * @apicid - apicid of vcpu to be kicked.
++ */
++static void kvm_pv_kick_cpu_op(struct kvm *kvm, int apicid)
++{
++	struct kvm_vcpu *vcpu = NULL;
++	int i;
++
++	kvm_for_each_vcpu(i, vcpu, kvm) {
++		if (!kvm_apic_present(vcpu))
++			continue;
++
++		if (kvm_apic_match_dest(vcpu, 0, 0, apicid, 0))
++			break;
++	}
++	if (vcpu) {
++		/*
++		 * Setting unhalt flag here can result in spurious runnable
++		 * state when unhalt reset does not happen in vcpu_block.
++		 * But that is harmless since that should soon result in halt.
++		 */
++		vcpu->arch.pv.pv_unhalted = true;
++		/* We need everybody see unhalt before vcpu unblocks */
++		smp_wmb();
++		kvm_vcpu_kick(vcpu);
++	}
++}
++
+ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
+ {
+ 	unsigned long nr, a0, a1, a2, a3, ret;
+@@ -5482,6 +5512,10 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
+ 	case KVM_HC_VAPIC_POLL_IRQ:
+ 		ret = 0;
+ 		break;
++	case KVM_HC_KICK_CPU:
++		kvm_pv_kick_cpu_op(vcpu->kvm, a0);
++		ret = 0;
++		break;
+ 	default:
+ 		ret = -KVM_ENOSYS;
+ 		break;
+@@ -5909,6 +5943,7 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 				kvm_apic_accept_events(vcpu);
+ 				switch(vcpu->arch.mp_state) {
+ 				case KVM_MP_STATE_HALTED:
++					vcpu->arch.pv.pv_unhalted = false;
+ 					vcpu->arch.mp_state =
+ 						KVM_MP_STATE_RUNNABLE;
+ 				case KVM_MP_STATE_RUNNABLE:
+@@ -6729,6 +6764,7 @@ int kvm_arch_vcpu_init(struct kvm_vcpu *vcpu)
+ 	BUG_ON(vcpu->kvm == NULL);
+ 	kvm = vcpu->kvm;
+ 
++	vcpu->arch.pv.pv_unhalted = false;
+ 	vcpu->arch.emulate_ctxt.ops = &emulate_ops;
+ 	if (!irqchip_in_kernel(kvm) || kvm_vcpu_is_bsp(vcpu))
+ 		vcpu->arch.mp_state = KVM_MP_STATE_RUNNABLE;
+@@ -7065,6 +7101,7 @@ int kvm_arch_vcpu_runnable(struct kvm_vcpu *vcpu)
+ 		!vcpu->arch.apf.halted)
+ 		|| !list_empty_careful(&vcpu->async_pf.done)
+ 		|| kvm_apic_has_events(vcpu)
++		|| vcpu->arch.pv.pv_unhalted
+ 		|| atomic_read(&vcpu->arch.nmi_queued) ||
+ 		(kvm_arch_interrupt_allowed(vcpu) &&
+ 		 kvm_cpu_has_interrupt(vcpu));
+diff --git a/include/uapi/linux/kvm_para.h b/include/uapi/linux/kvm_para.h
+index cea2c5c..2841f86 100644
+--- a/include/uapi/linux/kvm_para.h
++++ b/include/uapi/linux/kvm_para.h
+@@ -19,6 +19,7 @@
+ #define KVM_HC_MMU_OP			2
+ #define KVM_HC_FEATURES			3
+ #define KVM_HC_PPC_MAP_MAGIC_PAGE	4
++#define KVM_HC_KICK_CPU			5
+ 
+ /*
+  * hypercalls use architecture specific
