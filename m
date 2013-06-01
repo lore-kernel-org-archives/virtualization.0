@@ -1,14 +1,11 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V9 19/19] kvm hypervisor: Add directed yield in vcpu block
-	path
-Date: Sun, 02 Jun 2013 00:56:45 +0530
-Message-ID: <20130601192645.5966.42685.sendpatchset@codeblue>
-References: <20130601192125.5966.35563.sendpatchset@codeblue>
+Subject: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
+Date: Sun, 02 Jun 2013 00:51:25 +0530
+Message-ID: <20130601192125.5966.35563.sendpatchset__8118.61057668484$1370114856$gmane$org@codeblue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130601192125.5966.35563.sendpatchset@codeblue>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,139 +19,318 @@ To: gleb@redhat.com, mingo@redhat.com, jeremy@goop.org, x86@kernel.org, konrad.w
 Cc: gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-kvm hypervisor: Add directed yield in vcpu block path
 
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+This series replaces the existing paravirtualized spinlock mechanism
+with a paravirtualized ticketlock mechanism. The series provides
+implementation for both Xen and KVM.
 
-We use the improved PLE handler logic in vcpu block patch for
-scheduling rather than plain schedule, so that we can make
-intelligent decisions
+Changes in V9:
+- Changed spin_threshold to 32k to avoid excess halt exits that are
+   causing undercommit degradation (after PLE handler improvement).
+- Added  kvm_irq_delivery_to_apic (suggested by Gleb)
+- Optimized halt exit path to use PLE handler
 
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+V8 of PVspinlock was posted last year. After Avi's suggestions to look
+at PLE handler's improvements, various optimizations in PLE handling
+have been tried.
+
+With this series we see that we could get little more improvements on top
+of that. 
+
+Ticket locks have an inherent problem in a virtualized case, because
+the vCPUs are scheduled rather than running concurrently (ignoring
+gang scheduled vCPUs).  This can result in catastrophic performance
+collapses when the vCPU scheduler doesn't schedule the correct "next"
+vCPU, and ends up scheduling a vCPU which burns its entire timeslice
+spinning.  (Note that this is not the same problem as lock-holder
+preemption, which this series also addresses; that's also a problem,
+but not catastrophic).
+
+(See Thomas Friebel's talk "Prevent Guests from Spinning Around"
+http://www.xen.org/files/xensummitboston08/LHP.pdf for more details.)
+
+Currently we deal with this by having PV spinlocks, which adds a layer
+of indirection in front of all the spinlock functions, and defining a
+completely new implementation for Xen (and for other pvops users, but
+there are none at present).
+
+PV ticketlocks keeps the existing ticketlock implemenentation
+(fastpath) as-is, but adds a couple of pvops for the slow paths:
+
+- If a CPU has been waiting for a spinlock for SPIN_THRESHOLD
+  iterations, then call out to the __ticket_lock_spinning() pvop,
+  which allows a backend to block the vCPU rather than spinning.  This
+  pvop can set the lock into "slowpath state".
+
+- When releasing a lock, if it is in "slowpath state", the call
+  __ticket_unlock_kick() to kick the next vCPU in line awake.  If the
+  lock is no longer in contention, it also clears the slowpath flag.
+
+The "slowpath state" is stored in the LSB of the within the lock tail
+ticket.  This has the effect of reducing the max number of CPUs by
+half (so, a "small ticket" can deal with 128 CPUs, and "large ticket"
+32768).
+
+For KVM, one hypercall is introduced in hypervisor,that allows a vcpu to kick
+another vcpu out of halt state.
+The blocking of vcpu is done using halt() in (lock_spinning) slowpath.
+
+Overall, it results in a large reduction in code, it makes the native
+and virtualized cases closer, and it removes a layer of indirection
+around all the spinlock functions.
+
+The fast path (taking an uncontended lock which isn't in "slowpath"
+state) is optimal, identical to the non-paravirtualized case.
+
+The inner part of ticket lock code becomes:
+	inc = xadd(&lock->tickets, inc);
+	inc.tail &= ~TICKET_SLOWPATH_FLAG;
+
+	if (likely(inc.head == inc.tail))
+		goto out;
+	for (;;) {
+		unsigned count = SPIN_THRESHOLD;
+		do {
+			if (ACCESS_ONCE(lock->tickets.head) == inc.tail)
+				goto out;
+			cpu_relax();
+		} while (--count);
+		__ticket_lock_spinning(lock, inc.tail);
+	}
+out:	barrier();
+which results in:
+	push   %rbp
+	mov    %rsp,%rbp
+
+	mov    $0x200,%eax
+	lock xadd %ax,(%rdi)
+	movzbl %ah,%edx
+	cmp    %al,%dl
+	jne    1f	# Slowpath if lock in contention
+
+	pop    %rbp
+	retq   
+
+	### SLOWPATH START
+1:	and    $-2,%edx
+	movzbl %dl,%esi
+
+2:	mov    $0x800,%eax
+	jmp    4f
+
+3:	pause  
+	sub    $0x1,%eax
+	je     5f
+
+4:	movzbl (%rdi),%ecx
+	cmp    %cl,%dl
+	jne    3b
+
+	pop    %rbp
+	retq   
+
+5:	callq  *__ticket_lock_spinning
+	jmp    2b
+	### SLOWPATH END
+
+with CONFIG_PARAVIRT_SPINLOCKS=n, the code has changed slightly, where
+the fastpath case is straight through (taking the lock without
+contention), and the spin loop is out of line:
+
+	push   %rbp
+	mov    %rsp,%rbp
+
+	mov    $0x100,%eax
+	lock xadd %ax,(%rdi)
+	movzbl %ah,%edx
+	cmp    %al,%dl
+	jne    1f
+
+	pop    %rbp
+	retq   
+
+	### SLOWPATH START
+1:	pause  
+	movzbl (%rdi),%eax
+	cmp    %dl,%al
+	jne    1b
+
+	pop    %rbp
+	retq   
+	### SLOWPATH END
+
+The unlock code is complicated by the need to both add to the lock's
+"head" and fetch the slowpath flag from "tail".  This version of the
+patch uses a locked add to do this, followed by a test to see if the
+slowflag is set.  The lock prefix acts as a full memory barrier, so we
+can be sure that other CPUs will have seen the unlock before we read
+the flag (without the barrier the read could be fetched from the
+store queue before it hits memory, which could result in a deadlock).
+
+This is is all unnecessary complication if you're not using PV ticket
+locks, it also uses the jump-label machinery to use the standard
+"add"-based unlock in the non-PV case.
+
+	if (TICKET_SLOWPATH_FLAG &&
+	     static_key_false(&paravirt_ticketlocks_enabled))) {
+		arch_spinlock_t prev;
+		prev = *lock;
+		add_smp(&lock->tickets.head, TICKET_LOCK_INC);
+
+		/* add_smp() is a full mb() */
+		if (unlikely(lock->tickets.tail & TICKET_SLOWPATH_FLAG))
+			__ticket_unlock_slowpath(lock, prev);
+	} else
+		__add(&lock->tickets.head, TICKET_LOCK_INC, UNLOCK_LOCK_PREFIX);
+which generates:
+	push   %rbp
+	mov    %rsp,%rbp
+
+	nop5	# replaced by 5-byte jmp 2f when PV enabled
+
+	# non-PV unlock
+	addb   $0x2,(%rdi)
+
+1:	pop    %rbp
+	retq   
+
+### PV unlock ###
+2:	movzwl (%rdi),%esi	# Fetch prev
+
+	lock addb $0x2,(%rdi)	# Do unlock
+
+	testb  $0x1,0x1(%rdi)	# Test flag
+	je     1b		# Finished if not set
+
+### Slow path ###
+	add    $2,%sil		# Add "head" in old lock state
+	mov    %esi,%edx
+	and    $0xfe,%dh	# clear slowflag for comparison
+	movzbl %dh,%eax
+	cmp    %dl,%al		# If head == tail (uncontended)
+	je     4f		# clear slowpath flag
+
+	# Kick next CPU waiting for lock
+3:	movzbl %sil,%esi
+	callq  *pv_lock_ops.kick
+
+	pop    %rbp
+	retq   
+
+	# Lock no longer contended - clear slowflag
+4:	mov    %esi,%eax
+	lock cmpxchg %dx,(%rdi)	# cmpxchg to clear flag
+	cmp    %si,%ax
+	jne    3b		# If clear failed, then kick
+
+	pop    %rbp
+	retq   
+
+So when not using PV ticketlocks, the unlock sequence just has a
+5-byte nop added to it, and the PV case is reasonable straightforward
+aside from requiring a "lock add".
+
+
+Results:
+=======
+base = 3.10-rc2 kernel
+patched = base + this series
+
+The test was on 32 core (model: Intel(R) Xeon(R) CPU X7560) HT disabled
+with 32 KVM guest vcpu 8GB RAM.
+
++-----------+-----------+-----------+------------+-----------+
+               ebizzy (records/sec) higher is better
++-----------+-----------+-----------+------------+-----------+
+    base        stdev        patched    stdev        %improvement
++-----------+-----------+-----------+------------+-----------+
+1x  5574.9000   237.4997    5618.0000    94.0366     0.77311
+2x  2741.5000   561.3090    3332.0000   102.4738    21.53930
+3x  2146.2500   216.7718    2302.3333    76.3870     7.27237
+4x  1663.0000   141.9235    1753.7500    83.5220     5.45701
++-----------+-----------+-----------+------------+-----------+
++-----------+-----------+-----------+------------+-----------+
+              dbench  (Throughput) higher is better
++-----------+-----------+-----------+------------+-----------+
+    base        stdev        patched    stdev        %improvement
++-----------+-----------+-----------+------------+-----------+
+1x 14111.5600   754.4525   14645.9900   114.3087     3.78718
+2x  2481.6270    71.2665    2667.1280    73.8193     7.47498
+3x  1510.2483    31.8634    1503.8792    36.0777    -0.42173
+4x  1029.4875    16.9166    1039.7069    43.8840     0.99267
++-----------+-----------+-----------+------------+-----------+
+
+Your suggestions and comments are welcome.
+
+github link: https://github.com/ktraghavendra/linux/tree/pvspinlock_v9
+
+
+Please note that we set SPIN_THRESHOLD = 32k with this series,
+that would eatup little bit of overcommit performance of PLE machines
+and overall performance of non-PLE machines. 
+
+The older series was tested by Attilio for Xen implementation [1].
+
+Jeremy Fitzhardinge (9):
+ x86/spinlock: Replace pv spinlocks with pv ticketlocks
+ x86/ticketlock: Collapse a layer of functions
+ xen: Defer spinlock setup until boot CPU setup
+ xen/pvticketlock: Xen implementation for PV ticket locks
+ xen/pvticketlocks: Add xen_nopvspin parameter to disable xen pv ticketlocks
+ x86/pvticketlock: Use callee-save for lock_spinning
+ x86/pvticketlock: When paravirtualizing ticket locks, increment by 2
+ x86/ticketlock: Add slowpath logic
+ xen/pvticketlock: Allow interrupts to be enabled while blocking
+
+Andrew Jones (1):
+ Split jumplabel ratelimit
+
+Stefano Stabellini (1):
+ xen: Enable PV ticketlocks on HVM Xen
+
+Srivatsa Vaddagiri (3):
+ kvm hypervisor : Add a hypercall to KVM hypervisor to support pv-ticketlocks
+ kvm guest : Add configuration support to enable debug information for KVM Guests
+ kvm : Paravirtual ticketlocks support for linux guests running on KVM hypervisor
+
+Raghavendra K T (5):
+ x86/ticketlock: Don't inline _spin_unlock when using paravirt spinlocks
+ kvm : Fold pv_unhalt flag into GET_MP_STATE ioctl to aid migration
+ Simplify kvm_for_each_vcpu with kvm_irq_delivery_to_apic
+ Documentation/kvm : Add documentation on Hypercalls and features used for PV spinlock
+ Add directed yield in vcpu block path
+
 ---
- arch/ia64/include/asm/kvm_host.h    |    5 +++++
- arch/powerpc/include/asm/kvm_host.h |    5 +++++
- arch/s390/include/asm/kvm_host.h    |    5 +++++
- arch/x86/include/asm/kvm_host.h     |    2 +-
- arch/x86/kvm/x86.c                  |    8 ++++++++
- include/linux/kvm_host.h            |    2 +-
- virt/kvm/kvm_main.c                 |    6 ++++--
- 7 files changed, 29 insertions(+), 4 deletions(-)
+Link in V8 has links to previous patch series and also whole history.
 
-diff --git a/arch/ia64/include/asm/kvm_host.h b/arch/ia64/include/asm/kvm_host.h
-index 989dd3f..999ab15 100644
---- a/arch/ia64/include/asm/kvm_host.h
-+++ b/arch/ia64/include/asm/kvm_host.h
-@@ -595,6 +595,11 @@ int kvm_emulate_halt(struct kvm_vcpu *vcpu);
- int kvm_pal_emul(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run);
- void kvm_sal_emul(struct kvm_vcpu *vcpu);
- 
-+static inline void kvm_do_schedule(struct kvm_vcpu *vcpu)
-+{
-+	schedule();
-+}
-+
- #define __KVM_HAVE_ARCH_VM_ALLOC 1
- struct kvm *kvm_arch_alloc_vm(void);
- void kvm_arch_free_vm(struct kvm *kvm);
-diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
-index af326cd..1aeecc0 100644
---- a/arch/powerpc/include/asm/kvm_host.h
-+++ b/arch/powerpc/include/asm/kvm_host.h
-@@ -628,4 +628,9 @@ struct kvm_vcpu_arch {
- #define __KVM_HAVE_ARCH_WQP
- #define __KVM_HAVE_CREATE_DEVICE
- 
-+static inline void kvm_do_schedule(struct kvm_vcpu *vcpu)
-+{
-+	schedule();
-+}
-+
- #endif /* __POWERPC_KVM_HOST_H__ */
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 16bd5d1..db09a56 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -266,4 +266,9 @@ struct kvm_arch{
- };
- 
- extern int sie64a(struct kvm_s390_sie_block *, u64 *);
-+static inline void kvm_do_schedule(struct kvm_vcpu *vcpu)
-+{
-+	schedule();
-+}
-+
- #endif
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 95702de..72ff791 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1042,5 +1042,5 @@ int kvm_pmu_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info);
- int kvm_pmu_read_pmc(struct kvm_vcpu *vcpu, unsigned pmc, u64 *data);
- void kvm_handle_pmu_event(struct kvm_vcpu *vcpu);
- void kvm_deliver_pmi(struct kvm_vcpu *vcpu);
--
-+void kvm_do_schedule(struct kvm_vcpu *vcpu);
- #endif /* _ASM_X86_KVM_HOST_H */
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b963c86..d26c4be 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -7281,6 +7281,14 @@ bool kvm_arch_can_inject_async_page_present(struct kvm_vcpu *vcpu)
- 			kvm_x86_ops->interrupt_allowed(vcpu);
- }
- 
-+void kvm_do_schedule(struct kvm_vcpu *vcpu)
-+{
-+	/* We try to yield to a kikced vcpu else do a schedule */
-+	if (kvm_vcpu_on_spin(vcpu) <= 0)
-+		schedule();
-+}
-+EXPORT_SYMBOL_GPL(kvm_do_schedule);
-+
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_exit);
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_inj_virq);
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_page_fault);
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index f0eea07..39efc18 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -565,7 +565,7 @@ void mark_page_dirty_in_slot(struct kvm *kvm, struct kvm_memory_slot *memslot,
- void kvm_vcpu_block(struct kvm_vcpu *vcpu);
- void kvm_vcpu_kick(struct kvm_vcpu *vcpu);
- bool kvm_vcpu_yield_to(struct kvm_vcpu *target);
--void kvm_vcpu_on_spin(struct kvm_vcpu *vcpu);
-+bool kvm_vcpu_on_spin(struct kvm_vcpu *vcpu);
- void kvm_resched(struct kvm_vcpu *vcpu);
- void kvm_load_guest_fpu(struct kvm_vcpu *vcpu);
- void kvm_put_guest_fpu(struct kvm_vcpu *vcpu);
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 302681c..8387247 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1685,7 +1685,7 @@ void kvm_vcpu_block(struct kvm_vcpu *vcpu)
- 		if (signal_pending(current))
- 			break;
- 
--		schedule();
-+		kvm_do_schedule(vcpu);
- 	}
- 
- 	finish_wait(&vcpu->wq, &wait);
-@@ -1786,7 +1786,7 @@ bool kvm_vcpu_eligible_for_directed_yield(struct kvm_vcpu *vcpu)
- }
- #endif
- 
--void kvm_vcpu_on_spin(struct kvm_vcpu *me)
-+bool kvm_vcpu_on_spin(struct kvm_vcpu *me)
- {
- 	struct kvm *kvm = me->kvm;
- 	struct kvm_vcpu *vcpu;
-@@ -1835,6 +1835,8 @@ void kvm_vcpu_on_spin(struct kvm_vcpu *me)
- 
- 	/* Ensure vcpu is not eligible during next spinloop */
- 	kvm_vcpu_set_dy_eligible(me, false);
-+
-+	return yielded;
- }
- EXPORT_SYMBOL_GPL(kvm_vcpu_on_spin);
+V8 PV Ticketspinlock for Xen/KVM link:
+[1] https://lkml.org/lkml/2012/5/2/119
+
+ Documentation/virtual/kvm/cpuid.txt      |   4 +
+ Documentation/virtual/kvm/hypercalls.txt |  13 ++
+ arch/ia64/include/asm/kvm_host.h         |   5 +
+ arch/powerpc/include/asm/kvm_host.h      |   5 +
+ arch/s390/include/asm/kvm_host.h         |   5 +
+ arch/x86/Kconfig                         |  10 +
+ arch/x86/include/asm/kvm_host.h          |   7 +-
+ arch/x86/include/asm/kvm_para.h          |  14 +-
+ arch/x86/include/asm/paravirt.h          |  32 +--
+ arch/x86/include/asm/paravirt_types.h    |  10 +-
+ arch/x86/include/asm/spinlock.h          | 128 +++++++----
+ arch/x86/include/asm/spinlock_types.h    |  16 +-
+ arch/x86/include/uapi/asm/kvm_para.h     |   1 +
+ arch/x86/kernel/kvm.c                    | 256 +++++++++++++++++++++
+ arch/x86/kernel/paravirt-spinlocks.c     |  18 +-
+ arch/x86/kvm/cpuid.c                     |   3 +-
+ arch/x86/kvm/lapic.c                     |   5 +-
+ arch/x86/kvm/x86.c                       |  39 +++-
+ arch/x86/xen/smp.c                       |   3 +-
+ arch/x86/xen/spinlock.c                  | 384 ++++++++++---------------------
+ include/linux/jump_label.h               |  26 +--
+ include/linux/jump_label_ratelimit.h     |  34 +++
+ include/linux/kvm_host.h                 |   2 +-
+ include/linux/perf_event.h               |   1 +
+ include/uapi/linux/kvm_para.h            |   1 +
+ kernel/jump_label.c                      |   1 +
+ virt/kvm/kvm_main.c                      |   6 +-
+ 27 files changed, 645 insertions(+), 384 deletions(-)
