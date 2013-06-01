@@ -1,8 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V9 8/19] x86/pvticketlock: When paravirtualizing ticket
-	locks, increment by 2
-Date: Sun, 02 Jun 2013 00:54:02 +0530
-Message-ID: <20130601192402.5966.4600.sendpatchset@codeblue>
+Subject: [PATCH RFC V9 15/19] kvm guest : Add configuration support to enable
+	debug information for KVM Guests
+Date: Sun, 02 Jun 2013 00:55:43 +0530
+Message-ID: <20130601192543.5966.68416.sendpatchset@codeblue>
 References: <20130601192125.5966.35563.sendpatchset@codeblue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,93 +22,34 @@ To: gleb@redhat.com, mingo@redhat.com, jeremy@goop.org, x86@kernel.org, konrad.w
 Cc: gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-x86/pvticketlock: When paravirtualizing ticket locks, increment by 2
+kvm guest : Add configuration support to enable debug information for KVM Guests
 
-From: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
+From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
 
-Increment ticket head/tails by 2 rather than 1 to leave the LSB free
-to store a "is in slowpath state" bit.  This halves the number
-of possible CPUs for a given ticket size, but this shouldn't matter
-in practice - kernels built for 32k+ CPU systems are probably
-specially built for the hardware rather than a generic distro
-kernel.
-
-Signed-off-by: Jeremy Fitzhardinge <jeremy.fitzhardinge@citrix.com>
-Tested-by: Attilio Rao <attilio.rao@citrix.com>
+Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
- arch/x86/include/asm/spinlock.h       |   10 +++++-----
- arch/x86/include/asm/spinlock_types.h |   10 +++++++++-
- 2 files changed, 14 insertions(+), 6 deletions(-)
+ arch/x86/Kconfig |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index 7442410..04a5cd5 100644
---- a/arch/x86/include/asm/spinlock.h
-+++ b/arch/x86/include/asm/spinlock.h
-@@ -78,7 +78,7 @@ static __always_inline void __ticket_unlock_kick(struct arch_spinlock *lock,
-  */
- static __always_inline void arch_spin_lock(struct arch_spinlock *lock)
- {
--	register struct __raw_tickets inc = { .tail = 1 };
-+	register struct __raw_tickets inc = { .tail = TICKET_LOCK_INC };
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 80fcc4b..f8ff42d 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -646,6 +646,15 @@ config KVM_GUEST
+ 	  underlying device model, the host provides the guest with
+ 	  timing infrastructure such as time of day, and system time
  
- 	inc = xadd(&lock->tickets, inc);
- 
-@@ -104,7 +104,7 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
- 	if (old.tickets.head != old.tickets.tail)
- 		return 0;
- 
--	new.head_tail = old.head_tail + (1 << TICKET_SHIFT);
-+	new.head_tail = old.head_tail + (TICKET_LOCK_INC << TICKET_SHIFT);
- 
- 	/* cmpxchg is a full barrier, so nothing can move before it */
- 	return cmpxchg(&lock->head_tail, old.head_tail, new.head_tail) == old.head_tail;
-@@ -112,9 +112,9 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
- 
- static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
- {
--	__ticket_t next = lock->tickets.head + 1;
-+	__ticket_t next = lock->tickets.head + TICKET_LOCK_INC;
- 
--	__add(&lock->tickets.head, 1, UNLOCK_LOCK_PREFIX);
-+	__add(&lock->tickets.head, TICKET_LOCK_INC, UNLOCK_LOCK_PREFIX);
- 	__ticket_unlock_kick(lock, next);
- }
- 
-@@ -129,7 +129,7 @@ static inline int arch_spin_is_contended(arch_spinlock_t *lock)
- {
- 	struct __raw_tickets tmp = ACCESS_ONCE(lock->tickets);
- 
--	return (__ticket_t)(tmp.tail - tmp.head) > 1;
-+	return (__ticket_t)(tmp.tail - tmp.head) > TICKET_LOCK_INC;
- }
- #define arch_spin_is_contended	arch_spin_is_contended
- 
-diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
-index 83fd3c7..e96fcbd 100644
---- a/arch/x86/include/asm/spinlock_types.h
-+++ b/arch/x86/include/asm/spinlock_types.h
-@@ -3,7 +3,13 @@
- 
- #include <linux/types.h>
- 
--#if (CONFIG_NR_CPUS < 256)
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+#define __TICKET_LOCK_INC	2
-+#else
-+#define __TICKET_LOCK_INC	1
-+#endif
++config KVM_DEBUG_FS
++	bool "Enable debug information for KVM Guests in debugfs"
++	depends on KVM_GUEST && DEBUG_FS
++	default n
++	---help---
++	  This option enables collection of various statistics for KVM guest.
++	  Statistics are displayed in debugfs filesystem. Enabling this option
++	  may incur significant overhead.
 +
-+#if (CONFIG_NR_CPUS < (256 / __TICKET_LOCK_INC))
- typedef u8  __ticket_t;
- typedef u16 __ticketpair_t;
- #else
-@@ -11,6 +17,8 @@ typedef u16 __ticket_t;
- typedef u32 __ticketpair_t;
- #endif
+ source "arch/x86/lguest/Kconfig"
  
-+#define TICKET_LOCK_INC	((__ticket_t)__TICKET_LOCK_INC)
-+
- #define TICKET_SHIFT	(sizeof(__ticket_t) * 8)
- 
- typedef struct arch_spinlock {
+ config PARAVIRT_TIME_ACCOUNTING
