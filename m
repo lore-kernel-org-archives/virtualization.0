@@ -1,16 +1,18 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
-Date: Mon, 03 Jun 2013 11:51:36 +0530
-Message-ID: <51AC35F0.4010400__36185.2589216598$1370240261$gmane$org@linux.vnet.ibm.com>
-References: <20130601192125.5966.35563.sendpatchset@codeblue>
-	<20130602080739.GA24773@redhat.com>
-	<CAJocwcf0oykyLv4B22pBf1A3H7+Cs6qu0vmTWp46Z=KwrTkXyQ@mail.gmail.com>
-	<51ABF410.4090109@linux.vnet.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
+Date: Mon, 3 Jun 2013 13:11:36 +0300
+Message-ID: <20130603101136.GB8649@redhat.com>
+References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
+	<87ppwammp5.fsf@rustcorp.com.au> <87mwreq76y.fsf@codemonkey.ws>
+	<87wqqhktjx.fsf@rustcorp.com.au> <87fvx460ba.fsf@codemonkey.ws>
+	<20130530140132.GC21440@redhat.com>
+	<874ndgujiw.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51ABF410.4090109@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <874ndgujiw.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,81 +22,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiannan Ouyang <ouyang@cs.pitt.edu>, Gleb Natapov <gleb@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, gregkh@suse.de, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Andrew Jones <drjones@redhat.com>, virtualization@lists.linux-foundation.org, andi@firstfloor.org, "H. Peter Anvin" <hpa@zytor.com>, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, konrad.wilk@oracle.com, Avi Kivity <avi.kivity@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, chegu vinod <chegu_vinod@hp.com>, LKML <linux-kernel@vger.kernel.org>, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/03/2013 07:10 AM, Raghavendra K T wrote:
-> On 06/02/2013 09:50 PM, Jiannan Ouyang wrote:
->> On Sun, Jun 2, 2013 at 1:07 AM, Gleb Natapov <gleb@redhat.com> wrote:
->>
->>> High level question here. We have a big hope for "Preemptable Ticket
->>> Spinlock" patch series by Jiannan Ouyang to solve most, if not all,
->>> ticketing spinlocks in overcommit scenarios problem without need for PV.
->>> So how this patch series compares with his patches on PLE enabled
->>> processors?
->>>
->>
->> No experiment results yet.
->>
->> An error is reported on a 20 core VM. I'm during an internship
->> relocation, and will start work on it next week.
->
-> Preemptable spinlocks' testing update:
-> I hit the same softlockup problem while testing on 32 core machine with
-> 32 guest vcpus that Andrew had reported.
->
-> After that i started tuning TIMEOUT_UNIT, and when I went till (1<<8),
-> things seemed to be manageable for undercommit cases.
-> But I still see degradation for undercommit w.r.t baseline itself on 32
-> core machine (after tuning).
->
-> (37.5% degradation w.r.t base line).
-> I can give the full report after the all tests complete.
->
-> For over-commit cases, I again started hitting softlockups (and
-> degradation is worse). But as I said in the preemptable thread, the
-> concept of preemptable locks looks promising (though I am still not a
-> fan of  embedded TIMEOUT mechanism)
->
-> Here is my opinion of TODOs for preemptable locks to make it better ( I
-> think I need to paste in the preemptable thread also)
->
-> 1. Current TIMEOUT UNIT seem to be on higher side and also it does not
-> scale well with large guests and also overcommit. we need to have a
-> sort of adaptive mechanism and better is sort of different TIMEOUT_UNITS
-> for different types of lock too. The hashing mechanism that was used in
-> Rik's spinlock backoff series fits better probably.
->
-> 2. I do not think TIMEOUT_UNIT itself would work great when we have a
-> big queue (for large guests / overcommits) for lock.
-> one way is to add a PV hook that does yield hypercall immediately for
-> the waiters above some THRESHOLD so that they don't burn the CPU.
-> ( I can do POC to check if  that idea works in improving situation
-> at some later point of time)
->
+On Mon, Jun 03, 2013 at 09:56:15AM +0930, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > On Thu, May 30, 2013 at 08:53:45AM -0500, Anthony Liguori wrote:
+> >> Rusty Russell <rusty@rustcorp.com.au> writes:
+> >> 
+> >> > Anthony Liguori <aliguori@us.ibm.com> writes:
+> >> >> Forcing a guest driver change is a really big
+> >> >> deal and I see no reason to do that unless there's a compelling reason
+> >> >> to.
+> >> >>
+> >> >> So we're stuck with the 1.0 config layout for a very long time.
+> >> >
+> >> > We definitely must not force a guest change.  The explicit aim of the
+> >> > standard is that "legacy" and 1.0 be backward compatible.  One
+> >> > deliverable is a document detailing how this is done (effectively a
+> >> > summary of changes between what we have and 1.0).
+> >> 
+> >> If 2.0 is fully backwards compatible, great.  It seems like such a
+> >> difference that that would be impossible but I need to investigate
+> >> further.
+> >> 
+> >> Regards,
+> >> 
+> >> Anthony Liguori
+> >
+> > If you look at my patches you'll see how it works.
+> > Basically old guests use BAR0 new ones don't, so
+> > it's easy: BAR0 access means legacy guest.
+> > Only started testing but things seem to work
+> > fine with old guests so far.
+> >
+> > I think we need a spec, not just driver code.
+> >
+> > Rusty what's the plan? Want me to write it?
+> 
+> We need both, of course, but the spec work will happen in the OASIS WG.
+> A draft is good, but let's not commit anything to upstream QEMU until we
+> get the spec finalized.  And that is proposed to be late this year.
 
-Preemptable-lock results from my run with 2^8 TIMEOUT:
+Well that would be quite sad really.
 
-+-----------+-----------+-----------+------------+-----------+
-                  ebizzy (records/sec) higher is better
-+-----------+-----------+-----------+------------+-----------+
-     base        stdev        patched    stdev        %improvement
-+-----------+-----------+-----------+------------+-----------+
-1x  5574.9000   237.4997    3484.2000   113.4449   -37.50202
-2x  2741.5000   561.3090     351.5000   140.5420   -87.17855
-3x  2146.2500   216.7718     194.8333    85.0303   -90.92215
-4x  1663.0000   141.9235     101.0000    57.7853   -93.92664
-+-----------+-----------+-----------+------------+-----------+
-+-----------+-----------+-----------+------------+-----------+
-                dbench  (Throughput) higher is better
-+-----------+-----------+-----------+------------+-----------+
-      base        stdev        patched    stdev        %improvement
-+-----------+-----------+-----------+------------+-----------+
-1x  14111.5600   754.4525   3930.1602   2547.2369    -72.14936
-2x  2481.6270    71.2665      181.1816    89.5368    -92.69908
-3x  1510.2483    31.8634      104.7243    53.2470    -93.06576
-4x  1029.4875    16.9166       72.3738    38.2432    -92.96992
-+-----------+-----------+-----------+------------+-----------+
+This means we can't make virtio a spec compliant pci express device,
+and we can't add any more feature bits, so no
+flexible buffer optimizations for virtio net.
 
-Note we can not trust on overcommit results because of softlock-ups
+There are probably more projects that will be blocked.
+
+So how about we keep extending legacy layout for a bit longer:
+- add a way to access device with MMIO
+- use feature bit 31 to signal 64 bit features
+  (and shift device config accordingly)
+
+No endian-ness rework, no per queue enable etc.
+
+
+Then when we start discussions we will have a working
+express and working 64 bit feature support,
+and it will be that much easier to make it pretty it.
+
+
+> Since I'm going to have to reformat the spec and adapt it into OASIS
+> style anyway, perhaps you should prepare a description as a standalone
+> text document.  Easier to email and work with...
+> 
+> Now, the idea is that if you want to support 0.9 and 1.0 (or whatever we
+> call them; I used the term "legacy" for existing implementations in the
+> OASIS WG proposal), you add capabilities and don't point them into (the
+> start of?) BAR0.  Old drivers use BAR0 as now.
+> 
+> One trick to note: while drivers shouldn't use both old and new style on
+> the same device, you need to allow it for kexec, particularly reset via
+> BAR0.
+> 
+> Cheers,
+> Rusty.
