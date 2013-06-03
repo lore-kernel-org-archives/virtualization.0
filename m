@@ -1,20 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: updated: kvm networking todo wiki
-Date: Mon, 03 Jun 2013 10:02:43 +0930
-Message-ID: <871u8kuj84.fsf@rustcorp.com.au>
-References: <20130523085034.GA16142@redhat.com> <519F35B7.6010408@redhat.com>
-	<20130524113542.GA7046@redhat.com> <8738tctrox.fsf@codemonkey.ws>
-	<20130524140024.GA12024@redhat.com>
-	<87li6yodgq.fsf@rustcorp.com.au> <87k3miq6sw.fsf@codemonkey.ws>
-	<87r4gpkplc.fsf@rustcorp.com.au>
-	<CAJSP0QWY3z_oGaHNwR0=whYgnDCiGLBC+3Z5oM0x5nwN1RQVqg@mail.gmail.com>
-	<87k3mg60ww.fsf@codemonkey.ws> <20130530134449.GA31649@redhat.com>
-	<8761y034zg.fsf@codemonkey.ws>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
+Date: Mon, 03 Jun 2013 11:51:36 +0530
+Message-ID: <51AC35F0.4010400__36185.2589216598$1370240261$gmane$org@linux.vnet.ibm.com>
+References: <20130601192125.5966.35563.sendpatchset@codeblue>
+	<20130602080739.GA24773@redhat.com>
+	<CAJocwcf0oykyLv4B22pBf1A3H7+Cs6qu0vmTWp46Z=KwrTkXyQ@mail.gmail.com>
+	<51ABF410.4090109@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <8761y034zg.fsf@codemonkey.ws>
+In-Reply-To: <51ABF410.4090109@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,71 +20,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <anthony@codemonkey.ws>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, herbert@gondor.hengli.com.au, netdev@vger.kernel.org
+To: Jiannan Ouyang <ouyang@cs.pitt.edu>, Gleb Natapov <gleb@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, gregkh@suse.de, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Andrew Jones <drjones@redhat.com>, virtualization@lists.linux-foundation.org, andi@firstfloor.org, "H. Peter Anvin" <hpa@zytor.com>, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, konrad.wilk@oracle.com, Avi Kivity <avi.kivity@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, chegu vinod <chegu_vinod@hp.com>, LKML <linux-kernel@vger.kernel.org>, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Anthony Liguori <anthony@codemonkey.ws> writes:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
->
->> On Thu, May 30, 2013 at 08:40:47AM -0500, Anthony Liguori wrote:
->>> Stefan Hajnoczi <stefanha@gmail.com> writes:
->>> 
->>> > On Thu, May 30, 2013 at 7:23 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
->>> >> Anthony Liguori <anthony@codemonkey.ws> writes:
->>> >>> Rusty Russell <rusty@rustcorp.com.au> writes:
->>> >>>> On Fri, May 24, 2013 at 08:47:58AM -0500, Anthony Liguori wrote:
->>> >>>>> FWIW, I think what's more interesting is using vhost-net as a networking
->>> >>>>> backend with virtio-net in QEMU being what's guest facing.
->>> >>>>>
->>> >>>>> In theory, this gives you the best of both worlds: QEMU acts as a first
->>> >>>>> line of defense against a malicious guest while still getting the
->>> >>>>> performance advantages of vhost-net (zero-copy).
->>> >>>>>
->>> >>>> It would be an interesting idea if we didn't already have the vhost
->>> >>>> model where we don't need the userspace bounce.
->>> >>>
->>> >>> The model is very interesting for QEMU because then we can use vhost as
->>> >>> a backend for other types of network adapters (like vmxnet3 or even
->>> >>> e1000).
->>> >>>
->>> >>> It also helps for things like fault tolerance where we need to be able
->>> >>> to control packet flow within QEMU.
->>> >>
->>> >> (CC's reduced, context added, Dmitry Fleytman added for vmxnet3 thoughts).
->>> >>
->>> >> Then I'm really confused as to what this would look like.  A zero copy
->>> >> sendmsg?  We should be able to implement that today.
->>> >>
->>> >> On the receive side, what can we do better than readv?  If we need to
->>> >> return to userspace to tell the guest that we've got a new packet, we
->>> >> don't win on latency.  We might reduce syscall overhead with a
->>> >> multi-dimensional readv to read multiple packets at once?
->>> >
->>> > Sounds like recvmmsg(2).
->>> 
->>> Could we map this to mergable rx buffers though?
->>> 
->>> Regards,
->>> 
->>> Anthony Liguori
+On 06/03/2013 07:10 AM, Raghavendra K T wrote:
+> On 06/02/2013 09:50 PM, Jiannan Ouyang wrote:
+>> On Sun, Jun 2, 2013 at 1:07 AM, Gleb Natapov <gleb@redhat.com> wrote:
 >>
->> Yes because we don't have to complete buffers in order.
+>>> High level question here. We have a big hope for "Preemptable Ticket
+>>> Spinlock" patch series by Jiannan Ouyang to solve most, if not all,
+>>> ticketing spinlocks in overcommit scenarios problem without need for PV.
+>>> So how this patch series compares with his patches on PLE enabled
+>>> processors?
+>>>
+>>
+>> No experiment results yet.
+>>
+>> An error is reported on a 20 core VM. I'm during an internship
+>> relocation, and will start work on it next week.
 >
-> What I meant though was for GRO, we don't know how large the received
-> packet is going to be.  Mergable rx buffers lets us allocate a pool of
-> data for all incoming packets instead of allocating max packet size *
-> max packets.
+> Preemptable spinlocks' testing update:
+> I hit the same softlockup problem while testing on 32 core machine with
+> 32 guest vcpus that Andrew had reported.
 >
-> recvmmsg expects an array of msghdrs and I presume each needs to be
-> given a fixed size.  So this seems incompatible with mergable rx
-> buffers.
+> After that i started tuning TIMEOUT_UNIT, and when I went till (1<<8),
+> things seemed to be manageable for undercommit cases.
+> But I still see degradation for undercommit w.r.t baseline itself on 32
+> core machine (after tuning).
+>
+> (37.5% degradation w.r.t base line).
+> I can give the full report after the all tests complete.
+>
+> For over-commit cases, I again started hitting softlockups (and
+> degradation is worse). But as I said in the preemptable thread, the
+> concept of preemptable locks looks promising (though I am still not a
+> fan of  embedded TIMEOUT mechanism)
+>
+> Here is my opinion of TODOs for preemptable locks to make it better ( I
+> think I need to paste in the preemptable thread also)
+>
+> 1. Current TIMEOUT UNIT seem to be on higher side and also it does not
+> scale well with large guests and also overcommit. we need to have a
+> sort of adaptive mechanism and better is sort of different TIMEOUT_UNITS
+> for different types of lock too. The hashing mechanism that was used in
+> Rik's spinlock backoff series fits better probably.
+>
+> 2. I do not think TIMEOUT_UNIT itself would work great when we have a
+> big queue (for large guests / overcommits) for lock.
+> one way is to add a PV hook that does yield hypercall immediately for
+> the waiters above some THRESHOLD so that they don't burn the CPU.
+> ( I can do POC to check if  that idea works in improving situation
+> at some later point of time)
+>
 
-Good point.  You'd need to build 64k buffers to pass to recvmmsg, then
-reuse the parts it didn't touch on the next call.  This limits us to
-about a 16th of what we could do with an interface which understood
-buffer merging, but I don't know how much that would matter in
-practice.  We'd need some benchmarks....
+Preemptable-lock results from my run with 2^8 TIMEOUT:
 
-Cheers,
-Rusty.
++-----------+-----------+-----------+------------+-----------+
+                  ebizzy (records/sec) higher is better
++-----------+-----------+-----------+------------+-----------+
+     base        stdev        patched    stdev        %improvement
++-----------+-----------+-----------+------------+-----------+
+1x  5574.9000   237.4997    3484.2000   113.4449   -37.50202
+2x  2741.5000   561.3090     351.5000   140.5420   -87.17855
+3x  2146.2500   216.7718     194.8333    85.0303   -90.92215
+4x  1663.0000   141.9235     101.0000    57.7853   -93.92664
++-----------+-----------+-----------+------------+-----------+
++-----------+-----------+-----------+------------+-----------+
+                dbench  (Throughput) higher is better
++-----------+-----------+-----------+------------+-----------+
+      base        stdev        patched    stdev        %improvement
++-----------+-----------+-----------+------------+-----------+
+1x  14111.5600   754.4525   3930.1602   2547.2369    -72.14936
+2x  2481.6270    71.2665      181.1816    89.5368    -92.69908
+3x  1510.2483    31.8634      104.7243    53.2470    -93.06576
+4x  1029.4875    16.9166       72.3738    38.2432    -92.96992
++-----------+-----------+-----------+------------+-----------+
+
+Note we can not trust on overcommit results because of softlock-ups
