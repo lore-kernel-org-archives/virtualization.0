@@ -1,15 +1,11 @@
-From: li guang <lig.fnst@cn.fujitsu.com>
-Subject: Re: [PATCH 2/2] xen: remove bm_rld_set of xen_processor_flags
-Date: Tue, 04 Jun 2013 16:19:27 +0800
-Message-ID: <1370333967.17798.60.camel__39195.6144282178$1370473227$gmane$org@liguang.fnst.cn.fujitsu.com>
-References: <1370333128-11412-1-git-send-email-lig.fnst@cn.fujitsu.com>
-	<1370333128-11412-2-git-send-email-lig.fnst@cn.fujitsu.com>
-	<51ADBDC402000078000DAF36@nat28.tlf.novell.com>
+From: Tommi Rantala <tt.rantala@gmail.com>
+Subject: vhost && kernel BUG at /build/linux/mm/slub.c:3352!
+Date: Tue, 4 Jun 2013 21:50:59 +0300
+Message-ID: <CA+ydwtrtpA3jXojG3tKt_-ueJOWDSOL1trM9h6F5qLvdoonUOw__18068.2486542084$1370473236$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51ADBDC402000078000DAF36@nat28.tlf.novell.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,34 +15,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jan Beulich <JBeulich@suse.com>
-Cc: Liu Jinsong <jinsong.liu@intel.com>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Rafael
-	J. Wysocki" <rjw@sisk.pl>, linux-acpi@vger.kernel.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Len Brown <lenb@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, Dave Jones <davej@redhat.com>, LKML <linux-kernel@vger.kernel.org>, trinity@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-5ZyoIDIwMTMtMDYtMDTkuoznmoQgMDk6MTMgKzAxMDDvvIxKYW4gQmV1bGljaOWGmemBk++8mgo+
-ID4+PiBPbiAwNC4wNi4xMyBhdCAxMDowNSwgbGlndWFuZyA8bGlnLmZuc3RAY24uZnVqaXRzdS5j
-b20+IHdyb3RlOgo+ID4gYm1fcmxkX3NldCBzZWVtcyBvYnNvbGV0ZSBub3cKPiA+IAo+ID4gU2ln
-bmVkLW9mZi1ieTogbGlndWFuZyA8bGlnLmZuc3RAY24uZnVqaXRzdS5jb20+Cj4gPiAtLS0KPiA+
-ICBpbmNsdWRlL3hlbi9pbnRlcmZhY2UvcGxhdGZvcm0uaCB8ICAgIDEgLQo+ID4gIDEgZmlsZXMg
-Y2hhbmdlZCwgMCBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9ucygtKQo+ID4gCj4gPiBkaWZmIC0t
-Z2l0IGEvaW5jbHVkZS94ZW4vaW50ZXJmYWNlL3BsYXRmb3JtLmggCj4gPiBiL2luY2x1ZGUveGVu
-L2ludGVyZmFjZS9wbGF0Zm9ybS5oCj4gPiBpbmRleCBjNTdkNWY2Li43ZmZmZjMzIDEwMDY0NAo+
-ID4gLS0tIGEvaW5jbHVkZS94ZW4vaW50ZXJmYWNlL3BsYXRmb3JtLmgKPiA+ICsrKyBiL2luY2x1
-ZGUveGVuL2ludGVyZmFjZS9wbGF0Zm9ybS5oCj4gPiBAQCAtMjQwLDcgKzI0MCw2IEBAIHN0cnVj
-dCB4ZW5fcHJvY2Vzc29yX2ZsYWdzIHsKPiA+ICAJdWludDMyX3QgYm1fY2hlY2s6MTsKPiA+ICAJ
-dWludDMyX3QgaGFzX2NzdDoxOwo+ID4gIAl1aW50MzJfdCBwb3dlcl9zZXR1cF9kb25lOjE7Cj4g
-PiAtCXVpbnQzMl90IGJtX3JsZF9zZXQ6MTsKPiA+ICB9Owo+ID4gIAo+ID4gIHN0cnVjdCB4ZW5f
-cHJvY2Vzc29yX3Bvd2VyIHsKPiAKPiBBbnkgc3VjaCBwYXRjaCB3b3VsZCBuZWVkIHRvIGJlIHN1
-Ym1pdHRlZCBhZ2FpbnN0IHRoZSBtYXN0ZXIgY29weQo+IG9mIHRoZSBoZWFkZXIgKGluIHRoZSBY
-ZW4gcmVwbyksIGFuZCBieSByZWNvZ25pemluZyB0aGF0IHlvdSdkIGFsc28KPiBub3RpY2UgdGhh
-dCB0aGlzIGlzIHBhcnQgb2YgYSBwdWJsaWMgQUJJLCBhbmQgaGVuY2UgY2FuJ3QgYmUgcmVtb3Zl
-ZCwKPiBidXQgYXQgYmVzdCBjYW4gYmUgZG9jdW1lbnRlZCBhcyBvYnNvbGV0ZS4gT2YgY291cnNl
-IHlvdSdkIGZpcnN0Cj4gbmVlZCB0byBjaGVjayB3aGV0aGVyIHRoZSBoeXBlcnZpc29yIG1ha2Vz
-IGFueSB1c2Ugb2YgdGhhdCBiaXQKPiB3aGVuIHBhc3NlZCBkb3duIGZyb20gRG9tMC4KPiAKClJp
-Z2h0LCB0aGlzIHBhdGNoIG1vc3RseSBsaWtlcyBhIHJlbWluZGVyLApob3Bpbmcgc29tZW9uZSB3
-aWxsIHRyeSBpdCBhbmQgdmVyaWZ5IGl0J3MgZmFpbCBvciBPSywKc2luY2UgSSBjYW4ndCB0ZXN0
-IHRoaXMgZm9yIG5vdy4KClNvcnJ5IGFuZCBUaGFua3MhCgoKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hello,
+
+Hit this right after killing trinity with Ctrl-C. Was fuzzing
+v3.10-rc4-0-gd683b96 in a qemu virtual machine as the root user.
+
+Tommi
+
+[29175] Random reseed: 3970521611
+[29175] Random reseed: 202886419
+[29175] Random reseed: 2930978521
+[179904.099501] binder: 29175:2539 ioctl 4010630e fff returned -22
+[29175] Random reseed: 2776471322
+[29175] Random reseed: 3086119361
+child 2606 exiting
+[29175] Bailing main loop. Exit reason: ctrl-c
+[179906.393060] ------------[ cut here ]------------
+[179906.396341] kernel BUG at /build/linux/mm/slub.c:3352!
+[179906.399693] invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC
+[179906.403272] CPU: 0 PID: 29175 Comm: trinity-main Not tainted 3.10.0-rc4 #1
+[179906.407692] Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+[179906.411475] task: ffff8800b69e47c0 ti: ffff880092f2e000 task.ti:
+ffff880092f2e000
+[179906.416305] RIP: 0010:[<ffffffff81225255>]  [<ffffffff81225255>]
+kfree+0x155/0x2c0
+[179906.421462] RSP: 0000:ffff880092f2fdb0  EFLAGS: 00010246
+[179906.424983] RAX: 0100000000000000 RBX: ffff88009e588000 RCX:
+0000000000000000
+[179906.429746] RDX: ffff8800b69e47c0 RSI: 00000000000a0004 RDI:
+ffff88009e588000
+[179906.434499] RBP: ffff880092f2fdd8 R08: 0000000000000001 R09:
+0000000000000000
+[179906.439226] R10: 0000000000000000 R11: 0000000000000001 R12:
+0000000000000000
+[179906.443835] R13: ffffea0002796200 R14: ffff8800b9a960f8 R15:
+ffff8800ba06f6a0
+[179906.448470] FS:  00007f04cd25c700(0000) GS:ffff8800bf600000(0000)
+knlGS:0000000000000000
+[179906.453857] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[179906.456956] CR2: 00007f98e29d8f50 CR3: 000000009294a000 CR4:
+00000000000006f0
+[179906.460558] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
+0000000000000000
+[179906.464059] DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7:
+0000000000000400
+[179906.467617] Stack:
+[179906.468704]  ffff88001a7c0000 0000000000000000 0000000000000000
+ffff8800b9a960f8
+[179906.472638]  ffff8800ba06f6a0 ffff880092f2fdf0 ffffffff81c1c6df
+ffff88001a7c0000
+[179906.476583]  ffff880092f2fe18 ffffffff81c1c771 ffff8800b69718c0
+0000000000000008
+[179906.480377] Call Trace:
+[179906.481636]  [<ffffffff81c1c6df>] vhost_net_vq_reset+0x7f/0xb0
+[179906.484611]  [<ffffffff81c1c771>] vhost_net_release+0x61/0xb0
+[179906.487481]  [<ffffffff8123237a>] __fput+0x12a/0x230
+[179906.489968]  [<ffffffff81232489>] ____fput+0x9/0x10
+[179906.492422]  [<ffffffff8113a79e>] task_work_run+0xae/0xf0
+[179906.495169]  [<ffffffff811172bc>] do_exit+0x44c/0xb40
+[179906.497789]  [<ffffffff822a24d8>] ? retint_swapgs+0x13/0x1b
+[179906.500652]  [<ffffffff81117a74>] do_group_exit+0x84/0xd0
+[179906.503348]  [<ffffffff81117ad2>] SyS_exit_group+0x12/0x20
+[179906.506146]  [<ffffffff822a2e29>] system_call_fastpath+0x16/0x1b
+[179906.509147] Code: 49 c1 ed 0c 49 c1 e5 06 49 01 c5 49 8b 45 00 f6
+c4 80 74 0a 4d 8b 6d 30 66 0f 1f 44 00 00 49 8b 45 00 a8 80 75 28 f6
+c4 c0 75 02 <0f> 0b 49 8b 45 00 31 f6 f6 c4 40 74 04 41 8b 75 68 4c 89
+ef e8
+[179906.522213] RIP  [<ffffffff81225255>] kfree+0x155/0x2c0
+[179906.524937]  RSP <ffff880092f2fdb0>
+[179906.575627] ---[ end trace 3d4ce10faaa29990 ]---
+[179906.577103] Fixing recursive fault but reboot is needed!
+[29174] Watchdog exiting
