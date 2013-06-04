@@ -1,15 +1,14 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: Re: [PATCH 2/2] xen: remove bm_rld_set of xen_processor_flags
-Date: Tue, 04 Jun 2013 09:13:24 +0100
-Message-ID: <51ADBDC402000078000DAF36@nat28.tlf.novell.com>
-References: <1370333128-11412-1-git-send-email-lig.fnst@cn.fujitsu.com>
-	<1370333128-11412-2-git-send-email-lig.fnst@cn.fujitsu.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
+Date: Tue, 04 Jun 2013 16:28:33 +0530
+Message-ID: <51ADC859.6060507__12836.8088197478$1370343291$gmane$org@linux.vnet.ibm.com>
+References: <20130601082145.22955.33596.sendpatchset@codeblue>
+	<20130601201442.GP6123@two.firstfloor.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1370333128-11412-2-git-send-email-lig.fnst@cn.fujitsu.com>
-Content-Disposition: inline
+In-Reply-To: <20130601201442.GP6123@two.firstfloor.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,37 +18,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: liguang <lig.fnst@cn.fujitsu.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, Len Brown <lenb@kernel.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Liu Jinsong <jinsong.liu@intel.com>, Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+To: Andi Kleen <andi@firstfloor.org>
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, srivatsa.vaddagiri@gmail.com, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 04.06.13 at 10:05, liguang <lig.fnst@cn.fujitsu.com> wrote:
-> bm_rld_set seems obsolete now
-> 
-> Signed-off-by: liguang <lig.fnst@cn.fujitsu.com>
-> ---
->  include/xen/interface/platform.h |    1 -
->  1 files changed, 0 insertions(+), 1 deletions(-)
-> 
-> diff --git a/include/xen/interface/platform.h 
-> b/include/xen/interface/platform.h
-> index c57d5f6..7ffff33 100644
-> --- a/include/xen/interface/platform.h
-> +++ b/include/xen/interface/platform.h
-> @@ -240,7 +240,6 @@ struct xen_processor_flags {
->  	uint32_t bm_check:1;
->  	uint32_t has_cst:1;
->  	uint32_t power_setup_done:1;
-> -	uint32_t bm_rld_set:1;
->  };
->  
->  struct xen_processor_power {
+On 06/02/2013 01:44 AM, Andi Kleen wrote:
+>
+> FWIW I use the paravirt spinlock ops for adding lock elision
+> to the spinlocks.
+>
+> This needs to be done at the top level (so the level you're removing)
+>
+> However I don't like the pv mechanism very much and would
+> be fine with using an static key hook in the main path
+> like I do for all the other lock types.
+>
+> It also uses interrupt ops patching, for that it would
+> be still needed though.
+>
 
-Any such patch would need to be submitted against the master copy
-of the header (in the Xen repo), and by recognizing that you'd also
-notice that this is part of a public ABI, and hence can't be removed,
-but at best can be documented as obsolete. Of course you'd first
-need to check whether the hypervisor makes any use of that bit
-when passed down from Dom0.
-
-Jan
+Hi Andi, IIUC, you are okay with the current approach overall right?
