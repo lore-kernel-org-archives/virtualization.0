@@ -1,13 +1,11 @@
 From: liguang <lig.fnst@cn.fujitsu.com>
-Subject: [PATCH 2/2] xen: remove bm_rld_set of xen_processor_flags
-Date: Tue, 4 Jun 2013 16:05:28 +0800
-Message-ID: <1370333128-11412-2-git-send-email-lig.fnst__25506.8144215786$1370473215$gmane$org@cn.fujitsu.com>
-References: <1370333128-11412-1-git-send-email-lig.fnst@cn.fujitsu.com>
+Subject: [PATCH 1/2] acpi/processor: remove bm_rld_set of acpi_processor_flags
+Date: Tue, 4 Jun 2013 16:05:27 +0800
+Message-ID: <1370333128-11412-1-git-send-email-lig.fnst__9232.17720487646$1370473220$gmane$org@cn.fujitsu.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1370333128-11412-1-git-send-email-lig.fnst@cn.fujitsu.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,20 +23,20 @@ bm_rld_set seems obsolete now
 
 Signed-off-by: liguang <lig.fnst@cn.fujitsu.com>
 ---
- include/xen/interface/platform.h |    1 -
+ include/acpi/processor.h |    1 -
  1 files changed, 0 insertions(+), 1 deletions(-)
 
-diff --git a/include/xen/interface/platform.h b/include/xen/interface/platform.h
-index c57d5f6..7ffff33 100644
---- a/include/xen/interface/platform.h
-+++ b/include/xen/interface/platform.h
-@@ -240,7 +240,6 @@ struct xen_processor_flags {
- 	uint32_t bm_check:1;
- 	uint32_t has_cst:1;
- 	uint32_t power_setup_done:1;
--	uint32_t bm_rld_set:1;
+diff --git a/include/acpi/processor.h b/include/acpi/processor.h
+index ea69367..cfec509 100644
+--- a/include/acpi/processor.h
++++ b/include/acpi/processor.h
+@@ -188,7 +188,6 @@ struct acpi_processor_flags {
+ 	u8 bm_check:1;
+ 	u8 has_cst:1;
+ 	u8 power_setup_done:1;
+-	u8 bm_rld_set:1;
+ 	u8 need_hotplug_init:1;
  };
  
- struct xen_processor_power {
 -- 
 1.7.2.5
