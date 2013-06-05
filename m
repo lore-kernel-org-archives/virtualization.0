@@ -1,17 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Thu, 6 Jun 2013 00:15:29 +0300
-Message-ID: <20130605211529.GB31928@redhat.com>
-References: <871u8g67d6.fsf@codemonkey.ws> <20130605140936.GB10604@redhat.com>
-	<87ehcgr3wq.fsf@codemonkey.ws> <20130605151953.GA25987@redhat.com>
-	<87bo7ktvaw.fsf@codemonkey.ws> <20130605162029.GB26561@redhat.com>
-	<87li6obd2r.fsf@codemonkey.ws> <20130605194317.GA30923@redhat.com>
+Date: Wed, 05 Jun 2013 14:15:19 -0700
+Message-ID: <51AFAA67.2010200@zytor.com>
+References: <87fvwytpa1.fsf@rustcorp.com.au>
+	<20130604064216.GD19433@redhat.com> <871u8g67d6.fsf@codemonkey.ws>
+	<20130605140936.GB10604@redhat.com> <87ehcgr3wq.fsf@codemonkey.ws>
+	<20130605151953.GA25987@redhat.com> <87bo7ktvaw.fsf@codemonkey.ws>
+	<20130605162029.GB26561@redhat.com> <87li6obd2r.fsf@codemonkey.ws>
+	<20130605194317.GA30923@redhat.com>
 	<20130605195216.GA31172@redhat.com> <87hahcqobu.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <87hahcqobu.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,64 +24,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 05, 2013 at 03:45:09PM -0500, Anthony Liguori wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> 
-> > On Wed, Jun 05, 2013 at 10:43:17PM +0300, Michael S. Tsirkin wrote:
-> >> On Wed, Jun 05, 2013 at 01:57:16PM -0500, Anthony Liguori wrote:
-> >> > "Michael S. Tsirkin" <mst@redhat.com> writes:
-> >> > 
-> >> > > On Wed, Jun 05, 2013 at 10:46:15AM -0500, Anthony Liguori wrote:
-> >> > >> Look, it's very simple.
-> >> > > We only need to do it if we do a change that breaks guests.
-> >> > >
-> >> > > Please find a guest that is broken by the patches. You won't find any.
-> >> > 
-> >> > I think the problem in this whole discussion is that we're talking past
-> >> > each other.
-> >> > 
-> >> > Here is my understanding:
-> >> > 
-> >> > 1) PCI-e says that you must be able to disable IO bars and still have a
-> >> > functioning device.
-> >> > 
-> >> > 2) It says (1) because you must size IO bars to 4096 which means that
-> >> > practically speaking, once you enable a dozen or so PIO bars, you run
-> >> > out of PIO space (16 * 4k == 64k and not all that space can be used).
-> >> 
-> >> 
-> >> Let me add 3 other issues which I mentioned and you seem to miss:
-> >> 
-> >> 3) architectures which don't have fast access to IO ports, exist
-> >>    virtio does not work there ATM
-> >> 
-> >> 4) setups with many PCI bridges exist and have the same issue
-> >>    as PCI express. virtio does not work there ATM
-> >> 
-> >> 5) On x86, even with nested page tables, firmware only decodes
-> >>    the page address on an invalid PTE, not the data. You need to
-> >>    emulate the guest to get at the data. Without
-> >>    nested page tables, we have to do page table walk and emulate
-> >>    to get both address and data. Since this is how MMIO
-> >>    is implemented in kvm on x86, MMIO is much slower than PIO
-> >>    (with nested page tables by a factor of >2, did not test without).
-> >
-> > Oh I forgot:
-> >
-> > 6) access to MMIO BARs is painful in the BIOS environment
-> >    so BIOS would typically need to enable IO for the boot device.
+On 06/05/2013 01:45 PM, Anthony Liguori wrote:
 > 
 > But if you want to boot from the 16th device, the BIOS needs to solve
 > this problem anyway.
 > 
-> Regards,
-> 
-> Anthony Liguori
 
-But it's solvable: just enable devices one by one to boot from them.
+No.  Just have the BIOS plumb the path to the device it wants to boot
+from.  Problem solved.
 
--- 
-MST
+	-hpa
