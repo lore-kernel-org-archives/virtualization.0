@@ -1,12 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC] virtio-pci: support config layout in BAR1
-Date: Wed, 5 Jun 2013 19:35:00 +0300
-Message-ID: <20130605163500.GA3393@redhat.com>
+Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
+Date: Wed, 5 Jun 2013 19:20:29 +0300
+Message-ID: <20130605162029.GB26561@redhat.com>
+References: <20130530140132.GC21440@redhat.com>
+	<874ndgujiw.fsf@rustcorp.com.au> <20130603101136.GB8649@redhat.com>
+	<87fvwytpa1.fsf@rustcorp.com.au>
+	<20130604064216.GD19433@redhat.com> <871u8g67d6.fsf@codemonkey.ws>
+	<20130605140936.GB10604@redhat.com> <87ehcgr3wq.fsf@codemonkey.ws>
+	<20130605151953.GA25987@redhat.com> <87bo7ktvaw.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <87bo7ktvaw.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,82 +23,135 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, Stephen Hemminger <shemminger@vyatta.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some setups don't support enabling BAR0 (IO BAR). Reasons range from CPU
-limitations (e.g. on some powerpc setups) to architecture limmitations
-(e.g. a setup with >15 PCI bridges, with one virtio device behind each,
-on x86).
+On Wed, Jun 05, 2013 at 10:46:15AM -0500, Anthony Liguori wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> 
+> > On Wed, Jun 05, 2013 at 10:08:37AM -0500, Anthony Liguori wrote:
+> >> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> >> 
+> >> > On Wed, Jun 05, 2013 at 07:59:33AM -0500, Anthony Liguori wrote:
+> >> >> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> >> >> 
+> >> >> > On Tue, Jun 04, 2013 at 03:01:50PM +0930, Rusty Russell wrote:
+> >> >> > You mean make BAR0 an MMIO BAR?
+> >> >> > Yes, it would break current windows guests.
+> >> >> > Further, as long as we use same address to notify all queues,
+> >> >> > we would also need to decode the instruction on x86 and that's
+> >> >> > measureably slower than PIO.
+> >> >> > We could go back to discussing hypercall use for notifications,
+> >> >> > but that has its own set of issues...
+> >> >> 
+> >> >> So... does "violating the PCI-e" spec really matter?  Is it preventing
+> >> >> any guest from working properly?
+> >> >
+> >> > Yes, absolutely, this wording in spec is not there without reason.
+> >> >
+> >> > Existing guests allocate io space for PCI express ports in
+> >> > multiples on 4K.
+> >> >
+> >> > Since each express device is behind such a port, this means
+> >> > at most 15 such devices can use IO ports in a system.
+> >> >
+> >> > That's why to make a pci express virtio device,
+> >> > we must allow MMIO and/or some other communication
+> >> > mechanism as the spec requires.
+> >> 
+> >> This is precisely why this is an ABI breaker.
+> >> 
+> >> If you disable IO bars in the BIOS, than the interface that the OS sees
+> >> will *not have an IO bar*.
+> >> 
+> >> This *breaks existing guests*.
+> >> Any time the programming interfaces changes on a PCI device, the
+> >> revision ID and/or device ID must change.  The spec is very clear about
+> >> this.
+> >> 
+> >> We cannot disable the IO BAR without changing revision ID/device ID.
+> >> 
+> >
+> > But it's a bios/PC issue. It's not a device issue.
+> >
+> > Anyway, let's put express aside.
+> >
+> > It's easy to create non-working setups with pci, today:
+> >
+> > - create 16 pci bridges
+> > - put one virtio device behind each
+> >
+> > boom
+> >
+> > Try it.
+> >
+> > I want to fix that.
+> >
+> >
+> >> > That's on x86.
+> >> >
+> >> > Besides x86, there are achitectures where IO is unavailable or very slow.
+> >> >
+> >> >> I don't think we should rush an ABI breakage if the only benefit is
+> >> >> claiming spec compliance.
+> >> >> 
+> >> >> Regards,
+> >> >> 
+> >> >> Anthony Liguori
+> >> >
+> >> > Why do you bring this up? No one advocates any ABI breakage,
+> >> > I only suggest extensions.
+> >> 
+> >> It's an ABI breakage.  You're claiming that the guests you tested
+> >> handle the breakage reasonably but it is unquestionably an ABI breakage.
+> >> 
+> >> Regards,
+> >> 
+> >> Anthony Liguori
+> >
+> > Adding BAR is not an ABI breakage, do we agree on that?
+> >
+> > Disabling IO would be but I am not proposing disabling IO.
+> >
+> > Guests might disable IO.
+> 
+> Look, it's very simple.
+> 
+> If the failure in the guest is that BAR0 mapping fails because the
+> device is enabled but the BAR is disabled,
 
-PCI Express spec made IO optional, so future guests will disable IO for
-a device in more and more configurations.
+There's no such thing as device is enabled and neither
+BAR is disabled in PCI spec.
 
-This patch makes it possible for host to mirror the config in BAR1, such
-that these setups can work properly.
+Spec says IO and memory can be enabled/disabled, separately.
+PCI Express spec says devices should work without IO.
 
-Guests with old drivers can't be fixed, they will continue to work as
-well (or as bad) as they did previously.  For this reason, changing
-revision id appears unnecessary - it would break setups that previously
-worked, partially.
+So modern guests will assume it's ok to work without IO,
+and it will become more common in the future.
 
-Future work on re-organizing layout won't conflict with this patch - it
-can use a different BAR or put config at an offset, or update revision.
+> then you've broken the ABI.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_pci.c | 32 +++++++++++++++++++++++++++++++-
- 1 file changed, 31 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index a7ce730..03564fe 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -675,6 +675,33 @@ static void virtio_pci_release_dev(struct device *_d)
- 	 */
- }
- 
-+/* Map a BAR. But carefully: make sure we don't overlap the MSI-X table */
-+static void __iomem * virtio_pci_iomap(struct pci_dev *pci_dev, int bar)
-+{
-+	int msix_cap = pci_find_capability(pci_dev, PCI_CAP_ID_MSIX);
-+	if (msix_cap) {
-+		u32 offset;
-+		u8 bir;
-+		pci_read_config_dword(pci_dev, msix_cap + PCI_MSIX_TABLE,
-+				      &offset);
-+		bir = (u8)(offset & PCI_MSIX_TABLE_BIR);
-+		offset &= PCI_MSIX_TABLE_OFFSET;
-+		/* Spec says table offset is in a 4K page all by itself */
-+		if (bir == bar && offset < 4096)
-+			return NULL;
-+
-+		pci_read_config_dword(pci_dev, msix_cap + PCI_MSIX_PBA,
-+				      &offset);
-+		bir = (u8)(offset & PCI_MSIX_PBA_BIR);
-+		offset &= PCI_MSIX_PBA_OFFSET;
-+		/* Spec says table offset is in a 4K page all by itself. */
-+		if (bir == bar && offset < 4096)
-+			return NULL;
-+	}
-+	/* 4K is enough for all devices at the moment. */
-+	return pci_iomap(pci_dev, 0, 4096);
-+}
-+
- /* the PCI probing function */
- static int virtio_pci_probe(struct pci_dev *pci_dev,
- 			    const struct pci_device_id *id)
-@@ -716,7 +743,10 @@ static int virtio_pci_probe(struct pci_dev *pci_dev,
- 	if (err)
- 		goto out_enable_device;
- 
--	vp_dev->ioaddr = pci_iomap(pci_dev, 0, 0);
-+	vp_dev->ioaddr = virtio_pci_iomap(pci_dev, 0);
-+	/* Failed to map BAR0? Try with BAR1. */
-+	if (vp_dev->ioaddr == NULL)
-+		vp_dev->ioaddr = virtio_pci_iomap(pci_dev, 1);
- 	if (vp_dev->ioaddr == NULL) {
- 		err = -ENOMEM;
- 		goto out_req_regions;
+No.  It means that the ABI is broken.
+
+Guests can disable IO *today* and when they do things don't work.
+
+> 
+> And what's worse is that this isn't for an obscure scenario (like having
+> 15 PCI bridges) but for something that would become the standard
+> scenario (using a PCI-e bus).
+> 
+> We need to either bump the revision ID or the device ID if we do this.
+> 
+> Regards,
+> 
+> Anthony Liguori
+
+We only need to do it if we do a change that breaks guests.
+
+Please find a guest that is broken by the patches. You won't find any.
+
+
 -- 
 MST
