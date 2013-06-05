@@ -1,19 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Wed, 05 Jun 2013 16:49:22 +0930
-Message-ID: <87hahdrpmt.fsf@rustcorp.com.au>
-References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
-	<87ppwammp5.fsf@rustcorp.com.au> <87mwreq76y.fsf@codemonkey.ws>
-	<87wqqhktjx.fsf@rustcorp.com.au> <87fvx460ba.fsf@codemonkey.ws>
-	<20130530140132.GC21440@redhat.com>
-	<874ndgujiw.fsf@rustcorp.com.au> <20130603101136.GB8649@redhat.com>
-	<87fvwytpa1.fsf@rustcorp.com.au>
-	<20130604064216.GD19433@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH] vhost_net: clear msg.control for non-zerocopy case during tx
+Date: Wed,  5 Jun 2013 15:40:46 +0800
+Message-ID: <1370418046-11851-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130604064216.GD19433@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,39 +15,57 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
->> By my count, net still has 7 feature bits left, so I don't think the
->> feature bits are likely to be a limitation in the next 6 months?
->
-> Yes but you wanted a generic transport feature bit
-> for flexible SG layout.
-> Are you happy with VIRTIO_NET_F_ANY_HEADER_SG then?
+When we decide not use zero-copy, msg.control should be set to NULL otherwise
+macvtap/tap may set zerocopy callbacks which may decrease the kref of ubufs
+wrongly.
 
-If we need it within 6 months, I'd rather do that: this feature would
-then be assumed for 1.0, and reserved.  We may do that for other
-features, too (the committee will have to review).
+Bug were introduced by commit cedb9bdce099206290a2bdd02ce47a7b253b6a84
+(vhost-net: skip head management if no outstanding).
 
->> MMIO is a bigger problem.  Linux guests are happy with it: does it break
->> the Windows drivers?
->> 
->> Thanks,
->> Rusty.
->
-> You mean make BAR0 an MMIO BAR?
-> Yes, it would break current windows guests.
-> Further, as long as we use same address to notify all queues,
-> we would also need to decode the instruction on x86 and that's
-> measureably slower than PIO.
-> We could go back to discussing hypercall use for notifications,
-> but that has its own set of issues...
+This solves the following warnings:
 
-We might have something ready to deploy in 3 months, but realistically,
-I'd rather have it ready and tested outside the main git tree(s) and
-push it once the standard is committed.
+WARNING: at include/linux/kref.h:47 handle_tx+0x477/0x4b0 [vhost_net]()
+Modules linked in: vhost_net macvtap macvlan tun nfsd exportfs bridge stp llc openvswitch kvm_amd kvm bnx2 megaraid_sas [last unloaded: tun]
+CPU: 5 PID: 8670 Comm: vhost-8668 Not tainted 3.10.0-rc2+ #1566
+Hardware name: Dell Inc. PowerEdge R715/00XHKG, BIOS 1.5.2 04/19/2011
+ffffffffa0198323 ffff88007c9ebd08 ffffffff81796b73 ffff88007c9ebd48
+ffffffff8103d66b 000000007b773e20 ffff8800779f0000 ffff8800779f43f0
+ffff8800779f8418 000000000000015c 0000000000000062 ffff88007c9ebd58
+Call Trace:
+[<ffffffff81796b73>] dump_stack+0x19/0x1e
+[<ffffffff8103d66b>] warn_slowpath_common+0x6b/0xa0
+[<ffffffff8103d6b5>] warn_slowpath_null+0x15/0x20
+[<ffffffffa0197627>] handle_tx+0x477/0x4b0 [vhost_net]
+[<ffffffffa0197690>] handle_tx_kick+0x10/0x20 [vhost_net]
+[<ffffffffa019541e>] vhost_worker+0xfe/0x1a0 [vhost_net]
+[<ffffffffa0195320>] ? vhost_attach_cgroups_work+0x30/0x30 [vhost_net]
+[<ffffffffa0195320>] ? vhost_attach_cgroups_work+0x30/0x30 [vhost_net]
+[<ffffffff81061f46>] kthread+0xc6/0xd0
+[<ffffffff81061e80>] ? kthread_freezable_should_stop+0x70/0x70
+[<ffffffff817a1aec>] ret_from_fork+0x7c/0xb0
+[<ffffffff81061e80>] ? kthread_freezable_should_stop+0x70/0x70
 
-Cheers,
-Rusty.
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/net.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 2b51e23..b07d96b 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -436,7 +436,8 @@ static void handle_tx(struct vhost_net *net)
+ 				kref_get(&ubufs->kref);
+ 			}
+ 			nvq->upend_idx = (nvq->upend_idx + 1) % UIO_MAXIOV;
+-		}
++		} else
++			msg.msg_control = NULL;
+ 		/* TODO: Check specific error and bomb out unless ENOBUFS? */
+ 		err = sock->ops->sendmsg(NULL, sock, &msg, len);
+ 		if (unlikely(err < 0)) {
+-- 
+1.7.1
