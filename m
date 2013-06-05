@@ -1,21 +1,19 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Wed, 05 Jun 2013 17:08:49 -0500
-Message-ID: <874ndcb47i.fsf@codemonkey.ws>
-References: <20130530140132.GC21440@redhat.com>
-	<874ndgujiw.fsf@rustcorp.com.au> <20130603101136.GB8649@redhat.com>
-	<87fvwytpa1.fsf@rustcorp.com.au>
-	<20130604064216.GD19433@redhat.com> <871u8g67d6.fsf@codemonkey.ws>
-	<20130605140936.GB10604@redhat.com> <87ehcgr3wq.fsf@codemonkey.ws>
-	<20130605151953.GA25987@redhat.com> <87bo7ktvaw.fsf@codemonkey.ws>
-	<20130605162029.GB26561@redhat.com>
-	<51AFA92B.2030203@zytor.com> <87fvwwmdmf.fsf@codemonkey.ws>
-	<51AFB3DD.1050902@zytor.com>
+Date: Thu, 06 Jun 2013 08:19:57 +1000
+Message-ID: <1370470797.3766.231.camel@pasglop>
+References: <20130604064216.GD19433@redhat.com>
+	<871u8g67d6.fsf@codemonkey.ws> <20130605140936.GB10604@redhat.com>
+	<87ehcgr3wq.fsf@codemonkey.ws> <20130605151953.GA25987@redhat.com>
+	<87bo7ktvaw.fsf@codemonkey.ws> <20130605162029.GB26561@redhat.com>
+	<87li6obd2r.fsf@codemonkey.ws> <20130605194317.GA30923@redhat.com>
+	<87k3m8qofi.fsf@codemonkey.ws> <20130605211405.GA31928@redhat.com>
+	<87d2s0mdh8.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51AFB3DD.1050902@zytor.com>
+In-Reply-To: <87d2s0mdh8.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,59 +23,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
+To: Anthony Liguori <aliguori@us.ibm.com>
 Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+On Wed, 2013-06-05 at 16:53 -0500, Anthony Liguori wrote:
 
-> On 06/05/2013 02:50 PM, Anthony Liguori wrote:
->> "H. Peter Anvin" <hpa@zytor.com> writes:
->> 
->>> On 06/05/2013 09:20 AM, Michael S. Tsirkin wrote:
->>>>
->>>> Spec says IO and memory can be enabled/disabled, separately.
->>>> PCI Express spec says devices should work without IO.
->>>>
->>>
->>> For "native endpoints".  Currently virtio would be a "legacy endpoint"
->>> which is quite correct -- it is compatible with a legacy interface.
->> 
->> Do legacy endpoints also use 4k for BARs?
->
-> There are no 4K BARs.  In fact, I/O BARs are restricted by spec (there
-> is no technical enforcement, however) to 256 bytes.
->
-> The 4K come from the upstream bridge windows, which are only 4K granular
-> (historic stuff from when bridges were assumed rare.)  However, there
-> can be multiple devices, functions, and BARs inside that window.
+> Existing PowerPC remaps PIO to MMAP so it works fine today.
+> 
+> Future platforms may not do this but future platforms can use a
+> different device.  They certainly won't be able to use the existing
+> drivers anyway.
+> 
+> Ben, am I wrong here?
 
-Got it.
+Well, we do remap PIO, though it's ugly and annoying so we'd rather
+avoid it alltogether :-)
 
->
-> The issue with PCIe is that each PCIe port is a bridge, so in reality
-> there is only one real device per bus number.
->
->> If not, can't we use a new device id for native endpoints and call it a
->> day?  Legacy endpoints would continue using the existing BAR layout.
->
-> Definitely an option.  However, we want to be able to boot from native
-> devices, too, so having an I/O BAR (which would not be used by the OS
-> driver) should still at the very least be an option.
+Our latest HW PHBs don't support PIO at all, so while we can still
+support it in the virtual ones in the guest for ever, it's becoming
+pretty clear that PIO is on the way out ...
 
-What makes it so difficult to work with an MMIO bar for PCI-e?
+> >> > 	- we won't be able to drop IO BAR from virtio
+> >> 
+> >> An IO BAR is useless if it means we can't have more than 12 devices.
+> >
+> >
+> > It's not useless. A smart BIOS can enable devices one by one as
+> > it tries to boot from them.
+> 
+> A smart BIOS can also use MMIO to program virtio.
 
-With legacy PCI, tracking allocation of MMIO vs. PIO is pretty straight
-forward.  Is there something special about PCI-e here?
+Indeed :-)
 
-Regards,
+I see no reason why not providing both access path though. Have the PIO
+BAR there for compatibility/legacy/BIOS/x86 purposes and *also* have the
+MMIO window which I'd be happy to favor on power.
 
-Anthony Liguori
+We could even put somewhere in there a feature bit set by qemu to
+indicate whether it thinks PIO or MMIO is faster on a given platform if
+you really think that's worth it (I don't).
 
->
-> 	-hpa
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Ben.
