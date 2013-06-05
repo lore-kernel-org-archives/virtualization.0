@@ -1,132 +1,79 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Wed, 5 Jun 2013 18:19:53 +0300
-Message-ID: <20130605151953.GA25987@redhat.com>
-References: <87wqqhktjx.fsf@rustcorp.com.au> <87fvx460ba.fsf@codemonkey.ws>
-	<20130530140132.GC21440@redhat.com>
-	<874ndgujiw.fsf@rustcorp.com.au> <20130603101136.GB8649@redhat.com>
-	<87fvwytpa1.fsf@rustcorp.com.au>
-	<20130604064216.GD19433@redhat.com> <871u8g67d6.fsf@codemonkey.ws>
-	<20130605140936.GB10604@redhat.com> <87ehcgr3wq.fsf@codemonkey.ws>
+Subject: Re: [PULL] vhost: cleanups and fixes
+Date: Wed, 5 Jun 2013 18:53:38 +0300
+Message-ID: <20130605155338.GA26561@redhat.com>
+References: <20130502105353.GA24655@redhat.com>
+ <1367520929.23900.114.camel@haakon3.risingtidesystems.com>
+ <20130502193309.GC16031@redhat.com>
+ <CA+55aFwwVMhmmJfWoepipWT+WQZHt4gRPKSucgBABe5Rq=kVkw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <87ehcgr3wq.fsf@codemonkey.ws>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
-	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Sender: virtualization-bounces@lists.linux-foundation.org
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+In-Reply-To: <CA+55aFwwVMhmmJfWoepipWT+WQZHt4gRPKSucgBABe5Rq=kVkw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Nicholas A. Bellinger" <nab@linux-iscsi.org>, KVM list <kvm@vger.kernel.org>, virtualization@lists.osdl.org, Network Development <netdev@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Asias He <asias@redhat.com>, target-devel <target-devel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 05, 2013 at 10:08:37AM -0500, Anthony Liguori wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> 
-> > On Wed, Jun 05, 2013 at 07:59:33AM -0500, Anthony Liguori wrote:
-> >> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> >> 
-> >> > On Tue, Jun 04, 2013 at 03:01:50PM +0930, Rusty Russell wrote:
-> >> > You mean make BAR0 an MMIO BAR?
-> >> > Yes, it would break current windows guests.
-> >> > Further, as long as we use same address to notify all queues,
-> >> > we would also need to decode the instruction on x86 and that's
-> >> > measureably slower than PIO.
-> >> > We could go back to discussing hypercall use for notifications,
-> >> > but that has its own set of issues...
-> >> 
-> >> So... does "violating the PCI-e" spec really matter?  Is it preventing
-> >> any guest from working properly?
+On Thu, May 02, 2013 at 12:49:42PM -0700, Linus Torvalds wrote:
+> On Thu, May 2, 2013 at 12:33 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
-> > Yes, absolutely, this wording in spec is not there without reason.
-> >
-> > Existing guests allocate io space for PCI express ports in
-> > multiples on 4K.
-> >
-> > Since each express device is behind such a port, this means
-> > at most 15 such devices can use IO ports in a system.
-> >
-> > That's why to make a pci express virtio device,
-> > we must allow MMIO and/or some other communication
-> > mechanism as the spec requires.
+> > I prefer not rebasing,
 > 
-> This is precisely why this is an ABI breaker.
+> Good.
 > 
-> If you disable IO bars in the BIOS, than the interface that the OS sees
-> will *not have an IO bar*.
+> >                   will play with git to see why
+> > does request-pull get me a wrong diffstat and how
+> > to trick it into doing the right thing.
+> > Maybe merging my branch into master will do this.
 > 
-> This *breaks existing guests*.
-> Any time the programming interfaces changes on a PCI device, the
-> revision ID and/or device ID must change.  The spec is very clear about
-> this.
+> No, don't do an unnecessary merge just to get the diffstat right.
 > 
-> We cannot disable the IO BAR without changing revision ID/device ID.
+> git pull-request ends up assuming that there are no back-merges, and
+> that you have a uniquely defined single shared merge base. That allows
+> pull-request to just generate the diff directly from that merge base,
+> without actually trying to do the merge itself (which may have
+> conflicts etc).
 > 
-
-But it's a bios/PC issue. It's not a device issue.
-
-Anyway, let's put express aside.
-
-It's easy to create non-working setups with pci, today:
-
-- create 16 pci bridges
-- put one virtio device behind each
-
-boom
-
-Try it.
-
-I want to fix that.
-
-
-> > That's on x86.
-> >
-> > Besides x86, there are achitectures where IO is unavailable or very slow.
-> >
-> >> I don't think we should rush an ABI breakage if the only benefit is
-> >> claiming spec compliance.
-> >> 
-> >> Regards,
-> >> 
-> >> Anthony Liguori
-> >
-> > Why do you bring this up? No one advocates any ABI breakage,
-> > I only suggest extensions.
+> But because git pull-request doesn't actually *do* the merge, it means
+> that it will fail to give the correct diffstat if the tree is
+> complicated and has multiple merge bases, and it can't really figure
+> what the original shared state was before the development.
 > 
-> It's an ABI breakage.  You're claiming that the guests you tested
-> handle the breakage reasonably but it is unquestionably an ABI breakage.
+> This is just one reason I do *not* want to see back-merges. They make
+> history harder to read not just for humans.
 > 
-> Regards,
+> You can either ignore the problem (I'll see the real diffstat when I
+> actually do the merge), or you can do a test-merge yourself (that you
+> do *not* then push out in the development branch - keep it in a
+> temporary branch for your own edification or just delete it after
+> doing the merge, and don't do development on it!)
 > 
-> Anthony Liguori
+> In this case, it's an indirect back-merge: you back-merged a commit
+> from the target tree that I have now merged, so it has become a
+> back-merge. I'm not sure why you did that - if you needed to start
+> from that state, it would actually have been better to just start at
+> that state instead of merging it.
 
-Adding BAR is not an ABI breakage, do we agree on that?
+OK I'm in that situation again. I have some vhost-net patches that depend on
+changes in tip.
+But I also have a vhost-next branch with unrelated changes, that
+I started from -rc3.
 
-Disabling IO would be but I am not proposing disabling IO.
+Previously I would just merge tip into vhost-next, then everyone's
+happy, but it will create an implicit back-merge again, won't it?
 
-Guests might disable IO.
+So what should I do?
 
-I propose a way to make virtio still work if they do.
+Sorry about being dense.
 
-This is *fixing* things. Not breaking.
-
-> >
-> >
-> >> >
-> >> > -- 
-> >> > MST
-> >> > --
-> >> > To unsubscribe from this list: send the line "unsubscribe kvm" in
-> >> > the body of a message to majordomo@vger.kernel.org
-> >> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe kvm" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> But whatever. You can get the
+> diffstat by using your merge as the base, so
+> 
+>     git diff -M --stat --summary bc7562355fda..
+> 
+> in your branch should get the right result without any merges etc..
+> But please do send me a proper pull request.
+> 
+>               Linus
