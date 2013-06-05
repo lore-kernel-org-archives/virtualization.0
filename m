@@ -1,14 +1,21 @@
-From: Tommi Rantala <tt.rantala@gmail.com>
-Subject: Re: vhost && kernel BUG at /build/linux/mm/slub.c:3352!
-Date: Wed, 5 Jun 2013 15:06:33 +0300
-Message-ID: <CA+ydwtq6FNSXhjGuqtQBUKVQJNOD_iKWpnUqj4rbfQJTkw+bog__10460.5515524328$1370473251$gmane$org@mail.gmail.com>
-References: <CA+ydwtrtpA3jXojG3tKt_-ueJOWDSOL1trM9h6F5qLvdoonUOw@mail.gmail.com>
-	<20130605115408.GA2643@redhat.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
+Date: Wed, 05 Jun 2013 16:07:18 -0700
+Message-ID: <51AFC4A6.6070607@zytor.com>
+References: <20130530140132.GC21440@redhat.com>
+	<874ndgujiw.fsf@rustcorp.com.au> <20130603101136.GB8649@redhat.com>
+	<87fvwytpa1.fsf@rustcorp.com.au>
+	<20130604064216.GD19433@redhat.com> <871u8g67d6.fsf@codemonkey.ws>
+	<20130605140936.GB10604@redhat.com> <87ehcgr3wq.fsf@codemonkey.ws>
+	<20130605151953.GA25987@redhat.com> <87bo7ktvaw.fsf@codemonkey.ws>
+	<20130605162029.GB26561@redhat.com>
+	<51AFA92B.2030203@zytor.com> <87fvwwmdmf.fsf@codemonkey.ws>
+	<51AFB3DD.1050902@zytor.com> <874ndcb47i.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130605115408.GA2643@redhat.com>
+In-Reply-To: <874ndcb47i.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,28 +25,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, trinity@vger.kernel.org, Dave Jones <davej@redhat.com>
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-2013/6/5 Michael S. Tsirkin <mst@redhat.com>:
-> On Tue, Jun 04, 2013 at 09:50:59PM +0300, Tommi Rantala wrote:
->> Hello,
+On 06/05/2013 03:08 PM, Anthony Liguori wrote:
 >>
->> Hit this right after killing trinity with Ctrl-C. Was fuzzing
->> v3.10-rc4-0-gd683b96 in a qemu virtual machine as the root user.
->>
->> Tommi
->
-> Thanks a lot for the report. If found some bugs when looking
-> at this: I think they were introduced by
-> 2839400f8fe28ce216eeeba3fb97bdf90977f7ad
-> though I don't exactly see how ctrl-c can trigger this.
-> I'll work on patches - is this reproducible at all?
+>> Definitely an option.  However, we want to be able to boot from native
+>> devices, too, so having an I/O BAR (which would not be used by the OS
+>> driver) should still at the very least be an option.
+> 
+> What makes it so difficult to work with an MMIO bar for PCI-e?
+> 
+> With legacy PCI, tracking allocation of MMIO vs. PIO is pretty straight
+> forward.  Is there something special about PCI-e here?
+> 
 
-Thanks, glad to hear that the report was useful.
+It's not tracking allocation.  It is that accessing memory above 1 MiB
+is incredibly painful in the BIOS environment, which basically means
+MMIO is inaccessible.
 
-Yes, I did reproduce this quite quickly yesterday with trinity, but
-did not dig any deeper into what was going on.
-
-Tommi
+	-hpa
