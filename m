@@ -1,18 +1,20 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Wed, 05 Jun 2013 16:53:07 -0500
-Message-ID: <87d2s0mdh8.fsf__46538.1263442852$1370469233$gmane$org@codemonkey.ws>
-References: <20130604064216.GD19433@redhat.com> <871u8g67d6.fsf@codemonkey.ws>
+Date: Wed, 05 Jun 2013 14:55:41 -0700
+Message-ID: <51AFB3DD.1050902@zytor.com>
+References: <20130530140132.GC21440@redhat.com>
+	<874ndgujiw.fsf@rustcorp.com.au> <20130603101136.GB8649@redhat.com>
+	<87fvwytpa1.fsf@rustcorp.com.au>
+	<20130604064216.GD19433@redhat.com> <871u8g67d6.fsf@codemonkey.ws>
 	<20130605140936.GB10604@redhat.com> <87ehcgr3wq.fsf@codemonkey.ws>
 	<20130605151953.GA25987@redhat.com> <87bo7ktvaw.fsf@codemonkey.ws>
-	<20130605162029.GB26561@redhat.com> <87li6obd2r.fsf@codemonkey.ws>
-	<20130605194317.GA30923@redhat.com> <87k3m8qofi.fsf@codemonkey.ws>
-	<20130605211405.GA31928@redhat.com>
+	<20130605162029.GB26561@redhat.com>
+	<51AFA92B.2030203@zytor.com> <87fvwwmdmf.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130605211405.GA31928@redhat.com>
+In-Reply-To: <87fvwwmdmf.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,68 +24,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
+On 06/05/2013 02:50 PM, Anthony Liguori wrote:
+> "H. Peter Anvin" <hpa@zytor.com> writes:
+> 
+>> On 06/05/2013 09:20 AM, Michael S. Tsirkin wrote:
+>>>
+>>> Spec says IO and memory can be enabled/disabled, separately.
+>>> PCI Express spec says devices should work without IO.
+>>>
+>>
+>> For "native endpoints".  Currently virtio would be a "legacy endpoint"
+>> which is quite correct -- it is compatible with a legacy interface.
+> 
+> Do legacy endpoints also use 4k for BARs?
 
-> On Wed, Jun 05, 2013 at 03:42:57PM -0500, Anthony Liguori wrote:
->> "Michael S. Tsirkin" <mst@redhat.com> writes:
->> 
->> Can you explain?  I thought the whole trick with separating out the
->> virtqueue notification register was to regain the performance?
->
-> Yes but this trick only works well with NPT (it's still a bit
-> slower than PIO but not so drastically).
-> Without NPT you still need a page walk so it will be slow.
+There are no 4K BARs.  In fact, I/O BARs are restricted by spec (there
+is no technical enforcement, however) to 256 bytes.
 
-Do you mean NPT/EPT?
+The 4K come from the upstream bridge windows, which are only 4K granular
+(historic stuff from when bridges were assumed rare.)  However, there
+can be multiple devices, functions, and BARs inside that window.
 
-If your concern is shadow paging, then I think you're concerned about
-hardware that is so slow to start with that it's not worth considering.
+The issue with PCIe is that each PCIe port is a bridge, so in reality
+there is only one real device per bus number.
 
->> >> It also maps to what regular hardware does.  I highly doubt that there
->> >> are any real PCI cards that made the shift from PCI to PCI-e without
->> >> bumping at least a revision ID.
->> >
->> > Only because the chance it's 100% compatible on the software level is 0.
->> > It always has some hardware specific quirks.
->> > No such excuse here.
->> >
->> >> It also means we don't need to play games about sometimes enabling IO
->> >> bars and sometimes not.
->> >
->> > This last paragraph is wrong, it ignores the issues 3) to 5) 
->> > I added above.
->> >
->> > If you do take them into account:
->> > 	- there are reasons to add MMIO BAR to PCI,
->> > 	  even without PCI express
->> 
->> So far, the only reason you've provided is "it doesn't work on some
->> architectures."  Which architectures?
->
-> PowerPC wants this.
+> If not, can't we use a new device id for native endpoints and call it a
+> day?  Legacy endpoints would continue using the existing BAR layout.
 
-Existing PowerPC remaps PIO to MMAP so it works fine today.
+Definitely an option.  However, we want to be able to boot from native
+devices, too, so having an I/O BAR (which would not be used by the OS
+driver) should still at the very least be an option.
 
-Future platforms may not do this but future platforms can use a
-different device.  They certainly won't be able to use the existing
-drivers anyway.
-
-Ben, am I wrong here?
-
->> > 	- we won't be able to drop IO BAR from virtio
->> 
->> An IO BAR is useless if it means we can't have more than 12 devices.
->
->
-> It's not useless. A smart BIOS can enable devices one by one as
-> it tries to boot from them.
-
-A smart BIOS can also use MMIO to program virtio.
-
-Regards,
-
-Anthony Liguori
+	-hpa
