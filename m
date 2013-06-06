@@ -1,12 +1,19 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V2] vhost_net: clear msg.control for non-zerocopy case during
-	tx
-Date: Thu,  6 Jun 2013 11:24:02 +0800
-Message-ID: <1370489042-14318-1-git-send-email-jasowang@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
+Date: Thu, 06 Jun 2013 13:12:04 +0930
+Message-ID: <87y5anrjlf.fsf@rustcorp.com.au>
+References: <20130530140132.GC21440@redhat.com>
+	<874ndgujiw.fsf@rustcorp.com.au> <20130603101136.GB8649@redhat.com>
+	<87fvwytpa1.fsf@rustcorp.com.au>
+	<20130604064216.GD19433@redhat.com> <871u8g67d6.fsf@codemonkey.ws>
+	<20130605140936.GB10604@redhat.com> <87ehcgr3wq.fsf@codemonkey.ws>
+	<20130605151953.GA25987@redhat.com> <87bo7ktvaw.fsf@codemonkey.ws>
+	<20130605162029.GB26561@redhat.com> <87li6obd2r.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <87li6obd2r.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,63 +23,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: sergei.shtylyov@cogentembedded.com
+To: Anthony Liguori <aliguori@us.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When we decide not use zero-copy, msg.control should be set to NULL otherwise
-macvtap/tap may set zerocopy callbacks which may decrease the kref of ubufs
-wrongly.
+Anthony Liguori <aliguori@us.ibm.com> writes:
+> 4) Do virtio-pcie, make it PCI-e friendly (drop the IO BAR completely), give
+>    it a new device/vendor ID.   Continue to use virtio-pci for existing
+>    devices potentially adding virtio-{net,blk,...}-pcie variants for
+>    people that care to use them.
 
-Bug were introduced by commit cedb9bdce099206290a2bdd02ce47a7b253b6a84
-(vhost-net: skip head management if no outstanding).
+Now you have a different compatibility problem; how do you know the
+guest supports the new virtio-pcie net?
 
-This solves the following warnings:
+If you put a virtio-pci card behind a PCI-e bridge today, it's not
+compliant, but AFAICT it will Just Work.  (Modulo the 16-dev limit).
 
-WARNING: at include/linux/kref.h:47 handle_tx+0x477/0x4b0 [vhost_net]()
-Modules linked in: vhost_net macvtap macvlan tun nfsd exportfs bridge stp llc openvswitch kvm_amd kvm bnx2 megaraid_sas [last unloaded: tun]
-CPU: 5 PID: 8670 Comm: vhost-8668 Not tainted 3.10.0-rc2+ #1566
-Hardware name: Dell Inc. PowerEdge R715/00XHKG, BIOS 1.5.2 04/19/2011
-ffffffffa0198323 ffff88007c9ebd08 ffffffff81796b73 ffff88007c9ebd48
-ffffffff8103d66b 000000007b773e20 ffff8800779f0000 ffff8800779f43f0
-ffff8800779f8418 000000000000015c 0000000000000062 ffff88007c9ebd58
-Call Trace:
-[<ffffffff81796b73>] dump_stack+0x19/0x1e
-[<ffffffff8103d66b>] warn_slowpath_common+0x6b/0xa0
-[<ffffffff8103d6b5>] warn_slowpath_null+0x15/0x20
-[<ffffffffa0197627>] handle_tx+0x477/0x4b0 [vhost_net]
-[<ffffffffa0197690>] handle_tx_kick+0x10/0x20 [vhost_net]
-[<ffffffffa019541e>] vhost_worker+0xfe/0x1a0 [vhost_net]
-[<ffffffffa0195320>] ? vhost_attach_cgroups_work+0x30/0x30 [vhost_net]
-[<ffffffffa0195320>] ? vhost_attach_cgroups_work+0x30/0x30 [vhost_net]
-[<ffffffff81061f46>] kthread+0xc6/0xd0
-[<ffffffff81061e80>] ? kthread_freezable_should_stop+0x70/0x70
-[<ffffffff817a1aec>] ret_from_fork+0x7c/0xb0
-[<ffffffff81061e80>] ? kthread_freezable_should_stop+0x70/0x70
+I've been assuming we'd avoid a "flag day" change; that devices would
+look like existing virtio-pci with capabilities indicating the new
+config layout.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-The patch is needed for -stable.
+> I think 4 is the best path forward.  It's better for users (guests
+> continue to work as they always have).  There's less confusion about
+> enabling PCI-e support--you must ask for the virtio-pcie variant and you
+> must have a virtio-pcie driver.  It's easy to explain.
 
-Changes from v1:
-- code style issue fix
----
- drivers/vhost/net.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+Removing both forward and backward compatibility is easy to explain, but
+I think it'll be harder to deploy.  This is your area though, so perhaps
+I'm wrong.
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 2b51e23..518622d 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -436,6 +436,8 @@ static void handle_tx(struct vhost_net *net)
- 				kref_get(&ubufs->kref);
- 			}
- 			nvq->upend_idx = (nvq->upend_idx + 1) % UIO_MAXIOV;
-+		} else {
-+			msg.msg_control = NULL;
- 		}
- 		/* TODO: Check specific error and bomb out unless ENOBUFS? */
- 		err = sock->ops->sendmsg(NULL, sock, &msg, len);
--- 
-1.7.1
+> It also maps to what regular hardware does.  I highly doubt that there
+> are any real PCI cards that made the shift from PCI to PCI-e without
+> bumping at least a revision ID.
+
+Noone expected the new cards to Just Work with old OSes: a new machine
+meant a new OS and new drivers.  Hardware vendors like that.
+
+Since virtualization often involves legacy, our priorities might be
+different.
+
+Cheers,
+Rusty.
