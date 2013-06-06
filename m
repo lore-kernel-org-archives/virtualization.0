@@ -1,18 +1,19 @@
-From: Gleb Natapov <gleb@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Thu, 6 Jun 2013 09:34:33 +0300
-Message-ID: <20130606063432.GQ4725@redhat.com>
-References: <87ehcgr3wq.fsf@codemonkey.ws> <20130605151953.GA25987@redhat.com>
-	<87bo7ktvaw.fsf@codemonkey.ws> <20130605162029.GB26561@redhat.com>
-	<51AFA92B.2030203@zytor.com> <87fvwwmdmf.fsf@codemonkey.ws>
-	<51AFB3DD.1050902@zytor.com> <874ndcb47i.fsf@codemonkey.ws>
-	<51AFC4A6.6070607@zytor.com> <877gi8nk9e.fsf@codemonkey.ws>
+Date: Thu, 6 Jun 2013 11:02:57 +0300
+Message-ID: <20130606080257.GA5834@redhat.com>
+References: <20130528160342.GA29915@redhat.com> <87bo7vvxej.fsf@codemonkey.ws>
+	<87ppwammp5.fsf@rustcorp.com.au> <87mwreq76y.fsf@codemonkey.ws>
+	<87wqqhktjx.fsf@rustcorp.com.au> <87fvx460ba.fsf@codemonkey.ws>
+	<20130530140132.GC21440@redhat.com>
+	<874ndgujiw.fsf@rustcorp.com.au> <20130603101136.GB8649@redhat.com>
+	<87fvwytpa1.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <877gi8nk9e.fsf@codemonkey.ws>
+In-Reply-To: <87fvwytpa1.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,38 +23,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 05, 2013 at 07:41:17PM -0500, Anthony Liguori wrote:
-> "H. Peter Anvin" <hpa@zytor.com> writes:
-> 
-> > On 06/05/2013 03:08 PM, Anthony Liguori wrote:
-> >>>
-> >>> Definitely an option.  However, we want to be able to boot from native
-> >>> devices, too, so having an I/O BAR (which would not be used by the OS
-> >>> driver) should still at the very least be an option.
+On Tue, Jun 04, 2013 at 03:01:50PM +0930, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > On Mon, Jun 03, 2013 at 09:56:15AM +0930, Rusty Russell wrote:
+> >> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> >> > On Thu, May 30, 2013 at 08:53:45AM -0500, Anthony Liguori wrote:
+> >> >> Rusty Russell <rusty@rustcorp.com.au> writes:
+> >> >> 
+> >> >> > Anthony Liguori <aliguori@us.ibm.com> writes:
+> >> >> >> Forcing a guest driver change is a really big
+> >> >> >> deal and I see no reason to do that unless there's a compelling reason
+> >> >> >> to.
+> >> >> >>
+> >> >> >> So we're stuck with the 1.0 config layout for a very long time.
+> >> >> >
+> >> >> > We definitely must not force a guest change.  The explicit aim of the
+> >> >> > standard is that "legacy" and 1.0 be backward compatible.  One
+> >> >> > deliverable is a document detailing how this is done (effectively a
+> >> >> > summary of changes between what we have and 1.0).
+> >> >> 
+> >> >> If 2.0 is fully backwards compatible, great.  It seems like such a
+> >> >> difference that that would be impossible but I need to investigate
+> >> >> further.
+> >> >> 
+> >> >> Regards,
+> >> >> 
+> >> >> Anthony Liguori
+> >> >
+> >> > If you look at my patches you'll see how it works.
+> >> > Basically old guests use BAR0 new ones don't, so
+> >> > it's easy: BAR0 access means legacy guest.
+> >> > Only started testing but things seem to work
+> >> > fine with old guests so far.
+> >> >
+> >> > I think we need a spec, not just driver code.
+> >> >
+> >> > Rusty what's the plan? Want me to write it?
 > >> 
-> >> What makes it so difficult to work with an MMIO bar for PCI-e?
-> >> 
-> >> With legacy PCI, tracking allocation of MMIO vs. PIO is pretty straight
-> >> forward.  Is there something special about PCI-e here?
-> >> 
+> >> We need both, of course, but the spec work will happen in the OASIS WG.
+> >> A draft is good, but let's not commit anything to upstream QEMU until we
+> >> get the spec finalized.  And that is proposed to be late this year.
 > >
-> > It's not tracking allocation.  It is that accessing memory above 1 MiB
-> > is incredibly painful in the BIOS environment, which basically means
-> > MMIO is inaccessible.
+> > Well that would be quite sad really.
+> > 
+> > This means we can't make virtio a spec compliant pci express device,
+> > and we can't add any more feature bits, so no
+> > flexible buffer optimizations for virtio net.
+> >
+> > There are probably more projects that will be blocked.
+> >
+> > So how about we keep extending legacy layout for a bit longer:
+> > - add a way to access device with MMIO
+> > - use feature bit 31 to signal 64 bit features
+> >   (and shift device config accordingly)
 > 
-> Oh, you mean in real mode.
-> 
-> SeaBIOS runs the virtio code in 32-bit mode with a flat memory layout.
-> There are loads of ASSERT32FLAT()s in the code to make sure of this.
-> 
-Well, not exactly. Initialization is done in 32bit, but disk
-reads/writes are done in 16bit mode since it should work from int13
-interrupt handler. The only way I know to access MMIO bars from 16 bit
-is to use SMM which we do not have in KVM.
+> By my count, net still has 7 feature bits left, so I don't think the
+> feature bits are likely to be a limitation in the next 6 months?
 
---
-			Gleb.
+Actually I count 5 net specific ones:
+
+3, 4 and then 25, 26, 27
+
+Unless you count 31 even though it's a generic transport bit?
+
+That's still 6 ...
+
+> MMIO is a bigger problem.  Linux guests are happy with it: does it break
+> the Windows drivers?
+> 
+> Thanks,
+> Rusty.
