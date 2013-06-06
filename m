@@ -1,18 +1,15 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Thu, 06 Jun 2013 17:22:44 +0200
-Message-ID: <51B0A944.8030704@redhat.com>
-References: <87bo7ktvaw.fsf@codemonkey.ws> <20130605162029.GB26561@redhat.com>
-	<51AFA92B.2030203@zytor.com> <87fvwwmdmf.fsf@codemonkey.ws>
-	<51AFB3DD.1050902@zytor.com> <874ndcb47i.fsf@codemonkey.ws>
-	<51AFC4A6.6070607@zytor.com> <877gi8nk9e.fsf@codemonkey.ws>
-	<20130606063432.GQ4725@redhat.com> <51B0A578.2030104@redhat.com>
-	<20130606151012.GD4725@redhat.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH] vhost_net: clear msg.control for non-zerocopy case during
+	tx
+Date: Thu, 06 Jun 2013 21:12:50 +0400
+Message-ID: <51B0C312.7020903@cogentembedded.com>
+References: <1370418046-11851-1-git-send-email-jasowang@redhat.com>
+	<51AF40CB.5030101@cogentembedded.com> <51B00190.2050307@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130606151012.GD4725@redhat.com>
+In-Reply-To: <51B00190.2050307@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,28 +19,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+Hello.
 
->> For seabios itself this isn't a big issue, see pci_{readl,writel} in
->> src/pci.c.  When called in 16bit mode it goes into 32bit mode
->> temporarily, just for accessing the mmio register.  ahci driver uses it,
->> xhci driver (wip atm) will use that too, and virtio-{blk,scsi} drivers
->> in seabios can do the same.
->>
-> Isn't this approach broken? How can SeaBIOS be sure it restores real
-> mode registers to exactly same state they were before entering 32bit
-> mode?
+On 06/06/2013 07:27 AM, Jason Wang wrote:
 
-Don't know the details of that magic.  Kevin had some concerns on the
-stability of this, so maybe there is a theoretic hole.  So far I havn't
-seen any issues in practice, but also didn't stress it too much.
-Basically only used that with all kinds of boot loaders, could very well
-be it breaks if you try to use that with more esoteric stuff such as dos
-extenders, then hit unhandled corner cases ...
+>>> When we decide not use zero-copy, msg.control should be set to NULL
+>>> otherwise
+>>> macvtap/tap may set zerocopy callbacks which may decrease the kref of
+>>> ubufs
+>>> wrongly.
+>>> Bug were introduced by commit cedb9bdce099206290a2bdd02ce47a7b253b6a84
+>>> (vhost-net: skip head management if no outstanding).
+>>> This solves the following warnings:
+>>> WARNING: at include/linux/kref.h:47 handle_tx+0x477/0x4b0 [vhost_net]()
+>>> Modules linked in: vhost_net macvtap macvlan tun nfsd exportfs bridge
+>>> stp llc openvswitch kvm_amd kvm bnx2 megaraid_sas [last unloaded: tun]
+>>> CPU: 5 PID: 8670 Comm: vhost-8668 Not tainted 3.10.0-rc2+ #1566
+>>> Hardware name: Dell Inc. PowerEdge R715/00XHKG, BIOS 1.5.2 04/19/2011
+>>> ffffffffa0198323 ffff88007c9ebd08 ffffffff81796b73 ffff88007c9ebd48
+>>> ffffffff8103d66b 000000007b773e20 ffff8800779f0000 ffff8800779f43f0
+>>> ffff8800779f8418 000000000000015c 0000000000000062 ffff88007c9ebd58
+>>> Call Trace:
+>>> [<ffffffff81796b73>] dump_stack+0x19/0x1e
+>>> [<ffffffff8103d66b>] warn_slowpath_common+0x6b/0xa0
+>>> [<ffffffff8103d6b5>] warn_slowpath_null+0x15/0x20
+>>> [<ffffffffa0197627>] handle_tx+0x477/0x4b0 [vhost_net]
+>>> [<ffffffffa0197690>] handle_tx_kick+0x10/0x20 [vhost_net]
+>>> [<ffffffffa019541e>] vhost_worker+0xfe/0x1a0 [vhost_net]
+>>> [<ffffffffa0195320>] ? vhost_attach_cgroups_work+0x30/0x30 [vhost_net]
+>>> [<ffffffffa0195320>] ? vhost_attach_cgroups_work+0x30/0x30 [vhost_net]
+>>> [<ffffffff81061f46>] kthread+0xc6/0xd0
+>>> [<ffffffff81061e80>] ? kthread_freezable_should_stop+0x70/0x70
+>>> [<ffffffff817a1aec>] ret_from_fork+0x7c/0xb0
+>>> [<ffffffff81061e80>] ? kthread_freezable_should_stop+0x70/0x70
+>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>>> ---
+>>>    drivers/vhost/net.c |    3 ++-
+>>>    1 files changed, 2 insertions(+), 1 deletions(-)
+>>> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+>>> index 2b51e23..b07d96b 100644
+>>> --- a/drivers/vhost/net.c
+>>> +++ b/drivers/vhost/net.c
+>>> @@ -436,7 +436,8 @@ static void handle_tx(struct vhost_net *net)
+>>>                    kref_get(&ubufs->kref);
+>>>                }
+>>>                nvq->upend_idx = (nvq->upend_idx + 1) % UIO_MAXIOV;
+>>> -        }
+>>> +        } else
+>>     You have to use {} on the *else* branch if you have it of the *if*
+>> branch (and vice versa), according to Documentation/CodingStyle.
+> checkpatch.pl didn't complain this, will send v2.
 
-cheers,
-  Gerd
+     Yes, this check is what it seems to lack still.
+
+> Thanks
+>
+
+WBR, Sergei
