@@ -1,20 +1,22 @@
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Anthony Liguori <aliguori@us.ibm.com>
 Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Thu, 06 Jun 2013 09:27:41 +1000
-Message-ID: <1370474861.3766.247.camel@pasglop>
-References: <20130604064216.GD19433@redhat.com>
-	<871u8g67d6.fsf@codemonkey.ws> <20130605140936.GB10604@redhat.com>
-	<87ehcgr3wq.fsf@codemonkey.ws> <20130605151953.GA25987@redhat.com>
-	<87bo7ktvaw.fsf@codemonkey.ws> <20130605162029.GB26561@redhat.com>
-	<87li6obd2r.fsf@codemonkey.ws> <20130605194317.GA30923@redhat.com>
-	<87k3m8qofi.fsf@codemonkey.ws> <20130605211405.GA31928@redhat.com>
-	<87d2s0mdh8.fsf@codemonkey.ws> <1370470797.3766.231.camel@pasglop>
-	<87obbk88zr.fsf@codemonkey.ws>
+Date: Wed, 05 Jun 2013 19:41:17 -0500
+Message-ID: <877gi8nk9e.fsf@codemonkey.ws>
+References: <20130530140132.GC21440@redhat.com>
+	<874ndgujiw.fsf@rustcorp.com.au> <20130603101136.GB8649@redhat.com>
+	<87fvwytpa1.fsf@rustcorp.com.au>
+	<20130604064216.GD19433@redhat.com> <871u8g67d6.fsf@codemonkey.ws>
+	<20130605140936.GB10604@redhat.com> <87ehcgr3wq.fsf@codemonkey.ws>
+	<20130605151953.GA25987@redhat.com> <87bo7ktvaw.fsf@codemonkey.ws>
+	<20130605162029.GB26561@redhat.com>
+	<51AFA92B.2030203@zytor.com> <87fvwwmdmf.fsf@codemonkey.ws>
+	<51AFB3DD.1050902@zytor.com> <874ndcb47i.fsf@codemonkey.ws>
+	<51AFC4A6.6070607@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87obbk88zr.fsf@codemonkey.ws>
+In-Reply-To: <51AFC4A6.6070607@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,27 +26,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
 Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2013-06-05 at 17:53 -0500, Anthony Liguori wrote:
-> If strictly speaking it's just that MMIO is a bit faster, I'm not sure
-> that complexity is worth it without seeing performance numbers first.
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-You mean PIO. I agree with all your points here. The only thing I
-saw as an option would be to add a PIO BAR that is an exact mirror
-of the MMIO BAR if and only if:
+> On 06/05/2013 03:08 PM, Anthony Liguori wrote:
+>>>
+>>> Definitely an option.  However, we want to be able to boot from native
+>>> devices, too, so having an I/O BAR (which would not be used by the OS
+>>> driver) should still at the very least be an option.
+>> 
+>> What makes it so difficult to work with an MMIO bar for PCI-e?
+>> 
+>> With legacy PCI, tracking allocation of MMIO vs. PIO is pretty straight
+>> forward.  Is there something special about PCI-e here?
+>> 
+>
+> It's not tracking allocation.  It is that accessing memory above 1 MiB
+> is incredibly painful in the BIOS environment, which basically means
+> MMIO is inaccessible.
 
- - PIO is indeed significantly faster on platforms we care about
+Oh, you mean in real mode.
 
-and/or
+SeaBIOS runs the virtio code in 32-bit mode with a flat memory layout.
+There are loads of ASSERT32FLAT()s in the code to make sure of this.
 
- - There is significant simplification in things like BIOSes in
-   using PIO over MMIO
+Regards,
 
-I personally don't care and would chose to use MMIO always including in
-firmware on ppc.
+Anthony Liguori
 
-Cheers,
-Ben.
+>
+> 	-hpa
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe kvm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
