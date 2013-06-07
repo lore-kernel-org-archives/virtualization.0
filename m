@@ -1,13 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-net: put virtio net header inline with data
-Date: Fri, 07 Jun 2013 11:42:43 +0930
-Message-ID: <87hahar7ms.fsf@rustcorp.com.au>
-References: <20130606095456.GA7865@redhat.com>
+Subject: Re: [PATCH RFC] virtio-pci: support config layout in BAR1
+Date: Fri, 07 Jun 2013 11:43:01 +0930
+Message-ID: <87fvwur7ma.fsf@rustcorp.com.au>
+References: <20130605163500.GA3393@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130606095456.GA7865@redhat.com>
+In-Reply-To: <20130605163500.GA3393@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,36 +17,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jason Wang <jasowang@redhat.com>, Cong Wang <amwang@redhat.com>, Amos Kong <akong@redhat.com>, Dave Jones <davej@redhat.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: qemu-devel@nongnu.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Stephen Hemminger <shemminger@vyatta.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 "Michael S. Tsirkin" <mst@redhat.com> writes:
-> For small packets we can simplify xmit processing by linearizing buffers
-> with the header: most packets seem to have enough head room we can use
-> for this purpose.
+> Some setups don't support enabling BAR0 (IO BAR). Reasons range from CPU
+> limitations (e.g. on some powerpc setups) to architecture limmitations
+> (e.g. a setup with >15 PCI bridges, with one virtio device behind each,
+> on x86).
 >
-> Since some older hypervisors (e.g. qemu before version 1.5)
-> required that header is the first s/g element,
-> we need a feature bit for this.
+> PCI Express spec made IO optional, so future guests will disable IO for
+> a device in more and more configurations.
+>
+> This patch makes it possible for host to mirror the config in BAR1, such
+> that these setups can work properly.
+>
+> Guests with old drivers can't be fixed, they will continue to work as
+> well (or as bad) as they did previously.  For this reason, changing
+> revision id appears unnecessary - it would break setups that previously
+> worked, partially.
+>
+> Future work on re-organizing layout won't conflict with this patch - it
+> can use a different BAR or put config at an offset, or update revision.
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-OK, we know this is horrible.  But I will sleep better knowing that we
-this feature need never make it into a final 1.0 spec, since it can be
-assumed at that point...
+Since QEMU won't support this, I think we'll have to wait for the PCI
+capabilities, ie. the virtio spec 1.0.
 
->  	pr_debug("%s: xmit %p %pM\n", vi->dev->name, skb, dest);
-> +	if (vi->mergeable_rx_bufs)
-> +		hdr_len = sizeof hdr->mhdr;
-> +	else
-> +		hdr_len = sizeof hdr->hdr;
-> +
-> +	can_push = vi->any_header_sg &&
-> +		!((unsigned long)skb->data & (__alignof__(*hdr) - 1)) &&
-> +		!skb_header_cloned(skb) && skb_headroom(skb) >= hdr_len;
-
-Idle thought: how often does this fail?  Would it suck if we copied
-headers which didn't let us prepend data?  Or could we bump
-dev->hard_header_len appropriately?
-
-Thanks,
+Cheers,
 Rusty.
