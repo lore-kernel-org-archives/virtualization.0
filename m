@@ -1,20 +1,11 @@
-From: Peter Maydell <peter.maydell@linaro.org>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Fri, 7 Jun 2013 09:25:15 +0100
-Message-ID: <CAFEAcA_5_AOVimiLpS_ezDV98rVU7cReM9ZyyE7oPZ_jGR5a9A@mail.gmail.com>
-References: <20130530140132.GC21440@redhat.com>
-	<874ndgujiw.fsf@rustcorp.com.au>
-	<20130603101136.GB8649@redhat.com> <87fvwytpa1.fsf@rustcorp.com.au>
-	<20130604064216.GD19433@redhat.com> <871u8g67d6.fsf@codemonkey.ws>
-	<20130605140936.GB10604@redhat.com> <87ehcgr3wq.fsf@codemonkey.ws>
-	<20130605151953.GA25987@redhat.com> <87bo7ktvaw.fsf@codemonkey.ws>
-	<20130605162029.GB26561@redhat.com> <87li6obd2r.fsf@codemonkey.ws>
-	<87y5anrjlf.fsf@rustcorp.com.au> <874ndbp9nf.fsf@codemonkey.ws>
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: [PATCH RFC] Adapter interrupts for virtio-ccw.
+Date: Fri,  7 Jun 2013 12:37:03 +0200
+Message-ID: <1370601424-23412-1-git-send-email-cornelia.huck@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <874ndbp9nf.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,19 +15,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 6 June 2013 15:59, Anthony Liguori <aliguori@us.ibm.com> wrote:
-> We would still use virtio-pci for existing devices.  Only new devices
-> would use virtio-pcie.
+Hi,
 
-Surely you'd want to support both for any new device, because
-(a) transport is orthogonal to backend functionality
-(b) not all existing machine models have pci-e ?
+here's a proposal to support adapter (aka thin) interrupts for virtio-ccw.
 
-Or am I misunderstanding?
+The basic idea is to make host->guest signalling on s390 more lightweight.
+Normal I/O interrupts have two parts: an interrupt that is made pending on
+any of the guest cpus, and status that is made pending on the subchannel.
+This means that we need two exits for every interrupt.
 
-thanks
--- PMM
+With adapter interrupts, only the I/O interrupt remains - no status is made
+pending for the subchannel. To find out which virtqueue the signal was for
+we rely on indicators.
+
+To set this up, the guest uses a new ccw (which is used instead of the
+normal ccw to set up indicators). The payload contains pointers to two
+indicators (first level and second level) and the offset at which the
+virtqueue indicators start in the second level indicators, as well as the
+interruption subclass (which will usually be the same as the isc for the
+device). This is partially inspired by what qdio does today.
+
+I have seen some nice speedup on simple dd with my current implementation.
+Adapter interrupts are also a prereq for implementing irqfd on s390, since
+they eliminate the need for manipulating subchannel status.
+
+Cornelia Huck (1):
+  virtio-ccw: Document adapter interrupts.
+
+ virtio-spec.lyx |  147 +++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 144 insertions(+), 3 deletions(-)
+
+-- 
+1.7.9.5
