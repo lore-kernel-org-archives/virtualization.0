@@ -1,18 +1,16 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Fri, 7 Jun 2013 14:30:23 +0300
-Message-ID: <20130607113023.GE15299@redhat.com>
-References: <87bo7ktvaw.fsf@codemonkey.ws> <20130605162029.GB26561@redhat.com>
-	<51AFA92B.2030203@zytor.com> <87fvwwmdmf.fsf@codemonkey.ws>
-	<51AFB3DD.1050902@zytor.com> <874ndcb47i.fsf@codemonkey.ws>
-	<51AFC4A6.6070607@zytor.com> <877gi8nk9e.fsf@codemonkey.ws>
-	<20130606063432.GQ4725@redhat.com> <871u8fp9jd.fsf@codemonkey.ws>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [RFC PATCH v2, part3 07/11] PCI, xen-pcifront: use new PCI
+	interfaces to simplify implementation
+Date: Fri, 7 Jun 2013 10:50:24 -0400
+Message-ID: <20130607145024.GA16631@phenom.dumpdata.com>
+References: <1368719459-24800-1-git-send-email-jiang.liu@huawei.com>
+	<1368719459-24800-8-git-send-email-jiang.liu@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <871u8fp9jd.fsf@codemonkey.ws>
+In-Reply-To: <1368719459-24800-8-git-send-email-jiang.liu@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,64 +20,219 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Anthony Liguori <aliguori@us.ibm.com>
-Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
+To: Jiang Liu <liuj97@gmail.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Toshi Kani <toshi.kani@hp.com>, Jiang Liu <jiang.liu@huawei.com>, Myron Stowe <myron.stowe@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Rafael J . Wysocki" <rjw@sisk.pl>, Gu Zheng <guz.fnst@cn.fujitsu.com>, Yijing Wang <wangyijing@huawei.com>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Yinghai Lu <yinghai@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 06, 2013 at 10:02:14AM -0500, Anthony Liguori wrote:
-> Gleb Natapov <gleb@redhat.com> writes:
+On Thu, May 16, 2013 at 11:50:55PM +0800, Jiang Liu wrote:
+> Use new PCI interfaces to simplify xen-pcifront implementation:
+> 1) Use pci_create_root_bus() instead of pci_scan_bus_parented()
+>    because pci_scan_bus_parented() is marked as __deprecated.This
+>    also gets rid of a duplicated call of pci_bus_start_devices().
+> 2) Use pci_stop_root_bus() and pci_remove_root_bus() instead of
+>    open-coded private implementation.
+> 3) Use pci_set_host_bridge_release() to release data structures
+>    associated with PCI root buses.
+> 4) Use pci_bus_get()/pci_bus_put() to manage PCI root bus reference
+>    count.
 > 
-> > On Wed, Jun 05, 2013 at 07:41:17PM -0500, Anthony Liguori wrote:
-> >> "H. Peter Anvin" <hpa@zytor.com> writes:
-> >> 
-> >> > On 06/05/2013 03:08 PM, Anthony Liguori wrote:
-> >> >>>
-> >> >>> Definitely an option.  However, we want to be able to boot from native
-> >> >>> devices, too, so having an I/O BAR (which would not be used by the OS
-> >> >>> driver) should still at the very least be an option.
-> >> >> 
-> >> >> What makes it so difficult to work with an MMIO bar for PCI-e?
-> >> >> 
-> >> >> With legacy PCI, tracking allocation of MMIO vs. PIO is pretty straight
-> >> >> forward.  Is there something special about PCI-e here?
-> >> >> 
-> >> >
-> >> > It's not tracking allocation.  It is that accessing memory above 1 MiB
-> >> > is incredibly painful in the BIOS environment, which basically means
-> >> > MMIO is inaccessible.
-> >> 
-> >> Oh, you mean in real mode.
-> >> 
-> >> SeaBIOS runs the virtio code in 32-bit mode with a flat memory layout.
-> >> There are loads of ASSERT32FLAT()s in the code to make sure of this.
-> >> 
-> > Well, not exactly. Initialization is done in 32bit, but disk
-> > reads/writes are done in 16bit mode since it should work from int13
-> > interrupt handler. The only way I know to access MMIO bars from 16 bit
-> > is to use SMM which we do not have in KVM.
+> This is also a preparation for coming PCI bus lock enhancement.
 > 
-> Ah, if it's just the dataplane operations then there's another solution.
+> Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
+> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+> Cc: xen-devel@lists.xensource.com
+> Cc: virtualization@lists.linux-foundation.org
+> Cc: linux-pci@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> ---
+>  drivers/pci/xen-pcifront.c | 81 ++++++++++++++++++++++------------------------
+>  1 file changed, 39 insertions(+), 42 deletions(-)
 > 
-> We can introduce a virtqueue flag that asks the backend to poll for new
-> requests.  Then SeaBIOS can add the request to the queue and not worry
-> about kicking or reading the ISR.
-> 
-And when backend stops polling? When guest's driver reconfigure it? But
-what if this will never happen?
+> diff --git a/drivers/pci/xen-pcifront.c b/drivers/pci/xen-pcifront.c
+> index 816cf94..6aa2c0f 100644
+> --- a/drivers/pci/xen-pcifront.c
+> +++ b/drivers/pci/xen-pcifront.c
+> @@ -25,11 +25,6 @@
+>  #define INVALID_GRANT_REF (0)
+>  #define INVALID_EVTCHN    (-1)
+>  
+> -struct pci_bus_entry {
+> -	struct list_head list;
+> -	struct pci_bus *bus;
+> -};
+> -
+>  #define _PDEVB_op_active		(0)
+>  #define PDEVB_op_active			(1 << (_PDEVB_op_active))
+>  
+> @@ -47,12 +42,12 @@ struct pcifront_device {
+>  	struct xen_pci_sharedinfo *sh_info;
+>  	struct work_struct op_work;
+>  	unsigned long flags;
+> -
+>  };
+>  
+>  struct pcifront_sd {
+>  	int domain;
+>  	struct pcifront_device *pdev;
+> +	struct resource busn_res;
+>  };
+>  
+>  static inline struct pcifront_device *
+> @@ -67,6 +62,12 @@ static inline void pcifront_init_sd(struct pcifront_sd *sd,
+>  {
+>  	sd->domain = domain;
+>  	sd->pdev = pdev;
+> +
+> +	/* Xen pci-backend doesn't export P2P bridges */
+> +	sd->busn_res.start = bus;
+> +	sd->busn_res.end = bus;
+> +	sd->busn_res.flags = IORESOURCE_BUS;
+> +	sd->busn_res.name = "PCI busn";
+>  }
+>  
+>  static DEFINE_SPINLOCK(pcifront_dev_lock);
+> @@ -441,12 +442,19 @@ static int pcifront_scan_bus(struct pcifront_device *pdev,
+>  	return 0;
+>  }
+>  
+> +static void pcifront_release_sd(struct pci_host_bridge *bridge)
+> +{
+> +	struct pcifront_sd *sd = bridge->release_data;
+> +
+> +	kfree(sd);
+> +}
+> +
+>  static int pcifront_scan_root(struct pcifront_device *pdev,
+>  				 unsigned int domain, unsigned int bus)
+>  {
+>  	struct pci_bus *b;
+>  	struct pcifront_sd *sd = NULL;
+> -	struct pci_bus_entry *bus_entry = NULL;
+> +	LIST_HEAD(resources);
+>  	int err = 0;
+>  
+>  #ifndef CONFIG_PCI_DOMAINS
+> @@ -463,16 +471,18 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
+>  	dev_info(&pdev->xdev->dev, "Creating PCI Frontend Bus %04x:%02x\n",
+>  		 domain, bus);
+>  
+> -	bus_entry = kmalloc(sizeof(*bus_entry), GFP_KERNEL);
+> -	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
+> -	if (!bus_entry || !sd) {
+> +	sd = kzalloc(sizeof(*sd), GFP_KERNEL);
+> +	if (!sd) {
+>  		err = -ENOMEM;
+>  		goto err_out;
+>  	}
+>  	pcifront_init_sd(sd, domain, bus, pdev);
+>  
+> -	b = pci_scan_bus_parented(&pdev->xdev->dev, bus,
+> -				  &pcifront_bus_ops, sd);
+> +	pci_add_resource(&resources, &ioport_resource);
+> +	pci_add_resource(&resources, &iomem_resource);
+> +	pci_add_resource(&resources, &sd->busn_res);
+> +	b = pci_create_root_bus(&pdev->xdev->dev, bus, &pcifront_bus_ops,
+> +				sd, &resources);
+>  	if (!b) {
+>  		dev_err(&pdev->xdev->dev,
+>  			"Error creating PCI Frontend Bus!\n");
+> @@ -480,12 +490,14 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
+>  		goto err_out;
+>  	}
+>  
+> -	bus_entry->bus = b;
+> +	pci_set_host_bridge_release(to_pci_host_bridge(b->bridge),
+> +				    pcifront_release_sd, sd);
+>  
+> -	list_add(&bus_entry->list, &pdev->root_buses);
+> -
+> -	/* pci_scan_bus_parented skips devices which do not have a have
+> -	* devfn==0. The pcifront_scan_bus enumerates all devfn. */
+> +	/*
+> +	 * Every PCI physical device should have function 0, but that's not
+> +	 * true for xen.
 
-> SeaBIOS is polling for completion anyway.
-> 
-> Regards,
-> 
-> Anthony Liguori
-> 
-> >
-> > --
-> > 			Gleb.
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe kvm" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+That is incorrect. There are two types of backends - one of them will
+start at zero, but the other might not.
 
---
-			Gleb.
+> +	 * So use pcifront_scan_bus() instead of pci_scan_child_bus().
+> +	 */
+>  	err = pcifront_scan_bus(pdev, domain, bus, b);
+>  
+>  	/* Claim resources before going "live" with our devices */
+> @@ -497,7 +509,6 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
+>  	return err;
+>  
+>  err_out:
+> -	kfree(bus_entry);
+>  	kfree(sd);
+>  
+>  	return err;
+> @@ -539,35 +550,19 @@ static int pcifront_rescan_root(struct pcifront_device *pdev,
+>  	return err;
+>  }
+>  
+> -static void free_root_bus_devs(struct pci_bus *bus)
+> -{
+> -	struct pci_dev *dev;
+> -
+> -	while (!list_empty(&bus->devices)) {
+> -		dev = container_of(bus->devices.next, struct pci_dev,
+> -				   bus_list);
+> -		dev_dbg(&dev->dev, "removing device\n");
+> -		pci_stop_and_remove_bus_device(dev);
+> -	}
+> -}
+> -
+>  static void pcifront_free_roots(struct pcifront_device *pdev)
+>  {
+> -	struct pci_bus_entry *bus_entry, *t;
+> +	struct pcifront_sd *sd;
+> +	struct pci_bus *bus;
+>  
+>  	dev_dbg(&pdev->xdev->dev, "cleaning up root buses\n");
+>  
+> -	list_for_each_entry_safe(bus_entry, t, &pdev->root_buses, list) {
+> -		list_del(&bus_entry->list);
+> -
+> -		free_root_bus_devs(bus_entry->bus);
+> -
+> -		kfree(bus_entry->bus->sysdata);
+> -
+> -		device_unregister(bus_entry->bus->bridge);
+> -		pci_remove_bus(bus_entry->bus);
+> -
+> -		kfree(bus_entry);
+> +	for_each_pci_root_bus(bus) {
+> +		sd = bus->sysdata;
+> +		if (sd->pdev == pdev) {
+> +			pci_stop_root_bus(bus);
+> +			pci_remove_root_bus(bus);
+> +		}
+>  	}
+>  }
+>  
+> @@ -670,6 +665,7 @@ static irqreturn_t pcifront_handler_aer(int irq, void *dev)
+>  	schedule_pcifront_aer_op(pdev);
+>  	return IRQ_HANDLED;
+>  }
+> +
+
+Stray
+>  static int pcifront_connect_and_init_dma(struct pcifront_device *pdev)
+>  {
+>  	int err = 0;
+> @@ -705,6 +701,7 @@ static void pcifront_disconnect(struct pcifront_device *pdev)
+>  
+>  	spin_unlock(&pcifront_dev_lock);
+>  }
+> +
+
+Stray
+>  static struct pcifront_device *alloc_pdev(struct xenbus_device *xdev)
+>  {
+>  	struct pcifront_device *pdev;
+> -- 
+> 1.8.1.2
+> 
