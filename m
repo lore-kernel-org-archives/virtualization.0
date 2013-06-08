@@ -1,8 +1,8 @@
 From: Laszlo Ersek <lersek@redhat.com>
-Subject: [virtio-spec PATCH 3/5] Receiving Used Buffers: variable for Queue
-	Size is called "qsz" elsewhere
-Date: Sat,  8 Jun 2013 19:39:26 +0200
-Message-ID: <1370713168-20624-4-git-send-email-lersek@redhat.com>
+Subject: [virtio-spec PATCH 4/5] Receiving Used Buffers: switch . and ->
+	operators, add missing &
+Date: Sat,  8 Jun 2013 19:39:27 +0200
+Message-ID: <1370713168-20624-5-git-send-email-lersek@redhat.com>
 References: <1370713168-20624-1-git-send-email-lersek@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -28,15 +28,15 @@ Signed-off-by: Laszlo Ersek <lersek@redhat.com>
  1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index 851a0cf..1a0923b 100644
+index 1a0923b..51f41dc 100644
 --- a/virtio-spec.lyx
 +++ b/virtio-spec.lyx
 @@ -2977,7 +2977,7 @@ for (;;) {
  
  \begin_layout Plain Layout
  
--    struct vring_used_elem *e = vring.used->ring[vq->last_seen_used%vsz];
-+    struct vring_used_elem *e = vring.used->ring[vq->last_seen_used % qsz];
+-    struct vring_used_elem *e = vring.used->ring[vq->last_seen_used % qsz];
++    struct vring_used_elem *e = &vring->used.ring[vq->last_seen_used % qsz];
  \end_layout
  
  \begin_layout Plain Layout
