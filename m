@@ -1,18 +1,13 @@
-From: Jiannan Ouyang <ouyang@cs.pitt.edu>
-Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
-Date: Fri, 07 Jun 2013 16:41:56 -0700
-Message-ID: <CAJocwcdwkaV-u1VkZhw3YAfXq_UrWL_Z=aQqRMGaqBN5hXYjNA__49220.6994364553$1370648537$gmane$org@mail.gmail.com>
-References: <20130601192125.5966.35563.sendpatchset@codeblue>
-	<20130602080739.GA24773@redhat.com>
-	<CAJocwcf0oykyLv4B22pBf1A3H7+Cs6qu0vmTWp46Z=KwrTkXyQ@mail.gmail.com>
-	<51ABF410.4090109@linux.vnet.ibm.com>
-	<51AC35F0.4010400@linux.vnet.ibm.com>
-	<51B17A6A.7060709@linux.vnet.ibm.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: CFP: ACM Many-Task Computing on Clouds, Grids, and Supercomputers
+	(MTAGS) 2013 @ IEEE/ACM Supercomputing/SC 2013
+Date: Sat, 08 Jun 2013 08:28:31 -0500
+Message-ID: <51B3317F.1090807@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <51B17A6A.7060709@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,139 +17,195 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, gregkh@suse.de, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Andrew Jones <drjones@redhat.com>, virtualization@lists.linux-foundation.org, andi@firstfloor.org, "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <stefano.stabellini@eu.citrix.com>, xen-devel@lists.xensource.com, KVM <kvm@vger.kernel.org>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, "Andrew M. Theurer" <habanero@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, konrad.wilk@oracle.com, Jiannan Ouyang <ouyang@cs.pitt.edu>, Avi Kivity <avi.kivity@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, chegu vinod <chegu_vinod@hp.com>, LKML <linux-kernel@vger.kernel.org>, Srivatsa Vaddagiri <srivatsa.vaddagiri@gmail.com>, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
+To: publicity@hipeac.net, virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, performance@merlot.usc.edu, sigplan-l@acm.uiuc.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Raghu, thanks for you input. I'm more than glad to work together with
-you to make this idea work better.
+CALL FOR PAPERS
 
--Jiannan
+6th Workshop on Many-Task Computing on Clouds, Grids, and Supercomputers (MTAGS) 2013
+http://datasys.cs.iit.edu/events/MTAGS13/
 
-On Thu, Jun 6, 2013 at 11:15 PM, Raghavendra K T
-<raghavendra.kt@linux.vnet.ibm.com> wrote:
-> On 06/03/2013 11:51 AM, Raghavendra K T wrote:
->>
->> On 06/03/2013 07:10 AM, Raghavendra K T wrote:
->>>
->>> On 06/02/2013 09:50 PM, Jiannan Ouyang wrote:
->>>>
->>>> On Sun, Jun 2, 2013 at 1:07 AM, Gleb Natapov <gleb@redhat.com> wrote:
->>>>
->>>>> High level question here. We have a big hope for "Preemptable Ticket
->>>>> Spinlock" patch series by Jiannan Ouyang to solve most, if not all,
->>>>> ticketing spinlocks in overcommit scenarios problem without need for
->>>>> PV.
->>>>> So how this patch series compares with his patches on PLE enabled
->>>>> processors?
->>>>>
->>>>
->>>> No experiment results yet.
->>>>
->>>> An error is reported on a 20 core VM. I'm during an internship
->>>> relocation, and will start work on it next week.
->>>
->>>
->>> Preemptable spinlocks' testing update:
->>> I hit the same softlockup problem while testing on 32 core machine with
->>> 32 guest vcpus that Andrew had reported.
->>>
->>> After that i started tuning TIMEOUT_UNIT, and when I went till (1<<8),
->>> things seemed to be manageable for undercommit cases.
->>> But I still see degradation for undercommit w.r.t baseline itself on 32
->>> core machine (after tuning).
->>>
->>> (37.5% degradation w.r.t base line).
->>> I can give the full report after the all tests complete.
->>>
->>> For over-commit cases, I again started hitting softlockups (and
->>> degradation is worse). But as I said in the preemptable thread, the
->>> concept of preemptable locks looks promising (though I am still not a
->>> fan of  embedded TIMEOUT mechanism)
->>>
->>> Here is my opinion of TODOs for preemptable locks to make it better ( I
->>> think I need to paste in the preemptable thread also)
->>>
->>> 1. Current TIMEOUT UNIT seem to be on higher side and also it does not
->>> scale well with large guests and also overcommit. we need to have a
->>> sort of adaptive mechanism and better is sort of different TIMEOUT_UNITS
->>> for different types of lock too. The hashing mechanism that was used in
->>> Rik's spinlock backoff series fits better probably.
->>>
->>> 2. I do not think TIMEOUT_UNIT itself would work great when we have a
->>> big queue (for large guests / overcommits) for lock.
->>> one way is to add a PV hook that does yield hypercall immediately for
->>> the waiters above some THRESHOLD so that they don't burn the CPU.
->>> ( I can do POC to check if  that idea works in improving situation
->>> at some later point of time)
->>>
->>
->> Preemptable-lock results from my run with 2^8 TIMEOUT:
->>
->> +-----------+-----------+-----------+------------+-----------+
->>                   ebizzy (records/sec) higher is better
->> +-----------+-----------+-----------+------------+-----------+
->>      base        stdev        patched    stdev        %improvement
->> +-----------+-----------+-----------+------------+-----------+
->> 1x  5574.9000   237.4997    3484.2000   113.4449   -37.50202
->> 2x  2741.5000   561.3090     351.5000   140.5420   -87.17855
->> 3x  2146.2500   216.7718     194.8333    85.0303   -90.92215
->> 4x  1663.0000   141.9235     101.0000    57.7853   -93.92664
->> +-----------+-----------+-----------+------------+-----------+
->> +-----------+-----------+-----------+------------+-----------+
->>                 dbench  (Throughput) higher is better
->> +-----------+-----------+-----------+------------+-----------+
->>       base        stdev        patched    stdev        %improvement
->> +-----------+-----------+-----------+------------+-----------+
->> 1x  14111.5600   754.4525   3930.1602   2547.2369    -72.14936
->> 2x  2481.6270    71.2665      181.1816    89.5368    -92.69908
->> 3x  1510.2483    31.8634      104.7243    53.2470    -93.06576
->> 4x  1029.4875    16.9166       72.3738    38.2432    -92.96992
->> +-----------+-----------+-----------+------------+-----------+
->>
->> Note we can not trust on overcommit results because of softlock-ups
->>
->
-> Hi, I tried
-> (1) TIMEOUT=(2^7)
->
-> (2) having yield hypercall that uses kvm_vcpu_on_spin() to do directed yield
-> to other vCPUs.
->
-> Now I do not see any soft-lockup in overcommit cases and results are better
-> now (except ebizzy 1x). and for dbench I see now it is closer to base and
-> even improvement in 4x
->
->
-> +-----------+-----------+-----------+------------+-----------+
->                ebizzy (records/sec) higher is better
-> +-----------+-----------+-----------+------------+-----------+
->   base        stdev        patched    stdev        %improvement
-> +-----------+-----------+-----------+------------+-----------+
->   5574.9000   237.4997     523.7000     1.4181   -90.60611
->   2741.5000   561.3090     597.8000    34.9755   -78.19442
->   2146.2500   216.7718     902.6667    82.4228   -57.94215
->   1663.0000   141.9235    1245.0000    67.2989   -25.13530
->
-> +-----------+-----------+-----------+------------+-----------+
-> +-----------+-----------+-----------+------------+-----------+
->                 dbench  (Throughput) higher is better
-> +-----------+-----------+-----------+------------+-----------+
->    base        stdev        patched    stdev        %improvement
-> +-----------+-----------+-----------+------------+-----------+
->  14111.5600   754.4525     884.9051    24.4723   -93.72922
->   2481.6270    71.2665    2383.5700   333.2435    -3.95132
->   1510.2483    31.8634    1477.7358    50.5126    -2.15279
->   1029.4875    16.9166    1075.9225    13.9911     4.51050
-> +-----------+-----------+-----------+------------+-----------+
->
->
-> IMO hash based timeout is worth a try further.
-> I think little more tuning will get more better results.
->
-> Jiannan, When you start working on this, I can also help
-> to get best of preemptable lock idea if you wish and share
-> the patches I tried.
->
->
->
+Co-located with IEEE/ACM Supercomputing/SC 2013
+Denver Colorado -- November 17th, 2013
+
+Overview
+------------------------------------------------------------------------------
+The 6th workshop on Many-Task Computing on Grids and Supercomputers
+(MTAGS) will provide the scientific community a dedicated forum for
+presenting new research, development, and deployment efforts of
+large-scale many-task computing (MTC) applications on large scale
+clusters, Grids, Supercomputers, and Cloud Computing
+infrastructure. MTC, the theme of the workshop encompasses loosely
+coupled applications, which are generally composed of many tasks (both
+independent and dependent tasks) to achieve some larger application
+goal.  This workshop will cover challenges that can hamper efficiency
+and utilization in running applications on large-scale systems, such
+as local resource manager scalability and granularity, efficient
+utilization of raw hardware, parallel file system contention and
+scalability, data management, I/O management, reliability at scale,
+and application scalability. We welcome paper submissions on all
+theoretical, simulations, and systems topics related to MTC, but we
+give special consideration to papers addressing petascale to exascale
+challenges. Papers will be peer-reviewed, and accepted papers will be
+published in the workshop proceedings as part of the ACM digital
+library (pending approval). The workshop will be co-located with the
+IEEE/ACM Supercomputing 2013 Conference in Denver Colorado on November
+18th, 2013.
+
+For more information, please see
+http://datasys.cs.iit.edu/events/MTAGS13/. For more information on
+past workshops, please see MTAGS12, MTAGS11, MTAGS10, MTAGS09, and
+MTAGS08. We also ran a Special Issue on Many-Task Computing in the
+IEEE Transactions on Parallel and Distributed Systems (TPDS) which has
+appeared in June 2011; the proceedings can be found online at
+http://www.computer.org/portal/web/csdl/abs/trans/td/2011/06/ttd201106toc.htm. We,
+the workshop organizers, also published a highly relevant paper that
+defines Many-Task Computing which was published in MTAGS08, titled
+Many-Task Computing for Grids and Supercomputers; we encourage
+potential authors to read this paper, and to clearly articulate in
+your paper submissions how your papers are related to Many-Task
+Computing.
+
+Topics
+------------------------------------------------------------------------------
+We invite the submission of original work that is related to the
+topics below. The papers should be 6 pages, including all figures and
+references. We aim to cover topics related to Many-Task Computing on
+each of the three major distributed systems paradigms, Cloud
+Computing, Grid Computing and Supercomputing. Topics of interest
+include:
+      Compute Resource Management
+         Scheduling
+         Job execution frameworks
+         Local resource manager extensions
+         Performance evaluation of resource managers in use on large scale systems
+         Dynamic resource provisioning
+         Techniques to manage many-core resources and/or GPUs
+         Challenges and opportunities in running many-task workloads on HPC systems
+         Challenges and opportunities in running many-task workloads on Cloud infrastructure
+      Storage architectures and implementations
+         Distributed file systems
+         Parallel file systems
+         Distributed metadata management
+         Content distribution systems for large data
+         Data caching frameworks and techniques
+         Data management within and across data centers
+         Data-aware scheduling
+         Data-intensive computing applications
+         Eventual-consistency storage usage and management
+      Programming models and tools
+         MapReduce and its generalizations
+         Many-task computing middleware and applications
+         Parallel programming frameworks
+         Ensemble MPI techniques and frameworks
+         Service-oriented science applications
+      Large-Scale Workflow Systems
+         Workflow system performance and scalability analysis
+         Scalability of workflow systems
+         Workflow infrastructure and e-Science middleware
+         Programming paradigms and models
+      Large-Scale Many-Task Applications
+         High-throughput computing (HTC) applications
+         Data-intensive applications
+         Quasi-supercomputing applications, deployments, and experiences
+         Performance Evaluation
+      Performance evaluation
+         Real systems
+         Simulations
+         Reliability of large systems
+     How MTC Addresses Challenges of Petascale and Exascale Computing
+         Concurrency & Programmability
+         I/O & Memory
+         Energy
+         Resilience
+         Heterogeneity
+
+Important Dates
+------------------------------------------------------------------------------
+     Paper submission: September 1, 2013
+     Acceptance notification: October 13, 2013
+     Final papers due: November 10th, 2013
+
+Paper Submission
+------------------------------------------------------------------------------
+Authors are invited to submit papers with unpublished, original work
+of not more than 6 pages of double column text using single spaced 10
+point size on 8.5 x 11 inch pages, as per ACM 8.5 x 11 manuscript
+guidelines; document templates can be found at
+http://www.acm.org/sigs/publications/proceedings-templates. The final
+6 page papers in PDF format must be submitted online at
+https://cmt.research.microsoft.com/MTAGS2013/ before the deadline of
+September 1st, 2013 at 11:59PM PST. Papers will be peer-reviewed, and
+accepted papers will be published in the workshop proceedings as part
+of the ACM digital library (pending approval). Notifications of the
+paper decisions will be sent out by October 13th, 2011. Selected
+excellent work may be eligible for additional post-conference
+publication as journal articles. Submission implies the willingness of
+at least one of the authors to register and present the paper. For
+more information, please see http://datasys.cs.iit.edu/events/MTAGS13
+
+Organization
+------------------------------------------------------------------------------
+General Chairs
+     Ioan Raicu, Illinois Institute of Technology & Argonne National Laboratory, USA
+     Ian Foster, University of Chicago & Argonne National Laboratory, USA
+     Yong Zhao, University of Electronic Science and Technology of China, China
+     Justin Wozniak, Argonne National Laboratory, USA
+
+Steering Committee
+     David Abramson, Monash University, Australia
+     Jack Dongarra, University of Tennessee, USA
+     Geoffrey Fox, Indiana University, USA
+     Manish Parashar, Rutgers University, USA
+     Marc Snir, Argonne National Laboratory & University of Illinois at Urbana Champaign, USA
+     Xian-He Sun, Illinois Institute of Technology, USA
+     Weimin Zheng, Tsinghua University, China
+
+Program Committee
+         Samer Al-Kiswany (University of British Columbia)
+         Mihai Budiu (Microsoft Research)
+         Kyle Chard (University of Chicago)
+         Yong Chen (Texas Tech University)
+         Evangelinos Constantinos (Massachusetts Institute of Technology)
+         Catalin Dumitrescu (Fermi National Labs)
+         Alexandru Iosup (Delft University of Technology - Netherlands)
+         Florin Isaila (Universidad Carlos III de Madrid )
+         Kamil Iskra (Argonne National Laboratory)
+         Hui Jin (Oracle Corporation)
+         Daniel Katz (University of Chicago)
+         Zhiling Lan (Illinois Institute of Technology)
+         Mike Lang (Los Alamos National Laboratory)
+         Christopher Moretti (Princeton University)
+         Bogdan Nicolae (IBM Research)
+         David O'Hallaron (Carnegie Mellon University & Intel Laboratory)
+         Marlon Pierce (Indiana University)
+         Judy Qiu (Indiana University)
+         Wei Tang (Argonne National Laboratory)
+         Edward Walker (Whitworth University)
+         Matthew Woitaszek (Walmart Labs)
+         Ken Yocum (University of California at San Diego)
+         Zhifeng Yun (Louisiana State University)
+         Zhao Zhang (University of Chicago)
+         Ziming Zheng (Illinois Institute of Technology)
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Editor: IEEE TCC, Springer JoCCASA
+Chair:  IEEE/ACM MTAGS, ACM ScienceCloud, IEEE/ACM DataCloud
+=================================================================
+Cel:      1-847-722-0876
+Office:   1-312-567-5704
+Email:    iraicu@cs.iit.edu
+Web:      http://www.cs.iit.edu/~iraicu/
+Web:      http://datasys.cs.iit.edu/
+LinkedIn: http://www.linkedin.com/in/ioanraicu
+Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
+=================================================================
+=================================================================
