@@ -1,11 +1,10 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: ACM Many-Task Computing on Clouds, Grids, and Supercomputers
-	(MTAGS) 2013 @ IEEE/ACM Supercomputing/SC 2013
-Date: Sat, 08 Jun 2013 08:28:31 -0500
-Message-ID: <51B3317F.1090807@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: Laszlo Ersek <lersek@redhat.com>
+Subject: [virtio-spec PATCH 0/5] Receiving Used Buffers example code: cleanups
+	and an extra mb()
+Date: Sat,  8 Jun 2013 19:39:23 +0200
+Message-ID: <1370713168-20624-1-git-send-email-lersek@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -17,195 +16,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: publicity@hipeac.net, virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, performance@merlot.usc.edu, sigplan-l@acm.uiuc.edu
+To: Rusty Russell <rusty@rustcorp.com.au>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, Jordan Justen <jordan.l.justen@intel.com>, Laszlo Ersek <lersek@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-CALL FOR PAPERS
+Patches before the last are small cleanups.
 
-6th Workshop on Many-Task Computing on Clouds, Grids, and Supercomputers (MTAGS) 2013
-http://datasys.cs.iit.edu/events/MTAGS13/
+In the last patch I'm trying to extract / generalize an idea from Stefan
+Hajnoczi's review of my virtio-net driver for OVMF.
 
-Co-located with IEEE/ACM Supercomputing/SC 2013
-Denver Colorado -- November 17th, 2013
+Unfortunately I can't find Stefan's email on any mailing list archive
+(sourceforge, gmane, mail-archive etc. all have only my response), so
+I'll quote it here.
 
-Overview
-------------------------------------------------------------------------------
-The 6th workshop on Many-Task Computing on Grids and Supercomputers
-(MTAGS) will provide the scientific community a dedicated forum for
-presenting new research, development, and deployment efforts of
-large-scale many-task computing (MTC) applications on large scale
-clusters, Grids, Supercomputers, and Cloud Computing
-infrastructure. MTC, the theme of the workshop encompasses loosely
-coupled applications, which are generally composed of many tasks (both
-independent and dependent tasks) to achieve some larger application
-goal.  This workshop will cover challenges that can hamper efficiency
-and utilization in running applications on large-scale systems, such
-as local resource manager scalability and granularity, efficient
-utilization of raw hardware, parallel file system contention and
-scalability, data management, I/O management, reliability at scale,
-and application scalability. We welcome paper submissions on all
-theoretical, simulations, and systems topics related to MTC, but we
-give special consideration to papers addressing petascale to exascale
-challenges. Papers will be peer-reviewed, and accepted papers will be
-published in the workshop proceedings as part of the ACM digital
-library (pending approval). The workshop will be co-located with the
-IEEE/ACM Supercomputing 2013 Conference in Denver Colorado on November
-18th, 2013.
+The patch Stefan was reviewing is
+<http://thread.gmane.org/gmane.comp.bios.tianocore.devel/2804/focus=2819>:
 
-For more information, please see
-http://datasys.cs.iit.edu/events/MTAGS13/. For more information on
-past workshops, please see MTAGS12, MTAGS11, MTAGS10, MTAGS09, and
-MTAGS08. We also ran a Special Issue on Many-Task Computing in the
-IEEE Transactions on Parallel and Distributed Systems (TPDS) which has
-appeared in June 2011; the proceedings can be found online at
-http://www.computer.org/portal/web/csdl/abs/trans/td/2011/06/ttd201106toc.htm. We,
-the workshop organizers, also published a highly relevant paper that
-defines Many-Task Computing which was published in MTAGS08, titled
-Many-Task Computing for Grids and Supercomputers; we encourage
-potential authors to read this paper, and to clearly articulate in
-your paper submissions how your papers are related to Many-Task
-Computing.
+  [PATCH v3 10/15]
+  OvmfPkg: VirtioNetDxe: implement Tx: SNP.Transmit and SNP.GetStatus
 
-Topics
-------------------------------------------------------------------------------
-We invite the submission of original work that is related to the
-topics below. The papers should be 6 pages, including all figures and
-references. We aim to cover topics related to Many-Task Computing on
-each of the three major distributed systems paradigms, Cloud
-Computing, Grid Computing and Supercomputing. Topics of interest
-include:
-      Compute Resource Management
-         Scheduling
-         Job execution frameworks
-         Local resource manager extensions
-         Performance evaluation of resource managers in use on large scale systems
-         Dynamic resource provisioning
-         Techniques to manage many-core resources and/or GPUs
-         Challenges and opportunities in running many-task workloads on HPC systems
-         Challenges and opportunities in running many-task workloads on Cloud infrastructure
-      Storage architectures and implementations
-         Distributed file systems
-         Parallel file systems
-         Distributed metadata management
-         Content distribution systems for large data
-         Data caching frameworks and techniques
-         Data management within and across data centers
-         Data-aware scheduling
-         Data-intensive computing applications
-         Eventual-consistency storage usage and management
-      Programming models and tools
-         MapReduce and its generalizations
-         Many-task computing middleware and applications
-         Parallel programming frameworks
-         Ensemble MPI techniques and frameworks
-         Service-oriented science applications
-      Large-Scale Workflow Systems
-         Workflow system performance and scalability analysis
-         Scalability of workflow systems
-         Workflow infrastructure and e-Science middleware
-         Programming paradigms and models
-      Large-Scale Many-Task Applications
-         High-throughput computing (HTC) applications
-         Data-intensive applications
-         Quasi-supercomputing applications, deployments, and experiences
-         Performance Evaluation
-      Performance evaluation
-         Real systems
-         Simulations
-         Reliability of large systems
-     How MTC Addresses Challenges of Petascale and Exascale Computing
-         Concurrency & Programmability
-         I/O & Memory
-         Energy
-         Resilience
-         Heterogeneity
+On 06/07/13 16:17, Stefan Hajnoczi wrote:
 
-Important Dates
-------------------------------------------------------------------------------
-     Paper submission: September 1, 2013
-     Acceptance notification: October 13, 2013
-     Final papers due: November 10th, 2013
+> There is no read memory barrier between fetching TxCurUsed and
+> fetching UsedElem[].Id.  In theory I think there is no guarantee that
+> Dev->TxRing.Used.UsedElem[UsedElemIdx].Id is fetched *after*
+> Dev->TxRing.Used.Idx.  On x86 it shouldn't be a problem but I expected
+> a read memory barrier after comparing fetching Dev->TxRing.Used.Idx.
 
-Paper Submission
-------------------------------------------------------------------------------
-Authors are invited to submit papers with unpublished, original work
-of not more than 6 pages of double column text using single spaced 10
-point size on 8.5 x 11 inch pages, as per ACM 8.5 x 11 manuscript
-guidelines; document templates can be found at
-http://www.acm.org/sigs/publications/proceedings-templates. The final
-6 page papers in PDF format must be submitted online at
-https://cmt.research.microsoft.com/MTAGS2013/ before the deadline of
-September 1st, 2013 at 11:59PM PST. Papers will be peer-reviewed, and
-accepted papers will be published in the workshop proceedings as part
-of the ACM digital library (pending approval). Notifications of the
-paper decisions will be sent out by October 13th, 2011. Selected
-excellent work may be eligible for additional post-conference
-publication as journal articles. Submission implies the willingness of
-at least one of the authors to register and present the paper. For
-more information, please see http://datasys.cs.iit.edu/events/MTAGS13
+(Solely for the record, my response is at
+<http://thread.gmane.org/gmane.comp.bios.tianocore.devel/3052>.)
 
-Organization
-------------------------------------------------------------------------------
-General Chairs
-     Ioan Raicu, Illinois Institute of Technology & Argonne National Laboratory, USA
-     Ian Foster, University of Chicago & Argonne National Laboratory, USA
-     Yong Zhao, University of Electronic Science and Technology of China, China
-     Justin Wozniak, Argonne National Laboratory, USA
+In the last patch I'm trying to apply this remark to the virtio spec.
+Hopefully I'm not misrepresenting the idea, nor glossing over any
+important differences between the VirtioNetDxe code Stefan was actually
+reviewing and the example code in the virtio spec.
 
-Steering Committee
-     David Abramson, Monash University, Australia
-     Jack Dongarra, University of Tennessee, USA
-     Geoffrey Fox, Indiana University, USA
-     Manish Parashar, Rutgers University, USA
-     Marc Snir, Argonne National Laboratory & University of Illinois at Urbana Champaign, USA
-     Xian-He Sun, Illinois Institute of Technology, USA
-     Weimin Zheng, Tsinghua University, China
+I didn't add
 
-Program Committee
-         Samer Al-Kiswany (University of British Columbia)
-         Mihai Budiu (Microsoft Research)
-         Kyle Chard (University of Chicago)
-         Yong Chen (Texas Tech University)
-         Evangelinos Constantinos (Massachusetts Institute of Technology)
-         Catalin Dumitrescu (Fermi National Labs)
-         Alexandru Iosup (Delft University of Technology - Netherlands)
-         Florin Isaila (Universidad Carlos III de Madrid )
-         Kamil Iskra (Argonne National Laboratory)
-         Hui Jin (Oracle Corporation)
-         Daniel Katz (University of Chicago)
-         Zhiling Lan (Illinois Institute of Technology)
-         Mike Lang (Los Alamos National Laboratory)
-         Christopher Moretti (Princeton University)
-         Bogdan Nicolae (IBM Research)
-         David O'Hallaron (Carnegie Mellon University & Intel Laboratory)
-         Marlon Pierce (Indiana University)
-         Judy Qiu (Indiana University)
-         Wei Tang (Argonne National Laboratory)
-         Edward Walker (Whitworth University)
-         Matthew Woitaszek (Walmart Labs)
-         Ken Yocum (University of California at San Diego)
-         Zhifeng Yun (Louisiana State University)
-         Zhao Zhang (University of Chicago)
-         Ziming Zheng (Illinois Institute of Technology)
+  Suggested-by: Stefan Hajnoczi <stefanha@redhat.com>
 
--- 
-=================================================================
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=================================================================
-Editor: IEEE TCC, Springer JoCCASA
-Chair:  IEEE/ACM MTAGS, ACM ScienceCloud, IEEE/ACM DataCloud
-=================================================================
-Cel:      1-847-722-0876
-Office:   1-312-567-5704
-Email:    iraicu@cs.iit.edu
-Web:      http://www.cs.iit.edu/~iraicu/
-Web:      http://datasys.cs.iit.edu/
-LinkedIn: http://www.linkedin.com/in/ioanraicu
-Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
-=================================================================
-=================================================================
+to the last patch, because my translation may easily have corrupted his
+idea, but if the patch is deemed worthwhile, please do add his
+Suggested-by.
+
+
+I'm not subscribed to the virtualization list, please keep me CC'd.
+
+Thanks!
+
+Laszlo Ersek (5):
+  Receiving Used Buffers: fix typo in "ring empty" condition in example
+    code
+  Receiving Used Buffers: re-disable interrupts when staying in the
+    loop
+  Receiving Used Buffers: variable for Queue Size is called "qsz"
+    elsewhere
+  Receiving Used Buffers: switch . and -> operators, add missing &
+  Receiving Used Buffers: prevent speculative load when not
+    sequentially consistent
+
+ virtio-spec.lyx |   16 +++++++++++++---
+ 1 files changed, 13 insertions(+), 3 deletions(-)
