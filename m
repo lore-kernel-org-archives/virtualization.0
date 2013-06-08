@@ -1,8 +1,8 @@
 From: Laszlo Ersek <lersek@redhat.com>
-Subject: [virtio-spec PATCH 1/5] Receiving Used Buffers: fix typo in "ring
-	empty" condition in example code
-Date: Sat,  8 Jun 2013 19:39:24 +0200
-Message-ID: <1370713168-20624-2-git-send-email-lersek@redhat.com>
+Subject: [virtio-spec PATCH 2/5] Receiving Used Buffers: re-disable interrupts
+	when staying in the loop
+Date: Sat,  8 Jun 2013 19:39:25 +0200
+Message-ID: <1370713168-20624-3-git-send-email-lersek@redhat.com>
 References: <1370713168-20624-1-git-send-email-lersek@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,30 +24,24 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Laszlo Ersek <lersek@redhat.com>
 ---
- virtio-spec.lyx |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ virtio-spec.lyx |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
 diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index 6e188d0..41a763c 100644
+index 41a763c..851a0cf 100644
 --- a/virtio-spec.lyx
 +++ b/virtio-spec.lyx
-@@ -2942,7 +2942,7 @@ for (;;) {
+@@ -2967,6 +2967,11 @@ for (;;) {
  
  \begin_layout Plain Layout
  
--    if (vq->last_seen_used != vring->used.idx) {
-+    if (vq->last_seen_used == vring->used.idx) {
++		vring_disable_interrupts(vq);
++\end_layout
++
++\begin_layout Plain Layout
++
+     }
  \end_layout
  
- \begin_layout Plain Layout
-@@ -2957,7 +2957,7 @@ for (;;) {
- 
- \begin_layout Plain Layout
- 
--		if (vq->last_seen_used != vring->used.idx)
-+		if (vq->last_seen_used == vring->used.idx)
- \end_layout
- 
- \begin_layout Plain Layout
 -- 
 1.7.1
