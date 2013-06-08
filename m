@@ -1,8 +1,8 @@
 From: Laszlo Ersek <lersek@redhat.com>
-Subject: [virtio-spec PATCH 2/5] Receiving Used Buffers: re-disable interrupts
-	when staying in the loop
-Date: Sat,  8 Jun 2013 19:39:25 +0200
-Message-ID: <1370713168-20624-3-git-send-email-lersek@redhat.com>
+Subject: [virtio-spec PATCH 3/5] Receiving Used Buffers: variable for Queue
+	Size is called "qsz" elsewhere
+Date: Sat,  8 Jun 2013 19:39:26 +0200
+Message-ID: <1370713168-20624-4-git-send-email-lersek@redhat.com>
 References: <1370713168-20624-1-git-send-email-lersek@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,24 +24,21 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Signed-off-by: Laszlo Ersek <lersek@redhat.com>
 ---
- virtio-spec.lyx |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+ virtio-spec.lyx |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/virtio-spec.lyx b/virtio-spec.lyx
-index 41a763c..851a0cf 100644
+index 851a0cf..1a0923b 100644
 --- a/virtio-spec.lyx
 +++ b/virtio-spec.lyx
-@@ -2967,6 +2967,11 @@ for (;;) {
+@@ -2977,7 +2977,7 @@ for (;;) {
  
  \begin_layout Plain Layout
  
-+		vring_disable_interrupts(vq);
-+\end_layout
-+
-+\begin_layout Plain Layout
-+
-     }
+-    struct vring_used_elem *e = vring.used->ring[vq->last_seen_used%vsz];
++    struct vring_used_elem *e = vring.used->ring[vq->last_seen_used % qsz];
  \end_layout
  
+ \begin_layout Plain Layout
 -- 
 1.7.1
