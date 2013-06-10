@@ -1,21 +1,15 @@
-From: Jiang Liu <liuj97@gmail.com>
-Subject: Re: [RFC PATCH v2, part3 07/11] PCI,
-	xen-pcifront: use new PCI interfaces to simplify implementation
-Date: Tue, 11 Jun 2013 01:08:14 +0800
-Message-ID: <51B607FE.3020108@gmail.com>
-References: <1368719459-24800-1-git-send-email-jiang.liu@huawei.com>
-	<1368719459-24800-8-git-send-email-jiang.liu@huawei.com>
-	<20130607145024.GA16631@phenom.dumpdata.com>
-	<20130607153822.GA24882@phenom.dumpdata.com>
-	<51B20F57.7050100@gmail.com>
-	<20130607170706.GB3730@phenom.dumpdata.com>
-	<51B4B266.5010100@gmail.com>
-	<20130610165801.GA24823@phenom.dumpdata.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] vhost_net: clear msg.control for non-zerocopy case
+	during tx
+Date: Mon, 10 Jun 2013 14:32:16 -0700 (PDT)
+Message-ID: <20130610.143216.418315514574898268.davem@davemloft.net>
+References: <1370418046-11851-1-git-send-email-jasowang@redhat.com>
+	<20130605090252.GA31830@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130610165801.GA24823@phenom.dumpdata.com>
+In-Reply-To: <20130605090252.GA31830@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,76 +19,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Toshi Kani <toshi.kani@hp.com>, Jiang Liu <jiang.liu@huawei.com>, Myron Stowe <myron.stowe@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Rafael J . Wysocki" <rjw@sisk.pl>, Gu Zheng <guz.fnst@cn.fujitsu.com>, Yijing Wang <wangyijing@huawei.com>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Yinghai Lu <yinghai@kernel.org>
+To: mst@redhat.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue 11 Jun 2013 12:58:01 AM CST, Konrad Rzeszutek Wilk wrote:
-> On Mon, Jun 10, 2013 at 12:50:46AM +0800, Jiang Liu wrote:
->> On Sat 08 Jun 2013 01:07:06 AM CST, Konrad Rzeszutek Wilk wrote:
->>> On Sat, Jun 08, 2013 at 12:50:31AM +0800, Jiang Liu wrote:
->>>> On 06/07/2013 11:38 PM, Konrad Rzeszutek Wilk wrote:
->>>>> On Fri, Jun 07, 2013 at 10:50:24AM -0400, Konrad Rzeszutek Wilk wrote:
->>>>>> On Thu, May 16, 2013 at 11:50:55PM +0800, Jiang Liu wrote:
->>>>>>> Use new PCI interfaces to simplify xen-pcifront implementation:
->>>>>>> 1) Use pci_create_root_bus() instead of pci_scan_bus_parented()
->>>>>>>    because pci_scan_bus_parented() is marked as __deprecated.This
->>>>>>>    also gets rid of a duplicated call of pci_bus_start_devices().
->>>>>>> 2) Use pci_stop_root_bus() and pci_remove_root_bus() instead of
->>>>>>>    open-coded private implementation.
->>>>>>> 3) Use pci_set_host_bridge_release() to release data structures
->>>>>>>    associated with PCI root buses.
->>>>>>> 4) Use pci_bus_get()/pci_bus_put() to manage PCI root bus reference
->>>>>>>    count.
->>>>>>>
->>>>>>> This is also a preparation for coming PCI bus lock enhancement.
->>>>>
->>>>> With this patch from :
->>>>>
->>>>>  Merge branch 'pci_lock_v3' of https://github.com/jiangliu/linux into testing
->>>>>
->>>>>
->>>>> it blows up when detaching the device.
->>>> Hi Konrad,
->>>>    Thanks for testing! According to the log messages, this issue should
->>>> be related to pci bus reference counter management. Seems we have done
->>>> an extra(unbalanced) release of pci bus device.
->>>>    Will investigate it tomorrow!
->>>
->>> That is quite commendable that you are willing to look over this on
->>> the weekend but I am not going to be able to rerun this test until
->>> some time in the week. You could enjoy the weekend and just look at
->>> this during the week.
->>
->> Hi Konrad,
->>      We should have root-caused this bug, which is caused by
->> for_each_pci_root_bus().
->> Current implementation doesn't support root bus deletion when walking
->> PCI root
->> buses by for_each_pci_root_bus(). The reference counter
->> (pci_bus->dev.knode_class.n_ref)
->> becomes zero after returning from pci_remove_root_bus(), so it triggers
->> kref warnings
->> and double-free of klist_node object when we call
->> pci_get_next_root_bus() to get the
->> next PCI root bus.
->>      So we will first revert to  list_for_each_entry_safe(bus, temp,
->> &pci_root_buses, node)
->> and solve this issue in next version of for_each_pci_root_bus().
->
-> That definitly solves the issue. Thanks!
->
-> I used pci_lock_v3 of https://github.com/jiangliu/linux and the fix
-> below.
->
-> Is there a new patchset you are going to be posting or a git branch
-> that I can look over?
->
-> Thanks.
-Hi Konrad,
-     Really appreciate your support! I will try to post a new version 
-tomorrow,
-but I think there won't be big changes except addressing some review
-comments from you.
-    Thanks!
-    Gerry
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Wed, 5 Jun 2013 12:02:52 +0300
+
+> On Wed, Jun 05, 2013 at 03:40:46PM +0800, Jason Wang wrote:
+>> When we decide not use zero-copy, msg.control should be set to NULL otherwise
+>> macvtap/tap may set zerocopy callbacks which may decrease the kref of ubufs
+>> wrongly.
+>> 
+>> Bug were introduced by commit cedb9bdce099206290a2bdd02ce47a7b253b6a84
+>> (vhost-net: skip head management if no outstanding).
+>> 
+>> This solves the following warnings:
+>> 
+>> WARNING: at include/linux/kref.h:47 handle_tx+0x477/0x4b0 [vhost_net]()
+>> Modules linked in: vhost_net macvtap macvlan tun nfsd exportfs bridge stp llc openvswitch kvm_amd kvm bnx2 megaraid_sas [last unloaded: tun]
+>> CPU: 5 PID: 8670 Comm: vhost-8668 Not tainted 3.10.0-rc2+ #1566
+>> Hardware name: Dell Inc. PowerEdge R715/00XHKG, BIOS 1.5.2 04/19/2011
+>> ffffffffa0198323 ffff88007c9ebd08 ffffffff81796b73 ffff88007c9ebd48
+>> ffffffff8103d66b 000000007b773e20 ffff8800779f0000 ffff8800779f43f0
+>> ffff8800779f8418 000000000000015c 0000000000000062 ffff88007c9ebd58
+>> Call Trace:
+>> [<ffffffff81796b73>] dump_stack+0x19/0x1e
+>> [<ffffffff8103d66b>] warn_slowpath_common+0x6b/0xa0
+>> [<ffffffff8103d6b5>] warn_slowpath_null+0x15/0x20
+>> [<ffffffffa0197627>] handle_tx+0x477/0x4b0 [vhost_net]
+>> [<ffffffffa0197690>] handle_tx_kick+0x10/0x20 [vhost_net]
+>> [<ffffffffa019541e>] vhost_worker+0xfe/0x1a0 [vhost_net]
+>> [<ffffffffa0195320>] ? vhost_attach_cgroups_work+0x30/0x30 [vhost_net]
+>> [<ffffffffa0195320>] ? vhost_attach_cgroups_work+0x30/0x30 [vhost_net]
+>> [<ffffffff81061f46>] kthread+0xc6/0xd0
+>> [<ffffffff81061e80>] ? kthread_freezable_should_stop+0x70/0x70
+>> [<ffffffff817a1aec>] ret_from_fork+0x7c/0xb0
+>> [<ffffffff81061e80>] ? kthread_freezable_should_stop+0x70/0x70
+>> 
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> 
+> Good catch.
+> 
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> This needs to go into stable as well.
+
+Applied and queued up for -stable.
