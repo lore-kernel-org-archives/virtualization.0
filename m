@@ -1,17 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/2] fix kernel crash with macvtap on top of LRO
-Date: Mon, 10 Jun 2013 10:07:11 +0300
-Message-ID: <20130610070710.GA673@redhat.com>
-References: <1360193660.32217.39.camel@deadeye.wl.decadent.org.uk>
-	<1360207111.28557.47.camel@edumazet-glaptop>
-	<1360254046.3605.8.camel@bwh-desktop.uk.solarflarecom.com>
-	<20130207.131420.1211188723341167971.davem@davemloft.net>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [virtio-spec PATCH 0/5] Receiving Used Buffers example code:
+	cleanups and an extra mb()
+Date: Mon, 10 Jun 2013 10:15:28 +0200
+Message-ID: <CAJSP0QXNu1jdHXpN7hpEfZPdGJf38H75AUdy3n3HAr8kg5gSww@mail.gmail.com>
+References: <1370713168-20624-1-git-send-email-lersek@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130207.131420.1211188723341167971.davem@davemloft.net>
+In-Reply-To: <1370713168-20624-1-git-send-email-lersek@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,27 +18,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: eric.dumazet@gmail.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, bhutchings@solarflare.com
+To: Laszlo Ersek <lersek@redhat.com>
+Cc: Jordan Justen <jordan.l.justen@intel.com>, Stefan Hajnoczi <stefanha@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 07, 2013 at 01:14:20PM -0500, David Miller wrote:
-> From: Ben Hutchings <bhutchings@solarflare.com>
-> Date: Thu, 7 Feb 2013 16:20:46 +0000
-> 
-> > If the consensus is still that we must preserve packets exactly (aside
-> > from the usual modifications by IP routers) then LRO should be disabled
-> > on all devices for which forwarding is enabled.
-> 
-> I believe this is still undoubtedly the consensus.
+On Sat, Jun 8, 2013 at 7:39 PM, Laszlo Ersek <lersek@redhat.com> wrote:
+> Patches before the last are small cleanups.
+>
+> In the last patch I'm trying to extract / generalize an idea from Stefan
+> Hajnoczi's review of my virtio-net driver for OVMF.
+>
+> Unfortunately I can't find Stefan's email on any mailing list archive
+> (sourceforge, gmane, mail-archive etc. all have only my response), so
+> I'll quote it here.
+>
+> The patch Stefan was reviewing is
+> <http://thread.gmane.org/gmane.comp.bios.tianocore.devel/2804/focus=2819>:
+>
+>   [PATCH v3 10/15]
+>   OvmfPkg: VirtioNetDxe: implement Tx: SNP.Transmit and SNP.GetStatus
+>
+> On 06/07/13 16:17, Stefan Hajnoczi wrote:
+>
+>> There is no read memory barrier between fetching TxCurUsed and
+>> fetching UsedElem[].Id.  In theory I think there is no guarantee that
+>> Dev->TxRing.Used.UsedElem[UsedElemIdx].Id is fetched *after*
+>> Dev->TxRing.Used.Idx.  On x86 it shouldn't be a problem but I expected
+>> a read memory barrier after comparing fetching Dev->TxRing.Used.Idx.
+>
+> (Solely for the record, my response is at
+> <http://thread.gmane.org/gmane.comp.bios.tianocore.devel/3052>.)
+>
+> In the last patch I'm trying to apply this remark to the virtio spec.
+> Hopefully I'm not misrepresenting the idea, nor glossing over any
+> important differences between the VirtioNetDxe code Stefan was actually
+> reviewing and the example code in the virtio spec.
+>
+> I didn't add
+>
+>   Suggested-by: Stefan Hajnoczi <stefanha@redhat.com>
+>
+> to the last patch, because my translation may easily have corrupted his
+> idea, but if the patch is deemed worthwhile, please do add his
+> Suggested-by.
+>
+>
+> I'm not subscribed to the virtualization list, please keep me CC'd.
+>
+> Thanks!
+>
+> Laszlo Ersek (5):
+>   Receiving Used Buffers: fix typo in "ring empty" condition in example
+>     code
+>   Receiving Used Buffers: re-disable interrupts when staying in the
+>     loop
+>   Receiving Used Buffers: variable for Queue Size is called "qsz"
+>     elsewhere
+>   Receiving Used Buffers: switch . and -> operators, add missing &
+>   Receiving Used Buffers: prevent speculative load when not
+>     sequentially consistent
+>
+>  virtio-spec.lyx |   16 +++++++++++++---
+>  1 files changed, 13 insertions(+), 3 deletions(-)
 
-With virtio we are getting packets from a linux host,
-so we could thinkably preserve packets exactly
-even with LRO. I am guessing other hardware could be
-doing this as well.
-
-I am not sure what information would need to be preserved -
-could someone help clarify please?
-
--- 
-MST
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
