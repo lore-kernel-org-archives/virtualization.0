@@ -1,15 +1,18 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] vhost_net: clear msg.control for non-zerocopy case
-	during tx
-Date: Mon, 10 Jun 2013 14:32:16 -0700 (PDT)
-Message-ID: <20130610.143216.418315514574898268.davem@davemloft.net>
-References: <1370418046-11851-1-git-send-email-jasowang@redhat.com>
-	<20130605090252.GA31830@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
+Date: Tue, 11 Jun 2013 10:10:47 +0300
+Message-ID: <20130611071047.GC31474@redhat.com>
+References: <87bo7ktvaw.fsf@codemonkey.ws> <20130605162029.GB26561@redhat.com>
+	<51AFA92B.2030203@zytor.com> <87fvwwmdmf.fsf@codemonkey.ws>
+	<51AFB3DD.1050902@zytor.com> <874ndcb47i.fsf@codemonkey.ws>
+	<51AFC4A6.6070607@zytor.com> <877gi8nk9e.fsf@codemonkey.ws>
+	<20130606063432.GQ4725@redhat.com> <871u8fp9jd.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130605090252.GA31830@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <871u8fp9jd.fsf@codemonkey.ws>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,50 +22,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Anthony Liguori <aliguori@us.ibm.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Wed, 5 Jun 2013 12:02:52 +0300
+On Thu, Jun 06, 2013 at 10:02:14AM -0500, Anthony Liguori wrote:
+> Gleb Natapov <gleb@redhat.com> writes:
+> 
+> > On Wed, Jun 05, 2013 at 07:41:17PM -0500, Anthony Liguori wrote:
+> >> "H. Peter Anvin" <hpa@zytor.com> writes:
+> >> 
+> >> > On 06/05/2013 03:08 PM, Anthony Liguori wrote:
+> >> >>>
+> >> >>> Definitely an option.  However, we want to be able to boot from native
+> >> >>> devices, too, so having an I/O BAR (which would not be used by the OS
+> >> >>> driver) should still at the very least be an option.
+> >> >> 
+> >> >> What makes it so difficult to work with an MMIO bar for PCI-e?
+> >> >> 
+> >> >> With legacy PCI, tracking allocation of MMIO vs. PIO is pretty straight
+> >> >> forward.  Is there something special about PCI-e here?
+> >> >> 
+> >> >
+> >> > It's not tracking allocation.  It is that accessing memory above 1 MiB
+> >> > is incredibly painful in the BIOS environment, which basically means
+> >> > MMIO is inaccessible.
+> >> 
+> >> Oh, you mean in real mode.
+> >> 
+> >> SeaBIOS runs the virtio code in 32-bit mode with a flat memory layout.
+> >> There are loads of ASSERT32FLAT()s in the code to make sure of this.
+> >> 
+> > Well, not exactly. Initialization is done in 32bit, but disk
+> > reads/writes are done in 16bit mode since it should work from int13
+> > interrupt handler. The only way I know to access MMIO bars from 16 bit
+> > is to use SMM which we do not have in KVM.
+> 
+> Ah, if it's just the dataplane operations then there's another solution.
+> 
+> We can introduce a virtqueue flag that asks the backend to poll for new
+> requests.  Then SeaBIOS can add the request to the queue and not worry
+> about kicking or reading the ISR.
 
-> On Wed, Jun 05, 2013 at 03:40:46PM +0800, Jason Wang wrote:
->> When we decide not use zero-copy, msg.control should be set to NULL otherwise
->> macvtap/tap may set zerocopy callbacks which may decrease the kref of ubufs
->> wrongly.
->> 
->> Bug were introduced by commit cedb9bdce099206290a2bdd02ce47a7b253b6a84
->> (vhost-net: skip head management if no outstanding).
->> 
->> This solves the following warnings:
->> 
->> WARNING: at include/linux/kref.h:47 handle_tx+0x477/0x4b0 [vhost_net]()
->> Modules linked in: vhost_net macvtap macvlan tun nfsd exportfs bridge stp llc openvswitch kvm_amd kvm bnx2 megaraid_sas [last unloaded: tun]
->> CPU: 5 PID: 8670 Comm: vhost-8668 Not tainted 3.10.0-rc2+ #1566
->> Hardware name: Dell Inc. PowerEdge R715/00XHKG, BIOS 1.5.2 04/19/2011
->> ffffffffa0198323 ffff88007c9ebd08 ffffffff81796b73 ffff88007c9ebd48
->> ffffffff8103d66b 000000007b773e20 ffff8800779f0000 ffff8800779f43f0
->> ffff8800779f8418 000000000000015c 0000000000000062 ffff88007c9ebd58
->> Call Trace:
->> [<ffffffff81796b73>] dump_stack+0x19/0x1e
->> [<ffffffff8103d66b>] warn_slowpath_common+0x6b/0xa0
->> [<ffffffff8103d6b5>] warn_slowpath_null+0x15/0x20
->> [<ffffffffa0197627>] handle_tx+0x477/0x4b0 [vhost_net]
->> [<ffffffffa0197690>] handle_tx_kick+0x10/0x20 [vhost_net]
->> [<ffffffffa019541e>] vhost_worker+0xfe/0x1a0 [vhost_net]
->> [<ffffffffa0195320>] ? vhost_attach_cgroups_work+0x30/0x30 [vhost_net]
->> [<ffffffffa0195320>] ? vhost_attach_cgroups_work+0x30/0x30 [vhost_net]
->> [<ffffffff81061f46>] kthread+0xc6/0xd0
->> [<ffffffff81061e80>] ? kthread_freezable_should_stop+0x70/0x70
->> [<ffffffff817a1aec>] ret_from_fork+0x7c/0xb0
->> [<ffffffff81061e80>] ? kthread_freezable_should_stop+0x70/0x70
->> 
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> 
-> Good catch.
-> 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> This needs to go into stable as well.
+This will pin a host CPU.
+If we do something timer based it will likely
+both increase host CPU utilization and slow device down.
 
-Applied and queued up for -stable.
+If we didn't care about performance at all we could
+do config cycles for signalling, which is much
+more elegant than polling in host, but I don't think
+that's the case.
+
+> 
+> SeaBIOS is polling for completion anyway.
+
+I think that's different because a disk will normally respond
+quickly. So it polls a bit, but then it stops as
+there are no outstanding requests.
+
+-- 
+MST
