@@ -1,7 +1,7 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Gleb Natapov <gleb@redhat.com>
 Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
-Date: Tue, 11 Jun 2013 11:04:10 +0300
-Message-ID: <20130611080410.GA9212@redhat.com>
+Date: Tue, 11 Jun 2013 11:03:50 +0300
+Message-ID: <20130611080350.GF4725@redhat.com>
 References: <87fvwwmdmf.fsf@codemonkey.ws> <51AFB3DD.1050902@zytor.com>
 	<874ndcb47i.fsf@codemonkey.ws> <51AFC4A6.6070607@zytor.com>
 	<877gi8nk9e.fsf@codemonkey.ws> <20130606063432.GQ4725@redhat.com>
@@ -23,7 +23,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
@@ -84,12 +84,9 @@ On Tue, Jun 11, 2013 at 11:02:26AM +0300, Michael S. Tsirkin wrote:
 > - add a register for pci-config based access to devices
 > 
 > hpa felt performance does matter there but didn't clarify why ...
-
-Also
-
-<gleb> mst, well the question is if it is safe to call int13 in the
-middle of pci bus enumeration/configuration
-<gleb> mst, and int13 predates PCI, so how knows
+> 
+You do not what to make it too slow obviously, this is interface that is
+used to load OS during boot.
 
 > > > > 
 > > > > SeaBIOS is polling for completion anyway.
@@ -103,3 +100,6 @@ middle of pci bus enumeration/configuration
 > > 
 > > --
 > > 			Gleb.
+
+--
+			Gleb.
