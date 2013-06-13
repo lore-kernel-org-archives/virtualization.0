@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Thu, 13 Jun 2013 10:33:05 +0300
-Message-ID: <20130613073305.GC10326@redhat.com>
+Date: Thu, 13 Jun 2013 11:02:59 +0300
+Message-ID: <20130613080259.GA11175@redhat.com>
 References: <20130314111020.GA18050@redhat.com> <5141E990.7070609@redhat.com>
 	<20130314173918.GB29411@redhat.com>
 	<87k3lyzknl.fsf@rustcorp.com.au>
@@ -41,17 +41,16 @@ On Thu, Jun 13, 2013 at 02:12:22PM +0930, Rusty Russell wrote:
 > Please do.  And please add a note about this feature: that without it,
 > the descriptor layout must be on the right boundaries for historical
 > reasons.
-> 
+
+It's there already, isn't it:
+
+ If VIRTIO_BLK_F_SCSI_CMD_SIZE is not negotiated,
+ This field must reside in a single, separate read-only buffer; 
+ the command length
+ can be derived from the length of this buffer.
+
+
+
+
 > Thanks,
 > Rusty.
-
-Since I got your attention, how about
-	virtio-spec: balloon: MUST_TELL_HOST is optional
-?
-
-We are still discussing more ideas for balloon but this one
-seems uncontroversial since this just codifies what guests
-do.
-
--- 
-MST
