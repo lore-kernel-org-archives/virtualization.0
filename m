@@ -1,16 +1,17 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Thu, 13 Jun 2013 11:02:59 +0300
-Message-ID: <20130613080259.GA11175@redhat.com>
+Date: Thu, 13 Jun 2013 11:10:47 +0300
+Message-ID: <20130613081047.GA11269@redhat.com>
 References: <20130314111020.GA18050@redhat.com> <5141E990.7070609@redhat.com>
 	<20130314173918.GB29411@redhat.com>
 	<87k3lyzknl.fsf@rustcorp.com.au>
+	<20130613080259.GA11175@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87k3lyzknl.fsf@rustcorp.com.au>
+In-Reply-To: <20130613080259.GA11175@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,33 +25,37 @@ To: Rusty Russell <rusty@rustcorp.com.au>
 Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 13, 2013 at 02:12:22PM +0930, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > On Thu, Mar 14, 2013 at 04:15:28PM +0100, Paolo Bonzini wrote:
-> >> Il 14/03/2013 12:10, Michael S. Tsirkin ha scritto:
-> >> > Add field for guest to specify command size for virtio-blk.
-> >> > 
-> >> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> >
-> > OK, but Rusty usually tweaks wording anyway.
-> > Rusty want to apply and make changes Paolo suggested yourself
-> > or want me to?
+On Thu, Jun 13, 2013 at 11:02:59AM +0300, Michael S. Tsirkin wrote:
+> On Thu, Jun 13, 2013 at 02:12:22PM +0930, Rusty Russell wrote:
+> > "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > > On Thu, Mar 14, 2013 at 04:15:28PM +0100, Paolo Bonzini wrote:
+> > >> Il 14/03/2013 12:10, Michael S. Tsirkin ha scritto:
+> > >> > Add field for guest to specify command size for virtio-blk.
+> > >> > 
+> > >> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > >
+> > > OK, but Rusty usually tweaks wording anyway.
+> > > Rusty want to apply and make changes Paolo suggested yourself
+> > > or want me to?
+> > 
+> > (MST drew my attention back to this)
+> > 
+> > Please do.  And please add a note about this feature: that without it,
+> > the descriptor layout must be on the right boundaries for historical
+> > reasons.
 > 
-> (MST drew my attention back to this)
+> It's there already, isn't it:
 > 
-> Please do.  And please add a note about this feature: that without it,
-> the descriptor layout must be on the right boundaries for historical
-> reasons.
+>  If VIRTIO_BLK_F_SCSI_CMD_SIZE is not negotiated,
+>  This field must reside in a single, separate read-only buffer; 
+>  the command length
+>  can be derived from the length of this buffer.
+> 
 
-It's there already, isn't it:
+Wait, I think I got it: you actually want to rename this
+VIRTIO_BLK_F_ANY_SG and have it affect all requests?
 
- If VIRTIO_BLK_F_SCSI_CMD_SIZE is not negotiated,
- This field must reside in a single, separate read-only buffer; 
- the command length
- can be derived from the length of this buffer.
-
-
-
-
-> Thanks,
-> Rusty.
+> 
+> 
+> > Thanks,
+> > Rusty.
