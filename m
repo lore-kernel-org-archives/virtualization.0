@@ -1,17 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Thu, 13 Jun 2013 11:10:47 +0300
-Message-ID: <20130613081047.GA11269@redhat.com>
-References: <20130314111020.GA18050@redhat.com> <5141E990.7070609@redhat.com>
-	<20130314173918.GB29411@redhat.com>
-	<87k3lyzknl.fsf@rustcorp.com.au>
-	<20130613080259.GA11175@redhat.com>
+From: KVM-Forum-2013-PC@redhat.com
+Subject: KVM Forum 2013 Call for Participation
+Date: Fri, 14 Jun 2013 05:09:00 -0700
+Message-ID: <20130614120900.GA14453@x220.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130613080259.GA11175@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,41 +16,143 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
+To: kvm@vger.kernel.org, libvir-list@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 13, 2013 at 11:02:59AM +0300, Michael S. Tsirkin wrote:
-> On Thu, Jun 13, 2013 at 02:12:22PM +0930, Rusty Russell wrote:
-> > "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > > On Thu, Mar 14, 2013 at 04:15:28PM +0100, Paolo Bonzini wrote:
-> > >> Il 14/03/2013 12:10, Michael S. Tsirkin ha scritto:
-> > >> > Add field for guest to specify command size for virtio-blk.
-> > >> > 
-> > >> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > >
-> > > OK, but Rusty usually tweaks wording anyway.
-> > > Rusty want to apply and make changes Paolo suggested yourself
-> > > or want me to?
-> > 
-> > (MST drew my attention back to this)
-> > 
-> > Please do.  And please add a note about this feature: that without it,
-> > the descriptor layout must be on the right boundaries for historical
-> > reasons.
-> 
-> It's there already, isn't it:
-> 
->  If VIRTIO_BLK_F_SCSI_CMD_SIZE is not negotiated,
->  This field must reside in a single, separate read-only buffer; 
->  the command length
->  can be derived from the length of this buffer.
-> 
+=================================================================
+KVM Forum 2013: Call For Participation
+October 21-23, 2013 - Edinburgh International Conference Centre - Edinburgh, UK
 
-Wait, I think I got it: you actually want to rename this
-VIRTIO_BLK_F_ANY_SG and have it affect all requests?
+(All submissions must be received before midnight July 21, 2013)
+=================================================================
 
-> 
-> 
-> > Thanks,
-> > Rusty.
+KVM is an industry leading open source hypervisor that provides an ideal
+platform for datacenter virtualization, virtual desktop infrastructure,
+and cloud computing.  Once again, it's time to bring together the
+community of developers and users that define the KVM ecosystem for
+our annual technical conference.  We will discuss the current state of
+affairs and plan for the future of KVM, its surrounding infrastructure,
+and management tools.  The oVirt Workshop will run in parallel with the
+KVM Forum again, bringing in a community focused on enterprise datacenter
+virtualization management built on KVM.  For topics which overlap we will
+have shared sessions.  So mark your calendar and join us in advancing KVM.
+
+http://events.linuxfoundation.org/events/kvm-forum/
+
+Once again we are colocated with The Linux Foundation's LinuxCon Europe.
+KVM Forum attendees will be able to attend oVirt Workshop sessions and
+are eligible to attend LinuxCon Europe for a discounted rate.
+
+http://events.linuxfoundation.org/events/kvm-forum/register
+
+We invite you to lead part of the discussion by submitting a speaking
+proposal for KVM Forum 2013.
+
+http://events.linuxfoundation.org/cfp
+
+Suggested topics:
+
+ KVM/Kernel
+ - Scaling and performance
+ - Nested virtualization
+ - I/O improvements
+ - VFIO, device assignment, SR-IOV
+ - Driver domains
+ - Time keeping
+ - Resource management (cpu, memory, i/o)
+ - Memory management (page sharing, swapping, huge pages, etc)
+ - Network virtualization
+ - Security
+ - Architecture ports
+ 
+ QEMU
+ - Device model improvements
+ - New devices and chipsets
+ - Scaling and performance
+ - Desktop virtualization
+ - Spice
+ - Increasing robustness and hardening
+ - Security model
+ - Management interfaces
+ - QMP protocol and implementation
+ - Image formats
+ - Firmware (SeaBIOS, OVMF, UEFI, etc)
+ - Live migration
+ - Live snapshots and merging
+ - Fault tolerance, high availability, continuous backup
+ - Real-time guest support
+ 
+ Virtio
+ - Speeding up existing devices
+ - Alternatives
+ - Virtio on non-Linux or non-virtualized
+ 
+ Management infrastructure
+ - oVirt (shared track w/ oVirt Workshop)
+ - Libvirt
+ - KVM autotest
+ - OpenStack
+ - Network virtualization management
+ - Enterprise storage management
+ 
+ Cloud computing
+ - Scalable storage
+ - Virtual networking
+ - Security
+ - Provisioning
+
+SUBMISSION REQUIREMENTS
+
+Abstracts due: July 21, 2013
+Notification: August 1, 2013
+
+Please submit a short abstract (~150 words) describing your presentation
+proposal.  In your submission please note how long your talk will take.
+Slots vary in length up to 45 minutes.  Also include in your proposal
+the proposal type -- one of:
+
+- technical talk
+- end-user talk
+- birds of a feather (BOF) session
+
+Submit your proposal here:
+
+http://events.linuxfoundation.org/cfp
+
+You will receive a notification whether or not your presentation proposal
+was accepted by Aug 1st.
+
+END-USER COLLABORATION
+
+One of the big challenges as developers is to know what, where and how
+people actually use our software.  We will reserve a few slots for end
+users talking about their deployment challenges and achievements.
+
+If you are using KVM in production you are encouraged submit a speaking
+proposal.  Simply mark it as an end-user collaboration proposal.  As an
+end user, this is a unique opportunity to get your input to developers.
+
+BOF SESSION
+
+We will reserve some slots in the evening after the main conference
+tracks, for birds of a feather (BOF) sessions. These sessions will be
+less formal than presentation tracks and targetted for people who would
+like to discuss specific issues with other developers and/or users.
+If you are interested in getting developers and/or uses together to
+discuss a specific problem, please submit a BOF proposal.
+
+HOTEL / TRAVEL
+
+The KVM Forum 2013 will be held in Edinburgh, UK at the Edinburgh
+International Conference Centre.
+
+http://events.linuxfoundation.org/events/kvm-forum/hotel
+
+Thank you for your interest in KVM.  We're looking forward to your
+submissions and seeing you at the KVM Forum 2013 in October!
+
+Thanks,
+-your KVM Forum 2013 Program Committee
+
+Please contact us with any questions or comments.
+KVM-Forum-2013-PC@redhat.com
