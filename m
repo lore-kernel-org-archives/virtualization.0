@@ -1,12 +1,23 @@
-From: KVM-Forum-2013-PC@redhat.com
-Subject: KVM Forum 2013 Call for Participation
-Date: Fri, 14 Jun 2013 05:09:00 -0700
-Message-ID: <20130614120900.GA14453@x220.localdomain>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [RFC PATCH v2, part3 07/11] PCI, xen-pcifront: use new PCI
+	interfaces to simplify implementation
+Date: Fri, 14 Jun 2013 14:07:19 -0400
+Message-ID: <20130614180719.GA21729@phenom.dumpdata.com>
+References: <1368719459-24800-1-git-send-email-jiang.liu@huawei.com>
+	<1368719459-24800-8-git-send-email-jiang.liu@huawei.com>
+	<20130607145024.GA16631@phenom.dumpdata.com>
+	<20130607153822.GA24882@phenom.dumpdata.com>
+	<51B20F57.7050100@gmail.com>
+	<20130607170706.GB3730@phenom.dumpdata.com>
+	<51B4B266.5010100@gmail.com>
+	<20130610165801.GA24823@phenom.dumpdata.com>
+	<51B607FE.3020108@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <51B607FE.3020108@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,143 +27,84 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, libvir-list@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: Jiang Liu <liuj97@gmail.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Toshi Kani <toshi.kani@hp.com>, Jiang Liu <jiang.liu@huawei.com>, Myron Stowe <myron.stowe@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Rafael J . Wysocki" <rjw@sisk.pl>, Gu Zheng <guz.fnst@cn.fujitsu.com>, Yijing Wang <wangyijing@huawei.com>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Yinghai Lu <yinghai@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-=================================================================
-KVM Forum 2013: Call For Participation
-October 21-23, 2013 - Edinburgh International Conference Centre - Edinburgh, UK
+On Tue, Jun 11, 2013 at 01:08:14AM +0800, Jiang Liu wrote:
+> On Tue 11 Jun 2013 12:58:01 AM CST, Konrad Rzeszutek Wilk wrote:
+> > On Mon, Jun 10, 2013 at 12:50:46AM +0800, Jiang Liu wrote:
+> >> On Sat 08 Jun 2013 01:07:06 AM CST, Konrad Rzeszutek Wilk wrote:
+> >>> On Sat, Jun 08, 2013 at 12:50:31AM +0800, Jiang Liu wrote:
+> >>>> On 06/07/2013 11:38 PM, Konrad Rzeszutek Wilk wrote:
+> >>>>> On Fri, Jun 07, 2013 at 10:50:24AM -0400, Konrad Rzeszutek Wilk wrote:
+> >>>>>> On Thu, May 16, 2013 at 11:50:55PM +0800, Jiang Liu wrote:
+> >>>>>>> Use new PCI interfaces to simplify xen-pcifront implementation:
+> >>>>>>> 1) Use pci_create_root_bus() instead of pci_scan_bus_parented()
+> >>>>>>>    because pci_scan_bus_parented() is marked as __deprecated.This
+> >>>>>>>    also gets rid of a duplicated call of pci_bus_start_devices().
+> >>>>>>> 2) Use pci_stop_root_bus() and pci_remove_root_bus() instead of
+> >>>>>>>    open-coded private implementation.
+> >>>>>>> 3) Use pci_set_host_bridge_release() to release data structures
+> >>>>>>>    associated with PCI root buses.
+> >>>>>>> 4) Use pci_bus_get()/pci_bus_put() to manage PCI root bus reference
+> >>>>>>>    count.
+> >>>>>>>
+> >>>>>>> This is also a preparation for coming PCI bus lock enhancement.
+> >>>>>
+> >>>>> With this patch from :
+> >>>>>
+> >>>>>  Merge branch 'pci_lock_v3' of https://github.com/jiangliu/linux into testing
+> >>>>>
+> >>>>>
+> >>>>> it blows up when detaching the device.
+> >>>> Hi Konrad,
+> >>>>    Thanks for testing! According to the log messages, this issue should
+> >>>> be related to pci bus reference counter management. Seems we have done
+> >>>> an extra(unbalanced) release of pci bus device.
+> >>>>    Will investigate it tomorrow!
+> >>>
+> >>> That is quite commendable that you are willing to look over this on
+> >>> the weekend but I am not going to be able to rerun this test until
+> >>> some time in the week. You could enjoy the weekend and just look at
+> >>> this during the week.
+> >>
+> >> Hi Konrad,
+> >>      We should have root-caused this bug, which is caused by
+> >> for_each_pci_root_bus().
+> >> Current implementation doesn't support root bus deletion when walking
+> >> PCI root
+> >> buses by for_each_pci_root_bus(). The reference counter
+> >> (pci_bus->dev.knode_class.n_ref)
+> >> becomes zero after returning from pci_remove_root_bus(), so it triggers
+> >> kref warnings
+> >> and double-free of klist_node object when we call
+> >> pci_get_next_root_bus() to get the
+> >> next PCI root bus.
+> >>      So we will first revert to  list_for_each_entry_safe(bus, temp,
+> >> &pci_root_buses, node)
+> >> and solve this issue in next version of for_each_pci_root_bus().
+> >
+> > That definitly solves the issue. Thanks!
+> >
+> > I used pci_lock_v3 of https://github.com/jiangliu/linux and the fix
+> > below.
+> >
+> > Is there a new patchset you are going to be posting or a git branch
+> > that I can look over?
+> >
+> > Thanks.
+> Hi Konrad,
+>      Really appreciate your support! I will try to post a new version 
+> tomorrow,
+> but I think there won't be big changes except addressing some review
+> comments from you.
 
-(All submissions must be received before midnight July 21, 2013)
-=================================================================
+I also get this:
 
-KVM is an industry leading open source hypervisor that provides an ideal
-platform for datacenter virtualization, virtual desktop infrastructure,
-and cloud computing.  Once again, it's time to bring together the
-community of developers and users that define the KVM ecosystem for
-our annual technical conference.  We will discuss the current state of
-affairs and plan for the future of KVM, its surrounding infrastructure,
-and management tools.  The oVirt Workshop will run in parallel with the
-KVM Forum again, bringing in a community focused on enterprise datacenter
-virtualization management built on KVM.  For topics which overlap we will
-have shared sessions.  So mark your calendar and join us in advancing KVM.
+ERROR: "pci_set_host_bridge_release" [drivers/pci/xen-pcifront.ko] undefined!
+ERROR: "pci_create_root_bus" [drivers/pci/xen-pcifront.ko] undefined!
+ERROR: "pci_remove_root_bus" [drivers/pci/xen-pcifront.ko] undefined!
+ERROR: "pci_stop_root_bus" [drivers/pci/xen-pcifront.ko] undefined!
 
-http://events.linuxfoundation.org/events/kvm-forum/
-
-Once again we are colocated with The Linux Foundation's LinuxCon Europe.
-KVM Forum attendees will be able to attend oVirt Workshop sessions and
-are eligible to attend LinuxCon Europe for a discounted rate.
-
-http://events.linuxfoundation.org/events/kvm-forum/register
-
-We invite you to lead part of the discussion by submitting a speaking
-proposal for KVM Forum 2013.
-
-http://events.linuxfoundation.org/cfp
-
-Suggested topics:
-
- KVM/Kernel
- - Scaling and performance
- - Nested virtualization
- - I/O improvements
- - VFIO, device assignment, SR-IOV
- - Driver domains
- - Time keeping
- - Resource management (cpu, memory, i/o)
- - Memory management (page sharing, swapping, huge pages, etc)
- - Network virtualization
- - Security
- - Architecture ports
- 
- QEMU
- - Device model improvements
- - New devices and chipsets
- - Scaling and performance
- - Desktop virtualization
- - Spice
- - Increasing robustness and hardening
- - Security model
- - Management interfaces
- - QMP protocol and implementation
- - Image formats
- - Firmware (SeaBIOS, OVMF, UEFI, etc)
- - Live migration
- - Live snapshots and merging
- - Fault tolerance, high availability, continuous backup
- - Real-time guest support
- 
- Virtio
- - Speeding up existing devices
- - Alternatives
- - Virtio on non-Linux or non-virtualized
- 
- Management infrastructure
- - oVirt (shared track w/ oVirt Workshop)
- - Libvirt
- - KVM autotest
- - OpenStack
- - Network virtualization management
- - Enterprise storage management
- 
- Cloud computing
- - Scalable storage
- - Virtual networking
- - Security
- - Provisioning
-
-SUBMISSION REQUIREMENTS
-
-Abstracts due: July 21, 2013
-Notification: August 1, 2013
-
-Please submit a short abstract (~150 words) describing your presentation
-proposal.  In your submission please note how long your talk will take.
-Slots vary in length up to 45 minutes.  Also include in your proposal
-the proposal type -- one of:
-
-- technical talk
-- end-user talk
-- birds of a feather (BOF) session
-
-Submit your proposal here:
-
-http://events.linuxfoundation.org/cfp
-
-You will receive a notification whether or not your presentation proposal
-was accepted by Aug 1st.
-
-END-USER COLLABORATION
-
-One of the big challenges as developers is to know what, where and how
-people actually use our software.  We will reserve a few slots for end
-users talking about their deployment challenges and achievements.
-
-If you are using KVM in production you are encouraged submit a speaking
-proposal.  Simply mark it as an end-user collaboration proposal.  As an
-end user, this is a unique opportunity to get your input to developers.
-
-BOF SESSION
-
-We will reserve some slots in the evening after the main conference
-tracks, for birds of a feather (BOF) sessions. These sessions will be
-less formal than presentation tracks and targetted for people who would
-like to discuss specific issues with other developers and/or users.
-If you are interested in getting developers and/or uses together to
-discuss a specific problem, please submit a BOF proposal.
-
-HOTEL / TRAVEL
-
-The KVM Forum 2013 will be held in Edinburgh, UK at the Edinburgh
-International Conference Centre.
-
-http://events.linuxfoundation.org/events/kvm-forum/hotel
-
-Thank you for your interest in KVM.  We're looking forward to your
-submissions and seeing you at the KVM Forum 2013 in October!
-
-Thanks,
--your KVM Forum 2013 Program Committee
-
-Please contact us with any questions or comments.
-KVM-Forum-2013-PC@redhat.com
+when building it as a module.
