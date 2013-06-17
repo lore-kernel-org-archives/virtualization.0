@@ -1,18 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Mon, 17 Jun 2013 09:37:46 +0300
-Message-ID: <20130617063746.GA5693@redhat.com>
-References: <20130314111020.GA18050@redhat.com> <5141E990.7070609@redhat.com>
-	<20130314173918.GB29411@redhat.com>
-	<87k3lyzknl.fsf@rustcorp.com.au>
-	<20130613080259.GA11175@redhat.com>
-	<20130613081047.GA11269@redhat.com>
+From: Laszlo Ersek <lersek@redhat.com>
+Subject: Re: [virtio-spec PATCH 0/5] Receiving Used Buffers example code:
+	cleanups and an extra mb()
+Date: Mon, 17 Jun 2013 09:29:23 +0200
+Message-ID: <51BEBAD3.4070403@redhat.com>
+References: <1370713168-20624-1-git-send-email-lersek@redhat.com>
+	<CAJSP0QXNu1jdHXpN7hpEfZPdGJf38H75AUdy3n3HAr8kg5gSww@mail.gmail.com>
+	<87txkxpjkm.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130613081047.GA11269@redhat.com>
+In-Reply-To: <87txkxpjkm.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,43 +21,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: Jordan Justen <jordan.l.justen@intel.com>, Stefan Hajnoczi <stefanha@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 13, 2013 at 11:10:47AM +0300, Michael S. Tsirkin wrote:
-> On Thu, Jun 13, 2013 at 11:02:59AM +0300, Michael S. Tsirkin wrote:
-> > On Thu, Jun 13, 2013 at 02:12:22PM +0930, Rusty Russell wrote:
-> > > "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > > > On Thu, Mar 14, 2013 at 04:15:28PM +0100, Paolo Bonzini wrote:
-> > > >> Il 14/03/2013 12:10, Michael S. Tsirkin ha scritto:
-> > > >> > Add field for guest to specify command size for virtio-blk.
-> > > >> > 
-> > > >> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > >
-> > > > OK, but Rusty usually tweaks wording anyway.
-> > > > Rusty want to apply and make changes Paolo suggested yourself
-> > > > or want me to?
-> > > 
-> > > (MST drew my attention back to this)
-> > > 
-> > > Please do.  And please add a note about this feature: that without it,
-> > > the descriptor layout must be on the right boundaries for historical
-> > > reasons.
-> > 
-> > It's there already, isn't it:
-> > 
-> >  If VIRTIO_BLK_F_SCSI_CMD_SIZE is not negotiated,
-> >  This field must reside in a single, separate read-only buffer; 
-> >  the command length
-> >  can be derived from the length of this buffer.
-> > 
+On 06/17/13 04:17, Rusty Russell wrote:
+> Stefan Hajnoczi <stefanha@gmail.com> writes:
+>> On Sat, Jun 8, 2013 at 7:39 PM, Laszlo Ersek <lersek@redhat.com> wrote:
+>>> Patches before the last are small cleanups.
+>>>
+>>> In the last patch I'm trying to extract / generalize an idea from Stefan
+>>> Hajnoczi's review of my virtio-net driver for OVMF.
 > 
-> Wait, I think I got it: you actually want to rename this
-> VIRTIO_BLK_F_ANY_SG and have it affect all requests?
+> How about a single patch which just replaces the completely broken
+> example? :)
 
-Sorry about being dense - could you please clarify?
+Do you want me to squash the series into one patch and repost?
 
-> > 
-> > 
-> > > Thanks,
-> > > Rusty.
+>>>   Receiving Used Buffers: prevent speculative load when not
+>>>     sequentially consistent
+> 
+> Yes, though this only needs to be a rmb().
+
+Probably, but the spec never qualifies the memory barriers it
+recommends. (Maybe their read/write types should be obvious to the
+reader. I didn't give their types much thought because in edk2/OVMF
+there's only MemoryFence().)
+
+In any case I'll take this as your approval of the 5/5 patch. Thanks!
+
+> In the OASIS 1.0 spec, I'd like an appendix with tested code for doing
+> these operations (probably based on a simplifeid version of vringh.c).
+
+(
+I assume the tested code should come from one of the more sophisticated
+drivers (that also have a unix-y coding style). Also, I've been actively
+avoiding reading other virtio code (qemu, kernel, SeaBIOS, iPXE etc)
+except when I was stuck with an OVMF driver and (a) it looked like there
+was some silent requirement/assumption in qemu that had not been spelled
+out in the spec, (b) I was being dyslexic.
+
+Thus I can't really suggest code for the appendix (although the OVMF
+drivers do work).
+)
+
+Thanks,
+Laszlo
