@@ -1,20 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/2] fix kernel crash with macvtap on top of LRO
-Date: Tue, 18 Jun 2013 14:42:47 +0930
-Message-ID: <87r4g0ngs0.fsf@rustcorp.com.au>
-References: <1360193660.32217.39.camel@deadeye.wl.decadent.org.uk>
-	<1360207111.28557.47.camel@edumazet-glaptop>
-	<1360254046.3605.8.camel@bwh-desktop.uk.solarflarecom.com>
-	<20130207.131420.1211188723341167971.davem@davemloft.net>
-	<20130610070710.GA673@redhat.com>
-	<1371048996.1894.15.camel@bwh-desktop.uk.level5networks.com>
-	<20130612190033.GB3462@redhat.com> <87wqptplhw.fsf@rustcorp.com.au>
-	<1371486020.2086.27.camel@bwh-desktop.uk.level5networks.com>
+Subject: Re: [PATCH] virtio-spec: balloon: MUST_TELL_HOST is optional
+Date: Wed, 19 Jun 2013 12:25:47 +0930
+Message-ID: <87wqpqn70s.fsf@rustcorp.com.au>
+References: <20120909113650.GA2775@redhat.com>
+	<20121112170308.GB18220@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1371486020.2086.27.camel@bwh-desktop.uk.level5networks.com>
+In-Reply-To: <20121112170308.GB18220@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,38 +18,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ben Hutchings <bhutchings@solarflare.com>
-Cc: eric.dumazet@gmail.com, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ben Hutchings <bhutchings@solarflare.com> writes:
-> On Mon, 2013-06-17 at 11:05 +0930, Rusty Russell wrote:
->> I thought LRO was deprecated and GRO was the new hotness, but I haven't
->> been following.  Do we still care about LRO?
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Sun, Sep 09, 2012 at 02:36:50PM +0300, Michael S. Tsirkin wrote:
+>> Drivers treat MUST_TELL_HOST as optional: windows drivers do not ack it
+>> and expect this means they can tell host *after* deflate.  This was not
+>> the intent but the documentation was not very clear on this point.
+>> 
+>> Luckily hyprevisors did not implement this feature yet so to provide
+>> guidance for future devices make spec match drivers expectations, and
+>> clarify that this feature only has effect if negotiated.
+>> This is needed as recent developments in kvm (memory
+>> region rework and the addition of vfio) finally make
+>> it practical to implement this in devices.
+>> 
+>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 >
-> The old software LRO implementation, inet_lro, is deprecated in favour
-> of GRO and is now only used by one or two drivers.  Hardware/firmware
-> implementations of LRO are still in use and not deprecated, but we try
-> to disable them on devices for which forwarding is enabled because of
-> this information loss.
+> Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+>
+> ping
 
-Right, thanks for the clarification.
+OK, I just s/set/negotiated:
 
-Hardware implementations of LRO which can't meet GRO rules are only
-semi-useful, and that should be fed back to vendors.  Hard.
+--- virtio-spec.txt.old	2013-06-17 16:03:51.875066122 +0930
++++ virtio-spec.txt	2013-06-17 16:07:42.291063924 +0930
+@@ -2411,9 +2411,9 @@
+     it has previously given to the balloon, as described above. 
+     This descriptor is added to the deflateq.
+ 
+-  (b) If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is set, the 
+-    guest may not use these requested pages until that descriptor 
+-    in the deflateq has been used by the device.
++  (b) If the VIRTIO_BALLOON_F_MUST_TELL_HOST feature is 
++    negotiated, the guest may not use these requested pages until 
++    that descriptor in the deflateq has been used by the device.
+ 
+   (c) Otherwise, the guest may begin to re-use pages previously 
+     given to the balloon before the device has acknowledged their 
 
-> The problem I was talking about is this: you can put macvlan on top of a
-> device that has LRO enabled, and then if the macvtap/macvlan device is
-> used for forwarding the output packets might not look the same as those
-> originally received.  So LRO should be disabled on the underlying device
-> whenever forwarding is enabled on the macvtap/macvlan device; however we
-> can't necessarily tell when that happens as the forwarding might be done
-> inside a VM.  Maybe this is just too obscure a use case to worry much
-> about getting it right automatically.
-
-The VM needs to tell us it's OK with such mangling, otherwise we
-shouldn't do it (at least by default).  The same way we'd be annoyed if
-a card rev started doing LRO without the driver explicitly enabling it.
+I'm think we get rid of the output queue for balloon in future.
 
 Cheers,
 Rusty.
