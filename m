@@ -1,8 +1,8 @@
 From: Jiang Liu <liuj97@gmail.com>
-Subject: [PATCH 1/3] PCI: export three functions to support modular host
-	bridge driver
-Date: Fri, 21 Jun 2013 01:01:03 +0800
-Message-ID: <1371747665-12768-2-git-send-email-liuj97@gmail.com>
+Subject: [PATCH 2/3] PCI,
+	xen-pcifront: use new PCI interfaces to simplify implementation
+Date: Fri, 21 Jun 2013 01:01:04 +0800
+Message-ID: <1371747665-12768-3-git-send-email-liuj97__2903.26379840753$1371747722$gmane$org@gmail.com>
 References: <1371747665-12768-1-git-send-email-liuj97@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,10 +24,14 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jiang Liu <jiang.liu@huawei.com>
 
-The xen-pcifront host bridge driver could be built as a module,
-so export pci_create_root_bus(), pci_stop_and_remove_root_bus() and
-pci_set_host_bridge_release() to support modular host bridge drivers.
-This patch is a preparation for coming xen-pcifront refinement.
+Use new PCI interfaces to simplify xen-pcifront implementation:
+1) Use pci_create_root_bus() instead of pci_scan_bus_parented()
+   because pci_scan_bus_parented() will be marked as __deprecated.
+   This also gets rid of a duplicated call to pci_bus_start_devices().
+2) Use pci_stop_and_remove_root_bus() instead of open-coded private
+   implementation.
+3) Use pci_set_host_bridge_release() to release data structures
+   associated with PCI root buses.
 
 Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
 Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
@@ -37,62 +41,158 @@ Cc: virtualization@lists.linux-foundation.org
 Cc: linux-pci@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
 ---
- drivers/pci/host-bridge.c | 1 +
- drivers/pci/probe.c       | 1 +
- drivers/pci/remove.c      | 7 +++++++
- include/linux/pci.h       | 1 +
- 4 files changed, 10 insertions(+)
+ drivers/pci/xen-pcifront.c | 70 ++++++++++++++++++++--------------------------
+ 1 file changed, 30 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/pci/host-bridge.c b/drivers/pci/host-bridge.c
-index a68dc61..6e390a6 100644
---- a/drivers/pci/host-bridge.c
-+++ b/drivers/pci/host-bridge.c
-@@ -34,6 +34,7 @@ void pci_set_host_bridge_release(struct pci_host_bridge *bridge,
- 	bridge->release_fn = release_fn;
- 	bridge->release_data = release_data;
- }
-+EXPORT_SYMBOL(pci_set_host_bridge_release);
+diff --git a/drivers/pci/xen-pcifront.c b/drivers/pci/xen-pcifront.c
+index 966abc6..1b01960 100644
+--- a/drivers/pci/xen-pcifront.c
++++ b/drivers/pci/xen-pcifront.c
+@@ -25,11 +25,6 @@
+ #define INVALID_GRANT_REF (0)
+ #define INVALID_EVTCHN    (-1)
  
- static bool resource_contains(struct resource *res1, struct resource *res2)
- {
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index 46ada5c..ed768d8 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -1801,6 +1801,7 @@ err_out:
- 	kfree(b);
- 	return NULL;
- }
-+EXPORT_SYMBOL(pci_create_root_bus);
+-struct pci_bus_entry {
+-	struct list_head list;
+-	struct pci_bus *bus;
+-};
+-
+ #define _PDEVB_op_active		(0)
+ #define PDEVB_op_active			(1 << (_PDEVB_op_active))
  
- int pci_bus_insert_busn_res(struct pci_bus *b, int bus, int bus_max)
+@@ -47,12 +42,12 @@ struct pcifront_device {
+ 	struct xen_pci_sharedinfo *sh_info;
+ 	struct work_struct op_work;
+ 	unsigned long flags;
+-
+ };
+ 
+ struct pcifront_sd {
+ 	int domain;
+ 	struct pcifront_device *pdev;
++	struct resource busn_res;
+ };
+ 
+ static inline struct pcifront_device *
+@@ -67,6 +62,12 @@ static inline void pcifront_init_sd(struct pcifront_sd *sd,
  {
-diff --git a/drivers/pci/remove.c b/drivers/pci/remove.c
-index 8fc54b7..f328668 100644
---- a/drivers/pci/remove.c
-+++ b/drivers/pci/remove.c
-@@ -147,3 +147,10 @@ void pci_remove_root_bus(struct pci_bus *bus)
- 	/* remove the host bridge */
- 	put_device(&host_bridge->dev);
- }
+ 	sd->domain = domain;
+ 	sd->pdev = pdev;
 +
-+void pci_stop_and_remove_root_bus(struct pci_bus *bus)
++	/* Xen pci-backend doesn't export P2P bridges */
++	sd->busn_res.start = bus;
++	sd->busn_res.end = bus;
++	sd->busn_res.flags = IORESOURCE_BUS;
++	sd->busn_res.name = "PCI busn";
+ }
+ 
+ static DEFINE_SPINLOCK(pcifront_dev_lock);
+@@ -441,12 +442,19 @@ static int pcifront_scan_bus(struct pcifront_device *pdev,
+ 	return 0;
+ }
+ 
++static void pcifront_release_sd(struct pci_host_bridge *bridge)
 +{
-+	pci_stop_root_bus(bus);
-+	pci_remove_root_bus(bus);
++	struct pcifront_sd *sd = bridge->release_data;
++
++	kfree(sd);
 +}
-+EXPORT_SYMBOL(pci_stop_and_remove_root_bus);
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 0fd1f15..f1229c7 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -757,6 +757,7 @@ void pci_remove_bus(struct pci_bus *b);
- void pci_stop_and_remove_bus_device(struct pci_dev *dev);
- void pci_stop_root_bus(struct pci_bus *bus);
- void pci_remove_root_bus(struct pci_bus *bus);
-+void pci_stop_and_remove_root_bus(struct pci_bus *bus);
- void pci_setup_cardbus(struct pci_bus *bus);
- void pci_sort_breadthfirst(void);
- #define dev_is_pci(d) ((d)->bus == &pci_bus_type)
++
+ static int pcifront_scan_root(struct pcifront_device *pdev,
+ 				 unsigned int domain, unsigned int bus)
+ {
+ 	struct pci_bus *b;
+ 	struct pcifront_sd *sd = NULL;
+-	struct pci_bus_entry *bus_entry = NULL;
++	LIST_HEAD(resources);
+ 	int err = 0;
+ 
+ #ifndef CONFIG_PCI_DOMAINS
+@@ -463,16 +471,18 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
+ 	dev_info(&pdev->xdev->dev, "Creating PCI Frontend Bus %04x:%02x\n",
+ 		 domain, bus);
+ 
+-	bus_entry = kmalloc(sizeof(*bus_entry), GFP_KERNEL);
+-	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
+-	if (!bus_entry || !sd) {
++	sd = kzalloc(sizeof(*sd), GFP_KERNEL);
++	if (!sd) {
+ 		err = -ENOMEM;
+ 		goto err_out;
+ 	}
+ 	pcifront_init_sd(sd, domain, bus, pdev);
+ 
+-	b = pci_scan_bus_parented(&pdev->xdev->dev, bus,
+-				  &pcifront_bus_ops, sd);
++	pci_add_resource(&resources, &ioport_resource);
++	pci_add_resource(&resources, &iomem_resource);
++	pci_add_resource(&resources, &sd->busn_res);
++	b = pci_create_root_bus(&pdev->xdev->dev, bus, &pcifront_bus_ops,
++				sd, &resources);
+ 	if (!b) {
+ 		dev_err(&pdev->xdev->dev,
+ 			"Error creating PCI Frontend Bus!\n");
+@@ -480,9 +490,8 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
+ 		goto err_out;
+ 	}
+ 
+-	bus_entry->bus = b;
+-
+-	list_add(&bus_entry->list, &pdev->root_buses);
++	pci_set_host_bridge_release(to_pci_host_bridge(b->bridge),
++				    pcifront_release_sd, sd);
+ 
+ 	/* pci_scan_bus_parented skips devices which do not have a have
+ 	* devfn==0. The pcifront_scan_bus enumerates all devfn. */
+@@ -497,7 +506,6 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
+ 	return err;
+ 
+ err_out:
+-	kfree(bus_entry);
+ 	kfree(sd);
+ 
+ 	return err;
+@@ -538,35 +546,17 @@ static int pcifront_rescan_root(struct pcifront_device *pdev,
+ 	return err;
+ }
+ 
+-static void free_root_bus_devs(struct pci_bus *bus)
+-{
+-	struct pci_dev *dev;
+-
+-	while (!list_empty(&bus->devices)) {
+-		dev = container_of(bus->devices.next, struct pci_dev,
+-				   bus_list);
+-		dev_dbg(&dev->dev, "removing device\n");
+-		pci_stop_and_remove_bus_device(dev);
+-	}
+-}
+-
+ static void pcifront_free_roots(struct pcifront_device *pdev)
+ {
+-	struct pci_bus_entry *bus_entry, *t;
++	struct pcifront_sd *sd;
++	struct pci_bus *bus, *temp;
+ 
+ 	dev_dbg(&pdev->xdev->dev, "cleaning up root buses\n");
+ 
+-	list_for_each_entry_safe(bus_entry, t, &pdev->root_buses, list) {
+-		list_del(&bus_entry->list);
+-
+-		free_root_bus_devs(bus_entry->bus);
+-
+-		kfree(bus_entry->bus->sysdata);
+-
+-		device_unregister(bus_entry->bus->bridge);
+-		pci_remove_bus(bus_entry->bus);
+-
+-		kfree(bus_entry);
++	list_for_each_entry_safe(bus, temp, &pci_root_buses, node) {
++		sd = bus->sysdata;
++		if (sd->pdev == pdev)
++			pci_stop_and_remove_root_bus(bus);
+ 	}
+ }
+ 
 -- 
 1.8.1.2
