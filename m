@@ -1,8 +1,7 @@
 From: Jiang Liu <liuj97@gmail.com>
-Subject: [PATCH 2/3] PCI,
-	xen-pcifront: use new PCI interfaces to simplify implementation
-Date: Fri, 21 Jun 2013 01:01:04 +0800
-Message-ID: <1371747665-12768-3-git-send-email-liuj97__2903.26379840753$1371747722$gmane$org@gmail.com>
+Subject: [PATCH 3/3] PCI: mark pci_scan_bus_parented() as __deprecated
+Date: Fri, 21 Jun 2013 01:01:05 +0800
+Message-ID: <1371747665-12768-4-git-send-email-liuj97@gmail.com>
 References: <1371747665-12768-1-git-send-email-liuj97@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,180 +18,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Bjorn Helgaas <bhelgaas@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel@lists.xensource.com, Jiang Liu <jiang.liu@huawei.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Yijing Wang <wangyijing@huawei.com>, liuj97@gmail.com
+Cc: xen-devel@lists.xensource.com, Jiang Liu <jiang.liu@huawei.com>, linux-pci@vger.kernel.org, Thierry Reding <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, virtualization@lists.linux-foundation.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Yijing Wang <wangyijing@huawei.com>, liuj97@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jiang Liu <jiang.liu@huawei.com>
 
-Use new PCI interfaces to simplify xen-pcifront implementation:
-1) Use pci_create_root_bus() instead of pci_scan_bus_parented()
-   because pci_scan_bus_parented() will be marked as __deprecated.
-   This also gets rid of a duplicated call to pci_bus_start_devices().
-2) Use pci_stop_and_remove_root_bus() instead of open-coded private
-   implementation.
-3) Use pci_set_host_bridge_release() to release data structures
-   associated with PCI root buses.
+Mark pci_scan_bus_parented() as __deprecated and clean up outdated
+comments.
 
 Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel@lists.xensource.com
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-pci@vger.kernel.org
+Cc: Chris Metcalf <cmetcalf@tilera.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Thierry Reding <thierry.reding@avionic-design.de>
 Cc: linux-kernel@vger.kernel.org
+Cc: linux-pci@vger.kernel.org
 ---
- drivers/pci/xen-pcifront.c | 70 ++++++++++++++++++++--------------------------
- 1 file changed, 30 insertions(+), 40 deletions(-)
+ arch/tile/kernel/pci.c | 3 ---
+ include/linux/pci.h    | 4 ++--
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pci/xen-pcifront.c b/drivers/pci/xen-pcifront.c
-index 966abc6..1b01960 100644
---- a/drivers/pci/xen-pcifront.c
-+++ b/drivers/pci/xen-pcifront.c
-@@ -25,11 +25,6 @@
- #define INVALID_GRANT_REF (0)
- #define INVALID_EVTCHN    (-1)
- 
--struct pci_bus_entry {
--	struct list_head list;
--	struct pci_bus *bus;
--};
--
- #define _PDEVB_op_active		(0)
- #define PDEVB_op_active			(1 << (_PDEVB_op_active))
- 
-@@ -47,12 +42,12 @@ struct pcifront_device {
- 	struct xen_pci_sharedinfo *sh_info;
- 	struct work_struct op_work;
- 	unsigned long flags;
--
- };
- 
- struct pcifront_sd {
- 	int domain;
- 	struct pcifront_device *pdev;
-+	struct resource busn_res;
- };
- 
- static inline struct pcifront_device *
-@@ -67,6 +62,12 @@ static inline void pcifront_init_sd(struct pcifront_sd *sd,
- {
- 	sd->domain = domain;
- 	sd->pdev = pdev;
-+
-+	/* Xen pci-backend doesn't export P2P bridges */
-+	sd->busn_res.start = bus;
-+	sd->busn_res.end = bus;
-+	sd->busn_res.flags = IORESOURCE_BUS;
-+	sd->busn_res.name = "PCI busn";
- }
- 
- static DEFINE_SPINLOCK(pcifront_dev_lock);
-@@ -441,12 +442,19 @@ static int pcifront_scan_bus(struct pcifront_device *pdev,
- 	return 0;
- }
- 
-+static void pcifront_release_sd(struct pci_host_bridge *bridge)
-+{
-+	struct pcifront_sd *sd = bridge->release_data;
-+
-+	kfree(sd);
-+}
-+
- static int pcifront_scan_root(struct pcifront_device *pdev,
- 				 unsigned int domain, unsigned int bus)
- {
- 	struct pci_bus *b;
- 	struct pcifront_sd *sd = NULL;
--	struct pci_bus_entry *bus_entry = NULL;
-+	LIST_HEAD(resources);
- 	int err = 0;
- 
- #ifndef CONFIG_PCI_DOMAINS
-@@ -463,16 +471,18 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
- 	dev_info(&pdev->xdev->dev, "Creating PCI Frontend Bus %04x:%02x\n",
- 		 domain, bus);
- 
--	bus_entry = kmalloc(sizeof(*bus_entry), GFP_KERNEL);
--	sd = kmalloc(sizeof(*sd), GFP_KERNEL);
--	if (!bus_entry || !sd) {
-+	sd = kzalloc(sizeof(*sd), GFP_KERNEL);
-+	if (!sd) {
- 		err = -ENOMEM;
- 		goto err_out;
- 	}
- 	pcifront_init_sd(sd, domain, bus, pdev);
- 
--	b = pci_scan_bus_parented(&pdev->xdev->dev, bus,
--				  &pcifront_bus_ops, sd);
-+	pci_add_resource(&resources, &ioport_resource);
-+	pci_add_resource(&resources, &iomem_resource);
-+	pci_add_resource(&resources, &sd->busn_res);
-+	b = pci_create_root_bus(&pdev->xdev->dev, bus, &pcifront_bus_ops,
-+				sd, &resources);
- 	if (!b) {
- 		dev_err(&pdev->xdev->dev,
- 			"Error creating PCI Frontend Bus!\n");
-@@ -480,9 +490,8 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
- 		goto err_out;
- 	}
- 
--	bus_entry->bus = b;
--
--	list_add(&bus_entry->list, &pdev->root_buses);
-+	pci_set_host_bridge_release(to_pci_host_bridge(b->bridge),
-+				    pcifront_release_sd, sd);
- 
- 	/* pci_scan_bus_parented skips devices which do not have a have
- 	* devfn==0. The pcifront_scan_bus enumerates all devfn. */
-@@ -497,7 +506,6 @@ static int pcifront_scan_root(struct pcifront_device *pdev,
- 	return err;
- 
- err_out:
--	kfree(bus_entry);
- 	kfree(sd);
- 
- 	return err;
-@@ -538,35 +546,17 @@ static int pcifront_rescan_root(struct pcifront_device *pdev,
- 	return err;
- }
- 
--static void free_root_bus_devs(struct pci_bus *bus)
--{
--	struct pci_dev *dev;
--
--	while (!list_empty(&bus->devices)) {
--		dev = container_of(bus->devices.next, struct pci_dev,
--				   bus_list);
--		dev_dbg(&dev->dev, "removing device\n");
--		pci_stop_and_remove_bus_device(dev);
--	}
--}
--
- static void pcifront_free_roots(struct pcifront_device *pdev)
- {
--	struct pci_bus_entry *bus_entry, *t;
-+	struct pcifront_sd *sd;
-+	struct pci_bus *bus, *temp;
- 
- 	dev_dbg(&pdev->xdev->dev, "cleaning up root buses\n");
- 
--	list_for_each_entry_safe(bus_entry, t, &pdev->root_buses, list) {
--		list_del(&bus_entry->list);
--
--		free_root_bus_devs(bus_entry->bus);
--
--		kfree(bus_entry->bus->sysdata);
--
--		device_unregister(bus_entry->bus->bridge);
--		pci_remove_bus(bus_entry->bus);
--
--		kfree(bus_entry);
-+	list_for_each_entry_safe(bus, temp, &pci_root_buses, node) {
-+		sd = bus->sysdata;
-+		if (sd->pdev == pdev)
-+			pci_stop_and_remove_root_bus(bus);
- 	}
- }
- 
+diff --git a/arch/tile/kernel/pci.c b/arch/tile/kernel/pci.c
+index 67237d3..936e087 100644
+--- a/arch/tile/kernel/pci.c
++++ b/arch/tile/kernel/pci.c
+@@ -309,9 +309,6 @@ int __init pcibios_init(void)
+ 			 *
+ 			 * It reads the PCI tree for this bus into the Linux
+ 			 * data structures.
+-			 *
+-			 * This is inlined in linux/pci.h and calls into
+-			 * pci_scan_bus_parented() in probe.c.
+ 			 */
+ 			pci_add_resource(&resources, &ioport_resource);
+ 			pci_add_resource(&resources, &iomem_resource);
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index f1229c7..b72d275 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -720,8 +720,8 @@ void pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
+ void pcibios_scan_specific_bus(int busn);
+ struct pci_bus *pci_find_bus(int domain, int busnr);
+ void pci_bus_add_devices(const struct pci_bus *bus);
+-struct pci_bus *pci_scan_bus_parented(struct device *parent, int bus,
+-				      struct pci_ops *ops, void *sysdata);
++struct pci_bus * __deprecated pci_scan_bus_parented(struct device *parent,
++			int bus, struct pci_ops *ops, void *sysdata);
+ struct pci_bus *pci_scan_bus(int bus, struct pci_ops *ops, void *sysdata);
+ struct pci_bus *pci_create_root_bus(struct device *parent, int bus,
+ 				    struct pci_ops *ops, void *sysdata,
 -- 
 1.8.1.2
