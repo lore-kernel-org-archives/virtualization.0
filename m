@@ -1,19 +1,19 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Thu, 20 Jun 2013 12:15:42 +0930
-Message-ID: <8738sdmre1.fsf@rustcorp.com.au>
+Date: Thu, 20 Jun 2013 12:10:35 +0930
+Message-ID: <8761x9mrmk.fsf@rustcorp.com.au>
 References: <20130314111020.GA18050@redhat.com> <5141E990.7070609@redhat.com>
 	<20130314173918.GB29411@redhat.com>
 	<87k3lyzknl.fsf@rustcorp.com.au>
 	<20130613080259.GA11175@redhat.com>
 	<20130613081047.GA11269@redhat.com>
 	<20130617063746.GA5693@redhat.com> <87r4fyn1wx.fsf@rustcorp.com.au>
-	<20130619082417.GA2558@redhat.com>
+	<20130619082417.GA2558@redhat.com> <51C16BC2.2060302@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130619082417.GA2558@redhat.com>
+In-Reply-To: <51C16BC2.2060302@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,101 +23,382 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
+To: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> On Wed, Jun 19, 2013 at 02:16:06PM +0930, Rusty Russell wrote:
->> "Michael S. Tsirkin" <mst@redhat.com> writes:
->> > On Thu, Jun 13, 2013 at 11:10:47AM +0300, Michael S. Tsirkin wrote:
->> >> On Thu, Jun 13, 2013 at 11:02:59AM +0300, Michael S. Tsirkin wrote:
->> >> > On Thu, Jun 13, 2013 at 02:12:22PM +0930, Rusty Russell wrote:
->> >> > > "Michael S. Tsirkin" <mst@redhat.com> writes:
->> >> > > > On Thu, Mar 14, 2013 at 04:15:28PM +0100, Paolo Bonzini wrote:
->> >> > > >> Il 14/03/2013 12:10, Michael S. Tsirkin ha scritto:
->> >> > > >> > Add field for guest to specify command size for virtio-blk.
->> >> > > >> > 
->> >> > > >> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->> >> > > >
->> >> > > > OK, but Rusty usually tweaks wording anyway.
->> >> > > > Rusty want to apply and make changes Paolo suggested yourself
->> >> > > > or want me to?
->> >> > > 
->> >> > > (MST drew my attention back to this)
->> >> > > 
->> >> > > Please do.  And please add a note about this feature: that without it,
->> >> > > the descriptor layout must be on the right boundaries for historical
->> >> > > reasons.
->> >> > 
->> >> > It's there already, isn't it:
->> >> > 
->> >> >  If VIRTIO_BLK_F_SCSI_CMD_SIZE is not negotiated,
->> >> >  This field must reside in a single, separate read-only buffer; 
->> >> >  the command length
->> >> >  can be derived from the length of this buffer.
->> >> > 
->> >> 
->> >> Wait, I think I got it: you actually want to rename this
->> >> VIRTIO_BLK_F_ANY_SG and have it affect all requests?
->> >
->> > Sorry about being dense - could you please clarify?
->> 
->> OK, here's the new section I've written (but not committed!) on Message
->> Framing:
->> 
->>   Message Framing
->>  
->> The original intent of the specification was that message framing 
->> (the particular layout of descriptors) be independent of the 
->> contents of the buffers. For example, a network transmit buffer 
->> consists of a 12 byte header followed by the network packet. This 
->> could be most simply placed in the descriptor table as a 12 byte 
->> output descriptor followed by a 1514 byte output descriptor, but 
->> it could also consist of a single 1526 byte output descriptor in 
->> the case where the header and packet are adjacent, or even three 
->> or more descriptors (possibly with loss of efficiency in that 
->> case).
->> 
->> Regrettably, initial driver implementations used simple layouts, 
->> and devices came to rely on it, despite this specification 
->> wording. It is thus recommended that drivers be conservative in 
->> their assumptions, unless specific device features indicate that 
->> general layout is permitted, such VIRTIO_NET_F_ANY_LAYOUT or 
->> VIRTIO_BLK_F_ANY_LAYOUT. In addition, some implementations may 
->> have large-but-reasonable restrictions on total descriptor size 
->> (such as based on IOV_MAX in the host OS). This has not been a 
->> problem in practice: little sympathy will be given to drivers 
->> which create unreasonably-sized descriptors such as by dividing a 
->> network packet into 1500 single-byte descriptors!
->> ===
->> 
->> Notes:
->> 1) The restrictions are still in place by default.
->> 2) We introduce VIRTIO_NET_F_ANY_LAYOUT and VIRTIO_BLK_F_ANY_LAYOUT
->>    specifically for net and block (note the new names).
->> 3) I note the special case of stupid descriptors.
->> 4) Enjoy our humble pie, don't hide it in a footnote!
->> 
->> If that seems OK, I'll modify the net and block specs appropriately.
->> 
->> Cheers,
->> Rusty.
+Paolo Bonzini <pbonzini@redhat.com> writes:
+> Il 19/06/2013 10:24, Michael S. Tsirkin ha scritto:
+>>> > 2) We introduce VIRTIO_NET_F_ANY_LAYOUT and VIRTIO_BLK_F_ANY_LAYOUT
+>>> >    specifically for net and block (note the new names).
 >
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->
-> an additional suggestion: limit max s/g
-> to vq size (it's in theory possible to go higher with indirect
-> descriptors, but we need some limit, and queue size gives us
-> a nice way to say "this is a max descriptor size").
+> So why not a transport feature?  Is it just because the SCSI commands
+> for virtio-blk also require a config space field?  Sorry if I missed
+> this upthread.
 
-Indeed, that limit is currently respected by Linux.
+Mainly because I'm not sure that *all* devices are now safe.  Are they?
 
-I've added the following to 2.3.3:
+I had a stress test half-written for this, pasted below.
 
-	Note that the total number of chained direct descriptors must
-        not exceed the Queue Size, thus it should always be possible to
-        queue one buffer without use of indirect descriptors.
+Otherwise I'd be happy to do both: use feature 25 for
+VIRTIO_F_ANY_LAYOUT and another feature bit for the virtio-blk layout
+change.
 
 Cheers,
 Rusty.
+
+virtio: CONFIG_VIRTIO_DEVICE_TORTURE
+
+Virtio devices are not supposed to depend on the framing of the scatter-gather
+lists, but various implementations did.  Safeguard this in future by adding
+an option to deliberately create perverse descriptors.
+
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 8d5bddb..99c0187 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -5,6 +5,22 @@ config VIRTIO
+ 	  bus, such as CONFIG_VIRTIO_PCI, CONFIG_VIRTIO_MMIO, CONFIG_LGUEST,
+ 	  CONFIG_RPMSG or CONFIG_S390_GUEST.
+ 
++config VIRTIO_TORTURE
++	bool "Virtio torture debugging"
++	depends on VIRTIO && DEBUG_KERNEL
++	help
++
++	  This makes the virtio_ring implementation stress-test
++	  devices.  In particularly, creatively change the format of
++	  requests to make sure that devices are properly implemented,
++	  as well as implement various checks to ensure drivers are
++	  correct.  This will make your virtual machine slow *and*
++	  unreliable!  Say N.
++
++	  Put virtio_ring.device_torture to your boot commandline to
++	  torture devices (otherwise only simply sanity checks are
++	  done).
++
+ menu "Virtio drivers"
+ 
+ config VIRTIO_PCI
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index e82821a..6e5271c 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -45,35 +45,6 @@
+ #define virtio_wmb(vq) wmb()
+ #endif
+ 
+-#ifdef DEBUG
+-/* For development, we want to crash whenever the ring is screwed. */
+-#define BAD_RING(_vq, fmt, args...)				\
+-	do {							\
+-		dev_err(&(_vq)->vq.vdev->dev,			\
+-			"%s:"fmt, (_vq)->vq.name, ##args);	\
+-		BUG();						\
+-	} while (0)
+-/* Caller is supposed to guarantee no reentry. */
+-#define START_USE(_vq)						\
+-	do {							\
+-		if ((_vq)->in_use)				\
+-			panic("%s:in_use = %i\n",		\
+-			      (_vq)->vq.name, (_vq)->in_use);	\
+-		(_vq)->in_use = __LINE__;			\
+-	} while (0)
+-#define END_USE(_vq) \
+-	do { BUG_ON(!(_vq)->in_use); (_vq)->in_use = 0; } while(0)
+-#else
+-#define BAD_RING(_vq, fmt, args...)				\
+-	do {							\
+-		dev_err(&_vq->vq.vdev->dev,			\
+-			"%s:"fmt, (_vq)->vq.name, ##args);	\
+-		(_vq)->broken = true;				\
+-	} while (0)
+-#define START_USE(vq)
+-#define END_USE(vq)
+-#endif
+-
+ struct indirect_cache {
+ 	unsigned int max;
+ 	struct vring_desc *cache;
+@@ -109,7 +80,7 @@ struct vring_virtqueue
+ 	/* How to notify other side. FIXME: commonalize hcalls! */
+ 	void (*notify)(struct virtqueue *vq);
+ 
+-#ifdef DEBUG
++#ifdef CONFIG_VIRTIO_TORTURE
+ 	/* They're supposed to lock for us. */
+ 	unsigned int in_use;
+ 
+@@ -134,6 +105,200 @@ static inline struct indirect_cache *indirect_cache(struct vring_virtqueue *vq)
+ 	return (struct indirect_cache *)&vq->data[vq->vring.num];
+ }
+ 
++#ifdef CONFIG_VIRTIO_TORTURE
++/* For development, we want to crash whenever the ring is screwed. */
++#define BAD_RING(_vq, fmt, args...)				\
++	do {							\
++		dev_err(&(_vq)->vq.vdev->dev,			\
++			"%s:"fmt, (_vq)->vq.name, ##args);	\
++		BUG();						\
++	} while (0)
++/* Caller is supposed to guarantee no reentry. */
++#define START_USE(_vq)						\
++	do {							\
++		if ((_vq)->in_use)				\
++			panic("%s:in_use = %i\n",		\
++			      (_vq)->vq.name, (_vq)->in_use);	\
++		(_vq)->in_use = __LINE__;			\
++	} while (0)
++#define END_USE(_vq) \
++	do { BUG_ON(!(_vq)->in_use); (_vq)->in_use = 0; } while(0)
++
++static bool device_torture;
++module_param(device_torture, bool, 0644);
++
++struct torture {
++	unsigned int orig_out, orig_in;
++	void *orig_data;
++	struct scatterlist sg[4];
++	struct scatterlist orig_sg[];
++};
++
++static unsigned tot_len(struct scatterlist sg[], unsigned num)
++{
++	unsigned len, i;
++
++	for (len = 0, i = 0; i < num; i++)
++		len += sg[i].length;
++
++	return len;
++}
++
++static void copy_sg_data(const struct scatterlist *dst, unsigned dnum,
++			 const struct scatterlist *src, unsigned snum)
++{
++	unsigned len;
++	struct scatterlist s, d;
++
++	s = *src;
++	d = *dst;
++
++	while (snum && dnum) {
++		len = min(s.length, d.length);
++		memcpy(sg_virt(&d), sg_virt(&s), len);
++		d.offset += len;
++		d.length -= len;
++		s.offset += len;
++		s.length -= len;
++		if (!s.length) {
++			BUG_ON(snum == 0);
++			src++;
++			snum--;
++			s = *src;
++		}
++		if (!d.length) {
++			BUG_ON(dnum == 0);
++			dst++;
++			dnum--;
++			d = *dst;
++		}
++	}
++}
++
++static bool torture_replace(struct scatterlist **sg,
++			     unsigned int *out,
++			     unsigned int *in,
++			     void **data,
++			     gfp_t gfp)
++{
++	static size_t seed;
++	struct torture *t;
++	unsigned long outlen, inlen, ourseed, len1;
++	void *buf;
++
++	if (!device_torture)
++		return true;
++
++	outlen = tot_len(*sg, *out);
++	inlen = tot_len(*sg + *out, *in);
++
++	/* This will break horribly on large block requests. */
++	t = kmalloc(sizeof(*t) + (*out + *in) * sizeof(t->orig_sg[1])
++		    + outlen + 1 + inlen + 1, gfp);
++	if (!t)
++		return false;
++
++	sg_init_table(t->sg, 4);
++	buf = &t->orig_sg[*out + *in];
++
++	memcpy(t->orig_sg, *sg, sizeof(**sg) * (*out + *in));
++	t->orig_out = *out;
++	t->orig_in = *in;
++	t->orig_data = *data;
++	*data = t;
++
++	ourseed = ACCESS_ONCE(seed);
++	seed++;
++
++	*sg = t->sg;
++	if (outlen) {
++		/* Split outbuf into two parts, one byte apart. */
++		*out = 2;
++		len1 = ourseed % (outlen + 1);
++		sg_set_buf(&t->sg[0], buf, len1);
++		buf += len1 + 1;
++		sg_set_buf(&t->sg[1], buf, outlen - len1);
++		buf += outlen - len1;
++		copy_sg_data(t->sg, *out, t->orig_sg, t->orig_out);
++	}
++
++	if (inlen) {
++		/* Split inbuf into two parts, one byte apart. */
++		*in = 2;
++		len1 = ourseed % (inlen + 1);
++		sg_set_buf(&t->sg[*out], buf, len1);
++		buf += len1 + 1;
++		sg_set_buf(&t->sg[*out + 1], buf, inlen - len1);
++		buf += inlen - len1;
++	}
++	return true;
++}
++
++static void *torture_done(struct torture *t)
++{
++	void *data;
++
++	if (!device_torture)
++		return t;
++
++	if (t->orig_in)
++		copy_sg_data(t->orig_sg + t->orig_out, t->orig_in,
++			     t->sg + (t->orig_out ? 2 : 0), 2);
++
++	data = t->orig_data;
++	kfree(t);
++	return data;
++}
++
++static unsigned long tot_inlen(struct virtqueue *vq, unsigned int i)
++{
++	struct vring_desc *desc;
++	unsigned long len = 0;
++
++	if (vq->vring.desc[i].flags & VRING_DESC_F_INDIRECT) {
++		unsigned int num = vq->vring.desc[i].len / sizeof(*desc);
++		desc = phys_to_virt(vq->vring.desc[i].addr);
++
++		for (i = 0; i < num; i++) {
++			if (desc[i].flags & VRING_DESC_F_WRITE)
++				len += desc[i].flags.len;
++		}
++	} else {
++		desc = vq->vring.desc;
++		while (desc[i].flags & VRING_DESC_F_NEXT) {
++			if (desc[i].flags & VRING_DESC_F_WRITE)
++				len += desc[i].flags.len;
++			i = desc[i].next;
++		}
++	}
++
++	return len;
++}
++#else
++static bool torture_replace(struct scatterlist **sg,
++			     unsigned int *out,
++			     unsigned int *in,
++			     void **data,
++			     gfp_t gfp)
++{
++	return true;
++}
++
++static void *torture_done(void *data)
++{
++	return data;
++}
++
++#define BAD_RING(_vq, fmt, args...)				\
++	do {							\
++		dev_err(&_vq->vq.vdev->dev,			\
++			"%s:"fmt, (_vq)->vq.name, ##args);	\
++		(_vq)->broken = true;				\
++	} while (0)
++#define START_USE(vq)
++#define END_USE(vq)
++#endif /* CONFIG_VIRTIO_TORTURE */
++
+ /* Set up an indirect table of descriptors and add it to the queue. */
+ static int vring_add_indirect(struct vring_virtqueue *vq,
+ 			      struct scatterlist sg[],
+@@ -228,7 +393,10 @@ int virtqueue_add_buf(struct virtqueue *_vq,
+ 
+ 	BUG_ON(data == NULL);
+ 
+-#ifdef DEBUG
++	if (!torture_replace(&sg, &out, &in, &data, gfp))
++		return -ENOMEM;
++
++#ifdef CONFIG_VIRTIO_TORTURE
+ 	{
+ 		ktime_t now = ktime_get();
+ 
+@@ -261,6 +429,7 @@ int virtqueue_add_buf(struct virtqueue *_vq,
+ 		if (out)
+ 			vq->notify(&vq->vq);
+ 		END_USE(vq);
++		torture_done(data);
+ 		return -ENOSPC;
+ 	}
+ 
+@@ -341,7 +510,7 @@ bool virtqueue_kick_prepare(struct virtqueue *_vq)
+ 	new = vq->vring.avail->idx;
+ 	vq->num_added = 0;
+ 
+-#ifdef DEBUG
++#ifdef CONFIG_VIRTIO_TORTURE
+ 	if (vq->last_add_time_valid) {
+ 		WARN_ON(ktime_to_ms(ktime_sub(ktime_get(),
+ 					      vq->last_add_time)) > 100);
+@@ -474,6 +643,14 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 		return NULL;
+ 	}
+ 
++#ifdef CONFIG_VIRTIO_TORTURE
++	if (unlikely(tot_inlen(vq, i) < *len)) {
++		BAD_RING(vq, "id %u: %u > %u used!\n",
++			 i, *len, tot_inlen(vq, i));
++		return NULL;
++	}
++#endif
++
+ 	/* detach_buf clears data, so grab it now. */
+ 	ret = vq->data[i];
+ 	detach_buf(vq, i);
+@@ -486,12 +663,14 @@ void *virtqueue_get_buf(struct virtqueue *_vq, unsigned int *len)
+ 		virtio_mb(vq);
+ 	}
+ 
+-#ifdef DEBUG
++#ifdef CONFIG_VIRTIO_TORTURE
+ 	vq->last_add_time_valid = false;
++	BUG_ON(*len > 
++
+ #endif
+ 
+ 	END_USE(vq);
+-	return ret;
++	return torture_done(ret);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_get_buf);
+ 
+@@ -683,7 +862,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 	vq->last_used_idx = 0;
+ 	vq->num_added = 0;
+ 	list_add_tail(&vq->vq.list, &vdev->vqs);
+-#ifdef DEBUG
++#ifdef CONFIG_VIRTIO_TORTURE
+ 	vq->in_use = false;
+ 	vq->last_add_time_valid = false;
+ #endif
