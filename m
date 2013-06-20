@@ -1,12 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC] vhost-net: make more functions static
-Date: Thu, 20 Jun 2013 14:55:19 +0300
-Message-ID: <20130620115519.GA5301@redhat.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH net] vhost-net: fix use-after-free in vhost_net_flush
+Date: Thu, 20 Jun 2013 16:47:59 +0400
+Message-ID: <51C2F9FF.4090702@cogentembedded.com>
+References: <20130620114813.GA17373@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20130620114813.GA17373@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,42 +17,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Make two more functions static - they only have local callers.
+Hello.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+On 20-06-2013 15:48, Michael S. Tsirkin wrote:
 
-Will be merged through the vhost tree - no need to apply
-directly.
+> vhost_net_ubuf_put_and_wait has a confusing name:
+> it will actually also free it's argument.
+> Thus since commit 1280c27f8e29acf4af2da914e80ec27c3dbd5c01
 
- drivers/vhost/net.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+    Please also specify that commit's summary line in parens.
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 534adb0..4c5de87 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -167,7 +167,7 @@ static void vhost_net_clear_ubuf_info(struct vhost_net *n)
- 	}
- }
- 
--int vhost_net_set_ubuf_info(struct vhost_net *n)
-+static int vhost_net_set_ubuf_info(struct vhost_net *n)
- {
- 	bool zcopy;
- 	int i;
-@@ -188,7 +188,7 @@ err:
- 	return -ENOMEM;
- }
- 
--void vhost_net_vq_reset(struct vhost_net *n)
-+static void vhost_net_vq_reset(struct vhost_net *n)
- {
- 	int i;
- 
--- 
-MST
+> vhost_net_flush tries to use the argument after passing it
+> to vhost_net_ubuf_put_and_wait, this results
+> in use after free.
+> To fix, don't free the argument in vhost_net_ubuf_put_and_wait,
+> add an new API for callers that want to free ubufs.
+
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+WBR, Sergei
