@@ -1,14 +1,11 @@
-From: Christopher Covington <cov@codeaurora.org>
-Subject: Re: what should a virtio-mmio transport without a backend look like?
-Date: Thu, 20 Jun 2013 08:58:03 -0400
-Message-ID: <51C2FC5B.7080406@codeaurora.org>
-References: <CAFEAcA9qCUQLZho8wJvewYJ0AEhDBc37_LpZWs8XBV1U7RVZgA@mail.gmail.com>
-	<1371726501.3231.22.camel@hornet>
+From: Jiang Liu <liuj97@gmail.com>
+Subject: [PATCH 0/3] deprecate usage of pci_scan_bus_parented()
+Date: Fri, 21 Jun 2013 01:01:02 +0800
+Message-ID: <1371747665-12768-1-git-send-email-liuj97@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1371726501.3231.22.camel@hornet>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,38 +15,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Maydell <peter.maydell@linaro.org>
-Cc: =?UTF-8?B?S09OUkFEIEZyw6lkw6ly?= =?UTF-8?B?aWM=?= <fred.konrad@greensocs.com>, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+To: Bjorn Helgaas <bhelgaas@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xen-devel@lists.xensource.com, Jiang Liu <jiang.liu@huawei.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Yijing Wang <wangyijing@huawei.com>, liuj97@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Peter,
+From: Jiang Liu <jiang.liu@huawei.com>
 
-On 06/20/2013 07:08 AM, Pawel Moll wrote:
-> On Thu, 2013-06-20 at 11:29 +0100, Peter Maydell wrote:
->> I'm (finally) trying to add virtio-mmio support properly to
->> QEMU now Fred has put all the refactoring foundations in place.
->>
->> 1. One question I've run into is: what should a virtio-mmio transport
->> with no backend look like to the guest OS? The spec as written
->> seems to assume that there's always some backend present.
->> (The idea is that QEMU might just always instantiate say 8
->> mmio transports, and then whether they actually have a
->> blk/net/whatever backend depends on user options).
->>
->> It looks as if the current linux driver insists (if it sees a
->> device tree node) that the MagicValue register at least is
->> correct (otherwise it complains). So one possibility would
->> be "MagicValue/Version/VendorID must read as usual, DeviceID
->> should read as some special "nothing here" value (0?), everything
->> else can RAZ/WI".
+This patch tries to deprecate usage of pci_scan_bus_parented().
+It applies to
+https://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git next
 
-Might it be reasonably easy to just not enumerate unused transports in the
-device tree or kernel parameters?
+Jiang Liu (3):
+  PCI: export three functions to support modular host bridge driver
+  PCI, xen-pcifront: use new PCI interfaces to simplify implementation
+  PCI: mark pci_scan_bus_parented() as __deprecated
 
-Regards,
-Christopher
+ arch/tile/kernel/pci.c     |  3 --
+ drivers/pci/host-bridge.c  |  1 +
+ drivers/pci/probe.c        |  1 +
+ drivers/pci/remove.c       |  7 +++++
+ drivers/pci/xen-pcifront.c | 70 ++++++++++++++++++++--------------------------
+ include/linux/pci.h        |  5 ++--
+ 6 files changed, 42 insertions(+), 45 deletions(-)
 
 -- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by the Linux Foundation.
+1.8.1.2
