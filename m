@@ -1,13 +1,12 @@
-From: Pawel Moll <pawel.moll@arm.com>
-Subject: Re: what should a virtio-mmio transport without a backend look like?
-Date: Thu, 20 Jun 2013 12:08:21 +0100
-Message-ID: <1371726501.3231.22.camel@hornet>
-References: <CAFEAcA9qCUQLZho8wJvewYJ0AEhDBc37_LpZWs8XBV1U7RVZgA@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH net] vhost-net: fix use-after-free in vhost_net_flush
+Date: Thu, 20 Jun 2013 14:48:13 +0300
+Message-ID: <20130620114813.GA17373@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAFEAcA9qCUQLZho8wJvewYJ0AEhDBc37_LpZWs8XBV1U7RVZgA@mail.gmail.com>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,61 +16,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Maydell <peter.maydell@linaro.org>
-Cc: virtualization@lists.linux-foundation.org, KONRAD =?ISO-8859-1?Q?Fr=E9d=E9ric?= <fred.konrad@greensocs.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCAyMDEzLTA2LTIwIGF0IDExOjI5ICswMTAwLCBQZXRlciBNYXlkZWxsIHdyb3RlOgo+
-IEknbSAoZmluYWxseSkgdHJ5aW5nIHRvIGFkZCB2aXJ0aW8tbW1pbyBzdXBwb3J0IHByb3Blcmx5
-IHRvCj4gUUVNVSBub3cgRnJlZCBoYXMgcHV0IGFsbCB0aGUgcmVmYWN0b3JpbmcgZm91bmRhdGlv
-bnMgaW4gcGxhY2UuCj4gCj4gMS4gT25lIHF1ZXN0aW9uIEkndmUgcnVuIGludG8gaXM6IHdoYXQg
-c2hvdWxkIGEgdmlydGlvLW1taW8gdHJhbnNwb3J0Cj4gd2l0aCBubyBiYWNrZW5kIGxvb2sgbGlr
-ZSB0byB0aGUgZ3Vlc3QgT1M/IFRoZSBzcGVjIGFzIHdyaXR0ZW4KPiBzZWVtcyB0byBhc3N1bWUg
-dGhhdCB0aGVyZSdzIGFsd2F5cyBzb21lIGJhY2tlbmQgcHJlc2VudC4KPiAoVGhlIGlkZWEgaXMg
-dGhhdCBRRU1VIG1pZ2h0IGp1c3QgYWx3YXlzIGluc3RhbnRpYXRlIHNheSA4Cj4gbW1pbyB0cmFu
-c3BvcnRzLCBhbmQgdGhlbiB3aGV0aGVyIHRoZXkgYWN0dWFsbHkgaGF2ZSBhCj4gYmxrL25ldC93
-aGF0ZXZlciBiYWNrZW5kIGRlcGVuZHMgb24gdXNlciBvcHRpb25zKS4KPiAKPiBJdCBsb29rcyBh
-cyBpZiB0aGUgY3VycmVudCBsaW51eCBkcml2ZXIgaW5zaXN0cyAoaWYgaXQgc2VlcyBhCj4gZGV2
-aWNlIHRyZWUgbm9kZSkgdGhhdCB0aGUgTWFnaWNWYWx1ZSByZWdpc3RlciBhdCBsZWFzdCBpcwo+
-IGNvcnJlY3QgKG90aGVyd2lzZSBpdCBjb21wbGFpbnMpLiBTbyBvbmUgcG9zc2liaWxpdHkgd291
-bGQKPiBiZSAiTWFnaWNWYWx1ZS9WZXJzaW9uL1ZlbmRvcklEIG11c3QgcmVhZCBhcyB1c3VhbCwg
-RGV2aWNlSUQKPiBzaG91bGQgcmVhZCBhcyBzb21lIHNwZWNpYWwgIm5vdGhpbmcgaGVyZSIgdmFs
-dWUgKDA/KSwgZXZlcnl0aGluZwo+IGVsc2UgY2FuIFJBWi9XSSIuCj4gCj4gV2UgY291bGQganVz
-dCBzYXkgImFsbCBSQVovV0kiLCBzaW5jZSB0aGlzIG1lcmVseSBjYXVzZXMgTGludXgKPiBjdXJy
-ZW50bHkgdG8gcHJpbnQgYSB3YXJuaW5nIGFib3V0IHRoZSBiYWQgbWFnaWMgbnVtYmVyLCBhbmQK
-PiB0aGVuIHN1YnNlcXVlbnRseSBtYWtlIExpbnV4IGxlc3MgYWxhcm1pc3QgYWJvdXQgdGhlIHpl
-cm8uCj4gCj4gV2UgY291bGQgYWxzbyBkZWZpbmUgdGhhdCB0aGUgdHJhbnNwb3J0IHNob3VsZCBs
-b29rIGFzIGlmCj4gdGhlcmUncyBzb21lIHNvcnQgb2YgJ251bGwnIGJhY2tlbmQgcGx1Z2dlZCBp
-bi4gVGhpcyB3b3VsZAo+IGJlIG1vcmUgZWZmb3J0IG9uIHRoZSBxZW11IHNpZGUgdGhvdWdoLCBJ
-IHRoaW5rLgoKVGhlcmUgYXJlIHR3byBhc3BlY3RzIG9mIHRoZSBwcm9ibGVtOgoKMS4gQ3VycmVu
-dCBpbXBsZW1lbnRhdGlvbiBvZiB0aGUgdmlydGlvIGNvcmUgd29uJ3QgZG8gYW55dGhpbmcgdG8g
-dGhlCmRldmljZSBpZiB0aGUgZGV2aWNlL3ZlbmRvciBJRHMgZG9uJ3QgbWF0Y2ggd2l0aCBhbnkg
-b2YgdGhlIGRyaXZlcnMuCgoyLiBBbGwgdGhhdCBjdXJyZW50IHZpcnRpby1tbWlvIGltcGxlbWVu
-dGF0aW9uIHdpbGwgZG8gaXM6CiogcmVhZCBtYWdpYwoqIHJlYWQgZGV2aWNlICYgdmVuZG9yIGlk
-Ciogd3JpdGUgcGFnZSBzaXplCgpTbywgYSBkZXZpY2UgYmVoYXZpbmcgYXMgeW91IG1lbnRpb25l
-ZCAtIG1hZ2ljIG9rLCBhbGwgcmVnaXN0ZXIgcmVhZCBhcwp6ZXJvLCBhbGwgd3JpdGVzIGlnbm9y
-ZWQsIHdpbGwgZG8gZXhhY3RseSB3aGF0IHlvdSB3YW50LgoKTm93LCBhcyB0byBtYW5kYXRpbmcg
-dGhpczoKCjEuIFdlIGNvdWxkIG1hbmRhdGUgZGV2aWNlIElEIDAgKHplcm8pIGFzICJOT09QIi4g
-VGhpcyBpcyBpbiBsaW5lIHdpdGgKY3VycmVudCBJRCBudW1iZXJzIGFsbG9jYXRpb24sIGp1c3Qg
-bmVlZHMgZm9ybWFsaXppbmcgYXQgdGhlIHRvcCBsZXZlbApvZiB0aGUgc3BlYy4KCjIuIEkgaGF2
-ZSBubyBwcm9ibGVtIHdpdGggYWRkaW5nIHRoZSBtYWdpYy9SQVovV0kgYmVoYXZpb3VyIHRvIHRo
-ZQpjdXJyZW50IGFwcGVuZGl4IFgsIGhvd2V2ZXIgSSBtdXN0IHNheSB0aGF0IHRoZSAid3JpdGUg
-cGFnZSBzaXplIiB3aWxsCmRpc2FwcGVhciBpbiB0aGUgbmV4dCB2ZXJzaW9uIG9mIHRoZSBzcGVj
-IChubyBtb3JlIHBhZ2UgbnVtYmVycywganVzdApub3JtYWwgNjQtYml0IGFkZHJlc3NlcyksIHNv
-IGRlZmluaW5nIGRldmljZSBJRCBhcyBhYm92ZSB3aWxsIGNvdmVyIHlvdXIKdXNlIGNhc2UsIEkg
-YmVsaWV2ZSAoYXMgaW46IGNvcnJlY3QgbWFnaWMgPT0gY29ycmVjdCBkZXZpY2UsIE5PT1AgZGV2
-aWNlCj09IG5vIGZ1cnRoZXIgYWN0aW9ucykuCgo+IDIuIFdoYXQgd2FzIHRoZSByYXRpb25hbGUg
-YmVoaW5kIHByb2hpYml0aW5nIGludGVycnVwdAo+IGxpbmUgc2hhcmluZyBiZXR3ZWVuIHR3byB2
-aXJ0aW8tbW1pbyB0cmFuc3BvcnRzPyAoImRldmljZQo+IG9wZXJhdGlvbiIgc2VjdGlvbiBvZiBh
-cHBlbmRpeCBYKS4gTGFjayBvZiBzcGFyZSBJUlFzCj4gdHVybnMgb3V0IHRvIGJlIHRoZSBtYWpv
-ciBsaW1pdCBvbiBob3cgbWFueSB0cmFuc3BvcnRzIHlvdQo+IGNhbiBoYXZlLgoKSG0uIFNpbXBs
-aWNpdHkgd2FzIHRoZSBpbnRlbnRpb24sIHJlYWxseSwgbm8gaGlkZGVuIGFnZW5kYS4gSSd2ZSBu
-ZXZlcgphY3R1YWxseSB0cmllZCB0byBoYXZlIHR3byBwbGF0Zm9ybSBkZXZpY2VzIHNoYXJpbmcg
-YW4gaW50ZXJydXB0LCBzbyBJJ20Kbm90IHN1cmUgaG93IHdpbGwgdGhlIGdlbmVyaWMgaW5mcmFz
-dHJ1Y3R1cmUgYmVoYXZlIGluIHN1Y2ggc2l0dWF0aW9uLgoKPiAoSXMgdGhlcmUgYSBtYWlsaW5n
-IGxpc3QgSSBzaG91bGQgYmUgYXNraW5nIHRoaXMgcXVlc3Rpb24gb24/KQoKdmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcgKG5vdyBvbiBjb3B5KQoKUGF3ZcWCCgoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+vhost_net_ubuf_put_and_wait has a confusing name:
+it will actually also free it's argument.
+Thus since commit 1280c27f8e29acf4af2da914e80ec27c3dbd5c01
+vhost_net_flush tries to use the argument after passing it
+to vhost_net_ubuf_put_and_wait, this results
+in use after free.
+To fix, don't free the argument in vhost_net_ubuf_put_and_wait,
+add an new API for callers that want to free ubufs.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+Dave, this is needed for stable as well, but
+the code has moved a bit since then.
+I'll post a patch tweaked to apply against 3.9 and 3.8 separately.
+
+ drivers/vhost/net.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 5c77d6a..534adb0 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -149,6 +149,11 @@ static void vhost_net_ubuf_put_and_wait(struct vhost_net_ubuf_ref *ubufs)
+ {
+ 	kref_put(&ubufs->kref, vhost_net_zerocopy_done_signal);
+ 	wait_event(ubufs->wait, !atomic_read(&ubufs->kref.refcount));
++}
++
++static void vhost_net_ubuf_put_wait_and_free(struct vhost_net_ubuf_ref *ubufs)
++{
++	vhost_net_ubuf_put_and_wait(ubufs);
+ 	kfree(ubufs);
+ }
+ 
+@@ -1073,7 +1078,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+ 	mutex_unlock(&vq->mutex);
+ 
+ 	if (oldubufs) {
+-		vhost_net_ubuf_put_and_wait(oldubufs);
++		vhost_net_ubuf_put_wait_and_free(oldubufs);
+ 		mutex_lock(&vq->mutex);
+ 		vhost_zerocopy_signal_used(n, vq);
+ 		mutex_unlock(&vq->mutex);
+@@ -1091,7 +1096,7 @@ err_used:
+ 	vq->private_data = oldsock;
+ 	vhost_net_enable_vq(n, vq);
+ 	if (ubufs)
+-		vhost_net_ubuf_put_and_wait(ubufs);
++		vhost_net_ubuf_put_wait_and_free(ubufs);
+ err_ubufs:
+ 	fput(sock->file);
+ err_vq:
+-- 
+MST
