@@ -1,15 +1,11 @@
-From: Christopher Covington <cov@codeaurora.org>
-Subject: Re: what should a virtio-mmio transport without a backend look like?
-Date: Fri, 21 Jun 2013 12:02:55 -0400
-Message-ID: <51C4792F.6010709@codeaurora.org>
-References: <CAFEAcA9qCUQLZho8wJvewYJ0AEhDBc37_LpZWs8XBV1U7RVZgA@mail.gmail.com>
-	<1371726501.3231.22.camel@hornet> <51C2FC5B.7080406@codeaurora.org>
-	<CAFEAcA98py6MHQih8y0Vfr1T1PQj-Cy54cOzPbMfAOH3Xnf+Tw@mail.gmail.com>
+From: Jiang Liu <liuj97@gmail.com>
+Subject: [PATCH v2 0/3] deprecate usage of pci_scan_bus_parented()
+Date: Sat, 22 Jun 2013 00:12:45 +0800
+Message-ID: <1371831169-17291-1-git-send-email-liuj97@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAFEAcA98py6MHQih8y0Vfr1T1PQj-Cy54cOzPbMfAOH3Xnf+Tw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +15,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Maydell <peter.maydell@linaro.org>
-Cc: =?UTF-8?B?S09OUkFEIEZyw6lkw6ly?= =?UTF-8?B?aWM=?= <fred.konrad@greensocs.com>, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
+To: Bjorn Helgaas <bhelgaas@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: xen-devel@lists.xensource.com, Jiang Liu <jiang.liu@huawei.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Yijing Wang <wangyijing@huawei.com>, liuj97@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Peter,
+From: Jiang Liu <jiang.liu@huawei.com>
 
-On 06/21/2013 11:23 AM, Peter Maydell wrote:
-> On 20 June 2013 13:58, Christopher Covington <cov@codeaurora.org> wrote:
->>> On Thu, 2013-06-20 at 11:29 +0100, Peter Maydell wrote:
->>>> 1. One question I've run into is: what should a virtio-mmio transport
->>>> with no backend look like to the guest OS? The spec as written
->>>> seems to assume that there's always some backend present.
->>>> (The idea is that QEMU might just always instantiate say 8
->>>> mmio transports, and then whether they actually have a
->>>> blk/net/whatever backend depends on user options).
-> 
->> Might it be reasonably easy to just not enumerate unused transports
->> in the device tree or kernel parameters?
-> 
-> At least for QEMU, the backend that plugs into the transport
-> isn't created until after the machine model has created
-> transports and put together the device tree blob. So we don't
-> really have the information about what devices are going to
-> appear at the point we're doing this.
+This patch tries to deprecate usage of pci_scan_bus_parented().
+It applies to
+https://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git next
 
-Would using CONFIG_VIRTIO_MMIO_CMDLINE_DEVICES enumeration instead of device
-tree be any easier?
+V2:
+  Kill pci_scan_bus_parented() instead of marking it as deprecated
 
-How does the back end know which devices to create?
 
-Thanks,
-Christopher
+Jiang Liu (3):
+  PCI: export three functions to support modular host bridge driver
+  PCI, xen-pcifront: use new PCI interfaces to simplify implementation
+  PCI: kill pci_scan_bus_parented()
+
+ arch/tile/kernel/pci.c     |  3 --
+ drivers/pci/host-bridge.c  |  1 +
+ drivers/pci/probe.c        | 20 +-----------
+ drivers/pci/remove.c       |  7 +++++
+ drivers/pci/xen-pcifront.c | 76 +++++++++++++++++++++-------------------------
+ include/linux/pci.h        |  3 +-
+ 6 files changed, 44 insertions(+), 66 deletions(-)
 
 -- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by the Linux Foundation.
+1.8.1.2
