@@ -1,7 +1,7 @@
-From: Christopher Covington <cov@codeaurora.org>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: what should a virtio-mmio transport without a backend look like?
-Date: Fri, 21 Jun 2013 14:45:38 -0400
-Message-ID: <51C49F52.1070906@codeaurora.org>
+Date: Fri, 21 Jun 2013 22:13:36 +0200
+Message-ID: <51C4B3F0.60300@redhat.com>
 References: <CAFEAcA9qCUQLZho8wJvewYJ0AEhDBc37_LpZWs8XBV1U7RVZgA@mail.gmail.com>
 	<1371726501.3231.22.camel@hornet> <51C2FC5B.7080406@codeaurora.org>
 	<CAFEAcA98py6MHQih8y0Vfr1T1PQj-Cy54cOzPbMfAOH3Xnf+Tw@mail.gmail.com>
@@ -26,10 +26,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Peter Maydell <peter.maydell@linaro.org>
-Cc: =?UTF-8?B?S09OUkFEIEZyw6lkw6lyaWM=?= <fred.konrad@greensocs.com>, Pawel Moll <pawel.moll@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Pawel Moll <pawel.moll@arm.com>, =?ISO-8859-1?Q?KONRAD_F?= =?ISO-8859-1?Q?r=E9d=E9ric?= <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/21/2013 02:28 PM, Peter Maydell wrote:
+Il 21/06/2013 20:28, Peter Maydell ha scritto:
 > On 21 June 2013 19:01, Christopher Covington <cov@codeaurora.org> wrote:
 >> Anyhow, I just did a quick experiment with 0-size block devices, and they seem
 >> to work for me, although trying to mount the device yields the confusing
@@ -38,14 +38,6 @@ On 06/21/2013 02:28 PM, Peter Maydell wrote:
 > I'm confused -- what's the significance of zero size
 > block devices?
 
-You were proposing to use a valid/existing MagicValue/Version/VendorID with a
-special DeviceID that does nothing. I'm saying why not use a valid/existing
-MagicValue/Version/VendorID/DeviceID with a special parameter setting, size=0,
-that does nothing?
+I wouldn't be sad if QEMU forbade creation of zero-sized block devices. :)
 
-Christopher
-
--- 
-Employee of Qualcomm Innovation Center, Inc.
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by the Linux Foundation.
+Paolo
