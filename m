@@ -1,13 +1,16 @@
-From: Jiang Liu <liuj97@gmail.com>
-Subject: [PATCH v2 3/3] PCI: mark pci_scan_bus_parented() as __deprecated
-Date: Sat, 22 Jun 2013 00:12:49 +0800
-Message-ID: <1371831169-17291-5-git-send-email-liuj97__18164.8325328299$1371831250$gmane$org@gmail.com>
-References: <1371831169-17291-1-git-send-email-liuj97@gmail.com>
+From: Peter Maydell <peter.maydell@linaro.org>
+Subject: Re: what should a virtio-mmio transport without a backend look like?
+Date: Fri, 21 Jun 2013 17:41:04 +0100
+Message-ID: <CAFEAcA9SM7K=-UFAkFOzRX0jcc5yJj6jAw4QFhWwC8VBO8SggA@mail.gmail.com>
+References: <CAFEAcA9qCUQLZho8wJvewYJ0AEhDBc37_LpZWs8XBV1U7RVZgA@mail.gmail.com>
+	<1371726501.3231.22.camel@hornet> <51C2FC5B.7080406@codeaurora.org>
+	<CAFEAcA98py6MHQih8y0Vfr1T1PQj-Cy54cOzPbMfAOH3Xnf+Tw@mail.gmail.com>
+	<51C4792F.6010709@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1371831169-17291-1-git-send-email-liuj97@gmail.com>
+In-Reply-To: <51C4792F.6010709@codeaurora.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,83 +20,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Helgaas <bhelgaas@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: xen-devel@lists.xensource.com, Jiang Liu <jiang.liu@huawei.com>, linux-pci@vger.kernel.org, Thierry Reding <thierry.reding@avionic-design.de>, linux-kernel@vger.kernel.org, Chris Metcalf <cmetcalf@tilera.com>, virtualization@lists.linux-foundation.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Yijing Wang <wangyijing@huawei.com>, liuj97@gmail.com
+To: Christopher Covington <cov@codeaurora.org>
+Cc: =?UTF-8?B?S09OUkFEIEZyw6lkw6lyaWM=?= <fred.konrad@greensocs.com>, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jiang Liu <jiang.liu@huawei.com>
+On 21 June 2013 17:02, Christopher Covington <cov@codeaurora.org> wrote:
+> Would using CONFIG_VIRTIO_MMIO_CMDLINE_DEVICES enumeration
+> instead of device tree be any easier?
 
-Mark pci_scan_bus_parented() as __deprecated and clean up outdated
-comments.
+My general view is that the kernel command line is
+the user's to manipulate, and that QEMU shouldn't
+touch it at all (just pass it through). (Conversely,
+QEMU shouldn't require the user to specify odd
+kernel command line arguments in order to make things
+work.)
 
-Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
-Cc: Chris Metcalf <cmetcalf@tilera.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Thierry Reding <thierry.reding@avionic-design.de>
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-pci@vger.kernel.org
----
- arch/tile/kernel/pci.c |  3 ---
- drivers/pci/probe.c    | 19 -------------------
- include/linux/pci.h    |  2 --
- 3 files changed, 24 deletions(-)
+(Having talked with Grant Likely I now have a reasonable
+plan for manipulating the dtb to add virtio nodes, so
+I'm happy that that's the right way to go.)
 
-diff --git a/arch/tile/kernel/pci.c b/arch/tile/kernel/pci.c
-index 67237d3..936e087 100644
---- a/arch/tile/kernel/pci.c
-+++ b/arch/tile/kernel/pci.c
-@@ -309,9 +309,6 @@ int __init pcibios_init(void)
- 			 *
- 			 * It reads the PCI tree for this bus into the Linux
- 			 * data structures.
--			 *
--			 * This is inlined in linux/pci.h and calls into
--			 * pci_scan_bus_parented() in probe.c.
- 			 */
- 			pci_add_resource(&resources, &ioport_resource);
- 			pci_add_resource(&resources, &iomem_resource);
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index ed768d8..af30772 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -1901,25 +1901,6 @@ struct pci_bus *pci_scan_root_bus(struct device *parent, int bus,
- }
- EXPORT_SYMBOL(pci_scan_root_bus);
- 
--/* Deprecated; use pci_scan_root_bus() instead */
--struct pci_bus *pci_scan_bus_parented(struct device *parent,
--		int bus, struct pci_ops *ops, void *sysdata)
--{
--	LIST_HEAD(resources);
--	struct pci_bus *b;
--
--	pci_add_resource(&resources, &ioport_resource);
--	pci_add_resource(&resources, &iomem_resource);
--	pci_add_resource(&resources, &busn_resource);
--	b = pci_create_root_bus(parent, bus, ops, sysdata, &resources);
--	if (b)
--		pci_scan_child_bus(b);
--	else
--		pci_free_resource_list(&resources);
--	return b;
--}
--EXPORT_SYMBOL(pci_scan_bus_parented);
--
- struct pci_bus *pci_scan_bus(int bus, struct pci_ops *ops,
- 					void *sysdata)
- {
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index f1229c7..41ec0a5 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -720,8 +720,6 @@ void pcibios_bus_to_resource(struct pci_dev *dev, struct resource *res,
- void pcibios_scan_specific_bus(int busn);
- struct pci_bus *pci_find_bus(int domain, int busnr);
- void pci_bus_add_devices(const struct pci_bus *bus);
--struct pci_bus *pci_scan_bus_parented(struct device *parent, int bus,
--				      struct pci_ops *ops, void *sysdata);
- struct pci_bus *pci_scan_bus(int bus, struct pci_ops *ops, void *sysdata);
- struct pci_bus *pci_create_root_bus(struct device *parent, int bus,
- 				    struct pci_ops *ops, void *sysdata,
--- 
-1.8.1.2
+As it happens, if you use the command line to specify
+a virtio device it doesn't make the same complaint about
+bad magic number as if you specify it via dtb, but that
+should probably be fixed in the kernel :-)
+
+> How does the back end know which devices to create?
+
+Anything specified via -device on the QEMU command line
+is created after the board model has initialized. When a
+virtio-blk-backend (or whatever) is created it's automatically
+plugged into the first available matching bus (in the same
+way that if you create a PCI card via -device it plugs
+into the first available PCI slot).
+
+-- PMM
