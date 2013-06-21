@@ -1,12 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
+From: Asias He <asias@redhat.com>
 Subject: Re: [PATCH net] vhost-net: fix use-after-free in vhost_net_flush
-Date: Fri, 21 Jun 2013 14:50:09 +0800
-Message-ID: <51C3F7A1.5000602@redhat.com>
+Date: Fri, 21 Jun 2013 15:20:59 +0800
+Message-ID: <20130621072059.GA14666@hj.localdomain>
 References: <20130620114813.GA17373@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <20130620114813.GA17373@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -21,7 +22,7 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/20/2013 07:48 PM, Michael S. Tsirkin wrote:
+On Thu, Jun 20, 2013 at 02:48:13PM +0300, Michael S. Tsirkin wrote:
 > vhost_net_ubuf_put_and_wait has a confusing name:
 > it will actually also free it's argument.
 > Thus since commit 1280c27f8e29acf4af2da914e80ec27c3dbd5c01
@@ -30,17 +31,20 @@ On 06/20/2013 07:48 PM, Michael S. Tsirkin wrote:
 > in use after free.
 > To fix, don't free the argument in vhost_net_ubuf_put_and_wait,
 > add an new API for callers that want to free ubufs.
->
+> 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Acked-by: Asias He <asias@redhat.com>
+
 > ---
->
+> 
 > Dave, this is needed for stable as well, but
 > the code has moved a bit since then.
 > I'll post a patch tweaked to apply against 3.9 and 3.8 separately.
->
+> 
 >  drivers/vhost/net.c | 9 +++++++--
 >  1 file changed, 7 insertions(+), 2 deletions(-)
->
+> 
 > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
 > index 5c77d6a..534adb0 100644
 > --- a/drivers/vhost/net.c
@@ -75,5 +79,8 @@ On 06/20/2013 07:48 PM, Michael S. Tsirkin wrote:
 >  err_ubufs:
 >  	fput(sock->file);
 >  err_vq:
+> -- 
+> MST
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+-- 
+Asias
