@@ -1,14 +1,20 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH 0/3] deprecate usage of pci_scan_bus_parented()
-Date: Fri, 21 Jun 2013 14:23:41 -0400
-Message-ID: <20130621182341.GG15809@phenom.dumpdata.com>
-References: <1371747665-12768-1-git-send-email-liuj97@gmail.com>
+From: Peter Maydell <peter.maydell@linaro.org>
+Subject: Re: what should a virtio-mmio transport without a backend look like?
+Date: Fri, 21 Jun 2013 19:28:24 +0100
+Message-ID: <CAFEAcA9VjH7DhKnFTK-CjnQPOV8vqduLjuQgWMrOzuz2V1VgwQ@mail.gmail.com>
+References: <CAFEAcA9qCUQLZho8wJvewYJ0AEhDBc37_LpZWs8XBV1U7RVZgA@mail.gmail.com>
+	<1371726501.3231.22.camel@hornet> <51C2FC5B.7080406@codeaurora.org>
+	<CAFEAcA98py6MHQih8y0Vfr1T1PQj-Cy54cOzPbMfAOH3Xnf+Tw@mail.gmail.com>
+	<51C4792F.6010709@codeaurora.org>
+	<CAFEAcA9SM7K=-UFAkFOzRX0jcc5yJj6jAw4QFhWwC8VBO8SggA@mail.gmail.com>
+	<1371833230.3155.19.camel@hornet>
+	<CAFEAcA-iBduDCbwHYYe7BhAXoBx2A5EgZ6_251B3vMuODewxvQ@mail.gmail.com>
+	<51C494EF.4060509@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1371747665-12768-1-git-send-email-liuj97@gmail.com>
+In-Reply-To: <51C494EF.4060509@codeaurora.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +24,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiang Liu <liuj97@gmail.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Jiang Liu <jiang.liu@huawei.com>, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Yijing Wang <wangyijing@huawei.com>, Bjorn Helgaas <bhelgaas@google.com>
+To: Christopher Covington <cov@codeaurora.org>
+Cc: =?UTF-8?B?S09OUkFEIEZyw6lkw6lyaWM=?= <fred.konrad@greensocs.com>, Pawel Moll <pawel.moll@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 21, 2013 at 01:01:02AM +0800, Jiang Liu wrote:
-> From: Jiang Liu <jiang.liu@huawei.com>
-> 
-> This patch tries to deprecate usage of pci_scan_bus_parented().
-> It applies to
-> https://git.kernel.org/pub/scm/linux/kernel/git/helgaas/pci.git next
+On 21 June 2013 19:01, Christopher Covington <cov@codeaurora.org> wrote:
+> Anyhow, I just did a quick experiment with 0-size block devices, and they seem
+> to work for me, although trying to mount the device yields the confusing
+> message, "mount: mounting /dev/vda on mount failed: Invalid argument".
 
-They look OK to me, but let me double-test them in case some last
-minute regression has reared its head.
+I'm confused -- what's the significance of zero size
+block devices?
 
-> 
-> Jiang Liu (3):
->   PCI: export three functions to support modular host bridge driver
->   PCI, xen-pcifront: use new PCI interfaces to simplify implementation
->   PCI: mark pci_scan_bus_parented() as __deprecated
-> 
->  arch/tile/kernel/pci.c     |  3 --
->  drivers/pci/host-bridge.c  |  1 +
->  drivers/pci/probe.c        |  1 +
->  drivers/pci/remove.c       |  7 +++++
->  drivers/pci/xen-pcifront.c | 70 ++++++++++++++++++++--------------------------
->  include/linux/pci.h        |  5 ++--
->  6 files changed, 42 insertions(+), 45 deletions(-)
-> 
-> -- 
-> 1.8.1.2
-> 
+thanks
+-- PMM
