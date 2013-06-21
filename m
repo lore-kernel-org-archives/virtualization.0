@@ -1,14 +1,14 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH net] vhost-net: fix use-after-free in vhost_net_flush
-Date: Fri, 21 Jun 2013 15:20:59 +0800
-Message-ID: <20130621072059.GA14666@hj.localdomain>
-References: <20130620114813.GA17373@redhat.com>
+From: Peter Maydell <peter.maydell@linaro.org>
+Subject: Re: what should a virtio-mmio transport without a backend look like?
+Date: Fri, 21 Jun 2013 16:23:58 +0100
+Message-ID: <CAFEAcA98py6MHQih8y0Vfr1T1PQj-Cy54cOzPbMfAOH3Xnf+Tw@mail.gmail.com>
+References: <CAFEAcA9qCUQLZho8wJvewYJ0AEhDBc37_LpZWs8XBV1U7RVZgA@mail.gmail.com>
+	<1371726501.3231.22.camel@hornet> <51C2FC5B.7080406@codeaurora.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130620114813.GA17373@redhat.com>
+In-Reply-To: <51C2FC5B.7080406@codeaurora.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,69 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: Christopher Covington <cov@codeaurora.org>
+Cc: =?UTF-8?B?S09OUkFEIEZyw6lkw6lyaWM=?= <fred.konrad@greensocs.com>, Pawel Moll <pawel.moll@arm.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 20, 2013 at 02:48:13PM +0300, Michael S. Tsirkin wrote:
-> vhost_net_ubuf_put_and_wait has a confusing name:
-> it will actually also free it's argument.
-> Thus since commit 1280c27f8e29acf4af2da914e80ec27c3dbd5c01
-> vhost_net_flush tries to use the argument after passing it
-> to vhost_net_ubuf_put_and_wait, this results
-> in use after free.
-> To fix, don't free the argument in vhost_net_ubuf_put_and_wait,
-> add an new API for callers that want to free ubufs.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+On 20 June 2013 13:58, Christopher Covington <cov@codeaurora.org> wrote:
+>> On Thu, 2013-06-20 at 11:29 +0100, Peter Maydell wrote:
+>>> 1. One question I've run into is: what should a virtio-mmio transport
+>>> with no backend look like to the guest OS? The spec as written
+>>> seems to assume that there's always some backend present.
+>>> (The idea is that QEMU might just always instantiate say 8
+>>> mmio transports, and then whether they actually have a
+>>> blk/net/whatever backend depends on user options).
 
-Acked-by: Asias He <asias@redhat.com>
+> Might it be reasonably easy to just not enumerate unused transports
+> in the device tree or kernel parameters?
 
-> ---
-> 
-> Dave, this is needed for stable as well, but
-> the code has moved a bit since then.
-> I'll post a patch tweaked to apply against 3.9 and 3.8 separately.
-> 
->  drivers/vhost/net.c | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 5c77d6a..534adb0 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -149,6 +149,11 @@ static void vhost_net_ubuf_put_and_wait(struct vhost_net_ubuf_ref *ubufs)
->  {
->  	kref_put(&ubufs->kref, vhost_net_zerocopy_done_signal);
->  	wait_event(ubufs->wait, !atomic_read(&ubufs->kref.refcount));
-> +}
-> +
-> +static void vhost_net_ubuf_put_wait_and_free(struct vhost_net_ubuf_ref *ubufs)
-> +{
-> +	vhost_net_ubuf_put_and_wait(ubufs);
->  	kfree(ubufs);
->  }
->  
-> @@ -1073,7 +1078,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  	mutex_unlock(&vq->mutex);
->  
->  	if (oldubufs) {
-> -		vhost_net_ubuf_put_and_wait(oldubufs);
-> +		vhost_net_ubuf_put_wait_and_free(oldubufs);
->  		mutex_lock(&vq->mutex);
->  		vhost_zerocopy_signal_used(n, vq);
->  		mutex_unlock(&vq->mutex);
-> @@ -1091,7 +1096,7 @@ err_used:
->  	vq->private_data = oldsock;
->  	vhost_net_enable_vq(n, vq);
->  	if (ubufs)
-> -		vhost_net_ubuf_put_and_wait(ubufs);
-> +		vhost_net_ubuf_put_wait_and_free(ubufs);
->  err_ubufs:
->  	fput(sock->file);
->  err_vq:
-> -- 
-> MST
+At least for QEMU, the backend that plugs into the transport
+isn't created until after the machine model has created
+transports and put together the device tree blob. So we don't
+really have the information about what devices are going to
+appear at the point we're doing this.
 
--- 
-Asias
+thanks
+-- PMM
