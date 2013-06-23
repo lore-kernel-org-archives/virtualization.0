@@ -1,22 +1,14 @@
-From: Peter Maydell <peter.maydell@linaro.org>
-Subject: Re: what should a virtio-mmio transport without a backend look like?
-Date: Sat, 22 Jun 2013 11:51:44 +0100
-Message-ID: <CAFEAcA944MGNAJ7PFAbPo4uSrVEGnbyyscYyFQVC2raFH0N64A@mail.gmail.com>
-References: <CAFEAcA9qCUQLZho8wJvewYJ0AEhDBc37_LpZWs8XBV1U7RVZgA@mail.gmail.com>
-	<1371726501.3231.22.camel@hornet> <51C2FC5B.7080406@codeaurora.org>
-	<CAFEAcA98py6MHQih8y0Vfr1T1PQj-Cy54cOzPbMfAOH3Xnf+Tw@mail.gmail.com>
-	<51C4792F.6010709@codeaurora.org>
-	<CAFEAcA9SM7K=-UFAkFOzRX0jcc5yJj6jAw4QFhWwC8VBO8SggA@mail.gmail.com>
-	<1371833230.3155.19.camel@hornet>
-	<CAFEAcA-iBduDCbwHYYe7BhAXoBx2A5EgZ6_251B3vMuODewxvQ@mail.gmail.com>
-	<51C494EF.4060509@codeaurora.org>
-	<CAFEAcA9VjH7DhKnFTK-CjnQPOV8vqduLjuQgWMrOzuz2V1VgwQ@mail.gmail.com>
-	<51C49F52.1070906@codeaurora.org>
+From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Subject: [PATCH 30/45] x86/xen: Use get/put_online_cpus_atomic() to prevent
+	CPU offline
+Date: Sun, 23 Jun 2013 19:14:56 +0530
+Message-ID: <20130623134453.19094.28360.stgit@srivatsabhat.in.ibm.com>
+References: <20130623133642.19094.16038.stgit@srivatsabhat.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51C49F52.1070906@codeaurora.org>
+In-Reply-To: <20130623133642.19094.16038.stgit@srivatsabhat.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,24 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christopher Covington <cov@codeaurora.org>
-Cc: =?UTF-8?B?S09OUkFEIEZyw6lkw6lyaWM=?= <fred.konrad@greensocs.com>, Pawel Moll <pawel.moll@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: peterz@infradead.org, tj@kernel.org, oleg@redhat.com, paulmck@linux.vnet.ibm.com, rusty@rustcorp.com.au, mingo@kernel.org, akpm@linux-foundation.org, namhyung@kernel.org, walken@google.com, vincent.guittot@linaro.org, laijs@cn.fujitsu.com
+Cc: linux-arch@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, nikunj@linux.vnet.ibm.com, zhong@linux.vnet.ibm.com, linux-pm@vger.kernel.org, fweisbec@gmail.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, rostedt@goodmis.org, xiaoguangrong@linux.vnet.ibm.com, sbw@mit.edu, Ingo Molnar <mingo@redhat.com>, wangyun@linux.vnet.ibm.com, srivatsa.bhat@linux.vnet.ibm.com, netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 21 June 2013 19:45, Christopher Covington <cov@codeaurora.org> wrote:
-> You were proposing to use a valid/existing MagicValue/Version/VendorID with a
-> special DeviceID that does nothing. I'm saying why not use a valid/existing
-> MagicValue/Version/VendorID/DeviceID with a special parameter setting, size=0,
-> that does nothing?
+Once stop_machine() is gone from the CPU offline path, we won't be able
+to depend on disabling preemption to prevent CPUs from going offline
+from under us.
 
-Ah, I see. Well, it sounds from your quoted mount message as if they
-do actually do something (ie the kernel finds a block device and
-creates a /dev/vda for it), rather than nothing, which seems like
-a bad thing. Also, it's mixing a detail of the backend layer (what
-a zero-sized disk happens to look like) with the transport layer,
-which seems a bit ugly spec-wise.
+Use the get/put_online_cpus_atomic() APIs to prevent CPUs from going
+offline, while invoking from atomic context.
 
-(Implementation wise I'm not crazy about it either since it would
-be way more complicated than saying "no backend? OK, RAZ/WI".)
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: xen-devel@lists.xensource.com
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
+---
 
--- PMM
+ arch/x86/xen/mmu.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+index fdc3ba2..3229c4f 100644
+--- a/arch/x86/xen/mmu.c
++++ b/arch/x86/xen/mmu.c
+@@ -39,6 +39,7 @@
+  * Jeremy Fitzhardinge <jeremy@xensource.com>, XenSource Inc, 2007
+  */
+ #include <linux/sched.h>
++#include <linux/cpu.h>
+ #include <linux/highmem.h>
+ #include <linux/debugfs.h>
+ #include <linux/bug.h>
+@@ -1163,9 +1164,13 @@ static void xen_drop_mm_ref(struct mm_struct *mm)
+  */
+ static void xen_exit_mmap(struct mm_struct *mm)
+ {
+-	get_cpu();		/* make sure we don't move around */
++	/*
++	 * Make sure we don't move around, and also prevent CPUs from
++	 * going offline.
++	 */
++	get_online_cpus_atomic();
+ 	xen_drop_mm_ref(mm);
+-	put_cpu();
++	put_online_cpus_atomic();
+ 
+ 	spin_lock(&mm->page_table_lock);
