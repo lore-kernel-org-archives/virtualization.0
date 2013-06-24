@@ -1,8 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V10 11/18] xen/pvticketlock: Allow interrupts to be
-	enabled while blocking
-Date: Mon, 24 Jun 2013 18:12:53 +0530
-Message-ID: <20130624124253.27508.60260.sendpatchset__21986.2372302034$1372077593$gmane$org@codeblue.in.ibm.com>
+Subject: [PATCH RFC V10 13/18] kvm : Fold pv_unhalt flag into GET_MP_STATE
+	ioctl to aid migration
+Date: Mon, 24 Jun 2013 18:13:16 +0530
+Message-ID: <20130624124316.27508.9160.sendpatchset@codeblue.in.ibm.com>
 References: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,110 +22,32 @@ To: gleb@redhat.com, mingo@redhat.com, jeremy@goop.org, x86@kernel.org, konrad.w
 Cc: gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-xen/pvticketlock: Allow interrupts to be enabled while blocking
+kvm : Fold pv_unhalt flag into GET_MP_STATE ioctl to aid migration
 
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 
-If interrupts were enabled when taking the spinlock, we can leave them
-enabled while blocking to get the lock.
+During migration, any vcpu that got kicked but did not become runnable
+(still in halted state) should be runnable after migration.
 
-If we can enable interrupts while waiting for the lock to become
-available, and we take an interrupt before entering the poll,
-and the handler takes a spinlock which ends up going into
-the slow state (invalidating the per-cpu "lock" and "want" values),
-then when the interrupt handler returns the event channel will
-remain pending so the poll will return immediately, causing it to
-return out to the main spinlock loop.
-
-Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
-Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
- arch/x86/xen/spinlock.c |   46 ++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 40 insertions(+), 6 deletions(-)
+ arch/x86/kvm/x86.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 3ebabde..2b012a5 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -140,7 +140,20 @@ static void xen_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
- 	 * partially setup state.
- 	 */
- 	local_irq_save(flags);
--
-+	/*
-+	 * We don't really care if we're overwriting some other
-+	 * (lock,want) pair, as that would mean that we're currently
-+	 * in an interrupt context, and the outer context had
-+	 * interrupts enabled.  That has already kicked the VCPU out
-+	 * of xen_poll_irq(), so it will just return spuriously and
-+	 * retry with newly setup (lock,want).
-+	 *
-+	 * The ordering protocol on this is that the "lock" pointer
-+	 * may only be set non-NULL if the "want" ticket is correct.
-+	 * If we're updating "want", we must first clear "lock".
-+	 */
-+	w->lock = NULL;
-+	smp_wmb();
- 	w->want = want;
- 	smp_wmb();
- 	w->lock = lock;
-@@ -155,24 +168,43 @@ static void xen_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
- 	/* Only check lock once pending cleared */
- 	barrier();
- 
--	/* Mark entry to slowpath before doing the pickup test to make
--	   sure we don't deadlock with an unlocker. */
-+	/*
-+	 * Mark entry to slowpath before doing the pickup test to make
-+	 * sure we don't deadlock with an unlocker.
-+	 */
- 	__ticket_enter_slowpath(lock);
- 
--	/* check again make sure it didn't become free while
--	   we weren't looking  */
-+	/*
-+	 * check again make sure it didn't become free while
-+	 * we weren't looking
-+	 */
- 	if (ACCESS_ONCE(lock->tickets.head) == want) {
- 		add_stats(TAKEN_SLOW_PICKUP, 1);
- 		goto out;
- 	}
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index f8bea30..92a9932 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6243,7 +6243,12 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
+ 				    struct kvm_mp_state *mp_state)
+ {
+ 	kvm_apic_accept_events(vcpu);
+-	mp_state->mp_state = vcpu->arch.mp_state;
++	if (vcpu->arch.mp_state == KVM_MP_STATE_HALTED &&
++					vcpu->arch.pv.pv_unhalted)
++		mp_state->mp_state = KVM_MP_STATE_RUNNABLE;
++	else
++		mp_state->mp_state = vcpu->arch.mp_state;
 +
-+	/* Allow interrupts while blocked */
-+	local_irq_restore(flags);
-+
-+	/*
-+	 * If an interrupt happens here, it will leave the wakeup irq
-+	 * pending, which will cause xen_poll_irq() to return
-+	 * immediately.
-+	 */
-+
- 	/* Block until irq becomes pending (or perhaps a spurious wakeup) */
- 	xen_poll_irq(irq);
- 	add_stats(TAKEN_SLOW_SPURIOUS, !xen_test_irq_pending(irq));
-+
-+	local_irq_save(flags);
-+
- 	kstat_incr_irqs_this_cpu(irq, irq_to_desc(irq));
- out:
- 	cpumask_clear_cpu(cpu, &waiting_cpus);
- 	w->lock = NULL;
-+
- 	local_irq_restore(flags);
-+
- 	spin_time_accum_blocked(start);
+ 	return 0;
  }
- PV_CALLEE_SAVE_REGS_THUNK(xen_lock_spinning);
-@@ -186,7 +218,9 @@ static void xen_unlock_kick(struct arch_spinlock *lock, __ticket_t next)
- 	for_each_cpu(cpu, &waiting_cpus) {
- 		const struct xen_lock_waiting *w = &per_cpu(lock_waiting, cpu);
- 
--		if (w->lock == lock && w->want == next) {
-+		/* Make sure we read lock before want */
-+		if (ACCESS_ONCE(w->lock) == lock &&
-+		    ACCESS_ONCE(w->want) == next) {
- 			add_stats(RELEASED_SLOW_KICKED, 1);
- 			xen_send_IPI_one(cpu, XEN_SPIN_UNLOCK_VECTOR);
- 			break;
