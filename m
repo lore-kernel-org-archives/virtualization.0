@@ -1,8 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V10 13/18] kvm : Fold pv_unhalt flag into GET_MP_STATE
-	ioctl to aid migration
-Date: Mon, 24 Jun 2013 18:13:16 +0530
-Message-ID: <20130624124316.27508.9160.sendpatchset@codeblue.in.ibm.com>
+Subject: [PATCH RFC V10 14/18] kvm guest : Add configuration support to enable
+	debug information for KVM Guests
+Date: Mon, 24 Jun 2013 18:13:31 +0530
+Message-ID: <20130624124331.27508.16857.sendpatchset@codeblue.in.ibm.com>
 References: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,32 +22,34 @@ To: gleb@redhat.com, mingo@redhat.com, jeremy@goop.org, x86@kernel.org, konrad.w
 Cc: gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-kvm : Fold pv_unhalt flag into GET_MP_STATE ioctl to aid migration
+kvm guest : Add configuration support to enable debug information for KVM Guests
 
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
 
-During migration, any vcpu that got kicked but did not become runnable
-(still in halted state) should be runnable after migration.
-
+Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
- arch/x86/kvm/x86.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/Kconfig |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index f8bea30..92a9932 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -6243,7 +6243,12 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
- 	kvm_apic_accept_events(vcpu);
--	mp_state->mp_state = vcpu->arch.mp_state;
-+	if (vcpu->arch.mp_state == KVM_MP_STATE_HALTED &&
-+					vcpu->arch.pv.pv_unhalted)
-+		mp_state->mp_state = KVM_MP_STATE_RUNNABLE;
-+	else
-+		mp_state->mp_state = vcpu->arch.mp_state;
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 80fcc4b..f8ff42d 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -646,6 +646,15 @@ config KVM_GUEST
+ 	  underlying device model, the host provides the guest with
+ 	  timing infrastructure such as time of day, and system time
+ 
++config KVM_DEBUG_FS
++	bool "Enable debug information for KVM Guests in debugfs"
++	depends on KVM_GUEST && DEBUG_FS
++	default n
++	---help---
++	  This option enables collection of various statistics for KVM guest.
++	  Statistics are displayed in debugfs filesystem. Enabling this option
++	  may incur significant overhead.
 +
- 	return 0;
- }
+ source "arch/x86/lguest/Kconfig"
+ 
+ config PARAVIRT_TIME_ACCOUNTING
