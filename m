@@ -1,24 +1,14 @@
-From: Peter Maydell <peter.maydell@linaro.org>
-Subject: Re: what should a virtio-mmio transport without a backend look like?
-Date: Mon, 24 Jun 2013 13:57:00 +0100
-Message-ID: <CAFEAcA-CNF6XudpHHsY6RzmfJwGr==qmMHsyLUzV7+1ws92m2Q@mail.gmail.com>
-References: <CAFEAcA9qCUQLZho8wJvewYJ0AEhDBc37_LpZWs8XBV1U7RVZgA@mail.gmail.com>
-	<1371726501.3231.22.camel@hornet> <51C2FC5B.7080406@codeaurora.org>
-	<CAFEAcA98py6MHQih8y0Vfr1T1PQj-Cy54cOzPbMfAOH3Xnf+Tw@mail.gmail.com>
-	<51C4792F.6010709@codeaurora.org>
-	<CAFEAcA9SM7K=-UFAkFOzRX0jcc5yJj6jAw4QFhWwC8VBO8SggA@mail.gmail.com>
-	<1371833230.3155.19.camel@hornet>
-	<CAFEAcA-iBduDCbwHYYe7BhAXoBx2A5EgZ6_251B3vMuODewxvQ@mail.gmail.com>
-	<51C494EF.4060509@codeaurora.org>
-	<CAFEAcA9VjH7DhKnFTK-CjnQPOV8vqduLjuQgWMrOzuz2V1VgwQ@mail.gmail.com>
-	<51C49F52.1070906@codeaurora.org>
-	<CAFEAcA944MGNAJ7PFAbPo4uSrVEGnbyyscYyFQVC2raFH0N64A@mail.gmail.com>
-	<51C83AF2.5080404@codeaurora.org>
+From: Andrew Jones <drjones@redhat.com>
+Subject: Re: [PATCH RFC V10 0/18] Paravirtualized ticket spinlocks
+Date: Mon, 24 Jun 2013 15:17:16 +0200
+Message-ID: <20130624131716.GA11948@hawk.usersys.redhat.com>
+References: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51C83AF2.5080404@codeaurora.org>
+Content-Disposition: inline
+In-Reply-To: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,56 +18,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christopher Covington <cov@codeaurora.org>
-Cc: =?UTF-8?B?S09OUkFEIEZyw6lkw6lyaWM=?= <fred.konrad@greensocs.com>, Pawel Moll <pawel.moll@arm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: jeremy@goop.org, gregkh@suse.de, linux-doc@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, kvm@vger.kernel.org, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 24 June 2013 13:26, Christopher Covington <cov@codeaurora.org> wrote:
-> On 06/22/2013 06:51 AM, Peter Maydell wrote:
->> On 21 June 2013 19:45, Christopher Covington <cov@codeaurora.org> wrote:
->>> You were proposing to use a valid/existing MagicValue/Version/VendorID with a
->>> special DeviceID that does nothing. I'm saying why not use a valid/existing
->>> MagicValue/Version/VendorID/DeviceID with a special parameter setting, size=0,
->>> that does nothing?
->
-> [...]
->
->> Also, it's mixing a detail of the backend layer (what
->> a zero-sized disk happens to look like) with the transport layer,
->> which seems a bit ugly spec-wise.
->
-> I don't think that has to be the case. From what I understand of your
-> architecture, the device layer is completely opaque to the transport layer,
-> and the transport layer is immutable, but surely the device layer will at
-> least know how many transports are available? As long as that's true, can't
-> the device layer just create real devices and hook them up to transports, and
-> then create no-op devices and hook them up to any remaining transports?
+On Mon, Jun 24, 2013 at 06:10:14PM +0530, Raghavendra K T wrote:
+> 
+> Results:
+> =======
+> base = 3.10-rc2 kernel
+> patched = base + this series
+> 
+> The test was on 32 core (model: Intel(R) Xeon(R) CPU X7560) HT disabled
+> with 32 KVM guest vcpu 8GB RAM.
 
-No, the device creation code just creates all the devices the user
-asks for. At the point where it can't find a transport to
-plug one into, the device-creation fails with an error message.
-It doesn't attempt to find buses with nothing plugged in (since
-for instance it's entirely reasonable to have a PCI slot with
-no card in it).
+Have you ever tried to get results with HT enabled?
 
->> (Implementation wise I'm not crazy about it either since it would
->> be way more complicated than saying "no backend? OK, RAZ/WI".)
->
-> (I thought virtio block devices were already implemented.)
+> 
+> +-----------+-----------+-----------+------------+-----------+
+>                ebizzy (records/sec) higher is better
+> +-----------+-----------+-----------+------------+-----------+
+>     base        stdev        patched    stdev        %improvement
+> +-----------+-----------+-----------+------------+-----------+
+> 1x  5574.9000   237.4997    5618.0000    94.0366     0.77311
+> 2x  2741.5000   561.3090    3332.0000   102.4738    21.53930
+> 3x  2146.2500   216.7718    2302.3333    76.3870     7.27237
+> 4x  1663.0000   141.9235    1753.7500    83.5220     5.45701
+> +-----------+-----------+-----------+------------+-----------+
 
-Yes, but "what does a transport do if there's no backend" is
-transport code, whereas the block device is backend code.
-I actually think the creation of a spurious /dev/vda makes
-'zero-sized block backend' a non-starter anyway, though.
-It's also neither conceptually pure nor pragmatically easy,
-so it falls between two stools.
+This looks good. Are your ebizzy results consistent run to run
+though?
 
-I could see the rationale for a 'cleanliness of spec' position
-that we should handle this with a 'null' backend with a new
-DeviceID which is completely functional (including all the host
-feature bitmaps, setting up queues, interrupts, etc) but just
-doesn't do anything. That would be more complicated to implement
-than RAZ/WI, but not impossible.
+> +-----------+-----------+-----------+------------+-----------+
+>               dbench  (Throughput) higher is better
+> +-----------+-----------+-----------+------------+-----------+
+>     base        stdev        patched    stdev        %improvement
+> +-----------+-----------+-----------+------------+-----------+
+> 1x 14111.5600   754.4525   14645.9900   114.3087     3.78718
+> 2x  2481.6270    71.2665    2667.1280    73.8193     7.47498
+> 3x  1510.2483    31.8634    1503.8792    36.0777    -0.42173
+> 4x  1029.4875    16.9166    1039.7069    43.8840     0.99267
+> +-----------+-----------+-----------+------------+-----------+
 
-thanks
--- PMM
+Hmm, I wonder what 2.5x looks like. Also, the 3% improvement with
+no overcommit is interesting. What's happening there? It makes
+me wonder what < 1x looks like.
+
+thanks,
+drew
