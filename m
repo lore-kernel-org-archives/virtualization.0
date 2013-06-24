@@ -1,14 +1,13 @@
-From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Subject: [PATCH 30/45] x86/xen: Use get/put_online_cpus_atomic() to prevent
-	CPU offline
-Date: Sun, 23 Jun 2013 19:14:56 +0530
-Message-ID: <20130623134453.19094.28360.stgit@srivatsabhat.in.ibm.com>
-References: <20130623133642.19094.16038.stgit@srivatsabhat.in.ibm.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net] vhost-net: fix use-after-free in vhost_net_flush
+Date: Mon, 24 Jun 2013 00:01:27 -0700 (PDT)
+Message-ID: <20130624.000127.3603241221368993.davem@davemloft.net>
+References: <20130620114813.GA17373@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130623133642.19094.16038.stgit@srivatsabhat.in.ibm.com>
+In-Reply-To: <20130620114813.GA17373@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,55 +17,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: peterz@infradead.org, tj@kernel.org, oleg@redhat.com, paulmck@linux.vnet.ibm.com, rusty@rustcorp.com.au, mingo@kernel.org, akpm@linux-foundation.org, namhyung@kernel.org, walken@google.com, vincent.guittot@linaro.org, laijs@cn.fujitsu.com
-Cc: linux-arch@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, nikunj@linux.vnet.ibm.com, zhong@linux.vnet.ibm.com, linux-pm@vger.kernel.org, fweisbec@gmail.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, rostedt@goodmis.org, xiaoguangrong@linux.vnet.ibm.com, sbw@mit.edu, Ingo Molnar <mingo@redhat.com>, wangyun@linux.vnet.ibm.com, srivatsa.bhat@linux.vnet.ibm.com, netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, xen-devel@lists.xensource.com
+To: mst@redhat.com
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Once stop_machine() is gone from the CPU offline path, we won't be able
-to depend on disabling preemption to prevent CPUs from going offline
-from under us.
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Thu, 20 Jun 2013 14:48:13 +0300
 
-Use the get/put_online_cpus_atomic() APIs to prevent CPUs from going
-offline, while invoking from atomic context.
+> vhost_net_ubuf_put_and_wait has a confusing name:
+> it will actually also free it's argument.
+> Thus since commit 1280c27f8e29acf4af2da914e80ec27c3dbd5c01
 
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: x86@kernel.org
-Cc: xen-devel@lists.xensource.com
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
----
+Never reference commits only by SHA1 ID, it is never sufficient.
 
- arch/x86/xen/mmu.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Always provide, after the SHA1 ID, in parenthesis, the header line
+from the commit message.
 
-diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
-index fdc3ba2..3229c4f 100644
---- a/arch/x86/xen/mmu.c
-+++ b/arch/x86/xen/mmu.c
-@@ -39,6 +39,7 @@
-  * Jeremy Fitzhardinge <jeremy@xensource.com>, XenSource Inc, 2007
-  */
- #include <linux/sched.h>
-+#include <linux/cpu.h>
- #include <linux/highmem.h>
- #include <linux/debugfs.h>
- #include <linux/bug.h>
-@@ -1163,9 +1164,13 @@ static void xen_drop_mm_ref(struct mm_struct *mm)
-  */
- static void xen_exit_mmap(struct mm_struct *mm)
- {
--	get_cpu();		/* make sure we don't move around */
-+	/*
-+	 * Make sure we don't move around, and also prevent CPUs from
-+	 * going offline.
-+	 */
-+	get_online_cpus_atomic();
- 	xen_drop_mm_ref(mm);
--	put_cpu();
-+	put_online_cpus_atomic();
- 
- 	spin_lock(&mm->page_table_lock);
+To be honest, I'm kind of tired of telling people they need to do
+this over and over again.
+
+Maybe people keep forgetting because the reason why this is an issue
+hasn't really sunk in.
+
+If the patch you reference got backported into another tree, it will
+not have the SHA1 ID, and therefore someone reading the "fix" won't
+be able to find the fault causing change without going through a lot
+of trouble.  By providing the commit header line you remove that
+problem altogether, no ambiguity is possible.
