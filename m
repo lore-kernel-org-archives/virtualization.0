@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2] vhost-net: fix use-after-free in vhost_net_flush
-Date: Tue, 25 Jun 2013 17:29:46 +0300
-Message-ID: <20130625142946.GA17414@redhat.com>
+From: Andrew Theurer <habanero@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
+Date: Tue, 25 Jun 2013 09:50:02 -0500
+Message-ID: <1372171802.3804.30.camel__9501.51335350729$1372171919$gmane$org@oc2024037011.ibm.com>
+References: <20130601192125.5966.35563.sendpatchset@codeblue>
+Reply-To: habanero@linux.vnet.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20130601192125.5966.35563.sendpatchset@codeblue>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,66 +18,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-vhost_net_ubuf_put_and_wait has a confusing name:
-it will actually also free it's argument.
-Thus since commit 1280c27f8e29acf4af2da914e80ec27c3dbd5c01
-    "vhost-net: flush outstanding DMAs on memory change"
-vhost_net_flush tries to use the argument after passing it
-to vhost_net_ubuf_put_and_wait, this results
-in use after free.
-To fix, don't free the argument in vhost_net_ubuf_put_and_wait,
-add an new API for callers that want to free ubufs.
+On Sun, 2013-06-02 at 00:51 +0530, Raghavendra K T wrote:
+> This series replaces the existing paravirtualized spinlock mechanism
+> with a paravirtualized ticketlock mechanism. The series provides
+> implementation for both Xen and KVM.
+> 
+> Changes in V9:
+> - Changed spin_threshold to 32k to avoid excess halt exits that are
+>    causing undercommit degradation (after PLE handler improvement).
+> - Added  kvm_irq_delivery_to_apic (suggested by Gleb)
+> - Optimized halt exit path to use PLE handler
+> 
+> V8 of PVspinlock was posted last year. After Avi's suggestions to look
+> at PLE handler's improvements, various optimizations in PLE handling
+> have been tried.
 
-Acked-by: Asias He <asias@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Sorry for not posting this sooner.  I have tested the v9 pv-ticketlock
+patches in 1x and 2x over-commit with 10-vcpu and 20-vcpu VMs.  I have
+tested these patches with and without PLE, as PLE is still not scalable
+with large VMs.
 
----
+System: x3850X5, 40 cores, 80 threads
 
-Please review, and queue for 3.10 and stable.
-Changes since v1:
-	- no functional change, tweaked the commit message
 
- drivers/vhost/net.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+1x over-commit with 10-vCPU VMs (8 VMs) all running dbench:
+----------------------------------------------------------
+						Total
+Configuration				Throughput(MB/s)	Notes
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 5c77d6a..534adb0 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -149,6 +149,11 @@ static void vhost_net_ubuf_put_and_wait(struct vhost_net_ubuf_ref *ubufs)
- {
- 	kref_put(&ubufs->kref, vhost_net_zerocopy_done_signal);
- 	wait_event(ubufs->wait, !atomic_read(&ubufs->kref.refcount));
-+}
-+
-+static void vhost_net_ubuf_put_wait_and_free(struct vhost_net_ubuf_ref *ubufs)
-+{
-+	vhost_net_ubuf_put_and_wait(ubufs);
- 	kfree(ubufs);
- }
- 
-@@ -1073,7 +1078,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
- 	mutex_unlock(&vq->mutex);
- 
- 	if (oldubufs) {
--		vhost_net_ubuf_put_and_wait(oldubufs);
-+		vhost_net_ubuf_put_wait_and_free(oldubufs);
- 		mutex_lock(&vq->mutex);
- 		vhost_zerocopy_signal_used(n, vq);
- 		mutex_unlock(&vq->mutex);
-@@ -1091,7 +1096,7 @@ err_used:
- 	vq->private_data = oldsock;
- 	vhost_net_enable_vq(n, vq);
- 	if (ubufs)
--		vhost_net_ubuf_put_and_wait(ubufs);
-+		vhost_net_ubuf_put_wait_and_free(ubufs);
- err_ubufs:
- 	fput(sock->file);
- err_vq:
--- 
-MST
+3.10-default-ple_on			22945			5% CPU in host kernel, 2% spin_lock in guests
+3.10-default-ple_off			23184			5% CPU in host kernel, 2% spin_lock in guests
+3.10-pvticket-ple_on			22895			5% CPU in host kernel, 2% spin_lock in guests
+3.10-pvticket-ple_off			23051			5% CPU in host kernel, 2% spin_lock in guests
+[all 1x results look good here]
+
+
+2x over-commit with 10-vCPU VMs (16 VMs) all running dbench:
+-----------------------------------------------------------
+						Total
+Configuration				Throughput		Notes
+
+3.10-default-ple_on			 6287			55% CPU  host kernel, 17% spin_lock in guests
+3.10-default-ple_off			 1849			2% CPU in host kernel, 95% spin_lock in guests
+3.10-pvticket-ple_on			 6691			50% CPU in host kernel, 15% spin_lock in guests
+3.10-pvticket-ple_off			16464			8% CPU in host kernel, 33% spin_lock in guests
+[PLE hinders pv-ticket improvements, but even with PLE off,
+ we still off from ideal throughput (somewhere >20000)]
+
+
+1x over-commit with 20-vCPU VMs (4 VMs) all running dbench:
+----------------------------------------------------------
+						Total
+Configuration				Throughput		Notes
+
+3.10-default-ple_on			22736			6% CPU in host kernel, 3% spin_lock in guests
+3.10-default-ple_off			23377			5% CPU in host kernel, 3% spin_lock in guests
+3.10-pvticket-ple_on			22471			6% CPU in host kernel, 3% spin_lock in guests
+3.10-pvticket-ple_off			23445			5% CPU in host kernel, 3% spin_lock in guests
+[1x looking fine here]
+
+
+2x over-commit with 20-vCPU VMs (8 VMs) all running dbench:
+----------------------------------------------------------
+						Total
+Configuration				Throughput		Notes
+
+3.10-default-ple_on			 1965			70% CPU in host kernel, 34% spin_lock in guests		
+3.10-default-ple_off			  226			2% CPU in host kernel, 94% spin_lock in guests
+3.10-pvticket-ple_on			 1942			70% CPU in host kernel, 35% spin_lock in guests
+3.10-pvticket-ple_off			 8003			11% CPU in host kernel, 70% spin_lock in guests
+[quite bad all around, but pv-tickets with PLE off the best so far.
+ Still quite a bit off from ideal throughput]
+
+In summary, I would state that the pv-ticket is an overall win, but the
+current PLE handler tends to "get in the way" on these larger guests.
+
+-Andrew
