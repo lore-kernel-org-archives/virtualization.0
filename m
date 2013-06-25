@@ -1,14 +1,14 @@
-From: Andrew Theurer <habanero@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
-Date: Tue, 25 Jun 2013 09:50:02 -0500
-Message-ID: <1372171802.3804.30.camel__9501.51335350729$1372171919$gmane$org@oc2024037011.ibm.com>
-References: <20130601192125.5966.35563.sendpatchset@codeblue>
-Reply-To: habanero@linux.vnet.ibm.com
+From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Subject: [PATCH v2 30/45] x86/xen: Use get/put_online_cpus_atomic() to prevent
+	CPU offline
+Date: Wed, 26 Jun 2013 02:00:57 +0530
+Message-ID: <20130625203057.16593.50205.stgit@srivatsabhat.in.ibm.com>
+References: <20130625202452.16593.22810.stgit@srivatsabhat.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130601192125.5966.35563.sendpatchset@codeblue>
+In-Reply-To: <20130625202452.16593.22810.stgit@srivatsabhat.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,83 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
+To: peterz@infradead.org, tj@kernel.org, oleg@redhat.com, paulmck@linux.vnet.ibm.com, rusty@rustcorp.com.au, mingo@kernel.org, akpm@linux-foundation.org, namhyung@kernel.org, walken@google.com, vincent.guittot@linaro.org, laijs@cn.fujitsu.com
+Cc: linux-arch@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, nikunj@linux.vnet.ibm.com, zhong@linux.vnet.ibm.com, linux-pm@vger.kernel.org, fweisbec@gmail.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, rostedt@goodmis.org, xiaoguangrong@linux.vnet.ibm.com, sbw@mit.edu, Ingo Molnar <mingo@redhat.com>, wangyun@linux.vnet.ibm.com, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2013-06-02 at 00:51 +0530, Raghavendra K T wrote:
-> This series replaces the existing paravirtualized spinlock mechanism
-> with a paravirtualized ticketlock mechanism. The series provides
-> implementation for both Xen and KVM.
-> 
-> Changes in V9:
-> - Changed spin_threshold to 32k to avoid excess halt exits that are
->    causing undercommit degradation (after PLE handler improvement).
-> - Added  kvm_irq_delivery_to_apic (suggested by Gleb)
-> - Optimized halt exit path to use PLE handler
-> 
-> V8 of PVspinlock was posted last year. After Avi's suggestions to look
-> at PLE handler's improvements, various optimizations in PLE handling
-> have been tried.
+Once stop_machine() is gone from the CPU offline path, we won't be able
+to depend on disabling preemption to prevent CPUs from going offline
+from under us.
 
-Sorry for not posting this sooner.  I have tested the v9 pv-ticketlock
-patches in 1x and 2x over-commit with 10-vcpu and 20-vcpu VMs.  I have
-tested these patches with and without PLE, as PLE is still not scalable
-with large VMs.
+Use the get/put_online_cpus_atomic() APIs to prevent CPUs from going
+offline, while invoking from atomic context.
 
-System: x3850X5, 40 cores, 80 threads
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: xen-devel@lists.xensource.com
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
+---
 
+ arch/x86/xen/mmu.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-1x over-commit with 10-vCPU VMs (8 VMs) all running dbench:
-----------------------------------------------------------
-						Total
-Configuration				Throughput(MB/s)	Notes
-
-3.10-default-ple_on			22945			5% CPU in host kernel, 2% spin_lock in guests
-3.10-default-ple_off			23184			5% CPU in host kernel, 2% spin_lock in guests
-3.10-pvticket-ple_on			22895			5% CPU in host kernel, 2% spin_lock in guests
-3.10-pvticket-ple_off			23051			5% CPU in host kernel, 2% spin_lock in guests
-[all 1x results look good here]
-
-
-2x over-commit with 10-vCPU VMs (16 VMs) all running dbench:
------------------------------------------------------------
-						Total
-Configuration				Throughput		Notes
-
-3.10-default-ple_on			 6287			55% CPU  host kernel, 17% spin_lock in guests
-3.10-default-ple_off			 1849			2% CPU in host kernel, 95% spin_lock in guests
-3.10-pvticket-ple_on			 6691			50% CPU in host kernel, 15% spin_lock in guests
-3.10-pvticket-ple_off			16464			8% CPU in host kernel, 33% spin_lock in guests
-[PLE hinders pv-ticket improvements, but even with PLE off,
- we still off from ideal throughput (somewhere >20000)]
-
-
-1x over-commit with 20-vCPU VMs (4 VMs) all running dbench:
-----------------------------------------------------------
-						Total
-Configuration				Throughput		Notes
-
-3.10-default-ple_on			22736			6% CPU in host kernel, 3% spin_lock in guests
-3.10-default-ple_off			23377			5% CPU in host kernel, 3% spin_lock in guests
-3.10-pvticket-ple_on			22471			6% CPU in host kernel, 3% spin_lock in guests
-3.10-pvticket-ple_off			23445			5% CPU in host kernel, 3% spin_lock in guests
-[1x looking fine here]
-
-
-2x over-commit with 20-vCPU VMs (8 VMs) all running dbench:
-----------------------------------------------------------
-						Total
-Configuration				Throughput		Notes
-
-3.10-default-ple_on			 1965			70% CPU in host kernel, 34% spin_lock in guests		
-3.10-default-ple_off			  226			2% CPU in host kernel, 94% spin_lock in guests
-3.10-pvticket-ple_on			 1942			70% CPU in host kernel, 35% spin_lock in guests
-3.10-pvticket-ple_off			 8003			11% CPU in host kernel, 70% spin_lock in guests
-[quite bad all around, but pv-tickets with PLE off the best so far.
- Still quite a bit off from ideal throughput]
-
-In summary, I would state that the pv-ticket is an overall win, but the
-current PLE handler tends to "get in the way" on these larger guests.
-
--Andrew
+diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+index fdc3ba2..3229c4f 100644
+--- a/arch/x86/xen/mmu.c
++++ b/arch/x86/xen/mmu.c
+@@ -39,6 +39,7 @@
+  * Jeremy Fitzhardinge <jeremy@xensource.com>, XenSource Inc, 2007
+  */
+ #include <linux/sched.h>
++#include <linux/cpu.h>
+ #include <linux/highmem.h>
+ #include <linux/debugfs.h>
+ #include <linux/bug.h>
+@@ -1163,9 +1164,13 @@ static void xen_drop_mm_ref(struct mm_struct *mm)
+  */
+ static void xen_exit_mmap(struct mm_struct *mm)
+ {
+-	get_cpu();		/* make sure we don't move around */
++	/*
++	 * Make sure we don't move around, and also prevent CPUs from
++	 * going offline.
++	 */
++	get_online_cpus_atomic();
+ 	xen_drop_mm_ref(mm);
+-	put_cpu();
++	put_online_cpus_atomic();
+ 
+ 	spin_lock(&mm->page_table_lock);
