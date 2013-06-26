@@ -1,14 +1,14 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V10 0/18] Paravirtualized ticket spinlocks
-Date: Wed, 26 Jun 2013 14:03:40 +0530
-Message-ID: <51CAA764.7000006@linux.vnet.ibm.com>
-References: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
-	<20130624131716.GA11948@hawk.usersys.redhat.com>
+Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
+Date: Wed, 26 Jun 2013 14:15:26 +0530
+Message-ID: <51CAAA26.4090204@linux.vnet.ibm.com>
+References: <20130601192125.5966.35563.sendpatchset@codeblue>
+	<1372171802.3804.30.camel@oc2024037011.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130624131716.GA11948@hawk.usersys.redhat.com>
+In-Reply-To: <1372171802.3804.30.camel@oc2024037011.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,63 +18,117 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Jones <drjones@redhat.com>
-Cc: jeremy@goop.org, gregkh@suse.de, linux-doc@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, kvm@vger.kernel.org, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
+To: habanero@linux.vnet.ibm.com
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/24/2013 06:47 PM, Andrew Jones wrote:
-> On Mon, Jun 24, 2013 at 06:10:14PM +0530, Raghavendra K T wrote:
+On 06/25/2013 08:20 PM, Andrew Theurer wrote:
+> On Sun, 2013-06-02 at 00:51 +0530, Raghavendra K T wrote:
+>> This series replaces the existing paravirtualized spinlock mechanism
+>> with a paravirtualized ticketlock mechanism. The series provides
+>> implementation for both Xen and KVM.
 >>
->> Results:
->> =======
->> base = 3.10-rc2 kernel
->> patched = base + this series
+>> Changes in V9:
+>> - Changed spin_threshold to 32k to avoid excess halt exits that are
+>>     causing undercommit degradation (after PLE handler improvement).
+>> - Added  kvm_irq_delivery_to_apic (suggested by Gleb)
+>> - Optimized halt exit path to use PLE handler
 >>
->> The test was on 32 core (model: Intel(R) Xeon(R) CPU X7560) HT disabled
->> with 32 KVM guest vcpu 8GB RAM.
+>> V8 of PVspinlock was posted last year. After Avi's suggestions to look
+>> at PLE handler's improvements, various optimizations in PLE handling
+>> have been tried.
 >
-> Have you ever tried to get results with HT enabled?
->
->>
->> +-----------+-----------+-----------+------------+-----------+
->>                 ebizzy (records/sec) higher is better
->> +-----------+-----------+-----------+------------+-----------+
->>      base        stdev        patched    stdev        %improvement
->> +-----------+-----------+-----------+------------+-----------+
->> 1x  5574.9000   237.4997    5618.0000    94.0366     0.77311
->> 2x  2741.5000   561.3090    3332.0000   102.4738    21.53930
->> 3x  2146.2500   216.7718    2302.3333    76.3870     7.27237
->> 4x  1663.0000   141.9235    1753.7500    83.5220     5.45701
->> +-----------+-----------+-----------+------------+-----------+
->
-> This looks good. Are your ebizzy results consistent run to run
-> though?
->
->> +-----------+-----------+-----------+------------+-----------+
->>                dbench  (Throughput) higher is better
->> +-----------+-----------+-----------+------------+-----------+
->>      base        stdev        patched    stdev        %improvement
->> +-----------+-----------+-----------+------------+-----------+
->> 1x 14111.5600   754.4525   14645.9900   114.3087     3.78718
->> 2x  2481.6270    71.2665    2667.1280    73.8193     7.47498
->> 3x  1510.2483    31.8634    1503.8792    36.0777    -0.42173
->> 4x  1029.4875    16.9166    1039.7069    43.8840     0.99267
->> +-----------+-----------+-----------+------------+-----------+
->
-> Hmm, I wonder what 2.5x looks like. Also, the 3% improvement with
-> no overcommit is interesting. What's happening there? It makes
-> me wonder what < 1x looks like.
+> Sorry for not posting this sooner.  I have tested the v9 pv-ticketlock
+> patches in 1x and 2x over-commit with 10-vcpu and 20-vcpu VMs.  I have
+> tested these patches with and without PLE, as PLE is still not scalable
+> with large VMs.
 >
 
 Hi Andrew,
 
-I tried 2.5x case sort where I used 3 guests with 27 vcpu each on 32
-core (HT disabled machine) and here is the output. almost no gain there.
+Thanks for testing.
 
-              throughput avg    stdev
-base:     1768.7458 MB/sec     54.044221
-patched:  1772.5617 MB/sec     41.227689
-gain %0.226
+> System: x3850X5, 40 cores, 80 threads
+>
+>
+> 1x over-commit with 10-vCPU VMs (8 VMs) all running dbench:
+> ----------------------------------------------------------
+> 						Total
+> Configuration				Throughput(MB/s)	Notes
+>
+> 3.10-default-ple_on			22945			5% CPU in host kernel, 2% spin_lock in guests
+> 3.10-default-ple_off			23184			5% CPU in host kernel, 2% spin_lock in guests
+> 3.10-pvticket-ple_on			22895			5% CPU in host kernel, 2% spin_lock in guests
+> 3.10-pvticket-ple_off			23051			5% CPU in host kernel, 2% spin_lock in guests
+> [all 1x results look good here]
 
-I am yet to try HT enabled cases that would give 0.5x to 2x performance
-results.
+Yes. The 1x results look too close
+
+>
+>
+> 2x over-commit with 10-vCPU VMs (16 VMs) all running dbench:
+> -----------------------------------------------------------
+> 						Total
+> Configuration				Throughput		Notes
+>
+> 3.10-default-ple_on			 6287			55% CPU  host kernel, 17% spin_lock in guests
+> 3.10-default-ple_off			 1849			2% CPU in host kernel, 95% spin_lock in guests
+> 3.10-pvticket-ple_on			 6691			50% CPU in host kernel, 15% spin_lock in guests
+> 3.10-pvticket-ple_off			16464			8% CPU in host kernel, 33% spin_lock in guests
+
+I see 6.426% improvement with ple_on
+and 161.87% improvement with ple_off. I think this is a very good sign
+  for the patches
+
+> [PLE hinders pv-ticket improvements, but even with PLE off,
+>   we still off from ideal throughput (somewhere >20000)]
+>
+
+Okay, The ideal throughput you are referring is getting around atleast
+80% of 1x throughput for over-commit. Yes we are still far away from
+there.
+
+>
+> 1x over-commit with 20-vCPU VMs (4 VMs) all running dbench:
+> ----------------------------------------------------------
+> 						Total
+> Configuration				Throughput		Notes
+>
+> 3.10-default-ple_on			22736			6% CPU in host kernel, 3% spin_lock in guests
+> 3.10-default-ple_off			23377			5% CPU in host kernel, 3% spin_lock in guests
+> 3.10-pvticket-ple_on			22471			6% CPU in host kernel, 3% spin_lock in guests
+> 3.10-pvticket-ple_off			23445			5% CPU in host kernel, 3% spin_lock in guests
+> [1x looking fine here]
+>
+
+I see ple_off is little better here.
+
+>
+> 2x over-commit with 20-vCPU VMs (8 VMs) all running dbench:
+> ----------------------------------------------------------
+> 						Total
+> Configuration				Throughput		Notes
+>
+> 3.10-default-ple_on			 1965			70% CPU in host kernel, 34% spin_lock in guests		
+> 3.10-default-ple_off			  226			2% CPU in host kernel, 94% spin_lock in guests
+> 3.10-pvticket-ple_on			 1942			70% CPU in host kernel, 35% spin_lock in guests
+> 3.10-pvticket-ple_off			 8003			11% CPU in host kernel, 70% spin_lock in guests
+> [quite bad all around, but pv-tickets with PLE off the best so far.
+>   Still quite a bit off from ideal throughput]
+
+This is again a remarkable improvement (307%).
+This motivates me to add a patch to disable ple when pvspinlock is on.
+probably we can add a hypercall that disables ple in kvm init patch.
+but only problem I see is what if the guests are mixed.
+
+  (i.e one guest has pvspinlock support but other does not. Host
+supports pv)
+
+/me thinks
+
+>
+> In summary, I would state that the pv-ticket is an overall win, but the
+> current PLE handler tends to "get in the way" on these larger guests.
+>
+> -Andrew
+>
