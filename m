@@ -1,15 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC 4/5] VSOCK: Introduce vhost-vsock.ko
-Date: Thu, 27 Jun 2013 13:42:46 +0300
-Message-ID: <20130627104246.GC20215@redhat.com>
-References: <1372320004-20502-1-git-send-email-asias@redhat.com>
-	<1372320004-20502-5-git-send-email-asias@redhat.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V10 0/18] Paravirtualized ticket spinlocks
+Date: Thu, 27 Jun 2013 17:17:29 +0530
+Message-ID: <51CC2651.507__14783.7559845813$1372333462$gmane$org@linux.vnet.ibm.com>
+References: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
+	<20130624131716.GA11948@hawk.usersys.redhat.com>
+	<51CAA764.7000006@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1372320004-20502-5-git-send-email-asias@redhat.com>
+In-Reply-To: <51CAA764.7000006@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,623 +19,120 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: Andy King <acking@vmware.com>, kvm@vger.kernel.org, Dmitry Torokhov <dtor@vmware.com>, netdev@vger.kernel.org, Reilly Grant <grantr@vmware.com>, virtualization@lists.linux-foundation.org, Pekka Enberg <penberg@kernel.org>, Sasha Levin <sasha.levin@oracle.com>, "David S. Miller" <davem@davemloft.net>
+To: Andrew Jones <drjones@redhat.com>, gleb@redhat.com
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 27, 2013 at 04:00:03PM +0800, Asias He wrote:
-> VM sockets vhost transport implementation. This module runs in host
-> kernel.
-> 
-> Signed-off-by: Asias He <asias@redhat.com>
+On 06/26/2013 02:03 PM, Raghavendra K T wrote:
+> On 06/24/2013 06:47 PM, Andrew Jones wrote:
+>> On Mon, Jun 24, 2013 at 06:10:14PM +0530, Raghavendra K T wrote:
+>>>
+>>> Results:
+>>> =======
+>>> base = 3.10-rc2 kernel
+>>> patched = base + this series
+>>>
+>>> The test was on 32 core (model: Intel(R) Xeon(R) CPU X7560) HT disabled
+>>> with 32 KVM guest vcpu 8GB RAM.
+>>
+>> Have you ever tried to get results with HT enabled?
+>>
+>>>
+>>> +-----------+-----------+-----------+------------+-----------+
+>>>                 ebizzy (records/sec) higher is better
+>>> +-----------+-----------+-----------+------------+-----------+
+>>>      base        stdev        patched    stdev        %improvement
+>>> +-----------+-----------+-----------+------------+-----------+
+>>> 1x  5574.9000   237.4997    5618.0000    94.0366     0.77311
+>>> 2x  2741.5000   561.3090    3332.0000   102.4738    21.53930
+>>> 3x  2146.2500   216.7718    2302.3333    76.3870     7.27237
+>>> 4x  1663.0000   141.9235    1753.7500    83.5220     5.45701
+>>> +-----------+-----------+-----------+------------+-----------+
+>>
+>> This looks good. Are your ebizzy results consistent run to run
+>> though?
+>>
+>>> +-----------+-----------+-----------+------------+-----------+
+>>>                dbench  (Throughput) higher is better
+>>> +-----------+-----------+-----------+------------+-----------+
+>>>      base        stdev        patched    stdev        %improvement
+>>> +-----------+-----------+-----------+------------+-----------+
+>>> 1x 14111.5600   754.4525   14645.9900   114.3087     3.78718
+>>> 2x  2481.6270    71.2665    2667.1280    73.8193     7.47498
+>>> 3x  1510.2483    31.8634    1503.8792    36.0777    -0.42173
+>>> 4x  1029.4875    16.9166    1039.7069    43.8840     0.99267
+>>> +-----------+-----------+-----------+------------+-----------+
+>>
+>> Hmm, I wonder what 2.5x looks like. Also, the 3% improvement with
+>> no overcommit is interesting. What's happening there? It makes
+>> me wonder what < 1x looks like.
+>>
+>
+> Hi Andrew,
+>
+> I tried 2.5x case sort where I used 3 guests with 27 vcpu each on 32
+> core (HT disabled machine) and here is the output. almost no gain there.
+>
+>               throughput avg    stdev
+> base:     1768.7458 MB/sec     54.044221
+> patched:  1772.5617 MB/sec     41.227689
+> gain %0.226
+>
+> I am yet to try HT enabled cases that would give 0.5x to 2x performance
+> results.
+>
 
-Has any thought been given to how this affects migration?
-I don't see any API for an application to
-move to a different host and reconnect to a running
-vsock in guest.
+I have the result of HT enabled case now.
+config: total 64 cpu (HT on) 32 vcpu guests.
+I am seeing some inconsistency in ebizzy results in this case (May be 
+Drew had tried with HT on and had observed the same in ebizzy runs).
 
-I think we could merge without this, there are more
-pressing issues, but it's probably a requirement
-if you want this to replace e.g. serial in many
-scenarious.
+patched-nonple and  base  performance in case of 1.5x and 2x also have 
+been little inconsistent for dbench too. Overall I see pvspinlock + ple 
+on case more stable.
+and overall pvspinlock performance seem to be very impressive in HT 
+enabled case.
 
-> ---
->  drivers/vhost/vsock.c | 534 ++++++++++++++++++++++++++++++++++++++++++++++++++
->  drivers/vhost/vsock.h |   4 +
->  2 files changed, 538 insertions(+)
->  create mode 100644 drivers/vhost/vsock.c
->  create mode 100644 drivers/vhost/vsock.h
-> 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> new file mode 100644
-> index 0000000..cb54090
-> --- /dev/null
-> +++ b/drivers/vhost/vsock.c
-> @@ -0,0 +1,534 @@
-> +/*
-> + * vhost transport for vsock
-> + *
-> + * Copyright (C) 2013 Red Hat, Inc.
-> + * Author: Asias He <asias@redhat.com>
-> + *
-> + * This work is licensed under the terms of the GNU GPL, version 2.
-> + */
-> +#include <linux/miscdevice.h>
-> +#include <linux/module.h>
-> +#include <linux/mutex.h>
-> +#include <net/sock.h>
-> +#include <linux/virtio_vsock.h>
-> +#include <linux/vhost.h>
-> +
-> +#include "../../../net/vmw_vsock/af_vsock.h"
+patched = pvspinv10_hton
++-----------+-----------+-----------+------------+-----------+
+                               ebizzy
++----+----------+-----------+-----------+------------+-----------+
+         base        stdev       patched   stdev        %improvement
++----+---------+-----------+-----------+------------+-----------+
+  0.5x  6925.3000    74.4342	  7317.0000    86.3018	   5.65607
+  1.0x  2379.8000   405.3519	  3427.0000   574.8789	  44.00370
+  1.5x  1850.8333    97.8114	  2733.4167   459.8016	  47.68573
+  2.0x  1477.6250   105.2411	  2525.2500    97.5921	  70.89925
++-----------+-----------+-----------+------------+-----------+
++-----------+-----------+-----------+------------+-----------+
+                               dbench
++----+----------+-----------+-----------+------------+-----------+
+         base        stdev       patched   stdev        %improvement
++----+---------+-----------+-----------+------------+-----------+
+  0.5x 9045.9950   463.1447	 16482.7200    57.6017	  82.21014
+  1.0x 6251.1680   543.8219	 11212.7600   380.7542	  79.37064
+  1.5x 3095.7475   231.1567	  4308.8583   266.5873	  39.18636
+  2.0x 1219.1200    75.4294	  1979.6750   134.6934	  62.38557
++-----------+-----------+-----------+------------+-----------+
 
-Send patch to move this to include/linux ?
-
-> +#include "vhost.h"
-> +#include "vsock.h"
-> +
-> +#define VHOST_VSOCK_DEFAULT_HOST_CID	2;
-
-Sure you want that ; there? This can result in strange code, e.g.
-
-	int a = VHOST_VSOCK_DEFAULT_HOST_CID + 1;
-	set's a to 2.
-
-> +
-> +static int vhost_transport_socket_init(struct vsock_sock *vsk,
-> +				       struct vsock_sock *psk);
-> +
-> +enum {
-> +	VHOST_VSOCK_FEATURES = VHOST_FEATURES,
-> +};
-> +
-> +/* Used to track all the vhost_vsock instacne on the system. */
-
-typo
-
-> +static LIST_HEAD(vhost_vsock_list);
-> +static DEFINE_MUTEX(vhost_vsock_mutex);
-> +
-> +struct vhost_vsock_virtqueue {
-> +	struct vhost_virtqueue vq;
-> +};
-> +
-> +struct vhost_vsock {
-> +	/* Vhost device */
-> +	struct vhost_dev dev;
-> +	/* Vhost vsock virtqueue*/
-> +	struct vhost_vsock_virtqueue vqs[VSOCK_VQ_MAX];
-> +	/* Link to global vhost_vsock_list*/
-> +	struct list_head list;
-> +	/* Head for pkt from host to guest */
-> +	struct list_head send_pkt_list;
-> +	/* Work item to send pkt */
-> +	struct vhost_work send_pkt_work;
-> +	/* Guest contex id this vhost_vsock instance handles */
-> +	u32 guest_cid;
-> +};
-> +
-> +static u32 vhost_transport_get_local_cid(void)
-> +{
-> +	u32 cid = VHOST_VSOCK_DEFAULT_HOST_CID;
-> +	return cid;
-> +}
-> +
-
-Interesting. So all hosts in fact have the same CID?
-
-> +static struct vhost_vsock *vhost_vsock_get(u32 guest_cid)
-> +{
-> +	struct vhost_vsock *vsock;
-> +
-> +	mutex_lock(&vhost_vsock_mutex);
-> +	list_for_each_entry(vsock, &vhost_vsock_list, list) {
-> +		if (vsock->guest_cid == guest_cid) {
-> +			mutex_unlock(&vhost_vsock_mutex);
-> +			return vsock;
-> +		}
-> +	}
-> +	mutex_unlock(&vhost_vsock_mutex);
-> +
-> +	return NULL;
-> +}
-> +
-> +static void
-> +vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
-> +			    struct vhost_virtqueue *vq)
-> +{
-> +	struct virtio_vsock_pkt *pkt;
-> +	unsigned out, in;
-> +	struct sock *sk;
-> +	int head, ret;
-> +
-> +	mutex_lock(&vq->mutex);
-> +	vhost_disable_notify(&vsock->dev, vq);
-> +	for (;;) {
-> +		if (list_empty(&vsock->send_pkt_list)) {
-> +			vhost_enable_notify(&vsock->dev, vq);
-> +			break;
-> +		}
-> +
-> +		head = vhost_get_vq_desc(&vsock->dev, vq, vq->iov,
-> +					ARRAY_SIZE(vq->iov), &out, &in,
-> +					NULL, NULL);
-> +		pr_debug("%s: head = %d\n", __func__, head);
-> +		if (head < 0)
-> +			break;
-> +
-> +		if (head == vq->num) {
-> +			if (unlikely(vhost_enable_notify(&vsock->dev, vq))) {
-> +				vhost_disable_notify(&vsock->dev, vq);
-> +				continue;
-> +			}
-> +			break;
-> +		}
-> +
-> +		pkt = list_first_entry(&vsock->send_pkt_list,
-> +				       struct virtio_vsock_pkt, list);
-> +		list_del_init(&pkt->list);
-> +
-> +		/* FIXME: no assumption of frame layout */
-
-Pls fix. memcpy_from_iovec is not harder.
-
-> +		ret = __copy_to_user(vq->iov[0].iov_base, &pkt->hdr,
-> +				     sizeof(pkt->hdr));
-> +		if (ret) {
-> +			virtio_transport_free_pkt(pkt);
-> +			vq_err(vq, "Faulted on copying pkt hdr\n");
-> +			break;
-> +		}
-> +		if (pkt->buf && pkt->len > 0) {
-> +			ret = __copy_to_user(vq->iov[1].iov_base, pkt->buf,
-> +					    pkt->len);
-> +			if (ret) {
-> +				virtio_transport_free_pkt(pkt);
-> +				vq_err(vq, "Faulted on copying pkt buf\n");
-> +				break;
-> +			}
-> +		}
-> +
-> +		vhost_add_used(vq, head, pkt->len);
-> +
-> +		virtio_transport_dec_tx_pkt(pkt);
-> +
-> +		sk = sk_vsock(pkt->trans->vsk);
-> +		/* Release refcnt taken in vhost_transport_send_pkt */
-> +		sock_put(sk);
-> +
-> +		virtio_transport_free_pkt(pkt);
-> +	}
-> +	vhost_signal(&vsock->dev, vq);
-
-I think you should not signal if used was not updated.
-
-> +	mutex_unlock(&vq->mutex);
-> +}
-> +
-> +static void vhost_transport_send_pkt_work(struct vhost_work *work)
-> +{
-> +	struct vhost_virtqueue *vq;
-> +	struct vhost_vsock *vsock;
-> +
-> +	vsock = container_of(work, struct vhost_vsock, send_pkt_work);
-> +	vq = &vsock->vqs[VSOCK_VQ_RX].vq;
-> +
-> +	vhost_transport_do_send_pkt(vsock, vq);
-> +}
-> +
-> +static int
-> +vhost_transport_send_pkt(struct vsock_sock *vsk,
-> +			 struct virtio_vsock_pkt_info *info)
-> +{
-> +	u32 src_cid, src_port, dst_cid, dst_port;
-> +	struct virtio_transport *trans;
-> +	struct virtio_vsock_pkt *pkt;
-> +	struct vhost_virtqueue *vq;
-> +	struct vhost_vsock *vsock;
-> +	u64 credit;
-> +
-> +	src_cid = vhost_transport_get_local_cid();
-
-interestingly this is the only place cid
-is used. Shouldn't we validate it?
-
-> +	src_port = vsk->local_addr.svm_port;
-> +	dst_cid = vsk->remote_addr.svm_cid;
-> +	dst_port = vsk->remote_addr.svm_port;
-> +
-> +	/* Find the vhost_vsock according to guest context id  */
-> +	vsock = vhost_vsock_get(dst_cid);
-
-Confused. There's a single socket per dst cid?
-
-> +	if (!vsock)
-> +		return -ENODEV;
-> +
-> +	trans = vsk->trans;
-> +	vq = &vsock->vqs[VSOCK_VQ_RX].vq;
-> +
-> +	if (info->type == SOCK_STREAM) {
-> +		credit = virtio_transport_get_credit(trans);
-> +		if (info->len > credit)
-> +			info->len = credit;
-
-Is there support for non stream sockets?
-Without credits, you get all kind of nasty
-starvation issues.
-
-> +	}
-> +	if (info->len > VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE)
-> +		info->len = VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE;
-> +	/* Do not send zero length OP_RW pkt*/
-> +	if (info->len == 0 && info->op == VIRTIO_VSOCK_OP_RW)
-> +		return info->len;
-> +
-> +	pkt = virtio_transport_alloc_pkt(vsk, info, info->len,
-> +					 src_cid, src_port,
-> +					 dst_cid, dst_port);
-
-We also need global limit on amount of memory per
-socket. Even if remote is OK with getting 20G from us,
-we might not have so much kernel memory.
-
-> +	if (!pkt)
-> +		return -ENOMEM;
-> +
-> +	pr_debug("%s:info->len= %d\n", __func__, info->len);
-> +	/* Released in vhost_transport_do_send_pkt */
-> +	sock_hold(&trans->vsk->sk);
-> +	virtio_transport_inc_tx_pkt(pkt);
-> +
-> +	/* queue it up in vhost work */
-> +	mutex_lock(&vq->mutex);
-> +	list_add_tail(&pkt->list, &vsock->send_pkt_list);
-> +	vhost_work_queue(&vsock->dev, &vsock->send_pkt_work);
-> +	mutex_unlock(&vq->mutex);
-> +
-> +	return info->len;
-> +}
-> +
-> +static struct virtio_transport_pkt_ops vhost_ops = {
-> +	.send_pkt = vhost_transport_send_pkt,
-> +};
-> +
-> +static struct virtio_vsock_pkt *
-> +vhost_vsock_alloc_pkt(struct vhost_virtqueue *vq)
-> +{
-> +	struct virtio_vsock_pkt *pkt;
-> +	int ret;
-> +	int len;
-> +
-> +	pkt = kzalloc(sizeof(*pkt), GFP_KERNEL);
-> +	if (!pkt)
-> +		return NULL;
-> +
-> +	len = sizeof(pkt->hdr);
-> +	if (unlikely(vq->iov[0].iov_len != len)) {
-> +		vq_err(vq, "Expecting pkt->hdr = %d, got %zu bytes\n",
-> +		       len, vq->iov[0].iov_len);
-> +		kfree(pkt);
-> +		return NULL;
-> +	}
-> +	ret = __copy_from_user(&pkt->hdr, vq->iov[0].iov_base, len);
-> +	if (ret) {
-> +		vq_err(vq, "Faulted on virtio_vsock_hdr\n");
-> +		kfree(pkt);
-> +		return NULL;
-> +	}
-> +
-> +	pkt->len = pkt->hdr.len;
-> +	pkt->off = 0;
-> +
-> +	/* No payload */
-> +	if (!pkt->len)
-> +		return pkt;
-> +
-> +	/* The pkt is too big */
-> +	if (pkt->len > VIRTIO_VSOCK_MAX_PKT_BUF_SIZE) {
-> +		kfree(pkt);
-> +		return NULL;
-> +	}
-> +
-> +	pkt->buf = kmalloc(pkt->len, GFP_KERNEL);
-> +	if (!pkt->buf) {
-> +		kfree(pkt);
-> +		return NULL;
-> +	}
-> +
-> +	ret = __copy_from_user(pkt->buf, vq->iov[1].iov_base, pkt->len);
-> +	if (ret) {
-> +		vq_err(vq, "Faulted on virtio_vsock_hdr\n");
-> +		virtio_transport_free_pkt(pkt);
-> +	}
-> +
-> +	return pkt;
-> +}
-> +
-> +static void vhost_vsock_handle_ctl_kick(struct vhost_work *work)
-> +{
-> +	struct vhost_virtqueue *vq = container_of(work, struct vhost_virtqueue,
-> +						  poll.work);
-> +	struct vhost_vsock *vsock = container_of(vq->dev, struct vhost_vsock,
-> +						 dev);
-> +
-> +	pr_debug("%s vq=%p, vsock=%p\n", __func__, vq, vsock);
-> +}
-> +
-> +static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
-> +{
-> +	struct vhost_virtqueue *vq = container_of(work, struct vhost_virtqueue,
-> +						  poll.work);
-> +	struct vhost_vsock *vsock = container_of(vq->dev, struct vhost_vsock,
-> +						 dev);
-> +	struct virtio_vsock_pkt *pkt;
-> +	int head, out, in;
-> +	u32 len;
-> +
-> +	mutex_lock(&vq->mutex);
-> +	vhost_disable_notify(&vsock->dev, vq);
-> +	for (;;) {
-> +		head = vhost_get_vq_desc(&vsock->dev, vq, vq->iov,
-> +					ARRAY_SIZE(vq->iov), &out, &in,
-> +					NULL, NULL);
-> +		if (head < 0)
-> +			break;
-> +
-> +		if (head == vq->num) {
-> +			if (unlikely(vhost_enable_notify(&vsock->dev, vq))) {
-> +				vhost_disable_notify(&vsock->dev, vq);
-> +				continue;
-> +			}
-> +			break;
-> +		}
-> +
-> +		pkt = vhost_vsock_alloc_pkt(vq);
-> +		if (!pkt) {
-> +			vq_err(vq, "Faulted on pkt\n");
-> +			continue;
-> +		}
-> +
-> +		len = pkt->len;
-> +		virtio_transport_recv_pkt(pkt);
-> +		vhost_add_used(vq, head, len);
-> +	}
-> +	vhost_signal(&vsock->dev, vq);
-> +	mutex_unlock(&vq->mutex);
-> +}
-> +
-> +static void vhost_vsock_handle_rx_kick(struct vhost_work *work)
-> +{
-> +	struct vhost_virtqueue *vq = container_of(work, struct vhost_virtqueue,
-> +						poll.work);
-> +	struct vhost_vsock *vsock = container_of(vq->dev, struct vhost_vsock,
-> +						 dev);
-> +
-> +	vhost_transport_do_send_pkt(vsock, vq);
-> +}
-> +
-> +static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
-> +{
-> +	struct vhost_virtqueue **vqs;
-> +	struct vhost_vsock *vsock;
-> +	int ret;
-> +
-> +	vsock = kzalloc(sizeof(*vsock), GFP_KERNEL);
-> +	if (!vsock)
-> +		return -ENOMEM;
-> +
-> +	pr_debug("%s:vsock=%p\n", __func__, vsock);
-> +
-> +	vqs = kmalloc(VSOCK_VQ_MAX * sizeof(*vqs), GFP_KERNEL);
-> +	if (!vqs) {
-> +		ret = -ENOMEM;
-> +		goto out;
-> +	}
-> +
-> +	vqs[VSOCK_VQ_CTRL] = &vsock->vqs[VSOCK_VQ_CTRL].vq;
-> +	vqs[VSOCK_VQ_TX] = &vsock->vqs[VSOCK_VQ_TX].vq;
-> +	vqs[VSOCK_VQ_RX] = &vsock->vqs[VSOCK_VQ_RX].vq;
-> +	vsock->vqs[VSOCK_VQ_CTRL].vq.handle_kick = vhost_vsock_handle_ctl_kick;
-> +	vsock->vqs[VSOCK_VQ_TX].vq.handle_kick = vhost_vsock_handle_tx_kick;
-> +	vsock->vqs[VSOCK_VQ_RX].vq.handle_kick = vhost_vsock_handle_rx_kick;
-> +
-> +	ret = vhost_dev_init(&vsock->dev, vqs, VSOCK_VQ_MAX);
-> +	if (ret < 0)
-> +		goto out_vqs;
-> +
-> +	file->private_data = vsock;
-> +	INIT_LIST_HEAD(&vsock->send_pkt_list);
-> +	vhost_work_init(&vsock->send_pkt_work, vhost_transport_send_pkt_work);
-> +
-> +	mutex_lock(&vhost_vsock_mutex);
-> +	list_add_tail(&vsock->list, &vhost_vsock_list);
-> +	mutex_unlock(&vhost_vsock_mutex);
-> +	return ret;
-> +
-> +out_vqs:
-> +	kfree(vqs);
-> +out:
-> +	kfree(vsock);
-> +	return ret;
-> +}
-> +
-> +static void vhost_vsock_flush(struct vhost_vsock *vsock)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < VSOCK_VQ_MAX; i++)
-> +		vhost_poll_flush(&vsock->vqs[i].vq.poll);
-> +	vhost_work_flush(&vsock->dev, &vsock->send_pkt_work);
-> +}
-> +
-> +static int vhost_vsock_dev_release(struct inode *inode, struct file *file)
-> +{
-> +	struct vhost_vsock *vsock = file->private_data;
-> +
-> +	mutex_lock(&vhost_vsock_mutex);
-> +	list_del(&vsock->list);
-> +	mutex_unlock(&vhost_vsock_mutex);
-> +
-> +	vhost_dev_stop(&vsock->dev);
-> +	vhost_vsock_flush(vsock);
-> +	vhost_dev_cleanup(&vsock->dev, false);
-> +	kfree(vsock->dev.vqs);
-> +	kfree(vsock);
-> +	return 0;
-> +}
-> +
-> +static int vhost_vsock_set_cid(struct vhost_vsock *vsock, u32 guest_cid)
-> +{
-> +	mutex_lock(&vhost_vsock_mutex);
-> +	vsock->guest_cid = guest_cid;
-> +	pr_debug("%s:guest_cid=%d\n", __func__, guest_cid);
-> +	mutex_unlock(&vhost_vsock_mutex);
-> +
-> +	return 0;
-> +}
-> +
-> +static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
-> +				  unsigned long arg)
-> +{
-> +	struct vhost_vsock *vsock = f->private_data;
-> +	void __user *argp = (void __user *)arg;
-> +	u64 __user *featurep = argp;
-> +	u32 __user *cidp = argp;
-> +	u32 guest_cid;
-> +	u64 features;
-> +	int r;
-> +
-> +	switch (ioctl) {
-> +	case VHOST_VSOCK_SET_GUEST_CID:
-> +		if (get_user(guest_cid, cidp))
-> +			return -EFAULT;
-> +		return vhost_vsock_set_cid(vsock, guest_cid);
-> +	case VHOST_GET_FEATURES:
-> +		features = VHOST_VSOCK_FEATURES;
-> +		if (copy_to_user(featurep, &features, sizeof(features)))
-> +			return -EFAULT;
-> +		return 0;
-> +	case VHOST_SET_FEATURES:
-> +		if (copy_from_user(&features, featurep, sizeof(features)))
-> +			return -EFAULT;
-> +		return 0;
-> +	default:
-> +		mutex_lock(&vsock->dev.mutex);
-> +		r = vhost_dev_ioctl(&vsock->dev, ioctl, argp);
-> +		if (r == -ENOIOCTLCMD)
-> +			r = vhost_vring_ioctl(&vsock->dev, ioctl, argp);
-> +		else
-> +			vhost_vsock_flush(vsock);
-> +		mutex_unlock(&vsock->dev.mutex);
-> +		return r;
-> +	}
-> +}
-> +
-> +static const struct file_operations vhost_vsock_fops = {
-> +	.owner          = THIS_MODULE,
-> +	.open           = vhost_vsock_dev_open,
-> +	.release        = vhost_vsock_dev_release,
-> +	.llseek		= noop_llseek,
-> +	.unlocked_ioctl = vhost_vsock_dev_ioctl,
-> +};
-> +
-> +static struct miscdevice vhost_vsock_misc = {
-> +	.minor = MISC_DYNAMIC_MINOR,
-> +	.name = "vhost-vsock",
-> +	.fops = &vhost_vsock_fops,
-> +};
-> +
-> +static int
-> +vhost_transport_socket_init(struct vsock_sock *vsk, struct vsock_sock *psk)
-> +{
-> +	struct virtio_transport *trans;
-> +	int ret;
-> +
-> +	ret = virtio_transport_do_socket_init(vsk, psk);
-> +	if (ret)
-> +		return ret;
-> +
-> +	trans = vsk->trans;
-> +	trans->ops = &vhost_ops;
-> +
-> +	return ret;
-> +}
-> +
-> +static struct vsock_transport vhost_transport = {
-> +	.get_local_cid            = vhost_transport_get_local_cid,
-> +
-> +	.init                     = vhost_transport_socket_init,
-> +	.destruct                 = virtio_transport_destruct,
-> +	.release                  = virtio_transport_release,
-> +	.connect                  = virtio_transport_connect,
-> +	.shutdown                 = virtio_transport_shutdown,
-> +
-> +	.dgram_enqueue            = virtio_transport_dgram_enqueue,
-> +	.dgram_dequeue            = virtio_transport_dgram_dequeue,
-> +	.dgram_bind               = virtio_transport_dgram_bind,
-> +	.dgram_allow              = virtio_transport_dgram_allow,
-> +
-> +	.stream_enqueue           = virtio_transport_stream_enqueue,
-> +	.stream_dequeue           = virtio_transport_stream_dequeue,
-> +	.stream_has_data          = virtio_transport_stream_has_data,
-> +	.stream_has_space         = virtio_transport_stream_has_space,
-> +	.stream_rcvhiwat          = virtio_transport_stream_rcvhiwat,
-> +	.stream_is_active         = virtio_transport_stream_is_active,
-> +	.stream_allow             = virtio_transport_stream_allow,
-> +
-> +	.notify_poll_in           = virtio_transport_notify_poll_in,
-> +	.notify_poll_out          = virtio_transport_notify_poll_out,
-> +	.notify_recv_init         = virtio_transport_notify_recv_init,
-> +	.notify_recv_pre_block    = virtio_transport_notify_recv_pre_block,
-> +	.notify_recv_pre_dequeue  = virtio_transport_notify_recv_pre_dequeue,
-> +	.notify_recv_post_dequeue = virtio_transport_notify_recv_post_dequeue,
-> +	.notify_send_init         = virtio_transport_notify_send_init,
-> +	.notify_send_pre_block    = virtio_transport_notify_send_pre_block,
-> +	.notify_send_pre_enqueue  = virtio_transport_notify_send_pre_enqueue,
-> +	.notify_send_post_enqueue = virtio_transport_notify_send_post_enqueue,
-> +
-> +	.set_buffer_size          = virtio_transport_set_buffer_size,
-> +	.set_min_buffer_size      = virtio_transport_set_min_buffer_size,
-> +	.set_max_buffer_size      = virtio_transport_set_max_buffer_size,
-> +	.get_buffer_size          = virtio_transport_get_buffer_size,
-> +	.get_min_buffer_size      = virtio_transport_get_min_buffer_size,
-> +	.get_max_buffer_size      = virtio_transport_get_max_buffer_size,
-> +};
-> +
-> +static int __init vhost_vsock_init(void)
-> +{
-> +	int ret;
-> +
-> +	ret = vsock_core_init(&vhost_transport);
-> +	if (ret < 0)
-> +		return ret;
-> +	return misc_register(&vhost_vsock_misc);
-> +};
-> +
-> +static void __exit vhost_vsock_exit(void)
-> +{
-> +	misc_deregister(&vhost_vsock_misc);
-> +	vsock_core_exit();
-> +};
-> +
-> +module_init(vhost_vsock_init);
-> +module_exit(vhost_vsock_exit);
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_AUTHOR("Asias He");
-> +MODULE_DESCRIPTION("vhost transport for vsock ");
-> diff --git a/drivers/vhost/vsock.h b/drivers/vhost/vsock.h
-> new file mode 100644
-> index 0000000..0ddb107
-> --- /dev/null
-> +++ b/drivers/vhost/vsock.h
-> @@ -0,0 +1,4 @@
-> +#ifndef VHOST_VSOCK_H
-> +#define VHOST_VSOCK_H
-> +#define VHOST_VSOCK_SET_GUEST_CID _IOW(VHOST_VIRTIO, 0x60, __u32)
-
-No SET without GET please.
-
-> +#endif
-> -- 
-> 1.8.1.4
+patched = pvspinv10_hton_nople
++-----------+-----------+-----------+------------+-----------+
+                               ebizzy
++----+----------+-----------+-----------+------------+-----------+
+         base        stdev       patched   stdev        %improvement
++----+---------+-----------+-----------+------------+-----------+
+  0.5x 6925.3000    74.4342	  7473.8000   224.6344	   7.92023
+  1.0x 2379.8000   405.3519	  6176.2000   417.1133	 159.52601
+  1.5x 1850.8333    97.8114	  2214.1667   515.6875	  19.63080
+  2.0x 1477.6250   105.2411	   758.0000   108.8131	 -48.70146
++-----------+-----------+-----------+------------+-----------+
++-----------+-----------+-----------+------------+-----------+
+                               dbench
++----+----------+-----------+-----------+------------+-----------+
+         base        stdev       patched   stdev        %improvement
++----+---------+-----------+-----------+------------+-----------+
+  0.5x 9045.9950   463.1447	 15195.5000   711.8794	  67.98042
+  1.0x 6251.1680   543.8219	 11327.8800   404.7115	  81.21222
+  1.5x 3095.7475   231.1567	  4960.2722  3822.6534	  60.22858
+  2.0x 1219.1200    75.4294	  1982.2828  1016.4083	  62.59948
++----+-----------+-----------+-----------+------------+-----------+
