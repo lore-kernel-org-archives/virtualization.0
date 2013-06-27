@@ -1,13 +1,14 @@
-From: Sasha Levin <sasha.levin@oracle.com>
-Subject: Re: [RFC 0/5] Introduce VM Sockets virtio transport
-Date: Thu, 27 Jun 2013 15:03:01 -0400
-Message-ID: <51CC8C65.10409@oracle.com>
-References: <1372320004-20502-1-git-send-email-asias@redhat.com>
+From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
+Subject: [PATCH v3 30/45] x86/xen: Use get/put_online_cpus_atomic() to prevent
+	CPU offline
+Date: Fri, 28 Jun 2013 01:27:33 +0530
+Message-ID: <20130627195733.29830.8002.stgit@srivatsabhat.in.ibm.com>
+References: <20130627195136.29830.10445.stgit@srivatsabhat.in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1372320004-20502-1-git-send-email-asias@redhat.com>
+In-Reply-To: <20130627195136.29830.10445.stgit@srivatsabhat.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,173 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: Andy King <acking@vmware.com>, kvm@vger.kernel.org, Dmitry Torokhov <dtor@vmware.com>, netdev@vger.kernel.org, Reilly Grant <grantr@vmware.com>, virtualization@lists.linux-foundation.org, Pekka Enberg <penberg@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: peterz@infradead.org, tj@kernel.org, oleg@redhat.com, paulmck@linux.vnet.ibm.com, rusty@rustcorp.com.au, mingo@kernel.org, akpm@linux-foundation.org, namhyung@kernel.org, walken@google.com, vincent.guittot@linaro.org, laijs@cn.fujitsu.com, David.Laight@aculab.com
+Cc: linux-arch@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, nikunj@linux.vnet.ibm.com, zhong@linux.vnet.ibm.com, linux-pm@vger.kernel.org, fweisbec@gmail.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, rostedt@goodmis.org, xiaoguangrong@linux.vnet.ibm.com, sbw@mit.edu, Ingo Molnar <mingo@redhat.com>, wangyun@linux.vnet.ibm.com, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, xen-devel@lists.xensource.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Asias,
+Once stop_machine() is gone from the CPU offline path, we won't be able
+to depend on disabling preemption to prevent CPUs from going offline
+from under us.
 
-Looks nice! Some comments inline below (I've removed anything that mst already
-commented on).
+Use the get/put_online_cpus_atomic() APIs to prevent CPUs from going
+offline, while invoking from atomic context.
 
-On 06/27/2013 03:59 AM, Asias He wrote:
-> Hello guys,
->
-> In commit d021c344051af91 (VSOCK: Introduce VM Sockets), VMware added VM
-> Sockets support. VM Sockets allows communication between virtual
-> machines and the hypervisor. VM Sockets is able to use different
-> hyervisor neutral transport to transfer data. Currently, only VMware
-> VMCI transport is supported.
->
-> This series introduces virtio transport for VM Sockets.
->
-> Any comments are appreciated! Thanks!
->
-> Code:
-> =========================
-> 1) kernel bits
->     git://github.com/asias/linux.git vsock
->
-> 2) userspace bits:
->     git://github.com/asias/linux-kvm.git vsock
->
-> Howto:
-> =========================
-> Make sure you have these kernel options:
->
->    CONFIG_VSOCKETS=y
->    CONFIG_VIRTIO_VSOCKETS=y
->    CONFIG_VIRTIO_VSOCKETS_COMMON=y
->    CONFIG_VHOST_VSOCK=m
->
-> $ git clone git://github.com/asias/linux-kvm.git
-> $ cd linux-kvm/tools/kvm
-> $ co -b vsock origin/vsock
-> $ make
-> $ modprobe vhost_vsock
-> $ ./lkvm run -d os.img -k bzImage --vsock guest_cid
->
-> Test:
-> =========================
-> I hacked busybox's http server and wget to run over vsock. Start http
-> server in host and guest, download a 512MB file in guest and host
-> simultaneously for 6000 times. Manged to run the http stress test.
->
-> Also, I wrote a small libvsock.so to play the LD_PRELOAD trick and
-> managed to make sshd and ssh work over virito-vsock without modifying
-> the source code.
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: xen-devel@lists.xensource.com
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
+---
 
-Why did it require hacking in the first place? Does running with kvmtool
-and just doing regular networking over virtio-net running on top of vsock
-achieves the same goal?
+ arch/x86/xen/mmu.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-> Draft VM Sockets Virtio Device spec:
-> =========================
-> Appendix K: VM Sockets Device
->
-> The virtio VM sockets device is a virtio transport device for VM Sockets. VM
-> Sockets allows communication between virtual machines and the hypervisor.
->
-> Configuration:
->
-> Subsystem Device ID 13
->
-> Virtqueues:
->      0:controlq; 1:receiveq0; 2:transmitq0 ... 2N+1:receivqN; 2N+2:transmitqN
-
-controlq is "defined but not used", is there something in mind for it? if not,
-does it make sense keeping it here? we can always re-add it to the end just
-like in virtio-net.
-
-> Feature bits:
->      Currently, no feature bits are defined.
->
-> Device configuration layout:
->
-> Two configuration fields are currently defined.
->
->     struct virtio_vsock_config {
->             __u32 guest_cid;
->             __u32 max_virtqueue_pairs;
->     } __packed;
->
-> The guest_cid field specifies the guest context id which likes the guest IP
-> address. The max_virtqueue_pairs field specifies the maximum number of receive
-> and transmit virtqueue pairs (receiveq0 ...  receiveqN and transmitq0 ...
-> transmitqN respectively; N = max_virtqueue_pairs - 1 ) that can be configured.
-> The driver is free to use only one virtqueue pairs, or it can use more to
-> achieve better performance.
-
-How does the driver tell the device how many vqs it's planning on actually using?
-or is it assumed that all of them are in use?
-
->
-> Device Initialization:
-> The initialization routine should discover the device's virtqueues.
->
-> Device Operation:
-> Packets are transmitted by placing them in the transmitq0..transmitqN, and
-> buffers for incoming packets are placed in the receiveq0..receiveqN. In each
-> case, the packet itself is preceded by a header:
->
->     struct virtio_vsock_hdr {
->             __u32   src_cid;
->             __u32   src_port;
->             __u32   dst_cid;
->             __u32   dst_port;
->             __u32   len;
->             __u8    type;
->             __u8    op;
->             __u8    shut;
->             __u64   fwd_cnt;
->             __u64   buf_alloc;
->     } __packed;
->
-> src_cid and dst_cid: specify the source and destination context id.
-> src_port and dst_port: specify the source and destination port.
-> len: specifies the size of the data payload, it could be zero if no data
-> payload is transferred.
-> type: specifies the type of the packet, it can be SOCK_STREAM or SOCK_DGRAM.
-> op: specifies the operation of the packet, it is defined as follows.
->
->     enum {
->             VIRTIO_VSOCK_OP_INVALID = 0,
->             VIRTIO_VSOCK_OP_REQUEST = 1,
->             VIRTIO_VSOCK_OP_NEGOTIATE = 2,
->             VIRTIO_VSOCK_OP_OFFER = 3,
->             VIRTIO_VSOCK_OP_ATTACH = 4,
->             VIRTIO_VSOCK_OP_RW = 5,
->             VIRTIO_VSOCK_OP_CREDIT = 6,
->             VIRTIO_VSOCK_OP_RST = 7,
->             VIRTIO_VSOCK_OP_SHUTDOWN = 8,
->     };
->
-> shut: specifies the shutdown mode when the socket is being shutdown. 1 is for
-> receive shutdown, 2 is for transmit shutdown, 3 is for both receive and transmit
-> shutdown.
-> fwd_cnt: specifies the the number of bytes the receiver has forwarded to userspace.
-
-For the previous packet? For the entire session? Reading ahead makes it clear but
-it's worth mentioning here the context just to make it easy for implementers.
-
-> buf_alloc: specifies the size of the receiver's recieve buffer in bytes.
-						  receive
-
-> Virtio VM socket connection creation:
-> 1) Client sends VIRTIO_VSOCK_OP_REQUEST to server
-> 2) Server reponses with VIRTIO_VSOCK_OP_NEGOTIATE to client
-> 3) Client sends VIRTIO_VSOCK_OP_OFFER to server
-> 4) Server responses with VIRTIO_VSOCK_OP_ATTACH to client
->
-> Virtio VM socket credit update:
-> Virtio VM socket uses credit-based flow control. The sender maintains tx_cnt
-> which counts the totoal number of bytes it has sent out, peer_fwd_cnt which
-		   total
-> counts the totoal number of byes the receiver has forwarded, and peer_buf_alloc
-	     total
-> which is the size of the receiver's receive buffer. The sender can send no more
-> than the credit the receiver gives to the sender: credit = peer_buf_alloc -
-
-
-Thanks,
-Sasha
+diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
+index fdc3ba2..3229c4f 100644
+--- a/arch/x86/xen/mmu.c
++++ b/arch/x86/xen/mmu.c
+@@ -39,6 +39,7 @@
+  * Jeremy Fitzhardinge <jeremy@xensource.com>, XenSource Inc, 2007
+  */
+ #include <linux/sched.h>
++#include <linux/cpu.h>
+ #include <linux/highmem.h>
+ #include <linux/debugfs.h>
+ #include <linux/bug.h>
+@@ -1163,9 +1164,13 @@ static void xen_drop_mm_ref(struct mm_struct *mm)
+  */
+ static void xen_exit_mmap(struct mm_struct *mm)
+ {
+-	get_cpu();		/* make sure we don't move around */
++	/*
++	 * Make sure we don't move around, and also prevent CPUs from
++	 * going offline.
++	 */
++	get_online_cpus_atomic();
+ 	xen_drop_mm_ref(mm);
+-	put_cpu();
++	put_online_cpus_atomic();
+ 
+ 	spin_lock(&mm->page_table_lock);
