@@ -1,15 +1,11 @@
-From: Andy King <acking@vmware.com>
-Subject: Re: [RFC 4/5] VSOCK: Introduce vhost-vsock.ko
-Date: Thu, 27 Jun 2013 19:38:43 -0700 (PDT)
-Message-ID: <1767234411.9934439.1372387123615.JavaMail.root__38420.9973308772$1372387140$gmane$org@vmware.com>
-References: <1372320004-20502-1-git-send-email-asias@redhat.com>
-	<1372320004-20502-5-git-send-email-asias@redhat.com>
-	<20130627104246.GC20215@redhat.com>
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH next] xen: Use more current logging styles
+Date: Thu, 27 Jun 2013 21:57:49 -0700
+Message-ID: <1372395469.2060.36.camel@joe-AO722>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130627104246.GC20215@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,25 +15,145 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, Dmitry Torokhov <dtor@vmware.com>, netdev@vger.kernel.org, Reilly Grant <grantr@vmware.com>, virtualization@lists.linux-foundation.org, Pekka Enberg <penberg@kernel.org>, Sasha Levin <sasha.levin@oracle.com>, "David S. Miller" <davem@davemloft.net>
+To: Ian Campbell <ian.campbell@citrix.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: netdev@vger.kernel.org, xen-devel@lists.xensource.com, linux-kernel@vger.kernel.org, "virtualization@lists.osdl.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
+Instead of mixing printk and pr_<level> forms,
+just use pr_<level>
 
-> > +	u32 cid = VHOST_VSOCK_DEFAULT_HOST_CID;
-> > +	return cid;
-> > +}
-> > +
-> 
-> Interesting. So all hosts in fact have the same CID?
+Miscellaneous changes around these conversions:
 
-"Host" here means the thing _below_ the VM.  Any process running on
-the host OS can be addressed with cid 2.  Each VM gets its own cid.
-So communication is always between VM x <-> host 2.  That makes for
-easy lookup on the VM's part.  (Note that we further distinguish in
-the VMCI transport between the hypervisor, specifically the VM's own
-VMX, which is on cid 0, and the host on cid 2.)
+Add a missing newline to avoid message interleaving,
+coalesce formats, reflow modified lines to 80 columns.
 
-Thanks!
-- Andy
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ drivers/net/xen-netback/netback.c |  7 +++----
+ drivers/net/xen-netfront.c        | 28 +++++++++++++---------------
+ 2 files changed, 16 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/net/xen-netback/netback.c b/drivers/net/xen-netback/netback.c
+index 130bcb2..64828de 100644
+--- a/drivers/net/xen-netback/netback.c
++++ b/drivers/net/xen-netback/netback.c
+@@ -1890,9 +1890,8 @@ static int __init netback_init(void)
+ 		return -ENODEV;
+ 
+ 	if (fatal_skb_slots < XEN_NETBK_LEGACY_SLOTS_MAX) {
+-		printk(KERN_INFO
+-		       "xen-netback: fatal_skb_slots too small (%d), bump it to XEN_NETBK_LEGACY_SLOTS_MAX (%d)\n",
+-		       fatal_skb_slots, XEN_NETBK_LEGACY_SLOTS_MAX);
++		pr_info("fatal_skb_slots too small (%d), bump it to XEN_NETBK_LEGACY_SLOTS_MAX (%d)\n",
++			fatal_skb_slots, XEN_NETBK_LEGACY_SLOTS_MAX);
+ 		fatal_skb_slots = XEN_NETBK_LEGACY_SLOTS_MAX;
+ 	}
+ 
+@@ -1921,7 +1920,7 @@ static int __init netback_init(void)
+ 					     "netback/%u", group);
+ 
+ 		if (IS_ERR(netbk->task)) {
+-			printk(KERN_ALERT "kthread_create() fails at netback\n");
++			pr_alert("kthread_create() fails at netback\n");
+ 			del_timer(&netbk->net_timer);
+ 			rc = PTR_ERR(netbk->task);
+ 			goto failed_init;
+diff --git a/drivers/net/xen-netfront.c b/drivers/net/xen-netfront.c
+index 76a2236..ff7f111 100644
+--- a/drivers/net/xen-netfront.c
++++ b/drivers/net/xen-netfront.c
+@@ -29,6 +29,8 @@
+  * IN THE SOFTWARE.
+  */
+ 
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/netdevice.h>
+@@ -385,9 +387,8 @@ static void xennet_tx_buf_gc(struct net_device *dev)
+ 			skb = np->tx_skbs[id].skb;
+ 			if (unlikely(gnttab_query_foreign_access(
+ 				np->grant_tx_ref[id]) != 0)) {
+-				printk(KERN_ALERT "xennet_tx_buf_gc: warning "
+-				       "-- grant still in use by backend "
+-				       "domain.\n");
++				pr_alert("%s: warning -- grant still in use by backend domain\n",
++					 __func__);
+ 				BUG();
+ 			}
+ 			gnttab_end_foreign_access_ref(
+@@ -804,14 +805,14 @@ static int xennet_set_skb_gso(struct sk_buff *skb,
+ {
+ 	if (!gso->u.gso.size) {
+ 		if (net_ratelimit())
+-			printk(KERN_WARNING "GSO size must not be zero.\n");
++			pr_warn("GSO size must not be zero\n");
+ 		return -EINVAL;
+ 	}
+ 
+ 	/* Currently only TCPv4 S.O. is supported. */
+ 	if (gso->u.gso.type != XEN_NETIF_GSO_TYPE_TCPV4) {
+ 		if (net_ratelimit())
+-			printk(KERN_WARNING "Bad GSO type %d.\n", gso->u.gso.type);
++			pr_warn("Bad GSO type %d\n", gso->u.gso.type);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -910,9 +911,8 @@ static int checksum_setup(struct net_device *dev, struct sk_buff *skb)
+ 		break;
+ 	default:
+ 		if (net_ratelimit())
+-			printk(KERN_ERR "Attempting to checksum a non-"
+-			       "TCP/UDP packet, dropping a protocol"
+-			       " %d packet", iph->protocol);
++			pr_err("Attempting to checksum a non-TCP/UDP packet, dropping a protocol %d packet\n",
++			       iph->protocol);
+ 		goto out;
+ 	}
+ 
+@@ -1359,14 +1359,14 @@ static struct net_device *xennet_create_dev(struct xenbus_device *dev)
+ 	/* A grant for every tx ring slot */
+ 	if (gnttab_alloc_grant_references(TX_MAX_TARGET,
+ 					  &np->gref_tx_head) < 0) {
+-		printk(KERN_ALERT "#### netfront can't alloc tx grant refs\n");
++		pr_alert("can't alloc tx grant refs\n");
+ 		err = -ENOMEM;
+ 		goto exit_free_stats;
+ 	}
+ 	/* A grant for every rx ring slot */
+ 	if (gnttab_alloc_grant_references(RX_MAX_TARGET,
+ 					  &np->gref_rx_head) < 0) {
+-		printk(KERN_ALERT "#### netfront can't alloc rx grant refs\n");
++		pr_alert("can't alloc rx grant refs\n");
+ 		err = -ENOMEM;
+ 		goto exit_free_tx;
+ 	}
+@@ -1430,16 +1430,14 @@ static int netfront_probe(struct xenbus_device *dev,
+ 
+ 	err = register_netdev(info->netdev);
+ 	if (err) {
+-		printk(KERN_WARNING "%s: register_netdev err=%d\n",
+-		       __func__, err);
++		pr_warn("%s: register_netdev err=%d\n", __func__, err);
+ 		goto fail;
+ 	}
+ 
+ 	err = xennet_sysfs_addif(info->netdev);
+ 	if (err) {
+ 		unregister_netdev(info->netdev);
+-		printk(KERN_WARNING "%s: add sysfs failed err=%d\n",
+-		       __func__, err);
++		pr_warn("%s: add sysfs failed err=%d\n", __func__, err);
+ 		goto fail;
+ 	}
+ 
+@@ -2116,7 +2114,7 @@ static int __init netif_init(void)
+ 	if (xen_hvm_domain() && !xen_platform_pci_unplug)
+ 		return -ENODEV;
+ 
+-	printk(KERN_INFO "Initialising Xen virtual ethernet driver.\n");
++	pr_info("Initialising Xen virtual ethernet driver\n");
+ 
+ 	return xenbus_register_frontend(&netfront_driver);
+ }
