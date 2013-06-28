@@ -1,14 +1,14 @@
-From: "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>
-Subject: [PATCH v3 30/45] x86/xen: Use get/put_online_cpus_atomic() to prevent
-	CPU offline
-Date: Fri, 28 Jun 2013 01:27:33 +0530
-Message-ID: <20130627195733.29830.8002.stgit@srivatsabhat.in.ibm.com>
-References: <20130627195136.29830.10445.stgit@srivatsabhat.in.ibm.com>
+From: Andy King <acking@vmware.com>
+Subject: Re: [RFC 0/5] Introduce VM Sockets virtio transport
+Date: Thu, 27 Jun 2013 19:25:40 -0700 (PDT)
+Message-ID: <1110962459.9928554.1372386340171.JavaMail.root@vmware.com>
+References: <1372320004-20502-1-git-send-email-asias@redhat.com>
+	<20130627102324.GA20215@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130627195136.29830.10445.stgit@srivatsabhat.in.ibm.com>
+In-Reply-To: <20130627102324.GA20215@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,55 +18,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: peterz@infradead.org, tj@kernel.org, oleg@redhat.com, paulmck@linux.vnet.ibm.com, rusty@rustcorp.com.au, mingo@kernel.org, akpm@linux-foundation.org, namhyung@kernel.org, walken@google.com, vincent.guittot@linaro.org, laijs@cn.fujitsu.com, David.Laight@aculab.com
-Cc: linux-arch@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, nikunj@linux.vnet.ibm.com, zhong@linux.vnet.ibm.com, linux-pm@vger.kernel.org, fweisbec@gmail.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, rostedt@goodmis.org, xiaoguangrong@linux.vnet.ibm.com, sbw@mit.edu, Ingo Molnar <mingo@redhat.com>, wangyun@linux.vnet.ibm.com, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, xen-devel@lists.xensource.com
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, Dmitry Torokhov <dtor@vmware.com>, netdev@vger.kernel.org, Reilly Grant <grantr@vmware.com>, virtualization@lists.linux-foundation.org, Pekka Enberg <penberg@kernel.org>, Sasha Levin <sasha.levin@oracle.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Once stop_machine() is gone from the CPU offline path, we won't be able
-to depend on disabling preemption to prevent CPUs from going offline
-from under us.
+Hi Michael,
 
-Use the get/put_online_cpus_atomic() APIs to prevent CPUs from going
-offline, while invoking from atomic context.
+> >            __u32 guest_cid;
+> 
+> Given that cid is like an IP address, 32 bit seems too
+> limiting. I would go for a 64 bit one or maybe even 128 bit,
+> so that e.g. GUIDs can be used there.
 
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: x86@kernel.org
-Cc: xen-devel@lists.xensource.com
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Srivatsa S. Bhat <srivatsa.bhat@linux.vnet.ibm.com>
----
+That's likely based on what vSockets uses, which is in turn based on
+what the VMCI device exposes (which is what vSockets was originally
+built on), so unfortunately it's too late to extend that type.
+However, that still allows just under 2^32 VMs per host (there are
+three reserved values).
 
- arch/x86/xen/mmu.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+> >            __u32   dst_port;
+> 
+> Ports are 32 bit? I guess most applications can't work with >16 bit.
 
-diff --git a/arch/x86/xen/mmu.c b/arch/x86/xen/mmu.c
-index fdc3ba2..3229c4f 100644
---- a/arch/x86/xen/mmu.c
-+++ b/arch/x86/xen/mmu.c
-@@ -39,6 +39,7 @@
-  * Jeremy Fitzhardinge <jeremy@xensource.com>, XenSource Inc, 2007
-  */
- #include <linux/sched.h>
-+#include <linux/cpu.h>
- #include <linux/highmem.h>
- #include <linux/debugfs.h>
- #include <linux/bug.h>
-@@ -1163,9 +1164,13 @@ static void xen_drop_mm_ref(struct mm_struct *mm)
-  */
- static void xen_exit_mmap(struct mm_struct *mm)
- {
--	get_cpu();		/* make sure we don't move around */
-+	/*
-+	 * Make sure we don't move around, and also prevent CPUs from
-+	 * going offline.
-+	 */
-+	get_online_cpus_atomic();
- 	xen_drop_mm_ref(mm);
--	put_cpu();
-+	put_online_cpus_atomic();
- 
- 	spin_lock(&mm->page_table_lock);
+As with the cid, the width of the port type comes from vSockets,
+which is what this plugs into.
+
+> Also, why put cid's in all packets? They are only needed
+> when you create a connection, no? Afterwards port numbers
+> can be used.
+
+The cid is present in DGRAM packets and STREAM _control_ packets
+(connection handshake, signal read/write and so forth).  I don't
+think the intent here is for it to be in STREAM _data_ packets,
+but Asias can clarify.
+
+> > Virtio VM socket connection creation:
+> > 1) Client sends VIRTIO_VSOCK_OP_REQUEST to server
+> > 2) Server reponses with VIRTIO_VSOCK_OP_NEGOTIATE to client
+> > 3) Client sends VIRTIO_VSOCK_OP_OFFER to server
+> > 4) Server responses with VIRTIO_VSOCK_OP_ATTACH to client
+> 
+> What's the reason for a 4 stage setup? Most transports
+> make do with 3.
+
+I'm guessing that's also based on the original vSockets/VMCI
+implementation, where the NEGOTIATE/OFFER stages are used to
+negotiate the underlying transport buffer size (in VMCI, the
+queuepair that underlies a STREAM socket).  The virtio
+transport can probably use 3.
+
+Thanks!
+- Andy
