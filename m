@@ -1,21 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Mon, 01 Jul 2013 09:17:13 +0930
-Message-ID: <87ppv3tb3y.fsf@rustcorp.com.au>
-References: <20130314111020.GA18050@redhat.com> <5141E990.7070609@redhat.com>
-	<20130314173918.GB29411@redhat.com>
-	<87k3lyzknl.fsf@rustcorp.com.au>
-	<20130613080259.GA11175@redhat.com>
-	<20130613081047.GA11269@redhat.com>
-	<20130617063746.GA5693@redhat.com> <87r4fyn1wx.fsf@rustcorp.com.au>
-	<20130619082417.GA2558@redhat.com>
-	<51C16BC2.2060302@redhat.com> <8761x9mrmk.fsf@rustcorp.com.au>
-	<51C2CABD.70000@redhat.com>
+Subject: Re: [PATCH] virtio-pci: fix leaks of msix_affinity_masks
+Date: Mon, 01 Jul 2013 09:13:44 +0930
+Message-ID: <87sizztb9r.fsf__11523.3732191429$1372644607$gmane$org@rustcorp.com.au>
+References: <20130619182809.GC15017@redhat.com>
+	<1371706610-12028-1-git-send-email-avagin@openvz.org>
+	<51C3F1BD.9050703@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51C2CABD.70000@redhat.com>
+In-Reply-To: <51C3F1BD.9050703@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,30 +19,88 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>, Andrey Vagin <avagin@openvz.org>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
+Jason Wang <jasowang@redhat.com> writes:
+> On 06/20/2013 01:36 PM, Andrey Vagin wrote:
+>> From: Andrew Vagin <avagin@openvz.org>
+>>
+>> vp_dev->msix_vectors should be initialized before allocating
+>> msix_affinity_masks, otherwise vp_free_vectors will not free these
+>> objects.
+>>
+>> unreferenced object 0xffff88010f969d88 (size 512):
+>>   comm "systemd-udevd", pid 158, jiffies 4294673645 (age 80.545s)
+>>   hex dump (first 32 bytes):
+>>     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+>>     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+>>   backtrace:
+>>     [<ffffffff816e455e>] kmemleak_alloc+0x5e/0xc0
+>>     [<ffffffff811aa7f1>] kmem_cache_alloc_node_trace+0x141/0x2c0
+>>     [<ffffffff8133ba23>] alloc_cpumask_var_node+0x23/0x80
+>>     [<ffffffff8133ba8e>] alloc_cpumask_var+0xe/0x10
+>>     [<ffffffff813fdb3d>] vp_try_to_find_vqs+0x25d/0x810
+>>     [<ffffffff813fe171>] vp_find_vqs+0x81/0xb0
+>>     [<ffffffffa00d2a05>] init_vqs+0x85/0x120 [virtio_balloon]
+>>     [<ffffffffa00d2c29>] virtballoon_probe+0xf9/0x1a0 [virtio_balloon]
+>>     [<ffffffff813fb61e>] virtio_dev_probe+0xde/0x140
+>>     [<ffffffff814452b8>] driver_probe_device+0x98/0x3a0
+>>     [<ffffffff8144566b>] __driver_attach+0xab/0xb0
+>>     [<ffffffff814432f4>] bus_for_each_dev+0x94/0xb0
+>>     [<ffffffff81444f4e>] driver_attach+0x1e/0x20
+>>     [<ffffffff81444910>] bus_add_driver+0x200/0x280
+>>     [<ffffffff81445c14>] driver_register+0x74/0x160
+>>     [<ffffffff813fb7d0>] register_virtio_driver+0x20/0x40
+>>
+>> v2: change msix_vectors uncoditionaly in vp_free_vectors
+>>
+>> Cc: Rusty Russell <rusty@rustcorp.com.au>
+>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+>> Cc: Jason Wang <jasowang@redhat.com>
+>> Signed-off-by: Andrew Vagin <avagin@openvz.org>
+>> Signed-off-by: Andrey Vagin <avagin@openvz.org>
+>> ---
+>>  drivers/virtio/virtio_pci.c | 5 +++--
+>>  1 file changed, 3 insertions(+), 2 deletions(-)
 
-> Il 20/06/2013 04:40, Rusty Russell ha scritto:
->> Paolo Bonzini <pbonzini@redhat.com> writes:
->>> Il 19/06/2013 10:24, Michael S. Tsirkin ha scritto:
->>>>>> 2) We introduce VIRTIO_NET_F_ANY_LAYOUT and VIRTIO_BLK_F_ANY_LAYOUT
->>>>>>    specifically for net and block (note the new names).
->>>
->>> So why not a transport feature?  Is it just because the SCSI commands
->>> for virtio-blk also require a config space field?  Sorry if I missed
->>> this upthread.
->> 
->> Mainly because I'm not sure that *all* devices are now safe.  Are they?
->
-> virtio-scsi's implementation in QEMU is not safe (been delaying that for
-> too long, sorry), but the spec is safe.
-
-Then if we added a transport feature, we couldn't use it :(
-
-So I think it needs to be a per-device feature bit.
+Thanks, applied.
 
 Cheers,
 Rusty.
+
+>>
+>> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+>> index a7ce730..1aba255 100644
+>> --- a/drivers/virtio/virtio_pci.c
+>> +++ b/drivers/virtio/virtio_pci.c
+>> @@ -289,9 +289,9 @@ static void vp_free_vectors(struct virtio_device *vdev)
+>>  
+>>  		pci_disable_msix(vp_dev->pci_dev);
+>>  		vp_dev->msix_enabled = 0;
+>> -		vp_dev->msix_vectors = 0;
+>>  	}
+>>  
+>> +	vp_dev->msix_vectors = 0;
+>>  	vp_dev->msix_used_vectors = 0;
+>>  	kfree(vp_dev->msix_names);
+>>  	vp_dev->msix_names = NULL;
+>> @@ -309,6 +309,8 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+>>  	unsigned i, v;
+>>  	int err = -ENOMEM;
+>>  
+>> +	vp_dev->msix_vectors = nvectors;
+>> +
+>>  	vp_dev->msix_entries = kmalloc(nvectors * sizeof *vp_dev->msix_entries,
+>>  				       GFP_KERNEL);
+>>  	if (!vp_dev->msix_entries)
+>> @@ -336,7 +338,6 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+>>  		err = -ENOSPC;
+>>  	if (err)
+>>  		goto error;
+>> -	vp_dev->msix_vectors = nvectors;
+>>  	vp_dev->msix_enabled = 1;
+>>  
+>>  	/* Set the vector used for configuration */
+> Acked-by: Jason Wang <jasowang@redhat.com>
