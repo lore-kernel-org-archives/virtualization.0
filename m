@@ -1,16 +1,11 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [RFC 2/5] VSOCK: Introduce virtio-vsock-common.ko
-Date: Sun, 30 Jun 2013 07:45:50 +0800
-Message-ID: <20130629234550.GC11388@hj.localdomain>
-References: <1372320004-20502-1-git-send-email-asias@redhat.com>
-	<1372320004-20502-3-git-send-email-asias@redhat.com>
-	<20130628.213225.150653146873611065.davem@davemloft.net>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PULL] virtio-next
+Date: Mon, 01 Jul 2013 10:25:01 +0930
+Message-ID: <87ip0vt7yy.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130628.213225.150653146873611065.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,32 +15,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: acking@vmware.com, kvm@vger.kernel.org, dtor@vmware.com, netdev@vger.kernel.org, grantr@vmware.com, virtualization@lists.linux-foundation.org, penberg@kernel.org, mst@redhat.com, sasha.levin@oracle.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Daniel Baluta <dbaluta@ixiacom.com>, Anup Patel <anup.patel@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Amit Shah <amit.shah@redhat.com>, Jonghwan Choi <jhbird.choi@samsung.com>, Pranavkumar Sawargaonkar <pranavkumar@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi David,
+The following changes since commit d5fe85af85367d5892e4308f596de4e2a5fb9017:
 
-On Fri, Jun 28, 2013 at 09:32:25PM -0700, David Miller wrote:
-> From: Asias He <asias@redhat.com>
-> Date: Thu, 27 Jun 2013 16:00:01 +0800
-> 
-> > +static void
-> > +virtio_transport_recv_dgram(struct sock *sk,
-> > +			    struct virtio_vsock_pkt *pkt)
->  ...
-> > +	memcpy(skb->data, pkt, sizeof(*pkt));
-> > +	memcpy(skb->data + sizeof(*pkt), pkt->buf, pkt->len);
-> 
-> Are you sure this is right?
-> 
-> Shouldn't you be using "sizeof(struct virtio_vsock_hdr)" instead of
-> "sizeof(*pkt)".  'pkt' is "struct virtio_vsock_pkt" and has all kinds
-> of meta-data you probably don't mean to include in the SKB.
+  Merge tag 'pm+acpi-3.10-rc2' of git://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm (2013-05-16 15:12:34 -0700)
 
-Right, virtio_vsock_hdr is enough. Will fix this.
+are available in the git repository at:
 
-Thanks for looking at this. 
 
--- 
-Asias
+  git://git.kernel.org/pub/scm/linux/kernel/git/rusty/linux.git tags/virtio-next-for-linus
+
+for you to fetch changes up to b3087e48ce20be784fae1dbabc2e42e2ad0f21bc:
+
+  virtio: remove virtqueue_add_buf(). (2013-05-20 12:16:01 +0930)
+
+----------------------------------------------------------------
+Was away, but it's all trivial and been sitting in linux-next.  So if you don't
+pull, no electrons will be harmed.
+
+Thanks,
+Rusty.
+
+----------------------------------------------------------------
+Daniel Baluta (1):
+      lguest: rename i386_head.S
+
+Jonghwan Choi (1):
+      virtio_blk: Add missing 'static' qualifiers
+
+Michael S. Tsirkin (1):
+      virtio_pci: better macro exported in uapi
+
+Pranavkumar Sawargaonkar (1):
+      virtio: console: Add emergency writeonly register to config space
+
+Rusty Russell (1):
+      virtio: remove virtqueue_add_buf().
+
+ arch/x86/lguest/Makefile                   |  2 +-
+ arch/x86/lguest/{i386_head.S => head_32.S} |  0
+ drivers/block/virtio_blk.c                 |  2 +-
+ drivers/virtio/virtio_ring.c               | 37 +++---------------------------
+ include/linux/virtio.h                     |  7 ------
+ include/uapi/linux/virtio_console.h        |  3 +++
+ include/uapi/linux/virtio_pci.h            |  4 +++-
+ 7 files changed, 11 insertions(+), 44 deletions(-)
+ rename arch/x86/lguest/{i386_head.S => head_32.S} (100%)
