@@ -1,15 +1,12 @@
-From: Hannes Reinecke <hare@suse.de>
-Subject: Re: binding/unbinding devices to vfio-pci
-Date: Tue, 02 Jul 2013 18:25:44 +0200
-Message-ID: <51D2FF08.2030607__36511.2118459821$1372778701$gmane$org@suse.de>
-References: <9F6FE96B71CF29479FF1CDC8046E1503632FA9@039-SN1MPN1-004.039d.mgd.msft.net>
-	<1372776365.30572.874.camel@ul30vt.home>
-	<9F6FE96B71CF29479FF1CDC8046E15036330AE@039-SN1MPN1-004.039d.mgd.msft.net>
+From: Yoder Stuart-B08248 <B08248@freescale.com>
+Subject: RFC: vfio interface for platform devices
+Date: Tue, 2 Jul 2013 23:25:59 +0000
+Message-ID: <9F6FE96B71CF29479FF1CDC8046E15036334B4__5002.23182975805$1372807581$gmane$org@039-SN1MPN1-004.039d.mgd.msft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9F6FE96B71CF29479FF1CDC8046E15036330AE@039-SN1MPN1-004.039d.mgd.msft.net>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,92 +16,266 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoder Stuart-B08248 <B08248@freescale.com>
-Cc: "a.motakis@virtualopensystems.com" <a.motakis@virtualopensystems.com>, Bhushan Bharat-R65777 <R65777@freescale.com>, "kvm@vger.kernel.org list" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: Alex Williamson <alex.williamson@redhat.com>, Alexander Graf <agraf@suse.de>, Wood Scott-B07421 <B07421@freescale.com>
+Cc: "kvm@vger.kernel.org list" <kvm@vger.kernel.org>, Bhushan Bharat-R65777 <R65777@freescale.com>, "kvm-ppc@vger.kernel.org" <kvm-ppc@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Antonios Motakis <a.motakis@virtualopensystems.com>, Sethi Varun-B16395 <B16395@freescale.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/02/2013 05:13 PM, Yoder Stuart-B08248 wrote:
->
->
->> -----Original Message-----
->> From: Alex Williamson [mailto:alex.williamson@redhat.com]
->> Sent: Tuesday, July 02, 2013 9:46 AM
->> To: Yoder Stuart-B08248
->> Cc: kvm@vger.kernel.org list; Alexander Graf; Bhushan Bharat-R65777; a.m=
-otakis@virtualopensystems.com;
->> virtualization@lists.linux-foundation.org
->> Subject: Re: binding/unbinding devices to vfio-pci
->>
->> On Tue, 2013-07-02 at 14:15 +0000, Yoder Stuart-B08248 wrote:
->>> Alex,
->>>
->>> I'm trying to think through how binding/unbinding of devices will
->>> work with VFIO for platform devices and have a couple of questions
->>> about how vfio-pci works.
->>>
->>> When you bind a device to vfio-pci, e.g.:
->>> # echo 1102 0002 > /sys/bus/pci/drivers/vfio-pci/new_id
->>>
->>> ...I understand that the echo into 'new_id' tells the
->>> vfio pci driver that it now handles the specified PCI ID.
->>>
->>> But now there are 2 drivers that handle that PCI ID,
->>> the original host driver and vfio-pci.   Say that
->>> you hotplug a PCI device that matches that ID.   Which of
->>> the 2 drivers are going to get bound to the device?
->>>
->>> Also, if you unbind a device from vfio-pci and want to
->>> bind it again to the normal host driver you would just
->>> echo the full device info into the 'bind' sysfs file
->>> for the host driver, right?
->>>
->>>      echo 0000:06:0d.0 > /sys/bus/pci/drivers/...
->>
->> Hi Stuart,
->>
->> The driver binding interface is far from perfect.  In your scenario
->> where you've added the ID for one device, then hotplug another device
->> with the same ID, the results are indeterminate.  Both vfio-pci and the
->> host driver, assuming it's still loaded, can claim the device, it's just
->> a matter of which gets probed first.
->>
->> Generally that window should be very short though.  To bind a device,
->> the user should do:
->>
->> 1) echo ssss:bb:dd.f > /sys/bus/pci/devices/ssss:bb:dd.f/driver/unbind
->> 2) echo vvvv dddd > /sys/bus/pci/drivers/vfio-pci/new_id
->> 3) echo ssss:bb:dd.f > /sys/bus/pci/drivers/vfio-pci/bind
->> 4) echo vvvv dddd > /sys/bus/pci/drivers/vfio-pci/remove_id
->>
->> There are actually a number of ways you can do this and the default
->> autoprobe behavior really makes step 3) unnecessary as the driver core
->> will probe any unbound devices as soon as a new_id is added to vfio-pci.
->> That can be changed by:
->>
->> # echo 0 > /sys/bus/pci/drivers_autoprobe
->>
->> But then we have to worry about races from any devices that might have
->> been hotplugged in the interim.
->
-> But, even apart from hot-plugged devices, what about the device
-> we just unbound?  There are now 2 host drivers that can handle the
-> device when the autoprobe happens.  Is it just luck that vfio-pci
-> is the one that gets the device?
->
-Probably the best way of handling this would be to disallow autobinding =
+The write-up below is the first draft of a proposal for how the kernel can expose
+platform devices to user space using vfio.
 
-for vfio in general.
-Then the 'normal' driver would be bound to the device, and vfio must be =
+In short, I'm proposing a new ioctl VFIO_DEVICE_GET_DEVTREE_INFO which
+allows user space to correlate regions and interrupts to the corresponding
+device tree node structure that is defined for most platform devices.
 
-enabled via manual binding.
-Much like it is today.
+Regards,
+Stuart Yoder
 
-Cheers,
+------------------------------------------------------------------------------
+VFIO for Platform Devices
 
-Hannes
--- =
+The existing infrastructure for vfio-pci is pretty close to what we need:
+   -mechanism to create a container
+   -add groups/devices to a container
+   -set the IOMMU model
+   -map DMA regions
+   -get an fd for a specific device, which allows user space to determine
+    info about device regions (e.g. registers) and interrupt info
+   -support for mmapping device regions
+   -mechanism to set how interrupts are signaled
 
-Dr. Hannes Reinecke		      zSeries & Storage
-hare@suse.de			      +49 911 74053 688
-SUSE LINUX Products GmbH, Maxfeldstr. 5, 90409 N=FCrnberg
-GF: J. Hawn, J. Guild, F. Imend=F6rffer, HRB 16746 (AG N=FCrnberg)
+Platform devices can get complicated-- potentially with a tree hierarchy
+of nodes, and links/phandles pointing to other platform 
+devices.   The kernel doesn't expose relationships between
+devices.  The kernel just exposes mappable register regions and interrupts.
+It's up to user space to work out relationships between devices
+if it needs to-- this can be determined in the device tree exposed in
+/proc/device-tree.
+
+I think the changes needed for vfio are around some of the device tree
+related info that needs to be available with the device fd.
+
+1.  VFIO_GROUP_GET_DEVICE_FD
+
+  User space has to know which device it is accessing and will call
+  VFIO_GROUP_GET_DEVICE_FD passing a specific platform device path to
+  get the device information:
+
+  fd = ioctl(group, VFIO_GROUP_GET_DEVICE_FD, "/soc@ffe000000/usb@210000");
+
+  (whether the path is a device tree path or a sysfs path is up for
+  discussion, e.g. "/sys/bus/platform/devices/ffe210000.usb")
+
+2.  VFIO_DEVICE_GET_INFO
+
+   Don't think any changes are needed to VFIO_DEVICE_GET_INFO other
+   than adding a new flag identifying a devices as a 'platform'
+   device.
+
+   This ioctl simply returns the number of regions and number of irqs.
+
+   The number of regions corresponds to the number of regions
+   that can be mapped for the device-- corresponds to the regions defined
+   in "reg" and "ranges" in the device tree.  
+
+3.  VFIO_DEVICE_GET_REGION_INFO
+
+   No changes needed, except perhaps adding a new flag.  Freescale has some
+   devices with regions that must be mapped cacheable.
+
+3.  VFIO_DEVICE_GET_IRQ_INFO
+
+   No changes needed.
+
+4. VFIO_DEVICE_GET_DEVTREE_INFO
+
+   The VFIO_DEVICE_GET_REGION_INFO and VFIO_DEVICE_GET_IRQ_INFO APIs
+   expose device regions and interrupts, but it's not enough to know
+   that there are X regions and Y interrupts.  User space needs to
+   know what the resources are for-- to correlate those regions/interrupts
+   to the device tree structure that drivers use.  The device tree
+   structure could consist of multiple nodes and it is necessary to
+   identify the node corresponding to the region/interrupt exposed
+   by VFIO.
+
+   The following information is needed:
+      -the device tree path to the node corresponding to the
+       region or interrupt
+      -for a region, whether it corresponds to a "reg" or "ranges"
+       property
+      -there could be multiple sub-regions per "reg" or "ranges" and
+       the sub-index within the reg/ranges is needed
+
+   The VFIO_DEVICE_GET_DEVTREE_INFO operates on a device fd.
+
+   ioctl: VFIO_DEVICE_GET_DEVTREE_INFO
+   
+   struct vfio_path_info {
+        __u32   argsz;
+        __u32   flags;
+   #define VFIO_DEVTREE_INFO_RANGES      (1 << 3) /* the region is a "ranges" property */
+        __u32   index;          /* input: index of region or irq for which we are getting info */
+        __u32   type;           /* input: 0 - get devtree info for a region
+                                          1 - get devtree info for an irq
+                                 */
+        __u32   start;          /* output: identifies the index within the reg/ranges */
+        __u8    path[];         /* output: Full path to associated device tree node */
+   };
+
+   User space allocates enough space for the device tree path, sets
+   the type field identifying whether this is a region, or irq,
+   and sets argsz appropriately.
+
+5.  EXAMPLE 1
+
+    Example, Freescale SATA controller:
+
+     sata@220000 {
+         compatible = "fsl,p2041-sata", "fsl,pq-sata-v2";
+         reg = <0x220000 0x1000>;
+         interrupts = <0x44 0x2 0x0 0x0>;
+     };
+
+    request to get device FD would look like:
+      fd = ioctl(group, VFIO_GROUP_GET_DEVICE_FD, "/soc@ffe000000/sata@220000");
+
+    The VFIO_DEVICE_GET_INFO ioctl would return:
+      -1 region
+      -1 interrupts
+
+    The VFIO_DEVICE_GET_REGION_INFO ioctl would return:
+      -for index 0:
+           offset=0, size=0x10000 -- allows mmap of physical 0xffe220000
+
+    The VFIO_DEVICE_GET_IRQ_INFO ioctl would return appropriate info
+    for the single interrupt.
+
+    The VFIO_DEVICE_GET_DEVTREE_INFO ioctl would return:
+
+      -for region index 0:
+          flags: 0x0     // i.e. this is a "reg" property
+          start: 0x0     // i.e. index 0x0 in "reg"
+          path: "/soc@ffe000000/sata@220000"
+
+      -for interrupt index 0:
+          path: "/soc@ffe000000/sata@220000"
+
+6.  EXAMPLE 2
+
+    Example, Freescale crypto device (modified to illustrate):
+
+     crypto@300000 {
+        compatible = "fsl,sec-v4.2", "fsl,sec-v4.0";
+        #address-cells = <0x1>;
+        #size-cells = <0x1>;
+        reg = <0x300000 0x10000>;
+        interrupts = <0x5c 0x2 0x0 0x0>;
+  
+        jr@1000 {
+           compatible = "fsl,sec-v4.2-job-ring", "fsl,sec-v4.0-job-ring";
+           interrupts = <0x58 0x2 0x0 0x0>;
+        };
+  
+        jr@2000 {
+           compatible = "fsl,sec-v4.2-job-ring", "fsl,sec-v4.0-job-ring";
+           interrupts = <0x59 0x2 0x0 0x0>;
+        };
+     };
+
+    request to get device FD would look like:
+      fd = ioctl(group, VFIO_GROUP_GET_DEVICE_FD, "/soc@ffe000000/crypto@300000");
+
+    The VFIO_DEVICE_GET_INFO ioctl would return:
+      -1 region
+      -3 interrupts
+
+    The VFIO_DEVICE_GET_REGION_INFO ioctl would return:
+      -for index 0:
+           offset=0, size=0x10000 -- allows mmap of physical 0xffe300000
+
+    The VFIO_DEVICE_GET_IRQ_INFO ioctl would return appropriate info
+    for each of the IRQs-- indexes 0-4.
+
+    The VFIO_DEVICE_GET_DEVTREE_INFO ioctl would return:
+
+      -for region index 0:
+          flags: 0x0     // i.e. this is a "reg" property
+          start: 0x0     // i.e. index 0x0 in "reg"
+          path: "/soc@ffe000000/crypto@300000"
+
+      -for interrupt index 0:
+          path: "/soc@ffe000000/crypto@300000/jr@1000"
+
+      -for interrupt index 1:
+          path: "/soc@ffe000000/crypto@300000/jr@2000"
+
+7.  EXAMPLE 3
+
+    Example, Freescale DMA engine (modified to illustrate):
+
+    dma@101300 {
+       cell-index = <0x1>;
+       ranges = <0x0 0x101100 0x200>;
+       reg = <0x101300 0x4>;
+       compatible = "fsl,eloplus-dma";
+       #size-cells = <0x1>;
+       #address-cells = <0x1>;
+       fsl,liodn = <0xc6>;
+    
+       dma-channel@180 {
+          interrupts = <0x23 0x2 0x0 0x0>;
+          cell-index = <0x3>;
+          reg = <0x180 0x80>;
+          compatible = "fsl,eloplus-dma-channel";
+       };
+    
+       dma-channel@100 {
+          interrupts = <0x22 0x2 0x0 0x0>;
+          cell-index = <0x2>;
+          reg = <0x100 0x80>;
+          compatible = "fsl,eloplus-dma-channel";
+       };
+
+    };
+
+    request to get device FD would look like:
+      fd = ioctl(group, VFIO_GROUP_GET_DEVICE_FD, "/soc@ffe000000/dma@101300");
+
+    The VFIO_DEVICE_GET_INFO ioctl would return:
+      -2 regions
+      -2 interrupts
+
+    The VFIO_DEVICE_GET_REGION_INFO ioctl would return:
+      -for index 0:
+           offset=0x100, size=0x200 -- allows mmap of physical 0xffe101100
+      -for index 1:
+           offset=0x300, size=0x4 -- allows mmap of physical 0xffe101300
+
+    The VFIO_DEVICE_GET_IRQ_INFO ioctl would return appropriate info
+    for each of the IRQs-- indexes 0-3.
+
+    The VFIO_DEVICE_GET_DEVTREE_INFO ioctl would return:
+
+      -for region index 0:
+          flags: 0x1     // i.e. this is a "ranges" property
+          start: 0x0     // i.e. index 0x0 in "ranges"
+          path: "/soc@ffe000000/dma@101300"
+
+      -for region index 1:
+          flags: 0x0     // i.e. this is a "reg" property
+          start: 0x0     // i.e. index 0x0 in "ranges"
+          path: "/soc@ffe000000/dma@101300"
+
+      -for interrupt index 0:
+          path: "/soc@ffe000000/dma@101300/dma-channel@180"
+
+      -for interrupt index 1:
+          path: "/soc@ffe000000/dma@101300/dma-channel@100"
+
+8.  Open Issues
+
+   -how to handle cases where VFIO is requested to handle 
+    a device where the valid, mappable range for a region
+    is less than a page size.   See example above where an 
+    advertised region in the DMA node is 4 bytes.  If exposed
+    to a guest VM, the guest has to be able to map a full page
+    of I/O space which opens a potential security issue.
