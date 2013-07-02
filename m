@@ -1,22 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Tue, 02 Jul 2013 15:34:09 +0930
-Message-ID: <87txkdfqg6.fsf@rustcorp.com.au>
-References: <20130314111020.GA18050@redhat.com> <5141E990.7070609@redhat.com>
-	<20130314173918.GB29411@redhat.com>
-	<87k3lyzknl.fsf@rustcorp.com.au>
-	<20130613080259.GA11175@redhat.com>
-	<20130613081047.GA11269@redhat.com>
-	<20130617063746.GA5693@redhat.com> <87r4fyn1wx.fsf@rustcorp.com.au>
-	<20130619082417.GA2558@redhat.com>
-	<51C16BC2.2060302@redhat.com> <8761x9mrmk.fsf@rustcorp.com.au>
-	<51C2CABD.70000@redhat.com> <87ppv3tb3y.fsf@rustcorp.com.au>
-	<51D16EB8.3050709@redhat.com>
+From: Alex Williamson <alex.williamson@redhat.com>
+Subject: Re: binding/unbinding devices to vfio-pci
+Date: Tue, 02 Jul 2013 08:46:05 -0600
+Message-ID: <1372776365.30572.874.camel@ul30vt.home>
+References: <9F6FE96B71CF29479FF1CDC8046E1503632FA9@039-SN1MPN1-004.039d.mgd.msft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51D16EB8.3050709@redhat.com>
+In-Reply-To: <9F6FE96B71CF29479FF1CDC8046E1503632FA9@039-SN1MPN1-004.039d.mgd.msft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,53 +17,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Yoder Stuart-B08248 <B08248@freescale.com>
+Cc: "a.motakis@virtualopensystems.com" <a.motakis@virtualopensystems.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "kvm@vger.kernel.org list" <kvm@vger.kernel.org>, Bhushan Bharat-R65777 <R65777@freescale.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
-> Il 01/07/2013 01:47, Rusty Russell ha scritto:
->> > > 
->> > > Mainly because I'm not sure that *all* devices are now safe.  Are they?
->> >
->> > virtio-scsi's implementation in QEMU is not safe (been delaying that for
->> > too long, sorry), but the spec is safe.
->> 
->> Then if we added a transport feature, we couldn't use it :(
->
-> Transport feature bits are still negotiated per device though.
-> virtio-scsi devices in QEMU would not negotiate that feature.
+On Tue, 2013-07-02 at 14:15 +0000, Yoder Stuart-B08248 wrote:
+> Alex,
+> 
+> I'm trying to think through how binding/unbinding of devices will
+> work with VFIO for platform devices and have a couple of questions
+> about how vfio-pci works.
+> 
+> When you bind a device to vfio-pci, e.g.:
+> # echo 1102 0002 > /sys/bus/pci/drivers/vfio-pci/new_id
+> 
+> ...I understand that the echo into 'new_id' tells the
+> vfio pci driver that it now handles the specified PCI ID.
+> 
+> But now there are 2 drivers that handle that PCI ID,
+> the original host driver and vfio-pci.   Say that
+> you hotplug a PCI device that matches that ID.   Which of
+> the 2 drivers are going to get bound to the device?
+> 
+> Also, if you unbind a device from vfio-pci and want to
+> bind it again to the normal host driver you would just
+> echo the full device info into the 'bind' sysfs file
+> for the host driver, right?
+> 
+>     echo 0000:06:0d.0 > /sys/bus/pci/drivers/...
 
-That's a good point; I tend to think of them as tied to the transport
-but there's nothing specifying that, nor any implementation requiring
-it.
+Hi Stuart,
 
-OK, so VIRTIO_F_ANY_LAYOUT it is?
+The driver binding interface is far from perfect.  In your scenario
+where you've added the ID for one device, then hotplug another device
+with the same ID, the results are indeterminate.  Both vfio-pci and the
+host driver, assuming it's still loaded, can claim the device, it's just
+a matter of which gets probed first.
 
-Cheers,
-Rusty.
+Generally that window should be very short though.  To bind a device,
+the user should do:
 
-Message Framing
- 
-The original intent of the specification was that message framing 
-(the particular layout of descriptors) be independent of the 
-contents of the buffers. For example, a network transmit buffer 
-consists of a 12 byte header followed by the network packet. This 
-could be most simply placed in the descriptor table as a 12 byte 
-output descriptor followed by a 1514 byte output descriptor, but 
-it could also consist of a single 1526 byte output descriptor in 
-the case where the header and packet are adjacent, or even three 
-or more descriptors (possibly with loss of efficiency in that 
-case).
+1) echo ssss:bb:dd.f > /sys/bus/pci/devices/ssss:bb:dd.f/driver/unbind
+2) echo vvvv dddd > /sys/bus/pci/drivers/vfio-pci/new_id
+3) echo ssss:bb:dd.f > /sys/bus/pci/drivers/vfio-pci/bind
+4) echo vvvv dddd > /sys/bus/pci/drivers/vfio-pci/remove_id
 
-Regrettably, initial driver implementations used simple layouts
-and devices came to rely on it, despite this specification 
-wording. It is thus recommended that drivers be conservative in 
-their assumptions, unless specific device features indicate that 
-general layout is permitted using VIRTIO_F_ANY_LAYOUT. In
-addition, some implementations may have large-but-reasonable
-restrictions on total descriptor size (such as based on IOV_MAX
-in the host OS). This has not been a problem in practice: little
-sympathy will be given to drivers which create unreasonably-sized
-descriptors such as dividing a network packet into 1500
-single-byte descriptors!
+There are actually a number of ways you can do this and the default
+autoprobe behavior really makes step 3) unnecessary as the driver core
+will probe any unbound devices as soon as a new_id is added to vfio-pci.
+That can be changed by:
+
+# echo 0 > /sys/bus/pci/drivers_autoprobe
+
+But then we have to worry about races from any devices that might have
+been hotplugged in the interim.
+
+To unbind:
+
+1) echo ssss:bb:dd.f > /sys/bus/pci/drivers/vfio-pci/unbind
+2) echo ssss:bb:dd.f > /sys/bus/pci/drivers_probe
+
+So we don't have to manually remember or hunt down the host driver for
+the device.  Thanks,
+
+Alex
