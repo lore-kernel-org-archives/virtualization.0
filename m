@@ -1,14 +1,22 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH next] xen: Use more current logging styles
-Date: Mon, 01 Jul 2013 13:31:53 -0700 (PDT)
-Message-ID: <20130701.133153.968451539148790258.davem@davemloft.net>
-References: <1372395469.2060.36.camel@joe-AO722>
-	<1372406390.8976.67.camel@zakaz.uk.xensource.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-spec: add field for scsi command size
+Date: Tue, 02 Jul 2013 15:34:09 +0930
+Message-ID: <87txkdfqg6.fsf@rustcorp.com.au>
+References: <20130314111020.GA18050@redhat.com> <5141E990.7070609@redhat.com>
+	<20130314173918.GB29411@redhat.com>
+	<87k3lyzknl.fsf@rustcorp.com.au>
+	<20130613080259.GA11175@redhat.com>
+	<20130613081047.GA11269@redhat.com>
+	<20130617063746.GA5693@redhat.com> <87r4fyn1wx.fsf@rustcorp.com.au>
+	<20130619082417.GA2558@redhat.com>
+	<51C16BC2.2060302@redhat.com> <8761x9mrmk.fsf@rustcorp.com.au>
+	<51C2CABD.70000@redhat.com> <87ppv3tb3y.fsf@rustcorp.com.au>
+	<51D16EB8.3050709@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1372406390.8976.67.camel@zakaz.uk.xensource.com>
+In-Reply-To: <51D16EB8.3050709@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,24 +26,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ian.Campbell@citrix.com
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, konrad.wilk@oracle.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, joe@perches.com
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ian Campbell <Ian.Campbell@citrix.com>
-Date: Fri, 28 Jun 2013 08:59:50 +0100
+Paolo Bonzini <pbonzini@redhat.com> writes:
+> Il 01/07/2013 01:47, Rusty Russell ha scritto:
+>> > > 
+>> > > Mainly because I'm not sure that *all* devices are now safe.  Are they?
+>> >
+>> > virtio-scsi's implementation in QEMU is not safe (been delaying that for
+>> > too long, sorry), but the spec is safe.
+>> 
+>> Then if we added a transport feature, we couldn't use it :(
+>
+> Transport feature bits are still negotiated per device though.
+> virtio-scsi devices in QEMU would not negotiate that feature.
 
-> On Thu, 2013-06-27 at 21:57 -0700, Joe Perches wrote:
->> Instead of mixing printk and pr_<level> forms,
->> just use pr_<level>
->> 
->> Miscellaneous changes around these conversions:
->> 
->> Add a missing newline to avoid message interleaving,
->> coalesce formats, reflow modified lines to 80 columns.
->> 
->> Signed-off-by: Joe Perches <joe@perches.com>
-> 
-> Acked-by: Ian Campbell <ian.campbell@citrix.com>
+That's a good point; I tend to think of them as tied to the transport
+but there's nothing specifying that, nor any implementation requiring
+it.
 
-Applied.
+OK, so VIRTIO_F_ANY_LAYOUT it is?
+
+Cheers,
+Rusty.
+
+Message Framing
+ 
+The original intent of the specification was that message framing 
+(the particular layout of descriptors) be independent of the 
+contents of the buffers. For example, a network transmit buffer 
+consists of a 12 byte header followed by the network packet. This 
+could be most simply placed in the descriptor table as a 12 byte 
+output descriptor followed by a 1514 byte output descriptor, but 
+it could also consist of a single 1526 byte output descriptor in 
+the case where the header and packet are adjacent, or even three 
+or more descriptors (possibly with loss of efficiency in that 
+case).
+
+Regrettably, initial driver implementations used simple layouts
+and devices came to rely on it, despite this specification 
+wording. It is thus recommended that drivers be conservative in 
+their assumptions, unless specific device features indicate that 
+general layout is permitted using VIRTIO_F_ANY_LAYOUT. In
+addition, some implementations may have large-but-reasonable
+restrictions on total descriptor size (such as based on IOV_MAX
+in the host OS). This has not been a problem in practice: little
+sympathy will be given to drivers which create unreasonably-sized
+descriptors such as dividing a network packet into 1500
+single-byte descriptors!
