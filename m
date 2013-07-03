@@ -1,13 +1,14 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: RFC: vfio interface for platform devices
-Date: Tue, 02 Jul 2013 21:07:19 -0600
-Message-ID: <1372820839.2883.42.camel@ul30vt.home>
-References: <9F6FE96B71CF29479FF1CDC8046E15036334B4@039-SN1MPN1-004.039d.mgd.msft.net>
+From: Michele Baldessari <michele@acksyn.org>
+Subject: Re: [PATCHv2] vhost-net: fix use-after-free in vhost_net_flush
+Date: Wed, 3 Jul 2013 08:55:35 +0200
+Message-ID: <20130703065535.GA2748@marquez.int.rhx>
+References: <20130625142946.GA17414@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9F6FE96B71CF29479FF1CDC8046E15036334B4@039-SN1MPN1-004.039d.mgd.msft.net>
+Content-Disposition: inline
+In-Reply-To: <20130625142946.GA17414@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,350 +18,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoder Stuart-B08248 <B08248@freescale.com>
-Cc: Wood Scott-B07421 <B07421@freescale.com>, "kvm@vger.kernel.org list" <kvm@vger.kernel.org>, Bhushan Bharat-R65777 <R65777@freescale.com>, "kvm-ppc@vger.kernel.org" <kvm-ppc@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Sethi Varun-B16395 <B16395@freescale.com>, Antonios Motakis <a.motakis@virtualopensystems.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2013-07-02 at 23:25 +0000, Yoder Stuart-B08248 wrote:
-> The write-up below is the first draft of a proposal for how the kernel can expose
-> platform devices to user space using vfio.
-> 
-> In short, I'm proposing a new ioctl VFIO_DEVICE_GET_DEVTREE_INFO which
-> allows user space to correlate regions and interrupts to the corresponding
-> device tree node structure that is defined for most platform devices.
-> 
-> Regards,
-> Stuart Yoder
-> 
-> ------------------------------------------------------------------------------
-> VFIO for Platform Devices
-> 
-> The existing infrastructure for vfio-pci is pretty close to what we need:
->    -mechanism to create a container
->    -add groups/devices to a container
->    -set the IOMMU model
->    -map DMA regions
->    -get an fd for a specific device, which allows user space to determine
->     info about device regions (e.g. registers) and interrupt info
->    -support for mmapping device regions
->    -mechanism to set how interrupts are signaled
-> 
-> Platform devices can get complicated-- potentially with a tree hierarchy
-> of nodes, and links/phandles pointing to other platform 
-> devices.   The kernel doesn't expose relationships between
-> devices.  The kernel just exposes mappable register regions and interrupts.
-> It's up to user space to work out relationships between devices
-> if it needs to-- this can be determined in the device tree exposed in
-> /proc/device-tree.
-> 
-> I think the changes needed for vfio are around some of the device tree
-> related info that needs to be available with the device fd.
-> 
-> 1.  VFIO_GROUP_GET_DEVICE_FD
-> 
->   User space has to know which device it is accessing and will call
->   VFIO_GROUP_GET_DEVICE_FD passing a specific platform device path to
->   get the device information:
-> 
->   fd = ioctl(group, VFIO_GROUP_GET_DEVICE_FD, "/soc@ffe000000/usb@210000");
-> 
->   (whether the path is a device tree path or a sysfs path is up for
->   discussion, e.g. "/sys/bus/platform/devices/ffe210000.usb")
-> 
-> 2.  VFIO_DEVICE_GET_INFO
-> 
->    Don't think any changes are needed to VFIO_DEVICE_GET_INFO other
->    than adding a new flag identifying a devices as a 'platform'
->    device.
-> 
->    This ioctl simply returns the number of regions and number of irqs.
-> 
->    The number of regions corresponds to the number of regions
->    that can be mapped for the device-- corresponds to the regions defined
->    in "reg" and "ranges" in the device tree.  
-> 
-> 3.  VFIO_DEVICE_GET_REGION_INFO
-> 
->    No changes needed, except perhaps adding a new flag.  Freescale has some
->    devices with regions that must be mapped cacheable.
-> 
-> 3.  VFIO_DEVICE_GET_IRQ_INFO
-> 
->    No changes needed.
-> 
-> 4. VFIO_DEVICE_GET_DEVTREE_INFO
-> 
->    The VFIO_DEVICE_GET_REGION_INFO and VFIO_DEVICE_GET_IRQ_INFO APIs
->    expose device regions and interrupts, but it's not enough to know
->    that there are X regions and Y interrupts.  User space needs to
->    know what the resources are for-- to correlate those regions/interrupts
->    to the device tree structure that drivers use.  The device tree
->    structure could consist of multiple nodes and it is necessary to
->    identify the node corresponding to the region/interrupt exposed
->    by VFIO.
-> 
->    The following information is needed:
->       -the device tree path to the node corresponding to the
->        region or interrupt
->       -for a region, whether it corresponds to a "reg" or "ranges"
->        property
->       -there could be multiple sub-regions per "reg" or "ranges" and
->        the sub-index within the reg/ranges is needed
-> 
->    The VFIO_DEVICE_GET_DEVTREE_INFO operates on a device fd.
-> 
->    ioctl: VFIO_DEVICE_GET_DEVTREE_INFO
->    
->    struct vfio_path_info {
->         __u32   argsz;
->         __u32   flags;
->    #define VFIO_DEVTREE_INFO_RANGES      (1 << 3) /* the region is a "ranges" property */
+On Tue, Jun 25, 2013 at 05:29:46PM +0300, Michael S. Tsirkin wrote:
+> vhost_net_ubuf_put_and_wait has a confusing name:
+> it will actually also free it's argument.
+> Thus since commit 1280c27f8e29acf4af2da914e80ec27c3dbd5c01
+>     "vhost-net: flush outstanding DMAs on memory change"
+> vhost_net_flush tries to use the argument after passing it
+> to vhost_net_ubuf_put_and_wait, this results
+> in use after free.
+> To fix, don't free the argument in vhost_net_ubuf_put_and_wait,
+> add an new API for callers that want to free ubufs.
 
-(1 << 0)?
+This patch (slightly tweaked to apply it to 3.10.0) fixes the following
+backtrace for me:
 
-Having flags = 0x0 for regs and 0x1 for ranges is a bit awkward.  I'd
-suggest a bit for each.  Otherwise, what does it mean when this returns
-flags = 0x0 for an irq?
+    [exception RIP: vhost_poll_queue+10]
+    RIP: ffffffffa05d5baa  RSP: ffff88013fa83c78  RFLAGS: 00010286
+    RAX: 00000000c23988bd  RBX: ffff88011f504200  RCX: 0000000000000003
+    RDX: 0000000000000000  RSI: 00000000000000c0  RDI: 0000000000000080
+    RBP: ffff88013fa83ca8   R8: ffffea0000dc1ba0   R9: 000000000009f414
+    R10: 00000000000040b4  R11: 0000000000000000  R12: ffff88011ddb0000
+    R13: 0000000000000000  R14: 0000000000000000  R15: ffff88011dcf5a00
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #9 [ffff88013fa83c80] vhost_zerocopy_callback at ffffffffa05d8dac [vhost_net]
+#10 [ffff88013fa83cb0] skb_copy_ubufs at ffffffff8152e0cd
+#11 [ffff88013fa83d10] skb_clone at ffffffff8152e214
+#12 [ffff88013fa83d30] deliver_clone at ffffffffa05840f5 [bridge]
+#13 [ffff88013fa83d58] br_flood at ffffffffa05846ad [bridge]
+#14 [ffff88013fa83da0] br_flood_forward at ffffffffa0584875 [bridge]
+#15 [ffff88013fa83db0] br_handle_frame_finish at ffffffffa0585514 [bridge]
+#16 [ffff88013fa83df0] br_handle_frame at ffffffffa0585825 [bridge]
+#17 [ffff88013fa83e28] __netif_receive_skb_core at ffffffff8153b522
+#18 [ffff88013fa83e80] __netif_receive_skb at ffffffff8153bae8
+#19 [ffff88013fa83ea0] process_backlog at ffffffff8153c61e
+#20 [ffff88013fa83ee8] net_rx_action at ffffffff8153bed9
+#21 [ffff88013fa83f40] __do_softirq at ffffffff81064997
+#22 [ffff88013fa83fb0] call_softirq at ffffffff81651adc
+--- <IRQ stack> ---
+#23 [ffff88011ea27ca0] netif_rx at ffffffff8153ad99
+#24 [ffff88011ea27cd8] netif_rx_ni at ffffffff8153b218
+#25 [ffff88011ea27cf0] tun_get_user at ffffffffa05a78ff [tun]
+#26 [ffff88011ea27d80] tun_sendmsg at ffffffffa05a7d27 [tun]
+#27 [ffff88011ea27da0] handle_tx at ffffffffa05d8830 [vhost_net]
+#28 [ffff88011ea27e60] handle_tx_kick at ffffffffa05d8c55 [vhost_net]
+#29 [ffff88011ea27e70] vhost_worker at ffffffffa05d578d [vhost_net]
+#30 [ffff88011ea27ed0] kthread at ffffffff81080ba0
+#31 [ffff88011ea27f50] ret_from_fork at ffffffff8165066c
+    [exception RIP: unknown or invalid address]
+    RIP: 0000000000000000  RSP: ffff88011ea27f58  RFLAGS: 00000202
+    RAX: 0000000000000000  RBX: ffffffff81080ae0  RCX: 0000000000000000
+    RDX: 0000000000000000  RSI: 0000000000000000  RDI: 0000000000000000
+    RBP: ffff8801371cfcf8   R8: 0000000000000000   R9: 0000000000000000
+    R10: 0000000000000000  R11: 0000000000000000  R12: 0000000000000000
+    R13: 0000000000000000  R14: 0000000000000000  R15: 0000000000000000
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
 
->         __u32   index;          /* input: index of region or irq for which we are getting info */
->         __u32   type;           /* input: 0 - get devtree info for a region
->                                           1 - get devtree info for an irq
->                                  */
->         __u32   start;          /* output: identifies the index within the reg/ranges */
->         __u8    path[];         /* output: Full path to associated device tree node */
->    };
-> 
->    User space allocates enough space for the device tree path, sets
->    the type field identifying whether this is a region, or irq,
->    and sets argsz appropriately.
-> 
-> 5.  EXAMPLE 1
-> 
->     Example, Freescale SATA controller:
-> 
->      sata@220000 {
->          compatible = "fsl,p2041-sata", "fsl,pq-sata-v2";
->          reg = <0x220000 0x1000>;
->          interrupts = <0x44 0x2 0x0 0x0>;
->      };
-> 
->     request to get device FD would look like:
->       fd = ioctl(group, VFIO_GROUP_GET_DEVICE_FD, "/soc@ffe000000/sata@220000");
-> 
->     The VFIO_DEVICE_GET_INFO ioctl would return:
->       -1 region
->       -1 interrupts
-> 
->     The VFIO_DEVICE_GET_REGION_INFO ioctl would return:
->       -for index 0:
->            offset=0, size=0x10000 -- allows mmap of physical 0xffe220000
-> 
->     The VFIO_DEVICE_GET_IRQ_INFO ioctl would return appropriate info
->     for the single interrupt.
-> 
->     The VFIO_DEVICE_GET_DEVTREE_INFO ioctl would return:
-> 
->       -for region index 0:
->           flags: 0x0     // i.e. this is a "reg" property
->           start: 0x0     // i.e. index 0x0 in "reg"
->           path: "/soc@ffe000000/sata@220000"
-> 
->       -for interrupt index 0:
->           path: "/soc@ffe000000/sata@220000"
-> 
-> 6.  EXAMPLE 2
-> 
->     Example, Freescale crypto device (modified to illustrate):
-> 
->      crypto@300000 {
->         compatible = "fsl,sec-v4.2", "fsl,sec-v4.0";
->         #address-cells = <0x1>;
->         #size-cells = <0x1>;
->         reg = <0x300000 0x10000>;
->         interrupts = <0x5c 0x2 0x0 0x0>;
->   
->         jr@1000 {
->            compatible = "fsl,sec-v4.2-job-ring", "fsl,sec-v4.0-job-ring";
->            interrupts = <0x58 0x2 0x0 0x0>;
->         };
->   
->         jr@2000 {
->            compatible = "fsl,sec-v4.2-job-ring", "fsl,sec-v4.0-job-ring";
->            interrupts = <0x59 0x2 0x0 0x0>;
->         };
->      };
-> 
->     request to get device FD would look like:
->       fd = ioctl(group, VFIO_GROUP_GET_DEVICE_FD, "/soc@ffe000000/crypto@300000");
-> 
->     The VFIO_DEVICE_GET_INFO ioctl would return:
->       -1 region
->       -3 interrupts
-> 
->     The VFIO_DEVICE_GET_REGION_INFO ioctl would return:
->       -for index 0:
->            offset=0, size=0x10000 -- allows mmap of physical 0xffe300000
-> 
->     The VFIO_DEVICE_GET_IRQ_INFO ioctl would return appropriate info
->     for each of the IRQs-- indexes 0-4.
-> 
->     The VFIO_DEVICE_GET_DEVTREE_INFO ioctl would return:
-> 
->       -for region index 0:
->           flags: 0x0     // i.e. this is a "reg" property
->           start: 0x0     // i.e. index 0x0 in "reg"
->           path: "/soc@ffe000000/crypto@300000"
-> 
->       -for interrupt index 0:
->           path: "/soc@ffe000000/crypto@300000/jr@1000"
-> 
->       -for interrupt index 1:
->           path: "/soc@ffe000000/crypto@300000/jr@2000"
-> 
-> 7.  EXAMPLE 3
-> 
->     Example, Freescale DMA engine (modified to illustrate):
-> 
->     dma@101300 {
->        cell-index = <0x1>;
->        ranges = <0x0 0x101100 0x200>;
->        reg = <0x101300 0x4>;
->        compatible = "fsl,eloplus-dma";
->        #size-cells = <0x1>;
->        #address-cells = <0x1>;
->        fsl,liodn = <0xc6>;
->     
->        dma-channel@180 {
->           interrupts = <0x23 0x2 0x0 0x0>;
->           cell-index = <0x3>;
->           reg = <0x180 0x80>;
->           compatible = "fsl,eloplus-dma-channel";
->        };
->     
->        dma-channel@100 {
->           interrupts = <0x22 0x2 0x0 0x0>;
->           cell-index = <0x2>;
->           reg = <0x100 0x80>;
->           compatible = "fsl,eloplus-dma-channel";
->        };
-> 
->     };
-> 
->     request to get device FD would look like:
->       fd = ioctl(group, VFIO_GROUP_GET_DEVICE_FD, "/soc@ffe000000/dma@101300");
-> 
->     The VFIO_DEVICE_GET_INFO ioctl would return:
->       -2 regions
->       -2 interrupts
-> 
->     The VFIO_DEVICE_GET_REGION_INFO ioctl would return:
->       -for index 0:
->            offset=0x100, size=0x200 -- allows mmap of physical 0xffe101100
->       -for index 1:
->            offset=0x300, size=0x4 -- allows mmap of physical 0xffe101300
-> 
->     The VFIO_DEVICE_GET_IRQ_INFO ioctl would return appropriate info
->     for each of the IRQs-- indexes 0-3.
-> 
->     The VFIO_DEVICE_GET_DEVTREE_INFO ioctl would return:
-> 
->       -for region index 0:
->           flags: 0x1     // i.e. this is a "ranges" property
->           start: 0x0     // i.e. index 0x0 in "ranges"
->           path: "/soc@ffe000000/dma@101300"
-> 
->       -for region index 1:
->           flags: 0x0     // i.e. this is a "reg" property
->           start: 0x0     // i.e. index 0x0 in "ranges"
->           path: "/soc@ffe000000/dma@101300"
-> 
->       -for interrupt index 0:
->           path: "/soc@ffe000000/dma@101300/dma-channel@180"
-> 
->       -for interrupt index 1:
->           path: "/soc@ffe000000/dma@101300/dma-channel@100"
-> 
-> 8.  Open Issues
-> 
->    -how to handle cases where VFIO is requested to handle 
->     a device where the valid, mappable range for a region
->     is less than a page size.   See example above where an 
->     advertised region in the DMA node is 4 bytes.  If exposed
->     to a guest VM, the guest has to be able to map a full page
->     of I/O space which opens a potential security issue.
-
-As AlexG points out, we solve that on vfio-pci by not supporting mmap on
-those regions and only allowing read/write.  If you could make the
-platform map regions on page size boundaries and there's nothing bad a
-guest can do by accessing the empty space, you could still support mmap.
-We can't make such requirements or guarantees on PCI though.  The PCI
-spec also suggests for devices to use page size regions and high
-performance devices generally follow that request, so it has become a
-fallback for low performance devices and I/O port space, which we can't
-mmap on x86 anyway.
-
-So overall the interface and extension makes sense.  My only question is
-whether it's better to get complete reuse out of GET_REGION_INFO and
-GET_IRQ_INFO and then add another device tree specific ioctl or is it
-better to add a device tree index and path to the existing GET_*_INFO
-ioctls?  Getting some information from one ioctl and passing pieces of
-it back to another ioctl feels a little clunky.
-
-DEVICE_GET_INFO will identify the device as device tree, which gives you
-the opportunity to extend or replace vfio_region_info and vfio_irq_info.
-It seems like it could even be done in a compatible way.  For example,
-if you were to call VFIO_DEVICE_GET_REGION_INFO with argsz =
-sizeof(struct vfio_region_info), the kernel could fill in all the info
-up to that size and fill argsz with the size needed for the remaining
-info.  You could then realloc the buffer and the kernel would add the
-extra info on the next call, setting a flag for each additional field
-returned.  Userspace could also just be sloppy and call it with a lot of
-padding and get everything in one shot.
-
-We'd need to define which flags have associated structures and define
-those structures.  For instance, some require no space:
-
-#define VFIO_DEVTREE_REGION_INFO_FLAG_REG (1 << ?)
-#define VFIO_DEVTREE_REGION_INFO_FLAG_RANGE (1 << ?)
-
-Others imply a structure added to the end:
-
-#define VFIO_DEVTREE_REGION_INFO_FLAG_INDEX (1 << ?)
-
-struct vfio_devtree_region_info_index
-{
-	u32	index;
-}
-
-#define VFIO_DEVTREE_REGION_INFO_FLAG_PATH (1 << ?)
-
-struct vfio_devtree_region_info_path
-{
-	u32	len;
-	u8	path[];
-}
-
-The order of the flags indicates the order of the structures at the end.
-We'd need to have some rules about alignment, probably always dword
-aligned.  I'm not sure if it would be necessary each structure to have a
-length.  It would only be needed if we want to let userspace skip over
-structures they don't understand how to parse.
-
-Another idea is that the space after struct vfio_region/irq_info could
-be a self describing capabilities area, much like PCI config space.
-Starting immediately after the static structure we'd have:
-
-struct vfio_info_cap_header
-{
-	u16	type;
-	u16	next;
-};
-
-Where type defines the structure that follows and next indicates the
-offset of then next header (could also be len of current cap).
-
-Anyway, it seems like there are possibilities that would allow us to
-extend the info ioctls in ways that would be generic for any device
-type.  Thanks,
-
-Alex
+Feel free to add when you resubmit to net:
+Tested-by: Michele Baldessari <michele@acksyn.org>
+-- 
+Michele Baldessari            <michele@acksyn.org>
+C2A5 9DA3 9961 4FFB E01B  D0BC DDD4 DCCB 7515 5C6D
