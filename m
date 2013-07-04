@@ -1,16 +1,15 @@
-From: Scott Wood <scottwood@freescale.com>
-Subject: Re: RFC: vfio interface for platform devices (v2)
-Date: Wed, 3 Jul 2013 18:06:22 -0500
-Message-ID: <1372892782.8183.158__35965.8945621506$1372896495$gmane$org@snotra>
-References: <9F6FE96B71CF29479FF1CDC8046E1503633DEF@039-SN1MPN1-004.039d.mgd.msft.net>
-	<1372891989.2883.248.camel@ul30vt.home>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH net] virtio-net: fix the race between channels setting
+	and refill
+Date: Thu, 4 Jul 2013 08:56:44 +0800
+Message-ID: <20130704005644.GB19787@hj.localdomain>
+References: <1372853752-41889-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="Flowed"; DelSp="Yes"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1372891989.2883.248.camel@ul30vt.home> (from
-	alex.williamson@redhat.com on Wed Jul  3 17:53:09 2013)
 Content-Disposition: inline
+In-Reply-To: <1372853752-41889-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,28 +19,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alex Williamson <alex.williamson@redhat.com>
-Cc: Wood Scott-B07421 <B07421@freescale.com>, "kvm@vger.kernel.org list" <kvm@vger.kernel.org>, Antonios Motakis <a.motakis@virtualopensystems.com>, "kvm-ppc@vger.kernel.org" <kvm-ppc@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Yoder Stuart-B08248 <B08248@freescale.com>, Bhushan Bharat-R65777 <R65777@freescale.com>, Sethi Varun-B16395 <B16395@freescale.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sasha Levin <sasha.levin@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/03/2013 05:53:09 PM, Alex Williamson wrote:
-> Seems like it should work.  My only API concern with this model of
-> appending structs is that a user needs to know the size of each struct
-> even if they don't otherwise care about it in order to step over it.
+On Wed, Jul 03, 2013 at 08:15:52PM +0800, Jason Wang wrote:
+> Commit 55257d72bd1c51f25106350f4983ec19f62ed1fa (virtio-net: fill only rx queues
+> which are being used) tries to refill on demand when changing the number of
+> channels by call try_refill_recv() directly, this may race:
+> 
+> - the refill work who may do the refill in the same time
+> - the try_refill_recv() called in bh since napi was not disabled
+> 
+> Which may led guest complain during setting channels:
+> 
+> virtio_net virtio0: input.1:id 0 is not a head!
+> 
+> Solve this issue by scheduling a refill work which can guarantee the
+> serialization of refill.
+> 
+> Cc: Sasha Levin <sasha.levin@oracle.com>
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-In that case, it might be better to make the struct grow linearly  
-rather than with options, and just have a version number on the struct  
-indicating how far the caller thinks struct has grown.  The kernel  
-could respond back with a lower version to reflect that it only filled  
-in the fields it knows about.  Flags could still be used to indicate  
-which portions of the struct are relevant, but not the physical layout  
-of the struct.
+Reviewed-by: Asias He <asias@redhat.com>
 
-> In some cases, like the path, the size is variable and the user needs  
-> to
-> look into it.
+> ---
+>  drivers/net/virtio_net.c |    5 +----
+>  1 files changed, 1 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index c9e0038..47b4882 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -901,7 +901,6 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>  	struct scatterlist sg;
+>  	struct virtio_net_ctrl_mq s;
+>  	struct net_device *dev = vi->dev;
+> -	int i;
+>  
+>  	if (!vi->has_cvq || !virtio_has_feature(vi->vdev, VIRTIO_NET_F_MQ))
+>  		return 0;
+> @@ -915,10 +914,8 @@ static int virtnet_set_queues(struct virtnet_info *vi, u16 queue_pairs)
+>  			 queue_pairs);
+>  		return -EINVAL;
+>  	} else {
+> -		for (i = vi->curr_queue_pairs; i < queue_pairs; i++)
+> -			if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
+> -				schedule_delayed_work(&vi->refill, 0);
+>  		vi->curr_queue_pairs = queue_pairs;
+> +		schedule_delayed_work(&vi->refill, 0);
+>  	}
 
-For things like path, maybe the caller should just pass in a string  
-buffer that is separate from the struct buffer?
+Also, this is not on the data path, it is simpler this way.
 
--Scott
+>  
+>  	return 0;
+> -- 
+> 1.7.1
+> 
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+
+-- 
+Asias
