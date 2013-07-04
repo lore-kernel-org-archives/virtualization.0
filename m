@@ -1,19 +1,14 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Thu, 04 Jul 2013 11:05:13 +0200
-Message-ID: <51D53AC9.80506@redhat.com>
-References: <20130613080259.GA11175@redhat.com>
-	<20130613081047.GA11269@redhat.com>
-	<20130617063746.GA5693@redhat.com> <87r4fyn1wx.fsf@rustcorp.com.au>
-	<20130619082417.GA2558@redhat.com>
-	<51C16BC2.2060302@redhat.com> <8761x9mrmk.fsf@rustcorp.com.au>
-	<51C2CABD.70000@redhat.com> <87ppv3tb3y.fsf@rustcorp.com.au>
-	<51D16EB8.3050709@redhat.com> <20130704073912.GE2095@redhat.com>
-Mime-Version: 1.0
+From: Alexander Graf <agraf@suse.de>
+Subject: Re: RFC: vfio interface for platform devices (v2)
+Date: Thu, 4 Jul 2013 16:47:24 +0200
+Message-ID: <2D4FD48F-4336-4125-861F-A0A73B9D5C00__14416.3700439551$1372949260$gmane$org@suse.de>
+References: <9F6FE96B71CF29479FF1CDC8046E1503633DEF@039-SN1MPN1-004.039d.mgd.msft.net>
+	<51D58A65.6060704@huawei.com>
+Mime-Version: 1.0 (Apple Message framework v1278)
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130704073912.GE2095@redhat.com>
+In-Reply-To: <51D58A65.6060704@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,30 +18,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Mario Smarduch <mario.smarduch@huawei.com>
+Cc: Wood Scott-B07421 <B07421@freescale.com>, "kvm@vger.kernel.org list" <kvm@vger.kernel.org>, "kvm-ppc@vger.kernel.org" <kvm-ppc@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Yoder Stuart-B08248 <B08248@freescale.com>, Bhushan Bharat-R65777 <R65777@freescale.com>, Sethi Varun-B16395 <B16395@freescale.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 04/07/2013 09:39, Michael S. Tsirkin ha scritto:
->>>>> > > > > Mainly because I'm not sure that *all* devices are now safe.  Are they?
->>>> > > >
->>>> > > > virtio-scsi's implementation in QEMU is not safe (been delaying that for
->>>> > > > too long, sorry), but the spec is safe.
->>> > > 
->>> > > Then if we added a transport feature, we couldn't use it :(
->> > 
->> > Transport feature bits are still negotiated per device though.
->> > virtio-scsi devices in QEMU would not negotiate that feature.
->> > 
->> > Paolo
->> > 
->>> > > So I think it needs to be a per-device feature bit.
-> We don't know that it's helpful for any devices besides -net
-> so I'd say keep it simple.
 
-Then we should stop calling it a "device model bug".
+On 04.07.2013, at 16:44, Mario Smarduch wrote:
 
-If we call it a bug, we must strive for support in all devices.  If we
-don't care, we should stop calling it a bug.
+> 
+> I'm having trouble understanding how this works where
+> the Guest Device Model != Host. How do you inform the guest
+> where the device is mapped in its physical address space,
+> and handle GPA faults?
 
-Paolo
+The same way as you would for emulated devices.
+
+
+Alex
