@@ -1,12 +1,14 @@
 From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [PATCH-v2 0/3] target/vhost-scsi: Add per-cpu ida tag pre-allocation
-	for v3.12
-Date: Sat,  6 Jul 2013 22:03:20 +0000
-Message-ID: <1373148203-7150-1-git-send-email-nab__23675.6339589649$1373149074$gmane$org@linux-iscsi.org>
+Subject: [PATCH-v2 1/3] target: Add transport_init_session_tags using per-cpu
+	ida
+Date: Sat,  6 Jul 2013 22:03:21 +0000
+Message-ID: <1373148203-7150-2-git-send-email-nab@linux-iscsi.org>
+References: <1373148203-7150-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1373148203-7150-1-git-send-email-nab@linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,46 +24,115 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-Hi folks,
+This patch adds lib/idr.c based transport_init_session_tags() logic
+that allows fabric drivers to setup a per-cpu se_sess->sess_tag_pool
+and associated se_sess->sess_cmd_map for basic tagged pre-allocation
+of fabric descriptor sized memory.
 
-This is an updated series for adding tag pre-allocation support of
-target fabric descriptor memory, utilizing Kent's latest in-flight
-per-cpu ida bits here:
+v3: Update to percpu-ida usage
 
-   [PATCH v3] lib/idr.c rewrite, percpu ida/tag allocator
-   http://marc.info/?l=linux-kernel&m=137308733526328&w=2
-
-Patch #1 includes target-core setup of se_sess->sess_cmd_map +
-se_sess->sess_tag_pool resources at session creation time, using
-fabric independent code in transport_init_session_tags().
-
-Patch #2 is the initial conversion of vhost-scsi fabric code to use
-per-cpu ida logic for obtaining a new tcm_vhost_cmd descriptor via
-vhost_scsi_get_tag() during vhost_work_fn_t->handle_kick() ->
-vhost_scsi_handle_vq() callback execution.
-
-And patch #3 is a vhost-scsi change that adds pre-allocation of per
-tcm_vhost_cmd descriptor scatterlist + user-space page pointer memory,
-that allows the last two fast-path allocations to be dropped from
-tcm_vhost_submission_work() -> vhost_scsi_map_to_sgl() fast-path
-execution.
-
-Please review as v3.12 material.
-
-Thanks!
-
---nab
-
-Nicholas Bellinger (3):
-  target: Add transport_init_session_tags using per-cpu ida
-  vhost/scsi: Convert to per-cpu ida_alloc + ida_free command map
-  vhost/scsi: Add pre-allocation for tv_cmd SGL + upages memory
-
- drivers/target/target_core_transport.c |   33 ++++++++
- drivers/vhost/scsi.c                   |  130 ++++++++++++++++++++++++--------
- include/target/target_core_base.h      |    5 +
+Cc: Kent Overstreet <kmo@daterainc.com>
+Cc: Asias He <asias@redhat.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+---
+ drivers/target/target_core_transport.c |   33 ++++++++++++++++++++++++++++++++
+ include/target/target_core_base.h      |    5 ++++
  include/target/target_core_fabric.h    |    1 +
- 4 files changed, 137 insertions(+), 32 deletions(-)
+ 3 files changed, 39 insertions(+), 0 deletions(-)
 
+diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
+index 7172d00..64ceb51 100644
+--- a/drivers/target/target_core_transport.c
++++ b/drivers/target/target_core_transport.c
+@@ -232,6 +232,35 @@ struct se_session *transport_init_session(void)
+ }
+ EXPORT_SYMBOL(transport_init_session);
+ 
++struct se_session *transport_init_session_tags(unsigned int tag_num,
++					       unsigned int tag_size)
++{
++	struct se_session *se_sess;
++	int rc;
++
++	se_sess = transport_init_session();
++	if (IS_ERR(se_sess))
++		return se_sess;
++
++	se_sess->sess_cmd_map = kzalloc(tag_num * tag_size, GFP_KERNEL);
++	if (!se_sess->sess_cmd_map) {
++		pr_err("Unable to allocate se_sess->sess_cmd_map\n");
++		transport_free_session(se_sess);
++		return ERR_PTR(-ENOMEM);
++	}
++
++	rc = percpu_ida_init(&se_sess->sess_tag_pool, tag_num);
++	if (rc < 0) {
++		pr_err("Unable to init se_sess->sess_tag_pool,"
++			" tag_num: %u\n", tag_num);
++		transport_free_session(se_sess);
++		return ERR_PTR(-ENOMEM);
++	}
++
++	return se_sess;
++}
++EXPORT_SYMBOL(transport_init_session_tags);
++
+ /*
+  * Called with spin_lock_irqsave(&struct se_portal_group->session_lock called.
+  */
+@@ -367,6 +396,10 @@ EXPORT_SYMBOL(transport_deregister_session_configfs);
+ 
+ void transport_free_session(struct se_session *se_sess)
+ {
++	if (se_sess->sess_cmd_map) {
++		percpu_ida_destroy(&se_sess->sess_tag_pool);
++		kfree(se_sess->sess_cmd_map);
++	}
+ 	kmem_cache_free(se_sess_cache, se_sess);
+ }
+ EXPORT_SYMBOL(transport_free_session);
+diff --git a/include/target/target_core_base.h b/include/target/target_core_base.h
+index d92ec67..a842884 100644
+--- a/include/target/target_core_base.h
++++ b/include/target/target_core_base.h
+@@ -5,6 +5,7 @@
+ #include <linux/configfs.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/blkdev.h>
++#include <linux/idr.h>
+ #include <scsi/scsi_cmnd.h>
+ #include <net/sock.h>
+ #include <net/tcp.h>
+@@ -418,6 +419,8 @@ struct se_cmd {
+ 	enum dma_data_direction	data_direction;
+ 	/* For SAM Task Attribute */
+ 	int			sam_task_attr;
++	/* Used for se_sess->sess_tag_pool */
++	unsigned int		map_tag;
+ 	/* Transport protocol dependent state, see transport_state_table */
+ 	enum transport_state_table t_state;
+ 	unsigned		cmd_wait_set:1;
+@@ -539,6 +542,8 @@ struct se_session {
+ 	struct list_head	sess_wait_list;
+ 	spinlock_t		sess_cmd_lock;
+ 	struct kref		sess_kref;
++	void			*sess_cmd_map;
++	struct percpu_ida	sess_tag_pool;
+ };
+ 
+ struct se_device;
+diff --git a/include/target/target_core_fabric.h b/include/target/target_core_fabric.h
+index 1dcce9c..d34f2ce 100644
+--- a/include/target/target_core_fabric.h
++++ b/include/target/target_core_fabric.h
+@@ -84,6 +84,7 @@ struct target_core_fabric_ops {
+ };
+ 
+ struct se_session *transport_init_session(void);
++struct se_session *transport_init_session_tags(unsigned int, unsigned int);
+ void	__transport_register_session(struct se_portal_group *,
+ 		struct se_node_acl *, struct se_session *, void *);
+ void	transport_register_session(struct se_portal_group *,
 -- 
 1.7.2.5
