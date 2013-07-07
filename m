@@ -1,10 +1,10 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] tools/virtio: move module license stub to module.h
-Date: Sun, 7 Jul 2013 17:29:44 +0300
-Message-ID: <20130707142944.GA3022@redhat.com>
+Subject: [PATCH] MAINTAINERS: add tools/virtio/ under virtio
+Date: Sun, 7 Jul 2013 17:32:38 +0300
+Message-ID: <20130707143238.GA3059@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -16,36 +16,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhpcyBmaXhlcyBidWlsZCBmb3IgdGhlIHZyaW5naCB0ZXN0OgpbbGludXhdJCBtYWtlIC1DIHRv
-b2xzL3ZpcnRpby8KbWFrZTogRW50ZXJpbmcgZGlyZWN0b3J5IGAvaG9tZS9tc3Qvc2NtL2xpbnV4
-L3Rvb2xzL3ZpcnRpbycKY2MgLWcgLU8yIC1XYWxsIC1JLiAtSSAuLi8uLi91c3IvaW5jbHVkZS8g
-LVduby1wb2ludGVyLXNpZ24KLWZuby1zdHJpY3Qtb3ZlcmZsb3cgLWZuby1zdHJpY3QtYWxpYXNp
-bmcgLWZuby1jb21tb24gLU1NRAotVV9GT1JUSUZZX1NPVVJDRSAgIC1jIC1vIHZyaW5naC5vIC4u
-Ly4uL2RyaXZlcnMvdmhvc3QvdnJpbmdoLmMKLi4vLi4vZHJpdmVycy92aG9zdC92cmluZ2guYzox
-MDEwOjE2OiBlcnJvcjogZXhwZWN0ZWQgZGVjbGFyYXRpb24Kc3BlY2lmaWVycyBvciDigJguLi7i
-gJkgYmVmb3JlIHN0cmluZyBjb25zdGFudAoKU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2ly
-a2luIDxtc3RAcmVkaGF0LmNvbT4KLS0tCiB0b29scy92aXJ0aW8vbGludXgvbW9kdWxlLmggfCA1
-ICsrKysrCiB0b29scy92aXJ0aW8vbGludXgvdmlydGlvLmggfCAzIC0tLQogMiBmaWxlcyBjaGFu
-Z2VkLCA1IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvdG9vbHMv
-dmlydGlvL2xpbnV4L21vZHVsZS5oIGIvdG9vbHMvdmlydGlvL2xpbnV4L21vZHVsZS5oCmluZGV4
-IDMwMzlhN2UuLjI4Y2U5NWEgMTAwNjQ0Ci0tLSBhL3Rvb2xzL3ZpcnRpby9saW51eC9tb2R1bGUu
-aAorKysgYi90b29scy92aXJ0aW8vbGludXgvbW9kdWxlLmgKQEAgLTEgKzEsNiBAQAogI2luY2x1
-ZGUgPGxpbnV4L2V4cG9ydC5oPgorCisjZGVmaW5lIE1PRFVMRV9MSUNFTlNFKF9fTU9EVUxFX0xJ
-Q0VOU0VfdmFsdWUpIFwKKwlzdGF0aWMgX19hdHRyaWJ1dGVfXygodW51c2VkKSkgY29uc3QgY2hh
-ciAqX19NT0RVTEVfTElDRU5TRV9uYW1lID0gXAorCQlfX01PRFVMRV9MSUNFTlNFX3ZhbHVlCisK
-ZGlmZiAtLWdpdCBhL3Rvb2xzL3ZpcnRpby9saW51eC92aXJ0aW8uaCBiL3Rvb2xzL3ZpcnRpby9s
-aW51eC92aXJ0aW8uaAppbmRleCBjZDgwMTgzLi44NDQ3ODMwIDEwMDY0NAotLS0gYS90b29scy92
-aXJ0aW8vbGludXgvdmlydGlvLmgKKysrIGIvdG9vbHMvdmlydGlvL2xpbnV4L3ZpcnRpby5oCkBA
-IC00NSw5ICs0NSw2IEBAIHN0cnVjdCB2aXJ0cXVldWUgewogCXZvaWQgKnByaXY7CiB9OwogCi0j
-ZGVmaW5lIE1PRFVMRV9MSUNFTlNFKF9fTU9EVUxFX0xJQ0VOU0VfdmFsdWUpIFwKLQljb25zdCBj
-aGFyICpfX01PRFVMRV9MSUNFTlNFX25hbWUgPSBfX01PRFVMRV9MSUNFTlNFX3ZhbHVlCi0KIC8q
-IEludGVyZmFjZXMgZXhwb3J0ZWQgYnkgdmlydGlvX3JpbmcuICovCiBpbnQgdmlydHF1ZXVlX2Fk
-ZF9zZ3Moc3RydWN0IHZpcnRxdWV1ZSAqdnEsCiAJCSAgICAgIHN0cnVjdCBzY2F0dGVybGlzdCAq
-c2dzW10sCi0tIApNU1QKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This should help make sure patches go to the correct list.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index ad7e322..66172fc 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8800,6 +8800,7 @@ M:	"Michael S. Tsirkin" <mst@redhat.com>
+ L:	virtualization@lists.linux-foundation.org
+ S:	Maintained
+ F:	drivers/virtio/
++F:	tools/virtio/
+ F:	drivers/net/virtio_net.c
+ F:	drivers/block/virtio_blk.c
+ F:	include/linux/virtio_*.h
+-- 
+MST
