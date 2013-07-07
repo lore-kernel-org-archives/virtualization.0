@@ -1,12 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio: include asm/barrier explicitly
-Date: Sun, 7 Jul 2013 17:20:19 +0300
-Message-ID: <20130707142019.GA2447@redhat.com>
+Subject: Re: [PATCH] virtio: include asm/barrier explicitly
+Date: Sun, 7 Jul 2013 17:21:20 +0300
+Message-ID: <20130707142120.GA2465@redhat.com>
+References: <20130707142019.GA2447@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <20130707142019.GA2447@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,26 +22,31 @@ To: kvm@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_ring.h uses mb() and friends, make
-it pull in asm/barrier.h itself, not rely
-on other headers to do it.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/linux/virtio_ring.h | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index ca3ad41..b300787 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -1,6 +1,7 @@
- #ifndef _LINUX_VIRTIO_RING_H
- #define _LINUX_VIRTIO_RING_H
- 
-+#include <asm/barrier.h>
- #include <linux/irqreturn.h>
- #include <uapi/linux/virtio_ring.h>
- 
--- 
-MST
+T24gU3VuLCBKdWwgMDcsIDIwMTMgYXQgMDU6MjA6MTlQTSArMDMwMCwgTWljaGFlbCBTLiBUc2ly
+a2luIHdyb3RlOgo+IHZpcnRpb19yaW5nLmggdXNlcyBtYigpIGFuZCBmcmllbmRzLCBtYWtlCj4g
+aXQgcHVsbCBpbiBhc20vYmFycmllci5oIGl0c2VsZiwgbm90IHJlbHkKPiBvbiBvdGhlciBoZWFk
+ZXJzIHRvIGRvIGl0Lgo+IAo+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0
+QHJlZGhhdC5jb20+CgpJbiBwYXJ0aWN1bGFyIHRoaXMgZml4ZXMgd2FybmluZ3MgZHVyaW5nIHRl
+c3QgYnVpbGQ6CltsaW51eF0kIG1ha2UgLUMgdG9vbHMvdmlydGlvLyAKbWFrZTogRW50ZXJpbmcg
+ZGlyZWN0b3J5IGAvaG9tZS9tc3Qvc2NtL2xpbnV4L3Rvb2xzL3ZpcnRpbycKY2MgLWcgLU8yIC1X
+YWxsIC1JLiAtSSAuLi8uLi91c3IvaW5jbHVkZS8gLVduby1wb2ludGVyLXNpZ24KLWZuby1zdHJp
+Y3Qtb3ZlcmZsb3cgLWZuby1zdHJpY3QtYWxpYXNpbmcgLWZuby1jb21tb24gLU1NRAotVV9GT1JU
+SUZZX1NPVVJDRSAgIC1jIC1vIHZpcnRpb190ZXN0Lm8gdmlydGlvX3Rlc3QuYwpJbiBmaWxlIGlu
+Y2x1ZGVkIGZyb20gLi9saW51eC92aXJ0aW9fcmluZy5oOjE6MCwKICAgICAgICAgICAgICAgICBm
+cm9tIC4uLy4uL3Vzci9pbmNsdWRlL2xpbnV4L3Zob3N0Lmg6MTcsCiAgICAgICAgICAgICAgICAg
+ZnJvbSB2aXJ0aW9fdGVzdC5jOjE0OgouL2xpbnV4Ly4uLy4uLy4uL2luY2x1ZGUvbGludXgvdmly
+dGlvX3JpbmcuaDogSW4gZnVuY3Rpb24g4oCYdmlydGlvX21i4oCZOgouL2xpbnV4Ly4uLy4uLy4u
+L2luY2x1ZGUvbGludXgvdmlydGlvX3JpbmcuaDo1MDoyOiB3YXJuaW5nOiBpbXBsaWNpdApkZWNs
+YXJhdGlvbiBvZiBmdW5jdGlvbiDigJhtYuKAmSBbLVdpbXBsaWNpdC1mdW5jdGlvbi1kZWNsYXJh
+dGlvbl0KCgo+IC0tLQo+ICBpbmNsdWRlL2xpbnV4L3ZpcnRpb19yaW5nLmggfCAxICsKPiAgMSBm
+aWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCspCj4gCj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGlu
+dXgvdmlydGlvX3JpbmcuaCBiL2luY2x1ZGUvbGludXgvdmlydGlvX3JpbmcuaAo+IGluZGV4IGNh
+M2FkNDEuLmIzMDA3ODcgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5o
+Cj4gKysrIGIvaW5jbHVkZS9saW51eC92aXJ0aW9fcmluZy5oCj4gQEAgLTEsNiArMSw3IEBACj4g
+ICNpZm5kZWYgX0xJTlVYX1ZJUlRJT19SSU5HX0gKPiAgI2RlZmluZSBfTElOVVhfVklSVElPX1JJ
+TkdfSAo+ICAKPiArI2luY2x1ZGUgPGFzbS9iYXJyaWVyLmg+Cj4gICNpbmNsdWRlIDxsaW51eC9p
+cnFyZXR1cm4uaD4KPiAgI2luY2x1ZGUgPHVhcGkvbGludXgvdmlydGlvX3JpbmcuaD4KPiAgCj4g
+LS0gCj4gTVNUCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
