@@ -1,13 +1,18 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] tools/virtio: move module license stub to module.h
-Date: Mon, 08 Jul 2013 11:32:10 +0930
-Message-ID: <87li5herml.fsf@rustcorp.com.au>
-References: <20130707142944.GA3022@redhat.com>
+From: Kevin O'Connor <kevin@koconnor.net>
+Subject: Re: [PATCH RFC] virtio-pci: new config layout: using memory BAR
+Date: Mon, 8 Jul 2013 00:25:11 -0400
+Message-ID: <20130708042511.GA22991@morn.localdomain>
+References: <20130605162029.GB26561@redhat.com> <51AFA92B.2030203@zytor.com>
+	<87fvwwmdmf.fsf@codemonkey.ws> <51AFB3DD.1050902@zytor.com>
+	<874ndcb47i.fsf@codemonkey.ws> <51AFC4A6.6070607@zytor.com>
+	<877gi8nk9e.fsf@codemonkey.ws> <20130606063432.GQ4725@redhat.com>
+	<51B0A578.2030104@redhat.com> <20130606151012.GD4725@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130707142944.GA3022@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20130606151012.GD4725@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,39 +22,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Gleb Natapov <gleb@redhat.com>
+Cc: Peter Maydell <peter.maydell@linaro.org>, Anthony Liguori <aliguori@us.ibm.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, KONRAD Frederic <fred.konrad@greensocs.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ik1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cml0ZXM6Cj4gVGhpcyBmaXhl
-cyBidWlsZCBmb3IgdGhlIHZyaW5naCB0ZXN0Ogo+IFtsaW51eF0kIG1ha2UgLUMgdG9vbHMvdmly
-dGlvLwo+IG1ha2U6IEVudGVyaW5nIGRpcmVjdG9yeSBgL2hvbWUvbXN0L3NjbS9saW51eC90b29s
-cy92aXJ0aW8nCj4gY2MgLWcgLU8yIC1XYWxsIC1JLiAtSSAuLi8uLi91c3IvaW5jbHVkZS8gLVdu
-by1wb2ludGVyLXNpZ24KPiAtZm5vLXN0cmljdC1vdmVyZmxvdyAtZm5vLXN0cmljdC1hbGlhc2lu
-ZyAtZm5vLWNvbW1vbiAtTU1ECj4gLVVfRk9SVElGWV9TT1VSQ0UgICAtYyAtbyB2cmluZ2gubyAu
-Li8uLi9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jCj4gLi4vLi4vZHJpdmVycy92aG9zdC92cmluZ2gu
-YzoxMDEwOjE2OiBlcnJvcjogZXhwZWN0ZWQgZGVjbGFyYXRpb24KPiBzcGVjaWZpZXJzIG9yIOKA
-mC4uLuKAmSBiZWZvcmUgc3RyaW5nIGNvbnN0YW50Cj4KPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVs
-IFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+IC0tLQo+ICB0b29scy92aXJ0aW8vbGludXgv
-bW9kdWxlLmggfCA1ICsrKysrCj4gIHRvb2xzL3ZpcnRpby9saW51eC92aXJ0aW8uaCB8IDMgLS0t
-Cj4gIDIgZmlsZXMgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQoKQXBw
-bGllZCwgdGhhbmtzLgoKQ2hlZXJzLApSdXN0eS4KCj4gZGlmZiAtLWdpdCBhL3Rvb2xzL3ZpcnRp
-by9saW51eC9tb2R1bGUuaCBiL3Rvb2xzL3ZpcnRpby9saW51eC9tb2R1bGUuaAo+IGluZGV4IDMw
-MzlhN2UuLjI4Y2U5NWEgMTAwNjQ0Cj4gLS0tIGEvdG9vbHMvdmlydGlvL2xpbnV4L21vZHVsZS5o
-Cj4gKysrIGIvdG9vbHMvdmlydGlvL2xpbnV4L21vZHVsZS5oCj4gQEAgLTEgKzEsNiBAQAo+ICAj
-aW5jbHVkZSA8bGludXgvZXhwb3J0Lmg+Cj4gKwo+ICsjZGVmaW5lIE1PRFVMRV9MSUNFTlNFKF9f
-TU9EVUxFX0xJQ0VOU0VfdmFsdWUpIFwKPiArCXN0YXRpYyBfX2F0dHJpYnV0ZV9fKCh1bnVzZWQp
-KSBjb25zdCBjaGFyICpfX01PRFVMRV9MSUNFTlNFX25hbWUgPSBcCj4gKwkJX19NT0RVTEVfTElD
-RU5TRV92YWx1ZQo+ICsKPiBkaWZmIC0tZ2l0IGEvdG9vbHMvdmlydGlvL2xpbnV4L3ZpcnRpby5o
-IGIvdG9vbHMvdmlydGlvL2xpbnV4L3ZpcnRpby5oCj4gaW5kZXggY2Q4MDE4My4uODQ0NzgzMCAx
-MDA2NDQKPiAtLS0gYS90b29scy92aXJ0aW8vbGludXgvdmlydGlvLmgKPiArKysgYi90b29scy92
-aXJ0aW8vbGludXgvdmlydGlvLmgKPiBAQCAtNDUsOSArNDUsNiBAQCBzdHJ1Y3QgdmlydHF1ZXVl
-IHsKPiAgCXZvaWQgKnByaXY7Cj4gIH07Cj4gIAo+IC0jZGVmaW5lIE1PRFVMRV9MSUNFTlNFKF9f
-TU9EVUxFX0xJQ0VOU0VfdmFsdWUpIFwKPiAtCWNvbnN0IGNoYXIgKl9fTU9EVUxFX0xJQ0VOU0Vf
-bmFtZSA9IF9fTU9EVUxFX0xJQ0VOU0VfdmFsdWUKPiAtCj4gIC8qIEludGVyZmFjZXMgZXhwb3J0
-ZWQgYnkgdmlydGlvX3JpbmcuICovCj4gIGludCB2aXJ0cXVldWVfYWRkX3NncyhzdHJ1Y3Qgdmly
-dHF1ZXVlICp2cSwKPiAgCQkgICAgICBzdHJ1Y3Qgc2NhdHRlcmxpc3QgKnNnc1tdLAo+IC0tIAo+
-IE1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+I only recently saw this email.
+
+On Thu, Jun 06, 2013 at 06:10:12PM +0300, Gleb Natapov wrote:
+> On Thu, Jun 06, 2013 at 05:06:32PM +0200, Gerd Hoffmann wrote:
+> > For seabios itself this isn't a big issue, see pci_{readl,writel} in
+> > src/pci.c.  When called in 16bit mode it goes into 32bit mode
+> > temporarily, just for accessing the mmio register.  ahci driver uses it,
+> > xhci driver (wip atm) will use that too, and virtio-{blk,scsi} drivers
+> > in seabios can do the same.
+> > 
+> Isn't this approach broken? How can SeaBIOS be sure it restores real
+> mode registers to exactly same state they were before entering 32bit
+> mode?
+
+You are correct - SeaBIOS can't fully restore the "hidden" segment
+registers.  So, in a way it is broken.
+
+In practice, it seems to work on modern bootloaders (eg, ntldr, grub,
+lilo).  It definitely doesn't work with EMM386 (old DOS stuff), but
+does seem to work okay with FreeDOS as long as one doesn't run EMM386.
+
+The AHCI code uses this 32bit/16bit trampoline because it would not be
+possible to support AHCI otherwise.  I haven't seen any complaints of
+failures with the AHCI code - probably because people using AHCI are
+using modern guests.
+
+I explored this a bit some time back and the only way I could think of
+to reliably restore the 16bit registers would be via SMM.
+Unfortunately, using SMM introduces a whole host of complexity and
+problems.
+
+-Kevin
