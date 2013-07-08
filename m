@@ -1,13 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] MAINTAINERS: add tools/virtio/ under virtio
-Date: Mon, 08 Jul 2013 11:32:25 +0930
-Message-ID: <87ip0lerm6.fsf@rustcorp.com.au>
-References: <20130707143238.GA3059@redhat.com>
+Subject: Re: [PATCH] tools/virtio: move module license stub to module.h
+Date: Mon, 08 Jul 2013 11:32:10 +0930
+Message-ID: <87li5herml.fsf@rustcorp.com.au>
+References: <20130707142944.GA3022@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130707143238.GA3059@redhat.com>
+In-Reply-To: <20130707142944.GA3022@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,35 +17,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> This should help make sure patches go to the correct list.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-Indeed.  Thanks.
-
-Applied,
-Rusty.
-
-> ---
->  MAINTAINERS | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index ad7e322..66172fc 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -8800,6 +8800,7 @@ M:	"Michael S. Tsirkin" <mst@redhat.com>
->  L:	virtualization@lists.linux-foundation.org
->  S:	Maintained
->  F:	drivers/virtio/
-> +F:	tools/virtio/
->  F:	drivers/net/virtio_net.c
->  F:	drivers/block/virtio_blk.c
->  F:	include/linux/virtio_*.h
-> -- 
-> MST
+Ik1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cml0ZXM6Cj4gVGhpcyBmaXhl
+cyBidWlsZCBmb3IgdGhlIHZyaW5naCB0ZXN0Ogo+IFtsaW51eF0kIG1ha2UgLUMgdG9vbHMvdmly
+dGlvLwo+IG1ha2U6IEVudGVyaW5nIGRpcmVjdG9yeSBgL2hvbWUvbXN0L3NjbS9saW51eC90b29s
+cy92aXJ0aW8nCj4gY2MgLWcgLU8yIC1XYWxsIC1JLiAtSSAuLi8uLi91c3IvaW5jbHVkZS8gLVdu
+by1wb2ludGVyLXNpZ24KPiAtZm5vLXN0cmljdC1vdmVyZmxvdyAtZm5vLXN0cmljdC1hbGlhc2lu
+ZyAtZm5vLWNvbW1vbiAtTU1ECj4gLVVfRk9SVElGWV9TT1VSQ0UgICAtYyAtbyB2cmluZ2gubyAu
+Li8uLi9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jCj4gLi4vLi4vZHJpdmVycy92aG9zdC92cmluZ2gu
+YzoxMDEwOjE2OiBlcnJvcjogZXhwZWN0ZWQgZGVjbGFyYXRpb24KPiBzcGVjaWZpZXJzIG9yIOKA
+mC4uLuKAmSBiZWZvcmUgc3RyaW5nIGNvbnN0YW50Cj4KPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVs
+IFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+IC0tLQo+ICB0b29scy92aXJ0aW8vbGludXgv
+bW9kdWxlLmggfCA1ICsrKysrCj4gIHRvb2xzL3ZpcnRpby9saW51eC92aXJ0aW8uaCB8IDMgLS0t
+Cj4gIDIgZmlsZXMgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQoKQXBw
+bGllZCwgdGhhbmtzLgoKQ2hlZXJzLApSdXN0eS4KCj4gZGlmZiAtLWdpdCBhL3Rvb2xzL3ZpcnRp
+by9saW51eC9tb2R1bGUuaCBiL3Rvb2xzL3ZpcnRpby9saW51eC9tb2R1bGUuaAo+IGluZGV4IDMw
+MzlhN2UuLjI4Y2U5NWEgMTAwNjQ0Cj4gLS0tIGEvdG9vbHMvdmlydGlvL2xpbnV4L21vZHVsZS5o
+Cj4gKysrIGIvdG9vbHMvdmlydGlvL2xpbnV4L21vZHVsZS5oCj4gQEAgLTEgKzEsNiBAQAo+ICAj
+aW5jbHVkZSA8bGludXgvZXhwb3J0Lmg+Cj4gKwo+ICsjZGVmaW5lIE1PRFVMRV9MSUNFTlNFKF9f
+TU9EVUxFX0xJQ0VOU0VfdmFsdWUpIFwKPiArCXN0YXRpYyBfX2F0dHJpYnV0ZV9fKCh1bnVzZWQp
+KSBjb25zdCBjaGFyICpfX01PRFVMRV9MSUNFTlNFX25hbWUgPSBcCj4gKwkJX19NT0RVTEVfTElD
+RU5TRV92YWx1ZQo+ICsKPiBkaWZmIC0tZ2l0IGEvdG9vbHMvdmlydGlvL2xpbnV4L3ZpcnRpby5o
+IGIvdG9vbHMvdmlydGlvL2xpbnV4L3ZpcnRpby5oCj4gaW5kZXggY2Q4MDE4My4uODQ0NzgzMCAx
+MDA2NDQKPiAtLS0gYS90b29scy92aXJ0aW8vbGludXgvdmlydGlvLmgKPiArKysgYi90b29scy92
+aXJ0aW8vbGludXgvdmlydGlvLmgKPiBAQCAtNDUsOSArNDUsNiBAQCBzdHJ1Y3QgdmlydHF1ZXVl
+IHsKPiAgCXZvaWQgKnByaXY7Cj4gIH07Cj4gIAo+IC0jZGVmaW5lIE1PRFVMRV9MSUNFTlNFKF9f
+TU9EVUxFX0xJQ0VOU0VfdmFsdWUpIFwKPiAtCWNvbnN0IGNoYXIgKl9fTU9EVUxFX0xJQ0VOU0Vf
+bmFtZSA9IF9fTU9EVUxFX0xJQ0VOU0VfdmFsdWUKPiAtCj4gIC8qIEludGVyZmFjZXMgZXhwb3J0
+ZWQgYnkgdmlydGlvX3JpbmcuICovCj4gIGludCB2aXJ0cXVldWVfYWRkX3NncyhzdHJ1Y3Qgdmly
+dHF1ZXVlICp2cSwKPiAgCQkgICAgICBzdHJ1Y3Qgc2NhdHRlcmxpc3QgKnNnc1tdLAo+IC0tIAo+
+IE1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
