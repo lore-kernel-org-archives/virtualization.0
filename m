@@ -1,12 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Mon, 8 Jul 2013 14:45:56 +0300
-Message-ID: <20130708114556.GA17036@redhat.com>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Subject: Re: [PATCH 2/2] virtio_net: fix race in RX VQ processing
+Date: Mon, 08 Jul 2013 16:52:26 +0400
+Message-ID: <51DAB60A.5080305@cogentembedded.com>
+References: <1373274069-4301-1-git-send-email-mst@redhat.com>
+	<1373274069-4301-3-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <1373274069-4301-3-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,52 +18,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 8bb495e3f02401ee6f76d1b1d77f3ac9f079e376:
+Hello.
 
-  Linux 3.10 (2013-06-30 15:13:29 -0700)
+On 08-07-2013 13:04, Michael S. Tsirkin wrote:
 
-are available in the git repository at:
+> virtio net called virtqueue_enable_cq on RX path after napi_complete, so
+> with NAPI_STATE_SCHED clear - outside the implicit napi lock.
+> This violates the requirement to synchronize virtqueue_enable_cq wrt
+> virtqueue_add_buf.  In particular, used event can move backwards,
+> causing us to lose interrupts.
+> In a debug build, this can trigger panic within START_USE.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+> Jason Wang reports that he can trigger the races artificially,
+> by adding udelay() in virtqueue_enable_cb() after virtio_mb().
 
-for you to fetch changes up to 09a34c8404c1d4c5782de319c02e1d742c57875c:
+> However, we must call napi_complete to clear NAPI_STATE_SCHED before
+> polling the virtqueue for used buffers, otherwise napi_schedule_prep in
+> a callback will fail, causing us to lose RX events.
 
-  vhost/test: update test after vhost cleanups (2013-07-07 18:02:25 +0300)
+> To fix, call virtqueue_enable_cb_prepare with NAPI_STATE_SCHED
+> set (under napi lock), later call virtqueue_poll with
+> NAPI_STATE_SCHED clear (outside the lock).
 
-----------------------------------------------------------------
-vhost: fixes and cleanups 3.11
+> Reported-by: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>   drivers/net/virtio_net.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
 
-This includes some fixes and cleanups for vhost net and scsi drivers.
-The scsi driver changes will cause a conflict with  Nicholas Bellinger's scsi
-target changes, but the conflicting commit in my tree simply renames some
-variables so it's trivial to resolve.
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 5305bd1..fbdd79a 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -622,8 +622,9 @@ again:
+>
+>   	/* Out of packets? */
+>   	if (received < budget) {
+> +		unsigned r = virtqueue_enable_cb_prepare(rq->vq);
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+    Empty line wouldn't hurt here, after declaration.
 
-----------------------------------------------------------------
-Asias He (8):
-      vhost: Simplify dev->vqs[i] access
-      vhost-scsi: Remove unnecessary forward struct vhost_scsi declaration
-      vhost-scsi: Rename struct vhost_scsi *s to *vs
-      vhost-scsi: Make func indention more consistent
-      vhost-scsi: Rename struct tcm_vhost_tpg *tv_tpg to *tpg
-      vhost-scsi: Rename struct tcm_vhost_cmd *tv_cmd to *cmd
-      vhost: Make vhost a separate module
-      vhost: Make local function static
-
-Michael S. Tsirkin (2):
-      vhost-net: fix use-after-free in vhost_net_flush
-      vhost/test: update test after vhost cleanups
-
- drivers/vhost/Kconfig  |   8 +
- drivers/vhost/Makefile |   3 +-
- drivers/vhost/net.c    |  13 +-
- drivers/vhost/scsi.c   | 472 ++++++++++++++++++++++++++-----------------------
- drivers/vhost/test.c   |  33 ++--
- drivers/vhost/vhost.c  |  86 +++++++--
- drivers/vhost/vhost.h  |   2 +
- 7 files changed, 356 insertions(+), 261 deletions(-)
+WBR, Sergei
