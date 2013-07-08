@@ -1,19 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Mon, 8 Jul 2013 08:44:06 +0300
-Message-ID: <20130708054406.GA7387@redhat.com>
-References: <20130619082417.GA2558@redhat.com> <51C16BC2.2060302@redhat.com>
-	<8761x9mrmk.fsf@rustcorp.com.au> <51C2CABD.70000@redhat.com>
-	<87ppv3tb3y.fsf@rustcorp.com.au> <51D16EB8.3050709@redhat.com>
-	<87txkdfqg6.fsf@rustcorp.com.au> <20130704074942.GA4777@redhat.com>
-	<20130707113138.GA31372@redhat.com>
-	<8738rpg82k.fsf@rustcorp.com.au>
+Subject: [PATCH 1/2] virtio: support unlocked queue poll
+Date: Mon, 8 Jul 2013 12:04:36 +0300
+Message-ID: <1373274069-4301-2-git-send-email-mst@redhat.com>
+References: <1373274069-4301-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <8738rpg82k.fsf@rustcorp.com.au>
+In-Reply-To: <1373274069-4301-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,61 +18,122 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 08, 2013 at 10:51:39AM +0930, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > On Thu, Jul 04, 2013 at 10:49:42AM +0300, Michael S. Tsirkin wrote:
-> >> > case).
-> >> > 
-> >> > Regrettably, initial driver implementations used simple layouts
-> >> > and devices came to rely on it, despite this specification 
-> >> > wording. It is thus recommended that drivers be conservative in 
-> >> > their assumptions, unless specific device features indicate that 
-> >> > general layout is permitted using VIRTIO_F_ANY_LAYOUT. In
-> >> > addition, some implementations may have large-but-reasonable
-> >> > restrictions on total descriptor size (such as based on IOV_MAX
-> >> > in the host OS). This has not been a problem in practice: little
-> >> > sympathy will be given to drivers which create unreasonably-sized
-> >> > descriptors such as dividing a network packet into 1500
-> >> > single-byte descriptors!
-> >> 
-> >> That's fine with me too.
-> >> So which bit are we using for this?
-> >> I'd like to rebase to latest bits and merge the optimization for 3.11.
-> >
-> >
-> > Rusty, could you please tell me which feature bit do you
-> > prefer for ANY_LAYOUT?
-> > It would be sad to miss another release of both qemu and kernel with
-> > this obvious optimization for the only reason we can't settle on a bit
-> > to use to signal it.
-> 
-> Let's use bit 30.  Here's the kernel patch:
-> 
-> virtio: VIRTIO_F_ANY_LAYOUT feature
-> 
-> Also known as the "no really, I read the spec" bit.
-> 
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+This adds a way to check ring empty state after enable_cb outside any
+locks. Will be used by virtio_net.
 
-This is already used in qemu:
-/* A guest should never accept this.  It implies negotiation is broken. */
-#define VIRTIO_F_BAD_FEATURE            30
+Note: there's room for more optimization: caller is likely to have a
+memory barrier already, which means we might be able to get rid of a
+barrier here.  Deferring this optimization until we do some
+benchmarking.
 
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_ring.c | 56 ++++++++++++++++++++++++++++++++++----------
+ include/linux/virtio.h       |  4 ++++
+ 2 files changed, 48 insertions(+), 12 deletions(-)
 
-
-> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-> index b7cda39..4b5da48 100644
-> --- a/include/uapi/linux/virtio_config.h
-> +++ b/include/uapi/linux/virtio_config.h
-> @@ -51,4 +51,7 @@
->   * suppressed them? */
->  #define VIRTIO_F_NOTIFY_ON_EMPTY	24
->  
-> +/* Can the device handle any descriptor layout? */
-> +#define VIRTIO_F_ANY_LAYOUT		30
-> +
->  #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 5217baf..37d58f8 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -607,19 +607,21 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
+ EXPORT_SYMBOL_GPL(virtqueue_disable_cb);
+ 
+ /**
+- * virtqueue_enable_cb - restart callbacks after disable_cb.
++ * virtqueue_enable_cb_prepare - restart callbacks after disable_cb
+  * @vq: the struct virtqueue we're talking about.
+  *
+- * This re-enables callbacks; it returns "false" if there are pending
+- * buffers in the queue, to detect a possible race between the driver
+- * checking for more work, and enabling callbacks.
++ * This re-enables callbacks; it returns current queue state
++ * in an opaque unsigned value. This value should be later tested by
++ * virtqueue_poll, to detect a possible race between the driver checking for
++ * more work, and enabling callbacks.
+  *
+  * Caller must ensure we don't call this with other virtqueue
+  * operations at the same time (except where noted).
+  */
+-bool virtqueue_enable_cb(struct virtqueue *_vq)
++unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
++	u16 last_used_idx;
+ 
+ 	START_USE(vq);
+ 
+@@ -629,15 +631,45 @@ bool virtqueue_enable_cb(struct virtqueue *_vq)
+ 	 * either clear the flags bit or point the event index at the next
+ 	 * entry. Always do both to keep code simple. */
+ 	vq->vring.avail->flags &= ~VRING_AVAIL_F_NO_INTERRUPT;
+-	vring_used_event(&vq->vring) = vq->last_used_idx;
++	vring_used_event(&vq->vring) = last_used_idx = vq->last_used_idx;
++	END_USE(vq);
++	return last_used_idx;
++}
++EXPORT_SYMBOL_GPL(virtqueue_enable_cb_prepare);
++
++/**
++ * virtqueue_poll - query pending used buffers
++ * @vq: the struct virtqueue we're talking about.
++ * @last_used_idx: virtqueue state (from call to virtqueue_enable_cb_prepare).
++ *
++ * Returns "true" if there are pending used buffers in the queue.
++ *
++ * This does not need to be serialized.
++ */
++bool virtqueue_poll(struct virtqueue *_vq, unsigned last_used_idx)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++
+ 	virtio_mb(vq->weak_barriers);
+-	if (unlikely(more_used(vq))) {
+-		END_USE(vq);
+-		return false;
+-	}
++	return (u16)last_used_idx != vq->vring.used->idx;
++}
++EXPORT_SYMBOL_GPL(virtqueue_poll);
+ 
+-	END_USE(vq);
+-	return true;
++/**
++ * virtqueue_enable_cb - restart callbacks after disable_cb.
++ * @vq: the struct virtqueue we're talking about.
++ *
++ * This re-enables callbacks; it returns "false" if there are pending
++ * buffers in the queue, to detect a possible race between the driver
++ * checking for more work, and enabling callbacks.
++ *
++ * Caller must ensure we don't call this with other virtqueue
++ * operations at the same time (except where noted).
++ */
++bool virtqueue_enable_cb(struct virtqueue *_vq)
++{
++	unsigned last_used_idx = virtqueue_enable_cb_prepare(_vq);
++	return !virtqueue_poll(_vq, last_used_idx);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_enable_cb);
+ 
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 9ff8645..72398ee 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -70,6 +70,10 @@ void virtqueue_disable_cb(struct virtqueue *vq);
+ 
+ bool virtqueue_enable_cb(struct virtqueue *vq);
+ 
++unsigned virtqueue_enable_cb_prepare(struct virtqueue *vq);
++
++bool virtqueue_poll(struct virtqueue *vq, unsigned);
++
+ bool virtqueue_enable_cb_delayed(struct virtqueue *vq);
+ 
+ void *virtqueue_detach_unused_buf(struct virtqueue *vq);
+-- 
+MST
