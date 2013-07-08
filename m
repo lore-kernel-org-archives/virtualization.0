@@ -1,19 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Mon, 08 Jul 2013 10:51:39 +0930
-Message-ID: <8738rpg82k.fsf@rustcorp.com.au>
-References: <20130617063746.GA5693@redhat.com> <87r4fyn1wx.fsf@rustcorp.com.au>
-	<20130619082417.GA2558@redhat.com>
-	<51C16BC2.2060302@redhat.com> <8761x9mrmk.fsf@rustcorp.com.au>
-	<51C2CABD.70000@redhat.com> <87ppv3tb3y.fsf@rustcorp.com.au>
-	<51D16EB8.3050709@redhat.com> <87txkdfqg6.fsf@rustcorp.com.au>
-	<20130704074942.GA4777@redhat.com>
-	<20130707113138.GA31372@redhat.com>
+Subject: Re: [PATCH] MAINTAINERS: add tools/virtio/ under virtio
+Date: Mon, 08 Jul 2013 11:32:25 +0930
+Message-ID: <87ip0lerm6.fsf@rustcorp.com.au>
+References: <20130707143238.GA3059@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130707113138.GA31372@redhat.com>
+In-Reply-To: <20130707143238.GA3059@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,54 +17,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 "Michael S. Tsirkin" <mst@redhat.com> writes:
-> On Thu, Jul 04, 2013 at 10:49:42AM +0300, Michael S. Tsirkin wrote:
->> > case).
->> > 
->> > Regrettably, initial driver implementations used simple layouts
->> > and devices came to rely on it, despite this specification 
->> > wording. It is thus recommended that drivers be conservative in 
->> > their assumptions, unless specific device features indicate that 
->> > general layout is permitted using VIRTIO_F_ANY_LAYOUT. In
->> > addition, some implementations may have large-but-reasonable
->> > restrictions on total descriptor size (such as based on IOV_MAX
->> > in the host OS). This has not been a problem in practice: little
->> > sympathy will be given to drivers which create unreasonably-sized
->> > descriptors such as dividing a network packet into 1500
->> > single-byte descriptors!
->> 
->> That's fine with me too.
->> So which bit are we using for this?
->> I'd like to rebase to latest bits and merge the optimization for 3.11.
+> This should help make sure patches go to the correct list.
 >
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Indeed.  Thanks.
+
+Applied,
+Rusty.
+
+> ---
+>  MAINTAINERS | 1 +
+>  1 file changed, 1 insertion(+)
 >
-> Rusty, could you please tell me which feature bit do you
-> prefer for ANY_LAYOUT?
-> It would be sad to miss another release of both qemu and kernel with
-> this obvious optimization for the only reason we can't settle on a bit
-> to use to signal it.
-
-Let's use bit 30.  Here's the kernel patch:
-
-virtio: VIRTIO_F_ANY_LAYOUT feature
-
-Also known as the "no really, I read the spec" bit.
-
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-index b7cda39..4b5da48 100644
---- a/include/uapi/linux/virtio_config.h
-+++ b/include/uapi/linux/virtio_config.h
-@@ -51,4 +51,7 @@
-  * suppressed them? */
- #define VIRTIO_F_NOTIFY_ON_EMPTY	24
- 
-+/* Can the device handle any descriptor layout? */
-+#define VIRTIO_F_ANY_LAYOUT		30
-+
- #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index ad7e322..66172fc 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -8800,6 +8800,7 @@ M:	"Michael S. Tsirkin" <mst@redhat.com>
+>  L:	virtualization@lists.linux-foundation.org
+>  S:	Maintained
+>  F:	drivers/virtio/
+> +F:	tools/virtio/
+>  F:	drivers/net/virtio_net.c
+>  F:	drivers/block/virtio_blk.c
+>  F:	include/linux/virtio_*.h
+> -- 
+> MST
