@@ -1,20 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-spec: add field for scsi command size
-Date: Mon, 08 Jul 2013 13:58:16 +0930
-Message-ID: <87ehb9ekv3.fsf@rustcorp.com.au>
-References: <20130613080259.GA11175@redhat.com>
-	<20130613081047.GA11269@redhat.com>
-	<20130617063746.GA5693@redhat.com> <87r4fyn1wx.fsf@rustcorp.com.au>
-	<20130619082417.GA2558@redhat.com>
-	<51C16BC2.2060302@redhat.com> <8761x9mrmk.fsf@rustcorp.com.au>
-	<51C2CABD.70000@redhat.com> <87ppv3tb3y.fsf@rustcorp.com.au>
-	<51D16EB8.3050709@redhat.com>
-	<20130704073912.GE2095@redhat.com> <51D53AC9.80506@redhat.com>
+From: Paul Bolle <pebolle@tiscali.nl>
+Subject: Re: [Xen-devel] [PATCH] xen: remove unused Kconfig parameter
+Date: Tue, 09 Jul 2013 01:35:34 +0200
+Message-ID: <1373326534.1438.10.camel__19478.6918735646$1373327339$gmane$org@x61.thuisdomein>
+References: <1373264904-27053-1-git-send-email-michael.opdenacker@free-electrons.com>
+	<20130708192854.GF4927@phenom.dumpdata.com>
+	<20130708193457.GA6926@u109add4315675089e695.ant.amazon.com>
+	<51DB2134.9040909@zytor.com> <20130708205834.GA481@pd.tnic>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51D53AC9.80506@redhat.com>
+In-Reply-To: <20130708205834.GA481@pd.tnic>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,31 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
+To: Borislav Petkov <bp@alien8.de>
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Michael Opdenacker <michael.opdenacker@free-electrons.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, Matt Wilson <msw@amazon.com>, "H. Peter Anvin" <hpa@zytor.com>, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paolo Bonzini <pbonzini@redhat.com> writes:
-> Il 04/07/2013 09:39, Michael S. Tsirkin ha scritto:
->>> > Transport feature bits are still negotiated per device though.
->>> > virtio-scsi devices in QEMU would not negotiate that feature.
->>> > 
->>> > Paolo
->>> > 
->>>> > > So I think it needs to be a per-device feature bit.
->> We don't know that it's helpful for any devices besides -net
->> so I'd say keep it simple.
->
-> Then we should stop calling it a "device model bug".
->
-> If we call it a bug, we must strive for support in all devices.  If we
-> don't care, we should stop calling it a bug.
+On Mon, 2013-07-08 at 22:58 +0200, Borislav Petkov wrote:
+> On Mon, Jul 08, 2013 at 01:29:40PM -0700, H. Peter Anvin wrote:
+> > What. The. Fuck.
+> 
+> This is just marvellous: grub2 has a bunch of scripts in /etc/grub.d
+> which rely on the presence of kernel config files in /boot or / and
+> greps them in order to do the menu entries based on the built-in
+> features it finds in them.
 
-This has been a cause of hot debate: this bug has fossilized into a
-feature, so we ignored it as long as we could :)
+0) I've raised this issue a few months ago, but not on the LKML (see
+http://thread.gmane.org/gmane.linux.kernel.virtualization/19126 ).
 
-I plan on proposing that this be a requirement for the 1.0 spec, so we
-might as well fix it everywhere now in preparation.
+1) And I also asked whether "userspace [can] require the build system to
+keep using some Kconfig symbol" (see
+http://article.gmane.org/gmane.linux.kernel.virtualization/19129 ).
+Peter and you clearly think userspace can't.
 
-Cheers,
-Rusty.
+2) But anyhow, unless that grub2 configuration file has changed, this
+Kconfig symbol can still be dropped, because grub2's check for it is
+actually superfluous.
+
+
+Paul Bolle
