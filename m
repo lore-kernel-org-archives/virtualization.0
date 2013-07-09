@@ -1,19 +1,20 @@
-From: "Jan Beulich" <JBeulich@suse.com>
-Subject: Re: [Xen-devel] [PATCH] xen: remove unused Kconfig parameter
-Date: Tue, 09 Jul 2013 08:41:12 +0100
-Message-ID: <51DBDAB802000078000E37C1@nat28.tlf.novell.com>
-References: <1373264904-27053-1-git-send-email-michael.opdenacker@free-electrons.com>
-	<20130708192854.GF4927@phenom.dumpdata.com>
-	<20130708193457.GA6926@u109add4315675089e695.ant.amazon.com>
-	<51DB2134.9040909@zytor.com> <20130708205834.GA481@pd.tnic>
-	<1373326534.1438.10.camel@x61.thuisdomein>
-	<f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
+Date: Tue, 09 Jul 2013 14:41:30 +0530
+Message-ID: <51DBD3C2.2040807@linux.vnet.ibm.com>
+References: <20130601192125.5966.35563.sendpatchset@codeblue>
+	<1372171802.3804.30.camel@oc2024037011.ibm.com>
+	<51CAAA26.4090204@linux.vnet.ibm.com>
+	<20130626113744.GA6300@hawk.usersys.redhat.com>
+	<20130626125240.GY18508@redhat.com>
+	<51CAEF45.3010203@linux.vnet.ibm.com>
+	<20130626161130.GB18152@redhat.com>
+	<51CB2AD9.5060508@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
-Content-Disposition: inline
+In-Reply-To: <51CB2AD9.5060508@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,29 +24,199 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Michael Opdenacker <michael.opdenacker@free-electrons.com>, x86@kernel.org, Paul Bolle <pebolle@tiscali.nl>, virtualization@lists.linux-foundation.org, mingo@redhat.com, Borislav Petkov <bp@alien8.de>, Matt Wilson <msw@amazon.com>, "H. Peter Anvin" <hpa@zytor.com>, tglx@linutronix.de, linux-kernel@vger.kernel.org
+To: Gleb Natapov <gleb@redhat.com>, Andrew Jones <drjones@redhat.com>, mingo@redhat.com, ouyang@cs.pitt.edu
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
->>> On 09.07.13 at 02:26, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
-> Could you explain to me please why the check in the scripts is superfluous?
+On 06/26/2013 11:24 PM, Raghavendra K T wrote:
+> On 06/26/2013 09:41 PM, Gleb Natapov wrote:
+>> On Wed, Jun 26, 2013 at 07:10:21PM +0530, Raghavendra K T wrote:
+>>> On 06/26/2013 06:22 PM, Gleb Natapov wrote:
+>>>> On Wed, Jun 26, 2013 at 01:37:45PM +0200, Andrew Jones wrote:
+>>>>> On Wed, Jun 26, 2013 at 02:15:26PM +0530, Raghavendra K T wrote:
+>>>>>> On 06/25/2013 08:20 PM, Andrew Theurer wrote:
+>>>>>>> On Sun, 2013-06-02 at 00:51 +0530, Raghavendra K T wrote:
+>>>>>>>> This series replaces the existing paravirtualized spinlock
+>>>>>>>> mechanism
+>>>>>>>> with a paravirtualized ticketlock mechanism. The series provides
+>>>>>>>> implementation for both Xen and KVM.
+>>>>>>>>
+>>>>>>>> Changes in V9:
+>>>>>>>> - Changed spin_threshold to 32k to avoid excess halt exits that are
+>>>>>>>>     causing undercommit degradation (after PLE handler
+>>>>>>>> improvement).
+>>>>>>>> - Added  kvm_irq_delivery_to_apic (suggested by Gleb)
+>>>>>>>> - Optimized halt exit path to use PLE handler
+>>>>>>>>
+>>>>>>>> V8 of PVspinlock was posted last year. After Avi's suggestions
+>>>>>>>> to look
+>>>>>>>> at PLE handler's improvements, various optimizations in PLE
+>>>>>>>> handling
+>>>>>>>> have been tried.
+>>>>>>>
+>>>>>>> Sorry for not posting this sooner.  I have tested the v9
+>>>>>>> pv-ticketlock
+>>>>>>> patches in 1x and 2x over-commit with 10-vcpu and 20-vcpu VMs.  I
+>>>>>>> have
+>>>>>>> tested these patches with and without PLE, as PLE is still not
+>>>>>>> scalable
+>>>>>>> with large VMs.
+>>>>>>>
+>>>>>>
+>>>>>> Hi Andrew,
+>>>>>>
+>>>>>> Thanks for testing.
+>>>>>>
+>>>>>>> System: x3850X5, 40 cores, 80 threads
+>>>>>>>
+>>>>>>>
+>>>>>>> 1x over-commit with 10-vCPU VMs (8 VMs) all running dbench:
+>>>>>>> ----------------------------------------------------------
+>>>>>>>                         Total
+>>>>>>> Configuration                Throughput(MB/s)    Notes
+>>>>>>>
+>>>>>>> 3.10-default-ple_on            22945            5% CPU in host
+>>>>>>> kernel, 2% spin_lock in guests
+>>>>>>> 3.10-default-ple_off            23184            5% CPU in host
+>>>>>>> kernel, 2% spin_lock in guests
+>>>>>>> 3.10-pvticket-ple_on            22895            5% CPU in host
+>>>>>>> kernel, 2% spin_lock in guests
+>>>>>>> 3.10-pvticket-ple_off            23051            5% CPU in host
+>>>>>>> kernel, 2% spin_lock in guests
+>>>>>>> [all 1x results look good here]
+>>>>>>
+>>>>>> Yes. The 1x results look too close
+>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> 2x over-commit with 10-vCPU VMs (16 VMs) all running dbench:
+>>>>>>> -----------------------------------------------------------
+>>>>>>>                         Total
+>>>>>>> Configuration                Throughput        Notes
+>>>>>>>
+>>>>>>> 3.10-default-ple_on             6287            55% CPU  host
+>>>>>>> kernel, 17% spin_lock in guests
+>>>>>>> 3.10-default-ple_off             1849            2% CPU in host
+>>>>>>> kernel, 95% spin_lock in guests
+>>>>>>> 3.10-pvticket-ple_on             6691            50% CPU in host
+>>>>>>> kernel, 15% spin_lock in guests
+>>>>>>> 3.10-pvticket-ple_off            16464            8% CPU in host
+>>>>>>> kernel, 33% spin_lock in guests
+>>>>>>
+>>>>>> I see 6.426% improvement with ple_on
+>>>>>> and 161.87% improvement with ple_off. I think this is a very good
+>>>>>> sign
+>>>>>>   for the patches
+>>>>>>
+>>>>>>> [PLE hinders pv-ticket improvements, but even with PLE off,
+>>>>>>>   we still off from ideal throughput (somewhere >20000)]
+>>>>>>>
+>>>>>>
+>>>>>> Okay, The ideal throughput you are referring is getting around
+>>>>>> atleast
+>>>>>> 80% of 1x throughput for over-commit. Yes we are still far away from
+>>>>>> there.
+>>>>>>
+>>>>>>>
+>>>>>>> 1x over-commit with 20-vCPU VMs (4 VMs) all running dbench:
+>>>>>>> ----------------------------------------------------------
+>>>>>>>                         Total
+>>>>>>> Configuration                Throughput        Notes
+>>>>>>>
+>>>>>>> 3.10-default-ple_on            22736            6% CPU in host
+>>>>>>> kernel, 3% spin_lock in guests
+>>>>>>> 3.10-default-ple_off            23377            5% CPU in host
+>>>>>>> kernel, 3% spin_lock in guests
+>>>>>>> 3.10-pvticket-ple_on            22471            6% CPU in host
+>>>>>>> kernel, 3% spin_lock in guests
+>>>>>>> 3.10-pvticket-ple_off            23445            5% CPU in host
+>>>>>>> kernel, 3% spin_lock in guests
+>>>>>>> [1x looking fine here]
+>>>>>>>
+>>>>>>
+>>>>>> I see ple_off is little better here.
+>>>>>>
+>>>>>>>
+>>>>>>> 2x over-commit with 20-vCPU VMs (8 VMs) all running dbench:
+>>>>>>> ----------------------------------------------------------
+>>>>>>>                         Total
+>>>>>>> Configuration                Throughput        Notes
+>>>>>>>
+>>>>>>> 3.10-default-ple_on             1965            70% CPU in host
+>>>>>>> kernel, 34% spin_lock in guests
+>>>>>>> 3.10-default-ple_off              226            2% CPU in host
+>>>>>>> kernel, 94% spin_lock in guests
+>>>>>>> 3.10-pvticket-ple_on             1942            70% CPU in host
+>>>>>>> kernel, 35% spin_lock in guests
+>>>>>>> 3.10-pvticket-ple_off             8003            11% CPU in host
+>>>>>>> kernel, 70% spin_lock in guests
+>>>>>>> [quite bad all around, but pv-tickets with PLE off the best so far.
+>>>>>>>   Still quite a bit off from ideal throughput]
+>>>>>>
+>>>>>> This is again a remarkable improvement (307%).
+>>>>>> This motivates me to add a patch to disable ple when pvspinlock is
+>>>>>> on.
+>>>>>> probably we can add a hypercall that disables ple in kvm init patch.
+>>>>>> but only problem I see is what if the guests are mixed.
+>>>>>>
+>>>>>>   (i.e one guest has pvspinlock support but other does not. Host
+>>>>>> supports pv)
+>>>>>
+>>>>> How about reintroducing the idea to create per-kvm ple_gap,ple_window
+>>>>> state. We were headed down that road when considering a dynamic
+>>>>> window at
+>>>>> one point. Then you can just set a single guest's ple_gap to zero,
+>>>>> which
+>>>>> would lead to PLE being disabled for that guest. We could also revisit
+>>>>> the dynamic window then.
+>>>>>
+>>>> Can be done, but lets understand why ple on is such a big problem.
+>>>> Is it
+>>>> possible that ple gap and SPIN_THRESHOLD are not tuned properly?
+>>>>
+>>>
+>>> The one obvious reason I see is commit awareness inside the guest. for
+>>> under-commit there is no necessity to do PLE, but unfortunately we do.
+>>>
+>>> atleast we return back immediately in case of potential undercommits,
+>>> but we still incur vmexit delay.
+>> But why do we? If SPIN_THRESHOLD will be short enough (or ple windows
+>> long enough) to not generate PLE exit we will not go into PLE handler
+>> at all, no?
+>>
+>
+> Yes. you are right. dynamic ple window was an attempt to solve it.
+>
+> Probelm is, reducing the SPIN_THRESHOLD is resulting in excess halt
+> exits in under-commits and increasing ple_window may be sometimes
+> counter productive as it affects other busy-wait constructs such as
+> flush_tlb AFAIK.
+> So if we could have had a dynamically changing SPIN_THRESHOLD too, that
+> would be nice.
+>
 
-This is not really the question - _any_ such check can only be
-wrong. The boot loader has absolutely no business caring about
-kernel internals, and the kernel shouldn't be limited by it in how it
-renames/adds/deletes Kconfig options and anything else.
+Gleb, Andrew,
+I tested with the global ple window change (similar to what I posted 
+here https://lkml.org/lkml/2012/11/11/14 ),
+But did not see good result. May be it is good to go with per VM
+ple_window.
 
-> Especially as the grand plan is to get rid of CONFIG_XEN_DOM0 and more or 
-> less have a backend and fronted config option (since that makes more sense 
-> nowadays). And that would make the XEN_DOM0 be obsolete and the XEN_PRIV 
-> would be the one that turns a lot of the options needed to compile a kernel 
-> that can provide backend driver support. (I am hand waving here). 
+Gleb,
+Can you elaborate little more on what you have in mind regarding per VM 
+ple_window. (maintaining part of it as a per vm variable is clear to
+  me), but is it that we have to load that every time of guest entry?
 
-That's pretty odd a plan, considering that Dom0 is more than just
-an environment to provide backends. In fact, Dom0 may not be
-providing any backends at all, and instead just serve the
-"controlling hardware" and/or "control domain" purpose that it
-really is meant to be. But of course, if none of _that_ functionality
-depends on this config option, then it indeed could go away.
+I 'll try that idea next.
 
-Jan
+Ingo, Gleb,
+
+ From the results perspective, Andrew Theurer, Vinod's test results are
+pro-pvspinlock.
+Could you please help me to know what will make it a mergeable
+candidate?.
+
+I agree that Jiannan's Preemptable Lock idea is promising and we could
+evaluate that  approach, and make the best one get into kernel and also
+will carry on discussion with Jiannan to improve that patch.
+Experiments so far have been good for smaller machine but it is not
+scaling for bigger machines.
