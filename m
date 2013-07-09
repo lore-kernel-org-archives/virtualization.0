@@ -1,15 +1,19 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-net: put virtio net header inline with data
-Date: Tue, 9 Jul 2013 08:18:24 +0300
-Message-ID: <20130709051824.GA3234@redhat.com>
-References: <20130708101259.GA16074@redhat.com>
-	<871u78eavc.fsf@rustcorp.com.au>
+From: "Jan Beulich" <JBeulich@suse.com>
+Subject: Re: [Xen-devel] [PATCH] xen: remove unused Kconfig parameter
+Date: Tue, 09 Jul 2013 08:41:12 +0100
+Message-ID: <51DBDAB802000078000E37C1@nat28.tlf.novell.com>
+References: <1373264904-27053-1-git-send-email-michael.opdenacker@free-electrons.com>
+	<20130708192854.GF4927@phenom.dumpdata.com>
+	<20130708193457.GA6926@u109add4315675089e695.ant.amazon.com>
+	<51DB2134.9040909@zytor.com> <20130708205834.GA481@pd.tnic>
+	<1373326534.1438.10.camel@x61.thuisdomein>
+	<f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
 Content-Disposition: inline
-In-Reply-To: <871u78eavc.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,47 +23,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Cong Wang <amwang@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Dave Jones <davej@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Michael Opdenacker <michael.opdenacker@free-electrons.com>, x86@kernel.org, Paul Bolle <pebolle@tiscali.nl>, virtualization@lists.linux-foundation.org, mingo@redhat.com, Borislav Petkov <bp@alien8.de>, Matt Wilson <msw@amazon.com>, "H. Peter Anvin" <hpa@zytor.com>, tglx@linutronix.de, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 09, 2013 at 11:46:23AM +0930, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > For small packets we can simplify xmit processing
-> > by linearizing buffers with the header:
-> > most packets seem to have enough head room
-> > we can use for this purpose.
-> > Since existing hypervisors require that header
-> > is the first s/g element, we need a feature bit
-> > for this.
-> >
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >
-> > Note: this needs to be applied on top of patch
-> > defining VIRTIO_F_ANY_LAYOUT - bit to be
-> > selected by Rusty.
-> >
-> > The following patch should work for any definition of
-> > VIRTIO_F_ANY_LAYOUT - I used bit 31 for testing.
-> > Rusty, could you please pick a valid bit for VIRTIO_F_ANY_LAYOUT
-> > and squeeze this patch into 3.11?
-> 
-> Sorry, it's too late.
-> 
-> First, I've been a bit lax in sending patches via DaveM, and this is
-> definitely his territory (ie. more net than virtio).
+>>> On 09.07.13 at 02:26, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com> wrote:
+> Could you explain to me please why the check in the scripts is superfluous?
 
-Let's do this: I'll send a patch series, you ack and we see
-what happens?
+This is not really the question - _any_ such check can only be
+wrong. The boot loader has absolutely no business caring about
+kernel internals, and the kernel shouldn't be limited by it in how it
+renames/adds/deletes Kconfig options and anything else.
 
-> Secondly, it needs baking and testing time.
-> 
-> Cheers,
-> Rusty.
+> Especially as the grand plan is to get rid of CONFIG_XEN_DOM0 and more or 
+> less have a backend and fronted config option (since that makes more sense 
+> nowadays). And that would make the XEN_DOM0 be obsolete and the XEN_PRIV 
+> would be the one that turns a lot of the options needed to compile a kernel 
+> that can provide backend driver support. (I am hand waving here). 
 
-I did some testing on this.  But proper testing just isn't happening out
-of tree.
+That's pretty odd a plan, considering that Dom0 is more than just
+an environment to provide backends. In fact, Dom0 may not be
+providing any backends at all, and instead just serve the
+"controlling hardware" and/or "control domain" purpose that it
+really is meant to be. But of course, if none of _that_ functionality
+depends on this config option, then it indeed could go away.
 
--- 
-MST
+Jan
