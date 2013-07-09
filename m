@@ -1,17 +1,18 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [Xen-devel] [PATCH] xen: remove unused Kconfig parameter
-Date: Mon, 08 Jul 2013 20:26:15 -0400
-Message-ID: <f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
-References: <1373264904-27053-1-git-send-email-michael.opdenacker@free-electrons.com>
-	<20130708192854.GF4927@phenom.dumpdata.com>
-	<20130708193457.GA6926@u109add4315675089e695.ant.amazon.com>
-	<51DB2134.9040909@zytor.com> <20130708205834.GA481@pd.tnic>
-	<1373326534.1438.10.camel@x61.thuisdomein>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-spec: add field for scsi command size
+Date: Tue, 09 Jul 2013 10:49:11 +0930
+Message-ID: <87bo6cedio.fsf@rustcorp.com.au>
+References: <20130619082417.GA2558@redhat.com> <51C16BC2.2060302@redhat.com>
+	<8761x9mrmk.fsf@rustcorp.com.au> <51C2CABD.70000@redhat.com>
+	<87ppv3tb3y.fsf@rustcorp.com.au> <51D16EB8.3050709@redhat.com>
+	<87txkdfqg6.fsf@rustcorp.com.au> <20130704074942.GA4777@redhat.com>
+	<20130707113138.GA31372@redhat.com>
+	<8738rpg82k.fsf@rustcorp.com.au> <20130708054406.GA7387@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1373326534.1438.10.camel@x61.thuisdomein>
+In-Reply-To: <20130708054406.GA7387@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,43 +22,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paul Bolle <pebolle@tiscali.nl>, Borislav Petkov <bp@alien8.de>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Michael Opdenacker <michael.opdenacker@free-electrons.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, Matt Wilson <msw@amazon.com>, "H. Peter Anvin" <hpa@zytor.com>, tglx@linutronix.de
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Paul Bolle <pebolle@tiscali.nl> wrote:
->On Mon, 2013-07-08 at 22:58 +0200, Borislav Petkov wrote:
->> On Mon, Jul 08, 2013 at 01:29:40PM -0700, H. Peter Anvin wrote:
->> > What. The. Fuck.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Mon, Jul 08, 2013 at 10:51:39AM +0930, Rusty Russell wrote:
+>> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> > On Thu, Jul 04, 2013 at 10:49:42AM +0300, Michael S. Tsirkin wrote:
+>> >> > case).
+>> >> > 
+>> >> > Regrettably, initial driver implementations used simple layouts
+>> >> > and devices came to rely on it, despite this specification 
+>> >> > wording. It is thus recommended that drivers be conservative in 
+>> >> > their assumptions, unless specific device features indicate that 
+>> >> > general layout is permitted using VIRTIO_F_ANY_LAYOUT. In
+>> >> > addition, some implementations may have large-but-reasonable
+>> >> > restrictions on total descriptor size (such as based on IOV_MAX
+>> >> > in the host OS). This has not been a problem in practice: little
+>> >> > sympathy will be given to drivers which create unreasonably-sized
+>> >> > descriptors such as dividing a network packet into 1500
+>> >> > single-byte descriptors!
+>> >> 
+>> >> That's fine with me too.
+>> >> So which bit are we using for this?
+>> >> I'd like to rebase to latest bits and merge the optimization for 3.11.
+>> >
+>> >
+>> > Rusty, could you please tell me which feature bit do you
+>> > prefer for ANY_LAYOUT?
+>> > It would be sad to miss another release of both qemu and kernel with
+>> > this obvious optimization for the only reason we can't settle on a bit
+>> > to use to signal it.
 >> 
->> This is just marvellous: grub2 has a bunch of scripts in /etc/grub.d
->> which rely on the presence of kernel config files in /boot or / and
->> greps them in order to do the menu entries based on the built-in
->> features it finds in them.
+>> Let's use bit 30.  Here's the kernel patch:
+>> 
+>> virtio: VIRTIO_F_ANY_LAYOUT feature
+>> 
+>> Also known as the "no really, I read the spec" bit.
+>> 
+>> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 >
->0) I've raised this issue a few months ago, but not on the LKML (see
->http://thread.gmane.org/gmane.linux.kernel.virtualization/19126 ).
->
->1) And I also asked whether "userspace [can] require the build system
->to
->keep using some Kconfig symbol" (see
->http://article.gmane.org/gmane.linux.kernel.virtualization/19129 ).
->Peter and you clearly think userspace can't.
->
->2) But anyhow, unless that grub2 configuration file has changed, this
->Kconfig symbol can still be dropped, because grub2's check for it is
->actually superfluous.
->
->
->Paul Bolle
+> This is already used in qemu:
+> /* A guest should never accept this.  It implies negotiation is broken. */
+> #define VIRTIO_F_BAD_FEATURE            30
 
-Not so fast please. Linus absolutely abhors breaking user space and I am not comfortable with that idea either. I am not sure if that falls in that category but I am sure we can rope him after rc0 madness has stopped. 
+How annoying.  Changed to bit 27, which isn't used.  Which forced a
+rebase of my virtio-next tree, but I really don't want the old version
+exposed in mainline, even for 3 commits.
 
-Could you explain to me please why the check in the scripts is superfluous?
+Thanks,
+Rusty.
 
-Especially as the grand plan is to get rid of CONFIG_XEN_DOM0 and more or less have a backend and fronted config option (since that makes more sense nowadays). And that would make the XEN_DOM0 be obsolete and the XEN_PRIV would be the one that turns a lot of the options needed to compile a kernel that can provide backend driver support. (I am hand waving here). 
+commit 62525a00b87cc967bce9779d63fcc84fb9199130
+Author: Rusty Russell <rusty@rustcorp.com.au>
+Date:   Mon Jul 8 10:33:37 2013 +0930
 
-I recall (and thank you for pointing to the link) that this raised some questions that never got answered such as are there tools that check /proc/config.gz for example for features? Otherwise should that be eliminated as well? 
+    virtio: VIRTIO_F_ANY_LAYOUT feature
+    
+    Also known as the "no really, I read the spec" bit.
+    
+    Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
--- 
-Sent from my Android phone. Please excuse my brevity.
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index b7cda39..3ce768c 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -51,4 +51,7 @@
+  * suppressed them? */
+ #define VIRTIO_F_NOTIFY_ON_EMPTY	24
+ 
++/* Can the device handle any descriptor layout? */
++#define VIRTIO_F_ANY_LAYOUT		27
++
+ #endif /* _UAPI_LINUX_VIRTIO_CONFIG_H */
