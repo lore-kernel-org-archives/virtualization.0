@@ -1,21 +1,14 @@
-From: Sander Eikelenboom <linux@eikelenboom.it>
-Subject: Re: [Xen-devel] [PATCH] xen: remove unused Kconfig parameter
-Date: Wed, 10 Jul 2013 00:34:58 +0200
-Message-ID: <1382658288.20130710003458__40806.9139499732$1373409890$gmane$org@eikelenboom.it>
-References: <1373264904-27053-1-git-send-email-michael.opdenacker@free-electrons.com>
-	<20130708192854.GF4927@phenom.dumpdata.com>
-	<20130708193457.GA6926@u109add4315675089e695.ant.amazon.com>
-	<51DB2134.9040909@zytor.com> <20130708205834.GA481@pd.tnic>
-	<1373326534.1438.10.camel@x61.thuisdomein>
-	<f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
-	<51DBDAB802000078000E37C1@nat28.tlf.novell.com>
-	<20130709144840.GF24897@phenom.dumpdata.com>
-	<20130709150554.GA27579@pd.tnic>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-net: put virtio net header inline with data
+Date: Tue, 09 Jul 2013 17:38:51 +0930
+Message-ID: <87vc4kcfzg.fsf@rustcorp.com.au>
+References: <20130708101259.GA16074@redhat.com>
+	<871u78eavc.fsf@rustcorp.com.au> <20130709051824.GA3234@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130709150554.GA27579@pd.tnic>
+In-Reply-To: <20130709051824.GA3234@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,32 +18,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Borislav Petkov <bp@alien8.de>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Matt Wilson <msw@amazon.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Michael Opdenacker <michael.opdenacker@free-electrons.com>, x86@kernel.org, Paul Bolle <pebolle@tiscali.nl>, virtualization@lists.linux-foundation.org, mingo@redhat.com, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, tglx@linutronix.de, linux-kernel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Cong Wang <amwang@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Dave Jones <davej@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Tue, Jul 09, 2013 at 11:46:23AM +0930, Rusty Russell wrote:
+>> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> > For small packets we can simplify xmit processing
+>> > by linearizing buffers with the header:
+>> > most packets seem to have enough head room
+>> > we can use for this purpose.
+>> > Since existing hypervisors require that header
+>> > is the first s/g element, we need a feature bit
+>> > for this.
+>> >
+>> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> > ---
+>> >
+>> > Note: this needs to be applied on top of patch
+>> > defining VIRTIO_F_ANY_LAYOUT - bit to be
+>> > selected by Rusty.
+>> >
+>> > The following patch should work for any definition of
+>> > VIRTIO_F_ANY_LAYOUT - I used bit 31 for testing.
+>> > Rusty, could you please pick a valid bit for VIRTIO_F_ANY_LAYOUT
+>> > and squeeze this patch into 3.11?
+>> 
+>> Sorry, it's too late.
+>> 
+>> First, I've been a bit lax in sending patches via DaveM, and this is
+>> definitely his territory (ie. more net than virtio).
+>
+> Let's do this: I'll send a patch series, you ack and we see
+> what happens?
 
-Tuesday, July 9, 2013, 5:05:54 PM, you wrote:
+If you convince DaveM, I won't object :)
 
-> On Tue, Jul 09, 2013 at 10:48:40AM -0400, Konrad Rzeszutek Wilk wrote:
->> Then that should be discussed on grub2 to remove said check and modify
->> the code so that it can properly work without regression.
+>> Secondly, it needs baking and testing time.
+>> 
+>> Cheers,
+>> Rusty.
+>
+> I did some testing on this.  But proper testing just isn't happening out
+> of tree.
 
-> Actually, the kernel patch removing that symbol should be applied so
-> that grub2 breaks faster. One can't possibly rely on kernel internals
-> for anything, as it is insanely insane (yep, the tautology is on purpose
-> :-)).
+But it will get into linux-next for the *next* merge window.
 
-
-How insanely insane is it to be able to determine whether a certain compiled kernel binary supports a certain function ?
-
-Grub does this in it's update script to prevent adding a xen + kernel combination that has no chance of booting when dom0 support has not been configured in the kernel.
-That doesn't seem to be a unreasonable thought.
-
-Grepping the accompanied config file in /boot for the xen dom0 Kconfig parameter seems the best possible effort grub can do at the moment.
-Especially since the Kconfig parameter naming doesn't change that often.
-
-If you know a better way for grub to determine if a certain function for a kernel binary is supported then please elaborate ..
-
- --
- Sander
+Cheers,
+Rusty.
