@@ -1,9 +1,8 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Gleb Natapov <gleb@redhat.com>
 Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
-Date: Wed, 10 Jul 2013 12:40:47 +0200
-Message-ID: <20130710104047.GP25631@dyad.programming.kicks-ass.net>
-References: <20130601192125.5966.35563.sendpatchset@codeblue>
-	<1372171802.3804.30.camel@oc2024037011.ibm.com>
+Date: Wed, 10 Jul 2013 13:47:17 +0300
+Message-ID: <20130710104717.GR24941@redhat.com>
+References: <1372171802.3804.30.camel@oc2024037011.ibm.com>
 	<51CAAA26.4090204@linux.vnet.ibm.com>
 	<20130626113744.GA6300@hawk.usersys.redhat.com>
 	<20130626125240.GY18508@redhat.com>
@@ -12,12 +11,13 @@ References: <20130601192125.5966.35563.sendpatchset@codeblue>
 	<51CB2AD9.5060508@linux.vnet.ibm.com>
 	<51DBD3C2.2040807@linux.vnet.ibm.com>
 	<20130710103325.GP24941@redhat.com>
+	<20130710104047.GP25631@dyad.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130710103325.GP24941@redhat.com>
+In-Reply-To: <20130710104047.GP25631@dyad.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,32 +27,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
+To: Peter Zijlstra <peterz@infradead.org>
 Cc: jeremy@goop.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, riel@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, Andrew Jones <drjones@redhat.com>, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 10, 2013 at 01:33:25PM +0300, Gleb Natapov wrote:
+On Wed, Jul 10, 2013 at 12:40:47PM +0200, Peter Zijlstra wrote:
+> On Wed, Jul 10, 2013 at 01:33:25PM +0300, Gleb Natapov wrote:
+> 
+> Here's an idea, trim the damn email ;-) -- not only directed at gleb.
+> 
+Good idea.
 
-Here's an idea, trim the damn email ;-) -- not only directed at gleb.
+> > > Ingo, Gleb,
+> > > 
+> > > From the results perspective, Andrew Theurer, Vinod's test results are
+> > > pro-pvspinlock.
+> > > Could you please help me to know what will make it a mergeable
+> > > candidate?.
+> > > 
+> > I need to spend more time reviewing it :) The problem with PV interfaces
+> > is that they are easy to add but hard to get rid of if better solution
+> > (HW or otherwise) appears.
+> 
+> How so? Just make sure the registration for the PV interface is optional; that
+> is, allow it to fail. A guest that fails the PV setup will either have to try
+> another PV interface or fall back to 'native'.
+> 
+We have to carry PV around for live migration purposes. PV interface
+cannot disappear under a running guest.
 
-> > Ingo, Gleb,
-> > 
-> > From the results perspective, Andrew Theurer, Vinod's test results are
-> > pro-pvspinlock.
-> > Could you please help me to know what will make it a mergeable
-> > candidate?.
-> > 
-> I need to spend more time reviewing it :) The problem with PV interfaces
-> is that they are easy to add but hard to get rid of if better solution
-> (HW or otherwise) appears.
+> > > I agree that Jiannan's Preemptable Lock idea is promising and we could
+> > > evaluate that  approach, and make the best one get into kernel and also
+> > > will carry on discussion with Jiannan to improve that patch.
+> > That would be great. The work is stalled from what I can tell.
+> 
+> I absolutely hated that stuff because it wrecked the native code.
+Yes, the idea was to hide it from native code behind PV hooks.
 
-How so? Just make sure the registration for the PV interface is optional; that
-is, allow it to fail. A guest that fails the PV setup will either have to try
-another PV interface or fall back to 'native'.
-
-> > I agree that Jiannan's Preemptable Lock idea is promising and we could
-> > evaluate that  approach, and make the best one get into kernel and also
-> > will carry on discussion with Jiannan to improve that patch.
-> That would be great. The work is stalled from what I can tell.
-
-I absolutely hated that stuff because it wrecked the native code.
+--
+			Gleb.
