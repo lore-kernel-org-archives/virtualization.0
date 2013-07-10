@@ -1,16 +1,16 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH 2/2] virtio_net: fix race in RX VQ processing
-Date: Wed, 10 Jul 2013 12:39:53 +0800
-Message-ID: <20130710043953.GB5962@hj.localdomain>
-References: <1373274069-4301-1-git-send-email-mst@redhat.com>
-	<1373274069-4301-3-git-send-email-mst@redhat.com>
-	<51DB8362.4020405@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-net: put virtio net header inline with data
+Date: Wed, 10 Jul 2013 09:14:07 +0300
+Message-ID: <20130710061407.GC19759@redhat.com>
+References: <20130708101259.GA16074@redhat.com>
+	<871u78eavc.fsf@rustcorp.com.au> <20130709051824.GA3234@redhat.com>
+	<87vc4kcfzg.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <51DB8362.4020405@redhat.com>
+In-Reply-To: <87vc4kcfzg.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,62 +20,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Cong Wang <amwang@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Dave Jones <davej@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 09, 2013 at 11:28:34AM +0800, Jason Wang wrote:
-> On 07/08/2013 05:04 PM, Michael S. Tsirkin wrote:
-> > virtio net called virtqueue_enable_cq on RX path after napi_complete, so
-> > with NAPI_STATE_SCHED clear - outside the implicit napi lock.
-> > This violates the requirement to synchronize virtqueue_enable_cq wrt
-> > virtqueue_add_buf.  In particular, used event can move backwards,
-> > causing us to lose interrupts.
-> > In a debug build, this can trigger panic within START_USE.
+On Tue, Jul 09, 2013 at 05:38:51PM +0930, Rusty Russell wrote:
+> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> > On Tue, Jul 09, 2013 at 11:46:23AM +0930, Rusty Russell wrote:
+> >> "Michael S. Tsirkin" <mst@redhat.com> writes:
+> >> > For small packets we can simplify xmit processing
+> >> > by linearizing buffers with the header:
+> >> > most packets seem to have enough head room
+> >> > we can use for this purpose.
+> >> > Since existing hypervisors require that header
+> >> > is the first s/g element, we need a feature bit
+> >> > for this.
+> >> >
+> >> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> >> > ---
+> >> >
+> >> > Note: this needs to be applied on top of patch
+> >> > defining VIRTIO_F_ANY_LAYOUT - bit to be
+> >> > selected by Rusty.
+> >> >
+> >> > The following patch should work for any definition of
+> >> > VIRTIO_F_ANY_LAYOUT - I used bit 31 for testing.
+> >> > Rusty, could you please pick a valid bit for VIRTIO_F_ANY_LAYOUT
+> >> > and squeeze this patch into 3.11?
+> >> 
+> >> Sorry, it's too late.
+> >> 
+> >> First, I've been a bit lax in sending patches via DaveM, and this is
+> >> definitely his territory (ie. more net than virtio).
 > >
-> > Jason Wang reports that he can trigger the races artificially,
-> > by adding udelay() in virtqueue_enable_cb() after virtio_mb().
-> >
-> > However, we must call napi_complete to clear NAPI_STATE_SCHED before
-> > polling the virtqueue for used buffers, otherwise napi_schedule_prep in
-> > a callback will fail, causing us to lose RX events.
-> >
-> > To fix, call virtqueue_enable_cb_prepare with NAPI_STATE_SCHED
-> > set (under napi lock), later call virtqueue_poll with
-> > NAPI_STATE_SCHED clear (outside the lock).
-> >
-> > Reported-by: Jason Wang <jasowang@redhat.com>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-Acked-by: Asias He <asias@redhat.com>
-
-> > ---
+> > Let's do this: I'll send a patch series, you ack and we see
+> > what happens?
 > 
-> Tested-by: Jason Wang <jasowang@redhat.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> >  drivers/net/virtio_net.c | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 5305bd1..fbdd79a 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -622,8 +622,9 @@ again:
-> >  
-> >  	/* Out of packets? */
-> >  	if (received < budget) {
-> > +		unsigned r = virtqueue_enable_cb_prepare(rq->vq);
-> >  		napi_complete(napi);
-> > -		if (unlikely(!virtqueue_enable_cb(rq->vq)) &&
-> > +		if (unlikely(virtqueue_poll(rq->vq, r)) &&
-> >  		    napi_schedule_prep(napi)) {
-> >  			virtqueue_disable_cb(rq->vq);
-> >  			__napi_schedule(napi);
+> If you convince DaveM, I won't object :)
 > 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+> >> Secondly, it needs baking and testing time.
+> >> 
+> >> Cheers,
+> >> Rusty.
+> >
+> > I did some testing on this.  But proper testing just isn't happening out
+> > of tree.
+> 
+> But it will get into linux-next for the *next* merge window.
+> 
+> Cheers,
+> Rusty.
+
+Okay. Can you put it on virtio-next then?
+I don't see it there ...
 
 -- 
-Asias
+MST
