@@ -1,22 +1,14 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [Xen-devel] [PATCH] xen: remove unused Kconfig parameter
-Date: Tue, 09 Jul 2013 20:55:35 -0700
-Message-ID: <51DCDB37.204@zytor.com>
-References: <1373264904-27053-1-git-send-email-michael.opdenacker@free-electrons.com>
-	<20130708192854.GF4927@phenom.dumpdata.com>
-	<20130708193457.GA6926@u109add4315675089e695.ant.amazon.com>
-	<51DB2134.9040909@zytor.com> <20130708205834.GA481@pd.tnic>
-	<1373326534.1438.10.camel@x61.thuisdomein>
-	<f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
-	<51DBDAB802000078000E37C1@nat28.tlf.novell.com>
-	<20130709144840.GF24897@phenom.dumpdata.com>
-	<20130709150554.GA27579@pd.tnic>
-	<1382658288.20130710003458@eikelenboom.it>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 1/2] virtio: support unlocked queue poll
+Date: Wed, 10 Jul 2013 12:39:58 +0930
+Message-ID: <87k3kzcdq1.fsf@rustcorp.com.au>
+References: <1373274069-4301-1-git-send-email-mst@redhat.com>
+	<1373274069-4301-2-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1382658288.20130710003458@eikelenboom.it>
+In-Reply-To: <1373274069-4301-2-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,17 +18,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sander Eikelenboom <linux@eikelenboom.it>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Matt Wilson <msw@amazon.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Michael Opdenacker <michael.opdenacker@free-electrons.com>, x86@kernel.org, Paul Bolle <pebolle@tiscali.nl>, virtualization@lists.linux-foundation.org, mingo@redhat.com, Borislav Petkov <bp@alien8.de>, Jan Beulich <JBeulich@suse.com>, tglx@linutronix.de, linux-kernel@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/09/2013 03:34 PM, Sander Eikelenboom wrote:
-> 
-> Grub does this in it's update script to prevent adding a xen + kernel combination that has no chance of booting when dom0 support has not been configured in the kernel.
-> That doesn't seem to be a unreasonable thought.
-> 
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> This adds a way to check ring empty state after enable_cb outside any
+> locks. Will be used by virtio_net.
+>
+> Note: there's room for more optimization: caller is likely to have a
+> memory barrier already, which means we might be able to get rid of a
+> barrier here.  Deferring this optimization until we do some
+> benchmarking.
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Except it does it backwards.  The test it uses is sufficient but not
-necessary.
+Acked-by: Rusty Russell <rusty@rustcorp.com.au>
 
-	-hpa
+Thanks,
+Rusty.
