@@ -1,7 +1,7 @@
-From: Matt Wilson <msw@amazon.com>
+From: Sander Eikelenboom <linux@eikelenboom.it>
 Subject: Re: [Xen-devel] [PATCH] xen: remove unused Kconfig parameter
-Date: Tue, 9 Jul 2013 23:19:34 -0700
-Message-ID: <20130710061932.GB13671@u109add4315675089e695.ant.amazon.com>
+Date: Wed, 10 Jul 2013 09:41:34 +0200
+Message-ID: <1619064548.20130710094134@eikelenboom.it>
 References: <20130708192854.GF4927@phenom.dumpdata.com>
 	<20130708193457.GA6926@u109add4315675089e695.ant.amazon.com>
 	<51DB2134.9040909@zytor.com> <20130708205834.GA481@pd.tnic>
@@ -11,12 +11,12 @@ References: <20130708192854.GF4927@phenom.dumpdata.com>
 	<20130709144840.GF24897@phenom.dumpdata.com>
 	<20130709150554.GA27579@pd.tnic>
 	<1382658288.20130710003458@eikelenboom.it>
+	<20130710061932.GB13671@u109add4315675089e695.ant.amazon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1382658288.20130710003458@eikelenboom.it>
+In-Reply-To: <20130710061932.GB13671@u109add4315675089e695.ant.amazon.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,70 +26,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sander Eikelenboom <linux@eikelenboom.it>
+To: Matt Wilson <msw@amazon.com>
 Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Michael Opdenacker <michael.opdenacker@free-electrons.com>, x86@kernel.org, Paul Bolle <pebolle@tiscali.nl>, virtualization@lists.linux-foundation.org, mingo@redhat.com, Borislav Petkov <bp@alien8.de>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, tglx@linutronix.de, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 10, 2013 at 12:34:58AM +0200, Sander Eikelenboom wrote:
-> 
-> Tuesday, July 9, 2013, 5:05:54 PM, you wrote:
-> 
-> > On Tue, Jul 09, 2013 at 10:48:40AM -0400, Konrad Rzeszutek Wilk wrote:
-> >> Then that should be discussed on grub2 to remove said check and modify
-> >> the code so that it can properly work without regression.
-> 
-> > Actually, the kernel patch removing that symbol should be applied so
-> > that grub2 breaks faster. One can't possibly rely on kernel internals
-> > for anything, as it is insanely insane (yep, the tautology is on purpose
-> > :-)).
->
-> How insanely insane is it to be able to determine whether a certain
-> compiled kernel binary supports a certain function ?
-> 
-> Grub does this in it's update script to prevent adding a xen +
-> kernel combination that has no chance of booting when dom0 support
-> has not been configured in the kernel.  That doesn't seem to be a
-> unreasonable thought.
-> 
-> Grepping the accompanied config file in /boot for the xen dom0
-> Kconfig parameter seems the best possible effort grub can do at the
-> moment.
 
-I think this can be improved, even with the situation today.
+Wednesday, July 10, 2013, 8:19:34 AM, you wrote:
 
-> Especially since the Kconfig parameter naming doesn't change that
-> often.
-> 
-> If you know a better way for grub to determine if a certain function
-> for a kernel binary is supported then please elaborate ..
+> On Wed, Jul 10, 2013 at 12:34:58AM +0200, Sander Eikelenboom wrote:
+>> 
+>> Tuesday, July 9, 2013, 5:05:54 PM, you wrote:
+>> 
+>> > On Tue, Jul 09, 2013 at 10:48:40AM -0400, Konrad Rzeszutek Wilk wrote:
+>> >> Then that should be discussed on grub2 to remove said check and modify
+>> >> the code so that it can properly work without regression.
+>> 
+>> > Actually, the kernel patch removing that symbol should be applied so
+>> > that grub2 breaks faster. One can't possibly rely on kernel internals
+>> > for anything, as it is insanely insane (yep, the tautology is on purpose
+>> > :-)).
+>>
+>> How insanely insane is it to be able to determine whether a certain
+>> compiled kernel binary supports a certain function ?
+>> 
+>> Grub does this in it's update script to prevent adding a xen +
+>> kernel combination that has no chance of booting when dom0 support
+>> has not been configured in the kernel.  That doesn't seem to be a
+>> unreasonable thought.
+>> 
+>> Grepping the accompanied config file in /boot for the xen dom0
+>> Kconfig parameter seems the best possible effort grub can do at the
+>> moment.
 
-Certainly. Parse the ELF notes that are present in a dom0-capable
-Linux kernel binary itself.
+> I think this can be improved, even with the situation today.
 
-$ readelf -n vmlinux
+>> Especially since the Kconfig parameter naming doesn't change that
+>> often.
+>> 
+>> If you know a better way for grub to determine if a certain function
+>> for a kernel binary is supported then please elaborate ..
 
-Notes at offset 0x0069be88 with length 0x0000017c:
-  Owner		Data size	Description
-  Xen		0x00000006	Unknown note type: (0x00000006)
-  Xen		0x00000004	Unknown note type: (0x00000007)
-  Xen		0x00000008	Unknown note type: (0x00000005)
-  Xen		0x00000008	Unknown note type: (0x00000003)
-  Xen		0x00000008	NT_VERSION (version)
-  Xen		0x00000008	NT_ARCH (architecture)
-  Xen		0x0000002a	Unknown note type: (0x0000000a)
-  Xen		0x00000004	Unknown note type: (0x00000009)
-  Xen		0x00000008	Unknown note type: (0x00000008)
-  Xen		0x00000010	Unknown note type: (0x0000000d)
-  Xen		0x00000004	Unknown note type: (0x0000000e)
-  Xen		0x00000008	Unknown note type: (0x0000000c)
-  Xen		0x00000008	Unknown note type: (0x00000004)
-  GNU		0x00000014	NT_GNU_BUILD_ID (unique build ID bitstring)
+> Certainly. Parse the ELF notes that are present in a dom0-capable
+> Linux kernel binary itself.
 
-See arch/x86/xen/xen-head.S.
+> $ readelf -n vmlinux
 
-There's a new note type (XEN_ELFNOTE_SUPPORTED_FEATURES) that we can
-use to make dom0 support explicit.
+> Notes at offset 0x0069be88 with length 0x0000017c:
+>   Owner         Data size       Description
+>   Xen           0x00000006      Unknown note type: (0x00000006)
+>   Xen           0x00000004      Unknown note type: (0x00000007)
+>   Xen           0x00000008      Unknown note type: (0x00000005)
+>   Xen           0x00000008      Unknown note type: (0x00000003)
+>   Xen           0x00000008      NT_VERSION (version)
+>   Xen           0x00000008      NT_ARCH (architecture)
+>   Xen           0x0000002a      Unknown note type: (0x0000000a)
+>   Xen           0x00000004      Unknown note type: (0x00000009)
+>   Xen           0x00000008      Unknown note type: (0x00000008)
+>   Xen           0x00000010      Unknown note type: (0x0000000d)
+>   Xen           0x00000004      Unknown note type: (0x0000000e)
+>   Xen           0x00000008      Unknown note type: (0x0000000c)
+>   Xen           0x00000008      Unknown note type: (0x00000004)
+>   GNU           0x00000014      NT_GNU_BUILD_ID (unique build ID bitstring)
 
-http://xenbits.xen.org/gitweb/?p=xen.git;a=blob;f=xen/arch/x86/domain_build.c;hb=HEAD#l415
+> See arch/x86/xen/xen-head.S.
 
---msw
+> There's a new note type (XEN_ELFNOTE_SUPPORTED_FEATURES) that we can
+> use to make dom0 support explicit.
+
+> http://xenbits.xen.org/gitweb/?p=xen.git;a=blob;f=xen/arch/x86/domain_build.c;hb=HEAD#l415
+
+Seems like a better option, although completely dropping the check could be a option too.
+Since dom0 support is in mainline distributions (at least Debian, haven't checked the other main yet) don't supply a seperate xen enabled kernel anymore,
+so any distro supplied kernel has xen support. For the self-building case Borislav is probably right in that you have to watchout yourself.
+
+So it would be nice to have at least some time to address this with upstream grub and the main distributions to patch their grub.
+
+--
+Sander
+
+
+> --msw
