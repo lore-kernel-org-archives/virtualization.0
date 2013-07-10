@@ -1,22 +1,23 @@
 From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [Xen-devel] [PATCH] xen: remove unused Kconfig parameter
-Date: Wed, 10 Jul 2013 10:46:41 -0400
-Message-ID: <20130710144641.GA11007@phenom.dumpdata.com>
-References: <51DB2134.9040909@zytor.com> <20130708205834.GA481@pd.tnic>
-	<1373326534.1438.10.camel@x61.thuisdomein>
-	<f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
-	<51DBDAB802000078000E37C1@nat28.tlf.novell.com>
-	<20130709144840.GF24897@phenom.dumpdata.com>
-	<20130709150554.GA27579@pd.tnic>
-	<1382658288.20130710003458@eikelenboom.it>
-	<20130710061932.GB13671@u109add4315675089e695.ant.amazon.com>
-	<1619064548.20130710094134@eikelenboom.it>
+Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
+Date: Wed, 10 Jul 2013 11:03:15 -0400
+Message-ID: <20130710150315.GE11007@phenom.dumpdata.com>
+References: <51CAAA26.4090204@linux.vnet.ibm.com>
+	<20130626113744.GA6300@hawk.usersys.redhat.com>
+	<20130626125240.GY18508@redhat.com>
+	<51CAEF45.3010203@linux.vnet.ibm.com>
+	<20130626161130.GB18152@redhat.com>
+	<51CB2AD9.5060508@linux.vnet.ibm.com>
+	<51DBD3C2.2040807@linux.vnet.ibm.com>
+	<20130710103325.GP24941@redhat.com>
+	<20130710104047.GP25631@dyad.programming.kicks-ass.net>
+	<20130710104717.GR24941@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1619064548.20130710094134@eikelenboom.it>
+In-Reply-To: <20130710104717.GR24941@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,10 +27,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sander Eikelenboom <linux@eikelenboom.it>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Matt Wilson <msw@amazon.com>, Michael Opdenacker <michael.opdenacker@free-electrons.com>, x86@kernel.org, Paul Bolle <pebolle@tiscali.nl>, virtualization@lists.linux-foundation.org, mingo@redhat.com, Borislav Petkov <bp@alien8.de>, Jan Beulich <JBeulich@suse.com>, "H. Peter Anvin" <hpa@zytor.com>, tglx@linutronix.de, linux-kernel@vger.kernel.org
+To: Gleb Natapov <gleb@redhat.com>
+Cc: jeremy@goop.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, riel@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, Andrew Jones <drjones@redhat.com>, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> So it would be nice to have at least some time to address this with upstream grub and the main distributions to patch their grub.
+On Wed, Jul 10, 2013 at 01:47:17PM +0300, Gleb Natapov wrote:
+> On Wed, Jul 10, 2013 at 12:40:47PM +0200, Peter Zijlstra wrote:
+> > On Wed, Jul 10, 2013 at 01:33:25PM +0300, Gleb Natapov wrote:
+> > 
+> > Here's an idea, trim the damn email ;-) -- not only directed at gleb.
+> > 
+> Good idea.
+> 
+> > > > Ingo, Gleb,
+> > > > 
+> > > > From the results perspective, Andrew Theurer, Vinod's test results are
+> > > > pro-pvspinlock.
+> > > > Could you please help me to know what will make it a mergeable
+> > > > candidate?.
+> > > > 
+> > > I need to spend more time reviewing it :) The problem with PV interfaces
+> > > is that they are easy to add but hard to get rid of if better solution
+> > > (HW or otherwise) appears.
+> > 
+> > How so? Just make sure the registration for the PV interface is optional; that
+> > is, allow it to fail. A guest that fails the PV setup will either have to try
+> > another PV interface or fall back to 'native'.
+> > 
+> We have to carry PV around for live migration purposes. PV interface
+> cannot disappear under a running guest.
 
-<nods> Sounds quite sensible. Michael would you be OK doing this?
+Why can't it? This is the same as handling say XSAVE operations. Some hosts
+might have it - some might not. It is the job of the toolstack to make sure
+to not migrate to the hosts which don't have it. Or bound the guest to the
+lowest interface (so don't enable the PV interface if the other hosts in the
+cluster can't support this flag)?
+
+> 
+> > > > I agree that Jiannan's Preemptable Lock idea is promising and we could
+> > > > evaluate that  approach, and make the best one get into kernel and also
+> > > > will carry on discussion with Jiannan to improve that patch.
+> > > That would be great. The work is stalled from what I can tell.
+> > 
+> > I absolutely hated that stuff because it wrecked the native code.
+> Yes, the idea was to hide it from native code behind PV hooks.
+> 
+> --
+> 			Gleb.
