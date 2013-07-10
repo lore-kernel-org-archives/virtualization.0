@@ -1,14 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/2] virtio: support unlocked queue poll
-Date: Wed, 10 Jul 2013 12:39:58 +0930
-Message-ID: <87k3kzcdq1.fsf@rustcorp.com.au>
-References: <1373274069-4301-1-git-send-email-mst@redhat.com>
-	<1373274069-4301-2-git-send-email-mst@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] virtio-net: put virtio net header inline with data
+Date: Tue, 09 Jul 2013 21:38:07 -0700 (PDT)
+Message-ID: <20130709.213807.350021632586146971.davem@davemloft.net>
+References: <871u78eavc.fsf@rustcorp.com.au> <20130709051824.GA3234@redhat.com>
+	<87vc4kcfzg.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1373274069-4301-2-git-send-email-mst@redhat.com>
+In-Reply-To: <87vc4kcfzg.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,22 +18,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: rusty@rustcorp.com.au
+Cc: amwang@redhat.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davej@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> This adds a way to check ring empty state after enable_cb outside any
-> locks. Will be used by virtio_net.
->
-> Note: there's room for more optimization: caller is likely to have a
-> memory barrier already, which means we might be able to get rid of a
-> barrier here.  Deferring this optimization until we do some
-> benchmarking.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Date: Tue, 09 Jul 2013 17:38:51 +0930
 
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+> If you convince DaveM, I won't object :)
 
-Thanks,
-Rusty.
+Simplifications are great, but not when the merge window opens up.
+
+Sorry, this isn't appropriate now.
