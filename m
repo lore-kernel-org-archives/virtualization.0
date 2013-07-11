@@ -1,18 +1,23 @@
-From: Paul Bolle <pebolle@tiscali.nl>
-Subject: Re: [Xen-devel] [PATCH] xen: remove unused Kconfig parameter
-Date: Thu, 11 Jul 2013 12:08:58 +0200
-Message-ID: <1373537338.9708.18.camel@x61.thuisdomein>
-References: <1373264904-27053-1-git-send-email-michael.opdenacker@free-electrons.com>
-	<20130708192854.GF4927@phenom.dumpdata.com>
-	<20130708193457.GA6926@u109add4315675089e695.ant.amazon.com>
-	<51DB2134.9040909@zytor.com> <20130708205834.GA481@pd.tnic>
-	<1373326534.1438.10.camel@x61.thuisdomein>
-	<f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
+From: Gleb Natapov <gleb@redhat.com>
+Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
+Date: Thu, 11 Jul 2013 13:11:04 +0300
+Message-ID: <20130711101104.GF8575@redhat.com>
+References: <20130626113744.GA6300@hawk.usersys.redhat.com>
+	<20130626125240.GY18508@redhat.com>
+	<51CAEF45.3010203@linux.vnet.ibm.com>
+	<20130626161130.GB18152@redhat.com>
+	<51CB2AD9.5060508@linux.vnet.ibm.com>
+	<51DBD3C2.2040807@linux.vnet.ibm.com>
+	<20130710103325.GP24941@redhat.com>
+	<51DE771F.7070805@linux.vnet.ibm.com>
+	<20130711094833.GC8575@redhat.com>
+	<51DE849E.4020405@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
+Content-Disposition: inline
+In-Reply-To: <51DE849E.4020405@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,40 +27,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Michael Opdenacker <michael.opdenacker@free-electrons.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, Borislav Petkov <bp@alien8.de>, Matt Wilson <msw@amazon.com>, "H. Peter Anvin" <hpa@zytor.com>, tglx@linutronix.de
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, riel@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, Andrew Jones <drjones@redhat.com>, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2013-07-08 at 20:26 -0400, Konrad Rzeszutek Wilk wrote:
-> Could you explain to me please why the check in the scripts is
-> superfluous?
+On Thu, Jul 11, 2013 at 03:40:38PM +0530, Raghavendra K T wrote:
+> >>>>Gleb,
+> >>>>Can you elaborate little more on what you have in mind regarding per
+> >>>>VM ple_window. (maintaining part of it as a per vm variable is clear
+> >>>>to
+> >>>>  me), but is it that we have to load that every time of guest entry?
+> >>>>
+> >>>Only when it changes, shouldn't be to often no?
+> >>
+> >>Ok. Thinking how to do. read the register and writeback if there need
+> >>to be a change during guest entry?
+> >>
+> >Why not do it like in the patch you've linked? When value changes write it
+> >to VMCS of the current vcpu.
+> >
+> 
+> Yes. can be done. So the running vcpu's ple_window gets updated only
+> after next pl-exit. right?
+I am not sure what you mean. You cannot change vcpu's ple_window while
+vcpu is in a guest mode.
 
-The discussion has since moved on a bit, but I haven't answered this
-question yet.
-
-The check grub2 currently performs in one of its configuration scripts
-is (reformatted):
-    if (grep -qx "CONFIG_XEN_DOM0=y" "${config}" 2> /dev/null ||
-        grep -qx "CONFIG_XEN_PRIVILEGED_GUEST=y" "${config}" 2> /dev/null);
-    then echo -n "$i " ;
-    fi
-
-But the Kconfig entry for XEN_PRIVILEGED_GUEST reads: 
-    # Dummy symbol since people have come to rely on the PRIVILEGED_GUEST
-    # name in tools.
-    config XEN_PRIVILEGED_GUEST
-            def_bool XEN_DOM0
-
-In other words: CONFIG_XEN_PRIVILEGED_GUEST should always be equal to
-CONFIG_XEN_DOM0. So the two grep commands should always both evaluate to
-true or both evaluate to false. One of these two commands can safely be
-dropped.
-
-Another consequence is that dropping XEN_PRIVILEGED_GUEST doesn't break
-this configuration script. It will still behave as it does now.
-
-(Whether that script should grep for Kconfig macros in the first place
-is another discussion.)
-
-
-Paul Bolle
+--
+			Gleb.
