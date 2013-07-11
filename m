@@ -1,23 +1,18 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V9 0/19] Paravirtualized ticket spinlocks
-Date: Thu, 11 Jul 2013 15:40:38 +0530
-Message-ID: <51DE849E.4020405__47011.9675891057$1373537254$gmane$org@linux.vnet.ibm.com>
-References: <1372171802.3804.30.camel@oc2024037011.ibm.com>
-	<51CAAA26.4090204@linux.vnet.ibm.com>
-	<20130626113744.GA6300@hawk.usersys.redhat.com>
-	<20130626125240.GY18508@redhat.com>
-	<51CAEF45.3010203@linux.vnet.ibm.com>
-	<20130626161130.GB18152@redhat.com>
-	<51CB2AD9.5060508@linux.vnet.ibm.com>
-	<51DBD3C2.2040807@linux.vnet.ibm.com>
-	<20130710103325.GP24941@redhat.com>
-	<51DE771F.7070805@linux.vnet.ibm.com>
-	<20130711094833.GC8575@redhat.com>
+From: Paul Bolle <pebolle@tiscali.nl>
+Subject: Re: [Xen-devel] [PATCH] xen: remove unused Kconfig parameter
+Date: Thu, 11 Jul 2013 12:08:58 +0200
+Message-ID: <1373537338.9708.18.camel@x61.thuisdomein>
+References: <1373264904-27053-1-git-send-email-michael.opdenacker@free-electrons.com>
+	<20130708192854.GF4927@phenom.dumpdata.com>
+	<20130708193457.GA6926@u109add4315675089e695.ant.amazon.com>
+	<51DB2134.9040909@zytor.com> <20130708205834.GA481@pd.tnic>
+	<1373326534.1438.10.camel@x61.thuisdomein>
+	<f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130711094833.GC8575@redhat.com>
+In-Reply-To: <f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,55 +22,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
-Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, riel@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, Andrew Jones <drjones@redhat.com>, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Michael Opdenacker <michael.opdenacker@free-electrons.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, Borislav Petkov <bp@alien8.de>, Matt Wilson <msw@amazon.com>, "H. Peter Anvin" <hpa@zytor.com>, tglx@linutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/11/2013 03:18 PM, Gleb Natapov wrote:
-> On Thu, Jul 11, 2013 at 02:43:03PM +0530, Raghavendra K T wrote:
->> On 07/10/2013 04:03 PM, Gleb Natapov wrote:
->> [...] trimmed
->>
->>>>> Yes. you are right. dynamic ple window was an attempt to solve it.
->>>>>
->>>>> Probelm is, reducing the SPIN_THRESHOLD is resulting in excess halt
->>>>> exits in under-commits and increasing ple_window may be sometimes
->>>>> counter productive as it affects other busy-wait constructs such as
->>>>> flush_tlb AFAIK.
->>>>> So if we could have had a dynamically changing SPIN_THRESHOLD too, that
->>>>> would be nice.
->>>>>
->>>>
->>>> Gleb, Andrew,
->>>> I tested with the global ple window change (similar to what I posted
->>>> here https://lkml.org/lkml/2012/11/11/14 ),
->>> This does not look global. It changes PLE per vcpu.
->>
->> Okay. Got it. I was thinking it would change the global value. But IIRC
->>   It is changing global sysfs value and per vcpu ple_window.
->> Sorry. I missed this part yesterday.
->>
-> Yes, it changes sysfs value but this does not affect already created
-> vcpus.
->
->>>
->>>> But did not see good result. May be it is good to go with per VM
->>>> ple_window.
->>>>
->>>> Gleb,
->>>> Can you elaborate little more on what you have in mind regarding per
->>>> VM ple_window. (maintaining part of it as a per vm variable is clear
->>>> to
->>>>   me), but is it that we have to load that every time of guest entry?
->>>>
->>> Only when it changes, shouldn't be to often no?
->>
->> Ok. Thinking how to do. read the register and writeback if there need
->> to be a change during guest entry?
->>
-> Why not do it like in the patch you've linked? When value changes write it
-> to VMCS of the current vcpu.
->
+On Mon, 2013-07-08 at 20:26 -0400, Konrad Rzeszutek Wilk wrote:
+> Could you explain to me please why the check in the scripts is
+> superfluous?
 
-Yes. can be done. So the running vcpu's ple_window gets updated only
-after next pl-exit. right?
+The discussion has since moved on a bit, but I haven't answered this
+question yet.
+
+The check grub2 currently performs in one of its configuration scripts
+is (reformatted):
+    if (grep -qx "CONFIG_XEN_DOM0=y" "${config}" 2> /dev/null ||
+        grep -qx "CONFIG_XEN_PRIVILEGED_GUEST=y" "${config}" 2> /dev/null);
+    then echo -n "$i " ;
+    fi
+
+But the Kconfig entry for XEN_PRIVILEGED_GUEST reads: 
+    # Dummy symbol since people have come to rely on the PRIVILEGED_GUEST
+    # name in tools.
+    config XEN_PRIVILEGED_GUEST
+            def_bool XEN_DOM0
+
+In other words: CONFIG_XEN_PRIVILEGED_GUEST should always be equal to
+CONFIG_XEN_DOM0. So the two grep commands should always both evaluate to
+true or both evaluate to false. One of these two commands can safely be
+dropped.
+
+Another consequence is that dropping XEN_PRIVILEGED_GUEST doesn't break
+this configuration script. It will still behave as it does now.
+
+(Whether that script should grep for Kconfig macros in the first place
+is another discussion.)
+
+
+Paul Bolle
