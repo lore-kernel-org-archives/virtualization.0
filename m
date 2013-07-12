@@ -1,12 +1,11 @@
-From: KVM-Forum-2013-PC@redhat.com
-Subject: Reminder: KVM Forum 2013 Call for Participation
-Date: Fri, 12 Jul 2013 12:06:03 -0700
-Message-ID: <20130712190603.GF15210@x200.localdomain>
+From: Alex Williamson <alex.williamson@redhat.com>
+Subject: Call for Proposals: 2013 Linux Plumbers Virtualization Microconference
+Date: Fri, 12 Jul 2013 14:38:28 -0600
+Message-ID: <1373661508.8441.172.camel@ul30vt.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,145 +15,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, libvir-list@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+To: kvm <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, "xen-devel@lists.xen.org" <xen-devel@lists.xen.org>, virtualization <virtualization@lists.linux-foundation.org>, Libvirt <libvir-list@redhat.com>, seabios <seabios@seabios.org>
+Cc: lpc2013-virt-mc@codemonkey.ws, Anthony Liguori <anthony@codemonkey.ws>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Reminder, the KVM Forum CFP closes in less than 2 weeks.
 
-Also, thanks to generous support from our sponsors early registrants
-get an awesome discount!
+The Call for Proposals for the 2013 Linux Plumbers Virtualization
+Microconference is now open.  This uconf is being held as part of Linux
+Plumbers Conference in New Orleans, Louisiana, USA September 18-20th and
+is co-located with LinuxCon North America.  For more information see:
 
-=================================================================
-KVM Forum 2013: Call For Participation
-October 21-23, 2013 - Edinburgh International Conference Centre - Edinburgh, UK
+http://www.linuxplumbersconf.org/2013/
 
-(All submissions must be received before midnight July 21, 2013)
-=================================================================
+The tentative deadline for proposals is August 1st.  To submit a topic
+please email a brief abstract to lpc2013-virt-mc@codemonkey.ws  If you
+require travel assistance (extremely limited) in order to attend, please
+note that in your submission.  Also, please keep an eye on:
 
-KVM is an industry leading open source hypervisor that provides an ideal
-platform for datacenter virtualization, virtual desktop infrastructure,
-and cloud computing.  Once again, it's time to bring together the
-community of developers and users that define the KVM ecosystem for
-our annual technical conference.  We will discuss the current state of
-affairs and plan for the future of KVM, its surrounding infrastructure,
-and management tools.  The oVirt Workshop will run in parallel with the
-KVM Forum again, bringing in a community focused on enterprise datacenter
-virtualization management built on KVM.  For topics which overlap we will
-have shared sessions.  So mark your calendar and join us in advancing KVM.
+http://www.linuxplumbersconf.org/2013/submitting-topic/
+http://www.linuxplumbersconf.org/2013/participate/
 
-http://events.linuxfoundation.org/events/kvm-forum/
+We've setup the above email submission as an interim approach until the
+LPC program committee brings the official submission tool online.  I'll
+send a follow-up message when that occurs, but please send your
+proposals as soon as possible.  Thanks,
 
-Once again we are colocated with The Linux Foundation's LinuxCon Europe.
-KVM Forum attendees will be able to attend oVirt Workshop sessions and
-are eligible to attend LinuxCon Europe for a discounted rate.
-
-http://events.linuxfoundation.org/events/kvm-forum/register
-
-We invite you to lead part of the discussion by submitting a speaking
-proposal for KVM Forum 2013.
-
-http://events.linuxfoundation.org/cfp
-
-Suggested topics:
-
- KVM/Kernel
- - Scaling and performance
- - Nested virtualization
- - I/O improvements
- - VFIO, device assignment, SR-IOV
- - Driver domains
- - Time keeping
- - Resource management (cpu, memory, i/o)
- - Memory management (page sharing, swapping, huge pages, etc)
- - Network virtualization
- - Security
- - Architecture ports
- 
- QEMU
- - Device model improvements
- - New devices and chipsets
- - Scaling and performance
- - Desktop virtualization
- - Spice
- - Increasing robustness and hardening
- - Security model
- - Management interfaces
- - QMP protocol and implementation
- - Image formats
- - Firmware (SeaBIOS, OVMF, UEFI, etc)
- - Live migration
- - Live snapshots and merging
- - Fault tolerance, high availability, continuous backup
- - Real-time guest support
- 
- Virtio
- - Speeding up existing devices
- - Alternatives
- - Virtio on non-Linux or non-virtualized
- 
- Management infrastructure
- - oVirt (shared track w/ oVirt Workshop)
- - Libvirt
- - KVM autotest
- - OpenStack
- - Network virtualization management
- - Enterprise storage management
- 
- Cloud computing
- - Scalable storage
- - Virtual networking
- - Security
- - Provisioning
-
-SUBMISSION REQUIREMENTS
-
-Abstracts due: July 21, 2013
-Notification: August 1, 2013
-
-Please submit a short abstract (~150 words) describing your presentation
-proposal.  In your submission please note how long your talk will take.
-Slots vary in length up to 45 minutes.  Also include in your proposal
-the proposal type -- one of:
-
-- technical talk
-- end-user talk
-- birds of a feather (BOF) session
-
-Submit your proposal here:
-
-http://events.linuxfoundation.org/cfp
-
-You will receive a notification whether or not your presentation proposal
-was accepted by Aug 1st.
-
-END-USER COLLABORATION
-
-One of the big challenges as developers is to know what, where and how
-people actually use our software.  We will reserve a few slots for end
-users talking about their deployment challenges and achievements.
-
-If you are using KVM in production you are encouraged submit a speaking
-proposal.  Simply mark it as an end-user collaboration proposal.  As an
-end user, this is a unique opportunity to get your input to developers.
-
-BOF SESSION
-
-We will reserve some slots in the evening after the main conference
-tracks, for birds of a feather (BOF) sessions. These sessions will be
-less formal than presentation tracks and targetted for people who would
-like to discuss specific issues with other developers and/or users.
-If you are interested in getting developers and/or uses together to
-discuss a specific problem, please submit a BOF proposal.
-
-HOTEL / TRAVEL
-
-The KVM Forum 2013 will be held in Edinburgh, UK at the Edinburgh
-International Conference Centre.
-
-http://events.linuxfoundation.org/events/kvm-forum/hotel
-
-Thank you for your interest in KVM.  We're looking forward to your
-submissions and seeing you at the KVM Forum 2013 in October!
-
-Thanks,
--your KVM Forum 2013 Program Committee
+Alex
