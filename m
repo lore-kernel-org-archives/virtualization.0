@@ -1,20 +1,14 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [Xen-devel] [PATCH] xen: remove unused Kconfig parameter
-Date: Thu, 11 Jul 2013 23:13:57 +0200
-Message-ID: <CAMuHMdX0aJnfVVF7Y0OvOMFO8zJTBrOjTG7fFisvFievZMpLcw@mail.gmail.com>
-References: <1373264904-27053-1-git-send-email-michael.opdenacker@free-electrons.com>
-	<20130708192854.GF4927@phenom.dumpdata.com>
-	<20130708193457.GA6926@u109add4315675089e695.ant.amazon.com>
-	<51DB2134.9040909@zytor.com> <20130708205834.GA481@pd.tnic>
-	<1373326534.1438.10.camel@x61.thuisdomein>
-	<f5d6bd67-7464-4932-a7ca-6026fe534fc7@email.android.com>
-	<1373537338.9708.18.camel@x61.thuisdomein>
-	<51DEF1F3.2020900@zytor.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-net: put virtio net header inline with data
+Date: Fri, 12 Jul 2013 15:27:18 +0930
+Message-ID: <87oba82udd.fsf@rustcorp.com.au>
+References: <20130708101259.GA16074@redhat.com>
+	<871u78eavc.fsf@rustcorp.com.au> <20130711130007.GA3794@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51DEF1F3.2020900@zytor.com>
+In-Reply-To: <20130711130007.GA3794@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,34 +18,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Paul Bolle <pebolle@tiscali.nl>, xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Michael Opdenacker <michael.opdenacker@free-electrons.com>, the arch/x86 maintainers <x86@kernel.org>, Jeremy Fitzhardinge <jeremy@goop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Matt Wilson <msw@amazon.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Cong Wang <amwang@redhat.com>, qemu-devel@nongnu.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Dave Jones <davej@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 11, 2013 at 7:57 PM, H. Peter Anvin <hpa@zytor.com> wrote:
->> The check grub2 currently performs in one of its configuration scripts
->> is (reformatted):
->>     if (grep -qx "CONFIG_XEN_DOM0=y" "${config}" 2> /dev/null ||
->>         grep -qx "CONFIG_XEN_PRIVILEGED_GUEST=y" "${config}" 2> /dev/null);
->>     then echo -n "$i " ;
->>     fi
->>
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Tue, Jul 09, 2013 at 11:46:23AM +0930, Rusty Russell wrote:
+>> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> > For small packets we can simplify xmit processing
+>> > by linearizing buffers with the header:
+>> > most packets seem to have enough head room
+>> > we can use for this purpose.
+>> > Since existing hypervisors require that header
+>> > is the first s/g element, we need a feature bit
+>> > for this.
+>> >
+>> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> > ---
+>> >
+>> > Note: this needs to be applied on top of patch
+>> > defining VIRTIO_F_ANY_LAYOUT - bit to be
+>> > selected by Rusty.
+>> >
+>> > The following patch should work for any definition of
+>> > VIRTIO_F_ANY_LAYOUT - I used bit 31 for testing.
+>> > Rusty, could you please pick a valid bit for VIRTIO_F_ANY_LAYOUT
+>> > and squeeze this patch into 3.11?
+>> 
+>> Sorry, it's too late.
+>> 
+>> First, I've been a bit lax in sending patches via DaveM, and this is
+>> definitely his territory (ie. more net than virtio).
+>> 
+>> Secondly, it needs baking and testing time.
+>> 
+>> Cheers,
+>> Rusty.
 >
-> If only grep supported looking for more than one string at a time.
-> Maybe we could construct some kind of pattern expression syntax for it,
-> perhaps based on the theory of regular languages?
+> Okay. But we can already commit the qemu change, right?
+> Also, can you submit the spec update please?
 
-grep -E "(pat1|pat2|pat3|...)"?
+The spec has been updated, BTW.
 
-Or am I missing something?
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+Cheers,
+Rusty.
