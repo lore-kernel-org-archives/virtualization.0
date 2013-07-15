@@ -1,16 +1,16 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V10 12/18] kvm hypervisor : Add a hypercall to KVM
-	hypervisor to support pv-ticketlocks
-Date: Mon, 15 Jul 2013 11:23:26 +0530
-Message-ID: <51E38E56.7090001@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V10 18/18] kvm hypervisor: Add directed yield in vcpu
+	block path
+Date: Mon, 15 Jul 2013 11:34:05 +0530
+Message-ID: <51E390D5.3000707@linux.vnet.ibm.com>
 References: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
-	<20130624124304.27508.5414.sendpatchset@codeblue.in.ibm.com>
-	<20130714134820.GC11772@redhat.com>
+	<20130624124415.27508.74230.sendpatchset@codeblue.in.ibm.com>
+	<20130714141818.GD11772@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130714134820.GC11772@redhat.com>
+In-Reply-To: <20130714141818.GD11772@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,121 +24,44 @@ To: Gleb Natapov <gleb@redhat.com>
 Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/14/2013 07:18 PM, Gleb Natapov wrote:
-> On Mon, Jun 24, 2013 at 06:13:04PM +0530, Raghavendra K T wrote:
->> kvm hypervisor : Add a hypercall to KVM hypervisor to support pv-ticketlocks
+On 07/14/2013 07:48 PM, Gleb Natapov wrote:
+> On Mon, Jun 24, 2013 at 06:14:15PM +0530, Raghavendra K T wrote:
+>> kvm hypervisor: Add directed yield in vcpu block path
 >>
->> From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+>> From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 >>
->> kvm_hc_kick_cpu allows the calling vcpu to kick another vcpu out of halt state.
->> the presence of these hypercalls is indicated to guest via
->> kvm_feature_pv_unhalt.
+>> We use the improved PLE handler logic in vcpu block patch for
+>> scheduling rather than plain schedule, so that we can make
+>> intelligent decisions.
 >>
->> Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
->> Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
->> [Raghu: Apic related changes, folding pvunhalted into vcpu_runnable]
+> What kind of improvement this provides? Doesn't it screw up our pause
+> exit heuristics?
+
+No. it does not affect negatively from what I saw. ( and even from
+results).
+
+So it will make ple handler to avoid yield_to to those vcpus,
+still looping in  halt handler.
+May be vcpus which are pv_unhalted but not running, may miss this.
+but haven't seen anything bad happening with that.
+But yes, planning to do some experiments around this. Thanks for
+bringing this up.
+
+Between another good point about this is, though non PLE hardwares are
+becoming obsolete, they can potentially take the advantage of PLE
+handler.
+
+>
 >> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 >> ---
->>   arch/x86/include/asm/kvm_host.h      |    5 +++++
->>   arch/x86/include/uapi/asm/kvm_para.h |    1 +
->>   arch/x86/kvm/cpuid.c                 |    3 ++-
->>   arch/x86/kvm/x86.c                   |   37 ++++++++++++++++++++++++++++++++++
->>   include/uapi/linux/kvm_para.h        |    1 +
->>   5 files changed, 46 insertions(+), 1 deletion(-)
->>
->> diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
->> index 3741c65..95702de 100644
->> --- a/arch/x86/include/asm/kvm_host.h
->> +++ b/arch/x86/include/asm/kvm_host.h
->> @@ -503,6 +503,11 @@ struct kvm_vcpu_arch {
->>   	 * instruction.
->>   	 */
->>   	bool write_fault_to_shadow_pgtable;
->> +
->> +	/* pv related host specific info */
->> +	struct {
->> +		bool pv_unhalted;
->> +	} pv;
->>   };
->>
->>   struct kvm_lpage_info {
->> diff --git a/arch/x86/include/uapi/asm/kvm_para.h b/arch/x86/include/uapi/asm/kvm_para.h
->> index 06fdbd9..94dc8ca 100644
->> --- a/arch/x86/include/uapi/asm/kvm_para.h
->> +++ b/arch/x86/include/uapi/asm/kvm_para.h
->> @@ -23,6 +23,7 @@
->>   #define KVM_FEATURE_ASYNC_PF		4
->>   #define KVM_FEATURE_STEAL_TIME		5
->>   #define KVM_FEATURE_PV_EOI		6
->> +#define KVM_FEATURE_PV_UNHALT		7
->>
->>   /* The last 8 bits are used to indicate how to interpret the flags field
->>    * in pvclock structure. If no bits are set, all flags are ignored.
->> diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
->> index a20ecb5..b110fe6 100644
->> --- a/arch/x86/kvm/cpuid.c
->> +++ b/arch/x86/kvm/cpuid.c
->> @@ -413,7 +413,8 @@ static int do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
->>   			     (1 << KVM_FEATURE_CLOCKSOURCE2) |
->>   			     (1 << KVM_FEATURE_ASYNC_PF) |
->>   			     (1 << KVM_FEATURE_PV_EOI) |
->> -			     (1 << KVM_FEATURE_CLOCKSOURCE_STABLE_BIT);
->> +			     (1 << KVM_FEATURE_CLOCKSOURCE_STABLE_BIT) |
->> +			     (1 << KVM_FEATURE_PV_UNHALT);
->>
->>   		if (sched_info_on())
->>   			entry->eax |= (1 << KVM_FEATURE_STEAL_TIME);
->> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
->> index 094b5d9..f8bea30 100644
->> --- a/arch/x86/kvm/x86.c
->> +++ b/arch/x86/kvm/x86.c
->> @@ -5449,6 +5449,36 @@ int kvm_hv_hypercall(struct kvm_vcpu *vcpu)
->>   	return 1;
->>   }
->>
->> +/*
->> + * kvm_pv_kick_cpu_op:  Kick a vcpu.
->> + *
->> + * @apicid - apicid of vcpu to be kicked.
->> + */
->> +static void kvm_pv_kick_cpu_op(struct kvm *kvm, int apicid)
->> +{
->> +	struct kvm_vcpu *vcpu = NULL;
->> +	int i;
->> +
->> +	kvm_for_each_vcpu(i, vcpu, kvm) {
->> +		if (!kvm_apic_present(vcpu))
->> +			continue;
->> +
->> +		if (kvm_apic_match_dest(vcpu, 0, 0, apicid, 0))
->> +			break;
->> +	}
->> +	if (vcpu) {
->> +		/*
->> +		 * Setting unhalt flag here can result in spurious runnable
->> +		 * state when unhalt reset does not happen in vcpu_block.
->> +		 * But that is harmless since that should soon result in halt.
->> +		 */
->> +		vcpu->arch.pv.pv_unhalted = true;
->> +		/* We need everybody see unhalt before vcpu unblocks */
->> +		smp_wmb();
->> +		kvm_vcpu_kick(vcpu);
->> +	}
->> +}
->> +
->>   int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
->>   {
->>   	unsigned long nr, a0, a1, a2, a3, ret;
->> @@ -5482,6 +5512,10 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
->>   	case KVM_HC_VAPIC_POLL_IRQ:
->>   		ret = 0;
->>   		break;
->> +	case KVM_HC_KICK_CPU:
->> +		kvm_pv_kick_cpu_op(vcpu->kvm, a0);
-> Lets make it hypercall with two parameters:
-> a0 - flags
-> a1 - apic id of a cpu to kick
->
-> A0 have to be zero. This will make it more extensible.
+>>   arch/ia64/include/asm/kvm_host.h    |    5 +++++
+>>   arch/powerpc/include/asm/kvm_host.h |    5 +++++
+>>   arch/s390/include/asm/kvm_host.h    |    5 +++++
+>>   arch/x86/include/asm/kvm_host.h     |    2 +-
+>>   arch/x86/kvm/x86.c                  |    8 ++++++++
+>>   include/linux/kvm_host.h            |    2 +-
+>>   virt/kvm/kvm_main.c                 |    6 ++++--
+> This miss some arches.
 
-Good point. 'll incorporate that.
+Thanks for pointing that. arm and mips were not around at V8 time, I 
+missed them.
