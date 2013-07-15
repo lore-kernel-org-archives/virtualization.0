@@ -1,16 +1,18 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V10 16/18] kvm hypervisor : Simplify kvm_for_each_vcpu
-	with kvm_irq_delivery_to_apic
-Date: Mon, 15 Jul 2013 21:06:13 +0530
-Message-ID: <51E416ED.3090604@linux.vnet.ibm.com>
+From: Gleb Natapov <gleb@redhat.com>
+Subject: Re: [PATCH RFC V10 16/18] kvm hypervisor : Simplify
+	kvm_for_each_vcpu with kvm_irq_delivery_to_apic
+Date: Mon, 15 Jul 2013 18:46:47 +0300
+Message-ID: <20130715154647.GA19212@redhat.com>
 References: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
 	<20130624124353.27508.94224.sendpatchset@codeblue.in.ibm.com>
 	<20130714132402.GB11772@redhat.com>
+	<51E416ED.3090604@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130714132402.GB11772@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <51E416ED.3090604@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,83 +22,93 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/14/2013 06:54 PM, Gleb Natapov wrote:
-> On Mon, Jun 24, 2013 at 06:13:53PM +0530, Raghavendra K T wrote:
->> Simplify kvm_for_each_vcpu with kvm_irq_delivery_to_apic
->>
->> From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
->>
->> Note that we are using APIC_DM_REMRD which has reserved usage.
->> In future if APIC_DM_REMRD usage is standardized, then we should
->> find some other way or go back to old method.
->>
->> Suggested-by: Gleb Natapov <gleb@redhat.com>
->> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
->> ---
->>   arch/x86/kvm/lapic.c |    5 ++++-
->>   arch/x86/kvm/x86.c   |   25 ++++++-------------------
->>   2 files changed, 10 insertions(+), 20 deletions(-)
->>
->> diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
->> index e1adbb4..3f5f82e 100644
->> --- a/arch/x86/kvm/lapic.c
->> +++ b/arch/x86/kvm/lapic.c
->> @@ -706,7 +706,10 @@ out:
->>   		break;
->>
->>   	case APIC_DM_REMRD:
->> -		apic_debug("Ignoring delivery mode 3\n");
->> +		result = 1;
->> +		vcpu->arch.pv.pv_unhalted = 1;
->> +		kvm_make_request(KVM_REQ_EVENT, vcpu);
->> +		kvm_vcpu_kick(vcpu);
->>   		break;
->>
->>   	case APIC_DM_SMI:
->> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
->> index 92a9932..b963c86 100644
->> --- a/arch/x86/kvm/x86.c
->> +++ b/arch/x86/kvm/x86.c
->> @@ -5456,27 +5456,14 @@ int kvm_hv_hypercall(struct kvm_vcpu *vcpu)
->>    */
->>   static void kvm_pv_kick_cpu_op(struct kvm *kvm, int apicid)
->>   {
->> -	struct kvm_vcpu *vcpu = NULL;
->> -	int i;
->> +	struct kvm_lapic_irq lapic_irq;
->>
->> -	kvm_for_each_vcpu(i, vcpu, kvm) {
->> -		if (!kvm_apic_present(vcpu))
->> -			continue;
->> +	lapic_irq.shorthand = 0;
->> +	lapic_irq.dest_mode = 0;
->> +	lapic_irq.dest_id = apicid;
->>
->> -		if (kvm_apic_match_dest(vcpu, 0, 0, apicid, 0))
->> -			break;
->> -	}
->> -	if (vcpu) {
->> -		/*
->> -		 * Setting unhalt flag here can result in spurious runnable
->> -		 * state when unhalt reset does not happen in vcpu_block.
->> -		 * But that is harmless since that should soon result in halt.
->> -		 */
->> -		vcpu->arch.pv.pv_unhalted = true;
->> -		/* We need everybody see unhalt before vcpu unblocks */
->> -		smp_wmb();
->> -		kvm_vcpu_kick(vcpu);
->> -	}
->> +	lapic_irq.delivery_mode = APIC_DM_REMRD;
-> Need to make sure that delivery_mode cannot be set to APIC_DM_REMRD
-> from MSI/IOAPIC/IPI path.
+On Mon, Jul 15, 2013 at 09:06:13PM +0530, Raghavendra K T wrote:
+> On 07/14/2013 06:54 PM, Gleb Natapov wrote:
+> >On Mon, Jun 24, 2013 at 06:13:53PM +0530, Raghavendra K T wrote:
+> >>Simplify kvm_for_each_vcpu with kvm_irq_delivery_to_apic
+> >>
+> >>From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+> >>
+> >>Note that we are using APIC_DM_REMRD which has reserved usage.
+> >>In future if APIC_DM_REMRD usage is standardized, then we should
+> >>find some other way or go back to old method.
+> >>
+> >>Suggested-by: Gleb Natapov <gleb@redhat.com>
+> >>Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+> >>---
+> >>  arch/x86/kvm/lapic.c |    5 ++++-
+> >>  arch/x86/kvm/x86.c   |   25 ++++++-------------------
+> >>  2 files changed, 10 insertions(+), 20 deletions(-)
+> >>
+> >>diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+> >>index e1adbb4..3f5f82e 100644
+> >>--- a/arch/x86/kvm/lapic.c
+> >>+++ b/arch/x86/kvm/lapic.c
+> >>@@ -706,7 +706,10 @@ out:
+> >>  		break;
+> >>
+> >>  	case APIC_DM_REMRD:
+> >>-		apic_debug("Ignoring delivery mode 3\n");
+> >>+		result = 1;
+> >>+		vcpu->arch.pv.pv_unhalted = 1;
+> >>+		kvm_make_request(KVM_REQ_EVENT, vcpu);
+> >>+		kvm_vcpu_kick(vcpu);
+> >>  		break;
+> >>
+> >>  	case APIC_DM_SMI:
+> >>diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> >>index 92a9932..b963c86 100644
+> >>--- a/arch/x86/kvm/x86.c
+> >>+++ b/arch/x86/kvm/x86.c
+> >>@@ -5456,27 +5456,14 @@ int kvm_hv_hypercall(struct kvm_vcpu *vcpu)
+> >>   */
+> >>  static void kvm_pv_kick_cpu_op(struct kvm *kvm, int apicid)
+> >>  {
+> >>-	struct kvm_vcpu *vcpu = NULL;
+> >>-	int i;
+> >>+	struct kvm_lapic_irq lapic_irq;
+> >>
+> >>-	kvm_for_each_vcpu(i, vcpu, kvm) {
+> >>-		if (!kvm_apic_present(vcpu))
+> >>-			continue;
+> >>+	lapic_irq.shorthand = 0;
+> >>+	lapic_irq.dest_mode = 0;
+> >>+	lapic_irq.dest_id = apicid;
+> >>
+> >>-		if (kvm_apic_match_dest(vcpu, 0, 0, apicid, 0))
+> >>-			break;
+> >>-	}
+> >>-	if (vcpu) {
+> >>-		/*
+> >>-		 * Setting unhalt flag here can result in spurious runnable
+> >>-		 * state when unhalt reset does not happen in vcpu_block.
+> >>-		 * But that is harmless since that should soon result in halt.
+> >>-		 */
+> >>-		vcpu->arch.pv.pv_unhalted = true;
+> >>-		/* We need everybody see unhalt before vcpu unblocks */
+> >>-		smp_wmb();
+> >>-		kvm_vcpu_kick(vcpu);
+> >>-	}
+> >>+	lapic_irq.delivery_mode = APIC_DM_REMRD;
+> >Need to make sure that delivery_mode cannot be set to APIC_DM_REMRD
+> >from MSI/IOAPIC/IPI path.
+> 
+> I Gleb,
+> I need your help here since I do not know much about apic.
+> 
+> so are you saying explicitly checking that, kvm_set_msi_irq,
+> apic_send_ipi, native_setup_ioapic_entry, does not have
+> APIC_DM_REMRD as delivery_mode set?
+> 
+Yes, but on a second thought what bad can happen if we will not check it?
+If guest configures irq to inject APIC_DM_REMRD interrupt this may
+needlessly wakeup sleeping vcpu and it will try to accrue spinlock
+again, so no correctness problem only performance. If this is the case
+lets leave it as it for now.
 
-I Gleb,
-I need your help here since I do not know much about apic.
-
-so are you saying explicitly checking that, kvm_set_msi_irq, 
-apic_send_ipi, native_setup_ioapic_entry, does not have APIC_DM_REMRD as 
-delivery_mode set?
+--
+			Gleb.
