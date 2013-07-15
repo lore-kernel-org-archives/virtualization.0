@@ -1,18 +1,12 @@
-From: Gleb Natapov <gleb@redhat.com>
-Subject: Re: [PATCH RFC V10 16/18] kvm hypervisor : Simplify
-	kvm_for_each_vcpu with kvm_irq_delivery_to_apic
-Date: Mon, 15 Jul 2013 18:46:47 +0300
-Message-ID: <20130715154647.GA19212@redhat.com>
-References: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
-	<20130624124353.27508.94224.sendpatchset@codeblue.in.ibm.com>
-	<20130714132402.GB11772@redhat.com>
-	<51E416ED.3090604@linux.vnet.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Mon, 15 Jul 2013 21:31:49 +0300
+Message-ID: <20130715183149.GA8215@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <51E416ED.3090604@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,93 +16,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 15, 2013 at 09:06:13PM +0530, Raghavendra K T wrote:
-> On 07/14/2013 06:54 PM, Gleb Natapov wrote:
-> >On Mon, Jun 24, 2013 at 06:13:53PM +0530, Raghavendra K T wrote:
-> >>Simplify kvm_for_each_vcpu with kvm_irq_delivery_to_apic
-> >>
-> >>From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-> >>
-> >>Note that we are using APIC_DM_REMRD which has reserved usage.
-> >>In future if APIC_DM_REMRD usage is standardized, then we should
-> >>find some other way or go back to old method.
-> >>
-> >>Suggested-by: Gleb Natapov <gleb@redhat.com>
-> >>Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-> >>---
-> >>  arch/x86/kvm/lapic.c |    5 ++++-
-> >>  arch/x86/kvm/x86.c   |   25 ++++++-------------------
-> >>  2 files changed, 10 insertions(+), 20 deletions(-)
-> >>
-> >>diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-> >>index e1adbb4..3f5f82e 100644
-> >>--- a/arch/x86/kvm/lapic.c
-> >>+++ b/arch/x86/kvm/lapic.c
-> >>@@ -706,7 +706,10 @@ out:
-> >>  		break;
-> >>
-> >>  	case APIC_DM_REMRD:
-> >>-		apic_debug("Ignoring delivery mode 3\n");
-> >>+		result = 1;
-> >>+		vcpu->arch.pv.pv_unhalted = 1;
-> >>+		kvm_make_request(KVM_REQ_EVENT, vcpu);
-> >>+		kvm_vcpu_kick(vcpu);
-> >>  		break;
-> >>
-> >>  	case APIC_DM_SMI:
-> >>diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> >>index 92a9932..b963c86 100644
-> >>--- a/arch/x86/kvm/x86.c
-> >>+++ b/arch/x86/kvm/x86.c
-> >>@@ -5456,27 +5456,14 @@ int kvm_hv_hypercall(struct kvm_vcpu *vcpu)
-> >>   */
-> >>  static void kvm_pv_kick_cpu_op(struct kvm *kvm, int apicid)
-> >>  {
-> >>-	struct kvm_vcpu *vcpu = NULL;
-> >>-	int i;
-> >>+	struct kvm_lapic_irq lapic_irq;
-> >>
-> >>-	kvm_for_each_vcpu(i, vcpu, kvm) {
-> >>-		if (!kvm_apic_present(vcpu))
-> >>-			continue;
-> >>+	lapic_irq.shorthand = 0;
-> >>+	lapic_irq.dest_mode = 0;
-> >>+	lapic_irq.dest_id = apicid;
-> >>
-> >>-		if (kvm_apic_match_dest(vcpu, 0, 0, apicid, 0))
-> >>-			break;
-> >>-	}
-> >>-	if (vcpu) {
-> >>-		/*
-> >>-		 * Setting unhalt flag here can result in spurious runnable
-> >>-		 * state when unhalt reset does not happen in vcpu_block.
-> >>-		 * But that is harmless since that should soon result in halt.
-> >>-		 */
-> >>-		vcpu->arch.pv.pv_unhalted = true;
-> >>-		/* We need everybody see unhalt before vcpu unblocks */
-> >>-		smp_wmb();
-> >>-		kvm_vcpu_kick(vcpu);
-> >>-	}
-> >>+	lapic_irq.delivery_mode = APIC_DM_REMRD;
-> >Need to make sure that delivery_mode cannot be set to APIC_DM_REMRD
-> >from MSI/IOAPIC/IPI path.
-> 
-> I Gleb,
-> I need your help here since I do not know much about apic.
-> 
-> so are you saying explicitly checking that, kvm_set_msi_irq,
-> apic_send_ipi, native_setup_ioapic_entry, does not have
-> APIC_DM_REMRD as delivery_mode set?
-> 
-Yes, but on a second thought what bad can happen if we will not check it?
-If guest configures irq to inject APIC_DM_REMRD interrupt this may
-needlessly wakeup sleeping vcpu and it will try to accrue spinlock
-again, so no correctness problem only performance. If this is the case
-lets leave it as it for now.
+The following changes since commit 09a34c8404c1d4c5782de319c02e1d742c57875c:
 
---
-			Gleb.
+  vhost/test: update test after vhost cleanups (2013-07-07 18:02:25 +0300)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 22fa90c7fb479694d6affebc049d21f06b714be6:
+
+  vhost: Remove custom vhost rcu usage (2013-07-11 15:38:40 +0300)
+
+----------------------------------------------------------------
+vhost: more fixes for 3.11
+
+This includes some fixes for vhost net and scsi drivers.
+The test module has already been reworked to avoid rcu
+usage, but the necessary core changes are missing,
+we fixed this.
+Unlikely to affect any real-world users, but it's
+early in the cycle so, let's merge them.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Asias He (3):
+      vhost-net: Always access vq->private_data under vq mutex
+      vhost-scsi: Always access vq->private_data under vq mutex
+      vhost: Remove custom vhost rcu usage
+
+ drivers/vhost/net.c   | 37 ++++++++++++++++---------------------
+ drivers/vhost/scsi.c  | 17 ++++++-----------
+ drivers/vhost/test.c  |  6 ++----
+ drivers/vhost/vhost.h | 10 ++--------
+ 4 files changed, 26 insertions(+), 44 deletions(-)
