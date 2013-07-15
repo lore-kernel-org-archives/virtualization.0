@@ -1,15 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] virtio-net: put virtio net header inline with data
-Date: Mon, 15 Jul 2013 11:13:25 +0930
-Message-ID: <8761wc38ea.fsf@rustcorp.com.au>
-References: <871u78eavc.fsf@rustcorp.com.au> <20130709051824.GA3234@redhat.com>
-	<87vc4kcfzg.fsf@rustcorp.com.au>
-	<20130709.213807.350021632586146971.davem@davemloft.net>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V10 12/18] kvm hypervisor : Add a hypercall to KVM
+	hypervisor to support pv-ticketlocks
+Date: Mon, 15 Jul 2013 11:23:26 +0530
+Message-ID: <51E38E56.7090001@linux.vnet.ibm.com>
+References: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
+	<20130624124304.27508.5414.sendpatchset@codeblue.in.ibm.com>
+	<20130714134820.GC11772@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130709.213807.350021632586146971.davem@davemloft.net>
+In-Reply-To: <20130714134820.GC11772@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,127 +20,125 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: amwang@redhat.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davej@redhat.com
+To: Gleb Natapov <gleb@redhat.com>
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+On 07/14/2013 07:18 PM, Gleb Natapov wrote:
+> On Mon, Jun 24, 2013 at 06:13:04PM +0530, Raghavendra K T wrote:
+>> kvm hypervisor : Add a hypercall to KVM hypervisor to support pv-ticketlocks
+>>
+>> From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+>>
+>> kvm_hc_kick_cpu allows the calling vcpu to kick another vcpu out of halt state.
+>> the presence of these hypercalls is indicated to guest via
+>> kvm_feature_pv_unhalt.
+>>
+>> Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+>> Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
+>> [Raghu: Apic related changes, folding pvunhalted into vcpu_runnable]
+>> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+>> ---
+>>   arch/x86/include/asm/kvm_host.h      |    5 +++++
+>>   arch/x86/include/uapi/asm/kvm_para.h |    1 +
+>>   arch/x86/kvm/cpuid.c                 |    3 ++-
+>>   arch/x86/kvm/x86.c                   |   37 ++++++++++++++++++++++++++++++++++
+>>   include/uapi/linux/kvm_para.h        |    1 +
+>>   5 files changed, 46 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+>> index 3741c65..95702de 100644
+>> --- a/arch/x86/include/asm/kvm_host.h
+>> +++ b/arch/x86/include/asm/kvm_host.h
+>> @@ -503,6 +503,11 @@ struct kvm_vcpu_arch {
+>>   	 * instruction.
+>>   	 */
+>>   	bool write_fault_to_shadow_pgtable;
+>> +
+>> +	/* pv related host specific info */
+>> +	struct {
+>> +		bool pv_unhalted;
+>> +	} pv;
+>>   };
+>>
+>>   struct kvm_lpage_info {
+>> diff --git a/arch/x86/include/uapi/asm/kvm_para.h b/arch/x86/include/uapi/asm/kvm_para.h
+>> index 06fdbd9..94dc8ca 100644
+>> --- a/arch/x86/include/uapi/asm/kvm_para.h
+>> +++ b/arch/x86/include/uapi/asm/kvm_para.h
+>> @@ -23,6 +23,7 @@
+>>   #define KVM_FEATURE_ASYNC_PF		4
+>>   #define KVM_FEATURE_STEAL_TIME		5
+>>   #define KVM_FEATURE_PV_EOI		6
+>> +#define KVM_FEATURE_PV_UNHALT		7
+>>
+>>   /* The last 8 bits are used to indicate how to interpret the flags field
+>>    * in pvclock structure. If no bits are set, all flags are ignored.
+>> diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+>> index a20ecb5..b110fe6 100644
+>> --- a/arch/x86/kvm/cpuid.c
+>> +++ b/arch/x86/kvm/cpuid.c
+>> @@ -413,7 +413,8 @@ static int do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
+>>   			     (1 << KVM_FEATURE_CLOCKSOURCE2) |
+>>   			     (1 << KVM_FEATURE_ASYNC_PF) |
+>>   			     (1 << KVM_FEATURE_PV_EOI) |
+>> -			     (1 << KVM_FEATURE_CLOCKSOURCE_STABLE_BIT);
+>> +			     (1 << KVM_FEATURE_CLOCKSOURCE_STABLE_BIT) |
+>> +			     (1 << KVM_FEATURE_PV_UNHALT);
+>>
+>>   		if (sched_info_on())
+>>   			entry->eax |= (1 << KVM_FEATURE_STEAL_TIME);
+>> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+>> index 094b5d9..f8bea30 100644
+>> --- a/arch/x86/kvm/x86.c
+>> +++ b/arch/x86/kvm/x86.c
+>> @@ -5449,6 +5449,36 @@ int kvm_hv_hypercall(struct kvm_vcpu *vcpu)
+>>   	return 1;
+>>   }
+>>
+>> +/*
+>> + * kvm_pv_kick_cpu_op:  Kick a vcpu.
+>> + *
+>> + * @apicid - apicid of vcpu to be kicked.
+>> + */
+>> +static void kvm_pv_kick_cpu_op(struct kvm *kvm, int apicid)
+>> +{
+>> +	struct kvm_vcpu *vcpu = NULL;
+>> +	int i;
+>> +
+>> +	kvm_for_each_vcpu(i, vcpu, kvm) {
+>> +		if (!kvm_apic_present(vcpu))
+>> +			continue;
+>> +
+>> +		if (kvm_apic_match_dest(vcpu, 0, 0, apicid, 0))
+>> +			break;
+>> +	}
+>> +	if (vcpu) {
+>> +		/*
+>> +		 * Setting unhalt flag here can result in spurious runnable
+>> +		 * state when unhalt reset does not happen in vcpu_block.
+>> +		 * But that is harmless since that should soon result in halt.
+>> +		 */
+>> +		vcpu->arch.pv.pv_unhalted = true;
+>> +		/* We need everybody see unhalt before vcpu unblocks */
+>> +		smp_wmb();
+>> +		kvm_vcpu_kick(vcpu);
+>> +	}
+>> +}
+>> +
+>>   int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
+>>   {
+>>   	unsigned long nr, a0, a1, a2, a3, ret;
+>> @@ -5482,6 +5512,10 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
+>>   	case KVM_HC_VAPIC_POLL_IRQ:
+>>   		ret = 0;
+>>   		break;
+>> +	case KVM_HC_KICK_CPU:
+>> +		kvm_pv_kick_cpu_op(vcpu->kvm, a0);
+> Lets make it hypercall with two parameters:
+> a0 - flags
+> a1 - apic id of a cpu to kick
+>
+> A0 have to be zero. This will make it more extensible.
 
-For small packets we can simplify xmit processing
-by linearizing buffers with the header:
-most packets seem to have enough head room
-we can use for this purpose.
-Since existing hypervisors require that header
-is the first s/g element, we need a feature bit
-for this.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
----
- drivers/net/virtio_net.c        | 42 +++++++++++++++++++++++++++++++++--------
- include/uapi/linux/virtio_net.h |  4 +++-
- 2 files changed, 37 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 3d2a90a..f216002 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -106,6 +106,9 @@ struct virtnet_info {
- 	/* Has control virtqueue */
- 	bool has_cvq;
- 
-+	/* Host can handle any s/g split between our header and packet data */
-+	bool any_header_sg;
-+
- 	/* enable config space updates */
- 	bool config_enable;
- 
-@@ -669,12 +672,28 @@ static void free_old_xmit_skbs(struct send_queue *sq)
- 
- static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
- {
--	struct skb_vnet_hdr *hdr = skb_vnet_hdr(skb);
-+	struct skb_vnet_hdr *hdr;
- 	const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
- 	struct virtnet_info *vi = sq->vq->vdev->priv;
- 	unsigned num_sg;
-+	unsigned hdr_len;
-+	bool can_push;
- 
- 	pr_debug("%s: xmit %p %pM\n", vi->dev->name, skb, dest);
-+	if (vi->mergeable_rx_bufs)
-+		hdr_len = sizeof hdr->mhdr;
-+	else
-+		hdr_len = sizeof hdr->hdr;
-+
-+	can_push = vi->any_header_sg &&
-+		!((unsigned long)skb->data & (__alignof__(*hdr) - 1)) &&
-+		!skb_header_cloned(skb) && skb_headroom(skb) >= hdr_len;
-+	/* Even if we can, don't push here yet as this would skew
-+	 * csum_start offset below. */
-+	if (can_push)
-+		hdr = (struct skb_vnet_hdr *)(skb->data - hdr_len);
-+	else
-+		hdr = skb_vnet_hdr(skb);
- 
- 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
- 		hdr->hdr.flags = VIRTIO_NET_HDR_F_NEEDS_CSUM;
-@@ -703,15 +722,18 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
- 		hdr->hdr.gso_size = hdr->hdr.hdr_len = 0;
- 	}
- 
--	hdr->mhdr.num_buffers = 0;
--
--	/* Encode metadata header at front. */
- 	if (vi->mergeable_rx_bufs)
--		sg_set_buf(sq->sg, &hdr->mhdr, sizeof hdr->mhdr);
--	else
--		sg_set_buf(sq->sg, &hdr->hdr, sizeof hdr->hdr);
-+		hdr->mhdr.num_buffers = 0;
- 
--	num_sg = skb_to_sgvec(skb, sq->sg + 1, 0, skb->len) + 1;
-+	if (can_push) {
-+		__skb_push(skb, hdr_len);
-+		num_sg = skb_to_sgvec(skb, sq->sg, 0, skb->len);
-+		/* Pull header back to avoid skew in tx bytes calculations. */
-+		__skb_pull(skb, hdr_len);
-+	} else {
-+		sg_set_buf(sq->sg, hdr, hdr_len);
-+		num_sg = skb_to_sgvec(skb, sq->sg + 1, 0, skb->len) + 1;
-+	}
- 	return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
- }
- 
-@@ -1552,6 +1574,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
- 		vi->mergeable_rx_bufs = true;
- 
-+	if (virtio_has_feature(vdev, VIRTIO_F_ANY_LAYOUT))
-+		vi->any_header_sg = true;
-+
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
- 		vi->has_cvq = true;
- 
-@@ -1727,6 +1752,7 @@ static unsigned int features[] = {
- 	VIRTIO_NET_F_CTRL_RX, VIRTIO_NET_F_CTRL_VLAN,
- 	VIRTIO_NET_F_GUEST_ANNOUNCE, VIRTIO_NET_F_MQ,
- 	VIRTIO_NET_F_CTRL_MAC_ADDR,
-+	VIRTIO_F_ANY_LAYOUT,
- };
- 
- static struct virtio_driver virtio_net_driver = {
-diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-index c520203..227d4ce 100644
---- a/include/uapi/linux/virtio_net.h
-+++ b/include/uapi/linux/virtio_net.h
-@@ -70,7 +70,9 @@ struct virtio_net_config {
- 	__u16 max_virtqueue_pairs;
- } __attribute__((packed));
- 
--/* This is the first element of the scatter-gather list.  If you don't
-+/* This header comes first in the scatter-gather list.
-+ * If VIRTIO_F_ANY_LAYOUT is not negotiated, it must
-+ * be the first element of the scatter-gather list.  If you don't
-  * specify GSO or CSUM features, you can simply ignore the header. */
- struct virtio_net_hdr {
- #define VIRTIO_NET_HDR_F_NEEDS_CSUM	1	// Use csum_start, csum_offset
+Good point. 'll incorporate that.
