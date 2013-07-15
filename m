@@ -1,14 +1,16 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: Call for Proposals: 2013 Linux Plumbers Virtualization
-	Microconference
-Date: Sun, 14 Jul 2013 15:59:51 -0600
-Message-ID: <1373839191.8441.190.camel@ul30vt.home>
-References: <1373661508.8441.172.camel@ul30vt.home>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-net: put virtio net header inline with data
+Date: Mon, 15 Jul 2013 11:10:41 +0930
+Message-ID: <878v1838iu.fsf@rustcorp.com.au>
+References: <20130708101259.GA16074@redhat.com>
+	<871u78eavc.fsf@rustcorp.com.au> <20130709051824.GA3234@redhat.com>
+	<87vc4kcfzg.fsf@rustcorp.com.au>
+	<20130710061407.GC19759@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1373661508.8441.172.camel@ul30vt.home>
+In-Reply-To: <20130710061407.GC19759@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +20,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm <kvm@vger.kernel.org>
-Cc: Libvirt <libvir-list@redhat.com>, lpc2013-virt-mc@codemonkey.ws, seabios <seabios@seabios.org>, qemu-devel <qemu-devel@nongnu.org>, virtualization <virtualization@lists.linux-foundation.org>, Anthony Liguori <anthony@codemonkey.ws>, "xen-devel@lists.xen.org" <xen-devel@lists.xen.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Cong Wang <amwang@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Dave Jones <davej@redhat.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2013-07-12 at 14:38 -0600, Alex Williamson wrote:
-> The Call for Proposals for the 2013 Linux Plumbers Virtualization
-> Microconference is now open.  This uconf is being held as part of Linux
-> Plumbers Conference in New Orleans, Louisiana, USA September 18-20th and
-> is co-located with LinuxCon North America.  For more information see:
-> 
-> http://www.linuxplumbersconf.org/2013/
-> 
-> The tentative deadline for proposals is August 1st.  To submit a topic
-> please email a brief abstract to lpc2013-virt-mc@codemonkey.ws  If you
-> require travel assistance (extremely limited) in order to attend, please
-> note that in your submission.  Also, please keep an eye on:
-> 
-> http://www.linuxplumbersconf.org/2013/submitting-topic/
-> http://www.linuxplumbersconf.org/2013/participate/
-> 
-> We've setup the above email submission as an interim approach until the
-> LPC program committee brings the official submission tool online.  I'll
-> send a follow-up message when that occurs, but please send your
-> proposals as soon as possible.  Thanks,
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+> On Tue, Jul 09, 2013 at 05:38:51PM +0930, Rusty Russell wrote:
+>> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> > On Tue, Jul 09, 2013 at 11:46:23AM +0930, Rusty Russell wrote:
+>> >> "Michael S. Tsirkin" <mst@redhat.com> writes:
+>> >> > For small packets we can simplify xmit processing
+>> >> > by linearizing buffers with the header:
+>> >> > most packets seem to have enough head room
+>> >> > we can use for this purpose.
+>> >> > Since existing hypervisors require that header
+>> >> > is the first s/g element, we need a feature bit
+>> >> > for this.
+>> >> >
+>> >> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> >> > ---
+>> >> >
+>> >> > Note: this needs to be applied on top of patch
+>> >> > defining VIRTIO_F_ANY_LAYOUT - bit to be
+>> >> > selected by Rusty.
+>> >> >
+>> >> > The following patch should work for any definition of
+>> >> > VIRTIO_F_ANY_LAYOUT - I used bit 31 for testing.
+>> >> > Rusty, could you please pick a valid bit for VIRTIO_F_ANY_LAYOUT
+>> >> > and squeeze this patch into 3.11?
+>> >> 
+>> >> Sorry, it's too late.
+>> >> 
+>> >> First, I've been a bit lax in sending patches via DaveM, and this is
+>> >> definitely his territory (ie. more net than virtio).
+>> >
+>> > Let's do this: I'll send a patch series, you ack and we see
+>> > what happens?
+>> 
+>> If you convince DaveM, I won't object :)
+>> 
+>> >> Secondly, it needs baking and testing time.
+>> >> 
+>> >> Cheers,
+>> >> Rusty.
+>> >
+>> > I did some testing on this.  But proper testing just isn't happening out
+>> > of tree.
+>> 
+>> But it will get into linux-next for the *next* merge window.
+>> 
+>> Cheers,
+>> Rusty.
+>
+> Okay. Can you put it on virtio-next then?
+> I don't see it there ...
 
-And the official tool is now online.  Please see:
+Here's the general order:
+- 1 week before Linus merge window: I stop putting new stuff into xxx-next.
+- Linus merge window open: I push stuff to Linus, new stuff stays in -pending.
+- Linus merge window close: I ff my -next trees to -rc1, merge stuff
+  from -pending.
 
-http://www.linuxplumbersconf.org/2013/microconference-discussion-topic-bof-submissions-now-open/
+In this case, your patch will go from pending-rebases to DaveM, not
+virtio-next.
 
-for instructions to propose a discussion topic for the virtualization
-microconference.  Thanks,
+Which I will do now...
 
-Alex
+Cheers,
+Rusty.
