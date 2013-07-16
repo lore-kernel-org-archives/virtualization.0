@@ -1,12 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Mon, 15 Jul 2013 21:31:49 +0300
-Message-ID: <20130715183149.GA8215@redhat.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V10 15/18] kvm : Paravirtual ticketlocks support for
+	linux guests running on KVM hypervisor
+Date: Tue, 16 Jul 2013 09:07:53 +0530
+Message-ID: <51E4C011.4060803__15524.2674671628$1373945686$gmane$org@linux.vnet.ibm.com>
+References: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
+	<20130624124342.27508.44656.sendpatchset@codeblue.in.ibm.com>
+	<20130714131241.GA11772@redhat.com>
+	<51E3C5CE.7000009@linux.vnet.ibm.com>
+	<20130715103648.GN11772@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20130715103648.GN11772@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,42 +22,147 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Gleb Natapov <gleb@redhat.com>
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 09a34c8404c1d4c5782de319c02e1d742c57875c:
+On 07/15/2013 04:06 PM, Gleb Natapov wrote:
+> On Mon, Jul 15, 2013 at 03:20:06PM +0530, Raghavendra K T wrote:
+>> On 07/14/2013 06:42 PM, Gleb Natapov wrote:
+>>> On Mon, Jun 24, 2013 at 06:13:42PM +0530, Raghavendra K T wrote:
+>>>> kvm : Paravirtual ticketlocks support for linux guests running on KVM hypervisor
+>>>>
+>>>> From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+>>>>
+>> trimming
+>> [...]
+>>>> +
+>>>> +static void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+>>>> +{
+>>>> +	struct kvm_lock_waiting *w;
+>>>> +	int cpu;
+>>>> +	u64 start;
+>>>> +	unsigned long flags;
+>>>> +
+>>>> +	w = &__get_cpu_var(lock_waiting);
+>>>> +	cpu = smp_processor_id();
+>>>> +	start = spin_time_start();
+>>>> +
+>>>> +	/*
+>>>> +	 * Make sure an interrupt handler can't upset things in a
+>>>> +	 * partially setup state.
+>>>> +	 */
+>>>> +	local_irq_save(flags);
+>>>> +
+>>>> +	/*
+>>>> +	 * The ordering protocol on this is that the "lock" pointer
+>>>> +	 * may only be set non-NULL if the "want" ticket is correct.
+>>>> +	 * If we're updating "want", we must first clear "lock".
+>>>> +	 */
+>>>> +	w->lock = NULL;
+>>>> +	smp_wmb();
+>>>> +	w->want = want;
+>>>> +	smp_wmb();
+>>>> +	w->lock = lock;
+>>>> +
+>>>> +	add_stats(TAKEN_SLOW, 1);
+>>>> +
+>>>> +	/*
+>>>> +	 * This uses set_bit, which is atomic but we should not rely on its
+>>>> +	 * reordering gurantees. So barrier is needed after this call.
+>>>> +	 */
+>>>> +	cpumask_set_cpu(cpu, &waiting_cpus);
+>>>> +
+>>>> +	barrier();
+>>>> +
+>>>> +	/*
+>>>> +	 * Mark entry to slowpath before doing the pickup test to make
+>>>> +	 * sure we don't deadlock with an unlocker.
+>>>> +	 */
+>>>> +	__ticket_enter_slowpath(lock);
+>>>> +
+>>>> +	/*
+>>>> +	 * check again make sure it didn't become free while
+>>>> +	 * we weren't looking.
+>>>> +	 */
+>>>> +	if (ACCESS_ONCE(lock->tickets.head) == want) {
+>>>> +		add_stats(TAKEN_SLOW_PICKUP, 1);
+>>>> +		goto out;
+>>>> +	}
+>>>> +
+>>>> +	/* Allow interrupts while blocked */
+>>>> +	local_irq_restore(flags);
+>>>> +
+>>> So what happens if an interrupt comes here and an interrupt handler
+>>> takes another spinlock that goes into the slow path? As far as I see
+>>> lock_waiting will become overwritten and cpu will be cleared from
+>>> waiting_cpus bitmap by nested kvm_lock_spinning(), so when halt is
+>>> called here after returning from the interrupt handler nobody is going
+>>> to wake this lock holder. Next random interrupt will "fix" it, but it
+>>> may be several milliseconds away, or never. We should probably check
+>>> if interrupt were enabled and call native_safe_halt() here.
+>>>
+>>
+>> Okay you mean something like below should be done.
+>> if irq_enabled()
+>>    native_safe_halt()
+>> else
+>>    halt()
+>>
+>> It is been a complex stuff for analysis for me.
+>>
+>> So in our discussion stack would looking like this.
+>>
+>> spinlock()
+>>    kvm_lock_spinning()
+>>                    <------ interrupt here
+>>            halt()
+>>
+>>
+>>  From the halt if we trace
+>>
+> It is to early to trace the halt since it was not executed yet. Guest
+> stack trace will look something like this:
+>
+> spinlock(a)
+>    kvm_lock_spinning(a)
+>     lock_waiting = a
+>     set bit in waiting_cpus
+>                  <------ interrupt here
+>                  spinlock(b)
+>                    kvm_lock_spinning(b)
+>                      lock_waiting = b
+>                      set bit in waiting_cpus
+>                      halt()
+>                      unset bit in waiting_cpus
+>                      lock_waiting = NULL
+>       ----------> ret from interrupt
+>     halt()
+>
+> Now at the time of the last halt above lock_waiting == NULL and
+> waiting_cpus is empty and not interrupt it pending, so who will unhalt
+> the waiter?
+>
 
-  vhost/test: update test after vhost cleanups (2013-07-07 18:02:25 +0300)
+Yes. if an interrupt occurs between
+local_irq_restore() and halt(), this is possible. and since this is 
+rarest of rare (possiility of irq entering slowpath and then no random 
+irq to do spurious wakeup), we had never hit this problem in the past.
 
-are available in the git repository at:
+So I am,
+1. trying to artificially reproduce this.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+2. I replaced the halt with below code,
+        if (arch_irqs_disabled())
+                 halt();
 
-for you to fetch changes up to 22fa90c7fb479694d6affebc049d21f06b714be6:
+and ran benchmarks.
+But this results in degradation because, it means we again go back and 
+spin in irq enabled case.
 
-  vhost: Remove custom vhost rcu usage (2013-07-11 15:38:40 +0300)
-
-----------------------------------------------------------------
-vhost: more fixes for 3.11
-
-This includes some fixes for vhost net and scsi drivers.
-The test module has already been reworked to avoid rcu
-usage, but the necessary core changes are missing,
-we fixed this.
-Unlikely to affect any real-world users, but it's
-early in the cycle so, let's merge them.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Asias He (3):
-      vhost-net: Always access vq->private_data under vq mutex
-      vhost-scsi: Always access vq->private_data under vq mutex
-      vhost: Remove custom vhost rcu usage
-
- drivers/vhost/net.c   | 37 ++++++++++++++++---------------------
- drivers/vhost/scsi.c  | 17 ++++++-----------
- drivers/vhost/test.c  |  6 ++----
- drivers/vhost/vhost.h | 10 ++--------
- 4 files changed, 26 insertions(+), 44 deletions(-)
+3. Now I am analyzing the performance overhead of safe_halt in irq 
+enabled case.
+       if (arch_irqs_disabled())
+                halt();
+       else
+                safe_halt();
