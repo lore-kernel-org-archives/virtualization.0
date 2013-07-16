@@ -1,15 +1,15 @@
-From: Yoder Stuart-B08248 <B08248@freescale.com>
-Subject: RE: RFC: vfio interface for platform devices (v2)
-Date: Tue, 16 Jul 2013 21:57:47 +0000
-Message-ID: <9F6FE96B71CF29479FF1CDC8046E150364E34A__43261.858894448$1374011750$gmane$org@039-SN1MPN1-004.039d.mgd.msft.net>
-References: <9F6FE96B71CF29479FF1CDC8046E1503633DEF@039-SN1MPN1-004.039d.mgd.msft.net>
-	<1372891989.2883.248.camel@ul30vt.home>
+From: Scott Wood <scottwood@freescale.com>
+Subject: Re: RFC: vfio interface for platform devices
+Date: Tue, 16 Jul 2013 17:01:24 -0500
+Message-ID: <1374012084.8183.338__33771.8634204522$1374012112$gmane$org@snotra>
+References: <9F6FE96B71CF29479FF1CDC8046E150364E322@039-SN1MPN1-004.039d.mgd.msft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="Flowed"; DelSp="Yes"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1372891989.2883.248.camel@ul30vt.home>
-Content-Language: en-US
+In-Reply-To: <9F6FE96B71CF29479FF1CDC8046E150364E322@039-SN1MPN1-004.039d.mgd.msft.net>
+	(from B08248@freescale.com on Tue Jul 16 16:51:12 2013)
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,301 +19,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alex Williamson <alex.williamson@redhat.com>
-Cc: Wood Scott-B07421 <B07421@freescale.com>, "kvm@vger.kernel.org list" <kvm@vger.kernel.org>, Bhushan Bharat-R65777 <R65777@freescale.com>, "kvm-ppc@vger.kernel.org" <kvm-ppc@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Sethi Varun-B16395 <B16395@freescale.com>, Antonios Motakis <a.motakis@virtualopensystems.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
+To: Yoder Stuart-B08248 <B08248@freescale.com>
+Cc: Wood Scott-B07421 <B07421@freescale.com>, "kvm@vger.kernel.org list" <kvm@vger.kernel.org>, Antonios Motakis <a.motakis@virtualopensystems.com>, "kvm-ppc@vger.kernel.org" <kvm-ppc@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Bhushan Bharat-R65777 <R65777@freescale.com>, Sethi Varun-B16395 <B16395@freescale.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(sorry for the delayed response, but I've been on PTO)
-
-> > 1.  VFIO_GROUP_GET_DEVICE_FD
+On 07/16/2013 04:51:12 PM, Yoder Stuart-B08248 wrote:
+> > > 3.  VFIO_DEVICE_GET_REGION_INFO
+> > >
+> > >    No changes needed, except perhaps adding a new flag.  Freescale
+> > > has some
+> > >    devices with regions that must be mapped cacheable.
 > >
-> >   User space knows by out-of-band means which device it is accessing
-> >   and will call VFIO_GROUP_GET_DEVICE_FD passing a specific sysfs path
-> >   to get the device information:
-> >
-> >   fd = ioctl(group, VFIO_GROUP_GET_DEVICE_FD,
-> >              "/sys/bus/platform/devices/ffe210000.usb"));
+> > While I don't object to making the information available to the user
+> > just in case, the main thing we need here is to influence what the
+> > kernel does when the user tries to map it.  At least on PPC it's  
+> not up
+> > to userspace to select whether a mmap is cacheable.
 > 
-> FWIW, I'm in favor of whichever way works out cleaner in the code for
-> pre-pending "/sys/bus" or not.  It sort of seems like it's unnecessary.
-> It's also a little inconsistent that the returned path doesn't
-> pre-pend /sys in the examples below.
+> If user space really can't do anything with the 'cacheable'
+> flag, do you think there is good reason to keep it?   Will it
+> help any decision that user space makes?  Maybe we should just
+> drop it.
 
-Ok.  For the returned path in the examples I have the actual device tree
-path which is slightly different from the path in /sys.  The device
-tree path is what user space would need to interpret /proc/device-tree.
+As long as we can be sure all architectures will map things correctly  
+without any flags needing to be specified, that's fine.
 
-> > 2.  VFIO_DEVICE_GET_INFO
+> > >    struct vfio_path_info {
+> > >         __u32   argsz;
+> > >         __u32   flags;
+> > >    #define VFIO_DEVTREE_INFO_RANGES      (1 << 3) /* the region  
+> is a
+> > > "ranges" property */
 > >
-> >    The number of regions corresponds to the regions defined
-> >    in "reg" and "ranges" in the device tree.
-> >
-> >    Two new flags are added to struct vfio_device_info:
-> >
-> >    #define VFIO_DEVICE_FLAGS_PLATFORM (1 << ?) /* A platform bus device */
-> >    #define VFIO_DEVICE_FLAGS_DEVTREE  (1 << ?) /* device tree info available */
-> >
-> >    It is possible that there could be platform bus devices
-> >    that are not in the device tree, so we use 2 flags to
-> >    allow for that.
-> >
-> >    If just VFIO_DEVICE_FLAGS_PLATFORM is set, it means
-> >    that there are regions and IRQs but no device tree info
-> >    available.
-> >
-> >    If just VFIO_DEVICE_FLAGS_DEVTREE is set, it means
-> >    there is device tree info available.
+> > What about distinguishing a normal interrupt from one found in an
+> > interrupt-map?
 > 
-> But it would be invalid to only have DEVTREE w/o PLATFORM for now,
-> right?
+> I'm not sure we need that.  The kernel needs to use the interrupt
+> map to get interrupts hooked up right, but all user space needs to
+> know is that there are N interrupts and possibly device tree
+> paths to help user space interpret which interrupt is which.
 
-Right.  The way I stated it is incorrect. DEVTREE would never
-be set by itself.
+What if the interrupt map is for devices without explicit nodes, such  
+as with a PCI controller (ignore the fact that we would normally use  
+vfio_pci for the indivdual PCI devices instead)?
 
-> > 3. VFIO_DEVICE_GET_REGION_INFO
-> >
-> >    For platform devices with multiple regions, information
-> >    is needed to correlate the regions with the device
-> >    tree structure that drivers use to determine the meaning
-> >    of device resources.
-> >
-> >    The VFIO_DEVICE_GET_REGION_INFO is extended to provide
-> >    device tree information.
-> >
-> >    The following information is needed:
-> >       -the device tree path to the node corresponding to the
-> >        region
-> >       -whether it corresponds to a "reg" or "ranges" property
-> >       -there could be multiple sub-regions per "reg" or "ranges" and
-> >        the sub-index within the reg/ranges is needed
-> >
-> >    There are 5 new flags added to vfio_region_info :
-> >
-> >    struct vfio_region_info {
-> >         __u32   argsz;
-> >         __u32   flags;
-> >    #define VFIO_REGION_INFO_FLAG_CACHEABLE (1 << ?)
-> >    #define VFIO_DEVTREE_REGION_INFO_FLAG_REG (1 << ?)
-> >    #define VFIO_DEVTREE_REGION_INFO_FLAG_RANGE (1 << ?)
-> >    #define VFIO_DEVTREE_REGION_INFO_FLAG_INDEX (1 << ?)
-> >    #define VFIO_DEVTREE_REGION_INFO_FLAG_PATH (1 << ?)
-> >         __u32   index;          /* Region index */
-> >         __u32   resv;           /* Reserved for alignment */
-> >         __u64   size;           /* Region size (bytes) */
-> >         __u64   offset;         /* Region offset from start of device fd */
-> >    };
-> >
-> >    VFIO_REGION_INFO_FLAG_CACHEABLE
-> >        -if set indicates that the region must be mapped as cacheable
-> >
-> >    VFIO_DEVTREE_REGION_INFO_FLAG_REG
-> >        -if set indicates that the region corresponds to a "reg" property
-> >         in the device tree representation of the device
-> >
-> >    VFIO_DEVTREE_REGION_INFO_FLAG_RANGE
-> >        -if set indicates that the region corresponds to a "ranges" property
-> >         in the device tree representation of the device
-> >
-> >    VFIO_DEVTREE_REGION_INFO_FLAG_INDEX
-> >        -if set indicates that there is a dword aligned struct
-> >         struct vfio_devtree_region_info_index appended to the
-> >         end of vfio_region_info:
-> >
-> >         struct vfio_devtree_region_info_index
-> >         {
-> > 	      u32 index;
-> >         }
-> >
-> >         A reg or ranges property may have multiple regsion.  The index
-> >         specifies the index within the "reg" or "ranges"
-> >         that this region corresponds to.
-> >
-> >    VFIO_DEVTREE_REGION_INFO_FLAG_PATH
-> >        -if set indicates that there is a dword aligned struct
-> >         struct vfio_devtree_info_path appended to the
-> >         end of vfio_region_info:
-> >
-> >         struct vfio_devtree_info_path
-> >         {
-> >             u32 len;
-> >             u8 path[];
-> >         }
-> >
-> >         The path is the full path to the corresponding device
-> >         tree node.  The len field specifies the length of the
-> >         path string.
-> >
-> >    If multiple flags are set that indicate that there is
-> >    an appended struct, the order of the flags indicates
-> >    the order of the structs.
-> >
-> >    argsz is set by the kernel specifying the total size of
-> >    struct vfio_region_info and all appended structs.
-> >
-> >    Suggested usage:
-> >       -call VFIO_DEVICE_GET_REGION_INFO with argsz =
-> >        sizeof(struct vfio_region_info)
-> >       -realloc the buffer
-> >       -call VFIO_DEVICE_GET_REGION_INFO again, and the appended
-> >        structs will be returned
-> >
-> > 4.  VFIO_DEVICE_GET_IRQ_INFO
-> >
-> >    For platform devices with multiple interrupts that
-> >    correspond to different subnodes in the device tree,
-> >    information is needed to correlate the interrupts
-> >    to the the device tree structure.
-> >
-> >    The VFIO_DEVICE_GET_REGION_INFO is extended to provide
-> >    device tree information.
-> >
-> >    1 new flag is added to vfio_irq_info :
-> >
-> >    struct vfio_irq_info {
-> >         __u32   argsz;
-> >         __u32   flags;
-> >    #define VFIO_DEVTREE_IRQ_INFO_FLAG_PATH (1 << ?)
-> >         __u32   index;    /* IRQ index */
-> >         __u32   count;    /* Number of IRQs within this index */
-> >     };
-> >
-> >    VFIO_DEVTREE_IRQ_INFO_FLAG_PATH
-> >        -if set indicates that there is a dword aligned struct
-> >         struct vfio_devtree_info_path appended to the
-> >         end of vfio_irq_info :
-> >
-> >         struct vfio_devtree_info_path
-> >         {
-> >             u32 len;
-> >             u8 path[];
-> >         }
-> >
-> >         The path is the full path to the corresponding device
-> >         tree node.  The len field specifies the length of the
-> >         path string.
-> >
-> >    argsz is set by the kernel specifying the total size of
-> >    struct vfio_region_info and all appended structs.
-> >
-> > 5.  EXAMPLE 1
-> >
-> >     Example, Freescale SATA controller:
-> >
-> >      sata@220000 {
-> >          compatible = "fsl,p2041-sata", "fsl,pq-sata-v2";
-> >          reg = <0x220000 0x1000>;
-> >          interrupts = <0x44 0x2 0x0 0x0>;
-> >      };
-> >
-> >     request to get device FD would look like:
-> >       fd = ioctl(group, VFIO_GROUP_GET_DEVICE_FD, "/sys/bus/platform/devices/ffe220000.sata");
-> >
-> >     The VFIO_DEVICE_GET_INFO ioctl would return:
-> >       -1 region
-> >       -1 interrupts
-> >
-> >     The VFIO_DEVICE_GET_REGION_INFO ioctl would return:
-> >       -for index 0:
-> >            offset=0, size=0x10000 -- allows mmap of physical 0xffe220000
-> >            flags = VFIO_DEVTREE_REGION_INFO_FLAG_REG |
-> >                    VFIO_DEVTREE_REGION_INFO_FLAG_PATH
-> >            vfio_devtree_info_path
-> >               len = 26
-> >               path = "/soc@ffe000000/sata@220000"
-> >
-> >     The VFIO_DEVICE_GET_IRQ_INFO ioctl would return:
-> >       -for index 0:
-> >           flags = VFIO_IRQ_INFO_EVENTFD |
-> >                   VFIO_IRQ_INFO_MASKABLE |
-> >                   VFIO_DEVTREE_IRQ_INFO_FLAG_PATH
-> >           vfio_devtree_info_path
-> >               len = 26
-> >               path = "/soc@ffe000000/sata@220000"
-> >
-> > 6.  EXAMPLE 2
-> >
-> >     Example, Freescale DMA engine (modified to illustrate):
-> >
-> >     dma@101300 {
-> >        cell-index = <0x1>;
-> >        ranges = <0x0 0x101100 0x200>;
-> >        reg = <0x101300 0x4>;
-> >        compatible = "fsl,eloplus-dma";
-> >        #size-cells = <0x1>;
-> >        #address-cells = <0x1>;
-> >        fsl,liodn = <0xc6>;
-> >
-> >        dma-channel@180 {
-> >           interrupts = <0x23 0x2 0x0 0x0>;
-> >           cell-index = <0x3>;
-> >           reg = <0x180 0x80>;
-> >           compatible = "fsl,eloplus-dma-channel";
-> >        };
-> >
-> >        dma-channel@100 {
-> >           interrupts = <0x22 0x2 0x0 0x0>;
-> >           cell-index = <0x2>;
-> >           reg = <0x100 0x80>;
-> >           compatible = "fsl,eloplus-dma-channel";
-> >        };
-> >
-> >     };
-> >
-> >     request to get device FD would look like:
-> >       fd = ioctl(group, VFIO_GROUP_GET_DEVICE_FD, "/sys/bus/platform/devices/ffe101300.dma");
-> >
-> >     The VFIO_DEVICE_GET_INFO ioctl would return:
-> >       -2 regions
-> >       -2 interrupts
-> >
-> >     The VFIO_DEVICE_GET_REGION_INFO ioctl would return:
-> >       -for index 0:
-> >            offset=0x100, size=0x200 -- allows mmap of physical 0xffe101100
-> >            flags = VFIO_DEVTREE_REGION_INFO_FLAG_RANGES |
-> >                    VFIO_DEVTREE_REGION_INFO_FLAG_PATH
-> >            vfio_devtree_info_path
-> >               len = 25
-> >               path = "/soc@ffe000000/dma@101300"
-> >
-> >       -for index 1:
-> >            offset=0x300, size=0x4 -- allows mmap of physical 0xffe101300
-> >            flags = VFIO_DEVTREE_REGION_INFO_FLAG_REG |
-> >                    VFIO_DEVTREE_REGION_INFO_FLAG_PATH
-> >            vfio_devtree_info_path
-> >               len = 25
-> >               path = "/soc@ffe000000/dma@101300"
-> >
-> >     The VFIO_DEVICE_GET_IRQ_INFO ioctl would return:
-> >       -for index 0:
-> >           flags = VFIO_IRQ_INFO_EVENTFD |
-> >                   VFIO_IRQ_INFO_MASKABLE |
-> >                   VFIO_DEVTREE_IRQ_INFO_FLAG_PATH
-> >           vfio_devtree_info_path
-> >               len = 41
-> >               path = "/soc@ffe000000/dma@101300/dma-channel@180"
-> >
-> >       -for index 0:
-> >           flags = VFIO_IRQ_INFO_EVENTFD |
-> >                   VFIO_IRQ_INFO_MASKABLE |
-> >                   VFIO_DEVTREE_IRQ_INFO_FLAG_PATH
-> >           vfio_devtree_info_path
-> >               len = 41
-> >               path = "/soc@ffe000000/dma@101300/dma-channel@100"
+You could say the same thing about ranges -- why expose ranges instead  
+of the individual child node regs after translation?
+
+> > In the case of both ranges and interrupt-maps, we'll also want to
+> > decide what the policy is for when to expose them directly, versus  
+> just
+> > using them to translate regs and interrupts of child nodes
 > 
-> 
-> Seems like it should work.  My only API concern with this model of
-> appending structs is that a user needs to know the size of each struct
-> even if they don't otherwise care about it in order to step over it.  In
-> some cases, like the path, the size is variable and the user needs to
-> look into it.  The structs must also be strictly ordered based on the
-> order of the flags or all hope is lost.  If we assign flags sequentially
-> there should be no case where the user needs to step over something that
-> they doesn't know the size of.  Even so, we may still be ahead to define
-> the first word of each struct as the length (I'm guessing a byte might
-> be too limiting).  It would sure make walking it easier.  
+> Yes, not sure the best approach there...but guess we can cross
+> that bridge when we implement this.  It doesn't affect this
+> interface.
 
-The 'path' structs already start with the length, so the only change 
-would be to add a length to the vfio_devtree_region_info_index
-struct right?   I guess will make it a u32.
+It does affect the interface, because if you allow either of them to be  
+mapped directly (rather than implicitly used when mapping a child  
+node), you need a way to indicate which type of resource it is you're  
+describing (as you already do for reg/ranges).
 
-Stuart
+It also affects how vfio device binding is done, even if only to the  
+point of specifying default behavior in the absence of knobs which  
+change whether interrupt maps and/or ranges are mapped.
+
+> > >         __u8    path[];         /* output: Full path to associated
+> > > device tree node */
+> >
+> > How does the caller know what size buffer to supply for this?
+
+Ping
+
+-Scott
