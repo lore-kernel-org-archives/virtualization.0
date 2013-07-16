@@ -1,15 +1,21 @@
-From: Yoder Stuart-B08248 <B08248@freescale.com>
-Subject: RE: RFC: vfio interface for platform devices (v2)
-Date: Tue, 16 Jul 2013 15:25:38 +0000
-Message-ID: <9F6FE96B71CF29479FF1CDC8046E150364CF47@039-SN1MPN1-004.039d.mgd.msft.net>
-References: <9F6FE96B71CF29479FF1CDC8046E1503633DEF@039-SN1MPN1-004.039d.mgd.msft.net>
-	<51D58A65.6060704@huawei.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH RFC V10 15/18] kvm : Paravirtual ticketlocks support for
+	linux guests running on KVM hypervisor
+Date: Tue, 16 Jul 2013 17:48:52 +0200
+Message-ID: <20130716154852.GN23818@dyad.programming.kicks-ass.net>
+References: <20130624124014.27508.8906.sendpatchset@codeblue.in.ibm.com>
+	<20130624124342.27508.44656.sendpatchset@codeblue.in.ibm.com>
+	<20130714131241.GA11772@redhat.com>
+	<51E3C5CE.7000009@linux.vnet.ibm.com>
+	<20130715103648.GN11772@redhat.com>
+	<51E4C011.4060803@linux.vnet.ibm.com>
+	<20130716060215.GE11772@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51D58A65.6060704@huawei.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20130716060215.GE11772@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,39 +25,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mario Smarduch <mario.smarduch@huawei.com>
-Cc: Wood Scott-B07421 <B07421@freescale.com>, "kvm@vger.kernel.org list" <kvm@vger.kernel.org>, "kvm-ppc@vger.kernel.org" <kvm-ppc@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Bhushan Bharat-R65777 <R65777@freescale.com>, Sethi Varun-B16395 <B16395@freescale.com>, "kvmarm@lists.cs.columbia.edu" <kvmarm@lists.cs.columbia.edu>
+To: Gleb Natapov <gleb@redhat.com>
+Cc: jeremy@goop.org, x86@kernel.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org, stephan.diestelhorst@amd.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Jul 16, 2013 at 09:02:15AM +0300, Gleb Natapov wrote:
+> BTW can NMI handler take spinlocks? 
 
+No -- that is, yes you can using trylock, but you still shouldn't.
 
-> -----Original Message-----
-> From: Mario Smarduch [mailto:mario.smarduch@huawei.com]
-> Sent: Thursday, July 04, 2013 9:45 AM
-> To: Yoder Stuart-B08248
-> Cc: Alex Williamson; Alexander Graf; Wood Scott-B07421; kvm@vger.kernel.org list; Bhushan Bharat-R65777;
-> kvm-ppc@vger.kernel.org; virtualization@lists.linux-foundation.org; Sethi Varun-B16395;
-> kvmarm@lists.cs.columbia.edu
-> Subject: Re: RFC: vfio interface for platform devices (v2)
-> 
-> 
-> I'm having trouble understanding how this works where
-> the Guest Device Model != Host. How do you inform the guest
-> where the device is mapped in its physical address space,
-> and handle GPA faults?
+> If it can what happens if NMI is
+> delivered in a section protected by local_irq_save()/local_irq_restore()?
 
-The vfio mechanisms just expose hardware to user space
-and the user space app may or may not QEMU.  So there
-may be no 'guest' at all.
-
-The intent of this RFC is to provide enough info to user space so
-an application can use the device, or in the case of QEMU expose
-the device to a VM.  Platform devices are typically exposed via
-the device tree and that is how I envision them being presented
-to a guest.
-
-Are there real cases you see where guest device model != host?
-I don't envision ever presenting a platform device as a PCI device
-or vise versa.
-
-Stuart
+You deadlock.
