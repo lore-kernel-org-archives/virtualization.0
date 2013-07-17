@@ -1,24 +1,16 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V10 15/18] kvm : Paravirtual ticketlocks support for
-	linux guests running on KVM hypervisor
-Date: Wed, 17 Jul 2013 20:52:07 +0530
-Message-ID: <51E6B69F.5010608__27319.2424829633$1374074930$gmane$org@linux.vnet.ibm.com>
-References: <20130716060215.GE11772@redhat.com>
-	<51E5941B.3090300@linux.vnet.ibm.com>
-	<20130717093420.GU11772@redhat.com>
-	<51E66C71.6020605@linux.vnet.ibm.com>
-	<20130717124511.GW11772@redhat.com>
-	<51E69429.7040309@linux.vnet.ibm.com>
-	<20130717132503.GA13732@redhat.com>
-	<51E6A66D.7090407@linux.vnet.ibm.com>
-	<20130717144409.GD13732@redhat.com>
-	<51E6B057.5080905@linux.vnet.ibm.com>
-	<20130717151149.GE13732@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-net: put virtio net header inline with data
+Date: Wed, 17 Jul 2013 15:32:36 +0930
+Message-ID: <8761w9zptv.fsf@rustcorp.com.au>
+References: <8761wc38ea.fsf@rustcorp.com.au>
+	<20130716.123326.798365002638711260.davem@davemloft.net>
+	<20130717050032.GB10482@redhat.com>
+	<20130716.220529.49723311269417873.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130717151149.GE13732@redhat.com>
+In-Reply-To: <20130716.220529.49723311269417873.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,91 +20,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
-Cc: jeremy@goop.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: David Miller <davem@davemloft.net>, mst@redhat.com
+Cc: amwang@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, davej@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/17/2013 08:41 PM, Gleb Natapov wrote:
-> On Wed, Jul 17, 2013 at 08:25:19PM +0530, Raghavendra K T wrote:
->> On 07/17/2013 08:14 PM, Gleb Natapov wrote:
->>> On Wed, Jul 17, 2013 at 07:43:01PM +0530, Raghavendra K T wrote:
->>>> On 07/17/2013 06:55 PM, Gleb Natapov wrote:
->>>>> On Wed, Jul 17, 2013 at 06:25:05PM +0530, Raghavendra K T wrote:
->>>>>> On 07/17/2013 06:15 PM, Gleb Natapov wrote:
->>>>>>> On Wed, Jul 17, 2013 at 03:35:37PM +0530, Raghavendra K T wrote:
->>>>>>>>>> Instead of halt we started with a sleep hypercall in those
->>>>>>>>>>   versions. Changed to halt() once Avi suggested to reuse existing sleep.
->>>>>>>>>>
->>>>>>>>>> If we use older hypercall with few changes like below:
->>>>>>>>>>
->>>>>>>>>> kvm_pv_wait_for_kick_op(flags, vcpu, w->lock )
->>>>>>>>>> {
->>>>>>>>>>   // a0 reserved for flags
->>>>>>>>>> if (!w->lock)
->>>>>>>>>> return;
->>>>>>>>>> DEFINE_WAIT
->>>>>>>>>> ...
->>>>>>>>>> end_wait
->>>>>>>>>> }
->>>>>>>>>>
->>>>>>>>> How would this help if NMI takes lock in critical section. The thing
->>>>>>>>> that may happen is that lock_waiting->want may have NMI lock value, but
->>>>>>>>> lock_waiting->lock will point to non NMI lock. Setting of want and lock
->>>>>>>>> have to be atomic.
->>>>>>>>
->>>>>>>> True. so we are here
->>>>>>>>
->>>>>>>>          non NMI lock(a)
->>>>>>>>          w->lock = NULL;
->>>>>>>>          smp_wmb();
->>>>>>>>          w->want = want;
->>>>>>>>                                 NMI
->>>>>>>>                           <---------------------
->>>>>>>>                            NMI lock(b)
->>>>>>>>                            w->lock = NULL;
->>>>>>>>                            smp_wmb();
->>>>>>>>                            w->want = want;
->>>>>>>>                            smp_wmb();
->>>>>>>>                            w->lock = lock;
->>>>>>>>                           ---------------------->
->>>>>>>>          smp_wmb();
->>>>>>>>          w->lock = lock;
->>>>>>>>
->>>>>>>> so how about fixing like this?
->>>>>>>>
->>>>>>>> again:
->>>>>>>>          w->lock = NULL;
->>>>>>>>          smp_wmb();
->>>>>>>>          w->want = want;
->>>>>>>>          smp_wmb();
->>>>>>>>          w->lock = lock;
->>>>>>>>
->>>>>>>> if (!lock || w->want != want) goto again;
->>>>>>>>
->>>>>>> NMI can happen after the if() but before halt and the same situation
->>>>>>> we are trying to prevent with IRQs will occur.
->>>>>>
->>>>>> True, we can not fix that. I thought to fix the inconsistency of
->>>>>> lock,want pair.
->>>>>> But NMI could happen after the first OR condition also.
->>>>>> /me thinks again
->>>>>>
->>>>> lock_spinning() can check that it is called in nmi context and bail out.
->>>>
->>>> Good point.
->>>> I think we can check for even irq context and bailout so that in irq
->>>> context we continue spinning instead of slowpath. no ?
->>>>
->>> That will happen much more often and irq context is no a problem anyway.
->>>
->>
->> Yes. It is not a problem. But my idea was to not to enter slowpath lock
->> during irq processing. Do you think that is a good idea?
->>
-> Why would we disable it if its purpose is to improve handling of
-> contended locks? NMI is only special because it is impossible to handle
-> and should not happen anyway.
+David Miller <davem@davemloft.net> writes:
+> From: "Michael S. Tsirkin" <mst@redhat.com>
+> Date: Wed, 17 Jul 2013 08:00:32 +0300
 >
+>> On Tue, Jul 16, 2013 at 12:33:26PM -0700, David Miller wrote:
+>>> From: Rusty Russell <rusty@rustcorp.com.au>
+>>> Date: Mon, 15 Jul 2013 11:13:25 +0930
+>>> 
+>>> > From: Michael S. Tsirkin <mst@redhat.com>
+>>> > 
+>>> > For small packets we can simplify xmit processing
+>>> > by linearizing buffers with the header:
+>>> > most packets seem to have enough head room
+>>> > we can use for this purpose.
+>>> > Since existing hypervisors require that header
+>>> > is the first s/g element, we need a feature bit
+>>> > for this.
+>>> > 
+>>> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>>> > Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+>>> 
+>>> I really think this has to wait until the next merge window, sorry.
+>>> 
+>>> Please resubmit this when I open net-next back up, thanks.
+>> 
+>> I assumed since -rc1 is out net-next is already open?
+>
+> -rc1 being released never makes net-next open.  Instead, I explicitly
+> open it up at some point in time after -rc1 when I feel that things
+> have settled down enough.
+>
+> And when that happens, I announce so here.
+>
+> So you have to follow my announcements here on netdev to know
+> when net-next is actually open.
 
-Yes. agreed. indeed I saw degradation if we allow the slowpath spinlock 
-to loop again.
+Thanks for letting me know.  I'm sure that works well for others, but I
+can't follow the mailing lists of every maintainer I deal with.
+
+Fortunately, you're the paragon for acking applied patches, so if I hit
+this failure mode again I will know.
+
+Cheers,
+Rusty.
