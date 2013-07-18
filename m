@@ -1,7 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 07/10] virtio: console: fix raising SIGIO after port unplug
-Date: Fri, 19 Jul 2013 01:46:14 +0530
-Message-ID: <65c5eee3761ab48dde5bc0704fdae1466169061d.1374177234.git.amit.shah@redhat.com>
+Subject: [PATCH 08/10] virtio: console: add locks around buffer removal in
+	port unplug path
+Date: Fri, 19 Jul 2013 01:46:15 +0530
+Message-ID: <2b1b00dbdbc7575e8370c3b3ecad7b4b4c0f2833.1374177234.git.amit.shah@redhat.com>
 References: <cover.1374177234.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,39 +24,42 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SIGIO should be sent when a port gets unplugged.  However, the SIGIO is
-sent only when there's a userspace application that has the port opened,
-and has asked for SIGIO to be delivered.  We were clearing out
-guest_connected before calling send_sigio_to_port(), resulting in a
-sigio not getting sent to users.
-
-Fix by setting guest_connected to false after invoking the sigio
-function.
+The removal functions act on the vqs, and the vq operations need to be
+locked.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/char/virtio_console.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 1d4b748..ce71df1 100644
+index ce71df1..dd0020d 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1542,12 +1542,14 @@ static void unplug_port(struct port *port)
- 	spin_unlock_irq(&port->portdev->ports_lock);
+@@ -1516,18 +1516,22 @@ static void remove_port_data(struct port *port)
+ {
+ 	struct port_buffer *buf;
  
- 	if (port->guest_connected) {
--		port->guest_connected = false;
- 		port->host_connected = false;
- 		wake_up_interruptible(&port->waitqueue);
++	spin_lock_irq(&port->inbuf_lock);
+ 	/* Remove unused data this port might have received. */
+ 	discard_port_data(port);
  
- 		/* Let the app know the port is going down. */
- 		send_sigio_to_port(port);
+-	reclaim_consumed_buffers(port);
+-
+ 	/* Remove buffers we queued up for the Host to send us data in. */
+ 	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
+ 		free_buf(buf, true);
++	spin_unlock_irq(&port->inbuf_lock);
 +
-+		/* Do this last so that sigio is actually sent */
-+		port->guest_connected = false;
- 	}
++	spin_lock_irq(&port->outvq_lock);
++	reclaim_consumed_buffers(port);
  
- 	if (is_console_port(port)) {
+ 	/* Free pending buffers from the out-queue. */
+ 	while ((buf = virtqueue_detach_unused_buf(port->out_vq)))
+ 		free_buf(buf, true);
++	spin_unlock_irq(&port->outvq_lock);
+ }
+ 
+ /*
 -- 
 1.8.1.4
