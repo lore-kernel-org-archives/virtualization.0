@@ -1,8 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH 06/10] virtio: console: fix race in port_fops_poll() and port
-	unplug
-Date: Fri, 19 Jul 2013 01:46:13 +0530
-Message-ID: <bb9fe1cb5a1aeff6ecfc68936254045024e25e56.1374177234.git.amit.shah@redhat.com>
+Subject: [PATCH 07/10] virtio: console: fix raising SIGIO after port unplug
+Date: Fri, 19 Jul 2013 01:46:14 +0530
+Message-ID: <65c5eee3761ab48dde5bc0704fdae1466169061d.1374177234.git.amit.shah@redhat.com>
 References: <cover.1374177234.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,28 +23,39 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Between poll() being called and processed, the port can be unplugged.
-Check if this happened, and bail out.
+SIGIO should be sent when a port gets unplugged.  However, the SIGIO is
+sent only when there's a userspace application that has the port opened,
+and has asked for SIGIO to be delivered.  We were clearing out
+guest_connected before calling send_sigio_to_port(), resulting in a
+sigio not getting sent to users.
+
+Fix by setting guest_connected to false after invoking the sigio
+function.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/char/virtio_console.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 7728af9..1d4b748 100644
+index 1d4b748..ce71df1 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -967,6 +967,10 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
- 	unsigned int ret;
+@@ -1542,12 +1542,14 @@ static void unplug_port(struct port *port)
+ 	spin_unlock_irq(&port->portdev->ports_lock);
  
- 	port = filp->private_data;
-+	if (!port->guest_connected) {
-+		/* Port was unplugged before we could proceed */
-+		return POLLHUP;
-+	}
- 	poll_wait(filp, &port->waitqueue, wait);
+ 	if (port->guest_connected) {
+-		port->guest_connected = false;
+ 		port->host_connected = false;
+ 		wake_up_interruptible(&port->waitqueue);
  
- 	if (!port->guest_connected) {
+ 		/* Let the app know the port is going down. */
+ 		send_sigio_to_port(port);
++
++		/* Do this last so that sigio is actually sent */
++		port->guest_connected = false;
+ 	}
+ 
+ 	if (is_console_port(port)) {
 -- 
 1.8.1.4
