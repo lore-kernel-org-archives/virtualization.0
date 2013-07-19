@@ -1,15 +1,17 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH V2 0/2] [BUGFIX] virtio/console: Fix two bugs of
-	splice_write
-Date: Fri, 19 Jul 2013 15:35:43 +0530
-Message-ID: <20130719100543.GM3087@amit-x200.redhat.com>
-References: <20130719091951.9698.95194.stgit@yunodevel>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 06/10] virtio: console: fix race in port_fops_poll() and
+	port unplug
+Date: Fri, 19 Jul 2013 18:17:32 +0800
+Message-ID: <51E9123C.5040708@redhat.com>
+References: <cover.1374177234.git.amit.shah@redhat.com>
+	<bb9fe1cb5a1aeff6ecfc68936254045024e25e56.1374177234.git.amit.shah@redhat.com>
+	<51E8E4D6.7030807@redhat.com>
+	<20130719072113.GL3087@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130719091951.9698.95194.stgit@yunodevel>
+In-Reply-To: <20130719072113.GL3087@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,37 +21,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, yrl.pp-manager.tt@hitachi.com, Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Fri) 19 Jul 2013 [18:19:51], Yoshihiro YUNOMAE wrote:
-> Hi,
-> 
-> This patch set fixes two bugs of splice_write in the virtio-console driver.
-> 
-> [BUG1] Although pipe->nrbufs is empty, the driver tries to do splice_write.
->        => This induces oops in sg_init_table().
-> 
-> [BUG2] No lock for competition of splice_write.
->        => This induces oops in splice_from_pipe_feed() by bug of any user
->           application.
-> 
-> These reports are written in each patch.
-> 
-> Changes in V2:
-> - Fix a locking problem for error
-> 
-> Thanks!
+On 07/19/2013 03:48 PM, Amit Shah wrote:
+> On (Fri) 19 Jul 2013 [15:03:50], Jason Wang wrote:
+>> On 07/19/2013 04:16 AM, Amit Shah wrote:
+>>> Between poll() being called and processed, the port can be unplugged.
+>>> Check if this happened, and bail out.
+>>>
+>>> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+>>> ---
+>>>  drivers/char/virtio_console.c | 4 ++++
+>>>  1 file changed, 4 insertions(+)
+>>>
+>>> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+>>> index 7728af9..1d4b748 100644
+>>> --- a/drivers/char/virtio_console.c
+>>> +++ b/drivers/char/virtio_console.c
+>>> @@ -967,6 +967,10 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
+>>>  	unsigned int ret;
+>>>  
+>>>  	port = filp->private_data;
+>>> +	if (!port->guest_connected) {
+>>> +		/* Port was unplugged before we could proceed */
+>>> +		return POLLHUP;
+>>> +	}
+>>>  	poll_wait(filp, &port->waitqueue, wait);
+>>>  
+>>>  	if (!port->guest_connected) {
+>> Looks still racy here. Unlike port_fops_read() which check
+>> will_read_block(). If unplug happens after the check but before the
+>> poll_wait(), caller will be blocked forever.
+> unplug_port() calls wake_up_interruptible on the waitqueue.
 
-Reviewed-by: Amit Shah <amit.shah@redhat.com>
+I mean the following cases:
 
-For the patches to be picked up in the stable trees, you need to
-include CC: <stable@vger.kernel.org> in the sign-off area of the
-patches, just cc'ing in the patch posting doesn't help.  See
-Documentation/stable_kernel_rules.txt.
+CPU0:                                                CPU1: unplug_port()
 
-Can you submit a v3 with that change, and also add my reviewed-by
-line?
 
-		Amit
+if (!port->guest_connected) {
+    return POLLHUP;
+}
+                                                    
+wake_up_interruptiable()
+poll_wait(filp, &port->waitqueue, wait);
+
+But since it was existed even w/o this series. I agree to keep it as is
+and fix on top.
+
+Other looks good.
+
+Thanks
+>
+> (But the wake_up should be done after guest_connected is set to
+> false -- regression introduced in patch 7.)
+>
+> 		Amit
