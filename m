@@ -1,17 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 03/10] virtio: console: clean up port data immediately
-	at time of unplug
-Date: Fri, 19 Jul 2013 13:11:54 +0800
-Message-ID: <51E8CA9A.6070803__7548.25612898475$1374210747$gmane$org@redhat.com>
-References: <cover.1374177234.git.amit.shah@redhat.com>
-	<fe68b08508c638c6edc4ca2883249a29fdc8fbec.1374177234.git.amit.shah@redhat.com>
-	<51E8B0CB.1060703@redhat.com>
-	<20130719050252.GA3087@amit-x200.redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH 0/2] [BUGFIX] virtio/console: Fix two bugs of splice_write
+Date: Fri, 19 Jul 2013 10:54:49 +0530
+Message-ID: <20130719052449.GE3087@amit-x200.redhat.com>
+References: <20130718231927.3664.50418.stgit@yunodevel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130719050252.GA3087@amit-x200.redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20130718231927.3664.50418.stgit@yunodevel>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,56 +18,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, yrl.pp-manager.tt@hitachi.com, Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/19/2013 01:02 PM, Amit Shah wrote:
-> On (Fri) 19 Jul 2013 [11:21:47], Jason Wang wrote:
->> On 07/19/2013 04:16 AM, Amit Shah wrote:
->
->>> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
->>> index b04ec95..6bf0df3 100644
->>> --- a/drivers/char/virtio_console.c
->>> +++ b/drivers/char/virtio_console.c
->>> @@ -1501,14 +1501,6 @@ static void remove_port(struct kref *kref)
->>>  
->>>  	port = container_of(kref, struct port, kref);
->>>  
->>> -	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
->>> -	device_destroy(pdrvdata.class, port->dev->devt);
->>> -	cdev_del(port->cdev);
->>> -
->>> -	kfree(port->name);
->>> -
->>> -	debugfs_remove(port->debugfs_file);
->>> -
->>>  	kfree(port);
->>>  }
->>>  
->>> @@ -1566,6 +1558,14 @@ static void unplug_port(struct port *port)
->>>  	 */
->>>  	port->portdev = NULL;
->>>  
->>> +	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
->>> +	device_destroy(pdrvdata.class, port->dev->devt);
->>> +	cdev_del(port->cdev);
->>> +
->>> +	kfree(port->name);
->>> +
->>> +	debugfs_remove(port->debugfs_file);
->>> +
->>>  	/*
->>>  	 * Locks around here are not necessary - a port can't be
->>>  	 * opened after we removed the port struct from ports_list
->> Should we remove debugfs file before kfree()? Otherwise looks like a
->> use-after-free if user access debugfs after kfree().
-> It is removed before kfree() -- kfree() is called in remove_port(),
-> which is called when all the references are dropped.  (Did you confuse
-> kfree(port->name) with kfree(port)?)
+On (Fri) 19 Jul 2013 [08:19:27], Yoshihiro YUNOMAE wrote:
+> Hi,
+> 
+> This patch set fixes two bugs of splice_write in the virtio-console driver.
 
-Nope. Looks like port->name were accessed in debugfs_read()?
->
-> Thanks,
->
-> 		Amit
+Oh, and please CC virtualization@lists.linux-foundation.org for any
+virtio-related patches.
+
+Thanks,
+
+		Amit
