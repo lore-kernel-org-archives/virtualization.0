@@ -1,16 +1,15 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v2 11/11] virtio: console: prevent use-after-free of port name
-	in port unplug
-Date: Fri, 19 Jul 2013 16:52:04 +0530
-Message-ID: <dbb4d1603f66de692d9af3c2afe1b464294d622d.1374232738.git.amit.shah__31881.4826351174$1374233022$gmane$org@redhat.com>
-References: <cover.1374232738.git.amit.shah@redhat.com>
+From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Subject: Re: [PATCH V2 1/2] [BUGFIX] virtio/console: Quit from splice_write
+	if pipe->nrbufs is 0
+Date: Fri, 19 Jul 2013 21:25:29 +0900
+Message-ID: <51E93039.7010805__26320.9182922312$1374236745$gmane$org@hitachi.com>
+References: <20130719091951.9698.95194.stgit@yunodevel>
+	<20130719091954.9698.84901.stgit@yunodevel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1374232738.git.amit.shah@redhat.com>
-In-Reply-To: <cover.1374232738.git.amit.shah@redhat.com>
-References: <cover.1374232738.git.amit.shah@redhat.com>
+In-Reply-To: <20130719091954.9698.84901.stgit@yunodevel>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,34 +19,105 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org
+To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>, yrl.pp-manager.tt@hitachi.com, Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Remove the debugfs path before freeing port->name, to prevent a possible
-use-after-free.
+(2013/07/19 18:19), Yoshihiro YUNOMAE wrote:
+> Quit from splice_write if pipe->nrbufs is 0 for avoiding oops in virtio-serial.
+> 
+> When an application was doing splice from a kernel buffer to virtio-serial on
+> a guest, the application received signal(SIGINT). This situation will normally
+> happen, but the kernel executed a kernel panic by oops as follows:
+> 
+>  BUG: unable to handle kernel paging request at ffff882071c8ef28
+>  IP: [<ffffffff812de48f>] sg_init_table+0x2f/0x50
+>  PGD 1fac067 PUD 0
+>  Oops: 0000 [#1] SMP
+>  Modules linked in: lockd sunrpc bnep bluetooth rfkill ip6t_REJECT nf_conntrack_ipv6 nf_defrag_ipv6 xt_state nf_conntrack ip6table_filter ip6_tables snd_hda_intel snd_hda_codec snd_hwdep snd_pcm snd_page_alloc snd_timer snd microcode virtio_balloon virtio_net pcspkr soundcore i2c_piix4 i2c_core uinput floppy
+>  CPU: 1 PID: 908 Comm: trace-cmd Not tainted 3.10.0+ #49
+>  Hardware name: Bochs Bochs, BIOS Bochs 01/01/2007
+>  task: ffff880071c64650 ti: ffff88007bf24000 task.ti: ffff88007bf24000
+>  RIP: 0010:[<ffffffff812de48f>]  [<ffffffff812de48f>] sg_init_table+0x2f/0x50
+>  RSP: 0018:ffff88007bf25dd8  EFLAGS: 00010286
+>  RAX: 0000001fffffffe0 RBX: ffff882071c8ef28 RCX: 0000000000000000
+>  RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff880071c8ef48
+>  RBP: ffff88007bf25de8 R08: ffff88007fd15d40 R09: ffff880071c8ef48
+>  R10: ffffea0001c71040 R11: ffffffff8139c555 R12: 0000000000000000
+>  R13: ffff88007506a3c0 R14: ffff88007c862500 R15: ffff880071c8ef00
+>  FS:  00007f0a3646c740(0000) GS:ffff88007fd00000(0000) knlGS:0000000000000000
+>  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>  CR2: ffff882071c8ef28 CR3: 000000007acbb000 CR4: 00000000000006e0
+>  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>  DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000400
+>  Stack:
+>   ffff880071c8ef48 ffff88007bf25e20 ffff88007bf25e88 ffffffff8139d6fa
+>   ffff88007bf25e28 ffffffff8127a3f4 0000000000000000 0000000000000000
+>   ffff880071c8ef48 0000100000000000 0000000000000003 ffff88007bf25e08
+>  Call Trace:
+>   [<ffffffff8139d6fa>] port_fops_splice_write+0xaa/0x130
+>   [<ffffffff8127a3f4>] ? selinux_file_permission+0xc4/0x120
+>   [<ffffffff8139d650>] ? wait_port_writable+0x1b0/0x1b0
+>   [<ffffffff811a6fe0>] do_splice_from+0xa0/0x110
+>   [<ffffffff811a951f>] SyS_splice+0x5ff/0x6b0
+>   [<ffffffff8161f8c2>] system_call_fastpath+0x16/0x1b
+>  Code: c1 e2 05 48 89 e5 48 83 ec 10 4c 89 65 f8 41 89 f4 31 f6 48 89 5d f0 48 89 fb e8 8d ce ff ff 41 8d 44 24 ff 48 c1 e0 05 48 01 c3 <48> 8b 03 48 83 e0 fe 48 83 c8 02 48 89 03 48 8b 5d f0 4c 8b 65
+>  RIP  [<ffffffff812de48f>] sg_init_table+0x2f/0x50
+>   RSP <ffff88007bf25dd8>
+>  CR2: ffff882071c8ef28
+>  ---[ end trace 86323505eb42ea8f ]---
+> 
+> It seems to induce pagefault in sg_init_tabel() when pipe->nrbufs is equal to
+> zero. This may happen in a following situation:
+> 
+> (1) The application normally does splice(read) from a kernel buffer, then does
+>     splice(write) to virtio-serial.
+> (2) The application receives SIGINT when is doing splice(read), so splice(read)
+>     is failed by EINTR. However, the application does not finish the operation.
+> (3) The application tries to do splice(write) without pipe->nrbufs.
+> (4) The virtio-console driver tries to touch scatterlist structure sgl in
+>     sg_init_table(), but the region is out of bound.
+> 
+> To avoid the case, a kernel should check whether pipe->nrbufs is empty or not
+> when splice_write is executed in the virtio-console driver.
 
-CC: <stable@vger.kernel.org>
-Reported-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Amit Shah <amit.shah@redhat.com>
----
- drivers/char/virtio_console.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Thank you for fixing it :)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 89ef748..f18e960 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -1578,9 +1578,8 @@ static void unplug_port(struct port *port)
- 	device_destroy(pdrvdata.class, port->dev->devt);
- 	cdev_del(port->cdev);
- 
--	kfree(port->name);
--
- 	debugfs_remove(port->debugfs_file);
-+	kfree(port->name);
- 
- 	/*
- 	 * Locks around here are not necessary - a port can't be
+Reviewed-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+
+> 
+> Signed-off-by: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
+> Cc: Amit Shah <amit.shah@redhat.com>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  drivers/char/virtio_console.c |    7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 1b456fe..8722656 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -932,6 +932,13 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
+>  	if (is_rproc_serial(port->out_vq->vdev))
+>  		return -EINVAL;
+>  
+> +	/*
+> +	 * pipe->nrbufs == 0 means there are no data to transfer,
+> +	 * so this returns just 0 for no data.
+> +	 */
+> +	if (!pipe->nrbufs)
+> +		return 0;
+> +
+>  	ret = wait_port_writable(port, filp->f_flags & O_NONBLOCK);
+>  	if (ret < 0)
+>  		return ret;
+> 
+> 
+
+
 -- 
-1.8.1.4
+Masami HIRAMATSU
+IT Management Research Dept. Linux Technology Center
+Hitachi, Ltd., Yokohama Research Laboratory
+E-mail: masami.hiramatsu.pt@hitachi.com
