@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v2 10/11] virtio: console: fix locking around
-	send_sigio_to_port()
-Date: Fri, 19 Jul 2013 16:52:03 +0530
-Message-ID: <a9f3af611f03ab11fd88c6d58925474b14275474.1374232738.git.amit.shah__34828.4795335077$1374233019$gmane$org@redhat.com>
+Subject: [PATCH v2 11/11] virtio: console: prevent use-after-free of port name
+	in port unplug
+Date: Fri, 19 Jul 2013 16:52:04 +0530
+Message-ID: <dbb4d1603f66de692d9af3c2afe1b464294d622d.1374232738.git.amit.shah__31881.4826351174$1374233022$gmane$org@redhat.com>
 References: <cover.1374232738.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,46 +24,30 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-send_sigio_to_port() checks the value of guest_connected, which we
-always modify under the inbuf_lock; make sure invocations of
-send_sigio_to_port() have take the inbuf_lock around the call.
+Remove the debugfs path before freeing port->name, to prevent a possible
+use-after-free.
 
 CC: <stable@vger.kernel.org>
+Reported-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/char/virtio_console.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index bdfb814..89ef748 100644
+index 89ef748..f18e960 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1674,7 +1674,9 @@ static void handle_control_message(struct ports_device *portdev,
- 		 * If the guest is connected, it'll be interested in
- 		 * knowing the host connection state changed.
- 		 */
-+		spin_lock_irq(&port->inbuf_lock);
- 		send_sigio_to_port(port);
-+		spin_unlock_irq(&port->inbuf_lock);
- 		break;
- 	case VIRTIO_CONSOLE_PORT_NAME:
- 		/*
-@@ -1794,13 +1796,13 @@ static void in_intr(struct virtqueue *vq)
- 	if (!port->guest_connected && !is_rproc_serial(port->portdev->vdev))
- 		discard_port_data(port);
+@@ -1578,9 +1578,8 @@ static void unplug_port(struct port *port)
+ 	device_destroy(pdrvdata.class, port->dev->devt);
+ 	cdev_del(port->cdev);
  
-+	/* Send a SIGIO indicating new data in case the process asked for it */
-+	send_sigio_to_port(port);
-+
- 	spin_unlock_irqrestore(&port->inbuf_lock, flags);
- 
- 	wake_up_interruptible(&port->waitqueue);
- 
--	/* Send a SIGIO indicating new data in case the process asked for it */
--	send_sigio_to_port(port);
+-	kfree(port->name);
 -
- 	if (is_console_port(port) && hvc_poll(port->cons.hvc))
- 		hvc_kick();
- }
+ 	debugfs_remove(port->debugfs_file);
++	kfree(port->name);
+ 
+ 	/*
+ 	 * Locks around here are not necessary - a port can't be
 -- 
 1.8.1.4
