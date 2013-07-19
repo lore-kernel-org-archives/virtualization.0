@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v2 01/11] virtio: console: fix race with port unplug and
-	open/close
-Date: Fri, 19 Jul 2013 16:51:54 +0530
-Message-ID: <bef5f08002604ea530c1fb5059b8383bfa0cb6c9.1374232738.git.amit.shah@redhat.com>
+Subject: [PATCH v2 02/11] virtio: console: fix race in port_fops_open() and
+	port unplug
+Date: Fri, 19 Jul 2013 16:51:55 +0530
+Message-ID: <18b14516fa1badb08dbfc3e892080b27127ff00f.1374232738.git.amit.shah@redhat.com>
 References: <cover.1374232738.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,53 +24,36 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-There's a window between find_port_by_devt() returning a port and us
-taking a kref on the port, where the port could get unplugged.  Fix it
-by taking the reference in find_port_by_devt() itself.
+Between open() being called and processed, the port can be unplugged.
+Check if this happened, and bail out.
 
-Problem reported and analyzed by Mateusz Guzik.
+A simple test script to reproduce this is:
+
+while true; do for i in $(seq 1 100); do echo $i > /dev/vport0p3; done; done;
+
+This opens and closes the port a lot of times; unplugging the port while
+this is happening triggers the race condition.
 
 CC: <stable@vger.kernel.org>
-Reported-by: Mateusz Guzik <mguzik@redhat.com>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/char/virtio_console.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 1b456fe..291f437 100644
+index 291f437..b04ec95 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -272,9 +272,12 @@ static struct port *find_port_by_devt_in_portdev(struct ports_device *portdev,
- 	unsigned long flags;
+@@ -1024,6 +1024,10 @@ static int port_fops_open(struct inode *inode, struct file *filp)
  
- 	spin_lock_irqsave(&portdev->ports_lock, flags);
--	list_for_each_entry(port, &portdev->ports, list)
--		if (port->cdev->dev == dev)
-+	list_for_each_entry(port, &portdev->ports, list) {
-+		if (port->cdev->dev == dev) {
-+			kref_get(&port->kref);
- 			goto out;
-+		}
-+	}
- 	port = NULL;
- out:
- 	spin_unlock_irqrestore(&portdev->ports_lock, flags);
-@@ -1019,14 +1022,10 @@ static int port_fops_open(struct inode *inode, struct file *filp)
- 	struct port *port;
- 	int ret;
- 
-+	/* We get the port with a kref here */
+ 	/* We get the port with a kref here */
  	port = find_port_by_devt(cdev->dev);
++	if (!port) {
++		/* Port was unplugged before we could proceed */
++		return -ENXIO;
++	}
  	filp->private_data = port;
  
--	/* Prevent against a port getting hot-unplugged at the same time */
--	spin_lock_irq(&port->portdev->ports_lock);
--	kref_get(&port->kref);
--	spin_unlock_irq(&port->portdev->ports_lock);
--
  	/*
- 	 * Don't allow opening of console port devices -- that's done
- 	 * via /dev/hvc
 -- 
 1.8.1.4
