@@ -1,17 +1,14 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 03/10] virtio: console: clean up port data immediately at
-	time of unplug
-Date: Fri, 19 Jul 2013 10:32:52 +0530
-Message-ID: <20130719050252.GA3087@amit-x200.redhat.com>
+Subject: Re: [PATCH 00/10] virtio: console: fixes for races with port unplug
+Date: Fri, 19 Jul 2013 10:33:50 +0530
+Message-ID: <20130719050350.GB3087@amit-x200.redhat.com>
 References: <cover.1374177234.git.amit.shah@redhat.com>
-	<fe68b08508c638c6edc4ca2883249a29fdc8fbec.1374177234.git.amit.shah@redhat.com>
-	<51E8B0CB.1060703@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <51E8B0CB.1060703@redhat.com>
+In-Reply-To: <cover.1374177234.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,56 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Fri) 19 Jul 2013 [11:21:47], Jason Wang wrote:
-> On 07/19/2013 04:16 AM, Amit Shah wrote:
-
-
-> > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> > index b04ec95..6bf0df3 100644
-> > --- a/drivers/char/virtio_console.c
-> > +++ b/drivers/char/virtio_console.c
-> > @@ -1501,14 +1501,6 @@ static void remove_port(struct kref *kref)
-> >  
-> >  	port = container_of(kref, struct port, kref);
-> >  
-> > -	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
-> > -	device_destroy(pdrvdata.class, port->dev->devt);
-> > -	cdev_del(port->cdev);
-> > -
-> > -	kfree(port->name);
-> > -
-> > -	debugfs_remove(port->debugfs_file);
-> > -
-> >  	kfree(port);
-> >  }
-> >  
-> > @@ -1566,6 +1558,14 @@ static void unplug_port(struct port *port)
-> >  	 */
-> >  	port->portdev = NULL;
-> >  
-> > +	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
-> > +	device_destroy(pdrvdata.class, port->dev->devt);
-> > +	cdev_del(port->cdev);
-> > +
-> > +	kfree(port->name);
-> > +
-> > +	debugfs_remove(port->debugfs_file);
-> > +
-> >  	/*
-> >  	 * Locks around here are not necessary - a port can't be
-> >  	 * opened after we removed the port struct from ports_list
+On (Fri) 19 Jul 2013 [01:46:07], Amit Shah wrote:
+> Hello,
 > 
-> Should we remove debugfs file before kfree()? Otherwise looks like a
-> use-after-free if user access debugfs after kfree().
+> This series fixes a few races with port unplug and the various file
+> operations: read(), write(), close() and poll().
+> 
+> There still might be more races lurking, but testing this series looks
+> good to at least solve the easily-triggerable ones.  I've run the
+> virtio-serial testsuite and a few open/close/unplug tests, and haven't
+> seen any badness.
+> 
+> I've marked these patches for stable@ as well.  I went over the list
+> twice to check if really each one should go to stable, and to me it
+> looks like all are stable candidates.
 
-It is removed before kfree() -- kfree() is called in remove_port(),
-which is called when all the references are dropped.  (Did you confuse
-kfree(port->name) with kfree(port)?)
-
-Thanks,
+Ah - I forgot CC: stable in patch 6 onwards.  I'll post a v2 with
+those included, but will wait for review comments for a couple of
+days.
 
 		Amit
