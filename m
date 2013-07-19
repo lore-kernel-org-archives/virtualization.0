@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v2 05/11] virtio: console: update private_data in struct file
-	only on successful open
-Date: Fri, 19 Jul 2013 16:51:58 +0530
-Message-ID: <a012f8e8c562c84c2302e57e5360291ef7d4ff21.1374232738.git.amit.shah__14891.4764439271$1374232980$gmane$org@redhat.com>
+Subject: [PATCH v2 06/11] virtio: console: fix race in port_fops_poll() and
+	port unplug
+Date: Fri, 19 Jul 2013 16:51:59 +0530
+Message-ID: <02345d7822f83d1f4f7df7efbb7daf8b54d02f83.1374232738.git.amit.shah__19982.2083618075$1374232989$gmane$org@redhat.com>
 References: <cover.1374232738.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,39 +24,29 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Mateusz Guzik points out that we update the 'file' struct's private_data
-field before we've successfully done all our checks.  This means we can
-return an error with the private_data field updated.  This could lead to
-problems.
-
-Fix by moving the assignment after all checks are done.
+Between poll() being called and processed, the port can be unplugged.
+Check if this happened, and bail out.
 
 CC: <stable@vger.kernel.org>
-Reported-by: Mateusz Guzik <mguzik@redhat.com>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/virtio_console.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index a39702a..7728af9 100644
+index 7728af9..1d4b748 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1032,7 +1032,6 @@ static int port_fops_open(struct inode *inode, struct file *filp)
- 		/* Port was unplugged before we could proceed */
- 		return -ENXIO;
- 	}
--	filp->private_data = port;
+@@ -967,6 +967,10 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
+ 	unsigned int ret;
  
- 	/*
- 	 * Don't allow opening of console port devices -- that's done
-@@ -1051,6 +1050,7 @@ static int port_fops_open(struct inode *inode, struct file *filp)
- 		goto out;
- 	}
+ 	port = filp->private_data;
++	if (!port->guest_connected) {
++		/* Port was unplugged before we could proceed */
++		return POLLHUP;
++	}
+ 	poll_wait(filp, &port->waitqueue, wait);
  
-+	filp->private_data = port;
- 	port->guest_connected = true;
- 	spin_unlock_irq(&port->inbuf_lock);
- 
+ 	if (!port->guest_connected) {
 -- 
 1.8.1.4
