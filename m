@@ -1,7 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v2 09/11] virtio: console: add locking in port unplug path
-Date: Fri, 19 Jul 2013 16:52:02 +0530
-Message-ID: <75ea703ab8de327b25064afd466f0bd7bb3c7903.1374232738.git.amit.shah__17078.5379749306$1374233005$gmane$org@redhat.com>
+Subject: [PATCH v2 10/11] virtio: console: fix locking around
+	send_sigio_to_port()
+Date: Fri, 19 Jul 2013 16:52:03 +0530
+Message-ID: <a9f3af611f03ab11fd88c6d58925474b14275474.1374232738.git.amit.shah__34828.4795335077$1374233019$gmane$org@redhat.com>
 References: <cover.1374232738.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,35 +24,46 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Port unplug can race with close() in port_fops_release().
-port_fops_release() already takes the necessary locks, ensure
-unplug_port() does that too.
+send_sigio_to_port() checks the value of guest_connected, which we
+always modify under the inbuf_lock; make sure invocations of
+send_sigio_to_port() have take the inbuf_lock around the call.
 
 CC: <stable@vger.kernel.org>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/char/virtio_console.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index c9faea1..bdfb814 100644
+index bdfb814..89ef748 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1545,6 +1545,7 @@ static void unplug_port(struct port *port)
- 	list_del(&port->list);
- 	spin_unlock_irq(&port->portdev->ports_lock);
- 
-+	spin_lock_irq(&port->inbuf_lock);
- 	if (port->guest_connected) {
- 		/* Let the app know the port is going down. */
+@@ -1674,7 +1674,9 @@ static void handle_control_message(struct ports_device *portdev,
+ 		 * If the guest is connected, it'll be interested in
+ 		 * knowing the host connection state changed.
+ 		 */
++		spin_lock_irq(&port->inbuf_lock);
  		send_sigio_to_port(port);
-@@ -1555,6 +1556,7 @@ static void unplug_port(struct port *port)
++		spin_unlock_irq(&port->inbuf_lock);
+ 		break;
+ 	case VIRTIO_CONSOLE_PORT_NAME:
+ 		/*
+@@ -1794,13 +1796,13 @@ static void in_intr(struct virtqueue *vq)
+ 	if (!port->guest_connected && !is_rproc_serial(port->portdev->vdev))
+ 		discard_port_data(port);
  
- 		wake_up_interruptible(&port->waitqueue);
- 	}
-+	spin_unlock_irq(&port->inbuf_lock);
++	/* Send a SIGIO indicating new data in case the process asked for it */
++	send_sigio_to_port(port);
++
+ 	spin_unlock_irqrestore(&port->inbuf_lock, flags);
  
- 	if (is_console_port(port)) {
- 		spin_lock_irq(&pdrvdata_lock);
+ 	wake_up_interruptible(&port->waitqueue);
+ 
+-	/* Send a SIGIO indicating new data in case the process asked for it */
+-	send_sigio_to_port(port);
+-
+ 	if (is_console_port(port) && hvc_poll(port->cons.hvc))
+ 		hvc_kick();
+ }
 -- 
 1.8.1.4
