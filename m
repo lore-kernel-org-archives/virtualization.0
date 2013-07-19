@@ -1,19 +1,17 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 03/10] virtio: console: clean up port data immediately at
-	time of unplug
-Date: Fri, 19 Jul 2013 10:56:34 +0530
-Message-ID: <20130719052634.GF3087@amit-x200.redhat.com>
+Subject: Re: [PATCH 04/10] virtio: console: return -ENODEV on all read
+	operations after unplug
+Date: Fri, 19 Jul 2013 11:15:12 +0530
+Message-ID: <20130719054512.GG3087@amit-x200.redhat.com>
 References: <cover.1374177234.git.amit.shah@redhat.com>
-	<fe68b08508c638c6edc4ca2883249a29fdc8fbec.1374177234.git.amit.shah@redhat.com>
-	<51E8B0CB.1060703@redhat.com>
-	<20130719050252.GA3087@amit-x200.redhat.com>
-	<51E8CA9A.6070803@redhat.com>
+	<39ab201027a58e792724172f1f559fe837e89556.1374177234.git.amit.shah@redhat.com>
+	<51E8C9A5.2070309@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <51E8CA9A.6070803@redhat.com>
+In-Reply-To: <51E8C9A5.2070309@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -27,56 +25,62 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Fri) 19 Jul 2013 [13:11:54], Jason Wang wrote:
-> On 07/19/2013 01:02 PM, Amit Shah wrote:
-> > On (Fri) 19 Jul 2013 [11:21:47], Jason Wang wrote:
-> >> On 07/19/2013 04:16 AM, Amit Shah wrote:
+On (Fri) 19 Jul 2013 [13:07:49], Jason Wang wrote:
+> On 07/19/2013 04:16 AM, Amit Shah wrote:
+> > If a port gets unplugged while a user is blocked on read(), -ENODEV is
+> > returned.  However, subsequent read()s returned 0, indicating there's no
+> > host-side connection (but not indicating the device went away).
 > >
-> >>> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> >>> index b04ec95..6bf0df3 100644
-> >>> --- a/drivers/char/virtio_console.c
-> >>> +++ b/drivers/char/virtio_console.c
-> >>> @@ -1501,14 +1501,6 @@ static void remove_port(struct kref *kref)
-> >>>  
-> >>>  	port = container_of(kref, struct port, kref);
-> >>>  
-> >>> -	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
-> >>> -	device_destroy(pdrvdata.class, port->dev->devt);
-> >>> -	cdev_del(port->cdev);
-> >>> -
-> >>> -	kfree(port->name);
-> >>> -
-> >>> -	debugfs_remove(port->debugfs_file);
-> >>> -
-> >>>  	kfree(port);
-> >>>  }
-> >>>  
-> >>> @@ -1566,6 +1558,14 @@ static void unplug_port(struct port *port)
-> >>>  	 */
-> >>>  	port->portdev = NULL;
-> >>>  
-> >>> +	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
-> >>> +	device_destroy(pdrvdata.class, port->dev->devt);
-> >>> +	cdev_del(port->cdev);
-> >>> +
-> >>> +	kfree(port->name);
-> >>> +
-> >>> +	debugfs_remove(port->debugfs_file);
-> >>> +
-> >>>  	/*
-> >>>  	 * Locks around here are not necessary - a port can't be
-> >>>  	 * opened after we removed the port struct from ports_list
-> >> Should we remove debugfs file before kfree()? Otherwise looks like a
-> >> use-after-free if user access debugfs after kfree().
-> > It is removed before kfree() -- kfree() is called in remove_port(),
-> > which is called when all the references are dropped.  (Did you confuse
-> > kfree(port->name) with kfree(port)?)
+> > This also happened when a port was unplugged and the user didn't have
+> > any blocking operation pending.  If the user didn't monitor the SIGIO
+> > signal, they won't have a chance to find out if the port went away.
+> >
+> > Fix by returning -ENODEV on all read()s after the port gets unplugged.
+> > write() already behaves this way.
+> >
+> > CC: <stable@vger.kernel.org>
+> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> > ---
+> >  drivers/char/virtio_console.c | 6 +++++-
+> >  1 file changed, 5 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> > index 6bf0df3..a39702a 100644
+> > --- a/drivers/char/virtio_console.c
+> > +++ b/drivers/char/virtio_console.c
+> > @@ -749,6 +749,10 @@ static ssize_t port_fops_read(struct file *filp, char __user *ubuf,
+> >  
+> >  	port = filp->private_data;
+> >  
+> > +	/* Port is hot-unplugged. */
+> > +	if (!port->guest_connected)
+> > +		return -ENODEV;
+> > +
 > 
-> Nope. Looks like port->name were accessed in debugfs_read()?
+> What if the port is hot-unplugged after this check? Should we serialize
+> the hot plug with inbuf_lock here?
 
-Ah, got it.  Since this bug existed before this patch as well, I'll
-post an additional patch on top of this.
+If that happens, port_has_data() returns false, and the later
+functions return appropriately, as unplug_port() clears out all the
+data.
 
-Thanks!
+However, I spotted a couple of things that need fixing:
+
+1. In the condition you describe above, port_has_data will return
+false, and host_connected will be false as well, and fops_read() will
+return 0 instead of -ENODEV once.  Subsequent reads will return
+-ENODEV.
+
+2. get_inbuf(), which is called by port_has_data() accesses the vqs
+even if the port is unplugged.  The vqs are still available, and won't
+have data in them (since the port is unplugged), but it's best to not
+rely on such behaviour.  For the next merge window, I'll add extra
+state, port_(un)plugged to track this instead of abusing
+guest_connected.
+
+That also simplifies the path for later if we get vq hot-plug as well.
+
+I think the current code will behave satisfactorily for now; what do
+you think?
 
 		Amit
