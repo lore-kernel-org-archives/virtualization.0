@@ -1,15 +1,14 @@
-From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: Re: [PATCH V2 2/2] [BUGFIX] virtio/console: Add pipe_lock/unlock
-	for splice_write
-Date: Fri, 19 Jul 2013 21:26:10 +0900
-Message-ID: <51E93062.4090405@hitachi.com>
-References: <20130719091951.9698.95194.stgit@yunodevel>
-	<20130719091956.9698.30207.stgit@yunodevel>
+From: Daniel Kiper <daniel.kiper@oracle.com>
+Subject: Re: is kexec on Xen domU possible?
+Date: Fri, 19 Jul 2013 15:18:19 +0200
+Message-ID: <20130719131819.GC11233@debian70-amd64.local.net-space.pl>
+References: <20130719020603.GA22932@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130719091956.9698.30207.stgit@yunodevel>
+Content-Disposition: inline
+In-Reply-To: <20130719020603.GA22932@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,151 +18,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>, yrl.pp-manager.tt@hitachi.com, Amit Shah <amit.shah@redhat.com>
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Biederman <ebiederm@xmission.com>, Brandon Philips <brandon@ifup.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(2013/07/19 18:19), Yoshihiro YUNOMAE wrote:
-> Add pipe_lock/unlock for splice_write to avoid oops by following competition:
-> 
-> (1) An application gets fds of a trace buffer, virtio-serial, pipe.
-> (2) The application does fork()
-> (3) The processes execute splice_read(trace buffer) and
->     splice_write(virtio-serial) via same pipe.
-> 
->         <parent>                   <child>
->   get fds of a trace buffer,
->          virtio-serial, pipe
->           |
->         fork()----------create--------+
->           |                           |
->       splice(read)                    |           ---+
->       splice(write)                   |              +-- no competition
->           |                       splice(read)       |
->           |                       splice(write)   ---+
->           |                           |
->       splice(read)                    |
->       splice(write)               splice(read)    ------ competition
->           |                       splice(write)
-> 
-> Two processes share a pipe_inode_info structure. If the child execute
-> splice(read) when the parent tries to execute splice(write), the
-> structure can be broken. Existing virtio-serial driver does not get
-> lock for the structure in splice_write, so this competition will induce
-> oops.
-> 
-> <oops messages>
->  BUG: unable to handle kernel NULL pointer dereference at 0000000000000018
->  IP: [<ffffffff811a6b5f>] splice_from_pipe_feed+0x6f/0x130
->  PGD 7223e067 PUD 72391067 PMD 0
->  Oops: 0000 [#1] SMP
->  Modules linked in: lockd bnep bluetooth rfkill sunrpc ip6t_REJECT nf_conntrack_ipv6 nf_defrag_ipv6 xt_state nf_conntrack ip6table_filter ip6_tables snd_hda_intel snd_hda_codec snd_hwdep snd_pcm snd_page_alloc snd_timer snd soundcore pcspkr virtio_net virtio_balloon i2c_piix4 i2c_core microcode uinput floppy
->  CPU: 0 PID: 1072 Comm: compete-test Not tainted 3.10.0ws+ #55
->  Hardware name: Bochs Bochs, BIOS Bochs 01/01/2007
->  task: ffff880071b98000 ti: ffff88007b55e000 task.ti: ffff88007b55e000
->  RIP: 0010:[<ffffffff811a6b5f>]  [<ffffffff811a6b5f>] splice_from_pipe_feed+0x6f/0x130
->  RSP: 0018:ffff88007b55fd78  EFLAGS: 00010287
->  RAX: 0000000000000000 RBX: ffff88007b55fe20 RCX: 0000000000000000
->  RDX: 0000000000001000 RSI: ffff88007a95ba30 RDI: ffff880036f9e6c0
->  RBP: ffff88007b55fda8 R08: 00000000000006ec R09: ffff880077626708
->  R10: 0000000000000003 R11: ffffffff8139ca59 R12: ffff88007a95ba30
->  R13: 0000000000000000 R14: ffffffff8139dd00 R15: ffff880036f9e6c0
->  FS:  00007f2e2e3a0740(0000) GS:ffff88007fc00000(0000) knlGS:0000000000000000
->  CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
->  CR2: 0000000000000018 CR3: 0000000071bd1000 CR4: 00000000000006f0
->  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->  DR3: 0000000000000000 DR6: 00000000ffff0ff0 DR7: 0000000000000400
->  Stack:
->   ffffffff8139ca59 ffff88007b55fe20 ffff880036f9e6c0 ffffffff8139dd00
->   ffff8800776266c0 ffff880077626708 ffff88007b55fde8 ffffffff811a6e8e
->   ffff88007b55fde8 ffffffff8139ca59 ffff880036f9e6c0 ffff88007b55fe20
->  Call Trace:
->   [<ffffffff8139ca59>] ? alloc_buf.isra.13+0x39/0xb0
->   [<ffffffff8139dd00>] ? virtcons_restore+0x100/0x100
->   [<ffffffff811a6e8e>] __splice_from_pipe+0x7e/0x90
->   [<ffffffff8139ca59>] ? alloc_buf.isra.13+0x39/0xb0
->   [<ffffffff8139d739>] port_fops_splice_write+0xe9/0x140
->   [<ffffffff8127a3f4>] ? selinux_file_permission+0xc4/0x120
->   [<ffffffff8139d650>] ? wait_port_writable+0x1b0/0x1b0
->   [<ffffffff811a6fe0>] do_splice_from+0xa0/0x110
->   [<ffffffff811a951f>] SyS_splice+0x5ff/0x6b0
->   [<ffffffff8161facf>] tracesys+0xdd/0xe2
->  Code: 49 8b 87 80 00 00 00 4c 8d 24 d0 8b 53 04 41 8b 44 24 0c 4d 8b 6c 24 10 39 d0 89 03 76 02 89 13 49 8b 44 24 10 4c 89 e6 4c 89 ff <ff> 50 18 85 c0 0f 85 aa 00 00 00 48 89 da 4c 89 e6 4c 89 ff 41
->  RIP  [<ffffffff811a6b5f>] splice_from_pipe_feed+0x6f/0x130
->   RSP <ffff88007b55fd78>
->  CR2: 0000000000000018
->  ---[ end trace 24572beb7764de59 ]---
-> 
-> V2: Fix a locking problem for error
+On Thu, Jul 18, 2013 at 07:06:03PM -0700, Greg KH wrote:
+> Hi all,
+>
+> I was messing around with kexec and it seems to work just fine on KVM,
+> but for Xen domU images, it doesn't work at all.  Daniel, I saw some
+> patches from you back in September 2012 for adding this support for
+> Dom0, but they don't seem to have gone into the kernel (but other
 
-Thanks, this looks good for me.
+At first I was going use existing in Xen kexec implementation for Dom0.
+However, after some discussion on Xen-devel and LKML we stated that
+this implementation is completely broken and should be rewriten. David
+Vrabel from Citrix wrote new kexec implementation for Xen which does
+not relay on Linux kernel. I hope that it will be included in Xen 4.4 release.
 
-Reviewed-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+> patches went into kexec-tools at that time.)  You mention that domU
 
-> 
-> Signed-off-by: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-> Cc: Amit Shah <amit.shah@redhat.com>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  drivers/char/virtio_console.c |   20 +++++++++++++++-----
->  1 file changed, 15 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index 8722656..8a15af3 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -936,16 +936,21 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
->  	 * pipe->nrbufs == 0 means there are no data to transfer,
->  	 * so this returns just 0 for no data.
->  	 */
-> -	if (!pipe->nrbufs)
-> -		return 0;
-> +	pipe_lock(pipe);
-> +	if (!pipe->nrbufs) {
-> +		ret = 0;
-> +		goto error_out;
-> +	}
->  
->  	ret = wait_port_writable(port, filp->f_flags & O_NONBLOCK);
->  	if (ret < 0)
-> -		return ret;
-> +		goto error_out;
->  
->  	buf = alloc_buf(port->out_vq, 0, pipe->nrbufs);
-> -	if (!buf)
-> -		return -ENOMEM;
-> +	if (!buf) {
-> +		ret = -ENOMEM;
-> +		goto error_out;
-> +	}
->  
->  	sgl.n = 0;
->  	sgl.len = 0;
-> @@ -953,12 +958,17 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
->  	sgl.sg = buf->sg;
->  	sg_init_table(sgl.sg, sgl.size);
->  	ret = __splice_from_pipe(pipe, &sd, pipe_to_sg);
-> +	pipe_unlock(pipe);
->  	if (likely(ret > 0))
->  		ret = __send_to_port(port, buf->sg, sgl.n, sgl.len, buf, true);
->  
->  	if (unlikely(ret <= 0))
->  		free_buf(buf, true);
->  	return ret;
-> +
-> +error_out:
-> +	pipe_unlock(pipe);
-> +	return ret;
->  }
->  
->  static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
-> 
-> 
+These are mostly fixes which were needed for planned Xen kexec support.
+IIRC, they are also needed for systems using ancient Xen Linux Kernel 2.18.
+However, most of this implementation will be replaced by new one written
+by David Vrabel. It will contain support only for new Xen Dom0 kexec implentation.
 
+> support is "easy" after your patches go in, is that because Dom0 needs
+> to support this, or is it something specific to only domU?
 
--- 
-Masami HIRAMATSU
-IT Management Research Dept. Linux Technology Center
-Hitachi, Ltd., Yokohama Research Laboratory
-E-mail: masami.hiramatsu.pt@hitachi.com
+In case of domU we should consider following cases:
+  - PV guests: there is no support for kexec at this time;
+    Once I wrote an implementatation for that type of guests
+    for one company but according to our agreement I could not
+    publish this code; However, I could use it as a base for
+    publicly available kexec implementation; Currently, I do
+    not have any plans to work on this due to some more important
+    stuff to do; However, question about kexec support for PV
+    guests is raised from time to time and maybe this issue
+    will be much more important than others once,
+  - HVM guests: kexec should work without any issue,
+  - PVonHVM guests: IIRC, there were some issues with PV
+    drivers but they were fixed some time ago by patches
+    posted by Olaf Hering,
+  - PVH guests: those type of guests are not available in Xen
+    current releases yet; However, Konrad Wilk done some preliminary
+    work on kexec support but there are still some issues to resolve.
+
+I do not know what are you trying to do but if you would like
+to get some crash dumps there is also another solution to that.
+You could use xm/xl dump-core from Dom0 to get dumps of domU memory.
+
+> Also, what's the status of those patches for the kernel, I don't see
+> them reposted anywhere, did you drop them?
+
+They were dropped. Please look above for details.
+
+I hope that helps.
+
+Daniel
