@@ -1,14 +1,15 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 00/10] virtio: console: fixes for races with port unplug
-Date: Fri, 19 Jul 2013 10:33:50 +0530
-Message-ID: <20130719050350.GB3087@amit-x200.redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 04/10] virtio: console: return -ENODEV on all read
+	operations after unplug
+Date: Fri, 19 Jul 2013 13:07:49 +0800
+Message-ID: <51E8C9A5.2070309@redhat.com>
 References: <cover.1374177234.git.amit.shah@redhat.com>
+	<39ab201027a58e792724172f1f559fe837e89556.1374177234.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1374177234.git.amit.shah@redhat.com>
+In-Reply-To: <39ab201027a58e792724172f1f559fe837e89556.1374177234.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,26 +19,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Virtualization List <virtualization@lists.linux-foundation.org>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Fri) 19 Jul 2013 [01:46:07], Amit Shah wrote:
-> Hello,
-> 
-> This series fixes a few races with port unplug and the various file
-> operations: read(), write(), close() and poll().
-> 
-> There still might be more races lurking, but testing this series looks
-> good to at least solve the easily-triggerable ones.  I've run the
-> virtio-serial testsuite and a few open/close/unplug tests, and haven't
-> seen any badness.
-> 
-> I've marked these patches for stable@ as well.  I went over the list
-> twice to check if really each one should go to stable, and to me it
-> looks like all are stable candidates.
+On 07/19/2013 04:16 AM, Amit Shah wrote:
+> If a port gets unplugged while a user is blocked on read(), -ENODEV is
+> returned.  However, subsequent read()s returned 0, indicating there's no
+> host-side connection (but not indicating the device went away).
+>
+> This also happened when a port was unplugged and the user didn't have
+> any blocking operation pending.  If the user didn't monitor the SIGIO
+> signal, they won't have a chance to find out if the port went away.
+>
+> Fix by returning -ENODEV on all read()s after the port gets unplugged.
+> write() already behaves this way.
+>
+> CC: <stable@vger.kernel.org>
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> ---
+>  drivers/char/virtio_console.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 6bf0df3..a39702a 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -749,6 +749,10 @@ static ssize_t port_fops_read(struct file *filp, char __user *ubuf,
+>  
+>  	port = filp->private_data;
+>  
+> +	/* Port is hot-unplugged. */
+> +	if (!port->guest_connected)
+> +		return -ENODEV;
+> +
 
-Ah - I forgot CC: stable in patch 6 onwards.  I'll post a v2 with
-those included, but will wait for review comments for a couple of
-days.
-
-		Amit
+What if the port is hot-unplugged after this check? Should we serialize
+the hot plug with inbuf_lock here?
+>  	if (!port_has_data(port)) {
+>  		/*
+>  		 * If nothing's connected on the host just return 0 in
+> @@ -765,7 +769,7 @@ static ssize_t port_fops_read(struct file *filp, char __user *ubuf,
+>  		if (ret < 0)
+>  			return ret;
+>  	}
+> -	/* Port got hot-unplugged. */
+> +	/* Port got hot-unplugged while we were waiting above. */
+>  	if (!port->guest_connected)
+>  		return -ENODEV;
+>  	/*
