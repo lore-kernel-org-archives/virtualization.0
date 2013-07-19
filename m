@@ -1,16 +1,14 @@
-From: Olaf Hering <olaf@aepfle.de>
-Subject: Re: is kexec on Xen domU possible?
-Date: Fri, 19 Jul 2013 21:04:27 +0200
-Message-ID: <20130719190427.GA26622__10634.9297836006$1375346002$gmane$org@aepfle.de>
-References: <20130719020603.GA22932@kroah.com>
-	<20130719131819.GC11233@debian70-amd64.local.net-space.pl>
-	<20130719135445.GB12144@localhost.localdomain>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [patch] virtio: console: fix error handling for
+	debugfs_create_dir()
+Date: Fri, 19 Jul 2013 12:28:41 +0200
+Message-ID: <201307191228.41794.arnd__9487.68398161537$1375346005$gmane$org@arndb.de>
+References: <20130719055049.GD9729@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130719135445.GB12144@localhost.localdomain>
+In-Reply-To: <20130719055049.GD9729@elgon.mountain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,15 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: xen-devel@lists.xensource.com, Greg KH <gregkh@linuxfoundation.org>, Daniel Kiper <daniel.kiper@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Biederman <ebiederm@xmission.com>, Brandon Philips <brandon@ifup.org>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Amit Shah <amit.shah@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 19, Konrad Rzeszutek Wilk wrote:
+On Friday 19 July 2013, Dan Carpenter wrote:
+> debugfs_create_dir() returns ERR_PTR(-ENODEV) if debugfs is disabled.
+> Also my static checker doesn't like it when we print the error code, but
+> it's always just NULL.
+> 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-> Olaf, you wouldn't have any time to look at this some more now
-> that Xen 4.3 is out?
+This looks wrong.  debugfs_create_dir intentionally returns non-NULL so
+failing to create the directory does not trigger an error condition if
+debugfs is disabled.
 
-Currently no time to continue work on kexec for PVonHVM, sorry.
+	Arnd
 
-Olaf
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 1b456fe..ad2cd6d 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -2215,7 +2215,7 @@ static int __init init(void)
+>         }
+>  
+>         pdrvdata.debugfs_dir = debugfs_create_dir("virtio-ports", NULL);
+> -       if (!pdrvdata.debugfs_dir) {
+> +       if (IS_ERR_OR_NULL(pdrvdata.debugfs_dir)) {
+>                 pr_warning("Error %ld creating debugfs dir for virtio-ports\n",
+>                            PTR_ERR(pdrvdata.debugfs_dir));
+>         }
