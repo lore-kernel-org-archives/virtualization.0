@@ -1,17 +1,12 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: is kexec on Xen domU possible?
-Date: Fri, 19 Jul 2013 13:58:05 -0700
-Message-ID: <51E9A85D.2060206@zytor.com>
-References: <20130719020603.GA22932@kroah.com>
-	<20130719131819.GC11233@debian70-amd64.local.net-space.pl>
-	<20130719151243.GA15488@kroah.com>
-	<20130719183235.GA12267@debian70-amd64.local.net-space.pl>
-	<20130719191449.GA1882@kroah.com>
+From: VHPC 12 <vhpc.dist@gmail.com>
+Subject: CfP 8th Workshop on Virtualization in High-Performance Cloud
+	Computing (VHPC '13)
+Date: Sat, 20 Jul 2013 12:11:22 +0200
+Message-ID: <CAF05tLN=S0q_oRy-XSb5vpgPCokyAGZucbbboTHwzPTOMuo2uw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130719191449.GA1882@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,33 +16,180 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Daniel Kiper <daniel.kiper@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Biederman <ebiederm@xmission.com>, Brandon Philips <brandon@ifup.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/19/2013 12:14 PM, Greg KH wrote:
->>
->>> The errors that the kexec tools seem to run into is finding the memory
->>> to place the new kernel into, is that just an issue that PV guests
->>> aren't given enough kernel memory in which to replicate themselves from
->>> dom0?
->>
->> There are a lot of differences between baremetal machines and PV guests.
->> For example you are not able to do identity mapping per se in PV guests.
->> Arguments to new kernel are passed in completely different way. etc.
-> 
-> Ok, thanks for confirming that it is possible, but doesn't currently
-> work for pv guests.
-> 
+we apologize if you receive multiple copies of this CfP
 
-Also, in any virtualized environment the hypervisor can do a better job
-for things like kdump, simply because it can provide two things that are
-otherwise hard to do:
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-1. a known-good system state;
-2. a known-clean kdump image.
+CALL FOR PAPERS
 
-As such, I do encourage the virtualization people to (also) develop
-hypervisor-*aware* solutions for these kinds of things.
+8th Workshop on Virtualization in High-Performance Cloud Computing (VHPC '1=
+3)
 
-	-hpa
+as part of SC 13, Denver, Colorado | sponsored by ACM sighpc
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+Date: November 22, 2013
+
+Workshop URL: http://vhpc.org
+
+Paper Submission Deadline: September 23, 2013
+
+
+CALL FOR PAPERS
+
+Virtualization has become a common abstraction layer in modern data
+centers, enabling resource owners to manage complex infrastructures
+independently of their applications. Conjointly, virtualization is becoming
+a driving technology for a manifold of industry grade IT services. The
+cloud concept includes the notion of a separation between resource
+owners and users, adding services such as hosted application
+frameworks and queueing. Utilizing the same infrastructure, clouds
+carry significant potential for use in cpu-intensive or data-intensive
+computing. The ability of clouds to provide for requests and releases
+of vast computing resources dynamically and close to the marginal
+cost of providing the services is unprecedented in the history of
+scientific and commercial computing.
+
+This workshop aims to bring together industrial providers with the
+application community in order to foster discussion, collaboration
+and mutual exchange of knowledge and experience.
+
+The workshop will be one day in length, composed of 20 min paper
+presentations, each followed by 10 min discussion sections. Lightning
+talks are limited to 5 minutes. Presentations may be accompanied by
+interactive demonstrations.
+
+TOPICS
+
+Topics of interest include, but are not limited to:
+
+- Management, deployment and monitoring of VM-based environments
+- VM-cloud performance monitoring
+- VM cloud topology management and optimization
+- Operating systems virtualization supportpptimization
+- VM-based cloud performance modelling
+- Network virtualization for VM-environments
+- Data virtualization
+- Cloudbursting
+- Evolved grid architectures including such based on network virtualization
+- Workload characterization for VM-based environments
+- Optimized communication libraries/protocols in the cloud
+- System and process/bytecode VM convergence
+- Cloud frameworks and APIs
+- GPU Virtualization architectures and APIs
+- Checkpointing/migration of large compute jobs
+- Instrumentation interfaces and languages
+- VMM performance (auto-)tuning on various load types
+- Cloud reliability, fault-tolerance, and security
+- Heterogeneous virtualized environments
+- Paravirtualized I/O
+- Services in cloud HPC
+- Research and education use cases
+- Virtualization in cloud, cluster and grid environments
+- Cross-layer VM optimizations
+- Cloud HPC use cases including optimizations
+- Energy-aware virtualization
+- Performance and cost modelling
+- QoS and and service levels
+- Languages for describing highly-distributed compute jobs
+- VM cloud and cluster distribution algorithms, load balancing
+- Instrumentation interfaces and languages
+- Hypervisor extensions and tools for cluster and grid computing
+- Virtual machine monitor platforms
+- Cluster provisioning in the cloud
+
+
+Important Dates:
+
+Rolling Paper registration
+September 23, 2013 - Full paper submission
+October 21, 2013 - Acceptance notification
+November 8, 2013 - Camera-ready version due
+
+Lightning Talks:
+August 9, 2013 - Deadline for lightning talk abstracts
+September 2, 2013 - Lightning talk notification
+
+November 22, 2013 - Workshop Date
+
+
+TPC
+
+CHAIR
+
+Michael Alexander (chair), TU Wien, Austria
+Gianluigi Zanetti (co-chair), CRS4, Italy
+Anastassios Nanos (co-chair), NTUA, Greece
+
+PROGRAM COMMITTEE
+Costas Bekas, IBM, Switzerland
+Jakob Blomer, CERN
+Giovanni Busonera, CRS4, Italy
+Roberto Canonico, University of Napoli Federico II, Italy
+Simon Crosby, Bromium, USA
+Tommaso Cucinotta, Alcatel-Lucent Bell Labs, Ireland
+Casimer DeCusatis, IBM, USA
+William Gardner, University of Guelph, USA
+Marcus Hardt, Forschungszentrum Karlsruhe, Germany
+Sverre Jarp, CERN, Switzerland
+Xuxian Jiang, NC State, USA
+Krishna Kant, George Mason University, USA
+Romeo Kinzler, IBM, Switzerland
+Nectarios Koziris, National Technical University of Athens, Greece
+Simone Leo, CRS4, Italy
+Jean-Marc Menaud, Ecole des Mines de Nantes, France
+Dimitrios Nikolopoulos, Queen's University of Belfast, UK
+Josh Simons, VMWare, USA
+Borja Sotomayor, University of Chicago, USA
+Yoshio Turner, HP Labs, USA
+Kurt Tutschku, Blekinge Institute of Technology, Sweden
+Chao-Tung Yang, Tunghai University, Taiwan
+
+
+PAPER SUBMISSION-PUBLICATION
+
+Papers submitted to the workshop will be reviewed by at least two
+members of the program committee and external reviewers. Submissions
+should include abstract, key words, the e-mail address of the
+corresponding author, and must not exceed 8 pages, including tables
+and figures at a main font size no smaller than 11 point. Submission
+of a paper should be regarded as a commitment that, should the paper
+be accepted, at least one of the authors will register and attend the
+conference to present the work.
+
+Accepted papers will be published in the ACM International Conference
+Proceedings Series. The format must be according to the ACM SIG style.
+Initial submissions are in PDF; authors of accepted papers will be
+requested to provide source files.
+
+
+Format Guidelines:
+http://www.acm.org/sigs/publications/sigguide-v2.2sp
+
+Style template:
+http://www.acm.org/sigs/publications/proceedings-templates
+
+Abstract Submission Link:
+http://edas.info/newPaper.php?c=3D14791
+
+
+LIGHTNING TALKS
+
+Lightning Talks are non-paper track synoptical in nature that are strictly
+limited to 5 minutes. They can be used to gain early feedback on ongoing
+research, for demonstrations, to present research results, early research
+ideas, perspectives and positions of interest to the community.
+
+GENERAL INFORMATION
+
+The workshop will be held as part of SC=9213, Denver, Colorado.
+
+SC 2013: http://sc13.supercomputing.org/
