@@ -1,15 +1,19 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 08/10] virtio: console: add locks around buffer removal in
-	port unplug path
-Date: Mon, 22 Jul 2013 15:26:22 +0930
-Message-ID: <87d2qbb0jd.fsf@rustcorp.com.au>
+Subject: Re: [PATCH 06/10] virtio: console: fix race in port_fops_poll() and
+	port unplug
+Date: Mon, 22 Jul 2013 15:15:34 +0930
+Message-ID: <87fvv7b11d.fsf@rustcorp.com.au>
 References: <cover.1374177234.git.amit.shah@redhat.com>
-	<2b1b00dbdbc7575e8370c3b3ecad7b4b4c0f2833.1374177234.git.amit.shah@redhat.com>
+	<bb9fe1cb5a1aeff6ecfc68936254045024e25e56.1374177234.git.amit.shah@redhat.com>
+	<51E8E4D6.7030807@redhat.com>
+	<20130719072113.GL3087@amit-x200.redhat.com>
+	<51E9123C.5040708@redhat.com>
+	<20130719102941.GN3087@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <2b1b00dbdbc7575e8370c3b3ecad7b4b4c0f2833.1374177234.git.amit.shah@redhat.com>
+In-Reply-To: <20130719102941.GN3087@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,58 +23,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>
+To: Amit Shah <amit.shah@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Amit Shah <amit.shah@redhat.com> writes:
-> The removal functions act on the vqs, and the vq operations need to be
-> locked.
+> On (Fri) 19 Jul 2013 [18:17:32], Jason Wang wrote:
+>> On 07/19/2013 03:48 PM, Amit Shah wrote:
+>> > On (Fri) 19 Jul 2013 [15:03:50], Jason Wang wrote:
+>> >> On 07/19/2013 04:16 AM, Amit Shah wrote:
+>> >>> Between poll() being called and processed, the port can be unplugged.
+>> >>> Check if this happened, and bail out.
+>> >>>
+>> >>> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+>> >>> ---
+>> >>>  drivers/char/virtio_console.c | 4 ++++
+>> >>>  1 file changed, 4 insertions(+)
+>> >>>
+>> >>> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+>> >>> index 7728af9..1d4b748 100644
+>> >>> --- a/drivers/char/virtio_console.c
+>> >>> +++ b/drivers/char/virtio_console.c
+>> >>> @@ -967,6 +967,10 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
+>> >>>  	unsigned int ret;
+>> >>>  
+>> >>>  	port = filp->private_data;
+>> >>> +	if (!port->guest_connected) {
+>> >>> +		/* Port was unplugged before we could proceed */
+>> >>> +		return POLLHUP;
+>> >>> +	}
+>> >>>  	poll_wait(filp, &port->waitqueue, wait);
+>> >>>  
+>> >>>  	if (!port->guest_connected) {
+>> >> Looks still racy here. Unlike port_fops_read() which check
+>> >> will_read_block(). If unplug happens after the check but before the
+>> >> poll_wait(), caller will be blocked forever.
+>> > unplug_port() calls wake_up_interruptible on the waitqueue.
+>> 
+>> I mean the following cases:
 >
-> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> (formatting to fit properly:)
+>
+>> 
+>> CPU0:                                CPU1: unplug_port()
+>> 
+>> if (!port->guest_connected) {
+>>     return POLLHUP;
+>> }
+>>                                      wake_up_interruptiable()
+>> 
+>> poll_wait(filp, &port->waitqueue, wait);
+>
+> Agreed, this can happen.  I can't think of a way to resolve this.  One
+> way would be to remove the waitqueue (port->waitqueue = NULL in
+> unplug_port()), but I'm not sure of the effect on the other parts
+> yet.  I'll leave this one for later analysis.
 
-How can userspace access the port now?  By the time we are cleaning up
-buffers, there should be no possibility of such accesses.
+No, you are confused by the name, I think,
 
-The number of bugfixes here is deeply disturbing.  I wonder if it's be
-easier to rewrite it all with a lock per port, and one global to protect
-ports_driver_data.
+poll_wait() doesn't actually wait.  It's more like a poll_enqueue().
 
 Cheers,
 Rusty.
-
-> ---
->  drivers/char/virtio_console.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index ce71df1..dd0020d 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -1516,18 +1516,22 @@ static void remove_port_data(struct port *port)
->  {
->  	struct port_buffer *buf;
->  
-> +	spin_lock_irq(&port->inbuf_lock);
->  	/* Remove unused data this port might have received. */
->  	discard_port_data(port);
->  
-> -	reclaim_consumed_buffers(port);
-> -
->  	/* Remove buffers we queued up for the Host to send us data in. */
->  	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
->  		free_buf(buf, true);
-> +	spin_unlock_irq(&port->inbuf_lock);
-> +
-> +	spin_lock_irq(&port->outvq_lock);
-> +	reclaim_consumed_buffers(port);
->  
->  	/* Free pending buffers from the out-queue. */
->  	while ((buf = virtqueue_detach_unused_buf(port->out_vq)))
->  		free_buf(buf, true);
-> +	spin_unlock_irq(&port->outvq_lock);
->  }
->  
->  /*
-> -- 
-> 1.8.1.4
