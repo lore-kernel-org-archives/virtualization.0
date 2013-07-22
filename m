@@ -1,13 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2 00/11] virtio: console: fixes for port unplug
-Date: Mon, 22 Jul 2013 14:30:27 +0800
-Message-ID: <51ECD183.60309@redhat.com>
-References: <cover.1374232738.git.amit.shah@redhat.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH V3 0/2] [BUGFIX] virtio/console: Fix two bugs of
+	splice_write
+Date: Mon, 22 Jul 2013 12:03:41 +0530
+Message-ID: <20130722063341.GA1806__39027.9085645036$1374474851$gmane$org@amit-x200.redhat.com>
+References: <20130722040043.7531.78801.stgit@yunodevel>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1374232738.git.amit.shah@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20130722040043.7531.78801.stgit@yunodevel>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,51 +19,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>
+To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, yrl.pp-manager.tt@hitachi.com, Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/19/2013 07:21 PM, Amit Shah wrote:
-> Hello,
->
-> This series fixes a few bugs and races with port unplug and the
-> various file operations: read(), write(), close() and poll().
->
-> There still might be more races lurking, but testing this series looks
-> good to at least solve the easily-triggerable ones.  I've run the
-> virtio-serial testsuite and a few open/close/unplug tests, and haven't
-> seen any badness.
->
-> I've marked these patches for stable@ as well.  I went over the list
-> twice to check if really each one should go to stable, and to me it
-> looks like all are stable candidates.
->
-> v2
->  * add patch 11: Jason found a use-after-free in port unplug
->  * patch 7 introduced a regression where the wake_up_interruptible was
->    done before guest_connected and host_connected were set to false
->
-> Please review and apply,
+On (Mon) 22 Jul 2013 [13:00:43], Yoshihiro YUNOMAE wrote:
+> Hi,
+> 
+> This patch set fixes two bugs of splice_write in the virtio-console driver.
+> 
+> [BUG1] Although pipe->nrbufs is empty, the driver tries to do splice_write.
+>        => This induces oops in sg_init_table().
+> 
+> [BUG2] No lock for competition of splice_write.
+>        => This induces oops in splice_from_pipe_feed() by bug of any user
+>           application.
+> 
+> These reports are written in each patch.
+> 
+> Changes in V2:
+> - Fix a locking problem for error
+> 
+> Changes in V3:
+> - Add Reviewed-by lines and stable@ line in sign-off area
 
-For the series.
+Thank you!
 
-Reviewed-by: Jason Wang <jasowang@redhat.com>
+Rusty, please pick this up.
 
-Thanks
-> Amit Shah (11):
->   virtio: console: fix race with port unplug and open/close
->   virtio: console: fix race in port_fops_open() and port unplug
->   virtio: console: clean up port data immediately at time of unplug
->   virtio: console: return -ENODEV on all read operations after unplug
->   virtio: console: update private_data in struct file only on successful
->     open
->   virtio: console: fix race in port_fops_poll() and port unplug
->   virtio: console: fix raising SIGIO after port unplug
->   virtio: console: add locks around buffer removal in port unplug path
->   virtio: console: add locking in port unplug path
->   virtio: console: fix locking around send_sigio_to_port()
->   virtio: console: prevent use-after-free of port name in port unplug
->
->  drivers/char/virtio_console.c | 70 +++++++++++++++++++++++++++----------------
->  1 file changed, 45 insertions(+), 25 deletions(-)
->
+		Amit
