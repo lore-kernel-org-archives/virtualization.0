@@ -1,20 +1,14 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: is kexec on Xen domU possible?
-Date: Mon, 22 Jul 2013 11:36:10 -0700
-Message-ID: <51ED7B9A.1050004@zytor.com>
-References: <20130719020603.GA22932@kroah.com>
-	<20130719131819.GC11233@debian70-amd64.local.net-space.pl>
-	<20130719151243.GA15488@kroah.com>
-	<20130719183235.GA12267@debian70-amd64.local.net-space.pl>
-	<20130719191449.GA1882@kroah.com> <51E9A85D.2060206@zytor.com>
-	<20130722170307.GB14451@debian70-amd64.local.net-space.pl>
-	<87wqoise9d.fsf@xmission.com> <51ED78EE.9020903@zytor.com>
-	<20130722183315.GA29273@kroah.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH RFC V11 0/18] Paravirtualized ticket spinlocks
+Date: Mon, 22 Jul 2013 15:36:27 -0400
+Message-ID: <20130722193627.GP30300@phenom.dumpdata.com>
+References: <20130722061631.24737.75508.sendpatchset@codeblue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130722183315.GA29273@kroah.com>
+Content-Disposition: inline
+In-Reply-To: <20130722061631.24737.75508.sendpatchset@codeblue>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,19 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: xen-devel@lists.xensource.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Daniel Kiper <daniel.kiper@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Eric W. Biederman" <ebiederm@xmission.com>, Brandon Philips <brandon@ifup.org>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/22/2013 11:33 AM, Greg KH wrote:
 > 
-> I don't care about kdump, I care about kexec on domU for people who are
-> running on cloud providers with old versions of Xen so that they can
-> control what kernel they can boot, when they want to boot it.  If kdump
-> works as well, that's just a bonus, but it's down on the list of things
-> for me to be concerned about.
+> github link: https://github.com/ktraghavendra/linux/tree/pvspinlock_v11
+
+And chance you have a backup git tree? I get:
+
+This repository is temporarily unavailable.
+
 > 
+> Please note that we set SPIN_THRESHOLD = 32k with this series,
+> that would eatup little bit of overcommit performance of PLE machines
+> and overall performance of non-PLE machines.
+> 
+> The older series[3] was tested by Attilio for Xen implementation.
+> 
+> Note that Konrad needs to revert below two patches to enable xen on hvm 
+>   70dd4998, f10cd522c
 
-Another valid use case, to be sure.
-
-	-hpa
+We could add that to the series. But let me first test it out - and that
+gets back to the repo :-)
