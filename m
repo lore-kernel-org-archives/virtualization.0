@@ -1,15 +1,11 @@
 From: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Subject: Re: Re: [PATCH V2 0/2] [BUGFIX] virtio/console: Fix two bugs of
-	splice_write
-Date: Mon, 22 Jul 2013 10:05:26 +0900
-Message-ID: <51EC8556.9040101@hitachi.com>
-References: <20130719091951.9698.95194.stgit@yunodevel>
-	<20130719100543.GM3087@amit-x200.redhat.com>
+Subject: [PATCH V3 0/2] [BUGFIX] virtio/console: Fix two bugs of splice_write
+Date: Mon, 22 Jul 2013 13:00:43 +0900
+Message-ID: <20130722040043.7531.78801.stgit__17435.1942529485$1374465426$gmane$org@yunodevel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130719100543.GM3087@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,51 +15,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, yrl.pp-manager.tt@hitachi.com, Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+To: Amit Shah <amit.shah@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, yrl.pp-manager.tt@hitachi.com, Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Amit,
+Hi,
 
-Sorry for the late reply.
+This patch set fixes two bugs of splice_write in the virtio-console driver.
 
-(2013/07/19 19:05), Amit Shah wrote:
-> On (Fri) 19 Jul 2013 [18:19:51], Yoshihiro YUNOMAE wrote:
->> Hi,
->>
->> This patch set fixes two bugs of splice_write in the virtio-console driver.
->>
->> [BUG1] Although pipe->nrbufs is empty, the driver tries to do splice_write.
->>         => This induces oops in sg_init_table().
->>
->> [BUG2] No lock for competition of splice_write.
->>         => This induces oops in splice_from_pipe_feed() by bug of any user
->>            application.
->>
->> These reports are written in each patch.
->>
->> Changes in V2:
->> - Fix a locking problem for error
->>
->> Thanks!
->
-> Reviewed-by: Amit Shah <amit.shah@redhat.com>
+[BUG1] Although pipe->nrbufs is empty, the driver tries to do splice_write.
+       => This induces oops in sg_init_table().
 
-Thank you for reviewing this patch set.
+[BUG2] No lock for competition of splice_write.
+       => This induces oops in splice_from_pipe_feed() by bug of any user
+          application.
 
-> For the patches to be picked up in the stable trees, you need to
-> include CC: <stable@vger.kernel.org> in the sign-off area of the
-> patches, just cc'ing in the patch posting doesn't help.  See
-> Documentation/stable_kernel_rules.txt.
->
-> Can you submit a v3 with that change, and also add my reviewed-by
-> line?
+These reports are written in each patch.
 
-Sure. I'll add stable@ line, your reviewed-by line, and Masami's
-reviewed-by line in sign-off area for each patch.
+Changes in V2:
+- Fix a locking problem for error
 
-Thanks,
-Yoshihiro YUNOMAE
+Changes in V3:
+- Add Reviewed-by lines and stable@ line in sign-off area
+
+Thanks!
+
+---
+
+Yoshihiro YUNOMAE (2):
+      [BUGFIX] virtio/console: Quit from splice_write if pipe->nrbufs is 0
+      [BUGFIX] virtio/console: Add pipe_lock/unlock for splice_write
+
+
+ drivers/char/virtio_console.c |   23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
 
 -- 
 Yoshihiro YUNOMAE
