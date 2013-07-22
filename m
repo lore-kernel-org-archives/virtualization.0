@@ -1,15 +1,14 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH V3 0/2] [BUGFIX] virtio/console: Fix two bugs of
-	splice_write
-Date: Mon, 22 Jul 2013 12:03:41 +0530
-Message-ID: <20130722063341.GA1806__39027.9085645036$1374474851$gmane$org@amit-x200.redhat.com>
-References: <20130722040043.7531.78801.stgit@yunodevel>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PULL] vhost: cleanups and fixes
+Date: Mon, 22 Jul 2013 11:07:41 +0300
+Message-ID: <20130722080741.GA25087@redhat.com>
+References: <20130715183149.GA8215@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20130722040043.7531.78801.stgit@yunodevel>
+In-Reply-To: <20130715183149.GA8215@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,32 +18,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Yoshihiro YUNOMAE <yoshihiro.yunomae.ez@hitachi.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, yrl.pp-manager.tt@hitachi.com, Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Mon) 22 Jul 2013 [13:00:43], Yoshihiro YUNOMAE wrote:
-> Hi,
+On Mon, Jul 15, 2013 at 09:31:49PM +0300, Michael S. Tsirkin wrote:
+> The following changes since commit 09a34c8404c1d4c5782de319c02e1d742c57875c:
 > 
-> This patch set fixes two bugs of splice_write in the virtio-console driver.
+>   vhost/test: update test after vhost cleanups (2013-07-07 18:02:25 +0300)
 > 
-> [BUG1] Although pipe->nrbufs is empty, the driver tries to do splice_write.
->        => This induces oops in sg_init_table().
+> are available in the git repository at:
 > 
-> [BUG2] No lock for competition of splice_write.
->        => This induces oops in splice_from_pipe_feed() by bug of any user
->           application.
+>   git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 > 
-> These reports are written in each patch.
+> for you to fetch changes up to 22fa90c7fb479694d6affebc049d21f06b714be6:
 > 
-> Changes in V2:
-> - Fix a locking problem for error
+>   vhost: Remove custom vhost rcu usage (2013-07-11 15:38:40 +0300)
 > 
-> Changes in V3:
-> - Add Reviewed-by lines and stable@ line in sign-off area
+> ----------------------------------------------------------------
+> vhost: more fixes for 3.11
+> 
+> This includes some fixes for vhost net and scsi drivers.
+> The test module has already been reworked to avoid rcu
+> usage, but the necessary core changes are missing,
+> we fixed this.
+> Unlikely to affect any real-world users, but it's
+> early in the cycle so, let's merge them.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> ----------------------------------------------------------------
+> Asias He (3):
+>       vhost-net: Always access vq->private_data under vq mutex
+>       vhost-scsi: Always access vq->private_data under vq mutex
+>       vhost: Remove custom vhost rcu usage
 
-Thank you!
 
-Rusty, please pick this up.
+Hi Linus,
+Just checking that all's well with this PULL request.
+If it's not merged, we'll have to revert the relevant change
+in the test module.
+Either way, need to keep them in sync.
 
-		Amit
+Pls let me know,
+Thanks
+
+>  drivers/vhost/net.c   | 37 ++++++++++++++++---------------------
+>  drivers/vhost/scsi.c  | 17 ++++++-----------
+>  drivers/vhost/test.c  |  6 ++----
+>  drivers/vhost/vhost.h | 10 ++--------
+>  4 files changed, 26 insertions(+), 44 deletions(-)
