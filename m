@@ -1,14 +1,13 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH RFC V11 17/18] Documentation/kvm : Add documentation on
-	Hypercalls and features used for PV spinlock
-Date: Mon, 22 Jul 2013 11:50:38 +0530
-Message-ID: <20130722062038.24737.35006.sendpatchset@codeblue>
-References: <20130722061631.24737.75508.sendpatchset@codeblue>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v2 00/11] virtio: console: fixes for port unplug
+Date: Mon, 22 Jul 2013 14:30:27 +0800
+Message-ID: <51ECD183.60309@redhat.com>
+References: <cover.1374232738.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130722061631.24737.75508.sendpatchset@codeblue>
+In-Reply-To: <cover.1374232738.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,63 +17,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: gleb@redhat.com, mingo@redhat.com, jeremy@goop.org, x86@kernel.org, konrad.wilk@oracle.com, hpa@zytor.com, pbonzini@redhat.com
-Cc: gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Documentation/kvm : Add documentation on Hypercalls and features used for PV spinlock
+On 07/19/2013 07:21 PM, Amit Shah wrote:
+> Hello,
+>
+> This series fixes a few bugs and races with port unplug and the
+> various file operations: read(), write(), close() and poll().
+>
+> There still might be more races lurking, but testing this series looks
+> good to at least solve the easily-triggerable ones.  I've run the
+> virtio-serial testsuite and a few open/close/unplug tests, and haven't
+> seen any badness.
+>
+> I've marked these patches for stable@ as well.  I went over the list
+> twice to check if really each one should go to stable, and to me it
+> looks like all are stable candidates.
+>
+> v2
+>  * add patch 11: Jason found a use-after-free in port unplug
+>  * patch 7 introduced a regression where the wake_up_interruptible was
+>    done before guest_connected and host_connected were set to false
+>
+> Please review and apply,
 
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+For the series.
 
-KVM_HC_KICK_CPU  hypercall added to wakeup halted vcpu in paravirtual spinlock
-enabled guest.
+Reviewed-by: Jason Wang <jasowang@redhat.com>
 
-KVM_FEATURE_PV_UNHALT enables guest to check whether pv spinlock can be enabled
-in guest.
-
-Thanks Vatsa for rewriting KVM_HC_KICK_CPU
-
-Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
----
- Documentation/virtual/kvm/cpuid.txt      |    4 ++++
- Documentation/virtual/kvm/hypercalls.txt |   14 ++++++++++++++
- 2 files changed, 18 insertions(+)
-
-diff --git a/Documentation/virtual/kvm/cpuid.txt b/Documentation/virtual/kvm/cpuid.txt
-index 83afe65..654f43c 100644
---- a/Documentation/virtual/kvm/cpuid.txt
-+++ b/Documentation/virtual/kvm/cpuid.txt
-@@ -43,6 +43,10 @@ KVM_FEATURE_CLOCKSOURCE2           ||     3 || kvmclock available at msrs
- KVM_FEATURE_ASYNC_PF               ||     4 || async pf can be enabled by
-                                    ||       || writing to msr 0x4b564d02
- ------------------------------------------------------------------------------
-+KVM_FEATURE_PV_UNHALT              ||     6 || guest checks this feature bit
-+                                   ||       || before enabling paravirtualized
-+                                   ||       || spinlock support.
-+------------------------------------------------------------------------------
- KVM_FEATURE_CLOCKSOURCE_STABLE_BIT ||    24 || host will warn if no guest-side
-                                    ||       || per-cpu warps are expected in
-                                    ||       || kvmclock.
-diff --git a/Documentation/virtual/kvm/hypercalls.txt b/Documentation/virtual/kvm/hypercalls.txt
-index ea113b5..022198e 100644
---- a/Documentation/virtual/kvm/hypercalls.txt
-+++ b/Documentation/virtual/kvm/hypercalls.txt
-@@ -64,3 +64,17 @@ Purpose: To enable communication between the hypervisor and guest there is a
- shared page that contains parts of supervisor visible register state.
- The guest can map this shared page to access its supervisor register through
- memory using this hypercall.
-+
-+5. KVM_HC_KICK_CPU
-+------------------------
-+Architecture: x86
-+Status: active
-+Purpose: Hypercall used to wakeup a vcpu from HLT state
-+Usage example : A vcpu of a paravirtualized guest that is busywaiting in guest
-+kernel mode for an event to occur (ex: a spinlock to become available) can
-+execute HLT instruction once it has busy-waited for more than a threshold
-+time-interval. Execution of HLT instruction would cause the hypervisor to put
-+the vcpu to sleep until occurence of an appropriate event. Another vcpu of the
-+same guest can wakeup the sleeping vcpu by issuing KVM_HC_KICK_CPU hypercall,
-+specifying APIC ID (a1) of the vcpu to be woken up. An additional argument (a0)
-+is used in the hypercall for future use.
+Thanks
+> Amit Shah (11):
+>   virtio: console: fix race with port unplug and open/close
+>   virtio: console: fix race in port_fops_open() and port unplug
+>   virtio: console: clean up port data immediately at time of unplug
+>   virtio: console: return -ENODEV on all read operations after unplug
+>   virtio: console: update private_data in struct file only on successful
+>     open
+>   virtio: console: fix race in port_fops_poll() and port unplug
+>   virtio: console: fix raising SIGIO after port unplug
+>   virtio: console: add locks around buffer removal in port unplug path
+>   virtio: console: add locking in port unplug path
+>   virtio: console: fix locking around send_sigio_to_port()
+>   virtio: console: prevent use-after-free of port name in port unplug
+>
+>  drivers/char/virtio_console.c | 70 +++++++++++++++++++++++++++----------------
+>  1 file changed, 45 insertions(+), 25 deletions(-)
+>
