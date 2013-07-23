@@ -1,21 +1,17 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 06/10] virtio: console: fix race in port_fops_poll() and
-	port unplug
-Date: Tue, 23 Jul 2013 13:38:14 +0530
-Message-ID: <20130723080814.GA25551@amit-x200.redhat.com>
+Subject: Re: [PATCH 05/10] virtio: console: update private_data in struct
+	file only on successful open
+Date: Tue, 23 Jul 2013 13:48:19 +0530
+Message-ID: <20130723081819.GB25551@amit-x200.redhat.com>
 References: <cover.1374177234.git.amit.shah@redhat.com>
-	<bb9fe1cb5a1aeff6ecfc68936254045024e25e56.1374177234.git.amit.shah@redhat.com>
-	<51E8E4D6.7030807@redhat.com>
-	<20130719072113.GL3087@amit-x200.redhat.com>
-	<51E9123C.5040708@redhat.com>
-	<20130719102941.GN3087@amit-x200.redhat.com>
-	<87fvv7b11d.fsf@rustcorp.com.au>
+	<a012f8e8c562c84c2302e57e5360291ef7d4ff21.1374177234.git.amit.shah@redhat.com>
+	<87ip03b1e7.fsf@rustcorp.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87fvv7b11d.fsf@rustcorp.com.au>
+In-Reply-To: <87ip03b1e7.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,68 +22,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>
+Cc: stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Mon) 22 Jul 2013 [15:15:34], Rusty Russell wrote:
+On (Mon) 22 Jul 2013 [15:07:52], Rusty Russell wrote:
 > Amit Shah <amit.shah@redhat.com> writes:
-> > On (Fri) 19 Jul 2013 [18:17:32], Jason Wang wrote:
-> >> On 07/19/2013 03:48 PM, Amit Shah wrote:
-> >> > On (Fri) 19 Jul 2013 [15:03:50], Jason Wang wrote:
-> >> >> On 07/19/2013 04:16 AM, Amit Shah wrote:
-> >> >>> Between poll() being called and processed, the port can be unplugged.
-> >> >>> Check if this happened, and bail out.
-> >> >>>
-> >> >>> Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> >> >>> ---
-> >> >>>  drivers/char/virtio_console.c | 4 ++++
-> >> >>>  1 file changed, 4 insertions(+)
-> >> >>>
-> >> >>> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> >> >>> index 7728af9..1d4b748 100644
-> >> >>> --- a/drivers/char/virtio_console.c
-> >> >>> +++ b/drivers/char/virtio_console.c
-> >> >>> @@ -967,6 +967,10 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
-> >> >>>  	unsigned int ret;
-> >> >>>  
-> >> >>>  	port = filp->private_data;
-> >> >>> +	if (!port->guest_connected) {
-> >> >>> +		/* Port was unplugged before we could proceed */
-> >> >>> +		return POLLHUP;
-> >> >>> +	}
-> >> >>>  	poll_wait(filp, &port->waitqueue, wait);
-> >> >>>  
-> >> >>>  	if (!port->guest_connected) {
-> >> >> Looks still racy here. Unlike port_fops_read() which check
-> >> >> will_read_block(). If unplug happens after the check but before the
-> >> >> poll_wait(), caller will be blocked forever.
-> >> > unplug_port() calls wake_up_interruptible on the waitqueue.
-> >> 
-> >> I mean the following cases:
+> > Mateusz Guzik points out that we update the 'file' struct's private_data
+> > field before we've successfully done all our checks.  This means we can
+> > return an error with the private_data field updated.  This could lead to
+> > problems.
 > >
-> > (formatting to fit properly:)
-> >
-> >> 
-> >> CPU0:                                CPU1: unplug_port()
-> >> 
-> >> if (!port->guest_connected) {
-> >>     return POLLHUP;
-> >> }
-> >>                                      wake_up_interruptiable()
-> >> 
-> >> poll_wait(filp, &port->waitqueue, wait);
-> >
-> > Agreed, this can happen.  I can't think of a way to resolve this.  One
-> > way would be to remove the waitqueue (port->waitqueue = NULL in
-> > unplug_port()), but I'm not sure of the effect on the other parts
-> > yet.  I'll leave this one for later analysis.
+> > Fix by moving the assignment after all checks are done.
 > 
-> No, you are confused by the name, I think,
+> No, this is a bit weird, but it's fine.
 > 
-> poll_wait() doesn't actually wait.  It's more like a poll_enqueue().
+> If we fail open, filp will be destroyed; we won't be told about it, and
+> private_data will never be accessed.
 
-Ah!  Thanks, yes.
-
-I'll drop this patch.
+Thanks!  Will drop this.
 
 		Amit
