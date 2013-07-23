@@ -1,14 +1,11 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 2/4] xen: switch to use hypervisor_cpuid_base()
-Date: Tue, 23 Jul 2013 13:16:17 +0200
-Message-ID: <51EE6601.80802@redhat.com>
-References: <1374572465-15278-1-git-send-email-jasowang@redhat.com>
-	<1374572465-15278-2-git-send-email-jasowang@redhat.com>
+From: Anthony Liguori <aliguori@us.ibm.com>
+Subject: KVM Forum 2013 Call for Participation - Extended to August 4th
+Date: Tue, 23 Jul 2013 09:52:41 -0500
+Message-ID: <8761w1z5ty.fsf@codemonkey.ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1374572465-15278-2-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,54 +15,149 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, hpa@zytor.com, tglx@linutronix.de
+To: kvm@vger.kernel.org, libvir-list@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+Cc: KVM-Forum-2013-PC@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 23/07/2013 11:41, Jason Wang ha scritto:
-> Switch to use hypervisor_cpuid_base() to detect Xen.
-> 
-> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: x86@kernel.org
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: xen-devel@lists.xensource.com
-> Cc: virtualization@lists.linux-foundation.org
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  arch/x86/include/asm/xen/hypervisor.h |   16 +---------------
->  1 files changed, 1 insertions(+), 15 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/xen/hypervisor.h b/arch/x86/include/asm/xen/hypervisor.h
-> index 125f344..d866959 100644
-> --- a/arch/x86/include/asm/xen/hypervisor.h
-> +++ b/arch/x86/include/asm/xen/hypervisor.h
-> @@ -40,21 +40,7 @@ extern struct start_info *xen_start_info;
->  
->  static inline uint32_t xen_cpuid_base(void)
->  {
-> -	uint32_t base, eax, ebx, ecx, edx;
-> -	char signature[13];
-> -
-> -	for (base = 0x40000000; base < 0x40010000; base += 0x100) {
-> -		cpuid(base, &eax, &ebx, &ecx, &edx);
-> -		*(uint32_t *)(signature + 0) = ebx;
-> -		*(uint32_t *)(signature + 4) = ecx;
-> -		*(uint32_t *)(signature + 8) = edx;
-> -		signature[12] = 0;
-> -
-> -		if (!strcmp("XenVMMXenVMM", signature) && ((eax - base) >= 2))
-> -			return base;
-> -	}
-> -
-> -	return 0;
-> +	return hypervisor_cpuid_base("XenVMMXenVMM", 2);
->  }
->  
->  #ifdef CONFIG_XEN
-> 
 
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+We have received numerous requests to extend the CFP deadline and so
+we are happy to announce that the CFP deadline has been moved by two
+weeks to August 4th.
+
+=================================================================
+KVM Forum 2013: Call For Participation
+October 21-23, 2013 - Edinburgh International Conference Centre - Edinburgh, UK
+
+(All submissions must be received before midnight July 21, 2013)
+=================================================================
+
+KVM is an industry leading open source hypervisor that provides an ideal
+platform for datacenter virtualization, virtual desktop infrastructure,
+and cloud computing.  Once again, it's time to bring together the
+community of developers and users that define the KVM ecosystem for
+our annual technical conference.  We will discuss the current state of
+affairs and plan for the future of KVM, its surrounding infrastructure,
+and management tools.  The oVirt Workshop will run in parallel with the
+KVM Forum again, bringing in a community focused on enterprise datacenter
+virtualization management built on KVM.  For topics which overlap we will
+have shared sessions.  So mark your calendar and join us in advancing KVM.
+
+http://events.linuxfoundation.org/events/kvm-forum/
+
+Once again we are colocated with The Linux Foundation's LinuxCon Europe.
+KVM Forum attendees will be able to attend oVirt Workshop sessions and
+are eligible to attend LinuxCon Europe for a discounted rate.
+
+http://events.linuxfoundation.org/events/kvm-forum/register
+
+We invite you to lead part of the discussion by submitting a speaking
+proposal for KVM Forum 2013.
+
+http://events.linuxfoundation.org/cfp
+
+Suggested topics:
+
+ KVM/Kernel
+ - Scaling and performance
+ - Nested virtualization
+ - I/O improvements
+ - VFIO, device assignment, SR-IOV
+ - Driver domains
+ - Time keeping
+ - Resource management (cpu, memory, i/o)
+ - Memory management (page sharing, swapping, huge pages, etc)
+ - Network virtualization
+ - Security
+ - Architecture ports
+
+ QEMU
+ - Device model improvements
+ - New devices and chipsets
+ - Scaling and performance
+ - Desktop virtualization
+ - Spice
+ - Increasing robustness and hardening
+ - Security model
+ - Management interfaces
+ - QMP protocol and implementation
+ - Image formats
+ - Firmware (SeaBIOS, OVMF, UEFI, etc)
+ - Live migration
+ - Live snapshots and merging
+ - Fault tolerance, high availability, continuous backup
+ - Real-time guest support
+
+ Virtio
+ - Speeding up existing devices
+ - Alternatives
+ - Virtio on non-Linux or non-virtualized
+
+ Management infrastructure
+ - oVirt (shared track w/ oVirt Workshop)
+ - Libvirt
+ - KVM autotest
+ - OpenStack
+ - Network virtualization management
+ - Enterprise storage management
+
+ Cloud computing
+ - Scalable storage
+ - Virtual networking
+ - Security
+ - Provisioning
+
+SUBMISSION REQUIREMENTS
+
+Abstracts due: July 21, 2013
+Notification: August 1, 2013
+
+Please submit a short abstract (~150 words) describing your presentation
+proposal.  In your submission please note how long your talk will take.
+Slots vary in length up to 45 minutes.  Also include in your proposal
+the proposal type -- one of:
+
+- technical talk
+- end-user talk
+- birds of a feather (BOF) session
+
+Submit your proposal here:
+
+http://events.linuxfoundation.org/cfp
+
+You will receive a notification whether or not your presentation proposal
+was accepted by Aug 1st.
+
+END-USER COLLABORATION
+
+One of the big challenges as developers is to know what, where and how
+people actually use our software.  We will reserve a few slots for end
+users talking about their deployment challenges and achievements.
+
+If you are using KVM in production you are encouraged submit a speaking
+proposal.  Simply mark it as an end-user collaboration proposal.  As an
+end user, this is a unique opportunity to get your input to developers.
+
+BOF SESSION
+
+We will reserve some slots in the evening after the main conference
+tracks, for birds of a feather (BOF) sessions. These sessions will be
+less formal than presentation tracks and targetted for people who would
+like to discuss specific issues with other developers and/or users.
+If you are interested in getting developers and/or uses together to
+discuss a specific problem, please submit a BOF proposal.
+
+HOTEL / TRAVEL
+
+The KVM Forum 2013 will be held in Edinburgh, UK at the Edinburgh
+International Conference Centre.
+
+http://events.linuxfoundation.org/events/kvm-forum/hotel
+
+Thank you for your interest in KVM.  We're looking forward to your
+submissions and seeing you at the KVM Forum 2013 in October!
+
+Thanks,
+-your KVM Forum 2013 Program Committee
+
+Please contact us with any questions or comments.
+KVM-Forum-2013-PC@redhat.com
