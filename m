@@ -1,15 +1,20 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [patch v2] virtio: console: cleanup an error message
-Date: Mon, 22 Jul 2013 21:35:10 -0700
-Message-ID: <20130723043510.GA26883@kroah.com>
-References: <201307191228.41794.arnd@arndb.de>
-	<20130722204100.GB22020@elgon.mountain>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 06/10] virtio: console: fix race in port_fops_poll() and
+	port unplug
+Date: Tue, 23 Jul 2013 14:56:05 +0930
+Message-ID: <87fvv5alua.fsf@rustcorp.com.au>
+References: <cover.1374177234.git.amit.shah@redhat.com>
+	<bb9fe1cb5a1aeff6ecfc68936254045024e25e56.1374177234.git.amit.shah@redhat.com>
+	<51E8E4D6.7030807@redhat.com>
+	<20130719072113.GL3087@amit-x200.redhat.com>
+	<51E9123C.5040708@redhat.com>
+	<20130719102941.GN3087@amit-x200.redhat.com>
+	<87fvv7b11d.fsf@rustcorp.com.au> <51EDF1EE.4010801@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130722204100.GB22020@elgon.mountain>
+In-Reply-To: <51EDF1EE.4010801@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +24,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Amit Shah <amit.shah@redhat.com>, kernel-janitors@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: Amit Shah <amit.shah@redhat.com>, Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 22, 2013 at 11:41:00PM +0300, Dan Carpenter wrote:
-> The PTR_ERR(NULL) here is not useful.
-> 
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> ---
-> v2: completely different
-> 
-> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index 1b456fe..4cf46d8 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
+Jason Wang <jasowang@redhat.com> writes:
+> On 07/22/2013 01:45 PM, Rusty Russell wrote:
+>> Amit Shah <amit.shah@redhat.com> writes:
+>>> On (Fri) 19 Jul 2013 [18:17:32], Jason Wang wrote:
+>>>> On 07/19/2013 03:48 PM, Amit Shah wrote:
+>>>>> On (Fri) 19 Jul 2013 [15:03:50], Jason Wang wrote:
+>>>>>> On 07/19/2013 04:16 AM, Amit Shah wrote:
+>>>>>>> Between poll() being called and processed, the port can be unplugged.
+>>>>>>> Check if this happened, and bail out.
+>>>>>>>
+>>>>>>> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+>>>>>>> ---
+>>>>>>>  drivers/char/virtio_console.c | 4 ++++
+>>>>>>>  1 file changed, 4 insertions(+)
+>>>>>>>
+>>>>>>> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+>>>>>>> index 7728af9..1d4b748 100644
+>>>>>>> --- a/drivers/char/virtio_console.c
+>>>>>>> +++ b/drivers/char/virtio_console.c
+>>>>>>> @@ -967,6 +967,10 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
+>>>>>>>  	unsigned int ret;
+>>>>>>>  
+>>>>>>>  	port = filp->private_data;
+>>>>>>> +	if (!port->guest_connected) {
+>>>>>>> +		/* Port was unplugged before we could proceed */
+>>>>>>> +		return POLLHUP;
+>>>>>>> +	}
+>>>>>>>  	poll_wait(filp, &port->waitqueue, wait);
+>>>>>>>  
+>>>>>>>  	if (!port->guest_connected) {
+>>>>>> Looks still racy here. Unlike port_fops_read() which check
+>>>>>> will_read_block(). If unplug happens after the check but before the
+>>>>>> poll_wait(), caller will be blocked forever.
+>>>>> unplug_port() calls wake_up_interruptible on the waitqueue.
+>>>> I mean the following cases:
+>>> (formatting to fit properly:)
+>>>
+>>>> CPU0:                                CPU1: unplug_port()
+>>>>
+>>>> if (!port->guest_connected) {
+>>>>     return POLLHUP;
+>>>> }
+>>>>                                      wake_up_interruptiable()
+>>>>
+>>>> poll_wait(filp, &port->waitqueue, wait);
+>>> Agreed, this can happen.  I can't think of a way to resolve this.  One
+>>> way would be to remove the waitqueue (port->waitqueue = NULL in
+>>> unplug_port()), but I'm not sure of the effect on the other parts
+>>> yet.  I'll leave this one for later analysis.
+>> No, you are confused by the name, I think,
+>>
+>> poll_wait() doesn't actually wait.  It's more like a poll_enqueue().
+>
+> Yes, but the caller will wait then and since the wakeup was called
+> before adding into waitqueue. It may block forever?
 
-Rusty handles virtio stuff, please cc: him on these.
+No, we enqueue then check:
 
-thanks,
+	port = filp->private_data;
+	poll_wait(filp, &port->waitqueue, wait);
 
-greg k-h
+	if (!port->guest_connected) {
+		/* Port got unplugged */
+		return POLLHUP;
+	}
+	ret = 0;
+	if (!will_read_block(port))
+		ret |= POLLIN | POLLRDNORM;
+	if (!will_write_block(port))
+		ret |= POLLOUT;
+	if (!port->host_connected)
+		ret |= POLLHUP;
+
+	return ret;
+
+Which is the correct way to do this.
+
+Cheers,
+Rusty.
