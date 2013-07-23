@@ -1,11 +1,16 @@
-From: Anthony Liguori <aliguori@us.ibm.com>
-Subject: KVM Forum 2013 Call for Participation - Extended to August 4th
-Date: Tue, 23 Jul 2013 09:52:41 -0500
-Message-ID: <8761w1z5ty.fsf@codemonkey.ws>
+From: Gleb Natapov <gleb@redhat.com>
+Subject: Re: [PATCH RFC V11 15/18] kvm : Paravirtual ticketlocks support for
+	linux guests running on KVM hypervisor
+Date: Tue, 23 Jul 2013 18:07:48 +0300
+Message-ID: <20130723150748.GC6029@redhat.com>
+References: <20130722061631.24737.75508.sendpatchset@codeblue>
+	<20130722062016.24737.54554.sendpatchset@codeblue>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20130722062016.24737.54554.sendpatchset@codeblue>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,149 +20,127 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: kvm@vger.kernel.org, libvir-list@redhat.com, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
-Cc: KVM-Forum-2013-PC@redhat.com
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Mon, Jul 22, 2013 at 11:50:16AM +0530, Raghavendra K T wrote:
+> +static void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+> +{
+> +	struct kvm_lock_waiting *w;
+> +	int cpu;
+> +	u64 start;
+> +	unsigned long flags;
+> +
+Why don't you bailout if in nmi here like we discussed?
 
-We have received numerous requests to extend the CFP deadline and so
-we are happy to announce that the CFP deadline has been moved by two
-weeks to August 4th.
+> +	w = &__get_cpu_var(lock_waiting);
+> +	cpu = smp_processor_id();
+> +	start = spin_time_start();
+> +
+> +	/*
+> +	 * Make sure an interrupt handler can't upset things in a
+> +	 * partially setup state.
+> +	 */
+> +	local_irq_save(flags);
+> +
+> +	/*
+> +	 * The ordering protocol on this is that the "lock" pointer
+> +	 * may only be set non-NULL if the "want" ticket is correct.
+> +	 * If we're updating "want", we must first clear "lock".
+> +	 */
+> +	w->lock = NULL;
+> +	smp_wmb();
+> +	w->want = want;
+> +	smp_wmb();
+> +	w->lock = lock;
+> +
+> +	add_stats(TAKEN_SLOW, 1);
+> +
+> +	/*
+> +	 * This uses set_bit, which is atomic but we should not rely on its
+> +	 * reordering gurantees. So barrier is needed after this call.
+> +	 */
+> +	cpumask_set_cpu(cpu, &waiting_cpus);
+> +
+> +	barrier();
+> +
+> +	/*
+> +	 * Mark entry to slowpath before doing the pickup test to make
+> +	 * sure we don't deadlock with an unlocker.
+> +	 */
+> +	__ticket_enter_slowpath(lock);
+> +
+> +	/*
+> +	 * check again make sure it didn't become free while
+> +	 * we weren't looking.
+> +	 */
+> +	if (ACCESS_ONCE(lock->tickets.head) == want) {
+> +		add_stats(TAKEN_SLOW_PICKUP, 1);
+> +		goto out;
+> +	}
+> +
+> +	/*
+> +	 * halt until it's our turn and kicked. Note that we do safe halt
+> +	 * for irq enabled case to avoid hang when lock info is overwritten
+> +	 * in irq spinlock slowpath and no spurious interrupt occur to save us.
+> +	 */
+> +	if (arch_irqs_disabled_flags(flags))
+> +		halt();
+> +	else
+> +		safe_halt();
+> +
+> +out:
+So here now interrupts can be either disabled or enabled. Previous
+version disabled interrupts here, so are we sure it is safe to have them
+enabled at this point? I do not see any problem yet, will keep thinking.
 
-=================================================================
-KVM Forum 2013: Call For Participation
-October 21-23, 2013 - Edinburgh International Conference Centre - Edinburgh, UK
+> +	cpumask_clear_cpu(cpu, &waiting_cpus);
+> +	w->lock = NULL;
+> +	local_irq_restore(flags);
+> +	spin_time_accum_blocked(start);
+> +}
+> +PV_CALLEE_SAVE_REGS_THUNK(kvm_lock_spinning);
+> +
+> +/* Kick vcpu waiting on @lock->head to reach value @ticket */
+> +static void kvm_unlock_kick(struct arch_spinlock *lock, __ticket_t ticket)
+> +{
+> +	int cpu;
+> +
+> +	add_stats(RELEASED_SLOW, 1);
+> +	for_each_cpu(cpu, &waiting_cpus) {
+> +		const struct kvm_lock_waiting *w = &per_cpu(lock_waiting, cpu);
+> +		if (ACCESS_ONCE(w->lock) == lock &&
+> +		    ACCESS_ONCE(w->want) == ticket) {
+> +			add_stats(RELEASED_SLOW_KICKED, 1);
+> +			kvm_kick_cpu(cpu);
+What about using NMI to wake sleepers? I think it was discussed, but
+forgot why it was dismissed.
 
-(All submissions must be received before midnight July 21, 2013)
-=================================================================
+> +			break;
+> +		}
+> +	}
+> +}
+> +
+> +/*
+> + * Setup pv_lock_ops to exploit KVM_FEATURE_PV_UNHALT if present.
+> + */
+> +void __init kvm_spinlock_init(void)
+> +{
+> +	if (!kvm_para_available())
+> +		return;
+> +	/* Does host kernel support KVM_FEATURE_PV_UNHALT? */
+> +	if (!kvm_para_has_feature(KVM_FEATURE_PV_UNHALT))
+> +		return;
+> +
+> +	printk(KERN_INFO "KVM setup paravirtual spinlock\n");
+> +
+> +	static_key_slow_inc(&paravirt_ticketlocks_enabled);
+> +
+> +	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(kvm_lock_spinning);
+> +	pv_lock_ops.unlock_kick = kvm_unlock_kick;
+> +}
+> +#endif	/* CONFIG_PARAVIRT_SPINLOCKS */
 
-KVM is an industry leading open source hypervisor that provides an ideal
-platform for datacenter virtualization, virtual desktop infrastructure,
-and cloud computing.  Once again, it's time to bring together the
-community of developers and users that define the KVM ecosystem for
-our annual technical conference.  We will discuss the current state of
-affairs and plan for the future of KVM, its surrounding infrastructure,
-and management tools.  The oVirt Workshop will run in parallel with the
-KVM Forum again, bringing in a community focused on enterprise datacenter
-virtualization management built on KVM.  For topics which overlap we will
-have shared sessions.  So mark your calendar and join us in advancing KVM.
-
-http://events.linuxfoundation.org/events/kvm-forum/
-
-Once again we are colocated with The Linux Foundation's LinuxCon Europe.
-KVM Forum attendees will be able to attend oVirt Workshop sessions and
-are eligible to attend LinuxCon Europe for a discounted rate.
-
-http://events.linuxfoundation.org/events/kvm-forum/register
-
-We invite you to lead part of the discussion by submitting a speaking
-proposal for KVM Forum 2013.
-
-http://events.linuxfoundation.org/cfp
-
-Suggested topics:
-
- KVM/Kernel
- - Scaling and performance
- - Nested virtualization
- - I/O improvements
- - VFIO, device assignment, SR-IOV
- - Driver domains
- - Time keeping
- - Resource management (cpu, memory, i/o)
- - Memory management (page sharing, swapping, huge pages, etc)
- - Network virtualization
- - Security
- - Architecture ports
-
- QEMU
- - Device model improvements
- - New devices and chipsets
- - Scaling and performance
- - Desktop virtualization
- - Spice
- - Increasing robustness and hardening
- - Security model
- - Management interfaces
- - QMP protocol and implementation
- - Image formats
- - Firmware (SeaBIOS, OVMF, UEFI, etc)
- - Live migration
- - Live snapshots and merging
- - Fault tolerance, high availability, continuous backup
- - Real-time guest support
-
- Virtio
- - Speeding up existing devices
- - Alternatives
- - Virtio on non-Linux or non-virtualized
-
- Management infrastructure
- - oVirt (shared track w/ oVirt Workshop)
- - Libvirt
- - KVM autotest
- - OpenStack
- - Network virtualization management
- - Enterprise storage management
-
- Cloud computing
- - Scalable storage
- - Virtual networking
- - Security
- - Provisioning
-
-SUBMISSION REQUIREMENTS
-
-Abstracts due: July 21, 2013
-Notification: August 1, 2013
-
-Please submit a short abstract (~150 words) describing your presentation
-proposal.  In your submission please note how long your talk will take.
-Slots vary in length up to 45 minutes.  Also include in your proposal
-the proposal type -- one of:
-
-- technical talk
-- end-user talk
-- birds of a feather (BOF) session
-
-Submit your proposal here:
-
-http://events.linuxfoundation.org/cfp
-
-You will receive a notification whether or not your presentation proposal
-was accepted by Aug 1st.
-
-END-USER COLLABORATION
-
-One of the big challenges as developers is to know what, where and how
-people actually use our software.  We will reserve a few slots for end
-users talking about their deployment challenges and achievements.
-
-If you are using KVM in production you are encouraged submit a speaking
-proposal.  Simply mark it as an end-user collaboration proposal.  As an
-end user, this is a unique opportunity to get your input to developers.
-
-BOF SESSION
-
-We will reserve some slots in the evening after the main conference
-tracks, for birds of a feather (BOF) sessions. These sessions will be
-less formal than presentation tracks and targetted for people who would
-like to discuss specific issues with other developers and/or users.
-If you are interested in getting developers and/or uses together to
-discuss a specific problem, please submit a BOF proposal.
-
-HOTEL / TRAVEL
-
-The KVM Forum 2013 will be held in Edinburgh, UK at the Edinburgh
-International Conference Centre.
-
-http://events.linuxfoundation.org/events/kvm-forum/hotel
-
-Thank you for your interest in KVM.  We're looking forward to your
-submissions and seeing you at the KVM Forum 2013 in October!
-
-Thanks,
--your KVM Forum 2013 Program Committee
-
-Please contact us with any questions or comments.
-KVM-Forum-2013-PC@redhat.com
+--
+			Gleb.
