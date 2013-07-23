@@ -1,19 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 06/10] virtio: console: fix race in port_fops_poll() and
-	port unplug
-Date: Mon, 22 Jul 2013 15:15:34 +0930
-Message-ID: <87fvv7b11d.fsf@rustcorp.com.au>
-References: <cover.1374177234.git.amit.shah@redhat.com>
-	<bb9fe1cb5a1aeff6ecfc68936254045024e25e56.1374177234.git.amit.shah@redhat.com>
-	<51E8E4D6.7030807@redhat.com>
-	<20130719072113.GL3087@amit-x200.redhat.com>
-	<51E9123C.5040708@redhat.com>
-	<20130719102941.GN3087@amit-x200.redhat.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V11 0/18] Paravirtualized ticket spinlocks
+Date: Tue, 23 Jul 2013 08:20:46 +0530
+Message-ID: <51EDEF86.9040405@linux.vnet.ibm.com>
+References: <20130722061631.24737.75508.sendpatchset@codeblue>
+	<20130722193627.GP30300@phenom.dumpdata.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130719102941.GN3087@amit-x200.redhat.com>
+In-Reply-To: <20130722193627.GP30300@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,65 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Virtualization List <virtualization@lists.linux-foundation.org>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amit Shah <amit.shah@redhat.com> writes:
-> On (Fri) 19 Jul 2013 [18:17:32], Jason Wang wrote:
->> On 07/19/2013 03:48 PM, Amit Shah wrote:
->> > On (Fri) 19 Jul 2013 [15:03:50], Jason Wang wrote:
->> >> On 07/19/2013 04:16 AM, Amit Shah wrote:
->> >>> Between poll() being called and processed, the port can be unplugged.
->> >>> Check if this happened, and bail out.
->> >>>
->> >>> Signed-off-by: Amit Shah <amit.shah@redhat.com>
->> >>> ---
->> >>>  drivers/char/virtio_console.c | 4 ++++
->> >>>  1 file changed, 4 insertions(+)
->> >>>
->> >>> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
->> >>> index 7728af9..1d4b748 100644
->> >>> --- a/drivers/char/virtio_console.c
->> >>> +++ b/drivers/char/virtio_console.c
->> >>> @@ -967,6 +967,10 @@ static unsigned int port_fops_poll(struct file *filp, poll_table *wait)
->> >>>  	unsigned int ret;
->> >>>  
->> >>>  	port = filp->private_data;
->> >>> +	if (!port->guest_connected) {
->> >>> +		/* Port was unplugged before we could proceed */
->> >>> +		return POLLHUP;
->> >>> +	}
->> >>>  	poll_wait(filp, &port->waitqueue, wait);
->> >>>  
->> >>>  	if (!port->guest_connected) {
->> >> Looks still racy here. Unlike port_fops_read() which check
->> >> will_read_block(). If unplug happens after the check but before the
->> >> poll_wait(), caller will be blocked forever.
->> > unplug_port() calls wake_up_interruptible on the waitqueue.
->> 
->> I mean the following cases:
+On 07/23/2013 01:06 AM, Konrad Rzeszutek Wilk wrote:
+>>
+>> github link: https://github.com/ktraghavendra/linux/tree/pvspinlock_v11
 >
-> (formatting to fit properly:)
+> And chance you have a backup git tree? I get:
 >
->> 
->> CPU0:                                CPU1: unplug_port()
->> 
->> if (!port->guest_connected) {
->>     return POLLHUP;
->> }
->>                                      wake_up_interruptiable()
->> 
->> poll_wait(filp, &port->waitqueue, wait);
+> This repository is temporarily unavailable.
+
+I only have it on local apart from there :(.
+Hope it was a temporary github problem. working for me now.
+
 >
-> Agreed, this can happen.  I can't think of a way to resolve this.  One
-> way would be to remove the waitqueue (port->waitqueue = NULL in
-> unplug_port()), but I'm not sure of the effect on the other parts
-> yet.  I'll leave this one for later analysis.
+>>
+>> Please note that we set SPIN_THRESHOLD = 32k with this series,
+>> that would eatup little bit of overcommit performance of PLE machines
+>> and overall performance of non-PLE machines.
+>>
+>> The older series[3] was tested by Attilio for Xen implementation.
+>>
+>> Note that Konrad needs to revert below two patches to enable xen on hvm
+>>    70dd4998, f10cd522c
+>
+> We could add that to the series. But let me first test it out - and that
+> gets back to the repo :-)
+>
 
-No, you are confused by the name, I think,
-
-poll_wait() doesn't actually wait.  It's more like a poll_enqueue().
-
-Cheers,
-Rusty.
+okay.
