@@ -1,20 +1,14 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V11 15/18] kvm : Paravirtual ticketlocks support for
-	linux guests running on KVM hypervisor
-Date: Wed, 24 Jul 2013 18:06:18 +0530
-Message-ID: <51EFCA42.5020009__36421.9746472829$1374669559$gmane$org@linux.vnet.ibm.com>
-References: <20130722061631.24737.75508.sendpatchset@codeblue>
-	<20130722062016.24737.54554.sendpatchset@codeblue>
-	<20130723150748.GC6029@redhat.com>
-	<51EFA24E.2060103@linux.vnet.ibm.com>
-	<20130724103907.GF16400@redhat.com>
-	<51EFC1D4.9060800@linux.vnet.ibm.com>
-	<20130724120647.GG16400@redhat.com>
+From: Shuah Khan <shuahkhan@gmail.com>
+Subject: Re: Linux Plumbers ACPI/PM, PCI Microconference
+Date: Wed, 24 Jul 2013 10:30:33 -0600
+Message-ID: <CAKocOOOW6+eqb6GTsWLgonQQ7uy5R10t6L_T3jaTN9qSbetVeQ__35539.3231184737$1374683446$gmane$org@mail.gmail.com>
+References: <CAL-B5D03ki8NHsM6EuESTH2K-Eh+XyFHNXPDYwgDq+oagDjtMQ@mail.gmail.com>
+	<CAErSpo7TexM5-7Z=8H+B5=49-GzoKd_prn=LbMFZWV9rpdn__A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130724120647.GG16400@redhat.com>
+In-Reply-To: <CAErSpo7TexM5-7Z=8H+B5=49-GzoKd_prn=LbMFZWV9rpdn__A@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,92 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
-Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, linux-pci <linux-pci@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "open list:INTEL IOMMU (VT-d)" <iommu@lists.linux-foundation.org>, Myron Stowe <myron.stowe@gmail.com>, linux-arm <linux-arm-kernel@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/24/2013 05:36 PM, Gleb Natapov wrote:
-> On Wed, Jul 24, 2013 at 05:30:20PM +0530, Raghavendra K T wrote:
->> On 07/24/2013 04:09 PM, Gleb Natapov wrote:
->>> On Wed, Jul 24, 2013 at 03:15:50PM +0530, Raghavendra K T wrote:
->>>> On 07/23/2013 08:37 PM, Gleb Natapov wrote:
->>>>> On Mon, Jul 22, 2013 at 11:50:16AM +0530, Raghavendra K T wrote:
->>>>>> +static void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
->>>> [...]
->>>>>> +
->>>>>> +	/*
->>>>>> +	 * halt until it's our turn and kicked. Note that we do safe halt
->>>>>> +	 * for irq enabled case to avoid hang when lock info is overwritten
->>>>>> +	 * in irq spinlock slowpath and no spurious interrupt occur to save us.
->>>>>> +	 */
->>>>>> +	if (arch_irqs_disabled_flags(flags))
->>>>>> +		halt();
->>>>>> +	else
->>>>>> +		safe_halt();
->>>>>> +
->>>>>> +out:
->>>>> So here now interrupts can be either disabled or enabled. Previous
->>>>> version disabled interrupts here, so are we sure it is safe to have them
->>>>> enabled at this point? I do not see any problem yet, will keep thinking.
->>>>
->>>> If we enable interrupt here, then
->>>>
->>>>
->>>>>> +	cpumask_clear_cpu(cpu, &waiting_cpus);
->>>>
->>>> and if we start serving lock for an interrupt that came here,
->>>> cpumask clear and w->lock=null may not happen atomically.
->>>> if irq spinlock does not take slow path we would have non null value
->>>> for lock, but with no information in waitingcpu.
->>>>
->>>> I am still thinking what would be problem with that.
->>>>
->>> Exactly, for kicker waiting_cpus and w->lock updates are
->>> non atomic anyway.
->>>
->>>>>> +	w->lock = NULL;
->>>>>> +	local_irq_restore(flags);
->>>>>> +	spin_time_accum_blocked(start);
->>>>>> +}
->>>>>> +PV_CALLEE_SAVE_REGS_THUNK(kvm_lock_spinning);
->>>>>> +
->>>>>> +/* Kick vcpu waiting on @lock->head to reach value @ticket */
->>>>>> +static void kvm_unlock_kick(struct arch_spinlock *lock, __ticket_t ticket)
->>>>>> +{
->>>>>> +	int cpu;
->>>>>> +
->>>>>> +	add_stats(RELEASED_SLOW, 1);
->>>>>> +	for_each_cpu(cpu, &waiting_cpus) {
->>>>>> +		const struct kvm_lock_waiting *w = &per_cpu(lock_waiting, cpu);
->>>>>> +		if (ACCESS_ONCE(w->lock) == lock &&
->>>>>> +		    ACCESS_ONCE(w->want) == ticket) {
->>>>>> +			add_stats(RELEASED_SLOW_KICKED, 1);
->>>>>> +			kvm_kick_cpu(cpu);
->>>>> What about using NMI to wake sleepers? I think it was discussed, but
->>>>> forgot why it was dismissed.
->>>>
->>>> I think I have missed that discussion. 'll go back and check. so
->>>> what is the idea here? we can easily wake up the halted vcpus that
->>>> have interrupt disabled?
->>> We can of course. IIRC the objection was that NMI handling path is very
->>> fragile and handling NMI on each wakeup will be more expensive then
->>> waking up a guest without injecting an event, but it is still interesting
->>> to see the numbers.
->>>
+On Tue, Jul 23, 2013 at 10:06 AM, Bjorn Helgaas <bhelgaas@google.com> wrote:
+> On Tue, Jul 16, 2013 at 8:21 PM, Myron Stowe <myron.stowe@gmail.com> wrote:
+>> Linux Plumbers has approved an ACPI/PM, PCI microconference. The
+>> overview page is here:
 >>
->> Haam, now I remember, We had tried request based mechanism. (new
->> request like REQ_UNHALT) and process that. It had worked, but had some
->> complex hacks in vcpu_enter_guest to avoid guest hang in case of
->> request cleared.  So had left it there..
+>> http://wiki.linuxplumbersconf.org/2013:pci_subsystem
 >>
->> https://lkml.org/lkml/2012/4/30/67
->>
->> But I do not remember performance impact though.
-> No, this is something different. Wakeup with NMI does not need KVM changes at
-> all. Instead of kvm_kick_cpu(cpu) in kvm_unlock_kick you send NMI IPI.
+>> We would like to start receiving volunteers for presenting topics of
+>> interest.  There is a lot of activity in these subsystems so please
+>> respond by submitting presentation or discussion proposals that you
+>> would be willing to cover for consideration.  You should also feel
+>> free to submit ideas as proposals that others could cover.
+>
+> Somebody else privately suggested these ARM/PCI topics:
+>
+>> -> how it's been cleaned up to be more common across arm-32 machines
+>> -> dependencies on dtb
+>> -> future use/dependency(s) on ACPI
+>> -> hotplug support issues (if any; acpi (host-bridge) vs <whatever ARM uses> ?)
+>
+> and I'm interested in those as well.  There seems to be a lot of
+> activity in that area.  In addition, I'm interested in ARM IOMMU
+> support.  I see drivers/iommu/arm-smmu.c, but it's brand-new and I
+> haven't looked at it at all.
 >
 
-True. It was not NMI.
-just to confirm, are you talking about something like this to be tried ?
+I second this topic. I am interested in ARM/iommu space also.
 
-apic->send_IPI_mask(cpumask_of(cpu), APIC_DM_NMI);
+thanks,
+-- Shuah
