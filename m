@@ -1,21 +1,17 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [Xen-devel] is kexec on Xen domU possible?
-Date: Tue, 23 Jul 2013 17:40:58 -0700
-Message-ID: <20130724004058.GA20327@kroah.com>
-References: <20130719131819.GC11233@debian70-amd64.local.net-space.pl>
-	<20130719151243.GA15488@kroah.com>
-	<20130719183235.GA12267@debian70-amd64.local.net-space.pl>
-	<20130719191449.GA1882@kroah.com> <51E9A85D.2060206@zytor.com>
-	<20130722170307.GB14451@debian70-amd64.local.net-space.pl>
-	<87wqoise9d.fsf@xmission.com> <51ED78EE.9020903@zytor.com>
-	<20130722183315.GA29273@kroah.com>
-	<20130724002235.GA15047@u109add4315675089e695.ant.amazon.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 08/10] virtio: console: add locks around buffer removal in
+	port unplug path
+Date: Wed, 24 Jul 2013 11:19:24 +0930
+Message-ID: <87a9lcafru.fsf@rustcorp.com.au>
+References: <cover.1374177234.git.amit.shah@redhat.com>
+	<2b1b00dbdbc7575e8370c3b3ecad7b4b4c0f2833.1374177234.git.amit.shah@redhat.com>
+	<87d2qbb0jd.fsf@rustcorp.com.au>
+	<20130723082447.GA17739@amit-x200.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130724002235.GA15047@u109add4315675089e695.ant.amazon.com>
+In-Reply-To: <20130723082447.GA17739@amit-x200.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,56 +21,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Matt Wilson <msw@amazon.com>
-Cc: xen-devel@lists.xensource.com, Daniel Kiper <daniel.kiper@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Eric W. Biederman" <ebiederm@xmission.com>, Brandon Philips <brandon@ifup.org>, "H. Peter Anvin" <hpa@zytor.com>
+To: Amit Shah <amit.shah@redhat.com>
+Cc: Virtualization List <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 23, 2013 at 05:22:36PM -0700, Matt Wilson wrote:
-> On Mon, Jul 22, 2013 at 11:33:15AM -0700, Greg KH wrote:
-> > On Mon, Jul 22, 2013 at 11:24:46AM -0700, H. Peter Anvin wrote:
-> > > On 07/22/2013 10:20 AM, Eric W. Biederman wrote:
-> > > >>>
-> > > >>> Also, in any virtualized environment the hypervisor can do a better job
-> > > >>> for things like kdump, simply because it can provide two things that are
-> > > >>> otherwise hard to do:
-> > > >>>
-> > > >>> 1. a known-good system state;
-> > > >>> 2. a known-clean kdump image.
-> > > >>>
-> > > >>> As such, I do encourage the virtualization people to (also) develop
-> > > >>> hypervisor-*aware* solutions for these kinds of things.
-> > > >>
-> > > >> In general I agree but if you could not change hypervisor
-> > > >> and/or dom0 (e.g. you are using cloud providers which are
-> > > >> stick to old versions of Xen) then you have no choice.
-> > > > 
-> > > > Which tends to be where kexec on panic comes in most cases.  Getting
-> > > > platform vendors to do something sane tends to be a multi-year political
-> > > > effort of dubious worth while just solving the problem locally actually
-> > > > gets the problem solved for those who care.
-> > > > 
-> > > 
-> > > It should not be a "one or the other" issue.
-> > 
-> > I don't care about kdump, I care about kexec on domU for people who are
-> > running on cloud providers with old versions of Xen so that they can
-> > control what kernel they can boot, when they want to boot it.  If kdump
-> > works as well, that's just a bonus, but it's down on the list of things
-> > for me to be concerned about.
-> 
-> Many Xen-based cloud providers provide a mechanism for users to boot
-> the kernels they want. For example you can use PV-GRUB on EC2
-> instances to boot a kernel that is stored within an AMI.
-> 
-> For more info:
->   http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/UserProvidedkernels.html
+Amit Shah <amit.shah@redhat.com> writes:
+> On (Mon) 22 Jul 2013 [15:26:22], Rusty Russell wrote:
+>> Amit Shah <amit.shah@redhat.com> writes:
+>> > The removal functions act on the vqs, and the vq operations need to be
+>> > locked.
+>> >
+>> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
+>> 
+>> How can userspace access the port now?  By the time we are cleaning up
+>> buffers, there should be no possibility of such accesses.
+>
+> close(), can happen when the port is being unplugged.  We're just
+> making sure here that port_fops_release() and unplug_port() don't try
+> to free up the same data at the same time.
 
-Yes, that's quite true, but some don't, or they make it difficult to do
-so.  Using kexec also allows you to "be the bootloader" and decide on
-_which_ kernel you want to boot, independant of what cloud provider you
-use, something that lots of people want in their quest to not dependant
-on any one company.
+Why doesn't reference counting help us here?  Surely the last one should
+clean up?
 
-thanks,
+>> The number of bugfixes here is deeply disturbing.
+>
+> Yes, the first three fix a bug - close() after unplug.  However, the
+> others are inadequate locking fixes which I noticed while fixing that
+> bug.
+>
+> Port unplug isn't a frequently-used or tested path, so these were
+> lying unnoticed so far.
+>
+>>  I wonder if it's be
+>> easier to rewrite it all with a lock per port, and one global to protect
+>> ports_driver_data.
+>
+> Hm, with this series, I don't see anything that might need extra
+> locking.  Though I'll take a look at this afresh in a while -- and see
+> if we could simplify something.
+>
+> Given that this was necessary only for unplug operations, (and they
+> aren't a 'regular operation', so we could drop the stable@ for the
+> series?), are you OK with this series for now?
 
-greg k-h
+Let's skip stable@ for theoretical bugs.  Please repost.
+
+Cheers,
+Rusty.
