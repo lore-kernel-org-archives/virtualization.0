@@ -1,15 +1,21 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH 2/4] xen: switch to use hypervisor_cpuid_base()
-Date: Tue, 23 Jul 2013 11:55:04 -0400
-Message-ID: <20130723155504.GA5328@phenom.dumpdata.com>
-References: <1374572465-15278-1-git-send-email-jasowang@redhat.com>
-	<1374572465-15278-2-git-send-email-jasowang@redhat.com>
+From: Matt Wilson <msw@amazon.com>
+Subject: Re: [Xen-devel] is kexec on Xen domU possible?
+Date: Tue, 23 Jul 2013 17:22:36 -0700
+Message-ID: <20130724002235.GA15047@u109add4315675089e695.ant.amazon.com>
+References: <20130719020603.GA22932@kroah.com>
+	<20130719131819.GC11233@debian70-amd64.local.net-space.pl>
+	<20130719151243.GA15488@kroah.com>
+	<20130719183235.GA12267@debian70-amd64.local.net-space.pl>
+	<20130719191449.GA1882@kroah.com> <51E9A85D.2060206@zytor.com>
+	<20130722170307.GB14451@debian70-amd64.local.net-space.pl>
+	<87wqoise9d.fsf@xmission.com> <51ED78EE.9020903@zytor.com>
+	<20130722183315.GA29273@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1374572465-15278-2-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20130722183315.GA29273@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,62 +25,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, kvm@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, hpa@zytor.com, pbonzini@redhat.com, tglx@linutronix.de
+To: Greg KH <gregkh@linuxfoundation.org>
+Cc: xen-devel@lists.xensource.com, Daniel Kiper <daniel.kiper@oracle.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "Eric W. Biederman" <ebiederm@xmission.com>, Brandon Philips <brandon@ifup.org>, "H. Peter Anvin" <hpa@zytor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 23, 2013 at 05:41:03PM +0800, Jason Wang wrote:
-> Switch to use hypervisor_cpuid_base() to detect Xen.
+On Mon, Jul 22, 2013 at 11:33:15AM -0700, Greg KH wrote:
+> On Mon, Jul 22, 2013 at 11:24:46AM -0700, H. Peter Anvin wrote:
+> > On 07/22/2013 10:20 AM, Eric W. Biederman wrote:
+> > >>>
+> > >>> Also, in any virtualized environment the hypervisor can do a better job
+> > >>> for things like kdump, simply because it can provide two things that are
+> > >>> otherwise hard to do:
+> > >>>
+> > >>> 1. a known-good system state;
+> > >>> 2. a known-clean kdump image.
+> > >>>
+> > >>> As such, I do encourage the virtualization people to (also) develop
+> > >>> hypervisor-*aware* solutions for these kinds of things.
+> > >>
+> > >> In general I agree but if you could not change hypervisor
+> > >> and/or dom0 (e.g. you are using cloud providers which are
+> > >> stick to old versions of Xen) then you have no choice.
+> > > 
+> > > Which tends to be where kexec on panic comes in most cases.  Getting
+> > > platform vendors to do something sane tends to be a multi-year political
+> > > effort of dubious worth while just solving the problem locally actually
+> > > gets the problem solved for those who care.
+> > > 
+> > 
+> > It should not be a "one or the other" issue.
 > 
-> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> I don't care about kdump, I care about kexec on domU for people who are
+> running on cloud providers with old versions of Xen so that they can
+> control what kernel they can boot, when they want to boot it.  If kdump
+> works as well, that's just a bonus, but it's down on the list of things
+> for me to be concerned about.
 
-Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: x86@kernel.org
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: xen-devel@lists.xensource.com
-> Cc: virtualization@lists.linux-foundation.org
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  arch/x86/include/asm/xen/hypervisor.h |   16 +---------------
->  1 files changed, 1 insertions(+), 15 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/xen/hypervisor.h b/arch/x86/include/asm/xen/hypervisor.h
-> index 125f344..d866959 100644
-> --- a/arch/x86/include/asm/xen/hypervisor.h
-> +++ b/arch/x86/include/asm/xen/hypervisor.h
-> @@ -40,21 +40,7 @@ extern struct start_info *xen_start_info;
->  
->  static inline uint32_t xen_cpuid_base(void)
->  {
-> -	uint32_t base, eax, ebx, ecx, edx;
-> -	char signature[13];
-> -
-> -	for (base = 0x40000000; base < 0x40010000; base += 0x100) {
-> -		cpuid(base, &eax, &ebx, &ecx, &edx);
-> -		*(uint32_t *)(signature + 0) = ebx;
-> -		*(uint32_t *)(signature + 4) = ecx;
-> -		*(uint32_t *)(signature + 8) = edx;
-> -		signature[12] = 0;
-> -
-> -		if (!strcmp("XenVMMXenVMM", signature) && ((eax - base) >= 2))
-> -			return base;
-> -	}
-> -
-> -	return 0;
-> +	return hypervisor_cpuid_base("XenVMMXenVMM", 2);
->  }
->  
->  #ifdef CONFIG_XEN
-> -- 
-> 1.7.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Many Xen-based cloud providers provide a mechanism for users to boot
+the kernels they want. For example you can use PV-GRUB on EC2
+instances to boot a kernel that is stored within an AMI.
+
+For more info:
+  http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/UserProvidedkernels.html
+
+--msw
