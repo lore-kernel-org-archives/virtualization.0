@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v3 5/9] virtio: console: return -ENODEV on all read operations
-	after unplug
-Date: Thu, 25 Jul 2013 19:28:45 +0530
-Message-ID: <f218052d8d8438fea0d1c3483434e315c7e82db8.1374759439.git.amit.shah__5652.72017051956$1374760798$gmane$org@redhat.com>
+Subject: [PATCH v3 6/9] virtio: console: add locks around buffer removal in
+	port unplug path
+Date: Thu, 25 Jul 2013 19:28:46 +0530
+Message-ID: <076e81210c7105be320a9807e8ff2fb76e0a9b7d.1374759439.git.amit.shah@redhat.com>
 References: <cover.1374759439.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,49 +21,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org
+Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If a port gets unplugged while a user is blocked on read(), -ENODEV is
-returned.  However, subsequent read()s returned 0, indicating there's no
-host-side connection (but not indicating the device went away).
+The removal functions act on the vqs, and the vq operations need to be
+locked.
 
-This also happened when a port was unplugged and the user didn't have
-any blocking operation pending.  If the user didn't monitor the SIGIO
-signal, they won't have a chance to find out if the port went away.
-
-Fix by returning -ENODEV on all read()s after the port gets unplugged.
-write() already behaves this way.
-
-CC: <stable@vger.kernel.org>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/char/virtio_console.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 3435348..2b68075 100644
+index 2b68075..9cbed93 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -749,6 +749,10 @@ static ssize_t port_fops_read(struct file *filp, char __user *ubuf,
+@@ -1512,18 +1512,22 @@ static void remove_port_data(struct port *port)
+ {
+ 	struct port_buffer *buf;
  
- 	port = filp->private_data;
++	spin_lock_irq(&port->inbuf_lock);
+ 	/* Remove unused data this port might have received. */
+ 	discard_port_data(port);
  
-+	/* Port is hot-unplugged. */
-+	if (!port->guest_connected)
-+		return -ENODEV;
+-	reclaim_consumed_buffers(port);
+-
+ 	/* Remove buffers we queued up for the Host to send us data in. */
+ 	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
+ 		free_buf(buf, true);
++	spin_unlock_irq(&port->inbuf_lock);
 +
- 	if (!port_has_data(port)) {
- 		/*
- 		 * If nothing's connected on the host just return 0 in
-@@ -765,7 +769,7 @@ static ssize_t port_fops_read(struct file *filp, char __user *ubuf,
- 		if (ret < 0)
- 			return ret;
- 	}
--	/* Port got hot-unplugged. */
-+	/* Port got hot-unplugged while we were waiting above. */
- 	if (!port->guest_connected)
- 		return -ENODEV;
- 	/*
++	spin_lock_irq(&port->outvq_lock);
++	reclaim_consumed_buffers(port);
+ 
+ 	/* Free pending buffers from the out-queue. */
+ 	while ((buf = virtqueue_detach_unused_buf(port->out_vq)))
+ 		free_buf(buf, true);
++	spin_unlock_irq(&port->outvq_lock);
+ }
+ 
+ /*
 -- 
 1.8.1.4
