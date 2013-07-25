@@ -1,8 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v3 8/9] virtio: console: fix locking around
-	send_sigio_to_port()
-Date: Thu, 25 Jul 2013 19:28:48 +0530
-Message-ID: <757aac3a03423986825852680496f69db0f6c7de.1374759439.git.amit.shah@redhat.com>
+Subject: [PATCH v3 9/9] virtio: console: prevent use-after-free of port name
+	in port unplug
+Date: Thu, 25 Jul 2013 19:28:49 +0530
+Message-ID: <83c058bc32c4e377a75235120885aec7dfd223c7.1374759439.git.amit.shah@redhat.com>
 References: <cover.1374759439.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,45 +24,29 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-send_sigio_to_port() checks the value of guest_connected, which we
-always modify under the inbuf_lock; make sure invocations of
-send_sigio_to_port() have take the inbuf_lock around the call.
+Remove the debugfs path before freeing port->name, to prevent a possible
+use-after-free.
 
+Reported-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/char/virtio_console.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index e8b707d..4e380c1 100644
+index 4e380c1..e910bec 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1670,7 +1670,9 @@ static void handle_control_message(struct ports_device *portdev,
- 		 * If the guest is connected, it'll be interested in
- 		 * knowing the host connection state changed.
- 		 */
-+		spin_lock_irq(&port->inbuf_lock);
- 		send_sigio_to_port(port);
-+		spin_unlock_irq(&port->inbuf_lock);
- 		break;
- 	case VIRTIO_CONSOLE_PORT_NAME:
- 		/*
-@@ -1790,13 +1792,13 @@ static void in_intr(struct virtqueue *vq)
- 	if (!port->guest_connected && !is_rproc_serial(port->portdev->vdev))
- 		discard_port_data(port);
+@@ -1574,9 +1574,8 @@ static void unplug_port(struct port *port)
+ 	device_destroy(pdrvdata.class, port->dev->devt);
+ 	cdev_del(port->cdev);
  
-+	/* Send a SIGIO indicating new data in case the process asked for it */
-+	send_sigio_to_port(port);
-+
- 	spin_unlock_irqrestore(&port->inbuf_lock, flags);
- 
- 	wake_up_interruptible(&port->waitqueue);
- 
--	/* Send a SIGIO indicating new data in case the process asked for it */
--	send_sigio_to_port(port);
+-	kfree(port->name);
 -
- 	if (is_console_port(port) && hvc_poll(port->cons.hvc))
- 		hvc_kick();
- }
+ 	debugfs_remove(port->debugfs_file);
++	kfree(port->name);
+ 
+ 	/*
+ 	 * Locks around here are not necessary - a port can't be
 -- 
 1.8.1.4
