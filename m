@@ -1,8 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v3 6/9] virtio: console: add locks around buffer removal in
-	port unplug path
-Date: Thu, 25 Jul 2013 19:28:46 +0530
-Message-ID: <076e81210c7105be320a9807e8ff2fb76e0a9b7d.1374759439.git.amit.shah@redhat.com>
+Subject: [PATCH v3 7/9] virtio: console: add locking in port unplug path
+Date: Thu, 25 Jul 2013 19:28:47 +0530
+Message-ID: <ed4b66e841e0c8cc6f5b6a70aa2001057616af57.1374759439.git.amit.shah@redhat.com>
 References: <cover.1374759439.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,42 +23,34 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The removal functions act on the vqs, and the vq operations need to be
-locked.
+Port unplug can race with close() in port_fops_release().
+port_fops_release() already takes the necessary locks, ensure
+unplug_port() does that too.
 
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/char/virtio_console.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 2b68075..9cbed93 100644
+index 9cbed93..e8b707d 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1512,18 +1512,22 @@ static void remove_port_data(struct port *port)
- {
- 	struct port_buffer *buf;
+@@ -1541,6 +1541,7 @@ static void unplug_port(struct port *port)
+ 	list_del(&port->list);
+ 	spin_unlock_irq(&port->portdev->ports_lock);
  
 +	spin_lock_irq(&port->inbuf_lock);
- 	/* Remove unused data this port might have received. */
- 	discard_port_data(port);
+ 	if (port->guest_connected) {
+ 		/* Let the app know the port is going down. */
+ 		send_sigio_to_port(port);
+@@ -1551,6 +1552,7 @@ static void unplug_port(struct port *port)
  
--	reclaim_consumed_buffers(port);
--
- 	/* Remove buffers we queued up for the Host to send us data in. */
- 	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
- 		free_buf(buf, true);
+ 		wake_up_interruptible(&port->waitqueue);
+ 	}
 +	spin_unlock_irq(&port->inbuf_lock);
-+
-+	spin_lock_irq(&port->outvq_lock);
-+	reclaim_consumed_buffers(port);
  
- 	/* Free pending buffers from the out-queue. */
- 	while ((buf = virtqueue_detach_unused_buf(port->out_vq)))
- 		free_buf(buf, true);
-+	spin_unlock_irq(&port->outvq_lock);
- }
- 
- /*
+ 	if (is_console_port(port)) {
+ 		spin_lock_irq(&pdrvdata_lock);
 -- 
 1.8.1.4
