@@ -1,8 +1,7 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v3 3/9] virtio: console: clean up port data immediately at
-	time of unplug
-Date: Thu, 25 Jul 2013 19:28:43 +0530
-Message-ID: <d8ffeceebfc527db85406850d22fa3da64aabbe3.1374759439.git.amit.shah__28543.0591939532$1374760778$gmane$org@redhat.com>
+Subject: [PATCH v3 4/9] virtio: console: fix raising SIGIO after port unplug
+Date: Thu, 25 Jul 2013 19:28:44 +0530
+Message-ID: <e4199103bd85fae76ce7009d7d6abacf28f1f972.1374759439.git.amit.shah__36261.272399179$1374760788$gmane$org@redhat.com>
 References: <cover.1374759439.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,122 +23,42 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We used to keep the port's char device structs and the /sys entries
-around till the last reference to the port was dropped.  This is
-actually unnecessary, and resulted in buggy behaviour:
+SIGIO should be sent when a port gets unplugged.  It should only be sent
+to prcesses that have the port opened, and have asked for SIGIO to be
+delivered.  We were clearing out guest_connected before calling
+send_sigio_to_port(), resulting in a sigio not getting sent to
+processes.
 
-1. Open port in guest
-2. Hot-unplug port
-3. Hot-plug a port with the same 'name' property as the unplugged one
-
-This resulted in hot-plug being unsuccessful, as a port with the same
-name already exists (even though it was unplugged).
-
-This behaviour resulted in a warning message like this one:
-
--------------------8<---------------------------------------
-WARNING: at fs/sysfs/dir.c:512 sysfs_add_one+0xc9/0x130() (Not tainted)
-Hardware name: KVM
-sysfs: cannot create duplicate filename
-'/devices/pci0000:00/0000:00:04.0/virtio0/virtio-ports/vport0p1'
-
-Call Trace:
- [<ffffffff8106b607>] ? warn_slowpath_common+0x87/0xc0
- [<ffffffff8106b6f6>] ? warn_slowpath_fmt+0x46/0x50
- [<ffffffff811f2319>] ? sysfs_add_one+0xc9/0x130
- [<ffffffff811f23e8>] ? create_dir+0x68/0xb0
- [<ffffffff811f2469>] ? sysfs_create_dir+0x39/0x50
- [<ffffffff81273129>] ? kobject_add_internal+0xb9/0x260
- [<ffffffff812733d8>] ? kobject_add_varg+0x38/0x60
- [<ffffffff812734b4>] ? kobject_add+0x44/0x70
- [<ffffffff81349de4>] ? get_device_parent+0xf4/0x1d0
- [<ffffffff8134b389>] ? device_add+0xc9/0x650
-
--------------------8<---------------------------------------
-
-Instead of relying on guest applications to release all references to
-the ports, we should go ahead and unregister the port from all the core
-layers.  Any open/read calls on the port will then just return errors,
-and an unplug/plug operation on the host will succeed as expected.
-
-This also caused buggy behaviour in case of the device removal (not just
-a port): when the device was removed (which means all ports on that
-device are removed automatically as well), the ports with active
-users would clean up only when the last references were dropped -- and
-it would be too late then to be referencing char device pointers,
-resulting in oopses:
-
--------------------8<---------------------------------------
-PID: 6162   TASK: ffff8801147ad500  CPU: 0   COMMAND: "cat"
- #0 [ffff88011b9d5a90] machine_kexec at ffffffff8103232b
- #1 [ffff88011b9d5af0] crash_kexec at ffffffff810b9322
- #2 [ffff88011b9d5bc0] oops_end at ffffffff814f4a50
- #3 [ffff88011b9d5bf0] die at ffffffff8100f26b
- #4 [ffff88011b9d5c20] do_general_protection at ffffffff814f45e2
- #5 [ffff88011b9d5c50] general_protection at ffffffff814f3db5
-    [exception RIP: strlen+2]
-    RIP: ffffffff81272ae2  RSP: ffff88011b9d5d00  RFLAGS: 00010246
-    RAX: 0000000000000000  RBX: ffff880118901c18  RCX: 0000000000000000
-    RDX: ffff88011799982c  RSI: 00000000000000d0  RDI: 3a303030302f3030
-    RBP: ffff88011b9d5d38   R8: 0000000000000006   R9: ffffffffa0134500
-    R10: 0000000000001000  R11: 0000000000001000  R12: ffff880117a1cc10
-    R13: 00000000000000d0  R14: 0000000000000017  R15: ffffffff81aff700
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #6 [ffff88011b9d5d00] kobject_get_path at ffffffff8126dc5d
- #7 [ffff88011b9d5d40] kobject_uevent_env at ffffffff8126e551
- #8 [ffff88011b9d5dd0] kobject_uevent at ffffffff8126e9eb
- #9 [ffff88011b9d5de0] device_del at ffffffff813440c7
-
--------------------8<---------------------------------------
-
-So clean up when we have all the context, and all that's left to do when
-the references to the port have dropped is to free up the port struct
-itself.
+Fix by setting guest_connected to false after invoking the sigio
+function.
 
 CC: <stable@vger.kernel.org>
-Reported-by: chayang <chayang@redhat.com>
-Reported-by: YOGANANTH SUBRAMANIAN <anantyog@in.ibm.com>
-Reported-by: FuXiangChun <xfu@redhat.com>
-Reported-by: Qunfang Zhang <qzhang@redhat.com>
-Reported-by: Sibiao Luo <sluo@redhat.com>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/char/virtio_console.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index b04ec95..6bf0df3 100644
+index 6bf0df3..3435348 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1501,14 +1501,6 @@ static void remove_port(struct kref *kref)
+@@ -1534,12 +1534,14 @@ static void unplug_port(struct port *port)
+ 	spin_unlock_irq(&port->portdev->ports_lock);
  
- 	port = container_of(kref, struct port, kref);
- 
--	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
--	device_destroy(pdrvdata.class, port->dev->devt);
--	cdev_del(port->cdev);
--
--	kfree(port->name);
--
--	debugfs_remove(port->debugfs_file);
--
- 	kfree(port);
- }
- 
-@@ -1566,6 +1558,14 @@ static void unplug_port(struct port *port)
- 	 */
- 	port->portdev = NULL;
- 
-+	sysfs_remove_group(&port->dev->kobj, &port_attribute_group);
-+	device_destroy(pdrvdata.class, port->dev->devt);
-+	cdev_del(port->cdev);
+ 	if (port->guest_connected) {
++		/* Let the app know the port is going down. */
++		send_sigio_to_port(port);
 +
-+	kfree(port->name);
-+
-+	debugfs_remove(port->debugfs_file);
-+
- 	/*
- 	 * Locks around here are not necessary - a port can't be
- 	 * opened after we removed the port struct from ports_list
++		/* Do this after sigio is actually sent */
+ 		port->guest_connected = false;
+ 		port->host_connected = false;
+-		wake_up_interruptible(&port->waitqueue);
+ 
+-		/* Let the app know the port is going down. */
+-		send_sigio_to_port(port);
++		wake_up_interruptible(&port->waitqueue);
+ 	}
+ 
+ 	if (is_console_port(port)) {
 -- 
 1.8.1.4
