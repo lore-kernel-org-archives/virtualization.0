@@ -1,11 +1,16 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v3 0/9] virtio: console: fixes for bugs and races with unplug
-Date: Thu, 25 Jul 2013 19:28:40 +0530
-Message-ID: <cover.1374759439.git.amit.shah@redhat.com>
+Subject: [PATCH v3 1/9] virtio: console: fix race with port unplug and
+	open/close
+Date: Thu, 25 Jul 2013 19:28:41 +0530
+Message-ID: <7ca111ad3bca069f921b4234e5b3ccbbfd7a11d8.1374759439.git.amit.shah__23647.493744693$1374760763$gmane$org@redhat.com>
+References: <cover.1374759439.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1374759439.git.amit.shah@redhat.com>
+In-Reply-To: <cover.1374759439.git.amit.shah@redhat.com>
+References: <cover.1374759439.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,71 +21,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>
+Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello,
+There's a window between find_port_by_devt() returning a port and us
+taking a kref on the port, where the port could get unplugged.  Fix it
+by taking the reference in find_port_by_devt() itself.
 
-This series fixes a few bugs and races with port unplug and the
-various file operations: read(), write() and close().
+Problem reported and analyzed by Mateusz Guzik.
 
-I started coding up an alternative locking mechanism based on the
-discussion earlier in this series, but some of what we already have
-has to remain, and the new code is sufficiently different, so I'd
-rather it bakes for a while, and I ensure there are no regressions wrt
-the tests I have so far for a while as well.  Hopefully this will be
-in time for the next merge window.
+CC: <stable@vger.kernel.org>
+Reported-by: Mateusz Guzik <mguzik@redhat.com>
+Signed-off-by: Amit Shah <amit.shah@redhat.com>
+---
+ drivers/char/virtio_console.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-There's one use-after-free I spotted after sending the first two
-versions: port_fops_release() calls send_control_msg(), which spins
-till the host acknowledges receipt of the buffer.  While it's
-spinning, if the device gets unplugged, the vqs go away, and the
-spinning function never progresses, causing a softlockup.  This is
-difficult to reproduce -- the host usually acknowledges the buffers
-fast enough.  A couple of solutions for this case are possible:
-
-1. Mark the control vq in use, and don't proceed with unplug till it's
-   marked unused,
-2. Similar to the various port-specific i and o vqs, don't spin, but
-   queue the buffer and wait for the host to let us know it's done
-   with it.
-
-2nd is easier to implement, but 1st fits with the way I'm thinking of
-restructuring the locking.  I'm not yet decided on which approach to
-take, will think over it.
-
-Other than that, this series does fix all the bugs I see with the
-tests I have.  Indeed, the patches marked for stable@ fix all the bugs
-too, and the other ones on top add locking where shared structures are
-being used.
-
-Please review and apply if appropriate,
-
-v3
- * remove patch 5, "update private_data in struct file only on
-   successful open" (Rusty)
- * remove patch 6, "fix race in port_fops_poll() and port unplug",
-   (Rusty)
- * remove CC: stable from patches without reproducers
-
-v2
- * add patch 11: Jason found a use-after-free in port unplug
- * patch 7 introduced a regression where the wake_up_interruptible was
-   done before guest_connected and host_connected were set to false
-
-Amit Shah (9):
-  virtio: console: fix race with port unplug and open/close
-  virtio: console: fix race in port_fops_open() and port unplug
-  virtio: console: clean up port data immediately at time of unplug
-  virtio: console: fix raising SIGIO after port unplug
-  virtio: console: return -ENODEV on all read operations after unplug
-  virtio: console: add locks around buffer removal in port unplug path
-  virtio: console: add locking in port unplug path
-  virtio: console: fix locking around send_sigio_to_port()
-  virtio: console: prevent use-after-free of port name in port unplug
-
- drivers/char/virtio_console.c | 64 +++++++++++++++++++++++++++----------------
- 1 file changed, 40 insertions(+), 24 deletions(-)
-
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 1b456fe..291f437 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -272,9 +272,12 @@ static struct port *find_port_by_devt_in_portdev(struct ports_device *portdev,
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&portdev->ports_lock, flags);
+-	list_for_each_entry(port, &portdev->ports, list)
+-		if (port->cdev->dev == dev)
++	list_for_each_entry(port, &portdev->ports, list) {
++		if (port->cdev->dev == dev) {
++			kref_get(&port->kref);
+ 			goto out;
++		}
++	}
+ 	port = NULL;
+ out:
+ 	spin_unlock_irqrestore(&portdev->ports_lock, flags);
+@@ -1019,14 +1022,10 @@ static int port_fops_open(struct inode *inode, struct file *filp)
+ 	struct port *port;
+ 	int ret;
+ 
++	/* We get the port with a kref here */
+ 	port = find_port_by_devt(cdev->dev);
+ 	filp->private_data = port;
+ 
+-	/* Prevent against a port getting hot-unplugged at the same time */
+-	spin_lock_irq(&port->portdev->ports_lock);
+-	kref_get(&port->kref);
+-	spin_unlock_irq(&port->portdev->ports_lock);
+-
+ 	/*
+ 	 * Don't allow opening of console port devices -- that's done
+ 	 * via /dev/hvc
 -- 
 1.8.1.4
