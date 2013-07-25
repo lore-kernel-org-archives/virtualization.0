@@ -1,7 +1,7 @@
 From: Sudeep Dutt <sudeep.dutt@intel.com>
-Subject: [PATCH 3/5] Intel MIC Host Driver Changes for Virtio Devices.
-Date: Wed, 24 Jul 2013 20:31:34 -0700
-Message-ID: <43d0932810d066e52bd6ee996b3cb59da8c42e85.1374717252.git.sudeep.dutt__48684.3231520199$1375346049$gmane$org@intel.com>
+Subject: [PATCH 5/5] Sample Implementation of Intel MIC User Space Daemon.
+Date: Wed, 24 Jul 2013 20:31:36 -0700
+Message-ID: <dc1bf2e6c29de424aba674d6cdbe6d92209da4f7.1374717252.git.sudeep.dutt__13704.9250574366$1375346062$gmane$org@intel.com>
 References: <cover.1374717252.git.sudeep.dutt@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,24 +23,17 @@ To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.d
 Cc: Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>, Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ashutosh Dixit <ashutosh.dixit@intel.com>
+From: Caz Yokoyama <Caz.Yokoyama@intel.com>
 
-This patch introduces the host "Virtio over PCIe" interface for
-Intel MIC. It allows creating user space backends on the host and
-instantiating virtio devices for them on the Intel MIC card. A character
-device per MIC is exposed with IOCTL, mmap and poll callbacks. This allows
-the user space backend to:
-(a) add/remove a virtio device via a device page.
-(b) map (R/O) virtio rings and device page to user space.
-(c) poll for availability of data.
-(d) copy a descriptor or entire descriptor chain to/from the card.
-(e) modify virtio configuration.
-(f) handle virtio device reset.
-The buffers are copied over using CPU copies for this initial patch
-and host initiated MIC DMA support is planned for future patches.
-The avail and desc virtio rings are in host memory and the used ring
-is in card memory to maximize writes across PCIe for performance.
+This patch introduces a sample user space daemon which
+implements the virtio device backends on the host. The daemon
+creates/removes/configures virtio device backends by communicating with
+the Intel MIC Host Driver. The virtio devices currently supported are
+virtio net, virtio console and virtio block. The daemon also monitors
+card shutdown status and takes appropriate actions like killing the
+virtio backends and resetting the card upon card shutdown and crashes.
 
+Co-author: Ashutosh Dixit <ashutosh.dixit@intel.com>
 Co-author: Sudeep Dutt <sudeep.dutt@intel.com>
 Signed-off-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
 Signed-off-by: Caz Yokoyama <Caz.Yokoyama@intel.com>
@@ -49,1348 +42,2381 @@ Signed-off-by: Nikhil Rao <nikhil.rao@intel.com>
 Signed-off-by: Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>
 Signed-off-by: Sudeep Dutt <sudeep.dutt@intel.com>
 Acked-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
-Reviewed-by: Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>
 ---
- drivers/misc/mic/common/mic_device.h |   4 +
- drivers/misc/mic/host/Makefile       |   2 +
- drivers/misc/mic/host/mic_boot.c     |   2 +
- drivers/misc/mic/host/mic_debugfs.c  | 137 +++++++
- drivers/misc/mic/host/mic_fops.c     | 280 ++++++++++++++
- drivers/misc/mic/host/mic_fops.h     |  37 ++
- drivers/misc/mic/host/mic_main.c     |  24 ++
- drivers/misc/mic/host/mic_virtio.c   | 703 +++++++++++++++++++++++++++++++++++
- drivers/misc/mic/host/mic_virtio.h   | 108 ++++++
- include/uapi/linux/Kbuild            |   1 +
- include/uapi/linux/mic_common.h      | 165 +++++++-
- include/uapi/linux/mic_ioctl.h       | 104 ++++++
- 12 files changed, 1566 insertions(+), 1 deletion(-)
- create mode 100644 drivers/misc/mic/host/mic_fops.c
- create mode 100644 drivers/misc/mic/host/mic_fops.h
- create mode 100644 drivers/misc/mic/host/mic_virtio.c
- create mode 100644 drivers/misc/mic/host/mic_virtio.h
- create mode 100644 include/uapi/linux/mic_ioctl.h
+ Documentation/mic/mic_overview.txt |   48 +
+ Documentation/mic/mpssd/.gitignore |    1 +
+ Documentation/mic/mpssd/Makefile   |   20 +
+ Documentation/mic/mpssd/micctrl    |  157 ++++
+ Documentation/mic/mpssd/mpss       |  246 +++++
+ Documentation/mic/mpssd/mpssd.c    | 1732 ++++++++++++++++++++++++++++++++++++
+ Documentation/mic/mpssd/mpssd.h    |  105 +++
+ Documentation/mic/mpssd/sysfs.c    |  108 +++
+ 8 files changed, 2417 insertions(+)
+ create mode 100644 Documentation/mic/mic_overview.txt
+ create mode 100644 Documentation/mic/mpssd/.gitignore
+ create mode 100644 Documentation/mic/mpssd/Makefile
+ create mode 100755 Documentation/mic/mpssd/micctrl
+ create mode 100755 Documentation/mic/mpssd/mpss
+ create mode 100644 Documentation/mic/mpssd/mpssd.c
+ create mode 100644 Documentation/mic/mpssd/mpssd.h
+ create mode 100644 Documentation/mic/mpssd/sysfs.c
 
-diff --git a/drivers/misc/mic/common/mic_device.h b/drivers/misc/mic/common/mic_device.h
-index 24934b1..7cdeb74 100644
---- a/drivers/misc/mic/common/mic_device.h
-+++ b/drivers/misc/mic/common/mic_device.h
-@@ -78,4 +78,8 @@ mic_mmio_write(struct mic_mw *mw, u32 val, u32 offset)
- #define MIC_DPLO_SPAD 14
- #define MIC_DPHI_SPAD 15
- 
-+/* These values are supposed to be in ext_params on an interrupt */
-+#define MIC_VIRTIO_PARAM_DEV_REMOVE 0x1
-+#define MIC_VIRTIO_PARAM_CONFIG_CHANGED 0x2
+diff --git a/Documentation/mic/mic_overview.txt b/Documentation/mic/mic_overview.txt
+new file mode 100644
+index 0000000..8b1a916
+--- /dev/null
++++ b/Documentation/mic/mic_overview.txt
+@@ -0,0 +1,48 @@
++An Intel MIC X100 device is a PCIe form factor add-in coprocessor
++card based on the Intel Many Integrated Core (MIC) architecture
++that runs a Linux OS. It is a PCIe endpoint in a platform and therefore
++implements the three required standard address spaces i.e. configuration,
++memory and I/O. The host OS loads a device driver as is typical for
++PCIe devices. The card itself runs a bootstrap after reset that
++transfers control to the card OS downloaded from the host driver.
++The card OS as shipped by Intel is a Linux kernel with modifications
++for the X100 devices.
 +
- #endif
-diff --git a/drivers/misc/mic/host/Makefile b/drivers/misc/mic/host/Makefile
-index 0608bbb..e02abdb 100644
---- a/drivers/misc/mic/host/Makefile
-+++ b/drivers/misc/mic/host/Makefile
-@@ -9,3 +9,5 @@ mic_host-objs += mic_sysfs.o
- mic_host-objs += mic_boot.o
- mic_host-objs += mic_smpt.o
- mic_host-objs += mic_debugfs.o
-+mic_host-objs += mic_fops.o
-+mic_host-objs += mic_virtio.o
-diff --git a/drivers/misc/mic/host/mic_boot.c b/drivers/misc/mic/host/mic_boot.c
-index 6485a87..40bcb90 100644
---- a/drivers/misc/mic/host/mic_boot.c
-+++ b/drivers/misc/mic/host/mic_boot.c
-@@ -30,6 +30,7 @@
- #include <linux/delay.h>
- 
- #include "mic_common.h"
-+#include "mic_virtio.h"
- 
- /**
-  * mic_reset - Reset the MIC device.
-@@ -112,6 +113,7 @@ void mic_stop(struct mic_device *mdev, bool force)
- {
- 	mutex_lock(&mdev->mic_mutex);
- 	if (MIC_OFFLINE != mdev->state || force) {
-+		mic_virtio_reset_devices(mdev);
- 		mic_bootparam_init(mdev);
- 		mic_reset(mdev);
- 		if (MIC_RESET_FAILED == mdev->state)
-diff --git a/drivers/misc/mic/host/mic_debugfs.c b/drivers/misc/mic/host/mic_debugfs.c
-index 5b7697e..bebc6e3 100644
---- a/drivers/misc/mic/host/mic_debugfs.c
-+++ b/drivers/misc/mic/host/mic_debugfs.c
-@@ -32,6 +32,7 @@
- 
- #include "mic_common.h"
- #include "mic_debugfs.h"
-+#include "mic_virtio.h"
- 
- /* Debugfs parent dir */
- static struct dentry *mic_dbg;
-@@ -207,7 +208,13 @@ static const struct file_operations post_code_ops = {
- static int dp_seq_show(struct seq_file *s, void *pos)
- {
- 	struct mic_device *mdev = s->private;
++Since it is a PCIe card, it does not have the ability to host hardware
++devices for networking, storage and console. We provide these devices
++on X100 coprocessors thus enabling a self-bootable equivalent environment
++for applications. A key benefit of our solution is that it leverages
++the standard virtio framework for network, disk and console devices,
++though in our case the virtio framework is used across a PCIe bus.
++
++Here is a block diagram of the various components described above. The
++virtio backends are situated on the host rather than the card given better
++single threaded performance for the host compared to MIC and the ability of
++the host to initiate DMA's to/from the card using the MIC DMA engine.
++
++                              |
++       +----------+           |             +----------+
++       | Card OS  |           |             | Host OS  |
++       +----------+           |             +----------+
++                              |
+++-------+ +--------+ +------+ | +---------+  +--------+ +--------+
++| Virtio| |Virtio  | |Virtio| | |Virtio   |  |Virtio  | |Virtio  |
++| Net   | |Console | |Block | | |Net      |  |Console | |Block   |
++| Driver| |Driver  | |Driver| | |backend  |  |backend | |backend |
+++-------+ +--------+ +------+ | +---------+  +--------+ +--------+
++    |         |         |     |      |            |         |
++    |         |         |     |Ring 3|            |         |
++    |         |         |     |------|------------|---------|-------
++    +-------------------+     |Ring 0+--------------------------+
++              |               |      | Virtio over PCIe IOCTLs  |
++              |               |      +--------------------------+
++      +--------------+        |                   |
++      |Intel MIC     |        |            +---------------+
++      |Card Driver   |        |            |Intel MIC      |
++      +--------------+        |            |Host Driver    |
++              |               |            +---------------+
++              |               |                   |
++     +-------------------------------------------------------------+
++     |                                                             |
++     |                    PCIe Bus                                 |
++     +-------------------------------------------------------------+
+diff --git a/Documentation/mic/mpssd/.gitignore b/Documentation/mic/mpssd/.gitignore
+new file mode 100644
+index 0000000..8b7c72f
+--- /dev/null
++++ b/Documentation/mic/mpssd/.gitignore
+@@ -0,0 +1 @@
++mpssd
+diff --git a/Documentation/mic/mpssd/Makefile b/Documentation/mic/mpssd/Makefile
+new file mode 100644
+index 0000000..63e9edd
+--- /dev/null
++++ b/Documentation/mic/mpssd/Makefile
+@@ -0,0 +1,20 @@
++#
++# Makefile - Intel MIC User Space Tools.
++# Copyright(c) 2013, Intel Corporation.
++#
++ifdef DEBUG
++CFLAGS += $(USERWARNFLAGS) -I. -g -Wall -DDEBUG=$(DEBUG)
++else
++CFLAGS += $(USERWARNFLAGS) -I. -g -Wall
++endif
++
++mpssd: mpssd.o sysfs.o
++	$(CC) $(CFLAGS) -o $@ $^ -lpthread
++
++install:
++	install mpss /etc/rc.d/init.d/mpss
++	install mpssd /usr/sbin/mpssd
++	install micctrl /usr/sbin/micctrl
++
++clean:
++	rm -f mpssd *.o
+diff --git a/Documentation/mic/mpssd/micctrl b/Documentation/mic/mpssd/micctrl
+new file mode 100755
+index 0000000..8ecf0cd
+--- /dev/null
++++ b/Documentation/mic/mpssd/micctrl
+@@ -0,0 +1,157 @@
++#!/bin/bash
++# Intel MIC Platform Software Stack (MPSS)
++#
++# Copyright(c) 2013 Intel Corporation.
++#
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License, version 2, as
++# published by the Free Software Foundation.
++#
++# This program is distributed in the hope that it will be useful, but
++# WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++# General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
++# USA.
++#
++# The full GNU General Public License is included in this distribution in
++# the file called "COPYING".
++#
++# Intel MIC User Space Tools.
++#
++# micctrl - Controls MIC boot/start/stop.
++#
++# chkconfig: 2345 95 05
++# description: start MPSS stack processing.
++#
++### BEGIN INIT INFO
++# Provides: micctrl
++### END INIT INFO
++
++# Source function library.
++. /etc/init.d/functions
++
++sysfs="/sys/class/mic"
++
++status()
++{
++	if [ "`echo $1 | head -c3`" == "mic" ]; then
++		f=$sysfs/$1
++		echo -e $1 state: "`cat $f/state`" shutdown_status: "`cat $f/shutdown_status`"
++		return 0
++	fi
++
++	if [ -d "$sysfs" ]; then
++		for f in $sysfs/*
++		do
++			echo -e ""`basename $f`" state: "`cat $f/state`" shutdown_status: "`cat $f/shutdown_status`""
++		done
++	fi
++
++	return 0
++}
++
++reset()
++{
++	if [ "`echo $1 | head -c3`" == "mic" ]; then
++		f=$sysfs/$1
++		echo reset > $f/state
++		return 0
++	fi
++
++	if [ -d "$sysfs" ]; then
++		for f in $sysfs/*
++		do
++			echo reset > $f/state
++		done
++	fi
++
++	return 0
++}
++
++boot()
++{
++	if [ "`echo $1 | head -c3`" == "mic" ]; then
++		f=$sysfs/$1
++		echo "boot:linux:mic/uos.img:mic/$1.image" > $f/state
++		return 0
++	fi
++
++	if [ -d "$sysfs" ]; then
++		for f in $sysfs/*
++		do
++			echo "boot:linux:mic/uos.img:mic/`basename $f`.image" > $f/state
++		done
++	fi
++
++	return 0
++}
++
++shutdown()
++{
++	if [ "`echo $1 | head -c3`" == "mic" ]; then
++		f=$sysfs/$1
++		echo shutdown > $f/state
++		return 0
++	fi
++
++	if [ -d "$sysfs" ]; then
++		for f in $sysfs/*
++		do
++			echo shutdown > $f/state
++		done
++	fi
++
++	return 0
++}
++
++wait()
++{
++	if [ "`echo $1 | head -c3`" == "mic" ]; then
++		f=$sysfs/$1
++		while [ "`cat $f/state`" != "offline" -a "`cat $f/state`" != "online" ]
++		do
++			sleep 1
++			echo -e "Waiting for $1 to go offline"
++		done
++		return 0
++	fi
++
++	if [ -d "$sysfs" ]; then
++		# Wait for the cards to go offline
++		for f in $sysfs/*
++		do
++			while [ "`cat $f/state`" != "offline" -a "`cat $f/state`" != "online" ]
++			do
++				sleep 1
++				echo -e "Waiting for "`basename $f`" to go offline"
++			done
++		done
++	fi
++}
++
++case $1 in
++	-s)
++		status $2
++		;;
++	-r)
++		reset $2
++		;;
++	-b)
++		boot $2
++		;;
++	-S)
++		shutdown $2
++		;;
++	-w)
++		wait $2
++		;;
++	*)
++		echo $"Usage: $0 {-s (status) |-r (reset) |-b (boot) |-S (shutdown) |-w (wait)}"
++		exit 2
++esac
++
++exit $?
+diff --git a/Documentation/mic/mpssd/mpss b/Documentation/mic/mpssd/mpss
+new file mode 100755
+index 0000000..81993b9
+--- /dev/null
++++ b/Documentation/mic/mpssd/mpss
+@@ -0,0 +1,246 @@
++#!/bin/bash
++# Intel MIC Platform Software Stack (MPSS)
++#
++# Copyright(c) 2013 Intel Corporation.
++#
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License, version 2, as
++# published by the Free Software Foundation.
++#
++# This program is distributed in the hope that it will be useful, but
++# WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++# General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
++# USA.
++#
++# The full GNU General Public License is included in this distribution in
++# the file called "COPYING".
++#
++# Intel MIC User Space Tools.
++#
++# mpss	Start mpssd.
++#
++# chkconfig: 2345 95 05
++# description: start MPSS stack processing.
++#
++### BEGIN INIT INFO
++# Provides: mpss
++# Required-Start:
++# Required-Stop:
++# Short-Description: MPSS stack control
++# Description: MPSS stack control
++### END INIT INFO
++
++# Source function library.
++. /etc/init.d/functions
++
++exec=/usr/sbin/mpssd
++sysfs="/sys/class/mic"
++
++start()
++{
++	[ -x $exec ] || exit 5
++
++	echo -e $"Starting MPSS Stack"
++
++	echo -e $"Loading MIC_HOST Module"
++
++	# Ensure the driver is loaded
++	[ -d "$sysfs" ] || modprobe mic_host
++
++	if [ "`ps -e | awk '{print $4}' | grep mpssd | head -1`" = "mpssd" ]; then
++		echo -e $"MPSSD already running! "
++		success
++		echo
++		return 0;
++	fi
++
++	# Start the daemon
++	echo -n $"Starting MPSSD"
++	$exec &
++	RETVAL=$?
++	if [ $RETVAL -ne 0 ]; then
++		failure
++	else
++		success
++	fi
++	echo
++
++	sleep 5
++
++	# Boot the cards
++	if [ $RETVAL -eq 0 ]; then
++		for f in $sysfs/*
++		do
++			echo -ne "Booting "`basename $f`" "
++			echo "boot:linux:mic/uos.img:mic/`basename $f`.image" > $f/state
++			RETVAL=$?
++			if [ $RETVAL -ne 0 ]; then
++				failure
++			else
++				success
++			fi
++			echo
++		done
++	fi
++
++	# Wait till ping works
++	if [ $RETVAL -eq 0 ]; then
++		for f in $sysfs/*
++		do
++			count=100
++			while [ $count -ge 0 ]
++			do
++				echo -e "Pinging "`basename $f`" "
++				ping -c 1 "`cat $f/ipaddr`" &>/dev/null
++				RETVAL=$?
++				if [ $RETVAL -eq 0 ]; then
++					success
++					break
++				fi
++				sleep 1
++				count=`expr $count - 1`
++			done
++			if [ $RETVAL -ne 0 ]; then
++				failure
++			else
++				success
++			fi
++			echo
++		done
++	fi
++	return $RETVAL
++}
++
++stop()
++{
++	echo -e $"Shutting down MPSS Stack: "
++
++	# Bail out if module is unloaded
++	if [ ! -d "$sysfs" ]; then
++		echo -n $"Module unloaded "
++		killall -9 mpssd 2>/dev/null
++		success
++		echo
++		return 0
++	fi
++
++	# Shut down the cards
++	for f in $sysfs/*
++	do
++		echo -e "Shutting down `basename $f` "
++		echo "shutdown" > $f/state 2>/dev/null
++	done
++
++	# Wait for the cards to go offline
++	for f in $sysfs/*
++	do
++		while [ "`cat $f/state`" != "offline" ]
++		do
++			sleep 1
++			echo -e "Waiting for "`basename $f`" to go offline"
++		done
++	done
++
++	# Display the status of the cards
++	for f in $sysfs/*
++	do
++		echo -e ""`basename $f`" state: "`cat $f/state`""
++	done
++
++	sleep 5
++
++	# Kill MPSSD now
++	echo -n $"Killing MPSSD"
++	killall -9 mpssd 2>/dev/null
++	RETVAL=$?
++	if [ $RETVAL -ne 0 ]; then
++		failure
++	else
++		success
++	fi
++	echo
++	return $RETVAL
++}
++
++restart()
++{
++	stop
++	sleep 5
++	start
++}
++
++status()
++{
++	if [ -d "$sysfs" ]; then
++		for f in $sysfs/*
++		do
++			echo -e ""`basename $f`" state: "`cat $f/state`""
++		done
++	fi
++
++	if [ "`ps -e | awk '{print $4}' | grep mpssd | head -n 1`" = "mpssd" ]; then
++		echo "mpssd is running"
++	else
++		echo "mpssd is stopped"
++	fi
++	return 0
++}
++
++unload()
++{
++	if [ ! -d "$sysfs" ]; then
++		echo -n $"No MIC_HOST Module: "
++		killall -9 mpssd 2>/dev/null
++		success
++		echo
++		return
++	fi
++
++	stop
++	RETVAL=$?
++
++	sleep 5
++	echo -n $"Removing MIC_HOST Module: "
++
++	if [ $RETVAL = 0 ]; then
++		sleep 1
++		modprobe -r mic_host
++		RETVAL=$?
++	fi
++
++	if [ $RETVAL -ne 0 ]; then
++		failure
++	else
++		success
++	fi
++	echo
++	return $RETVAL
++}
++
++case $1 in
++	start)
++		start
++		;;
++	stop)
++		stop
++		;;
++	restart)
++		restart
++		;;
++	status)
++		status
++		;;
++	unload)
++		unload
++		;;
++	*)
++		echo $"Usage: $0 {start|stop|restart|status|unload}"
++		exit 2
++esac
++
++exit $?
+diff --git a/Documentation/mic/mpssd/mpssd.c b/Documentation/mic/mpssd/mpssd.c
+new file mode 100644
+index 0000000..fc912fe
+--- /dev/null
++++ b/Documentation/mic/mpssd/mpssd.c
+@@ -0,0 +1,1732 @@
++/*
++ * Intel MIC Platform Software Stack (MPSS)
++ *
++ * Copyright(c) 2013 Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License, version 2, as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
++ * USA.
++ *
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Intel MIC User Space Tools.
++ */
++
++#define _GNU_SOURCE
++
++#include <stdlib.h>
++#include <fcntl.h>
++#include <getopt.h>
++#include <assert.h>
++#include <unistd.h>
++#include <stdbool.h>
++#include <signal.h>
++#include <poll.h>
++#include <features.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/mman.h>
++#include <sys/socket.h>
++#include <linux/virtio_ring.h>
++#include <linux/virtio_net.h>
++#include <linux/virtio_console.h>
++#include <linux/virtio_blk.h>
++#include <linux/version.h>
++#include "mpssd.h"
++#include <linux/mic_ioctl.h>
++#include <linux/mic_common.h>
++
++static void init_mic(struct mic_info *mic);
++
++static FILE *logfp;
++static struct mic_info mic_list;
++
++#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
++
++#define min_t(type, x, y) ({				\
++		type __min1 = (x);                      \
++		type __min2 = (y);                      \
++		__min1 < __min2 ? __min1 : __min2; })
++
++/* align addr on a size boundary - adjust address up/down if needed */
++#define _ALIGN_UP(addr, size)    (((addr)+((size)-1))&(~((size)-1)))
++#define _ALIGN_DOWN(addr, size)  ((addr)&(~((size)-1)))
++
++/* align addr on a size boundary - adjust address up if needed */
++#define _ALIGN(addr, size)     _ALIGN_UP(addr, size)
++
++/* to align the pointer to the (next) page boundary */
++#define PAGE_ALIGN(addr)        _ALIGN(addr, PAGE_SIZE)
++
++#define ACCESS_ONCE(x) (*(volatile typeof(x) *)&(x))
++
++/* Insert REP NOP (PAUSE) in busy-wait loops. */
++static inline void cpu_relax(void)
++{
++	asm volatile("rep; nop" : : : "memory");
++}
++
++#define GSO_ENABLED		1
++#define MAX_GSO_SIZE		(64 * 1024)
++#define ETH_H_LEN		14
++#define MAX_NET_PKT_SIZE	(_ALIGN_UP(MAX_GSO_SIZE + ETH_H_LEN, 64))
++#define MIC_DEVICE_PAGE_END	0x1000
++
++#ifndef VIRTIO_NET_HDR_F_DATA_VALID
++#define VIRTIO_NET_HDR_F_DATA_VALID	2	/* Csum is valid */
++#endif
++
++static struct {
++	struct mic_device_desc dd;
++	struct mic_vqconfig vqconfig[2];
++	__u32 host_features, guest_acknowledgements;
++	struct virtio_console_config cons_config;
++} virtcons_dev_page = {
++	.dd = {
++		.type = VIRTIO_ID_CONSOLE,
++		.num_vq = ARRAY_SIZE(virtcons_dev_page.vqconfig),
++		.feature_len = sizeof(virtcons_dev_page.host_features),
++		.config_len = sizeof(virtcons_dev_page.cons_config),
++	},
++	.vqconfig[0] = {
++		.num = htole16(MIC_VRING_ENTRIES),
++	},
++	.vqconfig[1] = {
++		.num = htole16(MIC_VRING_ENTRIES),
++	},
++};
++
++static struct {
++	struct mic_device_desc dd;
++	struct mic_vqconfig vqconfig[2];
++	__u32 host_features, guest_acknowledgements;
++	struct virtio_net_config net_config;
++} virtnet_dev_page = {
++	.dd = {
++		.type = VIRTIO_ID_NET,
++		.num_vq = ARRAY_SIZE(virtnet_dev_page.vqconfig),
++		.feature_len = sizeof(virtnet_dev_page.host_features),
++		.config_len = sizeof(virtnet_dev_page.net_config),
++	},
++	.vqconfig[0] = {
++		.num = htole16(MIC_VRING_ENTRIES),
++	},
++	.vqconfig[1] = {
++		.num = htole16(MIC_VRING_ENTRIES),
++	},
++#if GSO_ENABLED
++		.host_features = htole32(
++		1 << VIRTIO_NET_F_CSUM |
++		1 << VIRTIO_NET_F_GSO |
++		1 << VIRTIO_NET_F_GUEST_TSO4 |
++		1 << VIRTIO_NET_F_GUEST_TSO6 |
++		1 << VIRTIO_NET_F_GUEST_ECN |
++		1 << VIRTIO_NET_F_GUEST_UFO),
++#else
++		.host_features = 0,
++#endif
++};
++
++static const char *mic_config_dir = "/etc/sysconfig/mic";
++static const char *virtblk_backend = "VIRTBLK_BACKEND";
++static struct {
++	struct mic_device_desc dd;
++	struct mic_vqconfig vqconfig[1];
++	__u32 host_features, guest_acknowledgements;
++	struct virtio_blk_config blk_config;
++} virtblk_dev_page = {
++	.dd = {
++		.type = VIRTIO_ID_BLOCK,
++		.num_vq = ARRAY_SIZE(virtblk_dev_page.vqconfig),
++		.feature_len = sizeof(virtblk_dev_page.host_features),
++		.config_len = sizeof(virtblk_dev_page.blk_config),
++	},
++	.vqconfig[0] = {
++		.num = htole16(MIC_VRING_ENTRIES),
++	},
++	.host_features =
++		htole32(1<<VIRTIO_BLK_F_SEG_MAX),
++	.blk_config = {
++		.seg_max = htole32(MIC_VRING_ENTRIES - 2),
++		.capacity = htole64(0),
++	 }
++};
++
++static char *myname;
++
++static int
++tap_configure(struct mic_info *mic, char *dev)
++{
++	pid_t pid;
++	char *ifargv[7];
++	char ipaddr[IFNAMSIZ];
++	int ret = 0;
++
++	pid = fork();
++	if (pid == 0) {
++		ifargv[0] = "ip";
++		ifargv[1] = "link";
++		ifargv[2] = "set";
++		ifargv[3] = dev;
++		ifargv[4] = "up";
++		ifargv[5] = NULL;
++		mpsslog("Configuring %s\n", dev);
++		ret = execvp("ip", ifargv);
++		if (ret < 0) {
++			mpsslog("%s execvp failed errno %s\n",
++				mic->name, strerror(errno));
++			return ret;
++		}
++	}
++	if (pid < 0) {
++		mpsslog("%s fork failed errno %s\n",
++			mic->name, strerror(errno));
++		return ret;
++	}
++
++	ret = waitpid(pid, NULL, 0);
++	if (ret < 0) {
++		mpsslog("%s waitpid failed errno %s\n",
++			mic->name, strerror(errno));
++		return ret;
++	}
++
++	snprintf(ipaddr, IFNAMSIZ, "172.31.%d.254/24", mic->id);
++
++	pid = fork();
++	if (pid == 0) {
++		ifargv[0] = "ip";
++		ifargv[1] = "addr";
++		ifargv[2] = "add";
++		ifargv[3] = ipaddr;
++		ifargv[4] = "dev";
++		ifargv[5] = dev;
++		ifargv[6] = NULL;
++		mpsslog("Configuring %s ipaddr %s\n", dev, ipaddr);
++		ret = execvp("ip", ifargv);
++		if (ret < 0) {
++			mpsslog("%s execvp failed errno %s\n",
++				mic->name, strerror(errno));
++			return ret;
++		}
++	}
++	if (pid < 0) {
++		mpsslog("%s fork failed errno %s\n",
++			mic->name, strerror(errno));
++		return ret;
++	}
++
++	ret = waitpid(pid, NULL, 0);
++	if (ret < 0) {
++		mpsslog("%s waitpid failed errno %s\n",
++			mic->name, strerror(errno));
++		return ret;
++	}
++	mpsslog("MIC name %s %s %d DONE!\n",
++		mic->name, __func__, __LINE__);
++	return 0;
++}
++
++static int tun_alloc(struct mic_info *mic, char *dev)
++{
++	struct ifreq ifr;
++	int fd, err;
++#if GSO_ENABLED
++	unsigned offload;
++#endif
++	fd = open("/dev/net/tun", O_RDWR);
++	if (fd < 0) {
++		mpsslog("Could not open /dev/net/tun %s\n", strerror(errno));
++		goto done;
++	}
++
++	memset(&ifr, 0, sizeof(ifr));
++
++	ifr.ifr_flags = IFF_TAP | IFF_NO_PI | IFF_VNET_HDR;
++	if (*dev)
++		strncpy(ifr.ifr_name, dev, IFNAMSIZ);
++
++	err = ioctl(fd, TUNSETIFF, (void *) &ifr);
++	if (err < 0) {
++		mpsslog("%s %s %d TUNSETIFF failed %s\n",
++			mic->name, __func__, __LINE__, strerror(errno));
++		close(fd);
++		return err;
++	}
++#if GSO_ENABLED
++	offload = TUN_F_CSUM | TUN_F_TSO4 | TUN_F_TSO6 |
++		TUN_F_TSO_ECN | TUN_F_UFO;
++
++	err = ioctl(fd, TUNSETOFFLOAD, offload);
++	if (err < 0) {
++		mpsslog("%s %s %d TUNSETOFFLOAD failed %s\n",
++			mic->name, __func__, __LINE__, strerror(errno));
++		close(fd);
++		return err;
++	}
++#endif
++	strcpy(dev, ifr.ifr_name);
++	mpsslog("Created TAP %s\n", dev);
++done:
++	return fd;
++}
++
++#define NET_FD_VIRTIO_NET 0
++#define NET_FD_TUN 1
++#define MAX_NET_FD 2
++
++#define USE_MIC_VIRTIO_COPY_CHAIN 0
++
++static void * *
++get_dp(struct mic_info *mic, int type)
++{
++	switch (type) {
++	case VIRTIO_ID_CONSOLE:
++		return &mic->mic_console.console_dp;
++	case VIRTIO_ID_NET:
++		return &mic->mic_net.net_dp;
++	case VIRTIO_ID_BLOCK:
++		return &mic->mic_virtblk.block_dp;
++	}
++	mpsslog("%s %s %d not found\n", mic->name, __func__, type);
++	assert(0);
++	return NULL;
++}
++
++static struct mic_device_desc *get_device_desc(struct mic_info *mic, int type)
++{
 +	struct mic_device_desc *d;
-+	struct mic_device_ctrl *dc;
-+	struct mic_vqconfig *vqconfig;
-+	__u32 *features;
-+	__u8 *config;
- 	struct mic_bootparam *bootparam = mdev->dp;
-+	int i, j;
- 
- 	seq_printf(s, "Bootparam: magic 0x%x\n",
- 		bootparam->magic);
-@@ -222,6 +229,53 @@ static int dp_seq_show(struct seq_file *s, void *pos)
- 	seq_printf(s, "Bootparam: shutdown_card %d\n",
- 		bootparam->shutdown_card);
- 
-+	for (i = sizeof(*bootparam); i < MIC_DP_SIZE;
-+	     i += mic_total_desc_size(d)) {
-+		d = mdev->dp + i;
-+		dc = (void *)d + mic_aligned_desc_size(d);
++	int i;
++	void *dp = *get_dp(mic, type);
 +
-+		/* end of list */
++	for (i = mic_aligned_size(struct mic_bootparam); i < PAGE_SIZE;
++		i += mic_total_desc_size(d)) {
++		d = dp + i;
++
++		/* End of list */
 +		if (d->type == 0)
 +			break;
 +
 +		if (d->type == -1)
 +			continue;
 +
-+		seq_printf(s, "Type %d ", d->type);
-+		seq_printf(s, "Num VQ %d ", d->num_vq);
-+		seq_printf(s, "Feature Len %d\n", d->feature_len);
-+		seq_printf(s, "Config Len %d ", d->config_len);
-+		seq_printf(s, "Shutdown Status %d\n", d->status);
++		mpsslog("%s %s d-> type %d d %p\n",
++			mic->name, __func__, d->type, d);
 +
-+		for (j = 0; j < d->num_vq; j++) {
-+			vqconfig = mic_vq_config(d) + j;
-+			seq_printf(s, "vqconfig[%d]: ", j);
-+			seq_printf(s, "address 0x%llx ", vqconfig->address);
-+			seq_printf(s, "num %d ", vqconfig->num);
-+			seq_printf(s, "used address 0x%llx\n",
-+				vqconfig->used_address);
-+		}
-+
-+		features = (__u32 *) mic_vq_features(d);
-+		seq_printf(s, "Features: Host 0x%x ", features[0]);
-+		seq_printf(s, "Guest 0x%x\n", features[1]);
-+
-+		config = mic_vq_configspace(d);
-+		for (j = 0; j < d->config_len; j++)
-+			seq_printf(s, "config[%d]=%d\n", j, config[j]);
-+
-+		seq_puts(s, "Device control:\n");
-+		seq_printf(s, "Config Change %d ", dc->config_change);
-+		seq_printf(s, "Vdev reset %d\n", dc->vdev_reset);
-+		seq_printf(s, "Guest Ack %d ", dc->guest_ack);
-+		seq_printf(s, "Host ack %d\n", dc->host_ack);
-+		seq_printf(s, "Used address updated %d ",
-+			dc->used_address_updated);
-+		seq_printf(s, "Vdev 0x%llx\n", dc->vdev);
-+		seq_printf(s, "c2h doorbell %d ", dc->c2h_vdev_db);
-+		seq_printf(s, "h2c doorbell %d\n", dc->h2c_vdev_db);
++		if (d->type == (__u8)type)
++			return d;
 +	}
-+
- 	return 0;
- }
- 
-@@ -243,6 +297,86 @@ static const struct file_operations dp_ops = {
- 	.release = dp_debug_release
- };
- 
-+static int vdev_info_seq_show(struct seq_file *s, void *unused)
-+{
-+	struct mic_device *mdev = s->private;
-+	struct list_head *pos, *tmp;
-+	struct mic_vdev *mvdev;
-+	int i, j;
-+
-+	mutex_lock(&mdev->mic_mutex);
-+	list_for_each_safe(pos, tmp, &mdev->vdev_list) {
-+		mvdev = list_entry(pos, struct mic_vdev, list);
-+		seq_printf(s, "VDEV type %d state %s in %ld out %ld\n",
-+			mvdev->virtio_id,
-+			mic_vdevup(mvdev) ? "UP" : "DOWN",
-+			mvdev->in_bytes,
-+			mvdev->out_bytes);
-+		for (i = 0; i < MIC_MAX_VRINGS; i++) {
-+			struct vring_desc *desc;
-+			struct vring_avail *avail;
-+			struct vring_used *used;
-+			int num = mvdev->vring[i].vr.num;
-+			if (!num)
-+				continue;
-+			desc = mvdev->vring[i].vr.desc;
-+			seq_printf(s, "vring i %d avail_idx %d",
-+				i, mvdev->vring[i].info->avail_idx & (num - 1));
-+			seq_printf(s, " used_idx %d num %d\n",
-+				mvdev->vring[i].info->used_idx & (num - 1),
-+				num);
-+			seq_printf(s, "vring i %d avail_idx %d used_idx %d\n",
-+				i, mvdev->vring[i].info->avail_idx,
-+				mvdev->vring[i].info->used_idx);
-+			for (j = 0; j < num; j++) {
-+				seq_printf(s, "desc[%d] addr 0x%llx len %d",
-+					j, desc->addr, desc->len);
-+				seq_printf(s, " flags 0x%x next %d\n",
-+					desc->flags,
-+					desc->next);
-+				desc++;
-+			}
-+			avail = mvdev->vring[i].vr.avail;
-+			seq_printf(s, "avail flags 0x%x idx %d\n",
-+				avail->flags, avail->idx & (num - 1));
-+			seq_printf(s, "avail flags 0x%x idx %d\n",
-+				avail->flags, avail->idx);
-+			for (j = 0; j < num; j++)
-+				seq_printf(s, "avail ring[%d] %d\n",
-+					j, avail->ring[j]);
-+			used = mvdev->vring[i].vr.used;
-+			seq_printf(s, "used flags 0x%x idx %d\n",
-+				used->flags, used->idx & (num - 1));
-+			seq_printf(s, "used flags 0x%x idx %d\n",
-+				used->flags, used->idx);
-+			for (j = 0; j < num; j++)
-+				seq_printf(s, "used ring[%d] id %d len %d\n",
-+					j, used->ring[j].id, used->ring[j].len);
-+		}
-+	}
-+	mutex_unlock(&mdev->mic_mutex);
-+
-+	return 0;
++	mpsslog("%s %s %d not found\n", mic->name, __func__, type);
++	assert(0);
++	return NULL;
 +}
-+
-+static int vdev_info_debug_open(struct inode *inode, struct file *file)
-+{
-+	return single_open(file, vdev_info_seq_show, inode->i_private);
-+}
-+
-+static int vdev_info_debug_release(struct inode *inode, struct file *file)
-+{
-+	return single_release(inode, file);
-+}
-+
-+static const struct file_operations vdev_info_ops = {
-+	.owner   = THIS_MODULE,
-+	.open    = vdev_info_debug_open,
-+	.read    = seq_read,
-+	.llseek  = seq_lseek,
-+	.release = vdev_info_debug_release
-+};
-+
- static int msi_irq_info_seq_show(struct seq_file *s, void *pos)
- {
- 	struct mic_device *mdev  = s->private;
-@@ -332,6 +466,9 @@ void __init mic_create_debug_dir(struct mic_device *mdev)
- 	debugfs_create_file("dp", 0444, mdev->dbg_dir,
- 		mdev, &dp_ops);
- 
-+	debugfs_create_file("vdev_info", 0444, mdev->dbg_dir,
-+		mdev, &vdev_info_ops);
-+
- 	debugfs_create_file("msi_irq_info", 0444, mdev->dbg_dir,
- 		mdev, &msi_irq_info_ops);
- }
-diff --git a/drivers/misc/mic/host/mic_fops.c b/drivers/misc/mic/host/mic_fops.c
-new file mode 100644
-index 0000000..626a454
---- /dev/null
-+++ b/drivers/misc/mic/host/mic_fops.c
-@@ -0,0 +1,280 @@
-+/*
-+ * Intel MIC Platform Software Stack (MPSS)
-+ *
-+ * Copyright(c) 2013 Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License, version 2, as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
-+ * USA.
-+ *
-+ * The full GNU General Public License is included in this distribution in
-+ * the file called "COPYING".
-+ *
-+ * Intel MIC Host driver.
-+ *
-+ */
-+#include <linux/module.h>
-+#include <linux/fs.h>
-+#include <linux/pci.h>
-+#include <linux/interrupt.h>
-+#include <linux/firmware.h>
-+#include <linux/completion.h>
-+#include <linux/poll.h>
-+#include <linux/virtio_ids.h>
-+#include <linux/mic_ioctl.h>
-+
-+#include "mic_common.h"
-+#include "mic_fops.h"
-+#include "mic_virtio.h"
-+
-+int mic_open(struct inode *inode, struct file *f)
-+{
-+	struct mic_vdev *mvdev;
-+	struct mic_device *mdev = container_of(inode->i_cdev,
-+		struct mic_device, cdev);
-+
-+	mvdev = kzalloc(sizeof(*mvdev), GFP_KERNEL);
-+	if (!mvdev)
-+		return -ENOMEM;
-+
-+	init_waitqueue_head(&mvdev->waitq);
-+	INIT_LIST_HEAD(&mvdev->list);
-+	mvdev->mdev = mdev;
-+	mvdev->virtio_id = -1;
-+
-+	f->private_data = mvdev;
-+	return 0;
-+}
-+
-+int mic_release(struct inode *inode, struct file *f)
-+{
-+	struct mic_vdev *mvdev = (struct mic_vdev *)f->private_data;
-+
-+	if (-1 != mvdev->virtio_id)
-+		mic_virtio_del_device(mvdev);
-+	f->private_data = NULL;
-+	kfree(mvdev);
-+	return 0;
-+}
-+
-+long mic_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
-+{
-+	struct mic_vdev *mvdev = (struct mic_vdev *)f->private_data;
-+	void __user *argp = (void __user *)arg;
-+	int ret;
-+
-+	switch (cmd) {
-+	case MIC_VIRTIO_ADD_DEVICE:
-+	{
-+		ret = mic_virtio_add_device(mvdev, argp);
-+		if (ret < 0) {
-+			dev_err(mic_dev(mvdev),
-+				"%s %d errno ret %d\n",
-+				__func__, __LINE__, ret);
-+			return ret;
-+		}
-+		break;
-+	}
-+	case MIC_VIRTIO_COPY_DESC:
-+	{
-+		struct mic_copy_desc request;
-+		struct mic_copy *copy = &request.copy;
-+
-+		ret = mic_vdev_inited(mvdev);
-+		if (ret)
-+			return ret;
-+
-+		if (copy_from_user(&request, argp, sizeof(request)))
-+			return -EFAULT;
-+
-+		dev_dbg(mic_dev(mvdev),
-+			"%s %d === iovcnt 0x%x vr_idx 0x%x desc_idx 0x%x "
-+			"used_idx 0x%x used_len 0x%x\n",
-+			__func__, __LINE__, copy->iovcnt,
-+			copy->vr_idx, copy->desc_idx,
-+			request.used_desc_idx, request.used_len);
-+
-+		ret = mic_virtio_copy_desc(mvdev, &request);
-+		if (ret < 0) {
-+			dev_err(mic_dev(mvdev),
-+				"%s %d errno ret %d\n",
-+				__func__, __LINE__, ret);
-+			return ret;
-+		}
-+		if (copy_to_user(
-+			&((struct mic_copy_desc __user *)argp)->copy.out_cookie,
-+			&copy->out_cookie, sizeof(copy->out_cookie))) {
-+			dev_err(mic_dev(mvdev), "%s %d errno ret %d\n",
-+				__func__, __LINE__, -EFAULT);
-+			return -EFAULT;
-+		}
-+		if (copy_to_user(
-+			&((struct mic_copy_desc __user *)argp)->copy.out_len,
-+			&copy->out_len, sizeof(copy->out_len))) {
-+			dev_err(mic_dev(mvdev), "%s %d errno ret %d\n",
-+				__func__, __LINE__, -EFAULT);
-+			return -EFAULT;
-+		}
-+		break;
-+	}
-+	case MIC_VIRTIO_COPY_CHAIN:
-+	{
-+		struct mic_copy request;
-+
-+		ret = mic_vdev_inited(mvdev);
-+		if (ret)
-+			return ret;
-+
-+		if (copy_from_user(&request, argp, sizeof(request)))
-+			return -EFAULT;
-+
-+		dev_dbg(mic_dev(mvdev),
-+			"%s %d === vr_idx 0x%x desc_idx 0x%x iovcnt 0x%x\n",
-+			__func__, __LINE__,
-+			request.vr_idx, request.desc_idx, request.iovcnt);
-+
-+		ret = mic_virtio_copy_chain(mvdev, &request);
-+		if (ret < 0) {
-+			dev_err(mic_dev(mvdev),
-+				"%s %d errno ret %d\n",
-+				__func__, __LINE__, ret);
-+			return ret;
-+		}
-+		if (copy_to_user(
-+			&((struct mic_copy __user *)argp)->out_cookie,
-+			&request.out_cookie, sizeof(request.out_cookie))) {
-+			dev_err(mic_dev(mvdev), "%s %d errno ret %d\n",
-+				__func__, __LINE__, -EFAULT);
-+			return -EFAULT;
-+		}
-+		if (copy_to_user(&((struct mic_copy __user *)argp)->out_len,
-+			&request.out_len,
-+			sizeof(request.out_len))) {
-+			dev_err(mic_dev(mvdev), "%s %d errno ret %d\n",
-+				__func__, __LINE__, -EFAULT);
-+			return -EFAULT;
-+		}
-+		break;
-+	}
-+	case MIC_VIRTIO_CONFIG_CHANGE:
-+	{
-+		ret = mic_vdev_inited(mvdev);
-+		if (ret)
-+			return ret;
-+
-+		ret = mic_virtio_config_change(mvdev, argp);
-+		if (ret < 0) {
-+			dev_err(mic_dev(mvdev),
-+				"%s %d errno ret %d\n",
-+				__func__, __LINE__, ret);
-+			return ret;
-+		}
-+		break;
-+	}
-+	default:
-+		return -ENOIOCTLCMD;
-+	};
-+	return 0;
-+}
-+
-+/*
-+ * We return POLLIN | POLLOUT from poll when new buffers are enqueued, and
-+ * not when previously enqueued buffers may be available. This means that
-+ * in the card->host (TX) path, when userspace is unblocked by poll it
-+ * must drain all available descriptors or it can stall.
-+ */
-+unsigned int mic_poll(struct file *f, poll_table *wait)
-+{
-+	struct mic_vdev *mvdev = (struct mic_vdev *)f->private_data;
-+	int mask = 0;
-+
-+	poll_wait(f, &mvdev->waitq, wait);
-+
-+	if (mic_vdev_inited(mvdev))
-+		mask = POLLERR;
-+	else if (mvdev->poll_wake) {
-+		mvdev->poll_wake = 0;
-+		mask = POLLIN | POLLOUT;
-+	}
-+
-+	return mask;
-+}
-+
-+static inline int
-+mic_query_offset(struct mic_vdev *mvdev, unsigned long offset,
-+	unsigned long *size, unsigned long *pa)
-+{
-+	struct mic_device *mdev = mvdev->mdev;
-+	unsigned long start = MIC_DP_SIZE;
-+	int i;
-+
-+	/*
-+	 * MMAP interface is as follows:
-+	 * offset				region
-+	 * 0x0					virtio device_page
-+	 * 0x1000				first vring
-+	 * 0x1000 + size of 1st vring		second vring
-+	 * ....
-+	 */
-+	if (!offset) {
-+		*pa = virt_to_phys(mdev->dp);
-+		*size = MIC_DP_SIZE;
-+		return 0;
-+	}
-+
-+	for (i = 0; i < mvdev->dd->num_vq; i++) {
-+		if (offset == start) {
-+			*pa = virt_to_phys(mvdev->vring[i].va);
-+			*size = mvdev->vring[i].len;
-+			return 0;
-+		}
-+		start += mvdev->vring[i].len;
-+	}
-+	return -1;
-+}
-+
-+/*
-+ * Maps the device page and virtio rings to user space for readonly access.
-+ */
-+int
-+mic_mmap(struct file *f, struct vm_area_struct *vma)
-+{
-+	struct mic_vdev *mvdev = (struct mic_vdev *)f->private_data;
-+	unsigned long offset = vma->vm_pgoff << PAGE_SHIFT;
-+	unsigned long pa, size = vma->vm_end - vma->vm_start, size_rem = size;
-+	int i, err;
-+
-+	err = mic_vdev_inited(mvdev);
-+	if (err)
-+		return err;
-+
-+	if (vma->vm_flags & VM_WRITE)
-+		return -EACCES;
-+
-+	while (size_rem) {
-+		i = mic_query_offset(mvdev, offset, &size, &pa);
-+		if (i < 0)
-+			return -EINVAL;
-+		err = remap_pfn_range(vma, vma->vm_start + offset,
-+			pa >> PAGE_SHIFT, size, vma->vm_page_prot);
-+		if (err)
-+			return err;
-+		dev_dbg(mic_dev(mvdev),
-+			"%s %d type %d size 0x%lx off 0x%lx pa 0x%lx vma 0x%lx\n",
-+			__func__, __LINE__, mvdev->virtio_id, size, offset,
-+			pa, vma->vm_start + offset);
-+		size_rem -= size;
-+		offset += size;
-+	}
-+	return 0;
-+}
-diff --git a/drivers/misc/mic/host/mic_fops.h b/drivers/misc/mic/host/mic_fops.h
-new file mode 100644
-index 0000000..504506c
---- /dev/null
-+++ b/drivers/misc/mic/host/mic_fops.h
-@@ -0,0 +1,37 @@
-+/*
-+ * Intel MIC Platform Software Stack (MPSS)
-+ *
-+ * Copyright(c) 2013 Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License, version 2, as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
-+ * USA.
-+ *
-+ * The full GNU General Public License is included in this distribution in
-+ * the file called "COPYING".
-+ *
-+ * Intel MIC Host driver.
-+ *
-+ */
-+#ifndef _MIC_FOPS_H_
-+#define _MIC_FOPS_H_
-+
-+int mic_open(struct inode *inode, struct file *filp);
-+int mic_release(struct inode *inode, struct file *filp);
-+ssize_t mic_read(struct file *filp, char __user *buf,
-+			size_t count, loff_t *pos);
-+long mic_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
-+int mic_mmap(struct file *f, struct vm_area_struct *vma);
-+unsigned int mic_poll(struct file *f, poll_table *wait);
-+
-+#endif
-diff --git a/drivers/misc/mic/host/mic_main.c b/drivers/misc/mic/host/mic_main.c
-index 70cc235..dd421d5 100644
---- a/drivers/misc/mic/host/mic_main.c
-+++ b/drivers/misc/mic/host/mic_main.c
-@@ -37,6 +37,8 @@
- 
- #include "mic_common.h"
- #include "mic_debugfs.h"
-+#include "mic_fops.h"
-+#include "mic_virtio.h"
- 
- static const char mic_driver_name[] = "mic";
- 
-@@ -79,6 +81,15 @@ struct mic_info {
- /* g_mic - Global information about all MIC devices. */
- static struct mic_info g_mic;
- 
-+static const struct file_operations mic_fops = {
-+	.open = mic_open,
-+	.release = mic_release,
-+	.unlocked_ioctl = mic_ioctl,
-+	.poll = mic_poll,
-+	.mmap = mic_mmap,
-+	.owner = THIS_MODULE,
-+};
-+
- /* Initialize the device page */
- static int mic_dp_init(struct mic_device *mdev)
- {
-@@ -968,8 +979,20 @@ static int mic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	mic_bootparam_init(mdev);
- 
- 	mic_create_debug_dir(mdev);
-+	cdev_init(&mdev->cdev, &mic_fops);
-+	mdev->cdev.owner = THIS_MODULE;
-+	rc = cdev_add(&mdev->cdev, MKDEV(MAJOR(g_mic.dev), mdev->id), 1);
-+	if (rc) {
-+		dev_err(&pdev->dev, "cdev_add err id %d rc %d\n", mdev->id, rc);
-+		goto cleanup_debug_dir;
-+	}
- 	dev_info(&pdev->dev, "Probe successful for %s\n", mdev->name);
- 	return 0;
-+cleanup_debug_dir:
-+	mic_delete_debug_dir(mdev);
-+	mutex_lock(&mdev->mic_mutex);
-+	mic_free_irq(mdev, mdev->shutdown_cookie, mdev);
-+	mutex_unlock(&mdev->mic_mutex);
- dp_uninit:
- 	mic_dp_uninit(mdev);
- sysfs_put:
-@@ -1019,6 +1042,7 @@ static void mic_remove(struct pci_dev *pdev)
- 	id = mdev->id;
- 
- 	mic_stop(mdev, false);
-+	cdev_del(&mdev->cdev);
- 	mic_delete_debug_dir(mdev);
- 	mutex_lock(&mdev->mic_mutex);
- 	mic_free_irq(mdev, mdev->shutdown_cookie, mdev);
-diff --git a/drivers/misc/mic/host/mic_virtio.c b/drivers/misc/mic/host/mic_virtio.c
-new file mode 100644
-index 0000000..7282e12
---- /dev/null
-+++ b/drivers/misc/mic/host/mic_virtio.c
-@@ -0,0 +1,703 @@
-+/*
-+ * Intel MIC Platform Software Stack (MPSS)
-+ *
-+ * Copyright(c) 2013 Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License, version 2, as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
-+ * USA.
-+ *
-+ * The full GNU General Public License is included in this distribution in
-+ * the file called "COPYING".
-+ *
-+ * Intel MIC Host driver.
-+ *
-+ */
-+#include <linux/module.h>
-+#include <linux/fs.h>
-+#include <linux/pci.h>
-+#include <linux/interrupt.h>
-+#include <linux/firmware.h>
-+#include <linux/completion.h>
-+#include <linux/poll.h>
-+#include <linux/sched.h>
-+#include <uapi/linux/virtio_ids.h>
-+#include <uapi/linux/virtio_net.h>
-+
-+#include "mic_common.h"
-+#include "mic_virtio.h"
 +
 +/* See comments in vhost.c for explanation of next_desc() */
 +static unsigned next_desc(struct vring_desc *desc)
 +{
 +	unsigned int next;
 +
-+	if (!(le16_to_cpu(desc->flags) & VRING_DESC_F_NEXT))
++	if (!(le16toh(desc->flags) & VRING_DESC_F_NEXT))
 +		return -1U;
-+	next = le16_to_cpu(desc->next);
-+	read_barrier_depends();
++	next = le16toh(desc->next);
 +	return next;
 +}
 +
-+/*
-+ * Central API which initiates the copies across the PCIe bus.
-+ */
-+static int mic_virtio_copy_desc_buf(struct mic_vdev *mvdev,
-+			struct vring_desc *desc,
-+			void __user *ubuf, u32 rem_len, u32 doff, u32 *out_len)
++/* Sum up all the IOVEC length */
++static ssize_t
++sum_iovec_len(struct mic_copy *copy)
 +{
-+	void __iomem *dbuf;
-+	int err;
-+	u32 len = le32_to_cpu(desc->len);
-+	u16 flags = le16_to_cpu(desc->flags);
-+	u64 addr = le64_to_cpu(desc->addr);
++	ssize_t sum = 0;
++	int i;
 +
-+	dbuf = mvdev->mdev->aper.va + addr + doff;
-+	*out_len = min_t(u32, rem_len, len - doff);
-+	if (flags & VRING_DESC_F_WRITE) {
-+		/*
-+		 * We are copying to IO below and the subsequent
-+		 * wmb(..) ensures that the stores have completed.
-+		 * We should ideally use something like
-+		 * copy_from_user_toio(..) if it existed.
-+		 */
-+		if (copy_from_user(dbuf, ubuf, *out_len)) {
-+			err = -EFAULT;
-+			dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+				__func__, __LINE__, err);
-+			goto err;
-+		}
-+		mvdev->out_bytes += *out_len;
-+		wmb();
-+	} else {
-+		/*
-+		 * We are copying from IO below and the subsequent
-+		 * rmb(..) ensures that the loads have completed.
-+		 * We should ideally use something like
-+		 * copy_to_user_fromio(..) if it existed.
-+		 */
-+		if (copy_to_user(ubuf, dbuf, *out_len)) {
-+			err = -EFAULT;
-+			dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+				__func__, __LINE__, err);
-+			goto err;
-+		}
-+		mvdev->in_bytes += *out_len;
-+		rmb();
-+	}
-+	err = 0;
-+err:
-+	dev_dbg(mic_dev(mvdev),
-+		"%s: ubuf %p dbuf %p rem_len 0x%x *out_len 0x%x "
-+		"dlen 0x%x desc->writable %d err %d\n",
-+		__func__, ubuf, dbuf, rem_len, *out_len,
-+		len, flags & VRING_DESC_F_WRITE, err);
-+	return err;
++	for (i = 0; i < copy->iovcnt; i++)
++		sum += copy->iov[i].iov_len;
++	return sum;
 +}
 +
-+/* Iterate over the virtio descriptor chain and issue the copies */
-+static int _mic_virtio_copy(struct mic_vdev *mvdev,
-+	struct mic_copy *copy, bool chain)
++static inline void verify_out_len(struct mic_info *mic,
++	struct mic_copy *copy)
 +{
-+	struct mic_vring *vr;
-+	struct vring_desc *desc;
-+	u32 desc_idx = copy->desc_idx;
-+	int ret = 0, iovcnt = copy->iovcnt;
-+	struct iovec iov;
-+	struct iovec __user *u_iov = copy->iov;
-+	u32 rem_ulen, rem_dlen, len, doff;
-+	void __user *ubuf = NULL;
-+
-+	vr = &mvdev->vring[copy->vr_idx];
-+	desc = vr->vr.desc;
-+	copy->out_len = 0;
-+	rem_dlen = le32_to_cpu(desc[desc_idx].len);
-+	rem_ulen = 0;
-+	doff = 0;
-+
-+	while (iovcnt && desc_idx != -1U) {
-+		if (!rem_ulen) {
-+			/* Copy over a new iovec */
-+			ret = copy_from_user(&iov, u_iov, sizeof(*u_iov));
-+			if (ret) {
-+				ret = -EINVAL;
-+				dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+					__func__, __LINE__, ret);
-+				break;
-+			}
-+			rem_ulen = iov.iov_len;
-+			ubuf = iov.iov_base;
-+		}
-+		ret = mic_virtio_copy_desc_buf(mvdev,
-+			&desc[desc_idx],
-+			ubuf, rem_ulen, doff, &len);
-+		if (ret)
-+			break;
-+
-+		dev_dbg(mic_dev(mvdev),
-+			"%s: desc_idx 0x%x rem_ulen 0x%x rem_dlen 0x%x "
-+			"doff 0x%x dlen 0x%x\n",
-+			__func__, desc_idx, rem_ulen, rem_dlen,
-+			doff, le32_to_cpu(desc[desc_idx].len));
-+
-+		copy->out_len += len;
-+		rem_ulen -= len;
-+		rem_dlen -= len;
-+		ubuf += len;
-+		doff += len;
-+		/* One iovec is now completed */
-+		if (!rem_ulen) {
-+			iovcnt--;
-+			u_iov++;
-+		}
-+		/* One descriptor is now completed */
-+		if (!rem_dlen) {
-+			desc_idx = next_desc(&desc[desc_idx]);
-+			if (desc_idx != -1U) {
-+				rem_dlen = le32_to_cpu(desc[desc_idx].len);
-+				doff = 0;
-+			}
-+		}
++	if (copy->out_len != sum_iovec_len(copy)) {
++		mpsslog("%s %s %d BUG copy->out_len 0x%x len 0x%x\n",
++				mic->name, __func__, __LINE__,
++				copy->out_len, sum_iovec_len(copy));
++		assert(copy->out_len == sum_iovec_len(copy));
 +	}
-+	/*
-+	 * Return EINVAL if a chain should be processed, but we have run out
-+	 * of iovecs while there are readable descriptors remaining in the
-+	 * chain.
-+	 */
-+	if (chain && desc_idx != -1U &&
-+		!(le16_to_cpu(desc->flags) & VRING_DESC_F_WRITE)) {
-+		dev_err(mic_dev(mvdev), "%s not enough iovecs\n", __func__);
-+		ret = -EINVAL;
++}
++
++/* Display an iovec */
++static void
++disp_iovec(struct mic_info *mic, struct mic_copy *copy,
++	const char *s, int line)
++{
++	int i;
++
++	for (i = 0; i < copy->iovcnt; i++)
++		mpsslog("%s %s %d copy->iov[%d] addr %p len 0x%lx\n",
++			mic->name, s, line, i,
++			copy->iov[i].iov_base, copy->iov[i].iov_len);
++}
++
++static inline __u16 read_avail_idx(struct mic_vring *vr)
++{
++	return ACCESS_ONCE(vr->info->avail_idx);
++}
++
++static inline void txrx_prepare(int type, bool tx, struct mic_vring *vr,
++				struct mic_copy_desc *chain, ssize_t len)
++{
++	struct mic_copy *copy = &chain->copy;
++	__u16 avail_idx;
++
++	copy->vr_idx = tx ? 0 : 1;
++	avail_idx = read_avail_idx(vr) & (vr->vr.num - 1);
++	chain->used_desc_idx = copy->desc_idx =
++		le16toh(vr->vr.avail->ring[avail_idx]);
++	if (type == VIRTIO_ID_NET)
++		copy->iov[1].iov_len = len - sizeof(struct virtio_net_hdr);
++	else
++		copy->iov[0].iov_len = len;
++	chain->used_len = len;
++}
++
++/* Central API which triggers the copies */
++static int
++mic_virtio_copy(struct mic_info *mic, int fd,
++	struct mic_vring *vr, struct mic_copy_desc *chain)
++{
++	int ret;
++
++#if USE_MIC_VIRTIO_COPY_CHAIN
++	/* Copy an entire chain at once */
++	ret = ioctl(fd, MIC_VIRTIO_COPY_CHAIN, &chain->copy);
++#else
++	ret = ioctl(fd, MIC_VIRTIO_COPY_DESC, chain);
++	if (ret) {
++		mpsslog("%s %s %d errno %s ret %d\n",
++			mic->name, __func__, __LINE__,
++			strerror(errno), ret);
 +	}
++#endif
 +	return ret;
 +}
 +
-+static inline void
-+mic_update_local_avail(struct mic_vdev *mvdev, u8 vr_idx)
++/*
++ * This initialization routine requires at least one
++ * vring i.e. vr0. vr1 is optional.
++ */
++static void *
++init_vr(struct mic_info *mic, int fd, int type,
++	struct mic_vring *vr0, struct mic_vring *vr1, int num_vq)
 +{
-+	struct mic_vring *vr = &mvdev->vring[vr_idx];
-+	vr->info->avail_idx++;
-+}
++	int vr_size;
++	char *va;
 +
-+/* Update the used ring */
-+static void mic_update_used(struct mic_vdev *mvdev, u8 vr_idx,
-+	u32 used_desc_idx, u32 used_len)
-+{
-+	struct mic_vring *vr = &mvdev->vring[vr_idx];
-+	u16 used_idx;
-+	s8 db = mvdev->dc->h2c_vdev_db;
-+
-+	used_idx = vr->info->used_idx & (vr->vr.num - 1);
-+	iowrite32(used_desc_idx, &vr->vr.used->ring[used_idx].id);
-+	iowrite32(used_len, &vr->vr.used->ring[used_idx].len);
-+	wmb();
-+	iowrite16(++vr->info->used_idx, &vr->vr.used->idx);
-+	dev_dbg(mic_dev(mvdev),
-+		"%s: ======== vr_idx %d used_idx 0x%x used_len 0x%x ========\n",
-+		__func__, vr_idx, used_desc_idx, used_len);
-+	wmb();
-+	/* Check if the remote device wants us to suppress interrupts */
-+	if (le16_to_cpu(vr->vr.avail->flags) & VRING_AVAIL_F_NO_INTERRUPT)
-+		return;
-+	if (db != -1)
-+		mvdev->mdev->ops->send_intr(mvdev->mdev, db);
-+}
-+
-+static inline int verify_copy_args(struct mic_vdev *mvdev,
-+		struct mic_copy *request)
-+{
-+	if (request->vr_idx >= mvdev->dd->num_vq) {
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, -EINVAL);
-+		return -EINVAL;
++	vr_size = PAGE_ALIGN(vring_size(MIC_VRING_ENTRIES,
++		MIC_VIRTIO_RING_ALIGN) + sizeof(struct _mic_vring_info));
++	va = mmap(NULL, MIC_DEVICE_PAGE_END + vr_size * num_vq,
++		PROT_READ, MAP_SHARED, fd, 0);
++	if (MAP_FAILED == va) {
++		mpsslog("%s %s %d mmap failed errno %s\n",
++			mic->name, __func__, __LINE__,
++			strerror(errno));
++		goto done;
 +	}
-+
-+	if (request->desc_idx >=
-+		le16_to_cpu(mic_vq_config(mvdev->dd)->num)) {
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, -EINVAL);
-+		return -EINVAL;
++	*get_dp(mic, type) = (void *)va;
++	vr0->va = (struct mic_vring *)&va[MIC_DEVICE_PAGE_END];
++	vr0->info = vr0->va +
++		vring_size(MIC_VRING_ENTRIES, MIC_VIRTIO_RING_ALIGN);
++	vring_init(&vr0->vr,
++		MIC_VRING_ENTRIES, vr0->va, MIC_VIRTIO_RING_ALIGN);
++	mpsslog("%s %s vr0 %p vr0->info %p vr_size 0x%x vring 0x%x ",
++		__func__, mic->name, vr0->va, vr0->info, vr_size,
++		vring_size(MIC_VRING_ENTRIES, MIC_VIRTIO_RING_ALIGN));
++	mpsslog("magic 0x%x expected 0x%x\n",
++		vr0->info->magic, MIC_MAGIC + type + 0);
++	assert(vr0->info->magic == MIC_MAGIC + type + 0);
++	if (vr1) {
++		vr1->va = (struct mic_vring *)
++			&va[MIC_DEVICE_PAGE_END + vr_size];
++		vr1->info = vr1->va + vring_size(MIC_VRING_ENTRIES,
++			MIC_VIRTIO_RING_ALIGN);
++		vring_init(&vr1->vr,
++			MIC_VRING_ENTRIES, vr1->va, MIC_VIRTIO_RING_ALIGN);
++		mpsslog("%s %s vr1 %p vr1->info %p vr_size 0x%x vring 0x%x ",
++			__func__, mic->name, vr1->va, vr1->info, vr_size,
++			vring_size(MIC_VRING_ENTRIES, MIC_VIRTIO_RING_ALIGN));
++		mpsslog("magic 0x%x expected 0x%x\n",
++			vr1->info->magic, MIC_MAGIC + type + 1);
++		assert(vr1->info->magic == MIC_MAGIC + type + 1);
 +	}
-+
-+	return 0;
++done:
++	return va;
 +}
 +
-+#define PROCESS_DESC_CHAIN	true
-+
-+/* Copy a specified number of virtio descriptors in a chain */
-+int mic_virtio_copy_desc(struct mic_vdev *mvdev,
-+		struct mic_copy_desc *request)
++static void
++uninit_vr(struct mic_info *mic, int num_vq)
 +{
++	int vr_size, ret;
++
++	vr_size = PAGE_ALIGN(vring_size(MIC_VRING_ENTRIES,
++		MIC_VIRTIO_RING_ALIGN) + sizeof(struct _mic_vring_info));
++	ret = munmap(mic->mic_virtblk.block_dp,
++		MIC_DEVICE_PAGE_END + vr_size * num_vq);
++	if (ret < 0)
++		mpsslog("%s munmap errno %d\n", mic->name, errno);
++}
++
++static void
++wait_for_card_driver(struct mic_info *mic, int fd, int type)
++{
++	struct pollfd pollfd;
 +	int err;
-+	struct mutex *vr_mutex;
++	struct mic_device_desc *desc = get_device_desc(mic, type);
 +
-+	err = verify_copy_args(mvdev, &request->copy);
-+	if (err)
-+		return err;
-+
-+	vr_mutex = &mvdev->vr_mutex[request->copy.vr_idx];
-+	mutex_lock(vr_mutex);
-+	if (!mic_vdevup(mvdev)) {
-+		err = -ENODEV;
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, err);
-+		goto err;
-+	}
-+	err = _mic_virtio_copy(mvdev, &request->copy, !PROCESS_DESC_CHAIN);
-+	if (err) {
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, err);
-+	} else if (request->used_desc_idx != -1) {
-+		if (request->used_desc_idx >=
-+			le16_to_cpu(mic_vq_config(mvdev->dd)->num)) {
-+			dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+				__func__, __LINE__, -EINVAL);
-+			err = -EINVAL;
-+			goto err;
-+		}
-+		mic_update_local_avail(mvdev, request->copy.vr_idx);
-+		mic_update_used(mvdev, request->copy.vr_idx,
-+			request->used_desc_idx, request->used_len);
-+	}
-+err:
-+	mutex_unlock(vr_mutex);
-+	return err;
-+}
-+
-+/* Copy a chain of virtio descriptors */
-+int mic_virtio_copy_chain(struct mic_vdev *mvdev,
-+	struct mic_copy *request)
-+{
-+	int err;
-+	struct mutex *vr_mutex;
-+
-+	err = verify_copy_args(mvdev, request);
-+	if (err)
-+		return err;
-+
-+	vr_mutex = &mvdev->vr_mutex[request->vr_idx];
-+	mutex_lock(vr_mutex);
-+	if (!mic_vdevup(mvdev)) {
-+		err = -ENODEV;
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, err);
-+		goto err;
-+	}
-+	err = _mic_virtio_copy(mvdev, request, PROCESS_DESC_CHAIN);
-+	if (!err) {
-+		mic_update_local_avail(mvdev, request->vr_idx);
-+		mic_update_used(mvdev, request->vr_idx,
-+			request->desc_idx, request->out_len);
-+	} else
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, err);
-+err:
-+	mutex_unlock(vr_mutex);
-+	return err;
-+}
-+
-+static void mic_virtio_init_post(struct mic_vdev *mvdev)
-+{
-+	struct mic_vqconfig *vqconfig = mic_vq_config(mvdev->dd);
-+	int i;
-+
-+	for (i = 0; i < mvdev->dd->num_vq; i++) {
-+		if (!le64_to_cpu(vqconfig[i].used_address)) {
-+			dev_warn(mic_dev(mvdev), "used_address zero??\n");
++	pollfd.fd = fd;
++	mpsslog("%s %s Waiting .... desc-> type %d status 0x%x\n",
++		mic->name, __func__, type, desc->status);
++	while (1) {
++		pollfd.events = POLLIN;
++		pollfd.revents = 0;
++		err = poll(&pollfd, 1, -1);
++		if (err < 0) {
++			mpsslog("%s %s poll failed %s\n",
++				mic->name, __func__, strerror(errno));
 +			continue;
 +		}
-+		mvdev->vring[i].vr.used =
-+			mvdev->mdev->aper.va +
-+			le64_to_cpu(vqconfig[i].used_address);
++
++		if (pollfd.revents) {
++			mpsslog("%s %s Waiting... desc-> type %d status 0x%x\n",
++				mic->name, __func__, type, desc->status);
++			if (desc->status & VIRTIO_CONFIG_S_DRIVER_OK) {
++				mpsslog("%s %s poll.revents %d\n",
++					mic->name, __func__, pollfd.revents);
++				mpsslog("%s %s desc-> type %d status 0x%x\n",
++					mic->name, __func__, type,
++					desc->status);
++				break;
++			}
++		}
 +	}
-+
-+	smp_wmb();
-+	mvdev->dc->used_address_updated = 0;
-+
-+	dev_info(mic_dev(mvdev), "%s: device type %d LINKUP\n",
-+		__func__, mvdev->virtio_id);
 +}
 +
-+static inline void mic_virtio_device_reset(struct mic_vdev *mvdev)
++/* Spin till we have some descriptors */
++static void
++wait_for_descriptors(struct mic_info *mic, struct mic_vring *vr)
 +{
-+	int i;
++	__u16 avail_idx = read_avail_idx(vr);
 +
-+	dev_info(mic_dev(mvdev), "%s: status %d device type %d RESET\n",
-+		__func__, mvdev->dd->status, mvdev->virtio_id);
++	while (avail_idx == le16toh(ACCESS_ONCE(vr->vr.avail->idx))) {
++#ifdef DEBUG
++		mpsslog("%s %s waiting for desc avail %d info_avail %d\n",
++			mic->name, __func__,
++			le16toh(vr->vr.avail->idx), vr->info->avail_idx);
++#endif
++		cpu_relax();
++	}
++}
 +
-+	for (i = 0; i < mvdev->dd->num_vq; i++)
++static void *
++virtio_net(void *arg)
++{
++	static __u8 vnet_hdr[2][sizeof(struct virtio_net_hdr)];
++	static __u8 vnet_buf[2][MAX_NET_PKT_SIZE] __aligned(64);
++	struct iovec vnet_iov[2][2] = {
++		{ { .iov_base = vnet_hdr[0], .iov_len = sizeof(vnet_hdr[0]) },
++		  { .iov_base = vnet_buf[0], .iov_len = sizeof(vnet_buf[0]) } },
++		{ { .iov_base = vnet_hdr[1], .iov_len = sizeof(vnet_hdr[1]) },
++		  { .iov_base = vnet_buf[1], .iov_len = sizeof(vnet_buf[1]) } },
++	};
++	struct iovec *iov0 = vnet_iov[0], *iov1 = vnet_iov[1];
++	struct mic_info *mic = (struct mic_info *)arg;
++	char if_name[IFNAMSIZ];
++	struct pollfd net_poll[MAX_NET_FD];
++	struct mic_vring tx_vr, rx_vr;
++	struct mic_copy_desc chain;
++	struct mic_copy *copy = &chain.copy;
++	struct mic_device_desc *desc;
++	int err;
++
++	snprintf(if_name, IFNAMSIZ, "mic%d", mic->id);
++	mic->mic_net.tap_fd = tun_alloc(mic, if_name);
++	if (mic->mic_net.tap_fd < 0)
++		goto done;
++
++	if (tap_configure(mic, if_name))
++		goto done;
++	mpsslog("MIC name %s id %d\n", mic->name, mic->id);
++
++	net_poll[NET_FD_VIRTIO_NET].fd = mic->mic_net.virtio_net_fd;
++	net_poll[NET_FD_VIRTIO_NET].events = POLLIN;
++	net_poll[NET_FD_TUN].fd = mic->mic_net.tap_fd;
++	net_poll[NET_FD_TUN].events = POLLIN;
++
++	if (MAP_FAILED == init_vr(mic, mic->mic_net.virtio_net_fd,
++		VIRTIO_ID_NET, &tx_vr, &rx_vr,
++		virtnet_dev_page.dd.num_vq)) {
++		mpsslog("%s init_vr failed %s\n",
++			mic->name, strerror(errno));
++		goto done;
++	}
++
++	copy->iovcnt = 2;
++	desc = get_device_desc(mic, VIRTIO_ID_NET);
++
++	while (1) {
++		ssize_t len;
++
++		net_poll[NET_FD_VIRTIO_NET].revents = 0;
++		net_poll[NET_FD_TUN].revents = 0;
++
++		/* Start polling for data from tap and virtio net */
++		err = poll(net_poll, 2, -1);
++		if (err < 0) {
++			mpsslog("%s poll failed %s\n",
++				__func__, strerror(errno));
++			continue;
++		}
++		if (!(desc->status & VIRTIO_CONFIG_S_DRIVER_OK))
++			wait_for_card_driver(mic, mic->mic_net.virtio_net_fd,
++					VIRTIO_ID_NET);
 +		/*
-+		 * Avoid lockdep false positive. The + 1 is for the mic
-+		 * mutex which is held in the reset devices code path.
++		 * Check if there is data to be read from TUN and write to
++		 * virtio net fd if there is.
 +		 */
-+		mutex_lock_nested(&mvdev->vr_mutex[i], i + 1);
++		if (net_poll[NET_FD_TUN].revents & POLLIN) {
++			copy->iov = iov0;
++			len = readv(net_poll[NET_FD_TUN].fd,
++				copy->iov, copy->iovcnt);
++			if (len > 0) {
++				struct virtio_net_hdr *hdr
++					= (struct virtio_net_hdr *) vnet_hdr[0];
 +
-+	/* 0 status means "reset" */
-+	mvdev->dd->status = 0;
-+	mvdev->dc->vdev_reset = 0;
-+	mvdev->dc->host_ack = 1;
++				/* Disable checksums on the card since we are on
++				   a reliable PCIe link */
++				hdr->flags |= VIRTIO_NET_HDR_F_DATA_VALID;
++#ifdef DEBUG
++				mpsslog("%s %s %d hdr->flags 0x%x ", mic->name,
++					__func__, __LINE__, hdr->flags);
++				mpsslog("copy->out_len %d hdr->gso_type 0x%x\n",
++					copy->out_len, hdr->gso_type);
++#endif
++#ifdef DEBUG
++				disp_iovec(mic, copy, __func__, __LINE__);
++				mpsslog("%s %s %d read from tap 0x%lx\n",
++					mic->name, __func__, __LINE__,
++					len);
++#endif
++				wait_for_descriptors(mic, &tx_vr);
++				txrx_prepare(VIRTIO_ID_NET, 1, &tx_vr, &chain,
++					len);
 +
-+	for (i = 0; i < mvdev->dd->num_vq; i++) {
-+		mvdev->vring[i].info->avail_idx = 0;
-+		mvdev->vring[i].info->used_idx = 0;
++				err = mic_virtio_copy(mic,
++					mic->mic_net.virtio_net_fd, &tx_vr,
++					&chain);
++				if (err < 0) {
++					mpsslog("%s %s %d mic_virtio_copy %s\n",
++						mic->name, __func__, __LINE__,
++						strerror(errno));
++				}
++				if (!err)
++					verify_out_len(mic, copy);
++#ifdef DEBUG
++				disp_iovec(mic, copy, __func__, __LINE__);
++				mpsslog("%s %s %d wrote to net 0x%lx\n",
++					mic->name, __func__, __LINE__,
++					sum_iovec_len(copy));
++#endif
++				/* Reinitialize IOV for next run */
++				iov0[1].iov_len = MAX_NET_PKT_SIZE;
++			} else if (len < 0) {
++				disp_iovec(mic, copy, __func__, __LINE__);
++				mpsslog("%s %s %d read failed %s ", mic->name,
++					__func__, __LINE__, strerror(errno));
++				mpsslog("cnt %d sum %d\n",
++					copy->iovcnt, sum_iovec_len(copy));
++			}
++		}
++
++		/*
++		 * Check if there is data to be read from virtio net and
++		 * write to TUN if there is.
++		 */
++		if (net_poll[NET_FD_VIRTIO_NET].revents & POLLIN) {
++			while (rx_vr.info->avail_idx !=
++				le16toh(rx_vr.vr.avail->idx)) {
++				copy->iov = iov1;
++				txrx_prepare(VIRTIO_ID_NET, 0, &rx_vr, &chain,
++					MAX_NET_PKT_SIZE
++					+ sizeof(struct virtio_net_hdr));
++
++				err = mic_virtio_copy(mic,
++					mic->mic_net.virtio_net_fd, &rx_vr,
++					&chain);
++				if (!err) {
++#ifdef DEBUG
++					struct virtio_net_hdr *hdr
++						= (struct virtio_net_hdr *)
++							vnet_hdr[1];
++
++					mpsslog("%s %s %d hdr->flags 0x%x, ",
++						mic->name, __func__, __LINE__,
++						hdr->flags);
++					mpsslog("out_len %d gso_type 0x%x\n",
++						copy->out_len,
++						hdr->gso_type);
++#endif
++					/* Set the correct output iov_len */
++					iov1[1].iov_len = copy->out_len -
++						sizeof(struct virtio_net_hdr);
++					verify_out_len(mic, copy);
++#ifdef DEBUG
++					disp_iovec(mic, copy, __func__,
++						__LINE__);
++					mpsslog("%s %s %d ",
++						mic->name, __func__, __LINE__);
++					mpsslog("read from net 0x%lx\n",
++						sum_iovec_len(copy));
++#endif
++					len = writev(net_poll[NET_FD_TUN].fd,
++						copy->iov, copy->iovcnt);
++					if (len != sum_iovec_len(copy)) {
++						mpsslog("Tun write failed %s ",
++							strerror(errno));
++						mpsslog("len 0x%x ", len);
++						mpsslog("read_len 0x%x\n",
++							sum_iovec_len(copy));
++					} else {
++#ifdef DEBUG
++						disp_iovec(mic, copy, __func__,
++							__LINE__);
++						mpsslog("%s %s %d ",
++							mic->name, __func__,
++							__LINE__);
++						mpsslog("wrote to tap 0x%lx\n",
++							len);
++#endif
++					}
++				} else {
++					mpsslog("%s %s %d mic_virtio_copy %s\n",
++						mic->name, __func__, __LINE__,
++						strerror(errno));
++					break;
++				}
++			}
++		}
++		if (net_poll[NET_FD_VIRTIO_NET].revents & POLLERR) {
++			mpsslog("%s: %s: POLLERR\n", __func__, mic->name);
++			sleep(1);
++		}
 +	}
-+
-+	for (i = 0; i < mvdev->dd->num_vq; i++)
-+		mutex_unlock(&mvdev->vr_mutex[i]);
++done:
++	pthread_exit(NULL);
 +}
 +
-+void mic_virtio_reset_devices(struct mic_device *mdev)
++/* virtio_console */
++#define VIRTIO_CONSOLE_FD 0
++#define MONITOR_FD (VIRTIO_CONSOLE_FD + 1)
++#define MAX_CONSOLE_FD (MONITOR_FD + 1)  /* must be the last one + 1 */
++#define MAX_BUFFER_SIZE PAGE_SIZE
++
++static void *
++virtio_console(void *arg)
 +{
-+	struct list_head *pos, *tmp;
-+	struct mic_vdev *mvdev;
++	static __u8 vcons_buf[2][PAGE_SIZE];
++	struct iovec vcons_iov[2] = {
++		{ .iov_base = vcons_buf[0], .iov_len = sizeof(vcons_buf[0]) },
++		{ .iov_base = vcons_buf[1], .iov_len = sizeof(vcons_buf[1]) },
++	};
++	struct iovec *iov0 = &vcons_iov[0], *iov1 = &vcons_iov[1];
++	struct mic_info *mic = (struct mic_info *)arg;
++	int err;
++	struct pollfd console_poll[MAX_CONSOLE_FD];
++	int pty_fd;
++	char *pts_name;
++	ssize_t len;
++	struct mic_vring tx_vr, rx_vr;
++	struct mic_copy_desc chain;
++	struct mic_copy *copy = &chain.copy;
++	struct mic_device_desc *desc;
 +
-+	dev_info(&mdev->pdev->dev, "%s\n",  __func__);
++	pty_fd = posix_openpt(O_RDWR);
++	if (pty_fd < 0) {
++		mpsslog("can't open a pseudoterminal master device: %s\n",
++			strerror(errno));
++		goto _return;
++	}
++	pts_name = ptsname(pty_fd);
++	if (pts_name == NULL) {
++		mpsslog("can't get pts name\n");
++		goto _close_pty;
++	}
++	printf("%s console message goes to %s\n", mic->name, pts_name);
++	mpsslog("%s console message goes to %s\n", mic->name, pts_name);
++	err = grantpt(pty_fd);
++	if (err < 0) {
++		mpsslog("can't grant access: %s %s\n",
++				pts_name, strerror(errno));
++		goto _close_pty;
++	}
++	err = unlockpt(pty_fd);
++	if (err < 0) {
++		mpsslog("can't unlock a pseudoterminal: %s %s\n",
++				pts_name, strerror(errno));
++		goto _close_pty;
++	}
++	console_poll[MONITOR_FD].fd = pty_fd;
++	console_poll[MONITOR_FD].events = POLLIN;
 +
-+	WARN_ON(!mutex_is_locked(&mdev->mic_mutex));
-+	list_for_each_safe(pos, tmp, &mdev->vdev_list) {
-+		mvdev = list_entry(pos, struct mic_vdev, list);
-+		mic_virtio_device_reset(mvdev);
-+		mvdev->poll_wake = 1;
-+		wake_up(&mvdev->waitq);
++	console_poll[VIRTIO_CONSOLE_FD].fd = mic->mic_console.virtio_console_fd;
++	console_poll[VIRTIO_CONSOLE_FD].events = POLLIN;
++
++	if (MAP_FAILED == init_vr(mic, mic->mic_console.virtio_console_fd,
++		VIRTIO_ID_CONSOLE, &tx_vr, &rx_vr,
++		virtcons_dev_page.dd.num_vq)) {
++		mpsslog("%s init_vr failed %s\n",
++			mic->name, strerror(errno));
++		goto _close_pty;
++	}
++
++	copy->iovcnt = 1;
++	desc = get_device_desc(mic, VIRTIO_ID_CONSOLE);
++
++	for (;;) {
++		console_poll[MONITOR_FD].revents = 0;
++		console_poll[VIRTIO_CONSOLE_FD].revents = 0;
++		err = poll(console_poll, MAX_CONSOLE_FD, -1);
++		if (err < 0) {
++			mpsslog("%s %d: poll failed: %s\n", __func__, __LINE__,
++				strerror(errno));
++			continue;
++		}
++		if (!(desc->status & VIRTIO_CONFIG_S_DRIVER_OK))
++			wait_for_card_driver(mic,
++				mic->mic_console.virtio_console_fd,
++				VIRTIO_ID_CONSOLE);
++
++		if (console_poll[MONITOR_FD].revents & POLLIN) {
++			copy->iov = iov0;
++			len = readv(pty_fd, copy->iov, copy->iovcnt);
++			if (len > 0) {
++#ifdef DEBUG
++				disp_iovec(mic, copy, __func__, __LINE__);
++				mpsslog("%s %s %d read from tap 0x%lx\n",
++					mic->name, __func__, __LINE__,
++					len);
++#endif
++				wait_for_descriptors(mic, &tx_vr);
++				txrx_prepare(VIRTIO_ID_CONSOLE, 1, &tx_vr,
++					&chain, len);
++
++				err = mic_virtio_copy(mic,
++					mic->mic_console.virtio_console_fd,
++					&tx_vr, &chain);
++				if (err < 0) {
++					mpsslog("%s %s %d mic_virtio_copy %s\n",
++						mic->name, __func__, __LINE__,
++						strerror(errno));
++				}
++				if (!err)
++					verify_out_len(mic, copy);
++#ifdef DEBUG
++				disp_iovec(mic, copy, __func__, __LINE__);
++				mpsslog("%s %s %d wrote to net 0x%lx\n",
++					mic->name, __func__, __LINE__,
++					sum_iovec_len(copy));
++#endif
++				/* Reinitialize IOV for next run */
++				iov0->iov_len = PAGE_SIZE;
++			} else if (len < 0) {
++				disp_iovec(mic, copy, __func__, __LINE__);
++				mpsslog("%s %s %d read failed %s ",
++					mic->name, __func__, __LINE__,
++					strerror(errno));
++				mpsslog("cnt %d sum %d\n",
++					copy->iovcnt, sum_iovec_len(copy));
++			}
++		}
++
++		if (console_poll[VIRTIO_CONSOLE_FD].revents & POLLIN) {
++			while (rx_vr.info->avail_idx !=
++				le16toh(rx_vr.vr.avail->idx)) {
++				copy->iov = iov1;
++				txrx_prepare(VIRTIO_ID_CONSOLE, 0, &rx_vr,
++					&chain, PAGE_SIZE);
++
++				err = mic_virtio_copy(mic,
++					mic->mic_console.virtio_console_fd,
++					&rx_vr, &chain);
++				if (!err) {
++					/* Set the correct output iov_len */
++					iov1->iov_len = copy->out_len;
++					verify_out_len(mic, copy);
++#ifdef DEBUG
++					disp_iovec(mic, copy, __func__,
++						__LINE__);
++					mpsslog("%s %s %d ",
++						mic->name, __func__, __LINE__);
++					mpsslog("read from net 0x%lx\n",
++						sum_iovec_len(copy));
++#endif
++					len = writev(pty_fd,
++						copy->iov, copy->iovcnt);
++					if (len != sum_iovec_len(copy)) {
++						mpsslog("Tun write failed %s ",
++							strerror(errno));
++						mpsslog("len 0x%x ", len);
++						mpsslog("read_len 0x%x\n",
++							sum_iovec_len(copy));
++					} else {
++#ifdef DEBUG
++						disp_iovec(mic, copy, __func__,
++							__LINE__);
++						mpsslog("%s %s %d ",
++							mic->name, __func__,
++							__LINE__);
++						mpsslog("wrote to tap 0x%lx\n",
++							len);
++#endif
++					}
++				} else {
++					mpsslog("%s %s %d mic_virtio_copy %s\n",
++						mic->name, __func__, __LINE__,
++						strerror(errno));
++					break;
++				}
++			}
++		}
++		if (console_poll[NET_FD_VIRTIO_NET].revents & POLLERR) {
++			mpsslog("%s: %s: POLLERR\n", __func__, mic->name);
++			sleep(1);
++		}
++	}
++_close_pty:
++	close(pty_fd);
++_return:
++	pthread_exit(NULL);
++}
++
++static void
++add_virtio_device(struct mic_info *mic, struct mic_device_desc *dd)
++{
++	char path[PATH_MAX];
++	int fd, err;
++
++	snprintf(path, PATH_MAX, "/dev/mic%d", mic->id);
++	fd = open(path, O_RDWR);
++	if (fd < 0) {
++		mpsslog("Could not open %s %s\n", path, strerror(errno));
++		return;
++	}
++
++	err = ioctl(fd, MIC_VIRTIO_ADD_DEVICE, dd);
++	if (err < 0) {
++		mpsslog("Could not add %d %s\n", dd->type, strerror(errno));
++		close(fd);
++		return;
++	}
++	switch (dd->type) {
++	case VIRTIO_ID_NET:
++		mic->mic_net.virtio_net_fd = fd;
++		mpsslog("Added VIRTIO_ID_NET for %s\n", mic->name);
++		break;
++	case VIRTIO_ID_CONSOLE:
++		mic->mic_console.virtio_console_fd = fd;
++		mpsslog("Added VIRTIO_ID_CONSOLE for %s\n", mic->name);
++		break;
++	case VIRTIO_ID_BLOCK:
++		mic->mic_virtblk.virtio_block_fd = fd;
++		mpsslog("Added VIRTIO_ID_BLOCK for %s\n", mic->name);
++		break;
 +	}
 +}
 +
-+void mic_bh_handler(struct work_struct *work)
++static bool
++set_backend_file(struct mic_info *mic)
 +{
-+	struct mic_vdev *mvdev = container_of(work, struct mic_vdev,
-+			virtio_bh_work);
++	FILE *config;
++	char buff[PATH_MAX], *line, *evv, *p;
 +
-+	if (mvdev->dc->used_address_updated)
-+		mic_virtio_init_post(mvdev);
-+
-+	if (mvdev->dc->vdev_reset)
-+		mic_virtio_device_reset(mvdev);
-+
-+	mvdev->poll_wake = 1;
-+	wake_up(&mvdev->waitq);
-+}
-+
-+static irqreturn_t mic_virtio_intr_handler(int irq, void *data)
-+{
-+
-+	struct mic_vdev *mvdev = data;
-+	struct mic_device *mdev = mvdev->mdev;
-+
-+	mdev->ops->ack_interrupt(mdev);
-+	schedule_work(&mvdev->virtio_bh_work);
-+	return IRQ_HANDLED;
-+}
-+
-+int mic_virtio_config_change(struct mic_vdev *mvdev,
-+			void __user *argp)
-+{
-+	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(wake);
-+	int ret = 0, retry = 100, i;
-+	struct mic_bootparam *bootparam = mvdev->mdev->dp;
-+	s8 db = bootparam->h2c_config_db;
-+
-+	mutex_lock(&mvdev->mdev->mic_mutex);
-+	for (i = 0; i < mvdev->dd->num_vq; i++)
-+		mutex_lock_nested(&mvdev->vr_mutex[i], i + 1);
-+
-+	if (db == -1 || mvdev->dd->type == -1) {
-+		ret = -EIO;
-+		goto exit;
-+	}
-+
-+	if (copy_from_user(mic_vq_configspace(mvdev->dd),
-+				argp, mvdev->dd->config_len)) {
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, -EFAULT);
-+		ret = -EFAULT;
-+		goto exit;
-+	}
-+	mvdev->dc->config_change = MIC_VIRTIO_PARAM_CONFIG_CHANGED;
-+	smp_wmb();
-+	mvdev->mdev->ops->send_intr(mvdev->mdev, db);
-+
-+	for (i = retry; i--;) {
-+		ret = wait_event_timeout(wake,
-+			mvdev->dc->guest_ack, msecs_to_jiffies(100));
-+		if (ret)
++	snprintf(buff, PATH_MAX, "%s/mpssd%03d.conf", mic_config_dir, mic->id);
++	config = fopen(buff, "r");
++	if (config == NULL)
++		return false;
++	do {  /* look for "virtblk_backend=XXXX" */
++		line = fgets(buff, PATH_MAX, config);
++		if (line == NULL)
 +			break;
++		if (*line == '#')
++			continue;
++		p = strchr(line, '\n');
++		if (p)
++			*p = '\0';
++	} while (strncmp(line, virtblk_backend, strlen(virtblk_backend)) != 0);
++	fclose(config);
++	if (line == NULL)
++		return false;
++	evv = strchr(line, '=');
++	if (evv == NULL)
++		return false;
++	mic->mic_virtblk.backend_file = malloc(strlen(evv));
++	if (mic->mic_virtblk.backend_file == NULL) {
++		mpsslog("can't allocate memory\n", mic->name, mic->id);
++		return false;
 +	}
-+
-+	dev_info(mic_dev(mvdev),
-+		"%s %d retry: %d\n", __func__, __LINE__, retry);
-+	mvdev->dc->config_change = 0;
-+	mvdev->dc->guest_ack = 0;
-+exit:
-+	for (i = 0; i < mvdev->dd->num_vq; i++)
-+		mutex_unlock(&mvdev->vr_mutex[i]);
-+	mutex_unlock(&mvdev->mdev->mic_mutex);
-+	return ret;
++	strcpy(mic->mic_virtblk.backend_file, evv + 1);
++	return true;
 +}
 +
-+static int mic_copy_dp_entry(struct mic_vdev *mvdev,
-+					void __user *argp,
-+					__u8 *type,
-+					struct mic_device_desc **devpage)
++#define SECTOR_SIZE 512
++static bool
++set_backend_size(struct mic_info *mic)
 +{
-+	struct mic_device *mdev = mvdev->mdev;
-+	struct mic_device_desc dd, *dd_config, *devp;
-+	struct mic_vqconfig *vqconfig;
-+	int ret = 0, i;
-+	bool slot_found = false;
-+
-+	if (copy_from_user(&dd, argp, sizeof(dd))) {
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, -EFAULT);
-+		return -EFAULT;
++	mic->mic_virtblk.backend_size = lseek(mic->mic_virtblk.backend, 0,
++		SEEK_END);
++	if (mic->mic_virtblk.backend_size < 0) {
++		mpsslog("%s: can't seek: %s\n",
++			mic->name, mic->mic_virtblk.backend_file);
++		return false;
 +	}
++	virtblk_dev_page.blk_config.capacity =
++		mic->mic_virtblk.backend_size / SECTOR_SIZE;
++	if ((mic->mic_virtblk.backend_size % SECTOR_SIZE) != 0)
++		virtblk_dev_page.blk_config.capacity++;
 +
-+	if (mic_aligned_desc_size(&dd) > MIC_MAX_DESC_BLK_SIZE
-+		|| dd.num_vq > MIC_MAX_VRINGS) {
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, -EINVAL);
-+		return -EINVAL;
-+	}
++	virtblk_dev_page.blk_config.capacity =
++		htole64(virtblk_dev_page.blk_config.capacity);
 +
-+	dd_config = kmalloc(mic_desc_size(&dd), GFP_KERNEL);
-+	if (dd_config == NULL) {
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, -ENOMEM);
-+		return -ENOMEM;
-+	}
-+	if (copy_from_user(dd_config, argp, mic_desc_size(&dd))) {
-+		ret = -EFAULT;
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, ret);
-+		goto exit;
-+	}
-+
-+	vqconfig = mic_vq_config(dd_config);
-+	for (i = 0; i < dd.num_vq; i++) {
-+		if (le16_to_cpu(vqconfig[i].num) > MIC_MAX_VRING_ENTRIES) {
-+			ret =  -EINVAL;
-+			dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+				__func__, __LINE__, ret);
-+			goto exit;
-+		}
-+	}
-+
-+	/* Find the first free device page entry */
-+	for (i = mic_aligned_size(struct mic_bootparam);
-+		i < MIC_DP_SIZE - mic_total_desc_size(dd_config);
-+		i += mic_total_desc_size(devp)) {
-+		devp = mdev->dp + i;
-+		if (devp->type == 0 || devp->type == -1) {
-+			slot_found = true;
-+			break;
-+		}
-+	}
-+	if (!slot_found) {
-+		ret =  -EINVAL;
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, ret);
-+		goto exit;
-+	}
-+
-+	/* Save off the type before doing the memcpy. Type will be set in the
-+	 * end after completing all initialization for the new device */
-+	*type = dd_config->type;
-+	dd_config->type = 0;
-+	memcpy(devp, dd_config, mic_desc_size(dd_config));
-+
-+	*devpage = devp;
-+exit:
-+	kfree(dd_config);
-+	return ret;
++	return true;
 +}
 +
-+static void mic_init_device_ctrl(struct mic_vdev *mvdev,
-+				struct mic_device_desc *devpage)
++static bool
++open_backend(struct mic_info *mic)
 +{
-+	struct mic_device_ctrl *dc;
++	if (!set_backend_file(mic))
++		goto _error_exit;
++	mic->mic_virtblk.backend = open(mic->mic_virtblk.backend_file, O_RDWR);
++	if (mic->mic_virtblk.backend < 0) {
++		mpsslog("%s: can't open: %s\n", mic->name,
++			mic->mic_virtblk.backend_file);
++		goto _error_free;
++	}
++	if (!set_backend_size(mic))
++		goto _error_close;
++	mic->mic_virtblk.backend_addr = mmap(NULL,
++		mic->mic_virtblk.backend_size,
++		PROT_READ|PROT_WRITE, MAP_SHARED,
++		mic->mic_virtblk.backend, 0L);
++	if (mic->mic_virtblk.backend_addr == MAP_FAILED) {
++		mpsslog("%s: can't map: %s %s\n",
++			mic->name, mic->mic_virtblk.backend_file,
++			strerror(errno));
++		goto _error_close;
++	}
++	return true;
 +
-+	dc = mvdev->dc = (void *)devpage + mic_aligned_desc_size(devpage);
-+
-+	dc->config_change = 0;
-+	dc->guest_ack = 0;
-+	dc->vdev_reset = 0;
-+	dc->host_ack = 0;
-+	dc->used_address_updated = 0;
-+	dc->c2h_vdev_db = -1;
-+	dc->h2c_vdev_db = -1;
++ _error_close:
++	close(mic->mic_virtblk.backend);
++ _error_free:
++	free(mic->mic_virtblk.backend_file);
++ _error_exit:
++	return false;
 +}
 +
-+int mic_virtio_add_device(struct mic_vdev *mvdev,
-+			void __user *argp)
++static void
++close_backend(struct mic_info *mic)
 +{
-+	struct mic_device *mdev = mvdev->mdev;
-+	struct mic_device_desc *dd;
-+	struct mic_vqconfig *vqconfig;
-+	int vr_size, i, j, ret;
-+	u8 type;
-+	s8 db;
-+	char irqname[10];
-+	struct mic_bootparam *bootparam = mdev->dp;
-+	u16 num;
++	munmap(mic->mic_virtblk.backend_addr, mic->mic_virtblk.backend_size);
++	close(mic->mic_virtblk.backend);
++	free(mic->mic_virtblk.backend_file);
++}
 +
-+	mutex_lock(&mdev->mic_mutex);
-+
-+	ret = mic_copy_dp_entry(mvdev, argp, &type, &dd);
-+	if (ret) {
-+		mutex_unlock(&mdev->mic_mutex);
-+		return ret;
++static bool
++start_virtblk(struct mic_info *mic, struct mic_vring *vring)
++{
++	if (((__u64)&virtblk_dev_page.blk_config % 8) != 0) {
++		mpsslog("%s: blk_config is not 8 byte aligned.\n",
++			mic->name);
++		return false;
 +	}
-+
-+	mic_init_device_ctrl(mvdev, dd);
-+
-+	mvdev->dd = dd;
-+	mvdev->virtio_id = type;
-+	vqconfig = mic_vq_config(dd);
-+	INIT_WORK(&mvdev->virtio_bh_work, mic_bh_handler);
-+
-+	for (i = 0; i < dd->num_vq; i++) {
-+		struct mic_vring *vr = &mvdev->vring[i];
-+		num = le16_to_cpu(vqconfig[i].num);
-+		mutex_init(&mvdev->vr_mutex[i]);
-+		vr_size = PAGE_ALIGN(vring_size(num, MIC_VIRTIO_RING_ALIGN) +
-+			sizeof(struct _mic_vring_info));
-+		vr->va = (void *)
-+			__get_free_pages(GFP_KERNEL | __GFP_ZERO,
-+			get_order(vr_size));
-+		if (!vr->va) {
-+			ret = -ENOMEM;
-+			dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+				__func__, __LINE__, ret);
-+			goto err;
-+		}
-+		vr->len = vr_size;
-+		vr->info = vr->va + vring_size(num, MIC_VIRTIO_RING_ALIGN);
-+		vr->info->magic = MIC_MAGIC + mvdev->virtio_id + i;
-+		vqconfig[i].address = mic_map_single(mdev,
-+			vr->va, vr_size);
-+		if (mic_map_error(vqconfig[i].address)) {
-+			free_pages((unsigned long)vr->va,
-+				get_order(vr_size));
-+			ret = -ENOMEM;
-+			dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+				__func__, __LINE__, ret);
-+			goto err;
-+		}
-+		vqconfig[i].address = cpu_to_le64(vqconfig[i].address);
-+
-+		vring_init(&vr->vr, num,
-+			vr->va, MIC_VIRTIO_RING_ALIGN);
-+
-+		dev_dbg(&mdev->pdev->dev,
-+			"%s %d index %d va %p info %p vr_size 0x%x\n",
-+			__func__, __LINE__, i, vr->va, vr->info, vr_size);
++	add_virtio_device(mic, &virtblk_dev_page.dd);
++	if (MAP_FAILED == init_vr(mic, mic->mic_virtblk.virtio_block_fd,
++		VIRTIO_ID_BLOCK, vring, NULL, virtblk_dev_page.dd.num_vq)) {
++		mpsslog("%s init_vr failed %s\n",
++			mic->name, strerror(errno));
++		return false;
 +	}
++	return true;
++}
 +
-+	snprintf(irqname, sizeof(irqname),
-+		"mic%dvirtio%d", mdev->id, mvdev->virtio_id);
-+	mvdev->virtio_db = mic_next_db(mdev);
-+	mvdev->virtio_cookie = mic_request_irq(mdev, mic_virtio_intr_handler,
-+			irqname, mvdev, mvdev->virtio_db, MIC_INTR_DB);
-+	if (IS_ERR(mvdev->virtio_cookie)) {
-+		ret = PTR_ERR(mvdev->virtio_cookie);
-+		dev_dbg(&mdev->pdev->dev, "request irq failed\n");
-+		goto err;
++static void
++stop_virtblk(struct mic_info *mic)
++{
++	uninit_vr(mic, virtblk_dev_page.dd.num_vq);
++	close(mic->mic_virtblk.virtio_block_fd);
++}
++
++static __u8
++header_error_check(struct vring_desc *desc)
++{
++	if (le32toh(desc->len) != sizeof(struct virtio_blk_outhdr)) {
++		mpsslog("%s() %d: length is not sizeof(virtio_blk_outhd)\n",
++				__func__, __LINE__);
++		return -EIO;
 +	}
-+
-+	mvdev->dc->c2h_vdev_db = mvdev->virtio_db;
-+
-+	list_add_tail(&mvdev->list, &mdev->vdev_list);
-+	/*
-+	 * Now that we are completely initialized, set the type to "commit"
-+	 * the addition of the new device.
-+	 * For x86 we only need a compiler barrier before dd->type. For other
-+	 * platforms  we need smp_wmb(..) since we are writing to system memory
-+	 * and type needs to be visible to all CPUs or MIC.
-+	 */
-+	smp_wmb();
-+	dd->type = type;
-+
-+	dev_info(&mdev->pdev->dev, "Added virtio device id %d\n", dd->type);
-+
-+	db = bootparam->h2c_config_db;
-+	if (db != -1)
-+		mdev->ops->send_intr(mdev, db);
-+	mutex_unlock(&mdev->mic_mutex);
++	if (!(le16toh(desc->flags) & VRING_DESC_F_NEXT)) {
++		mpsslog("%s() %d: alone\n",
++			__func__, __LINE__);
++		return -EIO;
++	}
++	if (le16toh(desc->flags) & VRING_DESC_F_WRITE) {
++		mpsslog("%s() %d: not read\n",
++			__func__, __LINE__);
++		return -EIO;
++	}
 +	return 0;
-+err:
-+	vqconfig = mic_vq_config(dd);
-+	for (j = 0; j < i; j++) {
-+		mic_unmap_single(mdev, le64_to_cpu(vqconfig[j].address),
-+				mvdev->vring[j].len);
-+		free_pages((unsigned long)mvdev->vring[j].va,
-+			get_order(mvdev->vring[j].len));
-+	}
-+	mutex_unlock(&mdev->mic_mutex);
-+	return ret;
 +}
 +
-+void mic_virtio_del_device(struct mic_vdev *mvdev)
++static int
++read_header(int fd, struct virtio_blk_outhdr *hdr, __u32 desc_idx)
 +{
-+	struct list_head *pos, *tmp;
-+	struct mic_vdev *tmp_mvdev;
-+	struct mic_device *mdev = mvdev->mdev;
-+	DECLARE_WAIT_QUEUE_HEAD_ONSTACK(wake);
-+	int i, ret, retry = 100;
-+	struct mic_vqconfig *vqconfig;
-+	struct mic_bootparam *bootparam = mdev->dp;
-+	s8 db;
++	struct iovec iovec;
++	struct mic_copy_desc chain;
 +
-+	mutex_lock(&mdev->mic_mutex);
-+	db = bootparam->h2c_config_db;
-+	if (db == -1)
-+		goto skip_hot_remove;
-+	dev_info(&mdev->pdev->dev,
-+		"Requesting hot remove id %d\n", mvdev->virtio_id);
-+	mvdev->dc->config_change = MIC_VIRTIO_PARAM_DEV_REMOVE;
-+	smp_wmb();
-+	mdev->ops->send_intr(mdev, db);
-+	for (i = retry; i--;) {
-+		ret = wait_event_timeout(wake,
-+			mvdev->dc->guest_ack, msecs_to_jiffies(100));
-+		if (ret)
-+			break;
-+	}
-+	dev_info(&mdev->pdev->dev,
-+		"Device id %d config_change %d guest_ack %d\n",
-+		mvdev->virtio_id, mvdev->dc->config_change,
-+		mvdev->dc->guest_ack);
-+	mvdev->dc->config_change = 0;
-+	mvdev->dc->guest_ack = 0;
-+skip_hot_remove:
-+	mic_free_irq(mdev, mvdev->virtio_cookie, mvdev);
-+	flush_work(&mvdev->virtio_bh_work);
-+	vqconfig = mic_vq_config(mvdev->dd);
-+	for (i = 0; i < mvdev->dd->num_vq; i++) {
-+		mic_unmap_single(mdev, le64_to_cpu(vqconfig[i].address),
-+				mvdev->vring[i].len);
-+		free_pages((unsigned long)mvdev->vring[i].va,
-+			get_order(mvdev->vring[i].len));
-+	}
++	iovec.iov_len = sizeof(*hdr);
++	iovec.iov_base = hdr;
++	chain.copy.iov = &iovec;
++	chain.copy.iovcnt = 1;
++	chain.copy.vr_idx = 0;  /* only one vring on virtio_block */
++	chain.copy.desc_idx = desc_idx;
++	chain.copy.out_len = iovec.iov_len;
++	chain.used_desc_idx = -1U;  /* do not update used pointer */
++	chain.used_len = 0;
++	return ioctl(fd, MIC_VIRTIO_COPY_DESC, &chain);
++}
 +
-+	list_for_each_safe(pos, tmp, &mdev->vdev_list) {
-+		tmp_mvdev = list_entry(pos, struct mic_vdev, list);
-+		if (tmp_mvdev == mvdev) {
-+			list_del(pos);
-+			dev_info(&mdev->pdev->dev,
-+				"Removing virtio device id %d\n",
-+				mvdev->virtio_id);
++static int
++transfer_blocks(int fd, struct iovec *iovec, __u32 iovcnt,
++	__u32 desc_idx, __u32 total_len)
++{
++	struct mic_copy_desc chain;
++
++	chain.copy.iov = iovec;
++	chain.copy.iovcnt = iovcnt;
++	chain.copy.vr_idx = 0;
++	chain.copy.desc_idx = desc_idx;
++	chain.copy.out_len = total_len;
++	chain.used_desc_idx = -1U;  /* do not update used pointer */
++	chain.used_len = 0;
++	return ioctl(fd, MIC_VIRTIO_COPY_DESC, &chain);
++}
++
++static __u8
++status_error_check(struct vring_desc *desc)
++{
++	if (le32toh(desc->len) != sizeof(__u8)) {
++		mpsslog("%s() %d: length is not sizeof(status)\n",
++			__func__, __LINE__);
++		return -EIO;
++	}
++	return 0;
++}
++
++static int
++write_status(int fd, __u8 *status, __u32 status_desc_idx,
++	__u32 used_desc_idx, __u32 total_len)
++{
++	struct iovec iovec;
++	struct mic_copy_desc chain;
++
++	iovec.iov_base = status;
++	iovec.iov_len = sizeof(*status);
++	chain.copy.iov = &iovec;
++	chain.copy.iovcnt = 1;
++	chain.copy.vr_idx = 0;  /* only one vring on virtio_block */
++	chain.copy.desc_idx = status_desc_idx;
++	chain.copy.out_len = iovec.iov_len;
++	chain.used_desc_idx = used_desc_idx;  /* update used pointer */
++	chain.used_len = total_len;
++	return ioctl(fd, MIC_VIRTIO_COPY_DESC, &chain);
++}
++
++static void *
++virtio_block(void *arg)
++{
++	struct mic_info *mic = (struct mic_info *) arg;
++	int ret;
++	struct pollfd block_poll;
++	struct mic_vring vring;
++	__u16 avail_idx;
++	__u32 desc_idx;
++	struct vring_desc *desc;
++	struct iovec *iovec, *piov;
++	__u8 status;
++	__u32 header_desc_idx, buffer_desc_idx;
++	ssize_t total_len;
++	struct virtio_blk_outhdr hdr;
++	void *fos;
++
++	for (;;) {  /* forever */
++		if (!open_backend(mic)) { /* No virtblk */
++			for (mic->mic_virtblk.signaled = 0;
++				!mic->mic_virtblk.signaled;)
++				sleep(1);
++			continue;
++		}
++
++		/* backend file is specified. */
++		if (!start_virtblk(mic, &vring))
++			goto _close_backend;
++		iovec = malloc(sizeof(*iovec) *
++			le32toh(virtblk_dev_page.blk_config.seg_max));
++		if (!iovec) {
++			mpsslog("%s: can't alloc iovec: %s\n",
++				mic->name, strerror(ENOMEM));
++			goto _stop_virtblk;
++		}
++
++		block_poll.fd = mic->mic_virtblk.virtio_block_fd;
++		block_poll.events = POLLIN;
++		for (mic->mic_virtblk.signaled = 0;
++		     !mic->mic_virtblk.signaled;) {
++			block_poll.revents = 0;
++					/* timeout in 1 sec to see signaled */
++			ret = poll(&block_poll, 1, 1000);
++			if (ret < 0) {
++				mpsslog("%s %d: poll failed: %s\n",
++					__func__, __LINE__,
++					strerror(errno));
++				continue;
++			}
++
++			if (!(block_poll.revents & POLLIN)) {
++#ifdef DEBUG
++				mpsslog("%s %d: block_poll.revents=0x%x\n",
++					__func__, __LINE__, block_poll.revents);
++				sleep(1);
++#endif
++				continue;
++			}
++
++			/* POLLIN */
++			while (vring.info->avail_idx !=
++				le16toh(vring.vr.avail->idx)) {
++				/* read header element */
++				avail_idx =
++					vring.info->avail_idx &
++					(vring.vr.num - 1);
++				desc_idx = le16toh(
++					vring.vr.avail->ring[avail_idx]);
++				desc = &vring.vr.desc[desc_idx];
++#ifdef DEBUG
++				mpsslog("%s() %d: avail_idx=%d ",
++					__func__, __LINE__,
++					vring.info->avail_idx);
++				mpsslog("vring.vr.num=%d desc=%p\n",
++					vring.vr.num, desc);
++#endif
++				status = header_error_check(desc);
++				ret = read_header(
++					mic->mic_virtblk.virtio_block_fd,
++					&hdr, desc_idx);
++				if (ret < 0) {
++					mpsslog("%s() %d %s: ret=%d %s\n",
++						__func__, __LINE__,
++						mic->name, ret,
++						strerror(errno));
++					break;
++				}
++				header_desc_idx = desc_idx;
++
++				/* buffer element */
++				piov = iovec;
++				status = 0;
++				total_len = 0;
++				fos = mic->mic_virtblk.backend_addr +
++					(hdr.sector * SECTOR_SIZE);
++				buffer_desc_idx = desc_idx =
++					next_desc(desc);
++				for (desc = &vring.vr.desc[buffer_desc_idx];
++				     desc->flags & VRING_DESC_F_NEXT;
++				     desc_idx = next_desc(desc),
++					     desc = &vring.vr.desc[desc_idx]) {
++					piov->iov_len = desc->len;
++					piov->iov_base = fos;
++					piov++;
++					fos += desc->len;
++					total_len += desc->len;
++				}
++				if (hdr.type & ~(VIRTIO_BLK_T_OUT)) {
++					/*
++					  VIRTIO_BLK_T_IN - does not do
++					  anything. Probably for documenting.
++					  VIRTIO_BLK_T_SCSI_CMD - for
++					  virtio_scsi.
++					  VIRTIO_BLK_T_GET_ID - virtblk driver
++					  on card makes id as an empty string on
++					  error status.
++					  VIRTIO_BLK_T_FLUSH - turned off in
++					  config space.
++					  VIRTIO_BLK_T_BARRIER - defined but not
++					  used in anywhere.
++					*/
++					mpsslog("%s() %d: type %x ",
++						__func__, __LINE__,
++						hdr.type);
++					mpsslog("is not supported\n");
++					status = -ENOTSUP;
++
++				} else {
++					ret = transfer_blocks(
++					mic->mic_virtblk.virtio_block_fd,
++						iovec,
++						piov - iovec,
++						buffer_desc_idx,
++						total_len);
++					if (ret < 0 &&
++						status != 0)
++						status = ret;
++				}
++				/* write status and update used pointer */
++				if (status != 0)
++					status = status_error_check(desc);
++				ret = write_status(
++					mic->mic_virtblk.virtio_block_fd,
++					&status, desc_idx,
++					header_desc_idx,
++					total_len + sizeof(hdr) +
++					sizeof(status));
++#ifdef DEBUG
++				mpsslog("%s() %d: write status=%d on desc=%p\n",
++					__func__, __LINE__,
++					status, desc);
++#endif
++			}
++		}
++		free(iovec);
++_stop_virtblk:
++		stop_virtblk(mic);
++_close_backend:
++		close_backend(mic);
++	}  /* forever */
++
++	pthread_exit(NULL);
++}
++
++static void
++reset(struct mic_info *mic)
++{
++#define RESET_TIMEOUT 120
++	int i = RESET_TIMEOUT;
++	setsysfs(mic->name, "state", "reset");
++	while (i) {
++		char *state;
++		state = readsysfs(mic->name, "state");
++		if (!state)
++			goto retry;
++		mpsslog("%s: %s %d state %s\n",
++			mic->name, __func__, __LINE__, state);
++		if ((!strcmp(state, "offline"))) {
++			free(state);
 +			break;
 +		}
++		free(state);
++retry:
++		sleep(1);
++		i--;
 +	}
-+	mvdev->dd->type = -1;
-+	mutex_unlock(&mdev->mic_mutex);
 +}
-diff --git a/drivers/misc/mic/host/mic_virtio.h b/drivers/misc/mic/host/mic_virtio.h
++
++static int
++get_mic_shutdown_status(struct mic_info *mic, char *shutdown_status)
++{
++	if (!strcmp(shutdown_status, "nop"))
++		return MIC_NOP;
++	if (!strcmp(shutdown_status, "crashed"))
++		return MIC_CRASHED;
++	if (!strcmp(shutdown_status, "halted"))
++		return MIC_HALTED;
++	if (!strcmp(shutdown_status, "poweroff"))
++		return MIC_POWER_OFF;
++	if (!strcmp(shutdown_status, "restart"))
++		return MIC_RESTART;
++	mpsslog("%s: BUG invalid status %s\n", mic->name, shutdown_status);
++	/* Invalid state */
++	assert(0);
++};
++
++static int get_mic_state(struct mic_info *mic, char *state)
++{
++	if (!strcmp(state, "offline"))
++		return MIC_OFFLINE;
++	if (!strcmp(state, "online"))
++		return MIC_ONLINE;
++	if (!strcmp(state, "shutting_down"))
++		return MIC_SHUTTING_DOWN;
++	if (!strcmp(state, "reset_failed"))
++		return MIC_RESET_FAILED;
++	mpsslog("%s: BUG invalid state %s\n", mic->name, state);
++	/* Invalid state */
++	assert(0);
++};
++
++static void mic_handle_shutdown(struct mic_info *mic)
++{
++#define SHUTDOWN_TIMEOUT 60
++	int i = SHUTDOWN_TIMEOUT, ret, stat = 0;
++	char *shutdown_status;
++	while (i) {
++		shutdown_status = readsysfs(mic->name, "shutdown_status");
++		if (!shutdown_status)
++			continue;
++		mpsslog("%s: %s %d shutdown_status %s\n",
++			mic->name, __func__, __LINE__, shutdown_status);
++		switch (get_mic_shutdown_status(mic, shutdown_status)) {
++		case MIC_RESTART:
++			mic->restart = 1;
++		case MIC_HALTED:
++		case MIC_POWER_OFF:
++		case MIC_CRASHED:
++			goto reset;
++		default:
++			break;
++		}
++		free(shutdown_status);
++		sleep(1);
++		i--;
++	}
++reset:
++	ret = kill(mic->pid, SIGTERM);
++	mpsslog("%s: %s %d kill pid %d ret %d\n",
++		mic->name, __func__, __LINE__,
++		mic->pid, ret);
++	if (!ret) {
++		ret = waitpid(mic->pid, &stat,
++			WIFSIGNALED(stat));
++		mpsslog("%s: %s %d waitpid ret %d pid %d\n",
++			mic->name, __func__, __LINE__,
++			ret, mic->pid);
++	}
++	if (ret == mic->pid)
++		reset(mic);
++}
++
++static void *
++mic_config(void *arg)
++{
++	struct mic_info *mic = (struct mic_info *)arg;
++	char *state = NULL;
++	char pathname[PATH_MAX];
++	int fd, ret;
++	struct pollfd ufds[1];
++	char value[4096];
++
++	snprintf(pathname, PATH_MAX - 1, "%s/%s/%s",
++		MICSYSFSDIR, mic->name, "state");
++
++	fd = open(pathname, O_RDONLY);
++	if (fd < 0) {
++		mpsslog("%s: opening file %s failed %s\n",
++			mic->name, pathname, strerror(errno));
++		goto error;
++	}
++
++	do {
++		ret = read(fd, value, sizeof(value));
++		if (ret < 0) {
++			mpsslog("%s: Failed to read sysfs entry '%s': %s\n",
++				mic->name, pathname, strerror(errno));
++			goto close_error1;
++		}
++retry:
++		state = readsysfs(mic->name, "state");
++		if (!state)
++			goto retry;
++		mpsslog("%s: %s %d state %s\n",
++			mic->name, __func__, __LINE__, state);
++		switch (get_mic_state(mic, state)) {
++		case MIC_SHUTTING_DOWN:
++			mic_handle_shutdown(mic);
++			goto close_error;
++		default:
++			break;
++		}
++		free(state);
++
++		ufds[0].fd = fd;
++		ufds[0].events = POLLERR | POLLPRI;
++		ret = poll(ufds, 1, -1);
++		if (ret < 0) {
++			mpsslog("%s: poll failed %s\n",
++				mic->name, strerror(errno));
++			goto close_error1;
++		}
++	} while (1);
++close_error:
++	free(state);
++close_error1:
++	close(fd);
++error:
++	init_mic(mic);
++	pthread_exit(NULL);
++}
++
++static void
++set_cmdline(struct mic_info *mic)
++{
++	char buffer[PATH_MAX];
++	int len;
++
++	len = snprintf(buffer, PATH_MAX,
++		"clocksource=tsc highres=off nohz=off ");
++	len += snprintf(buffer + len, PATH_MAX,
++		"cpufreq_on;corec6_off;pc3_off;pc6_off ");
++	len += snprintf(buffer + len, PATH_MAX,
++		"ifcfg=static;address,172.31.%d.1;netmask,255.255.255.0",
++		mic->id);
++
++	setsysfs(mic->name, "cmdline", buffer);
++	mpsslog("%s: Command line: \"%s\"\n", mic->name, buffer);
++	snprintf(buffer, PATH_MAX, "172.31.%d.1", mic->id);
++	setsysfs(mic->name, "ipaddr", buffer);
++	mpsslog("%s: IPADDR: \"%s\"\n", mic->name, buffer);
++}
++
++static void
++set_log_buf_info(struct mic_info *mic)
++{
++	int fd;
++	off_t len;
++	char system_map[] = "/lib/firmware/mic/System.map";
++	char *map, *temp, log_buf[17] = {'\0'};
++
++	fd = open(system_map, O_RDONLY);
++	if (fd < 0) {
++		mpsslog("%s: Opening System.map failed: %d\n",
++			mic->name, errno);
++		return;
++	}
++	len = lseek(fd, 0, SEEK_END);
++	if (len < 0) {
++		mpsslog("%s: Reading System.map size failed: %d\n",
++			mic->name, errno);
++		close(fd);
++		return;
++	}
++	map = mmap(NULL, len, PROT_READ, MAP_PRIVATE, fd, 0);
++	if (map == MAP_FAILED) {
++		mpsslog("%s: mmap of System.map failed: %d\n",
++			mic->name, errno);
++		close(fd);
++		return;
++	}
++	temp = strstr(map, "__log_buf");
++	if (!temp) {
++		mpsslog("%s: __log_buf not found: %d\n", mic->name, errno);
++		munmap(map, len);
++		close(fd);
++		return;
++	}
++	strncpy(log_buf, temp - 19, 16);
++	setsysfs(mic->name, "log_buf_addr", log_buf);
++	mpsslog("%s: log_buf_addr: %s\n", mic->name, log_buf);
++	temp = strstr(map, "log_buf_len");
++	if (!temp) {
++		mpsslog("%s: log_buf_len not found: %d\n", mic->name, errno);
++		munmap(map, len);
++		close(fd);
++		return;
++	}
++	strncpy(log_buf, temp - 19, 16);
++	setsysfs(mic->name, "log_buf_len", log_buf);
++	mpsslog("%s: log_buf_len: %s\n", mic->name, log_buf);
++	munmap(map, len);
++	close(fd);
++}
++
++static void init_mic(struct mic_info *mic);
++
++static void
++change_virtblk_backend(int x, siginfo_t *siginfo, void *p)
++{
++	struct mic_info *mic;
++
++	for (mic = mic_list.next; mic != NULL; mic = mic->next)
++		mic->mic_virtblk.signaled = 1/* true */;
++}
++
++static void
++init_mic(struct mic_info *mic)
++{
++	struct sigaction ignore = {
++		.sa_flags = 0,
++		.sa_handler = SIG_IGN
++	};
++	struct sigaction act = {
++		.sa_flags = SA_SIGINFO,
++		.sa_sigaction = change_virtblk_backend,
++	};
++	char buffer[PATH_MAX];
++	int err;
++
++		/* ignore SIGUSR1 for both process */
++	sigaction(SIGUSR1, &ignore, NULL);
++
++	mic->pid = fork();
++	switch (mic->pid) {
++	case 0:
++		set_log_buf_info(mic);
++		set_cmdline(mic);
++		add_virtio_device(mic, &virtcons_dev_page.dd);
++		add_virtio_device(mic, &virtnet_dev_page.dd);
++		err = pthread_create(&mic->mic_console.console_thread, NULL,
++			virtio_console, mic);
++		if (err)
++			mpsslog("%s virtcons pthread_create failed %s\n",
++			mic->name, strerror(err));
++		/*
++		 * TODO: Debug why not adding this sleep results in the tap
++		 * interface not coming up during certain runs sporadically.
++		 */
++		usleep(1000);
++		err = pthread_create(&mic->mic_net.net_thread, NULL,
++			virtio_net, mic);
++		if (err)
++			mpsslog("%s virtnet pthread_create failed %s\n",
++			mic->name, strerror(err));
++		err = pthread_create(&mic->mic_virtblk.block_thread, NULL,
++			virtio_block, mic);
++		if (err)
++			mpsslog("%s virtblk pthread_create failed %s\n",
++			mic->name, strerror(err));
++		sigemptyset(&act.sa_mask);
++		err = sigaction(SIGUSR1, &act, NULL);
++		if (err)
++			mpsslog("%s sigaction SIGUSR1 failed %s\n",
++			mic->name, strerror(errno));
++		while (1)
++			sleep(60);
++	case -1:
++		mpsslog("fork failed MIC name %s id %d errno %d\n",
++			mic->name, mic->id, errno);
++		break;
++	default:
++		if (mic->restart) {
++			snprintf(buffer, PATH_MAX,
++				"boot:linux:mic/uos.img:mic/mic%d.image",
++				mic->id);
++			setsysfs(mic->name, "state", buffer);
++			mpsslog("%s restarting mic %d\n",
++				mic->name, mic->restart);
++			mic->restart = 0;
++		}
++		pthread_create(&mic->config_thread, NULL, mic_config, mic);
++	}
++}
++
++static void
++start_daemon(void)
++{
++	struct mic_info *mic;
++
++	for (mic = mic_list.next; mic != NULL; mic = mic->next)
++		init_mic(mic);
++
++	while (1)
++		sleep(60);
++}
++
++static int
++init_mic_list(void)
++{
++	struct mic_info *mic = &mic_list;
++	struct dirent *file;
++	DIR *dp;
++	int cnt = 0;
++
++	dp = opendir(MICSYSFSDIR);
++	if (!dp)
++		return 0;
++
++	while ((file = readdir(dp)) != NULL) {
++		if (!strncmp(file->d_name, "mic", 3)) {
++			mic->next = malloc(sizeof(struct mic_info));
++			if (mic->next) {
++				mic = mic->next;
++				mic->next = NULL;
++				memset(mic, 0, sizeof(struct mic_info));
++				mic->id = atoi(&file->d_name[3]);
++				mic->name = malloc(strlen(file->d_name) + 16);
++				if (mic->name)
++					strcpy(mic->name, file->d_name);
++				mpsslog("MIC name %s id %d\n", mic->name,
++					mic->id);
++				cnt++;
++			}
++		}
++	}
++
++	closedir(dp);
++	return cnt;
++}
++
++void
++mpsslog(char *format, ...)
++{
++	va_list args;
++	char buffer[4096];
++	time_t t;
++	char *ts;
++
++	if (logfp == NULL)
++		return;
++
++	va_start(args, format);
++	vsprintf(buffer, format, args);
++	va_end(args);
++
++	time(&t);
++	ts = ctime(&t);
++	ts[strlen(ts) - 1] = '\0';
++	fprintf(logfp, "%s: %s", ts, buffer);
++
++	fflush(logfp);
++}
++
++int
++main(int argc, char *argv[])
++{
++	int cnt;
++
++	myname = argv[0];
++
++	logfp = fopen(LOGFILE_NAME, "a+");
++	if (!logfp) {
++		fprintf(stderr, "cannot open logfile '%s'\n", LOGFILE_NAME);
++		exit(1);
++	}
++
++	mpsslog("MIC Daemon start\n");
++
++	cnt = init_mic_list();
++	if (cnt == 0) {
++		mpsslog("MIC module not loaded\n");
++		exit(2);
++	}
++	mpsslog("MIC found %d devices\n", cnt);
++
++	start_daemon();
++
++	exit(0);
++}
+diff --git a/Documentation/mic/mpssd/mpssd.h b/Documentation/mic/mpssd/mpssd.h
 new file mode 100644
-index 0000000..1e2a439
+index 0000000..b3212e5
 --- /dev/null
-+++ b/drivers/misc/mic/host/mic_virtio.h
++++ b/Documentation/mic/mpssd/mpssd.h
+@@ -0,0 +1,105 @@
++/*
++ * Intel MIC Platform Software Stack (MPSS)
++ *
++ * Copyright(c) 2013 Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License, version 2, as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
++ * USA.
++ *
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Intel MIC User Space Tools.
++ */
++#ifndef _MPSSD_H_
++#define _MPSSD_H_
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <dirent.h>
++#include <libgen.h>
++#include <pthread.h>
++#include <stdarg.h>
++#include <time.h>
++#include <errno.h>
++#include <sys/dir.h>
++#include <sys/ioctl.h>
++#include <sys/poll.h>
++#include <sys/types.h>
++#include <sys/socket.h>
++#include <sys/stat.h>
++#include <sys/types.h>
++#include <sys/mman.h>
++#include <sys/utsname.h>
++#include <sys/wait.h>
++#include <netinet/in.h>
++#include <arpa/inet.h>
++#include <netdb.h>
++#include <pthread.h>
++#include <signal.h>
++#include <limits.h>
++#include <syslog.h>
++#include <getopt.h>
++#include <net/if.h>
++#include <linux/if_tun.h>
++#include <linux/if_tun.h>
++#include <linux/virtio_ids.h>
++
++#define MICSYSFSDIR "/sys/class/mic"
++#define LOGFILE_NAME "/var/log/mpssd"
++#define PAGE_SIZE 4096
++
++struct mic_console_info {
++	pthread_t       console_thread;
++	int		virtio_console_fd;
++	void		*console_dp;
++};
++
++struct mic_net_info {
++	pthread_t       net_thread;
++	int		virtio_net_fd;
++	int		tap_fd;
++	void		*net_dp;
++};
++
++struct mic_virtblk_info {
++	pthread_t       block_thread;
++	int		virtio_block_fd;
++	void		*block_dp;
++	volatile sig_atomic_t	signaled;
++	char		*backend_file;
++	int		backend;
++	void		*backend_addr;
++	long		backend_size;
++};
++
++struct mic_info {
++	int		id;
++	char		*name;
++	pthread_t       config_thread;
++	pid_t		pid;
++	struct mic_console_info	mic_console;
++	struct mic_net_info	mic_net;
++	struct mic_virtblk_info	mic_virtblk;
++	int		restart;
++	struct mic_info *next;
++};
++
++void mpsslog(char *format, ...);
++char *readsysfs(char *dir, char *entry);
++int setsysfs(char *dir, char *entry, char *value);
++#endif
+diff --git a/Documentation/mic/mpssd/sysfs.c b/Documentation/mic/mpssd/sysfs.c
+new file mode 100644
+index 0000000..7bc9fbf
+--- /dev/null
++++ b/Documentation/mic/mpssd/sysfs.c
 @@ -0,0 +1,108 @@
 +/*
 + * Intel MIC Platform Software Stack (MPSS)
@@ -1414,396 +2440,91 @@ index 0000000..1e2a439
 + * The full GNU General Public License is included in this distribution in
 + * the file called "COPYING".
 + *
-+ * Intel MIC Host driver.
-+ *
-+ */
-+#ifndef MIC_VIRTIO_H
-+#define MIC_VIRTIO_H
-+
-+#include <linux/types.h>
-+#include <linux/virtio_ring.h>
-+#include <linux/virtio_config.h>
-+
-+#include <linux/mic_ioctl.h>
-+
-+/*
-+ * Note on endianness.
-+ * 1. Host can be both BE or LE
-+ * 2. Guest/card is LE. Host uses le_to_cpu to access desc/avail
-+ *    rings and ioreadXX/iowriteXX to access used ring.
-+ * 3. Device page exposed by host to guest contains LE values. Guest
-+ *    accesses these using ioreadXX/iowriteXX etc. This way in general we
-+ *    obey the virtio spec according to which guest works with native
-+ *    endianness and host is aware of guest endianness and does all
-+ *    required endianness conversion.
-+ * 4. Data provided from user space to guest (in ADD_DEVICE and
-+ *    CONFIG_CHANGE ioctl's) is not interpreted by the driver and should be
-+ *    in guest endianness.
++ * Intel MIC User Space Tools.
 + */
 +
-+struct mic_vdev {
-+	int virtio_id;
-+	wait_queue_head_t waitq;
-+	struct mic_device *mdev;
-+	int poll_wake;
-+	unsigned long out_bytes;
-+	unsigned long in_bytes;
-+	struct mic_vring vring[MIC_MAX_VRINGS];
-+	struct work_struct virtio_bh_work;
-+	struct mutex vr_mutex[MIC_MAX_VRINGS];
-+	struct mic_device_desc *dd;
-+	struct mic_device_ctrl *dc;
-+	struct list_head list;
-+	int virtio_db;
-+	struct mic_irq *virtio_cookie;
-+};
++#include "mpssd.h"
 +
-+void mic_virtio_uninit(struct mic_device *mdev);
-+int mic_virtio_add_device(struct mic_vdev *mvdev,
-+			void __user *argp);
-+void mic_virtio_del_device(struct mic_vdev *mvdev);
-+int mic_virtio_config_change(struct mic_vdev *mvdev,
-+			void __user *argp);
-+int mic_virtio_copy_desc(struct mic_vdev *mvdev,
-+	struct mic_copy_desc *request);
-+void mic_virtio_reset_devices(struct mic_device *mdev);
-+int mic_virtio_copy_chain(struct mic_vdev *mvdev,
-+	struct mic_copy *request);
-+void mic_bh_handler(struct work_struct *work);
++#define PAGE_SIZE 4096
 +
-+static inline struct device *mic_dev(struct mic_vdev *mvdev)
++char *
++readsysfs(char *dir, char *entry)
 +{
-+	return &mvdev->mdev->pdev->dev;
++	char filename[PATH_MAX];
++	char value[PAGE_SIZE];
++	char *string = NULL;
++	int fd;
++	int len;
++
++	if (dir == NULL)
++		snprintf(filename, PATH_MAX, "%s/%s", MICSYSFSDIR, entry);
++	else
++		snprintf(filename, PATH_MAX,
++			"%s/%s/%s", MICSYSFSDIR, dir, entry);
++
++	fd = open(filename, O_RDONLY);
++	if (fd < 0) {
++		mpsslog("Failed to open sysfs entry '%s': %s\n",
++			filename, strerror(errno));
++		return NULL;
++	}
++
++	len = read(fd, value, sizeof(value));
++	if (len < 0) {
++		mpsslog("Failed to read sysfs entry '%s': %s\n",
++			filename, strerror(errno));
++		goto readsys_ret;
++	}
++
++	value[len] = '\0';
++
++	string = malloc(strlen(value) + 1);
++	if (string)
++		strcpy(string, value);
++
++readsys_ret:
++	close(fd);
++	return string;
 +}
 +
-+static inline int mic_vdev_inited(struct mic_vdev *mvdev)
++int
++setsysfs(char *dir, char *entry, char *value)
 +{
-+	/* Device has not been created yet */
-+	if (!mvdev->dd || !mvdev->dd->type) {
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, -EINVAL);
-+		return -EINVAL;
++	char filename[PATH_MAX];
++	char oldvalue[PAGE_SIZE];
++	int fd;
++
++	if (dir == NULL)
++		snprintf(filename, PATH_MAX, "%s/%s", MICSYSFSDIR, entry);
++	else
++		snprintf(filename, PATH_MAX, "%s/%s/%s",
++			MICSYSFSDIR, dir, entry);
++
++	fd = open(filename, O_RDWR);
++	if (fd < 0) {
++		mpsslog("Failed to open sysfs entry '%s': %s\n",
++			filename, strerror(errno));
++		return errno;
 +	}
 +
-+	/* Device has been removed/deleted */
-+	if (mvdev->dd->type == -1) {
-+		dev_err(mic_dev(mvdev), "%s %d err %d\n",
-+			__func__, __LINE__, -ENODEV);
-+		return -ENODEV;
++	if (read(fd, oldvalue, sizeof(oldvalue)) < 0) {
++		mpsslog("Failed to read sysfs entry '%s': %s\n",
++			filename, strerror(errno));
++		close(fd);
++		return errno;
 +	}
 +
++	if (strcmp(value, oldvalue)) {
++		if (write(fd, value, strlen(value)) < 0) {
++			mpsslog("Failed to write new sysfs entry '%s': %s\n",
++				filename, strerror(errno));
++			close(fd);
++			return errno;
++		}
++	}
++
++	close(fd);
 +	return 0;
 +}
-+
-+static inline bool mic_vdevup(struct mic_vdev *mvdev)
-+{
-+	return !!mvdev->dd->status;
-+}
-+#endif
-diff --git a/include/uapi/linux/Kbuild b/include/uapi/linux/Kbuild
-index 8f985dd..1579aab 100644
---- a/include/uapi/linux/Kbuild
-+++ b/include/uapi/linux/Kbuild
-@@ -240,6 +240,7 @@ header-y += mei.h
- header-y += mempolicy.h
- header-y += meye.h
- header-y += mic_common.h
-+header-y += mic_ioctl.h
- header-y += mii.h
- header-y += minix_fs.h
- header-y += mman.h
-diff --git a/include/uapi/linux/mic_common.h b/include/uapi/linux/mic_common.h
-index b8edede..2576d0b 100644
---- a/include/uapi/linux/mic_common.h
-+++ b/include/uapi/linux/mic_common.h
-@@ -26,7 +26,61 @@
- #ifndef __MIC_COMMON_H_
- #define __MIC_COMMON_H_
- 
--#include <linux/types.h>
-+#include <linux/virtio_ring.h>
-+
-+#ifndef __KERNEL__
-+#define ALIGN(a, x)	(((a) + (x) - 1) & ~((x) - 1))
-+#define __aligned(x)	__attribute__ ((aligned(x)))
-+#endif
-+
-+#define mic_aligned_size(x) ALIGN(sizeof(x), 8)
-+
-+
-+/**
-+ * struct mic_device_desc: Virtio device information shared between the
-+ * virtio driver and userspace backend
-+ *
-+ * @type: Device type: console/network/disk etc.  Type 0/-1 terminates.
-+ * @num_vq: Number of virtqueues.
-+ * @feature_len: Number of bytes of feature bits.  Multiply by 2: one for
-+   host features and one for guest acknowledgements.
-+ * @config_len: Number of bytes of the config array after virtqueues.
-+ * @status: A status byte, written by the Guest.
-+ * @config: Start of the following variable length config.
-+ */
-+struct mic_device_desc {
-+	__s8 type;
-+	__u8 num_vq;
-+	__u8 feature_len;
-+	__u8 config_len;
-+	__u8 status;
-+	__u64 config[0];
-+} __aligned(8);
-+
-+/**
-+ * struct mic_device_ctrl: Per virtio device information in the device page
-+ * used internally by the host and card side drivers.
-+ *
-+ * @vdev: Used for storing MIC vdev information by the guest.
-+ * @config_change: Set to 1 by host when a config change is requested.
-+ * @vdev_reset: Set to 1 by guest to indicate virtio device has been reset.
-+ * @guest_ack: Set to 1 by guest to ack a command.
-+ * @host_ack: Set to 1 by host to ack a command.
-+ * @used_address_updated: Set to 1 by guest when the used address should be
-+ * updated.
-+ * @c2h_vdev_db: The doorbell number to be used by guest. Set by host.
-+ * @h2c_vdev_db: The doorbell number to be used by host. Set by guest.
-+ */
-+struct mic_device_ctrl {
-+	__u64 vdev;
-+	__u8 config_change;
-+	__u8 vdev_reset;
-+	__u8 guest_ack;
-+	__u8 host_ack;
-+	__u8 used_address_updated;
-+	__s8 c2h_vdev_db;
-+	__s8 h2c_vdev_db;
-+} __aligned(8);
- 
- /**
-  * struct mic_bootparam: Virtio device independent information in device page
-@@ -47,6 +101,115 @@ struct mic_bootparam {
- 	__u8 shutdown_card;
- } __aligned(8);
- 
-+/**
-+ * struct mic_device_page: High level representation of the device page
-+ *
-+ * @bootparam: The bootparam structure is used for sharing information and
-+ * status updates between MIC host and card drivers.
-+ * @desc: Array of MIC virtio device descriptors.
-+ */
-+struct mic_device_page {
-+	struct mic_bootparam bootparam;
-+	struct mic_device_desc desc[0];
-+};
-+/**
-+ * struct mic_vqconfig: This is how we expect the device configuration field
-+ * for a virtqueue to be laid out in config space.
-+ *
-+ * @address: Guest/MIC physical address of the virtio ring
-+ * (avail and desc rings)
-+ * @used_address: Guest/MIC physical address of the used ring
-+ * @num: The number of entries in the virtio_ring
-+ */
-+struct mic_vqconfig {
-+	__u64 address;
-+	__u64 used_address;
-+	__u16 num;
-+} __aligned(8);
-+
-+/* The alignment to use between consumer and producer parts of vring.
-+ * This is pagesize for historical reasons. */
-+#define MIC_VIRTIO_RING_ALIGN		4096
-+
-+#define MIC_MAX_VRINGS			4
-+#define MIC_VRING_ENTRIES		128
-+
-+/*
-+ * Max vring entries (power of 2) to ensure desc and avail rings
-+ * fit in a single page
-+ */
-+#define MIC_MAX_VRING_ENTRIES		128
-+
-+/**
-+ * Max size of the desc block in bytes: includes:
-+ *	- struct mic_device_desc
-+ *	- struct mic_vqconfig (num_vq of these)
-+ *	- host and guest features
-+ *	- virtio device config space
-+ */
-+#define MIC_MAX_DESC_BLK_SIZE		256
-+
-+/**
-+ * struct _mic_vring_info - Host vring info exposed to userspace backend
-+ *
-+ * @avail_idx: host avail idx
-+ * @used_idx: host used idx
-+ * @magic: A magic debug cookie.
-+ */
-+struct _mic_vring_info {
-+	__u16 avail_idx;
-+	__u16 used_idx;
-+	int magic;
-+};
-+
-+/**
-+ * struct mic_vring - Vring information.
-+ *
-+ * @vr: The virtio ring.
-+ * @info: Host vring information exposed to the card.
-+ * @va: The va for the buffer allocated for vr and info.
-+ * @len: The length of the buffer required for allocating vr and info.
-+ */
-+struct mic_vring {
-+	struct vring vr;
-+	struct _mic_vring_info *info;
-+	void *va;
-+	int len;
-+};
-+
-+#define mic_aligned_desc_size(d) ALIGN(mic_desc_size(d), 8)
-+
-+#ifndef INTEL_MIC_CARD
-+static inline unsigned mic_desc_size(const struct mic_device_desc *desc)
-+{
-+	return mic_aligned_size(*desc)
-+		+ desc->num_vq * mic_aligned_size(struct mic_vqconfig)
-+		+ desc->feature_len * 2
-+		+ desc->config_len;
-+}
-+
-+static inline struct mic_vqconfig *
-+mic_vq_config(const struct mic_device_desc *desc)
-+{
-+	return (struct mic_vqconfig *)(desc + 1);
-+}
-+
-+static inline __u8 *mic_vq_features(const struct mic_device_desc *desc)
-+{
-+	return (__u8 *)(mic_vq_config(desc) + desc->num_vq);
-+}
-+
-+static inline __u8 *mic_vq_configspace(const struct mic_device_desc *desc)
-+{
-+	return mic_vq_features(desc) + desc->feature_len * 2;
-+}
-+static inline unsigned mic_total_desc_size(struct mic_device_desc *desc)
-+{
-+	return mic_aligned_desc_size(desc) +
-+		mic_aligned_size(struct mic_device_ctrl);
-+}
-+#endif
-+
- /* Device page size */
- #define MIC_DP_SIZE 4096
- 
-diff --git a/include/uapi/linux/mic_ioctl.h b/include/uapi/linux/mic_ioctl.h
-new file mode 100644
-index 0000000..02e1518
---- /dev/null
-+++ b/include/uapi/linux/mic_ioctl.h
-@@ -0,0 +1,104 @@
-+/*
-+ * Intel MIC Platform Software Stack (MPSS)
-+ *
-+ * Copyright(c) 2013 Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License, version 2, as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-+ * General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
-+ * USA.
-+ *
-+ * The full GNU General Public License is included in this distribution in
-+ * the file called "COPYING".
-+ *
-+ * Intel MIC Host driver.
-+ *
-+ */
-+#ifndef _MIC_IOCTL_H_
-+#define _MIC_IOCTL_H_
-+
-+#include <linux/mic_common.h>
-+
-+/*
-+ * mic_copy - MIC virtio descriptor copy.
-+ *
-+ * @iov: An array of IOVEC structures containing user space buffers.
-+ * @iovcnt: Number of IOVEC structures in iov.
-+ * @vr_idx: The vring index.
-+ * @desc_idx: The starting desc index.
-+ * @out_cookie: A cookie returned by the driver to identify this copy.
-+ * @out_len: The aggregate of the total length written to or read from
-+ *	the virtio device.
-+ */
-+struct mic_copy {
-+#ifdef __KERNEL__
-+	struct iovec __user *iov;
-+#else
-+	struct iovec *iov;
-+#endif
-+	int iovcnt;
-+	__u8 vr_idx;
-+	__u32 desc_idx;
-+	__u64 out_cookie;
-+	__u32 out_len;
-+};
-+
-+/*
-+ * mic_copy_desc - MIC virtio copy.
-+ *
-+ * @copy - MIC virtio descriptor copy.
-+ * @used_desc_idx - The desc index to update the used ring with.
-+ *		The used index is not updated if the used_idx is -1.
-+ * @used_len - The length to update the used ring with.
-+ */
-+struct mic_copy_desc {
-+	struct mic_copy copy;
-+	__u32 used_desc_idx;
-+	__u32 used_len;
-+};
-+
-+/*
-+ * Add a new virtio device
-+ * The (struct mic_device_desc *) pointer points to a device page entry
-+ *	for the virtio device consisting of:
-+ *	- struct mic_device_desc
-+ *	- struct mic_vqconfig (num_vq of these)
-+ *	- host and guest features
-+ *	- virtio device config space
-+ * The total size referenced by the pointer should equal the size returned
-+ * by desc_size() in mic_common.h
-+ */
-+#define MIC_VIRTIO_ADD_DEVICE _IOWR('s', 1, struct mic_device_desc *)
-+
-+/*
-+ * Copy the number of entries in the iovec and update the used index
-+ * if requested by the user.
-+ */
-+#define MIC_VIRTIO_COPY_DESC	_IOWR('s', 2, struct mic_copy_desc *)
-+
-+/*
-+ * Copy iovec entries upto the length of the chain. The number of entries
-+ * must be >= the length of the chain else -1 is returned and errno set
-+ * to EINVAL.
-+ */
-+#define MIC_VIRTIO_COPY_CHAIN _IOWR('s', 3, struct mic_copy *)
-+
-+/*
-+ * Notify virtio device of a config change
-+ * The (__u8 *) pointer points to config space values for the device
-+ * as they should be written into the device page. The total size
-+ * referenced by the pointer should equal the config_len field of struct
-+ * mic_device_desc.
-+ */
-+#define MIC_VIRTIO_CONFIG_CHANGE _IOWR('s', 5, __u8 *)
-+
-+#endif
 -- 
 1.8.2.1
