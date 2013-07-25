@@ -1,7 +1,8 @@
 From: Amit Shah <amit.shah@redhat.com>
-Subject: [PATCH v3 4/9] virtio: console: fix raising SIGIO after port unplug
-Date: Thu, 25 Jul 2013 19:28:44 +0530
-Message-ID: <e4199103bd85fae76ce7009d7d6abacf28f1f972.1374759439.git.amit.shah__36261.272399179$1374760788$gmane$org@redhat.com>
+Subject: [PATCH v3 5/9] virtio: console: return -ENODEV on all read operations
+	after unplug
+Date: Thu, 25 Jul 2013 19:28:45 +0530
+Message-ID: <f218052d8d8438fea0d1c3483434e315c7e82db8.1374759439.git.amit.shah__5652.72017051956$1374760798$gmane$org@redhat.com>
 References: <cover.1374759439.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,42 +24,46 @@ To: Virtualization List <virtualization@lists.linux-foundation.org>
 Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-SIGIO should be sent when a port gets unplugged.  It should only be sent
-to prcesses that have the port opened, and have asked for SIGIO to be
-delivered.  We were clearing out guest_connected before calling
-send_sigio_to_port(), resulting in a sigio not getting sent to
-processes.
+If a port gets unplugged while a user is blocked on read(), -ENODEV is
+returned.  However, subsequent read()s returned 0, indicating there's no
+host-side connection (but not indicating the device went away).
 
-Fix by setting guest_connected to false after invoking the sigio
-function.
+This also happened when a port was unplugged and the user didn't have
+any blocking operation pending.  If the user didn't monitor the SIGIO
+signal, they won't have a chance to find out if the port went away.
+
+Fix by returning -ENODEV on all read()s after the port gets unplugged.
+write() already behaves this way.
 
 CC: <stable@vger.kernel.org>
 Signed-off-by: Amit Shah <amit.shah@redhat.com>
 ---
- drivers/char/virtio_console.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/char/virtio_console.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 6bf0df3..3435348 100644
+index 3435348..2b68075 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1534,12 +1534,14 @@ static void unplug_port(struct port *port)
- 	spin_unlock_irq(&port->portdev->ports_lock);
+@@ -749,6 +749,10 @@ static ssize_t port_fops_read(struct file *filp, char __user *ubuf,
  
- 	if (port->guest_connected) {
-+		/* Let the app know the port is going down. */
-+		send_sigio_to_port(port);
+ 	port = filp->private_data;
+ 
++	/* Port is hot-unplugged. */
++	if (!port->guest_connected)
++		return -ENODEV;
 +
-+		/* Do this after sigio is actually sent */
- 		port->guest_connected = false;
- 		port->host_connected = false;
--		wake_up_interruptible(&port->waitqueue);
- 
--		/* Let the app know the port is going down. */
--		send_sigio_to_port(port);
-+		wake_up_interruptible(&port->waitqueue);
+ 	if (!port_has_data(port)) {
+ 		/*
+ 		 * If nothing's connected on the host just return 0 in
+@@ -765,7 +769,7 @@ static ssize_t port_fops_read(struct file *filp, char __user *ubuf,
+ 		if (ret < 0)
+ 			return ret;
  	}
- 
- 	if (is_console_port(port)) {
+-	/* Port got hot-unplugged. */
++	/* Port got hot-unplugged while we were waiting above. */
+ 	if (!port->guest_connected)
+ 		return -ENODEV;
+ 	/*
 -- 
 1.8.1.4
