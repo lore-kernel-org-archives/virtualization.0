@@ -1,15 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v3 6/9] virtio: console: add locks around buffer removal
-	in port unplug path
-Date: Mon, 29 Jul 2013 14:23:56 +0930
-Message-ID: <87a9l66k63.fsf@rustcorp.com.au>
+Subject: Re: [PATCH v3 9/9] virtio: console: prevent use-after-free of port
+	name in port unplug
+Date: Mon, 29 Jul 2013 14:26:09 +0930
+Message-ID: <871u6i6k2e.fsf@rustcorp.com.au>
 References: <cover.1374759439.git.amit.shah@redhat.com>
-	<076e81210c7105be320a9807e8ff2fb76e0a9b7d.1374759439.git.amit.shah@redhat.com>
+	<83c058bc32c4e377a75235120885aec7dfd223c7.1374759439.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <076e81210c7105be320a9807e8ff2fb76e0a9b7d.1374759439.git.amit.shah@redhat.com>
+In-Reply-To: <83c058bc32c4e377a75235120885aec7dfd223c7.1374759439.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,46 +24,33 @@ Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Amit Shah <amit.shah@redhat.com> writes:
-> The removal functions act on the vqs, and the vq operations need to be
-> locked.
+> Remove the debugfs path before freeing port->name, to prevent a possible
+> use-after-free.
 >
+> Reported-by: Jason Wang <jasowang@redhat.com>
 > Signed-off-by: Amit Shah <amit.shah@redhat.com>
 
 Applied,
 Rusty.
 
 > ---
->  drivers/char/virtio_console.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
+>  drivers/char/virtio_console.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 >
 > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index 2b68075..9cbed93 100644
+> index 4e380c1..e910bec 100644
 > --- a/drivers/char/virtio_console.c
 > +++ b/drivers/char/virtio_console.c
-> @@ -1512,18 +1512,22 @@ static void remove_port_data(struct port *port)
->  {
->  	struct port_buffer *buf;
+> @@ -1574,9 +1574,8 @@ static void unplug_port(struct port *port)
+>  	device_destroy(pdrvdata.class, port->dev->devt);
+>  	cdev_del(port->cdev);
 >  
-> +	spin_lock_irq(&port->inbuf_lock);
->  	/* Remove unused data this port might have received. */
->  	discard_port_data(port);
->  
-> -	reclaim_consumed_buffers(port);
+> -	kfree(port->name);
 > -
->  	/* Remove buffers we queued up for the Host to send us data in. */
->  	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
->  		free_buf(buf, true);
-> +	spin_unlock_irq(&port->inbuf_lock);
-> +
-> +	spin_lock_irq(&port->outvq_lock);
-> +	reclaim_consumed_buffers(port);
+>  	debugfs_remove(port->debugfs_file);
+> +	kfree(port->name);
 >  
->  	/* Free pending buffers from the out-queue. */
->  	while ((buf = virtqueue_detach_unused_buf(port->out_vq)))
->  		free_buf(buf, true);
-> +	spin_unlock_irq(&port->outvq_lock);
->  }
->  
->  /*
+>  	/*
+>  	 * Locks around here are not necessary - a port can't be
 > -- 
 > 1.8.1.4
