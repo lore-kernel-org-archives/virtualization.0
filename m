@@ -1,15 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v3 1/9] virtio: console: fix race with port unplug and
-	open/close
-Date: Mon, 29 Jul 2013 14:18:52 +0930
-Message-ID: <87ob9m6kej.fsf__38924.6670100421$1375083220$gmane$org@rustcorp.com.au>
+Subject: Re: [PATCH v3 8/9] virtio: console: fix locking around
+	send_sigio_to_port()
+Date: Mon, 29 Jul 2013 14:25:45 +0930
+Message-ID: <874nbe6k32.fsf@rustcorp.com.au>
 References: <cover.1374759439.git.amit.shah@redhat.com>
-	<7ca111ad3bca069f921b4234e5b3ccbbfd7a11d8.1374759439.git.amit.shah@redhat.com>
+	<757aac3a03423986825852680496f69db0f6c7de.1374759439.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <7ca111ad3bca069f921b4234e5b3ccbbfd7a11d8.1374759439.git.amit.shah@redhat.com>
+In-Reply-To: <757aac3a03423986825852680496f69db0f6c7de.1374759439.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,64 +20,53 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org
+Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Amit Shah <amit.shah@redhat.com> writes:
-> There's a window between find_port_by_devt() returning a port and us
-> taking a kref on the port, where the port could get unplugged.  Fix it
-> by taking the reference in find_port_by_devt() itself.
+> send_sigio_to_port() checks the value of guest_connected, which we
+> always modify under the inbuf_lock; make sure invocations of
+> send_sigio_to_port() have take the inbuf_lock around the call.
 >
-> Problem reported and analyzed by Mateusz Guzik.
-
-This fix is clearly correct, but what about the other find_port_by_*
-functions?
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
 
 Applied,
 Rusty.
 
->
-> CC: <stable@vger.kernel.org>
-> Reported-by: Mateusz Guzik <mguzik@redhat.com>
-> Signed-off-by: Amit Shah <amit.shah@redhat.com>
 > ---
->  drivers/char/virtio_console.c | 13 ++++++-------
->  1 file changed, 6 insertions(+), 7 deletions(-)
+>  drivers/char/virtio_console.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
 >
 > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index 1b456fe..291f437 100644
+> index e8b707d..4e380c1 100644
 > --- a/drivers/char/virtio_console.c
 > +++ b/drivers/char/virtio_console.c
-> @@ -272,9 +272,12 @@ static struct port *find_port_by_devt_in_portdev(struct ports_device *portdev,
->  	unsigned long flags;
+> @@ -1670,7 +1670,9 @@ static void handle_control_message(struct ports_device *portdev,
+>  		 * If the guest is connected, it'll be interested in
+>  		 * knowing the host connection state changed.
+>  		 */
+> +		spin_lock_irq(&port->inbuf_lock);
+>  		send_sigio_to_port(port);
+> +		spin_unlock_irq(&port->inbuf_lock);
+>  		break;
+>  	case VIRTIO_CONSOLE_PORT_NAME:
+>  		/*
+> @@ -1790,13 +1792,13 @@ static void in_intr(struct virtqueue *vq)
+>  	if (!port->guest_connected && !is_rproc_serial(port->portdev->vdev))
+>  		discard_port_data(port);
 >  
->  	spin_lock_irqsave(&portdev->ports_lock, flags);
-> -	list_for_each_entry(port, &portdev->ports, list)
-> -		if (port->cdev->dev == dev)
-> +	list_for_each_entry(port, &portdev->ports, list) {
-> +		if (port->cdev->dev == dev) {
-> +			kref_get(&port->kref);
->  			goto out;
-> +		}
-> +	}
->  	port = NULL;
->  out:
->  	spin_unlock_irqrestore(&portdev->ports_lock, flags);
-> @@ -1019,14 +1022,10 @@ static int port_fops_open(struct inode *inode, struct file *filp)
->  	struct port *port;
->  	int ret;
+> +	/* Send a SIGIO indicating new data in case the process asked for it */
+> +	send_sigio_to_port(port);
+> +
+>  	spin_unlock_irqrestore(&port->inbuf_lock, flags);
 >  
-> +	/* We get the port with a kref here */
->  	port = find_port_by_devt(cdev->dev);
->  	filp->private_data = port;
+>  	wake_up_interruptible(&port->waitqueue);
 >  
-> -	/* Prevent against a port getting hot-unplugged at the same time */
-> -	spin_lock_irq(&port->portdev->ports_lock);
-> -	kref_get(&port->kref);
-> -	spin_unlock_irq(&port->portdev->ports_lock);
+> -	/* Send a SIGIO indicating new data in case the process asked for it */
+> -	send_sigio_to_port(port);
 > -
->  	/*
->  	 * Don't allow opening of console port devices -- that's done
->  	 * via /dev/hvc
+>  	if (is_console_port(port) && hvc_poll(port->cons.hvc))
+>  		hvc_kick();
+>  }
 > -- 
 > 1.8.1.4
