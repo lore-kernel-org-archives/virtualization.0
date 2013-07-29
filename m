@@ -1,15 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v3 8/9] virtio: console: fix locking around
-	send_sigio_to_port()
-Date: Mon, 29 Jul 2013 14:25:45 +0930
-Message-ID: <874nbe6k32.fsf@rustcorp.com.au>
+Subject: Re: [PATCH v3 6/9] virtio: console: add locks around buffer removal
+	in port unplug path
+Date: Mon, 29 Jul 2013 14:23:56 +0930
+Message-ID: <87a9l66k63.fsf@rustcorp.com.au>
 References: <cover.1374759439.git.amit.shah@redhat.com>
-	<757aac3a03423986825852680496f69db0f6c7de.1374759439.git.amit.shah@redhat.com>
+	<076e81210c7105be320a9807e8ff2fb76e0a9b7d.1374759439.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <757aac3a03423986825852680496f69db0f6c7de.1374759439.git.amit.shah@redhat.com>
+In-Reply-To: <076e81210c7105be320a9807e8ff2fb76e0a9b7d.1374759439.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,9 +24,8 @@ Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Amit Shah <amit.shah@redhat.com> writes:
-> send_sigio_to_port() checks the value of guest_connected, which we
-> always modify under the inbuf_lock; make sure invocations of
-> send_sigio_to_port() have take the inbuf_lock around the call.
+> The removal functions act on the vqs, and the vq operations need to be
+> locked.
 >
 > Signed-off-by: Amit Shah <amit.shah@redhat.com>
 
@@ -34,39 +33,37 @@ Applied,
 Rusty.
 
 > ---
->  drivers/char/virtio_console.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+>  drivers/char/virtio_console.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
 >
 > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index e8b707d..4e380c1 100644
+> index 2b68075..9cbed93 100644
 > --- a/drivers/char/virtio_console.c
 > +++ b/drivers/char/virtio_console.c
-> @@ -1670,7 +1670,9 @@ static void handle_control_message(struct ports_device *portdev,
->  		 * If the guest is connected, it'll be interested in
->  		 * knowing the host connection state changed.
->  		 */
-> +		spin_lock_irq(&port->inbuf_lock);
->  		send_sigio_to_port(port);
-> +		spin_unlock_irq(&port->inbuf_lock);
->  		break;
->  	case VIRTIO_CONSOLE_PORT_NAME:
->  		/*
-> @@ -1790,13 +1792,13 @@ static void in_intr(struct virtqueue *vq)
->  	if (!port->guest_connected && !is_rproc_serial(port->portdev->vdev))
->  		discard_port_data(port);
+> @@ -1512,18 +1512,22 @@ static void remove_port_data(struct port *port)
+>  {
+>  	struct port_buffer *buf;
 >  
-> +	/* Send a SIGIO indicating new data in case the process asked for it */
-> +	send_sigio_to_port(port);
-> +
->  	spin_unlock_irqrestore(&port->inbuf_lock, flags);
+> +	spin_lock_irq(&port->inbuf_lock);
+>  	/* Remove unused data this port might have received. */
+>  	discard_port_data(port);
 >  
->  	wake_up_interruptible(&port->waitqueue);
->  
-> -	/* Send a SIGIO indicating new data in case the process asked for it */
-> -	send_sigio_to_port(port);
+> -	reclaim_consumed_buffers(port);
 > -
->  	if (is_console_port(port) && hvc_poll(port->cons.hvc))
->  		hvc_kick();
+>  	/* Remove buffers we queued up for the Host to send us data in. */
+>  	while ((buf = virtqueue_detach_unused_buf(port->in_vq)))
+>  		free_buf(buf, true);
+> +	spin_unlock_irq(&port->inbuf_lock);
+> +
+> +	spin_lock_irq(&port->outvq_lock);
+> +	reclaim_consumed_buffers(port);
+>  
+>  	/* Free pending buffers from the out-queue. */
+>  	while ((buf = virtqueue_detach_unused_buf(port->out_vq)))
+>  		free_buf(buf, true);
+> +	spin_unlock_irq(&port->outvq_lock);
 >  }
+>  
+>  /*
 > -- 
 > 1.8.1.4
