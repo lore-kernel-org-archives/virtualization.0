@@ -1,15 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH v3 4/9] virtio: console: fix raising SIGIO after port
-	unplug
-Date: Mon, 29 Jul 2013 14:21:43 +0930
-Message-ID: <87fvuy6k9s.fsf__19072.9518690661$1375083203$gmane$org@rustcorp.com.au>
+Subject: Re: [PATCH v3 7/9] virtio: console: add locking in port unplug path
+Date: Mon, 29 Jul 2013 14:24:22 +0930
+Message-ID: <877gga6k5d.fsf@rustcorp.com.au>
 References: <cover.1374759439.git.amit.shah@redhat.com>
-	<e4199103bd85fae76ce7009d7d6abacf28f1f972.1374759439.git.amit.shah@redhat.com>
+	<ed4b66e841e0c8cc6f5b6a70aa2001057616af57.1374759439.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <e4199103bd85fae76ce7009d7d6abacf28f1f972.1374759439.git.amit.shah@redhat.com>
+In-Reply-To: <ed4b66e841e0c8cc6f5b6a70aa2001057616af57.1374759439.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,50 +19,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Virtualization List <virtualization@lists.linux-foundation.org>
-Cc: Amit Shah <amit.shah@redhat.com>, stable@vger.kernel.org
+Cc: Amit Shah <amit.shah@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Amit Shah <amit.shah@redhat.com> writes:
-> SIGIO should be sent when a port gets unplugged.  It should only be sent
-> to prcesses that have the port opened, and have asked for SIGIO to be
-> delivered.  We were clearing out guest_connected before calling
-> send_sigio_to_port(), resulting in a sigio not getting sent to
-> processes.
+> Port unplug can race with close() in port_fops_release().
+> port_fops_release() already takes the necessary locks, ensure
+> unplug_port() does that too.
 >
-> Fix by setting guest_connected to false after invoking the sigio
-> function.
->
-> CC: <stable@vger.kernel.org>
 > Signed-off-by: Amit Shah <amit.shah@redhat.com>
 
 Applied,
 Rusty.
 
 > ---
->  drivers/char/virtio_console.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
+>  drivers/char/virtio_console.c | 2 ++
+>  1 file changed, 2 insertions(+)
 >
 > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> index 6bf0df3..3435348 100644
+> index 9cbed93..e8b707d 100644
 > --- a/drivers/char/virtio_console.c
 > +++ b/drivers/char/virtio_console.c
-> @@ -1534,12 +1534,14 @@ static void unplug_port(struct port *port)
+> @@ -1541,6 +1541,7 @@ static void unplug_port(struct port *port)
+>  	list_del(&port->list);
 >  	spin_unlock_irq(&port->portdev->ports_lock);
 >  
+> +	spin_lock_irq(&port->inbuf_lock);
 >  	if (port->guest_connected) {
-> +		/* Let the app know the port is going down. */
-> +		send_sigio_to_port(port);
-> +
-> +		/* Do this after sigio is actually sent */
->  		port->guest_connected = false;
->  		port->host_connected = false;
-> -		wake_up_interruptible(&port->waitqueue);
+>  		/* Let the app know the port is going down. */
+>  		send_sigio_to_port(port);
+> @@ -1551,6 +1552,7 @@ static void unplug_port(struct port *port)
 >  
-> -		/* Let the app know the port is going down. */
-> -		send_sigio_to_port(port);
-> +		wake_up_interruptible(&port->waitqueue);
+>  		wake_up_interruptible(&port->waitqueue);
 >  	}
+> +	spin_unlock_irq(&port->inbuf_lock);
 >  
 >  	if (is_console_port(port)) {
+>  		spin_lock_irq(&pdrvdata_lock);
 > -- 
 > 1.8.1.4
