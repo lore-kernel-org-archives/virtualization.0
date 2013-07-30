@@ -1,14 +1,13 @@
-From: Matt Wilson <msw@amazon.com>
-Subject: Re: [PATCH] kexec/kdump implementation for Xen PV domU
-Date: Mon, 29 Jul 2013 14:44:19 -0700
-Message-ID: <20130729214419.GA4239@u109add4315675089e695.ant.amazon.com>
-References: <20130729171543.GA2600@router-fw-old.local.net-space.pl>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [patch v2] virtio: console: cleanup an error message
+Date: Tue, 30 Jul 2013 15:53:02 +0930
+Message-ID: <87fvuw5zy1.fsf@rustcorp.com.au>
+References: <20130722204100.GB22020@elgon.mountain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130729171543.GA2600@router-fw-old.local.net-space.pl>
+In-Reply-To: <20130722204100.GB22020@elgon.mountain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,26 +17,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Daniel Kiper <dkiper@net-space.pl>
-Cc: xen-devel@lists.xensource.com, konrad.wilk@oracle.com, gregkh@linuxfoundation.org, daniel.kiper@oracle.com, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, abyde@acunu.com, tim@acunu.com, ebiederm@xmission.com, brandon@ifup.org, grzegorz.milos@gmail.com, virtualization@lists.linux-foundation.org
+To: Dan Carpenter <dan.carpenter@oracle.com>, Arnd Bergmann <arnd@arndb.de>
+Cc: Amit Shah <amit.shah@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 29, 2013 at 07:15:43PM +0200, Daniel Kiper wrote:
-> Hi all,
-> 
-> Here I am sending as attachments patches enabling kexec/kdump
-> support in Xen PV domU. Only x84_64 architecture is supported.
-> There is no support for i386 but some code could be easily reused.
-> Here is a description of patches:
+Dan Carpenter <dan.carpenter@oracle.com> writes:
+> The PTR_ERR(NULL) here is not useful.
+>
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> ---
+> v2: completely different
 
-[...]
+Applied.
 
->   - kexec-kernel-only_20121203.patch: this patch fixes timer
->     issue on Amazon EC2 machines.
+Thanks,
+Rusty.
 
-Hi Daniel,
-
-Do you know the cause of this issue? Does it have something to do with
-singleshot timer migration when offlining/onlining SMP CPUs?
-
---msw
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index 1b456fe..4cf46d8 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -2215,10 +2215,8 @@ static int __init init(void)
+>  	}
+>  
+>  	pdrvdata.debugfs_dir = debugfs_create_dir("virtio-ports", NULL);
+> -	if (!pdrvdata.debugfs_dir) {
+> -		pr_warning("Error %ld creating debugfs dir for virtio-ports\n",
+> -			   PTR_ERR(pdrvdata.debugfs_dir));
+> -	}
+> +	if (!pdrvdata.debugfs_dir)
+> +		pr_warning("Error creating debugfs dir for virtio-ports\n");
+>  	INIT_LIST_HEAD(&pdrvdata.consoles);
+>  	INIT_LIST_HEAD(&pdrvdata.portdevs);
+>  
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
