@@ -1,24 +1,14 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V11 15/18] kvm : Paravirtual ticketlocks support for
-	linux guests running on KVM hypervisor
-Date: Tue, 30 Jul 2013 22:13:12 +0530
-Message-ID: <51F7ED20.80202@linux.vnet.ibm.com>
-References: <20130722061631.24737.75508.sendpatchset@codeblue>
-	<20130722062016.24737.54554.sendpatchset@codeblue>
-	<20130723150748.GC6029@redhat.com>
-	<51EFA24E.2060103@linux.vnet.ibm.com>
-	<20130724103907.GF16400@redhat.com>
-	<51EFC1D4.9060800@linux.vnet.ibm.com>
-	<20130724120647.GG16400@redhat.com>
-	<51EFCA42.5020009@linux.vnet.ibm.com>
-	<51F0ED31.3040200@linux.vnet.ibm.com>
-	<20130725091509.GA22735@redhat.com>
-	<51F0F202.5090001@linux.vnet.ibm.com>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: Linux Plumbers ACPI/PM, PCI Microconference
+Date: Wed, 31 Jul 2013 01:48:45 +0200
+Message-ID: <1476124.sWE2ygoo2D@vostro.rjw.lan>
+References: <CAL-B5D03ki8NHsM6EuESTH2K-Eh+XyFHNXPDYwgDq+oagDjtMQ@mail.gmail.com>
+	<CAKocOOOgEb5h1dZWP_2UqBKhSK9U-kxKUbvTdzHfds=RiDzNJg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51F0F202.5090001@linux.vnet.ibm.com>
+In-Reply-To: <CAKocOOOgEb5h1dZWP_2UqBKhSK9U-kxKUbvTdzHfds=RiDzNJg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,166 +18,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>, mingo@redhat.com
-Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: Shuah Khan <shuahkhan@gmail.com>
+Cc: shuah.kh@samsung.com, kvm@vger.kernel.org, linux-pci <linux-pci@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, iommu@lists.linux-foundation.org, Myron Stowe <myron.stowe@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07/25/2013 03:08 PM, Raghavendra K T wrote:
-> On 07/25/2013 02:45 PM, Gleb Natapov wrote:
->> On Thu, Jul 25, 2013 at 02:47:37PM +0530, Raghavendra K T wrote:
->>> On 07/24/2013 06:06 PM, Raghavendra K T wrote:
->>>> On 07/24/2013 05:36 PM, Gleb Natapov wrote:
->>>>> On Wed, Jul 24, 2013 at 05:30:20PM +0530, Raghavendra K T wrote:
->>>>>> On 07/24/2013 04:09 PM, Gleb Natapov wrote:
->>>>>>> On Wed, Jul 24, 2013 at 03:15:50PM +0530, Raghavendra K T wrote:
->>>>>>>> On 07/23/2013 08:37 PM, Gleb Natapov wrote:
->>>>>>>>> On Mon, Jul 22, 2013 at 11:50:16AM +0530, Raghavendra K T wrote:
->>>>>>>>>> +static void kvm_lock_spinning(struct arch_spinlock *lock,
->>>>>>>>>> __ticket_t want)
->>>>>>>> [...]
->>>>>>>>>> +
->>>>>>>>>> +    /*
->>>>>>>>>> +     * halt until it's our turn and kicked. Note that we do safe
->>>>>>>>>> halt
->>>>>>>>>> +     * for irq enabled case to avoid hang when lock info is
->>>>>>>>>> overwritten
->>>>>>>>>> +     * in irq spinlock slowpath and no spurious interrupt occur
->>>>>>>>>> to save us.
->>>>>>>>>> +     */
->>>>>>>>>> +    if (arch_irqs_disabled_flags(flags))
->>>>>>>>>> +        halt();
->>>>>>>>>> +    else
->>>>>>>>>> +        safe_halt();
->>>>>>>>>> +
->>>>>>>>>> +out:
->>>>>>>>> So here now interrupts can be either disabled or enabled. Previous
->>>>>>>>> version disabled interrupts here, so are we sure it is safe to
->>>>>>>>> have them
->>>>>>>>> enabled at this point? I do not see any problem yet, will keep
->>>>>>>>> thinking.
->>>>>>>>
->>>>>>>> If we enable interrupt here, then
->>>>>>>>
->>>>>>>>
->>>>>>>>>> +    cpumask_clear_cpu(cpu, &waiting_cpus);
->>>>>>>>
->>>>>>>> and if we start serving lock for an interrupt that came here,
->>>>>>>> cpumask clear and w->lock=null may not happen atomically.
->>>>>>>> if irq spinlock does not take slow path we would have non null
->>>>>>>> value
->>>>>>>> for lock, but with no information in waitingcpu.
->>>>>>>>
->>>>>>>> I am still thinking what would be problem with that.
->>>>>>>>
->>>>>>> Exactly, for kicker waiting_cpus and w->lock updates are
->>>>>>> non atomic anyway.
->>>>>>>
->>>>>>>>>> +    w->lock = NULL;
->>>>>>>>>> +    local_irq_restore(flags);
->>>>>>>>>> +    spin_time_accum_blocked(start);
->>>>>>>>>> +}
->>>>>>>>>> +PV_CALLEE_SAVE_REGS_THUNK(kvm_lock_spinning);
->>>>>>>>>> +
->>>>>>>>>> +/* Kick vcpu waiting on @lock->head to reach value @ticket */
->>>>>>>>>> +static void kvm_unlock_kick(struct arch_spinlock *lock,
->>>>>>>>>> __ticket_t ticket)
->>>>>>>>>> +{
->>>>>>>>>> +    int cpu;
->>>>>>>>>> +
->>>>>>>>>> +    add_stats(RELEASED_SLOW, 1);
->>>>>>>>>> +    for_each_cpu(cpu, &waiting_cpus) {
->>>>>>>>>> +        const struct kvm_lock_waiting *w =
->>>>>>>>>> &per_cpu(lock_waiting, cpu);
->>>>>>>>>> +        if (ACCESS_ONCE(w->lock) == lock &&
->>>>>>>>>> +            ACCESS_ONCE(w->want) == ticket) {
->>>>>>>>>> +            add_stats(RELEASED_SLOW_KICKED, 1);
->>>>>>>>>> +            kvm_kick_cpu(cpu);
->>>>>>>>> What about using NMI to wake sleepers? I think it was
->>>>>>>>> discussed, but
->>>>>>>>> forgot why it was dismissed.
->>>>>>>>
->>>>>>>> I think I have missed that discussion. 'll go back and check. so
->>>>>>>> what is the idea here? we can easily wake up the halted vcpus that
->>>>>>>> have interrupt disabled?
->>>>>>> We can of course. IIRC the objection was that NMI handling path
->>>>>>> is very
->>>>>>> fragile and handling NMI on each wakeup will be more expensive then
->>>>>>> waking up a guest without injecting an event, but it is still
->>>>>>> interesting
->>>>>>> to see the numbers.
->>>>>>>
->>>>>>
->>>>>> Haam, now I remember, We had tried request based mechanism. (new
->>>>>> request like REQ_UNHALT) and process that. It had worked, but had
->>>>>> some
->>>>>> complex hacks in vcpu_enter_guest to avoid guest hang in case of
->>>>>> request cleared.  So had left it there..
->>>>>>
->>>>>> https://lkml.org/lkml/2012/4/30/67
->>>>>>
->>>>>> But I do not remember performance impact though.
->>>>> No, this is something different. Wakeup with NMI does not need KVM
->>>>> changes at
->>>>> all. Instead of kvm_kick_cpu(cpu) in kvm_unlock_kick you send NMI IPI.
->>>>>
->>>>
->>>> True. It was not NMI.
->>>> just to confirm, are you talking about something like this to be
->>>> tried ?
->>>>
->>>> apic->send_IPI_mask(cpumask_of(cpu), APIC_DM_NMI);
->>>
->>> When I started benchmark, I started seeing
->>> "Dazed and confused, but trying to continue" from unknown nmi error
->>> handling.
->>> Did I miss anything (because we did not register any NMI handler)? or
->>> is it that spurious NMIs are trouble because we could get spurious NMIs
->>> if next waiter already acquired the lock.
->> There is a default NMI handler that tries to detect the reason why NMI
->> happened (which is no so easy on x86) and prints this message if it
->> fails. You need to add logic to detect spinlock slow path there. Check
->> bit in waiting_cpus for instance.
->
-> aha.. Okay. will check that.
+On Wednesday, July 17, 2013 08:31:55 AM Shuah Khan wrote:
+> Myron,
+> 
+> On Tue, Jul 16, 2013 at 8:21 PM, Myron Stowe <myron.stowe@gmail.com> wrote:
+> 
+> >
+> > Shuah - You brought up the idea about "Converting drivers from Legacy
+> > PM ops to dev_pm_ops"; would you like to present what you have
+> > done/encountered so far?
+> >
+> 
+> Awesome. Yes, I would like to present what I have done so far and I do
+> have a couple of things that could benefit from a face to face
+> discussion which would help me make progress on the rest of the work
+> that needs to get done.
 
-yes. Thanks.. that did the trick.
+Care to sumbit a formal proposal through the LPC web page?
 
-I did like below in unknown_nmi_error():
-if (cpumask_test_cpu(smp_processor_id(), &waiting_cpus))
-    return;
-
-But I believe you asked NMI method only for experimental purpose to
-check the upperbound. because as I doubted above, for spurious NMI
-(i.e. when unlocker kicks when waiter already got the lock), we would
-still hit unknown NMI error.
-
-I had hit spurious NMI over 1656 times over entire benchmark run.
-along with
-INFO: NMI handler (arch_trigger_all_cpu_backtrace_handler) took too long 
-to run: 24.886 msecs etc...
-
-(and we cannot get away with that too because it means we bypass the
-unknown NMI error even in genuine cases too)
-
-Here was the result for the my dbench test( 32 core  machine with 32
-vcpu guest HT off)
-
-                  ---------- % improvement --------------
-		pvspinlock      pvspin_ipi      pvpsin_nmi
-dbench_1x	0.9016    	0.7442    	0.7522
-dbench_2x	14.7513   	18.0164   	15.9421
-dbench_3x	14.7571   	17.0793   	13.3572
-dbench_4x	6.3625    	8.7897    	5.3800
-
-So I am seeing over 2-4% improvement with IPI method.
-
-Gleb,
-  do you think the current series looks good to you? [one patch I
-have resent with in_nmi() check] or do you think I have to respin the
-series with IPI method etc. or is there any concerns that I have to
-address. Please let me know..
-
-
-PS: [Sorry for the late reply, was quickly checking whether unfair lock
-with lockowner is better. it did not prove to be though. and so far
-all the results are favoring this series.]
+Rafael
