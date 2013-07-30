@@ -1,17 +1,15 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH v3 1/9] virtio: console: fix race with port unplug and
-	open/close
-Date: Tue, 30 Jul 2013 14:58:22 +0530
-Message-ID: <20130730092822.GA8459__2714.9258916781$1375176522$gmane$org@amit-x200.redhat.com>
-References: <cover.1374759439.git.amit.shah@redhat.com>
-	<7ca111ad3bca069f921b4234e5b3ccbbfd7a11d8.1374759439.git.amit.shah@redhat.com>
-	<87ob9m6kej.fsf@rustcorp.com.au>
+From: Daniel Kiper <daniel.kiper@oracle.com>
+Subject: Re: [PATCH] kexec/kdump implementation for Xen PV domU
+Date: Tue, 30 Jul 2013 14:12:32 +0200
+Message-ID: <20130730121232.GB3712__47941.9017945931$1375186425$gmane$org@debian70-amd64.local.net-space.pl>
+References: <20130729171543.GA2600@router-fw-old.local.net-space.pl>
+	<20130729214419.GA4239@u109add4315675089e695.ant.amazon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <87ob9m6kej.fsf@rustcorp.com.au>
+In-Reply-To: <20130729214419.GA4239@u109add4315675089e695.ant.amazon.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,28 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>
+To: Matt Wilson <msw@amazon.com>
+Cc: xen-devel@lists.xensource.com, konrad.wilk@oracle.com, gregkh@linuxfoundation.org, kexec@lists.infradead.org, linux-kernel@vger.kernel.org, abyde@acunu.com, tim@acunu.com, ebiederm@xmission.com, brandon@ifup.org, grzegorz.milos@gmail.com, virtualization@lists.linux-foundation.org, Daniel Kiper <dkiper@net-space.pl>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Mon) 29 Jul 2013 [14:18:52], Rusty Russell wrote:
-> Amit Shah <amit.shah@redhat.com> writes:
-> > There's a window between find_port_by_devt() returning a port and us
-> > taking a kref on the port, where the port could get unplugged.  Fix it
-> > by taking the reference in find_port_by_devt() itself.
+On Mon, Jul 29, 2013 at 02:44:19PM -0700, Matt Wilson wrote:
+> On Mon, Jul 29, 2013 at 07:15:43PM +0200, Daniel Kiper wrote:
+> > Hi all,
 > >
-> > Problem reported and analyzed by Mateusz Guzik.
-> 
-> This fix is clearly correct, but what about the other find_port_by_*
-> functions?
+> > Here I am sending as attachments patches enabling kexec/kdump
+> > support in Xen PV domU. Only x84_64 architecture is supported.
+> > There is no support for i386 but some code could be easily reused.
+> > Here is a description of patches:
+>
+> [...]
+>
+> >   - kexec-kernel-only_20121203.patch: this patch fixes timer
+> >     issue on Amazon EC2 machines.
+>
+> Hi Daniel,
+>
+> Do you know the cause of this issue? Does it have something to do with
+> singleshot timer migration when offlining/onlining SMP CPUs?
 
-They don't need a kref -- the kref is only to be bumped when:
+Sadly, no. I was not able to replicate this on my machines (I did test
+on Xen 4.1). However, as I saw this issue appears on Xen 3.4 and 4.0
+(IIRC version numbers used on your machines). Additionally, it does not
+depend on CPU models. And it appears quite often but not always.
+Maybe it is linked with singleshot timer migration.
 
-1. Initialising / Plugging in the port (add_port)
-2. Opening the port (this fix)
-
-Both these cases are now covered.  As part of the locking rework, the
-other find_port_by_* functions may be reworked to set some state, like
-port_in_use, instead of abusing guest_connected today.
-
-		Amit
+Daniel
