@@ -1,13 +1,11 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: [Announcement] Linux Plumbers ACPI/PM, PCI Microconference
-Date: Wed, 31 Jul 2013 13:40:14 +0200
-Message-ID: <1755363.sGc8nLIQOW__45714.6235196435$1375270220$gmane$org@vostro.rjw.lan>
-References: <CAL-B5D03ki8NHsM6EuESTH2K-Eh+XyFHNXPDYwgDq+oagDjtMQ@mail.gmail.com>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH] virtio-scsi: Fix virtqueue affinity setup
+Date: Wed, 31 Jul 2013 22:17:59 +0800
+Message-ID: <1375280279-7595-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAL-B5D03ki8NHsM6EuESTH2K-Eh+XyFHNXPDYwgDq+oagDjtMQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,42 +15,96 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-pci <linux-pci@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>
-Cc: kvm@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Myron Stowe <myron.stowe@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>, linux-arm-kernel@lists.infradead.org
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kvm@vger.kernel.org, linux-scsi@vger.kernel.org, JBottomley@parallels.com, virtualization@lists.linux-foundation.org, stable@vger.kernel.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi All,
+vscsi->num_queues counts the number of request virtqueue which does not
+include the control and event virtqueue. It is wrong to subtract
+VIRTIO_SCSI_VQ_BASE from vscsi->num_queues.
 
-The original announcement didn't go to linux-pm, so again:
+This patch fixes the following panic.
 
-On Tuesday, July 16, 2013 08:21:26 PM Myron Stowe wrote:
-> Linux Plumbers has approved an ACPI/PM, PCI microconference. The
-> overview page is here:
-> 
-> http://wiki.linuxplumbersconf.org/2013:pci_subsystem
-> 
-> We would like to start receiving volunteers for presenting topics of
-> interest.  There is a lot of activity in these subsystems so please
-> respond by submitting presentation or discussion proposals that you
-> would be willing to cover for consideration.  You should also feel
-> free to submit ideas as proposals that others could cover.  The
-> instructions for submitting ideas should be at:
-> 
-> http://www.linuxplumbersconf.org/2013/submitting-topic/
+(qemu) device_del scsi0
 
-If anyone who's going to attend the Linux Plumbers Conf this year is interested
-in any particular topic for discussion during the ACPI/PM+PCI uconf, please
-submit a formal topic proposal at:
+ BUG: unable to handle kernel NULL pointer dereference at 0000000000000020
+ IP: [<ffffffff8179b29f>] __virtscsi_set_affinity+0x6f/0x120
+ PGD 0
+ Oops: 0000 [#1] SMP
+ Modules linked in:
+ CPU: 0 PID: 659 Comm: kworker/0:1 Not tainted 3.11.0-rc2+ #1172
+ Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+ Workqueue: kacpi_hotplug _handle_hotplug_event_func
+ task: ffff88007bee1cc0 ti: ffff88007bfe4000 task.ti: ffff88007bfe4000
+ RIP: 0010:[<ffffffff8179b29f>]  [<ffffffff8179b29f>] __virtscsi_set_affinity+0x6f/0x120
+ RSP: 0018:ffff88007bfe5a38  EFLAGS: 00010202
+ RAX: 0000000000000010 RBX: ffff880077fd0d28 RCX: 0000000000000050
+ RDX: 0000000000000000 RSI: 0000000000000246 RDI: 0000000000000000
+ RBP: ffff88007bfe5a58 R08: ffff880077f6ff00 R09: 0000000000000001
+ R10: ffffffff8143e673 R11: 0000000000000001 R12: 0000000000000001
+ R13: ffff880077fd0800 R14: 0000000000000000 R15: ffff88007bf489b0
+ FS:  0000000000000000(0000) GS:ffff88007ea00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+ CR2: 0000000000000020 CR3: 0000000079f8b000 CR4: 00000000000006f0
+ Stack:
+  ffff880077fd0d28 0000000000000000 ffff880077fd0800 0000000000000008
+  ffff88007bfe5a78 ffffffff8179b37d ffff88007bccc800 ffff88007bccc800
+  ffff88007bfe5a98 ffffffff8179b3b6 ffff88007bccc800 ffff880077fd0d28
+ Call Trace:
+  [<ffffffff8179b37d>] virtscsi_set_affinity+0x2d/0x40
+  [<ffffffff8179b3b6>] virtscsi_remove_vqs+0x26/0x50
+  [<ffffffff8179c7d2>] virtscsi_remove+0x82/0xa0
+  [<ffffffff814cb6b2>] virtio_dev_remove+0x22/0x70
+  [<ffffffff8167ca49>] __device_release_driver+0x69/0xd0
+  [<ffffffff8167cb9d>] device_release_driver+0x2d/0x40
+  [<ffffffff8167bb96>] bus_remove_device+0x116/0x150
+  [<ffffffff81679936>] device_del+0x126/0x1e0
+  [<ffffffff81679a06>] device_unregister+0x16/0x30
+  [<ffffffff814cb889>] unregister_virtio_device+0x19/0x30
+  [<ffffffff814cdad6>] virtio_pci_remove+0x36/0x80
+  [<ffffffff81464ae7>] pci_device_remove+0x37/0x70
+  [<ffffffff8167ca49>] __device_release_driver+0x69/0xd0
+  [<ffffffff8167cb9d>] device_release_driver+0x2d/0x40
+  [<ffffffff8167bb96>] bus_remove_device+0x116/0x150
+  [<ffffffff81679936>] device_del+0x126/0x1e0
+  [<ffffffff8145edfc>] pci_stop_bus_device+0x9c/0xb0
+  [<ffffffff8145f036>] pci_stop_and_remove_bus_device+0x16/0x30
+  [<ffffffff81474a9e>] acpiphp_disable_slot+0x8e/0x150
+  [<ffffffff81474f6a>] hotplug_event_func+0xba/0x1a0
+  [<ffffffff814906c8>] ? acpi_os_release_object+0xe/0x12
+  [<ffffffff81475911>] _handle_hotplug_event_func+0x31/0x70
+  [<ffffffff810b5333>] process_one_work+0x183/0x500
+  [<ffffffff810b66e2>] worker_thread+0x122/0x400
+  [<ffffffff810b65c0>] ? manage_workers+0x2d0/0x2d0
+  [<ffffffff810bc5de>] kthread+0xce/0xe0
+  [<ffffffff810bc510>] ? kthread_freezable_should_stop+0x70/0x70
+  [<ffffffff81ca045c>] ret_from_fork+0x7c/0xb0
+  [<ffffffff810bc510>] ? kthread_freezable_should_stop+0x70/0x70
+ Code: 01 00 00 00 74 59 45 31 e4 83 bb c8 01 00 00 02 74 46 66 2e 0f 1f 84 00 00 00 00 00 49 63 c4 48 c1 e0 04 48 8b bc 0
+3 10 02 00 00 <48> 8b 47 20 48 8b 80 d0 01 00 00 48 8b 40 50 48 85 c0 74 07 be
+ RIP  [<ffffffff8179b29f>] __virtscsi_set_affinity+0x6f/0x120
+  RSP <ffff88007bfe5a38>
+ CR2: 0000000000000020
+ ---[ end trace 99679331a3775f48 ]---
 
-http://www.linuxplumbersconf.org/2013/ocw/events/LPC2013/proposals/new
+CC: stable@vger.kernel.org
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/scsi/virtio_scsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-If you submit a topic, that doesn't mean you'll be expected to present anything
-(if accepted).  In fact, we are mostly interested in discussion topics and we'd
-like to know what is important to people.
-
-That said if you have a (short) presentation to make, please submit it too.
-
-We'll appreciate all submissions very much.
-
-Thanks,
-Rafael
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index 2168258..74b88ef 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -751,7 +751,7 @@ static void __virtscsi_set_affinity(struct virtio_scsi *vscsi, bool affinity)
+ 
+ 		vscsi->affinity_hint_set = true;
+ 	} else {
+-		for (i = 0; i < vscsi->num_queues - VIRTIO_SCSI_VQ_BASE; i++)
++		for (i = 0; i < vscsi->num_queues; i++)
+ 			virtqueue_set_affinity(vscsi->req_vqs[i].vq, -1);
+ 
+ 		vscsi->affinity_hint_set = false;
+-- 
+1.8.3.1
