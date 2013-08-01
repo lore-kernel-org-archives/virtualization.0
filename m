@@ -1,11 +1,13 @@
 From: Joe Perches <joe@perches.com>
-Subject: [PATCH V2 0/3] networking: Use ETH_ALEN where appropriate
-Date: Thu,  1 Aug 2013 13:14:34 -0700
-Message-ID: <cover.1375387593.git.joe__42163.718553684$1375388233$gmane$org@perches.com>
+Subject: [PATCH V3 0/3] networking: Use ETH_ALEN where appropriate
+Date: Thu,  1 Aug 2013 16:17:46 -0700
+Message-ID: <cover.1375398692.git.joe@perches.com>
+References: <20130801.143137.331385226409040561.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20130801.143137.331385226409040561.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,9 +25,13 @@ Convert the uses mac addresses to ETH_ALEN so
 it's easier to find and verify where mac addresses
 need to be __aligned(2)
 
-Change from initial submission:
+Change in V2:
 - Remove include/acpi/actbl2.h conversion
   It's a file copied from outside ACPI sources
+
+Changes in V3:
+- Don't move the pasemi_mac.h mac address to be aligned(2)
+  Just note that it's unaligned.
 
 Joe Perches (3):
   uapi: Convert some uses of 6 to ETH_ALEN
@@ -40,7 +46,7 @@ Joe Perches (3):
  drivers/net/ethernet/myricom/myri10ge/myri10ge.c   |  2 +-
  drivers/net/ethernet/nuvoton/w90p910_ether.c       |  4 +-
  drivers/net/ethernet/pasemi/pasemi_mac.c           | 13 ++---
- drivers/net/ethernet/pasemi/pasemi_mac.h           |  4 +-
+ drivers/net/ethernet/pasemi/pasemi_mac.h           |  2 +-
  drivers/net/ethernet/qlogic/netxen/netxen_nic_hw.c |  4 +-
  drivers/net/ethernet/qlogic/qlge/qlge.h            |  2 +-
  include/linux/dm9000.h                             |  4 +-
@@ -60,7 +66,7 @@ Joe Perches (3):
  include/uapi/linux/netfilter_ipv4/ipt_CLUSTERIP.h  |  3 +-
  include/uapi/linux/virtio_net.h                    |  2 +-
  include/uapi/linux/wimax/i2400m.h                  |  4 +-
- 28 files changed, 100 insertions(+), 80 deletions(-)
+ 28 files changed, 99 insertions(+), 79 deletions(-)
 
 -- 
 1.8.1.2.459.gbcd45b4.dirty
