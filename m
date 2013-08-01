@@ -1,7 +1,7 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Subject: Re: [PATCH 1/5] Intel MIC Host Driver for X100 family.
-Date: Wed, 31 Jul 2013 18:44:16 -0700
-Message-ID: <20130801014416.GB6941@kroah.com>
+Date: Wed, 31 Jul 2013 18:45:12 -0700
+Message-ID: <20130801014512.GC6941@kroah.com>
 References: <cover.1374717252.git.sudeep.dutt@intel.com>
 	<be8c714ed743143c427058fc0b75722f2eeeee1c.1374717252.git.sudeep.dutt@intel.com>
 Mime-Version: 1.0
@@ -34,10 +34,11 @@ On Wed, Jul 24, 2013 at 08:31:32PM -0700, Sudeep Dutt wrote:
 > status, kernel command line, IP address, ramdisk and log buffer
 > information.
 
-As you are creating sysfs entries, you also have to create
-Documentatin/ABI/ entries in the kernel source at the same time.
+That's a lot to do in one patch, almost 4 thousand lines.  Can't you
+break this up into some more smaller, logical, and reviewable, pieces?
 
-Please do this in your next version of this patch.
+For example, I have no idea what b) is, and how to separate it from the
+things you do for a) and c).
 
 thanks,
 
