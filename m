@@ -1,17 +1,25 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 1/5] Intel MIC Host Driver for X100 family.
-Date: Fri, 2 Aug 2013 08:46:18 +0800
-Message-ID: <20130802004618.GA12473@kroah.com>
-References: <cover.1374717252.git.sudeep.dutt@intel.com>
-	<be8c714ed743143c427058fc0b75722f2eeeee1c.1374717252.git.sudeep.dutt@intel.com>
-	<20130801015106.GE6941@kroah.com>
-	<1375403794.61060.70.camel@blbiskey-desk1.amr.corp.intel.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH RFC V11 15/18] kvm : Paravirtual ticketlocks support for
+	linux guests running on KVM hypervisor
+Date: Fri, 02 Aug 2013 08:52:07 +0530
+Message-ID: <51FB25DF.5000203@linux.vnet.ibm.com>
+References: <20130724103907.GF16400@redhat.com>
+	<51EFC1D4.9060800@linux.vnet.ibm.com>
+	<20130724120647.GG16400@redhat.com>
+	<51EFCA42.5020009@linux.vnet.ibm.com>
+	<51F0ED31.3040200@linux.vnet.ibm.com>
+	<20130725091509.GA22735@redhat.com>
+	<51F0F202.5090001@linux.vnet.ibm.com>
+	<51F7ED20.80202@linux.vnet.ibm.com>
+	<20130731062440.GK28372@redhat.com>
+	<51FA1087.9080908@linux.vnet.ibm.com>
+	<20130801074529.GO7484@redhat.com>
+	<51FA2486.20507@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1375403794.61060.70.camel@blbiskey-desk1.amr.corp.intel.com>
+In-Reply-To: <51FA2486.20507@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,62 +29,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sudeep Dutt <sudeep.dutt@intel.com>
-Cc: Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Rob Landley <rob@landley.net>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
+To: Gleb Natapov <gleb@redhat.com>, mingo@redhat.com
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 01, 2013 at 05:36:34PM -0700, Sudeep Dutt wrote:
-> On Wed, 2013-07-31 at 18:51 -0700, Greg Kroah-Hartman wrote: 
-> > On Wed, Jul 24, 2013 at 08:31:32PM -0700, Sudeep Dutt wrote:
-> > > --- /dev/null
-> > > +++ b/drivers/misc/mic/common/mic_device.h
-> > > @@ -0,0 +1,81 @@
-> > > +/*
-> > > + * Intel MIC Platform Software Stack (MPSS)
-> > > + *
-> > > + * Copyright(c) 2013 Intel Corporation.
-> > > + *
-> > > + * This program is free software; you can redistribute it and/or modify
-> > > + * it under the terms of the GNU General Public License, version 2, as
-> > > + * published by the Free Software Foundation.
-> > > + *
-> > > + * This program is distributed in the hope that it will be useful, but
-> > > + * WITHOUT ANY WARRANTY; without even the implied warranty of
-> > > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-> > > + * General Public License for more details.
-> > > + *
-> > > + * You should have received a copy of the GNU General Public License
-> > > + * along with this program; if not, write to the Free Software
-> > > + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301
-> > > + * USA.
-> > 
-> > Ok, it's now your task as an Intel employee to get this paragraph
-> > stricken from the "default template" that GPL code in the kernel,
-> > written by Intel developers, has.  It's pointless, and unless you want
-> > to be personally responsible for tracking the address changes of the FSF
-> > for the next 40+ years, not something I'm going to ever accept.
-> > 
-> > I know you aren't responsible for this, but I'm getting really tired of
-> > pointing this out each-and-every-time I see a file from an Intel
-> > developer.
-> > 
-> > So please work to fix this.
-> > 
-> 
-> I brought up this issue today, with the team which reviews licenses for
-> open source projects at Intel. The recommendation from them is to
-> include the following wording instead of the FSF street address in the
-> standard template.
-> 
-> <snip>
-> You should have received a copy of the GNU General Public License along
-> with this program. If not, see <http://www.gnu.org/licenses/>.
-> <snip>
+On 08/01/2013 02:34 PM, Raghavendra K T wrote:
+> On 08/01/2013 01:15 PM, Gleb Natapov wrote:
+>>> Shall I consider this as an ack for kvm part?
+>>>
+>> For everything except 18/18. For that I still want to see numbers. But
+>> 18/18 is pretty independent from the reset of the series so it should
+>> not stop the reset from going in.
+>
+> Yes. agreed.
+> I am going to evaluate patch 18 separately and come with results for
+> that. Now we can consider only 1-17 patches.
+>
 
-That's better, but, this is the kernel, and of course they got a copy of
-the license with it, it's part of the whole body of code.  So that
-paragraph is not needed either.
+Gleb,
 
-thanks,
+32 core machine with HT off 32 vcpu guests.
+base = 3.11-rc + patch 1 -17 pvspinlock_v11
+patched = base + patch 18
 
-greg k-h
++-----------+-----------+-----------+------------+-----------+
+                   dbench  (Throughput in MB/sec higher is better)
++-----------+-----------+-----------+------------+-----------+
+       base      stdev       patched    stdev       %improvement
++-----------+-----------+-----------+------------+-----------+
+1x 14584.3800   146.9074   14705.1000   163.1060     0.82773
+2x  1713.7300    32.8750    1717.3200    45.5979     0.20948
+3x   967.8212    42.0257     971.8855    18.8532     0.41994
+4x   685.2764    25.7150     694.5881     8.3907     1.35882
++-----------+-----------+-----------+------------+-----------+
+
+I saw -0.78% - .84% changes in ebizzy and 1-2% improvement in
+hackbench.
