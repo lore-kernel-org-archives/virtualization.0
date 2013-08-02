@@ -1,25 +1,15 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V11 15/18] kvm : Paravirtual ticketlocks support for
-	linux guests running on KVM hypervisor
-Date: Fri, 02 Aug 2013 08:52:07 +0530
-Message-ID: <51FB25DF.5000203@linux.vnet.ibm.com>
-References: <20130724103907.GF16400@redhat.com>
-	<51EFC1D4.9060800@linux.vnet.ibm.com>
-	<20130724120647.GG16400@redhat.com>
-	<51EFCA42.5020009@linux.vnet.ibm.com>
-	<51F0ED31.3040200@linux.vnet.ibm.com>
-	<20130725091509.GA22735@redhat.com>
-	<51F0F202.5090001@linux.vnet.ibm.com>
-	<51F7ED20.80202@linux.vnet.ibm.com>
-	<20130731062440.GK28372@redhat.com>
-	<51FA1087.9080908@linux.vnet.ibm.com>
-	<20130801074529.GO7484@redhat.com>
-	<51FA2486.20507@linux.vnet.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Subject: Re: [PATCH trivial] include: uapi: standard all files' macro prefix
+	and suffix, excluding "linux/" sub-directory
+Date: Fri, 02 Aug 2013 01:13:34 -0700
+Message-ID: <87iozoqzm9.fsf@tw-ebiederman.twitter.com>
+References: <51FB6216.6010008@asianux.com> <51FB634F.5070401@asianux.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51FA2486.20507@linux.vnet.ibm.com>
+In-Reply-To: <51FB634F.5070401@asianux.com> (Chen Gang's message of "Fri, 02
+	Aug 2013 15:44:15 +0800")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,39 +19,118 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>, mingo@redhat.com
-Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: Chen Gang <gang.chen@asianux.com>
+Cc: xen-devel@lists.xensource.com, jeremy@goop.org, airlied@linux.ie, daniel.vetter@ffwll.ch, alsa-devel@alsa-project.org, dri-devel@lists.freedesktop.org, perex@perex.cz, "dhowells@redhat.com" <dhowells@redhat.com>, thierry.reding@gmail.com, linux-mtd@lists.infradead.org, sean.hefty@intel.com, virtualization@lists.linux-foundation.org, Linux-Arch <linux-arch@vger.kernel.org>, "kgene.kim@samsung.com" <kgene.kim@samsung.com>, tbergstrom@nvidia.com, jy0922.shim@samsung.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, roland@purestorage.com, Takashi Iwai <tiwai@suse.de>, Tomi Valkeinen <tomi.valkeinen@ti.com>, mtk.manpages@gmail.com, fcoe-devel@open-fcoe.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, "plagnioj@jcrosoft.com" <plagnioj@jcrosoft.com>, Arnd Bergmann <arnd@arndb.de>, swarren@wwwdotorg.org, intel-gfx@lists.freedesktop.org, inki.dae@samsung.com, linux-samsun
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/01/2013 02:34 PM, Raghavendra K T wrote:
-> On 08/01/2013 01:15 PM, Gleb Natapov wrote:
->>> Shall I consider this as an ack for kvm part?
->>>
->> For everything except 18/18. For that I still want to see numbers. But
->> 18/18 is pretty independent from the reset of the series so it should
->> not stop the reset from going in.
+Chen Gang <gang.chen@asianux.com> writes:
+
+> It is a trivial patch for "include/uapi", exclude "linux" sub-directory.
 >
-> Yes. agreed.
-> I am going to evaluate patch 18 separately and come with results for
-> that. Now we can consider only 1-17 patches.
+> If it is useful, I will send another patch for "linux" sub-directory.
 >
+> BTW: it is really big mail addresses from
+> "./scripts/get_maintainers.pl"
 
-Gleb,
+What is the point?  Is there a bug that this fixes?
 
-32 core machine with HT off 32 vcpu guests.
-base = 3.11-rc + patch 1 -17 pvspinlock_v11
-patched = base + patch 18
+These files are not used with api in their path in userspace so I
+suspect your change just makes things strange and confusing.
 
-+-----------+-----------+-----------+------------+-----------+
-                   dbench  (Throughput in MB/sec higher is better)
-+-----------+-----------+-----------+------------+-----------+
-       base      stdev       patched    stdev       %improvement
-+-----------+-----------+-----------+------------+-----------+
-1x 14584.3800   146.9074   14705.1000   163.1060     0.82773
-2x  1713.7300    32.8750    1717.3200    45.5979     0.20948
-3x   967.8212    42.0257     971.8855    18.8532     0.41994
-4x   685.2764    25.7150     694.5881     8.3907     1.35882
-+-----------+-----------+-----------+------------+-----------+
+Eric
 
-I saw -0.78% - .84% changes in ebizzy and 1-2% improvement in
-hackbench.
+> Thanks.
+>
+> On 08/02/2013 03:39 PM, Chen Gang wrote:
+>> For "include/uapi/*", excluding "linux/" sub-directory, let all files'
+>> macro prefix match the standard format, and give related stand comments
+>> for their macro suffix.
+>> 
+>> The related standard format is:
+>> 
+>>   "_SUBDIRNAME_SUBDIRNAME[_SUBDIRNAME]_FILENAME" (1st _SUBDIRNAME is _UAPI), and use '_' instead of '.' and '-'.
+>> 
+>> 
+>> Signed-off-by: Chen Gang <gang.chen@asianux.com>
+>> ---
+>>  include/uapi/asm-generic/auxvec.h      |    6 +++---
+>>  include/uapi/asm-generic/bitsperlong.h |    6 +++---
+>>  include/uapi/asm-generic/errno-base.h  |    6 +++---
+>>  include/uapi/asm-generic/errno.h       |    6 +++---
+>>  include/uapi/asm-generic/fcntl.h       |    6 +++---
+>>  include/uapi/asm-generic/ioctls.h      |    6 +++---
+>>  include/uapi/asm-generic/ipcbuf.h      |    6 +++---
+>>  include/uapi/asm-generic/kvm_para.h    |    5 +++++
+>>  include/uapi/asm-generic/mman-common.h |    6 +++---
+>>  include/uapi/asm-generic/mman.h        |    6 +++---
+>>  include/uapi/asm-generic/msgbuf.h      |    6 +++---
+>>  include/uapi/asm-generic/param.h       |    6 +++---
+>>  include/uapi/asm-generic/poll.h        |    6 +++---
+>>  include/uapi/asm-generic/posix_types.h |    6 +++---
+>>  include/uapi/asm-generic/sembuf.h      |    6 +++---
+>>  include/uapi/asm-generic/setup.h       |    6 +++---
+>>  include/uapi/asm-generic/shmbuf.h      |    6 +++---
+>>  include/uapi/asm-generic/shmparam.h    |    6 +++---
+>>  include/uapi/asm-generic/signal-defs.h |    6 +++---
+>>  include/uapi/asm-generic/signal.h      |    6 +++---
+>>  include/uapi/asm-generic/socket.h      |    6 +++---
+>>  include/uapi/asm-generic/sockios.h     |    6 +++---
+>>  include/uapi/asm-generic/stat.h        |    6 +++---
+>>  include/uapi/asm-generic/statfs.h      |    6 +++---
+>>  include/uapi/asm-generic/swab.h        |    6 +++---
+>>  include/uapi/asm-generic/termbits.h    |    6 +++---
+>>  include/uapi/asm-generic/types.h       |    6 +++---
+>>  include/uapi/asm-generic/ucontext.h    |    6 +++---
+>>  include/uapi/asm-generic/unistd.h      |    5 +++++
+>>  include/uapi/drm/drm.h                 |    6 +++---
+>>  include/uapi/drm/drm_fourcc.h          |    6 +++---
+>>  include/uapi/drm/drm_mode.h            |    6 +++---
+>>  include/uapi/drm/drm_sarea.h           |    6 +++---
+>>  include/uapi/drm/exynos_drm.h          |    6 +++---
+>>  include/uapi/drm/i810_drm.h            |    6 +++---
+>>  include/uapi/drm/i915_drm.h            |    6 +++---
+>>  include/uapi/drm/mga_drm.h             |    6 +++---
+>>  include/uapi/drm/nouveau_drm.h         |    6 +++---
+>>  include/uapi/drm/omap_drm.h            |    6 +++---
+>>  include/uapi/drm/qxl_drm.h             |    6 +++---
+>>  include/uapi/drm/r128_drm.h            |    6 +++---
+>>  include/uapi/drm/radeon_drm.h          |    6 +++---
+>>  include/uapi/drm/savage_drm.h          |    6 +++---
+>>  include/uapi/drm/sis_drm.h             |    6 +++---
+>>  include/uapi/drm/tegra_drm.h           |    6 +++---
+>>  include/uapi/drm/via_drm.h             |    6 +++---
+>>  include/uapi/drm/vmwgfx_drm.h          |    6 +++---
+>>  include/uapi/mtd/inftl-user.h          |    6 +++---
+>>  include/uapi/mtd/mtd-abi.h             |    6 +++---
+>>  include/uapi/mtd/mtd-user.h            |    6 +++---
+>>  include/uapi/mtd/nftl-user.h           |    6 +++---
+>>  include/uapi/mtd/ubi-user.h            |    6 +++---
+>>  include/uapi/rdma/ib_user_cm.h         |    6 +++---
+>>  include/uapi/rdma/ib_user_mad.h        |    6 +++---
+>>  include/uapi/rdma/ib_user_sa.h         |    6 +++---
+>>  include/uapi/rdma/ib_user_verbs.h      |    6 +++---
+>>  include/uapi/rdma/rdma_netlink.h       |    6 +++---
+>>  include/uapi/rdma/rdma_user_cm.h       |    6 +++---
+>>  include/uapi/scsi/fc/fc_els.h          |    6 +++---
+>>  include/uapi/scsi/fc/fc_fs.h           |    6 +++---
+>>  include/uapi/scsi/fc/fc_gs.h           |    6 +++---
+>>  include/uapi/scsi/fc/fc_ns.h           |    6 +++---
+>>  include/uapi/scsi/scsi_bsg_fc.h        |    7 +++----
+>>  include/uapi/scsi/scsi_netlink.h       |    7 +++----
+>>  include/uapi/scsi/scsi_netlink_fc.h    |    7 +++----
+>>  include/uapi/sound/asequencer.h        |    6 +++---
+>>  include/uapi/sound/asound.h            |    6 +++---
+>>  include/uapi/sound/asound_fm.h         |    6 +++---
+>>  include/uapi/sound/compress_offload.h  |    6 +++---
+>>  include/uapi/sound/compress_params.h   |    6 +++---
+>>  include/uapi/sound/emu10k1.h           |    6 +++---
+>>  include/uapi/sound/hdsp.h              |    6 +++---
+>>  include/uapi/sound/hdspm.h             |    6 +++---
+>>  include/uapi/sound/sb16_csp.h          |    6 +++---
+>>  include/uapi/sound/sfnt_info.h         |    6 +++---
+>>  include/uapi/video/edid.h              |    6 +++---
+>>  include/uapi/video/sisfb.h             |    6 +++---
+>>  include/uapi/video/uvesafb.h           |    6 +++---
+>>  include/uapi/xen/evtchn.h              |    6 +++---
+>>  include/uapi/xen/privcmd.h             |    6 +++---
+>>  80 files changed, 244 insertions(+), 237 deletions(-)
