@@ -1,11 +1,14 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH V12 0/5] Paravirtualized ticket spinlocks for KVM host
-Date: Tue, 06 Aug 2013 23:51:50 +0530
-Message-ID: <20130806182150.2386.95104.sendpatchset@codeblue.in.ibm.com>
+Subject: [PATCH V12 1/5] kvm uapi: Add KICK_CPU and PV_UNHALT definition to
+	uapi
+Date: Tue, 06 Aug 2013 23:52:16 +0530
+Message-ID: <20130806182216.2386.39541.sendpatchset@codeblue.in.ibm.com>
+References: <20130806182150.2386.95104.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20130806182150.2386.95104.sendpatchset@codeblue.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,35 +19,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: gleb@redhat.com, mingo@redhat.com, jeremy@goop.org, x86@kernel.org, konrad.wilk@oracle.com, hpa@zytor.com, pbonzini@redhat.com
-Cc: habanero@linux.vnet.ibm.com, riel@redhat.com, srivatsa.vaddagiri@gmail.com, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, chegu_vinod@hp.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, drjones@redhat.com, ouyang@cs.pitt.edu, andi@firstfloor.org, avi.kivity@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: habanero@linux.vnet.ibm.com, riel@redhat.com, andi@firstfloor.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, torvalds@linux-foundation.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, drjones@redhat.com, ouyang@cs.pitt.edu, srivatsa.vaddagiri@gmail.com, avi.kivity@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+kvm uapi: Add KICK_CPU and PV_UNHALT definition to uapi
 
- This series forms the kvm host part of paravirtual spinlock
- based against kvm tree.
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+
+this is needed by both guest and host.
+
+Originally-from: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Acked-by: Gleb Natapov <gleb@redhat.com>
+Acked-by: Ingo Molnar <mingo@kernel.org>
+---
+ arch/x86/include/uapi/asm/kvm_para.h |    1 +
+ include/uapi/linux/kvm_para.h        |    1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/arch/x86/include/uapi/asm/kvm_para.h b/arch/x86/include/uapi/asm/kvm_para.h
+index 06fdbd9..94dc8ca 100644
+--- a/arch/x86/include/uapi/asm/kvm_para.h
++++ b/arch/x86/include/uapi/asm/kvm_para.h
+@@ -23,6 +23,7 @@
+ #define KVM_FEATURE_ASYNC_PF		4
+ #define KVM_FEATURE_STEAL_TIME		5
+ #define KVM_FEATURE_PV_EOI		6
++#define KVM_FEATURE_PV_UNHALT		7
  
- Please refer https://lkml.org/lkml/2013/8/6/178 for kvm guest part
- of the series.
-
- Please note that:
- kvm uapi: Add KICK_CPU and PV_UNHALT definition to uapi is a common patch
- for both guest and host.
-
- Srivatsa Vaddagiri (1):
-  kvm hypervisor : Add a hypercall to KVM hypervisor to support pv-ticketlocks
-
- Raghavendra K T (4):
-  kvm uapi: Add KICK_CPU and PV_UNHALT definition to uapi
-  kvm : Fold pv_unhalt flag into GET_MP_STATE ioctl to aid migration
-  kvm hypervisor: Simplify kvm_for_each_vcpu with kvm_irq_delivery_to_apic
-  Documentation/kvm : Add documentation on Hypercalls and features used for PV spinlock 
---- 
- Documentation/virtual/kvm/cpuid.txt      |  4 ++++
- Documentation/virtual/kvm/hypercalls.txt | 14 ++++++++++++++
- arch/x86/include/asm/kvm_host.h          |  5 +++++
- arch/x86/include/uapi/asm/kvm_para.h     |  1 +
- arch/x86/kvm/cpuid.c                     |  3 ++-
- arch/x86/kvm/lapic.c                     |  5 ++++-
- arch/x86/kvm/x86.c                       | 31 ++++++++++++++++++++++++++++++-
- include/uapi/linux/kvm_para.h            |  1 +
- 8 files changed, 61 insertions(+), 3 deletions(-)
+ /* The last 8 bits are used to indicate how to interpret the flags field
+  * in pvclock structure. If no bits are set, all flags are ignored.
+diff --git a/include/uapi/linux/kvm_para.h b/include/uapi/linux/kvm_para.h
+index cea2c5c..2841f86 100644
+--- a/include/uapi/linux/kvm_para.h
++++ b/include/uapi/linux/kvm_para.h
+@@ -19,6 +19,7 @@
+ #define KVM_HC_MMU_OP			2
+ #define KVM_HC_FEATURES			3
+ #define KVM_HC_PPC_MAP_MAGIC_PAGE	4
++#define KVM_HC_KICK_CPU			5
+ 
+ /*
+  * hypercalls use architecture specific
