@@ -1,14 +1,15 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH V12 5/5] Documentation/kvm : Add documentation on Hypercalls
-	and features used for PV spinlock
-Date: Tue, 06 Aug 2013 23:53:51 +0530
-Message-ID: <20130806182351.2386.36288.sendpatchset@codeblue.in.ibm.com>
+From: Eric Northup <digitaleric@google.com>
+Subject: Re: [PATCH V12 3/5] kvm : Fold pv_unhalt flag into GET_MP_STATE ioctl
+	to aid migration
+Date: Tue, 6 Aug 2013 11:32:01 -0700
+Message-ID: <CAG7+5M3_4D+hQn3xWefniKRWzkdraLCJKHG2PrLGPZLJQQUZVA__34652.4976230741$1375813940$gmane$org@mail.gmail.com>
 References: <20130806182150.2386.95104.sendpatchset@codeblue.in.ibm.com>
+	<20130806182309.2386.35697.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130806182150.2386.95104.sendpatchset@codeblue.in.ibm.com>
+In-Reply-To: <20130806182309.2386.35697.sendpatchset@codeblue.in.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,65 +19,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: gleb@redhat.com, mingo@redhat.com, jeremy@goop.org, x86@kernel.org, konrad.wilk@oracle.com, hpa@zytor.com, pbonzini@redhat.com
-Cc: habanero@linux.vnet.ibm.com, riel@redhat.com, andi@firstfloor.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, linux-kernel@vger.kernel.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, drjones@redhat.com, ouyang@cs.pitt.edu, srivatsa.vaddagiri@gmail.com, chegu_vinod@hp.com, avi.kivity@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, KVM <kvm@vger.kernel.org>, linux-doc@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, drjones@redhat.com, lf-virt <virtualization@lists.linux-foundation.org>, srivatsa.vaddagiri@gmail.com, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, habanero@linux.vnet.ibm.com, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, ouyang@cs.pitt.edu, avi.kivity@gmail.com, Thomas Gleixner <tglx@linutronix.de>, chegu_vinod@hp.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andi Kleen <andi@firstfloor.org>, Paolo Bonzini <pbonzini@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Documentation/kvm : Add documentation on Hypercalls and features used for PV spinlock
+On Tue, Aug 6, 2013 at 11:23 AM, Raghavendra K T
+<raghavendra.kt@linux.vnet.ibm.com> wrote:
+> kvm : Fold pv_unhalt flag into GET_MP_STATE ioctl to aid migration
+>
+> From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+>
+> During migration, any vcpu that got kicked but did not become runnable
+> (still in halted state) should be runnable after migration.
 
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+If this is about migration correctness, could it get folded into the
+previous patch 2/5, so that there's not a broken commit which could
+hurt bisection?
 
-KVM_HC_KICK_CPU  hypercall added to wakeup halted vcpu in paravirtual spinlock
-enabled guest.
-
-KVM_FEATURE_PV_UNHALT enables guest to check whether pv spinlock can be enabled
-in guest.
-
-Thanks Vatsa for rewriting KVM_HC_KICK_CPU
-
-Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Acked-by: Gleb Natapov <gleb@redhat.com>
-Acked-by: Ingo Molnar <mingo@kernel.org>
----
- Documentation/virtual/kvm/cpuid.txt      |    4 ++++
- Documentation/virtual/kvm/hypercalls.txt |   14 ++++++++++++++
- 2 files changed, 18 insertions(+)
-
-diff --git a/Documentation/virtual/kvm/cpuid.txt b/Documentation/virtual/kvm/cpuid.txt
-index 83afe65..22ff659 100644
---- a/Documentation/virtual/kvm/cpuid.txt
-+++ b/Documentation/virtual/kvm/cpuid.txt
-@@ -43,6 +43,10 @@ KVM_FEATURE_CLOCKSOURCE2           ||     3 || kvmclock available at msrs
- KVM_FEATURE_ASYNC_PF               ||     4 || async pf can be enabled by
-                                    ||       || writing to msr 0x4b564d02
- ------------------------------------------------------------------------------
-+KVM_FEATURE_PV_UNHALT              ||     7 || guest checks this feature bit
-+                                   ||       || before enabling paravirtualized
-+                                   ||       || spinlock support.
-+------------------------------------------------------------------------------
- KVM_FEATURE_CLOCKSOURCE_STABLE_BIT ||    24 || host will warn if no guest-side
-                                    ||       || per-cpu warps are expected in
-                                    ||       || kvmclock.
-diff --git a/Documentation/virtual/kvm/hypercalls.txt b/Documentation/virtual/kvm/hypercalls.txt
-index ea113b5..022198e 100644
---- a/Documentation/virtual/kvm/hypercalls.txt
-+++ b/Documentation/virtual/kvm/hypercalls.txt
-@@ -64,3 +64,17 @@ Purpose: To enable communication between the hypervisor and guest there is a
- shared page that contains parts of supervisor visible register state.
- The guest can map this shared page to access its supervisor register through
- memory using this hypercall.
-+
-+5. KVM_HC_KICK_CPU
-+------------------------
-+Architecture: x86
-+Status: active
-+Purpose: Hypercall used to wakeup a vcpu from HLT state
-+Usage example : A vcpu of a paravirtualized guest that is busywaiting in guest
-+kernel mode for an event to occur (ex: a spinlock to become available) can
-+execute HLT instruction once it has busy-waited for more than a threshold
-+time-interval. Execution of HLT instruction would cause the hypervisor to put
-+the vcpu to sleep until occurence of an appropriate event. Another vcpu of the
-+same guest can wakeup the sleeping vcpu by issuing KVM_HC_KICK_CPU hypercall,
-+specifying APIC ID (a1) of the vcpu to be woken up. An additional argument (a0)
-+is used in the hypercall for future use.
+>
+> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+> Acked-by: Gleb Natapov <gleb@redhat.com>
+> Acked-by: Ingo Molnar <mingo@kernel.org>
+> ---
+>  arch/x86/kvm/x86.c |    7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+>
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index dae4575..1e73dab 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -6284,7 +6284,12 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
+>                                     struct kvm_mp_state *mp_state)
+>  {
+>         kvm_apic_accept_events(vcpu);
+> -       mp_state->mp_state = vcpu->arch.mp_state;
+> +       if (vcpu->arch.mp_state == KVM_MP_STATE_HALTED &&
+> +                                       vcpu->arch.pv.pv_unhalted)
+> +               mp_state->mp_state = KVM_MP_STATE_RUNNABLE;
+> +       else
+> +               mp_state->mp_state = vcpu->arch.mp_state;
+> +
+>         return 0;
+>  }
+>
+>
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
