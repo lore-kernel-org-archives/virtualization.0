@@ -1,14 +1,16 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RFC V11 0/18] Paravirtualized ticket spinlocks
-Date: Tue, 06 Aug 2013 08:20:28 +0530
-Message-ID: <52006474.6010109@linux.vnet.ibm.com>
-References: <20130722061631.24737.75508.sendpatchset@codeblue>
-	<52002C49.1060201@zytor.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 3/5] Intel MIC Host Driver Changes for Virtio Devices.
+Date: Tue, 06 Aug 2013 13:17:46 +0930
+Message-ID: <87li4fqy3h.fsf__39348.7170724713$1375761376$gmane$org@rustcorp.com.au>
+References: <cover.1374717252.git.sudeep.dutt@intel.com>
+	<43d0932810d066e52bd6ee996b3cb59da8c42e85.1374717252.git.sudeep.dutt@intel.com>
+	<20130729070000.GA2308@redhat.com>
+	<1375404051.61060.75.camel@blbiskey-desk1.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <52002C49.1060201@zytor.com>
+In-Reply-To: <1375404051.61060.75.camel@blbiskey-desk1.amr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,28 +20,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Sudeep Dutt <sudeep.dutt@intel.com>, Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Rob Landley <rob@landley.net>, Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/06/2013 04:20 AM, H. Peter Anvin wrote:
-> So, having read through the entire thread I *think* this is what the
-> status of this patchset is:
->
-> 1. Patches 1-17 are noncontroversial, Raghavendra is going to send an
->     update split into two patchsets;
+Sudeep Dutt <sudeep.dutt@intel.com> writes:
+> On Mon, 2013-07-29 at 10:05 +0300, Michael S. Tsirkin wrote: 
+>> On Wed, Jul 24, 2013 at 08:31:34PM -0700, Sudeep Dutt wrote:
+>> > From: Ashutosh Dixit <ashutosh.dixit@intel.com>
+>> > 
+>> > This patch introduces the host "Virtio over PCIe" interface for
+>> > Intel MIC. It allows creating user space backends on the host and
+>> > instantiating virtio devices for them on the Intel MIC card. A character
+>> > device per MIC is exposed with IOCTL, mmap and poll callbacks. This allows
+>> > the user space backend to:
+>> > (a) add/remove a virtio device via a device page.
+>> > (b) map (R/O) virtio rings and device page to user space.
+>> > (c) poll for availability of data.
+>> > (d) copy a descriptor or entire descriptor chain to/from the card.
+>> > (e) modify virtio configuration.
+>> > (f) handle virtio device reset.
+>> > The buffers are copied over using CPU copies for this initial patch
+>> > and host initiated MIC DMA support is planned for future patches.
+>> > The avail and desc virtio rings are in host memory and the used ring
+>> > is in card memory to maximize writes across PCIe for performance.
+>> > 
+>> > Co-author: Sudeep Dutt <sudeep.dutt@intel.com>
+>> > Signed-off-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
+>> > Signed-off-by: Caz Yokoyama <Caz.Yokoyama@intel.com>
+>> > Signed-off-by: Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
+>> > Signed-off-by: Nikhil Rao <nikhil.rao@intel.com>
+>> > Signed-off-by: Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>
+>> > Signed-off-by: Sudeep Dutt <sudeep.dutt@intel.com>
+>> > Acked-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
+>> > Reviewed-by: Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>
+>> 
+>> I decided to look at the security and ordering of ring accesses.
+>> Doing a quick look, I think I found some issues, see comments below.
+>> If it were possible to reuse existing ring handling code,
+>> such issues would go away automatically.
+>> Which brings me to the next question: have you looked at reusing
+>> some code under drivers/vhost for host side processing?
+>> If not, you probably should.
+>> Is code in vringh.c generic enough to support your use-case,
+>> and if not what exactly are the issues preventing this?
+>> 
+>> Thanks,
+>> 
+> We had implemented our custom MIC vring host access logic before the
+> VRINGH infrastructure was merged to mainline in v3.10. Based on your
+> feedback, we have a proof of concept implemented this week, by reusing
+> the VRINGH infrastructure and it works nicely for us!
 
-Yes.  Only one patch would be common to both host and guest which will
-be sent as a separate patch.
-I 'll rebase first patchset to -next and second patchset to kvm tree as
-needed.
+Nice!  Good suggestion MST, thanks for the plug :)
 
-> 2. There are at least two versions of patch 15; I think the "PATCH
->     RESEND RFC" is the right one.
+> One of our goals is to issue the  buffer transfers using DMA with future
+> patches. The CPU copy in our current patches is also slightly different
+> compared to VRINGH since we are copying from card buffers to user space
+> and vice versa. In order to do meet these goals, we are obtaining the
+> next available descriptor via vringh_getdesc_kern(..), then triggering
+> the copy (CPU or eventually DMA) via a custom MIC API and then
+> publishing the descriptor via vringh_complete_kern(..). Are there any
+> plans of enhancing VRINGH to allow overriding the xfer mechanism in
+> vringh_iov_xfer(..)? This will allow drivers with custom xfer routines
+> to reuse APIs like vringh_iov_push_kern(..) and vringh_iov_pull_kern(..)
+> as well. That said, the existing VRINGH infrastructure is generic enough
+> for our use case as is today.
 
-True.
+We'll have to look at exposing the internals.  vringh_iov_xfer() works
+well because it's internal and inlined.  It'll be much easier to
+evaluate when we're dealing with specific patches.
 
-> 3. Patch 18 is controversial but there are performance numbers; these
->     should be integrated in the patch description.
-
-Current plan is to drop for patch 18 for now.
+Cheers,
+Rusty.
