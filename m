@@ -1,8 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH V12 4/5] kvm hypervisor : Simplify kvm_for_each_vcpu with
-	kvm_irq_delivery_to_apic
-Date: Tue, 06 Aug 2013 23:53:30 +0530
-Message-ID: <20130806182330.2386.64291.sendpatchset@codeblue.in.ibm.com>
+Subject: [PATCH V12 3/5] kvm : Fold pv_unhalt flag into GET_MP_STATE ioctl to
+	aid migration
+Date: Tue, 06 Aug 2013 23:53:09 +0530
+Message-ID: <20130806182309.2386.35697.sendpatchset__13158.515332225$1375813041$gmane$org@codeblue.in.ibm.com>
 References: <20130806182150.2386.95104.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,77 +19,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: gleb@redhat.com, mingo@redhat.com, jeremy@goop.org, x86@kernel.org, konrad.wilk@oracle.com, hpa@zytor.com, pbonzini@redhat.com
-Cc: habanero@linux.vnet.ibm.com, riel@redhat.com, andi@firstfloor.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, torvalds@linux-foundation.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, drjones@redhat.com, ouyang@cs.pitt.edu, srivatsa.vaddagiri@gmail.com, avi.kivity@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, linux-kernel@vger.kernel.org
+Cc: habanero@linux.vnet.ibm.com, riel@redhat.com, srivatsa.vaddagiri@gmail.com, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, chegu_vinod@hp.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, drjones@redhat.com, ouyang@cs.pitt.edu, andi@firstfloor.org, avi.kivity@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-kvm hypervisor: Simplify kvm_for_each_vcpu with kvm_irq_delivery_to_apic
+kvm : Fold pv_unhalt flag into GET_MP_STATE ioctl to aid migration
 
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 
-Note that we are using APIC_DM_REMRD which has reserved usage.
-In future if APIC_DM_REMRD usage is standardized, then we should
-find some other way or go back to old method.
+During migration, any vcpu that got kicked but did not become runnable
+(still in halted state) should be runnable after migration.
 
-Suggested-by: Gleb Natapov <gleb@redhat.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Acked-by: Gleb Natapov <gleb@redhat.com>
 Acked-by: Ingo Molnar <mingo@kernel.org>
 ---
- arch/x86/kvm/lapic.c |    5 ++++-
- arch/x86/kvm/x86.c   |   25 ++++++-------------------
- 2 files changed, 10 insertions(+), 20 deletions(-)
+ arch/x86/kvm/x86.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index afc1124..48c13c9 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -706,7 +706,10 @@ out:
- 		break;
- 
- 	case APIC_DM_REMRD:
--		apic_debug("Ignoring delivery mode 3\n");
-+		result = 1;
-+		vcpu->arch.pv.pv_unhalted = 1;
-+		kvm_make_request(KVM_REQ_EVENT, vcpu);
-+		kvm_vcpu_kick(vcpu);
- 		break;
- 
- 	case APIC_DM_SMI:
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 1e73dab..640d112 100644
+index dae4575..1e73dab 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -5502,27 +5502,14 @@ int kvm_hv_hypercall(struct kvm_vcpu *vcpu)
-  */
- static void kvm_pv_kick_cpu_op(struct kvm *kvm, unsigned long flags, int apicid)
+@@ -6284,7 +6284,12 @@ int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
+ 				    struct kvm_mp_state *mp_state)
  {
--	struct kvm_vcpu *vcpu = NULL;
--	int i;
-+	struct kvm_lapic_irq lapic_irq;
- 
--	kvm_for_each_vcpu(i, vcpu, kvm) {
--		if (!kvm_apic_present(vcpu))
--			continue;
-+	lapic_irq.shorthand = 0;
-+	lapic_irq.dest_mode = 0;
-+	lapic_irq.dest_id = apicid;
- 
--		if (kvm_apic_match_dest(vcpu, 0, 0, apicid, 0))
--			break;
--	}
--	if (vcpu) {
--		/*
--		 * Setting unhalt flag here can result in spurious runnable
--		 * state when unhalt reset does not happen in vcpu_block.
--		 * But that is harmless since that should soon result in halt.
--		 */
--		vcpu->arch.pv.pv_unhalted = true;
--		/* We need everybody see unhalt before vcpu unblocks */
--		smp_wmb();
--		kvm_vcpu_kick(vcpu);
--	}
-+	lapic_irq.delivery_mode = APIC_DM_REMRD;
-+	kvm_irq_delivery_to_apic(kvm, 0, &lapic_irq, NULL);
+ 	kvm_apic_accept_events(vcpu);
+-	mp_state->mp_state = vcpu->arch.mp_state;
++	if (vcpu->arch.mp_state == KVM_MP_STATE_HALTED &&
++					vcpu->arch.pv.pv_unhalted)
++		mp_state->mp_state = KVM_MP_STATE_RUNNABLE;
++	else
++		mp_state->mp_state = vcpu->arch.mp_state;
++
+ 	return 0;
  }
- 
- int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
