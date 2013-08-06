@@ -1,8 +1,7 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH V12 6/14] xen/pvticketlocks: Add xen_nopvspin parameter to
-	disable xen pv ticketlocks
-Date: Tue, 06 Aug 2013 17:12:24 +0530
-Message-ID: <20130806114224.20643.9099.sendpatchset@codeblue.in.ibm.com>
+Subject: [PATCH V12 7/14] x86/pvticketlock: Use callee-save for lock_spinning
+Date: Tue, 06 Aug 2013 17:12:44 +0530
+Message-ID: <20130806114244.20643.21618.sendpatchset@codeblue.in.ibm.com>
 References: <20130806114020.20643.57235.sendpatchset@codeblue.in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,51 +21,85 @@ To: gleb@redhat.com, mingo@redhat.com, jeremy@goop.org, x86@kernel.org, konrad.w
 Cc: gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-xen/pvticketlocks: Add xen_nopvspin parameter to disable xen pv ticketlocks
+x86/pvticketlock: Use callee-save for lock_spinning
 
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 
+Although the lock_spinning calls in the spinlock code are on the
+uncommon path, their presence can cause the compiler to generate many
+more register save/restores in the function pre/postamble, which is in
+the fast path.  To avoid this, convert it to using the pvops callee-save
+calling convention, which defers all the save/restores until the actual
+function is called, keeping the fastpath clean.
+
 Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
 Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Tested-by: Attilio Rao <attilio.rao@citrix.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Acked-by: Ingo Molnar <mingo@kernel.org>
 ---
- arch/x86/xen/spinlock.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/x86/include/asm/paravirt.h       |    2 +-
+ arch/x86/include/asm/paravirt_types.h |    2 +-
+ arch/x86/kernel/paravirt-spinlocks.c  |    2 +-
+ arch/x86/xen/spinlock.c               |    3 ++-
+ 4 files changed, 5 insertions(+), 4 deletions(-)
 
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index 040e72d..7131e12c 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -715,7 +715,7 @@ static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
+ static __always_inline void __ticket_lock_spinning(struct arch_spinlock *lock,
+ 							__ticket_t ticket)
+ {
+-	PVOP_VCALL2(pv_lock_ops.lock_spinning, lock, ticket);
++	PVOP_VCALLEE2(pv_lock_ops.lock_spinning, lock, ticket);
+ }
+ 
+ static __always_inline void ____ticket_unlock_kick(struct arch_spinlock *lock,
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index d5deb6d..350d017 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -330,7 +330,7 @@ struct arch_spinlock;
+ #include <asm/spinlock_types.h>
+ 
+ struct pv_lock_ops {
+-	void (*lock_spinning)(struct arch_spinlock *lock, __ticket_t ticket);
++	struct paravirt_callee_save lock_spinning;
+ 	void (*unlock_kick)(struct arch_spinlock *lock, __ticket_t ticket);
+ };
+ 
+diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
+index c2e010e..4251c1d 100644
+--- a/arch/x86/kernel/paravirt-spinlocks.c
++++ b/arch/x86/kernel/paravirt-spinlocks.c
+@@ -9,7 +9,7 @@
+ 
+ struct pv_lock_ops pv_lock_ops = {
+ #ifdef CONFIG_SMP
+-	.lock_spinning = paravirt_nop,
++	.lock_spinning = __PV_IS_CALLEE_SAVE(paravirt_nop),
+ 	.unlock_kick = paravirt_nop,
+ #endif
+ };
 diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index a458729..669a971 100644
+index 669a971..6c8792b 100644
 --- a/arch/x86/xen/spinlock.c
 +++ b/arch/x86/xen/spinlock.c
-@@ -244,6 +244,8 @@ void xen_uninit_lock_cpu(int cpu)
- 	per_cpu(irq_name, cpu) = NULL;
+@@ -173,6 +173,7 @@ out:
+ 	local_irq_restore(flags);
+ 	spin_time_accum_blocked(start);
  }
++PV_CALLEE_SAVE_REGS_THUNK(xen_lock_spinning);
  
-+static bool xen_pvspin __initdata = true;
-+
- void __init xen_init_spinlocks(void)
+ static void xen_unlock_kick(struct arch_spinlock *lock, __ticket_t next)
  {
- 	/*
-@@ -253,10 +255,22 @@ void __init xen_init_spinlocks(void)
- 	if (xen_hvm_domain())
+@@ -260,7 +261,7 @@ void __init xen_init_spinlocks(void)
  		return;
+ 	}
  
-+	if (!xen_pvspin) {
-+		printk(KERN_DEBUG "xen: PV spinlocks disabled\n");
-+		return;
-+	}
-+
- 	pv_lock_ops.lock_spinning = xen_lock_spinning;
+-	pv_lock_ops.lock_spinning = xen_lock_spinning;
++	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(xen_lock_spinning);
  	pv_lock_ops.unlock_kick = xen_unlock_kick;
  }
- 
-+static __init int xen_parse_nopvspin(char *arg)
-+{
-+	xen_pvspin = false;
-+	return 0;
-+}
-+early_param("xen_nopvspin", xen_parse_nopvspin);
-+
- #ifdef CONFIG_XEN_DEBUG_FS
- 
- static struct dentry *d_spin_debug;
