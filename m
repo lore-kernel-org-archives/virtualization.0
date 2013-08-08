@@ -1,15 +1,11 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH  V12 0/14] Paravirtualized ticket spinlocks
-Date: Thu, 08 Aug 2013 08:29:27 +0530
-Message-ID: <5203098F.908@linux.vnet.ibm.com>
-References: <20130806114020.20643.57235.sendpatchset@codeblue.in.ibm.com>
-	<52016412.1020608@zytor.com> <5201B6FB.5080807@linux.vnet.ibm.com>
-	<5201D180.9080005@zytor.com> <5201ED01.7000803@linux.vnet.ibm.com>
+From: Sudeep Dutt <sudeep.dutt@intel.com>
+Subject: [PATCH v2 0/7] Enable Drivers for Intel MIC X100 Coprocessors.
+Date: Wed,  7 Aug 2013 20:04:06 -0700
+Message-ID: <cover.1375927849.git.sudeep.dutt@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5201ED01.7000803@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,29 +15,245 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>, Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-doc@vger.kernel.org
+Cc: Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>, Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, AsiasHeasias@redhat.com, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/07/2013 12:15 PM, Raghavendra K T wrote:
-> On 08/07/2013 10:18 AM, H. Peter Anvin wrote:
->> tip:master is not a stable branch; it is more like linux-next.  We need
->> to figure out which topic branches are dependencies for this set.
->
-> Okay. I 'll start looking at the branches that would get affected.
-> (Xen, kvm are obvious ones).
-> Please do let me know the branches I might have to check for.
+ChangeLog:
+=========
 
-On Linus tree,
-I am seeing patch getting applied to arch/x86/Kconfig at some offset
+v1 => v2:
+a) License wording cleanup, sysfs ABI documentation, patch 1 refactoring
+   into 3 smaller patches and function renames, as per feedback from
+   Greg Kroah-Hartman.
+b) Use VRINGH infrastructure for accessing virtio rings from the host
+   in patch 5, as per feedback from Michael S. Tsirkin.
 
-Hunk #1 succeeded at 632 (offset -31 lines).
-Hunk #2 succeeded at 657 (offset -31 lines).
+v1: Initial post @ https://lkml.org/lkml/2013/7/24/810
 
-since patches are based on -rc4, Xen, kvm should not have problem
-as pointed by Gleb, Konrad.
-I did not see change in tip's jumplabel/core-spinlock tree that would
-affect it.
+Description:
+============
 
-Peter, could you please point me to the conflict, so that I can help
-there which saves time and trouble to maintainers.
+An Intel MIC X100 device is a PCIe form factor add-in coprocessor
+card based on the Intel Many Integrated Core (MIC) architecture
+that runs a Linux OS. It is a PCIe endpoint in a platform and therefore
+implements the three required standard address spaces i.e. configuration,
+memory and I/O. The host OS loads a device driver as is typical for
+PCIe devices. The card itself runs a bootstrap after reset that
+transfers control to the card OS downloaded from the host driver.
+The card OS as shipped by Intel is a Linux kernel with modifications
+for the X100 devices.
+
+Since it is a PCIe card, it does not have the ability to host hardware
+devices for networking, storage and console. We provide these devices
+on X100 coprocessors thus enabling a self-bootable equivalent environment
+for applications. A key benefit of our solution is that it leverages
+the standard virtio framework for network, disk and console devices,
+though in our case the virtio framework is used across a PCIe bus.
+
+Here is a block diagram of the various components described above. The
+virtio backends are situated on the host rather than the card given better
+single threaded performance for the host compared to MIC and the ability of
+the host to initiate DMA's to/from the card using the MIC DMA engine.
+
+                              |
+       +----------+           |             +----------+
+       | Card OS  |           |             | Host OS  |
+       +----------+           |             +----------+
+                              |
++-------+ +--------+ +------+ | +---------+  +--------+ +--------+
+| Virtio| |Virtio  | |Virtio| | |Virtio   |  |Virtio  | |Virtio  |
+| Net   | |Console | |Block | | |Net      |  |Console | |Block   |
+| Driver| |Driver  | |Driver| | |backend  |  |backend | |backend |
++-------+ +--------+ +------+ | +---------+  +--------+ +--------+
+    |         |         |     |      |            |         |
+    |         |         |     |Ring 3|            |         |
+    |         |         |     |------|------------|---------|-------
+    +-------------------+     |Ring 0+--------------------------+
+              |               |      | Virtio over PCIe IOCTLs  |
+              |               |      +--------------------------+
+      +--------------+        |                   |
+      |Intel MIC     |        |            +---------------+
+      |Card Driver   |        |            |Intel MIC      |
+      +--------------+        |            |Host Driver    |
+              |               |            +---------------+
+              |               |                   |
+     +-------------------------------------------------------------+
+     |                                                             |
+     |                    PCIe Bus                                 |
+     +-------------------------------------------------------------+
+
+The following series of patches are partitioned as follows:
+
+Patch 1: This patch introduces the "Intel MIC Host Driver" in the block
+diagram which does the following:
+a) Initializes the Intel MIC X100 PCIe devices.
+b) Provides sysfs entries for family and stepping information.
+
+Patch 2: This patch enables the following features in the
+"Intel MIC Host Driver" in the block diagram:
+a) MSIx, MSI and legacy interrupt support.
+b) System Memory Page Table(SMPT) support. SMPT enables system memory
+   access from the card. On X100 devices the host can program 32 SMPT
+   registers each capable of accessing 16GB of system memory
+   address space from X100 devices. The registers can thereby be used
+   to access a cumulative 512GB of system memory address space from
+   X100 devices at any point in time.
+
+Patch 3: This patch enables the following features in the
+"Intel MIC Host Driver" in the block diagram:
+a) Boots and shuts down the card via sysfs entries.
+b) Allocates and maps a device page for communication with the
+   card driver and updates the device page address via scratchpad
+   registers.
+c) Provides sysfs entries for shutdown status, kernel command line,
+   ramdisk and log buffer information.
+
+Patch 4: This patch introduces the "Intel MIC Card Driver" in the block
+diagram which does the following:
+a) Initializes the Intel MIC X100 platform device and driver.
+b) Sets up support to handle shutdown requests from the host.
+c) Maps the device page after obtaining the device page address
+   from the scratchpad registers updated by the host.
+d) Informs the host upon a card crash by registering a panic notifier.
+e) Informs the host upon a poweroff/halt event.
+
+Patch 5: This patch introduces the host "Virtio over PCIe" interface for
+Intel MIC. It allows creating user space backends on the host and instantiating
+virtio devices for them on the Intel MIC card. It uses the existing VRINGH
+infrastructure in the kernel to access virtio rings from the host. A character
+device per MIC is exposed with IOCTL, mmap and poll callbacks. This allows the
+user space backend to:
+(a) add/remove a virtio device via a device page.
+(b) map (R/O) virtio rings and device page to user space.
+(c) poll for availability of data.
+(d) copy a descriptor or entire descriptor chain to/from the card.
+(e) modify virtio configuration.
+(f) handle virtio device reset.
+The buffers are copied over using CPU copies for this initial patch
+and host initiated MIC DMA support is planned for future patches.
+The avail and desc virtio rings are in host memory and the used ring
+is in card memory to maximize writes across PCIe for performance.
+
+Patch 6: This patch introduces the card "Virtio over PCIe" interface for
+Intel MIC. It allows virtio drivers on the card to communicate with their
+user space backends on the host via a device page. Ring 3 apps on the host
+can add, remove and configure virtio devices. A thin MIC specific
+virtio_config_ops is implemented which is borrowed heavily from previous
+similar implementations in lguest and s390 @
+drivers/lguest/lguest_device.c
+drivers/s390/kvm/kvm_virtio.c
+
+Patch 7: This patch introduces a sample user space daemon which
+implements the virtio device backends on the host. The daemon
+creates/removes/configures virtio device backends by communicating with
+the Intel MIC Host Driver. The virtio devices currently supported are
+virtio net, virtio console and virtio block. Virtio net supports TSO/GSO.
+The daemon also monitors card shutdown status and takes appropriate actions
+like killing the virtio backends and resetting the card upon card shutdown
+and crashes.
+
+The patches have been compiled/validated against v3.10.
+
+Ashutosh Dixit (2):
+  Intel MIC Host Driver Changes for Virtio Devices.
+  Intel MIC Card Driver Changes for Virtio Devices.
+
+Caz Yokoyama (1):
+  Sample Implementation of Intel MIC User Space Daemon.
+
+Dasaratharaman Chandramouli (1):
+  Intel MIC Host Driver Interrupt/SMPT support for X100 family.
+
+Sudeep Dutt (3):
+  Intel MIC Host Driver for X100 family.
+  Intel MIC Host Driver, card OS state management.
+  Intel MIC Card Driver for X100 family.
+
+ Documentation/ABI/testing/sysfs-class-mic.txt |  118 ++
+ Documentation/mic/mic_overview.txt            |   48 +
+ Documentation/mic/mpssd/.gitignore            |    1 +
+ Documentation/mic/mpssd/Makefile              |   19 +
+ Documentation/mic/mpssd/micctrl               |  152 +++
+ Documentation/mic/mpssd/mpss                  |  245 ++++
+ Documentation/mic/mpssd/mpssd.c               | 1689 +++++++++++++++++++++++++
+ Documentation/mic/mpssd/mpssd.h               |  100 ++
+ Documentation/mic/mpssd/sysfs.c               |  103 ++
+ drivers/misc/Kconfig                          |    1 +
+ drivers/misc/Makefile                         |    1 +
+ drivers/misc/mic/Kconfig                      |   39 +
+ drivers/misc/mic/Makefile                     |    6 +
+ drivers/misc/mic/card/Makefile                |   11 +
+ drivers/misc/mic/card/mic_common.h            |   36 +
+ drivers/misc/mic/card/mic_debugfs.c           |  132 ++
+ drivers/misc/mic/card/mic_debugfs.h           |   35 +
+ drivers/misc/mic/card/mic_device.c            |  306 +++++
+ drivers/misc/mic/card/mic_device.h            |  127 ++
+ drivers/misc/mic/card/mic_virtio.c            |  647 ++++++++++
+ drivers/misc/mic/card/mic_virtio.h            |   74 ++
+ drivers/misc/mic/card/mic_x100.c              |  256 ++++
+ drivers/misc/mic/card/mic_x100.h              |   48 +
+ drivers/misc/mic/common/mic_device.h          |   51 +
+ drivers/misc/mic/host/Makefile                |   13 +
+ drivers/misc/mic/host/mic_boot.c              |  185 +++
+ drivers/misc/mic/host/mic_common.h            |   32 +
+ drivers/misc/mic/host/mic_debugfs.c           |  494 ++++++++
+ drivers/misc/mic/host/mic_debugfs.h           |   29 +
+ drivers/misc/mic/host/mic_device.h            |  291 +++++
+ drivers/misc/mic/host/mic_fops.c              |  227 ++++
+ drivers/misc/mic/host/mic_fops.h              |   32 +
+ drivers/misc/mic/host/mic_main.c              | 1110 ++++++++++++++++
+ drivers/misc/mic/host/mic_smpt.c              |  436 +++++++
+ drivers/misc/mic/host/mic_smpt.h              |   98 ++
+ drivers/misc/mic/host/mic_sysfs.c             |  314 +++++
+ drivers/misc/mic/host/mic_virtio.c            |  710 +++++++++++
+ drivers/misc/mic/host/mic_virtio.h            |  139 ++
+ drivers/misc/mic/host/mic_x100.c              |  661 ++++++++++
+ drivers/misc/mic/host/mic_x100.h              |   99 ++
+ include/uapi/linux/Kbuild                     |    2 +
+ include/uapi/linux/mic_common.h               |  236 ++++
+ include/uapi/linux/mic_ioctl.h                |   76 ++
+ 43 files changed, 9429 insertions(+)
+ create mode 100644 Documentation/ABI/testing/sysfs-class-mic.txt
+ create mode 100644 Documentation/mic/mic_overview.txt
+ create mode 100644 Documentation/mic/mpssd/.gitignore
+ create mode 100644 Documentation/mic/mpssd/Makefile
+ create mode 100755 Documentation/mic/mpssd/micctrl
+ create mode 100755 Documentation/mic/mpssd/mpss
+ create mode 100644 Documentation/mic/mpssd/mpssd.c
+ create mode 100644 Documentation/mic/mpssd/mpssd.h
+ create mode 100644 Documentation/mic/mpssd/sysfs.c
+ create mode 100644 drivers/misc/mic/Kconfig
+ create mode 100644 drivers/misc/mic/Makefile
+ create mode 100644 drivers/misc/mic/card/Makefile
+ create mode 100644 drivers/misc/mic/card/mic_common.h
+ create mode 100644 drivers/misc/mic/card/mic_debugfs.c
+ create mode 100644 drivers/misc/mic/card/mic_debugfs.h
+ create mode 100644 drivers/misc/mic/card/mic_device.c
+ create mode 100644 drivers/misc/mic/card/mic_device.h
+ create mode 100644 drivers/misc/mic/card/mic_virtio.c
+ create mode 100644 drivers/misc/mic/card/mic_virtio.h
+ create mode 100644 drivers/misc/mic/card/mic_x100.c
+ create mode 100644 drivers/misc/mic/card/mic_x100.h
+ create mode 100644 drivers/misc/mic/common/mic_device.h
+ create mode 100644 drivers/misc/mic/host/Makefile
+ create mode 100644 drivers/misc/mic/host/mic_boot.c
+ create mode 100644 drivers/misc/mic/host/mic_common.h
+ create mode 100644 drivers/misc/mic/host/mic_debugfs.c
+ create mode 100644 drivers/misc/mic/host/mic_debugfs.h
+ create mode 100644 drivers/misc/mic/host/mic_device.h
+ create mode 100644 drivers/misc/mic/host/mic_fops.c
+ create mode 100644 drivers/misc/mic/host/mic_fops.h
+ create mode 100644 drivers/misc/mic/host/mic_main.c
+ create mode 100644 drivers/misc/mic/host/mic_smpt.c
+ create mode 100644 drivers/misc/mic/host/mic_smpt.h
+ create mode 100644 drivers/misc/mic/host/mic_sysfs.c
+ create mode 100644 drivers/misc/mic/host/mic_virtio.c
+ create mode 100644 drivers/misc/mic/host/mic_virtio.h
+ create mode 100644 drivers/misc/mic/host/mic_x100.c
+ create mode 100644 drivers/misc/mic/host/mic_x100.h
+ create mode 100644 include/uapi/linux/mic_common.h
+ create mode 100644 include/uapi/linux/mic_ioctl.h
+
+-- 
+1.8.2.1
