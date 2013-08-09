@@ -1,7 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH V13 10/14] x86/ticketlock: Add slowpath logic
-Date: Fri,  9 Aug 2013 19:51:58 +0530
-Message-ID: <1376058122-8248-11-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+Subject: [PATCH V13 14/14] kvm : Paravirtual ticketlocks support for linux
+	guests running on KVM hypervisor
+Date: Fri,  9 Aug 2013 19:52:02 +0530
+Message-ID: <1376058122-8248-15-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 References: <y>
 	<1376058122-8248-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 Mime-Version: 1.0
@@ -19,302 +20,339 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: mingo@redhat.com, hpa@zytor.com, x86@kernel.org, jeremy@goop.org, konrad.wilk@oracle.com, gleb@redhat.com, pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org, Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+Cc: kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@in.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
 
-Maintain a flag in the LSB of the ticket lock tail which indicates
-whether anyone is in the lock slowpath and may need kicking when
-the current holder unlocks.  The flags are set when the first locker
-enters the slowpath, and cleared when unlocking to an empty queue (ie,
-no contention).
+During smp_boot_cpus  paravirtualied KVM guest detects if the hypervisor has
+required feature (KVM_FEATURE_PV_UNHALT) to support pv-ticketlocks. If so,
+ support for pv-ticketlocks is registered via pv_lock_ops.
 
-In the specific implementation of lock_spinning(), make sure to set
-the slowpath flags on the lock just before blocking.  We must do
-this before the last-chance pickup test to prevent a deadlock
-with the unlocker:
+Use KVM_HC_KICK_CPU hypercall to wakeup waiting/halted vcpu.
 
-Unlocker			Locker
-				test for lock pickup
-					-> fail
-unlock
-test slowpath
-	-> false
-				set slowpath flags
-				block
-
-Whereas this works in any ordering:
-
-Unlocker			Locker
-				set slowpath flags
-				test for lock pickup
-					-> fail
-				block
-unlock
-test slowpath
-	-> true, kick
-
-If the unlocker finds that the lock has the slowpath flag set but it is
-actually uncontended (ie, head == tail, so nobody is waiting), then it
-clears the slowpath flag.
-
-The unlock code uses a locked add to update the head counter.  This also
-acts as a full memory barrier so that its safe to subsequently
-read back the slowflag state, knowing that the updated lock is visible
-to the other CPUs.  If it were an unlocked add, then the flag read may
-just be forwarded from the store buffer before it was visible to the other
-CPUs, which could result in a deadlock.
-
-Unfortunately this means we need to do a locked instruction when
-unlocking with PV ticketlocks.  However, if PV ticketlocks are not
-enabled, then the old non-locked "add" is the only unlocking code.
-
-Note: this code relies on gcc making sure that unlikely() code is out of
-line of the fastpath, which only happens when OPTIMIZE_SIZE=n.  If it
-doesn't the generated code isn't too bad, but its definitely suboptimal.
-
-Thanks to Srivatsa Vaddagiri for providing a bugfix to the original
-version of this change, which has been folded in.
-Thanks to Stephan Diestelhorst for commenting on some code which relied
-on an inaccurate reading of the x86 memory ordering rules.
-
-Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
 Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Stephan Diestelhorst <stephan.diestelhorst@amd.com>
+Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
+[Raghu: check_zero race fix, enum for kvm_contention_stat, jumplabel related changes,
+addition of safe_halt for irq enabled case, bailout spinning in nmi case(Gleb)]
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Acked-by: Gleb Natapov <gleb@redhat.com>
 Acked-by: Ingo Molnar <mingo@kernel.org>
 ---
- arch/x86/include/asm/paravirt.h       |  2 +-
- arch/x86/include/asm/spinlock.h       | 86 +++++++++++++++++++++++++----------
- arch/x86/include/asm/spinlock_types.h |  2 +
- arch/x86/kernel/paravirt-spinlocks.c  |  3 ++
- arch/x86/xen/spinlock.c               |  6 +++
- 5 files changed, 74 insertions(+), 25 deletions(-)
+ arch/x86/include/asm/kvm_para.h |  14 ++-
+ arch/x86/kernel/kvm.c           | 262 ++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 274 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 7131e12c..401f350 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -718,7 +718,7 @@ static __always_inline void __ticket_lock_spinning(struct arch_spinlock *lock,
- 	PVOP_VCALLEE2(pv_lock_ops.lock_spinning, lock, ticket);
- }
- 
--static __always_inline void ____ticket_unlock_kick(struct arch_spinlock *lock,
-+static __always_inline void __ticket_unlock_kick(struct arch_spinlock *lock,
- 							__ticket_t ticket)
- {
- 	PVOP_VCALL2(pv_lock_ops.unlock_kick, lock, ticket);
-diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
-index 04a5cd5..d68883d 100644
---- a/arch/x86/include/asm/spinlock.h
-+++ b/arch/x86/include/asm/spinlock.h
-@@ -1,11 +1,14 @@
- #ifndef _ASM_X86_SPINLOCK_H
- #define _ASM_X86_SPINLOCK_H
- 
-+#include <linux/jump_label.h>
- #include <linux/atomic.h>
- #include <asm/page.h>
- #include <asm/processor.h>
- #include <linux/compiler.h>
- #include <asm/paravirt.h>
-+#include <asm/bitops.h>
+diff --git a/arch/x86/include/asm/kvm_para.h b/arch/x86/include/asm/kvm_para.h
+index 695399f..427afcb 100644
+--- a/arch/x86/include/asm/kvm_para.h
++++ b/arch/x86/include/asm/kvm_para.h
+@@ -118,10 +118,20 @@ void kvm_async_pf_task_wait(u32 token);
+ void kvm_async_pf_task_wake(u32 token);
+ u32 kvm_read_and_reset_pf_reason(void);
+ extern void kvm_disable_steal_time(void);
+-#else
+-#define kvm_guest_init() do { } while (0)
 +
- /*
-  * Your basic SMP spinlocks, allowing only a single CPU anywhere
-  *
-@@ -37,32 +40,28 @@
- /* How long a lock should spin before we consider blocking */
- #define SPIN_THRESHOLD	(1 << 15)
- 
--#ifndef CONFIG_PARAVIRT_SPINLOCKS
-+extern struct static_key paravirt_ticketlocks_enabled;
-+static __always_inline bool static_key_false(struct static_key *key);
- 
--static __always_inline void __ticket_lock_spinning(struct arch_spinlock *lock,
--							__ticket_t ticket)
 +#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+
-+static inline void __ticket_enter_slowpath(arch_spinlock_t *lock)
- {
-+	set_bit(0, (volatile unsigned long *)&lock->tickets.tail);
- }
- 
--static __always_inline void ____ticket_unlock_kick(struct arch_spinlock *lock,
--							 __ticket_t ticket)
-+#else  /* !CONFIG_PARAVIRT_SPINLOCKS */
-+static __always_inline void __ticket_lock_spinning(arch_spinlock_t *lock,
-+							__ticket_t ticket)
- {
- }
--
--#endif	/* CONFIG_PARAVIRT_SPINLOCKS */
--
--
--/*
-- * If a spinlock has someone waiting on it, then kick the appropriate
-- * waiting cpu.
-- */
--static __always_inline void __ticket_unlock_kick(struct arch_spinlock *lock,
--							__ticket_t next)
-+static inline void __ticket_unlock_kick(arch_spinlock_t *lock,
-+							__ticket_t ticket)
- {
--	if (unlikely(lock->tickets.tail != next))
--		____ticket_unlock_kick(lock, next);
- }
- 
++void __init kvm_spinlock_init(void);
++#else /* !CONFIG_PARAVIRT_SPINLOCKS */
++static inline void kvm_spinlock_init(void)
++{
++}
 +#endif /* CONFIG_PARAVIRT_SPINLOCKS */
 +
- /*
-  * Ticket locks are conceptually two parts, one indicating the current head of
-  * the queue, and the other indicating the current tail. The lock is acquired
-@@ -76,20 +75,22 @@ static __always_inline void __ticket_unlock_kick(struct arch_spinlock *lock,
-  * in the high part, because a wide xadd increment of the low part would carry
-  * up and contaminate the high part.
-  */
--static __always_inline void arch_spin_lock(struct arch_spinlock *lock)
-+static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
++#else /* CONFIG_KVM_GUEST */
++#define kvm_guest_init() do {} while (0)
+ #define kvm_async_pf_task_wait(T) do {} while(0)
+ #define kvm_async_pf_task_wake(T) do {} while(0)
++
+ static inline u32 kvm_read_and_reset_pf_reason(void)
  {
- 	register struct __raw_tickets inc = { .tail = TICKET_LOCK_INC };
- 
- 	inc = xadd(&lock->tickets, inc);
-+	if (likely(inc.head == inc.tail))
-+		goto out;
- 
-+	inc.tail &= ~TICKET_SLOWPATH_FLAG;
- 	for (;;) {
- 		unsigned count = SPIN_THRESHOLD;
- 
- 		do {
--			if (inc.head == inc.tail)
-+			if (ACCESS_ONCE(lock->tickets.head) == inc.tail)
- 				goto out;
- 			cpu_relax();
--			inc.head = ACCESS_ONCE(lock->tickets.head);
- 		} while (--count);
- 		__ticket_lock_spinning(lock, inc.tail);
- 	}
-@@ -101,7 +102,7 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
- 	arch_spinlock_t old, new;
- 
- 	old.tickets = ACCESS_ONCE(lock->tickets);
--	if (old.tickets.head != old.tickets.tail)
-+	if (old.tickets.head != (old.tickets.tail & ~TICKET_SLOWPATH_FLAG))
- 		return 0;
- 
- 	new.head_tail = old.head_tail + (TICKET_LOCK_INC << TICKET_SHIFT);
-@@ -110,12 +111,49 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
- 	return cmpxchg(&lock->head_tail, old.head_tail, new.head_tail) == old.head_tail;
+ 	return 0;
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index a96d32c..9b33a27 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -34,6 +34,7 @@
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/kprobes.h>
++#include <linux/debugfs.h>
+ #include <asm/timer.h>
+ #include <asm/cpu.h>
+ #include <asm/traps.h>
+@@ -419,6 +420,7 @@ static void __init kvm_smp_prepare_boot_cpu(void)
+ 	WARN_ON(kvm_register_clock("primary cpu clock"));
+ 	kvm_guest_cpu_init();
+ 	native_smp_prepare_boot_cpu();
++	kvm_spinlock_init();
  }
  
-+static inline void __ticket_unlock_slowpath(arch_spinlock_t *lock,
-+					    arch_spinlock_t old)
+ static void kvm_guest_cpu_online(void *dummy)
+@@ -523,3 +525,263 @@ static __init int activate_jump_labels(void)
+ 	return 0;
+ }
+ arch_initcall(activate_jump_labels);
++
++/* Kick a cpu by its apicid. Used to wake up a halted vcpu */
++void kvm_kick_cpu(int cpu)
 +{
-+	arch_spinlock_t new;
++	int apicid;
++	unsigned long flags = 0;
 +
-+	BUILD_BUG_ON(((__ticket_t)NR_CPUS) != NR_CPUS);
++	apicid = per_cpu(x86_cpu_to_apicid, cpu);
++	kvm_hypercall2(KVM_HC_KICK_CPU, flags, apicid);
++}
 +
-+	/* Perform the unlock on the "before" copy */
-+	old.tickets.head += TICKET_LOCK_INC;
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
 +
-+	/* Clear the slowpath flag */
-+	new.head_tail = old.head_tail & ~(TICKET_SLOWPATH_FLAG << TICKET_SHIFT);
++enum kvm_contention_stat {
++	TAKEN_SLOW,
++	TAKEN_SLOW_PICKUP,
++	RELEASED_SLOW,
++	RELEASED_SLOW_KICKED,
++	NR_CONTENTION_STATS
++};
 +
-+	/*
-+	 * If the lock is uncontended, clear the flag - use cmpxchg in
-+	 * case it changes behind our back though.
-+	 */
-+	if (new.tickets.head != new.tickets.tail ||
-+	    cmpxchg(&lock->head_tail, old.head_tail,
-+					new.head_tail) != old.head_tail) {
-+		/*
-+		 * Lock still has someone queued for it, so wake up an
-+		 * appropriate waiter.
-+		 */
-+		__ticket_unlock_kick(lock, old.tickets.head);
++#ifdef CONFIG_KVM_DEBUG_FS
++#define HISTO_BUCKETS	30
++
++static struct kvm_spinlock_stats
++{
++	u32 contention_stats[NR_CONTENTION_STATS];
++	u32 histo_spin_blocked[HISTO_BUCKETS+1];
++	u64 time_blocked;
++} spinlock_stats;
++
++static u8 zero_stats;
++
++static inline void check_zero(void)
++{
++	u8 ret;
++	u8 old;
++
++	old = ACCESS_ONCE(zero_stats);
++	if (unlikely(old)) {
++		ret = cmpxchg(&zero_stats, old, 0);
++		/* This ensures only one fellow resets the stat */
++		if (ret == old)
++			memset(&spinlock_stats, 0, sizeof(spinlock_stats));
 +	}
 +}
 +
- static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
- {
--	__ticket_t next = lock->tickets.head + TICKET_LOCK_INC;
-+	if (TICKET_SLOWPATH_FLAG &&
-+	    static_key_false(&paravirt_ticketlocks_enabled)) {
-+		arch_spinlock_t prev;
++static inline void add_stats(enum kvm_contention_stat var, u32 val)
++{
++	check_zero();
++	spinlock_stats.contention_stats[var] += val;
++}
 +
-+		prev = *lock;
-+		add_smp(&lock->tickets.head, TICKET_LOCK_INC);
 +
-+		/* add_smp() is a full mb() */
- 
--	__add(&lock->tickets.head, TICKET_LOCK_INC, UNLOCK_LOCK_PREFIX);
--	__ticket_unlock_kick(lock, next);
-+		if (unlikely(lock->tickets.tail & TICKET_SLOWPATH_FLAG))
-+			__ticket_unlock_slowpath(lock, prev);
-+	} else
-+		__add(&lock->tickets.head, TICKET_LOCK_INC, UNLOCK_LOCK_PREFIX);
- }
- 
- static inline int arch_spin_is_locked(arch_spinlock_t *lock)
-diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
-index e96fcbd..4f1bea1 100644
---- a/arch/x86/include/asm/spinlock_types.h
-+++ b/arch/x86/include/asm/spinlock_types.h
-@@ -5,8 +5,10 @@
- 
- #ifdef CONFIG_PARAVIRT_SPINLOCKS
- #define __TICKET_LOCK_INC	2
-+#define TICKET_SLOWPATH_FLAG	((__ticket_t)1)
- #else
- #define __TICKET_LOCK_INC	1
-+#define TICKET_SLOWPATH_FLAG	((__ticket_t)0)
- #endif
- 
- #if (CONFIG_NR_CPUS < (256 / __TICKET_LOCK_INC))
-diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
-index 4251c1d..bbb6c73 100644
---- a/arch/x86/kernel/paravirt-spinlocks.c
-+++ b/arch/x86/kernel/paravirt-spinlocks.c
-@@ -4,6 +4,7 @@
-  */
- #include <linux/spinlock.h>
- #include <linux/module.h>
-+#include <linux/jump_label.h>
- 
- #include <asm/paravirt.h>
- 
-@@ -15,3 +16,5 @@ struct pv_lock_ops pv_lock_ops = {
- };
- EXPORT_SYMBOL(pv_lock_ops);
- 
-+struct static_key paravirt_ticketlocks_enabled = STATIC_KEY_INIT_FALSE;
-+EXPORT_SYMBOL(paravirt_ticketlocks_enabled);
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 6c8792b..546112e 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -157,6 +157,10 @@ static void xen_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
- 	/* Only check lock once pending cleared */
- 	barrier();
- 
-+	/* Mark entry to slowpath before doing the pickup test to make
-+	   sure we don't deadlock with an unlocker. */
++static inline u64 spin_time_start(void)
++{
++	return sched_clock();
++}
++
++static void __spin_time_accum(u64 delta, u32 *array)
++{
++	unsigned index;
++
++	index = ilog2(delta);
++	check_zero();
++
++	if (index < HISTO_BUCKETS)
++		array[index]++;
++	else
++		array[HISTO_BUCKETS]++;
++}
++
++static inline void spin_time_accum_blocked(u64 start)
++{
++	u32 delta;
++
++	delta = sched_clock() - start;
++	__spin_time_accum(delta, spinlock_stats.histo_spin_blocked);
++	spinlock_stats.time_blocked += delta;
++}
++
++static struct dentry *d_spin_debug;
++static struct dentry *d_kvm_debug;
++
++struct dentry *kvm_init_debugfs(void)
++{
++	d_kvm_debug = debugfs_create_dir("kvm", NULL);
++	if (!d_kvm_debug)
++		printk(KERN_WARNING "Could not create 'kvm' debugfs directory\n");
++
++	return d_kvm_debug;
++}
++
++static int __init kvm_spinlock_debugfs(void)
++{
++	struct dentry *d_kvm;
++
++	d_kvm = kvm_init_debugfs();
++	if (d_kvm == NULL)
++		return -ENOMEM;
++
++	d_spin_debug = debugfs_create_dir("spinlocks", d_kvm);
++
++	debugfs_create_u8("zero_stats", 0644, d_spin_debug, &zero_stats);
++
++	debugfs_create_u32("taken_slow", 0444, d_spin_debug,
++		   &spinlock_stats.contention_stats[TAKEN_SLOW]);
++	debugfs_create_u32("taken_slow_pickup", 0444, d_spin_debug,
++		   &spinlock_stats.contention_stats[TAKEN_SLOW_PICKUP]);
++
++	debugfs_create_u32("released_slow", 0444, d_spin_debug,
++		   &spinlock_stats.contention_stats[RELEASED_SLOW]);
++	debugfs_create_u32("released_slow_kicked", 0444, d_spin_debug,
++		   &spinlock_stats.contention_stats[RELEASED_SLOW_KICKED]);
++
++	debugfs_create_u64("time_blocked", 0444, d_spin_debug,
++			   &spinlock_stats.time_blocked);
++
++	debugfs_create_u32_array("histo_blocked", 0444, d_spin_debug,
++		     spinlock_stats.histo_spin_blocked, HISTO_BUCKETS + 1);
++
++	return 0;
++}
++fs_initcall(kvm_spinlock_debugfs);
++#else  /* !CONFIG_KVM_DEBUG_FS */
++static inline void add_stats(enum kvm_contention_stat var, u32 val)
++{
++}
++
++static inline u64 spin_time_start(void)
++{
++	return 0;
++}
++
++static inline void spin_time_accum_blocked(u64 start)
++{
++}
++#endif  /* CONFIG_KVM_DEBUG_FS */
++
++struct kvm_lock_waiting {
++	struct arch_spinlock *lock;
++	__ticket_t want;
++};
++
++/* cpus 'waiting' on a spinlock to become available */
++static cpumask_t waiting_cpus;
++
++/* Track spinlock on which a cpu is waiting */
++static DEFINE_PER_CPU(struct kvm_lock_waiting, lock_waiting);
++
++static void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
++{
++	struct kvm_lock_waiting *w;
++	int cpu;
++	u64 start;
++	unsigned long flags;
++
++	if (in_nmi())
++		return;
++
++	w = &__get_cpu_var(lock_waiting);
++	cpu = smp_processor_id();
++	start = spin_time_start();
++
++	/*
++	 * Make sure an interrupt handler can't upset things in a
++	 * partially setup state.
++	 */
++	local_irq_save(flags);
++
++	/*
++	 * The ordering protocol on this is that the "lock" pointer
++	 * may only be set non-NULL if the "want" ticket is correct.
++	 * If we're updating "want", we must first clear "lock".
++	 */
++	w->lock = NULL;
++	smp_wmb();
++	w->want = want;
++	smp_wmb();
++	w->lock = lock;
++
++	add_stats(TAKEN_SLOW, 1);
++
++	/*
++	 * This uses set_bit, which is atomic but we should not rely on its
++	 * reordering gurantees. So barrier is needed after this call.
++	 */
++	cpumask_set_cpu(cpu, &waiting_cpus);
++
++	barrier();
++
++	/*
++	 * Mark entry to slowpath before doing the pickup test to make
++	 * sure we don't deadlock with an unlocker.
++	 */
 +	__ticket_enter_slowpath(lock);
 +
- 	/* check again make sure it didn't become free while
- 	   we weren't looking  */
- 	if (ACCESS_ONCE(lock->tickets.head) == want) {
-@@ -261,6 +265,8 @@ void __init xen_init_spinlocks(void)
- 		return;
- 	}
- 
++	/*
++	 * check again make sure it didn't become free while
++	 * we weren't looking.
++	 */
++	if (ACCESS_ONCE(lock->tickets.head) == want) {
++		add_stats(TAKEN_SLOW_PICKUP, 1);
++		goto out;
++	}
++
++	/*
++	 * halt until it's our turn and kicked. Note that we do safe halt
++	 * for irq enabled case to avoid hang when lock info is overwritten
++	 * in irq spinlock slowpath and no spurious interrupt occur to save us.
++	 */
++	if (arch_irqs_disabled_flags(flags))
++		halt();
++	else
++		safe_halt();
++
++out:
++	cpumask_clear_cpu(cpu, &waiting_cpus);
++	w->lock = NULL;
++	local_irq_restore(flags);
++	spin_time_accum_blocked(start);
++}
++PV_CALLEE_SAVE_REGS_THUNK(kvm_lock_spinning);
++
++/* Kick vcpu waiting on @lock->head to reach value @ticket */
++static void kvm_unlock_kick(struct arch_spinlock *lock, __ticket_t ticket)
++{
++	int cpu;
++
++	add_stats(RELEASED_SLOW, 1);
++	for_each_cpu(cpu, &waiting_cpus) {
++		const struct kvm_lock_waiting *w = &per_cpu(lock_waiting, cpu);
++		if (ACCESS_ONCE(w->lock) == lock &&
++		    ACCESS_ONCE(w->want) == ticket) {
++			add_stats(RELEASED_SLOW_KICKED, 1);
++			kvm_kick_cpu(cpu);
++			break;
++		}
++	}
++}
++
++/*
++ * Setup pv_lock_ops to exploit KVM_FEATURE_PV_UNHALT if present.
++ */
++void __init kvm_spinlock_init(void)
++{
++	if (!kvm_para_available())
++		return;
++	/* Does host kernel support KVM_FEATURE_PV_UNHALT? */
++	if (!kvm_para_has_feature(KVM_FEATURE_PV_UNHALT))
++		return;
++
++	printk(KERN_INFO "KVM setup paravirtual spinlock\n");
++
 +	static_key_slow_inc(&paravirt_ticketlocks_enabled);
 +
- 	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(xen_lock_spinning);
- 	pv_lock_ops.unlock_kick = xen_unlock_kick;
- }
++	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(kvm_lock_spinning);
++	pv_lock_ops.unlock_kick = kvm_unlock_kick;
++}
++#endif	/* CONFIG_PARAVIRT_SPINLOCKS */
 -- 
 1.7.11.7
