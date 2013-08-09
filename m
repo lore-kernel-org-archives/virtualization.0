@@ -1,15 +1,20 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH V13 13/14] kvm guest : Add configuration support to enable
-	debug information for KVM Guests
-Date: Fri,  9 Aug 2013 19:52:01 +0530
-Message-ID: <1376058122-8248-14-git-send-email-raghavendra.kt__18218.0892945782$1376058052$gmane$org@linux.vnet.ibm.com>
-References: <y>
-	<1376058122-8248-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH  V12 0/14] Paravirtualized ticket spinlocks
+Date: Fri, 09 Aug 2013 07:51:13 -0700
+Message-ID: <520501E1.3070301@zytor.com>
+References: <20130806114020.20643.57235.sendpatchset@codeblue.in.ibm.com>
+	<52016412.1020608@zytor.com> <5201B6FB.5080807@linux.vnet.ibm.com>
+	<5201D180.9080005@zytor.com> <5201ED01.7000803@linux.vnet.ibm.com>
+	<20130808005012.GI2810@phenom.dumpdata.com>
+	<20130808010251.GJ15901@redhat.com>
+	<52040A05.5080107@zytor.com> <520423E9.80507@zytor.com>
+	<5204E57A.3000002@linux.vnet.ibm.com>
+	<20130809130015.GA3730@phenom.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1376058122-8248-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+In-Reply-To: <20130809130015.GA3730@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +24,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mingo@redhat.com, hpa@zytor.com, x86@kernel.org, jeremy@goop.org, konrad.wilk@oracle.com, gleb@redhat.com, pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@in.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: jeremy@goop.org, x86@kernel.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
+On 08/09/2013 06:00 AM, Konrad Rzeszutek Wilk wrote:
+> On Fri, Aug 09, 2013 at 06:20:02PM +0530, Raghavendra K T wrote:
+>> On 08/09/2013 04:34 AM, H. Peter Anvin wrote:
+>>>
+>>> Okay, I figured it out.
+>>>
+>>> One of several problems with the formatting of this patchset is that it
+>>> has one- and two-digit patch numbers in the headers, which meant that my
+>>> scripts tried to apply patch 10 first.
+>>>
+>>
+>> My bad. I 'll send out in uniform digit form next time.
+>>
+> 
+> If you use 'git format-patch --subject-prefix "PATCH V14" v3.11-rc4..'
+> and 'git send-email --subject "[PATCH V14] bla blah" ..'
+> that should be automatically taken care of?
+> 
 
-Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
-Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
-Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Acked-by: Gleb Natapov <gleb@redhat.com>
-Acked-by: Ingo Molnar <mingo@kernel.org>
----
- arch/x86/Kconfig | 9 +++++++++
- 1 file changed, 9 insertions(+)
+Indeed it should.
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 724ce55..f108f00 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -688,6 +688,15 @@ config KVM_GUEST
- 	  underlying device model, the host provides the guest with
- 	  timing infrastructure such as time of day, and system time
- 
-+config KVM_DEBUG_FS
-+	bool "Enable debug information for KVM Guests in debugfs"
-+	depends on KVM_GUEST && DEBUG_FS
-+	default n
-+	---help---
-+	  This option enables collection of various statistics for KVM guest.
-+	  Statistics are displayed in debugfs filesystem. Enabling this option
-+	  may incur significant overhead.
-+
- source "arch/x86/lguest/Kconfig"
- 
- config PARAVIRT_TIME_ACCOUNTING
--- 
-1.7.11.7
+Another problem with this patchset was that the subject was duplicated
+in the body, which meant the tools didn't pick up the From: line.  I
+ended up having to manually edit them.
+
+That seems to have been fixed, too, in V13.
+
+	-hpa
