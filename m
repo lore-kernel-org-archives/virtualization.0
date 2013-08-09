@@ -1,20 +1,14 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Subject: Re: [PATCH  V12 0/14] Paravirtualized ticket spinlocks
-Date: Fri, 09 Aug 2013 18:44:27 +0530
-Message-ID: <5204EB33.2080704__34463.6067202829$1376053711$gmane$org@linux.vnet.ibm.com>
+Date: Fri, 09 Aug 2013 18:39:24 +0530
+Message-ID: <5204EA04.9060109@linux.vnet.ibm.com>
 References: <20130806114020.20643.57235.sendpatchset@codeblue.in.ibm.com>
-	<52016412.1020608@zytor.com> <5201B6FB.5080807@linux.vnet.ibm.com>
-	<5201D180.9080005@zytor.com> <5201ED01.7000803@linux.vnet.ibm.com>
-	<20130808005012.GI2810@phenom.dumpdata.com>
-	<20130808010251.GJ15901@redhat.com>
-	<52040A05.5080107@zytor.com> <520423E9.80507@zytor.com>
-	<5204E57A.3000002@linux.vnet.ibm.com>
-	<20130809130015.GA3730@phenom.dumpdata.com>
+	<52044013.3010202@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130809130015.GA3730@phenom.dumpdata.com>
+In-Reply-To: <52044013.3010202@zytor.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,19 +18,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: jeremy@goop.org, gregkh@suse.de, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/09/2013 06:30 PM, Konrad Rzeszutek Wilk wrote:
->> My bad. I 'll send out in uniform digit form next time.
->>
->
-> If you use 'git format-patch --subject-prefix "PATCH V14" v3.11-rc4..'
-> and 'git send-email --subject "[PATCH V14] bla blah" ..'
-> that should be automatically taken care of?
+On 08/09/2013 06:34 AM, H. Peter Anvin wrote:
+> The kbuild test bot is reporting some pretty serious errors for this
+> patchset.  I think these are serious enough that the patchset will need
+> to be respun.
 >
 
-Thanks Konrad.
-Yes. it should. I am planning to use git send-email instead of custom
-script.
+There were two problems:
+(1) we were including spinlock_types.h in 
+arch/x86/include/asm/paravirt_types.h.
+
+This was resulting in redefinition of arch_spinlock_t for non SMP kernel
+
+solution was :
+conditional inclusion of spinlock_types.h like below
+
+#ifdef CONFIG_SMP
+#include <asm/spinlock_types.h>
+#else
+typedef u16 __ticket_t;
+#endif
+
+(we needed __ticket_t declaration for UP)
+
+(2) we had forward declaration of atomic_read in jumpl_label.
+It was causing problem for alpha, which has macro for atomic_read
+instead of static inline.
+
+Solution was to remove forward declaration and have atomic.h included.
+
+Peter,
+  the above two changes needs small changes in patch 1 and patch 9.
+I 'll be resending only those two patches.
+
+I am happy to resend the whole series if it is better and easier for
+you.
