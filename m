@@ -1,7 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH V13 07/14] x86/pvticketlock: Use callee-save for lock_spinning
-Date: Fri,  9 Aug 2013 19:51:55 +0530
-Message-ID: <1376058122-8248-8-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+Subject: [PATCH V13 11/14] xen/pvticketlock: Allow interrupts to be enabled
+	while blocking
+Date: Fri,  9 Aug 2013 19:51:59 +0530
+Message-ID: <1376058122-8248-12-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 References: <y>
 	<1376058122-8248-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 Mime-Version: 1.0
@@ -24,84 +25,109 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 
-Although the lock_spinning calls in the spinlock code are on the
-uncommon path, their presence can cause the compiler to generate many
-more register save/restores in the function pre/postamble, which is in
-the fast path.  To avoid this, convert it to using the pvops callee-save
-calling convention, which defers all the save/restores until the actual
-function is called, keeping the fastpath clean.
+If interrupts were enabled when taking the spinlock, we can leave them
+enabled while blocking to get the lock.
+
+If we can enable interrupts while waiting for the lock to become
+available, and we take an interrupt before entering the poll,
+and the handler takes a spinlock which ends up going into
+the slow state (invalidating the per-cpu "lock" and "want" values),
+then when the interrupt handler returns the event channel will
+remain pending so the poll will return immediately, causing it to
+return out to the main spinlock loop.
 
 Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
 Reviewed-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Tested-by: Attilio Rao <attilio.rao@citrix.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Acked-by: Ingo Molnar <mingo@kernel.org>
 ---
- arch/x86/include/asm/paravirt.h       | 2 +-
- arch/x86/include/asm/paravirt_types.h | 2 +-
- arch/x86/kernel/paravirt-spinlocks.c  | 2 +-
- arch/x86/xen/spinlock.c               | 3 ++-
- 4 files changed, 5 insertions(+), 4 deletions(-)
+ arch/x86/xen/spinlock.c | 46 ++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 40 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 040e72d..7131e12c 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -715,7 +715,7 @@ static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
- static __always_inline void __ticket_lock_spinning(struct arch_spinlock *lock,
- 							__ticket_t ticket)
- {
--	PVOP_VCALL2(pv_lock_ops.lock_spinning, lock, ticket);
-+	PVOP_VCALLEE2(pv_lock_ops.lock_spinning, lock, ticket);
- }
- 
- static __always_inline void ____ticket_unlock_kick(struct arch_spinlock *lock,
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 346a07c..04ac40e 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -334,7 +334,7 @@ typedef u16 __ticket_t;
- #endif
- 
- struct pv_lock_ops {
--	void (*lock_spinning)(struct arch_spinlock *lock, __ticket_t ticket);
-+	struct paravirt_callee_save lock_spinning;
- 	void (*unlock_kick)(struct arch_spinlock *lock, __ticket_t ticket);
- };
- 
-diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
-index c2e010e..4251c1d 100644
---- a/arch/x86/kernel/paravirt-spinlocks.c
-+++ b/arch/x86/kernel/paravirt-spinlocks.c
-@@ -9,7 +9,7 @@
- 
- struct pv_lock_ops pv_lock_ops = {
- #ifdef CONFIG_SMP
--	.lock_spinning = paravirt_nop,
-+	.lock_spinning = __PV_IS_CALLEE_SAVE(paravirt_nop),
- 	.unlock_kick = paravirt_nop,
- #endif
- };
 diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 669a971..6c8792b 100644
+index 546112e..0438b93 100644
 --- a/arch/x86/xen/spinlock.c
 +++ b/arch/x86/xen/spinlock.c
-@@ -173,6 +173,7 @@ out:
+@@ -142,7 +142,20 @@ static void xen_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+ 	 * partially setup state.
+ 	 */
+ 	local_irq_save(flags);
+-
++	/*
++	 * We don't really care if we're overwriting some other
++	 * (lock,want) pair, as that would mean that we're currently
++	 * in an interrupt context, and the outer context had
++	 * interrupts enabled.  That has already kicked the VCPU out
++	 * of xen_poll_irq(), so it will just return spuriously and
++	 * retry with newly setup (lock,want).
++	 *
++	 * The ordering protocol on this is that the "lock" pointer
++	 * may only be set non-NULL if the "want" ticket is correct.
++	 * If we're updating "want", we must first clear "lock".
++	 */
++	w->lock = NULL;
++	smp_wmb();
+ 	w->want = want;
+ 	smp_wmb();
+ 	w->lock = lock;
+@@ -157,24 +170,43 @@ static void xen_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+ 	/* Only check lock once pending cleared */
+ 	barrier();
+ 
+-	/* Mark entry to slowpath before doing the pickup test to make
+-	   sure we don't deadlock with an unlocker. */
++	/*
++	 * Mark entry to slowpath before doing the pickup test to make
++	 * sure we don't deadlock with an unlocker.
++	 */
+ 	__ticket_enter_slowpath(lock);
+ 
+-	/* check again make sure it didn't become free while
+-	   we weren't looking  */
++	/*
++	 * check again make sure it didn't become free while
++	 * we weren't looking
++	 */
+ 	if (ACCESS_ONCE(lock->tickets.head) == want) {
+ 		add_stats(TAKEN_SLOW_PICKUP, 1);
+ 		goto out;
+ 	}
++
++	/* Allow interrupts while blocked */
++	local_irq_restore(flags);
++
++	/*
++	 * If an interrupt happens here, it will leave the wakeup irq
++	 * pending, which will cause xen_poll_irq() to return
++	 * immediately.
++	 */
++
+ 	/* Block until irq becomes pending (or perhaps a spurious wakeup) */
+ 	xen_poll_irq(irq);
+ 	add_stats(TAKEN_SLOW_SPURIOUS, !xen_test_irq_pending(irq));
++
++	local_irq_save(flags);
++
+ 	kstat_incr_irqs_this_cpu(irq, irq_to_desc(irq));
+ out:
+ 	cpumask_clear_cpu(cpu, &waiting_cpus);
+ 	w->lock = NULL;
++
  	local_irq_restore(flags);
++
  	spin_time_accum_blocked(start);
  }
-+PV_CALLEE_SAVE_REGS_THUNK(xen_lock_spinning);
+ PV_CALLEE_SAVE_REGS_THUNK(xen_lock_spinning);
+@@ -188,7 +220,9 @@ static void xen_unlock_kick(struct arch_spinlock *lock, __ticket_t next)
+ 	for_each_cpu(cpu, &waiting_cpus) {
+ 		const struct xen_lock_waiting *w = &per_cpu(lock_waiting, cpu);
  
- static void xen_unlock_kick(struct arch_spinlock *lock, __ticket_t next)
- {
-@@ -260,7 +261,7 @@ void __init xen_init_spinlocks(void)
- 		return;
- 	}
- 
--	pv_lock_ops.lock_spinning = xen_lock_spinning;
-+	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(xen_lock_spinning);
- 	pv_lock_ops.unlock_kick = xen_unlock_kick;
- }
- 
+-		if (w->lock == lock && w->want == next) {
++		/* Make sure we read lock before want */
++		if (ACCESS_ONCE(w->lock) == lock &&
++		    ACCESS_ONCE(w->want) == next) {
+ 			add_stats(RELEASED_SLOW_KICKED, 1);
+ 			xen_send_IPI_one(cpu, XEN_SPIN_UNLOCK_VECTOR);
+ 			break;
 -- 
 1.7.11.7
