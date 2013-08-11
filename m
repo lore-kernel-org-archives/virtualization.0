@@ -1,8 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH RESEND V13 14/14] kvm : Paravirtual ticketlocks support
-	for linux guests running on KVM hypervisor
-Date: Sun, 11 Aug 2013 01:08:49 +0530
-Message-ID: <20130810193849.GA25260@linux.vnet.ibm.com>
+Subject: [PATCH RESEND V13 14/14] kvm : Paravirtual ticketlocks support for
+	linux guests running on KVM hypervisor
+Date: Sun, 11 Aug 2013 11:05:40 +0530
+Message-ID: <20130811053540.GA12029@linux.vnet.ibm.com>
 References: <y>
 	<1376058122-8248-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 	<1376058122-8248-15-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
@@ -22,18 +22,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-Cc: jeremy@goop.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, riel@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, hpa@zytor.com, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, mingo@redhat.com, Suzuki Poulose <suzuki@in.ibm.com>, habanero@linux.vnet.ibm.com, drjones@redhat.com, konrad.wilk@oracle.com, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: mingo@redhat.com, hpa@zytor.com, x86@kernel.org, jeremy@goop.org, konrad.wilk@oracle.com, gleb@redhat.com, pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, xen-devel@lists.xensource.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Suzuki Poulose <suzuki@in.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, stefano.stabellini@eu.citrix.com, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 * Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com> [2013-08-09 19:52:02]:
-resending because x86_cpu_to_apicid is defined only for SMP systems.
-so fold back kvm_kick_vcpu function into CONFIG_PARAVIRT_SPINLOCK that
-depends on SMP. (this was taken out to for pv-flushtlb usage) 
----8<---
+
 From 10e92f7911a8aed5b8574f53607ffc5d094d4de1 Mon Sep 17 00:00:00 2001
 From: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
 Date: Tue, 6 Aug 2013 14:55:41 +0530
-Subject: [PATCH V13 14/14] kvm : Paravirtual ticketlocks support for linux
+Subject: [PATCH V13 RESEND 14/14] kvm : Paravirtual ticketlocks support for linux
  guests running on KVM hypervisor
 
 During smp_boot_cpus  paravirtualied KVM guest detects if the hypervisor has
@@ -45,7 +43,8 @@ Use KVM_HC_KICK_CPU hypercall to wakeup waiting/halted vcpu.
 Signed-off-by: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
 Signed-off-by: Suzuki Poulose <suzuki@in.ibm.com>
 [Raghu: check_zero race fix, enum for kvm_contention_stat, jumplabel related changes,
-addition of safe_halt for irq enabled case, bailout spinning in nmi case(Gleb)]
+addition of safe_halt for irq enabled case, bailout spinning in nmi case(Gleb)
+move kvm_vcpu_kick inside CONFIG_PARAVIRT_SPINLOCK to fix UP compilation]
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Acked-by: Gleb Natapov <gleb@redhat.com>
 Acked-by: Ingo Molnar <mingo@kernel.org>
