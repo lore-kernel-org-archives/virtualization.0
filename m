@@ -1,14 +1,17 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 0/5] Enable Drivers for Intel MIC X100 Coprocessors.
-Date: Tue, 13 Aug 2013 14:43:11 +0200
-Message-ID: <20130813124311.GA18426@amd.pavel.ucw.cz>
-References: <cover.1374717252.git.sudeep.dutt@intel.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH RESEND V13 14/14] kvm : Paravirtual ticketlocks support
+	for linux guests running on KVM hypervisor
+Date: Tue, 13 Aug 2013 09:42:51 -0700
+Message-ID: <520A620B.6070702@zytor.com>
+References: <y>
+	<1376058122-8248-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+	<1376058122-8248-15-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+	<20130810193849.GA25260@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1374717252.git.sudeep.dutt@intel.com>
+In-Reply-To: <20130810193849.GA25260@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,55 +21,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sudeep Dutt <sudeep.dutt@intel.com>
-Cc: Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Rob Landley <rob@landley.net>, Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: jeremy@goop.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, riel@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, Ingo Molnar <mingo@kernel.org>, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, Suzuki Poulose <suzuki@in.ibm.com>, habanero@linux.vnet.ibm.com, drjones@redhat.com, konrad.wilk@oracle.com, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi!
+Raghavendra...
 
-> Since it is a PCIe card, it does not have the ability to host hardware
-> devices for networking, storage and console. We provide these devices
-> on X100 coprocessors thus enabling a self-bootable equivalent environment
-> for applications. A key benefit of our solution is that it leverages
-> the standard virtio framework for network, disk and console devices,
-> though in our case the virtio framework is used across a PCIe bus.
+Even with this latest patch this branch is broken:
 
-Interesting...
+:(.discard+0x6108): multiple definition of `__pcpu_unique_lock_waiting'
+arch/x86/xen/built-in.o:(.discard+0x23): first defined here
+  CC      drivers/firmware/google/gsmi.o
+arch/x86/kernel/built-in.o:(.discard+0x6108): multiple definition of
+`__pcpu_unique_lock_waiting'
+arch/x86/xen/built-in.o:(.discard+0x23): first defined here
+  CC      sound/core/seq/oss/seq_oss_init.o
 
->  Documentation/mic/mic_overview.txt   |   48 +
->  Documentation/mic/mpssd/.gitignore   |    1 +
->  Documentation/mic/mpssd/Makefile     |   20 +
->  Documentation/mic/mpssd/micctrl      |  157 +++
->  Documentation/mic/mpssd/mpss         |  246 +++++
->  Documentation/mic/mpssd/mpssd.c      | 1732 ++++++++++++++++++++++++++++++++++
->  Documentation/mic/mpssd/mpssd.h      |  105 +++
->  Documentation/mic/mpssd/sysfs.c      |  108 +++
->  drivers/misc/Kconfig                 |    1 +
->  drivers/misc/Makefile                |    1 +
->  drivers/misc/mic/Kconfig             |   56 ++
->  drivers/misc/mic/Makefile            |    6 +
->  drivers/misc/mic/card/Makefile       |   11 +
->  drivers/misc/mic/card/mic_common.h   |   43 +
->  drivers/misc/mic/card/mic_debugfs.c  |  139 +++
->  drivers/misc/mic/card/mic_debugfs.h  |   40 +
->  drivers/misc/mic/card/mic_device.c   |  311 ++++++
->  drivers/misc/mic/card/mic_device.h   |  106 +++
->  drivers/misc/mic/card/mic_virtio.c   |  643 +++++++++++++
->  drivers/misc/mic/card/mic_virtio.h   |   79 ++
->  drivers/misc/mic/card/mic_x100.c     |  253 +++++
->  drivers/misc/mic/card/mic_x100.h     |   53 ++
->  drivers/misc/mic/common/mic_device.h |   85 ++
->  drivers/misc/mic/host/Makefile       |   13 +
->  drivers/misc/mic/host/mic_boot.c     |  181 ++++
+This is trivially reproducible by doing a build with "make allyesconfig".
 
-So... there are basically separate computers running on PCIe card
-plugged into host computer, right?
+Please fix and *verify* it is fixed before resubmitting.
 
-Maybe we should have something more promintent than drivers/misc for
-this, then? Like drivers/multicomputer?
+I will be away so Ingo will have to handle the resubmission.
 
-									Pavel
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+	-hpa
