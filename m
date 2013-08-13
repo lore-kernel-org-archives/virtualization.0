@@ -1,19 +1,20 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Subject: Re: [PATCH delta V13 14/14] kvm : Paravirtual ticketlocks support
 	for linux guests running on KVM hypervisor
-Date: Tue, 13 Aug 2013 13:00:22 -0700
-Message-ID: <520A9056.3080707__16010.5522758842$1376424638$gmane$org@goop.org>
+Date: Wed, 14 Aug 2013 01:57:32 +0530
+Message-ID: <520A96B4.5040603@linux.vnet.ibm.com>
 References: <y>
 	<1376058122-8248-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 	<1376058122-8248-15-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 	<20130810193849.GA25260@linux.vnet.ibm.com>
 	<520A620B.6070702@zytor.com> <20130813165552.GA6795@gmail.com>
 	<20130813200211.GA27811@linux.vnet.ibm.com>
+	<520A9056.3080707@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130813200211.GA27811@linux.vnet.ibm.com>
+In-Reply-To: <520A9056.3080707@goop.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,69 +24,24 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, Suzuki Poulose <suzuki@in.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: Jeremy Fitzhardinge <jeremy@goop.org>, Ingo Molnar <mingo@kernel.org>
+Cc: kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, drjones@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, "H. Peter Anvin" <hpa@zytor.com>, stefano.stabellini@eu.citrix.com, xen-devel@lists.xensource.com, x86@kernel.org, Suzuki Poulose <suzuki@in.ibm.com>, habanero@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, gregkh@suse.de, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, attilio.rao@citrix.com, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/13/2013 01:02 PM, Raghavendra K T wrote:
-> * Ingo Molnar <mingo@kernel.org> [2013-08-13 18:55:52]:
->
->> Would be nice to have a delta fix patch against tip:x86/spinlocks, which 
->> I'll then backmerge into that series via rebasing it.
->>
-> There was a namespace collision of PER_CPU lock_waiting variable when
-> we have both Xen and KVM enabled. 
->
-> Perhaps this week wasn't for me. Had run 100 times randconfig in a loop
-> for the fix sent earlier :(. 
->
-> Ingo, below delta patch should fix it, IIRC, I hope you will be folding this
-> back to patch 14/14 itself. Else please let me.
-> I have already run allnoconfig, allyesconfig, randconfig with below patch. But will
-> test again. This should apply on top of tip:x86/spinlocks.
->
-> ---8<---
-> From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
->
-> Fix Namespace collision for lock_waiting
->
-> Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-> ---
-> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-> index d442471..b8ef630 100644
-> --- a/arch/x86/kernel/kvm.c
-> +++ b/arch/x86/kernel/kvm.c
-> @@ -673,7 +673,7 @@ struct kvm_lock_waiting {
->  static cpumask_t waiting_cpus;
->  
->  /* Track spinlock on which a cpu is waiting */
-> -static DEFINE_PER_CPU(struct kvm_lock_waiting, lock_waiting);
-> +static DEFINE_PER_CPU(struct kvm_lock_waiting, klock_waiting);
+On 08/14/2013 01:30 AM, Jeremy Fitzhardinge wrote:
+> On 08/13/2013 01:02 PM, Raghavendra K T wrote:
+[...]
+>> Ingo, below delta patch should fix it, IIRC, I hope you will be folding this
+>> back to patch 14/14 itself. Else please let me.
 
-Has static stopped meaning static?
+it was.. s/Please let me know/
 
-    J
+[...]
+>> -static DEFINE_PER_CPU(struct kvm_lock_waiting, lock_waiting);
+>> +static DEFINE_PER_CPU(struct kvm_lock_waiting, klock_waiting);
+>
+> Has static stopped meaning static?
+>
 
->  
->  static void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
->  {
-> @@ -685,7 +685,7 @@ static void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
->  	if (in_nmi())
->  		return;
->  
-> -	w = &__get_cpu_var(lock_waiting);
-> +	w = &__get_cpu_var(klock_waiting);
->  	cpu = smp_processor_id();
->  	start = spin_time_start();
->  
-> @@ -756,7 +756,7 @@ static void kvm_unlock_kick(struct arch_spinlock *lock, __ticket_t ticket)
->  
->  	add_stats(RELEASED_SLOW, 1);
->  	for_each_cpu(cpu, &waiting_cpus) {
-> -		const struct kvm_lock_waiting *w = &per_cpu(lock_waiting, cpu);
-> +		const struct kvm_lock_waiting *w = &per_cpu(klock_waiting, cpu);
->  		if (ACCESS_ONCE(w->lock) == lock &&
->  		    ACCESS_ONCE(w->want) == ticket) {
->  			add_stats(RELEASED_SLOW_KICKED, 1);
->
->
+I see it is expanded to static extern, since we have
+CONFIG_DEBUG_FORCE_WEAK_PER_CPU=y for allyesconfig
