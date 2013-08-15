@@ -1,14 +1,11 @@
-From: Sudeep Dutt <sudeep.dutt@intel.com>
-Subject: Re: [PATCH 0/5] Enable Drivers for Intel MIC X100 Coprocessors.
-Date: Wed, 14 Aug 2013 13:24:10 -0700
-Message-ID: <1376511850.113256.29.camel@blbiskey-desk1.amr.corp.intel.com>
-References: <cover.1374717252.git.sudeep.dutt@intel.com>
-	<20130813124311.GA18426@amd.pavel.ucw.cz>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH] vhost: Drop linux/socket.h
+Date: Thu, 15 Aug 2013 11:20:16 +0800
+Message-ID: <1376536816-10951-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130813124311.GA18426@amd.pavel.ucw.cz>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,78 +15,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Sudeep Dutt <sudeep.dutt@intel.com>, Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Rob Landley <rob@landley.net>, Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
+To: netdev@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2013-08-13 at 14:43 +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > Since it is a PCIe card, it does not have the ability to host hardware
-> > devices for networking, storage and console. We provide these devices
-> > on X100 coprocessors thus enabling a self-bootable equivalent environment
-> > for applications. A key benefit of our solution is that it leverages
-> > the standard virtio framework for network, disk and console devices,
-> > though in our case the virtio framework is used across a PCIe bus.
-> 
-> Interesting...
-> 
-> >  Documentation/mic/mic_overview.txt   |   48 +
-> >  Documentation/mic/mpssd/.gitignore   |    1 +
-> >  Documentation/mic/mpssd/Makefile     |   20 +
-> >  Documentation/mic/mpssd/micctrl      |  157 +++
-> >  Documentation/mic/mpssd/mpss         |  246 +++++
-> >  Documentation/mic/mpssd/mpssd.c      | 1732 ++++++++++++++++++++++++++++++++++
-> >  Documentation/mic/mpssd/mpssd.h      |  105 +++
-> >  Documentation/mic/mpssd/sysfs.c      |  108 +++
-> >  drivers/misc/Kconfig                 |    1 +
-> >  drivers/misc/Makefile                |    1 +
-> >  drivers/misc/mic/Kconfig             |   56 ++
-> >  drivers/misc/mic/Makefile            |    6 +
-> >  drivers/misc/mic/card/Makefile       |   11 +
-> >  drivers/misc/mic/card/mic_common.h   |   43 +
-> >  drivers/misc/mic/card/mic_debugfs.c  |  139 +++
-> >  drivers/misc/mic/card/mic_debugfs.h  |   40 +
-> >  drivers/misc/mic/card/mic_device.c   |  311 ++++++
-> >  drivers/misc/mic/card/mic_device.h   |  106 +++
-> >  drivers/misc/mic/card/mic_virtio.c   |  643 +++++++++++++
-> >  drivers/misc/mic/card/mic_virtio.h   |   79 ++
-> >  drivers/misc/mic/card/mic_x100.c     |  253 +++++
-> >  drivers/misc/mic/card/mic_x100.h     |   53 ++
-> >  drivers/misc/mic/common/mic_device.h |   85 ++
-> >  drivers/misc/mic/host/Makefile       |   13 +
-> >  drivers/misc/mic/host/mic_boot.c     |  181 ++++
-> 
-> So... there are basically separate computers running on PCIe card
-> plugged into host computer, right?
-> 
+memcpy_fromiovec is moved to lib/iovec.c. No need to include
+linux/socket.h for it.
 
-They are PCIe form factor Coprocessors plugged into the host.
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/vhost.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-> Maybe we should have something more promintent than drivers/misc for
-> this, then? Like drivers/multicomputer?
-> 
-
-multicomputer" is an interesting name for these kind of devices but has
-several issues:
-a) The definition I found for multicomputer online was "A computer made
-up of several computers. The term generally refers to an architecture in
-which each processor has its own memory rather than multiple processors
-with a shared memory. A multicore computer, although it sounds similar,
-would not be a multicomputer because the multiple cores share a common
-memory." Intel MIC X100 devices typically have upto 244 CPUs (61 cores)
-on the card sharing common card memory so multicomputer would not be
-accurate based on this definition.
-b) X100 MIC devices have always been referred to Coprocessors and never
-as multicomputers in product specifications @
-http://software.intel.com/en-us/mic-developer
-c) multicomputer is a very long path name.
-
-Given these issues, we would like to stick to drivers/misc/mic/ unless
-you have objections to this approach.
-
-Thanks for the feedback.
-Sudeep Dutt
-
-> 									Pavel
-> 
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index e58cf00..038c242 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -13,7 +13,6 @@
+ 
+ #include <linux/eventfd.h>
+ #include <linux/vhost.h>
+-#include <linux/socket.h> /* memcpy_fromiovec */
+ #include <linux/mm.h>
+ #include <linux/mmu_context.h>
+ #include <linux/miscdevice.h>
+-- 
+1.8.3.1
