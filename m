@@ -1,16 +1,12 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 0/5] Enable Drivers for Intel MIC X100 Coprocessors.
-Date: Thu, 15 Aug 2013 12:14:55 +0200
-Message-ID: <20130815101455.GA25528__39139.3037084073$1376561719$gmane$org@amd.pavel.ucw.cz>
-References: <cover.1374717252.git.sudeep.dutt@intel.com>
-	<20130813124311.GA18426@amd.pavel.ucw.cz>
-	<1376511850.113256.29.camel@blbiskey-desk1.amr.corp.intel.com>
+From: "WorldCIST" <marialemos72@gmail.com>
+Subject: CFP: WorldCIST'14 - World Conference on IST;  Best papers published
+	in JCR/ISI Journals
+Date: Thu, 15 Aug 2013 15:05:48 +0100
+Message-ID: <20130815141415.F1B95A9C@mail.linuxfoundation.org>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4020632317734552259=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1376511850.113256.29.camel@blbiskey-desk1.amr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,88 +16,199 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sudeep Dutt <sudeep.dutt@intel.com>
-Cc: Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Rob Landley <rob@landley.net>, Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi!
+--===============4020632317734552259==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > > Since it is a PCIe card, it does not have the ability to host hardware
-> > > devices for networking, storage and console. We provide these devices
-> > > on X100 coprocessors thus enabling a self-bootable equivalent environment
-> > > for applications. A key benefit of our solution is that it leverages
-> > > the standard virtio framework for network, disk and console devices,
-> > > though in our case the virtio framework is used across a PCIe bus.
-> > 
-> > Interesting...
-> > 
-> > >  Documentation/mic/mic_overview.txt   |   48 +
-> > >  Documentation/mic/mpssd/.gitignore   |    1 +
-> > >  Documentation/mic/mpssd/Makefile     |   20 +
-> > >  Documentation/mic/mpssd/micctrl      |  157 +++
-> > >  Documentation/mic/mpssd/mpss         |  246 +++++
-> > >  Documentation/mic/mpssd/mpssd.c      | 1732 ++++++++++++++++++++++++++++++++++
-> > >  Documentation/mic/mpssd/mpssd.h      |  105 +++
-> > >  Documentation/mic/mpssd/sysfs.c      |  108 +++
-> > >  drivers/misc/Kconfig                 |    1 +
-> > >  drivers/misc/Makefile                |    1 +
-> > >  drivers/misc/mic/Kconfig             |   56 ++
-> > >  drivers/misc/mic/Makefile            |    6 +
-> > >  drivers/misc/mic/card/Makefile       |   11 +
-> > >  drivers/misc/mic/card/mic_common.h   |   43 +
-> > >  drivers/misc/mic/card/mic_debugfs.c  |  139 +++
-> > >  drivers/misc/mic/card/mic_debugfs.h  |   40 +
-> > >  drivers/misc/mic/card/mic_device.c   |  311 ++++++
-> > >  drivers/misc/mic/card/mic_device.h   |  106 +++
-> > >  drivers/misc/mic/card/mic_virtio.c   |  643 +++++++++++++
-> > >  drivers/misc/mic/card/mic_virtio.h   |   79 ++
-> > >  drivers/misc/mic/card/mic_x100.c     |  253 +++++
-> > >  drivers/misc/mic/card/mic_x100.h     |   53 ++
-> > >  drivers/misc/mic/common/mic_device.h |   85 ++
-> > >  drivers/misc/mic/host/Makefile       |   13 +
-> > >  drivers/misc/mic/host/mic_boot.c     |  181 ++++
-> > 
-> > So... there are basically separate computers running on PCIe card
-> > plugged into host computer, right?
-> > 
-> 
-> They are PCIe form factor Coprocessors plugged into the host.
-> 
-> > Maybe we should have something more promintent than drivers/misc for
-> > this, then? Like drivers/multicomputer?
-> > 
-> 
-> multicomputer" is an interesting name for these kind of devices but has
-> several issues:
-> a) The definition I found for multicomputer online was "A computer made
-> up of several computers. The term generally refers to an architecture in
-> which each processor has its own memory rather than multiple processors
-> with a shared memory. A multicore computer, although it sounds similar,
-> would not be a multicomputer because the multiple cores share a common
-> memory." Intel MIC X100 devices typically have upto 244 CPUs (61 cores)
-> on the card sharing common card memory so multicomputer would not be
-> accurate based on this definition.
+Apologies if you are receiving this mail more than once...
 
-Well... you have your "host" computer, and than (potentially several)
-Intel MIC devices, which are basically separate computers. So X100 is
-not a multicomputer, but machine with several X100 cards certainly is
-multicomputer.
+Please disseminate by friends, colleagues, researchers, students, etc.=
+ Thanks a lot!
 
-> b) X100 MIC devices have always been referred to Coprocessors and never
-> as multicomputers in product specifications @
-> http://software.intel.com/en-us/mic-developer
 
-Coprocessor sounds like i487, but why not.
+**********************************************************************=
+************
+                             WorldCIST'14
+The 2014 World Conference on Information Systems and Technologies
+                April 15 - 18, Madeira Island, Portugal
+                   http://www.aisti.eu/worldcist14/
+**********************************************************************=
+************
 
-> c) multicomputer is a very long path name.
+The 2014 World Conference on Information Systems and Technologies (Wor=
+ldCIST'14: http://www.aisti.eu/worldcist14) is a global forum for rese=
+archers and practitioners to present and discuss the most recent innov=
+ations, trends, results, experiences and concerns in the several persp=
+ectives of Information Systems and Technologies.
 
-Agreed it is long. drivers/coproc? 
+We are pleased to invite you to submit your papers to WorldCISTI'14. A=
+ll submissions will be reviewed on the basis of relevance, originality=
+, importance and clarity.
 
-[I guess we'll get similar hardware from different vendors in
-future. It would make sense having it at common place.]
+=20
+THEMES
 
-								Pavel
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Intelligent and Decision Support Systems (IDSS);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+F) Human-Computer Interaction (HCI);
+
+G) Health Informatics (HIS);
+
+H) Information Technologies in Education (ITE).
+
+
+TYPES OF SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one =
+of the Conference themes. These papers are assigned a 10-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, open to =
+discussion. These papers are assigned a 7-page limit.
+
+Poster paper: Initial work with relevant ideas, open to discussion. Th=
+ese papers are assigned to a 4-page limit.
+
+Company paper: Companies' papers that show practical experience, R & D=
+, tools, etc., focused on some topics of the conference. These papers =
+are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference includes Work Sessions where t=
+hese posters are presented and orally discussed, with a 5 minute limit=
+ per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION AND INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 24th of January 2014, and the paper must comp=
+ly with the suggested layout and page-limit. Additionally, all recomme=
+nded changes must be addressed by the authors before they submit the c=
+amera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ Advances in Intelligent Systems and Computing Series. Poster and comp=
+any papers will be published in Proceedings by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
+in the SpringerLink Digital Library. Published poster and company pape=
+rs will be submitted for indexation by EI-Compendex and EBSCO.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI, SCOPUS and =
+DBLP, among others, such as:
+
+Journal of Information Technology (JIT)
+
+Social Science Computer Review (SSC)
+
+Information Technology & People (ITP)
+
+Computer Science and Information Systems (ComSIS)
+
+Information Development (IDV)
+
+Journal of Information Science and Engineering (JISE)
+
+IEEE IT Professional (ITPro)
+
+Computer Methods in Biomechanics and Biomedical Engineering - Imaging =
+& Visualization (CMBBE-IV)
+
+Journal of Medical Internet Research (JMIR)
+
+International Journal of Health Information Systems & Informatics (IJH=
+ISI)
+
+International Journal of Web Based Communities (IJWBC)
+
+International Journal of Interactive Multimedia and Artificial Intelli=
+gence (IJIMAI)
+
+
+INPORTANT DATES
+
+Paper Submission: November 15, 2013
+
+Notification of Acceptance: January 10, 2014
+
+Camera-ready Submission: January 19, 2014
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 24, 2014.
+
+-
+
+Regards,=20
+
+WorldCIST Team
+http://www.aisti.eu/worldcist14
+
+
+
+
+--===============4020632317734552259==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4020632317734552259==--
