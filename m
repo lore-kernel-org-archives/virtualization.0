@@ -1,13 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 6/6] vhost_net: remove the max pending check
-Date: Fri, 16 Aug 2013 13:16:30 +0800
-Message-ID: <1376630190-5912-7-git-send-email-jasowang@redhat.com>
-References: <1376630190-5912-1-git-send-email-jasowang@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] vhost: Drop linux/socket.h
+Date: Fri, 16 Aug 2013 00:31:59 -0700 (PDT)
+Message-ID: <20130816.003159.2033932881805410431.davem@davemloft.net>
+References: <1376536816-10951-1-git-send-email-asias@redhat.com>
+	<20130815.140740.1781732332793977170.davem@davemloft.net>
+	<20130816012743.GA5944@hj.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1376630190-5912-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20130816012743.GA5944@hj.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,55 +19,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: asias@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-We used to limit the max pending DMAs to prevent guest from pinning too many
-pages. But this could be removed since:
+From: Asias He <asias@redhat.com>
+Date: Fri, 16 Aug 2013 09:27:43 +0800
 
-- We have the sk_wmem_alloc check in both tun/macvtap to do the same work
-- This max pending check were almost useless since it was one done when there's
-  no new buffers coming from guest. Guest can easily exceeds the limitation.
-- We've already check upend_idx != done_idx and switch to non zerocopy then. So
-  even if all vq->heads were used, we can still does the packet transmission.
+> On Thu, Aug 15, 2013 at 02:07:40PM -0700, David Miller wrote:
+>> From: Asias He <asias@redhat.com>
+>> Date: Thu, 15 Aug 2013 11:20:16 +0800
+>> 
+>> > memcpy_fromiovec is moved to lib/iovec.c. No need to include
+>> > linux/socket.h for it.
+>> > 
+>> > Signed-off-by: Asias He <asias@redhat.com>
+>> 
+>> You can't do this.
+>> 
+>> Because this file doesn't include the header file that
+>> provides the declaration, which is linux/uio.h
+> 
+> vhost.c includes drivers/vhost/vhost.h. In drivers/vhost/vhost.h, we
+> have linux/uio.h included.
 
-So remove this check completely.
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/net.c |   13 -------------
- 1 files changed, 0 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index a035a89..ed3f165 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -38,8 +38,6 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
-  * Using this limit prevents one virtqueue from starving others. */
- #define VHOST_NET_WEIGHT 0x80000
- 
--/* MAX number of TX used buffers for outstanding zerocopy */
--#define VHOST_MAX_PEND 128
- #define VHOST_GOODCOPY_LEN 256
- 
- /*
-@@ -372,17 +370,6 @@ static void handle_tx(struct vhost_net *net)
- 			break;
- 		/* Nothing new?  Wait for eventfd to tell us they refilled. */
- 		if (head == vq->num) {
--			int num_pends;
--
--			/* If more outstanding DMAs, queue the work.
--			 * Handle upend_idx wrap around
--			 */
--			num_pends = likely(nvq->upend_idx >= nvq->done_idx) ?
--				    (nvq->upend_idx - nvq->done_idx) :
--				    (nvq->upend_idx + UIO_MAXIOV -
--				     nvq->done_idx);
--			if (unlikely(num_pends > VHOST_MAX_PEND))
--				break;
- 			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
- 				vhost_disable_notify(&net->dev, vq);
- 				continue;
--- 
-1.7.1
+Nothing in vhost.h needs linux/uio.h right?  That's very poor style,
+include the header where the dependency exists which is vhost.c
