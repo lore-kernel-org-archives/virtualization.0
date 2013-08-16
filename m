@@ -1,19 +1,12 @@
-From: "Waskiewicz Jr, Peter P" <peter.p.waskiewicz.jr@intel.com>
-Subject: Re: [PATCH 0/5] Enable Drivers for Intel MIC X100 Coprocessors.
-Date: Fri, 16 Aug 2013 17:08:13 +0000
-Message-ID: <1376672885.5327.4.camel__7023.13102451644$1376674118$gmane$org@ppwaskie-mobl2>
-References: <cover.1374717252.git.sudeep.dutt@intel.com>
-	<20130813124311.GA18426@amd.pavel.ucw.cz>
-	<1376511850.113256.29.camel@blbiskey-desk1.amr.corp.intel.com>
-	<20130815101455.GA25528@amd.pavel.ucw.cz>
-	<1376672369.93110.13.camel@blbiskey-desk1.amr.corp.intel.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: [PATCH-v3 0/4] target/vhost-scsi: Add per-cpu ida tag pre-allocation
+	for v3.12
+Date: Fri, 16 Aug 2013 23:09:05 +0000
+Message-ID: <1376694549-20609-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1376672369.93110.13.camel@blbiskey-desk1.amr.corp.intel.com>
-Content-Language: en-US
-Content-ID: <A825E9D3637B1B4D8785E82B7D5AFEC5@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,107 +16,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Dutt, Sudeep" <sudeep.dutt@intel.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Dixit,
-	Ashutosh" <ashutosh.dixit@intel.com>, "Dong,
-	Eddie" <eddie.dong@intel.com>, Rob Landley <rob@landley.net>, "Kharche, Harshavardhan R" <harshavardhan.r.kharche@intel.com>, "Yokoyama, Caz" <caz.yokoyama@intel.com>, "Chandramouli,
-	Dasaratharaman" <dasaratharaman.chandramouli@intel.com>
+To: target-devel <target-devel@vger.kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Andi Kleen <andi@firstfloor.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lkml <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Kent Overstreet <kmo@daterainc.com>, Ingo Molnar <mingo@redhat.com>, Christoph Lameter <cl@gentwo.org>, Tejun Heo <tj@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2013-08-16 at 09:59 -0700, Sudeep Dutt wrote:
-> On Thu, 2013-08-15 at 12:14 +0200, Pavel Machek wrote:
-> > Hi!
-> > 
-> 
-> Hi!
-> 
-> > > > > Since it is a PCIe card, it does not have the ability to host hardware
-> > > > > devices for networking, storage and console. We provide these devices
-> > > > > on X100 coprocessors thus enabling a self-bootable equivalent environment
-> > > > > for applications. A key benefit of our solution is that it leverages
-> > > > > the standard virtio framework for network, disk and console devices,
-> > > > > though in our case the virtio framework is used across a PCIe bus.
-> > > > 
-> > > > Interesting...
-> > > > 
-> > > > >  Documentation/mic/mic_overview.txt   |   48 +
-> > > > >  Documentation/mic/mpssd/.gitignore   |    1 +
-> > > > >  Documentation/mic/mpssd/Makefile     |   20 +
-> > > > >  Documentation/mic/mpssd/micctrl      |  157 +++
-> > > > >  Documentation/mic/mpssd/mpss         |  246 +++++
-> > > > >  Documentation/mic/mpssd/mpssd.c      | 1732 ++++++++++++++++++++++++++++++++++
-> > > > >  Documentation/mic/mpssd/mpssd.h      |  105 +++
-> > > > >  Documentation/mic/mpssd/sysfs.c      |  108 +++
-> > > > >  drivers/misc/Kconfig                 |    1 +
-> > > > >  drivers/misc/Makefile                |    1 +
-> > > > >  drivers/misc/mic/Kconfig             |   56 ++
-> > > > >  drivers/misc/mic/Makefile            |    6 +
-> > > > >  drivers/misc/mic/card/Makefile       |   11 +
-> > > > >  drivers/misc/mic/card/mic_common.h   |   43 +
-> > > > >  drivers/misc/mic/card/mic_debugfs.c  |  139 +++
-> > > > >  drivers/misc/mic/card/mic_debugfs.h  |   40 +
-> > > > >  drivers/misc/mic/card/mic_device.c   |  311 ++++++
-> > > > >  drivers/misc/mic/card/mic_device.h   |  106 +++
-> > > > >  drivers/misc/mic/card/mic_virtio.c   |  643 +++++++++++++
-> > > > >  drivers/misc/mic/card/mic_virtio.h   |   79 ++
-> > > > >  drivers/misc/mic/card/mic_x100.c     |  253 +++++
-> > > > >  drivers/misc/mic/card/mic_x100.h     |   53 ++
-> > > > >  drivers/misc/mic/common/mic_device.h |   85 ++
-> > > > >  drivers/misc/mic/host/Makefile       |   13 +
-> > > > >  drivers/misc/mic/host/mic_boot.c     |  181 ++++
-> > > > 
-> > > > So... there are basically separate computers running on PCIe card
-> > > > plugged into host computer, right?
-> > > > 
-> > > 
-> > > They are PCIe form factor Coprocessors plugged into the host.
-> > > 
-> > > > Maybe we should have something more promintent than drivers/misc for
-> > > > this, then? Like drivers/multicomputer?
-> > > > 
-> > > 
-> > > multicomputer" is an interesting name for these kind of devices but has
-> > > several issues:
-> > > a) The definition I found for multicomputer online was "A computer made
-> > > up of several computers. The term generally refers to an architecture in
-> > > which each processor has its own memory rather than multiple processors
-> > > with a shared memory. A multicore computer, although it sounds similar,
-> > > would not be a multicomputer because the multiple cores share a common
-> > > memory." Intel MIC X100 devices typically have upto 244 CPUs (61 cores)
-> > > on the card sharing common card memory so multicomputer would not be
-> > > accurate based on this definition.
-> > 
-> > Well... you have your "host" computer, and than (potentially several)
-> > Intel MIC devices, which are basically separate computers. So X100 is
-> > not a multicomputer, but machine with several X100 cards certainly is
-> > multicomputer.
-> > 
-> > > b) X100 MIC devices have always been referred to Coprocessors and never
-> > > as multicomputers in product specifications @
-> > > http://software.intel.com/en-us/mic-developer
-> > 
-> > Coprocessor sounds like i487, but why not.
-> > 
-> > > c) multicomputer is a very long path name.
-> > 
-> > Agreed it is long. drivers/coproc? 
-> > 
-> > [I guess we'll get similar hardware from different vendors in
-> > future. It would make sense having it at common place.]
-> > 
-> 
-> drivers/coproc is a good, short suggestion. Intel MIC X100 devices are
-> likely unique since they can run a general purpose OS in a PCIe form
-> factor Coprocessor plugged to the host. This might result in MIC
-> potentially being the only driver under drivers/coproc till another
-> general purpose Coprocessor comes along. Is it recommended to create a
-> new driver directory (drivers/coproc) in anticipation of future devices?
-> Do you think it would be better if we revive this discussion, once
-> another Coprocessor with similar capabilities comes along?
+From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-Creating a new driver directory for one device that may never have a
-similar device to share that directory seems a bit overkill.  git mv is
-simple and quick to rearrange the directory structure later if the need
-arises (with the appropriate Kconfig tweakage).
+Hi folks,
 
--PJ
+This is an updated series for adding tag pre-allocation support of
+target fabric descriptor memory, utilizing Kent's latest per-cpu ida
+bits here, along with Christoph Lameter's latest comments:
+
+   [PATCH 04/10] idr: Percpu ida
+   http://marc.info/?l=linux-kernel&m=137160026006974&w=2
+
+The first patch is a standalone version of per-cpu-ida, seperate from
+the full idr rewrite from Kent that is still being discussed.  Given
+that I have a number of other target items aside from this series that
+depend on this code, I'd like to go ahead and include this standalone
+version into target-pending/for-next as a v3.12 item.
+
+Jens has also expressed interest in a blk-mq conversion to use these
+per-cpu-ida primatives, so getting this piece merged for v3.12 would
+make life easier for both of us.  ;)
+
+The second patch includes target-core setup of se_sess->sess_cmd_map +
+se_sess->sess_tag_pool resources at session creation time, using
+fabric independent code in transport_init_session_tags().
+
+The third patch is the initial conversion of vhost-scsi fabric code
+to use per-cpu ida logic for obtaining a new tcm_vhost_cmd descriptor
+via vhost_scsi_get_tag() during vhost_work_fn_t->handle_kick() ->
+vhost_scsi_handle_vq() callback execution.
+
+And the forth patch is a vhost-scsi change that adds pre-allocation of
+per tcm_vhost_cmd descriptor scatterlist + user-space page pointer
+memory, that allows the last two fast-path allocations to be dropped
+from tcm_vhost_submission_work() -> vhost_scsi_map_to_sgl() fast-path
+execution.
+
+Please review as v3.12 material.
+
+Thanks!
+
+--nab
+
+Kent Overstreet (1):
+  idr: Percpu ida
+
+Nicholas Bellinger (3):
+  target: Add transport_init_session_tags using per-cpu ida
+  vhost/scsi: Convert to per-cpu ida_alloc + ida_free command map
+  vhost/scsi: Add pre-allocation for tv_cmd SGL + upages memory
+
+ drivers/target/target_core_transport.c |   33 ++++
+ drivers/vhost/scsi.c                   |  132 +++++++++----
+ include/linux/idr.h                    |   53 ++++++
+ include/target/target_core_base.h      |    5 +
+ include/target/target_core_fabric.h    |    1 +
+ lib/idr.c                              |  316 +++++++++++++++++++++++++++++++-
+ 6 files changed, 501 insertions(+), 39 deletions(-)
+
+-- 
+1.7.10.4
