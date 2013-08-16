@@ -1,15 +1,11 @@
-From: Asias He <asias@redhat.com>
-Subject: Re: [PATCH] vhost: Drop linux/socket.h
-Date: Fri, 16 Aug 2013 09:27:43 +0800
-Message-ID: <20130816012743.GA5944@hj.localdomain>
-References: <1376536816-10951-1-git-send-email-asias@redhat.com>
-	<20130815.140740.1781732332793977170.davem@davemloft.net>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 0/6] vhost code cleanup and minor enhancement
+Date: Fri, 16 Aug 2013 13:16:24 +0800
+Message-ID: <1376630190-5912-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130815.140740.1781732332793977170.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,34 +15,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Aug 15, 2013 at 02:07:40PM -0700, David Miller wrote:
-> From: Asias He <asias@redhat.com>
-> Date: Thu, 15 Aug 2013 11:20:16 +0800
-> 
-> > memcpy_fromiovec is moved to lib/iovec.c. No need to include
-> > linux/socket.h for it.
-> > 
-> > Signed-off-by: Asias He <asias@redhat.com>
-> 
-> You can't do this.
-> 
-> Because this file doesn't include the header file that
-> provides the declaration, which is linux/uio.h
+Hi all:
 
-vhost.c includes drivers/vhost/vhost.h. In drivers/vhost/vhost.h, we
-have linux/uio.h included.
+This series tries to unify and simplify vhost codes especially for zerocopy.
 
-> linux/socket.h includes linux/uio.h, so honestly leaving
-> things the way they are is a 1000 times better than your
-> patch.
+Plase review.
 
-Vhost is a separate module and a generic infrastructure which is not
-bound to network anymore. I guess it's better to include the real one
-instead of the socket one.
+Thanks
 
--- 
-Asias
+Jason Wang (6):
+  vhost_net: make vhost_zerocopy_signal_used() returns void
+  vhost_net: use vhost_add_used_and_signal_n() in
+    vhost_zerocopy_signal_used()
+  vhost: switch to use vhost_add_used_n()
+  vhost_net: determine whether or not to use zerocopy at one time
+  vhost_net: poll vhost queue after marking DMA is done
+  vhost_net: remove the max pending check
+
+ drivers/vhost/net.c   |   86 +++++++++++++++++++-----------------------------
+ drivers/vhost/vhost.c |   43 +-----------------------
+ 2 files changed, 36 insertions(+), 93 deletions(-)
