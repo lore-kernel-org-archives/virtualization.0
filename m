@@ -1,7 +1,7 @@
-From: Asias He <asias@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] vhost: Drop linux/socket.h
-Date: Fri, 16 Aug 2013 17:27:43 +0800
-Message-ID: <20130816092743.GA9918@hj.localdomain>
+Date: Fri, 16 Aug 2013 12:50:12 +0300
+Message-ID: <20130816095012.GA21547@redhat.com>
 References: <1376536816-10951-1-git-send-email-asias@redhat.com>
 	<20130815.140740.1781732332793977170.davem@davemloft.net>
 	<20130816012743.GA5944@hj.localdomain>
@@ -22,7 +22,7 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Fri, Aug 16, 2013 at 12:31:59AM -0700, David Miller wrote:
@@ -49,9 +49,62 @@ On Fri, Aug 16, 2013 at 12:31:59AM -0700, David Miller wrote:
 > Nothing in vhost.h needs linux/uio.h right?  That's very poor style,
 > include the header where the dependency exists which is vhost.c
 
-We use 'struct iovec' in vhost.h which needs linux/uio.h, no?
+It needs struct iovec, which is in include/uapi/linux/uio.h.
+Do you think it's better to include uapi/linux/uio.h directly?
+In that case maybe we should update linux/socket.h
+to pull in uapi/linux/uio.h directly too.
 
-So, how about including linux/uio.h in both vhost.c and vhost.h.
+Or even just forward-declare struct iovec.
+I tried this last option and the only fall-out seems to be in security/
+- though I didn't do an allyes config build yet.  Good idea? If yes let
+me know and I'll do that.
+
+-->
+
+socket: forward-declare struct iovec
+
+We can simplify header dependencies by using a forward declaration
+of struct iovec in socket.h - it's always used through a pointer there.
+Do this and fix up users that rely on socket.h including uio.h.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+---
+
+diff --git a/include/linux/socket.h b/include/linux/socket.h
+index 230c04b..3ad6f52 100644
+--- a/include/linux/socket.h
++++ b/include/linux/socket.h
+@@ -4,7 +4,6 @@
+ 
+ #include <asm/socket.h>			/* arch-dependent defines	*/
+ #include <linux/sockios.h>		/* the SIOCxxx I/O controls	*/
+-#include <linux/uio.h>			/* iovec support		*/
+ #include <linux/types.h>		/* pid_t			*/
+ #include <linux/compiler.h>		/* __user			*/
+ #include <uapi/linux/socket.h>
+@@ -44,6 +43,8 @@ struct linger {
+  *	belong in an obscure libc emulation or the bin.
+  */
+  
++struct iovec;
++
+ struct msghdr {
+ 	void	*	msg_name;	/* Socket name			*/
+ 	int		msg_namelen;	/* Length of name		*/
+diff --git a/security/keys/compat.c b/security/keys/compat.c
+index d65fa7f..9c2723f 100644
+--- a/security/keys/compat.c
++++ b/security/keys/compat.c
+@@ -13,6 +13,7 @@
+ #include <linux/keyctl.h>
+ #include <linux/compat.h>
+ #include <linux/slab.h>
++#include <uapi/linux/uio.h>
+ #include "internal.h"
+ 
+ /*
+
 
 -- 
-Asias
+MST
