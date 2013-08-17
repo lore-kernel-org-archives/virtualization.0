@@ -1,14 +1,15 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: [PATCH-v3 2/4] target: Add transport_init_session_tags using per-cpu
-	ida
-Date: Fri, 16 Aug 2013 23:09:07 +0000
-Message-ID: <1376694549-20609-3-git-send-email-nab@linux-iscsi.org>
-References: <1376694549-20609-1-git-send-email-nab@linux-iscsi.org>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH] vhost: Drop linux/socket.h
+Date: Fri, 16 Aug 2013 22:29:46 -0700 (PDT)
+Message-ID: <20130816.222946.421410239742571372.davem@davemloft.net>
+References: <20130816012743.GA5944@hj.localdomain>
+	<20130816.003159.2033932881805410431.davem@davemloft.net>
+	<20130816092743.GA9918@hj.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1376694549-20609-1-git-send-email-nab@linux-iscsi.org>
+In-Reply-To: <20130816092743.GA9918@hj.localdomain>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,121 +19,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: target-devel <target-devel@vger.kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Andi Kleen <andi@firstfloor.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lkml <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Kent Overstreet <kmo@daterainc.com>, Ingo Molnar <mingo@redhat.com>, Christoph Lameter <cl@gentwo.org>, Tejun Heo <tj@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+To: asias@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicholas Bellinger <nab@linux-iscsi.org>
+From: Asias He <asias@redhat.com>
+Date: Fri, 16 Aug 2013 17:27:43 +0800
 
-This patch adds lib/idr.c based transport_init_session_tags() logic
-that allows fabric drivers to setup a per-cpu se_sess->sess_tag_pool
-and associated se_sess->sess_cmd_map for basic tagged pre-allocation
-of fabric descriptor sized memory.
+> On Fri, Aug 16, 2013 at 12:31:59AM -0700, David Miller wrote:
+>> From: Asias He <asias@redhat.com>
+>> Date: Fri, 16 Aug 2013 09:27:43 +0800
+>> 
+>> > On Thu, Aug 15, 2013 at 02:07:40PM -0700, David Miller wrote:
+>> >> From: Asias He <asias@redhat.com>
+>> >> Date: Thu, 15 Aug 2013 11:20:16 +0800
+>> >> 
+>> >> > memcpy_fromiovec is moved to lib/iovec.c. No need to include
+>> >> > linux/socket.h for it.
+>> >> > 
+>> >> > Signed-off-by: Asias He <asias@redhat.com>
+>> >> 
+>> >> You can't do this.
+>> >> 
+>> >> Because this file doesn't include the header file that
+>> >> provides the declaration, which is linux/uio.h
+>> > 
+>> > vhost.c includes drivers/vhost/vhost.h. In drivers/vhost/vhost.h, we
+>> > have linux/uio.h included.
+>> 
+>> Nothing in vhost.h needs linux/uio.h right?  That's very poor style,
+>> include the header where the dependency exists which is vhost.c
+> 
+> We use 'struct iovec' in vhost.h which needs linux/uio.h, no?
+> 
+> So, how about including linux/uio.h in both vhost.c and vhost.h.
 
-v3: Update to percpu-ida usage
-
-Cc: Kent Overstreet <kmo@daterainc.com>
-Cc: Asias He <asias@redhat.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
----
- drivers/target/target_core_transport.c |   33 ++++++++++++++++++++++++++++++++
- include/target/target_core_base.h      |    5 +++++
- include/target/target_core_fabric.h    |    1 +
- 3 files changed, 39 insertions(+)
-
-diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
-index 7172d00..64ceb51 100644
---- a/drivers/target/target_core_transport.c
-+++ b/drivers/target/target_core_transport.c
-@@ -232,6 +232,35 @@ struct se_session *transport_init_session(void)
- }
- EXPORT_SYMBOL(transport_init_session);
- 
-+struct se_session *transport_init_session_tags(unsigned int tag_num,
-+					       unsigned int tag_size)
-+{
-+	struct se_session *se_sess;
-+	int rc;
-+
-+	se_sess = transport_init_session();
-+	if (IS_ERR(se_sess))
-+		return se_sess;
-+
-+	se_sess->sess_cmd_map = kzalloc(tag_num * tag_size, GFP_KERNEL);
-+	if (!se_sess->sess_cmd_map) {
-+		pr_err("Unable to allocate se_sess->sess_cmd_map\n");
-+		transport_free_session(se_sess);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	rc = percpu_ida_init(&se_sess->sess_tag_pool, tag_num);
-+	if (rc < 0) {
-+		pr_err("Unable to init se_sess->sess_tag_pool,"
-+			" tag_num: %u\n", tag_num);
-+		transport_free_session(se_sess);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	return se_sess;
-+}
-+EXPORT_SYMBOL(transport_init_session_tags);
-+
- /*
-  * Called with spin_lock_irqsave(&struct se_portal_group->session_lock called.
-  */
-@@ -367,6 +396,10 @@ EXPORT_SYMBOL(transport_deregister_session_configfs);
- 
- void transport_free_session(struct se_session *se_sess)
- {
-+	if (se_sess->sess_cmd_map) {
-+		percpu_ida_destroy(&se_sess->sess_tag_pool);
-+		kfree(se_sess->sess_cmd_map);
-+	}
- 	kmem_cache_free(se_sess_cache, se_sess);
- }
- EXPORT_SYMBOL(transport_free_session);
-diff --git a/include/target/target_core_base.h b/include/target/target_core_base.h
-index e34fc90..360e4a3 100644
---- a/include/target/target_core_base.h
-+++ b/include/target/target_core_base.h
-@@ -5,6 +5,7 @@
- #include <linux/configfs.h>
- #include <linux/dma-mapping.h>
- #include <linux/blkdev.h>
-+#include <linux/idr.h>
- #include <scsi/scsi_cmnd.h>
- #include <net/sock.h>
- #include <net/tcp.h>
-@@ -415,6 +416,8 @@ struct se_cmd {
- 	enum dma_data_direction	data_direction;
- 	/* For SAM Task Attribute */
- 	int			sam_task_attr;
-+	/* Used for se_sess->sess_tag_pool */
-+	unsigned int		map_tag;
- 	/* Transport protocol dependent state, see transport_state_table */
- 	enum transport_state_table t_state;
- 	unsigned		cmd_wait_set:1;
-@@ -536,6 +539,8 @@ struct se_session {
- 	struct list_head	sess_wait_list;
- 	spinlock_t		sess_cmd_lock;
- 	struct kref		sess_kref;
-+	void			*sess_cmd_map;
-+	struct percpu_ida	sess_tag_pool;
- };
- 
- struct se_device;
-diff --git a/include/target/target_core_fabric.h b/include/target/target_core_fabric.h
-index 7a16178..b13afb6 100644
---- a/include/target/target_core_fabric.h
-+++ b/include/target/target_core_fabric.h
-@@ -84,6 +84,7 @@ struct target_core_fabric_ops {
- };
- 
- struct se_session *transport_init_session(void);
-+struct se_session *transport_init_session_tags(unsigned int, unsigned int);
- void	__transport_register_session(struct se_portal_group *,
- 		struct se_node_acl *, struct se_session *, void *);
- void	transport_register_session(struct se_portal_group *,
--- 
-1.7.10.4
+That sounds good.
