@@ -1,15 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] vhost: Drop linux/socket.h
-Date: Fri, 16 Aug 2013 22:29:46 -0700 (PDT)
-Message-ID: <20130816.222946.421410239742571372.davem@davemloft.net>
-References: <20130816012743.GA5944@hj.localdomain>
-	<20130816.003159.2033932881805410431.davem@davemloft.net>
-	<20130816092743.GA9918@hj.localdomain>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH v2] vhost: Include linux/uio.h instead of linux/socket.h
+Date: Mon, 19 Aug 2013 09:23:19 +0800
+Message-ID: <1376875399-21945-1-git-send-email-asias@redhat.com>
+References: <20130816.222946.421410239742571372.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130816092743.GA9918@hj.localdomain>
+In-Reply-To: <20130816.222946.421410239742571372.davem@davemloft.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,39 +17,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: asias@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
+To: netdev@vger.kernel.org
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Asias He <asias@redhat.com>
-Date: Fri, 16 Aug 2013 17:27:43 +0800
+memcpy_fromiovec is moved from net/core/iovec.c to lib/iovec.c.
+linux/uio.h provides the declaration for memcpy_fromiovec.
 
-> On Fri, Aug 16, 2013 at 12:31:59AM -0700, David Miller wrote:
->> From: Asias He <asias@redhat.com>
->> Date: Fri, 16 Aug 2013 09:27:43 +0800
->> 
->> > On Thu, Aug 15, 2013 at 02:07:40PM -0700, David Miller wrote:
->> >> From: Asias He <asias@redhat.com>
->> >> Date: Thu, 15 Aug 2013 11:20:16 +0800
->> >> 
->> >> > memcpy_fromiovec is moved to lib/iovec.c. No need to include
->> >> > linux/socket.h for it.
->> >> > 
->> >> > Signed-off-by: Asias He <asias@redhat.com>
->> >> 
->> >> You can't do this.
->> >> 
->> >> Because this file doesn't include the header file that
->> >> provides the declaration, which is linux/uio.h
->> > 
->> > vhost.c includes drivers/vhost/vhost.h. In drivers/vhost/vhost.h, we
->> > have linux/uio.h included.
->> 
->> Nothing in vhost.h needs linux/uio.h right?  That's very poor style,
->> include the header where the dependency exists which is vhost.c
-> 
-> We use 'struct iovec' in vhost.h which needs linux/uio.h, no?
-> 
-> So, how about including linux/uio.h in both vhost.c and vhost.h.
+Include linux/uio.h instead of inux/socket.h for it.
 
-That sounds good.
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/vhost/vhost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index e58cf00..448efe0 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -13,7 +13,7 @@
+ 
+ #include <linux/eventfd.h>
+ #include <linux/vhost.h>
+-#include <linux/socket.h> /* memcpy_fromiovec */
++#include <linux/uio.h>
+ #include <linux/mm.h>
+ #include <linux/mmu_context.h>
+ #include <linux/miscdevice.h>
+-- 
+1.8.3.1
