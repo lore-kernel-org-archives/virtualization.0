@@ -1,14 +1,16 @@
-From: Joe Jin <joe.jin@oracle.com>
-Subject: Re: [Xen-devel] [PATCH] xen: initialize xen panic handler for PVHVM
-Date: Mon, 19 Aug 2013 14:18:42 +0800
-Message-ID: <5211B8C2.1010702__47803.8155277774$1376934262$gmane$org@oracle.com>
-References: <1376640656-32381-1-git-send-email-vaughan.cao@oracle.com>
-	<20130816124327.GC10190@konrad-lan.dumpdata.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 2/6] vhost_net: use vhost_add_used_and_signal_n() in
+	vhost_zerocopy_signal_used()
+Date: Tue, 20 Aug 2013 10:33:08 +0800
+Message-ID: <5212D564.80200@redhat.com>
+References: <1376630190-5912-1-git-send-email-jasowang@redhat.com>
+	<1376630190-5912-3-git-send-email-jasowang@redhat.com>
+	<20130816095426.GA21821@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130816124327.GC10190@konrad-lan.dumpdata.com>
+In-Reply-To: <20130816095426.GA21821@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,15 +20,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: jeremy@goop.org, xen-devel@lists.xensource.com, Vaughan Cao <vaughan.cao@oracle.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, hpa@zytor.com, tglx@linutronix.de
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/16/13 20:43, Konrad Rzeszutek Wilk wrote:
-> Could you tell me what has been happening without this patch?
+On 08/16/2013 05:54 PM, Michael S. Tsirkin wrote:
+> On Fri, Aug 16, 2013 at 01:16:26PM +0800, Jason Wang wrote:
+>> > Switch to use vhost_add_used_and_signal_n() to avoid multiple calls to
+>> > vhost_add_used_and_signal(). With the patch we will call at most 2 times
+>> > (consider done_idx warp around) compared to N times w/o this patch.
+>> > 
+>> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> So? Does this help performance then?
+>
 
-Without this patch, Xen would not get pvhvm crash event, any config for
-on_crash in guest configure file will not be triggered.
-
-Thanks,
-Joe
+Looks like it can especially when guest does support event index. When
+guest enable tx interrupt, this can saves us some unnecessary signal to
+guest. I will do some test.
