@@ -1,14 +1,13 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH v2] vhost: Include linux/uio.h instead of linux/socket.h
-Date: Tue, 20 Aug 2013 15:08:10 -0700 (PDT)
-Message-ID: <20130820.150810.2276780972263433709.davem@davemloft.net>
-References: <20130816.222946.421410239742571372.davem@davemloft.net>
-	<1376875399-21945-1-git-send-email-asias@redhat.com>
+Subject: Re: [PATCH] VMXNET3: Add support for virtual IOMMU
+Date: Wed, 21 Aug 2013 00:02:55 -0700 (PDT)
+Message-ID: <20130821.000255.1258155583733908892.davem@davemloft.net>
+References: <1377020012-1839-1-git-send-email-acking@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1376875399-21945-1-git-send-email-asias@redhat.com>
+In-Reply-To: <1377020012-1839-1-git-send-email-acking@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,18 +17,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: asias@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, mst@redhat.com
+To: acking@vmware.com
+Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Asias He <asias@redhat.com>
-Date: Mon, 19 Aug 2013 09:23:19 +0800
+From: Andy King <acking@vmware.com>
+Date: Tue, 20 Aug 2013 10:33:32 -0700
 
-> memcpy_fromiovec is moved from net/core/iovec.c to lib/iovec.c.
-> linux/uio.h provides the declaration for memcpy_fromiovec.
+> We can't just do virt_to_phys() on memory that we pass to the device and
+> expect it to work in presence of a virtual IOMMU.  We need to add IOMMU
+> mappings for such DMAs to work correctly.  Fix that with
+> pci_alloc_consistent() where possible, or pci_map_single() where the
+> mapping is short-lived or we don't control the allocation (netdev).
 > 
-> Include linux/uio.h instead of inux/socket.h for it.
+> Also fix two small bugs:
+> 1) use after free of rq->buf_info in vmxnet3_rq_destroy()
+> 2) a cpu_to_le32() that should have been a cpu_to_le64()
 > 
-> Signed-off-by: Asias He <asias@redhat.com>
+> Acked-by: George Zhang <georgezhang@vmware.com>
+> Acked-by: Aditya Sarwade <asarwade@vmware.com>
+> Signed-off-by: Andy King <acking@vmware.com>
 
-Applied.
+Please use dma_alloc_coherent() (or in fact dma_zalloc_coherent()),
+dma_map_single() et al., because they are preferred and in particular
+allow specification of GFP_* flags.
