@@ -1,7 +1,7 @@
 From: Sudeep Dutt <sudeep.dutt@intel.com>
-Subject: [PATCH v3 1/7] Intel MIC Host Driver for X100 family.
-Date: Wed, 21 Aug 2013 10:50:09 -0700
-Message-ID: <eb37195f5b9391cf1261bede517b9daf15c1b04e.1377104309.git.sudeep.dutt__9412.36125440828$1377107466$gmane$org@intel.com>
+Subject: [PATCH v3 4/7] Intel MIC Card Driver for X100 family.
+Date: Wed, 21 Aug 2013 10:50:12 -0700
+Message-ID: <4a1008f86a8a976994e5113c1aa983900f47e5c4.1377104309.git.sudeep.dutt@intel.com>
 References: <cover.1377104309.git.sudeep.dutt@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,145 +23,97 @@ To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.d
 Cc: Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>, Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch enables the following:
-a) Initializes the Intel MIC X100 PCIe devices.
-b) Provides sysfs entries for family and stepping information.
+This patch does the following:
+a) Initializes the Intel MIC X100 platform device and driver.
+b) Sets up support to handle shutdown requests from the host.
+c) Maps the device page after obtaining the device page address
+from the scratchpad registers updated by the host.
+d) Informs the host upon a card crash by registering a panic notifier.
+e) Informs the host upon a poweroff/halt event.
 
 Co-author: Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
 Signed-off-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
 Signed-off-by: Caz Yokoyama <Caz.Yokoyama@intel.com>
 Signed-off-by: Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
-Signed-off-by: Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>
 Signed-off-by: Nikhil Rao <nikhil.rao@intel.com>
+Signed-off-by: Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>
 Signed-off-by: Sudeep Dutt <sudeep.dutt@intel.com>
 Acked-by: Yaozu (Eddie) Dong <eddie.dong@intel.com>
 Reviewed-by: Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>
 ---
- Documentation/ABI/testing/sysfs-class-mic.txt |  34 +++
- drivers/misc/Kconfig                          |   1 +
- drivers/misc/Makefile                         |   1 +
- drivers/misc/mic/Kconfig                      |  19 ++
- drivers/misc/mic/Makefile                     |   5 +
- drivers/misc/mic/common/mic_device.h          |  37 +++
- drivers/misc/mic/host/Makefile                |   8 +
- drivers/misc/mic/host/mic_device.h            | 109 +++++++++
- drivers/misc/mic/host/mic_main.c              | 309 ++++++++++++++++++++++++++
- drivers/misc/mic/host/mic_sysfs.c             |  97 ++++++++
- drivers/misc/mic/host/mic_x100.c              |  75 +++++++
- drivers/misc/mic/host/mic_x100.h              |  47 ++++
- 12 files changed, 742 insertions(+)
- create mode 100644 Documentation/ABI/testing/sysfs-class-mic.txt
- create mode 100644 drivers/misc/mic/Kconfig
- create mode 100644 drivers/misc/mic/Makefile
- create mode 100644 drivers/misc/mic/common/mic_device.h
- create mode 100644 drivers/misc/mic/host/Makefile
- create mode 100644 drivers/misc/mic/host/mic_device.h
- create mode 100644 drivers/misc/mic/host/mic_main.c
- create mode 100644 drivers/misc/mic/host/mic_sysfs.c
- create mode 100644 drivers/misc/mic/host/mic_x100.c
- create mode 100644 drivers/misc/mic/host/mic_x100.h
+ drivers/misc/mic/Kconfig            |  18 +++
+ drivers/misc/mic/Makefile           |   1 +
+ drivers/misc/mic/card/Makefile      |  10 ++
+ drivers/misc/mic/card/mic_debugfs.c | 130 ++++++++++++++++
+ drivers/misc/mic/card/mic_device.c  | 299 ++++++++++++++++++++++++++++++++++++
+ drivers/misc/mic/card/mic_device.h  | 133 ++++++++++++++++
+ drivers/misc/mic/card/mic_x100.c    | 256 ++++++++++++++++++++++++++++++
+ drivers/misc/mic/card/mic_x100.h    |  48 ++++++
+ 8 files changed, 895 insertions(+)
+ create mode 100644 drivers/misc/mic/card/Makefile
+ create mode 100644 drivers/misc/mic/card/mic_debugfs.c
+ create mode 100644 drivers/misc/mic/card/mic_device.c
+ create mode 100644 drivers/misc/mic/card/mic_device.h
+ create mode 100644 drivers/misc/mic/card/mic_x100.c
+ create mode 100644 drivers/misc/mic/card/mic_x100.h
 
-diff --git a/Documentation/ABI/testing/sysfs-class-mic.txt b/Documentation/ABI/testing/sysfs-class-mic.txt
-new file mode 100644
-index 0000000..09eb3c6
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-class-mic.txt
-@@ -0,0 +1,34 @@
-+What:		/sys/class/mic/
-+Date:		August 2013
-+KernelVersion:	3.11
-+Contact:	Sudeep Dutt <sudeep.dutt@intel.com>
-+Description:
-+		The mic class directory belongs to Intel MIC devices and
-+		provides information per MIC device. An Intel MIC device is a
-+		PCIe form factor add-in Coprocessor card based on the Intel Many
-+		Integrated Core (MIC) architecture that runs a Linux OS.
-+
-+What:		/sys/class/mic/mic(x)
-+Date:		August 2013
-+KernelVersion:	3.11
-+Contact:	Sudeep Dutt <sudeep.dutt@intel.com>
-+Description:
-+		The directories /sys/class/mic/mic0, /sys/class/mic/mic1 etc.,
-+		represent MIC devices (0,1,..etc). Each directory has
-+		information specific to that MIC device.
-+
-+What:		/sys/class/mic/mic(x)/family
-+Date:		August 2013
-+KernelVersion:	3.11
-+Contact:	Sudeep Dutt <sudeep.dutt@intel.com>
-+Description:
-+		Provides information about the Coprocessor family for an Intel
-+		MIC device. For example - "x100"
-+
-+What:		/sys/class/mic/mic(x)/stepping
-+Date:		August 2013
-+KernelVersion:	3.11
-+Contact:	Sudeep Dutt <sudeep.dutt@intel.com>
-+Description:
-+		Provides information about the silicon stepping for an Intel
-+		MIC device. For example - "A0" or "B0"
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 8dacd4c..e760715 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -537,4 +537,5 @@ source "drivers/misc/carma/Kconfig"
- source "drivers/misc/altera-stapl/Kconfig"
- source "drivers/misc/mei/Kconfig"
- source "drivers/misc/vmw_vmci/Kconfig"
-+source "drivers/misc/mic/Kconfig"
- endmenu
-diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index c235d5b..0b7ea3e 100644
---- a/drivers/misc/Makefile
-+++ b/drivers/misc/Makefile
-@@ -53,3 +53,4 @@ obj-$(CONFIG_INTEL_MEI)		+= mei/
- obj-$(CONFIG_VMWARE_VMCI)	+= vmw_vmci/
- obj-$(CONFIG_LATTICE_ECP3_CONFIG)	+= lattice-ecp3-config.o
- obj-$(CONFIG_SRAM)		+= sram.o
-+obj-y				+= mic/
 diff --git a/drivers/misc/mic/Kconfig b/drivers/misc/mic/Kconfig
-new file mode 100644
-index 0000000..aaefd0c
---- /dev/null
+index aaefd0c..279a2e6 100644
+--- a/drivers/misc/mic/Kconfig
 +++ b/drivers/misc/mic/Kconfig
-@@ -0,0 +1,19 @@
-+comment "Intel MIC Host Driver"
+@@ -17,3 +17,21 @@ config INTEL_MIC_HOST
+ 	  More information about the Intel MIC family as well as the Linux
+ 	  OS and tools for MIC to use with this driver are available from
+ 	  <http://software.intel.com/en-us/mic-developer>.
 +
-+config INTEL_MIC_HOST
-+	tristate "Intel MIC Host Driver"
-+	depends on 64BIT && PCI
++comment "Intel MIC Card Driver"
++
++config INTEL_MIC_CARD
++	tristate "Intel MIC Card Driver"
++	depends on 64BIT
 +	default N
 +	help
-+	  This enables Host Driver support for the Intel Many Integrated
-+	  Core (MIC) family of PCIe form factor coprocessor devices that
-+	  run a 64 bit Linux OS. The driver manages card OS state and
-+	  enables communication between host and card. Intel MIC X100
-+	  devices are currently supported.
++	  This enables card driver support for the Intel Many Integrated
++	  Core (MIC) device family. The card driver communicates shutdown/
++	  crash events to the host and allows registration/configuration of
++	  virtio devices. Intel MIC X100 devices are currently supported.
 +
-+	  If you are building a host kernel with an Intel MIC device then
++	  If you are building a card kernel for an Intel MIC device then
 +	  say M (recommended) or Y, else say N. If unsure say N.
 +
-+	  More information about the Intel MIC family as well as the Linux
-+	  OS and tools for MIC to use with this driver are available from
++	  For more information see
 +	  <http://software.intel.com/en-us/mic-developer>.
 diff --git a/drivers/misc/mic/Makefile b/drivers/misc/mic/Makefile
-new file mode 100644
-index 0000000..8e72421
---- /dev/null
+index 8e72421..05b34d6 100644
+--- a/drivers/misc/mic/Makefile
 +++ b/drivers/misc/mic/Makefile
-@@ -0,0 +1,5 @@
+@@ -3,3 +3,4 @@
+ # Copyright(c) 2013, Intel Corporation.
+ #
+ obj-$(CONFIG_INTEL_MIC_HOST) += host/
++obj-$(CONFIG_INTEL_MIC_CARD) += card/
+diff --git a/drivers/misc/mic/card/Makefile b/drivers/misc/mic/card/Makefile
+new file mode 100644
+index 0000000..6e9675e
+--- /dev/null
++++ b/drivers/misc/mic/card/Makefile
+@@ -0,0 +1,10 @@
 +#
 +# Makefile - Intel MIC Linux driver.
 +# Copyright(c) 2013, Intel Corporation.
 +#
-+obj-$(CONFIG_INTEL_MIC_HOST) += host/
-diff --git a/drivers/misc/mic/common/mic_device.h b/drivers/misc/mic/common/mic_device.h
++ccflags-y += -DINTEL_MIC_CARD
++
++obj-$(CONFIG_INTEL_MIC_CARD) += mic_card.o
++mic_card-y += mic_x100.o
++mic_card-y += mic_device.o
++mic_card-y += mic_debugfs.o
+diff --git a/drivers/misc/mic/card/mic_debugfs.c b/drivers/misc/mic/card/mic_debugfs.c
 new file mode 100644
-index 0000000..f02262e
+index 0000000..95cf186
 --- /dev/null
-+++ b/drivers/misc/mic/common/mic_device.h
-@@ -0,0 +1,37 @@
++++ b/drivers/misc/mic/card/mic_debugfs.c
+@@ -0,0 +1,130 @@
 +/*
 + * Intel MIC Platform Software Stack (MPSS)
 + *
@@ -179,46 +131,125 @@ index 0000000..f02262e
 + * The full GNU General Public License is included in this distribution in
 + * the file called "COPYING".
 + *
-+ * Intel MIC driver.
++ * Disclaimer: The codes contained in these modules may be specific to
++ * the Intel Software Development Platform codenamed: Knights Ferry, and
++ * the Intel product codenamed: Knights Corner, and are not backward
++ * compatible with other Intel products. Additionally, Intel will NOT
++ * support the codes or instruction set in future products.
++ *
++ * Intel MIC Card driver.
 + *
 + */
-+#ifndef __MIC_COMMON_DEVICE_H_
-+#define __MIC_COMMON_DEVICE_H_
++#include <linux/debugfs.h>
++#include <linux/delay.h>
++#include <linux/seq_file.h>
++#include <linux/interrupt.h>
++#include <linux/device.h>
++
++#include "../common/mic_device.h"
++#include "mic_device.h"
++
++/* Debugfs parent dir */
++static struct dentry *mic_dbg;
 +
 +/**
-+ * struct mic_mw - MIC memory window
-+ *
-+ * @pa: Base physical address.
-+ * @va: Base ioremap'd virtual address.
-+ * @len: Size of the memory window.
++ * mic_intr_test - Send interrupts to host.
 + */
-+struct mic_mw {
-+	phys_addr_t pa;
-+	void __iomem *va;
-+	resource_size_t len;
++static int mic_intr_test(struct seq_file *s, void *unused)
++{
++	struct mic_driver *mdrv = s->private;
++	struct mic_device *mdev = &mdrv->mdev;
++
++	mic_send_intr(mdev, 0);
++	msleep(1000);
++	mic_send_intr(mdev, 1);
++	msleep(1000);
++	mic_send_intr(mdev, 2);
++	msleep(1000);
++	mic_send_intr(mdev, 3);
++	msleep(1000);
++
++	return 0;
++}
++
++static int mic_intr_test_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, mic_intr_test, inode->i_private);
++}
++
++static int mic_intr_test_release(struct inode *inode, struct file *file)
++{
++	return single_release(inode, file);
++}
++
++static const struct file_operations intr_test_ops = {
++	.owner   = THIS_MODULE,
++	.open    = mic_intr_test_open,
++	.read    = seq_read,
++	.llseek  = seq_lseek,
++	.release = mic_intr_test_release
 +};
 +
-+#endif
-diff --git a/drivers/misc/mic/host/Makefile b/drivers/misc/mic/host/Makefile
++/**
++ * mic_create_card_debug_dir - Initialize MIC debugfs entries.
++ */
++void __init mic_create_card_debug_dir(struct mic_driver *mdrv)
++{
++	struct dentry *d;
++
++	if (!mic_dbg)
++		return;
++
++	mdrv->dbg_dir = debugfs_create_dir(mdrv->name, mic_dbg);
++	if (!mdrv->dbg_dir) {
++		dev_err(mdrv->dev, "Cant create dbg_dir %s\n", mdrv->name);
++		return;
++	}
++
++	d = debugfs_create_file("intr_test", 0444, mdrv->dbg_dir,
++		mdrv, &intr_test_ops);
++
++	if (!d) {
++		dev_err(mdrv->dev,
++			"Cant create dbg intr_test %s\n", mdrv->name);
++		return;
++	}
++}
++
++/**
++ * mic_delete_card_debug_dir - Uninitialize MIC debugfs entries.
++ */
++void mic_delete_card_debug_dir(struct mic_driver *mdrv)
++{
++	if (!mdrv->dbg_dir)
++		return;
++
++	debugfs_remove_recursive(mdrv->dbg_dir);
++}
++
++/**
++ * mic_init_card_debugfs - Initialize global debugfs entry.
++ */
++void __init mic_init_card_debugfs(void)
++{
++	mic_dbg = debugfs_create_dir(KBUILD_MODNAME, NULL);
++	if (!mic_dbg)
++		pr_err("can't create debugfs dir\n");
++}
++
++/**
++ * mic_exit_card_debugfs - Uninitialize global debugfs entry
++ */
++void mic_exit_card_debugfs(void)
++{
++	debugfs_remove(mic_dbg);
++}
+diff --git a/drivers/misc/mic/card/mic_device.c b/drivers/misc/mic/card/mic_device.c
 new file mode 100644
-index 0000000..93b9d25
+index 0000000..3c5c302
 --- /dev/null
-+++ b/drivers/misc/mic/host/Makefile
-@@ -0,0 +1,8 @@
-+#
-+# Makefile - Intel MIC Linux driver.
-+# Copyright(c) 2013, Intel Corporation.
-+#
-+obj-$(CONFIG_INTEL_MIC_HOST) += mic_host.o
-+mic_host-objs := mic_main.o
-+mic_host-objs += mic_x100.o
-+mic_host-objs += mic_sysfs.o
-diff --git a/drivers/misc/mic/host/mic_device.h b/drivers/misc/mic/host/mic_device.h
-new file mode 100644
-index 0000000..6cd904c
---- /dev/null
-+++ b/drivers/misc/mic/host/mic_device.h
-@@ -0,0 +1,109 @@
++++ b/drivers/misc/mic/card/mic_device.c
+@@ -0,0 +1,299 @@
 +/*
 + * Intel MIC Platform Software Stack (MPSS)
 + *
@@ -236,69 +267,381 @@ index 0000000..6cd904c
 + * The full GNU General Public License is included in this distribution in
 + * the file called "COPYING".
 + *
-+ * Intel MIC Host driver.
++ * Disclaimer: The codes contained in these modules may be specific to
++ * the Intel Software Development Platform codenamed: Knights Ferry, and
++ * the Intel product codenamed: Knights Corner, and are not backward
++ * compatible with other Intel products. Additionally, Intel will NOT
++ * support the codes or instruction set in future products.
++ *
++ * Intel MIC Card driver.
 + *
 + */
-+#ifndef _MIC_DEVICE_H_
-+#define _MIC_DEVICE_H_
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <linux/interrupt.h>
++#include <linux/reboot.h>
 +
-+/* The maximum number of MIC devices supported in a single host system. */
-+#define MIC_MAX_NUM_DEVS 256
++#include <linux/mic_common.h>
++#include "../common/mic_device.h"
++#include "mic_device.h"
++
++static struct mic_driver *g_drv;
++static struct mic_irq *shutdown_cookie;
++
++static void mic_notify_host(u8 state)
++{
++	struct mic_driver *mdrv = g_drv;
++	struct mic_bootparam __iomem *bootparam = mdrv->dp;
++
++	iowrite8(state, &bootparam->shutdown_status);
++	dev_dbg(mdrv->dev, "%s %d system_state %d\n",
++		__func__, __LINE__, state);
++	mic_send_intr(&mdrv->mdev, ioread8(&bootparam->c2h_shutdown_db));
++}
++
++static int mic_panic_event(struct notifier_block *this, unsigned long event,
++		void *ptr)
++{
++	struct mic_driver *mdrv = g_drv;
++	struct mic_bootparam __iomem *bootparam = mdrv->dp;
++
++	iowrite8(-1, &bootparam->h2c_config_db);
++	iowrite8(-1, &bootparam->h2c_shutdown_db);
++	mic_notify_host(MIC_CRASHED);
++	return NOTIFY_DONE;
++}
++
++static struct notifier_block mic_panic = {
++	.notifier_call  = mic_panic_event,
++};
++
++static irqreturn_t mic_shutdown_isr(int irq, void *data)
++{
++	struct mic_driver *mdrv = g_drv;
++	struct mic_bootparam __iomem *bootparam = mdrv->dp;
++
++	mic_ack_interrupt(&g_drv->mdev);
++	if (ioread8(&bootparam->shutdown_card))
++		orderly_poweroff(true);
++	return IRQ_HANDLED;
++}
++
++static int mic_shutdown_init(void)
++{
++	int rc = 0;
++	struct mic_driver *mdrv = g_drv;
++	struct mic_bootparam __iomem *bootparam = mdrv->dp;
++	int shutdown_db;
++
++	shutdown_db = mic_next_card_db();
++	shutdown_cookie = mic_request_card_irq(mic_shutdown_isr,
++			"Shutdown", mdrv, shutdown_db);
++	if (IS_ERR(shutdown_cookie))
++		rc = PTR_ERR(shutdown_cookie);
++	else
++		iowrite8(shutdown_db, &bootparam->h2c_shutdown_db);
++	return rc;
++}
++
++static void mic_shutdown_uninit(void)
++{
++	struct mic_driver *mdrv = g_drv;
++	struct mic_bootparam __iomem *bootparam = mdrv->dp;
++
++	iowrite8(-1, &bootparam->h2c_shutdown_db);
++	mic_free_card_irq(shutdown_cookie, mdrv);
++}
++
++static int __init mic_dp_init(void)
++{
++	struct mic_driver *mdrv = g_drv;
++	struct mic_device *mdev = &mdrv->mdev;
++	struct mic_bootparam __iomem *bootparam;
++	u64 lo, hi, dp_dma_addr;
++	u32 magic;
++
++	lo = mic_read_spad(&mdrv->mdev, MIC_DPLO_SPAD);
++	hi = mic_read_spad(&mdrv->mdev, MIC_DPHI_SPAD);
++
++	dp_dma_addr = lo | (hi << 32);
++	mdrv->dp = mic_card_map(mdev, dp_dma_addr, MIC_DP_SIZE);
++	if (!mdrv->dp) {
++		dev_err(mdrv->dev, "Cannot remap Aperture BAR\n");
++		return -ENOMEM;
++	}
++	bootparam = mdrv->dp;
++	magic = ioread32(&bootparam->magic);
++	if (MIC_MAGIC != magic) {
++		dev_err(mdrv->dev, "bootparam magic mismatch 0x%x\n", magic);
++		return -EIO;
++	}
++	return 0;
++}
++
++/* Uninitialize the device page */
++static void mic_dp_uninit(void)
++{
++	mic_card_unmap(&g_drv->mdev, g_drv->dp);
++}
 +
 +/**
-+ * enum mic_hw_family - The hardware family to which a device belongs.
++ * mic_request_card_irq - request an irq.
++ *
++ * @func: The callback function that handles the interrupt.
++ * @name: The ASCII name of the callee requesting the irq.
++ * @data: private data that is returned back when calling the
++ * function handler.
++ * @index: The doorbell index of the requester.
++ *
++ * returns: The cookie that is transparent to the caller. Passed
++ * back when calling mic_free_irq. An appropriate error code
++ * is returned on failure. Caller needs to use IS_ERR(return_val)
++ * to check for failure and PTR_ERR(return_val) to obtained the
++ * error code.
++ *
 + */
-+enum mic_hw_family {
-+	MIC_FAMILY_X100 = 0,
-+	MIC_FAMILY_UNKNOWN
++struct mic_irq *mic_request_card_irq(irqreturn_t (*func)(int irq, void *data),
++	const char *name, void *data, int index)
++{
++	int rc = 0;
++	unsigned long cookie;
++	struct mic_driver *mdrv = g_drv;
++
++	rc  = request_irq(mic_db_to_irq(mdrv, index), func,
++		0, name, data);
++	if (rc) {
++		dev_err(mdrv->dev, "request_irq failed rc = %d\n", rc);
++		goto err;
++	}
++	mdrv->irq_info.irq_usage_count[index]++;
++	cookie = index;
++	return (struct mic_irq *)cookie;
++err:
++	return ERR_PTR(rc);
++
++}
++
++/**
++ * mic_free_card_irq - free irq.
++ *
++ * @cookie: cookie obtained during a successful call to mic_request_irq
++ * @data: private data specified by the calling function during the
++ * mic_request_irq
++ *
++ * returns: none.
++ */
++void mic_free_card_irq(struct mic_irq *cookie, void *data)
++{
++	int index;
++	struct mic_driver *mdrv = g_drv;
++
++	index = (unsigned long)cookie & 0xFFFFU;
++	free_irq(mic_db_to_irq(mdrv, index), data);
++	mdrv->irq_info.irq_usage_count[index]--;
++}
++
++/**
++ * mic_next_card_db - Get the doorbell with minimum usage count.
++ *
++ * Returns the irq index.
++ */
++int mic_next_card_db(void)
++{
++	int i;
++	int index = 0;
++	struct mic_driver *mdrv = g_drv;
++
++	for (i = 0; i < mdrv->intr_info.num_intr; i++) {
++		if (mdrv->irq_info.irq_usage_count[i] <
++			mdrv->irq_info.irq_usage_count[index])
++			index = i;
++	}
++
++	return index;
++}
++
++/**
++ * mic_init_irq - Initialize irq information.
++ *
++ * Returns 0 in success. Appropriate error code on failure.
++ */
++static int mic_init_irq(void)
++{
++	struct mic_driver *mdrv = g_drv;
++
++	mdrv->irq_info.irq_usage_count = kzalloc((sizeof(u32) *
++			mdrv->intr_info.num_intr),
++			GFP_KERNEL);
++	if (!mdrv->irq_info.irq_usage_count)
++		return -ENOMEM;
++	return 0;
++}
++
++/**
++ * mic_uninit_irq - Uninitialize irq information.
++ *
++ * None.
++ */
++static void mic_uninit_irq(void)
++{
++	struct mic_driver *mdrv = g_drv;
++
++	kfree(mdrv->irq_info.irq_usage_count);
++}
++
++/*
++ * mic_driver_init - MIC driver initialization tasks.
++ *
++ * Returns 0 in success. Appropriate error code on failure.
++ */
++int __init mic_driver_init(struct mic_driver *mdrv)
++{
++	int rc;
++
++	g_drv = mdrv;
++	/*
++	 * Unloading the card module is not supported. The MIC card module
++	 * handles fundamental operations like host/card initiated shutdowns
++	 * and informing the host about card crashes and cannot be unloaded.
++	 */
++	if (!try_module_get(mdrv->dev->driver->owner)) {
++		rc = -ENODEV;
++		goto done;
++	}
++	rc = mic_dp_init();
++	if (rc)
++		goto put;
++	rc = mic_init_irq();
++	if (rc)
++		goto dp_uninit;
++	rc = mic_shutdown_init();
++	if (rc)
++		goto irq_uninit;
++	mic_create_card_debug_dir(mdrv);
++	atomic_notifier_chain_register(&panic_notifier_list, &mic_panic);
++done:
++	return rc;
++irq_uninit:
++	mic_uninit_irq();
++dp_uninit:
++	mic_dp_uninit();
++put:
++	module_put(mdrv->dev->driver->owner);
++	return rc;
++}
++
++/*
++ * mic_driver_uninit - MIC driver uninitialization tasks.
++ *
++ * Returns None
++ */
++void mic_driver_uninit(struct mic_driver *mdrv)
++{
++	mic_delete_card_debug_dir(mdrv);
++	/*
++	 * Inform the host about the shutdown status i.e. poweroff/restart etc.
++	 * The module cannot be unloaded so the only code path to call
++	 * mic_devices_uninit(..) is the shutdown callback.
++	 */
++	mic_notify_host(system_state);
++	mic_shutdown_uninit();
++	mic_uninit_irq();
++	mic_dp_uninit();
++	module_put(mdrv->dev->driver->owner);
++}
+diff --git a/drivers/misc/mic/card/mic_device.h b/drivers/misc/mic/card/mic_device.h
+new file mode 100644
+index 0000000..347b9b3
+--- /dev/null
++++ b/drivers/misc/mic/card/mic_device.h
+@@ -0,0 +1,133 @@
++/*
++ * Intel MIC Platform Software Stack (MPSS)
++ *
++ * Copyright(c) 2013 Intel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License, version 2, as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++ * General Public License for more details.
++ *
++ * The full GNU General Public License is included in this distribution in
++ * the file called "COPYING".
++ *
++ * Disclaimer: The codes contained in these modules may be specific to
++ * the Intel Software Development Platform codenamed: Knights Ferry, and
++ * the Intel product codenamed: Knights Corner, and are not backward
++ * compatible with other Intel products. Additionally, Intel will NOT
++ * support the codes or instruction set in future products.
++ *
++ * Intel MIC Card driver.
++ *
++ */
++#ifndef _MIC_CARD_DEVICE_H_
++#define _MIC_CARD_DEVICE_H_
++
++#include <linux/workqueue.h>
++#include <linux/io.h>
++
++/**
++ * struct mic_intr_info - Contains h/w specific interrupt sources info
++ *
++ * @num_intr: The number of irqs available
++ */
++struct mic_intr_info {
++	u32 num_intr;
 +};
 +
 +/**
-+ * enum mic_stepping - MIC stepping ids.
++ * struct mic_irq_info - OS specific irq information
++ *
++ * @irq_usage_count: usage count array tracking the number of sources
++ * assigned for each irq.
 + */
-+enum mic_stepping {
-+	MIC_A0_STEP = 0x0,
-+	MIC_B0_STEP = 0x10,
-+	MIC_B1_STEP = 0x11,
-+	MIC_C0_STEP = 0x20,
++struct mic_irq_info {
++	int *irq_usage_count;
 +};
 +
 +/**
-+ * struct mic_device -  MIC device information for each card.
++ * struct mic_device -  MIC device information.
 + *
 + * @mmio: MMIO bar information.
-+ * @aper: Aperture bar information.
-+ * @family: The MIC family to which this device belongs.
-+ * @ops: MIC HW specific operations.
-+ * @id: The unique device id for this MIC device.
-+ * @stepping: Stepping ID.
-+ * @attr_group: Pointer to list of sysfs attribute groups.
-+ * @sdev: Device for sysfs entries.
 + */
 +struct mic_device {
 +	struct mic_mw mmio;
-+	struct mic_mw aper;
-+	enum mic_hw_family family;
-+	struct mic_hw_ops *ops;
-+	int id;
-+	enum mic_stepping stepping;
-+	const struct attribute_group **attr_group;
-+	struct device *sdev;
 +};
 +
 +/**
-+ * struct mic_hw_ops - MIC HW specific operations.
-+ * @aper_bar: Aperture bar resource number.
-+ * @mmio_bar: MMIO bar resource number.
-+ * @read_spad: Read from scratch pad register.
-+ * @write_spad: Write to scratch pad register.
++ * struct mic_driver - MIC card driver information.
++ *
++ * @name: Name for MIC driver.
++ * @dbg_dir: debugfs directory of this MIC device.
++ * @dev: The device backing this MIC.
++ * @dp: The pointer to the virtio device page.
++ * @mdev: MIC device information for the host.
++ * @hotplug_work: Hot plug work for adding/removing virtio devices.
++ * @irq_info: The OS specific irq information
++ * @intr_info: H/W specific interrupt information.
 + */
-+struct mic_hw_ops {
-+	u8 aper_bar;
-+	u8 mmio_bar;
-+	u32 (*read_spad)(struct mic_device *mdev, unsigned int idx);
-+	void (*write_spad)(struct mic_device *mdev, unsigned int idx, u32 val);
++struct mic_driver {
++	char name[20];
++	struct dentry *dbg_dir;
++	struct device *dev;
++	void __iomem *dp;
++	struct mic_device mdev;
++	struct work_struct hotplug_work;
++	struct mic_irq_info irq_info;
++	struct mic_intr_info intr_info;
 +};
++
++/**
++ * struct mic_irq - opaque pointer used as cookie
++ */
++struct mic_irq;
 +
 +/**
 + * mic_mmio_read - read from an MMIO register.
@@ -326,14 +669,31 @@ index 0000000..6cd904c
 +	iowrite32(val, mw->va + offset);
 +}
 +
-+void mic_sysfs_init(struct mic_device *mdev);
++int mic_driver_init(struct mic_driver *mdrv);
++void mic_driver_uninit(struct mic_driver *mdrv);
++int mic_next_card_db(void);
++struct mic_irq *mic_request_card_irq(irqreturn_t (*func)(int irq, void *data),
++	const char *name, void *data, int intr_src);
++void mic_free_card_irq(struct mic_irq *cookie, void *data);
++u32 mic_read_spad(struct mic_device *mdev, unsigned int idx);
++void mic_send_intr(struct mic_device *mdev, int doorbell);
++int mic_db_to_irq(struct mic_driver *mdrv, int db);
++u32 mic_ack_interrupt(struct mic_device *mdev);
++void mic_hw_intr_init(struct mic_driver *mdrv);
++void __iomem *
++mic_card_map(struct mic_device *mdev, dma_addr_t addr, size_t size);
++void mic_card_unmap(struct mic_device *mdev, void __iomem *addr);
++void __init mic_create_card_debug_dir(struct mic_driver *mdrv);
++void mic_delete_card_debug_dir(struct mic_driver *mdrv);
++void __init mic_init_card_debugfs(void);
++void mic_exit_card_debugfs(void);
 +#endif
-diff --git a/drivers/misc/mic/host/mic_main.c b/drivers/misc/mic/host/mic_main.c
+diff --git a/drivers/misc/mic/card/mic_x100.c b/drivers/misc/mic/card/mic_x100.c
 new file mode 100644
-index 0000000..228c96c
+index 0000000..7cb3469
 --- /dev/null
-+++ b/drivers/misc/mic/host/mic_main.c
-@@ -0,0 +1,309 @@
++++ b/drivers/misc/mic/card/mic_x100.c
+@@ -0,0 +1,256 @@
 +/*
 + * Intel MIC Platform Software Stack (MPSS)
 + *
@@ -351,17 +711,18 @@ index 0000000..228c96c
 + * The full GNU General Public License is included in this distribution in
 + * the file called "COPYING".
 + *
-+ * Intel MIC Host driver.
++ * Disclaimer: The codes contained in these modules may be specific to
++ * the Intel Software Development Platform codenamed: Knights Ferry, and
++ * the Intel product codenamed: Knights Corner, and are not backward
++ * compatible with other Intel products. Additionally, Intel will NOT
++ * support the codes or instruction set in future products.
 + *
-+ * Global TODO's across the driver to be added after initial base
-+ * patches are accepted upstream:
-+ * 1) Enable DMA support.
-+ * 2) Enable per vring interrupt support.
++ * Intel MIC Card driver.
++ *
 + */
-+#include <linux/fs.h>
-+#include <linux/idr.h>
 +#include <linux/module.h>
 +#include <linux/pci.h>
++#include <linux/platform_device.h>
 +
 +#include "../common/mic_device.h"
 +#include "mic_device.h"
@@ -369,439 +730,10 @@ index 0000000..228c96c
 +
 +static const char mic_driver_name[] = "mic";
 +
-+static DEFINE_PCI_DEVICE_TABLE(mic_pci_tbl) = {
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_2250)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_2251)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_2252)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_2253)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_2254)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_2255)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_2256)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_2257)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_2258)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_2259)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_225a)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_225b)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_225c)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_225d)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MIC_X100_PCI_DEVICE_225e)},
-+
-+	/* required last entry */
-+	{ 0, }
-+};
-+
-+MODULE_DEVICE_TABLE(pci, mic_pci_tbl);
-+
-+/* ID allocator for MIC devices */
-+static struct ida g_mic_ida;
-+/* Class of MIC devices for sysfs accessibility. */
-+static struct class *g_mic_class;
-+/* Base device node number for MIC devices */
-+static dev_t g_mic_devno;
++static struct mic_driver g_drv;
 +
 +/**
-+ * mic_ops_init: Initialize HW specific operation tables.
-+ *
-+ * @mdev: pointer to mic_device instance
-+ *
-+ * returns none.
-+ */
-+static void mic_ops_init(struct mic_device *mdev)
-+{
-+	switch (mdev->family) {
-+	case MIC_FAMILY_X100:
-+		mdev->ops = &mic_x100_ops;
-+		break;
-+	default:
-+		break;
-+	}
-+}
-+
-+/**
-+ * mic_get_family - Determine hardware family to which this MIC belongs.
-+ *
-+ * @pdev: The pci device structure
-+ *
-+ * returns family.
-+ */
-+static enum mic_hw_family mic_get_family(struct pci_dev *pdev)
-+{
-+	enum mic_hw_family family;
-+
-+	switch (pdev->device) {
-+	case MIC_X100_PCI_DEVICE_2250:
-+	case MIC_X100_PCI_DEVICE_2251:
-+	case MIC_X100_PCI_DEVICE_2252:
-+	case MIC_X100_PCI_DEVICE_2253:
-+	case MIC_X100_PCI_DEVICE_2254:
-+	case MIC_X100_PCI_DEVICE_2255:
-+	case MIC_X100_PCI_DEVICE_2256:
-+	case MIC_X100_PCI_DEVICE_2257:
-+	case MIC_X100_PCI_DEVICE_2258:
-+	case MIC_X100_PCI_DEVICE_2259:
-+	case MIC_X100_PCI_DEVICE_225a:
-+	case MIC_X100_PCI_DEVICE_225b:
-+	case MIC_X100_PCI_DEVICE_225c:
-+	case MIC_X100_PCI_DEVICE_225d:
-+	case MIC_X100_PCI_DEVICE_225e:
-+		family = MIC_FAMILY_X100;
-+		break;
-+	default:
-+		family = MIC_FAMILY_UNKNOWN;
-+		break;
-+	}
-+	return family;
-+}
-+
-+/**
-+ * mic_device_init - Allocates and initializes the MIC device structure
-+ *
-+ * @mdev: pointer to mic_device instance
-+ * @pdev: The pci device structure
-+ *
-+ * returns none.
-+ */
-+static void
-+mic_device_init(struct mic_device *mdev, struct pci_dev *pdev)
-+{
-+	mdev->family = mic_get_family(pdev);
-+	mdev->stepping = pdev->revision;
-+	mic_ops_init(mdev);
-+	mic_sysfs_init(mdev);
-+}
-+
-+/**
-+ * mic_probe - Device Initialization Routine
-+ *
-+ * @pdev: PCI device structure
-+ * @ent: entry in mic_pci_tbl
-+ *
-+ * returns 0 on success, < 0 on failure.
-+ */
-+static int mic_probe(struct pci_dev *pdev,
-+		const struct pci_device_id *ent)
-+{
-+	int rc;
-+	struct mic_device *mdev;
-+
-+	mdev = kzalloc(sizeof(*mdev), GFP_KERNEL);
-+	if (!mdev) {
-+		rc = -ENOMEM;
-+		dev_err(&pdev->dev, "mdev kmalloc failed rc %d\n", rc);
-+		goto mdev_alloc_fail;
-+	}
-+	mdev->id = ida_simple_get(&g_mic_ida, 0, MIC_MAX_NUM_DEVS, GFP_KERNEL);
-+	if (mdev->id < 0) {
-+		rc = mdev->id;
-+		dev_err(&pdev->dev, "ida_simple_get failed rc %d\n", rc);
-+		goto ida_fail;
-+	}
-+
-+	mic_device_init(mdev, pdev);
-+
-+	rc = pci_enable_device(pdev);
-+	if (rc) {
-+		dev_err(&pdev->dev, "failed to enable pci device.\n");
-+		goto ida_remove;
-+	}
-+
-+	pci_set_master(pdev);
-+
-+	rc = pci_request_regions(pdev, mic_driver_name);
-+	if (rc) {
-+		dev_err(&pdev->dev, "failed to get pci regions.\n");
-+		goto disable_device;
-+	}
-+
-+	rc = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
-+	if (rc) {
-+		dev_err(&pdev->dev, "Cannot set DMA mask\n");
-+		goto release_regions;
-+	}
-+
-+	mdev->mmio.pa = pci_resource_start(pdev, mdev->ops->mmio_bar);
-+	mdev->mmio.len = pci_resource_len(pdev, mdev->ops->mmio_bar);
-+	mdev->mmio.va = pci_ioremap_bar(pdev, mdev->ops->mmio_bar);
-+	if (!mdev->mmio.va) {
-+		dev_err(&pdev->dev, "Cannot remap MMIO BAR\n");
-+		rc = -EIO;
-+		goto release_regions;
-+	}
-+
-+	mdev->aper.pa = pci_resource_start(pdev, mdev->ops->aper_bar);
-+	mdev->aper.len = pci_resource_len(pdev, mdev->ops->aper_bar);
-+	mdev->aper.va = ioremap_wc(mdev->aper.pa, mdev->aper.len);
-+	if (!mdev->aper.va) {
-+		dev_err(&pdev->dev, "Cannot remap Aperture BAR\n");
-+		rc = -EIO;
-+		goto unmap_mmio;
-+	}
-+
-+	pci_set_drvdata(pdev, mdev);
-+
-+	mdev->sdev = device_create_with_groups(g_mic_class, &pdev->dev,
-+		MKDEV(MAJOR(g_mic_devno), mdev->id), NULL,
-+		mdev->attr_group, "mic%d", mdev->id);
-+	if (IS_ERR(mdev->sdev)) {
-+		rc = PTR_ERR(mdev->sdev);
-+		dev_err(&pdev->dev,
-+			"device_create_with_groups failed rc %d\n", rc);
-+		goto unmap_aper;
-+	}
-+	return 0;
-+unmap_aper:
-+	iounmap(mdev->aper.va);
-+unmap_mmio:
-+	iounmap(mdev->mmio.va);
-+release_regions:
-+	pci_release_regions(pdev);
-+disable_device:
-+	pci_disable_device(pdev);
-+ida_remove:
-+	ida_simple_remove(&g_mic_ida, mdev->id);
-+ida_fail:
-+	kfree(mdev);
-+mdev_alloc_fail:
-+	dev_err(&pdev->dev, "Probe failed rc %d\n", rc);
-+	return rc;
-+}
-+
-+/**
-+ * mic_remove - Device Removal Routine
-+ * mic_remove is called by the PCI subsystem to alert the driver
-+ * that it should release a PCI device.
-+ *
-+ * @pdev: PCI device structure
-+ */
-+static void mic_remove(struct pci_dev *pdev)
-+{
-+	struct mic_device *mdev;
-+
-+	mdev = pci_get_drvdata(pdev);
-+	if (!mdev)
-+		return;
-+
-+	device_destroy(g_mic_class, MKDEV(MAJOR(g_mic_devno), mdev->id));
-+	iounmap(mdev->mmio.va);
-+	iounmap(mdev->aper.va);
-+	pci_release_regions(pdev);
-+	pci_disable_device(pdev);
-+	ida_simple_remove(&g_mic_ida, mdev->id);
-+	kfree(mdev);
-+}
-+static struct pci_driver mic_driver = {
-+	.name = mic_driver_name,
-+	.id_table = mic_pci_tbl,
-+	.probe = mic_probe,
-+	.remove = mic_remove
-+};
-+
-+static int __init mic_init(void)
-+{
-+	int ret;
-+
-+	ret = alloc_chrdev_region(&g_mic_devno, 0,
-+		MIC_MAX_NUM_DEVS, mic_driver_name);
-+	if (ret) {
-+		pr_err("alloc_chrdev_region failed ret %d\n", ret);
-+		goto error;
-+	}
-+
-+	g_mic_class = class_create(THIS_MODULE, mic_driver_name);
-+	if (IS_ERR(g_mic_class)) {
-+		ret = PTR_ERR(g_mic_class);
-+		pr_err("class_create failed ret %d\n", ret);
-+		goto cleanup_chrdev;
-+	}
-+
-+	ida_init(&g_mic_ida);
-+	ret = pci_register_driver(&mic_driver);
-+	if (ret) {
-+		pr_err("pci_register_driver failed ret %d\n", ret);
-+		goto class_destroy;
-+	}
-+	return ret;
-+class_destroy:
-+	class_destroy(g_mic_class);
-+cleanup_chrdev:
-+	unregister_chrdev_region(g_mic_devno, MIC_MAX_NUM_DEVS);
-+error:
-+	return ret;
-+}
-+
-+static void __exit mic_exit(void)
-+{
-+	pci_unregister_driver(&mic_driver);
-+	ida_destroy(&g_mic_ida);
-+	class_destroy(g_mic_class);
-+	unregister_chrdev_region(g_mic_devno, MIC_MAX_NUM_DEVS);
-+}
-+
-+module_init(mic_init);
-+module_exit(mic_exit);
-+
-+MODULE_AUTHOR("Intel Corporation");
-+MODULE_DESCRIPTION("Intel(R) MIC X100 Host driver");
-+MODULE_LICENSE("GPL v2");
-diff --git a/drivers/misc/mic/host/mic_sysfs.c b/drivers/misc/mic/host/mic_sysfs.c
-new file mode 100644
-index 0000000..972c182
---- /dev/null
-+++ b/drivers/misc/mic/host/mic_sysfs.c
-@@ -0,0 +1,97 @@
-+/*
-+ * Intel MIC Platform Software Stack (MPSS)
-+ *
-+ * Copyright(c) 2013 Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License, version 2, as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-+ * General Public License for more details.
-+ *
-+ * The full GNU General Public License is included in this distribution in
-+ * the file called "COPYING".
-+ *
-+ * Intel MIC Host driver.
-+ *
-+ */
-+#include <linux/pci.h>
-+
-+#include "../common/mic_device.h"
-+#include "mic_device.h"
-+
-+static ssize_t
-+mic_show_family(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	static const char x100[] = "x100";
-+	static const char unknown[] = "Unknown";
-+	const char *card = NULL;
-+	struct mic_device *mdev = dev_get_drvdata(dev->parent);
-+
-+	if (!mdev)
-+		return -EINVAL;
-+
-+	switch (mdev->family) {
-+	case MIC_FAMILY_X100:
-+		card = x100;
-+		break;
-+	default:
-+		card = unknown;
-+		break;
-+	}
-+	return scnprintf(buf, PAGE_SIZE, "%s\n", card);
-+}
-+static DEVICE_ATTR(family, S_IRUGO, mic_show_family, NULL);
-+
-+static ssize_t
-+mic_show_stepping(struct device *dev, struct device_attribute *attr, char *buf)
-+{
-+	struct mic_device *mdev = dev_get_drvdata(dev->parent);
-+	char *string = "??";
-+
-+	if (!mdev)
-+		return -EINVAL;
-+
-+	switch (mdev->stepping) {
-+	case MIC_A0_STEP:
-+		string = "A0";
-+		break;
-+	case MIC_B0_STEP:
-+		string = "B0";
-+		break;
-+	case MIC_B1_STEP:
-+		string = "B1";
-+		break;
-+	case MIC_C0_STEP:
-+		string = "C0";
-+		break;
-+	default:
-+		break;
-+	}
-+	return scnprintf(buf, PAGE_SIZE, "%s\n", string);
-+}
-+static DEVICE_ATTR(stepping, S_IRUGO, mic_show_stepping, NULL);
-+
-+static struct attribute *mic_default_attrs[] = {
-+	&dev_attr_family.attr,
-+	&dev_attr_stepping.attr,
-+
-+	NULL
-+};
-+
-+static struct attribute_group mic_attr_group = {
-+	.attrs = mic_default_attrs,
-+};
-+
-+static const struct attribute_group *__mic_attr_group[] = {
-+	&mic_attr_group,
-+	NULL
-+};
-+
-+void mic_sysfs_init(struct mic_device *mdev)
-+{
-+	mdev->attr_group = __mic_attr_group;
-+}
-diff --git a/drivers/misc/mic/host/mic_x100.c b/drivers/misc/mic/host/mic_x100.c
-new file mode 100644
-index 0000000..da481b1
---- /dev/null
-+++ b/drivers/misc/mic/host/mic_x100.c
-@@ -0,0 +1,75 @@
-+/*
-+ * Intel MIC Platform Software Stack (MPSS)
-+ *
-+ * Copyright(c) 2013 Intel Corporation.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License, version 2, as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-+ * General Public License for more details.
-+ *
-+ * The full GNU General Public License is included in this distribution in
-+ * the file called "COPYING".
-+ *
-+ * Intel MIC Host driver.
-+ *
-+ */
-+#include <linux/fs.h>
-+#include <linux/pci.h>
-+
-+#include "../common/mic_device.h"
-+#include "mic_device.h"
-+#include "mic_x100.h"
-+
-+/**
-+ * mic_x100_write_spad - write to the scratchpad register
-+ * @mdev: pointer to mic_device instance
-+ * @idx: index to the scratchpad register, 0 based
-+ * @val: the data value to put into the register
-+ *
-+ * This function allows writing of a 32bit value to the indexed scratchpad
-+ * register.
-+ *
-+ * RETURNS: none.
-+ */
-+static void
-+mic_x100_write_spad(struct mic_device *mdev, unsigned int idx, u32 val)
-+{
-+	dev_dbg(mdev->sdev->parent, "Writing 0x%x to scratch pad index %d\n",
-+		val, idx);
-+	mic_mmio_write(&mdev->mmio, val,
-+		MIC_X100_SBOX_BASE_ADDRESS +
-+		MIC_X100_SBOX_SPAD0 + idx * 4);
-+}
-+
-+/**
-+ * mic_x100_read_spad - read from the scratchpad register
++ * mic_read_spad - read from the scratchpad register
 + * @mdev: pointer to mic_device instance
 + * @idx: index to scratchpad register, 0 based
 + *
@@ -809,30 +741,221 @@ index 0000000..da481b1
 + *
 + * RETURNS: An appropriate -ERRNO error value on error, or zero for success.
 + */
-+static u32
-+mic_x100_read_spad(struct mic_device *mdev, unsigned int idx)
++u32 mic_read_spad(struct mic_device *mdev, unsigned int idx)
 +{
-+	u32 val = mic_mmio_read(&mdev->mmio,
++	return mic_mmio_read(&mdev->mmio,
 +		MIC_X100_SBOX_BASE_ADDRESS +
 +		MIC_X100_SBOX_SPAD0 + idx * 4);
-+
-+	dev_dbg(mdev->sdev->parent,
-+		"Reading 0x%x from scratch pad index %d\n", val, idx);
-+	return val;
 +}
 +
-+struct mic_hw_ops mic_x100_ops = {
-+	.aper_bar = MIC_X100_APER_BAR,
-+	.mmio_bar = MIC_X100_MMIO_BAR,
-+	.read_spad = mic_x100_read_spad,
-+	.write_spad = mic_x100_write_spad,
++/**
++ * __mic_send_intr - Send interrupt to Host.
++ * @mdev: pointer to mic_device instance
++ * @doorbell: Doorbell number.
++ */
++void mic_send_intr(struct mic_device *mdev, int doorbell)
++{
++	struct mic_mw *mw = &mdev->mmio;
++
++	if (doorbell > MIC_X100_MAX_DOORBELL_IDX)
++		return;
++	/* Ensure that the interrupt is ordered w.r.t previous stores. */
++	wmb();
++	mic_mmio_write(mw, MIC_X100_SBOX_SDBIC0_DBREQ_BIT,
++		MIC_X100_SBOX_BASE_ADDRESS +
++		(MIC_X100_SBOX_SDBIC0 + (4 * doorbell)));
++}
++
++/**
++ * mic_ack_interrupt - Device specific interrupt handling.
++ * @mdev: pointer to mic_device instance
++ *
++ * Returns: bitmask of doorbell events triggered.
++ */
++u32 mic_ack_interrupt(struct mic_device *mdev)
++{
++	return 0;
++}
++
++static inline int mic_get_sbox_irq(int db)
++{
++	return MIC_X100_IRQ_BASE + db;
++}
++
++static inline int mic_get_rdmasr_irq(int index)
++{
++	return  MIC_X100_RDMASR_IRQ_BASE + index;
++}
++
++/**
++ * mic_hw_intr_init - Initialize h/w specific interrupt
++ * information.
++ * @mdrv: pointer to mic_driver
++ */
++void mic_hw_intr_init(struct mic_driver *mdrv)
++{
++	mdrv->intr_info.num_intr = MIC_X100_NUM_SBOX_IRQ +
++				MIC_X100_NUM_RDMASR_IRQ;
++}
++
++/**
++ * mic_db_to_irq - Retrieve irq number corresponding to a doorbell.
++ * @mdrv: pointer to mic_driver
++ * @db: The doorbell obtained for which the irq is needed. Doorbell
++ * may correspond to an sbox doorbell or an rdmasr index.
++ *
++ * Returns the irq corresponding to the doorbell.
++ */
++int mic_db_to_irq(struct mic_driver *mdrv, int db)
++{
++	int rdmasr_index;
++	if (db < MIC_X100_NUM_SBOX_IRQ) {
++		return mic_get_sbox_irq(db);
++	} else {
++		rdmasr_index = db - MIC_X100_NUM_SBOX_IRQ +
++			MIC_X100_RDMASR_IRQ_BASE;
++		return mic_get_rdmasr_irq(rdmasr_index);
++	}
++}
++
++/*
++ * mic_card_map - Allocate virtual address for a remote memory region.
++ * @mdev: pointer to mic_device instance.
++ * @addr: Remote DMA address.
++ * @size: Size of the region.
++ *
++ * Returns: Virtual address backing the remote memory region.
++ */
++void __iomem *
++mic_card_map(struct mic_device *mdev, dma_addr_t addr, size_t size)
++{
++	return ioremap(addr, size);
++}
++
++/*
++ * mic_card_unmap - Unmap the virtual address for a remote memory region.
++ * @mdev: pointer to mic_device instance.
++ * @addr: Virtual address for remote memory region.
++ *
++ * Returns: None.
++ */
++void mic_card_unmap(struct mic_device *mdev, void __iomem *addr)
++{
++	iounmap(addr);
++}
++
++static int __init mic_probe(struct platform_device *pdev)
++{
++	struct mic_driver *mdrv = &g_drv;
++	struct mic_device *mdev = &mdrv->mdev;
++	int rc = 0;
++
++	mdrv->dev = &pdev->dev;
++	snprintf(mdrv->name, sizeof(mic_driver_name), mic_driver_name);
++
++	mdev->mmio.pa = MIC_X100_MMIO_BASE;
++	mdev->mmio.len = MIC_X100_MMIO_LEN;
++	mdev->mmio.va = ioremap(MIC_X100_MMIO_BASE, MIC_X100_MMIO_LEN);
++	if (!mdev->mmio.va) {
++		dev_err(&pdev->dev, "Cannot remap MMIO BAR\n");
++		rc = -EIO;
++		goto done;
++	}
++	mic_hw_intr_init(mdrv);
++	rc = mic_driver_init(mdrv);
++	if (rc) {
++		dev_err(&pdev->dev, "mic_driver_init failed rc %d\n", rc);
++		goto iounmap;
++	}
++done:
++	return rc;
++iounmap:
++	iounmap(mdev->mmio.va);
++	return rc;
++}
++
++static int mic_remove(struct platform_device *pdev)
++{
++	struct mic_driver *mdrv = &g_drv;
++	struct mic_device *mdev = &mdrv->mdev;
++
++	mic_driver_uninit(mdrv);
++	iounmap(mdev->mmio.va);
++	return 0;
++}
++
++static void mic_platform_shutdown(struct platform_device *pdev)
++{
++	mic_remove(pdev);
++}
++
++static struct platform_device mic_platform_dev = {
++	.name = mic_driver_name,
++	.id   = 0,
++	.num_resources = 0,
 +};
-diff --git a/drivers/misc/mic/host/mic_x100.h b/drivers/misc/mic/host/mic_x100.h
++
++static struct platform_driver __refdata mic_platform_driver = {
++	.probe = mic_probe,
++	.remove = mic_remove,
++	.shutdown = mic_platform_shutdown,
++	.driver         = {
++		.name   = mic_driver_name,
++		.owner	= THIS_MODULE,
++	},
++};
++
++static int __init mic_init(void)
++{
++	int ret;
++	struct cpuinfo_x86 *c = &cpu_data(0);
++
++	if (!(c->x86 == 11 && c->x86_model == 1)) {
++		ret = -ENODEV;
++		pr_err("%s not running on X100 ret %d\n", __func__, ret);
++		goto done;
++	}
++
++	mic_init_card_debugfs();
++	ret = platform_device_register(&mic_platform_dev);
++	if (ret) {
++		pr_err("platform_device_register ret %d\n", ret);
++		goto cleanup_debugfs;
++	}
++	ret = platform_driver_register(&mic_platform_driver);
++	if (ret) {
++		pr_err("platform_driver_register ret %d\n", ret);
++		goto device_unregister;
++	}
++	return ret;
++
++device_unregister:
++	platform_device_unregister(&mic_platform_dev);
++cleanup_debugfs:
++	mic_exit_card_debugfs();
++done:
++	return ret;
++}
++
++static void __exit mic_exit(void)
++{
++	platform_driver_unregister(&mic_platform_driver);
++	platform_device_unregister(&mic_platform_dev);
++	mic_exit_card_debugfs();
++}
++
++module_init(mic_init);
++module_exit(mic_exit);
++
++MODULE_AUTHOR("Intel Corporation");
++MODULE_DESCRIPTION("Intel(R) MIC X100 Card driver");
++MODULE_LICENSE("GPL v2");
+diff --git a/drivers/misc/mic/card/mic_x100.h b/drivers/misc/mic/card/mic_x100.h
 new file mode 100644
-index 0000000..1f4e630
+index 0000000..d66ea55
 --- /dev/null
-+++ b/drivers/misc/mic/host/mic_x100.h
-@@ -0,0 +1,47 @@
++++ b/drivers/misc/mic/card/mic_x100.h
+@@ -0,0 +1,48 @@
 +/*
 + * Intel MIC Platform Software Stack (MPSS)
 + *
@@ -850,34 +973,35 @@ index 0000000..1f4e630
 + * The full GNU General Public License is included in this distribution in
 + * the file called "COPYING".
 + *
-+ * Intel MIC Host driver.
++ * Disclaimer: The codes contained in these modules may be specific to
++ * the Intel Software Development Platform codenamed: Knights Ferry, and
++ * the Intel product codenamed: Knights Corner, and are not backward
++ * compatible with other Intel products. Additionally, Intel will NOT
++ * support the codes or instruction set in future products.
++ *
++ * Intel MIC Card driver.
 + *
 + */
-+#ifndef _MIC_X100_HW_H_
-+#define _MIC_X100_HW_H_
++#ifndef _MIC_X100_CARD_H_
++#define _MIC_X100_CARD_H_
 +
-+#define MIC_X100_PCI_DEVICE_2250 0x2250
-+#define MIC_X100_PCI_DEVICE_2251 0x2251
-+#define MIC_X100_PCI_DEVICE_2252 0x2252
-+#define MIC_X100_PCI_DEVICE_2253 0x2253
-+#define MIC_X100_PCI_DEVICE_2254 0x2254
-+#define MIC_X100_PCI_DEVICE_2255 0x2255
-+#define MIC_X100_PCI_DEVICE_2256 0x2256
-+#define MIC_X100_PCI_DEVICE_2257 0x2257
-+#define MIC_X100_PCI_DEVICE_2258 0x2258
-+#define MIC_X100_PCI_DEVICE_2259 0x2259
-+#define MIC_X100_PCI_DEVICE_225a 0x225a
-+#define MIC_X100_PCI_DEVICE_225b 0x225b
-+#define MIC_X100_PCI_DEVICE_225c 0x225c
-+#define MIC_X100_PCI_DEVICE_225d 0x225d
-+#define MIC_X100_PCI_DEVICE_225e 0x225e
++#define MIC_X100_MMIO_BASE 0x08007C0000ULL
++#define MIC_X100_MMIO_LEN 0x00020000ULL
++#define MIC_X100_SBOX_BASE_ADDRESS 0x00010000ULL
 +
-+#define MIC_X100_APER_BAR 0
-+#define MIC_X100_MMIO_BAR 4
-+
-+#define MIC_X100_SBOX_BASE_ADDRESS 0x00010000
 +#define MIC_X100_SBOX_SPAD0 0x0000AB20
-+extern struct mic_hw_ops mic_x100_ops;
++#define MIC_X100_SBOX_SDBIC0 0x0000CC90
++#define MIC_X100_SBOX_SDBIC0_DBREQ_BIT 0x80000000
++#define MIC_X100_SBOX_RDMASR0	0x0000B180
++
++#define MIC_X100_MAX_DOORBELL_IDX 8
++
++#define MIC_X100_NUM_SBOX_IRQ 8
++#define MIC_X100_NUM_RDMASR_IRQ 8
++#define MIC_X100_SBOX_IRQ_BASE 0
++#define MIC_X100_RDMASR_IRQ_BASE 17
++
++#define MIC_X100_IRQ_BASE 26
 +
 +#endif
 -- 
