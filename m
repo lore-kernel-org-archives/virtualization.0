@@ -1,14 +1,13 @@
 From: Andy King <acking@vmware.com>
-Subject: Re: [PATCH] VMXNET3: Add support for virtual IOMMU
-Date: Wed, 21 Aug 2013 06:37:34 -0700 (PDT)
-Message-ID: <1944820276.33601674.1377092254160.JavaMail.root@vmware.com>
-References: <1377020012-1839-1-git-send-email-acking@vmware.com>
-	<20130821.000255.1258155583733908892.davem@davemloft.net>
+Subject: Re: [PATCH 0/2] VMCI: Add support for virtual IOMMU
+Date: Wed, 21 Aug 2013 06:43:38 -0700 (PDT)
+Message-ID: <1988970649.33605490.1377092618300.JavaMail.root@vmware.com>
+References: <1377019803-1490-1-git-send-email-acking@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130821.000255.1258155583733908892.davem@davemloft.net>
+In-Reply-To: <1377019803-1490-1-git-send-email-acking@vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,28 +17,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: pv-drivers@vmware.com, netdev@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: gregkh@linuxfoundation.org
+Cc: pv-drivers@vmware.com, David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Adding Greg, since this will apply to a similar patchset I sent out
-for VMCI.
+Greg,
 
------ Original Message -----
-> From: Andy King <acking@vmware.com>
-> Date: Tue, 20 Aug 2013 10:33:32 -0700
-> 
-> > We can't just do virt_to_phys() on memory that we pass to the device and
-> > expect it to work in presence of a virtual IOMMU.  We need to add IOMMU
-> > mappings for such DMAs to work correctly.  Fix that with
-> > pci_alloc_consistent() where possible, or pci_map_single() where the
-> > mapping is short-lived or we don't control the allocation (netdev).
->
-> Please use dma_alloc_coherent() (or in fact dma_zalloc_coherent()),
-> dma_map_single() et al., because they are preferred and in particular
-> allow specification of GFP_* flags
+I'd like to withdraw this in light of DaveM's comments on
+a similar patch to vmxnet3 regarding dma_alloc_coherent() vs
+pci_alloc_consistent().  I'll fix it and send out a new patchset.
 
-Sorry about that, I'll fix that and send out a new patch.
+Sorry about this!
 
 Thanks!
 - Andy
+
+----- Original Message -----
+> This patchset adds support for virtual IOMMU to the VMCI module.  We switch
+> to
+> DMA consistent mappings for queuepair and doorbell pages that are passed to
+> the
+> device, which allows the module to work in the presence of vIOMMU/VT-d.
+> 
+> Andy King (2):
+>   VMCI: Remove non-blocking/pinned queuepair support
+>   VMCI: Add support for virtual IOMMU
+> 
+>  drivers/misc/vmw_vmci/vmci_driver.c     |    2 +-
+>  drivers/misc/vmw_vmci/vmci_driver.h     |    7 +
+>  drivers/misc/vmw_vmci/vmci_guest.c      |   21 ++-
+>  drivers/misc/vmw_vmci/vmci_queue_pair.c |  312
+>  ++++++++++++-------------------
+>  drivers/misc/vmw_vmci/vmci_queue_pair.h |   18 --
+>  5 files changed, 140 insertions(+), 220 deletions(-)
+> 
+> --
+> 1.7.4.1
+> 
