@@ -1,14 +1,13 @@
-From: Christoph Lameter <cl@linux.com>
-Subject: Re: [PATCH-v3 1/4] idr: Percpu ida
-Date: Wed, 21 Aug 2013 18:25:58 +0000
-Message-ID: <00000140a2203fca-f2e76962-a285-4e93-b200-bb05d6501f24-000000@email.amazonses.com>
-References: <1376694549-20609-1-git-send-email-nab@linux-iscsi.org>
-	<1376694549-20609-2-git-send-email-nab@linux-iscsi.org>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: updated: kvm PCI todo wiki
+Date: Thu, 22 Aug 2013 01:29:34 -0700
+Message-ID: <1377160174.32763.61.camel__388.105880893086$1377159777$gmane$org@haakon3.risingtidesystems.com>
+References: <20130821104844.GA6218@redhat.com> <5214B670.5030509@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1376694549-20609-2-git-send-email-nab@linux-iscsi.org>
+In-Reply-To: <5214B670.5030509@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,100 +17,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Andi Kleen <andi@firstfloor.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lkml <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Kent Overstreet <kmo@daterainc.com>, target-devel <target-devel@vger.kernel.org>, Oleg Nesterov <oleg@redhat.com>, Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+To: Hannes Reinecke <hare@suse.de>
+Cc: virtualization@lists.linux-foundation.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 16 Aug 2013, Nicholas A. Bellinger wrote:
+On Wed, 2013-08-21 at 14:45 +0200, Hannes Reinecke wrote:
+> On 08/21/2013 12:48 PM, Michael S. Tsirkin wrote:
+> > Hey guys,
+> > I've put up a wiki page with a kvm PCI todo list,
+> > mainly to avoid effort duplication, but also in the hope
+> > to draw attention to what I think we should try addressing
+> > in KVM:
+> >
+> > http://www.linux-kvm.org/page/PCITodo
+> >
+> > This page could cover all PCI related activity in KVM,
+> > it is very incomplete.
+> > We should probably add e.g. IOMMU related stuff.
+> >
+> > Note: if there's no developer listed for an item,
+> > this just means I don't know of anyone actively working
+> > on an issue at the moment, not that no one intends to.
+> >
+> > I would appreciate it if others working on one of the items on this list
+> > would add their names so we can communicate better.  If others like this
+> > wiki page, please go ahead and add stuff you are working on if any.
+> >
+> > It would be especially nice to add testing projects.
+> >
+> > Also, feel free to add links to bugzillas items.
+> >
+> On a related note, did anyone ever tried to test MSI / MSI-X with a 
+> windows guest? I've tried to enable it for virtio but for some reason 
+> Windows didn't wanted to enable it. AHCI was even worse; the stock 
+> Windows version doesn't support MSI and the Intel one doesn't like our 
+> implementation :-(.
+> 
+> Anyone ever managed to get this to work?
+> 
+> If not it'd be a good topic for the wiki ...
+> 
 
-> +	spinlock_t			lock;
+Speaking of which, I asked Asias about this recently and he seems to
+think that virtio-net + virtio-blk drivers for MSFT do in fact support
+MSI /MSI-X.
 
-Remove the spinlock.
+MST, do you know if that that true..?
 
-> +	unsigned			nr_free;
-> +	unsigned			freelist[];
-> +};
-> +
-> +static inline void move_tags(unsigned *dst, unsigned *dst_nr,
-> +			     unsigned *src, unsigned *src_nr,
-> +			     unsigned nr)
-> +{
-> +	*src_nr -= nr;
-> +	memcpy(dst + *dst_nr, src + *src_nr, sizeof(unsigned) * nr);
-> +	*dst_nr += nr;
-> +}
-> +
-
-> +static inline unsigned alloc_local_tag(struct percpu_ida *pool,
-> +				       struct percpu_ida_cpu *tags)
-
-Pass the __percpu offset and not the tags pointer.
-
-> +{
-> +	int tag = -ENOSPC;
-> +
-> +	spin_lock(&tags->lock);
-
-Interupts are already disabled. Drop the spinlock.
-
-> +	if (tags->nr_free)
-> +		tag = tags->freelist[--tags->nr_free];
-
-You can keep this or avoid address calculation through segment prefixes.
-F.e.
-
-if (__this_cpu_read(tags->nrfree) {
-	int n = __this_cpu_dec_return(tags->nr_free);
-	tag =  __this_cpu_read(tags->freelist[n]);
-}
-
-> +	spin_unlock(&tags->lock);
-
-Drop.
-
-> + * Returns a tag - an integer in the range [0..nr_tags) (passed to
-> + * tag_pool_init()), or otherwise -ENOSPC on allocation failure.
-> + *
-> + * Safe to be called from interrupt context (assuming it isn't passed
-> + * __GFP_WAIT, of course).
-> + *
-> + * Will not fail if passed __GFP_WAIT.
-> + */
-> +int percpu_ida_alloc(struct percpu_ida *pool, gfp_t gfp)
-> +{
-> +	DEFINE_WAIT(wait);
-> +	struct percpu_ida_cpu *tags;
-> +	unsigned long flags;
-> +	int tag;
-> +
-> +	local_irq_save(flags);
-> +	tags = this_cpu_ptr(pool->tag_cpu);
-
-You could drop this_cpu_ptr if you pass pool->tag_cpu to alloc_local_tag.
-
-> +/**
-> + * percpu_ida_free - free a tag
-> + * @pool: pool @tag was allocated from
-> + * @tag: a tag previously allocated with percpu_ida_alloc()
-> + *
-> + * Safe to be called from interrupt context.
-> + */
-> +void percpu_ida_free(struct percpu_ida *pool, unsigned tag)
-> +{
-> +	struct percpu_ida_cpu *tags;
-> +	unsigned long flags;
-> +	unsigned nr_free;
-> +
-> +	BUG_ON(tag >= pool->nr_tags);
-> +
-> +	local_irq_save(flags);
-> +	tags = this_cpu_ptr(pool->tag_cpu);
-> +
-> +	spin_lock(&tags->lock);
-
-No need for spinlocking
-> +	tags->freelist[tags->nr_free++] = tag;
-
-nr_free = __this_cpu_inc_return(pool->tag_cpu.nr_free) ?
-
-__this_cpu_write(pool->tag_cpu.freelist[nr_free], tag)
+--nab
