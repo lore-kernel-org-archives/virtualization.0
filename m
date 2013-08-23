@@ -1,15 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 6/6] vhost_net: remove the max pending check
-Date: Fri, 23 Aug 2013 16:55:49 +0800
-Message-ID: <52172395.9000400@redhat.com>
-References: <1376630190-5912-1-git-send-email-jasowang@redhat.com>
-	<1376630190-5912-7-git-send-email-jasowang@redhat.com>
-	<20130816100225.GD21821@redhat.com> <5212D8F2.10307@redhat.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH] tracing/events: Add bounce tracing to swiotbl-xen
+Date: Fri, 23 Aug 2013 08:55:33 -0400
+Message-ID: <20130823125533.GC14306@konrad-lan.dumpdata.com>
+References: <1377208048-8963-1-git-send-email-zoltan.kiss@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5212D8F2.10307@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1377208048-8963-1-git-send-email-zoltan.kiss@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,36 +18,111 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Zoltan Kiss <zoltan.kiss@citrix.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/20/2013 10:48 AM, Jason Wang wrote:
-> On 08/16/2013 06:02 PM, Michael S. Tsirkin wrote:
->> > On Fri, Aug 16, 2013 at 01:16:30PM +0800, Jason Wang wrote:
->>> >> We used to limit the max pending DMAs to prevent guest from pinning too many
->>> >> pages. But this could be removed since:
->>> >>
->>> >> - We have the sk_wmem_alloc check in both tun/macvtap to do the same work
->>> >> - This max pending check were almost useless since it was one done when there's
->>> >>   no new buffers coming from guest. Guest can easily exceeds the limitation.
->>> >> - We've already check upend_idx != done_idx and switch to non zerocopy then. So
->>> >>   even if all vq->heads were used, we can still does the packet transmission.
->> > We can but performance will suffer.
-> The check were in fact only done when no new buffers submitted from
-> guest. So if guest keep sending, the check won't be done.
->
-> If we really want to do this, we should do it unconditionally. Anyway, I
-> will do test to see the result.
+On Thu, Aug 22, 2013 at 10:47:28PM +0100, Zoltan Kiss wrote:
+> Ftrace is currently not able to detect when SWIOTLB has to do double buffering
+> under Xen. You can only see it indirectly in function_graph, when
+> xen_swiotlb_map_page() doesn't stop after range_straddles_page_boundary(), but
+> calls spinlock functions, memcpy() and xen_phys_to_bus() as well. This patch
+> introduces the swiotlb-xen:bounced event, which also prints out the following
+> informations to help you find out why bouncing happened:
+> 
+> dev_name: 0000:08:00.0 dma_mask=ffffffffffffffff dev_addr=9149f000 size=32768
+> swiotlb_force=0
+> 
+> If (dev_addr + size + 1) > dma_mask, the buffer is out of the device's DMA
+> range. If swiotlb_force == 1, you should really change the kernel parameters.
+> Otherwise, the buffer is not contiguous in mfn space.
 
-There's a bug in PATCH 5/6, the check:
-
-nvq->upend_idx != nvq->done_idx
-
-makes the zerocopy always been disabled since we initialize both
-upend_idx and done_idx to zero. So I change it to:
-
-(nvq->upend_idx + 1) % UIO_MAXIOV != nvq->done_idx.
-
-With this change on top, I didn't see performance difference w/ and w/o
-this patch.
+Could this be in the lib/swiotlb.c instead?
+> 
+> Signed-off-by: Zoltan Kiss <zoltan.kiss@citrix.com>
+> ---
+>  drivers/xen/swiotlb-xen.c          |    7 ++++++
+>  include/trace/events/swiotlb-xen.h |   46 ++++++++++++++++++++++++++++++++++++
+>  2 files changed, 53 insertions(+)
+>  create mode 100644 include/trace/events/swiotlb-xen.h
+> 
+> diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
+> index aadffcf..f08440d 100644
+> --- a/drivers/xen/swiotlb-xen.c
+> +++ b/drivers/xen/swiotlb-xen.c
+> @@ -42,6 +42,10 @@
+>  #include <xen/page.h>
+>  #include <xen/xen-ops.h>
+>  #include <xen/hvc-console.h>
+> +
+> +#define CREATE_TRACE_POINTS
+> +#include <trace/events/swiotlb-xen.h>
+> +
+>  /*
+>   * Used to do a quick range check in swiotlb_tbl_unmap_single and
+>   * swiotlb_tbl_sync_single_*, to see if the memory was in fact allocated by this
+> @@ -358,6 +362,9 @@ dma_addr_t xen_swiotlb_map_page(struct device *dev, struct page *page,
+>  	/*
+>  	 * Oh well, have to allocate and map a bounce buffer.
+>  	 */
+> +
+> +	trace_bounced(dev, dev_addr, size, swiotlb_force);
+> +
+>  	map = swiotlb_tbl_map_single(dev, start_dma_addr, phys, size, dir);
+>  	if (map == SWIOTLB_MAP_ERROR)
+>  		return DMA_ERROR_CODE;
+> diff --git a/include/trace/events/swiotlb-xen.h b/include/trace/events/swiotlb-xen.h
+> new file mode 100644
+> index 0000000..cbe2dca
+> --- /dev/null
+> +++ b/include/trace/events/swiotlb-xen.h
+> @@ -0,0 +1,46 @@
+> +#undef TRACE_SYSTEM
+> +#define TRACE_SYSTEM swiotlb-xen
+> +
+> +#if !defined(_TRACE_SWIOTLBXEN_H) || defined(TRACE_HEADER_MULTI_READ)
+> +#define _TRACE_SWIOTLBXEN_H
+> +
+> +#include <linux/tracepoint.h>
+> +
+> +TRACE_EVENT(bounced,
+> +
+> +	TP_PROTO(struct device *dev,
+> +		 dma_addr_t dev_addr,
+> +		 size_t size,
+> +		 int swiotlb_force),
+> +
+> +	TP_ARGS(dev, dev_addr, size, swiotlb_force),
+> +
+> +	TP_STRUCT__entry(
+> +		__string(	dev_name,	dev_name(dev)	)
+> +		__field(	u64,	dma_mask		)
+> +		__field(	dma_addr_t,	dev_addr	)
+> +		__field(	size_t,	size			)
+> +		__field(	int,	swiotlb_force		)
+> +	),
+> +
+> +	TP_fast_assign(
+> +		__assign_str(dev_name, dev_name(dev));
+> +		__entry->dma_mask = (dev->dma_mask ? *dev->dma_mask : 0);
+> +		__entry->dev_addr = dev_addr;
+> +		__entry->size = size;
+> +		__entry->swiotlb_force = swiotlb_force;
+> +	),
+> +
+> +	TP_printk("dev_name: %s dma_mask=%llx dev_addr=%llx "
+> +		"size=%zu swiotlb_force=%x",
+> +		__get_str(dev_name),
+> +		__entry->dma_mask,
+> +		(unsigned long long)__entry->dev_addr,
+> +		__entry->size,
+> +		__entry->swiotlb_force )
+> +);
+> +
+> +#endif /*  _TRACE_IRQ_H */
+> +
+> +/* This part must be outside protection */
+> +#include <trace/define_trace.h>
+> -- 
+> 1.7.9.5
+> 
