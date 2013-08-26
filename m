@@ -1,16 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 6/6] vhost_net: remove the max pending check
-Date: Mon, 26 Aug 2013 15:00:31 +0800
-Message-ID: <521AFD0F.7050906@redhat.com>
-References: <1376630190-5912-1-git-send-email-jasowang@redhat.com>
-	<1376630190-5912-7-git-send-email-jasowang@redhat.com>
-	<20130816100225.GD21821@redhat.com> <5212D8F2.10307@redhat.com>
-	<52172395.9000400@redhat.com> <20130825115344.GB1829@redhat.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: [PATCH V13 0/4] Paravirtualized ticket spinlocks for KVM host
+Date: Mon, 26 Aug 2013 14:18:32 +0530
+Message-ID: <1377506916-26946-1-git-send-email-raghavendra.kt__3578.58853317357$1377506583$gmane$org@linux.vnet.ibm.com>
+References: <y>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130825115344.GB1829@redhat.com>
+In-Reply-To: <y>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,52 +17,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mingo@redhat.com, hpa@zytor.com, x86@kernel.org, gleb@redhat.com, pbonzini@redhat.com
+Cc: habanero@linux.vnet.ibm.com, jeremy@goop.org, drjones@redhat.com, kvm@vger.kernel.org, konrad.wilk@oracle.com, peterz@infradead.org, torvalds@linux-foundation.org, linux-doc@vger.kernel.org, ouyang@cs.pitt.edu, linux-kernel@vger.kernel.org, riel@redhat.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, andi@firstfloor.org, srivatsa.vaddagiri@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, avi.kivity@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/25/2013 07:53 PM, Michael S. Tsirkin wrote:
-> On Fri, Aug 23, 2013 at 04:55:49PM +0800, Jason Wang wrote:
->> On 08/20/2013 10:48 AM, Jason Wang wrote:
->>> On 08/16/2013 06:02 PM, Michael S. Tsirkin wrote:
->>>>> On Fri, Aug 16, 2013 at 01:16:30PM +0800, Jason Wang wrote:
->>>>>>> We used to limit the max pending DMAs to prevent guest from pinning too many
->>>>>>> pages. But this could be removed since:
->>>>>>>
->>>>>>> - We have the sk_wmem_alloc check in both tun/macvtap to do the same work
->>>>>>> - This max pending check were almost useless since it was one done when there's
->>>>>>>   no new buffers coming from guest. Guest can easily exceeds the limitation.
->>>>>>> - We've already check upend_idx != done_idx and switch to non zerocopy then. So
->>>>>>>   even if all vq->heads were used, we can still does the packet transmission.
->>>>> We can but performance will suffer.
->>> The check were in fact only done when no new buffers submitted from
->>> guest. So if guest keep sending, the check won't be done.
->>>
->>> If we really want to do this, we should do it unconditionally. Anyway, I
->>> will do test to see the result.
->> There's a bug in PATCH 5/6, the check:
->>
->> nvq->upend_idx != nvq->done_idx
->>
->> makes the zerocopy always been disabled since we initialize both
->> upend_idx and done_idx to zero. So I change it to:
->>
->> (nvq->upend_idx + 1) % UIO_MAXIOV != nvq->done_idx.
-> But what I would really like to try is limit ubuf_info to VHOST_MAX_PEND.
-> I think this has a chance to improve performance since
-> we'll be using less cache.
 
-Maybe, but it in fact decrease the vq size to VHOST_MAX_PEND.
-> Of course this means we must fix the code to really never submit
-> more than VHOST_MAX_PEND requests.
->
-> Want to try?
+ This series forms the kvm host part of paravirtual spinlock
+ based against kvm tree.
 
-Ok, sure.
->> With this change on top, I didn't see performance difference w/ and w/o
->> this patch.
-> Did you try small message sizes btw (like 1K)? Or just netperf
-> default of 64K?
->
+ Please refer to https://lkml.org/lkml/2013/8/9/265 for
+ kvm guest and Xen, x86 part merged to -tip spinlocks.
 
-I just test multiple sessions of TCP_RR. Will test TCP_STREAM also.
+ Please note that:
+ kvm uapi: Add KICK_CPU and PV_UNHALT definition to uapi is a common patch
+ for both guest and host.
+
+ Changes since V12:
+  fold the patch 3 into patch 2 for bisection. (Eric Northup)
+
+Raghavendra K T (3):
+  kvm uapi: Add KICK_CPU and PV_UNHALT definition to uapi
+  kvm hypervisor: Simplify kvm_for_each_vcpu with
+    kvm_irq_delivery_to_apic
+  Documentation/kvm : Add documentation on Hypercalls and features used
+    for PV spinlock
+
+Srivatsa Vaddagiri (1):
+  kvm hypervisor : Add a hypercall to KVM hypervisor to support
+    pv-ticketlocks
+
+ Documentation/virtual/kvm/cpuid.txt      |  4 ++++
+ Documentation/virtual/kvm/hypercalls.txt | 14 ++++++++++++++
+ arch/x86/include/asm/kvm_host.h          |  5 +++++
+ arch/x86/include/uapi/asm/kvm_para.h     |  1 +
+ arch/x86/kvm/cpuid.c                     |  3 ++-
+ arch/x86/kvm/lapic.c                     |  5 ++++-
+ arch/x86/kvm/x86.c                       | 31 ++++++++++++++++++++++++++++++-
+ include/uapi/linux/kvm_para.h            |  1 +
+ 8 files changed, 61 insertions(+), 3 deletions(-)
+
+-- 
+1.7.11.7
