@@ -1,8 +1,8 @@
 From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: [PATCH V13 3/4] kvm hypervisor: Simplify kvm_for_each_vcpu with
-	kvm_irq_delivery_to_apic
-Date: Mon, 26 Aug 2013 14:18:35 +0530
-Message-ID: <1377506916-26946-4-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+Subject: [PATCH V13 1/4] kvm uapi: Add KICK_CPU and PV_UNHALT definition to
+	uapi
+Date: Mon, 26 Aug 2013 14:18:33 +0530
+Message-ID: <1377506916-26946-2-git-send-email-raghavendra.kt__34020.584022119$1377506646$gmane$org@linux.vnet.ibm.com>
 References: <y>
 	<1377506916-26946-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 Mime-Version: 1.0
@@ -23,72 +23,40 @@ To: mingo@redhat.com, hpa@zytor.com, x86@kernel.org, gleb@redhat.com, pbonzini@r
 Cc: habanero@linux.vnet.ibm.com, jeremy@goop.org, drjones@redhat.com, kvm@vger.kernel.org, konrad.wilk@oracle.com, peterz@infradead.org, torvalds@linux-foundation.org, linux-doc@vger.kernel.org, ouyang@cs.pitt.edu, linux-kernel@vger.kernel.org, riel@redhat.com, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, andi@firstfloor.org, srivatsa.vaddagiri@gmail.com, tglx@linutronix.de, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, avi.kivity@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Note that we are using APIC_DM_REMRD which has reserved usage.
-In future if APIC_DM_REMRD usage is standardized, then we should
-find some other way or go back to old method.
+this is needed by both guest and host.
 
-Suggested-by: Gleb Natapov <gleb@redhat.com>
+Originally-from: Srivatsa Vaddagiri <vatsa@linux.vnet.ibm.com>
 Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Acked-by: Gleb Natapov <gleb@redhat.com>
 Acked-by: Ingo Molnar <mingo@kernel.org>
 ---
- arch/x86/kvm/lapic.c |  5 ++++-
- arch/x86/kvm/x86.c   | 25 ++++++-------------------
- 2 files changed, 10 insertions(+), 20 deletions(-)
+ arch/x86/include/uapi/asm/kvm_para.h | 1 +
+ include/uapi/linux/kvm_para.h        | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index afc1124..48c13c9 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -706,7 +706,10 @@ out:
- 		break;
+diff --git a/arch/x86/include/uapi/asm/kvm_para.h b/arch/x86/include/uapi/asm/kvm_para.h
+index 06fdbd9..94dc8ca 100644
+--- a/arch/x86/include/uapi/asm/kvm_para.h
++++ b/arch/x86/include/uapi/asm/kvm_para.h
+@@ -23,6 +23,7 @@
+ #define KVM_FEATURE_ASYNC_PF		4
+ #define KVM_FEATURE_STEAL_TIME		5
+ #define KVM_FEATURE_PV_EOI		6
++#define KVM_FEATURE_PV_UNHALT		7
  
- 	case APIC_DM_REMRD:
--		apic_debug("Ignoring delivery mode 3\n");
-+		result = 1;
-+		vcpu->arch.pv.pv_unhalted = 1;
-+		kvm_make_request(KVM_REQ_EVENT, vcpu);
-+		kvm_vcpu_kick(vcpu);
- 		break;
+ /* The last 8 bits are used to indicate how to interpret the flags field
+  * in pvclock structure. If no bits are set, all flags are ignored.
+diff --git a/include/uapi/linux/kvm_para.h b/include/uapi/linux/kvm_para.h
+index cea2c5c..2841f86 100644
+--- a/include/uapi/linux/kvm_para.h
++++ b/include/uapi/linux/kvm_para.h
+@@ -19,6 +19,7 @@
+ #define KVM_HC_MMU_OP			2
+ #define KVM_HC_FEATURES			3
+ #define KVM_HC_PPC_MAP_MAGIC_PAGE	4
++#define KVM_HC_KICK_CPU			5
  
- 	case APIC_DM_SMI:
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 1e73dab..640d112 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -5502,27 +5502,14 @@ int kvm_hv_hypercall(struct kvm_vcpu *vcpu)
-  */
- static void kvm_pv_kick_cpu_op(struct kvm *kvm, unsigned long flags, int apicid)
- {
--	struct kvm_vcpu *vcpu = NULL;
--	int i;
-+	struct kvm_lapic_irq lapic_irq;
- 
--	kvm_for_each_vcpu(i, vcpu, kvm) {
--		if (!kvm_apic_present(vcpu))
--			continue;
-+	lapic_irq.shorthand = 0;
-+	lapic_irq.dest_mode = 0;
-+	lapic_irq.dest_id = apicid;
- 
--		if (kvm_apic_match_dest(vcpu, 0, 0, apicid, 0))
--			break;
--	}
--	if (vcpu) {
--		/*
--		 * Setting unhalt flag here can result in spurious runnable
--		 * state when unhalt reset does not happen in vcpu_block.
--		 * But that is harmless since that should soon result in halt.
--		 */
--		vcpu->arch.pv.pv_unhalted = true;
--		/* We need everybody see unhalt before vcpu unblocks */
--		smp_wmb();
--		kvm_vcpu_kick(vcpu);
--	}
-+	lapic_irq.delivery_mode = APIC_DM_REMRD;
-+	kvm_irq_delivery_to_apic(kvm, 0, &lapic_irq, NULL);
- }
- 
- int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
+ /*
+  * hypercalls use architecture specific
 -- 
 1.7.11.7
