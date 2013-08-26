@@ -1,15 +1,16 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH V13 0/4] Paravirtualized ticket spinlocks for KVM host
-Date: Mon, 26 Aug 2013 15:58:49 +0530
-Message-ID: <521B2DE1.4060306@linux.vnet.ibm.com>
-References: <y>
-	<1377506916-26946-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
-	<20130826100401.GZ8218@redhat.com>
+From: Kent Overstreet <kmo@daterainc.com>
+Subject: Re: [PATCH-v3 1/4] idr: Percpu ida
+Date: Mon, 26 Aug 2013 13:14:37 -0700
+Message-ID: <20130826201437.GA13621__41789.478591136$1377548088$gmane$org@kmo-pixel>
+References: <1376694549-20609-1-git-send-email-nab@linux-iscsi.org>
+	<1376694549-20609-2-git-send-email-nab@linux-iscsi.org>
+	<20130820143157.f91bf59d16352989b54e431e@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130826100401.GZ8218@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20130820143157.f91bf59d16352989b54e431e@linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +20,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Gleb Natapov <gleb@redhat.com>
-Cc: jeremy@goop.org, kvm@vger.kernel.org, linux-doc@vger.kernel.org, peterz@infradead.org, riel@redhat.com, virtualization@lists.linux-foundation.org, andi@firstfloor.org, hpa@zytor.com, x86@kernel.org, mingo@redhat.com, habanero@linux.vnet.ibm.com, drjones@redhat.com, konrad.wilk@oracle.com, ouyang@cs.pitt.edu, avi.kivity@gmail.com, tglx@linutronix.de, chegu_vinod@hp.com, linux-kernel@vger.kernel.org, srivatsa.vaddagiri@gmail.com, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Andi Kleen <andi@firstfloor.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lkml <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Christoph Lameter <cl@gentwo.org>, Oleg Nesterov <oleg@redhat.com>, Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux-foundation.org>, Ingo Molnar <mingo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/26/2013 03:34 PM, Gleb Natapov wrote:
-> On Mon, Aug 26, 2013 at 02:18:32PM +0530, Raghavendra K T wrote:
->>
->>   This series forms the kvm host part of paravirtual spinlock
->>   based against kvm tree.
->>
->>   Please refer to https://lkml.org/lkml/2013/8/9/265 for
->>   kvm guest and Xen, x86 part merged to -tip spinlocks.
->>
->>   Please note that:
->>   kvm uapi: Add KICK_CPU and PV_UNHALT definition to uapi is a common patch
->>   for both guest and host.
->>
-> Thanks, applied. The patchset is not against kvm.git queue though, so I
-> had to fix one minor conflict manually.
+On Tue, Aug 20, 2013 at 02:31:57PM -0700, Andrew Morton wrote:
+> On Fri, 16 Aug 2013 23:09:06 +0000 "Nicholas A. Bellinger" <nab@linux-iscsi.org> wrote:
+> 
+> > From: Kent Overstreet <kmo@daterainc.com>
+> > 
+> > Percpu frontend for allocating ids. With percpu allocation (that works),
+> > it's impossible to guarantee it will always be possible to allocate all
+> > nr_tags - typically, some will be stuck on a remote percpu freelist
+> > where the current job can't get to them.
+> > 
+> > We do guarantee that it will always be possible to allocate at least
+> > (nr_tags / 2) tags - this is done by keeping track of which and how many
+> > cpus have tags on their percpu freelists. On allocation failure if
+> > enough cpus have tags that there could potentially be (nr_tags / 2) tags
+> > stuck on remote percpu freelists, we then pick a remote cpu at random to
+> > steal from.
+> > 
+> > Note that there's no cpu hotplug notifier - we don't care, because
+> > steal_tags() will eventually get the down cpu's tags. We _could_ satisfy
+> > more allocations if we had a notifier - but we'll still meet our
+> > guarantees and it's absolutely not a correctness issue, so I don't think
+> > it's worth the extra code.
+> >
+> > ...
+> >
+> >  include/linux/idr.h |   53 +++++++++
+> >  lib/idr.c           |  316 +++++++++++++++++++++++++++++++++++++++++++++++++--
+> 
+> I don't think this should be in idr.[ch] at all.  It has no
+> relationship with the existing code.  Apart from duplicating its
+> functionality :(
 
-Thank you Gleb.
+Well, in the full patch series it does make use of the non-percpu ida.
+I'm still hoping to get the ida/idr rewrites in.
