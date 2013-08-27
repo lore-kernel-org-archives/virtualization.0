@@ -1,16 +1,11 @@
-From: Kent Overstreet <kmo@daterainc.com>
-Subject: Re: [PATCH-v3 1/4] idr: Percpu ida
-Date: Mon, 26 Aug 2013 13:23:54 -0700
-Message-ID: <20130826202354.GB13621__8699.52631551332$1377548638$gmane$org@kmo-pixel>
-References: <1376694549-20609-1-git-send-email-nab@linux-iscsi.org>
-	<1376694549-20609-2-git-send-email-nab@linux-iscsi.org>
-	<00000140a2203fca-f2e76962-a285-4e93-b200-bb05d6501f24-000000@email.amazonses.com>
+From: Thomas Huth <thuth@linux.vnet.ibm.com>
+Subject: [PATCH] virtio-net: Set RXCSUM feature if GUEST_CSUM is available
+Date: Tue, 27 Aug 2013 17:09:02 +0200
+Message-ID: <1377616142-29590-1-git-send-email-thuth__13657.0874405608$1377616166$gmane$org@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <00000140a2203fca-f2e76962-a285-4e93-b200-bb05d6501f24-000000@email.amazonses.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,61 +15,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Christoph Lameter <cl@linux.com>
-Cc: Jens Axboe <axboe@kernel.dk>, Andi Kleen <andi@firstfloor.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lkml <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Oleg Nesterov <oleg@redhat.com>, Tejun Heo <tj@kernel.org>, Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Aug 21, 2013 at 06:25:58PM +0000, Christoph Lameter wrote:
-> On Fri, 16 Aug 2013, Nicholas A. Bellinger wrote:
-> 
-> > +	spinlock_t			lock;
-> 
-> Remove the spinlock.
+If the VIRTIO_NET_F_GUEST_CSUM virtio feature is available, the guest
+does not have to calculate the checksums on all received packets. This
+is pretty much the same feature as RX checksum offloading on real
+network cards, so the virtio-net driver should report this by setting
+the NETIF_F_RXCSUM flag. When the user now runs "ethtool -k", he or she
+can see whether the virtio-net interface has to calculate RX checksums
+or not.
 
-As Andrew noted, the spinlock is needed because of tag stealing. (You
-don't think I'd stick a spinlock on a percpu data structure without a
-real reason, would you?)
+Signed-off-by: Thomas Huth <thuth@linux.vnet.ibm.com>
+---
+ drivers/net/virtio_net.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-> > +	unsigned			nr_free;
-> > +	unsigned			freelist[];
-> > +};
-> > +
-> > +static inline void move_tags(unsigned *dst, unsigned *dst_nr,
-> > +			     unsigned *src, unsigned *src_nr,
-> > +			     unsigned nr)
-> > +{
-> > +	*src_nr -= nr;
-> > +	memcpy(dst + *dst_nr, src + *src_nr, sizeof(unsigned) * nr);
-> > +	*dst_nr += nr;
-> > +}
-> > +
-> 
-> > +static inline unsigned alloc_local_tag(struct percpu_ida *pool,
-> > +				       struct percpu_ida_cpu *tags)
-> 
-> Pass the __percpu offset and not the tags pointer.
-
-Why? It just changes where the this_cpu_ptr
-
-> 
-> > +{
-> > +	int tag = -ENOSPC;
-> > +
-> > +	spin_lock(&tags->lock);
-> 
-> Interupts are already disabled. Drop the spinlock.
-> 
-> > +	if (tags->nr_free)
-> > +		tag = tags->freelist[--tags->nr_free];
-> 
-> You can keep this or avoid address calculation through segment prefixes.
-> F.e.
-> 
-> if (__this_cpu_read(tags->nrfree) {
-> 	int n = __this_cpu_dec_return(tags->nr_free);
-> 	tag =  __this_cpu_read(tags->freelist[n]);
-> }
-
-Can you explain what the point of that change would be? It sounds like
-it's preferable to do it that way and avoid this_cpu_ptr() for some
-reason, but you're not explaining why.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index f216002..defec2b 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1538,6 +1538,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 			dev->features |= dev->hw_features & (NETIF_F_ALL_TSO|NETIF_F_UFO);
+ 		/* (!csum && gso) case will be fixed by register_netdev() */
+ 	}
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_CSUM))
++		dev->features |= NETIF_F_RXCSUM;
+ 
+ 	dev->vlan_features = dev->features;
+ 
+-- 
+1.8.1.4
