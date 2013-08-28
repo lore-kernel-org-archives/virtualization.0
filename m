@@ -1,18 +1,18 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH-v3 1/4] idr: Percpu ida
-Date: Wed, 28 Aug 2013 13:50:42 -0700
-Message-ID: <20130828135042.9e460b27699b52bb4eb53d9e@linux-foundation.org>
+From: Kent Overstreet <kmo@daterainc.com>
+Subject: Re: [PATCH] percpu ida: Switch to cpumask_t, add some comments
+Date: Wed, 28 Aug 2013 14:00:10 -0700
+Message-ID: <20130828210010.GD1357@kmo-pixel>
 References: <1376694549-20609-1-git-send-email-nab@linux-iscsi.org>
 	<1376694549-20609-2-git-send-email-nab@linux-iscsi.org>
 	<20130820143157.f91bf59d16352989b54e431e@linux-foundation.org>
-	<20130828195317.GE8032@kmo-pixel>
-	<20130828132332.6d5263ee9622235ae0fcc615@linux-foundation.org>
-	<20130828204454.GC1357@kmo-pixel>
+	<20130828195517.GF8032@kmo-pixel>
+	<20130828132550.d0ce4d3a4d40ee07e7e8a1c1@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130828204454.GC1357@kmo-pixel>
+Content-Disposition: inline
+In-Reply-To: <20130828132550.d0ce4d3a4d40ee07e7e8a1c1@linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,32 +22,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Kent Overstreet <kmo@daterainc.com>
+To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Jens Axboe <axboe@kernel.dk>, Andi Kleen <andi@firstfloor.org>, kvm-devel <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, lkml <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Christoph Lameter <cl@gentwo.org>, Oleg Nesterov <oleg@redhat.com>, Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux-foundation.org>, Ingo Molnar <mingo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 28 Aug 2013 13:44:54 -0700 Kent Overstreet <kmo@daterainc.com> wrote:
-
-> > > > What guarantees that this wait will terminate?
-> > > 
-> > > It seems fairly clear to me from the break statement a couple lines up;
-> > > if we were passed __GFP_WAIT we terminate iff we succesfully allocated a
-> > > tag. If we weren't passed __GFP_WAIT we never actually sleep.
-> > 
-> > OK ;)  Let me rephrase.  What guarantees that a tag will become available?
-> > 
-> > If what we have here is an open-coded __GFP_NOFAIL then that is
-> > potentially problematic.
+On Wed, Aug 28, 2013 at 01:25:50PM -0700, Andrew Morton wrote:
+> On Wed, 28 Aug 2013 12:55:17 -0700 Kent Overstreet <kmo@daterainc.com> wrote:
 > 
-> It's the same semantics as a mempool, really - it'll succeed when a tag
-> gets freed.
+> > Fixup patch, addressing Andrew's review feedback:
+> 
+> Looks reasonable.
+> 
+> >  lib/idr.c           | 38 +++++++++++++++++++++-----------------
+> 
+> I still don't think it should be in this file.
+> 
+> You say that some as-yet-unmerged patches will tie the new code into
+> the old ida code.  But will it do it in a manner which requires that
+> the two reside in the same file?
 
-OK, that's reasonable if the code is being used to generate IO tags -
-we expect the in-flight tags to eventually be returned.
+Not require, no - but it's just intimate enough with my ida rewrite that
+I think it makes sense; it makes some use of stuff that should be
+internal to the ida code.
 
-But if a client of this code is using the allocator for something
-totally different, there is no guarantee that the act of waiting will
-result in any tags being returned.
+Mostly just sharing the lock though, since I got rid of the ida
+interfaces that don't do locking, but percpu ida needs a lock that also
+covers what ida needs.
 
-(These are core design principles/constraints which should be
-explicitly documented in a place where future readers will see them!)
+It also makes use of a ganged allocation interface, but there's no real
+reason ida can't expose that, it's just unlikely to be useful to
+anything but percpu ida.
+
+The other reason I think it makes sense to live in idr.c is more for
+users of the code; as you pointed out as far as the user's perspective
+percpu ida isn't doing anything fundamentally different from ida, so I
+think it makes sense for the code to live in the same place as a
+kindness to future kernel developers who are trying to find their way
+around the various library code.
