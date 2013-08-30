@@ -1,15 +1,15 @@
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Subject: Re: [PATCH V2 4/6] vhost_net: determine whether or not to use zerocopy
-	at one time
-Date: Fri, 30 Aug 2013 22:35:50 +0400
-Message-ID: <5220E606.8010008@cogentembedded.com>
+From: Ben Hutchings <bhutchings@solarflare.com>
+Subject: Re: [PATCH V2 5/6] vhost_net: poll vhost queue after marking DMA
+	is done
+Date: Fri, 30 Aug 2013 17:44:33 +0100
+Message-ID: <1377881073.2065.10.camel@bwh-desktop.uk.level5networks.com>
 References: <1377836962-49780-1-git-send-email-jasowang@redhat.com>
-	<1377836962-49780-5-git-send-email-jasowang@redhat.com>
+	<1377836962-49780-6-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1377836962-49780-5-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1377836962-49780-6-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,53 +23,50 @@ To: Jason Wang <jasowang@redhat.com>
 Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello.
+On Fri, 2013-08-30 at 12:29 +0800, Jason Wang wrote:
+> We used to poll vhost queue before making DMA is done, this is racy if vhost
+> thread were waked up before marking DMA is done which can result the signal to
+> be missed. Fix this by always poll the vhost thread before DMA is done.
 
-On 08/30/2013 08:29 AM, Jason Wang wrote:
+Does this bug only exist in net-next or is it older?  Should the fix go
+to net and stable branches?
 
-> Currently, even if the packet length is smaller than VHOST_GOODCOPY_LEN, if
-> upend_idx != done_idx we still set zcopy_used to true and rollback this choice
-> later. This could be avoided by determine zerocopy once by checking all
-> conditions at one time before.
+Ben.
 
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
->   drivers/vhost/net.c |   46 +++++++++++++++++++---------------------------
->   1 files changed, 19 insertions(+), 27 deletions(-)
-
+>  drivers/vhost/net.c |    9 +++++----
+>  1 files changed, 5 insertions(+), 4 deletions(-)
+> 
 > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 8a6dd0d..ff60c2a 100644
+> index ff60c2a..d09c17c 100644
 > --- a/drivers/vhost/net.c
 > +++ b/drivers/vhost/net.c
-> @@ -404,43 +404,35 @@ static void handle_tx(struct vhost_net *net)
->   			       iov_length(nvq->hdr, s), hdr_size);
->   			break;
->   		}
-> -		zcopy_used = zcopy && (len >= VHOST_GOODCOPY_LEN ||
-> -				       nvq->upend_idx != nvq->done_idx);
+> @@ -308,6 +308,11 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+>  	struct vhost_virtqueue *vq = ubufs->vq;
+>  	int cnt = atomic_read(&ubufs->kref.refcount);
+>  
+> +	/* set len to mark this desc buffers done DMA */
+> +	vq->heads[ubuf->desc].len = success ?
+> +		VHOST_DMA_DONE_LEN : VHOST_DMA_FAILED_LEN;
+> +	vhost_net_ubuf_put(ubufs);
 > +
-> +		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
-> +			&& (nvq->upend_idx + 1) % UIO_MAXIOV != nvq->done_idx
-> +			&& vhost_net_tx_select_zcopy(net);
+>  	/*
+>  	 * Trigger polling thread if guest stopped submitting new buffers:
+>  	 * in this case, the refcount after decrement will eventually reach 1
+> @@ -318,10 +323,6 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+>  	 */
+>  	if (cnt <= 2 || !(cnt % 16))
+>  		vhost_poll_queue(&vq->poll);
+> -	/* set len to mark this desc buffers done DMA */
+> -	vq->heads[ubuf->desc].len = success ?
+> -		VHOST_DMA_DONE_LEN : VHOST_DMA_FAILED_LEN;
+> -	vhost_net_ubuf_put(ubufs);
+>  }
+>  
+>  /* Expects to be always run from workqueue - which acts as
 
-    Could you leave && on a first of two lines, matching the previous style?
-
->
->   		/* use msg_control to pass vhost zerocopy ubuf info to skb */
->   		if (zcopy_used) {
-> +			struct ubuf_info *ubuf;
-> +			ubuf = nvq->ubuf_info + nvq->upend_idx;
-> +
->   			vq->heads[nvq->upend_idx].id = head;
-[...]
-> +			vq->heads[nvq->upend_idx].len = VHOST_DMA_IN_PROGRESS;
-> +			ubuf->callback = vhost_zerocopy_callback;
-> +			ubuf->ctx = nvq->ubufs;
-> +			ubuf->desc = nvq->upend_idx;
-> +			msg.msg_control = ubuf;
-> +			msg.msg_controllen = sizeof(ubuf);
-
-    'sizeof(ubuf)' where 'ubuf' is a pointer? Are you sure it shouldn't be 
-'sizeof(*ubuf)'?
-
-WBR, Sergei
+-- 
+Ben Hutchings, Staff Engineer, Solarflare
+Not speaking for my employer; that's the marketing department's job.
+They asked us to note that Solarflare product names are trademarked.
