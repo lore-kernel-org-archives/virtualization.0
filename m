@@ -1,15 +1,21 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
-Subject: Re: [PATCH V2 5/6] vhost_net: poll vhost queue after marking DMA
-	is done
-Date: Fri, 30 Aug 2013 17:44:33 +0100
-Message-ID: <1377881073.2065.10.camel@bwh-desktop.uk.level5networks.com>
-References: <1377836962-49780-1-git-send-email-jasowang@redhat.com>
-	<1377836962-49780-6-git-send-email-jasowang@redhat.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [PATCH] percpu ida: Switch to cpumask_t, add some comments
+Date: Fri, 30 Aug 2013 20:10:58 -0700
+Message-ID: <1377918658.32763.311.camel@haakon3.risingtidesystems.com>
+References: <1376694549-20609-1-git-send-email-nab@linux-iscsi.org>
+	<1376694549-20609-2-git-send-email-nab@linux-iscsi.org>
+	<20130820143157.f91bf59d16352989b54e431e@linux-foundation.org>
+	<20130828195517.GF8032@kmo-pixel>
+	<20130828132550.d0ce4d3a4d40ee07e7e8a1c1@linux-foundation.org>
+	<20130828210010.GD1357@kmo-pixel>
+	<20130828141019.25aff643c87e43ffafdbcb7e@linux-foundation.org>
+	<20130828212358.GF1357@kmo-pixel>
+	<20130828143657.9366592fe5eb6f0b09feb732@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1377836962-49780-6-git-send-email-jasowang@redhat.com>
+In-Reply-To: <20130828143657.9366592fe5eb6f0b09feb732@linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,54 +25,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Andi Kleen <andi@firstfloor.org>, kvm-devel <kvm@vger.kernel.org>, "Michael
+	S. Tsirkin" <mst@redhat.com>, lkml <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Kent Overstreet <kmo@daterainc.com>, target-devel <target-devel@vger.kernel.org>, Christoph Lameter <cl@gentwo.org>, Oleg Nesterov <oleg@redhat.com>, Tejun Heo <tj@kernel.org>, Christoph Lameter <cl@linux-foundation.org>, Ingo Molnar <mingo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2013-08-30 at 12:29 +0800, Jason Wang wrote:
-> We used to poll vhost queue before making DMA is done, this is racy if vhost
-> thread were waked up before marking DMA is done which can result the signal to
-> be missed. Fix this by always poll the vhost thread before DMA is done.
-
-Does this bug only exist in net-next or is it older?  Should the fix go
-to net and stable branches?
-
-Ben.
-
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/net.c |    9 +++++----
->  1 files changed, 5 insertions(+), 4 deletions(-)
+On Wed, 2013-08-28 at 14:36 -0700, Andrew Morton wrote:
+> On Wed, 28 Aug 2013 14:23:58 -0700 Kent Overstreet <kmo@daterainc.com> wrote:
 > 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index ff60c2a..d09c17c 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -308,6 +308,11 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
->  	struct vhost_virtqueue *vq = ubufs->vq;
->  	int cnt = atomic_read(&ubufs->kref.refcount);
->  
-> +	/* set len to mark this desc buffers done DMA */
-> +	vq->heads[ubuf->desc].len = success ?
-> +		VHOST_DMA_DONE_LEN : VHOST_DMA_FAILED_LEN;
-> +	vhost_net_ubuf_put(ubufs);
-> +
->  	/*
->  	 * Trigger polling thread if guest stopped submitting new buffers:
->  	 * in this case, the refcount after decrement will eventually reach 1
-> @@ -318,10 +323,6 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
->  	 */
->  	if (cnt <= 2 || !(cnt % 16))
->  		vhost_poll_queue(&vq->poll);
-> -	/* set len to mark this desc buffers done DMA */
-> -	vq->heads[ubuf->desc].len = success ?
-> -		VHOST_DMA_DONE_LEN : VHOST_DMA_FAILED_LEN;
-> -	vhost_net_ubuf_put(ubufs);
->  }
->  
->  /* Expects to be always run from workqueue - which acts as
+> > > I found things to be quite the opposite - it took 5 minutes of staring,
+> > > head-scratching, double-checking and penny-dropping before I was
+> > > confident that the newly-added code actually has nothing at all to do
+> > > with the current code.  Putting it in the same file was misleading, and
+> > > I got misled.
+> > 
+> > Ok... and I could see how the fact that it currently _doesn't_ have
+> > anything to do with the existing code would be confusing...
+> > 
+> > Do you think that if/when it's making use of the ida rewrite it'll be
+> > ok? Or would you still prefer to have it in a new file
+> 
+> I'm constitutionally reluctant to ever assume that any out-of-tree code
+> will be merged.  Maybe you'll get hit by a bus, and maybe the code
+> sucks ;)
+> 
+> Are you sure that the two things are so tangled together that they must
+> live in the same file?  If there's some nice layering between ida and
+> percpu_ida then perhaps such a physical separation would remain
+> appropriate?
+> 
+> > (and if so, any preference on the naming?)
+> 
+> percpu_ida.c?
 
--- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
+Hi Andrew,
+
+I've folded Kent's two patches from this thread into the -v4 commit, and
+moved the logic from idr.[c,h] to percpu_ida.[c,h] as per your above
+recommendation.
+
+The cpumask_t changes are working as expected thus far, and will be
+going out a -v5 series for you to review -> signoff shortly.
+
+Thank you,
+
+--nab
