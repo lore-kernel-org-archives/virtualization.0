@@ -1,16 +1,16 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2 4/6] vhost_net: determine whether or not to use zerocopy
-	at one time
-Date: Mon, 02 Sep 2013 11:15:14 +0800
-Message-ID: <522402C2.9000802@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V2 2/6] vhost_net: use vhost_add_used_and_signal_n() in
+	vhost_zerocopy_signal_used()
+Date: Mon, 2 Sep 2013 08:50:48 +0300
+Message-ID: <20130902055048.GA19838@redhat.com>
 References: <1377836962-49780-1-git-send-email-jasowang@redhat.com>
-	<1377836962-49780-5-git-send-email-jasowang@redhat.com>
-	<5220E606.8010008@cogentembedded.com>
+	<1377836962-49780-3-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5220E606.8010008@cogentembedded.com>
+Content-Disposition: inline
+In-Reply-To: <1377836962-49780-3-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,72 +20,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, mst@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08/31/2013 02:35 AM, Sergei Shtylyov wrote:
-> Hello.
->
-> On 08/30/2013 08:29 AM, Jason Wang wrote:
->
->> Currently, even if the packet length is smaller than
->> VHOST_GOODCOPY_LEN, if
->> upend_idx != done_idx we still set zcopy_used to true and rollback
->> this choice
->> later. This could be avoided by determine zerocopy once by checking all
->> conditions at one time before.
->
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
->> ---
->>   drivers/vhost/net.c |   46
->> +++++++++++++++++++---------------------------
->>   1 files changed, 19 insertions(+), 27 deletions(-)
->
->> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
->> index 8a6dd0d..ff60c2a 100644
->> --- a/drivers/vhost/net.c
->> +++ b/drivers/vhost/net.c
->> @@ -404,43 +404,35 @@ static void handle_tx(struct vhost_net *net)
->>                      iov_length(nvq->hdr, s), hdr_size);
->>               break;
->>           }
->> -        zcopy_used = zcopy && (len >= VHOST_GOODCOPY_LEN ||
->> -                       nvq->upend_idx != nvq->done_idx);
->> +
->> +        zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
->> +            && (nvq->upend_idx + 1) % UIO_MAXIOV != nvq->done_idx
->> +            && vhost_net_tx_select_zcopy(net);
->
->    Could you leave && on a first of two lines, matching the previous
-> style?
->
+On Fri, Aug 30, 2013 at 12:29:18PM +0800, Jason Wang wrote:
+> We tend to batch the used adding and signaling in vhost_zerocopy_callback()
+> which may result more than 100 used buffers to be updated in
+> vhost_zerocopy_signal_used() in some cases. So wwitch to use
 
-ok.
->>
->>           /* use msg_control to pass vhost zerocopy ubuf info to skb */
->>           if (zcopy_used) {
->> +            struct ubuf_info *ubuf;
->> +            ubuf = nvq->ubuf_info + nvq->upend_idx;
->> +
->>               vq->heads[nvq->upend_idx].id = head;
-> [...]
->> +            vq->heads[nvq->upend_idx].len = VHOST_DMA_IN_PROGRESS;
->> +            ubuf->callback = vhost_zerocopy_callback;
->> +            ubuf->ctx = nvq->ubufs;
->> +            ubuf->desc = nvq->upend_idx;
->> +            msg.msg_control = ubuf;
->> +            msg.msg_controllen = sizeof(ubuf);
->
->    'sizeof(ubuf)' where 'ubuf' is a pointer? Are you sure it shouldn't
-> be 'sizeof(*ubuf)'?
+switch
 
-Yes, pointer is sufficiet. Vhost allocate an arrays of ubuf and
-tun/macvtap just need a reference of it.
->
-> WBR, Sergei
->
+> vhost_add_used_and_signal_n() to avoid multiple calls to
+> vhost_add_used_and_signal(). Which means much more less times of used index
+> updating and memory barriers.
+
+pls put info on perf gain in commit log too
+
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/net.c |   13 ++++++++-----
+>  1 files changed, 8 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index 280ee66..8a6dd0d 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -281,7 +281,7 @@ static void vhost_zerocopy_signal_used(struct vhost_net *net,
+>  {
+>  	struct vhost_net_virtqueue *nvq =
+>  		container_of(vq, struct vhost_net_virtqueue, vq);
+> -	int i;
+> +	int i, add;
+>  	int j = 0;
+>  
+>  	for (i = nvq->done_idx; i != nvq->upend_idx; i = (i + 1) % UIO_MAXIOV) {
+> @@ -289,14 +289,17 @@ static void vhost_zerocopy_signal_used(struct vhost_net *net,
+>  			vhost_net_tx_err(net);
+>  		if (VHOST_DMA_IS_DONE(vq->heads[i].len)) {
+>  			vq->heads[i].len = VHOST_DMA_CLEAR_LEN;
+> -			vhost_add_used_and_signal(vq->dev, vq,
+> -						  vq->heads[i].id, 0);
+>  			++j;
+>  		} else
+>  			break;
+>  	}
+> -	if (j)
+> -		nvq->done_idx = i;
+> +	while (j) {
+> +		add = min(UIO_MAXIOV - nvq->done_idx, j);
+> +		vhost_add_used_and_signal_n(vq->dev, vq,
+> +					    &vq->heads[nvq->done_idx], add);
+> +		nvq->done_idx = (nvq->done_idx + add) % UIO_MAXIOV;
+> +		j -= add;
+> +	}
+>  }
+>  
+>  static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
 > -- 
-> To unsubscribe from this list: send the line "unsubscribe kvm" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 1.7.1
