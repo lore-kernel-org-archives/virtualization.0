@@ -1,18 +1,16 @@
-From: Sudeep Dutt <sudeep.dutt@intel.com>
-Subject: Re: [PATCH RESEND v3 3/7] Intel MIC Host Driver, card OS state
-	management.
-Date: Fri, 06 Sep 2013 15:00:23 -0700
-Message-ID: <1378504823.121061.10.camel__33060.8024065897$1378504870$gmane$org@localhost>
-References: <cover.1378423596.git.sudeep.dutt@intel.com>
-	<669a3a3bbfff577c73d05fb568a810cbbc3d5333.1378423596.git.sudeep.dutt@intel.com>
-	<20130906050157.GF28806@kroah.com>
-	<1378492863.107744.69.camel@localhost>
-	<20130906190446.GA7965@kroah.com>
+From: Dan Aloni <alonid@stratoscale.com>
+Subject: Re: [PATCH] drivers/vhost/scsi.c: avoid a 10-order allocation
+Date: Wed, 4 Sep 2013 12:27:04 +0300
+Message-ID: <20130904092703.GB12841__43085.4676095352$1378506946$gmane$org@gmail.com>
+References: <1376815736-21003-1-git-send-email-alonid@stratoscale.com>
+	<20130818091838.GB17111@redhat.com>
+	<20130904090201.GA31564@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130906190446.GA7965@kroah.com>
+Content-Disposition: inline
+In-Reply-To: <20130904090201.GA31564@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,59 +20,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Sudeep Dutt <sudeep.dutt@intel.com>, Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Rob Landley <rob@landley.net>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2013-09-06 at 12:04 -0700, Greg Kroah-Hartman wrote:
-> On Fri, Sep 06, 2013 at 11:41:03AM -0700, Sudeep Dutt wrote:
-> > On Thu, 2013-09-05 at 22:01 -0700, Greg Kroah-Hartman wrote:
-> > > On Thu, Sep 05, 2013 at 04:41:55PM -0700, Sudeep Dutt wrote:
-> > > > +What:		/sys/class/mic/mic(x)/firmware
-> > > > +Date:		August 2013
-> > > > +KernelVersion:	3.11
-> > > > +Contact:	Sudeep Dutt <sudeep.dutt@intel.com>
-> > > > +Description:
-> > > > +		When read, this sysfs entry provides the path name under
-> > > > +		/lib/firmware/ where the firmware image to be booted on the
-> > > > +		card can be found. The entry can be written to change the
-> > > > +		firmware image location under /lib/firmware/.
+On Wed, Sep 04, 2013 at 12:02:01PM +0300, Michael S. Tsirkin wrote:
+> On Sun, Aug 18, 2013 at 12:18:38PM +0300, Michael S. Tsirkin wrote:
+> > On Sun, Aug 18, 2013 at 11:48:56AM +0300, Dan Aloni wrote:
+> > > On 3.10.7 and x86_64, as a result of sizeof(struct vhost_scsi) being
+> > > 2152960 bytes the allocation failed once on my development machine.
 > > > 
-> > > I don't understand, is the path under the HOST device, or the Client
-> > > device's disk?  Why do you need to change the path on the HOST?  What's
-> > > wrong with the existing firmware path selection we have in the kernel?
+> > > Saw it would be prudent to split the bulk of it, which is the vqs array
+> > > into separately allocated parts. sizeof(struct vhost_virtqueue) is
+> > > currently 16816 bytes.
 > > > 
+> > > Signed-off-by: Dan Aloni <alonid@stratoscale.com>
 > > 
-> > The path is on the host. The card does not have a physical persistent
-> > disk device. Our customers like the flexibility of changing the card
-> > firmware/ramdisk contents and file names for individual MIC cards. This
-> > flexibility is not possible with a static set of firmware file names in
-> > the kernel for all cards.
+> > This extra indirection is likely to have measureable cost though.
 > > 
-> > Once the firmware/ramdisk path under /lib/firmware/ is set up via sysfs,
-> > card boot is initiated via the "state" sysfs entry. The host driver then
-> > obtains the contents of the firmware and ramdisk via the standard
-> > request_firmware(..) interface, copies the contents to card memory and
-> > interrupts the card BIOS to initiate boot.
+> > net core saw a similar problem, it was fixed in patch
+> >     net: allow large number of tx queues
+> > 
+> > So let's do it in a similar way: try to allocate with
+> > GFP_KERNEL | __GFP_NOWARN | __GFP_REPEAT
+> > and if that fails, do vmalloc.
+> > 
+> > To free, we can do
+> >        if (is_vmalloc_addr())
+> >                vfree();
+> >        else
+> >                kfree();
+> > 
+> > 
 > 
-> So this is really a "filename" that might contain some directories as
-> well, right?  The fact you used "path" confused me, as that doesn't
-> usually imply a filename.
-> 
+> Hi Dan,
+> were you going to make this change? Or prefer me to do it?
 
-Yes, it is a filename that might contain some directories. We will fix
-up the documentation here to read filename in future patches.
+Hey Michael,
 
-> And is the "firmware" just the initramfs image for the kernel to boot?
-> 
+I prefer you go ahead and do as your suggestion. I got distracted with 
+other matters in the meanwhile. 
 
-The firmware is usually a Linux kernel. The ramdisk is usually an
-initramfs image. We have separate sysfs entries for firmware and ramdisk
-filenames.
-
-Thanks,
-Sudeep Dutt
-
-> thanks,
-> 
-> greg k-h
+-- 
+Dan Aloni
