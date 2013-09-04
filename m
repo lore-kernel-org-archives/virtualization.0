@@ -1,12 +1,15 @@
-From: Alok Kataria <akataria@vmware.com>
-Subject: [PATCH] Add an entry in MAINTAINERS for VMware's hypervisor interface
-Date: Wed, 04 Sep 2013 14:23:41 +0530
-Message-ID: <1378284821.9739.7404.camel@akataria-dtop.eng.vmware.com>
-Reply-To: Alok Kataria <akataria@vmware.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] drivers/vhost/scsi.c: avoid a 10-order allocation
+Date: Wed, 4 Sep 2013 12:02:01 +0300
+Message-ID: <20130904090201.GA31564@redhat.com>
+References: <1376815736-21003-1-git-send-email-alonid@stratoscale.com>
+	<20130818091838.GB17111@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20130818091838.GB17111@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,50 +19,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>, the arch/x86 maintainers <x86@kernel.org>
-Cc: Doug Covelli <dcovelli@vmware.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Dan Aloni <alonid@stratoscale.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hey,
+On Sun, Aug 18, 2013 at 12:18:38PM +0300, Michael S. Tsirkin wrote:
+> On Sun, Aug 18, 2013 at 11:48:56AM +0300, Dan Aloni wrote:
+> > On 3.10.7 and x86_64, as a result of sizeof(struct vhost_scsi) being
+> > 2152960 bytes the allocation failed once on my development machine.
+> > 
+> > Saw it would be prudent to split the bulk of it, which is the vqs array
+> > into separately allocated parts. sizeof(struct vhost_virtqueue) is
+> > currently 16816 bytes.
+> > 
+> > Signed-off-by: Dan Aloni <alonid@stratoscale.com>
+> 
+> This extra indirection is likely to have measureable cost though.
+> 
+> net core saw a similar problem, it was fixed in patch
+>     net: allow large number of tx queues
+> 
+> So let's do it in a similar way: try to allocate with
+> GFP_KERNEL | __GFP_NOWARN | __GFP_REPEAT
+> and if that fails, do vmalloc.
+> 
+> To free, we can do
+>        if (is_vmalloc_addr())
+>                vfree();
+>        else
+>                kfree();
+> 
+> 
 
-This change adds an entry to the maintainers file to explicitly state
-that any changes to vmware.c should be sent to the authors of the file
-as well.
+Hi Dan,
+were you going to make this change? Or prefer me to do it?
 
-If you are thinking why do this now, off late we have seen quite a few
-changes that touched the "arch/x86/kernel/cpu/vmware.c" file but were
-not directed to me, someone else made me aware of those changes. It
-could be that my use of different SOB lines "Alok N Kataria" vs "Alok
-Kataria" confuses get_maintainer.pl, but adding this entry in
-MAINTAINERS should solve the problem at hand. For one of the changes
-[1], I did verify that get_maintainer.pl, now expectedly includes me in
-the cc list.
-
-Thanks,
-Alok 
-
-[1] http://marc.info/?l=linux-kernel&m=137571112610984&w=2
-
-From : Alok Kataria <akataria@vmware.com>
-
-Add an entry in MAINTAINERS file to reflect the authors of a file.
-
-Signed-off-by: Alok Kataria <akataria@vmware.com>
-
-Index: linux-2.6/MAINTAINERS
-===================================================================
---- linux-2.6.orig/MAINTAINERS	2013-09-04 14:07:34.404027068 +0530
-+++ linux-2.6/MAINTAINERS	2013-09-04 14:20:39.714026943 +0530
-@@ -9038,6 +9038,12 @@
- F:	drivers/vme/
- F:	include/linux/vme*
- 
-+VMWARE HYPERVISOR INTERFACE
-+M: Alok Kataria <akataria@vmware.com>
-+L: virtualization@lists.linux-foundation.org
-+S: Supported
-+F: arch/x86/kernel/cpu/vmware.c
-+
- VMWARE VMXNET3 ETHERNET DRIVER
- M:	Shreyas Bhatewara <sbhatewara@vmware.com>
- M:	"VMware, Inc." <pv-drivers@vmware.com>
+-- 
+MST
