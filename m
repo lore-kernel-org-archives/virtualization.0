@@ -1,14 +1,16 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH] Add an entry in MAINTAINERS for VMware's hypervisor
-	interface
-Date: Wed, 04 Sep 2013 10:16:19 -0700
-Message-ID: <1378314979.1787.24.camel@joe-AO722>
-References: <1378284821.9739.7404.camel@akataria-dtop.eng.vmware.com>
+From: Zoltan Kiss <zoltan.kiss@citrix.com>
+Subject: Re: [PATCH] tracing/events: Add bounce tracing to swiotbl-xen
+Date: Wed, 4 Sep 2013 21:10:50 +0100
+Message-ID: <522793CA.3060002__42866.8065382682$1378325468$gmane$org@citrix.com>
+References: <1377208048-8963-1-git-send-email-zoltan.kiss@citrix.com>
+	<20130823125533.GC14306@konrad-lan.dumpdata.com>
+	<5224D0D6.40908@citrix.com>
+	<20130903124237.GB9870@konrad-lan.dumpdata.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1378284821.9739.7404.camel@akataria-dtop.eng.vmware.com>
+In-Reply-To: <20130903124237.GB9870@konrad-lan.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,39 +20,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alok Kataria <akataria@vmware.com>
-Cc: the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Doug Covelli <dcovelli@vmware.com>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2013-09-04 at 14:23 +0530, Alok Kataria wrote:
-> Hey,
-> 
-> This change adds an entry to the maintainers file to explicitly state
-> that any changes to vmware.c should be sent to the authors of the file
-> as well.
+On 03/09/13 13:42, Konrad Rzeszutek Wilk wrote:
+> Correct. The double buffering code is being run in lib/swiotlb.c not the
+> xen-swiotlb.c. Hence the question of why not move the tracing in there.
+I've put the trace to both locations before swiotlb_tbl_map_single is 
+called, so the same tracer will be hit both with classic and Xen 
+SWIOTLB. I used 2 different place instead of calling from 
+swiotlb_tbl_map_single because I want to print out dev_addr, and it's 
+calculated differently.
 
-It never hurts to add MAINTAINER entries.
+> Yes. And please (if it adds a benefit) also for unmap/sync which can trigger
+> the bounce buffer.
+>
+> Or if it makes sense just for the bounce buffer copying - then just
+> leave it at that. Thanks.
+For me the relevant event was to see when we start to do bounce 
+buffering. When does it end, or when syncing happens is a different 
+thing. If someone is interested, they can easily extend this patch with 
+that.
 
-> If you are thinking why do this now, off late we have seen quite a few
-> changes that touched the "arch/x86/kernel/cpu/vmware.c" file but were
-> not directed to me, someone else made me aware of those changes.
+However one question bothers me: why ftrace doesn't trace these 
+functions? They are not inlined, static, or marked as notrace.
 
-Many people don't use get_maintainer
+Regards,
 
-> It
-> could be that my use of different SOB lines "Alok N Kataria" vs "Alok
-> Kataria" confuses get_maintainer.pl,
-
-That shouldn't be a problem unless the email addresses are
-also different.
-
-> +++ linux-2.6/MAINTAINERS	2013-09-04 14:20:39.714026943 +0530
-[]
-> +VMWARE HYPERVISOR INTERFACE
-> +M: Alok Kataria <akataria@vmware.com>
-> +L: virtualization@lists.linux-foundation.org
-> +S: Supported
-> +F: arch/x86/kernel/cpu/vmware.c
-> +
-
-It'd be nicer to use tabs after the colon
+Zoli
