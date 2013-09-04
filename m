@@ -1,11 +1,18 @@
-From: Zoltan Kiss <zoltan.kiss@citrix.com>
-Subject: [PATCHv2] tracing/events: Add bounce tracing to swiotbl
-Date: Wed, 4 Sep 2013 21:11:05 +0100
-Message-ID: <1378325465-10384-1-git-send-email-zoltan.kiss__49427.6780089878$1378325493$gmane$org@citrix.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH] tracing/events: Add bounce tracing to swiotbl-xen
+Date: Wed, 4 Sep 2013 16:35:03 -0400
+Message-ID: <20130904203502.GA8726@phenom.dumpdata.com>
+References: <1377208048-8963-1-git-send-email-zoltan.kiss@citrix.com>
+	<20130823125533.GC14306@konrad-lan.dumpdata.com>
+	<5224D0D6.40908@citrix.com>
+	<20130903124237.GB9870@konrad-lan.dumpdata.com>
+	<522793CA.3060002@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <522793CA.3060002@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,125 +22,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Steven Rostedt <rostedt@goodmis.org>, Frederic Weisbecker <fweisbec@gmail.com>, Ingo Molnar <mingo@redhat.com>, linux-kernel@vger.kernel.org, xen-devel@lists.xensource.com, virtualization@lists.linux-foundation.org
-Cc: Zoltan Kiss <zoltan.kiss@citrix.com>
+To: Zoltan Kiss <zoltan.kiss@citrix.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ftrace is currently not able to detect when SWIOTLB has to do double buffering.
-Under Xen you can only see it indirectly in function_graph, when
-xen_swiotlb_map_page() doesn't stop after range_straddles_page_boundary(), but
-calls spinlock functions, memcpy() and xen_phys_to_bus() as well. This patch
-introduces the swiotlb:swiotlb_bounced event, which also prints out the
-following informations to help you find out why bouncing happened:
+On Wed, Sep 04, 2013 at 09:10:50PM +0100, Zoltan Kiss wrote:
+> On 03/09/13 13:42, Konrad Rzeszutek Wilk wrote:
+> >Correct. The double buffering code is being run in lib/swiotlb.c not the
+> >xen-swiotlb.c. Hence the question of why not move the tracing in there.
+> I've put the trace to both locations before swiotlb_tbl_map_single
+> is called, so the same tracer will be hit both with classic and Xen
+> SWIOTLB. I used 2 different place instead of calling from
+> swiotlb_tbl_map_single because I want to print out dev_addr, and
+> it's calculated differently.
+> 
+> >Yes. And please (if it adds a benefit) also for unmap/sync which can trigger
+> >the bounce buffer.
+> >
+> >Or if it makes sense just for the bounce buffer copying - then just
+> >leave it at that. Thanks.
+> For me the relevant event was to see when we start to do bounce
+> buffering. When does it end, or when syncing happens is a different
+> thing. If someone is interested, they can easily extend this patch
+> with that.
+> 
+> However one question bothers me: why ftrace doesn't trace these
+> functions? They are not inlined, static, or marked as notrace.
 
-dev_name: 0000:08:00.0 dma_mask=ffffffffffffffff dev_addr=9149f000 size=32768
-swiotlb_force=0
-
-If you use Xen, and (dev_addr + size + 1) > dma_mask, the buffer is out of the
-device's DMA range. If swiotlb_force == 1, you should really change the kernel
-parameters. Otherwise, the buffer is not contiguous in mfn space.
-
-Signed-off-by: Zoltan Kiss <zoltan.kiss@citrix.com>
----
- drivers/xen/swiotlb-xen.c      |    5 +++++
- include/trace/events/swiotlb.h |   46 ++++++++++++++++++++++++++++++++++++++++
- lib/swiotlb.c                  |    4 ++++
- 3 files changed, 55 insertions(+)
-
-diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
-index aadffcf..67a4b77 100644
---- a/drivers/xen/swiotlb-xen.c
-+++ b/drivers/xen/swiotlb-xen.c
-@@ -42,6 +42,9 @@
- #include <xen/page.h>
- #include <xen/xen-ops.h>
- #include <xen/hvc-console.h>
-+
-+#define CREATE_TRACE_POINTS
-+#include <trace/events/swiotlb.h>
- /*
-  * Used to do a quick range check in swiotlb_tbl_unmap_single and
-  * swiotlb_tbl_sync_single_*, to see if the memory was in fact allocated by this
-@@ -358,6 +361,8 @@ dma_addr_t xen_swiotlb_map_page(struct device *dev, struct page *page,
- 	/*
- 	 * Oh well, have to allocate and map a bounce buffer.
- 	 */
-+	trace_swiotlb_bounced(dev, dev_addr, size, swiotlb_force);
-+
- 	map = swiotlb_tbl_map_single(dev, start_dma_addr, phys, size, dir);
- 	if (map == SWIOTLB_MAP_ERROR)
- 		return DMA_ERROR_CODE;
-diff --git a/include/trace/events/swiotlb.h b/include/trace/events/swiotlb.h
-new file mode 100644
-index 0000000..6d21410
---- /dev/null
-+++ b/include/trace/events/swiotlb.h
-@@ -0,0 +1,46 @@
-+#undef TRACE_SYSTEM
-+#define TRACE_SYSTEM swiotlb
-+
-+#if !defined(_TRACE_SWIOTLB_H) || defined(TRACE_HEADER_MULTI_READ)
-+#define _TRACE_SWIOTLB_H
-+
-+#include <linux/tracepoint.h>
-+
-+TRACE_EVENT(swiotlb_bounced,
-+
-+	TP_PROTO(struct device *dev,
-+		 dma_addr_t dev_addr,
-+		 size_t size,
-+		 int swiotlb_force),
-+
-+	TP_ARGS(dev, dev_addr, size, swiotlb_force),
-+
-+	TP_STRUCT__entry(
-+		__string(	dev_name,	dev_name(dev)	)
-+		__field(	u64,	dma_mask		)
-+		__field(	dma_addr_t,	dev_addr	)
-+		__field(	size_t,	size			)
-+		__field(	int,	swiotlb_force		)
-+	),
-+
-+	TP_fast_assign(
-+		__assign_str(dev_name, dev_name(dev));
-+		__entry->dma_mask = (dev->dma_mask ? *dev->dma_mask : 0);
-+		__entry->dev_addr = dev_addr;
-+		__entry->size = size;
-+		__entry->swiotlb_force = swiotlb_force;
-+	),
-+
-+	TP_printk("dev_name: %s dma_mask=%llx dev_addr=%llx "
-+		"size=%zu swiotlb_force=%x",
-+		__get_str(dev_name),
-+		__entry->dma_mask,
-+		(unsigned long long)__entry->dev_addr,
-+		__entry->size,
-+		__entry->swiotlb_force)
-+);
-+
-+#endif /*  _TRACE_SWIOTLB_H */
-+
-+/* This part must be outside protection */
-+#include <trace/define_trace.h>
-diff --git a/lib/swiotlb.c b/lib/swiotlb.c
-index d23762e..d69ecbe 100644
---- a/lib/swiotlb.c
-+++ b/lib/swiotlb.c
-@@ -38,6 +38,8 @@
- #include <linux/bootmem.h>
- #include <linux/iommu-helper.h>
- 
-+#include <trace/events/swiotlb.h>
-+
- #define OFFSET(val,align) ((unsigned long)	\
- 	                   ( (val) & ( (align) - 1)))
- 
-@@ -726,6 +728,8 @@ dma_addr_t swiotlb_map_page(struct device *dev, struct page *page,
- 	if (dma_capable(dev, dev_addr, size) && !swiotlb_force)
- 		return dev_addr;
- 
-+	trace_swiotlb_bounced(dev, dev_addr, size, swiotlb_force);
-+
- 	/* Oh well, have to allocate and map a bounce buffer. */
- 	map = map_single(dev, phys, size, dir);
- 	if (map == SWIOTLB_MAP_ERROR) {
+They are usually part of the dma_ops structure. That might be the reason.
+> 
+> Regards,
+> 
+> Zoli
