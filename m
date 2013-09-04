@@ -1,15 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] drivers/vhost/scsi.c: avoid a 10-order allocation
-Date: Wed, 4 Sep 2013 12:02:01 +0300
-Message-ID: <20130904090201.GA31564@redhat.com>
-References: <1376815736-21003-1-git-send-email-alonid@stratoscale.com>
-	<20130818091838.GB17111@redhat.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Add an entry in MAINTAINERS for VMware's hypervisor
+	interface
+Date: Wed, 04 Sep 2013 04:45:34 -0700
+Message-ID: <52271D5E.4060402@zytor.com>
+References: <1378284821.9739.7404.camel@akataria-dtop.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130818091838.GB17111@redhat.com>
+In-Reply-To: <1378284821.9739.7404.camel@akataria-dtop.eng.vmware.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +18,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dan Aloni <alonid@stratoscale.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Alok Kataria <akataria@vmware.com>
+Cc: the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Doug Covelli <dcovelli@vmware.com>, Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Aug 18, 2013 at 12:18:38PM +0300, Michael S. Tsirkin wrote:
-> On Sun, Aug 18, 2013 at 11:48:56AM +0300, Dan Aloni wrote:
-> > On 3.10.7 and x86_64, as a result of sizeof(struct vhost_scsi) being
-> > 2152960 bytes the allocation failed once on my development machine.
-> > 
-> > Saw it would be prudent to split the bulk of it, which is the vqs array
-> > into separately allocated parts. sizeof(struct vhost_virtqueue) is
-> > currently 16816 bytes.
-> > 
-> > Signed-off-by: Dan Aloni <alonid@stratoscale.com>
+On 09/04/2013 01:53 AM, Alok Kataria wrote:
+> Hey,
 > 
-> This extra indirection is likely to have measureable cost though.
+> This change adds an entry to the maintainers file to explicitly state
+> that any changes to vmware.c should be sent to the authors of the file
+> as well.
 > 
-> net core saw a similar problem, it was fixed in patch
->     net: allow large number of tx queues
+> If you are thinking why do this now, off late we have seen quite a few
+> changes that touched the "arch/x86/kernel/cpu/vmware.c" file but were
+> not directed to me, someone else made me aware of those changes. It
+> could be that my use of different SOB lines "Alok N Kataria" vs "Alok
+> Kataria" confuses get_maintainer.pl, but adding this entry in
+> MAINTAINERS should solve the problem at hand. For one of the changes
+> [1], I did verify that get_maintainer.pl, now expectedly includes me in
+> the cc list.
 > 
-> So let's do it in a similar way: try to allocate with
-> GFP_KERNEL | __GFP_NOWARN | __GFP_REPEAT
-> and if that fails, do vmalloc.
-> 
-> To free, we can do
->        if (is_vmalloc_addr())
->                vfree();
->        else
->                kfree();
-> 
+> Thanks,
+> Alok 
 > 
 
-Hi Dan,
-were you going to make this change? Or prefer me to do it?
+That is indeed what the maintainers file is for.
 
--- 
-MST
+> Add an entry in MAINTAINERS file to reflect the authors of a file.
+
+No, it reflects the *maintainer(s)* of a file.
+
+	-hpa
