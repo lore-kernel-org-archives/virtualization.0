@@ -1,13 +1,11 @@
 From: Aaron Lu <aaron.lu@intel.com>
-Subject: Re: [PATCH] virtio_pci: pm: Use CONFIG_PM_SLEEP instead of CONFIG_PM
-Date: Fri, 06 Sep 2013 15:41:36 +0800
-Message-ID: <52298730.7020003__17356.8637845621$1378506958$gmane$org@intel.com>
-References: <52293DD4.6050403@intel.com> <20130906072046.GB29367@grmbl.mre>
+Subject: [PATCH 0/2] virtio: Replace CONFIG_PM with CONFIG_PM_SLEEP
+Date: Fri,  6 Sep 2013 16:20:05 +0800
+Message-ID: <1378455607-32459-1-git-send-email-aaron.lu__17917.6499521875$1378506965$gmane$org@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130906072046.GB29367@grmbl.mre>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +16,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Amit Shah <amit.shah@redhat.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linux-pm mailing list <linux-pm@vger.kernel.org>, virtualization@lists.linux-foundation.org
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-pm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMDkvMDYvMjAxMyAwMzoyMCBQTSwgQW1pdCBTaGFoIHdyb3RlOgo+IE9uIChGcmkpIDA2IFNl
-cCAyMDEzIFsxMDoyODozNl0sIEFhcm9uIEx1IHdyb3RlOgo+Pgo+PiBUaGUgdmlydGlvX3BjaV9m
-cmVlemUvcmVzdG9yZSBhcmUgZGVmaW5lZCB1bmRlciBDT05GSUdfUE0gYnV0IGlzIHVzZWQKPj4g
-YnkgU0VUX1NZU1RFTV9TTEVFUF9QTV9PUFMgbWFjcm8sIHdoaWNoIGlzIGRlZmluZWQgdW5kZXIK
-Pj4gQ09ORklHX1BNX1NMRUVQLiBTbyBpZiBDT05GSUdfUE1fU0xFRVAgaXMgbm90IGNvZmlndXJl
-ZCBidXQKPj4gQ09ORklHX1BNX1JVTlRJTUUgaXMsIHRoZSBmb2xsb3dpbmcgd2FybmluZyBtZXNz
-YWdlIGFwcGVhcmVkOgo+Pgo+PiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLmM6NzcwOjEyOiB3
-YXJuaW5nOiDigJh2aXJ0aW9fcGNpX2ZyZWV6ZeKAmSBkZWZpbmVkIGJ1dCBub3QgdXNlZCBbLVd1
-bnVzZWQtZnVuY3Rpb25dCj4+ICBzdGF0aWMgaW50IHZpcnRpb19wY2lfZnJlZXplKHN0cnVjdCBk
-ZXZpY2UgKmRldikKPj4gICAgICAgICAgICAgXgo+PiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNp
-LmM6NzkwOjEyOiB3YXJuaW5nOiDigJh2aXJ0aW9fcGNpX3Jlc3RvcmXigJkgZGVmaW5lZCBidXQg
-bm90IHVzZWQgWy1XdW51c2VkLWZ1bmN0aW9uXQo+PiAgc3RhdGljIGludCB2aXJ0aW9fcGNpX3Jl
-c3RvcmUoc3RydWN0IGRldmljZSAqZGV2KQo+PiAgICAgICAgICAgICBeCj4+IEZpeCBpdCBieSBj
-aGFuZ2luZyBDT05GSUdfUE0gdG8gQ09ORklHX1BNX1NMRUVQLgo+Pgo+PiBTaWduZWQtb2ZmLWJ5
-OiBBYXJvbiBMdSA8YWFyb24ubHVAaW50ZWwuY29tPgo+PiAtLS0KPj4gIGRyaXZlcnMvdmlydGlv
-L3ZpcnRpb19wY2kuYyB8IDQgKystLQo+PiAgMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygr
-KSwgMiBkZWxldGlvbnMoLSkKPiAKPiBXaGlsZSB5b3UncmUgYXQgaXQsIGNhbiB5b3UgdXBkYXRl
-IHRoZSB2aXJ0aW8gZHJpdmVycyBhcyB3ZWxsPwoKTm8gcHJvYmxlbSwgSSB0aGluayBJJ2xsIHNl
-bmQgYSBzZXBhcmF0ZSBwYXRjaCBmb3IgdGhlbSBvbiB0b3Agb2YgdGhpcwpvbmUsIHNpbmNlIHRo
-ZXkgZG8gbm90IGNhdXNlIGNvbXBpbGUgd2FybmluZ3MuCgpUaGFua3MsCkFhcm9uCgo+IAo+IGRy
-aXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4gZHJpdmVycy9jaGFyL2h3X3JhbmRvbS92aXJ0aW9f
-cm5nLmMKPiBkcml2ZXJzL2NoYXIvdmlydGlvX2NvbnNvbGUuYwo+IGRyaXZlcnMvbmV0L3ZpcnRp
-b19uZXQuYwo+IGRyaXZlcnMvc2NzaS92aXJ0aW9fc2NzaS5jCj4gZHJpdmVycy92aXJ0aW8vdmly
-dGlvX2JhbGxvb24uYwo+IAo+IFRoYW5rcywKPiAKPiAJCUFtaXQKPiAKCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+This patchset replace CONFIG_PM with CONFIG_PM_SLEEP for all virtio
+drivers and virtio pci driver.
+
+With patch 1/2, two compile warnings are eliminated for virtio pci
+driver, and patch 2/2 is a clean up for all virtio drivers as suggested
+by Amit Shah.
+
+Aaron Lu (2):
+  virtio_pci: pm: Use CONFIG_PM_SLEEP instead of CONFIG_PM
+  virtio: pm: use CONFIG_PM_SLEEP instead of CONFIG_PM
+
+ drivers/block/virtio_blk.c          | 4 ++--
+ drivers/char/hw_random/virtio-rng.c | 4 ++--
+ drivers/char/virtio_console.c       | 4 ++--
+ drivers/net/virtio_net.c            | 4 ++--
+ drivers/scsi/virtio_scsi.c          | 4 ++--
+ drivers/virtio/virtio_balloon.c     | 4 ++--
+ drivers/virtio/virtio_pci.c         | 4 ++--
+ 7 files changed, 14 insertions(+), 14 deletions(-)
+
+-- 
+1.8.4.12.g2ea3df6
