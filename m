@@ -1,14 +1,12 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 0/2] virtio: Replace CONFIG_PM with CONFIG_PM_SLEEP
-Date: Fri, 6 Sep 2013 13:52:35 +0530
-Message-ID: <20130906082235.GE29367__41737.1698226363$1378455773$gmane$org@grmbl.mre>
-References: <1378455607-32459-1-git-send-email-aaron.lu@intel.com>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: CFP: WorldCIST'14 - World Conference on IST;  Best papers published
+	in ISI Journals
+Date: Fri, 6 Sep 2013 14:03:46 +0100
+Message-ID: <20130906130354.EFE36935@mail.linuxfoundation.org>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4902574995478018733=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1378455607-32459-1-git-send-email-aaron.lu@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,20 +16,199 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Aaron Lu <aaron.lu@intel.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-pm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Fri) 06 Sep 2013 [16:20:05], Aaron Lu wrote:
-> This patchset replace CONFIG_PM with CONFIG_PM_SLEEP for all virtio
-> drivers and virtio pci driver.
-> 
-> With patch 1/2, two compile warnings are eliminated for virtio pci
-> driver, and patch 2/2 is a clean up for all virtio drivers as suggested
-> by Amit Shah.
+--===============4902574995478018733==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Thank you.
+Apologies if you are receiving this mail more than once...
 
-Reviewed-by: Amit Shah <amit.shah@redhat.com>
+Please disseminate by friends, colleagues, researchers, students, etc.=
+ Thanks a lot!
 
-		Amit
+
+**********************************************************************=
+************
+                             WorldCIST'14
+The 2014 World Conference on Information Systems and Technologies
+                April 15 - 18, Madeira Island, Portugal
+                   http://www.aisti.eu/worldcist14/
+**********************************************************************=
+************
+
+The 2014 World Conference on Information Systems and Technologies (Wor=
+ldCIST'14: http://www.aisti.eu/worldcist14) is a global forum for rese=
+archers and practitioners to present and discuss the most recent innov=
+ations, trends, results, experiences and concerns in the several persp=
+ectives of Information Systems and Technologies.
+
+We are pleased to invite you to submit your papers to WorldCISTI'14. A=
+ll submissions will be reviewed on the basis of relevance, originality=
+, importance and clarity.
+
+=20
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Intelligent and Decision Support Systems (IDSS);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+F) Human-Computer Interaction (HCI);
+
+G) Health Informatics (HIS);
+
+H) Information Technologies in Education (ITE).
+
+
+TYPES OF SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one =
+of the Conference themes. These papers are assigned a 10-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, open to =
+discussion. These papers are assigned a 7-page limit.
+
+Poster paper: Initial work with relevant ideas, open to discussion. Th=
+ese papers are assigned to a 4-page limit.
+
+Company paper: Companies' papers that show practical experience, R & D=
+, tools, etc., focused on some topics of the conference. These papers =
+are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference includes Work Sessions where t=
+hese posters are presented and orally discussed, with a 5 minute limit=
+ per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION AND INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 24th of January 2014, and the paper must comp=
+ly with the suggested layout and page-limit. Additionally, all recomme=
+nded changes must be addressed by the authors before they submit the c=
+amera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ Advances in Intelligent Systems and Computing Series. Poster and comp=
+any papers will be published in Proceedings by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
+in the SpringerLink Digital Library. Published poster and company pape=
+rs will be submitted for indexation by EI-Compendex and EBSCO.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI, SCOPUS and =
+DBLP, among others, such as:
+
+Journal of Information Technology (JIT)
+
+Social Science Computer Review (SSCR)
+
+Information Processing & Management (IPM)
+
+Information Technology & People (ITP)
+
+Computer Science and Information Systems (ComSIS)
+
+Information Development (IDV)
+
+IEEE IT Professional (ITPro)
+
+Computer Methods in Biomechanics and Biomedical Engineering - Imaging =
+& Visualization (CMBBE-IV)
+
+Journal of Medical Internet Research (JMIR)
+
+International Journal of Health Information Systems & Informatics (IJH=
+ISI)
+
+International Journal of Web Based Communities (IJWBC)
+
+International Journal of Interactive Multimedia and Artificial Intelli=
+gence (IJIMAI)
+
+
+INPORTANT DATES
+
+Paper Submission: November 15, 2013
+
+Notification of Acceptance: January 10, 2014
+
+Camera-ready Submission: January 19, 2014
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 24, 2014.
+
+-
+
+Regards,=20
+
+WorldCIST Team
+http://www.aisti.eu/worldcist14
+
+
+
+
+--===============4902574995478018733==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4902574995478018733==--
