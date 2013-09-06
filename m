@@ -1,16 +1,14 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH RESEND v3 3/7] Intel MIC Host Driver, card OS state
-	management.
-Date: Thu, 5 Sep 2013 22:01:57 -0700
-Message-ID: <20130906050157.GF28806@kroah.com>
-References: <cover.1378423596.git.sudeep.dutt@intel.com>
-	<669a3a3bbfff577c73d05fb568a810cbbc3d5333.1378423596.git.sudeep.dutt@intel.com>
+From: Amit Shah <amit.shah@redhat.com>
+Subject: Re: [PATCH] virtio_pci: pm: Use CONFIG_PM_SLEEP instead of CONFIG_PM
+Date: Fri, 6 Sep 2013 12:50:46 +0530
+Message-ID: <20130906072046.GB29367@grmbl.mre>
+References: <52293DD4.6050403@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <669a3a3bbfff577c73d05fb568a810cbbc3d5333.1378423596.git.sudeep.dutt@intel.com>
+In-Reply-To: <52293DD4.6050403@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,25 +18,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Sudeep Dutt <sudeep.dutt@intel.com>
-Cc: Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>, "Yaozu (Eddie) Dong" <eddie.dong@intel.com>, Arnd Bergmann <arnd@arndb.de>, "Michael S. Tsirkin" <mst@redhat.com>, Harshavardhan R Kharche <harshavardhan.r.kharche@intel.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ashutosh Dixit <ashutosh.dixit@intel.com>, Rob Landley <rob@landley.net>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
+To: Aaron Lu <aaron.lu@intel.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linux-pm mailing list <linux-pm@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Sep 05, 2013 at 04:41:55PM -0700, Sudeep Dutt wrote:
-> +What:		/sys/class/mic/mic(x)/firmware
-> +Date:		August 2013
-> +KernelVersion:	3.11
-> +Contact:	Sudeep Dutt <sudeep.dutt@intel.com>
-> +Description:
-> +		When read, this sysfs entry provides the path name under
-> +		/lib/firmware/ where the firmware image to be booted on the
-> +		card can be found. The entry can be written to change the
-> +		firmware image location under /lib/firmware/.
-
-I don't understand, is the path under the HOST device, or the Client
-device's disk?  Why do you need to change the path on the HOST?  What's
-wrong with the existing firmware path selection we have in the kernel?
-
-thanks,
-
-greg k-h
+T24gKEZyaSkgMDYgU2VwIDIwMTMgWzEwOjI4OjM2XSwgQWFyb24gTHUgd3JvdGU6Cj4gCj4gVGhl
+IHZpcnRpb19wY2lfZnJlZXplL3Jlc3RvcmUgYXJlIGRlZmluZWQgdW5kZXIgQ09ORklHX1BNIGJ1
+dCBpcyB1c2VkCj4gYnkgU0VUX1NZU1RFTV9TTEVFUF9QTV9PUFMgbWFjcm8sIHdoaWNoIGlzIGRl
+ZmluZWQgdW5kZXIKPiBDT05GSUdfUE1fU0xFRVAuIFNvIGlmIENPTkZJR19QTV9TTEVFUCBpcyBu
+b3QgY29maWd1cmVkIGJ1dAo+IENPTkZJR19QTV9SVU5USU1FIGlzLCB0aGUgZm9sbG93aW5nIHdh
+cm5pbmcgbWVzc2FnZSBhcHBlYXJlZDoKPiAKPiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLmM6
+NzcwOjEyOiB3YXJuaW5nOiDigJh2aXJ0aW9fcGNpX2ZyZWV6ZeKAmSBkZWZpbmVkIGJ1dCBub3Qg
+dXNlZCBbLVd1bnVzZWQtZnVuY3Rpb25dCj4gIHN0YXRpYyBpbnQgdmlydGlvX3BjaV9mcmVlemUo
+c3RydWN0IGRldmljZSAqZGV2KQo+ICAgICAgICAgICAgIF4KPiBkcml2ZXJzL3ZpcnRpby92aXJ0
+aW9fcGNpLmM6NzkwOjEyOiB3YXJuaW5nOiDigJh2aXJ0aW9fcGNpX3Jlc3RvcmXigJkgZGVmaW5l
+ZCBidXQgbm90IHVzZWQgWy1XdW51c2VkLWZ1bmN0aW9uXQo+ICBzdGF0aWMgaW50IHZpcnRpb19w
+Y2lfcmVzdG9yZShzdHJ1Y3QgZGV2aWNlICpkZXYpCj4gICAgICAgICAgICAgXgo+IEZpeCBpdCBi
+eSBjaGFuZ2luZyBDT05GSUdfUE0gdG8gQ09ORklHX1BNX1NMRUVQLgo+IAo+IFNpZ25lZC1vZmYt
+Ynk6IEFhcm9uIEx1IDxhYXJvbi5sdUBpbnRlbC5jb20+Cj4gLS0tCj4gIGRyaXZlcnMvdmlydGlv
+L3ZpcnRpb19wY2kuYyB8IDQgKystLQo+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCsp
+LCAyIGRlbGV0aW9ucygtKQoKV2hpbGUgeW91J3JlIGF0IGl0LCBjYW4geW91IHVwZGF0ZSB0aGUg
+dmlydGlvIGRyaXZlcnMgYXMgd2VsbD8KCmRyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCmRyaXZl
+cnMvY2hhci9od19yYW5kb20vdmlydGlvX3JuZy5jCmRyaXZlcnMvY2hhci92aXJ0aW9fY29uc29s
+ZS5jCmRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwpkcml2ZXJzL3Njc2kvdmlydGlvX3Njc2kuYwpk
+cml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCgpUaGFua3MsCgoJCUFtaXQKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
