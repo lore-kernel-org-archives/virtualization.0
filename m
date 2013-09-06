@@ -1,16 +1,11 @@
-From: Dan Aloni <alonid@stratoscale.com>
-Subject: Re: [PATCH] drivers/vhost/scsi.c: avoid a 10-order allocation
-Date: Wed, 4 Sep 2013 12:27:04 +0300
-Message-ID: <20130904092703.GB12841__43085.4676095352$1378506946$gmane$org@gmail.com>
-References: <1376815736-21003-1-git-send-email-alonid@stratoscale.com>
-	<20130818091838.GB17111@redhat.com>
-	<20130904090201.GA31564@redhat.com>
+From: Aaron Lu <aaron.lu@intel.com>
+Subject: [PATCH] virtio_pci: pm: Use CONFIG_PM_SLEEP instead of CONFIG_PM
+Date: Fri, 06 Sep 2013 10:28:36 +0800
+Message-ID: <52293DD4.6050403__36098.6239197247$1378506951$gmane$org@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130904090201.GA31564@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,46 +15,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linux-pm mailing list <linux-pm@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Sep 04, 2013 at 12:02:01PM +0300, Michael S. Tsirkin wrote:
-> On Sun, Aug 18, 2013 at 12:18:38PM +0300, Michael S. Tsirkin wrote:
-> > On Sun, Aug 18, 2013 at 11:48:56AM +0300, Dan Aloni wrote:
-> > > On 3.10.7 and x86_64, as a result of sizeof(struct vhost_scsi) being
-> > > 2152960 bytes the allocation failed once on my development machine.
-> > > 
-> > > Saw it would be prudent to split the bulk of it, which is the vqs array
-> > > into separately allocated parts. sizeof(struct vhost_virtqueue) is
-> > > currently 16816 bytes.
-> > > 
-> > > Signed-off-by: Dan Aloni <alonid@stratoscale.com>
-> > 
-> > This extra indirection is likely to have measureable cost though.
-> > 
-> > net core saw a similar problem, it was fixed in patch
-> >     net: allow large number of tx queues
-> > 
-> > So let's do it in a similar way: try to allocate with
-> > GFP_KERNEL | __GFP_NOWARN | __GFP_REPEAT
-> > and if that fails, do vmalloc.
-> > 
-> > To free, we can do
-> >        if (is_vmalloc_addr())
-> >                vfree();
-> >        else
-> >                kfree();
-> > 
-> > 
-> 
-> Hi Dan,
-> were you going to make this change? Or prefer me to do it?
-
-Hey Michael,
-
-I prefer you go ahead and do as your suggestion. I got distracted with 
-other matters in the meanwhile. 
-
--- 
-Dan Aloni
+ClRoZSB2aXJ0aW9fcGNpX2ZyZWV6ZS9yZXN0b3JlIGFyZSBkZWZpbmVkIHVuZGVyIENPTkZJR19Q
+TSBidXQgaXMgdXNlZApieSBTRVRfU1lTVEVNX1NMRUVQX1BNX09QUyBtYWNybywgd2hpY2ggaXMg
+ZGVmaW5lZCB1bmRlcgpDT05GSUdfUE1fU0xFRVAuIFNvIGlmIENPTkZJR19QTV9TTEVFUCBpcyBu
+b3QgY29maWd1cmVkIGJ1dApDT05GSUdfUE1fUlVOVElNRSBpcywgdGhlIGZvbGxvd2luZyB3YXJu
+aW5nIG1lc3NhZ2UgYXBwZWFyZWQ6Cgpkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLmM6NzcwOjEy
+OiB3YXJuaW5nOiDigJh2aXJ0aW9fcGNpX2ZyZWV6ZeKAmSBkZWZpbmVkIGJ1dCBub3QgdXNlZCBb
+LVd1bnVzZWQtZnVuY3Rpb25dCiBzdGF0aWMgaW50IHZpcnRpb19wY2lfZnJlZXplKHN0cnVjdCBk
+ZXZpY2UgKmRldikKICAgICAgICAgICAgXgpkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLmM6Nzkw
+OjEyOiB3YXJuaW5nOiDigJh2aXJ0aW9fcGNpX3Jlc3RvcmXigJkgZGVmaW5lZCBidXQgbm90IHVz
+ZWQgWy1XdW51c2VkLWZ1bmN0aW9uXQogc3RhdGljIGludCB2aXJ0aW9fcGNpX3Jlc3RvcmUoc3Ry
+dWN0IGRldmljZSAqZGV2KQogICAgICAgICAgICBeCkZpeCBpdCBieSBjaGFuZ2luZyBDT05GSUdf
+UE0gdG8gQ09ORklHX1BNX1NMRUVQLgoKU2lnbmVkLW9mZi1ieTogQWFyb24gTHUgPGFhcm9uLmx1
+QGludGVsLmNvbT4KLS0tCiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLmMgfCA0ICsrLS0KIDEg
+ZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0
+IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaS5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3Bj
+aS5jCmluZGV4IDFhYmEyNTUuLjk4OTE3ZmMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvdmlydGlvL3Zp
+cnRpb19wY2kuYworKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLmMKQEAgLTc2Niw3ICs3
+NjYsNyBAQCBzdGF0aWMgdm9pZCB2aXJ0aW9fcGNpX3JlbW92ZShzdHJ1Y3QgcGNpX2RldiAqcGNp
+X2RldikKIAlrZnJlZSh2cF9kZXYpOwogfQogCi0jaWZkZWYgQ09ORklHX1BNCisjaWZkZWYgQ09O
+RklHX1BNX1NMRUVQCiBzdGF0aWMgaW50IHZpcnRpb19wY2lfZnJlZXplKHN0cnVjdCBkZXZpY2Ug
+KmRldikKIHsKIAlzdHJ1Y3QgcGNpX2RldiAqcGNpX2RldiA9IHRvX3BjaV9kZXYoZGV2KTsKQEAg
+LTgyNCw3ICs4MjQsNyBAQCBzdGF0aWMgc3RydWN0IHBjaV9kcml2ZXIgdmlydGlvX3BjaV9kcml2
+ZXIgPSB7CiAJLmlkX3RhYmxlCT0gdmlydGlvX3BjaV9pZF90YWJsZSwKIAkucHJvYmUJCT0gdmly
+dGlvX3BjaV9wcm9iZSwKIAkucmVtb3ZlCQk9IHZpcnRpb19wY2lfcmVtb3ZlLAotI2lmZGVmIENP
+TkZJR19QTQorI2lmZGVmIENPTkZJR19QTV9TTEVFUAogCS5kcml2ZXIucG0JPSAmdmlydGlvX3Bj
+aV9wbV9vcHMsCiAjZW5kaWYKIH07Ci0tIAoxLjguMy4yLjEwLmc0M2QxMWY0CgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
