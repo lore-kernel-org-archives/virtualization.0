@@ -1,14 +1,13 @@
-From: Aaron Lu <aaron.lu@intel.com>
-Subject: Re: [PATCH 0/2] virtio: Replace CONFIG_PM with CONFIG_PM_SLEEP
-Date: Fri, 06 Sep 2013 16:29:03 +0800
-Message-ID: <5229924F.3070007__8406.55177967182$1378506996$gmane$org@intel.com>
-References: <1378455607-32459-1-git-send-email-aaron.lu@intel.com>
-	<20130906082235.GE29367@grmbl.mre>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio_pci: pm: Use CONFIG_PM_SLEEP instead of CONFIG_PM
+Date: Mon, 09 Sep 2013 10:03:18 +0930
+Message-ID: <87ob826dgx.fsf@rustcorp.com.au>
+References: <52293DD4.6050403@intel.com> <20130906080744.GD29367@grmbl.mre>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130906082235.GE29367@grmbl.mre>
+In-Reply-To: <20130906080744.GD29367@grmbl.mre>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +17,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amit Shah <amit.shah@redhat.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, linux-pm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>, Aaron Lu <aaron.lu@intel.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Linux-pm mailing list <linux-pm@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/06/2013 04:22 PM, Amit Shah wrote:
-> On (Fri) 06 Sep 2013 [16:20:05], Aaron Lu wrote:
->> This patchset replace CONFIG_PM with CONFIG_PM_SLEEP for all virtio
->> drivers and virtio pci driver.
->>
->> With patch 1/2, two compile warnings are eliminated for virtio pci
->> driver, and patch 2/2 is a clean up for all virtio drivers as suggested
->> by Amit Shah.
-> 
-> Thank you.
-
-My pleasure, thanks for your review.
-
-I was addressing a comment for my patch:
-http://marc.info/?l=linux-pm&m=137839111130358&w=2
-and accidentally found this issue here :-)
-
--Aaron
-
-> 
-> Reviewed-by: Amit Shah <amit.shah@redhat.com>
-> 
-> 		Amit
-> 
+QW1pdCBTaGFoIDxhbWl0LnNoYWhAcmVkaGF0LmNvbT4gd3JpdGVzOgoKPiBPbiAoRnJpKSAwNiBT
+ZXAgMjAxMyBbMTA6Mjg6MzZdLCBBYXJvbiBMdSB3cm90ZToKPj4gCj4+IFRoZSB2aXJ0aW9fcGNp
+X2ZyZWV6ZS9yZXN0b3JlIGFyZSBkZWZpbmVkIHVuZGVyIENPTkZJR19QTSBidXQgaXMgdXNlZAo+
+PiBieSBTRVRfU1lTVEVNX1NMRUVQX1BNX09QUyBtYWNybywgd2hpY2ggaXMgZGVmaW5lZCB1bmRl
+cgo+PiBDT05GSUdfUE1fU0xFRVAuIFNvIGlmIENPTkZJR19QTV9TTEVFUCBpcyBub3QgY29maWd1
+cmVkIGJ1dAo+PiBDT05GSUdfUE1fUlVOVElNRSBpcywgdGhlIGZvbGxvd2luZyB3YXJuaW5nIG1l
+c3NhZ2UgYXBwZWFyZWQ6Cj4+IAo+PiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpLmM6NzcwOjEy
+OiB3YXJuaW5nOiDigJh2aXJ0aW9fcGNpX2ZyZWV6ZeKAmSBkZWZpbmVkIGJ1dCBub3QgdXNlZCBb
+LVd1bnVzZWQtZnVuY3Rpb25dCj4+ICBzdGF0aWMgaW50IHZpcnRpb19wY2lfZnJlZXplKHN0cnVj
+dCBkZXZpY2UgKmRldikKPj4gICAgICAgICAgICAgXgo+PiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9f
+cGNpLmM6NzkwOjEyOiB3YXJuaW5nOiDigJh2aXJ0aW9fcGNpX3Jlc3RvcmXigJkgZGVmaW5lZCBi
+dXQgbm90IHVzZWQgWy1XdW51c2VkLWZ1bmN0aW9uXQo+PiAgc3RhdGljIGludCB2aXJ0aW9fcGNp
+X3Jlc3RvcmUoc3RydWN0IGRldmljZSAqZGV2KQo+PiAgICAgICAgICAgICBeCj4+IEZpeCBpdCBi
+eSBjaGFuZ2luZyBDT05GSUdfUE0gdG8gQ09ORklHX1BNX1NMRUVQLgo+PiAKPj4gU2lnbmVkLW9m
+Zi1ieTogQWFyb24gTHUgPGFhcm9uLmx1QGludGVsLmNvbT4KPgo+IFJldmlld2VkLWJ5OiBBbWl0
+IFNoYWggPGFtaXQuc2hhaEByZWRoYXQuY29tPgo+Cj4gCQlBbWl0CgpBcHBsaWVkLgoKVGhhbmtz
+LApSdXN0eS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
