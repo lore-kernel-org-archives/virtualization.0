@@ -1,13 +1,14 @@
-From: Jiang Liu <liuj97@gmail.com>
-Subject: [RFC PATCH v2 22/25] smp, x86: kill SMP single function call interrupt
-Date: Thu, 12 Sep 2013 00:07:26 +0800
-Message-ID: <1378915649-16395-23-git-send-email-liuj97@gmail.com>
-References: <1378915649-16395-1-git-send-email-liuj97@gmail.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: CFP: The 23nd International ACM Symposium on,
+	High-Performance Parallel
+	and Distributed Computing (HPDC) 2014 -- in Vancouver Canada.
+Date: Wed, 11 Sep 2013 23:54:10 -0500
+Message-ID: <523148F2.6040508@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1378915649-16395-1-git-send-email-liuj97@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,187 +18,137 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Shaohua Li <shli@kernel.org>
-Cc: linux-arch@vger.kernel.org, xen-devel@lists.xensource.com, Jiri Kosina <trivial@kernel.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org, x86@kernel.org, Wang YanQing <udknight@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@elte.hu>, liuj97@gmail.com, Jiang Liu <jiang.liu@huawei.com>
+To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jiang Liu <jiang.liu@huawei.com>
+**** CALL FOR PAPERS ****
 
-Commit 9a46ad6d6df3b54 "smp: make smp_call_function_many() use logic
-similar to smp_call_function_single()" has unified the way to handle
-single and multiple cross-CPU function calls. Now only one interrupt
-is needed for architecture specific code to support generic SMP function
-call interfaces, so kill the redundant single function call interrupt.
+The 23nd International ACM Symposium on
+High-Performance Parallel and Distributed Computing
+  (HPDC-2014)
 
-Signed-off-by: Jiang Liu <jiang.liu@huawei.com>
-Cc: Jiang Liu <liuj97@gmail.com>
----
- arch/x86/include/asm/entry_arch.h        |  1 -
- arch/x86/include/asm/hw_irq.h            |  3 ---
- arch/x86/include/asm/irq_vectors.h       |  7 +++----
- arch/x86/include/asm/trace/irq_vectors.h |  6 ------
- arch/x86/kernel/entry_64.S               |  2 --
- arch/x86/kernel/irqinit.c                |  4 ----
- arch/x86/kernel/smp.c                    | 24 +-----------------------
- arch/x86/xen/smp.c                       |  1 -
- 8 files changed, 4 insertions(+), 44 deletions(-)
+  Vancouver, Canada - June 23-27, 2014
 
-diff --git a/arch/x86/include/asm/entry_arch.h b/arch/x86/include/asm/entry_arch.h
-index dc5fa66..9670cff 100644
---- a/arch/x86/include/asm/entry_arch.h
-+++ b/arch/x86/include/asm/entry_arch.h
-@@ -12,7 +12,6 @@
- #ifdef CONFIG_SMP
- BUILD_INTERRUPT(reschedule_interrupt,RESCHEDULE_VECTOR)
- BUILD_INTERRUPT(call_function_interrupt,CALL_FUNCTION_VECTOR)
--BUILD_INTERRUPT(call_function_single_interrupt,CALL_FUNCTION_SINGLE_VECTOR)
- BUILD_INTERRUPT3(irq_move_cleanup_interrupt, IRQ_MOVE_CLEANUP_VECTOR,
- 		 smp_irq_move_cleanup_interrupt)
- BUILD_INTERRUPT3(reboot_interrupt, REBOOT_VECTOR, smp_reboot_interrupt)
-diff --git a/arch/x86/include/asm/hw_irq.h b/arch/x86/include/asm/hw_irq.h
-index e4ac559..907cffe 100644
---- a/arch/x86/include/asm/hw_irq.h
-+++ b/arch/x86/include/asm/hw_irq.h
-@@ -75,7 +75,6 @@ extern void reboot_interrupt(void);
- extern void threshold_interrupt(void);
- 
- extern void call_function_interrupt(void);
--extern void call_function_single_interrupt(void);
- 
- #ifdef CONFIG_TRACING
- /* Interrupt handlers registered during init_IRQ */
-@@ -88,7 +87,6 @@ extern void trace_thermal_interrupt(void);
- extern void trace_reschedule_interrupt(void);
- extern void trace_threshold_interrupt(void);
- extern void trace_call_function_interrupt(void);
--extern void trace_call_function_single_interrupt(void);
- #define trace_irq_move_cleanup_interrupt  irq_move_cleanup_interrupt
- #define trace_reboot_interrupt  reboot_interrupt
- #define trace_kvm_posted_intr_ipi kvm_posted_intr_ipi
-@@ -182,7 +180,6 @@ extern asmlinkage void smp_irq_move_cleanup_interrupt(void);
- #ifdef CONFIG_SMP
- extern void smp_reschedule_interrupt(struct pt_regs *);
- extern void smp_call_function_interrupt(struct pt_regs *);
--extern void smp_call_function_single_interrupt(struct pt_regs *);
- #ifdef CONFIG_X86_32
- extern void smp_invalidate_interrupt(struct pt_regs *);
- #else
-diff --git a/arch/x86/include/asm/irq_vectors.h b/arch/x86/include/asm/irq_vectors.h
-index 5702d7e..98a302d 100644
---- a/arch/x86/include/asm/irq_vectors.h
-+++ b/arch/x86/include/asm/irq_vectors.h
-@@ -92,10 +92,9 @@
- #define ERROR_APIC_VECTOR		0xfe
- #define RESCHEDULE_VECTOR		0xfd
- #define CALL_FUNCTION_VECTOR		0xfc
--#define CALL_FUNCTION_SINGLE_VECTOR	0xfb
--#define THERMAL_APIC_VECTOR		0xfa
--#define THRESHOLD_APIC_VECTOR		0xf9
--#define REBOOT_VECTOR			0xf8
-+#define THERMAL_APIC_VECTOR		0xfb
-+#define THRESHOLD_APIC_VECTOR		0xfa
-+#define REBOOT_VECTOR			0xf9
- 
- /*
-  * Generic system vector for platform specific use
-diff --git a/arch/x86/include/asm/trace/irq_vectors.h b/arch/x86/include/asm/trace/irq_vectors.h
-index 2874df2..f96dc1b 100644
---- a/arch/x86/include/asm/trace/irq_vectors.h
-+++ b/arch/x86/include/asm/trace/irq_vectors.h
-@@ -78,12 +78,6 @@ DEFINE_IRQ_VECTOR_EVENT(irq_work);
- DEFINE_IRQ_VECTOR_EVENT(call_function);
- 
- /*
-- * call_function_single - called when entering/exiting a call function
-- * single interrupt vector handler
-- */
--DEFINE_IRQ_VECTOR_EVENT(call_function_single);
--
--/*
-  * threshold_apic - called when entering/exiting a threshold apic interrupt
-  * vector handler
-  */
-diff --git a/arch/x86/kernel/entry_64.S b/arch/x86/kernel/entry_64.S
-index 1b69951..6d296f1 100644
---- a/arch/x86/kernel/entry_64.S
-+++ b/arch/x86/kernel/entry_64.S
-@@ -1199,8 +1199,6 @@ apicinterrupt THERMAL_APIC_VECTOR \
- #endif
- 
- #ifdef CONFIG_SMP
--apicinterrupt CALL_FUNCTION_SINGLE_VECTOR \
--	call_function_single_interrupt smp_call_function_single_interrupt
- apicinterrupt CALL_FUNCTION_VECTOR \
- 	call_function_interrupt smp_call_function_interrupt
- apicinterrupt RESCHEDULE_VECTOR \
-diff --git a/arch/x86/kernel/irqinit.c b/arch/x86/kernel/irqinit.c
-index a2a1fbc..4aa1b8c 100644
---- a/arch/x86/kernel/irqinit.c
-+++ b/arch/x86/kernel/irqinit.c
-@@ -141,10 +141,6 @@ static void __init smp_intr_init(void)
- 	/* IPI for generic function call */
- 	alloc_intr_gate(CALL_FUNCTION_VECTOR, call_function_interrupt);
- 
--	/* IPI for generic single function call */
--	alloc_intr_gate(CALL_FUNCTION_SINGLE_VECTOR,
--			call_function_single_interrupt);
--
- 	/* Low priority IPI to cleanup after moving an irq */
- 	set_intr_gate(IRQ_MOVE_CLEANUP_VECTOR, irq_move_cleanup_interrupt);
- 	set_bit(IRQ_MOVE_CLEANUP_VECTOR, used_vectors);
-diff --git a/arch/x86/kernel/smp.c b/arch/x86/kernel/smp.c
-index cdaa347..b631e72 100644
---- a/arch/x86/kernel/smp.c
-+++ b/arch/x86/kernel/smp.c
-@@ -129,7 +129,7 @@ static void native_smp_send_reschedule(int cpu)
- 
- void native_send_call_func_single_ipi(int cpu)
- {
--	apic->send_IPI_mask(cpumask_of(cpu), CALL_FUNCTION_SINGLE_VECTOR);
-+	apic->send_IPI_mask(cpumask_of(cpu), CALL_FUNCTION_VECTOR);
- }
- 
- void native_send_call_func_ipi(const struct cpumask *mask)
-@@ -311,28 +311,6 @@ void smp_trace_call_function_interrupt(struct pt_regs *regs)
- 	exiting_irq();
- }
- 
--static inline void __smp_call_function_single_interrupt(void)
--{
--	generic_smp_call_function_single_interrupt();
--	inc_irq_stat(irq_call_count);
--}
--
--void smp_call_function_single_interrupt(struct pt_regs *regs)
--{
--	smp_entering_irq();
--	__smp_call_function_single_interrupt();
--	exiting_irq();
--}
--
--void smp_trace_call_function_single_interrupt(struct pt_regs *regs)
--{
--	smp_entering_irq();
--	trace_call_function_single_entry(CALL_FUNCTION_SINGLE_VECTOR);
--	__smp_call_function_single_interrupt();
--	trace_call_function_single_exit(CALL_FUNCTION_SINGLE_VECTOR);
--	exiting_irq();
--}
--
- static int __init nonmi_ipi_setup(char *str)
- {
- 	smp_no_nmi_ipi = true;
-diff --git a/arch/x86/xen/smp.c b/arch/x86/xen/smp.c
-index 6a75302..a67b835 100644
---- a/arch/x86/xen/smp.c
-+++ b/arch/x86/xen/smp.c
-@@ -542,7 +542,6 @@ static inline int xen_map_vector(int vector)
- 		xen_vector = XEN_RESCHEDULE_VECTOR;
- 		break;
- 	case CALL_FUNCTION_VECTOR:
--	case CALL_FUNCTION_SINGLE_VECTOR:
- 		xen_vector = XEN_CALL_FUNCTION_VECTOR;
- 		break;
- 	case IRQ_WORK_VECTOR:
+  http://www.hpdc.org/2014
+
+The ACM International Symposium on High-Performance Parallel and 
+Distributed Computing (HPDC) is the premier annual conference for 
+presenting the latest research on the design, implementation, 
+evaluation, and application of parallel and distributed systems for 
+high-end computing.
+
+In 2014, the 23nd HPDC and affiliated workshops will take place in the 
+beautiful city of Vancouver, Canada during June 23-27, 2014.
+
+
+**** IMPORTANT DATES ****
+Abstracts Due:            January 20, 2014
+Papers Due:                 January 27, 2014 (no extensions)
+Author Rebuttal:         March 14-18, 2014
+Author Notifications:  March 28, 2014
+
+
+**** SCOPE AND TOPICS ****
+Submissions are welcomed on high-performance parallel and distributed 
+computing topics including but not limited to: clouds, clusters, grids, 
+Big Data, massively multicore, and global-scale computing systems. New 
+scholarly research showing empirical and reproducible results in 
+architectures, systems, and networks is strongly encouraged,
+as are experience reports of operational deployments that can provide 
+insights for future research on HPDC applications and systems. All 
+papers will be evaluated for their originality, technical depth and 
+correctness, potential impact, relevance to the conference, and quality 
+of presentation. Research papers must clearly demonstrate research 
+contributions and novelty, while experience reports must clearly 
+describe lessons learned and demonstrate impact.
+
+In the context of high-performance parallel and distributed computing, 
+the topics of  interest include, but are not limited to:
+o    Systems, networks, and architectures for high-end computing
+o    Massively multicore systems
+o    Resource virtualization
+o    Programming languages and environments
+o    I/O, storage systems, and data management
+o    Resource management and scheduling, including energy-aware techniques
+o    Performance modeling and analysis
+o    Fault tolerance, reliability, and availability
+o    Data-intensive computing
+o    Applications of parallel and distributed computing
+
+
+**** PAPER SUBMISSION GUIDELINES ****
+Authors are invited to submit technical papers of at most 12 pages in 
+PDF format, including figures and references. Papers should be formatted 
+in the ACM Proceedings Style 
+(http://www.acm.org/sigs/publications/proceedings-templates) and 
+submitted via the conference web site. No changes to the margins, 
+spacing, or font sizes as specified by the style file are allowed. 
+Accepted papers will appear in the conference proceedings, and will be 
+incorporated into the ACM Digital Library. A limited number of papers will
+be accepted as posters.
+
+Papers must be self-contained and provide the technical substance 
+required for the program committee to evaluate their contributions. 
+Papers should thoughtfully address all related work, particularly work 
+presented at previous HPDC events. Submitted papers must be original 
+work that has not appeared in and is not under consideration for another 
+conference or a journal. See the ACM Prior Publication Policy 
+(http://www.acm.org/publications/policies/sim_submissions) for more details.
+
+
+**** HPDC'14 GENERAL CO-CHAIRS ****
+Beth Plale, Indiana University
+Matei Ripeanu, University of British Columbia
+
+
+**** HPDC'14 PROGRAM CO-CHAIRS ****
+Franck Cappello, Argonne National Lab and INRIA
+Dongyan Xu, Purdue University
+
+
+**** HPDC'14 PUBLICITY CHAIR ****
+Ioan Raicu, Illinois Institute of Technology, USA
+
+
+**** HPDC'14 PROGRAM COMMITTEE ****
+To be announced on the conference web site.
+
+
+**** HPDC STEERING COMMITTEE ****
+Henri Bal, Vrije Universiteit
+Andrew A. Chien, University of Chicago
+Peter Dinda, Northwestern University
+Dick Epema, Delft University of Technology
+Renato Figueiredo, University of Florida
+Ian Foster, Univ. of Chicago and Argonne National Laboratory
+Salim Hariri, University of Arizona
+Thilo Kielmann, Vrije Universiteit Amsterdam
+Arthur "Barney" Maccabe, Oak Ridge National Laboratory
+Manish Parashar, Rutgers University
+Matei Ripeanu, University of British Columbia
+Karsten Schwan, Georgia Tech
+Doug Thain, University of Notre Dame
+Jon Weissman, University of Minnesota (Chair)
+
+
 -- 
-1.8.1.2
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Editor: IEEE TCC, Springer JoCCASA
+Chair:  IEEE/ACM MTAGS, ACM ScienceCloud, IEEE/ACM DataCloud
+=================================================================
+Cel:      1-847-722-0876
+Office:   1-312-567-5704
+Email:    iraicu@cs.iit.edu
+Web:      http://www.cs.iit.edu/~iraicu/
+Web:      http://datasys.cs.iit.edu/
+LinkedIn: http://www.linkedin.com/in/ioanraicu
+Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
+=================================================================
+=================================================================
