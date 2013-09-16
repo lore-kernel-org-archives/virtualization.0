@@ -1,13 +1,11 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: The 23nd International ACM Symposium on,
-	High-Performance Parallel
-	and Distributed Computing (HPDC) 2014 -- in Vancouver Canada.
-Date: Wed, 11 Sep 2013 23:54:10 -0500
-Message-ID: <523148F2.6040508@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: VHPC 13 <vhpc.dist@gmail.com>
+Subject: [deadline in 1 week] 8th Workshop on Virtualization in
+	High-Performance Cloud Computing (VHPC '13)
+Date: Tue, 17 Sep 2013 01:46:00 +0200
+Message-ID: <CAF05tLME2-PTe6P4w72hEAVvWPMOkqw4rPG=yJs27PkVzRsuXg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,137 +16,190 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-**** CALL FOR PAPERS ****
+we apologize if you receive multiple copies of this CfP
 
-The 23nd International ACM Symposium on
-High-Performance Parallel and Distributed Computing
-  (HPDC-2014)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-  Vancouver, Canada - June 23-27, 2014
+CALL FOR PAPERS
 
-  http://www.hpdc.org/2014
+8th Workshop on Virtualization in High-Performance Cloud Computing (VHPC '1=
+3)
 
-The ACM International Symposium on High-Performance Parallel and 
-Distributed Computing (HPDC) is the premier annual conference for 
-presenting the latest research on the design, implementation, 
-evaluation, and application of parallel and distributed systems for 
-high-end computing.
+held in conjunction with SC 13, Denver, Colorado | in cooperation with
+ACM SIGHPC
 
-In 2014, the 23nd HPDC and affiliated workshops will take place in the 
-beautiful city of Vancouver, Canada during June 23-27, 2014.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
+Date: November 22, 2013
 
-**** IMPORTANT DATES ****
-Abstracts Due:            January 20, 2014
-Papers Due:                 January 27, 2014 (no extensions)
-Author Rebuttal:         March 14-18, 2014
-Author Notifications:  March 28, 2014
+Workshop URL: http://vhpc.org
 
+Paper Submission Deadline: September 23, 2013 (firm)
 
-**** SCOPE AND TOPICS ****
-Submissions are welcomed on high-performance parallel and distributed 
-computing topics including but not limited to: clouds, clusters, grids, 
-Big Data, massively multicore, and global-scale computing systems. New 
-scholarly research showing empirical and reproducible results in 
-architectures, systems, and networks is strongly encouraged,
-as are experience reports of operational deployments that can provide 
-insights for future research on HPDC applications and systems. All 
-papers will be evaluated for their originality, technical depth and 
-correctness, potential impact, relevance to the conference, and quality 
-of presentation. Research papers must clearly demonstrate research 
-contributions and novelty, while experience reports must clearly 
-describe lessons learned and demonstrate impact.
+Invited Talks:
 
-In the context of high-performance parallel and distributed computing, 
-the topics of  interest include, but are not limited to:
-o    Systems, networks, and architectures for high-end computing
-o    Massively multicore systems
-o    Resource virtualization
-o    Programming languages and environments
-o    I/O, storage systems, and data management
-o    Resource management and scheduling, including energy-aware techniques
-o    Performance modeling and analysis
-o    Fault tolerance, reliability, and availability
-o    Data-intensive computing
-o    Applications of parallel and distributed computing
+- John Goodacre, Director, Technology and Systems, ARM Processor Division
+The Evolution of the ARM Architecture Towards Big Data and the Data-Centre.
+
+- Jacob Bower, VP of Application Engineering, Maxeler Technologies Ltd.
+Maximizing Performance with cloud-virtualized Dataflow Engine oo-processors.
 
 
-**** PAPER SUBMISSION GUIDELINES ****
-Authors are invited to submit technical papers of at most 12 pages in 
-PDF format, including figures and references. Papers should be formatted 
-in the ACM Proceedings Style 
-(http://www.acm.org/sigs/publications/proceedings-templates) and 
-submitted via the conference web site. No changes to the margins, 
-spacing, or font sizes as specified by the style file are allowed. 
-Accepted papers will appear in the conference proceedings, and will be 
-incorporated into the ACM Digital Library. A limited number of papers will
-be accepted as posters.
+CALL FOR PAPERS
 
-Papers must be self-contained and provide the technical substance 
-required for the program committee to evaluate their contributions. 
-Papers should thoughtfully address all related work, particularly work 
-presented at previous HPDC events. Submitted papers must be original 
-work that has not appeared in and is not under consideration for another 
-conference or a journal. See the ACM Prior Publication Policy 
-(http://www.acm.org/publications/policies/sim_submissions) for more details.
+Virtualization has become a common abstraction layer in modern data
+centers, enabling resource owners to manage complex infrastructures
+independently of their applications. Conjointly, virtualization is becoming
+a driving technology for a manifold of industry grade IT services. The
+cloud concept includes the notion of a separation between resource
+owners and users, adding services such as hosted application
+frameworks and queueing. Utilizing the same infrastructure, clouds
+carry significant potential for use in cpu-intensive or data-intensive
+high-throughput computing. The ability of clouds to provide for
+requests and releases
+of vast computing resources dynamically and close to the marginal
+cost of providing the services is unprecedented in the history of
+scientific and commercial computing.
 
+This workshop aims to bring together industrial providers with the
+application community in order to foster discussion, collaboration
+and mutual exchange of knowledge and experience.
 
-**** HPDC'14 GENERAL CO-CHAIRS ****
-Beth Plale, Indiana University
-Matei Ripeanu, University of British Columbia
-
-
-**** HPDC'14 PROGRAM CO-CHAIRS ****
-Franck Cappello, Argonne National Lab and INRIA
-Dongyan Xu, Purdue University
+The workshop will be one day in length, composed of 20 min paper
+presentations, each followed by 10 min discussion sections. Lightning
+talks are limited to 5 minutes. Presentations may be accompanied by
+interactive demonstrations.
 
 
-**** HPDC'14 PUBLICITY CHAIR ****
-Ioan Raicu, Illinois Institute of Technology, USA
+TOPICS
+
+Topics of interest include, but are not limited to:
+
+- Management, deployment and monitoring of VM-based environments
+- Language-process virtual machines
+- VM-cloud performance monitoring
+- VM cloud topology management and optimization
+- VMs for high-throughput large data analytical workloads
+- Operating systems virtualization support optimization
+- VM-based cloud performance modelling
+- Network virtualization for VM-environments
+- Data virtualization
+- Cloudbursting
+- Evolved grid architectures including such based on network virtualization
+- Workload characterization for VM-based environments
+- Optimized communication libraries/protocols in the cloud
+- System and process/bytecode VM convergence
+- Cloud frameworks and APIs
+- GPU Virtualization architectures and APIs
+- Checkpointing/migration of large compute jobs
+- Instrumentation interfaces and languages
+- VMM performance (auto-)tuning on various load types
+- Cloud reliability, fault-tolerance, and security
+- Heterogeneous virtualized environments
+- Paravirtualized I/O
+- Services in cloud HPC
+- Research and education use cases
+- Virtualization in cloud, cluster and grid environments
+- Cross-layer VM optimizations
+- Cloud HPC use cases including optimizations
+- Energy-aware virtualization
+- Performance and cost modelling
+- QoS and and service levels
+- Languages for describing highly-distributed compute jobs
+- VM cloud and cluster distribution algorithms, load balancing
+- Instrumentation interfaces and languages
+- Hypervisor extensions and tools for cluster and grid computing
+- Virtual machine monitor platforms
+- Cluster provisioning in the cloud
 
 
-**** HPDC'14 PROGRAM COMMITTEE ****
-To be announced on the conference web site.
+Important Dates:
+
+Rolling Paper registration
+September 23, 2013 - Full paper submission (firm)
+October 9, 2013 - Acceptance notification
+October 21, 2013 - Camera-ready version due
+
+November 22, 2013 - Workshop Date
 
 
-**** HPDC STEERING COMMITTEE ****
-Henri Bal, Vrije Universiteit
-Andrew A. Chien, University of Chicago
-Peter Dinda, Northwestern University
-Dick Epema, Delft University of Technology
-Renato Figueiredo, University of Florida
-Ian Foster, Univ. of Chicago and Argonne National Laboratory
-Salim Hariri, University of Arizona
-Thilo Kielmann, Vrije Universiteit Amsterdam
-Arthur "Barney" Maccabe, Oak Ridge National Laboratory
-Manish Parashar, Rutgers University
-Matei Ripeanu, University of British Columbia
-Karsten Schwan, Georgia Tech
-Doug Thain, University of Notre Dame
-Jon Weissman, University of Minnesota (Chair)
+TPC
+
+CHAIR
+
+Michael Alexander (chair), TU Wien, Austria
+Gianluigi Zanetti (co-chair), CRS4, Italy
+Anastassios Nanos (co-chair), NTUA, Greece
+
+PROGRAM COMMITTEE
+Costas Bekas, IBM, Switzerland
+Jakob Blomer, CERN
+Giovanni Busonera, CRS4, Italy
+Roberto Canonico, University of Napoli Federico II, Italy
+Simon Crosby, Bromium, USA
+Tommaso Cucinotta, Alcatel-Lucent Bell Labs, Ireland
+Michael Day, IBM, USA
+Casimer DeCusatis, IBM, USA
+William Gardner, University of Guelph, USA
+Marcus Hardt, Forschungszentrum Karlsruhe, Germany
+Sverre Jarp, CERN, Switzerland
+Xuxian Jiang, NC State, USA
+Krishna Kant, George Mason University, USA
+Romeo Kinzler, IBM, Switzerland
+Nectarios Koziris, National Technical University of Athens, Greece
+Simone Leo, CRS4, Italy
+Jean-Marc Menaud, Ecole des Mines de Nantes, France
+Dimitrios Nikolopoulos, Queen's University of Belfast, UK
+Josh Simons, VMWare, USA
+Borja Sotomayor, University of Chicago, USA
+Yoshio Turner, HP Labs, USA
+Kurt Tutschku, Blekinge Institute of Technology, Sweden
+Chao-Tung Yang, Tunghai University, Taiwan
 
 
--- 
-=================================================================
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=================================================================
-Editor: IEEE TCC, Springer JoCCASA
-Chair:  IEEE/ACM MTAGS, ACM ScienceCloud, IEEE/ACM DataCloud
-=================================================================
-Cel:      1-847-722-0876
-Office:   1-312-567-5704
-Email:    iraicu@cs.iit.edu
-Web:      http://www.cs.iit.edu/~iraicu/
-Web:      http://datasys.cs.iit.edu/
-LinkedIn: http://www.linkedin.com/in/ioanraicu
-Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
-=================================================================
-=================================================================
+PAPER SUBMISSION-PUBLICATION
+
+Papers submitted to the workshop will be reviewed by at least two
+members of the program committee and external reviewers. Submissions
+should include abstract, key words, the e-mail address of the
+corresponding author, and must not exceed 8 pages, including tables
+and figures at a main font size no smaller than 11 point. Submission
+of a paper should be regarded as a commitment that, should the paper
+be accepted, at least one of the authors will register and attend the
+conference to present the work.
+
+Accepted papers will be published in the ACM International Conference
+Proceedings Series. The format must be according to the ACM SIG style.
+Initial submissions are in PDF; authors of accepted papers will be
+requested to provide source files.
+
+
+Format Guidelines:
+http://www.acm.org/sigs/publications/sigguide-v2.2sp
+
+Style template:
+http://www.acm.org/sigs/publications/proceedings-templates
+
+Abstract Submission Link:
+http://edas.info/newPaper.php?c=3D14791
+
+
+LIGHTNING TALKS
+
+Lightning Talks are non-paper track synoptical in nature that are strictly
+limited to 5 minutes. They can be used to gain early feedback on ongoing
+research, for demonstrations, to present research results, early research
+ideas, perspectives and positions of interest to the community.
+
+GENERAL INFORMATION
+
+The workshop will be held in conjunction with SC=9213, Denver, Colorado.
+
+SC 2013: http://sc13.supercomputing.org/
