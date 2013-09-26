@@ -1,17 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3 4/6] vhost_net: determine whether or not to use zerocopy
-	at one time
-Date: Thu, 26 Sep 2013 12:30:17 +0800
-Message-ID: <5243B859.3070302@redhat.com>
-References: <1378111261-14826-1-git-send-email-jasowang@redhat.com>
-	<1378111261-14826-5-git-send-email-jasowang@redhat.com>
-	<20130904115929.GA9393@redhat.com> <5227F274.9040506@redhat.com>
-	<20130923071620.GB31886@redhat.com>
+From: Zoltan Kiss <zoltan.kiss@citrix.com>
+Subject: Re: [PATCHv2] tracing/events: Add bounce tracing to swiotbl
+Date: Thu, 26 Sep 2013 17:58:52 +0100
+Message-ID: <524467CC.7040908@citrix.com>
+References: <1378325465-10384-1-git-send-email-zoltan.kiss@citrix.com>
+	<5239CF01.1010001@citrix.com>
+	<20130925175649.GC7253@phenom.dumpdata.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130923071620.GB31886@redhat.com>
+In-Reply-To: <20130925175649.GC7253@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,55 +19,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, Frederic Weisbecker <fweisbec@gmail.com>, linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/23/2013 03:16 PM, Michael S. Tsirkin wrote:
-> On Thu, Sep 05, 2013 at 10:54:44AM +0800, Jason Wang wrote:
->> > On 09/04/2013 07:59 PM, Michael S. Tsirkin wrote:
->>> > > On Mon, Sep 02, 2013 at 04:40:59PM +0800, Jason Wang wrote:
->>>> > >> Currently, even if the packet length is smaller than VHOST_GOODCOPY_LEN, if
->>>> > >> upend_idx != done_idx we still set zcopy_used to true and rollback this choice
->>>> > >> later. This could be avoided by determining zerocopy once by checking all
->>>> > >> conditions at one time before.
->>>> > >>
->>>> > >> Signed-off-by: Jason Wang <jasowang@redhat.com>
->>>> > >> ---
->>>> > >>  drivers/vhost/net.c |   47 ++++++++++++++++++++---------------------------
->>>> > >>  1 files changed, 20 insertions(+), 27 deletions(-)
->>>> > >>
->>>> > >> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
->>>> > >> index 8a6dd0d..3f89dea 100644
->>>> > >> --- a/drivers/vhost/net.c
->>>> > >> +++ b/drivers/vhost/net.c
->>>> > >> @@ -404,43 +404,36 @@ static void handle_tx(struct vhost_net *net)
->>>> > >>  			       iov_length(nvq->hdr, s), hdr_size);
->>>> > >>  			break;
->>>> > >>  		}
->>>> > >> -		zcopy_used = zcopy && (len >= VHOST_GOODCOPY_LEN ||
->>>> > >> -				       nvq->upend_idx != nvq->done_idx);
->>>> > >> +
->>>> > >> +		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
->>>> > >> +				   && (nvq->upend_idx + 1) % UIO_MAXIOV !=
->>>> > >> +				      nvq->done_idx
->>> > > Thinking about this, this looks strange.
->>> > > The original idea was that once we start doing zcopy, we keep
->>> > > using the heads ring even for short packets until no zcopy is outstanding.
->> > 
->> > What's the reason for keep using the heads ring?
-> To keep completions in order.
-
-Ok, I will do some test to see the impact.
->>> > >
->>> > > What's the logic behind (nvq->upend_idx + 1) % UIO_MAXIOV != nvq->done_idx
->>> > > here?
->> > 
->> > Because we initialize both upend_idx and done_idx to zero, so upend_idx
->> > != done_idx could not be used to check whether or not the heads ring
->> > were full.
-> But what does ring full have to do with zerocopy use?
+On 25/09/13 18:56, Konrad Rzeszutek Wilk wrote:
+> On Wed, Sep 18, 2013 at 05:04:17PM +0100, Zoltan Kiss wrote:
+>> Hi,
+>>
+>> I haven't got a reply in the past 2 weeks, so I would like to bump
+>> the patch, just to make sure it haven't fell off the radar.
+>
+> Hey,
+>
+> I have this in my queue to put on 3.13 as it is past the merge window.
+> .. with that in mind:
+>
+>
+> .. snip..
+>>> +	TP_printk("dev_name: %s dma_mask=%llx dev_addr=%llx "
+>>> +		"size=%zu swiotlb_force=%x",
+>>> +		__get_str(dev_name),
+>>> +		__entry->dma_mask,
+>>> +		(unsigned long long)__entry->dev_addr,
+>>> +		__entry->size,
+>>> +		__entry->swiotlb_force)
+>
+> Would it make sense to do something like this:
+>
+> 		__entry->swiotlb_force ? "swiotlb_force" : "")
 >
 
-It was used to forbid the zerocopy when heads ring are full, but since
-we have the limitation now, it could be removed.
+I would then rather do:
+
++	TP_printk("dev_name: %s dma_mask=%llx dev_addr=%llx "
++		"size=%zu swiotlb_force=",
++               __entry->swiotlb_force ? " yes" : "no",
++		__get_str(dev_name),
+
+Or do you mean?:
+
++	TP_printk("dev_name: %s dma_mask=%llx dev_addr=%llx "
++		"size=%zu",
++               __entry->swiotlb_force ? " swiotlb_force" : "",
++		__get_str(dev_name),
+
+This one doesn't tell you explicitly if swiotlb_force is NOT set, maybe 
+that's not so good? And adds a bit of complexity to your grep regexp?
+Either way is fine with me, but I think "swiotlb_force=0|1" is also 
+pretty straightforward to understand, and I guess it makes printk 
+slightly faster (I assume the conditional operator gives a little bit of 
+overhead)
+
+Regards,
+
+Zoli
