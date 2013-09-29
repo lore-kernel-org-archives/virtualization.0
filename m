@@ -1,17 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3 4/6] vhost_net: determine whether or not to use zerocopy
-	at one time
-Date: Sun, 29 Sep 2013 17:36:27 +0800
-Message-ID: <5247F49B.2020104@redhat.com>
-References: <1378111261-14826-1-git-send-email-jasowang@redhat.com>
-	<1378111261-14826-5-git-send-email-jasowang@redhat.com>
-	<20130904115929.GA9393@redhat.com> <5227F274.9040506@redhat.com>
-	<20130923071620.GB31886@redhat.com> <5243B859.3070302@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH net-next] virtio-net: switch to use XPS to choose txq
+Date: Mon, 30 Sep 2013 09:05:59 +0930
+Message-ID: <874n932obk.fsf__13799.754883121$1380505892$gmane$org@rustcorp.com.au>
+References: <1380261444-40918-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5243B859.3070302@redhat.com>
+In-Reply-To: <1380261444-40918-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,48 +17,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/26/2013 12:30 PM, Jason Wang wrote:
-> On 09/23/2013 03:16 PM, Michael S. Tsirkin wrote:
->> > On Thu, Sep 05, 2013 at 10:54:44AM +0800, Jason Wang wrote:
->>>> >> > On 09/04/2013 07:59 PM, Michael S. Tsirkin wrote:
->>>>>> >>> > > On Mon, Sep 02, 2013 at 04:40:59PM +0800, Jason Wang wrote:
->>>>>>>> >>>> > >> Currently, even if the packet length is smaller than VHOST_GOODCOPY_LEN, if
->>>>>>>> >>>> > >> upend_idx != done_idx we still set zcopy_used to true and rollback this choice
->>>>>>>> >>>> > >> later. This could be avoided by determining zerocopy once by checking all
->>>>>>>> >>>> > >> conditions at one time before.
->>>>>>>> >>>> > >>
->>>>>>>> >>>> > >> Signed-off-by: Jason Wang <jasowang@redhat.com>
->>>>>>>> >>>> > >> ---
->>>>>>>> >>>> > >>  drivers/vhost/net.c |   47 ++++++++++++++++++++---------------------------
->>>>>>>> >>>> > >>  1 files changed, 20 insertions(+), 27 deletions(-)
->>>>>>>> >>>> > >>
->>>>>>>> >>>> > >> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
->>>>>>>> >>>> > >> index 8a6dd0d..3f89dea 100644
->>>>>>>> >>>> > >> --- a/drivers/vhost/net.c
->>>>>>>> >>>> > >> +++ b/drivers/vhost/net.c
->>>>>>>> >>>> > >> @@ -404,43 +404,36 @@ static void handle_tx(struct vhost_net *net)
->>>>>>>> >>>> > >>  			       iov_length(nvq->hdr, s), hdr_size);
->>>>>>>> >>>> > >>  			break;
->>>>>>>> >>>> > >>  		}
->>>>>>>> >>>> > >> -		zcopy_used = zcopy && (len >= VHOST_GOODCOPY_LEN ||
->>>>>>>> >>>> > >> -				       nvq->upend_idx != nvq->done_idx);
->>>>>>>> >>>> > >> +
->>>>>>>> >>>> > >> +		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
->>>>>>>> >>>> > >> +				   && (nvq->upend_idx + 1) % UIO_MAXIOV !=
->>>>>>>> >>>> > >> +				      nvq->done_idx
->>>>>> >>> > > Thinking about this, this looks strange.
->>>>>> >>> > > The original idea was that once we start doing zcopy, we keep
->>>>>> >>> > > using the heads ring even for short packets until no zcopy is outstanding.
->>>> >> > 
->>>> >> > What's the reason for keep using the heads ring?
->> > To keep completions in order.
-> Ok, I will do some test to see the impact.
+Jason Wang <jasowang@redhat.com> writes:
+> We used to use a percpu structure vq_index to record the cpu to queue
+> mapping, this is suboptimal since it duplicates the work of XPS and
+> loses all other XPS functionality such as allowing use to configure
+> their own transmission steering strategy.
+>
+> So this patch switches to use XPS and suggest a default mapping when
+> the number of cpus is equal to the number of queues. With XPS support,
+> there's no need for keeping per-cpu vq_index and .ndo_select_queue(),
+> so they were removed also.
+>
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/net/virtio_net.c |   55 +++++++--------------------------------------
+>  1 files changed, 9 insertions(+), 46 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index defec2b..4102c1b 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -127,9 +127,6 @@ struct virtnet_info {
+>  	/* Does the affinity hint is set for virtqueues? */
+>  	bool affinity_hint_set;
+>  
+> -	/* Per-cpu variable to show the mapping from CPU to virtqueue */
+> -	int __percpu *vq_index;
+> -
+>  	/* CPU hot plug notifier */
+>  	struct notifier_block nb;
+>  };
+> @@ -1063,7 +1060,6 @@ static int virtnet_vlan_rx_kill_vid(struct net_device *dev,
+>  static void virtnet_clean_affinity(struct virtnet_info *vi, long hcpu)
+>  {
+>  	int i;
+> -	int cpu;
+>  
+>  	if (vi->affinity_hint_set) {
+>  		for (i = 0; i < vi->max_queue_pairs; i++) {
+> @@ -1073,20 +1069,11 @@ static void virtnet_clean_affinity(struct virtnet_info *vi, long hcpu)
+>  
+>  		vi->affinity_hint_set = false;
+>  	}
+> -
+> -	i = 0;
+> -	for_each_online_cpu(cpu) {
+> -		if (cpu == hcpu) {
+> -			*per_cpu_ptr(vi->vq_index, cpu) = -1;
+> -		} else {
+> -			*per_cpu_ptr(vi->vq_index, cpu) =
+> -				++i % vi->curr_queue_pairs;
+> -		}
+> -	}
+>  }
+>  
+>  static void virtnet_set_affinity(struct virtnet_info *vi)
+>  {
+> +	cpumask_var_t cpumask;
+>  	int i;
+>  	int cpu;
+>  
+> @@ -1100,15 +1087,21 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
+>  		return;
+>  	}
+>  
+> +	if (!alloc_cpumask_var(&cpumask, GFP_KERNEL))
+> +		return;
+> +
+>  	i = 0;
+>  	for_each_online_cpu(cpu) {
+>  		virtqueue_set_affinity(vi->rq[i].vq, cpu);
+>  		virtqueue_set_affinity(vi->sq[i].vq, cpu);
+> -		*per_cpu_ptr(vi->vq_index, cpu) = i;
+> +		cpumask_clear(cpumask);
+> +		cpumask_set_cpu(cpu, cpumask);
+> +		netif_set_xps_queue(vi->dev, cpumask, i);
+>  		i++;
+>  	}
+>  
+>  	vi->affinity_hint_set = true;
+> +	free_cpumask_var(cpumask);
+>  }
 
-Since the our of order completion will happen when switching between
-zero copy and non zero copy. I test this by using two sessions of
-netperf in burst mode, one with 1 byte TCP_RR another with 512 bytes of
-TCP_RR. There's no difference with the patch applied.
+Um, isn't this just cpumask_of(cpu)?
+
+Cheers,
+Rusty.
