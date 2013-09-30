@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [net-next PATCH V2] virtio-net: switch to use XPS to choose txq
-Date: Mon, 30 Sep 2013 12:04:02 +0300
-Message-ID: <20130930090402.GB20291@redhat.com>
-References: <1380526637-35524-1-git-send-email-jasowang@redhat.com>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: CFP: WorldCIST'14 - World Conference on IST, at Madeira Island
+Date: Mon, 30 Sep 2013 23:04:12 +0100
+Message-ID: <20130930220421.7BB678FD@mail.linuxfoundation.org>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3330063785855587752=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1380526637-35524-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,155 +15,205 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Sep 30, 2013 at 03:37:17PM +0800, Jason Wang wrote:
-> We used to use a percpu structure vq_index to record the cpu to queue
-> mapping, this is suboptimal since it duplicates the work of XPS and
-> loses all other XPS functionality such as allowing use to configure
-> their own transmission steering strategy.
-> 
-> So this patch switches to use XPS and suggest a default mapping when
-> the number of cpus is equal to the number of queues. With XPS support,
-> there's no need for keeping per-cpu vq_index and .ndo_select_queue(),
-> so they were removed also.
-> 
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+--===============3330063785855587752==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Apologies if you are receiving this mail more than once...
 
-> ---
-> Changes from V1:
-> - use cpumask_of() instead of allocate dynamically
-> 
->  drivers/net/virtio_net.c |   48 +--------------------------------------------
->  1 files changed, 2 insertions(+), 46 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index defec2b..4eca652 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -127,9 +127,6 @@ struct virtnet_info {
->  	/* Does the affinity hint is set for virtqueues? */
->  	bool affinity_hint_set;
->  
-> -	/* Per-cpu variable to show the mapping from CPU to virtqueue */
-> -	int __percpu *vq_index;
-> -
->  	/* CPU hot plug notifier */
->  	struct notifier_block nb;
->  };
-> @@ -1063,7 +1060,6 @@ static int virtnet_vlan_rx_kill_vid(struct net_device *dev,
->  static void virtnet_clean_affinity(struct virtnet_info *vi, long hcpu)
->  {
->  	int i;
-> -	int cpu;
->  
->  	if (vi->affinity_hint_set) {
->  		for (i = 0; i < vi->max_queue_pairs; i++) {
-> @@ -1073,16 +1069,6 @@ static void virtnet_clean_affinity(struct virtnet_info *vi, long hcpu)
->  
->  		vi->affinity_hint_set = false;
->  	}
-> -
-> -	i = 0;
-> -	for_each_online_cpu(cpu) {
-> -		if (cpu == hcpu) {
-> -			*per_cpu_ptr(vi->vq_index, cpu) = -1;
-> -		} else {
-> -			*per_cpu_ptr(vi->vq_index, cpu) =
-> -				++i % vi->curr_queue_pairs;
-> -		}
-> -	}
->  }
->  
->  static void virtnet_set_affinity(struct virtnet_info *vi)
-> @@ -1104,7 +1090,7 @@ static void virtnet_set_affinity(struct virtnet_info *vi)
->  	for_each_online_cpu(cpu) {
->  		virtqueue_set_affinity(vi->rq[i].vq, cpu);
->  		virtqueue_set_affinity(vi->sq[i].vq, cpu);
-> -		*per_cpu_ptr(vi->vq_index, cpu) = i;
-> +		netif_set_xps_queue(vi->dev, cpumask_of(cpu), i);
->  		i++;
->  	}
->  
-> @@ -1217,28 +1203,6 @@ static int virtnet_change_mtu(struct net_device *dev, int new_mtu)
->  	return 0;
->  }
->  
-> -/* To avoid contending a lock hold by a vcpu who would exit to host, select the
-> - * txq based on the processor id.
-> - */
-> -static u16 virtnet_select_queue(struct net_device *dev, struct sk_buff *skb)
-> -{
-> -	int txq;
-> -	struct virtnet_info *vi = netdev_priv(dev);
-> -
-> -	if (skb_rx_queue_recorded(skb)) {
-> -		txq = skb_get_rx_queue(skb);
-> -	} else {
-> -		txq = *__this_cpu_ptr(vi->vq_index);
-> -		if (txq == -1)
-> -			txq = 0;
-> -	}
-> -
-> -	while (unlikely(txq >= dev->real_num_tx_queues))
-> -		txq -= dev->real_num_tx_queues;
-> -
-> -	return txq;
-> -}
-> -
->  static const struct net_device_ops virtnet_netdev = {
->  	.ndo_open            = virtnet_open,
->  	.ndo_stop   	     = virtnet_close,
-> @@ -1250,7 +1214,6 @@ static const struct net_device_ops virtnet_netdev = {
->  	.ndo_get_stats64     = virtnet_stats,
->  	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
->  	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
-> -	.ndo_select_queue     = virtnet_select_queue,
->  #ifdef CONFIG_NET_POLL_CONTROLLER
->  	.ndo_poll_controller = virtnet_netpoll,
->  #endif
-> @@ -1559,10 +1522,6 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	if (vi->stats == NULL)
->  		goto free;
->  
-> -	vi->vq_index = alloc_percpu(int);
-> -	if (vi->vq_index == NULL)
-> -		goto free_stats;
-> -
->  	mutex_init(&vi->config_lock);
->  	vi->config_enable = true;
->  	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
-> @@ -1589,7 +1548,7 @@ static int virtnet_probe(struct virtio_device *vdev)
->  	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
->  	err = init_vqs(vi);
->  	if (err)
-> -		goto free_index;
-> +		goto free_stats;
->  
->  	netif_set_real_num_tx_queues(dev, 1);
->  	netif_set_real_num_rx_queues(dev, 1);
-> @@ -1640,8 +1599,6 @@ free_recv_bufs:
->  free_vqs:
->  	cancel_delayed_work_sync(&vi->refill);
->  	virtnet_del_vqs(vi);
-> -free_index:
-> -	free_percpu(vi->vq_index);
->  free_stats:
->  	free_percpu(vi->stats);
->  free:
-> @@ -1678,7 +1635,6 @@ static void virtnet_remove(struct virtio_device *vdev)
->  
->  	flush_work(&vi->config_work);
->  
-> -	free_percpu(vi->vq_index);
->  	free_percpu(vi->stats);
->  	free_netdev(vi->dev);
->  }
-> -- 
-> 1.7.1
+
+**********************************************************************=
+************
+                             WorldCIST'14
+The 2014 World Conference on Information Systems and Technologies
+                April 15 - 18, Madeira Island, Portugal
+                   http://www.aisti.eu/worldcist14/
+**********************************************************************=
+************
+
+The 2014 World Conference on Information Systems and Technologies (Wor=
+ldCIST'14: http://www.aisti.eu/worldcist14) is a global forum for rese=
+archers and practitioners to present and discuss the most recent innov=
+ations, trends, results, experiences and concerns in the several persp=
+ectives of Information Systems and Technologies.
+
+We are pleased to invite you to submit your papers to WorldCISTI'14. A=
+ll submissions will be reviewed on the basis of relevance, originality=
+, importance and clarity.
+
+=20
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Intelligent and Decision Support Systems (IDSS);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+F) Human-Computer Interaction (HCI);
+
+G) Health Informatics (HIS);
+
+H) Information Technologies in Education (ITE).
+
+
+TYPES OF SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one =
+of the Conference themes. These papers are assigned a 10-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, open to =
+discussion. These papers are assigned a 7-page limit.
+
+Poster paper: Initial work with relevant ideas, open to discussion. Th=
+ese papers are assigned to a 4-page limit.
+
+Company paper: Companies' papers that show practical experience, R & D=
+, tools, etc., focused on some topics of the conference. These papers =
+are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference includes Work Sessions where t=
+hese posters are presented and orally discussed, with a 5 minute limit=
+ per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION AND INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 24th of January 2014, and the paper must comp=
+ly with the suggested layout and page-limit. Additionally, all recomme=
+nded changes must be addressed by the authors before they submit the c=
+amera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ Advances in Intelligent Systems and Computing Series. Poster and comp=
+any papers will be published in Proceedings by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
+in the SpringerLink Digital Library. Published poster and company pape=
+rs will be submitted for indexation by EI-Compendex and EBSCO.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI, SCOPUS and =
+DBLP, among others, such as:
+
+Journal of Information Technology (JIT)
+
+Social Science Computer Review (SSCR)
+
+Information Processing & Management (IPM)
+
+Information Technology & People (ITP)
+
+Computer Science and Information Systems (ComSIS)
+
+Information Development (IDV)
+
+IEEE IT Professional (ITPro)
+
+Methods of Information in Medicine (MIM)
+
+Computer Methods in Biomechanics and Biomedical Engineering - Imaging =
+& Visualization (CMBBE-IV)
+
+Journal of Medical Internet Research (JMIR)
+
+International Journal of Health Information Systems & Informatics (IJH=
+ISI)
+
+International Journal of Web Based Communities (IJWBC)
+
+International Journal of Interactive Multimedia and Artificial Intelli=
+gence (IJIMAI)
+
+EAI Transactions on e-Education and e-Learning (EAI-TEL)
+
+
+INPORTANT DATES
+
+Paper Submission: November 15, 2013
+
+Notification of Acceptance: January 10, 2014
+
+Camera-ready Submission: January 19, 2014
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 24, 2014.
+
+
+
+Regards,=20
+
+WorldCIST'14 Team
+http://www.aisti.eu/worldcist14/
+
+
+
+
+
+
+
+
+
+--===============3330063785855587752==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3330063785855587752==--
