@@ -1,14 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [net-next PATCH V2] virtio-net: switch to use XPS to choose txq
-Date: Tue, 01 Oct 2013 11:24:08 +0930
-Message-ID: <87eh8521tr.fsf@rustcorp.com.au>
+Date: Mon, 30 Sep 2013 22:10:40 -0700 (PDT)
+Message-ID: <20130930.221040.543720988967287293.davem@davemloft.net>
 References: <1380526637-35524-1-git-send-email-jasowang@redhat.com>
-	<20130930090402.GB20291@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-7"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20130930090402.GB20291@redhat.com>
+In-Reply-To: <1380526637-35524-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +17,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
-> On Mon, Sep 30, 2013 at 03:37:17PM +0800, Jason Wang wrote:
->> We used to use a percpu structure vq_index to record the cpu to queue
->> mapping, this is suboptimal since it duplicates the work of XPS and
->> loses all other XPS functionality such as allowing use to configure
->> their own transmission steering strategy.
->> 
->> So this patch switches to use XPS and suggest a default mapping when
->> the number of cpus is equal to the number of queues. With XPS support,
->> there's no need for keeping per-cpu vq_index and .ndo_select_queue(),
->> so they were removed also.
->> 
->> Cc: Rusty Russell <rusty@rustcorp.com.au>
->> Cc: Michael S. Tsirkin <mst@redhat.com>
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
->
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-
-Dave, please apply.
-
-Cheers,
-Rusty.
+RnJvbTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4NCkRhdGU6IE1vbiwgMzAgU2Vw
+IDIwMTMgMTU6Mzc6MTcgKzA4MDANCg0KPiBXZSB1c2VkIHRvIHVzZSBhIHBlcmNwdSBzdHJ1Y3R1
+cmUgdnFfaW5kZXggdG8gcmVjb3JkIHRoZSBjcHUgdG8gcXVldWUNCj4gbWFwcGluZywgdGhpcyBp
+cyBzdWJvcHRpbWFsIHNpbmNlIGl0IGR1cGxpY2F0ZXMgdGhlIHdvcmsgb2YgWFBTIGFuZA0KPiBs
+b3NlcyBhbGwgb3RoZXIgWFBTIGZ1bmN0aW9uYWxpdHkgc3VjaCBhcyBhbGxvd2luZyB1c2UgdG8g
+Y29uZmlndXJlDQo+IHRoZWlyIG93biB0cmFuc21pc3Npb24gc3RlZXJpbmcgc3RyYXRlZ3kuDQo+
+IA0KPiBTbyB0aGlzIHBhdGNoIHN3aXRjaGVzIHRvIHVzZSBYUFMgYW5kIHN1Z2dlc3QgYSBkZWZh
+dWx0IG1hcHBpbmcgd2hlbg0KPiB0aGUgbnVtYmVyIG9mIGNwdXMgaXMgZXF1YWwgdG8gdGhlIG51
+bWJlciBvZiBxdWV1ZXMuIFdpdGggWFBTIHN1cHBvcnQsDQo+IHRoZXJlJ3Mgbm8gbmVlZCBmb3Ig
+a2VlcGluZyBwZXItY3B1IHZxX2luZGV4IGFuZCAubmRvX3NlbGVjdF9xdWV1ZSgpLA0KPiBzbyB0
+aGV5IHdlcmUgcmVtb3ZlZCBhbHNvLg0KPiANCj4gQ2M6IFJ1c3R5IFJ1c3NlbGwgPHJ1c3R5QHJ1
+c3Rjb3JwLmNvbS5hdT4NCj4gQ2M6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+
+DQo+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+DQo+IC0t
+LQ0KPiBDaGFuZ2VzIGZyb20gVjE6DQo+IC0gdXNlIGNwdW1hc2tfb2YoKSBpbnN0ZWFkIG9mIGFs
+bG9jYXRlIGR5bmFtaWNhbGx5DQoNClRoaXMgZ2VuZXJhdGVzIGJ1aWxkIHdhcm5pbmdzOg0KDQpk
+cml2ZXJzL25ldC92aXJ0aW9fbmV0LmM6IEluIGZ1bmN0aW9uIKF2aXJ0bmV0X3NldF9hZmZpbml0
+eaI6DQpkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmM6MTA5MzozOiB3YXJuaW5nOiBwYXNzaW5nIGFy
+Z3VtZW50IDIgb2YgoW5ldGlmX3NldF94cHNfcXVldWWiIGRpc2NhcmRzIKFjb25zdKIgcXVhbGlm
+aWVyIGZyb20gcG9pbnRlciB0YXJnZXQgdHlwZSBbZW5hYmxlZCBieSBkZWZhdWx0XQ0KSW4gZmls
+ZSBpbmNsdWRlZCBmcm9tIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYzoyMDowOg0KaW5jbHVkZS9s
+aW51eC9uZXRkZXZpY2UuaDoyMjc1OjU6IG5vdGU6IGV4cGVjdGVkIKFzdHJ1Y3QgY3B1bWFzayAq
+oiBidXQgYXJndW1lbnQgaXMgb2YgdHlwZSChY29uc3Qgc3RydWN0IGNwdW1hc2sgKqINCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
