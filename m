@@ -1,15 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [net-next PATCH V2] virtio-net: switch to use XPS to choose txq
-Date: Wed, 2 Oct 2013 09:15:45 +0300
-Message-ID: <20131002061545.GA6880@redhat.com>
-References: <1380526637-35524-1-git-send-email-jasowang@redhat.com>
-	<20130930.221040.543720988967287293.davem@davemloft.net>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Kmemleak: false-positive in vring_add_indirect ?
+Date: Fri, 04 Oct 2013 09:29:46 +0930
+Message-ID: <87d2nlykgd.fsf@rustcorp.com.au>
+References: <20131002202047.GA7419@cpaasch-mac>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20130930.221040.543720988967287293.davem@davemloft.net>
+In-Reply-To: <20131002202047.GA7419@cpaasch-mac>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +17,95 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Christoph Paasch <christoph.paasch@uclouvain.be>, virtualization@lists.linux-foundation.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBTZXAgMzAsIDIwMTMgYXQgMTA6MTA6NDBQTSAtMDcwMCwgRGF2aWQgTWlsbGVyIHdy
-b3RlOgo+IEZyb206IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4gRGF0ZTogTW9u
-LCAzMCBTZXAgMjAxMyAxNTozNzoxNyArMDgwMAo+IAo+ID4gV2UgdXNlZCB0byB1c2UgYSBwZXJj
-cHUgc3RydWN0dXJlIHZxX2luZGV4IHRvIHJlY29yZCB0aGUgY3B1IHRvIHF1ZXVlCj4gPiBtYXBw
-aW5nLCB0aGlzIGlzIHN1Ym9wdGltYWwgc2luY2UgaXQgZHVwbGljYXRlcyB0aGUgd29yayBvZiBY
-UFMgYW5kCj4gPiBsb3NlcyBhbGwgb3RoZXIgWFBTIGZ1bmN0aW9uYWxpdHkgc3VjaCBhcyBhbGxv
-d2luZyB1c2UgdG8gY29uZmlndXJlCj4gPiB0aGVpciBvd24gdHJhbnNtaXNzaW9uIHN0ZWVyaW5n
-IHN0cmF0ZWd5Lgo+ID4gCj4gPiBTbyB0aGlzIHBhdGNoIHN3aXRjaGVzIHRvIHVzZSBYUFMgYW5k
-IHN1Z2dlc3QgYSBkZWZhdWx0IG1hcHBpbmcgd2hlbgo+ID4gdGhlIG51bWJlciBvZiBjcHVzIGlz
-IGVxdWFsIHRvIHRoZSBudW1iZXIgb2YgcXVldWVzLiBXaXRoIFhQUyBzdXBwb3J0LAo+ID4gdGhl
-cmUncyBubyBuZWVkIGZvciBrZWVwaW5nIHBlci1jcHUgdnFfaW5kZXggYW5kIC5uZG9fc2VsZWN0
-X3F1ZXVlKCksCj4gPiBzbyB0aGV5IHdlcmUgcmVtb3ZlZCBhbHNvLgo+ID4gCj4gPiBDYzogUnVz
-dHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNvcnAuY29tLmF1Pgo+ID4gQ2M6IE1pY2hhZWwgUy4gVHNp
-cmtpbiA8bXN0QHJlZGhhdC5jb20+Cj4gPiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nIDxqYXNv
-d2FuZ0ByZWRoYXQuY29tPgo+ID4gLS0tCj4gPiBDaGFuZ2VzIGZyb20gVjE6Cj4gPiAtIHVzZSBj
-cHVtYXNrX29mKCkgaW5zdGVhZCBvZiBhbGxvY2F0ZSBkeW5hbWljYWxseQo+IAo+IFRoaXMgZ2Vu
-ZXJhdGVzIGJ1aWxkIHdhcm5pbmdzOgo+IAo+IGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYzogSW4g
-ZnVuY3Rpb24g4oCYdmlydG5ldF9zZXRfYWZmaW5pdHnigJk6Cj4gZHJpdmVycy9uZXQvdmlydGlv
-X25ldC5jOjEwOTM6Mzogd2FybmluZzogcGFzc2luZyBhcmd1bWVudCAyIG9mIOKAmG5ldGlmX3Nl
-dF94cHNfcXVldWXigJkgZGlzY2FyZHMg4oCYY29uc3TigJkgcXVhbGlmaWVyIGZyb20gcG9pbnRl
-ciB0YXJnZXQgdHlwZSBbZW5hYmxlZCBieSBkZWZhdWx0XQo+IEluIGZpbGUgaW5jbHVkZWQgZnJv
-bSBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmM6MjA6MDoKPiBpbmNsdWRlL2xpbnV4L25ldGRldmlj
-ZS5oOjIyNzU6NTogbm90ZTogZXhwZWN0ZWQg4oCYc3RydWN0IGNwdW1hc2sgKuKAmSBidXQgYXJn
-dW1lbnQgaXMgb2YgdHlwZSDigJhjb25zdCBzdHJ1Y3QgY3B1bWFzayAq4oCZCgpMb29rcyBsaWtl
-IHdlIGp1c3QgbmVlZCB0byB0d2VhayB0aGUgc2lnbmF0dXJlIHRoZXJlIHRvIGNvbnN0IHN0cnVj
-dApjcHVtYXNrICo6IGl0J3MgbmV2ZXIgY2hhbmdlZC4KCkkganVzdCBzZW50IGEgcGF0Y2gKCVtQ
-QVRDSF0gbmV0aWZfc2V0X3hwc19xdWV1ZTogbWFrZSBjcHUgbWFzayBjb25zdAp0aGF0IGRvZXMg
-ZXhhY3RseSB0aGF0LgoKLS0gCk1TVApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
-bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
-b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Christoph Paasch <christoph.paasch@uclouvain.be> writes:
+> Hello,
+>
+> I have been hunting a memory-leak warning in vring_add_indirect:
+>
+> unreferenced object 0xffff88003d467e20 (size 32):
+>   comm "softirq", pid 0, jiffies 4295197765 (age 6.364s)
+>   hex dump (first 32 bytes):
+>     28 19 bf 3d 00 00 00 00 0c 00 00 00 01 00 01 00  (..=............
+>     02 dc 51 3c 00 00 00 00 56 00 00 00 00 00 00 00  ..Q<....V.......
+>   backtrace:
+>     [<ffffffff8152db19>] kmemleak_alloc+0x59/0xc0
+>     [<ffffffff81102e93>] __kmalloc+0xf3/0x180
+>     [<ffffffff812db5d6>] vring_add_indirect+0x36/0x280
+>     [<ffffffff812dc59f>] virtqueue_add_outbuf+0xbf/0x4e0
+>     [<ffffffff813a8b30>] start_xmit+0x1a0/0x3b0
+>     [<ffffffff81445861>] dev_hard_start_xmit+0x2d1/0x4d0
+>     [<ffffffff81460052>] sch_direct_xmit+0xf2/0x1c0
+>     [<ffffffff81445c28>] dev_queue_xmit+0x1c8/0x460
+>     [<ffffffff814e3187>] ip6_finish_output2+0x1d7/0x470
+>     [<ffffffff814e34b0>] ip6_finish_output+0x90/0xb0
+>     [<ffffffff814e3507>] ip6_output+0x37/0xb0
+>     [<ffffffff815021eb>] igmp6_send+0x2db/0x470
+>     [<ffffffff81502645>] igmp6_timer_handler+0x95/0xa0
+>     [<ffffffff8104b57c>] call_timer_fn+0x2c/0x90
+>     [<ffffffff8104b7ba>] run_timer_softirq+0x1da/0x1f0
+>     [<ffffffff81045721>] __do_softirq+0xd1/0x1b0
+>
+> May it be that the allocated memory within vring_add_indirect should be marked
+> as kmemleak_ignore(), because it is mapped from a virtual to a physical
+> address and thus kmemleak cannot detect that the memory is actually still
+> being referenced.
+>
+>
+> Thanks for your help,
+> Christoph
+
+Thanks!  Does this work?
+
+virtio_ring: plug kmemleak false positive.
+
+unreferenced object 0xffff88003d467e20 (size 32):
+  comm "softirq", pid 0, jiffies 4295197765 (age 6.364s)
+  hex dump (first 32 bytes):
+    28 19 bf 3d 00 00 00 00 0c 00 00 00 01 00 01 00  (..=............
+    02 dc 51 3c 00 00 00 00 56 00 00 00 00 00 00 00  ..Q<....V.......
+  backtrace:
+    [<ffffffff8152db19>] kmemleak_alloc+0x59/0xc0
+    [<ffffffff81102e93>] __kmalloc+0xf3/0x180
+    [<ffffffff812db5d6>] vring_add_indirect+0x36/0x280
+    [<ffffffff812dc59f>] virtqueue_add_outbuf+0xbf/0x4e0
+    [<ffffffff813a8b30>] start_xmit+0x1a0/0x3b0
+    [<ffffffff81445861>] dev_hard_start_xmit+0x2d1/0x4d0
+    [<ffffffff81460052>] sch_direct_xmit+0xf2/0x1c0
+    [<ffffffff81445c28>] dev_queue_xmit+0x1c8/0x460
+    [<ffffffff814e3187>] ip6_finish_output2+0x1d7/0x470
+    [<ffffffff814e34b0>] ip6_finish_output+0x90/0xb0
+    [<ffffffff814e3507>] ip6_output+0x37/0xb0
+    [<ffffffff815021eb>] igmp6_send+0x2db/0x470
+    [<ffffffff81502645>] igmp6_timer_handler+0x95/0xa0
+    [<ffffffff8104b57c>] call_timer_fn+0x2c/0x90
+    [<ffffffff8104b7ba>] run_timer_softirq+0x1da/0x1f0
+    [<ffffffff81045721>] __do_softirq+0xd1/0x1b0
+
+Address gets embedded in a descriptor via virt_to_phys().  See detach_buf,
+which frees it:
+
+	if (vq->vring.desc[i].flags & VRING_DESC_F_INDIRECT)
+		kfree(phys_to_virt(vq->vring.desc[i].addr));
+
+Reported-by: Christoph Paasch <christoph.paasch@uclouvain.be>
+Fix-suggested-by: Christoph Paasch <christoph.paasch@uclouvain.be>
+Typing-done-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 6b4a4db..6547d46 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -173,6 +173,8 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
+ 	head = vq->free_head;
+ 	vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
+ 	vq->vring.desc[head].addr = virt_to_phys(desc);
++	/* kmemleak gives a false positive, as it's hidden by virt_to_phys */
++	kmemleak_ignore(desc);
+ 	vq->vring.desc[head].len = i * sizeof(struct vring_desc);
+ 
+ 	/* Update free pointer */
