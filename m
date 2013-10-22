@@ -1,8 +1,8 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH RFC 4/7] virtio_blk: use dummy virtqueue_notify() to detect
-	host kick error
-Date: Tue, 22 Oct 2013 14:45:08 +0200
-Message-ID: <1382445911-55657-5-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: [PATCH RFC 5/7] virtio_blk: do not free device id if virtqueue is
+	broken
+Date: Tue, 22 Oct 2013 14:45:09 +0200
+Message-ID: <1382445911-55657-6-git-send-email-graalfs@linux.vnet.ibm.com>
 References: <1382445911-55657-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,39 +22,48 @@ To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation
 Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Deleting the disk and partitions in virtblk_remove() via del_gendisk() causes
-never ending waits when trying to synch dirty inode pages.
-
-A dummy virtqueue_notify() in virtblk_remove() is used to detect a host
-notification error, latter occurs when block device was hot-unplugged.
-When the dummy host kick failed blk_cleanup_queue() should be invoked
-prior to del_gendisk().
+Re-using the same device id when a device is re-added after it was
+previously hot-unplugged should be avoided.
+An additional test is added to check a potential broken virtqueue when
+freeing the device id.
 
 Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 ---
- drivers/block/virtio_blk.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/block/virtio_blk.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 6472395..98f081a 100644
+index 98f081a..a787e6e 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -880,8 +880,14 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	vblk->config_enable = false;
- 	mutex_unlock(&vblk->config_lock);
+@@ -874,6 +874,7 @@ static void virtblk_remove(struct virtio_device *vdev)
+ 	struct virtio_blk *vblk = vdev->priv;
+ 	int index = vblk->index;
+ 	int refc;
++	bool queue_broken = false;
  
--	del_gendisk(vblk->disk);
--	blk_cleanup_queue(vblk->disk->queue);
-+	virtqueue_notify(vblk->vq);
-+	if (virtqueue_is_broken(vblk->vq)) {
-+		blk_cleanup_queue(vblk->disk->queue);
-+		del_gendisk(vblk->disk);
-+	} else {
-+		del_gendisk(vblk->disk);
-+		blk_cleanup_queue(vblk->disk->queue);
-+	}
+ 	/* Prevent config work handler from accessing the device. */
+ 	mutex_lock(&vblk->config_lock);
+@@ -882,6 +883,7 @@ static void virtblk_remove(struct virtio_device *vdev)
  
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
+ 	virtqueue_notify(vblk->vq);
+ 	if (virtqueue_is_broken(vblk->vq)) {
++		queue_broken = true;
+ 		blk_cleanup_queue(vblk->disk->queue);
+ 		del_gendisk(vblk->disk);
+ 	} else {
+@@ -900,8 +902,10 @@ static void virtblk_remove(struct virtio_device *vdev)
+ 	vdev->config->del_vqs(vdev);
+ 	kfree(vblk);
+ 
+-	/* Only free device id if we don't have any users */
+-	if (refc == 1)
++	/* Only free device id if we don't have any users
++	 * and virtqueue is not broken due to a hot-unplugged device
++	 */
++	if (refc == 1 && !queue_broken)
+ 		ida_simple_remove(&vd_index_ida, index);
+ }
+ 
 -- 
 1.8.3.1
