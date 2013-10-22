@@ -1,8 +1,8 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH RFC 5/7] virtio_blk: do not free device id if virtqueue is
-	broken
-Date: Tue, 22 Oct 2013 14:45:09 +0200
-Message-ID: <1382445911-55657-6-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: [PATCH RFC 2/7] s390/virtio_ccw: set virtqueue as broken if host
+	notify failed
+Date: Tue, 22 Oct 2013 14:45:06 +0200
+Message-ID: <1382445911-55657-3-git-send-email-graalfs@linux.vnet.ibm.com>
 References: <1382445911-55657-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,48 +22,28 @@ To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation
 Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Re-using the same device id when a device is re-added after it was
-previously hot-unplugged should be avoided.
-An additional test is added to check a potential broken virtqueue when
-freeing the device id.
+Set the current virtqueue as broken if the appropriate host kick failed
+(e.g. if the device was hot-unplugged via host means).
+This error info can be exploited at various other places where a host
+kick is triggered.
 
 Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 ---
- drivers/block/virtio_blk.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/s390/kvm/virtio_ccw.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 98f081a..a787e6e 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -874,6 +874,7 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	struct virtio_blk *vblk = vdev->priv;
- 	int index = vblk->index;
- 	int refc;
-+	bool queue_broken = false;
- 
- 	/* Prevent config work handler from accessing the device. */
- 	mutex_lock(&vblk->config_lock);
-@@ -882,6 +883,7 @@ static void virtblk_remove(struct virtio_device *vdev)
- 
- 	virtqueue_notify(vblk->vq);
- 	if (virtqueue_is_broken(vblk->vq)) {
-+		queue_broken = true;
- 		blk_cleanup_queue(vblk->disk->queue);
- 		del_gendisk(vblk->disk);
- 	} else {
-@@ -900,8 +902,10 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	vdev->config->del_vqs(vdev);
- 	kfree(vblk);
- 
--	/* Only free device id if we don't have any users */
--	if (refc == 1)
-+	/* Only free device id if we don't have any users
-+	 * and virtqueue is not broken due to a hot-unplugged device
-+	 */
-+	if (refc == 1 && !queue_broken)
- 		ida_simple_remove(&vd_index_ida, index);
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 6a410d4..ac0ace6 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -384,6 +384,8 @@ static void virtio_ccw_kvm_notify(struct virtqueue *vq)
+ 	vcdev = to_vc_device(info->vq->vdev);
+ 	ccw_device_get_schid(vcdev->cdev, &schid);
+ 	info->cookie = do_kvm_notify(schid, vq->index, info->cookie);
++	if (info->cookie < 0)
++		virtqueue_set_broken(vq);
  }
  
+ static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
 -- 
 1.8.3.1
