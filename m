@@ -1,8 +1,8 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH RFC 2/7] s390/virtio_ccw: set virtqueue as broken if host
-	notify failed
-Date: Tue, 22 Oct 2013 14:45:06 +0200
-Message-ID: <1382445911-55657-3-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: [PATCH RFC 3/7] virtio_net: avoid cpu_relax() call loop in case
+	virtqueue is broken
+Date: Tue, 22 Oct 2013 14:45:07 +0200
+Message-ID: <1382445911-55657-4-git-send-email-graalfs@linux.vnet.ibm.com>
 References: <1382445911-55657-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,28 +22,33 @@ To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation
 Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Set the current virtqueue as broken if the appropriate host kick failed
-(e.g. if the device was hot-unplugged via host means).
-This error info can be exploited at various other places where a host
-kick is triggered.
+A virtqueue_kick() call to notify a host might fail in case the network
+device was hot-unplugged.
+Spinning for a response for a VIRTIO_NET_CTRL_VLAN_DEL command response
+will end up in a never ending loop waiting for a response.
+This patch avoids the cpu_relax() loop in case the virtqueue is flagged
+as broken.
 
 Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 ---
- drivers/s390/kvm/virtio_ccw.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/virtio_net.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 6a410d4..ac0ace6 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -384,6 +384,8 @@ static void virtio_ccw_kvm_notify(struct virtqueue *vq)
- 	vcdev = to_vc_device(info->vq->vdev);
- 	ccw_device_get_schid(vcdev->cdev, &schid);
- 	info->cookie = do_kvm_notify(schid, vq->index, info->cookie);
-+	if (info->cookie < 0)
-+		virtqueue_set_broken(vq);
- }
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index ab2e5d0..57f5f13 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -800,8 +800,10 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
  
- static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
+ 	/* Spin for a response, the kick causes an ioport write, trapping
+ 	 * into the hypervisor, so the request should be handled immediately.
++	 * Do not wait for a response in case the virtqueue is 'broken'.
+ 	 */
+-	while (!virtqueue_get_buf(vi->cvq, &tmp))
++	while (!virtqueue_get_buf(vi->cvq, &tmp)
++		&& !virtqueue_is_broken(vi->cvq))
+ 		cpu_relax();
+ 
+ 	return status == VIRTIO_NET_OK;
 -- 
 1.8.3.1
