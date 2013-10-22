@@ -1,8 +1,8 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH RFC 3/7] virtio_net: avoid cpu_relax() call loop in case
-	virtqueue is broken
-Date: Tue, 22 Oct 2013 14:45:07 +0200
-Message-ID: <1382445911-55657-4-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: [PATCH RFC 1/7] virtio_ring: add new functions
+	virtqueue{_set_broken()/_is_broken()}
+Date: Tue, 22 Oct 2013 14:45:05 +0200
+Message-ID: <1382445911-55657-2-git-send-email-graalfs@linux.vnet.ibm.com>
 References: <1382445911-55657-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,33 +22,58 @@ To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation
 Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-A virtqueue_kick() call to notify a host might fail in case the network
-device was hot-unplugged.
-Spinning for a response for a VIRTIO_NET_CTRL_VLAN_DEL command response
-will end up in a never ending loop waiting for a response.
-This patch avoids the cpu_relax() loop in case the virtqueue is flagged
-as broken.
+This patch adds 2 new functions:
+
+virtqueue_set_broken(): to be called when a virtqueue kick operation fails.
+
+virtqueue_is_broken(): can be called to query the virtqueue state after a host
+was kicked.
 
 Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 ---
- drivers/net/virtio_net.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_ring.c | 16 ++++++++++++++++
+ include/linux/virtio.h       |  4 ++++
+ 2 files changed, 20 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index ab2e5d0..57f5f13 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -800,8 +800,10 @@ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 5217baf..930ee39 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -836,4 +836,20 @@ unsigned int virtqueue_get_vring_size(struct virtqueue *_vq)
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
  
- 	/* Spin for a response, the kick causes an ioport write, trapping
- 	 * into the hypervisor, so the request should be handled immediately.
-+	 * Do not wait for a response in case the virtqueue is 'broken'.
- 	 */
--	while (!virtqueue_get_buf(vi->cvq, &tmp))
-+	while (!virtqueue_get_buf(vi->cvq, &tmp)
-+		&& !virtqueue_is_broken(vi->cvq))
- 		cpu_relax();
++void virtqueue_set_broken(struct virtqueue *_vq)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++
++	vq->broken = true;
++}
++EXPORT_SYMBOL_GPL(virtqueue_set_broken);
++
++bool virtqueue_is_broken(struct virtqueue *_vq)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++
++	return vq->broken;
++}
++EXPORT_SYMBOL_GPL(virtqueue_is_broken);
++
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index 9ff8645..c09ae2b 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -76,6 +76,10 @@ void *virtqueue_detach_unused_buf(struct virtqueue *vq);
  
- 	return status == VIRTIO_NET_OK;
+ unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
+ 
++void virtqueue_set_broken(struct virtqueue *vq);
++
++bool virtqueue_is_broken(struct virtqueue *vq);
++
+ /**
+  * virtio_device - representation of a device using virtio
+  * @index: unique position on the virtio bus
 -- 
 1.8.3.1
