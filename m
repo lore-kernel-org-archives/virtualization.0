@@ -1,8 +1,8 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH RFC 7/7] virtio_blk: trigger IO errors in case virtqueue is
-	broken
-Date: Tue, 22 Oct 2013 14:45:11 +0200
-Message-ID: <1382445911-55657-8-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: [PATCH RFC 4/7] virtio_blk: use dummy virtqueue_notify() to detect
+	host kick error
+Date: Tue, 22 Oct 2013 14:45:08 +0200
+Message-ID: <1382445911-55657-5-git-send-email-graalfs@linux.vnet.ibm.com>
 References: <1382445911-55657-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,46 +22,39 @@ To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation
 Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-In case the virtqueue is flagged as broken, IO errors are triggered
-for current request queue entries.
+Deleting the disk and partitions in virtblk_remove() via del_gendisk() causes
+never ending waits when trying to synch dirty inode pages.
+
+A dummy virtqueue_notify() in virtblk_remove() is used to detect a host
+notification error, latter occurs when block device was hot-unplugged.
+When the dummy host kick failed blk_cleanup_queue() should be invoked
+prior to del_gendisk().
 
 Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 ---
- drivers/block/virtio_blk.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/block/virtio_blk.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 01b5d3a..8eb91be 100644
+index 6472395..98f081a 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -875,6 +875,20 @@ out:
- 	return err;
- }
+@@ -880,8 +880,14 @@ static void virtblk_remove(struct virtio_device *vdev)
+ 	vblk->config_enable = false;
+ 	mutex_unlock(&vblk->config_lock);
  
-+static void virtblk_flush_request_queue(struct request_queue *q)
-+{
-+	spinlock_t *lock = q->queue_lock;
-+	struct request *req;
-+
-+	if (!q)
-+		return;
-+
-+	spin_lock_irq(lock);
-+	while ((req = blk_fetch_request(q)))
-+		__blk_end_request_all(req, -EIO);
-+	spin_unlock_irq(lock);
-+}
-+
- static void virtblk_remove(struct virtio_device *vdev)
- {
- 	struct virtio_blk *vblk = vdev->priv;
-@@ -890,6 +904,7 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	virtqueue_notify(vblk->vq);
- 	if (virtqueue_is_broken(vblk->vq)) {
- 		queue_broken = true;
-+		virtblk_flush_request_queue(vblk->disk->queue);
- 		blk_cleanup_queue(vblk->disk->queue);
- 		del_gendisk(vblk->disk);
- 	} else {
+-	del_gendisk(vblk->disk);
+-	blk_cleanup_queue(vblk->disk->queue);
++	virtqueue_notify(vblk->vq);
++	if (virtqueue_is_broken(vblk->vq)) {
++		blk_cleanup_queue(vblk->disk->queue);
++		del_gendisk(vblk->disk);
++	} else {
++		del_gendisk(vblk->disk);
++		blk_cleanup_queue(vblk->disk->queue);
++	}
+ 
+ 	/* Stop all the virtqueues. */
+ 	vdev->config->reset(vdev);
 -- 
 1.8.3.1
