@@ -1,13 +1,15 @@
-From: Laszlo Ersek <lersek@redhat.com>
-Subject: Re: [edk2] QueuePFN peculiarity in virtio-mmio
-Date: Tue, 22 Oct 2013 20:05:43 +0200
-Message-ID: <5266BE77.40007@redhat.com>
-References: <5266BAA1.5080303@redhat.com> <5266BC08.6070008@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH RFC 1/7] virtio_ring: add new functions
+	virtqueue{_set_broken()/_is_broken()}
+Date: Wed, 23 Oct 2013 10:36:25 +1030
+Message-ID: <87zjq0j1fi.fsf@rustcorp.com.au>
+References: <1382445911-55657-1-git-send-email-graalfs@linux.vnet.ibm.com>
+	<1382445911-55657-2-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5266BC08.6070008@redhat.com>
+In-Reply-To: <1382445911-55657-2-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,26 +19,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: edk2-devel@lists.sourceforge.net
-Cc: Jon Masters <jcm@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Anthony Liguori <anthony@codemonkey.ws>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>, mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/22/13 19:55, Laszlo Ersek wrote:
+Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
+> This patch adds 2 new functions:
+>
+> virtqueue_set_broken(): to be called when a virtqueue kick operation fails.
+>
+> virtqueue_is_broken(): can be called to query the virtqueue state after a host
+> was kicked.
+>
+> Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 
->> The question arises because Olivier has posted a series to edk2-devel
->> that adds virtio-mmio support to TianoCore, and Mark tested it (using
->> OVMF) with a Linux guest and found problems. Namely, OVMF itself can
->> drive the virtio devices via virtio-mmio, but the Linux kernel booted
->> from OVMF can not. The reason is the missing zeroing of QueuePFN when
->> OVMF is exiting. (I'm just paraphrasing the analysis.)
+Thanks for doing this!
 
-s/OVMF/AArch64 foundation model/g
+But as shown by the following patches, the separation of kick and broken
+test is a bad API.  We should make virtqueue_kick() and
+virtqueue_notify() return a bool (ie. vq->broken).
 
-http://thread.gmane.org/gmane.comp.bios.tianocore.devel/4373/focus=4411
+We'll still need virtqueue_is_broken(), as it would be nice to make all
+callers to virtqueue_get_buf() check it as well.
 
-
-I should have followed my own advice, not to post when sick. I'll go now
-and hide in a cave.
-
-Laszlo
-/facepalm
+Cheers,
+Rusty.
