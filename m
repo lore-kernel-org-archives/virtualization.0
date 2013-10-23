@@ -1,15 +1,13 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC 4/7] virtio_blk: use dummy virtqueue_notify() to
-	detect host kick error
-Date: Wed, 23 Oct 2013 10:32:15 +1030
-Message-ID: <8738nskg6w.fsf@rustcorp.com.au>
-References: <1382445911-55657-1-git-send-email-graalfs@linux.vnet.ibm.com>
-	<1382445911-55657-5-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: Re: QueuePFN peculiarity in virtio-mmio
+Date: Wed, 23 Oct 2013 11:37:32 +1030
+Message-ID: <87ppqwiyln.fsf@rustcorp.com.au>
+References: <5266BAA1.5080303@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1382445911-55657-5-git-send-email-graalfs@linux.vnet.ibm.com>
+In-Reply-To: <5266BAA1.5080303@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,47 +17,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>, mst@redhat.com, virtualization@lists.linux-foundation.org
-Cc: borntraeger@de.ibm.com
+To: Laszlo Ersek <lersek@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Jon Masters <jcm@redhat.com>, Anthony Liguori <aliguori@us.ibm.com>
+Cc: Olivier Martin <olivier.martin@arm.com>, Pawel Moll <pawel.moll@arm.com>, "Jordan Justen (Intel address)" <jordan.l.justen@intel.com>, "edk2-devel@lists.sourceforge.net" <edk2-devel@lists.sourceforge.net>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, Mark Salter <msalter@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
-> Deleting the disk and partitions in virtblk_remove() via del_gendisk() causes
-> never ending waits when trying to synch dirty inode pages.
+Laszlo Ersek <lersek@redhat.com> writes:
+> Hi,
 >
-> A dummy virtqueue_notify() in virtblk_remove() is used to detect a host
-> notification error, latter occurs when block device was hot-unplugged.
-> When the dummy host kick failed blk_cleanup_queue() should be invoked
-> prior to del_gendisk().
->
-> Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-> ---
->  drivers/block/virtio_blk.c | 10 ++++++++--
->  1 file changed, 8 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 6472395..98f081a 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -880,8 +880,14 @@ static void virtblk_remove(struct virtio_device *vdev)
->  	vblk->config_enable = false;
->  	mutex_unlock(&vblk->config_lock);
->  
-> -	del_gendisk(vblk->disk);
-> -	blk_cleanup_queue(vblk->disk->queue);
-> +	virtqueue_notify(vblk->vq);
-> +	if (virtqueue_is_broken(vblk->vq)) {
-> +		blk_cleanup_queue(vblk->disk->queue);
-> +		del_gendisk(vblk->disk);
-> +	} else {
-> +		del_gendisk(vblk->disk);
-> +		blk_cleanup_queue(vblk->disk->queue);
-> +	}
+> "Appendix X: virtio-mmio" in the virtio spec says
 
-This seems horribly wrong.  Firstly, it's ugly to have a gratuitous
-kick.  Secondly, it's racy: what if there's a hot unplug (or other
-failure) after your virtqueue_is_broken() test?  We should be doing I/O
-failures which should be handled by del_gendisk() correctly.
+Hi Laszlo,
 
-Cheers,
+        You're in luck!  We're currently revising the virtio spec under
+the OASIS banner.  I'd really like you to post your suggestion to their
+mailing list <virtio-comment@lists.oasis-open.org> (yes, you will have
+to subscribe to it, for IP reasons:
+virtio-comment-subscribe@lists.oasis-open.org.
+
+Thanks,
 Rusty.
