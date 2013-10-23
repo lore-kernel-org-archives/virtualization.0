@@ -1,15 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH RFC 1/7] virtio_ring: add new functions
-	virtqueue{_set_broken()/_is_broken()}
-Date: Wed, 23 Oct 2013 10:36:25 +1030
-Message-ID: <87zjq0j1fi.fsf@rustcorp.com.au>
+Subject: Re: [PATCH RFC 4/7] virtio_blk: use dummy virtqueue_notify() to
+	detect host kick error
+Date: Wed, 23 Oct 2013 10:32:15 +1030
+Message-ID: <8738nskg6w.fsf@rustcorp.com.au>
 References: <1382445911-55657-1-git-send-email-graalfs@linux.vnet.ibm.com>
-	<1382445911-55657-2-git-send-email-graalfs@linux.vnet.ibm.com>
+	<1382445911-55657-5-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1382445911-55657-2-git-send-email-graalfs@linux.vnet.ibm.com>
+In-Reply-To: <1382445911-55657-5-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,23 +24,42 @@ Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
-> This patch adds 2 new functions:
+> Deleting the disk and partitions in virtblk_remove() via del_gendisk() causes
+> never ending waits when trying to synch dirty inode pages.
 >
-> virtqueue_set_broken(): to be called when a virtqueue kick operation fails.
->
-> virtqueue_is_broken(): can be called to query the virtqueue state after a host
-> was kicked.
+> A dummy virtqueue_notify() in virtblk_remove() is used to detect a host
+> notification error, latter occurs when block device was hot-unplugged.
+> When the dummy host kick failed blk_cleanup_queue() should be invoked
+> prior to del_gendisk().
 >
 > Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+> ---
+>  drivers/block/virtio_blk.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 6472395..98f081a 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -880,8 +880,14 @@ static void virtblk_remove(struct virtio_device *vdev)
+>  	vblk->config_enable = false;
+>  	mutex_unlock(&vblk->config_lock);
+>  
+> -	del_gendisk(vblk->disk);
+> -	blk_cleanup_queue(vblk->disk->queue);
+> +	virtqueue_notify(vblk->vq);
+> +	if (virtqueue_is_broken(vblk->vq)) {
+> +		blk_cleanup_queue(vblk->disk->queue);
+> +		del_gendisk(vblk->disk);
+> +	} else {
+> +		del_gendisk(vblk->disk);
+> +		blk_cleanup_queue(vblk->disk->queue);
+> +	}
 
-Thanks for doing this!
-
-But as shown by the following patches, the separation of kick and broken
-test is a bad API.  We should make virtqueue_kick() and
-virtqueue_notify() return a bool (ie. vq->broken).
-
-We'll still need virtqueue_is_broken(), as it would be nice to make all
-callers to virtqueue_get_buf() check it as well.
+This seems horribly wrong.  Firstly, it's ugly to have a gratuitous
+kick.  Secondly, it's racy: what if there's a hot unplug (or other
+failure) after your virtqueue_is_broken() test?  We should be doing I/O
+failures which should be handled by del_gendisk() correctly.
 
 Cheers,
 Rusty.
