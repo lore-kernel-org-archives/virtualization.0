@@ -1,10 +1,10 @@
-From: "Maria Lemos" <marialemos72@gmail.com>
-Subject: [WorldCIST'14]: World Conference on IST; Proceedings by Springer
-Date: Thu, 24 Oct 2013 12:34:05 +0100
-Message-ID: <20131024113409.E70CE979@mail.linuxfoundation.org>
-Reply-To: worldcist@gmail.com
+From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Subject: [PATCH V2 RFC 0/9] virtio: fix hang(loop) after hot-unplug vlan
+Date: Thu, 24 Oct 2013 17:23:11 +0200
+Message-ID: <1382628200-42956-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7524603533097659825=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,204 +15,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============7524603533097659825==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Apologies if you are receiving this mail more than once...
-
-
-**********************************************************************=
-************
-                             WorldCIST'14
-The 2014 World Conference on Information Systems and Technologies
-                April 15 - 18, Madeira Island, Portugal
-                   http://www.aisti.eu/worldcist14/
-**********************************************************************=
-************
-
-The 2014 World Conference on Information Systems and Technologies (Wor=
-ldCIST'14: http://www.aisti.eu/worldcist14) is a global forum for rese=
-archers and practitioners to present and discuss the most recent innov=
-ations, trends, results, experiences and concerns in the several persp=
-ectives of Information Systems and Technologies.
-
-We are pleased to invite you to submit your papers to WorldCISTI'14. A=
-ll submissions will be reviewed on the basis of relevance, originality=
-, importance and clarity.
-
-=20
-THEMES
-
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Intelligent and Decision Support Systems (IDSS);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-F) Human-Computer Interaction (HCI);
-
-G) Health Informatics (HIS);
-
-H) Information Technologies in Education (ITE).
-
-
-TYPES OF SUBMISSIONS AND DECISIONS
-
-Four types of papers can be submitted:
-
-Full paper: Finished or consolidated R&D works, to be included in one =
-of the Conference themes. These papers are assigned a 10-page limit.
-
-Short paper: Ongoing works with relevant preliminary results, open to =
-discussion. These papers are assigned a 7-page limit.
-
-Poster paper: Initial work with relevant ideas, open to discussion. Th=
-ese papers are assigned to a 4-page limit.
-
-Company paper: Companies' papers that show practical experience, R & D=
-, tools, etc., focused on some topics of the conference. These papers =
-are assigned to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligen=
-t Systems and Computing Series (see Instructions for Authors at Spring=
-er Website or download a DOC example) be written in English, must not =
-have been published before, not be under review for any other conferen=
-ce or publication and not include any information leading to the autho=
-rs=92 identification. Therefore, the authors=92 names, affiliations an=
-d bibliographic references should not be included in the version for e=
-valuation by the Program Committee. This information should only be in=
-cluded in the camera-ready version, saved in Word or Latex format and =
-also in PDF format. These files must be accompanied by the Consent to =
-Publication form filled out, in a ZIP file, and uploaded at the confer=
-ence management system.
-
-All papers will be subjected to a =93double-blind review=94 by at leas=
-t two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or acce=
-pted by the Conference Chairs. In the later case, it can be accepted a=
-s the type originally submitted or as another type. Thus, full papers =
-can be accepted as short papers or poster papers only. Similarly, shor=
-t papers can be accepted as poster papers only. In these cases, the au=
-thors will be allowed to maintain the original number of pages in the =
-camera-ready version.
-
-The authors of accepted poster papers must also build and print a post=
-er to be exhibited during the Conference. This poster must follow an A=
-1 or A2 vertical format. The Conference includes Work Sessions where t=
-hese posters are presented and orally discussed, with a 5 minute limit=
- per poster.
-
-The authors of accepted full papers will have 15 minutes to present th=
-eir work in a Conference Work Session; approximately 5 minutes of disc=
-ussion will follow each presentation. The authors of accepted short pa=
-pers and company papers will have 11 minutes to present their work in =
-a Conference Work Session; approximately 4 minutes of discussion will =
-follow each presentation.
-
-
-PUBLICATION AND INDEXING
-
-To ensure that a full paper, short paper, poster paper or company pape=
-r is published in the Proceedings, at least one of the authors must be=
- fully registered by the 24th of January 2014, and the paper must comp=
-ly with the suggested layout and page-limit. Additionally, all recomme=
-nded changes must be addressed by the authors before they submit the c=
-amera-ready version.
-
-No more than one paper per registration will be published in the Confe=
-rence Proceedings. An extra fee must be paid for publication of additi=
-onal papers, with a maximum of one additional paper per registration.
-
-Full and short papers will be published in Proceedings by Springer, in=
- Advances in Intelligent Systems and Computing Series. Poster and comp=
-any papers will be published in Proceedings by AISTI.
-
-Published full and short papers will be submitted for indexation by IS=
-I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
-in the SpringerLink Digital Library. Published poster and company pape=
-rs will be submitted for indexation by EI-Compendex and EBSCO.
-
-The authors of the best selected papers will be invited to extend them=
- for publication in international journals indexed by ISI, SCOPUS and =
-DBLP, among others, such as:
-
-Journal of Information Technology (JIT)
-
-Social Science Computer Review (SSCR)
-
-Information Processing & Management (IPM)
-
-Information Technology & People (ITP)
-
-Computer Science and Information Systems (ComSIS)
-
-Information Development (IDV)
-
-IEEE IT Professional (ITPro)
-
-Methods of Information in Medicine (MIM)
-
-Computer Methods in Biomechanics and Biomedical Engineering - Imaging =
-& Visualization (CMBBE-IV)
-
-Journal of Medical Internet Research (JMIR)
-
-International Journal of Interactive Multimedia and Artificial Intelli=
-gence (IJIMAI)
-
-International Journal of Health Information Systems & Informatics (IJH=
-ISI)
-
-International Journal of Web Based Communities (IJWBC)
-
-EAI Transactions on e-Education and e-Learning (EAI-TEL)
-
-
-INPORTANT DATES
-
-Paper Submission: November 15, 2013
-
-Notification of Acceptance: January 10, 2014
-
-Camera-ready Submission: January 19, 2014
-
-Payment of Registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: January 24, 2014.
-
-
-
-Regards,=20
-
-WorldCIST'14 Team
-http://www.aisti.eu/worldcist14/
-
-
-
-
-
-
-
-
---===============7524603533097659825==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7524603533097659825==--
+Hi,
+
+this patch-set solves a hang situation when a vlan network device is
+hot-unplugged from a KVM guest.
+
+On System z there exists no handshake mechanism between host and guest
+when a device is hot-unplugged. The device is removed and no further I/O
+is possible.
+
+The guest is notified about the hard removal with a CRW machine check.
+As per architecture, the host must repond to any I/O operation for the
+removed device with an error condition as if the device had never been
+there.
+
+During machine check handling in the guest, virtio exit functions try to
+perform cleanup operations by triggering final I/O, including appropriate
+host kicks. These operations fail, or do not complete, and lead to several
+kinds of hang situations. In particular, virtio-ccw guest->host notification
+on an unplugged device will receive an error; this is, however, not reflected
+back to the affected virtqueues.
+
+Here are the details of the error.
+
+A hang (loop) occurs when a machine check is handled on System z due to a
+vlan device removal. A loop spinning for a response for final IO in
+virtnet_send_command() will never complete successfully because of a previous
+unsuccessfull host kick operation (virtqueue_kick()).
+
+
+Patch [1] changes the guest->host notification API. A potential error returned
+by the host during notify() should not be ignored, but used in order to reflect
+the error back to the affected virtqueue.
+
+Patch [2] changes virtqueue_kick() and virtqueue_notify() to return a bool
+depending on the result of the host notification operation. If the host
+kick failed the current virtqueue is now flagged as 'broken'.
+
+Patches [3,4] add code to verify host kicks by testing the return value of
+virtqueue_kick() in order to avoid potential loops.
+
+Patch [5] adds a new function virtqueue_is_broken(). This function should be
+used to verify the state of a virtqueue when a previous virtqueue_get_buf()
+returned a NULL pointer.
+
+Patch [6,7,8,9] add virtqueue_is_broken() calls to handle potential errors
+when a virtqueue_bet_buf() doesn't deliver any more buffers.
+
+
+Heinz Graalfs (9):
+  virtio_ring: change host notification API
+  virtio_ring: let virtqueue_{kick()/notify()} return a bool
+  virtio_net: verify if virtqueue_kick() succeeded
+  virtio_test: verify if virtqueue_kick() succeeded
+  virtio_ring: add new function virtqueue_is_broken()
+  virtio_blk: verify if queue is broken after virtqueue_get_buf()
+  virtio_console: verify if queue is broken after virtqueue_get_buf()
+  virtio_net: verify if queue is broken after virtqueue_get_buf()
+  virtio_scsi: verify if queue is broken after virtqueue_get_buf()
+
+ drivers/block/virtio_blk.c             |  2 ++
+ drivers/char/virtio_console.c          |  6 ++++--
+ drivers/lguest/lguest_device.c         |  3 ++-
+ drivers/net/virtio_net.c               | 12 +++++++-----
+ drivers/remoteproc/remoteproc_virtio.c |  3 ++-
+ drivers/s390/kvm/kvm_virtio.c          |  8 ++++++--
+ drivers/s390/kvm/virtio_ccw.c          |  5 ++++-
+ drivers/scsi/virtio_scsi.c             |  3 ++-
+ drivers/virtio/virtio_mmio.c           |  3 ++-
+ drivers/virtio/virtio_pci.c            |  3 ++-
+ drivers/virtio/virtio_ring.c           | 32 ++++++++++++++++++++++++++------
+ include/linux/virtio.h                 |  6 ++++--
+ include/linux/virtio_ring.h            |  2 +-
+ tools/virtio/virtio_test.c             |  6 ++++--
+ tools/virtio/vringh_test.c             | 13 +++++++++----
+ 15 files changed, 77 insertions(+), 30 deletions(-)
+
+-- 
+1.8.3.1
