@@ -1,13 +1,12 @@
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH V2 RFC 5/9] virtio_ring: add new function virtqueue_is_broken()
-Date: Thu, 24 Oct 2013 17:23:16 +0200
-Message-ID: <1382628200-42956-6-git-send-email-graalfs@linux.vnet.ibm.com>
-References: <1382628200-42956-1-git-send-email-graalfs@linux.vnet.ibm.com>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: [PATCH] vhost/scsi: Fix incorrect usage of get_user_pages_fast write
+	parameter
+Date: Fri, 25 Oct 2013 18:07:16 +0000
+Message-ID: <1382724436-28478-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1382628200-42956-1-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,48 +16,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org
-Cc: borntraeger@de.ibm.com
+To: target-devel <target-devel@vger.kernel.org>
+Cc: kvm-devel <kvm@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add new function virtqueue_is_broken(). Callers of virtqueue_get_buf()
-should check for a broken queue.
+From: Nicholas Bellinger <nab@linux-iscsi.org>
 
-Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+This patch addresses a long-standing bug where the get_user_pages_fast()
+write parameter used for setting the underlying page table entry permission
+bits was incorrectly set to write=1 for data_direction=DMA_TO_DEVICE, and
+passed into get_user_pages_fast() via vhost_scsi_map_iov_to_sgl().
+
+However, this parameter is intended to signal WRITEs to pinned userspace
+PTEs for the virtio-scsi DMA_FROM_DEVICE -> READ payload case, and *not*
+for the virtio-scsi DMA_TO_DEVICE -> WRITE payload case.
+
+This bug would manifest itself as random process segmentation faults on
+KVM host after repeated vhost starts + stops and/or with lots of vhost
+endpoints + LUNs.
+
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Asias He <asias@redhat.com>
+Cc: <stable@vger.kernel.org> # 3.6+
+Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 ---
- drivers/virtio/virtio_ring.c | 8 ++++++++
- include/linux/virtio.h       | 2 ++
- 2 files changed, 10 insertions(+)
+ drivers/vhost/scsi.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index a7e0eec..7eb844b 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -848,4 +848,12 @@ unsigned int virtqueue_get_vring_size(struct virtqueue *_vq)
- }
- EXPORT_SYMBOL_GPL(virtqueue_get_vring_size);
- 
-+bool virtqueue_is_broken(struct virtqueue *_vq)
-+{
-+	struct vring_virtqueue *vq = to_vvq(_vq);
-+
-+	return vq->broken;
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_is_broken);
-+
- MODULE_LICENSE("GPL");
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 4557e8a..f15f6e7 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -76,6 +76,8 @@ void *virtqueue_detach_unused_buf(struct virtqueue *vq);
- 
- unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
- 
-+bool virtqueue_is_broken(struct virtqueue *vq);
-+
- /**
-  * virtio_device - representation of a device using virtio
-  * @index: unique position on the virtio bus
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index ce5221f..e663921 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1056,7 +1056,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 		if (data_direction != DMA_NONE) {
+ 			ret = vhost_scsi_map_iov_to_sgl(cmd,
+ 					&vq->iov[data_first], data_num,
+-					data_direction == DMA_TO_DEVICE);
++					data_direction == DMA_FROM_DEVICE);
+ 			if (unlikely(ret)) {
+ 				vq_err(vq, "Failed to map iov to sgl\n");
+ 				goto err_free;
 -- 
-1.8.3.1
+1.7.2.5
