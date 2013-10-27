@@ -1,15 +1,14 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH V2 RFC 9/9] virtio_scsi: verify if queue is broken after
-	virtqueue_get_buf()
-Date: Mon, 28 Oct 2013 09:59:04 +1030
-Message-ID: <87y55egunz.fsf@rustcorp.com.au>
+Subject: Re: [PATCH V2 RFC 1/9] virtio_ring: change host notification API
+Date: Mon, 28 Oct 2013 09:57:47 +1030
+Message-ID: <871u36i9ak.fsf@rustcorp.com.au>
 References: <1382628200-42956-1-git-send-email-graalfs@linux.vnet.ibm.com>
-	<1382628200-42956-10-git-send-email-graalfs@linux.vnet.ibm.com>
+	<1382628200-42956-2-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1382628200-42956-10-git-send-email-graalfs@linux.vnet.ibm.com>
+In-Reply-To: <1382628200-42956-2-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,14 +23,44 @@ Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
-> If virtqueue_get_buf() returned with a NULL pointer avoid a possibly
-> endless loop by checking for a broken virtqueue.
+> Currently a host kick error is silently ignored and not reflected in
+> the virtqueue of a particular virtio device.
 >
-> Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+> Changing the notify API for guest->host notification seems to be one
+> prerequisite in order to be able to handle such errors in the context
+> where the kick is triggered.
+>
+> This patch changes the notify API. The notify function must return a
+> negative int return value in case the host notification failed.
 
-Yes, these look good.
+I think we need a bool here:
 
-Please just repost the first one, and I'll apply.
+> -	kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, config->address);
+> +	rc = kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, config->address);
+> +	if (rc < 0)
+> +		return rc;
+> +	return 0;
+>  }
 
-Thanks,
+I have no idea what this hypercall returns on failure...
+
+> -static void virtio_ccw_kvm_notify(struct virtqueue *vq)
+> +static int virtio_ccw_kvm_notify(struct virtqueue *vq)
+>  {
+>  	struct virtio_ccw_vq_info *info = vq->priv;
+>  	struct virtio_ccw_device *vcdev;
+> @@ -384,6 +384,9 @@ static void virtio_ccw_kvm_notify(struct virtqueue *vq)
+>  	vcdev = to_vc_device(info->vq->vdev);
+>  	ccw_device_get_schid(vcdev->cdev, &schid);
+>  	info->cookie = do_kvm_notify(schid, vq->index, info->cookie);
+> +	if (info->cookie < 0)
+> +		return info->cookie;
+> +	return 0;
+
+Nor this one.
+
+Since the caller can't really use the return value, I think a bool is
+correct.
+
+Cheers,
 Rusty.
