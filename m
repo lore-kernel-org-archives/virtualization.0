@@ -1,16 +1,15 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH 3/3] x86: Support compiling out userspace I/O (iopl and
-	ioperm)
-Date: Sat, 26 Oct 2013 05:30:25 +0100
-Message-ID: <CAGXu5j+5vRSXX30A8PTB6XB1je2+qriQ22enoCxCeV9uhZqVCg@mail.gmail.com>
-References: <cover.1382407802.git.josh@joshtriplett.org>
-	<c6432a64f977031b3d1cf0df1d292c3808faf166.1382407802.git.josh@joshtriplett.org>
-	<CAOaVG168R6noZq5Zegs7ZcX3hYp9z6O8MaaJ4ZKeR+_iPTkPwQ@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH V2 RFC 9/9] virtio_scsi: verify if queue is broken after
+	virtqueue_get_buf()
+Date: Mon, 28 Oct 2013 09:59:04 +1030
+Message-ID: <87y55egunz.fsf@rustcorp.com.au>
+References: <1382628200-42956-1-git-send-email-graalfs@linux.vnet.ibm.com>
+	<1382628200-42956-10-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAOaVG168R6noZq5Zegs7ZcX3hYp9z6O8MaaJ4ZKeR+_iPTkPwQ@mail.gmail.com>
+In-Reply-To: <1382628200-42956-10-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,27 +19,19 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Stephen Hemminger <stephen@networkplumber.org>
-Cc: Alexander van Heukelum <heukelum@fastmail.fm>, Jeremy Fitzhardinge <jeremy@goop.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, Fenghua Yu <fenghua.yu@intel.com>, Frederic Weisbecker <fweisbec@gmail.com>, David Herrmann <dh.herrmann@gmail.com>, "x86@kernel.org" <x86@kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, "H. Peter Anvin" <hpa@zytor.com>, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Seiji Aguchi <seiji.aguchi@hds.com>, Jiri Slaby <jslaby@suse.cz>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Jesper Nilsson <jesper.nilsson@axis.com>, Andi Kleen <ak@linux.intel.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, Borislav Petkov <bp@suse.de>, Len Brown <len.brown@intel.com>, Konrad
+To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>, mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Oct 26, 2013 at 4:17 AM, Stephen Hemminger
-<stephen@networkplumber.org> wrote:
-> I/O from userspace  is used to implement usermode virtio driver(s).
-> This has been done independently by Intel, Brocade/Vyatta, and 6Wind.
-> Sorry, it has to stay.
+Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
+> If virtqueue_get_buf() returned with a NULL pointer avoid a possibly
+> endless loop by checking for a broken virtqueue.
+>
+> Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 
-This isn't about removing it, it's about putting it behind a default=y
-CONFIG. At the very least, the cleanups and 32/64 merging look
-sensible.
+Yes, these look good.
 
-As for the CONFIG, I think it'd be useful to have that, since some
-more specialized users may not want IO ports at all (some folks see IO
-ports as dangerous since they are a potential way to make a jump from
-uid-0 to ring-0).
+Please just repost the first one, and I'll apply.
 
--Kees
-
--- 
-Kees Cook
-Chrome OS Security
+Thanks,
+Rusty.
