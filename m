@@ -1,14 +1,15 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH V2 RFC 1/9] virtio_ring: change host notification API
-Date: Mon, 28 Oct 2013 09:57:47 +1030
-Message-ID: <871u36i9ak.fsf@rustcorp.com.au>
-References: <1382628200-42956-1-git-send-email-graalfs@linux.vnet.ibm.com>
-	<1382628200-42956-2-git-send-email-graalfs@linux.vnet.ibm.com>
+From: Asias He <asias@redhat.com>
+Subject: Re: [PATCH] vhost/scsi: Fix incorrect usage of get_user_pages_fast
+	write parameter
+Date: Mon, 28 Oct 2013 07:48:45 +0800
+Message-ID: <20131027234715.GA10138@hj.localdomain>
+References: <1382724436-28478-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1382628200-42956-2-git-send-email-graalfs@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <1382724436-28478-1-git-send-email-nab@linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,49 +19,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>, mst@redhat.com, virtualization@lists.linux-foundation.org
-Cc: borntraeger@de.ibm.com
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: kvm-devel <kvm@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
-> Currently a host kick error is silently ignored and not reflected in
-> the virtqueue of a particular virtio device.
->
-> Changing the notify API for guest->host notification seems to be one
-> prerequisite in order to be able to handle such errors in the context
-> where the kick is triggered.
->
-> This patch changes the notify API. The notify function must return a
-> negative int return value in case the host notification failed.
+On Fri, Oct 25, 2013 at 06:07:16PM +0000, Nicholas A. Bellinger wrote:
+> From: Nicholas Bellinger <nab@linux-iscsi.org>
+> 
+> This patch addresses a long-standing bug where the get_user_pages_fast()
+> write parameter used for setting the underlying page table entry permission
+> bits was incorrectly set to write=1 for data_direction=DMA_TO_DEVICE, and
+> passed into get_user_pages_fast() via vhost_scsi_map_iov_to_sgl().
+> 
+> However, this parameter is intended to signal WRITEs to pinned userspace
+> PTEs for the virtio-scsi DMA_FROM_DEVICE -> READ payload case, and *not*
+> for the virtio-scsi DMA_TO_DEVICE -> WRITE payload case.
+> 
+> This bug would manifest itself as random process segmentation faults on
+> KVM host after repeated vhost starts + stops and/or with lots of vhost
+> endpoints + LUNs.
+> 
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Asias He <asias@redhat.com>
+> Cc: <stable@vger.kernel.org> # 3.6+
+> Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 
-I think we need a bool here:
+Reviewed-by: Asias He <asias@redhat.com>
 
-> -	kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, config->address);
-> +	rc = kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, config->address);
-> +	if (rc < 0)
-> +		return rc;
-> +	return 0;
->  }
+> ---
+>  drivers/vhost/scsi.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> index ce5221f..e663921 100644
+> --- a/drivers/vhost/scsi.c
+> +++ b/drivers/vhost/scsi.c
+> @@ -1056,7 +1056,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+>  		if (data_direction != DMA_NONE) {
+>  			ret = vhost_scsi_map_iov_to_sgl(cmd,
+>  					&vq->iov[data_first], data_num,
+> -					data_direction == DMA_TO_DEVICE);
+> +					data_direction == DMA_FROM_DEVICE);
+>  			if (unlikely(ret)) {
+>  				vq_err(vq, "Failed to map iov to sgl\n");
+>  				goto err_free;
+> -- 
+> 1.7.2.5
+> 
 
-I have no idea what this hypercall returns on failure...
-
-> -static void virtio_ccw_kvm_notify(struct virtqueue *vq)
-> +static int virtio_ccw_kvm_notify(struct virtqueue *vq)
->  {
->  	struct virtio_ccw_vq_info *info = vq->priv;
->  	struct virtio_ccw_device *vcdev;
-> @@ -384,6 +384,9 @@ static void virtio_ccw_kvm_notify(struct virtqueue *vq)
->  	vcdev = to_vc_device(info->vq->vdev);
->  	ccw_device_get_schid(vcdev->cdev, &schid);
->  	info->cookie = do_kvm_notify(schid, vq->index, info->cookie);
-> +	if (info->cookie < 0)
-> +		return info->cookie;
-> +	return 0;
-
-Nor this one.
-
-Since the caller can't really use the return value, I think a bool is
-correct.
-
-Cheers,
-Rusty.
+-- 
+Asias
