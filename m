@@ -1,15 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [virtio-net] BUG: sleeping function called from invalid context
-	at kernel/mutex.c:616
-Date: Mon, 28 Oct 2013 13:44:04 +0800
-Message-ID: <526DF9A4.70709@redhat.com>
-References: <20131020023418.GA6737@localhost> <526638D4.1030403@redhat.com>
-	<20131023232033.GA7404@localhost>
+From: Asias He <asias@redhat.com>
+Subject: [PATCH] virtio-scsi: Fix hotcpu_notifier use-after-free with
+	virtscsi_freeze
+Date: Mon, 28 Oct 2013 16:01:03 +0800
+Message-ID: <1382947263-22145-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131023232033.GA7404@localhost>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,33 +16,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Fengguang Wu <fengguang.wu@intel.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: kvm@vger.kernel.org
+Cc: linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/24/2013 07:20 AM, Fengguang Wu wrote:
-> Yes it reduces the sleeping function bug:
->
-> /kernel/x86_64-lkp-CONFIG_SCSI_DEBUG/7c4ed2767afb813493b0a8fb18d666cd44550963
->
-> +------------------------------------------------------------------------------------+-----------+--------------+--------------+
-> |                                                                                    | v3.12-rc3 | 3ab098df35f8 | 7c4ed2767afb |
-> +------------------------------------------------------------------------------------+-----------+--------------+--------------+
-> | good_boots                                                                         | 30        | 0            | 93           |
-> | has_kernel_error_warning                                                           | 0         | 20           | 7            |
-> | BUG:sleeping_function_called_from_invalid_context_at_kernel/mutex.c                | 0         | 20           |              |
-> | INFO:rcu_sched_self-detected_stall_on_CPU(t=jiffies_g=c=q=)                        | 0         | 0            | 1            |
-> | INFO:task_blocked_for_more_than_seconds                                            | 0         | 0            | 2            |
-> | INFO:NMI_handler(arch_trigger_all_cpu_backtrace_handler)took_too_long_to_run:msecs | 0         | 0            | 1            |
-> | Kernel_panic-not_syncing:hung_task:blocked_tasks                                   | 0         | 0            | 1            |
-> | BUG:kernel_test_crashed                                                            | 0         | 0            | 3            |
-> | BUG:kernel_test_hang                                                               | 0         | 0            | 1            |
-> +------------------------------------------------------------------------------------+-----------+--------------+--------------+
->
-> However I'll need to increase tests on v3.12-rc3 to make sure it's not
-> the patch that added the other error messages.
->
-> Thanks,
-> Fengguang
+vqs are freed in virtscsi_freeze but the hotcpu_notifier is not
+unregistered. We will have a use-after-free usage when the notifier
+callback is called after virtscsi_freeze.
 
-Thanks, any more update on the result of v3.12-rc3 for this?
+Signed-off-by: Asias He <asias@redhat.com>
+---
+ drivers/scsi/virtio_scsi.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index 74b88ef..b26f1a5 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -957,6 +957,10 @@ static void virtscsi_remove(struct virtio_device *vdev)
+ #ifdef CONFIG_PM
+ static int virtscsi_freeze(struct virtio_device *vdev)
+ {
++	struct Scsi_Host *sh = virtio_scsi_host(vdev);
++	struct virtio_scsi *vscsi = shost_priv(sh);
++
++	unregister_hotcpu_notifier(&vscsi->nb);
+ 	virtscsi_remove_vqs(vdev);
+ 	return 0;
+ }
+@@ -965,8 +969,17 @@ static int virtscsi_restore(struct virtio_device *vdev)
+ {
+ 	struct Scsi_Host *sh = virtio_scsi_host(vdev);
+ 	struct virtio_scsi *vscsi = shost_priv(sh);
++	int err;
++
++	err = virtscsi_init(vdev, vscsi);
++	if (err)
++		return err;
++
++	err = register_hotcpu_notifier(&vscsi->nb);
++	if (err)
++		vdev->config->del_vqs(vdev);
+ 
+-	return virtscsi_init(vdev, vscsi);
++	return err;
+ }
+ #endif
+ 
+-- 
+1.8.3.1
