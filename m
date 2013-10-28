@@ -1,11 +1,13 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 Subject: [PATCH V2 RFC 1/9] virtio_ring: change host notification API
-Date: Mon, 28 Oct 2013 11:30:41 +0100
-Message-ID: <1382956242-23459-1-git-send-email-graalfs@linux.vnet.ibm.com>
+Date: Mon, 28 Oct 2013 11:30:42 +0100
+Message-ID: <1382956242-23459-2-git-send-email-graalfs@linux.vnet.ibm.com>
+References: <1382956242-23459-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1382956242-23459-1-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,39 +21,250 @@ To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
 Cc: borntraeger@de.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rusty,
+Currently a host kick error is silently ignored and not reflected in
+the virtqueue of a particular virtio device.
 
-here is just patch 1 (using bool as return value in notify API).
+Changing the notify API for guest->host notification seems to be one
+prerequisite in order to be able to handle such errors in the context
+where the kick is triggered.
 
-Thanks.
+This patch changes the notify API. The notify function must return a
+bool return value. It returns false if the host notification failed.
 
-Heinz Graalfs (9):
-  virtio_ring: change host notification API
-  virtio_ring: let virtqueue_{kick()/notify()} return a bool
-  virtio_net: verify if virtqueue_kick() succeeded
-  virtio_test: verify if virtqueue_kick() succeeded
-  virtio_ring: add new function virtqueue_is_broken()
-  virtio_blk: verify if queue is broken after virtqueue_get_buf()
-  virtio_console: verify if queue is broken after virtqueue_get_buf()
-  virtio_net: verify if queue is broken after virtqueue_get_buf()
-  virtio_scsi: verify if queue is broken after virtqueue_get_buf()
-
- drivers/block/virtio_blk.c             |  2 ++
- drivers/char/virtio_console.c          |  6 ++++--
+Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+---
  drivers/lguest/lguest_device.c         |  3 ++-
- drivers/net/virtio_net.c               | 12 +++++++-----
  drivers/remoteproc/remoteproc_virtio.c |  3 ++-
  drivers/s390/kvm/kvm_virtio.c          |  8 ++++++--
  drivers/s390/kvm/virtio_ccw.c          |  5 ++++-
- drivers/scsi/virtio_scsi.c             |  3 ++-
  drivers/virtio/virtio_mmio.c           |  3 ++-
  drivers/virtio/virtio_pci.c            |  3 ++-
- drivers/virtio/virtio_ring.c           | 32 ++++++++++++++++++++++++++------
- include/linux/virtio.h                 |  6 ++++--
+ drivers/virtio/virtio_ring.c           |  4 ++--
  include/linux/virtio_ring.h            |  2 +-
- tools/virtio/virtio_test.c             |  6 ++++--
+ tools/virtio/virtio_test.c             |  3 ++-
  tools/virtio/vringh_test.c             | 13 +++++++++----
- 15 files changed, 77 insertions(+), 30 deletions(-)
+ 10 files changed, 32 insertions(+), 15 deletions(-)
 
+diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
+index b3256ff..d0a1d8a 100644
+--- a/drivers/lguest/lguest_device.c
++++ b/drivers/lguest/lguest_device.c
+@@ -229,7 +229,7 @@ struct lguest_vq_info {
+  * make a hypercall.  We hand the physical address of the virtqueue so the Host
+  * knows which virtqueue we're talking about.
+  */
+-static void lg_notify(struct virtqueue *vq)
++static bool lg_notify(struct virtqueue *vq)
+ {
+ 	/*
+ 	 * We store our virtqueue information in the "priv" pointer of the
+@@ -238,6 +238,7 @@ static void lg_notify(struct virtqueue *vq)
+ 	struct lguest_vq_info *lvq = vq->priv;
+ 
+ 	hcall(LHCALL_NOTIFY, lvq->config.pfn << PAGE_SHIFT, 0, 0, 0);
++	return true;
+ }
+ 
+ /* An extern declaration inside a C file is bad form.  Don't do it. */
+diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
+index b09c75c..a34b506 100644
+--- a/drivers/remoteproc/remoteproc_virtio.c
++++ b/drivers/remoteproc/remoteproc_virtio.c
+@@ -30,7 +30,7 @@
+ #include "remoteproc_internal.h"
+ 
+ /* kick the remote processor, and let it know which virtqueue to poke at */
+-static void rproc_virtio_notify(struct virtqueue *vq)
++static bool rproc_virtio_notify(struct virtqueue *vq)
+ {
+ 	struct rproc_vring *rvring = vq->priv;
+ 	struct rproc *rproc = rvring->rvdev->rproc;
+@@ -39,6 +39,7 @@ static void rproc_virtio_notify(struct virtqueue *vq)
+ 	dev_dbg(&rproc->dev, "kicking vq index: %d\n", notifyid);
+ 
+ 	rproc->ops->kick(rproc, notifyid);
++	return true;
+ }
+ 
+ /**
+diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
+index 2ea6165..0b51fa7 100644
+--- a/drivers/s390/kvm/kvm_virtio.c
++++ b/drivers/s390/kvm/kvm_virtio.c
+@@ -166,11 +166,15 @@ static void kvm_reset(struct virtio_device *vdev)
+  * make a hypercall.  We hand the address  of the virtqueue so the Host
+  * knows which virtqueue we're talking about.
+  */
+-static void kvm_notify(struct virtqueue *vq)
++static bool kvm_notify(struct virtqueue *vq)
+ {
++	long rc;
+ 	struct kvm_vqconfig *config = vq->priv;
+ 
+-	kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, config->address);
++	rc = kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, config->address);
++	if (rc < 0)
++		return false;
++	return true;
+ }
+ 
+ /*
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 6a410d4..be2ed27 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -375,7 +375,7 @@ static inline long do_kvm_notify(struct subchannel_id schid,
+ 	return __rc;
+ }
+ 
+-static void virtio_ccw_kvm_notify(struct virtqueue *vq)
++static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
+ {
+ 	struct virtio_ccw_vq_info *info = vq->priv;
+ 	struct virtio_ccw_device *vcdev;
+@@ -384,6 +384,9 @@ static void virtio_ccw_kvm_notify(struct virtqueue *vq)
+ 	vcdev = to_vc_device(info->vq->vdev);
+ 	ccw_device_get_schid(vcdev->cdev, &schid);
+ 	info->cookie = do_kvm_notify(schid, vq->index, info->cookie);
++	if (info->cookie < 0)
++		return false;
++	return true;
+ }
+ 
+ static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 1ba0d68..e9fdeb8 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -219,13 +219,14 @@ static void vm_reset(struct virtio_device *vdev)
+ /* Transport interface */
+ 
+ /* the notify function used when creating a virt queue */
+-static void vm_notify(struct virtqueue *vq)
++static bool vm_notify(struct virtqueue *vq)
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
+ 
+ 	/* We write the queue's selector into the notification register to
+ 	 * signal the other end */
+ 	writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
++	return true;
+ }
+ 
+ /* Notify all virtqueues on an interrupt. */
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index a7ce730..f1e5c17 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -197,13 +197,14 @@ static void vp_reset(struct virtio_device *vdev)
+ }
+ 
+ /* the notify function used when creating a virt queue */
+-static void vp_notify(struct virtqueue *vq)
++static bool vp_notify(struct virtqueue *vq)
+ {
+ 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
+ 
+ 	/* we write the queue's selector into the notification register to
+ 	 * signal the other end */
+ 	iowrite16(vq->index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_NOTIFY);
++	return true;
+ }
+ 
+ /* Handle a configuration change: Tell driver if it wants to know. */
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 5217baf..6d20cf3 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -81,7 +81,7 @@ struct vring_virtqueue
+ 	u16 last_used_idx;
+ 
+ 	/* How to notify other side. FIXME: commonalize hcalls! */
+-	void (*notify)(struct virtqueue *vq);
++	bool (*notify)(struct virtqueue *vq);
+ 
+ #ifdef DEBUG
+ 	/* They're supposed to lock for us. */
+@@ -741,7 +741,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 				      struct virtio_device *vdev,
+ 				      bool weak_barriers,
+ 				      void *pages,
+-				      void (*notify)(struct virtqueue *),
++				      bool (*notify)(struct virtqueue *),
+ 				      void (*callback)(struct virtqueue *),
+ 				      const char *name)
+ {
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index ca3ad41..be4e5b7 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -70,7 +70,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
+ 				      struct virtio_device *vdev,
+ 				      bool weak_barriers,
+ 				      void *pages,
+-				      void (*notify)(struct virtqueue *vq),
++				      bool (*notify)(struct virtqueue *vq),
+ 				      void (*callback)(struct virtqueue *vq),
+ 				      const char *name);
+ void vring_del_virtqueue(struct virtqueue *vq);
+diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+index da7a195..059cb72 100644
+--- a/tools/virtio/virtio_test.c
++++ b/tools/virtio/virtio_test.c
+@@ -41,13 +41,14 @@ struct vdev_info {
+ 	struct vhost_memory *mem;
+ };
+ 
+-void vq_notify(struct virtqueue *vq)
++bool vq_notify(struct virtqueue *vq)
+ {
+ 	struct vq_info *info = vq->priv;
+ 	unsigned long long v = 1;
+ 	int r;
+ 	r = write(info->kick, &v, sizeof v);
+ 	assert(r == sizeof v);
++	return true;
+ }
+ 
+ void vq_callback(struct virtqueue *vq)
+diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
+index d053ea4..14a4f4c 100644
+--- a/tools/virtio/vringh_test.c
++++ b/tools/virtio/vringh_test.c
+@@ -22,7 +22,7 @@ static u64 user_addr_offset;
+ #define RINGSIZE 256
+ #define ALIGN 4096
+ 
+-static void never_notify_host(struct virtqueue *vq)
++static bool never_notify_host(struct virtqueue *vq)
+ {
+ 	abort();
+ }
+@@ -65,17 +65,22 @@ struct guest_virtio_device {
+ 	unsigned long notifies;
+ };
+ 
+-static void parallel_notify_host(struct virtqueue *vq)
++static bool parallel_notify_host(struct virtqueue *vq)
+ {
++	int rc;
+ 	struct guest_virtio_device *gvdev;
+ 
+ 	gvdev = container_of(vq->vdev, struct guest_virtio_device, vdev);
+-	write(gvdev->to_host_fd, "", 1);
++	rc = write(gvdev->to_host_fd, "", 1);
++	if (rc < 0)
++		return false;
+ 	gvdev->notifies++;
++	return true;
+ }
+ 
+-static void no_notify_host(struct virtqueue *vq)
++static bool no_notify_host(struct virtqueue *vq)
+ {
++	return true;
+ }
+ 
+ #define NUM_XFERS (10000000)
 -- 
 1.8.3.1
