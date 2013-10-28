@@ -1,14 +1,11 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] virtio-scsi: Fix hotcpu_notifier use-after-free with
-	virtscsi_freeze
-Date: Mon, 28 Oct 2013 11:29:38 +0100
-Message-ID: <526E3C92.5050406@redhat.com>
-References: <1382947263-22145-1-git-send-email-asias@redhat.com>
+From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Subject: [PATCH V2 RFC 1/9] virtio_ring: change host notification API
+Date: Mon, 28 Oct 2013 11:30:41 +0100
+Message-ID: <1382956242-23459-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1382947263-22145-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,55 +15,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Asias He <asias@redhat.com>
-Cc: linux-scsi <linux-scsi@vger.kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, stable <stable@vger.kernel.org>
+To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 28/10/2013 09:01, Asias He ha scritto:
-> vqs are freed in virtscsi_freeze but the hotcpu_notifier is not
-> unregistered. We will have a use-after-free usage when the notifier
-> callback is called after virtscsi_freeze.
-> 
-> Signed-off-by: Asias He <asias@redhat.com>
-> ---
->  drivers/scsi/virtio_scsi.c | 15 ++++++++++++++-
->  1 file changed, 14 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> index 74b88ef..b26f1a5 100644
-> --- a/drivers/scsi/virtio_scsi.c
-> +++ b/drivers/scsi/virtio_scsi.c
-> @@ -957,6 +957,10 @@ static void virtscsi_remove(struct virtio_device *vdev)
->  #ifdef CONFIG_PM
->  static int virtscsi_freeze(struct virtio_device *vdev)
->  {
-> +	struct Scsi_Host *sh = virtio_scsi_host(vdev);
-> +	struct virtio_scsi *vscsi = shost_priv(sh);
-> +
-> +	unregister_hotcpu_notifier(&vscsi->nb);
->  	virtscsi_remove_vqs(vdev);
->  	return 0;
->  }
-> @@ -965,8 +969,17 @@ static int virtscsi_restore(struct virtio_device *vdev)
->  {
->  	struct Scsi_Host *sh = virtio_scsi_host(vdev);
->  	struct virtio_scsi *vscsi = shost_priv(sh);
-> +	int err;
-> +
-> +	err = virtscsi_init(vdev, vscsi);
-> +	if (err)
-> +		return err;
-> +
-> +	err = register_hotcpu_notifier(&vscsi->nb);
-> +	if (err)
-> +		vdev->config->del_vqs(vdev);
->  
-> -	return virtscsi_init(vdev, vscsi);
-> +	return err;
->  }
->  #endif
->  
-> 
+Rusty,
 
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: stable@vger.kernel.org
+here is just patch 1 (using bool as return value in notify API).
+
+Thanks.
+
+Heinz Graalfs (9):
+  virtio_ring: change host notification API
+  virtio_ring: let virtqueue_{kick()/notify()} return a bool
+  virtio_net: verify if virtqueue_kick() succeeded
+  virtio_test: verify if virtqueue_kick() succeeded
+  virtio_ring: add new function virtqueue_is_broken()
+  virtio_blk: verify if queue is broken after virtqueue_get_buf()
+  virtio_console: verify if queue is broken after virtqueue_get_buf()
+  virtio_net: verify if queue is broken after virtqueue_get_buf()
+  virtio_scsi: verify if queue is broken after virtqueue_get_buf()
+
+ drivers/block/virtio_blk.c             |  2 ++
+ drivers/char/virtio_console.c          |  6 ++++--
+ drivers/lguest/lguest_device.c         |  3 ++-
+ drivers/net/virtio_net.c               | 12 +++++++-----
+ drivers/remoteproc/remoteproc_virtio.c |  3 ++-
+ drivers/s390/kvm/kvm_virtio.c          |  8 ++++++--
+ drivers/s390/kvm/virtio_ccw.c          |  5 ++++-
+ drivers/scsi/virtio_scsi.c             |  3 ++-
+ drivers/virtio/virtio_mmio.c           |  3 ++-
+ drivers/virtio/virtio_pci.c            |  3 ++-
+ drivers/virtio/virtio_ring.c           | 32 ++++++++++++++++++++++++++------
+ include/linux/virtio.h                 |  6 ++++--
+ include/linux/virtio_ring.h            |  2 +-
+ tools/virtio/virtio_test.c             |  6 ++++--
+ tools/virtio/vringh_test.c             | 13 +++++++++----
+ 15 files changed, 77 insertions(+), 30 deletions(-)
+
+-- 
+1.8.3.1
