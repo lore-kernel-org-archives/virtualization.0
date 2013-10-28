@@ -1,16 +1,15 @@
-From: Fengguang Wu <fengguang.wu@intel.com>
-Subject: Re: [virtio-net] BUG: sleeping function called from invalid context
-	at kernel/mutex.c:616
-Date: Mon, 28 Oct 2013 20:49:11 +0800
-Message-ID: <20131028124911.GA13923@localhost>
-References: <20131020023418.GA6737@localhost> <526638D4.1030403@redhat.com>
-	<20131023232033.GA7404@localhost> <526DF9A4.70709@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vhost/scsi: Fix incorrect usage of get_user_pages_fast
+	write parameter
+Date: Mon, 28 Oct 2013 14:41:13 +0200
+Message-ID: <20131028124113.GB19131@redhat.com>
+References: <1382724436-28478-1-git-send-email-nab@linux-iscsi.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <526DF9A4.70709@redhat.com>
+In-Reply-To: <1382724436-28478-1-git-send-email-nab@linux-iscsi.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,60 +19,50 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: kvm-devel <kvm@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, lf-virt <virtualization@lists.linux-foundation.org>, target-devel <target-devel@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Oct 28, 2013 at 01:44:04PM +0800, Jason Wang wrote:
-> On 10/24/2013 07:20 AM, Fengguang Wu wrote:
-> > Yes it reduces the sleeping function bug:
-> >
-> > /kernel/x86_64-lkp-CONFIG_SCSI_DEBUG/7c4ed2767afb813493b0a8fb18d666cd44550963
-> >
-> > +------------------------------------------------------------------------------------+-----------+--------------+--------------+
-> > |                                                                                    | v3.12-rc3 | 3ab098df35f8 | 7c4ed2767afb |
-> > +------------------------------------------------------------------------------------+-----------+--------------+--------------+
-> > | good_boots                                                                         | 30        | 0            | 93           |
-> > | has_kernel_error_warning                                                           | 0         | 20           | 7            |
-> > | BUG:sleeping_function_called_from_invalid_context_at_kernel/mutex.c                | 0         | 20           |              |
-> > | INFO:rcu_sched_self-detected_stall_on_CPU(t=jiffies_g=c=q=)                        | 0         | 0            | 1            |
-> > | INFO:task_blocked_for_more_than_seconds                                            | 0         | 0            | 2            |
-> > | INFO:NMI_handler(arch_trigger_all_cpu_backtrace_handler)took_too_long_to_run:msecs | 0         | 0            | 1            |
-> > | Kernel_panic-not_syncing:hung_task:blocked_tasks                                   | 0         | 0            | 1            |
-> > | BUG:kernel_test_crashed                                                            | 0         | 0            | 3            |
-> > | BUG:kernel_test_hang                                                               | 0         | 0            | 1            |
-> > +------------------------------------------------------------------------------------+-----------+--------------+--------------+
-> >
-> > However I'll need to increase tests on v3.12-rc3 to make sure it's not
-> > the patch that added the other error messages.
-> >
-> > Thanks,
-> > Fengguang
+On Fri, Oct 25, 2013 at 06:07:16PM +0000, Nicholas A. Bellinger wrote:
+> From: Nicholas Bellinger <nab@linux-iscsi.org>
 > 
-> Thanks, any more update on the result of v3.12-rc3 for this?
+> This patch addresses a long-standing bug where the get_user_pages_fast()
+> write parameter used for setting the underlying page table entry permission
+> bits was incorrectly set to write=1 for data_direction=DMA_TO_DEVICE, and
+> passed into get_user_pages_fast() via vhost_scsi_map_iov_to_sgl().
+> 
+> However, this parameter is intended to signal WRITEs to pinned userspace
+> PTEs for the virtio-scsi DMA_FROM_DEVICE -> READ payload case, and *not*
+> for the virtio-scsi DMA_TO_DEVICE -> WRITE payload case.
+> 
+> This bug would manifest itself as random process segmentation faults on
+> KVM host after repeated vhost starts + stops and/or with lots of vhost
+> endpoints + LUNs.
+> 
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Asias He <asias@redhat.com>
+> Cc: <stable@vger.kernel.org> # 3.6+
+> Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 
-Yes, it's confirmed that there are no new error types in 7c4ed2767afb
-comparing to v3.12-rc3, so your fix is fine.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-/kernel/x86_64-lkp-CONFIG_SCSI_DEBUG/7c4ed2767afb813493b0a8fb18d666cd44550963
-
-+------------------------------------------------------------------------------------+-----------+--------------+--------------+
-|                                                                                    | v3.12-rc3 | 3ab098df35f8 | 7c4ed2767afb |
-+------------------------------------------------------------------------------------+-----------+--------------+--------------+
-| good_boots                                                                         | 877       | 0            | 93           |
-| has_kernel_error_warning                                                           | 154       | 20           | 7            |
-| BUG:kernel_test_hang                                                               | 112       | 0            | 1            |
-| INFO:rcu_sched_self-detected_stall_on_CPU(t=jiffies_g=c=q=)                        | 1         | 0            | 1            |
-| INFO:task_blocked_for_more_than_seconds                                            | 18        | 0            | 2            |
-| INFO:NMI_handler(arch_trigger_all_cpu_backtrace_handler)took_too_long_to_run:msecs | 11        | 0            | 1            |
-| Kernel_panic-not_syncing:hung_task:blocked_tasks                                   | 11        | 0            | 1            |
-| BUG:kernel_test_crashed                                                            | 13        | 0            | 3            |
-| Out_of_memory:Kill_process                                                         | 9         |              |              |
-| BUG:kernel_early_hang_without_any_printk_output                                    | 1         |              |              |
-| page_allocation_failure:order:,mode                                                | 1         |              |              |
-| Kernel_panic-not_syncing:Out_of_memory_and_no_killable_processes                   | 2         |              |              |
-| BUG:sleeping_function_called_from_invalid_context_at_kernel/mutex.c                | 0         | 20           |              |
-+------------------------------------------------------------------------------------+-----------+--------------+--------------+
-
-Thanks,
-Fengguang
+> ---
+>  drivers/vhost/scsi.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> index ce5221f..e663921 100644
+> --- a/drivers/vhost/scsi.c
+> +++ b/drivers/vhost/scsi.c
+> @@ -1056,7 +1056,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+>  		if (data_direction != DMA_NONE) {
+>  			ret = vhost_scsi_map_iov_to_sgl(cmd,
+>  					&vq->iov[data_first], data_num,
+> -					data_direction == DMA_TO_DEVICE);
+> +					data_direction == DMA_FROM_DEVICE);
+>  			if (unlikely(ret)) {
+>  				vq_err(vq, "Failed to map iov to sgl\n");
+>  				goto err_free;
+> -- 
+> 1.7.2.5
