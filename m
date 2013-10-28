@@ -1,13 +1,16 @@
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH V2 RFC 1/9] virtio_ring: change host notification API
-Date: Mon, 28 Oct 2013 11:30:42 +0100
-Message-ID: <1382956242-23459-2-git-send-email-graalfs@linux.vnet.ibm.com>
-References: <1382956242-23459-1-git-send-email-graalfs@linux.vnet.ibm.com>
+From: Fengguang Wu <fengguang.wu@intel.com>
+Subject: Re: [virtio-net] BUG: sleeping function called from invalid context
+	at kernel/mutex.c:616
+Date: Mon, 28 Oct 2013 20:49:11 +0800
+Message-ID: <20131028124911.GA13923@localhost>
+References: <20131020023418.GA6737@localhost> <526638D4.1030403@redhat.com>
+	<20131023232033.GA7404@localhost> <526DF9A4.70709@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1382956242-23459-1-git-send-email-graalfs@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <526DF9A4.70709@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,254 +20,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
-Cc: borntraeger@de.ibm.com, mst@redhat.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently a host kick error is silently ignored and not reflected in
-the virtqueue of a particular virtio device.
+On Mon, Oct 28, 2013 at 01:44:04PM +0800, Jason Wang wrote:
+> On 10/24/2013 07:20 AM, Fengguang Wu wrote:
+> > Yes it reduces the sleeping function bug:
+> >
+> > /kernel/x86_64-lkp-CONFIG_SCSI_DEBUG/7c4ed2767afb813493b0a8fb18d666cd44550963
+> >
+> > +------------------------------------------------------------------------------------+-----------+--------------+--------------+
+> > |                                                                                    | v3.12-rc3 | 3ab098df35f8 | 7c4ed2767afb |
+> > +------------------------------------------------------------------------------------+-----------+--------------+--------------+
+> > | good_boots                                                                         | 30        | 0            | 93           |
+> > | has_kernel_error_warning                                                           | 0         | 20           | 7            |
+> > | BUG:sleeping_function_called_from_invalid_context_at_kernel/mutex.c                | 0         | 20           |              |
+> > | INFO:rcu_sched_self-detected_stall_on_CPU(t=jiffies_g=c=q=)                        | 0         | 0            | 1            |
+> > | INFO:task_blocked_for_more_than_seconds                                            | 0         | 0            | 2            |
+> > | INFO:NMI_handler(arch_trigger_all_cpu_backtrace_handler)took_too_long_to_run:msecs | 0         | 0            | 1            |
+> > | Kernel_panic-not_syncing:hung_task:blocked_tasks                                   | 0         | 0            | 1            |
+> > | BUG:kernel_test_crashed                                                            | 0         | 0            | 3            |
+> > | BUG:kernel_test_hang                                                               | 0         | 0            | 1            |
+> > +------------------------------------------------------------------------------------+-----------+--------------+--------------+
+> >
+> > However I'll need to increase tests on v3.12-rc3 to make sure it's not
+> > the patch that added the other error messages.
+> >
+> > Thanks,
+> > Fengguang
+> 
+> Thanks, any more update on the result of v3.12-rc3 for this?
 
-Changing the notify API for guest->host notification seems to be one
-prerequisite in order to be able to handle such errors in the context
-where the kick is triggered.
+Yes, it's confirmed that there are no new error types in 7c4ed2767afb
+comparing to v3.12-rc3, so your fix is fine.
 
-This patch changes the notify API. The notify function must return a
-bool return value. It returns false if the host notification failed.
+/kernel/x86_64-lkp-CONFIG_SCSI_DEBUG/7c4ed2767afb813493b0a8fb18d666cd44550963
 
-Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
----
- drivers/lguest/lguest_device.c         |  3 ++-
- drivers/remoteproc/remoteproc_virtio.c |  3 ++-
- drivers/s390/kvm/kvm_virtio.c          |  8 ++++++--
- drivers/s390/kvm/virtio_ccw.c          |  5 ++++-
- drivers/virtio/virtio_mmio.c           |  3 ++-
- drivers/virtio/virtio_pci.c            |  3 ++-
- drivers/virtio/virtio_ring.c           |  4 ++--
- include/linux/virtio_ring.h            |  2 +-
- tools/virtio/virtio_test.c             |  3 ++-
- tools/virtio/vringh_test.c             | 13 +++++++++----
- 10 files changed, 32 insertions(+), 15 deletions(-)
++------------------------------------------------------------------------------------+-----------+--------------+--------------+
+|                                                                                    | v3.12-rc3 | 3ab098df35f8 | 7c4ed2767afb |
++------------------------------------------------------------------------------------+-----------+--------------+--------------+
+| good_boots                                                                         | 877       | 0            | 93           |
+| has_kernel_error_warning                                                           | 154       | 20           | 7            |
+| BUG:kernel_test_hang                                                               | 112       | 0            | 1            |
+| INFO:rcu_sched_self-detected_stall_on_CPU(t=jiffies_g=c=q=)                        | 1         | 0            | 1            |
+| INFO:task_blocked_for_more_than_seconds                                            | 18        | 0            | 2            |
+| INFO:NMI_handler(arch_trigger_all_cpu_backtrace_handler)took_too_long_to_run:msecs | 11        | 0            | 1            |
+| Kernel_panic-not_syncing:hung_task:blocked_tasks                                   | 11        | 0            | 1            |
+| BUG:kernel_test_crashed                                                            | 13        | 0            | 3            |
+| Out_of_memory:Kill_process                                                         | 9         |              |              |
+| BUG:kernel_early_hang_without_any_printk_output                                    | 1         |              |              |
+| page_allocation_failure:order:,mode                                                | 1         |              |              |
+| Kernel_panic-not_syncing:Out_of_memory_and_no_killable_processes                   | 2         |              |              |
+| BUG:sleeping_function_called_from_invalid_context_at_kernel/mutex.c                | 0         | 20           |              |
++------------------------------------------------------------------------------------+-----------+--------------+--------------+
 
-diff --git a/drivers/lguest/lguest_device.c b/drivers/lguest/lguest_device.c
-index b3256ff..d0a1d8a 100644
---- a/drivers/lguest/lguest_device.c
-+++ b/drivers/lguest/lguest_device.c
-@@ -229,7 +229,7 @@ struct lguest_vq_info {
-  * make a hypercall.  We hand the physical address of the virtqueue so the Host
-  * knows which virtqueue we're talking about.
-  */
--static void lg_notify(struct virtqueue *vq)
-+static bool lg_notify(struct virtqueue *vq)
- {
- 	/*
- 	 * We store our virtqueue information in the "priv" pointer of the
-@@ -238,6 +238,7 @@ static void lg_notify(struct virtqueue *vq)
- 	struct lguest_vq_info *lvq = vq->priv;
- 
- 	hcall(LHCALL_NOTIFY, lvq->config.pfn << PAGE_SHIFT, 0, 0, 0);
-+	return true;
- }
- 
- /* An extern declaration inside a C file is bad form.  Don't do it. */
-diff --git a/drivers/remoteproc/remoteproc_virtio.c b/drivers/remoteproc/remoteproc_virtio.c
-index b09c75c..a34b506 100644
---- a/drivers/remoteproc/remoteproc_virtio.c
-+++ b/drivers/remoteproc/remoteproc_virtio.c
-@@ -30,7 +30,7 @@
- #include "remoteproc_internal.h"
- 
- /* kick the remote processor, and let it know which virtqueue to poke at */
--static void rproc_virtio_notify(struct virtqueue *vq)
-+static bool rproc_virtio_notify(struct virtqueue *vq)
- {
- 	struct rproc_vring *rvring = vq->priv;
- 	struct rproc *rproc = rvring->rvdev->rproc;
-@@ -39,6 +39,7 @@ static void rproc_virtio_notify(struct virtqueue *vq)
- 	dev_dbg(&rproc->dev, "kicking vq index: %d\n", notifyid);
- 
- 	rproc->ops->kick(rproc, notifyid);
-+	return true;
- }
- 
- /**
-diff --git a/drivers/s390/kvm/kvm_virtio.c b/drivers/s390/kvm/kvm_virtio.c
-index 2ea6165..0b51fa7 100644
---- a/drivers/s390/kvm/kvm_virtio.c
-+++ b/drivers/s390/kvm/kvm_virtio.c
-@@ -166,11 +166,15 @@ static void kvm_reset(struct virtio_device *vdev)
-  * make a hypercall.  We hand the address  of the virtqueue so the Host
-  * knows which virtqueue we're talking about.
-  */
--static void kvm_notify(struct virtqueue *vq)
-+static bool kvm_notify(struct virtqueue *vq)
- {
-+	long rc;
- 	struct kvm_vqconfig *config = vq->priv;
- 
--	kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, config->address);
-+	rc = kvm_hypercall1(KVM_S390_VIRTIO_NOTIFY, config->address);
-+	if (rc < 0)
-+		return false;
-+	return true;
- }
- 
- /*
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 6a410d4..be2ed27 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -375,7 +375,7 @@ static inline long do_kvm_notify(struct subchannel_id schid,
- 	return __rc;
- }
- 
--static void virtio_ccw_kvm_notify(struct virtqueue *vq)
-+static bool virtio_ccw_kvm_notify(struct virtqueue *vq)
- {
- 	struct virtio_ccw_vq_info *info = vq->priv;
- 	struct virtio_ccw_device *vcdev;
-@@ -384,6 +384,9 @@ static void virtio_ccw_kvm_notify(struct virtqueue *vq)
- 	vcdev = to_vc_device(info->vq->vdev);
- 	ccw_device_get_schid(vcdev->cdev, &schid);
- 	info->cookie = do_kvm_notify(schid, vq->index, info->cookie);
-+	if (info->cookie < 0)
-+		return false;
-+	return true;
- }
- 
- static int virtio_ccw_read_vq_conf(struct virtio_ccw_device *vcdev,
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 1ba0d68..e9fdeb8 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -219,13 +219,14 @@ static void vm_reset(struct virtio_device *vdev)
- /* Transport interface */
- 
- /* the notify function used when creating a virt queue */
--static void vm_notify(struct virtqueue *vq)
-+static bool vm_notify(struct virtqueue *vq)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vq->vdev);
- 
- 	/* We write the queue's selector into the notification register to
- 	 * signal the other end */
- 	writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
-+	return true;
- }
- 
- /* Notify all virtqueues on an interrupt. */
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index a7ce730..f1e5c17 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -197,13 +197,14 @@ static void vp_reset(struct virtio_device *vdev)
- }
- 
- /* the notify function used when creating a virt queue */
--static void vp_notify(struct virtqueue *vq)
-+static bool vp_notify(struct virtqueue *vq)
- {
- 	struct virtio_pci_device *vp_dev = to_vp_device(vq->vdev);
- 
- 	/* we write the queue's selector into the notification register to
- 	 * signal the other end */
- 	iowrite16(vq->index, vp_dev->ioaddr + VIRTIO_PCI_QUEUE_NOTIFY);
-+	return true;
- }
- 
- /* Handle a configuration change: Tell driver if it wants to know. */
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 5217baf..6d20cf3 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -81,7 +81,7 @@ struct vring_virtqueue
- 	u16 last_used_idx;
- 
- 	/* How to notify other side. FIXME: commonalize hcalls! */
--	void (*notify)(struct virtqueue *vq);
-+	bool (*notify)(struct virtqueue *vq);
- 
- #ifdef DEBUG
- 	/* They're supposed to lock for us. */
-@@ -741,7 +741,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      struct virtio_device *vdev,
- 				      bool weak_barriers,
- 				      void *pages,
--				      void (*notify)(struct virtqueue *),
-+				      bool (*notify)(struct virtqueue *),
- 				      void (*callback)(struct virtqueue *),
- 				      const char *name)
- {
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index ca3ad41..be4e5b7 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -70,7 +70,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 				      struct virtio_device *vdev,
- 				      bool weak_barriers,
- 				      void *pages,
--				      void (*notify)(struct virtqueue *vq),
-+				      bool (*notify)(struct virtqueue *vq),
- 				      void (*callback)(struct virtqueue *vq),
- 				      const char *name);
- void vring_del_virtqueue(struct virtqueue *vq);
-diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-index da7a195..059cb72 100644
---- a/tools/virtio/virtio_test.c
-+++ b/tools/virtio/virtio_test.c
-@@ -41,13 +41,14 @@ struct vdev_info {
- 	struct vhost_memory *mem;
- };
- 
--void vq_notify(struct virtqueue *vq)
-+bool vq_notify(struct virtqueue *vq)
- {
- 	struct vq_info *info = vq->priv;
- 	unsigned long long v = 1;
- 	int r;
- 	r = write(info->kick, &v, sizeof v);
- 	assert(r == sizeof v);
-+	return true;
- }
- 
- void vq_callback(struct virtqueue *vq)
-diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-index d053ea4..14a4f4c 100644
---- a/tools/virtio/vringh_test.c
-+++ b/tools/virtio/vringh_test.c
-@@ -22,7 +22,7 @@ static u64 user_addr_offset;
- #define RINGSIZE 256
- #define ALIGN 4096
- 
--static void never_notify_host(struct virtqueue *vq)
-+static bool never_notify_host(struct virtqueue *vq)
- {
- 	abort();
- }
-@@ -65,17 +65,22 @@ struct guest_virtio_device {
- 	unsigned long notifies;
- };
- 
--static void parallel_notify_host(struct virtqueue *vq)
-+static bool parallel_notify_host(struct virtqueue *vq)
- {
-+	int rc;
- 	struct guest_virtio_device *gvdev;
- 
- 	gvdev = container_of(vq->vdev, struct guest_virtio_device, vdev);
--	write(gvdev->to_host_fd, "", 1);
-+	rc = write(gvdev->to_host_fd, "", 1);
-+	if (rc < 0)
-+		return false;
- 	gvdev->notifies++;
-+	return true;
- }
- 
--static void no_notify_host(struct virtqueue *vq)
-+static bool no_notify_host(struct virtqueue *vq)
- {
-+	return true;
- }
- 
- #define NUM_XFERS (10000000)
--- 
-1.8.3.1
+Thanks,
+Fengguang
