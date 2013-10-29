@@ -1,14 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Wanlong Gao <gaowanlong@cn.fujitsu.com>
 Subject: Re: [PATCH net] virtio-net: correctly handle cpu hotplug notifier
 	during resuming
-Date: Tue, 29 Oct 2013 09:36:31 +0200
-Message-ID: <20131029073631.GA16894@redhat.com>
+Date: Tue, 29 Oct 2013 16:42:27 +0800
+Message-ID: <526F74F3.8080405@cn.fujitsu.com>
 References: <1383030667-14343-1-git-send-email-jasowang@redhat.com>
+Reply-To: gaowanlong@cn.fujitsu.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 In-Reply-To: <1383030667-14343-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,11 +19,10 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>, rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Oct 29, 2013 at 03:11:07PM +0800, Jason Wang wrote:
+On 10/29/2013 03:11 PM, Jason Wang wrote:
 > commit 3ab098df35f8b98b6553edc2e40234af512ba877 (virtio-net: don't respond to
 > cpu hotplug notifier if we're not ready) tries to bypass the cpu hotplug
 > notifier by checking the config_enable and does nothing is it was false. So it
@@ -81,10 +80,10 @@ On Tue, Oct 29, 2013 at 03:11:07PM +0800, Jason Wang wrote:
 > Cc: Michael S. Tsirkin <mst@redhat.com>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Thank you for your fix.
 
-BTW there's a new Fixes: tag, you might want to use it
-in the future.
+Reviewed-by: Wanlong Gao <gaowanlong@cn.fujitsu.com>
+
 
 > ---
 > This patch is needed for 3.8 and above.
@@ -137,5 +136,4 @@ in the future.
 >  	return 0;
 >  }
 >  #endif
-> -- 
-> 1.8.1.2
+> 
