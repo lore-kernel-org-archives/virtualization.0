@@ -1,13 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH V2 RFC 1/9] virtio_ring: change host notification API
-Date: Tue, 29 Oct 2013 09:43:24 +1030
-Message-ID: <877gcxf0q3.fsf@rustcorp.com.au>
-References: <1382956242-23459-1-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: Re: [PATCH V2 RFC 9/9] virtio_scsi: verify if queue is broken after
+	virtqueue_get_buf()
+Date: Tue, 29 Oct 2013 11:34:07 +1030
+Message-ID: <87vc0gevlk.fsf@rustcorp.com.au>
+References: <1382628200-42956-1-git-send-email-graalfs@linux.vnet.ibm.com>
+	<1382628200-42956-10-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1382956242-23459-1-git-send-email-graalfs@linux.vnet.ibm.com>
+In-Reply-To: <1382628200-42956-10-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,29 +19,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org
-Cc: borntraeger@de.ibm.com, mst@redhat.com
+To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>, mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
-> Rusty,
+> If virtqueue_get_buf() returned with a NULL pointer avoid a possibly
+> endless loop by checking for a broken virtqueue.
 >
-> here is just patch 1 (using bool as return value in notify API).
+> Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+> ---
+>  drivers/scsi/virtio_scsi.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 >
-> Thanks.
->
-> Heinz Graalfs (9):
->   virtio_ring: change host notification API
->   virtio_ring: let virtqueue_{kick()/notify()} return a bool
->   virtio_net: verify if virtqueue_kick() succeeded
->   virtio_test: verify if virtqueue_kick() succeeded
->   virtio_ring: add new function virtqueue_is_broken()
->   virtio_blk: verify if queue is broken after virtqueue_get_buf()
->   virtio_console: verify if queue is broken after virtqueue_get_buf()
->   virtio_net: verify if queue is broken after virtqueue_get_buf()
->   virtio_scsi: verify if queue is broken after virtqueue_get_buf()
+> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> index 74b88ef..45bcdb5 100644
+> --- a/drivers/scsi/virtio_scsi.c
+> +++ b/drivers/scsi/virtio_scsi.c
+> @@ -224,7 +224,8 @@ static void virtscsi_vq_done(struct virtio_scsi *vscsi,
+>  		virtqueue_disable_cb(vq);
+>  		while ((buf = virtqueue_get_buf(vq, &len)) != NULL)
+>  			fn(vscsi, buf);
+> -	} while (!virtqueue_enable_cb(vq));
+> +	} while (unlikely(!virtqueue_is_broken(vq)) &&
+> +		 !virtqueue_enable_cb(vq));
+>  	spin_unlock_irqrestore(&virtscsi_vq->vq_lock, flags);
 
-Thanks, I've applied all of these.
+unlikely(!virtqueue_is_broken(vq))?
 
-Cheers,
+I didn't apply this one.
+
+I'd prefer:
+
+	spin_lock_irqsave(&virtscsi_vq->vq_lock, flags);
+	do {
+		virtqueue_disable_cb(vq);
+		while ((buf = virtqueue_get_buf(vq, &len)) != NULL)
+			fn(vscsi, buf);
+
+                if (unlikely(virtqueue_is_broken(vq)))
+                        break;
+	} while (!virtqueue_enable_cb(vq));
+	spin_unlock_irqrestore(&virtscsi_vq->vq_lock, flags);
+
+Thanks,
 Rusty.
