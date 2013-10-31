@@ -1,11 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net-next 1/2] net: introduce skb_coalesce_rx_frag()
-Date: Thu, 31 Oct 2013 18:28:32 +0800
-Message-ID: <1383215313-23651-1-git-send-email-jasowang@redhat.com>
+From: Josh Triplett <josh@joshtriplett.org>
+Subject: Re: [PATCH 2/3] x86: tss: Eliminate fragile calculation of TSS
+	segment limit
+Date: Thu, 31 Oct 2013 04:12:43 -0700
+Message-ID: <20131031111243.GA25280@leaf>
+References: <cover.1382407802.git.josh@joshtriplett.org>
+	<edeb47cf74bc015f4e36f5c5c7af4cd7d9532df8.1382407802.git.josh@joshtriplett.org>
+	<CAGXu5jLNhzrQHtgkW8rAm3em=aEHsTXy+DndEqLJCMH0H8n_Sg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <CAGXu5jLNhzrQHtgkW8rAm3em=aEHsTXy+DndEqLJCMH0H8n_Sg@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,60 +21,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: davem@davemloft.net, edumazet@google.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, mst@redhat.com, rusty@rustcorp.com.au, mwdalton@google.com, virtualization@lists.linux-foundation.org
+To: Kees Cook <keescook@chromium.org>
+Cc: Alexander van Heukelum <heukelum@fastmail.fm>, Jeremy Fitzhardinge <jeremy@goop.org>, "x86@kernel.org" <x86@kernel.org>, Len Brown <len.brown@intel.com>, Frederic Weisbecker <fweisbec@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, David Herrmann <dh.herrmann@gmail.com>, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Seiji Aguchi <seiji.aguchi@hds.com>, Jiri Slaby <jslaby@suse.cz>, Alok Kataria <akataria@vmware.com>, Jesper Nilsson <jesper.nilsson@axis.com>, Andi Kleen <ak@linux.intel.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, xen-devel@lists.xenproject.org, Borislav Petkov <bp@suse.de>, Fenghua Yu <feng>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sometimes we need to coalesce the rx frags to avoid frag list. One example is
-virtio-net driver which tries to use small frags for both MTU sized packet and
-GSO packet. So this patch introduce skb_coalesce_rx_frag() to do this.
+On Wed, Oct 30, 2013 at 03:22:33PM -0700, Kees Cook wrote:
+> On Mon, Oct 21, 2013 at 7:34 PM, Josh Triplett <josh@joshtriplett.org> wrote:
+> > __set_tss_desc has a complex calculation of the TSS segment limit,
+> > duplicating the quirky details of the I/O bitmap array length, and
+> > requiring a complex comment to explain.  Replace that calculation with a
+> > simpler one based on the offsetof the "stack" field that follows the
+> > array.
+> >
+> > That then removes the last use of IO_BITMAP_OFFSET, so delete it.
+> >
+> > Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+> > ---
+> >  arch/x86/include/asm/desc.h      | 11 +----------
+> >  arch/x86/include/asm/processor.h |  3 ++-
+> >  2 files changed, 3 insertions(+), 11 deletions(-)
+> >
+> > diff --git a/arch/x86/include/asm/desc.h b/arch/x86/include/asm/desc.h
+> > index b90e5df..17ac92f 100644
+> > --- a/arch/x86/include/asm/desc.h
+> > +++ b/arch/x86/include/asm/desc.h
+> > @@ -177,16 +177,7 @@ static inline void __set_tss_desc(unsigned cpu, unsigned int entry, void *addr)
+> >         struct desc_struct *d = get_cpu_gdt_table(cpu);
+> >         tss_desc tss;
+> >
+> > -       /*
+> > -        * sizeof(unsigned long) coming from an extra "long" at the end
+> > -        * of the iobitmap. See tss_struct definition in processor.h
+> > -        *
+> > -        * -1? seg base+limit should be pointing to the address of the
+> > -        * last valid byte
+> 
+> I think it might be better to keep at least a minimal comment near the
+> TSS_LIMIT declaration, just to explain the "-1" part, which is not
+> entirely obvious from just reading the code.
 
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Michael Dalton <mwdalton@google.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- include/linux/skbuff.h |  3 +++
- net/core/skbuff.c      | 13 +++++++++++++
- 2 files changed, 16 insertions(+)
+Fair enough; I've added an appropriate comment next to TSS_LIMIT, and
+I'll include that in PATCHv2, which I'll send out as soon as I see
+any feedback on patch 3/3.
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 2c15497..e34652b 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1372,6 +1372,9 @@ static inline void skb_fill_page_desc(struct sk_buff *skb, int i,
- void skb_add_rx_frag(struct sk_buff *skb, int i, struct page *page, int off,
- 		     int size, unsigned int truesize);
- 
-+void skb_coalesce_rx_frag(struct sk_buff *skb, int i, int off, int size,
-+			  unsigned int truesize);
-+
- #define SKB_PAGE_ASSERT(skb) 	BUG_ON(skb_shinfo(skb)->nr_frags)
- #define SKB_FRAG_ASSERT(skb) 	BUG_ON(skb_has_frag_list(skb))
- #define SKB_LINEAR_ASSERT(skb)  BUG_ON(skb_is_nonlinear(skb))
-diff --git a/net/core/skbuff.c b/net/core/skbuff.c
-index 0ab32fa..fdef994 100644
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -476,6 +476,19 @@ void skb_add_rx_frag(struct sk_buff *skb, int i, struct page *page, int off,
- }
- EXPORT_SYMBOL(skb_add_rx_frag);
- 
-+void skb_coalesce_rx_frag(struct sk_buff *skb, int i, int off, int size,
-+			  unsigned int truesize)
-+{
-+	skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
-+
-+	skb_frag_size_add(frag, size);
-+	skb->len += size;
-+	skb->data_len += size;
-+	skb->truesize += truesize;
-+	skb_frag_unref(skb, i);
-+}
-+EXPORT_SYMBOL(skb_coalesce_rx_frag);
-+
- static void skb_drop_list(struct sk_buff **listp)
- {
- 	kfree_skb_list(*listp);
--- 
-1.8.1.2
+- Josh Triplett
