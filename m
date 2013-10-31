@@ -1,15 +1,14 @@
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH 2/3] x86: tss: Eliminate fragile calculation of TSS segment
-	limit
-Date: Wed, 30 Oct 2013 15:53:11 -0700
-Message-ID: <52718DD7.7040905@zytor.com>
-References: <cover.1382407802.git.josh@joshtriplett.org>	<edeb47cf74bc015f4e36f5c5c7af4cd7d9532df8.1382407802.git.josh@joshtriplett.org>
-	<CAGXu5jLNhzrQHtgkW8rAm3em=aEHsTXy+DndEqLJCMH0H8n_Sg@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net-next 2/2] virtio-net: coalesce rx frags when possible
+	during rx
+Date: Thu, 31 Oct 2013 18:28:33 +0800
+Message-ID: <1383215313-23651-2-git-send-email-jasowang@redhat.com>
+References: <1383215313-23651-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAGXu5jLNhzrQHtgkW8rAm3em=aEHsTXy+DndEqLJCMH0H8n_Sg@mail.gmail.com>
+In-Reply-To: <1383215313-23651-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,25 +18,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Kees Cook <keescook@chromium.org>, Josh Triplett <josh@joshtriplett.org>
-Cc: Alexander van Heukelum <heukelum@fastmail.fm>, Jeremy Fitzhardinge <jeremy@goop.org>, "x86@kernel.org" <x86@kernel.org>, Len Brown <len.brown@intel.com>, Frederic Weisbecker <fweisbec@gmail.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, David Herrmann <dh.herrmann@gmail.com>, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Seiji Aguchi <seiji.aguchi@hds.com>, Jiri Slaby <jslaby@suse.cz>, Alok Kataria <akataria@vmware.com>, Jesper Nilsson <jesper.nilsson@axis.com>, Andi Kleen <ak@linux.intel.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, xen-devel@lists.xenproject.org, Borislav Petkov <bp@suse.de>, Fenghua Yu <fenghua.yu@intel.com>, Konrad
+To: davem@davemloft.net, edumazet@google.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, mst@redhat.com, rusty@rustcorp.com.au, mwdalton@google.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/30/2013 03:22 PM, Kees Cook wrote:
->>
->> -       /*
->> -        * sizeof(unsigned long) coming from an extra "long" at the end
->> -        * of the iobitmap. See tss_struct definition in processor.h
->> -        *
->> -        * -1? seg base+limit should be pointing to the address of the
->> -        * last valid byte
-> 
-> I think it might be better to keep at least a minimal comment near the
-> TSS_LIMIT declaration, just to explain the "-1" part, which is not
-> entirely obvious from just reading the code.
-> 
+Commit 2613af0ed18a11d5c566a81f9a6510b73180660a (virtio_net: migrate mergeable
+rx buffers to page frag allocators) try to increase the payload/truesize for
+MTU-sized traffic. But this will introduce the extra overhead for GSO packets
+received because of the frag list. This commit tries to reduce this issue by
+coalesce the possible rx frags when possible during rx. Test result shows the
+about 15% improvement on full size GSO packet receiving (and even better than
+commit 2613af0ed18a11d5c566a81f9a6510b73180660a).
 
-Agreed, although it doesn't need to be an unsigned long at all... the
-CPU will only ever access one extra byte past the end.
+Before this commit:
+./netperf -H 192.168.100.4
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.100.4
+() port 0 AF_INET : demo
+Recv   Send    Send
+Socket Socket  Message  Elapsed
+Size   Size    Size     Time     Throughput
+bytes  bytes   bytes    secs.    10^6bits/sec
 
-	-hpa
+ 87380  16384  16384    10.00    20303.87
+
+After this commit:
+./netperf -H 192.168.100.4
+MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.100.4 () port 0 AF_INET : demo
+Recv   Send    Send
+Socket Socket  Message  Elapsed
+Size   Size    Size     Time     Throughput
+bytes  bytes   bytes    secs.    10^6bits/sec
+
+ 87380  16384  16384    10.00    23841.26
+
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Michael Dalton <mwdalton@google.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 113ee93..4ff4f78 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -305,7 +305,7 @@ static int receive_mergeable(struct receive_queue *rq, struct sk_buff *head_skb)
+ 	struct sk_buff *curr_skb = head_skb;
+ 	char *buf;
+ 	struct page *page;
+-	int num_buf, len;
++	int num_buf, len, offset;
+ 
+ 	num_buf = hdr->mhdr.num_buffers;
+ 	while (--num_buf) {
+@@ -342,9 +342,15 @@ static int receive_mergeable(struct receive_queue *rq, struct sk_buff *head_skb)
+ 			head_skb->truesize += MAX_PACKET_LEN;
+ 		}
+ 		page = virt_to_head_page(buf);
+-		skb_add_rx_frag(curr_skb, num_skb_frags, page,
+-				buf - (char *)page_address(page), len,
+-				MAX_PACKET_LEN);
++		offset = buf - (char *)page_address(page);
++		if (skb_can_coalesce(curr_skb, num_skb_frags, page, offset)) {
++			skb_coalesce_rx_frag(curr_skb, num_skb_frags - 1,
++					     offset, len, MAX_PACKET_LEN);
++		} else {
++			skb_add_rx_frag(curr_skb, num_skb_frags, page,
++					offset, len,
++					MAX_PACKET_LEN);
++		}
+ 		--rq->num;
+ 	}
+ 	return 0;
+-- 
+1.8.1.2
