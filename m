@@ -1,18 +1,14 @@
-From: Josh Triplett <josh@joshtriplett.org>
-Subject: Re: [PATCH 2/3] x86: tss: Eliminate fragile calculation of TSS
-	segment limit
-Date: Thu, 31 Oct 2013 04:17:43 -0700
-Message-ID: <20131031111742.GB25280@leaf>
-References: <cover.1382407802.git.josh@joshtriplett.org>
-	<edeb47cf74bc015f4e36f5c5c7af4cd7d9532df8.1382407802.git.josh@joshtriplett.org>
-	<CAGXu5jLNhzrQHtgkW8rAm3em=aEHsTXy+DndEqLJCMH0H8n_Sg@mail.gmail.com>
-	<52718DD7.7040905@zytor.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 1/2] net: introduce skb_coalesce_rx_frag()
+Date: Thu, 31 Oct 2013 19:34:50 +0800
+Message-ID: <5272405A.4050708@redhat.com>
+References: <1383215313-23651-1-git-send-email-jasowang@redhat.com>
+	<CAOjA20XtG80ePVKKiTHWvy7m99wo5sYC+64RTJN2tWNEopRiSQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <52718DD7.7040905@zytor.com>
+In-Reply-To: <CAOjA20XtG80ePVKKiTHWvy7m99wo5sYC+64RTJN2tWNEopRiSQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,34 +18,62 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Alexander van Heukelum <heukelum@fastmail.fm>, Jeremy Fitzhardinge <jeremy@goop.org>, Daniel Lezcano <daniel.lezcano@linaro.org>, Len Brown <len.brown@intel.com>, Frederic Weisbecker <fweisbec@gmail.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Paul Gortmaker <paul.gortmaker@windriver.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, David Herrmann <dh.herrmann@gmail.com>, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Seiji Aguchi <seiji.aguchi@hds.com>, Jiri Slaby <jslaby@suse.cz>, Alok Kataria <akataria@vmware.com>, Jesper Nilsson <jesper.nilsson@axis.com>, Andi Kleen <ak@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, xen-devel@lists.xenproject.org, Borislav Petkov <bp@suse.de>, Fenghua Yu <fenghua.yu@intel.com>, Kees Cook <kees>
+To: Kmindg G <kmindg@gmail.com>
+Cc: mwdalton@google.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Oct 30, 2013 at 03:53:11PM -0700, H. Peter Anvin wrote:
-> On 10/30/2013 03:22 PM, Kees Cook wrote:
-> >>
-> >> -       /*
-> >> -        * sizeof(unsigned long) coming from an extra "long" at the end
-> >> -        * of the iobitmap. See tss_struct definition in processor.h
-> >> -        *
-> >> -        * -1? seg base+limit should be pointing to the address of the
-> >> -        * last valid byte
-> > 
-> > I think it might be better to keep at least a minimal comment near the
-> > TSS_LIMIT declaration, just to explain the "-1" part, which is not
-> > entirely obvious from just reading the code.
-> > 
-> 
-> Agreed, although it doesn't need to be an unsigned long at all... the
-> CPU will only ever access one extra byte past the end.
+On 10/31/2013 07:05 PM, Kmindg G wrote:
+> On Thu, Oct 31, 2013 at 6:28 PM, Jason Wang <jasowang@redhat.com> wrote:
+>> > Sometimes we need to coalesce the rx frags to avoid frag list. One example is
+>> > virtio-net driver which tries to use small frags for both MTU sized packet and
+>> > GSO packet. So this patch introduce skb_coalesce_rx_frag() to do this.
+>> >
+>> > Cc: Rusty Russell <rusty@rustcorp.com.au>
+>> > Cc: Michael S. Tsirkin <mst@redhat.com>
+>> > Cc: Michael Dalton <mwdalton@google.com>
+>> > Cc: Eric Dumazet <edumazet@google.com>
+>> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+>> > ---
+>> >  include/linux/skbuff.h |  3 +++
+>> >  net/core/skbuff.c      | 13 +++++++++++++
+>> >  2 files changed, 16 insertions(+)
+>> >
+>> > diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+>> > index 2c15497..e34652b 100644
+>> > --- a/include/linux/skbuff.h
+>> > +++ b/include/linux/skbuff.h
+>> > @@ -1372,6 +1372,9 @@ static inline void skb_fill_page_desc(struct sk_buff *skb, int i,
+>> >  void skb_add_rx_frag(struct sk_buff *skb, int i, struct page *page, int off,
+>> >                      int size, unsigned int truesize);
+>> >
+>> > +void skb_coalesce_rx_frag(struct sk_buff *skb, int i, int off, int size,
+>> > +                         unsigned int truesize);
+>> > +
+>> >  #define SKB_PAGE_ASSERT(skb)   BUG_ON(skb_shinfo(skb)->nr_frags)
+>> >  #define SKB_FRAG_ASSERT(skb)   BUG_ON(skb_has_frag_list(skb))
+>> >  #define SKB_LINEAR_ASSERT(skb)  BUG_ON(skb_is_nonlinear(skb))
+>> > diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+>> > index 0ab32fa..fdef994 100644
+>> > --- a/net/core/skbuff.c
+>> > +++ b/net/core/skbuff.c
+>> > @@ -476,6 +476,19 @@ void skb_add_rx_frag(struct sk_buff *skb, int i, struct page *page, int off,
+>> >  }
+>> >  EXPORT_SYMBOL(skb_add_rx_frag);
+>> >
+>> > +void skb_coalesce_rx_frag(struct sk_buff *skb, int i, int off, int size,
+>> > +                         unsigned int truesize)
+>> > +{
+>> > +       skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
+>> > +
+>> > +       skb_frag_size_add(frag, size);
+>> > +       skb->len += size;
+>> > +       skb->data_len += size;
+>> > +       skb->truesize += truesize;
+>> > +       skb_frag_unref(skb, i);
+>> > +}
+> I didn't see  you use "off" in skb_coalesce_rx_frag.
+>
 
-True, but the thing immediately following the iobitmap is a stack, which
-needs aligning, so the array does need to contain a full additional
-unsigned long even if the CPU only accesses a byte of it.  In any case,
-that isn't the reason for the -1, just the reason for the
-sizeof(unsigned long) mentioned in the comment above, which goes away
-now that TSS_LIMIT uses the offset of the *following* field rather than
-recalculating the size of the iobitmap.
+Ture, it's useless. Will post V2.
 
-- Josh Triplett
+Thanks
