@@ -1,15 +1,17 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Subject: Re: [PATCH net-next V3 2/2] virtio-net: coalesce rx frags when
-	possible during rx
-Date: Fri, 01 Nov 2013 02:47:22 -0700
-Message-ID: <1383299242.19864.4.camel@edumazet-glaptop2.roam.corp.google.com>
-References: <1383286068-10421-1-git-send-email-jasowang@redhat.com>
-	<1383286068-10421-2-git-send-email-jasowang@redhat.com>
+From: Josh Triplett <josh@joshtriplett.org>
+Subject: Re: [PATCH 1/3] x86: process: Unify 32-bit and 64-bit copy_thread
+	I/O bitmap handling
+Date: Fri, 1 Nov 2013 09:33:40 -0700
+Message-ID: <20131101163340.GA32434@leaf>
+References: <cover.1382407802.git.josh@joshtriplett.org>
+	<41c886146639d4ab07331be335b889e2f48a79b5.1382407802.git.josh@joshtriplett.org>
+	<1383249690.4345.41324921.726E659E@webmail.messagingengine.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1383286068-10421-2-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1383249690.4345.41324921.726E659E@webmail.messagingengine.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,53 +21,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mwdalton@google.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kmindg@gmail.com, edumazet@google.com, davem@davemloft.net
+To: Alexander van Heukelum <heukelum@fastmail.fm>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Len Brown <len.brown@intel.com>, Frederic Weisbecker <fweisbec@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux-foundation.org, Paul Gortmaker <paul.gortmaker@windriver.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, David Herrmann <dh.herrmann@gmail.com>, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Seiji Aguchi <seiji.aguchi@hds.com>, Jiri Slaby <jslaby@suse.cz>, Alok Kataria <akataria@vmware.com>, Jesper Nilsson <jesper.nilsson@axis.com>, Andi Kleen <ak@linux.intel.com>, Daniel Lezcano <daniel.lezcano@linaro.org>, Ingo Molnar <mingo@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, xen-devel@lists.xenproject.org, Borislav Petkov <bp@suse.de>, Fenghua Yu <fenghua.yu@intel.com>, Kees Cook <keescook@chromium.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Ross
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 2013-11-01 at 14:07 +0800, Jason Wang wrote:
-> Commit 2613af0ed18a11d5c566a81f9a6510b73180660a (virtio_net: migrate mergeable
-> rx buffers to page frag allocators) try to increase the payload/truesize for
-> MTU-sized traffic. But this will introduce the extra overhead for GSO packets
-> received because of the frag list. This commit tries to reduce this issue by
-> coalesce the possible rx frags when possible during rx. Test result shows the
-> about 15% improvement on full size GSO packet receiving (and even better than
-> before commit 2613af0ed18a11d5c566a81f9a6510b73180660a).
+On Thu, Oct 31, 2013 at 09:01:30PM +0100, Alexander van Heukelum wrote:
+> On Tue, Oct 22, 2013, at 3:34, Josh Triplett wrote:
+> > The 32-bit and 64-bit versions of copy_thread have functionally
+> > identical handling for copying the I/O bitmap, modulo differences in
+> > error handling.  Clean up the error paths in both by moving the copy of
+> > the I/O bitmap to the end, to eliminate the need to free it if
+> > subsequent copy steps fail; move the resulting identical code to a
+> > static inline in a common header.
+> > 
+> > Signed-off-by: Josh Triplett <josh@joshtriplett.org>
+> > ---
+> >  arch/x86/kernel/process-io.h | 22 ++++++++++++++++++++++
 > 
-> Before this commit:
-> ./netperf -H 192.168.100.4
-> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.100.4
-> () port 0 AF_INET : demo
-> Recv   Send    Send
-> Socket Socket  Message  Elapsed
-> Size   Size    Size     Time     Throughput
-> bytes  bytes   bytes    secs.    10^6bits/sec
-> 
->  87380  16384  16384    10.00    20303.87
-> 
-> After this commit:
-> ./netperf -H 192.168.100.4
-> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to 192.168.100.4
-> () port 0 AF_INET : demo
-> Recv   Send    Send
-> Socket Socket  Message  Elapsed
-> Size   Size    Size     Time     Throughput
-> bytes  bytes   bytes    secs.    10^6bits/sec
-> 
->  87380  16384  16384    10.00    23841.26
-> 
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Michael Dalton <mwdalton@google.com>
-> Cc: Eric Dumazet <edumazet@google.com>
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Acked-by: Eric Dumazet <edumazet@google.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-> Changes from V2:
-> - call put_page() instead of depending on skb_coalesce_rx_frag()
-> ---
+> I don't particularly like this new file. It's also not in a proper place.
 
-Yes, very nice improvement, thanks again !
+It's a private header, and private headers are normally put in the
+directories with the source code, not in the include directories.
 
-Acked-by: Eric Dumazet <edumazet@google.com>
+The need for it becomes more obvious later in the patch series.
+
+> >  arch/x86/kernel/process_32.c | 29 ++++++++---------------------
+> >  arch/x86/kernel/process_64.c | 26 +++++---------------------
+> 
+> Yay, this I like :). However, unification is best done in a separate step. First
+> make the two parts equal in one or two patches. Then, in a separate patch,
+> do the mechanical unification.
+
+I could certainly split the first patch into two, sure.
+
+> >  3 files changed, 35 insertions(+), 42 deletions(-)
+> >  create mode 100644 arch/x86/kernel/process-io.h
+> > 
+> > diff --git a/arch/x86/kernel/process-io.h b/arch/x86/kernel/process-io.h
+> > new file mode 100644
+> > index 0000000..d884444
+> > --- /dev/null
+> > +++ b/arch/x86/kernel/process-io.h
+> > @@ -0,0 +1,22 @@
+> > +#ifndef _X86_KERNEL_PROCESS_IO_H
+> > +#define _X86_KERNEL_PROCESS_IO_H
+> > +
+> > +static inline int copy_io_bitmap(struct task_struct *me,
+> > +				 struct task_struct *p)
+> > +{
+> > +	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
+> > +		p->thread.io_bitmap_ptr = kmemdup(me->thread.io_bitmap_ptr,
+> > +						  IO_BITMAP_BYTES, GFP_KERNEL);
+> > +		if (!p->thread.io_bitmap_ptr) {
+> > +			p->thread.io_bitmap_max = 0;
+> > +			return -ENOMEM;
+> > +		}
+> > +		set_tsk_thread_flag(p, TIF_IO_BITMAP);
+> > +	} else {
+> > +		p->thread.io_bitmap_ptr = NULL;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> 
+> I really don't like the .h-file like this. Could you try avoiding it? I think
+> it's possible to unify the copy_thread function and in the end move it
+> to process.c instead. The arch-specific parts can be split out in static
+> functions guarded by CONFIG_X86_64 (cooking up good names is
+> the challenge here ;) ).
+
+It's theoretically possible to completely unify copy_thread by adding
+several more functions like this to abstract the low-level details;
+however, complete unification wasn't the goal of this patch series.  I
+unified and pulled out this portion because it's also the portion I need
+to *remove* when compiling with !CONFIG_X86_IOPORT.
+
+- Josh Triplett
