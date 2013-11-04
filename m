@@ -1,14 +1,14 @@
-From: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH trivial] include: uapi: standard all files' macro prefix
-	and suffix, excluding "linux/" sub-directory
-Date: Mon, 04 Nov 2013 22:03:44 +0000
-Message-ID: <11907.1383602624__21596.5158692145$1383602734$gmane$org@warthog.procyon.org.uk>
-References: <51FB6216.6010008@asianux.com>
+From: Jens Axboe <axboe@kernel.dk>
+Subject: Re: [virtio_blk] WARNING: CPU: 0 PID: 1 at fs/sysfs/dir.c:526
+	sysfs_add_one()
+Date: Mon, 04 Nov 2013 15:58:41 -0700
+Message-ID: <527826A1.1060309__27676.3697075241$1383609180$gmane$org@kernel.dk>
+References: <20131104141012.GA17177@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51FB6216.6010008@asianux.com>
+In-Reply-To: <20131104141012.GA17177@localhost>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,21 +18,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Chen Gang <gang.chen@asianux.com>, 'Jiri Kosina' <trivial@kernel.org>
-Cc: xen-devel@lists.xensource.com, jeremy@goop.org, airlied@linux.ie, daniel.vetter@ffwll.ch, alsa-devel@alsa-project.org, dri-devel@lists.freedesktop.org, perex@perex.cz, "dhowells@redhat.com" <dhowells@redhat.com>, thierry.reding@gmail.com, linux-mtd@lists.infradead.org, sean.hefty@intel.com, virtualization@lists.linux-foundation.org, Linux-Arch <linux-arch@vger.kernel.org>, "kgene.kim@samsung.com" <kgene.kim@samsung.com>, tbergstrom@nvidia.com, jy0922.shim@samsung.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, roland@purestorage.com, Takashi Iwai <tiwai@suse.de>, Tomi Valkeinen <tomi.valkeinen@ti.com>, mtk.manpages@gmail.com, fcoe-devel@open-fcoe.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, "plagnioj@jcrosoft.com" <plagnioj@jcrosoft.com>, Arnd Bergmann <arnd@arndb.de>, swarren@wwwdotorg.org, intel-gfx@lists.freedesktop.org, inki.dae@samsung.com, linux-samsun
+To: Fengguang Wu <fengguang.wu@intel.com>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Chen Gang <gang.chen@asianux.com> wrote:
-
-> For "include/uapi/*", excluding "linux/" sub-directory, let all files'
-> macro prefix match the standard format, and give related stand comments
-> for their macro suffix.
+On 11/04/2013 07:10 AM, Fengguang Wu wrote:
+> Hi Jens,
 > 
-> The related standard format is:
+> I'm not very sure about this bisect, but anyway it'd be good to inform
+> you of a possible problem on commit
 > 
->   "_SUBDIRNAME_SUBDIRNAME[_SUBDIRNAME]_FILENAME" (1st _SUBDIRNAME is _UAPI), and use '_' instead of '.' and '-'.
+> commit 3a02db083a78c9f3c9b69305ab513f9422d91b08
+> Author: Jens Axboe <axboe@kernel.dk>
+> Date:   Fri May 24 20:22:33 2013 +0200
+> 
+>     virtio_blk: blk-mq support
+>     
+>     Pretend we have 4 issue queues.
+>     
+>     Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-I strongly recommend _against_ this without very careful consideration.
-Userspace sometimes depends on the name in the guard macro:-/
+What git branch are you on? That one is outdated.
 
-David
+-- 
+Jens Axboe
