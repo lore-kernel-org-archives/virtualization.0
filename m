@@ -1,16 +1,14 @@
-From: Fengguang Wu <fengguang.wu@intel.com>
-Subject: Re: [virtio-net] BUG: sleeping function called from invalid context
-	at kernel/mutex.c:616
-Date: Sun, 3 Nov 2013 22:28:17 +0800
-Message-ID: <20131103142817.GA7641@localhost>
-References: <20131020023418.GA6737@localhost>
- <526638D4.1030403@redhat.com>
+From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Subject: [PATCH V2 RFC 9/9] virtio_scsi: verify if queue is broken after
+	virtqueue_get_buf()
+Date: Mon,  4 Nov 2013 12:14:57 +0100
+Message-ID: <1383563697-37309-2-git-send-email-graalfs@linux.vnet.ibm.com>
+References: <1383563697-37309-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <526638D4.1030403@redhat.com>
+In-Reply-To: <1383563697-37309-1-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,67 +18,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-I noticed that this fix is still not upstreamed. Any chance to push it
-to Linus before the 3.12 release?
+If virtqueue_get_buf() returned with a NULL pointer avoid a possibly
+endless loop by checking for a broken virtqueue.
 
-> >From 01e6c3f71c202aa02e4feda169e7cc9fb24193f5 Mon Sep 17 00:00:00 2001
-> From: Jason Wang <jasowang@redhat.com>
-> Date: Mon, 21 Oct 2013 20:39:09 +0800
-> Subject: [PATCH] virtio-net: fix
-> 
-> ---
->  drivers/net/virtio_net.c | 13 ++++++-------
->  1 file changed, 6 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 9fbdfcd..bbc9cb8 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1118,11 +1118,6 @@ static int virtnet_cpu_callback(struct notifier_block *nfb,
->  {
->  	struct virtnet_info *vi = container_of(nfb, struct virtnet_info, nb);
->  
-> -	mutex_lock(&vi->config_lock);
-> -
-> -	if (!vi->config_enable)
-> -		goto done;
-> -
->  	switch(action & ~CPU_TASKS_FROZEN) {
->  	case CPU_ONLINE:
->  	case CPU_DOWN_FAILED:
-> @@ -1136,8 +1131,6 @@ static int virtnet_cpu_callback(struct notifier_block *nfb,
->  		break;
->  	}
->  
-> -done:
-> -	mutex_unlock(&vi->config_lock);
->  	return NOTIFY_OK;
->  }
->  
-> @@ -1699,6 +1692,8 @@ static int virtnet_freeze(struct virtio_device *vdev)
->  	struct virtnet_info *vi = vdev->priv;
->  	int i;
->  
-> +	unregister_hotcpu_notifier(&vi->nb);
-> +
->  	/* Prevent config work handler from accessing the device */
->  	mutex_lock(&vi->config_lock);
->  	vi->config_enable = false;
-> @@ -1747,6 +1742,10 @@ static int virtnet_restore(struct virtio_device *vdev)
->  	virtnet_set_queues(vi, vi->curr_queue_pairs);
->  	rtnl_unlock();
->  
-> +	err = register_hotcpu_notifier(&vi->nb);
-> +	if (err)
-> +		return err;
-> +
->  	return 0;
->  }
->  #endif
-> -- 
-> 1.8.1.2
-> 
+Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+---
+ drivers/scsi/virtio_scsi.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index 74b88ef..aa25aab 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -224,6 +224,9 @@ static void virtscsi_vq_done(struct virtio_scsi *vscsi,
+ 		virtqueue_disable_cb(vq);
+ 		while ((buf = virtqueue_get_buf(vq, &len)) != NULL)
+ 			fn(vscsi, buf);
++
++		if (unlikely(virtqueue_is_broken(vq)))
++			break;
+ 	} while (!virtqueue_enable_cb(vq));
+ 	spin_unlock_irqrestore(&virtscsi_vq->vq_lock, flags);
+ }
+-- 
+1.8.3.1
