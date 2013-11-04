@@ -1,14 +1,12 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 Subject: [PATCH V2 RFC 9/9] virtio_scsi: verify if queue is broken after
 	virtqueue_get_buf()
-Date: Mon,  4 Nov 2013 12:14:57 +0100
-Message-ID: <1383563697-37309-2-git-send-email-graalfs@linux.vnet.ibm.com>
-References: <1383563697-37309-1-git-send-email-graalfs@linux.vnet.ibm.com>
+Date: Mon,  4 Nov 2013 12:14:56 +0100
+Message-ID: <1383563697-37309-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1383563697-37309-1-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,27 +20,39 @@ To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
 Cc: borntraeger@de.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-If virtqueue_get_buf() returned with a NULL pointer avoid a possibly
-endless loop by checking for a broken virtqueue.
+Rusty,
 
-Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
----
- drivers/scsi/virtio_scsi.c | 3 +++
- 1 file changed, 3 insertions(+)
+and here is patch 9 as you suggested.
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index 74b88ef..aa25aab 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -224,6 +224,9 @@ static void virtscsi_vq_done(struct virtio_scsi *vscsi,
- 		virtqueue_disable_cb(vq);
- 		while ((buf = virtqueue_get_buf(vq, &len)) != NULL)
- 			fn(vscsi, buf);
-+
-+		if (unlikely(virtqueue_is_broken(vq)))
-+			break;
- 	} while (!virtqueue_enable_cb(vq));
- 	spin_unlock_irqrestore(&virtscsi_vq->vq_lock, flags);
- }
+Thanks.
+
+Heinz Graalfs (9):
+  virtio_ring: change host notification API
+  virtio_ring: let virtqueue_{kick()/notify()} return a bool
+  virtio_net: verify if virtqueue_kick() succeeded
+  virtio_test: verify if virtqueue_kick() succeeded
+  virtio_ring: add new function virtqueue_is_broken()
+  virtio_blk: verify if queue is broken after virtqueue_get_buf()
+  virtio_console: verify if queue is broken after virtqueue_get_buf()
+  virtio_net: verify if queue is broken after virtqueue_get_buf()
+  virtio_scsi: verify if queue is broken after virtqueue_get_buf()
+
+ drivers/block/virtio_blk.c             |  2 ++
+ drivers/char/virtio_console.c          |  6 ++++--
+ drivers/lguest/lguest_device.c         |  3 ++-
+ drivers/net/virtio_net.c               | 12 +++++++-----
+ drivers/remoteproc/remoteproc_virtio.c |  3 ++-
+ drivers/s390/kvm/kvm_virtio.c          |  8 ++++++--
+ drivers/s390/kvm/virtio_ccw.c          |  5 ++++-
+ drivers/scsi/virtio_scsi.c             |  3 +++
+ drivers/virtio/virtio_mmio.c           |  3 ++-
+ drivers/virtio/virtio_pci.c            |  3 ++-
+ drivers/virtio/virtio_ring.c           | 32 ++++++++++++++++++++++++++------
+ include/linux/virtio.h                 |  6 ++++--
+ include/linux/virtio_ring.h            |  2 +-
+ tools/virtio/virtio_test.c             |  6 ++++--
+ tools/virtio/vringh_test.c             | 13 +++++++++----
+ 15 files changed, 78 insertions(+), 29 deletions(-)
+
 -- 
 1.8.3.1
