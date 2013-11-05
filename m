@@ -1,15 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next V3 2/2] virtio-net: coalesce rx frags when
-	possible during rx
-Date: Mon, 04 Nov 2013 20:04:38 -0500 (EST)
-Message-ID: <20131104.200438.1658727667787717171.davem@davemloft.net>
-References: <1383286068-10421-1-git-send-email-jasowang@redhat.com>
-	<1383286068-10421-2-git-send-email-jasowang@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH V2 RFC 9/9] virtio_scsi: verify if queue is broken after
+	virtqueue_get_buf()
+Date: Tue, 05 Nov 2013 12:27:02 +1030
+Message-ID: <87habra9w1.fsf@rustcorp.com.au>
+References: <1383563697-37309-1-git-send-email-graalfs@linux.vnet.ibm.com>
+	<1383563697-37309-2-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1383286068-10421-2-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1383563697-37309-2-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,30 +19,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: mwdalton@google.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kmindg@gmail.com, edumazet@google.com
+To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri,  1 Nov 2013 14:07:48 +0800
+Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
+> If virtqueue_get_buf() returned with a NULL pointer avoid a possibly
+> endless loop by checking for a broken virtqueue.
+>
+> Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 
-> Commit 2613af0ed18a11d5c566a81f9a6510b73180660a (virtio_net: migrate mergeable
-> rx buffers to page frag allocators) try to increase the payload/truesize for
-> MTU-sized traffic. But this will introduce the extra overhead for GSO packets
-> received because of the frag list. This commit tries to reduce this issue by
-> coalesce the possible rx frags when possible during rx. Test result shows the
-> about 15% improvement on full size GSO packet receiving (and even better than
-> before commit 2613af0ed18a11d5c566a81f9a6510b73180660a).
-...
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Michael Dalton <mwdalton@google.com>
-> Cc: Eric Dumazet <edumazet@google.com>
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Acked-by: Eric Dumazet <edumazet@google.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-> Changes from V2:
-> - call put_page() instead of depending on skb_coalesce_rx_frag()
+Thanks, applied.
 
-Looks fantastic, applied, thanks Jason!
+Cheers,
+Rusty.
