@@ -1,14 +1,13 @@
-From: Jens Axboe <axboe@kernel.dk>
-Subject: Re: [virtio_blk] WARNING: CPU: 0 PID: 1 at fs/sysfs/dir.c:526
-	sysfs_add_one()
-Date: Mon, 04 Nov 2013 15:58:41 -0700
-Message-ID: <527826A1.1060309__27676.3697075241$1383609180$gmane$org@kernel.dk>
-References: <20131104141012.GA17177@localhost>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next V3 1/2] net: introduce skb_coalesce_rx_frag()
+Date: Mon, 04 Nov 2013 20:04:22 -0500 (EST)
+Message-ID: <20131104.200422.1529242936573745110.davem@davemloft.net>
+References: <1383286068-10421-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131104141012.GA17177@localhost>
+In-Reply-To: <1383286068-10421-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,27 +17,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Fengguang Wu <fengguang.wu@intel.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: jasowang@redhat.com
+Cc: mwdalton@google.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kmindg@gmail.com, edumazet@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/04/2013 07:10 AM, Fengguang Wu wrote:
-> Hi Jens,
-> 
-> I'm not very sure about this bisect, but anyway it'd be good to inform
-> you of a possible problem on commit
-> 
-> commit 3a02db083a78c9f3c9b69305ab513f9422d91b08
-> Author: Jens Axboe <axboe@kernel.dk>
-> Date:   Fri May 24 20:22:33 2013 +0200
-> 
->     virtio_blk: blk-mq support
->     
->     Pretend we have 4 issue queues.
->     
->     Signed-off-by: Jens Axboe <axboe@kernel.dk>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri,  1 Nov 2013 14:07:47 +0800
 
-What git branch are you on? That one is outdated.
+> Sometimes we need to coalesce the rx frags to avoid frag list. One example is
+> virtio-net driver which tries to use small frags for both MTU sized packet and
+> GSO packet. So this patch introduce skb_coalesce_rx_frag() to do this.
+> 
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Michael Dalton <mwdalton@google.com>
+> Cc: Eric Dumazet <edumazet@google.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> Changes from V2:
+> - remove the skb_frag_unref() and let the called to put the page reference
+> Changes from V1:
+> - remove the useless off parameter.
 
--- 
-Jens Axboe
+Applied.
