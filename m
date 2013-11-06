@@ -1,14 +1,16 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [RESEND PATCH net-next] virtio-net: switch to use XPS to
-	choose txq
-Date: Tue, 05 Nov 2013 22:22:03 -0500 (EST)
-Message-ID: <20131105.222203.740870236265138632.davem@davemloft.net>
-References: <1383646785-10446-1-git-send-email-jasowang@redhat.com>
+From: Fengguang Wu <fengguang.wu@intel.com>
+Subject: Re: [virtio_blk] WARNING: CPU: 0 PID: 1 at fs/sysfs/dir.c:526
+	sysfs_add_one()
+Date: Wed, 6 Nov 2013 20:53:45 +0800
+Message-ID: <20131106125345.GA16685__38299.4614694782$1383742455$gmane$org@localhost>
+References: <20131104141012.GA17177@localhost>
+ <527826A1.1060309@kernel.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1383646785-10446-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <527826A1.1060309@kernel.dk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,31 +20,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, mst@redhat.com
+To: Jens Axboe <axboe@kernel.dk>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue,  5 Nov 2013 18:19:45 +0800
+Hi Jens,
 
-> We used to use a percpu structure vq_index to record the cpu to queue
-> mapping, this is suboptimal since it duplicates the work of XPS and
-> loses all other XPS functionality such as allowing user to configure
-> their own transmission steering strategy.
+On Mon, Nov 04, 2013 at 03:58:41PM -0700, Jens Axboe wrote:
+> On 11/04/2013 07:10 AM, Fengguang Wu wrote:
+> > Hi Jens,
+> > 
+> > I'm not very sure about this bisect, but anyway it'd be good to inform
+> > you of a possible problem on commit
+> > 
+> > commit 3a02db083a78c9f3c9b69305ab513f9422d91b08
+> > Author: Jens Axboe <axboe@kernel.dk>
+> > Date:   Fri May 24 20:22:33 2013 +0200
+> > 
+> >     virtio_blk: blk-mq support
+> >     
+> >     Pretend we have 4 issue queues.
+> >     
+> >     Signed-off-by: Jens Axboe <axboe@kernel.dk>
 > 
-> So this patch switches to use XPS and suggest a default mapping when
-> the number of cpus is equal to the number of queues. With XPS support,
-> there's no need for keeping per-cpu vq_index and .ndo_select_queue(),
-> so they were removed also.
-> 
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-> Resend since the previous complie warning disappears after commit
-> 3573540cafa4296dd60f8be02f2aecaa31047525
-> (netif_set_xps_queue: make cpu mask const).
+> What git branch are you on? That one is outdated.
 
-Yep, looks great, applied.  Thanks Jason!
+The commit is from block tree's new-queue and new-queue2 branches.
+Yeah sorry these two branches are a bit old.
+
+Thanks,
+Fengguang
