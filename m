@@ -1,17 +1,12 @@
-From: Chen Gang <gang.chen@asianux.com>
-Subject: Re: [PATCH trivial] include: uapi: standard all files' macro prefix
-	and suffix, excluding "linux/" sub-directory
-Date: Thu, 07 Nov 2013 10:53:16 +0800
-Message-ID: <527B009C.4060905__17451.3884740465$1383792693$gmane$org@asianux.com>
-References: <52786742.1080509@asianux.com> <51FB6216.6010008@asianux.com>
-	<11907.1383602624@warthog.procyon.org.uk>
-	<13981.1383649896@warthog.procyon.org.uk>
-	<5278DEF8.2030101@asianux.com>
+From: Zhu Yanhai <zhu.yanhai@gmail.com>
+Subject: Xen PV ABI on FPU doesn't match with pvops kernel FPU code, reducing
+	to a serious memory data damage
+Date: Thu, 7 Nov 2013 12:15:01 +0800
+Message-ID: <CAC8teKX4kSFBdDzGSqTT=6K3d7g=TVOL0RcmxdcLx0bMP-jZow__42825.0676639893$1383806603$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5278DEF8.2030101@asianux.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,57 +16,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Howells <dhowells@redhat.com>
-Cc: xen-devel@lists.xensource.com, jeremy@goop.org, airlied@linux.ie, daniel.vetter@ffwll.ch, alsa-devel@alsa-project.org, dri-devel@lists.freedesktop.org, perex@perex.cz, thierry.reding@gmail.com, linux-mtd@lists.infradead.org, sean.hefty@intel.com, virtualization@lists.linux-foundation.org, Linux-Arch <linux-arch@vger.kernel.org>, "kgene.kim@samsung.com" <kgene.kim@samsung.com>, tbergstrom@nvidia.com, jy0922.shim@samsung.com, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, roland@purestorage.com, Takashi Iwai <tiwai@suse.de>, Tomi Valkeinen <tomi.valkeinen@ti.com>, mtk.manpages@gmail.com, fcoe-devel@open-fcoe.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, "plagnioj@jcrosoft.com" <plagnioj@jcrosoft.com>, Arnd Bergmann <arnd@arndb.de>, swarren@wwwdotorg.org, intel-gfx@lists.freedesktop.org, inki.dae@samsung.com, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Thomas Gleixner <tglx@linutronix.de>
+Cc: Ian Campbell <Ian.Campbell@citrix.com>, George Dunlap <George.Dunlap@eu.citrix.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, David Vrabel <david.vrabel@citrix.com>, Jan Beulich <jbeulich@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/05/2013 08:05 PM, Chen Gang wrote:
-> On 11/05/2013 07:11 PM, David Howells wrote:
->> Chen Gang <gang.chen@asianux.com> wrote:
->>
->>>> Userspace sometimes depends on the name in the guard macro:-/
->>>
->>> "the guard macro" is only for prevent itself from being included by
->>> multiple times (an id used by itself -- like a handle), it is not an id
->>> to let other files know about it (it is not a normal using way).
->>
->> Whilst that *should* be true, it isn't actually true.  See:
->>
->> 	grep -r _LINUX_.*_H /usr/include/ | grep -v ^/usr/include/linux/
->>
->> for example.  Also who knows what all those autoconf scripts out there look
->> for?
->>
-> 
-> Oh... the real world is really not quite perfect. :-/
-> 
-> 
->> However, thinking about it some more, you're probably safe with respect to
->> userspace as scripts/headers_install.h strips off the _UAPI prefix on the
->> guard macros - just as long as you don't change the rest of the macro name.
->>
-> 
+Hi guys,
+The PV ABI of xen will clear CR0.TS before trapping into the PV guest
+kernel's exception handler, so the exception handler in guest kernel
+runs with CR0.TS clear at the very beginning (which is different with
+on baremetal). In Xenolinux and mainline Linux kernel before 2.6.26
+everything is fine since they don't sleep nor enable interrupts during
+the handler, however the current mainline pvops kernel has a schedule
+window opened within it.
 
-I will preparing the patch for it, it will cover "include/uapi/*" and
-"arch/*/include/uapi/*", the patch will only add "_UAPI" for the guard
-macros which miss it.
+[Pls see the code below,
 
-Welcome any additional suggestions and completions.
+void math_state_restore(void)
+{
+    struct task_struct *tsk = current;
 
-Thanks.
+    if (!tsk_used_math(tsk)) {
+        local_irq_enable();                       <<<< Here it might
+open a schedule window
+        /*
+         * does a slab alloc which can sleep
+         */
+        if (init_fpu(tsk)) {
+            /*
+             * ran out of memory!
+             */
+            do_group_exit(SIGKILL);
+            return;
+        }
+        local_irq_disable();                      <<<< Here it closes
+    }
 
-> In honest, I really did not think more about it.
-> 
-> Only adding _UAPI (not touch others) can completely fix one style issue:
-> separate "uapi/*" from other sub-directories in "include/*"
-> 
-> So for me, we can continue improve this patch: add "_UAPI" for all guard
-> macro under "include/uapi/*" (also include "include/uapi/linux").
-> 
-> 
-> Thanks.
-> 
+    __thread_fpu_begin(tsk);
 
+    /*
+     * Paranoid restore. send a SIGSEGV if we fail to restore the state.
+     */
+    if (unlikely(restore_fpu_checking(tsk))) {
+        drop_init_fpu(tsk);
+        force_sig(SIGSEGV, tsk);
+        return;
+    }
 
--- 
-Chen Gang
+    tsk->fpu_counter++;
+}
+]
+
+This can cause serious data damage against xen pv guests (including
+dom0 kernel), we have encountered this issue both in stress test and
+production systems. Please take a look at
+http://comments.gmane.org/gmane.comp.emulators.xen.devel/176970 for
+more discussions and test cases.
+
+Ian and George, we have confirmed this is the very root cause of
+http://comments.gmane.org/gmane.comp.emulators.xen.devel/175491
+
+The xen ABI is part of history which can't be changed, as well as
+simply adding a couple of stts()-clts() around the enabling/disabling
+interrupts is a really ugly hack.
+Maintainers, any thoughts?
+
+--
+Thanks,
+Zhu Yanhai
