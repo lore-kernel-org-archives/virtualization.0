@@ -1,14 +1,12 @@
-From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: [PATCH -tip RFC 2/2] kprobes: Introduce NOKPROBE_SYMBOL() macro for
-	blacklist
-Date: Fri, 08 Nov 2013 12:52:26 +0000
-Message-ID: <20131108125226.19972.65286.stgit@kbuild-fedora.novalocal>
-References: <20131108125213.19972.49271.stgit@kbuild-fedora.novalocal>
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: WorldCIST'14 - World Conference on IST; Submission deadline:
+	November 29
+Date: Fri, 8 Nov 2013 14:21:58 +0000
+Message-ID: <20131108142204.EB5BCA98@mail.linuxfoundation.org>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3647375593485790750=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131108125213.19972.49271.stgit@kbuild-fedora.novalocal>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,265 +16,205 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@kernel.org>
-Cc: x86@kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Peter Zijlstra <peterz@infradead.org>, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce NOKPROBE_SYMBOL() macro which builds a kprobe
-blacklist in build time. The usage of this macro is similar
-to the EXPORT_SYMBOL, put the NOKPROBE_SYMBOL(function); just
-after the function definition.
+--===============3647375593485790750==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-If CONFIG_KPROBES=y, the macro is expanded to the definition
-of a static data structure of kprobe_blackpoint which is
-initialized for the function and put the address of the data
-structure in the "_kprobe_blacklist" section.
+Apologies if you are receiving this mail more than once...
 
-Since the data structures are not fully initialized by the
-macro (because there is no "size" information),  those
-are re-initialized at boot time by using kallsyms.
 
-Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
----
- arch/x86/kernel/paravirt.c        |    4 ++
- include/asm-generic/vmlinux.lds.h |    9 ++++
- include/linux/kprobes.h           |   19 ++++++++
- kernel/kprobes.c                  |   88 ++++++++++++++++++-------------------
- kernel/sched/core.c               |    1 
- 5 files changed, 75 insertions(+), 46 deletions(-)
+**********************************************************************=
+************
+                             WorldCIST'14
+The 2014 World Conference on Information Systems and Technologies
+                April 15 - 18, Madeira Island, Portugal
+                   http://www.aisti.eu/worldcist14/
+**********************************************************************=
+************
 
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 1b10af8..4c785fd 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -23,6 +23,7 @@
- #include <linux/efi.h>
- #include <linux/bcd.h>
- #include <linux/highmem.h>
-+#include <linux/kprobes.h>
- 
- #include <asm/bug.h>
- #include <asm/paravirt.h>
-@@ -389,6 +390,9 @@ __visible struct pv_cpu_ops pv_cpu_ops = {
- 	.end_context_switch = paravirt_nop,
- };
- 
-+/* At this point, native_get_debugreg has real function entry */
-+NOKPROBE_SYMBOL(native_get_debugreg);
-+
- struct pv_apic_ops pv_apic_ops = {
- #ifdef CONFIG_X86_LOCAL_APIC
- 	.startup_ipi_hook = paravirt_nop,
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index 83e2c31..294ea96 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -109,6 +109,14 @@
- #define BRANCH_PROFILE()
- #endif
- 
-+#ifdef CONFIG_KPROBES
-+#define KPROBE_BLACKLIST()	VMLINUX_SYMBOL(__start_kprobe_blacklist) = .; \
-+				*(_kprobe_blacklist)			      \
-+				VMLINUX_SYMBOL(__stop_kprobe_blacklist) = .;
-+#else
-+#define KPROBE_BLACKLIST()
-+#endif
-+
- #ifdef CONFIG_EVENT_TRACING
- #define FTRACE_EVENTS()	. = ALIGN(8);					\
- 			VMLINUX_SYMBOL(__start_ftrace_events) = .;	\
-@@ -487,6 +495,7 @@
- 	*(.init.rodata)							\
- 	FTRACE_EVENTS()							\
- 	TRACE_SYSCALLS()						\
-+	KPROBE_BLACKLIST()						\
- 	MEM_DISCARD(init.rodata)					\
- 	CLK_OF_TABLES()							\
- 	CLKSRC_OF_TABLES()						\
-diff --git a/include/linux/kprobes.h b/include/linux/kprobes.h
-index 925eaf2..a403038 100644
---- a/include/linux/kprobes.h
-+++ b/include/linux/kprobes.h
-@@ -206,6 +206,7 @@ struct kretprobe_blackpoint {
- };
- 
- struct kprobe_blackpoint {
-+	struct list_head list;
- 	const char *name;
- 	unsigned long start_addr;
- 	unsigned long range;
-@@ -476,4 +477,22 @@ static inline int enable_jprobe(struct jprobe *jp)
- 	return enable_kprobe(&jp->kp);
- }
- 
-+#ifdef CONFIG_KPROBES
-+/*
-+ * Blacklist ganerating macro. Specify functions which is not probed
-+ * by using this macro.
-+ */
-+#define NOKPROBE_SYMBOL(fname)			\
-+static struct kprobe_blackpoint __used		\
-+  _kprobe_bp_##fname = {			\
-+	.name = #fname,				\
-+	.start_addr = (unsigned long)fname,	\
-+};						\
-+static struct kprobe_blackpoint __used		\
-+  __attribute__((section("_kprobe_blacklist"))) \
-+ *_p_kprobe_bp_##fname = &_kprobe_bp_##fname;
-+#else
-+#define NOKPROBE_SYMBOL(fname)
-+#endif
-+
- #endif /* _LINUX_KPROBES_H */
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index ec0dbc7..1fab712 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -86,18 +86,8 @@ static raw_spinlock_t *kretprobe_table_lock_ptr(unsigned long hash)
- 	return &(kretprobe_table_locks[hash].lock);
- }
- 
--/*
-- * Normally, functions that we'd want to prohibit kprobes in, are marked
-- * __kprobes. But, there are cases where such functions already belong to
-- * a different section (__sched for preempt_schedule)
-- *
-- * For such cases, we now have a blacklist
-- */
--static struct kprobe_blackpoint kprobe_blacklist[] = {
--	{"preempt_schedule",},
--	{"native_get_debugreg",},
--	{NULL}    /* Terminator */
--};
-+/* Blacklist -- list of struct kprobe_blackpoint */
-+static LIST_HEAD(kprobe_blacklist);
- 
- #ifdef __ARCH_WANT_KPROBES_INSN_SLOT
- /*
-@@ -1321,9 +1311,9 @@ out:
- 	return ret;
- }
- 
--static int __kprobes in_kprobes_functions(unsigned long addr)
-+static int __kprobes in_nokprobe_functions(unsigned long addr)
- {
--	struct kprobe_blackpoint *kb;
-+	struct kprobe_blackpoint *bp;
- 
- 	/* The __kprobes marked functions and entry code must not be probed */
- 	if ((addr >= (unsigned long)__kprobes_text_start &&
-@@ -1335,12 +1325,10 @@ static int __kprobes in_kprobes_functions(unsigned long addr)
- 	 * If there exists a kprobe_blacklist, verify and
- 	 * fail any probe registration in the prohibited area
- 	 */
--	for (kb = kprobe_blacklist; kb->name != NULL; kb++) {
--		if (kb->start_addr) {
--			if (addr >= kb->start_addr &&
--			    addr < (kb->start_addr + kb->range))
--				return -EINVAL;
--		}
-+	list_for_each_entry(bp, &kprobe_blacklist, list) {
-+		if (addr >= bp->start_addr &&
-+		    addr < (bp->start_addr + bp->range))
-+			return -EINVAL;
- 	}
- 	return 0;
- }
-@@ -1433,7 +1421,7 @@ static __kprobes int check_kprobe_address_safe(struct kprobe *p,
- 
- 	/* Ensure it is not in reserved area nor out of text */
- 	if (!kernel_text_address((unsigned long) p->addr) ||
--	    in_kprobes_functions((unsigned long) p->addr) ||
-+	    in_nokprobe_functions((unsigned long) p->addr) ||
- 	    jump_label_text_reserved(p->addr, p->addr)) {
- 		ret = -EINVAL;
- 		goto out;
-@@ -2062,14 +2050,41 @@ static struct notifier_block kprobe_module_nb = {
- 	.priority = 0
- };
- 
--static int __init init_kprobes(void)
-+/*
-+ * Lookup and populate the kprobe_blacklist.
-+ *
-+ * Unlike the kretprobe blacklist, we'll need to determine
-+ * the range of addresses that belong to the said functions,
-+ * since a kprobe need not necessarily be at the beginning
-+ * of a function.
-+ */
-+static void populate_kprobe_blacklist(struct kprobe_blackpoint **start,
-+				      struct kprobe_blackpoint **end)
- {
--	int i, err = 0;
-+	struct kprobe_blackpoint **iter, *bp;
- 	unsigned long offset = 0, size = 0;
- 	char *modname, namebuf[128];
- 	const char *symbol_name;
--	void *addr;
--	struct kprobe_blackpoint *kb;
-+
-+	for (iter = start; (unsigned long)iter < (unsigned long)end; iter++) {
-+		bp = *iter;
-+		symbol_name = kallsyms_lookup(bp->start_addr,
-+				&size, &offset, &modname, namebuf);
-+		if (!symbol_name)
-+			continue;
-+
-+		bp->range = size;
-+		INIT_LIST_HEAD(&bp->list);
-+		list_add_tail(&bp->list, &kprobe_blacklist);
-+	}
-+}
-+
-+extern struct kprobe_blackpoint *__start_kprobe_blacklist[];
-+extern struct kprobe_blackpoint *__stop_kprobe_blacklist[];
-+
-+static int __init init_kprobes(void)
-+{
-+	int i, err = 0;
- 
- 	/* FIXME allocate the probe table, currently defined statically */
- 	/* initialize all list heads */
-@@ -2079,27 +2094,8 @@ static int __init init_kprobes(void)
- 		raw_spin_lock_init(&(kretprobe_table_locks[i].lock));
- 	}
- 
--	/*
--	 * Lookup and populate the kprobe_blacklist.
--	 *
--	 * Unlike the kretprobe blacklist, we'll need to determine
--	 * the range of addresses that belong to the said functions,
--	 * since a kprobe need not necessarily be at the beginning
--	 * of a function.
--	 */
--	for (kb = kprobe_blacklist; kb->name != NULL; kb++) {
--		kprobe_lookup_name(kb->name, addr);
--		if (!addr)
--			continue;
--
--		kb->start_addr = (unsigned long)addr;
--		symbol_name = kallsyms_lookup(kb->start_addr,
--				&size, &offset, &modname, namebuf);
--		if (!symbol_name)
--			kb->range = 0;
--		else
--			kb->range = size;
--	}
-+	populate_kprobe_blacklist(__start_kprobe_blacklist,
-+				  __stop_kprobe_blacklist);
- 
- 	if (kretprobe_blacklist_size) {
- 		/* lookup the function address from its name */
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 1deccd7..527fd78 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2645,6 +2645,7 @@ asmlinkage void __sched notrace preempt_schedule(void)
- 		barrier();
- 	} while (need_resched());
- }
-+NOKPROBE_SYMBOL(preempt_schedule);
- EXPORT_SYMBOL(preempt_schedule);
- 
- /*
+The 2014 World Conference on Information Systems and Technologies (Wor=
+ldCIST'14: http://www.aisti.eu/worldcist14) is a global forum for rese=
+archers and practitioners to present and discuss the most recent innov=
+ations, trends, results, experiences and concerns in the several persp=
+ectives of Information Systems and Technologies.
+
+We are pleased to invite you to submit your papers to WorldCISTI'14. A=
+ll submissions will be reviewed on the basis of relevance, originality=
+, importance and clarity.
+
+=20
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Intelligent and Decision Support Systems (IDSS);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+F) Human-Computer Interaction (HCI);
+
+G) Health Informatics (HIS);
+
+H) Information Technologies in Education (ITE).
+
+
+TYPES OF SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one =
+of the Conference themes. These papers are assigned a 10-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, open to =
+discussion. These papers are assigned a 7-page limit.
+
+Poster paper: Initial work with relevant ideas, open to discussion. Th=
+ese papers are assigned to a 4-page limit.
+
+Company paper: Companies' papers that show practical experience, R & D=
+, tools, etc., focused on some topics of the conference. These papers =
+are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference includes Work Sessions where t=
+hese posters are presented and orally discussed, with a 5 minute limit=
+ per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION AND INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 24th of January 2014, and the paper must comp=
+ly with the suggested layout and page-limit. Additionally, all recomme=
+nded changes must be addressed by the authors before they submit the c=
+amera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ Advances in Intelligent Systems and Computing Series. Poster and comp=
+any papers will be published in Proceedings by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
+in the SpringerLink Digital Library. Published poster and company pape=
+rs will be submitted for indexation by EI-Compendex and EBSCO.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI, SCOPUS and =
+DBLP, among others, such as:
+
+Journal of Information Technology (JIT)
+
+Social Science Computer Review (SSCR)
+
+Information Processing & Management (IPM)
+
+Information Technology & People (ITP)
+
+Computer Science and Information Systems (ComSIS)
+
+Information Development (IDV)
+
+IEEE IT Professional (ITPro)
+
+Methods of Information in Medicine (MIM)
+
+Computer Methods in Biomechanics and Biomedical Engineering - Imaging =
+& Visualization (CMBBE-IV)
+
+Journal of Medical Internet Research (JMIR)
+
+International Journal of Interactive Multimedia and Artificial Intelli=
+gence (IJIMAI)
+
+International Journal of Health Information Systems & Informatics (IJH=
+ISI)
+
+International Journal of Web Based Communities (IJWBC)
+
+EAI Transactions on e-Education and e-Learning (EAI-TEL)
+
+
+INPORTANT DATES
+
+Paper Submission: November 29, 2013
+
+Notification of Acceptance: January 10, 2014
+
+Camera-ready Submission: January 19, 2014
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 24, 2014.
+
+
+
+Regards,=20
+
+WorldCIST'14 Team
+http://www.aisti.eu/worldcist14/
+
+_______________
+
+
+
+
+
+
+
+--===============3647375593485790750==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3647375593485790750==--
