@@ -1,8 +1,7 @@
 From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: [PATCH -tip RFC v2 18/22] x86/dumpstack: Use NOKPROBE_SYMBOL macro
-	in dumpstack.c
-Date: Fri, 15 Nov 2013 04:54:08 +0000
-Message-ID: <20131115045408.27580.10378.stgit__10308.6733645343$1384491364$gmane$org@kbuild-fedora.novalocal>
+Subject: [PATCH -tip RFC v2 17/22] x86/kvm: Use NOKPROBE_SYMBOL macro in kvm.c
+Date: Fri, 15 Nov 2013 04:54:05 +0000
+Message-ID: <20131115045405.27580.16710.stgit__29622.917637653$1384491377$gmane$org@kbuild-fedora.novalocal>
 References: <20131115045312.27580.95902.stgit@kbuild-fedora.novalocal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,65 +18,46 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, "David S. Miller" <davem@davemloft.net>, Vineet Gupta <vgupta@synopsys.com>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Tejun Heo <tj@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Jiri Slaby <jslaby@suse.cz>, Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-arch@vger.kernel.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Use NOKPROBE_SYMBOL macro for protecting functions
-from kprobes instead of __kprobes annotation in
-dumpstack.c.
+from kprobes instead of __kprobes annotation in kvm.c.
+This also adds kvm_read_and_reset_pf_reason in
+the blacklist because it can be called before
+do_page_fault.
 
 Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Ingo Molnar <mingo@redhat.com>
 Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jiri Slaby <jslaby@suse.cz>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Gleb Natapov <gleb@redhat.com>
+Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: Marcelo Tosatti <mtosatti@redhat.com>
 ---
- arch/x86/kernel/dumpstack.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/kernel/kvm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/dumpstack.c b/arch/x86/kernel/dumpstack.c
-index d9c12d3..b74ebc7 100644
---- a/arch/x86/kernel/dumpstack.c
-+++ b/arch/x86/kernel/dumpstack.c
-@@ -200,7 +200,7 @@ static arch_spinlock_t die_lock = __ARCH_SPIN_LOCK_UNLOCKED;
- static int die_owner = -1;
- static unsigned int die_nest_count;
- 
--unsigned __kprobes long oops_begin(void)
-+unsigned long oops_begin(void)
- {
- 	int cpu;
- 	unsigned long flags;
-@@ -223,8 +223,9 @@ unsigned __kprobes long oops_begin(void)
- 	return flags;
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 6dd802c..fb95987 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -251,8 +251,9 @@ u32 kvm_read_and_reset_pf_reason(void)
+ 	return reason;
  }
- EXPORT_SYMBOL_GPL(oops_begin);
-+NOKPROBE_SYMBOL(oops_begin);
+ EXPORT_SYMBOL_GPL(kvm_read_and_reset_pf_reason);
++NOKPROBE_SYMBOL(kvm_read_and_reset_pf_reason);
  
--void __kprobes oops_end(unsigned long flags, struct pt_regs *regs, int signr)
-+void oops_end(unsigned long flags, struct pt_regs *regs, int signr)
+-dotraplinkage void __kprobes
++dotraplinkage void
+ do_async_page_fault(struct pt_regs *regs, unsigned long error_code)
  {
- 	if (regs && kexec_should_crash(current))
- 		crash_kexec(regs);
-@@ -247,8 +248,9 @@ void __kprobes oops_end(unsigned long flags, struct pt_regs *regs, int signr)
- 		panic("Fatal exception");
- 	do_exit(signr);
+ 	enum ctx_state prev_state;
+@@ -276,6 +277,7 @@ do_async_page_fault(struct pt_regs *regs, unsigned long error_code)
+ 		break;
+ 	}
  }
-+NOKPROBE_SYMBOL(oops_end);
++NOKPROBE_SYMBOL(do_async_page_fault);
  
--int __kprobes __die(const char *str, struct pt_regs *regs, long err)
-+int __die(const char *str, struct pt_regs *regs, long err)
+ static void __init paravirt_ops_setup(void)
  {
- #ifdef CONFIG_X86_32
- 	unsigned short ss;
-@@ -291,6 +293,7 @@ int __kprobes __die(const char *str, struct pt_regs *regs, long err)
- #endif
- 	return 0;
- }
-+NOKPROBE_SYMBOL(__die);
- 
- /*
-  * This is gone through when something in the kernel has done something bad
