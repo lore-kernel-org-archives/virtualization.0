@@ -1,13 +1,15 @@
-From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: [PATCH -tip RFC v2 22/22] sched: Use NOKPROBE_SYMBOL macro in sched
-Date: Fri, 15 Nov 2013 04:54:19 +0000
-Message-ID: <20131115045419.27580.71058.stgit@kbuild-fedora.novalocal>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH -tip RFC v2 01/22] kprobes: Prohibit probing on
+	.entry.text code
+Date: Fri, 15 Nov 2013 11:43:06 -0500
+Message-ID: <20131115114306.5d14db66@gandalf.local.home>
 References: <20131115045312.27580.95902.stgit@kbuild-fedora.novalocal>
+	<20131115045318.27580.69554.stgit@kbuild-fedora.novalocal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131115045312.27580.95902.stgit@kbuild-fedora.novalocal>
+In-Reply-To: <20131115045318.27580.69554.stgit@kbuild-fedora.novalocal>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,48 +19,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, "David
+	S. Miller" <davem@davemloft.net>, Peter Zijlstra <peterz@infradead.org>, Frederic Weisbecker <fweisbec@gmail.com>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Seiji Aguchi <seiji.aguchi@hds.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use NOKPROBE_SYMBOL macro to protect functions from
-kprobes instead of __kprobes annotation in sched/core.c.
+On Fri, 15 Nov 2013 04:53:18 +0000
+Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
 
-Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
----
- kernel/sched/core.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+> .entry.text is a code area which is used for interrupt/syscall
+> entries, and there are many sensitive codes.
+> Thus, it is better to prohibit probing on all of such codes
+> instead of a part of that.
+> Since some symbols are already registered on kprobe blacklist,
+> this also removes them from the blacklist.
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 504fdbd..fece2e3 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -2342,7 +2342,7 @@ notrace unsigned long get_parent_ip(unsigned long addr)
- #if defined(CONFIG_PREEMPT) && (defined(CONFIG_DEBUG_PREEMPT) || \
- 				defined(CONFIG_PREEMPT_TRACER))
- 
--void __kprobes preempt_count_add(int val)
-+void preempt_count_add(int val)
- {
- #ifdef CONFIG_DEBUG_PREEMPT
- 	/*
-@@ -2363,8 +2363,9 @@ void __kprobes preempt_count_add(int val)
- 		trace_preempt_off(CALLER_ADDR0, get_parent_ip(CALLER_ADDR1));
- }
- EXPORT_SYMBOL(preempt_count_add);
-+NOKPROBE_SYMBOL(preempt_count_add);
- 
--void __kprobes preempt_count_sub(int val)
-+void preempt_count_sub(int val)
- {
- #ifdef CONFIG_DEBUG_PREEMPT
- 	/*
-@@ -2385,6 +2386,7 @@ void __kprobes preempt_count_sub(int val)
- 	__preempt_count_sub(val);
- }
- EXPORT_SYMBOL(preempt_count_sub);
-+NOKPROBE_SYMBOL(preempt_count_sub);
- 
- #endif
+This change only works with x86. On other archs, I get this:
+
+kernel/built-in.o: In function `register_kprobe':
+(.kprobes.text+0x9f4): undefined reference to `__entry_text_start'
+kernel/built-in.o: In function `register_kprobe':
+(.kprobes.text+0x9f8): undefined reference to `__entry_text_end'
+make[1]: *** [vmlinux] Error 1
+make: *** [sub-make] Error 2
+
+-- Steve
