@@ -1,8 +1,8 @@
 From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: [PATCH -tip RFC v2 13/22] x86/trap: Use NOKPROBE_SYMBOL macro in
-	trap.c
-Date: Fri, 15 Nov 2013 04:53:54 +0000
-Message-ID: <20131115045354.27580.84725.stgit__31221.417481038$1384491328$gmane$org@kbuild-fedora.novalocal>
+Subject: [PATCH -tip RFC v2 14/22] x86/fault: Use NOKPROBE_SYMBOL macro in
+	fault.c
+Date: Fri, 15 Nov 2013 04:53:57 +0000
+Message-ID: <20131115045357.27580.92965.stgit@kbuild-fedora.novalocal>
 References: <20131115045312.27580.95902.stgit@kbuild-fedora.novalocal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,147 +19,152 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-arch@vger.kernel.org, Andi Kleen <ak@linux.intel.com>, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Frederic Weisbecker <fweisbec@gmail.com>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Seiji Aguchi <seiji.aguchi@hds.com>, "David S. Miller" <davem@davemloft.net>
+Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, "David S. Miller" <davem@davemloft.net>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Michal Hocko <mhocko@suse.cz>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Andrew Morton <akpm@linux-foundation.org>, Seiji Aguchi <seiji.aguchi@hds.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Use NOKPROBE_SYMBOL macro to protect functions from kprobes
-instead of __kprobes annotation in trap.c.
-This also applies __always_inline annotation for some cases,
-because NOKPROBE_SYMBOL() will inhibit inlining by referring
-the symbol address.
+instead of __kprobes annotation in fault.c.
+This applies __always_inline annotation for some cases,
+because NOKPROBE_SYMBOL() will inhibit inlining by
+referring the symbol address.
 
 Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Ingo Molnar <mingo@redhat.com>
 Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.cz>
 Cc: Seiji Aguchi <seiji.aguchi@hds.com>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>
 ---
- arch/x86/include/asm/traps.h |    2 +-
- arch/x86/kernel/traps.c      |   20 +++++++++++++-------
- 2 files changed, 14 insertions(+), 8 deletions(-)
+ arch/x86/mm/fault.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
-index 58d66fe..ca32508 100644
---- a/arch/x86/include/asm/traps.h
-+++ b/arch/x86/include/asm/traps.h
-@@ -68,7 +68,7 @@ dotraplinkage void do_segment_not_present(struct pt_regs *, long);
- dotraplinkage void do_stack_segment(struct pt_regs *, long);
- #ifdef CONFIG_X86_64
- dotraplinkage void do_double_fault(struct pt_regs *, long);
--asmlinkage __kprobes struct pt_regs *sync_regs(struct pt_regs *);
-+asmlinkage struct pt_regs *sync_regs(struct pt_regs *);
- #endif
- dotraplinkage void do_general_protection(struct pt_regs *, long);
- dotraplinkage void do_page_fault(struct pt_regs *, unsigned long);
-diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
-index ce24c24..e751e3b 100644
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -106,7 +106,7 @@ static inline void preempt_conditional_cli(struct pt_regs *regs)
- 	preempt_count_dec();
- }
- 
--static int __kprobes
+diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+index 9ff85bb..7c9305c 100644
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -8,7 +8,7 @@
+ #include <linux/kdebug.h>		/* oops_begin/end, ...		*/
+ #include <linux/module.h>		/* search_exception_table	*/
+ #include <linux/bootmem.h>		/* max_low_pfn			*/
+-#include <linux/kprobes.h>		/* __kprobes, ...		*/
++#include <linux/kprobes.h>		/* NOKPROBE_SYMBOL, ...		*/
+ #include <linux/mmiotrace.h>		/* kmmio_handler, ...		*/
+ #include <linux/perf_event.h>		/* perf_sw_event		*/
+ #include <linux/hugetlb.h>		/* hstate_index_to_shift	*/
+@@ -45,7 +45,7 @@ enum x86_pf_error_code {
+  * Returns 0 if mmiotrace is disabled, or if the fault is not
+  * handled by mmiotrace:
+  */
+-static inline int __kprobes
 +static __always_inline int
- do_trap_no_signal(struct task_struct *tsk, int trapnr, char *str,
- 		  struct pt_regs *regs,	long error_code)
+ kmmio_fault(struct pt_regs *regs, unsigned long addr)
  {
-@@ -136,7 +136,7 @@ do_trap_no_signal(struct task_struct *tsk, int trapnr, char *str,
- 	return -1;
+ 	if (unlikely(is_kmmio_active()))
+@@ -54,7 +54,7 @@ kmmio_fault(struct pt_regs *regs, unsigned long addr)
+ 	return 0;
  }
  
+-static inline int __kprobes kprobes_fault(struct pt_regs *regs)
++static __always_inline int kprobes_fault(struct pt_regs *regs)
+ {
+ 	int ret = 0;
+ 
+@@ -261,7 +261,7 @@ void vmalloc_sync_all(void)
+  *
+  *   Handle a fault on the vmalloc or module mapping area
+  */
+-static noinline __kprobes int vmalloc_fault(unsigned long address)
++static noinline int vmalloc_fault(unsigned long address)
+ {
+ 	unsigned long pgd_paddr;
+ 	pmd_t *pmd_k;
+@@ -291,6 +291,7 @@ static noinline __kprobes int vmalloc_fault(unsigned long address)
+ 
+ 	return 0;
+ }
++NOKPROBE_SYMBOL(vmalloc_fault);
+ 
+ /*
+  * Did it hit the DOS screen memory VA from vm86 mode?
+@@ -358,7 +359,7 @@ void vmalloc_sync_all(void)
+  *
+  * This assumes no large pages in there.
+  */
+-static noinline __kprobes int vmalloc_fault(unsigned long address)
++static noinline int vmalloc_fault(unsigned long address)
+ {
+ 	pgd_t *pgd, *pgd_ref;
+ 	pud_t *pud, *pud_ref;
+@@ -425,6 +426,7 @@ static noinline __kprobes int vmalloc_fault(unsigned long address)
+ 
+ 	return 0;
+ }
++NOKPROBE_SYMBOL(vmalloc_fault);
+ 
+ #ifdef CONFIG_CPU_SUP_AMD
+ static const char errata93_warning[] =
+@@ -904,7 +906,7 @@ static int spurious_fault_check(unsigned long error_code, pte_t *pte)
+  * There are no security implications to leaving a stale TLB when
+  * increasing the permissions on a page.
+  */
+-static noinline __kprobes int
++static noinline int
+ spurious_fault(unsigned long error_code, unsigned long address)
+ {
+ 	pgd_t *pgd;
+@@ -952,6 +954,7 @@ spurious_fault(unsigned long error_code, unsigned long address)
+ 
+ 	return ret;
+ }
++NOKPROBE_SYMBOL(spurious_fault);
+ 
+ int show_unhandled_signals = 1;
+ 
+@@ -997,7 +1000,7 @@ static inline bool smap_violation(int error_code, struct pt_regs *regs)
+  * and the problem, and then passes it off to one of the appropriate
+  * routines.
+  */
 -static void __kprobes
 +static void
- do_trap(int trapnr, int signr, char *str, struct pt_regs *regs,
- 	long error_code, siginfo_t *info)
+ __do_page_fault(struct pt_regs *regs, unsigned long error_code)
  {
-@@ -173,6 +173,7 @@ do_trap(int trapnr, int signr, char *str, struct pt_regs *regs,
- 	else
- 		force_sig(signr, tsk);
- }
-+NOKPROBE_SYMBOL(do_trap);
+ 	struct vm_area_struct *vma;
+@@ -1225,8 +1228,9 @@ good_area:
  
- #define DO_ERROR(trapnr, signr, str, name)				\
- dotraplinkage void do_##name(struct pt_regs *regs, long error_code)	\
-@@ -267,7 +268,7 @@ dotraplinkage void do_double_fault(struct pt_regs *regs, long error_code)
+ 	up_read(&mm->mmap_sem);
  }
- #endif
++NOKPROBE_SYMBOL(__do_page_fault);
  
 -dotraplinkage void __kprobes
 +dotraplinkage void
- do_general_protection(struct pt_regs *regs, long error_code)
- {
- 	struct task_struct *tsk;
-@@ -313,9 +314,10 @@ do_general_protection(struct pt_regs *regs, long error_code)
- exit:
- 	exception_exit(prev_state);
- }
-+NOKPROBE_SYMBOL(do_general_protection);
- 
- /* May run on IST stack. */
--dotraplinkage void __kprobes notrace do_int3(struct pt_regs *regs, long error_code)
-+dotraplinkage void notrace do_int3(struct pt_regs *regs, long error_code)
+ do_page_fault(struct pt_regs *regs, unsigned long error_code)
  {
  	enum ctx_state prev_state;
- 
-@@ -354,6 +356,7 @@ dotraplinkage void __kprobes notrace do_int3(struct pt_regs *regs, long error_co
- exit:
+@@ -1235,9 +1239,10 @@ do_page_fault(struct pt_regs *regs, unsigned long error_code)
+ 	__do_page_fault(regs, error_code);
  	exception_exit(prev_state);
  }
-+NOKPROBE_SYMBOL(do_int3);
++NOKPROBE_SYMBOL(do_page_fault);
  
- #ifdef CONFIG_X86_64
- /*
-@@ -361,7 +364,7 @@ exit:
-  * for scheduling or signal handling. The actual stack switch is done in
-  * entry.S
-  */
--asmlinkage __kprobes struct pt_regs *sync_regs(struct pt_regs *eregs)
-+asmlinkage struct pt_regs *sync_regs(struct pt_regs *eregs)
+-static void trace_page_fault_entries(struct pt_regs *regs,
+-				     unsigned long error_code)
++static __always_inline void
++trace_page_fault_entries(struct pt_regs *regs, unsigned long error_code)
  {
- 	struct pt_regs *regs = eregs;
- 	/* Did already sync */
-@@ -380,6 +383,7 @@ asmlinkage __kprobes struct pt_regs *sync_regs(struct pt_regs *eregs)
- 		*regs = *eregs;
- 	return regs;
+ 	if (user_mode(regs))
+ 		trace_page_fault_user(read_cr2(), regs, error_code);
+@@ -1245,7 +1250,7 @@ static void trace_page_fault_entries(struct pt_regs *regs,
+ 		trace_page_fault_kernel(read_cr2(), regs, error_code);
  }
-+NOKPROBE_SYMBOL(sync_regs);
- #endif
- 
- /*
-@@ -406,7 +410,7 @@ asmlinkage __kprobes struct pt_regs *sync_regs(struct pt_regs *eregs)
-  *
-  * May run on IST stack.
-  */
--dotraplinkage void __kprobes do_debug(struct pt_regs *regs, long error_code)
-+dotraplinkage void do_debug(struct pt_regs *regs, long error_code)
- {
- 	struct task_struct *tsk = current;
- 	enum ctx_state prev_state;
-@@ -486,6 +490,7 @@ dotraplinkage void __kprobes do_debug(struct pt_regs *regs, long error_code)
- exit:
- 	exception_exit(prev_state);
- }
-+NOKPROBE_SYMBOL(do_debug);
- 
- /*
-  * Note that we play around with the 'TS' bit in an attempt to get
-@@ -657,7 +662,7 @@ void math_state_restore(void)
- }
- EXPORT_SYMBOL_GPL(math_state_restore);
  
 -dotraplinkage void __kprobes
 +dotraplinkage void
- do_device_not_available(struct pt_regs *regs, long error_code)
+ trace_do_page_fault(struct pt_regs *regs, unsigned long error_code)
  {
  	enum ctx_state prev_state;
-@@ -683,6 +688,7 @@ do_device_not_available(struct pt_regs *regs, long error_code)
- #endif
+@@ -1255,3 +1260,4 @@ trace_do_page_fault(struct pt_regs *regs, unsigned long error_code)
+ 	__do_page_fault(regs, error_code);
  	exception_exit(prev_state);
  }
-+NOKPROBE_SYMBOL(do_device_not_available);
- 
- #ifdef CONFIG_X86_32
- dotraplinkage void do_iret_error(struct pt_regs *regs, long error_code)
++NOKPROBE_SYMBOL(trace_do_page_fault);
