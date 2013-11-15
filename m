@@ -1,15 +1,16 @@
-From: Steven Rostedt <rostedt@goodmis.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 Subject: Re: [PATCH -tip RFC v2 01/22] kprobes: Prohibit probing on
 	.entry.text code
-Date: Fri, 15 Nov 2013 11:43:06 -0500
-Message-ID: <20131115114306.5d14db66@gandalf.local.home>
+Date: Fri, 15 Nov 2013 18:46:40 +0100
+Message-ID: <CAMuHMdXw+WGKiQuquQL7XOkbRLNOC_SPddY1irRGQwpvDHLMwA__40984.0820277624$1384537615$gmane$org@mail.gmail.com>
 References: <20131115045312.27580.95902.stgit@kbuild-fedora.novalocal>
 	<20131115045318.27580.69554.stgit@kbuild-fedora.novalocal>
+	<20131115114306.5d14db66@gandalf.local.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131115045318.27580.69554.stgit@kbuild-fedora.novalocal>
+In-Reply-To: <20131115114306.5d14db66@gandalf.local.home>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +20,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, "David
-	S. Miller" <davem@davemloft.net>, Peter Zijlstra <peterz@infradead.org>, Frederic Weisbecker <fweisbec@gmail.com>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Seiji Aguchi <seiji.aguchi@hds.com>, Ingo Molnar <mingo@kernel.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Linux-Arch <linux-arch@vger.kernel.org>, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, "David S. Miller" <davem@davemloft.net>, Peter Zijlstra <peterz@infradead.org>, Frederic Weisbecker <fweisbec@gmail.com>, the arch/x86 maintainers <x86@kernel.org>, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, "H. Peter Anvin" <hpa@zytor.com>, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Thomas Gleixner <tglx@linutronix.de>, Seiji Aguchi <seiji.aguchi@hds.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 15 Nov 2013 04:53:18 +0000
-Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
+On Fri, Nov 15, 2013 at 5:43 PM, Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Fri, 15 Nov 2013 04:53:18 +0000
+> Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
+>
+>> .entry.text is a code area which is used for interrupt/syscall
+>> entries, and there are many sensitive codes.
+>> Thus, it is better to prohibit probing on all of such codes
+>> instead of a part of that.
+>> Since some symbols are already registered on kprobe blacklist,
+>> this also removes them from the blacklist.
+>
+> This change only works with x86. On other archs, I get this:
+>
+> kernel/built-in.o: In function `register_kprobe':
+> (.kprobes.text+0x9f4): undefined reference to `__entry_text_start'
+> kernel/built-in.o: In function `register_kprobe':
+> (.kprobes.text+0x9f8): undefined reference to `__entry_text_end'
+> make[1]: *** [vmlinux] Error 1
+> make: *** [sub-make] Error 2
 
-> .entry.text is a code area which is used for interrupt/syscall
-> entries, and there are many sensitive codes.
-> Thus, it is better to prohibit probing on all of such codes
-> instead of a part of that.
-> Since some symbols are already registered on kprobe blacklist,
-> this also removes them from the blacklist.
+X86 is the sole architecture that has ENTRY_TEXT in its
+arch/*/kernel/vmlinux.lds.S.
 
-This change only works with x86. On other archs, I get this:
+Gr{oetje,eeting}s,
 
-kernel/built-in.o: In function `register_kprobe':
-(.kprobes.text+0x9f4): undefined reference to `__entry_text_start'
-kernel/built-in.o: In function `register_kprobe':
-(.kprobes.text+0x9f8): undefined reference to `__entry_text_end'
-make[1]: *** [vmlinux] Error 1
-make: *** [sub-make] Error 2
+                        Geert
 
--- Steve
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
