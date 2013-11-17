@@ -1,16 +1,17 @@
-From: Michael Dalton <mwdalton@google.com>
-Subject: Re: [PATCH net-next 4/4] virtio-net: auto-tune mergeable rx buffer
-	size for improved performance
-Date: Sat, 16 Nov 2013 01:06:32 -0800
-Message-ID: <CANJ5vPKaNsNkx9MLYFYBSxgfuhm_xnmJh_UYadAfv-_t6nPjbA@mail.gmail.com>
-References: <1384294885-6444-1-git-send-email-mwdalton@google.com>
-	<1384294885-6444-4-git-send-email-mwdalton@google.com>
-	<528325DC.3050801@redhat.com> <20131113174245.GB31078@redhat.com>
+From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Subject: Re: Re: [PATCH -tip RFC v2 01/22] kprobes: Prohibit probing on
+	.entry.text code
+Date: Sun, 17 Nov 2013 16:21:27 +0900
+Message-ID: <52886E77.1000707@hitachi.com>
+References: <20131115045312.27580.95902.stgit@kbuild-fedora.novalocal>
+	<20131115045318.27580.69554.stgit@kbuild-fedora.novalocal>
+	<20131115114306.5d14db66@gandalf.local.home>
+	<CAMuHMdXw+WGKiQuquQL7XOkbRLNOC_SPddY1irRGQwpvDHLMwA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131113174245.GB31078@redhat.com>
+In-Reply-To: <CAMuHMdXw+WGKiQuquQL7XOkbRLNOC_SPddY1irRGQwpvDHLMwA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,73 +21,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>, lf-virt <virtualization@lists.linux-foundation.org>, Daniel Borkmann <dborkman@redhat.com>, "David S. Miller" <davem@davemloft.net>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux-Arch <linux-arch@vger.kernel.org>, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, "David S. Miller" <davem@davemloft.net>, Peter Zijlstra <peterz@infradead.org>, Frederic Weisbecker <fweisbec@gmail.com>, the arch/x86 maintainers <x86@kernel.org>, lkml <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Seiji Aguchi <seiji.aguchi@hds.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+(2013/11/16 2:46), Geert Uytterhoeven wrote:
+> On Fri, Nov 15, 2013 at 5:43 PM, Steven Rostedt <rostedt@goodmis.org> wrote:
+>> On Fri, 15 Nov 2013 04:53:18 +0000
+>> Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
+>>
+>>> .entry.text is a code area which is used for interrupt/syscall
+>>> entries, and there are many sensitive codes.
+>>> Thus, it is better to prohibit probing on all of such codes
+>>> instead of a part of that.
+>>> Since some symbols are already registered on kprobe blacklist,
+>>> this also removes them from the blacklist.
+>>
+>> This change only works with x86. On other archs, I get this:
+>>
+>> kernel/built-in.o: In function `register_kprobe':
+>> (.kprobes.text+0x9f4): undefined reference to `__entry_text_start'
+>> kernel/built-in.o: In function `register_kprobe':
+>> (.kprobes.text+0x9f8): undefined reference to `__entry_text_end'
+>> make[1]: *** [vmlinux] Error 1
+>> make: *** [sub-make] Error 2
+> 
+> X86 is the sole architecture that has ENTRY_TEXT in its
+> arch/*/kernel/vmlinux.lds.S.
 
-Apologies for the delay, I wanted to get answers together for all of the
-open questions raised on this thread. The first patch in this patchset is
-already merged, so after the merge window re-opens I'll send out new
-patchsets covering the remaining 3 patches.
+Ah, thanks! I'll fix that.
+BTW, should I add CONFIG_HAVE_ENTRY_TEXT for x86 and use it
+or just use CONFIG_X86 to detect it?
 
-After reflecting on feedback from this thread, I think it makes sense to
-separate out the per-receive queue page frag allocator patches from the
-autotuning patch when the merge window re-opens. The per-receive queue
-page frag allocator patches help deal with fragmentation (PAGE_SIZE does
-not evenly divide MERGE_BUFFER_LEN), and provide benefits whether or not
-auto-tuning is present. Auto-tuning can then be evaluated separately.
+Thank you,
 
-On Wed, 2013-11-13 at 15:10 +0800, Jason Wang wrote:
-> There's one concern with EWMA. How well does it handle multiple streams
-> each with different packet size? E.g there may be two flows, one with
-> 256 bytes each packet another is 64K.  Looks like it can result we
-> allocate PAGE_SIZE buffer for 256 (which is bad since the
-> payload/truesize is low) bytes or 1500+ for 64K buffer (which is ok
-> since we can do coalescing).
-
-If multiple streams of very different packet sizes are arriving on the
-same receive queue, no single buffer size is ideal(e.g., large buffers
-will cause small packets to take up too much memory, but small buffers
-may reduce throughput somewhat for large packets). We don't know a
-priori which packet will be delivered to a given receive queue packet
-buffer, so any size we choose will not be optimal for all cases if we
-have significant variance in packet sizes.
-
-> Do you have perf numbers that just without this patch? We need to know
-> how much EWMA help exactly.
-
-Great point, I should have included that in my initial benchmarking. I ran
-a benchmark in the same environment as my initial results, this time with
-the first 3 patches in this patchset applied but without the autotuning
-patch.  The average performance over 5 runs of 30-second netperf was
-13760.85Gb/s.
-
-> Is there a chance that est_buffer_len was smaller than or equal with len?
-
-Yes, that is possible if the average packet length decreases.
-
-> Not sure this is accurate, since buflen may change and several frags may
-> share a single page. So the est_buffer_len we get in receive_mergeable()
-> may not be the correct value.
-
-I agree it may not be 100% accurate but we can choose a weight that will
-cause the average packet size to change slowly. Even with an order 3 page
-there will not be too many packet buffers allocated from a single page.
-
-On Wed, 2013-11-13 at 17:42 +0800, Michael S. Tsirkin wrote:
-> I'm not sure it's useful - no one is likely to tune it in practice.
-> But how about a comment explaining how was the number chosen?
-
-That makes sense, I agree a comment is needed. The weight determines
-how quickly we react to a change in packet size. As we attempt to fill
-all free ring entries on refill (in try_fill_recv), I chose a large
-weight so that a short burst of traffic with a different average packet
-size will not substantially shift the packet buffer size for the entire
-ring the next time try_fill_recv is called. I'll add a comment that
-compares 64 to nearby values (32, 16).
-
-Best,
-
-Mike
+-- 
+Masami HIRAMATSU
+IT Management Research Dept. Linux Technology Center
+Hitachi, Ltd., Yokohama Research Laboratory
+E-mail: masami.hiramatsu.pt@hitachi.com
