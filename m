@@ -1,12 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net] virtio-net: fix page refcnt leaking when fail to allocate
-	frag skb
-Date: Tue, 19 Nov 2013 16:05:07 +0800
-Message-ID: <1384848307-7217-1-git-send-email-jasowang@redhat.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [PATCH net] virtio-net: fix page refcnt leaking when fail to
+	allocate frag skb
+Date: Tue, 19 Nov 2013 06:03:48 -0800
+Message-ID: <1384869828.8604.97.camel@edumazet-glaptop2.roam.corp.google.com>
+References: <1384848307-7217-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1384848307-7217-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,49 +18,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Michael Dalton <mwdalton@google.com>, Eric Dumazet <edumazet@google.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Michael Dalton <mwdalton@google.com>, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We need to drop the refcnt of page when we fail to allocate an skb for frag
-list, otherwise it will be leaked. The bug was introduced by commit
-2613af0ed18a11d5c566a81f9a6510b73180660a ("virtio_net: migrate mergeable rx
-buffers to page frag allocators").
+On Tue, 2013-11-19 at 16:05 +0800, Jason Wang wrote:
+> We need to drop the refcnt of page when we fail to allocate an skb for frag
+> list, otherwise it will be leaked. The bug was introduced by commit
+> 2613af0ed18a11d5c566a81f9a6510b73180660a ("virtio_net: migrate mergeable rx
+> buffers to page frag allocators").
+> 
+> Cc: Michael Dalton <mwdalton@google.com>
+> Cc: Eric Dumazet <edumazet@google.com>
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> The patch was needed for 3.12 stable.
 
-Cc: Michael Dalton <mwdalton@google.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-The patch was needed for 3.12 stable.
----
- drivers/net/virtio_net.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Good catch, but if we return from receive_mergeable() in the 'middle'
+of the frags we would need for the current skb, who will
+call the virtqueue_get_buf() to flush the remaining frags ?
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 69ad42b..3798517 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -322,9 +322,11 @@ static int receive_mergeable(struct receive_queue *rq, struct sk_buff *head_skb)
- 				 head_skb->dev->name);
- 			len = MERGE_BUFFER_LEN;
- 		}
-+		page = virt_to_head_page(buf);
- 		if (unlikely(num_skb_frags == MAX_SKB_FRAGS)) {
- 			struct sk_buff *nskb = alloc_skb(0, GFP_ATOMIC);
- 			if (unlikely(!nskb)) {
-+				put_page(page);
- 				head_skb->dev->stats.rx_dropped++;
- 				return -ENOMEM;
- 			}
-@@ -341,7 +343,6 @@ static int receive_mergeable(struct receive_queue *rq, struct sk_buff *head_skb)
- 			head_skb->len += len;
- 			head_skb->truesize += MERGE_BUFFER_LEN;
- 		}
--		page = virt_to_head_page(buf);
- 		offset = buf - (char *)page_address(page);
- 		if (skb_can_coalesce(curr_skb, num_skb_frags, page, offset)) {
- 			put_page(page);
--- 
-1.8.3.2
+Don't we also need to call virtqueue_get_buf() like 
+
+while (--num_buf) {
+    buf = virtqueue_get_buf(rq->vq, &len);
+    if (!buf)
+        break;
+    put_page(virt_to_head_page(buf));
+}
+
+?
