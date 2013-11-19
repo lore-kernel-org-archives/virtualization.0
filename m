@@ -1,8 +1,8 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net] virtio-net: fix page refcnt leaking when fail to
 	allocate frag skb
-Date: Tue, 19 Nov 2013 20:44:11 +0200
-Message-ID: <20131119184411.GA14587@redhat.com>
+Date: Tue, 19 Nov 2013 22:49:09 +0200
+Message-ID: <20131119204909.GA15004@redhat.com>
 References: <1384848307-7217-1-git-send-email-jasowang@redhat.com>
 	<1384869828.8604.97.camel@edumazet-glaptop2.roam.corp.google.com>
 Mime-Version: 1.0
@@ -55,9 +55,40 @@ On Tue, Nov 19, 2013 at 06:03:48AM -0800, Eric Dumazet wrote:
 > ?
 > 
 > 
-> 
 
 
-virtqueue_get_buf only gives you back a buffer that has been DMA-ed
-to by hardware. ATM there's no way to get back a buffer once you
-gave it to hardware without doing a NIC reset.
+Let me explain what worries me in your suggestion:
+
+                        struct sk_buff *nskb = alloc_skb(0, GFP_ATOMIC);
+                        if (unlikely(!nskb)) {
+                                head_skb->dev->stats.rx_dropped++;
+                                return -ENOMEM;
+                        }
+
+is this the failure case we are talking about?
+
+I think this is a symprom of a larger problem
+introduced by 2613af0ed18a11d5c566a81f9a6510b73180660a,
+namely that we now need to allocate memory in the
+middle of processing a packet.
+
+
+I think discarding a completely valid and well-formed
+packet from the receive queue because we are unable
+to allocate new memory with GFP_ATOMIC
+for future packets is not a good idea.
+
+It certainly violates the principle of least surprize:
+when one sees host pass packet to guest, one expects
+the packet to get into the networking stack, not get
+dropped by the driver internally.
+Guest stack can do with the packet what it sees fit.
+
+We actually wake up a thread if we can't fill up the queue,
+that will fill it up in GFP_KERNEL context.
+
+So I think we should find a way to pre-allocate if necessary and avoid
+error paths where allocating new memory is a required to avoid drops.
+
+-- 
+MST
