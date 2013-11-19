@@ -1,17 +1,12 @@
-From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: Re: Re: [PATCH -tip RFC v2 01/22] kprobes: Prohibit probing on
-	.entry.text code
-Date: Sun, 17 Nov 2013 16:21:27 +0900
-Message-ID: <52886E77.1000707@hitachi.com>
-References: <20131115045312.27580.95902.stgit@kbuild-fedora.novalocal>
-	<20131115045318.27580.69554.stgit@kbuild-fedora.novalocal>
-	<20131115114306.5d14db66@gandalf.local.home>
-	<CAMuHMdXw+WGKiQuquQL7XOkbRLNOC_SPddY1irRGQwpvDHLMwA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] virtio-net: fix page refcnt leaking when fail to allocate
+	frag skb
+Date: Tue, 19 Nov 2013 16:05:07 +0800
+Message-ID: <1384848307-7217-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAMuHMdXw+WGKiQuquQL7XOkbRLNOC_SPddY1irRGQwpvDHLMwA@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,42 +16,49 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux-Arch <linux-arch@vger.kernel.org>, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, "David S. Miller" <davem@davemloft.net>, Peter Zijlstra <peterz@infradead.org>, Frederic Weisbecker <fweisbec@gmail.com>, the arch/x86 maintainers <x86@kernel.org>, lkml <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Seiji Aguchi <seiji.aguchi@hds.com>, Ingo Molnar <mingo@kernel.org>
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Michael Dalton <mwdalton@google.com>, Eric Dumazet <edumazet@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(2013/11/16 2:46), Geert Uytterhoeven wrote:
-> On Fri, Nov 15, 2013 at 5:43 PM, Steven Rostedt <rostedt@goodmis.org> wrote:
->> On Fri, 15 Nov 2013 04:53:18 +0000
->> Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
->>
->>> .entry.text is a code area which is used for interrupt/syscall
->>> entries, and there are many sensitive codes.
->>> Thus, it is better to prohibit probing on all of such codes
->>> instead of a part of that.
->>> Since some symbols are already registered on kprobe blacklist,
->>> this also removes them from the blacklist.
->>
->> This change only works with x86. On other archs, I get this:
->>
->> kernel/built-in.o: In function `register_kprobe':
->> (.kprobes.text+0x9f4): undefined reference to `__entry_text_start'
->> kernel/built-in.o: In function `register_kprobe':
->> (.kprobes.text+0x9f8): undefined reference to `__entry_text_end'
->> make[1]: *** [vmlinux] Error 1
->> make: *** [sub-make] Error 2
-> 
-> X86 is the sole architecture that has ENTRY_TEXT in its
-> arch/*/kernel/vmlinux.lds.S.
+We need to drop the refcnt of page when we fail to allocate an skb for frag
+list, otherwise it will be leaked. The bug was introduced by commit
+2613af0ed18a11d5c566a81f9a6510b73180660a ("virtio_net: migrate mergeable rx
+buffers to page frag allocators").
 
-Ah, thanks! I'll fix that.
-BTW, should I add CONFIG_HAVE_ENTRY_TEXT for x86 and use it
-or just use CONFIG_X86 to detect it?
+Cc: Michael Dalton <mwdalton@google.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+The patch was needed for 3.12 stable.
+---
+ drivers/net/virtio_net.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Thank you,
-
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 69ad42b..3798517 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -322,9 +322,11 @@ static int receive_mergeable(struct receive_queue *rq, struct sk_buff *head_skb)
+ 				 head_skb->dev->name);
+ 			len = MERGE_BUFFER_LEN;
+ 		}
++		page = virt_to_head_page(buf);
+ 		if (unlikely(num_skb_frags == MAX_SKB_FRAGS)) {
+ 			struct sk_buff *nskb = alloc_skb(0, GFP_ATOMIC);
+ 			if (unlikely(!nskb)) {
++				put_page(page);
+ 				head_skb->dev->stats.rx_dropped++;
+ 				return -ENOMEM;
+ 			}
+@@ -341,7 +343,6 @@ static int receive_mergeable(struct receive_queue *rq, struct sk_buff *head_skb)
+ 			head_skb->len += len;
+ 			head_skb->truesize += MERGE_BUFFER_LEN;
+ 		}
+-		page = virt_to_head_page(buf);
+ 		offset = buf - (char *)page_address(page);
+ 		if (skb_can_coalesce(curr_skb, num_skb_frags, page, offset)) {
+ 			put_page(page);
 -- 
-Masami HIRAMATSU
-IT Management Research Dept. Linux Technology Center
-Hitachi, Ltd., Yokohama Research Laboratory
-E-mail: masami.hiramatsu.pt@hitachi.com
+1.8.3.2
