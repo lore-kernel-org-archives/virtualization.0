@@ -1,20 +1,12 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] virtio-net: fix page refcnt leaking when fail to
-	allocate frag skb
-Date: Wed, 20 Nov 2013 11:17:13 +0800
-Message-ID: <528C29B9.5000701@redhat.com>
-References: <1384848307-7217-1-git-send-email-jasowang@redhat.com>
-	<1384869828.8604.97.camel@edumazet-glaptop2.roam.corp.google.com>
-	<20131119204909.GA15004@redhat.com>
-	<1384896996.8604.120.camel@edumazet-glaptop2.roam.corp.google.com>
-	<20131119215312.GE15004@redhat.com>
-	<1384898411.8604.127.camel@edumazet-glaptop2.roam.corp.google.com>
-	<CANJ5vP+ZxtDf8OzREpyDpgh8JLnWGEjkUcS388hi+AOjdu0fZw@mail.gmail.com>
+From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Subject: [PATCH -tip v3 00/23] kprobes: introduce NOKPROBE_SYMBOL() and
+	general cleaning of kprobe blacklist
+Date: Wed, 20 Nov 2013 04:21:48 +0000
+Message-ID: <20131120042148.15296.88360.stgit__41710.8532543809$1384921677$gmane$org@kbuild-fedora.novalocal>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CANJ5vP+ZxtDf8OzREpyDpgh8JLnWGEjkUcS388hi+AOjdu0fZw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,42 +16,150 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Dalton <mwdalton@google.com>, Eric Dumazet <eric.dumazet@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>
+To: Ingo Molnar <mingo@kernel.org>
+Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, systemtap@sourceware.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/20/2013 09:34 AM, Michael Dalton wrote:
-> Hi,
->
-> After further reflection I think we're looking at two related issues:
-> (a) a memory leak that Jason has identified that occurs when a memory
-> allocation fails in receive_mergeable. Jasons commit solves this issue.
-> (b) virtio-net does not dequeue all buffers for a packet in the
-> case that an error occurs on receive and mergeable receive buffers is
-> enabled.
->
-> For (a), this bug is new and due to changes in 2613af0ed18a, and the
-> net impact is memory leak on the physical page. However, I believe (b)
-> has always been possible in some form because if page_to_skb() returns
-> NULL (e.g., due to SKB allocation failure), receive_mergeable is never
-> called. AFAICT this is also the behavior prior to 2613af0ed18a.
->
-> The net impact of (b) would be that virtio-net would interpret a packet
-> buffer that is in the middle of a mergeable packet as the start of a
-> new packet, which is definitely also a bug (and the buffer contents
-> could contain bytes that resembled a valid virtio-net header).
->
-> A solution for (b) will require handling both the page_to_skb memory
-> allocation failures and the memory allocation failures in
-> receive_mergeable introduced by 2613af0ed18a.
+Hi,
+Here is the version 3 of NOKPORBE_SYMBOL series.
 
-Ture, so we first need a patch to solve page_to_skb() failure which
-could be used for stable tree prior to 2613af0ed18a. Then another patch
-to solve the issue introduced by 2613af0ed18a which could be only used
-for 3.12 stable. Will draft patches for them.
+Currently the blacklist is maintained by hand in kprobes.c 
+which is separated from the function definition and is hard
+to catch up the kernel update.
 
-Thanks
->
-> Best,
->
-> Mike
+To solve this issue, I've introduced NOKPROBE_SYMBOL() macro
+for making kprobe blacklist at build time. Since the
+NOKPROBE_SYMBOL() macros can be placed right after the
+function is defined (as like as EXPORT_SYMBOL), it is
+easy to maintain.
+
+This series replaces __kprobes with NOKPROBE_SYMBOL() macro
+or apply __always_inline annotation for some cases, because
+NOKPROBE_SYMBOL() will inhibit inlining by referring the
+symbol address. :(
+
+At this point, I replaced all __kprobes under kernel/ and
+arch/x86. For future work, I'd like to replace all the
+__kprobes annotation for all archs too.
+
+Also, I decided to classify current __kprobes annotation
+users who misuse it. Most of the preparation, registration,
+optimization functions related to kprobes are not involved
+in the breakpoint or other exception handling.
+This means that those never cause problems such as infinite
+recursion if we put kprobes on it.
+This also reduces blacklist a lot.
+
+For easy to check the blacklist, you can see what address
+region/symbols are not allowed to probe via
+/sys/kernel/debug/kprobes/blacklist.
+
+Since the new blacklist can be populated/shrinked dynamically,
+the blacklist now also support modules. :)
+kprobes users can make a custom blacklisted functions which
+will be called from kprobes handlers. Example codes are also
+updated, so you can see how it works.
+
+This series also includes a change which prohibits probing
+on the address in .entry.text because the code is used for
+very low-level sensitive interrupt/syscall entries. Probing
+such code may cause unexpected result (actually most of
+that area is already in the kprobe blacklist).
+So I've decide to prohibit probing all of them.
+
+Finally, I got an empty .kprobes.text on x86 :)
+
+$ grep kprobes_text System.map
+ffffffff81604980 T __kprobes_text_end
+ffffffff81604980 T __kprobes_text_start
+
+Thank you,
+
+Changes from v2 to v3:
+ - Introduce arch_within_kprobe_blacklist() which checks
+   the address is within the .kprobes.text (generic,x86) or
+   .entry.text (x86), for fixing build issue on !x86.
+ - Rename in_nokprobes_functions to within_kprobe_blacklist
+   and it returns a bool value istead of an error.
+ - Fix the type of kprobe_blacklist_seq_stop().
+ - Use blacklist entry to check the blacklisted address
+   ranges (.entry.text/.kprobes.text). This also eliminates
+   arch_within_kprobe_blacklist(). :)
+
+Changes from v1 to v2:
+ - Replace __kprobes with NOKPROBE_SYMBOL() and remove
+   unneeded __kprobes on the files compiled on x86.
+ - Add blacklist on modules support.
+ - Add debugfs interface for blacklist.
+ - Fix indent of the NOKPROBE_SYMBOL() by using tabs.
+ - Fix NOKPROBE_SYMBOL() for expanding nested macro.
+ - Update Documentations/kprobes.txt about blacklist.
+---
+
+Masami Hiramatsu (23):
+      kprobes: Prohibit probing on .entry.text code
+      kprobes: Introduce NOKPROBE_SYMBOL() macro for blacklist
+      kprobes: Show blacklist entries via debugfs
+      kprobes: Support blacklist functions in module
+      kprobes: Use NOKPROBE_SYMBOL() in sample modules
+      kprobes/x86: Allow probe on some kprobe preparation functions
+      kprobes/x86: Use NOKPROBE_SYMBOL instead of __kprobes
+      kprobes: Allow probe on some kprobe functions
+      kprobes: Use NOKPROBE_SYMBOL macro instead of __kprobes
+      ftrace/kprobes: Allow probing on some preparation functions
+      ftrace/kprobes: Use NOKPROBE_SYMBOL macro in ftrace
+      x86/hw_breakpoint: Use NOKPROBE_SYMBOL macro in hw_breakpoint
+      x86/trap: Use NOKPROBE_SYMBOL macro in trap.c
+      x86/fault: Use NOKPROBE_SYMBOL macro in fault.c
+      x86/alternative: Use NOKPROBE_SYMBOL macro in alternative.c
+      x86/nmi: Use NOKPROBE_SYMBOL macro for nmi handlers
+      x86/kvm: Use NOKPROBE_SYMBOL macro in kvm.c
+      x86/dumpstack: Use NOKPROBE_SYMBOL macro in dumpstack.c
+      [BUGFIX] kprobes/x86: Prohibit probing on debug_stack_*
+      [BUGFIX] kprobes: Prohibit probing on func_ptr_is_kernel_text
+      notifier: Use NOKPROBE_SYMBOL macro in notifier
+      sched: Use NOKPROBE_SYMBOL macro in sched
+      kprobes/x86: Use kprobe_blacklist for .kprobes.text and .entry.text
+
+
+ Documentation/kprobes.txt                |   24 ++
+ arch/x86/include/asm/traps.h             |    2 
+ arch/x86/kernel/alternative.c            |    3 
+ arch/x86/kernel/apic/hw_nmi.c            |    3 
+ arch/x86/kernel/cpu/common.c             |    4 
+ arch/x86/kernel/cpu/perf_event.c         |    3 
+ arch/x86/kernel/cpu/perf_event_amd_ibs.c |    3 
+ arch/x86/kernel/dumpstack.c              |    9 -
+ arch/x86/kernel/entry_32.S               |   33 --
+ arch/x86/kernel/entry_64.S               |   20 -
+ arch/x86/kernel/hw_breakpoint.c          |    6 
+ arch/x86/kernel/kprobes/core.c           |  105 +++++--
+ arch/x86/kernel/kprobes/ftrace.c         |   17 +
+ arch/x86/kernel/kprobes/opt.c            |   32 +-
+ arch/x86/kernel/kvm.c                    |    4 
+ arch/x86/kernel/nmi.c                    |   18 +
+ arch/x86/kernel/paravirt.c               |    4 
+ arch/x86/kernel/traps.c                  |   20 +
+ arch/x86/mm/fault.c                      |   28 +-
+ include/asm-generic/vmlinux.lds.h        |    9 +
+ include/linux/kprobes.h                  |   22 ++
+ include/linux/module.h                   |    5 
+ kernel/extable.c                         |    2 
+ kernel/kprobes.c                         |  437 +++++++++++++++++++-----------
+ kernel/module.c                          |    6 
+ kernel/notifier.c                        |   22 +-
+ kernel/sched/core.c                      |    7 
+ kernel/trace/trace_event_perf.c          |    5 
+ kernel/trace/trace_kprobe.c              |   53 ++--
+ kernel/trace/trace_probe.c               |   78 +++--
+ kernel/trace/trace_probe.h               |    4 
+ samples/kprobes/jprobe_example.c         |    1 
+ samples/kprobes/kprobe_example.c         |    3 
+ samples/kprobes/kretprobe_example.c      |    2 
+ 34 files changed, 612 insertions(+), 382 deletions(-)
+
+-- 
+Masami HIRAMATSU
+IT Management Research Dept. Linux Technology Center
+Hitachi, Ltd., Yokohama Research Laboratory
+E-mail: masami.hiramatsu.pt@hitachi.com
