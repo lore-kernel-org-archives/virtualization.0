@@ -1,18 +1,19 @@
-From: Eric Dumazet <eric.dumazet@gmail.com>
+From: Michael Dalton <mwdalton@google.com>
 Subject: Re: [PATCH net] virtio-net: fix page refcnt leaking when fail to
 	allocate frag skb
-Date: Tue, 19 Nov 2013 14:00:11 -0800
-Message-ID: <1384898411.8604.127.camel@edumazet-glaptop2.roam.corp.google.com>
+Date: Tue, 19 Nov 2013 17:34:16 -0800
+Message-ID: <CANJ5vP+ZxtDf8OzREpyDpgh8JLnWGEjkUcS388hi+AOjdu0fZw@mail.gmail.com>
 References: <1384848307-7217-1-git-send-email-jasowang@redhat.com>
 	<1384869828.8604.97.camel@edumazet-glaptop2.roam.corp.google.com>
 	<20131119204909.GA15004@redhat.com>
 	<1384896996.8604.120.camel@edumazet-glaptop2.roam.corp.google.com>
 	<20131119215312.GE15004@redhat.com>
+	<1384898411.8604.127.camel@edumazet-glaptop2.roam.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131119215312.GE15004@redhat.com>
+In-Reply-To: <1384898411.8604.127.camel@edumazet-glaptop2.roam.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,24 +23,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Michael Dalton <mwdalton@google.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>
+To: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2013-11-19 at 23:53 +0200, Michael S. Tsirkin wrote:
+Hi,
 
-> Which NIC? Virtio? Prior to 2613af0ed18a11d5c566a81f9a6510b73180660a
-> it didn't drop packets received from host as far as I can tell.
-> virtio is more like a pipe than a real NIC in this respect.
+After further reflection I think we're looking at two related issues:
+(a) a memory leak that Jason has identified that occurs when a memory
+allocation fails in receive_mergeable. Jasons commit solves this issue.
+(b) virtio-net does not dequeue all buffers for a packet in the
+case that an error occurs on receive and mergeable receive buffers is
+enabled.
 
-Prior/after to this patch, you were not posting buffers, so if packets
-were received on a physical NIC, you were dropping the packets anyway.
+For (a), this bug is new and due to changes in 2613af0ed18a, and the
+net impact is memory leak on the physical page. However, I believe (b)
+has always been possible in some form because if page_to_skb() returns
+NULL (e.g., due to SKB allocation failure), receive_mergeable is never
+called. AFAICT this is also the behavior prior to 2613af0ed18a.
 
-It makes no difference at all, adding a cushion might make you feel
-better, but its really not worth it.
+The net impact of (b) would be that virtio-net would interpret a packet
+buffer that is in the middle of a mergeable packet as the start of a
+new packet, which is definitely also a bug (and the buffer contents
+could contain bytes that resembled a valid virtio-net header).
 
-Under memory stress, it makes better sense to drop a super big GRO
-packet (The one needing frag_list extension ...)
+A solution for (b) will require handling both the page_to_skb memory
+allocation failures and the memory allocation failures in
+receive_mergeable introduced by 2613af0ed18a.
 
-It gives a better signal to the sender to reduce its pressure, and gives
-opportunity to free more of your memory.
+Best,
+
+Mike
