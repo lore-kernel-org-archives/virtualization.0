@@ -1,14 +1,16 @@
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH RFC 3/3] virtio_ccw: invoke virtio_driver's notify() on
-	CIO_GONE notification
-Date: Wed, 20 Nov 2013 16:22:03 +0100
-Message-ID: <1384960923-31463-4-git-send-email-graalfs@linux.vnet.ibm.com>
-References: <1384960923-31463-1-git-send-email-graalfs@linux.vnet.ibm.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH -tip v3 00/23] kprobes: introduce NOKPROBE_SYMBOL() and
+	general cleaning of kprobe blacklist
+Date: Wed, 20 Nov 2013 16:38:01 +0100
+Message-ID: <20131120153801.GA9743@gmail.com>
+References: <20131120042148.15296.88360.stgit@kbuild-fedora.novalocal>
+	<y0mvbznxi6k.fsf@fche.csb>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1384960923-31463-1-git-send-email-graalfs@linux.vnet.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <y0mvbznxi6k.fsf@fche.csb>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,43 +20,28 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
-Cc: borntraeger@de.ibm.com, mst@redhat.com
+To: "Frank Ch. Eigler" <fche@redhat.com>
+Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, systemtap@sourceware.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_ccw's notify() callback for the common IO layer invokes
-virtio_driver's notify() callback to pass-on information to a
-backend driver if an online device disappeared.
 
-Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
----
- drivers/s390/kvm/virtio_ccw.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+* Frank Ch. Eigler <fche@redhat.com> wrote:
 
-diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-index 35b9aaa..420010d 100644
---- a/drivers/s390/kvm/virtio_ccw.c
-+++ b/drivers/s390/kvm/virtio_ccw.c
-@@ -1064,8 +1064,18 @@ out_free:
- 
- static int virtio_ccw_cio_notify(struct ccw_device *cdev, int event)
- {
--	/* TODO: Check whether we need special handling here. */
--	return 0;
-+	int rc;
-+	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-+
-+	switch (event) {
-+	case CIO_GONE:
-+		rc = notify_virtio_device(&vcdev->vdev, VDEV_GONE);
-+		break;
-+	default:
-+		rc = NOTIFY_DONE;
-+		break;
-+	}
-+	return rc;
- }
- 
- static struct ccw_device_id virtio_ids[] = {
--- 
-1.8.3.1
+> masami.hiramatsu.pt wrote:
+> 
+> > [...]  This series also includes a change which prohibits probing 
+> > on the address in .entry.text because the code is used for very 
+> > low-level sensitive interrupt/syscall entries. Probing such code 
+> > may cause unexpected result (actually most of that area is already 
+> > in the kprobe blacklist).  So I've decide to prohibit probing all 
+> > of them. [...]
+> 
+> Does this new blacklist cover enough that the kernel now survives a 
+> broadly wildcarded perf-probe, e.g. over e.g. all of its kallsyms?
+
+That's generally the purpose of the annotations - if it doesn't then 
+that's a bug.
+
+Thanks,
+
+	Ingo
