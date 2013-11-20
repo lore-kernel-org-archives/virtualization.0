@@ -1,12 +1,20 @@
-From: "WorldCIST" <marialemos72@gmail.com>
-Subject: 2014 World Conference on Information Systems and Technologies;
-	Submission: Nov. 29
-Date: Wed, 20 Nov 2013 14:22:53 +0000
-Message-ID: <20131120142306.5E496B5A@mail.linuxfoundation.org>
-Reply-To: worldcist@gmail.com
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Subject: Re: [PATCH net] virtio-net: fix page refcnt leaking when fail to
+	allocate frag skb
+Date: Wed, 20 Nov 2013 07:16:33 -0800
+Message-ID: <1384960593.8604.147.camel@edumazet-glaptop2.roam.corp.google.com>
+References: <1384848307-7217-1-git-send-email-jasowang@redhat.com>
+	<1384869828.8604.97.camel@edumazet-glaptop2.roam.corp.google.com>
+	<20131119204909.GA15004@redhat.com>
+	<1384896996.8604.120.camel@edumazet-glaptop2.roam.corp.google.com>
+	<20131119215312.GE15004@redhat.com>
+	<1384898411.8604.127.camel@edumazet-glaptop2.roam.corp.google.com>
+	<20131120085835.GB19341@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0392961490805550277=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20131120085835.GB19341@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,203 +24,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Michael Dalton <mwdalton@google.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0392961490805550277==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-Apologies if you are receiving this mail more than once...
-
-
-**********************************************************************=
-************
-                             WorldCIST'14
-The 2014 World Conference on Information Systems and Technologies
-                April 15 - 18, Madeira Island, Portugal
-                   http://www.aisti.eu/worldcist14/
-**********************************************************************=
-************
-
-The 2014 World Conference on Information Systems and Technologies (Wor=
-ldCIST'14: http://www.aisti.eu/worldcist14) is a global forum for rese=
-archers and practitioners to present and discuss the most recent innov=
-ations, trends, results, experiences and concerns in the several persp=
-ectives of Information Systems and Technologies.
-
-We are pleased to invite you to submit your papers to WorldCISTI'14. A=
-ll submissions will be reviewed on the basis of relevance, originality=
-, importance and clarity.
-
-=20
-THEMES
-
-Submitted papers should be related with one or more of the main themes=
- proposed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Intelligent and Decision Support Systems (IDSS);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-F) Human-Computer Interaction (HCI);
-
-G) Health Informatics (HIS);
-
-H) Information Technologies in Education (ITE).
-
-
-TYPES OF SUBMISSIONS AND DECISIONS
-
-Four types of papers can be submitted:
-
-Full paper: Finished or consolidated R&D works, to be included in one =
-of the Conference themes. These papers are assigned a 10-page limit.
-
-Short paper: Ongoing works with relevant preliminary results, open to =
-discussion. These papers are assigned a 7-page limit.
-
-Poster paper: Initial work with relevant ideas, open to discussion. Th=
-ese papers are assigned to a 4-page limit.
-
-Company paper: Companies' papers that show practical experience, R & D=
-, tools, etc., focused on some topics of the conference. These papers =
-are assigned to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligen=
-t Systems and Computing Series (see Instructions for Authors at Spring=
-er Website or download a DOC example) be written in English, must not =
-have been published before, not be under review for any other conferen=
-ce or publication and not include any information leading to the autho=
-rs=92 identification. Therefore, the authors=92 names, affiliations an=
-d bibliographic references should not be included in the version for e=
-valuation by the Program Committee. This information should only be in=
-cluded in the camera-ready version, saved in Word or Latex format and =
-also in PDF format. These files must be accompanied by the Consent to =
-Publication form filled out, in a ZIP file, and uploaded at the confer=
-ence management system.
-
-All papers will be subjected to a =93double-blind review=94 by at leas=
-t two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or acce=
-pted by the Conference Chairs. In the later case, it can be accepted a=
-s the type originally submitted or as another type. Thus, full papers =
-can be accepted as short papers or poster papers only. Similarly, shor=
-t papers can be accepted as poster papers only. In these cases, the au=
-thors will be allowed to maintain the original number of pages in the =
-camera-ready version.
-
-The authors of accepted poster papers must also build and print a post=
-er to be exhibited during the Conference. This poster must follow an A=
-1 or A2 vertical format. The Conference includes Work Sessions where t=
-hese posters are presented and orally discussed, with a 5 minute limit=
- per poster.
-
-The authors of accepted full papers will have 15 minutes to present th=
-eir work in a Conference Work Session; approximately 5 minutes of disc=
-ussion will follow each presentation. The authors of accepted short pa=
-pers and company papers will have 11 minutes to present their work in =
-a Conference Work Session; approximately 4 minutes of discussion will =
-follow each presentation.
-
-
-PUBLICATION AND INDEXING
-
-To ensure that a full paper, short paper, poster paper or company pape=
-r is published in the Proceedings, at least one of the authors must be=
- fully registered by the 24th of January 2014, and the paper must comp=
-ly with the suggested layout and page-limit. Additionally, all recomme=
-nded changes must be addressed by the authors before they submit the c=
-amera-ready version.
-
-No more than one paper per registration will be published in the Confe=
-rence Proceedings. An extra fee must be paid for publication of additi=
-onal papers, with a maximum of one additional paper per registration.
-
-Full and short papers will be published in Proceedings by Springer, in=
- Advances in Intelligent Systems and Computing Series. Poster and comp=
-any papers will be published in Proceedings by AISTI.
-
-Published full and short papers will be submitted for indexation by IS=
-I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
-in the SpringerLink Digital Library. Published poster and company pape=
-rs will be submitted for indexation by EI-Compendex and EBSCO.
-
-The authors of the best selected papers will be invited to extend them=
- for publication in international journals indexed by ISI, SCOPUS and =
-DBLP, among others, such as:
-
-Journal of Information Technology (JIT)
-
-Social Science Computer Review (SSCR)
-
-Information Processing & Management (IPM)
-
-Information Technology & People (ITP)
-
-Computer Science and Information Systems (ComSIS)
-
-Information Development (IDV)
-
-IEEE IT Professional (ITPro)
-
-Methods of Information in Medicine (MIM)
-
-Computer Methods in Biomechanics and Biomedical Engineering - Imaging =
-& Visualization (CMBBE-IV)
-
-Journal of Medical Internet Research (JMIR)
-
-International Journal of Interactive Multimedia and Artificial Intelli=
-gence (IJIMAI)
-
-International Journal of Health Information Systems & Informatics (IJH=
-ISI)
-
-International Journal of Web Based Communities (IJWBC)
-
-EAI Transactions on e-Education and e-Learning (EAI-TEL)
-
-
-INPORTANT DATES
-
-Paper Submission: November 29, 2013
-
-Notification of Acceptance: January 10, 2014
-
-Camera-ready Submission: January 19, 2014
-
-Payment of Registration, to ensure the inclusion of an accepted paper =
-in the conference proceedings: January 24, 2014.
-
-
-
-Regards,=20
-
-WorldCIST'14 Team
-http://www.aisti.eu/worldcist14/
-
-
-
-
-
-
-
---===============0392961490805550277==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0392961490805550277==--
+On Wed, 2013-11-20 at 10:58 +0200, Michael S. Tsirkin wrote:
+> On Tue, Nov 19, 2013 at 02:00:11PM -0800, Eric Dumazet wrote:
+> > On Tue, 2013-11-19 at 23:53 +0200, Michael S. Tsirkin wrote:
+> > 
+> > > Which NIC? Virtio? Prior to 2613af0ed18a11d5c566a81f9a6510b73180660a
+> > > it didn't drop packets received from host as far as I can tell.
+> > > virtio is more like a pipe than a real NIC in this respect.
+> > 
+> > Prior/after to this patch, you were not posting buffers, so if packets
+> > were received on a physical NIC, you were dropping the packets anyway.
+> >
+> > It makes no difference at all, adding a cushion might make you feel
+> > better, but its really not worth it.
+> > 
+> > Under memory stress, it makes better sense to drop a super big GRO
+> > packet (The one needing frag_list extension ...)
+> > 
+> > It gives a better signal to the sender to reduce its pressure, and gives
+> > opportunity to free more of your memory.
+> > 
+> 
+> OK, but in that case one wonders whether we should do more to free memory?
+> 
+> E.g. imagine that we dropped a packet of a specific TCP flow
+> because we couldn't allocate a new packet.
+> 
+> What happens now is that the old packet is freed as well.
+> 
+> So quite likely the next packet in queue will get processed
+> since it will reuse the memory we have just freed.
+> 
+> The next packet and the next after it etc all will have to go through
+> the net stack until they get at the socket and are dropped then
+> because we missed a segment.  Even worse, GRO gets disabled so the load
+> on receiver goes up instead of down.
+> 
+> Sounds like a problem doesn't it?
+
+I see no problem at all. GRO is a hint for high rates (and obviously
+when there is enough memory)
+
+> 
+> GRO actually detects it's the same flow and can see packet is
+> out of sequence. Why doesn't it drop the packet then?
+> Alternatively, we could (for example using the pre-allocated skb
+> like I suggested) notify GRO that it should start dropping packets
+> of this flow.
+> 
+> What do you think?
+> 
+
+I think we disagree a lot on memory management on networking stacks.
+
+We did a lot of work in TCP stack and Qdisc layers to lower memory
+pressure (and bufferbloat), an you seem to try hard to introduce yet
+another layer of buffer bloat in virtio_net.
+
+So add whatever you want to proudly state to your management :
+
+"Look how smart we are : we drop no packets in our layer"
