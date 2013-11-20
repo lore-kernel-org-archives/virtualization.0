@@ -1,16 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] virtio-net: fix page refcnt leaking when fail to
-	allocate frag skb
-Date: Wed, 20 Nov 2013 11:05:36 +0800
-Message-ID: <528C2700.1060808@redhat.com>
-References: <1384848307-7217-1-git-send-email-jasowang@redhat.com>
-	<1384869828.8604.97.camel@edumazet-glaptop2.roam.corp.google.com>
-	<20131119204909.GA15004@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH net-next 4/4] virtio-net: auto-tune mergeable rx buffer
+	size for improved performance
+Date: Wed, 20 Nov 2013 12:36:09 +1030
+Message-ID: <87li0jddym.fsf@rustcorp.com.au>
+References: <1384294885-6444-1-git-send-email-mwdalton@google.com>
+	<1384294885-6444-4-git-send-email-mwdalton@google.com>
+	<528325DC.3050801@redhat.com>
+	<1384328458.28458.96.camel@edumazet-glaptop2.roam.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131119204909.GA15004@redhat.com>
+In-Reply-To: <1384328458.28458.96.camel@edumazet-glaptop2.roam.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,75 +21,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Michael Dalton <mwdalton@google.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>
+To: Eric Dumazet <eric.dumazet@gmail.com>, Jason Wang <jasowang@redhat.com>
+Cc: Michael Dalton <mwdalton@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Daniel Borkmann <dborkman@redhat.com>, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/20/2013 04:49 AM, Michael S. Tsirkin wrote:
-> On Tue, Nov 19, 2013 at 06:03:48AM -0800, Eric Dumazet wrote:
->> On Tue, 2013-11-19 at 16:05 +0800, Jason Wang wrote:
->>> We need to drop the refcnt of page when we fail to allocate an skb for frag
->>> list, otherwise it will be leaked. The bug was introduced by commit
->>> 2613af0ed18a11d5c566a81f9a6510b73180660a ("virtio_net: migrate mergeable rx
->>> buffers to page frag allocators").
->>>
->>> Cc: Michael Dalton <mwdalton@google.com>
->>> Cc: Eric Dumazet <edumazet@google.com>
->>> Cc: Rusty Russell <rusty@rustcorp.com.au>
->>> Cc: Michael S. Tsirkin <mst@redhat.com>
->>> Signed-off-by: Jason Wang <jasowang@redhat.com>
->>> ---
->>> The patch was needed for 3.12 stable.
->> Good catch, but if we return from receive_mergeable() in the 'middle'
->> of the frags we would need for the current skb, who will
->> call the virtqueue_get_buf() to flush the remaining frags ?
->>
->> Don't we also need to call virtqueue_get_buf() like 
->>
->> while (--num_buf) {
->>     buf = virtqueue_get_buf(rq->vq, &len);
->>     if (!buf)
->>         break;
->>     put_page(virt_to_head_page(buf));
->> }
->>
->> ?
->>
->>
+Eric Dumazet <eric.dumazet@gmail.com> writes:
+> On Wed, 2013-11-13 at 15:10 +0800, Jason Wang wrote:
 >
-> Let me explain what worries me in your suggestion:
+>> There's one concern with EWMA. How well does it handle multiple streams
+>> each with different packet size? E.g there may be two flows, one with
+>> 256 bytes each packet another is 64K.  Looks like it can result we
+>> allocate PAGE_SIZE buffer for 256 (which is bad since the
+>> payload/truesize is low) bytes or 1500+ for 64K buffer (which is ok
+>> since we can do coalescing).
 >
->                         struct sk_buff *nskb = alloc_skb(0, GFP_ATOMIC);
->                         if (unlikely(!nskb)) {
->                                 head_skb->dev->stats.rx_dropped++;
->                                 return -ENOMEM;
->                         }
+> It's hard to predict the future ;)
 >
-> is this the failure case we are talking about?
+> 256 bytes frames consume 2.5 KB anyway on a traditional NIC.
+> If it was a concern, we would have it already.
 >
-> I think this is a symprom of a larger problem
-> introduced by 2613af0ed18a11d5c566a81f9a6510b73180660a,
-> namely that we now need to allocate memory in the
-> middle of processing a packet.
->
->
-> I think discarding a completely valid and well-formed
-> packet from the receive queue because we are unable
-> to allocate new memory with GFP_ATOMIC
-> for future packets is not a good idea.
->
-> It certainly violates the principle of least surprize:
-> when one sees host pass packet to guest, one expects
-> the packet to get into the networking stack, not get
-> dropped by the driver internally.
-> Guest stack can do with the packet what it sees fit.
->
-> We actually wake up a thread if we can't fill up the queue,
-> that will fill it up in GFP_KERNEL context.
->
-> So I think we should find a way to pre-allocate if necessary and avoid
-> error paths where allocating new memory is a required to avoid drops.
->
+> If you receive a mix of big and small frames, there is no win.
 
-The problem happens only on memory pressure, this pre-allocation may add
-more stress on this.
+Well, that's not quite true.  The device could optimistically look
+through the queue a bit for a small buffer; it does not need to consume
+in order.  We'd probably want a feature bit for this.
+
+I look forward to your thoughts on what mixing algorithm of different
+sizes to use, of course.
+
+Meanwhile, I suspect your patch works well because of 4k pages.  80%
+non-GSO packets won't drop the average len below 4k.  On PPC64 with 64k
+pages, that's not true.
+
+I wonder if "last used len" would work about as well; it really might if
+we had a smarter device...
+
+Cheers,
+Rusty.
