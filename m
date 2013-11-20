@@ -1,24 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] virtio-net: fix page refcnt leaking when fail to
-	allocate frag skb
-Date: Wed, 20 Nov 2013 19:03:33 +0200
-Message-ID: <20131120170333.GA21972@redhat.com>
-References: <1384848307-7217-1-git-send-email-jasowang@redhat.com>
-	<1384869828.8604.97.camel@edumazet-glaptop2.roam.corp.google.com>
-	<20131119204909.GA15004@redhat.com>
-	<1384896996.8604.120.camel@edumazet-glaptop2.roam.corp.google.com>
-	<20131119215312.GE15004@redhat.com>
-	<1384898411.8604.127.camel@edumazet-glaptop2.roam.corp.google.com>
-	<20131120085835.GB19341@redhat.com>
-	<1384960593.8604.147.camel@edumazet-glaptop2.roam.corp.google.com>
-	<20131120160625.GA21188@redhat.com>
-	<1384964061.8604.151.camel@edumazet-glaptop2.roam.corp.google.com>
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH -tip v3 00/23] kprobes: introduce NOKPROBE_SYMBOL() and
+	general cleaning of kprobe blacklist
+Date: Wed, 20 Nov 2013 12:56:49 -0500
+Message-ID: <20131120125649.40ca99c3__4940.35741216994$1384970223$gmane$org@gandalf.local.home>
+References: <20131120042148.15296.88360.stgit@kbuild-fedora.novalocal>
+	<y0mvbznxi6k.fsf@fche.csb> <20131120153801.GA9743@gmail.com>
+	<20131120173600.GK8993@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1384964061.8604.151.camel@edumazet-glaptop2.roam.corp.google.com>
+In-Reply-To: <20131120173600.GK8993@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,26 +20,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Michael Dalton <mwdalton@google.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>
+To: "Frank Ch. Eigler" <fche@redhat.com>
+Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, "David S. Miller" <davem@davemloft.net>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, systemtap@sourceware.org, Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 20, 2013 at 08:14:21AM -0800, Eric Dumazet wrote:
-> On Wed, 2013-11-20 at 18:06 +0200, Michael S. Tsirkin wrote:
+On Wed, 20 Nov 2013 12:36:00 -0500
+"Frank Ch. Eigler" <fche@redhat.com> wrote:
+
+> Hi -
 > 
-> > Hmm some kind of disconnect here.
-> > I got you rmanagement about bufferbloat.
+> > > Does this new blacklist cover enough that the kernel now survives a 
+> > > broadly wildcarded perf-probe, e.g. over e.g. all of its kallsyms?
 > > 
-> > What I am saying is that maybe we should drop packets more
-> > aggressively: when we drop one packet of a flow, why not
-> > drop everything that's queued and is for the same flow?
+> > That's generally the purpose of the annotations - if it doesn't then 
+> > that's a bug.
 > 
-> I really hope your TCP flows use SACK ;)
+> AFAIK, no kernel since kprobes was introduced has ever stood up to
+> that test.  perf probe lacks the wildcarding powers of systemtap, so
+> one needs to resort to something like:
 > 
-> Please read the rfc 2018 introduction for details.
-> 
-> If a packet is dropped, it doesn't mean following packets _have_ to be
-> dropped.
+> # cat /proc/kallsyms | grep ' [tT] ' | while read addr type symbol; do
+>    perf probe $symbol
+> done
 
+I'm curious to why one would do that. IIUC, perf now has function
+tracing support.
 
-Got it, thanks.
+-- Steve
+
+> 
+> then wait for a few hours for that to finish. Then, or while the loop
+> is still running, run
+> 
+> # perf record -e 'probe:*' -aR sleep 1
+> 
+> to take a kernel down.
+> 
+> 
+> - FChE
