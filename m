@@ -1,16 +1,12 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC] virtio_net: fix error handling for mergeable buffers
-Date: Wed, 20 Nov 2013 16:20:32 +0200
-Message-ID: <20131120142032.GA13492@redhat.com>
-References: <1384938447-3775-1-git-send-email-jasowang@redhat.com>
-	<20131120132657.GA8455@redhat.com>
-	<125586345.27477452.1384955642143.JavaMail.root@redhat.com>
+From: "WorldCIST" <marialemos72@gmail.com>
+Subject: 2014 World Conference on Information Systems and Technologies;
+	Submission: Nov. 29
+Date: Wed, 20 Nov 2013 14:22:53 +0000
+Message-ID: <20131120142306.5E496B5A@mail.linuxfoundation.org>
+Reply-To: worldcist@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============0392961490805550277=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <125586345.27477452.1384955642143.JavaMail.root@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,102 +16,203 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Michael Dalton <mwdalton@google.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Shirley Ma <xma@us.ibm.com>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCBOb3YgMjAsIDIwMTMgYXQgMDg6NTQ6MDJBTSAtMDUwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiAKPiAtLS0tLSDljp/lp4vpgq7ku7YgLS0tLS0KPiA+IE9uIFdlZCwgTm92IDIwLCAy
-MDEzIGF0IDA1OjA3OjI1UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+IFdoZW4gbWVy
-Z2VhYmxlIGJ1ZmZlciB3ZXJlIHVzZWQsIHdlIG9ubHkgcHV0IHRoZSBmaXJzdCBwYWdlIGJ1ZiBs
-ZWF2ZSB0aGUKPiA+ID4gcmVzdAo+ID4gPiBvZiBidWZmZXJzIGluIHRoZSB2aXJ0IHF1ZXVlLiBU
-aGlzIHdpbGwgY2F1c2UgdGhlIGRyaXZlciBjb3VsZCBub3QgZ2V0IHRoZQo+ID4gPiBjb3JyZWN0
-IGhlYWQgYnVmZmVyIGFueSBtb3JlLiBGaXggdGhpcyBieSBkcm9wcGluZyB0aGUgcmVzdCBvZiBi
-dWZmZXJzIGZvcgo+ID4gPiB0aGlzCj4gPiA+IHBhY2tldC4KPiA+ID4gCj4gPiA+IFRoZSBidWcg
-d2FzIGludHJvZHVjZWQgYnkgY29tbWl0IDlhYjg2YmJjZjhiZTc1NTI1NmYwYTVlOTk0ZTBiMzhh
-ZjZiNGQzOTkKPiA+ID4gKHZpcnRpb19uZXQ6IERlZmVyIHNrYiBhbGxvY2F0aW9uIGluIHJlY2Vp
-dmUgcGF0aCkuCj4gPiA+IAo+ID4gPiBDYzogUnVzdHkgUnVzc2VsbCA8cnVzdHlAcnVzdGNvcnAu
-Y29tLmF1Pgo+ID4gPiBDYzogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiA+
-ID4gQ2M6IE1pY2hhZWwgRGFsdG9uIDxtd2RhbHRvbkBnb29nbGUuY29tPgo+ID4gPiBDYzogRXJp
-YyBEdW1hemV0IDxlZHVtYXpldEBnb29nbGUuY29tPgo+ID4gPiBDYzogU2hpcmxleSBNYSA8eG1h
-QHVzLmlibS5jb20+Cj4gPiA+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJl
-ZGhhdC5jb20+Cj4gPiAKPiA+IEp1c3QgdG8gY2xhcmlmeSBteSBwcmV2aW91cyBjb21tZW50OiBp
-dCB3YXMgbm90IGFib3V0IHRoZQo+ID4gaWRlYSBvZiBhZGRpbmcgZHJvcF9tZXJnZWFibGVfYnVm
-ZmVyIC0gcmF0aGVyLCBJIHRoaW5rIHRoYXQKPiA+IGFkZGluZyBrbm93bGVkZ2UgYWJvdXQgbWVy
-Z2VhYmxlIGJ1ZmZlcnMgaW50byBwYWdlX3RvX3NrYiBjcmVhdGVzIGFuCj4gPiB1Z2x5IGludGVy
-bmFsIEFQSS4KPiA+IAo+ID4gTGV0J3MgbW92ZSB0aGUgY2FsbCB0byBwYWdlX3RvX3NrYiB3aXRo
-aW4gcmVjZWl2ZV9tZXJnZWFibGUgaW5zdGVhZDoKPiA+IGl0J3MgYWxzbyBuaWNlIHRoYXQgaW50
-IG9mZnNldCA9IGJ1ZiAtIHBhZ2VfYWRkcmVzcyhwYWdlKSBsb2dpYwo+ID4gaXMgbm90IHNwcmVh
-ZCBhcm91bmQgbGlrZSBpdCB3YXMuCj4gPiAKPiA+IEFsc28sIGl0J3Mgbm90IG5pY2UgdGhhdCB3
-ZSBpZ25vcmUgbGVuZ3RoIGVycm9ycyB3aGVuIHdlIGRyb3AKPiA+IHBhY2tldHMgYmVjYXVzZSBv
-ZiBPT00uCj4gPiAKPiA+IFNvIEkgY2FtZSB1cCB3aXRoIHRoZSBmb2xsb3dpbmcgLSBpdCBzZWVt
-cyB0byB3b3JrIGJ1dCBJIGRpZG4ndAo+ID4gc3RyZXNzIHRlc3QgeWV0Lgo+IAo+IEkndmUgbm8g
-b2JqZWN0aW9uIG9uIHRoaXMuIEJ1dCBJJ3ZlIHJhdGhlciBsaWtlIG15IHNtYWxsIGFuZCBkaXJl
-Y3QgcGF0Y2ggCj4gdG8gYmUgYXBwbGllZCB0byAtbmV0IGZpcnN0LiBJdCBoYXMgbG93ZXIgcmlz
-ayBhbmQgd2FzIG11Y2ggbW9yZSBlYXNpZXIgdG8gCj4gYmUgYmFja3BvcnRlZCB0byBzdGFibGUg
-dHJlZXMuIFRoZW4gd2UgY2FuIGRvIHRoZSByZS1mYWN0b3IgbGlrZSB0aGlzIGluIAo+IG5ldC1u
-ZXh0LiAKCkl0IG1ha2VzIHRoZSBpbnRlcmZhY2VzIHRvbyBtZXNzeS4gV2UgYXJlIG5vdCBpbiBj
-b2RlIGZyZWV6ZSBpbiAtbmV0IC0Kb25seSBmZWF0dXJlIGZyZWV6ZSwgc28gbm8gcmVhc29uIHRv
-IG1ha2UgY29kZSBsaWtlIHNwYWdldHR5LAphbmQgaXQncyBvbmx5IDI1IGxpbmVzIGNoYW5nZWQg
-YXMgY29tcGFyZWQgdG8gNDAuCkl0J3Mgbm90IGEgaHVnZSByZWZhY3RvcmluZy4KCkl0J3MganVz
-dCBhcyBlYXN5IHRvIGJhY2twb3J0IG15IHBhdGNoIHRvby4KWW91IGp1c3QgZHJvcCB0aGUgZ290
-byBpbiB0aGUgbmV3IGNvZGUgcGF0aCB3ZSBhZGRlZC4KCkxldCBtZSBzaG93IHlvdSAodW50ZXN0
-ZWQpIC0geW91ciBwYXRjaCBpcyBub3Qgc21hbGxlci4KClNpZ25lZC1vZmYtYnk6IE1pY2hhZWwg
-Uy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+CgoKCmNvbW1pdCA5YjQ0MmZlOTcwZDVjNzEzMTFk
-NDMxNGVkZWYyNmVlMmViMTZlN2ZiCkF1dGhvcjogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVk
-aGF0LmNvbT4KRGF0ZTogICBXZWQgTm92IDIwIDEyOjQ0OjE0IDIwMTMgKzAyMDAKCiAgICB2aXJ0
-aW9fbmV0OiBmaXggcmVzb3VyY2UgbGVhayBvbiBhbGxvYyBmYWlsdXJlCiAgICAKICAgIHZpcnRp
-byBuZXQgZ290IGNvbmZ1c2VkLCBzdGFydGVkIGRyb3BwaW5nIHBhY2tldHMuCiAgICAKICAgIFNp
-Z25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+CgpkaWZmIC0t
-Z2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5j
-CmluZGV4IDlmYmRmY2QuLmRmNGI5ZDAgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19u
-ZXQuYworKysgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKQEAgLTI5NywxMyArMjk3LDIyIEBA
-IHN0YXRpYyBzdHJ1Y3Qgc2tfYnVmZiAqcGFnZV90b19za2Ioc3RydWN0IHJlY2VpdmVfcXVldWUg
-KnJxLAogCXJldHVybiBza2I7CiB9CiAKLXN0YXRpYyBpbnQgcmVjZWl2ZV9tZXJnZWFibGUoc3Ry
-dWN0IHJlY2VpdmVfcXVldWUgKnJxLCBzdHJ1Y3Qgc2tfYnVmZiAqc2tiKQorc3RhdGljIHN0cnVj
-dCBza19idWZmICpyZWNlaXZlX21lcmdlYWJsZShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LAorCQkJ
-CQkgc3RydWN0IHJlY2VpdmVfcXVldWUgKnJxLAorCQkJCQkgc3RydWN0IHBhZ2UgKnBhZ2UsCisJ
-CQkJCSB1bnNpZ25lZCBpbnQgbGVuKQogewotCXN0cnVjdCBza2Jfdm5ldF9oZHIgKmhkciA9IHNr
-Yl92bmV0X2hkcihza2IpOwotCXN0cnVjdCBwYWdlICpwYWdlOwotCWludCBudW1fYnVmLCBpLCBs
-ZW47CisJc3RydWN0IHNrYl92bmV0X2hkciAqaGRyID0gcGFnZV9hZGRyZXNzKGJ1Zik7CisJaW50
-IG51bV9idWYgPSBoZHItPm1oZHIubnVtX2J1ZmZlcnM7CisJc3RydWN0IHNrX2J1ZmYgKnNrYiA9
-IHBhZ2VfdG9fc2tiKHJxLCBwYWdlLCBsZW4pOworCWludCBpOworCisJc2tiID0gcGFnZV90b19z
-a2IocnEsIHBhZ2UsIGxlbik7CisKKwlpZiAodW5saWtlbHkoIXNrYikpCisJCWdvdG8gZXJyX3Nr
-YjsKKwogCi0JbnVtX2J1ZiA9IGhkci0+bWhkci5udW1fYnVmZmVyczsKIAl3aGlsZSAoLS1udW1f
-YnVmKSB7CiAJCWkgPSBza2Jfc2hpbmZvKHNrYiktPm5yX2ZyYWdzOwogCQlpZiAoaSA+PSBNQVhf
-U0tCX0ZSQUdTKSB7CkBAIC0zMTMsMTAgKzMyMiwxMCBAQCBzdGF0aWMgaW50IHJlY2VpdmVfbWVy
-Z2VhYmxlKHN0cnVjdCByZWNlaXZlX3F1ZXVlICpycSwgc3RydWN0IHNrX2J1ZmYgKnNrYikKIAkJ
-fQogCQlwYWdlID0gdmlydHF1ZXVlX2dldF9idWYocnEtPnZxLCAmbGVuKTsKIAkJaWYgKCFwYWdl
-KSB7Ci0JCQlwcl9kZWJ1ZygiJXM6IHJ4IGVycm9yOiAlZCBidWZmZXJzIG1pc3NpbmdcbiIsCi0J
-CQkJIHNrYi0+ZGV2LT5uYW1lLCBoZHItPm1oZHIubnVtX2J1ZmZlcnMpOwotCQkJc2tiLT5kZXYt
-PnN0YXRzLnJ4X2xlbmd0aF9lcnJvcnMrKzsKLQkJCXJldHVybiAtRUlOVkFMOworCQkJcHJfZGVi
-dWcoIiVzOiByeCBlcnJvcjogJWQgYnVmZmVycyAlZCBtaXNzaW5nXG4iLAorCQkJCSBkZXYtPm5h
-bWUsIGhkci0+bWhkci5udW1fYnVmZmVycywgbnVtX2J1Zik7CisJCQlkZXYtPnN0YXRzLnJ4X2xl
-bmd0aF9lcnJvcnMrKzsKKwkJCWdvdG8gZXJyX2J1ZjsKIAkJfQogCiAJCWlmIChsZW4gPiBQQUdF
-X1NJWkUpCkBAIC0zMjYsNyArMzM1LDI1IEBAIHN0YXRpYyBpbnQgcmVjZWl2ZV9tZXJnZWFibGUo
-c3RydWN0IHJlY2VpdmVfcXVldWUgKnJxLCBzdHJ1Y3Qgc2tfYnVmZiAqc2tiKQogCiAJCS0tcnEt
-Pm51bTsKIAl9Ci0JcmV0dXJuIDA7CisJcmV0dXJuIHNrYjsKK2Vycl9za2I6CisJcHV0X3BhZ2Uo
-cGFnZSk7CitlcnJfYnVmOgorCWRldi0+c3RhdHMucnhfZHJvcHBlZCsrOworCWRldl9rZnJlZV9z
-a2IoaGVhZF9za2IpOworCXdoaWxlICgtLW51bV9idWYpIHsKKwkJYnVmID0gdmlydHF1ZXVlX2dl
-dF9idWYocnEtPnZxLCAmbGVuKTsKKwkJaWYgKHVubGlrZWx5KCFidWYpKSB7CisJCQlwcl9kZWJ1
-ZygiJXM6IHJ4IGVycm9yOiAlZCBidWZmZXJzIG1pc3NpbmdcbiIsCisJCQkJIGRldi0+bmFtZSwg
-bnVtX2J1Zik7CisJCQlkZXYtPnN0YXRzLnJ4X2xlbmd0aF9lcnJvcnMrKzsKKwkJCWJyZWFrOwor
-CQl9CisJCXBhZ2UgPSBidWY7CisJCWdpdmVfcGFnZXMocnEsIHBhZ2UpOworCQktLXJxLT5udW07
-CisJfQorCXJldHVybiBOVUxMOwogfQogCiBzdGF0aWMgdm9pZCByZWNlaXZlX2J1ZihzdHJ1Y3Qg
-cmVjZWl2ZV9xdWV1ZSAqcnEsIHZvaWQgKmJ1ZiwgdW5zaWduZWQgaW50IGxlbikKQEAgLTM1NCwx
-NyArMzgxLDE4IEBAIHN0YXRpYyB2b2lkIHJlY2VpdmVfYnVmKHN0cnVjdCByZWNlaXZlX3F1ZXVl
-ICpycSwgdm9pZCAqYnVmLCB1bnNpZ25lZCBpbnQgbGVuKQogCQlza2JfdHJpbShza2IsIGxlbik7
-CiAJfSBlbHNlIHsKIAkJcGFnZSA9IGJ1ZjsKLQkJc2tiID0gcGFnZV90b19za2IocnEsIHBhZ2Us
-IGxlbik7Ci0JCWlmICh1bmxpa2VseSghc2tiKSkgewotCQkJZGV2LT5zdGF0cy5yeF9kcm9wcGVk
-Kys7Ci0JCQlnaXZlX3BhZ2VzKHJxLCBwYWdlKTsKLQkJCXJldHVybjsKLQkJfQotCQlpZiAodmkt
-Pm1lcmdlYWJsZV9yeF9idWZzKQotCQkJaWYgKHJlY2VpdmVfbWVyZ2VhYmxlKHJxLCBza2IpKSB7
-Ci0JCQkJZGV2X2tmcmVlX3NrYihza2IpOworCQlpZiAodmktPm1lcmdlYWJsZV9yeF9idWZzKSB7
-CisJCQlza2IgPSByZWNlaXZlX21lcmdlYWJsZShkZXYsIHJxLCBwYWdlLCBsZW4pOworCQkJaWYg
-KHVubGlrZWx5KCFza2IpKQorCQkJCXJldHVybjsKKwkJfSBlbHNlIHsKKwkJCXNrYiA9IHBhZ2Vf
-dG9fc2tiKHJxLCBwYWdlLCBsZW4pOworCQkJaWYgKHVubGlrZWx5KCFza2IpKSB7CisJCQkJZGV2
-LT5zdGF0cy5yeF9kcm9wcGVkKys7CisJCQkJZ2l2ZV9wYWdlcyhycSwgcGFnZSk7CiAJCQkJcmV0
-dXJuOwogCQkJfQorCQl9CiAJfQogCiAJaGRyID0gc2tiX3ZuZXRfaGRyKHNrYik7Cl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+--===============0392961490805550277==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Apologies if you are receiving this mail more than once...
+
+
+**********************************************************************=
+************
+                             WorldCIST'14
+The 2014 World Conference on Information Systems and Technologies
+                April 15 - 18, Madeira Island, Portugal
+                   http://www.aisti.eu/worldcist14/
+**********************************************************************=
+************
+
+The 2014 World Conference on Information Systems and Technologies (Wor=
+ldCIST'14: http://www.aisti.eu/worldcist14) is a global forum for rese=
+archers and practitioners to present and discuss the most recent innov=
+ations, trends, results, experiences and concerns in the several persp=
+ectives of Information Systems and Technologies.
+
+We are pleased to invite you to submit your papers to WorldCISTI'14. A=
+ll submissions will be reviewed on the basis of relevance, originality=
+, importance and clarity.
+
+=20
+THEMES
+
+Submitted papers should be related with one or more of the main themes=
+ proposed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Intelligent and Decision Support Systems (IDSS);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+F) Human-Computer Interaction (HCI);
+
+G) Health Informatics (HIS);
+
+H) Information Technologies in Education (ITE).
+
+
+TYPES OF SUBMISSIONS AND DECISIONS
+
+Four types of papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one =
+of the Conference themes. These papers are assigned a 10-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, open to =
+discussion. These papers are assigned a 7-page limit.
+
+Poster paper: Initial work with relevant ideas, open to discussion. Th=
+ese papers are assigned to a 4-page limit.
+
+Company paper: Companies' papers that show practical experience, R & D=
+, tools, etc., focused on some topics of the conference. These papers =
+are assigned to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligen=
+t Systems and Computing Series (see Instructions for Authors at Spring=
+er Website or download a DOC example) be written in English, must not =
+have been published before, not be under review for any other conferen=
+ce or publication and not include any information leading to the autho=
+rs=92 identification. Therefore, the authors=92 names, affiliations an=
+d bibliographic references should not be included in the version for e=
+valuation by the Program Committee. This information should only be in=
+cluded in the camera-ready version, saved in Word or Latex format and =
+also in PDF format. These files must be accompanied by the Consent to =
+Publication form filled out, in a ZIP file, and uploaded at the confer=
+ence management system.
+
+All papers will be subjected to a =93double-blind review=94 by at leas=
+t two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or acce=
+pted by the Conference Chairs. In the later case, it can be accepted a=
+s the type originally submitted or as another type. Thus, full papers =
+can be accepted as short papers or poster papers only. Similarly, shor=
+t papers can be accepted as poster papers only. In these cases, the au=
+thors will be allowed to maintain the original number of pages in the =
+camera-ready version.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference includes Work Sessions where t=
+hese posters are presented and orally discussed, with a 5 minute limit=
+ per poster.
+
+The authors of accepted full papers will have 15 minutes to present th=
+eir work in a Conference Work Session; approximately 5 minutes of disc=
+ussion will follow each presentation. The authors of accepted short pa=
+pers and company papers will have 11 minutes to present their work in =
+a Conference Work Session; approximately 4 minutes of discussion will =
+follow each presentation.
+
+
+PUBLICATION AND INDEXING
+
+To ensure that a full paper, short paper, poster paper or company pape=
+r is published in the Proceedings, at least one of the authors must be=
+ fully registered by the 24th of January 2014, and the paper must comp=
+ly with the suggested layout and page-limit. Additionally, all recomme=
+nded changes must be addressed by the authors before they submit the c=
+amera-ready version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration.
+
+Full and short papers will be published in Proceedings by Springer, in=
+ Advances in Intelligent Systems and Computing Series. Poster and comp=
+any papers will be published in Proceedings by AISTI.
+
+Published full and short papers will be submitted for indexation by IS=
+I, EI-Compendex, SCOPUS and DBLP, among others, and will be available =
+in the SpringerLink Digital Library. Published poster and company pape=
+rs will be submitted for indexation by EI-Compendex and EBSCO.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in international journals indexed by ISI, SCOPUS and =
+DBLP, among others, such as:
+
+Journal of Information Technology (JIT)
+
+Social Science Computer Review (SSCR)
+
+Information Processing & Management (IPM)
+
+Information Technology & People (ITP)
+
+Computer Science and Information Systems (ComSIS)
+
+Information Development (IDV)
+
+IEEE IT Professional (ITPro)
+
+Methods of Information in Medicine (MIM)
+
+Computer Methods in Biomechanics and Biomedical Engineering - Imaging =
+& Visualization (CMBBE-IV)
+
+Journal of Medical Internet Research (JMIR)
+
+International Journal of Interactive Multimedia and Artificial Intelli=
+gence (IJIMAI)
+
+International Journal of Health Information Systems & Informatics (IJH=
+ISI)
+
+International Journal of Web Based Communities (IJWBC)
+
+EAI Transactions on e-Education and e-Learning (EAI-TEL)
+
+
+INPORTANT DATES
+
+Paper Submission: November 29, 2013
+
+Notification of Acceptance: January 10, 2014
+
+Camera-ready Submission: January 19, 2014
+
+Payment of Registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: January 24, 2014.
+
+
+
+Regards,=20
+
+WorldCIST'14 Team
+http://www.aisti.eu/worldcist14/
+
+
+
+
+
+
+
+--===============0392961490805550277==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0392961490805550277==--
