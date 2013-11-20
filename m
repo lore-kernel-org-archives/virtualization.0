@@ -1,12 +1,12 @@
 From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: [PATCH -tip v3 18/23] x86/dumpstack: Use NOKPROBE_SYMBOL macro in
-	dumpstack.c
-Date: Wed, 20 Nov 2013 04:22:33 +0000
-Message-ID: <20131120042233.15296.31189.stgit__14935.5427282446$1384921878$gmane$org@kbuild-fedora.novalocal>
+Subject: [PATCH -tip v3 20/23] [BUGFIX] kprobes: Prohibit probing on
+	func_ptr_is_kernel_text
+Date: Wed, 20 Nov 2013 04:22:38 +0000
+Message-ID: <20131120042238.15296.41605.stgit__32265.3294461363$1384921886$gmane$org@kbuild-fedora.novalocal>
 References: <20131120042148.15296.88360.stgit@kbuild-fedora.novalocal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20131120042148.15296.88360.stgit@kbuild-fedora.novalocal>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -19,65 +19,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, "David S. Miller" <davem@davemloft.net>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, Vineet Gupta <vgupta@synopsys.com>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, systemtap@sourceware.org, "H. Peter Anvin" <hpa@zytor.com>, Tejun Heo <tj@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Jiri Slaby <jslaby@suse.cz>, Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, systemtap@sourceware.org, Uwe =?utf-8?q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Andrew Morton <akpm@linux-foundation.org>, Borislav Petkov <bp@suse.de>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use NOKPROBE_SYMBOL macro for protecting functions
-from kprobes instead of __kprobes annotation in
-dumpstack.c.
-
-Signed-off-by: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jiri Slaby <jslaby@suse.cz>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Vineet Gupta <vgupta@synopsys.com>
----
- arch/x86/kernel/dumpstack.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/arch/x86/kernel/dumpstack.c b/arch/x86/kernel/dumpstack.c
-index d9c12d3..b74ebc7 100644
---- a/arch/x86/kernel/dumpstack.c
-+++ b/arch/x86/kernel/dumpstack.c
-@@ -200,7 +200,7 @@ static arch_spinlock_t die_lock = __ARCH_SPIN_LOCK_UNLOCKED;
- static int die_owner = -1;
- static unsigned int die_nest_count;
- 
--unsigned __kprobes long oops_begin(void)
-+unsigned long oops_begin(void)
- {
- 	int cpu;
- 	unsigned long flags;
-@@ -223,8 +223,9 @@ unsigned __kprobes long oops_begin(void)
- 	return flags;
- }
- EXPORT_SYMBOL_GPL(oops_begin);
-+NOKPROBE_SYMBOL(oops_begin);
- 
--void __kprobes oops_end(unsigned long flags, struct pt_regs *regs, int signr)
-+void oops_end(unsigned long flags, struct pt_regs *regs, int signr)
- {
- 	if (regs && kexec_should_crash(current))
- 		crash_kexec(regs);
-@@ -247,8 +248,9 @@ void __kprobes oops_end(unsigned long flags, struct pt_regs *regs, int signr)
- 		panic("Fatal exception");
- 	do_exit(signr);
- }
-+NOKPROBE_SYMBOL(oops_end);
- 
--int __kprobes __die(const char *str, struct pt_regs *regs, long err)
-+int __die(const char *str, struct pt_regs *regs, long err)
- {
- #ifdef CONFIG_X86_32
- 	unsigned short ss;
-@@ -291,6 +293,7 @@ int __kprobes __die(const char *str, struct pt_regs *regs, long err)
- #endif
- 	return 0;
- }
-+NOKPROBE_SYMBOL(__die);
- 
- /*
-  * This is gone through when something in the kernel has done something bad
+UHJvaGliaXQgcHJvYmluZyBvbiBmdW5jX3B0cl9pc19rZXJuZWxfdGV4dCgpIGJ5IGFkZGluZwpp
+dCB0byB0aGUga3Byb2JlX2JsYWNrbGlzdC4KClNpbmNlIHRoZSBmdW5jX3B0cl9pc19rZXJuZWxf
+dGV4dCgpIGlzIGNhbGxlZCBmcm9tCm5vdGlmaWVyX2NhbGxfY2hhaW4oKSB3aGljaCBpcyBjYWxs
+ZWQgZnJvbSBpbnQzIGhhbmRsZXIsCnByb2JpbmcgaXQgbWF5IGNhdXNlIGRvdWJsZSBpbnQzIGZh
+dWx0IGFuZCBrZXJuZWwgd2lsbApyZWJvb3QuCgpUaGlzIGhhcHBlbmVzIHdoZW4gdGhlIGtlcm5l
+bCBidWlsdCB3aXRoIENPTkZJR19ERUJVR19OT1RJRklFUlM9eS4KClNpZ25lZC1vZmYtYnk6IE1h
+c2FtaSBIaXJhbWF0c3UgPG1hc2FtaS5oaXJhbWF0c3UucHRAaGl0YWNoaS5jb20+CkNjOiBBbmRy
+ZXcgTW9ydG9uIDxha3BtQGxpbnV4LWZvdW5kYXRpb24ub3JnPgpDYzogIlV3ZSBLbGVpbmUtS8O2
+bmlnIiA8dS5rbGVpbmUta29lbmlnQHBlbmd1dHJvbml4LmRlPgpDYzogQm9yaXNsYXYgUGV0a292
+IDxicEBzdXNlLmRlPgpDYzogSW5nbyBNb2xuYXIgPG1pbmdvQGtlcm5lbC5vcmc+Ci0tLQoga2Vy
+bmVsL2V4dGFibGUuYyB8ICAgIDIgKysKIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKykK
+CmRpZmYgLS1naXQgYS9rZXJuZWwvZXh0YWJsZS5jIGIva2VybmVsL2V4dGFibGUuYwppbmRleCA4
+MzJjYjI4Li44ODVjODc3IDEwMDY0NAotLS0gYS9rZXJuZWwvZXh0YWJsZS5jCisrKyBiL2tlcm5l
+bC9leHRhYmxlLmMKQEAgLTIwLDYgKzIwLDcgQEAKICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4K
+ICNpbmNsdWRlIDxsaW51eC9tdXRleC5oPgogI2luY2x1ZGUgPGxpbnV4L2luaXQuaD4KKyNpbmNs
+dWRlIDxsaW51eC9rcHJvYmVzLmg+CiAKICNpbmNsdWRlIDxhc20vc2VjdGlvbnMuaD4KICNpbmNs
+dWRlIDxhc20vdWFjY2Vzcy5oPgpAQCAtMTM3LDMgKzEzOCw0IEBAIGludCBmdW5jX3B0cl9pc19r
+ZXJuZWxfdGV4dCh2b2lkICpwdHIpCiAJCXJldHVybiAxOwogCXJldHVybiBpc19tb2R1bGVfdGV4
+dF9hZGRyZXNzKGFkZHIpOwogfQorTk9LUFJPQkVfU1lNQk9MKGZ1bmNfcHRyX2lzX2tlcm5lbF90
+ZXh0KTsKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
