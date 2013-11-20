@@ -1,13 +1,11 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH RFC 1/3] virtio: add notify() callback to virtio_driver
-Date: Wed, 20 Nov 2013 16:22:01 +0100
-Message-ID: <1384960923-31463-2-git-send-email-graalfs@linux.vnet.ibm.com>
-References: <1384960923-31463-1-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: [PATCH RFC 0/3] virtio: add new notify() callback to virtio_driver
+Date: Wed, 20 Nov 2013 16:22:00 +0100
+Message-ID: <1384960923-31463-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1384960923-31463-1-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,67 +19,54 @@ To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
 Cc: borntraeger@de.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add an optional notify() callback to virtio_driver. A backend
-driver can provide this callback to perform actions for a lost
-device.
+Hi,
 
-notify() event values are inherited from virtio_ccw's notify()
-callback. We might want to support even more of them lateron.
+when an active virtio block device is hot-unplugged from a KVM guest, running
+affected guest user applications are not aware of any errors that occur due
+to the lost device. This patch-set adds code to avoid further request queueing
+when a lost block device is detected, resulting in appropriate error info.
 
-notify() return values are defined in include/linux/notifier.h.
+On System z there exists no handshake mechanism between host and guest
+when a device is hot-unplugged. The device is removed and no further I/O
+is possible.
 
-Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
----
- drivers/virtio/virtio.c |  8 ++++++++
- include/linux/virtio.h  | 10 ++++++++++
- 2 files changed, 18 insertions(+)
+When an online channel device disappears on System z the kernel's CIO layer
+informs the driver (virtio_ccw) about the lost device.
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index ee59b74..a09abb4 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -186,6 +186,14 @@ void unregister_virtio_driver(struct virtio_driver *driver)
- }
- EXPORT_SYMBOL_GPL(unregister_virtio_driver);
- 
-+int notify_virtio_device(struct virtio_device *vdev, int event)
-+{
-+	struct virtio_driver *drv = drv_to_virtio(vdev->dev.driver);
-+
-+	return drv->notify ? drv->notify(vdev, event) : NOTIFY_DONE;
-+}
-+EXPORT_SYMBOL_GPL(notify_virtio_device);
-+
- int register_virtio_device(struct virtio_device *dev)
- {
- 	int err;
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index f15f6e7..da18e9a 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -110,6 +110,15 @@ int register_virtio_device(struct virtio_device *dev);
- void unregister_virtio_device(struct virtio_device *dev);
- 
- /**
-+ * notify event values
-+ * @VDEV_GONE: device gone
-+ */
-+enum {
-+	VDEV_GONE		= 1,
-+};
-+int notify_virtio_device(struct virtio_device *dev, int event);
-+
-+/**
-  * virtio_driver - operations for a virtio I/O driver
-  * @driver: underlying device driver (populate name and owner).
-  * @id_table: the ids serviced by this driver.
-@@ -129,6 +138,7 @@ struct virtio_driver {
- 	void (*scan)(struct virtio_device *dev);
- 	void (*remove)(struct virtio_device *dev);
- 	void (*config_changed)(struct virtio_device *dev);
-+	int (*notify)(struct virtio_device *dev, int event);
- #ifdef CONFIG_PM
- 	int (*freeze)(struct virtio_device *dev);
- 	int (*restore)(struct virtio_device *dev);
+It's just the block device drivers that care to provide a notify
+callback.
+
+Here are some more error details:
+
+For a particular block device virtio's request function virtblk_request()
+is called by the block layer to queue requests to be handled by the host.
+In case of a lost device requests can still be queued, but an appropriate
+subsequent host kick usually fails. This leads to situations where no error
+feedback is shown.
+
+In order to prevent request queueing for lost devices appropriate settings
+in the block layer should be made. Exploiting System z's CIO notify handler
+callback, and adding a corresponding new virtio_driver notify() handler to
+'inform' the block layer, solve this task.
+
+Patch 1 adds an optional notify() callback to virtio_driver.
+
+Patch 2 adds a new notify() callback for the virtio_blk driver. When called
+for a lost device settings are made to prevent future request queueing.
+
+Patch 3 modifies the CIO notify handler in virtio_ccw's transport layer to pass
+on the lost device info to virtio's backend driver virtio_blk.
+
+Heinz Graalfs (3):
+  virtio: add notify() callback to virtio_driver
+  virtio_blk: add virtblk_notify() as virtio_driver's notify() callback
+  virtio_ccw: invoke virtio_driver's notify() on CIO_GONE notification
+
+ drivers/block/virtio_blk.c    | 14 ++++++++++++++
+ drivers/s390/kvm/virtio_ccw.c | 14 ++++++++++++--
+ drivers/virtio/virtio.c       |  8 ++++++++
+ include/linux/virtio.h        | 10 ++++++++++
+ 4 files changed, 44 insertions(+), 2 deletions(-)
+
 -- 
 1.8.3.1
