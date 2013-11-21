@@ -1,11 +1,14 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH v2 RFC 0/3] virtio: add new notify() callback to virtio_driver
-Date: Thu, 21 Nov 2013 15:45:30 +0100
-Message-ID: <1385045133-2165-1-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: [PATCH v2 RFC 3/3] virtio_ccw: invoke virtio_driver's notify() on
+	CIO_GONE notification
+Date: Thu, 21 Nov 2013 15:45:33 +0100
+Message-ID: <1385045133-2165-4-git-send-email-graalfs@linux.vnet.ibm.com>
+References: <1385045133-2165-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1385045133-2165-1-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,61 +22,47 @@ To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
 Cc: borntraeger@de.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, here is an updated patch-set with changes as suggested by Michael Tsirkin.
+virtio_ccw's notify() callback for the common IO layer invokes
+virtio_driver's notify() callback to pass-on information to a
+backend driver if an online device disappeared.
 
-When an active virtio block device is hot-unplugged from a KVM guest, running
-affected guest user applications are not aware of any errors that occur due
-to the lost device. This patch-set adds code to avoid further request queueing
-when a lost block device is detected, resulting in appropriate error info.
-
-On System z there exists no handshake mechanism between host and guest
-when a device is hot-unplugged. The device is removed and no further I/O
-is possible.
-
-When an online channel device disappears on System z the kernel's CIO layer
-informs the driver (virtio_ccw) about the lost device.
-
-It's just the block device drivers that care to provide a notify
-callback.
-
-Here are some more error details:
-
-For a particular block device virtio's request function virtblk_request()
-is called by the block layer to queue requests to be handled by the host.
-In case of a lost device requests can still be queued, but an appropriate
-subsequent host kick usually fails. This leads to situations where no error
-feedback is shown.
-
-In order to prevent request queueing for lost devices appropriate settings
-in the block layer should be made. Exploiting System z's CIO notify handler
-callback, and adding a corresponding new virtio_driver notify() handler to
-'inform' the block layer, solve this task.
-
-
-v1->v2 changes:
- - add include of linux/notifier.h (I also added it to the 3rd patch)
- - get queue lock in order to be able to use safe queue_flag_set() functions
-   in virtblk_notify() handler
-
-
-Patch 1 adds an optional notify() callback to virtio_driver.
-
-Patch 2 adds a new notify() callback for the virtio_blk driver. When called
-for a lost device settings are made to prevent future request queueing.
-
-Patch 3 modifies the CIO notify handler in virtio_ccw's transport layer to pass
-on the lost device info to virtio's backend driver virtio_blk.
-
-Heinz Graalfs (3):
-  virtio: add notify() callback to virtio_driver
-  virtio_blk: add virtblk_notify() as virtio_driver's notify() callback
-  virtio_ccw: invoke virtio_driver's notify() on CIO_GONE notification
-
- drivers/block/virtio_blk.c    | 17 +++++++++++++++++
+Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+---
  drivers/s390/kvm/virtio_ccw.c | 15 +++++++++++++--
- drivers/virtio/virtio.c       |  9 +++++++++
- include/linux/virtio.h        | 10 ++++++++++
- 4 files changed, 49 insertions(+), 2 deletions(-)
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 35b9aaa..682f688 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -27,6 +27,7 @@
+ #include <linux/module.h>
+ #include <linux/io.h>
+ #include <linux/kvm_para.h>
++#include <linux/notifier.h>
+ #include <asm/setup.h>
+ #include <asm/irq.h>
+ #include <asm/cio.h>
+@@ -1064,8 +1065,18 @@ out_free:
+ 
+ static int virtio_ccw_cio_notify(struct ccw_device *cdev, int event)
+ {
+-	/* TODO: Check whether we need special handling here. */
+-	return 0;
++	int rc;
++	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
++
++	switch (event) {
++	case CIO_GONE:
++		rc = notify_virtio_device(&vcdev->vdev, VDEV_GONE);
++		break;
++	default:
++		rc = NOTIFY_DONE;
++		break;
++	}
++	return rc;
+ }
+ 
+ static struct ccw_device_id virtio_ids[] = {
 -- 
 1.8.3.1
