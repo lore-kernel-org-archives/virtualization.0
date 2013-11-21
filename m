@@ -1,8 +1,7 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH v2 RFC 2/3] virtio_blk: add virtblk_notify() as
-	virtio_driver's notify() callback
-Date: Thu, 21 Nov 2013 15:45:32 +0100
-Message-ID: <1385045133-2165-3-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: [PATCH v2 RFC 1/3] virtio: add notify() callback to virtio_driver
+Date: Thu, 21 Nov 2013 15:45:31 +0100
+Message-ID: <1385045133-2165-2-git-send-email-graalfs@linux.vnet.ibm.com>
 References: <1385045133-2165-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,60 +21,75 @@ To: rusty@rustcorp.com.au, virtualization@lists.linux-foundation.org
 Cc: borntraeger@de.ibm.com, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add virtblk_notify() as virtio_driver's notify() callback.
+Add an optional notify() callback to virtio_driver. A backend
+driver can provide this callback to perform actions for a lost
+device.
 
-When a transport driver is notified that a device disappeared it
-should invoke this callback to prevent further request queueing.
+notify() event values are inherited from virtio_ccw's notify()
+callback. We might want to support even more of them lateron.
 
-Subsequent block layer calls of virtio_blk's request function will
-fail, resulting in appropriate I/O errors.
+notify() return values are defined in include/linux/notifier.h.
 
 Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 ---
- drivers/block/virtio_blk.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/virtio/virtio.c |  9 +++++++++
+ include/linux/virtio.h  | 10 ++++++++++
+ 2 files changed, 19 insertions(+)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 2d43be4..04fd635 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -11,6 +11,7 @@
- #include <linux/string_helpers.h>
- #include <scsi/scsi_cmnd.h>
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index ee59b74..a7f4302 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -3,6 +3,7 @@
+ #include <linux/virtio_config.h>
+ #include <linux/module.h>
  #include <linux/idr.h>
 +#include <linux/notifier.h>
  
- #define PART_BITS 4
- 
-@@ -901,6 +902,21 @@ static void virtblk_remove(struct virtio_device *vdev)
- 		ida_simple_remove(&vd_index_ida, index);
+ /* Unique numbering for virtio devices. */
+ static DEFINE_IDA(virtio_index_ida);
+@@ -186,6 +187,14 @@ void unregister_virtio_driver(struct virtio_driver *driver)
  }
+ EXPORT_SYMBOL_GPL(unregister_virtio_driver);
  
-+static int virtblk_notify(struct virtio_device *vdev, int event)
++int notify_virtio_device(struct virtio_device *vdev, int event)
 +{
-+	struct virtio_blk *vblk = vdev->priv;
-+	unsigned long flags;
++	struct virtio_driver *drv = drv_to_virtio(vdev->dev.driver);
 +
-+	if (event == VDEV_GONE) {
-+		spin_lock_irqsave(vblk->disk->queue->queue_lock, flags);
-+		queue_flag_set(QUEUE_FLAG_DYING, vblk->disk->queue);
-+		queue_flag_set(QUEUE_FLAG_NOMERGES, vblk->disk->queue);
-+		queue_flag_set(QUEUE_FLAG_NOXMERGES, vblk->disk->queue);
-+		spin_unlock_irqrestore(vblk->disk->queue->queue_lock, flags);
-+	}
-+	return NOTIFY_DONE;
++	return drv->notify ? drv->notify(vdev, event) : NOTIFY_DONE;
 +}
++EXPORT_SYMBOL_GPL(notify_virtio_device);
 +
- #ifdef CONFIG_PM
- static int virtblk_freeze(struct virtio_device *vdev)
+ int register_virtio_device(struct virtio_device *dev)
  {
-@@ -961,6 +977,7 @@ static struct virtio_driver virtio_blk = {
- 	.probe			= virtblk_probe,
- 	.remove			= virtblk_remove,
- 	.config_changed		= virtblk_config_changed,
-+	.notify			= virtblk_notify,
+ 	int err;
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index f15f6e7..da18e9a 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -110,6 +110,15 @@ int register_virtio_device(struct virtio_device *dev);
+ void unregister_virtio_device(struct virtio_device *dev);
+ 
+ /**
++ * notify event values
++ * @VDEV_GONE: device gone
++ */
++enum {
++	VDEV_GONE		= 1,
++};
++int notify_virtio_device(struct virtio_device *dev, int event);
++
++/**
+  * virtio_driver - operations for a virtio I/O driver
+  * @driver: underlying device driver (populate name and owner).
+  * @id_table: the ids serviced by this driver.
+@@ -129,6 +138,7 @@ struct virtio_driver {
+ 	void (*scan)(struct virtio_device *dev);
+ 	void (*remove)(struct virtio_device *dev);
+ 	void (*config_changed)(struct virtio_device *dev);
++	int (*notify)(struct virtio_device *dev, int event);
  #ifdef CONFIG_PM
- 	.freeze			= virtblk_freeze,
- 	.restore		= virtblk_restore,
+ 	int (*freeze)(struct virtio_device *dev);
+ 	int (*restore)(struct virtio_device *dev);
 -- 
 1.8.3.1
