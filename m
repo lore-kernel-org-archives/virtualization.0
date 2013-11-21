@@ -1,8 +1,8 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH RFC 2/3] virtio_blk: add virtblk_notify() as
 	virtio_driver's notify() callback
-Date: Thu, 21 Nov 2013 08:39:59 +0200
-Message-ID: <20131121063959.GH19005@redhat.com>
+Date: Thu, 21 Nov 2013 08:41:57 +0200
+Message-ID: <20131121064157.GI19005@redhat.com>
 References: <1384960923-31463-1-git-send-email-graalfs@linux.vnet.ibm.com>
 	<1384960923-31463-3-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
@@ -57,14 +57,11 @@ On Wed, Nov 20, 2013 at 04:22:02PM +0100, Heinz Graalfs wrote:
 > +					vblk->disk->queue);
 > +	}
 > +	return NOTIFY_DONE;
+
+Also pls include linux/notifier.h for this value.
+
 > +}
 > +
-
-But what serializes with the block layer?
-And is unlocked really safe here?
-Don't we need to take the queue lock?
-
-
 >  #ifdef CONFIG_PM
 >  static int virtblk_freeze(struct virtio_device *vdev)
 >  {
