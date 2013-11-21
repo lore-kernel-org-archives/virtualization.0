@@ -1,14 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 0/3] virtio: add new notify() callback to virtio_driver
-Date: Thu, 21 Nov 2013 08:47:53 +0200
-Message-ID: <20131121064753.GK19005@redhat.com>
-References: <1384960923-31463-1-git-send-email-graalfs@linux.vnet.ibm.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH -tip v3 00/23] kprobes: introduce NOKPROBE_SYMBOL() and
+	general cleaning of kprobe blacklist
+Date: Thu, 21 Nov 2013 08:29:38 +0100
+Message-ID: <20131121072938.GA16912__31933.2564519302$1385018993$gmane$org@gmail.com>
+References: <20131120042148.15296.88360.stgit@kbuild-fedora.novalocal>
+	<y0mvbznxi6k.fsf@fche.csb> <20131120153801.GA9743@gmail.com>
+	<20131120173600.GK8993@redhat.com> <528D6C9F.8050809@hitachi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1384960923-31463-1-git-send-email-graalfs@linux.vnet.ibm.com>
+In-Reply-To: <528D6C9F.8050809@hitachi.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,64 +21,44 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Cc: borntraeger@de.ibm.com, virtualization@lists.linux-foundation.org
+To: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, "Frank Ch. Eigler" <fche@redhat.com>, systemtap@sourceware.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 20, 2013 at 04:22:00PM +0100, Heinz Graalfs wrote:
-> Hi,
-> 
-> when an active virtio block device is hot-unplugged from a KVM guest, running
-> affected guest user applications are not aware of any errors that occur due
-> to the lost device. This patch-set adds code to avoid further request queueing
-> when a lost block device is detected, resulting in appropriate error info.
-> 
-> On System z there exists no handshake mechanism between host and guest
-> when a device is hot-unplugged. The device is removed and no further I/O
-> is possible.
-> 
-> When an online channel device disappears on System z the kernel's CIO layer
-> informs the driver (virtio_ccw) about the lost device.
-> 
-> It's just the block device drivers that care to provide a notify
-> callback.
-> 
-> Here are some more error details:
-> 
-> For a particular block device virtio's request function virtblk_request()
-> is called by the block layer to queue requests to be handled by the host.
-> In case of a lost device requests can still be queued, but an appropriate
-> subsequent host kick usually fails. This leads to situations where no error
-> feedback is shown.
-> 
-> In order to prevent request queueing for lost devices appropriate settings
-> in the block layer should be made. Exploiting System z's CIO notify handler
-> callback, and adding a corresponding new virtio_driver notify() handler to
-> 'inform' the block layer, solve this task.
-> 
-> Patch 1 adds an optional notify() callback to virtio_driver.
-> 
-> Patch 2 adds a new notify() callback for the virtio_blk driver. When called
-> for a lost device settings are made to prevent future request queueing.
-> 
-> Patch 3 modifies the CIO notify handler in virtio_ccw's transport layer to pass
-> on the lost device info to virtio's backend driver virtio_blk.
 
-Question: I guess remove callback is invoked eventually?
-Could you please clarify why isn't this sufficient?
+* Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
 
+> (2013/11/21 2:36), Frank Ch. Eigler wrote:
 
-
-> Heinz Graalfs (3):
->   virtio: add notify() callback to virtio_driver
->   virtio_blk: add virtblk_notify() as virtio_driver's notify() callback
->   virtio_ccw: invoke virtio_driver's notify() on CIO_GONE notification
+[ ... ]
+> > one needs to resort to something like:
+> > 
+> > # cat /proc/kallsyms | grep ' [tT] ' | while read addr type symbol; do
+> >    perf probe $symbol
+> > done
+> > 
+> > then wait for a few hours for that to finish. Then, or while the loop
+> > is still running, run
+> > 
+> > # perf record -e 'probe:*' -aR sleep 1
+> > 
+> > to take a kernel down.
 > 
->  drivers/block/virtio_blk.c    | 14 ++++++++++++++
->  drivers/s390/kvm/virtio_ccw.c | 14 ++++++++++++--
->  drivers/virtio/virtio.c       |  8 ++++++++
->  include/linux/virtio.h        | 10 ++++++++++
->  4 files changed, 44 insertions(+), 2 deletions(-)
+> Um, indeed, current blacklist is not perfect. [...]
+
+Then it needs to be fixed ASAP!
+
+> [...] As I reported in this series, I've found 2 more patterns. I 
+> guess there still have some others.
 > 
-> -- 
-> 1.8.3.1
+> But anyway, I don't think it is good to fix all such bugs in this 
+> series.
+
+Fixing these bugs is far more important than any cleanup work.
+
+We can apply the fixes together with your cleanup series to make it 
+all simpler, but the bug fixing absolutely needs to happen right now.
+
+Thanks,
+
+	Ingo
