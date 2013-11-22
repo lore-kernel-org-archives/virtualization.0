@@ -1,17 +1,17 @@
 From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: Re: Re: [PATCH -tip v3 00/23] kprobes: introduce NOKPROBE_SYMBOL()
+Subject: Re: Re: Re: [PATCH -tip v3 00/23] kprobes: introduce NOKPROBE_SYMBOL()
 	and general cleaning of kprobe blacklist
-Date: Fri, 22 Nov 2013 11:35:43 +0900
-Message-ID: <528EC2FF.30301@hitachi.com>
+Date: Fri, 22 Nov 2013 20:46:14 +0900
+Message-ID: <528F4406.3090309__34983.6302375936$1385120793$gmane$org@hitachi.com>
 References: <20131120042148.15296.88360.stgit@kbuild-fedora.novalocal>
 	<y0mvbznxi6k.fsf@fche.csb> <20131120153801.GA9743@gmail.com>
 	<20131120173600.GK8993@redhat.com> <528D6C9F.8050809@hitachi.com>
-	<20131121072938.GA16912@gmail.com>
+	<20131121072938.GA16912@gmail.com> <528EC2FF.30301@hitachi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131121072938.GA16912@gmail.com>
+In-Reply-To: <528EC2FF.30301@hitachi.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,50 +25,58 @@ To: Ingo Molnar <mingo@kernel.org>
 Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, "Frank Ch. Eigler" <fche@redhat.com>, systemtap@sourceware.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(2013/11/21 16:29), Ingo Molnar wrote:
-> 
-> * Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
-> 
->> (2013/11/21 2:36), Frank Ch. Eigler wrote:
-> 
-> [ ... ]
->>> one needs to resort to something like:
->>>
->>> # cat /proc/kallsyms | grep ' [tT] ' | while read addr type symbol; do
->>>    perf probe $symbol
->>> done
->>>
->>> then wait for a few hours for that to finish. Then, or while the loop
->>> is still running, run
->>>
->>> # perf record -e 'probe:*' -aR sleep 1
->>>
->>> to take a kernel down.
+(2013/11/22 11:35), Masami Hiramatsu wrote:
+> (2013/11/21 16:29), Ingo Molnar wrote:
 >>
->> Um, indeed, current blacklist is not perfect. [...]
-> 
-> Then it needs to be fixed ASAP!
-
-OK, I see. At least the two patches included this series
-should be fixed. :)
-
-And more, I need to test all symbols and drills down.
-
->> [...] As I reported in this series, I've found 2 more patterns. I 
->> guess there still have some others.
+>> * Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
 >>
->> But anyway, I don't think it is good to fix all such bugs in this 
->> series.
+>>> (2013/11/21 2:36), Frank Ch. Eigler wrote:
+>>
+>> [ ... ]
+>>>> one needs to resort to something like:
+>>>>
+>>>> # cat /proc/kallsyms | grep ' [tT] ' | while read addr type symbol; do
+>>>>    perf probe $symbol
+>>>> done
+>>>>
+>>>> then wait for a few hours for that to finish. Then, or while the loop
+>>>> is still running, run
+>>>>
+>>>> # perf record -e 'probe:*' -aR sleep 1
+>>>>
+>>>> to take a kernel down.
+>>>
+>>> Um, indeed, current blacklist is not perfect. [...]
+>>
+>> Then it needs to be fixed ASAP!
 > 
-> Fixing these bugs is far more important than any cleanup work.
+> OK, I see. At least the two patches included this series
+> should be fixed. :)
+> 
+> And more, I need to test all symbols and drills down.
 
-I see. This cleanup started with the bugfixes :)
+OK, what I've found was;
+ - The functions which can be ftraced look good.
+   (see tracing/available_filter_functions)
+ - following functions should not be able to be probed.
+   - memcpy, memset
+   - native_load_sp0 and some other native functions (need to be clear)
+   - restore
+   - trace_graph_return
+   - trace_hardirqs_off_thunk, trace_hardirqs_on_thunk
+   - This list still be not perfect. I just enabled/disabled kprobes
+     one by one. There might be combined bugs (combination of several
+     kprobes).
+ - Some of them are hard to specify by NOKPROBE_SYMBOL because they are
+   defined in assembly file.
 
-> We can apply the fixes together with your cleanup series to make it 
-> all simpler, but the bug fixing absolutely needs to happen right now.
+Anyway, to fix all of them, I think we need file-based blacklist
+especially for assembler symbols.
 
-OK, I'll test it first and include the bugfixes in this series.
-Or should I push the fixes separated?
+For example, we can get all text symbols by below command;
+ nm some-file.o | grep -i " t " | cut -f3 -d" "
+so that we can make a blacklisted-symbol list for the file.
+I need to look the Kbuild for how I can do that in Makefile.
 
 Thank you,
 
