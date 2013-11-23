@@ -1,17 +1,16 @@
 From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: Re: Re: Re: [PATCH -tip v3 00/23] kprobes: introduce NOKPROBE_SYMBOL()
-	and general cleaning of kprobe blacklist
-Date: Fri, 22 Nov 2013 20:46:14 +0900
-Message-ID: <528F4406.3090309__34983.6302375936$1385120793$gmane$org@hitachi.com>
+Subject: Re: Re: [PATCH -tip v3 13/23] x86/trap: Use NOKPROBE_SYMBOL macro
+	in trap.c
+Date: Sat, 23 Nov 2013 21:11:22 +0900
+Message-ID: <52909B6A.7080905__34857.1823248223$1385208700$gmane$org@hitachi.com>
 References: <20131120042148.15296.88360.stgit@kbuild-fedora.novalocal>
-	<y0mvbznxi6k.fsf@fche.csb> <20131120153801.GA9743@gmail.com>
-	<20131120173600.GK8993@redhat.com> <528D6C9F.8050809@hitachi.com>
-	<20131121072938.GA16912@gmail.com> <528EC2FF.30301@hitachi.com>
+	<20131120042221.15296.85443.stgit@kbuild-fedora.novalocal>
+	<20131122212119.GE19762@tassilo.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <528EC2FF.30301@hitachi.com>
+In-Reply-To: <20131122212119.GE19762@tassilo.jf.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,62 +20,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ingo Molnar <mingo@kernel.org>
-Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, "Frank Ch. Eigler" <fche@redhat.com>, systemtap@sourceware.org, "David S. Miller" <davem@davemloft.net>
+To: Andi Kleen <ak@linux.intel.com>
+Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, "David S. Miller" <davem@davemloft.net>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, Frederic Weisbecker <fweisbec@gmail.com>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, systemtap@sourceware.org, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Seiji Aguchi <seiji.aguchi@hds.com>, Ingo Molnar <mingo@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-(2013/11/22 11:35), Masami Hiramatsu wrote:
-> (2013/11/21 16:29), Ingo Molnar wrote:
->>
->> * Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
->>
->>> (2013/11/21 2:36), Frank Ch. Eigler wrote:
->>
->> [ ... ]
->>>> one needs to resort to something like:
->>>>
->>>> # cat /proc/kallsyms | grep ' [tT] ' | while read addr type symbol; do
->>>>    perf probe $symbol
->>>> done
->>>>
->>>> then wait for a few hours for that to finish. Then, or while the loop
->>>> is still running, run
->>>>
->>>> # perf record -e 'probe:*' -aR sleep 1
->>>>
->>>> to take a kernel down.
->>>
->>> Um, indeed, current blacklist is not perfect. [...]
->>
->> Then it needs to be fixed ASAP!
+(2013/11/23 6:21), Andi Kleen wrote:
+> On Wed, Nov 20, 2013 at 04:22:21AM +0000, Masami Hiramatsu wrote:
+>> Use NOKPROBE_SYMBOL macro to protect functions from kprobes
+>> instead of __kprobes annotation in trap.c.
+>> This also applies __always_inline annotation for some cases,
+>> because NOKPROBE_SYMBOL() will inhibit inlining by referring
+>> the symbol address.
 > 
-> OK, I see. At least the two patches included this series
-> should be fixed. :)
+> NOKPROBE_SYMBOL seems to add a reference from some variable to the function?
 > 
-> And more, I need to test all symbols and drills down.
+> With LTO we can optimize away unused functions, but not
+> when there are references to the symbol. So this would likely
+> prevent optimizations with LTO.
 
-OK, what I've found was;
- - The functions which can be ftraced look good.
-   (see tracing/available_filter_functions)
- - following functions should not be able to be probed.
-   - memcpy, memset
-   - native_load_sp0 and some other native functions (need to be clear)
-   - restore
-   - trace_graph_return
-   - trace_hardirqs_off_thunk, trace_hardirqs_on_thunk
-   - This list still be not perfect. I just enabled/disabled kprobes
-     one by one. There might be combined bugs (combination of several
-     kprobes).
- - Some of them are hard to specify by NOKPROBE_SYMBOL because they are
-   defined in assembly file.
-
-Anyway, to fix all of them, I think we need file-based blacklist
-especially for assembler symbols.
-
-For example, we can get all text symbols by below command;
- nm some-file.o | grep -i " t " | cut -f3 -d" "
-so that we can make a blacklisted-symbol list for the file.
-I need to look the Kbuild for how I can do that in Makefile.
+Hmm, indeed. I think I can remove the function reference if
+the function name is unique, because the macro also stores the
+name.
+In that case, even if the function itself is optimized out and
+there is no entry in kallsyms, we can just ignore it when init
+the blacklist.
 
 Thank you,
 
