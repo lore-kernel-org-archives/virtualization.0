@@ -1,11 +1,14 @@
 From: Ashutosh Dixit <ashutosh.dixit@intel.com>
-Subject: [PATCH char-misc-linus 0/5] misc: mic: Fixes for 3.13-rc2
-Date: Tue, 26 Nov 2013 10:04:38 -0800
-Message-ID: <cover.1385487752.git.ashutosh.dixit__35955.7889438749$1386087438$gmane$org@intel.com>
+Subject: [PATCH char-misc-linus 1/5] misc: mic: Change mic_notify(...) to
+	return true.
+Date: Tue, 26 Nov 2013 10:08:29 -0800
+Message-ID: <100078a1f4e7f56ef9dc1c4a51c8165a2e090de9.1385487752.git.ashutosh.dixit__3124.43522639132$1386087447$gmane$org@intel.com>
+References: <cover.1385487752.git.ashutosh.dixit@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <cover.1385487752.git.ashutosh.dixit@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,29 +19,39 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Siva Krishna Kumar Reddy Yerramreddy <siva.krishna.kumar.reddy.yerramreddy@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
+Cc: Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Siva Krishna Kumar Reddy Yerramreddy <siva.krishna.kumar.reddy.yerramreddy@intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Fengguang Wu <fengguang.wu@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-These patches fix various issues which were reported or found with the
-MIC driver.
+From: Sudeep Dutt <sudeep.dutt@intel.com>
 
-Ashutosh Dixit (3):
-  misc: mic: Bug fix for sysfs poll usage.
-  misc: mic: Fix sparse warnings and other endianness issues.
-  misc: mic: Fix user space namespace pollution from mic_common.h.
+virtqueue_{kick()/notify()} methods are required to return bool due to
+API changes introduced in commit 5b1bf7cb673a.
 
-Sudeep Dutt (2):
-  misc: mic: Change mic_notify(...) to return true.
-  misc: mic: Minor bug fix in 'retry' loops.
+Reported-by: Fengguang Wu <fengguang.wu@intel.com>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
+Signed-off-by: Sudeep Dutt <sudeep.dutt@intel.com>
+---
+ drivers/misc/mic/card/mic_virtio.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
- Documentation/mic/mpssd/mpssd.c    | 18 +++++++++++------
- drivers/misc/mic/card/mic_virtio.c | 33 +++++++++++++++++--------------
- drivers/misc/mic/card/mic_virtio.h |  7 +++----
- drivers/misc/mic/host/mic_boot.c   |  2 +-
- drivers/misc/mic/host/mic_virtio.c | 30 ++++++++++++++--------------
- drivers/misc/mic/host/mic_x100.c   |  4 ++--
- include/uapi/linux/mic_common.h    | 40 +++++++++++++++-----------------------
- 7 files changed, 67 insertions(+), 67 deletions(-)
-
+diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
+index 8aa42e7..1ebc51c 100644
+--- a/drivers/misc/mic/card/mic_virtio.c
++++ b/drivers/misc/mic/card/mic_virtio.c
+@@ -187,11 +187,12 @@ static void mic_reset(struct virtio_device *vdev)
+ /*
+  * The virtio_ring code calls this API when it wants to notify the Host.
+  */
+-static void mic_notify(struct virtqueue *vq)
++static bool mic_notify(struct virtqueue *vq)
+ {
+ 	struct mic_vdev *mvdev = vq->priv;
+ 
+ 	mic_send_intr(mvdev->mdev, mvdev->c2h_vdev_db);
++	return true;
+ }
+ 
+ static void mic_del_vq(struct virtqueue *vq, int n)
 -- 
 1.8.2.3
