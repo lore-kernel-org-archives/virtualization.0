@@ -1,14 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: Update spec address
-Date: Tue, 3 Dec 2013 14:55:05 +0200
-Message-ID: <20131203125505.GA32687@redhat.com>
-References: <1386074421-20662-1-git-send-email-broonie@kernel.org>
+From: Ashutosh Dixit <ashutosh.dixit@intel.com>
+Subject: [PATCH char-misc-linus 0/5] misc: mic: Fixes for 3.13-rc2
+Date: Tue, 26 Nov 2013 10:04:38 -0800
+Message-ID: <cover.1385487752.git.ashutosh.dixit__35955.7889438749$1386087438$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1386074421-20662-1-git-send-email-broonie@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +15,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Mark Brown <broonie@kernel.org>
-Cc: devicetree@vger.kernel.org, linaro-kernel@lists.linaro.org, Mark Brown <broonie@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Siva Krishna Kumar Reddy Yerramreddy <siva.krishna.kumar.reddy.yerramreddy@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Dec 03, 2013 at 12:40:21PM +0000, Mark Brown wrote:
-> From: Mark Brown <broonie@linaro.org>
-> 
-> According to the README at the existing URL the spec has moved to github
-> so update the documentation to match.
-> 
-> Signed-off-by: Mark Brown <broonie@linaro.org>
+These patches fix various issues which were reported or found with the
+MIC driver.
 
-Even that's no longer accurate :)
-There should be a new address RSN, I'll respond.
+Ashutosh Dixit (3):
+  misc: mic: Bug fix for sysfs poll usage.
+  misc: mic: Fix sparse warnings and other endianness issues.
+  misc: mic: Fix user space namespace pollution from mic_common.h.
 
-> ---
->  Documentation/devicetree/bindings/virtio/mmio.txt | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/virtio/mmio.txt b/Documentation/devicetree/bindings/virtio/mmio.txt
-> index 5069c1b8e193..0648851d2a25 100644
-> --- a/Documentation/devicetree/bindings/virtio/mmio.txt
-> +++ b/Documentation/devicetree/bindings/virtio/mmio.txt
-> @@ -1,6 +1,6 @@
->  * virtio memory mapped device
->  
-> -See http://ozlabs.org/~rusty/virtio-spec/ for more details.
-> +See https://github.com/rustyrussell/virtio-spec for more details.
->  
->  Required properties:
->  
-> -- 
-> 1.8.5
+Sudeep Dutt (2):
+  misc: mic: Change mic_notify(...) to return true.
+  misc: mic: Minor bug fix in 'retry' loops.
+
+ Documentation/mic/mpssd/mpssd.c    | 18 +++++++++++------
+ drivers/misc/mic/card/mic_virtio.c | 33 +++++++++++++++++--------------
+ drivers/misc/mic/card/mic_virtio.h |  7 +++----
+ drivers/misc/mic/host/mic_boot.c   |  2 +-
+ drivers/misc/mic/host/mic_virtio.c | 30 ++++++++++++++--------------
+ drivers/misc/mic/host/mic_x100.c   |  4 ++--
+ include/uapi/linux/mic_common.h    | 40 +++++++++++++++-----------------------
+ 7 files changed, 67 insertions(+), 67 deletions(-)
+
+-- 
+1.8.2.3
