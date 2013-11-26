@@ -1,8 +1,8 @@
 From: Ashutosh Dixit <ashutosh.dixit@intel.com>
-Subject: [PATCH char-misc-linus 4/5] misc: mic: Fix sparse warnings and other
-	endianness issues.
-Date: Tue, 26 Nov 2013 10:14:21 -0800
-Message-ID: <e5bcd02bd49b111e2d4f885655461e889b8049a3.1385487752.git.ashutosh.dixit__370.559414341365$1386087477$gmane$org@intel.com>
+Subject: [PATCH char-misc-linus 5/5] misc: mic: Fix user space namespace
+	pollution from mic_common.h.
+Date: Tue, 26 Nov 2013 10:15:57 -0800
+Message-ID: <a0760d072de1531018bdfb4a1f5d1f6e35def26c.1385487752.git.ashutosh.dixit__11806.7072159194$1386087484$gmane$org@intel.com>
 References: <cover.1385487752.git.ashutosh.dixit@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,246 +19,199 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Siva Krishna Kumar Reddy Yerramreddy <siva.krishna.kumar.reddy.yerramreddy@intel.com>, Fengguang Wu <fengguang.wu@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
+Cc: Peter P Waskiewicz Jr <peter.p.waskiewicz.jr@intel.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Siva Krishna Kumar Reddy Yerramreddy <siva.krishna.kumar.reddy.yerramreddy@intel.com>, H Peter Anvin <h.peter.anvin@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Endianness issues are now consistent as per the documentation in
-host/mic_virtio.h. Note that the host can be both BE or LE whereas the
-card is always LE.
+Avoid declaring ALIGN() and __aligned() in
+include/uapi/linux/mic_common.h since they pollute user space
+namespace. Also, mic_aligned_size() can be simply replaced simply by
+sizeof() since all structures where mic_aligned_size() is used are
+declared using __attribute__ ((aligned(8)));
 
-Memory space sparse warnings are fixed for now by using __force. This is
-sufficient for now since the driver depends on x86 but will need to be
-revisited if we support other architectures which treat I/O memory
-differently from system memory.
+--
+From mail from H Peter Anvin about this:
 
-Reported-by: Fengguang Wu <fengguang.wu@intel.com>
+On Fri, Nov 08, 2013 H Peter Anvin <h.peter.anvin@intel.com> wrote:
+Subject: Namespace pollution in mic_common.h
+
+This puts two macros, ALIGN() and __aligned(), into arbitrary user space
+namespace.  This really isn't safe or acceptable, especially since those
+symbols are highly generic.
+...
+When these structures are forced-aligned, they will in fact have padding
+automatically added by the compiler to an 8-byte boundary anyway, so
+mic_aligned_size() does nothing.
+...
+
+Reported-by: H Peter Anvin <h.peter.anvin@intel.com>
 Reviewed-by: Sudeep Dutt <sudeep.dutt@intel.com>
-Cc: Nikhil Rao <nikhil.rao@intel.com>
+Signed-off-by: Nikhil Rao <nikhil.rao@intel.com>
 Signed-off-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
 ---
- Documentation/mic/mpssd/mpssd.c    |  8 ++++----
- drivers/misc/mic/card/mic_virtio.c | 18 ++++++++++--------
- drivers/misc/mic/host/mic_boot.c   |  2 +-
- drivers/misc/mic/host/mic_virtio.c | 16 ++++++++--------
- drivers/misc/mic/host/mic_x100.c   |  4 ++--
- include/uapi/linux/mic_common.h    | 14 +++++++-------
- 6 files changed, 32 insertions(+), 30 deletions(-)
+ Documentation/mic/mpssd/mpssd.c    |  4 ++--
+ drivers/misc/mic/card/mic_virtio.c |  4 ++--
+ drivers/misc/mic/card/mic_virtio.h |  7 +++----
+ drivers/misc/mic/host/mic_virtio.c |  2 +-
+ include/uapi/linux/mic_common.h    | 26 +++++++++-----------------
+ 5 files changed, 17 insertions(+), 26 deletions(-)
 
 diff --git a/Documentation/mic/mpssd/mpssd.c b/Documentation/mic/mpssd/mpssd.c
-index 5c7fdda..befc2c3 100644
+index befc2c3..4d17487 100644
 --- a/Documentation/mic/mpssd/mpssd.c
 +++ b/Documentation/mic/mpssd/mpssd.c
-@@ -445,8 +445,8 @@ init_vr(struct mic_info *mic, int fd, int type,
- 		__func__, mic->name, vr0->va, vr0->info, vr_size,
- 		vring_size(MIC_VRING_ENTRIES, MIC_VIRTIO_RING_ALIGN));
- 	mpsslog("magic 0x%x expected 0x%x\n",
--		vr0->info->magic, MIC_MAGIC + type);
--	assert(vr0->info->magic == MIC_MAGIC + type);
-+		le32toh(vr0->info->magic), MIC_MAGIC + type);
-+	assert(le32toh(vr0->info->magic) == MIC_MAGIC + type);
- 	if (vr1) {
- 		vr1->va = (struct mic_vring *)
- 			&va[MIC_DEVICE_PAGE_END + vr_size];
-@@ -458,8 +458,8 @@ init_vr(struct mic_info *mic, int fd, int type,
- 			__func__, mic->name, vr1->va, vr1->info, vr_size,
- 			vring_size(MIC_VRING_ENTRIES, MIC_VIRTIO_RING_ALIGN));
- 		mpsslog("magic 0x%x expected 0x%x\n",
--			vr1->info->magic, MIC_MAGIC + type + 1);
--		assert(vr1->info->magic == MIC_MAGIC + type + 1);
-+			le32toh(vr1->info->magic), MIC_MAGIC + type + 1);
-+		assert(le32toh(vr1->info->magic) == MIC_MAGIC + type + 1);
- 	}
- done:
- 	return va;
+@@ -313,7 +313,7 @@ static struct mic_device_desc *get_device_desc(struct mic_info *mic, int type)
+ 	int i;
+ 	void *dp = get_dp(mic, type);
+ 
+-	for (i = mic_aligned_size(struct mic_bootparam); i < PAGE_SIZE;
++	for (i = sizeof(struct mic_bootparam); i < PAGE_SIZE;
+ 		i += mic_total_desc_size(d)) {
+ 		d = dp + i;
+ 
+@@ -520,7 +520,7 @@ static void *
+ virtio_net(void *arg)
+ {
+ 	static __u8 vnet_hdr[2][sizeof(struct virtio_net_hdr)];
+-	static __u8 vnet_buf[2][MAX_NET_PKT_SIZE] __aligned(64);
++	static __u8 vnet_buf[2][MAX_NET_PKT_SIZE] __attribute__ ((aligned(64)));
+ 	struct iovec vnet_iov[2][2] = {
+ 		{ { .iov_base = vnet_hdr[0], .iov_len = sizeof(vnet_hdr[0]) },
+ 		  { .iov_base = vnet_buf[0], .iov_len = sizeof(vnet_buf[0]) } },
 diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
-index 4dce912..c975c36 100644
+index c975c36..653799b 100644
 --- a/drivers/misc/mic/card/mic_virtio.c
 +++ b/drivers/misc/mic/card/mic_virtio.c
-@@ -248,17 +248,17 @@ static struct virtqueue *mic_find_vq(struct virtio_device *vdev,
- 	/* First assign the vring's allocated in host memory */
- 	vqconfig = mic_vq_config(mvdev->desc) + index;
- 	memcpy_fromio(&config, vqconfig, sizeof(config));
--	_vr_size = vring_size(config.num, MIC_VIRTIO_RING_ALIGN);
-+	_vr_size = vring_size(le16_to_cpu(config.num), MIC_VIRTIO_RING_ALIGN);
- 	vr_size = PAGE_ALIGN(_vr_size + sizeof(struct _mic_vring_info));
--	va = mic_card_map(mvdev->mdev, config.address, vr_size);
-+	va = mic_card_map(mvdev->mdev, le64_to_cpu(config.address), vr_size);
- 	if (!va)
- 		return ERR_PTR(-ENOMEM);
- 	mvdev->vr[index] = va;
- 	memset_io(va, 0x0, _vr_size);
--	vq = vring_new_virtqueue(index,
--				config.num, MIC_VIRTIO_RING_ALIGN, vdev,
--				false,
--				va, mic_notify, callback, name);
-+	vq = vring_new_virtqueue(index, le16_to_cpu(config.num),
-+				 MIC_VIRTIO_RING_ALIGN, vdev, false,
-+				 (void __force *)va, mic_notify, callback,
-+				 name);
- 	if (!vq) {
- 		err = -ENOMEM;
- 		goto unmap;
-@@ -273,7 +273,8 @@ static struct virtqueue *mic_find_vq(struct virtio_device *vdev,
+@@ -521,8 +521,8 @@ static void mic_scan_devices(struct mic_driver *mdrv, bool remove)
+ 	struct device *dev;
+ 	int ret;
  
- 	/* Allocate and reassign used ring now */
- 	mvdev->used_size[index] = PAGE_ALIGN(sizeof(__u16) * 3 +
--			sizeof(struct vring_used_elem) * config.num);
-+					     sizeof(struct vring_used_elem) *
-+					     le16_to_cpu(config.num));
- 	used = (void *)__get_free_pages(GFP_KERNEL | __GFP_ZERO,
- 					get_order(mvdev->used_size[index]));
- 	if (!used) {
-@@ -540,7 +541,8 @@ static void mic_scan_devices(struct mic_driver *mdrv, bool remove)
- 			continue;
+-	for (i = mic_aligned_size(struct mic_bootparam);
+-		i < MIC_DP_SIZE; i += mic_total_desc_size(d)) {
++	for (i = sizeof(struct mic_bootparam); i < MIC_DP_SIZE;
++		i += mic_total_desc_size(d)) {
+ 		d = mdrv->dp + i;
+ 		dc = (void __iomem *)d + mic_aligned_desc_size(d);
+ 		/*
+diff --git a/drivers/misc/mic/card/mic_virtio.h b/drivers/misc/mic/card/mic_virtio.h
+index 2c5c22c..d0407ba 100644
+--- a/drivers/misc/mic/card/mic_virtio.h
++++ b/drivers/misc/mic/card/mic_virtio.h
+@@ -42,8 +42,8 @@
  
- 		/* device already exists */
--		dev = device_find_child(mdrv->dev, d, mic_match_desc);
-+		dev = device_find_child(mdrv->dev, (void __force *)d,
-+					mic_match_desc);
- 		if (dev) {
- 			if (remove)
- 				iowrite8(MIC_VIRTIO_PARAM_DEV_REMOVE,
-diff --git a/drivers/misc/mic/host/mic_boot.c b/drivers/misc/mic/host/mic_boot.c
-index 7558d91..b75c6b5 100644
---- a/drivers/misc/mic/host/mic_boot.c
-+++ b/drivers/misc/mic/host/mic_boot.c
-@@ -62,7 +62,7 @@ void mic_bootparam_init(struct mic_device *mdev)
+ static inline unsigned mic_desc_size(struct mic_device_desc __iomem *desc)
  {
- 	struct mic_bootparam *bootparam = mdev->dp;
+-	return mic_aligned_size(*desc)
+-		+ ioread8(&desc->num_vq) * mic_aligned_size(struct mic_vqconfig)
++	return sizeof(*desc)
++		+ ioread8(&desc->num_vq) * sizeof(struct mic_vqconfig)
+ 		+ ioread8(&desc->feature_len) * 2
+ 		+ ioread8(&desc->config_len);
+ }
+@@ -67,8 +67,7 @@ mic_vq_configspace(struct mic_device_desc __iomem *desc)
+ }
+ static inline unsigned mic_total_desc_size(struct mic_device_desc __iomem *desc)
+ {
+-	return mic_aligned_desc_size(desc) +
+-		mic_aligned_size(struct mic_device_ctrl);
++	return mic_aligned_desc_size(desc) + sizeof(struct mic_device_ctrl);
+ }
  
--	bootparam->magic = MIC_MAGIC;
-+	bootparam->magic = cpu_to_le32(MIC_MAGIC);
- 	bootparam->c2h_shutdown_db = mdev->shutdown_db;
- 	bootparam->h2c_shutdown_db = -1;
- 	bootparam->h2c_config_db = -1;
+ int mic_devices_init(struct mic_driver *mdrv);
 diff --git a/drivers/misc/mic/host/mic_virtio.c b/drivers/misc/mic/host/mic_virtio.c
-index 945a3d0..074e736 100644
+index 074e736..e04bb4f 100644
 --- a/drivers/misc/mic/host/mic_virtio.c
 +++ b/drivers/misc/mic/host/mic_virtio.c
-@@ -41,7 +41,7 @@ static int mic_virtio_copy_to_user(struct mic_vdev *mvdev,
- 	 * We are copying from IO below an should ideally use something
- 	 * like copy_to_user_fromio(..) if it existed.
- 	 */
--	if (copy_to_user(ubuf, dbuf, len)) {
-+	if (copy_to_user(ubuf, (void __force *)dbuf, len)) {
- 		err = -EFAULT;
- 		dev_err(mic_dev(mvdev), "%s %d err %d\n",
- 			__func__, __LINE__, err);
-@@ -66,7 +66,7 @@ static int mic_virtio_copy_from_user(struct mic_vdev *mvdev,
- 	 * We are copying to IO below and should ideally use something
- 	 * like copy_from_user_toio(..) if it existed.
- 	 */
--	if (copy_from_user(dbuf, ubuf, len)) {
-+	if (copy_from_user((void __force *)dbuf, ubuf, len)) {
- 		err = -EFAULT;
- 		dev_err(mic_dev(mvdev), "%s %d err %d\n",
- 			__func__, __LINE__, err);
-@@ -293,7 +293,7 @@ static void mic_virtio_init_post(struct mic_vdev *mvdev)
- 			continue;
- 		}
- 		mvdev->mvr[i].vrh.vring.used =
--			mvdev->mdev->aper.va +
-+			(void __force *)mvdev->mdev->aper.va +
- 			le64_to_cpu(vqconfig[i].used_address);
+@@ -467,7 +467,7 @@ static int mic_copy_dp_entry(struct mic_vdev *mvdev,
  	}
  
-@@ -525,6 +525,7 @@ int mic_virtio_add_device(struct mic_vdev *mvdev,
- 	char irqname[10];
- 	struct mic_bootparam *bootparam = mdev->dp;
- 	u16 num;
-+	dma_addr_t vr_addr;
- 
- 	mutex_lock(&mdev->mic_mutex);
- 
-@@ -559,17 +560,16 @@ int mic_virtio_add_device(struct mic_vdev *mvdev,
- 		}
- 		vr->len = vr_size;
- 		vr->info = vr->va + vring_size(num, MIC_VIRTIO_RING_ALIGN);
--		vr->info->magic = MIC_MAGIC + mvdev->virtio_id + i;
--		vqconfig[i].address = mic_map_single(mdev,
--			vr->va, vr_size);
--		if (mic_map_error(vqconfig[i].address)) {
-+		vr->info->magic = cpu_to_le32(MIC_MAGIC + mvdev->virtio_id + i);
-+		vr_addr = mic_map_single(mdev, vr->va, vr_size);
-+		if (mic_map_error(vr_addr)) {
- 			free_pages((unsigned long)vr->va, get_order(vr_size));
- 			ret = -ENOMEM;
- 			dev_err(mic_dev(mvdev), "%s %d err %d\n",
- 				__func__, __LINE__, ret);
- 			goto err;
- 		}
--		vqconfig[i].address = cpu_to_le64(vqconfig[i].address);
-+		vqconfig[i].address = cpu_to_le64(vr_addr);
- 
- 		vring_init(&vr->vr, num, vr->va, MIC_VIRTIO_RING_ALIGN);
- 		ret = vringh_init_kern(&mvr->vrh,
-diff --git a/drivers/misc/mic/host/mic_x100.c b/drivers/misc/mic/host/mic_x100.c
-index 81e9541..0dfa8a8 100644
---- a/drivers/misc/mic/host/mic_x100.c
-+++ b/drivers/misc/mic/host/mic_x100.c
-@@ -397,8 +397,8 @@ mic_x100_load_ramdisk(struct mic_device *mdev)
- 	 * so copy over the ramdisk @ 128M.
- 	 */
- 	memcpy_toio(mdev->aper.va + (mdev->bootaddr << 1), fw->data, fw->size);
--	iowrite32(cpu_to_le32(mdev->bootaddr << 1), &bp->hdr.ramdisk_image);
--	iowrite32(cpu_to_le32(fw->size), &bp->hdr.ramdisk_size);
-+	iowrite32(mdev->bootaddr << 1, &bp->hdr.ramdisk_image);
-+	iowrite32(fw->size, &bp->hdr.ramdisk_size);
- 	release_firmware(fw);
- error:
- 	return rc;
+ 	/* Find the first free device page entry */
+-	for (i = mic_aligned_size(struct mic_bootparam);
++	for (i = sizeof(struct mic_bootparam);
+ 		i < MIC_DP_SIZE - mic_total_desc_size(dd_config);
+ 		i += mic_total_desc_size(devp)) {
+ 		devp = mdev->dp + i;
 diff --git a/include/uapi/linux/mic_common.h b/include/uapi/linux/mic_common.h
-index 17e7d95..ca70a50 100644
+index ca70a50..068f55d 100644
 --- a/include/uapi/linux/mic_common.h
 +++ b/include/uapi/linux/mic_common.h
-@@ -48,7 +48,7 @@ struct mic_device_desc {
- 	__u8 feature_len;
+@@ -23,12 +23,7 @@
+ 
+ #include <linux/virtio_ring.h>
+ 
+-#ifndef __KERNEL__
+-#define ALIGN(a, x)	(((a) + (x) - 1) & ~((x) - 1))
+-#define __aligned(x)	__attribute__ ((aligned(x)))
+-#endif
+-
+-#define mic_aligned_size(x) ALIGN(sizeof(x), 8)
++#define MIC_ALIGN(a, x) (((a) + (x) - 1) & ~((x) - 1))
+ 
+ /**
+  * struct mic_device_desc: Virtio device information shared between the
+@@ -49,7 +44,7 @@ struct mic_device_desc {
  	__u8 config_len;
  	__u8 status;
--	__u64 config[0];
-+	__le64 config[0];
- } __aligned(8);
+ 	__le64 config[0];
+-} __aligned(8);
++} __attribute__ ((aligned(8)));
  
  /**
-@@ -66,7 +66,7 @@ struct mic_device_desc {
-  * @h2c_vdev_db: The doorbell number to be used by host. Set by guest.
-  */
- struct mic_device_ctrl {
--	__u64 vdev;
-+	__le64 vdev;
- 	__u8 config_change;
- 	__u8 vdev_reset;
- 	__u8 guest_ack;
-@@ -87,7 +87,7 @@ struct mic_device_ctrl {
-  * @shutdown_card: Set to 1 by the host when a card shutdown is initiated
-  */
- struct mic_bootparam {
--	__u32 magic;
-+	__le32 magic;
- 	__s8 c2h_shutdown_db;
- 	__s8 h2c_shutdown_db;
+  * struct mic_device_ctrl: Per virtio device information in the device page
+@@ -74,7 +69,7 @@ struct mic_device_ctrl {
+ 	__u8 used_address_updated;
+ 	__s8 c2h_vdev_db;
+ 	__s8 h2c_vdev_db;
+-} __aligned(8);
++} __attribute__ ((aligned(8)));
+ 
+ /**
+  * struct mic_bootparam: Virtio device independent information in device page
+@@ -93,7 +88,7 @@ struct mic_bootparam {
  	__s8 h2c_config_db;
-@@ -116,9 +116,9 @@ struct mic_device_page {
-  * @num: The number of entries in the virtio_ring
-  */
- struct mic_vqconfig {
--	__u64 address;
--	__u64 used_address;
--	__u16 num;
-+	__le64 address;
-+	__le64 used_address;
-+	__le16 num;
- } __aligned(8);
+ 	__u8 shutdown_status;
+ 	__u8 shutdown_card;
+-} __aligned(8);
++} __attribute__ ((aligned(8)));
+ 
+ /**
+  * struct mic_device_page: High level representation of the device page
+@@ -119,7 +114,7 @@ struct mic_vqconfig {
+ 	__le64 address;
+ 	__le64 used_address;
+ 	__le16 num;
+-} __aligned(8);
++} __attribute__ ((aligned(8)));
  
  /*
-@@ -154,7 +154,7 @@ struct mic_vqconfig {
-  */
- struct _mic_vring_info {
- 	__u16 avail_idx;
--	int magic;
-+	__le32 magic;
+  * The alignment to use between consumer and producer parts of vring.
+@@ -173,15 +168,13 @@ struct mic_vring {
+ 	int len;
  };
  
- /**
+-#define mic_aligned_desc_size(d) ALIGN(mic_desc_size(d), 8)
++#define mic_aligned_desc_size(d) MIC_ALIGN(mic_desc_size(d), 8)
+ 
+ #ifndef INTEL_MIC_CARD
+ static inline unsigned mic_desc_size(const struct mic_device_desc *desc)
+ {
+-	return mic_aligned_size(*desc)
+-		+ desc->num_vq * mic_aligned_size(struct mic_vqconfig)
+-		+ desc->feature_len * 2
+-		+ desc->config_len;
++	return sizeof(*desc) + desc->num_vq * sizeof(struct mic_vqconfig)
++		+ desc->feature_len * 2 + desc->config_len;
+ }
+ 
+ static inline struct mic_vqconfig *
+@@ -201,8 +194,7 @@ static inline __u8 *mic_vq_configspace(const struct mic_device_desc *desc)
+ }
+ static inline unsigned mic_total_desc_size(struct mic_device_desc *desc)
+ {
+-	return mic_aligned_desc_size(desc) +
+-		mic_aligned_size(struct mic_device_ctrl);
++	return mic_aligned_desc_size(desc) + sizeof(struct mic_device_ctrl);
+ }
+ #endif
+ 
 -- 
 1.8.2.3
