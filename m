@@ -1,8 +1,7 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH v3 RFC 3/4] virtio_blk: avoid calling blk_cleanup_queue() on
-	device loss
-Date: Wed, 27 Nov 2013 11:32:39 +0100
-Message-ID: <1385548360-31943-4-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: [PATCH v3 RFC 1/4] virtio: add surprize_removal to virtio_device
+Date: Wed, 27 Nov 2013 11:32:37 +0100
+Message-ID: <1385548360-31943-2-git-send-email-graalfs@linux.vnet.ibm.com>
 References: <1385548360-31943-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,35 +21,43 @@ To: mst@redhat.com, virtualization@lists.linux-foundation.org
 Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Code is added to avoid calling blk_cleanup_queue() when the surprize_removal
-flag is set due to a disappeared device. It avoid hangs due to incomplete
-requests (e.g. in-flight requests). Such requests must be considered as lost.
+Add new entry surprize_removal to struct virtio_device.
 
-If the current remove callback was triggered due to an unregister driver,
-and the surprize_removal is not already set (although the actual device
-is already gone, e.g. virsh detach), blk_cleanup_queue() would be triggered
-resulting in a possible hang. This hang is caused by e.g. 'in-flight' requests
-that will never complete. This is a weird situation, and most likely not
-'serializable'.
+When a virtio transport driver is notified about a lost device
+it should set surprize_removal to true.
+
+A backend driver can test this flag in order to perform specific
+actions that might be appropriate wrt the device loss.
 
 Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 ---
- drivers/block/virtio_blk.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio.c | 1 +
+ include/linux/virtio.h  | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 0f64282..8c05001 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -892,7 +892,8 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	}
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index ee59b74..290d1e2 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -115,6 +115,7 @@ static int virtio_dev_probe(struct device *_d)
  
- 	del_gendisk(vblk->disk);
--	blk_cleanup_queue(vblk->disk->queue);
-+	if (!vdev->surprize_removal)
-+		blk_cleanup_queue(vblk->disk->queue);
+ 	/* We have a driver! */
+ 	add_status(dev, VIRTIO_CONFIG_S_DRIVER);
++	dev->surprize_removal = false;
  
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
+ 	/* Figure out what features the device supports. */
+ 	device_features = dev->config->get_features(dev);
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index f15f6e7..131404a 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -98,6 +98,7 @@ struct virtio_device {
+ 	struct list_head vqs;
+ 	/* Note that this is a Linux set_bit-style bitmap. */
+ 	unsigned long features[1];
++	bool surprize_removal;
+ 	void *priv;
+ };
+ 
 -- 
 1.8.3.1
