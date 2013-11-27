@@ -1,16 +1,18 @@
-From: Ingo Molnar <mingo@kernel.org>
-Subject: Re: [PATCH -tip v3 02/23] kprobes: Introduce NOKPROBE_SYMBOL() macro
-	for blacklist
-Date: Wed, 27 Nov 2013 14:32:24 +0100
-Message-ID: <20131127133224.GD18422@gmail.com>
-References: <20131120042148.15296.88360.stgit@kbuild-fedora.novalocal>
-	<20131120042153.15296.82087.stgit@kbuild-fedora.novalocal>
+From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3 RFC 3/4] virtio_blk: avoid calling blk_cleanup_queue()
+	on device loss
+Date: Wed, 27 Nov 2013 15:15:45 +0100
+Message-ID: <5295FE91.7050601@linux.vnet.ibm.com>
+References: <1385548360-31943-1-git-send-email-graalfs@linux.vnet.ibm.com>
+	<1385548360-31943-4-git-send-email-graalfs@linux.vnet.ibm.com>
+	<20131127104740.GB29702@redhat.com>
+	<5295D95E.4070305@linux.vnet.ibm.com>
+	<20131127124956.GA30325@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20131120042153.15296.82087.stgit@kbuild-fedora.novalocal>
+In-Reply-To: <20131127124956.GA30325@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,34 +22,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Cc: linux-arch@vger.kernel.org, Jeremy Fitzhardinge <jeremy@goop.org>, x86@kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Chris Wright <chrisw@sous-sol.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Rob Landley <rob@landley.net>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Alok Kataria <akataria@vmware.com>, systemtap@sourceware.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: borntraeger@de.ibm.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 27/11/13 13:49, Michael S. Tsirkin wrote:
+> On Wed, Nov 27, 2013 at 12:37:02PM +0100, Heinz Graalfs wrote:
+>> On 27/11/13 11:47, Michael S. Tsirkin wrote:
+>>> On Wed, Nov 27, 2013 at 11:32:39AM +0100, Heinz Graalfs wrote:
+>>>> Code is added to avoid calling blk_cleanup_queue() when the surprize_removal
+>>>> flag is set due to a disappeared device. It avoid hangs due to incomplete
+>>>> requests (e.g. in-flight requests). Such requests must be considered as lost.
+>>>
+>>> Ugh. Can't we complete these immediately using detach_unused_buf? If not why?
+>>
+>> OK, I will try
 
-* Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
+I tried virtqueue_detach_unused_buf(). It doesn't seem to solve the 
+problem. Would that affect block layer in-flight requests anyway? The 
+function comment also says it should not be used on an active queue.
 
-> +#ifdef CONFIG_KPROBES
-> +/*
-> + * Blacklist ganerating macro. Specify functions which is not probed
-> + * by using this macro.
-> + */
-> +#define __NOKPROBE_SYMBOL(fname)				\
-> +static struct kprobe_blackpoint __used			\
-> +	_kprobe_bp_##fname = {				\
-> +		.name = #fname,				\
-> +		.start_addr = (unsigned long)fname,	\
-> +	};						\
-> +static struct kprobe_blackpoint __used			\
-> +	__attribute__((section("_kprobe_blacklist")))	\
-> +	*_p_kprobe_bp_##fname = &_kprobe_bp_##fname;
+Isn't there a mechanism to end vring requests for which a 
+vring_interrupt() is missing? (simulate virtblk_done() with an error)?
+At least that's it what would help, I suppose.
 
-'kprobe_blackpoint' sounds a bit weird - how about 
-'kprobe_blacklist_entry' ?
+>>
+>>>
+>>>> If the current remove callback was triggered due to an unregister driver,
+>>>> and the surprize_removal is not already set (although the actual device
+>>>> is already gone, e.g. virsh detach), blk_cleanup_queue() would be triggered
+>>>> resulting in a possible hang. This hang is caused by e.g. 'in-flight' requests
+>>>> that will never complete. This is a weird situation, and most likely not
+>>>> 'serializable'.
+>>>
+>>> Hmm interesting. Implement some timeout and probe device to make sure
+>>> it's still alive?
 
-also, _kprobe_blacklist probably wants to be _kprobes_blacklist, 
-right?
+This patch doesn't try to solve any weird races.
+It avoids triggering the block queue cleanup, with potential for a hang, 
+IFF a device is gone.
 
-Thanks,
+>>
+>> but there is always some race, isn't it?
+>
+> To clarify, why this might not be very elegant, a timer-based
+> solution for surprise removal during driver cleanup
+> might be easier than trying to build robust interfaces
+> to address this esoteric case.
+>
+> But what worries me is that it's not clear to me that ccw won't
+> invoke notify in parallel with remove callback.
+> If this happens there will be use after free.
 
-	Ingo
+OK, I agree, calling remove twice or working on freed stuff must not happen.
+
+>
+
+
+>
