@@ -1,16 +1,17 @@
 From: Ashutosh Dixit <ashutosh.dixit@intel.com>
-Subject: [PATCH char-misc-linus v3 6/6] misc: mic: Suppress memory space
-	sparse warnings
-Date: Wed, 27 Nov 2013 08:58:43 -0800
-Message-ID: <e6af994c3c963ec013bfa048ad47d1c50654d94e.1385569514.git.ashutosh.dixit__1610.68715756318$1386087579$gmane$org@intel.com>
-References: <cover.1385527468.git.ashutosh.dixit@intel.com>
+Subject: Re: [PATCH char-misc-linus 4/5] misc: mic: Fix sparse warnings and
+	other endianness issues.
+Date: Wed, 27 Nov 2013 09:12:01 -0800
+Message-ID: <m3zjopwyzi.fsf__37907.1671552539$1386087593$gmane$org@adixit-yct.ra.intel.com>
+References: <cover.1385487752.git.ashutosh.dixit@intel.com>
+	<e5bcd02bd49b111e2d4f885655461e889b8049a3.1385487752.git.ashutosh.dixit@intel.com>
+	<20131126191525.GA29279@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1385527468.git.ashutosh.dixit@intel.com>
-In-Reply-To: <cover.1385569514.git.ashutosh.dixit@intel.com>
-References: <cover.1385569514.git.ashutosh.dixit@intel.com>
+In-Reply-To: <20131126191525.GA29279@kroah.com> (Greg Kroah-Hartman's message
+	of "Tue, 26 Nov 2013 12:15:25 -0700")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,83 +21,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Siva Krishna Kumar Reddy Yerramreddy <siva.krishna.kumar.reddy.yerramreddy@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Wu, Fengguang" <fengguang.wu@intel.com>, Arnd Bergmann <arnd@arndb.de>, "Dutt, Sudeep" <sudeep.dutt@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Yerramreddy, Siva Krishna Kumar Reddy" <siva.krishna.kumar.reddy.yerramreddy@intel.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Yokoyama,
+	Caz" <caz.yokoyama@intel.com>, "Chandramouli,
+	Dasaratharaman" <dasaratharaman.chandramouli@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-MIC card and host drivers are able to use virtio over the PCIe bus by
-treating ioremap return values for the prefetchable BARs as pointers,
-effectively treating I/O memory the same as system memory. However this
-results in sparse warnings. Knowing that these warnings do not point to
-a functional issue, this patch suppresses these warnings.
+On Tue, Nov 26 2013 at 11:15:25 AM, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> On Tue, Nov 26, 2013 at 10:14:21AM -0800, Ashutosh Dixit wrote:
+>> Endianness issues are now consistent as per the documentation in
+>> host/mic_virtio.h. Note that the host can be both BE or LE whereas the
+>> card is always LE.
+>>
+>> Memory space sparse warnings are fixed for now by using __force. This is
+>> sufficient for now since the driver depends on x86 but will need to be
+>> revisited if we support other architectures which treat I/O memory
+>> differently from system memory.
+>
+> Can you split the endian fixes up from the user pointer fixes to make it
+> easier to review/apply?
 
-Reported-by: Fengguang Wu <fengguang.wu@intel.com>
-Reviewed-by: Sudeep Dutt <sudeep.dutt@intel.com>
-Signed-off-by: Nikhil Rao <nikhil.rao@intel.com>
-Signed-off-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
----
- drivers/misc/mic/card/mic_virtio.c | 8 +++++---
- drivers/misc/mic/host/mic_virtio.c | 8 ++++----
- 2 files changed, 9 insertions(+), 7 deletions(-)
+We've just submitted v3 where we now have separate patches (5 and 6) for
+endianness and sparse memory access fixes.
 
-diff --git a/drivers/misc/mic/card/mic_virtio.c b/drivers/misc/mic/card/mic_virtio.c
-index ca0445f..653799b 100644
---- a/drivers/misc/mic/card/mic_virtio.c
-+++ b/drivers/misc/mic/card/mic_virtio.c
-@@ -256,8 +256,9 @@ static struct virtqueue *mic_find_vq(struct virtio_device *vdev,
- 	mvdev->vr[index] = va;
- 	memset_io(va, 0x0, _vr_size);
- 	vq = vring_new_virtqueue(index, le16_to_cpu(config.num),
--				 MIC_VIRTIO_RING_ALIGN, vdev, false, va,
--				 mic_notify, callback, name);
-+				 MIC_VIRTIO_RING_ALIGN, vdev, false,
-+				 (void __force *)va, mic_notify, callback,
-+				 name);
- 	if (!vq) {
- 		err = -ENOMEM;
- 		goto unmap;
-@@ -540,7 +541,8 @@ static void mic_scan_devices(struct mic_driver *mdrv, bool remove)
- 			continue;
- 
- 		/* device already exists */
--		dev = device_find_child(mdrv->dev, d, mic_match_desc);
-+		dev = device_find_child(mdrv->dev, (void __force *)d,
-+					mic_match_desc);
- 		if (dev) {
- 			if (remove)
- 				iowrite8(MIC_VIRTIO_PARAM_DEV_REMOVE,
-diff --git a/drivers/misc/mic/host/mic_virtio.c b/drivers/misc/mic/host/mic_virtio.c
-index 453d740..e04bb4f 100644
---- a/drivers/misc/mic/host/mic_virtio.c
-+++ b/drivers/misc/mic/host/mic_virtio.c
-@@ -41,7 +41,7 @@ static int mic_virtio_copy_to_user(struct mic_vdev *mvdev,
- 	 * We are copying from IO below an should ideally use something
- 	 * like copy_to_user_fromio(..) if it existed.
- 	 */
--	if (copy_to_user(ubuf, dbuf, len)) {
-+	if (copy_to_user(ubuf, (void __force *)dbuf, len)) {
- 		err = -EFAULT;
- 		dev_err(mic_dev(mvdev), "%s %d err %d\n",
- 			__func__, __LINE__, err);
-@@ -66,7 +66,7 @@ static int mic_virtio_copy_from_user(struct mic_vdev *mvdev,
- 	 * We are copying to IO below and should ideally use something
- 	 * like copy_from_user_toio(..) if it existed.
- 	 */
--	if (copy_from_user(dbuf, ubuf, len)) {
-+	if (copy_from_user((void __force *)dbuf, ubuf, len)) {
- 		err = -EFAULT;
- 		dev_err(mic_dev(mvdev), "%s %d err %d\n",
- 			__func__, __LINE__, err);
-@@ -293,8 +293,8 @@ static void mic_virtio_init_post(struct mic_vdev *mvdev)
- 			continue;
- 		}
- 		mvdev->mvr[i].vrh.vring.used =
--			mvdev->mdev->aper.va
--			+ le64_to_cpu(vqconfig[i].used_address);
-+			(void __force *)mvdev->mdev->aper.va +
-+			le64_to_cpu(vqconfig[i].used_address);
- 	}
- 
- 	mvdev->dc->used_address_updated = 0;
--- 
-1.8.2.3
+> There's no need for this for 3.13-final, right?  No bug fixes are here
+> that I can tell.
+
+That's correct.  I've reordered the patches so that v3 patches 1-4
+contain the real bug fixes. We'd like to apply patches 5 and 6 for
+3.13-final too but if it is not possible we can drop one or both of them
+for now for further review.
+
+> And don't use __force, really, can't you fix this some other way?
+
+As stated in the description for patch 6, because of the dependence of
+the MIC drivers on the virtio infrastructure there is no simple way to
+fix these memory space issues at present. Since the sparse warnings do
+not represent real issues the warnings are being suppressed using
+__force.
+
+>> +	vq = vring_new_virtqueue(index, le16_to_cpu(config.num),
+>> +				 MIC_VIRTIO_RING_ALIGN, vdev, false,
+>> +				 (void __force *)va, mic_notify, callback,
+>> +				 name);
+>
+> Why __force a void * here?  That feels wrong.
+
+In all instances in patch 6 __force is used to strip the __iomem
+attribute (e.g. va is declared as 'void __iomem *va;').
+
+thanks,
+
+ashutosh
