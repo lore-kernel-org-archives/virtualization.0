@@ -1,20 +1,16 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 RFC 3/3] virtio_ccw: invoke virtio_driver's notify()
-	on CIO_GONE notification
-Date: Wed, 27 Nov 2013 12:42:01 +0200
-Message-ID: <20131127104201.GA29702@redhat.com>
-References: <1385045133-2165-1-git-send-email-graalfs@linux.vnet.ibm.com>
-	<1385045133-2165-4-git-send-email-graalfs@linux.vnet.ibm.com>
-	<20131121151557.GB12001@redhat.com>
-	<528E3EF5.8030004@linux.vnet.ibm.com>
-	<20131121183103.GA14754@redhat.com>
-	<5295CA27.1000305@linux.vnet.ibm.com>
+Subject: Re: [PATCH v3 RFC 3/4] virtio_blk: avoid calling blk_cleanup_queue()
+	on device loss
+Date: Wed, 27 Nov 2013 12:47:40 +0200
+Message-ID: <20131127104740.GB29702@redhat.com>
+References: <1385548360-31943-1-git-send-email-graalfs@linux.vnet.ibm.com>
+	<1385548360-31943-4-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5295CA27.1000305@linux.vnet.ibm.com>
+In-Reply-To: <1385548360-31943-4-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,90 +24,41 @@ To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 Cc: borntraeger@de.ibm.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Nov 27, 2013 at 11:32:07AM +0100, Heinz Graalfs wrote:
-> On 21/11/13 19:31, Michael S. Tsirkin wrote:
-> >On Thu, Nov 21, 2013 at 06:12:21PM +0100, Heinz Graalfs wrote:
-> >>On 21/11/13 16:15, Michael S. Tsirkin wrote:
-> >>>On Thu, Nov 21, 2013 at 03:45:33PM +0100, Heinz Graalfs wrote:
-> >>>>virtio_ccw's notify() callback for the common IO layer invokes
-> >>>>virtio_driver's notify() callback to pass-on information to a
-> >>>>backend driver if an online device disappeared.
-> >>>>
-> >>>>Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-> >>>
-> >>>simple question: is this serialized with device removal?
-> >>>If this races with removal we have a problem.
-> >>>
-> >>
-> >>notify and remove callbacks are not serialized.
-> >>
-> >>Additional processing in the notify handler is now locked by the queue lock.
-> >>
-> >>If remove is already active (e.g. driver unregister) and performing
-> >>its cleanup (via virtblk_remove), we should definitely perform the
-> >>(locked) request queue processing in notify (little later), because
-> >>if a notify comes in, the device is GONE (not going away). Earlier
-> >>triggered cleanup processing is about to fail anyway.
-> >
-> >I don't get it. It's possible nothing is in queue
-> >or everything timed out.
-> >Then this notify will address freed memory.
-> >
-> >I'm starting to think the right solution is to pass
-> >a flag to remove: bool surprize_removal.
-> >
-> >Then you will cleanly set flags before removing the device.
-> >
-> >No new callbacks and no races.
-> 
-> OK, I will send a v3 RFC.
-> 
-> However, I suppose we will always have some kind of 'race' wrt this
-> weird scenario, ending up in different kind of hang situations.
+On Wed, Nov 27, 2013 at 11:32:39AM +0100, Heinz Graalfs wrote:
+> Code is added to avoid calling blk_cleanup_queue() when the surprize_removal
+> flag is set due to a disappeared device. It avoid hangs due to incomplete
+> requests (e.g. in-flight requests). Such requests must be considered as lost.
 
-Handling surprise removal reliably is not easy.
-WHQL has tests for this so it's doable if drivers are
-programmed defencively.
+Ugh. Can't we complete these immediately using detach_unused_buf? If not why?
 
-> >
-> >>>>---
-> >>>>  drivers/s390/kvm/virtio_ccw.c | 15 +++++++++++++--
-> >>>>  1 file changed, 13 insertions(+), 2 deletions(-)
-> >>>>
-> >>>>diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
-> >>>>index 35b9aaa..682f688 100644
-> >>>>--- a/drivers/s390/kvm/virtio_ccw.c
-> >>>>+++ b/drivers/s390/kvm/virtio_ccw.c
-> >>>>@@ -27,6 +27,7 @@
-> >>>>  #include <linux/module.h>
-> >>>>  #include <linux/io.h>
-> >>>>  #include <linux/kvm_para.h>
-> >>>>+#include <linux/notifier.h>
-> >>>>  #include <asm/setup.h>
-> >>>>  #include <asm/irq.h>
-> >>>>  #include <asm/cio.h>
-> >>>>@@ -1064,8 +1065,18 @@ out_free:
-> >>>>
-> >>>>  static int virtio_ccw_cio_notify(struct ccw_device *cdev, int event)
-> >>>>  {
-> >>>>-	/* TODO: Check whether we need special handling here. */
-> >>>>-	return 0;
-> >>>>+	int rc;
-> >>>>+	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-> >>>>+
-> >>>>+	switch (event) {
-> >>>>+	case CIO_GONE:
-> >>>>+		rc = notify_virtio_device(&vcdev->vdev, VDEV_GONE);
-> >>>>+		break;
-> >>>>+	default:
-> >>>>+		rc = NOTIFY_DONE;
-> >>>>+		break;
-> >>>>+	}
-> >>>>+	return rc;
-> >>>>  }
-> >>>>
-> >>>>  static struct ccw_device_id virtio_ids[] = {
-> >>>>--
-> >>>>1.8.3.1
-> >>>
-> >
+> If the current remove callback was triggered due to an unregister driver,
+> and the surprize_removal is not already set (although the actual device
+> is already gone, e.g. virsh detach), blk_cleanup_queue() would be triggered
+> resulting in a possible hang. This hang is caused by e.g. 'in-flight' requests
+> that will never complete. This is a weird situation, and most likely not
+> 'serializable'.
+
+Hmm interesting. Implement some timeout and probe device to make sure
+it's still alive?
+
+> Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+> ---
+>  drivers/block/virtio_blk.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 0f64282..8c05001 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -892,7 +892,8 @@ static void virtblk_remove(struct virtio_device *vdev)
+>  	}
+>  
+>  	del_gendisk(vblk->disk);
+> -	blk_cleanup_queue(vblk->disk->queue);
+> +	if (!vdev->surprize_removal)
+> +		blk_cleanup_queue(vblk->disk->queue);
+>  
+>  	/* Stop all the virtqueues. */
+>  	vdev->config->reset(vdev);
+> -- 
+> 1.8.3.1
