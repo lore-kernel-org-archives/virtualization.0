@@ -1,8 +1,8 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: [PATCH v3 RFC 2/4] virtio_blk: avoid further request queueing on
-	device loss
-Date: Wed, 27 Nov 2013 11:32:38 +0100
-Message-ID: <1385548360-31943-3-git-send-email-graalfs@linux.vnet.ibm.com>
+Subject: [PATCH v3 RFC 4/4] virtio_ccw: set surprize_removal in virtio_device
+	if a device was lost
+Date: Wed, 27 Nov 2013 11:32:40 +0100
+Message-ID: <1385548360-31943-5-git-send-email-graalfs@linux.vnet.ibm.com>
 References: <1385548360-31943-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,51 +22,49 @@ To: mst@redhat.com, virtualization@lists.linux-foundation.org
 Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Code is added to the remove callback to verify if a device was lost.
-
-In case of a device loss further request queueing should be prevented
-by setting appropriate queue flags prior to invoking del_gendisk().
-Blocking of request queueing leads to appropriate I/O errors when data
-are tried to be synched. Trying to synch data to a lost block device
-doesn't make too much sense.
-
-If the current remove callback was triggered due to an unregister driver,
-and the surprize_removal is not already set (although the actual device
-is already gone, e.g. virsh detach), del_gendisk() would be triggered
-resulting in a hang. This is a weird situation, and most likely not
-'serializable'.
+Code is added to the notify handler to set the 'surprize_removal' flag
+in virtio_device in case a CIO_GONE notification occurs. The remove
+callback of the backend driver must check this flag in order to perform
+special processing for a lost device.
 
 Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
 ---
- drivers/block/virtio_blk.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/s390/kvm/virtio_ccw.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 2d43be4..0f64282 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -875,6 +875,7 @@ static void virtblk_remove(struct virtio_device *vdev)
+diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+index 35b9aaa..8f6c74a 100644
+--- a/drivers/s390/kvm/virtio_ccw.c
++++ b/drivers/s390/kvm/virtio_ccw.c
+@@ -27,6 +27,7 @@
+ #include <linux/module.h>
+ #include <linux/io.h>
+ #include <linux/kvm_para.h>
++#include <linux/notifier.h>
+ #include <asm/setup.h>
+ #include <asm/irq.h>
+ #include <asm/cio.h>
+@@ -1064,8 +1065,19 @@ out_free:
+ 
+ static int virtio_ccw_cio_notify(struct ccw_device *cdev, int event)
  {
- 	struct virtio_blk *vblk = vdev->priv;
- 	int index = vblk->index;
-+	unsigned long flags;
- 	int refc;
- 
- 	/* Prevent config work handler from accessing the device. */
-@@ -882,6 +883,14 @@ static void virtblk_remove(struct virtio_device *vdev)
- 	vblk->config_enable = false;
- 	mutex_unlock(&vblk->config_lock);
- 
-+	if (vdev->surprize_removal) {
-+		spin_lock_irqsave(vblk->disk->queue->queue_lock, flags);
-+		queue_flag_set(QUEUE_FLAG_DYING, vblk->disk->queue);
-+		queue_flag_set(QUEUE_FLAG_NOMERGES, vblk->disk->queue);
-+		queue_flag_set(QUEUE_FLAG_NOXMERGES, vblk->disk->queue);
-+		spin_unlock_irqrestore(vblk->disk->queue->queue_lock, flags);
-+	}
+-	/* TODO: Check whether we need special handling here. */
+-	return 0;
++	int rc;
++	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
 +
- 	del_gendisk(vblk->disk);
- 	blk_cleanup_queue(vblk->disk->queue);
++	switch (event) {
++	case CIO_GONE:
++		vcdev->vdev.surprize_removal = true;
++		rc = NOTIFY_DONE;
++		break;
++	default:
++		rc = NOTIFY_DONE;
++		break;
++	}
++	return rc;
+ }
  
+ static struct ccw_device_id virtio_ids[] = {
 -- 
 1.8.3.1
