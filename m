@@ -1,8 +1,8 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3 RFC 3/4] virtio_blk: avoid calling blk_cleanup_queue()
 	on device loss
-Date: Wed, 27 Nov 2013 14:28:23 +0200
-Message-ID: <20131127122823.GA30046@redhat.com>
+Date: Wed, 27 Nov 2013 14:49:56 +0200
+Message-ID: <20131127124956.GA30325@redhat.com>
 References: <1385548360-31943-1-git-send-email-graalfs@linux.vnet.ibm.com>
 	<1385548360-31943-4-git-send-email-graalfs@linux.vnet.ibm.com>
 	<20131127104740.GB29702@redhat.com>
@@ -50,29 +50,15 @@ On Wed, Nov 27, 2013 at 12:37:02PM +0100, Heinz Graalfs wrote:
 > 
 > but there is always some race, isn't it?
 
-Then we retry after a second timeout?
+To clarify, why this might not be very elegant, a timer-based
+solution for surprise removal during driver cleanup
+might be easier than trying to build robust interfaces
+to address this esoteric case.
+
+But what worries me is that it's not clear to me that ccw won't
+invoke notify in parallel with remove callback.
+If this happens there will be use after free.
 
 
-> >
-> >>Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-> >>---
-> >>  drivers/block/virtio_blk.c | 3 ++-
-> >>  1 file changed, 2 insertions(+), 1 deletion(-)
-> >>
-> >>diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> >>index 0f64282..8c05001 100644
-> >>--- a/drivers/block/virtio_blk.c
-> >>+++ b/drivers/block/virtio_blk.c
-> >>@@ -892,7 +892,8 @@ static void virtblk_remove(struct virtio_device *vdev)
-> >>  	}
-> >>
-> >>  	del_gendisk(vblk->disk);
-> >>-	blk_cleanup_queue(vblk->disk->queue);
-> >>+	if (!vdev->surprize_removal)
-> >>+		blk_cleanup_queue(vblk->disk->queue);
-> >>
-> >>  	/* Stop all the virtqueues. */
-> >>  	vdev->config->reset(vdev);
-> >>--
-> >>1.8.3.1
-> >
+-- 
+MST
