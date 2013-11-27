@@ -1,16 +1,11 @@
 From: Ashutosh Dixit <ashutosh.dixit@intel.com>
-Subject: [PATCH char-misc-linus v3 3/6] misc: mic: Bug fix for sysfs poll
-	usage.
-Date: Wed, 27 Nov 2013 08:58:40 -0800
-Message-ID: <110d7ea2d60d47682da4208a07646a97b0f00585.1385569514.git.ashutosh.dixit__32847.058811649$1386087540$gmane$org@intel.com>
-References: <cover.1385527468.git.ashutosh.dixit@intel.com>
+Subject: [PATCH char-misc-linus v3 0/6] misc: mic: Fixes for 3.13-final
+Date: Wed, 27 Nov 2013 08:58:37 -0800
+Message-ID: <cover.1385527468.git.ashutosh.dixit__47500.6995875903$1386087543$gmane$org@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <cover.1385527468.git.ashutosh.dixit@intel.com>
-In-Reply-To: <cover.1385569514.git.ashutosh.dixit@intel.com>
-References: <cover.1385569514.git.ashutosh.dixit@intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,37 +19,39 @@ To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.d
 Cc: Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Siva Krishna Kumar Reddy Yerramreddy <siva.krishna.kumar.reddy.yerramreddy@intel.com>, Caz Yokoyama <Caz.Yokoyama@intel.com>, Dasaratharaman Chandramouli <dasaratharaman.chandramouli@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-MIC user space daemon poll's on sysfs changes. The documentation for
-sysfs_poll(...) in fs/sysfs/file.c states that "Once poll/select
-indicates that the value has changed, you need to close and re-open the
-file, or seek to 0 and read again". This step was missed out earlier and
-resulted in the daemon spinning continuously rather than getting blocked
-in 'poll'. This bug was exposed by commit aea585ef8fa65163 introduced as
-part of sysfs changes in 3.13-rc1. A seek to 0 has been introduced to
-fix it.
+These patches fix various issues which were reported or found with the
+MIC driver.
 
-Reviewed-by: Sudeep Dutt <sudeep.dutt@intel.com>
-Signed-off-by: Ashutosh Dixit <ashutosh.dixit@intel.com>
----
- Documentation/mic/mpssd/mpssd.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+Changelog
+=========
+v2 => v3:
+* Reorder patch 5 in v2 to patch 4 in v3.
+* Split patch 4 in v2 into patches 5 and 6 in v3.
 
-diff --git a/Documentation/mic/mpssd/mpssd.c b/Documentation/mic/mpssd/mpssd.c
-index 0c980ad..5c7fdda 100644
---- a/Documentation/mic/mpssd/mpssd.c
-+++ b/Documentation/mic/mpssd/mpssd.c
-@@ -1412,6 +1412,12 @@ mic_config(void *arg)
- 	}
- 
- 	do {
-+		ret = lseek(fd, 0, SEEK_SET);
-+		if (ret < 0) {
-+			mpsslog("%s: Failed to seek to file start '%s': %s\n",
-+				mic->name, pathname, strerror(errno));
-+			goto close_error1;
-+		}
- 		ret = read(fd, value, sizeof(value));
- 		if (ret < 0) {
- 			mpsslog("%s: Failed to read sysfs entry '%s': %s\n",
+v1 => v2: @ https://lkml.org/lkml/2013/11/26/376
+* Address review comments @ https://lkml.org/lkml/2013/11/26/443
+  in patch 5.
+
+v1: Initial post @ https://lkml.org/lkml/2013/11/26/321
+
+Ashutosh Dixit (4):
+  misc: mic: Bug fix for sysfs poll usage.
+  misc: mic: Fix user space namespace pollution from mic_common.h.
+  misc: mic: Fix endianness issues.
+  misc: mic: Suppress memory space sparse warnings
+
+Sudeep Dutt (2):
+  misc: mic: Change mic_notify(...) to return true.
+  misc: mic: Minor bug fix in 'retry' loops.
+
+ Documentation/mic/mpssd/mpssd.c    | 18 +++++++++++------
+ drivers/misc/mic/card/mic_virtio.c | 33 +++++++++++++++++--------------
+ drivers/misc/mic/card/mic_virtio.h |  7 +++----
+ drivers/misc/mic/host/mic_boot.c   |  2 +-
+ drivers/misc/mic/host/mic_virtio.c | 30 ++++++++++++++--------------
+ drivers/misc/mic/host/mic_x100.c   |  4 ++--
+ include/uapi/linux/mic_common.h    | 40 +++++++++++++++-----------------------
+ 7 files changed, 67 insertions(+), 67 deletions(-)
+
 -- 
 1.8.2.3
