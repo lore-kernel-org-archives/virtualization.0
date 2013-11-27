@@ -1,18 +1,14 @@
 From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: Re: [PATCH v2 RFC 3/3] virtio_ccw: invoke virtio_driver's notify()
-	on CIO_GONE notification
-Date: Wed, 27 Nov 2013 11:32:07 +0100
-Message-ID: <5295CA27.1000305@linux.vnet.ibm.com>
-References: <1385045133-2165-1-git-send-email-graalfs@linux.vnet.ibm.com>
-	<1385045133-2165-4-git-send-email-graalfs@linux.vnet.ibm.com>
-	<20131121151557.GB12001@redhat.com>
-	<528E3EF5.8030004@linux.vnet.ibm.com>
-	<20131121183103.GA14754@redhat.com>
+Subject: [PATCH v3 RFC 2/4] virtio_blk: avoid further request queueing on
+	device loss
+Date: Wed, 27 Nov 2013 11:32:38 +0100
+Message-ID: <1385548360-31943-3-git-send-email-graalfs@linux.vnet.ibm.com>
+References: <1385548360-31943-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131121183103.GA14754@redhat.com>
+In-Reply-To: <1385548360-31943-1-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,89 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: borntraeger@de.ibm.com, virtualization@lists.linux-foundation.org
+To: mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 21/11/13 19:31, Michael S. Tsirkin wrote:
-> On Thu, Nov 21, 2013 at 06:12:21PM +0100, Heinz Graalfs wrote:
->> On 21/11/13 16:15, Michael S. Tsirkin wrote:
->>> On Thu, Nov 21, 2013 at 03:45:33PM +0100, Heinz Graalfs wrote:
->>>> virtio_ccw's notify() callback for the common IO layer invokes
->>>> virtio_driver's notify() callback to pass-on information to a
->>>> backend driver if an online device disappeared.
->>>>
->>>> Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
->>>
->>> simple question: is this serialized with device removal?
->>> If this races with removal we have a problem.
->>>
->>
->> notify and remove callbacks are not serialized.
->>
->> Additional processing in the notify handler is now locked by the queue lock.
->>
->> If remove is already active (e.g. driver unregister) and performing
->> its cleanup (via virtblk_remove), we should definitely perform the
->> (locked) request queue processing in notify (little later), because
->> if a notify comes in, the device is GONE (not going away). Earlier
->> triggered cleanup processing is about to fail anyway.
->
-> I don't get it. It's possible nothing is in queue
-> or everything timed out.
-> Then this notify will address freed memory.
->
-> I'm starting to think the right solution is to pass
-> a flag to remove: bool surprize_removal.
->
-> Then you will cleanly set flags before removing the device.
->
-> No new callbacks and no races.
+Code is added to the remove callback to verify if a device was lost.
 
-OK, I will send a v3 RFC.
+In case of a device loss further request queueing should be prevented
+by setting appropriate queue flags prior to invoking del_gendisk().
+Blocking of request queueing leads to appropriate I/O errors when data
+are tried to be synched. Trying to synch data to a lost block device
+doesn't make too much sense.
 
-However, I suppose we will always have some kind of 'race' wrt this
-weird scenario, ending up in different kind of hang situations.
+If the current remove callback was triggered due to an unregister driver,
+and the surprize_removal is not already set (although the actual device
+is already gone, e.g. virsh detach), del_gendisk() would be triggered
+resulting in a hang. This is a weird situation, and most likely not
+'serializable'.
 
->
->>>> ---
->>>>   drivers/s390/kvm/virtio_ccw.c | 15 +++++++++++++--
->>>>   1 file changed, 13 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
->>>> index 35b9aaa..682f688 100644
->>>> --- a/drivers/s390/kvm/virtio_ccw.c
->>>> +++ b/drivers/s390/kvm/virtio_ccw.c
->>>> @@ -27,6 +27,7 @@
->>>>   #include <linux/module.h>
->>>>   #include <linux/io.h>
->>>>   #include <linux/kvm_para.h>
->>>> +#include <linux/notifier.h>
->>>>   #include <asm/setup.h>
->>>>   #include <asm/irq.h>
->>>>   #include <asm/cio.h>
->>>> @@ -1064,8 +1065,18 @@ out_free:
->>>>
->>>>   static int virtio_ccw_cio_notify(struct ccw_device *cdev, int event)
->>>>   {
->>>> -	/* TODO: Check whether we need special handling here. */
->>>> -	return 0;
->>>> +	int rc;
->>>> +	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
->>>> +
->>>> +	switch (event) {
->>>> +	case CIO_GONE:
->>>> +		rc = notify_virtio_device(&vcdev->vdev, VDEV_GONE);
->>>> +		break;
->>>> +	default:
->>>> +		rc = NOTIFY_DONE;
->>>> +		break;
->>>> +	}
->>>> +	return rc;
->>>>   }
->>>>
->>>>   static struct ccw_device_id virtio_ids[] = {
->>>> --
->>>> 1.8.3.1
->>>
->
+Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+---
+ drivers/block/virtio_blk.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 2d43be4..0f64282 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -875,6 +875,7 @@ static void virtblk_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_blk *vblk = vdev->priv;
+ 	int index = vblk->index;
++	unsigned long flags;
+ 	int refc;
+ 
+ 	/* Prevent config work handler from accessing the device. */
+@@ -882,6 +883,14 @@ static void virtblk_remove(struct virtio_device *vdev)
+ 	vblk->config_enable = false;
+ 	mutex_unlock(&vblk->config_lock);
+ 
++	if (vdev->surprize_removal) {
++		spin_lock_irqsave(vblk->disk->queue->queue_lock, flags);
++		queue_flag_set(QUEUE_FLAG_DYING, vblk->disk->queue);
++		queue_flag_set(QUEUE_FLAG_NOMERGES, vblk->disk->queue);
++		queue_flag_set(QUEUE_FLAG_NOXMERGES, vblk->disk->queue);
++		spin_unlock_irqrestore(vblk->disk->queue->queue_lock, flags);
++	}
++
+ 	del_gendisk(vblk->disk);
+ 	blk_cleanup_queue(vblk->disk->queue);
+ 
+-- 
+1.8.3.1
