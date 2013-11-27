@@ -1,16 +1,18 @@
-From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-Subject: Re: Re: [PATCH -tip v3 13/23] x86/trap: Use NOKPROBE_SYMBOL macro
-	in trap.c
-Date: Wed, 27 Nov 2013 10:38:12 +0900
-Message-ID: <52954D04.8090101@hitachi.com>
-References: <20131120042148.15296.88360.stgit@kbuild-fedora.novalocal>
-	<20131120042221.15296.85443.stgit@kbuild-fedora.novalocal>
-	<20131122212119.GE19762@tassilo.jf.intel.com>
+From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Subject: Re: [PATCH v2 RFC 3/3] virtio_ccw: invoke virtio_driver's notify()
+	on CIO_GONE notification
+Date: Wed, 27 Nov 2013 11:32:07 +0100
+Message-ID: <5295CA27.1000305@linux.vnet.ibm.com>
+References: <1385045133-2165-1-git-send-email-graalfs@linux.vnet.ibm.com>
+	<1385045133-2165-4-git-send-email-graalfs@linux.vnet.ibm.com>
+	<20131121151557.GB12001@redhat.com>
+	<528E3EF5.8030004@linux.vnet.ibm.com>
+	<20131121183103.GA14754@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131122212119.GE19762@tassilo.jf.intel.com>
+In-Reply-To: <20131121183103.GA14754@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,36 +22,89 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andi Kleen <ak@linux.intel.com>
-Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, "David S. Miller" <davem@davemloft.net>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, Frederic Weisbecker <fweisbec@gmail.com>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, systemtap@sourceware.org, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, Seiji Aguchi <seiji.aguchi@hds.com>, Ingo Molnar <mingo@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: borntraeger@de.ibm.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-(2013/11/23 6:21), Andi Kleen wrote:
-> On Wed, Nov 20, 2013 at 04:22:21AM +0000, Masami Hiramatsu wrote:
->> Use NOKPROBE_SYMBOL macro to protect functions from kprobes
->> instead of __kprobes annotation in trap.c.
->> This also applies __always_inline annotation for some cases,
->> because NOKPROBE_SYMBOL() will inhibit inlining by referring
->> the symbol address.
-> 
-> NOKPROBE_SYMBOL seems to add a reference from some variable to the function?
-> 
-> With LTO we can optimize away unused functions, but not
-> when there are references to the symbol. So this would likely
-> prevent optimizations with LTO.
+On 21/11/13 19:31, Michael S. Tsirkin wrote:
+> On Thu, Nov 21, 2013 at 06:12:21PM +0100, Heinz Graalfs wrote:
+>> On 21/11/13 16:15, Michael S. Tsirkin wrote:
+>>> On Thu, Nov 21, 2013 at 03:45:33PM +0100, Heinz Graalfs wrote:
+>>>> virtio_ccw's notify() callback for the common IO layer invokes
+>>>> virtio_driver's notify() callback to pass-on information to a
+>>>> backend driver if an online device disappeared.
+>>>>
+>>>> Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+>>>
+>>> simple question: is this serialized with device removal?
+>>> If this races with removal we have a problem.
+>>>
+>>
+>> notify and remove callbacks are not serialized.
+>>
+>> Additional processing in the notify handler is now locked by the queue lock.
+>>
+>> If remove is already active (e.g. driver unregister) and performing
+>> its cleanup (via virtblk_remove), we should definitely perform the
+>> (locked) request queue processing in notify (little later), because
+>> if a notify comes in, the device is GONE (not going away). Earlier
+>> triggered cleanup processing is about to fail anyway.
+>
+> I don't get it. It's possible nothing is in queue
+> or everything timed out.
+> Then this notify will address freed memory.
+>
+> I'm starting to think the right solution is to pass
+> a flag to remove: bool surprize_removal.
+>
+> Then you will cleanly set flags before removing the device.
+>
+> No new callbacks and no races.
 
-After considering this problem deeper, I decide to say NO against
-to your opinion. IMHO, the LTO is just an optimization, on the other
-hand, NOKPROBE_SYMBOL is more important because it is for avoiding
-kernel crash. I mean, the safety and stability should be prior to
-the performance. Anyway, such side-effect of NOKPROBE_SYMBOL looks
-very limited. Perhaps, less than 1% of functions will be marked.
-How much does it affect for the optimization?
+OK, I will send a v3 RFC.
 
-Thank you,
+However, I suppose we will always have some kind of 'race' wrt this
+weird scenario, ending up in different kind of hang situations.
 
--- 
-Masami HIRAMATSU
-IT Management Research Dept. Linux Technology Center
-Hitachi, Ltd., Yokohama Research Laboratory
-E-mail: masami.hiramatsu.pt@hitachi.com
+>
+>>>> ---
+>>>>   drivers/s390/kvm/virtio_ccw.c | 15 +++++++++++++--
+>>>>   1 file changed, 13 insertions(+), 2 deletions(-)
+>>>>
+>>>> diff --git a/drivers/s390/kvm/virtio_ccw.c b/drivers/s390/kvm/virtio_ccw.c
+>>>> index 35b9aaa..682f688 100644
+>>>> --- a/drivers/s390/kvm/virtio_ccw.c
+>>>> +++ b/drivers/s390/kvm/virtio_ccw.c
+>>>> @@ -27,6 +27,7 @@
+>>>>   #include <linux/module.h>
+>>>>   #include <linux/io.h>
+>>>>   #include <linux/kvm_para.h>
+>>>> +#include <linux/notifier.h>
+>>>>   #include <asm/setup.h>
+>>>>   #include <asm/irq.h>
+>>>>   #include <asm/cio.h>
+>>>> @@ -1064,8 +1065,18 @@ out_free:
+>>>>
+>>>>   static int virtio_ccw_cio_notify(struct ccw_device *cdev, int event)
+>>>>   {
+>>>> -	/* TODO: Check whether we need special handling here. */
+>>>> -	return 0;
+>>>> +	int rc;
+>>>> +	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+>>>> +
+>>>> +	switch (event) {
+>>>> +	case CIO_GONE:
+>>>> +		rc = notify_virtio_device(&vcdev->vdev, VDEV_GONE);
+>>>> +		break;
+>>>> +	default:
+>>>> +		rc = NOTIFY_DONE;
+>>>> +		break;
+>>>> +	}
+>>>> +	return rc;
+>>>>   }
+>>>>
+>>>>   static struct ccw_device_id virtio_ids[] = {
+>>>> --
+>>>> 1.8.3.1
+>>>
+>
