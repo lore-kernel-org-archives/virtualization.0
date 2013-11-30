@@ -1,14 +1,20 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2 1/2] virtio_net: fix error handling for mergeable
-	buffers
-Date: Fri, 29 Nov 2013 18:13:07 +0800
-Message-ID: <529868B3.9090905@redhat.com>
-References: <1385638044-27467-1-git-send-email-mst@redhat.com>
+From: Ingo Molnar <mingo@kernel.org>
+Subject: Re: Re: Re: Re: [PATCH -tip v3 00/23] kprobes: introduce
+	NOKPROBE_SYMBOL() and general cleaning of kprobe blacklist
+Date: Sat, 30 Nov 2013 14:46:18 +0100
+Message-ID: <20131130134618.GA18768__28514.4609319561$1385819194$gmane$org@gmail.com>
+References: <20131120042148.15296.88360.stgit@kbuild-fedora.novalocal>
+	<y0mvbznxi6k.fsf@fche.csb> <20131120153801.GA9743@gmail.com>
+	<20131120173600.GK8993@redhat.com> <528D6C9F.8050809@hitachi.com>
+	<20131121072938.GA16912@gmail.com> <528EC2FF.30301@hitachi.com>
+	<528F4406.3090309@hitachi.com> <20131127133045.GC18422@gmail.com>
+	<52971E66.9080006@hitachi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1385638044-27467-1-git-send-email-mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <52971E66.9080006@hitachi.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,162 +24,77 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Michael Dalton <mwdalton@google.com>, virtualization@lists.linux-foundation.org
+To: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Cc: linux-arch@vger.kernel.org, Ananth N Mavinakayanahalli <ananth@in.ibm.com>, Sandeepa Prabhu <sandeepa.prabhu@linaro.org>, x86@kernel.org, lkml <linux-kernel@vger.kernel.org>, "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>, virtualization@lists.linux-foundation.org, "Frank Ch. Eigler" <fche@redhat.com>, systemtap@sourceware.org, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11/28/2013 07:30 PM, Michael S. Tsirkin wrote:
-> Eric Dumazet noticed that if we encounter an error
-> when processing a mergeable buffer, we don't
-> dequeue all of the buffers from this packet,
-> the result is almost sure to be loss of networking.
->
-> Jason Wang noticed that we also leak a page and that we don't decrement
-> the rq buf count, so we won't repost buffers (a resource leak).
->
-> Fix both issues.
->
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Michael Dalton <mwdalton@google.com>
-> Reported-by: Eric Dumazet <edumazet@google.com>
-> Reported-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->
-> Stable patch will be sent later.
->
->  drivers/net/virtio_net.c | 82 ++++++++++++++++++++++++++++++------------------
->  1 file changed, 51 insertions(+), 31 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 7bab4de..5408de6 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -299,35 +299,47 @@ static struct sk_buff *page_to_skb(struct receive_queue *rq,
->  	return skb;
->  }
->  
-> -static int receive_mergeable(struct receive_queue *rq, struct sk_buff *head_skb)
-> +static struct sk_buff *receive_mergeable(struct net_device *dev,
-> +					 struct receive_queue *rq,
-> +					 void *buf,
-> +					 unsigned int len)
->  {
-> -	struct skb_vnet_hdr *hdr = skb_vnet_hdr(head_skb);
-> +	struct skb_vnet_hdr *hdr = buf;
-> +	int num_buf = hdr->mhdr.num_buffers;
-> +	struct page *page = virt_to_head_page(buf);
-> +	int offset = buf - page_address(page);
-> +	struct sk_buff *head_skb = page_to_skb(rq, page, offset, len,
-> +					       MERGE_BUFFER_LEN);
->  	struct sk_buff *curr_skb = head_skb;
-> -	char *buf;
-> -	struct page *page;
-> -	int num_buf, len, offset;
->  
-> -	num_buf = hdr->mhdr.num_buffers;
-> +	if (unlikely(!curr_skb))
-> +		goto err_skb;
-> +
->  	while (--num_buf) {
-> -		int num_skb_frags = skb_shinfo(curr_skb)->nr_frags;
-> +		int num_skb_frags;
-> +
->  		buf = virtqueue_get_buf(rq->vq, &len);
->  		if (unlikely(!buf)) {
-> -			pr_debug("%s: rx error: %d buffers missing\n",
-> -				 head_skb->dev->name, hdr->mhdr.num_buffers);
-> -			head_skb->dev->stats.rx_length_errors++;
-> -			return -EINVAL;
-> +			pr_debug("%s: rx error: %d buffers out of %d missing\n",
-> +				 dev->name, num_buf, hdr->mhdr.num_buffers);
-> +			dev->stats.rx_length_errors++;
-> +			goto err_buf;
->  		}
->  		if (unlikely(len > MERGE_BUFFER_LEN)) {
->  			pr_debug("%s: rx error: merge buffer too long\n",
-> -				 head_skb->dev->name);
-> +				 dev->name);
->  			len = MERGE_BUFFER_LEN;
->  		}
-> +
-> +		page = virt_to_head_page(buf);
-> +		--rq->num;
-> +
-> +		num_skb_frags = skb_shinfo(curr_skb)->nr_frags;
->  		if (unlikely(num_skb_frags == MAX_SKB_FRAGS)) {
->  			struct sk_buff *nskb = alloc_skb(0, GFP_ATOMIC);
-> -			if (unlikely(!nskb)) {
-> -				head_skb->dev->stats.rx_dropped++;
-> -				return -ENOMEM;
-> -			}
-> +
-> +			if (unlikely(!nskb))
-> +				goto err_skb;
->  			if (curr_skb == head_skb)
->  				skb_shinfo(curr_skb)->frag_list = nskb;
->  			else
-> @@ -341,8 +353,7 @@ static int receive_mergeable(struct receive_queue *rq, struct sk_buff *head_skb)
->  			head_skb->len += len;
->  			head_skb->truesize += MERGE_BUFFER_LEN;
->  		}
-> -		page = virt_to_head_page(buf);
-> -		offset = buf - (char *)page_address(page);
-> +		offset = buf - page_address(page);
->  		if (skb_can_coalesce(curr_skb, num_skb_frags, page, offset)) {
->  			put_page(page);
->  			skb_coalesce_rx_frag(curr_skb, num_skb_frags - 1,
-> @@ -351,9 +362,28 @@ static int receive_mergeable(struct receive_queue *rq, struct sk_buff *head_skb)
->  			skb_add_rx_frag(curr_skb, num_skb_frags, page,
->  					offset, len, MERGE_BUFFER_LEN);
->  		}
-> +	}
-> +
-> +	return head_skb;
-> +
-> +err_skb:
-> +	put_page(page);
-> +	while (--num_buf) {
-> +		buf = virtqueue_get_buf(rq->vq, &len);
-> +		if (unlikely(!buf)) {
-> +			pr_debug("%s: rx error: %d buffers missing\n",
-> +				 dev->name, num_buf);
-> +			dev->stats.rx_length_errors++;
-> +			break;
-> +		}
-> +		page = virt_to_head_page(buf);
-> +		put_page(page);
->  		--rq->num;
->  	}
-> -	return 0;
-> +err_buf:
-> +	dev->stats.rx_dropped++;
-> +	dev_kfree_skb(head_skb);
-> +	return NULL;
->  }
->  
->  static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
-> @@ -382,19 +412,9 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
->  		len -= sizeof(struct virtio_net_hdr);
->  		skb_trim(skb, len);
->  	} else if (vi->mergeable_rx_bufs) {
-> -		struct page *page = virt_to_head_page(buf);
-> -		skb = page_to_skb(rq, page,
-> -				  (char *)buf - (char *)page_address(page),
-> -				  len, MERGE_BUFFER_LEN);
-> -		if (unlikely(!skb)) {
-> -			dev->stats.rx_dropped++;
-> -			put_page(page);
-> +		skb = receive_mergeable(dev, rq, buf, len);
-> +		if (unlikely(!skb))
->  			return;
-> -		}
-> -		if (receive_mergeable(rq, skb)) {
-> -			dev_kfree_skb(skb);
-> -			return;
-> -		}
->  	} else {
->  		page = buf;
->  		skb = page_to_skb(rq, page, 0, len, PAGE_SIZE);
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+* Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
+
+> (2013/11/27 22:30), Ingo Molnar wrote:
+> > 
+> > * Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
+> > 
+> >> (2013/11/22 11:35), Masami Hiramatsu wrote:
+> >>> (2013/11/21 16:29), Ingo Molnar wrote:
+> >>>>
+> >>>> * Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com> wrote:
+> >>>>
+> >>>>> (2013/11/21 2:36), Frank Ch. Eigler wrote:
+> >>>>
+> >>>> [ ... ]
+> >>>>>> one needs to resort to something like:
+> >>>>>>
+> >>>>>> # cat /proc/kallsyms | grep ' [tT] ' | while read addr type symbol; do
+> >>>>>>    perf probe $symbol
+> >>>>>> done
+> >>>>>>
+> >>>>>> then wait for a few hours for that to finish. Then, or while the loop
+> >>>>>> is still running, run
+> >>>>>>
+> >>>>>> # perf record -e 'probe:*' -aR sleep 1
+> >>>>>>
+> >>>>>> to take a kernel down.
+> >>>>>
+> >>>>> Um, indeed, current blacklist is not perfect. [...]
+> >>>>
+> >>>> Then it needs to be fixed ASAP!
+> >>>
+> >>> OK, I see. At least the two patches included this series
+> >>> should be fixed. :)
+> >>>
+> >>> And more, I need to test all symbols and drills down.
+> >>
+> >> OK, what I've found was;
+> >>  - The functions which can be ftraced look good.
+> >>    (see tracing/available_filter_functions)
+> >>  - following functions should not be able to be probed.
+> >>    - memcpy, memset
+> >>    - native_load_sp0 and some other native functions (need to be clear)
+> >>    - restore
+> >>    - trace_graph_return
+> >>    - trace_hardirqs_off_thunk, trace_hardirqs_on_thunk
+> >>    - This list still be not perfect. I just enabled/disabled kprobes
+> >>      one by one. There might be combined bugs (combination of several
+> >>      kprobes).
+> >>  - Some of them are hard to specify by NOKPROBE_SYMBOL because they are
+> >>    defined in assembly file.
+> >>
+> >> Anyway, to fix all of them, I think we need file-based blacklist
+> >> especially for assembler symbols.
+> > 
+> > assembler symbols shouldn't be particular hard either, just put them 
+> > into the noprobes section.
+> 
+> Would you mean .kprobes.text? Hmm, I hope not to use it anymore, but 
+> yeah, bugfix is more important. Agreed.
+
+No, why not put the symbol address into the 'blacklist' section, 
+within the asm file? We fill out exception table entries in .S files 
+as well, see the _ASM_EXTABLE() macro, it's possible to do all that. 
+
+It needs not a CPP macro but an assembly macro.
+
+Thanks,
+
+	Ingo
