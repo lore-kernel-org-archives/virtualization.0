@@ -1,14 +1,14 @@
-From: Jingoo Han <jg1.han@samsung.com>
-Subject: [PATCH 33/39] virtio: pci: remove DEFINE_PCI_DEVICE_TABLE macro
-Date: Tue, 03 Dec 2013 08:29:12 +0900
-Message-ID: <003601ceefb6$4ef0e6e0$ecd2b4a0$%han@samsung.com>
-References: <001501ceefb1$69c96820$3d5c3860$%han@samsung.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio: Update spec address
+Date: Tue, 3 Dec 2013 14:55:05 +0200
+Message-ID: <20131203125505.GA32687@redhat.com>
+References: <1386074421-20662-1-git-send-email-broonie@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-reply-to: <001501ceefb1$69c96820$3d5c3860$%han@samsung.com>
-Content-language: ko
+Content-Disposition: inline
+In-Reply-To: <1386074421-20662-1-git-send-email-broonie@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,30 +18,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: 'Greg Kroah-Hartman' <gregkh@linuxfoundation.org>
-Cc: 'Jingoo Han' <jg1.han@samsung.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Mark Brown <broonie@kernel.org>
+Cc: devicetree@vger.kernel.org, linaro-kernel@lists.linaro.org, Mark Brown <broonie@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Don't use DEFINE_PCI_DEVICE_TABLE macro, because this macro
-is not preferred.
+On Tue, Dec 03, 2013 at 12:40:21PM +0000, Mark Brown wrote:
+> From: Mark Brown <broonie@linaro.org>
+> 
+> According to the README at the existing URL the spec has moved to github
+> so update the documentation to match.
+> 
+> Signed-off-by: Mark Brown <broonie@linaro.org>
 
-Signed-off-by: Jingoo Han <jg1.han@samsung.com>
----
- drivers/virtio/virtio_pci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Even that's no longer accurate :)
+There should be a new address RSN, I'll respond.
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index a37c699..a4a1f7c 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -91,7 +91,7 @@ struct virtio_pci_vq_info
- };
- 
- /* Qumranet donated their vendor ID for devices 0x1000 thru 0x10FF. */
--static DEFINE_PCI_DEVICE_TABLE(virtio_pci_id_table) = {
-+static const struct pci_device_id virtio_pci_id_table[] = {
- 	{ PCI_DEVICE(0x1af4, PCI_ANY_ID) },
- 	{ 0 }
- };
--- 
-1.7.10.4
+> ---
+>  Documentation/devicetree/bindings/virtio/mmio.txt | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/virtio/mmio.txt b/Documentation/devicetree/bindings/virtio/mmio.txt
+> index 5069c1b8e193..0648851d2a25 100644
+> --- a/Documentation/devicetree/bindings/virtio/mmio.txt
+> +++ b/Documentation/devicetree/bindings/virtio/mmio.txt
+> @@ -1,6 +1,6 @@
+>  * virtio memory mapped device
+>  
+> -See http://ozlabs.org/~rusty/virtio-spec/ for more details.
+> +See https://github.com/rustyrussell/virtio-spec for more details.
+>  
+>  Required properties:
+>  
+> -- 
+> 1.8.5
