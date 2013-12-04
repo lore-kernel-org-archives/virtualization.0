@@ -1,11 +1,15 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: [PATCH] virtio: Update spec address
-Date: Tue,  3 Dec 2013 12:40:21 +0000
-Message-ID: <1386074421-20662-1-git-send-email-broonie__5462.8802267418$1386087597$gmane$org@kernel.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v3 RFC 2/4] virtio_blk: avoid further request queueing on
+	device loss
+Date: Wed, 04 Dec 2013 14:34:01 +1030
+Message-ID: <87pppdw9ce.fsf@rustcorp.com.au>
+References: <1385548360-31943-1-git-send-email-graalfs@linux.vnet.ibm.com>
+	<1385548360-31943-3-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1385548360-31943-3-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,31 +19,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: devicetree@vger.kernel.org, linaro-kernel@lists.linaro.org, Mark Brown <broonie@linaro.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>, mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mark Brown <broonie@linaro.org>
+Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
+> Code is added to the remove callback to verify if a device was lost.
+>
+> In case of a device loss further request queueing should be prevented
+> by setting appropriate queue flags prior to invoking del_gendisk().
+> Blocking of request queueing leads to appropriate I/O errors when data
+> are tried to be synched. Trying to synch data to a lost block device
+> doesn't make too much sense.
 
-According to the README at the existing URL the spec has moved to github
-so update the documentation to match.
+Sure, but this isn't the only case where we should set these flags,
+right?  I would think if any virtqueue is reported broken, we should
+mark the queue dying too.
 
-Signed-off-by: Mark Brown <broonie@linaro.org>
----
- Documentation/devicetree/bindings/virtio/mmio.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> If the current remove callback was triggered due to an unregister driver,
+> and the surprize_removal is not already set (although the actual device
+> is already gone, e.g. virsh detach), del_gendisk() would be triggered
+> resulting in a hang. This is a weird situation, and most likely not
+> 'serializable'.
 
-diff --git a/Documentation/devicetree/bindings/virtio/mmio.txt b/Documentation/devicetree/bindings/virtio/mmio.txt
-index 5069c1b8e193..0648851d2a25 100644
---- a/Documentation/devicetree/bindings/virtio/mmio.txt
-+++ b/Documentation/devicetree/bindings/virtio/mmio.txt
-@@ -1,6 +1,6 @@
- * virtio memory mapped device
- 
--See http://ozlabs.org/~rusty/virtio-spec/ for more details.
-+See https://github.com/rustyrussell/virtio-spec for more details.
- 
- Required properties:
- 
--- 
-1.8.5
+This seems like abusing the vdev struct to pass an argument to
+virtblk_remove().
+
+How about you mark all virtqueues broken in the "unexpected removal"
+case?  Then the driver should correctly fail to deliver requests.
+
+Cheers,
+Rusty.
