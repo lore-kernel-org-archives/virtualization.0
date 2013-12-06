@@ -1,15 +1,14 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 2/2] virtio: delete napi structures from netdev before
-	releasing memory
-Date: Fri, 06 Dec 2013 11:21:48 +0800
-Message-ID: <52A142CC.5000707@redhat.com>
-References: <1386254181-17257-1-git-send-email-avagin@openvz.org>
-	<1386254181-17257-3-git-send-email-avagin@openvz.org>
+Subject: Re: [PATCH v2] virtio-net: free bufs correctly on invalid packet
+	length
+Date: Fri, 06 Dec 2013 12:20:24 +0800
+Message-ID: <52A15088.9050507@redhat.com>
+References: <1386278045-23542-1-git-send-email-mwdalton@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1386254181-17257-3-git-send-email-avagin@openvz.org>
+In-Reply-To: <1386278045-23542-1-git-send-email-mwdalton@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,79 +18,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrey Vagin <avagin@openvz.org>, virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Michael Dalton <mwdalton@google.com>, "David S. Miller" <davem@davemloft.net>
+Cc: Andrey Vagin <avagin@openvz.org>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/05/2013 10:36 PM, Andrey Vagin wrote:
-> free_netdev calls netif_napi_del too, but it's too late, because napi
-> structures are placed on vi->rq. netif_napi_add() is called from
-> virtnet_alloc_queues.
+On 12/06/2013 05:14 AM, Michael Dalton wrote:
+> When a packet with invalid length arrives, ensure that the packet
+> is freed correctly if mergeable packet buffers and big packets
+> (GUEST_TSO4) are both enabled.
 >
-> general protection fault: 0000 [#1] SMP
-> Dumping ftrace buffer:
->    (ftrace buffer empty)
-> Modules linked in: ip6table_filter ip6_tables iptable_filter ip_tables virtio_balloon pcspkr virtio_net(-) i2c_pii
-> CPU: 1 PID: 347 Comm: rmmod Not tainted 3.13.0-rc2+ #171
-> Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
-> task: ffff8800b779c420 ti: ffff8800379e0000 task.ti: ffff8800379e0000
-> RIP: 0010:[<ffffffff81322e19>]  [<ffffffff81322e19>] __list_del_entry+0x29/0xd0
-> RSP: 0018:ffff8800379e1dd0  EFLAGS: 00010a83
-> RAX: 6b6b6b6b6b6b6b6b RBX: ffff8800379c2fd0 RCX: dead000000200200
-> RDX: 6b6b6b6b6b6b6b6b RSI: 0000000000000001 RDI: ffff8800379c2fd0
-> RBP: ffff8800379e1dd0 R08: 0000000000000001 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000001 R12: ffff8800379c2f90
-> R13: ffff880037839160 R14: 0000000000000000 R15: 00000000013352f0
-> FS:  00007f1400e34740(0000) GS:ffff8800bfb00000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> CR2: 00007f464124c763 CR3: 00000000b68cf000 CR4: 00000000000006e0
-> Stack:
->  ffff8800379e1df0 ffffffff8155beab 6b6b6b6b6b6b6b2b ffff8800378391c0
->  ffff8800379e1e18 ffffffff8156499b ffff880037839be0 ffff880037839d20
->  ffff88003779d3f0 ffff8800379e1e38 ffffffffa003477c ffff88003779d388
-> Call Trace:
->  [<ffffffff8155beab>] netif_napi_del+0x1b/0x80
->  [<ffffffff8156499b>] free_netdev+0x8b/0x110
->  [<ffffffffa003477c>] virtnet_remove+0x7c/0x90 [virtio_net]
->  [<ffffffff813ae323>] virtio_dev_remove+0x23/0x80
->  [<ffffffff813f62ef>] __device_release_driver+0x7f/0xf0
->  [<ffffffff813f6ca0>] driver_detach+0xc0/0xd0
->  [<ffffffff813f5f28>] bus_remove_driver+0x58/0xd0
->  [<ffffffff813f72ec>] driver_unregister+0x2c/0x50
->  [<ffffffff813ae65e>] unregister_virtio_driver+0xe/0x10
->  [<ffffffffa0036942>] virtio_net_driver_exit+0x10/0x6ce [virtio_net]
->  [<ffffffff810d7cf2>] SyS_delete_module+0x172/0x220
->  [<ffffffff810a732d>] ? trace_hardirqs_on+0xd/0x10
->  [<ffffffff810f5d4c>] ? __audit_syscall_entry+0x9c/0xf0
->  [<ffffffff81677f69>] system_call_fastpath+0x16/0x1b
-> Code: 00 00 55 48 8b 17 48 b9 00 01 10 00 00 00 ad de 48 8b 47 08 48 89 e5 48 39 ca 74 29 48 b9 00 02 20 00 00 00
-> RIP  [<ffffffff81322e19>] __list_del_entry+0x29/0xd0
->  RSP <ffff8800379e1dd0>
-> ---[ end trace d5931cd3f87c9763 ]---
->
-> Fixes: 986a4f4d452d (virtio_net: multiqueue support)
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Signed-off-by: Andrey Vagin <avagin@openvz.org>
+> Signed-off-by: Michael Dalton <mwdalton@google.com>
 > ---
->  drivers/net/virtio_net.c | 5 +++++
->  1 file changed, 5 insertions(+)
+>  drivers/net/virtio_net.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 >
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 930039a..c293764 100644
+> index 916241d..6a4665c 100644
 > --- a/drivers/net/virtio_net.c
 > +++ b/drivers/net/virtio_net.c
-> @@ -1367,6 +1367,11 @@ static void virtnet_config_changed(struct virtio_device *vdev)
->  
->  static void virtnet_free_queues(struct virtnet_info *vi)
->  {
-> +	int i;
-> +
-> +	for (i = 0; i < vi->max_queue_pairs; i++)
-> +		netif_napi_del(&vi->rq[i].napi);
-> +
->  	kfree(vi->rq);
->  	kfree(vi->sq);
->  }
+> @@ -426,10 +426,10 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
+>  	if (unlikely(len < sizeof(struct virtio_net_hdr) + ETH_HLEN)) {
+>  		pr_debug("%s: short packet %i\n", dev->name, len);
+>  		dev->stats.rx_length_errors++;
+> -		if (vi->big_packets)
+> -			give_pages(rq, buf);
+> -		else if (vi->mergeable_rx_bufs)
+> +		if (vi->mergeable_rx_bufs)
+>  			put_page(virt_to_head_page(buf));
+> +		else if (vi->big_packets)
+> +			give_pages(rq, buf);
+>  		else
+>  			dev_kfree_skb(buf);
+>  		return;
 
 Acked-by: Jason Wang <jasowang@redhat.com>
