@@ -1,15 +1,14 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH 2/2] virtio: delete napi structures from netdev before
-	releasing memory
-Date: Fri, 06 Dec 2013 15:30:58 -0500 (EST)
-Message-ID: <20131206.153058.1741013299538900621.davem@davemloft.net>
-References: <1386254181-17257-1-git-send-email-avagin@openvz.org>
-	<1386254181-17257-3-git-send-email-avagin@openvz.org>
+Subject: Re: [PATCH v2] virtio-net: free bufs correctly on invalid packet
+	length
+Date: Fri, 06 Dec 2013 16:32:35 -0500 (EST)
+Message-ID: <20131206.163235.687717622324552173.davem__21580.9967754923$1386365569$gmane$org@davemloft.net>
+References: <1386278045-23542-1-git-send-email-mwdalton@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1386254181-17257-3-git-send-email-avagin@openvz.org>
+In-Reply-To: <1386278045-23542-1-git-send-email-mwdalton@google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,20 +18,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: avagin@openvz.org
-Cc: netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: mwdalton@google.com
+Cc: avagin@openvz.org, mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Andrey Vagin <avagin@openvz.org>
-Date: Thu,  5 Dec 2013 18:36:21 +0400
+From: Michael Dalton <mwdalton@google.com>
+Date: Thu,  5 Dec 2013 13:14:05 -0800
 
-> free_netdev calls netif_napi_del too, but it's too late, because napi
-> structures are placed on vi->rq. netif_napi_add() is called from
-> virtnet_alloc_queues.
- ...
-> Fixes: 986a4f4d452d (virtio_net: multiqueue support)
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Signed-off-by: Andrey Vagin <avagin@openvz.org>
+> When a packet with invalid length arrives, ensure that the packet
+> is freed correctly if mergeable packet buffers and big packets
+> (GUEST_TSO4) are both enabled.
+> 
+> Signed-off-by: Michael Dalton <mwdalton@google.com>
 
-Applied and queued up for -stable, thanks.
+Applied, is this needed for -stable?
