@@ -1,16 +1,13 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 2/2] virtio: delete napi structures from netdev before
-	releasing memory
-Date: Sat, 07 Dec 2013 11:02:59 +1030
-Message-ID: <8761r15wlg.fsf@rustcorp.com.au>
-References: <1386254181-17257-1-git-send-email-avagin@openvz.org>
-	<1386254181-17257-3-git-send-email-avagin@openvz.org>
-	<52A142CC.5000707@redhat.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: CFP: The 23nd International ACM Symposium on High-Performance Parallel
+	and Distributed Computing (HPDC) 2014
+Date: Sat, 07 Dec 2013 13:40:16 -0600
+Message-ID: <52A379A0.2030300@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <52A142CC.5000707@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,87 +17,180 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>, Andrey Vagin <avagin@openvz.org>, virtualization@lists.linux-foundation.org
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, hpc-ft@lists.ncsu.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-Jason Wang <jasowang@redhat.com> writes:
-> On 12/05/2013 10:36 PM, Andrey Vagin wrote:
->> free_netdev calls netif_napi_del too, but it's too late, because napi
->> structures are placed on vi->rq. netif_napi_add() is called from
->> virtnet_alloc_queues.
->>
->> general protection fault: 0000 [#1] SMP
->> Dumping ftrace buffer:
->>    (ftrace buffer empty)
->> Modules linked in: ip6table_filter ip6_tables iptable_filter ip_tables virtio_balloon pcspkr virtio_net(-) i2c_pii
->> CPU: 1 PID: 347 Comm: rmmod Not tainted 3.13.0-rc2+ #171
->> Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
->> task: ffff8800b779c420 ti: ffff8800379e0000 task.ti: ffff8800379e0000
->> RIP: 0010:[<ffffffff81322e19>]  [<ffffffff81322e19>] __list_del_entry+0x29/0xd0
->> RSP: 0018:ffff8800379e1dd0  EFLAGS: 00010a83
->> RAX: 6b6b6b6b6b6b6b6b RBX: ffff8800379c2fd0 RCX: dead000000200200
->> RDX: 6b6b6b6b6b6b6b6b RSI: 0000000000000001 RDI: ffff8800379c2fd0
->> RBP: ffff8800379e1dd0 R08: 0000000000000001 R09: 0000000000000000
->> R10: 0000000000000000 R11: 0000000000000001 R12: ffff8800379c2f90
->> R13: ffff880037839160 R14: 0000000000000000 R15: 00000000013352f0
->> FS:  00007f1400e34740(0000) GS:ffff8800bfb00000(0000) knlGS:0000000000000000
->> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
->> CR2: 00007f464124c763 CR3: 00000000b68cf000 CR4: 00000000000006e0
->> Stack:
->>  ffff8800379e1df0 ffffffff8155beab 6b6b6b6b6b6b6b2b ffff8800378391c0
->>  ffff8800379e1e18 ffffffff8156499b ffff880037839be0 ffff880037839d20
->>  ffff88003779d3f0 ffff8800379e1e38 ffffffffa003477c ffff88003779d388
->> Call Trace:
->>  [<ffffffff8155beab>] netif_napi_del+0x1b/0x80
->>  [<ffffffff8156499b>] free_netdev+0x8b/0x110
->>  [<ffffffffa003477c>] virtnet_remove+0x7c/0x90 [virtio_net]
->>  [<ffffffff813ae323>] virtio_dev_remove+0x23/0x80
->>  [<ffffffff813f62ef>] __device_release_driver+0x7f/0xf0
->>  [<ffffffff813f6ca0>] driver_detach+0xc0/0xd0
->>  [<ffffffff813f5f28>] bus_remove_driver+0x58/0xd0
->>  [<ffffffff813f72ec>] driver_unregister+0x2c/0x50
->>  [<ffffffff813ae65e>] unregister_virtio_driver+0xe/0x10
->>  [<ffffffffa0036942>] virtio_net_driver_exit+0x10/0x6ce [virtio_net]
->>  [<ffffffff810d7cf2>] SyS_delete_module+0x172/0x220
->>  [<ffffffff810a732d>] ? trace_hardirqs_on+0xd/0x10
->>  [<ffffffff810f5d4c>] ? __audit_syscall_entry+0x9c/0xf0
->>  [<ffffffff81677f69>] system_call_fastpath+0x16/0x1b
->> Code: 00 00 55 48 8b 17 48 b9 00 01 10 00 00 00 ad de 48 8b 47 08 48 89 e5 48 39 ca 74 29 48 b9 00 02 20 00 00 00
->> RIP  [<ffffffff81322e19>] __list_del_entry+0x29/0xd0
->>  RSP <ffff8800379e1dd0>
->> ---[ end trace d5931cd3f87c9763 ]---
->>
->> Fixes: 986a4f4d452d (virtio_net: multiqueue support)
->> Cc: Rusty Russell <rusty@rustcorp.com.au>
->> Cc: "Michael S. Tsirkin" <mst@redhat.com>
->> Signed-off-by: Andrey Vagin <avagin@openvz.org>
->> ---
->>  drivers/net/virtio_net.c | 5 +++++
->>  1 file changed, 5 insertions(+)
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 930039a..c293764 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -1367,6 +1367,11 @@ static void virtnet_config_changed(struct virtio_device *vdev)
->>  
->>  static void virtnet_free_queues(struct virtnet_info *vi)
->>  {
->> +	int i;
->> +
->> +	for (i = 0; i < vi->max_queue_pairs; i++)
->> +		netif_napi_del(&vi->rq[i].napi);
->> +
->>  	kfree(vi->rq);
->>  	kfree(vi->sq);
->>  }
->
-> Acked-by: Jason Wang <jasowang@redhat.com>
+			**** CALL FOR PAPERS ****
 
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+                  The 23nd International ACM Symposium on
+           High-Performance Parallel and Distributed Computing
+                              (HPDC-2014)
 
-Needed since v3.8.  Dave, please apply.
+                Vancouver, Canada - June 23-27, 2014
 
-Cheers,
-Rusty.
+                         http://www.hpdc.org/2014
+
+
+The ACM International Symposium on High-Performance Parallel and Distributed Computing
+(HPDC) is the premier annual conference for presenting the latest research on the
+design, implementation, evaluation, and application of parallel and distributed systems
+for high-end computing.
+
+In 2014, the 23nd HPDC and affiliated workshops will take place in the beautiful city
+of Vancouver, Canada during June 23-27, 2014.
+
+
+**** IMPORTANT DATES ****
+Abstracts Due:          January 20, 2014
+Papers Due:             January 27, 2014 (no extensions)
+Author Rebuttal:        March 14-18, 2014
+Author Notifications:   March 28, 2014
+
+
+**** SCOPE AND TOPICS ****
+Submissions are welcomed on high-performance parallel and distributed computing topics
+including but not limited to: clouds, clusters, grids, Big Data, massively multicore,
+and global-scale computing systems. New scholarly research showing empirical and
+reproducible results in architectures, systems, and networks is strongly encouraged,
+as are experience reports of operational deployments that can provide insights for
+future research on HPDC applications and systems. All papers will be evaluated for
+their originality, technical depth and correctness, potential impact, relevance to the
+conference, and quality of presentation. Research papers must clearly demonstrate
+research contributions and novelty, while experience reports must clearly describe
+lessons learned and demonstrate impact.
+
+In the context of high-performance parallel and distributed computing, the topics of
+interest include, but are not limited to:
+
+o	Systems, networks, and architectures for high-end computing
+o	Massively multicore systems
+o	Resource virtualization
+o	Programming languages and environments
+o	I/O, storage systems, and data management
+o	Resource management and scheduling, including energy-aware techniques
+o	Performance modeling and analysis
+o	Fault tolerance, reliability, and availability
+o	Data-intensive computing
+o	Applications of parallel and distributed computing
+
+
+**** PAPER SUBMISSION GUIDELINES ****
+Authors are invited to submit technical papers of at most 12 pages in PDF format,
+including figures and references. Papers should be formatted in the ACM Proceedings
+Style (http://www.acm.org/sigs/publications/proceedings-templates) and submitted via the
+conference web site. No changes to the margins, spacing, or font sizes as specified by
+the style file are allowed. Accepted papers will appear in the conference proceedings,
+and will be incorporated into the ACM Digital Library. A limited number of papers will
+be accepted as posters.
+
+Papers must be self-contained and provide the technical substance required for the
+program committee to evaluate their contributions. Papers should thoughtfully address
+all related work, particularly work presented at previous HPDC events. Submitted
+papers must be original work that has not appeared in and is not under consideration
+for another conference or a journal. See the ACM Prior Publication Policy
+(http://www.acm.org/publications/policies/sim_submissions) for more details.
+
+
+**** HPDC'14 GENERAL CO-CHAIRS ****
+Beth Plale, Indiana University
+Matei Ripeanu, University of British Columbia
+
+
+**** HPDC'14 PROGRAM CO-CHAIRS ****
+Franck Cappello, Argonne National Lab and INRIA
+Dongyan Xu, Purdue University
+
+
+**** HPDC'14 PUBLICITY CHAIR ****
+Ioan Raicu, Illinois Institute of Technology, USA
+
+
+**** HPDC'14 PROGRAM COMMITTEE ****
+David Abramson, University of Queensland, Australia
+Gabriel Antoniu, INRIA, France
+Henri Bal, Vrije Universiteit, the Netherlands
+Adam Barker, University of St Andrews, UK
+Michela Becchi, University of Missouri - Columbia, USA
+Greg Bronevetsky, Lawrence Livermore National Laboratory, USA
+Ali Butt, Virginia Tech, USA
+Abhishek Chandra, University of Minnesota, USA
+Andrew Chien, University of Chicago and Argonne National Laboratory, USA
+Paolo Costa, Microsoft Research Cambridge, UK
+Dilma Da Silva, Qualcomm Research Silicon Valley, USA
+Peter Dinda, Northwestern University, USA
+Dick Epema, Delft and Eindhoven University of Technology, the Netherlands
+Gilles Fedak, INRIA, France
+Wu-chun Feng, Virginia Tech, USA
+Renato Figueiredo, University of Florida, USA
+Ian Foster, University of Chicago and Argonne National Laboratory, USA
+Kartik Gopalan, Binghamton University, USA
+Haryadi Gunawi, University of Chicago, USA
+Bingsheng He, Nanyang Technological University, Singapore
+Alexandru Iosup, Delft University of Technology, the Netherlands
+Shantenu Jha, Rutgers University, USA
+Hai Jin	Huazhong, University of Science and Technology, China
+Larry Kaplan, Cray, Inc., USA
+Kate Keahey, Argonne National Laboratory, USA
+Thilo Kielmann, Vrije Universiteit, the Netherlands
+Charles Killian, Google, USA
+Zhiling Lan, Illinois Institute of Technology, USA
+John (Jack) Lange, University of Pittsburgh, USA
+Minglu Li, Shanghai Jiaotong University, China
+Barney Maccabe, Oak Ridge National Laboratory, USA
+Naoya Maruyama, RIKEN Advanced Institute for Computational Science, Japan
+Satoshi Matsuoka, Tokyo Institute of Technology, Japan
+Dejan Milojicic, HP Labs, USA
+Bogdan Nicolae, IBM Research, Ireland
+Sangmi Pallickara, Colorado State University, USA
+Manish Parashar, Rutgers University, USA
+Ioan Raicu, Illinois Institute of Technology, USA
+Prasenjit Sarkar, IBM Research, USA
+Daniele Scarpazza, D.E. Shaw Research, USA
+Karsten Schwan, Georgia Institute of Technology, USA
+Martin Swany, Indiana University, USA
+Michela Taufer, University of Delaware, USA
+Kenjiro Taura, University of Tokyo, Japan
+Douglas Thain, University of Notre Dame, USA
+Bhuvan Urgaonkar, Pennsylvania State University, USA
+Mustafa Uysal, VMware, Inc., USA
+Jon Weissman, University of Minnesota, USA
+Ming Zhao, Florida International University, USA
+
+
+**** HPDC STEERING COMMITTEE ****
+Henri Bal, Vrije Universiteit
+Andrew A. Chien, University of Chicago
+Peter Dinda, Northwestern University
+Dick Epema, Delft University of Technology
+Renato Figueiredo, University of Florida
+Ian Foster, Univ. of Chicago and Argonne National Laboratory
+Salim Hariri, University of Arizona
+Thilo Kielmann, Vrije Universiteit Amsterdam
+Arthur "Barney" Maccabe, Oak Ridge National Laboratory
+Manish Parashar, Rutgers University
+Matei Ripeanu, University of British Columbia
+Karsten Schwan, Georgia Tech
+Doug Thain, University of Notre Dame
+Jon Weissman, University of Minnesota (Chair)
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Editor: IEEE TCC, Springer Cluster, Springer JoCCASA
+Chair:  IEEE/ACM MTAGS, ACM ScienceCloud
+=================================================================
+Cel:      1-847-722-0876
+Office:   1-312-567-5704
+Email:    iraicu@cs.iit.edu
+Web:      http://www.cs.iit.edu/~iraicu/
+Web:      http://datasys.cs.iit.edu/
+LinkedIn: http://www.linkedin.com/in/ioanraicu
+Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
+=================================================================
+=================================================================
