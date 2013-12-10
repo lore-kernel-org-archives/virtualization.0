@@ -1,13 +1,14 @@
-From: Ioan Raicu <iraicu@cs.iit.edu>
-Subject: CFP: The 23nd International ACM Symposium on High-Performance Parallel
-	and Distributed Computing (HPDC) 2014
-Date: Sat, 07 Dec 2013 13:40:16 -0600
-Message-ID: <52A379A0.2030300@cs.iit.edu>
-Reply-To: iraicu@cs.iit.edu
+From: Stephen Hemminger <stephen@networkplumber.org>
+Subject: [PATCH net-next 2/3] virtio_net: remove unused parameter to
+	send_command
+Date: Mon, 9 Dec 2013 16:17:40 -0800
+Message-ID: <20131209161740.5f2cfae7@nehalam.linuxnetplumber.net>
+References: <20131209161632.5ac96e5a@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20131209161632.5ac96e5a@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,180 +18,126 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, hpc-ft@lists.ncsu.edu
+To: Stephen Hemminger <stephen@networkplumber.org>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-			**** CALL FOR PAPERS ****
+All the code passes NULL for the last sg list (in).
+Simplify by just removing it.
 
-                  The 23nd International ACM Symposium on
-           High-Performance Parallel and Distributed Computing
-                              (HPDC-2014)
-
-                Vancouver, Canada - June 23-27, 2014
-
-                         http://www.hpdc.org/2014
+Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
 
 
-The ACM International Symposium on High-Performance Parallel and Distributed Computing
-(HPDC) is the premier annual conference for presenting the latest research on the
-design, implementation, evaluation, and application of parallel and distributed systems
-for high-end computing.
-
-In 2014, the 23nd HPDC and affiliated workshops will take place in the beautiful city
-of Vancouver, Canada during June 23-27, 2014.
-
-
-**** IMPORTANT DATES ****
-Abstracts Due:          January 20, 2014
-Papers Due:             January 27, 2014 (no extensions)
-Author Rebuttal:        March 14-18, 2014
-Author Notifications:   March 28, 2014
-
-
-**** SCOPE AND TOPICS ****
-Submissions are welcomed on high-performance parallel and distributed computing topics
-including but not limited to: clouds, clusters, grids, Big Data, massively multicore,
-and global-scale computing systems. New scholarly research showing empirical and
-reproducible results in architectures, systems, and networks is strongly encouraged,
-as are experience reports of operational deployments that can provide insights for
-future research on HPDC applications and systems. All papers will be evaluated for
-their originality, technical depth and correctness, potential impact, relevance to the
-conference, and quality of presentation. Research papers must clearly demonstrate
-research contributions and novelty, while experience reports must clearly describe
-lessons learned and demonstrate impact.
-
-In the context of high-performance parallel and distributed computing, the topics of
-interest include, but are not limited to:
-
-o	Systems, networks, and architectures for high-end computing
-o	Massively multicore systems
-o	Resource virtualization
-o	Programming languages and environments
-o	I/O, storage systems, and data management
-o	Resource management and scheduling, including energy-aware techniques
-o	Performance modeling and analysis
-o	Fault tolerance, reliability, and availability
-o	Data-intensive computing
-o	Applications of parallel and distributed computing
-
-
-**** PAPER SUBMISSION GUIDELINES ****
-Authors are invited to submit technical papers of at most 12 pages in PDF format,
-including figures and references. Papers should be formatted in the ACM Proceedings
-Style (http://www.acm.org/sigs/publications/proceedings-templates) and submitted via the
-conference web site. No changes to the margins, spacing, or font sizes as specified by
-the style file are allowed. Accepted papers will appear in the conference proceedings,
-and will be incorporated into the ACM Digital Library. A limited number of papers will
-be accepted as posters.
-
-Papers must be self-contained and provide the technical substance required for the
-program committee to evaluate their contributions. Papers should thoughtfully address
-all related work, particularly work presented at previous HPDC events. Submitted
-papers must be original work that has not appeared in and is not under consideration
-for another conference or a journal. See the ACM Prior Publication Policy
-(http://www.acm.org/publications/policies/sim_submissions) for more details.
-
-
-**** HPDC'14 GENERAL CO-CHAIRS ****
-Beth Plale, Indiana University
-Matei Ripeanu, University of British Columbia
-
-
-**** HPDC'14 PROGRAM CO-CHAIRS ****
-Franck Cappello, Argonne National Lab and INRIA
-Dongyan Xu, Purdue University
-
-
-**** HPDC'14 PUBLICITY CHAIR ****
-Ioan Raicu, Illinois Institute of Technology, USA
-
-
-**** HPDC'14 PROGRAM COMMITTEE ****
-David Abramson, University of Queensland, Australia
-Gabriel Antoniu, INRIA, France
-Henri Bal, Vrije Universiteit, the Netherlands
-Adam Barker, University of St Andrews, UK
-Michela Becchi, University of Missouri - Columbia, USA
-Greg Bronevetsky, Lawrence Livermore National Laboratory, USA
-Ali Butt, Virginia Tech, USA
-Abhishek Chandra, University of Minnesota, USA
-Andrew Chien, University of Chicago and Argonne National Laboratory, USA
-Paolo Costa, Microsoft Research Cambridge, UK
-Dilma Da Silva, Qualcomm Research Silicon Valley, USA
-Peter Dinda, Northwestern University, USA
-Dick Epema, Delft and Eindhoven University of Technology, the Netherlands
-Gilles Fedak, INRIA, France
-Wu-chun Feng, Virginia Tech, USA
-Renato Figueiredo, University of Florida, USA
-Ian Foster, University of Chicago and Argonne National Laboratory, USA
-Kartik Gopalan, Binghamton University, USA
-Haryadi Gunawi, University of Chicago, USA
-Bingsheng He, Nanyang Technological University, Singapore
-Alexandru Iosup, Delft University of Technology, the Netherlands
-Shantenu Jha, Rutgers University, USA
-Hai Jin	Huazhong, University of Science and Technology, China
-Larry Kaplan, Cray, Inc., USA
-Kate Keahey, Argonne National Laboratory, USA
-Thilo Kielmann, Vrije Universiteit, the Netherlands
-Charles Killian, Google, USA
-Zhiling Lan, Illinois Institute of Technology, USA
-John (Jack) Lange, University of Pittsburgh, USA
-Minglu Li, Shanghai Jiaotong University, China
-Barney Maccabe, Oak Ridge National Laboratory, USA
-Naoya Maruyama, RIKEN Advanced Institute for Computational Science, Japan
-Satoshi Matsuoka, Tokyo Institute of Technology, Japan
-Dejan Milojicic, HP Labs, USA
-Bogdan Nicolae, IBM Research, Ireland
-Sangmi Pallickara, Colorado State University, USA
-Manish Parashar, Rutgers University, USA
-Ioan Raicu, Illinois Institute of Technology, USA
-Prasenjit Sarkar, IBM Research, USA
-Daniele Scarpazza, D.E. Shaw Research, USA
-Karsten Schwan, Georgia Institute of Technology, USA
-Martin Swany, Indiana University, USA
-Michela Taufer, University of Delaware, USA
-Kenjiro Taura, University of Tokyo, Japan
-Douglas Thain, University of Notre Dame, USA
-Bhuvan Urgaonkar, Pennsylvania State University, USA
-Mustafa Uysal, VMware, Inc., USA
-Jon Weissman, University of Minnesota, USA
-Ming Zhao, Florida International University, USA
-
-
-**** HPDC STEERING COMMITTEE ****
-Henri Bal, Vrije Universiteit
-Andrew A. Chien, University of Chicago
-Peter Dinda, Northwestern University
-Dick Epema, Delft University of Technology
-Renato Figueiredo, University of Florida
-Ian Foster, Univ. of Chicago and Argonne National Laboratory
-Salim Hariri, University of Arizona
-Thilo Kielmann, Vrije Universiteit Amsterdam
-Arthur "Barney" Maccabe, Oak Ridge National Laboratory
-Manish Parashar, Rutgers University
-Matei Ripeanu, University of British Columbia
-Karsten Schwan, Georgia Tech
-Doug Thain, University of Notre Dame
-Jon Weissman, University of Minnesota (Chair)
-
--- 
-=================================================================
-Ioan Raicu, Ph.D.
-Assistant Professor, Illinois Institute of Technology (IIT)
-Guest Research Faculty, Argonne National Laboratory (ANL)
-=================================================================
-Data-Intensive Distributed Systems Laboratory, CS/IIT
-Distributed Systems Laboratory, MCS/ANL
-=================================================================
-Editor: IEEE TCC, Springer Cluster, Springer JoCCASA
-Chair:  IEEE/ACM MTAGS, ACM ScienceCloud
-=================================================================
-Cel:      1-847-722-0876
-Office:   1-312-567-5704
-Email:    iraicu@cs.iit.edu
-Web:      http://www.cs.iit.edu/~iraicu/
-Web:      http://datasys.cs.iit.edu/
-LinkedIn: http://www.linkedin.com/in/ioanraicu
-Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
-=================================================================
-=================================================================
+--- a/drivers/net/virtio_net.c	2013-12-09 16:12:36.353164803 -0800
++++ b/drivers/net/virtio_net.c	2013-12-09 16:12:41.409051865 -0800
+@@ -876,13 +876,12 @@ static netdev_tx_t start_xmit(struct sk_
+  * never fail unless improperly formated.
+  */
+ static bool virtnet_send_command(struct virtnet_info *vi, u8 class, u8 cmd,
+-				 struct scatterlist *out,
+-				 struct scatterlist *in)
++				 struct scatterlist *out)
+ {
+ 	struct scatterlist *sgs[4], hdr, stat;
+ 	struct virtio_net_ctrl_hdr ctrl;
+ 	virtio_net_ctrl_ack status = ~0;
+-	unsigned out_num = 0, in_num = 0, tmp;
++	unsigned out_num = 0, tmp;
+ 
+ 	/* Caller should know better */
+ 	BUG_ON(!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_VQ));
+@@ -895,16 +894,13 @@ static bool virtnet_send_command(struct
+ 
+ 	for (; out; out = sg_next(out))
+ 		sgs[out_num++] = out;
+-	if (in)
+-		sgs[out_num + in_num++] = in;
+ 
+ 	/* Add return status. */
+ 	sg_init_one(&stat, &status, sizeof(status));
+-	sgs[out_num + in_num++] = &stat;
++	sgs[out_num] = &stat;
+ 
+-	BUG_ON(out_num + in_num > ARRAY_SIZE(sgs));
+-	BUG_ON(virtqueue_add_sgs(vi->cvq, sgs, out_num, in_num, vi, GFP_ATOMIC)
+-	       < 0);
++	BUG_ON(out_num + 1 > ARRAY_SIZE(sgs));
++	BUG_ON(virtqueue_add_sgs(vi->cvq, sgs, out_num, 1, vi, GFP_ATOMIC) < 0);
+ 
+ 	if (unlikely(!virtqueue_kick(vi->cvq)))
+ 		return status == VIRTIO_NET_OK;
+@@ -934,8 +930,7 @@ static int virtnet_set_mac_address(struc
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR)) {
+ 		sg_init_one(&sg, addr->sa_data, dev->addr_len);
+ 		if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
+-					  VIRTIO_NET_CTRL_MAC_ADDR_SET,
+-					  &sg, NULL)) {
++					  VIRTIO_NET_CTRL_MAC_ADDR_SET, &sg)) {
+ 			dev_warn(&vdev->dev,
+ 				 "Failed to set mac address by vq command.\n");
+ 			return -EINVAL;
+@@ -1008,7 +1003,7 @@ static void virtnet_ack_link_announce(st
+ {
+ 	rtnl_lock();
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_ANNOUNCE,
+-				  VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL, NULL))
++				  VIRTIO_NET_CTRL_ANNOUNCE_ACK, NULL))
+ 		dev_warn(&vi->dev->dev, "Failed to ack link announce.\n");
+ 	rtnl_unlock();
+ }
+@@ -1026,7 +1021,7 @@ static int virtnet_set_queues(struct vir
+ 	sg_init_one(&sg, &s, sizeof(s));
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MQ,
+-				  VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET, &sg, NULL)) {
++				  VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET, &sg)) {
+ 		dev_warn(&dev->dev, "Fail to set num of queue pairs to %d\n",
+ 			 queue_pairs);
+ 		return -EINVAL;
+@@ -1076,16 +1071,14 @@ static void virtnet_set_rx_mode(struct n
+ 	sg_init_one(sg, &promisc, sizeof(promisc));
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+-				  VIRTIO_NET_CTRL_RX_PROMISC,
+-				  sg, NULL))
++				  VIRTIO_NET_CTRL_RX_PROMISC, sg))
+ 		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
+ 			 promisc ? "en" : "dis");
+ 
+ 	sg_init_one(sg, &allmulti, sizeof(allmulti));
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
+-				  VIRTIO_NET_CTRL_RX_ALLMULTI,
+-				  sg, NULL))
++				  VIRTIO_NET_CTRL_RX_ALLMULTI, sg))
+ 		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
+ 			 allmulti ? "en" : "dis");
+ 
+@@ -1121,8 +1114,7 @@ static void virtnet_set_rx_mode(struct n
+ 		   sizeof(mac_data->entries) + (mc_count * ETH_ALEN));
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MAC,
+-				  VIRTIO_NET_CTRL_MAC_TABLE_SET,
+-				  sg, NULL))
++				  VIRTIO_NET_CTRL_MAC_TABLE_SET, sg))
+ 		dev_warn(&dev->dev, "Failed to set MAC filter table.\n");
+ 
+ 	kfree(buf);
+@@ -1137,7 +1129,7 @@ static int virtnet_vlan_rx_add_vid(struc
+ 	sg_init_one(&sg, &vid, sizeof(vid));
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_VLAN,
+-				  VIRTIO_NET_CTRL_VLAN_ADD, &sg, NULL))
++				  VIRTIO_NET_CTRL_VLAN_ADD, &sg))
+ 		dev_warn(&dev->dev, "Failed to add VLAN ID %d.\n", vid);
+ 	return 0;
+ }
+@@ -1151,7 +1143,7 @@ static int virtnet_vlan_rx_kill_vid(stru
+ 	sg_init_one(&sg, &vid, sizeof(vid));
+ 
+ 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_VLAN,
+-				  VIRTIO_NET_CTRL_VLAN_DEL, &sg, NULL))
++				  VIRTIO_NET_CTRL_VLAN_DEL, &sg))
+ 		dev_warn(&dev->dev, "Failed to kill VLAN ID %d.\n", vid);
+ 	return 0;
+ }
