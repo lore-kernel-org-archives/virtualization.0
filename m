@@ -1,16 +1,14 @@
-From: Sebastian Andrzej Siewior <sebastian@breakpoint.cc>
-Subject: Re: [RFC PATCH v3 19/19] smp, x86: kill SMP single function call
-	interrupt
-Date: Wed, 11 Dec 2013 23:10:11 +0100
-Message-ID: <20131211221011.GA26423@breakpoint.cc>
-References: <1386173591-28514-1-git-send-email-liuj97@gmail.com>
-	<1386173591-28514-20-git-send-email-liuj97@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio-scsi: Fix hotcpu_notifier use-after-free with
+	virtscsi_freeze
+Date: Thu, 12 Dec 2013 14:32:34 +0800
+Message-ID: <52A95882.2020000@redhat.com>
+References: <1382947263-22145-1-git-send-email-asias@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1386173591-28514-20-git-send-email-liuj97@gmail.com>
+In-Reply-To: <1382947263-22145-1-git-send-email-asias@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,31 +18,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiang Liu <liuj97@gmail.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Gleb Natapov <gleb@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Wang YanQing <udknight@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arch@vger.kernel.org, Andi Kleen <ak@linux.intel.com>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Yang Zhang <yang.z.zhang@Intel.com>, xen-devel@lists.xenproject.org, Ingo Molnar <mingo@elte.hu>, Shaohua Li <shli@kernel.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Steven Rostedt <rostedt@goodmis.org>, xen-devel@lists.xensource.com, Al Viro <viro@zeniv.linux.org.uk>, Jiri Kosina <trivial@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, virtualization@lists.linux-foundation.org, Seiji Aguchi <seiji.aguchi@hds.com>, linux-kernel@vger.kernel.org, David
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, Asias He <asias@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05.12.13, Jiang Liu wrote:
+On 10/28/2013 04:01 PM, Asias He wrote:
+> vqs are freed in virtscsi_freeze but the hotcpu_notifier is not
+> unregistered. We will have a use-after-free usage when the notifier
+> callback is called after virtscsi_freeze.
+>
+> Signed-off-by: Asias He <asias@redhat.com>
+> ---
+>  drivers/scsi/virtio_scsi.c | 15 ++++++++++++++-
+>  1 file changed, 14 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> index 74b88ef..b26f1a5 100644
+> --- a/drivers/scsi/virtio_scsi.c
+> +++ b/drivers/scsi/virtio_scsi.c
+> @@ -957,6 +957,10 @@ static void virtscsi_remove(struct virtio_device *vdev)
+>  #ifdef CONFIG_PM
+>  static int virtscsi_freeze(struct virtio_device *vdev)
+>  {
+> +	struct Scsi_Host *sh = virtio_scsi_host(vdev);
+> +	struct virtio_scsi *vscsi = shost_priv(sh);
+> +
+> +	unregister_hotcpu_notifier(&vscsi->nb);
+>  	virtscsi_remove_vqs(vdev);
+>  	return 0;
+>  }
+> @@ -965,8 +969,17 @@ static int virtscsi_restore(struct virtio_device *vdev)
+>  {
+>  	struct Scsi_Host *sh = virtio_scsi_host(vdev);
+>  	struct virtio_scsi *vscsi = shost_priv(sh);
+> +	int err;
+> +
+> +	err = virtscsi_init(vdev, vscsi);
+> +	if (err)
+> +		return err;
+> +
+> +	err = register_hotcpu_notifier(&vscsi->nb);
+> +	if (err)
+> +		vdev->config->del_vqs(vdev);
+>  
+> -	return virtscsi_init(vdev, vscsi);
+> +	return err;
+>  }
+>  #endif
+>  
 
-I like this in general however
+Ping. Rusty, could you please review and apply this patch?
 
-> diff --git a/arch/x86/xen/smp.c b/arch/x86/xen/smp.c
-> index 7cf1689..f241792 100644
-> --- a/arch/x86/xen/smp.c
-> +++ b/arch/x86/xen/smp.c
-> @@ -560,7 +560,6 @@ static inline int xen_map_vector(int vector)
->  		xen_vector = XEN_RESCHEDULE_VECTOR;
->  		break;
->  	case CALL_FUNCTION_VECTOR:
-> -	case CALL_FUNCTION_SINGLE_VECTOR:
->  		xen_vector = XEN_CALL_FUNCTION_VECTOR;
->  		break;
->  	case IRQ_WORK_VECTOR:
-
-This chunk does not apply again tip's master branch, the code looks
-different. You need to also kill XEN_CALL_FUNCTION_SINGLE_VECTOR which
-is either part of a different patch or against a different tree. I
-haven't seen a note in 0/19 or this patch description so I'm confused
-here :)
-
-Sebastian
+Thanks
