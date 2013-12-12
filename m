@@ -1,14 +1,13 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio-scsi: Fix hotcpu_notifier use-after-free with
-	virtscsi_freeze
-Date: Thu, 12 Dec 2013 14:32:34 +0800
-Message-ID: <52A95882.2020000@redhat.com>
-References: <1382947263-22145-1-git-send-email-asias@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next 1/3] virtio_net: set multicast filter list to host
+Date: Thu, 12 Dec 2013 13:26:17 -0500 (EST)
+Message-ID: <20131212.132617.1255637880637039918.davem__92.9301059388266$1386872793$gmane$org@davemloft.net>
+References: <20131209161632.5ac96e5a@nehalam.linuxnetplumber.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1382947263-22145-1-git-send-email-asias@redhat.com>
+In-Reply-To: <20131209161632.5ac96e5a@nehalam.linuxnetplumber.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,55 +17,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-scsi@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, Asias He <asias@redhat.com>
+To: stephen@networkplumber.org
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/28/2013 04:01 PM, Asias He wrote:
-> vqs are freed in virtscsi_freeze but the hotcpu_notifier is not
-> unregistered. We will have a use-after-free usage when the notifier
-> callback is called after virtscsi_freeze.
->
-> Signed-off-by: Asias He <asias@redhat.com>
-> ---
->  drivers/scsi/virtio_scsi.c | 15 ++++++++++++++-
->  1 file changed, 14 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> index 74b88ef..b26f1a5 100644
-> --- a/drivers/scsi/virtio_scsi.c
-> +++ b/drivers/scsi/virtio_scsi.c
-> @@ -957,6 +957,10 @@ static void virtscsi_remove(struct virtio_device *vdev)
->  #ifdef CONFIG_PM
->  static int virtscsi_freeze(struct virtio_device *vdev)
->  {
-> +	struct Scsi_Host *sh = virtio_scsi_host(vdev);
-> +	struct virtio_scsi *vscsi = shost_priv(sh);
-> +
-> +	unregister_hotcpu_notifier(&vscsi->nb);
->  	virtscsi_remove_vqs(vdev);
->  	return 0;
->  }
-> @@ -965,8 +969,17 @@ static int virtscsi_restore(struct virtio_device *vdev)
->  {
->  	struct Scsi_Host *sh = virtio_scsi_host(vdev);
->  	struct virtio_scsi *vscsi = shost_priv(sh);
-> +	int err;
-> +
-> +	err = virtscsi_init(vdev, vscsi);
-> +	if (err)
-> +		return err;
-> +
-> +	err = register_hotcpu_notifier(&vscsi->nb);
-> +	if (err)
-> +		vdev->config->del_vqs(vdev);
->  
-> -	return virtscsi_init(vdev, vscsi);
-> +	return err;
->  }
->  #endif
->  
+From: Stephen Hemminger <stephen@networkplumber.org>
+Date: Mon, 9 Dec 2013 16:16:32 -0800
 
-Ping. Rusty, could you please review and apply this patch?
+> The virtio_net driver never sends the multicast address list to
+> the host. This is because send command takes a pointer to scatter list
+> to send but only inserts that one entry into the outgoing scatter list.
+> 
+> This bug has been there since:
+> commit f565a7c259d71cc186753653d978c646d2354b36
+> Author: Alex Williamson <alex.williamson@hp.com>
+> Date:   Wed Feb 4 09:02:45 2009 +0000
+> 
+>     virtio_net: Add a MAC filter table
+> 
+> Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
 
-Thanks
+I'm just going to assume for now that you agree with the anaylsis of
+others that the sg lists are processed properly as-is, and therefore
+your patch isn't necessary.
+
+Let me know if that is not the case.
+
+Thanks.
