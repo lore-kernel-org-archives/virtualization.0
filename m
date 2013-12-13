@@ -1,13 +1,14 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next 1/3] virtio_net: set multicast filter list to host
-Date: Thu, 12 Dec 2013 13:26:17 -0500 (EST)
-Message-ID: <20131212.132617.1255637880637039918.davem__92.9301059388266$1386872793$gmane$org@davemloft.net>
-References: <20131209161632.5ac96e5a@nehalam.linuxnetplumber.net>
+From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Subject: [PATCH v4 RFC 2/3] virtio: introduce 'device_lost' flag in
+	virtio_device
+Date: Fri, 13 Dec 2013 14:13:29 +0100
+Message-ID: <1386940410-44943-3-git-send-email-graalfs@linux.vnet.ibm.com>
+References: <1386940410-44943-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131209161632.5ac96e5a@nehalam.linuxnetplumber.net>
+In-Reply-To: <1386940410-44943-1-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,30 +18,85 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: stephen@networkplumber.org
-Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com
+To: mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Stephen Hemminger <stephen@networkplumber.org>
-Date: Mon, 9 Dec 2013 16:16:32 -0800
+This flag should be set by a virtio transport driver, when it was
+notified about a lost device, before the remove callback of a
+backend driver is triggered.
 
-> The virtio_net driver never sends the multicast address list to
-> the host. This is because send command takes a pointer to scatter list
-> to send but only inserts that one entry into the outgoing scatter list.
-> 
-> This bug has been there since:
-> commit f565a7c259d71cc186753653d978c646d2354b36
-> Author: Alex Williamson <alex.williamson@hp.com>
-> Date:   Wed Feb 4 09:02:45 2009 +0000
-> 
->     virtio_net: Add a MAC filter table
-> 
-> Signed-off-by: Stephen Hemminger <stephen@networkplumber.org>
+A backend driver can test this flag in order to perform specific
+actions that might be appropriate wrt the device loss.
 
-I'm just going to assume for now that you agree with the anaylsis of
-others that the sg lists are processed properly as-is, and therefore
-your patch isn't necessary.
+In case of a device loss further request queueing should be prevented
+by setting appropriate queue flags prior to invoking del_gendisk().
+Blocking of request queueing leads to appropriate I/O errors when data
+are tried to be synched. Trying to synch data to a lost block device
+doesn't make too much sense.
 
-Let me know if that is not the case.
+Calling blk_cleanup_queue() when the device_lost flag is set due to a
+disappeared device. It avoid hangs due to incomplete requests
+(e.g. in-flight requests). Such requests must be considered as lost.
 
-Thanks.
+Signed-off-by: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Acked-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+---
+ drivers/block/virtio_blk.c | 14 +++++++++++++-
+ include/linux/virtio.h     |  2 ++
+ 2 files changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 2d43be4..e5b4947 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -876,14 +876,26 @@ static void virtblk_remove(struct virtio_device *vdev)
+ 	struct virtio_blk *vblk = vdev->priv;
+ 	int index = vblk->index;
+ 	int refc;
++	int device_lost;
++	unsigned long flags;
+ 
+ 	/* Prevent config work handler from accessing the device. */
+ 	mutex_lock(&vblk->config_lock);
+ 	vblk->config_enable = false;
+ 	mutex_unlock(&vblk->config_lock);
+ 
++	device_lost = atomic_read(&vdev->device_lost);
++	if (device_lost) {
++		spin_lock_irqsave(vblk->disk->queue->queue_lock, flags);
++		queue_flag_set(QUEUE_FLAG_DYING, vblk->disk->queue);
++		queue_flag_set(QUEUE_FLAG_NOMERGES, vblk->disk->queue);
++		queue_flag_set(QUEUE_FLAG_NOXMERGES, vblk->disk->queue);
++		spin_unlock_irqrestore(vblk->disk->queue->queue_lock, flags);
++	}
++
+ 	del_gendisk(vblk->disk);
+-	blk_cleanup_queue(vblk->disk->queue);
++	if (!device_lost)
++		blk_cleanup_queue(vblk->disk->queue);
+ 
+ 	/* Stop all the virtqueues. */
+ 	vdev->config->reset(vdev);
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index f15f6e7..c18db21 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -87,6 +87,7 @@ bool virtqueue_is_broken(struct virtqueue *vq);
+  * @vringh_config: configuration ops for host vrings.
+  * @vqs: the list of virtqueues for this device.
+  * @features: the features supported by both driver and device.
++ * @device_lost: to flag a device loss.
+  * @priv: private pointer for the driver's use.
+  */
+ struct virtio_device {
+@@ -98,6 +99,7 @@ struct virtio_device {
+ 	struct list_head vqs;
+ 	/* Note that this is a Linux set_bit-style bitmap. */
+ 	unsigned long features[1];
++	atomic_t device_lost;
+ 	void *priv;
+ };
+ 
+-- 
+1.8.3.1
