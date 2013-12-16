@@ -1,18 +1,13 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH v3 [resend] 14/18] smp, x86, xen: kill SMP single
-	function call interrupt
-Date: Mon, 16 Dec 2013 11:33:34 -0500
-Message-ID: <20131216163334.GC20165@phenom.dumpdata.com>
-References: <1387125400-28849-1-git-send-email-liuj97@gmail.com>
-	<1387125400-28849-15-git-send-email-liuj97@gmail.com>
-	<20131216030040.GB7180@pegasus.dumpdata.com>
-	<DE8DF0795D48FD4CA783C40EC82923350142ABC2@SHSMSX101.ccr.corp.intel.com>
+From: Rashika Kheria <rashika.kheria@gmail.com>
+Subject: [PATCH] drivers: virtio: Mark function virtballoon_migratepage() as
+	static in virtio_balloon.c
+Date: Mon, 16 Dec 2013 16:54:08 +0530
+Message-ID: <20131216112408.GA4896__44113.7003865608$1387225829$gmane$org@rashika>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <DE8DF0795D48FD4CA783C40EC82923350142ABC2@SHSMSX101.ccr.corp.intel.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,42 +17,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Liu, Jinsong" <jinsong.liu@intel.com>
-Cc: "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, Jeremy Fitzhardinge <jeremy@goop.org>, "xen-devel@lists.xensource.com" <xen-devel@lists.xensource.com>, Jiri Kosina <trivial@kernel.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Wang YanQing <udknight@gmail.com>, Sebastian Andrzej Siewior <sebastian@breakpoint.cc>, Ingo Molnar <mingo@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, David Vrabel <david.vrabel@citrix.com>, Ingo Molnar <mingo@elte.hu>, "H. Peter Anvin" <hpa@zytor.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Andrew Morton <akpm@linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Shaohua Li <shli@kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, josh@joshtriplett.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Dec 16, 2013 at 04:24:41AM +0000, Liu, Jinsong wrote:
-> Konrad Rzeszutek Wilk wrote:
-> > On Mon, Dec 16, 2013 at 12:36:36AM +0800, Jiang Liu wrote:
-> >> Commit 9a46ad6d6df3b54 "smp: make smp_call_function_many() use logic
-> >> similar to smp_call_function_single()" has unified the way to handle
-> >> single and multiple cross-CPU function calls. Now only one interrupt
-> >> is needed for architecture specific code to support generic SMP
-> >> function 
-> >> call interfaces, so kill the redundant single function call
-> >> interrupt. 
-> >> 
-> >> Cc: Andrew Morton <akpm@linux-foundation.org>
-> >> Cc: Shaohua Li <shli@kernel.org>
-> >> Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> >> Cc: Ingo Molnar <mingo@elte.hu>
-> >> Cc: Steven Rostedt <rostedt@goodmis.org>
-> >> Cc: Jiri Kosina <trivial@kernel.org>
-> >> Cc: Thomas Gleixner <tglx@linutronix.de>
-> >> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> >> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> > 
-> > I presume this has been tested?
-> > 
-> 
-> I have just test Jiang's patch, it works fine for dom0 booting.
-
-Excellent! Please add Acked-by from me.
-
-Thanks!
-
-> 
-> Thanks,
-> Jinsong
-> 
-> 
+TWFyayB0aGUgZnVuY3Rpb24gdmlydGJhbGxvb25fbWlncmF0ZXBhZ2UoKSBhcyBzdGF0aWMgaW4K
+dmlydGlvX2JhbGxvb24uYyBiZWNhdXNlIGl0IGlzIG5vdCB1c2VkIG91dHNpZGUgdGhpcyBmaWxl
+LgoKVGhpcyBlbGltaW5hdGVzIHRoZSBmb2xsb3dpbmcgd2FybmluZyBpbiB2aXJ0aW9fYmFsbG9v
+bi5jOgpkcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jOjM3Mjo1OiB3YXJuaW5nOiBubyBw
+cmV2aW91cyBwcm90b3R5cGUgZm9yIOKAmHZpcnRiYWxsb29uX21pZ3JhdGVwYWdl4oCZIFstV21p
+c3NpbmctcHJvdG90eXBlc10KClNpZ25lZC1vZmYtYnk6IFJhc2hpa2EgS2hlcmlhIDxyYXNoaWth
+LmtoZXJpYUBnbWFpbC5jb20+Ci0tLQogZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYyB8
+ICAgIDIgKy0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQoK
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgYi9kcml2ZXJzL3Zp
+cnRpby92aXJ0aW9fYmFsbG9vbi5jCmluZGV4IGM0NDQ2NTQuLjhjNTk0M2QgMTAwNjQ0Ci0tLSBh
+L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKKysrIGIvZHJpdmVycy92aXJ0aW8vdmly
+dGlvX2JhbGxvb24uYwpAQCAtMzY5LDcgKzM2OSw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgYWRk
+cmVzc19zcGFjZV9vcGVyYXRpb25zIHZpcnRpb19iYWxsb29uX2FvcHM7CiAgKiBUaGlzIGZ1bmN0
+aW9uIHByZWZvcm1zIHRoZSBiYWxsb29uIHBhZ2UgbWlncmF0aW9uIHRhc2suCiAgKiBDYWxsZWQg
+dGhyb3VnaCBiYWxsb29uX21hcHBpbmctPmFfb3BzLT5taWdyYXRlcGFnZQogICovCi1pbnQgdmly
+dGJhbGxvb25fbWlncmF0ZXBhZ2Uoc3RydWN0IGFkZHJlc3Nfc3BhY2UgKm1hcHBpbmcsCitzdGF0
+aWMgaW50IHZpcnRiYWxsb29uX21pZ3JhdGVwYWdlKHN0cnVjdCBhZGRyZXNzX3NwYWNlICptYXBw
+aW5nLAogCQlzdHJ1Y3QgcGFnZSAqbmV3cGFnZSwgc3RydWN0IHBhZ2UgKnBhZ2UsIGVudW0gbWln
+cmF0ZV9tb2RlIG1vZGUpCiB7CiAJc3RydWN0IGJhbGxvb25fZGV2X2luZm8gKnZiX2Rldl9pbmZv
+ID0gYmFsbG9vbl9wYWdlX2RldmljZShwYWdlKTsKLS0gCjEuNy45LjUKCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
