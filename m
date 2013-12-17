@@ -1,13 +1,12 @@
-From: Rashika Kheria <rashika.kheria@gmail.com>
-Subject: [PATCH] drivers: virtio: Mark function virtballoon_migratepage() as
-	static in virtio_balloon.c
-Date: Mon, 16 Dec 2013 16:54:08 +0530
-Message-ID: <20131216112408.GA4896__44113.7003865608$1387225829$gmane$org@rashika>
+From: Michael Dalton <mwdalton@google.com>
+Subject: [PATCH net-next 1/3] net: allow > 0 order atomic page alloc in
+	skb_page_frag_refill
+Date: Mon, 16 Dec 2013 16:16:27 -0800
+Message-ID: <1387239389-13216-1-git-send-email-mwdalton@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,30 +16,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, josh@joshtriplett.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Michael Dalton <mwdalton@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-TWFyayB0aGUgZnVuY3Rpb24gdmlydGJhbGxvb25fbWlncmF0ZXBhZ2UoKSBhcyBzdGF0aWMgaW4K
-dmlydGlvX2JhbGxvb24uYyBiZWNhdXNlIGl0IGlzIG5vdCB1c2VkIG91dHNpZGUgdGhpcyBmaWxl
-LgoKVGhpcyBlbGltaW5hdGVzIHRoZSBmb2xsb3dpbmcgd2FybmluZyBpbiB2aXJ0aW9fYmFsbG9v
-bi5jOgpkcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jOjM3Mjo1OiB3YXJuaW5nOiBubyBw
-cmV2aW91cyBwcm90b3R5cGUgZm9yIOKAmHZpcnRiYWxsb29uX21pZ3JhdGVwYWdl4oCZIFstV21p
-c3NpbmctcHJvdG90eXBlc10KClNpZ25lZC1vZmYtYnk6IFJhc2hpa2EgS2hlcmlhIDxyYXNoaWth
-LmtoZXJpYUBnbWFpbC5jb20+Ci0tLQogZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYyB8
-ICAgIDIgKy0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQoK
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgYi9kcml2ZXJzL3Zp
-cnRpby92aXJ0aW9fYmFsbG9vbi5jCmluZGV4IGM0NDQ2NTQuLjhjNTk0M2QgMTAwNjQ0Ci0tLSBh
-L2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKKysrIGIvZHJpdmVycy92aXJ0aW8vdmly
-dGlvX2JhbGxvb24uYwpAQCAtMzY5LDcgKzM2OSw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgYWRk
-cmVzc19zcGFjZV9vcGVyYXRpb25zIHZpcnRpb19iYWxsb29uX2FvcHM7CiAgKiBUaGlzIGZ1bmN0
-aW9uIHByZWZvcm1zIHRoZSBiYWxsb29uIHBhZ2UgbWlncmF0aW9uIHRhc2suCiAgKiBDYWxsZWQg
-dGhyb3VnaCBiYWxsb29uX21hcHBpbmctPmFfb3BzLT5taWdyYXRlcGFnZQogICovCi1pbnQgdmly
-dGJhbGxvb25fbWlncmF0ZXBhZ2Uoc3RydWN0IGFkZHJlc3Nfc3BhY2UgKm1hcHBpbmcsCitzdGF0
-aWMgaW50IHZpcnRiYWxsb29uX21pZ3JhdGVwYWdlKHN0cnVjdCBhZGRyZXNzX3NwYWNlICptYXBw
-aW5nLAogCQlzdHJ1Y3QgcGFnZSAqbmV3cGFnZSwgc3RydWN0IHBhZ2UgKnBhZ2UsIGVudW0gbWln
-cmF0ZV9tb2RlIG1vZGUpCiB7CiAJc3RydWN0IGJhbGxvb25fZGV2X2luZm8gKnZiX2Rldl9pbmZv
-ID0gYmFsbG9vbl9wYWdlX2RldmljZShwYWdlKTsKLS0gCjEuNy45LjUKCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+skb_page_frag_refill currently permits only order-0 page allocs
+unless GFP_WAIT is used. Change skb_page_frag_refill to attempt
+higher-order page allocations whether or not GFP_WAIT is used. If
+memory cannot be allocated, the allocator will fall back to
+successively smaller page allocs (down to order-0 page allocs).
+
+This change brings skb_page_frag_refill in line with the existing
+page allocation strategy employed by netdev_alloc_frag, which attempts
+higher-order page allocations whether or not GFP_WAIT is set, falling
+back to successively lower-order page allocations on failure. Part
+of migration of virtio-net to per-receive queue page frag allocators.
+
+Signed-off-by: Michael Dalton <mwdalton@google.com>
+---
+ net/core/sock.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/net/core/sock.c b/net/core/sock.c
+index ab20ed9..7383d23 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1865,9 +1865,7 @@ bool skb_page_frag_refill(unsigned int sz, struct page_frag *pfrag, gfp_t prio)
+ 		put_page(pfrag->page);
+ 	}
+ 
+-	/* We restrict high order allocations to users that can afford to wait */
+-	order = (prio & __GFP_WAIT) ? SKB_FRAG_PAGE_ORDER : 0;
+-
++	order = SKB_FRAG_PAGE_ORDER;
+ 	do {
+ 		gfp_t gfp = prio;
+ 
+-- 
+1.8.5.1
