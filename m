@@ -1,15 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] drivers: virtio: Mark function virtballoon_migratepage()
-	as static in virtio_balloon.c
-Date: Tue, 17 Dec 2013 15:09:22 +1030
-Message-ID: <87d2kwm6px.fsf@rustcorp.com.au>
-References: <20131216112408.GA4896@rashika> <20131216142338.GA24172@leaf>
-	<20131216142911.GA21241@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V2] virtio-scsi: Fix hotcpu_notifier use-after-free with
+	virtscsi_freeze
+Date: Tue, 17 Dec 2013 13:36:08 +0800
+Message-ID: <1387258568-11309-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20131216142911.GA21241@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,38 +16,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Josh Triplett <josh@joshtriplett.org>
-Cc: Rashika Kheria <rashika.kheria@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: kvm@vger.kernel.org, rusty@rustcorp.com.au
+Cc: linux-scsi@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ik1pY2hhZWwgUy4gVHNpcmtpbiIgPG1zdEByZWRoYXQuY29tPiB3cml0ZXM6Cj4gT24gTW9uLCBE
-ZWMgMTYsIDIwMTMgYXQgMDY6MjM6MzhBTSAtMDgwMCwgSm9zaCBUcmlwbGV0dCB3cm90ZToKPj4g
-T24gTW9uLCBEZWMgMTYsIDIwMTMgYXQgMDQ6NTQ6MDhQTSArMDUzMCwgUmFzaGlrYSBLaGVyaWEg
-d3JvdGU6Cj4+ID4gTWFyayB0aGUgZnVuY3Rpb24gdmlydGJhbGxvb25fbWlncmF0ZXBhZ2UoKSBh
-cyBzdGF0aWMgaW4KPj4gPiB2aXJ0aW9fYmFsbG9vbi5jIGJlY2F1c2UgaXQgaXMgbm90IHVzZWQg
-b3V0c2lkZSB0aGlzIGZpbGUuCj4+ID4gCj4+ID4gVGhpcyBlbGltaW5hdGVzIHRoZSBmb2xsb3dp
-bmcgd2FybmluZyBpbiB2aXJ0aW9fYmFsbG9vbi5jOgo+PiA+IGRyaXZlcnMvdmlydGlvL3ZpcnRp
-b19iYWxsb29uLmM6MzcyOjU6IHdhcm5pbmc6IG5vIHByZXZpb3VzIHByb3RvdHlwZSBmb3Ig4oCY
-dmlydGJhbGxvb25fbWlncmF0ZXBhZ2XigJkgWy1XbWlzc2luZy1wcm90b3R5cGVzXQo+PiA+IAo+
-PiA+IFNpZ25lZC1vZmYtYnk6IFJhc2hpa2EgS2hlcmlhIDxyYXNoaWthLmtoZXJpYUBnbWFpbC5j
-b20+Cj4+IAo+PiBSZXZpZXdlZC1ieTogSm9zaCBUcmlwbGV0dCA8am9zaEBqb3NodHJpcGxldHQu
-b3JnPgo+Cj4gQWNrZWQtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+CgpU
-aGFua3MsIGFwcGxpZWQuCgpDaGVlcnMsClJ1c3R5LgoKPgo+PiA+ICBkcml2ZXJzL3ZpcnRpby92
-aXJ0aW9fYmFsbG9vbi5jIHwgICAgMiArLQo+PiA+ICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRp
-b24oKyksIDEgZGVsZXRpb24oLSkKPj4gPiAKPj4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0
-aW8vdmlydGlvX2JhbGxvb24uYyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPj4g
-PiBpbmRleCBjNDQ0NjU0Li44YzU5NDNkIDEwMDY0NAo+PiA+IC0tLSBhL2RyaXZlcnMvdmlydGlv
-L3ZpcnRpb19iYWxsb29uLmMKPj4gPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9v
-bi5jCj4+ID4gQEAgLTM2OSw3ICszNjksNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGFkZHJlc3Nf
-c3BhY2Vfb3BlcmF0aW9ucyB2aXJ0aW9fYmFsbG9vbl9hb3BzOwo+PiA+ICAgKiBUaGlzIGZ1bmN0
-aW9uIHByZWZvcm1zIHRoZSBiYWxsb29uIHBhZ2UgbWlncmF0aW9uIHRhc2suCj4+ID4gICAqIENh
-bGxlZCB0aHJvdWdoIGJhbGxvb25fbWFwcGluZy0+YV9vcHMtPm1pZ3JhdGVwYWdlCj4+ID4gICAq
-Lwo+PiA+IC1pbnQgdmlydGJhbGxvb25fbWlncmF0ZXBhZ2Uoc3RydWN0IGFkZHJlc3Nfc3BhY2Ug
-Km1hcHBpbmcsCj4+ID4gK3N0YXRpYyBpbnQgdmlydGJhbGxvb25fbWlncmF0ZXBhZ2Uoc3RydWN0
-IGFkZHJlc3Nfc3BhY2UgKm1hcHBpbmcsCj4+ID4gIAkJc3RydWN0IHBhZ2UgKm5ld3BhZ2UsIHN0
-cnVjdCBwYWdlICpwYWdlLCBlbnVtIG1pZ3JhdGVfbW9kZSBtb2RlKQo+PiA+ICB7Cj4+ID4gIAlz
-dHJ1Y3QgYmFsbG9vbl9kZXZfaW5mbyAqdmJfZGV2X2luZm8gPSBiYWxsb29uX3BhZ2VfZGV2aWNl
-KHBhZ2UpOwo+PiA+IC0tIAo+PiA+IDEuNy45LjUKPj4gPiAKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+From: Asias He <asias.hejun@gmail.com>
+
+vqs are freed in virtscsi_freeze but the hotcpu_notifier is not
+unregistered. We will have a use-after-free usage when the notifier
+callback is called after virtscsi_freeze.
+
+Fixes: 285e71ea6f3583a85e27cb2b9a7d8c35d4c0d558
+("virtio-scsi: reset virtqueue affinity when doing cpu hotplug")
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Asias He <asias.hejun@gmail.com>
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes from V1:
+- Add "Fixes" line
+- CC stable
+---
+ drivers/scsi/virtio_scsi.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index c3173dc..16bfd50 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -956,6 +956,10 @@ static void virtscsi_remove(struct virtio_device *vdev)
+ #ifdef CONFIG_PM_SLEEP
+ static int virtscsi_freeze(struct virtio_device *vdev)
+ {
++	struct Scsi_Host *sh = virtio_scsi_host(vdev);
++	struct virtio_scsi *vscsi = shost_priv(sh);
++
++	unregister_hotcpu_notifier(&vscsi->nb);
+ 	virtscsi_remove_vqs(vdev);
+ 	return 0;
+ }
+@@ -964,8 +968,17 @@ static int virtscsi_restore(struct virtio_device *vdev)
+ {
+ 	struct Scsi_Host *sh = virtio_scsi_host(vdev);
+ 	struct virtio_scsi *vscsi = shost_priv(sh);
++	int err;
++
++	err = virtscsi_init(vdev, vscsi);
++	if (err)
++		return err;
++
++	err = register_hotcpu_notifier(&vscsi->nb);
++	if (err)
++		vdev->config->del_vqs(vdev);
+ 
+-	return virtscsi_init(vdev, vscsi);
++	return err;
+ }
+ #endif
+ 
+-- 
+1.8.3.2
