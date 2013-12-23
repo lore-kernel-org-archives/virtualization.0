@@ -1,16 +1,15 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
 Subject: Re: [PATCH net-next 1/3] net: allow > 0 order atomic page alloc in
 	skb_page_frag_refill
-Date: Mon, 23 Dec 2013 15:35:26 +0200
-Message-ID: <20131223133526.GE18168@redhat.com>
+Date: Mon, 23 Dec 2013 09:24:57 -0800
+Message-ID: <1387819497.12212.1.camel__23120.4686723233$1387819514$gmane$org@edumazet-glaptop2.roam.corp.google.com>
 References: <1387239389-13216-1-git-send-email-mwdalton@google.com>
-	<20131219.145815.1332595160898710763.davem@davemloft.net>
+	<52B7EBB9.6050405@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20131219.145815.1332595160898710763.davem@davemloft.net>
+In-Reply-To: <52B7EBB9.6050405@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,23 +19,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: mwdalton@google.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: Michael Dalton <mwdalton@google.com>, "Michael S.
+	Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Dec 19, 2013 at 02:58:15PM -0500, David Miller wrote:
+On Mon, 2013-12-23 at 15:52 +0800, Jason Wang wrote:
+> On 12/17/2013 08:16 AM, Michael Dalton wrote:
+> > skb_page_frag_refill currently permits only order-0 page allocs
+> > unless GFP_WAIT is used. Change skb_page_frag_refill to attempt
+> > higher-order page allocations whether or not GFP_WAIT is used. If
+> > memory cannot be allocated, the allocator will fall back to
+> > successively smaller page allocs (down to order-0 page allocs).
+> >
+> > This change brings skb_page_frag_refill in line with the existing
+> > page allocation strategy employed by netdev_alloc_frag, which attempts
+> > higher-order page allocations whether or not GFP_WAIT is set, falling
+> > back to successively lower-order page allocations on failure. Part
+> > of migration of virtio-net to per-receive queue page frag allocators.
+> >
+> > Signed-off-by: Michael Dalton <mwdalton@google.com>
+> > ---
+> >  net/core/sock.c | 4 +---
+> >  1 file changed, 1 insertion(+), 3 deletions(-)
+> >
+> > diff --git a/net/core/sock.c b/net/core/sock.c
+> > index ab20ed9..7383d23 100644
+> > --- a/net/core/sock.c
+> > +++ b/net/core/sock.c
+> > @@ -1865,9 +1865,7 @@ bool skb_page_frag_refill(unsigned int sz, struct page_frag *pfrag, gfp_t prio)
+> >  		put_page(pfrag->page);
+> >  	}
+> >  
+> > -	/* We restrict high order allocations to users that can afford to wait */
+> > -	order = (prio & __GFP_WAIT) ? SKB_FRAG_PAGE_ORDER : 0;
+> > -
+> > +	order = SKB_FRAG_PAGE_ORDER;
+> >  	do {
+> >  		gfp_t gfp = prio;
+> >  
 > 
-> Can I get some reviews of this series from virtio folks?
-> 
-> Thanks.
+> The original code seems try to avoid the high order allocation for
+> atomic allocation. This patch changes this, and looks like it will
+> introduce some extra cost when the memory is highly fragmented.
 
-I think it's a good idea, certainly the best we can do
-short term.
-Would like a couple of comments addressed before it's applied.
+No noticeable extra cost that I could measure.
 
-Longer term one approach to consider is to make device
-look aheads in the VQ until it finds a large
-enough buffer.
+We use the same strategy in RX path nowadays.
 
--- 
-MST
+Acked-by: Eric Dumazet <edumazet@google.com>
