@@ -1,14 +1,15 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net-next 1/3] net: allow > 0 order atomic page alloc in
-	skb_page_frag_refill
-Date: Tue, 24 Dec 2013 17:46:47 -0500 (EST)
-Message-ID: <20131224.174647.2276571374631580479.davem__17990.5097037137$1387925225$gmane$org@davemloft.net>
-References: <1387239389-13216-1-git-send-email-mwdalton@google.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH stable 1/2] virtio_net: fix error handling for mergeable
+	buffers
+Date: Wed, 25 Dec 2013 16:56:21 +0200
+Message-ID: <1387983339-1172-2-git-send-email-mst@redhat.com>
+References: <1387983339-1172-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1387239389-13216-1-git-send-email-mwdalton@google.com>
+Content-Disposition: inline
+In-Reply-To: <1387983339-1172-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,14 +19,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mwdalton@google.com
-Cc: mst@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, edumazet@google.com
+To: netdev@vger.kernel.org
+Cc: Michael Dalton <mwdalton@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Eric Dumazet noticed that if we encounter an error
+when processing a mergeable buffer, we don't
+dequeue all of the buffers from this packet,
+the result is almost sure to be loss of networking.
 
-There is still feedback and/or minor adjustments being asked for wrt.
-this series.   These changes have been sitting for more than a week
-which is a bit rediculous.
+Jason Wang noticed that we also leak a page and that we don't decrement
+the rq buf count, so we won't repost buffers (a resource leak).
 
-Please resubmit these changes once everything is resolved to
-everyone's satisfaction, thanks.
+Fix both issues.
+
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Michael Dalton <mwdalton@google.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: David S. Miller <davem@davemloft.net>
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+(cherry picked from commit 8fc3b9e9a229778e5af3aa453c44f1a3857ba769)
+---
+ drivers/net/virtio_net.c | 66 +++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 46 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 9fbdfcd..435076f 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -297,26 +297,33 @@ static struct sk_buff *page_to_skb(struct receive_queue *rq,
+ 	return skb;
+ }
+ 
+-static int receive_mergeable(struct receive_queue *rq, struct sk_buff *skb)
++static struct sk_buff *receive_mergeable(struct net_device *dev,
++					 struct receive_queue *rq,
++					 void *buf,
++					 unsigned int len)
+ {
+-	struct skb_vnet_hdr *hdr = skb_vnet_hdr(skb);
+-	struct page *page;
+-	int num_buf, i, len;
++	struct skb_vnet_hdr *hdr = page_address(buf);
++	int num_buf = hdr->mhdr.num_buffers;
++	struct page *page = buf;
++	struct sk_buff *skb = page_to_skb(rq, page, len);
++	int i;
++
++	if (unlikely(!skb))
++		goto err_skb;
+ 
+-	num_buf = hdr->mhdr.num_buffers;
+ 	while (--num_buf) {
+ 		i = skb_shinfo(skb)->nr_frags;
+ 		if (i >= MAX_SKB_FRAGS) {
+ 			pr_debug("%s: packet too long\n", skb->dev->name);
+ 			skb->dev->stats.rx_length_errors++;
+-			return -EINVAL;
++			return NULL;
+ 		}
+ 		page = virtqueue_get_buf(rq->vq, &len);
+ 		if (!page) {
+-			pr_debug("%s: rx error: %d buffers missing\n",
+-				 skb->dev->name, hdr->mhdr.num_buffers);
+-			skb->dev->stats.rx_length_errors++;
+-			return -EINVAL;
++			pr_debug("%s: rx error: %d buffers %d missing\n",
++				 dev->name, hdr->mhdr.num_buffers, num_buf);
++			dev->stats.rx_length_errors++;
++			goto err_buf;
+ 		}
+ 
+ 		if (len > PAGE_SIZE)
+@@ -326,7 +333,25 @@ static int receive_mergeable(struct receive_queue *rq, struct sk_buff *skb)
+ 
+ 		--rq->num;
+ 	}
+-	return 0;
++	return skb;
++err_skb:
++	give_pages(rq, page);
++	while (--num_buf) {
++		buf = virtqueue_get_buf(rq->vq, &len);
++		if (unlikely(!buf)) {
++			pr_debug("%s: rx error: %d buffers missing\n",
++				 dev->name, num_buf);
++			dev->stats.rx_length_errors++;
++			break;
++		}
++		page = buf;
++		give_pages(rq, page);
++		--rq->num;
++	}
++err_buf:
++	dev->stats.rx_dropped++;
++	dev_kfree_skb(skb);
++	return NULL;
+ }
+ 
+ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
+@@ -354,17 +379,18 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
+ 		skb_trim(skb, len);
+ 	} else {
+ 		page = buf;
+-		skb = page_to_skb(rq, page, len);
+-		if (unlikely(!skb)) {
+-			dev->stats.rx_dropped++;
+-			give_pages(rq, page);
+-			return;
+-		}
+-		if (vi->mergeable_rx_bufs)
+-			if (receive_mergeable(rq, skb)) {
+-				dev_kfree_skb(skb);
++		if (vi->mergeable_rx_bufs) {
++			skb = receive_mergeable(dev, rq, page, len);
++			if (unlikely(!skb))
++				return;
++		} else {
++			skb = page_to_skb(rq, page, len);
++			if (unlikely(!skb)) {
++				dev->stats.rx_dropped++;
++				give_pages(rq, page);
+ 				return;
+ 			}
++		}
+ 	}
+ 
+ 	hdr = skb_vnet_hdr(skb);
+-- 
+MST
