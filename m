@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH stable v2 3/3] virtio_net: don't leak memory or block when
-	too many frags
-Date: Thu, 26 Dec 2013 15:32:55 +0200
-Message-ID: <1388064752-15734-4-git-send-email-mst@redhat.com>
-References: <1388064752-15734-1-git-send-email-mst@redhat.com>
+From: Michael Dalton <mwdalton@google.com>
+Subject: Re: [PATCH net-next 3/3] net: auto-tune mergeable rx buffer size for
+	improved performance
+Date: Thu, 26 Dec 2013 12:06:23 -0800
+Message-ID: <CANJ5vPJX1yTKJXpFe+PO7u89-tYRjNPdJwrBLjAop3veye1pDg@mail.gmail.com>
+References: <1387239389-13216-1-git-send-email-mwdalton@google.com>
+	<1387239389-13216-3-git-send-email-mwdalton@google.com>
+	<52BBDBAD.8030609@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1388064752-15734-1-git-send-email-mst@redhat.com>
+In-Reply-To: <52BBDBAD.8030609@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,41 +20,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Michael Dalton <mwdalton@google.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We leak an skb when there are too many frags,
-we also stop processing the packet in the middle,
-the result is almost sure to be loss of networking.
+On Mon, Dec 23, 2013 at 4:51 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> OK so a high level benchmark shows it's worth it,
+> but how well does the logic work?
+> I think we should make the buffer size accessible in sysfs
+> or debugfs, and look at it, otherwise we don't really know.
+>
+Exporting the size sounds good to me, it is definitely an
+important metric and would give more visibility to the admin.
 
-Reported-by: Michael Dalton <mwdalton@google.com>
-Acked-by: Michael Dalton <mwdalton@google.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/net/virtio_net.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Do you have a preference for implementation strategy? I was
+thinking just add a DEVICE_ATTR to create a read-only sysfs file,
+'mergeable_rx_buffer_size', and return a space-separated list of the
+current buffer size (computed from the average packet size) for each
+receive queue. -EINVAL or a similar error could be returned if the
+netdev was not configured for mergeable rx buffers.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index c0ed6d5..b8665588 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -344,7 +344,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 		if (i >= MAX_SKB_FRAGS) {
- 			pr_debug("%s: packet too long\n", skb->dev->name);
- 			skb->dev->stats.rx_length_errors++;
--			return NULL;
-+			goto err_frags;
- 		}
- 		page = virtqueue_get_buf(rq->vq, &len);
- 		if (!page) {
-@@ -365,6 +365,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- err_skb:
- 	give_pages(rq, page);
- 	while (--num_buf) {
-+err_frags:
- 		buf = virtqueue_get_buf(rq->vq, &len);
- 		if (unlikely(!buf)) {
- 			pr_debug("%s: rx error: %d buffers missing\n",
--- 
-MST
+> I don't get the real motivation for this.
+>
+> We have skbs A,B,C sharing a page, with chunk D being unused.
+> This randomly charges chunk D to an skb that ended up last
+> in the page.
+> Correct?
+> Why does this make sense?
+
+The intent of this code is to adjust the SKB true size for
+the packet. We should completely use each packet buffer except
+for the last buffer. For all buffers except the last buffer, it
+should be the case that 'len' (bytes received) = buffer size. For
+the last buffer, this code adjusts the truesize by comparing the
+approximated buffer size with the bytes received into the buffer,
+and adding the difference to the SKB truesize if the buffer size
+is greater than the number of bytes received.
+
+We approximate the buffer size by using the last packet buffer size
+from that same page, which as you have correctly noted may be a buffer
+that belongs to a different packet on the same virtio-net device. This
+buffer size should be very close to the actual buffer size because our
+EWMA estimator uses a high weight (so the packet buffer size changes very
+slowly) and there are only a handful packets on a page (even order-3).
+
+> Why head_skb only? Why not full buffer size that comes from host?
+> This is simply len.
+
+Sorry, I believe this code fragment should be clearer. Basically, we
+have a corner case in that for packets with size <= GOOD_COPY_LEN, there
+are no frags because page_to_skb() already unref'd the page and the entire
+packet contents are copied to skb->data. In this case, the SKB truesize
+is already accurate and should not be updated (and it would be unsafe to
+access page->private as page is already unref'd).
+
+I'll look at the above code again and cleanup (please let me know if you
+have a preference) and/or add a comment to clarify.
+
+Best,
+
+Mike
