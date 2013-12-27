@@ -1,17 +1,15 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next 3/3] net: auto-tune mergeable rx buffer size
-	for improved performance
-Date: Fri, 27 Dec 2013 11:04:46 +0800
-Message-ID: <52BCEE4E.7070106@redhat.com>
-References: <1387239389-13216-1-git-send-email-mwdalton@google.com>
-	<1387239389-13216-3-git-send-email-mwdalton@google.com>
-	<52BBDBAD.8030609@redhat.com>
-	<CANJ5vPJX1yTKJXpFe+PO7u89-tYRjNPdJwrBLjAop3veye1pDg@mail.gmail.com>
+Subject: Re: [PATCH stable v2 1/3] virtio_net: fix error handling for mergeable
+	buffers
+Date: Fri, 27 Dec 2013 11:19:01 +0800
+Message-ID: <52BCF1A5.1080300@redhat.com>
+References: <1388064752-15734-1-git-send-email-mst@redhat.com>
+	<1388064752-15734-2-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CANJ5vPJX1yTKJXpFe+PO7u89-tYRjNPdJwrBLjAop3veye1pDg@mail.gmail.com>
+In-Reply-To: <1388064752-15734-2-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,67 +19,134 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Dalton <mwdalton@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org
+Cc: Michael Dalton <mwdalton@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/27/2013 04:06 AM, Michael Dalton wrote:
-> On Mon, Dec 23, 2013 at 4:51 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> OK so a high level benchmark shows it's worth it,
->> but how well does the logic work?
->> I think we should make the buffer size accessible in sysfs
->> or debugfs, and look at it, otherwise we don't really know.
->>
-> Exporting the size sounds good to me, it is definitely an
-> important metric and would give more visibility to the admin.
+On 12/26/2013 09:32 PM, Michael S. Tsirkin wrote:
+> Eric Dumazet noticed that if we encounter an error
+> when processing a mergeable buffer, we don't
+> dequeue all of the buffers from this packet,
+> the result is almost sure to be loss of networking.
 >
-> Do you have a preference for implementation strategy? I was
-> thinking just add a DEVICE_ATTR to create a read-only sysfs file,
-> 'mergeable_rx_buffer_size', and return a space-separated list of the
-> current buffer size (computed from the average packet size) for each
-> receive queue. -EINVAL or a similar error could be returned if the
-> netdev was not configured for mergeable rx buffers.
+> Fix this issue.
 >
->> I don't get the real motivation for this.
->>
->> We have skbs A,B,C sharing a page, with chunk D being unused.
->> This randomly charges chunk D to an skb that ended up last
->> in the page.
->> Correct?
->> Why does this make sense?
-> The intent of this code is to adjust the SKB true size for
-> the packet. We should completely use each packet buffer except
-> for the last buffer. For all buffers except the last buffer, it
-> should be the case that 'len' (bytes received) = buffer size. For
-> the last buffer, this code adjusts the truesize by comparing the
-> approximated buffer size with the bytes received into the buffer,
-> and adding the difference to the SKB truesize if the buffer size
-> is greater than the number of bytes received.
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael Dalton <mwdalton@google.com>
+> Acked-by: Michael Dalton <mwdalton@google.com>
+> Cc: Eric Dumazet <edumazet@google.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: David S. Miller <davem@davemloft.net>
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>
+> (cherry picked from commit 8fc3b9e9a229778e5af3aa453c44f1a3857ba769)
+> ---
+>  drivers/net/virtio_net.c | 66 +++++++++++++++++++++++++++++++++---------------
+>  1 file changed, 46 insertions(+), 20 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 9fbdfcd..435076f 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -297,26 +297,33 @@ static struct sk_buff *page_to_skb(struct receive_queue *rq,
+>  	return skb;
+>  }
+>  
+> -static int receive_mergeable(struct receive_queue *rq, struct sk_buff *skb)
+> +static struct sk_buff *receive_mergeable(struct net_device *dev,
+> +					 struct receive_queue *rq,
+> +					 void *buf,
+> +					 unsigned int len)
+>  {
+> -	struct skb_vnet_hdr *hdr = skb_vnet_hdr(skb);
+> -	struct page *page;
+> -	int num_buf, i, len;
+> +	struct skb_vnet_hdr *hdr = page_address(buf);
+> +	int num_buf = hdr->mhdr.num_buffers;
+> +	struct page *page = buf;
+> +	struct sk_buff *skb = page_to_skb(rq, page, len);
+> +	int i;
+> +
+> +	if (unlikely(!skb))
+> +		goto err_skb;
+>  
+> -	num_buf = hdr->mhdr.num_buffers;
+>  	while (--num_buf) {
+>  		i = skb_shinfo(skb)->nr_frags;
+>  		if (i >= MAX_SKB_FRAGS) {
+>  			pr_debug("%s: packet too long\n", skb->dev->name);
+>  			skb->dev->stats.rx_length_errors++;
+> -			return -EINVAL;
+> +			return NULL;
+>  		}
+>  		page = virtqueue_get_buf(rq->vq, &len);
+>  		if (!page) {
+> -			pr_debug("%s: rx error: %d buffers missing\n",
+> -				 skb->dev->name, hdr->mhdr.num_buffers);
+> -			skb->dev->stats.rx_length_errors++;
+> -			return -EINVAL;
+> +			pr_debug("%s: rx error: %d buffers %d missing\n",
+> +				 dev->name, hdr->mhdr.num_buffers, num_buf);
+> +			dev->stats.rx_length_errors++;
+> +			goto err_buf;
+>  		}
+>  
+>  		if (len > PAGE_SIZE)
+> @@ -326,7 +333,25 @@ static int receive_mergeable(struct receive_queue *rq, struct sk_buff *skb)
+>  
+>  		--rq->num;
+>  	}
+> -	return 0;
+> +	return skb;
+> +err_skb:
+> +	give_pages(rq, page);
+> +	while (--num_buf) {
+> +		buf = virtqueue_get_buf(rq->vq, &len);
+> +		if (unlikely(!buf)) {
+> +			pr_debug("%s: rx error: %d buffers missing\n",
+> +				 dev->name, num_buf);
+> +			dev->stats.rx_length_errors++;
+> +			break;
+> +		}
+> +		page = buf;
+> +		give_pages(rq, page);
+> +		--rq->num;
+> +	}
+> +err_buf:
+> +	dev->stats.rx_dropped++;
+> +	dev_kfree_skb(skb);
+> +	return NULL;
+>  }
+>  
+>  static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
+> @@ -354,17 +379,18 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
+>  		skb_trim(skb, len);
+>  	} else {
+>  		page = buf;
+> -		skb = page_to_skb(rq, page, len);
+> -		if (unlikely(!skb)) {
+> -			dev->stats.rx_dropped++;
+> -			give_pages(rq, page);
+> -			return;
+> -		}
+> -		if (vi->mergeable_rx_bufs)
+> -			if (receive_mergeable(rq, skb)) {
+> -				dev_kfree_skb(skb);
+> +		if (vi->mergeable_rx_bufs) {
+> +			skb = receive_mergeable(dev, rq, page, len);
+> +			if (unlikely(!skb))
+> +				return;
+> +		} else {
+> +			skb = page_to_skb(rq, page, len);
+> +			if (unlikely(!skb)) {
+> +				dev->stats.rx_dropped++;
+> +				give_pages(rq, page);
+>  				return;
+>  			}
+> +		}
+>  	}
+>  
+>  	hdr = skb_vnet_hdr(skb);
 
-But look like it does not take the 'hole' into account which may cause
-under estimation of trusize.
->
-> We approximate the buffer size by using the last packet buffer size
-> from that same page, which as you have correctly noted may be a buffer
-> that belongs to a different packet on the same virtio-net device. This
-> buffer size should be very close to the actual buffer size because our
-> EWMA estimator uses a high weight (so the packet buffer size changes very
-> slowly) and there are only a handful packets on a page (even order-3).
-
-We can make this more accurate by using extra data structure to track
-the real buf size and using it as token.
->> Why head_skb only? Why not full buffer size that comes from host?
->> This is simply len.
-> Sorry, I believe this code fragment should be clearer. Basically, we
-> have a corner case in that for packets with size <= GOOD_COPY_LEN, there
-> are no frags because page_to_skb() already unref'd the page and the entire
-> packet contents are copied to skb->data. In this case, the SKB truesize
-> is already accurate and should not be updated (and it would be unsafe to
-> access page->private as page is already unref'd).
->
-> I'll look at the above code again and cleanup (please let me know if you
-> have a preference) and/or add a comment to clarify.
->
-> Best,
->
-> Mike
+Acked-by: Jason Wang <jasowang@redhat.com>
