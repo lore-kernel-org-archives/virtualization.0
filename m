@@ -1,15 +1,20 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH stable v2 2/3] virtio-net: make all RX paths handle errors
-	consistently
-Date: Fri, 27 Dec 2013 11:19:31 +0800
-Message-ID: <52BCF1C3.8080702@redhat.com>
-References: <1388064752-15734-1-git-send-email-mst@redhat.com>
-	<1388064752-15734-3-git-send-email-mst@redhat.com>
+Subject: Re: [PATCH net-next 2/3] virtio-net: use per-receive queue page frag
+	alloc for mergeable bufs
+Date: Fri, 27 Dec 2013 12:55:43 +0800
+Message-ID: <52BD084F.5040301@redhat.com>
+References: <1387239389-13216-1-git-send-email-mwdalton@google.com>	
+	<1387239389-13216-2-git-send-email-mwdalton@google.com>	
+	<52B7F065.3010707@redhat.com>	
+	<1387819627.12212.4.camel@edumazet-glaptop2.roam.corp.google.com>	
+	<20131223193704.GC1582@redhat.com>	
+	<CANJ5vPLEV_Z-D-0tThwhWXbHVaRWOLv566Xk1eD4TNYqNvknHw@mail.gmail.com>
+	<1388094991.12212.34.camel@edumazet-glaptop2.roam.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1388064752-15734-3-git-send-email-mst@redhat.com>
+In-Reply-To: <1388094991.12212.34.camel@edumazet-glaptop2.roam.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,106 +24,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>, Michael Dalton <mwdalton@google.com>
+To: Eric Dumazet <eric.dumazet@gmail.com>, Michael Dalton <mwdalton@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12/26/2013 09:32 PM, Michael S. Tsirkin wrote:
-> receive mergeable now handles errors internally.
-> Do same for big and small packet paths, otherwise
-> the logic is too hard to follow.
+On 12/27/2013 05:56 AM, Eric Dumazet wrote:
+> On Thu, 2013-12-26 at 13:28 -0800, Michael Dalton wrote:
+>> On Mon, Dec 23, 2013 at 11:37 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+>>> So there isn't a conflict with respect to locking.
+>>>
+>>> Is it problematic to use same page_frag with both GFP_ATOMIC and with
+>>> GFP_KERNEL? If yes why?
+>> I believe it is safe to use the same page_frag and I will send out a
+>> followup patchset using just the per-receive page_frags. For future
+>> consideration, Eric noted that disabling NAPI before GFP_KERNEL
+>> allocs can potentially inhibit virtio-net network processing for some
+>> time (e.g., during a blocking memory allocation or preemption).
+> Yep, using napi_disable() in the refill process looks quite inefficient
+> to me, it not buggy.
 >
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: David S. Miller <davem@davemloft.net>
-> Acked-by: Michael Dalton <mwdalton@google.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> napi_disable() is a big hammer, while whole idea of having a process to
+> block on GFP_KERNEL allocations is to allow some asynchronous behavior.
 >
-> (cherry picked from commit f121159d72091f25afb22007c833e60a6845e912)
-> ---
->  drivers/net/virtio_net.c | 56 +++++++++++++++++++++++++++++++-----------------
->  1 file changed, 36 insertions(+), 20 deletions(-)
+> I have hard time to convince myself virtio_net is safe anyway with this
+> work queue thing.
+>
+> virtnet_open() seems racy for example :
+>
+>         for (i = 0; i < vi->max_queue_pairs; i++) {
+>                 if (i < vi->curr_queue_pairs)
+>                         /* Make sure we have some buffers: if oom use wq. */
+>                         if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
+>                                 schedule_delayed_work(&vi->refill, 0);
+>                 virtnet_napi_enable(&vi->rq[i]);
+>
+>
+> What if the workqueue is scheduled _before_ the call to virtnet_napi_enable(&vi->rq[i]) ?
+
+Then napi_disable() in refill_work() will busy wait until napi is
+enabled by virtnet_napi_enable() which looks safe. Looks like the real
+issue is in virtnet_restore() who calls try_fill_recv() in neither napi
+context nor napi disabled context.
+>
+> refill_work() will happily conflict with another cpu, two cpus could 
+> call try_fill_recv() at the same time, or worse napi_enable() would crash.
+>
+> I do not have time to make a full check, but I guess there are
+> other races like this one.
 >
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 435076f..c0ed6d5 100644
+> index c51a98867a40..b8e2adb5d0c2 100644
 > --- a/drivers/net/virtio_net.c
 > +++ b/drivers/net/virtio_net.c
-> @@ -297,6 +297,34 @@ static struct sk_buff *page_to_skb(struct receive_queue *rq,
->  	return skb;
+> @@ -726,16 +726,18 @@ again:
+>  static int virtnet_open(struct net_device *dev)
+>  {
+>  	struct virtnet_info *vi = netdev_priv(dev);
+> +	bool refill = false;
+>  	int i;
+>  
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		if (i < vi->curr_queue_pairs)
+>  			/* Make sure we have some buffers: if oom use wq. */
+>  			if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
+> -				schedule_delayed_work(&vi->refill, 0);
+> +				refill = true;
+>  		virtnet_napi_enable(&vi->rq[i]);
+>  	}
+> -
+> +	if (refill)
+> +		schedule_delayed_work(&vi->refill, 0);
+>  	return 0;
 >  }
 >  
-> +static struct sk_buff *receive_small(void *buf, unsigned int len)
-> +{
-> +	struct sk_buff * skb = buf;
-> +
-> +	len -= sizeof(struct virtio_net_hdr);
-> +	skb_trim(skb, len);
-> +
-> +	return skb;
-> +}
-> +
-> +static struct sk_buff *receive_big(struct net_device *dev,
-> +				   struct receive_queue *rq,
-> +				   void *buf)
-> +{
-> +	struct page *page = buf;
-> +	struct sk_buff *skb = page_to_skb(rq, page, 0);
-> +
-> +	if (unlikely(!skb))
-> +		goto err;
-> +
-> +	return skb;
-> +
-> +err:
-> +	dev->stats.rx_dropped++;
-> +	give_pages(rq, page);
-> +	return NULL;
-> +}
-> +
->  static struct sk_buff *receive_mergeable(struct net_device *dev,
->  					 struct receive_queue *rq,
->  					 void *buf,
-> @@ -360,7 +388,6 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
->  	struct net_device *dev = vi->dev;
->  	struct virtnet_stats *stats = this_cpu_ptr(vi->stats);
->  	struct sk_buff *skb;
-> -	struct page *page;
->  	struct skb_vnet_hdr *hdr;
->  
->  	if (unlikely(len < sizeof(struct virtio_net_hdr) + ETH_HLEN)) {
-> @@ -372,26 +399,15 @@ static void receive_buf(struct receive_queue *rq, void *buf, unsigned int len)
->  			dev_kfree_skb(buf);
->  		return;
->  	}
-> +	if (vi->mergeable_rx_bufs)
-> +		skb = receive_mergeable(dev, rq, buf, len);
-> +	else if (vi->big_packets)
-> +		skb = receive_big(dev, rq, buf);
-> +	else
-> +		skb = receive_small(buf, len);
->  
-> -	if (!vi->mergeable_rx_bufs && !vi->big_packets) {
-> -		skb = buf;
-> -		len -= sizeof(struct virtio_net_hdr);
-> -		skb_trim(skb, len);
-> -	} else {
-> -		page = buf;
-> -		if (vi->mergeable_rx_bufs) {
-> -			skb = receive_mergeable(dev, rq, page, len);
-> -			if (unlikely(!skb))
-> -				return;
-> -		} else {
-> -			skb = page_to_skb(rq, page, len);
-> -			if (unlikely(!skb)) {
-> -				dev->stats.rx_dropped++;
-> -				give_pages(rq, page);
-> -				return;
-> -			}
-> -		}
-> -	}
-> +	if (unlikely(!skb))
-> +		return;
->  
->  	hdr = skb_vnet_hdr(skb);
->  
-
-Acked-by: Jason Wang <jasowang@redhat.com>
+>
+>
+>
+>
+>
