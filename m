@@ -1,18 +1,11 @@
-From: Michael Dalton <mwdalton@google.com>
-Subject: Re: [PATCH net-next 3/3] net: auto-tune mergeable rx buffer size for
-	improved performance
-Date: Fri, 27 Dec 2013 13:41:28 -0800
-Message-ID: <CANJ5vPJdHPkmz1DpmsULXjcXvToOox4cgjadKvc_HCKws=CGzw@mail.gmail.com>
-References: <1387239389-13216-1-git-send-email-mwdalton@google.com>
-	<1387239389-13216-3-git-send-email-mwdalton@google.com>
-	<52BBDBAD.8030609@redhat.com>
-	<CANJ5vPJX1yTKJXpFe+PO7u89-tYRjNPdJwrBLjAop3veye1pDg@mail.gmail.com>
-	<52BCEE4E.7070106@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] virtio-net: fix refill races during restore
+Date: Mon, 30 Dec 2013 11:34:40 +0800
+Message-ID: <1388374480-3872-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <52BCEE4E.7070106@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,40 +15,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Amit Shah <amit.shah@redhat.com>, Eric Dumazet <eric.dumazet@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I'm working on a followup patchset to address current feedback. I think
-it will be cleaner to do a debugfs implementation for per-receive queue
-packet buffer size exporting, so I'm trying that out.
+During restoring, try_fill_recv() was called with neither napi lock nor napi
+disabled. This can lead two try_fill_recv() was called in the same time. Fix
+this by refilling before trying to enable napi.
 
-On Thu, Dec 26, 2013 at 7:04 PM, Jason Wang <jasowang@redhat.com> wrote:
-> We can make this more accurate by using extra data structure to track
-> the real buf size and using it as token.
+Fixes 0741bcb5584f9e2390ae6261573c4de8314999f2
+(virtio: net: Add freeze, restore handlers to support S4).
 
-I agree -- we can do precise buffer total len tracking. Something like
-struct mergeable_packet_buffer_ctx {
-   void *buf;
-   unsigned int total_len;
-};
+Cc: Amit Shah <amit.shah@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-Each receive queue could have a pointer to an array of N buffer contexts,
-where N is queue size (kzalloc'd in init_vqs or similar). That would
-allow us to allocate all of our buffer context data at startup.
-
-Would this be preferred to the current approach or is there another
-approach you would prefer? All other things being equal, having precise
-length tracking is advantageous, so I'm inclined to try this out and
-see how it goes.
-
-I think this is a big design point - for example, if we have an extra
-buffer context structure, then per-receive queue frag allocators are not
-required for auto-tuning and we can reduce the number of patches in
-this patchset.
-
-I'm happy to implement either way.  Thanks!
-
-Best,
-
-Mike
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d208f86..5d77644 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1797,16 +1797,17 @@ static int virtnet_restore(struct virtio_device *vdev)
+ 	if (err)
+ 		return err;
+ 
+-	if (netif_running(vi->dev))
++	if (netif_running(vi->dev)) {
++		for (i = 0; i < vi->curr_queue_pairs; i++)
++			if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
++				schedule_delayed_work(&vi->refill, 0);
++
+ 		for (i = 0; i < vi->max_queue_pairs; i++)
+ 			virtnet_napi_enable(&vi->rq[i]);
++	}
+ 
+ 	netif_device_attach(vi->dev);
+ 
+-	for (i = 0; i < vi->curr_queue_pairs; i++)
+-		if (!try_fill_recv(&vi->rq[i], GFP_KERNEL))
+-			schedule_delayed_work(&vi->refill, 0);
+-
+ 	mutex_lock(&vi->config_lock);
+ 	vi->config_enable = true;
+ 	mutex_unlock(&vi->config_lock);
+-- 
+1.8.3.2
