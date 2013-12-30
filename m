@@ -1,8 +1,8 @@
 From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH net-next 3/3] net: auto-tune mergeable rx buffer size
 	for improved performance
-Date: Mon, 30 Dec 2013 12:50:51 +0800
-Message-ID: <52C0FBAB.9090004@redhat.com>
+Date: Mon, 30 Dec 2013 13:38:19 +0800
+Message-ID: <52C106CB.2040006@redhat.com>
 References: <1387239389-13216-1-git-send-email-mwdalton@google.com>
 	<1387239389-13216-3-git-send-email-mwdalton@google.com>
 	<52BBDBAD.8030609@redhat.com>
@@ -49,16 +49,15 @@ On 12/28/2013 05:41 AM, Michael Dalton wrote:
 > approach you would prefer? All other things being equal, having precise
 > length tracking is advantageous, so I'm inclined to try this out and
 > see how it goes.
-
-I think this is better since it was accurate and easier to be
-implemented and understand.
-
-Thanks
 >
 > I think this is a big design point - for example, if we have an extra
 > buffer context structure, then per-receive queue frag allocators are not
 > required for auto-tuning and we can reduce the number of patches in
 > this patchset.
+
+Not required but better keep it. Consider we may have multiple
+virtio-net cards, using per-receive queue frag may increase the
+possibility of coalescing.
 >
 > I'm happy to implement either way.  Thanks!
 >
