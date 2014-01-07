@@ -1,21 +1,12 @@
-From: Debabrata Banerjee <dbavatar@gmail.com>
-Subject: Re: [PATCH net-next 1/3] net: allow > 0 order atomic page alloc in
+From: Michael Dalton <mwdalton@google.com>
+Subject: [PATCH net-next v2 1/4] net: allow > 0 order atomic page alloc in
 	skb_page_frag_refill
-Date: Fri, 3 Jan 2014 18:27:11 -0500
-Message-ID: <CAATkVExrEiETydLxuHjpy9hwXhNx9Cq1jP1-4f_2TiGiZZ=qCQ__14128.2795965255$1388959860$gmane$org@mail.gmail.com>
-References: <1387239389-13216-1-git-send-email-mwdalton@google.com>
-	<20131224.174647.2276571374631580479.davem@davemloft.net>
-	<CAATkVExsrzKyx3da=sApxdR5DJRTWBw1MOcLE9WiWQN56WfcdA@mail.gmail.com>
-	<1388710591.12212.110.camel@edumazet-glaptop2.roam.corp.google.com>
-	<1388712396.12212.112.camel@edumazet-glaptop2.roam.corp.google.com>
-	<CAATkVEyL-7W4aa_U+_7ZsqnyR0AnAskBNejzeUZD+jE8CmRdhw@mail.gmail.com>
-	<CAATkVExrpHZHDFFdfR2ab7SeFSBLyAm0BLoVqLDGHF1ZPwEBZA@mail.gmail.com>
-	<1388789693.12212.149.camel@edumazet-glaptop2.roam.corp.google.com>
+Date: Mon,  6 Jan 2014 21:25:52 -0800
+Message-ID: <1389072355-20666-1-git-send-email-mwdalton@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1388789693.12212.149.camel@edumazet-glaptop2.roam.corp.google.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -25,54 +16,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: "Banerjee, Debabrata" <dbanerje@akamai.com>, Michael Dalton <mwdalton@google.com>, mst@redhat.com, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, jbaron@akamai.com, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, Joshua Hunt <johunt@akamai.com>, David Miller <davem@davemloft.net>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: Michael Dalton <mwdalton@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 3, 2014 at 5:54 PM, Eric Dumazet <eric.dumazet@gmail.com> wrote:
->
-> This is in GFP_ATOMIC cases, I dont think it can ever start compaction.
+skb_page_frag_refill currently permits only order-0 page allocs
+unless GFP_WAIT is used. Change skb_page_frag_refill to attempt
+higher-order page allocations whether or not GFP_WAIT is used. If
+memory cannot be allocated, the allocator will fall back to
+successively smaller page allocs (down to order-0 page allocs).
 
-I think that's right I probably finally got it back to normal behavior
-with order-0 allocations.
+This change brings skb_page_frag_refill in line with the existing
+page allocation strategy employed by netdev_alloc_frag, which attempts
+higher-order page allocations whether or not GFP_WAIT is set, falling
+back to successively lower-order page allocations on failure. Part
+of migration of virtio-net to per-receive queue page frag allocators.
 
->
-> It seems that you shoot the messenger : If memory is fragmented, then
-> one order-1 allocation is going to start compaction.
->
-> It can be a simple fork().
->
-> If your workload never fork(), then yes, you never needed compaction.
->
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Michael Dalton <mwdalton@google.com>
+---
+ net/core/sock.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-Sure but the rate of network packets in and out and subsequent
-allocations would be more equivalent to a fork bomb than normal
-forking. I understand mm should work more sanely in this scenario but
-at the same time we see a bad regression with this code, I see we're
-not alone.
-
->
-> We are not trying to optimize the kernel behavior for hosts in deep
-> memory pressure.
-
-We're leaving about half for the kernel so I wouldn't call it "deep".
-Any server application that is using page cache and mlocked memory
-will run into similar issues.
-
-> It doesn't really matter to say that which memory allocation triggered
-> compaction, which is a normal step in mm layer.
->
-> If you believe its badly done, you should ask to mm guys to fix/improve
-> it, not netdev...
->
-> Using order-3 pages in TCP stack improves performance for 99% of the
-> hosts, there might be something wrong on your side ?
->
-
-Having lots of memory mlocked is bad right now yes, but not
-necessarily an uncommon scenario. We're handing mm an almost
-intractable problem. I see compaction of mlocked pages has been
-discussed a few times over there, but no patch has actually made it
-in.
-
--Debabrata
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 5393b4b..a0d522a 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1865,9 +1865,7 @@ bool skb_page_frag_refill(unsigned int sz, struct page_frag *pfrag, gfp_t prio)
+ 		put_page(pfrag->page);
+ 	}
+ 
+-	/* We restrict high order allocations to users that can afford to wait */
+-	order = (prio & __GFP_WAIT) ? SKB_FRAG_PAGE_ORDER : 0;
+-
++	order = SKB_FRAG_PAGE_ORDER;
+ 	do {
+ 		gfp_t gfp = prio;
+ 
+-- 
+1.8.5.1
