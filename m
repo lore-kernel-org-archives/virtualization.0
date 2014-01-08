@@ -1,24 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net-next 2/3] virtio-net: use per-receive queue page frag
-	alloc for mergeable bufs
-Date: Wed, 8 Jan 2014 20:57:25 +0200
-Message-ID: <20140108185725.GA18276@redhat.com>
-References: <1387239389-13216-1-git-send-email-mwdalton@google.com>
-	<1387239389-13216-2-git-send-email-mwdalton@google.com>
-	<52B7F065.3010707@redhat.com>
-	<1387819627.12212.4.camel@edumazet-glaptop2.roam.corp.google.com>
-	<20131223193704.GC1582@redhat.com>
-	<CANJ5vPLEV_Z-D-0tThwhWXbHVaRWOLv566Xk1eD4TNYqNvknHw@mail.gmail.com>
-	<20131226213727.GA10259@redhat.com>
-	<1388095258.12212.37.camel@edumazet-glaptop2.roam.corp.google.com>
-	<20140108172104.GD17404@redhat.com>
-	<1389204587.26646.111.camel@edumazet-glaptop2.roam.corp.google.com>
+Subject: Re: [PATCH net-next v2 3/4] virtio-net: auto-tune mergeable rx
+	buffer size for improved performance
+Date: Wed, 8 Jan 2014 21:16:23 +0200
+Message-ID: <20140108191623.GA18312@redhat.com>
+References: <1389072355-20666-1-git-send-email-mwdalton@google.com>
+	<1389072355-20666-3-git-send-email-mwdalton@google.com>
+	<52CCEEF3.5070904@redhat.com>
+	<CANJ5vP+btxgZg5kDq30KZTEXO7YBCL5TWoiRzjMqxnaA3Edkxw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1389204587.26646.111.camel@edumazet-glaptop2.roam.corp.google.com>
+In-Reply-To: <CANJ5vP+btxgZg5kDq30KZTEXO7YBCL5TWoiRzjMqxnaA3Edkxw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,63 +22,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Michael Dalton <mwdalton@google.com>, netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
+To: Michael Dalton <mwdalton@google.com>
+Cc: netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 08, 2014 at 10:09:47AM -0800, Eric Dumazet wrote:
-> On Wed, 2014-01-08 at 19:21 +0200, Michael S. Tsirkin wrote:
+On Wed, Jan 08, 2014 at 10:28:09AM -0800, Michael Dalton wrote:
+> Hi Jason,
 > 
-> > Basically yes, we could start dropping packets immediately
-> > once GFP_ATOMIC allocations fail and repost the buffer to host,
-> > and hope memory is available by the time we get the next interrupt.
-> 
-> > But we wanted host to have visibility into the fact that
-> > we are out of memory and packets are dropped, so we did not want to
-> > repost.
-> 
-> bufferbloat alert :)
->
+> On Tue, Jan 7, 2014 at 10:23 PM, Jason Wang <jasowang@redhat.com> wrote:
+> > What's the reason that this extra space is not accounted for truesize?
+> The initial rationale was that this extra space is due to
+> internal fragmentation in the page frag allocator, but I agree with
+> you -- this code should be changed and the extra space accounted for.
+> Any internal fragmentation leading to a larger last packet allocated from
+> the page should be reflected in the SKB truesize of the last packet.
 
-I guess you are saying we never need to signal host/device
-that we are out of memory, it's enough that packets are dropped?
-It seemed like a useful thing for hypervisor to know about on general
-principles, even though I don't think kvm uses this info at this point.
+I think this is what the original patchset did, but I don't really get
+why this is a good idea.
+Why should we select a frame at random and make it's truesize bigger?
+All frames are to blame for the extra space.
+Just ignoring it seems more symmetrical.
 
-> > If we don't repost how do we know memory is finally available?
-> > We went for a timer based workqueue thing.
-> > What do you suggest?
-> 
-> 
-> In normal networking land, when a host A sends frames to host B,
-> nothing prevents A to pause the traffic to B if B is dropping packets
-> under stress.
-> 
-> A physical NIC do not use a workqueue to refill its RX queue but uses
-> the following strategy :
-> 
-> 0) Pre filling of RX ring buffer with N frames. This can use GFP_KERNEL
->    allocations with all needed (sleep/retry/shout) logic...
-> 1) IRQ is handled.
-> 2) Can we allocate a new buffer (GFP_ATOMIC) ?
->    If yes, we accept the frame,
->       and post the new buffer for the 'next frame'
->    If no, we drop the frame and recycle the memory for next round.
-> 
 
-Exactly, this is what I tried to describe in the part that
-you have snipped out - but this means queue is always full.
+> I will do a followup patchset that accounts correctly for the extra
+> space, which will also me to remove the two max statements you
+> indicated. Thanks for finding this issue.
+> 
+> >> +     if (err < 0) {
+> >> +             put_page(virt_to_head_page(ctx->buf));
+> >> +             return err;
+> > Should we also roll back the frag offset added above to avoid leaking frags?
+> I believe the put_page here is sufficient for correctness. When we
+> allocate a buffer using skb_page_frag_refill, we use get_page/put_page
+> to allocate/free respectively. For example, if the virtqueue_add_inbuf
+> succeeded, we would eventually call put_page either in virtio-net
+> (e.g., page_to_skb for packets <= GOOD_COPY_LEN bytes) or later in
+> __skb_frag_unref and other functions called during dev_kfree_skb.
+> 
+> However, an offset rollback does allow the space to be reused by the next
+> allocation, which could be a good optimization. I can do the offset
+> rollback (with a put_page) in the next patchset. What do you think?
 
-Also, I wonder whether allocating before passing
-frame to the stack might slow us down a tiny bit e.g. if an application
-is polling this socket on another CPU.
+If you intend to repost anyway (for the below wrinkle) then
+you can do it right here just as well I guess. Seems a bit prettier.
 
-Maybe a slightly better strategy is to do the above when queue depth
-is running low. E.g. when queue is 3/4 empty, try
-allocating before giving frames to net core,
-and recycle buffers on error.
+> >> +     /* Do not attempt to add a buffer if the RX ring is full. */
+> >> +     if (unlikely(!rq->vq->num_free))
+> >> +             return true;
+> > I haven't figured out why this is needed. It seems safe for
+> > virtqueue_add_inbuf() just fail in add_recv_xx()?
+> I think this is safe with one caveat -- we can't modify
+> rq->mrg_buf_ctx until we know the ring isn't full (otherwise, we
+> clobber an in-use entry). It is safe to modify rq->mrg_buf_ctx
+> after we know that virtqueue_add_inbuf has succeeded.
+> 
+> I can remove the rq_num_free check from try_fill_recv, and then
+> modify virtqueue_add_inbuf to use a local mergeable_receive_buf_ctx.
+> Once virtqueue_add_inbuf succeeds, the contents of the local variable
+> can be copied to rq->mrg_buf_ctx[rq->mrg_buf_ctx_head].
+> 
+> Best,
+> 
+> Mike
 
-Not sure how much of a win this is.
+
+You don't have to fill in ctx before calling add_inbuf, do you?
+Just fill it afterwards.
 
 -- 
 MST
