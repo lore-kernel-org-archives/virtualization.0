@@ -1,18 +1,19 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH net-next v2 3/4] virtio-net: auto-tune mergeable rx
 	buffer size for improved performance
-Date: Thu, 9 Jan 2014 08:42:16 +0200
-Message-ID: <20140109064216.GA19559@redhat.com>
+Date: Thu, 9 Jan 2014 08:48:07 +0200
+Message-ID: <20140109064807.GC19559@redhat.com>
 References: <1389072355-20666-1-git-send-email-mwdalton@google.com>
 	<1389072355-20666-3-git-send-email-mwdalton@google.com>
 	<20140109014255.GA19321@redhat.com>
 	<CANJ5vP+_aK0PMc6-hwbu6PduVNDe8jbWR19cN5C+k4mWQzdTGg@mail.gmail.com>
+	<CANJ5vPLvDff5PMYNGvtt-dd=md8b46ZXAYLv-KnerNcfzDNHpw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CANJ5vP+_aK0PMc6-hwbu6PduVNDe8jbWR19cN5C+k4mWQzdTGg@mail.gmail.com>
+In-Reply-To: <CANJ5vPLvDff5PMYNGvtt-dd=md8b46ZXAYLv-KnerNcfzDNHpw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,62 +27,23 @@ To: Michael Dalton <mwdalton@google.com>
 Cc: netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 08, 2014 at 07:16:18PM -0800, Michael Dalton wrote:
-> Hi Michael,
-> 
-> On Wed, Jan 8, 2014 at 5:42 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > Sorry that I didn't notice early, but there seems to be a bug here.
-> > See below.
-> Yes, that is definitely a bug. Virtio spec permits OOO completions,
-> but current code assumes in-order completion. Thanks for catching this.
-> 
-> > Don't need full int really, it's up to 4K/cache line size,
-> > 1 byte would be enough, maximum 2 ...
-> > So if all we want is extra 1-2 bytes per buffer, we don't really
-> > need this extra level of indirection I think.
-> > We can just allocate them before the header together with an skb.
-> I'm not sure if I'm parsing the above correctly, but do you mean using a
-> few bytes at the beginning of the packet buffer to store truesize? I
-> think that will break Jason's virtio-net RX frag coalescing
-> code. To coalesce consecutive RX packet buffers, our packet buffers must
-> be physically adjacent, and any extra bytes before the start of the
-> buffer would break that.
-> 
-> We could allocate an SKB per packet buffer, but if we have multi-buffer
-> packets often(e.g., netperf benefiting from GSO/GRO), we would be
-> allocating 1 SKB per packet buffer instead of 1 SKB per MAX_SKB_FRAGS
-> buffers. How do you feel about any of the below alternatives:
-> 
-> (1) Modify the existing mrg_buf_ctx to chain together free entries
-> We can use the 'buf' pointer in mergeable_receive_buf_ctx to chain
-> together free entries so that we can support OOO completions. This would
-> be similar to how virtio-queue manages free sg entries.
-> 
-> (2) Combine the buffer pointer and truesize into a single void* value
-> Your point about there only being a byte needed to encode truesize is
-> spot on, and I think we could leverage this to eliminate the out-of-band
-> metadata ring entirely. If we were willing to change the packet buffer
-> alignment from L1_CACHE_BYTES to 256 (or min (256, L1_CACHE_SIZE)),
-
-I think you mean max here.
-
-> we
-> could encode the truesize in the least significant 8 bits of the buffer
-> address (encoded as truesize >> 8 as we know all sizes are a multiple
-> of 256). This would allow packet buffers up to 64KB in length.
->
-> Is there another approach you would prefer to any of these? If the
-> cleanliness issues and larger alignment aren't too bad, I think (2)
-> sounds promising and allow us to eliminate the metadata ring
-> entirely while still permitting RX frag coalescing.
+On Wed, Jan 08, 2014 at 07:41:58PM -0800, Michael Dalton wrote:
+> Sorry, forgot to mention - if we want to explore combining the buffer
+> address and truesize into a single void *, we could also exploit the
+> fact that our size ranges from aligned GOOD_PACKET_LEN to PAGE_SIZE, and
+> potentially encode fewer values for truesize (and require a smaller
+> alignment than 256). The prior e-mails discussion of 256 byte alignment
+> with 256 values is just one potential design point.
 > 
 > Best,
 > 
 > Mike
 
-I agree, this sounds like a better approach. It's certainly no worse than
-current net-next code that always allocates about 1.5K,
-and struct sk_buff itself is about 256 bytes on 64 bit.
+Good point. I think we should keep the option to
+make buffers bigger than 4K, so I think we should start with 256
+alignment, then see if there are workloads that are improved by smaller
+alignment.
 
--- 
-MST
+Can you add wrapper inline functions to pack/unpack size and
+buffer pointer to/from void *?
+This way it will be easy to experiment with different alignments.
