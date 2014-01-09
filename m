@@ -1,8 +1,8 @@
-From: Michael Dalton <mwdalton@google.com>
-Subject: Re: [PATCH net-next v2 3/4] virtio-net: auto-tune mergeable rx buffer
-	size for improved performance
-Date: Thu, 9 Jan 2014 01:02:41 -0800
-Message-ID: <CANJ5vPJrE8gpUdxVjUXwCaTGcixt7xtp=qNBfcm4T4gm9-1APw@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net-next v2 3/4] virtio-net: auto-tune mergeable rx
+	buffer size for improved performance
+Date: Thu, 9 Jan 2014 15:25:29 +0200
+Message-ID: <20140109132529.GB2712@redhat.com>
 References: <1389072355-20666-1-git-send-email-mwdalton@google.com>
 	<1389072355-20666-3-git-send-email-mwdalton@google.com>
 	<20140109014255.GA19321@redhat.com>
@@ -14,6 +14,7 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <CANJ5vPJp-AwvFDtY1R7SJg6L2dkEU6xPivgKcg4f0+05JCMEfw@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,40 +25,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
+To: Michael Dalton <mwdalton@google.com>
 Cc: netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If the prior code snippet looks good to you, I'll use something like
-that as a baseline for a v3 patchset. I don't think we need a stricter
-alignment than 64 to express values in the range (1536 ... 4096), as
-the code snippet shows, which is great for x86 4KB pages.
+On Thu, Jan 09, 2014 at 12:28:50AM -0800, Michael Dalton wrote:
+> Hi Michael,
+> 
+> Here's a quick sketch of some code that enforces a minimum buffer
+> alignment of only 64, and has a maximum theoretical buffer size of
+> aligned GOOD_PACKET_LEN + (BUF_ALIGN - 1) * BUF_ALIGN, which is at least
+> 1536 + 63 * 64 = 5568. On x86, we already use a 64 byte alignment, and
+> this code supports all current buffer sizes, from 1536 to PAGE_SIZE.
 
-On other architectures that have larger page sizes > 4KB with <= 64b
-cachelines, we may want to increase the alignment so that the max buffer
-size will be >= PAGE_SIZE (max size allowed by skb_page_frag_refill).
+I really think it's best to start with 256 alignment.
+A bit simpler, better than what we had, and will let us go
+above PAGE_SIZE long term.  The optimization shrinking
+alignment to 64 can be done on top if we see a
+work-load that's improved by it, which I doubt.
 
-If we use a minimum alignment of 128, our maximum theoretical
-packet buffer length is 1536 + 127 * 128 = 17792. With 256 byte
-alignment, we can express a maximum packet buffer size > 65536.
+> 
+> #if L1_CACHE_BYTES < 64
+> #define MERGEABLE_BUFFER_ALIGN 64
+> #define MERGEABLE_BUFFER_SHIFT 6
+> #else
+> #define MERGEABLE_BUFFER_ALIGN L1_CACHE_BYTES
+> #define MERGEABLE_BUFFER_SHIFT L1_CACHE_SHIFT
+> #endif
+> #define MERGEABLE_BUFFER_MIN ALIGN(GOOD_PACKET_LEN +
+>                                    sizeof(virtio_net_hdr_mrg_rbuf),
+>                                    MERGEABLE_BUFFER_ALIGN)
+> #define MERGEABLE_BUFFER_MAX min(MERGEABLE_BUFFER_MIN +
+>                                  (MERGEABLE_BUFFER_ALIGN - 1) *
+>                                  MERGEABLE_BUFFER_ALIGN, PAGE_SIZE)
+> /* Extract buffer length from a mergeable buffer context. */
+> static u16 get_mergeable_buf_ctx_len(void *ctx) {
+>         u16 len = (uintptr_t)ctx & (MERGEABLE_BUFFER_ALIGN - 1);
+>         return MERGEABLE_BUFFER_MIN + (len << MERGEABLE_BUFFER_SHIFT);
 
-Given the above, I think we want to select the min buffer alignment
-based on the PAGE_SIZE:
-        <= 4KB PAGE_SIZE: 64b min alignment
-        <= 16KB PAGE_SIZE: 128b min alignment
-        > 16KB PAGE_SIZE: 256b min alignment
+You can just do len * MERGEABLE_BUFFER_ALIGN too - my compiler seems
+to be smart enough to see it's same.
+This way there's no need for MERGEABLE_BUFFER_SHIFT
 
-So the prior code snippet would be relatively unchanged, except that
-references to the previous minimum alignment of 64 would be replaced by
-a #define'd constant derived from PAGE_SIZE as shown above.
+> }
+> /* Extract buffer base address from a mergeable buffer context. */
+> static void *get_mergeable_buf_ctx_base(void *ctx) {
+>         return (void *) ((uintptr)ctx & -MERGEABLE_BUFFER_ALIGN);
 
-This would guarantee that we use the minimum alignment necessary to
-ensure that virtio-net can post a max size (PAGE_SIZE) buffer, and for
-x86 this means we won't increase the alignment beyond the x86's current
-L1_CACHE_BYTES value (64). Also, sorry I haven't had a chance to respond
-yet to the debugfs feedback, I will get to that soon (just wanted to do
-a further deep dive on some of the sysfs/debugfs tradeoffs).
+uintptr_t? or just unsigned long ...
 
-Best,
+> }
+> /* Convert a base address and length to a mergeable buffer context. */
+> static void *to_mergeable_buf_ctx(void *base, u16 len) {
+>         len -= MERGEABLE_BUFFER_MIN;
+>         return (void *) ((uintptr)base | (len >> MERGEABLE_BUFFER_SHIFT));
+> }
 
-Mike
+The APIs are a bit inconsistent in naming.
+Also it's unfortunate that we use void * for both virtio buffer
+and frame memory.
+
+How about
+	mergeable_buf_to_len
+	mergeable_buf_to_page
+	mergeable_buf_to_offset
+	mergeable_page_to_buf
+
+this way we don't use void * for frame memory.
+
+alternatively, cast virtio buffer to unsigned long
+immediately and pass that around everywhere.
+
+
+> /* Compute the packet buffer length for a receive queue. */
+> static u16 get_mergeable_buffer_len(struct receive_queue *rq) {
+>         u16 len = clamp_t(u16, MERGEABLE_BUFFER_MIN,
+>                           ewma_read(&rq->avg_pkt_len),
+>                           MERGEABLE_BUFFER_MAX);
+>         return ALIGN(len, MERGEABLE_BUFFER_ALIGN);
+> }
+> 
+> Best,
+> 
+> Mike
