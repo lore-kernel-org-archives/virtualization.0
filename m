@@ -1,17 +1,12 @@
-From: Michael Dalton <mwdalton@google.com>
-Subject: Re: [PATCH net-next v2 4/4] virtio-net: initial debugfs support,
-	export mergeable rx buffer size
-Date: Fri, 10 Jan 2014 21:36:53 -0800
-Message-ID: <CANJ5vPLzDr9J4MXiamkTxGBAEnVoyWPvUvG9+KyAFGf6XV+S7w@mail.gmail.com>
-References: <1389072355-20666-1-git-send-email-mwdalton@google.com>
-	<1389072355-20666-4-git-send-email-mwdalton@google.com>
-	<52CCF177.7020500@redhat.com> <20140108192109.GC18312@redhat.com>
-	<CANJ5vP+Qxa5j_Cp1FBK-qdO+U+dy2kiY5N2bmWdMKbCoY9EwDQ@mail.gmail.com>
+From: "ML" <marialemos72@gmail.com>
+Subject: CISTI'2014: List of Workshops
+Date: Sat, 11 Jan 2014 18:31:05 +0000
+Message-ID: <20140111183113.7118D681@mail.linuxfoundation.org>
+Reply-To: cistimail@gmail.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CANJ5vP+Qxa5j_Cp1FBK-qdO+U+dy2kiY5N2bmWdMKbCoY9EwDQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,27 +16,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Also, one other note: if we use sysfs, the directory structure will
-be different depending on our chosen sysfs strategy. If we augment
-netdev_rx_queue, the new attributes will be found in the standard
-'rx-<N>' netdev subdirectory, e.g.,
-/sys/class/net/eth0/queues/rx-0/mergeable_rx_buffer_size
+********************************** WORKSHOPS *******************************************
+    CISTI'2014 - 9th Iberian Conference on Information Systems and Technologies
+                     Barcelona, Spain, June 18 - 21, 2014             
+              http://www.aisti.eu/cisti2014/index.php/en/workshops
+****************************************************************************************
 
-Whereas if we use per-netdev attributes, our attributes would be in
-/sys/class/net/eth0/<group name>/<attribute name>, which may be
-less intuitive as AFAICT we'd have to indicate both the queue # and
-type of value being reported using the attribute name. E.g.,
-/sys/class/net/eth0/virtio-net/rx-0_mergeable_buffer_size.
-That's somewhat less elegant.
+List of Workshops to be held in the CISTI'2014 context:
 
-I don't see an easy way to add new attributes to the 'rx-<N>'
-subdirectories without directly modifying struct netdev_rx_queue,
-so I think this is another tradeoff between the two sysfs approaches.
+- ARWC 2014 - 1st Workshop on Augmented Reality and Wearable Computing
 
-Best,
+- ASDACS 2014 - 1st Workshop on Applied Statistics and Data Analysis using Computer Science
 
-Mike
+- IoT 2014 - 1st Workshop on Internet of Things
+
+- SGaMePlay 2014 - 4th Iberian Workshop on Serious Games and Meaningful Play
+
+- TICAMES 2014 - 2nd Workshop on Information and Communication Technology in Higher Education: Learning Mathematics
+
+- WICTA 2014 - 1st Workshop on ICT for Audit
+
+- WISA 2014 - 6th Workshop on Intelligent Systems and Apllications
+
+- WLA 2014 - 1st Workshop on Learning Analytics
+
+- WNIS 2014 - 1st Workshop on Networks, Information and Society
+
+Detailed information about these workshops is available at http://www.aisti.eu/cisti2014/index.php/en/workshops
+
+Best regards,
+
+CISTI'2014 Team
+http://www.aisti.eu/cisti2014/index.php/en
