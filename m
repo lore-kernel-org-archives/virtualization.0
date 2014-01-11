@@ -1,21 +1,16 @@
 From: Michael Dalton <mwdalton@google.com>
-Subject: Re: [PATCH net-next v2 3/4] virtio-net: auto-tune mergeable rx buffer
-	size for improved performance
-Date: Thu, 9 Jan 2014 11:33:46 -0800
-Message-ID: <CANJ5vP+5VVDNGR6OjmkWFNTNTiS=NKdkYEXxrkXRQ2uO+p=3xw@mail.gmail.com>
+Subject: Re: [PATCH net-next v2 4/4] virtio-net: initial debugfs support,
+	export mergeable rx buffer size
+Date: Fri, 10 Jan 2014 21:19:37 -0800
+Message-ID: <CANJ5vP+Qxa5j_Cp1FBK-qdO+U+dy2kiY5N2bmWdMKbCoY9EwDQ@mail.gmail.com>
 References: <1389072355-20666-1-git-send-email-mwdalton@google.com>
-	<1389072355-20666-3-git-send-email-mwdalton@google.com>
-	<20140109014255.GA19321@redhat.com>
-	<CANJ5vP+_aK0PMc6-hwbu6PduVNDe8jbWR19cN5C+k4mWQzdTGg@mail.gmail.com>
-	<CANJ5vPLvDff5PMYNGvtt-dd=md8b46ZXAYLv-KnerNcfzDNHpw@mail.gmail.com>
-	<20140109064807.GC19559@redhat.com>
-	<CANJ5vPJp-AwvFDtY1R7SJg6L2dkEU6xPivgKcg4f0+05JCMEfw@mail.gmail.com>
-	<20140109132529.GB2712@redhat.com>
+	<1389072355-20666-4-git-send-email-mwdalton@google.com>
+	<52CCF177.7020500@redhat.com> <20140108192109.GC18312@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140109132529.GB2712@redhat.com>
+In-Reply-To: <20140108192109.GC18312@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -29,14 +24,49 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
+Hi Jason, Michael
 
-Your improvements (code changes, more consistent naming, and use of
-256-byte alignment only) all sound good to me. I will get started on a v3
-patchset in conformance with your recommendations after sorting out
-what we want to do with the debugfs/sysfs issues. I will followup soon on
-the thread for patch 4/4 so we can close on what changes are needed for
-debugfs/sysfs. Thanks!
+Sorry for the delay in response. Jason, I agree this patch ended up
+being larger than expected. The major implementation parts are:
+(1) Setup directory structure (driver/per-netdev/rx-queue directories)
+(2) Network device renames (optional, so debugfs dir has the right name)
+(3) Support resizing the # of RX queues (optional - we could just export
+    max_queue_pairs files and not delete files if an RX queue is disabled)
+(4) Reference counting - used in case someone opens a debugfs
+    file and then removes the virtio-net device.
+(5) The actual mergeable rx buffer file implementation itself. For now
+    I have added a seqcount for memory safety, but if a read-only race
+    condition is acceptable we could elide the seqcount. FWIW, the
+    seqcount write in receive_mergeable() should, on modern x86,
+    translate to two non-atomic adds and two compiler barriers, so
+    overhead is not expected to be meaningful.
+
+We can move to sysfs and this would simplify or eliminate much of the
+above, including most of (1) - (4). I believe our choices for what to
+do for the next patchset include:
+(a) Use debugfs as is currently done, removing any optional features
+listed above that are deemed unnecessary.
+
+(b) Add a per-netdev sysfs attribute group to net_device->sysfs_groups.
+Each attribute would display the mergeable packet buffer size for a given
+RX queue, and there would be max_queue_pairs attributes in total. This
+is already supported by net/core/net-sysfs.c:netdev_register_kobject(),
+but means that we would have a static set of per-RX queue files for
+all RX queues supported by the netdev, rather than dynamically displaying
+only the files corresponding to enabled RX queues (e.g., when # of RX
+queues is changed by  ethtool -L <device>).  For an example of this
+approach, see drivers/net/bonding/bond_sysfs.c.
+
+(c) Modify struct netdev_rx_queue to add virtio-net EWMA fields directly,
+and modify net-sysfs.c to manage the new fields. Unlike (b), this approach
+supports the RX queue resizing in (3) but means putting virtio-net info
+in netdev_rx_queue, which currently has only device-independent fields.
+
+My preference would be (b): try using sysfs and adding a device-specific
+attribute group to the virtio-net netdevice (stored in the existing
+'sysfs_groups' field and supported by net-sysfs).  This would avoid
+adding virtio-net specific information to net-sysfs. What would you
+prefer (or is there a better way than the approaches above)? Thanks!
 
 Best,
 
