@@ -1,18 +1,18 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Michael Dalton <mwdalton@google.com>
 Subject: Re: [PATCH net-next v2 4/4] virtio-net: initial debugfs support,
 	export mergeable rx buffer size
-Date: Sun, 12 Jan 2014 19:09:39 +0200
-Message-ID: <20140112170939.GA17202@redhat.com>
+Date: Sun, 12 Jan 2014 15:32:28 -0800
+Message-ID: <CANJ5vP+Vu8=haCetZkcefPgR8pGe0iDZ03EZhJHLSgunCaHJsQ@mail.gmail.com>
 References: <1389072355-20666-1-git-send-email-mwdalton@google.com>
 	<1389072355-20666-4-git-send-email-mwdalton@google.com>
 	<52CCF177.7020500@redhat.com> <20140108192109.GC18312@redhat.com>
 	<CANJ5vP+Qxa5j_Cp1FBK-qdO+U+dy2kiY5N2bmWdMKbCoY9EwDQ@mail.gmail.com>
+	<20140112170939.GA17202@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CANJ5vP+Qxa5j_Cp1FBK-qdO+U+dy2kiY5N2bmWdMKbCoY9EwDQ@mail.gmail.com>
+In-Reply-To: <20140112170939.GA17202@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,58 +22,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Dalton <mwdalton@google.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 10, 2014 at 09:19:37PM -0800, Michael Dalton wrote:
-> Hi Jason, Michael
-> 
-> Sorry for the delay in response. Jason, I agree this patch ended up
-> being larger than expected. The major implementation parts are:
-> (1) Setup directory structure (driver/per-netdev/rx-queue directories)
-> (2) Network device renames (optional, so debugfs dir has the right name)
-> (3) Support resizing the # of RX queues (optional - we could just export
->     max_queue_pairs files and not delete files if an RX queue is disabled)
-> (4) Reference counting - used in case someone opens a debugfs
->     file and then removes the virtio-net device.
-> (5) The actual mergeable rx buffer file implementation itself. For now
->     I have added a seqcount for memory safety, but if a read-only race
->     condition is acceptable we could elide the seqcount. FWIW, the
->     seqcount write in receive_mergeable() should, on modern x86,
->     translate to two non-atomic adds and two compiler barriers, so
->     overhead is not expected to be meaningful.
-> 
-> We can move to sysfs and this would simplify or eliminate much of the
-> above, including most of (1) - (4). I believe our choices for what to
-> do for the next patchset include:
-> (a) Use debugfs as is currently done, removing any optional features
-> listed above that are deemed unnecessary.
-> 
-> (b) Add a per-netdev sysfs attribute group to net_device->sysfs_groups.
-> Each attribute would display the mergeable packet buffer size for a given
-> RX queue, and there would be max_queue_pairs attributes in total. This
-> is already supported by net/core/net-sysfs.c:netdev_register_kobject(),
-> but means that we would have a static set of per-RX queue files for
-> all RX queues supported by the netdev, rather than dynamically displaying
-> only the files corresponding to enabled RX queues (e.g., when # of RX
-> queues is changed by  ethtool -L <device>).  For an example of this
-> approach, see drivers/net/bonding/bond_sysfs.c.
-> 
-> (c) Modify struct netdev_rx_queue to add virtio-net EWMA fields directly,
-> and modify net-sysfs.c to manage the new fields. Unlike (b), this approach
-> supports the RX queue resizing in (3) but means putting virtio-net info
-> in netdev_rx_queue, which currently has only device-independent fields.
+Hi Michael,
 
-Can't we add struct attribute * to netdevice, and pass that in when
-creating the kobj?
+On Sun, Jan 12, 2014 at 9:09 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> Can't we add struct attribute * to netdevice, and pass that in when
+> creating the kobj?
 
-> My preference would be (b): try using sysfs and adding a device-specific
-> attribute group to the virtio-net netdevice (stored in the existing
-> 'sysfs_groups' field and supported by net-sysfs).  This would avoid
-> adding virtio-net specific information to net-sysfs. What would you
-> prefer (or is there a better way than the approaches above)? Thanks!
-> 
-> Best,
-> 
-> Mike
+I like that idea, I think that will work and should be better than
+the alternatives. The actual kobjs for RX queues (struct netdev_rx_queue)
+are allocated and deallocated by calls to net_rx_queue_update_kobjects,
+which resizes RX queue kobjects when the netdev RX queues are resized.
+
+Is this what you had in mind:
+(1) Add a pointer to an attribute group to struct net_device, used for
+    per-netdev rx queue attributes and initialized before the call to
+    register_netdevice().
+(2) Declare an attribute group containing the mergeable_rx_buffer_size
+    attribute in virtio-net, and initialize the per-netdevice group pointer
+    to the address of this group in virtnet_probe before register_netdevice
+(3) In net-sysfs, modify net_rx_queue_update_kobjects
+    (or rx_queue_add_kobject) to call sysfs_create_group on the
+    per-netdev attribute group (if non-NULL), adding the attributes in
+    the group to the RX queue kobject.
+
+That should allow us to have per-RX queue attributes that are
+device-specific. I'm not a sysfs expert, but it seems that rx_queue_ktype
+and rx_queue_sysfs_ops presume that all rx queue sysfs operations are
+performed on attributes of type rx_queue_attribute. That type will need
+to be moved from net-sysfs.c to a header file like netdevice.h so that
+the type can be used in virtio-net when we declare the
+mergeable_rx_buffer_size attribute.
+
+The last issue is how the rx_queue_attribute 'show' function
+implementation for mergeable_rx_buffer_size will access the appropriate
+per-receive queue EWMA data. The arguments to the show function will be
+the netdev_rx_queue and the attribute itself. We can get to the
+struct net_device from the netdev_rx_queue.  If we extended
+netdev_rx_queue to indicate the queue_index or to store a void *priv_data
+pointer, that would be sufficient to allow us to resolve this issue.
+
+Please let me know if the above sounds good or if you see a better way
+to accomplish this goal. Thanks!
+
+Best,
+
+Mike
