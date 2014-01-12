@@ -1,12 +1,18 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] MAINTAINERS: add virtio-dev ML for virtio
-Date: Sun, 12 Jan 2014 13:37:56 +0200
-Message-ID: <20140112113756.GA9127__39312.9867421978$1389526709$gmane$org@redhat.com>
+Subject: Re: [PATCH net-next v2 4/4] virtio-net: initial debugfs support,
+	export mergeable rx buffer size
+Date: Sun, 12 Jan 2014 19:09:39 +0200
+Message-ID: <20140112170939.GA17202@redhat.com>
+References: <1389072355-20666-1-git-send-email-mwdalton@google.com>
+	<1389072355-20666-4-git-send-email-mwdalton@google.com>
+	<52CCF177.7020500@redhat.com> <20140108192109.GC18312@redhat.com>
+	<CANJ5vP+Qxa5j_Cp1FBK-qdO+U+dy2kiY5N2bmWdMKbCoY9EwDQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
+In-Reply-To: <CANJ5vP+Qxa5j_Cp1FBK-qdO+U+dy2kiY5N2bmWdMKbCoY9EwDQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,47 +22,58 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, virtualization@lists.linux-foundation.org, amit.shah@redhat.com, netdev@vger.kernel.org, Joe Perches <joe@perches.com>, Andrew Morton <akpm@linux-foundation.org>, "David S. Miller" <davem@davemloft.net>, Mauro Carvalho Chehab <m.chehab@samsung.com>
+To: Michael Dalton <mwdalton@google.com>
+Cc: netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Since virtio is an OASIS standard draft now, virtio implementation
-discussions are taking place on the virtio-dev OASIS mailing list.
-Update MAINTAINERS.
+On Fri, Jan 10, 2014 at 09:19:37PM -0800, Michael Dalton wrote:
+> Hi Jason, Michael
+> 
+> Sorry for the delay in response. Jason, I agree this patch ended up
+> being larger than expected. The major implementation parts are:
+> (1) Setup directory structure (driver/per-netdev/rx-queue directories)
+> (2) Network device renames (optional, so debugfs dir has the right name)
+> (3) Support resizing the # of RX queues (optional - we could just export
+>     max_queue_pairs files and not delete files if an RX queue is disabled)
+> (4) Reference counting - used in case someone opens a debugfs
+>     file and then removes the virtio-net device.
+> (5) The actual mergeable rx buffer file implementation itself. For now
+>     I have added a seqcount for memory safety, but if a read-only race
+>     condition is acceptable we could elide the seqcount. FWIW, the
+>     seqcount write in receive_mergeable() should, on modern x86,
+>     translate to two non-atomic adds and two compiler barriers, so
+>     overhead is not expected to be meaningful.
+> 
+> We can move to sysfs and this would simplify or eliminate much of the
+> above, including most of (1) - (4). I believe our choices for what to
+> do for the next patchset include:
+> (a) Use debugfs as is currently done, removing any optional features
+> listed above that are deemed unnecessary.
+> 
+> (b) Add a per-netdev sysfs attribute group to net_device->sysfs_groups.
+> Each attribute would display the mergeable packet buffer size for a given
+> RX queue, and there would be max_queue_pairs attributes in total. This
+> is already supported by net/core/net-sysfs.c:netdev_register_kobject(),
+> but means that we would have a static set of per-RX queue files for
+> all RX queues supported by the netdev, rather than dynamically displaying
+> only the files corresponding to enabled RX queues (e.g., when # of RX
+> queues is changed by  ethtool -L <device>).  For an example of this
+> approach, see drivers/net/bonding/bond_sysfs.c.
+> 
+> (c) Modify struct netdev_rx_queue to add virtio-net EWMA fields directly,
+> and modify net-sysfs.c to manage the new fields. Unlike (b), this approach
+> supports the RX queue resizing in (3) but means putting virtio-net info
+> in netdev_rx_queue, which currently has only device-independent fields.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- MAINTAINERS              |   3 +
- drivers/net/virtio_net.c | 355 +++++++++++++++++++++++++----------------------
- 2 files changed, 191 insertions(+), 167 deletions(-)
+Can't we add struct attribute * to netdevice, and pass that in when
+creating the kobj?
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index ffcaf97..75202af 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9088,6 +9088,7 @@ F:	include/media/videobuf2-*
- 
- VIRTIO CONSOLE DRIVER
- M:	Amit Shah <amit.shah@redhat.com>
-+L:	virtio-dev@lists.oasis-open.org
- L:	virtualization@lists.linux-foundation.org
- S:	Maintained
- F:	drivers/char/virtio_console.c
-@@ -9097,6 +9098,7 @@ F:	include/uapi/linux/virtio_console.h
- VIRTIO CORE, NET AND BLOCK DRIVERS
- M:	Rusty Russell <rusty@rustcorp.com.au>
- M:	"Michael S. Tsirkin" <mst@redhat.com>
-+L:	virtio-dev@lists.oasis-open.org
- L:	virtualization@lists.linux-foundation.org
- S:	Maintained
- F:	drivers/virtio/
-@@ -9109,6 +9111,7 @@ F:	include/uapi/linux/virtio_*.h
- VIRTIO HOST (VHOST)
- M:	"Michael S. Tsirkin" <mst@redhat.com>
- L:	kvm@vger.kernel.org
-+L:	virtio-dev@lists.oasis-open.org
- L:	virtualization@lists.linux-foundation.org
- L:	netdev@vger.kernel.org
- S:	Maintained
--- 
-MST
+> My preference would be (b): try using sysfs and adding a device-specific
+> attribute group to the virtio-net netdevice (stored in the existing
+> 'sysfs_groups' field and supported by net-sysfs).  This would avoid
+> adding virtio-net specific information to net-sysfs. What would you
+> prefer (or is there a better way than the approaches above)? Thanks!
+> 
+> Best,
+> 
+> Mike
