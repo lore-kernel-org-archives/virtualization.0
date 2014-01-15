@@ -1,17 +1,13 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH stable-only] virtio-net: fix build on m68k and sparc64
-Date: Wed, 15 Jan 2014 11:15:18 +0200
-Message-ID: <20140115091518.GE1719@redhat.com>
-References: <1389774152-1526-1-git-send-email-mst@redhat.com>
-	<CAMuHMdV=qzDApabSiQj9up_RUW=PoVJA8oWaiWY7d2iQ22AfeQ@mail.gmail.com>
-	<20140115084605.GF29177@redhat.com>
-	<CAMuHMdW4io2BcPvR-VwLMrCNReTEcUeNgO1ievVw+Eg=UdyeuA@mail.gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH net-next RFC] virtio-net: drop rq->max and rq->num
+Date: Wed, 15 Jan 2014 14:11:23 +1030
+Message-ID: <87mwixx670.fsf@rustcorp.com.au>
+References: <1388134685-30691-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdW4io2BcPvR-VwLMrCNReTEcUeNgO1ievVw+Eg=UdyeuA@mail.gmail.com>
+In-Reply-To: <1388134685-30691-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,47 +17,106 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, David Miller <davem@davemloft.net>, Guenter Roeck <linux@roeck-us.net>
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jan 15, 2014 at 10:01:49AM +0100, Geert Uytterhoeven wrote:
-> On Wed, Jan 15, 2014 at 9:46 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Wed, Jan 15, 2014 at 09:36:13AM +0100, Geert Uytterhoeven wrote:
-> >> On Wed, Jan 15, 2014 at 9:26 AM, Michael S. Tsirkin <mst@redhat.com> wrote:
-> >> > As a result of backporting a bugfix, virtio_net started passing void *
-> >> > to page_address, assuming that it will get silently converted to struct
-> >> > page *. But this does not happen on architectures where page_address is
-> >> > a macro, the result is build failure as the macro tries to dereference
-> >> > void*.
-> >> >
-> >> > Fix by reordering code slightly, so we always pass
-> >> > struct page * to page_address.
-> >>
-> >> Thanks for the clue! I was just investigating a similar failure in -next.
-> >>
-> >> Gr{oetje,eeting}s,
-> >>
-> >>                         Geert
-> >
-> > You don't mean linux-next? And not in virtio-net? I don't see page_address
-> > being used on void * anywhere there.
-> 
-> http://kisskb.ellerman.id.au/kisskb/buildresult/10469287/
+Jason Wang <jasowang@redhat.com> writes:
+> It looks like there's no need for those two fields:
+>
+> - Unless there's a failure for the first refill try, rq->max should be always
+>   equal to the vring size.
+> - rq->num is only used to determine the condition that we need to do the refill,
+>   we could check vq->num_free instead.
+> - rq->num was required to be increased or decreased explicitly after each
+>   get/put which results a bad API.
+>
+> So this patch removes them both to make the code simpler.
 
-Wew, so it's not my fault :)
+Nice.  These fields date from when the vq struct was opaque.
 
-> I'm making {,set}page_address() static inline to fix this.
+Applied,
+Rusty.
 
-Yes, I don't see why it has to be a macro.
-
-> Gr{oetje,eeting}s,
-> 
->                         Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/net/virtio_net.c | 16 +++-------------
+>  1 file changed, 3 insertions(+), 13 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index c51a988..4e1bce3 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -72,9 +72,6 @@ struct receive_queue {
+>  
+>  	struct napi_struct napi;
+>  
+> -	/* Number of input buffers, and max we've ever had. */
+> -	unsigned int num, max;
+> -
+>  	/* Chain pages by the private ptr. */
+>  	struct page *pages;
+>  
+> @@ -360,7 +357,6 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>  		}
+>  
+>  		page = virt_to_head_page(buf);
+> -		--rq->num;
+>  
+>  		num_skb_frags = skb_shinfo(curr_skb)->nr_frags;
+>  		if (unlikely(num_skb_frags == MAX_SKB_FRAGS)) {
+> @@ -406,7 +402,6 @@ err_skb:
+>  		}
+>  		page = virt_to_head_page(buf);
+>  		put_page(page);
+> -		--rq->num;
+>  	}
+>  err_buf:
+>  	dev->stats.rx_dropped++;
+> @@ -628,10 +623,7 @@ static bool try_fill_recv(struct receive_queue *rq, gfp_t gfp)
+>  		oom = err == -ENOMEM;
+>  		if (err)
+>  			break;
+> -		++rq->num;
+>  	} while (rq->vq->num_free);
+> -	if (unlikely(rq->num > rq->max))
+> -		rq->max = rq->num;
+>  	if (unlikely(!virtqueue_kick(rq->vq)))
+>  		return false;
+>  	return !oom;
+> @@ -699,11 +691,10 @@ again:
+>  	while (received < budget &&
+>  	       (buf = virtqueue_get_buf(rq->vq, &len)) != NULL) {
+>  		receive_buf(rq, buf, len);
+> -		--rq->num;
+>  		received++;
+>  	}
+>  
+> -	if (rq->num < rq->max / 2) {
+> +	if (rq->vq->num_free > virtqueue_get_vring_size(rq->vq) / 2) {
+>  		if (!try_fill_recv(rq, GFP_ATOMIC))
+>  			schedule_delayed_work(&vi->refill, 0);
+>  	}
+> @@ -1398,9 +1389,7 @@ static void free_unused_bufs(struct virtnet_info *vi)
+>  				give_pages(&vi->rq[i], buf);
+>  			else
+>  				dev_kfree_skb(buf);
+> -			--vi->rq[i].num;
+>  		}
+> -		BUG_ON(vi->rq[i].num != 0);
+>  	}
+>  }
+>  
+> @@ -1671,7 +1660,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		try_fill_recv(&vi->rq[i], GFP_KERNEL);
+>  
+>  		/* If we didn't even get one input buffer, we're useless. */
+> -		if (vi->rq[i].num == 0) {
+> +		if (vi->rq[i].vq->num_free ==
+> +		    virtqueue_get_vring_size(vi->rq[i].vq)) {
+>  			free_unused_bufs(vi);
+>  			err = -ENOMEM;
+>  			goto free_recv_bufs;
+> -- 
+> 1.8.3.2
