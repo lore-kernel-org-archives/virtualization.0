@@ -1,15 +1,16 @@
-From: Ben Hutchings <bhutchings@solarflare.com>
+From: Michael Dalton <mwdalton@google.com>
 Subject: Re: [PATCH net-next v3 4/5] net-sysfs: add support for
 	device-specific rx queue sysfs attributes
-Date: Thu, 16 Jan 2014 18:57:30 +0000
-Message-ID: <1389898650.11912.65.camel@bwh-desktop.uk.level5networks.com>
+Date: Thu, 16 Jan 2014 11:07:36 -0800
+Message-ID: <CANJ5vP+nDgi7vWOd=RSuZ=NS5Z_txEkEsoYYm_33sFPh6rr=gg@mail.gmail.com>
 References: <1389865126-26225-1-git-send-email-mwdalton@google.com>
 	<1389865126-26225-4-git-send-email-mwdalton@google.com>
+	<1389898650.11912.65.camel@bwh-desktop.uk.level5networks.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1389865126-26225-4-git-send-email-mwdalton@google.com>
+In-Reply-To: <1389898650.11912.65.camel@bwh-desktop.uk.level5networks.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,42 +20,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Michael Dalton <mwdalton@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
+To: Ben Hutchings <bhutchings@solarflare.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2014-01-16 at 01:38 -0800, Michael Dalton wrote:
-[...]
-> --- a/include/linux/netdevice.h
-> +++ b/include/linux/netdevice.h
-[...]
-> @@ -2401,6 +2416,23 @@ static inline int netif_copy_real_num_queues(struct net_device *to_dev,
->  #endif
->  }
->  
-> +#ifdef CONFIG_SYSFS
-> +static inline unsigned int get_netdev_rx_queue_index(
-> +		struct netdev_rx_queue *queue)
-> +{
-> +	struct net_device *dev = queue->dev;
-> +	int i;
-> +
-> +	for (i = 0; i < dev->num_rx_queues; i++)
-> +		if (queue == &dev->_rx[i])
-> +			break;
+On Jan 16, 2014 at 10:57 AM, Ben Hutchings <bhutchings@solarflare.com> wrote:
+> Why write a loop when you can do:
+>         i = queue - dev->_rx;
+Good point, the loop approach was done in get_netdev_queue_index --
+I agree your fix is faster and simpler. I'll fix in next patchset.
+Thanks!
 
-Why write a loop when you can do:
-	i = queue - dev->_rx;
+Best,
 
-Ben.
-
-> +	BUG_ON(i >= dev->num_rx_queues);
-> +
-> +	return i;
-> +}
-> +#endif
-
--- 
-Ben Hutchings, Staff Engineer, Solarflare
-Not speaking for my employer; that's the marketing department's job.
-They asked us to note that Solarflare product names are trademarked.
+Mike
