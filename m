@@ -1,16 +1,13 @@
-From: Michael Dalton <mwdalton@google.com>
-Subject: Re: [PATCH net-next v4 1/6] net: allow > 0 order atomic page alloc in
-	skb_page_frag_refill
-Date: Thu, 16 Jan 2014 16:30:11 -0800
-Message-ID: <CANJ5vPLZZKqPxZ6yC4sympZODy5h0NjrOTkNS3g+ZG6_9KUi=w__37725.4411382184$1389918646$gmane$org@mail.gmail.com>
-References: <1389901950-3854-1-git-send-email-mwdalton@google.com>
-	<20140116.152800.901405996505782677.davem@davemloft.net>
-	<20140116.153020.587523865163482894.davem@davemloft.net>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net-next] virtio-net: drop rq->max and rq->num
+Date: Thu, 16 Jan 2014 17:37:37 -0800 (PST)
+Message-ID: <20140116.173737.429918297549548812.davem@davemloft.net>
+References: <1389854724-48411-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140116.153020.587523865163482894.davem@davemloft.net>
+In-Reply-To: <1389854724-48411-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,19 +17,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, lf-virt <virtualization@lists.linux-foundation.org>, Eric Dumazet <edumazet@google.com>, Ben Hutchings <bhutchings@solarflare.com>
+To: jasowang@redhat.com
+Cc: netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jan 16, 2014 at 3:30 PM, David Miller <davem@davemloft.net> wrote:
-> Actually, I reverted, please resubmit this series with the following
-> build warning corrected:
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 16 Jan 2014 14:45:24 +0800
 
-Thanks David, I will send out another patchset shortly with the warning
-resolved and a header e-mail (and one other sysfs group fix that I just
-found in the same file). Sorry I didn't include a header e-mail
-initially.
+> It looks like there's no need for those two fields:
+> 
+> - Unless there's a failure for the first refill try, rq->max should be always
+>   equal to the vring size.
+> - rq->num is only used to determine the condition that we need to do the refill,
+>   we could check vq->num_free instead.
+> - rq->num was required to be increased or decreased explicitly after each
+>   get/put which results a bad API.
+> 
+> So this patch removes them both to make the code simpler.
+> 
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> Acked-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Best,
-
-Mike
+Applied, thanks.
