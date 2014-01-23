@@ -1,11 +1,13 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: CISTI'2014: CFP - Doctoral Symposium
-Date: Wed, 22 Jan 2014 20:09:41 +0000
-Message-ID: <20140122200952.71EB2976@mail.linuxfoundation.org>
-Reply-To: cistimail@gmail.com
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v4 RFC 0/3] virtio: add 'device_lost' to virtio_device
+Date: Thu, 23 Jan 2014 15:21:49 +1030
+Message-ID: <878uu72tcq.fsf@rustcorp.com.au>
+References: <1386940410-44943-1-git-send-email-graalfs@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4242716596637359850=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1386940410-44943-1-git-send-email-graalfs@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,130 +17,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>, mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============4242716596637359850==
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
+> Hi, here is my v4 patch-set update to the v3 RFC submitted on Nov 27th. 
 
+Hi Heinz,
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D DOCTORAL SYMPOSIUM =3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D
-    CISTI'2014 - 9th Iberian Conference on Information Systems and Tec=
-hnologies
-                     Barcelona, Spain, June 18 - 21, 2014            =20
-           http://www.aisti.eu/cisti2014/index.php/en/doctoral-symposium
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+        I didn't get a response on my 'break all the virtqueues' patch
+series.  Could your System Z code work with this?
 
-
-The purpose of CISTI'2014=92s Doctoral Symposium is to provide graduat=
-e students a setting where they can, informally, expose and discuss th=
-eir work, collecting valuable expert opinions and sharing new ideas, m=
-ethods and applications. The Doctoral Symposium is an excellent opport=
-unity for PhD students to present and discuss their work in a Workshop=
- format. Each presentation will be evaluated by a panel composed by at=
- least three Information Systems and Technologies experts.
-
-
-Contributions Submission:
-
-The Doctoral Symposium is opened to PhD students whose research area i=
-ncludes the themes proposed for this Conference. Submissions must incl=
-ude an extended abstract (maximum 4 pages), following the Conference s=
-tyle guide. All selected contributions will be handed out along with t=
-he Conference Proceedings, in CD with an ISBN. These contributions wil=
-l be send for indexation by EBSCO and EI-Compendex.
-
-Submissions must include the field, the PhD institution and the number=
- of months devoted to the development of the work. Additionally, they =
-should include in a clear and succinct manner:
-
-    =95    The problem approached and its significance or relevance
-    =95    The research objectives and related investigation topics
-    =95    A brief display of what is already known
-    =95    A proposed solution methodology for the problem
-    =95    Expected results
-
-
-Important Dates:
-
-    =95    Proposal submission deadline: 15th of February 2014
-    =95    Acceptance notification: 29th of March 2014
-    =95    Final submission deadline: 12th of April 2014
-    =95    Registration payment, to ensure the inclusion of the accept=
-ed contribution in the Conference Proceedings: 12th of April 2014
-
-
-Scientific and Organizing Committee:
-
-Manuel P=E9rez Cota, Universidad de Vigo (Chair)
-Adolfo Lozano Tello, Universidad de Extremadura
-Alberto J. Bugar=EDn Diz, Universidad de Santiago de Compostela
-Alma Mar=EDa G=F3mez Rodr=EDguez, Universidade de Vigo
-=C1lvaro Rocha, Universidade Europeia & Universidade do Porto, LIACC
-Ana Maria Ramalho Correia, Universidade Nova de Lisboa, ISEGI
-Antonio Amescua, Universidade Carlos III de Madrid
-Ant=F3nio Lucas Soares, Universidade de Porto, FEUP
-Arnaldo Martins, Universidade de Aveiro
-Arturo Mendez Pen=EDn, Universidade de Vigo
-Augusto Sousa, Universidade do Porto, FEUP
-Carlos Ferr=E1s Sexto, Universidad de Santiago de Compostela
-Carles Garriga Berga, Universitat Ram=F3n Llul
-David Fonseca, Universidad Ram=F3n Llul
-Enrique Barreiro Alonso, Universidad de Vigo
-Ernesto Redondo, Universidad Polit=E9cnica de Catalu=F1a
-Eug=E9nio Oliveira, Universidade do Porto, FEUP
-Feliz Gouveia, Universidade Fernando Pessoa
-Fernando Moreira, Universidade Portucalense
-Francesc Alias Pujol, Universitat Ram=F3n Llul
-Francisco Restivo, Universidade Cat=F3lica Portuguesa
-Gonzalo Cuevas Agust=EDn, Universidad Polit=E9cnica de Madrid
-Guilhermina Miranda, Universidade de Lisboa
-H=E9ctor Jorge Garc=EDa Neder, Universidad Tecnol=F3gica Nacional
-Jo=E3o =C1lvaro Carvalho, Universidade do Minho
-Jo=E3o Barroso, Universidade de Tr=E1s-os-Montes e Alto Douro
-Jo=E3o Paulo Costa, Universidade de Coimbra
-J=F6rg Thomaschewski, University of Applied Sciences of Emden-Leer
-Jos=E9 Antonio Calvo-Manzano Villal=F3n, Universidad Polit=E9cnica de =
-Madrid
-Jos=E9 Tribolet, Universidade de Lisboa, IST
-Hugo Paredes, Universidade de Tr=E1s-os-Montes e Alto Douro
-Leandro Rodr=EDguez Li=F1ares, Universidade de Vigo
-Luis Paulo Reis, Universidade do Minho
-Mar=EDa Jos=E9 Lado Touri=F1o, Universidade de Vigo
-Mar=EDa Manuela Cruz Cunha, Polit=E9cnico do C=E1vado e do Ave
-Mario Alberto Groppo, Universidad Tecnol=F3gica Nacional
-Marco Painho, Universidade Nova de Lisboa, ISEGI
-Miguel Ram=F3n Gonz=E1lez Castro, ENCE
-Nelson Rocha, Universidade de Aveiro
-Nuno Lau, Universidade de Aveiro
-Paulo da Fonseca Pinto, Universidade Nova de Lisboa
-Pilar Mareca L=F3pez, Universidade Polit=E9cnica de Madrid
-Ramiro Gon=E7alves, Universidade de Tr=E1s-os-Montes e Alto Douro
-Vicente Alcober Bosch, Universidad Polit=E9cnica de Madrid
-
-
-Regards,
-
-CISTI'2014 Team
-http://www.aisti.eu/cisti2014/index.php/en
+Rusty.
 
 
 
---===============4242716596637359850==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4242716596637359850==--
+>
+> When an active virtio block device is hot-unplugged from a KVM guest,
+> affected guest user applications are not aware of any errors that occur
+> due to the lost device. This patch-set adds code to avoid further request
+> queueing when a lost block device is detected, resulting in appropriate
+> error info. Additionally a potential hang situation can be avoided by not
+> waiting for requests (e.g. in-flight requests) in blk_cleanup_queue() that
+> will never complete.
+>
+> On System z there exists no handshake mechanism between host and guest
+> when a device is hot-unplugged. The device is removed and no further I/O
+> is possible.
+>
+> When an online channel device disappears on System z the kernel's CIO layer
+> informs the driver (virtio_ccw) about the lost device.
+>
+> Here are some more error details:
+>
+> For a particular block device virtio's request function virtblk_request()
+> is called by the block layer to queue requests to be handled by the host.
+> In case of a lost device requests can still be queued, but an appropriate
+> subsequent host kick usually fails. This leads to situations where no error
+> feedback is shown.
+>
+> In order to prevent request queueing for lost devices appropriate settings
+> in the block layer should be made. Exploiting System z's CIO notify handler
+> callback, and passing on device loss information via the surprize_removal
+> flag to the remove callback of the backend driver, can solve this task.
+>
+> v3->v4 changes:
+>  - patch 1: solves some vcdev pointer handling issues in the virtio_ccw driver
+>    (e.g. locked vcdev pointer reset/query; serialize remove()/set_offline()
+>    callback processing).
+>  - patch 2: introduces 'device_lost' atomic in virtio_device and use in
+>    backend driver virtio_blk accordingly (original 3 patches merged).
+>  - patch 3: the notify() callback is now serialized with remove()/set_offline()
+>    callbacks. The notification is ignored if the vcdev pointer has been cleared
+>    already (by remove() or set_offline()).
+>
+> v2->v3 changes:
+>  - remove virtio_driver's notify callback (and appropriate code) introduced
+>    in my v1 RFC
+>  - introduce 'surprize_removal' in struct virtio_device
+>  - change virtio_blk's remove callback to perform special actions when the
+>    surprize_removal flag is set
+>    - avoid final I/O by preventing further request queueing
+>    - avoid hangs in blk_cleanup_queue() due to waits on 'in-flight' requests
+>  - set surprize_removal in virtio_ccw's notify callback when a device is lost
+>
+> v1->v2 changes:
+>  - add include of linux/notifier.h (I also added it to the 3rd patch)
+>  - get queue lock in order to be able to use safe queue_flag_set() functions
+>    in virtblk_notify() handler
+>
+>
+> Heinz Graalfs (3):
+>   virtio_ccw: fix vcdev pointer handling issues
+>   virtio: introduce 'device_lost' flag in virtio_device
+>   virtio_ccw: set 'device_lost' on CIO_GONE notification
+>
+>  drivers/block/virtio_blk.c    | 14 ++++++++++-
+>  drivers/s390/kvm/virtio_ccw.c | 58 ++++++++++++++++++++++++++++++++++++-------
+>  include/linux/virtio.h        |  2 ++
+>  3 files changed, 64 insertions(+), 10 deletions(-)
+>
+> -- 
+> 1.8.3.1
