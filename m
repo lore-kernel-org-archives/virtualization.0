@@ -1,11 +1,13 @@
 From: Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 0/3] tools/virtio: build fixes for virtio_test
-Date: Tue, 11 Feb 2014 16:58:17 +1030
-Message-ID: <1392100100-28193-1-git-send-email-joel@jms.id.au>
+Subject: [PATCH 1/3] tools/virtio: update internal copies of headers
+Date: Tue, 11 Feb 2014 16:58:18 +1030
+Message-ID: <1392100100-28193-2-git-send-email-joel@jms.id.au>
+References: <1392100100-28193-1-git-send-email-joel@jms.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1392100100-28193-1-git-send-email-joel@jms.id.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,23 +20,50 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: rusty@rustcorp.com.au, mst@redhat.com, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Recent changes to drivers/virtio broke compilation for the tests in
-tools/virtio. The following patches are build fixes for those changes, as well
-as a fix for a typo that would have never built.
-
-The changes were tested on my amd64 system against 3.14-rc2.
-
-Joel Stanley (3):
-  tools/virtio: update internal copies of headers
-  tools/virtio: fix missing kmemleak_ignore symbol
-  tools/virtio: add a missing )
-
- drivers/virtio/virtio_ring.c  | 1 +
- tools/virtio/linux/kmemleak.h | 3 +++
- tools/virtio/linux/virtio.h   | 4 ++--
- tools/virtio/virtio_test.c    | 2 +-
- 4 files changed, 7 insertions(+), 3 deletions(-)
- create mode 100644 tools/virtio/linux/kmemleak.h
-
--- 
-1.9.rc1
+VGhlIHZpcnRpbyBoZWFkZXJzIGhhdmUgY2hhbmdlZCByZWNlbnRseToKCiA1YjFiZjdjYjY3MyB2
+aXJ0aW9fcmluZzogbGV0IHZpcnRxdWV1ZV97a2ljaygpL25vdGlmeSgpfSByZXR1cm4gYSBib29s
+CiA0NmY5YzJiOTI1YSB2aXJ0aW9fcmluZzogY2hhbmdlIGhvc3Qgbm90aWZpY2F0aW9uIEFQSQoK
+VXBkYXRlIHRoZSBpbnRlcm5hbCBjb3BpZXMgdG8gZml4IHRoZSBidWlsZCBvZiB2aXJ0aW9fdGVz
+dDoKCiAgY2MgLWcgLU8yIC1XYWxsIC1JLiAtSSAuLi8uLi91c3IvaW5jbHVkZS8gLVduby1wb2lu
+dGVyLXNpZ24KICAgIC1mbm8tc3RyaWN0LW92ZXJmbG93IC1mbm8tc3RyaWN0LWFsaWFzaW5nIC1m
+bm8tY29tbW9uIC1NTUQgLVVfRk9SVElGWV9TT1VSQ0UKICAgIC1jIC1vIHZpcnRpb190ZXN0Lm8g
+dmlydGlvX3Rlc3QuYwogIEluIGZpbGUgaW5jbHVkZWQgZnJvbSB2aXJ0aW9fdGVzdC5jOjE1OjA6
+CiAgLi9saW51eC92aXJ0aW8uaDo3NjoxOTogZXJyb3I6IGNvbmZsaWN0aW5nIHR5cGVzIGZvciDi
+gJh2cmluZ19uZXdfdmlydHF1ZXVl4oCZCiAgIHN0cnVjdCB2aXJ0cXVldWUgKnZyaW5nX25ld192
+aXJ0cXVldWUodW5zaWduZWQgaW50IGluZGV4LAogICAgICAgICAgICAgICAgICAgICBeCiAgSW4g
+ZmlsZSBpbmNsdWRlZCBmcm9tIC4vbGludXgvdmlydGlvX3JpbmcuaDoxOjAsCiAgICAgICAgICAg
+ICAgICAgICBmcm9tIC4uLy4uL3Vzci9pbmNsdWRlL2xpbnV4L3Zob3N0Lmg6MTcsCiAgICAgICAg
+ICAgICAgICAgICBmcm9tIHZpcnRpb190ZXN0LmM6MTQ6CiAgLi9saW51eC8uLi8uLi8uLi9pbmNs
+dWRlL2xpbnV4L3ZpcnRpb19yaW5nLmg6Njg6MTk6IG5vdGU6IHByZXZpb3VzCiAgZGVjbGFyYXRp
+b24gb2Yg4oCYdnJpbmdfbmV3X3ZpcnRxdWV1ZeKAmSB3YXMgaGVyZQogICBzdHJ1Y3QgdmlydHF1
+ZXVlICp2cmluZ19uZXdfdmlydHF1ZXVlKHVuc2lnbmVkIGludCBpbmRleCwKICB2aXJ0aW9fdGVz
+dC5jOiBJbiBmdW5jdGlvbiDigJh2cV9pbmZvX2FkZOKAmToKICB2aXJ0aW9fdGVzdC5jOjEwMzox
+Mjogd2FybmluZzogcGFzc2luZyBhcmd1bWVudCA3IG9mIOKAmHZyaW5nX25ld192aXJ0cXVldWXi
+gJkKICBmcm9tIGluY29tcGF0aWJsZSBwb2ludGVyIHR5cGUgW2VuYWJsZWQgYnkgZGVmYXVsdF0K
+ICAgICAgICAgICAgICB2cV9ub3RpZnksIHZxX2NhbGxiYWNrLCAidGVzdCIpOwogICAgICAgICAg
+ICAgIF4KICBJbiBmaWxlIGluY2x1ZGVkIGZyb20gdmlydGlvX3Rlc3QuYzoxNTowOgogIC4vbGlu
+dXgvdmlydGlvLmg6NzY6MTk6IG5vdGU6IGV4cGVjdGVkIOKAmHZvaWQgKCopKHN0cnVjdCB2aXJ0
+cXVldWUgKinigJkgYnV0CiAgYXJndW1lbnQgaXMgb2YgdHlwZSDigJhfQm9vbCAoKikoc3RydWN0
+IHZpcnRxdWV1ZSAqKeKAmQogICBzdHJ1Y3QgdmlydHF1ZXVlICp2cmluZ19uZXdfdmlydHF1ZXVl
+KHVuc2lnbmVkIGludCBpbmRleCwKICAgICAgICAgICAgICAgICAgICAgXgoKU2lnbmVkLW9mZi1i
+eTogSm9lbCBTdGFubGV5IDxqb2VsQGptcy5pZC5hdT4KLS0tCiB0b29scy92aXJ0aW8vbGludXgv
+dmlydGlvLmggfCA0ICsrLS0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIgZGVs
+ZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvdG9vbHMvdmlydGlvL2xpbnV4L3ZpcnRpby5oIGIvdG9v
+bHMvdmlydGlvL2xpbnV4L3ZpcnRpby5oCmluZGV4IDg0NDc4MzAuLjVhMmQxZjAgMTAwNjQ0Ci0t
+LSBhL3Rvb2xzL3ZpcnRpby9saW51eC92aXJ0aW8uaAorKysgYi90b29scy92aXJ0aW8vbGludXgv
+dmlydGlvLmgKQEAgLTYzLDcgKzYzLDcgQEAgaW50IHZpcnRxdWV1ZV9hZGRfaW5idWYoc3RydWN0
+IHZpcnRxdWV1ZSAqdnEsCiAJCQl2b2lkICpkYXRhLAogCQkJZ2ZwX3QgZ2ZwKTsKIAotdm9pZCB2
+aXJ0cXVldWVfa2ljayhzdHJ1Y3QgdmlydHF1ZXVlICp2cSk7Citib29sIHZpcnRxdWV1ZV9raWNr
+KHN0cnVjdCB2aXJ0cXVldWUgKnZxKTsKIAogdm9pZCAqdmlydHF1ZXVlX2dldF9idWYoc3RydWN0
+IHZpcnRxdWV1ZSAqdnEsIHVuc2lnbmVkIGludCAqbGVuKTsKIApAQCAtNzksNyArNzksNyBAQCBz
+dHJ1Y3QgdmlydHF1ZXVlICp2cmluZ19uZXdfdmlydHF1ZXVlKHVuc2lnbmVkIGludCBpbmRleCwK
+IAkJCQkgICAgICBzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldiwKIAkJCQkgICAgICBib29sIHdl
+YWtfYmFycmllcnMsCiAJCQkJICAgICAgdm9pZCAqcGFnZXMsCi0JCQkJICAgICAgdm9pZCAoKm5v
+dGlmeSkoc3RydWN0IHZpcnRxdWV1ZSAqdnEpLAorCQkJCSAgICAgIGJvb2wgKCpub3RpZnkpKHN0
+cnVjdCB2aXJ0cXVldWUgKnZxKSwKIAkJCQkgICAgICB2b2lkICgqY2FsbGJhY2spKHN0cnVjdCB2
+aXJ0cXVldWUgKnZxKSwKIAkJCQkgICAgICBjb25zdCBjaGFyICpuYW1lKTsKIHZvaWQgdnJpbmdf
+ZGVsX3ZpcnRxdWV1ZShzdHJ1Y3QgdmlydHF1ZXVlICp2cSk7Ci0tIAoxLjkucmMxCgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
