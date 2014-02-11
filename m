@@ -1,12 +1,13 @@
-From: Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 3/3] tools/virtio: add a missing )
-Date: Tue, 11 Feb 2014 16:58:20 +1030
-Message-ID: <1392100100-28193-4-git-send-email-joel@jms.id.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 0/3] tools/virtio: build fixes for virtio_test
+Date: Tue, 11 Feb 2014 08:57:57 +0200
+Message-ID: <20140211065757.GA1879@redhat.com>
 References: <1392100100-28193-1-git-send-email-joel@jms.id.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1392100100-28193-1-git-send-email-joel@jms.id.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -17,26 +18,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, mst@redhat.com, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: Joel Stanley <joel@jms.id.au>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Rml4ZXMgdGhlIGZvbGxvd2luZyBidWlsZCBmYWlsdXJlOgoKIGNjIC1nIC1PMiAtV2FsbCAtSS4g
-LUkgLi4vLi4vdXNyL2luY2x1ZGUvIC1Xbm8tcG9pbnRlci1zaWduCiAgIC1mbm8tc3RyaWN0LW92
-ZXJmbG93IC1mbm8tc3RyaWN0LWFsaWFzaW5nIC1mbm8tY29tbW9uIC1NTUQKICAgLVVfRk9SVElG
-WV9TT1VSQ0UgICAtYyAtbyB2aXJ0aW9fdGVzdC5vIHZpcnRpb190ZXN0LmMKIHZpcnRpb190ZXN0
-LmM6IEluIGZ1bmN0aW9uIOKAmHJ1bl90ZXN04oCZOgogdmlydGlvX3Rlc3QuYzoxNzY6NzogZXJy
-b3I6IGV4cGVjdGVkIOKAmCnigJkgYmVmb3JlIOKAmHLigJkKICAgICAgICAgciA9IC0xOwogICAg
-ICAgICBeCgpTaWduZWQtb2ZmLWJ5OiBKb2VsIFN0YW5sZXkgPGpvZWxAam1zLmlkLmF1PgotLS0K
-IHRvb2xzL3ZpcnRpby92aXJ0aW9fdGVzdC5jIHwgMiArLQogMSBmaWxlIGNoYW5nZWQsIDEgaW5z
-ZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvdG9vbHMvdmlydGlvL3ZpcnRp
-b190ZXN0LmMgYi90b29scy92aXJ0aW8vdmlydGlvX3Rlc3QuYwppbmRleCBiZGI3MWEyLi4wMGVh
-Njc5IDEwMDY0NAotLS0gYS90b29scy92aXJ0aW8vdmlydGlvX3Rlc3QuYworKysgYi90b29scy92
-aXJ0aW8vdmlydGlvX3Rlc3QuYwpAQCAtMTcyLDcgKzE3Miw3IEBAIHN0YXRpYyB2b2lkIHJ1bl90
-ZXN0KHN0cnVjdCB2ZGV2X2luZm8gKmRldiwgc3RydWN0IHZxX2luZm8gKnZxLAogCQkJCQkJCSBH
-RlBfQVRPTUlDKTsKIAkJCQlpZiAobGlrZWx5KHIgPT0gMCkpIHsKIAkJCQkJKytzdGFydGVkOwot
-CQkJCQlpZiAodW5saWtlbHkoIXZpcnRxdWV1ZV9raWNrKHZxLT52cSkpCisJCQkJCWlmICh1bmxp
-a2VseSghdmlydHF1ZXVlX2tpY2sodnEtPnZxKSkpCiAJCQkJCQlyID0gLTE7CiAJCQkJfQogCQkJ
-fSBlbHNlCi0tIAoxLjkucmMxCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
-dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
-L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Tue, Feb 11, 2014 at 04:58:17PM +1030, Joel Stanley wrote:
+> Recent changes to drivers/virtio broke compilation for the tests in
+> tools/virtio. The following patches are build fixes for those changes, as well
+> as a fix for a typo that would have never built.
+> 
+> The changes were tested on my amd64 system against 3.14-rc2.
+
+Ah, thanks a lot for posting this.
+I had this fixed in my tree but forgot to send.
+For the series:
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+Rusty, will you pick this up?
+
+> Joel Stanley (3):
+>   tools/virtio: update internal copies of headers
+>   tools/virtio: fix missing kmemleak_ignore symbol
+>   tools/virtio: add a missing )
+> 
+>  drivers/virtio/virtio_ring.c  | 1 +
+>  tools/virtio/linux/kmemleak.h | 3 +++
+>  tools/virtio/linux/virtio.h   | 4 ++--
+>  tools/virtio/virtio_test.c    | 2 +-
+>  4 files changed, 7 insertions(+), 3 deletions(-)
+>  create mode 100644 tools/virtio/linux/kmemleak.h
+> 
+> -- 
+> 1.9.rc1
