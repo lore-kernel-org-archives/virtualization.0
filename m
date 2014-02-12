@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH net 2/3] vhost: fix ref cnt checking deadlock
-Date: Wed, 12 Feb 2014 18:38:00 +0200
-Message-ID: <1392222846-26699-3-git-send-email-mst@redhat.com>
+Subject: [PATCH net 1/3] kref: add kref_sub_return
+Date: Wed, 12 Feb 2014 18:38:21 +0200
+Message-ID: <1392222846-26699-2-git-send-email-mst@redhat.com>
 References: <1392222846-26699-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,73 +19,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, qinchuanyu@huawei.com, davem@davemloft.net
+Cc: virtio-dev@lists.oasis-open.org, Joern Engel <joern@logfs.org>, Anatol Pomozov <anatol.pomozov@gmail.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, qinchuanyu@huawei.com, davem@davemloft.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-vhost checked the counter within the refcnt before decrementing.  It
-really wanted to know that there aren't too many references, as a way to
-batch freeing resources a bit more efficiently.
+It is sometimes useful to get the value of the reference count after
+decrement.
+For example, vhost wants to execute some periodic cleanup operations
+once number of references drops below a specific value, before it
+reaches zero (for efficiency).
 
-This works well but it we now access the
-ref counter twice so there's a race:
-all users might see a high count and decide
-to defer freeing resources.
-In the end no one initiates freeing resources
-until the last reference is gone (which is on VM shotdown
-so might happen after a looooong time).
+Add an API to do this atomically and efficiently using
+atomic_sub_return.
 
-Let's do what we should have done straight away:
-add a kref API to return the kref value atomically,
-and use that to avoid the deadlock.
-
-Reported-by: Qin Chuanyu <qinchuanyu@huawei.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vhost/net.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 831eb4f..7eaf2de 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -140,9 +140,9 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
- 	return ubufs;
+Greg, could you ack this API extension please?
+I think it is cleanest to merge this through -net together
+with the first user.
+
+ include/linux/kref.h | 34 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 33 insertions(+), 1 deletion(-)
+
+diff --git a/include/linux/kref.h b/include/linux/kref.h
+index 484604d..cb20550 100644
+--- a/include/linux/kref.h
++++ b/include/linux/kref.h
+@@ -61,7 +61,7 @@ static inline void kref_get(struct kref *kref)
+  *
+  * Subtract @count from the refcount, and if 0, call release().
+  * Return 1 if the object was removed, otherwise return 0.  Beware, if this
+- * function returns 0, you still can not count on the kref from remaining in
++ * function returns 0, you still can not count on the kref remaining in
+  * memory.  Only use the return value if you want to see if the kref is now
+  * gone, not present.
+  */
+@@ -78,6 +78,38 @@ static inline int kref_sub(struct kref *kref, unsigned int count,
  }
  
--static void vhost_net_ubuf_put(struct vhost_net_ubuf_ref *ubufs)
-+static int vhost_net_ubuf_put(struct vhost_net_ubuf_ref *ubufs)
- {
--	kref_put(&ubufs->kref, vhost_net_zerocopy_done_signal);
-+	return kref_sub_return(&ubufs->kref, 1, vhost_net_zerocopy_done_signal);
- }
- 
- static void vhost_net_ubuf_put_and_wait(struct vhost_net_ubuf_ref *ubufs)
-@@ -306,22 +306,21 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
- {
- 	struct vhost_net_ubuf_ref *ubufs = ubuf->ctx;
- 	struct vhost_virtqueue *vq = ubufs->vq;
--	int cnt = atomic_read(&ubufs->kref.refcount);
-+	int cnt;
- 
- 	/* set len to mark this desc buffers done DMA */
- 	vq->heads[ubuf->desc].len = success ?
- 		VHOST_DMA_DONE_LEN : VHOST_DMA_FAILED_LEN;
--	vhost_net_ubuf_put(ubufs);
-+	cnt = vhost_net_ubuf_put(ubufs);
- 
- 	/*
- 	 * Trigger polling thread if guest stopped submitting new buffers:
--	 * in this case, the refcount after decrement will eventually reach 1
--	 * so here it is 2.
-+	 * in this case, the refcount after decrement will eventually reach 1.
- 	 * We also trigger polling periodically after each 16 packets
- 	 * (the value 16 here is more or less arbitrary, it's tuned to trigger
- 	 * less than 10% of times).
- 	 */
--	if (cnt <= 2 || !(cnt % 16))
-+	if (cnt <= 1 || !(cnt % 16))
- 		vhost_poll_queue(&vq->poll);
- }
- 
+ /**
++ * kref_sub_return - subtract a number of refcounts for object.
++ * @kref: object.
++ * @count: Number of recounts to subtract.
++ * @release: pointer to the function that will clean up the object when the
++ *	     last reference to the object is released.
++ *	     This pointer is required, and it is not acceptable to pass kfree
++ *	     in as this function.  If the caller does pass kfree to this
++ *	     function, you will be publicly mocked mercilessly by the kref
++ *	     maintainer, and anyone else who happens to notice it.  You have
++ *	     been warned.
++ *
++ * Subtract @count from the refcount, and if 0, call release().
++ * Return the new refcount.  Beware, if this function returns > N, you still
++ * can not count on there being at least N other references, and in
++ * particular, on the kref remaining in memory.
++ * Only use the return value if you want to see if there are at most,
++ * not at least, N other references to kref,
++ */
++static inline int kref_sub_return(struct kref *kref, unsigned int count,
++				  void (*release)(struct kref *kref))
++{
++	int r;
++
++	WARN_ON(release == NULL);
++
++	r = atomic_sub_return((int) count, &kref->refcount);
++	if (!r)
++		release(kref);
++	return r;
++}
++
++/**
+  * kref_put - decrement refcount for object.
+  * @kref: object.
+  * @release: pointer to the function that will clean up the object when the
 -- 
 MST
