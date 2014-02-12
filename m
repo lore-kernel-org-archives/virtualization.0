@@ -1,7 +1,8 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Users of ballooning, please come forth!
-Date: Tue, 11 Feb 2014 16:31:10 +1030
-Message-ID: <8761om2no9.fsf@rustcorp.com.au>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] virtio-net: alloc big buffers also when guest can receive
+	UFO
+Date: Wed, 12 Feb 2014 13:43:28 +0800
+Message-ID: <1392183808-16789-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,19 +16,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: rusty@rustcorp.com.au, mst@redhat.com, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Sridhar Samudrala <sri@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all!
+We should alloc big buffers also when guest can receive UFO
+pakcets. Otherwise the big packets will be truncated when mergeable rx
+buffer is disabled.
 
-        We're debating the design of the balloon for the OASIS spec.
-Noone likes the current one, but there are fundamental usage pattern
-questions which we're fumbling with.
+Fixes 5c5167515d80f78f6bb538492c423adcae31ad65
+(virtio-net: Allow UFO feature to be set and advertised.)
 
-So if you know anyone who is using it in production?  If, so, how?  In
-particular, would you be happy with guests simply giving the host back
-whatever memory they can spare (as Xen's self-balloon does)?  Or do you
-require the host-forcing approach?  Comment or email please!
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Sridhar Samudrala <sri@us.ibm.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Thanks,
-Rusty.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d75f8ed..5632a99 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1711,7 +1711,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	/* If we can receive ANY GSO packets, we must allocate large ones. */
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+ 	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6) ||
+-	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN))
++	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN) ||
++	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UFO))
+ 		vi->big_packets = true;
+ 
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+-- 
+1.8.3.2
