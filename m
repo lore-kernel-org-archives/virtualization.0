@@ -1,17 +1,15 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH net 1/3] kref: add kref_sub_return
-Date: Wed, 12 Feb 2014 17:39:02 -0800
-Message-ID: <20140213013902.GA21261@kroah.com>
-References: <1392222846-26699-1-git-send-email-mst@redhat.com>
-	<1392222846-26699-2-git-send-email-mst@redhat.com>
-	<20140212165630.GA22991@kroah.com>
-	<20140212.190637.328045386111912135.davem@davemloft.net>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net] virtio-net: alloc big buffers also when guest can
+	receive UFO
+Date: Thu, 13 Feb 2014 11:02:13 +0800
+Message-ID: <52FC35B5.6000900__28934.7947961234$1392260556$gmane$org@redhat.com>
+References: <1392183808-16789-1-git-send-email-jasowang@redhat.com>
+	<20140212115901.GC23006@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140212.190637.328045386111912135.davem@davemloft.net>
+In-Reply-To: <20140212115901.GC23006@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,44 +19,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Miller <davem@davemloft.net>
-Cc: virtio-dev@lists.oasis-open.org, anatol.pomozov@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, qinchuanyu@huawei.com, joern@logfs.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sridhar Samudrala <sri@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 12, 2014 at 07:06:37PM -0500, David Miller wrote:
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Date: Wed, 12 Feb 2014 08:56:30 -0800
-> 
-> > On Wed, Feb 12, 2014 at 06:38:21PM +0200, Michael S. Tsirkin wrote:
-> >> It is sometimes useful to get the value of the reference count after
-> >> decrement.
-> >> For example, vhost wants to execute some periodic cleanup operations
-> >> once number of references drops below a specific value, before it
-> >> reaches zero (for efficiency).
-> > 
-> > You should never care about what the value of the kref is, if you are
-> > using it correctly :)
-> 
-> It isn't being used to determine when to destroy things.
-> 
-> They use it to as a heuristic of when to trigger polling.
-> 
-> Each ubuf attached gets a kref to the higher level virtio_net buffer
-> holding object, they want to trigger polling when that reference drops
-> to 1 or lower.
-> 
-> Right now they are reading the atomic refcount directly, which
-> I think is much worse than this helper.
+On 02/12/2014 07:59 PM, Michael S. Tsirkin wrote:
+> On Wed, Feb 12, 2014 at 01:43:28PM +0800, Jason Wang wrote:
+>> > We should alloc big buffers also when guest can receive UFO
+>> > pakcets. Otherwise the big packets will be truncated when mergeable rx
+>> > buffer is disabled.
+> Not truncated, they will be dropped.
+>
 
-Yes, that's horrible as well, but as was already pointed out in this
-thread, you can't rely on that value to really be "1" after reading it
-due to the way krefs work, what happened if someone else just grabbed
-it?
-
-If all they want is a "count" for when to start polling, then use a
-separate atomic count, but don't abuse the kref interface for this, I
-don't think that will work properly at all.
-
-thanks,
-
-greg k-h
+Why dropped? We enable the ufo on tap0 if VIRTIO_NET_F_GUEST_UFO is
+negotiated. So skb was queued on the receive queue. But since the
+receive buffer is small, it will be truncated during tun_put_user().
