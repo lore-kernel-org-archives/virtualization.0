@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 0/3] tools/virtio: build fixes for virtio_test
-Date: Thu, 13 Feb 2014 14:58:25 +1030
-Message-ID: <87txc3eivq.fsf@rustcorp.com.au>
+Date: Thu, 13 Feb 2014 15:10:15 +1030
+Message-ID: <87r477eic0.fsf@rustcorp.com.au>
 References: <1392100100-28193-1-git-send-email-joel@jms.id.au>
 	<20140211065757.GA1879@redhat.com>
 Mime-Version: 1.0
@@ -23,6 +23,7 @@ Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 "Michael S. Tsirkin" <mst@redhat.com> writes:
+
 > On Tue, Feb 11, 2014 at 04:58:17PM +1030, Joel Stanley wrote:
 >> Recent changes to drivers/virtio broke compilation for the tests in
 >> tools/virtio. The following patches are build fixes for those changes, as well
@@ -38,7 +39,12 @@ List-Id: virtualization@lists.linuxfoundation.org
 >
 > Rusty, will you pick this up?
 
-Applied.
+Hmm, add added:
 
-Thanks,
+Fixes: 53c18c9906441 (virtio_test: verify if virtqueue_kick() succeeded)
+Cc: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+
+Heinz, you didn't compile test your patch.
+
+Insert angry-Torvalds-face here,
 Rusty.
