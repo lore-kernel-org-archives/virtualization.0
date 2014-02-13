@@ -1,14 +1,16 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 0/3] tools/virtio: build fixes for virtio_test
-Date: Thu, 13 Feb 2014 15:10:15 +1030
-Message-ID: <87r477eic0.fsf@rustcorp.com.au>
-References: <1392100100-28193-1-git-send-email-joel@jms.id.au>
-	<20140211065757.GA1879@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net] virtio-net: alloc big buffers also when guest can
+	receive UFO
+Date: Thu, 13 Feb 2014 07:15:59 +0200
+Message-ID: <20140213051559.GB31352@redhat.com>
+References: <1392183808-16789-1-git-send-email-jasowang@redhat.com>
+	<20140212115901.GC23006@redhat.com> <52FC35B5.6000900@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140211065757.GA1879@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <52FC35B5.6000900@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,33 +20,26 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Joel Stanley <joel@jms.id.au>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sridhar Samudrala <sri@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-"Michael S. Tsirkin" <mst@redhat.com> writes:
+On Thu, Feb 13, 2014 at 11:02:13AM +0800, Jason Wang wrote:
+> On 02/12/2014 07:59 PM, Michael S. Tsirkin wrote:
+> > On Wed, Feb 12, 2014 at 01:43:28PM +0800, Jason Wang wrote:
+> >> > We should alloc big buffers also when guest can receive UFO
+> >> > pakcets. Otherwise the big packets will be truncated when mergeable rx
+> >> > buffer is disabled.
+> > Not truncated, they will be dropped.
+> >
+> 
+> Why dropped? We enable the ufo on tap0 if VIRTIO_NET_F_GUEST_UFO is
+> negotiated. So skb was queued on the receive queue. But since the
+> receive buffer is small, it will be truncated during tun_put_user().
 
-> On Tue, Feb 11, 2014 at 04:58:17PM +1030, Joel Stanley wrote:
->> Recent changes to drivers/virtio broke compilation for the tests in
->> tools/virtio. The following patches are build fixes for those changes, as well
->> as a fix for a typo that would have never built.
->> 
->> The changes were tested on my amd64 system against 3.14-rc2.
->
-> Ah, thanks a lot for posting this.
-> I had this fixed in my tree but forgot to send.
-> For the series:
->
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->
-> Rusty, will you pick this up?
+Hypervisor shouldn't truncate packets silently - if it does
+it's a hypervisor bug. Passing malformed packets to guest is
+a bad idea.
 
-Hmm, add added:
-
-Fixes: 53c18c9906441 (virtio_test: verify if virtqueue_kick() succeeded)
-Cc: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-
-Heinz, you didn't compile test your patch.
-
-Insert angry-Torvalds-face here,
-Rusty.
+-- 
+MST
