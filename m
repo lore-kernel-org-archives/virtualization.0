@@ -1,14 +1,13 @@
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: Re: [PATCH 0/3] tools/virtio: build fixes for virtio_test
-Date: Thu, 13 Feb 2014 12:05:33 +0100
-Message-ID: <52FCA6FD.8070109@linux.vnet.ibm.com>
-References: <1392100100-28193-1-git-send-email-joel@jms.id.au>
-	<20140211065757.GA1879@redhat.com> <87r477eic0.fsf@rustcorp.com.au>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net v2] vhost: fix ref cnt checking deadlock
+Date: Thu, 13 Feb 2014 18:48:12 -0500 (EST)
+Message-ID: <20140213.184812.213639748986818676.davem@davemloft.net>
+References: <1392284448-1977-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87r477eic0.fsf@rustcorp.com.au>
+In-Reply-To: <1392284448-1977-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,40 +17,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, "Michael S. Tsirkin" <mst@redhat.com>, Joel Stanley <joel@jms.id.au>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+To: mst@redhat.com
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, qinchuanyu@huawei.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 13/02/14 05:40, Rusty Russell wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
->
->> On Tue, Feb 11, 2014 at 04:58:17PM +1030, Joel Stanley wrote:
->>> Recent changes to drivers/virtio broke compilation for the tests in
->>> tools/virtio. The following patches are build fixes for those changes, as well
->>> as a fix for a typo that would have never built.
->>>
->>> The changes were tested on my amd64 system against 3.14-rc2.
->>
->> Ah, thanks a lot for posting this.
->> I had this fixed in my tree but forgot to send.
->> For the series:
->>
->> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->>
->> Rusty, will you pick this up?
->
-> Hmm, add added:
->
-> Fixes: 53c18c9906441 (virtio_test: verify if virtqueue_kick() succeeded)
-> Cc: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
->
-> Heinz, you didn't compile test your patch.
->
-> Insert angry-Torvalds-face here,
-> Rusty.
->
-Rusty, yes, I missed to compile the test module.
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Thu, 13 Feb 2014 11:42:05 +0200
 
-I'm sorry.
+> vhost checked the counter within the refcnt before decrementing.  It
+> really wanted to know that it is the one that has the last reference, as
+> a way to batch freeing resources a bit more efficiently.
+> 
+> Note: we only let refcount go to 0 on device release.
+> 
+> This works well but we now access the ref counter twice so there's a
+> race: all users might see a high count and decide to defer freeing
+> resources.
+> In the end no one initiates freeing resources until the last reference
+> is gone (which is on VM shotdown so might happen after a looooong time).
+> 
+> Let's do what we probably should have done straight away:
+> switch from kref to plain atomic, documenting the
+> semantics, return the refcount value atomically after decrement,
+> then use that to avoid the deadlock.
+> 
+> Reported-by: Qin Chuanyu <qinchuanyu@huawei.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> 
+> This patch is needed for 3.14 and -stable.
 
-Heinz
+Applied and queued up for -stable.
