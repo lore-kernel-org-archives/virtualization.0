@@ -1,15 +1,15 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] virtio-net: alloc big buffers also when guest can
-	receive UFO
-Date: Thu, 13 Feb 2014 11:02:13 +0800
-Message-ID: <52FC35B5.6000900__28934.7947961234$1392260556$gmane$org@redhat.com>
-References: <1392183808-16789-1-git-send-email-jasowang@redhat.com>
-	<20140212115901.GC23006@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH net 1/3] kref: add kref_sub_return
+Date: Wed, 12 Feb 2014 23:05:06 -0500 (EST)
+Message-ID: <20140212.230506.1305102368255894549.davem@davemloft.net>
+References: <20140212165630.GA22991@kroah.com>
+	<20140212.190637.328045386111912135.davem@davemloft.net>
+	<20140213013902.GA21261@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140212115901.GC23006@redhat.com>
+In-Reply-To: <20140213013902.GA21261@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,18 +19,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Sridhar Samudrala <sri@us.ibm.com>
+To: gregkh@linuxfoundation.org
+Cc: virtio-dev@lists.oasis-open.org, anatol.pomozov@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, qinchuanyu@huawei.com, joern@logfs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/12/2014 07:59 PM, Michael S. Tsirkin wrote:
-> On Wed, Feb 12, 2014 at 01:43:28PM +0800, Jason Wang wrote:
->> > We should alloc big buffers also when guest can receive UFO
->> > pakcets. Otherwise the big packets will be truncated when mergeable rx
->> > buffer is disabled.
-> Not truncated, they will be dropped.
->
+From: Greg KH <gregkh@linuxfoundation.org>
+Date: Wed, 12 Feb 2014 17:39:02 -0800
 
-Why dropped? We enable the ufo on tap0 if VIRTIO_NET_F_GUEST_UFO is
-negotiated. So skb was queued on the receive queue. But since the
-receive buffer is small, it will be truncated during tun_put_user().
+> Yes, that's horrible as well, but as was already pointed out in this
+> thread, you can't rely on that value to really be "1" after reading it
+> due to the way krefs work, what happened if someone else just grabbed
+> it?
+> 
+> If all they want is a "count" for when to start polling, then use a
+> separate atomic count, but don't abuse the kref interface for this, I
+> don't think that will work properly at all.
+
+They want to know which thread of control decrements the count to "1"
+as buffers are released.
+
+That seems entirely reasonable to me.
+
+They could add another atomic counter for this, but that's rather
+silly since the kref already has an atomic they can use for this
+purpose.
