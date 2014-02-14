@@ -1,15 +1,12 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net 1/3] kref: add kref_sub_return
-Date: Fri, 14 Feb 2014 00:10:04 -0500 (EST)
-Message-ID: <20140214.001004.838095636844604151.davem@davemloft.net>
-References: <20140212.230506.1305102368255894549.davem@davemloft.net>
-	<20140212.230953.770721407102955395.davem@davemloft.net>
-	<20140214000320.GC15564@kroah.com>
+From: "ML" <marialemos72@gmail.com>
+Subject: CISTI'2014: List of Workshops
+Date: Fri, 14 Feb 2014 16:29:14 +0000
+Message-ID: <20140214162921.732EB711@mail.linuxfoundation.org>
+Reply-To: cistimail@gmail.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140214000320.GC15564@kroah.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,16 +16,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: gregkh@linuxfoundation.org
-Cc: virtio-dev@lists.oasis-open.org, anatol.pomozov@gmail.com, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, qinchuanyu@huawei.com, joern@logfs.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Greg KH <gregkh@linuxfoundation.org>
-Date: Thu, 13 Feb 2014 16:03:20 -0800
+********************************** WORKSHOPS *******************************************
+    CISTI'2014 - 9th Iberian Conference on Information Systems and Technologies
+                     Barcelona, Spain, June 18 - 21, 2014             
+              http://www.aisti.eu/cisti2014/index.php/en/workshops
+****************************************************************************************
 
-> So how about just "open coding" a kref for this structure, as it wants
-> something that doesn't fit into the kref model, and should be pretty
-> simple to do (you can ensure you get the locking right, unlike almost
-> all users of krefs, as Al Viro constantly points out to me...)
+List of Workshops to be held in the CISTI'2014 context:
 
-They redid their patches meanwhile to use their own atomic_t.
+- ARWC 2014 - 1st Workshop on Augmented Reality and Wearable Computing
+
+- ASDACS 2014 - 1st Workshop on Applied Statistics and Data Analysis using Computer Science
+
+- IoT 2014 - 1st Workshop on Internet of Things
+
+- SGaMePlay 2014 - 4th Iberian Workshop on Serious Games and Meaningful Play
+
+- TICAMES 2014 - 2nd Workshop on Information and Communication Technology in Higher Education: Learning Mathematics
+
+- WICTA 2014 - 1st Workshop on ICT for Audit
+
+- WISA 2014 - 6th Workshop on Intelligent Systems and Apllications
+
+- WLA 2014 - 1st Workshop on Learning Analytics
+
+- WNIS 2014 - 1st Workshop on Networks, Information and Society
+
+Detailed information about these workshops is available at http://www.aisti.eu/cisti2014/index.php/en/workshops
+
+Best regards,
+
+CISTI'2014 Team
+http://www.aisti.eu/cisti2014/index.php/en
