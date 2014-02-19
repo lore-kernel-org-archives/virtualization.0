@@ -1,13 +1,12 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 3.4 22/24] virtio-blk: Use block layer provided spinlock
-Date: Tue, 18 Feb 2014 14:47:09 -0800
-Message-ID: <20140218224550.855852434@linuxfoundation.org>
-References: <20140218224550.221535225@linuxfoundation.org>
+From: Alexander Gordeev <agordeev@redhat.com>
+Subject: [PATCH] virtio: Use pci_enable_msix_range() instead of
+	pci_enable_msix()
+Date: Wed, 19 Feb 2014 11:15:29 +0100
+Message-ID: <1392804931-30671-9-git-send-email-agordeev__31433.4122384482$1392805683$gmane$org@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140218224550.221535225@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,108 +17,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Li Zefan <lizefan@huawei.com>, Asias He <asias@redhat.com>, Ben Hutchings <ben@decadent.org.uk>
+Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-pci@vger.kernel.org, virtualization@lists.linux-foundation.org, Alexander Gordeev <agordeev@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-3.4-stable review patch.  If anyone has any objections, please let me know.
+As result deprecation of MSI-X/MSI enablement functions
+pci_enable_msix() and pci_enable_msi_block() all drivers
+using these two interfaces need to be updated to use the
+new pci_enable_msi_range() and pci_enable_msix_range()
+interfaces.
 
-------------------
-
-From: Asias He <asias@redhat.com>
-
-commit 2c95a3290919541b846bee3e0fbaa75860929f53 upstream.
-
-Block layer will allocate a spinlock for the queue if the driver does
-not provide one in blk_init_queue().
-
-The reason to use the internal spinlock is that blk_cleanup_queue() will
-switch to use the internal spinlock in the cleanup code path.
-
-        if (q->queue_lock != &q->__queue_lock)
-                q->queue_lock = &q->__queue_lock;
-
-However, processes which are in D state might have taken the driver
-provided spinlock, when the processes wake up, they would release the
-block provided spinlock.
-
-=====================================
-[ BUG: bad unlock balance detected! ]
-3.4.0-rc7+ #238 Not tainted
--------------------------------------
-fio/3587 is trying to release lock (&(&q->__queue_lock)->rlock) at:
-[<ffffffff813274d2>] blk_queue_bio+0x2a2/0x380
-but there are no more locks to release!
-
-other info that might help us debug this:
-1 lock held by fio/3587:
- #0:  (&(&vblk->lock)->rlock){......}, at:
-[<ffffffff8132661a>] get_request_wait+0x19a/0x250
-
-Other drivers use block layer provided spinlock as well, e.g. SCSI.
-
-Switching to the block layer provided spinlock saves a bit of memory and
-does not increase lock contention. Performance test shows no real
-difference is observed before and after this patch.
-
-Changes in v2: Improve commit log as Michael suggested.
-
+Signed-off-by: Alexander Gordeev <agordeev@redhat.com>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org
 Cc: virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org
-Signed-off-by: Asias He <asias@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-[bwh: Backported to 3.2: adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Cc: Li Zefan <lizefan@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: linux-pci@vger.kernel.org
 ---
- drivers/block/virtio_blk.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/virtio/virtio_pci.c |    8 +++-----
+ 1 files changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -21,8 +21,6 @@ struct workqueue_struct *virtblk_wq;
+diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
+index a416f9b..dea042c 100644
+--- a/drivers/virtio/virtio_pci.c
++++ b/drivers/virtio/virtio_pci.c
+@@ -333,11 +333,9 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
+ 	for (i = 0; i < nvectors; ++i)
+ 		vp_dev->msix_entries[i].entry = i;
  
- struct virtio_blk
- {
--	spinlock_t lock;
--
- 	struct virtio_device *vdev;
- 	struct virtqueue *vq;
+-	/* pci_enable_msix returns positive if we can't get this many. */
+-	err = pci_enable_msix(vp_dev->pci_dev, vp_dev->msix_entries, nvectors);
+-	if (err > 0)
+-		err = -ENOSPC;
+-	if (err)
++	err = pci_enable_msix_range(vp_dev->pci_dev,
++				    vp_dev->msix_entries, nvectors, nvectors);
++	if (err < 0)
+ 		goto error;
+ 	vp_dev->msix_enabled = 1;
  
-@@ -69,7 +67,7 @@ static void blk_done(struct virtqueue *v
- 	unsigned int len;
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&vblk->lock, flags);
-+	spin_lock_irqsave(vblk->disk->queue->queue_lock, flags);
- 	while ((vbr = virtqueue_get_buf(vblk->vq, &len)) != NULL) {
- 		int error;
- 
-@@ -104,7 +102,7 @@ static void blk_done(struct virtqueue *v
- 	}
- 	/* In case queue is stopped waiting for more buffers. */
- 	blk_start_queue(vblk->disk->queue);
--	spin_unlock_irqrestore(&vblk->lock, flags);
-+	spin_unlock_irqrestore(vblk->disk->queue->queue_lock, flags);
- }
- 
- static bool do_req(struct request_queue *q, struct virtio_blk *vblk,
-@@ -438,7 +436,6 @@ static int __devinit virtblk_probe(struc
- 	}
- 
- 	INIT_LIST_HEAD(&vblk->reqs);
--	spin_lock_init(&vblk->lock);
- 	vblk->vdev = vdev;
- 	vblk->sg_elems = sg_elems;
- 	sg_init_table(vblk->sg, vblk->sg_elems);
-@@ -463,7 +460,7 @@ static int __devinit virtblk_probe(struc
- 		goto out_mempool;
- 	}
- 
--	q = vblk->disk->queue = blk_init_queue(do_virtblk_request, &vblk->lock);
-+	q = vblk->disk->queue = blk_init_queue(do_virtblk_request, NULL);
- 	if (!q) {
- 		err = -ENOMEM;
- 		goto out_put_disk;
+-- 
+1.7.7.6
