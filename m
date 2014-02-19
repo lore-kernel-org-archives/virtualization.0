@@ -1,12 +1,23 @@
-From: Alexander Gordeev <agordeev@redhat.com>
-Subject: [PATCH] virtio: Use pci_enable_msix_range() instead of
-	pci_enable_msix()
-Date: Wed, 19 Feb 2014 11:15:29 +0100
-Message-ID: <1392804931-30671-9-git-send-email-agordeev__31433.4122384482$1392805683$gmane$org@redhat.com>
+From: Adam Litke <alitke@redhat.com>
+Subject: Re: Users of ballooning, please come forth!
+Date: Wed, 19 Feb 2014 09:49:14 -0500
+Message-ID: <20140219144914.GA18487@redhat.com>
+References: <8761om2no9.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Received: from smtp1.linuxfoundation.org (smtp1.linux-foundation.org
+	[172.17.192.35])
+	by mail.linuxfoundation.org (Postfix) with ESMTP id 3DEFC681
+	for <virtualization@lists.linuxfoundation.org>;
+	Wed, 19 Feb 2014 14:49:22 +0000 (UTC)
+Received: from mx1.redhat.com (mx1.redhat.com [209.132.183.28])
+	by smtp1.linuxfoundation.org (Postfix) with ESMTP id CB7661FB21
+	for <virtualization@lists.linuxfoundation.org>;
+	Wed, 19 Feb 2014 14:49:18 +0000 (UTC)
+Content-Disposition: inline
+In-Reply-To: <8761om2no9.fsf@rustcorp.com.au>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,44 +27,64 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-pci@vger.kernel.org, virtualization@lists.linux-foundation.org, Alexander Gordeev <agordeev@redhat.com>
+To: rusty@rustcorp.com.au
+Cc: msivak@redhat.com, virtualization@lists.linuxfoundation.org, dfediuck@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-As result deprecation of MSI-X/MSI enablement functions
-pci_enable_msix() and pci_enable_msi_block() all drivers
-using these two interfaces need to be updated to use the
-new pci_enable_msi_range() and pci_enable_msix_range()
-interfaces.
+> On Tue Feb 11 06:01:10 UTC 2014, Rusty Russell wrote:
+> Hi all!
+> 
+>         We're debating the design of the balloon for the OASIS spec.
+> Noone likes the current one, but there are fundamental usage pattern
+> questions which we're fumbling with.
+> 
+> So if you know anyone who is using it in production?  If, so, how?  In
+> particular, would you be happy with guests simply giving the host back
+> whatever memory they can spare (as Xen's self-balloon does)?  Or do
+> you
+> require the host-forcing approach?  Comment or email please!
 
-Signed-off-by: Alexander Gordeev <agordeev@redhat.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-pci@vger.kernel.org
----
- drivers/virtio/virtio_pci.c |    8 +++-----
- 1 files changed, 3 insertions(+), 5 deletions(-)
+Hi Rusty,
 
-diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-index a416f9b..dea042c 100644
---- a/drivers/virtio/virtio_pci.c
-+++ b/drivers/virtio/virtio_pci.c
-@@ -333,11 +333,9 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
- 	for (i = 0; i < nvectors; ++i)
- 		vp_dev->msix_entries[i].entry = i;
- 
--	/* pci_enable_msix returns positive if we can't get this many. */
--	err = pci_enable_msix(vp_dev->pci_dev, vp_dev->msix_entries, nvectors);
--	if (err > 0)
--		err = -ENOSPC;
--	if (err)
-+	err = pci_enable_msix_range(vp_dev->pci_dev,
-+				    vp_dev->msix_entries, nvectors, nvectors);
-+	if (err < 0)
- 		goto error;
- 	vp_dev->msix_enabled = 1;
- 
+I do not maintain any production setups but I have played with
+ballooning (especially automatic ballooning) for quite some time now.
+Most recently, I am working with the oVirt project [1] to enable
+memory over-commitment and offer SLAs around VM memory usage.
+
+To address the question about whether the Xen self-balloon approach
+would be enough...  I think a guest-driven approach such as this would
+work very well in self-hosted/private cloud deployments where a single
+entity owns all of the virtual machines that are sharing memory.  As
+soon as you move to a "public" cloud environment where multiple
+customers are sharing a single host then you will need a "bad cop" to
+enforce some limits.  (Yes I know ballooning always requires guest
+cooperation, but when you combine it with punative cgroups on the host
+the guest has a compelling reason to cooperate.)  When I say "bad
+cop", I mean a completely host-controlled balloon as we currently do
+in oVirt with the Memory Overcommitment Manager [2].  This allows
+customers to expect a certain minimum amount of performance.
+
+In order to support both modes of operation (at the same time) how
+about supporting two virtio configuration variables in the balloon
+driver: auto_min and auto_max.  These variables would allow the host
+to restrict the range in which the auto-balloon algorithm may operate.
+Setting both to 0 would disable auto-ballooning and require all
+inflate/deflate commands to come from the host.  I think there are
+some very interesting possibilities how auto-balloon can be combined
+with host directed ballooning to yield good results in a variety of
+configurations [3].
+
+[1] http://www.ovirt.org/Home
+[2] http://www.ovirt.org/MoM
+
+[3] While composing this email I thought of an idea for making limited
+use of auto-balloon in a public cloud environment to provide the host
+with a memory stress heuristic for guests.  In this scenario, auto_min
+and auto_max would be zero (most of the time) and ballooning would be
+controlled by MOM.  Occasionally, auto_min and auto_max would be set
+to values slightly above and below the current balloon size.  MOM
+would then observe the change in balloon size to gauge whether the
+guest currently has a memory surplus or deficit.
+
 -- 
-1.7.7.6
+Adam Litke
