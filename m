@@ -1,18 +1,24 @@
-From: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Subject: Re: [PATCH v4 RFC 0/3] virtio: add 'device_lost' to virtio_device
-Date: Thu, 20 Feb 2014 16:39:25 +0100
-Message-ID: <530621AD.7050503@linux.vnet.ibm.com>
-References: <1386940410-44943-1-git-send-email-graalfs@linux.vnet.ibm.com>
-	<878uu72tcq.fsf@rustcorp.com.au>
-	<52E7D6F1.1020900@linux.vnet.ibm.com>
-	<87ha8nxpsc.fsf@rustcorp.com.au>
-	<53033CC0.3090502@linux.vnet.ibm.com>
-	<87zjlm9pne.fsf@rustcorp.com.au>
+From: Luiz Capitulino <lcapitulino@redhat.com>
+Subject: Re: Users of ballooning, please come forth!
+Date: Thu, 20 Feb 2014 08:42:46 -0500
+Message-ID: <20140220084246.2b22c0bc@redhat.com>
+References: <20140219144914.GA18487@redhat.com>
+	<87bny2befb.fsf@rustcorp.com.au>
+	<20140220131706.GB18487@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87zjlm9pne.fsf@rustcorp.com.au>
+Received: from smtp1.linuxfoundation.org (smtp1.linux-foundation.org
+	[172.17.192.35])
+	by mail.linuxfoundation.org (Postfix) with ESMTP id B4C60681
+	for <virtualization@lists.linuxfoundation.org>;
+	Thu, 20 Feb 2014 13:42:51 +0000 (UTC)
+Received: from mx1.redhat.com (mx1.redhat.com [209.132.183.28])
+	by smtp1.linuxfoundation.org (Postfix) with ESMTP id 2FBA220195
+	for <virtualization@lists.linuxfoundation.org>;
+	Thu, 20 Feb 2014 13:42:51 +0000 (UTC)
+In-Reply-To: <20140220131706.GB18487@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,67 +28,90 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, mst@redhat.com, virtualization@lists.linux-foundation.org
-Cc: borntraeger@de.ibm.com, Jens Axboe <axboe@kernel.dk>
+To: Adam Litke <alitke@redhat.com>
+Cc: msivak@redhat.com, Daniel Kiper <daniel.kiper@oracle.com>, dfediuck@redhat.com, virtualization@lists.linuxfoundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 20/02/14 09:03, Rusty Russell wrote:
-> Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
->> On 29/01/14 07:31, Rusty Russell wrote:
->>> Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
->>>> On 23/01/14 05:51, Rusty Russell wrote:
->>>>> Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
->>>>>> Hi, here is my v4 patch-set update to the v3 RFC submitted on Nov 27th.
->>>>>
->>>>> Hi Heinz,
->>>>>
->>>>>            I didn't get a response on my 'break all the virtqueues' patch
->>>>> series.  Could your System Z code work with this?
->>>>>
->>>>> Rusty.
->>>>>
->>>>>
->>>>
->>>> Sorry Rusty, I'm back as of today.
->>>>
->>>> I applied your patch series and did some testing...
->>>>
->>>> Removing a disk while reading from it mostly still ends up
->>>> in hangs as of below:
->>>
->>> OK, we still have the problem of in-flight requests.
->>>
->>> I think the correct answer is to drop all requests if the virtqueue
->>> is broken:
->>>
->>>    -	blk_cleanup_queue(vblk->disk->queue);
->>>    +	if (virtqueue_is_broken(vblk->vq))
->>>    +              /* Don't wait for completion, just drop queue. */
->>>    +              blk_abandon_queue(vblk->disk->queue);
->> Rusty,
->>
->> but blk_abandon_queue() would not solve the incomplete in-flight
->> requests, would it? I suppose it would avoid additional in-flight
->> requests similar to __blk_request_all() and passing -EIO.
->>
->> Ending of asynchronous in-flight requests still cause other problems
->> in the host. Such problems should be handled/avoided there, I suppose.
->
-> The device is going away (or gone away!), so it shouldn't be completing
-> requests, right?
+On Thu, 20 Feb 2014 08:17:06 -0500
+Adam Litke <alitke@redhat.com> wrote:
 
-well, the device is gone and blk_cleanup_queue() should avoid synching 
-data to disk. That is the approach of my original patch-set.
+> On 20/02/14 14:53 +1030, Rusty Russell wrote:
+> >Adam Litke <alitke@redhat.com> writes:
+> >>> On Tue Feb 11 06:01:10 UTC 2014, Rusty Russell wrote:
+> >>> Hi all!
+> >>>
+> >>>         We're debating the design of the balloon for the OASIS spec.
+> >>> Noone likes the current one, but there are fundamental usage pattern
+> >>> questions which we're fumbling with.
+> >>>
+> >>> So if you know anyone who is using it in production?  If, so, how?  In
+> >>> particular, would you be happy with guests simply giving the host back
+> >>> whatever memory they can spare (as Xen's self-balloon does)?  Or do
+> >>> you
+> >>> require the host-forcing approach?  Comment or email please!
+> >>
+> >> Hi Rusty,
+> >>
+> >> I do not maintain any production setups but I have played with
+> >> ballooning (especially automatic ballooning) for quite some time now.
+> >> Most recently, I am working with the oVirt project [1] to enable
+> >> memory over-commitment and offer SLAs around VM memory usage.
+> >
+> >Hi Adam,
+> >
+> >        Thanks for the comprehensive thoughts.
+> >
+> >> To address the question about whether the Xen self-balloon approach
+> >> would be enough...  I think a guest-driven approach such as this would
+> >> work very well in self-hosted/private cloud deployments where a single
+> >> entity owns all of the virtual machines that are sharing memory.  As
+> >> soon as you move to a "public" cloud environment where multiple
+> >> customers are sharing a single host then you will need a "bad cop" to
+> >> enforce some limits.  (Yes I know ballooning always requires guest
+> >> cooperation, but when you combine it with punative cgroups on the host
+> >> the guest has a compelling reason to cooperate.)  When I say "bad
+> >> cop", I mean a completely host-controlled balloon as we currently do
+> >> in oVirt with the Memory Overcommitment Manager [2].  This allows
+> >> customers to expect a certain minimum amount of performance.
+> >
+> >It's interesting that Dan Magenheimer made the opposite point: that
+> >if you're charging customers by the MB of memory, it's easy to get them
+> >to balloon themselves.
+> 
+> Sure, it's all about how the incentives are structured and what the
+> workload is.  Some people will insist on having a certain amount of
+> memory "reserved" and available immediately.  If you meter memory
+> usage you would certainly shift the burden of conservation onto the
+> guest and this could be preferred for some customers.
+> 
+> >
+> >> In order to support both modes of operation (at the same time) how
+> >> about supporting two virtio configuration variables in the balloon
+> >> driver: auto_min and auto_max.  These variables would allow the host
+> >> to restrict the range in which the auto-balloon algorithm may operate.
+> >> Setting both to 0 would disable auto-ballooning and require all
+> >> inflate/deflate commands to come from the host.  I think there are
+> >> some very interesting possibilities how auto-balloon can be combined
+> >> with host directed ballooning to yield good results in a variety of
+> >> configurations [3].
+> >
+> >I think we're headed to the same destination here; the variant which I
+> >came up with (and suggested to Daniel and Luiz, CC'd) is similar: the
+> >guest self-balloons, giving up pages when it can, but the host sets a
+> >ceiling.
+> >
+> >This way, if the host really needs to set a limit, it can: a disobedient
+> >guest will start paging.  But generally, a guest should use its
+> >judgement to balloon its own pages as it can (below the ceiling).
+> 
+> It sounds similar but it sounds like you are suggesting one limit
+> value and I am suggesting two.  Your ceiling value sounds like a soft
+> limit on total guest memory (aka minimum balloon size).  This is the
+> more important limit of the two I have suggested.  Do you think it's
+> also worthwhile to have a maximum balloon size (floor value) to keep
+> the allowable balloon size between two points?
 
-I'll try to find an alternative solution exploiting the new
-virtio_break_device().
-
-Heinz
-
->
-> If the device is actually broken, well, there's not much we can do.  We
-> could try to leak memory I suppose.
->
-> Cheers,
-> Rusty.
->
+I was already planning for everything you asked (QMP commands to
+disable/enable automatic ballooning, min and max sizes). I still have to
+think a bit how those settings will fit in the guest-led design, but it
+it should be fine in principle.
