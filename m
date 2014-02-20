@@ -1,15 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: Use pci_enable_msix_range() instead of
-	pci_enable_msix()
-Date: Thu, 20 Feb 2014 07:17:54 +0200
-Message-ID: <20140220051754.GB28241@redhat.com>
-References: <1392804931-30671-9-git-send-email-agordeev@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH v4 RFC 0/3] virtio: add 'device_lost' to virtio_device
+Date: Thu, 20 Feb 2014 18:33:49 +1030
+Message-ID: <87zjlm9pne.fsf@rustcorp.com.au>
+References: <1386940410-44943-1-git-send-email-graalfs@linux.vnet.ibm.com>
+	<878uu72tcq.fsf@rustcorp.com.au>
+	<52E7D6F1.1020900@linux.vnet.ibm.com>
+	<87ha8nxpsc.fsf@rustcorp.com.au>
+	<53033CC0.3090502@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1392804931-30671-9-git-send-email-agordeev@redhat.com>
+In-Reply-To: <53033CC0.3090502@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,48 +21,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Gordeev <agordeev@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Heinz Graalfs <graalfs@linux.vnet.ibm.com>, mst@redhat.com, virtualization@lists.linux-foundation.org
+Cc: borntraeger@de.ibm.com, Jens Axboe <axboe@kernel.dk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 19, 2014 at 11:15:29AM +0100, Alexander Gordeev wrote:
-> As result deprecation of MSI-X/MSI enablement functions
-> pci_enable_msix() and pci_enable_msi_block() all drivers
-> using these two interfaces need to be updated to use the
-> new pci_enable_msi_range() and pci_enable_msix_range()
-> interfaces.
-> 
-> Signed-off-by: Alexander Gordeev <agordeev@redhat.com>
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: virtio-dev@lists.oasis-open.org
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: linux-pci@vger.kernel.org
+Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
+> On 29/01/14 07:31, Rusty Russell wrote:
+>> Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
+>>> On 23/01/14 05:51, Rusty Russell wrote:
+>>>> Heinz Graalfs <graalfs@linux.vnet.ibm.com> writes:
+>>>>> Hi, here is my v4 patch-set update to the v3 RFC submitted on Nov 27th.
+>>>>
+>>>> Hi Heinz,
+>>>>
+>>>>           I didn't get a response on my 'break all the virtqueues' patch
+>>>> series.  Could your System Z code work with this?
+>>>>
+>>>> Rusty.
+>>>>
+>>>>
+>>>
+>>> Sorry Rusty, I'm back as of today.
+>>>
+>>> I applied your patch series and did some testing...
+>>>
+>>> Removing a disk while reading from it mostly still ends up
+>>> in hangs as of below:
+>>
+>> OK, we still have the problem of in-flight requests.
+>>
+>> I think the correct answer is to drop all requests if the virtqueue
+>> is broken:
+>>
+>>   -	blk_cleanup_queue(vblk->disk->queue);
+>>   +	if (virtqueue_is_broken(vblk->vq))
+>>   +              /* Don't wait for completion, just drop queue. */
+>>   +              blk_abandon_queue(vblk->disk->queue);
+> Rusty,
+>
+> but blk_abandon_queue() would not solve the incomplete in-flight
+> requests, would it? I suppose it would avoid additional in-flight
+> requests similar to __blk_request_all() and passing -EIO.
+>
+> Ending of asynchronous in-flight requests still cause other problems
+> in the host. Such problems should be handled/avoided there, I suppose.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+The device is going away (or gone away!), so it shouldn't be completing
+requests, right?
 
-> ---
->  drivers/virtio/virtio_pci.c |    8 +++-----
->  1 files changed, 3 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index a416f9b..dea042c 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -333,11 +333,9 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
->  	for (i = 0; i < nvectors; ++i)
->  		vp_dev->msix_entries[i].entry = i;
->  
-> -	/* pci_enable_msix returns positive if we can't get this many. */
-> -	err = pci_enable_msix(vp_dev->pci_dev, vp_dev->msix_entries, nvectors);
-> -	if (err > 0)
-> -		err = -ENOSPC;
-> -	if (err)
-> +	err = pci_enable_msix_range(vp_dev->pci_dev,
-> +				    vp_dev->msix_entries, nvectors, nvectors);
-> +	if (err < 0)
->  		goto error;
->  	vp_dev->msix_enabled = 1;
->  
-> -- 
-> 1.7.7.6
+If the device is actually broken, well, there's not much we can do.  We
+could try to leak memory I suppose.
+
+Cheers,
+Rusty.
