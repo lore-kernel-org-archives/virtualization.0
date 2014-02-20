@@ -1,13 +1,14 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] virtio: Use pci_enable_msix_range() instead of
 	pci_enable_msix()
-Date: Thu, 20 Feb 2014 12:14:11 +1030
-Message-ID: <87eh2yblsk.fsf__13146.8576066711$1392870308$gmane$org@rustcorp.com.au>
+Date: Thu, 20 Feb 2014 07:17:54 +0200
+Message-ID: <20140220051754.GB28241@redhat.com>
 References: <1392804931-30671-9-git-send-email-agordeev@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
 In-Reply-To: <1392804931-30671-9-git-send-email-agordeev@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -18,27 +19,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-pci@vger.kernel.org, virtio-dev@lists.oasis-open.org, Alexander Gordeev <agordeev@redhat.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Alexander Gordeev <agordeev@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Alexander Gordeev <agordeev@redhat.com> writes:
+On Wed, Feb 19, 2014 at 11:15:29AM +0100, Alexander Gordeev wrote:
 > As result deprecation of MSI-X/MSI enablement functions
 > pci_enable_msix() and pci_enable_msi_block() all drivers
 > using these two interfaces need to be updated to use the
 > new pci_enable_msi_range() and pci_enable_msix_range()
 > interfaces.
->
+> 
 > Signed-off-by: Alexander Gordeev <agordeev@redhat.com>
 > Cc: Rusty Russell <rusty@rustcorp.com.au>
 > Cc: "Michael S. Tsirkin" <mst@redhat.com>
 > Cc: virtio-dev@lists.oasis-open.org
 > Cc: virtualization@lists.linux-foundation.org
 > Cc: linux-pci@vger.kernel.org
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
 > ---
 >  drivers/virtio/virtio_pci.c |    8 +++-----
 >  1 files changed, 3 insertions(+), 5 deletions(-)
->
+> 
 > diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
 > index a416f9b..dea042c 100644
 > --- a/drivers/virtio/virtio_pci.c
@@ -57,11 +61,6 @@ Alexander Gordeev <agordeev@redhat.com> writes:
 > +	if (err < 0)
 >  		goto error;
 >  	vp_dev->msix_enabled = 1;
-
-I've put this in my pending queue, but in case someone else wants to
-take it:
-
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
-
-Cheers,
-Rusty.
+>  
+> -- 
+> 1.7.7.6
