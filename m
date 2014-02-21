@@ -1,24 +1,12 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: Users of ballooning, please come forth!
-Date: Fri, 21 Feb 2014 11:58:09 +1030
-Message-ID: <87txbt8dau.fsf@rustcorp.com.au>
-References: <20140219144914.GA18487@redhat.com>
-	<87bny2befb.fsf@rustcorp.com.au>
-	<20140220131706.GB18487@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net V2] virtio-net: alloc big buffers also when guest can
+	receive UFO
+Date: Fri, 21 Feb 2014 13:08:04 +0800
+Message-ID: <1392959284-11399-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Received: from smtp1.linuxfoundation.org (smtp1.linux-foundation.org
-	[172.17.192.35])
-	by mail.linuxfoundation.org (Postfix) with ESMTP id 2916582D
-	for <virtualization@lists.linuxfoundation.org>;
-	Fri, 21 Feb 2014 02:31:01 +0000 (UTC)
-Received: from ozlabs.org (ozlabs.org [203.10.76.45])
-	by smtp1.linuxfoundation.org (Postfix) with ESMTPS id B4EF11FFF6
-	for <virtualization@lists.linuxfoundation.org>;
-	Fri, 21 Feb 2014 02:31:00 +0000 (UTC)
-In-Reply-To: <20140220131706.GB18487@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,36 +16,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Adam Litke <alitke@redhat.com>
-Cc: msivak@redhat.com, Daniel Kiper <daniel.kiper@oracle.com>, virtualization@lists.linuxfoundation.org, dfediuck@redhat.com, Luiz Capitulino <lcapitulino@redhat.com>
+To: rusty@rustcorp.com.au, mst@redhat.com, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Sridhar Samudrala <sri@us.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Adam Litke <alitke@redhat.com> writes:
-> On 20/02/14 14:53 +1030, Rusty Russell wrote:
->>I think we're headed to the same destination here; the variant which I
->>came up with (and suggested to Daniel and Luiz, CC'd) is similar: the
->>guest self-balloons, giving up pages when it can, but the host sets a
->>ceiling.
->>
->>This way, if the host really needs to set a limit, it can: a disobedient
->>guest will start paging.  But generally, a guest should use its
->>judgement to balloon its own pages as it can (below the ceiling).
->
-> It sounds similar but it sounds like you are suggesting one limit
-> value and I am suggesting two.  Your ceiling value sounds like a soft
-> limit on total guest memory (aka minimum balloon size).  This is the
-> more important limit of the two I have suggested.  Do you think it's
-> also worthwhile to have a maximum balloon size (floor value) to keep
-> the allowable balloon size between two points?
+We should alloc big buffers also when guest can receive UFO
+pakcets to let the big packets be fit into guest rx buffer.
 
-It's a little simpler to have a ceiling only.
+Fixes 5c5167515d80f78f6bb538492c423adcae31ad65
+(virtio-net: Allow UFO feature to be set and advertised.)
 
-And if everyone (guests and host) are feeling like they have plenty of
-memory, it's probably best sitting in the host.
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Sridhar Samudrala <sri@us.ibm.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+Changes from V1:
+- tweak the commit log
+---
+ drivers/net/virtio_net.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-1) It can quickly go to a guest if necessary.
-2) The host could coalesce/shuffle memory.
-3) The host could turn off RAM to save power.
-
-Cheers,
-Rusty.
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index d75f8ed..5632a99 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1711,7 +1711,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	/* If we can receive ANY GSO packets, we must allocate large ones. */
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+ 	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6) ||
+-	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN))
++	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_ECN) ||
++	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_UFO))
+ 		vi->big_packets = true;
+ 
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+-- 
+1.8.3.2
