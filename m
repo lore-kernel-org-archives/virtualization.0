@@ -1,10 +1,11 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: [PATCH] tools: Unify export.h
-Date: Sun, 23 Feb 2014 12:09:13 +0100
-Message-ID: <1393153753-2369-1-git-send-email-bp__25410.633852198$1393154256$gmane$org@alien8.de>
+From: "ML" <marialemos72@gmail.com>
+Subject: [CISTI'2014]: Iberian Conference on IST; Barcelona; Deadline:
+	February 28
+Date: Sun, 23 Feb 2014 15:46:59 +0000
+Message-ID: <20140223154707.E2315932@mail.linuxfoundation.org>
+Reply-To: cistimail@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3781029953112190405=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -15,121 +16,169 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: virtio-dev@lists.oasis-open.org, Peter Zijlstra <a.p.zijlstra@chello.nl>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Sasha Levin <sasha.levin@oracle.com>, Borislav Petkov <bp@suse.de>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Borislav Petkov <bp@suse.de>
+--===============3781029953112190405==
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-So tools/ has been growing three, at a different stage of their
-development export.h headers and so we should unite into one. Add
-tools/include/ to the include path of virtio and liblockdep to pick the
-shared header now.
+* Submission deadline: February 28
 
-Cc: Sasha Levin <sasha.levin@oracle.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Borislav Petkov <bp@suse.de>
----
- tools/{virtio => include}/linux/export.h  | 5 +++++
- tools/lib/lockdep/Makefile                | 2 +-
- tools/lib/lockdep/uinclude/linux/export.h | 7 -------
- tools/perf/Makefile.perf                  | 2 +-
- tools/perf/util/include/linux/export.h    | 6 ------
- tools/virtio/Makefile                     | 2 +-
- 6 files changed, 8 insertions(+), 16 deletions(-)
- rename tools/{virtio => include}/linux/export.h (70%)
- delete mode 100644 tools/lib/lockdep/uinclude/linux/export.h
- delete mode 100644 tools/perf/util/include/linux/export.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D CISTI'2014 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+9th Iberian Conference on Information Systems and Technologies
+              18 to 21 June, 2014, Barcelona, Spain
+            http://www.aisti.eu/cisti2014/index.php/en
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D
 
-diff --git a/tools/virtio/linux/export.h b/tools/include/linux/export.h
-similarity index 70%
-rename from tools/virtio/linux/export.h
-rename to tools/include/linux/export.h
-index 7311d326894a..d07e586b9ba0 100644
---- a/tools/virtio/linux/export.h
-+++ b/tools/include/linux/export.h
-@@ -1,5 +1,10 @@
-+#ifndef _TOOLS_LINUX_EXPORT_H_
-+#define _TOOLS_LINUX_EXPORT_H_
-+
- #define EXPORT_SYMBOL(sym)
- #define EXPORT_SYMBOL_GPL(sym)
- #define EXPORT_SYMBOL_GPL_FUTURE(sym)
- #define EXPORT_UNUSED_SYMBOL(sym)
- #define EXPORT_UNUSED_SYMBOL_GPL(sym)
-+
-+#endif
-diff --git a/tools/lib/lockdep/Makefile b/tools/lib/lockdep/Makefile
-index da8b7aa3d351..d3d7a1b5ce35 100644
---- a/tools/lib/lockdep/Makefile
-+++ b/tools/lib/lockdep/Makefile
-@@ -112,7 +112,7 @@ export Q VERBOSE
- 
- LIBLOCKDEP_VERSION = $(LL_VERSION).$(LL_PATCHLEVEL).$(LL_EXTRAVERSION)
- 
--INCLUDES = -I. -I/usr/local/include -I./uinclude $(CONFIG_INCLUDES)
-+INCLUDES = -I. -I/usr/local/include -I./uinclude -I../../include $(CONFIG_INCLUDES)
- 
- # Set compile option CFLAGS if not set elsewhere
- CFLAGS ?= -g -DCONFIG_LOCKDEP -DCONFIG_STACKTRACE -DCONFIG_PROVE_LOCKING -DBITS_PER_LONG=__WORDSIZE -DLIBLOCKDEP_VERSION='"$(LIBLOCKDEP_VERSION)"' -rdynamic -O0 -g
-diff --git a/tools/lib/lockdep/uinclude/linux/export.h b/tools/lib/lockdep/uinclude/linux/export.h
-deleted file mode 100644
-index 6bdf3492c535..000000000000
---- a/tools/lib/lockdep/uinclude/linux/export.h
-+++ /dev/null
-@@ -1,7 +0,0 @@
--#ifndef _LIBLOCKDEP_LINUX_EXPORT_H_
--#define _LIBLOCKDEP_LINUX_EXPORT_H_
--
--#define EXPORT_SYMBOL(sym)
--#define EXPORT_SYMBOL_GPL(sym)
--
--#endif
-diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
-index 77b153fa23a5..018e1d151a67 100644
---- a/tools/perf/Makefile.perf
-+++ b/tools/perf/Makefile.perf
-@@ -217,7 +217,7 @@ LIB_H += util/include/linux/const.h
- LIB_H += util/include/linux/ctype.h
- LIB_H += util/include/linux/kernel.h
- LIB_H += util/include/linux/list.h
--LIB_H += util/include/linux/export.h
-+LIB_H += ../include/linux/export.h
- LIB_H += util/include/linux/poison.h
- LIB_H += util/include/linux/rbtree.h
- LIB_H += util/include/linux/rbtree_augmented.h
-diff --git a/tools/perf/util/include/linux/export.h b/tools/perf/util/include/linux/export.h
-deleted file mode 100644
-index b43e2dc21e04..000000000000
---- a/tools/perf/util/include/linux/export.h
-+++ /dev/null
-@@ -1,6 +0,0 @@
--#ifndef PERF_LINUX_MODULE_H
--#define PERF_LINUX_MODULE_H
--
--#define EXPORT_SYMBOL(name)
--
--#endif
-diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-index 3187c62d9814..9325f4693821 100644
---- a/tools/virtio/Makefile
-+++ b/tools/virtio/Makefile
-@@ -3,7 +3,7 @@ test: virtio_test vringh_test
- virtio_test: virtio_ring.o virtio_test.o
- vringh_test: vringh_test.o vringh.o virtio_ring.o
- 
--CFLAGS += -g -O2 -Wall -I. -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE
-+CFLAGS += -g -O2 -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE
- vpath %.c ../../drivers/virtio ../../drivers/vhost
- mod:
- 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test
--- 
-1.9.0
+We are pleased to invite the academic and business community to submit=
+ their papers to CISTI'2014 (9th Iberian Conference on Information Sys=
+tems and Technologies), to be held in Barcelona, Spain, between the 18=
+th and 21st of June 2014. Authors are encouraged to submit original sc=
+ientific contributions such as state-of-art reviews and new research p=
+erspectives, groundbreaking ideas and/or architectures, solutions and/=
+or applications for real problems, empirical and/or evaluation works, =
+case studies, etc., in conformity with the themes of this Conference.
+
+Four types of papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one =
+of the Conference themes. These papers are assigned  a 6-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, opened t=
+o discussion. These papers are assigned a 4-page limit.
+
+Poster paper: Initial work with relevant ideas, opened to discussion. =
+These papers are assigned a 2-page limit.
+
+Company paper: Companies' papers  that show practical experience, R & =
+D, tools, etc., focused in some topics of the conference. These articl=
+es are abstracts with a maximum of 2 pages.
+
+Papers submitted for the Scientific Committee=92s evaluation must not =
+include any information leading to the authors=92 identification. Ther=
+efore, the authors=92 names, affiliations and bibliographic references=
+ should not be included in the early version. This information should =
+only be included in the final version.
+
+Submitted papers must not have been published and must not be under re=
+view for any other conference and national or international publication.
+
+Papers must comply with the format standard (DOT, PDF) and be written =
+in Portuguese, Spanish or English.
+
+All papers will be subjected to a =93blind review=94 by at least two m=
+embers of the Scientific Committee.
+
+Full papers can be accepted as short papers or poster papers only. Sim=
+ilarly, short papers can be accepted as poster papers only. In these t=
+wo cases, the authors will be allowed to maintain the original number =
+of pages in the proceedings publication.
+
+The authors of accepted poster papers must also build and print a post=
+er to be exhibited during the Conference. This poster must follow an A=
+1 or A2 vertical format. The Conference includes Work Sessions where t=
+hese posters are presented and orally discussed, with a 5-minute limit=
+ per poster.
+
+The authors of accepted full papers will dispose of a 15-minute presen=
+tation in the Conference Work Session, and approximately 5 minutes of =
+discussion will follow each presentation. The authors of accepted shor=
+t papers and company papers will dispose of an 11-minute presentation =
+in the Conference Work Session, and approximately 4 minutes of discuss=
+ion will follow each presentation.
+
+=20
+THEMES
+
+Submitted papers must follow the main themes proposed for the Conferen=
+ce (the topics proposed in each theme constitute a mere framework refe=
+rence; they are not intended as restrictive):
+
+A) OMIS - Organizational Models and Information Systems
+
+B) KMDSS - Knowledge Management and Decision Support Systems
+
+C) SSAAT - Software Systems, Architectures, Applications and Tools
+
+D) CNMPS - Computer Networks, Mobility and Pervasive Systems
+
+E) HCC - Human Centered Computing
+
+F) HIS - Health Informatics
+
+G) ITE - Information Technologies in Education
+
+H) AEC =96 Architecture Engineering Construction
+=20
+
+PUBLICATION AND INDEXING
+
+To ensure that the contribution (full paper, short paper, poster paper=
+ or company paper) is published in the Proceedings, at least one of th=
+e authors must be fully registered by the 12th of April, and the paper=
+ must comply with the suggested layout and page-limit. Additionally, a=
+ll recommended modifications must be addressed by the authors before t=
+hey submit the final version.
+
+No more than one paper per registration will be published in the Confe=
+rence Proceedings. An extra fee must be paid for publication of additi=
+onal papers, with a maximum of one additional paper per registration.
+
+Full papers will be published in both book and CD formats, with an ISB=
+N. Short papers, poster papers and company papers will be published in=
+ CD only, with an ISBN.
+
+Published full papers will be sent to EBSCO, EI, IEEE XPlore, INSPEC, =
+ISI and SCOPUS. Published short papers will be sent to  EBSCO, EI, IEE=
+E XPlore, INSPEC e SCOPUS. Poster papers and company papers will be se=
+nt to EBSCO and EI-Compendex.
+
+The authors of the best selected papers will be invited to extend them=
+ for publication in Cluster Computing, Computer Support Cooperative Wo=
+rk, Human-Computer Interaction, Journal of Educational Computing Resea=
+rch, International Journal of Health Informations Systems & Informatic=
+s, International Journal of Interactive Multimedia and Artificial Inte=
+lligence, Journal of Information Technology for Development, Journal o=
+f Research and Practice in Information Technology, Journal on Multimod=
+al User Interfaces, Online Information Review, Revista de la Construcc=
+i=F3n, ACE =96 Arquitectura, Ciudad y Entorno, RISTI (Iberian Journal =
+of Information Systems and Technologies), IEEE=92s book TICAI (ICTs Ap=
+plied to Engineering Learning) and other interested publications.
+
+=20
+INPORTANT DATES
+
+Paper submission: February 28, 2014
+
+Notification of acceptance: March 29, 2014
+
+Submission of accepted papers: April 12, 2014
+
+Payment of registration, to ensure the inclusion of an accepted paper =
+in the conference proceedings: April 12, 2014
+
+
+We are counting on you. Submit your contribution.
+
+
+CISTI'2014 Team
+http://www.aisti.eu/cisti2014/index.php/en
+
+
+--===============3781029953112190405==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3781029953112190405==--
