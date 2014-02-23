@@ -1,18 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2] virtio: Use pci_enable_msix_exact() instead of
-	pci_enable_msix()
-Date: Sat, 22 Feb 2014 23:18:24 +0200
-Message-ID: <20140222211824.GA9777@redhat.com>
-References: <1392804931-30671-9-git-send-email-agordeev@redhat.com>
-	<87eh2yblsk.fsf@rustcorp.com.au>
-	<20140221165946.GJ17353@dhcp-26-207.brq.redhat.com>
-	<20140221170128.GK17353@dhcp-26-207.brq.redhat.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: [PATCH] tools: Unify export.h
+Date: Sun, 23 Feb 2014 12:09:13 +0100
+Message-ID: <1393153753-2369-1-git-send-email-bp__25410.633852198$1393154256$gmane$org@alien8.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140221170128.GK17353@dhcp-26-207.brq.redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,52 +15,121 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Alexander Gordeev <agordeev@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: virtio-dev@lists.oasis-open.org, Peter Zijlstra <a.p.zijlstra@chello.nl>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Sasha Levin <sasha.levin@oracle.com>, Borislav Petkov <bp@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 21, 2014 at 06:01:28PM +0100, Alexander Gordeev wrote:
-> As result of deprecation of MSI-X/MSI enablement functions
-> pci_enable_msix() and pci_enable_msi_block() all drivers
-> using these two interfaces need to be updated to use the
-> new pci_enable_msi_range()  or pci_enable_msi_exact()
-> and pci_enable_msix_range() or pci_enable_msix_exact()
-> interfaces.
+From: Borislav Petkov <bp@suse.de>
 
+So tools/ has been growing three, at a different stage of their
+development export.h headers and so we should unite into one. Add
+tools/include/ to the include path of virtio and liblockdep to pick the
+shared header now.
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: Sasha Levin <sasha.levin@oracle.com>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Cc: virtio-dev@lists.oasis-open.org
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Borislav Petkov <bp@suse.de>
+---
+ tools/{virtio => include}/linux/export.h  | 5 +++++
+ tools/lib/lockdep/Makefile                | 2 +-
+ tools/lib/lockdep/uinclude/linux/export.h | 7 -------
+ tools/perf/Makefile.perf                  | 2 +-
+ tools/perf/util/include/linux/export.h    | 6 ------
+ tools/virtio/Makefile                     | 2 +-
+ 6 files changed, 8 insertions(+), 16 deletions(-)
+ rename tools/{virtio => include}/linux/export.h (70%)
+ delete mode 100644 tools/lib/lockdep/uinclude/linux/export.h
+ delete mode 100644 tools/perf/util/include/linux/export.h
 
-> Signed-off-by: Alexander Gordeev <agordeev@redhat.com>
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: virtio-dev@lists.oasis-open.org
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: linux-pci@vger.kernel.org
-> ---
->  drivers/virtio/virtio_pci.c |    6 ++----
->  1 files changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_pci.c b/drivers/virtio/virtio_pci.c
-> index a416f9b..101db3f 100644
-> --- a/drivers/virtio/virtio_pci.c
-> +++ b/drivers/virtio/virtio_pci.c
-> @@ -333,10 +333,8 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
->  	for (i = 0; i < nvectors; ++i)
->  		vp_dev->msix_entries[i].entry = i;
->  
-> -	/* pci_enable_msix returns positive if we can't get this many. */
-> -	err = pci_enable_msix(vp_dev->pci_dev, vp_dev->msix_entries, nvectors);
-> -	if (err > 0)
-> -		err = -ENOSPC;
-> +	err = pci_enable_msix_exact(vp_dev->pci_dev,
-> +				    vp_dev->msix_entries, nvectors);
->  	if (err)
->  		goto error;
->  	vp_dev->msix_enabled = 1;
-> -- 
-> 1.7.7.6
-> 
-> -- 
-> Regards,
-> Alexander Gordeev
-> agordeev@redhat.com
+diff --git a/tools/virtio/linux/export.h b/tools/include/linux/export.h
+similarity index 70%
+rename from tools/virtio/linux/export.h
+rename to tools/include/linux/export.h
+index 7311d326894a..d07e586b9ba0 100644
+--- a/tools/virtio/linux/export.h
++++ b/tools/include/linux/export.h
+@@ -1,5 +1,10 @@
++#ifndef _TOOLS_LINUX_EXPORT_H_
++#define _TOOLS_LINUX_EXPORT_H_
++
+ #define EXPORT_SYMBOL(sym)
+ #define EXPORT_SYMBOL_GPL(sym)
+ #define EXPORT_SYMBOL_GPL_FUTURE(sym)
+ #define EXPORT_UNUSED_SYMBOL(sym)
+ #define EXPORT_UNUSED_SYMBOL_GPL(sym)
++
++#endif
+diff --git a/tools/lib/lockdep/Makefile b/tools/lib/lockdep/Makefile
+index da8b7aa3d351..d3d7a1b5ce35 100644
+--- a/tools/lib/lockdep/Makefile
++++ b/tools/lib/lockdep/Makefile
+@@ -112,7 +112,7 @@ export Q VERBOSE
+ 
+ LIBLOCKDEP_VERSION = $(LL_VERSION).$(LL_PATCHLEVEL).$(LL_EXTRAVERSION)
+ 
+-INCLUDES = -I. -I/usr/local/include -I./uinclude $(CONFIG_INCLUDES)
++INCLUDES = -I. -I/usr/local/include -I./uinclude -I../../include $(CONFIG_INCLUDES)
+ 
+ # Set compile option CFLAGS if not set elsewhere
+ CFLAGS ?= -g -DCONFIG_LOCKDEP -DCONFIG_STACKTRACE -DCONFIG_PROVE_LOCKING -DBITS_PER_LONG=__WORDSIZE -DLIBLOCKDEP_VERSION='"$(LIBLOCKDEP_VERSION)"' -rdynamic -O0 -g
+diff --git a/tools/lib/lockdep/uinclude/linux/export.h b/tools/lib/lockdep/uinclude/linux/export.h
+deleted file mode 100644
+index 6bdf3492c535..000000000000
+--- a/tools/lib/lockdep/uinclude/linux/export.h
++++ /dev/null
+@@ -1,7 +0,0 @@
+-#ifndef _LIBLOCKDEP_LINUX_EXPORT_H_
+-#define _LIBLOCKDEP_LINUX_EXPORT_H_
+-
+-#define EXPORT_SYMBOL(sym)
+-#define EXPORT_SYMBOL_GPL(sym)
+-
+-#endif
+diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
+index 77b153fa23a5..018e1d151a67 100644
+--- a/tools/perf/Makefile.perf
++++ b/tools/perf/Makefile.perf
+@@ -217,7 +217,7 @@ LIB_H += util/include/linux/const.h
+ LIB_H += util/include/linux/ctype.h
+ LIB_H += util/include/linux/kernel.h
+ LIB_H += util/include/linux/list.h
+-LIB_H += util/include/linux/export.h
++LIB_H += ../include/linux/export.h
+ LIB_H += util/include/linux/poison.h
+ LIB_H += util/include/linux/rbtree.h
+ LIB_H += util/include/linux/rbtree_augmented.h
+diff --git a/tools/perf/util/include/linux/export.h b/tools/perf/util/include/linux/export.h
+deleted file mode 100644
+index b43e2dc21e04..000000000000
+--- a/tools/perf/util/include/linux/export.h
++++ /dev/null
+@@ -1,6 +0,0 @@
+-#ifndef PERF_LINUX_MODULE_H
+-#define PERF_LINUX_MODULE_H
+-
+-#define EXPORT_SYMBOL(name)
+-
+-#endif
+diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
+index 3187c62d9814..9325f4693821 100644
+--- a/tools/virtio/Makefile
++++ b/tools/virtio/Makefile
+@@ -3,7 +3,7 @@ test: virtio_test vringh_test
+ virtio_test: virtio_ring.o virtio_test.o
+ vringh_test: vringh_test.o vringh.o virtio_ring.o
+ 
+-CFLAGS += -g -O2 -Wall -I. -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE
++CFLAGS += -g -O2 -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE
+ vpath %.c ../../drivers/virtio ../../drivers/vhost
+ mod:
+ 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test
+-- 
+1.9.0
