@@ -1,14 +1,13 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net V2] virtio-net: alloc big buffers also when guest
-	can receive UFO
-Date: Mon, 24 Feb 2014 18:20:41 -0500 (EST)
-Message-ID: <20140224.182041.1959352738873712711.davem@davemloft.net>
-References: <1392959284-11399-1-git-send-email-jasowang@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] tools: Unify export.h
+Date: Tue, 25 Feb 2014 12:09:23 +1030
+Message-ID: <87eh2s55tg.fsf__45820.9448880099$1393307216$gmane$org@rustcorp.com.au>
+References: <1393153753-2369-1-git-send-email-bp@alien8.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1392959284-11399-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1393153753-2369-1-git-send-email-bp@alien8.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,25 +17,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: virtio-dev@lists.oasis-open.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, sri@us.ibm.com
+To: Borislav Petkov <bp@alien8.de>, LKML <linux-kernel@vger.kernel.org>
+Cc: virtio-dev@lists.oasis-open.org, Peter Zijlstra <a.p.zijlstra@chello.nl>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, Sasha Levin <sasha.levin@oracle.com>, Borislav Petkov <bp@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 21 Feb 2014 13:08:04 +0800
+Borislav Petkov <bp@alien8.de> writes:
+> From: Borislav Petkov <bp@suse.de>
+>
+> So tools/ has been growing three, at a different stage of their
+> development export.h headers and so we should unite into one. Add
+> tools/include/ to the include path of virtio and liblockdep to pick the
+> shared header now.
 
-> We should alloc big buffers also when guest can receive UFO
-> pakcets to let the big packets be fit into guest rx buffer.
-> 
-> Fixes 5c5167515d80f78f6bb538492c423adcae31ad65
-> (virtio-net: Allow UFO feature to be set and advertised.)
-> 
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Sridhar Samudrala <sri@us.ibm.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
-> Changes from V1:
-> - tweak the commit log
+Should we get more ambitious and start a fake-kernel/ directory where
+we can put userspace equivs/stubs of kernel functionality?
 
-Applied with commit message fixes, thanks.
+Cheers,
+Rusty.
