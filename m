@@ -1,16 +1,13 @@
-From: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
-Subject: Re: [PATCH] tools: Unify export.h
-Date: Tue, 25 Feb 2014 11:05:11 -0300
-Message-ID: <20140225140511.GD5982__48738.3620501079$1393431020$gmane$org@ghostprotocols.net>
-References: <1393153753-2369-1-git-send-email-bp@alien8.de>
-	<87eh2s55tg.fsf@rustcorp.com.au> <20140225070020.GA19504@pd.tnic>
-	<87eh2r4c2d.fsf@rustcorp.com.au>
+From: Waiman Long <Waiman.Long@hp.com>
+Subject: [PATCH v5 2/8] qspinlock, x86: Enable x86-64 to use queue spinlock
+Date: Wed, 26 Feb 2014 10:14:22 -0500
+Message-ID: <1393427668-60228-3-git-send-email-Waiman.Long__2730.73584908179$1393431030$gmane$org@hp.com>
+References: <1393427668-60228-1-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87eh2r4c2d.fsf@rustcorp.com.au>
+In-Reply-To: <1393427668-60228-1-git-send-email-Waiman.Long@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,27 +17,137 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: virtio-dev@lists.oasis-open.org, Peter Zijlstra <a.p.zijlstra@chello.nl>, "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Sasha Levin <sasha.levin@oracle.com>, Borislav Petkov <bp@suse.de>
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, Michel Lespinasse <walken@google.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, linux-arch@vger.kernel.org, x86@kernel.org, Scott J Norton <scott.norton@hp.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Alexander Fyodorov <halcy@yandex.ru>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Daniel J Blueman <daniel@numascale.com>, Oleg Nesterov <oleg@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, George Spelvin <linux@horizon.com>, Alok Kataria <akataria@vmware.com>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu Vinod <chegu_vinod@hp.com>, Waiman Long <Waiman.Long@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Em Tue, Feb 25, 2014 at 10:52:02PM +1030, Rusty Russell escreveu:
-> Borislav Petkov <bp@suse.de> writes:
-> > On Tue, Feb 25, 2014 at 12:09:23PM +1030, Rusty Russell wrote:
-> >> Should we get more ambitious and start a fake-kernel/ directory where
-> >> we can put userspace equivs/stubs of kernel functionality?
-> >
-> > Dunno - people like to do that now, it seems.
-> >
-> > In any case, cleanups and unifications like that would definitely help
-> > if we decide to do that because, in this particular example, we have
-> > only one export.h to go and fish out.
-> 
-> Agreed.
-> 
-> Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+This patch makes the necessary changes at the x86 architecture
+specific layer to enable the use of queue spinlock for x86-64. As
+x86-32 machines are typically not multi-socket. The benefit of queue
+spinlock may not be apparent. So queue spinlock is not enabled.
 
-I'm ok with it as well and will stash it in my perf/core branch after
-a bit more time for others in the CC list to say something.
+Currently, there is some incompatibilities between the para-virtualized
+spinlock code (which hard-codes the use of ticket spinlock) and the
+queue spinlock. Therefore, the use of queue spinlock is disabled when
+the para-virtualized spinlock is enabled.
 
-- Arnaldo
+The arch/x86/include/asm/qspinlock.h header file includes some x86
+specific optimization which will make the queue spinlock code perform
+better than the generic implementation.
+
+Signed-off-by: Waiman Long <Waiman.Long@hp.com>
+Acked-by: Rik van Riel <riel@redhat.com>
+---
+ arch/x86/Kconfig                      |    1 +
+ arch/x86/include/asm/qspinlock.h      |   41 +++++++++++++++++++++++++++++++++
+ arch/x86/include/asm/spinlock.h       |    5 ++++
+ arch/x86/include/asm/spinlock_types.h |    4 +++
+ 4 files changed, 51 insertions(+), 0 deletions(-)
+ create mode 100644 arch/x86/include/asm/qspinlock.h
+
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 1b4ff87..5bf70ab 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -17,6 +17,7 @@ config X86_64
+ 	depends on 64BIT
+ 	select X86_DEV_DMA_OPS
+ 	select ARCH_USE_CMPXCHG_LOCKREF
++	select ARCH_USE_QUEUE_SPINLOCK
+ 
+ ### Arch settings
+ config X86
+diff --git a/arch/x86/include/asm/qspinlock.h b/arch/x86/include/asm/qspinlock.h
+new file mode 100644
+index 0000000..44cefee
+--- /dev/null
++++ b/arch/x86/include/asm/qspinlock.h
+@@ -0,0 +1,41 @@
++#ifndef _ASM_X86_QSPINLOCK_H
++#define _ASM_X86_QSPINLOCK_H
++
++#include <asm-generic/qspinlock_types.h>
++
++#if !defined(CONFIG_X86_OOSTORE) && !defined(CONFIG_X86_PPRO_FENCE)
++
++#define _ARCH_SUPPORTS_ATOMIC_8_16_BITS_OPS
++
++/*
++ * x86-64 specific queue spinlock union structure
++ */
++union arch_qspinlock {
++	struct qspinlock slock;
++	u8		 lock;	/* Lock bit	*/
++};
++
++#define	queue_spin_unlock queue_spin_unlock
++/**
++ * queue_spin_unlock - release a queue spinlock
++ * @lock : Pointer to queue spinlock structure
++ *
++ * No special memory barrier other than a compiler one is needed for the
++ * x86 architecture. A compiler barrier is added at the end to make sure
++ * that the clearing the lock bit is done ASAP without artificial delay
++ * due to compiler optimization.
++ */
++static inline void queue_spin_unlock(struct qspinlock *lock)
++{
++	union arch_qspinlock *qlock = (union arch_qspinlock *)lock;
++
++	barrier();
++	ACCESS_ONCE(qlock->lock) = 0;
++	barrier();
++}
++
++#endif /* !CONFIG_X86_OOSTORE && !CONFIG_X86_PPRO_FENCE */
++
++#include <asm-generic/qspinlock.h>
++
++#endif /* _ASM_X86_QSPINLOCK_H */
+diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
+index bf156de..6e6de1f 100644
+--- a/arch/x86/include/asm/spinlock.h
++++ b/arch/x86/include/asm/spinlock.h
+@@ -43,6 +43,10 @@
+ extern struct static_key paravirt_ticketlocks_enabled;
+ static __always_inline bool static_key_false(struct static_key *key);
+ 
++#ifdef CONFIG_QUEUE_SPINLOCK
++#include <asm/qspinlock.h>
++#else
++
+ #ifdef CONFIG_PARAVIRT_SPINLOCKS
+ 
+ static inline void __ticket_enter_slowpath(arch_spinlock_t *lock)
+@@ -181,6 +185,7 @@ static __always_inline void arch_spin_lock_flags(arch_spinlock_t *lock,
+ {
+ 	arch_spin_lock(lock);
+ }
++#endif /* CONFIG_QUEUE_SPINLOCK */
+ 
+ static inline void arch_spin_unlock_wait(arch_spinlock_t *lock)
+ {
+diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
+index 4f1bea1..7960268 100644
+--- a/arch/x86/include/asm/spinlock_types.h
++++ b/arch/x86/include/asm/spinlock_types.h
+@@ -23,6 +23,9 @@ typedef u32 __ticketpair_t;
+ 
+ #define TICKET_SHIFT	(sizeof(__ticket_t) * 8)
+ 
++#ifdef CONFIG_QUEUE_SPINLOCK
++#include <asm-generic/qspinlock_types.h>
++#else
+ typedef struct arch_spinlock {
+ 	union {
+ 		__ticketpair_t head_tail;
+@@ -33,6 +36,7 @@ typedef struct arch_spinlock {
+ } arch_spinlock_t;
+ 
+ #define __ARCH_SPIN_LOCK_UNLOCKED	{ { 0 } }
++#endif /* CONFIG_QUEUE_SPINLOCK */
+ 
+ #include <asm/rwlock.h>
+ 
+-- 
+1.7.1
