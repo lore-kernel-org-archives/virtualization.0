@@ -1,16 +1,16 @@
 From: Waiman Long <waiman.long@hp.com>
-Subject: Re: [PATCH RFC v5 5/8] pvqspinlock, x86: Enable unfair queue spinlock
-	in a KVM guest
-Date: Thu, 27 Feb 2014 14:12:23 -0500
-Message-ID: <530F8E17.5060308@hp.com>
+Subject: Re: [PATCH RFC v5 4/8] pvqspinlock, x86: Allow unfair spinlock in
+	a real PV environment
+Date: Thu, 27 Feb 2014 14:40:13 -0500
+Message-ID: <530F949D.6050609@hp.com>
 References: <1393427668-60228-1-git-send-email-Waiman.Long@hp.com>
-	<1393427668-60228-6-git-send-email-Waiman.Long@hp.com>
-	<530F1605.9040001@linux.vnet.ibm.com>
+	<1393427668-60228-5-git-send-email-Waiman.Long@hp.com>
+	<530F2F7B.40500@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <530F1605.9040001@linux.vnet.ibm.com>
+In-Reply-To: <530F2F7B.40500@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +20,36 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Alok Kataria <akataria@vmware.com>, linux-arch@vger.kernel.org, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Scott J Norton <scott.norton@hp.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Alexander Fyodorov <halcy@yandex.ru>, Rik van Riel <riel@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Daniel J Blueman <daniel@numascale.com>, Oleg Nesterov <oleg@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, George Spelvin <linux@horizon.com>, Thomas Gleixner <tglx@linutronix.de>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu
+To: David Vrabel <david.vrabel@citrix.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Alok Kataria <akataria@vmware.com>, linux-arch@vger.kernel.org, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Scott J Norton <scott.norton@hp.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Alexander Fyodorov <halcy@yandex.ru>, Rik van Riel <riel@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Daniel J Blueman <daniel@numascale.com>, Oleg Nesterov <oleg@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, George Spelvin <linux@horizon.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02/27/2014 05:40 AM, Raghavendra K T wrote:
-> On 02/26/2014 08:44 PM, Waiman Long wrote:
->> This patch adds a KVM init function to activate the unfair queue
->> spinlock in a KVM guest when the PARAVIRT_UNFAIR_LOCKS kernel config
->> option is selected.
+On 02/27/2014 07:28 AM, David Vrabel wrote:
+> On 26/02/14 15:14, Waiman Long wrote:
+>> Locking is always an issue in a virtualized environment as the virtual
+>> CPU that is waiting on a lock may get scheduled out and hence block
+>> any progress in lock acquisition even when the lock has been freed.
 >>
->> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
->> ---
->>   arch/x86/kernel/kvm.c |   17 +++++++++++++++++
->>   1 files changed, 17 insertions(+), 0 deletions(-)
->>
->> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
->> index 713f1b3..a489140 100644
->> --- a/arch/x86/kernel/kvm.c
->> +++ b/arch/x86/kernel/kvm.c
->> @@ -826,3 +826,20 @@ static __init int kvm_spinlock_init_jump(void)
->>   early_initcall(kvm_spinlock_init_jump);
->>
->>   #endif    /* CONFIG_PARAVIRT_SPINLOCKS */
->> +
->> +#ifdef CONFIG_PARAVIRT_UNFAIR_LOCKS
->> +/*
->> + * Enable unfair lock if running in a real para-virtualized environment
->> + */
->> +static __init int kvm_unfair_locks_init_jump(void)
->> +{
->> +    if (!kvm_para_available())
->> +        return 0;
->> +
+>> One solution to this problem is to allow unfair lock in a
+>> para-virtualized environment. In this case, a new lock acquirer can
+>> come and steal the lock if the next-in-line CPU to get the lock is
+>> scheduled out. Unfair lock in a native environment is generally not a
+>> good idea as there is a possibility of lock starvation for a heavily
+>> contended lock.
+> I'm not sure I'm keen on losing the fairness in PV environment.  I'm
+> concerned that on an over-committed host, the lock starvation problem
+> will be particularly bad.
 >
-> kvm_kick_cpu_type() in patch 8 assumes that host has support for kick
-> hypercall (KVM_HC_KICK_CPU).
+> But I'll have to revist this once a non-broken PV qspinlock
+> implementation exists (or someone explains how the proposed one works).
 >
-> I think for that we need explicit check of this 
-> kvm_para_has_feature(KVM_FEATURE_PV_UNHALT).
->
-> otherwise things may break for unlikely case of running a new guest on
-> a old host?
->
+> David
 
-Unfair lock is a separate config option that does not need to do any cpu 
-kick. The checking of kvm_para_available() is just to make sure that the 
-kernel is running in a real PV environment, not on bare metal but with 
-CONFIG_PARAVIRT enabled.
+On second thought, the unfair qspinlock may not be as bad as other 
+unfair locks. Basically, a task gets one chance to steal the lock. If it 
+can't, it will go to the back of the queue and wait for its turn. So 
+unless a single CPU can monopolize a lock by acquiring it again 
+immediately after release, all the tasks queuing up will eventually has 
+its chance of getting the lock.
 
 -Longman
