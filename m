@@ -1,20 +1,16 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v5 3/8] qspinlock, x86: Add x86 specific optimization for
-	2 contending tasks
-Date: Fri, 28 Feb 2014 18:56:45 +0100
-Message-ID: <20140228175645.GA6835@laptop.programming.kicks-ass.net>
-References: <1393427668-60228-1-git-send-email-Waiman.Long@hp.com>
-	<1393427668-60228-4-git-send-email-Waiman.Long@hp.com>
-	<20140226162057.GW6835@laptop.programming.kicks-ass.net>
-	<530FA32B.8010202@hp.com>
-	<20140228092945.GG27965@twins.programming.kicks-ass.net>
-	<5310BB81.3090508@hp.com>
+From: Oleg Nesterov <oleg@redhat.com>
+Subject: Re: [PATCH v5 1/8] qspinlock: Introducing a 4-byte queue spinlock
+	implementation
+Date: Sun, 2 Mar 2014 14:12:28 +0100
+Message-ID: <20140302131228.GA13206__8828.76123437217$1393788586$gmane$org@redhat.com>
+References: <1393475567-4453-1-git-send-email-Waiman.Long@hp.com>
+	<1393475567-4453-2-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <5310BB81.3090508@hp.com>
+In-Reply-To: <1393475567-4453-2-git-send-email-Waiman.Long@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,64 +20,132 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <waiman.long@hp.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Alok Kataria <akataria@vmware.com>, linux-arch@vger.kernel.org, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Scott J Norton <scott.norton@hp.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Alexander Fyodorov <halcy@yandex.ru>, Rik van Riel <riel@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Daniel J Blueman <daniel@numascale.com>, Oleg Nesterov <oleg@redhat.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, George Spelvin <linux@horizon.com>, Thomas Gleixner <tglx@linutro>
+To: Waiman Long <Waiman.Long@hp.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arch@vger.kernel.org, Gleb Natapov <gleb@redhat.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, Alok Kataria <akataria@vmware.com>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu Vinod <chegu_vinod@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 02/26, Waiman Long wrote:
+>
+> +void queue_spin_lock_slowpath(struct qspinlock *lock, int qsval)
+> +{
+> +	unsigned int cpu_nr, qn_idx;
+> +	struct qnode *node, *next;
+> +	u32 prev_qcode, my_qcode;
+> +
+> +	/*
+> +	 * Get the queue node
+> +	 */
+> +	cpu_nr = smp_processor_id();
+> +	node   = get_qnode(&qn_idx);
+> +
+> +	/*
+> +	 * It should never happen that all the queue nodes are being used.
+> +	 */
+> +	BUG_ON(!node);
+> +
+> +	/*
+> +	 * Set up the new cpu code to be exchanged
+> +	 */
+> +	my_qcode = queue_encode_qcode(cpu_nr, qn_idx);
+> +
+> +	/*
+> +	 * Initialize the queue node
+> +	 */
+> +	node->wait = true;
+> +	node->next = NULL;
+> +
+> +	/*
+> +	 * The lock may be available at this point, try again if no task was
+> +	 * waiting in the queue.
+> +	 */
+> +	if (!(qsval >> _QCODE_OFFSET) && queue_spin_trylock(lock)) {
+> +		put_qnode();
+> +		return;
+> +	}
+
+Cosmetic, but probably "goto release_node" would be more consistent.
+
+And I am wondering how much this "qsval >> _QCODE_OFFSET" check can help.
+Note that this is the only usage of this arg, perhaps it would be better
+to simply remove it and shrink the caller's code a bit? It is also used
+in 3/8, but we can read the "fresh" value of ->qlcode (trylock does this
+anyway), and perhaps it can actually help if it is already unlocked.
+
+> +	prev_qcode = atomic_xchg(&lock->qlcode, my_qcode);
+> +	/*
+> +	 * It is possible that we may accidentally steal the lock. If this is
+> +	 * the case, we need to either release it if not the head of the queue
+> +	 * or get the lock and be done with it.
+> +	 */
+> +	if (unlikely(!(prev_qcode & _QSPINLOCK_LOCKED))) {
+> +		if (prev_qcode == 0) {
+> +			/*
+> +			 * Got the lock since it is at the head of the queue
+> +			 * Now try to atomically clear the queue code.
+> +			 */
+> +			if (atomic_cmpxchg(&lock->qlcode, my_qcode,
+> +					  _QSPINLOCK_LOCKED) == my_qcode)
+> +				goto release_node;
+> +			/*
+> +			 * The cmpxchg fails only if one or more tasks
+> +			 * are added to the queue. In this case, we need to
+> +			 * notify the next one to be the head of the queue.
+> +			 */
+> +			goto notify_next;
+> +		}
+> +		/*
+> +		 * Accidentally steal the lock, release the lock and
+> +		 * let the queue head get it.
+> +		 */
+> +		queue_spin_unlock(lock);
+> +	} else
+> +		prev_qcode &= ~_QSPINLOCK_LOCKED;	/* Clear the lock bit */
+
+You know, actually I started this email because I thought that "goto notify_next"
+is wrong, I misread the patch as if this "goto" can happen even if prev_qcode != 0.
+
+So feel free to ignore, all my comments are cosmetic/subjective, but to me it
+would be more clean/clear to rewrite the code above as
+
+	if (prev_qcode == 0) {
+		if (atomic_cmpxchg(..., _QSPINLOCK_LOCKED) == my_qcode)
+			goto release_node;
+		goto notify_next;
+	}
+
+	if (prev_qcode & _QSPINLOCK_LOCKED)
+		prev_qcode &= ~_QSPINLOCK_LOCKED;
+	else
+		queue_spin_unlock(lock);
 
 
-> After modifying it to do a deterministic cmpxchg, the test run time of 2
-> contending tasks jumps up from 600ms (best case) to about 1700ms which was
-> worse than the original qspinlock's 1300-1500ms. It is the opportunistic
-> nature of the xchg() code that can potentially combine multiple steps in the
-> deterministic atomic sequence which can saves time. Without that, I would
-> rather prefer going back to the basic qspinlock queuing sequence for 2
-> contending tasks.
-> 
-> Please take a look at the performance data in my patch 3 to see if the
-> slowdown at 2 and 3 contending tasks are acceptable or not.
+> +	while (true) {
+> +		u32 qcode;
+> +		int retval;
+> +
+> +		retval = queue_get_lock_qcode(lock, &qcode, my_qcode);
+> +		if (retval > 0)
+> +			;	/* Lock not available yet */
+> +		else if (retval < 0)
+> +			/* Lock taken, can release the node & return */
+> +			goto release_node;
 
-Right; so I've gone back to a simple version (~200 lines) that's fairly
-easy to comprehend (to me, since I wrote it). And will now try to see if
-I can find the same state transitions in your code.
+I guess this is for 3/8which adds the optimized version of
+queue_get_lock_qcode(), so perhaps this "retval < 0" block can go into 3/8
+as well.
 
-I find your code somewhat hard to follow; mostly due to those xchg() +
-fixup thingies. But I'll get there.
+> +		else if (qcode != my_qcode) {
+> +			/*
+> +			 * Just get the lock with other spinners waiting
+> +			 * in the queue.
+> +			 */
+> +			if (queue_spin_setlock(lock))
+> +				goto notify_next;
 
-> The reason why I need a whole byte for the lock bit is because of the simple
-> unlock code of assigning 0 to the lock byte by the lock holder. Utilizing
-> other bits in the low byte for other purpose will complicate the unlock path
-> and slow down the no-contention case.
+OTOH, at least the generic (non-optimized) version of queue_spin_setlock()
+could probably accept "qcode" and avoid atomic_read() + _QSPINLOCK_LOCKED
+check.
 
-Yeah, I get why you need a whole byte for the lock part, I was asking if
-we really need another whole byte for the pending part.
+But once again, please feel free to ignore.
 
-So in my version I think I see an optimization case where this is indeed
-useful and I can trade an atomic op for a write barrier, which should be
-a big win.
-
-It just wasn't at all clear (to me) from your code.
-
-(I also think the optimization isn't x86 specific)
-
-> >>The code is unfair, but this unfairness help it to run faster than ticket
-> >>spinlock in this particular case. And the regular qspinlock slowpath is
-> >>fair. A little bit of unfairness in this particular case helps its speed.
-
-> >*groan*, no, unfairness not cool. ticket lock is absolutely fair; we
-> >should preserve this.
-> 
-> We can preserve that by removing patch 3.
-
-I've got a version that does the pending thing and still is entirely
-fair.
-
-I don't think the concept of the extra spinner is incompatible with
-fairness.
-
-> >BTW; can you share your benchmark thingy?
-> 
-> I have attached the test program that I used to generate the timing data for
-> patch 3.
-
-Thanks, I'll have a play.
+Oleg.
