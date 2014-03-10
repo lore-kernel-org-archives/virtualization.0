@@ -1,15 +1,14 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net V2] vhost: net: switch to use data copy if pending
-	DMAs exceed the limit
-Date: Mon, 10 Mar 2014 10:03:10 +0200
-Message-ID: <20140310080310.GA754__47035.4988742203$1394438607$gmane$org@redhat.com>
-References: <1394170107-12018-1-git-send-email-jasowang@redhat.com>
+From: Zoltan Kiss <zoltan.kiss@citrix.com>
+Subject: Re: [PATCH] xen/grant-table: Refactor gnttab_[un]map_refs to avoid
+	m2p_override
+Date: Mon, 10 Mar 2014 17:14:02 +0000
+Message-ID: <531DF2DA.20209@citrix.com>
+References: <1393516530-9145-1-git-send-email-zoltan.kiss@citrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1394170107-12018-1-git-send-email-jasowang@redhat.com>
+In-Reply-To: <1393516530-9145-1-git-send-email-zoltan.kiss@citrix.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,168 +18,412 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Qin Chuanyu <qinchuanyu@huawei.com>
+To: Stefano Stabellini <stefano.stabellini@eu.citrix.com>, David Vrabel <david.vrabel@citrix.com>, Russell King <linux@arm.linux.org.uk>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Matt Wilson <msw@linux.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Anthony Liguori <aliguori@amazon.com>, xen-devel@lists.xenproject.org, linux-arm-kernel@lists.infradead.org, =?ISO-8859-1?Q?Roger_Pau_Monn=E9?= <roger.pau@citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Mar 07, 2014 at 01:28:27PM +0800, Jason Wang wrote:
-> We used to stop the handling of tx when the number of pending DMAs
-> exceeds VHOST_MAX_PEND. This is used to reduce the memory occupation
-> of both host and guest. But it was too aggressive in some cases, since
-> any delay or blocking of a single packet may delay or block the guest
-> transmission. Consider the following setup:
-> 
->     +-----+        +-----+
->     | VM1 |        | VM2 |
->     +--+--+        +--+--+
->        |              |
->     +--+--+        +--+--+
->     | tap0|        | tap1|
->     +--+--+        +--+--+
->        |              |
->     pfifo_fast   htb(10Mbit/s)
->        |              |
->     +--+--------------+---+
->     |     bridge          |
->     +--+------------------+
->        |
->     pfifo_fast
->        |
->     +-----+
->     | eth0|(100Mbit/s)
->     +-----+
-> 
-> - start two VMs and connect them to a bridge
-> - add an physical card (100Mbit/s) to that bridge
-> - setup htb on tap1 and limit its throughput to 10Mbit/s
-> - run two netperfs in the same time, one is from VM1 to VM2. Another is
->   from VM1 to an external host through eth0.
-> - result shows that not only the VM1 to VM2 traffic were throttled but
->   also the VM1 to external host through eth0 is also throttled somehow.
-> 
-> This is because the delay added by htb may lead the delay the finish
-> of DMAs and cause the pending DMAs for tap0 exceeds the limit
-> (VHOST_MAX_PEND). In this case vhost stop handling tx request until
-> htb send some packets. The problem here is all of the packets
-> transmission were blocked even if it does not go to VM2.
-> 
-> We can solve this issue by relaxing it a little bit: switching to use
-> data copy instead of stopping tx when the number of pending DMAs
-> exceed half of the vq size. This is safe because:
-> 
-> - The number of pending DMAs were still limited (half of the vq size)
-> - The out of order completion during mode switch can make sure that
->   most of the tx buffers were freed in time in guest.
-> 
-> So even if about 50% packets were delayed in zero-copy case, vhost
-> could continue to do the transmission through data copy in this case.
-> 
-> Test result:
-> 
-> Before this patch:
-> VM1 to VM2 throughput is 9.3Mbit/s
-> VM1 to External throughput is 40Mbit/s
-> CPU utilization is 7%
-> 
-> After this patch:
-> VM1 to VM2 throughput is 9.3Mbit/s
-> Vm1 to External throughput is 93Mbit/s
-> CPU utilization is 16%
-> 
-> Completed performance test on 40gbe shows no obvious changes in both
-> throughput and cpu utilization with this patch.
-> 
-> The patch only solve this issue when unlimited sndbuf. We still need a
-> solution for limited sndbuf.
-> 
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Qin Chuanyu <qinchuanyu@huawei.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+David/Stefano, can you take a look, and ack if you are happy with this? 
+I could build it on ARM and a backported version on 3.10 have seen quite 
+a lot of testing recently.
 
-I thought hard about this.
-Here's what worries me: if there are still head of line
-blocking issues lurking in the stack, they will still
-hurt guests such as windows which rely on timely
-completion of buffers, but it makes it
-that much harder to reproduce the problems with
-linux guests which don't.
-And this will make even it harder to figure out
-whether zero copy is actually active to diagnose
-high cpu utilization cases.
+Zoli
 
-
-So I think this is a good trick, but let's make
-this path conditional on a new debugging module parameter:
-how about head_of_line_blocking with default off?
-This way if we suspect packets are delayed forever
-somewhere, we can enable that and see guest networking block.
-
-Additionally, I think we should add a way to count zero copy
-and non zero copy packets.
-I see two ways to implement this: add tracepoints in vhost-net
-or add counters in tun accessible with ethtool.
-This can be a patch on top and does not have to block
-this one though.
-
+On 27/02/14 15:55, Zoltan Kiss wrote:
+> (This is a continuation of "[PATCH v9] xen/grant-table: Avoid m2p_override
+> during mapping")
+>
+> The grant mapping API does m2p_override unnecessarily: only gntdev needs it,
+> for blkback and future netback patches it just cause a lock contention, as
+> those pages never go to userspace. Therefore this series does the following:
+> - the bulk of the original function (everything after the mapping hypercall)
+>    is moved to arch-dependent set/clear_foreign_p2m_mapping
+> - the "if (xen_feature(XENFEAT_auto_translated_physmap))" brach goes to ARM
+> - therefore the ARM function could be much smaller, the m2p_override stubs
+>    could be also removed
+> - on x86 the set_phys_to_machine calls were moved up to this new funcion
+>    from m2p_override functions
+> - and m2p_override functions are only called when there is a kmap_ops param
+>
+> It also removes a stray space from arch/x86/include/asm/xen/page.h.
+>
+> Signed-off-by: Zoltan Kiss <zoltan.kiss@citrix.com>
+> Suggested-by: Anthony Liguori <aliguori@amazon.com>
+> Suggested-by: David Vrabel <david.vrabel@citrix.com>
+> Suggested-by: Stefano Stabellini <stefano.stabellini@eu.citrix.com>
 > ---
-> Changes from V1:
-> - Remove VHOST_MAX_PEND and switch to use half of the vq size as the limit
-> - Add cpu utilization in commit log
-> ---
->  drivers/vhost/net.c | 19 +++++++------------
->  1 file changed, 7 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index a0fa5de..2925e9a 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -38,8 +38,6 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
->   * Using this limit prevents one virtqueue from starving others. */
->  #define VHOST_NET_WEIGHT 0x80000
->  
-> -/* MAX number of TX used buffers for outstanding zerocopy */
-> -#define VHOST_MAX_PEND 128
->  #define VHOST_GOODCOPY_LEN 256
->  
->  /*
-> @@ -345,7 +343,7 @@ static void handle_tx(struct vhost_net *net)
->  		.msg_flags = MSG_DONTWAIT,
->  	};
->  	size_t len, total_len = 0;
-> -	int err;
-> +	int err, num_pends;
->  	size_t hdr_size;
->  	struct socket *sock;
->  	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
-> @@ -366,13 +364,6 @@ static void handle_tx(struct vhost_net *net)
->  		if (zcopy)
->  			vhost_zerocopy_signal_used(net, vq);
->  
-> -		/* If more outstanding DMAs, queue the work.
-> -		 * Handle upend_idx wrap around
-> -		 */
-> -		if (unlikely((nvq->upend_idx + vq->num - VHOST_MAX_PEND)
-> -			      % UIO_MAXIOV == nvq->done_idx))
-> -			break;
-> -
->  		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
->  					 ARRAY_SIZE(vq->iov),
->  					 &out, &in,
-> @@ -405,9 +396,13 @@ static void handle_tx(struct vhost_net *net)
->  			break;
->  		}
->  
-> +		num_pends = likely(nvq->upend_idx >= nvq->done_idx) ?
-> +			    (nvq->upend_idx - nvq->done_idx) :
-> +			    (nvq->upend_idx + UIO_MAXIOV -
-> +			     nvq->done_idx);
+>   arch/arm/include/asm/xen/page.h |   15 ++---
+>   arch/arm/xen/p2m.c              |   32 +++++++++++
+>   arch/x86/include/asm/xen/page.h |   11 +++-
+>   arch/x86/xen/p2m.c              |  121 ++++++++++++++++++++++++++++++++++-----
+>   drivers/xen/grant-table.c       |   73 +----------------------
+>   5 files changed, 156 insertions(+), 96 deletions(-)
+>
+> diff --git a/arch/arm/include/asm/xen/page.h b/arch/arm/include/asm/xen/page.h
+> index e0965ab..cf4f3e8 100644
+> --- a/arch/arm/include/asm/xen/page.h
+> +++ b/arch/arm/include/asm/xen/page.h
+> @@ -97,16 +97,13 @@ static inline pte_t *lookup_address(unsigned long address, unsigned int *level)
+>   	return NULL;
+>   }
+>
+> -static inline int m2p_add_override(unsigned long mfn, struct page *page,
+> -		struct gnttab_map_grant_ref *kmap_op)
+> -{
+> -	return 0;
+> -}
+> +extern int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
+> +				   struct gnttab_map_grant_ref *kmap_ops,
+> +				   struct page **pages, unsigned int count);
+>
+> -static inline int m2p_remove_override(struct page *page, bool clear_pte)
+> -{
+> -	return 0;
+> -}
+> +extern int clear_foreign_p2m_mapping(struct gnttab_unmap_grant_ref *unmap_ops,
+> +				     struct gnttab_map_grant_ref *kmap_ops,
+> +				     struct page **pages, unsigned int count);
+>
+>   bool __set_phys_to_machine(unsigned long pfn, unsigned long mfn);
+>   bool __set_phys_to_machine_multi(unsigned long pfn, unsigned long mfn,
+> diff --git a/arch/arm/xen/p2m.c b/arch/arm/xen/p2m.c
+> index b31ee1b2..9c48778 100644
+> --- a/arch/arm/xen/p2m.c
+> +++ b/arch/arm/xen/p2m.c
+> @@ -146,6 +146,38 @@ unsigned long __mfn_to_pfn(unsigned long mfn)
+>   }
+>   EXPORT_SYMBOL_GPL(__mfn_to_pfn);
+>
+> +int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
+> +			    struct gnttab_map_grant_ref *kmap_ops,
+> +			    struct page **pages, unsigned int count);
+> +{
+> +	int i;
 > +
->  		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
-> -				   && (nvq->upend_idx + 1) % UIO_MAXIOV !=
-> -				      nvq->done_idx
-> +				   && num_pends <= vq->num >> 1
->  				   && vhost_net_tx_select_zcopy(net);
->  
->  		/* use msg_control to pass vhost zerocopy ubuf info to skb */
-> -- 
-> 1.8.3.2
+> +	for (i = 0; i < count; i++) {
+> +		if (map_ops[i].status)
+> +			continue;
+> +		set_phys_to_machine(map_ops[i].host_addr >> PAGE_SHIFT,
+> +				    map_ops[i].dev_bus_addr >> PAGE_SHIFT);
+> +	}
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(set_foreign_p2m_mapping);
+> +
+> +int clear_foreign_p2m_mapping(struct gnttab_unmap_grant_ref *unmap_ops,
+> +			      struct gnttab_map_grant_ref *kmap_ops,
+> +			      struct page **pages, unsigned int count);
+> +{
+> +	int i;
+> +
+> +	for (i = 0; i < count; i++) {
+> +		set_phys_to_machine(unmap_ops[i].host_addr >> PAGE_SHIFT,
+> +				    INVALID_P2M_ENTRY);
+> +	}
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(clear_foreign_p2m_mapping);
+> +
+>   bool __set_phys_to_machine_multi(unsigned long pfn,
+>   		unsigned long mfn, unsigned long nr_pages)
+>   {
+> diff --git a/arch/x86/include/asm/xen/page.h b/arch/x86/include/asm/xen/page.h
+> index 3e276eb..c949923 100644
+> --- a/arch/x86/include/asm/xen/page.h
+> +++ b/arch/x86/include/asm/xen/page.h
+> @@ -49,10 +49,17 @@ extern bool __set_phys_to_machine(unsigned long pfn, unsigned long mfn);
+>   extern unsigned long set_phys_range_identity(unsigned long pfn_s,
+>   					     unsigned long pfn_e);
+>
+> +extern int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
+> +				   struct gnttab_map_grant_ref *kmap_ops,
+> +				   struct page **pages, unsigned int count);
+>   extern int m2p_add_override(unsigned long mfn, struct page *page,
+>   			    struct gnttab_map_grant_ref *kmap_op);
+> +extern int clear_foreign_p2m_mapping(struct gnttab_unmap_grant_ref *unmap_ops,
+> +				     struct gnttab_map_grant_ref *kmap_ops,
+> +				     struct page **pages, unsigned int count);
+>   extern int m2p_remove_override(struct page *page,
+> -				struct gnttab_map_grant_ref *kmap_op);
+> +			       struct gnttab_map_grant_ref *kmap_op,
+> +			       unsigned long mfn);
+>   extern struct page *m2p_find_override(unsigned long mfn);
+>   extern unsigned long m2p_find_override_pfn(unsigned long mfn, unsigned long pfn);
+>
+> @@ -121,7 +128,7 @@ static inline unsigned long mfn_to_pfn(unsigned long mfn)
+>   		pfn = m2p_find_override_pfn(mfn, ~0);
+>   	}
+>
+> -	/*
+> +	/*
+>   	 * pfn is ~0 if there are no entries in the m2p for mfn or if the
+>   	 * entry doesn't map back to the mfn and m2p_override doesn't have a
+>   	 * valid entry for it.
+> diff --git a/arch/x86/xen/p2m.c b/arch/x86/xen/p2m.c
+> index 696c694..85e5d78 100644
+> --- a/arch/x86/xen/p2m.c
+> +++ b/arch/x86/xen/p2m.c
+> @@ -881,6 +881,65 @@ static unsigned long mfn_hash(unsigned long mfn)
+>   	return hash_long(mfn, M2P_OVERRIDE_HASH_SHIFT);
+>   }
+>
+> +int set_foreign_p2m_mapping(struct gnttab_map_grant_ref *map_ops,
+> +			    struct gnttab_map_grant_ref *kmap_ops,
+> +			    struct page **pages, unsigned int count)
+> +{
+> +	int i, ret = 0;
+> +	bool lazy = false;
+> +	pte_t *pte;
+> +
+> +	if (xen_feature(XENFEAT_auto_translated_physmap))
+> +		return 0;
+> +
+> +	if (kmap_ops &&
+> +	    !in_interrupt() &&
+> +	    paravirt_get_lazy_mode() == PARAVIRT_LAZY_NONE) {
+> +		arch_enter_lazy_mmu_mode();
+> +		lazy = true;
+> +	}
+> +
+> +	for (i = 0; i < count; i++) {
+> +		unsigned long mfn, pfn;
+> +
+> +		/* Do not add to override if the map failed. */
+> +		if (map_ops[i].status)
+> +			continue;
+> +
+> +		if (map_ops[i].flags & GNTMAP_contains_pte) {
+> +			pte = (pte_t *) (mfn_to_virt(PFN_DOWN(map_ops[i].host_addr)) +
+> +				(map_ops[i].host_addr & ~PAGE_MASK));
+> +			mfn = pte_mfn(*pte);
+> +		} else {
+> +			mfn = PFN_DOWN(map_ops[i].dev_bus_addr);
+> +		}
+> +		pfn = page_to_pfn(pages[i]);
+> +
+> +		WARN_ON(PagePrivate(pages[i]));
+> +		SetPagePrivate(pages[i]);
+> +		set_page_private(pages[i], mfn);
+> +		pages[i]->index = pfn_to_mfn(pfn);
+> +
+> +		if (unlikely(!set_phys_to_machine(pfn, FOREIGN_FRAME(mfn)))) {
+> +			ret = -ENOMEM;
+> +			goto out;
+> +		}
+> +
+> +		if (kmap_ops) {
+> +			ret = m2p_add_override(mfn, pages[i], &kmap_ops[i]);
+> +			if (ret)
+> +				goto out;
+> +		}
+> +	}
+> +
+> +out:
+> +	if (lazy)
+> +		arch_leave_lazy_mmu_mode();
+> +
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(set_foreign_p2m_mapping);
+> +
+>   /* Add an MFN override for a particular page */
+>   int m2p_add_override(unsigned long mfn, struct page *page,
+>   		struct gnttab_map_grant_ref *kmap_op)
+> @@ -899,13 +958,6 @@ int m2p_add_override(unsigned long mfn, struct page *page,
+>   					"m2p_add_override: pfn %lx not mapped", pfn))
+>   			return -EINVAL;
+>   	}
+> -	WARN_ON(PagePrivate(page));
+> -	SetPagePrivate(page);
+> -	set_page_private(page, mfn);
+> -	page->index = pfn_to_mfn(pfn);
+> -
+> -	if (unlikely(!set_phys_to_machine(pfn, FOREIGN_FRAME(mfn))))
+> -		return -ENOMEM;
+>
+>   	if (kmap_op != NULL) {
+>   		if (!PageHighMem(page)) {
+> @@ -943,20 +995,62 @@ int m2p_add_override(unsigned long mfn, struct page *page,
+>   	return 0;
+>   }
+>   EXPORT_SYMBOL_GPL(m2p_add_override);
+> +
+> +int clear_foreign_p2m_mapping(struct gnttab_unmap_grant_ref *unmap_ops,
+> +			      struct gnttab_map_grant_ref *kmap_ops,
+> +			      struct page **pages, unsigned int count)
+> +{
+> +	int i, ret = 0;
+> +	bool lazy = false;
+> +
+> +	if (xen_feature(XENFEAT_auto_translated_physmap))
+> +		return 0;
+> +
+> +	if (kmap_ops &&
+> +	    !in_interrupt() &&
+> +	    paravirt_get_lazy_mode() == PARAVIRT_LAZY_NONE) {
+> +		arch_enter_lazy_mmu_mode();
+> +		lazy = true;
+> +	}
+> +
+> +	for (i = 0; i < count; i++) {
+> +		unsigned long mfn = get_phys_to_machine(page_to_pfn(pages[i]));
+> +		unsigned long pfn = page_to_pfn(pages[i]);
+> +
+> +		if (mfn == INVALID_P2M_ENTRY || !(mfn & FOREIGN_FRAME_BIT)) {
+> +			ret = -EINVAL;
+> +			goto out;
+> +		}
+> +
+> +		set_page_private(pages[i], INVALID_P2M_ENTRY);
+> +		WARN_ON(!PagePrivate(pages[i]));
+> +		ClearPagePrivate(pages[i]);
+> +		set_phys_to_machine(pfn, pages[i]->index);
+> +
+> +		if (kmap_ops)
+> +			ret = m2p_remove_override(pages[i], &kmap_ops[i], mfn);
+> +		if (ret)
+> +			goto out;
+> +	}
+> +
+> +out:
+> +	if (lazy)
+> +		arch_leave_lazy_mmu_mode();
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(clear_foreign_p2m_mapping);
+> +
+>   int m2p_remove_override(struct page *page,
+> -		struct gnttab_map_grant_ref *kmap_op)
+> +			struct gnttab_map_grant_ref *kmap_op,
+> +			unsigned long mfn)
+>   {
+>   	unsigned long flags;
+> -	unsigned long mfn;
+>   	unsigned long pfn;
+>   	unsigned long uninitialized_var(address);
+>   	unsigned level;
+>   	pte_t *ptep = NULL;
+>
+>   	pfn = page_to_pfn(page);
+> -	mfn = get_phys_to_machine(pfn);
+> -	if (mfn == INVALID_P2M_ENTRY || !(mfn & FOREIGN_FRAME_BIT))
+> -		return -EINVAL;
+>
+>   	if (!PageHighMem(page)) {
+>   		address = (unsigned long)__va(pfn << PAGE_SHIFT);
+> @@ -970,10 +1064,7 @@ int m2p_remove_override(struct page *page,
+>   	spin_lock_irqsave(&m2p_override_lock, flags);
+>   	list_del(&page->lru);
+>   	spin_unlock_irqrestore(&m2p_override_lock, flags);
+> -	WARN_ON(!PagePrivate(page));
+> -	ClearPagePrivate(page);
+>
+> -	set_phys_to_machine(pfn, page->index);
+>   	if (kmap_op != NULL) {
+>   		if (!PageHighMem(page)) {
+>   			struct multicall_space mcs;
+> diff --git a/drivers/xen/grant-table.c b/drivers/xen/grant-table.c
+> index b84e3ab..6d325bd 100644
+> --- a/drivers/xen/grant-table.c
+> +++ b/drivers/xen/grant-table.c
+> @@ -933,9 +933,6 @@ int gnttab_map_refs(struct gnttab_map_grant_ref *map_ops,
+>   		    struct page **pages, unsigned int count)
+>   {
+>   	int i, ret;
+> -	bool lazy = false;
+> -	pte_t *pte;
+> -	unsigned long mfn;
+>
+>   	ret = HYPERVISOR_grant_table_op(GNTTABOP_map_grant_ref, map_ops, count);
+>   	if (ret)
+> @@ -947,45 +944,7 @@ int gnttab_map_refs(struct gnttab_map_grant_ref *map_ops,
+>   			gnttab_retry_eagain_gop(GNTTABOP_map_grant_ref, map_ops + i,
+>   						&map_ops[i].status, __func__);
+>
+> -	/* this is basically a nop on x86 */
+> -	if (xen_feature(XENFEAT_auto_translated_physmap)) {
+> -		for (i = 0; i < count; i++) {
+> -			if (map_ops[i].status)
+> -				continue;
+> -			set_phys_to_machine(map_ops[i].host_addr >> PAGE_SHIFT,
+> -					map_ops[i].dev_bus_addr >> PAGE_SHIFT);
+> -		}
+> -		return ret;
+> -	}
+> -
+> -	if (!in_interrupt() && paravirt_get_lazy_mode() == PARAVIRT_LAZY_NONE) {
+> -		arch_enter_lazy_mmu_mode();
+> -		lazy = true;
+> -	}
+> -
+> -	for (i = 0; i < count; i++) {
+> -		/* Do not add to override if the map failed. */
+> -		if (map_ops[i].status)
+> -			continue;
+> -
+> -		if (map_ops[i].flags & GNTMAP_contains_pte) {
+> -			pte = (pte_t *) (mfn_to_virt(PFN_DOWN(map_ops[i].host_addr)) +
+> -				(map_ops[i].host_addr & ~PAGE_MASK));
+> -			mfn = pte_mfn(*pte);
+> -		} else {
+> -			mfn = PFN_DOWN(map_ops[i].dev_bus_addr);
+> -		}
+> -		ret = m2p_add_override(mfn, pages[i], kmap_ops ?
+> -				       &kmap_ops[i] : NULL);
+> -		if (ret)
+> -			goto out;
+> -	}
+> -
+> - out:
+> -	if (lazy)
+> -		arch_leave_lazy_mmu_mode();
+> -
+> -	return ret;
+> +	return set_foreign_p2m_mapping(map_ops, kmap_ops, pages, count);
+>   }
+>   EXPORT_SYMBOL_GPL(gnttab_map_refs);
+>
+> @@ -993,39 +952,13 @@ int gnttab_unmap_refs(struct gnttab_unmap_grant_ref *unmap_ops,
+>   		      struct gnttab_map_grant_ref *kmap_ops,
+>   		      struct page **pages, unsigned int count)
+>   {
+> -	int i, ret;
+> -	bool lazy = false;
+> +	int ret;
+>
+>   	ret = HYPERVISOR_grant_table_op(GNTTABOP_unmap_grant_ref, unmap_ops, count);
+>   	if (ret)
+>   		return ret;
+>
+> -	/* this is basically a nop on x86 */
+> -	if (xen_feature(XENFEAT_auto_translated_physmap)) {
+> -		for (i = 0; i < count; i++) {
+> -			set_phys_to_machine(unmap_ops[i].host_addr >> PAGE_SHIFT,
+> -					INVALID_P2M_ENTRY);
+> -		}
+> -		return ret;
+> -	}
+> -
+> -	if (!in_interrupt() && paravirt_get_lazy_mode() == PARAVIRT_LAZY_NONE) {
+> -		arch_enter_lazy_mmu_mode();
+> -		lazy = true;
+> -	}
+> -
+> -	for (i = 0; i < count; i++) {
+> -		ret = m2p_remove_override(pages[i], kmap_ops ?
+> -				       &kmap_ops[i] : NULL);
+> -		if (ret)
+> -			goto out;
+> -	}
+> -
+> - out:
+> -	if (lazy)
+> -		arch_leave_lazy_mmu_mode();
+> -
+> -	return ret;
+> +	return clear_foreign_p2m_mapping(unmap_ops, kmap_ops, pages, count);
+>   }
+>   EXPORT_SYMBOL_GPL(gnttab_unmap_refs);
+>
+>
