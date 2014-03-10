@@ -1,12 +1,14 @@
-From: Ming Zhao <zhaom@cis.fiu.edu>
-Subject: FeedbackComputing14 paper submission due on March 25 (9th
-	International Workshop on Feedback Computing)
-Date: Fri, 7 Mar 2014 22:47:02 -0500
-Message-ID: <20140308034711.B5200DB7B@cheetah.cs.fiu.edu>
+From: Qin Chuanyu <qinchuanyu@huawei.com>
+Subject: Re: [PATCH net V2] vhost: net: switch to use data copy if pending
+	DMAs exceed the limit
+Date: Mon, 10 Mar 2014 10:52:20 +0800
+Message-ID: <531D28E4.70002@huawei.com>
+References: <1394170107-12018-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1394170107-12018-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,117 +18,141 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, kvm@vger.kernel.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Feedback Computing 2014 Call for Papers
-
-June 17th, 2014, Philadelphia, PA, collocating with USENIX ATC and ICAC
-http://www.usenix.org/conference/feedbackcomputing14
-
-
-Submission deadline in two weeks!
-
-
-Key Dates:
-
-* Paper submissions due: March 25, 2014, 11:59 p.m. PDT
-* Notification to authors: April 22, 2014
-* Final paper files due: May 22, 2014
-
- =
-
-Overview:
-
-The 2014 International Workshop on Feedback Computing will be held in June =
-2014, as part of USENIX Federated Conferences Week in Philadelphia, PA. The=
- workshop is a unique forum dedicated to advancing feedback system theory a=
-nd practice in modeling, analyzing, designing, and optimizing computing sys=
-tems. It represents a timely response to the following two trends:
-
-1. Computing systems are growing larger, smarter, and more complex, embeddi=
-ng in the physical world, human interactions, and societal infrastructure. =
-Systematic and feedback-driven approaches are critical for addressing the d=
-ynamic complexity that arises in new fields such as cyber-physical systems,=
- cloud computing, social networks, and mobile applications.
-
-2. Advances in disciplines such as machine learning, mathematical optimizat=
-ion, network theories, decision theories, and data engineering provide new =
-foundations and techniques that empower feedback approaches to address comp=
-uting systems at scale and to achieve goals such as autonomy, adaptation, s=
-tabilization, robustness, and performance optimization.
-
- =
-
-Topics:
-
-The Feedback Computing Workshop seeks original research contributions and p=
-osition papers on advancing feedback control technologies and their applica=
-tions in computing systems, broadly defined. Topics of interest include but=
- are not limited to:
-
-* Theoretical foundations for feedback computing
-* New control paradigms and system architecture
-* Sensing, actuation, and data management in feedback computing
-* Learning and modeling of computing system dynamics
-* Design patterns and software engineering
-* Experiences and best practices from real systems
-* Applications in domains such as big data, cloud computing, computer netwo=
-rks, cyber-physical systems, data center resource management, distributed s=
-ystems, mobility, power management and sustainability, real-time systems, a=
-nd social networks
-
-We encourage research papers containing original research results, challeng=
-e papers motivating new research directions, and application papers describ=
-ing experiences from real systems. In addition, the workshop will facilitat=
-e discussion and collaborative research among the participants. One Best Pa=
-per Award will be announced at the end of workshop to recognize the current=
- best work in feedback computing.
-
- =
-
-Paper Submissions
-
-The workshop follows a single-blind review process. Authors are invited to =
-submit three types of papers to emphasize the multiple focuses of this work=
-shop:
-
-* Research Papers: Research papers must represent original, unpublished con=
-tributions and must not exceed 6 pages in length (excluding references).
-
-* Challenge Papers: Challenge paper submissions must motivate research chal=
-lenges with real systems that can take advantage of feedback computing, and=
- should not exceed 3 pages in length (excluding references).
-
-* Application Papers: Application paper submissions must be based on real e=
-xperience and working systems. All submissions should be formatted as annot=
-ated slides=C2=97a visual in the upper half of a page and the explanatory t=
-ext in the lower half=C2=97and should not exceed 15 slides in length.
-
-Please refer to https://www.usenix.org/conference/feedbackcomputing14/call-=
-for-papers for submission instructions.
-
-
-Committee:
-
-General Chair:
-
-    Jie Liu, Microsoft Research
-
-TPC Chairs:
-
-    Sharad Singhal, HP Labs
-    Bhuvan Urgaonkar, Penn State
-
-TPC:
-
-    Eduardo Tovar, Polytechnic Institute of Porto
-    Pradeep Padala, Vmware
-    Arif Merchant, Google
-    Qian Wang, Penn State
-    Karl-Erik Arzen, Lund University
-    Jeffrey Kephart, IBM Research
-    Mark  Squillante, IBM Research
-    Sherif Abdelwahed, Mississippi State University
-    Martina Maggio, Lund University
-    Ming Zhao, Florida International University
+On 2014/3/7 13:28, Jason Wang wrote:
+> We used to stop the handling of tx when the number of pending DMAs
+> exceeds VHOST_MAX_PEND. This is used to reduce the memory occupation
+> of both host and guest. But it was too aggressive in some cases, since
+> any delay or blocking of a single packet may delay or block the guest
+> transmission. Consider the following setup:
+>
+>      +-----+        +-----+
+>      | VM1 |        | VM2 |
+>      +--+--+        +--+--+
+>         |              |
+>      +--+--+        +--+--+
+>      | tap0|        | tap1|
+>      +--+--+        +--+--+
+>         |              |
+>      pfifo_fast   htb(10Mbit/s)
+>         |              |
+>      +--+--------------+---+
+>      |     bridge          |
+>      +--+------------------+
+>         |
+>      pfifo_fast
+>         |
+>      +-----+
+>      | eth0|(100Mbit/s)
+>      +-----+
+>
+> - start two VMs and connect them to a bridge
+> - add an physical card (100Mbit/s) to that bridge
+> - setup htb on tap1 and limit its throughput to 10Mbit/s
+> - run two netperfs in the same time, one is from VM1 to VM2. Another is
+>    from VM1 to an external host through eth0.
+> - result shows that not only the VM1 to VM2 traffic were throttled but
+>    also the VM1 to external host through eth0 is also throttled somehow.
+>
+> This is because the delay added by htb may lead the delay the finish
+> of DMAs and cause the pending DMAs for tap0 exceeds the limit
+> (VHOST_MAX_PEND). In this case vhost stop handling tx request until
+> htb send some packets. The problem here is all of the packets
+> transmission were blocked even if it does not go to VM2.
+>
+> We can solve this issue by relaxing it a little bit: switching to use
+> data copy instead of stopping tx when the number of pending DMAs
+> exceed half of the vq size. This is safe because:
+>
+> - The number of pending DMAs were still limited (half of the vq size)
+> - The out of order completion during mode switch can make sure that
+>    most of the tx buffers were freed in time in guest.
+>
+> So even if about 50% packets were delayed in zero-copy case, vhost
+> could continue to do the transmission through data copy in this case.
+>
+> Test result:
+>
+> Before this patch:
+> VM1 to VM2 throughput is 9.3Mbit/s
+> VM1 to External throughput is 40Mbit/s
+> CPU utilization is 7%
+>
+> After this patch:
+> VM1 to VM2 throughput is 9.3Mbit/s
+> Vm1 to External throughput is 93Mbit/s
+> CPU utilization is 16%
+>
+> Completed performance test on 40gbe shows no obvious changes in both
+> throughput and cpu utilization with this patch.
+>
+> The patch only solve this issue when unlimited sndbuf. We still need a
+> solution for limited sndbuf.
+>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Qin Chuanyu <qinchuanyu@huawei.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+> Changes from V1:
+> - Remove VHOST_MAX_PEND and switch to use half of the vq size as the limit
+> - Add cpu utilization in commit log
+> ---
+>   drivers/vhost/net.c | 19 +++++++------------
+>   1 file changed, 7 insertions(+), 12 deletions(-)
+>
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index a0fa5de..2925e9a 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -38,8 +38,6 @@ MODULE_PARM_DESC(experimental_zcopytx, "Enable Zero Copy TX;"
+>    * Using this limit prevents one virtqueue from starving others. */
+>   #define VHOST_NET_WEIGHT 0x80000
+>
+> -/* MAX number of TX used buffers for outstanding zerocopy */
+> -#define VHOST_MAX_PEND 128
+>   #define VHOST_GOODCOPY_LEN 256
+>
+>   /*
+> @@ -345,7 +343,7 @@ static void handle_tx(struct vhost_net *net)
+>   		.msg_flags = MSG_DONTWAIT,
+>   	};
+>   	size_t len, total_len = 0;
+> -	int err;
+> +	int err, num_pends;
+>   	size_t hdr_size;
+>   	struct socket *sock;
+>   	struct vhost_net_ubuf_ref *uninitialized_var(ubufs);
+> @@ -366,13 +364,6 @@ static void handle_tx(struct vhost_net *net)
+>   		if (zcopy)
+>   			vhost_zerocopy_signal_used(net, vq);
+>
+> -		/* If more outstanding DMAs, queue the work.
+> -		 * Handle upend_idx wrap around
+> -		 */
+> -		if (unlikely((nvq->upend_idx + vq->num - VHOST_MAX_PEND)
+> -			      % UIO_MAXIOV == nvq->done_idx))
+> -			break;
+> -
+>   		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
+>   					 ARRAY_SIZE(vq->iov),
+>   					 &out, &in,
+> @@ -405,9 +396,13 @@ static void handle_tx(struct vhost_net *net)
+>   			break;
+>   		}
+>
+> +		num_pends = likely(nvq->upend_idx >= nvq->done_idx) ?
+> +			    (nvq->upend_idx - nvq->done_idx) :
+> +			    (nvq->upend_idx + UIO_MAXIOV -
+> +			     nvq->done_idx);
+> +
+>   		zcopy_used = zcopy && len >= VHOST_GOODCOPY_LEN
+> -				   && (nvq->upend_idx + 1) % UIO_MAXIOV !=
+> -				      nvq->done_idx
+> +				   && num_pends <= vq->num >> 1
+>   				   && vhost_net_tx_select_zcopy(net);
+>
+>   		/* use msg_control to pass vhost zerocopy ubuf info to skb */
+>
+Reviewed-by: Qin chuanyu <qinchuanyu@huawei.com>
