@@ -1,14 +1,15 @@
-From: Waiman Long <Waiman.Long@hp.com>
-Subject: [PATCH RFC v6 11/11] pvqspinlock,
-	x86: Enable qspinlock PV support for XEN
-Date: Wed, 12 Mar 2014 14:54:58 -0400
-Message-ID: <1394650498-30118-12-git-send-email-Waiman.Long__7817.26489444754$1394650677$gmane$org@hp.com>
+From: Waiman Long <waiman.long@hp.com>
+Subject: Re: [PATCH v6 04/11] qspinlock: Optimized code path for 2 contending
+	tasks
+Date: Wed, 12 Mar 2014 15:08:24 -0400
+Message-ID: <5320B0A8.8030805@hp.com>
 References: <1394650498-30118-1-git-send-email-Waiman.Long@hp.com>
+	<1394650498-30118-5-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1394650498-30118-1-git-send-email-Waiman.Long@hp.com>
+In-Reply-To: <1394650498-30118-5-git-send-email-Waiman.Long@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,182 +19,140 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, Michel Lespinasse <walken@google.com>, Alok Kataria <akataria@vmware.com>, linux-arch@vger.kernel.org, Gleb Natapov <gleb@redhat.com>, x86@kernel.org, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, Oleg Nesterov <oleg@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu Vinod <chegu_vinod@hp.com>, Waiman Long <Waiman.Long@hp.com>, linux-kernel@vger.kernel.org, David Vrabel <david.vrabel@citrix.com>, Andrew
+To: Waiman Long <Waiman.Long@hp.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arch@vger.kernel.org, Gleb Natapov <gleb@redhat.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, Oleg Nesterov <oleg@redhat.com>, Alok Kataria <akataria@vmware.com>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu Vinod <chegu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the necessary KVM specific code to allow XEN to support
-the sleeping and CPU kicking operations needed by the queue spinlock PV
-code.
+On 03/12/2014 02:54 PM, Waiman Long wrote:
+> +
+> +		/*
+> +		 * Now wait until the lock bit is cleared
+> +		 */
+> +		while (smp_load_acquire(&qlock->qlcode)&  _QSPINLOCK_LOCKED)
+> +			arch_mutex_cpu_relax();
+> +
+> +		/*
+> +		 * Set the lock bit&  clear the waiting bit simultaneously
+> +		 * It is assumed that there is no lock stealing with this
+> +		 * quick path active.
+> +		 *
+> +		 * A direct memory store of _QSPINLOCK_LOCKED into the
+> +		 * lock_wait field causes problem with the lockref code, e.g.
+> +		 *   ACCESS_ONCE(qlock->lock_wait) = _QSPINLOCK_LOCKED;
+> +		 *
+> +		 * It is not currently clear why this happens. A workaround
+> +		 * is to use atomic instruction to store the new value.
+> +		 */
+> +		{
+> +			u16 lw = xchg(&qlock->lock_wait, _QSPINLOCK_LOCKED);
+> +			BUG_ON(lw != _QSPINLOCK_WAITING);
+> +		}
+> +		return 1;
+>
 
-Signed-off-by: Waiman Long <Waiman.Long@hp.com>
----
- arch/x86/xen/spinlock.c |   95 ++++++++++++++++++++++++++++++++++++++++++++--
- kernel/Kconfig.locks    |    2 +-
- 2 files changed, 91 insertions(+), 6 deletions(-)
+It was found that when I used a direct memory store instead of an atomic 
+op, the following kernel crash might happen at filesystem dismount time:
 
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 06f4a64..ae97c57 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -17,6 +17,12 @@
- #include "xen-ops.h"
- #include "debugfs.h"
- 
-+static DEFINE_PER_CPU(int, lock_kicker_irq) = -1;
-+static DEFINE_PER_CPU(char *, irq_name);
-+static bool xen_pvspin = true;
-+
-+#ifndef CONFIG_QUEUE_SPINLOCK
-+
- enum xen_contention_stat {
- 	TAKEN_SLOW,
- 	TAKEN_SLOW_PICKUP,
-@@ -100,12 +106,9 @@ struct xen_lock_waiting {
- 	__ticket_t want;
- };
- 
--static DEFINE_PER_CPU(int, lock_kicker_irq) = -1;
--static DEFINE_PER_CPU(char *, irq_name);
- static DEFINE_PER_CPU(struct xen_lock_waiting, lock_waiting);
- static cpumask_t waiting_cpus;
- 
--static bool xen_pvspin = true;
- __visible void xen_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
- {
- 	int irq = __this_cpu_read(lock_kicker_irq);
-@@ -213,6 +216,78 @@ static void xen_unlock_kick(struct arch_spinlock *lock, __ticket_t next)
- 	}
- }
- 
-+#else /* CONFIG_QUEUE_SPINLOCK */
-+
-+#ifdef CONFIG_XEN_DEBUG_FS
-+static u32 lh_kick_stats;	/* Lock holder kick count */
-+static u32 qh_kick_stats;	/* Queue head kick count  */
-+static u32 hibernate_stats;	/* Hibernation count	  */
-+
-+static inline void inc_kick_stats(enum pv_kick_type type)
-+{
-+	if (type == PV_KICK_LOCK_HOLDER)
-+		add_smp(&lh_kick_stats, 1);
-+	else /* type == PV_KICK_QUEUE_HEAD */
-+		add_smp(&qh_kick_stats, 1);
-+}
-+
-+static inline void inc_hib_stats(void)
-+{
-+	add_smp(&hibernate_stats, 1);
-+}
-+#else /* CONFIG_XEN_DEBUG_FS */
-+static inline void inc_kick_stats(enum pv_kick_type type)
-+{
-+}
-+
-+static inline void inc_hib_stats(void)
-+{
-+
-+}
-+#endif /* CONFIG_XEN_DEBUG_FS */
-+
-+static void xen_kick_cpu_type(int cpu, enum pv_kick_type type)
-+{
-+	xen_send_IPI_one(cpu, XEN_SPIN_UNLOCK_VECTOR);
-+	inc_kick_stats(type);
-+}
-+
-+/*
-+ * Halt the current CPU & release it back to the host
-+ */
-+static void xen_hibernate(void)
-+{
-+	int irq = __this_cpu_read(lock_kicker_irq);
-+	unsigned long flags;
-+
-+	/* If kicker interrupts not initialized yet, just spin */
-+	if (irq == -1)
-+		return;
-+
-+	/*
-+	 * Make sure an interrupt handler can't upset things in a
-+	 * partially setup state.
-+	 */
-+	local_irq_save(flags);
-+
-+	inc_hib_stats();
-+	/* clear pending */
-+	xen_clear_irq_pending(irq);
-+
-+	/* Allow interrupts while blocked */
-+	local_irq_restore(flags);
-+
-+	/*
-+	 * If an interrupt happens here, it will leave the wakeup irq
-+	 * pending, which will cause xen_poll_irq() to return
-+	 * immediately.
-+	 */
-+
-+	/* Block until irq becomes pending (or perhaps a spurious wakeup) */
-+	xen_poll_irq(irq);
-+}
-+#endif /* CONFIG_QUEUE_SPINLOCK */
-+
- static irqreturn_t dummy_handler(int irq, void *dev_id)
- {
- 	BUG();
-@@ -258,7 +333,6 @@ void xen_uninit_lock_cpu(int cpu)
- 	per_cpu(irq_name, cpu) = NULL;
- }
- 
--
- /*
-  * Our init of PV spinlocks is split in two init functions due to us
-  * using paravirt patching and jump labels patching and having to do
-@@ -275,8 +349,13 @@ void __init xen_init_spinlocks(void)
- 		return;
- 	}
- 
-+#ifdef CONFIG_QUEUE_SPINLOCK
-+	pv_lock_ops.kick_cpu = xen_kick_cpu_type;
-+        pv_lock_ops.hibernate = xen_hibernate;
-+#else
- 	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(xen_lock_spinning);
- 	pv_lock_ops.unlock_kick = xen_unlock_kick;
-+#endif
- }
- 
- /*
-@@ -318,6 +397,7 @@ static int __init xen_spinlock_debugfs(void)
- 
- 	d_spin_debug = debugfs_create_dir("spinlocks", d_xen);
- 
-+#ifndef CONFIG_QUEUE_SPINLOCK
- 	debugfs_create_u8("zero_stats", 0644, d_spin_debug, &zero_stats);
- 
- 	debugfs_create_u32("taken_slow", 0444, d_spin_debug,
-@@ -337,7 +417,12 @@ static int __init xen_spinlock_debugfs(void)
- 
- 	debugfs_create_u32_array("histo_blocked", 0444, d_spin_debug,
- 				spinlock_stats.histo_spin_blocked, HISTO_BUCKETS + 1);
--
-+#else /* CONFIG_QUEUE_SPINLOCK */
-+	debugfs_create_u32("lh_kick_stats", 0644, d_spin_debug, &lh_kick_stats);
-+	debugfs_create_u32("qh_kick_stats", 0644, d_spin_debug, &qh_kick_stats);
-+	debugfs_create_u32("hibernate_stats",
-+			   0644, d_spin_debug, &hibernate_stats);
-+#endif /* CONFIG_QUEUE_SPINLOCK */
- 	return 0;
- }
- fs_initcall(xen_spinlock_debugfs);
-diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
-index a70fdeb..451e392 100644
---- a/kernel/Kconfig.locks
-+++ b/kernel/Kconfig.locks
-@@ -229,4 +229,4 @@ config ARCH_USE_QUEUE_SPINLOCK
- 
- config QUEUE_SPINLOCK
- 	def_bool y if ARCH_USE_QUEUE_SPINLOCK
--	depends on SMP && (!PARAVIRT_SPINLOCKS || !XEN)
-+	depends on SMP
--- 
-1.7.1
+Red Hat Enterprise Linux Server 7.0 (Maipo)
+Kernel 3.14.0-rc6-qlock on an x86_64
+
+h11-kvm20 login: [ 1529.934047] BUG: Dentry 
+ffff883f4c048480{i=30181e9e,n=libopc
+odes-2.23.52.0.1-15.el7.so} still in use (-1) [unmount of xfs dm-1]
+[ 1529.935762] ------------[ cut here ]------------
+[ 1529.936331] kernel BUG at fs/dcache.c:1343!
+[ 1529.936714] invalid opcode: 0000 [#1] SMP
+[ 1529.936714] Modules linked in: ext4 mbcache jbd2 binfmt_misc brd 
+ip6t_rpfilte
+r cfg80211 ip6t_REJECT rfkill ipt_REJECT xt_conntrack ebtable_nat 
+ebtable_broute
+  bridge stp llc ebtable_filter ebtables ip6table_nat nf_conntrack_ipv6 
+nf_defrag
+_ipv6 nf_nat_ipv6 ip6table_mangle ip6table_security ip6table_raw 
+ip6table_filter
+  ip6_tables iptable_nat nf_conntrack_ipv4 nf_defrag_ipv4 nf_nat_ipv4 
+nf_nat nf_c
+onntrack iptable_mangle iptable_security iptable_raw iptable_filter 
+ip_tables sg
+  ppdev snd_hda_codec_generic snd_hda_intel snd_hda_codec snd_hwdep 
+snd_seq snd_s
+eq_device snd_pcm snd_timer snd parport_pc parport soundcore serio_raw 
+i2c_piix4
+  virtio_console virtio_balloon microcode pcspkr nfsd auth_rpcgss 
+nfs_acl lockd s
+unrpc uinput xfs libcrc32c sr_mod cdrom ata_generic pata_acpi qxl 
+virtio_blk vir
+tio_net drm_kms_helper ttm drm ata_piix libata virtio_pci virtio_ring 
+floppy i2c
+_core virtio dm_mirror dm_region_hash dm_log dm_mod
+[ 1529.936714] CPU: 12 PID: 11106 Comm: umount Not tainted 
+3.14.0-rc6-qlock #1
+[ 1529.936714] Hardware name: Red Hat KVM, BIOS Bochs 01/01/2011
+[ 1529.936714] task: ffff881f9183b540 ti: ffff881f920fa000 task.ti: 
+ffff881f920f
+a000
+[ 1529.936714] RIP: 0010:[<ffffffff811c185c>]  [<ffffffff811c185c>] 
+umount_colle
+ct+0xec/0x110
+[ 1529.936714] RSP: 0018:ffff881f920fbdc8  EFLAGS: 00010282
+[ 1529.936714] RAX: 0000000000000073 RBX: ffff883f4c048480 RCX: 
+0000000000000000
+[ 1529.936714] RDX: 0000000000000001 RSI: 0000000000000046 RDI: 
+0000000000000246
+[ 1529.936714] RBP: ffff881f920fbde0 R08: ffffffff819e42e0 R09: 
+0000000000000396
+[ 1529.936714] R10: 0000000000000000 R11: ffff881f920fbb06 R12: 
+ffff881f920fbe60
+[ 1529.936714] R13: ffff883f8d458460 R14: ffff883f4c048480 R15: 
+ffff883f8d4583c0
+[ 1529.936714] FS:  00007f6027b0c880(0000) GS:ffff88403fc40000(0000) 
+knlGS:00000
+00000000000
+[ 1529.936714] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[ 1529.936714] CR2: 00007f60276c4900 CR3: 0000003f421c0000 CR4: 
+00000000000006e0
+[ 1529.936714] Stack:
+[ 1529.936714]  ffff883f8edf4ac8 ffff883f4c048510 ffff883f910a02d0 
+ffff881f920fb
+e50
+[ 1529.936714]  ffffffff811c2d03 0000000000000000 00ff881f920fbe50 
+0000896600000
+000
+[ 1529.936714]  ffff883f8d4587d8 ffff883f8d458780 ffffffff811c1770 
+ffff881f920fb
+e60
+[ 1529.936714] Call Trace:
+[ 1529.936714]  [<ffffffff811c2d03>] d_walk+0xc3/0x260
+[ 1529.936714]  [<ffffffff811c1770>] ? check_and_collect+0x30/0x30
+[ 1529.936714]  [<ffffffff811c3985>] shrink_dcache_for_umount+0x75/0x120
+[ 1529.936714]  [<ffffffff811adf21>] generic_shutdown_super+0x21/0xf0
+[ 1529.936714]  [<ffffffff811ae207>] kill_block_super+0x27/0x70
+[ 1529.936714]  [<ffffffff811ae4ed>] deactivate_locked_super+0x3d/0x60
+[ 1529.936714]  [<ffffffff811aea96>] deactivate_super+0x46/0x60
+[ 1529.936714]  [<ffffffff811ca277>] mntput_no_expire+0xa7/0x140
+[ 1529.936714]  [<ffffffff811cb6ce>] SyS_umount+0x8e/0x100
+[ 1529.936714]  [<ffffffff815d2c29>] system_call_fastpath+0x16/0x1b
+[ 1529.936714] Code: 00 00 48 8b 40 28 4c 8b 08 48 8b 43 30 48 85 c0 74 
+2a 48 8b
+  50 40 48 89 34 24 48 c7 c7 e0 4a 7f 81 48 89 de 31 c0 e8 03 cb 3f 00 
+<0f> 0b 66
+  90 48 89 f7 e8 c8 fc ff ff e9 66 ff ff ff 31 d2 90 eb
+[ 1529.936714] RIP  [<ffffffff811c185c>] umount_collect+0xec/0x110
+[ 1529.936714]  RSP <ffff881f920fbdc8>
+[ 1529.976523] ---[ end trace 6c8ce7cee0969bbb ]---
+[ 1529.977137] Kernel panic - not syncing: Fatal exception
+[ 1529.978119] Kernel Offset: 0x0 from 0xffffffff81000000 (relocation 
+range: 0xf
+fffffff80000000-0xffffffff9fffffff)
+[ 1529.978119] drm_kms_helper: panic occurred, switching back to text 
+console
+
+It was more readily reproducible in a KVM guest. It was harder to 
+reproduce in a bare metal machine, but kernel crash still happened after 
+several tries.
+
+I am not sure what exactly cause this crash, but it will have something 
+to do with the interaction between the lockref and the qspinlock code. I 
+would like more eyes on that to find the root cause of it.
+
+-Longman
