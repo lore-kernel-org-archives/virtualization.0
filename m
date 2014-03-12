@@ -1,13 +1,12 @@
-From: Josh Triplett <josh@joshtriplett.org>
-Subject: [PATCHv2 1/3] x86: process: Unify 32-bit and 64-bit copy_thread I/O
-	bitmap handling
-Date: Tue, 11 Mar 2014 14:41:41 -0700
-Message-ID: <36375e1f113abf53ebfcac87a4275a5efd9d8057.1394573469.git.josh__42943.7783467167$1394575681$gmane$org@joshtriplett.org>
+From: Ming Zhao <zhaom@cis.fiu.edu>
+Subject: ICAC14 Special Tracks CFP (Smart Cyber-Physical Systems & Management
+	of Big Data Systems)
+Date: Wed, 12 Mar 2014 09:50:31 -0400
+Message-ID: <20140312135041.C683C11723@cheetah.cs.fiu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,182 +16,104 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Andrew Morton <akpm@linux-foundation.org>, Alexander van Heukelum <heukelum@fastmail.fm>, Alok Kataria <akataria@vmware.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Chris Wright <chrisw@sous-sol.org>, David Vrabel <david.vrabel@citrix.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, Jeremy Fitzhardinge <jeremy@goop.org>, Jiri Slaby <jslaby@suse.cz>, Kees Cook <keescook@chromium.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Rusty Russell <rusty@rustcorp.com.au>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, x86@kernel.org, xen-devel@lists.xenproject.org
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The 32-bit and 64-bit versions of copy_thread have functionally
-identical handling for copying the I/O bitmap, modulo differences in
-error handling.  Clean up the error paths in both by moving the copy of
-the I/O bitmap to the end, to eliminate the need to free it if
-subsequent copy steps fail; move the resulting identical code to a
-static inline in a common header.
+ICAC 2014 Special Tracks Call for Papers
+----------------------------------------------------
+11th International Conference on Autonomic Computing
 
-Signed-off-by: Josh Triplett <josh@joshtriplett.org>
-Acked-by: Kees Cook <keescook@chromium.org>
----
-v2: Rebased and updated for changes to copy_thread; no other changes in
-    patch 1/3.
+June 18-20, 2014  Philadelphia, PA
+Co-held with the 2015 USENIX Federated Conferences Week (June 17-20, 2014)
+Sponsored by USENIX, the Advanced Computing Systems Association
+https://www.usenix.org/conference/icac14
+(CFP: https://www.usenix.org/conference/icac14/call-for-papers)
 
- arch/x86/kernel/process-io.h | 22 ++++++++++++++++++++++
- arch/x86/kernel/process_32.c | 28 ++++++++--------------------
- arch/x86/kernel/process_64.c | 25 +++++--------------------
- 3 files changed, 35 insertions(+), 40 deletions(-)
- create mode 100644 arch/x86/kernel/process-io.h
+* Special Tracks Key Information
 
-diff --git a/arch/x86/kernel/process-io.h b/arch/x86/kernel/process-io.h
-new file mode 100644
-index 0000000..d884444
---- /dev/null
-+++ b/arch/x86/kernel/process-io.h
-@@ -0,0 +1,22 @@
-+#ifndef _X86_KERNEL_PROCESS_IO_H
-+#define _X86_KERNEL_PROCESS_IO_H
-+
-+static inline int copy_io_bitmap(struct task_struct *me,
-+				 struct task_struct *p)
-+{
-+	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
-+		p->thread.io_bitmap_ptr = kmemdup(me->thread.io_bitmap_ptr,
-+						  IO_BITMAP_BYTES, GFP_KERNEL);
-+		if (!p->thread.io_bitmap_ptr) {
-+			p->thread.io_bitmap_max = 0;
-+			return -ENOMEM;
-+		}
-+		set_tsk_thread_flag(p, TIF_IO_BITMAP);
-+	} else {
-+		p->thread.io_bitmap_ptr = NULL;
-+	}
-+
-+	return 0;
-+}
-+
-+#endif /* _X86_KERNEL_PROCESS_IO_H */
-diff --git a/arch/x86/kernel/process_32.c b/arch/x86/kernel/process_32.c
-index 0de43e9..73a38c8 100644
---- a/arch/x86/kernel/process_32.c
-+++ b/arch/x86/kernel/process_32.c
-@@ -55,6 +55,8 @@
- #include <asm/debugreg.h>
- #include <asm/switch_to.h>
- 
-+#include "process-io.h"
-+
- asmlinkage void ret_from_fork(void) __asm__("ret_from_fork");
- asmlinkage void ret_from_kernel_thread(void) __asm__("ret_from_kernel_thread");
- 
-@@ -134,7 +136,6 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
- {
- 	struct pt_regs *childregs = task_pt_regs(p);
- 	struct task_struct *tsk;
--	int err;
- 
- 	p->thread.sp = (unsigned long) childregs;
- 	p->thread.sp0 = (unsigned long) (childregs+1);
-@@ -168,34 +169,21 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
- 	p->thread.fpu_counter = 0;
- 	p->thread.io_bitmap_ptr = NULL;
- 	tsk = current;
--	err = -ENOMEM;
- 
- 	memset(p->thread.ptrace_bps, 0, sizeof(p->thread.ptrace_bps));
- 
--	if (unlikely(test_tsk_thread_flag(tsk, TIF_IO_BITMAP))) {
--		p->thread.io_bitmap_ptr = kmemdup(tsk->thread.io_bitmap_ptr,
--						IO_BITMAP_BYTES, GFP_KERNEL);
--		if (!p->thread.io_bitmap_ptr) {
--			p->thread.io_bitmap_max = 0;
--			return -ENOMEM;
--		}
--		set_tsk_thread_flag(p, TIF_IO_BITMAP);
--	}
--
--	err = 0;
--
- 	/*
- 	 * Set a new TLS for the child thread?
- 	 */
--	if (clone_flags & CLONE_SETTLS)
-+	if (clone_flags & CLONE_SETTLS) {
-+		int err;
- 		err = do_set_thread_area(p, -1,
- 			(struct user_desc __user *)childregs->si, 0);
--
--	if (err && p->thread.io_bitmap_ptr) {
--		kfree(p->thread.io_bitmap_ptr);
--		p->thread.io_bitmap_max = 0;
-+		if(err)
-+			return err;
- 	}
--	return err;
-+
-+	return copy_io_bitmap(tsk, p);
- }
- 
- void
-diff --git a/arch/x86/kernel/process_64.c b/arch/x86/kernel/process_64.c
-index 9c0280f..3b8f17c 100644
---- a/arch/x86/kernel/process_64.c
-+++ b/arch/x86/kernel/process_64.c
-@@ -50,6 +50,8 @@
- #include <asm/debugreg.h>
- #include <asm/switch_to.h>
- 
-+#include "process-io.h"
-+
- asmlinkage extern void ret_from_fork(void);
- 
- asmlinkage DEFINE_PER_CPU(unsigned long, old_rsp);
-@@ -154,7 +156,6 @@ static inline u32 read_32bit_tls(struct task_struct *t, int tls)
- int copy_thread(unsigned long clone_flags, unsigned long sp,
- 		unsigned long arg, struct task_struct *p)
- {
--	int err;
- 	struct pt_regs *childregs;
- 	struct task_struct *me = current;
- 
-@@ -192,23 +193,13 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
- 	if (sp)
- 		childregs->sp = sp;
- 
--	err = -ENOMEM;
- 	memset(p->thread.ptrace_bps, 0, sizeof(p->thread.ptrace_bps));
- 
--	if (unlikely(test_tsk_thread_flag(me, TIF_IO_BITMAP))) {
--		p->thread.io_bitmap_ptr = kmemdup(me->thread.io_bitmap_ptr,
--						  IO_BITMAP_BYTES, GFP_KERNEL);
--		if (!p->thread.io_bitmap_ptr) {
--			p->thread.io_bitmap_max = 0;
--			return -ENOMEM;
--		}
--		set_tsk_thread_flag(p, TIF_IO_BITMAP);
--	}
--
- 	/*
- 	 * Set a new TLS for the child thread?
- 	 */
- 	if (clone_flags & CLONE_SETTLS) {
-+		int err;
- #ifdef CONFIG_IA32_EMULATION
- 		if (test_thread_flag(TIF_IA32))
- 			err = do_set_thread_area(p, -1,
-@@ -217,16 +208,10 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
- #endif
- 			err = do_arch_prctl(p, ARCH_SET_FS, childregs->r8);
- 		if (err)
--			goto out;
--	}
--	err = 0;
--out:
--	if (err && p->thread.io_bitmap_ptr) {
--		kfree(p->thread.io_bitmap_ptr);
--		p->thread.io_bitmap_max = 0;
-+			return err;
- 	}
- 
--	return err;
-+	return copy_io_bitmap(me, p);
- }
- 
- static void
--- 
-1.9.0
+  ** Smart Cyber-Physical Systems
+     Co-Chairs: Ron Ambrosio (IBM Research), Sokwoo Rhee, NIST
+     Paper submissions due: March 24, 2014, 11:59 p.m. PDT
+	 More info: https://www.usenix.org/conference/icac14/self-cps
+
+  ** MBDS: Management of Big Data System
+     Co-Chairs: Karsten Schwan (GIT), Vanish Talwar (HP Labs)
+     Paper submissions due: March 31, 2014, 11:59 p.m. PDT
+     More info: https://www.usenix.org/conference/icac14/mbds-management-big-data-systems
+
+
+* Special Track I: Smart Cyber-Physical Systems
+
+  The increased connectedness of real-time embedded systems and sensors has led to the emergence of Cyber-Physical Systems (CPS), systems of collaborative computational elements controlling a physical process. Areas such as avionics, smart grids, medical devices, traffic control, automotive are examples of domains where CPS is growing at an exponential pace. Autonomic computing promises to help manage the complexity of these systems in order to meet high-level objectives and policies specified by humans. However, there is still a lack of research on new techniques adapted to the CPS context or on how to adapt and tailor existing research on autonomic computing to the specific characteristics of CPS, such as high dynamicity and distribution, real-time requirements, resource constraints, sys
+ tems-of-systems, and integration of heterogenous technologies.
+
+  Following the recent success of the special track on the Internet-of-Things at ICAC '13, ICAC '14 will host this special track on Self-aware Cyber-Physical Systems that aims at drawing the attention of both CPS and autonomic computing communities to the emerging needs and challenges for self-aware CPS. The main goal is to gather different scientific communities from academy and industry under one common objective: realizing plug-n-play, context-aware and autonomous CPS that will be self-configured, self-organized, self-optimized and self-healed without (or with minimum) human intervention. The Self-CPS track welcomes original research papers related to self-management in CPS. Besides theoretical aspects, Self-CPS is also interested in practical results of self-management in CPS applicati
+ ons.
+
+
+  ** Topics
+
+     The non-exclusive list of topics of interest is as follows:
+
+     ** Software engineering methods for self-adaptive heterogenous CPS, including tools, model-driven    methodologies, methodologies for lifecycle management
+     ** Modeling environmental context and user behavior, context-awareness
+     ** Convergence of CPS and cloud computing, autonomic provisioning of CPS services in the cloud
+     ** Control theory methods for CPS, distributed control loops, cooperation and negotiation, multi-agent approaches for autonomic CPS, Event-Condition-Action rules, utility functions
+     ** Tools for performance monitoring, diagnostics and self-healing in CPS
+     ** Autonomic security and privacy, dependability, trust in CPS
+     ** Self-organizing network protocols, ad-hoc routing mechanisms, cognitive networks adapted to resource constrained devices and lossy environments
+     ** Experience in applying autonomic methodologies for CPS in avionics, smart grids, medical devices, traffic control, automotive and all CPS domains
+
+
+  ** Paper Submissions
+
+     Submissions to the Self-CPS track follow the same guidelines as described in the main ICAC '14 Call for Papers; in addition, submissions should be a maximum of 6 pages in length. In order to submit your work to the Self-CPS track, please do so via the Web submission form for this special track, as opposed to the submission form for the general ICAC '14 track.
+
+
+  ** Important Dates
+
+     Paper submissions due: March 24, 2014, 11:59 p.m. PDT
+     Notification to authors: April 9, 2014
+     Final paper files due: May 20, 2014
+
+
+* Special Track II: Management of Big Data Systems (MBDS)
+
+  Data is growing at an exponential rate and several systems have emerged to store and analyze such large amounts of data. These systems, termed "Big Data systems" are fast-evolving. Examples include the NoSQL storage systems, Hadoop Map-Reduce, data analytics platforms, search and indexing platforms, and data streaming infrastructures. These systems address needs for structured and unstructured data across a wide spectrum of domains such as Web, social networks, enterprise, cloud, mobile, sensor networks, multimedia/streaming, cyberphysical systems, and high performance applications including for experiment data generated by high end devices; and for multiple application verticals such as biosciences, healthcare, transportation, public sector, energy utilities, oil and gas, and scientific
+  computing.
+
+  With increasing scale and complexity, managing these Big Data systems to cope with failures and performance problems is becoming non-trivial. New resource management and scheduling mechanisms are also needed for such systems, as are mechanisms for tuning and support from platform layers. Several open source and proprietary solutions have been proposed to address these requirements, with extensive contributions from industry and academia. However, there remain substantial challenges, including those that pertain to such systems' autonomic and self-management capabilities.
+
+  The objective of the MBDS track at ICAC '14 is to bring together researchers, practitioners, system administrators, system programmers, and others interested in sharing and presenting their perspectives on the effective management of Big Data systems. The focus of the track is on novel and practical systems-oriented work. MBDS offers an opportunity for researchers and practitioners from industry, academia, and the National Labs to showcase the latest advances in this area and also to discuss and identify future directions and challenges in all aspects on autonomic management of Big Data systems.
+
+
+  ** Topics
+
+     Two types of contributions are solicited on all aspects of Big Data management: (1) short papers and (2) panel presentations. Short papers should be no more than 6 pages, including the abstract, and will appear in the ICAC '14 conference proceedings. Proposed panel presentations require only an abstract. Topics of interest include but are not limited to the following:
+
+     ** Autonomic and self-managing techniques to deal with failures, load imbalance, etc.
+     ** Application-level resource management and scheduling mechanisms
+     ** System tuning/auto-tuning and configuration management
+     ** APIs and interactions between application- and system-level management or more generally, holistic management across software and hardware
+     ** Performance management, fault management, and power management
+     ** Scalability challenges
+     ** Complexity challenges, as for composite, cross-tier systems with multiple control loops
+     ** Unified/joint management of "data in motion" and "data at rest"
+     ** Dealing with structured or with unstructured data, or both
+     ** Monitoring, diagnosis, and automated behavior detection
+     ** System-level principles and support for resource management
+     ** Implications of emerging hardware technologies such as non-volatile memory
+     ** Domain specific challenges in Web, cloud, social networks, mobile, sensor networks, streaming analytics, and cyber-physical systems
+     ** System building and experience papers for specific industry verticals
+
+
+  ** Paper Submissions
+
+     Submissions to the MBDS track follow the same guidelines as described in the main ICAC '14 Call for Papers; in addition, submissions should be a maximum of 6 pages in length. In order to submit your work to the MBDS track, please do so via the Web submission form for this special track, as opposed to the submission form for the general ICAC '14 track. Questions? Contact the Program Vice-Chairs of the track.
+
+
+  ** Important Dates
+
+     Paper submissions due: March 31, 2014, 11:59 p.m. PDT
+     Notification to authors: April 9, 2014
+     Final paper files due: May 20, 2014
