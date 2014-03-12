@@ -1,8 +1,8 @@
 From: Waiman Long <Waiman.Long@hp.com>
-Subject: [PATCH RFC v6 10/11] pvqspinlock,
-	x86: Enable qspinlock PV support for KVM
-Date: Wed, 12 Mar 2014 14:54:57 -0400
-Message-ID: <1394650498-30118-11-git-send-email-Waiman.Long__17343.571704305$1394650662$gmane$org@hp.com>
+Subject: [PATCH RFC v6 11/11] pvqspinlock,
+	x86: Enable qspinlock PV support for XEN
+Date: Wed, 12 Mar 2014 14:54:58 -0400
+Message-ID: <1394650498-30118-12-git-send-email-Waiman.Long__7817.26489444754$1394650677$gmane$org@hp.com>
 References: <1394650498-30118-1-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,77 +22,56 @@ To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Pe
 Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, Michel Lespinasse <walken@google.com>, Alok Kataria <akataria@vmware.com>, linux-arch@vger.kernel.org, Gleb Natapov <gleb@redhat.com>, x86@kernel.org, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, Oleg Nesterov <oleg@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu Vinod <chegu_vinod@hp.com>, Waiman Long <Waiman.Long@hp.com>, linux-kernel@vger.kernel.org, David Vrabel <david.vrabel@citrix.com>, Andrew
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch adds the necessary KVM specific code to allow KVM to support
+This patch adds the necessary KVM specific code to allow XEN to support
 the sleeping and CPU kicking operations needed by the queue spinlock PV
 code.
 
-A KVM guest of 20 CPU cores was created to run the disk workload of
-the AIM7 benchmark on both ext4 and xfs RAM disks at 3000 users on a
-3.14-rc6 based kernel. The JPM (jobs/minute) data of the test run were:
-
-  kernel                        XFS FS  %change ext4 FS %change
-  ------                        ------  ------- ------- -------
-  PV ticketlock (baseline)      2409639    -    1289398    -
-  qspinlock                     2396804  -0.5%  1285714  -0.3%
-  PV qspinlock                  2380952  -1.2%  1266714  -1.8%
-  unfair qspinlock              2403204  -0.3%  1503759   +17%
-  unfair + PV qspinlock         2425876  +0.8%  1530612   +19%
-
-The XFS test had moderate spinlock contention of 1.6% whereas the
-ext4 test had heavy spinlock contention of 15.4% as reported by perf.
-
-The PV code doesn't seem to help much in performance as the
-sleeping/kicking logic wasn't activated during the test run as shown
-by statistics data in the debugfs. The unfair lock, on the other hand,
-did help to improve, especially the ext4 filesystem test.
-
 Signed-off-by: Waiman Long <Waiman.Long@hp.com>
 ---
- arch/x86/kernel/kvm.c |   87 +++++++++++++++++++++++++++++++++++++++++++++++++
- kernel/Kconfig.locks  |    2 +-
- 2 files changed, 88 insertions(+), 1 deletions(-)
+ arch/x86/xen/spinlock.c |   95 ++++++++++++++++++++++++++++++++++++++++++++--
+ kernel/Kconfig.locks    |    2 +-
+ 2 files changed, 91 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index f318e78..aaf704e 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -568,6 +568,7 @@ static void kvm_kick_cpu(int cpu)
- 	kvm_hypercall2(KVM_HC_KICK_CPU, flags, apicid);
- }
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index 06f4a64..ae97c57 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -17,6 +17,12 @@
+ #include "xen-ops.h"
+ #include "debugfs.h"
  
++static DEFINE_PER_CPU(int, lock_kicker_irq) = -1;
++static DEFINE_PER_CPU(char *, irq_name);
++static bool xen_pvspin = true;
++
 +#ifndef CONFIG_QUEUE_SPINLOCK
- enum kvm_contention_stat {
++
+ enum xen_contention_stat {
  	TAKEN_SLOW,
  	TAKEN_SLOW_PICKUP,
-@@ -795,6 +796,87 @@ static void kvm_unlock_kick(struct arch_spinlock *lock, __ticket_t ticket)
- 		}
+@@ -100,12 +106,9 @@ struct xen_lock_waiting {
+ 	__ticket_t want;
+ };
+ 
+-static DEFINE_PER_CPU(int, lock_kicker_irq) = -1;
+-static DEFINE_PER_CPU(char *, irq_name);
+ static DEFINE_PER_CPU(struct xen_lock_waiting, lock_waiting);
+ static cpumask_t waiting_cpus;
+ 
+-static bool xen_pvspin = true;
+ __visible void xen_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+ {
+ 	int irq = __this_cpu_read(lock_kicker_irq);
+@@ -213,6 +216,78 @@ static void xen_unlock_kick(struct arch_spinlock *lock, __ticket_t next)
  	}
  }
-+#else /* !CONFIG_QUEUE_SPINLOCK */
+ 
++#else /* CONFIG_QUEUE_SPINLOCK */
 +
-+#ifdef CONFIG_KVM_DEBUG_FS
-+static struct dentry *d_spin_debug;
-+static struct dentry *d_kvm_debug;
++#ifdef CONFIG_XEN_DEBUG_FS
 +static u32 lh_kick_stats;	/* Lock holder kick count */
 +static u32 qh_kick_stats;	/* Queue head kick count  */
 +static u32 hibernate_stats;	/* Hibernation count	  */
-+
-+static int __init kvm_spinlock_debugfs(void)
-+{
-+	d_kvm_debug = debugfs_create_dir("kvm-guest", NULL);
-+	if (!d_kvm_debug) {
-+		printk(KERN_WARNING
-+		       "Could not create 'kvm' debugfs directory\n");
-+		return -ENOMEM;
-+	}
-+	d_spin_debug = debugfs_create_dir("spinlocks", d_kvm_debug);
-+
-+	debugfs_create_u32("lh_kick_stats", 0644, d_spin_debug, &lh_kick_stats);
-+	debugfs_create_u32("qh_kick_stats", 0644, d_spin_debug, &qh_kick_stats);
-+	debugfs_create_u32("hibernate_stats",
-+			   0644, d_spin_debug, &hibernate_stats);
-+	return 0;
-+}
 +
 +static inline void inc_kick_stats(enum pv_kick_type type)
 +{
@@ -106,10 +85,7 @@ index f318e78..aaf704e 100644
 +{
 +	add_smp(&hibernate_stats, 1);
 +}
-+
-+fs_initcall(kvm_spinlock_debugfs);
-+
-+#else /* CONFIG_KVM_DEBUG_FS */
++#else /* CONFIG_XEN_DEBUG_FS */
 +static inline void inc_kick_stats(enum pv_kick_type type)
 +{
 +}
@@ -118,63 +94,106 @@ index f318e78..aaf704e 100644
 +{
 +
 +}
-+#endif /* CONFIG_KVM_DEBUG_FS */
++#endif /* CONFIG_XEN_DEBUG_FS */
 +
-+static void kvm_kick_cpu_type(int cpu, enum pv_kick_type type)
++static void xen_kick_cpu_type(int cpu, enum pv_kick_type type)
 +{
-+	kvm_kick_cpu(cpu);
++	xen_send_IPI_one(cpu, XEN_SPIN_UNLOCK_VECTOR);
 +	inc_kick_stats(type);
 +}
 +
 +/*
 + * Halt the current CPU & release it back to the host
 + */
-+static void kvm_hibernate(void)
++static void xen_hibernate(void)
 +{
++	int irq = __this_cpu_read(lock_kicker_irq);
 +	unsigned long flags;
 +
-+	if (in_nmi())
++	/* If kicker interrupts not initialized yet, just spin */
++	if (irq == -1)
 +		return;
 +
-+	inc_hib_stats();
 +	/*
 +	 * Make sure an interrupt handler can't upset things in a
 +	 * partially setup state.
 +	 */
 +	local_irq_save(flags);
-+	if (arch_irqs_disabled_flags(flags))
-+		halt();
-+	else
-+		safe_halt();
++
++	inc_hib_stats();
++	/* clear pending */
++	xen_clear_irq_pending(irq);
++
++	/* Allow interrupts while blocked */
 +	local_irq_restore(flags);
++
++	/*
++	 * If an interrupt happens here, it will leave the wakeup irq
++	 * pending, which will cause xen_poll_irq() to return
++	 * immediately.
++	 */
++
++	/* Block until irq becomes pending (or perhaps a spurious wakeup) */
++	xen_poll_irq(irq);
 +}
-+#endif /* !CONFIG_QUEUE_SPINLOCK */
++#endif /* CONFIG_QUEUE_SPINLOCK */
++
+ static irqreturn_t dummy_handler(int irq, void *dev_id)
+ {
+ 	BUG();
+@@ -258,7 +333,6 @@ void xen_uninit_lock_cpu(int cpu)
+ 	per_cpu(irq_name, cpu) = NULL;
+ }
  
+-
  /*
-  * Setup pv_lock_ops to exploit KVM_FEATURE_PV_UNHALT if present.
-@@ -807,8 +889,13 @@ void __init kvm_spinlock_init(void)
- 	if (!kvm_para_has_feature(KVM_FEATURE_PV_UNHALT))
+  * Our init of PV spinlocks is split in two init functions due to us
+  * using paravirt patching and jump labels patching and having to do
+@@ -275,8 +349,13 @@ void __init xen_init_spinlocks(void)
  		return;
+ 	}
  
 +#ifdef CONFIG_QUEUE_SPINLOCK
-+	pv_lock_ops.kick_cpu = kvm_kick_cpu_type;
-+	pv_lock_ops.hibernate = kvm_hibernate;
++	pv_lock_ops.kick_cpu = xen_kick_cpu_type;
++        pv_lock_ops.hibernate = xen_hibernate;
 +#else
- 	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(kvm_lock_spinning);
- 	pv_lock_ops.unlock_kick = kvm_unlock_kick;
+ 	pv_lock_ops.lock_spinning = PV_CALLEE_SAVE(xen_lock_spinning);
+ 	pv_lock_ops.unlock_kick = xen_unlock_kick;
 +#endif
  }
  
- static __init int kvm_spinlock_init_jump(void)
+ /*
+@@ -318,6 +397,7 @@ static int __init xen_spinlock_debugfs(void)
+ 
+ 	d_spin_debug = debugfs_create_dir("spinlocks", d_xen);
+ 
++#ifndef CONFIG_QUEUE_SPINLOCK
+ 	debugfs_create_u8("zero_stats", 0644, d_spin_debug, &zero_stats);
+ 
+ 	debugfs_create_u32("taken_slow", 0444, d_spin_debug,
+@@ -337,7 +417,12 @@ static int __init xen_spinlock_debugfs(void)
+ 
+ 	debugfs_create_u32_array("histo_blocked", 0444, d_spin_debug,
+ 				spinlock_stats.histo_spin_blocked, HISTO_BUCKETS + 1);
+-
++#else /* CONFIG_QUEUE_SPINLOCK */
++	debugfs_create_u32("lh_kick_stats", 0644, d_spin_debug, &lh_kick_stats);
++	debugfs_create_u32("qh_kick_stats", 0644, d_spin_debug, &qh_kick_stats);
++	debugfs_create_u32("hibernate_stats",
++			   0644, d_spin_debug, &hibernate_stats);
++#endif /* CONFIG_QUEUE_SPINLOCK */
+ 	return 0;
+ }
+ fs_initcall(xen_spinlock_debugfs);
 diff --git a/kernel/Kconfig.locks b/kernel/Kconfig.locks
-index f185584..a70fdeb 100644
+index a70fdeb..451e392 100644
 --- a/kernel/Kconfig.locks
 +++ b/kernel/Kconfig.locks
 @@ -229,4 +229,4 @@ config ARCH_USE_QUEUE_SPINLOCK
  
  config QUEUE_SPINLOCK
  	def_bool y if ARCH_USE_QUEUE_SPINLOCK
--	depends on SMP && !PARAVIRT_SPINLOCKS
-+	depends on SMP && (!PARAVIRT_SPINLOCKS || !XEN)
+-	depends on SMP && (!PARAVIRT_SPINLOCKS || !XEN)
++	depends on SMP
 -- 
 1.7.1
