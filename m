@@ -1,17 +1,16 @@
-From: Theodore Ts'o <tytso@mit.edu>
+From: Christoph Hellwig <hch@infradead.org>
 Subject: Re: [PATCH] virtio-blk: make the queue depth the max supportable by
 	the hypervisor
-Date: Sat, 15 Mar 2014 09:20:45 -0400
-Message-ID: <20140315132045.GA14196@thunk.org>
+Date: Sat, 15 Mar 2014 06:57:23 -0700
+Message-ID: <20140315135723.GA10475@infradead.org>
 References: <1394841445-16142-1-git-send-email-venkateshs@google.com>
 	<1394854471-25700-1-git-send-email-tytso@mit.edu>
-	<990f1cbc-fa54-4cb2-a9ee-394a1a6d5f07@email.android.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <990f1cbc-fa54-4cb2-a9ee-394a1a6d5f07@email.android.com>
+In-Reply-To: <1394854471-25700-1-git-send-email-tytso@mit.edu>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,18 +20,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+To: Theodore Ts'o <tytso@mit.edu>
 Cc: Frank Swiderski <fes@google.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Linux Kernel Developers List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Mar 15, 2014 at 06:57:01AM -0400, Konrad Rzeszutek Wilk wrote:
-> >+	pr_info("%s: using queue depth %d\n", vblk->disk->disk_name,
-> >+		virtio_mq_reg.queue_depth);
+On Fri, Mar 14, 2014 at 11:34:31PM -0400, Theodore Ts'o wrote:
+> The current virtio block sets a queue depth of 64, which is
+> insufficient for very fast devices.  It has been demonstrated that
+> with a high IOPS device, using a queue depth of 256 can double the
+> IOPS which can be sustained.
 > 
-> Isn't that visible from sysfs?
+> As suggested by Venkatash Srinivas, set the queue depth by default to
+> be one half the the device's virtqueue, which is the maximum queue
+> depth that can be supported by the channel to the host OS (each I/O
+> request requires at least two VQ entries).
 
-As near as I can tell, it's not.  I haven't been able to find anything
-that either represents this value, or can be calculated from this
-value.  Maybe I missed something?
-
-						- Ted
+I don't think this should be a module parameter.  The default sizing
+should be based of the parameters of the actual virtqueue, and if we
+want to allow tuning it it should be by a sysfs attribute, preferable
+using the same semantics as SCSI.
