@@ -1,15 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-blk: make the queue depth the max supportable by
-	the hypervisor
-Date: Mon, 17 Mar 2014 11:12:15 +1030
-Message-ID: <87siqhu048.fsf@rustcorp.com.au>
-References: <1394841445-16142-1-git-send-email-venkateshs@google.com>
-	<1394854471-25700-1-git-send-email-tytso@mit.edu>
+Subject: Re: [PATCH] virtio-blk: make the queue depth configurable
+Date: Mon, 17 Mar 2014 14:25:52 +1030
+Message-ID: <87y509scl3.fsf@rustcorp.com.au>
+References: <1394818263-29947-1-git-send-email-tytso@mit.edu>
+	<1394818720.3253.1.camel@joe-AO722>
+	<20140314180258.GA29201@thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1394854471-25700-1-git-send-email-tytso@mit.edu>
+In-Reply-To: <20140314180258.GA29201@thunk.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,28 +19,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linux Kernel Developers List <linux-kernel@vger.kernel.org>
-Cc: Frank Swiderski <fes@google.com>, virtio-dev@lists.oasis-open.org, Theodore Ts'o <tytso@mit.edu>, "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+To: Theodore Ts'o <tytso@mit.edu>, Joe Perches <joe@perches.com>
+Cc: fes@google.com, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, Linux Kernel Developers List <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 Theodore Ts'o <tytso@mit.edu> writes:
-> The current virtio block sets a queue depth of 64, which is
-> insufficient for very fast devices.  It has been demonstrated that
-> with a high IOPS device, using a queue depth of 256 can double the
-> IOPS which can be sustained.
+> On Fri, Mar 14, 2014 at 10:38:40AM -0700, Joe Perches wrote:
+>> > +static int queue_depth = 64;
+>> > +module_param(queue_depth, int, 444);
+>> 
+>> 444?  Really Ted?
 >
-> As suggested by Venkatash Srinivas, set the queue depth by default to
-> be one half the the device's virtqueue, which is the maximum queue
-> depth that can be supported by the channel to the host OS (each I/O
-> request requires at least two VQ entries).
->
-> Also allow the queue depth to be something which can be set at module
-> load time or via a kernel boot-time parameter, for
-> testing/benchmarking purposes.
+> Oops, *blush*.   Thanks for catching that.
 
-Note that with indirect descriptors (which is supported by Almost
-Everyone), we can actually use the full index, so this value is a bit
-pessimistic.  But it's OK as a starting point.
+Erk, our tests are insufficient.  Testbuilding an allmodconfig with this
+now:
 
-Cheers,
-Rusty.
+diff --git a/include/linux/moduleparam.h b/include/linux/moduleparam.h
+index 175f6995d1af..626b85888a6b 100644
+--- a/include/linux/moduleparam.h
++++ b/include/linux/moduleparam.h
+@@ -188,6 +188,9 @@ struct kparam_array
+ 	/* Default value instead of permissions? */			\
+ 	static int __param_perm_check_##name __attribute__((unused)) =	\
+ 	BUILD_BUG_ON_ZERO((perm) < 0 || (perm) > 0777 || ((perm) & 2))	\
++	/* User perms >= group perms >= other perms. */			\
++	+ BUILD_BUG_ON_ZERO(((perm) >> 6) < (((perm) >> 3) & 7))	\
++	+ BUILD_BUG_ON_ZERO((((perm) >> 3) & 7) < ((perm) & 7))		\
+ 	+ BUILD_BUG_ON_ZERO(sizeof(""prefix) > MAX_PARAM_PREFIX_LEN);	\
+ 	static const char __param_str_##name[] = prefix #name;		\
+ 	static struct kernel_param __moduleparam_const __param_##name	\
