@@ -1,19 +1,18 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH] virtio-blk: make the queue depth configurable
-Date: Wed, 19 Mar 2014 09:07:07 -0700
-Message-ID: <20140319160707.GA19820@kroah.com>
-References: <1394818263-29947-1-git-send-email-tytso@mit.edu>
-	<1394818720.3253.1.camel@joe-AO722>
-	<20140314180258.GA29201@thunk.org> <87y509scl3.fsf@rustcorp.com.au>
-	<1395032434.2556.10.camel@joe-AO722>
-	<1395041214.2556.17.camel@joe-AO722>
-	<87zjkmr8w1.fsf@rustcorp.com.au>
+From: Waiman Long <waiman.long@hp.com>
+Subject: Re: [PATCH v6 05/11] pvqspinlock, x86: Allow unfair spinlock in a
+	PV guest
+Date: Wed, 19 Mar 2014 12:58:18 -0400
+Message-ID: <5329CCAA.9000909__3432.40086590431$1395248406$gmane$org@hp.com>
+References: <1394650498-30118-1-git-send-email-Waiman.Long@hp.com>	<1394650498-30118-6-git-send-email-Waiman.Long@hp.com>	<53218E7A.8090707@citrix.com>
+	<5321AF96.6070909@redhat.com>
+	<20140317190511.GB11707@phenom.dumpdata.com>
+	<53280075.1020804@redhat.com> <53290BCD.8010001@hp.com>
+	<53296C6F.7040709@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87zjkmr8w1.fsf@rustcorp.com.au>
+In-Reply-To: <53296C6F.7040709@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,66 +22,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: fes@google.com, virtio-dev@lists.oasis-open.org, Theodore Ts'o <tytso@mit.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Kernel Developers List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Bjorn Helgaas <bhelgaas@google.com>, Joe Perches <joe@perches.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Alok Kataria <akataria@vmware.com>, linux-arch@vger.kernel.org, Gleb Natapov <gleb@redhat.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu Vinod <chegu_vinod@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 19, 2014 at 05:07:50PM +1030, Rusty Russell wrote:
-> Joe Perches <joe@perches.com> writes:
-> > On Sun, 2014-03-16 at 22:00 -0700, Joe Perches wrote:
-> >> On Mon, 2014-03-17 at 14:25 +1030, Rusty Russell wrote:
-> >> 
-> >> > Erk, our tests are insufficient.  Testbuilding an allmodconfig with this
-> >> > now:
-> >> 
-> >> Good idea.
-> >> 
-> >> > diff --git a/include/linux/moduleparam.h b/include/linux/moduleparam.h
-> >> []
-> >> > @@ -188,6 +188,9 @@ struct kparam_array
-> >> >  	/* Default value instead of permissions? */			\
-> >> >  	static int __param_perm_check_##name __attribute__((unused)) =	\
-> >> >  	BUILD_BUG_ON_ZERO((perm) < 0 || (perm) > 0777 || ((perm) & 2))	\
-> >> > +	/* User perms >= group perms >= other perms. */			\
-> >> > +	+ BUILD_BUG_ON_ZERO(((perm) >> 6) < (((perm) >> 3) & 7))	\
-> >> > +	+ BUILD_BUG_ON_ZERO((((perm) >> 3) & 7) < ((perm) & 7))		\
-> >> >  	+ BUILD_BUG_ON_ZERO(sizeof(""prefix) > MAX_PARAM_PREFIX_LEN);	\
-> >> >  	static const char __param_str_##name[] = prefix #name;		\
-> >> >  	static struct kernel_param __moduleparam_const __param_##name	\
-> >> 
-> >> It might make sense to separate this octal permissions
-> >> test into a new macro for other checks in macros like
-> >> CLASS_ATTR, DEVICE_ATTR, SENSOR_ATTR and SENSOR_ATTR_2.
-> 
-> OK, I took your bikeshed and re-painted it below.
-> 
-> > #define VERIFY_OCTAL_PERMISSIONS(perms)					\
-> > ({									\
-> > 	if (__builtin_constant_p(perms)) {				\
-> > 		BUILD_BUG_ON((perms) < 0);				\
-> > 		BUILD_BUG_ON((perms) > 0777);				\
-> > 		/* User perms >= group perms >= other perms */		\
-> > 		BUILD_BUG_ON(((perms) >> 6) < (((perms) >> 3) & 7));	\
-> > 		BUILD_BUG_ON((((perms) >> 3) & 7) < ((perms) & 7));	\
-> > 	}								\
-> > 	;								\
-> > })
-> 
-> Subject: VERIFY_OCTAL_PERMISSIONS: stricter checking for sysfs perms.
-> 
-> Summary of http://lkml.org/lkml/2014/3/14/363 :
-> 
->   Ted: module_param(queue_depth, int, 444)
->   Joe: 0444!
->   Rusty: User perms >= group perms >= other perms?
->   Joe: CLASS_ATTR, DEVICE_ATTR, SENSOR_ATTR and SENSOR_ATTR_2?
-> 
-> Side effect of stricter permissions means removing the unnecessary
-> S_IFREG from drivers/pci/slot.c.
-> 
-> Suggested-by: Joe Perches <joe@perches.com>
-> Cc: Bjorn Helgaas <bhelgaas@google.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+On 03/19/2014 06:07 AM, Paolo Bonzini wrote:
+> Il 19/03/2014 04:15, Waiman Long ha scritto:
+>>>> You should see the same values with the PV ticketlock. It is not clear
+>>>> to me if this testing did include that variant of locks?
+>>>
+>>> Yes, PV is fine.  But up to this point of the series, we are concerned
+>>> about spinlock performance when running on an overcommitted hypervisor
+>>> that doesn't support PV spinlocks.
+>>
+>> The unfair queue lock is designed in such a way that it will only be
+>> activated when running in a PV guest or it won't be mergeable upstream.
+>> So there must be some way to determine if it is running under a 
+>> hypervisor.
+>
+> Exactly.  What you want is boot_cpu_has(X86_FEATURE_HYPERVISOR).
+>
+> Paolo
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The unfair lock is to be enabled by boot time check, not just by the 
+presence of a configuration macro during the build process in order to 
+avoid using unfair lock on bare metal. Of course, Linux distros can 
+modify this if that suits their need.
+
+-Longman
