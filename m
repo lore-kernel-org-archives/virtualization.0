@@ -1,16 +1,17 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH v7 07/11] pvqspinlock, x86: Allow unfair queue spinlock
-	in a XEN guest
-Date: Wed, 19 Mar 2014 16:28:14 -0400
-Message-ID: <20140319202814.GB11210@phenom.dumpdata.com>
-References: <1395260049-30839-1-git-send-email-Waiman.Long@hp.com>
-	<1395260049-30839-8-git-send-email-Waiman.Long@hp.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH] virtio-blk: make the queue depth configurable
+Date: Wed, 19 Mar 2014 10:31:33 -0700
+Message-ID: <1395250293.8649.51.camel__35441.8793962852$1395271802$gmane$org@joe-AO722>
+References: <1394818263-29947-1-git-send-email-tytso@mit.edu>
+	<1394818720.3253.1.camel@joe-AO722> <20140314180258.GA29201@thunk.org>
+	<87y509scl3.fsf@rustcorp.com.au> <1395032434.2556.10.camel@joe-AO722>
+	<1395041214.2556.17.camel@joe-AO722> <87zjkmr8w1.fsf@rustcorp.com.au>
+	<CAErSpo7rhDGX2DB1kRb4iZDLGNRGrm+sEwt6LuRsd19X5coG8Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1395260049-30839-8-git-send-email-Waiman.Long@hp.com>
+In-Reply-To: <CAErSpo7rhDGX2DB1kRb4iZDLGNRGrm+sEwt6LuRsd19X5coG8Q@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +21,21 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <Waiman.Long@hp.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arch@vger.kernel.org, Gleb Natapov <gleb@redhat.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Scott J Norton <scott.norton@hp.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, Oleg Nesterov <oleg@redhat.com>, Alok Kataria <akataria@vmware.com>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu Vinod <chegu_vinod@hp.com>, Boris Ostrovsky <boris.ostrovsky>
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: fes@google.com, virtio-dev@lists.oasis-open.org, Theodore Ts'o <tytso@mit.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Developers List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 19, 2014 at 04:14:05PM -0400, Waiman Long wrote:
-> This patch adds a XEN init function to activate the unfair queue
-> spinlock in a XEN guest when the PARAVIRT_UNFAIR_LOCKS kernel config
-> option is selected.
-> 
-> Signed-off-by: Waiman Long <Waiman.Long@hp.com>
-> ---
->  arch/x86/xen/setup.c |   19 +++++++++++++++++++
->  1 files changed, 19 insertions(+), 0 deletions(-)
-> 
-> diff --git a/arch/x86/xen/setup.c b/arch/x86/xen/setup.c
-> index 0982233..66bb6f5 100644
-> --- a/arch/x86/xen/setup.c
-> +++ b/arch/x86/xen/setup.c
-> @@ -625,3 +625,22 @@ void __init xen_arch_setup(void)
->  	numa_off = 1;
->  #endif
->  }
-> +
-> +#ifdef CONFIG_PARAVIRT_UNFAIR_LOCKS
-> +/*
-> + * Enable unfair lock if running in a Xen guest
-> + */
-> +static __init int xen_unfair_locks_init_jump(void)
-> +{
-> +	/*
-> +	 * Disable unfair lock if not running in a PV domain
-> +	 */
-> +	if (!xen_pv_domain())
-> +		return 0;
+Couple more bikesheddy things:
 
-I would just make this 'xen_domain'. Not sure why you need
-to have it only for PV while the PVHVM guests can also use it?
+Is there ever a reason to use a non __builtin_const_p(perms)?
 
-Would it also make sense to use the same printk statement
-that the KVM has?
-> +
-> +	static_key_slow_inc(&paravirt_unfairlocks_enabled);
-> +
-> +	return 0;
-> +}
-> +early_initcall(xen_unfair_locks_init_jump);
-> +#endif
-> -- 
-> 1.7.1
-> 
+Maybe that should be a BUILD_BUG_ON too
+	BUILD_BUG_ON(!builtin_const_p_perms)
+
+My brain of little size gets confused by the
+	BUILD_BUG_ON_ZERO(foo) +
+vs
+	BUILD_BUG_ON(foo);
+as it just seems like more text for the same content.
+
+Is there any value on the "_ZERO(foo) +" I don't understand?
