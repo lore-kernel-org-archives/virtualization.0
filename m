@@ -1,17 +1,16 @@
-From: Waiman Long <waiman.long@hp.com>
-Subject: Re: [PATCH v6 05/11] pvqspinlock, x86: Allow unfair spinlock in a
-	PV guest
-Date: Tue, 18 Mar 2014 23:15:25 -0400
-Message-ID: <53290BCD.8010001__45194.1531071954$1395198950$gmane$org@hp.com>
-References: <1394650498-30118-1-git-send-email-Waiman.Long@hp.com>	<1394650498-30118-6-git-send-email-Waiman.Long@hp.com>	<53218E7A.8090707@citrix.com>
-	<5321AF96.6070909@redhat.com>
-	<20140317190511.GB11707@phenom.dumpdata.com>
-	<53280075.1020804@redhat.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-blk: make the queue depth the max supportable by
+	the hypervisor
+Date: Wed, 19 Mar 2014 16:58:29 +1030
+Message-ID: <871txysnw2.fsf@rustcorp.com.au>
+References: <1394841445-16142-1-git-send-email-venkateshs@google.com>
+	<1394854471-25700-1-git-send-email-tytso@mit.edu>
+	<87siqhu048.fsf@rustcorp.com.au> <20140317054053.GF14162@thunk.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <53280075.1020804@redhat.com>
+In-Reply-To: <20140317054053.GF14162@thunk.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,29 +20,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Alok Kataria <akataria@vmware.com>, linux-arch@vger.kernel.org, Gleb Natapov <gleb@redhat.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu Vinod <chegu_vinod@hp.com>Oleg Nesterov <ol>
+To: tytso@mit.edu
+Cc: Frank Swiderski <fes@google.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Linux Kernel Developers List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/18/2014 04:14 AM, Paolo Bonzini wrote:
-> Il 17/03/2014 20:05, Konrad Rzeszutek Wilk ha scritto:
->>> > Measurements were done by Gleb for two guests running 2.6.32 with 16
->>> > vcpus each, on a 16-core system.  One guest ran with unfair locks,
->>> > one guest ran with fair locks.  Two kernel compilations ("time make
->> And when you say fair locks are you saying PV ticketlocks or generic
->> ticketlocks?
+tytso@mit.edu writes:
+> On Mon, Mar 17, 2014 at 11:12:15AM +1030, Rusty Russell wrote:
+>> 
+>> Note that with indirect descriptors (which is supported by Almost
+>> Everyone), we can actually use the full index, so this value is a bit
+>> pessimistic.  But it's OK as a starting point.
 >
-> Generic, of course.
->
->> You should see the same values with the PV ticketlock. It is not clear
->> to me if this testing did include that variant of locks?
->
-> Yes, PV is fine.  But up to this point of the series, we are concerned 
-> about spinlock performance when running on an overcommitted hypervisor 
-> that doesn't support PV spinlocks.
+> So is this something that can go upstream with perhaps a slight
+> adjustment in the commit description?
 
-The unfair queue lock is designed in such a way that it will only be 
-activated when running in a PV guest or it won't be mergeable upstream. 
-So there must be some way to determine if it is running under a hypervisor.
+Well, I rewrote it again, see below.
 
--Longman
+> Do you think we need to be able
+> to dynamically adjust the queue depth after the module has been loaded
+> or the kernel has been booted?
+
+That would be nice, sure, but...
+
+> If so, anyone a hint about the best
+> way to do that would be much appreciated.
+
+... I share your wonder and mystery at the ways of the block layer.
+
+Subject: virtio-blk: base queue-depth on virtqueue ringsize or module param
+
+Venkatash spake thus:
+
+  virtio-blk set the default queue depth to 64 requests, which was
+  insufficient for high-IOPS devices. Instead set the blk-queue depth to
+  the device's virtqueue depth divided by two (each I/O requires at least
+  two VQ entries).
+
+But behold, Ted added a module parameter:
+
+  Also allow the queue depth to be something which can be set at module
+  load time or via a kernel boot-time parameter, for
+  testing/benchmarking purposes.
+
+And I rewrote it substantially, mainly to take
+VIRTIO_RING_F_INDIRECT_DESC into account.
+
+As QEMU sets the vq size for PCI to 128, Venkatash's patch wouldn't
+have made a change.  This version does (since QEMU also offers
+VIRTIO_RING_F_INDIRECT_DESC.
+
+Inspired-by: "Theodore Ts'o" <tytso@mit.edu>
+Based-on-the-true-story-of: Venkatesh Srinivas <venkateshs@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: Frank Swiderski <fes@google.com>
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index a2db9ed288f2..c101bbc72095 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -491,10 +491,11 @@ static struct blk_mq_ops virtio_mq_ops = {
+ static struct blk_mq_reg virtio_mq_reg = {
+ 	.ops		= &virtio_mq_ops,
+ 	.nr_hw_queues	= 1,
+-	.queue_depth	= 64,
++	.queue_depth	= 0, /* Set in virtblk_probe */
+ 	.numa_node	= NUMA_NO_NODE,
+ 	.flags		= BLK_MQ_F_SHOULD_MERGE,
+ };
++module_param_named(queue_depth, virtio_mq_reg.queue_depth, uint, 0444);
+ 
+ static void virtblk_init_vbr(void *data, struct blk_mq_hw_ctx *hctx,
+ 			     struct request *rq, unsigned int nr)
+@@ -558,6 +559,13 @@ static int virtblk_probe(struct virtio_device *vdev)
+ 		goto out_free_vq;
+ 	}
+ 
++	/* Default queue sizing is to fill the ring. */
++	if (!virtio_mq_reg.queue_depth) {
++		virtio_mq_reg.queue_depth = vblk->vq->num_free;
++		/* ... but without indirect descs, we use 2 descs per req */
++		if (!virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC))
++			virtio_mq_reg.queue_depth /= 2;
++	}
+ 	virtio_mq_reg.cmd_size =
+ 		sizeof(struct virtblk_req) +
+ 		sizeof(struct scatterlist) * sg_elems;
