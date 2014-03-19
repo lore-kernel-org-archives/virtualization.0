@@ -1,16 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-blk: make the queue depth the max supportable by
-	the hypervisor
-Date: Wed, 19 Mar 2014 16:58:29 +1030
-Message-ID: <871txysnw2.fsf@rustcorp.com.au>
-References: <1394841445-16142-1-git-send-email-venkateshs@google.com>
-	<1394854471-25700-1-git-send-email-tytso@mit.edu>
-	<87siqhu048.fsf@rustcorp.com.au> <20140317054053.GF14162@thunk.org>
+Subject: Re: [PATCH] virtio-blk: make the queue depth configurable
+Date: Wed, 19 Mar 2014 17:07:50 +1030
+Message-ID: <87zjkmr8w1.fsf__30396.2857033641$1395211322$gmane$org@rustcorp.com.au>
+References: <1394818263-29947-1-git-send-email-tytso@mit.edu>
+	<1394818720.3253.1.camel@joe-AO722>
+	<20140314180258.GA29201@thunk.org> <87y509scl3.fsf@rustcorp.com.au>
+	<1395032434.2556.10.camel@joe-AO722>
+	<1395041214.2556.17.camel@joe-AO722>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140317054053.GF14162@thunk.org>
+In-Reply-To: <1395041214.2556.17.camel@joe-AO722>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,91 +21,137 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: tytso@mit.edu
-Cc: Frank Swiderski <fes@google.com>, virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>, Linux Kernel Developers List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Joe Perches <joe@perches.com>
+Cc: fes@google.com, virtio-dev@lists.oasis-open.org, Theodore Ts'o <tytso@mit.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Developers List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Bjorn Helgaas <bhelgaas@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-tytso@mit.edu writes:
-> On Mon, Mar 17, 2014 at 11:12:15AM +1030, Rusty Russell wrote:
+Joe Perches <joe@perches.com> writes:
+> On Sun, 2014-03-16 at 22:00 -0700, Joe Perches wrote:
+>> On Mon, 2014-03-17 at 14:25 +1030, Rusty Russell wrote:
 >> 
->> Note that with indirect descriptors (which is supported by Almost
->> Everyone), we can actually use the full index, so this value is a bit
->> pessimistic.  But it's OK as a starting point.
->
-> So is this something that can go upstream with perhaps a slight
-> adjustment in the commit description?
+>> > Erk, our tests are insufficient.  Testbuilding an allmodconfig with this
+>> > now:
+>> 
+>> Good idea.
+>> 
+>> > diff --git a/include/linux/moduleparam.h b/include/linux/moduleparam.h
+>> []
+>> > @@ -188,6 +188,9 @@ struct kparam_array
+>> >  	/* Default value instead of permissions? */			\
+>> >  	static int __param_perm_check_##name __attribute__((unused)) =	\
+>> >  	BUILD_BUG_ON_ZERO((perm) < 0 || (perm) > 0777 || ((perm) & 2))	\
+>> > +	/* User perms >= group perms >= other perms. */			\
+>> > +	+ BUILD_BUG_ON_ZERO(((perm) >> 6) < (((perm) >> 3) & 7))	\
+>> > +	+ BUILD_BUG_ON_ZERO((((perm) >> 3) & 7) < ((perm) & 7))		\
+>> >  	+ BUILD_BUG_ON_ZERO(sizeof(""prefix) > MAX_PARAM_PREFIX_LEN);	\
+>> >  	static const char __param_str_##name[] = prefix #name;		\
+>> >  	static struct kernel_param __moduleparam_const __param_##name	\
+>> 
+>> It might make sense to separate this octal permissions
+>> test into a new macro for other checks in macros like
+>> CLASS_ATTR, DEVICE_ATTR, SENSOR_ATTR and SENSOR_ATTR_2.
 
-Well, I rewrote it again, see below.
+OK, I took your bikeshed and re-painted it below.
 
-> Do you think we need to be able
-> to dynamically adjust the queue depth after the module has been loaded
-> or the kernel has been booted?
+> #define VERIFY_OCTAL_PERMISSIONS(perms)					\
+> ({									\
+> 	if (__builtin_constant_p(perms)) {				\
+> 		BUILD_BUG_ON((perms) < 0);				\
+> 		BUILD_BUG_ON((perms) > 0777);				\
+> 		/* User perms >= group perms >= other perms */		\
+> 		BUILD_BUG_ON(((perms) >> 6) < (((perms) >> 3) & 7));	\
+> 		BUILD_BUG_ON((((perms) >> 3) & 7) < ((perms) & 7));	\
+> 	}								\
+> 	;								\
+> })
 
-That would be nice, sure, but...
+Subject: VERIFY_OCTAL_PERMISSIONS: stricter checking for sysfs perms.
 
-> If so, anyone a hint about the best
-> way to do that would be much appreciated.
+Summary of http://lkml.org/lkml/2014/3/14/363 :
 
-... I share your wonder and mystery at the ways of the block layer.
+  Ted: module_param(queue_depth, int, 444)
+  Joe: 0444!
+  Rusty: User perms >= group perms >= other perms?
+  Joe: CLASS_ATTR, DEVICE_ATTR, SENSOR_ATTR and SENSOR_ATTR_2?
 
-Subject: virtio-blk: base queue-depth on virtqueue ringsize or module param
+Side effect of stricter permissions means removing the unnecessary
+S_IFREG from drivers/pci/slot.c.
 
-Venkatash spake thus:
-
-  virtio-blk set the default queue depth to 64 requests, which was
-  insufficient for high-IOPS devices. Instead set the blk-queue depth to
-  the device's virtqueue depth divided by two (each I/O requires at least
-  two VQ entries).
-
-But behold, Ted added a module parameter:
-
-  Also allow the queue depth to be something which can be set at module
-  load time or via a kernel boot-time parameter, for
-  testing/benchmarking purposes.
-
-And I rewrote it substantially, mainly to take
-VIRTIO_RING_F_INDIRECT_DESC into account.
-
-As QEMU sets the vq size for PCI to 128, Venkatash's patch wouldn't
-have made a change.  This version does (since QEMU also offers
-VIRTIO_RING_F_INDIRECT_DESC.
-
-Inspired-by: "Theodore Ts'o" <tytso@mit.edu>
-Based-on-the-true-story-of: Venkatesh Srinivas <venkateshs@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org
-Cc: virtualization@lists.linux-foundation.org
-Cc: Frank Swiderski <fes@google.com>
+Suggested-by: Joe Perches <joe@perches.com>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index a2db9ed288f2..c101bbc72095 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -491,10 +491,11 @@ static struct blk_mq_ops virtio_mq_ops = {
- static struct blk_mq_reg virtio_mq_reg = {
- 	.ops		= &virtio_mq_ops,
- 	.nr_hw_queues	= 1,
--	.queue_depth	= 64,
-+	.queue_depth	= 0, /* Set in virtblk_probe */
- 	.numa_node	= NUMA_NO_NODE,
- 	.flags		= BLK_MQ_F_SHOULD_MERGE,
- };
-+module_param_named(queue_depth, virtio_mq_reg.queue_depth, uint, 0444);
+diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
+index 7dd62fa9d0bd..396c200b9ddb 100644
+--- a/drivers/pci/slot.c
++++ b/drivers/pci/slot.c
+@@ -116,11 +116,11 @@ static void pci_slot_release(struct kobject *kobj)
+ }
  
- static void virtblk_init_vbr(void *data, struct blk_mq_hw_ctx *hctx,
- 			     struct request *rq, unsigned int nr)
-@@ -558,6 +559,13 @@ static int virtblk_probe(struct virtio_device *vdev)
- 		goto out_free_vq;
- 	}
+ static struct pci_slot_attribute pci_slot_attr_address =
+-	__ATTR(address, (S_IFREG | S_IRUGO), address_read_file, NULL);
++	__ATTR(address, S_IRUGO, address_read_file, NULL);
+ static struct pci_slot_attribute pci_slot_attr_max_speed =
+-	__ATTR(max_bus_speed, (S_IFREG | S_IRUGO), max_speed_read_file, NULL);
++	__ATTR(max_bus_speed, S_IRUGO, max_speed_read_file, NULL);
+ static struct pci_slot_attribute pci_slot_attr_cur_speed =
+-	__ATTR(cur_bus_speed, (S_IFREG | S_IRUGO), cur_speed_read_file, NULL);
++	__ATTR(cur_bus_speed, S_IRUGO, cur_speed_read_file, NULL);
  
-+	/* Default queue sizing is to fill the ring. */
-+	if (!virtio_mq_reg.queue_depth) {
-+		virtio_mq_reg.queue_depth = vblk->vq->num_free;
-+		/* ... but without indirect descs, we use 2 descs per req */
-+		if (!virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC))
-+			virtio_mq_reg.queue_depth /= 2;
-+	}
- 	virtio_mq_reg.cmd_size =
- 		sizeof(struct virtblk_req) +
- 		sizeof(struct scatterlist) * sg_elems;
+ static struct attribute *pci_slot_default_attrs[] = {
+ 	&pci_slot_attr_address.attr,
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index 471090093c67..945afeb3058a 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -842,4 +842,13 @@ static inline void ftrace_dump(enum ftrace_dump_mode oops_dump_mode) { }
+ # define REBUILD_DUE_TO_FTRACE_MCOUNT_RECORD
+ #endif
+ 
++/* Permissions on a sysfs file: you didn't miss the 0 prefix did you? */
++#define VERIFY_OCTAL_PERMISSIONS(perms)					\
++	((__builtin_constant_p(perms) ?					\
++	  BUILD_BUG_ON_ZERO((perms) < 0) +				\
++	  BUILD_BUG_ON_ZERO((perms) > 0777) +				\
++	  /* User perms >= group perms >= other perms */		\
++	  BUILD_BUG_ON_ZERO(((perms) >> 6) < (((perms) >> 3) & 7)) +	\
++	  BUILD_BUG_ON_ZERO((((perms) >> 3) & 7) < ((perms) & 7)): 0) +	\
++	 (perms))
+ #endif
+diff --git a/include/linux/moduleparam.h b/include/linux/moduleparam.h
+index 175f6995d1af..204a67743804 100644
+--- a/include/linux/moduleparam.h
++++ b/include/linux/moduleparam.h
+@@ -186,14 +186,12 @@ struct kparam_array
+    parameters. */
+ #define __module_param_call(prefix, name, ops, arg, perm, level)	\
+ 	/* Default value instead of permissions? */			\
+-	static int __param_perm_check_##name __attribute__((unused)) =	\
+-	BUILD_BUG_ON_ZERO((perm) < 0 || (perm) > 0777 || ((perm) & 2))	\
+-	+ BUILD_BUG_ON_ZERO(sizeof(""prefix) > MAX_PARAM_PREFIX_LEN);	\
+-	static const char __param_str_##name[] = prefix #name;		\
++	static const char __param_str_##name[] = prefix #name; \
+ 	static struct kernel_param __moduleparam_const __param_##name	\
+ 	__used								\
+     __attribute__ ((unused,__section__ ("__param"),aligned(sizeof(void *)))) \
+-	= { __param_str_##name, ops, perm, level, { arg } }
++	= { __param_str_##name, ops, VERIFY_OCTAL_PERMISSIONS(perm),	\
++	    level, { arg } }
+ 
+ /* Obsolete - use module_param_cb() */
+ #define module_param_call(name, set, get, arg, perm)			\
+diff --git a/include/linux/sysfs.h b/include/linux/sysfs.h
+index 30b2ebee6439..f517e6e488c8 100644
+--- a/include/linux/sysfs.h
++++ b/include/linux/sysfs.h
+@@ -71,7 +71,8 @@ struct attribute_group {
+  */
+ 
+ #define __ATTR(_name, _mode, _show, _store) {				\
+-	.attr = {.name = __stringify(_name), .mode = _mode },		\
++	.attr = {.name = __stringify(_name),				\
++		 .mode = VERIFY_OCTAL_PERMISSIONS(_mode) },		\
+ 	.show	= _show,						\
+ 	.store	= _store,						\
+ }
