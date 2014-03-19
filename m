@@ -1,12 +1,20 @@
-From: "ML" <marialemos72@gmail.com>
-Subject: 2014 World Conference on IST - Madeira Island, April 15-17
-Date: Tue, 18 Mar 2014 10:45:54 +0000
-Message-ID: <20140318104616.B72BF916@mail.linuxfoundation.org>
-Reply-To: worldcist@gmail.com
+From: Waiman Long <waiman.long@hp.com>
+Subject: Re: [PATCH v6 05/11] pvqspinlock, x86: Allow unfair spinlock in a
+	PV guest
+Date: Tue, 18 Mar 2014 23:08:26 -0400
+Message-ID: <53290A2A.4090801@hp.com>
+References: <1394650498-30118-1-git-send-email-Waiman.Long@hp.com>
+	<1394650498-30118-6-git-send-email-Waiman.Long@hp.com>
+	<20140313151515.GC25546@laptop.programming.kicks-ass.net>
+	<53220F7F.2040701@hp.com>
+	<20140314083001.GN27965@twins.programming.kicks-ass.net>
+	<53273482.3030102@hp.com>
+	<20140317185447.GM25546@laptop.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20140317185447.GM25546@laptop.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,18 +24,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arch@vger.kernel.org, Gleb Natapov <gleb@redhat.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, Oleg Nesterov <oleg@redhat.com>, Alok Kataria <akataria@vmware.com>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu
 List-Id: virtualization@lists.linuxfoundation.org
 
-========================= WorldCIST'14 =============================
-The 2014 World Conference on Information Systems and Technologies 
-            April 15-17, Madeira Island, Portugal
-               http://www.aisti.eu/worldcist14/
-====================================================================
+On 03/17/2014 02:54 PM, Peter Zijlstra wrote:
+> On Mon, Mar 17, 2014 at 01:44:34PM -0400, Waiman Long wrote:
+>> The PV ticketlock code was designed to handle lock holder preemption by
+>> redirecting CPU resources in a preempted guest to another guest that can
+>> better use it and then return the preempted CPU back sooner.
+> But that's the PV code, not the unfair bit. And your fuller PV thing
+> doesn't need the unfair option.
 
-Program available at: http://www.aistic.org/wcist2014/oc14/modules/request.php?module=oc_program&action=program.php&p=program
+What I am want to try out is to combine the PV thing with the unfair 
+lock and see how it performs together. I had set up 2 virtual guests 
+sharing 20 vCPUs (200% overcommit). Preliminary testing showed that 
+unfair lock was a bit faster than PV, but PV seems to be a bit more 
+energy efficient (less total sys+user time).  I will have more data to 
+share tomorrow.
 
-Best regards,
-
-WorldCIST'14 Team
-http://www.aisti.eu/worldcist14/
+-Longman
