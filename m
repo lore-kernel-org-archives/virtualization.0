@@ -1,7 +1,7 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH] virtio-blk: make the queue depth configurable
-Date: Thu, 20 Mar 2014 13:20:13 +1030
-Message-ID: <87ob11r3bu.fsf@rustcorp.com.au>
+Date: Thu, 20 Mar 2014 14:05:04 +1030
+Message-ID: <87ior9r193.fsf__16570.4042687596$1395288915$gmane$org@rustcorp.com.au>
 References: <1394818263-29947-1-git-send-email-tytso@mit.edu>
 	<1394818720.3253.1.camel@joe-AO722>
 	<20140314180258.GA29201@thunk.org> <87y509scl3.fsf@rustcorp.com.au>
@@ -9,11 +9,12 @@ References: <1394818263-29947-1-git-send-email-tytso@mit.edu>
 	<1395041214.2556.17.camel@joe-AO722>
 	<87zjkmr8w1.fsf@rustcorp.com.au>
 	<CAErSpo7rhDGX2DB1kRb4iZDLGNRGrm+sEwt6LuRsd19X5coG8Q@mail.gmail.com>
+	<1395250293.8649.51.camel@joe-AO722>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAErSpo7rhDGX2DB1kRb4iZDLGNRGrm+sEwt6LuRsd19X5coG8Q@mail.gmail.com>
+In-Reply-To: <1395250293.8649.51.camel@joe-AO722>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,26 +24,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: fes@google.com, virtio-dev@lists.oasis-open.org, Theodore Ts'o <tytso@mit.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Developers List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Joe Perches <joe@perches.com>
+To: Joe Perches <joe@perches.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: fes@google.com, virtio-dev@lists.oasis-open.org, Theodore Ts'o <tytso@mit.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linux Kernel Developers List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Bjorn Helgaas <bhelgaas@google.com> writes:
-> On Wed, Mar 19, 2014 at 12:37 AM, Rusty Russell <rusty@rustcorp.com.au> wrote:
->> Side effect of stricter permissions means removing the unnecessary
->> S_IFREG from drivers/pci/slot.c.
->>
->> Suggested-by: Joe Perches <joe@perches.com>
->> Cc: Bjorn Helgaas <bhelgaas@google.com>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+Joe Perches <joe@perches.com> writes:
+> Couple more bikesheddy things:
 >
-> Acked-by: Bjorn Helgaas <bhelgaas@google.com> for drivers/pci/slot.c
->
-> It looks like fs/ocfs2/cluster/sys.c and fs/ocfs2/stackglue.c also use
-> S_IFREG in a similar way.
+> Is there ever a reason to use a non __builtin_const_p(perms)?
 
-Thanks, allmodconfig picked that up, and some others.  See below.
+It's a bit conservative, and anyway, the test is useless since AFAICT
+BUILD_BUG_ON() is a noop if !__builtin_const_p().  I removed it
+and re-tested.
+
+> Maybe that should be a BUILD_BUG_ON too
+> 	BUILD_BUG_ON(!builtin_const_p_perms)
+>
+> My brain of little size gets confused by the
+> 	BUILD_BUG_ON_ZERO(foo) +
+> vs
+> 	BUILD_BUG_ON(foo);
+> as it just seems like more text for the same content.
+>
+> Is there any value on the "_ZERO(foo) +" I don't understand?
+
+I don't like to use statement expressions unless we really need them,
+and BUILD_BUG_ON_ZERO() was build for this purpose.
 
 Cheers,
 Rusty.
@@ -162,21 +169,20 @@ index 1324e6600e57..25e9f7b5bad3 100644
  	       ocfs2_cluster_stack_store);
  
 diff --git a/include/linux/kernel.h b/include/linux/kernel.h
-index 471090093c67..945afeb3058a 100644
+index 471090093c67..4679eddc110a 100644
 --- a/include/linux/kernel.h
 +++ b/include/linux/kernel.h
-@@ -842,4 +842,13 @@ static inline void ftrace_dump(enum ftrace_dump_mode oops_dump_mode) { }
+@@ -842,4 +842,12 @@ static inline void ftrace_dump(enum ftrace_dump_mode oops_dump_mode) { }
  # define REBUILD_DUE_TO_FTRACE_MCOUNT_RECORD
  #endif
  
 +/* Permissions on a sysfs file: you didn't miss the 0 prefix did you? */
 +#define VERIFY_OCTAL_PERMISSIONS(perms)					\
-+	((__builtin_constant_p(perms) ?					\
-+	  BUILD_BUG_ON_ZERO((perms) < 0) +				\
-+	  BUILD_BUG_ON_ZERO((perms) > 0777) +				\
-+	  /* User perms >= group perms >= other perms */		\
-+	  BUILD_BUG_ON_ZERO(((perms) >> 6) < (((perms) >> 3) & 7)) +	\
-+	  BUILD_BUG_ON_ZERO((((perms) >> 3) & 7) < ((perms) & 7)): 0) +	\
++	(BUILD_BUG_ON_ZERO((perms) < 0) +				\
++	 BUILD_BUG_ON_ZERO((perms) > 0777) +				\
++	 /* User perms >= group perms >= other perms */			\
++	 BUILD_BUG_ON_ZERO(((perms) >> 6) < (((perms) >> 3) & 7)) +	\
++	 BUILD_BUG_ON_ZERO((((perms) >> 3) & 7) < ((perms) & 7)) +	\
 +	 (perms))
  #endif
 diff --git a/include/linux/moduleparam.h b/include/linux/moduleparam.h
