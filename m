@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH net] virtio-net: don't free skb immediately on kick failure
-Date: Fri, 21 Mar 2014 16:30:01 +0800
-Message-ID: <1395390601-13177-1-git-send-email-jasowang@redhat.com>
+Subject: [PATCH RFC V2 0/4] Adding tracepoints to vhost/net
+Date: Fri, 21 Mar 2014 17:41:49 +0800
+Message-ID: <1395394913-19548-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,41 +15,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+To: mst@redhat.com, kvm@vger.kernel.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-We free the skb immediately on kick failure during xmit without detaching it
-from the virtqueue. This may lead double free for the skb during
-free_unused_bufs(). This patch fixes this by not freeing it on kick failure and
-let it to be freed through free_unused_bufs().
+Recent debugging on vhost net zerocopy shows the need of
+tracepoints. So to help in vhost{net} debugging and performance
+analyzing, the following series adding basic tracepoints to
+vhost. Operations of both vhost and vhost_net were traced in current
+implementation.
 
-Fixes 67975901183799af8e93ec60e322f9e2a1940b9b
-("virtio_net: verify if virtqueue_kick() succeeded").
+A top-like satistics displaying script were introduced to help the
+troubleshooting:
+vhost statistics
 
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/net/virtio_net.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ vhost_virtio_update_used_idx               1215215       0
+ vhost_virtio_get_vq_desc                   1215215       0
+ vhost_work_queue_wakeup                     986808       0
+ vhost_virtio_signal                         811601       0
+ vhost_net_tx                                611457       0
+ vhost_net_rx                                603758       0
+ vhost_net_tx(datacopy)                      601903       0
+ vhost_work_queue_wakeup(rx_net)             565081       0
+ vhost_virtio_signal(rx)                     461603       0
+ vhost_work_queue_wakeup(tx_kick)            421718       0
+ vhost_virtio_update_avail_event             417346       0
+ vhost_virtio_signal(tx)                     349998       0
+ vhost_work_queue_coalesce                    39384       0
+ vhost_work_queue_coalesce(rx_net)            38677       0
+ vhost_net_tx(zerocopy)                        9554       0
+ vhost_work_queue_coalesce(tx_kick)             707       0
+ vhost_work_queue_wakeup(rx_kick)                 9       0
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 5632a99..d833d38 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -882,8 +882,10 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
- 		if (net_ratelimit())
- 			dev_warn(&dev->dev,
- 				 "Unexpected TXQ (%d) queue failure: %d\n", qnum, err);
--		dev->stats.tx_dropped++;
--		kfree_skb(skb);
-+		if (err) {
-+			dev->stats.tx_dropped++;
-+			kfree_skb(skb);
-+		}
- 		return NETDEV_TX_OK;
- 	}
- 
+TODO:
+- performance test
+- finalize which should be traced
+
+Reference:
+- V1: https://lkml.org/lkml/2012/4/9/478
+
+Jason Wang (4):
+  vhost: introduce queue_index for tracing
+  vhost: basic tracepoints
+  vhost_net: add basic tracepoints for vhost_net
+  tools: virtio: add a top-like utility for displaying vhost satistics
+
+ drivers/vhost/net.c       |   7 +
+ drivers/vhost/net_trace.h |  53 +++++++
+ drivers/vhost/trace.h     | 175 ++++++++++++++++++++++
+ drivers/vhost/vhost.c     |  14 +-
+ drivers/vhost/vhost.h     |   3 +
+ tools/virtio/vhost_stat   | 375 ++++++++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 626 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/vhost/net_trace.h
+ create mode 100644 drivers/vhost/trace.h
+ create mode 100755 tools/virtio/vhost_stat
+
 -- 
 1.8.3.2
