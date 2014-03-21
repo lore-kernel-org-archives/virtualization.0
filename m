@@ -1,16 +1,11 @@
-From: Waiman Long <waiman.long@hp.com>
-Subject: Re: [PATCH v7 07/11] pvqspinlock, x86: Allow unfair queue spinlock
-	in a XEN guest
-Date: Thu, 20 Mar 2014 23:40:08 -0400
-Message-ID: <532BB498.8040900@hp.com>
-References: <1395260049-30839-1-git-send-email-Waiman.Long@hp.com>
-	<1395260049-30839-8-git-send-email-Waiman.Long@hp.com>
-	<20140319202814.GB11210@phenom.dumpdata.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH net] virtio-net: don't free skb immediately on kick failure
+Date: Fri, 21 Mar 2014 16:30:01 +0800
+Message-ID: <1395390601-13177-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140319202814.GB11210@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,53 +15,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Thomas Gleixner <tglx@linutronix.de>, linux-arch@vger.kernel.org, Gleb Natapov <gleb@redhat.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Scott J Norton <scott.norton@hp.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, Oleg Nesterov <oleg@redhat.com>, Alok Kataria <akataria@vmware.com>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu Vinod <chegu_vinod@hp.com>, Boris Ostrovsky <boris.ostrovsky>
+To: rusty@rustcorp.com.au, mst@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/19/2014 04:28 PM, Konrad Rzeszutek Wilk wrote:
-> On Wed, Mar 19, 2014 at 04:14:05PM -0400, Waiman Long wrote:
->> This patch adds a XEN init function to activate the unfair queue
->> spinlock in a XEN guest when the PARAVIRT_UNFAIR_LOCKS kernel config
->> option is selected.
->>
->> Signed-off-by: Waiman Long<Waiman.Long@hp.com>
->> ---
->>   arch/x86/xen/setup.c |   19 +++++++++++++++++++
->>   1 files changed, 19 insertions(+), 0 deletions(-)
->>
->> diff --git a/arch/x86/xen/setup.c b/arch/x86/xen/setup.c
->> index 0982233..66bb6f5 100644
->> --- a/arch/x86/xen/setup.c
->> +++ b/arch/x86/xen/setup.c
->> @@ -625,3 +625,22 @@ void __init xen_arch_setup(void)
->>   	numa_off = 1;
->>   #endif
->>   }
->> +
->> +#ifdef CONFIG_PARAVIRT_UNFAIR_LOCKS
->> +/*
->> + * Enable unfair lock if running in a Xen guest
->> + */
->> +static __init int xen_unfair_locks_init_jump(void)
->> +{
->> +	/*
->> +	 * Disable unfair lock if not running in a PV domain
->> +	 */
->> +	if (!xen_pv_domain())
->> +		return 0;
-> I would just make this 'xen_domain'. Not sure why you need
-> to have it only for PV while the PVHVM guests can also use it?
+We free the skb immediately on kick failure during xmit without detaching it
+from the virtqueue. This may lead double free for the skb during
+free_unused_bufs(). This patch fixes this by not freeing it on kick failure and
+let it to be freed through free_unused_bufs().
 
-The compilation of the setup.c file should have implied xen_domain 
-already (at least HVM). The check is added to make sure that unfair lock 
-won't be enabled on bare metal. As for PVHVM, is there a way to detect 
-it is running as such which is distinct from HVM?
+Fixes 67975901183799af8e93ec60e322f9e2a1940b9b
+("virtio_net: verify if virtqueue_kick() succeeded").
 
-> Would it also make sense to use the same printk statement
-> that the KVM has?
->
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/net/virtio_net.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Yes, I can add a printk statement like KVM.
-
--Longman
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 5632a99..d833d38 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -882,8 +882,10 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+ 		if (net_ratelimit())
+ 			dev_warn(&dev->dev,
+ 				 "Unexpected TXQ (%d) queue failure: %d\n", qnum, err);
+-		dev->stats.tx_dropped++;
+-		kfree_skb(skb);
++		if (err) {
++			dev->stats.tx_dropped++;
++			kfree_skb(skb);
++		}
+ 		return NETDEV_TX_OK;
+ 	}
+ 
+-- 
+1.8.3.2
