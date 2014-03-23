@@ -1,16 +1,14 @@
-From: Waiman Long <waiman.long@hp.com>
-Subject: Re: [PATCH v7 10/11] pvqspinlock, x86: Enable qspinlock PV support
-	for KVM
-Date: Fri, 21 Mar 2014 17:41:34 -0400
-Message-ID: <532CB20E.6060603@hp.com>
-References: <1395260049-30839-1-git-send-email-Waiman.Long@hp.com>
-	<1395260049-30839-11-git-send-email-Waiman.Long@hp.com>
-	<532B668A.4010208@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH net] virtio-net: don't free skb immediately on kick failure
+Date: Sun, 23 Mar 2014 13:27:19 +0200
+Message-ID: <20140323112719.GE6989@redhat.com>
+References: <1395390601-13177-1-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <532B668A.4010208@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <1395390601-13177-1-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,29 +18,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Andi Kleen <andi@firstfloor.org>, "H. Peter Anvin" <hpa@zytor.com>, Michel Lespinasse <walken@google.com>, Alok Kataria <akataria@vmware.com>, linux-arch@vger.kernel.org, Gleb Natapov <gleb@redhat.com>, x86@kernel.org, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Arnd Bergmann <arnd@arndb.de>, Scott J Norton <scott.norton@hp.com>, Steven Rostedt <rostedt@goodmis.org>, Chris Wright <chrisw@sous-sol.org>, Thomas Gleixner <tglx@linutronix.de>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu Vinod <chegu_vinod@hp.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Oleg Nesterov <oleg@redhat.com>, linux-kernel@vger.
+To: Jason Wang <jasowang@redhat.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03/20/2014 06:07 PM, Paolo Bonzini wrote:
-> Il 19/03/2014 21:14, Waiman Long ha scritto:
->> This patch adds the necessary KVM specific code to allow KVM to support
->> the sleeping and CPU kicking operations needed by the queue spinlock PV
->> code.
->
-> The remaining problem of this patch is that you cannot get the 
-> generically optimal configuration: qspinlock on baremetal, PV 
-> qspinlock on KVM/Xen, unfair qspinlock on VMware/Hyper-V.  You really 
-> need to disable unfair locks in kvm_spinlock_init.
->
-> Paolo
->
+On Fri, Mar 21, 2014 at 04:30:01PM +0800, Jason Wang wrote:
+> We free the skb immediately on kick failure during xmit without detaching it
+> from the virtqueue. This may lead double free for the skb during
+> free_unused_bufs(). This patch fixes this by not freeing it on kick failure and
+> let it to be freed through free_unused_bufs().
+> 
+> Fixes 67975901183799af8e93ec60e322f9e2a1940b9b
+> ("virtio_net: verify if virtqueue_kick() succeeded").
 
-So you are suggesting that it is not a good idea to have both unfair 
-lock & PV be enabled together. Right?
+It's not even obvious we want to increment fifo errors
+counter.
+So basically we want to ignore these errors.
+In that case how about just reverting this chunk
+of the patch?
 
-In order to disable unfair locks in kvm_spinlock_init(), it has to run 
-after the unfair lock init code. Do you guys know what determine the 
-init function execution sequence?
+Seems cleaner than adding more code.
 
--Longman
+The chunk filling in RX also seems inappropriate:
+it will cause RX work to be requeued which isn't what
+we wanted.
+
+Also, what happens with virtnet_send_command?
+
+Looks like that patch is completely wrong.
+
+> 
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/net/virtio_net.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 5632a99..d833d38 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -882,8 +882,10 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
+>  		if (net_ratelimit())
+>  			dev_warn(&dev->dev,
+>  				 "Unexpected TXQ (%d) queue failure: %d\n", qnum, err);
+> -		dev->stats.tx_dropped++;
+> -		kfree_skb(skb);
+> +		if (err) {
+> +			dev->stats.tx_dropped++;
+> +			kfree_skb(skb);
+> +		}
+>  		return NETDEV_TX_OK;
+>  	}
+>  
+> -- 
+> 1.8.3.2
