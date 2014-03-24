@@ -1,15 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH net] virtio-net: don't free skb immediately on kick failure
-Date: Mon, 24 Mar 2014 08:27:24 +0200
-Message-ID: <20140324062724.GB22338@redhat.com>
-References: <1395390601-13177-1-git-send-email-jasowang@redhat.com>
-	<20140323112719.GE6989@redhat.com> <532FC34D.3040604@redhat.com>
+From: Ioan Raicu <iraicu@cs.iit.edu>
+Subject: Call for Posters at ACM HPDC 2014
+Date: Mon, 24 Mar 2014 12:48:12 -0500
+Message-ID: <53306FDC.60900@cs.iit.edu>
+Reply-To: iraicu@cs.iit.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8162387436840902657=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <532FC34D.3040604@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,74 +15,142 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: virtualization@lists.linux-foundation.org, micro_publicity@crhc.uiuc.edu, hpc-ft@lists.ncsu.edu, infodir_SIGARCH@acm.org, infodir_sigcomm@acm.org, performance@merlot.usc.edu, sigplan-l@acm.uiuc.edu
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 24, 2014 at 01:31:57PM +0800, Jason Wang wrote:
-> On 03/23/2014 07:27 PM, Michael S. Tsirkin wrote:
-> > On Fri, Mar 21, 2014 at 04:30:01PM +0800, Jason Wang wrote:
-> >> We free the skb immediately on kick failure during xmit without detaching it
-> >> from the virtqueue. This may lead double free for the skb during
-> >> free_unused_bufs(). This patch fixes this by not freeing it on kick failure and
-> >> let it to be freed through free_unused_bufs().
-> >>
-> >> Fixes 67975901183799af8e93ec60e322f9e2a1940b9b
-> >> ("virtio_net: verify if virtqueue_kick() succeeded").
-> > It's not even obvious we want to increment fifo errors
-> > counter.
-> > So basically we want to ignore these errors.
-> > In that case how about just reverting this chunk
-> > of the patch?
-> 
-> Sure, I think it's safe to do this.
-> > Seems cleaner than adding more code.
-> >
-> > The chunk filling in RX also seems inappropriate:
-> > it will cause RX work to be requeued which isn't what
-> > we wanted.
-> 
-> True, we can also ignore the error here.
+This is a multi-part message in MIME format.
+--===============8162387436840902657==
+Content-Type: multipart/alternative;
+ boundary="------------060603020904000604010901"
 
-So let's do that - just revert most of that commit
-except the bit that breaks out of look when we submit commands.
+This is a multi-part message in MIME format.
+--------------060603020904000604010901
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> >
-> > Also, what happens with virtnet_send_command?
-> 
-> Looks ok, if vq is broken it will return error to the caller or jump out
-> of the busy loop.
-> > Looks like that patch is completely wrong.
-> >
-> >> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> >> Cc: Michael S. Tsirkin <mst@redhat.com>
-> >> Cc: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-> >> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> >> ---
-> >>  drivers/net/virtio_net.c | 6 ++++--
-> >>  1 file changed, 4 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> >> index 5632a99..d833d38 100644
-> >> --- a/drivers/net/virtio_net.c
-> >> +++ b/drivers/net/virtio_net.c
-> >> @@ -882,8 +882,10 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-> >>  		if (net_ratelimit())
-> >>  			dev_warn(&dev->dev,
-> >>  				 "Unexpected TXQ (%d) queue failure: %d\n", qnum, err);
-> >> -		dev->stats.tx_dropped++;
-> >> -		kfree_skb(skb);
-> >> +		if (err) {
-> >> +			dev->stats.tx_dropped++;
-> >> +			kfree_skb(skb);
-> >> +		}
-> >>  		return NETDEV_TX_OK;
-> >>  	}
-> >>  
-> >> -- 
-> >> 1.8.3.2
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+Call for Posters
+Submission Deadline: May 16 2014
+http://www.hpdc.org/2014/posters/call-for-posters/
+
+HPDC'14 will feature a poster session that will provide the right environment for lively and informal discussions on various high performance parallel and distributed computing topics.
+The poster session will be held on Wednesday, June 25, in the late afternoon.
+
+Participating posters will be selected based on the following criteria:
+
+- Submissions must describe new, interesting ideas on any HPDC topics of interest
+- Submissions can present work in progress, and we strongly encourage the authors to include preliminary experimental results, if available
+- Student submissions meeting the above criteria will be given preference
+
+We invite all potential authors to submit their contribution to this poster session in the form of a two-page PDF abstract (we recommend using the ACM Proceedings style, and fonts not smaller than 10 point).
+Please provide the following information in your PDF file:
+- Poster title
+- Author names, affiliations, and email addresses
+- Note which authors, if any, are students
+
+Abstracts must be submitted through email to chandra AT cs DOT umn DOT edu before May 16 2014, 5:00pm EDT.
+Authors will be notified of acceptance or rejection via e-mail by May 23, 2014. No reviews will be provided.
+Accepted posters will be published online on the conference website. Details about the poster presentation (e.g., poster size) will be available closer to the conference.
+
+For any questions about the submission, selection, and presentation of the accepted posters, please contact the Posters Chair, Abhishek Chandra, University of Minnesota (email: chandra AT cs DOT umn DOT edu).
+
+-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Editor: IEEE TCC, Springer Cluster, Springer JoCCASA
+Chair:  IEEE/ACM MTAGS, ACM ScienceCloud
+=================================================================
+Cel:      1-847-722-0876
+Office:   1-312-567-5704
+Email:    iraicu@cs.iit.edu
+Web:      http://www.cs.iit.edu/~iraicu/
+Web:      http://datasys.cs.iit.edu/
+LinkedIn: http://www.linkedin.com/in/ioanraicu
+Google:   http://scholar.google.com/citations?user=jE73HYAAAAAJ
+=================================================================
+=================================================================
+
+
+--------------060603020904000604010901
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+<html>
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  </head>
+  <body bgcolor="#FFFFFF" text="#000000">
+    <div style="font-family: &quot;Courier New&quot;; font-size:10.0pt;
+      color: #000000;background-color: #ffffff; font-style: normal;
+      font-weight: normal; text-decoration: none;">
+      <pre>Call for Posters
+Submission Deadline: May 16 2014
+<a class="moz-txt-link-freetext" href="http://www.hpdc.org/2014/posters/call-for-posters/">http://www.hpdc.org/2014/posters/call-for-posters/</a>
+
+HPDC'14 will feature a poster session that will provide the right environment for lively and informal discussions on various high performance parallel and distributed computing topics.
+The poster session will be held on Wednesday, June 25, in the late afternoon.
+
+Participating posters will be selected based on the following criteria:
+
+- Submissions must describe new, interesting ideas on any HPDC topics of interest
+- Submissions can present work in progress, and we strongly encourage the authors to include preliminary experimental results, if available
+- Student submissions meeting the above criteria will be given preference
+
+We invite all potential authors to submit their contribution to this poster session in the form of a two-page PDF abstract (we recommend using the ACM Proceedings style, and fonts not smaller than 10 point). 
+Please provide the following information in your PDF file:
+- Poster title
+- Author names, affiliations, and email addresses
+- Note which authors, if any, are students
+
+Abstracts must be submitted through email to chandra AT cs DOT umn DOT edu before May 16 2014, 5:00pm EDT. 
+Authors will be notified of acceptance or rejection via e-mail by May 23, 2014. No reviews will be provided. 
+Accepted posters will be published online on the conference website. Details about the poster presentation (e.g., poster size) will be available closer to the conference.
+
+For any questions about the submission, selection, and presentation of the accepted posters, please contact the Posters Chair, Abhishek Chandra, University of Minnesota (email: chandra AT cs DOT umn DOT edu). 
+</pre>
+    </div>
+    <pre class="moz-signature" cols="72">-- 
+=================================================================
+Ioan Raicu, Ph.D.
+Assistant Professor, Illinois Institute of Technology (IIT)
+Guest Research Faculty, Argonne National Laboratory (ANL)
+=================================================================
+Data-Intensive Distributed Systems Laboratory, CS/IIT
+Distributed Systems Laboratory, MCS/ANL
+=================================================================
+Editor: IEEE TCC, Springer Cluster, Springer JoCCASA
+Chair:  IEEE/ACM MTAGS, ACM ScienceCloud
+=================================================================
+Cel:      1-847-722-0876
+Office:   1-312-567-5704
+Email:    <a class="moz-txt-link-abbreviated" href="mailto:iraicu@cs.iit.edu">iraicu@cs.iit.edu</a>
+Web:      <a class="moz-txt-link-freetext" href="http://www.cs.iit.edu/~iraicu/">http://www.cs.iit.edu/~iraicu/</a>
+Web:      <a class="moz-txt-link-freetext" href="http://datasys.cs.iit.edu/">http://datasys.cs.iit.edu/</a>
+LinkedIn: <a class="moz-txt-link-freetext" href="http://www.linkedin.com/in/ioanraicu">http://www.linkedin.com/in/ioanraicu</a>
+Google:   <a class="moz-txt-link-freetext" href="http://scholar.google.com/citations?user=jE73HYAAAAAJ">http://scholar.google.com/citations?user=jE73HYAAAAAJ</a>    
+=================================================================
+=================================================================
+
+</pre>
+  </body>
+</html>
+
+--------------060603020904000604010901--
+
+--===============8162387436840902657==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8162387436840902657==--
