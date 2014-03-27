@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCHv2 net] vhost: fix total length when packets are too short
-Date: Thu, 27 Mar 2014 12:00:26 +0200
-Message-ID: <20140327100026.GA30715__13764.5125076689$1395916333$gmane$org@redhat.com>
+Subject: [PATCH net] vhost: validate vhost_get_vq_desc return value
+Date: Thu, 27 Mar 2014 12:53:37 +0200
+Message-ID: <1395917517-30937-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,68 +20,43 @@ To: linux-kernel@vger.kernel.org
 Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When mergeable buffers are disabled, and the
-incoming packet is too large for the rx buffer,
-get_rx_bufs returns success.
+vhost fails to validate negative error code
+from vhost_get_vq_desc causing
+a crash: we are using -EFAULT which is 0xfffffff2
+as vector size, which exceeds the allocated size.
 
-This was intentional in order for make recvmsg
-truncate the packet and then handle_rx would
-detect err != sock_len and drop it.
+The code in question was introduced in commit
+8dd014adfea6f173c1ef6378f7e5e7924866c923
+    vhost-net: mergeable buffers support
 
-Unfortunately we pass the original sock_len to
-recvmsg - which means we use parts of iov not fully
-validated.
-
-Fix this up by detecting this overrun and doing packet drop
-immediately.
-
-CVE-2014-0077
+CVE-2014-0055
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
 
-Changes from v1:
-	Fix CVE# in the commit log.
-	Patch is unchanged.
+This is needed in -stable.
 
-Note: this is needed for -stable.
-
-I wonder if this can still make the release.
-
- drivers/vhost/net.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/vhost/net.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index a0fa5de..026be58 100644
+index 026be58..e1e22e0 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -532,6 +532,12 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 	*iovcount = seg;
- 	if (unlikely(log))
- 		*log_num = nlogs;
+@@ -505,9 +505,13 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
+ 			r = -ENOBUFS;
+ 			goto err;
+ 		}
+-		d = vhost_get_vq_desc(vq->dev, vq, vq->iov + seg,
++		r = vhost_get_vq_desc(vq->dev, vq, vq->iov + seg,
+ 				      ARRAY_SIZE(vq->iov) - seg, &out,
+ 				      &in, log, log_num);
++		if (unlikely(r < 0))
++			goto err;
 +
-+	/* Detect overrun */
-+	if (unlikely(datalen > 0)) {
-+		r = UIO_MAXIOV + 1;
-+		goto err;
-+	}
- 	return headcount;
- err:
- 	vhost_discard_vq_desc(vq, headcount);
-@@ -587,6 +593,14 @@ static void handle_rx(struct vhost_net *net)
- 		/* On error, stop handling until the next kick. */
- 		if (unlikely(headcount < 0))
- 			break;
-+		/* On overrun, truncate and discard */
-+		if (unlikely(headcount > UIO_MAXIOV)) {
-+			msg.msg_iovlen = 1;
-+			err = sock->ops->recvmsg(NULL, sock, &msg,
-+						 1, MSG_DONTWAIT | MSG_TRUNC);
-+			pr_debug("Discarded rx packet: len %zd\n", sock_len);
-+			continue;
-+		}
- 		/* OK, now we need to know about added descriptors. */
- 		if (!headcount) {
- 			if (unlikely(vhost_enable_notify(&net->dev, vq))) {
++		d = r;
+ 		if (d == vq->num) {
+ 			r = 0;
+ 			goto err;
 -- 
 MST
