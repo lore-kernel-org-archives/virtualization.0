@@ -1,13 +1,16 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net] virtio-net: correct error handling of virtqueue_kick()
-Date: Thu, 27 Mar 2014 13:14:11 -0400 (EDT)
-Message-ID: <20140327.131411.1257894502376926151.davem@davemloft.net>
-References: <1395810180-35169-1-git-send-email-jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: udev PATH_ID for virtio devices
+Date: Thu, 27 Mar 2014 20:59:02 +0200
+Message-ID: <20140327185902.GA4059@redhat.com>
+References: <CAG-2HqURZE_KtaxOx=9YH+9W0Ar56SLvcvLB6Be6QS3mvVTdWA@mail.gmail.com>
+	<20140327173009.GA2593@redhat.com>
+	<CAPXgP12KbrUhpQyXxXnEo80-xyDz4089Y9uwtd7b5OGH9tSguQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1395810180-35169-1-git-send-email-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <CAPXgP12KbrUhpQyXxXnEo80-xyDz4089Y9uwtd7b5OGH9tSguQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,30 +20,43 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: jasowang@redhat.com
-Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Kay Sievers <kay@vrfy.org>
+Cc: Tom Gundersen <teg@jklm.no>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 26 Mar 2014 13:03:00 +0800
+On Thu, Mar 27, 2014 at 07:43:34PM +0100, Kay Sievers wrote:
+> On Thu, Mar 27, 2014 at 6:30 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
+> 
+> > If the virtio device is a PCI device, it is really best to
+> > treat it like you treat any other PCI function (I guess you mean
+> > function and not device, right? We support multifunction
+> > devices and some people do pack multiple NICs in a single device)..
+> >
+> > At the moment many devices in a single pci function can not happen on a
+> > PCI system (no multiport) but if we add multiport, we'll follow some
+> > existing standard to expose this information to the guest.
+> 
+> This means, that there can currently never multiple devices below one
+> and the same virtio parent device?
+> 
+> Kay
 
-> Current error handling of virtqueue_kick() was wrong in two places:
-> - The skb were freed immediately when virtqueue_kick() fail during
->   xmit. This may lead double free since the skb was not detached from
->   the virtqueue.
-> - try_fill_recv() returns false when virtqueue_kick() fail. This will
->   lead unnecessary rescheduling of refill work.
-> 
-> Actually, it's safe to just ignore the kick failure in those two
-> places. So this patch fixes this by partially revert commit
-> 67975901183799af8e93ec60e322f9e2a1940b9b.
-> 
-> Fixes 67975901183799af8e93ec60e322f9e2a1940b9b
-> (virtio_net: verify if virtqueue_kick() succeeded).
-> 
-> Cc: Heinz Graalfs <graalfs@linux.vnet.ibm.com>
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+There's a single virtio device per pci function (you keep saying
+device but I hope the distinction is clear and this is
+just slip of the tongue).
 
-Applied and queued up for -stable, thanks.
+For net devices under a pci function that is also currently the case,
+but I can't yet tell you for sure ahead of the time how we'll present
+multiport devices if we ever implement them.
+
+I'm guessing there will be multiple net devices under
+a single pci device and we'll present a sysfs attribute with the port
+number in this case.
+
+Hmm maybe we should go ahead and add a place-holder
+attribute so that it's future-proof?
+
+I'll write a patch like that and we'll see how it's accepted.
+
+-- 
+MST
