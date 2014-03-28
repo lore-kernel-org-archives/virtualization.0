@@ -1,19 +1,13 @@
-From: Tom Gundersen <teg@jklm.no>
-Subject: Re: udev PATH_ID for virtio devices
-Date: Thu, 27 Mar 2014 21:24:10 +0100
-Message-ID: <CAG-2HqWFQB2C90z4btpoEfMv25C_t7ZAXnRzyGunTGd3EcUc9A@mail.gmail.com>
-References: <CAG-2HqURZE_KtaxOx=9YH+9W0Ar56SLvcvLB6Be6QS3mvVTdWA@mail.gmail.com>
-	<20140327173009.GA2593@redhat.com>
-	<CAPXgP12KbrUhpQyXxXnEo80-xyDz4089Y9uwtd7b5OGH9tSguQ@mail.gmail.com>
-	<20140327185902.GA4059@redhat.com>
-	<CAPXgP10kov-O2ecWBhyBA3rRj_t7FHYy2jn8LyjVvMu-ozxWAQ@mail.gmail.com>
-	<20140327191355.GB4114@redhat.com>
-	<CAPXgP12FjjRrT2bLf1pTp5APJxL2fyG1iBbbYtt3zE_XD+PLgQ@mail.gmail.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCHv2 net] vhost: fix total length when packets are too short
+Date: Fri, 28 Mar 2014 16:09:40 -0400 (EDT)
+Message-ID: <20140328.160940.1707102420095481862.davem@davemloft.net>
+References: <20140327100026.GA30715@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAPXgP12FjjRrT2bLf1pTp5APJxL2fyG1iBbbYtt3zE_XD+PLgQ@mail.gmail.com>
+In-Reply-To: <20140327100026.GA30715@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,83 +17,41 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Kay Sievers <kay@vrfy.org>
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: mst@redhat.com
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 27, 2014 at 8:25 PM, Kay Sievers <kay@vrfy.org> wrote:
-> On Thu, Mar 27, 2014 at 8:13 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->> On Thu, Mar 27, 2014 at 08:06:15PM +0100, Kay Sievers wrote:
->>> On Thu, Mar 27, 2014 at 7:59 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->>> > On Thu, Mar 27, 2014 at 07:43:34PM +0100, Kay Sievers wrote:
->>> >> On Thu, Mar 27, 2014 at 6:30 PM, Michael S. Tsirkin <mst@redhat.com> wrote:
->>> >>
->>> >> > If the virtio device is a PCI device, it is really best to
->>> >> > treat it like you treat any other PCI function (I guess you mean
->>> >> > function and not device, right? We support multifunction
->>> >> > devices and some people do pack multiple NICs in a single device)..
->>> >> >
->>> >> > At the moment many devices in a single pci function can not happen on a
->>> >> > PCI system (no multiport) but if we add multiport, we'll follow some
->>> >> > existing standard to expose this information to the guest.
->>> >>
->>> >> This means, that there can currently never multiple devices below one
->>> >> and the same virtio parent device?
->>>
->>> > There's a single virtio device per pci function (you keep saying
->>> > device but I hope the distinction is clear and this is
->>> > just slip of the tongue).
->>>
->>> Right, we talks about sysfs directories and they are called "device",
->>> we don't really care about the actual bus that is implemented,
->>> userspace does not really know much about them. :)
->>>
->>> > For net devices under a pci function that is also currently the case,
->>> > but I can't yet tell you for sure ahead of the time how we'll present
->>> > multiport devices if we ever implement them.
->>> >
->>> > I'm guessing there will be multiple net devices under
->>> > a single pci device and we'll present a sysfs attribute with the port
->>> > number in this case.
->>> >
->>> > Hmm maybe we should go ahead and add a place-holder
->>> > attribute so that it's future-proof?
->>> >
->>> > I'll write a patch like that and we'll see how it's accepted.
->>>
->>> Netdevs with multiple ports are represented with the standard "dev_id"
->>> attribute identifying the instance of the driver per parent "device";
->>> should all work already from the userspace side, if the virtio side
->>> would use that too.
->>>
->>> Kay
->>
->> Aha. In that case it's easy - pls assume that if and when we implement
->> multiple we'll just follow standards and use dev_id.
->> For virtio pci devices specifically virtio<->pci 1:1 mapping is set
->> in stone in the spec.
->>
->> Non pci ones need to be examined separately.
->
-> Nice, thanks. That means we can just "jump over" the "virtio*" device
-> (device as in sysfs view), and let the pci parent let identify the
-> device.
->
-> Background: The logic for device naming generally refuses to touch
-> devices with unknown parent devices in the chain (the directories you
-> see for: ls -l /sys/class/net/), because the parents *could* offer
-> their own bus logic that exposes multiple devices below and we would
-> create clashing names for them. That's why the virt vs. non-virt case
-> needs to be handled explicitly (seems in this case by just skipping
-> it) and it is not necessarily by default the same behaviour.
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Thu, 27 Mar 2014 12:00:26 +0200
 
-So Kay and I discussed this a bit more, and found that we likely
-cannot handle virtio nic's nicely. As we would name them based on the
-pci geo, we rely on this being stable between reboots and when
-adding/removing hardware. Is there some way to make this work with
-virtio, or will the 'fake' pci busses simply be enumerated as they are
-created?
+> When mergeable buffers are disabled, and the
+> incoming packet is too large for the rx buffer,
+> get_rx_bufs returns success.
+> 
+> This was intentional in order for make recvmsg
+> truncate the packet and then handle_rx would
+> detect err != sock_len and drop it.
+> 
+> Unfortunately we pass the original sock_len to
+> recvmsg - which means we use parts of iov not fully
+> validated.
+> 
+> Fix this up by detecting this overrun and doing packet drop
+> immediately.
+> 
+> CVE-2014-0077
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+> 
+> Changes from v1:
+> 	Fix CVE# in the commit log.
+> 	Patch is unchanged.
+> 
+> Note: this is needed for -stable.
 
-Cheers,
+Applied and queued up for -stable.
 
-Tom
+> I wonder if this can still make the release.
+
+I will try but no promises.
