@@ -1,13 +1,13 @@
 From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCHv2 net] vhost: fix total length when packets are too short
-Date: Fri, 28 Mar 2014 16:09:40 -0400 (EDT)
-Message-ID: <20140328.160940.1707102420095481862.davem@davemloft.net>
-References: <20140327100026.GA30715@redhat.com>
+Subject: Re: [PATCH net] vhost: validate vhost_get_vq_desc return value
+Date: Fri, 28 Mar 2014 16:11:08 -0400 (EDT)
+Message-ID: <20140328.161108.883291931619730975.davem@davemloft.net>
+References: <1395917517-30937-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140327100026.GA30715@redhat.com>
+In-Reply-To: <1395917517-30937-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,36 +22,22 @@ Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Thu, 27 Mar 2014 12:00:26 +0200
+Date: Thu, 27 Mar 2014 12:53:37 +0200
 
-> When mergeable buffers are disabled, and the
-> incoming packet is too large for the rx buffer,
-> get_rx_bufs returns success.
+> vhost fails to validate negative error code
+> from vhost_get_vq_desc causing
+> a crash: we are using -EFAULT which is 0xfffffff2
+> as vector size, which exceeds the allocated size.
 > 
-> This was intentional in order for make recvmsg
-> truncate the packet and then handle_rx would
-> detect err != sock_len and drop it.
+> The code in question was introduced in commit
+> 8dd014adfea6f173c1ef6378f7e5e7924866c923
+>     vhost-net: mergeable buffers support
 > 
-> Unfortunately we pass the original sock_len to
-> recvmsg - which means we use parts of iov not fully
-> validated.
-> 
-> Fix this up by detecting this overrun and doing packet drop
-> immediately.
-> 
-> CVE-2014-0077
+> CVE-2014-0055
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
 > 
-> Changes from v1:
-> 	Fix CVE# in the commit log.
-> 	Patch is unchanged.
-> 
-> Note: this is needed for -stable.
+> This is needed in -stable.
 
-Applied and queued up for -stable.
-
-> I wonder if this can still make the release.
-
-I will try but no promises.
+Applied and queued up for -stable, thanks Michael.
