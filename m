@@ -1,13 +1,10 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net] vhost: validate vhost_get_vq_desc return value
-Date: Fri, 28 Mar 2014 16:11:08 -0400 (EDT)
-Message-ID: <20140328.161108.883291931619730975.davem@davemloft.net>
-References: <1395917517-30937-1-git-send-email-mst@redhat.com>
+From: "longguang.yue" <kernelluck@163.com>
+Subject: what is the driver of vm's virtual ethernet?
+Date: Sun, 30 Mar 2014 10:10:05 +0800 (CST)
+Message-ID: <67759941.af95.14510c03e65.Coremail.kernelluck__43684.6662000336$1396146350$gmane$org@163.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1384478629869878404=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1395917517-30937-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,27 +14,47 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: mst@redhat.com
-Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: bridge <bridge@lists.linux-foundation.org>, virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Date: Thu, 27 Mar 2014 12:53:37 +0200
+--===============1384478629869878404==
+Content-Type: multipart/alternative;
+	boundary="----=_Part_165967_552514930.1396145405541"
 
-> vhost fails to validate negative error code
-> from vhost_get_vq_desc causing
-> a crash: we are using -EFAULT which is 0xfffffff2
-> as vector size, which exceeds the allocated size.
-> 
-> The code in question was introduced in commit
-> 8dd014adfea6f173c1ef6378f7e5e7924866c923
->     vhost-net: mergeable buffers support
-> 
-> CVE-2014-0055
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> This is needed in -stable.
+------=_Part_165967_552514930.1396145405541
+Content-Type: text/plain; charset=GBK
+Content-Transfer-Encoding: base64
 
-Applied and queued up for -stable, thanks Michael.
+aGksYWxsCmVhY2ggcG9ydCBvZiBicmlkZ2UsIGhhcyBpdHMgcGFja2V0cyBwcm9jZXNzIGZ1bmN0
+aW9uIGNhbGxlZCBicl9oYW5kbGVfZnJhbWUuCmkgd2FudCB0byBrbm93IGJlZm9yZSB0aGlzIGZ1
+bmN0aW9uIGNhbGxlZCAgIHdobyBhbmQgaG93IGl0IGdldCB0aGUgcGFja2V0cz8KaWYgaXQgaXMg
+YSByZWFsIHBoeXNpY2FsIGV0aGVybmV0LCBpdCAgbXVzdCBiZSBpdHMgZHJpdmVyLCBidXQgZm9y
+IHZpcnR1YWwgZXRoZXJuZXQgLCB3aGF0IGlzIHRoZSBkcml2ZXI/CiAKIAp0aGFua3M=
+------=_Part_165967_552514930.1396145405541
+Content-Type: text/html; charset=GBK
+Content-Transfer-Encoding: base64
+
+PGRpdiBzdHlsZT0ibGluZS1oZWlnaHQ6MS43O2NvbG9yOiMwMDAwMDA7Zm9udC1zaXplOjE0cHg7
+Zm9udC1mYW1pbHk6YXJpYWwiPjxkaXY+aGksYWxsPC9kaXY+PGRpdj5lYWNoIHBvcnQgb2YgYnJp
+ZGdlLCBoYXMgaXRzIHBhY2tldHMgcHJvY2VzcyBmdW5jdGlvbiBjYWxsZWQgYnJfaGFuZGxlX2Zy
+YW1lLjwvZGl2PjxkaXY+aSB3YW50IHRvIGtub3cgYmVmb3JlIHRoaXMgZnVuY3Rpb24gY2FsbGVk
+Jm5ic3A7Jm5ic3A7IHdobyBhbmQgaG93IGl0IGdldCB0aGUgcGFja2V0cz88L2Rpdj48ZGl2Pmlm
+IGl0IGlzIGEgcmVhbCBwaHlzaWNhbCBldGhlcm5ldCwgaXQmbmJzcDsgbXVzdCBiZSBpdHMgZHJp
+dmVyLCBidXQgZm9yIHZpcnR1YWwgZXRoZXJuZXQgLCB3aGF0IGlzIHRoZSBkcml2ZXI/PC9kaXY+
+PGRpdj4mbmJzcDs8L2Rpdj48ZGl2PiZuYnNwOzwvZGl2PjxkaXY+dGhhbmtzPC9kaXY+PC9kaXY+
+PGJyPjxicj48c3BhbiB0aXRsZT0ibmV0ZWFzZWZvb3RlciI+PHNwYW4gaWQ9Im5ldGVhc2VfbWFp
+bF9mb290ZXIiPjwvc3Bhbj48L3NwYW4+
+------=_Part_165967_552514930.1396145405541--
+
+
+--===============1384478629869878404==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1384478629869878404==--
