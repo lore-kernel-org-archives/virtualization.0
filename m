@@ -1,17 +1,21 @@
-From: Waiman Long <waiman.long@hp.com>
-Subject: Re: [PATCH v8 00/10] qspinlock: a 4-byte queue spinlock with PV
-	support
-Date: Thu, 03 Apr 2014 22:57:18 -0400
-Message-ID: <533E1F8E.5040600@hp.com>
-References: <1396445259-27670-1-git-send-email-Waiman.Long@hp.com>
-	<20140402143201.GF12188@phenom.dumpdata.com>
-	<533C7485.3030203@hp.com> <533CC309.3020607@hp.com>
-	<20140403172333.GA3877@localhost.localdomain>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] virtio-blk: make the queue depth the max supportable by
+	the hypervisor
+Date: Wed, 02 Apr 2014 18:06:08 +1030
+Message-ID: <878urop4if.fsf@rustcorp.com.au>
+References: <1394841445-16142-1-git-send-email-venkateshs@google.com>
+	<1394854471-25700-1-git-send-email-tytso@mit.edu>
+	<87siqhu048.fsf@rustcorp.com.au> <20140317054053.GF14162@thunk.org>
+	<871txysnw2.fsf@rustcorp.com.au>
+	<CAHdzE-_cAndCNhBM1N0RpjQDhoh3Snas-eza4rYN33Rf69PXyw@mail.gmail.com>
+	<CAHdzE--CvgsPOFQ5OFRoe7L+kkJ0J3eRWR0JQv34i4AmNDBJug@mail.gmail.com>
+	<87ha6fowh9.fsf@rustcorp.com.au> <20140401022708.GD4911@thunk.org>
+	<CAJSP0QV_mf9D0t5ozWRRsMO1Wq7OTQ8SiOKh-HrW7buzNQQngQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140403172333.GA3877@localhost.localdomain>
+In-Reply-To: <CAJSP0QV_mf9D0t5ozWRRsMO1Wq7OTQ8SiOKh-HrW7buzNQQngQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,55 +25,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: x86@kernel.org, Gleb Natapov <gleb@redhat.com>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Marcos Matsunaga <Marcos.Matsunaga@oracle.com>, "H. Peter Anvin" <hpa@zytor.com>, boris.ostrovsky@oracle.com, linux-arch@vger.kernel.org, kvm@vger.kernel.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Scott J Norton <scott.norton@hp.com>, Paolo Bonzini <paolo.bonzini@gmail.com>, Oleg Nesterov <oleg@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, Aswin Chandramouleeswaran <aswin@hp.com>, Chegu Vinod <chegu_vinod@hp.com>, linux-kernel@vger.kernel.org, David Vrabel <david.vrabel@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Stefan Hajnoczi <stefanha@gmail.com>, Theodore Ts'o <tytso@mit.edu>, Venkatesh Srinivas <venkateshs@google.com>, Linux Kernel Developers List <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/03/2014 01:23 PM, Konrad Rzeszutek Wilk wrote:
-> On Wed, Apr 02, 2014 at 10:10:17PM -0400, Waiman Long wrote:
->> On 04/02/2014 04:35 PM, Waiman Long wrote:
->>> On 04/02/2014 10:32 AM, Konrad Rzeszutek Wilk wrote:
->>>> On Wed, Apr 02, 2014 at 09:27:29AM -0400, Waiman Long wrote:
->>>>> N.B. Sorry for the duplicate. This patch series were resent as the
->>>>>       original one was rejected by the vger.kernel.org list server
->>>>>       due to long header. There is no change in content.
->>>>>
->>>>> v7->v8:
->>>>>    - Remove one unneeded atomic operation from the slowpath, thus
->>>>>      improving performance.
->>>>>    - Simplify some of the codes and add more comments.
->>>>>    - Test for X86_FEATURE_HYPERVISOR CPU feature bit to enable/disable
->>>>>      unfair lock.
->>>>>    - Reduce unfair lock slowpath lock stealing frequency depending
->>>>>      on its distance from the queue head.
->>>>>    - Add performance data for IvyBridge-EX CPU.
->>>> FYI, your v7 patch with 32 VCPUs (on a 32 cpu socket machine) on an
->>>> HVM guest under Xen after a while stops working. The workload
->>>> is doing 'make -j32' on the Linux kernel.
->>>>
->>>> Completely unresponsive. Thoughts?
->>>>
->>> Thank for reporting that. I haven't done that much testing on Xen.
->>> My focus was in KVM. I will perform more test on Xen to see if I
->>> can reproduce the problem.
+Stefan Hajnoczi <stefanha@gmail.com> writes:
+> On Tue, Apr 1, 2014 at 4:27 AM, Theodore Ts'o <tytso@mit.edu> wrote:
+>> On Mon, Mar 31, 2014 at 02:22:50PM +1030, Rusty Russell wrote:
 >>>
->> BTW, does the halting and sending IPI mechanism work in HVM? I saw
-> Yes.
->> that in RHEL7, PV spinlock was explicitly disabled when in HVM mode.
->> However, this piece of code isn't in upstream code. So I wonder if
->> there is problem with that.
-> The PV ticketlock fixed it for HVM. It was disabled before because
-> the PV guests were using bytelocks while the HVM were using ticketlocks
-> and you couldnt' swap in PV bytelocks for ticketlocks during startup.
+>>> It's head of my virtio-next tree.
+>>
+>> Hey Rusty,
+>>
+>> While we have your attention --- what's your opinion about adding TRIM
+>> support to virtio-blk.  I understand that you're starting an OASIS
+>> standardization process for virtio --- what does that mean vis-a-vis a
+>> patch to plumb discard support through virtio-blk?
+>
+> virtio-scsi already supports discard.  But maybe you cannot switch
+> away from virtio-blk?
+>
+> If you need to add discard to virtio-blk then it could be added to the
+> standard.  The standards text is kept in a svn repository here:
+> https://tools.oasis-open.org/version-control/browse/wsvn/virtio/
 
-The RHEL7 code has used PV ticketlock already. RHEL7 uses a single 
-kernel for all configurations. So PV ticketlock as well as Xen and KVM 
-support was compiled in. I think booting the kernel on bare metal will 
-cause the Xen code to work in HVM mode thus activating the PV spinlock 
-code which has a negative impact on performance. That may be why it was 
-disabled so that the bare metal performance will not be impacted.
+It would be trivial to add, and I wouldn't be completely opposed, but we
+generally point to virtio-scsi when people want actual features.
 
-BTW, could you send me more information about the configuration of the 
-machine, like the .config file that you used?
-
--Longman
+Cheers,
+Rusty.
