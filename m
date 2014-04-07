@@ -1,14 +1,15 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH v8 00/10] qspinlock: a 4-byte queue spinlock with PV
-	support
-Date: Mon, 07 Apr 2014 11:44:50 +0530
-Message-ID: <5342425A.7040005__28363.8891917237$1396851018$gmane$org@linux.vnet.ibm.com>
-References: <1396445259-27670-1-git-send-email-Waiman.Long@hp.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 6/6] virtio-scsi: Enable DIF/DIX modes in SCSI host LLD
+Date: Mon, 7 Apr 2014 11:45:18 +0300
+Message-ID: <20140407084518.GA14091@redhat.com>
+References: <1396819929-29687-1-git-send-email-nab@daterainc.com>
+	<1396819929-29687-7-git-send-email-nab@daterainc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1396445259-27670-1-git-send-email-Waiman.Long@hp.com>
+Content-Disposition: inline
+In-Reply-To: <1396819929-29687-7-git-send-email-nab@daterainc.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,128 +19,205 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <Waiman.Long@hp.com>
-Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>, Aswin Chandramouleeswaran <aswin@hp.com>
+To: "Nicholas A. Bellinger" <nab@daterainc.com>
+Cc: linux-scsi <linux-scsi@vger.kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Sagi Grimberg <sagig@dev.mellanox.co.il>, virtualization@lists.linux-foundation.org, Sagi Grimberg <sagig@mellanox.com>, target-devel <target-devel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/02/2014 06:57 PM, Waiman Long wrote:
-> N.B. Sorry for the duplicate. This patch series were resent as the
->       original one was rejected by the vger.kernel.org list server
->       due to long header. There is no change in content.
->
-> v7->v8:
->    - Remove one unneeded atomic operation from the slowpath, thus
->      improving performance.
->    - Simplify some of the codes and add more comments.
->    - Test for X86_FEATURE_HYPERVISOR CPU feature bit to enable/disable
->      unfair lock.
->    - Reduce unfair lock slowpath lock stealing frequency depending
->      on its distance from the queue head.
->    - Add performance data for IvyBridge-EX CPU.
->
-> v6->v7:
->    - Remove an atomic operation from the 2-task contending code
->    - Shorten the names of some macros
->    - Make the queue waiter to attempt to steal lock when unfair lock is
->      enabled.
->    - Remove lock holder kick from the PV code and fix a race condition
->    - Run the unfair lock & PV code on overcommitted KVM guests to collect
->      performance data.
->
-> v5->v6:
->   - Change the optimized 2-task contending code to make it fairer at the
->     expense of a bit of performance.
->   - Add a patch to support unfair queue spinlock for Xen.
->   - Modify the PV qspinlock code to follow what was done in the PV
->     ticketlock.
->   - Add performance data for the unfair lock as well as the PV
->     support code.
->
-> v4->v5:
->   - Move the optimized 2-task contending code to the generic file to
->     enable more architectures to use it without code duplication.
->   - Address some of the style-related comments by PeterZ.
->   - Allow the use of unfair queue spinlock in a real para-virtualized
->     execution environment.
->   - Add para-virtualization support to the qspinlock code by ensuring
->     that the lock holder and queue head stay alive as much as possible.
->
-> v3->v4:
->   - Remove debugging code and fix a configuration error
->   - Simplify the qspinlock structure and streamline the code to make it
->     perform a bit better
->   - Add an x86 version of asm/qspinlock.h for holding x86 specific
->     optimization.
->   - Add an optimized x86 code path for 2 contending tasks to improve
->     low contention performance.
->
-> v2->v3:
->   - Simplify the code by using numerous mode only without an unfair option.
->   - Use the latest smp_load_acquire()/smp_store_release() barriers.
->   - Move the queue spinlock code to kernel/locking.
->   - Make the use of queue spinlock the default for x86-64 without user
->     configuration.
->   - Additional performance tuning.
->
-> v1->v2:
->   - Add some more comments to document what the code does.
->   - Add a numerous CPU mode to support >= 16K CPUs
->   - Add a configuration option to allow lock stealing which can further
->     improve performance in many cases.
->   - Enable wakeup of queue head CPU at unlock time for non-numerous
->     CPU mode.
->
-> This patch set has 3 different sections:
->   1) Patches 1-4: Introduces a queue-based spinlock implementation that
->      can replace the default ticket spinlock without increasing the
->      size of the spinlock data structure. As a result, critical kernel
->      data structures that embed spinlock won't increase in size and
->      break data alignments.
->   2) Patches 5-6: Enables the use of unfair queue spinlock in a
->      para-virtualized execution environment. This can resolve some
->      of the locking related performance issues due to the fact that
->      the next CPU to get the lock may have been scheduled out for a
->      period of time.
->   3) Patches 7-10: Enable qspinlock para-virtualization support
->      by halting the waiting CPUs after spinning for a certain amount of
->      time. The unlock code will detect the a sleeping waiter and wake it
->      up. This is essentially the same logic as the PV ticketlock code.
->
-> The queue spinlock has slightly better performance than the ticket
-> spinlock in uncontended case. Its performance can be much better
-> with moderate to heavy contention.  This patch has the potential of
-> improving the performance of all the workloads that have moderate to
-> heavy spinlock contention.
->
-> The queue spinlock is especially suitable for NUMA machines with at
-> least 2 sockets, though noticeable performance benefit probably won't
-> show up in machines with less than 4 sockets.
->
-> The purpose of this patch set is not to solve any particular spinlock
-> contention problems. Those need to be solved by refactoring the code
-> to make more efficient use of the lock or finer granularity ones. The
-> main purpose is to make the lock contention problems more tolerable
-> until someone can spend the time and effort to fix them.
->
-> To illustrate the performance benefit of the queue spinlock, the
-> ebizzy benchmark was run with the -m option in two different computers:
->
->    Test machine		ticket-lock		queue-lock
->    ------------		-----------		----------
->    4-socket 40-core	2316 rec/s		2899 rec/s
->    Westmere-EX (HT off)
->    2-socket 12-core	2130 rec/s		2176 rec/s
->    Westmere-EP (HT on)
->
+On Sun, Apr 06, 2014 at 09:32:09PM +0000, Nicholas A. Bellinger wrote:
+> From: Nicholas Bellinger <nab@linux-iscsi.org>
+> 
+> This patch updates virtscsi_probe() to setup necessary Scsi_Host
+> level protection resources. (currently hardcoded to 1)
+> 
+> It changes virtscsi_add_cmd() to attach outgoing / incoming
+> protection SGLs preceeding the data payload, and is using the
+> new virtio_scsi_cmd_req_pi->d[oi],pi_niv field to signal
+> to signal to vhost/scsi how many prot_sgs to expect.
+> 
+> v3 changes:
+>   - Use VIRTIO_SCSI_F_T10_PI to determine PI or non PI header (Paolo)
+> 
+> v2 changes:
+>   - Make protection buffer come before data buffer (Paolo)
+>   - Enable virtio_scsi_cmd_req_pi usage (Paolo)
+> 
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Martin K. Petersen <martin.petersen@oracle.com>
+> Cc: Christoph Hellwig <hch@lst.de>
+> Cc: Hannes Reinecke <hare@suse.de>
+> Cc: Sagi Grimberg <sagig@dev.mellanox.co.il>
+> Cc: H. Peter Anvin <hpa@zytor.com>
+> Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
 
-I tested the v7,v8 of qspinlock with unfair config on kvm guest.
-I was curious about unfair locks performance in undercommit cases. 
-(overcommit case is expected to perform well)
+OK but we need to document the new interface in the spec
+(and incidentially, this will be useful to verify the assumptions
+made here and on the host side).
+Could you please submit this proposal to the OASIS Virtio TC
+for inclusion into the next spec draft?
+Ideally as a patch against the tex source, but a prose
+description would do as well.
+The TC meets on a bi-weekly basis, we should be able to ratify
+this quickly.
 
-But I am seeing hang in overcommit cases. Gdb showed that many vcpus
-are halted and there was no progress. Suspecting the problem /race with
-halting, I removed the halt() part of kvm_hibernate().  I am yet to take 
-a closer look at the code on halt() related changes.
 
-Patch series with that change gave around 20% improvement for dbench 2x 
-and 30% improvement for ebizzy 2x cases. (1x has no significant loss/gain).
+> ---
+>  drivers/scsi/virtio_scsi.c |   78 ++++++++++++++++++++++++++++++++++----------
+>  1 file changed, 60 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> index 16bfd50..68d8d1b 100644
+> --- a/drivers/scsi/virtio_scsi.c
+> +++ b/drivers/scsi/virtio_scsi.c
+> @@ -37,6 +37,7 @@ struct virtio_scsi_cmd {
+>  	struct completion *comp;
+>  	union {
+>  		struct virtio_scsi_cmd_req       cmd;
+> +		struct virtio_scsi_cmd_req_pi    cmd_pi;
+>  		struct virtio_scsi_ctrl_tmf_req  tmf;
+>  		struct virtio_scsi_ctrl_an_req   an;
+>  	} req;
+> @@ -440,7 +441,7 @@ static int virtscsi_add_cmd(struct virtqueue *vq,
+>  			    size_t req_size, size_t resp_size, gfp_t gfp)
+>  {
+>  	struct scsi_cmnd *sc = cmd->sc;
+> -	struct scatterlist *sgs[4], req, resp;
+> +	struct scatterlist *sgs[6], req, resp;
+>  	struct sg_table *out, *in;
+>  	unsigned out_num = 0, in_num = 0;
+>  
+> @@ -458,16 +459,24 @@ static int virtscsi_add_cmd(struct virtqueue *vq,
+>  	sgs[out_num++] = &req;
+>  
+>  	/* Data-out buffer.  */
+> -	if (out)
+> +	if (out) {
+> +		/* Place WRITE protection SGLs before Data OUT payload */
+> +		if (scsi_prot_sg_count(sc))
+> +			sgs[out_num++] = scsi_prot_sglist(sc);
+>  		sgs[out_num++] = out->sgl;
+> +	}
+>  
+>  	/* Response header.  */
+>  	sg_init_one(&resp, &cmd->resp, resp_size);
+>  	sgs[out_num + in_num++] = &resp;
+>  
+>  	/* Data-in buffer */
+> -	if (in)
+> +	if (in) {
+> +		/* Place READ protection SGLs before Data IN payload */
+> +		if (scsi_prot_sg_count(sc))
+> +			sgs[out_num + in_num++] = scsi_prot_sglist(sc);
+>  		sgs[out_num + in_num++] = in->sgl;
+> +	}
+>  
+>  	return virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, gfp);
+>  }
+> @@ -492,12 +501,36 @@ static int virtscsi_kick_cmd(struct virtio_scsi_vq *vq,
+>  	return err;
+>  }
+>  
+> +static void virtio_scsi_init_hdr(struct virtio_scsi_cmd_req *cmd,
+> +				 struct scsi_cmnd *sc)
+> +{
+> +	cmd->lun[0] = 1;
+> +	cmd->lun[1] = sc->device->id;
+> +	cmd->lun[2] = (sc->device->lun >> 8) | 0x40;
+> +	cmd->lun[3] = sc->device->lun & 0xff;
+> +	cmd->tag = (unsigned long)sc;
+> +	cmd->task_attr = VIRTIO_SCSI_S_SIMPLE;
+> +	cmd->prio = 0;
+> +	cmd->crn = 0;
+> +}
+> +
+> +static void virtio_scsi_init_hdr_pi(struct virtio_scsi_cmd_req_pi *cmd_pi,
+> +				    struct scsi_cmnd *sc)
+> +{
+> +	virtio_scsi_init_hdr((struct virtio_scsi_cmd_req *)cmd_pi, sc);
+> +
+> +	if (sc->sc_data_direction == DMA_TO_DEVICE)
+> +		cmd_pi->do_pi_niov = scsi_prot_sg_count(sc);
+> +	else if (sc->sc_data_direction == DMA_FROM_DEVICE)
+> +		cmd_pi->di_pi_niov = scsi_prot_sg_count(sc);
+> +}
+> +
+>  static int virtscsi_queuecommand(struct virtio_scsi *vscsi,
+>  				 struct virtio_scsi_vq *req_vq,
+>  				 struct scsi_cmnd *sc)
+>  {
+>  	struct virtio_scsi_cmd *cmd;
+> -	int ret;
+> +	int ret, req_size;
+>  
+>  	struct Scsi_Host *shost = virtio_scsi_host(vscsi->vdev);
+>  	BUG_ON(scsi_sg_count(sc) > shost->sg_tablesize);
+> @@ -515,22 +548,20 @@ static int virtscsi_queuecommand(struct virtio_scsi *vscsi,
+>  
+>  	memset(cmd, 0, sizeof(*cmd));
+>  	cmd->sc = sc;
+> -	cmd->req.cmd = (struct virtio_scsi_cmd_req){
+> -		.lun[0] = 1,
+> -		.lun[1] = sc->device->id,
+> -		.lun[2] = (sc->device->lun >> 8) | 0x40,
+> -		.lun[3] = sc->device->lun & 0xff,
+> -		.tag = (unsigned long)sc,
+> -		.task_attr = VIRTIO_SCSI_S_SIMPLE,
+> -		.prio = 0,
+> -		.crn = 0,
+> -	};
+>  
+>  	BUG_ON(sc->cmd_len > VIRTIO_SCSI_CDB_SIZE);
+> -	memcpy(cmd->req.cmd.cdb, sc->cmnd, sc->cmd_len);
+>  
+> -	if (virtscsi_kick_cmd(req_vq, cmd,
+> -			      sizeof cmd->req.cmd, sizeof cmd->resp.cmd,
+> +	if (virtio_has_feature(vscsi->vdev, VIRTIO_SCSI_F_T10_PI)) {
+> +		virtio_scsi_init_hdr_pi(&cmd->req.cmd_pi, sc);
+> +		memcpy(cmd->req.cmd_pi.cdb, sc->cmnd, sc->cmd_len);
+> +		req_size = sizeof(cmd->req.cmd_pi);
+> +	} else {
+> +		virtio_scsi_init_hdr(&cmd->req.cmd, sc);
+> +		memcpy(cmd->req.cmd.cdb, sc->cmnd, sc->cmd_len);
+> +		req_size = sizeof(cmd->req.cmd);
+> +	}
+> +
+> +	if (virtscsi_kick_cmd(req_vq, cmd, req_size, sizeof(cmd->resp.cmd),
+>  			      GFP_ATOMIC) == 0)
+>  		ret = 0;
+>  	else
+> @@ -871,7 +902,7 @@ static int virtscsi_probe(struct virtio_device *vdev)
+>  {
+>  	struct Scsi_Host *shost;
+>  	struct virtio_scsi *vscsi;
+> -	int err;
+> +	int err, host_prot;
+>  	u32 sg_elems, num_targets;
+>  	u32 cmd_per_lun;
+>  	u32 num_queues;
+> @@ -921,6 +952,16 @@ static int virtscsi_probe(struct virtio_device *vdev)
+>  	shost->max_id = num_targets;
+>  	shost->max_channel = 0;
+>  	shost->max_cmd_len = VIRTIO_SCSI_CDB_SIZE;
+> +
+> +	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_T10_PI)) {
+> +		host_prot = SHOST_DIF_TYPE1_PROTECTION | SHOST_DIF_TYPE2_PROTECTION |
+> +			    SHOST_DIF_TYPE3_PROTECTION | SHOST_DIX_TYPE1_PROTECTION |
+> +			    SHOST_DIX_TYPE2_PROTECTION | SHOST_DIX_TYPE3_PROTECTION;
+> +
+> +		scsi_host_set_prot(shost, host_prot);
+> +		scsi_host_set_guard(shost, SHOST_DIX_GUARD_CRC);
+> +	}
+> +
+>  	err = scsi_add_host(shost, &vdev->dev);
+>  	if (err)
+>  		goto scsi_add_host_failed;
+> @@ -990,6 +1031,7 @@ static struct virtio_device_id id_table[] = {
+>  static unsigned int features[] = {
+>  	VIRTIO_SCSI_F_HOTPLUG,
+>  	VIRTIO_SCSI_F_CHANGE,
+> +	VIRTIO_SCSI_F_T10_PI,
+>  };
+>  
+>  static struct virtio_driver virtio_scsi_driver = {
+> -- 
+> 1.7.10.4
