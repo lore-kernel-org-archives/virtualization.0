@@ -1,15 +1,15 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+From: Waiman Long <waiman.long@hp.com>
 Subject: Re: [PATCH v8 00/10] qspinlock: a 4-byte queue spinlock with PV
 	support
-Date: Mon, 07 Apr 2014 23:21:46 +0530
-Message-ID: <5342E5B2.1070306@linux.vnet.ibm.com>
+Date: Tue, 08 Apr 2014 15:15:58 -0400
+Message-ID: <53444AEE.9050705@hp.com>
 References: <1396445259-27670-1-git-send-email-Waiman.Long@hp.com>
 	<5342425A.7040005@linux.vnet.ibm.com> <5342D475.7060503@hp.com>
+	<5342E5B2.1070306@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="------------040207070205080604010401"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5342D475.7060503@hp.com>
+In-Reply-To: <5342E5B2.1070306@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,34 +19,199 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <waiman.long@hp.com>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>, Aswin Chandramouleeswaran <aswin@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/07/2014 10:08 PM, Waiman Long wrote:
-> On 04/07/2014 02:14 AM, Raghavendra K T wrote:
-[...]
->> But I am seeing hang in overcommit cases. Gdb showed that many vcpus
->> are halted and there was no progress. Suspecting the problem /race with
->> halting, I removed the halt() part of kvm_hibernate().  I am yet to
->> take a closer look at the code on halt() related changes.
->
-> It seems like there may still be race conditions where the current code
-> is not handling correctly. I will look into that to see where the
-> problem is. BTW, what test do you use to produce the hang condition?
+This is a multi-part message in MIME format.
+--------------040207070205080604010401
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Running ebizzy on 2 of the vms simultaneously (for sometime in repeated 
-loop) could reproduce it.
-
->> Patch series with that change gave around 20% improvement for dbench
->> 2x and 30% improvement for ebizzy 2x cases. (1x has no significant
->> loss/gain).
+On 04/07/2014 01:51 PM, Raghavendra K T wrote:
+> On 04/07/2014 10:08 PM, Waiman Long wrote:
+>> On 04/07/2014 02:14 AM, Raghavendra K T wrote:
+> [...]
+>>> But I am seeing hang in overcommit cases. Gdb showed that many vcpus
+>>> are halted and there was no progress. Suspecting the problem /race with
+>>> halting, I removed the halt() part of kvm_hibernate().  I am yet to
+>>> take a closer look at the code on halt() related changes.
 >>
+>> It seems like there may still be race conditions where the current code
+>> is not handling correctly. I will look into that to see where the
+>> problem is. BTW, what test do you use to produce the hang condition?
+>
+> Running ebizzy on 2 of the vms simultaneously (for sometime in 
+> repeated loop) could reproduce it.
+>
 
-While at it, Just  a correction it was 30% for  ebizzy1.5x  and around
-80% for ebizzy 2x.
+Yes, I am able to reproduce the hang problem with ebizzy. BTW, could you 
+try to apply the attached patch file on top of the v8 patch series to 
+see if it can fix the hang problem?
 
-> What is the baseline for the performance improvement? Is it without the
-> unfair lock and PV qspinlock?
+>
+>> What is the baseline for the performance improvement? Is it without the
+>> unfair lock and PV qspinlock?
+>
+> Baseline was 3.14-rc8 without any of the qspin patch series.
+>
 
-Baseline was 3.14-rc8 without any of the qspin patch series.
+Does the baseline have PV ticketlock or without any PV support?
+
+-Longman
+
+--------------040207070205080604010401
+Content-Type: text/plain;
+ name="0011"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="0011"
+
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index a35cd02..825c535 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -717,9 +717,10 @@ static __always_inline void __queue_kick_cpu(int cpu)
+ 	PVOP_VCALL1(pv_lock_ops.kick_cpu, cpu);
+ }
+ 
+-static __always_inline void __queue_hibernate(enum pv_lock_stats type)
++static __always_inline void
++__queue_hibernate(enum pv_lock_stats type, s8 *state, s8 sval)
+ {
+-	PVOP_VCALL1(pv_lock_ops.hibernate, type);
++	PVOP_VCALL3(pv_lock_ops.hibernate, type, state, sval);
+ }
+ 
+ static __always_inline void __queue_lockstat(enum pv_lock_stats type)
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index a8564b9..0e204dd 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -346,7 +346,7 @@ enum pv_lock_stats {
+ struct pv_lock_ops {
+ #ifdef CONFIG_QUEUE_SPINLOCK
+ 	void (*kick_cpu)(int cpu);
+-	void (*hibernate)(enum pv_lock_stats type);
++	void (*hibernate)(enum pv_lock_stats type, s8 *state, s8 sval);
+ 	void (*lockstat)(enum pv_lock_stats type);
+ #else
+ 	struct paravirt_callee_save lock_spinning;
+diff --git a/arch/x86/include/asm/pvqspinlock.h b/arch/x86/include/asm/pvqspinlock.h
+index a632dcb..4b33769 100644
+--- a/arch/x86/include/asm/pvqspinlock.h
++++ b/arch/x86/include/asm/pvqspinlock.h
+@@ -134,7 +134,7 @@ static __always_inline void pv_head_spin_check(struct pv_qvars *pv, int *count,
+ 			*count = 0;
+ 			return;
+ 		}
+-		__queue_hibernate(PV_HALT_QHEAD);
++		__queue_hibernate(PV_HALT_QHEAD, &pv->cpustate, PV_CPU_HALTED);
+ 		__queue_lockstat((pv->cpustate == PV_CPU_KICKED)
+ 				 ? PV_WAKE_KICKED : PV_WAKE_SPURIOUS);
+ 		ACCESS_ONCE(pv->cpustate) = PV_CPU_ACTIVE;
+@@ -169,7 +169,7 @@ static __always_inline void pv_queue_spin_check(struct pv_qvars *pv, int *count)
+ 		 * pv_next_node_check		pv_queue_spin_check
+ 		 * ------------------		-------------------
+ 		 * [1] qhead = true		[3] cpustate = PV_CPU_HALTED
+-		 *     barrier()		    barrier()
++		 *     smp_mb()			    smp_mb()
+ 		 * [2] if (cpustate		[4] if (qhead)
+ 		 *        == PV_CPU_HALTED)
+ 		 *
+@@ -178,9 +178,10 @@ static __always_inline void pv_queue_spin_check(struct pv_qvars *pv, int *count)
+ 		 *	       _QLOCK_LOCKED_SLOWPATH may or may not be set
+ 		 * 3,4,1,2 - the CPU is halt and _QLOCK_LOCKED_SLOWPATH is set
+ 		 */
+-		barrier();
++		smp_mb();
+ 		if (!ACCESS_ONCE(pv->qhead)) {
+-			__queue_hibernate(PV_HALT_QNODE);
++			__queue_hibernate(PV_HALT_QNODE, &pv->cpustate,
++					  PV_CPU_HALTED);
+ 			__queue_lockstat((pv->cpustate == PV_CPU_KICKED)
+ 					 ? PV_WAKE_KICKED : PV_WAKE_SPURIOUS);
+ 		} else {
+@@ -208,7 +209,7 @@ pv_next_node_check(struct pv_qvars *pv, struct qspinlock *lock)
+ 	/*
+ 	 * Make sure qhead flag is visible before checking the cpustate flag
+ 	 */
+-	barrier();
++	smp_mb();
+ 	if (ACCESS_ONCE(pv->cpustate) == PV_CPU_HALTED)
+ 		ACCESS_ONCE(((union arch_qspinlock *)lock)->lock)
+ 			= _QLOCK_LOCKED_SLOWPATH;
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 7d97e58..ce4b74b 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -880,23 +880,29 @@ static void kvm_kick_cpu_stats(int cpu)
+ /*
+  * Halt the current CPU & release it back to the host
+  */
+-static void kvm_hibernate(enum pv_lock_stats type)
++static void kvm_hibernate(enum pv_lock_stats type, s8 *state, s8 sval)
+ {
+ 	unsigned long flags;
+ 
+ 	if (in_nmi())
+ 		return;
+ 
+-	kvm_halt_stats(type);
+ 	/*
+ 	 * Make sure an interrupt handler can't upset things in a
+ 	 * partially setup state.
+ 	 */
+ 	local_irq_save(flags);
++	/*
++	 * Don't halt if the CPU state has been changed.
++	 */
++	if (ACCESS_ONCE(*state) != sval)
++		goto out;
++	kvm_halt_stats(type);
+ 	if (arch_irqs_disabled_flags(flags))
+ 		halt();
+ 	else
+ 		safe_halt();
++out:
+ 	local_irq_restore(flags);
+ }
+ #endif /* !CONFIG_QUEUE_SPINLOCK */
+diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
+index 6bbe798..c597bbd 100644
+--- a/arch/x86/xen/spinlock.c
++++ b/arch/x86/xen/spinlock.c
+@@ -271,7 +271,7 @@ static void xen_kick_cpu(int cpu)
+ /*
+  * Halt the current CPU & release it back to the host
+  */
+-static void xen_hibernate(enum pv_lock_stats type)
++static void xen_hibernate(enum pv_lock_stats type, s8 *state, s8 sval)
+ {
+ 	int irq = __this_cpu_read(lock_kicker_irq);
+ 	unsigned long flags;
+@@ -292,7 +292,11 @@ static void xen_hibernate(enum pv_lock_stats type)
+ 
+ 	/* Allow interrupts while blocked */
+ 	local_irq_restore(flags);
+-
++	/*
++	 * Don't halt if the CPU state has been changed.
++	 */
++	if (ACCESS_ONCE(*state) != sval)
++		return;
+ 	/*
+ 	 * If an interrupt happens here, it will leave the wakeup irq
+ 	 * pending, which will cause xen_poll_irq() to return
+
+--------------040207070205080604010401
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--------------040207070205080604010401--
