@@ -1,18 +1,16 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 6/6] virtio-scsi: Enable DIF/DIX modes in SCSI host LLD
-Date: Tue, 08 Apr 2014 16:35:06 -0400
-Message-ID: <53445D7A.6030301__46016.3500546061$1396989340$gmane$org@redhat.com>
-References: <1396819929-29687-1-git-send-email-nab@daterainc.com>	
-	<1396819929-29687-7-git-send-email-nab@daterainc.com>	
-	<20140407084518.GA14091@redhat.com>	
-	<1396861019.19888.25.camel@haakon3.risingtidesystems.com>	
-	<20140407090225.GB14183@redhat.com>
-	<1396861996.19888.28.camel@haakon3.risingtidesystems.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH v8 00/10] qspinlock: a 4-byte queue spinlock with PV
+	support
+Date: Wed, 09 Apr 2014 17:38:11 +0530
+Message-ID: <5345382B.3050400__9437.58804719455$1397045611$gmane$org@linux.vnet.ibm.com>
+References: <1396445259-27670-1-git-send-email-Waiman.Long@hp.com>
+	<5342425A.7040005@linux.vnet.ibm.com> <5342D475.7060503@hp.com>
+	<5342E5B2.1070306@linux.vnet.ibm.com> <53444AEE.9050705@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1396861996.19888.28.camel@haakon3.risingtidesystems.com>
+In-Reply-To: <53444AEE.9050705@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,23 +20,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-scsi <linux-scsi@vger.kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Sagi Grimberg <sagig@dev.mellanox.co.il>, virtualization@lists.linux-foundation.org, Sagi Grimberg <sagig@mellanox.com>, target-devel <target-devel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "Nicholas A. Bellinger" <nab@daterainc.com>, Christoph Hellwig <hch@lst.de>
+To: Waiman Long <waiman.long@hp.com>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>, Aswin Chandramouleeswaran <aswin@hp.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 07/04/2014 05:13, Nicholas A. Bellinger ha scritto:
->> > I guess we'll still be able to fix it after the merge window -
->> > (or worst case, revert the change) is this what you are suggesting?
->> >
-> Yes, but I would think that it is actually fixable.  ;)
+On 04/09/2014 12:45 AM, Waiman Long wrote:
+> Yes, I am able to reproduce the hang problem with ebizzy. BTW, could you
+> try to apply the attached patch file on top of the v8 patch series to
+> see if it can fix the hang problem?
+
+Ran the benchmarks with the fix and I am not seeing hang so far.
+ebizzy improvements.
+
+0.5x  2.7345
+1x   -10.6593
+1.5x  35.6962
+2x    88.0461
+
+dbench improvements
+0.5x   3.2428
+1x     1.1514
+1.5x   5.5071
+2x    23.8700
+( I will have to restest on ebizzy 1x reression but overall performance
+numbers look good).
+
+>> Baseline was 3.14-rc8 without any of the qspin patch series.
+>>
 >
-> Otherwise, a v3.16 merge is an option as well.  It's really your +
-> Paolo's call here.
+> Does the baseline have PV ticketlock or without any PV support?
 
-With s/niov/nbytes/, I think the interface is fine.  If you can do it 
-this week, it is your call as target maintainer...
-
-I don't have to do much more than give my acked-by for the changes to 
-the virtio-scsi drivers, it's up to you whether to use it for 3.15 or 3.16.
-
-Paolo
+baseline had PV ticketlock enabled.
