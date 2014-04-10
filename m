@@ -1,10 +1,16 @@
-From: "longguang.yue" <kernelluck@163.com>
-Subject: questions about ebtable  ip extension
-Date: Thu, 10 Apr 2014 14:03:15 +0800 (CST)
-Message-ID: <7ef894a3.249b5.1454a3baaae.Coremail.kernelluck__18040.4422375888$1397110745$gmane$org@163.com>
+From: Fam Zheng <famz@redhat.com>
+Subject: Re: [PATCH RFC V2 4/4] tools: virtio: add a top-like utility for
+	displaying vhost satistics
+Date: Thu, 10 Apr 2014 17:27:02 +0800
+Message-ID: <20140410092702.GJ22890__19772.7644736462$1397138630$gmane$org@T430.nay.redhat.com>
+References: <1395394913-19548-1-git-send-email-jasowang@redhat.com>
+	<1395394913-19548-5-git-send-email-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8688764220823651760=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1395394913-19548-5-git-send-email-jasowang@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -14,61 +20,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization <virtualization@lists.linux-foundation.org>, bridge <bridge@lists.linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============8688764220823651760==
-Content-Type: multipart/alternative;
-	boundary="----=_Part_545623_2069848884.1397109795501"
+On Fri, 03/21 17:41, Jason Wang wrote:
+> This patch adds simple python to display vhost satistics of vhost, the codes
+> were based on kvm_stat script from qemu. As work function has been recored,
+> filters could be used to distinguish which kinds of work are being executed or
+> queued:
+> 
+> vhost statistics
+> 
+>  vhost_virtio_update_used_idx               1215215       0
+>  vhost_virtio_get_vq_desc                   1215215       0
+>  vhost_work_queue_wakeup                     986808       0
+>  vhost_virtio_signal                         811601       0
+>  vhost_net_tx                                611457       0
+>  vhost_net_rx                                603758       0
+>  vhost_net_tx(datacopy)                      601903       0
+>  vhost_work_queue_wakeup(rx_net)             565081       0
+>  vhost_virtio_signal(rx)                     461603       0
+>  vhost_work_queue_wakeup(tx_kick)            421718       0
+>  vhost_virtio_update_avail_event             417346       0
+>  vhost_virtio_signal(tx)                     349998       0
+>  vhost_work_queue_coalesce                    39384       0
+>  vhost_work_queue_coalesce(rx_net)            38677       0
+>  vhost_net_tx(zerocopy)                        9554       0
+>  vhost_work_queue_coalesce(tx_kick)             707       0
+>  vhost_work_queue_wakeup(rx_kick)                 9       0
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  tools/virtio/vhost_stat | 375 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 375 insertions(+)
+>  create mode 100755 tools/virtio/vhost_stat
+> 
+> diff --git a/tools/virtio/vhost_stat b/tools/virtio/vhost_stat
+> new file mode 100755
+> index 0000000..398fd4a
+> --- /dev/null
+> +++ b/tools/virtio/vhost_stat
+> @@ -0,0 +1,375 @@
+> +#!/usr/bin/python
+> +#
+> +# top-like utility for displaying vhost statistics
+> +#
+> +# Copyright 2012 Red Hat, Inc.
 
-------=_Part_545623_2069848884.1397109795501
-Content-Type: text/plain; charset=GBK
-Content-Transfer-Encoding: base64
+Should it be 2014?
 
-YnJfbmZfZm9yd2FyZF9pcCgpIHsKcGFyZW50ID0gYnJpZGdlX3BhcmVudChvdXQpOwpORl9IT09L
-KHBmLCBORl9JTkVUX0ZPUldBUkQsIHNrYiwgYnJuZl9nZXRfbG9naWNhbF9kZXYoc2tiLCBpbiks
-IHBhcmVudCwgYnJfbmZfZm9yd2FyZF9maW5pc2gpOwp9CmhlcmUsIGxldCB1cyBzdXBwb3NlIHBm
-ID0gTkZQUk9UT19JUFY0LCBpIHRoaW5rIHRoZSByZXR1cm4gdmFsdWUgb2YgYnJuZl9nZXRfbG9n
-aWNhbF9kZXYoc2tiLCBpbikgZXF1YWxzIHBhcmVudCA/Cml0cyBjb21tZW50ICdUaGlzIGlzIHRo
-ZSAncHVyZWx5IGJyaWRnZWQnIGNhc2UuICBGb3IgSVAsIHdlIHBhc3MgdGhlIHBhY2tldCB0bwog
-KiBuZXRmaWx0ZXIgd2l0aCBpbmRldiBhbmQgb3V0ZGV2IHNldCB0byB0aGUgYnJpZGdlIGRldmlj
-ZScKc28gd2hlbiBjYWxscyBob29rcyBhdCBpcHY0IGxldmVsICBsaWtlIGlwdGFibGVfZmlsdGVy
-X2hvb2ssaXB0YWJsZV9tYW5nbGVfaG9vaywgd2UgY2FuIG5vdCBkaXN0aW5jdCBpbiBhbmQgb3V0
-IGRldmljZXM/CmluIG90aGVyIHdvcmQsICB3ZSBjYW4gbm90IHVzZSBpbi9vdXQgZGV2IHdpdGgg
-ZWJ0YWJsZXMncyBpcCBleHRlbnNpb24uCiAKdGhhbmtz
-------=_Part_545623_2069848884.1397109795501
-Content-Type: text/html; charset=GBK
-Content-Transfer-Encoding: base64
+Fam
 
-PGRpdiBzdHlsZT0ibGluZS1oZWlnaHQ6MS43O2NvbG9yOiMwMDAwMDA7Zm9udC1zaXplOjE0cHg7
-Zm9udC1mYW1pbHk6YXJpYWwiPjxkaXY+PGRpdj5icl9uZl9mb3J3YXJkX2lwKCkgezwvZGl2Pjxk
-aXY+ICAgIHBhcmVudCA9IGJyaWRnZV9wYXJlbnQob3V0KTs8L2Rpdj48ZGl2PiAgICBORl9IT09L
-KHBmLCBORl9JTkVUX0ZPUldBUkQsIHNrYiwgYnJuZl9nZXRfbG9naWNhbF9kZXYoc2tiLCBpbiks
-IHBhcmVudCwgYnJfbmZfZm9yd2FyZF9maW5pc2gpOzwvZGl2PjxkaXY+fTwvZGl2PjxkaXY+IDwv
-ZGl2PjxkaXY+aGVyZSwmbmJzcDtsZXQgdXMmbmJzcDtzdXBwb3NlIHBmID0gTkZQUk9UT19JUFY0
-LCAgICBpIHRoaW5rICB0aGUgcmV0dXJuIHZhbHVlIG9mIGJybmZfZ2V0X2xvZ2ljYWxfZGV2KHNr
-YiwgaW4pIGVxdWFscyBwYXJlbnQgPzwvZGl2PjxkaXY+aXRzIGNvbW1lbnQgJ1RoaXMgaXMgdGhl
-ICdwdXJlbHkgYnJpZGdlZCcgY2FzZS4mbmJzcDsgRm9yIElQLCB3ZSBwYXNzIHRoZSBwYWNrZXQg
-dG88YnI+Jm5ic3A7KiBuZXRmaWx0ZXIgd2l0aCBpbmRldiBhbmQgb3V0ZGV2IHNldCB0byB0aGUg
-YnJpZGdlIGRldmljZSc8L2Rpdj48ZGl2PiA8L2Rpdj48ZGl2PnNvIHdoZW4gY2FsbHMgaG9va3Mg
-YXQgaXB2NCBsZXZlbCZuYnNwOyBsaWtlJm5ic3A7aXB0YWJsZV9maWx0ZXJfaG9vayxpcHRhYmxl
-X21hbmdsZV9ob29rLCB3ZSBjYW4gbm90IGRpc3RpbmN0IGluIGFuZCBvdXQgZGV2aWNlcz88L2Rp
-dj48ZGl2PmluIG90aGVyIHdvcmQsJm5ic3A7IHdlIGNhbiBub3QgdXNlIGluL291dCBkZXYgd2l0
-aCBlYnRhYmxlcydzIGlwIGV4dGVuc2lvbi48L2Rpdj48ZGl2PiZuYnNwOzwvZGl2PjxkaXY+IDwv
-ZGl2PjxkaXY+dGhhbmtzPC9kaXY+PC9kaXY+PC9kaXY+PGJyPjxicj48c3BhbiB0aXRsZT0ibmV0
-ZWFzZWZvb3RlciI+PHNwYW4gaWQ9Im5ldGVhc2VfbWFpbF9mb290ZXIiPjwvc3Bhbj48L3NwYW4+
-
-------=_Part_545623_2069848884.1397109795501--
-
-
---===============8688764220823651760==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8688764220823651760==--
+<snip>
