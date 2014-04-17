@@ -1,15 +1,15 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH v9 00/19] qspinlock: a 4-byte queue spinlock with PV
-	support
-Date: Thu, 17 Apr 2014 23:10:28 +0530
-Message-ID: <5350120C.40607__14230.3442037248$1397756773$gmane$org@linux.vnet.ibm.com>
+From: Waiman Long <waiman.long@hp.com>
+Subject: Re: [PATCH v9 03/19] qspinlock: Add pending bit
+Date: Thu, 17 Apr 2014 17:20:31 -0400
+Message-ID: <5350459F.5010903__25500.8953194649$1397769654$gmane$org@hp.com>
 References: <1397747051-15401-1-git-send-email-Waiman.Long@hp.com>
-	<20140417172246.GA9849@localhost.localdomain>
+	<1397747051-15401-4-git-send-email-Waiman.Long@hp.com>
+	<20140417154200.GN11096@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140417172246.GA9849@localhost.localdomain>
+In-Reply-To: <20140417154200.GN11096@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,22 +19,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Waiman Long <Waiman.Long@hp.com>, linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/17/2014 10:53 PM, Konrad Rzeszutek Wilk wrote:
-> On Thu, Apr 17, 2014 at 11:03:52AM -0400, Waiman Long wrote:
->> v8->v9:
->>    - Integrate PeterZ's version of the queue spinlock patch with some
->>      modification:
->>      http://lkml.kernel.org/r/20140310154236.038181843@infradead.org
->>    - Break the more complex patches into smaller ones to ease review effort.
->>    - Fix a racing condition in the PV qspinlock code.
+On 04/17/2014 11:42 AM, Peter Zijlstra wrote:
+> On Thu, Apr 17, 2014 at 11:03:55AM -0400, Waiman Long wrote:
+>> +/**
+>> + * trylock_pending - try to acquire queue spinlock using the pending bit
+>> + * @lock : Pointer to queue spinlock structure
+>> + * @pval : Pointer to value of the queue spinlock 32-bit word
+>> + * Return: 1 if lock acquired, 0 otherwise
+>> + */
+>> +static inline int trylock_pending(struct qspinlock *lock, u32 *pval)
+>> +{
+>> +	u32 old, new, val = *pval;
+> I'm not thrilled about you breaking this into a separate function; the
+> compiler will put it right back and now you get to have that ugly
+> pointer stuff.
 >
-> I am not seeing anything mentioning that the overcommit scenario
-> for KVM and Xen had been fixed. Or was the 'racing condition' said
-> issue?
+> It also makes the function control flow not match the state diagram
+> anymore.
 
-Saw changes in patch 18 that fixes for kvm (19 for xen). 'll
-test the series and confirm.
+I separate it out primarily to break the pending bit logic away from the 
+core MCS queuing logic to make each of them easier to understand as they 
+are kind of independent. I fully understand that the compiler will put 
+them back together. As I pile on more code, the slowpath function will 
+grow bigger making it harder to comprehend and find out where are the 
+boundary between them.
+
+I will take a look at the state diagram to see what adjustment will be 
+needed.
+
+>> +
+>> +	/*
+>> +	 * trylock || pending
+>> +	 *
+>> +	 * 0,0,0 ->  0,0,1 ; trylock
+>> +	 * 0,0,1 ->  0,1,1 ; pending
+>> +	 */
+>> +	for (;;) {
+>> +		/*
+>> +		 * If we observe any contention; queue.
+>> +		 */
+>> +		if (val&  ~_Q_LOCKED_MASK)
+>> +			return 0;
+>> +
+>> +		new = _Q_LOCKED_VAL;
+>> +		if (val == new)
+>> +			new |= _Q_PENDING_VAL;
+>> +
+>> +		old = atomic_cmpxchg(&lock->val, val, new);
+>> +		if (old == val)
+>> +			break;
+>> +
+>> +		*pval = val = old;
+>> +	}
+>> +
+>> +	/*
+>> +	 * we won the trylock
+>> +	 */
+>> +	if (new == _Q_LOCKED_VAL)
+>> +		return 1;
+>> +
+>> +	/*
+>> +	 * we're pending, wait for the owner to go away.
+>> +	 *
+>> +	 * *,1,1 ->  *,1,0
+>> +	 */
+>> +	while ((val = atomic_read(&lock->val))&  _Q_LOCKED_MASK)
+>> +		arch_mutex_cpu_relax();
+> That was a cpu_relax().
+
+Yes, but arch_mutex_cpu_relax() is the same as cpu_relax() for x86.
+
+-Longman
