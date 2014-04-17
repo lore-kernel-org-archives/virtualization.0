@@ -1,13 +1,11 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: [PATCH 1/3] tools: Unify export.h
-Date: Mon, 14 Apr 2014 18:33:03 +0200
-Message-ID: <1397493185-19521-2-git-send-email-bp@alien8.de>
-References: <1397493185-19521-1-git-send-email-bp@alien8.de>
+From: Waiman Long <Waiman.Long@hp.com>
+Subject: [PATCH v9 00/19] qspinlock: a 4-byte queue spinlock with PV support
+Date: Thu, 17 Apr 2014 11:03:52 -0400
+Message-ID: <1397747051-15401-1-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1397493185-19521-1-git-send-email-bp@alien8.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,134 +15,151 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jiri Olsa <jolsa@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@infradead.org>, virtio-dev@lists.oasis-open.org, Robert Richter <rric@kernel.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Namhyung Kim <namhyung@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, David Ahern <dsahern@gmail.com>, Sasha Levin <sasha.levin@oracle.com>, Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@kernel.org>
+To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, Waiman Long <Waiman.Long@hp.com>, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, Oleg Nesterov <oleg@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Borislav Petkov <bp@suse.de>
+v8->v9:
+  - Integrate PeterZ's version of the queue spinlock patch with some
+    modification:
+    http://lkml.kernel.org/r/20140310154236.038181843@infradead.org
+  - Break the more complex patches into smaller ones to ease review effort.
+  - Fix a racing condition in the PV qspinlock code.
 
-So tools/ has been growing three, at a different stage of their
-development export.h headers and so we should unite into one. Add
-tools/include/ to the include path of virtio and liblockdep to pick the
-shared header now.
+v7->v8:
+  - Remove one unneeded atomic operation from the slowpath, thus
+    improving performance.
+  - Simplify some of the codes and add more comments.
+  - Test for X86_FEATURE_HYPERVISOR CPU feature bit to enable/disable
+    unfair lock.
+  - Reduce unfair lock slowpath lock stealing frequency depending
+    on its distance from the queue head.
+  - Add performance data for IvyBridge-EX CPU.
 
-Cc: Sasha Levin <sasha.levin@oracle.com>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
-Cc: Rusty Russell <rusty@rustcorp.com.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Cc: virtio-dev@lists.oasis-open.org
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: Borislav Petkov <bp@suse.de>
----
- tools/{virtio => include}/linux/export.h  | 5 +++++
- tools/lib/lockdep/Makefile                | 2 +-
- tools/lib/lockdep/uinclude/linux/export.h | 7 -------
- tools/perf/MANIFEST                       | 1 +
- tools/perf/Makefile.perf                  | 2 +-
- tools/perf/util/include/linux/export.h    | 6 ------
- tools/virtio/Makefile                     | 2 +-
- 7 files changed, 9 insertions(+), 16 deletions(-)
- rename tools/{virtio => include}/linux/export.h (70%)
- delete mode 100644 tools/lib/lockdep/uinclude/linux/export.h
- delete mode 100644 tools/perf/util/include/linux/export.h
+v6->v7:
+  - Remove an atomic operation from the 2-task contending code
+  - Shorten the names of some macros
+  - Make the queue waiter to attempt to steal lock when unfair lock is
+    enabled.
+  - Remove lock holder kick from the PV code and fix a race condition
+  - Run the unfair lock & PV code on overcommitted KVM guests to collect
+    performance data.
 
-diff --git a/tools/virtio/linux/export.h b/tools/include/linux/export.h
-similarity index 70%
-rename from tools/virtio/linux/export.h
-rename to tools/include/linux/export.h
-index 7311d326894a..d07e586b9ba0 100644
---- a/tools/virtio/linux/export.h
-+++ b/tools/include/linux/export.h
-@@ -1,5 +1,10 @@
-+#ifndef _TOOLS_LINUX_EXPORT_H_
-+#define _TOOLS_LINUX_EXPORT_H_
-+
- #define EXPORT_SYMBOL(sym)
- #define EXPORT_SYMBOL_GPL(sym)
- #define EXPORT_SYMBOL_GPL_FUTURE(sym)
- #define EXPORT_UNUSED_SYMBOL(sym)
- #define EXPORT_UNUSED_SYMBOL_GPL(sym)
-+
-+#endif
-diff --git a/tools/lib/lockdep/Makefile b/tools/lib/lockdep/Makefile
-index 07b0b7542511..41d4a99ce46e 100644
---- a/tools/lib/lockdep/Makefile
-+++ b/tools/lib/lockdep/Makefile
-@@ -112,7 +112,7 @@ export Q VERBOSE
- 
- LIBLOCKDEP_VERSION = $(LL_VERSION).$(LL_PATCHLEVEL).$(LL_EXTRAVERSION)
- 
--INCLUDES = -I. -I/usr/local/include -I./uinclude -I./include $(CONFIG_INCLUDES)
-+INCLUDES = -I. -I/usr/local/include -I./uinclude -I./include -I../../include $(CONFIG_INCLUDES)
- 
- # Set compile option CFLAGS if not set elsewhere
- CFLAGS ?= -g -DCONFIG_LOCKDEP -DCONFIG_STACKTRACE -DCONFIG_PROVE_LOCKING -DBITS_PER_LONG=__WORDSIZE -DLIBLOCKDEP_VERSION='"$(LIBLOCKDEP_VERSION)"' -rdynamic -O0 -g
-diff --git a/tools/lib/lockdep/uinclude/linux/export.h b/tools/lib/lockdep/uinclude/linux/export.h
-deleted file mode 100644
-index 6bdf3492c535..000000000000
---- a/tools/lib/lockdep/uinclude/linux/export.h
-+++ /dev/null
-@@ -1,7 +0,0 @@
--#ifndef _LIBLOCKDEP_LINUX_EXPORT_H_
--#define _LIBLOCKDEP_LINUX_EXPORT_H_
--
--#define EXPORT_SYMBOL(sym)
--#define EXPORT_SYMBOL_GPL(sym)
--
--#endif
-diff --git a/tools/perf/MANIFEST b/tools/perf/MANIFEST
-index c0c87c87b60f..81783c2037fc 100644
---- a/tools/perf/MANIFEST
-+++ b/tools/perf/MANIFEST
-@@ -7,6 +7,7 @@ tools/lib/symbol/kallsyms.h
- tools/include/asm/bug.h
- tools/include/linux/compiler.h
- tools/include/linux/hash.h
-+tools/include/linux/export.h
- include/linux/const.h
- include/linux/perf_event.h
- include/linux/rbtree.h
-diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
-index e96923310d57..595fcbeb8262 100644
---- a/tools/perf/Makefile.perf
-+++ b/tools/perf/Makefile.perf
-@@ -222,7 +222,7 @@ LIB_H += util/include/linux/const.h
- LIB_H += util/include/linux/ctype.h
- LIB_H += util/include/linux/kernel.h
- LIB_H += util/include/linux/list.h
--LIB_H += util/include/linux/export.h
-+LIB_H += ../include/linux/export.h
- LIB_H += util/include/linux/poison.h
- LIB_H += util/include/linux/rbtree.h
- LIB_H += util/include/linux/rbtree_augmented.h
-diff --git a/tools/perf/util/include/linux/export.h b/tools/perf/util/include/linux/export.h
-deleted file mode 100644
-index b43e2dc21e04..000000000000
---- a/tools/perf/util/include/linux/export.h
-+++ /dev/null
-@@ -1,6 +0,0 @@
--#ifndef PERF_LINUX_MODULE_H
--#define PERF_LINUX_MODULE_H
--
--#define EXPORT_SYMBOL(name)
--
--#endif
-diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-index 3187c62d9814..9325f4693821 100644
---- a/tools/virtio/Makefile
-+++ b/tools/virtio/Makefile
-@@ -3,7 +3,7 @@ test: virtio_test vringh_test
- virtio_test: virtio_ring.o virtio_test.o
- vringh_test: vringh_test.o vringh.o virtio_ring.o
- 
--CFLAGS += -g -O2 -Wall -I. -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE
-+CFLAGS += -g -O2 -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE
- vpath %.c ../../drivers/virtio ../../drivers/vhost
- mod:
- 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test
--- 
-1.9.0
+v5->v6:
+ - Change the optimized 2-task contending code to make it fairer at the
+   expense of a bit of performance.
+ - Add a patch to support unfair queue spinlock for Xen.
+ - Modify the PV qspinlock code to follow what was done in the PV
+   ticketlock.
+ - Add performance data for the unfair lock as well as the PV
+   support code.
+
+v4->v5:
+ - Move the optimized 2-task contending code to the generic file to
+   enable more architectures to use it without code duplication.
+ - Address some of the style-related comments by PeterZ.
+ - Allow the use of unfair queue spinlock in a real para-virtualized
+   execution environment.
+ - Add para-virtualization support to the qspinlock code by ensuring
+   that the lock holder and queue head stay alive as much as possible.
+
+v3->v4:
+ - Remove debugging code and fix a configuration error
+ - Simplify the qspinlock structure and streamline the code to make it
+   perform a bit better
+ - Add an x86 version of asm/qspinlock.h for holding x86 specific
+   optimization.
+ - Add an optimized x86 code path for 2 contending tasks to improve
+   low contention performance.
+
+v2->v3:
+ - Simplify the code by using numerous mode only without an unfair option.
+ - Use the latest smp_load_acquire()/smp_store_release() barriers.
+ - Move the queue spinlock code to kernel/locking.
+ - Make the use of queue spinlock the default for x86-64 without user
+   configuration.
+ - Additional performance tuning.
+
+v1->v2:
+ - Add some more comments to document what the code does.
+ - Add a numerous CPU mode to support >= 16K CPUs
+ - Add a configuration option to allow lock stealing which can further
+   improve performance in many cases.
+ - Enable wakeup of queue head CPU at unlock time for non-numerous
+   CPU mode.
+
+This patch set has 3 different sections:
+ 1) Patches 1-7: Introduces a queue-based spinlock implementation that
+    can replace the default ticket spinlock without increasing the
+    size of the spinlock data structure. As a result, critical kernel
+    data structures that embed spinlock won't increase in size and
+    break data alignments.
+ 2) Patches 8-13: Enables the use of unfair queue spinlock in a
+    virtual guest. This can resolve some of the locking related
+    performance issues due to the fact that the next CPU to get the
+    lock may have been scheduled out for a period of time.
+ 3) Patches 14-19: Enable qspinlock para-virtualization support
+    by halting the waiting CPUs after spinning for a certain amount of
+    time. The unlock code will detect the a sleeping waiter and wake it
+    up. This is essentially the same logic as the PV ticketlock code.
+
+The queue spinlock has slightly better performance than the ticket
+spinlock in uncontended case. Its performance can be much better
+with moderate to heavy contention.  This patch has the potential of
+improving the performance of all the workloads that have moderate to
+heavy spinlock contention.
+
+The queue spinlock is especially suitable for NUMA machines with at
+least 2 sockets, though noticeable performance benefit probably won't
+show up in machines with less than 4 sockets.
+
+The purpose of this patch set is not to solve any particular spinlock
+contention problems. Those need to be solved by refactoring the code
+to make more efficient use of the lock or finer granularity ones. The
+main purpose is to make the lock contention problems more tolerable
+until someone can spend the time and effort to fix them.
+
+Waiman Long (19):
+  qspinlock: A simple generic 4-byte queue spinlock
+  qspinlock, x86: Enable x86-64 to use queue spinlock
+  qspinlock: Add pending bit
+  qspinlock: Extract out the exchange of tail code word
+  qspinlock: Optimize for smaller NR_CPUS
+  qspinlock: prolong the stay in the pending bit path
+  qspinlock: Use a simple write to grab the lock, if applicable
+  qspinlock: Make a new qnode structure to support virtualization
+  qspinlock: Prepare for unfair lock support
+  qspinlock, x86: Allow unfair spinlock in a virtual guest
+  qspinlock: Split the MCS queuing code into a separate slowerpath
+  unfair qspinlock: Variable frequency lock stealing mechanism
+  unfair qspinlock: Enable lock stealing in lock waiters
+  pvqspinlock, x86: Rename paravirt_ticketlocks_enabled
+  pvqspinlock, x86: Add PV data structure & methods
+  pvqspinlock: Enable coexistence with the unfair lock
+  pvqspinlock: Add qspinlock para-virtualization support
+  pvqspinlock, x86: Enable PV qspinlock PV for KVM
+  pvqspinlock, x86: Enable PV qspinlock for XEN
+
+ arch/x86/Kconfig                      |   12 +
+ arch/x86/include/asm/paravirt.h       |   18 +-
+ arch/x86/include/asm/paravirt_types.h |   17 +
+ arch/x86/include/asm/pvqspinlock.h    |  306 +++++++++++
+ arch/x86/include/asm/qspinlock.h      |  141 +++++
+ arch/x86/include/asm/spinlock.h       |    9 +-
+ arch/x86/include/asm/spinlock_types.h |    4 +
+ arch/x86/kernel/Makefile              |    1 +
+ arch/x86/kernel/kvm.c                 |  137 +++++-
+ arch/x86/kernel/paravirt-spinlocks.c  |   36 ++-
+ arch/x86/xen/spinlock.c               |  148 +++++-
+ include/asm-generic/qspinlock.h       |  118 +++++
+ include/asm-generic/qspinlock_types.h |   82 +++
+ kernel/Kconfig.locks                  |    7 +
+ kernel/locking/Makefile               |    1 +
+ kernel/locking/mcs_spinlock.h         |    1 +
+ kernel/locking/qspinlock.c            |  918 +++++++++++++++++++++++++++++++++
+ 17 files changed, 1944 insertions(+), 12 deletions(-)
+ create mode 100644 arch/x86/include/asm/pvqspinlock.h
+ create mode 100644 arch/x86/include/asm/qspinlock.h
+ create mode 100644 include/asm-generic/qspinlock.h
+ create mode 100644 include/asm-generic/qspinlock_types.h
+ create mode 100644 kernel/locking/qspinlock.c
