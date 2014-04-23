@@ -1,14 +1,19 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/3] tools: Unify export.h
-Date: Wed, 23 Apr 2014 13:37:03 +0930
-Message-ID: <87k3agheoo.fsf__20281.8967788064$1398231709$gmane$org@rustcorp.com.au>
-References: <1397493185-19521-1-git-send-email-bp@alien8.de>
-	<1397493185-19521-2-git-send-email-bp@alien8.de>
+From: Waiman Long <waiman.long@hp.com>
+Subject: Re: [PATCH v9 05/19] qspinlock: Optimize for smaller NR_CPUS
+Date: Wed, 23 Apr 2014 10:23:43 -0400
+Message-ID: <5357CCEF.2000606@hp.com>
+References: <1397747051-15401-1-git-send-email-Waiman.Long@hp.com>
+	<1397747051-15401-6-git-send-email-Waiman.Long@hp.com>
+	<20140417155649.GR11096@twins.programming.kicks-ass.net>
+	<53504BB3.4010009@hp.com>
+	<20140418082716.GZ11096@twins.programming.kicks-ass.net>
+	<53516672.3010701@hp.com>
+	<20140418190519.GA11182@twins.programming.kicks-ass.net>
+	<53519BBF.7060506@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="------------020601050200020304070000"
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1397493185-19521-2-git-send-email-bp@alien8.de>
+In-Reply-To: <53519BBF.7060506@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,147 +23,186 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Borislav Petkov <bp@alien8.de>, Jiri Olsa <jolsa@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@infradead.org>, virtio-dev@lists.oasis-open.org, Robert Richter <rric@kernel.org>, Peter Zijlstra <a.p.zijlstra@chello.nl>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Namhyung Kim <namhyung@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, David Ahern <dsahern@gmail.com>, Sasha Levin <sasha.levin@oracle.com>, Borislav Petkov <bp@suse.de>, Ingo Molnar <mingo@kernel.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Borislav Petkov <bp@alien8.de> writes:
-> From: Borislav Petkov <bp@suse.de>
->
-> So tools/ has been growing three, at a different stage of their
-> development export.h headers and so we should unite into one. Add
-> tools/include/ to the include path of virtio and liblockdep to pick the
-> shared header now.
+This is a multi-part message in MIME format.
+--------------020601050200020304070000
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+On 04/18/2014 05:40 PM, Waiman Long wrote:
+> On 04/18/2014 03:05 PM, Peter Zijlstra wrote:
+>> On Fri, Apr 18, 2014 at 01:52:50PM -0400, Waiman Long wrote:
+>>> I am confused by your notation.
+>> Nah, I think I was confused :-) Make the 1 _Q_LOCKED_VAL though, as
+>> that's the proper constant to use.
+>
+> Everyone gets confused once in a while:-) I have plenty of that myself.
+>
+> I will change 1 to _Q_LOCKED_VAL as suggested.
+>
+> -Longman
 
-Thanks,
-Rusty.
 
->
-> Cc: Sasha Levin <sasha.levin@oracle.com>
-> Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> Cc: Paul Mackerras <paulus@samba.org>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: linux-kernel@vger.kernel.org
-> Cc: virtio-dev@lists.oasis-open.org
-> Cc: virtualization@lists.linux-foundation.org
-> Signed-off-by: Borislav Petkov <bp@suse.de>
-> ---
->  tools/{virtio => include}/linux/export.h  | 5 +++++
->  tools/lib/lockdep/Makefile                | 2 +-
->  tools/lib/lockdep/uinclude/linux/export.h | 7 -------
->  tools/perf/MANIFEST                       | 1 +
->  tools/perf/Makefile.perf                  | 2 +-
->  tools/perf/util/include/linux/export.h    | 6 ------
->  tools/virtio/Makefile                     | 2 +-
->  7 files changed, 9 insertions(+), 16 deletions(-)
->  rename tools/{virtio => include}/linux/export.h (70%)
->  delete mode 100644 tools/lib/lockdep/uinclude/linux/export.h
->  delete mode 100644 tools/perf/util/include/linux/export.h
->
-> diff --git a/tools/virtio/linux/export.h b/tools/include/linux/export.h
-> similarity index 70%
-> rename from tools/virtio/linux/export.h
-> rename to tools/include/linux/export.h
-> index 7311d326894a..d07e586b9ba0 100644
-> --- a/tools/virtio/linux/export.h
-> +++ b/tools/include/linux/export.h
-> @@ -1,5 +1,10 @@
-> +#ifndef _TOOLS_LINUX_EXPORT_H_
-> +#define _TOOLS_LINUX_EXPORT_H_
-> +
->  #define EXPORT_SYMBOL(sym)
->  #define EXPORT_SYMBOL_GPL(sym)
->  #define EXPORT_SYMBOL_GPL_FUTURE(sym)
->  #define EXPORT_UNUSED_SYMBOL(sym)
->  #define EXPORT_UNUSED_SYMBOL_GPL(sym)
-> +
-> +#endif
-> diff --git a/tools/lib/lockdep/Makefile b/tools/lib/lockdep/Makefile
-> index 07b0b7542511..41d4a99ce46e 100644
-> --- a/tools/lib/lockdep/Makefile
-> +++ b/tools/lib/lockdep/Makefile
-> @@ -112,7 +112,7 @@ export Q VERBOSE
->  
->  LIBLOCKDEP_VERSION = $(LL_VERSION).$(LL_PATCHLEVEL).$(LL_EXTRAVERSION)
->  
-> -INCLUDES = -I. -I/usr/local/include -I./uinclude -I./include $(CONFIG_INCLUDES)
-> +INCLUDES = -I. -I/usr/local/include -I./uinclude -I./include -I../../include $(CONFIG_INCLUDES)
->  
->  # Set compile option CFLAGS if not set elsewhere
->  CFLAGS ?= -g -DCONFIG_LOCKDEP -DCONFIG_STACKTRACE -DCONFIG_PROVE_LOCKING -DBITS_PER_LONG=__WORDSIZE -DLIBLOCKDEP_VERSION='"$(LIBLOCKDEP_VERSION)"' -rdynamic -O0 -g
-> diff --git a/tools/lib/lockdep/uinclude/linux/export.h b/tools/lib/lockdep/uinclude/linux/export.h
-> deleted file mode 100644
-> index 6bdf3492c535..000000000000
-> --- a/tools/lib/lockdep/uinclude/linux/export.h
-> +++ /dev/null
-> @@ -1,7 +0,0 @@
-> -#ifndef _LIBLOCKDEP_LINUX_EXPORT_H_
-> -#define _LIBLOCKDEP_LINUX_EXPORT_H_
-> -
-> -#define EXPORT_SYMBOL(sym)
-> -#define EXPORT_SYMBOL_GPL(sym)
-> -
-> -#endif
-> diff --git a/tools/perf/MANIFEST b/tools/perf/MANIFEST
-> index c0c87c87b60f..81783c2037fc 100644
-> --- a/tools/perf/MANIFEST
-> +++ b/tools/perf/MANIFEST
-> @@ -7,6 +7,7 @@ tools/lib/symbol/kallsyms.h
->  tools/include/asm/bug.h
->  tools/include/linux/compiler.h
->  tools/include/linux/hash.h
-> +tools/include/linux/export.h
->  include/linux/const.h
->  include/linux/perf_event.h
->  include/linux/rbtree.h
-> diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
-> index e96923310d57..595fcbeb8262 100644
-> --- a/tools/perf/Makefile.perf
-> +++ b/tools/perf/Makefile.perf
-> @@ -222,7 +222,7 @@ LIB_H += util/include/linux/const.h
->  LIB_H += util/include/linux/ctype.h
->  LIB_H += util/include/linux/kernel.h
->  LIB_H += util/include/linux/list.h
-> -LIB_H += util/include/linux/export.h
-> +LIB_H += ../include/linux/export.h
->  LIB_H += util/include/linux/poison.h
->  LIB_H += util/include/linux/rbtree.h
->  LIB_H += util/include/linux/rbtree_augmented.h
-> diff --git a/tools/perf/util/include/linux/export.h b/tools/perf/util/include/linux/export.h
-> deleted file mode 100644
-> index b43e2dc21e04..000000000000
-> --- a/tools/perf/util/include/linux/export.h
-> +++ /dev/null
-> @@ -1,6 +0,0 @@
-> -#ifndef PERF_LINUX_MODULE_H
-> -#define PERF_LINUX_MODULE_H
-> -
-> -#define EXPORT_SYMBOL(name)
-> -
-> -#endif
-> diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-> index 3187c62d9814..9325f4693821 100644
-> --- a/tools/virtio/Makefile
-> +++ b/tools/virtio/Makefile
-> @@ -3,7 +3,7 @@ test: virtio_test vringh_test
->  virtio_test: virtio_ring.o virtio_test.o
->  vringh_test: vringh_test.o vringh.o virtio_ring.o
->  
-> -CFLAGS += -g -O2 -Wall -I. -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE
-> +CFLAGS += -g -O2 -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE
->  vpath %.c ../../drivers/virtio ../../drivers/vhost
->  mod:
->  	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test
-> -- 
-> 1.9.0
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+The attached patch file contains the additional changes that I had made 
+to qspinlock.c file so far. Please let me know if you or others have any 
+additional feedbacks or changes that will need to go to the next version 
+of the patch series.
+
+I am going to take vacation starting from tomorrow and will be back on 
+5/5 (Mon). So I will not be able to respond to emails within this period.
+
+BTW, is there any chance that this patch can be merged to 3.16?
+
+-Longman
+
+--------------020601050200020304070000
+Content-Type: text/plain;
+ name="qspinlock_extra_diff.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="qspinlock_extra_diff.patch"
+
+diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
+index be2adca..2e184b8 100644
+--- a/kernel/locking/qspinlock.c
++++ b/kernel/locking/qspinlock.c
+@@ -25,10 +25,6 @@
+ #include <asm/byteorder.h>
+ #include <asm/qspinlock.h>
+ 
+-#if !defined(__LITTLE_ENDIAN) && !defined(__BIG_ENDIAN)
+-#error "Missing either LITTLE_ENDIAN or BIG_ENDIAN definition."
+-#endif
+-
+ /*
+  * The basic principle of a queue-based spinlock can best be understood
+  * by studying a classic queue-based spinlock implementation called the
+@@ -200,7 +196,7 @@ clear_pending_set_locked(struct qspinlock *lock, u32 val)
+ {
+ 	struct __qspinlock *l = (void *)lock;
+ 
+-	ACCESS_ONCE(l->locked_pending) = 1;
++	ACCESS_ONCE(l->locked_pending) = _Q_LOCKED_VAL;
+ }
+ 
+ /*
+@@ -567,16 +563,16 @@ static __always_inline int get_qlock(struct qspinlock *lock)
+ /**
+  * trylock_pending - try to acquire queue spinlock using the pending bit
+  * @lock : Pointer to queue spinlock structure
+- * @pval : Pointer to value of the queue spinlock 32-bit word
++ * @val  : Current value of the queue spinlock 32-bit word
+  * Return: 1 if lock acquired, 0 otherwise
+  *
+  * The pending bit won't be set as soon as one or more tasks queue up.
+  * This function should only be called when lock stealing will not happen.
+  * Otherwise, it has to be disabled.
+  */
+-static inline int trylock_pending(struct qspinlock *lock, u32 *pval)
++static inline int trylock_pending(struct qspinlock *lock, u32 val)
+ {
+-	u32 old, new, val = *pval;
++	u32 old, new;
+ 	int retry = 1;
+ 
+ 	/*
+@@ -593,8 +589,7 @@ static inline int trylock_pending(struct qspinlock *lock, u32 *pval)
+ 		if (val & _Q_TAIL_MASK)
+ 			return 0;
+ 
+-		if ((val & _Q_LOCKED_PENDING_MASK) ==
+-		    (_Q_LOCKED_VAL|_Q_PENDING_VAL)) {
++		if (val == (_Q_LOCKED_VAL|_Q_PENDING_VAL)) {
+ 			/*
+ 			 * If both the lock and pending bits are set, we wait
+ 			 * a while to see if that either bit will be cleared.
+@@ -605,9 +600,9 @@ static inline int trylock_pending(struct qspinlock *lock, u32 *pval)
+ 			retry--;
+ 			cpu_relax();
+ 			cpu_relax();
+-			*pval = val = atomic_read(&lock->val);
++			val = atomic_read(&lock->val);
+ 			continue;
+-		} else if ((val & _Q_LOCKED_PENDING_MASK) == _Q_PENDING_VAL) {
++		} else if (val == _Q_PENDING_VAL) {
+ 			/*
+ 			 * Pending bit is set, but not the lock bit.
+ 			 * Assuming that the pending bit holder is going to
+@@ -615,7 +610,7 @@ static inline int trylock_pending(struct qspinlock *lock, u32 *pval)
+ 			 * it is better to wait than to exit at this point.
+ 			 */
+ 			cpu_relax();
+-			*pval = val = atomic_read(&lock->val);
++			val = atomic_read(&lock->val);
+ 			continue;
+ 		}
+ 
+@@ -627,7 +622,7 @@ static inline int trylock_pending(struct qspinlock *lock, u32 *pval)
+ 		if (old == val)
+ 			break;
+ 
+-		*pval = val = old;
++		val = old;
+ 	}
+ 
+ 	/*
+@@ -643,7 +638,7 @@ static inline int trylock_pending(struct qspinlock *lock, u32 *pval)
+ 	 *
+ 	 * this wait loop must be a load-acquire such that we match the
+ 	 * store-release that clears the locked bit and create lock
+-	 * sequentiality; this because not all try_clear_pending_set_locked()
++	 * sequentiality; this because not all clear_pending_set_locked()
+ 	 * implementations imply full barriers.
+ 	 *
+ 	 * When PV qspinlock is enabled, exit the pending bit code path and
+@@ -835,6 +830,10 @@ notify_next:
+  * contended             :    (*,x,y) +--> (*,0,0) ---> (*,0,1) -'  :
+  *   queue               :         ^--'                             :
+  *
++ * The pending bit processing is in the trylock_pending() function whereas
++ * the uncontended and contended queue processing is in the
++ * queue_spin_lock_slowerpath() function.
++ *
+  * This slowpath only contains the faster pending bit and trylock codes.
+  * The slower queuing code is in the slowerpath function.
+  */
+@@ -845,7 +844,7 @@ void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+ 
+ 	BUILD_BUG_ON(CONFIG_NR_CPUS >= (1U << _Q_TAIL_CPU_BITS));
+ 
+-	if (trylock_pending(lock, &val))
++	if (trylock_pending(lock, val))
+ 		return;	/* Lock acquired */
+ 
+ 	node = this_cpu_ptr(&qnodes[0]);
+@@ -859,11 +858,11 @@ void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+ 	pv_init_vars(&node->pv, cpu_nr);
+ 
+ 	/*
+-	 * We touched a (possibly) cold cacheline; attempt the trylock once
+-	 * more in the hope someone let go while we weren't watching as long
+-	 * as no one was queuing.
++	 * We touched a (possibly) cold cacheline in the per-cpu queue node;
++	 * attempt the trylock once more in the hope someone let go while we
++	 * weren't watching.
+ 	 */
+-	if ((val & _Q_TAIL_MASK) || !queue_spin_trylock(lock))
++	if (!queue_spin_trylock(lock))
+ 		queue_spin_lock_slowerpath(lock, node, tail);
+ 
+ 	/*
+
+--------------020601050200020304070000
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--------------020601050200020304070000--
