@@ -1,11 +1,14 @@
-From: Amos Kong <akong@redhat.com>
-Subject: [PATCH] virtio-rng: support multiple virtio-rng devices
-Date: Sat, 26 Apr 2014 00:12:53 +0800
-Message-ID: <1398442373-19412-1-git-send-email-akong@redhat.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [PATCH v9 00/19] qspinlock: a 4-byte queue spinlock with PV
+	support
+Date: Sun, 27 Apr 2014 23:39:23 +0530
+Message-ID: <535D47D3.20202__48857.7947406613$1398622425$gmane$org@linux.vnet.ibm.com>
+References: <1397747051-15401-1-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1397747051-15401-1-git-send-email-Waiman.Long@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,210 +18,158 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
-Cc: amit.shah@redhat.com, qemu-devel@nongnu.org, aliguori@amazon.com
+To: Waiman Long <Waiman.Long@hp.com>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <peterz@infradead.org>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Oleg Nesterov <oleg@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Current hwrng core supports to register multiple hwrng devices,
-and there is only one device really works in the same time.
-QEMU alsu supports to have multiple virtio-rng backends.
+On 04/17/2014 08:33 PM, Waiman Long wrote:
+> v8->v9:
+>    - Integrate PeterZ's version of the queue spinlock patch with some
+>      modification:
+>      http://lkml.kernel.org/r/20140310154236.038181843@infradead.org
+>    - Break the more complex patches into smaller ones to ease review effort.
+>    - Fix a racing condition in the PV qspinlock code.
+>
+> v7->v8:
+>    - Remove one unneeded atomic operation from the slowpath, thus
+>      improving performance.
+>    - Simplify some of the codes and add more comments.
+>    - Test for X86_FEATURE_HYPERVISOR CPU feature bit to enable/disable
+>      unfair lock.
+>    - Reduce unfair lock slowpath lock stealing frequency depending
+>      on its distance from the queue head.
+>    - Add performance data for IvyBridge-EX CPU.
+>
+> v6->v7:
+>    - Remove an atomic operation from the 2-task contending code
+>    - Shorten the names of some macros
+>    - Make the queue waiter to attempt to steal lock when unfair lock is
+>      enabled.
+>    - Remove lock holder kick from the PV code and fix a race condition
+>    - Run the unfair lock & PV code on overcommitted KVM guests to collect
+>      performance data.
+>
+> v5->v6:
+>   - Change the optimized 2-task contending code to make it fairer at the
+>     expense of a bit of performance.
+>   - Add a patch to support unfair queue spinlock for Xen.
+>   - Modify the PV qspinlock code to follow what was done in the PV
+>     ticketlock.
+>   - Add performance data for the unfair lock as well as the PV
+>     support code.
+>
+> v4->v5:
+>   - Move the optimized 2-task contending code to the generic file to
+>     enable more architectures to use it without code duplication.
+>   - Address some of the style-related comments by PeterZ.
+>   - Allow the use of unfair queue spinlock in a real para-virtualized
+>     execution environment.
+>   - Add para-virtualization support to the qspinlock code by ensuring
+>     that the lock holder and queue head stay alive as much as possible.
+>
+> v3->v4:
+>   - Remove debugging code and fix a configuration error
+>   - Simplify the qspinlock structure and streamline the code to make it
+>     perform a bit better
+>   - Add an x86 version of asm/qspinlock.h for holding x86 specific
+>     optimization.
+>   - Add an optimized x86 code path for 2 contending tasks to improve
+>     low contention performance.
+>
+> v2->v3:
+>   - Simplify the code by using numerous mode only without an unfair option.
+>   - Use the latest smp_load_acquire()/smp_store_release() barriers.
+>   - Move the queue spinlock code to kernel/locking.
+>   - Make the use of queue spinlock the default for x86-64 without user
+>     configuration.
+>   - Additional performance tuning.
+>
+> v1->v2:
+>   - Add some more comments to document what the code does.
+>   - Add a numerous CPU mode to support >= 16K CPUs
+>   - Add a configuration option to allow lock stealing which can further
+>     improve performance in many cases.
+>   - Enable wakeup of queue head CPU at unlock time for non-numerous
+>     CPU mode.
+>
+> This patch set has 3 different sections:
+>   1) Patches 1-7: Introduces a queue-based spinlock implementation that
+>      can replace the default ticket spinlock without increasing the
+>      size of the spinlock data structure. As a result, critical kernel
+>      data structures that embed spinlock won't increase in size and
+>      break data alignments.
+>   2) Patches 8-13: Enables the use of unfair queue spinlock in a
+>      virtual guest. This can resolve some of the locking related
+>      performance issues due to the fact that the next CPU to get the
+>      lock may have been scheduled out for a period of time.
+>   3) Patches 14-19: Enable qspinlock para-virtualization support
+>      by halting the waiting CPUs after spinning for a certain amount of
+>      time. The unlock code will detect the a sleeping waiter and wake it
+>      up. This is essentially the same logic as the PV ticketlock code.
+>
+> The queue spinlock has slightly better performance than the ticket
+> spinlock in uncontended case. Its performance can be much better
+> with moderate to heavy contention.  This patch has the potential of
+> improving the performance of all the workloads that have moderate to
+> heavy spinlock contention.
+>
+> The queue spinlock is especially suitable for NUMA machines with at
+> least 2 sockets, though noticeable performance benefit probably won't
+> show up in machines with less than 4 sockets.
+>
+> The purpose of this patch set is not to solve any particular spinlock
+> contention problems. Those need to be solved by refactoring the code
+> to make more efficient use of the lock or finer granularity ones. The
+> main purpose is to make the lock contention problems more tolerable
+> until someone can spend the time and effort to fix them.
 
-This patch changes virtio-rng driver to support multiple
-virtio-rng devices.
+For kvm part feel free to add:
+Tested-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 
-]# cat /sys/class/misc/hw_random/rng_available
-virtio_rng.0 virtio_rng.1
-]# cat /sys/class/misc/hw_random/rng_current
-virtio_rng.0
-]# echo -n virtio_rng.1 > /sys/class/misc/hw_random/rng_current
-]# dd if=/dev/hwrng of=/dev/null
+V9 testing has shown no hangs.
+I was able to do some performance testing. here are the results:
 
-Signed-off-by: Amos Kong <akong@redhat.com>
----
- drivers/char/hw_random/virtio-rng.c | 102 ++++++++++++++++++++++--------------
- include/linux/hw_random.h           |   2 +-
- 2 files changed, 64 insertions(+), 40 deletions(-)
+Overall we are seeing good improvement for pv-unfair version.
 
-diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-index 2ce0e22..12e242b 100644
---- a/drivers/char/hw_random/virtio-rng.c
-+++ b/drivers/char/hw_random/virtio-rng.c
-@@ -25,88 +25,108 @@
- #include <linux/virtio_rng.h>
- #include <linux/module.h>
- 
--static struct virtqueue *vq;
--static unsigned int data_avail;
--static DECLARE_COMPLETION(have_data);
--static bool busy;
-+
-+struct virtrng_info {
-+	struct virtio_device *vdev;
-+	struct hwrng hwrng;
-+	struct virtqueue *vq;
-+	unsigned int data_avail;
-+	struct completion have_data;
-+	bool busy;
-+};
- 
- static void random_recv_done(struct virtqueue *vq)
- {
-+	struct virtrng_info *vi = vq->vdev->priv;
-+
- 	/* We can get spurious callbacks, e.g. shared IRQs + virtio_pci. */
--	if (!virtqueue_get_buf(vq, &data_avail))
-+	if (!virtqueue_get_buf(vi->vq, &vi->data_avail))
- 		return;
- 
--	complete(&have_data);
-+	complete(&vi->have_data);
- }
- 
- /* The host will fill any buffer we give it with sweet, sweet randomness. */
--static void register_buffer(u8 *buf, size_t size)
-+static void register_buffer(struct virtrng_info *vi, u8 *buf, size_t size)
- {
- 	struct scatterlist sg;
- 
- 	sg_init_one(&sg, buf, size);
- 
- 	/* There should always be room for one buffer. */
--	virtqueue_add_inbuf(vq, &sg, 1, buf, GFP_KERNEL);
-+	virtqueue_add_inbuf(vi->vq, &sg, 1, buf, GFP_KERNEL);
- 
--	virtqueue_kick(vq);
-+	virtqueue_kick(vi->vq);
- }
- 
- static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
- {
- 	int ret;
-+	struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
- 
--	if (!busy) {
--		busy = true;
--		init_completion(&have_data);
--		register_buffer(buf, size);
-+	if (!vi->busy) {
-+		vi->busy = true;
-+		init_completion(&vi->have_data);
-+		register_buffer(vi, buf, size);
- 	}
- 
- 	if (!wait)
- 		return 0;
- 
--	ret = wait_for_completion_killable(&have_data);
-+	ret = wait_for_completion_killable(&vi->have_data);
- 	if (ret < 0)
- 		return ret;
- 
--	busy = false;
-+	vi->busy = false;
- 
--	return data_avail;
-+	return vi->data_avail;
- }
- 
- static void virtio_cleanup(struct hwrng *rng)
- {
--	if (busy)
--		wait_for_completion(&have_data);
--}
--
-+	struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
- 
--static struct hwrng virtio_hwrng = {
--	.name		= "virtio",
--	.cleanup	= virtio_cleanup,
--	.read		= virtio_read,
--};
-+	if (vi->busy)
-+		wait_for_completion(&vi->have_data);
-+}
- 
- static int probe_common(struct virtio_device *vdev)
- {
--	int err;
-+	int err, i;
-+	struct virtrng_info *vi = NULL;
-+
-+	vi = kmalloc(sizeof(struct virtrng_info), GFP_KERNEL);
-+	vi->hwrng.name = kmalloc(40, GFP_KERNEL);
-+	init_completion(&vi->have_data);
-+
-+	vi->hwrng.read = virtio_read;
-+	vi->hwrng.cleanup = virtio_cleanup;
-+	vi->hwrng.priv = (unsigned long)vi;
-+	vdev->priv = vi;
- 
--	if (vq) {
--		/* We only support one device for now */
--		return -EBUSY;
--	}
- 	/* We expect a single virtqueue. */
--	vq = virtio_find_single_vq(vdev, random_recv_done, "input");
--	if (IS_ERR(vq)) {
--		err = PTR_ERR(vq);
--		vq = NULL;
-+	vi->vq = virtio_find_single_vq(vdev, random_recv_done, "input");
-+	if (IS_ERR(vi->vq)) {
-+		err = PTR_ERR(vi->vq);
-+		kfree(vi->hwrng.name);
-+		vi->vq = NULL;
-+		kfree(vi);
-+		vi = NULL;
- 		return err;
- 	}
- 
--	err = hwrng_register(&virtio_hwrng);
-+	i = 0;
-+	do {
-+		sprintf(vi->hwrng.name, "virtio_rng.%d", i++);
-+		err = hwrng_register(&vi->hwrng);
-+	} while (err == -EEXIST);
-+
- 	if (err) {
- 		vdev->config->del_vqs(vdev);
--		vq = NULL;
-+		kfree(vi->hwrng.name);
-+		vi->vq = NULL;
-+		kfree(vi);
-+		vi = NULL;
- 		return err;
- 	}
- 
-@@ -115,11 +135,15 @@ static int probe_common(struct virtio_device *vdev)
- 
- static void remove_common(struct virtio_device *vdev)
- {
-+	struct virtrng_info *vi = vdev->priv;
- 	vdev->config->reset(vdev);
--	busy = false;
--	hwrng_unregister(&virtio_hwrng);
-+	vi->busy = false;
-+	hwrng_unregister(&vi->hwrng);
- 	vdev->config->del_vqs(vdev);
--	vq = NULL;
-+	kfree(vi->hwrng.name);
-+	vi->vq = NULL;
-+	kfree(vi);
-+	vi = NULL;
- }
- 
- static int virtrng_probe(struct virtio_device *vdev)
-diff --git a/include/linux/hw_random.h b/include/linux/hw_random.h
-index b4b0eef..02d9c87 100644
---- a/include/linux/hw_random.h
-+++ b/include/linux/hw_random.h
-@@ -31,7 +31,7 @@
-  * @priv:		Private data, for use by the RNG driver.
-  */
- struct hwrng {
--	const char *name;
-+	char *name;
- 	int (*init)(struct hwrng *rng);
- 	void (*cleanup)(struct hwrng *rng);
- 	int (*data_present)(struct hwrng *rng, int wait);
--- 
-1.9.0
+System : 32 cpu sandybridge with HT on. (4 node machine with 32 GB each)
+Guest: 8GB with 16 vcpu/VM.
+Average was taken over 8-10 data points.
+
+Base = 3.15-rc2	with PRAVIRT_SPINLOCK = y
+A = 3.15-rc2 + qspinlock v9 patch with QUEUE_SPINLOCK = y 
+PRAVIRT_SPINLOCK = y PARAVIRT_UNFAIR_LOCKS = y (unfair lock)
+B =  3.15-rc2 + qspinlock v9 patch with QUEUE_SPINLOCK = y 
+PRAVIRT_SPINLOCK = n PARAVIRT_UNFAIR_LOCKS = n (queue spinlock without 
+paravirt)
+C = 3.15-rc2 + qspinlock v9 patch with  QUEUE_SPINLOCK = y 
+PRAVIRT_SPINLOCK = y  PARAVIRT_UNFAIR_LOCKS = n (queue spinlock with 
+paravirt)
+
+
+Ebizzy % improvements
+========================
+overcommit A		B		C
+0.5x	4.4265    	2.0611    	1.5824
+1.0x	0.9015    	-7.7828   	4.5443
+1.5x	46.1162   	-2.9845   	-3.5046
+2.0x	99.8150   	-2.7116   	4.7461
+
+Dbench 	%improvements
+overcommit A		B		C
+0.5x	3.2617    	3.5436    	2.5676
+1.0x	0.6302    	2.2342    	5.2201
+1.5x	5.0027    	4.8275    	3.8375
+2.0x	23.8242   	4.5782    	12.6067
+
+Absolute values of base results: (overcommit, value, stdev)
+Ebizzy ( records / sec with 120 sec run)
+0.5x 20941.8750 (2%)
+1.0x 17623.8750 (5%)
+1.5x  5874.7778 (15%)
+2.0x  3581.8750 (7%)
+
+Dbench (throughput in MB/sec)
+0.5x 10009.6610 (5%)
+1.0x  6583.0538 (1%)
+1.5x  3991.9622 (4%)
+2.0x  2527.0613 (2.5%)
