@@ -1,13 +1,11 @@
-From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH] virtio-rng: support multiple virtio-rng devices
-Date: Tue, 29 Apr 2014 10:44:54 +0930
-Message-ID: <8738gxszqp.fsf@rustcorp.com.au>
-References: <1398442373-19412-1-git-send-email-akong@redhat.com>
+From: Andy King <acking@vmware.com>
+Subject: [PATCH] vsock: Make transport the proto owner
+Date: Thu,  1 May 2014 15:09:13 -0700
+Message-ID: <1398982153-31436-1-git-send-email-acking__43821.9537762508$1398982134$gmane$org@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1398442373-19412-1-git-send-email-akong@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,220 +15,119 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Amos Kong <akong@redhat.com>, virtualization@lists.linux-foundation.org
-Cc: amit.shah@redhat.com, qemu-devel@nongnu.org, aliguori@amazon.com
+To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, Andy King <acking@vmware.com>, davem@davemloft.net, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Amos Kong <akong@redhat.com> writes:
-> Current hwrng core supports to register multiple hwrng devices,
-> and there is only one device really works in the same time.
-> QEMU alsu supports to have multiple virtio-rng backends.
->
-> This patch changes virtio-rng driver to support multiple
-> virtio-rng devices.
+Right now the core vsock module is the owner of the proto family. This
+means there's nothing preventing the transport module from unloading if
+there are open sockets, which results in a panic. Fix that by allowing
+the transport to be the owner, which will refcount it properly.
 
-I never thought anyone would want multiple RNG devices, as it doesn't
-seem to make sense.
+Includes version bump to 1.0.1.0-k
 
-But why not?
+Cc: stable@vger.kernel.org
+Acked-by: Dmitry Torokhov <dtor@vmware.com>
+Signed-off-by: Andy King <acking@vmware.com>
+---
+ include/net/af_vsock.h   |    6 +++++-
+ net/vmw_vsock/af_vsock.c |   46 +++++++++++++++++++++-------------------------
+ 2 files changed, 26 insertions(+), 26 deletions(-)
 
-Applied,
-Rusty.
-
->
-> ]# cat /sys/class/misc/hw_random/rng_available
-> virtio_rng.0 virtio_rng.1
-> ]# cat /sys/class/misc/hw_random/rng_current
-> virtio_rng.0
-> ]# echo -n virtio_rng.1 > /sys/class/misc/hw_random/rng_current
-> ]# dd if=/dev/hwrng of=/dev/null
->
-> Signed-off-by: Amos Kong <akong@redhat.com>
-> ---
->  drivers/char/hw_random/virtio-rng.c | 102 ++++++++++++++++++++++--------------
->  include/linux/hw_random.h           |   2 +-
->  2 files changed, 64 insertions(+), 40 deletions(-)
->
-> diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-> index 2ce0e22..12e242b 100644
-> --- a/drivers/char/hw_random/virtio-rng.c
-> +++ b/drivers/char/hw_random/virtio-rng.c
-> @@ -25,88 +25,108 @@
->  #include <linux/virtio_rng.h>
->  #include <linux/module.h>
->  
-> -static struct virtqueue *vq;
-> -static unsigned int data_avail;
-> -static DECLARE_COMPLETION(have_data);
-> -static bool busy;
-> +
-> +struct virtrng_info {
-> +	struct virtio_device *vdev;
-> +	struct hwrng hwrng;
-> +	struct virtqueue *vq;
-> +	unsigned int data_avail;
-> +	struct completion have_data;
-> +	bool busy;
-> +};
->  
->  static void random_recv_done(struct virtqueue *vq)
->  {
-> +	struct virtrng_info *vi = vq->vdev->priv;
-> +
->  	/* We can get spurious callbacks, e.g. shared IRQs + virtio_pci. */
-> -	if (!virtqueue_get_buf(vq, &data_avail))
-> +	if (!virtqueue_get_buf(vi->vq, &vi->data_avail))
->  		return;
->  
-> -	complete(&have_data);
-> +	complete(&vi->have_data);
->  }
->  
->  /* The host will fill any buffer we give it with sweet, sweet randomness. */
-> -static void register_buffer(u8 *buf, size_t size)
-> +static void register_buffer(struct virtrng_info *vi, u8 *buf, size_t size)
->  {
->  	struct scatterlist sg;
->  
->  	sg_init_one(&sg, buf, size);
->  
->  	/* There should always be room for one buffer. */
-> -	virtqueue_add_inbuf(vq, &sg, 1, buf, GFP_KERNEL);
-> +	virtqueue_add_inbuf(vi->vq, &sg, 1, buf, GFP_KERNEL);
->  
-> -	virtqueue_kick(vq);
-> +	virtqueue_kick(vi->vq);
->  }
->  
->  static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
->  {
->  	int ret;
-> +	struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
->  
-> -	if (!busy) {
-> -		busy = true;
-> -		init_completion(&have_data);
-> -		register_buffer(buf, size);
-> +	if (!vi->busy) {
-> +		vi->busy = true;
-> +		init_completion(&vi->have_data);
-> +		register_buffer(vi, buf, size);
->  	}
->  
->  	if (!wait)
->  		return 0;
->  
-> -	ret = wait_for_completion_killable(&have_data);
-> +	ret = wait_for_completion_killable(&vi->have_data);
->  	if (ret < 0)
->  		return ret;
->  
-> -	busy = false;
-> +	vi->busy = false;
->  
-> -	return data_avail;
-> +	return vi->data_avail;
->  }
->  
->  static void virtio_cleanup(struct hwrng *rng)
->  {
-> -	if (busy)
-> -		wait_for_completion(&have_data);
-> -}
-> -
-> +	struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
->  
-> -static struct hwrng virtio_hwrng = {
-> -	.name		= "virtio",
-> -	.cleanup	= virtio_cleanup,
-> -	.read		= virtio_read,
-> -};
-> +	if (vi->busy)
-> +		wait_for_completion(&vi->have_data);
-> +}
->  
->  static int probe_common(struct virtio_device *vdev)
->  {
-> -	int err;
-> +	int err, i;
-> +	struct virtrng_info *vi = NULL;
-> +
-> +	vi = kmalloc(sizeof(struct virtrng_info), GFP_KERNEL);
-> +	vi->hwrng.name = kmalloc(40, GFP_KERNEL);
-> +	init_completion(&vi->have_data);
-> +
-> +	vi->hwrng.read = virtio_read;
-> +	vi->hwrng.cleanup = virtio_cleanup;
-> +	vi->hwrng.priv = (unsigned long)vi;
-> +	vdev->priv = vi;
->  
-> -	if (vq) {
-> -		/* We only support one device for now */
-> -		return -EBUSY;
-> -	}
->  	/* We expect a single virtqueue. */
-> -	vq = virtio_find_single_vq(vdev, random_recv_done, "input");
-> -	if (IS_ERR(vq)) {
-> -		err = PTR_ERR(vq);
-> -		vq = NULL;
-> +	vi->vq = virtio_find_single_vq(vdev, random_recv_done, "input");
-> +	if (IS_ERR(vi->vq)) {
-> +		err = PTR_ERR(vi->vq);
-> +		kfree(vi->hwrng.name);
-> +		vi->vq = NULL;
-> +		kfree(vi);
-> +		vi = NULL;
->  		return err;
->  	}
->  
-> -	err = hwrng_register(&virtio_hwrng);
-> +	i = 0;
-> +	do {
-> +		sprintf(vi->hwrng.name, "virtio_rng.%d", i++);
-> +		err = hwrng_register(&vi->hwrng);
-> +	} while (err == -EEXIST);
-> +
->  	if (err) {
->  		vdev->config->del_vqs(vdev);
-> -		vq = NULL;
-> +		kfree(vi->hwrng.name);
-> +		vi->vq = NULL;
-> +		kfree(vi);
-> +		vi = NULL;
->  		return err;
->  	}
->  
-> @@ -115,11 +135,15 @@ static int probe_common(struct virtio_device *vdev)
->  
->  static void remove_common(struct virtio_device *vdev)
->  {
-> +	struct virtrng_info *vi = vdev->priv;
->  	vdev->config->reset(vdev);
-> -	busy = false;
-> -	hwrng_unregister(&virtio_hwrng);
-> +	vi->busy = false;
-> +	hwrng_unregister(&vi->hwrng);
->  	vdev->config->del_vqs(vdev);
-> -	vq = NULL;
-> +	kfree(vi->hwrng.name);
-> +	vi->vq = NULL;
-> +	kfree(vi);
-> +	vi = NULL;
->  }
->  
->  static int virtrng_probe(struct virtio_device *vdev)
-> diff --git a/include/linux/hw_random.h b/include/linux/hw_random.h
-> index b4b0eef..02d9c87 100644
-> --- a/include/linux/hw_random.h
-> +++ b/include/linux/hw_random.h
-> @@ -31,7 +31,7 @@
->   * @priv:		Private data, for use by the RNG driver.
->   */
->  struct hwrng {
-> -	const char *name;
-> +	char *name;
->  	int (*init)(struct hwrng *rng);
->  	void (*cleanup)(struct hwrng *rng);
->  	int (*data_present)(struct hwrng *rng, int wait);
-> -- 
-> 1.9.0
+diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+index 7d64d36..8f02e5c 100644
+--- a/include/net/af_vsock.h
++++ b/include/net/af_vsock.h
+@@ -155,7 +155,11 @@ struct vsock_transport {
+ 
+ /**** CORE ****/
+ 
+-int vsock_core_init(const struct vsock_transport *t);
++int __vsock_core_init(const struct vsock_transport *t, struct module *owner);
++static inline int vsock_core_init(const struct vsock_transport *t)
++{
++   return __vsock_core_init(t, THIS_MODULE);
++}
+ void vsock_core_exit(void);
+ 
+ /**** UTILS ****/
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 5adfd94..5743553 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1925,9 +1925,22 @@ static struct miscdevice vsock_device = {
+ 	.fops		= &vsock_device_ops,
+ };
+ 
+-static int __vsock_core_init(void)
++int __vsock_core_init(const struct vsock_transport *t, struct module *owner)
+ {
+-	int err;
++	int err = mutex_lock_interruptible(&vsock_register_mutex);
++	if (err)
++		return err;
++
++	if (transport) {
++		err = -EBUSY;
++		goto err_busy;
++	}
++
++	/* Transport must be the owner of the protocol so that it can't
++	 * unload while there are open sockets.
++	 */
++	vsock_proto.owner = owner;
++	transport = t;
+ 
+ 	vsock_init_tables();
+ 
+@@ -1951,36 +1964,19 @@ static int __vsock_core_init(void)
+ 		goto err_unregister_proto;
+ 	}
+ 
++	mutex_unlock(&vsock_register_mutex);
+ 	return 0;
+ 
+ err_unregister_proto:
+ 	proto_unregister(&vsock_proto);
+ err_misc_deregister:
+ 	misc_deregister(&vsock_device);
+-	return err;
+-}
+-
+-int vsock_core_init(const struct vsock_transport *t)
+-{
+-	int retval = mutex_lock_interruptible(&vsock_register_mutex);
+-	if (retval)
+-		return retval;
+-
+-	if (transport) {
+-		retval = -EBUSY;
+-		goto out;
+-	}
+-
+-	transport = t;
+-	retval = __vsock_core_init();
+-	if (retval)
+-		transport = NULL;
+-
+-out:
++	transport = NULL;
++err_busy:
+ 	mutex_unlock(&vsock_register_mutex);
+-	return retval;
++	return err;
+ }
+-EXPORT_SYMBOL_GPL(vsock_core_init);
++EXPORT_SYMBOL_GPL(__vsock_core_init);
+ 
+ void vsock_core_exit(void)
+ {
+@@ -2000,5 +1996,5 @@ EXPORT_SYMBOL_GPL(vsock_core_exit);
+ 
+ MODULE_AUTHOR("VMware, Inc.");
+ MODULE_DESCRIPTION("VMware Virtual Socket Family");
+-MODULE_VERSION("1.0.0.0-k");
++MODULE_VERSION("1.0.1.0-k");
+ MODULE_LICENSE("GPL v2");
+-- 
+1.7.4.1
