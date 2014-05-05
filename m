@@ -1,11 +1,13 @@
 From: Jiri Olsa <jolsa@kernel.org>
-Subject: [GIT PULL 01/12] perf/core improvements and fixes
-Date: Mon,  5 May 2014 19:35:36 +0200
-Message-ID: <1399311348-28152-1-git-send-email-jolsa__1574.59142287752$1399562381$gmane$org@kernel.org>
+Subject: [PATCH 01/12] tools: Unify export.h
+Date: Mon,  5 May 2014 19:35:37 +0200
+Message-ID: <1399311348-28152-2-git-send-email-jolsa__42462.7645676539$1399562389$gmane$org@kernel.org>
+References: <1399311348-28152-1-git-send-email-jolsa@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1399311348-28152-1-git-send-email-jolsa@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,112 +18,145 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Ingo Molnar <mingo@kernel.org>
-Cc: virtio-dev@lists.oasis-open.org, Peter Zijlstra <a.p.zijlstra@chello.nl>, Corey Ashford <cjashfor@linux.vnet.ibm.com>, Frederic Weisbecker <fweisbec@gmail.com>, "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, virtualization@lists.linux-foundation.org, Paul Mackerras <paulus@samba.org>, Jiri Olsa <jolsa@kernel.org>, David Ahern <dsahern@gmail.com>, Namhyung Kim <namhyung@kernel.org>, Borislav Petkov <bp@suse.de>, Sasha Levin <sasha.levin@oracle.com>
+Cc: virtio-dev@lists.oasis-open.org, Peter Zijlstra <a.p.zijlstra@chello.nl>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Arnaldo Carvalho de Melo <acme@kernel.org>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Paul Mackerras <paulus@samba.org>, Jiri Olsa <jolsa@kernel.org>, Sasha Levin <sasha.levin@oracle.com>, Borislav Petkov <bp@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Borislav Petkov <bp@suse.de>
 
-hi Ingo,
-please consider pulling
+So tools/ has been growing three, at a different stage of their
+development export.h headers and so we should unite into one. Add
+tools/include/ to the include path of virtio and liblockdep to pick the
+shared header now.
 
-thanks,
-jirka
-
-
-The following changes since commit 3617660e4e1618a888a2e3a4067224534302cb33:
-
-  Merge tag 'perf-core-for-mingo' of git://git.kernel.org/pub/scm/linux/kernel/git/jolsa/perf into perf/core (2014-05-01 08:24:59 +0200)
-
-are available in the git repository at:
-
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/jolsa/perf.git tags/perf-core-for-mingo
-
-for you to fetch changes up to 73a31b7c6a85e2f033524058bad5bce900e4f2ed:
-
-  perf tools: Move ACCESS_ONCE from perf.h header (2014-05-05 17:49:07 +0200)
-
-----------------------------------------------------------------
-perf/core improvements and fixes:
-
-. Cleanups for perf.h header (Jiri Olsa)
-
-. Consolidate types.h and export.h within tools (Borislav Petkov)
-
-----------------------------------------------------------------
-Borislav Petkov (2):
-      tools: Unify export.h
-      tools: Consolidate types.h
-
-Jiri Olsa (10):
-      perf tools: Remove MAX_COUNTERS define from perf.h
-      perf tools: Remove unlikely define from perf.h
-      perf tools: Remove min define from perf.h
-      perf tools: Remove asmlinkage define from perf.h
-      perf tools: Remove PR_TASK_PERF_EVENTS_* from perf.h
-      perf tools: Move sample data structures from perf.h
-      perf tools: Move perf_call_graph_mode enum from perf.h
-      perf tools: Move syscall and arch specific defines from perf.h
-      perf tools: Move sys_perf_event_open function from perf.h
-      perf tools: Move ACCESS_ONCE from perf.h header
-
- tools/include/linux/compiler.h                     |   2 +
- tools/{virtio => include}/linux/export.h           |   5 +
- .../lockdep/uinclude => include}/linux/types.h     |  29 ++-
- tools/lib/lockdep/Makefile                         |   2 +-
- tools/lib/lockdep/uinclude/linux/export.h          |   7 -
- tools/perf/MANIFEST                                |   2 +
- tools/perf/Makefile.perf                           |   5 +-
- tools/perf/arch/x86/include/perf_regs.h            |   2 +-
- tools/perf/arch/x86/util/tsc.c                     |   2 +-
- tools/perf/arch/x86/util/tsc.h                     |   2 +-
- tools/perf/perf-sys.h                              | 190 +++++++++++++++
- tools/perf/perf.h                                  | 254 +--------------------
- tools/perf/tests/attr.c                            |   7 -
- tools/perf/tests/code-reading.c                    |   3 +-
- tools/perf/tests/dso-data.c                        |   2 +-
- tools/perf/tests/dwarf-unwind.c                    |   2 +-
- tools/perf/tests/keep-tracking.c                   |   2 +-
- tools/perf/tests/parse-no-sample-id-all.c          |   2 +-
- tools/perf/tests/perf-time-to-tsc.c                |   3 +-
- tools/perf/tests/rdpmc.c                           |   2 +-
- tools/perf/tests/sample-parsing.c                  |   2 +-
- tools/perf/ui/browser.h                            |   4 +-
- tools/perf/ui/progress.h                           |   2 +-
- tools/perf/util/annotate.h                         |   2 +-
- tools/perf/util/build-id.h                         |   2 +-
- tools/perf/util/callchain.h                        |   7 +
- tools/perf/util/dso.h                              |   2 +-
- tools/perf/util/event.h                            |  24 ++
- tools/perf/util/evsel.h                            |   4 +-
- tools/perf/util/header.h                           |   4 +-
- tools/perf/util/include/linux/bitmap.h             |   3 +
- tools/perf/util/include/linux/export.h             |   6 -
- tools/perf/util/include/linux/list.h               |   1 +
- tools/perf/util/include/linux/types.h              |  29 ---
- tools/perf/util/map.h                              |   2 +-
- tools/perf/util/parse-events.h                     |   3 +-
- tools/perf/util/parse-events.y                     |   2 +-
- tools/perf/util/perf_regs.h                        |   2 +-
- tools/perf/util/pmu.h                              |   2 +-
- tools/perf/util/stat.h                             |   2 +-
- tools/perf/util/svghelper.c                        |   2 +-
- tools/perf/util/svghelper.h                        |   2 +-
- tools/perf/util/symbol.h                           |   1 +
- tools/perf/util/top.h                              |   2 +-
- tools/perf/util/types.h                            |  19 --
- tools/perf/util/unwind-libdw.c                     |   2 +-
- tools/perf/util/unwind.h                           |   2 +-
- tools/perf/util/util.h                             |   2 +-
- tools/perf/util/values.h                           |   2 +-
- tools/virtio/Makefile                              |   2 +-
- tools/virtio/linux/kernel.h                        |   7 -
- tools/virtio/linux/types.h                         |  28 ---
- 52 files changed, 304 insertions(+), 397 deletions(-)
- rename tools/{virtio => include}/linux/export.h (70%)
- rename tools/{lib/lockdep/uinclude => include}/linux/types.h (63%)
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Sasha Levin <sasha.levin@oracle.com>
+Cc: virtio-dev@lists.oasis-open.org
+Cc: virtualization@lists.linux-foundation.org
+Link: http://lkml.kernel.org/r/1397493185-19521-2-git-send-email-bp@alien8.de
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+---
+ tools/include/linux/export.h              | 10 ++++++++++
+ tools/lib/lockdep/Makefile                |  2 +-
+ tools/lib/lockdep/uinclude/linux/export.h |  7 -------
+ tools/perf/MANIFEST                       |  1 +
+ tools/perf/Makefile.perf                  |  2 +-
+ tools/perf/util/include/linux/export.h    |  6 ------
+ tools/virtio/Makefile                     |  2 +-
+ tools/virtio/linux/export.h               |  5 -----
+ 8 files changed, 14 insertions(+), 21 deletions(-)
+ create mode 100644 tools/include/linux/export.h
  delete mode 100644 tools/lib/lockdep/uinclude/linux/export.h
- create mode 100644 tools/perf/perf-sys.h
  delete mode 100644 tools/perf/util/include/linux/export.h
- delete mode 100644 tools/perf/util/include/linux/types.h
- delete mode 100644 tools/perf/util/types.h
- delete mode 100644 tools/virtio/linux/types.h
+ delete mode 100644 tools/virtio/linux/export.h
+
+diff --git a/tools/include/linux/export.h b/tools/include/linux/export.h
+new file mode 100644
+index 0000000..d07e586
+--- /dev/null
++++ b/tools/include/linux/export.h
+@@ -0,0 +1,10 @@
++#ifndef _TOOLS_LINUX_EXPORT_H_
++#define _TOOLS_LINUX_EXPORT_H_
++
++#define EXPORT_SYMBOL(sym)
++#define EXPORT_SYMBOL_GPL(sym)
++#define EXPORT_SYMBOL_GPL_FUTURE(sym)
++#define EXPORT_UNUSED_SYMBOL(sym)
++#define EXPORT_UNUSED_SYMBOL_GPL(sym)
++
++#endif
+diff --git a/tools/lib/lockdep/Makefile b/tools/lib/lockdep/Makefile
+index cb09d3f..85ef05d 100644
+--- a/tools/lib/lockdep/Makefile
++++ b/tools/lib/lockdep/Makefile
+@@ -105,7 +105,7 @@ N		=
+ 
+ export Q VERBOSE
+ 
+-INCLUDES = -I. -I/usr/local/include -I./uinclude -I./include $(CONFIG_INCLUDES)
++INCLUDES = -I. -I/usr/local/include -I./uinclude -I./include -I../../include $(CONFIG_INCLUDES)
+ 
+ # Set compile option CFLAGS if not set elsewhere
+ CFLAGS ?= -g -DCONFIG_LOCKDEP -DCONFIG_STACKTRACE -DCONFIG_PROVE_LOCKING -DBITS_PER_LONG=__WORDSIZE -DLIBLOCKDEP_VERSION='"$(LIBLOCKDEP_VERSION)"' -rdynamic -O0 -g
+diff --git a/tools/lib/lockdep/uinclude/linux/export.h b/tools/lib/lockdep/uinclude/linux/export.h
+deleted file mode 100644
+index 6bdf349..0000000
+--- a/tools/lib/lockdep/uinclude/linux/export.h
++++ /dev/null
+@@ -1,7 +0,0 @@
+-#ifndef _LIBLOCKDEP_LINUX_EXPORT_H_
+-#define _LIBLOCKDEP_LINUX_EXPORT_H_
+-
+-#define EXPORT_SYMBOL(sym)
+-#define EXPORT_SYMBOL_GPL(sym)
+-
+-#endif
+diff --git a/tools/perf/MANIFEST b/tools/perf/MANIFEST
+index c0c87c8..81783c2 100644
+--- a/tools/perf/MANIFEST
++++ b/tools/perf/MANIFEST
+@@ -7,6 +7,7 @@ tools/lib/symbol/kallsyms.h
+ tools/include/asm/bug.h
+ tools/include/linux/compiler.h
+ tools/include/linux/hash.h
++tools/include/linux/export.h
+ include/linux/const.h
+ include/linux/perf_event.h
+ include/linux/rbtree.h
+diff --git a/tools/perf/Makefile.perf b/tools/perf/Makefile.perf
+index 5e21aad..bd11e8a 100644
+--- a/tools/perf/Makefile.perf
++++ b/tools/perf/Makefile.perf
+@@ -222,7 +222,7 @@ LIB_H += util/include/linux/const.h
+ LIB_H += util/include/linux/ctype.h
+ LIB_H += util/include/linux/kernel.h
+ LIB_H += util/include/linux/list.h
+-LIB_H += util/include/linux/export.h
++LIB_H += ../include/linux/export.h
+ LIB_H += util/include/linux/poison.h
+ LIB_H += util/include/linux/rbtree.h
+ LIB_H += util/include/linux/rbtree_augmented.h
+diff --git a/tools/perf/util/include/linux/export.h b/tools/perf/util/include/linux/export.h
+deleted file mode 100644
+index b43e2dc..0000000
+--- a/tools/perf/util/include/linux/export.h
++++ /dev/null
+@@ -1,6 +0,0 @@
+-#ifndef PERF_LINUX_MODULE_H
+-#define PERF_LINUX_MODULE_H
+-
+-#define EXPORT_SYMBOL(name)
+-
+-#endif
+diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
+index 3187c62..9325f46 100644
+--- a/tools/virtio/Makefile
++++ b/tools/virtio/Makefile
+@@ -3,7 +3,7 @@ test: virtio_test vringh_test
+ virtio_test: virtio_ring.o virtio_test.o
+ vringh_test: vringh_test.o vringh.o virtio_ring.o
+ 
+-CFLAGS += -g -O2 -Wall -I. -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE
++CFLAGS += -g -O2 -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE
+ vpath %.c ../../drivers/virtio ../../drivers/vhost
+ mod:
+ 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test
+diff --git a/tools/virtio/linux/export.h b/tools/virtio/linux/export.h
+deleted file mode 100644
+index 7311d32..0000000
+--- a/tools/virtio/linux/export.h
++++ /dev/null
+@@ -1,5 +0,0 @@
+-#define EXPORT_SYMBOL(sym)
+-#define EXPORT_SYMBOL_GPL(sym)
+-#define EXPORT_SYMBOL_GPL_FUTURE(sym)
+-#define EXPORT_UNUSED_SYMBOL(sym)
+-#define EXPORT_UNUSED_SYMBOL_GPL(sym)
+-- 
+1.8.3.1
