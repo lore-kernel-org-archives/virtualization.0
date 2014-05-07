@@ -1,7 +1,8 @@
 From: Waiman Long <Waiman.Long@hp.com>
-Subject: [PATCH v10 06/19] qspinlock: prolong the stay in the pending bit path
-Date: Wed,  7 May 2014 11:01:34 -0400
-Message-ID: <1399474907-22206-7-git-send-email-Waiman.Long@hp.com>
+Subject: [PATCH v10 08/19] qspinlock: Make a new qnode structure to support
+	virtualization
+Date: Wed,  7 May 2014 11:01:36 -0400
+Message-ID: <1399474907-22206-9-git-send-email-Waiman.Long@hp.com>
 References: <1399474907-22206-1-git-send-email-Waiman.Long@hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,126 +22,121 @@ To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Pe
 Cc: linux-arch@vger.kernel.org, Waiman Long <Waiman.Long@hp.com>, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, Oleg Nesterov <oleg@redhat.com>, xen-devel@lists.xenproject.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-There is a problem in the current trylock_pending() function.  When the
-lock is free, but the pending bit holder hasn't grabbed the lock &
-cleared the pending bit yet, the trylock_pending() function will fail.
-As a result, the regular queuing code path will be used most of
-the time even when there is only 2 tasks contending for the lock.
-Assuming that the pending bit holder is going to get the lock and
-clear the pending bit soon, it is actually better to wait than to be
-queued up which has a higher overhead.
+In order to support additional virtualization features like unfair lock
+and para-virtualized spinlock, it is necessary to store additional
+CPU specific data into the queue node structure. As a result, a new
+qnode structure is created and the mcs_spinlock structure is now part
+of the new structure.
 
-This patch modified the trylock_pending() function to wait until the
-pending bit holder gets the lock and clears the pending bit. In case
-both the lock and pending bits are set, the new code will also wait
-a bit to see if either one is cleared. If they are not, it will quit
-and be queued.
-
-The following tables show the before-patch execution time (in ms)
-of a micro-benchmark where 5M iterations of the lock/unlock cycles
-were run on a 10-core Westere-EX x86-64 CPU with 2 different types of
-loads - standalone (lock and protected data in different cachelines)
-and embedded (lock and protected data in the same cacheline).
-
-		  [Standalone/Embedded - same node]
-  # of tasks	Ticket lock	Queue lock	 %Change
-  ----------	-----------	----------	 -------
-       1	  135/ 111	 135/ 101	   0%/  -9%
-       2	  890/ 779	1885/1990	+112%/+156%
-       3	 1932/1859	2333/2341	 +21%/ +26%
-       4	 2829/2726	2900/2923	  +3%/  +7%
-       5	 3834/3761	3655/3648	  -5%/  -3%
-       6	 4963/4976	4336/4326	 -13%/ -13%
-       7	 6299/6269	5057/5064	 -20%/ -19%
-       8	 7691/7569	5786/5798	 -25%/ -23%
-
-With 1 task per NUMA node, the execution times are:
-
-		[Standalone - different nodes]
-  # of nodes	Ticket lock	Queue lock	%Change
-  ----------	-----------	----------	-------
-       1	   135		  135		  0%
-       2	  4604		 5087		+10%
-       3	 10940		12224		+12%
-       4	 21555		10555		-51%
-
-It can be seen that the queue spinlock is slower than the ticket
-spinlock when there are 2 or 3 contending tasks. In all the other case,
-the queue spinlock is either equal or faster than the ticket spinlock.
-
-With this patch, the performance data for 2 contending tasks are:
-
-		  [Standalone/Embedded]
-  # of tasks	Ticket lock	Queue lock	%Change
-  ----------	-----------	----------	-------
-       2	  890/779	 984/871	+11%/+12%
-
-		[Standalone - different nodes]
-  # of nodes	Ticket lock	Queue lock	%Change
-  ----------	-----------	----------	-------
-       2	  4604		   1364		  -70%
-
-It can be seen that the queue spinlock performance for 2 contending
-tasks is now comparable to ticket spinlock on the same node, but much
-faster when in different nodes. With 3 contending tasks, however,
-the ticket spinlock is still quite a bit faster.
+It is also necessary to expand arch_mcs_spin_lock_contended() to the
+underlying while loop as additional code will need to be inserted
+into the loop.
 
 Signed-off-by: Waiman Long <Waiman.Long@hp.com>
 ---
- kernel/locking/qspinlock.c |   31 +++++++++++++++++++++++++++++--
- 1 files changed, 29 insertions(+), 2 deletions(-)
+ kernel/locking/qspinlock.c |   36 +++++++++++++++++++++++-------------
+ 1 files changed, 23 insertions(+), 13 deletions(-)
 
 diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
-index 3e908f7..e734acb 100644
+index 0ee1a23..e98d7d4 100644
 --- a/kernel/locking/qspinlock.c
 +++ b/kernel/locking/qspinlock.c
-@@ -212,6 +212,7 @@ xchg_tail(struct qspinlock *lock, u32 tail, u32 *pval)
- static inline int trylock_pending(struct qspinlock *lock, u32 *pval)
+@@ -57,12 +57,21 @@
+ #include "mcs_spinlock.h"
+ 
+ /*
++ * To have additional features for better virtualization support, it is
++ * necessary to store additional data in the queue node structure. So
++ * a new queue node structure will have to be defined and used here.
++ */
++struct qnode {
++	struct mcs_spinlock mcs;
++};
++
++/*
+  * Per-CPU queue node structures; we can never have more than 4 nested
+  * contexts: task, softirq, hardirq, nmi.
+  *
+  * Exactly fits one cacheline.
+  */
+-static DEFINE_PER_CPU_ALIGNED(struct mcs_spinlock, mcs_nodes[4]);
++static DEFINE_PER_CPU_ALIGNED(struct qnode, qnodes[4]);
+ 
+ /*
+  * We must be able to distinguish between no-tail and the tail at 0:0,
+@@ -79,12 +88,12 @@ static inline u32 encode_tail(int cpu, int idx)
+ 	return tail;
+ }
+ 
+-static inline struct mcs_spinlock *decode_tail(u32 tail)
++static inline struct qnode *decode_tail(u32 tail)
  {
- 	u32 old, new, val = *pval;
-+	int retry = 1;
+ 	int cpu = (tail >> _Q_TAIL_CPU_OFFSET) - 1;
+ 	int idx = (tail &  _Q_TAIL_IDX_MASK) >> _Q_TAIL_IDX_OFFSET;
+ 
+-	return per_cpu_ptr(&mcs_nodes[idx], cpu);
++	return per_cpu_ptr(&qnodes[idx], cpu);
+ }
+ 
+ #define _Q_LOCKED_PENDING_MASK	(_Q_LOCKED_MASK | _Q_PENDING_MASK)
+@@ -342,7 +351,7 @@ static inline int trylock_pending(struct qspinlock *lock, u32 *pval)
+  */
+ void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+ {
+-	struct mcs_spinlock *prev, *next, *node;
++	struct qnode *prev, *next, *node;
+ 	u32 old, tail;
+ 	int idx;
+ 
+@@ -351,13 +360,13 @@ void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+ 	if (trylock_pending(lock, &val))
+ 		return;	/* Lock acquired */
+ 
+-	node = this_cpu_ptr(&mcs_nodes[0]);
+-	idx = node->count++;
++	node = this_cpu_ptr(&qnodes[0]);
++	idx = node->mcs.count++;
+ 	tail = encode_tail(smp_processor_id(), idx);
+ 
+ 	node += idx;
+-	node->locked = 0;
+-	node->next = NULL;
++	node->mcs.locked = 0;
++	node->mcs.next = NULL;
  
  	/*
- 	 * trylock || pending
-@@ -221,11 +222,37 @@ static inline int trylock_pending(struct qspinlock *lock, u32 *pval)
+ 	 * We touched a (possibly) cold cacheline in the per-cpu queue node;
+@@ -380,9 +389,10 @@ void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val)
  	 */
- 	for (;;) {
- 		/*
--		 * If we observe any contention; queue.
-+		 * If we observe that the queue is not empty,
-+		 * return and be queued.
- 		 */
--		if (val & ~_Q_LOCKED_MASK)
-+		if (val & _Q_TAIL_MASK)
- 			return 0;
+ 	if (old & _Q_TAIL_MASK) {
+ 		prev = decode_tail(old);
+-		ACCESS_ONCE(prev->next) = node;
++		ACCESS_ONCE(prev->mcs.next) = (struct mcs_spinlock *)node;
  
-+		if (val == (_Q_LOCKED_VAL|_Q_PENDING_VAL)) {
-+			/*
-+			 * If both the lock and pending bits are set, we wait
-+			 * a while to see if that either bit will be cleared.
-+			 * If that is no change, we return and be queued.
-+			 */
-+			if (!retry)
-+				return 0;
-+			retry--;
-+			cpu_relax();
-+			cpu_relax();
-+			*pval = val = atomic_read(&lock->val);
-+			continue;
-+		} else if (val == _Q_PENDING_VAL) {
-+			/*
-+			 * Pending bit is set, but not the lock bit.
-+			 * Assuming that the pending bit holder is going to
-+			 * set the lock bit and clear the pending bit soon,
-+			 * it is better to wait than to exit at this point.
-+			 */
-+			cpu_relax();
-+			*pval = val = atomic_read(&lock->val);
-+			continue;
-+		}
-+
- 		new = _Q_LOCKED_VAL;
- 		if (val == new)
- 			new |= _Q_PENDING_VAL;
+-		arch_mcs_spin_lock_contended(&node->locked);
++		while (!smp_load_acquire(&node->mcs.locked))
++			arch_mutex_cpu_relax();
+ 	}
+ 
+ 	/*
+@@ -422,15 +432,15 @@ void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+ 	/*
+ 	 * contended path; wait for next, release.
+ 	 */
+-	while (!(next = ACCESS_ONCE(node->next)))
++	while (!(next = (struct qnode *)ACCESS_ONCE(node->mcs.next)))
+ 		arch_mutex_cpu_relax();
+ 
+-	arch_mcs_spin_unlock_contended(&next->locked);
++	arch_mcs_spin_unlock_contended(&next->mcs.locked);
+ 
+ release:
+ 	/*
+ 	 * release the node
+ 	 */
+-	this_cpu_dec(mcs_nodes[0].count);
++	this_cpu_dec(qnodes[0].mcs.count);
+ }
+ EXPORT_SYMBOL(queue_spin_lock_slowpath);
 -- 
 1.7.1
