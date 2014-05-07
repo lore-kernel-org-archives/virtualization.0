@@ -1,11 +1,17 @@
-From: Andy King <acking@vmware.com>
-Subject: [PATCH] vsock: Make transport the proto owner
-Date: Thu,  1 May 2014 15:20:43 -0700
-Message-ID: <1398982843-1453-1-git-send-email-acking@vmware.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 6/6] virtio-scsi: Enable DIF/DIX modes in SCSI host LLD
+Date: Wed, 7 May 2014 12:13:05 +0300
+Message-ID: <20140507091305.GA20044@redhat.com>
+References: <1396819929-29687-1-git-send-email-nab@daterainc.com>
+	<1396819929-29687-7-git-send-email-nab@daterainc.com>
+	<20140407084518.GA14091@redhat.com>
+	<1396861019.19888.25.camel@haakon3.risingtidesystems.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1396861019.19888.25.camel@haakon3.risingtidesystems.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,122 +21,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org, Andy King <acking@vmware.com>, davem@davemloft.net, stable@vger.kernel.org
+To: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Cc: linux-scsi <linux-scsi@vger.kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Sagi Grimberg <sagig@dev.mellanox.co.il>, virtualization@lists.linux-foundation.org, Sagi Grimberg <sagig@mellanox.com>, target-devel <target-devel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, "Nicholas A. Bellinger" <nab@daterainc.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Right now the core vsock module is the owner of the proto family. This
-means there's nothing preventing the transport module from unloading if
-there are open sockets, which results in a panic. Fix that by allowing
-the transport to be the owner, which will refcount it properly.
+On Mon, Apr 07, 2014 at 01:56:59AM -0700, Nicholas A. Bellinger wrote:
+> On Mon, 2014-04-07 at 11:45 +0300, Michael S. Tsirkin wrote:
+> > On Sun, Apr 06, 2014 at 09:32:09PM +0000, Nicholas A. Bellinger wrote:
+> > > From: Nicholas Bellinger <nab@linux-iscsi.org>
+> > > 
+> > > This patch updates virtscsi_probe() to setup necessary Scsi_Host
+> > > level protection resources. (currently hardcoded to 1)
+> > > 
+> > > It changes virtscsi_add_cmd() to attach outgoing / incoming
+> > > protection SGLs preceeding the data payload, and is using the
+> > > new virtio_scsi_cmd_req_pi->d[oi],pi_niv field to signal
+> > > to signal to vhost/scsi how many prot_sgs to expect.
+> > > 
+> > > v3 changes:
+> > >   - Use VIRTIO_SCSI_F_T10_PI to determine PI or non PI header (Paolo)
+> > > 
+> > > v2 changes:
+> > >   - Make protection buffer come before data buffer (Paolo)
+> > >   - Enable virtio_scsi_cmd_req_pi usage (Paolo)
+> > > 
+> > > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > > Cc: Martin K. Petersen <martin.petersen@oracle.com>
+> > > Cc: Christoph Hellwig <hch@lst.de>
+> > > Cc: Hannes Reinecke <hare@suse.de>
+> > > Cc: Sagi Grimberg <sagig@dev.mellanox.co.il>
+> > > Cc: H. Peter Anvin <hpa@zytor.com>
+> > > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> > 
+> > OK but we need to document the new interface in the spec
+> > (and incidentially, this will be useful to verify the assumptions
+> > made here and on the host side).
+> > Could you please submit this proposal to the OASIS Virtio TC
+> > for inclusion into the next spec draft?
+> > Ideally as a patch against the tex source, but a prose
+> > description would do as well.
+> 
+> Most certainly.  Please give me a bit to follow up on this, as the next
+> couple of days are going to be hellishly busy..
 
-Includes version bump to 1.0.1.0-k
+Ping.
+We really need to get this moving to have the interface reviewed for
+the next merge window.
 
-Passes checkpatch this time, I swear...
 
-Cc: stable@vger.kernel.org
-Acked-by: Dmitry Torokhov <dtor@vmware.com>
-Signed-off-by: Andy King <acking@vmware.com>
----
- include/net/af_vsock.h   |    6 ++++-
- net/vmw_vsock/af_vsock.c |   47 +++++++++++++++++++++------------------------
- 2 files changed, 27 insertions(+), 26 deletions(-)
-
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index 7d64d36..4282778 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -155,7 +155,11 @@ struct vsock_transport {
- 
- /**** CORE ****/
- 
--int vsock_core_init(const struct vsock_transport *t);
-+int __vsock_core_init(const struct vsock_transport *t, struct module *owner);
-+static inline int vsock_core_init(const struct vsock_transport *t)
-+{
-+	return __vsock_core_init(t, THIS_MODULE);
-+}
- void vsock_core_exit(void);
- 
- /**** UTILS ****/
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 5adfd94..85d232b 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1925,9 +1925,23 @@ static struct miscdevice vsock_device = {
- 	.fops		= &vsock_device_ops,
- };
- 
--static int __vsock_core_init(void)
-+int __vsock_core_init(const struct vsock_transport *t, struct module *owner)
- {
--	int err;
-+	int err = mutex_lock_interruptible(&vsock_register_mutex);
-+
-+	if (err)
-+		return err;
-+
-+	if (transport) {
-+		err = -EBUSY;
-+		goto err_busy;
-+	}
-+
-+	/* Transport must be the owner of the protocol so that it can't
-+	 * unload while there are open sockets.
-+	 */
-+	vsock_proto.owner = owner;
-+	transport = t;
- 
- 	vsock_init_tables();
- 
-@@ -1951,36 +1965,19 @@ static int __vsock_core_init(void)
- 		goto err_unregister_proto;
- 	}
- 
-+	mutex_unlock(&vsock_register_mutex);
- 	return 0;
- 
- err_unregister_proto:
- 	proto_unregister(&vsock_proto);
- err_misc_deregister:
- 	misc_deregister(&vsock_device);
--	return err;
--}
--
--int vsock_core_init(const struct vsock_transport *t)
--{
--	int retval = mutex_lock_interruptible(&vsock_register_mutex);
--	if (retval)
--		return retval;
--
--	if (transport) {
--		retval = -EBUSY;
--		goto out;
--	}
--
--	transport = t;
--	retval = __vsock_core_init();
--	if (retval)
--		transport = NULL;
--
--out:
-+	transport = NULL;
-+err_busy:
- 	mutex_unlock(&vsock_register_mutex);
--	return retval;
-+	return err;
- }
--EXPORT_SYMBOL_GPL(vsock_core_init);
-+EXPORT_SYMBOL_GPL(__vsock_core_init);
- 
- void vsock_core_exit(void)
- {
-@@ -2000,5 +1997,5 @@ EXPORT_SYMBOL_GPL(vsock_core_exit);
- 
- MODULE_AUTHOR("VMware, Inc.");
- MODULE_DESCRIPTION("VMware Virtual Socket Family");
--MODULE_VERSION("1.0.0.0-k");
-+MODULE_VERSION("1.0.1.0-k");
- MODULE_LICENSE("GPL v2");
--- 
-1.7.4.1
+> > The TC meets on a bi-weekly basis, we should be able to ratify
+> > this quickly.
+> > 
+> 
+> Aside from that, please consider ACK'ing the vhost specific changes so
+> these can make it into v3.15-rc1 code.
+> 
+> --nab
+> 
