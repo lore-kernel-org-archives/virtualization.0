@@ -1,15 +1,15 @@
 From: Waiman Long <waiman.long@hp.com>
-Subject: Re: [PATCH v10 18/19] pvqspinlock, x86: Enable PV qspinlock PV for KVM
-Date: Thu, 08 May 2014 13:54:07 -0400
-Message-ID: <536BC4BF.9030603@hp.com>
+Subject: Re: [PATCH v10 00/19] qspinlock: a 4-byte queue spinlock with PV
+	support
+Date: Thu, 08 May 2014 13:54:55 -0400
+Message-ID: <536BC4EF.9040208__46540.6388314024$1399571731$gmane$org@hp.com>
 References: <1399474907-22206-1-git-send-email-Waiman.Long@hp.com>
-	<1399474907-22206-19-git-send-email-Waiman.Long@hp.com>
-	<20140507190706.GA16333@phenom.dumpdata.com>
+	<20140507190723.GB16333@phenom.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140507190706.GA16333@phenom.dumpdata.com>
+In-Reply-To: <20140507190723.GB16333@phenom.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,43 +24,13 @@ Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T 
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 05/07/2014 03:07 PM, Konrad Rzeszutek Wilk wrote:
->> Raghavendra KT had done some performance testing on this patch with
->> the following results:
->>
->> Overall we are seeing good improvement for pv-unfair version.
->>
->> System: 32 cpu sandybridge with HT on (4 node with 32 GB each)
->> Guest : 8GB with 16 vcpu/VM.
->> Average was taken over 8-10 data points.
->>
->> Base = 3.15-rc2  with PRAVIRT_SPINLOCK = y
->>
->> A = 3.15-rc2 + qspinlock v9 patch with QUEUE_SPINLOCK = y
->> PRAVIRT_SPINLOCK = y PARAVIRT_UNFAIR_LOCKS = y (unfair lock)
->>
->> B =  3.15-rc2 + qspinlock v9 patch with QUEUE_SPINLOCK = y
->> PRAVIRT_SPINLOCK = n PARAVIRT_UNFAIR_LOCKS = n
->> (queue spinlock without paravirt)
->>
->> C = 3.15-rc2 + qspinlock v9 patch with  QUEUE_SPINLOCK = y
->> PRAVIRT_SPINLOCK = y  PARAVIRT_UNFAIR_LOCKS = n
->> (queue spinlock with paravirt)
-> Could you do s/PRAVIRT/PARAVIRT/ please?
->
+> On Wed, May 07, 2014 at 11:01:28AM -0400, Waiman Long wrote:
+>> v9->v10:
+>>    - Make some minor changes to qspinlock.c to accommodate review feedback.
+>>    - Change author to PeterZ for 2 of the patches.
+>>    - Include Raghavendra KT's test results in patch 18.
+> Any chance you can post these on a git tree? Thanks.
 
-Sorry for the typo, I didn't check the text carefully enough when I 
-cut-and-paste it from Raghavendra's email.
-
->> Ebizzy %improvements
->> ====================
->> overcommit  A            B            C
->> 0.5x     4.4265        2.0611       1.5824
->> 1.0x     0.9015       -7.7828       4.5443
->> 1.5x    46.1162       -2.9845      -3.5046
->> 2.0x    99.8150       -2.7116       4.7461
-> Considering B sucks
-
-Yes, I don't expect the plain qspinlock code will perform well in a 
-guest without either unfair or pvspinlock support.
+I have pushed the bit to https://github.com/longman88/kernel-qspinlock-v10 .
 
 -Longman
