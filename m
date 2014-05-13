@@ -1,16 +1,13 @@
-From: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Subject: Re: [PATCH v10 10/19] qspinlock, x86: Allow unfair spinlock in a
-	virtual guest
-Date: Mon, 12 May 2014 20:57:39 +0200
-Message-ID: <20140512185739.GB12309__30056.7486127422$1400095209$gmane$org@potion.brq.redhat.com>
-References: <1399474907-22206-1-git-send-email-Waiman.Long@hp.com>
-	<1399474907-22206-11-git-send-email-Waiman.Long@hp.com>
+From: Michael Mueller <mimu@linux.vnet.ibm.com>
+Subject: [PATCH v1] vhost: avoid large order allocations
+Date: Tue, 13 May 2014 10:35:33 +0200
+Message-ID: <1399970133-46783-2-git-send-email-mimu__6382.03398925743$1400095216$gmane$org@linux.vnet.ibm.com>
+References: <1399970133-46783-1-git-send-email-mimu@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <1399474907-22206-11-git-send-email-Waiman.Long@hp.com>
+In-Reply-To: <1399970133-46783-1-git-send-email-mimu@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,54 +17,134 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <Waiman.Long@hp.com>
-Cc: x86@kernel.org, Gleb Natapov <gleb@redhat.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, linux-arch@vger.kernel.org, kvm@vger.kernel.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, Paolo Bonzini <paolo.bonzini@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, Chegu Vinod <chegu_vinod@hp.com>, Oleg Nesterov <oleg@redhat.com>, David Vrabel <david.vrabel@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: borntraeger@de.ibm.com, mimu@linux.vnet.ibm.com, ddongch@cn.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-(tl;dr: paravirtualization could be better than unfair qspinlock)
+From: Dong Dong Chen <ddongch@cn.ibm.com>
 
-2014-05-07 11:01-0400, Waiman Long:
-> Locking is always an issue in a virtualized environment because of 2
-> different types of problems:
->  1) Lock holder preemption
->  2) Lock waiter preemption
+Under memory pressure we observe load issues with module vhost_net, as the
+vhost setup code will try to do an order 4 allocation for the device.
+The likeliness of this issue to occur can be reduced when the statically
+allocated variable "iov" in "struct vhost_virtqueue" is dynamically allocated
+with exactly the required size, reducing this to an order 2 allocation.
 
-Paravirtualized ticketlocks have a shortcoming;
-we don't know which VCPU the ticket belongs to, so the hypervisor can
-only blindly yield to runnable VCPUs after waiters halt in slowpath.
-There aren't enough "free" bits in ticket struct to improve, thus we
-have resorted to unfairness.
-
-Qspinlock is different.
-
-Most queued VCPUs already know the VCPU before it, so we have what it
-takes to mitigate lock waiter preemption: we can include preempted CPU
-id in hypercall, the hypervisor will schedule it, and we'll be woken up
-from unlock slowpath [1].
-This still isn't perfect: we can wake up a VCPU that got preempted
-before it could hypercall, and these hypercalls will propagate one by
-one through our queue to the preempted lock holder.
-(We'd have to share the whole waiter-list to avoid this.
- We could also try to send holder's id instead and unconditionally kick
- next-in-line on unlock, I think it would be slower.)
-
-Lock holder problem is tougher because we don't always share who is it.
-The tail bits can be used for it as we don't really use them before a
-queue has formed.  This would cost us one bit to differentiate between
-holder/tail CPU id [2] and complicate operations a little, but only for
-the paravirt case, where benefits are expected to be far greater.
-Hypercall from lock slowpath could schedule preempted VCPU right away.
-
-I think this could obsolete unfair locks and will prepare RFC patches
-soon-ish [3]. (If the idea isn't proved infeasible before.)
-
-
+Signed-off-by: Dong Dong Chen <ddongch@cn.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Reviewed-by: Michael Mueller <mimu@linux.vnet.ibm.com>
 ---
-1: It is possible that we could avoid O(N) traversal and hypercall in
-   unlock slowpath by scheduling VCPUs in the right order often.
-2: Or even less. idx=3 is a bug: if we are spinning in NMI, we are
-   almost deadlocked, so we should WARN/BUG if it were to happen; which
-   leaves the combination free to mean that the CPU id is a sole holder,
-   not a tail.  (I prefer clean code though.)
-3: I already tried and got quickly fed up by refactoring, so it might
-   get postponed till the series gets merged.
+ drivers/vhost/net.c   | 4 ++--
+ drivers/vhost/scsi.c  | 4 ++--
+ drivers/vhost/test.c  | 2 +-
+ drivers/vhost/vhost.c | 6 +++++-
+ drivers/vhost/vhost.h | 2 +-
+ 5 files changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index be414d2..e3a9a68 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -374,7 +374,7 @@ static void handle_tx(struct vhost_net *net)
+ 			break;
+ 
+ 		head = vhost_get_vq_desc(&net->dev, vq, vq->iov,
+-					 ARRAY_SIZE(vq->iov),
++					 UIO_MAXIOV,
+ 					 &out, &in,
+ 					 NULL, NULL);
+ 		/* On error, stop handling until the next kick. */
+@@ -506,7 +506,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
+ 			goto err;
+ 		}
+ 		r = vhost_get_vq_desc(vq->dev, vq, vq->iov + seg,
+-				      ARRAY_SIZE(vq->iov) - seg, &out,
++				      UIO_MAXIOV - seg, &out,
+ 				      &in, log, log_num);
+ 		if (unlikely(r < 0))
+ 			goto err;
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index cf50ce9..a70f1d9 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -607,7 +607,7 @@ tcm_vhost_do_evt_work(struct vhost_scsi *vs, struct tcm_vhost_evt *evt)
+ again:
+ 	vhost_disable_notify(&vs->dev, vq);
+ 	head = vhost_get_vq_desc(&vs->dev, vq, vq->iov,
+-			ARRAY_SIZE(vq->iov), &out, &in,
++			UIO_MAXIOV, &out, &in,
+ 			NULL, NULL);
+ 	if (head < 0) {
+ 		vs->vs_events_missed = true;
+@@ -946,7 +946,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 
+ 	for (;;) {
+ 		head = vhost_get_vq_desc(&vs->dev, vq, vq->iov,
+-					ARRAY_SIZE(vq->iov), &out, &in,
++					UIO_MAXIOV, &out, &in,
+ 					NULL, NULL);
+ 		pr_debug("vhost_get_vq_desc: head: %d, out: %u in: %u\n",
+ 					head, out, in);
+diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+index c2a54fb..2e01920 100644
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -54,7 +54,7 @@ static void handle_vq(struct vhost_test *n)
+ 
+ 	for (;;) {
+ 		head = vhost_get_vq_desc(&n->dev, vq, vq->iov,
+-					 ARRAY_SIZE(vq->iov),
++					 UIO_MAXIOV,
+ 					 &out, &in,
+ 					 NULL, NULL);
+ 		/* On error, stop handling until the next kick. */
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 78987e4..9017a55 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -251,6 +251,8 @@ static int vhost_worker(void *data)
+ 
+ static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
+ {
++	kfree(vq->iov);
++	vq->iov = NULL;
+ 	kfree(vq->indirect);
+ 	vq->indirect = NULL;
+ 	kfree(vq->log);
+@@ -267,11 +269,12 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
+ 
+ 	for (i = 0; i < dev->nvqs; ++i) {
+ 		vq = dev->vqs[i];
++		vq->iov = kmalloc(sizeof(*vq->iov) * UIO_MAXIOV, GFP_KERNEL);
+ 		vq->indirect = kmalloc(sizeof *vq->indirect * UIO_MAXIOV,
+ 				       GFP_KERNEL);
+ 		vq->log = kmalloc(sizeof *vq->log * UIO_MAXIOV, GFP_KERNEL);
+ 		vq->heads = kmalloc(sizeof *vq->heads * UIO_MAXIOV, GFP_KERNEL);
+-		if (!vq->indirect || !vq->log || !vq->heads)
++		if (!vq->iov || !vq->indirect || !vq->log || !vq->heads)
+ 			goto err_nomem;
+ 	}
+ 	return 0;
+@@ -310,6 +313,7 @@ void vhost_dev_init(struct vhost_dev *dev,
+ 	for (i = 0; i < dev->nvqs; ++i) {
+ 		vq = dev->vqs[i];
+ 		vq->log = NULL;
++		vq->iov = NULL;
+ 		vq->indirect = NULL;
+ 		vq->heads = NULL;
+ 		vq->dev = dev;
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 35eeb2a..541f757 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -100,7 +100,7 @@ struct vhost_virtqueue {
+ 	bool log_used;
+ 	u64 log_addr;
+ 
+-	struct iovec iov[UIO_MAXIOV];
++	struct iovec *iov;
+ 	struct iovec *indirect;
+ 	struct vring_used_elem *heads;
+ 	/* Protected by virtqueue mutex. */
+-- 
+1.8.3.1
