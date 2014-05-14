@@ -1,17 +1,17 @@
-From: Michael Mueller <mimu@linux.vnet.ibm.com>
-Subject: Re: [PATCH v1] vhost: avoid large order allocations
-Date: Wed, 14 May 2014 10:11:15 +0200
-Message-ID: <20140514101115.4b7ffd69__10098.3503078625$1400095267$gmane$org@bee>
-References: <1399970133-46783-1-git-send-email-mimu@linux.vnet.ibm.com>
-	<1399970133-46783-2-git-send-email-mimu@linux.vnet.ibm.com>
-	<20140513084049.GE29442@redhat.com>
-	<87tx8tg3a1.fsf@kima.orebokech.com>
-	<20140513151527.GA28517@redhat.com>
+From: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
+Subject: Re: [PATCH v10 03/19] qspinlock: Add pending bit
+Date: Wed, 14 May 2014 18:51:24 +0200
+Message-ID: <20140514165121.GA21370__25155.2936308601$1400095281$gmane$org@potion.redhat.com>
+References: <1399474907-22206-1-git-send-email-Waiman.Long@hp.com>
+	<1399474907-22206-4-git-send-email-Waiman.Long@hp.com>
+	<20140512152208.GA12309@potion.brq.redhat.com>
+	<537276B4.10209@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140513151527.GA28517@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <537276B4.10209@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,30 +21,55 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: ddongch@cn.ibm.com, kvm@vger.kernel.org, netdev@vger.kernel.org, Romain Francoise <romain@orebokech.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com
+To: Waiman Long <waiman.long@hp.com>
+Cc: x86@kernel.org, Gleb Natapov <gleb@redhat.com>, Peter Zijlstra <peterz@infradead.org>, linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, linux-arch@vger.kernel.org, kvm@vger.kernel.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, Paolo Bonzini <paolo.bonzini@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, Chegu Vinod <chegu_vinod@hp.com>, Oleg Nesterov <oleg@redhat.com>, David Vrabel <david.vrabel@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 13 May 2014 18:15:27 +0300
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> On Tue, May 13, 2014 at 04:29:58PM +0200, Romain Francoise wrote:
-> > "Michael S. Tsirkin" <mst@redhat.com> writes:
-> > 
-> > > Please dont' do this, extra indirection hurts performance.
-> > > Instead, please change vhost_net_open and scsi to allocate the whole
-> > > structure with vmalloc if kmalloc fails, along the lines of
-> > > 74d332c13b2148ae934ea94dac1745ae92efe8e5
-> > 
-> > Back in January 2013, you didn't seem to think it was a good idea:
-> > 
-> > https://lkml.org/lkml/2013/1/23/492
-> 
-> Hmm true, and Dave thought the structure's too large.
-> I'll have to do some benchmarks to see what the effect
-> of Michael's patch is, performance-wise.
-> If it's too expensive I can pick up your patch, no need to
-> repost.
-> 
-
-Thanks, let us know then.
+MjAxNC0wNS0xMyAxNTo0Ny0wNDAwLCBXYWltYW4gTG9uZzoKPiBPbiAwNS8xMi8yMDE0IDExOjIy
+IEFNLCBSYWRpbSBLcsSNbcOhxZkgd3JvdGU6Cj4gPkkgdGhpbmsgdGhlcmUgaXMgYW4gdW53YW50
+ZWQgc2NlbmFyaW8gb24gdmlydHVhbCBtYWNoaW5lczoKPiA+MSkgVkNQVSBzZXRzIHRoZSBwZW5k
+aW5nIGJpdCBhbmQgc3RhcnQgc3Bpbm5pbmcuCj4gPjIpIFBlbmRpbmcgVkNQVSBnZXRzIGRlc2No
+ZWR1bGVkLgo+ID4gICAgIC0gd2UgaGF2ZSBQTEUgYW5kIGxvY2sgaG9sZGVyIGlzbid0IHJ1bm5p
+bmcgWzFdCj4gPiAgICAgLSB0aGUgaHlwZXJ2aXNvciByYW5kb21seSBwcmVlbXB0cyB1cwo+ID4z
+KSBMb2NrIGhvbGRlciB1bmxvY2tzIHdoaWxlIHBlbmRpbmcgVkNQVSBpcyB3YWl0aW5nIGluIHF1
+ZXVlLgo+ID40KSBTdWJzZXF1ZW50IGxvY2tlcnMgd2lsbCBzZWUgZnJlZSBsb2NrIHdpdGggc2V0
+IHBlbmRpbmcgYml0IGFuZCB3aWxsCj4gPiAgICBsb29wIGluIHRyeWxvY2sncyAnZm9yICg7Oykn
+Cj4gPiAgICAgLSB0aGUgd29yc3QtY2FzZSBpcyBsb2NrIHN0YXJ2aW5nIFsyXQo+ID4gICAgIC0g
+UExFIGNhbiBzYXZlIHVzIGZyb20gd2FzdGluZyB3aG9sZSB0aW1lc2xpY2UKPiA+Cj4gPlJldHJ5
+IHRocmVzaG9sZCBpcyB0aGUgZWFzaWVzdCBzb2x1dGlvbiwgcmVnYXJkbGVzcyBvZiBpdHMgdWds
+aW5lc3MgWzRdLgo+IAo+IFllcywgdGhhdCBjYW4gYmUgYSByZWFsIGlzc3VlLiBTb21lIHNvcnQg
+b2YgcmV0cnkgdGhyZXNob2xkLCBhcyB5b3Ugc2FpZCwKPiBzaG91bGQgYmUgYWJsZSB0byBoYW5k
+bGUgaXQuCj4gCj4gQlRXLCB0aGUgcmVsZXZhbnQgcGF0Y2ggc2hvdWxkIGJlIDE2LzE5IHdoZXJl
+IHRoZSBQViBzcGlubG9jayBzdHVmZiBzaG91bGQKPiBiZSBkaXNjdXNzZWQuIFRoaXMgcGF0Y2gg
+aXMgcGVyZmVjdGx5IGZpbmUuCgpPdWNoLCBteSBhcG9sb2d5IHRvIFBldGVyIGRpZG4ndCBtYWtl
+IGl0IC4uLiBBZ3JlZWQsIEkgc2hvdWxkIGhhdmUgc3BsaXQKdGhlIGNvbW1lbnQgdW5kZXIgcGF0
+Y2hlcwogWzA2LzE5XSAocGFydCBxdW90ZWQgYWJvdmU7IGRvZXMgbm90IGRlcGVuZCBvbiBQViks
+CiBbMTYvMTldIChwYXJ0IHF1b3RlZCBiZWxvdykgYW5kCiBbMTcvMTldIChnZW5lcmFsIGRvdWJ0
+cykuCgo+ID5Bbm90aGVyIG1pbm9yIGRlc2lnbiBmbGF3IGlzIHRoYXQgZm9ybWVybHkgZmlyc3Qg
+VkNQVSBnZXRzIGFwcGVuZGVkIHRvCj4gPnRoZSB0YWlsIHdoZW4gaXQgZGVjaWRlcyB0byBxdWV1
+ZTsKPiA+aXMgdGhlIHBlcmZvcm1hbmNlIGdhaW4gd29ydGggaXQ/Cj4gPgo+ID5UaGFua3MuCj4g
+Cj4gWWVzLCB0aGUgcGVyZm9ybWFuY2UgZ2FpbiBpcyB3b3J0aCBpdC4gVGhlIHByaW1hcnkgZ29h
+bCBpcyB0byBiZSBub3Qgd29yc2UKPiB0aGFuIHRpY2tldCBzcGlubG9jayBpbiBsaWdodCBsb2Fk
+IHNpdHVhdGlvbiB3aGljaCBpcyB0aGUgbW9zdCBjb21tb24gY2FzZS4KPiBUaGlzIGZlYXR1cmUg
+aXMgbmVlZCB0byBhY2hpZXZlIHRoYXQuCgpPay4KSSd2ZSBzZWVuIG1lcml0IGluIHB2cXNwaW5s
+b2NrIGV2ZW4gd2l0aCBzbGlnaHRseSBzbG93ZXIgZmlyc3Qtd2FpdGVyLApzbyBJIHdvdWxkIGhh
+dmUgaGFwcGlseSBzYWNyaWZpY2VkIHRob3NlIGhvcnJpYmxlIGJyYW5jaGVzLgooSSBwcmVmZXIg
+ZWxlZ2FudCB0byBvcHRpbWl6ZWQgY29kZSwgYnV0IEkgY2FuIHNlZSB3aHkgd2Ugd2FudCB0byBi
+ZQogc3RyaWN0bHkgYmV0dGVyIHRoYW4gdGlja2V0bG9jay4pClBldGVyIG1lbnRpb25lZCB0aGF0
+IHdlIGFyZSBmb2N1c2luZyBvbiBiYXJlLW1ldGFsIHBhdGNoZXMsIHNvIEknbGwKd2l0aG9sZCBt
+eSBvdGhlciBwYXJhdmlydCByYW50cyB1bnRpbCB0aGV5IGFyZSBwb2xpc2hlZC4KCkFuZCB0byBm
+b3JjZWZ1bGx5IGJyaW5nIHRoaXMgdGhyZWFkIGEgbGl0dGxlIGJpdCBvbi10b3BpYzoKClBlbmRp
+bmctYml0IGlzIGVmZmVjdGl2ZWx5IGEgbG9jayBpbiBhIGxvY2ssIHNvIEkgd2FzIHdvbmRlcmlu
+ZyB3aHkKZG9uJ3Qgd2UgdXNlIG1vcmUgcGVuZGluZyBiaXRzOyBhZHZhbnRhZ2VzIGFyZSB0aGUg
+c2FtZSwganVzdCBkaW1pbmlzaGVkCmJ5IHRoZSBwcm9iYWJpbGl0eSBvZiBoYXZpbmcgYW4gaWRl
+YWxseSBjb250ZW5kZWQgbG9jazoKIC0gd2FpdGVyIHdvbid0IGJlIGJsb2NrZWQgb24gUkFNIGFj
+Y2VzcyBpZiBjcml0aWNhbCBzZWN0aW9uIChvciBtb3JlKQogICBlbmRzIHNvb25lcgogLSBzb21l
+IHVubHVja3kgY2FjaGVsaW5lIGlzIG5vdCBmb3Jnb3R0ZW4KIC0gZmFzdGVyIHVubG9jayAobm8g
+bmVlZCBmb3IgdGFpbCBvcGVyYXRpb25zKQooLSA/KQpkaXNhZHZhbnRhZ2VzIGFyZSBtYWduaWZp
+ZWQ6CiAtIGluY3JlYXNlZCBjb21wbGV4aXR5CiAtIGludGVuc2UgY2FjaGVsaW5lIHNoYXJpbmcK
+ICAgKEkgdGhvdWdodCB0aGF0IHRoaXMgaXMgdGhlIG1haW4gZGlzYWR2YW50YWdlIG9mIHRpY2tl
+dGxvY2suKQooLSA/KQoKT25lIGJpdCBzdGlsbCBpbXByb3ZlZCBwZXJmb3JtYW5jZSwgaXMgaXQg
+dGhlIGJlc3Qgd2UgZ290PwoKVGhhbmtzLgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
