@@ -1,16 +1,19 @@
-From: Waiman Long <waiman.long@hp.com>
-Subject: Re: [PATCH v10 10/19] qspinlock, x86: Allow unfair spinlock in a
-	virtual guest
-Date: Mon, 19 May 2014 16:30:22 -0400
-Message-ID: <537A69DE.5080000@hp.com>
-References: <1399474907-22206-1-git-send-email-Waiman.Long@hp.com>
-	<1399474907-22206-11-git-send-email-Waiman.Long@hp.com>
-	<20140508191228.GS2844@laptop.programming.kicks-ass.net>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [PATCH 6/6] virtio-scsi: Enable DIF/DIX modes in SCSI host LLD
+Date: Mon, 19 May 2014 13:54:50 -0700
+Message-ID: <1400532890.10964.44.camel__23747.6287097254$1400532943$gmane$org@haakon3.risingtidesystems.com>
+References: <1396819929-29687-1-git-send-email-nab@daterainc.com>
+	<1396819929-29687-7-git-send-email-nab@daterainc.com>
+	<20140407084518.GA14091@redhat.com>
+	<1396861019.19888.25.camel@haakon3.risingtidesystems.com>
+	<20140507091305.GA20044@redhat.com>
+	<1400526423.10964.31.camel@haakon3.risingtidesystems.com>
+	<20140519191527.GC32382@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140508191228.GS2844@laptop.programming.kicks-ass.net>
+In-Reply-To: <20140519191527.GC32382@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,71 +23,98 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-scsi <linux-scsi@vger.kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Sagi Grimberg <sagig@dev.mellanox.co.il>, virtualization@lists.linux-foundation.org, Sagi Grimberg <sagig@mellanox.com>, target-devel <target-devel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, "Nicholas A. Bellinger" <nab@daterainc.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/08/2014 03:12 PM, Peter Zijlstra wrote:
-> On Wed, May 07, 2014 at 11:01:38AM -0400, Waiman Long wrote:
->
->
-> No, we want the unfair thing for VIRT, not PARAVIRT.
->
+On Mon, 2014-05-19 at 22:15 +0300, Michael S. Tsirkin wrote:
+> On Mon, May 19, 2014 at 12:07:03PM -0700, Nicholas A. Bellinger wrote:
+> > On Wed, 2014-05-07 at 12:13 +0300, Michael S. Tsirkin wrote:
+> > > On Mon, Apr 07, 2014 at 01:56:59AM -0700, Nicholas A. Bellinger wrote:
+> > > > On Mon, 2014-04-07 at 11:45 +0300, Michael S. Tsirkin wrote:
+> > > > > On Sun, Apr 06, 2014 at 09:32:09PM +0000, Nicholas A. Bellinger wrote:
+> > > > > > From: Nicholas Bellinger <nab@linux-iscsi.org>
+> > > > > > 
+> > > > > > This patch updates virtscsi_probe() to setup necessary Scsi_Host
+> > > > > > level protection resources. (currently hardcoded to 1)
+> > > > > > 
+> > > > > > It changes virtscsi_add_cmd() to attach outgoing / incoming
+> > > > > > protection SGLs preceeding the data payload, and is using the
+> > > > > > new virtio_scsi_cmd_req_pi->d[oi],pi_niv field to signal
+> > > > > > to signal to vhost/scsi how many prot_sgs to expect.
+> > > > > > 
+> > > > > > v3 changes:
+> > > > > >   - Use VIRTIO_SCSI_F_T10_PI to determine PI or non PI header (Paolo)
+> > > > > > 
+> > > > > > v2 changes:
+> > > > > >   - Make protection buffer come before data buffer (Paolo)
+> > > > > >   - Enable virtio_scsi_cmd_req_pi usage (Paolo)
+> > > > > > 
+> > > > > > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > > > > > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > > > > > Cc: Martin K. Petersen <martin.petersen@oracle.com>
+> > > > > > Cc: Christoph Hellwig <hch@lst.de>
+> > > > > > Cc: Hannes Reinecke <hare@suse.de>
+> > > > > > Cc: Sagi Grimberg <sagig@dev.mellanox.co.il>
+> > > > > > Cc: H. Peter Anvin <hpa@zytor.com>
+> > > > > > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> > > > > 
+> > > > > OK but we need to document the new interface in the spec
+> > > > > (and incidentially, this will be useful to verify the assumptions
+> > > > > made here and on the host side).
+> > > > > Could you please submit this proposal to the OASIS Virtio TC
+> > > > > for inclusion into the next spec draft?
+> > > > > Ideally as a patch against the tex source, but a prose
+> > > > > description would do as well.
+> > > > 
+> > > > Most certainly.  Please give me a bit to follow up on this, as the next
+> > > > couple of days are going to be hellishly busy..
+> > > 
+> > > Ping.
+> > > We really need to get this moving to have the interface reviewed for
+> > > the next merge window.
+> > > 
+> > 
+> > Hi MST,
+> > 
+> > So I've finally got some cycles to get back to this code, and wanted to
+> > verify the outstanding items you had previously raised:
+> > 
+> > - Convert vhost-scsi to be independent of IOV layout using 
+> >   memcpy_fromiovecend. (Does this effect existing non PI virtio-scsi 
+> >   operation..?)
+> 
+> Ideally yes.
 
-Yes, you are right. I will change that to VIRT.
+Er, so changing vhost-scsi to be independent of IOV layout will have the
+side effect of breaking existing non PI virtio-scsi logic..?
 
->> diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
->> index 9e7659e..10e87e1 100644
->> --- a/kernel/locking/qspinlock.c
->> +++ b/kernel/locking/qspinlock.c
->> @@ -227,6 +227,14 @@ static __always_inline int get_qlock(struct qspinlock *lock)
->>   {
->>   	struct __qspinlock *l = (void *)lock;
->>
->> +#ifdef CONFIG_PARAVIRT_UNFAIR_LOCKS
->> +	if (static_key_false(&paravirt_unfairlocks_enabled))
->> +		/*
->> +		 * Need to use atomic operation to get the lock when
->> +		 * lock stealing can happen.
->> +		 */
->> +		return cmpxchg(&l->locked, 0, _Q_LOCKED_VAL) == 0;
-> That's missing {}.
+> 
+> > - Report VIRTIO_F_ANY_LAYOUT feature bit to userspace.
+> > - Convert virtio_scsi_cmd_req_pi to bytes field instead of number of 
+> >   iovecs.
+> > - Ensure virtio_scsi_cmd_req_pi is naturally aligned
+> 
+> It turns out other virtio scsi commands aren't aligned?
 
-It is a single statement which doesn't need braces according to kernel 
-coding style. I could move the comments up a bit to make it easier to read.
+Correct, virtio_scsi_cmd_req is currently 51 bytes.
 
->> +#endif
->
->>   	barrier();
->>   	ACCESS_ONCE(l->locked) = _Q_LOCKED_VAL;
->>   	barrier();
->
-> But no, what you want is:
->
-> static __always_inline bool virt_lock(struct qspinlock *lock)
-> {
-> #ifdef CONFIG_VIRT_MUCK
-> 	if (static_key_false(&virt_unfairlocks_enabled)) {
-> 		while (!queue_spin_trylock(lock))
-> 			cpu_relax();
->
-> 		return true;
-> 	}
-> #else
-> 	return false;
-> }
->
->
-> void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val)
-> {
-> 	if (virt_lock(lock))
-> 		return;
->
-> 	...
-> }
+> If true we don't need to make an exception here.
 
-This is a possible way of doing it. I can do that in the patch series to 
-simplify it. Hopefully that will speed up the review process and get it 
-done quicker.
+<nod>
 
--Longman
+> 
+> > - Figure out why QEMU is not acking (any) vhost-scsi feature bits
+> > 
+> > Is there anything else that you'd like to see for an initial merge, or
+> > other issues that need to be addressed with the above..?
+> > 
+> > --nab
+> 
+> FYI Paolo sent a spec patch for the feature.
+> Have you seen it?
+> 
+
+Yep, looks fine.
+
+--nab
