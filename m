@@ -1,18 +1,17 @@
-From: Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Subject: Re: [PATCH v10 03/19] qspinlock: Add pending bit
-Date: Wed, 14 May 2014 21:13:40 +0200
-Message-ID: <20140514191339.GA22813__6429.19300958074$1400095296$gmane$org@potion.brq.redhat.com>
-References: <1399474907-22206-1-git-send-email-Waiman.Long@hp.com>
-	<1399474907-22206-4-git-send-email-Waiman.Long@hp.com>
-	<20140512152208.GA12309@potion.brq.redhat.com>
-	<537276B4.10209@hp.com> <20140514165121.GA21370@potion.redhat.com>
-	<20140514170016.GW30445@twins.programming.kicks-ass.net>
+From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
+Subject: Re: [PATCH 6/6] virtio-scsi: Enable DIF/DIX modes in SCSI host LLD
+Date: Mon, 19 May 2014 12:07:03 -0700
+Message-ID: <1400526423.10964.31.camel__29507.2426241406$1400526443$gmane$org@haakon3.risingtidesystems.com>
+References: <1396819929-29687-1-git-send-email-nab@daterainc.com>
+	<1396819929-29687-7-git-send-email-nab@daterainc.com>
+	<20140407084518.GA14091@redhat.com>
+	<1396861019.19888.25.camel@haakon3.risingtidesystems.com>
+	<20140507091305.GA20044@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140514170016.GW30445@twins.programming.kicks-ass.net>
+In-Reply-To: <20140507091305.GA20044@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,64 +21,71 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: x86@kernel.org, Gleb Natapov <gleb@redhat.com>, linux-kernel@vger.kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, linux-arch@vger.kernel.org, kvm@vger.kernel.org, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Rik van Riel <riel@redhat.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, Paolo Bonzini <paolo.bonzini@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, Chegu Vinod <chegu_vinod@hp.com>, Waiman Long <waiman.long@hp.com>, Oleg Nesterov <oleg@redhat.com>, David Vrabel <david.vrabel@citrix.com>, Linus Torvalds <torvalds@linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-scsi <linux-scsi@vger.kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Sagi Grimberg <sagig@dev.mellanox.co.il>, virtualization@lists.linux-foundation.org, Sagi Grimberg <sagig@mellanox.com>, target-devel <target-devel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>, "Nicholas A. Bellinger" <nab@daterainc.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-MjAxNC0wNS0xNCAxOTowMCswMjAwLCBQZXRlciBaaWpsc3RyYToKPiBPbiBXZWQsIE1heSAxNCwg
-MjAxNCBhdCAwNjo1MToyNFBNICswMjAwLCBSYWRpbSBLcsSNbcOhxZkgd3JvdGU6Cj4gPiBPay4K
-PiA+IEkndmUgc2VlbiBtZXJpdCBpbiBwdnFzcGlubG9jayBldmVuIHdpdGggc2xpZ2h0bHkgc2xv
-d2VyIGZpcnN0LXdhaXRlciwKPiA+IHNvIEkgd291bGQgaGF2ZSBoYXBwaWx5IHNhY3JpZmljZWQg
-dGhvc2UgaG9ycmlibGUgYnJhbmNoZXMuCj4gPiAoSSBwcmVmZXIgZWxlZ2FudCB0byBvcHRpbWl6
-ZWQgY29kZSwgYnV0IEkgY2FuIHNlZSB3aHkgd2Ugd2FudCB0byBiZQo+ID4gIHN0cmljdGx5IGJl
-dHRlciB0aGFuIHRpY2tldGxvY2suKQo+ID4gUGV0ZXIgbWVudGlvbmVkIHRoYXQgd2UgYXJlIGZv
-Y3VzaW5nIG9uIGJhcmUtbWV0YWwgcGF0Y2hlcywgc28gSSdsbAo+ID4gd2l0aG9sZCBteSBvdGhl
-ciBwYXJhdmlydCByYW50cyB1bnRpbCB0aGV5IGFyZSBwb2xpc2hlZC4KCihJdCB3YXMgYW4gYW1i
-aWd1b3VzIHNlbnRlbmNlLCBJIGhhdmUgY29tbWVudHMgZm9yIGxhdGVyIHBhdGNoZXMuKQoKPiBX
-ZWxsLCBwYXJhdmlydCBtdXN0IGhhcHBlbiB0b28sIGJ1dCBjb21lcyBsYXRlciBpbiB0aGlzIHNl
-cmllcywgcGF0Y2ggMwo+IHdoaWNoIHdlJ3JlIHJlcGx5aW5nIHRvIGlzIHN0aWxsIHZlcnkgbXVj
-aCBpbiB0aGUgYmFyZSBtZXRhbCBwYXJ0IG9mIHRoZQo+IHNlcmllcy4KCihJIHRoaW5rIHRoYXQg
-YmFyZSBtZXRhbCBzcGFucyB0aGUgZmlyc3QgNyBwYXRjaGVzLikKCj4gSSd2ZSBub3QgaGFkIHRp
-bWUgeWV0IHRvIGRlY29kZSBhbGwgdGhhdCBXYWltYW4gaGFzIGRvbmUgdG8gbWFrZQo+IHBhcmF2
-aXJ0IHdvcmsuCj4gCj4gQnV0IGFzIGEgZ2VuZXJhbCBydWxlIEkgbGlrZSBwYXRjaGVzIHRoYXQg
-c3RhcnQgd2l0aCBzb21ldGhpbmcgc2ltcGxlCj4gYW5kIHdvcmtpbmcgYW5kIHRoZW4gb3B0aW1p
-emUgaXQsIHRoaXMgc2VyaWVzIGRvZXNuJ3Qgc2VlbSB0byBxdWl0ZQo+IGdyYXNwIHRoYXQuCj4g
-Cj4gPiBBbmQgdG8gZm9yY2VmdWxseSBicmluZyB0aGlzIHRocmVhZCBhIGxpdHRsZSBiaXQgb24t
-dG9waWM6Cj4gPiAKPiA+IFBlbmRpbmctYml0IGlzIGVmZmVjdGl2ZWx5IGEgbG9jayBpbiBhIGxv
-Y2ssIHNvIEkgd2FzIHdvbmRlcmluZyB3aHkKPiA+IGRvbid0IHdlIHVzZSBtb3JlIHBlbmRpbmcg
-Yml0czsgYWR2YW50YWdlcyBhcmUgdGhlIHNhbWUsIGp1c3QgZGltaW5pc2hlZAo+ID4gYnkgdGhl
-IHByb2JhYmlsaXR5IG9mIGhhdmluZyBhbiBpZGVhbGx5IGNvbnRlbmRlZCBsb2NrOgo+ID4gIC0g
-d2FpdGVyIHdvbid0IGJlIGJsb2NrZWQgb24gUkFNIGFjY2VzcyBpZiBjcml0aWNhbCBzZWN0aW9u
-IChvciBtb3JlKQo+ID4gICAgZW5kcyBzb29uZXIKPiA+ICAtIHNvbWUgdW5sdWNreSBjYWNoZWxp
-bmUgaXMgbm90IGZvcmdvdHRlbgo+ID4gIC0gZmFzdGVyIHVubG9jayAobm8gbmVlZCBmb3IgdGFp
-bCBvcGVyYXRpb25zKQo+ID4gKC0gPykKPiA+IGRpc2FkdmFudGFnZXMgYXJlIG1hZ25pZmllZDoK
-PiA+ICAtIGluY3JlYXNlZCBjb21wbGV4aXR5Cj4gPiAgLSBpbnRlbnNlIGNhY2hlbGluZSBzaGFy
-aW5nCj4gPiAgICAoSSB0aG91Z2h0IHRoYXQgdGhpcyBpcyB0aGUgbWFpbiBkaXNhZHZhbnRhZ2Ug
-b2YgdGlja2V0bG9jay4pCj4gPiAoLSA/KQo+ID4gCj4gPiBPbmUgYml0IHN0aWxsIGltcHJvdmVk
-IHBlcmZvcm1hbmNlLCBpcyBpdCB0aGUgYmVzdCB3ZSBnb3Q/Cj4gCj4gU28sIHRoZSBhZHZhbnRh
-Z2Ugb2Ygb25lIGJpdCBpcyB0aGF0IGlmIHdlIHVzZSBhIHdob2xlIGJ5dGUgZm9yIDEgYml0IHdl
-Cj4gY2FuIGF2b2lkIHNvbWUgYXRvbWljIG9wcy4KPiAKPiBUaGUgZW50aXJlIHJlYXNvbiBmb3Ig
-dGhpcyBpbi13b3JkIHNwaW5uZXIgaXMgdG8gYW1vcnRpemUgdGhlIGNvc3Qgb2YKPiBoaXR0aW5n
-IHRoZSBleHRlcm5hbCBub2RlIGNhY2hlbGluZS4KCkV2ZXJ5IHBlbmRpbmcgQ1BVIHJlbW92ZXMg
-b25lIGxlbmd0aCBvZiB0aGUgY3JpdGljYWwgc2VjdGlvbiBmcm9tIHRoZQpkZWxheSBjYXVzZWQg
-YnkgY2FjaGVsaW5lIHByb3BhZ2F0aW9uIGFuZCByZWFsbHkgY29sZCBjYWNoZSBpcwpodW5kcmVk
-cyg/KSBvZiBjeWNsZXMsIHNvIHdlIGNvdWxkIGJ1cm4gc29tZSB0byBlbnN1cmUgY29ycmVjdG5l
-c3MgYW5kCnN0aWxsIGJlIHdhaXRpbmcgd2hlbiB0aGUgZmlyc3QgcGVuZGluZyBDUFUgdW5sb2Nr
-cy4KCj4gU28gdHJhZGl0aW9uYWwgbG9ja3MgbGlrZSB0ZXN0LWFuZC10ZXN0IGFuZCB0aGUgdGlj
-a2V0IGxvY2sgb25seSBldmVyCj4gYWNjZXNzIHRoZSBzcGlubG9jayB3b3JkIGl0c2VmLCB0aGlz
-IE1DUyBzdHlsZSBxdWV1ZWluZyBsb2NrIGhhcyBhCj4gc2Vjb25kIChhbmQsIHNlZSBteSBvdGhl
-ciByYW50cyBpbiB0aGlzIHRocmVhZCwgd2hlbiBkb25lIHdyb25nIG1vcmUKPiB0aGFuIDIpIGNh
-Y2hlbGluZSB0byB0b3VjaC4KPiAKPiBUaGF0IHNhaWQsIGFsbCBvdXIgYmVuY2htYXJraW5nIGlz
-IHByZXR0eSBtdWNoIGZvciB0aGUgY2FjaGUtaG90IGNhc2UsCj4gc28gSSdtIG5vdCBlbnRpcmVs
-eSBjb252aW5jZWQgeWV0IHRoYXQgdGhlIG9uZSBwZW5kaW5nIGJpdCBtYWtlcyB1cCBmb3IKPiBp
-dCwgaXQgZG9lcyBpbiB0aGUgY2FjaGUtaG90IGNhc2UuCgpZZWFoLCB3ZSBwcm9iYWJseSB1c2Ug
-dGhlIGZhc3RlciBwcmUtbG9jayBxdWl0ZSBhIGxvdC4KQ292ZXIgbGV0dGVyIHN0YXRlcyB0aGF0
-IHF1ZXVlIGRlcHRoIDEtMyBpcyBhIGJpdCBzbG93ZXIgdGhhbiB0aWNrZXQKc3BpbmxvY2ssIHNv
-IHdlIG1pZ2h0IG5vdCBiZSBsb3NpbmcgaWYgd2UgaW1wbGVtZW50ZWQgYSBmYXN0ZXIKaW4td29y
-ZC1sb2NrIG9mIHRoaXMgY2FwYWNpdHkuICAoTm90IHRoYXQgSSdtIGEgZmFuIG9mIHRoZSBoeWJy
-aWQgbG9jay4pCgo+IEJ1dC4uLiB3cml0aW5nIGNhY2hlLWNvbGQgYmVuY2htYXJrcyBpcyBfaGFy
-ZF8gOi8KCldvdWxkbid0IGNsZmx1c2ggb2YgdGhlIHNlY29uZCBjYWNoZWxpbmUgYmVmb3JlIHRy
-eWluZyBmb3IgdGhlIGxvY2sgZ2l2ZQp1cyBhIHJvdWdoIGVzdGltYXRlPwpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, 2014-05-07 at 12:13 +0300, Michael S. Tsirkin wrote:
+> On Mon, Apr 07, 2014 at 01:56:59AM -0700, Nicholas A. Bellinger wrote:
+> > On Mon, 2014-04-07 at 11:45 +0300, Michael S. Tsirkin wrote:
+> > > On Sun, Apr 06, 2014 at 09:32:09PM +0000, Nicholas A. Bellinger wrote:
+> > > > From: Nicholas Bellinger <nab@linux-iscsi.org>
+> > > > 
+> > > > This patch updates virtscsi_probe() to setup necessary Scsi_Host
+> > > > level protection resources. (currently hardcoded to 1)
+> > > > 
+> > > > It changes virtscsi_add_cmd() to attach outgoing / incoming
+> > > > protection SGLs preceeding the data payload, and is using the
+> > > > new virtio_scsi_cmd_req_pi->d[oi],pi_niv field to signal
+> > > > to signal to vhost/scsi how many prot_sgs to expect.
+> > > > 
+> > > > v3 changes:
+> > > >   - Use VIRTIO_SCSI_F_T10_PI to determine PI or non PI header (Paolo)
+> > > > 
+> > > > v2 changes:
+> > > >   - Make protection buffer come before data buffer (Paolo)
+> > > >   - Enable virtio_scsi_cmd_req_pi usage (Paolo)
+> > > > 
+> > > > Cc: Paolo Bonzini <pbonzini@redhat.com>
+> > > > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > > > Cc: Martin K. Petersen <martin.petersen@oracle.com>
+> > > > Cc: Christoph Hellwig <hch@lst.de>
+> > > > Cc: Hannes Reinecke <hare@suse.de>
+> > > > Cc: Sagi Grimberg <sagig@dev.mellanox.co.il>
+> > > > Cc: H. Peter Anvin <hpa@zytor.com>
+> > > > Signed-off-by: Nicholas Bellinger <nab@linux-iscsi.org>
+> > > 
+> > > OK but we need to document the new interface in the spec
+> > > (and incidentially, this will be useful to verify the assumptions
+> > > made here and on the host side).
+> > > Could you please submit this proposal to the OASIS Virtio TC
+> > > for inclusion into the next spec draft?
+> > > Ideally as a patch against the tex source, but a prose
+> > > description would do as well.
+> > 
+> > Most certainly.  Please give me a bit to follow up on this, as the next
+> > couple of days are going to be hellishly busy..
+> 
+> Ping.
+> We really need to get this moving to have the interface reviewed for
+> the next merge window.
+> 
+
+Hi MST,
+
+So I've finally got some cycles to get back to this code, and wanted to
+verify the outstanding items you had previously raised:
+
+- Convert vhost-scsi to be independent of IOV layout using 
+  memcpy_fromiovecend. (Does this effect existing non PI virtio-scsi 
+  operation..?)
+- Report VIRTIO_F_ANY_LAYOUT feature bit to userspace.
+- Convert virtio_scsi_cmd_req_pi to bytes field instead of number of 
+  iovecs.
+- Ensure virtio_scsi_cmd_req_pi is naturally aligned
+- Figure out why QEMU is not acking (any) vhost-scsi feature bits
+
+Is there anything else that you'd like to see for an initial merge, or
+other issues that need to be addressed with the above..?
+
+--nab
