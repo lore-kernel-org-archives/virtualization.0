@@ -1,13 +1,14 @@
-From: Rik van Riel <riel@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [RFC] Implement Batched (group) ticket lock
-Date: Wed, 28 May 2014 17:55:31 -0400
-Message-ID: <53865B53.7050809@redhat.com>
+Date: Wed, 28 May 2014 15:19:49 -0700
+Message-ID: <CA+55aFx9d1dP+A3tdR-GaASQYBkkJHcV-=t9FdA7AGrMN12S0w@mail.gmail.com>
 References: <1401279399-23854-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+	<53865B53.7050809@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1401279399-23854-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+In-Reply-To: <53865B53.7050809@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,103 +18,33 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, konrad.wilk@oracle.com, pbonzini@redhat.com, gleb@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com
-Cc: waiman.long@hp.com, jeremy@goop.org, ak@linux.intel.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, oleg@redhat.com, fernando_b1@lab.ntt.co.jp, paul.gortmaker@windriver.com, chegu_vinod@hp.com, xen-devel@lists.xenproject.org, davej@redhat.com, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
+To: Rik van Riel <riel@redhat.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM list <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Oleg Nesterov <oleg@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Anvin <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>, Gleb Natapov <gleb@redhat.com>, the arch/x86 maintainers <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, virtualization <virtualization@lists.linux-foundation.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Dave Jones <davej@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, fernando_b1@lab.ntt.co.jp, "Vinod, Chegu" <chegu_vinod@hp.com>, Waiman Long <waiman.long@hp.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/28/2014 08:16 AM, Raghavendra K T wrote:
+On Wed, May 28, 2014 at 2:55 PM, Rik van Riel <riel@redhat.com> wrote:
+>
+> Or maybe cmpxchg is cheap once you already own the cache line
+> exclusively?
 
-This patch looks very promising.
+A locked cmpxchg ends up being anything between ~15-50 cycles
+depending on microarchitecture if things are already exclusively in
+the cache (with the P4 being an outlier, and all locked instructions
+tend to take ~100+ cycles, but I can't say I can really find it in
+myself to even care about netburst any more).
 
-> TODO:
-> - we need an intelligent way to nullify the effect of batching for baremetal
->  (because extra cmpxchg is not required).
+The most noticeable downside we've seen has been when we've used
+"read-op-cmpxchg" as a _replacement_ for something like "lock [x]add",
+when that "read+cmpxchg" has caused two cacheline ops (cacheline first
+loaded shared by the read, then exclusive by the cmpxchg). That's bad.
 
-On (larger?) NUMA systems, the unfairness may be a nice performance
-benefit, reducing cache line bouncing through the system, and it
-could well outweigh the extra cmpxchg at times.
+But if preceded by a write (or, in this case, an xadd), that doesn't
+happen. Still, those roughly 15-50 cycles can certainly be noticeable
+(especially at the high end), but you need to have some load that
+doesn't bounce the lock, and largely fit in the caches to see it. And
+you probably want to test one of the older CPU's, I think Haswell is
+the lower end (ie in the ~20 cycle range).
 
-> - we may have to make batch size as kernel arg to solve above problem
->  (to run same kernel for host/guest). Increasing batch size also seem to help
->  virtualized guest more, so we will have flexibility of tuning depending on vm size.
-> 
-> - My kernbench/ebizzy test on baremetal (32 cpu +ht sandybridge) did not seem to
->   show the impact of extra cmpxchg. but there should be effect of extra cmpxchg.
+If somebody has a P4 still, that's likely the worst case by far.
 
-Canceled out by better NUMA locality?
-
-Or maybe cmpxchg is cheap once you already own the cache line
-exclusively?
-
-> - virtualized guest had slight impact on 1x cases of some benchmarks but we have got
->  impressive performance for >1x cases. So overall, patch needs exhaustive tesing.
-> 
-> - we can further add dynamically changing batch_size implementation (inspiration and
->   hint by Paul McKenney) as necessary.
-
-I could see a larger batch size being beneficial.
-
-Currently the maximum wait time for a spinlock on a system
-with N CPUs is N times the length of the largest critical
-section.
-
-Having the batch size set equal to the number of CPUs would only
-double that, and better locality (CPUs local to the current
-lock holder winning the spinlock operation) might speed things
-up enough to cancel that part of that out again...
-
->  I have found that increasing  batch size gives excellent improvements for 
->  overcommitted guests. I understand that we need more exhaustive testing.
-> 
->  Please provide your suggestion and comments.
-
-I have only nitpicks so far...
-
-> diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
-> index 4f1bea1..b04c03d 100644
-> --- a/arch/x86/include/asm/spinlock_types.h
-> +++ b/arch/x86/include/asm/spinlock_types.h
-> @@ -3,15 +3,16 @@
->  
->  #include <linux/types.h>
->  
-> +#define TICKET_LOCK_INC_SHIFT 1
-> +#define __TICKET_LOCK_TAIL_INC (1<<TICKET_LOCK_INC_SHIFT)
-> +
->  #ifdef CONFIG_PARAVIRT_SPINLOCKS
-> -#define __TICKET_LOCK_INC	2
->  #define TICKET_SLOWPATH_FLAG	((__ticket_t)1)
->  #else
-> -#define __TICKET_LOCK_INC	1
->  #define TICKET_SLOWPATH_FLAG	((__ticket_t)0)
->  #endif
-
-For the !CONFIG_PARAVIRT case, TICKET_LOCK_INC_SHIFT used to be 0,
-now you are making it one. Probably not an issue, since even people
-who compile with 128 < CONFIG_NR_CPUS <= 256 will likely have their
-spinlocks padded out to 32 or 64 bits anyway in most data structures.
-
-> -#if (CONFIG_NR_CPUS < (256 / __TICKET_LOCK_INC))
-> +#if (CONFIG_NR_CPUS < (256 / __TICKET_LOCK_TAIL_INC))
->  typedef u8  __ticket_t;
->  typedef u16 __ticketpair_t;
->  #else
-> @@ -19,7 +20,12 @@ typedef u16 __ticket_t;
->  typedef u32 __ticketpair_t;
->  #endif
->  
-> -#define TICKET_LOCK_INC	((__ticket_t)__TICKET_LOCK_INC)
-> +#define TICKET_LOCK_TAIL_INC ((__ticket_t)__TICKET_LOCK_TAIL_INC)
-> +
-> +#define TICKET_LOCK_HEAD_INC ((__ticket_t)1)
-> +#define TICKET_BATCH    0x4 /* 4 waiters can contend simultaneously */
-> +#define TICKET_LOCK_BATCH_MASK (~(TICKET_BATCH<<TICKET_LOCK_INC_SHIFT) + \
-> +				  TICKET_LOCK_TAIL_INC - 1)
-
-I do not see the value in having TICKET_BATCH declared with a
-hexadecimal number, and it may be worth making sure the code
-does not compile if someone tried a TICKET_BATCH value that
-is not a power of 2.
-
--- 
-All rights reversed
+              Linus
