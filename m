@@ -1,7 +1,7 @@
-From: Venkatesh Srinivas <venkateshs@google.com>
-Subject: [PATCH] virtio-scsi: Implement change_queue_depth for virtscsi targets
-Date: Fri, 23 May 2014 18:07:45 -0700
-Message-ID: <1400893665-13128-1-git-send-email-venkateshs@google.com>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: [RFC] Implement Batched (group) ticket lock
+Date: Wed, 28 May 2014 17:46:39 +0530
+Message-ID: <1401279399-23854-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -15,85 +15,234 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-scsi@vger.kernel.org, pbonzini@redhat.com, nab@daterainc.com, virtualization@lists.linux-foundation.org, martin.petersen@oracle.com, digitaleric@google.com, vsrinivas@ops101.org
+To: tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com, konrad.wilk@oracle.com, pbonzini@redhat.com, gleb@redhat.com, peterz@infradead.org, paulmck@linux.vnet.ibm.com
+Cc: waiman.long@hp.com, jeremy@goop.org, ak@linux.intel.com, kvm@vger.kernel.org, riel@redhat.com, linux-kernel@vger.kernel.org, x86@kernel.org, oleg@redhat.com, fernando_b1@lab.ntt.co.jp, paul.gortmaker@windriver.com, chegu_vinod@hp.com, raghavendra.kt@linux.vnet.ibm.com, xen-devel@lists.xenproject.org, davej@redhat.com, virtualization@lists.linux-foundation.org, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-change_queue_depth allows changing per-target queue depth via sysfs.
+In virtualized environment there are mainly three problems
+related to spinlocks that affect performance.
+1. LHP (lock holder preemption)
+2. Lock Waiter Preemption (LWP)
+3. Starvation/fairness
 
-It also allows the SCSI midlayer to ramp down the number of concurrent
-inflight requests in response to a SCSI BUSY status response and allows
-the midlayer to ramp the count back up to the device maximum when the
-BUSY condition has resolved.
+ Though ticketlocks solve the fairness problem, it worsens LWP, LHP problems.
+pv-ticketlocks tried to address this. But we can further improve at the
+cost of relaxed fairness.
 
-Signed-off-by: Venkatesh Srinivas <venkateshs@google.com>
+In this patch, we form a batch of eligible lock holders and we serve the eligible
+(to hold the lock) batches in FIFO, but the lock-waiters within eligible batch are served
+in an unfair manner. This increases probability of any eligible lock-holder being
+in running state (to an average of (batch_size/2)-1). It also provides needed
+bounded starvation since any lock requester can not acquire more than batch_size
+times repeatedly during contention. On the negetive side we would need an extra cmpxchg.
+
+ The patch has the batch size of 4. (As we know increasing  batch size means we are
+closer to unfair locks and batch size of 1 = ticketlock).
+
+Result:
+Test system: 32cpu 2node machine w/ 64GB each (16 pcpu machine +ht).
+Guests:  8GB  16vcpu guests (average of 8 iterations)
+
+ % Improvements with kvm guests (batch size = 4):
+  ebizzy_0.5x   4.3
+  ebizzy_1.0x   7.8
+  ebizzy_1.5x  23.4
+  ebizzy_2.0x  48.6
+
+Baremetal:
+ebizzy showed very high stdev, kernbench result was good but both of them did
+not show much difference.
+
+ebizzy: rec/sec higher is better
+base    50452
+patched 50703
+
+kernbench  time in sec (lesser is better)
+base    48.9 sec
+patched 48.8 sec
+
+Signed-off-by: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
 ---
- drivers/scsi/virtio_scsi.c | 33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ arch/x86/include/asm/spinlock.h       | 35 +++++++++++++++++++++++++----------
+ arch/x86/include/asm/spinlock_types.h | 14 ++++++++++----
+ arch/x86/kernel/kvm.c                 |  6 ++++--
+ 3 files changed, 39 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index db3b494..6cd39cd 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -26,6 +26,7 @@
- #include <scsi/scsi_host.h>
- #include <scsi/scsi_device.h>
- #include <scsi/scsi_cmnd.h>
-+#include <scsi/scsi_tcq.h>
+TODO:
+- we need an intelligent way to nullify the effect of batching for baremetal
+ (because extra cmpxchg is not required).
+
+- we may have to make batch size as kernel arg to solve above problem
+ (to run same kernel for host/guest). Increasing batch size also seem to help
+ virtualized guest more, so we will have flexibility of tuning depending on vm size.
+
+- My kernbench/ebizzy test on baremetal (32 cpu +ht sandybridge) did not seem to
+  show the impact of extra cmpxchg. but there should be effect of extra cmpxchg.
+
+- virtualized guest had slight impact on 1x cases of some benchmarks but we have got
+ impressive performance for >1x cases. So overall, patch needs exhaustive tesing.
+
+- we can further add dynamically changing batch_size implementation (inspiration and
+  hint by Paul McKenney) as necessary.
  
- #define VIRTIO_SCSI_MEMPOOL_SZ 64
- #define VIRTIO_SCSI_EVENT_LEN 8
-@@ -633,6 +634,36 @@ static int virtscsi_device_reset(struct scsi_cmnd *sc)
- 	return virtscsi_tmf(vscsi, cmd);
- }
+ I have found that increasing  batch size gives excellent improvements for 
+ overcommitted guests. I understand that we need more exhaustive testing.
+
+ Please provide your suggestion and comments.
+
+diff --git a/arch/x86/include/asm/spinlock.h b/arch/x86/include/asm/spinlock.h
+index 0f62f54..87685f1 100644
+--- a/arch/x86/include/asm/spinlock.h
++++ b/arch/x86/include/asm/spinlock.h
+@@ -81,23 +81,36 @@ static __always_inline int arch_spin_value_unlocked(arch_spinlock_t lock)
+  */
+ static __always_inline void arch_spin_lock(arch_spinlock_t *lock)
+ {
+-	register struct __raw_tickets inc = { .tail = TICKET_LOCK_INC };
++	register struct __raw_tickets inc = { .tail = TICKET_LOCK_TAIL_INC };
++	struct __raw_tickets new;
  
-+/**
-+ * virtscsi_change_queue_depth() - Change a virtscsi target's queue depth
-+ * @sdev:	Virtscsi target whose queue depth to change
-+ * @qdepth:	New queue depth
-+ * @reason:	Reason for the queue depth change.
-+ */
-+static int virtscsi_change_queue_depth(struct scsi_device *sdev,
-+				       int qdepth,
-+				       int reason)
-+{
-+	struct Scsi_Host *shost = sdev->host;
-+	int max_depth = shost->cmd_per_lun;
-+
-+	switch (reason) {
-+	case SCSI_QDEPTH_QFULL: /* Drop qdepth in response to BUSY state */
-+		scsi_track_queue_full(sdev, qdepth);
-+		break;
-+	case SCSI_QDEPTH_RAMP_UP: /* Raise qdepth after BUSY state resolved */
-+	case SCSI_QDEPTH_DEFAULT: /* Manual change via sysfs */
-+		scsi_adjust_queue_depth(sdev,
-+					scsi_get_tag_type(sdev),
-+					min(max_depth, qdepth));
-+		break;
-+	default:
-+		return -EOPNOTSUPP;
+ 	inc = xadd(&lock->tickets, inc);
+-	if (likely(inc.head == inc.tail))
+-		goto out;
+ 
+ 	inc.tail &= ~TICKET_SLOWPATH_FLAG;
+ 	for (;;) {
+ 		unsigned count = SPIN_THRESHOLD;
+ 
+ 		do {
+-			if (ACCESS_ONCE(lock->tickets.head) == inc.tail)
+-				goto out;
++			if ((inc.head & TICKET_LOCK_BATCH_MASK) == (inc.tail &
++							TICKET_LOCK_BATCH_MASK))
++				goto spin;
+ 			cpu_relax();
++			inc.head = ACCESS_ONCE(lock->tickets.head);
+ 		} while (--count);
+ 		__ticket_lock_spinning(lock, inc.tail);
+ 	}
++spin:
++	for (;;) {
++		inc.head = ACCESS_ONCE(lock->tickets.head);
++		if (!(inc.head & TICKET_LOCK_HEAD_INC)) {
++			new.head = inc.head | TICKET_LOCK_HEAD_INC;
++			if (cmpxchg(&lock->tickets.head, inc.head, new.head)
++					== inc.head)
++				goto out;
++		}
++		cpu_relax();
 +	}
 +
-+	return sdev->queue_depth;
-+}
-+
- static int virtscsi_abort(struct scsi_cmnd *sc)
+ out:	barrier();	/* make sure nothing creeps before the lock is taken */
+ }
+ 
+@@ -109,7 +122,8 @@ static __always_inline int arch_spin_trylock(arch_spinlock_t *lock)
+ 	if (old.tickets.head != (old.tickets.tail & ~TICKET_SLOWPATH_FLAG))
+ 		return 0;
+ 
+-	new.head_tail = old.head_tail + (TICKET_LOCK_INC << TICKET_SHIFT);
++	new.head_tail = old.head_tail + (TICKET_LOCK_TAIL_INC << TICKET_SHIFT);
++	new.head_tail |= TICKET_LOCK_HEAD_INC;
+ 
+ 	/* cmpxchg is a full barrier, so nothing can move before it */
+ 	return cmpxchg(&lock->head_tail, old.head_tail, new.head_tail) == old.head_tail;
+@@ -123,7 +137,7 @@ static inline void __ticket_unlock_slowpath(arch_spinlock_t *lock,
+ 	BUILD_BUG_ON(((__ticket_t)NR_CPUS) != NR_CPUS);
+ 
+ 	/* Perform the unlock on the "before" copy */
+-	old.tickets.head += TICKET_LOCK_INC;
++	old.tickets.head += TICKET_LOCK_HEAD_INC;
+ 
+ 	/* Clear the slowpath flag */
+ 	new.head_tail = old.head_tail & ~(TICKET_SLOWPATH_FLAG << TICKET_SHIFT);
+@@ -150,14 +164,15 @@ static __always_inline void arch_spin_unlock(arch_spinlock_t *lock)
+ 		arch_spinlock_t prev;
+ 
+ 		prev = *lock;
+-		add_smp(&lock->tickets.head, TICKET_LOCK_INC);
++		add_smp(&lock->tickets.head, TICKET_LOCK_HEAD_INC);
+ 
+ 		/* add_smp() is a full mb() */
+ 
+ 		if (unlikely(lock->tickets.tail & TICKET_SLOWPATH_FLAG))
+ 			__ticket_unlock_slowpath(lock, prev);
+ 	} else
+-		__add(&lock->tickets.head, TICKET_LOCK_INC, UNLOCK_LOCK_PREFIX);
++		__add(&lock->tickets.head,
++		      TICKET_LOCK_HEAD_INC, UNLOCK_LOCK_PREFIX);
+ }
+ 
+ static inline int arch_spin_is_locked(arch_spinlock_t *lock)
+@@ -171,7 +186,7 @@ static inline int arch_spin_is_contended(arch_spinlock_t *lock)
  {
- 	struct virtio_scsi *vscsi = shost_priv(sc->device->host);
-@@ -684,6 +715,7 @@ static struct scsi_host_template virtscsi_host_template_single = {
- 	.proc_name = "virtio_scsi",
- 	.this_id = -1,
- 	.queuecommand = virtscsi_queuecommand_single,
-+	.change_queue_depth = virtscsi_change_queue_depth,
- 	.eh_abort_handler = virtscsi_abort,
- 	.eh_device_reset_handler = virtscsi_device_reset,
+ 	struct __raw_tickets tmp = ACCESS_ONCE(lock->tickets);
  
-@@ -700,6 +732,7 @@ static struct scsi_host_template virtscsi_host_template_multi = {
- 	.proc_name = "virtio_scsi",
- 	.this_id = -1,
- 	.queuecommand = virtscsi_queuecommand_multi,
-+	.change_queue_depth = virtscsi_change_queue_depth,
- 	.eh_abort_handler = virtscsi_abort,
- 	.eh_device_reset_handler = virtscsi_device_reset,
+-	return (__ticket_t)(tmp.tail - tmp.head) > TICKET_LOCK_INC;
++	return (__ticket_t)(tmp.tail - tmp.head) > TICKET_LOCK_TAIL_INC;
+ }
+ #define arch_spin_is_contended	arch_spin_is_contended
  
+diff --git a/arch/x86/include/asm/spinlock_types.h b/arch/x86/include/asm/spinlock_types.h
+index 4f1bea1..b04c03d 100644
+--- a/arch/x86/include/asm/spinlock_types.h
++++ b/arch/x86/include/asm/spinlock_types.h
+@@ -3,15 +3,16 @@
+ 
+ #include <linux/types.h>
+ 
++#define TICKET_LOCK_INC_SHIFT 1
++#define __TICKET_LOCK_TAIL_INC (1<<TICKET_LOCK_INC_SHIFT)
++
+ #ifdef CONFIG_PARAVIRT_SPINLOCKS
+-#define __TICKET_LOCK_INC	2
+ #define TICKET_SLOWPATH_FLAG	((__ticket_t)1)
+ #else
+-#define __TICKET_LOCK_INC	1
+ #define TICKET_SLOWPATH_FLAG	((__ticket_t)0)
+ #endif
+ 
+-#if (CONFIG_NR_CPUS < (256 / __TICKET_LOCK_INC))
++#if (CONFIG_NR_CPUS < (256 / __TICKET_LOCK_TAIL_INC))
+ typedef u8  __ticket_t;
+ typedef u16 __ticketpair_t;
+ #else
+@@ -19,7 +20,12 @@ typedef u16 __ticket_t;
+ typedef u32 __ticketpair_t;
+ #endif
+ 
+-#define TICKET_LOCK_INC	((__ticket_t)__TICKET_LOCK_INC)
++#define TICKET_LOCK_TAIL_INC ((__ticket_t)__TICKET_LOCK_TAIL_INC)
++
++#define TICKET_LOCK_HEAD_INC ((__ticket_t)1)
++#define TICKET_BATCH    0x4 /* 4 waiters can contend simultaneously */
++#define TICKET_LOCK_BATCH_MASK (~(TICKET_BATCH<<TICKET_LOCK_INC_SHIFT) + \
++				  TICKET_LOCK_TAIL_INC - 1)
+ 
+ #define TICKET_SHIFT	(sizeof(__ticket_t) * 8)
+ 
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 0331cb3..3dd41f7 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -755,7 +755,8 @@ __visible void kvm_lock_spinning(struct arch_spinlock *lock, __ticket_t want)
+ 	 * check again make sure it didn't become free while
+ 	 * we weren't looking.
+ 	 */
+-	if (ACCESS_ONCE(lock->tickets.head) == want) {
++	if ((ACCESS_ONCE(lock->tickets.head) & TICKET_LOCK_BATCH_MASK) ==
++				(want & TICKET_LOCK_BATCH_MASK)) {
+ 		add_stats(TAKEN_SLOW_PICKUP, 1);
+ 		goto out;
+ 	}
+@@ -787,7 +788,8 @@ static void kvm_unlock_kick(struct arch_spinlock *lock, __ticket_t ticket)
+ 	for_each_cpu(cpu, &waiting_cpus) {
+ 		const struct kvm_lock_waiting *w = &per_cpu(klock_waiting, cpu);
+ 		if (ACCESS_ONCE(w->lock) == lock &&
+-		    ACCESS_ONCE(w->want) == ticket) {
++		    (ACCESS_ONCE(w->want) & TICKET_LOCK_BATCH_MASK) ==
++			(ticket & TICKET_LOCK_BATCH_MASK)) {
+ 			add_stats(RELEASED_SLOW_KICKED, 1);
+ 			kvm_kick_cpu(cpu);
+ 			break;
 -- 
-1.9.1.423.g4596e3a
+1.7.11.7
