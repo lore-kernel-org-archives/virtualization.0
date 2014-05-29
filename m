@@ -1,14 +1,14 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [RFC] Implement Batched (group) ticket lock
-Date: Thu, 29 May 2014 15:21:26 +0530
-Message-ID: <5387031E.702@linux.vnet.ibm.com>
-References: <1401279399-23854-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
-	<20140529064606.GH19143@laptop.programming.kicks-ass.net>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: Divide error in kvm_unlock_kick()
+Date: Thu, 29 May 2014 19:51:18 +0200
+Message-ID: <53877396.8010503__26847.6031524644$1401385896$gmane$org@redhat.com>
+References: <20140528164231.GA8888@arachsys.com>
+	<D2F026E2-666F-4194-B95F-B5001843FA44@arachsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140529064606.GH19143@laptop.programming.kicks-ass.net>
+In-Reply-To: <D2F026E2-666F-4194-B95F-B5001843FA44@arachsys.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,34 +18,29 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: jeremy@goop.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, paul.gortmaker@windriver.com, hpa@zytor.com, ak@linux.intel.com, gleb@redhat.com, x86@kernel.org, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, oleg@redhat.com, davej@redhat.com, tglx@linutronix.de, fernando_b1@lab.ntt.co.jp, chegu_vinod@hp.com, waiman.long@hp.com, linux-kernel@vger.kernel.org, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: Chris Webb <chris@arachsys.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/29/2014 12:16 PM, Peter Zijlstra wrote:
-> On Wed, May 28, 2014 at 05:46:39PM +0530, Raghavendra K T wrote:
->> In virtualized environment there are mainly three problems
->> related to spinlocks that affect performance.
->> 1. LHP (lock holder preemption)
->> 2. Lock Waiter Preemption (LWP)
->> 3. Starvation/fairness
+Il 29/05/2014 19:45, Chris Webb ha scritto:
+> Chris Webb <chris@arachsys.com> wrote:
+>
+>> My CPU flags inside the crashing guest look like this:
 >>
->>   Though ticketlocks solve the fairness problem, it worsens LWP, LHP problems.
->> pv-ticketlocks tried to address this. But we can further improve at the
->> cost of relaxed fairness.
+>> fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush
+>> mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb lm rep_good nopl
+>> extd_apicid pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 x2apic popcnt aes xsave
+>> avx f16c hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse
+>> 3dnowprefetch osvw xop fma4 tbm arat npt nrip_save tsc_adjust bmi1
+>>
+>> whereas in a (working) -cpu qemu64 guest, they look like this:
+>>
+>> fpu de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx
+>> fxsr sse sse2 ht syscall nx lm nopl pni cx16 x2apic popcnt hypervisor lahf_lm
+>> cmp_legacy svm abm sse4a
 >
-> So I really hate the idea of having different locks for paravirt and
-> normal kernels.
+> I thought I'd try to bisect on processor flags to see which was/were
+> implicated.
 
-Yes. I understand that queued lock for normal kernel and unfair version 
-of queued spinlock for virtual guest would do better.
+Can you dump the full /proc/cpuinfo?
 
-Since strict serialization of lockwaiters (in both ticketlock/queued 
-spinlock) does not work well for virtualized guest, my idea was to
-give an alternate idea which has bounded starvation and performs as good 
-as unfair version to virtualized guest.
-
->
-> And we're looking to move to that queued lock for normal kernels.
-
-Agree. and I have tested that too.
+Paolo
