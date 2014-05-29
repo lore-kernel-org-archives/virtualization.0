@@ -1,14 +1,14 @@
-From: Rik van Riel <riel@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [RFC] Implement Batched (group) ticket lock
-Date: Wed, 28 May 2014 21:18:10 -0400
-Message-ID: <53868AD2.7020902@redhat.com>
-References: <1401279399-23854-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>	<53865B53.7050809@redhat.com>
-	<CA+55aFx9d1dP+A3tdR-GaASQYBkkJHcV-=t9FdA7AGrMN12S0w@mail.gmail.com>
+Date: Thu, 29 May 2014 08:46:06 +0200
+Message-ID: <20140529064606.GH19143@laptop.programming.kicks-ass.net>
+References: <1401279399-23854-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CA+55aFx9d1dP+A3tdR-GaASQYBkkJHcV-=t9FdA7AGrMN12S0w@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1401279399-23854-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,15 +18,22 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, KVM list <kvm@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Oleg Nesterov <oleg@redhat.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Peter Anvin <hpa@zytor.com>, Andi Kleen <ak@linux.intel.com>, Gleb Natapov <gleb@redhat.com>, the arch/x86 maintainers <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org, Paul McKenney <paulmck@linux.vnet.ibm.com>, virtualization <virtualization@lists.linux-foundation.org>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Dave Jones <davej@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, fernando_b1@lab.ntt.co.jp, "Vinod, Chegu" <chegu_vinod@hp.com>, Waiman Long <waiman.long@hp.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
+To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: jeremy@goop.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, paul.gortmaker@windriver.com, hpa@zytor.com, ak@linux.intel.com, gleb@redhat.com, x86@kernel.org, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, oleg@redhat.com, davej@redhat.com, tglx@linutronix.de, fernando_b1@lab.ntt.co.jp, chegu_vinod@hp.com, waiman.long@hp.com, linux-kernel@vger.kernel.org, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/28/2014 06:19 PM, Linus Torvalds wrote:
+On Wed, May 28, 2014 at 05:46:39PM +0530, Raghavendra K T wrote:
+> In virtualized environment there are mainly three problems
+> related to spinlocks that affect performance.
+> 1. LHP (lock holder preemption)
+> 2. Lock Waiter Preemption (LWP)
+> 3. Starvation/fairness
+> 
+>  Though ticketlocks solve the fairness problem, it worsens LWP, LHP problems.
+> pv-ticketlocks tried to address this. But we can further improve at the
+> cost of relaxed fairness.
 
-> If somebody has a P4 still, that's likely the worst case by far.
+So I really hate the idea of having different locks for paravirt and
+normal kernels.
 
-I'm sure cmpxchg isn't the only thing making P4 the worst case :)
-
--- 
-All rights reversed
+And we're looking to move to that queued lock for normal kernels.
