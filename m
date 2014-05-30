@@ -1,14 +1,17 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH] block: virtio_blk: don't hold spin lock during world
 	switch
-Date: Fri, 30 May 2014 15:35:41 +0930
-Message-ID: <87a99z7qdm.fsf@rustcorp.com.au>
+Date: Fri, 30 May 2014 15:40:02 +0930
+Message-ID: <877g537q6d.fsf@rustcorp.com.au>
 References: <1401418169-3361-1-git-send-email-ming.lei@canonical.com>
+	<5387F8B2.1070509@kernel.dk>
+	<CACVXFVPoG6_fL_MTRF+616W7UdHpSgjtMLBLeBn4OGR63haw3w@mail.gmail.com>
+	<5387FC96.4030508@kernel.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1401418169-3361-1-git-send-email-ming.lei@canonical.com>
+In-Reply-To: <5387FC96.4030508@kernel.dk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,44 +21,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org
-Cc: Ming Lei <ming.lei@canonical.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@canonical.com>
+Cc: virtualization@lists.linux-foundation.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ming Lei <ming.lei@canonical.com> writes:
-> Firstly, it isn't necessary to hold lock of vblk->vq_lock
-> when notifying hypervisor about queued I/O.
->
-> Secondly, virtqueue_notify() will cause world switch and
-> it may take long time on some hypervisors(such as, qemu-arm),
-> so it isn't good to hold the lock and block other vCPUs.
->
-> On arm64 quad core VM(qemu-kvm), the patch can increase I/O
-> performance a lot with VIRTIO_RING_F_EVENT_IDX enabled:
-> 	- without the patch: 14K IOPS
-> 	- with the patch: 34K IOPS
->
-> fio script:
-> 	[global]
-> 	direct=1
-> 	bsrange=4k-4k
-> 	timeout=10
-> 	numjobs=4
-> 	ioengine=libaio
-> 	iodepth=64
->
-> 	filename=/dev/vdc
-> 	group_reporting=1
->
-> 	[f1]
-> 	rw=randread
->
-> Cc: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Signed-off-by: Ming Lei <ming.lei@canonical.com>
+Jens Axboe <axboe@kernel.dk> writes:
+> If Rusty agrees, I'd like to add it for 3.16 with a stable marker.
 
-Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+Really stable?  It improves performance, which is nice.  But every patch
+which goes into the kernel fixes a bug, improves clarity, improves
+performance or adds a feature.  I've now seen all four cases get CC'd
+into stable.
 
-Thanks!
+Including some of mine explicitly not marked stable which get swept up
+by enthusiastic stable maintainers :(
+
+Is now there *any* patch short of a major rewrite which shouldn't get
+cc: stable?
+
+Cheers,
 Rusty.
