@@ -1,17 +1,15 @@
-From: Jens Axboe <axboe@kernel.dk>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] block: virtio_blk: don't hold spin lock during world
 	switch
-Date: Fri, 30 May 2014 07:52:08 -0600
-Message-ID: <53888D08.1050602@kernel.dk>
+Date: Fri, 30 May 2014 18:27:49 +0300
+Message-ID: <20140530152749.GB31250@redhat.com>
 References: <1401418169-3361-1-git-send-email-ming.lei@canonical.com>
-	<5387F8B2.1070509@kernel.dk>
-	<CACVXFVPoG6_fL_MTRF+616W7UdHpSgjtMLBLeBn4OGR63haw3w@mail.gmail.com>
-	<5387FC96.4030508@kernel.dk> <877g537q6d.fsf@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <877g537q6d.fsf@rustcorp.com.au>
+Content-Disposition: inline
+In-Reply-To: <1401418169-3361-1-git-send-email-ming.lei@canonical.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,32 +19,76 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, Ming Lei <ming.lei@canonical.com>
-Cc: virtualization@lists.linux-foundation.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+To: Ming Lei <ming.lei@canonical.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2014-05-30 00:10, Rusty Russell wrote:
-> Jens Axboe <axboe@kernel.dk> writes:
->> If Rusty agrees, I'd like to add it for 3.16 with a stable marker.
->
-> Really stable?  It improves performance, which is nice.  But every patch
-> which goes into the kernel fixes a bug, improves clarity, improves
-> performance or adds a feature.  I've now seen all four cases get CC'd
-> into stable.
->
-> Including some of mine explicitly not marked stable which get swept up
-> by enthusiastic stable maintainers :(
->
-> Is now there *any* patch short of a major rewrite which shouldn't get
-> cc: stable?
+On Fri, May 30, 2014 at 10:49:29AM +0800, Ming Lei wrote:
+> Firstly, it isn't necessary to hold lock of vblk->vq_lock
+> when notifying hypervisor about queued I/O.
+> 
+> Secondly, virtqueue_notify() will cause world switch and
+> it may take long time on some hypervisors(such as, qemu-arm),
+> so it isn't good to hold the lock and block other vCPUs.
+> 
+> On arm64 quad core VM(qemu-kvm), the patch can increase I/O
+> performance a lot with VIRTIO_RING_F_EVENT_IDX enabled:
+> 	- without the patch: 14K IOPS
+> 	- with the patch: 34K IOPS
+> 
+> fio script:
+> 	[global]
+> 	direct=1
+> 	bsrange=4k-4k
+> 	timeout=10
+> 	numjobs=4
+> 	ioengine=libaio
+> 	iodepth=64
+> 
+> 	filename=/dev/vdc
+> 	group_reporting=1
+> 
+> 	[f1]
+> 	rw=randread
+> 
+> Cc: Rusty Russell <rusty@rustcorp.com.au>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: virtualization@lists.linux-foundation.org
+> Signed-off-by: Ming Lei <ming.lei@canonical.com>
 
-I agree that there's sometimes an unfortunate trend there. I didn't 
-check, but my assumption was that this is a regression after the blk-mq 
-conversion, in which case I do think it belongs in stable.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-But in any case, I think the patch is obviously correct and the wins are 
-sufficiently large to warrant a stable inclusion even if it isn't a 
-regression.
-
--- 
-Jens Axboe
+> ---
+>  drivers/block/virtio_blk.c |    9 ++++++---
+>  1 file changed, 6 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 9f340fa..a6f5424 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -162,6 +162,7 @@ static int virtio_queue_rq(struct blk_mq_hw_ctx *hctx, struct request *req)
+>  	unsigned int num;
+>  	const bool last = (req->cmd_flags & REQ_END) != 0;
+>  	int err;
+> +	bool notify = false;
+>  
+>  	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
+>  
+> @@ -214,10 +215,12 @@ static int virtio_queue_rq(struct blk_mq_hw_ctx *hctx, struct request *req)
+>  		return BLK_MQ_RQ_QUEUE_ERROR;
+>  	}
+>  
+> -	if (last)
+> -		virtqueue_kick(vblk->vq);
+> -
+> +	if (last && virtqueue_kick_prepare(vblk->vq))
+> +		notify = true;
+>  	spin_unlock_irqrestore(&vblk->vq_lock, flags);
+> +
+> +	if (notify)
+> +		virtqueue_notify(vblk->vq);
+>  	return BLK_MQ_RQ_QUEUE_OK;
+>  }
+>  
+> -- 
+> 1.7.9.5
