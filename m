@@ -1,15 +1,17 @@
 From: Ming Lei <ming.lei@canonical.com>
 Subject: Re: [PATCH] block: virtio_blk: don't hold spin lock during world
 	switch
-Date: Fri, 30 May 2014 11:34:49 +0800
-Message-ID: <CACVXFVPoG6_fL_MTRF+616W7UdHpSgjtMLBLeBn4OGR63haw3w__6964.17478980056$1401464399$gmane$org@mail.gmail.com>
+Date: Fri, 30 May 2014 13:58:17 +0800
+Message-ID: <CACVXFVMN7do7WaHGQCwy=nkpCm1Vp2ZrCuAHmnXhbANPEqvQyg__30203.1370731585$1401464403$gmane$org@mail.gmail.com>
 References: <1401418169-3361-1-git-send-email-ming.lei@canonical.com>
 	<5387F8B2.1070509@kernel.dk>
+	<CACVXFVPoG6_fL_MTRF+616W7UdHpSgjtMLBLeBn4OGR63haw3w@mail.gmail.com>
+	<5387FC96.4030508@kernel.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5387F8B2.1070509@kernel.dk>
+In-Reply-To: <5387FC96.4030508@kernel.dk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,34 +25,65 @@ To: Jens Axboe <axboe@kernel.dk>
 Cc: virtualization@lists.linux-foundation.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 30, 2014 at 11:19 AM, Jens Axboe <axboe@kernel.dk> wrote:
-> On 2014-05-29 20:49, Ming Lei wrote:
+On Fri, May 30, 2014 at 11:35 AM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 2014-05-29 21:34, Ming Lei wrote:
 >>
->> Firstly, it isn't necessary to hold lock of vblk->vq_lock
->> when notifying hypervisor about queued I/O.
+>> On Fri, May 30, 2014 at 11:19 AM, Jens Axboe <axboe@kernel.dk> wrote:
+>>>
+>>> On 2014-05-29 20:49, Ming Lei wrote:
+>>>>
+>>>>
+>>>> Firstly, it isn't necessary to hold lock of vblk->vq_lock
+>>>> when notifying hypervisor about queued I/O.
+>>>>
+>>>> Secondly, virtqueue_notify() will cause world switch and
+>>>> it may take long time on some hypervisors(such as, qemu-arm),
+>>>> so it isn't good to hold the lock and block other vCPUs.
+>>>>
+>>>> On arm64 quad core VM(qemu-kvm), the patch can increase I/O
+>>>> performance a lot with VIRTIO_RING_F_EVENT_IDX enabled:
+>>>>          - without the patch: 14K IOPS
+>>>>          - with the patch: 34K IOPS
+>>>
+>>>
+>>>
+>>> Patch looks good to me. I don't see a hit on my qemu-kvm testing, but it
+>>> definitely makes sense and I can see it hurting in other places.
 >>
->> Secondly, virtqueue_notify() will cause world switch and
->> it may take long time on some hypervisors(such as, qemu-arm),
->> so it isn't good to hold the lock and block other vCPUs.
 >>
->> On arm64 quad core VM(qemu-kvm), the patch can increase I/O
->> performance a lot with VIRTIO_RING_F_EVENT_IDX enabled:
->>         - without the patch: 14K IOPS
->>         - with the patch: 34K IOPS
+>> It isn't easy to observe the improvement on x86 VM, especially
+>> with few vCPUs, because qemu-system-x86_64 only takes
+>> several microseconds to handle the notification, but on arm64, it
+>> may take hundreds of microseconds, so the improvement is
+>> obvious on arm VM.
+>>
+>> I hope this patch can be merged, at least arm VM can benefit
+>> from it.
 >
 >
-> Patch looks good to me. I don't see a hit on my qemu-kvm testing, but it
-> definitely makes sense and I can see it hurting in other places.
+> If Rusty agrees, I'd like to add it for 3.16 with a stable marker.
 
-It isn't easy to observe the improvement on x86 VM, especially
-with few vCPUs, because qemu-system-x86_64 only takes
-several microseconds to handle the notification, but on arm64, it
-may take hundreds of microseconds, so the improvement is
-obvious on arm VM.
+Interesting, even on x86, I still can observe the improvement
+when the numjobs is set as 2 in the fio script(see commit log), but
+when numjobs is set as 4, 8, 12, the difference isn't obvious between
+patched kernel and non-patched kernel.
 
-I hope this patch can be merged, at least arm VM can benefit
-from it.
+1, environment
+- host: 2sockets, each CPU(4cores, 2 threads), total 16 logical cores
+- guest: 16cores, 8GB ram
+- guest kernel: 3.15-rc7-next with patch[1]
+- fio: the script in commit log with numjobs set as 2
 
+2, result
+- without the patch: ~104K IOPS
+- with the patch: ~140K IOPS
+
+
+Rusty, considered the same trick has been applied in virt-scsi,
+do you agree to take the same approach in virt-blk too?
+
+
+[1], http://marc.info/?l=linux-kernel&m=140135041423441&w=2
 
 Thanks,
 --
