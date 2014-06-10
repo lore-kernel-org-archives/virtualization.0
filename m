@@ -1,14 +1,11 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 3.4 45/88] virtio-blk: Call del_gendisk() before disable guest
-	kick
-Date: Mon,  9 Jun 2014 17:24:55 -0700
-Message-ID: <20140610002426.025251054@linuxfoundation.org>
-References: <20140610002424.500996570@linuxfoundation.org>
+From: Henning Schild <henning.schild@siemens.com>
+Subject: Using virtio for inter-VM communication
+Date: Tue, 10 Jun 2014 18:48:18 +0200
+Message-ID: <20140610184818.2e490419__33633.1446808346$1402420414$gmane$org@nbschild1>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140610002424.500996570@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,73 +15,45 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Yijing Wang <wangyijing@huawei.com>, Asias He <asias@redhat.com>, Ben Hutchings <ben@decadent.org.uk>
+To: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Cc: Henning Schild <henning.schild@siemens.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-3.4-stable review patch.  If anyone has any objections, please let me know.
+Hi,
 
-------------------
+i am working on the jailhouse[1] project and am currently looking at
+inter-VM communication. We want to connect guests directly with virtual
+consoles based on shared memory. The code complexity in the hypervisor
+should be minimal, it should just make the shared memory discoverable
+and provide a signaling mechanism.
 
-From: Asias He <asias@redhat.com>
+We would like to reuse virtio so that Linux-guests will eventually just
+work without having to patch them. Having looked at virtio it seems to
+be focused on host<->guest communication and does not consider direct
+guest<->guest communication. I.e. the queues use guest-physical
+addressing, which is only meaningful for the guest and the host.
 
-commit 02e2b124943648fba0a2ccee5c3656a5653e0151 upstream.
+In a first prototype i implemented a ivshmem[2] device for the
+hypervisor. That way we can share memory between virtual machines.
+Ivshmem is nice and simple but does not seem to be used anymore. And it
+does not define higher level devices, like a console.
 
-del_gendisk() might not return due to failing to remove the
-/sys/block/vda/serial sysfs entry when another thread (udev) is
-trying to read it.
+At this point i could:
+- define a console on top of ivshmem
+- see how i can get a virtio console to work between guests on shared
+memory
 
-virtblk_remove()
-  vdev->config->reset() : guest will not kick us through interrupt
-    del_gendisk()
-      device_del()
-        kobject_del(): got stuck, sysfs entry ref count non zero
+Is anyone already using something like that? I guess zero-copy virtio
+devices in Xen would be a similar case. I read a suggestion from may
+2010 to introduce a virtio feature bit for shared memory
+(VIRTIO_F_RING_SHMEM_ADDR). But that did not make it into the
+virtio-spec.
 
-sysfs_open_file(): user space process read /sys/block/vda/serial
-   sysfs_get_active() : got sysfs entry ref count
-      dev_attr_show()
-        virtblk_serial_show()
-           blk_execute_rq() : got stuck, interrupt is disabled
-                              request cannot be finished
+regards,
+Henning
 
-This patch fixes it by calling del_gendisk() before we disable guest's
-interrupt so that the request sent in virtblk_serial_show() will be
-finished and del_gendisk() will success.
+[1] jailhouse
+https://github.com/siemens/jailhouse
 
-This fixes another race in hot-unplug process.
-
-It is save to call del_gendisk(vblk->disk) before
-flush_work(&vblk->config_work) which might access vblk->disk, because
-vblk->disk is not freed until put_disk(vblk->disk).
-
-Cc: virtualization@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org
-Signed-off-by: Asias He <asias@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-Cc: Yijing Wang <wangyijing@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/block/virtio_blk.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -581,13 +581,13 @@ static void __devexit virtblk_remove(str
- 	vblk->config_enable = false;
- 	mutex_unlock(&vblk->config_lock);
- 
-+	del_gendisk(vblk->disk);
-+
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
- 
- 	flush_work(&vblk->config_work);
- 
--	del_gendisk(vblk->disk);
--
- 	/* Abort requests dispatched to driver. */
- 	spin_lock_irqsave(&vblk->lock, flags);
- 	while ((vbr = virtqueue_detach_unused_buf(vblk->vq))) {
+[2] ivshmem
+https://gitorious.org/nahanni
