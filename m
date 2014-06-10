@@ -1,7 +1,8 @@
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 3.4 46/88] virtio-blk: Reset device after blk_cleanup_queue()
-Date: Mon,  9 Jun 2014 17:24:56 -0700
-Message-ID: <20140610002426.053960938@linuxfoundation.org>
+Subject: [PATCH 3.4 45/88] virtio-blk: Call del_gendisk() before disable guest
+	kick
+Date: Mon,  9 Jun 2014 17:24:55 -0700
+Message-ID: <20140610002426.025251054@linuxfoundation.org>
 References: <20140610002424.500996570@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -27,39 +28,35 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Asias He <asias@redhat.com>
 
-commit 483001c765af6892b3fc3726576cb42f17d1d6b5 upstream.
+commit 02e2b124943648fba0a2ccee5c3656a5653e0151 upstream.
 
-blk_cleanup_queue() will call blk_drian_queue() to drain all the
-requests before queue DEAD marking. If we reset the device before
-blk_cleanup_queue() the drain would fail.
+del_gendisk() might not return due to failing to remove the
+/sys/block/vda/serial sysfs entry when another thread (udev) is
+trying to read it.
 
-1) if the queue is stopped in do_virtblk_request() because device is
-full, the q->request_fn() will not be called.
+virtblk_remove()
+  vdev->config->reset() : guest will not kick us through interrupt
+    del_gendisk()
+      device_del()
+        kobject_del(): got stuck, sysfs entry ref count non zero
 
-blk_drain_queue() {
-   while(true) {
-      ...
-      if (!list_empty(&q->queue_head))
-        __blk_run_queue(q) {
-	    if (queue is not stoped)
-		q->request_fn()
-	}
-      ...
-   }
-}
+sysfs_open_file(): user space process read /sys/block/vda/serial
+   sysfs_get_active() : got sysfs entry ref count
+      dev_attr_show()
+        virtblk_serial_show()
+           blk_execute_rq() : got stuck, interrupt is disabled
+                              request cannot be finished
 
-Do no reset the device before blk_cleanup_queue() gives the chance to
-start the queue in interrupt handler blk_done().
+This patch fixes it by calling del_gendisk() before we disable guest's
+interrupt so that the request sent in virtblk_serial_show() will be
+finished and del_gendisk() will success.
 
-2) In commit b79d866c8b7014a51f611a64c40546109beaf24a, We abort requests
-dispatched to driver before blk_cleanup_queue(). There is a race if
-requests are dispatched to driver after the abort and before the queue
-DEAD mark. To fix this, instead of aborting the requests explicitly, we
-can just reset the device after after blk_cleanup_queue so that the
-device can complete all the requests before queue DEAD marking in the
-drain process.
+This fixes another race in hot-unplug process.
 
-Cc: Rusty Russell <rusty@rustcorp.com.au>
+It is save to call del_gendisk(vblk->disk) before
+flush_work(&vblk->config_work) which might access vblk->disk, because
+vblk->disk is not freed until put_disk(vblk->disk).
+
 Cc: virtualization@lists.linux-foundation.org
 Cc: kvm@vger.kernel.org
 Signed-off-by: Asias He <asias@redhat.com>
@@ -70,40 +67,24 @@ Cc: Yijing Wang <wangyijing@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/virtio_blk.c |   12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/block/virtio_blk.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -573,8 +573,6 @@ static void __devexit virtblk_remove(str
- {
- 	struct virtio_blk *vblk = vdev->priv;
- 	int index = vblk->index;
--	struct virtblk_req *vbr;
--	unsigned long flags;
- 
- 	/* Prevent config work handler from accessing the device. */
- 	mutex_lock(&vblk->config_lock);
-@@ -582,21 +580,13 @@ static void __devexit virtblk_remove(str
+@@ -581,13 +581,13 @@ static void __devexit virtblk_remove(str
+ 	vblk->config_enable = false;
  	mutex_unlock(&vblk->config_lock);
  
- 	del_gendisk(vblk->disk);
-+	blk_cleanup_queue(vblk->disk->queue);
- 
++	del_gendisk(vblk->disk);
++
  	/* Stop all the virtqueues. */
  	vdev->config->reset(vdev);
  
  	flush_work(&vblk->config_work);
  
--	/* Abort requests dispatched to driver. */
--	spin_lock_irqsave(&vblk->lock, flags);
--	while ((vbr = virtqueue_detach_unused_buf(vblk->vq))) {
--		__blk_end_request_all(vbr->req, -EIO);
--		mempool_free(vbr, vblk->pool);
--	}
--	spin_unlock_irqrestore(&vblk->lock, flags);
+-	del_gendisk(vblk->disk);
 -
--	blk_cleanup_queue(vblk->disk->queue);
- 	put_disk(vblk->disk);
- 	mempool_destroy(vblk->pool);
- 	vdev->config->del_vqs(vdev);
+ 	/* Abort requests dispatched to driver. */
+ 	spin_lock_irqsave(&vblk->lock, flags);
+ 	while ((vbr = virtqueue_detach_unused_buf(vblk->vq))) {
