@@ -1,11 +1,13 @@
-From: Henning Schild <henning.schild@siemens.com>
-Subject: Using virtio for inter-VM communication
-Date: Tue, 10 Jun 2014 18:48:18 +0200
-Message-ID: <20140610184818.2e490419__33633.1446808346$1402420414$gmane$org@nbschild1>
+From: Vincent JARDIN <vincent.jardin@6wind.com>
+Subject: Re: Using virtio for inter-VM communication
+Date: Wed, 11 Jun 2014 00:15:17 +0200
+Message-ID: <53978375.6090707__7197.31426002017$1402439965$gmane$org@6wind.com>
+References: <20140610184818.2e490419@nbschild1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20140610184818.2e490419@nbschild1>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,45 +17,23 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
-Cc: Henning Schild <henning.schild@siemens.com>
+To: Henning Schild <henning.schild@siemens.com>
+Cc: qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+On 10/06/2014 18:48, Henning Schild wrote:> Hi,
+ > In a first prototype i implemented a ivshmem[2] device for the
+ > hypervisor. That way we can share memory between virtual machines.
+ > Ivshmem is nice and simple but does not seem to be used anymore.
+ > And it
+ > does not define higher level devices, like a console.
 
-i am working on the jailhouse[1] project and am currently looking at
-inter-VM communication. We want to connect guests directly with virtual
-consoles based on shared memory. The code complexity in the hypervisor
-should be minimal, it should just make the shared memory discoverable
-and provide a signaling mechanism.
+FYI, ivhsmem is used here:
+   http://dpdk.org/browse/memnic/tree/
 
-We would like to reuse virtio so that Linux-guests will eventually just
-work without having to patch them. Having looked at virtio it seems to
-be focused on host<->guest communication and does not consider direct
-guest<->guest communication. I.e. the queues use guest-physical
-addressing, which is only meaningful for the guest and the host.
+http://dpdk.org/browse/memnic/tree/pmd/pmd_memnic.c#n449
 
-In a first prototype i implemented a ivshmem[2] device for the
-hypervisor. That way we can share memory between virtual machines.
-Ivshmem is nice and simple but does not seem to be used anymore. And it
-does not define higher level devices, like a console.
+There are some few other references too, if needed.
 
-At this point i could:
-- define a console on top of ivshmem
-- see how i can get a virtio console to work between guests on shared
-memory
-
-Is anyone already using something like that? I guess zero-copy virtio
-devices in Xen would be a similar case. I read a suggestion from may
-2010 to introduce a virtio feature bit for shared memory
-(VIRTIO_F_RING_SHMEM_ADDR). But that did not make it into the
-virtio-spec.
-
-regards,
-Henning
-
-[1] jailhouse
-https://github.com/siemens/jailhouse
-
-[2] ivshmem
-https://gitorious.org/nahanni
+Best regards,
+   Vincent
