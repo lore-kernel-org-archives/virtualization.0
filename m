@@ -1,17 +1,16 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH] block: virtio_blk: don't hold spin lock during world
-	switch
-Date: Wed, 11 Jun 2014 16:44:31 +0200
-Message-ID: <53986B4F.9000106@redhat.com>
-References: <1401418169-3361-1-git-send-email-ming.lei@canonical.com>	<5387F8B2.1070509@kernel.dk>	<CACVXFVPoG6_fL_MTRF+616W7UdHpSgjtMLBLeBn4OGR63haw3w@mail.gmail.com>	<5387FC96.4030508@kernel.dk>
-	<877g537q6d.fsf@rustcorp.com.au>	<53888D08.1050602@kernel.dk>
-	<87sino5cl2.fsf@rustcorp.com.au>
-	<CACVXFVN9aBrdmeAQJ6YadF_6grSjm9raiLV1=eUMAL20uUeeCw@mail.gmail.com>
+From: "Long, Wai Man" <waiman.long@hp.com>
+Subject: Re: [PATCH v11 06/16] qspinlock: prolong the stay in the pending
+	bit path
+Date: Wed, 11 Jun 2014 17:22:28 -0400
+Message-ID: <5398C894.6040808@hp.com>
+References: <1401464642-33890-1-git-send-email-Waiman.Long@hp.com>
+	<1401464642-33890-7-git-send-email-Waiman.Long@hp.com>
+	<20140611102606.GK3213@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CACVXFVN9aBrdmeAQJ6YadF_6grSjm9raiLV1=eUMAL20uUeeCw@mail.gmail.com>
+In-Reply-To: <20140611102606.GK3213@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,46 +20,83 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lei <ming.lei@canonical.com>, Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 02/06/2014 15:06, Ming Lei ha scritto:
->> >
->> > If you're running SMP under an emulator where exits are expensive, then
->> > this wins.  Under KVM it's marginal at best.
-> Both my tests on arm64 and x86 are under KVM, and looks the
-> patch can improve performance a lot. IMO, even though under
-> KVM, virtio-blk performance still depends how well hypervisor(
-> qemu, ...) emulates the device, and basically speaking, it is
-> expensive to switch from guest to host and let host handle the
-> notification.
 
-The difference is that virtio-pci supports ioeventfd and virtio-mmio 
-doesn't.
+On 6/11/2014 6:26 AM, Peter Zijlstra wrote:
+> On Fri, May 30, 2014 at 11:43:52AM -0400, Waiman Long wrote:
+>> ---
+>>   kernel/locking/qspinlock.c |   18 ++++++++++++++++--
+>>   1 files changed, 16 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
+>> index fc7fd8c..7f10758 100644
+>> --- a/kernel/locking/qspinlock.c
+>> +++ b/kernel/locking/qspinlock.c
+>> @@ -233,11 +233,25 @@ void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+>>   	 */
+>>   	for (;;) {
+>>   		/*
+>> -		 * If we observe any contention; queue.
+>> +		 * If we observe that the queue is not empty or both
+>> +		 * the pending and lock bits are set, queue
+>>   		 */
+>> -		if (val & ~_Q_LOCKED_MASK)
+>> +		if ((val & _Q_TAIL_MASK) ||
+>> +		    (val == (_Q_LOCKED_VAL|_Q_PENDING_VAL)))
+>>   			goto queue;
+>>   
+>> +		if (val == _Q_PENDING_VAL) {
+>> +			/*
+>> +			 * Pending bit is set, but not the lock bit.
+>> +			 * Assuming that the pending bit holder is going to
+>> +			 * set the lock bit and clear the pending bit soon,
+>> +			 * it is better to wait than to exit at this point.
+>> +			 */
+>> +			cpu_relax();
+>> +			val = atomic_read(&lock->val);
+>> +			continue;
+>> +		}
+>> +
+>>   		new = _Q_LOCKED_VAL;
+>>   		if (val == new)
+>>   			new |= _Q_PENDING_VAL;
+>
+> So, again, you just posted a new version without replying to the
+> previous discussion; so let me try again, what's wrong with the proposal
+> here:
+>
+>    lkml.kernel.org/r/20140417163640.GT11096@twins.programming.kicks-ass.net
+>
+>
 
-With ioeventfd you can tell KVM "I don't care about the value that is 
-written to a memory location, only that it is accessed".  Then when the 
-write happens, KVM doesn't do an expensive userspace exit; it just 
-writes 1 to an eventfd.
+I thought I had answered you before, maybe the message was lost or the 
+answer was not complete. Anyway, I will try to response to your question 
+again here.
 
-It then returns to the guest, userspace picks up the eventfd via its 
-poll() loop and services the device.
+> Wouldn't something like:
+>
+>	while (atomic_read(&lock->val) == _Q_PENDING_VAL)
+>		cpu_relax();
+>
+> before the cmpxchg loop have gotten you all this?
 
-This is already useful for throughput on UP, and the small latency cost 
-(because of the cost of the event loop in the I/O thread, and possibly 
-the cost of waking up the thread) is usually offset by the benefit.
+That is not exactly the same. The loop will exit if other bits are set or the pending
+bit cleared. In the case, we will need to do the same check at the beginning of the
+for loop in order to avoid doing an extra cmpxchg that is not necessary.
 
-But on SMP you get double benefit.  Obviously, the kernel doesn't have 
-to spin while userspace does its stuff.  On top of this, there is also a 
-latency improvement from ioeventfd, because QEMU processes 
-virtqueue_notify under its "big QEMU lock".  With ioeventfd, serialized 
-virtqueue processing can be a bottleneck, but it doesn't affect latency. 
-  Without ioeventfd it affects the VCPUs' latency and negates a lot of 
-the benefit of Ming Lei's patch.
 
-You can try disabling ioeventfd with "-global 
-virtio-blk-pci.ioeventfd=off" on the QEMU command line.  Performance 
-will plummet. :)
+> I just tried this on my code and I cannot see a difference.
 
-Paolo
+As I said before, I did see a difference with that change. I think it 
+depends on the CPU chip that we used for testing. I ran my test on a 
+10-core Westmere-EX chip. I run my microbench on different pairs of core 
+within the same chip. It produces different results that varies from 
+779.5ms to up to 1192ms. Without that patch, the lowest value I can get 
+is still close to 800ms, but the highest can be up to 1800ms or so. So I 
+believe it is just a matter of timing that you did not observed in your 
+test machine.
+
+-Longman
