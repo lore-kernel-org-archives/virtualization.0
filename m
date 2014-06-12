@@ -1,16 +1,13 @@
-From: "Long, Wai Man" <waiman.long@hp.com>
-Subject: Re: [PATCH v11 09/16] qspinlock, x86: Allow unfair spinlock in a
-	virtual guest
-Date: Wed, 11 Jun 2014 21:37:55 -0400
-Message-ID: <53990473.7020802@hp.com>
-References: <1401464642-33890-1-git-send-email-Waiman.Long@hp.com>
-	<1401464642-33890-10-git-send-email-Waiman.Long@hp.com>
-	<20140611105402.GL3213@twins.programming.kicks-ass.net>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: Using virtio for inter-VM communication
+Date: Thu, 12 Jun 2014 11:57:07 +0930
+Message-ID: <87r42uq2v8.fsf@rustcorp.com.au>
+References: <20140610184818.2e490419@nbschild1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140611105402.GL3213@twins.programming.kicks-ass.net>
+In-Reply-To: <20140610184818.2e490419@nbschild1>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,143 +17,42 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Cc: Henning Schild <henning.schild@siemens.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 6/11/2014 6:54 AM, Peter Zijlstra wrote:
-> On Fri, May 30, 2014 at 11:43:55AM -0400, Waiman Long wrote:
->> Enabling this configuration feature causes a slight decrease the
->> performance of an uncontended lock-unlock operation by about 1-2%
->> mainly due to the use of a static key. However, uncontended lock-unlock
->> operation are really just a tiny percentage of a real workload. So
->> there should no noticeable change in application performance.
-> No, entirely unacceptable.
+Henning Schild <henning.schild@siemens.com> writes:
+> Hi,
 >
->> +#ifdef CONFIG_VIRT_UNFAIR_LOCKS
->> +/**
->> + * queue_spin_trylock_unfair - try to acquire the queue spinlock unfairly
->> + * @lock : Pointer to queue spinlock structure
->> + * Return: 1 if lock acquired, 0 if failed
->> + */
->> +static __always_inline int queue_spin_trylock_unfair(struct qspinlock *lock)
->> +{
->> +	union arch_qspinlock *qlock = (union arch_qspinlock *)lock;
->> +
->> +	if (!qlock->locked && (cmpxchg(&qlock->locked, 0, _Q_LOCKED_VAL) == 0))
->> +		return 1;
->> +	return 0;
->> +}
->> +
->> +/**
->> + * queue_spin_lock_unfair - acquire a queue spinlock unfairly
->> + * @lock: Pointer to queue spinlock structure
->> + */
->> +static __always_inline void queue_spin_lock_unfair(struct qspinlock *lock)
->> +{
->> +	union arch_qspinlock *qlock = (union arch_qspinlock *)lock;
->> +
->> +	if (likely(cmpxchg(&qlock->locked, 0, _Q_LOCKED_VAL) == 0))
->> +		return;
->> +	/*
->> +	 * Since the lock is now unfair, we should not activate the 2-task
->> +	 * pending bit spinning code path which disallows lock stealing.
->> +	 */
->> +	queue_spin_lock_slowpath(lock, -1);
->> +}
-> Why is this needed?
+> i am working on the jailhouse[1] project and am currently looking at
+> inter-VM communication. We want to connect guests directly with virtual
+> consoles based on shared memory. The code complexity in the hypervisor
+> should be minimal, it should just make the shared memory discoverable
+> and provide a signaling mechanism.
 
-I added the unfair version of lock and trylock as my original version 
-isn't a simple test-and-set lock. Now I changed the core part to use the 
-simple test-and-set lock. However, I still think that an unfair version 
-in the fast path can be helpful to performance when both the unfair lock 
-and paravirt spinlock are enabled. In this case, paravirt spinlock code 
-will disable the unfair lock code in the slowpath, but still allow the 
-unfair version in the fast path to get the best possible performance in 
-a virtual guest.
+Hi Henning,
 
-Yes, I could take that out to allow either unfair or paravirt spinlock, 
-but not both. I do think that a little bit of unfairness will help in 
-the virtual environment.
+        The virtio assumption was that the host can see all of guest
+memory.  This simplifies things significantly, and makes it efficient.
 
->> +/*
->> + * Redefine arch_spin_lock and arch_spin_trylock as inline functions that will
->> + * jump to the unfair versions if the static key virt_unfairlocks_enabled
->> + * is true.
->> + */
->> +#undef arch_spin_lock
->> +#undef arch_spin_trylock
->> +#undef arch_spin_lock_flags
->> +
->> +/**
->> + * arch_spin_lock - acquire a queue spinlock
->> + * @lock: Pointer to queue spinlock structure
->> + */
->> +static inline void arch_spin_lock(struct qspinlock *lock)
->> +{
->> +	if (static_key_false(&virt_unfairlocks_enabled))
->> +		queue_spin_lock_unfair(lock);
->> +	else
->> +		queue_spin_lock(lock);
->> +}
->> +
->> +/**
->> + * arch_spin_trylock - try to acquire the queue spinlock
->> + * @lock : Pointer to queue spinlock structure
->> + * Return: 1 if lock acquired, 0 if failed
->> + */
->> +static inline int arch_spin_trylock(struct qspinlock *lock)
->> +{
->> +	if (static_key_false(&virt_unfairlocks_enabled))
->> +		return queue_spin_trylock_unfair(lock);
->> +	else
->> +		return queue_spin_trylock(lock);
->> +}
-> So I really don't see the point of all this? Why do you need special
-> {try,}lock paths for this case? Are you worried about the upper 24bits?
+If you don't have this, *someone* needs to do a copy.  Usually the guest
+OS does a bounce buffer into your shared region.  Goodbye performance.
+Or you can play remapping tricks.  Goodbye performance again.
 
-No, as I said above. I was planning for the coexistence of unfair lock 
-in the fast path and paravirt spinlock in the slowpath.
+My preferred model is to have a trusted helper (ie. host) which
+understands how to copy between virtio rings.  The backend guest (to
+steal Xen vocab) R/O maps the descriptor, avail ring and used rings in
+the guest.  It then asks the trusted helper to do various operation
+(copy into writable descriptor, copy out of readable descriptor, mark
+used).  The virtio ring itself acts as a grant table.
 
->> diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
->> index ae1b19d..3723c83 100644
->> --- a/kernel/locking/qspinlock.c
->> +++ b/kernel/locking/qspinlock.c
->> @@ -217,6 +217,14 @@ static __always_inline int try_set_locked(struct qspinlock *lock)
->>   {
->>   	struct __qspinlock *l = (void *)lock;
->>   
->> +#ifdef CONFIG_VIRT_UNFAIR_LOCKS
->> +	/*
->> +	 * Need to use atomic operation to grab the lock when lock stealing
->> +	 * can happen.
->> +	 */
->> +	if (static_key_false(&virt_unfairlocks_enabled))
->> +		return cmpxchg(&l->locked, 0, _Q_LOCKED_VAL) == 0;
->> +#endif
->>   	barrier();
->>   	ACCESS_ONCE(l->locked) = _Q_LOCKED_VAL;
->>   	barrier();
-> Why? If we have a simple test-and-set lock like below, we'll never get
-> here at all.
+Note: that helper mechanism is completely protocol agnostic.  It was
+also explicitly designed into the virtio mechanism (with its 4k
+boundaries for data structures and its 'len' field to indicate how much
+was written into the descriptor). 
 
-Again, it is due the coexistence of unfair lock in fast path and 
-paravirt spinlock in the slowpath.
+It was also never implemented, and remains a thought experiment.
+However, implementing it in lguest should be fairly easy.
 
->> @@ -252,6 +260,18 @@ void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val)
->>   
->>   	BUILD_BUG_ON(CONFIG_NR_CPUS >= (1U << _Q_TAIL_CPU_BITS));
->>   
->> +#ifdef CONFIG_VIRT_UNFAIR_LOCKS
->> +	/*
->> +	 * A simple test and set unfair lock
->> +	 */
->> +	if (static_key_false(&virt_unfairlocks_enabled)) {
->> +		cpu_relax();	/* Relax after a failed lock attempt */
-> Meh, I don't think anybody can tell the difference if you put that in or
-> not, therefore don't.
-
-Yes, I can take out the cpu_relax() here.
-
--Longman
+Cheers,
+Rusty.
