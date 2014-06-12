@@ -1,13 +1,11 @@
-From: "Nicholas A. Bellinger" <nab@linux-iscsi.org>
-Subject: Re: [PATCH] vhost-scsi: don't open-code kvfree
-Date: Thu, 12 Jun 2014 10:59:03 -0700
-Message-ID: <1402595943.18202.0.camel@haakon3.risingtidesystems.com>
-References: <1402588896-25446-1-git-send-email-mst@redhat.com>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Why is virtio_console not a tty?
+Date: Thu, 12 Jun 2014 12:32:31 -0700
+Message-ID: <539A004F.20906@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1402588896-25446-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,22 +15,12 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Amit Shah <amit.shah@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2014-06-12 at 19:02 +0300, Michael S. Tsirkin wrote:
-> Now that we have kvfree, use it in vhost-scsi instead of
-> the open-coded version.
-> 
-> Cc: Nicholas Bellinger <nab@linux-iscsi.org>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> I have this queued for -rc2.
-> Nicholas could you review ack pls?
+I have gotten scattered reports of strange problems caused by the fact
+that virtio_console doesn't behave like a normal tty (support termios
+and so on.)  This seems to be an odd restriction -- is there any
+fundamental reason for this design choice?
 
-
-Reviewed-by + Acked-by: Nicholas Bellinger <nab@linux-iscsi.org>
-
-Thanks MST!
+	-hpa
