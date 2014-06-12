@@ -1,14 +1,16 @@
-From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: Re: Using virtio for inter-VM communication
-Date: Thu, 12 Jun 2014 07:32:43 +0200
-Message-ID: <53993B7B.7010404__46239.1691784889$1402551896$gmane$org@siemens.com>
-References: <20140610184818.2e490419@nbschild1>
-	<87r42uq2v8.fsf@rustcorp.com.au>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v11 09/16] qspinlock, x86: Allow unfair spinlock in a
+	virtual guest
+Date: Thu, 12 Jun 2014 07:50:16 +0200
+Message-ID: <20140612055016.GP6758@twins.programming.kicks-ass.net>
+References: <1401464642-33890-1-git-send-email-Waiman.Long@hp.com>
+	<1401464642-33890-10-git-send-email-Waiman.Long@hp.com>
+	<20140611105402.GL3213@twins.programming.kicks-ass.net>
+	<53990473.7020802@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0166136813213849976=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87r42uq2v8.fsf@rustcorp.com.au>
+In-Reply-To: <53990473.7020802@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,62 +20,140 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Rusty Russell <rusty@rustcorp.com.au>, Henning Schild <henning.schild@siemens.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+To: "Long, Wai Man" <waiman.long@hp.com>
+Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2014-06-12 04:27, Rusty Russell wrote:
-> Henning Schild <henning.schild@siemens.com> writes:
->> Hi,
->>
->> i am working on the jailhouse[1] project and am currently looking at
->> inter-VM communication. We want to connect guests directly with virtual
->> consoles based on shared memory. The code complexity in the hypervisor
->> should be minimal, it should just make the shared memory discoverable
->> and provide a signaling mechanism.
-> 
-> Hi Henning,
-> 
->         The virtio assumption was that the host can see all of guest
-> memory.  This simplifies things significantly, and makes it efficient.
-> 
-> If you don't have this, *someone* needs to do a copy.  Usually the guest
-> OS does a bounce buffer into your shared region.  Goodbye performance.
-> Or you can play remapping tricks.  Goodbye performance again.
-> 
-> My preferred model is to have a trusted helper (ie. host) which
-> understands how to copy between virtio rings.  The backend guest (to
-> steal Xen vocab) R/O maps the descriptor, avail ring and used rings in
-> the guest.  It then asks the trusted helper to do various operation
-> (copy into writable descriptor, copy out of readable descriptor, mark
-> used).  The virtio ring itself acts as a grant table.
-> 
-> Note: that helper mechanism is completely protocol agnostic.  It was
-> also explicitly designed into the virtio mechanism (with its 4k
-> boundaries for data structures and its 'len' field to indicate how much
-> was written into the descriptor). 
-> 
-> It was also never implemented, and remains a thought experiment.
-> However, implementing it in lguest should be fairly easy.
 
-The reason why a trusted helper, i.e. additional logic in the
-hypervisor, is not our favorite solution is that we'd like to keep the
-hypervisor as small as possible. I wouldn't exclude such an approach
-categorically, but we have to weigh the costs (lines of code, additional
-hypervisor interface) carefully against the gain (existing
-specifications and guest driver infrastructure).
+--===============0166136813213849976==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BfIB/hDtUWEgpOfz"
+Content-Disposition: inline
 
-Back to VIRTIO_F_RING_SHMEM_ADDR (which you once brought up in an MCA
-working group discussion): What speaks against introducing an
-alternative encoding of addresses inside virtio data structures? The
-idea of this flag was to replace guest-physical addresses with offsets
-into a shared memory region associated with or part of a virtio device.
-That would preserve zero-copy capabilities (as long as you can work
-against the shared mem directly, e.g. doing DMA from a physical NIC or
-storage device into it) and keep the hypervisor out of the loop. Is it
-too invasive to existing infrastructure or does it have some other pitfalls?
 
-Jan
+--BfIB/hDtUWEgpOfz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Siemens AG, Corporate Technology, CT RTC ITP SES-DE
-Corporate Competence Center Embedded Linux
+On Wed, Jun 11, 2014 at 09:37:55PM -0400, Long, Wai Man wrote:
+>=20
+> On 6/11/2014 6:54 AM, Peter Zijlstra wrote:
+> >On Fri, May 30, 2014 at 11:43:55AM -0400, Waiman Long wrote:
+> >>Enabling this configuration feature causes a slight decrease the
+> >>performance of an uncontended lock-unlock operation by about 1-2%
+> >>mainly due to the use of a static key. However, uncontended lock-unlock
+> >>operation are really just a tiny percentage of a real workload. So
+> >>there should no noticeable change in application performance.
+> >No, entirely unacceptable.
+> >
+> >>+#ifdef CONFIG_VIRT_UNFAIR_LOCKS
+> >>+/**
+> >>+ * queue_spin_trylock_unfair - try to acquire the queue spinlock unfai=
+rly
+> >>+ * @lock : Pointer to queue spinlock structure
+> >>+ * Return: 1 if lock acquired, 0 if failed
+> >>+ */
+> >>+static __always_inline int queue_spin_trylock_unfair(struct qspinlock =
+*lock)
+> >>+{
+> >>+	union arch_qspinlock *qlock =3D (union arch_qspinlock *)lock;
+> >>+
+> >>+	if (!qlock->locked && (cmpxchg(&qlock->locked, 0, _Q_LOCKED_VAL) =3D=
+=3D 0))
+> >>+		return 1;
+> >>+	return 0;
+> >>+}
+> >>+
+> >>+/**
+> >>+ * queue_spin_lock_unfair - acquire a queue spinlock unfairly
+> >>+ * @lock: Pointer to queue spinlock structure
+> >>+ */
+> >>+static __always_inline void queue_spin_lock_unfair(struct qspinlock *l=
+ock)
+> >>+{
+> >>+	union arch_qspinlock *qlock =3D (union arch_qspinlock *)lock;
+> >>+
+> >>+	if (likely(cmpxchg(&qlock->locked, 0, _Q_LOCKED_VAL) =3D=3D 0))
+> >>+		return;
+> >>+	/*
+> >>+	 * Since the lock is now unfair, we should not activate the 2-task
+> >>+	 * pending bit spinning code path which disallows lock stealing.
+> >>+	 */
+> >>+	queue_spin_lock_slowpath(lock, -1);
+> >>+}
+> >Why is this needed?
+>=20
+> I added the unfair version of lock and trylock as my original version isn=
+'t
+> a simple test-and-set lock. Now I changed the core part to use the simple
+> test-and-set lock. However, I still think that an unfair version in the f=
+ast
+> path can be helpful to performance when both the unfair lock and paravirt
+> spinlock are enabled. In this case, paravirt spinlock code will disable t=
+he
+> unfair lock code in the slowpath, but still allow the unfair version in t=
+he
+> fast path to get the best possible performance in a virtual guest.
+>=20
+> Yes, I could take that out to allow either unfair or paravirt spinlock, b=
+ut
+> not both. I do think that a little bit of unfairness will help in the
+> virtual environment.
+
+When will you learn to like simplicity and stop this massive over
+engineering effort?
+
+There's no sane reason to have the test-and-set virt and paravirt locks
+enabled at the same bloody time.
+
+There's 3 distinct cases:
+
+ - native
+ - virt
+ - paravirt
+
+And they do not overlap. Furthermore, if there is any possibility at all
+of not polluting the native code, grab it with both hands.
+
+Native performance is king, try your very utmost bestest to preserve
+that, paravirt is a distant second and nobody sane should care about the
+virt case at all.
+
+If you want extra lock stealing in the paravirt case, put it in the
+slowpath code before you start queueing.
+
+--BfIB/hDtUWEgpOfz
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJTmT+TAAoJEHZH4aRLwOS6QbAP/jTgckl8+R57scPEya5Br+oo
+YZlzzWJQR5aRyk7a+keU2qisA12SwpmhO+2Kftd16OMENdezV6k7G/jqLrrLO2ac
+aE42tT9ZGBMKdkLDT1d8VDlMYCFoOQw7qNEivi933qkGqtIE2xUMCM+7JPbw61uz
+BTlQWI7gLTaCjQrfaRF0Ko7ozkL3/kibUoU0hbiI/yqNRoXVIgdDEEqEhO4NGPAs
+VdyWZlyELJ0R/0ArnOvoTthkpbgCs+JZBYTXwXDIsmC3Y0M4DGdN1GCjJhsm3Kgd
+7OFXbbdRALPGlirdugX6J9WDsEnyOWuP3t5BiG50TnPi84+F3z0+ZqaD7qnbxeeM
+nKS5zPRDk23Dq8NlIXRS/tVHV0KtlVZFKc7YFJ1tC1fFqORMtdHC/NAWv+bmzkgW
+K+qmBY4H4GzGHT0EgSRA9G4qPmoRD/y/PYcVqogUomWMIuORFR513Th6bqxXMsF6
+HeepJ1ZCazj0w4fYouf55PbUSR4/miTPXkOc9ZDE+l2lkD8da+TjuTiCNZuYrlSq
+yMAnLqh9Fh5hjil/445g56uFOePhKr+OdZ206jyglz987zENXlOxHB0CRlVpOPE7
+TFnoj+TGJrMix/PQU6/0GB5k63fHjMCqhkqEYYH/i4FSgWED+yZ9cXtDLn4eEWZL
+n6fVRs4JSiUixHyZTxjV
+=e/Tf
+-----END PGP SIGNATURE-----
+
+--BfIB/hDtUWEgpOfz--
+
+--===============0166136813213849976==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0166136813213849976==--
