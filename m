@@ -1,17 +1,13 @@
 From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: Why I advise against using ivshmem
-Date: Thu, 12 Jun 2014 18:54:47 +0200
-Message-ID: <5399DB57.4070500@redhat.com>
-References: <20140610184818.2e490419@nbschild1> <53978375.6090707@6wind.com>
-	<87ppie1v4r.fsf@blackfin.pond.sub.org>
-	<20140612094413.15e56938@nbschild1>
-	<87vbs6qjhj.fsf_-_@blackfin.pond.sub.org>
-	<5399CF09.8030803@6wind.com>
+Subject: Re: [PATCH] vhost-scsi: don't open-code kvfree
+Date: Thu, 12 Jun 2014 18:56:34 +0200
+Message-ID: <5399DBC2.6070004@redhat.com>
+References: <1402588896-25446-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <5399CF09.8030803@6wind.com>
+In-Reply-To: <1402588896-25446-1-git-send-email-mst@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,45 +17,65 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Vincent JARDIN <vincent.jardin@6wind.com>, Markus Armbruster <armbru@redhat.com>
-Cc: Henning Schild <henning.schild@siemens.com>, David Marchand <david.marchand@6wind.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 12/06/2014 18:02, Vincent JARDIN ha scritto:
+Il 12/06/2014 18:02, Michael S. Tsirkin ha scritto:
+> Now that we have kvfree, use it in vhost-scsi instead of
+> the open-coded version.
 >
->> * Get all the required parts outside QEMU packaged in major distros, or
->>    absorbed into QEMU
+> Cc: Nicholas Bellinger <nab@linux-iscsi.org>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
 >
-> Redhat did disable it. why? it is there in QEMU.
+> I have this queued for -rc2.
+> Nicholas could you review ack pls?
+>
+>  drivers/vhost/scsi.c | 12 ++----------
+>  1 file changed, 2 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> index 83b834b..b08863e 100644
+> --- a/drivers/vhost/scsi.c
+> +++ b/drivers/vhost/scsi.c
+> @@ -1396,14 +1396,6 @@ static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
+>  	return 0;
+>  }
+>
+> -static void vhost_scsi_free(struct vhost_scsi *vs)
+> -{
+> -	if (is_vmalloc_addr(vs))
+> -		vfree(vs);
+> -	else
+> -		kfree(vs);
+> -}
+> -
+>  static int vhost_scsi_open(struct inode *inode, struct file *f)
+>  {
+>  	struct vhost_scsi *vs;
+> @@ -1443,7 +1435,7 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
+>  	return 0;
+>
+>  err_vqs:
+> -	vhost_scsi_free(vs);
+> +	kvfree(vs);
+>  err_vs:
+>  	return r;
+>  }
+> @@ -1462,7 +1454,7 @@ static int vhost_scsi_release(struct inode *inode, struct file *f)
+>  	/* Jobs can re-queue themselves in evt kick handler. Do extra flush. */
+>  	vhost_scsi_flush(vs);
+>  	kfree(vs->dev.vqs);
+> -	vhost_scsi_free(vs);
+> +	kvfree(vs);
+>  	return 0;
+>  }
+>
+>
 
-We don't ship everything that is part of QEMU, just like we selectively 
-disable many drivers in Linux.
+You didn't CC Nicholas. :)  Anyway,
 
-Markus especially referred to parts *outside* QEMU: the server, the uio 
-driver, etc.  These out-of-tree, non-packaged parts of ivshmem are one 
-of the reasons why Red Hat has disabled ivshmem in RHEL7.
-
-He also listed many others.  Basically for parts of QEMU that are not of 
-high quality, we either fix them (this is for example what we did for 
-qcow2) or disable them.  Not just ivshmem suffered this fate, for 
-example many network cards, sound cards, SCSI storage adapters.
-
-Now, vhost-user is in the process of being merged for 2.1.  Compared to 
-the DPDK solution:
-
-* it doesn't require hugetlbfs (which only enabled shared memory by 
-chance in older QEMU releases, that was never documented)
-
-* it doesn't require ivshmem (it does require shared memory, which will 
-also be added to 2.1)
-
-* it doesn't require the kernel driver from the DPDK sample
-
-* it is not just shared memory, but also defines an interface to use it 
-(another of Markus's points)
-
-vhost-user is superior, and it is superior because it has been designed 
-from the get-go through cooperation of all interested parties (namely 
-QEMU and snabbswitch).
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
 
 Paolo
