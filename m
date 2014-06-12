@@ -1,15 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PULL] vhost: infrastructure changes for 3.16
-Date: Thu, 12 Jun 2014 12:39:15 +0300
-Message-ID: <20140612093915.GD22230@redhat.com>
-References: <20140611134447.GA8208@redhat.com>
-	<87mwdiwmbp.fsf@kima.orebokech.com>
+From: Markus Armbruster <armbru@redhat.com>
+Subject: Re: [Qemu-devel] Using virtio for inter-VM communication
+Date: Thu, 12 Jun 2014 14:55:47 +0200
+Message-ID: <874mzqwalo.fsf@blackfin.pond.sub.org>
+References: <20140610184818.2e490419@nbschild1> <53978375.6090707@6wind.com>
+	<87ppie1v4r.fsf@blackfin.pond.sub.org>
+	<20140612094413.15e56938@nbschild1>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <87mwdiwmbp.fsf@kima.orebokech.com>
+In-Reply-To: <20140612094413.15e56938@nbschild1> (Henning Schild's message of
+	"Thu, 12 Jun 2014 09:44:13 +0200")
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,74 +20,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Romain Francoise <romain@orebokech.com>
-Cc: sfr@canb.auug.org.au, linux-scsi@vger.kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Al Viro <viro@zeniv.linux.org.uk>, nab@daterainc.com, Linus Torvalds <torvalds@linux-foundation.org>
+To: Henning Schild <henning.schild@siemens.com>
+Cc: Vincent JARDIN <vincent.jardin@6wind.com>, qemu-devel@nongnu.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 12, 2014 at 10:42:34AM +0200, Romain Francoise wrote:
-> "Michael S. Tsirkin" <mst@redhat.com> writes:
-> 
-> > Memory allocation for vhost-net now supports fallback on vmalloc (same
-> > as for vhost-scsi) this makes it possible to create the device on
-> > systems where memory is very fragmented, with slightly lower
-> > performance.
-> 
-> Thanks Michael, I'm glad to see that this change made its way into
-> mainline after all! Would you be willing to take the following on top?
-> 
-> 
-> From: Romain Francoise <romain@orebokech.com>
-> Date: Thu, 12 Jun 2014 10:26:40 +0200
-> Subject: [PATCH] vhost-net: don't open-code kvfree
-> 
-> Commit 23cc5a991c ("vhost-net: extend device allocation to vmalloc")
-> added another open-coded version of kvfree (which is available since
-> v3.15-rc5), nuke it.
-> 
-> Signed-off-by: Romain Francoise <romain@orebokech.com>
-> ---
+Henning Schild <henning.schild@siemens.com> writes:
 
-Absolutely, I'll queue this up, thanks!
-
->  drivers/vhost/net.c | 12 ++----------
->  1 file changed, 2 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 971a760..8dae2f7 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -700,14 +700,6 @@ static void handle_rx_net(struct vhost_work *work)
->  	handle_rx(net);
->  }
->  
-> -static void vhost_net_free(void *addr)
-> -{
-> -	if (is_vmalloc_addr(addr))
-> -		vfree(addr);
-> -	else
-> -		kfree(addr);
-> -}
-> -
->  static int vhost_net_open(struct inode *inode, struct file *f)
->  {
->  	struct vhost_net *n;
-> @@ -723,7 +715,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
->  	}
->  	vqs = kmalloc(VHOST_NET_VQ_MAX * sizeof(*vqs), GFP_KERNEL);
->  	if (!vqs) {
-> -		vhost_net_free(n);
-> +		kvfree(n);
->  		return -ENOMEM;
->  	}
->  
-> @@ -840,7 +832,7 @@ static int vhost_net_release(struct inode *inode, struct file *f)
->  	 * since jobs can re-queue themselves. */
->  	vhost_net_flush(n);
->  	kfree(n->dev.vqs);
-> -	vhost_net_free(n);
-> +	kvfree(n);
->  	return 0;
->  }
->  
-> -- 
-> 2.0.0
+> On Thu, 12 Jun 2014 08:48:04 +0200
+> Markus Armbruster <armbru@redhat.com> wrote:
+>
+>> Vincent JARDIN <vincent.jardin@6wind.com> writes:
+>> 
+>> > On 10/06/2014 18:48, Henning Schild wrote:> Hi,
+>> >> In a first prototype i implemented a ivshmem[2] device for the
+>> >> hypervisor. That way we can share memory between virtual machines.
+>> >> Ivshmem is nice and simple but does not seem to be used anymore.
+>> >> And it
+>> >> does not define higher level devices, like a console.
+>> >
+>> > FYI, ivhsmem is used here:
+>> >   http://dpdk.org/browse/memnic/tree/
+>> >
+>> > http://dpdk.org/browse/memnic/tree/pmd/pmd_memnic.c#n449
+>> >
+>> > There are some few other references too, if needed.
+>> 
+>> It may be used, but that doesn't mean it's maintained, or robust
+>> against abuse.  My advice is to steer clear of it.
+>
+> Could you elaborate on why you advice against it?
