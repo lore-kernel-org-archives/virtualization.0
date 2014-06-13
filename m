@@ -1,18 +1,19 @@
-From: Vincent JARDIN <vincent.jardin@6wind.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 Subject: Re: [Qemu-devel] Why I advise against using ivshmem
-Date: Fri, 13 Jun 2014 15:41:16 +0200
-Message-ID: <539AFF7C.7090702__24003.5215662376$1402666897$gmane$org@6wind.com>
+Date: Fri, 13 Jun 2014 16:10:21 +0200
+Message-ID: <539B064D.2050501@redhat.com>
 References: <20140610184818.2e490419@nbschild1> <53978375.6090707@6wind.com>
 	<87ppie1v4r.fsf@blackfin.pond.sub.org>
 	<20140612094413.15e56938@nbschild1>
 	<87vbs6qjhj.fsf_-_@blackfin.pond.sub.org>
 	<5399CF09.8030803@6wind.com> <87ppidnqmy.fsf@blackfin.pond.sub.org>
 	<539AC3E0.9090404@6wind.com> <539ACDE6.7020709@redhat.com>
+	<539AFF7C.7090702@6wind.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <539ACDE6.7020709@redhat.com>
+In-Reply-To: <539AFF7C.7090702@6wind.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,91 +23,72 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
+To: Vincent JARDIN <vincent.jardin@6wind.com>
 Cc: Henning Schild <henning.schild@siemens.com>, Olivier MATZ <olivier.matz@6wind.com>, kvm@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, "thomas.monjalon@6wind.com" <thomas.monjalon@6wind.com>, David Marchand <david.marchand@6wind.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Fine, however Red Hat would also need a way to test ivshmem code, with
-> proper quality assurance (that also benefits upstream, of course).  With
-> ivshmem this is not possible without the out-of-tree packages.
-
-You did not reply to my question: how to get the list of things that 
-are/will be disabled by Redhat?
-
-About Redhat's QA, I do not care.
-About Qemu's QA, I do care ;)
-
-I guess we can combine both. What's about something like:
-   tests/virtio-net-test.c # qtest_add_func( is a nop)
-but for ivshmem
-   test/ivshmem-test.c
-?
-
-would it have any values?
-
-If not, what do you use at Redhat to test Qemu?
-
->> now, you cannot compare vhost-user to DPDK/ivshmem; both should exsit
->> because they have different scope and use cases. It is like comparing
->> two different(A) models of IPC:
-
-I do repeat this use case that you had removed because vhost-user does 
-not solve it yet:
-
- >>  - ivshmem -> framework to be generic to have shared memory for many
- >> use cases (HPC, in-memory-database, a network too like memnic).
-
->>   - vhost-user -> networking use case specific
+Il 13/06/2014 15:41, Vincent JARDIN ha scritto:
+>> Fine, however Red Hat would also need a way to test ivshmem code, with
+>> proper quality assurance (that also benefits upstream, of course).  With
+>> ivshmem this is not possible without the out-of-tree packages.
 >
-> Not necessarily.  First and foremost, vhost-user defines an API for
-> communication between QEMU and the host, including:
-> * file descriptor passing for the shared memory file
-> * mapping offsets in shared memory to physical memory addresses in the
-> guests
-> * passing dirty memory information back and forth, so that migration is
-> not prevented
-> * sending interrupts to a device
-> * setting up ring buffers in the shared memory
+> You did not reply to my question: how to get the list of things that
+> are/will be disabled by Redhat?
 
-Yes, I do agree that it is promising.
-And of course some tests are here:
-   https://lists.gnu.org/archive/html/qemu-devel/2014-03/msg00584.html
-for some of the bullets you are listing (not all yet).
+I don't know exactly what the answer is, and this is probably not the 
+right list to discuss it.  I guess there are partnership programs with 
+Red Hat that I don't know the details of, but these are more for 
+management folks and not really for developers.
 
-> Also, vhost-user is documented! See here:
-> https://lists.gnu.org/archive/html/qemu-devel/2014-03/msg00581.html
+ivshmem in particular was disabled even in RHEL7 beta, so you could have 
+found out about this in December and opened a bug in Bugzilla about it.
 
-as I told you, we'll send a contribution with ivshmem's documentation.
-
-> The only part of ivshmem that vhost doesn't include is the n-way
-> inter-guest doorbell.  This is the part that requires a server and uio
-> driver.  vhost only supports host->guest and guest->host doorbells.
-
-agree: both will need it: vhost and ivshmem requires a doorbell for 
-VM2VM, but then we'll have a security issue to be managed by Qemu for 
-vhost and ivshmem.
-I'll be pleased to contribute on it for ivshmem thru another thread that 
-this one.
-
->> ivhsmem does not require DPDK kernel driver. see memnic's PMD:
->>   http://dpdk.org/browse/memnic/tree/pmd/pmd_memnic.c
+> I guess we can combine both. What's about something like:
+>   tests/virtio-net-test.c # qtest_add_func( is a nop)
+> but for ivshmem
+>   test/ivshmem-test.c
+> ?
 >
-> You're right, I was confusing memnic and the vhost example in DPDK.
+> would it have any values?
 
-Definitively, it proves a lack of documentation. You welcome. Olivier 
-did explain it:
+The first things to do are:
 
->> ivhsmem does not require hugetlbfs. It is optional.
->>
->>  > * it doesn't require ivshmem (it does require shared memory, which
->>  > will also be added to 2.1)
+1) try to understand if there is any value in a simplified shared memory 
+device with no interrupts (and those no eventfd or uio dependencies, not 
+even optionally).  You are not using them because DPDK only does polling 
+and basically reserves a core for the NIC code. If so, this would be a 
+very simple device, just a 100 or so lines of code.  We could get this 
+in upstream, and it would be likely enabled in RHEL too.
+
+2) if not, get the server and uio driver merged into the QEMU tree, and 
+document the protocol in docs/specs/ivshmem_device_spec.txt.  It doesn't 
+matter if the code comes from the Nahanni repository or from your own 
+implementation.  Also start fixing bugs such as the ones that Markus 
+reported (removing all exit() invocations).
+
+Writing testcases using the qtest framework would also be useful, but 
+first of all it is important to make ivshmem easier to use.
+
+> If not, what do you use at Redhat to test Qemu?
+
+We do integration testing using autotest/virt-test (QEMU and KVM 
+developers for upstream use it too) and also some manual functional tests.
+
+Contributing ivshmem tests to the virt-test would also be helpful in 
+demonstrating your interest in maintaining ivshmem.  The repository and 
+documentation is at https://github.com/autotest/virt-test/ (a bit 
+Fedora-centric).
+
+> I do repeat this use case that you had removed because vhost-user does
+> not solve it yet:
 >
-> Right, hugetlbfs is not required. A posix shared memory or tmpfs
-> can be used instead. For instance, to use /dev/shm/foobar:
->
->   qemu-system-x86_64 -enable-kvm -cpu host [...] \
->      -device ivshmem,size=16,shm=foobar
+>>>  - ivshmem -> framework to be generic to have shared memory for many
+>>> use cases (HPC, in-memory-database, a network too like memnic).
 
+Right, ivshmem is better for guest-to-guest.  vhost-user is not 
+restricted to networking, but it is indeed more focused on 
+guest-to-host.  ivshmem is usable for guest-to-host, but I would prefer 
+still some "hybrid" that uses vhost-like messages to pass the shared 
+memory fds to the external program.
 
-Best regards,
-   Vincent
+Paolo
