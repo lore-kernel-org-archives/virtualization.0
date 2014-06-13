@@ -1,16 +1,18 @@
 From: Jobin Raju George <jobin.rv@gmail.com>
 Subject: Re: [Qemu-devel] Why I advise against using ivshmem
-Date: Fri, 13 Jun 2014 14:59:33 +0530
-Message-ID: <CA+aVsWpPJyfsbMmKUF1ShGHLbYd8kBCtJeHAQb5px+Y3X9n4aQ__13079.1749609218$1402701378$gmane$org@mail.gmail.com>
+Date: Fri, 13 Jun 2014 15:01:35 +0530
+Message-ID: <CA+aVsWqQKbzyNUBovLiuNVf0MUT8SQW041iNxE3p9PkO+o9jVA__35474.3147771389$1402701388$gmane$org@mail.gmail.com>
 References: <20140610184818.2e490419@nbschild1> <53978375.6090707@6wind.com>
 	<87ppie1v4r.fsf@blackfin.pond.sub.org>
 	<20140612094413.15e56938@nbschild1>
 	<87vbs6qjhj.fsf_-_@blackfin.pond.sub.org>
 	<5399CF09.8030803@6wind.com> <87ppidnqmy.fsf@blackfin.pond.sub.org>
+	<539AC3E0.9090404@6wind.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4802827763824372832=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <87ppidnqmy.fsf@blackfin.pond.sub.org>
+In-Reply-To: <539AC3E0.9090404@6wind.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,447 +22,144 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Markus Armbruster <armbru@redhat.com>
-Cc: Henning Schild <henning.schild@siemens.com>, kvm@vger.kernel.org, QEMU Developers <qemu-devel@nongnu.org>, David Marchand <david.marchand@6wind.com>, sagar patni <patni.sagar12@gmail.com>, virtualization@lists.linux-foundation.org, Vincent JARDIN <vincent.jardin@6wind.com>
+To: Vincent JARDIN <vincent.jardin@6wind.com>
+Cc: Henning Schild <henning.schild@siemens.com>, Olivier MATZ <olivier.matz@6wind.com>, kvm@vger.kernel.org, QEMU Developers <qemu-devel@nongnu.org>, "thomas.monjalon@6wind.com" <thomas.monjalon@6wind.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, David Marchand <david.marchand@6wind.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============4802827763824372832==
-Content-Type: multipart/alternative; boundary=047d7b2e3d92b30bbb04fbb4501e
-
---047d7b2e3d92b30bbb04fbb4501e
-Content-Type: text/plain; charset=UTF-8
-
-Nahanni's poor current development coupled with virtIO's promising
-expansion was what encouraged us to explore virtIO-serial [1] for
-inter-virtual machine communication. Though virtIO-serial as it is isn't
-helpful for inter-VM communication, some work is needed for this purpose
-and this is exactly what we (I and two of my fellow classmates)
-accomplished.
-
-We haven't published it yet since we do need to polish yet for upstreaming
-it and are planning do it in near future.
-
-
-[1]: http://fedoraproject.org/wiki/Features/VirtioSerial
-
-
-On Fri, Jun 13, 2014 at 2:16 PM, Markus Armbruster <armbru@redhat.com>
-wrote:
-
-> Some dropped quoted text restored.
->
-> Vincent JARDIN <vincent.jardin@6wind.com> writes:
->
-> > Markus,
-> >
-> > see inline (I am not on all mailing list, please, keep the cc list).
-> >
-> >> Sure!  The reasons for my dislike range from practical to
-> >> philosophical.
-> >>
-> >> My practical concerns include:
-> >>
-> >> 1. ivshmem code needs work, but has no maintainer
-> > See David's contributions:
-> >   http://patchwork.ozlabs.org/patch/358750/
->
-> We're grateful for David's patch for qemu-char.c, but this isn't ivshmem
-> maintenance, yet.
->
-> >>   - Error handling is generally poor.  For instance, "device_add
-> >>     ivshmem" kills your guest instantly.
-> >>
-> >>   - More subjectively, I don't trust the code to be robust against
-> >>     abuse by our own guest, or the other guests sharing the memory.
-> >>     Convincing me would take a code audit.
-> >>
-> >>   - MAINTAINERS doesn't cover ivshmem.c.
-> >>
-> >>   - The last non-trivial commit that isn't obviously part of some
-> >>     tree-wide infrastructure or cleanup work is from September 2012
-> >>     (commit c08ba66).
-> >>
-> >> 2. There is no libvirt support
-> >
-> > One can use qemu without libvivrt.
->
-> You asked me for my reasons for disliking ivshmem.  This is one.
->
-> Sure, I can drink my water through a straw while standing on one foot,
-> but that doesn't mean I have to like it.  And me not liking it doesn't
-> mean the next guy shouldn't like it.  To each their own.
->
-> >> 3. Out-of-tree server program required for full functionality
-> >>
-> >>   Interrupts require a "shared memory server" running in the host (see
-> >>   docs/specs/ivshmem_device_spec.txt).  It doesn't tell where to find
-> >>   one.  The initial commit 6cbf4c8 points to
-> >>   <www.gitorious.org/nahanni>.  That repository's last commit is from
-> >>   September 2012.  He's dead, Jim.
-> >>
-> >>   ivshmem_device_spec.txt is silent on what the server is supposed to
-> >>   do.
-> >
-> > We have the source code, it provides the documentation to write our
-> > own better server program.
->
-> Good for you.  Not good enough for the QEMU community.
->
-> QEMU features requiring on out-of-tree software to be useful are fine,
-> as long as said out-of-tree software is readily available to QEMU
-> developers and users.
->
-> Free software with a community around it and packaged in major distros
-> qualifies.  If you haven't got that, talk to us to find out whether what
-> you've got qualifies, and if not, what you'd have to do to make it
-> qualify.
->
-> Back when we accepted ivshmem, the out-of-tree parts it needs were well
-> below the "community & packaged" bar.  But folks interested in it talked
-> to us, and the fact that it's in shows that QEMU maintainers decided
-> what they had then was enough.
->
-> Unfortunately, we now have considerably less: Nahanni appears to be
-> dead.
->
-> An apparently dead git repository you can study is not enough.  The fact
-> that you hold an improved reimplementation privately is immaterial.  So
-> is the (plausible) claim that others could also create a
-> reimplementation.
->
-> >>   If this server requires privileges: I don't trust it without an
-> >>   audit.
-> >>
-> >> 4. Out-of-tree kernel uio driver required
-> >
-> > No, it is optional.
->
-> Good to know.  Would you be willing to send a patch to
-> ivshmem_device_spec.txt clarifying that?
->
-> >>   The device is "intended to be used with the provided UIO driver"
-> >>   (ivshmem_device_spec.txt again).  As far as I can tell, the "provided
-> >>   UIO driver" is the one in the dead Nahanni repo.
-> >>
-> >>   By now, you should be expecting this: I don't trust that one either.
-> >>
-> >> These concerns are all fixable, but it'll take serious work, and time.
-> >> Something like:
-> >>
-> >> * Find a maintainer for the device model
-> > I guess, we can find it into the DPDK.org community.
-> >> * Review and fix its code
-> >>
-> >> * Get the required kernel module upstream
-> >
-> > which module? uio, it is not required.
-> >
-> >> * Get all the required parts outside QEMU packaged in major distros, or
-> >>    absorbed into QEMU
-> >
-> > Redhat did disable it. why? it is there in QEMU.
->
-> Up to now, I've been wearing my QEMU hat.  Let me exchange it for my Red
-> one for a bit.
->
-> We (Red Hat) don't just package & ship metric tons of random free
-> software.  We package & ship useful free software we can support for
-> many, many years.
->
-> Sometimes, we find that we have to focus serious development resources
-> on making something useful supportable (Paolo mentioned qcow2).  We
-> obviously can't focus on everything, though.
->
-> Anyway, ivshmem didn't make the cut for RHEL-7.0.  Sorry if that
-> inconveniences you.  To get it into RHEL, you need to show it's both
-> useful and supportable.  Building a community around it would go a long
-> way towards that.
->
-> If you want to discuss this in more detail with us, you may want to try
-> communication channels provided by your RHEL subscription in addition to
-> the QEMU development mailing list.  Don't be shy, you're paying for it!
->
-> As always, I'm not speaking for myself, not my employer.
->
-> Okay, wearing my QEMU hat again.
->
-> >> In short, create a viable community around ivshmem, either within the
-> >> QEMU community, or separately but cooperating.
-> >
-> > At least, DPDK.org community is a community using it.
->
-> Using something isn't the same as maintaining something.  But it's a
-> necessary first step.
->
-> [...]
->
->
-
-
--- 
-
-Thanks and regards,
-
-Jobin Raju George
-
-Final Year, Information Technology
-
-College of Engineering Pune
-
-Alternate e-mail: georgejr10.it@coep.ac.in
-
---047d7b2e3d92b30bbb04fbb4501e
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Nahanni&#39;s poor current development coupled with virtIO=
-&#39;s promising expansion was what encouraged us to explore virtIO-serial =
-[1] for inter-virtual machine communication. Though virtIO-serial as it is =
-isn&#39;t helpful for inter-VM communication, some work is needed for this =
-purpose and this is exactly what we (I and two of my fellow classmates) acc=
-omplished.<br>
-<br>We haven&#39;t published it yet since we do need to polish yet for upst=
-reaming it and are planning do it in near future.<br><br><br>[1]: <a href=
-=3D"http://fedoraproject.org/wiki/Features/VirtioSerial">http://fedoraproje=
-ct.org/wiki/Features/VirtioSerial</a><br>
-</div><div class=3D"gmail_extra"><br><br><div class=3D"gmail_quote">On Fri,=
- Jun 13, 2014 at 2:16 PM, Markus Armbruster <span dir=3D"ltr">&lt;<a href=
-=3D"mailto:armbru@redhat.com" target=3D"_blank">armbru@redhat.com</a>&gt;</=
-span> wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">Some dropped quoted text restored.<br>
-<br>
-Vincent JARDIN &lt;<a href=3D"mailto:vincent.jardin@6wind.com">vincent.jard=
-in@6wind.com</a>&gt; writes:<br>
-<br>
-&gt; Markus,<br>
-&gt;<br>
-&gt; see inline (I am not on all mailing list, please, keep the cc list).<b=
-r>
-&gt;<br>
-&gt;&gt; Sure! =C2=A0The reasons for my dislike range from practical to<br>
-&gt;&gt; philosophical.<br>
-&gt;&gt;<br>
-&gt;&gt; My practical concerns include:<br>
-&gt;&gt;<br>
-&gt;&gt; 1. ivshmem code needs work, but has no maintainer<br>
-&gt; See David&#39;s contributions:<br>
-&gt; =C2=A0 <a href=3D"http://patchwork.ozlabs.org/patch/358750/" target=3D=
-"_blank">http://patchwork.ozlabs.org/patch/358750/</a><br>
-<br>
-We&#39;re grateful for David&#39;s patch for qemu-char.c, but this isn&#39;=
-t ivshmem<br>
-maintenance, yet.<br>
-<br>
-&gt;&gt; =C2=A0 - Error handling is generally poor. =C2=A0For instance, &qu=
-ot;device_add<br>
-&gt;&gt; =C2=A0 =C2=A0 ivshmem&quot; kills your guest instantly.<br>
-&gt;&gt;<br>
-&gt;&gt; =C2=A0 - More subjectively, I don&#39;t trust the code to be robus=
-t against<br>
-&gt;&gt; =C2=A0 =C2=A0 abuse by our own guest, or the other guests sharing =
-the memory.<br>
-&gt;&gt; =C2=A0 =C2=A0 Convincing me would take a code audit.<br>
-&gt;&gt;<br>
-&gt;&gt; =C2=A0 - MAINTAINERS doesn&#39;t cover ivshmem.c.<br>
-&gt;&gt;<br>
-&gt;&gt; =C2=A0 - The last non-trivial commit that isn&#39;t obviously part=
- of some<br>
-&gt;&gt; =C2=A0 =C2=A0 tree-wide infrastructure or cleanup work is from Sep=
-tember 2012<br>
-&gt;&gt; =C2=A0 =C2=A0 (commit c08ba66).<br>
-&gt;&gt;<br>
-&gt;&gt; 2. There is no libvirt support<br>
-&gt;<br>
-&gt; One can use qemu without libvivrt.<br>
-<br>
-You asked me for my reasons for disliking ivshmem. =C2=A0This is one.<br>
-<br>
-Sure, I can drink my water through a straw while standing on one foot,<br>
-but that doesn&#39;t mean I have to like it. =C2=A0And me not liking it doe=
-sn&#39;t<br>
-mean the next guy shouldn&#39;t like it. =C2=A0To each their own.<br>
-<br>
-&gt;&gt; 3. Out-of-tree server program required for full functionality<br>
-&gt;&gt;<br>
-&gt;&gt; =C2=A0 Interrupts require a &quot;shared memory server&quot; runni=
-ng in the host (see<br>
-&gt;&gt; =C2=A0 docs/specs/ivshmem_device_spec.txt). =C2=A0It doesn&#39;t t=
-ell where to find<br>
-&gt;&gt; =C2=A0 one. =C2=A0The initial commit 6cbf4c8 points to<br>
-&gt;&gt; =C2=A0 &lt;<a href=3D"http://www.gitorious.org/nahanni" target=3D"=
-_blank">www.gitorious.org/nahanni</a>&gt;. =C2=A0That repository&#39;s last=
- commit is from<br>
-&gt;&gt; =C2=A0 September 2012. =C2=A0He&#39;s dead, Jim.<br>
-&gt;&gt;<br>
-&gt;&gt; =C2=A0 ivshmem_device_spec.txt is silent on what the server is sup=
-posed to<br>
-&gt;&gt; =C2=A0 do.<br>
-&gt;<br>
-&gt; We have the source code, it provides the documentation to write our<br=
->
-&gt; own better server program.<br>
-<br>
-Good for you. =C2=A0Not good enough for the QEMU community.<br>
-<br>
-QEMU features requiring on out-of-tree software to be useful are fine,<br>
-as long as said out-of-tree software is readily available to QEMU<br>
-developers and users.<br>
-<br>
-Free software with a community around it and packaged in major distros<br>
-qualifies. =C2=A0If you haven&#39;t got that, talk to us to find out whethe=
-r what<br>
-you&#39;ve got qualifies, and if not, what you&#39;d have to do to make it<=
-br>
-qualify.<br>
-<br>
-Back when we accepted ivshmem, the out-of-tree parts it needs were well<br>
-below the &quot;community &amp; packaged&quot; bar. =C2=A0But folks interes=
-ted in it talked<br>
-to us, and the fact that it&#39;s in shows that QEMU maintainers decided<br=
->
-what they had then was enough.<br>
-<br>
-Unfortunately, we now have considerably less: Nahanni appears to be<br>
-dead.<br>
-<br>
-An apparently dead git repository you can study is not enough. =C2=A0The fa=
-ct<br>
-that you hold an improved reimplementation privately is immaterial. =C2=A0S=
-o<br>
-is the (plausible) claim that others could also create a<br>
-reimplementation.<br>
-<br>
-&gt;&gt; =C2=A0 If this server requires privileges: I don&#39;t trust it wi=
-thout an<br>
-&gt;&gt; =C2=A0 audit.<br>
-&gt;&gt;<br>
-&gt;&gt; 4. Out-of-tree kernel uio driver required<br>
-&gt;<br>
-&gt; No, it is optional.<br>
-<br>
-Good to know. =C2=A0Would you be willing to send a patch to<br>
-ivshmem_device_spec.txt clarifying that?<br>
-<br>
-&gt;&gt; =C2=A0 The device is &quot;intended to be used with the provided U=
-IO driver&quot;<br>
-&gt;&gt; =C2=A0 (ivshmem_device_spec.txt again). =C2=A0As far as I can tell=
-, the &quot;provided<br>
-&gt;&gt; =C2=A0 UIO driver&quot; is the one in the dead Nahanni repo.<br>
-&gt;&gt;<br>
-&gt;&gt; =C2=A0 By now, you should be expecting this: I don&#39;t trust tha=
-t one either.<br>
-&gt;&gt;<br>
-&gt;&gt; These concerns are all fixable, but it&#39;ll take serious work, a=
-nd time.<br>
-&gt;&gt; Something like:<br>
-&gt;&gt;<br>
-&gt;&gt; * Find a maintainer for the device model<br>
-&gt; I guess, we can find it into the DPDK.org community.<br>
-&gt;&gt; * Review and fix its code<br>
-&gt;&gt;<br>
-&gt;&gt; * Get the required kernel module upstream<br>
-&gt;<br>
-&gt; which module? uio, it is not required.<br>
-&gt;<br>
-&gt;&gt; * Get all the required parts outside QEMU packaged in major distro=
-s, or<br>
-&gt;&gt; =C2=A0 =C2=A0absorbed into QEMU<br>
-&gt;<br>
-&gt; Redhat did disable it. why? it is there in QEMU.<br>
-<br>
-Up to now, I&#39;ve been wearing my QEMU hat. =C2=A0Let me exchange it for =
-my Red<br>
-one for a bit.<br>
-<br>
-We (Red Hat) don&#39;t just package &amp; ship metric tons of random free<b=
-r>
-software. =C2=A0We package &amp; ship useful free software we can support f=
-or<br>
-many, many years.<br>
-<br>
-Sometimes, we find that we have to focus serious development resources<br>
-on making something useful supportable (Paolo mentioned qcow2). =C2=A0We<br=
->
-obviously can&#39;t focus on everything, though.<br>
-<br>
-Anyway, ivshmem didn&#39;t make the cut for RHEL-7.0. =C2=A0Sorry if that<b=
-r>
-inconveniences you. =C2=A0To get it into RHEL, you need to show it&#39;s bo=
-th<br>
-useful and supportable. =C2=A0Building a community around it would go a lon=
-g<br>
-way towards that.<br>
-<br>
-If you want to discuss this in more detail with us, you may want to try<br>
-communication channels provided by your RHEL subscription in addition to<br=
->
-the QEMU development mailing list. =C2=A0Don&#39;t be shy, you&#39;re payin=
-g for it!<br>
-<br>
-As always, I&#39;m not speaking for myself, not my employer.<br>
-<br>
-Okay, wearing my QEMU hat again.<br>
-<br>
-&gt;&gt; In short, create a viable community around ivshmem, either within =
-the<br>
-&gt;&gt; QEMU community, or separately but cooperating.<br>
-&gt;<br>
-&gt; At least, DPDK.org community is a community using it.<br>
-<br>
-Using something isn&#39;t the same as maintaining something. =C2=A0But it&#=
-39;s a<br>
-necessary first step.<br>
-<br>
-[...]<br>
-<br>
-</blockquote></div><br><br clear=3D"all"><br>-- <br><div dir=3D"ltr"><div s=
-tyle=3D"text-align:left"><p style=3D"margin-bottom:0.0001pt"></p><p style=
-=3D"margin-bottom:0.0001pt"></p><p style=3D"margin-bottom:0.0001pt"></p><p =
-style=3D"margin-bottom:0.0001pt">
-</p><p style=3D"margin-bottom:0.0001pt"></p><p style=3D"margin-bottom:0in;m=
-argin-bottom:.0001pt"><span style=3D"font-family:&quot;Arial&quot;,&quot;sa=
-ns-serif&quot;;color:#ff0066">Thanks and regards,</span><span style=3D"font=
--family:Arial,sans-serif"></span></p>
-
-
-<p style=3D"margin-top:0in;margin-right:0in;margin-left:0in;margin-bottom:0=
-.0001pt"><span style=3D"font-family:&quot;Arial&quot;,&quot;sans-serif&quot=
-;;color:#548dd4">Jobin Raju George</span><span style=3D"font-family:Arial,s=
-ans-serif"></span></p>
-
-
-<p style=3D"margin-top:0in;margin-right:0in;margin-left:0in;margin-bottom:0=
-.0001pt"><span style=3D"font-family:&quot;Arial&quot;,&quot;sans-serif&quot=
-;;color:#548dd4">Final Year, Information Technology</span><span style=3D"fo=
-nt-family:Arial,sans-serif"></span></p>
-
-
-<p style=3D"margin-top:0in;margin-right:0in;margin-left:0in;margin-bottom:0=
-.0001pt"><span style=3D"font-family:&quot;Arial&quot;,&quot;sans-serif&quot=
-;;color:#548dd4">College of Engineering Pune</span><span style=3D"font-fami=
-ly:Arial,sans-serif"></span></p>
-
-
-<p style=3D"margin-top:0in;margin-right:0in;margin-left:0in;margin-bottom:0=
-.0001pt"><span style=3D"font-family:&quot;Arial&quot;,&quot;sans-serif&quot=
-;;color:#548dd4">Alternate e-mail:<span>=C2=A0</span></span><span style=3D"=
-font-family:&quot;Arial&quot;,&quot;sans-serif&quot;;color:#00b050"><a href=
-=3D"mailto:georgejr10.it@coep.ac.in" target=3D"_blank">georgejr10.it@coep.a=
-c.in</a></span><span style=3D"font-family:Arial,sans-serif"></span></p>
-<p></p><p></p><p></p><p></p><p></p></div></div>
-</div>
-
---047d7b2e3d92b30bbb04fbb4501e--
-
---===============4802827763824372832==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4802827763824372832==--
+TmFoYW5uaSdzIHBvb3IgY3VycmVudCBkZXZlbG9wbWVudCBjb3VwbGVkIHdpdGggdmlydElPJ3Mg
+cHJvbWlzaW5nCmV4cGFuc2lvbiB3YXMgd2hhdCBlbmNvdXJhZ2VkIHVzIHRvIGV4cGxvcmUgdmly
+dElPLXNlcmlhbCBbMV0gZm9yCmludGVyLXZpcnR1YWwgbWFjaGluZSBjb21tdW5pY2F0aW9uLiBU
+aG91Z2ggdmlydElPLXNlcmlhbCBhcyBpdCBpcwppc24ndCBoZWxwZnVsIGZvciBpbnRlci1WTSBj
+b21tdW5pY2F0aW9uLCBzb21lIHdvcmsgaXMgbmVlZGVkIGZvciB0aGlzCnB1cnBvc2UgYW5kIHRo
+aXMgaXMgZXhhY3RseSB3aGF0IHdlIChJIGFuZCB0d28gb2YgbXkgZmVsbG93CmNsYXNzbWF0ZXMp
+IGFjY29tcGxpc2hlZC4KCldlIGhhdmVuJ3QgcHVibGlzaGVkIGl0IHlldCBzaW5jZSB3ZSBkbyBu
+ZWVkIHRvIHBvbGlzaCB5ZXQgZm9yCnVwc3RyZWFtaW5nIGl0IGFuZCBhcmUgcGxhbm5pbmcgZG8g
+aXQgaW4gbmVhciBmdXR1cmUuCgpbMV06IGh0dHA6Ly9mZWRvcmFwcm9qZWN0Lm9yZy93aWtpL0Zl
+YXR1cmVzL1ZpcnRpb1NlcmlhbAoKCk9uIEZyaSwgSnVuIDEzLCAyMDE0IGF0IDI6NTYgUE0sIFZp
+bmNlbnQgSkFSRElOCjx2aW5jZW50LmphcmRpbkA2d2luZC5jb20+IHdyb3RlOgo+Cj4gKCttZXJn
+aW5nIHdpdGggUGFvbG8ncyBlbWFpbCBiZWNhdXNlIG9mIG92ZXJsYXBzKQo+Cj4KPj4+IHNlZSBp
+bmxpbmUgKEkgYW0gbm90IG9uIGFsbCBtYWlsaW5nIGxpc3QsIHBsZWFzZSwga2VlcCB0aGUgY2Mg
+bGlzdCkuCj4+Pgo+Cj4+Pj4gMS4gaXZzaG1lbSBjb2RlIG5lZWRzIHdvcmssIGJ1dCBoYXMgbm8g
+bWFpbnRhaW5lcgo+Pj4KPj4+IFNlZSBEYXZpZCdzIGNvbnRyaWJ1dGlvbnM6Cj4+PiAgICBodHRw
+Oi8vcGF0Y2h3b3JrLm96bGFicy5vcmcvcGF0Y2gvMzU4NzUwLwo+Pgo+Pgo+PiBXZSdyZSBncmF0
+ZWZ1bCBmb3IgRGF2aWQncyBwYXRjaCBmb3IgcWVtdS1jaGFyLmMsIGJ1dCB0aGlzIGlzbid0IGl2
+c2htZW0KPj4gbWFpbnRlbmFuY2UsIHlldC4KPgo+Cj4gb3RoZXJzIGNhbiBjb21lIChkb2MpLCBz
+ZWUgYmVsb3cuCj4KPgo+Pj4+IDIuIFRoZXJlIGlzIG5vIGxpYnZpcnQgc3VwcG9ydAo+Pj4KPj4+
+Cj4+PiBPbmUgY2FuIHVzZSBxZW11IHdpdGhvdXQgbGlidml2cnQuCj4+Cj4+Cj4+IFlvdSBhc2tl
+ZCBtZSBmb3IgbXkgcmVhc29ucyBmb3IgZGlzbGlraW5nIGl2c2htZW0uICBUaGlzIGlzIG9uZS4K
+Pj4KPj4gU3VyZSwgSSBjYW4gZHJpbmsgbXkgd2F0ZXIgdGhyb3VnaCBhIHN0cmF3IHdoaWxlIHN0
+YW5kaW5nIG9uIG9uZSBmb290LAo+PiBidXQgdGhhdCBkb2Vzbid0IG1lYW4gSSBoYXZlIHRvIGxp
+a2UgaXQuICBBbmQgbWUgbm90IGxpa2luZyBpdCBkb2Vzbid0Cj4+IG1lYW4gdGhlIG5leHQgZ3V5
+IHNob3VsZG4ndCBsaWtlIGl0LiAgVG8gZWFjaCB0aGVpciBvd24uCj4KPgo+IEkgbGlrZSB1c2lu
+ZyBxZW11IHdpdGhvdXQgbGlidmlydCwgbGlidmlydCBpcyBub3QgcGFydCBvZiBxZW11Lgo+IExl
+dCdzIGF2b2lkIHRyb2xsaW5nIGFib3V0IGl0IDspCj4KPgo+PiBCYWNrIHdoZW4gd2UgYWNjZXB0
+ZWQgaXZzaG1lbSwgdGhlIG91dC1vZi10cmVlIHBhcnRzIGl0IG5lZWRzIHdlcmUgd2VsbAo+PiBi
+ZWxvdyB0aGUgImNvbW11bml0eSAmIHBhY2thZ2VkIiBiYXIuICBCdXQgZm9sa3MgaW50ZXJlc3Rl
+ZCBpbiBpdCB0YWxrZWQKPj4gdG8gdXMsIGFuZCB0aGUgZmFjdCB0aGF0IGl0J3MgaW4gc2hvd3Mg
+dGhhdCBRRU1VIG1haW50YWluZXJzIGRlY2lkZWQKPj4gd2hhdCB0aGV5IGhhZCB0aGVuIHdhcyBl
+bm91Z2guCj4+Cj4+IFVuZm9ydHVuYXRlbHksIHdlIG5vdyBoYXZlIGNvbnNpZGVyYWJseSBsZXNz
+OiBOYWhhbm5pIGFwcGVhcnMgdG8gYmUKPj4gZGVhZC4KPgo+Cj4gYWdyZWUgYW5kIHRvIGJhZCBp
+dCBpcyBkZWFkLiBXZSBzaG91bGQgbGV0IE5haGFubmkgZGVhZCBzaW5jZSBpdnNobWVtIGlzIGEg
+UUVNVSB0b3BpYyBub3csIHNlZSBiZWxvdy4gRG9lcyBpdCBtYWtlIHNlbnNlPwo+Cj4KPj4KPj4g
+QW4gYXBwYXJlbnRseSBkZWFkIGdpdCByZXBvc2l0b3J5IHlvdSBjYW4gc3R1ZHkgaXMgbm90IGVu
+b3VnaC4gIFRoZSBmYWN0Cj4+IHRoYXQgeW91IGhvbGQgYW4gaW1wcm92ZWQgcmVpbXBsZW1lbnRh
+dGlvbiBwcml2YXRlbHkgaXMgaW1tYXRlcmlhbC4gIFNvCj4+IGlzIHRoZSAocGxhdXNpYmxlKSBj
+bGFpbSB0aGF0IG90aGVycyBjb3VsZCBhbHNvIGNyZWF0ZSBhCj4+IHJlaW1wbGVtZW50YXRpb24u
+Cj4KPgo+IEdvdCB0aGUgcG9pbnQuIFdoYXQncyBhYm91dCBhIHBhdGNoIHRvIGRvY3Mvc3BlY3Mv
+aXZzaG1lbV9kZXZpY2Vfc3BlYy50eHQgdGhhdCBpbXByb3ZlcyBpdD8KPgo+IEkgY2FuIG1ha2Ug
+cWVtdSdzIGl2c2htZW0gYmV0dGVyOgo+ICAgLSBrZWVwIGV4cGxhaW5pbmcgbWVtbmljIGZvciBp
+bnN0YW5jZSwKPiAgIC0gZXhwbGFpbiBob3cgdG8gd3JpdGUgb3RoZXIgaXZzaG1lbS4KPgo+IGRv
+ZXMgaXQgaGVscD8KPgo+Cj4+Pj4gNC4gT3V0LW9mLXRyZWUga2VybmVsIHVpbyBkcml2ZXIgcmVx
+dWlyZWQKPj4+Cj4+Pgo+Pj4gTm8sIGl0IGlzIG9wdGlvbmFsLgo+Pgo+Pgo+PiBHb29kIHRvIGtu
+b3cuICBXb3VsZCB5b3UgYmUgd2lsbGluZyB0byBzZW5kIGEgcGF0Y2ggdG8KPj4gaXZzaG1lbV9k
+ZXZpY2Vfc3BlYy50eHQgY2xhcmlmeWluZyB0aGF0Pwo+Cj4KPiBnb3QgdGhlIHBvaW50LCB5ZXMs
+Cj4KPgo+Pj4+ICogR2V0IGFsbCB0aGUgcmVxdWlyZWQgcGFydHMgb3V0c2lkZSBRRU1VIHBhY2th
+Z2VkIGluIG1ham9yIGRpc3Ryb3MsIG9yCj4+Pj4gICAgIGFic29yYmVkIGludG8gUUVNVQo+Pj4K
+Pj4+Cj4+PiBSZWRoYXQgZGlkIGRpc2FibGUgaXQuIHdoeT8gaXQgaXMgdGhlcmUgaW4gUUVNVS4K
+Pj4KPj4KPj4gVXAgdG8gbm93LCBJJ3ZlIGJlZW4gd2VhcmluZyBteSBRRU1VIGhhdC4gIExldCBt
+ZSBleGNoYW5nZSBpdCBmb3IgbXkgUmVkCj4+IG9uZSBmb3IgYSBiaXQuCj4+Cj4+IFdlIChSZWQg
+SGF0KSBkb24ndCBqdXN0IHBhY2thZ2UgJiBzaGlwIG1ldHJpYyB0b25zIG9mIHJhbmRvbSBmcmVl
+Cj4+IHNvZnR3YXJlLiAgV2UgcGFja2FnZSAmIHNoaXAgdXNlZnVsIGZyZWUgc29mdHdhcmUgd2Ug
+Y2FuIHN1cHBvcnQgZm9yCj4+IG1hbnksIG1hbnkgeWVhcnMuCj4+Cj4+IFNvbWV0aW1lcywgd2Ug
+ZmluZCB0aGF0IHdlIGhhdmUgdG8gZm9jdXMgc2VyaW91cyBkZXZlbG9wbWVudCByZXNvdXJjZXMK
+Pj4gb24gbWFraW5nIHNvbWV0aGluZyB1c2VmdWwgc3VwcG9ydGFibGUgKFBhb2xvIG1lbnRpb25l
+ZCBxY293MikuICBXZQo+PiBvYnZpb3VzbHkgY2FuJ3QgZm9jdXMgb24gZXZlcnl0aGluZywgdGhv
+dWdoLgo+Cj4KPiBHb29kIG9wZW4gdGVjaG5vbG9neSBzaG91bGQgcnVsZS4gaXZzaG1lbSBoYXMg
+dXNlIGNhc2VzLiBBbmQgSSBnbyBhZ3JlZSB3aXRoIHlvdSwgaXQgaXMgbGlrZSB0aGUgcGhvZW5p
+eCwgaXQgaGFzIHRvIGJlIHJlLWV4cGxhaW5lZC9kb2N1bWVudGVkIHRvIGJlIGJhY2sgdG8gbGlm
+ZS4gSSB3YXMgbm90IGF3YXJlIHRoYXQgdGhlIFFFTVUgY29tbXVuaXR5IHdhcyBtaXNzaW5nIGl2
+c2htZW0gY29udHJpYnV0b3JzIChteSBiYWQgSSBkaWQgbm90IGNoZWNrIE1BSU5UQUlORVJTKS4K
+Pgo+Cj4+IEFueXdheSwgaXZzaG1lbSBkaWRuJ3QgbWFrZSB0aGUgY3V0IGZvciBSSEVMLTcuMC4g
+IFNvcnJ5IGlmIHRoYXQKPj4gaW5jb252ZW5pZW5jZXMgeW91LiAgVG8gZ2V0IGl0IGludG8gUkhF
+TCwgeW91IG5lZWQgdG8gc2hvdyBpdCdzIGJvdGgKPj4gdXNlZnVsIGFuZCBzdXBwb3J0YWJsZS4g
+IEJ1aWxkaW5nIGEgY29tbXVuaXR5IGFyb3VuZCBpdCB3b3VsZCBnbyBhIGxvbmcKPj4gd2F5IHRv
+d2FyZHMgdGhhdC4KPgo+Cj4gdW5kZXJzdG9vZC4KPgo+Cj4+IElmIHlvdSB3YW50IHRvIGRpc2N1
+c3MgdGhpcyBpbiBtb3JlIGRldGFpbCB3aXRoIHVzLCB5b3UgbWF5IHdhbnQgdG8gdHJ5Cj4+IGNv
+bW11bmljYXRpb24gY2hhbm5lbHMgcHJvdmlkZWQgYnkgeW91ciBSSEVMIHN1YnNjcmlwdGlvbiBp
+biBhZGRpdGlvbiB0bwo+PiB0aGUgUUVNVSBkZXZlbG9wbWVudCBtYWlsaW5nIGxpc3QuICBEb24n
+dCBiZSBzaHksIHlvdSdyZSBwYXlpbmcgZm9yIGl0IQo+Cj4KPiBkb25lLiBJIHdhcyBmb2N1c2lu
+ZyBvbiBEUERLLm9yZyBhbmQgaWdub3JhbnQgb2YgUUVNVSdzIHN0YXR1cywgdGhpbmtpbmcgUmVk
+aGF0IHdhcyBjb3ZlcmluZyBpdC4gSG93IHRvIGtub3cgd2hpY2ggcGFydCBvZiBhbiBvcGVuc291
+cmNlIHNvZnR3YXJlIGFyZSBhbmQgYXJlIG5vdCBpbmNsdWRlZCBpbnRvIFJlZGhhdC4gU2FsZXMg
+YXJlIGlnbm9yYW50IGFib3V0IGl0IDspLiBSZWRoYXQgcmFuZG9tbHkgZGlzYWJsZXMgc29tZSBm
+aWxlcyBhdCBjb21waWxhdGlvbiAoZm9yIHNvbWUgZ29vZCByZWFzb25zIEkgZ3Vlc3MsIGJ1dCBu
+b3QgcHVibGljIHJhdGlvbmFscyBvciBJIGFtIG1pc3Npbmcgc29tZXRoaW5nKS4KPgo+IEZlZWwg
+ZnJlZSB0byBvcGVuIHRoaXMgUFIgdG8gYW55b25lOgo+ICAgaHR0cHM6Ly9idWd6aWxsYS5yZWRo
+YXQuY29tL3Nob3dfYnVnLmNnaT9pZD0xMDg4MzMyCj4KPgo+Pj4+IEluIHNob3J0LCBjcmVhdGUg
+YSB2aWFibGUgY29tbXVuaXR5IGFyb3VuZCBpdnNobWVtLCBlaXRoZXIgd2l0aGluIHRoZQo+Pj4+
+IFFFTVUgY29tbXVuaXR5LCBvciBzZXBhcmF0ZWx5IGJ1dCBjb29wZXJhdGluZy4KPj4+Cj4+Pgo+
+Pj4gQXQgbGVhc3QsIERQREsub3JnIGNvbW11bml0eSBpcyBhIGNvbW11bml0eSB1c2luZyBpdC4K
+Pj4KPj4KPj4gVXNpbmcgc29tZXRoaW5nIGlzbid0IHRoZSBzYW1lIGFzIG1haW50YWluaW5nIHNv
+bWV0aGluZy4gIEJ1dCBpdCdzIGEKPj4gbmVjZXNzYXJ5IGZpcnN0IHN0ZXAuCj4KPgo+IHVuZGVy
+c3Rvb2QsIGFmdGVyIERhdmlkJ3MgcGF0Y2gsIGRvY3VtZW50YXRpb24gd2lsbCBjb21lLgo+Cj4g
+KG5vdyBQYW9sbydzIGVtYWlsIHNpbmNlIHRoZXJlIHdlcmUgc29tZSBvdmVybGFwcykKPgo+ID4g
+TWFya3VzIGVzcGVjaWFsbHkgcmVmZXJyZWQgdG8gcGFydHMgKm91dHNpZGUqIFFFTVU6IHRoZSBz
+ZXJ2ZXIsIHRoZQo+ID4gdWlvIGRyaXZlciwgZXRjLiAgVGhlc2Ugb3V0LW9mLXRyZWUsIG5vbi1w
+YWNrYWdlZCBwYXJ0cyBvZiBpdnNobWVtCj4gPiBhcmUgb25lIG9mIHRoZSByZWFzb25zIHdoeSBS
+ZWQgSGF0IGhhcyBkaXNhYmxlZCBpdnNobWVtIGluIFJIRUw3Lgo+Cj4gWW91IG1hZGUgdGhlIHJp
+Z2h0IGNob2ljZXMsIHRoZXNlIG91dC1vZi10cmVlIHBhY2thZ2VzIGFyZSBub3QgcmVxdWlyZWQu
+IFlvdSBjYW4gdXNlIFFFTVUncyBpdnNobWVtIHdpdGhvdXQgYW55IG9mIHRoZSBvdXQtb2YtdHJl
+ZSBwYWNrYWdlcy4gVGhlIG91dC1vZi10cmVlIHBhY2thZ2VzIGFyZSBqdXN0IHNvbWUgZXhhbXBs
+ZXMgb2YgdXNpbmcgaXZzaG1lbS4KPgo+ID4gSGUgYWxzbyBsaXN0ZWQgbWFueSBvdGhlcnMuICBC
+YXNpY2FsbHkgZm9yIHBhcnRzIG9mIFFFTVUgdGhhdCBhcmUgbm90Cj4gPiBvZiBoaWdoIHF1YWxp
+dHksIHdlIGVpdGhlciBmaXggdGhlbSAodGhpcyBpcyBmb3IgZXhhbXBsZSB3aGF0IHdlIGRpZAo+
+ID4gZm9yIHFjb3cyKSBvciBkaXNhYmxlIHRoZW0uICBOb3QganVzdCBpdnNobWVtIHN1ZmZlcmVk
+IHRoaXMgZmF0ZSwgZm9yCj4gPiBleGFtcGxlIG1hbnkgbmV0d29yayBjYXJkcywgc291bmQgY2Fy
+ZHMsIFNDU0kgc3RvcmFnZSBhZGFwdGVycy4KPgo+IEkgYW5kIERhdmlkIChjYykgYXJlIHdvcmtp
+bmcgb24gbWFraW5nIGl0IGJldHRlciBiYXNlZCBvbiB0aGUgaXNzdWVzIHRoYXQgYXJlIGZvdW5k
+Lgo+Cj4gPiBOb3csIHZob3N0LXVzZXIgaXMgaW4gdGhlIHByb2Nlc3Mgb2YgYmVpbmcgbWVyZ2Vk
+IGZvciAyLjEuICBDb21wYXJlZCB0byB0aGUgRFBESyBzb2x1dGlvbjoKPgo+IG5vdywgeW91IGNh
+bm5vdCBjb21wYXJlIHZob3N0LXVzZXIgdG8gRFBESy9pdnNobWVtOyBib3RoIHNob3VsZCBleHNp
+dCBiZWNhdXNlIHRoZXkgaGF2ZSBkaWZmZXJlbnQgc2NvcGUgYW5kIHVzZSBjYXNlcy4gSXQgaXMg
+bGlrZSBjb21wYXJpbmcgdHdvIGRpZmZlcmVudChBKSBtb2RlbHMgb2YgSVBDOgo+ICAgLSB2aG9z
+dC11c2VyIC0+IG5ldHdvcmtpbmcgdXNlIGNhc2Ugc3BlY2lmaWMKPiAgIC0gaXZzaG1lbSAtPiBm
+cmFtZXdvcmsgdG8gYmUgZ2VuZXJpYyB0byBoYXZlIHNoYXJlZCBtZW1vcnkgZm9yIG1hbnkgdXNl
+IGNhc2VzIChIUEMsIGluLW1lbW9yeS1kYXRhYmFzZSwgYSBuZXR3b3JrIHRvbyBsaWtlIG1lbW5p
+YykuCj4KPiBMYXRlciBvbmUsIHNvbWUgbmV3cyBzZXJ2aWNlcyB3aWxsIGJlIG5lZWRlZCBmb3Ig
+c2hhcmVkIG1lbW9yeS4gdmlydGlvIHdpbGwgY29tZSBpbiBwaWN0dXJlIChzZWUgVklSVElPX0Zf
+UklOR19TSE1FTV9BRERSJ3MgdGhyZWFkcykuIEN1cnJlbnRseSwgaXZoc21lbSBpcyB0aGUgb25s
+eSAic3RhYmxlIiBvcHRpb24gc2luY2UgdGhlcmUgcmVtYWlucyBtYW55IHVuc29sdmVkIGlzc3Vl
+cyB3aXRoIHZpcnRpbyBhbmQgc2hhcmVkIG1lbW9yeS4KPgo+ID4gKiBpdCBkb2Vzbid0IHJlcXVp
+cmUgaHVnZXRsYmZzICh3aGljaCBvbmx5IGVuYWJsZWQgc2hhcmVkIG1lbW9yeSBieQo+ID4gY2hh
+bmNlIGluIG9sZGVyIFFFTVUgcmVsZWFzZXMsIHRoYXQgd2FzIG5ldmVyIGRvY3VtZW50ZWQpCj4K
+PiBpdmhzbWVtIGRvZXMgbm90IHJlcXVpcmUgaHVnZXRsYmZzLiBJdCBpcyBvcHRpb25hbC4KPgo+
+ID4gKiBpdCBkb2Vzbid0IHJlcXVpcmUgaXZzaG1lbSAoaXQgZG9lcyByZXF1aXJlIHNoYXJlZCBt
+ZW1vcnksIHdoaWNoCj4gPiB3aWxsIGFsc28gYmUgYWRkZWQgdG8gMi4xKQo+Cj4gc29tZWhvdyBJ
+IGFncmVlOiB3ZSBuZWVkIGJvdGggbW9kZWxzOiB2aG9zdC11c2VyIGFuZCBpdnNobWVtIGJlY2F1
+c2Ugb2YgdGhlIHByZXZpb3VzIChBKSBjb21tZW50cy4KPgo+ID4gKiBpdCBkb2Vzbid0IHJlcXVp
+cmUgdGhlIGtlcm5lbCBkcml2ZXIgZnJvbSB0aGUgRFBESyBzYW1wbGUKPgo+IGl2aHNtZW0gZG9l
+cyBub3QgcmVxdWlyZSBEUERLIGtlcm5lbCBkcml2ZXIuIHNlZSBtZW1uaWMncyBQTUQ6Cj4gICBo
+dHRwOi8vZHBkay5vcmcvYnJvd3NlL21lbW5pYy90cmVlL3BtZC9wbWRfbWVtbmljLmMKPgo+ID4g
+KiBpdCBpcyBub3QganVzdCBzaGFyZWQgbWVtb3J5LCBidXQgYWxzbyBkZWZpbmVzIGFuIGludGVy
+ZmFjZSB0byB1c2UKPiA+IGl0IChhbm90aGVyIG9mIE1hcmt1cydzIHBvaW50cykKPgo+IGFncmVl
+ZCBQYW9sbzogYnV0IHlvdSBzaG9ydCBuYXJyb3cgaXQgZm9yIG5ldHdvcmtpbmcgdXNlIGNhc2Vz
+IG9ubHkuIFNoYXJlZCBtZW1vcnkgw6AgbGEgaXZzaG1lbSBwcm92aWRlcyBvdGhlciBmZWF0dXJl
+cyAoc2VlIChBKSBhZ2FpbikuCj4KPiA+Cj4gPiB2aG9zdC11c2VyIGlzIHN1cGVyaW9yLCBhbmQg
+aXQgaXMgc3VwZXJpb3IgYmVjYXVzZSBpdCBoYXMgYmVlbgo+ID4gZGVzaWduZWQKPiA+IGZyb20g
+dGhlIGdldC1nbyB0aHJvdWdoIGNvb3BlcmF0aW9uIG9mIGFsbCBpbnRlcmVzdGVkIHBhcnRpZXMg
+KG5hbWVseQo+ID4gUUVNVSBhbmQgc25hYmJzd2l0Y2gpLgo+Cj4gSXQgaXMgbm90IGFuIGFyZ3Vt
+ZW50LiB2aG9zdC11c2VyIGlzIGEgc3BlY2lmaWMgY2FzZS4KPgo+IEJlc3QgcmVnYXJkcywKPiAg
+IFZpbmNlbnQKPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
+Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
+bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
