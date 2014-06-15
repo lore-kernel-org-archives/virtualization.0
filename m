@@ -1,12 +1,13 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: KVM Forum 2014 Call for Participation
-Date: Mon, 16 Jun 2014 18:08:14 +0200
-Message-ID: <539F166E.5040803@redhat.com>
-Reply-To: kvm-forum-2014-pc@redhat.com
+From: Jan Kiszka <jan.kiszka@web.de>
+Subject: Re: Using virtio for inter-VM communication
+Date: Sun, 15 Jun 2014 08:20:37 +0200
+Message-ID: <539D3B35.2010706__19209.9128886641$1402940057$gmane$org@web.de>
+References: <20140610184818.2e490419@nbschild1>	<87r42uq2v8.fsf@rustcorp.com.au>	<53993B7B.7010404@siemens.com>	<87fvj9prdi.fsf@rustcorp.com.au>	<539A98D3.3070601@siemens.com>
+	<539ABA41.3070701@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"; Format="flowed"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="===============9064469963980697719=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <539ABA41.3070701@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,163 +17,91 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
+To: Paolo Bonzini <pbonzini@redhat.com>, Rusty Russell <rusty@rustcorp.com.au>, Henning Schild <henning.schild@siemens.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Cc: Jailhouse <jailhouse-dev@googlegroups.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-KVM Forum 2014: Call For Participation
-October 14-16, 2014 - Congress Centre D=FCsseldorf - D=FCsseldorf, Germany
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============9064469963980697719==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="cRLQKXi54eaooTwxxeJmKxnMFB25QgCqN"
 
-(All submissions must be received before midnight July 27, 2014)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--cRLQKXi54eaooTwxxeJmKxnMFB25QgCqN
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-KVM is an industry leading open source hypervisor that provides an ideal
-platform for datacenter virtualization, virtual desktop infrastructure,
-and cloud computing.  Once again, it's time to bring together the
-community of developers and users that define the KVM ecosystem for
-our annual technical conference.  We will discuss the current state of
-affairs and plan for the future of KVM, its surrounding infrastructure,
-and management tools.  Mark your calendar and join us in advancing KVM.
-http://events.linuxfoundation.org/events/kvm-forum/
+On 2014-06-13 10:45, Paolo Bonzini wrote:
+> Il 13/06/2014 08:23, Jan Kiszka ha scritto:
+>>>> That would preserve zero-copy capabilities (as long as you can work
+>>>> against the shared mem directly, e.g. doing DMA from a physical NIC =
+or
+>>>> storage device into it) and keep the hypervisor out of the loop.
+>> >
+>> > This seems ill thought out.  How will you program a NIC via the virt=
+io
+>> > protocol without a hypervisor?  And how will you make it safe?  You'=
+ll
+>> > need an IOMMU.  But if you have an IOMMU you don't need shared memor=
+y.
+>>
+>> Scenarios behind this are things like driver VMs: You pass through the=
 
-Once again we are colocated with the Linux Foundation's LinuxCon Europe,
-CloudOpen Europe, Embedded Linux Conference (ELC) Europe, and this year, the
-Linux Plumbers Conference. KVM Forum attendees will be able to attend
-LinuxCon + CloudOpen + ELC for a discounted rate.
-http://events.linuxfoundation.org/events/kvm-forum/attend/register
+>> physical hardware to a driver guest that talks to the hardware and
+>> relays data via one or more virtual channels to other VMs. This confin=
+es
+>> a certain set of security and stability risks to the driver VM.
+>=20
+> I think implementing Xen hypercalls in jailhouse for grant table and
+> event channels would actually make a lot of sense.  The Xen
+> implementation is 2.5kLOC and I think it should be possible to compact
+> it noticeably, especially if you limit yourself to 64-bit guests.
 
-We invite you to lead part of the discussion by submitting a speaking
-proposal for KVM Forum 2014.
-http://events.linuxfoundation.org/cfp
+At least the grant table model seems unsuited for Jailhouse. It allows a
+guest to influence the mapping of another guest during runtime. This we
+want (or even have) to avoid in Jailhouse.
 
-Suggested topics:
+I'm therefore more in favor of a model where the shared memory region is
+defined on cell (guest) creation by adding a virtual device that comes
+with such a region.
 
-  KVM/Kernel
-  - Scaling and optimizations
-  - Nested virtualization
-  - Linux kernel performance improvements
-  - Resource management (CPU, I/O, memory)
-  - Hardening and security
-  - VFIO: SR-IOV, GPU, platform device assignment
-  - Architecture ports
+Jan
 
-  QEMU
-  - Management interfaces: QOM and QMP
-  - New devices, new boards, new architectures
-  - Scaling and optimizations
-  - Desktop virtualization and SPICE
-  - Virtual GPU
-  - virtio and vhost, including non-Linux or non-virtualized uses
-  - Hardening and security
-  - New storage features
-  - Live migration and fault tolerance
-  - High availability and continuous backup
-  - Real-time guest support
-  - Emulation and TCG
-  - Firmware: ACPI, UEFI, coreboot, u-Boot, etc.
-  - Testing
-
-  Management and infrastructure
-  - Managing KVM: Libvirt, OpenStack, oVirt, etc.
-  - Storage: glusterfs, Ceph, etc.
-  - Software defined networking: Open vSwitch, OpenDaylight, etc.
-  - Network Function Virtualization
-  - Security
-  - Provisioning
-  - Performance tuning
+>=20
+> It should also be almost enough to run Xen PVH guests as jailhouse
+> partitions.
+>=20
+> If later Xen starts to support virtio, you will get that for free.
+>=20
+> Paolo
 
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-SUBMITTING YOUR PROPOSAL
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Abstracts due: July 27, 2014
 
-Please submit a short abstract (~150 words) describing your presentation
-proposal. Slots vary in length up to 45 minutes.  Also include in your =
+--cRLQKXi54eaooTwxxeJmKxnMFB25QgCqN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-proposal
-the proposal type -- one of:
-- technical talk
-- end-user talk
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-Submit your proposal here:
-http://events.linuxfoundation.org/cfp
-Please only use the categories "presentation" and "panel discussion"
+iEYEARECAAYFAlOdOzoACgkQitSsb3rl5xTyTwCgt5AKtLnT8cmZ5ILYh/bMgnva
+BmAAoL9HlHBp2eARliY8PicSwe2JuxQp
+=Vsxr
+-----END PGP SIGNATURE-----
 
-You will receive a notification whether or not your presentation proposal
-was accepted by Aug 20th.
+--cRLQKXi54eaooTwxxeJmKxnMFB25QgCqN--
 
-Speakers will receive a complimentary pass for the event. In the instance
-that your submission has multiple presenters, only the primary speaker for a
-proposal will receive a complementary event pass. For panel discussions, all
-panelists will receive a complimentary event pass.
+--===============9064469963980697719==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-TECHNICAL TALKS
-
-A good technical talk should not just report on what has happened over
-the last year; it should present a concrete problem and how it impacts
-the user and/or developer community. Whenever applicable, it should
-focus on the work that needs to be done or the difficulties that haven't yet
-been solved.  Summarizing recent developments is okay but it should
-not be more than a small portion of the overall talk.
-
-END-USER TALKS
-
-One of the big challenges as developers is to know what, where and how
-people actually use our software.  We will reserve a few slots for end
-users talking about their deployment challenges and achievements.
-
-If you are using KVM in production you are encouraged submit a speaking
-proposal.  Simply mark it as an end-user talk.  As an end user, this is a
-unique opportunity to get your input to developers.
-
-HANDS-ON / BOF SESSIONS
-
-We will reserve some time for people to get together and discuss
-strategic decisions as well as other topics that are best solved within
-smaller groups. This time can also be used for hands-on hacking
-sessions if you have concrete code problems to solve.
-
-These sessions will be announced during the event. If you are interested
-in organizing such a session, please add it to the list at
-
-   http://www.linux-kvm.org/page/KVM_Forum_2014_BOF
-
-Let people you think might be interested know about it, and encourage
-them to add their names to the wiki page as well. Please try to
-add your ideas to the list before KVM Forum starts.
-
-PANEL DISCUSSIONS
-
-If you are proposing a panel discussion, please make sure that you list =
-
-all of
-your potential  panelists in your abstract. We will request full biographies
-if a panel is accepted.
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-HOTEL / TRAVEL
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-The KVM Forum 2014 will be held in D=FCsseldorf, Germany at
-Congress Centre D=FCsseldorf
-
-http://events.linuxfoundation.org/events/kvm-forum/attend/hotel-and-travel
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-IMPORTANT DATES
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Notification: August 20, 2014
-Schedule announced: August 29, 2014
-Event dates: October 14-16, 2014
-
-
-Thank you for your interest in KVM.  We're looking forward to your
-submissions and seeing you at the KVM Forum 2014 in October!
-
--your KVM Forum 2014 Program Committee
-
-Please contact us with any questions or comments.
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============9064469963980697719==--
