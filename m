@@ -1,18 +1,12 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v11 14/16] pvqspinlock: Add qspinlock para-virtualization
-	support
-Date: Sun, 15 Jun 2014 15:16:54 +0200
-Message-ID: <20140615131654.GJ11371@laptop.programming.kicks-ass.net>
-References: <1401464642-33890-1-git-send-email-Waiman.Long@hp.com>
-	<1401464642-33890-15-git-send-email-Waiman.Long@hp.com>
-	<20140612081731.GM3213@twins.programming.kicks-ass.net>
-	<539A1229.1050309@hp.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: KVM Forum 2014 Call for Participation
+Date: Mon, 16 Jun 2014 18:08:14 +0200
+Message-ID: <539F166E.5040803@redhat.com>
+Reply-To: kvm-forum-2014-pc@redhat.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-15"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <539A1229.1050309@hp.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,18 +16,163 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <waiman.long@hp.com>
-Cc: linux-arch@vger.kernel.org, Rik van Riel <riel@redhat.com>, Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>, Oleg Nesterov <oleg@redhat.com>, Gleb Natapov <gleb@redhat.com>, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Scott J Norton <scott.norton@hp.com>, x86@kernel.org, Paolo Bonzini <paolo.bonzini@gmail.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Chegu Vinod <chegu_vinod@hp.com>, David Vrabel <david.vrabel@citrix.com>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org, Thomas Gleixner <tglx@linutronix.de>, "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 12, 2014 at 04:48:41PM -0400, Waiman Long wrote:
-> I don't have a good understanding of the kernel alternatives mechanism.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+KVM Forum 2014: Call For Participation
+October 14-16, 2014 - Congress Centre D=FCsseldorf - D=FCsseldorf, Germany
 
-I didn't either; I do now, cost me a whole day reading up on
-alternative/paravirt code patching.
+(All submissions must be received before midnight July 27, 2014)
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
 
-See the patches I just send out; I got the 'native' case with paravirt
-enabled to be one NOP worse than the native case without paravirt -- for
-queue_spin_unlock.
+KVM is an industry leading open source hypervisor that provides an ideal
+platform for datacenter virtualization, virtual desktop infrastructure,
+and cloud computing.  Once again, it's time to bring together the
+community of developers and users that define the KVM ecosystem for
+our annual technical conference.  We will discuss the current state of
+affairs and plan for the future of KVM, its surrounding infrastructure,
+and management tools.  Mark your calendar and join us in advancing KVM.
+http://events.linuxfoundation.org/events/kvm-forum/
 
-The lock slowpath is several nops and some pointless movs more expensive.
+Once again we are colocated with the Linux Foundation's LinuxCon Europe,
+CloudOpen Europe, Embedded Linux Conference (ELC) Europe, and this year, the
+Linux Plumbers Conference. KVM Forum attendees will be able to attend
+LinuxCon + CloudOpen + ELC for a discounted rate.
+http://events.linuxfoundation.org/events/kvm-forum/attend/register
+
+We invite you to lead part of the discussion by submitting a speaking
+proposal for KVM Forum 2014.
+http://events.linuxfoundation.org/cfp
+
+Suggested topics:
+
+  KVM/Kernel
+  - Scaling and optimizations
+  - Nested virtualization
+  - Linux kernel performance improvements
+  - Resource management (CPU, I/O, memory)
+  - Hardening and security
+  - VFIO: SR-IOV, GPU, platform device assignment
+  - Architecture ports
+
+  QEMU
+  - Management interfaces: QOM and QMP
+  - New devices, new boards, new architectures
+  - Scaling and optimizations
+  - Desktop virtualization and SPICE
+  - Virtual GPU
+  - virtio and vhost, including non-Linux or non-virtualized uses
+  - Hardening and security
+  - New storage features
+  - Live migration and fault tolerance
+  - High availability and continuous backup
+  - Real-time guest support
+  - Emulation and TCG
+  - Firmware: ACPI, UEFI, coreboot, u-Boot, etc.
+  - Testing
+
+  Management and infrastructure
+  - Managing KVM: Libvirt, OpenStack, oVirt, etc.
+  - Storage: glusterfs, Ceph, etc.
+  - Software defined networking: Open vSwitch, OpenDaylight, etc.
+  - Network Function Virtualization
+  - Security
+  - Provisioning
+  - Performance tuning
+
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+SUBMITTING YOUR PROPOSAL
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Abstracts due: July 27, 2014
+
+Please submit a short abstract (~150 words) describing your presentation
+proposal. Slots vary in length up to 45 minutes.  Also include in your =
+
+proposal
+the proposal type -- one of:
+- technical talk
+- end-user talk
+
+Submit your proposal here:
+http://events.linuxfoundation.org/cfp
+Please only use the categories "presentation" and "panel discussion"
+
+You will receive a notification whether or not your presentation proposal
+was accepted by Aug 20th.
+
+Speakers will receive a complimentary pass for the event. In the instance
+that your submission has multiple presenters, only the primary speaker for a
+proposal will receive a complementary event pass. For panel discussions, all
+panelists will receive a complimentary event pass.
+
+TECHNICAL TALKS
+
+A good technical talk should not just report on what has happened over
+the last year; it should present a concrete problem and how it impacts
+the user and/or developer community. Whenever applicable, it should
+focus on the work that needs to be done or the difficulties that haven't yet
+been solved.  Summarizing recent developments is okay but it should
+not be more than a small portion of the overall talk.
+
+END-USER TALKS
+
+One of the big challenges as developers is to know what, where and how
+people actually use our software.  We will reserve a few slots for end
+users talking about their deployment challenges and achievements.
+
+If you are using KVM in production you are encouraged submit a speaking
+proposal.  Simply mark it as an end-user talk.  As an end user, this is a
+unique opportunity to get your input to developers.
+
+HANDS-ON / BOF SESSIONS
+
+We will reserve some time for people to get together and discuss
+strategic decisions as well as other topics that are best solved within
+smaller groups. This time can also be used for hands-on hacking
+sessions if you have concrete code problems to solve.
+
+These sessions will be announced during the event. If you are interested
+in organizing such a session, please add it to the list at
+
+   http://www.linux-kvm.org/page/KVM_Forum_2014_BOF
+
+Let people you think might be interested know about it, and encourage
+them to add their names to the wiki page as well. Please try to
+add your ideas to the list before KVM Forum starts.
+
+PANEL DISCUSSIONS
+
+If you are proposing a panel discussion, please make sure that you list =
+
+all of
+your potential  panelists in your abstract. We will request full biographies
+if a panel is accepted.
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+HOTEL / TRAVEL
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+The KVM Forum 2014 will be held in D=FCsseldorf, Germany at
+Congress Centre D=FCsseldorf
+
+http://events.linuxfoundation.org/events/kvm-forum/attend/hotel-and-travel
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+IMPORTANT DATES
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Notification: August 20, 2014
+Schedule announced: August 29, 2014
+Event dates: October 14-16, 2014
+
+
+Thank you for your interest in KVM.  We're looking forward to your
+submissions and seeing you at the KVM Forum 2014 in October!
+
+-your KVM Forum 2014 Program Committee
+
+Please contact us with any questions or comments.
