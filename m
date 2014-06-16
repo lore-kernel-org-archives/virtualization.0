@@ -1,15 +1,15 @@
 From: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC PATCH 1/2] include/uapi/linux/virtio_blk.h: introduce
-	feature of VIRTIO_BLK_F_MQ
-Date: Mon, 16 Jun 2014 22:12:50 +0930
-Message-ID: <87a99dnhyt.fsf__9507.31308334998$1402965878$gmane$org@rustcorp.com.au>
+Subject: Re: [RFC PATCH 2/2] block: virtio-blk: support multi virt queues per
+	virtio-blk device
+Date: Mon, 16 Jun 2014 22:17:05 +0930
+Message-ID: <877g4hnhrq.fsf__2514.91835010729$1402965882$gmane$org@rustcorp.com.au>
 References: <1402680562-8328-1-git-send-email-ming.lei@canonical.com>
-	<1402680562-8328-2-git-send-email-ming.lei@canonical.com>
+	<1402680562-8328-3-git-send-email-ming.lei@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1402680562-8328-2-git-send-email-ming.lei@canonical.com>
+In-Reply-To: <1402680562-8328-3-git-send-email-ming.lei@canonical.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -24,50 +24,30 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, Ming Lei <
 List-Id: virtualization@lists.linuxfoundation.org
 
 Ming Lei <ming.lei@canonical.com> writes:
-> Current virtio-blk spec only supports one virtual queue for transfering
-> data between VM and host, and inside VM all kinds of operations on
-> the virtual queue needs to hold one lock, so cause below problems:
->
-> 	- no scalability
->     - bad throughput
->
-> So this patch requests to introduce feature of VIRTIO_BLK_F_MQ
-> so that more than one virtual queues can be used to virtio-blk
-> device, then above problems can be solved or eased.
->
-> Signed-off-by: Ming Lei <ming.lei@canonical.com>
-> ---
->  include/uapi/linux/virtio_blk.h |    4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
-> index 6d8e61c..c5a2751 100644
-> --- a/include/uapi/linux/virtio_blk.h
-> +++ b/include/uapi/linux/virtio_blk.h
-> @@ -40,6 +40,7 @@
->  #define VIRTIO_BLK_F_WCE	9	/* Writeback mode enabled after reset */
->  #define VIRTIO_BLK_F_TOPOLOGY	10	/* Topology information is available */
->  #define VIRTIO_BLK_F_CONFIG_WCE	11	/* Writeback mode available in config */
-> +#define VIRTIO_BLK_F_MQ		12	/* support more than one vq */
->  
->  #ifndef __KERNEL__
->  /* Old (deprecated) name for VIRTIO_BLK_F_WCE. */
-> @@ -77,6 +78,9 @@ struct virtio_blk_config {
->  
->  	/* writeback mode (if VIRTIO_BLK_F_CONFIG_WCE) */
->  	__u8 wce;
-> +
-> +	/* number of vqs, only available when VIRTIO_BLK_F_MQ is set */
-> +	__u16 num_queues;
->  } __attribute__((packed));
+> +	if (virtio_has_feature(vdev, VIRTIO_BLK_F_MQ))
+> +		err = virtio_cread_feature(vdev, VIRTIO_BLK_F_MQ,
+> +				   struct virtio_blk_config, num_queues,
+> +				   &num_vqs);
+> +	else
+> +		num_vqs = 1;
 
-Hmm, please pad this like so:
+This is redundant: virtio_cread_feature() checks the feature.
 
-        __u8 unused;
+So, either:
+        if (virtio_has_feature(vdev, VIRTIO_BLK_F_MQ))
+                virtio_cread(vdev, struct virtio_blk_config, num_queues,
+          		     &num_vqs);
+        else
+                num_vqs = 1;
 
-        __u16 num_queues;
+Or:
+	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_MQ,
+			   struct virtio_blk_config, num_queues,
+			   &num_vqs);
+        if (err)
+                num_vqs = 1;
 
-That avoids weird alignment.
+Otherwise, the patch looks pretty straight-forward.
 
-Thanks,
+Cheers,
 Rusty.
