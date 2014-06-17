@@ -1,19 +1,14 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [Qemu-devel] Why I advise against using ivshmem
-Date: Tue, 17 Jun 2014 10:54:04 +0800
-Message-ID: <CAJSP0QUcFGSGgQMjU=Ax3n6Gqx6h_ZZ1yXz6QgQiyYYe+e4K4w@mail.gmail.com>
-References: <20140610184818.2e490419@nbschild1> <53978375.6090707@6wind.com>
-	<87ppie1v4r.fsf@blackfin.pond.sub.org>
-	<20140612094413.15e56938@nbschild1>
-	<87vbs6qjhj.fsf_-_@blackfin.pond.sub.org>
-	<5399CF09.8030803@6wind.com> <87ppidnqmy.fsf@blackfin.pond.sub.org>
-	<539AC3E0.9090404@6wind.com> <539ACDE6.7020709@redhat.com>
-	<539AFF7C.7090702@6wind.com> <539B064D.2050501@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: Using virtio for inter-VM communication
+Date: Tue, 17 Jun 2014 07:24:52 +0200
+Message-ID: <539FD124.6050007__20359.7379652367$1402982712$gmane$org@redhat.com>
+References: <20140610184818.2e490419@nbschild1>	<87r42uq2v8.fsf@rustcorp.com.au>	<53993B7B.7010404@siemens.com>	<87fvj9prdi.fsf@rustcorp.com.au>	<539A98D3.3070601@siemens.com>
+	<539ABA41.3070701@redhat.com> <539D3B35.2010706@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <539B064D.2050501@redhat.com>
+In-Reply-To: <539D3B35.2010706@web.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,31 +18,20 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Henning Schild <henning.schild@siemens.com>, Olivier MATZ <olivier.matz@6wind.com>, kvm <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Vincent JARDIN <vincent.jardin@6wind.com>, David Marchand <david.marchand@6wind.com>, "thomas.monjalon@6wind.com" <thomas.monjalon@6wind.com>
+To: Jan Kiszka <jan.kiszka@web.de>, Rusty Russell <rusty@rustcorp.com.au>, Henning Schild <henning.schild@siemens.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Cc: Jailhouse <jailhouse-dev@googlegroups.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 13, 2014 at 10:10 PM, Paolo Bonzini <pbonzini@redhat.com> wrote:
-> Il 13/06/2014 15:41, Vincent JARDIN ha scritto:
->> I do repeat this use case that you had removed because vhost-user does
->> not solve it yet:
->>
->>>>  - ivshmem -> framework to be generic to have shared memory for many
->>>> use cases (HPC, in-memory-database, a network too like memnic).
->
->
-> Right, ivshmem is better for guest-to-guest.  vhost-user is not restricted
-> to networking, but it is indeed more focused on guest-to-host.  ivshmem is
-> usable for guest-to-host, but I would prefer still some "hybrid" that uses
-> vhost-like messages to pass the shared memory fds to the external program.
+Il 15/06/2014 08:20, Jan Kiszka ha scritto:
+>> > I think implementing Xen hypercalls in jailhouse for grant table and
+>> > event channels would actually make a lot of sense.  The Xen
+>> > implementation is 2.5kLOC and I think it should be possible to compact
+>> > it noticeably, especially if you limit yourself to 64-bit guests.
+> At least the grant table model seems unsuited for Jailhouse. It allows a
+> guest to influence the mapping of another guest during runtime. This we
+> want (or even have) to avoid in Jailhouse.
 
-ivshmem has a performance disadvantage for guest-to-host
-communication.  Since the shared memory is exposed as PCI BARs, the
-guest has to memcpy into the shared memory.
+IIRC implementing the grant table hypercalls with copies is inefficient 
+but valid.
 
-vhost-user can access guest memory directly and avoid the copy inside the guest.
-
-Unless someone steps up and maintains ivshmem, I think it should be
-deprecated and dropped from QEMU.
-
-Stefan
+Paolo
