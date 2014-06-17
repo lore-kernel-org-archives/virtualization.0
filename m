@@ -1,15 +1,16 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [RFC PATCH 2/2] block: virtio-blk: support multi virt queues
-	per virtio-blk device
-Date: Tue, 17 Jun 2014 18:34:13 +0200
-Message-ID: <53A06E05.9060708@redhat.com>
-References: <1402680562-8328-1-git-send-email-ming.lei@canonical.com>	<1402680562-8328-3-git-send-email-ming.lei@canonical.com>	<CAJSP0QWaS--gPZ=ONFrXby1DQLw4R0RCro7bpHCdmucyjmqT_w@mail.gmail.com>	<CACVXFVO0SybUKArQbKkj2+hbk6q_gt3SBooNNmw1jErRR8d07A@mail.gmail.com>	<53A06475.7000308@redhat.com>
-	<CACVXFVO6GDu7Cp=s7kn_XBE2EFnuh+XQs4UQKTFaCLi4_9jcgg@mail.gmail.com>
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [PATCH 01/11] qspinlock: A simple generic 4-byte queue spinlock
+Date: Tue, 17 Jun 2014 16:03:29 -0400
+Message-ID: <20140617200329.GA27400@laptop.dumpdata.com>
+References: <20140615124657.264658593@chello.nl>
+	<20140615130152.912524881@chello.nl>
+	<20140616204918.GA26140@laptop.dumpdata.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CACVXFVO6GDu7Cp=s7kn_XBE2EFnuh+XQs4UQKTFaCLi4_9jcgg@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20140616204918.GA26140@laptop.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,24 +20,81 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lei <ming.lei@canonical.com>
-Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, linux-api@vger.kernel.org
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, gleb@redhat.com, kvm@vger.kernel.org, boris.ostrovsky@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Peter Zijlstra <peterz@infradead.org>, chegu_vinod@hp.com, david.vrabel@citrix.com, oleg@redhat.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Il 17/06/2014 18:00, Ming Lei ha scritto:
->> > If you want to do queue steering based on the guest VCPU number, the number
->> > of queues must be = to the number of VCPUs shouldn't it?
->> >
->> > I tried using a divisor of the number of VCPUs, but couldn't get the block
->> > layer to deliver interrupts to the right VCPU.
-> For blk-mq's hardware queue, that won't be necessary to equal to
-> VCPUs number, and irq affinity per hw queue can be simply set as
-> blk_mq_hw_ctx->cpumask.
+> > +			new = tail | (val & _Q_LOCKED_MASK);
+> > +
+> > +		old = atomic_cmpxchg(&lock->val, val, new);
+> > +		if (old == val)
+> > +			break;
+> > +
+> > +		val = old;
+> > +	}
+> > +
+> > +	/*
+> > +	 * we won the trylock; forget about queueing.
+> > +	 */
+> > +	if (new == _Q_LOCKED_VAL)
+> > +		goto release;
+> > +
+> > +	/*
+> > +	 * if there was a previous node; link it and wait.
+> > +	 */
+> > +	if (old & ~_Q_LOCKED_MASK) {
+> > +		prev = decode_tail(old);
+> > +		ACCESS_ONCE(prev->next) = node;
+> > +
+> > +		arch_mcs_spin_lock_contended(&node->locked);
 
-Yes, but on top of that you want to have each request processed exactly 
-by the CPU that sent it.  Unless the cpumasks are singletons, most of 
-the benefit went away in my virtio-scsi tests.  Perhaps blk-mq is smarter.
+Could you add a comment here:
 
-Can you try benchmarking a 16 VCPU guest with 8 and 16 queues?
+/* We are spinning forever until the previous node updates locked - which
+it does once the it has updated lock->val with our tail number. */
 
-Paolo
+> > +	}
+> > +
+> > +	/*
+> > +	 * we're at the head of the waitqueue, wait for the owner to go away.
+> > +	 *
+> > +	 * *,x -> *,0
+> > +	 */
+> > +	while ((val = atomic_read(&lock->val)) & _Q_LOCKED_MASK)
+> > +		cpu_relax();
+> > +
+> > +	/*
+> > +	 * claim the lock:
+> > +	 *
+> > +	 * n,0 -> 0,1 : lock, uncontended
+> > +	 * *,0 -> *,1 : lock, contended
+> > +	 */
+> > +	for (;;) {
+> > +		new = _Q_LOCKED_VAL;
+> > +		if (val != tail)
+> > +			new |= val;
+> 
+..snip..
+> 
+> Could you help a bit in explaining it in English please?
+
+After looking at the assembler code I finally figured out how
+we can get here. And the 'contended' part threw me off. Somehow
+I imagined there are two more more CPUs stampeding here and 
+trying to update the lock->val. But in reality the other CPUs
+are stuck in the arch_mcs_spin_lock_contended spinning on their
+local value.
+
+Perhaps you could add this comment.
+
+/* Once queue_spin_unlock is called (which _subtracts_ _Q_LOCKED_VAL from
+the lock->val and still preserving the tail data), the winner gets to
+claim the ticket. Since we still need the other CPUs to continue and
+preserve the strict ordering in which they setup node->next, we:
+ 1) update lock->val to the tail value (so tail CPU and its index) with
+    _Q_LOCKED_VAL.
+ 2). Once we are done, we poke the other CPU (the one that linked to
+    us) by writting to node->locked (below) so they can make progress and
+    loop on lock->val changing from _Q_LOCKED_MASK to zero).
+
+*/
