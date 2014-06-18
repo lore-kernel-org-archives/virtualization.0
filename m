@@ -1,18 +1,15 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [Qemu-devel] Why I advise against using ivshmem
-Date: Wed, 18 Jun 2014 18:51:20 +0800
-Message-ID: <20140618105120.GI14030@stefanha-thinkpad.redhat.com>
-References: <20140612094413.15e56938@nbschild1>
-	<87vbs6qjhj.fsf_-_@blackfin.pond.sub.org>
-	<5399CF09.8030803@6wind.com> <87ppidnqmy.fsf@blackfin.pond.sub.org>
-	<539AC3E0.9090404@6wind.com> <539ACDE6.7020709@redhat.com>
-	<539AFF7C.7090702@6wind.com> <539B064D.2050501@redhat.com>
-	<CAJSP0QUcFGSGgQMjU=Ax3n6Gqx6h_ZZ1yXz6QgQiyYYe+e4K4w@mail.gmail.com>
-	<53A00464.8090609@6wind.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 03/11] qspinlock: Add pending bit
+Date: Wed, 18 Jun 2014 13:29:48 +0200
+Message-ID: <53A1782C.7040400@redhat.com>
+References: <20140615124657.264658593@chello.nl>
+	<20140615130153.196728583@chello.nl>
+	<20140617203615.GA29634@laptop.dumpdata.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0758245336398473830=="
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <53A00464.8090609@6wind.com>
+In-Reply-To: <20140617203615.GA29634@laptop.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,65 +19,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: David Marchand <david.marchand@6wind.com>
-Cc: Henning Schild <henning.schild@siemens.com>, Olivier MATZ <olivier.matz@6wind.com>, kvm <kvm@vger.kernel.org>, qemu-devel <qemu-devel@nongnu.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Paolo Bonzini <pbonzini@redhat.com>, Vincent JARDIN <vincent.jardin@6wind.com>, "thomas.monjalon@6wind.com" <thomas.monjalon@6wind.com>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, gleb@redhat.com, kvm@vger.kernel.org, boris.ostrovsky@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Peter Zijlstra <peterz@infradead.org>, chegu_vinod@hp.com, david.vrabel@citrix.com, oleg@redhat.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Il 17/06/2014 22:36, Konrad Rzeszutek Wilk ha scritto:
+> +	/* One more attempt - but if we fail mark it as pending. */
+> +	if (val == _Q_LOCKED_VAL) {
+> +		new = Q_LOCKED_VAL |_Q_PENDING_VAL;
+> +
+> +		old = atomic_cmpxchg(&lock->val, val, new);
+> +		if (old == _Q_LOCKED_VAL) /* YEEY! */
+> +			return;
+> +		val = old;
+> +	}
 
---===============0758245336398473830==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2xeD/fx0+7k8I/QN"
-Content-Disposition: inline
+Note that Peter's code is in a for(;;) loop:
 
 
---2xeD/fx0+7k8I/QN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
++	for (;;) {
++		/*
++		 * If we observe any contention; queue.
++		 */
++		if (val & ~_Q_LOCKED_MASK)
++			goto queue;
++
++		new = _Q_LOCKED_VAL;
++		if (val == new)
++			new |= _Q_PENDING_VAL;
++
++		old = atomic_cmpxchg(&lock->val, val, new);
++		if (old == val)
++			break;
++
++		val = old;
++	}
++
++	/*
++	 * we won the trylock
++	 */
++	if (new == _Q_LOCKED_VAL)
++		return;
 
-On Tue, Jun 17, 2014 at 11:03:32AM +0200, David Marchand wrote:
-> On 06/17/2014 04:54 AM, Stefan Hajnoczi wrote:
-> >ivshmem has a performance disadvantage for guest-to-host
-> >communication.  Since the shared memory is exposed as PCI BARs, the
-> >guest has to memcpy into the shared memory.
-> >
-> >vhost-user can access guest memory directly and avoid the copy inside th=
-e guest.
->=20
-> Actually, you can avoid this memory copy using frameworks like DPDK.
+So what you'd have is basically:
 
-I guess it's careful to allocate all packets in the mmapped BAR?
+	/*
+	 * One more attempt if no one is already in queue.  Perhaps
+	 * they have unlocked the spinlock already.
+	 */
+	if (val == _Q_LOCKED_VAL && atomic_read(&lock->val) == 0) {
+		old = atomic_cmpxchg(&lock->val, 0, _Q_LOCKED_VAL);
+		if (old == 0) /* YEEY! */
+			return;
+		val = old;
+	}
 
-That's fine if you can modify applications but doesn't work for
-unmodified applications using regular networking APIs.
+But I agree with Waiman that this is unlikely to trigger often enough. 
+It does have to be handled in the slowpath for correctness, but the most 
+likely path is (0,0,1)->(0,1,1).
 
-Stefan
-
---2xeD/fx0+7k8I/QN
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQEcBAEBAgAGBQJToW8oAAoJEJykq7OBq3PIZE8H/1qvoO1fNeV1NTzlbG2Ct6fj
-Xj65iyqXzc9SKBTBK+aN6LdPnd3mIIvrnHqgH6lpkYEAAPDfpXX7qzhYz+QzQqRh
-8epEGZerirEzk+Fwdfo66I+kAIo8W1xQD9LvDsIUbB7XQIR7lnrVxeQyBR7lGzjh
-KiIWcxYiBg+cns4QWr8Y1TfirplCIhyN0hYsTljWsubOHyh9LJQSax/l7S23B74o
-De6rG6n8eCTTUrxxH0zC2eYfX6mEHa6pt/+ULP1Cndb/iIXC6wGZYmlGEX65Jrg7
-kmROWJ0EyZzVoXZBLjBj4tLXKHsxilhEVQs4AA4bAfxewDCTqm9+zCXxurjzarQ=
-=eSgA
------END PGP SIGNATURE-----
-
---2xeD/fx0+7k8I/QN--
-
---===============0758245336398473830==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0758245336398473830==--
+Paolo
