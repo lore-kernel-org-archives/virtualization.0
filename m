@@ -1,11 +1,20 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH 03/11] qspinlock: Add pending bit
-Date: Tue, 17 Jun 2014 19:23:44 -0400
-Message-ID: <201406172323.s5HNNveT018439@userz7022.oracle.com>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: Re: [RFC PATCH 2/2] block: virtio-blk: support multi virt queues per
+	virtio-blk device
+Date: Wed, 18 Jun 2014 12:04:48 +0800
+Message-ID: <CACVXFVMkV5R5GUjM7Y-U54SA-ENZZ26dbbv4K2_OYPdmmiuUqg__47905.6982476779$1403064303$gmane$org@mail.gmail.com>
+References: <1402680562-8328-1-git-send-email-ming.lei@canonical.com>
+	<1402680562-8328-3-git-send-email-ming.lei@canonical.com>
+	<CAJSP0QWaS--gPZ=ONFrXby1DQLw4R0RCro7bpHCdmucyjmqT_w@mail.gmail.com>
+	<CACVXFVO0SybUKArQbKkj2+hbk6q_gt3SBooNNmw1jErRR8d07A@mail.gmail.com>
+	<53A06475.7000308@redhat.com>
+	<CACVXFVO6GDu7Cp=s7kn_XBE2EFnuh+XQs4UQKTFaCLi4_9jcgg@mail.gmail.com>
+	<53A06E05.9060708@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <53A06E05.9060708@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,87 +24,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Waiman Long <waiman.long@hp.com>
-Cc: linux-arch@vger.kernel.org, riel@redhat.com, kvm@vger.kernel.org, gleb@redhat.com, boris.ostrovsky@oracle.com, linux-kernel@vger.kernel.org, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, oleg@redhat.com, virtualization@lists.linux-foundation.org, Peter Zijlstra <peterz@infradead.org>, torvalds@linux-foundation.org, david.vrabel@citrix.com, scott.norton@hp.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, chegu_vinod@hp.com, mingo@kernel.org, Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, linux-api@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIEp1biAxNywgMjAxNCA2OjI1IFBNLCBXYWltYW4gTG9uZyA8d2FpbWFuLmxvbmdAaHAuY29t
-PiB3cm90ZToKPgo+IE9uIDA2LzE3LzIwMTQgMDU6MTAgUE0sIEtvbnJhZCBSemVzenV0ZWsgV2ls
-ayB3cm90ZTogCj4gPiBPbiBUdWUsIEp1biAxNywgMjAxNCBhdCAwNTowNzoyOVBNIC0wNDAwLCBL
-b25yYWQgUnplc3p1dGVrIFdpbGsgd3JvdGU6IAo+ID4+IE9uIFR1ZSwgSnVuIDE3LCAyMDE0IGF0
-IDA0OjUxOjU3UE0gLTA0MDAsIFdhaW1hbiBMb25nIHdyb3RlOiAKPiA+Pj4gT24gMDYvMTcvMjAx
-NCAwNDozNiBQTSwgS29ucmFkIFJ6ZXN6dXRlayBXaWxrIHdyb3RlOiAKPiA+Pj4+IE9uIFN1biwg
-SnVuIDE1LCAyMDE0IGF0IDAyOjQ3OjAwUE0gKzAyMDAsIFBldGVyIFppamxzdHJhIHdyb3RlOiAK
-PiA+Pj4+PiBCZWNhdXNlIHRoZSBxc3BpbmxvY2sgbmVlZHMgdG8gdG91Y2ggYSBzZWNvbmQgY2Fj
-aGVsaW5lOyBhZGQgYSBwZW5kaW5nIAo+ID4+Pj4+IGJpdCBhbmQgYWxsb3cgYSBzaW5nbGUgaW4t
-d29yZCBzcGlubmVyIGJlZm9yZSB3ZSBwdW50IHRvIHRoZSBzZWNvbmQgCj4gPj4+Pj4gY2FjaGVs
-aW5lLiAKPiA+Pj4+IENvdWxkIHlvdSBhZGQgdGhpcyBpbiB0aGUgZGVzY3JpcHRpb24gcGxlYXNl
-OiAKPiA+Pj4+IAo+ID4+Pj4gQW5kIGJ5IHNlY29uZCBjYWNoZWxpbmUgd2UgbWVhbiB0aGUgbG9j
-YWwgJ25vZGUnLiBUaGF0IGlzIHRoZTogCj4gPj4+PiBtY3Nfbm9kZXNbMF0gYW5kIG1jc19ub2Rl
-c1tpZHhdIAo+ID4+Pj4gCj4gPj4+PiBQZXJoYXBzIGl0IG1pZ2h0IGJlIGJldHRlciB0aGVuIHRv
-IHNwbGl0IHRoaXMgaW4gdGhlIGhlYWRlciBmaWxlIAo+ID4+Pj4gYXMgdGhpcyBpcyB0cnlpbmcg
-dG8gbm90IGJlIGEgc2xvd3BhdGggY29kZSAtIGJ1dCByYXRoZXIgLSBhIAo+ID4+Pj4gcHJlLXNs
-b3ctcGF0aC1sZXRzLXRyeS1pZi13ZSBjYW4gZG8gYW5vdGhlciBjbXB4Y2hnIGluIGNhc2UgCj4g
-Pj4+PiB0aGUgdW5sb2NrZXIgaGFzIGp1c3QgdW5sb2NrZWQgaXRzZWxmLiAKPiA+Pj4+IAo+ID4+
-Pj4gU28gc29tZXRoaW5nIGxpa2U6IAo+ID4+Pj4gCj4gPj4+PiBkaWZmIC0tZ2l0IGEvaW5jbHVk
-ZS9hc20tZ2VuZXJpYy9xc3BpbmxvY2suaCBiL2luY2x1ZGUvYXNtLWdlbmVyaWMvcXNwaW5sb2Nr
-LmggCj4gPj4+PiBpbmRleCBlOGE3YWU4Li4yOWNjOWM3IDEwMDY0NCAKPiA+Pj4+IC0tLSBhL2lu
-Y2x1ZGUvYXNtLWdlbmVyaWMvcXNwaW5sb2NrLmggCj4gPj4+PiArKysgYi9pbmNsdWRlL2FzbS1n
-ZW5lcmljL3FzcGlubG9jay5oIAo+ID4+Pj4gQEAgLTc1LDExICs3NSwyMSBAQCBleHRlcm4gdm9p
-ZCBxdWV1ZV9zcGluX2xvY2tfc2xvd3BhdGgoc3RydWN0IHFzcGlubG9jayAqbG9jaywgdTMyIHZh
-bCk7IAo+ID4+Pj7CoMKgwqAgKi8gCj4gPj4+PsKgwqAgc3RhdGljIF9fYWx3YXlzX2lubGluZSB2
-b2lkIHF1ZXVlX3NwaW5fbG9jayhzdHJ1Y3QgcXNwaW5sb2NrICpsb2NrKSAKPiA+Pj4+wqDCoCB7
-IAo+ID4+Pj4gLSB1MzIgdmFsOyAKPiA+Pj4+ICsgdTMyIHZhbCwgbmV3OyAKPiA+Pj4+IAo+ID4+
-Pj7CoMKgIHZhbCA9IGF0b21pY19jbXB4Y2hnKCZsb2NrLT52YWwsIDAsIF9RX0xPQ0tFRF9WQUwp
-OyAKPiA+Pj4+wqDCoCBpZiAobGlrZWx5KHZhbCA9PSAwKSkgCj4gPj4+PsKgwqAgcmV0dXJuOyAK
-PiA+Pj4+ICsgCj4gPj4+PiArIC8qIE9uZSBtb3JlIGF0dGVtcHQgLSBidXQgaWYgd2UgZmFpbCBt
-YXJrIGl0IGFzIHBlbmRpbmcuICovIAo+ID4+Pj4gKyBpZiAodmFsID09IF9RX0xPQ0tFRF9WQUwp
-IHsgCj4gPj4+PiArIG5ldyA9IFFfTE9DS0VEX1ZBTCB8X1FfUEVORElOR19WQUw7IAo+ID4+Pj4g
-KyAKPiA+Pj4+ICsgb2xkID0gYXRvbWljX2NtcHhjaGcoJmxvY2stPnZhbCwgdmFsLCBuZXcpOyAK
-PiA+Pj4+ICsgaWYgKG9sZCA9PSBfUV9MT0NLRURfVkFMKSAvKiBZRUVZISAqLyAKPiA+Pj4+ICsg
-cmV0dXJuOyAKPiA+Pj4gTm8sIGl0IGNhbiBsZWF2ZSBsaWtlIHRoYXQuIFRoZSB1bmxvY2sgcGF0
-aCB3aWxsIG5vdCBjbGVhciB0aGUgcGVuZGluZyBiaXQuIAo+ID4+IEVyciwgeW91IGFyZSByaWdo
-dC4gSXQgbmVlZHMgdG8gZ28gYmFjayBpbiB0aGUgc2xvd3BhdGguIAo+ID4gV2hhdCBJIHNob3Vs
-ZCBoYXZlIHdyb3RlIGlzOiAKPiA+IAo+ID4gaWYgKG9sZCA9PSAwKSAvKiBZRUVZICovIAo+ID7C
-oMKgwqAgcmV0dXJuOyAKPgo+IFVuZm9ydHVuYXRlbHksIHRoYXQgc3RpbGwgZG9lc24ndCB3b3Jr
-LiBJZiBvbGQgaXMgMCwgaXQganVzdCBtZWFudCB0aGUgCj4gY21weGNoZyBmYWlsZWQuIEl0IHN0
-aWxsIGhhdmVuJ3QgZ290IHRoZSBsb2NrLiAKPiA+IEFzIHRoYXQgd291bGQgdGhlIHNhbWUgdGhp
-bmcgYXMgdGhpcyBwYXRjaCBkb2VzIG9uIHRoZSBwZW5kaW5nIGJpdCAtIHRoYXQgCj4gPiBpcyBp
-ZiB3ZSBjYW4gb24gdGhlIHNlY29uZCBjb21wYXJlIGFuZCBleGNoYW5nZSBzZXQgdGhlIHBlbmRp
-bmcgYml0IChhbmQgdGhlIAo+ID4gbG9jaykgYW5kIHRoZSBsb2NrIGhhcyBiZWVuIHJlbGVhc2Vk
-IC0gd2UgYXJlIGdvb2QuIAo+Cj4gVGhhdCBpcyBub3QgdHJ1ZS4gV2hlbiB0aGUgbG9jayBpcyBm
-cmVlZCwgdGhlIHBlbmRpbmcgYml0IGhvbGRlciB3aWxsIAo+IHN0aWxsIGhhdmUgdG8gY2xlYXIg
-dGhlIHBlbmRpbmcgYml0IGFuZCBzZXQgdGhlIGxvY2sgYml0IGFzIGlzIGRvbmUgaW4gCj4gdGhl
-IHNsb3dwYXRoLiBXZSBjYW5ub3Qgc2tpcCB0aGUgc3RlcCBoZXJlLiBUaGUgcHJvYmxlbSBvZiBt
-b3ZpbmcgdGhlIAo+IHBlbmRpbmcgY29kZSBoZXJlIGlzIHRoYXQgaXQgaW5jbHVkZXMgYSB3YWl0
-IGxvb3Agd2hpY2ggd2UgZG9uJ3Qgd2FudCB0byAKPiBwdXQgaW4gdGhlIGZhc3RwYXRoLiAKPiA+
-IAo+ID4gQW5kIGl0IGlzIGEgcXVpY2sgcGF0aC4gCj4gPiAKPiA+Pj4gV2UgYXJlIHRyeWluZyB0
-byBtYWtlIHRoZSBmYXN0cGF0aCBhcyBzaW1wbGUgYXMgcG9zc2libGUgYXMgaXQgbWF5IGJlIAo+
-ID4+PiBpbmxpbmVkLiBUaGUgY29tcGxleGl0eSBvZiB0aGUgcXVldWUgc3BpbmxvY2sgaXMgaW4g
-dGhlIHNsb3dwYXRoLiAKPiA+PiBTdXJlLCBidXQgdGhlbiBpdCBzaG91bGRuJ3QgYmUgY2FsbGVk
-IHNsb3dwYXRoIGFueW1vcmUgYXMgaXQgaXMgbm90IAo+ID4+IHNsb3cuIEl0IGlzIGEgY29tYmlu
-YXRpb24gb2YgZmFzdCBwYXRoICh0aGUgcG90ZW50aWFsIGNoYW5jZSBvZiAKPiA+PiBncmFiYmlu
-ZyB0aGUgbG9jayBhbmQgc2V0dGluZyB0aGUgcGVuZGluZyBsb2NrKSBhbmQgdGhlIHJlYWwgc2xv
-dyAKPiA+PiBwYXRoICh0aGUgcXVldWluZykuIFBlcmhhcHMgaXQgc2hvdWxkIGJlIGNhbGxlZCAn
-cXVldWVfc3BpbmxvY2tfY29tcGxleCcgPyAKPiA+PiAKPiA+IEkgZm9yZ290IHRvIG1lbnRpb24g
-LSB0aGF0IHdhcyB0aGUgY3J1eCBvZiBteSBjb21tZW50cyAtIGp1c3QgY2hhbmdlIAo+ID4gdGhl
-IHNsb3dwYXRoIHRvIGNvbXBsZXggbmFtZSBhdCB0aGF0IHBvaW50IHRvIGJldHRlciByZWZsZWN0
-IHdoYXQgCj4gPiBpdCBkb2VzLiAKPgo+IEFjdHVhbGx5IGluIG15IHYxMSBwYXRjaCwgSSBzdWJk
-aXZpZGVkIHRoZSBzbG93cGF0aCBpbnRvIGEgc2xvd3BhdGggZm9yIAo+IHRoZSBwZW5kaW5nIGNv
-ZGUgYW5kIHNsb3dlcnBhdGggZm9yIGFjdHVhbCBxdWV1aW5nLiBQZXJoYXBzLCB3ZSBjb3VsZCAK
-PiB1c2UgcXVpY2twYXRoIGFuZCBzbG93cGF0aCBpbnN0ZWFkLiBBbnl3YXksIGl0IGlzIGEgbWlu
-b3IgZGV0YWlsIHRoYXQgd2UgCj4gY2FuIGRpc2N1c3MgYWZ0ZXIgdGhlIGNvcmUgY29kZSBnZXQg
-bWVyZ2VkLgo+Cj4gLUxvbmdtYW4KCldoeSBub3QgZG8gaXQgdGhlIHJpZ2h0IHdheSB0aGUgZmly
-c3QgdGltZSBhcm91bmQ/CgpUaGF0IGFzaWRlIC0gdGhlc2Ugb3B0aW1pemF0aW9uIC0gc2VlbSB0
-byBtYWtlIHRoZSBjb2RlIGhhcmRlciB0byByZWFkLiBBbmQgdGhleSBkbyByZW1pbmQgbWUgb2Yg
-dGhlIHNjaGVkdWxlciBjb2RlIGluIDIuNi54IHdoaWNoIHdhcyBiYXNlZCBvbiBoZXVyaXN0aWNz
-IC0gYW5kIGV2ZW50dWFsbHkgcmlwcGVkIG91dC4KClNvIGFyZSB0aGVzZSBvcHRpbWl6YXRpb25z
-IGJhc2VkIG9uIHR1cm5pbmcgb2ZmIGNlcnRhaW4gaGFyZHdhcmUgZmVhdHVyZXM/IFNheSBoYXJk
-d2FyZSBwcmVmZXRjaGluZz8KCldoYXQgSSBhbSBnZXR0aW5nIGF0IC0gY2FuIHRoZSBoYXJkd2Fy
-ZSBkbyB0aGlzIGF0IHNvbWUgcG9pbnQgKG9yIHBlcmhhcHMgYWxyZWFkeSBkb2VzIG9uIEl2eUJy
-aWRnZS1FWD8pIC0gdGhhdCBpcyBwcmVmZXRjaCB0aGUgcGVyLWNwdSBhcmVhcyBzbyB0aGV5IGFy
-ZSBhbHdheXMgaG90PyBBbmQgcmVuZGVyaW5nIHRoaXMgb3B0aW1pemF0aW9uIG5vdCBuZWVkZWQ/
-CgpUaGFua3MhCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Wed, Jun 18, 2014 at 12:34 AM, Paolo Bonzini <pbonzini@redhat.com> wrote:
+> Il 17/06/2014 18:00, Ming Lei ha scritto:
+>
+>>> > If you want to do queue steering based on the guest VCPU number, the
+>>> > number
+>>> > of queues must be = to the number of VCPUs shouldn't it?
+>>> >
+>>> > I tried using a divisor of the number of VCPUs, but couldn't get the
+>>> > block
+>>> > layer to deliver interrupts to the right VCPU.
+>>
+>> For blk-mq's hardware queue, that won't be necessary to equal to
+>> VCPUs number, and irq affinity per hw queue can be simply set as
+>> blk_mq_hw_ctx->cpumask.
+>
+>
+> Yes, but on top of that you want to have each request processed exactly by
+> the CPU that sent it.  Unless the cpumasks are singletons, most of the
+> benefit went away in my virtio-scsi tests.  Perhaps blk-mq is smarter.
+>
+> Can you try benchmarking a 16 VCPU guest with 8 and 16 queues?
+
+From VM side, it might be better to use one hardware queue per vCPU,
+since in theory it can remove vq lock contention.
+
+But from host side, there is still disadvantage with more queues, since
+more queues means more notify times, in my virtio-blk test, even with
+ioeventfd, one notification may take ~3us averagely on qemu-system-x86_64.
+
+For virtio-blk, I don't think it is always better to take more queues, and
+we need to leverage below things in host side:
+
+- host storage top performance, generally it reaches that with more
+than 1 jobs with libaio(suppose it is N, so basically we can use N
+iothread per device in qemu to try to get top performance)
+
+- iothreads' loading(if iothreads are at full loading, increasing
+queues doesn't help at all)
+
+In my test, I only use the current per-dev iothread(x-dataplane)
+in qemu to handle 2 vqs' notification and precess all I/O from
+the 2 vqs, and looks it can improve IOPS by ~30%.
+
+For virtio-scsi, the current usage doesn't make full use of blk-mq's
+advantage too because only one vq is active at the same time, so I
+guess the multi vqs' benefit won't be very much and I'd like to post
+patches to support that first, then provide test data with
+more queues(8, 16).
+
+
+Thanks,
+--
+Ming Lei
