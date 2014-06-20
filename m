@@ -1,15 +1,11 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH 10/11] qspinlock: Paravirt support
-Date: Fri, 20 Jun 2014 09:46:08 -0400
-Message-ID: <20140620134608.GA11545@laptop.dumpdata.com>
-References: <20140615124657.264658593@chello.nl>
-	<20140615130154.213923590@chello.nl>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: [PATCH v1 0/2] block: virtio-blk: support multi vq per virtio-blk
+Date: Fri, 20 Jun 2014 23:29:38 +0800
+Message-ID: <1403278181-28455-1-git-send-email-ming.lei@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20140615130154.213923590@chello.nl>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,54 +15,63 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, gleb@redhat.com, kvm@vger.kernel.org, boris.ostrovsky@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Peter Zijlstra <peterz@infradead.org>, chegu_vinod@hp.com, david.vrabel@citrix.com, oleg@redhat.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
+To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jun 15, 2014 at 02:47:07PM +0200, Peter Zijlstra wrote:
-> Add minimal paravirt support.
-> 
-> The code aims for minimal impact on the native case.
+Hi,
 
-Woot!
-> 
-> On the lock side we add one jump label (asm_goto) and 4 paravirt
-> callee saved calls that default to NOPs. The only effects are the
-> extra NOPs and some pointless MOVs to accomodate the calling
-> convention. No register spills happen because of this (x86_64).
-> 
-> On the unlock side we have one paravirt callee saved call, which
-> defaults to the actual unlock sequence: "movb $0, (%rdi)" and a NOP.
-> 
-> The actual paravirt code comes in 3 parts;
-> 
->  - init_node; this initializes the extra data members required for PV
->    state. PV state data is kept 1 cacheline ahead of the regular data.
-> 
->  - link_and_wait_node/kick_node; these are paired with the regular MCS
->    queueing and are placed resp. before/after the paired MCS ops.
-> 
->  - wait_head/queue_unlock; the interesting part here is finding the
->    head node to kick.
-> 
-> Tracking the head is done in two parts, firstly the pv_wait_head will
-> store its cpu number in whichever node is pointed to by the tail part
-> of the lock word. Secondly, pv_link_and_wait_node() will propagate the
-> existing head from the old to the new tail node.
+These patches try to support multi virtual queues(multi-vq) in one
+virtio-blk device, and maps each virtual queue(vq) to blk-mq's
+hardware queue.
 
-I dug in the code and I have some comments about it, but before
-I post them I was wondering if you have any plans to run any performance
-tests against the PV ticketlock with normal and over-committed scenarios?
+With this approach, both scalability and performance on virtio-blk
+device can get improved.
 
-Looking at this with a pen and paper I see that compared to
-PV ticketlock for the CPUs that are contending on the queue (so they
-go to pv_wait_head_and_link, then progress to pv_wait_head), they
-go sleep twice and get woken up twice. In PV ticketlock the
-contending CPUs would only go to sleep once and woken up once it
-was their turn.
+For verifying the improvement, I implements virtio-blk multi-vq over
+qemu's dataplane feature, and both handling host notification
+from each vq and processing host I/O are still kept in the per-device
+iothread context, the change is based on qemu v2.0.0 release, and
+can be accessed from below tree:
 
-That of course is the worst case scenario - where the CPU
-that has the lock is taking forever to do its job and the
-host is quite overcommitted.
+        git://kernel.ubuntu.com/ming/qemu.git #v2.0.0-virtblk-mq.1
 
-Thanks!
+For enabling the multi-vq feature, 'num_queues=N' need to be added into
+'-device virtio-blk-pci ...' of qemu command line, and suggest to pass
+'vectors=N+1' to keep one MSI irq vector per each vq, and the feature
+depends on x-data-plane.
+
+Fio(libaio, randread, iodepth=64, bs=4K, jobs=N) is run inside VM to
+verify the improvement.
+
+I just create a small quadcore VM and run fio inside the VM, and
+num_queues of the virtio-blk device is set as 2, but looks the
+improvement is still obvious.
+
+1), about scalability
+- without mutli-vq feature
+        -- jobs=2, thoughput: 145K iops
+        -- jobs=4, thoughput: 100K iops
+- with mutli-vq feature
+        -- jobs=2, thoughput: 186K iops
+        -- jobs=4, thoughput: 199K iops
+
+2), about thoughput
+- without mutli-vq feature
+        -- top thoughput: 145K iops
+- with mutli-vq feature
+		-- top thoughput: 199K iops
+
+So in my test, even for a quad-core VM, if the virtqueue number
+is increased from 1 to 2, both scalability and performance can
+get improved a lot.
+
+V1:
+	- remove RFC since no one objects
+	- add '__u8 unused' for pending as suggested by Rusty
+	- use virtio_cread_feature() directly, suggested by Rusty
+
+
+Thanks,
+--
+Ming Lei
