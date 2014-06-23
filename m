@@ -1,14 +1,17 @@
-From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Subject: Re: [PATCH 11/11] qspinlock, kvm: Add paravirt support
-Date: Sun, 22 Jun 2014 22:06:18 +0530
-Message-ID: <53A70602.8020000@linux.vnet.ibm.com>
-References: <20140615124657.264658593@chello.nl>
-	<20140615130154.400698797@chello.nl>
+From: Dave Chinner <david@fromorbit.com>
+Subject: Re: [PATCH v1 2/2] block: virtio-blk: support multi virt queues per
+	virtio-blk device
+Date: Mon, 23 Jun 2014 13:42:51 +1000
+Message-ID: <20140623034251.GR4453@dastard>
+References: <1403278181-28455-1-git-send-email-ming.lei@canonical.com>
+	<1403278181-28455-3-git-send-email-ming.lei@canonical.com>
+	<20140622102448.GB17067@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20140615130154.400698797@chello.nl>
+Content-Disposition: inline
+In-Reply-To: <20140622102448.GB17067@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,79 +21,51 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, gleb@redhat.com, kvm@vger.kernel.org, konrad.wilk@oracle.com, boris.ostrovsky@oracle.com, scott.norton@hp.com, paolo.bonzini@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Peter Zijlstra <peterz@infradead.org>, chegu_vinod@hp.com, david.vrabel@citrix.com, oleg@redhat.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-api@vger.kernel.org, Ming Lei <ming.lei@canonical.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 06/15/2014 06:17 PM, Peter Zijlstra wrote:
-> Signed-off-by: Peter Zijlstra<peterz@infradead.org>
-> ---
-[...]
-> +
-> +void kvm_wait(int *ptr, int val)
-> +{
-> +	unsigned long flags;
-> +
-> +	if (in_nmi())
-> +		return;
-> +
-> +	/*
-> +	 * Make sure an interrupt handler can't upset things in a
-> +	 * partially setup state.
-> +	 */
+On Sun, Jun 22, 2014 at 01:24:48PM +0300, Michael S. Tsirkin wrote:
+> On Fri, Jun 20, 2014 at 11:29:40PM +0800, Ming Lei wrote:
+> > @@ -24,8 +26,8 @@ static struct workqueue_struct *virtblk_wq;
+> >  struct virtio_blk
+> >  {
+> >  	struct virtio_device *vdev;
+> > -	struct virtqueue *vq;
+> > -	spinlock_t vq_lock;
+> > +	struct virtqueue *vq[MAX_NUM_VQ];
+> > +	spinlock_t vq_lock[MAX_NUM_VQ];
+> 
+> array of struct {
+>     *vq;
+>     spinlock_t lock;
+> }
+> would use more memory but would get us better locality.
+> It might even make sense to add padding to avoid
+> cacheline sharing between two unrelated VQs.
+> Want to try?
 
-I am seeing hang with even 2 cpu guest (with patches on top of 3.15-rc6 ).
-looking further with gdb I see one cpu is stuck with native_halt with
-slowpath flag(_Q_LOCKED_SLOW) set when it was called.
+It's still false sharing because the queue objects share cachelines.
+To operate without contention they have to be physically separated
+from each other like so:
 
-(gdb) bt
-#0  native_halt () at /test/master/arch/x86/include/asm/irqflags.h:55
-#1  0xffffffff81033118 in halt (ptr=0xffffffff81eb0e58, val=524291) at 
-/test/master/arch/x86/include/asm/paravirt.h:116
-#2  kvm_wait (ptr=0xffffffff81eb0e58, val=524291) at 
-arch/x86/kernel/kvm.c:835
-#3  kvm_wait (ptr=0xffffffff81eb0e58, val=524291) at 
-arch/x86/kernel/kvm.c:809
-#4  0xffffffff810a2d8e in pv_wait (lock=0xffffffff81eb0e58) at 
-/test/master/arch/x86/include/asm/paravirt.h:744
-#5  __pv_wait_head (lock=0xffffffff81eb0e58) at 
-kernel/locking/qspinlock.c:352
+struct vq {
+	struct virtqueue	*q;
+	spinlock_t		lock;
+} ____cacheline_aligned_in_smp;
 
-Value of lock seem to be 524288 (means already unlocked?)
-So apart from races Waiman mentioned, are we also in need of smp_mb()
-here and/or native_queue_unlock()?.
+struct some_other_struct {
+	....
+	struct vq	vq[MAX_NUM_VQ];
+	....
+};
 
-Interestingly I see other cpu stuck at multi_cpu_stop().
+This keeps locality to objects within a queue, but separates each
+queue onto it's own cacheline....
 
-(gdb) thr 1
-[Switching to thread 1 (Thread 1)]#0  multi_cpu_stop 
-(data=0xffff8802140d1da0) at kernel/stop_machine.c:192
-192			if (msdata->state != curstate) {
+Cheers,
 
-Or is it I am missing something.
-
-please let me know if .config need to be shared.
-
-> +	local_irq_save(flags);
-> +
-> +	/*
-> +	 * check again make sure it didn't become free while
-> +	 * we weren't looking.
-> +	 */
-> +	if (ACCESS_ONCE(*ptr) != val)
-> +		goto out;
-> +
-> +	/*
-> +	 * halt until it's our turn and kicked. Note that we do safe halt
-> +	 * for irq enabled case to avoid hang when lock info is overwritten
-> +	 * in irq spinlock slowpath and no spurious interrupt occur to save us.
-> +	 */
-> +	if (arch_irqs_disabled_flags(flags))
-> +		halt();
-> +	else
-> +		safe_halt();
-> +
-> +out:
-> +	local_irq_restore(flags);
-> +}
-> +#endif /* QUEUE_SPINLOCK */
+Dave.
+-- 
+Dave Chinner
+david@fromorbit.com
