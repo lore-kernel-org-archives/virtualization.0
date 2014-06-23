@@ -1,17 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v1 2/2] block: virtio-blk: support multi virt queues per
-	virtio-blk device
-Date: Mon, 23 Jun 2014 09:47:00 +0300
-Message-ID: <20140623064700.GA13810__20443.0415681147$1403506028$gmane$org@redhat.com>
-References: <1403278181-28455-1-git-send-email-ming.lei@canonical.com>
-	<1403278181-28455-3-git-send-email-ming.lei@canonical.com>
-	<20140622102448.GB17067@redhat.com> <20140623034251.GR4453@dastard>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 01/11] qspinlock: A simple generic 4-byte queue spinlock
+Date: Mon, 23 Jun 2014 17:56:50 +0200
+Message-ID: <20140623155650.GF19860__14475.9914292537$1403539051$gmane$org@laptop.programming.kicks-ass.net>
+References: <20140615124657.264658593@chello.nl>
+	<20140615130152.912524881@chello.nl>
+	<20140616204918.GA26140@laptop.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20140623034251.GR4453@dastard>
+In-Reply-To: <20140616204918.GA26140@laptop.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,156 +20,288 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Dave Chinner <david@fromorbit.com>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-api@vger.kernel.org, Ming Lei <ming.lei@canonical.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, gleb@redhat.com, kvm@vger.kernel.org, boris.ostrovsky@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, david.vrabel@citrix.com, oleg@redhat.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 23, 2014 at 01:42:51PM +1000, Dave Chinner wrote:
-> On Sun, Jun 22, 2014 at 01:24:48PM +0300, Michael S. Tsirkin wrote:
-> > On Fri, Jun 20, 2014 at 11:29:40PM +0800, Ming Lei wrote:
-> > > @@ -24,8 +26,8 @@ static struct workqueue_struct *virtblk_wq;
-> > >  struct virtio_blk
-> > >  {
-> > >  	struct virtio_device *vdev;
-> > > -	struct virtqueue *vq;
-> > > -	spinlock_t vq_lock;
-> > > +	struct virtqueue *vq[MAX_NUM_VQ];
-> > > +	spinlock_t vq_lock[MAX_NUM_VQ];
-> > 
-> > array of struct {
-> >     *vq;
-> >     spinlock_t lock;
-> > }
-> > would use more memory but would get us better locality.
-> > It might even make sense to add padding to avoid
-> > cacheline sharing between two unrelated VQs.
-> > Want to try?
+On Mon, Jun 16, 2014 at 04:49:18PM -0400, Konrad Rzeszutek Wilk wrote:
+> > Index: linux-2.6/kernel/locking/mcs_spinlock.h
+> > ===================================================================
+> > --- linux-2.6.orig/kernel/locking/mcs_spinlock.h
+> > +++ linux-2.6/kernel/locking/mcs_spinlock.h
+> > @@ -17,6 +17,7 @@
+> >  struct mcs_spinlock {
+> >  	struct mcs_spinlock *next;
+> >  	int locked; /* 1 if lock acquired */
+> > +	int count;
 > 
-> It's still false sharing because the queue objects share cachelines.
-> To operate without contention they have to be physically separated
-> from each other like so:
+> This could use a comment.
+
+like so?
+
+	int count; /* nesting count, see qspinlock.c */
+
+
+> > +static inline u32 encode_tail(int cpu, int idx)
+> > +{
+> > +	u32 tail;
+> > +
+> > +	tail  = (cpu + 1) << _Q_TAIL_CPU_OFFSET;
+> > +	tail |= idx << _Q_TAIL_IDX_OFFSET; /* assume < 4 */
 > 
-> struct vq {
-> 	struct virtqueue	*q;
-> 	spinlock_t		lock;
-> } ____cacheline_aligned_in_smp;
-
-Exacly, that's what I meant by padding above.
-
-> struct some_other_struct {
-> 	....
-> 	struct vq	vq[MAX_NUM_VQ];
-> 	....
-> };
+> Should there an
 > 
-> This keeps locality to objects within a queue, but separates each
-> queue onto it's own cacheline....
+> ASSSERT (idx < 4)
 > 
-> Cheers,
+> just in case we screw up somehow (I can't figure out how, but
+> that is partially why ASSERTS are added).
+
+#ifdef CONFIG_DEBUG_SPINLOCK
+	BUG_ON(idx > 3);
+#endif
+
+might do, I suppose.
+
+> > +/**
+> > + * queue_spin_lock_slowpath - acquire the queue spinlock
+> > + * @lock: Pointer to queue spinlock structure
+> > + * @val: Current value of the queue spinlock 32-bit word
+> > + *
+> > + * (queue tail, lock bit)
 > 
-> Dave.
-> -- 
-> Dave Chinner
-> david@fromorbit.com
+> Except it is not a lock bit. It is a lock uint8_t.
 
-To reduce the amount of memory wasted, we could add
-the lock in the VQ itself.
-Wastes 8 bytes of memory for devices which don't need it, but
-we can save it elsewhere (e.g. get rid of the list and
-the priv pointer).
+It is indeed, although that's an accident of implementation. I could do
+s/bit// and not mention the entire storage angle at all?
 
-How's this?  Your patch would go on top.
-Care benchmarking and telling us whether it makes sense?
-If yes please let me know and I'll send an official patchset.
+> Is the queue tail at this point the composite of 'cpu|idx'?
 
--->
+Yes, as per {en,de}code_tail() above.
 
-virtio-blk: move spinlock to vq itself
+> > + *
+> > + *              fast      :    slow                                  :    unlock
+> > + *                        :                                          :
+> > + * uncontended  (0,0)   --:--> (0,1) --------------------------------:--> (*,0)
+> > + *                        :       | ^--------.                    /  :
+> > + *                        :       v           \                   |  :
+> > + * uncontended            :    (n,x) --+--> (n,0)                 |  :
+> 
+> So many CPUn come in right? Is 'n' for the number of CPUs?
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Nope, 'n' for any one specific tail, in particular the first one to
+arrive. This is the 'uncontended queue' case as per the label, so we
+need a named value for the first, in order to distinguish between the
+state to the right (same tail, but unlocked) and the state below
+(different tail).
 
---
+> > + *   queue                :       | ^--'                          |  :
+> > + *                        :       v                               |  :
+> > + * contended              :    (*,x) --+--> (*,0) -----> (*,1) ---'  :
+> > + *   queue                :         ^--'                             :
+> 
+> And here um, what are the '*' for? Are they the four different
+> types of handlers that can be nested? So task, sofitrq, hardisk, and
+> nmi?
 
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index b46671e..0951b21 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -19,6 +19,7 @@
-  * @priv: a pointer for the virtqueue implementation to use.
-  * @index: the zero-based ordinal number for this queue.
-  * @num_free: number of elements we expect to be able to fit.
-+ * @lock: lock for optional use by devices. If used, devices must initialize it.
-  *
-  * A note on @num_free: with indirect buffers, each buffer needs one
-  * element in the queue, otherwise a buffer will need one element per
-@@ -31,6 +32,7 @@ struct virtqueue {
- 	struct virtio_device *vdev;
- 	unsigned int index;
- 	unsigned int num_free;
-+	spinlock_t lock;
- 	void *priv;
- };
- 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index f63d358..a3cdc19 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -25,7 +25,6 @@ struct virtio_blk
- {
- 	struct virtio_device *vdev;
- 	struct virtqueue *vq;
--	spinlock_t vq_lock;
- 
- 	/* The disk structure for the kernel. */
- 	struct gendisk *disk;
-@@ -137,7 +136,7 @@ static void virtblk_done(struct virtqueue *vq)
- 	unsigned long flags;
- 	unsigned int len;
- 
--	spin_lock_irqsave(&vblk->vq_lock, flags);
-+	spin_lock_irqsave(&vblk->vq->lock, flags);
- 	do {
- 		virtqueue_disable_cb(vq);
- 		while ((vbr = virtqueue_get_buf(vblk->vq, &len)) != NULL) {
-@@ -151,7 +150,7 @@ static void virtblk_done(struct virtqueue *vq)
- 	/* In case queue is stopped waiting for more buffers. */
- 	if (req_done)
- 		blk_mq_start_stopped_hw_queues(vblk->disk->queue, true);
--	spin_unlock_irqrestore(&vblk->vq_lock, flags);
-+	spin_unlock_irqrestore(&vblk->vq->lock, flags);
- }
- 
- static int virtio_queue_rq(struct blk_mq_hw_ctx *hctx, struct request *req)
-@@ -202,12 +201,12 @@ static int virtio_queue_rq(struct blk_mq_hw_ctx *hctx, struct request *req)
- 			vbr->out_hdr.type |= VIRTIO_BLK_T_IN;
- 	}
- 
--	spin_lock_irqsave(&vblk->vq_lock, flags);
-+	spin_lock_irqsave(&vblk->vq->lock, flags);
- 	err = __virtblk_add_req(vblk->vq, vbr, vbr->sg, num);
- 	if (err) {
- 		virtqueue_kick(vblk->vq);
- 		blk_mq_stop_hw_queue(hctx);
--		spin_unlock_irqrestore(&vblk->vq_lock, flags);
-+		spin_unlock_irqrestore(&vblk->vq->lock, flags);
- 		/* Out of mem doesn't actually happen, since we fall back
- 		 * to direct descriptors */
- 		if (err == -ENOMEM || err == -ENOSPC)
-@@ -217,7 +216,7 @@ static int virtio_queue_rq(struct blk_mq_hw_ctx *hctx, struct request *req)
- 
- 	if (last && virtqueue_kick_prepare(vblk->vq))
- 		notify = true;
--	spin_unlock_irqrestore(&vblk->vq_lock, flags);
-+	spin_unlock_irqrestore(&vblk->vq->lock, flags);
- 
- 	if (notify)
- 		virtqueue_notify(vblk->vq);
-@@ -551,7 +550,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	err = init_vq(vblk);
- 	if (err)
- 		goto out_free_vblk;
--	spin_lock_init(&vblk->vq_lock);
-+	spin_lock_init(&vblk->vq->lock);
- 
- 	/* FIXME: How many partitions?  How long is a piece of string? */
- 	vblk->disk = alloc_disk(1 << PART_BITS);
+'*' as in wildcard, any tail, specifically not 'n'.
+
+> > +void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+> > +{
+> > +	struct mcs_spinlock *prev, *next, *node;
+> > +	u32 new, old, tail;
+> > +	int idx;
+> > +
+> > +	BUILD_BUG_ON(CONFIG_NR_CPUS >= (1U << _Q_TAIL_CPU_BITS));
+> > +
+> > +	node = this_cpu_ptr(&mcs_nodes[0]);
+> > +	idx = node->count++;
+> 
+> If this is the first time we enter this, wouldn't idx end up
+> being 1?
+
+Nope, postfix ++ returns first and increments later.
+
+> > +	tail = encode_tail(smp_processor_id(), idx);
+> > +
+> > +	node += idx;
+> 
+> Meaning we end up skipping the 'mcs_nodes[0]' one altogether - even
+> on the first 'level' (task, softirq, hardirq, nmi)? Won't that
+> cause us to blow past the array when we are nested at the nmi
+> handler?
+
+Seeing how its all static storage, which is automagically initialized to
+0, combined with the postfix ++ (as opposed to the prefix ++) we should
+be getting 0 here.
+
+> > +	node->locked = 0;
+> > +	node->next = NULL;
+> > +
+> > +	/*
+> > +	 * trylock || xchg(lock, node)
+> > +	 *
+> > +	 * 0,0 -> 0,1 ; trylock
+> > +	 * p,x -> n,x ; prev = xchg(lock, node)
+> 
+> I looked at that for 10 seconds and I was not sure what you meant.
+> Is this related to the MCS document you had pointed to? It would help
+> if you mention that the comments follow the document. (But they
+> don't seem to)
+> 
+> I presume what you mean is that if we are the next after the
+> lock-holder we need only to update the 'next' (or the
+> composite value of smp_processor_idx | idx) to point to us.
+> 
+> As in, swap the 'L' with 'I' (looking at the doc)
+
+They are the 'tail','lock' tuples, so this composite atomic operation
+completes either:
+
+  0,0 -> 0,1  -- we had no tail, not locked; into: no tail, locked.
+
+OR
+
+  p,x -> n,x  -- tail was p; into: tail is n; preserving locked.
+
+> > +	 */
+> > +	for (;;) {
+> > +		new = _Q_LOCKED_VAL;
+> > +		if (val)
+> 
+> Could you add a comment here, like this:
+> 
+> /*
+>  * N.B. Initially 'val' will have some value (as we are called
+>  * after the _Q_LOCKED_VAL could not be set by queue_spin_lock).
+>  * But on subsequent iterations, either the lock holder will
+>  * decrement the val (queue_spin_unlock - to zero) and we
+>  * needn't to record our status in the queue as we have set the
+>  * Q_LOCKED_VAL (new) and are the lock holder. Or we are next
+>  * in line and need to record our 'next' (aka, smp_processor_id() | idx)
+>  * position. */
+>  */
+
+The idea was that:
+
+  0,0 -> 0,1
+  p,x -> n,x
+
+Completely covers what this composite atomic does.
+
+> > +			new = tail | (val & _Q_LOCKED_MASK);
+> > +
+> > +		old = atomic_cmpxchg(&lock->val, val, new);
+> > +		if (old == val)
+> > +			break;
+> > +
+> > +		val = old;
+> > +	}
+> > +
+> > +	/*
+> > +	 * we won the trylock; forget about queueing.
+> > +	 */
+> > +	if (new == _Q_LOCKED_VAL)
+> > +		goto release;
+> > +
+> > +	/*
+> > +	 * if there was a previous node; link it and wait.
+> > +	 */
+> > +	if (old & ~_Q_LOCKED_MASK) {
+> > +		prev = decode_tail(old);
+> > +		ACCESS_ONCE(prev->next) = node;
+> > +
+> > +		arch_mcs_spin_lock_contended(&node->locked);
+> > +	}
+> > +
+> > +	/*
+> > +	 * we're at the head of the waitqueue, wait for the owner to go away.
+> > +	 *
+> > +	 * *,x -> *,0
+> > +	 */
+> > +	while ((val = atomic_read(&lock->val)) & _Q_LOCKED_MASK)
+> > +		cpu_relax();
+> > +
+> > +	/*
+> > +	 * claim the lock:
+> > +	 *
+> > +	 * n,0 -> 0,1 : lock, uncontended
+> > +	 * *,0 -> *,1 : lock, contended
+> > +	 */
+> > +	for (;;) {
+> > +		new = _Q_LOCKED_VAL;
+> > +		if (val != tail)
+> > +			new |= val;
+> 
+> You lost me here. If we are at the head of the queue, and the owner
+> has called queue_spin_unlock (hence made us get out of the 'val = atomic_read'
+> loop, how can val != tail?
+
+Remember:
+
+> > +	tail = encode_tail(smp_processor_id(), idx);
+
+So if value != tail, that means the tail pointer doesn't point to us
+anymore, another cpu/idx queued itself and is now last.
+
+> I suspect it has something to do with the comment, but I am still unsure
+> what it means.
+> 
+> Could you help a bit in explaining it in English please?
+
+(refer to the state diagram, if we count states left->right,
+top->bottom, then this is: 5->2 or 7->8
+
+ n,0 -> 0,1:
+
+   the lock is free and the tail points to the first queued; this means
+   that unqueueing implies wiping the tail, at the same time, acquire
+   the lock.
+
+ *,0 -> *,1:
+
+   the lock is free and the tail doesn't point to the first queued; this
+   means that unqueueing doesn't touch the tail pointer but only sets
+   the lock.
+
+> > +
+> > +		old = atomic_cmpxchg(&lock->val, val, new);
+> > +		if (old == val)
+> > +			break;
+> > +
+> > +		val = old;
+> > +	}
+> > +
+> > +	/*
+> > +	 * contended path; wait for next, release.
+> > +	 */
+> > +	if (new != _Q_LOCKED_VAL) {
+> 
+> Hm, wouldn't it be just easier to do a 'goto restart' where
+> restart label points at the first loop statement? Ah never
+> mind - we have already inserted ourselves in the previous's
+> node.
+> 
+> But that is confusing - we have done: "prev->next = node;"
+> 
+> And then exited out of 'val = atomic_read(&lock->val))' which
+> suggests that queue_spin_unlock has called us. How can we be
+> contended again?
+
+We're not contended again; we're in the 'contended queued' case, which
+means that 'tail' didn't point to us anymore, in that case, we must kick
+our next node such that it will now drop out of
+arch_mcs_spin_lock_contended() and goes wait on the 'locked' state.
+
+So what we do here is wait for 'node->next' to be set; it might still be
+NULL if the other cpu is between:
+
+  prev = xchg(lock->tail, node);
+
+and:
+
+  prev->next = node;
+
+Once we observe the next node, we call arch_mcs_spin_unlock_contended()
+on it, which sets its mcs_spinlock::locked and makes the new 'top of
+queue' drop out of arch_mcs_spin_lock_contended and spin on the 'locked'
+state as said above.
