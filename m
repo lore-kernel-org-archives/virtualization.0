@@ -1,16 +1,18 @@
 From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH 03/11] qspinlock: Add pending bit
-Date: Mon, 23 Jun 2014 18:35:14 +0200
-Message-ID: <20140623163514.GI19860@laptop.programming.kicks-ass.net>
+Date: Tue, 24 Jun 2014 10:24:22 +0200
+Message-ID: <20140624082422.GM13930@laptop.programming.kicks-ass.net>
 References: <20140615124657.264658593@chello.nl>
 	<20140615130153.196728583@chello.nl>
 	<20140617203615.GA29634@laptop.dumpdata.com>
+	<53A0AA6D.1070708@hp.com>
+	<20140617210729.GB31817@laptop.dumpdata.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20140617203615.GA29634@laptop.dumpdata.com>
+In-Reply-To: <20140617210729.GB31817@laptop.dumpdata.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,55 +23,15 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, gleb@redhat.com, kvm@vger.kernel.org, boris.ostrovsky@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, david.vrabel@citrix.com, oleg@redhat.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
+Cc: Waiman Long <waiman.long@hp.com>, linux-arch@vger.kernel.org, riel@redhat.com, gleb@redhat.com, kvm@vger.kernel.org, boris.ostrovsky@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, david.vrabel@citrix.com, oleg@redhat.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 17, 2014 at 04:36:15PM -0400, Konrad Rzeszutek Wilk wrote:
-> On Sun, Jun 15, 2014 at 02:47:00PM +0200, Peter Zijlstra wrote:
-> > Because the qspinlock needs to touch a second cacheline; add a pending
-> > bit and allow a single in-word spinner before we punt to the second
-> > cacheline.
+On Tue, Jun 17, 2014 at 05:07:29PM -0400, Konrad Rzeszutek Wilk wrote:
+> > We are trying to make the fastpath as simple as possible as it may be
+> > inlined. The complexity of the queue spinlock is in the slowpath.
 > 
-> Could you add this in the description please:
-> 
-> And by second cacheline we mean the local 'node'. That is the:
-> mcs_nodes[0] and mcs_nodes[idx]
+> Sure, but then it shouldn't be called slowpath anymore as it is not
+> slow.
 
-Those should be the very same cacheline :), but yes, I can add something
-like that.
-
-> Perhaps it might be better then to split this in the header file
-> as this is trying to not be a slowpath code - but rather - a
-> pre-slow-path-lets-try-if-we can do another cmpxchg in case
-> the unlocker has just unlocked itself.
-> 
-> So something like:
-> 
-> diff --git a/include/asm-generic/qspinlock.h b/include/asm-generic/qspinlock.h
-> index e8a7ae8..29cc9c7 100644
-> --- a/include/asm-generic/qspinlock.h
-> +++ b/include/asm-generic/qspinlock.h
-> @@ -75,11 +75,21 @@ extern void queue_spin_lock_slowpath(struct qspinlock *lock, u32 val);
->   */
->  static __always_inline void queue_spin_lock(struct qspinlock *lock)
->  {
-> -	u32 val;
-> +	u32 val, new;
->  
->  	val = atomic_cmpxchg(&lock->val, 0, _Q_LOCKED_VAL);
->  	if (likely(val == 0))
->  		return;
-> +
-> +	/* One more attempt - but if we fail mark it as pending. */
-> +	if (val == _Q_LOCKED_VAL) {
-> +		new = Q_LOCKED_VAL |_Q_PENDING_VAL;
-> +
-> +		old = atomic_cmpxchg(&lock->val, val, new);
-> +		if (old == _Q_LOCKED_VAL) /* YEEY! */
-> +			return;
-> +		val = old;
-> +	}
->  	queue_spin_lock_slowpath(lock, val);
->  }
-
-I think that's too big for an inline function.
+Its common terminology to call the inline part the fast path and the
+out-of-line call on failure the slow path.
