@@ -1,18 +1,12 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 04/11] qspinlock: Extract out the exchange of tail code
-	word
-Date: Tue, 24 Jun 2014 12:47:02 +0200
-Message-ID: <20140624104702.GO13930@laptop.programming.kicks-ass.net>
-References: <20140615124657.264658593@chello.nl>
-	<20140615130153.376621956@chello.nl>
-	<20140617205525.GB29634@laptop.dumpdata.com>
-	<53A17A09.6010007@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PULL] vhost: cleanups and fixes
+Date: Wed, 25 Jun 2014 14:05:39 +0300
+Message-ID: <20140625110539.GA7386@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <53A17A09.6010007@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,22 +16,38 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Waiman.Long@hp.com, linux-arch@vger.kernel.org, riel@redhat.com, gleb@redhat.com, kvm@vger.kernel.org, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, boris.ostrovsky@oracle.com, scott.norton@hp.com, raghavendra.kt@linux.vnet.ibm.com, paolo.bonzini@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, chegu_vinod@hp.com, david.vrabel@citrix.com, oleg@redhat.com, xen-devel@lists.xenproject.org, tglx@linutronix.de, paulmck@linux.vnet.ibm.com, torvalds@linux-foundation.org, mingo@kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, romain@orebokech.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 18, 2014 at 01:37:45PM +0200, Paolo Bonzini wrote:
-> However, I *do* agree with you that it's simpler to just squash this patch
-> into 01/11.
+The following changes since commit a497c3ba1d97fc69c1e78e7b96435ba8c2cb42ee:
 
-So I explicitly broke out these optimizations into separate patches so
-that we can see them independently and agree they're idempotent wrt the
-state machine.
+  Linux 3.16-rc2 (2014-06-21 19:02:54 -1000)
 
-The initial patches by Waiman were totally unreadable, partly because
-the optimizations made the code terribly complex.
+are available in the git repository at:
 
-Luckily waiman then dropped the most horrible optimizations
-(optimization for the very large nr_cpus case, were we cannot have a
-pending byte), so the end result isn't quite as complex as it used to
-be.
+  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 68404441557d8db5ac853379a4fb9c1adedea4fd:
+
+  vhost-scsi: don't open-code kvfree (2014-06-23 09:22:48 +0300)
+
+----------------------------------------------------------------
+vhost: infrastructure fixes for 3.16
+
+Two cleanup patches removing code duplication that got introduced by changes in
+rc1.  Not fixing crashes, but I'd rather not carry the duplicate code until the
+next merge window.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Michael S. Tsirkin (1):
+      vhost-scsi: don't open-code kvfree
+
+Romain Francoise (1):
+      vhost-net: don't open-code kvfree
+
+ drivers/vhost/net.c  | 12 ++----------
+ drivers/vhost/scsi.c | 12 ++----------
+ 2 files changed, 4 insertions(+), 20 deletions(-)
