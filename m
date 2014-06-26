@@ -1,13 +1,14 @@
-From: Jens Axboe <axboe@kernel.dk>
+From: Ming Lei <ming.lei@canonical.com>
 Subject: Re: [PATCH v2 0/2] block: virtio-blk: support multi vq per virtio-blk
-Date: Wed, 25 Jun 2014 23:05:56 -0600
-Message-ID: <53ABAA34.6070006__10521.5102470995$1403759173$gmane$org@kernel.dk>
+Date: Thu, 26 Jun 2014 13:28:13 +0800
+Message-ID: <CACVXFVN4_uRKF4vsvACF43d9Km1rY8Qomwbs+6j2=PFz2eB2+w__31444.4985277534$1403760509$gmane$org@mail.gmail.com>
 References: <1403748526-1923-1-git-send-email-ming.lei@canonical.com>
+	<53ABAA34.6070006@kernel.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1403748526-1923-1-git-send-email-ming.lei@canonical.com>
+In-Reply-To: <53ABAA34.6070006@kernel.dk>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,65 +18,78 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Ming Lei <ming.lei@canonical.com>, linux-kernel@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2014-06-25 20:08, Ming Lei wrote:
-> Hi,
+On Thu, Jun 26, 2014 at 1:05 PM, Jens Axboe <axboe@kernel.dk> wrote:
+> On 2014-06-25 20:08, Ming Lei wrote:
+>>
+>> Hi,
+>>
+>> These patches try to support multi virtual queues(multi-vq) in one
+>> virtio-blk device, and maps each virtual queue(vq) to blk-mq's
+>> hardware queue.
+>>
+>> With this approach, both scalability and performance on virtio-blk
+>> device can get improved.
+>>
+>> For verifying the improvement, I implements virtio-blk multi-vq over
+>> qemu's dataplane feature, and both handling host notification
+>> from each vq and processing host I/O are still kept in the per-device
+>> iothread context, the change is based on qemu v2.0.0 release, and
+>> can be accessed from below tree:
+>>
+>>         git://kernel.ubuntu.com/ming/qemu.git #v2.0.0-virtblk-mq.1
+>>
+>> For enabling the multi-vq feature, 'num_queues=N' need to be added into
+>> '-device virtio-blk-pci ...' of qemu command line, and suggest to pass
+>> 'vectors=N+1' to keep one MSI irq vector per each vq, and the feature
+>> depends on x-data-plane.
+>>
+>> Fio(libaio, randread, iodepth=64, bs=4K, jobs=N) is run inside VM to
+>> verify the improvement.
+>>
+>> I just create a small quadcore VM and run fio inside the VM, and
+>> num_queues of the virtio-blk device is set as 2, but looks the
+>> improvement is still obvious.
+>>
+>> 1), about scalability
+>> - without mutli-vq feature
+>>         -- jobs=2, thoughput: 145K iops
+>>         -- jobs=4, thoughput: 100K iops
+>> - with mutli-vq feature
+>>         -- jobs=2, thoughput: 193K iops
+>>         -- jobs=4, thoughput: 202K iops
+>>
+>> 2), about thoughput
+>> - without mutli-vq feature
+>>         -- thoughput: 145K iops
+>> - with mutli-vq feature
+>>         -- thoughput: 202K iops
 >
-> These patches try to support multi virtual queues(multi-vq) in one
-> virtio-blk device, and maps each virtual queue(vq) to blk-mq's
-> hardware queue.
 >
-> With this approach, both scalability and performance on virtio-blk
-> device can get improved.
->
-> For verifying the improvement, I implements virtio-blk multi-vq over
-> qemu's dataplane feature, and both handling host notification
-> from each vq and processing host I/O are still kept in the per-device
-> iothread context, the change is based on qemu v2.0.0 release, and
-> can be accessed from below tree:
->
-> 	git://kernel.ubuntu.com/ming/qemu.git #v2.0.0-virtblk-mq.1
->
-> For enabling the multi-vq feature, 'num_queues=N' need to be added into
-> '-device virtio-blk-pci ...' of qemu command line, and suggest to pass
-> 'vectors=N+1' to keep one MSI irq vector per each vq, and the feature
-> depends on x-data-plane.
->
-> Fio(libaio, randread, iodepth=64, bs=4K, jobs=N) is run inside VM to
-> verify the improvement.
->
-> I just create a small quadcore VM and run fio inside the VM, and
-> num_queues of the virtio-blk device is set as 2, but looks the
-> improvement is still obvious.
->
-> 1), about scalability
-> - without mutli-vq feature
-> 	-- jobs=2, thoughput: 145K iops
-> 	-- jobs=4, thoughput: 100K iops
-> - with mutli-vq feature
-> 	-- jobs=2, thoughput: 193K iops
-> 	-- jobs=4, thoughput: 202K iops
->
-> 2), about thoughput
-> - without mutli-vq feature
-> 	-- thoughput: 145K iops
-> - with mutli-vq feature
-> 	-- thoughput: 202K iops
+> Of these numbers, I think it's important to highlight that the 2 thread case
+> is 33% faster and the 2 -> 4 thread case scales linearly (100%) while the
+> pre-patch case sees negative scaling going from 2 -> 4 threads (-39%).
 
-Of these numbers, I think it's important to highlight that the 2 thread 
-case is 33% faster and the 2 -> 4 thread case scales linearly (100%) 
-while the pre-patch case sees negative scaling going from 2 -> 4 threads 
-(-39%).
+This is because my qemu implementation on multi vq only uses
+single iothread to handle requests from all vqs, and the only iothread
+is already at full load now, that said on host side the
+same fio test(single job) results is ~200K iops too.
 
-I haven't run your patches yet, but from looking at the code, it looks 
-good. It's pretty straightforward. See feel free to add my reviewed-by.
+>
+> I haven't run your patches yet, but from looking at the code, it looks good.
+> It's pretty straightforward. See feel free to add my reviewed-by.
 
-Rusty, do you want to ack this (and I'll slurp it up for 3.17) or take 
-this yourself? Or something else?
+Thanks a lot.
 
+>
+> Rusty, do you want to ack this (and I'll slurp it up for 3.17) or take this
+> yourself? Or something else?
 
--- 
-Jens Axboe
+That is great if this can be merged to 3.17.
+
+Thanks,
+--
+Ming Lei
