@@ -1,12 +1,11 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Wed, 25 Jun 2014 14:05:39 +0300
-Message-ID: <20140625110539.GA7386@redhat.com>
+From: Ming Lei <ming.lei@canonical.com>
+Subject: [PATCH v2 0/2] block: virtio-blk: support multi vq per virtio-blk
+Date: Thu, 26 Jun 2014 10:08:44 +0800
+Message-ID: <1403748526-1923-1-git-send-email-ming.lei__40830.5871453651$1403748572$gmane$org@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,38 +15,70 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, romain@orebokech.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit a497c3ba1d97fc69c1e78e7b96435ba8c2cb42ee:
+Hi,
 
-  Linux 3.16-rc2 (2014-06-21 19:02:54 -1000)
+These patches try to support multi virtual queues(multi-vq) in one
+virtio-blk device, and maps each virtual queue(vq) to blk-mq's
+hardware queue.
 
-are available in the git repository at:
+With this approach, both scalability and performance on virtio-blk
+device can get improved.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+For verifying the improvement, I implements virtio-blk multi-vq over
+qemu's dataplane feature, and both handling host notification
+from each vq and processing host I/O are still kept in the per-device
+iothread context, the change is based on qemu v2.0.0 release, and
+can be accessed from below tree:
 
-for you to fetch changes up to 68404441557d8db5ac853379a4fb9c1adedea4fd:
+	git://kernel.ubuntu.com/ming/qemu.git #v2.0.0-virtblk-mq.1
 
-  vhost-scsi: don't open-code kvfree (2014-06-23 09:22:48 +0300)
+For enabling the multi-vq feature, 'num_queues=N' need to be added into
+'-device virtio-blk-pci ...' of qemu command line, and suggest to pass
+'vectors=N+1' to keep one MSI irq vector per each vq, and the feature
+depends on x-data-plane.
 
-----------------------------------------------------------------
-vhost: infrastructure fixes for 3.16
+Fio(libaio, randread, iodepth=64, bs=4K, jobs=N) is run inside VM to
+verify the improvement.
 
-Two cleanup patches removing code duplication that got introduced by changes in
-rc1.  Not fixing crashes, but I'd rather not carry the duplicate code until the
-next merge window.
+I just create a small quadcore VM and run fio inside the VM, and
+num_queues of the virtio-blk device is set as 2, but looks the
+improvement is still obvious.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+1), about scalability
+- without mutli-vq feature
+	-- jobs=2, thoughput: 145K iops
+	-- jobs=4, thoughput: 100K iops
+- with mutli-vq feature
+	-- jobs=2, thoughput: 193K iops
+	-- jobs=4, thoughput: 202K iops
 
-----------------------------------------------------------------
-Michael S. Tsirkin (1):
-      vhost-scsi: don't open-code kvfree
+2), about thoughput
+- without mutli-vq feature
+	-- thoughput: 145K iops
+- with mutli-vq feature
+	-- thoughput: 202K iops
 
-Romain Francoise (1):
-      vhost-net: don't open-code kvfree
+So in my test, even for a quad-core VM, if the virtqueue number
+is increased from 1 to 2, both scalability and performance can
+get improved a lot.
 
- drivers/vhost/net.c  | 12 ++----------
- drivers/vhost/scsi.c | 12 ++----------
- 2 files changed, 4 insertions(+), 20 deletions(-)
+TODO:
+	- adjust vq's irq smp_affinity according to blk-mq hw queue's cpumask
+
+V2: (suggestions from Michael and Dave Chinner)
+	- allocate virtqueues' pointers dynamically
+	- make sure the per-queue spinlock isn't kept in same cache line
+	- make each queue's name different
+
+V1:
+	- remove RFC since no one objects
+	- add '__u8 unused' for pending as suggested by Rusty
+	- use virtio_cread_feature() directly, suggested by Rusty
+
+Thanks,
+--
+Ming Lei
