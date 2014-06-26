@@ -1,13 +1,20 @@
-From: Ming Lei <ming.lei@canonical.com>
-Subject: Re: [PATCH v3 0/2] block: virtio-blk: support multi vq per virtio-blk
-Date: Thu, 26 Jun 2014 20:04:41 +0800
-Message-ID: <CACVXFVMHPdEzai32jRmLt7qGMFcUqFb8OunF0tzySpKoLWWiwQ@mail.gmail.com>
-References: <1403775708-22244-1-git-send-email-ming.lei@canonical.com>
+From: Cam Macdonell <cam@cs.ualberta.ca>
+Subject: Re: [Qemu-devel] Why I advise against using ivshmem
+Date: Thu, 26 Jun 2014 14:02:00 -0600
+Message-ID: <CAKjmth+o16hRKbU8oiM584RWZL5QRgS2Z6vghQStqOZ6V5ftsQ@mail.gmail.com>
+References: <87vbs6qjhj.fsf_-_@blackfin.pond.sub.org>
+	<5399CF09.8030803@6wind.com> <87ppidnqmy.fsf@blackfin.pond.sub.org>
+	<539AC3E0.9090404@6wind.com> <539ACDE6.7020709@redhat.com>
+	<539AFF7C.7090702@6wind.com> <539B064D.2050501@redhat.com>
+	<CAJSP0QUcFGSGgQMjU=Ax3n6Gqx6h_ZZ1yXz6QgQiyYYe+e4K4w@mail.gmail.com>
+	<53A00464.8090609@6wind.com> <53A00DEB.8030400@redhat.com>
+	<20140618104849.GH14030@stefanha-thinkpad.redhat.com>
+	<53A1A8BE.3000801@6wind.com>
+	<CAJSP0QXpEDfqVAswv4_9CEtfwRrMYpVuRoh9T9+vi2v_wxGExQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8626326949085288923=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1403775708-22244-1-git-send-email-ming.lei@canonical.com>
+In-Reply-To: <CAJSP0QXpEDfqVAswv4_9CEtfwRrMYpVuRoh9T9+vi2v_wxGExQ@mail.gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,77 +24,132 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <axboe@kernel.dk>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: Henning Schild <henning.schild@siemens.com>, Olivier MATZ <olivier.matz@6wind.com>, qemu-devel <qemu-devel@nongnu.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, "thomas.monjalon@6wind.com" <thomas.monjalon@6wind.com>, Paolo Bonzini <pbonzini@redhat.com>, Vincent JARDIN <vincent.jardin@6wind.com>, David Marchand <david.marchand@6wind.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 26, 2014 at 5:41 PM, Ming Lei <ming.lei@canonical.com> wrote:
-> Hi,
->
-> These patches try to support multi virtual queues(multi-vq) in one
-> virtio-blk device, and maps each virtual queue(vq) to blk-mq's
-> hardware queue.
->
-> With this approach, both scalability and performance on virtio-blk
-> device can get improved.
->
-> For verifying the improvement, I implements virtio-blk multi-vq over
-> qemu's dataplane feature, and both handling host notification
-> from each vq and processing host I/O are still kept in the per-device
-> iothread context, the change is based on qemu v2.0.0 release, and
-> can be accessed from below tree:
->
->         git://kernel.ubuntu.com/ming/qemu.git #v2.0.0-virtblk-mq.1
->
-> For enabling the multi-vq feature, 'num_queues=N' need to be added into
-> '-device virtio-blk-pci ...' of qemu command line, and suggest to pass
-> 'vectors=N+1' to keep one MSI irq vector per each vq, and the feature
-> depends on x-data-plane.
->
-> Fio(libaio, randread, iodepth=64, bs=4K, jobs=N) is run inside VM to
-> verify the improvement.
->
-> I just create a small quadcore VM and run fio inside the VM, and
-> num_queues of the virtio-blk device is set as 2, but looks the
-> improvement is still obvious. The host is 2 sockets, 8cores(16threads)
-> server.
->
-> 1), about scalability
-> - jobs = 2, thoughput: +33%
-> - jobs = 4, thoughput: +100%
->
-> 2), about top thoughput: +39%
->
-> So in my test, even for a quad-core VM, if the virtqueue number
-> is increased from 1 to 2, both scalability and performance can
-> get improved a lot.
->
-> In above qemu implementation of virtio-blk-mq device, only one
-> IOthread handles requests from all vqs, and the above throughput
-> data has been very close to same fio test in host side with single
-> job. So more improvement should be observed once more IOthreads are
-> used for handling requests from multi vqs.
->
-> TODO:
->         - adjust vq's irq smp_affinity according to blk-mq hw queue's cpumask
->
-> V3:
->         - fix use-after-free on vq->name reported by Michael
->
-> V2: (suggestions from Michael and Dave Chinner)
->         - allocate virtqueues' pointers dynamically
->         - make sure the per-queue spinlock isn't kept in same cache line
->         - make each queue's name different
->
-> V1:
->         - remove RFC since no one objects
->         - add '__u8 unused' for pending as suggested by Rusty
->         - use virtio_cread_feature() directly, suggested by Rusty
+--===============8626326949085288923==
+Content-Type: multipart/alternative; boundary=089e013cc23673dc6804fcc2aa9b
 
-Sorry, please add Jens' reviewed-by.
+--089e013cc23673dc6804fcc2aa9b
+Content-Type: text/plain; charset=UTF-8
 
-    Reviewed-by: Jens Axboe <axboe@kernel.dk>
+Hello,
 
-Thanks,
---
-Ming Lei
+Just to add my two bits.
+
+I will fully support getting all the necessary parts of ivshmem into tree
+where appropriate, both qemu and a driver in Linux.  I understand those
+concerns.
+
+I do not have the time to fully maintain ivshmem at the level needed, but I
+will help as much as I can.
+
+Sorry for the delay in contributing to this conversation.
+
+Cheers,
+Cam
+
+
+On Sat, Jun 21, 2014 at 3:34 AM, Stefan Hajnoczi <stefanha@gmail.com> wrote:
+
+> On Wed, Jun 18, 2014 at 10:57 PM, David Marchand
+> <david.marchand@6wind.com> wrote:
+> > On 06/18/2014 12:48 PM, Stefan Hajnoczi wrote:
+> >>
+> >> One more thing to add to the list:
+> >>
+> >> static void ivshmem_read(void *opaque, const uint8_t * buf, int flags)
+> >>
+> >> The "flags" argument should be "size".  Size should be checked before
+> >> accessing buf.
+> >
+> >
+> > You are welcome to send a fix and I will review it.
+>
+> I don't plan to send ivshmem patches in the near future because I
+> don't use or support it.
+>
+> I thought you were interested in bringing ivshmem up to a level where
+> distros feel comfortable enabling and supporting it.  Getting there
+> will require effort from you to audit, clean up, and achieve test
+> coverage.  That's what a maintainer needs to do in a case like this.
+>
+> Stefan
+> _______________________________________________
+> Virtualization mailing list
+> Virtualization@lists.linux-foundation.org
+> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+>
+>
+
+--089e013cc23673dc6804fcc2aa9b
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hello,<div><br></div><div>Just to add my two bits.</div><d=
+iv><br></div><div>I will fully support getting all the necessary parts of i=
+vshmem into tree where appropriate, both qemu and a driver in Linux. =C2=A0=
+I understand those concerns.</div>
+<div><br></div><div>I do not have the time to fully maintain ivshmem at the=
+ level needed, but I will help as much as I can.</div><div><br></div><div>S=
+orry for the delay in contributing to this conversation.</div><div><br>
+</div><div>Cheers,</div><div>Cam</div></div><div class=3D"gmail_extra"><br>=
+<br><div class=3D"gmail_quote">On Sat, Jun 21, 2014 at 3:34 AM, Stefan Hajn=
+oczi <span dir=3D"ltr">&lt;<a href=3D"mailto:stefanha@gmail.com" target=3D"=
+_blank">stefanha@gmail.com</a>&gt;</span> wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div class=3D"">On Wed, Jun 18, 2014 at 10:5=
+7 PM, David Marchand<br>
+&lt;<a href=3D"mailto:david.marchand@6wind.com">david.marchand@6wind.com</a=
+>&gt; wrote:<br>
+&gt; On 06/18/2014 12:48 PM, Stefan Hajnoczi wrote:<br>
+&gt;&gt;<br>
+&gt;&gt; One more thing to add to the list:<br>
+&gt;&gt;<br>
+&gt;&gt; static void ivshmem_read(void *opaque, const uint8_t * buf, int fl=
+ags)<br>
+&gt;&gt;<br>
+&gt;&gt; The &quot;flags&quot; argument should be &quot;size&quot;. =C2=A0S=
+ize should be checked before<br>
+&gt;&gt; accessing buf.<br>
+&gt;<br>
+&gt;<br>
+&gt; You are welcome to send a fix and I will review it.<br>
+<br>
+</div>I don&#39;t plan to send ivshmem patches in the near future because I=
+<br>
+don&#39;t use or support it.<br>
+<br>
+I thought you were interested in bringing ivshmem up to a level where<br>
+distros feel comfortable enabling and supporting it. =C2=A0Getting there<br=
+>
+will require effort from you to audit, clean up, and achieve test<br>
+coverage. =C2=A0That&#39;s what a maintainer needs to do in a case like thi=
+s.<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+Stefan<br>
+</font></span><div class=3D"HOEnZb"><div class=3D"h5">_____________________=
+__________________________<br>
+Virtualization mailing list<br>
+<a href=3D"mailto:Virtualization@lists.linux-foundation.org">Virtualization=
+@lists.linux-foundation.org</a><br>
+<a href=3D"https://lists.linuxfoundation.org/mailman/listinfo/virtualizatio=
+n" target=3D"_blank">https://lists.linuxfoundation.org/mailman/listinfo/vir=
+tualization</a><br>
+<br>
+</div></div></blockquote></div><br></div>
+
+--089e013cc23673dc6804fcc2aa9b--
+
+--===============8626326949085288923==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8626326949085288923==--
