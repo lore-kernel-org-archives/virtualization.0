@@ -1,11 +1,14 @@
-From: Jimmy Thrasibule <thrasibule.jimmy@gmail.com>
-Subject: Virtualized desktop
-Date: Sat, 28 Jun 2014 12:10:18 +0200
-Message-ID: <CAMqSRmDFNGV9rM68FpRuxov2jGXFMvmt28=Hici9PU_DNaFuzw@mail.gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 3.15 002/139] block: virtio_blk: dont hold spin lock during
+	world switch
+Date: Sat, 28 Jun 2014 10:46:03 -0700
+Message-ID: <20140628174605.469557168@linuxfoundation.org>
+References: <20140628174605.352098823@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20140628174605.352098823@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,52 +18,79 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ming Lei <ming.lei@canonical.com>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Jens Axboe <axboe@fb.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+3.15-stable review patch.  If anyone has any objections, please let me know.
 
-I'm looking to renew my hardware and I'm wondering how Linux can help
-me to virtualize my desktop environment.
+------------------
 
-My first go was to have 2 Intel NUC and 2 screens, one NUC more stable
-and one I can play with. I want to use both screens with both
-computers so this implies to also have two KVMs.
+From: Ming Lei <ming.lei@canonical.com>
 
-Then came the idea to virtualize everything. Make both computers a
-hypervisor cluster (using Xen or KVM) and run all systems virtualized.
-But at which point can this be done for desktop system?
+commit e8edca6f7f92234202d6dd163c118ef495244d7c upstream.
 
+Firstly, it isn't necessary to hold lock of vblk->vq_lock
+when notifying hypervisor about queued I/O.
 
-Here are some points I'm blocking with:
+Secondly, virtqueue_notify() will cause world switch and
+it may take long time on some hypervisors(such as, qemu-arm),
+so it isn't good to hold the lock and block other vCPUs.
 
-1. I want two screens and be able take make each VM to use one (left
-or right) or both screens. Maybe by pressing some keyboard shortcuts.
+On arm64 quad core VM(qemu-kvm), the patch can increase I/O
+performance a lot with VIRTIO_RING_F_EVENT_IDX enabled:
+	- without the patch: 14K IOPS
+	- with the patch: 34K IOPS
 
-2. I want mouse a keyboard to be moved to the VM of my choice or
-dedicated to one VM and use Synergy [1] for the others.
+fio script:
+	[global]
+	direct=1
+	bsrange=4k-4k
+	timeout=10
+	numjobs=4
+	ioengine=libaio
+	iodepth=64
 
-3. I will have somewhere a Windows VM so good support is needed.
+	filename=/dev/vdc
+	group_reporting=1
 
-4. What about the graphics? Can I still make use of Blender for
-example? How the graphic card shared between each VM?
+	[f1]
+	rw=randread
 
-5. I'd like to make both hypervisor work together. Can I use the local
-drive of each computer to ensure migration and folder sharing?
+Cc: Rusty Russell <rusty@rustcorp.com.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Ming Lei <ming.lei@canonical.com>
+Acked-by: Rusty Russell <rusty@rustcorp.com.au>
+Signed-off-by: Jens Axboe <axboe@fb.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
+---
+ drivers/block/virtio_blk.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-I see many advantages which this setup:
-
-1. I can freely test, new VM and we are done.
-2. I can make a snapshot at any time just in case and go back if my
-system crashes.
-
-And some drawbacks:
-
-1. I will never have full performance of my hardware.
-
-
-Is it for you something that can be done or no way?
-
-
-[1] http://synergy-project.org/
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -159,6 +159,7 @@ static int virtio_queue_rq(struct blk_mq
+ 	unsigned int num;
+ 	const bool last = (req->cmd_flags & REQ_END) != 0;
+ 	int err;
++	bool notify = false;
+ 
+ 	BUG_ON(req->nr_phys_segments + 2 > vblk->sg_elems);
+ 
+@@ -211,10 +212,12 @@ static int virtio_queue_rq(struct blk_mq
+ 		return BLK_MQ_RQ_QUEUE_ERROR;
+ 	}
+ 
+-	if (last)
+-		virtqueue_kick(vblk->vq);
+-
++	if (last && virtqueue_kick_prepare(vblk->vq))
++		notify = true;
+ 	spin_unlock_irqrestore(&vblk->vq_lock, flags);
++
++	if (notify)
++		virtqueue_notify(vblk->vq);
+ 	return BLK_MQ_RQ_QUEUE_OK;
+ }
