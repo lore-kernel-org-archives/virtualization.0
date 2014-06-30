@@ -1,8 +1,7 @@
 From: Fabian Frederick <fabf@skynet.be>
-Subject: [PATCH 1/1] virtio: console: remove unnecessary null test before
-	debugfs_remove_recursive
-Date: Sun, 29 Jun 2014 10:41:33 +0200
-Message-ID: <1404031293-5678-1-git-send-email-fabf__47188.4510167458$1404408048$gmane$org@skynet.be>
+Subject: [PATCH 1/1] ia64: use ARRAY_SIZE instead of sizeof/sizeof[0]
+Date: Mon, 30 Jun 2014 19:37:34 +0200
+Message-ID: <1404149854-7382-1-git-send-email-fabf__10988.4659912952$1404408060$gmane$org@skynet.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -17,43 +16,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 To: linux-kernel@vger.kernel.org
-Cc: Fabian Frederick <fabf@skynet.be>, Amit Shah <amit.shah@redhat.com>, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
+Cc: Fabian Frederick <fabf@skynet.be>, Chris Wright <chrisw@sous-sol.org>, Jeremy Fitzhardinge <jeremy@goop.org>, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix checkpatch warning:
-WARNING: debugfs_remove_recursive(NULL) is safe this check is probably not required
+Use macro definition
 
-Cc: Amit Shah <amit.shah@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Chris Wright <chrisw@sous-sol.org>
 Cc: virtualization@lists.linux-foundation.org
+Cc: linux-ia64@vger.kernel.org
 Signed-off-by: Fabian Frederick <fabf@skynet.be>
 ---
- drivers/char/virtio_console.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 60aafb8..b585b47 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -2262,8 +2262,7 @@ static int __init init(void)
- unregister:
- 	unregister_virtio_driver(&virtio_console);
- free:
--	if (pdrvdata.debugfs_dir)
--		debugfs_remove_recursive(pdrvdata.debugfs_dir);
-+	debugfs_remove_recursive(pdrvdata.debugfs_dir);
- 	class_destroy(pdrvdata.class);
- 	return err;
- }
-@@ -2276,8 +2275,7 @@ static void __exit fini(void)
- 	unregister_virtio_driver(&virtio_rproc_serial);
+This is untested.
+
+ arch/ia64/kernel/paravirt.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
+index 1b22f6d..17bb2d1 100644
+--- a/arch/ia64/kernel/paravirt.c
++++ b/arch/ia64/kernel/paravirt.c
+@@ -864,8 +864,7 @@ __initdata_or_module =
+ unsigned long __init_or_module
+ ia64_native_patch_bundle(void *sbundle, void *ebundle, unsigned long type)
+ {
+-	const unsigned long nelems = sizeof(ia64_native_patch_bundle_elems) /
+-		sizeof(ia64_native_patch_bundle_elems[0]);
++	const unsigned long nelems = ARRAY_SIZE(ia64_native_patch_bundle_elems);
  
- 	class_destroy(pdrvdata.class);
--	if (pdrvdata.debugfs_dir)
--		debugfs_remove_recursive(pdrvdata.debugfs_dir);
-+	debugfs_remove_recursive(pdrvdata.debugfs_dir);
+ 	return __paravirt_patch_apply_bundle(sbundle, ebundle, type,
+ 					      ia64_native_patch_bundle_elems,
+@@ -894,9 +893,8 @@ __initconst = {
+ static void __init
+ ia64_native_patch_branch(unsigned long tag, unsigned long type)
+ {
+-	const unsigned long nelem =
+-		sizeof(ia64_native_branch_target) /
+-		sizeof(ia64_native_branch_target[0]);
++	const unsigned long nelem = ARRAY_SIZE(ia64_native_branch_target);
++
+ 	__paravirt_patch_apply_branch(tag, type,
+ 				      ia64_native_branch_target, nelem);
  }
- module_init(init);
- module_exit(fini);
 -- 
 1.8.4.5
