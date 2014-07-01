@@ -1,16 +1,12 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [RFC PATCH v2] Implement Batched (group) ticket lock
-Date: Tue, 1 Jul 2014 11:55:21 +0200
-Message-ID: <20140701095521.GO6758@twins.programming.kicks-ass.net>
-References: <1403947024-3193-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
-	<20140701080537.GH6758@twins.programming.kicks-ass.net>
-	<53B282E9.6060806@linux.vnet.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC 1/2] virtio: support for urgent descriptors
+Date: Tue, 1 Jul 2014 13:49:31 +0300
+Message-ID: <1404203661-7521-1-git-send-email-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <53B282E9.6060806@linux.vnet.ibm.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,32 +16,188 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: jeremy@goop.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, paul.gortmaker@windriver.com, hpa@zytor.com, ak@linux.intel.com, gleb@redhat.com, x86@kernel.org, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, oleg@redhat.com, davej@redhat.com, tglx@linutronix.de, fernando_b1@lab.ntt.co.jp, chegu_vinod@hp.com, waiman.long@hp.com, linux-kernel@vger.kernel.org, pbonzini@redhat.com, torvalds@linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 01, 2014 at 03:14:09PM +0530, Raghavendra K T wrote:
-> On 07/01/2014 01:35 PM, Peter Zijlstra wrote:
-> >On Sat, Jun 28, 2014 at 02:47:04PM +0530, Raghavendra K T wrote:
-> >>In virtualized environment there are mainly three problems
-> >>related to spinlocks that affects performance.
-> >>1. LHP (lock holder preemption)
-> >>2. Lock Waiter Preemption (LWP)
-> >>3. Starvation/fairness
-> >>
-> >>Though Ticketlocks solve fairness problem it worsens LWP, LHP problems. Though
-> >>pv-ticketlocks tried to address these problems we can further improve at the
-> >>  cost of relaxed fairness. The following patch tries to achieve that by grouping
-> >>(batched) ticketlocks.
-> >
-> >And here I stop reading and ignore this patch, right?
-> >
-> >Why should I look at this?
-> >
-> 
-> For baremetal we continue to have 'fully fair ticketlock' with this patch
-> series.
-> 
+Below should be useful for some experiments Jason is doing.
+I thought I'd send it out for early review/feedback.
 
-But but but, we're looking at removing ticket locks. So why do we want
-to invest in them now?
+Compiled-only at this point.
+
+event idx feature allows us to defer interrupts until
+a specific # of descriptors were used.
+Sometimes it might be useful to get an interrupt after
+a specific descriptor, regardless.
+This adds a descriptor flag for this, and an API
+to create an urgent output descriptor.
+This is still an RFC:
+we'll need a feature bit for drivers to detect this,
+but we've run out of feature bits for virtio 0.X.
+For experimentation purposes, drivers can assume
+this is set, or add a driver-specific feature bit.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ include/linux/virtio.h           |  6 ++++++
+ include/uapi/linux/virtio_ring.h |  3 +++
+ drivers/virtio/virtio_ring.c     | 46 ++++++++++++++++++++++++++++++++++++----
+ 3 files changed, 51 insertions(+), 4 deletions(-)
+
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index b46671e..14625a6 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -39,6 +39,12 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
+ 			 void *data,
+ 			 gfp_t gfp);
+ 
++int virtqueue_add_outbuf_urgent(struct virtqueue *vq,
++				struct scatterlist sg[], unsigned int num,
++				void *data,
++				gfp_t gfp);
++
++
+ int virtqueue_add_inbuf(struct virtqueue *vq,
+ 			struct scatterlist sg[], unsigned int num,
+ 			void *data,
+diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+index a99f9b7..d08b1e6 100644
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -39,6 +39,9 @@
+ #define VRING_DESC_F_WRITE	2
+ /* This means the buffer contains a list of buffer descriptors. */
+ #define VRING_DESC_F_INDIRECT	4
++/* This means the descriptor should cause an interrupt
++ * ignoring avail event idx. */
++#define VRING_DESC_F_URGENT	8
+ 
+ /* The Host uses this in used->flags to advise the Guest: don't kick me when
+  * you add a buffer.  It's unreliable, so it's simply an optimization.  Guest
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 4d08f45a..3e448b9 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -115,6 +115,7 @@ static inline struct scatterlist *sg_next_arr(struct scatterlist *sg,
+ 
+ /* Set up an indirect table of descriptors and add it to the queue. */
+ static inline int vring_add_indirect(struct vring_virtqueue *vq,
++				     bool urgent,
+ 				     struct scatterlist *sgs[],
+ 				     struct scatterlist *(*next)
+ 				       (struct scatterlist *, unsigned int *),
+@@ -173,6 +174,8 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
+ 	/* Use a single buffer which doesn't continue */
+ 	head = vq->free_head;
+ 	vq->vring.desc[head].flags = VRING_DESC_F_INDIRECT;
++	if (urgent)
++		vq->vring.desc[head].flags |= VRING_DESC_F_URGENT;
+ 	vq->vring.desc[head].addr = virt_to_phys(desc);
+ 	/* kmemleak gives a false positive, as it's hidden by virt_to_phys */
+ 	kmemleak_ignore(desc);
+@@ -185,6 +188,7 @@ static inline int vring_add_indirect(struct vring_virtqueue *vq,
+ }
+ 
+ static inline int virtqueue_add(struct virtqueue *_vq,
++			        bool urgent,
+ 				struct scatterlist *sgs[],
+ 				struct scatterlist *(*next)
+ 				  (struct scatterlist *, unsigned int *),
+@@ -227,7 +231,7 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 	/* If the host supports indirect descriptor tables, and we have multiple
+ 	 * buffers, then go indirect. FIXME: tune this threshold */
+ 	if (vq->indirect && total_sg > 1 && vq->vq.num_free) {
+-		head = vring_add_indirect(vq, sgs, next, total_sg, total_out,
++		head = vring_add_indirect(vq, urgent, sgs, next, total_sg, total_out,
+ 					  total_in,
+ 					  out_sgs, in_sgs, gfp);
+ 		if (likely(head >= 0))
+@@ -256,6 +260,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 	for (n = 0; n < out_sgs; n++) {
+ 		for (sg = sgs[n]; sg; sg = next(sg, &total_out)) {
+ 			vq->vring.desc[i].flags = VRING_DESC_F_NEXT;
++			if (urgent) {
++				vq->vring.desc[head].flags |= VRING_DESC_F_URGENT;
++				urgent = false;
++			}
+ 			vq->vring.desc[i].addr = sg_phys(sg);
+ 			vq->vring.desc[i].len = sg->length;
+ 			prev = i;
+@@ -265,6 +273,10 @@ static inline int virtqueue_add(struct virtqueue *_vq,
+ 	for (; n < (out_sgs + in_sgs); n++) {
+ 		for (sg = sgs[n]; sg; sg = next(sg, &total_in)) {
+ 			vq->vring.desc[i].flags = VRING_DESC_F_NEXT|VRING_DESC_F_WRITE;
++			if (urgent) {
++				vq->vring.desc[head].flags |= VRING_DESC_F_URGENT;
++				urgent = false;
++			}
+ 			vq->vring.desc[i].addr = sg_phys(sg);
+ 			vq->vring.desc[i].len = sg->length;
+ 			prev = i;
+@@ -305,6 +317,8 @@ add_head:
+ 
+ /**
+  * virtqueue_add_sgs - expose buffers to other end
++ * @urgent: in case virtqueue_enable_cb_delayed was called, cause an interrupt
++ *          after this descriptor was completed
+  * @vq: the struct virtqueue we're talking about.
+  * @sgs: array of terminated scatterlists.
+  * @out_num: the number of scatterlists readable by other side
+@@ -337,7 +351,7 @@ int virtqueue_add_sgs(struct virtqueue *_vq,
+ 		for (sg = sgs[i]; sg; sg = sg_next(sg))
+ 			total_in++;
+ 	}
+-	return virtqueue_add(_vq, sgs, sg_next_chained,
++	return virtqueue_add(_vq, false, sgs, sg_next_chained,
+ 			     total_out, total_in, out_sgs, in_sgs, data, gfp);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_sgs);
+@@ -360,11 +374,35 @@ int virtqueue_add_outbuf(struct virtqueue *vq,
+ 			 void *data,
+ 			 gfp_t gfp)
+ {
+-	return virtqueue_add(vq, &sg, sg_next_arr, num, 0, 1, 0, data, gfp);
++	return virtqueue_add(vq, false, &sg, sg_next_arr, num, 0, 1, 0, data, gfp);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_outbuf);
+ 
+ /**
++ * virtqueue_add_outbuf - expose output buffers to other end
++ *          in case virtqueue_enable_cb_delayed was called, cause an interrupt
++ *          after this descriptor was completed
++ * @vq: the struct virtqueue we're talking about.
++ * @sgs: array of scatterlists (need not be terminated!)
++ * @num: the number of scatterlists readable by other side
++ * @data: the token identifying the buffer.
++ * @gfp: how to do memory allocations (if necessary).
++ *
++ * Caller must ensure we don't call this with other virtqueue operations
++ * at the same time (except where noted).
++ *
++ * Returns zero or a negative error (ie. ENOSPC, ENOMEM, EIO).
++ */
++int virtqueue_add_outbuf_urgent(struct virtqueue *vq,
++			 struct scatterlist sg[], unsigned int num,
++			 void *data,
++			 gfp_t gfp)
++{
++	return virtqueue_add(vq, true, &sg, sg_next_arr, num, 0, 1, 0, data, gfp);
++}
++EXPORT_SYMBOL_GPL(virtqueue_add_outbuf_urgent);
++
++/**
+  * virtqueue_add_inbuf - expose input buffers to other end
+  * @vq: the struct virtqueue we're talking about.
+  * @sgs: array of scatterlists (need not be terminated!)
+@@ -382,7 +420,7 @@ int virtqueue_add_inbuf(struct virtqueue *vq,
+ 			void *data,
+ 			gfp_t gfp)
+ {
+-	return virtqueue_add(vq, &sg, sg_next_arr, 0, num, 0, 1, data, gfp);
++	return virtqueue_add(vq, false, &sg, sg_next_arr, 0, num, 0, 1, data, gfp);
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_add_inbuf);
+ 
+-- 
+MST
