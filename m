@@ -1,17 +1,14 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH v3 0/2] block: virtio-blk: support multi vq per virtio-blk
-Date: Tue, 1 Jul 2014 01:13:11 -0700
-Message-ID: <20140701081311.GA21973@infradead.org>
-References: <1403775708-22244-1-git-send-email-ming.lei@canonical.com>
-	<CACVXFVMHPdEzai32jRmLt7qGMFcUqFb8OunF0tzySpKoLWWiwQ@mail.gmail.com>
-	<CACVXFVMb4UXRYSp6nvjDQrDRcLP6rJ3_3QHYMzKv9MoogsU66w@mail.gmail.com>
-	<53B22473.8010709@kernel.dk>
+From: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Subject: Re: [RFC PATCH v2] Implement Batched (group) ticket lock
+Date: Tue, 01 Jul 2014 15:14:09 +0530
+Message-ID: <53B282E9.6060806@linux.vnet.ibm.com>
+References: <1403947024-3193-1-git-send-email-raghavendra.kt@linux.vnet.ibm.com>
+	<20140701080537.GH6758@twins.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <53B22473.8010709@kernel.dk>
+In-Reply-To: <20140701080537.GH6758@twins.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,18 +18,32 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Jens Axboe <axboe@kernel.dk>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-api@vger.kernel.org, Ming Lei <ming.lei@canonical.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: jeremy@goop.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, paul.gortmaker@windriver.com, hpa@zytor.com, ak@linux.intel.com, gleb@redhat.com, x86@kernel.org, mingo@redhat.com, xen-devel@lists.xenproject.org, paulmck@linux.vnet.ibm.com, riel@redhat.com, konrad.wilk@oracle.com, oleg@redhat.com, davej@redhat.com, tglx@linutronix.de, fernando_b1@lab.ntt.co.jp, chegu_vinod@hp.com, waiman.long@hp.com, linux-kernel@vger.kernel.org, pbonzini@redhat.com, torvalds@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 30, 2014 at 09:01:07PM -0600, Jens Axboe wrote:
-> >I appreciate very much that one of you may queue these two
-> >patches into your tree so that userspace work can be kicked off,
-> >since Michael has acked both patches and all comments have
-> >been addressed already.
-> 
-> Given that Michael also acked it and Rusty is on his sabbatical, I'll queue
-> it up for 3.17.
+On 07/01/2014 01:35 PM, Peter Zijlstra wrote:
+> On Sat, Jun 28, 2014 at 02:47:04PM +0530, Raghavendra K T wrote:
+>> In virtualized environment there are mainly three problems
+>> related to spinlocks that affects performance.
+>> 1. LHP (lock holder preemption)
+>> 2. Lock Waiter Preemption (LWP)
+>> 3. Starvation/fairness
+>>
+>> Though Ticketlocks solve fairness problem it worsens LWP, LHP problems. Though
+>> pv-ticketlocks tried to address these problems we can further improve at the
+>>   cost of relaxed fairness. The following patch tries to achieve that by grouping
+>> (batched) ticketlocks.
+>
+> And here I stop reading and ignore this patch, right?
+>
+> Why should I look at this?
+>
 
-So Rusty is offline?  Who is taking care of module/moduleparam patches
-in the meantime?
+For baremetal we continue to have 'fully fair ticketlock' with this 
+patch series.
+
+Good thing about the patch is we do have upper bound on starvation and
+at the same time we solve Lock Waiter Preemption horror of strict
+serialization of ticketlocks in guest and combine definite advantages
+of unfair locks for guest.
