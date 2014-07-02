@@ -1,11 +1,15 @@
-From: Fabian Frederick <fabf@skynet.be>
-Subject: [PATCH 1/1] ia64: use ARRAY_SIZE instead of sizeof/sizeof[0]
-Date: Mon, 30 Jun 2014 19:37:34 +0200
-Message-ID: <1404149854-7382-1-git-send-email-fabf__10988.4659912952$1404408060$gmane$org@skynet.be>
+From: Jason Cooper <jason@lakedaemon.net>
+Subject: Re: [PATCH 1/2] hwrng: don't fetch rng from sources without init
+Date: Wed, 2 Jul 2014 07:58:23 -0400
+Message-ID: <20140702115823.GJ23978__33149.6241073639$1404408069$gmane$org@titan.lakedaemon.net>
+References: <cover.1404296679.git.amit.shah@redhat.com>
+	<c911b7944f2d05f5c6f5cf5dc37b8dbb99fd0b14.1404296679.git.amit.shah@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <c911b7944f2d05f5c6f5cf5dc37b8dbb99fd0b14.1404296679.git.amit.shah@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,49 +19,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: linux-kernel@vger.kernel.org
-Cc: Fabian Frederick <fabf@skynet.be>, Chris Wright <chrisw@sous-sol.org>, Jeremy Fitzhardinge <jeremy@goop.org>, linux-ia64@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Amit Shah <amit.shah@redhat.com>
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org, stable@vger.kernel.org, Virtualization List <virtualization@lists.linux-foundation.org>, keescook@chromium.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Use macro definition
+On Wed, Jul 02, 2014 at 03:58:15PM +0530, Amit Shah wrote:
+> Commit d9e7972619334 "hwrng: add randomness to system from rng sources"
+> added a call to rng_get_data() from the hwrng_register() function.
+> However, some rng devices need initialization before data can be read
+> from them.
+> 
+> Also, the virtio-rng device does not behave properly when this call is
+> made in its probe() routine - the virtio core sets the DRIVER_OK status
+> bit only on a successful probe, which means the host ignores all
+> communication from the guest, and the guest insmod or boot process just
+> sits there doing nothing.
+> 
+> This commit makes the call to rng_get_data() depend on no init fn
+> pointer being registered by the device.  If an init function is
+> registered, this call isn't made.
+> 
+> CC: Kees Cook <keescook@chromium.org>
+> CC: Jason Cooper <jason@lakedaemon.net>
+> CC: Herbert Xu <herbert@gondor.apana.org.au>
+> CC: <stable@vger.kernel.org> # For 3.15 only
 
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@sous-sol.org>
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-ia64@vger.kernel.org
-Signed-off-by: Fabian Frederick <fabf@skynet.be>
----
+# v3.15+ should be fine here.
 
-This is untested.
+> Signed-off-by: Amit Shah <amit.shah@redhat.com>
+> ---
+>  drivers/char/hw_random/core.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+> index 334601c..3f3941d 100644
+> --- a/drivers/char/hw_random/core.c
+> +++ b/drivers/char/hw_random/core.c
+> @@ -347,9 +347,11 @@ int hwrng_register(struct hwrng *rng)
+>  	INIT_LIST_HEAD(&rng->list);
+>  	list_add_tail(&rng->list, &rng_list);
+>  
+> -	bytes_read = rng_get_data(rng, bytes, sizeof(bytes), 1);
+> -	if (bytes_read > 0)
+> -		add_device_randomness(bytes, bytes_read);
+> +	if (!rng->init) {
+> +		bytes_read = rng_get_data(rng, bytes, sizeof(bytes), 1);
+> +		if (bytes_read > 0)
+> +			add_device_randomness(bytes, bytes_read);
+> +	}
 
- arch/ia64/kernel/paravirt.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+afaict, this is redundant at initialization time.  current_rng shouldn't
+be set yet, so hwrng_init(rng) will get called at line 333.  Or, am I
+missing something?
 
-diff --git a/arch/ia64/kernel/paravirt.c b/arch/ia64/kernel/paravirt.c
-index 1b22f6d..17bb2d1 100644
---- a/arch/ia64/kernel/paravirt.c
-+++ b/arch/ia64/kernel/paravirt.c
-@@ -864,8 +864,7 @@ __initdata_or_module =
- unsigned long __init_or_module
- ia64_native_patch_bundle(void *sbundle, void *ebundle, unsigned long type)
- {
--	const unsigned long nelems = sizeof(ia64_native_patch_bundle_elems) /
--		sizeof(ia64_native_patch_bundle_elems[0]);
-+	const unsigned long nelems = ARRAY_SIZE(ia64_native_patch_bundle_elems);
- 
- 	return __paravirt_patch_apply_bundle(sbundle, ebundle, type,
- 					      ia64_native_patch_bundle_elems,
-@@ -894,9 +893,8 @@ __initconst = {
- static void __init
- ia64_native_patch_branch(unsigned long tag, unsigned long type)
- {
--	const unsigned long nelem =
--		sizeof(ia64_native_branch_target) /
--		sizeof(ia64_native_branch_target[0]);
-+	const unsigned long nelem = ARRAY_SIZE(ia64_native_branch_target);
-+
- 	__paravirt_patch_apply_branch(tag, type,
- 				      ia64_native_branch_target, nelem);
- }
--- 
-1.8.4.5
+thx,
+
+Jason.
