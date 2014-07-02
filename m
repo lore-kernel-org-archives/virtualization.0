@@ -1,19 +1,21 @@
-From: Amit Shah <amit.shah@redhat.com>
-Subject: Re: [PATCH 1/2 v2] hwrng: Allow drivers to disable reading during
-	probe
-Date: Wed, 2 Jul 2014 21:32:23 +0530
-Message-ID: <20140702160223.GC12962@grmbl.mre>
-References: <cover.1404296679.git.amit.shah@redhat.com>
-	<1404306020-24916-1-git-send-email-jason@lakedaemon.net>
-	<20140702132635.GD7505@grmbl.mre>
-	<20140702134156.GL23978@titan.lakedaemon.net>
-	<CAGXu5j+sbiK9zdkwWh_MD1fk4aFs-Na4ZO=3tRosGtqjFvWnDg@mail.gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH driver-core-linus] kernfs: kernfs_notify() must be
+	useable from non-sleepable contexts
+Date: Wed, 2 Jul 2014 09:31:59 -0700
+Message-ID: <20140702163159.GA16048@kroah.com>
+References: <CA+5PVA4h2hQJLrAm4eEZ8oUgGiAjq2y5eAyBcJWxK_FiQXnuQg@mail.gmail.com>
+	<20140629082637.GA23942@redhat.com> <20140629193222.GA7030@lst.de>
+	<20140629204710.GB11100@redhat.com> <53B07D48.60003@kernel.dk>
+	<20140630201741.GA20853@htj.dyndns.org>
+	<20140701204103.GA12459@htj.dyndns.org>
+	<20140701205148.GA26542@kroah.com>
+	<20140702141416.GA23275@htj.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <CAGXu5j+sbiK9zdkwWh_MD1fk4aFs-Na4ZO=3tRosGtqjFvWnDg@mail.gmail.com>
+In-Reply-To: <20140702141416.GA23275@htj.dyndns.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,90 +25,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Sender: virtualization-bounces@lists.linux-foundation.org
 Errors-To: virtualization-bounces@lists.linux-foundation.org
-To: Kees Cook <keescook@chromium.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Jason Cooper <jason@lakedaemon.net>, "# 3.4.x" <stable@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Tejun Heo <tj@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Josh Boyer <jwboyer@fedoraproject.org>, "Michael S. Tsirkin" <mst@redhat.com>, John McCutchan <john@johnmccutchan.com>, "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Robert Love <rlove@rlove.org>, Eric Paris <eparis@parisplace.org>, Brian Lane <bcl@redhat.com>, Christoph Hellwig <hch@lst.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) 02 Jul 2014 [08:11:30], Kees Cook wrote:
-> On Wed, Jul 2, 2014 at 6:41 AM, Jason Cooper <jason@lakedaemon.net> wrote:
-> > On Wed, Jul 02, 2014 at 06:56:35PM +0530, Amit Shah wrote:
-> >> Hi Jason,
-> >>
-> >> On (Wed) 02 Jul 2014 [13:00:19], Jason Cooper wrote:
-> >> > Commit d9e7972619334 "hwrng: add randomness to system from rng sources"
-> >> > added a call to rng_get_data() from the hwrng_register() function.
-> >> > However, some rng devices need initialization before data can be read
-> >> > from them.
-> >> >
-> >> > Also, the virtio-rng device does not behave properly when this call is
-> >> > made in its probe() routine - the virtio core sets the DRIVER_OK status
-> >> > bit only on a successful probe, which means the host ignores all
-> >> > communication from the guest, and the guest insmod or boot process just
-> >> > sits there doing nothing.
-> >> >
-> >> > [ jac: Modify the API to allow drivers to disable reading at probe, new
-> >> > patch, copied Amit's commit message. ]
-> >> >
-> >> > CC: Kees Cook <keescook@chromium.org>
-> >> > CC: Jason Cooper <jason@lakedaemon.net>
-> >> > CC: Herbert Xu <herbert@gondor.apana.org.au>
-> >> > CC: <stable@vger.kernel.org> # v3.15+
-> >> > Signed-off-by: Amit Shah <amit.shah@redhat.com>
-> >> > Signed-off-by: Jason Cooper <jason@lakedaemon.net>
-> >> > ---
-> >> >  drivers/char/hw_random/core.c | 8 +++++---
-> >> >  include/linux/hw_random.h     | 4 ++++
-> >> >  2 files changed, 9 insertions(+), 3 deletions(-)
-> >> >
-> >> > diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
-> >> > index 334601cc81cf..b7b6c48ca682 100644
-> >> > --- a/drivers/char/hw_random/core.c
-> >> > +++ b/drivers/char/hw_random/core.c
-> >> > @@ -347,9 +347,11 @@ int hwrng_register(struct hwrng *rng)
-> >> >     INIT_LIST_HEAD(&rng->list);
-> >> >     list_add_tail(&rng->list, &rng_list);
-> >> >
-> >> > -   bytes_read = rng_get_data(rng, bytes, sizeof(bytes), 1);
-> >> > -   if (bytes_read > 0)
-> >> > -           add_device_randomness(bytes, bytes_read);
-> >> > +   if (!(rng->flags & HWRNG_NO_READ_AT_PROBE)) {
-> >> > +           bytes_read = rng_get_data(rng, bytes, sizeof(bytes), 1);
-> >> > +           if (bytes_read > 0)
-> >> > +                   add_device_randomness(bytes, bytes_read);
-> >> > +   }
-> >>
-> >> But this has the inverse problem: if there are two hwrngs in the
-> >> system, one will be initialized and probed.  The other will not be
-> >> initialized, but still be probed.
-> >
-> > That's a problem outside the scope of this patch.  You're basically
-> > saying the ->init() should be called unconditionally for each hwrng.  If
-> > that's what driver authors assumed, that's not what is happening if
-> > there is more than one driver in the system.
+On Wed, Jul 02, 2014 at 10:14:16AM -0400, Tejun Heo wrote:
+> Hello,
 > 
-> My intent with the patch was to get randomness added when a hwrng was
-> available. Perhaps instead of skipping this call, it can be done
-> either during probe (for devices that support it or lack an init
-> function), or done after initialization?
-
-I'll also look at just going ahead with ->init() in the hwrng_register
-function itself, that's in line with the spirit of your patch.
-
-However, that may lead to unwelcome problems.  The other approach is
-to call rng_get_data() in hwrng_init().
-
-> > I think you should be changing the code a few lines up to make sure
-> > hwrng_init() is called once for each driver.
+> On Tue, Jul 01, 2014 at 01:51:48PM -0700, Greg Kroah-Hartman wrote:
+> > Looks good to me, do you want to take this with your other kernfs
+> > patches for 3.16-final?  Or if you don't have that, I can take it
+> > through my tree, it's your choice, either is fine for me.
+> > 
+> > If you want it in your tree, feel free to add:
+> > 	Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 > 
-> Is that really how it should work? I'd be for the "always-init"
-> approach since it gains us access to the entropy, but I have to play
-> devil's advocate: would one expect "probe" to just probe, not
-> initialize? That seems more like a function of enabling the device.
+> The other kernfs changes are cgroup specific and in
+> cgroup/for-3.16-fixes.  I think this one fits better in the driver
+> core tree.  Can you please route it?
 
-There are some other considerations: I found this problem while
-looking at other things: especially that the hwrng core doesn't take a
-reference on the driver that's the current_rng.  That has to be
-fixed.  If we always call ->init(), we'll have to cleanup and possibly
-take a reference.  I'll look at this more closely in a bit.
+Sure, will queue it up now.
 
-		Amit
+greg k-h
